@@ -8,7 +8,7 @@ package org.vcssl.nano.spec;
 /**
  * リテラルの書式や値、判定処理などが定義されたクラスです。
  *
- * @author 松井文宏 - Fumihiro Matsui
+ * @author RINEARN (Fumihiro Matsui)
  */
 public class LiteralSyntax {
 
