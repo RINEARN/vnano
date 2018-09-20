@@ -1,0 +1,109 @@
+coding UTF-8;
+
+/*
+ * ============================================================
+ * VCSSL Script for generating/updating "sourcelist.txt"
+ * ------------------------------------------------------------
+ * This file is released under CC0.
+ * Written in 2018 by RINEARN (Fumihiro Matsui)
+ * ============================================================
+ */
+
+import File;
+import Text;
+
+
+/** テストコードをコンパイル対象に含めるかどうかを制御する変数です。 */
+const bool CONTAINS_TESTS = false; // true なら含める
+
+/** コンパイル対象ファイルが含まれるフォルダのルート階層のパスです。 */
+const string SOURCE_DIRECTORY_PATH = ".";
+
+/** コンパイル対象ファイルを書き出す、出力ファイルのパスです。 */
+const string OUTPUT_FILE_PATH = "./sourcelist.txt";
+
+/** SOURCE_DIRECTORY_PATH 指定フォルダ内で、コンパイル対象から除外するサブフォルダのパスです。 */
+const string EXCEPT_DIRECTORY_PATHS[] = { "./META-INF", "./example" };
+
+
+/**
+ * このスクリプトのエントリーポイントです。
+ * この関数は、スクリプト起動時に自動で実行されます。
+ */
+void main() {
+	
+	// 出力ファイルを開いてIDを取得
+	int listOutputFile = open(OUTPUT_FILE_PATH, WRITE);
+	
+	// コンパイル対象ファイルを検索し、パスを出力ファイルに書き出す
+	processDirectory(SOURCE_DIRECTORY_PATH, listOutputFile);
+	
+	// 出力ファイルを閉じる
+	close(listOutputFile);
+	
+	// 完了メッセージを表示（ユーザーがウィンドウを閉じるとプログラム実行終了）
+	pop("\"" + OUTPUT_FILE_PATH + "\" has been successfully generated/updated.");
+}
+
+
+/**
+ * 指定されたフォルダ内を再帰的に辿り、
+ * コンパイル対象ファイルを抽出して、
+ * その相対ファイルパスを出力ファイルに書き出します。
+ * 
+ * @param dirPath 基準フォルダ
+ * @listOutputFile ファイルパスを書き出す出力ファイルのID
+ */
+void processDirectory(string dirPath, int listOutputFile) {
+	
+	// 現在の処理対象フォルダを画面に追記
+	println("Directory: " + dirPath);
+	
+	// フォルダ内の全ファイル名の一覧とファイル数を取得
+	string fileNames[] = listdir(dirPath);
+	int fileN = length(fileNames);
+	
+	// フォルダ内のファイルを一つ一つ走査していく
+	for (int i=0; i<fileN; i++) {
+		
+		// ファイル名や相対パスの取得
+		string fileName = fileNames[i];
+		string filePath = getFilePath(fileName, dirPath, RELATIVE);
+		
+		// パス区切り文字が「 \ 」の場合は「 / 」に置き換える
+		filePath = replaceText(filePath, "\\", "/", ALL);
+		
+		// 拡張子の確認
+		if (checkText(fileName, ".java", END)) {
+			// テストを含めない場合は、ファイル名部分がTestで終わるものは省く
+			if (CONTAINS_TESTS || !checkText(fileName, "Test.java", END)) {
+				
+				// 対象ファイルのパスを出力ファイルに書き出す
+				writeln(listOutputFile, filePath);
+				
+				// 書き出したファイルのパスを画面に追記
+				println("  " + filePath);
+			}
+		}
+		
+		// フォルダの場合
+		if (isdir(filePath)) {
+			
+			// 除外リストに含まれているフォルダかどうか確認
+			bool isExceptDir = false;
+			int exceptDirN = length(EXCEPT_DIRECTORY_PATHS);
+			for (int exceptDirIndex=0; exceptDirIndex<exceptDirN; exceptDirIndex++) {
+				if (EXCEPT_DIRECTORY_PATHS[exceptDirIndex] == filePath) {
+					isExceptDir = true;
+					break;
+				}
+			}
+			
+			// 除外リストに含まれてないフォルダなら、再帰で中を辿る
+			if (!isExceptDir) {
+				processDirectory(filePath, listOutputFile);
+			}
+		}
+	}
+}
+
