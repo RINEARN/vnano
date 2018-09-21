@@ -1,8 +1,8 @@
 # Vnano
 
-Vnano is a simple scripting language and its interpreter for embedded use in Java applications.
+Vnano is a simple scripting language and its interpreter for embedded use in Java&reg; applications.
 
-Vnanoは、Javaアプリケーション上に搭載して用いる簡易スクリプト言語＆インタープリタです。
+Vnanoは、Java&reg; アプリケーション上に搭載して用いる簡易スクリプト言語＆インタープリタです。
 
 
 
@@ -28,7 +28,7 @@ Vnanoは開発の途中であり、現時点でまだ実用的な品質ではあ
 ### 1. Build Vnano Engine
 
 Firstly, build source code of Vnano Engine (The script engine of Vnano).
-If you are using Microsoft(R) Windows(R), please double-click "build.bat".
+If you are using Microsoft&reg; Windows&reg;, please double-click "build.bat".
 If you are using Linux, etc., please execute "build.sh" on the bash-compatible shell.
 
 Alternatively, you can build Vnano Engine by Apache Ant as:
@@ -87,7 +87,7 @@ to the relative path (e.g. "lib/Vnano.jar").
 ### 1. Vnanoエンジンのビルド
 
 はじめに、Vnanoエンジン（Vnanoのスクリプトエンジン）をビルドします。
-Microsoft(R) Windows(R) をご使用の場合は、"build.bat" をダブルクリック実行してください。
+Microsoft&reg; Windows&reg; をご使用の場合は、"build.bat" をダブルクリック実行してください。
 Linux 等をご使用の場合は、bash互換シェル上で "build.sh" を実行してください。
 
 もしくは以下のように、Apache Ant を用いてVnanoエンジンをビルドする事もできます：
@@ -147,5 +147,24 @@ This software is released under the MIT License.
 
 このソフトウェアはMITライセンスで公開されています。
 
+
+
+---
+
+- Oracle and Java are registered trademarks of Oracle and/or its affiliates. 
+
+- Microsoft Windows is either a registered trademarks or trademarks of Microsoft Corporation in the United States and/or other countries. 
+
+- Linux is a trademark of linus torvalds in the United States and/or other countries. 
+
+- Other names may be either a registered trademarks or trademarks of their respective owners. 
+
+- OracleとJavaは、Oracle Corporation 及びその子会社、関連会社の米国及びその他の国における登録商標です。文中の社名、商品名等は各社の商標または登録商標である場合があります。
+
+- Windows は、米国 Microsoft Corporation の米国およびその他の国における登録商標です。
+
+- Linux は、Linus Torvalds 氏の米国およびその他の国における商標または登録商標です。 
+
+- その他、文中に使用されている商標は、その商標を保持する各社の各国における商標または登録商標です。
 
 
