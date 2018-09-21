@@ -4,6 +4,10 @@ Vnano is a simple scripting language and its interpreter for embedded use in Jav
 
 Vnanoは、Java&reg; アプリケーション上に搭載して用いる簡易スクリプト言語＆インタープリタです。
 
+<div style="background-color:white; width:100%; text-align:center;" />
+	<img src="https://github.com/RINEARN/vnano/blob/master/logo.png" alt="Vnano Logo" style="width:80%; max-width:720px;" />
+</div>
+
 
 
 ## Caution - 注意
