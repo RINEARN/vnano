@@ -21,6 +21,79 @@ Vnanoは開発の途中であり、現時点でまだ実用的な品質ではあ
 
 
 
+## Application Code Example - アプリケーションコード例
+
+The following is an example Java application code which executes 
+a script code by using Vnano:
+
+Vnano を使用してスクリプトを実行するJavaアプリケーションのコード例は、以下の通りです：
+
+	import javax.script.ScriptEngine;
+	import javax.script.ScriptEngineManager;
+	import javax.script.ScriptException;
+	
+	public class Example {
+		
+		// A method/field accessed from the script as an external function/variable.
+		// スクリプト側から外部変数・外部関数としてアクセスするメソッドとフィールド
+		public static int LOOP_MAX = 100;
+		public static void output(int value) {
+			System.out.println("Output from script: " + value);
+		}
+		
+		public static void main(String[] args) {
+			
+			// Get ScriptEngine of Vnano from ScriptEngineManager.
+			// ScriptEngineManagerでVnanoのスクリプトエンジンを検索して取得
+			ScriptEngineManager manager = new ScriptEngineManager();
+			ScriptEngine engine = manager.getEngineByName("vnano");
+			if (engine == null) {
+				System.err.println("Script engine not found.");
+				return;
+			}
+			
+			// Connect a method/field to the script engine as an external function/variable.
+			// メソッド・フィールドを外部関数・変数としてスクリプトエンジンに接続
+			try {
+				engine.put("LOOP_MAX", Example.class.getField("LOOP_MAX"));
+				engine.put("output(int)", Example.class.getMethod("output",int.class));
+				
+			} catch (NoSuchFieldException|NoSuchMethodException e){
+				System.err.println("Method/field not found.");
+				e.printStackTrace();
+				return;
+			}
+			
+			// Create a script code (calculates the value of summation from 1 to 100).
+			// スクリプトコードを用意（1から100までの和を求める）
+			String scriptCode =
+					"  int sum = 0;                " +
+					"  int n = LOOP_MAX;           " +
+					"  for (int i=1; i<=n; i++) {  " +
+					"      sum += i;               " +
+					"  }                           " +
+					"  output(sum);                " ;
+			
+			// Run the script code by the script engine of Vnano.
+			// Vnanoのスクリプトエンジンにスクリプトコードを渡して実行
+			try{
+				engine.eval(scriptCode);
+				
+			} catch (ScriptException e) {
+				System.err.println("Scripting error occurred.");
+				e.printStackTrace();
+				return;
+			}
+		}
+	}
+
+This example code is contained in this repository as "Example.jar".
+We will actually execute this example code in the next section.
+
+このサンプルコードは Example.java として、このリポジトリ内に含まれています。
+次節では、実際にこのサンプルコードを実行してみます。
+
+
 ## How to Use - 使用方法
 
 ※ 日本語は後方
