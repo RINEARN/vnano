@@ -1,11 +1,11 @@
 # Vnano
 
-Vnano is a simple scripting language and its interpreter for embedded use in Java&reg; applications.
+Vnano (VCSSL nano) is a simple scripting language and its interpreter for embedded use in Java&reg; applications.
 
-Vnanoは、Java&reg; アプリケーション上に搭載して用いる簡易スクリプト言語＆インタープリタです。
+Vnano (VCSSL nano) は、Java&reg; アプリケーション上に搭載して用いる簡易スクリプト言語＆インタープリタです。
 
 <div style="background-color:white; width:100%; text-align:center;" />
-  <img src="https://github.com/RINEARN/vnano/blob/master/logo.png" alt="logo.png" style="width:80%; max-width:720px;" />
+  <img src="https://github.com/RINEARN/vnano/blob/master/logo.png" alt="logo.png" />
 </div>
 
 
@@ -228,7 +228,7 @@ Vnanoエンジンは、内部でスクリプトコードを中間コードにコ
 それを仮想マシン(VM)上で実行する、オーソドックスなアーキテクチャを採用しています。
 以下では、Vnanoエンジンを構成する各パッケージの役割について説明します。
 
-<img src="https://github.com/RINEARN/vnano/blob/master/architecture.jpg" alt="architecture.jpg" style="width:100%; max-width:700px;" />
+<img src="https://github.com/RINEARN/vnano/blob/master/architecture.jpg" alt="architecture.jpg" width="700" />
 
 
 
@@ -327,7 +327,7 @@ VnanoエンジンのVM（仮想マシン）層の単位動作に対応するレ�
 パッケージは、上記の仮想プロセッサの、より高速な実装を提供します。半面、実装コードの内容もより複雑になっています。
 
 このコンポーネントを使用するかどうかは、任意に選択できます。
-Vnano Engine は、このコンポーネントの動作を完全に無効化しても、機能上は欠損なく成立するようにできています。
+Vnanoエンジンは、このコンポーネントの動作を完全に無効化しても、機能上は欠損なく成立するようにできています。
 
 
 ### メモリ
