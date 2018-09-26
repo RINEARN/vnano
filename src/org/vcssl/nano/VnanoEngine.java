@@ -31,6 +31,7 @@ import org.vcssl.nano.memory.Memory;
 import org.vcssl.nano.processor.Instruction;
 import org.vcssl.nano.processor.InvalidInstructionException;
 import org.vcssl.nano.processor.Processor;
+import org.vcssl.nano.accelerator.Accelerator;
 
 
 /**
@@ -122,7 +123,9 @@ public class VnanoEngine implements ScriptEngine, Compilable {
 			// VMで中間コードの命令列を実行
 			Instruction[] instructions = intermediateCode.getInstructions();
 			Processor processor = new Processor();
-			processor.process(instructions, memory, interconnect);
+			//processor.process(instructions, memory, interconnect);
+			Accelerator accelerator = new Accelerator();
+			accelerator.process(instructions, memory, interconnect, processor);
 
 			// メモリーのデータをinterconnect経由で外部変数に書き戻す（このタイミングでBindings側が更新される）
 			interconnect.writeback(memory, intermediateCode); // アドレスから変数名への逆変換に中間コードが必要

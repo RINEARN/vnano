@@ -70,8 +70,7 @@ public class Accelerator {
 	 *
 	 * @param instructions 実行対象の命令配列
 	 * @param memory データの入出力に用いる仮想メモリー
-	 * @param controlUnit 高速実行の対象外の命令を処理する制御ユニット
-	 * @param executionUnit 高速実行の対象外の命令を処理する演算ユニット
+	 * @param processor 高速実行の対象外の命令を処理する仮想プロセッサ
 	 * @throws InvalidInstructionException
 	 * 		このコントロールユニットが対応していない命令が実行要求された場合や、
 	 * 		オペランドの数が期待値と異なる場合など、命令内容が不正である場合に発生します。
@@ -79,15 +78,14 @@ public class Accelerator {
 	 * 		命令のオペランドに指定された仮想メモリーアドレスが使用領域外であった場合など、
 	 * 		不正な仮想メモリーアクセスが生じた場合などに発生します。
 	 */
-	public void process(Instruction[] instructions, Memory memory, Interconnect interconnect,
-			DispatchUnit controlUnit, ExecutionUnit executionUnit)
-					throws MemoryAccessException {
+	public void process(Instruction[] instructions, Memory memory, Interconnect interconnect, Processor processor)
+					throws MemoryAccessException, InvalidInstructionException {
 
 		// 命令コードの長さ
 		int instructionLength = instructions.length;
 
 		AccelerationResource resource = this.generateResource(
-				instructions, memory, interconnect, controlUnit, executionUnit
+				instructions, memory, interconnect, processor
 		);
 
 		resource.synchronizers[Memory.Partition.CONSTANT.ordinal()].writeCache();
@@ -112,16 +110,15 @@ public class Accelerator {
 	 * @param instructions 実行対象の命令配列
 	 * @param memory データの入出力に用いる仮想メモリー
 	 * @param interconnect 外部変数・外部関数が接続されているインターコネクト
-	 * @param controlUnit 高速実行の対象外の命令を処理する制御ユニット
-	 * @param executionUnit 高速実行の対象外の命令を処理する演算ユニット
+	 * @param processor 高速実行の対象外の命令を処理する仮想プロセッサ
 	 * @return 実行用のコプロセッサユニットの配列
 	 * @throws MemoryAccessException
 	 * 		命令のオペランドに指定された仮想メモリーアドレスが使用領域外であった場合など、
 	 * 		不正な仮想メモリーアクセスが生じた場合などに発生します。
 	 */
-	private AccelerationResource generateResource (Instruction[] instructions, Memory memory, Interconnect interconnect,
-			DispatchUnit controlUnit, ExecutionUnit executionUnit)
-					throws MemoryAccessException {
+	private AccelerationResource generateResource (Instruction[] instructions, Memory memory, 
+			Interconnect interconnect, Processor processor)
+					throws MemoryAccessException, InvalidInstructionException {
 
 		int instructionLength = instructions.length;
 		AccelerationExecutorNode[] executors = new AccelerationExecutorNode[instructionLength];
@@ -197,21 +194,21 @@ public class Accelerator {
 
 						switch (instruction.getDataTypes()[0]) {
 							case INT64 : {
-								System.out.println("CACHE INT64 " + partitions[0].ordinal() + " / " + addresses[0]);
+								//System.out.println("CACHE INT64 " + partitions[0].ordinal() + " / " + addresses[0]);
 								caches[ partitions[0].ordinal() ][ addresses[0] ] = new Int64Cache();
 								cached[ partitions[0].ordinal() ][ addresses[0] ] = true;
 								cachable[ partitions[0].ordinal() ][ addresses[0] ] = true;
 								break;
 							}
 							case FLOAT64 : {
-								System.out.println("CACHE FLOAT64 " + partitions[0].ordinal() + " / " + addresses[0]);
+								//System.out.println("CACHE FLOAT64 " + partitions[0].ordinal() + " / " + addresses[0]);
 								caches[ partitions[0].ordinal() ][ addresses[0] ] = new Float64Cache();
 								cached[ partitions[0].ordinal() ][ addresses[0] ] = true;
 								cachable[ partitions[0].ordinal() ][ addresses[0] ] = true;
 								break;
 							}
 							case BOOL : {
-								System.out.println("CACHE BOOL " + partitions[0].ordinal() + " / " + addresses[0]);
+								//System.out.println("CACHE BOOL " + partitions[0].ordinal() + " / " + addresses[0]);
 								caches[ partitions[0].ordinal() ][ addresses[0] ] = new BoolCache();
 								cached[ partitions[0].ordinal() ][ addresses[0] ] = true;
 								cachable[ partitions[0].ordinal() ][ addresses[0] ] = true;
@@ -309,7 +306,7 @@ public class Accelerator {
 				CacheSynchronizer synchronizer = new GeneralCacheSynchronizer(containers, operandCaches, operandCached);
 
 				executors[instructionIndex] = new ScalarAllocExecutor(
-					instructions[instructionIndex], memory, interconnect, controlUnit, executionUnit, synchronizer
+					instructions[instructionIndex], memory, interconnect, processor, synchronizer
 				);
 
 				continue;
@@ -386,11 +383,11 @@ public class Accelerator {
 					containers, operandCaches, operandCached
 				);
 				executors[instructionIndex] = new PassThroughExecutor(
-					instructions[instructionIndex], memory, interconnect, controlUnit, executionUnit, synchronizer
+					instructions[instructionIndex], memory, interconnect, processor, synchronizer
 				);
 			}
 
-			System.out.println("[" + instructionIndex + "] " + opcode + " \t" + executors[instructionIndex].getClass().getName().split("\\$")[1]);
+			//System.out.println("[" + instructionIndex + "] " + opcode + " \t" + executors[instructionIndex].getClass().getName().split("\\$")[1]);
 		}
 
 
@@ -659,19 +656,17 @@ public class Accelerator {
 
 	private final class ScalarAllocExecutor extends AccelerationExecutorNode {
 		private final Instruction instruction;
-		private final DispatchUnit controlUnit;
 		private final Interconnect interconnect;
-		private final ExecutionUnit executionUnit;
+		private final Processor processor;
 		private final Memory memory;
 		private final CacheSynchronizer synchronizer;
 		private boolean allocated = false;
 
 		public ScalarAllocExecutor(Instruction instruction, Memory memory, Interconnect interconnect,
-				DispatchUnit controlUnit, ExecutionUnit executionUnit, CacheSynchronizer synchronizer) {
+				Processor processor, CacheSynchronizer synchronizer) {
 			this.instruction = instruction;
 			this.interconnect = interconnect;
-			this.controlUnit = controlUnit;
-			this.executionUnit = executionUnit;
+			this.processor = processor;
 			this.memory = memory;
 			this.synchronizer = synchronizer;
 		}
@@ -680,7 +675,7 @@ public class Accelerator {
 				return programCounter + 1;
 			} else {
 				try {
-					int result = this.controlUnit.dispatch(this.instruction, this.memory, this.interconnect, this.executionUnit, programCounter);
+					int result = this.processor.process(this.instruction, this.memory, this.interconnect, programCounter);
 					this.synchronizer.writeCache();
 					this.allocated = true;
 					return result;
@@ -695,18 +690,16 @@ public class Accelerator {
 
 	private final class PassThroughExecutor extends AccelerationExecutorNode {
 		private final Instruction instruction;
-		private final DispatchUnit controlUnit;
 		private final Interconnect interconnect;
-		private final ExecutionUnit executionUnit;
+		private final Processor processor;
 		private final Memory memory;
 		private final CacheSynchronizer synchronizer;
 
 		public PassThroughExecutor(Instruction instruction, Memory memory, Interconnect interconnect,
-				DispatchUnit controlUnit, ExecutionUnit executionUnit, CacheSynchronizer synchronizer) {
+				Processor processor, CacheSynchronizer synchronizer) {
 			this.instruction = instruction;
 			this.interconnect = interconnect;
-			this.controlUnit = controlUnit;
-			this.executionUnit = executionUnit;
+			this.processor = processor;
 			this.memory = memory;
 			this.synchronizer = synchronizer;
 		}
@@ -714,7 +707,7 @@ public class Accelerator {
 			try {
 
 				this.synchronizer.readCache();
-				int result = this.controlUnit.dispatch(this.instruction, this.memory, this.interconnect, this.executionUnit, programCounter);
+				int result = this.processor.process(this.instruction, this.memory, this.interconnect, programCounter);
 				this.synchronizer.writeCache();
 				return result;
 
