@@ -216,38 +216,48 @@ public class VnanoIntermediateCode extends CompiledScript implements Cloneable {
 	}
 
 
-
+	private int getMaxAddressOf(List<Integer> addressList) {
+		int max = -1;
+		int size = addressList.size();
+		for (int i=0; i<size; i++) {
+			int address = addressList.get(i);
+			if (max < address) {
+				max = address;
+			}
+		}
+		return max;
+	}
 
 	public int getMinimumRegisterAddress() {
 		return 0;
 	}
 	public int getMaximumRegisterAddress() {
-		return registerAddressList.size() - 1;
+		return this.getMaxAddressOf(this.registerAddressList);
 	}
 
 	public int getMinimumLocalAddress() {
 		return 0;
 	}
 	public int getMaximumLocalAddress() {
-		return this.localVariableIdentifierList.size() - 1;
+		return this.getMaxAddressOf(this.localVariableAddressList);
 	}
 	public int getMinimumGlobalAddress() {
 		return 0;
 	}
 	public int getMaximumGlobalAddress() {
-		return this.globalVariableIdentifierList.size() - 1;
+		return this.getMaxAddressOf(this.globalVariableAddressList);
 	}
 	public int getMinimumConstantAddress() {
 		return 0;
 	}
 	public int getMaximumConstantAddress() {
-		return this.constantDataValueList.size() - 1;
+		return this.getMaxAddressOf(this.constantDataAddressList);
 	}
 	public int getMinimumFunctionAddress() {
 		return 0;
 	}
 	public int getMaximumFunctionAddress() {
-		return this.functionIdentifierList.size() - 1;
+		return this.getMaxAddressOf(this.functionAddressList);
 	}
 
 	public void dump() {
