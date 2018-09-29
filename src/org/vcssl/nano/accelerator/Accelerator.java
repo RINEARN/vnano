@@ -91,12 +91,10 @@ public class Accelerator {
 
 		AccelerationExecutorNode[] AccelerationUnits = resource.accelerationUnits;
 
-		// プログラムカウンタ （ = 現在の実行対象の命令位置 ）
-		int programCounter = 0;
-
 		// 命令の逐次実行ループ
-		while (programCounter < instructionLength) {
-			programCounter = AccelerationUnits[programCounter].execute(programCounter);
+		AccelerationExecutorNode nextNode = AccelerationUnits[0];
+		while (nextNode != null) {
+			nextNode = nextNode.execute();
 		}
 
 	}
@@ -266,7 +264,7 @@ public class Accelerator {
 		}
 
 
-		// 命令列からアクセラレーションユニット列を生成
+		// 命令列から演算ノード列を生成
 		for (int instructionIndex=0; instructionIndex<instructionLength; instructionIndex++) {
 
 			Instruction instruction = instructions[instructionIndex];
@@ -388,6 +386,24 @@ public class Accelerator {
 			//System.out.println("[" + instructionIndex + "] " + opcode + " \t" + executors[instructionIndex].getClass().getName().split("\\$")[1]);
 		}
 
+		// 演算ノード列の各要素に対し、次のノード（及び必要に分岐先ノード）の参照を設定し、参照リスト的に結合
+		for (int instructionIndex=0; instructionIndex<instructionLength-1; instructionIndex++) {
+
+			executors[instructionIndex].setNextNode( executors[instructionIndex+1] );
+
+			OperationCode opcode = instructions[instructionIndex].getOperationCode();
+			if (opcode == OperationCode.JMP || opcode == OperationCode.JMPN) {
+
+				DataContainer<?> branchedAddressContainer = memory.getDataContainer(
+						Memory.Partition.CONSTANT,
+						instructions[instructionIndex].getOperandAddresses()[1]
+				);
+
+				long[] branchedAddressContainerData = (long[])branchedAddressContainer.getData();
+				int branchedAddress = (int)branchedAddressContainerData[0];
+				executors[instructionIndex].setBranchedNode( executors[branchedAddress] );
+			}
+		}
 
 		DataContainer<?>[] registerContainers = memory.getDataContainers(Memory.Partition.REGISTER);
 		DataContainer<?>[] localContainers = memory.getDataContainers(Memory.Partition.LOCAL);
@@ -668,18 +684,19 @@ public class Accelerator {
 			this.memory = memory;
 			this.synchronizer = synchronizer;
 		}
-		public final int execute(int programCounter) {
+		public final AccelerationExecutorNode execute() {
 			if (this.allocated) {
-				return programCounter + 1;
+				return this.nextNode;
 			} else {
 				try {
-					int result = this.processor.process(this.instruction, this.memory, this.interconnect, programCounter);
+					int programCounter = 0; // この命令はプログラムカウンタの値に依存しないため、便宜的に 0 を指定
+					this.processor.process(this.instruction, this.memory, this.interconnect, programCounter);
 					this.synchronizer.writeCache();
 					this.allocated = true;
-					return result;
+					return this.nextNode;
 				} catch (DataException | InvalidInstructionException | MemoryAccessException e) {
 					e.printStackTrace();
-					return -1;
+					return null;
 				}
 			}
 		}
@@ -701,17 +718,18 @@ public class Accelerator {
 			this.memory = memory;
 			this.synchronizer = synchronizer;
 		}
-		public final int execute(int programCounter) {
+		public final AccelerationExecutorNode execute() {
 			try {
 
 				this.synchronizer.readCache();
-				int result = this.processor.process(this.instruction, this.memory, this.interconnect, programCounter);
+				int programCounter = 0; // 暫定的なダミー値
+				this.processor.process(this.instruction, this.memory, this.interconnect, programCounter);
 				this.synchronizer.writeCache();
-				return result;
+				return this.nextNode;
 
 			} catch (Exception e) {
 				e.printStackTrace();
-				return -1;
+				return null;
 			}
 		}
 	}

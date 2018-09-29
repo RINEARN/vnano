@@ -68,7 +68,7 @@ public class BoolVectorTransferUnit extends AccelerationUnit {
 			this.synchronizer = synchronizer;
 		}
 
-		public final int execute(int programCounter) {
+		public final AccelerationExecutorNode execute() {
 			this.synchronizer.readCache();
 			boolean[] data0 = this.container0.getData();
 			boolean[] data1 = this.container1.getData();
@@ -77,7 +77,7 @@ public class BoolVectorTransferUnit extends AccelerationUnit {
 			System.arraycopy(data1, 0, data0, 0, size);
 
 			this.synchronizer.writeCache();
-			return programCounter + 1;
+			return this.nextNode;
 		}
 	}
 
@@ -95,7 +95,7 @@ public class BoolVectorTransferUnit extends AccelerationUnit {
 			this.synchronizer = synchronizer;
 		}
 
-		public final int execute(int programCounter) {
+		public final AccelerationExecutorNode execute() {
 			this.synchronizer.readCache();
 			boolean[] data0 = this.container0.getData();
 			boolean fillValue = this.container1.getData()[ this.container1.getOffset() ];
@@ -103,7 +103,7 @@ public class BoolVectorTransferUnit extends AccelerationUnit {
 			Arrays.fill(data0, fillValue);
 
 			this.synchronizer.writeCache();
-			return programCounter + 1;
+			return this.nextNode;
 		}
 	}
 

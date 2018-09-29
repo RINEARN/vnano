@@ -68,12 +68,12 @@ public class Float64ScalarTransferUnit extends AccelerationUnit {
 			this.synchronizer = synchronizer;
 		}
 
-		public final int execute(int programCounter) {
+		public final AccelerationExecutorNode execute() {
 			this.synchronizer.readCache();
 			this.container0.getData()[ this.container0.getOffset() ] =
 			this.container1.getData()[ this.container1.getOffset() ];
 			this.synchronizer.writeCache();
-			return programCounter + 1;
+			return this.nextNode;
 		}
 	}
 
@@ -92,12 +92,12 @@ public class Float64ScalarTransferUnit extends AccelerationUnit {
 			this.synchronizer = synchronizer;
 		}
 
-		public final int execute(int programCounter) {
+		public final AccelerationExecutorNode execute() {
 			this.synchronizer.readCache();
 			this.container0.getData()[ this.container0.getOffset() ] =
 			this.container1.getData()[ this.container1.getOffset() ];
 			this.synchronizer.writeCache();
-			return programCounter + 1;
+			return this.nextNode;
 		}
 	}
 

@@ -63,17 +63,15 @@ public class Float64CachedScalarComparisonUnit extends AccelerationUnit {
 			this.cache1 = cache1;
 			this.cache2 = cache2;
 		}
-
-		public abstract int execute(int programCounter);
 	}
 
 	private final class Float64CachedScalarLtExecutor extends Float64CachedScalarComparisonExecutor {
 		public Float64CachedScalarLtExecutor(BoolCache cache0, Float64Cache cache1, Float64Cache cache2) {
 			super(cache0, cache1, cache2);
 		}
-		public final int execute(int programCounter) {
+		public final AccelerationExecutorNode execute() {
 			this.cache0.value = this.cache1.value < this.cache2.value;
-			return programCounter + 1;
+			return this.nextNode;
 		}
 	}
 
@@ -81,9 +79,9 @@ public class Float64CachedScalarComparisonUnit extends AccelerationUnit {
 		public Float64CachedScalarGtExecutor(BoolCache cache0, Float64Cache cache1, Float64Cache cache2) {
 			super(cache0, cache1, cache2);
 		}
-		public final int execute(int programCounter) {
+		public final AccelerationExecutorNode execute() {
 			this.cache0.value = this.cache1.value > this.cache2.value;
-			return programCounter + 1;
+			return this.nextNode;
 		}
 	}
 
@@ -91,9 +89,9 @@ public class Float64CachedScalarComparisonUnit extends AccelerationUnit {
 		public Float64CachedScalarLeqExecutor(BoolCache cache0, Float64Cache cache1, Float64Cache cache2) {
 			super(cache0, cache1, cache2);
 		}
-		public final int execute(int programCounter) {
+		public final AccelerationExecutorNode execute() {
 			this.cache0.value = this.cache1.value <= this.cache2.value;
-			return programCounter + 1;
+			return this.nextNode;
 		}
 	}
 
@@ -101,9 +99,9 @@ public class Float64CachedScalarComparisonUnit extends AccelerationUnit {
 		public Float64CachedScalarGeqExecutor(BoolCache cache0, Float64Cache cache1, Float64Cache cache2) {
 			super(cache0, cache1, cache2);
 		}
-		public final int execute(int programCounter) {
+		public final AccelerationExecutorNode execute() {
 			this.cache0.value = this.cache1.value >= this.cache2.value;
-			return programCounter + 1;
+			return this.nextNode;
 		}
 	}
 
@@ -111,9 +109,9 @@ public class Float64CachedScalarComparisonUnit extends AccelerationUnit {
 		public Float64CachedScalarEqExecutor(BoolCache cache0, Float64Cache cache1, Float64Cache cache2) {
 			super(cache0, cache1, cache2);
 		}
-		public final int execute(int programCounter) {
+		public final AccelerationExecutorNode execute() {
 			this.cache0.value = this.cache1.value == this.cache2.value;
-			return programCounter + 1;
+			return this.nextNode;
 		}
 	}
 
@@ -121,9 +119,9 @@ public class Float64CachedScalarComparisonUnit extends AccelerationUnit {
 		public Float64CachedScalarNeqExecutor(BoolCache cache0, Float64Cache cache1, Float64Cache cache2) {
 			super(cache0, cache1, cache2);
 		}
-		public final int execute(int programCounter) {
+		public final AccelerationExecutorNode execute() {
 			this.cache0.value = this.cache1.value != this.cache2.value;
-			return programCounter + 1;
+			return this.nextNode;
 		}
 	}
 }

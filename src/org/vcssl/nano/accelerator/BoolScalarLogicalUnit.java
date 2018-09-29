@@ -82,13 +82,13 @@ public class BoolScalarLogicalUnit extends AccelerationUnit {
 			super(container0, container1, container2, synchronizer);
 		}
 
-		public final int execute(int programCounter) {
+		public final AccelerationExecutorNode execute() {
 			this.synchronizer.readCache();
 			this.container0.getData()[ this.container0.getOffset() ] =
 			this.container1.getData()[ this.container1.getOffset() ] &
 			this.container2.getData()[ this.container2.getOffset() ] ;
 			this.synchronizer.writeCache();
-			return programCounter + 1;
+			return this.nextNode;
 		}
 	}
 
@@ -101,13 +101,13 @@ public class BoolScalarLogicalUnit extends AccelerationUnit {
 			super(container0, container1, container2, synchronizer);
 		}
 
-		public final int execute(int programCounter) {
+		public final AccelerationExecutorNode execute() {
 			this.synchronizer.readCache();
 			this.container0.getData()[ this.container0.getOffset() ] =
 			this.container1.getData()[ this.container1.getOffset() ] |
 			this.container2.getData()[ this.container2.getOffset() ] ;
 			this.synchronizer.writeCache();
-			return programCounter + 1;
+			return this.nextNode;
 		}
 	}
 
@@ -120,12 +120,12 @@ public class BoolScalarLogicalUnit extends AccelerationUnit {
 			super(container0, container1, synchronizer);
 		}
 
-		public final int execute(int programCounter) {
+		public final AccelerationExecutorNode execute() {
 			this.synchronizer.readCache();
 			this.container0.getData()[ this.container0.getOffset() ] =
 			!this.container1.getData()[ this.container1.getOffset() ];
 			this.synchronizer.writeCache();
-			return programCounter + 1;
+			return this.nextNode;
 		}
 	}
 }
