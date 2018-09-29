@@ -60,6 +60,7 @@ public class BoolCachedScalarBranchUnit extends AccelerationUnit {
 	private final class CachedScalarJmpExecutor extends AccelerationExecutorNode {
 		private final BoolCache cache0;
 		private final int jumpAddress;
+		private AccelerationExecutorNode branchedNode = null;
 
 		public CachedScalarJmpExecutor(BoolCache cache0, int jumpAddress) {
 
@@ -67,11 +68,15 @@ public class BoolCachedScalarBranchUnit extends AccelerationUnit {
 			this.jumpAddress = jumpAddress;
 		}
 
-		public final int execute(int programCounter) {
+		public void setBranchedNode(AccelerationExecutorNode branchedNode) {
+			this.branchedNode = branchedNode;
+		}
+
+		public final AccelerationExecutorNode execute() {
 			if (this.cache0.value) {
-				return this.jumpAddress;
+				return this.branchedNode;
 			} else {
-				return programCounter + 1;
+				return this.nextNode;
 			}
 
 		}
@@ -81,6 +86,7 @@ public class BoolCachedScalarBranchUnit extends AccelerationUnit {
 	private final class CachedScalarJmpnExecutor extends AccelerationExecutorNode {
 		private final BoolCache cache0;
 		private final int jumpAddress;
+		private AccelerationExecutorNode branchedNode = null;
 
 		public CachedScalarJmpnExecutor(BoolCache cache0, int jumpAddress) {
 
@@ -88,11 +94,15 @@ public class BoolCachedScalarBranchUnit extends AccelerationUnit {
 			this.jumpAddress = jumpAddress;
 		}
 
-		public final int execute(int programCounter) {
+		public void setBranchedNode(AccelerationExecutorNode branchedNode) {
+			this.branchedNode = branchedNode;
+		}
+
+		public final AccelerationExecutorNode execute() {
 			if (this.cache0.value) {
-				return programCounter + 1;
+				return this.nextNode;
 			} else {
-				return this.jumpAddress;
+				return this.branchedNode;
 			}
 		}
 	}
@@ -100,13 +110,18 @@ public class BoolCachedScalarBranchUnit extends AccelerationUnit {
 
 	private final class CachedScalarUnconditionalJmpExecutor extends AccelerationExecutorNode {
 		private final int jumpAddress;
+		private AccelerationExecutorNode branchedNode = null;
 
 		public CachedScalarUnconditionalJmpExecutor(int jumpAddress) {
 			this.jumpAddress = jumpAddress;
 		}
 
-		public final int execute(int programCounter) {
-			return this.jumpAddress;
+		public void setBranchedNode(AccelerationExecutorNode branchedNode) {
+			this.branchedNode = branchedNode;
+		}
+
+		public final AccelerationExecutorNode execute() {
+			return this.branchedNode;
 		}
 	}
 
@@ -115,8 +130,8 @@ public class BoolCachedScalarBranchUnit extends AccelerationUnit {
 		public CachedScalarUnconditionalNeverJmpExecutor() {
 		}
 
-		public final int execute(int programCounter) {
-			return programCounter + 1;
+		public final AccelerationExecutorNode execute() {
+			return this.nextNode;
 		}
 	}
 

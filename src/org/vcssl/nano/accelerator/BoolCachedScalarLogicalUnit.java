@@ -61,17 +61,15 @@ public class BoolCachedScalarLogicalUnit extends AccelerationUnit {
 			this.cache1 = cache1;
 			this.cache2 = null;
 		}
-
-		public abstract int execute(int programCounter);
 	}
 
 	private final class BoolCachedScalarAndExecutor extends BoolCachedScalarLogicalExecutor {
 		public BoolCachedScalarAndExecutor(BoolCache cache0, BoolCache cache1, BoolCache cache2) {
 			super(cache0, cache1, cache2);
 		}
-		public final int execute(int programCounter) {
+		public final AccelerationExecutorNode execute() {
 			this.cache0.value = this.cache1.value & this.cache2.value;
-			return programCounter + 1;
+			return this.nextNode;
 		}
 	}
 
@@ -79,9 +77,9 @@ public class BoolCachedScalarLogicalUnit extends AccelerationUnit {
 		public BoolCachedScalarOrExecutor(BoolCache cache0, BoolCache cache1, BoolCache cache2) {
 			super(cache0, cache1, cache2);
 		}
-		public final int execute(int programCounter) {
+		public final AccelerationExecutorNode execute() {
 			this.cache0.value = this.cache1.value | this.cache2.value;
-			return programCounter + 1;
+			return this.nextNode;
 		}
 	}
 
@@ -89,9 +87,9 @@ public class BoolCachedScalarLogicalUnit extends AccelerationUnit {
 		public BoolCachedScalarNotExecutor(BoolCache cache0, BoolCache cache1) {
 			super(cache0, cache1);
 		}
-		public final int execute(int programCounter) {
+		public final AccelerationExecutorNode execute() {
 			this.cache0.value = !this.cache1.value;
-			return programCounter + 1;
+			return this.nextNode;
 		}
 	}
 }

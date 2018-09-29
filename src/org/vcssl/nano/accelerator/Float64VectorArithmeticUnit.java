@@ -75,7 +75,7 @@ public class Float64VectorArithmeticUnit extends AccelerationUnit {
 
 			super(container0, container1, container2, synchronizer);
 		}
-		public final int execute(int programCounter) {
+		public final AccelerationExecutorNode execute() {
 
 			double[] data0 = this.container0.getData();
 			double[] data1 = this.container1.getData();
@@ -87,7 +87,7 @@ public class Float64VectorArithmeticUnit extends AccelerationUnit {
 			}
 
 			this.synchronizer.writeCache();
-			return programCounter + 1;
+			return this.nextNode;
 		}
 	}
 
@@ -101,7 +101,7 @@ public class Float64VectorArithmeticUnit extends AccelerationUnit {
 			super(container0, container1, container2, synchronizer);
 		}
 
-		public final int execute(int programCounter) {
+		public final AccelerationExecutorNode execute() {
 			this.synchronizer.readCache();
 			double[] data0 = this.container0.getData();
 			double[] data1 = this.container1.getData();
@@ -113,7 +113,7 @@ public class Float64VectorArithmeticUnit extends AccelerationUnit {
 			}
 
 			this.synchronizer.writeCache();
-			return programCounter + 1;
+			return this.nextNode;
 		}
 	}
 
@@ -126,7 +126,7 @@ public class Float64VectorArithmeticUnit extends AccelerationUnit {
 			super(container0, container1, container2, synchronizer);
 		}
 
-		public final int execute(int programCounter) {
+		public final AccelerationExecutorNode execute() {
 			this.synchronizer.readCache();
 			double[] data0 = this.container0.getData();
 			double[] data1 = this.container1.getData();
@@ -138,7 +138,7 @@ public class Float64VectorArithmeticUnit extends AccelerationUnit {
 			}
 
 			this.synchronizer.writeCache();
-			return programCounter + 1;
+			return this.nextNode;
 		}
 	}
 
@@ -151,7 +151,7 @@ public class Float64VectorArithmeticUnit extends AccelerationUnit {
 			super(container0, container1, container2, synchronizer);
 		}
 
-		public final int execute(int programCounter) {
+		public final AccelerationExecutorNode execute() {
 			this.synchronizer.readCache();
 			double[] data0 = this.container0.getData();
 			double[] data1 = this.container1.getData();
@@ -163,7 +163,7 @@ public class Float64VectorArithmeticUnit extends AccelerationUnit {
 			}
 
 			this.synchronizer.writeCache();
-			return programCounter + 1;
+			return this.nextNode;
 		}
 	}
 
@@ -176,7 +176,7 @@ public class Float64VectorArithmeticUnit extends AccelerationUnit {
 			super(container0, container1, container2, synchronizer);
 		}
 
-		public final int execute(int programCounter) {
+		public final AccelerationExecutorNode execute() {
 			this.synchronizer.readCache();
 			double[] data0 = this.container0.getData();
 			double[] data1 = this.container1.getData();
@@ -188,7 +188,7 @@ public class Float64VectorArithmeticUnit extends AccelerationUnit {
 			}
 
 			this.synchronizer.writeCache();
-			return programCounter + 1;
+			return this.nextNode;
 		}
 	}
 

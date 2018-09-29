@@ -46,6 +46,7 @@ public class BoolScalarBranchUnit extends AccelerationUnit {
 		private final DataContainer<boolean[]> container0;
 		private final Boolx1CacheSynchronizer synchronizer;
 		private final int jumpAddress;
+		private AccelerationExecutorNode branchedNode = null;
 
 		public ScalarJmpExecutor(
 				DataContainer<boolean[]> container0, int jumpAddress,
@@ -56,12 +57,16 @@ public class BoolScalarBranchUnit extends AccelerationUnit {
 			this.synchronizer = synchronizer;
 		}
 
-		public final int execute(int programCounter) {
+		public void setBranchedNode(AccelerationExecutorNode branchedNode) {
+			this.branchedNode = branchedNode;
+		}
+
+		public final AccelerationExecutorNode execute() {
 			this.synchronizer.readCache();
 			if (this.container0.getData()[ this.container0.getOffset() ]) {
-				return this.jumpAddress;
+				return this.branchedNode;
 			} else {
-				return programCounter + 1;
+				return this.nextNode;
 			}
 
 		}
@@ -70,6 +75,7 @@ public class BoolScalarBranchUnit extends AccelerationUnit {
 		private final DataContainer<boolean[]> container0;
 		private final Boolx1CacheSynchronizer synchronizer;
 		private final int jumpAddress;
+		private AccelerationExecutorNode branchedNode = null;
 
 		public ScalarJmpnExecutor(
 				DataContainer<boolean[]> container0, int jumpAddress,
@@ -80,12 +86,16 @@ public class BoolScalarBranchUnit extends AccelerationUnit {
 			this.synchronizer = synchronizer;
 		}
 
-		public final int execute(int programCounter) {
+		public void setBranchedNode(AccelerationExecutorNode branchedNode) {
+			this.branchedNode = branchedNode;
+		}
+
+		public final AccelerationExecutorNode execute() {
 			this.synchronizer.readCache();
 			if (this.container0.getData()[ this.container0.getOffset() ]) {
-				return programCounter + 1;
+				return this.nextNode;
 			} else {
-				return this.jumpAddress;
+				return this.branchedNode;
 			}
 		}
 	}

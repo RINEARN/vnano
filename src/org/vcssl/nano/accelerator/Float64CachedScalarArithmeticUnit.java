@@ -61,17 +61,15 @@ public class Float64CachedScalarArithmeticUnit extends AccelerationUnit {
 			this.cache1 = cache1;
 			this.cache2 = cache2;
 		}
-
-		public abstract int execute(int programCounter);
 	}
 
 	private final class Float64CachedScalarAddExecutor extends Float64CachedScalarArithmeticExecutor {
 		public Float64CachedScalarAddExecutor(Float64Cache cache0, Float64Cache cache1, Float64Cache cache2) {
 			super(cache0, cache1, cache2);
 		}
-		public final int execute(int programCounter) {
+		public final AccelerationExecutorNode execute() {
 			this.cache0.value = this.cache1.value + this.cache2.value;
-			return programCounter + 1;
+			return this.nextNode;
 		}
 	}
 
@@ -80,9 +78,9 @@ public class Float64CachedScalarArithmeticUnit extends AccelerationUnit {
 		public Float64CachedScalarSubExecutor(Float64Cache cache0, Float64Cache cache1, Float64Cache cache2) {
 			super(cache0, cache1, cache2);
 		}
-		public final int execute(int programCounter) {
+		public final AccelerationExecutorNode execute() {
 			this.cache0.value = this.cache1.value - this.cache2.value;
-			return programCounter + 1;
+			return this.nextNode;
 		}
 	}
 
@@ -90,9 +88,9 @@ public class Float64CachedScalarArithmeticUnit extends AccelerationUnit {
 		public Float64CachedScalarMulExecutor(Float64Cache cache0, Float64Cache cache1, Float64Cache cache2) {
 			super(cache0, cache1, cache2);
 		}
-		public final int execute(int programCounter) {
+		public final AccelerationExecutorNode execute() {
 			this.cache0.value = this.cache1.value * this.cache2.value;
-			return programCounter + 1;
+			return this.nextNode;
 		}
 	}
 
@@ -100,9 +98,9 @@ public class Float64CachedScalarArithmeticUnit extends AccelerationUnit {
 		public Float64CachedScalarDivExecutor(Float64Cache cache0, Float64Cache cache1, Float64Cache cache2) {
 			super(cache0, cache1, cache2);
 		}
-		public final int execute(int programCounter) {
+		public final AccelerationExecutorNode execute() {
 			this.cache0.value = this.cache1.value / this.cache2.value;
-			return programCounter + 1;
+			return this.nextNode;
 		}
 	}
 
@@ -110,9 +108,9 @@ public class Float64CachedScalarArithmeticUnit extends AccelerationUnit {
 		public Float64CachedScalarRemExecutor(Float64Cache cache0, Float64Cache cache1, Float64Cache cache2) {
 			super(cache0, cache1, cache2);
 		}
-		public final int execute(int programCounter) {
+		public final AccelerationExecutorNode execute() {
 			this.cache0.value = this.cache1.value % this.cache2.value;
-			return programCounter + 1;
+			return this.nextNode;
 		}
 	}
 }

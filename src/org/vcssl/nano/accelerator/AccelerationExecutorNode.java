@@ -5,5 +5,14 @@
 package org.vcssl.nano.accelerator;
 
 public abstract class AccelerationExecutorNode {
-	public abstract int execute(int programCounter);
+	protected AccelerationExecutorNode nextNode = null;
+
+	public abstract AccelerationExecutorNode execute();
+
+	public final void setNextNode(AccelerationExecutorNode nextNode) {
+		this.nextNode = nextNode;
+	}
+
+	public void setBranchedNode(AccelerationExecutorNode branchedNode) {
+	}
 }
