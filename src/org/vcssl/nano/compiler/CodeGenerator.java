@@ -1442,6 +1442,11 @@ public class CodeGenerator {
 	 */
 	private String generateBinaryOperatorCode(AstNode operatorNode, String operationCode, AstNode ...inputNodes) {
 
+
+		// ここは暫定的にベタ書きなため、後で色々と切り出して要リファクタリング
+
+
+
 		StringBuilder codeBuilder = new StringBuilder();
 
 		// これ、形名だけでいい気もする
@@ -1456,7 +1461,17 @@ public class CodeGenerator {
 			input[inputIndex] = inputNodes[inputIndex].getAttribute(AttributeKey.ASSEMBLY_VALUE);
 		}
 
-		// ベクトルとスカラの混合演算の場合は、スカラの配列への昇格が要る。後で切り出して綺麗にまとめるべき
+
+		// 演算結果の出力先となる命令オペランドをASTノードから取得
+		String output = operatorNode.getAttribute(AttributeKey.ASSEMBLY_VALUE);
+
+
+		// 出力先がレジスタかどうかを調べる
+		boolean outputIsRegister =
+			(operatorNode.getAttribute(AttributeKey.ASSEMBLY_VALUE).charAt(0) == AssemblyWord.OPERAND_PREFIX_REGISTER);
+
+
+		// ベクトルとスカラの混合演算かどうかを調べる（スカラの配列への昇格が必要になる）
 		boolean vectorScalarMixed = false;
 		if (rank != RANK_OF_SCALAR) {
 			for (AstNode inputNode: inputNodes) {
@@ -1467,36 +1482,92 @@ public class CodeGenerator {
 			}
 		}
 
-		// ベクトルレジスタをALLOCする要素数を別のレジスタに用意する
-		String lengthRegister = null;
-		// 配列オペランドを探して、そこからベクトル演算の配列要素数を取得して格納する
+
+		// 型変換が必要かどうかを調べる
+		boolean castNecessary = false;
 		for (int inputIndex=0; inputIndex<inputLength; inputIndex++) {
-			//System.out.println(inputIndex + " | RANK=" + inputNodes[inputIndex].getRank());
-			if (inputNodes[inputIndex].getRank() != RANK_OF_SCALAR) {
-				//System.out.println("VECTOR=" + inputNodes[inputIndex]);
-				lengthRegister = this.generateRegisterOperandCode();
-
-				// これ、v0 += v1 とかでも無駄にLEN命令出てしまう。不要な場合は出さないようにしたほうがいい。
-				codeBuilder.append(
-					this.generateInstruction(OperationCode.LEN.name(), DataTypeName.INT, lengthRegister, input[inputIndex])
-				);
-
-				// 配列同士の演算では、両者の要素数は同じである事を前提とする（スカラとの混合演算は除く）
+			if (!inputNodes[inputIndex].getDataTypeName().equals(executionDataType)) {
+				castNecessary = true;
 				break;
 			}
 		}
 
-		// ベクトルスカラ混合演算の色々な処理
+
+		// 入力オペランドの内、最初に出現するベクトルオペランドを取得（ベクトルレジスタの確保時などに要素数情報を使用する）
+		String firstVectorInput = null;
+		for (int inputIndex=0; inputIndex<inputLength; inputIndex++) {
+			if (inputNodes[inputIndex].getRank() != RANK_OF_SCALAR) {
+				firstVectorInput = input[inputIndex];
+				break;
+			}
+		}
+
+
+		// 入力値の型が演算結果の型と異なる場合は、型変換を行う
+		if (castNecessary) {
+
+			for (int inputIndex=0; inputIndex<inputLength; inputIndex++) {
+				String operandDataType = inputNodes[inputIndex].getDataTypeName();
+
+				if (!operandDataType.equals(executionDataType)) {
+
+					// レジスタを確保してそこにキャスト
+					String castedRegister = null; // ここで確保するとレジスタ番号が前後逆転してしまう
+
+					// ALLOC命令で、変換後の値を格納するレジスタを確保（スカラ値を格納する場合は要素数指定は不要）
+					if (inputNodes[inputIndex].getRank() == RANK_OF_SCALAR) {
+						castedRegister = this.generateRegisterOperandCode();
+						codeBuilder.append(
+							this.generateInstruction(OperationCode.ALLOC.name(), executionDataType, castedRegister)
+						);
+
+					// 変換元の値がベクトルの場合は、LEN命令で要素数を取得した上で、同要素数のレジスタをALLOC命令で確保
+					} else {
+						String lengthRegister = this.generateRegisterOperandCode();
+						codeBuilder.append(
+							this.generateInstruction(OperationCode.LEN.name(), DataTypeName.INT, lengthRegister, input[inputIndex])
+						);
+						castedRegister = this.generateRegisterOperandCode();
+						codeBuilder.append(
+							this.generateInstruction(
+								OperationCode.ALLOC.name(), executionDataType, castedRegister, lengthRegister
+							)
+						);
+					}
+
+					// CAST命令で型変換を実行
+					codeBuilder.append(
+						this.generateInstruction(
+							OperationCode.CAST.name(),
+							executionDataType + AssemblyWord.VALUE_SEPARATOR + operandDataType,
+							castedRegister, input[inputIndex]
+						)
+					);
+					input[inputIndex] = castedRegister;
+				}
+			}
+		}
+
+
+		// ベクトルとスカラの混合演算において必要な処理
 		if (vectorScalarMixed) {
 			// ベクトル演算の入力値にスカラを含む場合は、ALLOCとFILLで配列に昇格させる
 			for (int inputIndex=0; inputIndex<inputLength; inputIndex++) {
 				if (inputNodes[inputIndex].getRank() == RANK_OF_SCALAR) {
 
-					// 配列のレジスタを確保してそこにFILL
+					// ベクトルレジスタを確保するために要素数情報をLEN命令で取得し、別のレジスタに格納
+					String lengthRegister = this.generateRegisterOperandCode();
+					codeBuilder.append(
+						this.generateInstruction(OperationCode.LEN.name(), DataTypeName.INT, lengthRegister, firstVectorInput)
+					);
+
+					// ベクトルレジスタをALLOC命令で確保
 					String filledRegister = this.generateRegisterOperandCode();
 					codeBuilder.append(
 						this.generateInstruction(OperationCode.ALLOC.name(), executionDataType, filledRegister, lengthRegister)
 					);
+
+					// FILL命令でベクトルレジスタの中身にスカラ値を詰める
 					codeBuilder.append(
 						this.generateInstruction(OperationCode.FILL.name(), executionDataType, filledRegister, input[inputIndex])
 					);
@@ -1507,56 +1578,32 @@ public class CodeGenerator {
 		}
 
 
-
-		// 入力値の型が演算結果の型と異なる場合は、型変換を行う
-		for (int inputIndex=0; inputIndex<inputLength; inputIndex++) {
-
-			String operandDataType = inputNodes[inputIndex].getDataTypeName();
-			if (!operandDataType.equals(executionDataType)) {
-
-				// レジスタを確保してそこにキャスト
-				String castedRegister = null; // ここで確保するとレジスタ番号が前後逆転してしまう
-
-				if (operatorNode.getRank() == RANK_OF_SCALAR) {
-					castedRegister = this.generateRegisterOperandCode();
-					codeBuilder.append(
-						this.generateInstruction(OperationCode.ALLOC.name(), executionDataType, castedRegister)
-					);
-				} else {
-					//lengthRegister = this.accessRegister();
-					codeBuilder.append(
-						this.generateInstruction(OperationCode.LEN.name(), DataTypeName.INT, lengthRegister, input[inputIndex])
-					);
-					castedRegister = this.generateRegisterOperandCode();
-					codeBuilder.append(
-						this.generateInstruction(OperationCode.ALLOC.name(), executionDataType, castedRegister, lengthRegister)
-					);
-				}
-
-				codeBuilder.append(
-					this.generateInstruction(OperationCode.CAST.name(), executionDataType + AssemblyWord.VALUE_SEPARATOR + operandDataType, castedRegister, input[inputIndex])
-				);
-				input[inputIndex] = castedRegister;
-			}
-		}
-
-		// 演算結果の格納先がレジスタの場合は仮想メモリ確保
-		String accumulator = operatorNode.getAttribute(AttributeKey.ASSEMBLY_VALUE);
-		if (accumulator.charAt(0) == AssemblyWord.OPERAND_PREFIX_REGISTER) {
+		// 演算結果の格納先がレジスタの場合はメモリ確保
+		if (outputIsRegister) {
 			if (rank == RANK_OF_SCALAR) {
+				// ALLOC命令でベクトルレジスタを確保（要素数指定を省略しているので、要素数はスカラ値格納用の1、次元は0になる）
 				codeBuilder.append(
-						this.generateInstruction(OperationCode.ALLOC.name(), resultDataType, accumulator)
+						this.generateInstruction(OperationCode.ALLOC.name(), resultDataType, output)
 				);
 			} else {
+
+				// ベクトルレジスタを確保するために要素数情報をLEN命令で取得し、別のレジスタに格納
+				String lengthRegister = this.generateRegisterOperandCode();
 				codeBuilder.append(
-						this.generateInstruction(OperationCode.ALLOC.name(), resultDataType, accumulator, lengthRegister)
+					this.generateInstruction(OperationCode.LEN.name(), DataTypeName.INT, lengthRegister, firstVectorInput)
+				);
+
+				// ALLOC命令でベクトルレジスタを確保
+				codeBuilder.append(
+						this.generateInstruction(OperationCode.ALLOC.name(), resultDataType, output, lengthRegister)
 				);
 			}
 		}
 
-		// 演算コード生成
+
+		// 演算実行コード生成
 		codeBuilder.append(
-			this.generateInstruction(operationCode, executionDataType, accumulator, input[0], input[1])
+			this.generateInstruction(operationCode, executionDataType, output, input[0], input[1])
 		);
 
 		return codeBuilder.toString();

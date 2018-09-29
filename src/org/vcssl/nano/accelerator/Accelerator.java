@@ -13,8 +13,6 @@ import org.vcssl.nano.lang.DataType;
 import org.vcssl.nano.memory.DataContainer;
 import org.vcssl.nano.memory.DataException;
 import org.vcssl.nano.memory.MemoryAccessException;
-import org.vcssl.nano.processor.DispatchUnit;
-import org.vcssl.nano.processor.ExecutionUnit;
 import org.vcssl.nano.processor.Instruction;
 import org.vcssl.nano.processor.InvalidInstructionException;
 import org.vcssl.nano.processor.OperationCode;
@@ -116,7 +114,7 @@ public class Accelerator {
 	 * 		命令のオペランドに指定された仮想メモリーアドレスが使用領域外であった場合など、
 	 * 		不正な仮想メモリーアクセスが生じた場合などに発生します。
 	 */
-	private AccelerationResource generateResource (Instruction[] instructions, Memory memory, 
+	private AccelerationResource generateResource (Instruction[] instructions, Memory memory,
 			Interconnect interconnect, Processor processor)
 					throws MemoryAccessException, InvalidInstructionException {
 
