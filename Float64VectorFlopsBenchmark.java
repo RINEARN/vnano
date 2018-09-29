@@ -35,8 +35,8 @@
  *     VECTOR_SIZE = 2048 [x64BIT]
  *     OPERATED_VALUES = { 1.0E8, 2.0E8, 3.0E8, ... , 2.047E11, 2.048E11 }
  * 
- *     * Values of OPERATION_SPEED and REQUIRED_TIME are dependent on your environment.
- *     ※OPERATION_SPEED と REQUIRED_TIME の値は環境に依存します。
+ *     * Values of OPERATING_SPEED and REQUIRED_TIME are dependent on your environment.
+ *     ※OPERATING_SPEED と REQUIRED_TIME の値は環境に依存します。
  * 
  */
 
@@ -107,44 +107,44 @@ public class Float64VectorFlopsBenchmark {
 		// スクリプトコードを用意
 		String scriptCode =
 
-			"int VECTOR_SIZE = 2048;                                                 " + 
-			"int LOOP_N = 1000*1000;                                                 " + 
-			"int FLOP_PER_LOOP = VECTOR_SIZE * 100;                                  " + 
-			"int TOTAL_FLOP = FLOP_PER_LOOP * LOOP_N;                                " + 
-			"                                                                        " + 
-			"double x[VECTOR_SIZE];                                                  " + 
-			"double y[VECTOR_SIZE];                                                  " + 
-			"for (int i=0; i<VECTOR_SIZE; i++) {                                     " + 
-			"  x[i] = 0.0;                                                           " + 
-			"  y[i] = i + 1.0;                                                       " + 
-			"}                                                                       " + 
-			"                                                                        " + 
-			"int beginTime = time();                                                 " + 
-			"                                                                        " + 
-			"for (int i=0; i<LOOP_N; ++i) {                                          " + 
-			"                                                                        " + 
-			"  x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y;           " + 
-			"  x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y;           " + 
-			"  x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y;           " + 
-			"  x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y;           " + 
-			"  x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y;           " + 
-			"  x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y;           " + 
-			"  x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y;           " + 
-			"  x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y;           " + 
-			"  x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y;           " + 
-			"  x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y;           " + 
-			"                                                                        " + 
-			"}                                                                       " + 
-			"                                                                        " + 
-			"int endTime = time();                                                   " + 
-			"double requiredTime = (endTime - beginTime) / 1000.0;                   " + 
-			"double flops = TOTAL_FLOP / requiredTime;                               " + 
-			"                                                                        " + 
-			"output(\"OPERATING_SPEED\", flops/(1000.0*1000.0*1000.0), \"GFLOPS\");  " + 
-			"output(\"REQUIRED_TIME\", requiredTime, \"SEC\");                       " + 
-			"output(\"TOTAL_OPERATIONS\", TOTAL_FLOP, \"xFLOAT64_ADD\");             " + 
-			"output(\"VECTOR_SIZE\", VECTOR_SIZE, \"x64BIT\");                       " + 
-			"output(\"OPERATED_VALUES\", x);                                         " ;
+			"  int VECTOR_SIZE = 2048;                                                 " + 
+			"  int LOOP_N = 1000*1000;                                                 " + 
+			"  int FLOP_PER_LOOP = VECTOR_SIZE * 100;                                  " + 
+			"  int TOTAL_FLOP = FLOP_PER_LOOP * LOOP_N;                                " + 
+			"                                                                          " + 
+			"  double x[VECTOR_SIZE];                                                  " + 
+			"  double y[VECTOR_SIZE];                                                  " + 
+			"  for (int i=0; i<VECTOR_SIZE; i++) {                                     " + 
+			"    x[i] = 0.0;                                                           " + 
+			"    y[i] = i + 1.0;                                                       " + 
+			"  }                                                                       " + 
+			"                                                                          " + 
+			"  int beginTime = time();                                                 " + 
+			"                                                                          " + 
+			"  for (int i=0; i<LOOP_N; ++i) {                                          " + 
+			"                                                                          " + 
+			"    x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y;           " + 
+			"    x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y;           " + 
+			"    x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y;           " + 
+			"    x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y;           " + 
+			"    x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y;           " + 
+			"    x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y;           " + 
+			"    x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y;           " + 
+			"    x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y;           " + 
+			"    x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y;           " + 
+			"    x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y;           " + 
+			"                                                                          " + 
+			"  }                                                                       " + 
+			"                                                                          " + 
+			"  int endTime = time();                                                   " + 
+			"  double requiredTime = (endTime - beginTime) / 1000.0;                   " + 
+			"  double flops = TOTAL_FLOP / requiredTime;                               " + 
+			"                                                                          " + 
+			"  output(\"OPERATING_SPEED\", flops/(1000.0*1000.0*1000.0), \"GFLOPS\");  " + 
+			"  output(\"REQUIRED_TIME\", requiredTime, \"SEC\");                       " + 
+			"  output(\"TOTAL_OPERATIONS\", TOTAL_FLOP, \"xFLOAT64_ADD\");             " + 
+			"  output(\"VECTOR_SIZE\", VECTOR_SIZE, \"x64BIT\");                       " + 
+			"  output(\"OPERATED_VALUES\", x);                                         " ;
 
 
 		// Run the script code by the script engine of Vnano.
