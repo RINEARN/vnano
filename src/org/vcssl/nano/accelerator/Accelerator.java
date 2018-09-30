@@ -8,6 +8,7 @@ package org.vcssl.nano.accelerator;
 
 import java.util.Arrays;
 
+import org.vcssl.nano.accelerator.Float64CachedScalarArithmeticUnit.Float64CachedScalarArithmeticExecutor;
 import org.vcssl.nano.interconnect.Interconnect;
 import org.vcssl.nano.lang.DataType;
 import org.vcssl.nano.memory.DataContainer;
@@ -405,6 +406,32 @@ public class Accelerator {
 			}
 		}
 
+		// 複数命令融合演算ノードに置き換え可能なノード列を探して置き換える
+		for (int instructionIndex=1; instructionIndex<instructionLength-2; instructionIndex++) {
+
+			AccelerationExecutorNode currentNode = executors[instructionIndex];
+			AccelerationExecutorNode nextNode = executors[instructionIndex+1];
+
+			if (Float64CachedScalarArithmeticUnit.isInstanceofFloat64CachedScalarAddExecutor(currentNode)
+					&& Float64CachedScalarArithmeticUnit.isInstanceofFloat64CachedScalarAddExecutor(nextNode)) {
+
+				Float64Cache[] currentNodeCaches = ((Float64CachedScalarArithmeticExecutor)currentNode).getCaches();
+				Float64Cache[] nextNodeCaches = ((Float64CachedScalarArithmeticExecutor)nextNode).getCaches();
+				AccelerationExecutorNode fusedExecutorNode = new Float64CachedScalarAddAddExecutor(
+					currentNodeCaches[0], currentNodeCaches[1], currentNodeCaches[2],
+					nextNodeCaches[0], nextNodeCaches[1], nextNodeCaches[2]
+				);
+
+				executors[instructionIndex-1].setNextNode(fusedExecutorNode);
+				fusedExecutorNode.setNextNode(executors[instructionIndex+2]);
+
+				executors[instructionIndex] = null;
+				executors[instructionIndex+1] = fusedExecutorNode;
+
+				instructionIndex++;
+			}
+		}
+
 		DataContainer<?>[] registerContainers = memory.getDataContainers(Memory.Partition.REGISTER);
 		DataContainer<?>[] localContainers = memory.getDataContainers(Memory.Partition.LOCAL);
 		DataContainer<?>[] globalContainers = memory.getDataContainers(Memory.Partition.GLOBAL);
@@ -734,4 +761,45 @@ public class Accelerator {
 		}
 	}
 
+	private abstract class Float64CachedScalarFusedArithmeticExecutor extends AccelerationExecutorNode {
+		protected final Float64Cache cache00;
+		protected final Float64Cache cache01;
+		protected final Float64Cache cache02;
+		protected final Float64Cache cache10;
+		protected final Float64Cache cache11;
+		protected final Float64Cache cache12;
+
+		protected final double y0;
+		protected final double y1;
+
+		public Float64CachedScalarFusedArithmeticExecutor(
+				Float64Cache cache00, Float64Cache cache01, Float64Cache cache02,
+				Float64Cache cache10, Float64Cache cache11, Float64Cache cache12) {
+			this.cache00 = cache00;
+			this.cache01 = cache01;
+			this.cache02 = cache02;
+			this.cache10 = cache10;
+			this.cache11 = cache11;
+			this.cache12 = cache12;
+
+			y0 = this.cache02.value;
+			y1 = this.cache12.value;
+		}
+	}
+
+	private final class Float64CachedScalarAddAddExecutor extends Float64CachedScalarFusedArithmeticExecutor {
+		public Float64CachedScalarAddAddExecutor(
+				Float64Cache cache00, Float64Cache cache01, Float64Cache cache02,
+				Float64Cache cache10, Float64Cache cache11, Float64Cache cache12) {
+
+			super(cache00, cache01, cache02, cache10, cache11, cache12);
+		}
+		public final AccelerationExecutorNode execute() {
+			this.cache00.value = this.cache01.value + this.cache02.value;
+			this.cache10.value = this.cache11.value + this.cache12.value;
+			//this.cache00.value += 1.0;
+			//this.cache10.value += 1.0;
+			return this.nextNode;
+		}
+	}
 }

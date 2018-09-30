@@ -51,7 +51,11 @@ public class Float64CachedScalarArithmeticUnit extends AccelerationUnit {
 		return executor;
 	}
 
-	private abstract class Float64CachedScalarArithmeticExecutor extends AccelerationExecutorNode {
+	public static final boolean isInstanceofFloat64CachedScalarAddExecutor(AccelerationExecutorNode node) {
+		return node instanceof Float64CachedScalarAddExecutor;
+	}
+
+	public abstract class Float64CachedScalarArithmeticExecutor extends AccelerationExecutorNode {
 		protected final Float64Cache cache0;
 		protected final Float64Cache cache1;
 		protected final Float64Cache cache2;
@@ -60,6 +64,9 @@ public class Float64CachedScalarArithmeticUnit extends AccelerationUnit {
 			this.cache0 = cache0;
 			this.cache1 = cache1;
 			this.cache2 = cache2;
+		}
+		public Float64Cache[] getCaches() {
+			return new Float64Cache[]{ cache0, cache1, cache2 };
 		}
 	}
 
