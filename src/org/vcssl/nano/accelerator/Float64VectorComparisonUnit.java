@@ -15,7 +15,8 @@ public class Float64VectorComparisonUnit extends AccelerationUnit {
 	@Override
 	public AccelerationExecutorNode generateExecutor(
 			OperationCode opcode, DataType[] dataTypes, DataContainer<?>[] operandContainers,
-			Object[] operandCaches, boolean[] operandCached, boolean[] operandScalar, boolean[] operandConstant) {
+			Object[] operandCaches, boolean[] operandCached, boolean[] operandScalar, boolean[] operandConstant,
+			AccelerationExecutorNode nextNode) {
 
 		DataContainer<boolean[]> container0 = (DataContainer<boolean[]>)operandContainers[0];
 		DataContainer<double[]> container1 = (DataContainer<double[]>)operandContainers[1];
@@ -26,27 +27,27 @@ public class Float64VectorComparisonUnit extends AccelerationUnit {
 		Float64VectorComparisonExecutor executor = null;
 		switch (opcode) {
 			case LT : {
-				executor = new Float64VectorLtExecutor(container0, container1, container2, synchronizer);
+				executor = new Float64VectorLtExecutor(container0, container1, container2, synchronizer, nextNode);
 				break;
 			}
 			case GT : {
-				executor = new Float64VectorGtExecutor(container0, container1, container2, synchronizer);
+				executor = new Float64VectorGtExecutor(container0, container1, container2, synchronizer, nextNode);
 				break;
 			}
 			case LEQ : {
-				executor = new Float64VectorLeqExecutor(container0, container1, container2, synchronizer);
+				executor = new Float64VectorLeqExecutor(container0, container1, container2, synchronizer, nextNode);
 				break;
 			}
 			case GEQ : {
-				executor = new Float64VectorGeqExecutor(container0, container1, container2, synchronizer);
+				executor = new Float64VectorGeqExecutor(container0, container1, container2, synchronizer, nextNode);
 				break;
 			}
 			case EQ : {
-				executor = new Float64VectorEqExecutor(container0, container1, container2, synchronizer);
+				executor = new Float64VectorEqExecutor(container0, container1, container2, synchronizer, nextNode);
 				break;
 			}
 			case NEQ : {
-				executor = new Float64VectorNeqExecutor(container0, container1, container2, synchronizer);
+				executor = new Float64VectorNeqExecutor(container0, container1, container2, synchronizer, nextNode);
 				break;
 			}
 			default : {
@@ -64,8 +65,9 @@ public class Float64VectorComparisonUnit extends AccelerationUnit {
 
 		public Float64VectorComparisonExecutor(
 				DataContainer<boolean[]> container0, DataContainer<double[]> container1, DataContainer<double[]> container2,
-				Float64x3CacheSynchronizer synchronizer) {
+				Float64x3CacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
 
+			super(nextNode);
 			this.container0 = container0;
 			this.container1 = container1;
 			this.container2 = container2;
@@ -77,9 +79,9 @@ public class Float64VectorComparisonUnit extends AccelerationUnit {
 
 		public Float64VectorLtExecutor(
 				DataContainer<boolean[]> container0, DataContainer<double[]> container1, DataContainer<double[]> container2,
-				Float64x3CacheSynchronizer synchronizer) {
+				Float64x3CacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
 
-			super(container0, container1, container2, synchronizer);
+			super(container0, container1, container2, synchronizer, nextNode);
 		}
 
 		public final AccelerationExecutorNode execute() {
@@ -102,9 +104,9 @@ public class Float64VectorComparisonUnit extends AccelerationUnit {
 
 		public Float64VectorGtExecutor(
 				DataContainer<boolean[]> container0, DataContainer<double[]> container1, DataContainer<double[]> container2,
-				Float64x3CacheSynchronizer synchronizer) {
+				Float64x3CacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
 
-			super(container0, container1, container2, synchronizer);
+			super(container0, container1, container2, synchronizer, nextNode);
 		}
 
 		public final AccelerationExecutorNode execute() {
@@ -127,9 +129,9 @@ public class Float64VectorComparisonUnit extends AccelerationUnit {
 
 		public Float64VectorLeqExecutor(
 				DataContainer<boolean[]> container0, DataContainer<double[]> container1, DataContainer<double[]> container2,
-				Float64x3CacheSynchronizer synchronizer) {
+				Float64x3CacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
 
-			super(container0, container1, container2, synchronizer);
+			super(container0, container1, container2, synchronizer, nextNode);
 		}
 
 		public final AccelerationExecutorNode execute() {
@@ -152,9 +154,9 @@ public class Float64VectorComparisonUnit extends AccelerationUnit {
 
 		public Float64VectorGeqExecutor(
 				DataContainer<boolean[]> container0, DataContainer<double[]> container1, DataContainer<double[]> container2,
-				Float64x3CacheSynchronizer synchronizer) {
+				Float64x3CacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
 
-			super(container0, container1, container2, synchronizer);
+			super(container0, container1, container2, synchronizer, nextNode);
 		}
 
 		public final AccelerationExecutorNode execute() {
@@ -177,9 +179,9 @@ public class Float64VectorComparisonUnit extends AccelerationUnit {
 
 		public Float64VectorEqExecutor(
 				DataContainer<boolean[]> container0, DataContainer<double[]> container1, DataContainer<double[]> container2,
-				Float64x3CacheSynchronizer synchronizer) {
+				Float64x3CacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
 
-			super(container0, container1, container2, synchronizer);
+			super(container0, container1, container2, synchronizer, nextNode);
 		}
 
 		public final AccelerationExecutorNode execute() {
@@ -202,9 +204,9 @@ public class Float64VectorComparisonUnit extends AccelerationUnit {
 
 		public Float64VectorNeqExecutor(
 				DataContainer<boolean[]> container0, DataContainer<double[]> container1, DataContainer<double[]> container2,
-				Float64x3CacheSynchronizer synchronizer) {
+				Float64x3CacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
 
-			super(container0, container1, container2, synchronizer);
+			super(container0, container1, container2, synchronizer, nextNode);
 		}
 
 		public final AccelerationExecutorNode execute() {

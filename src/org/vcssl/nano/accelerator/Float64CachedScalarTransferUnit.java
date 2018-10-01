@@ -14,24 +14,25 @@ public class Float64CachedScalarTransferUnit extends AccelerationUnit {
 	@Override
 	public AccelerationExecutorNode generateExecutor(
 			OperationCode opcode, DataType[] dataTypes, DataContainer<?>[] operandContainers,
-			Object[] operandCaches, boolean[] operandCached, boolean[] operandScalar, boolean[] operandConstant) {
+			Object[] operandCaches, boolean[] operandCached, boolean[] operandScalar, boolean[] operandConstant,
+			AccelerationExecutorNode nextNode) {
 
 		AccelerationExecutorNode executor = null;
 		switch (opcode) {
 			case MOV :
 			case FILL : {
 				executor = new Float64CachedScalarMovExecutor(
-						(Float64Cache)operandCaches[0], (Float64Cache)operandCaches[1]);
+						(Float64Cache)operandCaches[0], (Float64Cache)operandCaches[1], nextNode);
 				break;
 			}
 			case CAST : {
 				if (dataTypes[1] == DataType.FLOAT64) {
 					executor = new Float64CachedScalarMovExecutor(
-							(Float64Cache)operandCaches[0], (Float64Cache)operandCaches[1]);
+							(Float64Cache)operandCaches[0], (Float64Cache)operandCaches[1], nextNode);
 				}
 				if (dataTypes[1] == DataType.INT64) {
 					executor = new Float64FromInt64CachedScalarCastExecutor(
-							(Float64Cache)operandCaches[0], (Int64Cache)operandCaches[1]);
+							(Float64Cache)operandCaches[0], (Int64Cache)operandCaches[1], nextNode);
 				}
 				break;
 			}
@@ -44,7 +45,10 @@ public class Float64CachedScalarTransferUnit extends AccelerationUnit {
 		protected final Float64Cache cache0;
 		protected final Float64Cache cache1;
 
-		public Float64CachedScalarMovExecutor(Float64Cache cache0, Float64Cache cache1) {
+		public Float64CachedScalarMovExecutor(Float64Cache cache0, Float64Cache cache1,
+				AccelerationExecutorNode nextNode) {
+
+			super(nextNode);
 			this.cache0 = cache0;
 			this.cache1 = cache1;
 		}
@@ -59,7 +63,10 @@ public class Float64CachedScalarTransferUnit extends AccelerationUnit {
 		protected final Float64Cache cache0;
 		protected final Int64Cache cache1;
 
-		public Float64FromInt64CachedScalarCastExecutor(Float64Cache cache0, Int64Cache cache1) {
+		public Float64FromInt64CachedScalarCastExecutor(Float64Cache cache0, Int64Cache cache1,
+				AccelerationExecutorNode nextNode) {
+
+			super(nextNode);
 			this.cache0 = cache0;
 			this.cache1 = cache1;
 		}

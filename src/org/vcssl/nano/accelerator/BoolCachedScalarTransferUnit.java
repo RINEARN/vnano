@@ -14,20 +14,21 @@ public class BoolCachedScalarTransferUnit extends AccelerationUnit {
 	@Override
 	public AccelerationExecutorNode generateExecutor(
 			OperationCode opcode, DataType[] dataTypes, DataContainer<?>[] operandContainers,
-			Object[] operandCaches, boolean[] operandCached, boolean[] operandScalar, boolean[] operandConstant) {
+			Object[] operandCaches, boolean[] operandCached, boolean[] operandScalar, boolean[] operandConstant,
+			AccelerationExecutorNode nextNode) {
 
 		AccelerationExecutorNode executor = null;
 		switch (opcode) {
 			case FILL :
 			case MOV : {
 				executor = new BoolCachedScalarMovExecutor(
-						(BoolCache)operandCaches[0], (BoolCache)operandCaches[1]);
+						(BoolCache)operandCaches[0], (BoolCache)operandCaches[1], nextNode);
 				break;
 			}
 			case CAST : {
 				if (dataTypes[1] == DataType.BOOL) {
 					executor = new BoolCachedScalarMovExecutor(
-							(BoolCache)operandCaches[0], (BoolCache)operandCaches[1]);
+							(BoolCache)operandCaches[0], (BoolCache)operandCaches[1], nextNode);
 					break;
 				}
 			}
@@ -42,7 +43,8 @@ public class BoolCachedScalarTransferUnit extends AccelerationUnit {
 		protected final BoolCache cache0;
 		protected final BoolCache cache1;
 
-		public BoolCachedScalarMovExecutor(BoolCache cache0, BoolCache cache1) {
+		public BoolCachedScalarMovExecutor(BoolCache cache0, BoolCache cache1, AccelerationExecutorNode nextNode) {
+			super(nextNode);
 			this.cache0 = cache0;
 			this.cache1 = cache1;
 		}

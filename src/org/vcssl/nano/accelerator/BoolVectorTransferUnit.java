@@ -17,7 +17,8 @@ public class BoolVectorTransferUnit extends AccelerationUnit {
 	@Override
 	public AccelerationExecutorNode generateExecutor(
 			OperationCode opcode, DataType[] dataTypes, DataContainer<?>[] operandContainers,
-			Object[] operandCaches, boolean[] operandCached, boolean[] operandScalar, boolean[] operandConstant) {
+			Object[] operandCaches, boolean[] operandCached, boolean[] operandScalar, boolean[] operandConstant,
+			AccelerationExecutorNode nextNode) {
 
 		AccelerationExecutorNode executor = null;
 		switch (opcode) {
@@ -26,7 +27,7 @@ public class BoolVectorTransferUnit extends AccelerationUnit {
 						= new Boolx2CacheSynchronizer(operandContainers, operandCaches, operandCached);
 				executor = new BoolVectorMovExecutor(
 						(DataContainer<boolean[]>)operandContainers[0], (DataContainer<boolean[]>)operandContainers[1],
-						synchronizer);
+						synchronizer, nextNode);
 				break;
 			}
 			case CAST : {
@@ -35,7 +36,7 @@ public class BoolVectorTransferUnit extends AccelerationUnit {
 							= new Boolx2CacheSynchronizer(operandContainers, operandCaches, operandCached);
 					executor = new BoolVectorMovExecutor(
 							(DataContainer<boolean[]>)operandContainers[0], (DataContainer<boolean[]>)operandContainers[1],
-							synchronizer);
+							synchronizer, nextNode);
 				}
 				break;
 			}
@@ -44,7 +45,7 @@ public class BoolVectorTransferUnit extends AccelerationUnit {
 						= new Boolx2CacheSynchronizer(operandContainers, operandCaches, operandCached);
 				executor = new BoolVectorFillExecutor(
 						(DataContainer<boolean[]>)operandContainers[0], (DataContainer<boolean[]>)operandContainers[1],
-						synchronizer);
+						synchronizer, nextNode);
 				break;
 			}
 			default : {
@@ -61,8 +62,9 @@ public class BoolVectorTransferUnit extends AccelerationUnit {
 
 		public BoolVectorMovExecutor(
 				DataContainer<boolean[]> container0, DataContainer<boolean[]> container1,
-				Boolx2CacheSynchronizer synchronizer) {
+				Boolx2CacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
 
+			super(nextNode);
 			this.container0 = container0;
 			this.container1 = container1;
 			this.synchronizer = synchronizer;
@@ -88,8 +90,9 @@ public class BoolVectorTransferUnit extends AccelerationUnit {
 
 		public BoolVectorFillExecutor(
 				DataContainer<boolean[]> container0, DataContainer<boolean[]> container1,
-				Boolx2CacheSynchronizer synchronizer) {
+				Boolx2CacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
 
+			super(nextNode);
 			this.container0 = container0;
 			this.container1 = container1;
 			this.synchronizer = synchronizer;

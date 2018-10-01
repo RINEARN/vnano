@@ -17,7 +17,8 @@ public class Int64VectorTransferUnit extends AccelerationUnit {
 	@Override
 	public AccelerationExecutorNode generateExecutor(
 			OperationCode opcode, DataType[] dataTypes, DataContainer<?>[] operandContainers,
-			Object[] operandCaches, boolean[] operandCached, boolean[] operandScalar, boolean[] operandConstant) {
+			Object[] operandCaches, boolean[] operandCached, boolean[] operandScalar, boolean[] operandConstant,
+			AccelerationExecutorNode nextNode) {
 
 		AccelerationExecutorNode executor = null;
 		switch (opcode) {
@@ -26,7 +27,7 @@ public class Int64VectorTransferUnit extends AccelerationUnit {
 						= new Int64x2CacheSynchronizer(operandContainers, operandCaches, operandCached);
 				executor = new Int64VectorMovExecutor(
 						(DataContainer<long[]>)operandContainers[0], (DataContainer<long[]>)operandContainers[1],
-						synchronizer);
+						synchronizer, nextNode);
 				break;
 			}
 			case CAST : {
@@ -35,14 +36,14 @@ public class Int64VectorTransferUnit extends AccelerationUnit {
 							= new Int64x2CacheSynchronizer(operandContainers, operandCaches, operandCached);
 					executor = new Int64VectorMovExecutor(
 							(DataContainer<long[]>)operandContainers[0], (DataContainer<long[]>)operandContainers[1],
-							synchronizer);
+							synchronizer, nextNode);
 				}
 				if (dataTypes[1] == DataType.FLOAT64) {
 					Int64x1Float64x1CacheSynchronizer synchronizer
 							= new Int64x1Float64x1CacheSynchronizer(operandContainers, operandCaches, operandCached);
 					executor = new Int64FromFloat64VectorCastExecutor(
 							(DataContainer<long[]>)operandContainers[0], (DataContainer<double[]>)operandContainers[1],
-							synchronizer);
+							synchronizer, nextNode);
 				}
 				break;
 			}
@@ -51,7 +52,7 @@ public class Int64VectorTransferUnit extends AccelerationUnit {
 						= new Int64x2CacheSynchronizer(operandContainers, operandCaches, operandCached);
 				executor = new Int64VectorFillExecutor(
 						(DataContainer<long[]>)operandContainers[0], (DataContainer<long[]>)operandContainers[1],
-						synchronizer);
+						synchronizer, nextNode);
 				break;
 			}
 			default : {
@@ -68,8 +69,9 @@ public class Int64VectorTransferUnit extends AccelerationUnit {
 
 		public Int64VectorMovExecutor(
 				DataContainer<long[]> container0, DataContainer<long[]> container1,
-				Int64x2CacheSynchronizer synchronizer) {
+				Int64x2CacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
 
+			super(nextNode);
 			this.container0 = container0;
 			this.container1 = container1;
 			this.synchronizer = synchronizer;
@@ -95,8 +97,9 @@ public class Int64VectorTransferUnit extends AccelerationUnit {
 
 		public Int64FromFloat64VectorCastExecutor(
 				DataContainer<long[]> container0, DataContainer<double[]> container1,
-				Int64x1Float64x1CacheSynchronizer synchronizer) {
+				Int64x1Float64x1CacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
 
+			super(nextNode);
 			this.container0 = container0;
 			this.container1 = container1;
 			this.synchronizer = synchronizer;
@@ -124,8 +127,9 @@ public class Int64VectorTransferUnit extends AccelerationUnit {
 
 		public Int64VectorFillExecutor(
 				DataContainer<long[]> container0, DataContainer<long[]> container1,
-				Int64x2CacheSynchronizer synchronizer) {
+				Int64x2CacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
 
+			super(nextNode);
 			this.container0 = container0;
 			this.container1 = container1;
 			this.synchronizer = synchronizer;
