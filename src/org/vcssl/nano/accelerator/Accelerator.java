@@ -79,9 +79,6 @@ public class Accelerator {
 	public void process(Instruction[] instructions, Memory memory, Interconnect interconnect, Processor processor)
 					throws MemoryAccessException, InvalidInstructionException {
 
-		// 命令コードの長さ
-		int instructionLength = instructions.length;
-
 		AccelerationResource resource = this.generateResource(
 				instructions, memory, interconnect, processor
 		);
@@ -264,8 +261,10 @@ public class Accelerator {
 		}
 
 
-		// 命令列から演算ノード列を生成
-		for (int instructionIndex=0; instructionIndex<instructionLength; instructionIndex++) {
+		// 命令列から演算ノード列を生成（ループは命令列の末尾から先頭の順で辿る）
+		AccelerationExecutorNode nextNode = null; // 現在の対象命令の次の命令（＝前ループでの対象命令）を控える
+		for (int instructionIndex = instructionLength-1; 0<=instructionIndex; instructionIndex--) {
+		//for (int instructionIndex=0; instructionIndex<instructionLength; instructionIndex++) {
 
 			Instruction instruction = instructions[instructionIndex];
 			DataType[] dataTypes = instruction.getDataTypes();
@@ -302,9 +301,10 @@ public class Accelerator {
 				CacheSynchronizer synchronizer = new GeneralCacheSynchronizer(containers, operandCaches, operandCached);
 
 				executors[instructionIndex] = new ScalarAllocExecutor(
-					instructions[instructionIndex], memory, interconnect, processor, synchronizer
+					instructions[instructionIndex], memory, interconnect, processor, synchronizer, nextNode
 				);
 
+				nextNode = executors[instructionIndex];
 				continue;
 			}
 
@@ -320,7 +320,8 @@ public class Accelerator {
 				case REM :
 				{
 					executors[instructionIndex] = this.generateArithmeticExecutor(opcode, dataTypes,
-							containers, operandCaches, operandCached, operandScalar, operandConstant);
+							containers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
+					);
 					break;
 				}
 
@@ -333,7 +334,8 @@ public class Accelerator {
 				case NEQ :
 				{
 					executors[instructionIndex] = this.generateComparisonExecutor(opcode, dataTypes,
-							containers, operandCaches, operandCached, operandScalar, operandConstant);
+							containers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
+					);
 					break;
 				}
 
@@ -343,7 +345,8 @@ public class Accelerator {
 				case NOT :
 				{
 					executors[instructionIndex] = this.generateLogicalExecutor(opcode, dataTypes,
-							containers, operandCaches, operandCached, operandScalar, operandConstant);
+							containers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
+					);
 					break;
 				}
 
@@ -353,7 +356,8 @@ public class Accelerator {
 				case FILL :
 				{
 					executors[instructionIndex] = this.generateTransferExecutor(opcode, dataTypes,
-							containers, operandCaches, operandCached, operandScalar, operandConstant);
+							containers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
+					);
 					break;
 				}
 
@@ -362,7 +366,8 @@ public class Accelerator {
 				case JMPN :
 				{
 					executors[instructionIndex] = this.generateBranchExecutor(opcode, dataTypes,
-							containers, operandCaches, operandCached, operandScalar, operandConstant);
+							containers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
+					);
 					break;
 				}
 
@@ -379,17 +384,15 @@ public class Accelerator {
 					containers, operandCaches, operandCached
 				);
 				executors[instructionIndex] = new PassThroughExecutor(
-					instructions[instructionIndex], memory, interconnect, processor, synchronizer
+					instructions[instructionIndex], memory, interconnect, processor, synchronizer, nextNode
 				);
 			}
 
-			//System.out.println("[" + instructionIndex + "] " + opcode + " \t" + executors[instructionIndex].getClass().getName().split("\\$")[1]);
+			nextNode = executors[instructionIndex];
 		}
 
-		// 演算ノード列の各要素に対し、次のノード（及び必要に分岐先ノード）の参照を設定し、参照リスト的に結合
-		for (int instructionIndex=0; instructionIndex<instructionLength-1; instructionIndex++) {
-
-			executors[instructionIndex].setNextNode( executors[instructionIndex+1] );
+		// 分岐ノードに分岐先ノードの参照を設定
+		for (int instructionIndex = instructionLength-1; 0<=instructionIndex; instructionIndex--) {
 
 			OperationCode opcode = instructions[instructionIndex].getOperationCode();
 			if (opcode == OperationCode.JMP || opcode == OperationCode.JMPN) {
@@ -404,6 +407,14 @@ public class Accelerator {
 				executors[instructionIndex].setBranchedNode( executors[branchedAddress] );
 			}
 		}
+
+		// 生成した演算ノード列をダンプして表示
+		/*
+		for (int instructionIndex = 0; instructionIndex<instructionLength; instructionIndex++) {
+			OperationCode opcode = instructions[instructionIndex].getOperationCode();
+			System.out.println("[" + instructionIndex + "] " + opcode + " \t" + executors[instructionIndex].getClass().getName().split("\\$")[1]);
+		}
+		*/
 
 		DataContainer<?>[] registerContainers = memory.getDataContainers(Memory.Partition.REGISTER);
 		DataContainer<?>[] localContainers = memory.getDataContainers(Memory.Partition.LOCAL);
@@ -466,7 +477,8 @@ public class Accelerator {
 
 	private AccelerationExecutorNode generateArithmeticExecutor(
 			OperationCode opcode, DataType[] dataTypes, DataContainer<?>[] operandContainers,
-			Object[] operandCaches, boolean[] operandCached, boolean[] operandScalar, boolean[] operandConstant) {
+			Object[] operandCaches, boolean[] operandCached, boolean[] operandScalar, boolean[] operandConstant,
+			AccelerationExecutorNode nextNode) {
 
 		AccelerationExecutorNode executor = null;
 
@@ -475,29 +487,35 @@ public class Accelerator {
 				if (isAllVector(operandScalar)) {
 					// 全部ベクトルの場合の演算
 					executor = new Int64VectorArithmeticUnit().generateExecutor(opcode, dataTypes,
-							operandContainers, operandCaches, operandCached, operandScalar, operandConstant);
+							operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
+					);
 				} else if (isAllScalar(operandScalar) && isAllCached(operandCached)) {
 					// 全部キャッシュ可能なスカラの場合の演算
 					executor = new Int64CachedScalarArithmeticUnit().generateExecutor(opcode, dataTypes,
-							operandContainers, operandCaches, operandCached, operandScalar, operandConstant);
+							operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
+					);
 				} else {
 					// 要素数1の配列をスカラに代入したり、インデックス参照がある場合のスカラ演算など
 					executor = new Int64ScalarArithmeticUnit().generateExecutor(opcode, dataTypes,
-							operandContainers, operandCaches, operandCached, operandScalar, operandConstant);
+							operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
+					);
 				}
 				break;
 			}
 
 			case FLOAT64 : {
 				if (isAllVector(operandScalar)) {
-					executor = new Float64VectorArithmeticUnit().generateExecutor(
-							opcode, dataTypes, operandContainers, operandCaches, operandCached, operandScalar, operandConstant);
+					executor = new Float64VectorArithmeticUnit().generateExecutor(opcode, dataTypes,
+							operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
+					);
 				} else if (isAllScalar(operandScalar) && isAllCached(operandCached)) {
-						executor = new Float64CachedScalarArithmeticUnit().generateExecutor(
-							opcode, dataTypes, operandContainers, operandCaches, operandCached, operandScalar, operandConstant);
+						executor = new Float64CachedScalarArithmeticUnit().generateExecutor(opcode, dataTypes,
+								operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
+						);
 				} else {
-					executor = new Float64ScalarArithmeticUnit().generateExecutor(
-							opcode, dataTypes, operandContainers, operandCaches, operandCached, operandScalar, operandConstant);
+					executor = new Float64ScalarArithmeticUnit().generateExecutor(opcode, dataTypes,
+							operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
+					);
 				}
 				break;
 			}
@@ -511,7 +529,8 @@ public class Accelerator {
 
 	private AccelerationExecutorNode generateComparisonExecutor(
 			OperationCode opcode, DataType[] dataTypes, DataContainer<?>[] operandContainers,
-			Object[] operandCaches, boolean[] operandCached, boolean[] operandScalar, boolean[] operandConstant) {
+			Object[] operandCaches, boolean[] operandCached, boolean[] operandScalar, boolean[] operandConstant,
+			AccelerationExecutorNode nextNode) {
 
 		AccelerationExecutorNode executor = null;
 
@@ -519,13 +538,16 @@ public class Accelerator {
 			case INT64 : {
 				if (isAllVector(operandScalar)) {
 					executor = new Int64VectorComparisonUnit().generateExecutor(opcode, dataTypes,
-							operandContainers, operandCaches, operandCached, operandScalar, operandConstant);
+							operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
+					);
 				} else if (isAllScalar(operandScalar) && isAllCached(operandCached)) {
 					executor = new Int64CachedScalarComparisonUnit().generateExecutor(opcode, dataTypes,
-							operandContainers, operandCaches, operandCached, operandScalar, operandConstant);
+							operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
+					);
 				} else {
 					executor = new Int64ScalarComparisonUnit().generateExecutor(opcode, dataTypes,
-							operandContainers, operandCaches, operandCached, operandScalar, operandConstant);
+							operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
+					);
 				}
 				break;
 			}
@@ -533,13 +555,16 @@ public class Accelerator {
 			case FLOAT64 : {
 				if (isAllVector(operandScalar)) {
 					executor = new Float64VectorComparisonUnit().generateExecutor(opcode, dataTypes,
-							operandContainers, operandCaches, operandCached, operandScalar, operandConstant);
+							operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
+					);
 				} else if (isAllScalar(operandScalar) && isAllCached(operandCached)) {
 					executor = new Float64CachedScalarComparisonUnit().generateExecutor(opcode, dataTypes,
-							operandContainers, operandCaches, operandCached, operandScalar, operandConstant);
+							operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
+					);
 				} else {
 					executor = new Float64ScalarComparisonUnit().generateExecutor(opcode, dataTypes,
-							operandContainers, operandCaches, operandCached, operandScalar, operandConstant);
+							operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
+					);
 				}
 				break;
 			}
@@ -553,7 +578,8 @@ public class Accelerator {
 
 	private AccelerationExecutorNode generateLogicalExecutor(
 			OperationCode opcode, DataType[] dataTypes, DataContainer<?>[] operandContainers,
-			Object[] operandCaches, boolean[] operandCached, boolean[] operandScalar, boolean[] operandConstant) {
+			Object[] operandCaches, boolean[] operandCached, boolean[] operandScalar, boolean[] operandConstant,
+			AccelerationExecutorNode nextNode) {
 
 		AccelerationExecutorNode executor = null;
 
@@ -561,13 +587,16 @@ public class Accelerator {
 			case BOOL : {
 				if (isAllVector(operandScalar)) {
 					executor = new BoolVectorLogicalUnit().generateExecutor(opcode, dataTypes,
-							operandContainers, operandCaches, operandCached, operandScalar, operandConstant);
+							operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
+					);
 				} else if (isAllScalar(operandScalar) && isAllCached(operandCached)) {
 					executor = new BoolCachedScalarLogicalUnit().generateExecutor(opcode, dataTypes,
-							operandContainers, operandCaches, operandCached, operandScalar, operandConstant);
+							operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
+					);
 				} else {
 					executor = new BoolScalarLogicalUnit().generateExecutor(opcode, dataTypes,
-							operandContainers, operandCaches, operandCached, operandScalar, operandConstant);
+							operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
+					);
 				}
 				break;
 			}
@@ -581,7 +610,8 @@ public class Accelerator {
 
 	private AccelerationExecutorNode generateTransferExecutor(
 			OperationCode opcode, DataType[] dataTypes, DataContainer<?>[] operandContainers,
-			Object[] operandCaches, boolean[] operandCached, boolean[] operandScalar, boolean[] operandConstant) {
+			Object[] operandCaches, boolean[] operandCached, boolean[] operandScalar, boolean[] operandConstant,
+			AccelerationExecutorNode nextNode) {
 
 		AccelerationExecutorNode executor = null;
 
@@ -589,39 +619,48 @@ public class Accelerator {
 			case INT64 : {
 				if (isAllVector(operandScalar)) {
 					executor = new Int64VectorTransferUnit().generateExecutor(opcode, dataTypes,
-							operandContainers, operandCaches, operandCached, operandScalar, operandConstant);
+							operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
+					);
 				} else if (isAllScalar(operandScalar) && isAllCached(operandCached)) {
 					executor = new Int64CachedScalarTransferUnit().generateExecutor(opcode, dataTypes,
-							operandContainers, operandCaches, operandCached, operandScalar, operandConstant);
+							operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
+					);
 				} else {
 					executor = new Int64ScalarTransferUnit().generateExecutor(opcode, dataTypes,
-							operandContainers, operandCaches, operandCached, operandScalar, operandConstant);
+							operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
+					);
 				}
 				break;
 			}
 			case FLOAT64 : {
 				if (isAllVector(operandScalar)) {
 					executor = new Float64VectorTransferUnit().generateExecutor(opcode, dataTypes,
-							operandContainers, operandCaches, operandCached, operandScalar, operandConstant);
+							operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
+					);
 				} else if (isAllScalar(operandScalar) && isAllCached(operandCached)) {
 					executor = new Float64CachedScalarTransferUnit().generateExecutor(opcode, dataTypes,
-							operandContainers, operandCaches, operandCached, operandScalar, operandConstant);
+							operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
+					);
 				} else {
 					executor = new Float64ScalarTransferUnit().generateExecutor(opcode, dataTypes,
-							operandContainers, operandCaches, operandCached, operandScalar, operandConstant);
+							operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
+					);
 				}
 				break;
 			}
 			case BOOL : {
 				if (isAllVector(operandScalar)) {
 					executor = new BoolVectorTransferUnit().generateExecutor(opcode, dataTypes,
-							operandContainers, operandCaches, operandCached, operandScalar, operandConstant);
+							operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
+					);
 				} else if (isAllScalar(operandScalar) && isAllCached(operandCached)) {
 					executor = new BoolCachedScalarTransferUnit().generateExecutor(opcode, dataTypes,
-							operandContainers, operandCaches, operandCached, operandScalar, operandConstant);
+							operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
+					);
 				} else {
 					executor = new BoolScalarTransferUnit().generateExecutor(opcode, dataTypes,
-							operandContainers, operandCaches, operandCached, operandScalar, operandConstant);
+							operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
+					);
 				}
 				break;
 			}
@@ -634,7 +673,8 @@ public class Accelerator {
 
 	private AccelerationExecutorNode generateBranchExecutor(
 			OperationCode opcode, DataType[] dataTypes, DataContainer<?>[] operandContainers,
-			Object[] operandCaches, boolean[] operandCached, boolean[] operandScalar, boolean[] operandConstant) {
+			Object[] operandCaches, boolean[] operandCached, boolean[] operandScalar, boolean[] operandConstant,
+			AccelerationExecutorNode nextNode) {
 
 		AccelerationExecutorNode executor = null;
 
@@ -642,11 +682,13 @@ public class Accelerator {
 			case BOOL : {
 				if (isAllScalar(operandScalar) && isAllCached(operandCached)) {
 					executor = new BoolCachedScalarBranchUnit().generateExecutor(opcode, dataTypes,
-							operandContainers, operandCaches, operandCached, operandScalar, operandConstant);
+							operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
+					);
 				// ベクトルの場合はあり得ない(要素数1なら可能？)
 				} else {
 					executor = new BoolScalarBranchUnit().generateExecutor(opcode, dataTypes,
-							operandContainers, operandCaches, operandCached, operandScalar, operandConstant);
+							operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
+					);
 				}
 				break;
 			}
@@ -677,13 +719,17 @@ public class Accelerator {
 		private boolean allocated = false;
 
 		public ScalarAllocExecutor(Instruction instruction, Memory memory, Interconnect interconnect,
-				Processor processor, CacheSynchronizer synchronizer) {
+				Processor processor, CacheSynchronizer synchronizer,
+				AccelerationExecutorNode nextNode) {
+
+			super(nextNode);
 			this.instruction = instruction;
 			this.interconnect = interconnect;
 			this.processor = processor;
 			this.memory = memory;
 			this.synchronizer = synchronizer;
 		}
+
 		public final AccelerationExecutorNode execute() {
 			if (this.allocated) {
 				return this.nextNode;
@@ -711,13 +757,17 @@ public class Accelerator {
 		private final CacheSynchronizer synchronizer;
 
 		public PassThroughExecutor(Instruction instruction, Memory memory, Interconnect interconnect,
-				Processor processor, CacheSynchronizer synchronizer) {
+				Processor processor, CacheSynchronizer synchronizer,
+				AccelerationExecutorNode nextNode) {
+
+			super(nextNode);
 			this.instruction = instruction;
 			this.interconnect = interconnect;
 			this.processor = processor;
 			this.memory = memory;
 			this.synchronizer = synchronizer;
 		}
+
 		public final AccelerationExecutorNode execute() {
 			try {
 

@@ -15,7 +15,8 @@ public class BoolVectorLogicalUnit extends AccelerationUnit {
 	@Override
 	public AccelerationExecutorNode generateExecutor(
 			OperationCode opcode, DataType[] dataTypes, DataContainer<?>[] operandContainers,
-			Object[] operandCaches, boolean[] operandCached, boolean[] operandScalar, boolean[] operandConstant) {
+			Object[] operandCaches, boolean[] operandCached, boolean[] operandScalar, boolean[] operandConstant,
+			AccelerationExecutorNode nextNode) {
 
 		DataContainer<boolean[]>[] containers = (DataContainer<boolean[]>[])operandContainers;
 
@@ -24,19 +25,19 @@ public class BoolVectorLogicalUnit extends AccelerationUnit {
 			case AND : {
 				Boolx3CacheSynchronizer synchronizer = new Boolx3CacheSynchronizer(
 						operandContainers, operandCaches, operandCached);
-				executor = new BoolVectorAndExecutor(containers[0], containers[1], containers[2], synchronizer);
+				executor = new BoolVectorAndExecutor(containers[0], containers[1], containers[2], synchronizer, nextNode);
 				break;
 			}
 			case OR : {
 				Boolx3CacheSynchronizer synchronizer = new Boolx3CacheSynchronizer(
 						operandContainers, operandCaches, operandCached);
-				executor = new BoolVectorOrExecutor(containers[0], containers[1], containers[2], synchronizer);
+				executor = new BoolVectorOrExecutor(containers[0], containers[1], containers[2], synchronizer, nextNode);
 				break;
 			}
 			case NOT : {
 				Boolx2CacheSynchronizer synchronizer = new Boolx2CacheSynchronizer(
 						operandContainers, operandCaches, operandCached);
-				executor = new BoolVectorNotExecutor(containers[0], containers[1], synchronizer);
+				executor = new BoolVectorNotExecutor(containers[0], containers[1], synchronizer, nextNode);
 				break;
 			}
 			default : {
@@ -54,8 +55,9 @@ public class BoolVectorLogicalUnit extends AccelerationUnit {
 
 		public BoolVectorLogicalExecutor(
 				DataContainer<boolean[]> container0, DataContainer<boolean[]> container1, DataContainer<boolean[]> container2,
-				Boolx3CacheSynchronizer synchronizer) {
+				Boolx3CacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
 
+			super(nextNode);
 			this.container0 = container0;
 			this.container1 = container1;
 			this.container2 = container2;
@@ -63,8 +65,9 @@ public class BoolVectorLogicalUnit extends AccelerationUnit {
 		}
 		public BoolVectorLogicalExecutor(
 				DataContainer<boolean[]> container0, DataContainer<boolean[]> container1,
-				Boolx2CacheSynchronizer synchronizer) {
+				Boolx2CacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
 
+			super(nextNode);
 			this.container0 = container0;
 			this.container1 = container1;
 			this.container2 = null;
@@ -76,9 +79,9 @@ public class BoolVectorLogicalUnit extends AccelerationUnit {
 
 		public BoolVectorAndExecutor(
 				DataContainer<boolean[]> container0, DataContainer<boolean[]> container1, DataContainer<boolean[]> container2,
-				Boolx3CacheSynchronizer synchronizer) {
+				Boolx3CacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
 
-			super(container0, container1, container2, synchronizer);
+			super(container0, container1, container2, synchronizer, nextNode);
 		}
 
 		public final AccelerationExecutorNode execute() {
@@ -101,9 +104,9 @@ public class BoolVectorLogicalUnit extends AccelerationUnit {
 
 		public BoolVectorOrExecutor(
 				DataContainer<boolean[]> container0, DataContainer<boolean[]> container1, DataContainer<boolean[]> container2,
-				Boolx3CacheSynchronizer synchronizer) {
+				Boolx3CacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
 
-			super(container0, container1, container2, synchronizer);
+			super(container0, container1, container2, synchronizer, nextNode);
 		}
 
 		public final AccelerationExecutorNode execute() {
@@ -126,9 +129,9 @@ public class BoolVectorLogicalUnit extends AccelerationUnit {
 
 		public BoolVectorNotExecutor(
 				DataContainer<boolean[]> container0, DataContainer<boolean[]> container1,
-				Boolx2CacheSynchronizer synchronizer) {
+				Boolx2CacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
 
-			super(container0, container1, synchronizer);
+			super(container0, container1, synchronizer, nextNode);
 		}
 
 		public final AccelerationExecutorNode execute() {

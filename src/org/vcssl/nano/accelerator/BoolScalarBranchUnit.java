@@ -15,7 +15,8 @@ public class BoolScalarBranchUnit extends AccelerationUnit {
 	@Override
 	public AccelerationExecutorNode generateExecutor(
 			OperationCode opcode, DataType[] dataTypes, DataContainer<?>[] operandContainers,
-			Object[] operandCaches, boolean[] operandCached, boolean[] operandScalar, boolean[] operandConstant) {
+			Object[] operandCaches, boolean[] operandCached, boolean[] operandScalar, boolean[] operandConstant,
+			AccelerationExecutorNode nextNode) {
 
 		DataContainer<boolean[]> container0 = (DataContainer<boolean[]>)operandContainers[0];
 		Boolx1CacheSynchronizer synchronizer
@@ -27,11 +28,11 @@ public class BoolScalarBranchUnit extends AccelerationUnit {
 		AccelerationExecutorNode executor = null;
 		switch (opcode) {
 			case JMP : {
-				executor = new ScalarJmpExecutor(container0, jumpAddress, synchronizer);
+				executor = new ScalarJmpExecutor(container0, jumpAddress, synchronizer, nextNode);
 				break;
 			}
 			case JMPN : {
-				executor = new ScalarJmpnExecutor(container0, jumpAddress, synchronizer);
+				executor = new ScalarJmpnExecutor(container0, jumpAddress, synchronizer, nextNode);
 				break;
 			}
 			default : {
@@ -50,8 +51,9 @@ public class BoolScalarBranchUnit extends AccelerationUnit {
 
 		public ScalarJmpExecutor(
 				DataContainer<boolean[]> container0, int jumpAddress,
-				Boolx1CacheSynchronizer synchronizer) {
+				Boolx1CacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
 
+			super(nextNode);
 			this.container0 = container0;
 			this.jumpAddress = jumpAddress;
 			this.synchronizer = synchronizer;
@@ -79,8 +81,9 @@ public class BoolScalarBranchUnit extends AccelerationUnit {
 
 		public ScalarJmpnExecutor(
 				DataContainer<boolean[]> container0, int jumpAddress,
-				Boolx1CacheSynchronizer synchronizer) {
+				Boolx1CacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
 
+			super(nextNode);
 			this.container0 = container0;
 			this.jumpAddress = jumpAddress;
 			this.synchronizer = synchronizer;

@@ -15,7 +15,8 @@ public class Int64VectorComparisonUnit extends AccelerationUnit {
 	@Override
 	public AccelerationExecutorNode generateExecutor(
 			OperationCode opcode, DataType[] dataTypes, DataContainer<?>[] operandContainers,
-			Object[] operandCaches, boolean[] operandCached, boolean[] operandScalar, boolean[] operandConstant) {
+			Object[] operandCaches, boolean[] operandCached, boolean[] operandScalar, boolean[] operandConstant,
+			AccelerationExecutorNode nextNode) {
 
 		DataContainer<boolean[]> container0 = (DataContainer<boolean[]>)operandContainers[0];
 		DataContainer<long[]> container1 = (DataContainer<long[]>)operandContainers[1];
@@ -26,27 +27,27 @@ public class Int64VectorComparisonUnit extends AccelerationUnit {
 		Int64VectorComparisonExecutor containers = null;
 		switch (opcode) {
 			case LT : {
-				containers = new Int64VectorLtExecutor(container0, container1, container2, synchronizer);
+				containers = new Int64VectorLtExecutor(container0, container1, container2, synchronizer, nextNode);
 				break;
 			}
 			case GT : {
-				containers = new Int64VectorGtExecutor(container0, container1, container2, synchronizer);
+				containers = new Int64VectorGtExecutor(container0, container1, container2, synchronizer, nextNode);
 				break;
 			}
 			case LEQ : {
-				containers = new Int64VectorLeqExecutor(container0, container1, container2, synchronizer);
+				containers = new Int64VectorLeqExecutor(container0, container1, container2, synchronizer, nextNode);
 				break;
 			}
 			case GEQ : {
-				containers = new Int64VectorGeqExecutor(container0, container1, container2, synchronizer);
+				containers = new Int64VectorGeqExecutor(container0, container1, container2, synchronizer, nextNode);
 				break;
 			}
 			case EQ : {
-				containers = new Int64VectorEqExecutor(container0, container1, container2, synchronizer);
+				containers = new Int64VectorEqExecutor(container0, container1, container2, synchronizer, nextNode);
 				break;
 			}
 			case NEQ : {
-				containers = new Int64VectorNeqExecutor(container0, container1, container2, synchronizer);
+				containers = new Int64VectorNeqExecutor(container0, container1, container2, synchronizer, nextNode);
 				break;
 			}
 			default : {
@@ -64,8 +65,9 @@ public class Int64VectorComparisonUnit extends AccelerationUnit {
 
 		public Int64VectorComparisonExecutor(
 				DataContainer<boolean[]> container0, DataContainer<long[]> container1, DataContainer<long[]> container2,
-				Int64x3CacheSynchronizer synchronizer) {
+				Int64x3CacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
 
+			super(nextNode);
 			this.container0 = container0;
 			this.container1 = container1;
 			this.container2 = container2;
@@ -77,9 +79,9 @@ public class Int64VectorComparisonUnit extends AccelerationUnit {
 
 		public Int64VectorLtExecutor(
 				DataContainer<boolean[]> container0, DataContainer<long[]> container1, DataContainer<long[]> container2,
-				Int64x3CacheSynchronizer synchronizer) {
+				Int64x3CacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
 
-			super(container0, container1, container2, synchronizer);
+			super(container0, container1, container2, synchronizer, nextNode);
 		}
 
 		public final AccelerationExecutorNode execute() {
@@ -102,9 +104,9 @@ public class Int64VectorComparisonUnit extends AccelerationUnit {
 
 		public Int64VectorGtExecutor(
 				DataContainer<boolean[]> container0, DataContainer<long[]> container1, DataContainer<long[]> container2,
-				Int64x3CacheSynchronizer synchronizer) {
+				Int64x3CacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
 
-			super(container0, container1, container2, synchronizer);
+			super(container0, container1, container2, synchronizer, nextNode);
 		}
 
 		public final AccelerationExecutorNode execute() {
@@ -127,9 +129,9 @@ public class Int64VectorComparisonUnit extends AccelerationUnit {
 
 		public Int64VectorLeqExecutor(
 				DataContainer<boolean[]> container0, DataContainer<long[]> container1, DataContainer<long[]> container2,
-				Int64x3CacheSynchronizer synchronizer) {
+				Int64x3CacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
 
-			super(container0, container1, container2, synchronizer);
+			super(container0, container1, container2, synchronizer, nextNode);
 		}
 
 		public final AccelerationExecutorNode execute() {
@@ -152,9 +154,9 @@ public class Int64VectorComparisonUnit extends AccelerationUnit {
 
 		public Int64VectorGeqExecutor(
 				DataContainer<boolean[]> container0, DataContainer<long[]> container1, DataContainer<long[]> container2,
-				Int64x3CacheSynchronizer synchronizer) {
+				Int64x3CacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
 
-			super(container0, container1, container2, synchronizer);
+			super(container0, container1, container2, synchronizer, nextNode);
 		}
 
 		public final AccelerationExecutorNode execute() {
@@ -177,9 +179,9 @@ public class Int64VectorComparisonUnit extends AccelerationUnit {
 
 		public Int64VectorEqExecutor(
 				DataContainer<boolean[]> container0, DataContainer<long[]> container1, DataContainer<long[]> container2,
-				Int64x3CacheSynchronizer synchronizer) {
+				Int64x3CacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
 
-			super(container0, container1, container2, synchronizer);
+			super(container0, container1, container2, synchronizer, nextNode);
 		}
 
 		public final AccelerationExecutorNode execute() {
@@ -202,9 +204,9 @@ public class Int64VectorComparisonUnit extends AccelerationUnit {
 
 		public Int64VectorNeqExecutor(
 				DataContainer<boolean[]> container0, DataContainer<long[]> container1, DataContainer<long[]> container2,
-				Int64x3CacheSynchronizer synchronizer) {
+				Int64x3CacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
 
-			super(container0, container1, container2, synchronizer);
+			super(container0, container1, container2, synchronizer, nextNode);
 		}
 
 		public final AccelerationExecutorNode execute() {

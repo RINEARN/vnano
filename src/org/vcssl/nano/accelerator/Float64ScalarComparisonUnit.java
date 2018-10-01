@@ -15,7 +15,8 @@ public class Float64ScalarComparisonUnit extends AccelerationUnit {
 	@Override
 	public AccelerationExecutorNode generateExecutor(
 			OperationCode opcode, DataType[] dataTypes, DataContainer<?>[] operandContainers,
-			Object[] operandCaches, boolean[] operandCached, boolean[] operandScalar, boolean[] operandConstant) {
+			Object[] operandCaches, boolean[] operandCached, boolean[] operandScalar, boolean[] operandConstant,
+			AccelerationExecutorNode nextNode) {
 
 		Boolx1Int64x2CacheSynchronizer synchronizer
 				= new Boolx1Int64x2CacheSynchronizer(operandContainers, operandCaches, operandCached);
@@ -27,27 +28,27 @@ public class Float64ScalarComparisonUnit extends AccelerationUnit {
 		AccelerationExecutorNode executor = null;
 		switch (opcode) {
 			case LT : {
-				executor = new Float64ScalarLtExecutor(container0, container1, container2, synchronizer);
+				executor = new Float64ScalarLtExecutor(container0, container1, container2, synchronizer, nextNode);
 				break;
 			}
 			case GT : {
-				executor = new Float64ScalarGtExecutor(container0, container1, container2, synchronizer);
+				executor = new Float64ScalarGtExecutor(container0, container1, container2, synchronizer, nextNode);
 				break;
 			}
 			case LEQ : {
-				executor = new Float64ScalarLeqExecutor(container0, container1, container2, synchronizer);
+				executor = new Float64ScalarLeqExecutor(container0, container1, container2, synchronizer, nextNode);
 				break;
 			}
 			case GEQ : {
-				executor = new Float64ScalarGeqExecutor(container0, container1, container2, synchronizer);
+				executor = new Float64ScalarGeqExecutor(container0, container1, container2, synchronizer, nextNode);
 				break;
 			}
 			case EQ : {
-				executor = new Float64ScalarEqExecutor(container0, container1, container2, synchronizer);
+				executor = new Float64ScalarEqExecutor(container0, container1, container2, synchronizer, nextNode);
 				break;
 			}
 			case NEQ : {
-				executor = new Float64ScalarNeqExecutor(container0, container1, container2, synchronizer);
+				executor = new Float64ScalarNeqExecutor(container0, container1, container2, synchronizer, nextNode);
 				break;
 			}
 			default : {
@@ -65,8 +66,9 @@ public class Float64ScalarComparisonUnit extends AccelerationUnit {
 
 		public Float64ScalarComparisonExecutor(
 				DataContainer<boolean[]> container0, DataContainer<double[]> container1, DataContainer<double[]> container2,
-				Boolx1Int64x2CacheSynchronizer synchronizer) {
+				Boolx1Int64x2CacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
 
+			super(nextNode);
 			this.container0 = container0;
 			this.container1 = container1;
 			this.container2 = container2;
@@ -78,9 +80,9 @@ public class Float64ScalarComparisonUnit extends AccelerationUnit {
 
 		public Float64ScalarLtExecutor(
 				DataContainer<boolean[]> container0, DataContainer<double[]> container1, DataContainer<double[]> container2,
-				Boolx1Int64x2CacheSynchronizer synchronizer) {
+				Boolx1Int64x2CacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
 
-			super(container0, container1, container2, synchronizer);
+			super(container0, container1, container2, synchronizer, nextNode);
 		}
 
 		public final AccelerationExecutorNode execute() {
@@ -97,9 +99,9 @@ public class Float64ScalarComparisonUnit extends AccelerationUnit {
 
 		public Float64ScalarGtExecutor(
 				DataContainer<boolean[]> container0, DataContainer<double[]> container1, DataContainer<double[]> container2,
-				Boolx1Int64x2CacheSynchronizer synchronizer) {
+				Boolx1Int64x2CacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
 
-			super(container0, container1, container2, synchronizer);
+			super(container0, container1, container2, synchronizer, nextNode);
 		}
 
 		public final AccelerationExecutorNode execute() {
@@ -116,9 +118,9 @@ public class Float64ScalarComparisonUnit extends AccelerationUnit {
 
 		public Float64ScalarLeqExecutor(
 				DataContainer<boolean[]> container0, DataContainer<double[]> container1, DataContainer<double[]> container2,
-				Boolx1Int64x2CacheSynchronizer synchronizer) {
+				Boolx1Int64x2CacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
 
-			super(container0, container1, container2, synchronizer);
+			super(container0, container1, container2, synchronizer, nextNode);
 		}
 
 		public final AccelerationExecutorNode execute() {
@@ -135,9 +137,9 @@ public class Float64ScalarComparisonUnit extends AccelerationUnit {
 
 		public Float64ScalarGeqExecutor(
 				DataContainer<boolean[]> container0, DataContainer<double[]> container1, DataContainer<double[]> container2,
-				Boolx1Int64x2CacheSynchronizer synchronizer) {
+				Boolx1Int64x2CacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
 
-			super(container0, container1, container2, synchronizer);
+			super(container0, container1, container2, synchronizer, nextNode);
 		}
 
 		public final AccelerationExecutorNode execute() {
@@ -155,9 +157,9 @@ public class Float64ScalarComparisonUnit extends AccelerationUnit {
 
 		public Float64ScalarEqExecutor(
 				DataContainer<boolean[]> container0, DataContainer<double[]> container1, DataContainer<double[]> container2,
-				Boolx1Int64x2CacheSynchronizer synchronizer) {
+				Boolx1Int64x2CacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
 
-			super(container0, container1, container2, synchronizer);
+			super(container0, container1, container2, synchronizer, nextNode);
 		}
 
 		public final AccelerationExecutorNode execute() {
@@ -174,9 +176,9 @@ public class Float64ScalarComparisonUnit extends AccelerationUnit {
 
 		public Float64ScalarNeqExecutor(
 				DataContainer<boolean[]> container0, DataContainer<double[]> container1, DataContainer<double[]> container2,
-				Boolx1Int64x2CacheSynchronizer synchronizer) {
+				Boolx1Int64x2CacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
 
-			super(container0, container1, container2, synchronizer);
+			super(container0, container1, container2, synchronizer, nextNode);
 		}
 
 		public final AccelerationExecutorNode execute() {

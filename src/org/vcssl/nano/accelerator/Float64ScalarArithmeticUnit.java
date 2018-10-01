@@ -15,7 +15,8 @@ public class Float64ScalarArithmeticUnit extends AccelerationUnit {
 	@Override
 	public AccelerationExecutorNode generateExecutor(
 			OperationCode opcode, DataType[] dataTypes, DataContainer<?>[] operandContainers,
-			Object[] operandCaches, boolean[] operandCached, boolean[] operandScalar, boolean[] operandConstant) {
+			Object[] operandCaches, boolean[] operandCached, boolean[] operandScalar, boolean[] operandConstant,
+			AccelerationExecutorNode nextNode) {
 
 		DataContainer<double[]>[] containers = (DataContainer<double[]>[])operandContainers;
 		Float64x3CacheSynchronizer synchronizer =
@@ -24,23 +25,23 @@ public class Float64ScalarArithmeticUnit extends AccelerationUnit {
 		AccelerationExecutorNode executor = null;
 		switch (opcode) {
 			case ADD : {
-				executor = new Float64ScalarAddExecutor(containers[0], containers[1], containers[2], synchronizer);
+				executor = new Float64ScalarAddExecutor(containers[0], containers[1], containers[2], synchronizer, nextNode);
 				break;
 			}
 			case SUB : {
-				executor = new Float64ScalarSubExecutor(containers[0], containers[1], containers[2], synchronizer);
+				executor = new Float64ScalarSubExecutor(containers[0], containers[1], containers[2], synchronizer, nextNode);
 				break;
 			}
 			case MUL : {
-				executor = new Float64ScalarMulExecutor(containers[0], containers[1], containers[2], synchronizer);
+				executor = new Float64ScalarMulExecutor(containers[0], containers[1], containers[2], synchronizer, nextNode);
 				break;
 			}
 			case DIV : {
-				executor = new Float64ScalarDivExecutor(containers[0], containers[1], containers[2], synchronizer);
+				executor = new Float64ScalarDivExecutor(containers[0], containers[1], containers[2], synchronizer, nextNode);
 				break;
 			}
 			case REM : {
-				executor = new Float64ScalarRemExecutor(containers[0], containers[1], containers[2], synchronizer);
+				executor = new Float64ScalarRemExecutor(containers[0], containers[1], containers[2], synchronizer, nextNode);
 				break;
 			}
 			default : {
@@ -58,8 +59,9 @@ public class Float64ScalarArithmeticUnit extends AccelerationUnit {
 
 		public Float64ScalarArithmeticExecutor(
 				DataContainer<double[]> container0, DataContainer<double[]> container1, DataContainer<double[]> container2,
-				Float64x3CacheSynchronizer synchronizer) {
+				Float64x3CacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
 
+			super(nextNode);
 			this.container0 = container0;
 			this.container1 = container1;
 			this.container2 = container2;
@@ -71,9 +73,9 @@ public class Float64ScalarArithmeticUnit extends AccelerationUnit {
 
 		public Float64ScalarAddExecutor(
 				DataContainer<double[]> container0, DataContainer<double[]> container1, DataContainer<double[]> container2,
-				Float64x3CacheSynchronizer synchronizer) {
+				Float64x3CacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
 
-			super(container0, container1, container2, synchronizer);
+			super(container0, container1, container2, synchronizer, nextNode);
 		}
 
 		public final AccelerationExecutorNode execute() {
@@ -90,9 +92,9 @@ public class Float64ScalarArithmeticUnit extends AccelerationUnit {
 
 		public Float64ScalarSubExecutor(
 				DataContainer<double[]> container0, DataContainer<double[]> container1, DataContainer<double[]> container2,
-				Float64x3CacheSynchronizer synchronizer) {
+				Float64x3CacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
 
-			super(container0, container1, container2, synchronizer);
+			super(container0, container1, container2, synchronizer, nextNode);
 		}
 
 		public final AccelerationExecutorNode execute() {
@@ -109,9 +111,9 @@ public class Float64ScalarArithmeticUnit extends AccelerationUnit {
 
 		public Float64ScalarMulExecutor(
 				DataContainer<double[]> container0, DataContainer<double[]> container1, DataContainer<double[]> container2,
-				Float64x3CacheSynchronizer synchronizer) {
+				Float64x3CacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
 
-			super(container0, container1, container2, synchronizer);
+			super(container0, container1, container2, synchronizer, nextNode);
 		}
 
 		public final AccelerationExecutorNode execute() {
@@ -128,9 +130,9 @@ public class Float64ScalarArithmeticUnit extends AccelerationUnit {
 
 		public Float64ScalarDivExecutor(
 				DataContainer<double[]> container0, DataContainer<double[]> container1, DataContainer<double[]> container2,
-				Float64x3CacheSynchronizer synchronizer) {
+				Float64x3CacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
 
-			super(container0, container1, container2, synchronizer);
+			super(container0, container1, container2, synchronizer, nextNode);
 		}
 
 		public final AccelerationExecutorNode execute() {
@@ -147,9 +149,9 @@ public class Float64ScalarArithmeticUnit extends AccelerationUnit {
 
 		public Float64ScalarRemExecutor(
 				DataContainer<double[]> container0, DataContainer<double[]> container1, DataContainer<double[]> container2,
-				Float64x3CacheSynchronizer synchronizer) {
+				Float64x3CacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
 
-			super(container0, container1, container2, synchronizer);
+			super(container0, container1, container2, synchronizer, nextNode);
 		}
 
 		public final AccelerationExecutorNode execute() {

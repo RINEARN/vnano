@@ -15,7 +15,8 @@ public class BoolScalarTransferUnit extends AccelerationUnit {
 	@Override
 	public AccelerationExecutorNode generateExecutor(
 			OperationCode opcode, DataType[] dataTypes, DataContainer<?>[] operandContainers,
-			Object[] operandCaches, boolean[] operandCached, boolean[] operandScalar, boolean[] operandConstant) {
+			Object[] operandCaches, boolean[] operandCached, boolean[] operandScalar, boolean[] operandConstant,
+			AccelerationExecutorNode nextNode) {
 
 		AccelerationExecutorNode executor = null;
 		switch (opcode) {
@@ -25,7 +26,7 @@ public class BoolScalarTransferUnit extends AccelerationUnit {
 						= new Boolx2CacheSynchronizer(operandContainers, operandCaches, operandCached);
 				executor = new BoolScalarMovExecutor(
 						(DataContainer<boolean[]>)operandContainers[0], (DataContainer<boolean[]>)operandContainers[1],
-						synchronizer);
+						synchronizer, nextNode);
 				break;
 			}
 			case CAST : {
@@ -34,7 +35,7 @@ public class BoolScalarTransferUnit extends AccelerationUnit {
 							= new Boolx2CacheSynchronizer(operandContainers, operandCaches, operandCached);
 					executor = new BoolScalarMovExecutor(
 							(DataContainer<boolean[]>)operandContainers[0], (DataContainer<boolean[]>)operandContainers[1],
-							synchronizer);
+							synchronizer, nextNode);
 				}
 				break;
 			}
@@ -54,8 +55,9 @@ public class BoolScalarTransferUnit extends AccelerationUnit {
 
 		public BoolScalarMovExecutor(
 				DataContainer<boolean[]> container0, DataContainer<boolean[]> container1,
-				Boolx2CacheSynchronizer synchronizer) {
+				Boolx2CacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
 
+			super(nextNode);
 			this.container0 = container0;
 			this.container1 = container1;
 			this.synchronizer = synchronizer;
