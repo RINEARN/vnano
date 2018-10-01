@@ -795,10 +795,32 @@ public class Accelerator {
 			super(cache00, cache01, cache02, cache10, cache11, cache12);
 		}
 		public final AccelerationExecutorNode execute() {
+
+			// ストレートな2命令融合処理 >> 280MFLOPS
 			this.cache00.value = this.cache01.value + this.cache02.value;
 			this.cache10.value = this.cache11.value + this.cache12.value;
+
+			// 上の形の限界を探るために、正しくない処理になるが試しに速くなりそうな形を書いたもの >> 280MFLOPS、全く伸びず
 			//this.cache00.value += 1.0;
 			//this.cache10.value += 1.0;
+
+			// 同じく >> 640MFLOPS
+			//this.cache00.value = this.cache10.value;
+			//this.cache10.value = this.cache00.value;
+
+			// 最適化ステージを挟めば、こう畳み込める場合はあり得る >> 407MFLOPS
+			//this.cache10.value = (this.cache01.value + this.cache02.value) + this.cache12.value;
+
+			// 同じく >> 407MFLOPS
+			//this.cache10.value = (this.cache00.value = this.cache01.value + this.cache02.value) + this.cache12.value;
+
+			// 上に加算が1つ増えただけの場合。ベンチマークコードが現状のままでは一気に 240 MFLOPSまで落ちるように見えるが、
+			// 2FLOPから3FLOPに実質演算量増えてるので3/2補正して実際は360MFLOPS。しかしそれでも落ちている
+			//this.cache10.value = (this.cache00.value = this.cache01.value + this.cache02.value) + this.cache11.value + this.cache12.value;
+
+			// 代入を削って可算のみ3連続 >> ベンチマークコード現状のままで334MFLOPS >> 3/2補正 で 501MFLOPS
+			//this.cache10.value = this.cache01.value + this.cache02.value + this.cache11.value + this.cache12.value;
+
 			return this.nextNode;
 		}
 	}
