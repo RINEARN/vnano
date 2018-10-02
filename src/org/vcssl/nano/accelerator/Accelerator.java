@@ -188,21 +188,21 @@ public class Accelerator {
 						switch (instruction.getDataTypes()[0]) {
 							case INT64 : {
 								//System.out.println("CACHE INT64 " + partitions[0].ordinal() + " / " + addresses[0]);
-								caches[ partitions[0].ordinal() ][ addresses[0] ] = new Int64Cache();
+								caches[ partitions[0].ordinal() ][ addresses[0] ] = new Int64ScalarCache();
 								cached[ partitions[0].ordinal() ][ addresses[0] ] = true;
 								cachable[ partitions[0].ordinal() ][ addresses[0] ] = true;
 								break;
 							}
 							case FLOAT64 : {
 								//System.out.println("CACHE FLOAT64 " + partitions[0].ordinal() + " / " + addresses[0]);
-								caches[ partitions[0].ordinal() ][ addresses[0] ] = new Float64Cache();
+								caches[ partitions[0].ordinal() ][ addresses[0] ] = new Float64ScalarCache();
 								cached[ partitions[0].ordinal() ][ addresses[0] ] = true;
 								cachable[ partitions[0].ordinal() ][ addresses[0] ] = true;
 								break;
 							}
 							case BOOL : {
 								//System.out.println("CACHE BOOL " + partitions[0].ordinal() + " / " + addresses[0]);
-								caches[ partitions[0].ordinal() ][ addresses[0] ] = new BoolCache();
+								caches[ partitions[0].ordinal() ][ addresses[0] ] = new BoolScalarCache();
 								cached[ partitions[0].ordinal() ][ addresses[0] ] = true;
 								cachable[ partitions[0].ordinal() ][ addresses[0] ] = true;
 								break;
@@ -237,19 +237,19 @@ public class Accelerator {
 			DataType dataType = container.getDataType();
 			switch (dataType) {
 				case INT64 : {
-					caches[constantPartitionOrdinal][constantIndex] = new Int64Cache();
+					caches[constantPartitionOrdinal][constantIndex] = new Int64ScalarCache();
 					cached[constantPartitionOrdinal][constantIndex] = true;
 					cachable[constantPartitionOrdinal][constantIndex] = true;
 					break;
 				}
 				case FLOAT64 : {
-					caches[constantPartitionOrdinal][constantIndex] = new Float64Cache();
+					caches[constantPartitionOrdinal][constantIndex] = new Float64ScalarCache();
 					cached[constantPartitionOrdinal][constantIndex] = true;
 					cachable[constantPartitionOrdinal][constantIndex] = true;
 					break;
 				}
 				case BOOL : {
-					caches[constantPartitionOrdinal][constantIndex] = new BoolCache();
+					caches[constantPartitionOrdinal][constantIndex] = new BoolScalarCache();
 					cached[constantPartitionOrdinal][constantIndex] = true;
 					cachable[constantPartitionOrdinal][constantIndex] = true;
 					break;
@@ -298,7 +298,7 @@ public class Accelerator {
 
 			if (opcode == OperationCode.ALLOC && scalar[partitions[0].ordinal()][addresses[0]] ) {
 
-				CacheSynchronizer synchronizer = new GeneralCacheSynchronizer(containers, operandCaches, operandCached);
+				CacheSynchronizer synchronizer = new GeneralScalarCacheSynchronizer(containers, operandCaches, operandCached);
 
 				executors[instructionIndex] = new ScalarAllocExecutor(
 					instructions[instructionIndex], memory, interconnect, processor, synchronizer, nextNode
@@ -380,7 +380,7 @@ public class Accelerator {
 
 			if (executors[instructionIndex] == null) {
 
-				CacheSynchronizer synchronizer = new GeneralCacheSynchronizer(
+				CacheSynchronizer synchronizer = new GeneralScalarCacheSynchronizer(
 					containers, operandCaches, operandCached
 				);
 				executors[instructionIndex] = new PassThroughExecutor(
@@ -423,16 +423,16 @@ public class Accelerator {
 
 
 		CacheSynchronizer[] synchronizers = new CacheSynchronizer[partitionLength];
-		synchronizers[registerPartitionOrdinal] = new GeneralCacheSynchronizer(
+		synchronizers[registerPartitionOrdinal] = new GeneralScalarCacheSynchronizer(
 				registerContainers, caches[registerPartitionOrdinal], cached[registerPartitionOrdinal]
 		);
-		synchronizers[localPartitionOrdinal] = new GeneralCacheSynchronizer(
+		synchronizers[localPartitionOrdinal] = new GeneralScalarCacheSynchronizer(
 				localContainers, caches[localPartitionOrdinal], cached[localPartitionOrdinal]
 		);
-		synchronizers[globalPartitionOrdinal] = new GeneralCacheSynchronizer(
+		synchronizers[globalPartitionOrdinal] = new GeneralScalarCacheSynchronizer(
 				globalContainers, caches[globalPartitionOrdinal], cached[globalPartitionOrdinal]
 		);
-		synchronizers[constantPartitionOrdinal] = new GeneralCacheSynchronizer(
+		synchronizers[constantPartitionOrdinal] = new GeneralScalarCacheSynchronizer(
 				constantContainers, caches[constantPartitionOrdinal], cached[constantPartitionOrdinal]
 		);
 

@@ -21,8 +21,8 @@ public class Int64ScalarComparisonUnit extends AccelerationUnit {
 		DataContainer<boolean[]> cont0 = (DataContainer<boolean[]>)operandContainers[0];
 		DataContainer<long[]> cont1 = (DataContainer<long[]>)operandContainers[1];
 		DataContainer<long[]> cont2 = (DataContainer<long[]>)operandContainers[2];
-		Boolx1Int64x2CacheSynchronizer synchronizer
-				= new Boolx1Int64x2CacheSynchronizer(operandContainers, operandCaches, operandCached);
+		Boolx1Int64x2ScalarCacheSynchronizer synchronizer
+				= new Boolx1Int64x2ScalarCacheSynchronizer(operandContainers, operandCaches, operandCached);
 
 		AccelerationExecutorNode executor = null;
 		switch (opcode) {
@@ -61,11 +61,11 @@ public class Int64ScalarComparisonUnit extends AccelerationUnit {
 		protected final DataContainer<boolean[]> container0;
 		protected final DataContainer<long[]> container1;
 		protected final DataContainer<long[]> container2;
-		protected final Boolx1Int64x2CacheSynchronizer synchronizer;
+		protected final Boolx1Int64x2ScalarCacheSynchronizer synchronizer;
 
 		public Int64ScalarComparisonExecutor(
 				DataContainer<boolean[]> container0, DataContainer<long[]> container1, DataContainer<long[]> container2,
-				Boolx1Int64x2CacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
+				Boolx1Int64x2ScalarCacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
 
 			super(nextNode);
 			this.container0 = container0;
@@ -79,7 +79,7 @@ public class Int64ScalarComparisonUnit extends AccelerationUnit {
 
 		public Int64ScalarLtExecutor(
 				DataContainer<boolean[]> container0, DataContainer<long[]> container1, DataContainer<long[]> container2,
-				Boolx1Int64x2CacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
+				Boolx1Int64x2ScalarCacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
 
 			super(container0, container1, container2, synchronizer, nextNode);
 		}
@@ -98,7 +98,7 @@ public class Int64ScalarComparisonUnit extends AccelerationUnit {
 
 		public Int64ScalarGtExecutor(
 				DataContainer<boolean[]> container0, DataContainer<long[]> container1, DataContainer<long[]> container2,
-				Boolx1Int64x2CacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
+				Boolx1Int64x2ScalarCacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
 
 			super(container0, container1, container2, synchronizer, nextNode);
 		}
@@ -117,7 +117,7 @@ public class Int64ScalarComparisonUnit extends AccelerationUnit {
 
 		public Int64ScalarLeqExecutor(
 				DataContainer<boolean[]> container0, DataContainer<long[]> container1, DataContainer<long[]> container2,
-				Boolx1Int64x2CacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
+				Boolx1Int64x2ScalarCacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
 
 			super(container0, container1, container2, synchronizer, nextNode);
 		}
@@ -136,7 +136,7 @@ public class Int64ScalarComparisonUnit extends AccelerationUnit {
 
 		public Int64ScalarGeqExecutor(
 				DataContainer<boolean[]> container0, DataContainer<long[]> container1, DataContainer<long[]> container2,
-				Boolx1Int64x2CacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
+				Boolx1Int64x2ScalarCacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
 
 			super(container0, container1, container2, synchronizer, nextNode);
 		}
@@ -156,7 +156,7 @@ public class Int64ScalarComparisonUnit extends AccelerationUnit {
 
 		public Int64ScalarEqExecutor(
 				DataContainer<boolean[]> container0, DataContainer<long[]> container1, DataContainer<long[]> container2,
-				Boolx1Int64x2CacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
+				Boolx1Int64x2ScalarCacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
 
 			super(container0, container1, container2, synchronizer, nextNode);
 		}
@@ -175,7 +175,7 @@ public class Int64ScalarComparisonUnit extends AccelerationUnit {
 
 		public Int64ScalarNeqExecutor(
 				DataContainer<boolean[]> container0, DataContainer<long[]> container1, DataContainer<long[]> container2,
-				Boolx1Int64x2CacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
+				Boolx1Int64x2ScalarCacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
 
 			super(container0, container1, container2, synchronizer, nextNode);
 		}

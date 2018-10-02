@@ -19,8 +19,8 @@ public class BoolScalarBranchUnit extends AccelerationUnit {
 			AccelerationExecutorNode nextNode) {
 
 		DataContainer<boolean[]> container0 = (DataContainer<boolean[]>)operandContainers[0];
-		Boolx1CacheSynchronizer synchronizer
-				= new Boolx1CacheSynchronizer(operandContainers, operandCaches, operandCached);
+		Boolx1ScalarCacheSynchronizer synchronizer
+				= new Boolx1ScalarCacheSynchronizer(operandContainers, operandCaches, operandCached);
 
 		// ラベル番地はメモリマッピング時点で確定していて不変なので、この段階で控える
 		int jumpAddress = (int)( (long[])operandContainers[1].getData() )[0];
@@ -45,13 +45,13 @@ public class BoolScalarBranchUnit extends AccelerationUnit {
 
 	private final class ScalarJmpExecutor extends AccelerationExecutorNode {
 		private final DataContainer<boolean[]> container0;
-		private final Boolx1CacheSynchronizer synchronizer;
+		private final Boolx1ScalarCacheSynchronizer synchronizer;
 		private final int jumpAddress;
 		private AccelerationExecutorNode branchedNode = null;
 
 		public ScalarJmpExecutor(
 				DataContainer<boolean[]> container0, int jumpAddress,
-				Boolx1CacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
+				Boolx1ScalarCacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
 
 			super(nextNode);
 			this.container0 = container0;
@@ -75,13 +75,13 @@ public class BoolScalarBranchUnit extends AccelerationUnit {
 	}
 	private final class ScalarJmpnExecutor extends AccelerationExecutorNode {
 		private final DataContainer<boolean[]> container0;
-		private final Boolx1CacheSynchronizer synchronizer;
+		private final Boolx1ScalarCacheSynchronizer synchronizer;
 		private final int jumpAddress;
 		private AccelerationExecutorNode branchedNode = null;
 
 		public ScalarJmpnExecutor(
 				DataContainer<boolean[]> container0, int jumpAddress,
-				Boolx1CacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
+				Boolx1ScalarCacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
 
 			super(nextNode);
 			this.container0 = container0;

@@ -7,25 +7,25 @@ package org.vcssl.nano.accelerator;
 
 import org.vcssl.nano.memory.DataContainer;
 
-class Int64x3CacheSynchronizer extends CacheSynchronizer {
-	private final DataContainer<long[]> container0;
-	private final DataContainer<long[]> container1;
-	private final DataContainer<long[]> container2;
-	private final Int64Cache cache0;
-	private final Int64Cache cache1;
-	private final Int64Cache cache2;
+class Float64x3ScalarCacheSynchronizer extends CacheSynchronizer {
+	private final DataContainer<double[]> container0;
+	private final DataContainer<double[]> container1;
+	private final DataContainer<double[]> container2;
+	private final Float64ScalarCache cache0;
+	private final Float64ScalarCache cache1;
+	private final Float64ScalarCache cache2;
 	private final boolean cached0;
 	private final boolean cached1;
 	private final boolean cached2;
 
 	@SuppressWarnings("unchecked" )
-	public Int64x3CacheSynchronizer(DataContainer<?>[] containers, Object[] caches, boolean[] cached) {
-		container0 = (DataContainer<long[]>)containers[0];
-		container1 = (DataContainer<long[]>)containers[1];
-		container2 = (DataContainer<long[]>)containers[2];
-		cache0 = (Int64Cache)caches[0];
-		cache1 = (Int64Cache)caches[1];
-		cache2 = (Int64Cache)caches[2];
+	public Float64x3ScalarCacheSynchronizer(DataContainer<?>[] containers, Object[] caches, boolean[] cached) {
+		container0 = (DataContainer<double[]>)containers[0];
+		container1 = (DataContainer<double[]>)containers[1];
+		container2 = (DataContainer<double[]>)containers[2];
+		cache0 = (Float64ScalarCache)caches[0];
+		cache1 = (Float64ScalarCache)caches[1];
+		cache2 = (Float64ScalarCache)caches[2];
 		cached0 = cached[0];
 		cached1 = cached[1];
 		cached2 = cached[2];

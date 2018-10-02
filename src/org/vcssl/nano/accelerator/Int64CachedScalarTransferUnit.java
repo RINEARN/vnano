@@ -21,23 +21,23 @@ public class Int64CachedScalarTransferUnit extends AccelerationUnit {
 		switch (opcode) {
 			case MOV : {
 				executor = new Int64CachedScalarMovExecutor(
-						(Int64Cache)operandCaches[0], (Int64Cache)operandCaches[1], nextNode);
+						(Int64ScalarCache)operandCaches[0], (Int64ScalarCache)operandCaches[1], nextNode);
 				break;
 			}
 			case CAST : {
 				if (dataTypes[1] == DataType.INT64) {
 					executor = new Int64CachedScalarMovExecutor(
-							(Int64Cache)operandCaches[0], (Int64Cache)operandCaches[1], nextNode);
+							(Int64ScalarCache)operandCaches[0], (Int64ScalarCache)operandCaches[1], nextNode);
 				}
 				if (dataTypes[1] == DataType.FLOAT64) {
 					executor = new Int64FromFloat64CachedScalarCastExecutor(
-							(Int64Cache)operandCaches[0], (Float64Cache)operandCaches[1], nextNode);
+							(Int64ScalarCache)operandCaches[0], (Float64ScalarCache)operandCaches[1], nextNode);
 				}
 				break;
 			}
 			case FILL : {
 				executor = new Int64CachedScalarMovExecutor(
-						(Int64Cache)operandCaches[0], (Int64Cache)operandCaches[1], nextNode);
+						(Int64ScalarCache)operandCaches[0], (Int64ScalarCache)operandCaches[1], nextNode);
 				break;
 			}
 			default : break;
@@ -46,10 +46,10 @@ public class Int64CachedScalarTransferUnit extends AccelerationUnit {
 	}
 
 	private class Int64CachedScalarMovExecutor extends AccelerationExecutorNode {
-		protected final Int64Cache cache0;
-		protected final Int64Cache cache1;
+		protected final Int64ScalarCache cache0;
+		protected final Int64ScalarCache cache1;
 
-		public Int64CachedScalarMovExecutor(Int64Cache cache0, Int64Cache cache1, AccelerationExecutorNode nextNode) {
+		public Int64CachedScalarMovExecutor(Int64ScalarCache cache0, Int64ScalarCache cache1, AccelerationExecutorNode nextNode) {
 
 			super(nextNode);
 			this.cache0 = cache0;
@@ -63,10 +63,10 @@ public class Int64CachedScalarTransferUnit extends AccelerationUnit {
 	}
 
 	private class Int64FromFloat64CachedScalarCastExecutor extends AccelerationExecutorNode {
-		protected final Int64Cache cache0;
-		protected final Float64Cache cache1;
+		protected final Int64ScalarCache cache0;
+		protected final Float64ScalarCache cache1;
 
-		public Int64FromFloat64CachedScalarCastExecutor(Int64Cache cache0, Float64Cache cache1,
+		public Int64FromFloat64CachedScalarCastExecutor(Int64ScalarCache cache0, Float64ScalarCache cache1,
 				AccelerationExecutorNode nextNode) {
 
 			super(nextNode);

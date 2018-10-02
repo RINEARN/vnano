@@ -17,9 +17,9 @@ public class Int64CachedScalarComparisonUnit extends AccelerationUnit {
 			Object[] operandCaches, boolean[] operandCached, boolean[] operandScalar, boolean[] operandConstant,
 			AccelerationExecutorNode nextNode) {
 
-		BoolCache caches0 = (BoolCache)operandCaches[0];
-		Int64Cache caches1 = (Int64Cache)operandCaches[1];
-		Int64Cache caches2 = (Int64Cache)operandCaches[2];
+		BoolScalarCache caches0 = (BoolScalarCache)operandCaches[0];
+		Int64ScalarCache caches1 = (Int64ScalarCache)operandCaches[1];
+		Int64ScalarCache caches2 = (Int64ScalarCache)operandCaches[2];
 
 		Int64CachedScalarComparisonExecutor executor = null;
 		switch (opcode) {
@@ -55,11 +55,11 @@ public class Int64CachedScalarComparisonUnit extends AccelerationUnit {
 	}
 
 	private abstract class Int64CachedScalarComparisonExecutor extends AccelerationExecutorNode {
-		protected final BoolCache cache0;
-		protected final Int64Cache cache1;
-		protected final Int64Cache cache2;
+		protected final BoolScalarCache cache0;
+		protected final Int64ScalarCache cache1;
+		protected final Int64ScalarCache cache2;
 
-		public Int64CachedScalarComparisonExecutor(BoolCache cache0, Int64Cache cache1, Int64Cache cache2,
+		public Int64CachedScalarComparisonExecutor(BoolScalarCache cache0, Int64ScalarCache cache1, Int64ScalarCache cache2,
 				AccelerationExecutorNode nextNode) {
 
 			super(nextNode);
@@ -70,7 +70,7 @@ public class Int64CachedScalarComparisonUnit extends AccelerationUnit {
 	}
 
 	private final class Int64CachedScalarLtExecutor extends Int64CachedScalarComparisonExecutor {
-		public Int64CachedScalarLtExecutor(BoolCache cache0, Int64Cache cache1, Int64Cache cache2,
+		public Int64CachedScalarLtExecutor(BoolScalarCache cache0, Int64ScalarCache cache1, Int64ScalarCache cache2,
 				AccelerationExecutorNode nextNode) {
 			super(cache0, cache1, cache2, nextNode);
 		}
@@ -81,7 +81,7 @@ public class Int64CachedScalarComparisonUnit extends AccelerationUnit {
 	}
 
 	private final class Int64CachedScalarGtExecutor extends Int64CachedScalarComparisonExecutor {
-		public Int64CachedScalarGtExecutor(BoolCache cache0, Int64Cache cache1, Int64Cache cache2,
+		public Int64CachedScalarGtExecutor(BoolScalarCache cache0, Int64ScalarCache cache1, Int64ScalarCache cache2,
 				AccelerationExecutorNode nextNode) {
 			super(cache0, cache1, cache2, nextNode);
 		}
@@ -92,7 +92,7 @@ public class Int64CachedScalarComparisonUnit extends AccelerationUnit {
 	}
 
 	private final class Int64CachedScalarLeqExecutor extends Int64CachedScalarComparisonExecutor {
-		public Int64CachedScalarLeqExecutor(BoolCache cache0, Int64Cache cache1, Int64Cache cache2,
+		public Int64CachedScalarLeqExecutor(BoolScalarCache cache0, Int64ScalarCache cache1, Int64ScalarCache cache2,
 				AccelerationExecutorNode nextNode) {
 			super(cache0, cache1, cache2, nextNode);
 		}
@@ -103,7 +103,7 @@ public class Int64CachedScalarComparisonUnit extends AccelerationUnit {
 	}
 
 	private final class Int64CachedScalarGeqExecutor extends Int64CachedScalarComparisonExecutor {
-		public Int64CachedScalarGeqExecutor(BoolCache cache0, Int64Cache cache1, Int64Cache cache2,
+		public Int64CachedScalarGeqExecutor(BoolScalarCache cache0, Int64ScalarCache cache1, Int64ScalarCache cache2,
 				AccelerationExecutorNode nextNode) {
 			super(cache0, cache1, cache2, nextNode);
 		}
@@ -114,7 +114,7 @@ public class Int64CachedScalarComparisonUnit extends AccelerationUnit {
 	}
 
 	private final class Int64CachedScalarEqExecutor extends Int64CachedScalarComparisonExecutor {
-		public Int64CachedScalarEqExecutor(BoolCache cache0, Int64Cache cache1, Int64Cache cache2,
+		public Int64CachedScalarEqExecutor(BoolScalarCache cache0, Int64ScalarCache cache1, Int64ScalarCache cache2,
 				AccelerationExecutorNode nextNode) {
 			super(cache0, cache1, cache2, nextNode);
 		}
@@ -125,7 +125,7 @@ public class Int64CachedScalarComparisonUnit extends AccelerationUnit {
 	}
 
 	private final class Int64CachedScalarNeqExecutor extends Int64CachedScalarComparisonExecutor {
-		public Int64CachedScalarNeqExecutor(BoolCache cache0, Int64Cache cache1, Int64Cache cache2,
+		public Int64CachedScalarNeqExecutor(BoolScalarCache cache0, Int64ScalarCache cache1, Int64ScalarCache cache2,
 				AccelerationExecutorNode nextNode) {
 			super(cache0, cache1, cache2, nextNode);
 		}

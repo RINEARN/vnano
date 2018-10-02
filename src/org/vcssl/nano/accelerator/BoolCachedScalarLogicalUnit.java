@@ -21,24 +21,24 @@ public class BoolCachedScalarLogicalUnit extends AccelerationUnit {
 		switch (opcode) {
 			case AND : {
 				executor = new BoolCachedScalarAndExecutor(
-						(BoolCache)operandCaches[0],
-						(BoolCache)operandCaches[1],
-						(BoolCache)operandCaches[2],
+						(BoolScalarCache)operandCaches[0],
+						(BoolScalarCache)operandCaches[1],
+						(BoolScalarCache)operandCaches[2],
 						nextNode);
 				break;
 			}
 			case OR : {
 				executor = new BoolCachedScalarOrExecutor(
-						(BoolCache)operandCaches[0],
-						(BoolCache)operandCaches[1],
-						(BoolCache)operandCaches[2],
+						(BoolScalarCache)operandCaches[0],
+						(BoolScalarCache)operandCaches[1],
+						(BoolScalarCache)operandCaches[2],
 						nextNode);
 				break;
 			}
 			case NOT : {
 				executor = new BoolCachedScalarNotExecutor(
-						(BoolCache)operandCaches[0],
-						(BoolCache)operandCaches[1],
+						(BoolScalarCache)operandCaches[0],
+						(BoolScalarCache)operandCaches[1],
 						nextNode);
 				break;
 			}
@@ -50,18 +50,18 @@ public class BoolCachedScalarLogicalUnit extends AccelerationUnit {
 	}
 
 	private abstract class BoolCachedScalarLogicalExecutor extends AccelerationExecutorNode {
-		protected final BoolCache cache0;
-		protected final BoolCache cache1;
-		protected final BoolCache cache2;
+		protected final BoolScalarCache cache0;
+		protected final BoolScalarCache cache1;
+		protected final BoolScalarCache cache2;
 
-		public BoolCachedScalarLogicalExecutor(BoolCache cache0, BoolCache cache1, BoolCache cache2, AccelerationExecutorNode nextNode) {
+		public BoolCachedScalarLogicalExecutor(BoolScalarCache cache0, BoolScalarCache cache1, BoolScalarCache cache2, AccelerationExecutorNode nextNode) {
 			super(nextNode);
 			this.cache0 = cache0;
 			this.cache1 = cache1;
 			this.cache2 = cache2;
 		}
 
-		public BoolCachedScalarLogicalExecutor(BoolCache cache0, BoolCache cache1, AccelerationExecutorNode nextNode) {
+		public BoolCachedScalarLogicalExecutor(BoolScalarCache cache0, BoolScalarCache cache1, AccelerationExecutorNode nextNode) {
 			super(nextNode);
 			this.cache0 = cache0;
 			this.cache1 = cache1;
@@ -70,7 +70,7 @@ public class BoolCachedScalarLogicalUnit extends AccelerationUnit {
 	}
 
 	private final class BoolCachedScalarAndExecutor extends BoolCachedScalarLogicalExecutor {
-		public BoolCachedScalarAndExecutor(BoolCache cache0, BoolCache cache1, BoolCache cache2, AccelerationExecutorNode nextNode) {
+		public BoolCachedScalarAndExecutor(BoolScalarCache cache0, BoolScalarCache cache1, BoolScalarCache cache2, AccelerationExecutorNode nextNode) {
 			super(cache0, cache1, cache2, nextNode);
 		}
 		public final AccelerationExecutorNode execute() {
@@ -80,7 +80,7 @@ public class BoolCachedScalarLogicalUnit extends AccelerationUnit {
 	}
 
 	private final class BoolCachedScalarOrExecutor extends BoolCachedScalarLogicalExecutor {
-		public BoolCachedScalarOrExecutor(BoolCache cache0, BoolCache cache1, BoolCache cache2, AccelerationExecutorNode nextNode) {
+		public BoolCachedScalarOrExecutor(BoolScalarCache cache0, BoolScalarCache cache1, BoolScalarCache cache2, AccelerationExecutorNode nextNode) {
 			super(cache0, cache1, cache2, nextNode);
 		}
 		public final AccelerationExecutorNode execute() {
@@ -90,7 +90,7 @@ public class BoolCachedScalarLogicalUnit extends AccelerationUnit {
 	}
 
 	private final class BoolCachedScalarNotExecutor extends BoolCachedScalarLogicalExecutor {
-		public BoolCachedScalarNotExecutor(BoolCache cache0, BoolCache cache1, AccelerationExecutorNode nextNode) {
+		public BoolCachedScalarNotExecutor(BoolScalarCache cache0, BoolScalarCache cache1, AccelerationExecutorNode nextNode) {
 			super(cache0, cache1, nextNode);
 		}
 		public final AccelerationExecutorNode execute() {

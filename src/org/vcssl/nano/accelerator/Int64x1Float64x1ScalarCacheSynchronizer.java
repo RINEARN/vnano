@@ -7,20 +7,20 @@ package org.vcssl.nano.accelerator;
 
 import org.vcssl.nano.memory.DataContainer;
 
-class Int64x1Float64x1CacheSynchronizer extends CacheSynchronizer {
+class Int64x1Float64x1ScalarCacheSynchronizer extends CacheSynchronizer {
 	private final DataContainer<long[]> container0;
 	private final DataContainer<double[]> container1;
-	private final Int64Cache cache0;
-	private final Float64Cache cache1;
+	private final Int64ScalarCache cache0;
+	private final Float64ScalarCache cache1;
 	private final boolean cached0;
 	private final boolean cached1;
 
 	@SuppressWarnings("unchecked" )
-	public Int64x1Float64x1CacheSynchronizer(DataContainer<?>[] containers, Object[] caches, boolean[] cached) {
+	public Int64x1Float64x1ScalarCacheSynchronizer(DataContainer<?>[] containers, Object[] caches, boolean[] cached) {
 		container0 = (DataContainer<long[]>)containers[0];
 		container1 = (DataContainer<double[]>)containers[1];
-		cache0 = (Int64Cache)caches[0];
-		cache1 = (Float64Cache)caches[1];
+		cache0 = (Int64ScalarCache)caches[0];
+		cache1 = (Float64ScalarCache)caches[1];
 		cached0 = cached[0];
 		cached1 = cached[1];
 	}

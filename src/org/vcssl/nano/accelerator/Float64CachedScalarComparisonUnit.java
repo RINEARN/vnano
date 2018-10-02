@@ -17,9 +17,9 @@ public class Float64CachedScalarComparisonUnit extends AccelerationUnit {
 			Object[] operandCaches, boolean[] operandCached, boolean[] operandScalar, boolean[] operandConstant,
 			AccelerationExecutorNode nextNode) {
 
-		BoolCache caches0 = (BoolCache)operandCaches[0];
-		Float64Cache caches1 = (Float64Cache)operandCaches[1];
-		Float64Cache caches2 = (Float64Cache)operandCaches[2];
+		BoolScalarCache caches0 = (BoolScalarCache)operandCaches[0];
+		Float64ScalarCache caches1 = (Float64ScalarCache)operandCaches[1];
+		Float64ScalarCache caches2 = (Float64ScalarCache)operandCaches[2];
 
 		Float64CachedScalarComparisonExecutor executor = null;
 		switch (opcode) {
@@ -55,11 +55,11 @@ public class Float64CachedScalarComparisonUnit extends AccelerationUnit {
 	}
 
 	private abstract class Float64CachedScalarComparisonExecutor extends AccelerationExecutorNode {
-		protected final BoolCache cache0;
-		protected final Float64Cache cache1;
-		protected final Float64Cache cache2;
+		protected final BoolScalarCache cache0;
+		protected final Float64ScalarCache cache1;
+		protected final Float64ScalarCache cache2;
 
-		public Float64CachedScalarComparisonExecutor(BoolCache cache0, Float64Cache cache1, Float64Cache cache2,
+		public Float64CachedScalarComparisonExecutor(BoolScalarCache cache0, Float64ScalarCache cache1, Float64ScalarCache cache2,
 				AccelerationExecutorNode nextNode) {
 
 			super(nextNode);
@@ -70,7 +70,7 @@ public class Float64CachedScalarComparisonUnit extends AccelerationUnit {
 	}
 
 	private final class Float64CachedScalarLtExecutor extends Float64CachedScalarComparisonExecutor {
-		public Float64CachedScalarLtExecutor(BoolCache cache0, Float64Cache cache1, Float64Cache cache2,
+		public Float64CachedScalarLtExecutor(BoolScalarCache cache0, Float64ScalarCache cache1, Float64ScalarCache cache2,
 				AccelerationExecutorNode nextNode) {
 			super(cache0, cache1, cache2, nextNode);
 		}
@@ -81,7 +81,7 @@ public class Float64CachedScalarComparisonUnit extends AccelerationUnit {
 	}
 
 	private final class Float64CachedScalarGtExecutor extends Float64CachedScalarComparisonExecutor {
-		public Float64CachedScalarGtExecutor(BoolCache cache0, Float64Cache cache1, Float64Cache cache2,
+		public Float64CachedScalarGtExecutor(BoolScalarCache cache0, Float64ScalarCache cache1, Float64ScalarCache cache2,
 				AccelerationExecutorNode nextNode) {
 			super(cache0, cache1, cache2, nextNode);
 		}
@@ -92,7 +92,7 @@ public class Float64CachedScalarComparisonUnit extends AccelerationUnit {
 	}
 
 	private final class Float64CachedScalarLeqExecutor extends Float64CachedScalarComparisonExecutor {
-		public Float64CachedScalarLeqExecutor(BoolCache cache0, Float64Cache cache1, Float64Cache cache2,
+		public Float64CachedScalarLeqExecutor(BoolScalarCache cache0, Float64ScalarCache cache1, Float64ScalarCache cache2,
 				AccelerationExecutorNode nextNode) {
 			super(cache0, cache1, cache2, nextNode);
 		}
@@ -103,7 +103,7 @@ public class Float64CachedScalarComparisonUnit extends AccelerationUnit {
 	}
 
 	private final class Float64CachedScalarGeqExecutor extends Float64CachedScalarComparisonExecutor {
-		public Float64CachedScalarGeqExecutor(BoolCache cache0, Float64Cache cache1, Float64Cache cache2,
+		public Float64CachedScalarGeqExecutor(BoolScalarCache cache0, Float64ScalarCache cache1, Float64ScalarCache cache2,
 				AccelerationExecutorNode nextNode) {
 			super(cache0, cache1, cache2, nextNode);
 		}
@@ -114,7 +114,7 @@ public class Float64CachedScalarComparisonUnit extends AccelerationUnit {
 	}
 
 	private final class Float64CachedScalarEqExecutor extends Float64CachedScalarComparisonExecutor {
-		public Float64CachedScalarEqExecutor(BoolCache cache0, Float64Cache cache1, Float64Cache cache2,
+		public Float64CachedScalarEqExecutor(BoolScalarCache cache0, Float64ScalarCache cache1, Float64ScalarCache cache2,
 				AccelerationExecutorNode nextNode) {
 			super(cache0, cache1, cache2, nextNode);
 		}
@@ -125,7 +125,7 @@ public class Float64CachedScalarComparisonUnit extends AccelerationUnit {
 	}
 
 	private final class Float64CachedScalarNeqExecutor extends Float64CachedScalarComparisonExecutor {
-		public Float64CachedScalarNeqExecutor(BoolCache cache0, Float64Cache cache1, Float64Cache cache2,
+		public Float64CachedScalarNeqExecutor(BoolScalarCache cache0, Float64ScalarCache cache1, Float64ScalarCache cache2,
 				AccelerationExecutorNode nextNode) {
 			super(cache0, cache1, cache2, nextNode);
 		}

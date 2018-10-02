@@ -21,8 +21,8 @@ public class Int64VectorComparisonUnit extends AccelerationUnit {
 		DataContainer<boolean[]> container0 = (DataContainer<boolean[]>)operandContainers[0];
 		DataContainer<long[]> container1 = (DataContainer<long[]>)operandContainers[1];
 		DataContainer<long[]> container2 = (DataContainer<long[]>)operandContainers[2];
-		Int64x3CacheSynchronizer synchronizer
-				= new Int64x3CacheSynchronizer(operandContainers, operandCaches, operandCached);
+		Int64x3ScalarCacheSynchronizer synchronizer
+				= new Int64x3ScalarCacheSynchronizer(operandContainers, operandCaches, operandCached);
 
 		Int64VectorComparisonExecutor containers = null;
 		switch (opcode) {
@@ -61,11 +61,11 @@ public class Int64VectorComparisonUnit extends AccelerationUnit {
 		protected final DataContainer<boolean[]> container0;
 		protected final DataContainer<long[]> container1;
 		protected final DataContainer<long[]> container2;
-		protected final Int64x3CacheSynchronizer synchronizer;
+		protected final Int64x3ScalarCacheSynchronizer synchronizer;
 
 		public Int64VectorComparisonExecutor(
 				DataContainer<boolean[]> container0, DataContainer<long[]> container1, DataContainer<long[]> container2,
-				Int64x3CacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
+				Int64x3ScalarCacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
 
 			super(nextNode);
 			this.container0 = container0;
@@ -79,7 +79,7 @@ public class Int64VectorComparisonUnit extends AccelerationUnit {
 
 		public Int64VectorLtExecutor(
 				DataContainer<boolean[]> container0, DataContainer<long[]> container1, DataContainer<long[]> container2,
-				Int64x3CacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
+				Int64x3ScalarCacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
 
 			super(container0, container1, container2, synchronizer, nextNode);
 		}
@@ -104,7 +104,7 @@ public class Int64VectorComparisonUnit extends AccelerationUnit {
 
 		public Int64VectorGtExecutor(
 				DataContainer<boolean[]> container0, DataContainer<long[]> container1, DataContainer<long[]> container2,
-				Int64x3CacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
+				Int64x3ScalarCacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
 
 			super(container0, container1, container2, synchronizer, nextNode);
 		}
@@ -129,7 +129,7 @@ public class Int64VectorComparisonUnit extends AccelerationUnit {
 
 		public Int64VectorLeqExecutor(
 				DataContainer<boolean[]> container0, DataContainer<long[]> container1, DataContainer<long[]> container2,
-				Int64x3CacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
+				Int64x3ScalarCacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
 
 			super(container0, container1, container2, synchronizer, nextNode);
 		}
@@ -154,7 +154,7 @@ public class Int64VectorComparisonUnit extends AccelerationUnit {
 
 		public Int64VectorGeqExecutor(
 				DataContainer<boolean[]> container0, DataContainer<long[]> container1, DataContainer<long[]> container2,
-				Int64x3CacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
+				Int64x3ScalarCacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
 
 			super(container0, container1, container2, synchronizer, nextNode);
 		}
@@ -179,7 +179,7 @@ public class Int64VectorComparisonUnit extends AccelerationUnit {
 
 		public Int64VectorEqExecutor(
 				DataContainer<boolean[]> container0, DataContainer<long[]> container1, DataContainer<long[]> container2,
-				Int64x3CacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
+				Int64x3ScalarCacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
 
 			super(container0, container1, container2, synchronizer, nextNode);
 		}
@@ -204,7 +204,7 @@ public class Int64VectorComparisonUnit extends AccelerationUnit {
 
 		public Int64VectorNeqExecutor(
 				DataContainer<boolean[]> container0, DataContainer<long[]> container1, DataContainer<long[]> container2,
-				Int64x3CacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
+				Int64x3ScalarCacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
 
 			super(container0, container1, container2, synchronizer, nextNode);
 		}

@@ -17,7 +17,7 @@ public class BoolCachedScalarBranchUnit extends AccelerationUnit {
 			Object[] operandCaches, boolean[] operandCached, boolean[] operandScalar, boolean[] operandConstant,
 			AccelerationExecutorNode nextNode) {
 
-		BoolCache cache0 = (BoolCache)operandCaches[0];
+		BoolScalarCache cache0 = (BoolScalarCache)operandCaches[0];
 
 		// ラベル番地はメモリマッピング時点で確定していて不変なので、この段階で控える
 		int jumpAddress = (int)( (long[])operandContainers[1].getData() )[0];
@@ -59,11 +59,11 @@ public class BoolCachedScalarBranchUnit extends AccelerationUnit {
 
 
 	private final class CachedScalarJmpExecutor extends AccelerationExecutorNode {
-		private final BoolCache cache0;
+		private final BoolScalarCache cache0;
 		private final int jumpAddress;
 		private AccelerationExecutorNode branchedNode = null;
 
-		public CachedScalarJmpExecutor(BoolCache cache0, int jumpAddress, AccelerationExecutorNode nextNode) {
+		public CachedScalarJmpExecutor(BoolScalarCache cache0, int jumpAddress, AccelerationExecutorNode nextNode) {
 			super(nextNode);
 			this.cache0 = cache0;
 			this.jumpAddress = jumpAddress;
@@ -85,11 +85,11 @@ public class BoolCachedScalarBranchUnit extends AccelerationUnit {
 
 
 	private final class CachedScalarJmpnExecutor extends AccelerationExecutorNode {
-		private final BoolCache cache0;
+		private final BoolScalarCache cache0;
 		private final int jumpAddress;
 		private AccelerationExecutorNode branchedNode = null;
 
-		public CachedScalarJmpnExecutor(BoolCache cache0, int jumpAddress, AccelerationExecutorNode nextNode) {
+		public CachedScalarJmpnExecutor(BoolScalarCache cache0, int jumpAddress, AccelerationExecutorNode nextNode) {
 			super(nextNode);
 
 			this.cache0 = cache0;

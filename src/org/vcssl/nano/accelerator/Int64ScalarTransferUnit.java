@@ -22,8 +22,8 @@ public class Int64ScalarTransferUnit extends AccelerationUnit {
 		switch (opcode) {
 			case MOV :
 			case FILL : {
-				Int64x2CacheSynchronizer synchronizer
-						= new Int64x2CacheSynchronizer(operandContainers, operandCaches, operandCached);
+				Int64x2ScalarCacheSynchronizer synchronizer
+						= new Int64x2ScalarCacheSynchronizer(operandContainers, operandCaches, operandCached);
 				executor = new Int64ScalarMovExecutor(
 						(DataContainer<long[]>)operandContainers[0], (DataContainer<long[]>)operandContainers[1],
 						synchronizer, nextNode);
@@ -31,15 +31,15 @@ public class Int64ScalarTransferUnit extends AccelerationUnit {
 			}
 			case CAST : {
 				if (dataTypes[1] == DataType.INT64) {
-					Int64x2CacheSynchronizer synchronizer
-							= new Int64x2CacheSynchronizer(operandContainers, operandCaches, operandCached);
+					Int64x2ScalarCacheSynchronizer synchronizer
+							= new Int64x2ScalarCacheSynchronizer(operandContainers, operandCaches, operandCached);
 					executor = new Int64ScalarMovExecutor(
 							(DataContainer<long[]>)operandContainers[0], (DataContainer<long[]>)operandContainers[1],
 							synchronizer, nextNode);
 				}
 				if (dataTypes[1] == DataType.FLOAT64) {
-					Int64x1Float64x1CacheSynchronizer synchronizer
-							= new Int64x1Float64x1CacheSynchronizer(operandContainers, operandCaches, operandCached);
+					Int64x1Float64x1ScalarCacheSynchronizer synchronizer
+							= new Int64x1Float64x1ScalarCacheSynchronizer(operandContainers, operandCaches, operandCached);
 					executor = new Int64FromFloat64ScalarCastExecutor(
 							(DataContainer<long[]>)operandContainers[0], (DataContainer<double[]>)operandContainers[1],
 							synchronizer, nextNode);
@@ -58,11 +58,11 @@ public class Int64ScalarTransferUnit extends AccelerationUnit {
 
 		protected final DataContainer<long[]> container0;
 		protected final DataContainer<long[]> container1;
-		protected final Int64x2CacheSynchronizer synchronizer;
+		protected final Int64x2ScalarCacheSynchronizer synchronizer;
 
 		public Int64ScalarMovExecutor(
 				DataContainer<long[]> container0, DataContainer<long[]> container1,
-				Int64x2CacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
+				Int64x2ScalarCacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
 
 			super(nextNode);
 			this.container0 = container0;
@@ -83,11 +83,11 @@ public class Int64ScalarTransferUnit extends AccelerationUnit {
 
 		protected final DataContainer<long[]> container0;
 		protected final DataContainer<double[]> container1;
-		protected final Int64x1Float64x1CacheSynchronizer synchronizer;
+		protected final Int64x1Float64x1ScalarCacheSynchronizer synchronizer;
 
 		public Int64FromFloat64ScalarCastExecutor(
 				DataContainer<long[]> container0, DataContainer<double[]> container1,
-				Int64x1Float64x1CacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
+				Int64x1Float64x1ScalarCacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
 
 			super(nextNode);
 			this.container0 = container0;

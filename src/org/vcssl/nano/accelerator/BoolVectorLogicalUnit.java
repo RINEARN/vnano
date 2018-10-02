@@ -23,19 +23,19 @@ public class BoolVectorLogicalUnit extends AccelerationUnit {
 		BoolVectorLogicalExecutor executor = null;
 		switch (opcode) {
 			case AND : {
-				Boolx3CacheSynchronizer synchronizer = new Boolx3CacheSynchronizer(
+				Boolx3ScalarCacheSynchronizer synchronizer = new Boolx3ScalarCacheSynchronizer(
 						operandContainers, operandCaches, operandCached);
 				executor = new BoolVectorAndExecutor(containers[0], containers[1], containers[2], synchronizer, nextNode);
 				break;
 			}
 			case OR : {
-				Boolx3CacheSynchronizer synchronizer = new Boolx3CacheSynchronizer(
+				Boolx3ScalarCacheSynchronizer synchronizer = new Boolx3ScalarCacheSynchronizer(
 						operandContainers, operandCaches, operandCached);
 				executor = new BoolVectorOrExecutor(containers[0], containers[1], containers[2], synchronizer, nextNode);
 				break;
 			}
 			case NOT : {
-				Boolx2CacheSynchronizer synchronizer = new Boolx2CacheSynchronizer(
+				Boolx2ScalarCacheSynchronizer synchronizer = new Boolx2ScalarCacheSynchronizer(
 						operandContainers, operandCaches, operandCached);
 				executor = new BoolVectorNotExecutor(containers[0], containers[1], synchronizer, nextNode);
 				break;
@@ -55,7 +55,7 @@ public class BoolVectorLogicalUnit extends AccelerationUnit {
 
 		public BoolVectorLogicalExecutor(
 				DataContainer<boolean[]> container0, DataContainer<boolean[]> container1, DataContainer<boolean[]> container2,
-				Boolx3CacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
+				Boolx3ScalarCacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
 
 			super(nextNode);
 			this.container0 = container0;
@@ -65,7 +65,7 @@ public class BoolVectorLogicalUnit extends AccelerationUnit {
 		}
 		public BoolVectorLogicalExecutor(
 				DataContainer<boolean[]> container0, DataContainer<boolean[]> container1,
-				Boolx2CacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
+				Boolx2ScalarCacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
 
 			super(nextNode);
 			this.container0 = container0;
@@ -79,7 +79,7 @@ public class BoolVectorLogicalUnit extends AccelerationUnit {
 
 		public BoolVectorAndExecutor(
 				DataContainer<boolean[]> container0, DataContainer<boolean[]> container1, DataContainer<boolean[]> container2,
-				Boolx3CacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
+				Boolx3ScalarCacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
 
 			super(container0, container1, container2, synchronizer, nextNode);
 		}
@@ -104,7 +104,7 @@ public class BoolVectorLogicalUnit extends AccelerationUnit {
 
 		public BoolVectorOrExecutor(
 				DataContainer<boolean[]> container0, DataContainer<boolean[]> container1, DataContainer<boolean[]> container2,
-				Boolx3CacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
+				Boolx3ScalarCacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
 
 			super(container0, container1, container2, synchronizer, nextNode);
 		}
@@ -129,7 +129,7 @@ public class BoolVectorLogicalUnit extends AccelerationUnit {
 
 		public BoolVectorNotExecutor(
 				DataContainer<boolean[]> container0, DataContainer<boolean[]> container1,
-				Boolx2CacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
+				Boolx2ScalarCacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
 
 			super(container0, container1, synchronizer, nextNode);
 		}
