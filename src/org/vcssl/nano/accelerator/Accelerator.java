@@ -132,133 +132,9 @@ public class Accelerator {
 
 		int partitionLength = Memory.Partition.values().length;
 
-		// [Partition][Address]
-		Object[][] caches = new Object[partitionLength][];
-		boolean[][] cached = new boolean[partitionLength][];
-		boolean[][] cachable = new boolean[partitionLength][];
-		boolean[][] scalar = new boolean[partitionLength][];
 
-		for (int partitionIndex=0; partitionIndex<partitionLength; partitionIndex++) {
-			if (partitionIndex == registerPartitionOrdinal) {
-				scalar[partitionIndex] = new boolean[registerSize];
-				cachable[partitionIndex] = new boolean[registerSize];
-				cached[partitionIndex] = new boolean[registerSize];
-				caches[partitionIndex] = new Object[registerSize];
-			}
-			else if (partitionIndex == localPartitionOrdinal) {
-				scalar[partitionIndex] = new boolean[localSize];
-				cachable[partitionIndex] = new boolean[localSize];
-				cached[partitionIndex] = new boolean[localSize];
-				caches[partitionIndex] = new Object[localSize];
-			}
-			else if (partitionIndex == globalPartitionOrdinal) {
-				scalar[partitionIndex] = new boolean[globalSize];
-				cachable[partitionIndex] = new boolean[globalSize];
-				cached[partitionIndex] = new boolean[globalSize];
-				caches[partitionIndex] = new Object[globalSize];
-			}
-			else if (partitionIndex == constantPartitionOrdinal) {
-				scalar[partitionIndex] = new boolean[constantSize];
-				cachable[partitionIndex] = new boolean[constantSize];
-				cached[partitionIndex] = new boolean[constantSize];
-				caches[partitionIndex] = new Object[constantSize];
-			}
-			else {
-				throw new MemoryAccessException(MemoryAccessException.INVALID_PARTITION);
-			}
-			Arrays.fill(scalar[partitionIndex], false);
-			Arrays.fill(cachable[partitionIndex], false);
-			Arrays.fill(cached[partitionIndex], false);
-			Arrays.fill(caches[partitionIndex], null);
-		}
-
-
-		// キャッシュ可能かどうか等のメタ情報をスキャンする
-		for (int instructionIndex=0; instructionIndex<instructionLength; instructionIndex++) {
-			Instruction instruction = instructions[instructionIndex];
-			Memory.Partition[] partitions = instruction.getOperandPartitions();
-			int[] addresses = instruction.getOperandAddresses();
-			int operandLength = addresses.length;
-
-			switch (instruction.getOperationCode()) {
-				case ALLOC : {
-					if (operandLength == 1) {
-						scalar[ partitions[0].ordinal() ][ addresses[0] ] = true;
-
-						switch (instruction.getDataTypes()[0]) {
-							case INT64 : {
-								//System.out.println("CACHE INT64 " + partitions[0].ordinal() + " / " + addresses[0]);
-								caches[ partitions[0].ordinal() ][ addresses[0] ] = new Int64ScalarCache();
-								cached[ partitions[0].ordinal() ][ addresses[0] ] = true;
-								cachable[ partitions[0].ordinal() ][ addresses[0] ] = true;
-								break;
-							}
-							case FLOAT64 : {
-								//System.out.println("CACHE FLOAT64 " + partitions[0].ordinal() + " / " + addresses[0]);
-								caches[ partitions[0].ordinal() ][ addresses[0] ] = new Float64ScalarCache();
-								cached[ partitions[0].ordinal() ][ addresses[0] ] = true;
-								cachable[ partitions[0].ordinal() ][ addresses[0] ] = true;
-								break;
-							}
-							case BOOL : {
-								//System.out.println("CACHE BOOL " + partitions[0].ordinal() + " / " + addresses[0]);
-								caches[ partitions[0].ordinal() ][ addresses[0] ] = new BoolScalarCache();
-								cached[ partitions[0].ordinal() ][ addresses[0] ] = true;
-								cachable[ partitions[0].ordinal() ][ addresses[0] ] = true;
-								break;
-							}
-							default : break;
-						}
-					}
-					break;
-				}
-				case ELEM : {
-					scalar[ partitions[0].ordinal() ][ addresses[0] ] = true;
-					break;
-				}
-				default : {
-					break;
-				}
-			}
-		}
-
-
-		// 定数のキャッシュ生成やスカラ判定など（値の書き込みは後でSynchronizerで行う）
-		for (int constantIndex=0; constantIndex<constantSize; constantIndex++) {
-
-			DataContainer<?> container = memory.getDataContainer(Memory.Partition.CONSTANT, constantIndex);
-			scalar[constantPartitionOrdinal][constantIndex]
-					= ( (container.getRank() == DataContainer.RANK_OF_SCALAR) );
-
-			if (!scalar[constantPartitionOrdinal][constantIndex]) {
-				continue;
-			}
-
-			DataType dataType = container.getDataType();
-			switch (dataType) {
-				case INT64 : {
-					caches[constantPartitionOrdinal][constantIndex] = new Int64ScalarCache();
-					cached[constantPartitionOrdinal][constantIndex] = true;
-					cachable[constantPartitionOrdinal][constantIndex] = true;
-					break;
-				}
-				case FLOAT64 : {
-					caches[constantPartitionOrdinal][constantIndex] = new Float64ScalarCache();
-					cached[constantPartitionOrdinal][constantIndex] = true;
-					cachable[constantPartitionOrdinal][constantIndex] = true;
-					break;
-				}
-				case BOOL : {
-					caches[constantPartitionOrdinal][constantIndex] = new BoolScalarCache();
-					cached[constantPartitionOrdinal][constantIndex] = true;
-					cachable[constantPartitionOrdinal][constantIndex] = true;
-					break;
-				}
-				default : {
-					break;
-				}
-			}
-		}
+		AccelerationDataManager dataManager = new AccelerationDataManager();
+		dataManager.allocate(instructions, memory);
 
 
 		// 命令列から演算ノード列を生成（ループは命令列の末尾から先頭の順で辿る）
@@ -283,20 +159,22 @@ public class Accelerator {
 			boolean[] operandConstant = new boolean[operandLength];
 			boolean[] operandScalar = new boolean[operandLength];
 			boolean[] operandCached = new boolean[operandLength];
-			Object[] operandCaches = new Object[operandLength];
+			ScalarCache[] operandCaches = new ScalarCache[operandLength];
 			for (int operandIndex=0; operandIndex<operandLength; operandIndex++) {
-				operandScalar[operandIndex] = scalar[ partitions[operandIndex].ordinal() ][ addresses[operandIndex] ];
-				operandCached[operandIndex] = cached[ partitions[operandIndex].ordinal() ][ addresses[operandIndex] ];
+				//operandScalar[operandIndex] = scalar[ partitions[operandIndex].ordinal() ][ addresses[operandIndex] ];
+				//operandCached[operandIndex] = cached[ partitions[operandIndex].ordinal() ][ addresses[operandIndex] ];
+				operandScalar[operandIndex] = dataManager.isScalar(partitions[operandIndex], addresses[operandIndex]);
+				operandCached[operandIndex] = dataManager.isCached(partitions[operandIndex], addresses[operandIndex]);
 
 				if (operandCached[operandIndex]) {
-					operandCaches[operandIndex] = caches[ partitions[operandIndex].ordinal() ][ addresses[operandIndex] ];
+					operandCaches[operandIndex] = dataManager.getCache(partitions[operandIndex], addresses[operandIndex]);
 				}
 				if (partitions[operandIndex] == Memory.Partition.CONSTANT) {
 					operandConstant[operandIndex] = true;
 				}
 			}
 
-			if (opcode == OperationCode.ALLOC && scalar[partitions[0].ordinal()][addresses[0]] ) {
+			if (opcode == OperationCode.ALLOC && dataManager.isScalar(partitions[0], addresses[0]) ) {
 
 				CacheSynchronizer synchronizer = new GeneralScalarCacheSynchronizer(containers, operandCaches, operandCached);
 
@@ -424,16 +302,16 @@ public class Accelerator {
 
 		CacheSynchronizer[] synchronizers = new CacheSynchronizer[partitionLength];
 		synchronizers[registerPartitionOrdinal] = new GeneralScalarCacheSynchronizer(
-				registerContainers, caches[registerPartitionOrdinal], cached[registerPartitionOrdinal]
+				registerContainers, dataManager.getCaches(Memory.Partition.REGISTER), dataManager.getCachedFlags(Memory.Partition.REGISTER)
 		);
 		synchronizers[localPartitionOrdinal] = new GeneralScalarCacheSynchronizer(
-				localContainers, caches[localPartitionOrdinal], cached[localPartitionOrdinal]
+				localContainers, dataManager.getCaches(Memory.Partition.LOCAL), dataManager.getCachedFlags(Memory.Partition.LOCAL)
 		);
 		synchronizers[globalPartitionOrdinal] = new GeneralScalarCacheSynchronizer(
-				globalContainers, caches[globalPartitionOrdinal], cached[globalPartitionOrdinal]
+				globalContainers, dataManager.getCaches(Memory.Partition.GLOBAL), dataManager.getCachedFlags(Memory.Partition.GLOBAL)
 		);
 		synchronizers[constantPartitionOrdinal] = new GeneralScalarCacheSynchronizer(
-				constantContainers, caches[constantPartitionOrdinal], cached[constantPartitionOrdinal]
+				constantContainers, dataManager.getCaches(Memory.Partition.CONSTANT), dataManager.getCachedFlags(Memory.Partition.CONSTANT)
 		);
 
 
