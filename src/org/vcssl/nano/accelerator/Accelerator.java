@@ -55,7 +55,7 @@ public class Accelerator {
 	private class AccelerationResource {
 		public AccelerationExecutorNode[] accelerationUnits = null;
 
-		public CacheSynchronizer[] synchronizers = null; // [partitionIndex]
+		public AccelerationDataManager dataManager = null; // [partitionIndex]
 	}
 
 
@@ -83,8 +83,8 @@ public class Accelerator {
 				instructions, memory, interconnect, processor
 		);
 
-		resource.synchronizers[Memory.Partition.CONSTANT.ordinal()].writeCache();
-		resource.synchronizers[Memory.Partition.GLOBAL.ordinal()].writeCache();
+		resource.dataManager.getCacheSynchronizers(Memory.Partition.CONSTANT).writeCache();
+		resource.dataManager.getCacheSynchronizers(Memory.Partition.GLOBAL).writeCache();
 
 		AccelerationExecutorNode[] AccelerationUnits = resource.accelerationUnits;
 
@@ -119,20 +119,8 @@ public class Accelerator {
 		// アドレスに紐づけてキャッシュを持つ(同じデータコンテナに対して同じキャッシュが一意に対応するように)
 		// 非キャッシュ演算ユニットはデータコンテナとキャッシュ要素を保持し、同期する
 
-		int registerSize = memory.getSize(Memory.Partition.REGISTER);
-		int localSize = memory.getSize(Memory.Partition.LOCAL);
-		int globalSize = memory.getSize(Memory.Partition.GLOBAL);
-		int constantSize = memory.getSize(Memory.Partition.CONSTANT);
 
-		int registerPartitionOrdinal = Memory.Partition.REGISTER.ordinal();
-		int localPartitionOrdinal = Memory.Partition.LOCAL.ordinal();
-		int globalPartitionOrdinal = Memory.Partition.GLOBAL.ordinal();
-		int constantPartitionOrdinal = Memory.Partition.CONSTANT.ordinal();
-
-
-		int partitionLength = Memory.Partition.values().length;
-
-
+		// スカラ判定やキャッシュ確保などの高速化用データ解析を実行
 		AccelerationDataManager dataManager = new AccelerationDataManager();
 		dataManager.allocate(instructions, memory);
 
@@ -161,8 +149,6 @@ public class Accelerator {
 			boolean[] operandCached = new boolean[operandLength];
 			ScalarCache[] operandCaches = new ScalarCache[operandLength];
 			for (int operandIndex=0; operandIndex<operandLength; operandIndex++) {
-				//operandScalar[operandIndex] = scalar[ partitions[operandIndex].ordinal() ][ addresses[operandIndex] ];
-				//operandCached[operandIndex] = cached[ partitions[operandIndex].ordinal() ][ addresses[operandIndex] ];
 				operandScalar[operandIndex] = dataManager.isScalar(partitions[operandIndex], addresses[operandIndex]);
 				operandCached[operandIndex] = dataManager.isCached(partitions[operandIndex], addresses[operandIndex]);
 
@@ -286,38 +272,10 @@ public class Accelerator {
 			}
 		}
 
-		// 生成した演算ノード列をダンプして表示
-		/*
-		for (int instructionIndex = 0; instructionIndex<instructionLength; instructionIndex++) {
-			OperationCode opcode = instructions[instructionIndex].getOperationCode();
-			System.out.println("[" + instructionIndex + "] " + opcode + " \t" + executors[instructionIndex].getClass().getName().split("\\$")[1]);
-		}
-		*/
-
-		DataContainer<?>[] registerContainers = memory.getDataContainers(Memory.Partition.REGISTER);
-		DataContainer<?>[] localContainers = memory.getDataContainers(Memory.Partition.LOCAL);
-		DataContainer<?>[] globalContainers = memory.getDataContainers(Memory.Partition.GLOBAL);
-		DataContainer<?>[] constantContainers = memory.getDataContainers(Memory.Partition.CONSTANT);
-
-
-		CacheSynchronizer[] synchronizers = new CacheSynchronizer[partitionLength];
-		synchronizers[registerPartitionOrdinal] = new GeneralScalarCacheSynchronizer(
-				registerContainers, dataManager.getCaches(Memory.Partition.REGISTER), dataManager.getCachedFlags(Memory.Partition.REGISTER)
-		);
-		synchronizers[localPartitionOrdinal] = new GeneralScalarCacheSynchronizer(
-				localContainers, dataManager.getCaches(Memory.Partition.LOCAL), dataManager.getCachedFlags(Memory.Partition.LOCAL)
-		);
-		synchronizers[globalPartitionOrdinal] = new GeneralScalarCacheSynchronizer(
-				globalContainers, dataManager.getCaches(Memory.Partition.GLOBAL), dataManager.getCachedFlags(Memory.Partition.GLOBAL)
-		);
-		synchronizers[constantPartitionOrdinal] = new GeneralScalarCacheSynchronizer(
-				constantContainers, dataManager.getCaches(Memory.Partition.CONSTANT), dataManager.getCachedFlags(Memory.Partition.CONSTANT)
-		);
-
 
 		AccelerationResource resource = new AccelerationResource();
 		resource.accelerationUnits = executors;
-		resource.synchronizers = synchronizers;
+		resource.dataManager = dataManager;
 
 		return resource;
 	}

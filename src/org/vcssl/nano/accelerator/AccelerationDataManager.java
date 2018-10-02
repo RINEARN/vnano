@@ -24,6 +24,9 @@ public final class AccelerationDataManager {
 	//private boolean[][] cachable = null;
 	private boolean[][] scalar = null;
 
+	// [Partition]
+	CacheSynchronizer[] synchronizers;
+
 	private int registerSize = -1;
 	private int localSize = -1;
 	private int globalSize = -1;
@@ -55,13 +58,18 @@ public final class AccelerationDataManager {
 		return this.scalar[ partition.ordinal() ][ address ];
 	}
 
-	public void allocate(Instruction[] instructions, Memory memory) {
-		this.allocateFields(memory);
-		this.allocateConstantScalarCaches(memory);
-		this.allocateVariableScalarCaches(instructions, memory);
+	public CacheSynchronizer getCacheSynchronizers(Memory.Partition partition) {
+		return this.synchronizers[partition.ordinal()];
 	}
 
-	private void allocateFields(Memory memory) {
+	public void allocate(Instruction[] instructions, Memory memory) {
+		this.initializeFields(memory);
+		this.allocateConstantScalarCaches(memory);
+		this.allocateVariableScalarCaches(instructions, memory);
+		this.initializeCacheSynchronizers(memory);
+	}
+
+	private void initializeFields(Memory memory) {
 
 		this.registerSize = memory.getSize(Memory.Partition.REGISTER);
 		this.localSize = memory.getSize(Memory.Partition.LOCAL);
@@ -209,6 +217,29 @@ public final class AccelerationDataManager {
 				}
 			}
 		}
+	}
+
+	private void initializeCacheSynchronizers(Memory memory) {
+
+		DataContainer<?>[] registerContainers = memory.getDataContainers(Memory.Partition.REGISTER);
+		DataContainer<?>[] localContainers = memory.getDataContainers(Memory.Partition.LOCAL);
+		DataContainer<?>[] globalContainers = memory.getDataContainers(Memory.Partition.GLOBAL);
+		DataContainer<?>[] constantContainers = memory.getDataContainers(Memory.Partition.CONSTANT);
+
+		this.synchronizers = new CacheSynchronizer[PARTITION_LENGTH];
+
+		this.synchronizers[REGISTER_PARTITION_ORDINAL] = new GeneralScalarCacheSynchronizer(
+				registerContainers, this.getCaches(Memory.Partition.REGISTER), this.getCachedFlags(Memory.Partition.REGISTER)
+		);
+		this.synchronizers[LOCAL_PARTITION_ORDINAL] = new GeneralScalarCacheSynchronizer(
+				localContainers, this.getCaches(Memory.Partition.LOCAL), this.getCachedFlags(Memory.Partition.LOCAL)
+		);
+		this.synchronizers[GLOBAL_PARTITION_ORDINAL] = new GeneralScalarCacheSynchronizer(
+				globalContainers, this.getCaches(Memory.Partition.GLOBAL), this.getCachedFlags(Memory.Partition.GLOBAL)
+		);
+		this.synchronizers[CONSTANT_PARTITION_ORDINAL] = new GeneralScalarCacheSynchronizer(
+				constantContainers, this.getCaches(Memory.Partition.CONSTANT), this.getCachedFlags(Memory.Partition.CONSTANT)
+		);
 	}
 
 
