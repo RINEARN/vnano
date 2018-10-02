@@ -33,10 +33,10 @@ import org.vcssl.nano.spec.AssemblyWord;
 public final class Instruction {
 
 	/** 命令のオペレーションコードを保持します。 */
-	private OperationCode operationCode;
+	private final OperationCode operationCode;
 
 	/** 命令の演算を行う際のデータ型情報を保持します。 */
-	private DataType[] dataTypes;
+	private final DataType[] dataTypes;
 
 	/** 命令オペランドのデータが格納されている、仮想メモリー内でのパーティションを保持します。 */
 	private final Memory.Partition[] operandPartitions;
@@ -50,6 +50,8 @@ public final class Instruction {
 	/** スクリプト内での対応位置などのメタ情報が格納されている、仮想メモリー内でのアドレスを保持します。 */
 	private final int metaAddress;
 
+	/** 拡張命令（ {@link OperationCode.EX EX} 命令 ）の情報を格納するオブジェクトです。 */
+	private final Object extention;
 
 	/**
 	 * 引数に指定された内容を持つ、命令のインスタンスを生成します。
@@ -66,12 +68,33 @@ public final class Instruction {
 			Memory.Partition[] operandPartitions, int[] operandAddresses,
 			Memory.Partition metaPartition, int metaAddress) {
 
+		this(operationCode, dataTypes, operandPartitions, operandAddresses, metaPartition, metaAddress, null);
+	}
+
+	/**
+	 * 引数に指定された内容を持つ、命令のインスタンスを生成します（拡張命令用）。
+	 *
+	 * @param operationCode オペレーションコード
+	 * @param dataTypes 演算を行う際のデータ型
+	 * @param operandPartitions オペランドのデータが格納されている仮想メモリー内パーティション
+	 * @param operandAddresses オペランドのデータが格納されている仮想メモリー内アドレス
+	 * @param metaPartition メタ情報が格納されている仮想メモリー内パーティション
+	 * @param metaAddress メタ情報が格納されている仮想メモリー内アドレス
+	 * @param extention 格闘命令の情報を格納するオブジェクト
+	 */
+	public Instruction(
+			OperationCode operationCode, DataType[] dataTypes,
+			Memory.Partition[] operandPartitions, int[] operandAddresses,
+			Memory.Partition metaPartition, int metaAddress,
+			Object extention) {
+
 		this.operationCode = operationCode;
 		this.dataTypes = dataTypes;
 		this.operandPartitions = operandPartitions;
 		this.operandAddresses = operandAddresses;
 		this.metaPartition = metaPartition;
 		this.metaAddress = metaAddress;
+		this.extention = extention;
 	}
 
 
@@ -173,6 +196,16 @@ public final class Instruction {
 
 
 	/**
+	 * 拡張命令の情報を保持するオブジェクトを返します。
+	 *
+	 * @return 拡張命令の情報を保持するオブジェクト
+	 */
+	public Object getExtention() {
+		return this.extention;
+	}
+
+
+	/**
 	 * 命令の内容を表す文字列を返します（デバッグ用）。
 	 *
 	 * @return 命令の内容を表す文字列
@@ -198,6 +231,13 @@ public final class Instruction {
 		}
 		builder.append(this.metaPartition.toString().charAt(0));
 		builder.append(this.metaAddress);
+
+		if (this.extention != null) {
+			builder.append("\t extention={ ");
+			builder.append(this.extention.toString());
+			builder.append(" }");
+		}
+
 		builder.append(" ]");
 		return builder.toString();
 	}
