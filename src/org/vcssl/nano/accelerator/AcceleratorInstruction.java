@@ -1,5 +1,6 @@
 package org.vcssl.nano.accelerator;
 
+import org.vcssl.nano.memory.Memory;
 import org.vcssl.nano.processor.Instruction;
 import org.vcssl.nano.processor.OperationCode;
 
@@ -20,6 +21,43 @@ public class AcceleratorInstruction extends Instruction {
 				instruction.getOperandPartitions(), instruction.getOperandAddresses(),
 				instruction.getMetaPartition(), instruction.getMetaAddress()
 		);
+	}
+
+
+	// AcceleratorInstruction をコピーし、オペランド部だけを置き換えたものを生成
+	public AcceleratorInstruction(AcceleratorInstruction instruction,
+			Memory.Partition[] operandPartitions, int[] operandAddresses) {
+
+		super(
+				instruction.getOperationCode(), instruction.getDataTypes(),
+				operandPartitions, operandAddresses,
+				instruction.getMetaPartition(), instruction.getMetaAddress()
+		);
+		this.accelerationType = instruction.accelerationType;
+		this.fusedOperationCodes = instruction.fusedOperationCodes;
+		this.jumpLabelId = instruction.jumpLabelId;
+		this.reorderedAddress = instruction.reorderedAddress;
+		this.unreorderedAddress = instruction.unreorderedAddress;
+		this.reorderedJumpAddress = instruction.reorderedJumpAddress;
+		this.jumpAddressReordered = instruction.jumpAddressReordered;
+	}
+
+	// AcceleratorInstruction をコピーし、オペランド部と複合オペコード配列だけを置き換えたものを生成
+	public AcceleratorInstruction(AcceleratorInstruction instruction,
+			OperationCode[] fusedOperationCodes, Memory.Partition[] operandPartitions, int[] operandAddresses) {
+
+		super(
+				instruction.getOperationCode(), instruction.getDataTypes(),
+				operandPartitions, operandAddresses,
+				instruction.getMetaPartition(), instruction.getMetaAddress()
+		);
+		this.accelerationType = instruction.accelerationType;
+		this.fusedOperationCodes = fusedOperationCodes;
+		this.jumpLabelId = instruction.jumpLabelId;
+		this.reorderedAddress = instruction.reorderedAddress;
+		this.unreorderedAddress = instruction.unreorderedAddress;
+		this.reorderedJumpAddress = instruction.reorderedJumpAddress;
+		this.jumpAddressReordered = instruction.jumpAddressReordered;
 	}
 
 

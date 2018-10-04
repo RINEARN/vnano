@@ -6,8 +6,6 @@
 package org.vcssl.nano.accelerator;
 
 
-import java.util.Arrays;
-
 import org.vcssl.nano.interconnect.Interconnect;
 import org.vcssl.nano.lang.DataType;
 import org.vcssl.nano.memory.DataContainer;
@@ -122,10 +120,13 @@ public class Accelerator {
 		dataManager.allocate(instructions, memory);
 
 
-		System.out.println("===== RAW INSTRUCTIONS =====");
+		/*
+		System.out.println("===== INPUT INSTRUCTIONS =====");
 		for (int i=0; i<instructions.length; i++) {
 			System.out.println("[" + i + "]\t" + instructions[i]);
+			//System.out.println(i + ":\t" + instructions[i]);
 		}
+		*/
 
 
 
@@ -134,11 +135,14 @@ public class Accelerator {
 		AcceleratorInstruction[] acceleratorInstructions = scheduler.schedule(instructions, memory);
 
 
-		System.out.println("===== REORDERED INSTRUCTIONS =====");
-		for (int i=0; i<instructions.length; i++) {
+		/*
+		System.out.println("===== SCHEDULED INSTRUCTIONS =====");
+		for (int i=0; i<acceleratorInstructions.length; i++) {
 			AcceleratorInstruction instruction = acceleratorInstructions[i];
 			System.out.println("[" + instruction.getReorderedAddress() + "(" + instruction.getUnreorderedAddress() + ")" + "]\t" + instruction);
+			//System.out.println(instruction.getReorderedAddress() + ":\t" + instruction);
 		}
+		*/
 
 
 		// ===================================================
@@ -275,6 +279,14 @@ public class Accelerator {
 							nextNode
 					);
 					break;
+				}
+
+				// 何もしない命令（ジャンプ先に配置されている） Nop instruction opcode
+				case NOP :
+				{
+					executors[instructionIndex] = new NopExecutor(nextNode);
+					break;
+
 				}
 
 				// 非対応命令 Un-acceleratable Opcodes
@@ -595,6 +607,18 @@ public class Accelerator {
 
 
 
+
+
+	private final class NopExecutor extends AccelerationExecutorNode {
+
+		public NopExecutor(AccelerationExecutorNode nextNode) {
+			super(nextNode);
+		}
+
+		public final AccelerationExecutorNode execute() {
+			return this.nextNode;
+		}
+	}
 
 
 

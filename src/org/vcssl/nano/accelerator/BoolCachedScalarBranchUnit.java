@@ -18,7 +18,6 @@ public class BoolCachedScalarBranchUnit extends AccelerationUnit {
 			AccelerationExecutorNode nextNode) {
 
 		BoolScalarCache cache0 = (BoolScalarCache)operandCaches[0];
-		Int64ScalarCache cache1 = (Int64ScalarCache)operandCaches[1];
 
 		AccelerationExecutorNode executor = null;
 		switch (opcode) {
