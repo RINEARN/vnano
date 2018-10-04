@@ -82,6 +82,7 @@ public class AccelerationScheduler {
 		int instructionLength = acceleratorInstructionList.size();
 		for (int instructionIndex=0; instructionIndex<instructionLength; instructionIndex++) {
 			AcceleratorInstruction instruction = this.acceleratorInstructionList.get(instructionIndex);
+			System.out.println("Put " + instruction.getUnreorderedAddress() + ", " + instruction.getReorderedAddress());
 			addressReorderingMap.put(instruction.getUnreorderedAddress(), instruction.getReorderedAddress());
 		}
 	}
@@ -119,6 +120,8 @@ public class AccelerationScheduler {
 
 				// ジャンプ先命令アドレスの、命令再配置前における位置に対応する、再配置後のジャンプ先命令アドレスを取得
 				int reorderedJumpAddress = this.addressReorderingMap.get(jumpAddress);
+
+				System.out.println("Jump addr reordered: " + jumpAddress + " to " + reorderedJumpAddress);
 
 				// 再配置後のジャンプ先アドレス情報をジャンプ命令に追加
 				instruction.setReorderedJumpAddress(reorderedJumpAddress);
