@@ -6,8 +6,6 @@
 package org.vcssl.nano.accelerator;
 
 
-import java.util.Arrays;
-
 import org.vcssl.nano.interconnect.Interconnect;
 import org.vcssl.nano.lang.DataType;
 import org.vcssl.nano.memory.DataContainer;
@@ -113,9 +111,6 @@ public class Accelerator {
 			Interconnect interconnect, Processor processor)
 					throws MemoryAccessException, InvalidInstructionException {
 
-		int instructionLength = instructions.length;
-		AccelerationExecutorNode[] executors = new AccelerationExecutorNode[instructionLength];
-
 		// アドレスに紐づけてキャッシュを持つ(同じデータコンテナに対して同じキャッシュが一意に対応するように)
 		// 非キャッシュ演算ユニットはデータコンテナとキャッシュ要素を保持し、同期する
 
@@ -125,18 +120,60 @@ public class Accelerator {
 		dataManager.allocate(instructions, memory);
 
 
+		/*
+		System.out.println("===== INPUT INSTRUCTIONS =====");
+		for (int i=0; i<instructions.length; i++) {
+			System.out.println("[" + i + "]\t" + instructions[i]);
+			//System.out.println(i + ":\t" + instructions[i]);
+		}
+		*/
+
+
+
+		// 命令スケジューラで命令列を高速化用に再配置・変換
+		AccelerationScheduler scheduler = new AccelerationScheduler();
+		AcceleratorInstruction[] acceleratorInstructions = scheduler.schedule(instructions, memory);
+
+
+		/*
+		System.out.println("===== SCHEDULED INSTRUCTIONS =====");
+		for (int i=0; i<acceleratorInstructions.length; i++) {
+			AcceleratorInstruction instruction = acceleratorInstructions[i];
+			System.out.println("[" + instruction.getReorderedAddress() + "(" + instruction.getUnreorderedAddress() + ")" + "]\t" + instruction);
+			//System.out.println(instruction.getReorderedAddress() + ":\t" + instruction);
+		}
+		*/
+
+
+		// ===================================================
+		// ここから後で切り出す
+		// ===================================================
+
+
+		// いきなり Executor を生成するのではなく、
+		// まず拡張命令の配列を生成し、それを読んでExecutorを生成するように2段階に分ける。
+		// そうしないと、間にリオーダーやオペランド入れ替え最適化などを行えない。
+		// FMA演算を入れる上でも必要
+		// スカラALLOCを移す上でもスカラALLOCである事が判定済みである必要があるので、まず最初の一歩は拡張命令変換
+
+
+		int instructionLength = acceleratorInstructions.length;
+		AccelerationExecutorNode[] executors = new AccelerationExecutorNode[instructionLength];
+
+
 		// 命令列から演算ノード列を生成（ループは命令列の末尾から先頭の順で辿る）
 		AccelerationExecutorNode nextNode = null; // 現在の対象命令の次の命令（＝前ループでの対象命令）を控える
 		for (int instructionIndex = instructionLength-1; 0<=instructionIndex; instructionIndex--) {
 		//for (int instructionIndex=0; instructionIndex<instructionLength; instructionIndex++) {
 
-			Instruction instruction = instructions[instructionIndex];
+			AcceleratorInstruction instruction = acceleratorInstructions[instructionIndex];
 			DataType[] dataTypes = instruction.getDataTypes();
 			OperationCode opcode = instruction.getOperationCode();
 
+
 			// 命令からデータアドレスを取得
-			Memory.Partition[] partitions = instructions[instructionIndex].getOperandPartitions();
-			int[] addresses = instructions[instructionIndex].getOperandAddresses();
+			Memory.Partition[] partitions = acceleratorInstructions[instructionIndex].getOperandPartitions();
+			int[] addresses = acceleratorInstructions[instructionIndex].getOperandAddresses();
 			int operandLength = addresses.length;
 
 			DataContainer<?>[] containers = new DataContainer[operandLength];
@@ -144,14 +181,19 @@ public class Accelerator {
 				containers[operandIndex] = memory.getDataContainer(partitions[operandIndex], addresses[operandIndex]);
 			}
 
+
+			// オペランドの状態とキャッシュ参照などを控える配列を用意
 			boolean[] operandConstant = new boolean[operandLength];
 			boolean[] operandScalar = new boolean[operandLength];
 			boolean[] operandCached = new boolean[operandLength];
 			ScalarCache[] operandCaches = new ScalarCache[operandLength];
+
+
+			// データマネージャから、オペランドのスカラ判定結果とキャッシュ有無およびキャッシュ参照を取得し、
+			// 定数かどうかも控える
 			for (int operandIndex=0; operandIndex<operandLength; operandIndex++) {
 				operandScalar[operandIndex] = dataManager.isScalar(partitions[operandIndex], addresses[operandIndex]);
 				operandCached[operandIndex] = dataManager.isCached(partitions[operandIndex], addresses[operandIndex]);
-
 				if (operandCached[operandIndex]) {
 					operandCaches[operandIndex] = dataManager.getCache(partitions[operandIndex], addresses[operandIndex]);
 				}
@@ -160,12 +202,14 @@ public class Accelerator {
 				}
 			}
 
+
+			// スカラALLOC命令は先に検出して処理
 			if (opcode == OperationCode.ALLOC && dataManager.isScalar(partitions[0], addresses[0]) ) {
 
 				CacheSynchronizer synchronizer = new GeneralScalarCacheSynchronizer(containers, operandCaches, operandCached);
 
 				executors[instructionIndex] = new ScalarAllocExecutor(
-					instructions[instructionIndex], memory, interconnect, processor, synchronizer, nextNode
+						acceleratorInstructions[instructionIndex], memory, interconnect, processor, synchronizer, nextNode
 				);
 
 				nextNode = executors[instructionIndex];
@@ -173,7 +217,7 @@ public class Accelerator {
 			}
 
 
-
+			// その他の命令に対する処理
 			switch (opcode) {
 
 				// 算術演算命令 Arithmetic instruction opcodes
@@ -230,9 +274,19 @@ public class Accelerator {
 				case JMPN :
 				{
 					executors[instructionIndex] = this.generateBranchExecutor(opcode, dataTypes,
-							containers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
+							containers, operandCaches, operandCached, operandScalar, operandConstant,
+							instruction.getReorderedJumpAddress(),
+							nextNode
 					);
 					break;
+				}
+
+				// 何もしない命令（ジャンプ先に配置されている） Nop instruction opcode
+				case NOP :
+				{
+					executors[instructionIndex] = new NopExecutor(nextNode);
+					break;
+
 				}
 
 				// 非対応命令 Un-acceleratable Opcodes
@@ -248,7 +302,7 @@ public class Accelerator {
 					containers, operandCaches, operandCached
 				);
 				executors[instructionIndex] = new PassThroughExecutor(
-					instructions[instructionIndex], memory, interconnect, processor, synchronizer, nextNode
+						acceleratorInstructions[instructionIndex], memory, interconnect, processor, synchronizer, nextNode
 				);
 			}
 
@@ -258,19 +312,29 @@ public class Accelerator {
 		// 分岐ノードに分岐先ノードの参照を設定
 		for (int instructionIndex = instructionLength-1; 0<=instructionIndex; instructionIndex--) {
 
-			OperationCode opcode = instructions[instructionIndex].getOperationCode();
+			OperationCode opcode = acceleratorInstructions[instructionIndex].getOperationCode();
 			if (opcode == OperationCode.JMP || opcode == OperationCode.JMPN) {
 
+				// 命令再配置でジャンプ命令先アドレスは変化するので、補正後のアドレスを使う
+				/*
 				DataContainer<?> branchedAddressContainer = memory.getDataContainer(
 						Memory.Partition.CONSTANT,
-						instructions[instructionIndex].getOperandAddresses()[1]
+						acceleratorInstructions[instructionIndex].getOperandAddresses()[1]
 				);
-
 				long[] branchedAddressContainerData = (long[])branchedAddressContainer.getData();
 				int branchedAddress = (int)branchedAddressContainerData[0];
+				*/
+
+				int branchedAddress = acceleratorInstructions[instructionIndex].getReorderedJumpAddress();
+
 				executors[instructionIndex].setBranchedNode( executors[branchedAddress] );
 			}
 		}
+
+
+		// ===================================================
+		// ここまで後で切り出す
+		// ===================================================
 
 
 		AccelerationResource resource = new AccelerationResource();
@@ -510,7 +574,7 @@ public class Accelerator {
 	private AccelerationExecutorNode generateBranchExecutor(
 			OperationCode opcode, DataType[] dataTypes, DataContainer<?>[] operandContainers,
 			Object[] operandCaches, boolean[] operandCached, boolean[] operandScalar, boolean[] operandConstant,
-			AccelerationExecutorNode nextNode) {
+			int reorderedJumpAddress, AccelerationExecutorNode nextNode) {
 
 		AccelerationExecutorNode executor = null;
 
@@ -543,6 +607,18 @@ public class Accelerator {
 
 
 
+
+
+	private final class NopExecutor extends AccelerationExecutorNode {
+
+		public NopExecutor(AccelerationExecutorNode nextNode) {
+			super(nextNode);
+		}
+
+		public final AccelerationExecutorNode execute() {
+			return this.nextNode;
+		}
+	}
 
 
 

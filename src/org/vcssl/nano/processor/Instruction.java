@@ -30,7 +30,7 @@ import org.vcssl.nano.spec.AssemblyWord;
  *
  * @author RINEARN (Fumihiro Matsui)
  */
-public final class Instruction {
+public class Instruction implements Cloneable {
 
 	/** 命令のオペレーションコードを保持します。 */
 	private final OperationCode operationCode;
@@ -136,6 +136,16 @@ public final class Instruction {
 
 
 	/**
+	 * 命令オペランドの個数を返します。
+	 *
+	 * @return 命令オペランドの個数
+	 */
+	public int getOperandLength() {
+		return this.operandPartitions.length;
+	}
+
+
+	/**
 	 * 命令オペランドのデータが格納されている、仮想メモリー内でのパーティションを返します。
 	 *
 	 * この処理系では、処理対象データはこの命令オブジェクト内には直接保持されず、
@@ -196,12 +206,79 @@ public final class Instruction {
 
 
 	/**
-	 * 拡張命令の情報を保持するオブジェクトを返します。
+	 * 拡張命令の情報を格納しているかどうかを判断して返します。
+	 *
+	 * @return 拡張命令の情報を格納しているかどうか（格納していればtrue）
+	 */
+	public boolean hasExtention() {
+		return this.extention != null;
+	}
+
+
+	/**
+	 * 拡張命令の情報を格納するオブジェクトを返します。
 	 *
 	 * @return 拡張命令の情報を保持するオブジェクト
 	 */
 	public Object getExtention() {
 		return this.extention;
+	}
+
+
+	/**
+	 * この命令を複製します。
+	 * 原則として、フィールドはディープコピーされます。
+	 * ただし、拡張命令の情報を格納する extention フィールドについては、
+	 * Object 型であるため参照のみがシャローコピーされます。
+	 *
+	 * @return 複製された命令
+	 */
+	public Instruction clone() {
+
+		DataType[] cloneDataTypes = new DataType[this.dataTypes.length];
+		System.arraycopy(this.dataTypes, 0, cloneDataTypes, 0, this.dataTypes.length);
+
+		Memory.Partition[] cloneOperandPartitions = new Memory.Partition[this.operandPartitions.length];
+		System.arraycopy(this.operandPartitions, 0, cloneOperandPartitions, 0, this.operandPartitions.length);
+
+		int[] cloneOperandAddresses = new int[this.operandAddresses.length];
+		System.arraycopy(this.operandAddresses, 0, cloneOperandAddresses, 0, this.operandAddresses.length);
+
+		Instruction cloneInstruction = new Instruction(
+				this.operationCode, cloneDataTypes,
+				cloneOperandPartitions, cloneOperandAddresses,
+				this.metaPartition, this.metaAddress,
+				this.extention
+		);
+
+		return cloneInstruction;
+	}
+
+
+	/**
+	 * 拡張命令の情報を格納するオブジェクトを指定して、この命令を複製します。
+	 *
+	 * @return 複製された命令
+	 */
+	public Instruction clone(Object extention) {
+
+		DataType[] cloneDataTypes = new DataType[this.dataTypes.length];
+		System.arraycopy(this.dataTypes, 0, cloneDataTypes, 0, this.dataTypes.length);
+
+		Memory.Partition[] cloneOperandPartitions = new Memory.Partition[this.operandPartitions.length];
+		System.arraycopy(this.operandPartitions, 0, cloneOperandPartitions, 0, this.operandPartitions.length);
+
+		int[] cloneOperandAddresses = new int[this.operandAddresses.length];
+		System.arraycopy(this.operandAddresses, 0, cloneOperandAddresses, 0, this.operandAddresses.length);
+
+		Instruction cloneInstruction = new Instruction(
+				this.operationCode, cloneDataTypes,
+				cloneOperandPartitions, cloneOperandAddresses,
+				this.metaPartition, this.metaAddress,
+				extention
+		);
+
+		return cloneInstruction;
 	}
 
 
@@ -241,7 +318,4 @@ public final class Instruction {
 		builder.append(" ]");
 		return builder.toString();
 	}
-
-
-
 }
