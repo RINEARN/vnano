@@ -23,7 +23,7 @@ const string SOURCE_DIRECTORY_PATH = ".";
 const string OUTPUT_FILE_PATH = "./sourcelist.txt";
 
 /** SOURCE_DIRECTORY_PATH 指定フォルダ内で、コンパイル対象から除外するサブフォルダのパスです。 */
-const string EXCEPT_DIRECTORY_PATHS[] = { "./META-INF", "./example" };
+const string EXCEPT_DIRECTORY_PATHS[] = { "./META-INF", "./example", "./dev" };
 
 
 /**

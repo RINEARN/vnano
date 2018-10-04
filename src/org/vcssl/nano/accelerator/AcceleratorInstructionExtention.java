@@ -2,30 +2,55 @@ package org.vcssl.nano.accelerator;
 
 import org.vcssl.nano.processor.OperationCode;
 
-public class AcceleratorInstructionExtention {
+public class AcceleratorInstructionExtention implements Cloneable {
 
-	private final OperationCode[] operationCodes;
-	private final AccelerationType accelerationType;
+	private OperationCode[] operationCodes = null;
+	private AccelerationType accelerationType = null;
+	private int jumpLabelId = -1;
+	private int reorderedJumpAddress = -1;
+	private boolean jumpAddressReordered = false;
 
-	public AcceleratorInstructionExtention(
-			OperationCode operationCode, AccelerationType accelerationType) {
 
-		this(new OperationCode[]{ operationCode }, accelerationType);
+	public void setOperationCodes(OperationCode operationCode) {
+		this.operationCodes = new OperationCode[]{ operationCode };
 	}
 
-	public AcceleratorInstructionExtention(
-			OperationCode[] operationCodes, AccelerationType accelerationType) {
-
+	public void setOperationCodes(OperationCode[] operationCodes) {
 		this.operationCodes = operationCodes;
-		this.accelerationType = accelerationType;
 	}
 
 	public OperationCode[] getOperationCodes() {
 		return this.operationCodes;
 	}
 
+
+	public void setAccelerationType(AccelerationType accelerationType) {
+		this.accelerationType = accelerationType;
+	}
+
 	public AccelerationType getAccelerationType() {
 		return this.accelerationType;
+	}
+
+	public void setJumpLabelId(int jumpLabelId) {
+		this.jumpLabelId = jumpLabelId;
+	}
+
+	public int getJumpLabelId() {
+		return jumpLabelId;
+	}
+
+	public void setReorderedJumpAddress(int reorderedJumpAddress) {
+		this.reorderedJumpAddress = reorderedJumpAddress;
+		this.jumpAddressReordered = true;
+	}
+
+	public int getReorderedJumpAddress() {
+		return this.reorderedJumpAddress;
+	}
+
+	public boolean isJumpAddressReordered() {
+		return this.jumpAddressReordered;
 	}
 
 }
