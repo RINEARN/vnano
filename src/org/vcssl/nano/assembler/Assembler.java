@@ -89,6 +89,18 @@ public class Assembler {
 				metaAddress = constantAddress;
 				constantAddress++;
 				continue;
+
+			// ラベルディレクティブ -> NOPを置く（ジャンプ先命令に、演算ではなく着地点の役割だけを担わせる事で、最適化を容易にする）
+			} else if (line.startsWith(AssemblyWord.LABEL_DIRECTIVE)) {
+
+				Instruction instruction = new Instruction(
+						OperationCode.NOP, new DataType[]{DataType.VOID},
+						new Memory.Partition[0], new int[0],
+						Memory.Partition.CONSTANT, metaAddress
+				);
+				intermediateCode.addInstruction(instruction);
+				continue;
+
 			} else if (line.startsWith(Character.toString(AssemblyWord.DIRECTIVE_PREFIX))) {
 				continue;
 			}
@@ -275,6 +287,7 @@ public class Assembler {
 			if (line.startsWith(AssemblyWord.LABEL_DIRECTIVE)) {
 				String identifier = words[1];
 				assembledObject.addLabel(identifier, instructionIndex);
+				instructionIndex++; // 他のディレクティブとは異なり、ラベルの位置にはNOP命令を置くのでカウンタを進める
 			}
 
 			if (!line.startsWith(Character.toString(AssemblyWord.DIRECTIVE_PREFIX))) {
