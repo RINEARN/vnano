@@ -2,6 +2,11 @@ package org.vcssl.nano.accelerator;
 
 public enum AccelerationType {
 
+	Unsupported,
+
+	ScalarAlloc,
+	Nop,
+
 	BoolVectorBranch,
 	BoolVectorLogical,
 	BoolVectorTransfer,

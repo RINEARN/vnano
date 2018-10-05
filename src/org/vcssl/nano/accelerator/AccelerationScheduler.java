@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.vcssl.nano.VnanoFatalException;
+import org.vcssl.nano.lang.DataType;
 import org.vcssl.nano.memory.DataContainer;
 import org.vcssl.nano.memory.Memory;
 import org.vcssl.nano.memory.MemoryAccessException;
@@ -21,20 +22,33 @@ public class AccelerationScheduler {
 	Map<Integer,Integer> addressReorderingMap;
 	int registerWrittenPointCount[];
 
-	public AcceleratorInstruction[] schedule(Instruction[] instructions, Memory memory) {
+	public AcceleratorInstruction[] schedule(
+			Instruction[] instructions, Memory memory, AccelerationDataManager dataManager) {
+
+		// 命令列を読み込んで AcceleratorInstruction に変換し、フィールドのリストを初期化して格納
 		this.initializeeAcceleratorInstructionList(instructions, memory);
+
+		// 各命令の AccelerationType を判定して設定
+		this.detectAccelerationTypes(memory, dataManager);
+
+		// 全てのレジスタに対し、それぞれ書き込み箇所の数をカウントする（最適化に使用）
 		this.createRegisterWrittenPointCount(memory);
 
-		// ここから命令再配置
-
+		// スカラのALLOC命令をコード先頭に並べ替える（メモリコストが低いので、ループ内に混ざるよりも利点が多い）
 		this.reorderAllocInstructions();
+
+		// オペランドを並び替え、不要になったMOV命令を削る
 		this.reduceMovInstructions();
 
-		// ここまで命令再配置
-
+		// 再配列後の命令アドレスを設定
 		this.updateReorderedAddresses();
+
+		// 再配列前と再配列後の命令アドレスの対応を保持するマップを生成
 		this.generateAddressReorderingMap();
+
+		// ジャンプ命令の飛び先アドレスを補正したものを求めて設定
 		this.resolveReorderedJumpAddress(memory);
+
 		return this.acceleratorInstructionList.toArray(new AcceleratorInstruction[0]);
 	}
 
@@ -59,6 +73,7 @@ public class AccelerationScheduler {
 			this.acceleratorInstructionList.add(acceleratorInstruction);
 		}
 	}
+
 
 	// レジスタ書き込み箇所カウンタ配列を生成して初期化
 	private void createRegisterWrittenPointCount(Memory memory) {
@@ -95,6 +110,267 @@ public class AccelerationScheduler {
 		//	System.out.println("Written Count of R" + i + " = " + this.registerWrittenPointCount[i]);
 		//}
 	}
+
+
+	private boolean isAllCached(boolean[] operandCached) {
+		for (boolean cached: operandCached) {
+			if (!cached) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	private boolean isAllScalar(boolean[] operandScalar) {
+		for (boolean scalar: operandScalar) {
+			if (!scalar) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	private boolean isAllVector(boolean[] operandScalar) {
+		for (boolean scalar: operandScalar) {
+			if (scalar) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	// 2つの連続するスカラ算術演算命令を融合して1つの命令にする。ただしオペランドがキャッシュ可能な場合限定。
+	private void detectAccelerationTypes(Memory memory, AccelerationDataManager dataManager) {
+
+		int instructionLength = this.acceleratorInstructionList.size();
+		for (int instructionIndex=0; instructionIndex<instructionLength-1; instructionIndex++) { // 後でイテレータ使うループにする
+
+			AcceleratorInstruction instruction = acceleratorInstructionList.get(instructionIndex);
+			DataType[] dataTypes = instruction.getDataTypes();
+			OperationCode opcode = instruction.getOperationCode();
+
+
+			// 命令からデータアドレスを取得
+			Memory.Partition[] partitions = instruction.getOperandPartitions();
+			int[] addresses = instruction.getOperandAddresses();
+			int operandLength = instruction.getOperandLength();
+
+			DataContainer<?>[] containers = new DataContainer[operandLength];
+			for (int operandIndex=0; operandIndex<operandLength; operandIndex++) {
+				try {
+					containers[operandIndex] = memory.getDataContainer(partitions[operandIndex], addresses[operandIndex]);
+				} catch (MemoryAccessException e) {
+					// オペランドに指定されているメモリ領域にアクセスできないのはアセンブラかメモリ初期化処理の異常
+					throw new VnanoFatalException(e);
+				}
+			}
+
+
+			// オペランドの状態とキャッシュ参照などを控える配列を用意
+			boolean[] operandConstant = new boolean[operandLength];
+			boolean[] operandScalar = new boolean[operandLength];
+			boolean[] operandCached = new boolean[operandLength];
+			ScalarCache[] operandCaches = new ScalarCache[operandLength];
+
+
+			// データマネージャから、オペランドのスカラ判定結果とキャッシュ有無およびキャッシュ参照を取得し、
+			// 定数かどうかも控える
+			for (int operandIndex=0; operandIndex<operandLength; operandIndex++) {
+				operandScalar[operandIndex] = dataManager.isScalar(partitions[operandIndex], addresses[operandIndex]);
+				operandCached[operandIndex] = dataManager.isCached(partitions[operandIndex], addresses[operandIndex]);
+				if (operandCached[operandIndex]) {
+					operandCaches[operandIndex] = dataManager.getCache(partitions[operandIndex], addresses[operandIndex]);
+				}
+				if (partitions[operandIndex] == Memory.Partition.CONSTANT) {
+					operandConstant[operandIndex] = true;
+				}
+			}
+
+
+
+			// その他の命令に対する処理
+			switch (opcode) {
+
+				// メモリ確保命令 Memory allocation instruction opcode
+				case ALLOC :
+				{
+					if (dataManager.isScalar(partitions[0], addresses[0])) {
+						instruction.setAccelerationType(AccelerationType.ScalarAlloc);
+					} else {
+						instruction.setAccelerationType(AccelerationType.Unsupported);
+					}
+					break;
+				}
+
+				// 算術演算命令 Arithmetic instruction opcodes
+				case ADD :
+				case SUB :
+				case MUL :
+				case DIV :
+				case REM :
+				{
+					if(dataTypes[0] == DataType.INT64) {
+
+						// 全部ベクトルの場合の演算
+						if (isAllVector(operandScalar)) {
+							instruction.setAccelerationType(AccelerationType.Int64VectorArithmetic);
+						// 全部キャッシュ可能なスカラの場合の演算
+						} else if (isAllScalar(operandScalar) && isAllCached(operandCached)) {
+							instruction.setAccelerationType(AccelerationType.Int64CachedScalarArithmetic);
+						// キャッシュ不可能なスカラ演算の場合（インデックス参照がある場合や、長さ1のベクトルとの混合演算など）
+						} else {
+							instruction.setAccelerationType(AccelerationType.Int64ScalarArithmetic);
+						// ベクトル・スカラ混合演算で、スカラをベクトルに昇格する場合は？
+						// →それはスクリプト側の仕様で、中間コードレベルではサポートしていない
+						}
+
+					} else if (dataTypes[0] == DataType.FLOAT64) {
+
+						if (isAllVector(operandScalar)) {
+							instruction.setAccelerationType(AccelerationType.Float64VectorArithmetic);
+						} else if (isAllScalar(operandScalar) && isAllCached(operandCached)) {
+							instruction.setAccelerationType(AccelerationType.Float64CachedScalarArithmetic);
+						} else {
+							instruction.setAccelerationType(AccelerationType.Float64ScalarArithmetic);
+						}
+
+					} else {
+						instruction.setAccelerationType(AccelerationType.Unsupported);
+					}
+					break;
+				}
+
+				// 比較演算命令 Comparison instruction opcodes
+				case LT :
+				case GT :
+				case LEQ :
+				case GEQ :
+				case EQ :
+				case NEQ :
+				{
+					if(dataTypes[0] == DataType.INT64) {
+
+						if (isAllVector(operandScalar)) {
+							instruction.setAccelerationType(AccelerationType.Int64VectorComparison);
+						} else if (isAllScalar(operandScalar) && isAllCached(operandCached)) {
+							instruction.setAccelerationType(AccelerationType.Int64CachedScalarComparison);
+						} else {
+							instruction.setAccelerationType(AccelerationType.Int64ScalarComparison);
+						}
+
+					} else if (dataTypes[0] == DataType.FLOAT64) {
+
+						if (isAllVector(operandScalar)) {
+							instruction.setAccelerationType(AccelerationType.Float64VectorComparison);
+						} else if (isAllScalar(operandScalar) && isAllCached(operandCached)) {
+							instruction.setAccelerationType(AccelerationType.Float64CachedScalarComparison);
+						} else {
+							instruction.setAccelerationType(AccelerationType.Float64ScalarComparison);
+						}
+
+					} else {
+						instruction.setAccelerationType(AccelerationType.Unsupported);
+					}
+					break;
+				}
+
+				// 論理演算命令 Logical instruction opcodes
+				case AND :
+				case OR :
+				case NOT :
+				{
+					if(dataTypes[0] == DataType.BOOL) {
+
+						if (isAllVector(operandScalar)) {
+							instruction.setAccelerationType(AccelerationType.BoolVectorLogical);
+						} else if (isAllScalar(operandScalar) && isAllCached(operandCached)) {
+							instruction.setAccelerationType(AccelerationType.BoolCachedScalarLogical);
+						} else {
+							instruction.setAccelerationType(AccelerationType.BoolScalarLogical);
+						}
+
+					} else {
+						instruction.setAccelerationType(AccelerationType.Unsupported);
+					}
+					break;
+				}
+
+				// 転送命令 Trsndfer instruction opcodes
+				case MOV :
+				case CAST :
+				case FILL :
+				{
+					if(dataTypes[0] == DataType.INT64) {
+
+						if (isAllVector(operandScalar)) {
+							instruction.setAccelerationType(AccelerationType.Int64VectorTransfer);
+						} else if (isAllScalar(operandScalar) && isAllCached(operandCached)) {
+							instruction.setAccelerationType(AccelerationType.Int64CachedScalarTransfer);
+						} else {
+							instruction.setAccelerationType(AccelerationType.Int64ScalarTransfer);
+						}
+
+					} else if (dataTypes[0] == DataType.FLOAT64) {
+
+						if (isAllVector(operandScalar)) {
+							instruction.setAccelerationType(AccelerationType.Float64VectorTransfer);
+						} else if (isAllScalar(operandScalar) && isAllCached(operandCached)) {
+							instruction.setAccelerationType(AccelerationType.Float64CachedScalarTransfer);
+						} else {
+							instruction.setAccelerationType(AccelerationType.Float64ScalarTransfer);
+						}
+
+					} else if (dataTypes[0] == DataType.BOOL) {
+
+						if (isAllVector(operandScalar)) {
+							instruction.setAccelerationType(AccelerationType.BoolVectorTransfer);
+						} else if (isAllScalar(operandScalar) && isAllCached(operandCached)) {
+							instruction.setAccelerationType(AccelerationType.BoolCachedScalarTransfer);
+						} else {
+							instruction.setAccelerationType(AccelerationType.BoolScalarTransfer);
+						}
+
+					} else {
+						instruction.setAccelerationType(AccelerationType.Unsupported);
+					}
+					break;
+				}
+
+				// 分岐命令 Branch instruction opcodes
+				case JMP :
+				case JMPN :
+				{
+					if(dataTypes[0] == DataType.BOOL) {
+
+						if (isAllScalar(operandScalar) && isAllCached(operandCached)) {
+							instruction.setAccelerationType(AccelerationType.BoolCachedScalarBranch);
+						// 有り得ない？ 長さ1のベクトルなら可能？ >> 配列の要素などが渡される場合はあり得るのでは
+						} else {
+							instruction.setAccelerationType(AccelerationType.BoolScalarBranch);
+						}
+
+					} else {
+						instruction.setAccelerationType(AccelerationType.Unsupported);
+					}
+					break;
+				}
+
+				// 何もしない命令（ジャンプ先に配置されている） Nop instruction opcode
+				case NOP :
+				{
+					instruction.setAccelerationType(AccelerationType.Nop);
+					break;
+
+				}
+
+				// その他の命令は全て現時点で未対応
+				default : {
+					instruction.setAccelerationType(AccelerationType.Unsupported);
+				}
+			}
+		}
+	}
+
 
 	// レジスタに対して書き込みを行う命令なら true を返す（ただしレジスタの確保・解放は除外）
 	private boolean isRegisterWritingInstruction(AcceleratorInstruction instruction) {
@@ -313,6 +589,7 @@ public class AccelerationScheduler {
 		this.removeNullInstructions();
 		// MOV命令を削除した位置の null を詰める
 	}
+
 
 	// 命令列内の null 要素を削除して詰める（removeを何度も行う処理を効率化するため、nullを置いて後でこのメソッドで一括で詰める）
 	private void removeNullInstructions() {
