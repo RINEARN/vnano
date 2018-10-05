@@ -21,6 +21,7 @@ public class AccelerationScheduler {
 	AcceleratorInstruction[] buffer;
 	Map<Integer,Integer> addressReorderingMap;
 	int registerWrittenPointCount[];
+	int registerReadPointCount[];
 
 	public AcceleratorInstruction[] schedule(
 			Instruction[] instructions, Memory memory, AccelerationDataManager dataManager) {
@@ -28,11 +29,12 @@ public class AccelerationScheduler {
 		// 命令列を読み込んで AcceleratorInstruction に変換し、フィールドのリストを初期化して格納
 		this.initializeeAcceleratorInstructionList(instructions, memory);
 
+		// 全てのレジスタに対し、それぞれ書き込み・読み込み箇所の数をカウントする（最適化に使用）
+		this.createRegisterWrittenPointCount(memory);
+		this.createRegisterReadPointCount(memory);
+
 		// 各命令の AccelerationType を判定して設定
 		this.detectAccelerationTypes(memory, dataManager);
-
-		// 全てのレジスタに対し、それぞれ書き込み箇所の数をカウントする（最適化に使用）
-		this.createRegisterWrittenPointCount(memory);
 
 		// スカラのALLOC命令をコード先頭に並べ替える（メモリコストが低いので、ループ内に混ざるよりも利点が多い）
 		this.reorderAllocInstructions();
@@ -75,6 +77,17 @@ public class AccelerationScheduler {
 	}
 
 
+	// データに対して書き込みを行う命令なら true を返す（ただしレジスタの確保・解放は除外）
+	private boolean isDataWritingOperationCode(OperationCode operationCode) {
+
+		return operationCode != OperationCode.ALLOC
+		     && operationCode != OperationCode.FREE
+		     && operationCode != OperationCode.NOP
+		     && operationCode != OperationCode.JMP
+		     && operationCode != OperationCode.JMPN   ;
+	}
+
+
 	// レジスタ書き込み箇所カウンタ配列を生成して初期化
 	private void createRegisterWrittenPointCount(Memory memory) {
 		int registerLength = memory.getSize(Memory.Partition.REGISTER);
@@ -86,12 +99,7 @@ public class AccelerationScheduler {
 			AcceleratorInstruction instruction = acceleratorInstructionList.get(instructionIndex);
 
 			// 値が変更されている可能性を調べるために使うので、非書き換え命令や確保・解放はカウントから除外
-			if (!this.isRegisterWritingInstruction(instruction)) {
-				continue;
-			}
-
-			// オペランドが無い場合も除外（ただし、現時点ではそういった命令は無い）
-			if (instruction.getOperandLength() == 0) {
+			if (!this.isDataWritingOperationCode(instruction.getOperationCode())) {
 				continue;
 			}
 
@@ -110,6 +118,67 @@ public class AccelerationScheduler {
 		//	System.out.println("Written Count of R" + i + " = " + this.registerWrittenPointCount[i]);
 		//}
 	}
+
+
+
+	// データから読み込みを行う命令なら true を返す（ただしレジスタの確保・解放は除外）
+	private boolean isDataReadingOperationCode(OperationCode operationCode) {
+
+		return operationCode != OperationCode.ALLOC
+		     && operationCode != OperationCode.FREE
+		     && operationCode != OperationCode.NOP ;
+	}
+
+
+	// レジスタ読み込み箇所カウンタ配列を生成して初期化
+	private void createRegisterReadPointCount(Memory memory) {
+		int registerLength = memory.getSize(Memory.Partition.REGISTER);
+		this.registerReadPointCount = new int[registerLength];
+		Arrays.fill(this.registerReadPointCount, 0);
+
+		int instructionLength = acceleratorInstructionList.size();
+		for (int instructionIndex=0; instructionIndex<instructionLength; instructionIndex++) {
+			AcceleratorInstruction instruction = acceleratorInstructionList.get(instructionIndex);
+			OperationCode opcode = instruction.getOperationCode();
+
+			// 値が変更されている可能性を調べるために使うので、非書き換え命令や確保・解放はカウントから除外
+			if (!this.isDataReadingOperationCode(opcode)) {
+				continue;
+			}
+
+			int operandLength = instruction.getOperandLength();
+
+			if (operandLength < 2) {
+				// 入力オペランドを持つ命令でオペランド数が2個未満のものは無いため、isDataReadingOperationCode 実装か命令の異常
+				throw new VnanoFatalException("Unexpected Number of Operands for Data-Reading Instruction: " + instruction);
+			}
+
+			// 入力オペランドが始まるインデックス ... 通常は先頭が出力オペランドで、その次（1番）から始まる
+			int inputOperandsBeginIndex = 1;
+
+			// 分岐命令はデータの出力をしないので、先頭オペランド（0番）から入力オペランドが並ぶ
+			if (opcode == OperationCode.JMP || opcode == OperationCode.JMPN) {
+				inputOperandsBeginIndex = 0;
+			}
+
+
+			Memory.Partition[] operandPartitions = instruction.getOperandPartitions();
+			int[] operandAddresses = instruction.getOperandAddresses();
+
+			// 2個目以降（インデックス1以上）のオペランドがレジスタなら、レジスタ読み込み箇所カウンタを加算
+			for (int operandIndex=inputOperandsBeginIndex; operandIndex<operandLength; operandIndex++) {
+				if (operandPartitions[operandIndex] == Memory.Partition.REGISTER) {
+					int readingRegisterAddress = operandAddresses[operandIndex];
+					this.registerReadPointCount[readingRegisterAddress]++;
+				}
+			}
+		}
+
+		//for (int i=0; i<registerLength; i++) {
+		//	System.out.println("Read Count of R" + i + " = " + this.registerReadPointCount[i]);
+		//}
+	}
+
 
 
 	private boolean isAllCached(boolean[] operandCached) {
@@ -371,19 +440,6 @@ public class AccelerationScheduler {
 	}
 
 
-	// レジスタに対して書き込みを行う命令なら true を返す（ただしレジスタの確保・解放は除外）
-	private boolean isRegisterWritingInstruction(AcceleratorInstruction instruction) {
-
-		OperationCode opcode = instruction.getOperationCode();
-
-		return opcode != OperationCode.ALLOC
-		     && opcode != OperationCode.FREE
-		     && opcode != OperationCode.NOP
-		     && opcode != OperationCode.JMP
-		     && opcode != OperationCode.JMPN   ;
-	}
-
-
 
 	// 全命令に対して再配置済み命令アドレスを書き込む
 	private void updateReorderedAddresses() {
@@ -524,8 +580,13 @@ public class AccelerationScheduler {
 			AcceleratorInstruction currentInstruction = this.acceleratorInstructionList.get(instructionIndex);
 			AcceleratorInstruction nextInstruction = this.acceleratorInstructionList.get(instructionIndex+1);
 
-			// 対象命令がレジスタ書き込みをしていない命令はスキップ
-			if (!this.isRegisterWritingInstruction(currentInstruction)) {
+			// 対象命令がデータ書き込みをしない場合は命令はスキップ
+			if (!this.isDataWritingOperationCode(currentInstruction.getOperationCode())) {
+				continue;
+			}
+
+			// 対象命令の書き込み先（0番オペランド）が出ジスタでない場合はスキップ
+			if (currentInstruction.getOperandPartitions()[1] != Memory.Partition.REGISTER) {
 				continue;
 			}
 
@@ -534,7 +595,7 @@ public class AccelerationScheduler {
 				continue;
 			}
 
-			// そのMOV命令のコピー元がレジスタではない場合はスキップ
+			// そのMOV命令のコピー元（1番オペランド）がレジスタではない場合はスキップ
 			if (nextInstruction.getOperandPartitions()[1] != Memory.Partition.REGISTER) {
 				continue;
 			}
@@ -550,8 +611,10 @@ public class AccelerationScheduler {
 				continue;
 			}
 
-			// そのレジスタに書き込んでいる箇所がそこだけ（1箇所だけ）でない場合はスキップ
-			if (this.registerWrittenPointCount[writingRegisterAddress] != 1) {
+			// そのレジスタに書き込む & 読み込む箇所がそこだけ（それぞれ1箇所だけ）でない場合はスキップ
+			if (this.registerWrittenPointCount[writingRegisterAddress] != 1
+					|| this.registerReadPointCount[writingRegisterAddress] != 1) {
+
 				continue;
 			}
 
