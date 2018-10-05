@@ -5,6 +5,7 @@
 
 package org.vcssl.nano.accelerator;
 
+import org.vcssl.nano.VnanoFatalException;
 import org.vcssl.nano.VnanoRuntimeException;
 import org.vcssl.nano.memory.DataContainer;
 
@@ -35,9 +36,10 @@ class GeneralScalarCacheSynchronizer extends CacheSynchronizer {
 
 			} else if (caches[i] instanceof BoolScalarCache) {
 				((boolean[])(containers[i].getData()))[ containers[i].getOffset() ] = ((BoolScalarCache)caches[i]).value;
+
 			} else {
 				// 不明なキャッシュ
-				throw new VnanoRuntimeException();
+				throw new VnanoFatalException("Unknown Cache Type: " + caches[1]);
 			}
 		}
 	}
@@ -58,6 +60,10 @@ class GeneralScalarCacheSynchronizer extends CacheSynchronizer {
 
 			} else if (caches[i] instanceof BoolScalarCache) {
 				((BoolScalarCache)caches[i]).value = ((boolean[])(containers[i].getData()))[ containers[i].getOffset() ];
+
+			} else {
+				// 不明なキャッシュ
+				throw new VnanoFatalException("Unknown Cache Type: " + caches[1]);
 			}
 		}
 	}

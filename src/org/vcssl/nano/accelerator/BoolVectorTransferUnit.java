@@ -7,21 +7,21 @@ package org.vcssl.nano.accelerator;
 
 import java.util.Arrays;
 
+import org.vcssl.nano.VnanoFatalException;
 import org.vcssl.nano.lang.DataType;
 import org.vcssl.nano.memory.DataContainer;
-import org.vcssl.nano.processor.OperationCode;
 
 public class BoolVectorTransferUnit extends AccelerationUnit {
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public AccelerationExecutorNode generateExecutor(
-			OperationCode opcode, DataType[] dataTypes, DataContainer<?>[] operandContainers,
+			AcceleratorInstruction instruction, DataContainer<?>[] operandContainers,
 			Object[] operandCaches, boolean[] operandCached, boolean[] operandScalar, boolean[] operandConstant,
 			AccelerationExecutorNode nextNode) {
 
 		AccelerationExecutorNode executor = null;
-		switch (opcode) {
+		switch (instruction.getOperationCode()) {
 			case MOV : {
 				Boolx2ScalarCacheSynchronizer synchronizer
 						= new Boolx2ScalarCacheSynchronizer(operandContainers, operandCaches, operandCached);
@@ -31,12 +31,17 @@ public class BoolVectorTransferUnit extends AccelerationUnit {
 				break;
 			}
 			case CAST : {
-				if (dataTypes[1] == DataType.BOOL) {
+				if (instruction.getDataTypes()[1] == DataType.BOOL) {
 					Boolx2ScalarCacheSynchronizer synchronizer
 							= new Boolx2ScalarCacheSynchronizer(operandContainers, operandCaches, operandCached);
 					executor = new BoolVectorMovExecutor(
 							(DataContainer<boolean[]>)operandContainers[0], (DataContainer<boolean[]>)operandContainers[1],
 							synchronizer, nextNode);
+				} else {
+					throw new VnanoFatalException(
+							instruction.getDataTypes()[1] + "-type operand of " + instruction.getOperationCode()
+							+ " instruction is invalid for " + this.getClass().getCanonicalName()
+					);
 				}
 				break;
 			}
@@ -49,7 +54,9 @@ public class BoolVectorTransferUnit extends AccelerationUnit {
 				break;
 			}
 			default : {
-				break;
+				throw new VnanoFatalException(
+						"Operation code " + instruction.getOperationCode() + " is invalid for " + this.getClass().getCanonicalName()
+				);
 			}
 		}
 		return executor;

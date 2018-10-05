@@ -5,16 +5,15 @@
 
 package org.vcssl.nano.accelerator;
 
-import org.vcssl.nano.lang.DataType;
+import org.vcssl.nano.VnanoFatalException;
 import org.vcssl.nano.memory.DataContainer;
-import org.vcssl.nano.processor.OperationCode;
 
 public class Float64ScalarComparisonUnit extends AccelerationUnit {
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public AccelerationExecutorNode generateExecutor(
-			OperationCode opcode, DataType[] dataTypes, DataContainer<?>[] operandContainers,
+			AcceleratorInstruction instruction, DataContainer<?>[] operandContainers,
 			Object[] operandCaches, boolean[] operandCached, boolean[] operandScalar, boolean[] operandConstant,
 			AccelerationExecutorNode nextNode) {
 
@@ -26,7 +25,7 @@ public class Float64ScalarComparisonUnit extends AccelerationUnit {
 		DataContainer<double[]> container2 = (DataContainer<double[]>)operandContainers[2];
 
 		AccelerationExecutorNode executor = null;
-		switch (opcode) {
+		switch (instruction.getOperationCode()) {
 			case LT : {
 				executor = new Float64ScalarLtExecutor(container0, container1, container2, synchronizer, nextNode);
 				break;
@@ -52,7 +51,9 @@ public class Float64ScalarComparisonUnit extends AccelerationUnit {
 				break;
 			}
 			default : {
-				break;
+				throw new VnanoFatalException(
+						"Operation code " + instruction.getOperationCode() + " is invalid for " + this.getClass().getCanonicalName()
+				);
 			}
 		}
 		return executor;

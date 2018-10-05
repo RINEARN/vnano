@@ -5,15 +5,14 @@
 
 package org.vcssl.nano.accelerator;
 
-import org.vcssl.nano.lang.DataType;
+import org.vcssl.nano.VnanoFatalException;
 import org.vcssl.nano.memory.DataContainer;
-import org.vcssl.nano.processor.OperationCode;
 
 public class Int64CachedScalarArithmeticUnit extends AccelerationUnit {
 
 	@Override
 	public AccelerationExecutorNode generateExecutor(
-			OperationCode opcode, DataType[] dataTypes, DataContainer<?>[] operandContainers,
+			AcceleratorInstruction instruction, DataContainer<?>[] operandContainers,
 			Object[] operandCaches, boolean[] operandCached, boolean[] operandScalar, boolean[] operandConstant,
 			AccelerationExecutorNode nextNode) {
 
@@ -24,7 +23,7 @@ public class Int64CachedScalarArithmeticUnit extends AccelerationUnit {
 		};
 
 		Int64CachedScalarArithmeticExecutor executor = null;
-		switch (opcode) {
+		switch (instruction.getOperationCode()) {
 			case ADD : {
 
 				// 破壊代入で定数を加算する場合（ループカウンタの処理で頻出）
@@ -79,7 +78,9 @@ public class Int64CachedScalarArithmeticUnit extends AccelerationUnit {
 				break;
 			}
 			default : {
-				break;
+				throw new VnanoFatalException(
+						"Operation code " + instruction.getOperationCode() + " is invalid for " + this.getClass().getCanonicalName()
+				);
 			}
 		}
 		return executor;

@@ -5,16 +5,15 @@
 
 package org.vcssl.nano.accelerator;
 
-import org.vcssl.nano.lang.DataType;
+import org.vcssl.nano.VnanoFatalException;
 import org.vcssl.nano.memory.DataContainer;
-import org.vcssl.nano.processor.OperationCode;
 
 public class BoolScalarBranchUnit extends AccelerationUnit {
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public AccelerationExecutorNode generateExecutor(
-			OperationCode opcode, DataType[] dataTypes, DataContainer<?>[] operandContainers,
+			AcceleratorInstruction instruction, DataContainer<?>[] operandContainers,
 			Object[] operandCaches, boolean[] operandCached, boolean[] operandScalar, boolean[] operandConstant,
 			AccelerationExecutorNode nextNode) {
 
@@ -23,7 +22,7 @@ public class BoolScalarBranchUnit extends AccelerationUnit {
 				= new Boolx1ScalarCacheSynchronizer(operandContainers, operandCaches, operandCached);
 
 		AccelerationExecutorNode executor = null;
-		switch (opcode) {
+		switch (instruction.getOperationCode()) {
 			case JMP : {
 				executor = new ScalarJmpExecutor(container0, synchronizer, nextNode);
 				break;
@@ -33,7 +32,9 @@ public class BoolScalarBranchUnit extends AccelerationUnit {
 				break;
 			}
 			default : {
-				break;
+				throw new VnanoFatalException(
+						"Operation code " + instruction.getOperationCode() + " is invalid for " + this.getClass().getCanonicalName()
+				);
 			}
 		}
 		return executor;

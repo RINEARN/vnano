@@ -5,20 +5,20 @@
 
 package org.vcssl.nano.accelerator;
 
+import org.vcssl.nano.VnanoFatalException;
 import org.vcssl.nano.lang.DataType;
 import org.vcssl.nano.memory.DataContainer;
-import org.vcssl.nano.processor.OperationCode;
 
 public class BoolCachedScalarTransferUnit extends AccelerationUnit {
 
 	@Override
 	public AccelerationExecutorNode generateExecutor(
-			OperationCode opcode, DataType[] dataTypes, DataContainer<?>[] operandContainers,
+			AcceleratorInstruction instruction, DataContainer<?>[] operandContainers,
 			Object[] operandCaches, boolean[] operandCached, boolean[] operandScalar, boolean[] operandConstant,
 			AccelerationExecutorNode nextNode) {
 
 		AccelerationExecutorNode executor = null;
-		switch (opcode) {
+		switch (instruction.getOperationCode()) {
 			case FILL :
 			case MOV : {
 				executor = new BoolCachedScalarMovExecutor(
@@ -26,14 +26,21 @@ public class BoolCachedScalarTransferUnit extends AccelerationUnit {
 				break;
 			}
 			case CAST : {
-				if (dataTypes[1] == DataType.BOOL) {
+				if (instruction.getDataTypes()[1] == DataType.BOOL) {
 					executor = new BoolCachedScalarMovExecutor(
 							(BoolScalarCache)operandCaches[0], (BoolScalarCache)operandCaches[1], nextNode);
 					break;
+				} else {
+					throw new VnanoFatalException(
+							instruction.getDataTypes()[1] + "-type operand of " + instruction.getOperationCode()
+							+ " instruction is invalid for " + this.getClass().getCanonicalName()
+					);
 				}
 			}
 			default : {
-				break;
+				throw new VnanoFatalException(
+						"Operation code " + instruction.getOperationCode() + " is invalid for " + this.getClass().getCanonicalName()
+				);
 			}
 		}
 		return executor;

@@ -5,21 +5,21 @@
 
 package org.vcssl.nano.accelerator;
 
+import org.vcssl.nano.VnanoFatalException;
 import org.vcssl.nano.lang.DataType;
 import org.vcssl.nano.memory.DataContainer;
-import org.vcssl.nano.processor.OperationCode;
 
 public class Int64ScalarTransferUnit extends AccelerationUnit {
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public AccelerationExecutorNode generateExecutor(
-			OperationCode opcode, DataType[] dataTypes, DataContainer<?>[] operandContainers,
+			AcceleratorInstruction instruction, DataContainer<?>[] operandContainers,
 			Object[] operandCaches, boolean[] operandCached, boolean[] operandScalar, boolean[] operandConstant,
 			AccelerationExecutorNode nextNode) {
 
 		AccelerationExecutorNode executor = null;
-		switch (opcode) {
+		switch (instruction.getOperationCode()) {
 			case MOV :
 			case FILL : {
 				Int64x2ScalarCacheSynchronizer synchronizer
@@ -30,25 +30,31 @@ public class Int64ScalarTransferUnit extends AccelerationUnit {
 				break;
 			}
 			case CAST : {
-				if (dataTypes[1] == DataType.INT64) {
+				if (instruction.getDataTypes()[1] == DataType.INT64) {
 					Int64x2ScalarCacheSynchronizer synchronizer
 							= new Int64x2ScalarCacheSynchronizer(operandContainers, operandCaches, operandCached);
 					executor = new Int64ScalarMovExecutor(
 							(DataContainer<long[]>)operandContainers[0], (DataContainer<long[]>)operandContainers[1],
 							synchronizer, nextNode);
-				}
-				if (dataTypes[1] == DataType.FLOAT64) {
+				} else if (instruction.getDataTypes()[1] == DataType.FLOAT64) {
 					Int64x1Float64x1ScalarCacheSynchronizer synchronizer
 							= new Int64x1Float64x1ScalarCacheSynchronizer(operandContainers, operandCaches, operandCached);
 					executor = new Int64FromFloat64ScalarCastExecutor(
 							(DataContainer<long[]>)operandContainers[0], (DataContainer<double[]>)operandContainers[1],
 							synchronizer, nextNode);
+				} else {
+					throw new VnanoFatalException(
+							instruction.getDataTypes()[1] + "-type operand of " + instruction.getOperationCode()
+							+ " instruction is invalid for " + this.getClass().getCanonicalName()
+					);
 				}
 				break;
 			}
 
 			default : {
-				break;
+				throw new VnanoFatalException(
+						"Operation code " + instruction.getOperationCode() + " is invalid for " + this.getClass().getCanonicalName()
+				);
 			}
 		}
 		return executor;
