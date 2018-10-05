@@ -4,48 +4,38 @@ public enum AccelerationType {
 
 	Unsupported,
 
-	ScalarAlloc,
-	Nop,
+	Int64VectorArithmetic,
+	Int64ScalarArithmetic,
+	Int64CachedScalarArithmetic,
+	Float64VectorArithmetic,
+	Float64ScalarArithmetic,
+	Float64CachedScalarArithmetic,
 
-	BoolVectorBranch,
-	BoolVectorLogical,
+	Int64VectorComparison,
+	Int64ScalarComparison,
+	Int64CachedScalarComparison,
+	Float64VectorComparison,
+	Float64ScalarComparison,
+	Float64CachedScalarComparison,
+
+	Int64VectorTransfer,
+	Int64ScalarTransfer,
+	Int64CachedScalarTransfer,
+	Float64VectorTransfer,
+	Float64ScalarTransfer,
+	Float64CachedScalarTransfer,
 	BoolVectorTransfer,
-
-	BoolScalarBranch,
-	BoolScalarLogical,
 	BoolScalarTransfer,
-
-	BoolCachedScalarBranch,
-	BoolCachedScalarLogical,
 	BoolCachedScalarTransfer,
 
+	BoolVectorLogical,
+	BoolScalarLogical,
+	BoolCachedScalarLogical,
 
+	BoolScalarBranch,
+	BoolCachedScalarBranch,
 
-	Int64VectorArithmetic,
-	Int64VectorComparison,
-	Int64VectorTransfer,
-
-	Int64ScalarArithmetic,
-	Int64ScalarComparison,
-	Int64ScalarTransfer,
-
-	Int64CachedScalarArithmetic,
-	Int64CachedScalarComparison,
-	Int64CachedScalarTransfer,
-
-
-
-	Float64VectorArithmetic,
-	Float64VectorComparison,
-	Float64VectorTransfer,
-
-	Float64ScalarArithmetic,
-	Float64ScalarComparison,
-	Float64ScalarTransfer,
-
-	Float64CachedScalarArithmetic,
-	Float64CachedScalarComparison,
-	Float64CachedScalarTransfer,
-
+	ScalarAlloc,
+	Nop,
 
 }

@@ -143,7 +143,7 @@ public class AccelerationScheduler {
 	private void detectAccelerationTypes(Memory memory, AccelerationDataManager dataManager) {
 
 		int instructionLength = this.acceleratorInstructionList.size();
-		for (int instructionIndex=0; instructionIndex<instructionLength-1; instructionIndex++) { // 後でイテレータ使うループにする
+		for (int instructionIndex=0; instructionIndex<instructionLength; instructionIndex++) { // 後でイテレータ使うループにする
 
 			AcceleratorInstruction instruction = acceleratorInstructionList.get(instructionIndex);
 			DataType[] dataTypes = instruction.getDataTypes();
@@ -187,8 +187,6 @@ public class AccelerationScheduler {
 			}
 
 
-
-			// その他の命令に対する処理
 			switch (opcode) {
 
 				// メモリ確保命令 Memory allocation instruction opcode
@@ -369,6 +367,7 @@ public class AccelerationScheduler {
 				}
 			}
 		}
+
 	}
 
 
@@ -619,6 +618,8 @@ public class AccelerationScheduler {
 		// bufferからacceleratorInstructionListに戻す
 		for (int instructionIndex=0; instructionIndex<instructionLength; instructionIndex++) {
 			this.acceleratorInstructionList.add(buffer[instructionIndex]);
+			//AcceleratorInstruction instruction = this.acceleratorInstructionList.get(instructionIndex);
+			//System.out.println("ACCEL TYPE=" + instruction.getAccelerationType() + " INST=" + instruction);
 		}
 	}
 
