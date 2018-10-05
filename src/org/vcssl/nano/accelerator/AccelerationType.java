@@ -2,45 +2,40 @@ package org.vcssl.nano.accelerator;
 
 public enum AccelerationType {
 
-	BoolVectorBranch,
-	BoolVectorLogical,
-	BoolVectorTransfer,
-
-	BoolScalarBranch,
-	BoolScalarLogical,
-	BoolScalarTransfer,
-
-	BoolCachedScalarBranch,
-	BoolCachedScalarLogical,
-	BoolCachedScalarTransfer,
-
-
+	Unsupported,
 
 	Int64VectorArithmetic,
-	Int64VectorComparison,
-	Int64VectorTransfer,
-
 	Int64ScalarArithmetic,
-	Int64ScalarComparison,
-	Int64ScalarTransfer,
-
 	Int64CachedScalarArithmetic,
-	Int64CachedScalarComparison,
-	Int64CachedScalarTransfer,
-
-
-
 	Float64VectorArithmetic,
-	Float64VectorComparison,
-	Float64VectorTransfer,
-
 	Float64ScalarArithmetic,
-	Float64ScalarComparison,
-	Float64ScalarTransfer,
-
 	Float64CachedScalarArithmetic,
-	Float64CachedScalarComparison,
-	Float64CachedScalarTransfer,
 
+	Int64VectorComparison,
+	Int64ScalarComparison,
+	Int64CachedScalarComparison,
+	Float64VectorComparison,
+	Float64ScalarComparison,
+	Float64CachedScalarComparison,
+
+	Int64VectorTransfer,
+	Int64ScalarTransfer,
+	Int64CachedScalarTransfer,
+	Float64VectorTransfer,
+	Float64ScalarTransfer,
+	Float64CachedScalarTransfer,
+	BoolVectorTransfer,
+	BoolScalarTransfer,
+	BoolCachedScalarTransfer,
+
+	BoolVectorLogical,
+	BoolScalarLogical,
+	BoolCachedScalarLogical,
+
+	BoolScalarBranch,
+	BoolCachedScalarBranch,
+
+	ScalarAlloc,
+	Nop,
 
 }

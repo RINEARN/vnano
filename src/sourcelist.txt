@@ -12,9 +12,13 @@
 ./org/vcssl/connect/MethodXfci1Adapter.java
 ./org/vcssl/connect/package-info.java
 ./org/vcssl/nano/accelerator/AccelerationDataManager.java
+./org/vcssl/nano/accelerator/AccelerationDispatcher.java
 ./org/vcssl/nano/accelerator/AccelerationExecutorNode.java
+./org/vcssl/nano/accelerator/AccelerationScheduler.java
+./org/vcssl/nano/accelerator/AccelerationType.java
 ./org/vcssl/nano/accelerator/AccelerationUnit.java
 ./org/vcssl/nano/accelerator/Accelerator.java
+./org/vcssl/nano/accelerator/AcceleratorInstruction.java
 ./org/vcssl/nano/accelerator/BoolCachedScalarBranchUnit.java
 ./org/vcssl/nano/accelerator/BoolCachedScalarLogicalUnit.java
 ./org/vcssl/nano/accelerator/BoolCachedScalarTransferUnit.java
