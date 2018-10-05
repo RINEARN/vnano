@@ -42,6 +42,16 @@ public class AccelerationScheduler {
 		// オペランドを並び替え、不要になったMOV命令を削る
 		this.reduceMovInstructions();
 
+		// 連続する算術演算命令2個を融合させて1個の拡張命令に置き換え
+		this.fuseCachedScalarArithmeticInstructions(
+				AccelerationType.F64CS_ARITHMETIC,
+				AccelerationType.F64CS_DUAL_ARITHMETIC
+		);
+		this.fuseCachedScalarArithmeticInstructions(
+				AccelerationType.I64CS_ARITHMETIC,
+				AccelerationType.I64CS_DUAL_ARITHMETIC
+		);
+
 		// 再配列後の命令アドレスを設定
 		this.updateReorderedAddresses();
 
@@ -262,7 +272,7 @@ public class AccelerationScheduler {
 				case ALLOC :
 				{
 					if (dataManager.isScalar(partitions[0], addresses[0])) {
-						instruction.setAccelerationType(AccelerationType.ScalarAlloc);
+						instruction.setAccelerationType(AccelerationType.S_ALLOC);
 					} else {
 						instruction.setAccelerationType(AccelerationType.Unsupported);
 					}
@@ -280,13 +290,13 @@ public class AccelerationScheduler {
 
 						// 全部ベクトルの場合の演算
 						if (isAllVector(operandScalar)) {
-							instruction.setAccelerationType(AccelerationType.Int64VectorArithmetic);
+							instruction.setAccelerationType(AccelerationType.I64V_ARITHMETIC);
 						// 全部キャッシュ可能なスカラの場合の演算
 						} else if (isAllScalar(operandScalar) && isAllCached(operandCached)) {
-							instruction.setAccelerationType(AccelerationType.Int64CachedScalarArithmetic);
+							instruction.setAccelerationType(AccelerationType.I64CS_ARITHMETIC);
 						// キャッシュ不可能なスカラ演算の場合（インデックス参照がある場合や、長さ1のベクトルとの混合演算など）
 						} else {
-							instruction.setAccelerationType(AccelerationType.Int64ScalarArithmetic);
+							instruction.setAccelerationType(AccelerationType.I64S_ARITHMETIC);
 						// ベクトル・スカラ混合演算で、スカラをベクトルに昇格する場合は？
 						// →それはスクリプト側の仕様で、中間コードレベルではサポートしていない
 						}
@@ -294,11 +304,11 @@ public class AccelerationScheduler {
 					} else if (dataTypes[0] == DataType.FLOAT64) {
 
 						if (isAllVector(operandScalar)) {
-							instruction.setAccelerationType(AccelerationType.Float64VectorArithmetic);
+							instruction.setAccelerationType(AccelerationType.F64V_ARITHMETIC);
 						} else if (isAllScalar(operandScalar) && isAllCached(operandCached)) {
-							instruction.setAccelerationType(AccelerationType.Float64CachedScalarArithmetic);
+							instruction.setAccelerationType(AccelerationType.F64CS_ARITHMETIC);
 						} else {
-							instruction.setAccelerationType(AccelerationType.Float64ScalarArithmetic);
+							instruction.setAccelerationType(AccelerationType.F64S_ARITHMETIC);
 						}
 
 					} else {
@@ -318,21 +328,21 @@ public class AccelerationScheduler {
 					if(dataTypes[0] == DataType.INT64) {
 
 						if (isAllVector(operandScalar)) {
-							instruction.setAccelerationType(AccelerationType.Int64VectorComparison);
+							instruction.setAccelerationType(AccelerationType.I64V_COMPARISON);
 						} else if (isAllScalar(operandScalar) && isAllCached(operandCached)) {
-							instruction.setAccelerationType(AccelerationType.Int64CachedScalarComparison);
+							instruction.setAccelerationType(AccelerationType.I64CS_COMPARISON);
 						} else {
-							instruction.setAccelerationType(AccelerationType.Int64ScalarComparison);
+							instruction.setAccelerationType(AccelerationType.I64S_COMPARISON);
 						}
 
 					} else if (dataTypes[0] == DataType.FLOAT64) {
 
 						if (isAllVector(operandScalar)) {
-							instruction.setAccelerationType(AccelerationType.Float64VectorComparison);
+							instruction.setAccelerationType(AccelerationType.F64V_COMPARISON);
 						} else if (isAllScalar(operandScalar) && isAllCached(operandCached)) {
-							instruction.setAccelerationType(AccelerationType.Float64CachedScalarComparison);
+							instruction.setAccelerationType(AccelerationType.F64CS_COMPARISON);
 						} else {
-							instruction.setAccelerationType(AccelerationType.Float64ScalarComparison);
+							instruction.setAccelerationType(AccelerationType.F64S_COMPARISON);
 						}
 
 					} else {
@@ -349,11 +359,11 @@ public class AccelerationScheduler {
 					if(dataTypes[0] == DataType.BOOL) {
 
 						if (isAllVector(operandScalar)) {
-							instruction.setAccelerationType(AccelerationType.BoolVectorLogical);
+							instruction.setAccelerationType(AccelerationType.BV_LOGICAL);
 						} else if (isAllScalar(operandScalar) && isAllCached(operandCached)) {
-							instruction.setAccelerationType(AccelerationType.BoolCachedScalarLogical);
+							instruction.setAccelerationType(AccelerationType.BCS_LOGICAL);
 						} else {
-							instruction.setAccelerationType(AccelerationType.BoolScalarLogical);
+							instruction.setAccelerationType(AccelerationType.BS_LOGICAL);
 						}
 
 					} else {
@@ -370,31 +380,31 @@ public class AccelerationScheduler {
 					if(dataTypes[0] == DataType.INT64) {
 
 						if (isAllVector(operandScalar)) {
-							instruction.setAccelerationType(AccelerationType.Int64VectorTransfer);
+							instruction.setAccelerationType(AccelerationType.I64V_TRANSFER);
 						} else if (isAllScalar(operandScalar) && isAllCached(operandCached)) {
-							instruction.setAccelerationType(AccelerationType.Int64CachedScalarTransfer);
+							instruction.setAccelerationType(AccelerationType.I64CS_TRANSFER);
 						} else {
-							instruction.setAccelerationType(AccelerationType.Int64ScalarTransfer);
+							instruction.setAccelerationType(AccelerationType.I64S_TRANSFER);
 						}
 
 					} else if (dataTypes[0] == DataType.FLOAT64) {
 
 						if (isAllVector(operandScalar)) {
-							instruction.setAccelerationType(AccelerationType.Float64VectorTransfer);
+							instruction.setAccelerationType(AccelerationType.F64V_TRANSFER);
 						} else if (isAllScalar(operandScalar) && isAllCached(operandCached)) {
-							instruction.setAccelerationType(AccelerationType.Float64CachedScalarTransfer);
+							instruction.setAccelerationType(AccelerationType.F64CS_TRANSFER);
 						} else {
-							instruction.setAccelerationType(AccelerationType.Float64ScalarTransfer);
+							instruction.setAccelerationType(AccelerationType.F64S_TRANSFER);
 						}
 
 					} else if (dataTypes[0] == DataType.BOOL) {
 
 						if (isAllVector(operandScalar)) {
-							instruction.setAccelerationType(AccelerationType.BoolVectorTransfer);
+							instruction.setAccelerationType(AccelerationType.BV_TRANSFER);
 						} else if (isAllScalar(operandScalar) && isAllCached(operandCached)) {
-							instruction.setAccelerationType(AccelerationType.BoolCachedScalarTransfer);
+							instruction.setAccelerationType(AccelerationType.BCS_TRANSFER);
 						} else {
-							instruction.setAccelerationType(AccelerationType.BoolScalarTransfer);
+							instruction.setAccelerationType(AccelerationType.BS_TRANSFER);
 						}
 
 					} else {
@@ -410,10 +420,10 @@ public class AccelerationScheduler {
 					if(dataTypes[0] == DataType.BOOL) {
 
 						if (isAllScalar(operandScalar) && isAllCached(operandCached)) {
-							instruction.setAccelerationType(AccelerationType.BoolCachedScalarBranch);
+							instruction.setAccelerationType(AccelerationType.BCS_BRANCH);
 						// 有り得ない？ 長さ1のベクトルなら可能？ >> 配列の要素などが渡される場合はあり得るのでは
 						} else {
-							instruction.setAccelerationType(AccelerationType.BoolScalarBranch);
+							instruction.setAccelerationType(AccelerationType.BS_BRANCH);
 						}
 
 					} else {
@@ -425,7 +435,7 @@ public class AccelerationScheduler {
 				// 何もしない命令（ジャンプ先に配置されている） Nop instruction opcode
 				case NOP :
 				{
-					instruction.setAccelerationType(AccelerationType.Nop);
+					instruction.setAccelerationType(AccelerationType.NOP);
 					break;
 
 				}
@@ -558,22 +568,80 @@ public class AccelerationScheduler {
 	}
 
 
+	// 連続する2つの演算命令を融合させて1つの拡張命令にする
+	private void fuseCachedScalarArithmeticInstructions(
+			AccelerationType fromAccelerationType, AccelerationType toAccelerationType) {
+
+		int instructionLength = this.acceleratorInstructionList.size();
+		for (int instructionIndex=0; instructionIndex<instructionLength-1; instructionIndex++) { // 後でイテレータ使うループにする
+
+			AcceleratorInstruction currentInstruction = this.acceleratorInstructionList.get(instructionIndex);
+			AcceleratorInstruction nextInstruction = this.acceleratorInstructionList.get(instructionIndex+1);
+			AccelerationType currentAccelType = currentInstruction.getAccelerationType();
+			AccelerationType nextAccelType = nextInstruction.getAccelerationType();
+
+			// 対象命令と次の命令が指定された演算タイプでなければ、その時点でスキップ
+			if (currentAccelType != fromAccelerationType
+					|| nextAccelType != fromAccelerationType) {
+
+				continue;
+			}
+
+			// 対象命令のオペランドを全て取得
+			Memory.Partition[] currentOperandPartitions = currentInstruction.getOperandPartitions();
+			int[] currentOperandAddresses = currentInstruction.getOperandAddresses();
+
+			// 次の命令のオペランドを全て取得
+			int nextOperandLength = nextInstruction.getOperandLength();
+			Memory.Partition[] nextOperandPartitions = nextInstruction.getOperandPartitions();
+			int[] nextOperandAddresses = nextInstruction.getOperandAddresses();
+
+			// 次の命令の入力オペランド（1番以降）の中から、対象命令の出力オペランド（0番）と一致するものを探す
+			int sameInputIndex = -1;
+			int sameInputCount = 0;
+			for (int operandIndex=1; operandIndex<nextOperandLength; operandIndex++) {
+				if (nextOperandPartitions[operandIndex] == currentOperandPartitions[0]
+						&& nextOperandAddresses[operandIndex] == currentOperandAddresses[0]) {
+
+					sameInputIndex = operandIndex;
+					sameInputCount++;
+				}
+			}
+
+			// 対象命令の出力オペランドと次命令の入力オペランドが、全く一致しなかった場合や、複数一致した場合はスキップ
+			if (sameInputCount != 1) {
+				continue;
+			}
+
+
+			// ここまで到達するのは、対象命令と次命令がキャッシュ可能な算術スカラ演算であり、かつ、
+			// 対象命令の出力オペランドを、次命令の入力オペランドに一回だけ使っている場合なので、
+			// それら2命令を1つに融合した拡張命令に変換する
+
+
+			// 象命令と次の命令を融合した拡張命令を生成
+			AcceleratorInstruction fusedInstruction = currentInstruction.fuse(
+				nextInstruction, toAccelerationType
+			);
+			fusedInstruction.setFusedInputOperandIndices(new int[]{ sameInputIndex });
+
+			// リスト内の対象命令を融合拡張命令で置き換える
+			this.acceleratorInstructionList.set(instructionIndex, fusedInstruction);
+
+			// 次の命令は既に融合したので、リストにnullを置く（後処理で効率的に削除して詰める）
+			this.acceleratorInstructionList.set(instructionIndex + 1, null);
+
+			// 2命令分処理したので、カウンタを1つ余計に進める
+			instructionIndex++;
+		}
+
+		// リスト内で空いた要素（上でnullを置いている）を削除して詰める
+		this.removeNullInstructions();
+	}
+
+
 	// レジスタへの無駄なMOV命令を削減し、算術演算の出力オペランド等で直接レジスタに代入するようにする
 	private void reduceMovInstructions() {
-
-		/*
-			・前処理として、それぞれのレジスタに対して、それに値を書き込んでいる場所の数をカウントしておく
-
-			・命令列の頭から演算命令をスイープしていく
-			・演算命令で、一か所でしか書き込んでいないレジスタが出力オペランドに指定されていて
-			・かつ、その直後にそのレジスタをMOVの入力にしている
-			　↓
-			・MOV先の変数を演算の出力オペランドに入れて
-			・MOV命令を削る
-
-			→ レジスタ使用回数は関係なく、演算結果を次の行で変数にMOVしてるような場合は移して削っていいのでは？
-			   → 格納した演算結果を後で別に参照する場合もあり得るのでNG
-		*/
 
 		int instructionLength = this.acceleratorInstructionList.size();
 		for (int instructionIndex=0; instructionIndex<instructionLength-1; instructionIndex++) { // 後でイテレータ使うループにする
