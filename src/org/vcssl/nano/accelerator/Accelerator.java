@@ -50,12 +50,6 @@ public class Accelerator {
 	public Accelerator() {
 	}
 
-	private class AccelerationResource {
-		public AccelerationExecutorNode[] accelerationUnits = null;
-
-		public AccelerationDataManager dataManager = null; // [partitionIndex]
-	}
-
 
 	/**
 	 * 命令配列に含まれる各命令を逐次実行します。
@@ -76,44 +70,6 @@ public class Accelerator {
 	 */
 	public void process(Instruction[] instructions, Memory memory, Interconnect interconnect, Processor processor)
 					throws MemoryAccessException, InvalidInstructionException {
-
-		AccelerationResource resource = this.generateResource(
-				instructions, memory, interconnect, processor
-		);
-
-		resource.dataManager.getCacheSynchronizers(Memory.Partition.CONSTANT).writeCache();
-		resource.dataManager.getCacheSynchronizers(Memory.Partition.GLOBAL).writeCache();
-
-		AccelerationExecutorNode[] AccelerationUnits = resource.accelerationUnits;
-
-		// 命令の逐次実行ループ
-		AccelerationExecutorNode nextNode = AccelerationUnits[0];
-		while (nextNode != null) {
-			nextNode = nextNode.execute();
-		}
-
-	}
-
-
-	/**
-	 * 命令列を事前解釈し、高速実行に必要なリソースを確保した上で、実行用のコプロセッサユニットを一括生成します。
-	 *
-	 * @param instructions 実行対象の命令配列
-	 * @param memory データの入出力に用いる仮想メモリー
-	 * @param interconnect 外部変数・外部関数が接続されているインターコネクト
-	 * @param processor 高速実行の対象外の命令を処理する仮想プロセッサ
-	 * @return 実行用のコプロセッサユニットの配列
-	 * @throws MemoryAccessException
-	 * 		命令のオペランドに指定された仮想メモリーアドレスが使用領域外であった場合など、
-	 * 		不正な仮想メモリーアクセスが生じた場合などに発生します。
-	 */
-	private AccelerationResource generateResource (Instruction[] instructions, Memory memory,
-			Interconnect interconnect, Processor processor)
-					throws MemoryAccessException, InvalidInstructionException {
-
-		// アドレスに紐づけてキャッシュを持つ(同じデータコンテナに対して同じキャッシュが一意に対応するように)
-		// 非キャッシュ演算ユニットはデータコンテナとキャッシュ要素を保持し、同期する
-
 
 		// スカラ判定やキャッシュ確保などの高速化用データ解析を実行
 		AccelerationDataManager dataManager = new AccelerationDataManager();
@@ -141,17 +97,21 @@ public class Accelerator {
 		}
 
 
-
+		// 命令列を演算器に割り当てて演算実行ノード列を生成
 		AccelerationDispatcher dispatcher = new AccelerationDispatcher();
-		AccelerationExecutorNode[] executors = dispatcher.dispatch(
+		AccelerationExecutorNode[] executorNodes = dispatcher.dispatch(
 				processor, memory, interconnect, acceleratorInstructions, dataManager
 		);
 
-		AccelerationResource resource = new AccelerationResource();
-		resource.accelerationUnits = executors;
-		resource.dataManager = dataManager;
+		// キャッシュにメモリのデータを書き込む
+		dataManager.getCacheSynchronizers(Memory.Partition.CONSTANT).writeCache();
+		dataManager.getCacheSynchronizers(Memory.Partition.GLOBAL).writeCache();
 
-		return resource;
+
+		// 命令の逐次実行ループ
+		AccelerationExecutorNode nextNode = executorNodes[0];
+		while (nextNode != null) {
+			nextNode = nextNode.execute();
+		}
 	}
-
 }
