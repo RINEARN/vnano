@@ -42,7 +42,8 @@ public class AccelerationScheduler {
 		// オペランドを並び替え、不要になったMOV命令を削る
 		this.reduceMovInstructions();
 
-		// 連続する算術演算命令2個を融合させて1個の拡張命令に置き換え
+
+		// 連続する算術演算命令2個を融合させて1個の拡張命令に置き換える
 		this.fuseCachedScalarArithmeticInstructions(
 				AccelerationType.F64CS_ARITHMETIC,
 				AccelerationType.F64CS_DUAL_ARITHMETIC
@@ -51,6 +52,7 @@ public class AccelerationScheduler {
 				AccelerationType.I64CS_ARITHMETIC,
 				AccelerationType.I64CS_DUAL_ARITHMETIC
 		);
+
 
 		// 再配列後の命令アドレスを設定
 		this.updateReorderedAddresses();

@@ -79,7 +79,6 @@ public class Accelerator {
 		System.out.println("===== INPUT INSTRUCTIONS =====");
 		for (int i=0; i<instructions.length; i++) {
 			System.out.println("[" + i + "]\t" + instructions[i]);
-			//System.out.println(i + ":\t" + instructions[i]);
 		}
 
 
@@ -88,12 +87,10 @@ public class Accelerator {
 		AcceleratorInstruction[] acceleratorInstructions = scheduler.schedule(instructions, memory, dataManager);
 
 
-
 		System.out.println("===== SCHEDULED INSTRUCTIONS =====");
 		for (int i=0; i<acceleratorInstructions.length; i++) {
 			AcceleratorInstruction instruction = acceleratorInstructions[i];
 			System.out.println("[" + instruction.getReorderedAddress() + "(" + instruction.getUnreorderedAddress() + ")" + "]\t" + instruction);
-			//System.out.println(instruction.getReorderedAddress() + ":\t" + instruction);
 		}
 
 

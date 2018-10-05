@@ -144,6 +144,12 @@ public class AccelerationDispatcher {
 				);
 				break;
 			}
+			case I64CS_DUAL_ARITHMETIC : {
+				currentNode = new Int64CachedScalarDualArithmeticUnit().generateExecutor(
+					instruction, operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
+				);
+				break;
+			}
 
 			case F64V_ARITHMETIC : {
 				currentNode = new Float64VectorArithmeticUnit().generateExecutor(
@@ -159,6 +165,12 @@ public class AccelerationDispatcher {
 			}
 			case F64CS_ARITHMETIC : {
 				currentNode = new Float64CachedScalarArithmeticUnit().generateExecutor(
+					instruction, operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
+				);
+				break;
+			}
+			case F64CS_DUAL_ARITHMETIC : {
+				currentNode = new Float64CachedScalarDualArithmeticUnit().generateExecutor(
 					instruction, operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
 				);
 				break;
