@@ -6,6 +6,7 @@
 package org.vcssl.nano.accelerator;
 
 
+import org.vcssl.nano.VnanoFatalException;
 import org.vcssl.nano.interconnect.Interconnect;
 import org.vcssl.nano.memory.MemoryAccessException;
 import org.vcssl.nano.processor.Instruction;
@@ -103,8 +104,21 @@ public class Accelerator {
 
 		// 命令の逐次実行ループ
 		AccelerationExecutorNode nextNode = executorNodes[0];
-		while (nextNode != null) {
-			nextNode = nextNode.execute();
+		try {
+			while (nextNode != null) {
+				nextNode = nextNode.execute();
+			}
+		} catch (Exception causeException) {
+			AcceleratorInstruction causeInstruction = nextNode.getSourceInstruction();
+			int unreorderedAddress = causeInstruction.getUnreorderedAddress();
+			int reorderedAddress = causeInstruction.getReorderedAddress();
+			throw new VnanoFatalException(
+					"Accelerator crashed at:"
+					+ " address=" + unreorderedAddress
+					+ " reorderedAddress=" + reorderedAddress
+					+ " instruction=" + causeInstruction,
+					causeException
+			);
 		}
 	}
 }
