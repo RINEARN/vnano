@@ -5,55 +5,56 @@
 
 package org.vcssl.nano.accelerator;
 
-import org.vcssl.nano.lang.DataType;
+import org.vcssl.nano.VnanoFatalException;
 import org.vcssl.nano.memory.DataContainer;
-import org.vcssl.nano.processor.OperationCode;
 
 public class BoolVectorLogicalUnit extends AccelerationUnit {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public AccelerationExecutorNode generateExecutor(
-			OperationCode opcode, DataType[] dataTypes, DataContainer<?>[] operandContainers,
+	public AccelerationExecutorNode generateExecutorNode(
+			AcceleratorInstruction instruction, DataContainer<?>[] operandContainers,
 			Object[] operandCaches, boolean[] operandCached, boolean[] operandScalar, boolean[] operandConstant,
 			AccelerationExecutorNode nextNode) {
 
 		DataContainer<boolean[]>[] containers = (DataContainer<boolean[]>[])operandContainers;
 
-		BoolVectorLogicalExecutor executor = null;
-		switch (opcode) {
+		BoolVectorLogicalExecutorNode executor = null;
+		switch (instruction.getOperationCode()) {
 			case AND : {
 				Boolx3ScalarCacheSynchronizer synchronizer = new Boolx3ScalarCacheSynchronizer(
 						operandContainers, operandCaches, operandCached);
-				executor = new BoolVectorAndExecutor(containers[0], containers[1], containers[2], synchronizer, nextNode);
+				executor = new BoolVectorAndExecutorNode(containers[0], containers[1], containers[2], synchronizer, nextNode);
 				break;
 			}
 			case OR : {
 				Boolx3ScalarCacheSynchronizer synchronizer = new Boolx3ScalarCacheSynchronizer(
 						operandContainers, operandCaches, operandCached);
-				executor = new BoolVectorOrExecutor(containers[0], containers[1], containers[2], synchronizer, nextNode);
+				executor = new BoolVectorOrExecutorNode(containers[0], containers[1], containers[2], synchronizer, nextNode);
 				break;
 			}
 			case NOT : {
 				Boolx2ScalarCacheSynchronizer synchronizer = new Boolx2ScalarCacheSynchronizer(
 						operandContainers, operandCaches, operandCached);
-				executor = new BoolVectorNotExecutor(containers[0], containers[1], synchronizer, nextNode);
+				executor = new BoolVectorNotExecutorNode(containers[0], containers[1], synchronizer, nextNode);
 				break;
 			}
 			default : {
-				break;
+				throw new VnanoFatalException(
+						"Operation code " + instruction.getOperationCode() + " is invalid for " + this.getClass().getCanonicalName()
+				);
 			}
 		}
 		return executor;
 	}
 
-	private abstract class BoolVectorLogicalExecutor extends AccelerationExecutorNode {
+	private abstract class BoolVectorLogicalExecutorNode extends AccelerationExecutorNode {
 		protected final DataContainer<boolean[]> container0;
 		protected final DataContainer<boolean[]> container1;
 		protected final DataContainer<boolean[]> container2;
 		protected final CacheSynchronizer synchronizer;
 
-		public BoolVectorLogicalExecutor(
+		public BoolVectorLogicalExecutorNode(
 				DataContainer<boolean[]> container0, DataContainer<boolean[]> container1, DataContainer<boolean[]> container2,
 				Boolx3ScalarCacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
 
@@ -63,7 +64,7 @@ public class BoolVectorLogicalUnit extends AccelerationUnit {
 			this.container2 = container2;
 			this.synchronizer = synchronizer;
 		}
-		public BoolVectorLogicalExecutor(
+		public BoolVectorLogicalExecutorNode(
 				DataContainer<boolean[]> container0, DataContainer<boolean[]> container1,
 				Boolx2ScalarCacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
 
@@ -75,9 +76,9 @@ public class BoolVectorLogicalUnit extends AccelerationUnit {
 		}
 	}
 
-	private final class BoolVectorAndExecutor extends BoolVectorLogicalExecutor {
+	private final class BoolVectorAndExecutorNode extends BoolVectorLogicalExecutorNode {
 
-		public BoolVectorAndExecutor(
+		public BoolVectorAndExecutorNode(
 				DataContainer<boolean[]> container0, DataContainer<boolean[]> container1, DataContainer<boolean[]> container2,
 				Boolx3ScalarCacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
 
@@ -100,9 +101,9 @@ public class BoolVectorLogicalUnit extends AccelerationUnit {
 		}
 	}
 
-	private final class BoolVectorOrExecutor extends BoolVectorLogicalExecutor {
+	private final class BoolVectorOrExecutorNode extends BoolVectorLogicalExecutorNode {
 
-		public BoolVectorOrExecutor(
+		public BoolVectorOrExecutorNode(
 				DataContainer<boolean[]> container0, DataContainer<boolean[]> container1, DataContainer<boolean[]> container2,
 				Boolx3ScalarCacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
 
@@ -125,9 +126,9 @@ public class BoolVectorLogicalUnit extends AccelerationUnit {
 		}
 	}
 
-	private final class BoolVectorNotExecutor extends BoolVectorLogicalExecutor {
+	private final class BoolVectorNotExecutorNode extends BoolVectorLogicalExecutorNode {
 
-		public BoolVectorNotExecutor(
+		public BoolVectorNotExecutorNode(
 				DataContainer<boolean[]> container0, DataContainer<boolean[]> container1,
 				Boolx2ScalarCacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
 

@@ -5,16 +5,15 @@
 
 package org.vcssl.nano.accelerator;
 
-import org.vcssl.nano.lang.DataType;
+import org.vcssl.nano.VnanoFatalException;
 import org.vcssl.nano.memory.DataContainer;
-import org.vcssl.nano.processor.OperationCode;
 
 public class Float64VectorComparisonUnit extends AccelerationUnit {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public AccelerationExecutorNode generateExecutor(
-			OperationCode opcode, DataType[] dataTypes, DataContainer<?>[] operandContainers,
+	public AccelerationExecutorNode generateExecutorNode(
+			AcceleratorInstruction instruction, DataContainer<?>[] operandContainers,
 			Object[] operandCaches, boolean[] operandCached, boolean[] operandScalar, boolean[] operandConstant,
 			AccelerationExecutorNode nextNode) {
 
@@ -24,46 +23,48 @@ public class Float64VectorComparisonUnit extends AccelerationUnit {
 		Float64x3ScalarCacheSynchronizer synchronizer
 				= new Float64x3ScalarCacheSynchronizer(operandContainers, operandCaches, operandCached);
 
-		Float64VectorComparisonExecutor executor = null;
-		switch (opcode) {
+		Float64VectorComparisonExecutorNode executor = null;
+		switch (instruction.getOperationCode()) {
 			case LT : {
-				executor = new Float64VectorLtExecutor(container0, container1, container2, synchronizer, nextNode);
+				executor = new Float64VectorLtExecutorNode(container0, container1, container2, synchronizer, nextNode);
 				break;
 			}
 			case GT : {
-				executor = new Float64VectorGtExecutor(container0, container1, container2, synchronizer, nextNode);
+				executor = new Float64VectorGtExecutorNode(container0, container1, container2, synchronizer, nextNode);
 				break;
 			}
 			case LEQ : {
-				executor = new Float64VectorLeqExecutor(container0, container1, container2, synchronizer, nextNode);
+				executor = new Float64VectorLeqExecutorNode(container0, container1, container2, synchronizer, nextNode);
 				break;
 			}
 			case GEQ : {
-				executor = new Float64VectorGeqExecutor(container0, container1, container2, synchronizer, nextNode);
+				executor = new Float64VectorGeqExecutorNode(container0, container1, container2, synchronizer, nextNode);
 				break;
 			}
 			case EQ : {
-				executor = new Float64VectorEqExecutor(container0, container1, container2, synchronizer, nextNode);
+				executor = new Float64VectorEqExecutorNode(container0, container1, container2, synchronizer, nextNode);
 				break;
 			}
 			case NEQ : {
-				executor = new Float64VectorNeqExecutor(container0, container1, container2, synchronizer, nextNode);
+				executor = new Float64VectorNeqExecutorNode(container0, container1, container2, synchronizer, nextNode);
 				break;
 			}
 			default : {
-				break;
+				throw new VnanoFatalException(
+						"Operation code " + instruction.getOperationCode() + " is invalid for " + this.getClass().getCanonicalName()
+				);
 			}
 		}
 		return executor;
 	}
 
-	private abstract class Float64VectorComparisonExecutor extends AccelerationExecutorNode {
+	private abstract class Float64VectorComparisonExecutorNode extends AccelerationExecutorNode {
 		protected final DataContainer<boolean[]> container0;
 		protected final DataContainer<double[]> container1;
 		protected final DataContainer<double[]> container2;
 		protected final Float64x3ScalarCacheSynchronizer synchronizer;
 
-		public Float64VectorComparisonExecutor(
+		public Float64VectorComparisonExecutorNode(
 				DataContainer<boolean[]> container0, DataContainer<double[]> container1, DataContainer<double[]> container2,
 				Float64x3ScalarCacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
 
@@ -75,9 +76,9 @@ public class Float64VectorComparisonUnit extends AccelerationUnit {
 		}
 	}
 
-	private final class Float64VectorLtExecutor extends Float64VectorComparisonExecutor {
+	private final class Float64VectorLtExecutorNode extends Float64VectorComparisonExecutorNode {
 
-		public Float64VectorLtExecutor(
+		public Float64VectorLtExecutorNode(
 				DataContainer<boolean[]> container0, DataContainer<double[]> container1, DataContainer<double[]> container2,
 				Float64x3ScalarCacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
 
@@ -100,9 +101,9 @@ public class Float64VectorComparisonUnit extends AccelerationUnit {
 		}
 	}
 
-	private final class Float64VectorGtExecutor extends Float64VectorComparisonExecutor {
+	private final class Float64VectorGtExecutorNode extends Float64VectorComparisonExecutorNode {
 
-		public Float64VectorGtExecutor(
+		public Float64VectorGtExecutorNode(
 				DataContainer<boolean[]> container0, DataContainer<double[]> container1, DataContainer<double[]> container2,
 				Float64x3ScalarCacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
 
@@ -125,9 +126,9 @@ public class Float64VectorComparisonUnit extends AccelerationUnit {
 		}
 	}
 
-	private final class Float64VectorLeqExecutor extends Float64VectorComparisonExecutor {
+	private final class Float64VectorLeqExecutorNode extends Float64VectorComparisonExecutorNode {
 
-		public Float64VectorLeqExecutor(
+		public Float64VectorLeqExecutorNode(
 				DataContainer<boolean[]> container0, DataContainer<double[]> container1, DataContainer<double[]> container2,
 				Float64x3ScalarCacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
 
@@ -150,9 +151,9 @@ public class Float64VectorComparisonUnit extends AccelerationUnit {
 		}
 	}
 
-	private final class Float64VectorGeqExecutor extends Float64VectorComparisonExecutor {
+	private final class Float64VectorGeqExecutorNode extends Float64VectorComparisonExecutorNode {
 
-		public Float64VectorGeqExecutor(
+		public Float64VectorGeqExecutorNode(
 				DataContainer<boolean[]> container0, DataContainer<double[]> container1, DataContainer<double[]> container2,
 				Float64x3ScalarCacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
 
@@ -175,9 +176,9 @@ public class Float64VectorComparisonUnit extends AccelerationUnit {
 		}
 	}
 
-	private final class Float64VectorEqExecutor extends Float64VectorComparisonExecutor {
+	private final class Float64VectorEqExecutorNode extends Float64VectorComparisonExecutorNode {
 
-		public Float64VectorEqExecutor(
+		public Float64VectorEqExecutorNode(
 				DataContainer<boolean[]> container0, DataContainer<double[]> container1, DataContainer<double[]> container2,
 				Float64x3ScalarCacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
 
@@ -200,9 +201,9 @@ public class Float64VectorComparisonUnit extends AccelerationUnit {
 		}
 	}
 
-	private final class Float64VectorNeqExecutor extends Float64VectorComparisonExecutor {
+	private final class Float64VectorNeqExecutorNode extends Float64VectorComparisonExecutorNode {
 
-		public Float64VectorNeqExecutor(
+		public Float64VectorNeqExecutorNode(
 				DataContainer<boolean[]> container0, DataContainer<double[]> container1, DataContainer<double[]> container2,
 				Float64x3ScalarCacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
 

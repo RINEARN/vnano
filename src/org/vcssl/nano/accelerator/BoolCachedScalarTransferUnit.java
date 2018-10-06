@@ -5,45 +5,52 @@
 
 package org.vcssl.nano.accelerator;
 
+import org.vcssl.nano.VnanoFatalException;
 import org.vcssl.nano.lang.DataType;
 import org.vcssl.nano.memory.DataContainer;
-import org.vcssl.nano.processor.OperationCode;
 
 public class BoolCachedScalarTransferUnit extends AccelerationUnit {
 
 	@Override
-	public AccelerationExecutorNode generateExecutor(
-			OperationCode opcode, DataType[] dataTypes, DataContainer<?>[] operandContainers,
+	public AccelerationExecutorNode generateExecutorNode(
+			AcceleratorInstruction instruction, DataContainer<?>[] operandContainers,
 			Object[] operandCaches, boolean[] operandCached, boolean[] operandScalar, boolean[] operandConstant,
 			AccelerationExecutorNode nextNode) {
 
 		AccelerationExecutorNode executor = null;
-		switch (opcode) {
+		switch (instruction.getOperationCode()) {
 			case FILL :
 			case MOV : {
-				executor = new BoolCachedScalarMovExecutor(
+				executor = new BoolCachedScalarMovExecutorNode(
 						(BoolScalarCache)operandCaches[0], (BoolScalarCache)operandCaches[1], nextNode);
 				break;
 			}
 			case CAST : {
-				if (dataTypes[1] == DataType.BOOL) {
-					executor = new BoolCachedScalarMovExecutor(
+				if (instruction.getDataTypes()[1] == DataType.BOOL) {
+					executor = new BoolCachedScalarMovExecutorNode(
 							(BoolScalarCache)operandCaches[0], (BoolScalarCache)operandCaches[1], nextNode);
 					break;
+				} else {
+					throw new VnanoFatalException(
+							instruction.getDataTypes()[1] + "-type operand of " + instruction.getOperationCode()
+							+ " instruction is invalid for " + this.getClass().getCanonicalName()
+					);
 				}
 			}
 			default : {
-				break;
+				throw new VnanoFatalException(
+						"Operation code " + instruction.getOperationCode() + " is invalid for " + this.getClass().getCanonicalName()
+				);
 			}
 		}
 		return executor;
 	}
 
-	private class BoolCachedScalarMovExecutor extends AccelerationExecutorNode {
+	private class BoolCachedScalarMovExecutorNode extends AccelerationExecutorNode {
 		protected final BoolScalarCache cache0;
 		protected final BoolScalarCache cache1;
 
-		public BoolCachedScalarMovExecutor(BoolScalarCache cache0, BoolScalarCache cache1, AccelerationExecutorNode nextNode) {
+		public BoolCachedScalarMovExecutorNode(BoolScalarCache cache0, BoolScalarCache cache1, AccelerationExecutorNode nextNode) {
 			super(nextNode);
 			this.cache0 = cache0;
 			this.cache1 = cache1;

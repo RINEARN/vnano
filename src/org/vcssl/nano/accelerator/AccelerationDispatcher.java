@@ -118,7 +118,7 @@ public class AccelerationDispatcher {
 			AccelerationType accelType,
 			OperationCode opcode, DataType[] dataTypes, DataContainer<?>[] operandContainers,
 			Object[] operandCaches, boolean[] operandCached, boolean[] operandScalar, boolean[] operandConstant,
-			Instruction instruction, Processor processor, Memory memory, Interconnect interconnect,
+			AcceleratorInstruction instruction, Processor processor, Memory memory, Interconnect interconnect,
 			AccelerationExecutorNode nextNode) {
 
 		AccelerationExecutorNode currentNode = null;
@@ -126,227 +126,239 @@ public class AccelerationDispatcher {
 
 			// 算術演算
 
-			case Int64VectorArithmetic : {
-				currentNode = new Int64VectorArithmeticUnit().generateExecutor(opcode, dataTypes,
-						operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
+			case I64V_ARITHMETIC : {
+				currentNode = new Int64VectorArithmeticUnit().generateExecutorNode(
+					instruction, operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
 				);
 				break;
 			}
-				case Int64ScalarArithmetic : {
-					currentNode = new Int64ScalarArithmeticUnit().generateExecutor(opcode, dataTypes,
-							operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
-					);
-					break;
-				}
-				case Int64CachedScalarArithmetic : {
-					currentNode = new Int64CachedScalarArithmeticUnit().generateExecutor(opcode, dataTypes,
-							operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
-					);
-					break;
-				}
+			case I64S_ARITHMETIC : {
+				currentNode = new Int64ScalarArithmeticUnit().generateExecutorNode(
+					instruction, operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
+				);
+				break;
+			}
+			case I64CS_ARITHMETIC : {
+				currentNode = new Int64CachedScalarArithmeticUnit().generateExecutorNode(
+					instruction, operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
+				);
+				break;
+			}
+			case I64CS_DUAL_ARITHMETIC : {
+				currentNode = new Int64CachedScalarDualArithmeticUnit().generateExecutorNode(
+					instruction, operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
+				);
+				break;
+			}
 
-				case Float64VectorArithmetic : {
-					currentNode = new Float64VectorArithmeticUnit().generateExecutor(opcode, dataTypes,
-							operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
-					);
-					break;
-				}
-				case Float64ScalarArithmetic : {
-					currentNode = new Float64ScalarArithmeticUnit().generateExecutor(opcode, dataTypes,
-							operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
-					);
-					break;
-				}
-				case Float64CachedScalarArithmetic : {
-					currentNode = new Float64CachedScalarArithmeticUnit().generateExecutor(opcode, dataTypes,
-							operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
-					);
-					break;
-				}
-
-
-				// 比較演算
-
-				case Int64VectorComparison : {
-					currentNode = new Int64VectorComparisonUnit().generateExecutor(opcode, dataTypes,
-							operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
-					);
-					break;
-				}
-				case Int64ScalarComparison : {
-					currentNode = new Int64ScalarComparisonUnit().generateExecutor(opcode, dataTypes,
-							operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
-					);
-					break;
-				}
-				case Int64CachedScalarComparison : {
-					currentNode = new Int64CachedScalarComparisonUnit().generateExecutor(opcode, dataTypes,
-							operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
-					);
-					break;
-				}
-
-				case Float64VectorComparison : {
-					currentNode = new Float64VectorComparisonUnit().generateExecutor(opcode, dataTypes,
-							operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
-					);
-					break;
-				}
-				case Float64ScalarComparison : {
-					currentNode = new Float64ScalarComparisonUnit().generateExecutor(opcode, dataTypes,
-							operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
-					);
-					break;
-				}
-				case Float64CachedScalarComparison : {
-					currentNode = new Float64CachedScalarComparisonUnit().generateExecutor(opcode, dataTypes,
-							operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
-					);
-					break;
-				}
+			case F64V_ARITHMETIC : {
+				currentNode = new Float64VectorArithmeticUnit().generateExecutorNode(
+					instruction, operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
+				);
+				break;
+			}
+			case F64S_ARITHMETIC : {
+				currentNode = new Float64ScalarArithmeticUnit().generateExecutorNode(
+					instruction, operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
+				);
+				break;
+			}
+			case F64CS_ARITHMETIC : {
+				currentNode = new Float64CachedScalarArithmeticUnit().generateExecutorNode(
+					instruction, operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
+				);
+				break;
+			}
+			case F64CS_DUAL_ARITHMETIC : {
+				currentNode = new Float64CachedScalarDualArithmeticUnit().generateExecutorNode(
+					instruction, operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
+				);
+				break;
+			}
 
 
-				// 論理演算
+			// 比較演算
 
-				case BoolVectorLogical : {
-					currentNode = new BoolVectorLogicalUnit().generateExecutor(opcode, dataTypes,
-							operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
-					);
-					break;
-				}
-				case BoolScalarLogical : {
-					currentNode = new BoolScalarLogicalUnit().generateExecutor(opcode, dataTypes,
-							operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
-					);
-					break;
-				}
-				case BoolCachedScalarLogical : {
-					currentNode = new BoolCachedScalarLogicalUnit().generateExecutor(opcode, dataTypes,
-							operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
-					);
-					break;
-				}
+			case I64V_COMPARISON : {
+				currentNode = new Int64VectorComparisonUnit().generateExecutorNode(
+					instruction, operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
+				);
+				break;
+			}
+			case I64S_COMPARISON : {
+				currentNode = new Int64ScalarComparisonUnit().generateExecutorNode(
+					instruction, operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
+				);
+				break;
+			}
+			case I64CS_COMPARISON : {
+				currentNode = new Int64CachedScalarComparisonUnit().generateExecutorNode(
+					instruction, operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
+				);
+				break;
+			}
+
+			case F64V_COMPARISON : {
+				currentNode = new Float64VectorComparisonUnit().generateExecutorNode(
+					instruction, operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
+				);
+				break;
+			}
+			case F64S_COMPARISON : {
+				currentNode = new Float64ScalarComparisonUnit().generateExecutorNode(
+					instruction, operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
+				);
+				break;
+			}
+			case F64CS_COMPARISON : {
+				currentNode = new Float64CachedScalarComparisonUnit().generateExecutorNode(
+					instruction, operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
+				);
+				break;
+			}
+
+
+			// 論理演算
+
+			case BV_LOGICAL : {
+				currentNode = new BoolVectorLogicalUnit().generateExecutorNode(
+					instruction, operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
+				);
+				break;
+			}
+			case BS_LOGICAL : {
+				currentNode = new BoolScalarLogicalUnit().generateExecutorNode(
+					instruction, operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
+				);
+				break;
+			}
+			case BCS_LOGICAL : {
+				currentNode = new BoolCachedScalarLogicalUnit().generateExecutorNode(
+					instruction, operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
+				);
+				break;
+			}
 
 
 				// データ転送
 
-				case Int64VectorTransfer : {
-					currentNode = new Int64VectorTransferUnit().generateExecutor(opcode, dataTypes,
-							operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
-					);
-					break;
-				}
-				case Int64ScalarTransfer : {
-					currentNode = new Int64ScalarTransferUnit().generateExecutor(opcode, dataTypes,
-							operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
-					);
-					break;
-				}
-				case Int64CachedScalarTransfer : {
-					currentNode = new Int64CachedScalarTransferUnit().generateExecutor(opcode, dataTypes,
-							operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
-					);
-					break;
-				}
-
-				case Float64VectorTransfer : {
-					currentNode = new Float64VectorTransferUnit().generateExecutor(opcode, dataTypes,
-							operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
-					);
-					break;
-				}
-				case Float64ScalarTransfer : {
-					currentNode = new Float64ScalarTransferUnit().generateExecutor(opcode, dataTypes,
-							operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
-					);
-					break;
-				}
-				case Float64CachedScalarTransfer : {
-					currentNode = new Float64CachedScalarTransferUnit().generateExecutor(opcode, dataTypes,
-							operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
-					);
-					break;
-				}
-
-				case BoolVectorTransfer : {
-					currentNode = new BoolVectorTransferUnit().generateExecutor(opcode, dataTypes,
-							operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
-					);
-					break;
-				}
-				case BoolScalarTransfer : {
-					currentNode = new BoolScalarTransferUnit().generateExecutor(opcode, dataTypes,
-							operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
-					);
-					break;
-				}
-				case BoolCachedScalarTransfer : {
-					currentNode = new BoolCachedScalarTransferUnit().generateExecutor(opcode, dataTypes,
-							operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
-					);
-					break;
-				}
-
-
-
-				// 分岐
-
-				case BoolScalarBranch : {
-					currentNode = new BoolScalarBranchUnit().generateExecutor(opcode, dataTypes,
-							operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
-					);
-					break;
-				}
-				case BoolCachedScalarBranch : {
-					currentNode = new BoolCachedScalarBranchUnit().generateExecutor(opcode, dataTypes,
-							operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
-					);
-					break;
-				}
-
-
-
-				// スカラALLOC
-
-				case ScalarAlloc : {
-					CacheSynchronizer synchronizer = new
-							GeneralScalarCacheSynchronizer(operandContainers, operandCaches, operandCached
-					);
-					currentNode = new ScalarAllocExecutor(
-							instruction, memory, interconnect, processor, synchronizer, nextNode
-					);
-					break;
-				}
-
-
-
-				// NOP（分岐先の着地点に存在）
-
-				case Nop : {
-					currentNode = new NopExecutor(nextNode);
-					break;
-				}
-
-
-
-				// このアクセラレータで未対応の場合（下層のプロセッサにそのまま投げるノードを生成）
-
-				case Unsupported : {
-					CacheSynchronizer synchronizer = new GeneralScalarCacheSynchronizer(
-							operandContainers, operandCaches, operandCached
-					);
-					currentNode = new PassThroughExecutor(
-							instruction, memory, interconnect, processor, synchronizer, nextNode
-					);
-					break;
-				}
-
-
-				default : {
-					// 実装時点では存在しないはずの種類が検出された場合（AcceleratorTypeに要素を追加した場合など）
-					throw new VnanoFatalException("Unknown acceleration type detected: " + accelType);
-				}
+			case I64V_TRANSFER : {
+				currentNode = new Int64VectorTransferUnit().generateExecutorNode(
+					instruction, operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
+				);
+				break;
 			}
+			case I64S_TRANSFER : {
+				currentNode = new Int64ScalarTransferUnit().generateExecutorNode(
+					instruction, operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
+				);
+				break;
+			}
+			case I64CS_TRANSFER : {
+				currentNode = new Int64CachedScalarTransferUnit().generateExecutorNode(
+					instruction, operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
+				);
+				break;
+			}
+
+			case F64V_TRANSFER : {
+				currentNode = new Float64VectorTransferUnit().generateExecutorNode(
+					instruction, operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
+				);
+				break;
+			}
+			case F64S_TRANSFER : {
+				currentNode = new Float64ScalarTransferUnit().generateExecutorNode(
+					instruction, operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
+				);
+				break;
+			}
+			case F64CS_TRANSFER : {
+				currentNode = new Float64CachedScalarTransferUnit().generateExecutorNode(
+					instruction, operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
+				);
+				break;
+			}
+
+			case BV_TRANSFER : {
+				currentNode = new BoolVectorTransferUnit().generateExecutorNode(
+					instruction, operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
+				);
+				break;
+			}
+			case BS_TRANSFER : {
+				currentNode = new BoolScalarTransferUnit().generateExecutorNode(
+					instruction, operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
+				);
+				break;
+			}
+			case BCS_TRANSFER : {
+				currentNode = new BoolCachedScalarTransferUnit().generateExecutorNode(
+					instruction, operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
+				);
+				break;
+			}
+
+
+
+			// 分岐
+
+			case BS_BRANCH : {
+				currentNode = new BoolScalarBranchUnit().generateExecutorNode(
+					instruction, operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
+				);
+				break;
+			}
+			case BCS_BRANCH : {
+				currentNode = new BoolCachedScalarBranchUnit().generateExecutorNode(
+					instruction, operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
+				);
+				break;
+			}
+
+
+
+			// スカラALLOC
+
+			case S_ALLOC : {
+				CacheSynchronizer synchronizer = new GeneralScalarCacheSynchronizer(
+						operandContainers, operandCaches, operandCached
+				);
+				currentNode = new ScalarAllocExecutor(
+						instruction, memory, interconnect, processor, synchronizer, nextNode
+				);
+				break;
+			}
+
+
+
+			// NOP（分岐先の着地点に存在）
+
+			case NOP : {
+				currentNode = new NopExecutor(nextNode);
+				break;
+			}
+
+
+
+			// このアクセラレータで未対応の場合（下層のプロセッサにそのまま投げるノードを生成）
+
+			case Unsupported : {
+				CacheSynchronizer synchronizer = new GeneralScalarCacheSynchronizer(
+						operandContainers, operandCaches, operandCached
+				);
+				currentNode = new PassThroughExecutor(
+						instruction, memory, interconnect, processor, synchronizer, nextNode
+				);
+				break;
+			}
+
+
+			default : {
+				// 実装時点では存在しないはずの種類が検出された場合（AcceleratorTypeに要素を追加した場合など）
+				throw new VnanoFatalException("Unknown acceleration type detected: " + accelType);
+			}
+		}
 
 		return currentNode;
 	}

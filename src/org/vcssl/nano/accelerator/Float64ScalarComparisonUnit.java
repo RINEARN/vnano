@@ -5,16 +5,15 @@
 
 package org.vcssl.nano.accelerator;
 
-import org.vcssl.nano.lang.DataType;
+import org.vcssl.nano.VnanoFatalException;
 import org.vcssl.nano.memory.DataContainer;
-import org.vcssl.nano.processor.OperationCode;
 
 public class Float64ScalarComparisonUnit extends AccelerationUnit {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public AccelerationExecutorNode generateExecutor(
-			OperationCode opcode, DataType[] dataTypes, DataContainer<?>[] operandContainers,
+	public AccelerationExecutorNode generateExecutorNode(
+			AcceleratorInstruction instruction, DataContainer<?>[] operandContainers,
 			Object[] operandCaches, boolean[] operandCached, boolean[] operandScalar, boolean[] operandConstant,
 			AccelerationExecutorNode nextNode) {
 
@@ -26,45 +25,47 @@ public class Float64ScalarComparisonUnit extends AccelerationUnit {
 		DataContainer<double[]> container2 = (DataContainer<double[]>)operandContainers[2];
 
 		AccelerationExecutorNode executor = null;
-		switch (opcode) {
+		switch (instruction.getOperationCode()) {
 			case LT : {
-				executor = new Float64ScalarLtExecutor(container0, container1, container2, synchronizer, nextNode);
+				executor = new Float64ScalarLtExecutorNode(container0, container1, container2, synchronizer, nextNode);
 				break;
 			}
 			case GT : {
-				executor = new Float64ScalarGtExecutor(container0, container1, container2, synchronizer, nextNode);
+				executor = new Float64ScalarGtExecutorNode(container0, container1, container2, synchronizer, nextNode);
 				break;
 			}
 			case LEQ : {
-				executor = new Float64ScalarLeqExecutor(container0, container1, container2, synchronizer, nextNode);
+				executor = new Float64ScalarLeqExecutorNode(container0, container1, container2, synchronizer, nextNode);
 				break;
 			}
 			case GEQ : {
-				executor = new Float64ScalarGeqExecutor(container0, container1, container2, synchronizer, nextNode);
+				executor = new Float64ScalarGeqExecutorNode(container0, container1, container2, synchronizer, nextNode);
 				break;
 			}
 			case EQ : {
-				executor = new Float64ScalarEqExecutor(container0, container1, container2, synchronizer, nextNode);
+				executor = new Float64ScalarEqExecutorNode(container0, container1, container2, synchronizer, nextNode);
 				break;
 			}
 			case NEQ : {
-				executor = new Float64ScalarNeqExecutor(container0, container1, container2, synchronizer, nextNode);
+				executor = new Float64ScalarNeqExecutorNode(container0, container1, container2, synchronizer, nextNode);
 				break;
 			}
 			default : {
-				break;
+				throw new VnanoFatalException(
+						"Operation code " + instruction.getOperationCode() + " is invalid for " + this.getClass().getCanonicalName()
+				);
 			}
 		}
 		return executor;
 	}
 
-	private abstract class Float64ScalarComparisonExecutor extends AccelerationExecutorNode {
+	private abstract class Float64ScalarComparisonExecutorNode extends AccelerationExecutorNode {
 		protected final DataContainer<boolean[]> container0;
 		protected final DataContainer<double[]> container1;
 		protected final DataContainer<double[]> container2;
 		protected final Boolx1Int64x2ScalarCacheSynchronizer synchronizer;
 
-		public Float64ScalarComparisonExecutor(
+		public Float64ScalarComparisonExecutorNode(
 				DataContainer<boolean[]> container0, DataContainer<double[]> container1, DataContainer<double[]> container2,
 				Boolx1Int64x2ScalarCacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
 
@@ -76,9 +77,9 @@ public class Float64ScalarComparisonUnit extends AccelerationUnit {
 		}
 	}
 
-	private final class Float64ScalarLtExecutor extends Float64ScalarComparisonExecutor {
+	private final class Float64ScalarLtExecutorNode extends Float64ScalarComparisonExecutorNode {
 
-		public Float64ScalarLtExecutor(
+		public Float64ScalarLtExecutorNode(
 				DataContainer<boolean[]> container0, DataContainer<double[]> container1, DataContainer<double[]> container2,
 				Boolx1Int64x2ScalarCacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
 
@@ -95,9 +96,9 @@ public class Float64ScalarComparisonUnit extends AccelerationUnit {
 		}
 	}
 
-	private final class Float64ScalarGtExecutor extends Float64ScalarComparisonExecutor {
+	private final class Float64ScalarGtExecutorNode extends Float64ScalarComparisonExecutorNode {
 
-		public Float64ScalarGtExecutor(
+		public Float64ScalarGtExecutorNode(
 				DataContainer<boolean[]> container0, DataContainer<double[]> container1, DataContainer<double[]> container2,
 				Boolx1Int64x2ScalarCacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
 
@@ -114,9 +115,9 @@ public class Float64ScalarComparisonUnit extends AccelerationUnit {
 		}
 	}
 
-	private final class Float64ScalarLeqExecutor extends Float64ScalarComparisonExecutor {
+	private final class Float64ScalarLeqExecutorNode extends Float64ScalarComparisonExecutorNode {
 
-		public Float64ScalarLeqExecutor(
+		public Float64ScalarLeqExecutorNode(
 				DataContainer<boolean[]> container0, DataContainer<double[]> container1, DataContainer<double[]> container2,
 				Boolx1Int64x2ScalarCacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
 
@@ -133,9 +134,9 @@ public class Float64ScalarComparisonUnit extends AccelerationUnit {
 		}
 	}
 
-	private final class Float64ScalarGeqExecutor extends Float64ScalarComparisonExecutor {
+	private final class Float64ScalarGeqExecutorNode extends Float64ScalarComparisonExecutorNode {
 
-		public Float64ScalarGeqExecutor(
+		public Float64ScalarGeqExecutorNode(
 				DataContainer<boolean[]> container0, DataContainer<double[]> container1, DataContainer<double[]> container2,
 				Boolx1Int64x2ScalarCacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
 
@@ -153,9 +154,9 @@ public class Float64ScalarComparisonUnit extends AccelerationUnit {
 	}
 
 
-	private final class Float64ScalarEqExecutor extends Float64ScalarComparisonExecutor {
+	private final class Float64ScalarEqExecutorNode extends Float64ScalarComparisonExecutorNode {
 
-		public Float64ScalarEqExecutor(
+		public Float64ScalarEqExecutorNode(
 				DataContainer<boolean[]> container0, DataContainer<double[]> container1, DataContainer<double[]> container2,
 				Boolx1Int64x2ScalarCacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
 
@@ -172,9 +173,9 @@ public class Float64ScalarComparisonUnit extends AccelerationUnit {
 		}
 	}
 
-	private final class Float64ScalarNeqExecutor extends Float64ScalarComparisonExecutor {
+	private final class Float64ScalarNeqExecutorNode extends Float64ScalarComparisonExecutorNode {
 
-		public Float64ScalarNeqExecutor(
+		public Float64ScalarNeqExecutorNode(
 				DataContainer<boolean[]> container0, DataContainer<double[]> container1, DataContainer<double[]> container2,
 				Boolx1Int64x2ScalarCacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
 
