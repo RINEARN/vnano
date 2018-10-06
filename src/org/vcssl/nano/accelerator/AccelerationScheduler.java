@@ -40,7 +40,7 @@ public class AccelerationScheduler {
 		this.reorderAllocInstructions();
 
 		// オペランドを並び替え、不要になったMOV命令を削る
-		this.reduceMovInstructions();
+		this.reduceMovInstructions(dataManager);
 
 
 		// 連続する算術演算命令2個を融合させて1個の拡張命令に置き換える
@@ -645,7 +645,7 @@ public class AccelerationScheduler {
 
 
 	// レジスタへの無駄なMOV命令を削減し、算術演算の出力オペランド等で直接レジスタに代入するようにする
-	private void reduceMovInstructions() {
+	private void reduceMovInstructions(AccelerationDataManager dataManager) {
 
 		int instructionLength = this.acceleratorInstructionList.size();
 		for (int instructionIndex=0; instructionIndex<instructionLength-1; instructionIndex++) { // 後でイテレータ使うループにする
@@ -676,10 +676,10 @@ public class AccelerationScheduler {
 			int writingRegisterAddress = currentInstruction.getOperandAddresses()[0];
 
 			// 次のMOV命令でのコピー元レジスタを取得
-			int movingRegisterAddress = nextInstruction.getOperandAddresses()[1];
+			int movingInputRegisterAddress = nextInstruction.getOperandAddresses()[1];
 
-			// 書き込み先レジスタと次命令でのコピー元レジスタが異なる場合はスキップ
-			if (writingRegisterAddress != movingRegisterAddress) {
+			// 書き込み先レジスタと次命令でのMOVコピー「元」レジスタが異なる場合はスキップ
+			if (writingRegisterAddress != movingInputRegisterAddress) {
 				continue;
 			}
 
@@ -687,6 +687,18 @@ public class AccelerationScheduler {
 			if (this.registerWrittenPointCount[writingRegisterAddress] != 1
 					&& this.registerReadPointCount[writingRegisterAddress] != 1) {
 
+				continue;
+			}
+
+			// 書き込み先とMOVコピー「先」が、スカラであるかやキャッシュ可能か等の特性が一致していない場合はスキップ
+			Memory.Partition movOutputPartition = nextInstruction.getOperandPartitions()[0];
+			int movOutputAddress = nextInstruction.getOperandAddresses()[0];
+			if (dataManager.isScalar(Memory.Partition.REGISTER, writingRegisterAddress)
+					!= dataManager.isScalar(movOutputPartition, movOutputAddress)) {
+				continue;
+			}
+			if (dataManager.isCached(Memory.Partition.REGISTER, writingRegisterAddress)
+					!= dataManager.isCached(movOutputPartition, movOutputAddress)) {
 				continue;
 			}
 
@@ -703,9 +715,9 @@ public class AccelerationScheduler {
 			int[] modifiedOperandAddresses = new int[modifiedOperandLength];
 			System.arraycopy(currentInstruction.getOperandAddresses(), 0, modifiedOperandAddresses, 0, modifiedOperandLength);
 
-			// 複製したオペランド部の出力オペランドに、MOV先オペランドを写す
-			modifiedOperandPartitions[0] = nextInstruction.getOperandPartitions()[0];
-			modifiedOperandAddresses[0] = nextInstruction.getOperandAddresses()[0];
+			// 複製したオペランド部の出力オペランドに、MOVコピー「先」オペランドを写す
+			modifiedOperandPartitions[0] = movOutputPartition;
+			modifiedOperandAddresses[0] = movOutputAddress;
 
 			// それをオペランド部として持つ、対象演算命令のコピーを生成し、元の対象演算命令を置き換える
 			AcceleratorInstruction modifiedInstruction = new AcceleratorInstruction(
@@ -718,6 +730,7 @@ public class AccelerationScheduler {
 
 			// 次の命令（= MOV）はもう削除したので、カウンタを1つ余計に進める
 			instructionIndex++;
+
 		}
 
 		this.removeNullInstructions();
