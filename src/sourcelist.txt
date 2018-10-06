@@ -12,9 +12,13 @@
 ./org/vcssl/connect/MethodXfci1Adapter.java
 ./org/vcssl/connect/package-info.java
 ./org/vcssl/nano/accelerator/AccelerationDataManager.java
+./org/vcssl/nano/accelerator/AccelerationDispatcher.java
 ./org/vcssl/nano/accelerator/AccelerationExecutorNode.java
+./org/vcssl/nano/accelerator/AccelerationScheduler.java
+./org/vcssl/nano/accelerator/AccelerationType.java
 ./org/vcssl/nano/accelerator/AccelerationUnit.java
 ./org/vcssl/nano/accelerator/Accelerator.java
+./org/vcssl/nano/accelerator/AcceleratorInstruction.java
 ./org/vcssl/nano/accelerator/BoolCachedScalarBranchUnit.java
 ./org/vcssl/nano/accelerator/BoolCachedScalarLogicalUnit.java
 ./org/vcssl/nano/accelerator/BoolCachedScalarTransferUnit.java
@@ -31,6 +35,7 @@
 ./org/vcssl/nano/accelerator/CacheSynchronizer.java
 ./org/vcssl/nano/accelerator/Float64CachedScalarArithmeticUnit.java
 ./org/vcssl/nano/accelerator/Float64CachedScalarComparisonUnit.java
+./org/vcssl/nano/accelerator/Float64CachedScalarDualArithmeticUnit.java
 ./org/vcssl/nano/accelerator/Float64CachedScalarTransferUnit.java
 ./org/vcssl/nano/accelerator/Float64ScalarArithmeticUnit.java
 ./org/vcssl/nano/accelerator/Float64ScalarCache.java
@@ -45,6 +50,7 @@
 ./org/vcssl/nano/accelerator/GeneralScalarCacheSynchronizer.java
 ./org/vcssl/nano/accelerator/Int64CachedScalarArithmeticUnit.java
 ./org/vcssl/nano/accelerator/Int64CachedScalarComparisonUnit.java
+./org/vcssl/nano/accelerator/Int64CachedScalarDualArithmeticUnit.java
 ./org/vcssl/nano/accelerator/Int64CachedScalarTransferUnit.java
 ./org/vcssl/nano/accelerator/Int64ScalarArithmeticUnit.java
 ./org/vcssl/nano/accelerator/Int64ScalarCache.java

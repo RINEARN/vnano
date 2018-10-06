@@ -5,35 +5,31 @@
 
 package org.vcssl.nano.accelerator;
 
-import org.vcssl.nano.lang.DataType;
+import org.vcssl.nano.VnanoFatalException;
 import org.vcssl.nano.memory.DataContainer;
-import org.vcssl.nano.processor.OperationCode;
 
 public class BoolCachedScalarBranchUnit extends AccelerationUnit {
 
 	@Override
-	public AccelerationExecutorNode generateExecutor(
-			OperationCode opcode, DataType[] dataTypes, DataContainer<?>[] operandContainers,
+	public AccelerationExecutorNode generateExecutorNode(
+			AcceleratorInstruction instruction, DataContainer<?>[] operandContainers,
 			Object[] operandCaches, boolean[] operandCached, boolean[] operandScalar, boolean[] operandConstant,
 			AccelerationExecutorNode nextNode) {
 
 		BoolScalarCache cache0 = (BoolScalarCache)operandCaches[0];
 
-		// ラベル番地はメモリマッピング時点で確定していて不変なので、この段階で控える
-		int jumpAddress = (int)( (long[])operandContainers[1].getData() )[0];
-
 		AccelerationExecutorNode executor = null;
-		switch (opcode) {
+		switch (instruction.getOperationCode()) {
 			case JMP : {
 				if (operandConstant[0]) {
 					boolean condition = ( (boolean[])operandContainers[0].getData() )[0];
 					if (condition) {
-						executor = new CachedScalarUnconditionalJmpExecutor(jumpAddress, nextNode);
+						executor = new CachedScalarUnconditionalJmpExecutorNode(nextNode);
 					} else {
-						executor = new CachedScalarUnconditionalNeverJmpExecutor(nextNode);
+						executor = new CachedScalarUnconditionalNeverJmpExecutorNode(nextNode);
 					}
 				} else {
-					executor = new CachedScalarJmpExecutor(cache0, jumpAddress, nextNode);
+					executor = new CachedScalarJmpExecutorNode(cache0, nextNode);
 				}
 				break;
 			}
@@ -41,32 +37,32 @@ public class BoolCachedScalarBranchUnit extends AccelerationUnit {
 				if (operandConstant[0]) {
 					boolean condition = ( (boolean[])operandContainers[0].getData() )[0];
 					if (condition) {
-						executor = new CachedScalarUnconditionalNeverJmpExecutor(nextNode);
+						executor = new CachedScalarUnconditionalNeverJmpExecutorNode(nextNode);
 					} else {
-						executor = new CachedScalarUnconditionalJmpExecutor(jumpAddress, nextNode);
+						executor = new CachedScalarUnconditionalJmpExecutorNode(nextNode);
 					}
 				} else {
-					executor = new CachedScalarJmpnExecutor(cache0, jumpAddress, nextNode);
+					executor = new CachedScalarJmpnExecutorNode(cache0, nextNode);
 				}
 				break;
 			}
 			default : {
-				break;
+				throw new VnanoFatalException(
+						"Operation code " + instruction.getOperationCode() + " is invalid for " + this.getClass().getCanonicalName()
+				);
 			}
 		}
 		return executor;
 	}
 
 
-	private final class CachedScalarJmpExecutor extends AccelerationExecutorNode {
+	private final class CachedScalarJmpExecutorNode extends AccelerationExecutorNode {
 		private final BoolScalarCache cache0;
-		private final int jumpAddress;
 		private AccelerationExecutorNode branchedNode = null;
 
-		public CachedScalarJmpExecutor(BoolScalarCache cache0, int jumpAddress, AccelerationExecutorNode nextNode) {
+		public CachedScalarJmpExecutorNode(BoolScalarCache cache0, AccelerationExecutorNode nextNode) {
 			super(nextNode);
 			this.cache0 = cache0;
-			this.jumpAddress = jumpAddress;
 		}
 
 		public void setBranchedNode(AccelerationExecutorNode branchedNode) {
@@ -84,16 +80,14 @@ public class BoolCachedScalarBranchUnit extends AccelerationUnit {
 	}
 
 
-	private final class CachedScalarJmpnExecutor extends AccelerationExecutorNode {
+	private final class CachedScalarJmpnExecutorNode extends AccelerationExecutorNode {
 		private final BoolScalarCache cache0;
-		private final int jumpAddress;
 		private AccelerationExecutorNode branchedNode = null;
 
-		public CachedScalarJmpnExecutor(BoolScalarCache cache0, int jumpAddress, AccelerationExecutorNode nextNode) {
+		public CachedScalarJmpnExecutorNode(BoolScalarCache cache0, AccelerationExecutorNode nextNode) {
 			super(nextNode);
 
 			this.cache0 = cache0;
-			this.jumpAddress = jumpAddress;
 		}
 
 		public void setBranchedNode(AccelerationExecutorNode branchedNode) {
@@ -110,13 +104,11 @@ public class BoolCachedScalarBranchUnit extends AccelerationUnit {
 	}
 
 
-	private final class CachedScalarUnconditionalJmpExecutor extends AccelerationExecutorNode {
-		private final int jumpAddress;
+	private final class CachedScalarUnconditionalJmpExecutorNode extends AccelerationExecutorNode {
 		private AccelerationExecutorNode branchedNode = null;
 
-		public CachedScalarUnconditionalJmpExecutor(int jumpAddress, AccelerationExecutorNode nextNode) {
+		public CachedScalarUnconditionalJmpExecutorNode(AccelerationExecutorNode nextNode) {
 			super(nextNode);
-			this.jumpAddress = jumpAddress;
 		}
 
 		public void setBranchedNode(AccelerationExecutorNode branchedNode) {
@@ -128,9 +120,9 @@ public class BoolCachedScalarBranchUnit extends AccelerationUnit {
 		}
 	}
 
-	private final class CachedScalarUnconditionalNeverJmpExecutor extends AccelerationExecutorNode {
+	private final class CachedScalarUnconditionalNeverJmpExecutorNode extends AccelerationExecutorNode {
 
-		public CachedScalarUnconditionalNeverJmpExecutor(AccelerationExecutorNode nextNode) {
+		public CachedScalarUnconditionalNeverJmpExecutorNode(AccelerationExecutorNode nextNode) {
 			super(nextNode);
 		}
 
