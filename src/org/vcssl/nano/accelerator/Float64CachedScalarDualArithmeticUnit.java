@@ -17,13 +17,10 @@ public class Float64CachedScalarDualArithmeticUnit extends AccelerationUnit {
 			Object[] operandCaches, boolean[] operandCached, boolean[] operandScalar, boolean[] operandConstant,
 			AccelerationExecutorNode nextNode) {
 
-		Float64ScalarCache[] caches = new Float64ScalarCache[]{
-				(Float64ScalarCache)operandCaches[0],
-				(Float64ScalarCache)operandCaches[1],
-				(Float64ScalarCache)operandCaches[2],
-				(Float64ScalarCache)operandCaches[3],
-				(Float64ScalarCache)operandCaches[4],
-				(Float64ScalarCache)operandCaches[5]
+		int cacheLength = operandCached.length;
+		Float64ScalarCache[] caches = new Float64ScalarCache[cacheLength];
+		for (int cacheIndex=0; cacheIndex<cacheLength; cacheIndex++) {
+			caches[cacheIndex] = (Float64ScalarCache)operandCaches[cacheIndex];
 		};
 
 		OperationCode[] fusedOpcodes = instruction.getFusedOperationCodes();
@@ -70,7 +67,9 @@ public class Float64CachedScalarDualArithmeticUnit extends AccelerationUnit {
 						break;
 					}
 					default : {
-						throw new VnanoFatalException("Operation code " + fusedOpcodes[1] + " is invalid for this unit");
+						throw new VnanoFatalException(
+								"Operation code " + fusedOpcodes[1] + " is invalid for this unit"
+						);
 					}
 				}
 				break;
@@ -99,7 +98,9 @@ public class Float64CachedScalarDualArithmeticUnit extends AccelerationUnit {
 						break;
 					}
 					default : {
-						throw new VnanoFatalException("Operation code " + fusedOpcodes[1] + " is invalid for this unit");
+						throw new VnanoFatalException(
+								"Operation code " + fusedOpcodes[1] + " is invalid for this unit"
+						);
 					}
 				}
 				break;
@@ -128,7 +129,9 @@ public class Float64CachedScalarDualArithmeticUnit extends AccelerationUnit {
 						break;
 					}
 					default : {
-						throw new VnanoFatalException("Operation code " + fusedOpcodes[1] + " is invalid for this unit");
+						throw new VnanoFatalException(
+								"Operation code " + fusedOpcodes[1] + " is invalid for this unit"
+						);
 					}
 				}
 				break;
@@ -157,7 +160,9 @@ public class Float64CachedScalarDualArithmeticUnit extends AccelerationUnit {
 						break;
 					}
 					default : {
-						throw new VnanoFatalException("Operation code " + fusedOpcodes[1] + " is invalid for this unit");
+						throw new VnanoFatalException(
+								"Operation code " + fusedOpcodes[1] + " is invalid for this unit"
+						);
 					}
 				}
 				break;
@@ -186,7 +191,9 @@ public class Float64CachedScalarDualArithmeticUnit extends AccelerationUnit {
 						break;
 					}
 					default : {
-						throw new VnanoFatalException("Operation code " + fusedOpcodes[1] + " is invalid for this unit");
+						throw new VnanoFatalException(
+								"Operation code " + fusedOpcodes[1] + " is invalid for this unit"
+						);
 					}
 				}
 				break;
@@ -194,7 +201,7 @@ public class Float64CachedScalarDualArithmeticUnit extends AccelerationUnit {
 
 			default : {
 				throw new VnanoFatalException(
-						"Operation code " + fusedOpcodes[0] + " is invalid for " + this.getClass().getCanonicalName()
+						"Operation code " + fusedOpcodes[0] + " is invalid for for this unit"
 				);
 			}
 		}
@@ -231,7 +238,9 @@ public class Float64CachedScalarDualArithmeticUnit extends AccelerationUnit {
 						break;
 					}
 					default : {
-						throw new VnanoFatalException("Operation code " + fusedOpcodes[1] + " is invalid for this unit");
+						throw new VnanoFatalException(
+								"Operation code " + fusedOpcodes[1] + " is invalid for this unit"
+						);
 					}
 				}
 				break;
@@ -260,7 +269,9 @@ public class Float64CachedScalarDualArithmeticUnit extends AccelerationUnit {
 						break;
 					}
 					default : {
-						throw new VnanoFatalException("Operation code " + fusedOpcodes[1] + " is invalid for this unit");
+						throw new VnanoFatalException(
+								"Operation code " + fusedOpcodes[1] + " is invalid for this unit"
+						);
 					}
 				}
 				break;
@@ -289,7 +300,9 @@ public class Float64CachedScalarDualArithmeticUnit extends AccelerationUnit {
 						break;
 					}
 					default : {
-						throw new VnanoFatalException("Operation code " + fusedOpcodes[1] + " is invalid for this unit");
+						throw new VnanoFatalException(
+								"Operation code " + fusedOpcodes[1] + " is invalid for this unit"
+						);
 					}
 				}
 				break;
@@ -318,7 +331,9 @@ public class Float64CachedScalarDualArithmeticUnit extends AccelerationUnit {
 						break;
 					}
 					default : {
-						throw new VnanoFatalException("Operation code " + fusedOpcodes[1] + " is invalid for this unit");
+						throw new VnanoFatalException(
+								"Operation code " + fusedOpcodes[1] + " is invalid for this unit"
+						);
 					}
 				}
 				break;
@@ -347,7 +362,9 @@ public class Float64CachedScalarDualArithmeticUnit extends AccelerationUnit {
 						break;
 					}
 					default : {
-						throw new VnanoFatalException("Operation code " + fusedOpcodes[1] + " is invalid for this unit");
+						throw new VnanoFatalException(
+								"Operation code " + fusedOpcodes[1] + " is invalid for this unit"
+						);
 					}
 				}
 				break;
