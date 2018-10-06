@@ -678,11 +678,6 @@ public class AccelerationScheduler {
 			// 次のMOV命令でのコピー元レジスタを取得
 			int movingRegisterAddress = nextInstruction.getOperandAddresses()[1];
 
-			boolean dbg = false;
-			if (movingRegisterAddress == 38) {
-				dbg = true;
-			}
-
 			// 書き込み先レジスタと次命令でのコピー元レジスタが異なる場合はスキップ
 			if (writingRegisterAddress != movingRegisterAddress) {
 				continue;
