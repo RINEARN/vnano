@@ -18,4 +18,7 @@ public class VnanoFatalException extends RuntimeException {
 	public VnanoFatalException(Throwable cause) {
 		super(cause);
 	}
+	public VnanoFatalException(String message, Throwable cause) {
+		super(message, cause);
+	}
 }
