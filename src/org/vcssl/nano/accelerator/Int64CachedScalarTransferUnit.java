@@ -12,7 +12,7 @@ import org.vcssl.nano.memory.DataContainer;
 public class Int64CachedScalarTransferUnit extends AccelerationUnit {
 
 	@Override
-	public AccelerationExecutorNode generateExecutor(
+	public AccelerationExecutorNode generateExecutorNode(
 			AcceleratorInstruction instruction, DataContainer<?>[] operandContainers,
 			Object[] operandCaches, boolean[] operandCached, boolean[] operandScalar, boolean[] operandConstant,
 			AccelerationExecutorNode nextNode) {
@@ -20,16 +20,16 @@ public class Int64CachedScalarTransferUnit extends AccelerationUnit {
 		AccelerationExecutorNode executor = null;
 		switch (instruction.getOperationCode()) {
 			case MOV : {
-				executor = new Int64CachedScalarMovExecutor(
+				executor = new Int64CachedScalarMovExecutorNode(
 						(Int64ScalarCache)operandCaches[0], (Int64ScalarCache)operandCaches[1], nextNode);
 				break;
 			}
 			case CAST : {
 				if (instruction.getDataTypes()[1] == DataType.INT64) {
-					executor = new Int64CachedScalarMovExecutor(
+					executor = new Int64CachedScalarMovExecutorNode(
 							(Int64ScalarCache)operandCaches[0], (Int64ScalarCache)operandCaches[1], nextNode);
 				} else if (instruction.getDataTypes()[1] == DataType.FLOAT64) {
-					executor = new Int64FromFloat64CachedScalarCastExecutor(
+					executor = new Int64FromFloat64CachedScalarCastExecutorNode(
 							(Int64ScalarCache)operandCaches[0], (Float64ScalarCache)operandCaches[1], nextNode);
 				} else {
 					throw new VnanoFatalException(
@@ -40,7 +40,7 @@ public class Int64CachedScalarTransferUnit extends AccelerationUnit {
 				break;
 			}
 			case FILL : {
-				executor = new Int64CachedScalarMovExecutor(
+				executor = new Int64CachedScalarMovExecutorNode(
 						(Int64ScalarCache)operandCaches[0], (Int64ScalarCache)operandCaches[1], nextNode);
 				break;
 			}
@@ -53,11 +53,11 @@ public class Int64CachedScalarTransferUnit extends AccelerationUnit {
 		return executor;
 	}
 
-	private class Int64CachedScalarMovExecutor extends AccelerationExecutorNode {
+	private class Int64CachedScalarMovExecutorNode extends AccelerationExecutorNode {
 		protected final Int64ScalarCache cache0;
 		protected final Int64ScalarCache cache1;
 
-		public Int64CachedScalarMovExecutor(Int64ScalarCache cache0, Int64ScalarCache cache1, AccelerationExecutorNode nextNode) {
+		public Int64CachedScalarMovExecutorNode(Int64ScalarCache cache0, Int64ScalarCache cache1, AccelerationExecutorNode nextNode) {
 
 			super(nextNode);
 			this.cache0 = cache0;
@@ -70,11 +70,11 @@ public class Int64CachedScalarTransferUnit extends AccelerationUnit {
 		}
 	}
 
-	private class Int64FromFloat64CachedScalarCastExecutor extends AccelerationExecutorNode {
+	private class Int64FromFloat64CachedScalarCastExecutorNode extends AccelerationExecutorNode {
 		protected final Int64ScalarCache cache0;
 		protected final Float64ScalarCache cache1;
 
-		public Int64FromFloat64CachedScalarCastExecutor(Int64ScalarCache cache0, Float64ScalarCache cache1,
+		public Int64FromFloat64CachedScalarCastExecutorNode(Int64ScalarCache cache0, Float64ScalarCache cache1,
 				AccelerationExecutorNode nextNode) {
 
 			super(nextNode);

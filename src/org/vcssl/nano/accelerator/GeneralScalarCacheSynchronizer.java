@@ -6,7 +6,6 @@
 package org.vcssl.nano.accelerator;
 
 import org.vcssl.nano.VnanoFatalException;
-import org.vcssl.nano.VnanoRuntimeException;
 import org.vcssl.nano.memory.DataContainer;
 
 class GeneralScalarCacheSynchronizer extends CacheSynchronizer {

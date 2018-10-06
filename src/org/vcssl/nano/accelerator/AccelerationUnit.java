@@ -5,15 +5,12 @@
 
 package org.vcssl.nano.accelerator;
 
-import org.vcssl.nano.lang.DataType;
 import org.vcssl.nano.memory.DataContainer;
-import org.vcssl.nano.processor.OperationCode;
 
 public abstract class AccelerationUnit {
 
-	public abstract AccelerationExecutorNode generateExecutor(
+	public abstract AccelerationExecutorNode generateExecutorNode(
 			AcceleratorInstruction instruction, DataContainer<?>[] operandContainers,
-			//OperationCode opcode, DataType[] dataTypes, DataContainer<?>[] operandContainers,
 			Object[] operandCaches, boolean[] operandCached, boolean[] operandScalar, boolean[] operandConstant,
 			AccelerationExecutorNode nextNode);
 

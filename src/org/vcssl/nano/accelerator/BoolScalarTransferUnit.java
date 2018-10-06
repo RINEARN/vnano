@@ -13,7 +13,7 @@ public class BoolScalarTransferUnit extends AccelerationUnit {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public AccelerationExecutorNode generateExecutor(
+	public AccelerationExecutorNode generateExecutorNode(
 			AcceleratorInstruction instruction, DataContainer<?>[] operandContainers,
 			Object[] operandCaches, boolean[] operandCached, boolean[] operandScalar, boolean[] operandConstant,
 			AccelerationExecutorNode nextNode) {
@@ -24,7 +24,7 @@ public class BoolScalarTransferUnit extends AccelerationUnit {
 			case FILL : {
 				Boolx2ScalarCacheSynchronizer synchronizer
 						= new Boolx2ScalarCacheSynchronizer(operandContainers, operandCaches, operandCached);
-				executor = new BoolScalarMovExecutor(
+				executor = new BoolScalarMovExecutorNode(
 						(DataContainer<boolean[]>)operandContainers[0], (DataContainer<boolean[]>)operandContainers[1],
 						synchronizer, nextNode);
 				break;
@@ -33,7 +33,7 @@ public class BoolScalarTransferUnit extends AccelerationUnit {
 				if (instruction.getDataTypes()[1] == DataType.BOOL) {
 					Boolx2ScalarCacheSynchronizer synchronizer
 							= new Boolx2ScalarCacheSynchronizer(operandContainers, operandCaches, operandCached);
-					executor = new BoolScalarMovExecutor(
+					executor = new BoolScalarMovExecutorNode(
 							(DataContainer<boolean[]>)operandContainers[0], (DataContainer<boolean[]>)operandContainers[1],
 							synchronizer, nextNode);
 				} else {
@@ -54,13 +54,13 @@ public class BoolScalarTransferUnit extends AccelerationUnit {
 		return executor;
 	}
 
-	private final class BoolScalarMovExecutor extends AccelerationExecutorNode {
+	private final class BoolScalarMovExecutorNode extends AccelerationExecutorNode {
 
 		protected final DataContainer<boolean[]> container0;
 		protected final DataContainer<boolean[]> container1;
 		protected final Boolx2ScalarCacheSynchronizer synchronizer;
 
-		public BoolScalarMovExecutor(
+		public BoolScalarMovExecutorNode(
 				DataContainer<boolean[]> container0, DataContainer<boolean[]> container1,
 				Boolx2ScalarCacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
 

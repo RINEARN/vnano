@@ -12,7 +12,7 @@ import org.vcssl.nano.memory.DataContainer;
 public class BoolCachedScalarTransferUnit extends AccelerationUnit {
 
 	@Override
-	public AccelerationExecutorNode generateExecutor(
+	public AccelerationExecutorNode generateExecutorNode(
 			AcceleratorInstruction instruction, DataContainer<?>[] operandContainers,
 			Object[] operandCaches, boolean[] operandCached, boolean[] operandScalar, boolean[] operandConstant,
 			AccelerationExecutorNode nextNode) {
@@ -21,13 +21,13 @@ public class BoolCachedScalarTransferUnit extends AccelerationUnit {
 		switch (instruction.getOperationCode()) {
 			case FILL :
 			case MOV : {
-				executor = new BoolCachedScalarMovExecutor(
+				executor = new BoolCachedScalarMovExecutorNode(
 						(BoolScalarCache)operandCaches[0], (BoolScalarCache)operandCaches[1], nextNode);
 				break;
 			}
 			case CAST : {
 				if (instruction.getDataTypes()[1] == DataType.BOOL) {
-					executor = new BoolCachedScalarMovExecutor(
+					executor = new BoolCachedScalarMovExecutorNode(
 							(BoolScalarCache)operandCaches[0], (BoolScalarCache)operandCaches[1], nextNode);
 					break;
 				} else {
@@ -46,11 +46,11 @@ public class BoolCachedScalarTransferUnit extends AccelerationUnit {
 		return executor;
 	}
 
-	private class BoolCachedScalarMovExecutor extends AccelerationExecutorNode {
+	private class BoolCachedScalarMovExecutorNode extends AccelerationExecutorNode {
 		protected final BoolScalarCache cache0;
 		protected final BoolScalarCache cache1;
 
-		public BoolCachedScalarMovExecutor(BoolScalarCache cache0, BoolScalarCache cache1, AccelerationExecutorNode nextNode) {
+		public BoolCachedScalarMovExecutorNode(BoolScalarCache cache0, BoolScalarCache cache1, AccelerationExecutorNode nextNode) {
 			super(nextNode);
 			this.cache0 = cache0;
 			this.cache1 = cache1;

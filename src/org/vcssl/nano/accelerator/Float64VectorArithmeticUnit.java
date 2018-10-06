@@ -12,7 +12,7 @@ public class Float64VectorArithmeticUnit extends AccelerationUnit {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public AccelerationExecutorNode generateExecutor(
+	public AccelerationExecutorNode generateExecutorNode(
 			AcceleratorInstruction instruction, DataContainer<?>[] operandContainers,
 			Object[] operandCaches, boolean[] operandCached, boolean[] operandScalar, boolean[] operandConstant,
 			AccelerationExecutorNode nextNode) {
@@ -21,26 +21,26 @@ public class Float64VectorArithmeticUnit extends AccelerationUnit {
 		Float64x3ScalarCacheSynchronizer synchronizer
 				= new Float64x3ScalarCacheSynchronizer(operandContainers, operandCaches, operandCached);
 
-		Float64VectorArithmeticExecutor executor = null;
+		Float64VectorArithmeticExecutorNode executor = null;
 		switch (instruction.getOperationCode()) {
 			case ADD : {
-				executor = new Float64VectorAddExecutor(containers[0], containers[1], containers[2], synchronizer, nextNode);
+				executor = new Float64VectorAddExecutorNode(containers[0], containers[1], containers[2], synchronizer, nextNode);
 				break;
 			}
 			case SUB : {
-				executor = new Float64VectorSubExecutor(containers[0], containers[1], containers[2], synchronizer, nextNode);
+				executor = new Float64VectorSubExecutorNode(containers[0], containers[1], containers[2], synchronizer, nextNode);
 				break;
 			}
 			case MUL : {
-				executor = new Float64VectorMulExecutor(containers[0], containers[1], containers[2], synchronizer, nextNode);
+				executor = new Float64VectorMulExecutorNode(containers[0], containers[1], containers[2], synchronizer, nextNode);
 				break;
 			}
 			case DIV : {
-				executor = new Float64VectorDivExecutor(containers[0], containers[1], containers[2], synchronizer, nextNode);
+				executor = new Float64VectorDivExecutorNode(containers[0], containers[1], containers[2], synchronizer, nextNode);
 				break;
 			}
 			case REM : {
-				executor = new Float64VectorRemExecutor(containers[0], containers[1], containers[2], synchronizer, nextNode);
+				executor = new Float64VectorRemExecutorNode(containers[0], containers[1], containers[2], synchronizer, nextNode);
 				break;
 			}
 			default : {
@@ -52,13 +52,13 @@ public class Float64VectorArithmeticUnit extends AccelerationUnit {
 		return executor;
 	}
 
-	private abstract class Float64VectorArithmeticExecutor extends AccelerationExecutorNode {
+	private abstract class Float64VectorArithmeticExecutorNode extends AccelerationExecutorNode {
 		protected final DataContainer<double[]> container0;
 		protected final DataContainer<double[]> container1;
 		protected final DataContainer<double[]> container2;
 		protected final Float64x3ScalarCacheSynchronizer synchronizer;
 
-		public Float64VectorArithmeticExecutor(
+		public Float64VectorArithmeticExecutorNode(
 				DataContainer<double[]> container0, DataContainer<double[]> container1, DataContainer<double[]> container2,
 				Float64x3ScalarCacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
 
@@ -71,8 +71,8 @@ public class Float64VectorArithmeticUnit extends AccelerationUnit {
 	}
 
 
-	private final class Float64VectorAddExecutor extends Float64VectorArithmeticExecutor {
-		public Float64VectorAddExecutor(
+	private final class Float64VectorAddExecutorNode extends Float64VectorArithmeticExecutorNode {
+		public Float64VectorAddExecutorNode(
 				DataContainer<double[]> container0, DataContainer<double[]> container1, DataContainer<double[]> container2,
 				Float64x3ScalarCacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
 
@@ -95,9 +95,9 @@ public class Float64VectorArithmeticUnit extends AccelerationUnit {
 	}
 
 
-	private final class Float64VectorSubExecutor extends Float64VectorArithmeticExecutor {
+	private final class Float64VectorSubExecutorNode extends Float64VectorArithmeticExecutorNode {
 
-		public Float64VectorSubExecutor(
+		public Float64VectorSubExecutorNode(
 				DataContainer<double[]> container0, DataContainer<double[]> container1, DataContainer<double[]> container2,
 				Float64x3ScalarCacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
 
@@ -120,9 +120,9 @@ public class Float64VectorArithmeticUnit extends AccelerationUnit {
 		}
 	}
 
-	private final class Float64VectorMulExecutor extends Float64VectorArithmeticExecutor {
+	private final class Float64VectorMulExecutorNode extends Float64VectorArithmeticExecutorNode {
 
-		public Float64VectorMulExecutor(
+		public Float64VectorMulExecutorNode(
 				DataContainer<double[]> container0, DataContainer<double[]> container1, DataContainer<double[]> container2,
 				Float64x3ScalarCacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
 
@@ -145,9 +145,9 @@ public class Float64VectorArithmeticUnit extends AccelerationUnit {
 		}
 	}
 
-	private final class Float64VectorDivExecutor extends Float64VectorArithmeticExecutor {
+	private final class Float64VectorDivExecutorNode extends Float64VectorArithmeticExecutorNode {
 
-		public Float64VectorDivExecutor(
+		public Float64VectorDivExecutorNode(
 				DataContainer<double[]> container0, DataContainer<double[]> container1, DataContainer<double[]> container2,
 				Float64x3ScalarCacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
 
@@ -170,9 +170,9 @@ public class Float64VectorArithmeticUnit extends AccelerationUnit {
 		}
 	}
 
-	private final class Float64VectorRemExecutor extends Float64VectorArithmeticExecutor {
+	private final class Float64VectorRemExecutorNode extends Float64VectorArithmeticExecutorNode {
 
-		public Float64VectorRemExecutor(
+		public Float64VectorRemExecutorNode(
 				DataContainer<double[]> container0, DataContainer<double[]> container1, DataContainer<double[]> container2,
 				Float64x3ScalarCacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
 

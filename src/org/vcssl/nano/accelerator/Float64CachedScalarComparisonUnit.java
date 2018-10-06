@@ -11,7 +11,7 @@ import org.vcssl.nano.memory.DataContainer;
 public class Float64CachedScalarComparisonUnit extends AccelerationUnit {
 
 	@Override
-	public AccelerationExecutorNode generateExecutor(
+	public AccelerationExecutorNode generateExecutorNode(
 			AcceleratorInstruction instruction, DataContainer<?>[] operandContainers,
 			Object[] operandCaches, boolean[] operandCached, boolean[] operandScalar, boolean[] operandConstant,
 			AccelerationExecutorNode nextNode) {
@@ -20,30 +20,30 @@ public class Float64CachedScalarComparisonUnit extends AccelerationUnit {
 		Float64ScalarCache caches1 = (Float64ScalarCache)operandCaches[1];
 		Float64ScalarCache caches2 = (Float64ScalarCache)operandCaches[2];
 
-		Float64CachedScalarComparisonExecutor executor = null;
+		Float64CachedScalarComparisonExecutorNode executor = null;
 		switch (instruction.getOperationCode()) {
 			case LT : {
-				executor = new Float64CachedScalarLtExecutor(caches0, caches1, caches2, nextNode);
+				executor = new Float64CachedScalarLtExecutorNode(caches0, caches1, caches2, nextNode);
 				break;
 			}
 			case GT : {
-				executor = new Float64CachedScalarGtExecutor(caches0, caches1, caches2, nextNode);
+				executor = new Float64CachedScalarGtExecutorNode(caches0, caches1, caches2, nextNode);
 				break;
 			}
 			case LEQ : {
-				executor = new Float64CachedScalarLeqExecutor(caches0, caches1, caches2, nextNode);
+				executor = new Float64CachedScalarLeqExecutorNode(caches0, caches1, caches2, nextNode);
 				break;
 			}
 			case GEQ : {
-				executor = new Float64CachedScalarGeqExecutor(caches0, caches1, caches2, nextNode);
+				executor = new Float64CachedScalarGeqExecutorNode(caches0, caches1, caches2, nextNode);
 				break;
 			}
 			case EQ : {
-				executor = new Float64CachedScalarEqExecutor(caches0, caches1, caches2, nextNode);
+				executor = new Float64CachedScalarEqExecutorNode(caches0, caches1, caches2, nextNode);
 				break;
 			}
 			case NEQ : {
-				executor = new Float64CachedScalarNeqExecutor(caches0, caches1, caches2, nextNode);
+				executor = new Float64CachedScalarNeqExecutorNode(caches0, caches1, caches2, nextNode);
 				break;
 			}
 			default : {
@@ -55,12 +55,12 @@ public class Float64CachedScalarComparisonUnit extends AccelerationUnit {
 		return executor;
 	}
 
-	private abstract class Float64CachedScalarComparisonExecutor extends AccelerationExecutorNode {
+	private abstract class Float64CachedScalarComparisonExecutorNode extends AccelerationExecutorNode {
 		protected final BoolScalarCache cache0;
 		protected final Float64ScalarCache cache1;
 		protected final Float64ScalarCache cache2;
 
-		public Float64CachedScalarComparisonExecutor(BoolScalarCache cache0, Float64ScalarCache cache1, Float64ScalarCache cache2,
+		public Float64CachedScalarComparisonExecutorNode(BoolScalarCache cache0, Float64ScalarCache cache1, Float64ScalarCache cache2,
 				AccelerationExecutorNode nextNode) {
 
 			super(nextNode);
@@ -70,8 +70,8 @@ public class Float64CachedScalarComparisonUnit extends AccelerationUnit {
 		}
 	}
 
-	private final class Float64CachedScalarLtExecutor extends Float64CachedScalarComparisonExecutor {
-		public Float64CachedScalarLtExecutor(BoolScalarCache cache0, Float64ScalarCache cache1, Float64ScalarCache cache2,
+	private final class Float64CachedScalarLtExecutorNode extends Float64CachedScalarComparisonExecutorNode {
+		public Float64CachedScalarLtExecutorNode(BoolScalarCache cache0, Float64ScalarCache cache1, Float64ScalarCache cache2,
 				AccelerationExecutorNode nextNode) {
 			super(cache0, cache1, cache2, nextNode);
 		}
@@ -81,8 +81,8 @@ public class Float64CachedScalarComparisonUnit extends AccelerationUnit {
 		}
 	}
 
-	private final class Float64CachedScalarGtExecutor extends Float64CachedScalarComparisonExecutor {
-		public Float64CachedScalarGtExecutor(BoolScalarCache cache0, Float64ScalarCache cache1, Float64ScalarCache cache2,
+	private final class Float64CachedScalarGtExecutorNode extends Float64CachedScalarComparisonExecutorNode {
+		public Float64CachedScalarGtExecutorNode(BoolScalarCache cache0, Float64ScalarCache cache1, Float64ScalarCache cache2,
 				AccelerationExecutorNode nextNode) {
 			super(cache0, cache1, cache2, nextNode);
 		}
@@ -92,8 +92,8 @@ public class Float64CachedScalarComparisonUnit extends AccelerationUnit {
 		}
 	}
 
-	private final class Float64CachedScalarLeqExecutor extends Float64CachedScalarComparisonExecutor {
-		public Float64CachedScalarLeqExecutor(BoolScalarCache cache0, Float64ScalarCache cache1, Float64ScalarCache cache2,
+	private final class Float64CachedScalarLeqExecutorNode extends Float64CachedScalarComparisonExecutorNode {
+		public Float64CachedScalarLeqExecutorNode(BoolScalarCache cache0, Float64ScalarCache cache1, Float64ScalarCache cache2,
 				AccelerationExecutorNode nextNode) {
 			super(cache0, cache1, cache2, nextNode);
 		}
@@ -103,8 +103,8 @@ public class Float64CachedScalarComparisonUnit extends AccelerationUnit {
 		}
 	}
 
-	private final class Float64CachedScalarGeqExecutor extends Float64CachedScalarComparisonExecutor {
-		public Float64CachedScalarGeqExecutor(BoolScalarCache cache0, Float64ScalarCache cache1, Float64ScalarCache cache2,
+	private final class Float64CachedScalarGeqExecutorNode extends Float64CachedScalarComparisonExecutorNode {
+		public Float64CachedScalarGeqExecutorNode(BoolScalarCache cache0, Float64ScalarCache cache1, Float64ScalarCache cache2,
 				AccelerationExecutorNode nextNode) {
 			super(cache0, cache1, cache2, nextNode);
 		}
@@ -114,8 +114,8 @@ public class Float64CachedScalarComparisonUnit extends AccelerationUnit {
 		}
 	}
 
-	private final class Float64CachedScalarEqExecutor extends Float64CachedScalarComparisonExecutor {
-		public Float64CachedScalarEqExecutor(BoolScalarCache cache0, Float64ScalarCache cache1, Float64ScalarCache cache2,
+	private final class Float64CachedScalarEqExecutorNode extends Float64CachedScalarComparisonExecutorNode {
+		public Float64CachedScalarEqExecutorNode(BoolScalarCache cache0, Float64ScalarCache cache1, Float64ScalarCache cache2,
 				AccelerationExecutorNode nextNode) {
 			super(cache0, cache1, cache2, nextNode);
 		}
@@ -125,8 +125,8 @@ public class Float64CachedScalarComparisonUnit extends AccelerationUnit {
 		}
 	}
 
-	private final class Float64CachedScalarNeqExecutor extends Float64CachedScalarComparisonExecutor {
-		public Float64CachedScalarNeqExecutor(BoolScalarCache cache0, Float64ScalarCache cache1, Float64ScalarCache cache2,
+	private final class Float64CachedScalarNeqExecutorNode extends Float64CachedScalarComparisonExecutorNode {
+		public Float64CachedScalarNeqExecutorNode(BoolScalarCache cache0, Float64ScalarCache cache1, Float64ScalarCache cache2,
 				AccelerationExecutorNode nextNode) {
 			super(cache0, cache1, cache2, nextNode);
 		}

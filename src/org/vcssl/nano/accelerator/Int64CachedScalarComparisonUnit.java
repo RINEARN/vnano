@@ -11,7 +11,7 @@ import org.vcssl.nano.memory.DataContainer;
 public class Int64CachedScalarComparisonUnit extends AccelerationUnit {
 
 	@Override
-	public AccelerationExecutorNode generateExecutor(
+	public AccelerationExecutorNode generateExecutorNode(
 			AcceleratorInstruction instruction, DataContainer<?>[] operandContainers,
 			Object[] operandCaches, boolean[] operandCached, boolean[] operandScalar, boolean[] operandConstant,
 			AccelerationExecutorNode nextNode) {
@@ -20,30 +20,30 @@ public class Int64CachedScalarComparisonUnit extends AccelerationUnit {
 		Int64ScalarCache caches1 = (Int64ScalarCache)operandCaches[1];
 		Int64ScalarCache caches2 = (Int64ScalarCache)operandCaches[2];
 
-		Int64CachedScalarComparisonExecutor executor = null;
+		Int64CachedScalarComparisonExecutorNode executor = null;
 		switch (instruction.getOperationCode()) {
 			case LT : {
-				executor = new Int64CachedScalarLtExecutor(caches0, caches1, caches2, nextNode);
+				executor = new Int64CachedScalarLtExecutorNode(caches0, caches1, caches2, nextNode);
 				break;
 			}
 			case GT : {
-				executor = new Int64CachedScalarGtExecutor(caches0, caches1, caches2, nextNode);
+				executor = new Int64CachedScalarGtExecutorNode(caches0, caches1, caches2, nextNode);
 				break;
 			}
 			case LEQ : {
-				executor = new Int64CachedScalarLeqExecutor(caches0, caches1, caches2, nextNode);
+				executor = new Int64CachedScalarLeqExecutorNode(caches0, caches1, caches2, nextNode);
 				break;
 			}
 			case GEQ : {
-				executor = new Int64CachedScalarGeqExecutor(caches0, caches1, caches2, nextNode);
+				executor = new Int64CachedScalarGeqExecutorNode(caches0, caches1, caches2, nextNode);
 				break;
 			}
 			case EQ : {
-				executor = new Int64CachedScalarEqExecutor(caches0, caches1, caches2, nextNode);
+				executor = new Int64CachedScalarEqExecutorNode(caches0, caches1, caches2, nextNode);
 				break;
 			}
 			case NEQ : {
-				executor = new Int64CachedScalarNeqExecutor(caches0, caches1, caches2, nextNode);
+				executor = new Int64CachedScalarNeqExecutorNode(caches0, caches1, caches2, nextNode);
 				break;
 			}
 			default : {
@@ -55,12 +55,12 @@ public class Int64CachedScalarComparisonUnit extends AccelerationUnit {
 		return executor;
 	}
 
-	private abstract class Int64CachedScalarComparisonExecutor extends AccelerationExecutorNode {
+	private abstract class Int64CachedScalarComparisonExecutorNode extends AccelerationExecutorNode {
 		protected final BoolScalarCache cache0;
 		protected final Int64ScalarCache cache1;
 		protected final Int64ScalarCache cache2;
 
-		public Int64CachedScalarComparisonExecutor(BoolScalarCache cache0, Int64ScalarCache cache1, Int64ScalarCache cache2,
+		public Int64CachedScalarComparisonExecutorNode(BoolScalarCache cache0, Int64ScalarCache cache1, Int64ScalarCache cache2,
 				AccelerationExecutorNode nextNode) {
 
 			super(nextNode);
@@ -70,8 +70,8 @@ public class Int64CachedScalarComparisonUnit extends AccelerationUnit {
 		}
 	}
 
-	private final class Int64CachedScalarLtExecutor extends Int64CachedScalarComparisonExecutor {
-		public Int64CachedScalarLtExecutor(BoolScalarCache cache0, Int64ScalarCache cache1, Int64ScalarCache cache2,
+	private final class Int64CachedScalarLtExecutorNode extends Int64CachedScalarComparisonExecutorNode {
+		public Int64CachedScalarLtExecutorNode(BoolScalarCache cache0, Int64ScalarCache cache1, Int64ScalarCache cache2,
 				AccelerationExecutorNode nextNode) {
 			super(cache0, cache1, cache2, nextNode);
 		}
@@ -81,8 +81,8 @@ public class Int64CachedScalarComparisonUnit extends AccelerationUnit {
 		}
 	}
 
-	private final class Int64CachedScalarGtExecutor extends Int64CachedScalarComparisonExecutor {
-		public Int64CachedScalarGtExecutor(BoolScalarCache cache0, Int64ScalarCache cache1, Int64ScalarCache cache2,
+	private final class Int64CachedScalarGtExecutorNode extends Int64CachedScalarComparisonExecutorNode {
+		public Int64CachedScalarGtExecutorNode(BoolScalarCache cache0, Int64ScalarCache cache1, Int64ScalarCache cache2,
 				AccelerationExecutorNode nextNode) {
 			super(cache0, cache1, cache2, nextNode);
 		}
@@ -92,8 +92,8 @@ public class Int64CachedScalarComparisonUnit extends AccelerationUnit {
 		}
 	}
 
-	private final class Int64CachedScalarLeqExecutor extends Int64CachedScalarComparisonExecutor {
-		public Int64CachedScalarLeqExecutor(BoolScalarCache cache0, Int64ScalarCache cache1, Int64ScalarCache cache2,
+	private final class Int64CachedScalarLeqExecutorNode extends Int64CachedScalarComparisonExecutorNode {
+		public Int64CachedScalarLeqExecutorNode(BoolScalarCache cache0, Int64ScalarCache cache1, Int64ScalarCache cache2,
 				AccelerationExecutorNode nextNode) {
 			super(cache0, cache1, cache2, nextNode);
 		}
@@ -103,8 +103,8 @@ public class Int64CachedScalarComparisonUnit extends AccelerationUnit {
 		}
 	}
 
-	private final class Int64CachedScalarGeqExecutor extends Int64CachedScalarComparisonExecutor {
-		public Int64CachedScalarGeqExecutor(BoolScalarCache cache0, Int64ScalarCache cache1, Int64ScalarCache cache2,
+	private final class Int64CachedScalarGeqExecutorNode extends Int64CachedScalarComparisonExecutorNode {
+		public Int64CachedScalarGeqExecutorNode(BoolScalarCache cache0, Int64ScalarCache cache1, Int64ScalarCache cache2,
 				AccelerationExecutorNode nextNode) {
 			super(cache0, cache1, cache2, nextNode);
 		}
@@ -114,8 +114,8 @@ public class Int64CachedScalarComparisonUnit extends AccelerationUnit {
 		}
 	}
 
-	private final class Int64CachedScalarEqExecutor extends Int64CachedScalarComparisonExecutor {
-		public Int64CachedScalarEqExecutor(BoolScalarCache cache0, Int64ScalarCache cache1, Int64ScalarCache cache2,
+	private final class Int64CachedScalarEqExecutorNode extends Int64CachedScalarComparisonExecutorNode {
+		public Int64CachedScalarEqExecutorNode(BoolScalarCache cache0, Int64ScalarCache cache1, Int64ScalarCache cache2,
 				AccelerationExecutorNode nextNode) {
 			super(cache0, cache1, cache2, nextNode);
 		}
@@ -125,8 +125,8 @@ public class Int64CachedScalarComparisonUnit extends AccelerationUnit {
 		}
 	}
 
-	private final class Int64CachedScalarNeqExecutor extends Int64CachedScalarComparisonExecutor {
-		public Int64CachedScalarNeqExecutor(BoolScalarCache cache0, Int64ScalarCache cache1, Int64ScalarCache cache2,
+	private final class Int64CachedScalarNeqExecutorNode extends Int64CachedScalarComparisonExecutorNode {
+		public Int64CachedScalarNeqExecutorNode(BoolScalarCache cache0, Int64ScalarCache cache1, Int64ScalarCache cache2,
 				AccelerationExecutorNode nextNode) {
 			super(cache0, cache1, cache2, nextNode);
 		}

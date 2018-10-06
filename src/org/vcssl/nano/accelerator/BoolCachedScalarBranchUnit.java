@@ -11,7 +11,7 @@ import org.vcssl.nano.memory.DataContainer;
 public class BoolCachedScalarBranchUnit extends AccelerationUnit {
 
 	@Override
-	public AccelerationExecutorNode generateExecutor(
+	public AccelerationExecutorNode generateExecutorNode(
 			AcceleratorInstruction instruction, DataContainer<?>[] operandContainers,
 			Object[] operandCaches, boolean[] operandCached, boolean[] operandScalar, boolean[] operandConstant,
 			AccelerationExecutorNode nextNode) {
@@ -24,12 +24,12 @@ public class BoolCachedScalarBranchUnit extends AccelerationUnit {
 				if (operandConstant[0]) {
 					boolean condition = ( (boolean[])operandContainers[0].getData() )[0];
 					if (condition) {
-						executor = new CachedScalarUnconditionalJmpExecutor(nextNode);
+						executor = new CachedScalarUnconditionalJmpExecutorNode(nextNode);
 					} else {
-						executor = new CachedScalarUnconditionalNeverJmpExecutor(nextNode);
+						executor = new CachedScalarUnconditionalNeverJmpExecutorNode(nextNode);
 					}
 				} else {
-					executor = new CachedScalarJmpExecutor(cache0, nextNode);
+					executor = new CachedScalarJmpExecutorNode(cache0, nextNode);
 				}
 				break;
 			}
@@ -37,12 +37,12 @@ public class BoolCachedScalarBranchUnit extends AccelerationUnit {
 				if (operandConstant[0]) {
 					boolean condition = ( (boolean[])operandContainers[0].getData() )[0];
 					if (condition) {
-						executor = new CachedScalarUnconditionalNeverJmpExecutor(nextNode);
+						executor = new CachedScalarUnconditionalNeverJmpExecutorNode(nextNode);
 					} else {
-						executor = new CachedScalarUnconditionalJmpExecutor(nextNode);
+						executor = new CachedScalarUnconditionalJmpExecutorNode(nextNode);
 					}
 				} else {
-					executor = new CachedScalarJmpnExecutor(cache0, nextNode);
+					executor = new CachedScalarJmpnExecutorNode(cache0, nextNode);
 				}
 				break;
 			}
@@ -56,11 +56,11 @@ public class BoolCachedScalarBranchUnit extends AccelerationUnit {
 	}
 
 
-	private final class CachedScalarJmpExecutor extends AccelerationExecutorNode {
+	private final class CachedScalarJmpExecutorNode extends AccelerationExecutorNode {
 		private final BoolScalarCache cache0;
 		private AccelerationExecutorNode branchedNode = null;
 
-		public CachedScalarJmpExecutor(BoolScalarCache cache0, AccelerationExecutorNode nextNode) {
+		public CachedScalarJmpExecutorNode(BoolScalarCache cache0, AccelerationExecutorNode nextNode) {
 			super(nextNode);
 			this.cache0 = cache0;
 		}
@@ -80,11 +80,11 @@ public class BoolCachedScalarBranchUnit extends AccelerationUnit {
 	}
 
 
-	private final class CachedScalarJmpnExecutor extends AccelerationExecutorNode {
+	private final class CachedScalarJmpnExecutorNode extends AccelerationExecutorNode {
 		private final BoolScalarCache cache0;
 		private AccelerationExecutorNode branchedNode = null;
 
-		public CachedScalarJmpnExecutor(BoolScalarCache cache0, AccelerationExecutorNode nextNode) {
+		public CachedScalarJmpnExecutorNode(BoolScalarCache cache0, AccelerationExecutorNode nextNode) {
 			super(nextNode);
 
 			this.cache0 = cache0;
@@ -104,10 +104,10 @@ public class BoolCachedScalarBranchUnit extends AccelerationUnit {
 	}
 
 
-	private final class CachedScalarUnconditionalJmpExecutor extends AccelerationExecutorNode {
+	private final class CachedScalarUnconditionalJmpExecutorNode extends AccelerationExecutorNode {
 		private AccelerationExecutorNode branchedNode = null;
 
-		public CachedScalarUnconditionalJmpExecutor(AccelerationExecutorNode nextNode) {
+		public CachedScalarUnconditionalJmpExecutorNode(AccelerationExecutorNode nextNode) {
 			super(nextNode);
 		}
 
@@ -120,9 +120,9 @@ public class BoolCachedScalarBranchUnit extends AccelerationUnit {
 		}
 	}
 
-	private final class CachedScalarUnconditionalNeverJmpExecutor extends AccelerationExecutorNode {
+	private final class CachedScalarUnconditionalNeverJmpExecutorNode extends AccelerationExecutorNode {
 
-		public CachedScalarUnconditionalNeverJmpExecutor(AccelerationExecutorNode nextNode) {
+		public CachedScalarUnconditionalNeverJmpExecutorNode(AccelerationExecutorNode nextNode) {
 			super(nextNode);
 		}
 

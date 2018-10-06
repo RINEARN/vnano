@@ -11,7 +11,7 @@ import org.vcssl.nano.memory.DataContainer;
 public class Float64CachedScalarArithmeticUnit extends AccelerationUnit {
 
 	@Override
-	public AccelerationExecutorNode generateExecutor(
+	public AccelerationExecutorNode generateExecutorNode(
 			AcceleratorInstruction instruction, DataContainer<?>[] operandContainers,
 			Object[] operandCaches, boolean[] operandCached, boolean[] operandScalar, boolean[] operandConstant,
 			AccelerationExecutorNode nextNode) {
@@ -22,26 +22,26 @@ public class Float64CachedScalarArithmeticUnit extends AccelerationUnit {
 				(Float64ScalarCache)operandCaches[2]
 		};
 
-		Float64CachedScalarArithmeticExecutor executor = null;
+		Float64CachedScalarArithmeticExecutorNode executor = null;
 		switch (instruction.getOperationCode()) {
 			case ADD : {
-				executor = new Float64CachedScalarAddExecutor(caches[0], caches[1], caches[2], nextNode);
+				executor = new Float64CachedScalarAddExecutorNode(caches[0], caches[1], caches[2], nextNode);
 				break;
 			}
 			case SUB : {
-				executor = new Float64CachedScalarSubExecutor(caches[0], caches[1], caches[2], nextNode);
+				executor = new Float64CachedScalarSubExecutorNode(caches[0], caches[1], caches[2], nextNode);
 				break;
 			}
 			case MUL : {
-				executor = new Float64CachedScalarMulExecutor(caches[0], caches[1], caches[2], nextNode);
+				executor = new Float64CachedScalarMulExecutorNode(caches[0], caches[1], caches[2], nextNode);
 				break;
 			}
 			case DIV : {
-				executor = new Float64CachedScalarDivExecutor(caches[0], caches[1], caches[2], nextNode);
+				executor = new Float64CachedScalarDivExecutorNode(caches[0], caches[1], caches[2], nextNode);
 				break;
 			}
 			case REM : {
-				executor = new Float64CachedScalarRemExecutor(caches[0], caches[1], caches[2], nextNode);
+				executor = new Float64CachedScalarRemExecutorNode(caches[0], caches[1], caches[2], nextNode);
 				break;
 			}
 			default : {
@@ -53,12 +53,12 @@ public class Float64CachedScalarArithmeticUnit extends AccelerationUnit {
 		return executor;
 	}
 
-	private abstract class Float64CachedScalarArithmeticExecutor extends AccelerationExecutorNode {
+	private abstract class Float64CachedScalarArithmeticExecutorNode extends AccelerationExecutorNode {
 		protected final Float64ScalarCache cache0;
 		protected final Float64ScalarCache cache1;
 		protected final Float64ScalarCache cache2;
 
-		public Float64CachedScalarArithmeticExecutor(Float64ScalarCache cache0, Float64ScalarCache cache1, Float64ScalarCache cache2,
+		public Float64CachedScalarArithmeticExecutorNode(Float64ScalarCache cache0, Float64ScalarCache cache1, Float64ScalarCache cache2,
 				AccelerationExecutorNode nextNode) {
 
 			super(nextNode);
@@ -68,8 +68,8 @@ public class Float64CachedScalarArithmeticUnit extends AccelerationUnit {
 		}
 	}
 
-	private final class Float64CachedScalarAddExecutor extends Float64CachedScalarArithmeticExecutor {
-		public Float64CachedScalarAddExecutor(Float64ScalarCache cache0, Float64ScalarCache cache1, Float64ScalarCache cache2,
+	private final class Float64CachedScalarAddExecutorNode extends Float64CachedScalarArithmeticExecutorNode {
+		public Float64CachedScalarAddExecutorNode(Float64ScalarCache cache0, Float64ScalarCache cache1, Float64ScalarCache cache2,
 				AccelerationExecutorNode nextNode) {
 			super(cache0, cache1, cache2, nextNode);
 		}
@@ -80,8 +80,8 @@ public class Float64CachedScalarArithmeticUnit extends AccelerationUnit {
 	}
 
 
-	private final class Float64CachedScalarSubExecutor extends Float64CachedScalarArithmeticExecutor {
-		public Float64CachedScalarSubExecutor(Float64ScalarCache cache0, Float64ScalarCache cache1, Float64ScalarCache cache2,
+	private final class Float64CachedScalarSubExecutorNode extends Float64CachedScalarArithmeticExecutorNode {
+		public Float64CachedScalarSubExecutorNode(Float64ScalarCache cache0, Float64ScalarCache cache1, Float64ScalarCache cache2,
 				AccelerationExecutorNode nextNode) {
 			super(cache0, cache1, cache2, nextNode);
 		}
@@ -91,8 +91,8 @@ public class Float64CachedScalarArithmeticUnit extends AccelerationUnit {
 		}
 	}
 
-	private final class Float64CachedScalarMulExecutor extends Float64CachedScalarArithmeticExecutor {
-		public Float64CachedScalarMulExecutor(Float64ScalarCache cache0, Float64ScalarCache cache1, Float64ScalarCache cache2,
+	private final class Float64CachedScalarMulExecutorNode extends Float64CachedScalarArithmeticExecutorNode {
+		public Float64CachedScalarMulExecutorNode(Float64ScalarCache cache0, Float64ScalarCache cache1, Float64ScalarCache cache2,
 				AccelerationExecutorNode nextNode) {
 			super(cache0, cache1, cache2, nextNode);
 		}
@@ -102,8 +102,8 @@ public class Float64CachedScalarArithmeticUnit extends AccelerationUnit {
 		}
 	}
 
-	private final class Float64CachedScalarDivExecutor extends Float64CachedScalarArithmeticExecutor {
-		public Float64CachedScalarDivExecutor(Float64ScalarCache cache0, Float64ScalarCache cache1, Float64ScalarCache cache2,
+	private final class Float64CachedScalarDivExecutorNode extends Float64CachedScalarArithmeticExecutorNode {
+		public Float64CachedScalarDivExecutorNode(Float64ScalarCache cache0, Float64ScalarCache cache1, Float64ScalarCache cache2,
 				AccelerationExecutorNode nextNode) {
 			super(cache0, cache1, cache2, nextNode);
 		}
@@ -113,8 +113,8 @@ public class Float64CachedScalarArithmeticUnit extends AccelerationUnit {
 		}
 	}
 
-	private final class Float64CachedScalarRemExecutor extends Float64CachedScalarArithmeticExecutor {
-		public Float64CachedScalarRemExecutor(Float64ScalarCache cache0, Float64ScalarCache cache1, Float64ScalarCache cache2,
+	private final class Float64CachedScalarRemExecutorNode extends Float64CachedScalarArithmeticExecutorNode {
+		public Float64CachedScalarRemExecutorNode(Float64ScalarCache cache0, Float64ScalarCache cache1, Float64ScalarCache cache2,
 				AccelerationExecutorNode nextNode) {
 			super(cache0, cache1, cache2, nextNode);
 		}

@@ -11,7 +11,7 @@ import org.vcssl.nano.memory.DataContainer;
 public class Int64CachedScalarArithmeticUnit extends AccelerationUnit {
 
 	@Override
-	public AccelerationExecutorNode generateExecutor(
+	public AccelerationExecutorNode generateExecutorNode(
 			AcceleratorInstruction instruction, DataContainer<?>[] operandContainers,
 			Object[] operandCaches, boolean[] operandCached, boolean[] operandScalar, boolean[] operandConstant,
 			AccelerationExecutorNode nextNode) {
@@ -22,7 +22,7 @@ public class Int64CachedScalarArithmeticUnit extends AccelerationUnit {
 				(Int64ScalarCache)operandCaches[2]
 		};
 
-		Int64CachedScalarArithmeticExecutor executor = null;
+		Int64CachedScalarArithmeticExecutorNode executor = null;
 		switch (instruction.getOperationCode()) {
 			case ADD : {
 
@@ -86,12 +86,12 @@ public class Int64CachedScalarArithmeticUnit extends AccelerationUnit {
 		return executor;
 	}
 
-	private abstract class Int64CachedScalarArithmeticExecutor extends AccelerationExecutorNode {
+	private abstract class Int64CachedScalarArithmeticExecutorNode extends AccelerationExecutorNode {
 		protected final Int64ScalarCache cache0;
 		protected final Int64ScalarCache cache1;
 		protected final Int64ScalarCache cache2;
 
-		public Int64CachedScalarArithmeticExecutor(Int64ScalarCache cache0, Int64ScalarCache cache1, Int64ScalarCache cache2,
+		public Int64CachedScalarArithmeticExecutorNode(Int64ScalarCache cache0, Int64ScalarCache cache1, Int64ScalarCache cache2,
 				AccelerationExecutorNode nextNode) {
 
 			super(nextNode);
@@ -99,7 +99,7 @@ public class Int64CachedScalarArithmeticUnit extends AccelerationUnit {
 			this.cache1 = cache1;
 			this.cache2 = cache2;
 		}
-		public Int64CachedScalarArithmeticExecutor(Int64ScalarCache cache0,
+		public Int64CachedScalarArithmeticExecutorNode(Int64ScalarCache cache0,
 				AccelerationExecutorNode nextNode) {
 
 			super(nextNode);
@@ -109,7 +109,7 @@ public class Int64CachedScalarArithmeticUnit extends AccelerationUnit {
 		}
 	}
 
-	private final class Int64CachedScalarAddUnit extends Int64CachedScalarArithmeticExecutor {
+	private final class Int64CachedScalarAddUnit extends Int64CachedScalarArithmeticExecutorNode {
 		public Int64CachedScalarAddUnit(Int64ScalarCache cache0, Int64ScalarCache cache1, Int64ScalarCache cache2,
 				AccelerationExecutorNode nextNode) {
 			super(cache0, cache1, cache2, nextNode);
@@ -120,7 +120,7 @@ public class Int64CachedScalarArithmeticUnit extends AccelerationUnit {
 		}
 	}
 
-	private final class Int64CachedScalarSubUnit extends Int64CachedScalarArithmeticExecutor {
+	private final class Int64CachedScalarSubUnit extends Int64CachedScalarArithmeticExecutorNode {
 		public Int64CachedScalarSubUnit(Int64ScalarCache cache0, Int64ScalarCache cache1, Int64ScalarCache cache2,
 				AccelerationExecutorNode nextNode) {
 			super(cache0, cache1, cache2, nextNode);
@@ -131,7 +131,7 @@ public class Int64CachedScalarArithmeticUnit extends AccelerationUnit {
 		}
 	}
 
-	private final class Int64CachedScalarMulUnit extends Int64CachedScalarArithmeticExecutor {
+	private final class Int64CachedScalarMulUnit extends Int64CachedScalarArithmeticExecutorNode {
 		public Int64CachedScalarMulUnit(Int64ScalarCache cache0, Int64ScalarCache cache1, Int64ScalarCache cache2,
 				AccelerationExecutorNode nextNode) {
 			super(cache0, cache1, cache2, nextNode);
@@ -142,7 +142,7 @@ public class Int64CachedScalarArithmeticUnit extends AccelerationUnit {
 		}
 	}
 
-	private final class Int64CachedScalarDivUnit extends Int64CachedScalarArithmeticExecutor {
+	private final class Int64CachedScalarDivUnit extends Int64CachedScalarArithmeticExecutorNode {
 		public Int64CachedScalarDivUnit(Int64ScalarCache cache0, Int64ScalarCache cache1, Int64ScalarCache cache2,
 				AccelerationExecutorNode nextNode) {
 			super(cache0, cache1, cache2, nextNode);
@@ -153,7 +153,7 @@ public class Int64CachedScalarArithmeticUnit extends AccelerationUnit {
 		}
 	}
 
-	private final class Int64CachedScalarRemUnit extends Int64CachedScalarArithmeticExecutor {
+	private final class Int64CachedScalarRemUnit extends Int64CachedScalarArithmeticExecutorNode {
 		public Int64CachedScalarRemUnit(Int64ScalarCache cache0, Int64ScalarCache cache1, Int64ScalarCache cache2,
 				AccelerationExecutorNode nextNode) {
 			super(cache0, cache1, cache2, nextNode);
@@ -164,7 +164,7 @@ public class Int64CachedScalarArithmeticUnit extends AccelerationUnit {
 		}
 	}
 
-	private final class Int64CachedScalarIncrementUnit extends Int64CachedScalarArithmeticExecutor {
+	private final class Int64CachedScalarIncrementUnit extends Int64CachedScalarArithmeticExecutorNode {
 		public Int64CachedScalarIncrementUnit(Int64ScalarCache cache0, AccelerationExecutorNode nextNode) {
 			super(cache0, nextNode);
 		}
@@ -174,7 +174,7 @@ public class Int64CachedScalarArithmeticUnit extends AccelerationUnit {
 		}
 	}
 
-	private final class Int64CachedScalarDecrementUnit extends Int64CachedScalarArithmeticExecutor {
+	private final class Int64CachedScalarDecrementUnit extends Int64CachedScalarArithmeticExecutorNode {
 		public Int64CachedScalarDecrementUnit(Int64ScalarCache cache0, AccelerationExecutorNode nextNode) {
 			super(cache0, nextNode);
 		}
@@ -184,7 +184,7 @@ public class Int64CachedScalarArithmeticUnit extends AccelerationUnit {
 		}
 	}
 
-	private final class Int64CachedScalarConstantAddUnit extends Int64CachedScalarArithmeticExecutor {
+	private final class Int64CachedScalarConstantAddUnit extends Int64CachedScalarArithmeticExecutorNode {
 		private final long diff;
 		public Int64CachedScalarConstantAddUnit(Int64ScalarCache cache0, long diff, AccelerationExecutorNode nextNode) {
 			super(cache0, nextNode);
@@ -196,7 +196,7 @@ public class Int64CachedScalarArithmeticUnit extends AccelerationUnit {
 		}
 	}
 
-	private final class Int64CachedScalarConstantSubUnit extends Int64CachedScalarArithmeticExecutor {
+	private final class Int64CachedScalarConstantSubUnit extends Int64CachedScalarArithmeticExecutorNode {
 		private final long diff;
 		public Int64CachedScalarConstantSubUnit(Int64ScalarCache cache0, long diff, AccelerationExecutorNode nextNode) {
 			super(cache0, nextNode);

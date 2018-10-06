@@ -125,10 +125,11 @@ public class AccelerationScheduler {
 			int writingRegisterAddress = instruction.getOperandAddresses()[0];
 			this.registerWrittenPointCount[writingRegisterAddress]++;
 		}
-
+		/*
 		for (int i=0; i<registerLength; i++) {
 			System.out.println("Written Count of R" + i + " = " + this.registerWrittenPointCount[i]);
 		}
+		*/
 	}
 
 
@@ -185,10 +186,11 @@ public class AccelerationScheduler {
 				}
 			}
 		}
-
+		/*
 		for (int i=0; i<registerLength; i++) {
 			System.out.println("Read Count of R" + i + " = " + this.registerReadPointCount[i]);
 		}
+		*/
 	}
 
 

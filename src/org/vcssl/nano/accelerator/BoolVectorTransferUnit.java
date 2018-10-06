@@ -15,7 +15,7 @@ public class BoolVectorTransferUnit extends AccelerationUnit {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public AccelerationExecutorNode generateExecutor(
+	public AccelerationExecutorNode generateExecutorNode(
 			AcceleratorInstruction instruction, DataContainer<?>[] operandContainers,
 			Object[] operandCaches, boolean[] operandCached, boolean[] operandScalar, boolean[] operandConstant,
 			AccelerationExecutorNode nextNode) {
@@ -25,7 +25,7 @@ public class BoolVectorTransferUnit extends AccelerationUnit {
 			case MOV : {
 				Boolx2ScalarCacheSynchronizer synchronizer
 						= new Boolx2ScalarCacheSynchronizer(operandContainers, operandCaches, operandCached);
-				executor = new BoolVectorMovExecutor(
+				executor = new BoolVectorMovExecutorNode(
 						(DataContainer<boolean[]>)operandContainers[0], (DataContainer<boolean[]>)operandContainers[1],
 						synchronizer, nextNode);
 				break;
@@ -34,7 +34,7 @@ public class BoolVectorTransferUnit extends AccelerationUnit {
 				if (instruction.getDataTypes()[1] == DataType.BOOL) {
 					Boolx2ScalarCacheSynchronizer synchronizer
 							= new Boolx2ScalarCacheSynchronizer(operandContainers, operandCaches, operandCached);
-					executor = new BoolVectorMovExecutor(
+					executor = new BoolVectorMovExecutorNode(
 							(DataContainer<boolean[]>)operandContainers[0], (DataContainer<boolean[]>)operandContainers[1],
 							synchronizer, nextNode);
 				} else {
@@ -48,7 +48,7 @@ public class BoolVectorTransferUnit extends AccelerationUnit {
 			case FILL : {
 				Boolx2ScalarCacheSynchronizer synchronizer
 						= new Boolx2ScalarCacheSynchronizer(operandContainers, operandCaches, operandCached);
-				executor = new BoolVectorFillExecutor(
+				executor = new BoolVectorFillExecutorNode(
 						(DataContainer<boolean[]>)operandContainers[0], (DataContainer<boolean[]>)operandContainers[1],
 						synchronizer, nextNode);
 				break;
@@ -62,12 +62,12 @@ public class BoolVectorTransferUnit extends AccelerationUnit {
 		return executor;
 	}
 
-	private final class BoolVectorMovExecutor extends AccelerationExecutorNode {
+	private final class BoolVectorMovExecutorNode extends AccelerationExecutorNode {
 		protected final DataContainer<boolean[]> container0;
 		protected final DataContainer<boolean[]> container1;
 		protected final Boolx2ScalarCacheSynchronizer synchronizer;
 
-		public BoolVectorMovExecutor(
+		public BoolVectorMovExecutorNode(
 				DataContainer<boolean[]> container0, DataContainer<boolean[]> container1,
 				Boolx2ScalarCacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
 
@@ -90,12 +90,12 @@ public class BoolVectorTransferUnit extends AccelerationUnit {
 		}
 	}
 
-	private final class BoolVectorFillExecutor extends AccelerationExecutorNode {
+	private final class BoolVectorFillExecutorNode extends AccelerationExecutorNode {
 		protected final DataContainer<boolean[]> container0;
 		protected final DataContainer<boolean[]> container1;
 		protected final Boolx2ScalarCacheSynchronizer synchronizer;
 
-		public BoolVectorFillExecutor(
+		public BoolVectorFillExecutorNode(
 				DataContainer<boolean[]> container0, DataContainer<boolean[]> container1,
 				Boolx2ScalarCacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
 

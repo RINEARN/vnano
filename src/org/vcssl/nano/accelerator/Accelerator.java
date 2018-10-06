@@ -7,13 +7,9 @@ package org.vcssl.nano.accelerator;
 
 
 import org.vcssl.nano.interconnect.Interconnect;
-import org.vcssl.nano.lang.DataType;
-import org.vcssl.nano.memory.DataContainer;
-import org.vcssl.nano.memory.DataException;
 import org.vcssl.nano.memory.MemoryAccessException;
 import org.vcssl.nano.processor.Instruction;
 import org.vcssl.nano.processor.InvalidInstructionException;
-import org.vcssl.nano.processor.OperationCode;
 import org.vcssl.nano.processor.Processor;
 import org.vcssl.nano.memory.Memory;
 
@@ -75,24 +71,24 @@ public class Accelerator {
 		AccelerationDataManager dataManager = new AccelerationDataManager();
 		dataManager.allocate(instructions, memory);
 
-
+		/*
 		System.out.println("===== INPUT INSTRUCTIONS =====");
 		for (int i=0; i<instructions.length; i++) {
 			System.out.println("[" + i + "]\t" + instructions[i]);
 		}
-
+		*/
 
 		// 命令スケジューラで命令列を高速化用に再配置・変換
 		AccelerationScheduler scheduler = new AccelerationScheduler();
 		AcceleratorInstruction[] acceleratorInstructions = scheduler.schedule(instructions, memory, dataManager);
 
-
+		/*
 		System.out.println("===== SCHEDULED INSTRUCTIONS =====");
 		for (int i=0; i<acceleratorInstructions.length; i++) {
 			AcceleratorInstruction instruction = acceleratorInstructions[i];
 			System.out.println("[" + instruction.getReorderedAddress() + "(" + instruction.getUnreorderedAddress() + ")" + "]\t" + instruction);
 		}
-
+		*/
 
 		// 命令列を演算器に割り当てて演算実行ノード列を生成
 		AccelerationDispatcher dispatcher = new AccelerationDispatcher();
