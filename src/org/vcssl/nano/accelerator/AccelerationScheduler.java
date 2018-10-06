@@ -126,9 +126,9 @@ public class AccelerationScheduler {
 			this.registerWrittenPointCount[writingRegisterAddress]++;
 		}
 
-		//for (int i=0; i<registerLength; i++) {
-		//	System.out.println("Written Count of R" + i + " = " + this.registerWrittenPointCount[i]);
-		//}
+		for (int i=0; i<registerLength; i++) {
+			System.out.println("Written Count of R" + i + " = " + this.registerWrittenPointCount[i]);
+		}
 	}
 
 
@@ -186,9 +186,9 @@ public class AccelerationScheduler {
 			}
 		}
 
-		//for (int i=0; i<registerLength; i++) {
-		//	System.out.println("Read Count of R" + i + " = " + this.registerReadPointCount[i]);
-		//}
+		for (int i=0; i<registerLength; i++) {
+			System.out.println("Read Count of R" + i + " = " + this.registerReadPointCount[i]);
+		}
 	}
 
 
@@ -655,8 +655,8 @@ public class AccelerationScheduler {
 				continue;
 			}
 
-			// 対象命令の書き込み先（0番オペランド）が出ジスタでない場合はスキップ
-			if (currentInstruction.getOperandPartitions()[1] != Memory.Partition.REGISTER) {
+			// 対象命令の書き込み先（0番オペランド）がジスタでない場合はスキップ
+			if (currentInstruction.getOperandPartitions()[0] != Memory.Partition.REGISTER) {
 				continue;
 			}
 
@@ -676,6 +676,11 @@ public class AccelerationScheduler {
 			// 次のMOV命令でのコピー元レジスタを取得
 			int movingRegisterAddress = nextInstruction.getOperandAddresses()[1];
 
+			boolean dbg = false;
+			if (movingRegisterAddress == 38) {
+				dbg = true;
+			}
+
 			// 書き込み先レジスタと次命令でのコピー元レジスタが異なる場合はスキップ
 			if (writingRegisterAddress != movingRegisterAddress) {
 				continue;
@@ -683,7 +688,7 @@ public class AccelerationScheduler {
 
 			// そのレジスタに書き込む & 読み込む箇所がそこだけ（それぞれ1箇所だけ）でない場合はスキップ
 			if (this.registerWrittenPointCount[writingRegisterAddress] != 1
-					|| this.registerReadPointCount[writingRegisterAddress] != 1) {
+					&& this.registerReadPointCount[writingRegisterAddress] != 1) {
 
 				continue;
 			}
