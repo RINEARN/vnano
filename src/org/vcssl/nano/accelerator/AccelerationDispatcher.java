@@ -91,7 +91,7 @@ public class AccelerationDispatcher {
 
 
 			// エラー発生時に原因命令を辿れるように、ノードに元の命令を格納
-			executors[instructionIndex].setSourceInstruction(instruction);
+			currentNode.setSourceInstruction(instruction);
 
 			// 生成したノードをノード列に格納
 			executors[instructionIndex] = currentNode;
