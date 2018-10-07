@@ -43,6 +43,7 @@
 ./org/vcssl/nano/accelerator/Float64ScalarTransferUnit.java
 ./org/vcssl/nano/accelerator/Float64VectorArithmeticUnit.java
 ./org/vcssl/nano/accelerator/Float64VectorComparisonUnit.java
+./org/vcssl/nano/accelerator/Float64VectorDualArithmeticUnit.java
 ./org/vcssl/nano/accelerator/Float64VectorTransferUnit.java
 ./org/vcssl/nano/accelerator/Float64x1Int64x1ScalarCacheSynchronizer.java
 ./org/vcssl/nano/accelerator/Float64x2ScalarCacheSynchronizer.java
@@ -58,6 +59,7 @@
 ./org/vcssl/nano/accelerator/Int64ScalarTransferUnit.java
 ./org/vcssl/nano/accelerator/Int64VectorArithmeticUnit.java
 ./org/vcssl/nano/accelerator/Int64VectorComparisonUnit.java
+./org/vcssl/nano/accelerator/Int64VectorDualArithmeticUnit.java
 ./org/vcssl/nano/accelerator/Int64VectorTransferUnit.java
 ./org/vcssl/nano/accelerator/Int64x1Float64x1ScalarCacheSynchronizer.java
 ./org/vcssl/nano/accelerator/Int64x2ScalarCacheSynchronizer.java
