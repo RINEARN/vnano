@@ -11,6 +11,9 @@ public enum AccelerationType {
 	F64S_ARITHMETIC,    // Float64ScalarArithmetic
 	F64CS_ARITHMETIC,   // Float64CachedScalarArithmetic
 
+	I64V_DUAL_ARITHMETIC, // Int64VectorDualFusedArithmetic
+	F64V_DUAL_ARITHMETIC, // Float64VectorDualFusedArithmetic
+
 	I64CS_DUAL_ARITHMETIC, // Int64CachedScalarDualFusedArithmetic
 	F64CS_DUAL_ARITHMETIC, // Float64CachedScalarDualFusedArithmetic
 
