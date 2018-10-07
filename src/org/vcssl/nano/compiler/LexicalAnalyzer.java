@@ -22,7 +22,7 @@ import org.vcssl.nano.spec.ScriptWord;
  * スクリプトコード（文字列）に対して字句解析処理を行い、
  * {@link Token Token} （トークン、字句）の配列へと変換する、字句解析器のクラスです。
  * </p>
- * 
+ *
  * <p>
  * なお、このクラスの字句解析処理の実装は、現時点では簡易的なものであり、
  * 演算子等において、2文字シンボルの1文字目も必ずシンボルとなるように字句が設定されている事を前提として、
@@ -52,9 +52,22 @@ public class LexicalAnalyzer {
 	 */
 	public Token[] analyze(String sourceCode, String fileName) {
 
-		Token[] tokens = this.tokenize(sourceCode, fileName);
+		// 最初に、コード内の文字列リテラルを全て "1", "2", ... などのように番号化リテラルで置き換える
+		String[] stringLiteralExtractResult = LiteralSyntax.extractStringLiterals(sourceCode);
+
+		// 戻り値の [0] に置き換え済みコードが、[1] 以降に番号に対応する文字列リテラルが格納されている
+		String stringLiteralReplacedCode = stringLiteralExtractResult[0];
+
+		// 置き換え済みコードを字句解析し、トークン配列を生成
+		Token[] tokens = this.tokenize(stringLiteralReplacedCode, fileName);
+
+		// トークン配列の内容を追加で解析し、トークンタイプや演算子優先度などの情報を付加
 		this.analyzeTokenType(tokens);
 		this.analyzePriority(tokens);
+
+		// トークン配列が保持する文字列リテラルを復元する
+		this.embedStringLiterals(tokens, stringLiteralExtractResult);
+
 		return tokens;
 	}
 
@@ -133,7 +146,7 @@ public class LexicalAnalyzer {
 	/**
 	 * トークン配列を解析し、各要素にトークンタイプを設定します。
 	 *
-	 * @param tokens 解析・設定対象のトークン配列
+	 * @param tokens 解析・設定対象のトークン配列（情報が追加されます）
 	 */
 	private void analyzeTokenType(Token[] tokens) {
 
@@ -505,4 +518,40 @@ public class LexicalAnalyzer {
 		}
 	}
 
+
+	/**
+	 * トークン配列内の文字列トークンが保持する、前処理で番号化された文字列リテラル（"1", "2", ... 等）を、
+	 * 本来の文字列リテラルで置き換えます。
+	 *
+	 * 番号化された文字列リテラルの番号をインデックスとする配列要素に、
+	 * 本来の文字列リテラルを格納している配列を、引数 stringLiteralExtractResult に指定してください。
+	 *
+	 * なお、番号リテラルの番号は、トークン配列内で、
+	 * 登場順に1番から1ずつ増えていく昇順で割りふられている必要があります。
+	 *
+	 * @param tokens 処理対象のトークン配列（内容が変更されます）
+	 * @param stringLiteralExtractResult 番号化された文字列リテラルの番号
+	 */
+	private void embedStringLiterals(Token[] tokens, String[] stringLiteralExtractResult) {
+		int tokenLength = tokens.length;
+
+		// トークンを先頭要素から順に見ていく
+		for (int tokenIndex=0; tokenIndex<tokenLength; tokenIndex++) {
+			Token token = tokens[tokenIndex];
+
+			// 文字列リテラルトークンの場合
+			if (token.getType() == Token.Type.LEAF
+					&& token.getAttribute(AttributeKey.LEAF_TYPE).equals(AttributeValue.LITERAL)) {
+
+				// トークンの値を取得（"1", "2" などのように番号化されたリテラルになっている）
+				String numberedLiteral = tokens[tokenIndex].getValue();
+
+				// 元のリテラル値が stringLiteralExtractResult 配列に格納されているインデックスを取得（番号化リテラルの番号）
+				int index = LiteralSyntax.getIndexOfNumberedStringLiteral(numberedLiteral);
+
+				// 番号化リテラルを、本来の文字列リテラルで置き換える
+				token.setValue(stringLiteralExtractResult[index]);
+			}
+		}
+	}
 }
