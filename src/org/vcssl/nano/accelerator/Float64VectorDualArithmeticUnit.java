@@ -39,31 +39,31 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 
 
 	private Float64VectorDualArithmeticExecutorNode generateLeftInputExecutorNode(
-			OperationCode[] fusedOpcodes, DataContainer<double[]>[] containers, Float64x3ScalarCacheSynchronizer synchronizer,
-			AccelerationExecutorNode nextNode) {
+			OperationCode[] fusedOpcodes, DataContainer<double[]>[] containers,
+			Float64x3ScalarCacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
 
 		Float64VectorDualArithmeticExecutorNode executor = null;
 		switch (fusedOpcodes[0]) {
 			case ADD : {
 				switch (fusedOpcodes[1]) {
 					case ADD : {
-						executor = new Float64VectorAddAddLeftInputExecutorNode(containers, synchronizer, nextNode);
+						executor = new Float64VectorAddAddLeftInputExecutorNode(containers,synchronizer,nextNode);
 						break;
 					}
 					case SUB : {
-						executor = new Float64VectorAddSubLeftInputExecutorNode(containers, synchronizer, nextNode);
+						executor = new Float64VectorAddSubLeftInputExecutorNode(containers,synchronizer,nextNode);
 						break;
 					}
 					case MUL : {
-						executor = new Float64VectorAddMulLeftInputExecutorNode(containers, synchronizer, nextNode);
+						executor = new Float64VectorAddMulLeftInputExecutorNode(containers,synchronizer,nextNode);
 						break;
 					}
 					case DIV : {
-						executor = new Float64VectorAddDivLeftInputExecutorNode(containers, synchronizer, nextNode);
+						executor = new Float64VectorAddDivLeftInputExecutorNode(containers,synchronizer,nextNode);
 						break;
 					}
 					case REM : {
-						executor = new Float64VectorAddRemLeftInputExecutorNode(containers, synchronizer, nextNode);
+						executor = new Float64VectorAddRemLeftInputExecutorNode(containers,synchronizer,nextNode);
 						break;
 					}
 					default : {
@@ -78,23 +78,23 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 			case SUB : {
 				switch (fusedOpcodes[1]) {
 					case ADD : {
-						executor = new Float64VectorSubAddLeftInputExecutorNode(containers, synchronizer, nextNode);
+						executor = new Float64VectorSubAddLeftInputExecutorNode(containers,synchronizer,nextNode);
 						break;
 					}
 					case SUB : {
-						executor = new Float64VectorSubSubLeftInputExecutorNode(containers, synchronizer, nextNode);
+						executor = new Float64VectorSubSubLeftInputExecutorNode(containers,synchronizer,nextNode);
 						break;
 					}
 					case MUL : {
-						executor = new Float64VectorSubMulLeftInputExecutorNode(containers, synchronizer, nextNode);
+						executor = new Float64VectorSubMulLeftInputExecutorNode(containers,synchronizer,nextNode);
 						break;
 					}
 					case DIV : {
-						executor = new Float64VectorSubDivLeftInputExecutorNode(containers, synchronizer, nextNode);
+						executor = new Float64VectorSubDivLeftInputExecutorNode(containers,synchronizer,nextNode);
 						break;
 					}
 					case REM : {
-						executor = new Float64VectorSubRemLeftInputExecutorNode(containers, synchronizer, nextNode);
+						executor = new Float64VectorSubRemLeftInputExecutorNode(containers,synchronizer,nextNode);
 						break;
 					}
 					default : {
@@ -109,23 +109,23 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 			case MUL : {
 				switch (fusedOpcodes[1]) {
 					case ADD : {
-						executor = new Float64VectorMulAddLeftInputExecutorNode(containers, synchronizer, nextNode);
+						executor = new Float64VectorMulAddLeftInputExecutorNode(containers,synchronizer,nextNode);
 						break;
 					}
 					case SUB : {
-						executor = new Float64VectorMulSubLeftInputExecutorNode(containers, synchronizer, nextNode);
+						executor = new Float64VectorMulSubLeftInputExecutorNode(containers,synchronizer,nextNode);
 						break;
 					}
 					case MUL : {
-						executor = new Float64VectorMulMulLeftInputExecutorNode(containers, synchronizer, nextNode);
+						executor = new Float64VectorMulMulLeftInputExecutorNode(containers,synchronizer,nextNode);
 						break;
 					}
 					case DIV : {
-						executor = new Float64VectorMulDivLeftInputExecutorNode(containers, synchronizer, nextNode);
+						executor = new Float64VectorMulDivLeftInputExecutorNode(containers,synchronizer,nextNode);
 						break;
 					}
 					case REM : {
-						executor = new Float64VectorMulRemLeftInputExecutorNode(containers, synchronizer, nextNode);
+						executor = new Float64VectorMulRemLeftInputExecutorNode(containers,synchronizer,nextNode);
 						break;
 					}
 					default : {
@@ -140,23 +140,23 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 			case DIV : {
 				switch (fusedOpcodes[1]) {
 					case ADD : {
-						executor = new Float64VectorDivAddLeftInputExecutorNode(containers, synchronizer, nextNode);
+						executor = new Float64VectorDivAddLeftInputExecutorNode(containers,synchronizer,nextNode);
 						break;
 					}
 					case SUB : {
-						executor = new Float64VectorDivSubLeftInputExecutorNode(containers, synchronizer, nextNode);
+						executor = new Float64VectorDivSubLeftInputExecutorNode(containers,synchronizer,nextNode);
 						break;
 					}
 					case MUL : {
-						executor = new Float64VectorDivMulLeftInputExecutorNode(containers, synchronizer, nextNode);
+						executor = new Float64VectorDivMulLeftInputExecutorNode(containers,synchronizer,nextNode);
 						break;
 					}
 					case DIV : {
-						executor = new Float64VectorDivDivLeftInputExecutorNode(containers, synchronizer, nextNode);
+						executor = new Float64VectorDivDivLeftInputExecutorNode(containers,synchronizer,nextNode);
 						break;
 					}
 					case REM : {
-						executor = new Float64VectorDivRemLeftInputExecutorNode(containers, synchronizer, nextNode);
+						executor = new Float64VectorDivRemLeftInputExecutorNode(containers,synchronizer,nextNode);
 						break;
 					}
 					default : {
@@ -171,23 +171,23 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 			case REM : {
 				switch (fusedOpcodes[1]) {
 					case ADD : {
-						executor = new Float64VectorRemAddLeftInputExecutorNode(containers, synchronizer, nextNode);
+						executor = new Float64VectorRemAddLeftInputExecutorNode(containers,synchronizer,nextNode);
 						break;
 					}
 					case SUB : {
-						executor = new Float64VectorRemSubLeftInputExecutorNode(containers, synchronizer, nextNode);
+						executor = new Float64VectorRemSubLeftInputExecutorNode(containers,synchronizer,nextNode);
 						break;
 					}
 					case MUL : {
-						executor = new Float64VectorRemMulLeftInputExecutorNode(containers, synchronizer, nextNode);
+						executor = new Float64VectorRemMulLeftInputExecutorNode(containers,synchronizer,nextNode);
 						break;
 					}
 					case DIV : {
-						executor = new Float64VectorRemDivLeftInputExecutorNode(containers, synchronizer, nextNode);
+						executor = new Float64VectorRemDivLeftInputExecutorNode(containers,synchronizer,nextNode);
 						break;
 					}
 					case REM : {
-						executor = new Float64VectorRemRemLeftInputExecutorNode(containers, synchronizer, nextNode);
+						executor = new Float64VectorRemRemLeftInputExecutorNode(containers,synchronizer,nextNode);
 						break;
 					}
 					default : {
@@ -211,31 +211,31 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 
 
 	private Float64VectorDualArithmeticExecutorNode generateRightInputExecutorNode(
-			OperationCode[] fusedOpcodes, DataContainer<double[]>[] containers, Float64x3ScalarCacheSynchronizer synchronizer,
-			AccelerationExecutorNode nextNode) {
+			OperationCode[] fusedOpcodes, DataContainer<double[]>[] containers,
+			Float64x3ScalarCacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
 
 		Float64VectorDualArithmeticExecutorNode executor = null;
 		switch (fusedOpcodes[0]) {
 			case ADD : {
 				switch (fusedOpcodes[1]) {
 					case ADD : {
-						executor = new Float64VectorAddAddRightInputExecutorNode(containers, synchronizer, nextNode);
+						executor = new Float64VectorAddAddRightInputExecutorNode(containers,synchronizer,nextNode);
 						break;
 					}
 					case SUB : {
-						executor = new Float64VectorAddSubRightInputExecutorNode(containers, synchronizer, nextNode);
+						executor = new Float64VectorAddSubRightInputExecutorNode(containers,synchronizer,nextNode);
 						break;
 					}
 					case MUL : {
-						executor = new Float64VectorAddMulRightInputExecutorNode(containers, synchronizer, nextNode);
+						executor = new Float64VectorAddMulRightInputExecutorNode(containers,synchronizer,nextNode);
 						break;
 					}
 					case DIV : {
-						executor = new Float64VectorAddDivRightInputExecutorNode(containers, synchronizer, nextNode);
+						executor = new Float64VectorAddDivRightInputExecutorNode(containers,synchronizer,nextNode);
 						break;
 					}
 					case REM : {
-						executor = new Float64VectorAddRemRightInputExecutorNode(containers, synchronizer, nextNode);
+						executor = new Float64VectorAddRemRightInputExecutorNode(containers,synchronizer,nextNode);
 						break;
 					}
 					default : {
@@ -250,23 +250,23 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 			case SUB : {
 				switch (fusedOpcodes[1]) {
 					case ADD : {
-						executor = new Float64VectorSubAddRightInputExecutorNode(containers, synchronizer, nextNode);
+						executor = new Float64VectorSubAddRightInputExecutorNode(containers,synchronizer,nextNode);
 						break;
 					}
 					case SUB : {
-						executor = new Float64VectorSubSubRightInputExecutorNode(containers, synchronizer, nextNode);
+						executor = new Float64VectorSubSubRightInputExecutorNode(containers,synchronizer,nextNode);
 						break;
 					}
 					case MUL : {
-						executor = new Float64VectorSubMulRightInputExecutorNode(containers, synchronizer, nextNode);
+						executor = new Float64VectorSubMulRightInputExecutorNode(containers,synchronizer,nextNode);
 						break;
 					}
 					case DIV : {
-						executor = new Float64VectorSubDivRightInputExecutorNode(containers, synchronizer, nextNode);
+						executor = new Float64VectorSubDivRightInputExecutorNode(containers,synchronizer,nextNode);
 						break;
 					}
 					case REM : {
-						executor = new Float64VectorSubRemRightInputExecutorNode(containers, synchronizer, nextNode);
+						executor = new Float64VectorSubRemRightInputExecutorNode(containers,synchronizer,nextNode);
 						break;
 					}
 					default : {
@@ -281,23 +281,23 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 			case MUL : {
 				switch (fusedOpcodes[1]) {
 					case ADD : {
-						executor = new Float64VectorMulAddRightInputExecutorNode(containers, synchronizer, nextNode);
+						executor = new Float64VectorMulAddRightInputExecutorNode(containers,synchronizer,nextNode);
 						break;
 					}
 					case SUB : {
-						executor = new Float64VectorMulSubRightInputExecutorNode(containers, synchronizer, nextNode);
+						executor = new Float64VectorMulSubRightInputExecutorNode(containers,synchronizer,nextNode);
 						break;
 					}
 					case MUL : {
-						executor = new Float64VectorMulMulRightInputExecutorNode(containers, synchronizer, nextNode);
+						executor = new Float64VectorMulMulRightInputExecutorNode(containers,synchronizer,nextNode);
 						break;
 					}
 					case DIV : {
-						executor = new Float64VectorMulDivRightInputExecutorNode(containers, synchronizer, nextNode);
+						executor = new Float64VectorMulDivRightInputExecutorNode(containers,synchronizer,nextNode);
 						break;
 					}
 					case REM : {
-						executor = new Float64VectorMulRemRightInputExecutorNode(containers, synchronizer, nextNode);
+						executor = new Float64VectorMulRemRightInputExecutorNode(containers,synchronizer,nextNode);
 						break;
 					}
 					default : {
@@ -312,23 +312,23 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 			case DIV : {
 				switch (fusedOpcodes[1]) {
 					case ADD : {
-						executor = new Float64VectorDivAddRightInputExecutorNode(containers, synchronizer, nextNode);
+						executor = new Float64VectorDivAddRightInputExecutorNode(containers,synchronizer,nextNode);
 						break;
 					}
 					case SUB : {
-						executor = new Float64VectorDivSubRightInputExecutorNode(containers, synchronizer, nextNode);
+						executor = new Float64VectorDivSubRightInputExecutorNode(containers,synchronizer,nextNode);
 						break;
 					}
 					case MUL : {
-						executor = new Float64VectorDivMulRightInputExecutorNode(containers, synchronizer, nextNode);
+						executor = new Float64VectorDivMulRightInputExecutorNode(containers,synchronizer,nextNode);
 						break;
 					}
 					case DIV : {
-						executor = new Float64VectorDivDivRightInputExecutorNode(containers, synchronizer, nextNode);
+						executor = new Float64VectorDivDivRightInputExecutorNode(containers,synchronizer,nextNode);
 						break;
 					}
 					case REM : {
-						executor = new Float64VectorDivRemRightInputExecutorNode(containers, synchronizer, nextNode);
+						executor = new Float64VectorDivRemRightInputExecutorNode(containers,synchronizer,nextNode);
 						break;
 					}
 					default : {
@@ -343,23 +343,23 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 			case REM : {
 				switch (fusedOpcodes[1]) {
 					case ADD : {
-						executor = new Float64VectorRemAddRightInputExecutorNode(containers, synchronizer, nextNode);
+						executor = new Float64VectorRemAddRightInputExecutorNode(containers,synchronizer,nextNode);
 						break;
 					}
 					case SUB : {
-						executor = new Float64VectorRemSubRightInputExecutorNode(containers, synchronizer, nextNode);
+						executor = new Float64VectorRemSubRightInputExecutorNode(containers,synchronizer,nextNode);
 						break;
 					}
 					case MUL : {
-						executor = new Float64VectorRemMulRightInputExecutorNode(containers, synchronizer, nextNode);
+						executor = new Float64VectorRemMulRightInputExecutorNode(containers,synchronizer,nextNode);
 						break;
 					}
 					case DIV : {
-						executor = new Float64VectorRemDivRightInputExecutorNode(containers, synchronizer, nextNode);
+						executor = new Float64VectorRemDivRightInputExecutorNode(containers,synchronizer,nextNode);
 						break;
 					}
 					case REM : {
-						executor = new Float64VectorRemRemRightInputExecutorNode(containers, synchronizer, nextNode);
+						executor = new Float64VectorRemRemRightInputExecutorNode(containers,synchronizer,nextNode);
 						break;
 					}
 					default : {
