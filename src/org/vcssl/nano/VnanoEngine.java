@@ -134,10 +134,19 @@ public class VnanoEngine implements ScriptEngine, Compilable {
 			Object evalValue = this.getEvaluatedValue(memory, intermediateCode);
 			return evalValue;
 
-		// 発生する例外は ScriptException でラップして投げる
+		// 発生し得る例外は ScriptException でラップして投げる
 		} catch (AssemblyCodeException | InvalidInstructionException | DataException | MemoryAccessException e) {
 
+			// 実装最終段階において、例外の種類や原因に応じてより細かく処理を分けて、
+			// エラーメッセージの生成・格納などを行う。現在は暫定的な処理
+
 			ScriptException scriptException = new ScriptException(e);
+			throw scriptException;
+
+		// 実装の不備等による予期しない例外も ScriptException でラップする（上層を落としたくない用途のため）
+		} catch (Exception unexpectedException) {
+
+			ScriptException scriptException = new ScriptException(unexpectedException);
 			throw scriptException;
 		}
 	}
