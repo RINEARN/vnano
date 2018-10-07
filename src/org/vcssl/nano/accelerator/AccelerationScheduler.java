@@ -43,19 +43,24 @@ public class AccelerationScheduler {
 		this.reduceMovInstructions(dataManager);
 
 
-		// 連続する算術演算命令2個を融合させて1個の拡張命令に置き換える
-		this.fuseArithmeticInstructions( // Float64 Vector Arithmetic
-				AccelerationType.F64V_ARITHMETIC, AccelerationType.F64V_DUAL_ARITHMETIC
-		);
-		this.fuseArithmeticInstructions( // Int64 Vector Arithmetic
-				AccelerationType.I64V_ARITHMETIC, AccelerationType.I64V_DUAL_ARITHMETIC
-		);
+		// 連続する算術スカラ演算命令2個を融合させて1個の拡張命令に置き換える
 		this.fuseArithmeticInstructions( // Float64 Cached-Scalar Arithmetic
 				AccelerationType.F64CS_ARITHMETIC, AccelerationType.F64CS_DUAL_ARITHMETIC
 		);
 		this.fuseArithmeticInstructions( // Int64 Cached-Scalar Arithmetic
 				AccelerationType.I64CS_ARITHMETIC, AccelerationType.I64CS_DUAL_ARITHMETIC
 		);
+
+		// 連続する算術ベクトル演算命令2個を融合させて1個の拡張命令に置き換える
+		// >> 実行環境バージョンやPCの状態等により性能が上下どちらにも大きく振れるので、少なくとも現時点では無効化
+		/*
+		this.fuseArithmeticInstructions( // Float64 Vector Arithmetic
+				AccelerationType.F64V_ARITHMETIC, AccelerationType.F64V_DUAL_ARITHMETIC
+		);
+		this.fuseArithmeticInstructions( // Int64 Vector Arithmetic
+				AccelerationType.I64V_ARITHMETIC, AccelerationType.I64V_DUAL_ARITHMETIC
+		);
+		*/
 
 
 		// 再配列後の命令アドレスを設定
