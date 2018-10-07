@@ -44,13 +44,17 @@ public class AccelerationScheduler {
 
 
 		// 連続する算術演算命令2個を融合させて1個の拡張命令に置き換える
-		this.fuseCachedScalarArithmeticInstructions(
-				AccelerationType.F64CS_ARITHMETIC,
-				AccelerationType.F64CS_DUAL_ARITHMETIC
+		this.fuseArithmeticInstructions( // Float64 Vector Arithmetic
+				AccelerationType.F64V_ARITHMETIC, AccelerationType.F64V_DUAL_ARITHMETIC
 		);
-		this.fuseCachedScalarArithmeticInstructions(
-				AccelerationType.I64CS_ARITHMETIC,
-				AccelerationType.I64CS_DUAL_ARITHMETIC
+		this.fuseArithmeticInstructions( // Int64 Vector Arithmetic
+				AccelerationType.I64V_ARITHMETIC, AccelerationType.I64V_DUAL_ARITHMETIC
+		);
+		this.fuseArithmeticInstructions( // Float64 Cached-Scalar Arithmetic
+				AccelerationType.F64CS_ARITHMETIC, AccelerationType.F64CS_DUAL_ARITHMETIC
+		);
+		this.fuseArithmeticInstructions( // Int64 Cached-Scalar Arithmetic
+				AccelerationType.I64CS_ARITHMETIC, AccelerationType.I64CS_DUAL_ARITHMETIC
 		);
 
 
@@ -573,7 +577,7 @@ public class AccelerationScheduler {
 
 
 	// 連続する2つの演算命令を融合させて1つの拡張命令にする
-	private void fuseCachedScalarArithmeticInstructions(
+	private void fuseArithmeticInstructions(
 			AccelerationType fromAccelerationType, AccelerationType toAccelerationType) {
 
 		int instructionLength = this.acceleratorInstructionList.size();
