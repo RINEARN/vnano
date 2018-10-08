@@ -538,16 +538,17 @@ public class LexicalAnalyzer {
 		// トークンを先頭要素から順に見ていく
 		for (int tokenIndex=0; tokenIndex<tokenLength; tokenIndex++) {
 			Token token = tokens[tokenIndex];
+			String value = token.getValue();
 
 			// 文字列リテラルトークンの場合
 			if (token.getType() == Token.Type.LEAF
-					&& token.getAttribute(AttributeKey.LEAF_TYPE).equals(AttributeValue.LITERAL)) {
+					&& token.getAttribute(AttributeKey.LEAF_TYPE).equals(AttributeValue.LITERAL)
+					&& LiteralSyntax.getDataTypeNameOfLiteral(value).equals(DataTypeName.STRING)) {
 
-				// トークンの値を取得（"1", "2" などのように番号化されたリテラルになっている）
-				String numberedLiteral = tokens[tokenIndex].getValue();
+				// この条件下では、value は "1", "2" などのように番号化された文字列リテラルが入っている
 
 				// 元のリテラル値が stringLiteralExtractResult 配列に格納されているインデックスを取得（番号化リテラルの番号）
-				int index = LiteralSyntax.getIndexOfNumberedStringLiteral(numberedLiteral);
+				int index = LiteralSyntax.getIndexOfNumberedStringLiteral(value);
 
 				// 番号化リテラルを、本来の文字列リテラルで置き換える
 				token.setValue(stringLiteralExtractResult[index]);
