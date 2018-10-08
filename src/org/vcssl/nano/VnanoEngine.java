@@ -62,59 +62,20 @@ public class VnanoEngine implements ScriptEngine, Compilable {
 	}
 
 
-	/*
 	@Override
 	public Object eval(String script, Bindings bindings) throws ScriptException {
 		try {
 
 			// Bindingsを処理系内の接続仲介オブジェクト（インターコネクト）に変換
 			Interconnect interconnect = new Interconnect(bindings);
-			VariableTable variableTable = interconnect.getGlobalVariableTable();
-			FunctionTable functionTable = interconnect.getGlobalFunctionTable();
 
-			// コンパイラでスクリプトから中間アセンブリコードに変換
+			// コンパイラでVnanoスクリプトから中間アセンブリコード（VRILコード）に変換
 			Compiler compiler = new Compiler();
-			String assemblyCode = compiler.compile(script, DEFAULT_SCRIPT_NAME, variableTable, functionTable);
+			String assemblyCode = compiler.compile(script, DEFAULT_SCRIPT_NAME, interconnect);
 
-			// アセンブラで中間アセンブリコードから実行用の中間コードに変換
+			// アセンブラで中間アセンブリコード（VRILコード）から実行用の中間コードに変換
 			Assembler assembler = new Assembler();
-			VnanoIntermediateCode intermediateCode = assembler.assemble(assemblyCode, variableTable, functionTable);
-
-			// 実行用メモリー領域を確保し、外部変数のデータをロード
-			Memory memory = new Memory();
-			memory.allocate(intermediateCode, variableTable);
-
-			// VMで中間コードの命令列を実行
-			Instruction[] instructions = intermediateCode.getInstructions();
-			Processor processor = new Processor();
-			processor.process(instructions, memory, interconnect);
-
-			// メモリーのデータをinterconnect経由で外部変数に書き戻す（このタイミングでBindings側が更新される）
-			interconnect.writeback(memory, intermediateCode); // アドレスから変数名への逆変換に中間コードが必要
-
-			// 処理結果（式の評価値やスクリプトの戻り値）を取り出し、外側のデータ型に変換して返す
-			Object evalValue = this.getEvaluatedValue(memory, intermediateCode);
-			return evalValue;
-
-		// 発生する例外は ScriptException でラップして投げる
-		} catch (InvalidScriptCodeException | InvalidAssemblyCodeException
-				| InvalidInstructionException | InvalidDataException | InvalidMemoryAccessException e) {
-
-			ScriptException scriptException = new ScriptException(e);
-			throw scriptException;
-		}
-	}
-	*/
-
-	@Override
-	public Object eval(String script, Bindings bindings) throws ScriptException {
-		try {
-
-			// Bindingsを処理系内の接続仲介オブジェクト（インターコネクト）に変換
-			Interconnect interconnect = new Interconnect(bindings);
-
-			// スクリプトコードをコンパイルし、実行用中間コードに変換
-			VnanoIntermediateCode intermediateCode = (VnanoIntermediateCode)this.compile(script, interconnect);
+			VnanoIntermediateCode intermediateCode = assembler.assemble(assemblyCode, interconnect);
 
 			// 実行用メモリー領域を確保し、外部変数のデータをロード
 			Memory memory = new Memory();
@@ -202,11 +163,11 @@ public class VnanoEngine implements ScriptEngine, Compilable {
 	private CompiledScript compile(String script, Interconnect interconnect) throws ScriptException {
 		try {
 
-			// コンパイラでスクリプトから中間アセンブリコードに変換
+			// コンパイラでVnanoスクリプトから中間アセンブリコード（VRILコード）に変換
 			Compiler compiler = new Compiler();
 			String assemblyCode = compiler.compile(script, DEFAULT_SCRIPT_NAME, interconnect);
 
-			// アセンブラで中間アセンブリコードから実行用の中間コードに変換
+			// アセンブラで中間アセンブリコード（VRILコード）から実行用の中間コードに変換
 			Assembler assembler = new Assembler();
 			VnanoIntermediateCode intermediateCode = assembler.assemble(assemblyCode, interconnect);
 			return intermediateCode;

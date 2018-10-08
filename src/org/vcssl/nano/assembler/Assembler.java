@@ -19,6 +19,7 @@ import org.vcssl.nano.processor.Instruction;
 import org.vcssl.nano.processor.OperationCode;
 import org.vcssl.nano.spec.AssemblyWord;
 import org.vcssl.nano.spec.DataTypeName;
+import org.vcssl.nano.spec.LiteralSyntax;
 
 
 /**
@@ -53,6 +54,14 @@ public class Assembler {
 	public VnanoIntermediateCode assemble(String assemblyCode, Interconnect interconnect)
 			throws AssemblyCodeException, DataException {
 
+
+		// !!!  1メソッドに突っ込みすぎなので分割して要リファクタ
+
+
+		// 最初に、コード内の文字列リテラルを全て "1", "2", ... などのように番号化リテラルで置き換える
+		String[] stringLiteralExtractResult = LiteralSyntax.extractStringLiterals(assemblyCode);
+		assemblyCode = stringLiteralExtractResult[0]; // [0] 番に置き換え済みコードが格納されている（1番以降はリテラル内容）
+
 		// インターコネクトから外部変数・外部関数のテーブルを取得
 		VariableTable globalVariableTable = interconnect.getGlobalVariableTable();
 		FunctionTable functionTable = interconnect.getGlobalFunctionTable();
@@ -80,11 +89,16 @@ public class Assembler {
 
 			// メタディレクティブ -> 内容を控える定数データを生成
 			if (line.startsWith(AssemblyWord.META_DIRECTIVE)) {
+
+				// 前処理で番号化された文字列リテラルから、元の文字列リテラルに戻す
+				int stringLiteralIndex = LiteralSyntax.getIndexOfNumberedStringLiteral(words[1].trim());
+				String originalStringLiteral = stringLiteralExtractResult[ stringLiteralIndex ];
+
 				String metaImmediateValue
 					= Character.toString(AssemblyWord.OPERAND_PREFIX_IMMEDIATE)
 					+ DataTypeName.getDataTypeNameOf(DataType.STRING)
 					+ AssemblyWord.VALUE_SEPARATOR
-					+ words[1].trim();
+					+ originalStringLiteral;
 				intermediateCode.addConstantData(metaImmediateValue, constantAddress);
 				metaAddress = constantAddress;
 				constantAddress++;
@@ -106,7 +120,6 @@ public class Assembler {
 			}
 
 
-			//Instruction.OperationCode operationCode = Mnemonic.OPERATION_CODE_MAP.get(words[0]);
 			OperationCode operationCode = OperationCode.valueOf(words[0]);
 
 			String[] dataTypeNames = words[1].split(AssemblyWord.VALUE_SEPARATOR_REGEX);
@@ -136,6 +149,16 @@ public class Assembler {
 						if (intermediateCode.containsConstantData(word)) {
 							operandAddresses[operandIndex] = intermediateCode.getConstantDataAddress(word);
 						} else {
+
+							// 文字列リテラルの場合は、前処理で番号化されているので元に戻し、エスケープシーケンスも処理
+							if (this.getDataTypeOfImmediateValueLiteral(word) == DataType.STRING) {
+								String literalValue = this.getValuePartOfImmediateValueLiteral(word);
+								int stringLiteralIndex = LiteralSyntax.getIndexOfNumberedStringLiteral(literalValue);
+								literalValue = stringLiteralExtractResult[stringLiteralIndex];
+								literalValue = LiteralSyntax.decodeEscapeSequences(literalValue);
+								word = this.replaceImmediateValue(word, literalValue);
+							}
+
 							operandAddresses[operandIndex] = constantAddress;
 							intermediateCode.addConstantData(word, constantAddress);
 							constantAddress++;
@@ -226,6 +249,53 @@ public class Assembler {
 		}
 
 		return intermediateCode;
+	}
+
+	/**
+	 * 即値リテラルのデータ型部を読み取って返します。
+	 *
+	 * @param immediateValueWord 即値リテラル
+	 * @return 読みとったデータ型
+	 * @throws AssemblyCodeException 不明なデータ型が記述されていた場合にスローされます。
+	 */
+	private DataType getDataTypeOfImmediateValueLiteral(String immediateValueLiteral) throws AssemblyCodeException {
+
+		int separatorIndex = immediateValueLiteral.indexOf(AssemblyWord.VALUE_SEPARATOR);
+		String dataTypeName = immediateValueLiteral.substring(1, separatorIndex);
+
+		DataType dataType = null;
+		try {
+			dataType = DataTypeName.getDataTypeOf(dataTypeName);
+		} catch (DataException e) {
+			throw new AssemblyCodeException(AssemblyCodeException.ILLEGAL_IMMEDIATE_VALUE_TYPE, dataTypeName);
+		}
+		return dataType;
+	}
+
+	/**
+	 * 即値リテラル内の値部分を読み取り、文字列のまま返します。
+	 *
+	 * @param immediateValueLiteral 即値リテラル
+	 * @return 読みとった値部分
+	 */
+	private String getValuePartOfImmediateValueLiteral(String immediateValueLiteral) {
+		int separatorIndex = immediateValueLiteral.indexOf(AssemblyWord.VALUE_SEPARATOR);
+		String valuePart = immediateValueLiteral.substring(separatorIndex+1, immediateValueLiteral.length());
+		return valuePart;
+	}
+
+	/**
+	 * 即値リテラル内の値部分を、指定された値で置き換えたものを返します。
+	 *
+	 * @param immediateValueLiteral 元の即値リテラル
+	 * @param newValue 即値リテラルの値部分を置き換える値
+	 * @return 置き換え後の即値リテラル（データ型部は保たれます）
+	 */
+	private String replaceImmediateValue(String immediateValueLiteral, String newValue) {
+		int separatorIndex = immediateValueLiteral.indexOf(AssemblyWord.VALUE_SEPARATOR);
+		String frontPart = immediateValueLiteral.substring(0, separatorIndex);
+		String newLiteral = frontPart + AssemblyWord.VALUE_SEPARATOR + newValue;
+		return newLiteral;
 	}
 
 

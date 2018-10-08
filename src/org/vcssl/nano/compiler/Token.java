@@ -96,6 +96,15 @@ public class Token implements Cloneable {
 
 
 	/**
+	 * トークンの値を設定（変更）します。
+	 *
+	 * @param トークンの値
+	 */
+	public void setValue(String value) {
+		this.value = value;
+	}
+
+	/**
 	 * トークンの値を取得します。
 	 *
 	 * @return トークンの値

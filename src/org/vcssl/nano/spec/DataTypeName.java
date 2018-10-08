@@ -141,7 +141,7 @@ public class DataTypeName {
 		if (DATA_TYPE_NAME_ENUM_MAP.containsKey(dataTypeName)) {
 			return DATA_TYPE_NAME_ENUM_MAP.get(dataTypeName);
 		} else {
-			throw new DataException(DataException.UNKNOWN_DATA_TYPE);
+			throw new DataException(DataException.UNKNOWN_DATA_TYPE, dataTypeName);
 		}
 	}
 
