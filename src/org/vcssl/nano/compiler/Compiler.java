@@ -42,50 +42,50 @@ public class Compiler {
 	public String compile(String script, String fileName, Interconnect interconnect)
 					throws VnanoSyntaxException, DataException { // スクリプト内の型エラーはScriptCodeExceptionに入れるべき？
 
-
+		/*
 		// デバッグ用出力（入力スクリプト）
 		System.out.println(script);
 		System.out.println("-----");
-
+		*/
 
 		// 字句解析でトークン配列を生成
 		Token[] tokens = new LexicalAnalyzer().analyze(script, fileName);
 
-
+		/*
 		// デバッグ用出力（トークン配列）
 		for (Token token : tokens) {
 			System.out.println(token);
 		}
 		System.out.println("-----");
-
+		*/
 
 		// 構文解析でAST（抽象構文木）を生成
 		AstNode parsedNode = new Parser().parse(tokens);
 
-
+		/*
 		// デバッグ用出力（構文解析後のAST）
 		System.out.println(parsedNode.toString());
 		System.out.println("-----");
-
+		*/
 
 
 		// 意味解析でASTの情報を補間
 		AstNode analyzedNode = new SemanticAnalyzer().analyze(parsedNode, interconnect);
 
-
+		/*
 		// デバッグ用出力（意味解析後のAST）
 		System.out.println(analyzedNode.toString());
 		System.out.println("-----");
-
+		*/
 
 		// 中間アセンブリコードを生成
 		String assemblyCode = new CodeGenerator().generate(analyzedNode);
 
-
+		/*
 		// デバッグ用出力（中間アセンブリコード）
 		System.out.println(assemblyCode);
 		System.out.println("-----");
-
+		*/
 
 		return assemblyCode;
 	}

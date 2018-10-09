@@ -186,9 +186,19 @@ public class Parser {
 		int readingIndex = 0;
 
 		// 型情報を付加
-		Token typeToken = tokens[0];
+		Token typeToken = tokens[readingIndex];
 		variableNode.addAttribute(AttributeKey.DATA_TYPE, typeToken.getValue());
 		readingIndex++;
+
+		// 次のトークンが存在しないか、識別子トークンではない場合は構文エラー
+		if (tokens.length <= readingIndex || tokens[readingIndex].getType()!=Token.Type.LEAF
+			|| !tokens[readingIndex].getAttribute(AttributeKey.LEAF_TYPE).equals(AttributeValue.VARIABLE_IDENTIFIER)) {
+
+			throw new VnanoSyntaxException(
+					ErrorType.NO_IDENTIFIER_IN_VARIABLE_DECLARATION,
+					tokens[readingIndex-1].getFileName(), tokens[readingIndex-1].getLineNumber()
+			);
+		}
 
 		// 識別子情報を付加
 		Token nameToken = tokens[readingIndex];
@@ -222,6 +232,14 @@ public class Parser {
 				readingIndex++;
 			}
 			variableNode.addChildNode(this.parseExpression(initTokens));
+		}
+
+		// それ以上トークンが続く場合は、余計なトークンであるため構文エラー
+		if (readingIndex < tokens.length) {
+			throw new VnanoSyntaxException(
+					ErrorType.TOO_MANY_TOKENS_FOR_VARIABLE_DECLARATION,
+					tokens[readingIndex-1].getFileName(), tokens[readingIndex-1].getLineNumber()
+			);
 		}
 
 		return variableNode;
