@@ -21,6 +21,7 @@ import org.vcssl.nano.lang.FunctionTable;
 import org.vcssl.nano.lang.VariableTable;
 import org.vcssl.nano.memory.DataException;
 import org.vcssl.nano.spec.DataTypeName;
+import org.vcssl.nano.spec.ErrorType;
 import org.vcssl.nano.spec.LiteralSyntax;
 import org.vcssl.nano.spec.ScriptWord;
 
@@ -52,9 +53,10 @@ public class SemanticAnalyzer {
 	 * @param Intterconnect interconnect 外部変数・関数の情報を保持しているインターコネクト
 	 * @return 各種情報を補完したASTのルートノード
 	 * @throws DataException ローカル変数のデータ型が無効な場合に発生します。
+	 * @throws ScriptCodeException 存在しない変数を参照している場合に発生します。
 	 */
 	public AstNode analyze(AstNode inputAst, Interconnect interconnect)
-			throws DataException {
+			throws ScriptCodeException, DataException {
 
 		// インターコネクトから外部変数・外部関数のテーブルを取得
 		VariableTable globalVariableTable = interconnect.getGlobalVariableTable();
@@ -87,10 +89,11 @@ public class SemanticAnalyzer {
 	 *
 	 * @param astRootNode 解析・設定対象のASTのルートノード（メソッド実行後、各ノードに属性値が追加されます）
 	 * @param globalVariableTable AST内で参照しているグローバル変数情報を持つ変数テーブル
-	 * @throws DataException ローカル変数のデータ型が無効な場合に発生します。
+	 * @throws DataException ローカル変数のデータ型が無効な場合にスローされます。
+	 * @throws ScriptCodeException 存在しない変数を参照している場合にスローされます。
 	 */
 	private void supplementLeafAttributes(AstNode astRootNode, VariableTable globalVariableTable)
-			throws DataException {
+			throws ScriptCodeException, DataException {
 
 		Map<String, String> localVariableTypeMap = new HashMap<String, String>();
 		Map<String, Integer> localVariableRankMap = new HashMap<String, Integer>();
@@ -160,10 +163,10 @@ public class SemanticAnalyzer {
 						);
 
 					} else {
-						// 暫定的な簡易例外処理
-						System.err.println("変数が見つかりません");
-						System.err.println("node=" + currentNode);
-						throw new VnanoRuntimeException();
+						throw new ScriptCodeException(
+								ErrorType.VARIABLE_NOT_FOUND, identifier,
+								currentNode.getFileName(), currentNode.getLineNumber()
+						);
 					}
 				}
 			}
