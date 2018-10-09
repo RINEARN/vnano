@@ -16,12 +16,11 @@ import org.vcssl.nano.memory.DataException;
 public class IdentifierSyntax {
 
 
-	public static String getAssemblyIdentifierOf(String functionName,
+	public static String getUniqueIdentifierOf(String functionName,
 			String[] parameterDataTypeNames, int[] parameterArrayRanks) {
 
 		StringBuilder builder = new StringBuilder();
 
-		builder.append(AssemblyWord.OPERAND_PREFIX_IDENTIFIER);
 		builder.append(functionName);
 		builder.append("(");
 
@@ -42,7 +41,7 @@ public class IdentifierSyntax {
 		return builder.toString();
 	}
 
-	public static String getAssemblyIdentifierOfCalleeFunctionOf(AstNode callerNode) {
+	public static String getUniqueIdentifierOfCalleeFunctionOf(AstNode callerNode) {
 
 		AstNode[] childNodes = callerNode.getChildNodes();
 
@@ -74,7 +73,7 @@ public class IdentifierSyntax {
 			argumentArrayRanks[argumentNodeIndex] = argumentNodes[argumentNodeIndex].getRank();
 		}
 
-		String signature = IdentifierSyntax.getAssemblyIdentifierOf(
+		String signature = getUniqueIdentifierOf(
 				functionName, argumentDataTypeNames, argumentArrayRanks
 		);
 
@@ -82,7 +81,7 @@ public class IdentifierSyntax {
 	}
 
 	// この中身の文字列リテラルは、後で Mnemonic の定数に置き換えるべき？
-	public static String getAssemblyIdentifierOf(AbstractFunction connector) {
+	public static String getUniqueIdentifierOf(AbstractFunction connector) {
 
 		DataType[] parameterDataTypes = connector.getParameterDataTypes();
 		int[] parameterArrayRanks = connector.getParameterArrayRanks();
@@ -94,11 +93,29 @@ public class IdentifierSyntax {
 					= DataTypeName.getDataTypeNameOf(parameterDataTypes[parameterIndex]);
 		}
 
-		String signature = IdentifierSyntax.getAssemblyIdentifierOf(
+		String signature = getUniqueIdentifierOf(
 				connector.getFunctionName(), parameterDataTypeNames, parameterArrayRanks
 		);
 
 		return signature;
+	}
+
+	public static String getAssemblyIdentifierOf(String functionName,
+			String[] parameterDataTypeNames, int[] parameterArrayRanks) {
+
+		return AssemblyWord.OPERAND_PREFIX_IDENTIFIER
+				+ getUniqueIdentifierOf(functionName, parameterDataTypeNames, parameterArrayRanks);
+	}
+
+	public static String getAssemblyIdentifierOfCalleeFunctionOf(AstNode callerNode) {
+		return AssemblyWord.OPERAND_PREFIX_IDENTIFIER
+				+ getUniqueIdentifierOfCalleeFunctionOf(callerNode);
+	}
+
+	// この中身の文字列リテラルは、後で Mnemonic の定数に置き換えるべき？
+	public static String getAssemblyIdentifierOf(AbstractFunction connector) {
+		return AssemblyWord.OPERAND_PREFIX_IDENTIFIER
+				+ getUniqueIdentifierOf(connector);
 	}
 
 	// 後の工程での削除候補

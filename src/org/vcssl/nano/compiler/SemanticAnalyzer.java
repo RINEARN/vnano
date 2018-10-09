@@ -22,6 +22,7 @@ import org.vcssl.nano.lang.VariableTable;
 import org.vcssl.nano.memory.DataException;
 import org.vcssl.nano.spec.DataTypeName;
 import org.vcssl.nano.spec.ErrorType;
+import org.vcssl.nano.spec.IdentifierSyntax;
 import org.vcssl.nano.spec.LiteralSyntax;
 import org.vcssl.nano.spec.ScriptWord;
 
@@ -304,7 +305,16 @@ public class SemanticAnalyzer {
 					}
 					// 関数呼び出し演算子の場合
 					case AttributeValue.CALL : {
-
+						// 関数テーブルから取り寄せられない場合は構文エラー
+						if (!functionTable.hasCalleeFunctionOf(currentNode)) {
+							String functionIdentifier = "(unknown)";
+							functionIdentifier = IdentifierSyntax.getUniqueIdentifierOfCalleeFunctionOf(currentNode);
+							System.out.println(currentNode);
+							throw new VnanoSyntaxException(
+									ErrorType.FUNCTION_IS_NOT_FOUND, functionIdentifier,
+									currentNode.getFileName(), currentNode.getLineNumber()
+							);
+						}
 						AbstractFunction function = functionTable.getCalleeFunctionOf(currentNode);
 						dataType = DataTypeName.getDataTypeNameOf(function.getReturnDataType());
 						operationDataType = dataType;
