@@ -451,17 +451,19 @@ public class Parser {
 					hierarchy--;
 				}
 			}
+			// 階層が負になった場合は、その時点で明らかに開き括弧が足りない
+			if (hierarchy < 0) {
+				throw new VnanoSyntaxException(
+					ErrorType.OPENING_PARENTHESES_IS_DEFICIENT,
+					tokens[0].getFileName(), tokens[0].getLineNumber() // 階層が0でない時点でトークンは1個以上あるので[0]で参照可能
+				);
+			}
 		}
-		if (hierarchy < 0) {
-			throw new VnanoSyntaxException(
-				ErrorType.OPENING_PARENTHESES_IS_DEFICIENT,
-				tokens[0].getFileName(), tokens[0].getLineNumber() // 階層が0でない時点でトークンは1個以上あるので[0]で参照可能
-			);
-		}
+		// 式のトークンを全て読み終えた時点で階層が1以上残っているなら、閉じ括弧が足りない
 		if (hierarchy > 0) {
 			throw new VnanoSyntaxException(
 				ErrorType.CLOSING_PARENTHESES_IS_DEFICIENT,
-				tokens[0].getFileName(), tokens[0].getLineNumber() // 階層が0でない時点でトークンは1個以上あるので[0]で参照可能
+				tokens[0].getFileName(), tokens[0].getLineNumber()
 			);
 		}
 	}
