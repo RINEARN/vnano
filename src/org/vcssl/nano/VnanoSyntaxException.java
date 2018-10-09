@@ -21,10 +21,16 @@ import org.vcssl.nano.spec.ErrorType;
 @SuppressWarnings("serial")
 public class VnanoSyntaxException extends Exception {
 
+	private static final int LINE_NUMBER_DEFAULT_VALUE = -1;
+
 	private ErrorType errorType = null;
 	private String[] errorWords = null;
 	private String fileName = null;
-	private int lineNumber = -1;
+	private int lineNumber = LINE_NUMBER_DEFAULT_VALUE;
+
+	public VnanoSyntaxException(ErrorType errorType) {
+		this(errorType, (String)null, -1);
+	}
 
 	public VnanoSyntaxException(ErrorType errorType, String fileName, int lineNumber) {
 		this(errorType, (String)null, fileName, lineNumber);
@@ -45,6 +51,7 @@ public class VnanoSyntaxException extends Exception {
 		this.lineNumber = lineNumber;
 	}
 
+
 	public ErrorType getErrorType() {
 		return this.errorType;
 	}
@@ -53,11 +60,19 @@ public class VnanoSyntaxException extends Exception {
 		return this.errorWords;
 	}
 
+	public boolean hasFileName() {
+		return this.fileName != null;
+	}
+
 	public String getFileName() {
 		return this.fileName;
 	}
 
 	public int getLineNumber() {
 		return this.lineNumber;
+	}
+
+	public boolean hasLineNumber() {
+		return this.lineNumber != LINE_NUMBER_DEFAULT_VALUE;
 	}
 }

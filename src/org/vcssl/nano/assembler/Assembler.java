@@ -14,6 +14,7 @@ import org.vcssl.nano.lang.VariableTable;
 import org.vcssl.nano.memory.DataException;
 import org.vcssl.nano.memory.Memory;
 import org.vcssl.nano.VnanoRuntimeException;
+import org.vcssl.nano.VnanoSyntaxException;
 import org.vcssl.nano.interconnect.Interconnect;
 import org.vcssl.nano.processor.Instruction;
 import org.vcssl.nano.processor.OperationCode;
@@ -49,10 +50,10 @@ public class Assembler {
 	 * @param assemblyCode 仮想アセンブリコード
 	 * @param Intterconnect interconnect 外部変数・関数の情報を保持しているインターコネクト
 	 * @return 実行用中間コード
-	 * @throws AssemblyCodeException 仮想アセンブリコードの内容に異常があった場合にスローされます。
+	 * @throws VnanoSyntaxException 仮想アセンブリコードの内容に異常があった場合にスローされます。
 	 */
 	public VnanoIntermediateCode assemble(String assemblyCode, Interconnect interconnect)
-			throws AssemblyCodeException, DataException {
+			throws VnanoSyntaxException, AssemblyCodeException, DataException { // 例外は後で一本化すべき
 
 
 		// !!!  1メソッドに突っ込みすぎなので分割して要リファクタ

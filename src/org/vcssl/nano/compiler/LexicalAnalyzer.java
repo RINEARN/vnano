@@ -49,9 +49,9 @@ public class LexicalAnalyzer {
 	 * @param sourceCode ソースコード文字列
 	 * @param fileName ソースコードのファイル名
 	 * @return 分割・解析されたトークンの配列
-	 //* @throws ScriptCodeException 括弧の開き閉じの対応が整合していない場合にスローされます。
+	 * @throws VnanoSyntaxException ソースコードの内容に異常があった場合にスローされます。
 	 */
-	public Token[] analyze(String sourceCode, String fileName) { //throws ScriptCodeException {
+	public Token[] analyze(String sourceCode, String fileName) throws VnanoSyntaxException {
 
 		// 最初に、コード内の文字列リテラルを全て "1", "2", ... などのように番号化リテラルで置き換える
 		String[] stringLiteralExtractResult = LiteralSyntax.extractStringLiterals(sourceCode);

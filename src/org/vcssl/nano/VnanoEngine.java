@@ -106,7 +106,11 @@ public class VnanoEngine implements ScriptEngine, Compilable {
 		} catch (VnanoSyntaxException e) {
 
 			String message = ErrorMessage.generateErrorMessage(e.getErrorType(), e.getErrorWords(), this.locale);
-			throw new ScriptException(message + ":", e.getFileName(), e.getLineNumber());
+			if (e.hasFileName() && e.hasLineNumber()) {
+				throw new ScriptException(message + ":", e.getFileName(), e.getLineNumber());
+			} else {
+				throw new ScriptException(message);
+			}
 
 		} catch (AssemblyCodeException | InvalidInstructionException | DataException | MemoryAccessException e) {
 

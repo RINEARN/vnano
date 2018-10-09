@@ -38,6 +38,7 @@ public class ErrorMessage {
 			case INVALID_DATA_TYPES_FOR_UNARY_OPERATOR : return "単項演算子「 " + words[0] + " 」は、" + words[1] + "型のデータに対しては使用できません。";
 			case INVALID_DATA_TYPES_FOR_BINARY_OPERATOR : return "二項算子「 " + words[0] + " 」は、" + words[1] + "型と" + words[2] + "型のデータの組み合わせに対しては使用できません。";
 			case INVALID_TYPE_TOKEN_IN_EXPRESSION : return "単語「 " + words[0] + " 」は、式の中では使用できません。";
+			case STRING_LITERAL_IS_NOT_CLOSED : return "閉じていない文字列リテラル \"...\" が存在します。";
 			case UNKNOWN : return "不明なエラー";
 			default : return "不明なエラー種類：" + errorType;
 		}
@@ -53,6 +54,7 @@ public class ErrorMessage {
 			case INVALID_DATA_TYPES_FOR_UNARY_OPERATOR : return "Unary operator \"" + words[0] + "\" is not available for " + words[1] + "-type operands";
 			case INVALID_DATA_TYPES_FOR_BINARY_OPERATOR : return "Binary operator \"" + words[0] + "\" is not available for the combination of " + words[0] + "-type and " + words[1] + "-type data";
 			case INVALID_TYPE_TOKEN_IN_EXPRESSION : return "Token \"" + words[0] + "\" is not available in expressions";
+			case STRING_LITERAL_IS_NOT_CLOSED : return "Unclosed string literal \"...\" exists in code";
 			case UNKNOWN : return "Unknown Error";
 			default : return "Unknown Error Type：" + errorType;
 		}
