@@ -164,7 +164,7 @@ public class SemanticAnalyzer {
 
 					} else {
 						throw new ScriptCodeException(
-								ErrorType.VARIABLE_NOT_FOUND, identifier,
+								ErrorType.VARIABLE_IS_NOT_FOUND, identifier,
 								currentNode.getFileName(), currentNode.getLineNumber()
 						);
 					}

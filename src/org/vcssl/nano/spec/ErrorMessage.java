@@ -30,8 +30,11 @@ public class ErrorMessage {
 
 	public static String generateErrorMessageJaJP(ErrorType errorType, String[] words) {
 		switch (errorType) {
-			case VARIABLE_NOT_FOUND : return "宣言されていない変数「" + words[0] + "」を使用しています";
-			case FUNCTION_NOT_FOUND : return "存在しない関数「" + words[0] +  "」を呼び出しています";
+			case VARIABLE_IS_NOT_FOUND : return "宣言されていない変数「 " + words[0] + " 」を使用しています";
+			case FUNCTION_IS_NOT_FOUND : return "存在しない関数「 " + words[0] +  " 」を呼び出しています";
+			case STATEMENT_END_IS_NOT_FOUND : return "文の終端がありません（「 ; 」が必要です）";
+			case OPENING_PARENTHESES_IS_DEFICIENT : return "開き括弧「 ( 」が不足しています。";
+			case CLOSING_PARENTHESES_IS_DEFICIENT : return "閉じ括弧「 ) 」が不足しています。";
 			case UNKNOWN : return "不明なエラー";
 			default : return "不明なエラー種類：" + errorType;
 		}
@@ -39,8 +42,11 @@ public class ErrorMessage {
 
 	public static String generateErrorMessageEnUS(ErrorType errorType, String[] words) {
 		switch (errorType) {
-			case VARIABLE_NOT_FOUND : return "Undeclared variable \"" + words[0] + "\" is used";
-			case FUNCTION_NOT_FOUND : return "Unknown function \"" + words[0] + "\" is called";
+			case VARIABLE_IS_NOT_FOUND : return "Undeclared variable \"" + words[0] + "\" is used";
+			case FUNCTION_IS_NOT_FOUND : return "Unknown function \"" + words[0] + "\" is called";
+			case STATEMENT_END_IS_NOT_FOUND : return "End-point of the statement is not found (\";\" is required)";
+			case OPENING_PARENTHESES_IS_DEFICIENT : return "Opening parenthesis \"(\" is deficient";
+			case CLOSING_PARENTHESES_IS_DEFICIENT : return "Closing parenthesis \")\" is deficient";
 			case UNKNOWN : return "Unknown Error";
 			default : return "Unknown Error Type：" + errorType;
 		}

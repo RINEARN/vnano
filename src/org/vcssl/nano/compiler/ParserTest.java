@@ -119,7 +119,7 @@ public class ParserTest {
 
 
 	@Test
-	public void testParseVariableDeclarationStatementScalar() {
+	public void testParseVariableDeclarationStatementScalar() throws ScriptCodeException {
 
 		// "int x;" のトークン配列を用意
 		Token[] tokens = new Token[]{
@@ -149,7 +149,7 @@ public class ParserTest {
 	}
 
 	//@Test
-	public void testParseVariableDeclarationStatementArray1D() {
+	public void testParseVariableDeclarationStatementArray1D() throws ScriptCodeException {
 
 		// "int x [ 2 ];" のトークン配列を用意
 		Token[] tokens = new Token[]{
@@ -193,7 +193,7 @@ public class ParserTest {
 	}
 
 	@Test
-	public void testParseVariableDeclarationStatementArray1DWithLengthExpr() {
+	public void testParseVariableDeclarationStatementArray1DWithLengthExpr() throws ScriptCodeException {
 
 		// "int x [ 1 + 2 * 3 ];" のトークン配列を用意
 		Token[] tokens = new Token[]{
@@ -249,7 +249,7 @@ public class ParserTest {
 	}
 
 	@Test
-	public void testParseVariableDeclarationStatementArray3D() {
+	public void testParseVariableDeclarationStatementArray3D() throws ScriptCodeException {
 
 		// "int x [ 2 ][ 3 ][ 4 ];" のトークン配列を用意
 		Token[] tokens = new Token[]{
@@ -309,7 +309,7 @@ public class ParserTest {
 	}
 
 	@Test
-	public void testParseVariableDeclarationStatementWithInitExpr() {
+	public void testParseVariableDeclarationStatementWithInitExpr() throws ScriptCodeException {
 
 		// "int x = 1 + 2 * 3;" のトークン配列を用意
 		Token[] tokens = new Token[]{
@@ -370,7 +370,7 @@ public class ParserTest {
 
 
 	@Test
-	public void testBlockStatement() {
+	public void testBlockStatement() throws ScriptCodeException {
 
 		// "{ 1; 2; { 3; 4; { 5; } 6; } 7; }" のトークン配列を用意
 		Token[] tokens = new Token[]{
@@ -464,7 +464,7 @@ public class ParserTest {
 
 
 	@Test
-	public void testIfStatement() {
+	public void testIfStatement() throws ScriptCodeException {
 
 		// " if (x == 2) { } " のトークン配列を用意
 		Token[] tokens = new Token[]{
@@ -515,7 +515,7 @@ public class ParserTest {
 
 
 	@Test
-	public void testElseStatement() {
+	public void testElseStatement() throws ScriptCodeException {
 
 		// " if (x == 2) { 1; } else { 2; }" のトークン配列を用意
 		Token[] tokens = new Token[]{
@@ -587,7 +587,7 @@ public class ParserTest {
 
 
 	@Test
-	public void testWhileStatement() {
+	public void testWhileStatement() throws ScriptCodeException {
 
 		// " while (x == 2) { } " のトークン配列を用意
 		Token[] tokens = new Token[]{
@@ -638,7 +638,7 @@ public class ParserTest {
 
 
 	@Test
-	public void testForStatement() {
+	public void testForStatement() throws ScriptCodeException {
 
 		// " for (i=0; i<10; ++i) { } " のトークン配列を用意
 		Token[] tokens = new Token[]{
@@ -712,7 +712,7 @@ public class ParserTest {
 	}
 
 	@Test
-	public void testForStatementWithCounterVariableDeclaration() {
+	public void testForStatementWithCounterVariableDeclaration() throws ScriptCodeException {
 
 		// " for (int i=0; i<10; ++i) { } " のトークン配列を用意
 		Token[] tokens = new Token[]{
@@ -796,7 +796,7 @@ public class ParserTest {
 
 
 	@Test
-	public void testContinueStatement() {
+	public void testContinueStatement() throws ScriptCodeException {
 
 		// "while (true) { continue; }" のトークン配列を用意
 		Token[] tokens = new Token[]{
@@ -846,7 +846,7 @@ public class ParserTest {
 
 
 	@Test
-	public void testBreakStatement() {
+	public void testBreakStatement() throws ScriptCodeException {
 
 		// "while (true) { break; }" のトークン配列を用意
 		Token[] tokens = new Token[]{
@@ -899,7 +899,7 @@ public class ParserTest {
 
 	// 前置演算子のテスト
 	@Test
-	public void testParseExpressionPrefixOperator() {
+	public void testParseExpressionPrefixOperator() throws ScriptCodeException {
 
 		// "++x" のトークン配列を用意
 		Token rightToken = this.createVariableIdentifierToken("x");
@@ -944,7 +944,7 @@ public class ParserTest {
 
 	// 後置演算子のテスト
 	@Test
-	public void testParseExpressionPostfixOperator() {
+	public void testParseExpressionPostfixOperator() throws ScriptCodeException {
 
 		// "x++" のトークン配列を用意
 		Token leftToken = this.createVariableIdentifierToken("x");
@@ -989,7 +989,7 @@ public class ParserTest {
 
 	// 二項演算子のテスト
 	@Test
-	public void testParseExpressionBinaryOperator() {
+	public void testParseExpressionBinaryOperator() throws ScriptCodeException {
 
 		// "1 + x" のトークン配列を用意
 		Token leftToken = this.createLiteralToken("1");
@@ -1037,7 +1037,7 @@ public class ParserTest {
 
 	// 多項演算子のテスト
 	@Test
-	public void testParseExpressionMultiaryOperator() {
+	public void testParseExpressionMultiaryOperator() throws ScriptCodeException {
 
 		// "func(1,x)" のトークン配列を用意
 		Token identifierToken = this.createVariableIdentifierToken("func");
@@ -1097,7 +1097,7 @@ public class ParserTest {
 
 	// 括弧のテスト "1 * (2 + 3)"
 	@Test
-	public void testParseExpressionParenthesis1() {
+	public void testParseExpressionParenthesis1() throws ScriptCodeException {
 
 		// "1 * (2 + 3)" のトークン配列を用意
 		Token one = this.createLiteralToken("1");
@@ -1157,7 +1157,7 @@ public class ParserTest {
 
 	// 括弧のテスト "1 + (2 * 3)"
 	@Test
-	public void testParseExpressionParenthesis2() {
+	public void testParseExpressionParenthesis2() throws ScriptCodeException {
 
 		// "1 + (2 * 3)" のトークン配列を用意
 		Token one = this.createLiteralToken("1");
@@ -1218,7 +1218,7 @@ public class ParserTest {
 
 	// 括弧のテスト "(1 + 2) * 3"
 	@Test
-	public void testParseExpressionParenthesis3() {
+	public void testParseExpressionParenthesis3() throws ScriptCodeException {
 
 		// "(1 + 2) * 3" のトークン配列を用意
 		Token one = this.createLiteralToken("1");
@@ -1278,7 +1278,7 @@ public class ParserTest {
 
 	// 括弧のテスト "(1 * 2) + 3"
 	@Test
-	public void testParseExpressionParenthesis4() {
+	public void testParseExpressionParenthesis4() throws ScriptCodeException {
 
 		// "(1 + 2) * 3" のトークン配列を用意
 		Token one = this.createLiteralToken("1");
@@ -1339,7 +1339,7 @@ public class ParserTest {
 
 	// 複数演算子が混合する式のテスト / + + + + のパターン
 	@Test
-	public void testParseExpressionAddAddAddAdd() {
+	public void testParseExpressionAddAddAddAdd() throws ScriptCodeException {
 
 		// "1 + 2 + 3 + 4 + 5" のトークン配列を用意
 		Token[] tokens = new Token[]{
@@ -1413,7 +1413,7 @@ public class ParserTest {
 
 	// 複数演算子が混合する式のテスト / + * * + のパターン
 	@Test
-	public void testParseExpressionAddMulMulAdd() {
+	public void testParseExpressionAddMulMulAdd() throws ScriptCodeException {
 
 		// "1 + 2 * 3 * 4 + 5" のトークン配列を用意
 		Token[] tokens = new Token[]{
@@ -1487,7 +1487,7 @@ public class ParserTest {
 
 	// 複数演算子が混合する式のテスト / * + + * のパターン
 	@Test
-	public void testParseExpressionMulAddAddMul() {
+	public void testParseExpressionMulAddAddMul() throws ScriptCodeException {
 
 		// "1 * 2 + 3 + 4 * 5" のトークン配列を用意
 		Token[] tokens = new Token[]{
@@ -1559,7 +1559,7 @@ public class ParserTest {
 
 	// 複数演算子が混合する式のテスト / + * + * のパターン
 	@Test
-	public void testParseExpressionAddMulAddMul() {
+	public void testParseExpressionAddMulAddMul() throws ScriptCodeException {
 
 		// "1 + 2 * 3 + 4 * 5" のトークン配列を用意
 		Token[] tokens = new Token[]{

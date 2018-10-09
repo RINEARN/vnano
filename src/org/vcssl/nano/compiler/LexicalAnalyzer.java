@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.vcssl.nano.VnanoRuntimeException;
 import org.vcssl.nano.spec.DataTypeName;
 import org.vcssl.nano.spec.LiteralSyntax;
 import org.vcssl.nano.spec.PriorityTable;
@@ -49,8 +48,9 @@ public class LexicalAnalyzer {
 	 * @param sourceCode ソースコード文字列
 	 * @param fileName ソースコードのファイル名
 	 * @return 分割・解析されたトークンの配列
+	 //* @throws ScriptCodeException 括弧の開き閉じの対応が整合していない場合にスローされます。
 	 */
-	public Token[] analyze(String sourceCode, String fileName) {
+	public Token[] analyze(String sourceCode, String fileName) { //throws ScriptCodeException {
 
 		// 最初に、コード内の文字列リテラルを全て "1", "2", ... などのように番号化リテラルで置き換える
 		String[] stringLiteralExtractResult = LiteralSyntax.extractStringLiterals(sourceCode);
@@ -147,8 +147,9 @@ public class LexicalAnalyzer {
 	 * トークン配列を解析し、各要素にトークンタイプを設定します。
 	 *
 	 * @param tokens 解析・設定対象のトークン配列（情報が追加されます）
+	 * @throws ScriptCodeException 開き括弧と閉じ括弧の数が合っていない場合にスローされます。
 	 */
-	private void analyzeTokenType(Token[] tokens) {
+	private void analyzeTokenType(Token[] tokens) { //throws ScriptCodeException {
 
 		int tokenLength = tokens.length;
 		Token lastToken = null;
@@ -250,7 +251,6 @@ public class LexicalAnalyzer {
 				// そうでなければ符号演算子の単項プラスマイナス
 				} else {
 					tokens[i].setType(Token.Type.OPERATOR);
-					//tokens[i].addAttribute(Attribute.Key.OPERATOR_EXECUTION, Attribute.Value.SIGN); // ARITHMETIC でいいのでは
 					tokens[i].addAttribute(AttributeKey.OPERATOR_EXECUTOR, AttributeValue.ARITHMETIC);
 					tokens[i].addAttribute(AttributeKey.OPERATOR_SYNTAX, AttributeValue.PREFIX);
 				}
@@ -349,18 +349,7 @@ public class LexicalAnalyzer {
 			lastToken = tokens[i];
 			lastWord = word;
 		}
-
-		if (parenthesisStage > 0) {
-			// 暫定的な簡易例外処理
-			System.err.println("閉じ括弧が不足しています");
-			throw new VnanoRuntimeException();
-		}
-		if (parenthesisStage < 0) {
-			// 暫定的な簡易例外処理
-			System.err.println("開き括弧が不足しています");
-			throw new VnanoRuntimeException();
-		}
-}
+	}
 
 
 	/**
