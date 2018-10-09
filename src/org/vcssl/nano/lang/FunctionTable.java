@@ -49,7 +49,7 @@ public class FunctionTable {
 		this.functionList.add(function);
 
 		// シグネチャリストに追加
-		String assemblyIdentifier = IdentifierSyntax.getUniqueIdentifierOf(function);
+		String assemblyIdentifier = IdentifierSyntax.getAssemblyIdentifierOf(function);
 		this.assemblyIdentifierFunctionMap.put(assemblyIdentifier, function);
 	}
 
@@ -100,7 +100,7 @@ public class FunctionTable {
 	public AbstractFunction getFunctionBySignature(String functionName, DataType[] parameterDataTypes, int[] parameterArrayRanks) {
 
 		String[] parameterDataTypeNames = DataTypeName.getDataTypeNamesOf(parameterDataTypes);
-		String assemblyIdentifier = IdentifierSyntax.getUniqueIdentifierOf(
+		String assemblyIdentifier = IdentifierSyntax.getAssemblyIdentifierOf(
 				functionName, parameterDataTypeNames, parameterArrayRanks
 		);
 
@@ -118,17 +118,38 @@ public class FunctionTable {
 
 
 	/**
+	 * 指定された中間アセンブリコード識別子に対応する関数が、
+	 * この関数テーブルに登録されているかどうかを判定します。
+	 *
+	 * @param assemblyIdentifier 対象関数のアセンブリコード識別子
+	 * @return 登録されていればtrue
+	 */
+	public boolean hasFunctionWithAssemblyIdentifier(String assemblyIdentifier) {
+		return this.assemblyIdentifierFunctionMap.containsKey(assemblyIdentifier);
+	}
+
+
+	/**
 	 * 指定された中間アセンブリコード識別子に対応する関数を取得します。
 	 *
-	 * @param assemblyIdentifier 対象変数のアセンブリコード識別子
+	 * @param assemblyIdentifier 対象関数のアセンブリコード識別子
 	 * @return 対象の関数
 	 */
 	public AbstractFunction getFunctionByAssemblyIdentifier(String assemblyIdentifier) {
-		if (!this.assemblyIdentifierFunctionMap.containsKey(assemblyIdentifier)) {
-			// 暫定的な簡易例外処理
-			throw new VnanoRuntimeException();
-		}
 		return this.assemblyIdentifierFunctionMap.get(assemblyIdentifier);
+	}
+
+
+	/**
+	 * 指定された関数呼び出し演算子のAST（抽象構文木）ノードにおける、
+	 * 呼び出し対象の関数が、この関数テーブルに登録されているかどうかを判定します。
+	 *
+	 * @param callerNode 関数呼び出し演算子のASTノード
+	 * @return 登録されていればtrue
+	 */
+	public boolean hasCalleeFunctionOf(AstNode callerNode) {
+		String assemblyIdentifier = IdentifierSyntax.getAssemblyIdentifierOfCalleeFunctionOf(callerNode);
+		return this.assemblyIdentifierFunctionMap.containsKey(assemblyIdentifier);
 	}
 
 
@@ -141,8 +162,8 @@ public class FunctionTable {
 	 * @throws DataException 引数などのデータ型名が非対応のものであった場合にスローされます。
 	 */
 	public AbstractFunction getCalleeFunctionOf(AstNode callerNode) {
-		String assemblyIdentifier = IdentifierSyntax.getUniqueIdentifierOfCalleeFunctionOf(callerNode);
-		return this.getFunctionByAssemblyIdentifier(assemblyIdentifier);
+		String assemblyIdentifier = IdentifierSyntax.getAssemblyIdentifierOfCalleeFunctionOf(callerNode);
+		return this.assemblyIdentifierFunctionMap.get(assemblyIdentifier);
 	}
 
 

@@ -16,7 +16,7 @@ import org.vcssl.nano.memory.DataException;
 public class IdentifierSyntax {
 
 
-	public static String getUniqueIdentifierOf(String functionName,
+	public static String getAssemblyIdentifierOf(String functionName,
 			String[] parameterDataTypeNames, int[] parameterArrayRanks) {
 
 		StringBuilder builder = new StringBuilder();
@@ -42,7 +42,7 @@ public class IdentifierSyntax {
 		return builder.toString();
 	}
 
-	public static String getUniqueIdentifierOfCalleeFunctionOf(AstNode callerNode) {
+	public static String getAssemblyIdentifierOfCalleeFunctionOf(AstNode callerNode) {
 
 		AstNode[] childNodes = callerNode.getChildNodes();
 
@@ -74,7 +74,7 @@ public class IdentifierSyntax {
 			argumentArrayRanks[argumentNodeIndex] = argumentNodes[argumentNodeIndex].getRank();
 		}
 
-		String signature = IdentifierSyntax.getUniqueIdentifierOf(
+		String signature = IdentifierSyntax.getAssemblyIdentifierOf(
 				functionName, argumentDataTypeNames, argumentArrayRanks
 		);
 
@@ -82,7 +82,7 @@ public class IdentifierSyntax {
 	}
 
 	// この中身の文字列リテラルは、後で Mnemonic の定数に置き換えるべき？
-	public static String getUniqueIdentifierOf(AbstractFunction connector) {
+	public static String getAssemblyIdentifierOf(AbstractFunction connector) {
 
 		DataType[] parameterDataTypes = connector.getParameterDataTypes();
 		int[] parameterArrayRanks = connector.getParameterArrayRanks();
@@ -94,7 +94,7 @@ public class IdentifierSyntax {
 					= DataTypeName.getDataTypeNameOf(parameterDataTypes[parameterIndex]);
 		}
 
-		String signature = IdentifierSyntax.getUniqueIdentifierOf(
+		String signature = IdentifierSyntax.getAssemblyIdentifierOf(
 				connector.getFunctionName(), parameterDataTypeNames, parameterArrayRanks
 		);
 
@@ -102,11 +102,11 @@ public class IdentifierSyntax {
 	}
 
 	// 後の工程での削除候補
-	public static String getUniqueIdentifierOf(String variableName) {
+	public static String getAssemblyIdentifierOf(String variableName) {
 		return AssemblyWord.OPERAND_PREFIX_IDENTIFIER + variableName;
 	}
 
-	public static String getUniqueIdentifierOf(AbstractVariable variable) {
+	public static String getAssemblyIdentifierOf(AbstractVariable variable) {
 		return AssemblyWord.OPERAND_PREFIX_IDENTIFIER + variable.getVariableName();
 	}
 
