@@ -7,6 +7,7 @@ package org.vcssl.nano;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.util.Locale;
 
 import javax.script.Bindings;
 import javax.script.Compilable;
@@ -31,6 +32,7 @@ import org.vcssl.nano.memory.Memory;
 import org.vcssl.nano.processor.Instruction;
 import org.vcssl.nano.processor.InvalidInstructionException;
 import org.vcssl.nano.processor.Processor;
+import org.vcssl.nano.spec.ErrorMessage;
 import org.vcssl.nano.accelerator.Accelerator;
 
 
@@ -42,13 +44,19 @@ import org.vcssl.nano.accelerator.Accelerator;
  */
 public class VnanoEngine implements ScriptEngine, Compilable {
 
-	private static final String DEFAULT_SCRIPT_NAME = "none";
+	private static final String DEFAULT_SCRIPT_NAME = "EVAL_CODE";
 
 	/**
 	 * コンテキストを指定しない {@link VnanoEngine#eval eval} メソッドの呼び出し時に使用される、
 	 * デフォルトのコンテキストを保持します。
 	 */
 	private ScriptContext scriptContext = null;
+
+
+	/**
+	 * エラーメッセージの表示言語指定などに使用されるロケールを保持します。
+	 */
+	private Locale locale = Locale.getDefault();
 
 
 	/**
@@ -96,6 +104,11 @@ public class VnanoEngine implements ScriptEngine, Compilable {
 			return evalValue;
 
 		// 発生し得る例外は ScriptException でラップして投げる
+		} catch (ScriptCodeException e) {
+
+			String message = ErrorMessage.generateErrorMessage(e.getErrorType(), e.getErrorWords(), this.locale);
+			throw new ScriptException(message + ":", e.getFileName(), e.getLineNumber());
+
 		} catch (AssemblyCodeException | InvalidInstructionException | DataException | MemoryAccessException e) {
 
 			// 実装最終段階において、例外の種類や原因に応じてより細かく処理を分けて、

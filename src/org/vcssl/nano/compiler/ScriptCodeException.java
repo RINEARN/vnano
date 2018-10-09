@@ -5,7 +5,8 @@
 
 package org.vcssl.nano.compiler;
 
-import java.util.HashMap;
+import org.vcssl.nano.spec.ErrorMessage;
+import org.vcssl.nano.spec.ErrorType;
 
 /**
  * <p>
@@ -19,22 +20,43 @@ import java.util.HashMap;
 @SuppressWarnings("serial")
 public class ScriptCodeException extends Exception {
 
-	// エラーメッセージは spec の設定に移すべきで、後で根本的に変更予定
+	private ErrorType errorType = null;
+	private String[] errorWords = null;
+	private String fileName = null;
+	private int lineNumber = -1;
 
-	// 行番号や式番号などの情報が必要
-
-	public static final int INVALID_SYMBOL = 1;
-
-	public static final HashMap<Integer, String> MESSAGE = new HashMap<Integer, String>();
-	static {
-		MESSAGE.put(new Integer(INVALID_SYMBOL), "Invalid symbol");
+	public ScriptCodeException(ErrorType errorType, String fileName, int lineNumber) {
+		this(errorType, (String)null, fileName, lineNumber);
 	}
 
-	public ScriptCodeException(int code) {
-		super(MESSAGE.get(new Integer(code)));
-	}
-	public ScriptCodeException(int code, String word) {
-		super(MESSAGE.get(new Integer(code)) + " (" + word + ")");
+	public ScriptCodeException(ErrorType errorType, String errorWord, String fileName, int lineNumber) {
+		this(errorType, new String[] {errorWord}, fileName, lineNumber);
 	}
 
+	public ScriptCodeException(ErrorType errorType, String[] errorWords, String fileName, int lineNumber) {
+		super(ErrorMessage.generateErrorMessage(errorType, errorWords));
+
+		this.errorType = errorType;
+		this.errorWords = new String[ errorWords.length ];
+		System.arraycopy(errorWords, 0, this.errorWords, 0, errorWords.length);
+
+		this.fileName = fileName;
+		this.lineNumber = lineNumber;
+	}
+
+	public ErrorType getErrorType() {
+		return this.errorType;
+	}
+
+	public String[] getErrorWords() {
+		return this.errorWords;
+	}
+
+	public String getFileName() {
+		return this.fileName;
+	}
+
+	public int getLineNumber() {
+		return this.lineNumber;
+	}
 }

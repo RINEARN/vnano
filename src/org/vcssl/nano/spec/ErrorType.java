@@ -6,5 +6,7 @@
 package org.vcssl.nano.spec;
 
 public enum ErrorType {
-	TEST_ERROR;
+	VARIABLE_NOT_FOUND,
+	FUNCTION_NOT_FOUND,
+	UNKNOWN,
 }
