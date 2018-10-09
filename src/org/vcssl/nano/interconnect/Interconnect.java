@@ -318,7 +318,7 @@ public class Interconnect {
 		connector.initializeForConnection();
 		Xvci1VariableAdapter adapter = new Xvci1VariableAdapter(connector);
 		this.globalVariableTable.addVariable(adapter);
-		String identifier = IdentifierSyntax.getUniqueIdentifierOf(adapter);
+		String identifier = IdentifierSyntax.getAssemblyIdentifierOf(adapter);
 		return identifier;
 	}
 
@@ -336,7 +336,7 @@ public class Interconnect {
 		connector.initializeForConnection();
 		Xfci1FunctionAdapter adapter = new Xfci1FunctionAdapter(connector);
 		this.functionTable.addFunction(adapter);
-		String identifier = IdentifierSyntax.getUniqueIdentifierOf(adapter);
+		String identifier = IdentifierSyntax.getAssemblyIdentifierOf(adapter);
 		return identifier;
 	}
 
@@ -349,7 +349,7 @@ public class Interconnect {
 	 */
 	public String connect(AbstractVariable variable) {
 		this.globalVariableTable.addVariable(variable);
-		String identifier = IdentifierSyntax.getUniqueIdentifierOf(variable);
+		String identifier = IdentifierSyntax.getAssemblyIdentifierOf(variable);
 		return identifier;
 	}
 
@@ -362,7 +362,7 @@ public class Interconnect {
 	 */
 	public String connect(AbstractFunction function) {
 		this.functionTable.addFunction(function);
-		String identifier = IdentifierSyntax.getUniqueIdentifierOf(function);
+		String identifier = IdentifierSyntax.getAssemblyIdentifierOf(function);
 		return identifier;
 	}
 

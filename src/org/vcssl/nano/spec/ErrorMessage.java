@@ -30,8 +30,17 @@ public class ErrorMessage {
 
 	public static String generateErrorMessageJaJP(ErrorType errorType, String[] words) {
 		switch (errorType) {
-			case VARIABLE_NOT_FOUND : return "宣言されていない変数「" + words[0] + "」を使用しています";
-			case FUNCTION_NOT_FOUND : return "存在しない関数「" + words[0] +  "」を呼び出しています";
+			case VARIABLE_IS_NOT_FOUND : return "宣言されていない変数「 " + words[0] + " 」を使用しています";
+			case FUNCTION_IS_NOT_FOUND : return "存在しない関数「 " + words[0] +  " 」を呼び出しています";
+			case STATEMENT_END_IS_NOT_FOUND : return "文の終端がありません（「 ; 」が必要です）";
+			case OPENING_PARENTHESES_IS_DEFICIENT : return "開き括弧「 ( 」が不足しています。";
+			case CLOSING_PARENTHESES_IS_DEFICIENT : return "閉じ括弧「 ) 」が不足しています。";
+			case INVALID_DATA_TYPES_FOR_UNARY_OPERATOR : return "単項演算子「 " + words[0] + " 」は、" + words[1] + "型のデータに対しては使用できません。";
+			case INVALID_DATA_TYPES_FOR_BINARY_OPERATOR : return "二項算子「 " + words[0] + " 」は、" + words[1] + "型と" + words[2] + "型のデータの組み合わせに対しては使用できません。";
+			case INVALID_TYPE_TOKEN_IN_EXPRESSION : return "単語「 " + words[0] + " 」は、式の中では使用できません";
+			case STRING_LITERAL_IS_NOT_CLOSED : return "閉じていない文字列リテラル \"...\" が存在します";
+			case NO_IDENTIFIER_IN_VARIABLE_DECLARATION : return "変数の宣言では、データ型名の後に変数名が必要です";
+			case TOO_MANY_TOKENS_FOR_VARIABLE_DECLARATION : return "変数宣言文の後半に、余分な記述が存在します";
 			case UNKNOWN : return "不明なエラー";
 			default : return "不明なエラー種類：" + errorType;
 		}
@@ -39,8 +48,17 @@ public class ErrorMessage {
 
 	public static String generateErrorMessageEnUS(ErrorType errorType, String[] words) {
 		switch (errorType) {
-			case VARIABLE_NOT_FOUND : return "Undeclared variable \"" + words[0] + "\" is used";
-			case FUNCTION_NOT_FOUND : return "Unknown function \"" + words[0] + "\" is called";
+			case VARIABLE_IS_NOT_FOUND : return "Undeclared variable \"" + words[0] + "\" is used";
+			case FUNCTION_IS_NOT_FOUND : return "Unknown function \"" + words[0] + "\" is called";
+			case STATEMENT_END_IS_NOT_FOUND : return "End-point of the statement is not found (\";\" is required)";
+			case OPENING_PARENTHESES_IS_DEFICIENT : return "Opening parenthesis \"(\" is deficient";
+			case CLOSING_PARENTHESES_IS_DEFICIENT : return "Closing parenthesis \")\" is deficient";
+			case INVALID_DATA_TYPES_FOR_UNARY_OPERATOR : return "Unary operator \"" + words[0] + "\" is not available for " + words[1] + "-type operands";
+			case INVALID_DATA_TYPES_FOR_BINARY_OPERATOR : return "Binary operator \"" + words[0] + "\" is not available for the combination of " + words[0] + "-type and " + words[1] + "-type data";
+			case INVALID_TYPE_TOKEN_IN_EXPRESSION : return "Token \"" + words[0] + "\" is not available in expressions";
+			case STRING_LITERAL_IS_NOT_CLOSED : return "Unclosed string literal \"...\" exists in code";
+			case NO_IDENTIFIER_IN_VARIABLE_DECLARATION : return "Variable name is required after the data type name for variable declarations";
+			case TOO_MANY_TOKENS_FOR_VARIABLE_DECLARATION : return "Unexpected description exists in the latter part of the variable declaration statement";
 			case UNKNOWN : return "Unknown Error";
 			default : return "Unknown Error Type：" + errorType;
 		}

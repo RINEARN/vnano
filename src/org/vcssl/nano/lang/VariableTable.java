@@ -53,7 +53,7 @@ public class VariableTable implements Cloneable {
 		this.variableList.add(variable);
 		this.nameVariableMap.put(variable.getVariableName(), variable);
 		this.assemblyIdentifierVariableMap.put(
-				IdentifierSyntax.getUniqueIdentifierOf(variable), variable
+				IdentifierSyntax.getAssemblyIdentifierOf(variable), variable
 		);
 	}
 
@@ -65,7 +65,7 @@ public class VariableTable implements Cloneable {
 	 * @param address 仮想メモリー内でのアドレス
 	 */
 	public void setAddress(AbstractVariable variable, int address) {
-		String assemblyIdentifier = IdentifierSyntax.getUniqueIdentifierOf(variable);
+		String assemblyIdentifier = IdentifierSyntax.getAssemblyIdentifierOf(variable);
 		this.assemblyIdentifierAddressMap.put(assemblyIdentifier, address);
 	}
 
@@ -107,7 +107,7 @@ public class VariableTable implements Cloneable {
 	 * この変数テーブルに登録されているかどうかを判定します。
 	 *
 	 * @param identifier 対象変数のアセンブリコード識別子
-	 * @return 含まれていればtrue
+	 * @return 登録されていればtrue
 	 */
 	public boolean containsVariableWithAssemblyIdentifier(String identifier) {
 		return this.assemblyIdentifierVariableMap.containsKey(identifier);

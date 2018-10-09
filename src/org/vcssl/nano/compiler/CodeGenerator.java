@@ -262,7 +262,7 @@ public class CodeGenerator {
 					// 関数識別子
 					case AttributeValue.FUNCTION_IDENTIFIER : {
 						AstNode callOperatorNode = currentNode.getParentNode();
-						String assemblyValue = IdentifierSyntax.getUniqueIdentifierOfCalleeFunctionOf(callOperatorNode);
+						String assemblyValue = IdentifierSyntax.getAssemblyIdentifierOfCalleeFunctionOf(callOperatorNode);
 						currentNode.addAttribute(AttributeKey.ASSEMBLY_VALUE, assemblyValue);
 						break;
 					}
@@ -270,7 +270,7 @@ public class CodeGenerator {
 					// 変数識別子
 					case AttributeValue.VARIABLE_IDENTIFIER : {
 						String identifier = currentNode.getAttribute(AttributeKey.IDENTIFIER_VALUE);
-						String assemblyValue = IdentifierSyntax.getUniqueIdentifierOf(identifier);
+						String assemblyValue = IdentifierSyntax.getAssemblyIdentifierOf(identifier);
 						currentNode.addAttribute(AttributeKey.ASSEMBLY_VALUE, assemblyValue);
 						break;
 					}
@@ -1730,7 +1730,7 @@ public class CodeGenerator {
 			if (currentNode.getType() == AstNode.Type.OPERATOR
 				&& currentNode.getAttribute(AttributeKey.OPERATOR_EXECUTOR).equals(AttributeValue.CALL)) {
 
-				String identifier = IdentifierSyntax.getUniqueIdentifierOfCalleeFunctionOf(currentNode);
+				String identifier = IdentifierSyntax.getAssemblyIdentifierOfCalleeFunctionOf(currentNode);
 
 				// 既に出力済みでなければ出力
 				if (!generatedSet.contains(identifier)) {
@@ -1777,7 +1777,7 @@ public class CodeGenerator {
 
 
 				String variableName = currentNode.getAttribute(AttributeKey.IDENTIFIER_VALUE);
-				String identifier = IdentifierSyntax.getUniqueIdentifierOf(variableName);
+				String identifier = IdentifierSyntax.getAssemblyIdentifierOf(variableName);
 
 				// 既に出力済みでなければ出力
 				if (!generatedSet.contains(identifier)) {

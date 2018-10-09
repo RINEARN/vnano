@@ -21,7 +21,6 @@ public class IdentifierSyntax {
 
 		StringBuilder builder = new StringBuilder();
 
-		builder.append(AssemblyWord.OPERAND_PREFIX_IDENTIFIER);
 		builder.append(functionName);
 		builder.append("(");
 
@@ -74,7 +73,7 @@ public class IdentifierSyntax {
 			argumentArrayRanks[argumentNodeIndex] = argumentNodes[argumentNodeIndex].getRank();
 		}
 
-		String signature = IdentifierSyntax.getUniqueIdentifierOf(
+		String signature = getUniqueIdentifierOf(
 				functionName, argumentDataTypeNames, argumentArrayRanks
 		);
 
@@ -94,19 +93,37 @@ public class IdentifierSyntax {
 					= DataTypeName.getDataTypeNameOf(parameterDataTypes[parameterIndex]);
 		}
 
-		String signature = IdentifierSyntax.getUniqueIdentifierOf(
+		String signature = getUniqueIdentifierOf(
 				connector.getFunctionName(), parameterDataTypeNames, parameterArrayRanks
 		);
 
 		return signature;
 	}
 
+	public static String getAssemblyIdentifierOf(String functionName,
+			String[] parameterDataTypeNames, int[] parameterArrayRanks) {
+
+		return AssemblyWord.OPERAND_PREFIX_IDENTIFIER
+				+ getUniqueIdentifierOf(functionName, parameterDataTypeNames, parameterArrayRanks);
+	}
+
+	public static String getAssemblyIdentifierOfCalleeFunctionOf(AstNode callerNode) {
+		return AssemblyWord.OPERAND_PREFIX_IDENTIFIER
+				+ getUniqueIdentifierOfCalleeFunctionOf(callerNode);
+	}
+
+	// この中身の文字列リテラルは、後で Mnemonic の定数に置き換えるべき？
+	public static String getAssemblyIdentifierOf(AbstractFunction connector) {
+		return AssemblyWord.OPERAND_PREFIX_IDENTIFIER
+				+ getUniqueIdentifierOf(connector);
+	}
+
 	// 後の工程での削除候補
-	public static String getUniqueIdentifierOf(String variableName) {
+	public static String getAssemblyIdentifierOf(String variableName) {
 		return AssemblyWord.OPERAND_PREFIX_IDENTIFIER + variableName;
 	}
 
-	public static String getUniqueIdentifierOf(AbstractVariable variable) {
+	public static String getAssemblyIdentifierOf(AbstractVariable variable) {
 		return AssemblyWord.OPERAND_PREFIX_IDENTIFIER + variable.getVariableName();
 	}
 

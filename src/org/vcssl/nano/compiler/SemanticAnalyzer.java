@@ -11,7 +11,7 @@ import java.util.Deque;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.vcssl.nano.VnanoRuntimeException;
+import org.vcssl.nano.VnanoSyntaxException;
 import org.vcssl.nano.compiler.AstNode;
 import org.vcssl.nano.interconnect.Interconnect;
 import org.vcssl.nano.lang.AbstractFunction;
@@ -22,6 +22,7 @@ import org.vcssl.nano.lang.VariableTable;
 import org.vcssl.nano.memory.DataException;
 import org.vcssl.nano.spec.DataTypeName;
 import org.vcssl.nano.spec.ErrorType;
+import org.vcssl.nano.spec.IdentifierSyntax;
 import org.vcssl.nano.spec.LiteralSyntax;
 import org.vcssl.nano.spec.ScriptWord;
 
@@ -53,10 +54,10 @@ public class SemanticAnalyzer {
 	 * @param Intterconnect interconnect 外部変数・関数の情報を保持しているインターコネクト
 	 * @return 各種情報を補完したASTのルートノード
 	 * @throws DataException ローカル変数のデータ型が無効な場合に発生します。
-	 * @throws ScriptCodeException 存在しない変数を参照している場合に発生します。
+	 * @throws VnanoSyntaxException 存在しない変数を参照している場合に発生します。
 	 */
 	public AstNode analyze(AstNode inputAst, Interconnect interconnect)
-			throws ScriptCodeException, DataException {
+			throws VnanoSyntaxException, DataException {
 
 		// インターコネクトから外部変数・外部関数のテーブルを取得
 		VariableTable globalVariableTable = interconnect.getGlobalVariableTable();
@@ -90,10 +91,10 @@ public class SemanticAnalyzer {
 	 * @param astRootNode 解析・設定対象のASTのルートノード（メソッド実行後、各ノードに属性値が追加されます）
 	 * @param globalVariableTable AST内で参照しているグローバル変数情報を持つ変数テーブル
 	 * @throws DataException ローカル変数のデータ型が無効な場合にスローされます。
-	 * @throws ScriptCodeException 存在しない変数を参照している場合にスローされます。
+	 * @throws VnanoSyntaxException 存在しない変数を参照している場合にスローされます。
 	 */
 	private void supplementLeafAttributes(AstNode astRootNode, VariableTable globalVariableTable)
-			throws ScriptCodeException, DataException {
+			throws VnanoSyntaxException, DataException {
 
 		Map<String, String> localVariableTypeMap = new HashMap<String, String>();
 		Map<String, Integer> localVariableRankMap = new HashMap<String, Integer>();
@@ -163,8 +164,8 @@ public class SemanticAnalyzer {
 						);
 
 					} else {
-						throw new ScriptCodeException(
-								ErrorType.VARIABLE_NOT_FOUND, identifier,
+						throw new VnanoSyntaxException(
+								ErrorType.VARIABLE_IS_NOT_FOUND, identifier,
 								currentNode.getFileName(), currentNode.getLineNumber()
 						);
 					}
@@ -191,8 +192,13 @@ public class SemanticAnalyzer {
 	 *
 	 * @param astRootNode 解析・設定対象のASTのルートノード（メソッド実行後、各ノードに属性値が追加されます）
 	 * @param functionTable AST内で参照している関数情報を持つ関数テーブル
+	 * @throws VnanoSyntaxException ASTの内容が構文的に正しくない場合にスローされます。
 	 */
-	private void supplementOperatorAttributes(AstNode astRootNode, FunctionTable functionTable) {
+	private void supplementOperatorAttributes(AstNode astRootNode, FunctionTable functionTable) throws VnanoSyntaxException {
+
+
+		// !!! 重複が多いので切り出して要リファクタ
+
 
 		// 構文木の全ノードに対し、末端からボトムアップの順序で辿りながら処理する
 		AstNode currentNode = astRootNode.getPostorderTraversalFirstNode();
@@ -223,9 +229,10 @@ public class SemanticAnalyzer {
 								AstNode[] inputNodes = currentNode.getChildNodes();
 								String leftOperandType = inputNodes[0].getDataTypeName();
 								String rightOperandType = inputNodes[1].getDataTypeName();
-								dataType = this.resolveArithmeticBinaryOperatorDataType(
+								dataType = this.analyzeArithmeticBinaryOperatorDataType(
 										leftOperandType, rightOperandType,
-										currentNode.getAttribute(AttributeKey.OPERATOR_SYMBOL)
+										currentNode.getAttribute(AttributeKey.OPERATOR_SYMBOL),
+										currentNode.getFileName(), currentNode.getLineNumber()
 								);
 								operationDataType = dataType;
 								rank = Math.max(inputNodes[0].getRank(), inputNodes[1].getRank());
@@ -254,7 +261,11 @@ public class SemanticAnalyzer {
 						String leftOperandType = inputNodes[0].getDataTypeName();
 						String rightOperandType = inputNodes[1].getDataTypeName();
 						dataType = DataTypeName.BOOL;
-						operationDataType = this.resolveComparisonBinaryOperatorDataType(leftOperandType, rightOperandType);
+						operationDataType = this.analyzeComparisonBinaryOperatorDataType(
+								leftOperandType, rightOperandType,
+								currentNode.getAttribute(AttributeKey.OPERATOR_SYMBOL),
+								currentNode.getFileName(), currentNode.getLineNumber()
+						);
 						rank = Math.max(inputNodes[0].getRank(), inputNodes[1].getRank());
 						break;
 					}
@@ -263,9 +274,15 @@ public class SemanticAnalyzer {
 						switch (syntaxType) {
 							case AttributeValue.BINARY : {
 								AstNode[] inputNodes = currentNode.getChildNodes();
-								rank = Math.max(inputNodes[0].getRank(), inputNodes[1].getRank());
+								String leftOperandType = inputNodes[0].getDataTypeName();
+								String rightOperandType = inputNodes[1].getDataTypeName();
 								dataType = DataTypeName.BOOL;
-								operationDataType = DataTypeName.BOOL;
+								operationDataType = this.analyzeLogicalBinaryOperatorDataType(
+										leftOperandType, rightOperandType,
+										currentNode.getAttribute(AttributeKey.OPERATOR_SYMBOL),
+										currentNode.getFileName(), currentNode.getLineNumber()
+								);
+								rank = Math.max(inputNodes[0].getRank(), inputNodes[1].getRank());
 								break;
 							}
 							case AttributeValue.PREFIX : {
@@ -288,7 +305,15 @@ public class SemanticAnalyzer {
 					}
 					// 関数呼び出し演算子の場合
 					case AttributeValue.CALL : {
-
+						// 関数テーブルから取り寄せられない場合は構文エラー
+						if (!functionTable.hasCalleeFunctionOf(currentNode)) {
+							String functionIdentifier = IdentifierSyntax.getUniqueIdentifierOfCalleeFunctionOf(currentNode);
+							System.out.println(currentNode);
+							throw new VnanoSyntaxException(
+									ErrorType.FUNCTION_IS_NOT_FOUND, functionIdentifier,
+									currentNode.getFileName(), currentNode.getLineNumber()
+							);
+						}
 						AbstractFunction function = functionTable.getCalleeFunctionOf(currentNode);
 						dataType = DataTypeName.getDataTypeNameOf(function.getReturnDataType());
 						operationDataType = dataType;
@@ -354,7 +379,7 @@ public class SemanticAnalyzer {
 
 
 	/**
-	 * 算術二項演算子の演算実行データ型を、オペランドのデータ型に基づいて決定して返します。
+	 * 算術二項演算子のオペランドのデータ型を解析し、演算実行データ型を決定して返します。
 	 *
 	 * オペランドの値は、このメソッドが返す演算実行データ型の値に型変換されてから、演算が実行されます。
 	 * また、算術演算結果のデータ型も、この演算実行データ型と同じものになります。
@@ -370,10 +395,14 @@ public class SemanticAnalyzer {
 	 * @param leftOperandType 左オペランドのデータ型の名前
 	 * @param rightOperandType 右オペランドのデータ型の名前
 	 * @param operatorSymbol 演算子の記号
+	 * @param fileName 対象処理が記述されたファイル名（例外発生時のエラー情報に使用）
+	 * @param fileName 対象処理が記述された行番号（例外発生時のエラー情報に使用）
 	 * @return 演算子の演算実行データ型の名前
+	 * @throws VnanoSyntaxException 対象演算子に対して使用できないデータ型であった場合にスローされます。
 	 */
-	private String resolveArithmeticBinaryOperatorDataType(
-			String leftOperandType, String rightOperandType, String operatorSymbol) {
+	private String analyzeArithmeticBinaryOperatorDataType(
+			String leftOperandType, String rightOperandType, String operatorSymbol,
+			String fileName, int lineNumber) throws VnanoSyntaxException {
 
 		// 文字列型を含む場合は文字列
 		if (DataTypeName.isDataTypeNameOf(DataType.STRING,leftOperandType)
@@ -403,11 +432,16 @@ public class SemanticAnalyzer {
 				&& DataTypeName.isDataTypeNameOf(DataType.INT64,rightOperandType) ) {
 			return DataTypeName.FLOAT;
 		}
-		throw new VnanoRuntimeException();
+
+		throw new VnanoSyntaxException(
+			ErrorType.INVALID_DATA_TYPES_FOR_BINARY_OPERATOR,
+			new String[] {operatorSymbol, leftOperandType, rightOperandType},
+			fileName, lineNumber
+		);
 	}
 
 	/**
-	 * 比較二項演算子の演算実行データ型を、オペランドのデータ型に基づいて決定して返します。
+	 * 比較二項演算子のオペランドのデータ型を解析し、演算実行データ型を決定して返します。
 	 *
 	 * オペランドの値は、このメソッドが返す演算実行データ型の値に型変換されてから、演算が実行されます。
 	 * ただし、比較演算結果のデータ型は常に bool 型です。
@@ -419,9 +453,15 @@ public class SemanticAnalyzer {
 	 *
 	 * @param leftOperandType 左オペランドのデータ型の名前
 	 * @param rightOperandType 右オペランドのデータ型の名前
+	 * @param operatorSymbol 演算子の記号
+	 * @param fileName 対象処理が記述されたファイル名（例外発生時のエラー情報に使用）
+	 * @param fileName 対象処理が記述された行番号（例外発生時のエラー情報に使用）
 	 * @return 演算子の演算実行データ型の名前
+	 * @throws VnanoSyntaxException 対象演算子に対して使用できないデータ型であった場合にスローされます。
 	 */
-	private String resolveComparisonBinaryOperatorDataType(String leftOperandType, String rightOperandType) {
+	private String analyzeComparisonBinaryOperatorDataType(
+			String leftOperandType, String rightOperandType, String operatorSymbol,
+			String fileName, int lineNumber) throws VnanoSyntaxException {
 
 		// 文字列型を含む場合は文字列
 		if (DataTypeName.isDataTypeNameOf(DataType.STRING,leftOperandType)
@@ -453,7 +493,48 @@ public class SemanticAnalyzer {
 				&& DataTypeName.isDataTypeNameOf(DataType.INT64,rightOperandType) ) {
 			return DataTypeName.FLOAT;
 		}
-		throw new VnanoRuntimeException();
+
+		throw new VnanoSyntaxException(
+			ErrorType.INVALID_DATA_TYPES_FOR_BINARY_OPERATOR,
+			new String[] {operatorSymbol, leftOperandType, rightOperandType},
+			fileName, lineNumber
+		);
+	}
+
+	/**
+	 * 論理二項演算子のオペランドのデータ型を解析し、演算実行データ型を決定して返します。
+	 *
+	 * オペランドの値は、このメソッドが返す演算実行データ型の値に型変換されてから、演算が実行されます。
+	 * ただし、比較演算結果のデータ型は常に bool 型です。
+	 *
+	 * デフォルトの文法では、論理二項演算子のオペランドは全て bool 型であるべきであり、
+	 * 演算実行データ型も常に bool 型です。
+	 * そのため、スクリプトコードが正しい場合、このメソッドを使用しなくても、結果は bool で確定しています。
+	 * しかしながら、スクリプトコードによっては bool 型以外のオペランドが入力される可能性もあるため、
+	 * このメソッドはオペランドの型検査も兼ねて使用されます。
+	 *
+	 * @param leftOperandType 左オペランドのデータ型の名前
+	 * @param rightOperandType 右オペランドのデータ型の名前
+	 * @param operatorSymbol 演算子の記号
+	 * @param fileName 対象処理が記述されたファイル名（例外発生時のエラー情報に使用）
+	 * @param fileName 対象処理が記述された行番号（例外発生時のエラー情報に使用）
+	 * @return 演算子の演算実行データ型の名前
+	 * @throws VnanoSyntaxException 対象演算子に対して使用できないデータ型であった場合にスローされます。
+	 */
+	private String analyzeLogicalBinaryOperatorDataType(
+			String leftOperandType, String rightOperandType, String operatorSymbol,
+			String fileName, int lineNumber) throws VnanoSyntaxException {
+
+		if (DataTypeName.isDataTypeNameOf(DataType.BOOL,leftOperandType)
+				&& DataTypeName.isDataTypeNameOf(DataType.BOOL,rightOperandType) ) {
+			return DataTypeName.BOOL;
+		}
+
+		throw new VnanoSyntaxException(
+			ErrorType.INVALID_DATA_TYPES_FOR_BINARY_OPERATOR,
+			new String[] {operatorSymbol, leftOperandType, rightOperandType},
+			fileName, lineNumber
+		);
 	}
 
 }

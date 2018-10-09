@@ -3,8 +3,9 @@
  * This software is released under the MIT License.
  */
 
-package org.vcssl.nano.compiler;
+package org.vcssl.nano;
 
+import org.vcssl.nano.compiler.Compiler;
 import org.vcssl.nano.spec.ErrorMessage;
 import org.vcssl.nano.spec.ErrorType;
 
@@ -18,22 +19,28 @@ import org.vcssl.nano.spec.ErrorType;
  * @author RINEARN (Fumihiro Matsui)
  */
 @SuppressWarnings("serial")
-public class ScriptCodeException extends Exception {
+public class VnanoSyntaxException extends Exception {
+
+	private static final int LINE_NUMBER_DEFAULT_VALUE = -1;
 
 	private ErrorType errorType = null;
 	private String[] errorWords = null;
 	private String fileName = null;
-	private int lineNumber = -1;
+	private int lineNumber = LINE_NUMBER_DEFAULT_VALUE;
 
-	public ScriptCodeException(ErrorType errorType, String fileName, int lineNumber) {
+	public VnanoSyntaxException(ErrorType errorType) {
+		this(errorType, (String)null, -1);
+	}
+
+	public VnanoSyntaxException(ErrorType errorType, String fileName, int lineNumber) {
 		this(errorType, (String)null, fileName, lineNumber);
 	}
 
-	public ScriptCodeException(ErrorType errorType, String errorWord, String fileName, int lineNumber) {
+	public VnanoSyntaxException(ErrorType errorType, String errorWord, String fileName, int lineNumber) {
 		this(errorType, new String[] {errorWord}, fileName, lineNumber);
 	}
 
-	public ScriptCodeException(ErrorType errorType, String[] errorWords, String fileName, int lineNumber) {
+	public VnanoSyntaxException(ErrorType errorType, String[] errorWords, String fileName, int lineNumber) {
 		super(ErrorMessage.generateErrorMessage(errorType, errorWords));
 
 		this.errorType = errorType;
@@ -44,6 +51,7 @@ public class ScriptCodeException extends Exception {
 		this.lineNumber = lineNumber;
 	}
 
+
 	public ErrorType getErrorType() {
 		return this.errorType;
 	}
@@ -52,11 +60,19 @@ public class ScriptCodeException extends Exception {
 		return this.errorWords;
 	}
 
+	public boolean hasFileName() {
+		return this.fileName != null;
+	}
+
 	public String getFileName() {
 		return this.fileName;
 	}
 
 	public int getLineNumber() {
 		return this.lineNumber;
+	}
+
+	public boolean hasLineNumber() {
+		return this.lineNumber != LINE_NUMBER_DEFAULT_VALUE;
 	}
 }

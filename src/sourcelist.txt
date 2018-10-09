@@ -77,7 +77,6 @@
 ./org/vcssl/nano/compiler/LexicalAnalyzer.java
 ./org/vcssl/nano/compiler/package-info.java
 ./org/vcssl/nano/compiler/Parser.java
-./org/vcssl/nano/compiler/ScriptCodeException.java
 ./org/vcssl/nano/compiler/SemanticAnalyzer.java
 ./org/vcssl/nano/compiler/Token.java
 ./org/vcssl/nano/interconnect/Interconnect.java
@@ -122,3 +121,4 @@
 ./org/vcssl/nano/VnanoFatalException.java
 ./org/vcssl/nano/VnanoIntermediateCode.java
 ./org/vcssl/nano/VnanoRuntimeException.java
+./org/vcssl/nano/VnanoSyntaxException.java

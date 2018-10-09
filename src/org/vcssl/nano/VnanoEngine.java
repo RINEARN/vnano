@@ -22,7 +22,6 @@ import javax.script.SimpleScriptContext;
 import org.vcssl.nano.assembler.Assembler;
 import org.vcssl.nano.assembler.AssemblyCodeException;
 import org.vcssl.nano.compiler.Compiler;
-import org.vcssl.nano.compiler.ScriptCodeException;
 import org.vcssl.nano.interconnect.Interconnect;
 import org.vcssl.nano.memory.DataContainer;
 import org.vcssl.nano.memory.DataConverter;
@@ -104,10 +103,14 @@ public class VnanoEngine implements ScriptEngine, Compilable {
 			return evalValue;
 
 		// 発生し得る例外は ScriptException でラップして投げる
-		} catch (ScriptCodeException e) {
+		} catch (VnanoSyntaxException e) {
 
 			String message = ErrorMessage.generateErrorMessage(e.getErrorType(), e.getErrorWords(), this.locale);
-			throw new ScriptException(message + ":", e.getFileName(), e.getLineNumber());
+			if (e.hasFileName() && e.hasLineNumber()) {
+				throw new ScriptException(message + ":", e.getFileName(), e.getLineNumber());
+			} else {
+				throw new ScriptException(message);
+			}
 
 		} catch (AssemblyCodeException | InvalidInstructionException | DataException | MemoryAccessException e) {
 
@@ -186,7 +189,7 @@ public class VnanoEngine implements ScriptEngine, Compilable {
 			return intermediateCode;
 
 		// 発生する例外は ScriptException でラップ
-		} catch (ScriptCodeException | AssemblyCodeException | DataException e) {
+		} catch (VnanoSyntaxException | AssemblyCodeException | DataException e) {
 
 			ScriptException scriptException = new ScriptException(e);
 			scriptException.initCause(e);
