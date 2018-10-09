@@ -3,8 +3,9 @@
  * This software is released under the MIT License.
  */
 
-package org.vcssl.nano.compiler;
+package org.vcssl.nano;
 
+import org.vcssl.nano.compiler.Compiler;
 import org.vcssl.nano.spec.ErrorMessage;
 import org.vcssl.nano.spec.ErrorType;
 
@@ -18,22 +19,22 @@ import org.vcssl.nano.spec.ErrorType;
  * @author RINEARN (Fumihiro Matsui)
  */
 @SuppressWarnings("serial")
-public class ScriptCodeException extends Exception {
+public class VnanoSyntaxException extends Exception {
 
 	private ErrorType errorType = null;
 	private String[] errorWords = null;
 	private String fileName = null;
 	private int lineNumber = -1;
 
-	public ScriptCodeException(ErrorType errorType, String fileName, int lineNumber) {
+	public VnanoSyntaxException(ErrorType errorType, String fileName, int lineNumber) {
 		this(errorType, (String)null, fileName, lineNumber);
 	}
 
-	public ScriptCodeException(ErrorType errorType, String errorWord, String fileName, int lineNumber) {
+	public VnanoSyntaxException(ErrorType errorType, String errorWord, String fileName, int lineNumber) {
 		this(errorType, new String[] {errorWord}, fileName, lineNumber);
 	}
 
-	public ScriptCodeException(ErrorType errorType, String[] errorWords, String fileName, int lineNumber) {
+	public VnanoSyntaxException(ErrorType errorType, String[] errorWords, String fileName, int lineNumber) {
 		super(ErrorMessage.generateErrorMessage(errorType, errorWords));
 
 		this.errorType = errorType;

@@ -12,6 +12,7 @@ import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.vcssl.nano.VnanoSyntaxException;
 import org.vcssl.nano.VnanoFatalException;
 import org.vcssl.nano.spec.DataTypeName;
 import org.vcssl.nano.spec.PriorityTable;
@@ -56,9 +57,9 @@ public class Parser {
 	 *
 	 * @param tokens 字句解析によって生成されたトークン配列
 	 * @return 構築したAST（抽象構文木）のルートノード
-	 * @throws ScriptCodeException 文の終端が見つからない場合にスローされます。
+	 * @throws VnanoSyntaxException 文の終端が見つからない場合にスローされます。
 	 */
-	public AstNode parse(Token[] tokens) throws ScriptCodeException {
+	public AstNode parse(Token[] tokens) throws VnanoSyntaxException {
 
 		// パース作業用のスタックとして使用する双方向キュー
 		Deque<AstNode> statementStack = new ArrayDeque<AstNode>();
@@ -75,7 +76,7 @@ public class Parser {
 
 			// （3つめの条件は、ブロック終端後に文が無い場合のため）
 			if (statementEnd < 0 && blockBegin < 0 && statementBegin!=blockEnd) {
-				throw new ScriptCodeException(
+				throw new VnanoSyntaxException(
 						ErrorType.STATEMENT_END_IS_NOT_FOUND,
 						tokens[statementBegin].getFileName(), tokens[statementBegin].getLineNumber()
 				);
@@ -171,9 +172,9 @@ public class Parser {
 	 *
 	 * @param tokens 文のトークン配列（文末記号は含まない）
 	 * @return 構築したAST（抽象構文木）のルートノード
-	 * @throws ScriptCodeException 文の構文に異常があった場合にスローされます。
+	 * @throws VnanoSyntaxException 文の構文に異常があった場合にスローされます。
 	 */
-	private AstNode parseVariableDeclarationStatement(Token[] tokens) throws ScriptCodeException {
+	private AstNode parseVariableDeclarationStatement(Token[] tokens) throws VnanoSyntaxException {
 
 		AstNode variableNode = new AstNode(AstNode.Type.VARIABLE, tokens[0].getLineNumber(), tokens[0].getFileName());
 
@@ -237,9 +238,9 @@ public class Parser {
 	 *
 	 * @param tokens 要素数宣言部のトークン配列
 	 * @return 構築したAST（抽象構文木）のルートノード
-	 * @throws ScriptCodeException 文の構文に異常があった場合にスローされます。
+	 * @throws VnanoSyntaxException 文の構文に異常があった場合にスローされます。
 	 */
-	private AstNode parseVariableDeclarationArrayLengths(Token[] tokens) throws ScriptCodeException {
+	private AstNode parseVariableDeclarationArrayLengths(Token[] tokens) throws VnanoSyntaxException {
 		AstNode lengthsNode = new AstNode(AstNode.Type.LENGTHS, tokens[0].getLineNumber(), tokens[0].getFileName());
 		int currentExprBegin = -1;
 
@@ -307,9 +308,9 @@ public class Parser {
 	 *
 	 * @param tokens 制御文を構成するトークン配列
 	 * @return 構築したAST（抽象構文木）のルートノード
-	 * @throws ScriptCodeException 文の構文に異常があった場合にスローされます。
+	 * @throws VnanoSyntaxException 文の構文に異常があった場合にスローされます。
 	 */
-	private AstNode parseControlStatement(Token[] tokens) throws ScriptCodeException {
+	private AstNode parseControlStatement(Token[] tokens) throws VnanoSyntaxException {
 		Token controlTypeToken = tokens[0];
 		int lineNumber = controlTypeToken.getLineNumber();
 		String fileName = controlTypeToken.getFileName();
@@ -418,9 +419,9 @@ public class Parser {
 	 * 検査の結果、個数が合っていた場合には何もせず、合っていなかった場合には例外をスローします。
 	 *
 	 * @param tokens 検査対象のトークン配列
-	 * @throws ScriptCodeException 開き括弧と閉じ括弧の個数が合っていなかった場合にスローされます。
+	 * @throws VnanoSyntaxException 開き括弧と閉じ括弧の個数が合っていなかった場合にスローされます。
 	 */
-	private void checkNumberOfParenthesesInExpression(Token[] tokens) throws ScriptCodeException {
+	private void checkNumberOfParenthesesInExpression(Token[] tokens) throws VnanoSyntaxException {
 		int tokenLength = tokens.length;
 		int hierarchy = 0; // 開き括弧で上がり、閉じ括弧で下がる階層カウンタ
 		for (int tokenIndex=0; tokenIndex<tokenLength; tokenIndex++) {
@@ -434,13 +435,13 @@ public class Parser {
 			}
 		}
 		if (hierarchy < 0) {
-			throw new ScriptCodeException(
+			throw new VnanoSyntaxException(
 				ErrorType.OPENING_PARENTHESES_IS_DEFICIENT,
 				tokens[0].getFileName(), tokens[0].getLineNumber() // 階層が0でない時点でトークンは1個以上あるので[0]で参照可能
 			);
 		}
 		if (hierarchy > 0) {
-			throw new ScriptCodeException(
+			throw new VnanoSyntaxException(
 				ErrorType.CLOSING_PARENTHESES_IS_DEFICIENT,
 				tokens[0].getFileName(), tokens[0].getLineNumber() // 階層が0でない時点でトークンは1個以上あるので[0]で参照可能
 			);
@@ -453,9 +454,9 @@ public class Parser {
 	 * 検査の結果、問題が無かった場合には何もせず、問題が見つかった場合には例外をスローします。
 	 *
 	 * @param tokens 検査対象のトークン配列
-	 * @throws ScriptCodeException 式の構成要素になり得ないタイプのトークンが存在していた場合にスローされます。
+	 * @throws VnanoSyntaxException 式の構成要素になり得ないタイプのトークンが存在していた場合にスローされます。
 	 */
-	private void checkTypeOfTokensInExpression(Token[] tokens) throws ScriptCodeException {
+	private void checkTypeOfTokensInExpression(Token[] tokens) throws VnanoSyntaxException {
 		for(Token token: tokens) {
 			switch (token.getType()) {
 
@@ -468,7 +469,7 @@ public class Parser {
 
 				// それ以外は式の構成要素になり得ない
 				default : {
-					throw new ScriptCodeException(
+					throw new VnanoSyntaxException(
 							ErrorType.INVALID_TYPE_TOKEN_IN_EXPRESSION,
 							token.getValue(),
 							token.getFileName(), token.getLineNumber()
@@ -485,9 +486,9 @@ public class Parser {
 	 * 検査の結果、問題が無かった場合には何もせず、問題が見つかった場合には例外をスローします。
 	 *
 	 * @param tokens 検査対象のトークン配列
-	 * @throws ScriptCodeException トークン配列に、式の構成トークンとしての問題があった場合にスローされます。
+	 * @throws VnanoSyntaxException トークン配列に、式の構成トークンとしての問題があった場合にスローされます。
 	 */
-	private void checkTokensInExpression(Token[] tokens) throws ScriptCodeException {
+	private void checkTokensInExpression(Token[] tokens) throws VnanoSyntaxException {
 
 		// トークン列内の開き括弧と閉じ括弧の対応を確認（合っていなければここで例外発生）
 		this.checkNumberOfParenthesesInExpression(tokens);
@@ -502,9 +503,9 @@ public class Parser {
 	 *
 	 * @param tokens 式のトークン配列
 	 * @return 構築したAST（抽象構文木）のルートノード
-	 * @throws ScriptCodeException 式の構文に異常があった場合にスローされます。
+	 * @throws VnanoSyntaxException 式の構文に異常があった場合にスローされます。
 	 */
-	private AstNode parseExpression(Token[] tokens) throws ScriptCodeException {
+	private AstNode parseExpression(Token[] tokens) throws VnanoSyntaxException {
 
 		// 最初に、トークンの種類や括弧の数などに、式の構成トークンとして問題無いか検査
 		checkTokensInExpression(tokens);

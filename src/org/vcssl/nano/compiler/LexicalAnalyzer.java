@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.vcssl.nano.VnanoSyntaxException;
 import org.vcssl.nano.spec.DataTypeName;
 import org.vcssl.nano.spec.LiteralSyntax;
 import org.vcssl.nano.spec.PriorityTable;
@@ -147,7 +148,7 @@ public class LexicalAnalyzer {
 	 * トークン配列を解析し、各要素にトークンタイプを設定します。
 	 *
 	 * @param tokens 解析・設定対象のトークン配列（情報が追加されます）
-	 * @throws ScriptCodeException 開き括弧と閉じ括弧の数が合っていない場合にスローされます。
+	 * @throws VnanoSyntaxException 開き括弧と閉じ括弧の数が合っていない場合にスローされます。
 	 */
 	private void analyzeTokenType(Token[] tokens) { //throws ScriptCodeException {
 
