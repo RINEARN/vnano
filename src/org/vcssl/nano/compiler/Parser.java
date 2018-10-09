@@ -449,6 +449,55 @@ public class Parser {
 
 
 	/**
+	 * 式のトークン配列のトークンタイプを検査し、式の構成要素になり得ないタイプのトークンが存在していないか検査します。
+	 * 検査の結果、問題が無かった場合には何もせず、問題が見つかった場合には例外をスローします。
+	 *
+	 * @param tokens 検査対象のトークン配列
+	 * @throws ScriptCodeException 式の構成要素になり得ないタイプのトークンが存在していた場合にスローされます。
+	 */
+	private void checkTypeOfTokensInExpression(Token[] tokens) throws ScriptCodeException {
+		for(Token token: tokens) {
+			switch (token.getType()) {
+
+				// 演算子、リーフ、括弧は式の構成要素になる
+				case OPERATOR : break;
+				case LEAF : break;
+				case PARENTHESIS : break;
+
+				// キャスト演算子をサポートする場合は、DATA_TYPEを通すように追加する必要がある
+
+				// それ以外は式の構成要素になり得ない
+				default : {
+					throw new ScriptCodeException(
+							ErrorType.INVALID_TYPE_TOKEN_IN_EXPRESSION,
+							token.getValue(),
+							token.getFileName(), token.getLineNumber()
+					);
+				}
+			}
+		}
+	}
+
+
+	/**
+	 * 式の構文解析の前処理として、式を構成するトークン配列に対して、
+	 * トークンタイプや括弧の開き閉じ対応などの検査を行います。
+	 * 検査の結果、問題が無かった場合には何もせず、問題が見つかった場合には例外をスローします。
+	 *
+	 * @param tokens 検査対象のトークン配列
+	 * @throws ScriptCodeException トークン配列に、式の構成トークンとしての問題があった場合にスローされます。
+	 */
+	private void checkTokensInExpression(Token[] tokens) throws ScriptCodeException {
+
+		// トークン列内の開き括弧と閉じ括弧の対応を確認（合っていなければここで例外発生）
+		this.checkNumberOfParenthesesInExpression(tokens);
+
+		// 式の構成要素になり得ない種類のトークンが存在しないか確認（存在すればここで例外発生）
+		this.checkTypeOfTokensInExpression(tokens);
+	}
+
+
+	/**
 	 * 式のトークン配列を解析し、AST（抽象構文木）を構築して返します。
 	 *
 	 * @param tokens 式のトークン配列
@@ -457,11 +506,13 @@ public class Parser {
 	 */
 	private AstNode parseExpression(Token[] tokens) throws ScriptCodeException {
 
-		// 最初にトークン列内の開き括弧と閉じ括弧の対応を確認（合っていなければここで例外発生）
-		this.checkNumberOfParenthesesInExpression(tokens);
+		// 最初に、トークンの種類や括弧の数などに、式の構成トークンとして問題無いか検査
+		checkTokensInExpression(tokens);
 
-		Deque<AstNode> stack = new ArrayDeque<AstNode>(); // パース作業用のスタックとして使用する双方向キュー
-		int tokenLength = tokens.length;
+		// パース作業用のスタックとして使用する双方向キューを用意
+		Deque<AstNode> stack = new ArrayDeque<AstNode>();
+
+		int tokenLength = tokens.length; // トークン数
 		int readingIndex = 0; // 注目トークンのインデックス
 
 		int[] rightOperatorPriorities = this.getRightOperatorPriorities(tokens);
