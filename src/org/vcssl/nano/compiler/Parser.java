@@ -276,27 +276,30 @@ public class Parser {
 				}
 				depth++;
 
-			// 「 ][ 」記号
-			} else if(word.equals(ScriptWord.INDEX_SEPARATOR)) {
+			// 「 ] 」記号か「 ][ 」記号
+			} else if(word.equals(ScriptWord.INDEX_END) || word.equals(ScriptWord.INDEX_SEPARATOR)) {
 
 				// 階層が 1 なら要素数宣言の次元区切り
 				if (depth==1) {
 					Token[] exprTokens = Arrays.copyOfRange(tokens, currentExprBegin, i);
-					AstNode exprNode = this.parseExpression(exprTokens);
-					lengthsNode.addChildNode(exprNode);
+
+					// 要素数宣言の内容が省略されている場合は、要素数 0 の宣言と同じものとする（言語仕様）
+					if (exprTokens.length == 0) {
+						AstNode zeroNode = this.createLeafNode(
+								"0", AttributeValue.LITERAL, tokens[i].getFileName(), tokens[i].getLineNumber()
+						);
+						lengthsNode.addChildNode(zeroNode);
+
+					// 省略されていなければ、内容を式として解釈してぶら下げる
+					} else {
+						lengthsNode.addChildNode( this.parseExpression(exprTokens) );
+					}
+				}
+				if (word.equals(ScriptWord.INDEX_END)) {
+					depth--;
+				} else {
 					currentExprBegin = i + 1;
 				}
-
-			// 「 ] 」記号
-			} else if(word.equals(ScriptWord.INDEX_END)) {
-
-				// 階層が 1 なら要素数宣言の終端
-				if (depth == 1) {
-					Token[] exprTokens = Arrays.copyOfRange(tokens, currentExprBegin, i);
-					AstNode exprNode = this.parseExpression(exprTokens);
-					lengthsNode.addChildNode(exprNode);
-				}
-				depth--;
 			}
 		}
 
@@ -862,6 +865,21 @@ public class Parser {
 		return node;
 	}
 
+
+	/**
+	 * 識別子またはリテラルの表す文字列に基づいて、
+	 * 式のリーフノードとなる {@link AstNode.Type#LEAF LEAF} タイプのASTノードを生成して返します。
+	 *
+	 * @param tokenValue 識別子またはリテラルの文字列
+	 * @param leafType {@link AttributeKey#LEAF_TYPE LEAF_TYPE}属性の値
+	 * @return 生成したリーフノード
+	 */
+	private AstNode createLeafNode(String tokenValue, String leafType, String fileName, int lineNumber) {
+		Token token = new Token(tokenValue, lineNumber, fileName);
+		token.setType(Token.Type.LEAF);
+		token.addAttribute(AttributeKey.LEAF_TYPE, leafType);
+		return this.createLeafNode(token);
+	}
 
 
 
