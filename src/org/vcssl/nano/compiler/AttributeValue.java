@@ -97,7 +97,7 @@ public class AttributeValue {
 	/**
 	 * {@link AttributeKey#OPERATOR_SYNTAX OPERATOR_SYNTAX}属性の値であり、多項演算子を表します。
 	 */
-	public static final String MULTIARY = "multialy";
+	public static final String MULTIARY = "multiary";
 
 	/**
 	 * {@link AttributeKey#OPERATOR_SYNTAX

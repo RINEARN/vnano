@@ -165,7 +165,7 @@ public class ScriptWord {
     	// ただし if などのワード系シンボルは、逆に1文字目が単体でヒットしてはいけない。
     	// これらは字句解析を簡単にするための仕様であり、解決したい場合は LexicalAnalyzer の再実装が必要。
     	// 3文字シンボルを採用したい場合も同様。
-    	
+
     	// 現状のLexicalAnalyzerの実装のまま、もしも2文字トークンの1文字目を言語としてサポートしたくない場合は、
     	// 便宜的にその1文字のシンボルを定義した上でINVALIDを指定する事で実現可能。
 
@@ -209,6 +209,7 @@ public class ScriptWord {
     	SYMBOL_SET.add(BLOCK_BEGIN);
     	SYMBOL_SET.add(BLOCK_END);
     	SYMBOL_SET.add(INDEX_BEGIN);
+    	SYMBOL_SET.add(INDEX_SEPARATOR);
     	SYMBOL_SET.add(INDEX_END);
 
     	SYMBOL_SET.add(END_OF_STATEMENT);

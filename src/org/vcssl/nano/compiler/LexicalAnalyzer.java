@@ -215,7 +215,7 @@ public class LexicalAnalyzer {
 
 			// 多次元インデックスの区切り「 ][ 」
 			// (この処理系では、多次元配列は「配列の配列」ではなく、あくまでもインデックスを複数持つ1個の配列)
-			} else if (word.equals(ScriptWord.INDEX_END) && i < tokens.length-1 && tokens[i+1].getValue().equals(ScriptWord.INDEX_BEGIN)) {
+			} else if (word.equals(ScriptWord.INDEX_END + ScriptWord.INDEX_BEGIN)) {
 
 				tokens[i].setType(Token.Type.OPERATOR);
 				tokens[i].addAttribute(AttributeKey.OPERATOR_EXECUTOR, AttributeValue.INDEX);
