@@ -307,6 +307,75 @@ public class Parser {
 	}
 
 
+	/**
+	 * 制御文の構文解析の前処理として、文を構成するトークン配列に対して、
+	 * 括弧や条件式、その他必要な文の有無などを検査します。
+	 * 検査の結果、問題が無かった場合には何もせず、問題が見つかった場合には例外をスローします。
+	 *
+	 * @param tokens 検査対象のトークン配列
+	 * @throws VnanoSyntaxException トークン配列に、制御文の構成トークンとしての問題があった場合にスローされます。
+	 */
+	private void checkControlStatementTokens(Token[] tokens) throws VnanoSyntaxException {
+		Token controlTypeToken = tokens[0];
+		int lineNumber = controlTypeToken.getLineNumber();
+		String fileName = controlTypeToken.getFileName();
+
+		// if文の場合
+		if(controlTypeToken.getValue().equals(ScriptWord.IF)) {
+
+			// 直後が「 ( 」でないか、終端が「 ) 」でない場合は構文エラー
+			if (  tokens.length < 3 || !tokens[1].getValue().equals(ScriptWord.PARENTHESIS_BEGIN)
+					 || !tokens[tokens.length-1].getValue().equals(ScriptWord.PARENTHESIS_END)  ) {
+				throw new VnanoSyntaxException(ErrorType.NO_PARENTHESIS_OF_IF_STATEMENT, fileName, lineNumber);
+			}
+			// 条件式が空の場合は構文エラー
+			if (tokens.length == 3) {
+				throw new VnanoSyntaxException(ErrorType.NO_CONDITION_EXPRESSION_OF_IF_STATEMENT, fileName, lineNumber);
+			}
+
+		// whilw文の場合
+		} else if(controlTypeToken.getValue().equals(ScriptWord.WHILE)) {
+
+			// 直後が「 ( 」でないか、終端が「 ) 」でない場合は構文エラー
+			if (  tokens.length < 3 || !tokens[1].getValue().equals(ScriptWord.PARENTHESIS_BEGIN)
+					 || !tokens[tokens.length-1].getValue().equals(ScriptWord.PARENTHESIS_END)  ) {
+				throw new VnanoSyntaxException(ErrorType.NO_PARENTHESIS_OF_WHILE_STATEMENT, fileName, lineNumber);
+			}
+			// 条件式が空の場合は構文エラー
+			if (tokens.length == 3) {
+				throw new VnanoSyntaxException(ErrorType.NO_CONDITION_EXPRESSION_OF_WHILE_STATEMENT, fileName, lineNumber);
+			}
+
+		// for文の場合
+		} else if(controlTypeToken.getValue().equals(ScriptWord.FOR)) {
+
+			// 直後が「 ( 」でないか、終端が「 ) 」でない場合は構文エラー
+			if (  tokens.length < 3 || !tokens[1].getValue().equals(ScriptWord.PARENTHESIS_BEGIN)
+					 || !tokens[tokens.length-1].getValue().equals(ScriptWord.PARENTHESIS_END)  ) {
+				throw new VnanoSyntaxException(ErrorType.NO_PARENTHESIS_OF_FOR_STATEMENT, fileName, lineNumber);
+			}
+
+			// 初期化式と条件式の終端トークンインデックスを取得
+			int initializationEnd = this.getTokenIndex(tokens, ScriptWord.END_OF_STATEMENT, 0);
+			int conditionEnd = this.getTokenIndex(tokens, ScriptWord.END_OF_STATEMENT, initializationEnd+1);
+
+			if (initializationEnd < 0 || conditionEnd < 0) {
+				throw new VnanoSyntaxException(
+						ErrorType.ELEMENTS_OF_FOR_STATEMENT_IS_DEFICIENT, fileName, lineNumber
+				);
+			}
+
+		// else文の場合: else文ノードを生成するのみ
+		} else if(controlTypeToken.getValue().equals(ScriptWord.ELSE)
+				|| controlTypeToken.getValue().equals(ScriptWord.BREAK)
+				|| controlTypeToken.getValue().equals(ScriptWord.CONTINUE) ) {
+
+		} else {
+			// ここに到達するのはLexicalAnalyzerの異常（不明な種類の制御構文）
+			throw new VnanoFatalException("Unknown controll statement: " + controlTypeToken.getValue());
+		}
+	}
+
 
 	/**
 	 * 制御文を構成するトークン配列に対して構文解析を行い、AST（抽象構文木）を構築して返します。
@@ -332,6 +401,10 @@ public class Parser {
 	 * @throws VnanoSyntaxException 文の構文に異常があった場合にスローされます。
 	 */
 	private AstNode parseControlStatement(Token[] tokens) throws VnanoSyntaxException {
+
+		// 最初に、括弧の存在や条件式・文の存在などを検査しておく（問題がある場合はここで例外発生）
+		this.checkControlStatementTokens(tokens);
+
 		Token controlTypeToken = tokens[0];
 		int lineNumber = controlTypeToken.getLineNumber();
 		String fileName = controlTypeToken.getFileName();
