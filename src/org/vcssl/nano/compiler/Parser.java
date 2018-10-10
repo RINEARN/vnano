@@ -204,8 +204,7 @@ public class Parser {
 		Token nameToken = tokens[readingIndex];
 		variableNode.addAttribute(AttributeKey.IDENTIFIER_VALUE, nameToken.getValue());
 		readingIndex++;
-
-		// 配列要素数の検出 / 識別子の直後に付いている場合
+		// 配列要素数の検出
 		AstNode arrayLengthNode = null;
 		if (readingIndex<tokens.length-1 && tokens[readingIndex].getValue().equals(ScriptWord.INDEX_BEGIN)) {
 			int lengthsEnd = getLengthEndIndex(tokens, readingIndex);
@@ -533,6 +532,98 @@ public class Parser {
 
 
 	/**
+	 * 式のトークン配列内で、演算子トークンの左右に位置するオペランドが、適切な種類のトークンであるか検査します。
+	 * 検査の結果、問題が無かった場合には何もせず、問題が見つかった場合には例外をスローします。
+	 *
+	 * @param tokens 検査対象のトークン配列
+	 * @throws VnanoSyntaxException 問題が見つかった場合にスローされます。
+	 */
+	private void checkOperandsInExpression(Token[] tokens) throws VnanoSyntaxException {
+		int tokenLength = tokens.length;
+
+		// トークンを先頭から末尾まで辿って検査
+		for (int tokenIndex=0; tokenIndex<tokenLength; tokenIndex++) {
+			Token token = tokens[tokenIndex];
+
+			boolean nextIsLeaf = tokenIndex!=tokenLength-1 && tokens[tokenIndex+1].getType()==Token.Type.LEAF;
+			boolean prevIsLeaf = tokenIndex!=0 && tokens[tokenIndex-1].getType()==Token.Type.LEAF;
+
+			boolean nextIsOpenParenthesis = tokenIndex != tokenLength-1
+					&& tokens[tokenIndex+1].getType() == Token.Type.PARENTHESIS
+					&& tokens[tokenIndex+1].getValue().equals(ScriptWord.PARENTHESIS_BEGIN);
+			boolean prevIsOpenParenthesis = tokenIndex != 0
+					&& tokens[tokenIndex-1].getType() == Token.Type.PARENTHESIS
+					&& tokens[tokenIndex-1].getValue().equals(ScriptWord.PARENTHESIS_BEGIN);
+
+			//boolean nextIsCloseParenthesis = tokenIndex != tokenLength-1
+			//		&& tokens[tokenIndex+1].getType() == Token.Type.PARENTHESIS
+			//		&& tokens[tokenIndex+1].getValue().equals(ScriptWord.PARENTHESIS_END);
+			boolean prevIsCloseParenthesis = tokenIndex != 0
+					&& tokens[tokenIndex-1].getType() == Token.Type.PARENTHESIS
+					&& tokens[tokenIndex-1].getValue().equals(ScriptWord.PARENTHESIS_END);
+
+			boolean nextIsMultialyBegin = tokenIndex != tokenLength-1
+					&& tokens[tokenIndex+1].getType() == Token.Type.OPERATOR
+					&& tokens[tokenIndex+1].getAttribute(AttributeKey.OPERATOR_SYNTAX).equals(AttributeValue.MULTIARY);
+			//boolean prevIsMultialyBegin = tokenIndex != 0
+			//		&& tokens[tokenIndex-1].getType() == Token.Type.OPERATOR
+			//		&& tokens[tokenIndex-1].getAttribute(AttributeKey.OPERATOR_SYNTAX).equals(AttributeValue.MULTIARY);
+
+			//boolean nextIsMultialyEnd = tokenIndex != tokenLength-1
+			//		&& tokens[tokenIndex+1].getType() == Token.Type.OPERATOR
+			//		&& tokens[tokenIndex+1].getAttribute(AttributeKey.OPERATOR_SYNTAX).equals(AttributeValue.MULTIARY_END);
+
+			boolean prevIsMultialyEnd = tokenIndex != 0
+					&& tokens[tokenIndex-1].getType() == Token.Type.OPERATOR
+					&& tokens[tokenIndex-1].getAttribute(AttributeKey.OPERATOR_SYNTAX).equals(AttributeValue.MULTIARY_END);
+
+			// 演算子の場合
+			if (token.getType() == Token.Type.OPERATOR) {
+				String operatorSyntax = token.getAttribute(AttributeKey.OPERATOR_SYNTAX);
+
+				// 前置演算子の場合は、右がリーフか開き括弧か多項演算子（関数呼び出しや配列アクセス）始点でないとエラー
+				if (operatorSyntax.equals(AttributeValue.PREFIX)
+						&& !(  nextIsLeaf || nextIsOpenParenthesis || nextIsMultialyBegin  ) ) {
+
+					throw new VnanoSyntaxException(
+							ErrorType.OPERAND_IS_MISSING_AT_RIGHT,
+							token.getValue(), token.getFileName(), token.getLineNumber()
+					);
+				} // 前置演算子の場合
+
+				// 後置演算子の場合は、右がリーフか閉じ括弧か多項演算子（関数呼び出しや配列アクセス）終点でないとエラー
+				if (operatorSyntax.equals(AttributeValue.POSTFIX)
+						&& !(  prevIsLeaf || prevIsCloseParenthesis || prevIsMultialyEnd ) ) {
+
+					throw new VnanoSyntaxException(
+							ErrorType.OPERAND_IS_MISSING_AT_LEFT,
+							token.getValue(), token.getFileName(), token.getLineNumber()
+					);
+				} // 後置演算子の場合
+
+				// 二項演算子の場合
+				if (operatorSyntax.equals(AttributeValue.BINARY)) {
+					// 右がリーフか開き括弧か多項演算子（関数呼び出しや配列アクセス）の始点でないとエラー
+					if( !(  nextIsLeaf || nextIsOpenParenthesis || nextIsMultialyBegin  ) ) {
+						throw new VnanoSyntaxException(
+							ErrorType.OPERAND_IS_MISSING_AT_RIGHT,
+							token.getValue(), token.getFileName(), token.getLineNumber()
+						);
+					}
+					// 左のトークンがリーフか閉じ括弧か多項演算子（関数呼び出しや配列アクセス）の終点でないとエラー
+					if( !(  prevIsLeaf || prevIsCloseParenthesis || prevIsMultialyEnd  ) ) {
+						throw new VnanoSyntaxException(
+							ErrorType.OPERAND_IS_MISSING_AT_LEFT,
+							token.getValue(), token.getFileName(), token.getLineNumber()
+						);
+					}
+				} // 二項演算子の場合
+			} // 演算子の場合
+		} // トークンを先頭から末尾まで辿るループ
+	}
+
+
+	/**
 	 * 式の構文解析の前処理として、式を構成するトークン配列に対して、
 	 * トークンタイプや括弧の開き閉じ対応などの検査を行います。
 	 * 検査の結果、問題が無かった場合には何もせず、問題が見つかった場合には例外をスローします。
@@ -550,6 +641,9 @@ public class Parser {
 
 		// 式の中に空の括弧が存在しないか確認（関数呼び出し演算子は除く）
 		this.checkBlankParenthesesInExpression(tokens);
+
+		// 演算子に対して適切な位置にリーフトークンが存在しているか確認
+		this.checkOperandsInExpression(tokens);
 	}
 
 
@@ -578,8 +672,6 @@ public class Parser {
 
 			Token readingToken = tokens[readingIndex];         // このループでの読み込み対象トークン
 			int readingPriority = readingToken.getPriority();  // トークンの読み込み優先度（≒演算子優先度）
-			String fileName = readingToken.getFileName();      // トークンがあったファイル名（エラー情報に使用）
-			int lineNumber = readingToken.getLineNumber();     // トークンがあった行番号（エラー情報に使用）
 			AstNode operatorNode = null;                       // 生成した演算子ノードを控える
 
 			// 識別子やリテラルなどのリーフ（末端オペランド）ノードの場合 -> スタックにプッシュ
@@ -622,10 +714,8 @@ public class Parser {
 					case AttributeValue.PREFIX : {
 
 						// 優先度が次の演算子よりも強い場合、右トークンを先読みし、リーフノードとして演算子ノードにぶら下げる
-						//if (readingToken.hasEqualOrHigherPriorityThanNextOperator()) {
 						if (readingPriority <= rightOperatorPriorities[readingIndex]) { // 数字が小さい方が優先度が高い
-							// ここで右にトークンが存在するかどうかの検査＆例外スローが必要? -> そのレベルの検査は Lexer で行うべき?
-							operatorNode.addChildNode( this.createLeafNode(tokens[readingIndex+1]) ); // false は関数識別子では無い事を指定
+							operatorNode.addChildNode( this.createLeafNode(tokens[readingIndex+1]) );
 							readingIndex++; // 次のトークンは先読みして処理を終えたので1つ余分に進める
 						}
 						break;
@@ -639,7 +729,7 @@ public class Parser {
 
 						// 優先度が次の演算子よりも強い場合、右トークンを先読みし、リーフノードとして演算子ノードにぶら下げる
 						if (readingPriority <= rightOperatorPriorities[readingIndex]) { // 数字が小さい方が優先度が高い
-							operatorNode.addChildNode( this.createLeafNode(tokens[readingIndex+1]) ); // false は関数識別子では無い事を指定
+							operatorNode.addChildNode( this.createLeafNode(tokens[readingIndex+1]) );
 							readingIndex++; // 次のトークンは先読みして処理を終えたので1つ余分に進める -> これのせいで関数切り分けできない
 						}
 						break;
@@ -681,7 +771,7 @@ public class Parser {
 						break;
 					}
 
-					// ここに到達するのはLexicalAnalyzerの以上（不明な種類の演算子構文種類）
+					// ここに到達するのはLexicalAnalyzerの異常（不明な種類の演算子構文種類）
 					default : {
 						throw new VnanoFatalException("Unknown operator syntax");
 					}
