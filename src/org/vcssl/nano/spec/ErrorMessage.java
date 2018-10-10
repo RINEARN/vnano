@@ -35,15 +35,15 @@ public class ErrorMessage {
 			case STATEMENT_END_IS_NOT_FOUND : return "文の終端がありません（「 ; 」が必要です）";
 			case OPENING_PARENTHESES_IS_DEFICIENT : return "開き括弧「 ( 」が不足しています。";
 			case CLOSING_PARENTHESES_IS_DEFICIENT : return "閉じ括弧「 ) 」が不足しています。";
-			case INVALID_DATA_TYPES_FOR_UNARY_OPERATOR : return "単項演算子「 " + words[0] + " 」は、" + words[1] + "型の値や変数に対しては使用できません。";
-			case INVALID_DATA_TYPES_FOR_BINARY_OPERATOR : return "二項算子「 " + words[0] + " 」は、" + words[1] + "型と" + words[2] + "型の値や変数の組み合わせに対しては使用できません。";
+			case INVALID_DATA_TYPES_FOR_UNARY_OPERATOR : return "単項演算子の「 " + words[0] + " 」は、" + words[1] + "型の値や変数に対しては使用できません。";
+			case INVALID_DATA_TYPES_FOR_BINARY_OPERATOR : return "二項算子の「 " + words[0] + " 」は、" + words[1] + "型と" + words[2] + "型の値や変数の組み合わせに対しては使用できません。";
 			case INVALID_TYPE_TOKEN_IN_EXPRESSION : return "単語「 " + words[0] + " 」は、式の中では使用できません";
 			case STRING_LITERAL_IS_NOT_CLOSED : return "閉じていない文字列リテラル \"...\" が存在します";
 			case NO_IDENTIFIER_IN_VARIABLE_DECLARATION : return "変数の宣言では、データ型名の後に変数名が必要です";
 			case TOO_MANY_TOKENS_FOR_VARIABLE_DECLARATION : return "変数宣言文の後半に、余分な記述が存在します";
 			case NO_PARTIAL_EXPRESSION : return "式の中に空の括弧 ( ) があります";
-			case OPERAND_IS_MISSING_AT_RIGHT : return "演算子「 " + words[0] + " 」の右側に、値や変数などが必要です";
-			case OPERAND_IS_MISSING_AT_LEFT : return "演算子「 " + words[0] + " 」の左側に、値や変数などが必要です";
+			case OPERAND_IS_MISSING_AT_RIGHT : return "「 " + words[0] + " 」の右側に、値や変数などが必要です";
+			case OPERAND_IS_MISSING_AT_LEFT : return "「 " + words[0] + " 」の左側に、値や変数などが必要です";
 			case UNKNOWN : return "不明なエラー";
 			default : return "不明なエラー種類：" + errorType;
 		}
@@ -63,8 +63,8 @@ public class ErrorMessage {
 			case NO_IDENTIFIER_IN_VARIABLE_DECLARATION : return "Variable name is required after the data type name for variable declarations";
 			case TOO_MANY_TOKENS_FOR_VARIABLE_DECLARATION : return "Unexpected description exists in the latter part of the variable declaration statement";
 			case NO_PARTIAL_EXPRESSION : return "Blank parentheses ( ) exists in the expression";
-			case OPERAND_IS_MISSING_AT_RIGHT : return "Value or variable is necessary at the right of \"" + words[0] + "\" operator";
-			case OPERAND_IS_MISSING_AT_LEFT : return "Value or variable is necessary at the left of \"" + words[0] + "\" operator";
+			case OPERAND_IS_MISSING_AT_RIGHT : return "Value or variable is necessary at the right of \"" + words[0] + "\"";
+			case OPERAND_IS_MISSING_AT_LEFT : return "Value or variable is necessary at the left of \"" + words[0] + "\"";
 			case UNKNOWN : return "Unknown Error";
 			default : return "Unknown Error Type：" + errorType;
 		}

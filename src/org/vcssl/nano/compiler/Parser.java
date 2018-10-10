@@ -602,8 +602,10 @@ public class Parser {
 					);
 				} // 後置演算子の場合
 
-				// 二項演算子の場合
-				if (operatorSyntax.equals(AttributeValue.BINARY)) {
+				// 二項演算子や、多項演算子（関数呼び出しや配列アクセス）の区切りの場合
+				if (operatorSyntax.equals(AttributeValue.BINARY)
+						|| operatorSyntax.equals(AttributeValue.MULTIARY_SEPARATOR)) {
+
 					// 右がリーフか開き括弧か多項演算子（関数呼び出しや配列アクセス）の始点でないとエラー
 					if( !(  nextIsLeaf || nextIsOpenParenthesis || nextIsMultialyBegin  ) ) {
 						throw new VnanoSyntaxException(
@@ -618,7 +620,8 @@ public class Parser {
 							token.getValue(), token.getFileName(), token.getLineNumber()
 						);
 					}
-				} // 二項演算子の場合
+				} // 二項演算子や、多項演算子（関数呼び出しや配列アクセス）の区切りの場合
+
 			} // 演算子の場合
 		} // トークンを先頭から末尾まで辿るループ
 	}
