@@ -41,6 +41,7 @@ public class ErrorMessage {
 			case STRING_LITERAL_IS_NOT_CLOSED : return "閉じていない文字列リテラル \"...\" が存在します";
 			case NO_IDENTIFIER_IN_VARIABLE_DECLARATION : return "変数の宣言では、データ型名の後に変数名が必要です";
 			case TOO_MANY_TOKENS_FOR_VARIABLE_DECLARATION : return "変数宣言文の後半に、余分な記述が存在します";
+			case NO_PARTIAL_EXPRESSION : return "式の中に空の括弧 ( ) があります";
 			case UNKNOWN : return "不明なエラー";
 			default : return "不明なエラー種類：" + errorType;
 		}
@@ -59,6 +60,7 @@ public class ErrorMessage {
 			case STRING_LITERAL_IS_NOT_CLOSED : return "Unclosed string literal \"...\" exists in code";
 			case NO_IDENTIFIER_IN_VARIABLE_DECLARATION : return "Variable name is required after the data type name for variable declarations";
 			case TOO_MANY_TOKENS_FOR_VARIABLE_DECLARATION : return "Unexpected description exists in the latter part of the variable declaration statement";
+			case NO_PARTIAL_EXPRESSION : return "Blank parentheses ( ) exists in the expression";
 			case UNKNOWN : return "Unknown Error";
 			default : return "Unknown Error Type：" + errorType;
 		}

@@ -501,6 +501,38 @@ public class Parser {
 
 
 	/**
+	 * 式のトークン配列内における、開き括弧「 ( 」と閉じ括弧「 ) 」に囲まれた部分式の中身が、
+	 * 空になっている箇所が無いか検査します。ただし、関数呼び出し演算子の ( ) は検査対象に含まれません。
+	 * 検査の結果、問題が無かった場合には何もせず、問題が見つかった場合には例外をスローします。
+	 *
+	 * @param tokens 検査対象のトークン配列
+	 * @throws VnanoSyntaxException 空の部分式が含まれていた場合にスローされます。
+	 */
+	private void checkBlankParenthesesInExpression(Token[] tokens) throws VnanoSyntaxException {
+		int tokenLength = tokens.length;
+		int contentCounter = 0;
+		for (int tokenIndex=0; tokenIndex<tokenLength; tokenIndex++) {
+			Token token = tokens[tokenIndex];
+			if (token.getType() == Token.Type.PARENTHESIS) {
+				if (token.getValue().equals(ScriptWord.PARENTHESIS_BEGIN)) {
+					contentCounter = 0;
+				} else if (token.getValue().equals(ScriptWord.PARENTHESIS_END)) {
+					if (contentCounter == 0) {
+						throw new VnanoSyntaxException(
+								ErrorType.NO_PARTIAL_EXPRESSION,
+								token.getFileName(), token.getLineNumber()
+						);
+					}
+					contentCounter = 0;
+				}
+			} else {
+				contentCounter++;
+			}
+		}
+	}
+
+
+	/**
 	 * 式の構文解析の前処理として、式を構成するトークン配列に対して、
 	 * トークンタイプや括弧の開き閉じ対応などの検査を行います。
 	 * 検査の結果、問題が無かった場合には何もせず、問題が見つかった場合には例外をスローします。
@@ -515,6 +547,9 @@ public class Parser {
 
 		// 式の構成要素になり得ない種類のトークンが存在しないか確認（存在すればここで例外発生）
 		this.checkTypeOfTokensInExpression(tokens);
+
+		// 式の中に空の括弧が存在しないか確認（関数呼び出し演算子は除く）
+		this.checkBlankParenthesesInExpression(tokens);
 	}
 
 
@@ -541,9 +576,11 @@ public class Parser {
 		// トークンを左から順に末尾まで読み進むループ
 		do {
 
-			Token readingToken = tokens[readingIndex];
-			int readingPriority = readingToken.getPriority();
-			AstNode operatorNode = null;
+			Token readingToken = tokens[readingIndex];         // このループでの読み込み対象トークン
+			int readingPriority = readingToken.getPriority();  // トークンの読み込み優先度（≒演算子優先度）
+			String fileName = readingToken.getFileName();      // トークンがあったファイル名（エラー情報に使用）
+			int lineNumber = readingToken.getLineNumber();     // トークンがあった行番号（エラー情報に使用）
+			AstNode operatorNode = null;                       // 生成した演算子ノードを控える
 
 			// 識別子やリテラルなどのリーフ（末端オペランド）ノードの場合 -> スタックにプッシュ
 			if (readingToken.getType() == Token.Type.LEAF) {
@@ -646,17 +683,13 @@ public class Parser {
 
 					// ここに到達するのはLexicalAnalyzerの以上（不明な種類の演算子構文種類）
 					default : {
-						throw new VnanoFatalException(
-							"Unknown operator syntax: " + readingToken.getAttribute(AttributeKey.OPERATOR_SYNTAX)
-						);
+						throw new VnanoFatalException("Unknown operator syntax");
 					}
 				}
 
 			// ここに到達するのはLexicalAnalyzerの異常（不明な種類のトークン）
 			} else {
-				throw new VnanoFatalException(
-					"Unknown token type: " + readingToken.getType()
-				);
+				throw new VnanoFatalException("Unknown token type");
 			}
 
 			// 次に出現する演算子よりも、スタック上の演算子の方が高優先度の場合、スタック上の演算子において必要な子ノード連結を全て済ませる
@@ -864,15 +897,12 @@ public class Parser {
 	 * @param stack 構文解析の作業用スタックとして使用している双方向キュー
 	 * @param marker 回収の最深部に配置してあるフタノードのマーカー値
 	 * @return 回収した部分式のASTのルートノードを格納する配列（スタック上で深い側にあるものが先頭）
+	 * @throws VnanoSyntaxException 部分式が空の場合にスローされます。
 	 */
-	private AstNode[] popPartialExpressionNodes(Deque<AstNode> stack, String marker) {
+	private AstNode[] popPartialExpressionNodes(Deque<AstNode> stack, String marker) throws VnanoSyntaxException {
 
 		List<AstNode> partialExprNodeList = new LinkedList<AstNode>();
 		while(stack.size() != 0) {
-
-			if (stack.peek() == null) {
-				throw new VnanoFatalException("State of the working-stack of the parser is inconsistent");
-			}
 
 			// 部分式の構文木ノードを1個取り出す
 			// （引数が無い関数の呼び出し fun() の場合など、部分式の中身が無い場合もある事に注意）
@@ -880,7 +910,8 @@ public class Parser {
 				partialExprNodeList.add(stack.pop());
 			}
 
-			if (stack.peek() == null) {
+			// ここでフタが残って無ければ処理が異常
+			if (stack.size() == 0) {
 				throw new VnanoFatalException("State of the working-stack of the parser is inconsistent");
 			}
 
@@ -893,11 +924,6 @@ public class Parser {
 						&& stackLid.getAttribute(AttributeKey.LID_MARKER).equals(marker)) {
 
 					break;
-				}
-
-			} else {
-				if (stack.peek() == null) {
-					throw new VnanoFatalException("State of the working-stack of the parser is inconsistent");
 				}
 			}
 		}
