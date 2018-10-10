@@ -204,6 +204,7 @@ public class Parser {
 		Token nameToken = tokens[readingIndex];
 		variableNode.addAttribute(AttributeKey.IDENTIFIER_VALUE, nameToken.getValue());
 		readingIndex++;
+
 		// 配列要素数の検出
 		AstNode arrayLengthNode = null;
 		if (readingIndex<tokens.length-1 && tokens[readingIndex].getValue().equals(ScriptWord.INDEX_BEGIN)) {
@@ -551,9 +552,9 @@ public class Parser {
 			boolean nextIsOpenParenthesis = tokenIndex != tokenLength-1
 					&& tokens[tokenIndex+1].getType() == Token.Type.PARENTHESIS
 					&& tokens[tokenIndex+1].getValue().equals(ScriptWord.PARENTHESIS_BEGIN);
-			boolean prevIsOpenParenthesis = tokenIndex != 0
-					&& tokens[tokenIndex-1].getType() == Token.Type.PARENTHESIS
-					&& tokens[tokenIndex-1].getValue().equals(ScriptWord.PARENTHESIS_BEGIN);
+			//boolean prevIsOpenParenthesis = tokenIndex != 0
+			//		&& tokens[tokenIndex-1].getType() == Token.Type.PARENTHESIS
+			//		&& tokens[tokenIndex-1].getValue().equals(ScriptWord.PARENTHESIS_BEGIN);
 
 			//boolean nextIsCloseParenthesis = tokenIndex != tokenLength-1
 			//		&& tokens[tokenIndex+1].getType() == Token.Type.PARENTHESIS
