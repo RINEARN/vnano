@@ -218,6 +218,12 @@ Example.jar から見た相対パスで書き換えてください（例：lib/V
 
 
 
+## Performances - 演算速度
+
+<img src="https://github.com/RINEARN/vnano/blob/master/vectorflops.jpg" alt="vectorflops.jpg" />
+
+
+
 ## Architecture - アーキテクチャ
 
 The architecture of Vnano Engine is a commonplace "compiler + VM" type.
