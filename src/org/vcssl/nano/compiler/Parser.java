@@ -74,7 +74,7 @@ public class Parser {
 			int blockBegin = this.getTokenIndex(tokens, ScriptWord.BLOCK_BEGIN, statementBegin);
 			int blockEnd = this.getTokenIndex(tokens, ScriptWord.BLOCK_END, statementBegin);
 
-			// （3つめの条件は、ブロック終端後に文が無い場合のため）
+			// 文末記号が無い場合のエラー（3つめの条件は、ブロック終端後に文が無い場合のため）
 			if (statementEnd < 0 && blockBegin < 0 && statementBegin!=blockEnd) {
 				throw new VnanoSyntaxException(
 						ErrorType.STATEMENT_END_IS_NOT_FOUND,
@@ -82,8 +82,16 @@ public class Parser {
 				);
 			}
 
+			// 空文（内容が無い文）の場合
+			if (statementBegin == statementEnd) {
+				AstNode emptyStatementNode = new AstNode(
+						AstNode.Type.EMPTY, tokens[statementBegin].getLineNumber(), tokens[statementBegin].getFileName()
+				);
+				statementStack.push(emptyStatementNode);
+				statementBegin++;
+
 			// ブロック文の始点 or 終点の場合
-			if (tokens[statementBegin].getType()==Token.Type.BLOCK) {
+			} else if (tokens[statementBegin].getType()==Token.Type.BLOCK) {
 
 				// ブロック始点 -> スタックに目印のフタをつめる（第二引数は目印とするマーカー）
 				if (tokens[statementBegin].getValue().equals(ScriptWord.BLOCK_BEGIN)) {
@@ -155,8 +163,16 @@ public class Parser {
 			}
 		}
 
-		// ルートノードに文を全てぶら下げて返す(スタックに積まれている順序に注意)
-		AstNode rootNode = new AstNode(AstNode.Type.ROOT, tokens[0].getLineNumber(), tokens[0].getFileName());
+		// ルートノードの保持情報用にファイル名と行番号を用意（空のスクリプトなどではトークンが全く無いため、個数検査が必要）
+		String fileName = null;
+		int lineNumber = -1;
+		if (tokens.length != 0) {
+			fileName = tokens[0].getFileName();
+			lineNumber = tokens[0].getLineNumber();
+		}
+
+		// ルートノードを生成し、文を全てぶら下げて返す(スタックに積まれている順序に注意)
+		AstNode rootNode = new AstNode(AstNode.Type.ROOT, lineNumber, fileName);
 		while (statementStack.size() != 0) {
 			rootNode.addChildNode(statementStack.pollLast());
 		}

@@ -96,6 +96,10 @@ public class SemanticAnalyzer {
 	private void supplementLeafAttributes(AstNode astRootNode, VariableTable globalVariableTable)
 			throws VnanoSyntaxException, DataException {
 
+		if (!astRootNode.hasChildNodes()) {
+			return;
+		}
+
 		Map<String, String> localVariableTypeMap = new HashMap<String, String>();
 		Map<String, Integer> localVariableRankMap = new HashMap<String, Integer>();
 

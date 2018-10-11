@@ -34,6 +34,9 @@ public class AstNode implements Cloneable {
 		/** ASTの頂点（根）に唯一位置する、ルートノードを表します。 */
 		ROOT,
 
+		/** 空文（内容が全く無い文）のノードを表します */
+		EMPTY,
+
 		/** 変数宣言文のノードを表します。 */
 		VARIABLE,
 

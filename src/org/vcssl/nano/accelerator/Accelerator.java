@@ -102,8 +102,11 @@ public class Accelerator {
 		dataManager.getCacheSynchronizers(Memory.Partition.GLOBAL).writeCache();
 
 
-		// 命令の逐次実行ループ
-		AccelerationExecutorNode nextNode = executorNodes[0];
+		// 以下、命令の逐次実行ループ
+		AccelerationExecutorNode nextNode = null;
+		if (executorNodes.length != 0) {
+			nextNode = executorNodes[0];
+		}
 		try {
 			while (nextNode != null) {
 				nextNode = nextNode.execute();
