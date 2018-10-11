@@ -333,7 +333,7 @@ public class Parser {
 				throw new VnanoSyntaxException(ErrorType.NO_CONDITION_EXPRESSION_OF_IF_STATEMENT, fileName, lineNumber);
 			}
 
-		// whilw文の場合
+		// while文の場合
 		} else if(controlTypeToken.getValue().equals(ScriptWord.WHILE)) {
 
 			// 直後が「 ( 」でないか、終端が「 ) 」でない場合は構文エラー
@@ -369,6 +369,12 @@ public class Parser {
 		} else if(controlTypeToken.getValue().equals(ScriptWord.ELSE)
 				|| controlTypeToken.getValue().equals(ScriptWord.BREAK)
 				|| controlTypeToken.getValue().equals(ScriptWord.CONTINUE) ) {
+
+			if (tokens.length > 1) {
+				throw new VnanoSyntaxException(
+						ErrorType.TOO_MANY_TOKENS_FOR_CONTROL_STATEMENT, controlTypeToken.getValue(), fileName, lineNumber
+				);
+			}
 
 		} else {
 			// ここに到達するのはLexicalAnalyzerの異常（不明な種類の制御構文）
