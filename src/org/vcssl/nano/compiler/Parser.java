@@ -717,13 +717,13 @@ public class Parser {
 
 
 	/**
-	 * 式のトークン配列内で、演算子トークンの左右に位置するオペランドが、適切な種類のトークンであるか検査します。
+	 * 式のトークン配列内で、演算子やリーフの位置が、適切な関係で並んでいるか検査します。
 	 * 検査の結果、問題が無かった場合には何もせず、問題が見つかった場合には例外をスローします。
 	 *
 	 * @param tokens 検査対象のトークン配列
 	 * @throws VnanoSyntaxException 問題が見つかった場合にスローされます。
 	 */
-	private void checkOperandsInExpression(Token[] tokens) throws VnanoSyntaxException {
+	private void checkLocationsOfOperatorsAndLeafsInExpression(Token[] tokens) throws VnanoSyntaxException {
 		int tokenLength = tokens.length;
 
 		// トークンを先頭から末尾まで辿って検査
@@ -794,6 +794,29 @@ public class Parser {
 				} // 二項演算子や、多項演算子（関数呼び出しや配列アクセス）の区切りの場合
 
 			} // 演算子の場合
+
+			// リーフの場合
+			if (token.getType() == Token.Type.LEAF) {
+
+				// 右のトークンが開き括弧やリーフの場合はエラー
+				if (nextIsOpenParenthesis || nextIsLeaf) {
+					throw new VnanoSyntaxException(
+						ErrorType.OPERATOR_IS_MISSING_AT_RIGHT,
+						new String[] {token.getValue(), tokens[tokenIndex+1].getValue()},
+						token.getFileName(), token.getLineNumber()
+					);
+				}
+
+				// 左のトークンが閉じ括弧やリーフの場合はエラー
+				if (prevIsCloseParenthesis || prevIsLeaf) {
+					throw new VnanoSyntaxException(
+						ErrorType.OPERATOR_IS_MISSING_AT_LEFT,
+						new String[] {tokens[tokenIndex-1].getValue(), token.getValue()},
+						token.getFileName(), token.getLineNumber()
+					);
+				}
+			}
+
 		} // トークンを先頭から末尾まで辿るループ
 	}
 
@@ -817,8 +840,8 @@ public class Parser {
 		// 式の中に空の括弧が存在しないか確認（関数呼び出し演算子は除く）
 		this.checkBlankParenthesesInExpression(tokens);
 
-		// 演算子に対して適切な位置にリーフトークンが存在しているか確認
-		this.checkOperandsInExpression(tokens);
+		// 演算子やリーフの位置が適切な関係で並んでいるか確認
+		this.checkLocationsOfOperatorsAndLeafsInExpression(tokens);
 	}
 
 

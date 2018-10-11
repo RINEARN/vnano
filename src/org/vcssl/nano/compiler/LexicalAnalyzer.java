@@ -174,7 +174,10 @@ public class LexicalAnalyzer {
 				parenthesisStage++;
 
 				// 関数呼び出し演算子の括弧
-				if (lastToken!=null && lastToken.getType()==Token.Type.LEAF && !ScriptWord.STATEMENT_NAME_SET.contains(lastWord)) {
+				if (lastToken!=null && lastToken.getType()==Token.Type.LEAF
+						&& lastToken.getAttribute(AttributeKey.LEAF_TYPE).equals(AttributeValue.FUNCTION_IDENTIFIER)
+						&& !ScriptWord.STATEMENT_NAME_SET.contains(lastWord)) {
+
 					callParenthesisStages.add(parenthesisStage);
 					tokens[i].setType(Token.Type.OPERATOR);
 					tokens[i].addAttribute(AttributeKey.OPERATOR_EXECUTOR, AttributeValue.CALL);
@@ -243,7 +246,7 @@ public class LexicalAnalyzer {
 
 				// 前がワードかリテラルか識別子（WORDに分類）か閉じ括弧なら算術二項演算子の加減算
 				if (lastToken!=null && (lastToken.getType()==Token.Type.LEAF
-										|| lastToken.getValue().equals(ScriptWord.PARENTHESIS_END))) {
+						|| lastToken.getValue().equals(ScriptWord.PARENTHESIS_END))) {
 
 					tokens[i].setType(Token.Type.OPERATOR);
 					tokens[i].addAttribute(AttributeKey.OPERATOR_EXECUTOR, AttributeValue.ARITHMETIC);
@@ -306,8 +309,8 @@ public class LexicalAnalyzer {
 
 				// 前が識別子(WORDに分類)かリテラルか後置演算子(INDEXなど)なら後置インクリメント/デクリメント、そうでなければ前置インクリメント/デクリメント
 				if (lastToken!=null && ( lastToken.getType() == Token.Type.LEAF
-										  || lastToken.getType() == Token.Type.OPERATOR
-										  && lastToken.getAttribute(AttributeKey.OPERATOR_SYNTAX).equals(AttributeValue.POSTFIX) ) ) {
+						|| lastToken.getType() == Token.Type.OPERATOR
+						&& lastToken.getAttribute(AttributeKey.OPERATOR_SYNTAX).equals(AttributeValue.POSTFIX) ) ) {
 
 					tokens[i].setType(Token.Type.OPERATOR);
 					tokens[i].addAttribute(AttributeKey.OPERATOR_EXECUTOR, AttributeValue.ARITHMETIC);
