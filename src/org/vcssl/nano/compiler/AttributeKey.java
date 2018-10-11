@@ -50,6 +50,9 @@ public enum AttributeKey {
 	/** 始点ラベルを保持する属性のキーです。 */
 	BEGIN_LABEL,
 
+	/** 更新地点ラベルを保持する属性のキーです。 */
+	UPDATE_LABEL,
+
 	/** 終点ラベルを保持する属性のキーです。 */
 	END_LABEL, // 短絡評価用にも使用
 
