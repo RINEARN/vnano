@@ -799,7 +799,7 @@ public class Parser {
 			if (token.getType() == Token.Type.LEAF) {
 
 				// 右のトークンが開き括弧やリーフの場合はエラー
-				if (nextIsOpenParenthesis || nextIsLeaf) {
+				if (nextIsOpenParenthesis || nextIsLeaf) {     // nextIsMultialyBegin は付加してはいけない（普通に配列アクセスや関数呼び出しが来る右に場合が該当してしまう）
 					throw new VnanoSyntaxException(
 						ErrorType.OPERATOR_IS_MISSING_AT_RIGHT,
 						new String[] {token.getValue(), tokens[tokenIndex+1].getValue()},
@@ -808,7 +808,7 @@ public class Parser {
 				}
 
 				// 左のトークンが閉じ括弧やリーフの場合はエラー
-				if (prevIsCloseParenthesis || prevIsLeaf) {
+				if (prevIsCloseParenthesis || prevIsLeaf || prevIsMultialyEnd) {
 					throw new VnanoSyntaxException(
 						ErrorType.OPERATOR_IS_MISSING_AT_LEFT,
 						new String[] {tokens[tokenIndex-1].getValue(), token.getValue()},
