@@ -244,9 +244,10 @@ public class LexicalAnalyzer {
 			// 加減算もしくは符号
 			} else if (word.equals(ScriptWord.PLUS) || word.equals(ScriptWord.MINUS)) {
 
-				// 前がワードかリテラルか識別子（WORDに分類）か閉じ括弧なら算術二項演算子の加減算
+				// 前が「ワードかリテラルか識別子（WORDに分類）か閉じ括弧か配列インデックス閉じ括弧」なら算術二項演算子の加減算
 				if (lastToken!=null && (lastToken.getType()==Token.Type.LEAF
-						|| lastToken.getValue().equals(ScriptWord.PARENTHESIS_END))) {
+						|| lastToken.getValue().equals(ScriptWord.PARENTHESIS_END)
+						|| lastToken.getValue().equals(ScriptWord.INDEX_END))) {
 
 					tokens[i].setType(Token.Type.OPERATOR);
 					tokens[i].addAttribute(AttributeKey.OPERATOR_EXECUTOR, AttributeValue.ARITHMETIC);
