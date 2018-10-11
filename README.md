@@ -217,10 +217,10 @@ Vnano.jar を同じフォルダ内に置いておけば使用できます。
 Example.jar から見た相対パスで書き換えてください（例：lib/Vnano.jar ）。
 
 
-
 ## Performances - 演算速度
 
-<img src="https://github.com/RINEARN/vnano/blob/master/vectorflops.jpg" alt="vectorflops.jpg" />
+<img src="https://github.com/RINEARN/vnano/blob/develop/vectorflops.png" alt="vectorflops.png" />
+
 
 
 
