@@ -98,7 +98,7 @@ public class Parser {
 
 					// ブロック文ノードを生成し、上で取り出した文のノードを全てぶら下げる
 					AstNode blockNode = new AstNode(
-							AstNode.Type.BLOCK, tokens[statementBegin].getLineNumber(), tokens[statementBegin].getFileName()
+						AstNode.Type.BLOCK, tokens[statementBegin].getLineNumber(), tokens[statementBegin].getFileName()
 					);
 					for (AstNode statementNode: statementsInBlock) {
 						blockNode.addChildNode(statementNode);
@@ -111,11 +111,13 @@ public class Parser {
 
 			// 制御文の場合
 			} else if (tokens[statementBegin].getType()==Token.Type.CONTROL) {
+				String word = tokens[statementBegin].getValue();
 
 				// if / for / while文 (この処理系では直後にブロックが必須)
-				if (tokens[statementBegin].getValue().equals(ScriptWord.IF)
-						|| tokens[statementBegin].getValue().equals(ScriptWord.FOR)
-						|| tokens[statementBegin].getValue().equals(ScriptWord.WHILE)) {
+				if (word.equals(ScriptWord.IF) || word.equals(ScriptWord.FOR) || word.equals(ScriptWord.WHILE)) {
+
+					// 括弧 (...) やブロック {...} が存在するか確認（この言語ではif/else/for/whileのブロックは必須）
+					this.checkTokensAfterControlStatement(tokens, statementBegin, word.equals(ScriptWord.FOR)); // 最後の引数は、括弧内に文末記号を許すかどうか
 
 					Token[] subTokens = Arrays.copyOfRange(tokens, statementBegin, blockBegin);
 					statementStack.push(this.parseControlStatement(subTokens));
@@ -123,6 +125,10 @@ public class Parser {
 
 				// else文
 				} else if (tokens[statementBegin].getValue().equals(ScriptWord.ELSE)) {
+
+					// ブロック {...} が存在するか確認（この言語ではif/else/for/whileのブロックは必須）
+					this.checkTokensAfterControlStatement(tokens, statementBegin, false); // 最後の引数は、括弧内に文末記号を許すかどうか
+
 					Token[] subTokens = Arrays.copyOfRange(tokens, statementBegin, statementBegin+1);
 					statementStack.push(this.parseControlStatement(subTokens));
 					statementBegin++;
@@ -156,6 +162,90 @@ public class Parser {
 		}
 		return rootNode;
 	}
+
+
+	/**
+	 * トークン配列に対して、if/else/for/whileの制御文の後方に、
+	 * 必要な括弧やブロック（この言語では必須）などが存在する正しい構造になっているかを検査します。
+	 * 検査の結果、問題が無かった場合には何もせず、問題が見つかった場合には例外をスローします。
+	 *
+	 * @param tokens 検査対象のトークン配列
+	 * @param controlStatementBegin 対象の制御文の始点インデックス
+	 * @throws VnanoSyntaxException トークン配列に、制御文の構成トークンとしての問題があった場合にスローされます。
+	 */
+	void checkTokensAfterControlStatement(
+			Token[] tokens, int controlStatementBegin, boolean arrowStatementsInParentheses)
+					throws VnanoSyntaxException {
+
+		// 「 if 」や「 for 」などの制御文のキーワードのトークン
+		Token controlToken = tokens[controlStatementBegin];
+		String controlWord = controlToken.getValue();
+
+		int readingIndex = controlStatementBegin + 1; // 読んでいるトークン位置
+		// 括弧 (...) が必要な場合は検査
+		if ( controlWord.equals(ScriptWord.IF)
+				|| controlWord.equals(ScriptWord.WHILE)
+				|| controlWord.equals(ScriptWord.FOR) ) {
+
+			// 次のトークンが無いか、開き括弧「 ( 」でなければ構文エラー
+			if (tokens.length <= controlStatementBegin+1
+					|| !tokens[controlStatementBegin+1].getValue().equals(ScriptWord.PARENTHESIS_BEGIN)) {
+
+				throw new VnanoSyntaxException(
+					ErrorType.NO_OPEN_PARENTHESIS_OF_CONTROL_STATEMENT, controlToken.getValue(),
+					controlToken.getFileName(), controlToken.getLineNumber()
+				);
+			}
+
+			// 括弧が閉じる箇所を探す
+			int hierarchy = 0; // 開き括弧で上がり、閉じ括弧で下がる階層カウンタ
+			while (true) {
+				Token readingToken = tokens[readingIndex];
+				if (readingToken.getValue().equals(ScriptWord.PARENTHESIS_BEGIN)) {
+					hierarchy++;
+				}
+				if (readingToken.getValue().equals(ScriptWord.PARENTHESIS_END)) {
+					hierarchy--;
+				}
+
+				// 階層が 0 になったら、それが最初の開き括弧に対応している閉じ括弧
+				if (hierarchy == 0) {
+					break;
+				}
+
+				// 開き括弧に対応している対応している閉じ括弧が見つからないまま文末に達した場合は構文エラー
+				if (readingIndex == tokens.length-1
+						|| readingToken.getValue().equals(ScriptWord.BLOCK_BEGIN)
+						|| readingToken.getValue().equals(ScriptWord.BLOCK_END)
+						|| (!arrowStatementsInParentheses&&readingToken.getValue().equals(ScriptWord.END_OF_STATEMENT)) ) {
+
+					throw new VnanoSyntaxException(
+						ErrorType.NO_CLOSING_PARENTHESIS_OF_CONTROL_STATEMENT, controlToken.getValue(),
+						controlToken.getFileName(), controlToken.getLineNumber()
+					);
+				}
+				readingIndex++;
+			}
+		}
+
+		// ブロック始点「 { 」が必要な場合（この言語では仕様で必須化されている）
+		if ( controlWord.equals(ScriptWord.IF)
+				|| controlWord.equals(ScriptWord.ELSE)
+				|| controlWord.equals(ScriptWord.WHILE)
+				|| controlWord.equals(ScriptWord.FOR) ) {
+
+			// 「 { 」が無ければ構文エラー
+			if (readingIndex == tokens.length-1
+					|| !tokens[readingIndex+1].getValue().equals(ScriptWord.BLOCK_BEGIN)) {
+
+				throw new VnanoSyntaxException(
+					ErrorType.NO_BLOCK_AFTER_CONTROL_STATEMENT, controlToken.getValue(),
+					controlToken.getFileName(), controlToken.getLineNumber()
+				);
+			}
+		}
+	}
+
 
 	/**
 	 * 変数宣言文を構成するトークン配列に対して構文解析を行い、AST（抽象構文木）を構築して返します。
@@ -323,11 +413,6 @@ public class Parser {
 		// if文の場合
 		if(controlTypeToken.getValue().equals(ScriptWord.IF)) {
 
-			// 直後が「 ( 」でないか、終端が「 ) 」でない場合は構文エラー
-			if (  tokens.length < 3 || !tokens[1].getValue().equals(ScriptWord.PARENTHESIS_BEGIN)
-					 || !tokens[tokens.length-1].getValue().equals(ScriptWord.PARENTHESIS_END)  ) {
-				throw new VnanoSyntaxException(ErrorType.NO_PARENTHESIS_OF_IF_STATEMENT, fileName, lineNumber);
-			}
 			// 条件式が空の場合は構文エラー
 			if (tokens.length == 3) {
 				throw new VnanoSyntaxException(ErrorType.NO_CONDITION_EXPRESSION_OF_IF_STATEMENT, fileName, lineNumber);
@@ -336,11 +421,6 @@ public class Parser {
 		// while文の場合
 		} else if(controlTypeToken.getValue().equals(ScriptWord.WHILE)) {
 
-			// 直後が「 ( 」でないか、終端が「 ) 」でない場合は構文エラー
-			if (  tokens.length < 3 || !tokens[1].getValue().equals(ScriptWord.PARENTHESIS_BEGIN)
-					 || !tokens[tokens.length-1].getValue().equals(ScriptWord.PARENTHESIS_END)  ) {
-				throw new VnanoSyntaxException(ErrorType.NO_PARENTHESIS_OF_WHILE_STATEMENT, fileName, lineNumber);
-			}
 			// 条件式が空の場合は構文エラー
 			if (tokens.length == 3) {
 				throw new VnanoSyntaxException(ErrorType.NO_CONDITION_EXPRESSION_OF_WHILE_STATEMENT, fileName, lineNumber);
@@ -349,16 +429,11 @@ public class Parser {
 		// for文の場合
 		} else if(controlTypeToken.getValue().equals(ScriptWord.FOR)) {
 
-			// 直後が「 ( 」でないか、終端が「 ) 」でない場合は構文エラー
-			if (  tokens.length < 3 || !tokens[1].getValue().equals(ScriptWord.PARENTHESIS_BEGIN)
-					 || !tokens[tokens.length-1].getValue().equals(ScriptWord.PARENTHESIS_END)  ) {
-				throw new VnanoSyntaxException(ErrorType.NO_PARENTHESIS_OF_FOR_STATEMENT, fileName, lineNumber);
-			}
-
 			// 初期化式と条件式の終端トークンインデックスを取得
 			int initializationEnd = this.getTokenIndex(tokens, ScriptWord.END_OF_STATEMENT, 0);
 			int conditionEnd = this.getTokenIndex(tokens, ScriptWord.END_OF_STATEMENT, initializationEnd+1);
 
+			// 括弧 (...;...;...) 内の区切りが無いか足りない場合は構文エラー
 			if (initializationEnd < 0 || conditionEnd < 0) {
 				throw new VnanoSyntaxException(
 						ErrorType.ELEMENTS_OF_FOR_STATEMENT_IS_DEFICIENT, fileName, lineNumber
@@ -370,6 +445,7 @@ public class Parser {
 				|| controlTypeToken.getValue().equals(ScriptWord.BREAK)
 				|| controlTypeToken.getValue().equals(ScriptWord.CONTINUE) ) {
 
+			// 余計な記述が付いている
 			if (tokens.length > 1) {
 				throw new VnanoSyntaxException(
 						ErrorType.TOO_MANY_TOKENS_FOR_CONTROL_STATEMENT, controlTypeToken.getValue(), fileName, lineNumber
@@ -471,7 +547,6 @@ public class Parser {
 	}
 
 
-
 	/**
 	 * トークン配列を解析し、各要素に、次（右）の演算子要素の優先度を設定します。
 	 *
@@ -513,6 +588,7 @@ public class Parser {
 
 		return rightOperatorPriorities;
 	}
+
 
 	/**
 	 * 式のトークン配列内における、開き括弧「 ( 」と閉じ括弧「 ) 」の個数が合っているかどうかを検査します。
@@ -569,7 +645,17 @@ public class Parser {
 
 				// キャスト演算子をサポートする場合は、DATA_TYPEを通すように追加する必要がある
 
-				// それ以外は式の構成要素になり得ない
+				// 式文の中にブロックの始点・終点がある場合は、スクリプト内に文末記号を書き忘れているので、
+				// そういった方向のエラーメッセージで構文エラーとする
+				case BLOCK : {
+					throw new VnanoSyntaxException(
+							ErrorType.STATEMENT_END_IS_NOT_FOUND,
+							token.getValue(),
+							token.getFileName(), token.getLineNumber()
+					);
+				}
+
+				// それ以外も式の構成要素になり得ないので、単純にそういったエラーメッセージで構文エラーとする
 				default : {
 					throw new VnanoSyntaxException(
 							ErrorType.INVALID_TYPE_TOKEN_IN_EXPRESSION,
@@ -635,9 +721,6 @@ public class Parser {
 					&& tokens[tokenIndex+1].getType() == Token.Type.PARENTHESIS
 					&& tokens[tokenIndex+1].getValue().equals(ScriptWord.PARENTHESIS_BEGIN);
 
-			//boolean nextIsCloseParenthesis = tokenIndex != tokenLength-1
-			//		&& tokens[tokenIndex+1].getType() == Token.Type.PARENTHESIS
-			//		&& tokens[tokenIndex+1].getValue().equals(ScriptWord.PARENTHESIS_END);
 			boolean prevIsCloseParenthesis = tokenIndex != 0
 					&& tokens[tokenIndex-1].getType() == Token.Type.PARENTHESIS
 					&& tokens[tokenIndex-1].getValue().equals(ScriptWord.PARENTHESIS_END);
@@ -645,13 +728,6 @@ public class Parser {
 			boolean nextIsMultialyBegin = tokenIndex != tokenLength-1
 					&& tokens[tokenIndex+1].getType() == Token.Type.OPERATOR
 					&& tokens[tokenIndex+1].getAttribute(AttributeKey.OPERATOR_SYNTAX).equals(AttributeValue.MULTIARY);
-			//boolean prevIsMultialyBegin = tokenIndex != 0
-			//		&& tokens[tokenIndex-1].getType() == Token.Type.OPERATOR
-			//		&& tokens[tokenIndex-1].getAttribute(AttributeKey.OPERATOR_SYNTAX).equals(AttributeValue.MULTIARY);
-
-			//boolean nextIsMultialyEnd = tokenIndex != tokenLength-1
-			//		&& tokens[tokenIndex+1].getType() == Token.Type.OPERATOR
-			//		&& tokens[tokenIndex+1].getAttribute(AttributeKey.OPERATOR_SYNTAX).equals(AttributeValue.MULTIARY_END);
 
 			boolean prevIsMultialyEnd = tokenIndex != 0
 					&& tokens[tokenIndex-1].getType() == Token.Type.OPERATOR
@@ -883,6 +959,7 @@ public class Parser {
 		return expressionNode;
 	}
 
+
 	private boolean shouldAddOperatorToStackedOperatorAsChild(int rightOperatorPriority, Deque<AstNode> stack) {
 
 		// スタック上の演算子の優先度が、注目トークンの次の演算子よりも強い場合、スタック上の演算子に注目トークンの演算子をぶら下げる
@@ -1006,11 +1083,6 @@ public class Parser {
 	}
 
 
-
-
-
-
-
 	/**
 	 * 構文解析の作業用スタック上に構築されている、文のAST（抽象構文木）ノードの内、
 	 * フタノード（{@link AstNode.Type#STACK_LID STACK_LID} タイプのノード）以降にあるものを全て回収します。
@@ -1047,15 +1119,6 @@ public class Parser {
 
 		return statementNodeList.toArray(new AstNode[0]);
 	}
-
-
-
-
-
-
-
-
-
 
 
 	/**
@@ -1123,8 +1186,6 @@ public class Parser {
 	}
 
 
-
-
 	/**
 	 * トークン配列から、指定された値を持つトークンを検索し、最初に見つかったものを返します。
 	 *
@@ -1142,7 +1203,6 @@ public class Parser {
 		}
 		return -1;
 	}
-
 
 
 	/**
