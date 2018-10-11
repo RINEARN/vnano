@@ -78,12 +78,14 @@ public class CodeGenerator {
 	 */
 	private class StatementTrackingContext implements Cloneable {
 
-		private String beginPointLabel = null; // ループ文などで、後の式の評価後の地点に先頭に戻るコードを置いてほしい場合、これに入れる
-		private String endPointLabel = null; // IF文など、後の式の評価後の地点にラベルを置いてほしい場合、これに値を入れる
-		private String endPointStatement = null; // for文の更新式
+		private String beginPointLabel = null; // ループ文などで、後の文の生成後の地点に先頭に戻るコードを置いてほしい場合、これに先頭地点のラベル値を入れる
+		private String updatePointLabel = null; // ループ文などで、ループ毎の更新処理の直前にラベルを置いてほしい場合、これにラベル値を入れる
+		private String endPointLabel = null; // IF文など、後の文の生成後の地点にラベルを置いてほしい場合、これにラベル値を入れる
+		private String updatePointStatement = null; // for文の更新式の文
 
 		private String lastIfConditionValue = null; // 直前の if 文の条件式結果を格納するレジスタを控えて、else 文で使う
 		private String lastLoopBeginPointLabel = null; // 最後に踏んだループの始点ラベル
+		private String lastLoopUpdatePointLabel = null; // 最後に踏んだループの更新ラベル
 		private String lastLoopEndPointLabel = null;   // 最後に踏んだループの終点ラベル
 
 		private AstNode[] statementNodes = null;
@@ -94,10 +96,12 @@ public class CodeGenerator {
 		public StatementTrackingContext clone() {
 			StatementTrackingContext clone = new StatementTrackingContext();
 			clone.beginPointLabel = this.beginPointLabel;
+			clone.updatePointLabel = this.updatePointLabel;
 			clone.endPointLabel = this.endPointLabel;
-			clone.endPointStatement = this.endPointStatement;
+			clone.updatePointStatement = this.updatePointStatement;
 			clone.lastIfConditionValue = this.lastIfConditionValue;
 			clone.lastLoopBeginPointLabel = this.lastLoopBeginPointLabel;
+			clone.lastLoopUpdatePointLabel = this.lastLoopUpdatePointLabel;
 			clone.lastLoopEndPointLabel = this.lastLoopEndPointLabel;
 			clone.statementNodes = this.statementNodes;
 			clone.statementIndex = this.statementIndex;
@@ -107,7 +111,7 @@ public class CodeGenerator {
 		}
 
 		public String getBeginPointLabel() {
-			return beginPointLabel;
+			return this.beginPointLabel;
 		}
 		public void setBeginPointLabel(String beginPointLabel) {
 			this.beginPointLabel = beginPointLabel;
@@ -119,8 +123,21 @@ public class CodeGenerator {
 			this.beginPointLabel = null;
 		}
 
+		public String getUpdatePointLabel() {
+			return this.updatePointLabel;
+		}
+		public void setUpdatePointLabel(String updatePointLabel) {
+			this.updatePointLabel = updatePointLabel;
+		}
+		public boolean hasUpdatePointLabel() {
+			return this.updatePointLabel != null;
+		}
+		public void clearUpdatePointLabel() {
+			this.updatePointLabel = null;
+		}
+
 		public String getEndPointLabel() {
-			return endPointLabel;
+			return this.endPointLabel;
 		}
 		public void setEndPointLabel(String endPointLabel) {
 			this.endPointLabel = endPointLabel;
@@ -132,21 +149,21 @@ public class CodeGenerator {
 			this.endPointLabel = null;
 		}
 
-		public String getEndPointStatement() {
-			return endPointStatement;
+		public String getUpdatePointStatement() {
+			return this.updatePointStatement;
 		}
-		public void setEndPointStatement(String endPointStatement) {
-			this.endPointStatement = endPointStatement;
+		public void setUpdatePointStatement(String updatePointStatement) {
+			this.updatePointStatement = updatePointStatement;
 		}
-		public boolean hasEndPointStatement() {
-			return this.endPointStatement != null;
+		public boolean hasUpdatePointStatement() {
+			return this.updatePointStatement != null;
 		}
 		public void clearEndPointStatement() {
-			this.endPointStatement = null;
+			this.updatePointStatement = null;
 		}
 
 		public String getLastIfConditionValue() {
-			return lastIfConditionValue;
+			return this.lastIfConditionValue;
 		}
 		public void setLastIfConditionValue(String lastIfConditionValue) {
 			this.lastIfConditionValue = lastIfConditionValue;
@@ -156,11 +173,23 @@ public class CodeGenerator {
 		}
 
 		public String getLastLoopBeginPointLabel() {
-			return lastLoopBeginPointLabel;
+			return this.lastLoopBeginPointLabel;
 		}
 
 		public void setLastLoopBeginPointLabel(String lastLoopBeginPointLabel) {
 			this.lastLoopBeginPointLabel = lastLoopBeginPointLabel;
+		}
+
+		public boolean hasLastLoopUpdatePointLabel() {
+			return this.lastLoopUpdatePointLabel != null;
+		}
+
+		public String getLastLoopUpdatePointLabel() {
+			return this.lastLoopUpdatePointLabel;
+		}
+
+		public void setLastLoopUpdatePointLabel(String lastLoopUpdatePointLabel) {
+			this.lastLoopUpdatePointLabel = lastLoopUpdatePointLabel;
 		}
 
 		public String getLastLoopEndPointLabel() {
@@ -172,7 +201,7 @@ public class CodeGenerator {
 		}
 
 		public AstNode[] getStatementNodes() {
-			return statementNodes;
+			return this.statementNodes;
 		}
 
 		public void setStatementNodes(AstNode[] statementNodes) {
@@ -180,7 +209,7 @@ public class CodeGenerator {
 		}
 
 		public int getStatementLength() {
-			return statementLength;
+			return this.statementLength;
 		}
 
 		public void setStatementLength(int statementLength) {
@@ -188,14 +217,14 @@ public class CodeGenerator {
 		}
 
 		public int getStatementIndex() {
-			return statementIndex;
+			return this.statementIndex;
 		}
 
 		public void setStatementIndex(int statementIndex) {
 			this.statementIndex = statementIndex;
 		}
 		public String getLastStatementCode() {
-			return lastStatementCode;
+			return this.lastStatementCode;
 		}
 		public void setLastStatementCode(String lastStatementCode) {
 			this.lastStatementCode = lastStatementCode;
@@ -361,6 +390,7 @@ public class CodeGenerator {
 			}
 			if (currentNode.getType() == AstNode.Type.FOR) {
 				currentNode.addAttribute(AttributeKey.BEGIN_LABEL, this.generateLabelOperandCode());
+				currentNode.addAttribute(AttributeKey.UPDATE_LABEL, this.generateLabelOperandCode());
 				currentNode.addAttribute(AttributeKey.END_LABEL, this.generateLabelOperandCode());
 			}
 			if (currentNode.getType() == AstNode.Type.WHILE) {
@@ -427,6 +457,7 @@ public class CodeGenerator {
 
 					// break や continue のために引き継ぐ必要がある情報をコピー
 					context.setLastLoopBeginPointLabel(contextStack.peek().getLastLoopBeginPointLabel());
+					context.setLastLoopUpdatePointLabel(contextStack.peek().getLastLoopUpdatePointLabel());
 					context.setLastLoopEndPointLabel(contextStack.peek().getLastLoopEndPointLabel());
 
 					// ブロック内の文を、読み込み対象として展開する
@@ -473,11 +504,16 @@ public class CodeGenerator {
 				statementNodes = context.getStatementNodes();
 				statementIndex++;
 
-				// for文の更新式を置く必要があれば置く（先頭に戻るラベルより先に）
-				if (context.hasEndPointStatement()) {
-					codeBuilder.append(context.getEndPointStatement());
+				// for文の更新式と更新式位置ラベルを置く必要があれば置く（先頭に戻るラベルより先に）
+				if (context.hasUpdatePointLabel()) {
+					codeBuilder.append(this.generateLabelDirectiveCode(context.getUpdatePointLabel()));
+					context.clearUpdatePointLabel();
+				}
+				if (context.hasUpdatePointStatement()) {
+					codeBuilder.append(context.getUpdatePointStatement());
 					context.clearEndPointStatement();
 				}
+
 				// ループ文などで先頭に戻りたい場合のコードがあれば置く
 				if (context.hasBeginPointLabel()) {
 					String jumpCode = this.generateInstruction(
@@ -486,6 +522,7 @@ public class CodeGenerator {
 					codeBuilder.append(jumpCode);
 					context.clearBeginPointLabel();
 				}
+
 				// if 文の次など、ラベルを置く必要があれば置く
 				if (context.hasEndPointLabel()) {
 					codeBuilder.append(this.generateLabelDirectiveCode(context.getEndPointLabel()));
@@ -553,6 +590,7 @@ public class CodeGenerator {
 				context.setBeginPointLabel(node.getAttribute(AttributeKey.BEGIN_LABEL));
 				context.setEndPointLabel(node.getAttribute(AttributeKey.END_LABEL));
 				context.setLastLoopBeginPointLabel( context.getBeginPointLabel() );
+				context.setLastLoopUpdatePointLabel( context.getUpdatePointLabel() );
 				context.setLastLoopEndPointLabel( context.getEndPointLabel() );
 				break;
 			}
@@ -560,10 +598,13 @@ public class CodeGenerator {
 			case FOR : {
 				code = this.generateForStatementCode(node);
 				context.setBeginPointLabel(node.getAttribute(AttributeKey.BEGIN_LABEL));
+				context.setUpdatePointLabel(node.getAttribute(AttributeKey.UPDATE_LABEL));
 				context.setEndPointLabel(node.getAttribute(AttributeKey.END_LABEL));
+
 				// 更新式
-				context.setEndPointStatement(this.generateExpressionCode(node.getChildNodes()[2]));
+				context.setUpdatePointStatement(this.generateExpressionCode(node.getChildNodes()[2]));
 				context.setLastLoopBeginPointLabel( context.getBeginPointLabel() );
+				context.setLastLoopUpdatePointLabel( context.getUpdatePointLabel() );
 				context.setLastLoopEndPointLabel( context.getEndPointLabel() );
 				break;
 			}
@@ -575,11 +616,15 @@ public class CodeGenerator {
 				);
 				break;
 			}
-			// continue 文: ループ先頭へのジャンプ命令そのもの
+			// continue 文: ループ先頭か更新式の位置へのジャンプ命令そのもの
 			case CONTINUE : {
+				String continueJumpPointLabel = context.getLastLoopBeginPointLabel(); // ループ先頭に飛ぶラベル
+				if (context.hasLastLoopUpdatePointLabel()) {
+					continueJumpPointLabel = context.getLastLoopUpdatePointLabel(); // for文は更新式の位置に飛ぶ
+				}
 				code = this.generateInstruction(
 						OperationCode.JMP.name(), DataTypeName.BOOL, IMMEDIATE_TRUE,
-						context.getLastLoopBeginPointLabel()
+						continueJumpPointLabel
 				);
 				break;
 			}

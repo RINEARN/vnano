@@ -628,9 +628,6 @@ public class Parser {
 			boolean nextIsOpenParenthesis = tokenIndex != tokenLength-1
 					&& tokens[tokenIndex+1].getType() == Token.Type.PARENTHESIS
 					&& tokens[tokenIndex+1].getValue().equals(ScriptWord.PARENTHESIS_BEGIN);
-			//boolean prevIsOpenParenthesis = tokenIndex != 0
-			//		&& tokens[tokenIndex-1].getType() == Token.Type.PARENTHESIS
-			//		&& tokens[tokenIndex-1].getValue().equals(ScriptWord.PARENTHESIS_BEGIN);
 
 			//boolean nextIsCloseParenthesis = tokenIndex != tokenLength-1
 			//		&& tokens[tokenIndex+1].getType() == Token.Type.PARENTHESIS
