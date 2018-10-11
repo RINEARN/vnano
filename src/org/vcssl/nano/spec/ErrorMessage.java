@@ -44,13 +44,13 @@ public class ErrorMessage {
 			case NO_PARTIAL_EXPRESSION : return "式の中に空の括弧 ( ) があります";
 			case OPERAND_IS_MISSING_AT_RIGHT : return "「 " + words[0] + " 」の右側に、値や変数などが必要です";
 			case OPERAND_IS_MISSING_AT_LEFT : return "「 " + words[0] + " 」の左側に、値や変数などが必要です";
-			case NO_PARENTHESIS_OF_IF_STATEMENT : return "「 if 」の後には括弧 (...) を付けて、その中に条件を記述する必要があります";
-			case NO_PARENTHESIS_OF_WHILE_STATEMENT : return "「 while 」の後には括弧 (...) を付けて、その中に条件を記述する必要があります";
-			case NO_PARENTHESIS_OF_FOR_STATEMENT : return "「 for 」の後には括弧 (...) を付けて、「 ( 変数宣言や初期化 ; 繰り返し条件 ; 繰り返し毎の更新処理 ) 」のように記述する必要があります";
+			case NO_OPEN_PARENTHESIS_OF_CONTROL_STATEMENT : return "「 " + words[0] + " 」の後には括弧 (...) が必要です";
+			case NO_CLOSING_PARENTHESIS_OF_CONTROL_STATEMENT : return words[0] + " 文の括弧 (...) が閉じていません";
 			case NO_CONDITION_EXPRESSION_OF_IF_STATEMENT : return "if 文の括弧 (...) の中に条件の記述がありません";
 			case NO_CONDITION_EXPRESSION_OF_WHILE_STATEMENT : return "while 文の括弧 (...) の中に条件の記述がありません";
 			case ELEMENTS_OF_FOR_STATEMENT_IS_DEFICIENT : return "for 文の括弧 (...) 内は、「 ( 変数宣言や初期化 ; 繰り返し条件 ; 繰り返し毎の更新処理 ) 」のように記述する必要があります";
 			case TOO_MANY_TOKENS_FOR_CONTROL_STATEMENT : return words[0] + " 文の末尾に、余分な記述が存在します";
+			case NO_BLOCK_AFTER_CONTROL_STATEMENT : return "この言語では、" + words[0] + " 文には常にブロック {...} が必要です";
 			case UNKNOWN : return "不明なエラー";
 			default : return "不明なエラー種類：" + errorType;
 		}
@@ -69,16 +69,16 @@ public class ErrorMessage {
 			case STRING_LITERAL_IS_NOT_CLOSED : return "Unclosed string literal \"...\" exists in code";
 			case NO_IDENTIFIER_IN_VARIABLE_DECLARATION : return "Variable name is required after the data type name for variable declarations";
 			case TOO_MANY_TOKENS_FOR_VARIABLE_DECLARATION : return "Unexpected description exists in the latter part of the variable declaration statement";
-			case NO_PARTIAL_EXPRESSION : return "Blank parentheses ( ) exists in the expression";
+			case NO_PARTIAL_EXPRESSION : return "Blank parentheses ( ) exist in the expression";
 			case OPERAND_IS_MISSING_AT_RIGHT : return "Value or variable is necessary at the right of \"" + words[0] + "\"";
 			case OPERAND_IS_MISSING_AT_LEFT : return "Value or variable is necessary at the left of \"" + words[0] + "\"";
-			case NO_PARENTHESIS_OF_IF_STATEMENT : return "Parentheses (...) containing a condition expression are required after \"if\"";
-			case NO_PARENTHESIS_OF_WHILE_STATEMENT : return "Parentheses (...) containing a condition expression are required after \"while\"";
-			case NO_PARENTHESIS_OF_FOR_STATEMENT : return "Parentheses (...) containing elements such as \"( initialization ; loop_condition ; updating_per_loops )\" is required after \"for\"";
+			case NO_OPEN_PARENTHESIS_OF_CONTROL_STATEMENT : return "Parentheses (...) are required after \"" + words[0] + "\"";
+			case NO_CLOSING_PARENTHESIS_OF_CONTROL_STATEMENT : return "Parentheses (...) of \"" + words[0] + "\" statement are not closing";
 			case NO_CONDITION_EXPRESSION_OF_IF_STATEMENT : return "A condition expression is required between parentheses (...) of the \"if\" statement";
 			case NO_CONDITION_EXPRESSION_OF_WHILE_STATEMENT : return "A condition expression is required between parentheses (...) of the \"while\" statement";
 			case ELEMENTS_OF_FOR_STATEMENT_IS_DEFICIENT : return "Elements such as \"( initialization ; loop_condition ; updating_per_loops )\" are required between parentheses (...) of the \"for\" statement";
 			case TOO_MANY_TOKENS_FOR_CONTROL_STATEMENT : return "Unexpected description exists at the tail of the \"" + words[0] + "\" statement";
+			case NO_BLOCK_AFTER_CONTROL_STATEMENT : return "A block {...} is always necessary for the " + words[0] + "statement in this language" ;
 			case UNKNOWN : return "Unknown Error";
 			default : return "Unknown Error Type：" + errorType;
 		}
