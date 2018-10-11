@@ -358,7 +358,6 @@ public class CodeGenerator {
 			}
 			if (currentNode.getType() == AstNode.Type.ELSE) {
 				currentNode.addAttribute(AttributeKey.END_LABEL, this.generateLabelOperandCode());
-
 			}
 			if (currentNode.getType() == AstNode.Type.FOR) {
 				currentNode.addAttribute(AttributeKey.BEGIN_LABEL, this.generateLabelOperandCode());
@@ -425,6 +424,10 @@ public class CodeGenerator {
 					context.setStatementNodes(statementNodes);
 					contextStack.push(context);
 					context = new StatementTrackingContext();
+
+					// break や continue のために引き継ぐ必要がある情報をコピー
+					context.setLastLoopBeginPointLabel(contextStack.peek().getLastLoopBeginPointLabel());
+					context.setLastLoopEndPointLabel(contextStack.peek().getLastLoopEndPointLabel());
 
 					// ブロック内の文を、読み込み対象として展開する
 					statementNodes = currentNode.getChildNodes();
