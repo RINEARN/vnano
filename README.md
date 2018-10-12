@@ -117,7 +117,7 @@ You can use Vnano on your Java applications by appending this JAR file to the cl
 
 ### 2. Compile the Example Application
 
-Let us compile the simple example code of host Java application which executes a script code by using Vnano Engine: 
+Let's compile the simple example code of host Java application which executes a script code by using Vnano Engine: 
 
     javac Example.java
 
@@ -219,7 +219,162 @@ Example.jar から見た相対パスで書き換えてください（例：lib/V
 
 ## Performances - 演算速度
 
-<img src="https://github.com/RINEARN/vnano/blob/develop/vectorflops.png" alt="vectorflops.png" />
+In addition to the above example application, some benchmarking programs for measuring performances 
+are also contained in this repository. Let's execute them in this section.
+Please note that, those benchmarking programs measure maximum performances Vnano Engine can perform, 
+not effective performances expected for general programs.
+
+このリポジトリ内には、上記のサンプルアプリケーションに加えて、性能計測用のベンチマークプログラムも含まれています。
+以下では、実際にそれらを実行してみましょう。
+ただし、これらのベンチマークプログラムが測定するのは、Vnanoエンジンが発揮し得る性能の上限値であり、
+一般的なプログラムにおいて期待できる実効性能とは異なる事にあらかじめ留意が必要です。
+
+### 64-bit Scalar Operation FLOPS Performance - 64-bitスカラ演算FLOPS性能
+
+"Float64ScalarFlopsBenchmark.java" is a benchmarking program for measuring the peak performance of 
+operations of 64-bit floating-point scalar data. The scripting part in this program is as follows:
+
+「Float64ScalarFlopsBenchmark.java」は、
+64-bit（倍精度）浮動小数点数のスカラ演算におけるピーク性能を計測するためのベンチマークプログラムです。
+このプログラム内での、スクリプト記述部分は以下の通りです：
+
+	String scriptCode =
+
+	"  int LOOP_N = 100*1000*1000;                                      " + 
+	"  int FLOP_PER_LOOP = 100;                                         " + 
+	"  int TOTAL_FLOP = FLOP_PER_LOOP * LOOP_N;                         " + 
+	"                                                                   " + 
+	"  double x = 0.0;                                                  " + 
+	"  double y = 1.0;                                                  " + 
+	"                                                                   " + 
+	"  int beginTime = time();                                          " + 
+	"                                                                   " + 
+	"  for (int i=0; i<LOOP_N; ++i) {                                   " + 
+	"    x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y;    " + 
+	"    x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y;    " + 
+	"    x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y;    " + 
+	"    x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y;    " + 
+	"    x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y;    " + 
+	"    x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y;    " + 
+	"    x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y;    " + 
+	"    x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y;    " + 
+	"    x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y;    " + 
+	"    x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y;    " + 
+	"  }                                                                " + 
+	"                                                                   " + 
+	"  int endTime = time();                                            " + 
+	"  double requiredTime = (endTime - beginTime) / 1000.0;            " + 
+	"  double flops = TOTAL_FLOP / requiredTime;                        " + 
+	"                                                                   " + 
+	"  output(\"OPERATING_SPEED\", flops/(1000.0*1000.0), \"MFLOPS\");  " + 
+	"  output(\"REQUIRED_TIME\", requiredTime, \"SEC\");                " + 
+	"  output(\"TOTAL_OPERATIONS\", TOTAL_FLOP, \"xFLOAT64_ADD\");      " + 
+	"  output(\"OPERATED_VALUE\", x);                                   " ;
+
+How to execute is:
+
+実行方法は：
+
+	javac Float64ScalarFlopsBenchmark.java -encoding UTF-8
+	java -classpath ".;Vnano.jar" Float64ScalarFlopsBenchmark  (for Microsoft Windows)
+	java -classpath ".:Vnano.jar" Float64ScalarFlopsBenchmark  (for Linux, etc.)
+
+and an example of results is as follows (it depends on your environment) :
+
+実行結果の例は以下の通りです（環境に依存します）：
+
+	OPERATING_SPEED = 417.6586058555736 [MFLOPS]
+	REQUIRED_TIME = 23.943 [SEC]
+	TOTAL_OPERATIONS = 10000000000 [xFLOAT64_ADD]
+	OPERATED_VALUE = 1.0E10
+
+"MFLOPS" is the unit of floating-point operating speed. 
+If 1 mega (1000,000) floating-point operations done per 1 second, it's processing speed is 1MFLOPS.
+The above result means that Vnano Engine performed about 417 million floating-point additions (64-bit precision) per second.
+
+上記の結果において、「MFLOPS」は演算速度の単位です。1秒間に1M（100万）回の浮動小数点演算を行った場合に、
+その演算速度はちょうど1MFLOPSになります。従って上の結果は、
+Vnanoエンジンが概ね1秒間あたり約4億回のペースで浮動小数点加算（64-bit精度）を行った事を表しています。
+
+### 64-bit vector Operation FLOPS Performance - 64-bitベクトル演算FLOPS性能
+
+"Float64VectorFlopsBenchmark.java" is a benchmarking program for measuring the peak performance of 
+operations of 64-bit floating-point vector (array) data. The scripting part in this program is as follows:
+
+「Float64VectorFlopsBenchmark.java」は、
+64-bit（倍精度）浮動小数点数のベクトル（配列）演算におけるピーク性能を計測するためのベンチマークプログラムです。
+このプログラム内での、スクリプト記述部分は以下の通りです：
+
+	String scriptCode =
+
+	"  int VECTOR_SIZE = 2048;                                               " + 
+	"  int LOOP_N = 1000*1000;                                               " + 
+	"  int FLOP_PER_LOOP = VECTOR_SIZE * 100;                                " + 
+	"  int TOTAL_FLOP = FLOP_PER_LOOP * LOOP_N;                              " + 
+	"                                                                        " + 
+	"  double x[VECTOR_SIZE];                                                " + 
+	"  double y[VECTOR_SIZE];                                                " + 
+	"  for (int i=0; i<VECTOR_SIZE; i++) {                                   " + 
+	"    x[i] = 0.0;                                                         " + 
+	"    y[i] = i + 1.0;                                                     " + 
+	"  }                                                                     " + 
+	"                                                                        " + 
+	"  int beginTime = time();                                               " + 
+	"                                                                        " + 
+	"  for (int i=0; i<LOOP_N; ++i) {                                        " + 
+	"    x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y;         " + 
+	"    x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y;         " + 
+	"    x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y;         " + 
+	"    x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y;         " + 
+	"    x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y;         " + 
+	"    x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y;         " + 
+	"    x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y;         " + 
+	"    x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y;         " + 
+	"    x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y;         " + 
+	"    x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y;         " + 
+	"  }                                                                     " + 
+	"                                                                        " + 
+	"  int endTime = time();                                                 " + 
+	"  double requiredTime = (endTime - beginTime) / 1000.0;                 " + 
+	"  double flops = TOTAL_FLOP / requiredTime;                             " + 
+	"                                                                        " + 
+	"  output(\"OPERATING_SPEED\", flops/(1000.0*1000.0*1000.0), \"GFLOPS\");" + 
+	"  output(\"REQUIRED_TIME\", requiredTime, \"SEC\");                     " + 
+	"  output(\"TOTAL_OPERATIONS\", TOTAL_FLOP, \"xFLOAT64_ADD\");           " + 
+	"  output(\"VECTOR_SIZE\", VECTOR_SIZE, \"x64BIT\");                     " + 
+	"  output(\"OPERATED_VALUES\", x);                                       " ;
+
+How to execute is:
+
+実行方法は：
+
+	javac Float64VectorFlopsBenchmark.java -encoding UTF-8
+	java -classpath ".;Vnano.jar" Float64VectorFlopsBenchmark  (for Microsoft Windows)
+	java -classpath ".:Vnano.jar" Float64VectorFlopsBenchmark  (for Linux, etc.)
+
+and an example of results is as follows (it depends on your environment) :
+
+実行結果の例は以下の通りです（環境に依存します）：
+
+	OPERATING_SPEED = 4.8389764430687805 [GFLOPS]
+	REQUIRED_TIME = 42.323 [SEC]
+	TOTAL_OPERATIONS = 204800000000 [xFLOAT64_ADD]
+	VECTOR_SIZE = 2048 [x64BIT]
+	OPERATED_VALUES = { 1.0E8, 2.0E8, 3.0E8, ... , 2.047E11, 2.048E11 }
+
+1GFLOPS is 1000MFLOPS, so the above result means that Vnano Engine performed 
+about 4.8 billion floating-point additions (64-bit precision) per second. 
+Note that the peak performance of vector operations greatly depends on 
+total sizes of operating data and sizes of L1/L2/L3 caches of your CPU. 
+The following graph represents vector-length dependency of performances on this benchmark program.
+
+1GFLPPSは1000MFLOPSであり、従って上記の結果は、
+Vnanoエンジンが概ね1秒間あたり48億回のペースで浮動小数点加算（64-bit精度）を行った事を表しています。
+ただし、ベクトル演算の実行速度は、演算対象データのサイズと、CPUの1次/2次/3次キャッシュのサイズに大きく依存します。
+以下の図は、ベクトルの要素数を横軸として、このベンチマークプログラムでの計測性能値を表したものです。
+
+<img src="https://github.com/RINEARN/vnano/blob/master/vectorflops.png" alt="vectorflops.png" />
+
 
 
 
@@ -247,7 +402,8 @@ package performs the function as a compiler,
 which compiles script code written in Vnano to a kind of intermediate code, 
 named as "VRIL" code.
 
-VRIL ― Vector Register Intermediate Language ― is a low-level (but readable text format) language designed as a virtual assembly code of the VM (Virtual Machine) layer of Vnano Engine.
+VRIL ― Vector Register Intermediate Language ― is a low-level (but readable text format) 
+language designed as a virtual assembly code of the VM (Virtual Machine) layer of Vnano Engine.
 
 
 ### Assembler
@@ -296,7 +452,8 @@ package performs the function as a component which manages and provides some inf
 We refer this component as "Interconnect" in Vnano Engine.
 For example, information to resolve references of variables and functions are managed by this interconnect component. 
 
-Bindings to external functions/variables are intermediated by this interconnect component, so plug-ins of external functions/variables will be connected to this component.
+Bindings to external functions/variables are intermediated by this interconnect component, so plug-ins of 
+external functions/variables will be connected to this component.
 
 
 
@@ -315,14 +472,17 @@ VnanoエンジンのVM（仮想マシン）層の単位動作に対応するレ�
 ### アセンブラ
 
 <a href="https://github.com/RINEARN/vnano/tree/master/src/org/vcssl/nano/assembler">org.vcssl.nano.assembler</a>
-パッケージは、テキスト形式のVRILコードを、VnanoのVM層で直接的に実行可能な命令オブジェクト列（より厳密には、それを内部に含む実行用オブジェクト）へと変換する、アセンブラとしての機能を担います。
+パッケージは、テキスト形式のVRILコードを、VnanoのVM層で直接的に実行可能な命令オブジェクト列（より厳密には、
+それを内部に含む実行用オブジェクト）へと変換する、アセンブラとしての機能を担います。
 この命令オブジェクト列は、上図の中において "VRIL Instructions" として記述されています。
 
 
 ### プロセッサ
 
 <a href="https://github.com/RINEARN/vnano/tree/master/src/org/vcssl/nano/processor">org.vcssl.nano.processor</a>
-パッケージは、アセンブラによってVRILコードから変換された命令オブジェクト列を、逐次的に実行する仮想的なプロセッサ（CPU）としての機能を担います。この仮想プロセッサは、SIMD演算を基本とする、ベクトルレジスタマシンのアーキテクチャを採用しています。
+パッケージは、アセンブラによってVRILコードから変換された命令オブジェクト列を、
+逐次的に実行する仮想的なプロセッサ（CPU）としての機能を担います。
+この仮想プロセッサは、SIMD演算を基本とする、ベクトルレジスタマシンのアーキテクチャを採用しています。
 
 このパッケージが提供する仮想プロセッサの実装は、単純で改造が比較的容易ですが、その反面、処理速度はあまり速くありません。
 
@@ -339,18 +499,22 @@ Vnanoエンジンは、このコンポーネントの動作を完全に無効化
 ### メモリ
 
 <a href="https://github.com/RINEARN/vnano/tree/master/src/org/vcssl/nano/memory">org.vcssl.nano.memory</a>
-パッケージは、仮想プロセッサから読み書きされるデータを、アドレスに紐づけて保持する、仮想的なメモリとしての機能を担います。仮想プロセッサが一時的なデータの保持に使用するレジスタも、この仮想メモリが提供します。
+パッケージは、仮想プロセッサから読み書きされるデータを、アドレスに紐づけて保持する、仮想的なメモリとしての機能を担います。
+仮想プロセッサが一時的なデータの保持に使用するレジスタも、この仮想メモリが提供します。
 
-先述の通り、Vnanoエンジンの仮想プロセッサはベクトルレジスタマシンのアーキテクチャを採用しているため、この仮想メモリはデータをベクトル（配列）単位で保持します。即ち、一つのデータアドレスに対して、一つの配列データが紐づけられます。
+先述の通り、Vnanoエンジンの仮想プロセッサはベクトルレジスタマシンのアーキテクチャを採用しているため、
+この仮想メモリはデータをベクトル（配列）単位で保持します。即ち、一つのデータアドレスに対して、一つの配列データが紐づけられます。
 
 
 ### インターコネクト
 
 <a href="https://github.com/RINEARN/vnano/tree/master/src/org/vcssl/nano/interconnect">org.vcssl.nano.interconnect</a>
-パッケージは、これまでに列挙した各コンポーネント間で共有される、いくつかの情報を管理・提供する機能を担います。この機能を担うコンポーネントを、Vnanoエンジンでは "インターコネクト" と呼びます。
+パッケージは、これまでに列挙した各コンポーネント間で共有される、いくつかの情報を管理・提供する機能を担います。
+この機能を担うコンポーネントを、Vnanoエンジンでは "インターコネクト" と呼びます。
 インターコネクトが管理・提供する情報の具体例としては、関数・変数の参照解決のための情報などが挙げられます。
 
-外部変数・外部関数のバインディングも、インターコネクトを介して行われます。そのため、外部変数・外部関数のプラグインは、Vnanoエンジン内でこのコンポーネントに接続されます。
+外部変数・外部関数のバインディングも、インターコネクトを介して行われます。そのため、外部変数・外部関数のプラグインは、
+Vnanoエンジン内でこのコンポーネントに接続されます。
 
 
 
