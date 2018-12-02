@@ -7,7 +7,7 @@ package org.vcssl.nano.spec;
 
 import java.util.HashMap;
 
-import org.vcssl.nano.memory.Memory;
+import org.vcssl.nano.vm.memory.Memory;
 
 /**
  * <p>

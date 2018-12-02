@@ -7,13 +7,13 @@ package org.vcssl.nano.compiler;
 
 import org.vcssl.nano.VnanoSyntaxException;
 import org.vcssl.nano.interconnect.Interconnect;
-import org.vcssl.nano.memory.DataException;
+import org.vcssl.nano.vm.memory.DataException;
 
 /**
  * <p>
  * Vnano処理系内において、
  * Vnanoで記述されたスクリプトコード（文字列）を、
- * {@link org.vcssl.nano.assembler.Assembler Assembler}
+ * {@link org.vcssl.nano.vm.assembler.Assembler Assembler}
  * が解釈可能な仮想アセンブリコード（文字列）に変換する、コンパイラのクラスです。
  * </p>
  *
@@ -30,7 +30,7 @@ public class Compiler {
 
 	/**
 	 * Vnanoで記述されたスクリプトコード（文字列）を、
-	 * {@link org.vcssl.nano.assembler.Assembler Assembler}
+	 * {@link org.vcssl.nano.vm.assembler.Assembler Assembler}
 	 * が解釈可能な仮想アセンブリコード（文字列）に変換して返します。
 	 *
 	 * @param script スクリプトコード

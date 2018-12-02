@@ -6,7 +6,7 @@
 package org.vcssl.nano.lang;
 
 import org.vcssl.nano.interconnect.Xfci1FunctionAdapter;
-import org.vcssl.nano.memory.DataContainer;
+import org.vcssl.nano.vm.memory.DataContainer;
 
 
 /**

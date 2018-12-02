@@ -11,9 +11,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.vcssl.nano.compiler.AstNode;
-import org.vcssl.nano.memory.DataException;
 import org.vcssl.nano.spec.DataTypeName;
 import org.vcssl.nano.spec.IdentifierSyntax;
+import org.vcssl.nano.vm.memory.DataException;
 import org.vcssl.nano.VnanoRuntimeException;
 
 /**
