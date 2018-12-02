@@ -3,7 +3,7 @@
  * This software is released under the MIT License.
  */
 
-package org.vcssl.nano.memory;
+package org.vcssl.nano.vm.memory;
 
 import org.vcssl.connect.ArrayDataContainer1;
 import org.vcssl.nano.lang.DataType;
@@ -16,7 +16,7 @@ import org.vcssl.nano.lang.DataType;
  *
  * <p>
  * 現在のVnano処理系の仮想プロセッサー（
- * {@link org.vcssl.nano.processor.Processor}: プロセス仮想マシンとしてのVM
+ * {@link org.vcssl.nano.vm.processor.Processor}: プロセス仮想マシンとしてのVM
  * ）は、ベクトル演算主体の命令セットを採用しているため、
  * レジスタや仮想メモリー（{@link Memory Memory}）のデータ単位は、
  * スカラ値も含めて全て配列として扱われます。

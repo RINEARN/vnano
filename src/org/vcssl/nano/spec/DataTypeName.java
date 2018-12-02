@@ -9,7 +9,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 
 import org.vcssl.nano.lang.DataType;
-import org.vcssl.nano.memory.DataException;
+import org.vcssl.nano.vm.memory.DataException;
 
 /**
  * <p>

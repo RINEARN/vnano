@@ -1,13 +1,13 @@
-package org.vcssl.nano.accelerator;
+package org.vcssl.nano.vm.accelerator;
 
 import java.util.Arrays;
 
 import org.vcssl.nano.VnanoFatalException;
 import org.vcssl.nano.lang.DataType;
-import org.vcssl.nano.memory.DataContainer;
-import org.vcssl.nano.memory.Memory;
-import org.vcssl.nano.memory.MemoryAccessException;
-import org.vcssl.nano.processor.Instruction;
+import org.vcssl.nano.vm.memory.DataContainer;
+import org.vcssl.nano.vm.memory.Memory;
+import org.vcssl.nano.vm.memory.MemoryAccessException;
+import org.vcssl.nano.vm.processor.Instruction;
 
 // final はファイナライザ攻撃を防ぐため
 public final class AccelerationDataManager {

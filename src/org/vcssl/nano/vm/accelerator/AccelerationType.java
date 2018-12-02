@@ -1,4 +1,4 @@
-package org.vcssl.nano.accelerator;
+package org.vcssl.nano.vm.accelerator;
 
 public enum AccelerationType {
 

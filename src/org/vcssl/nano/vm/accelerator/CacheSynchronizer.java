@@ -3,7 +3,7 @@
  * This software is released under the MIT License.
  */
 
-package org.vcssl.nano.accelerator;
+package org.vcssl.nano.vm.accelerator;
 
 abstract class CacheSynchronizer {
 	public abstract void readCache();

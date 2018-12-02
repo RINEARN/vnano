@@ -3,7 +3,7 @@
  * This software is released under the MIT License.
  */
 
-package org.vcssl.nano.processor;
+package org.vcssl.nano.vm.processor;
 
 /**
  * <p>
@@ -400,16 +400,16 @@ public enum OperationCode {
 	/**
 	 * 拡張命令です。
 	 *
-	 * この命令は、{@link org.vcssl.nano.processor} パッケージが提供する標準の仮想プロセッサでは処理されません。
+	 * この命令は、{@link org.vcssl.nano.vm.processor} パッケージが提供する標準の仮想プロセッサでは処理されません。
 	 * より上層に機能拡張された仮想プロセッサを設けて、標準命令（この列挙子に定義されている、他の全ての命令）
 	 * の範囲を超えた処理を行いたい場合に使用します。
 	 * <br />
 	 * 拡張命令のオペレーションコードなどは、
-	 * {@link org.vcssl.nano.processor.Instruction Instruction} クラスの
-	 * {@link org.vcssl.nano.processor.Instruction#extention extention}
+	 * {@link org.vcssl.nano.vm.processor.Instruction Instruction} クラスの
+	 * {@link org.vcssl.nano.vm.processor.Instruction#extention extention}
 	 * フィールドに保持される拡張命令情報オブジェクトに格納して指定します。
 	 * <br />
-	 * 例として、{@link org.vcssl.nano.accelerator} パッケージによって提供される高速版の仮想プロセッサ実装では、
+	 * 例として、{@link org.vcssl.nano.vm.accelerator} パッケージによって提供される高速版の仮想プロセッサ実装では、
 	 * データ型に応じて最適化された算術演算命令などに、この拡張命令の仕組みが使用されています。
 	 */
 	EX,

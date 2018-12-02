@@ -5,4 +5,4 @@
  * アセンブラの機能を提供するパッケージです。
  * </p>
  */
-package org.vcssl.nano.assembler;
+package org.vcssl.nano.vm.assembler;

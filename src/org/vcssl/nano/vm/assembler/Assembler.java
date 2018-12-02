@@ -3,7 +3,7 @@
  * This software is released under the MIT License.
  */
 
-package org.vcssl.nano.assembler;
+package org.vcssl.nano.vm.assembler;
 
 import org.vcssl.nano.VnanoIntermediateCode;
 import org.vcssl.nano.lang.AbstractFunction;
@@ -11,16 +11,16 @@ import org.vcssl.nano.lang.AbstractVariable;
 import org.vcssl.nano.lang.DataType;
 import org.vcssl.nano.lang.FunctionTable;
 import org.vcssl.nano.lang.VariableTable;
-import org.vcssl.nano.memory.DataException;
-import org.vcssl.nano.memory.Memory;
 import org.vcssl.nano.VnanoRuntimeException;
 import org.vcssl.nano.VnanoSyntaxException;
 import org.vcssl.nano.interconnect.Interconnect;
-import org.vcssl.nano.processor.Instruction;
-import org.vcssl.nano.processor.OperationCode;
 import org.vcssl.nano.spec.AssemblyWord;
 import org.vcssl.nano.spec.DataTypeName;
 import org.vcssl.nano.spec.LiteralSyntax;
+import org.vcssl.nano.vm.memory.DataException;
+import org.vcssl.nano.vm.memory.Memory;
+import org.vcssl.nano.vm.processor.Instruction;
+import org.vcssl.nano.vm.processor.OperationCode;
 
 
 /**

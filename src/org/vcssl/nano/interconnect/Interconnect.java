@@ -25,12 +25,12 @@ import org.vcssl.nano.lang.DataType;
 import org.vcssl.nano.lang.FunctionTable;
 import org.vcssl.nano.lang.Variable;
 import org.vcssl.nano.lang.VariableTable;
-import org.vcssl.nano.memory.DataContainer;
-import org.vcssl.nano.memory.DataConverter;
-import org.vcssl.nano.memory.DataException;
-import org.vcssl.nano.memory.MemoryAccessException;
-import org.vcssl.nano.memory.Memory;
 import org.vcssl.nano.spec.IdentifierSyntax;
+import org.vcssl.nano.vm.memory.DataContainer;
+import org.vcssl.nano.vm.memory.DataConverter;
+import org.vcssl.nano.vm.memory.DataException;
+import org.vcssl.nano.vm.memory.Memory;
+import org.vcssl.nano.vm.memory.MemoryAccessException;
 
 
 /**

@@ -3,12 +3,12 @@
  * This software is released under the MIT License.
  */
 
-package org.vcssl.nano.processor;
+package org.vcssl.nano.vm.processor;
 
 import org.vcssl.nano.interconnect.Interconnect;
-import org.vcssl.nano.memory.DataException;
-import org.vcssl.nano.memory.MemoryAccessException;
-import org.vcssl.nano.memory.Memory;
+import org.vcssl.nano.vm.memory.DataException;
+import org.vcssl.nano.vm.memory.Memory;
+import org.vcssl.nano.vm.memory.MemoryAccessException;
 
 
 /**
@@ -31,7 +31,7 @@ import org.vcssl.nano.memory.Memory;
  * <p>
  * 現在のVnano処理系の仮想プロセッサは、レジスタマシンのアーキテクチャを採用しています。
  * ただし、レジスタを含むデータ類は、仮想プロセッサ内ではなく、
- * 仮想メモリーである {@link org.vcssl.nano.memory.Memory Memory} オブジェクト側に保持されます
+ * 仮想メモリーである {@link org.vcssl.nano.vm.memory.Memory Memory} オブジェクト側に保持されます
  * （ただし、高速化のためにプロセッサ内にキャッシュされる事はあります）。
  * </p>
  *
@@ -59,11 +59,11 @@ import org.vcssl.nano.memory.Memory;
  *
  * <p>
  * を実行する場合、仮想プロセッサはまず仮想メモリー内の
- * {@link org.vcssl.nano.memory.Memory.Partition#LOCAL LOCAL}
+ * {@link org.vcssl.nano.vm.memory.Memory.Partition#LOCAL LOCAL}
  * パーティション内の24番および36番アドレスからデータを読み込み、
  * それらを64bit符号付き整数と見なして {@link OperationCode#ADD ADD} 命令つまり加算を行って、
  * 最後に加算結果を仮想メモリー内の
- * {@link org.vcssl.nano.memory.Memory.Partition#REGISTER REGISTER}
+ * {@link org.vcssl.nano.vm.memory.Memory.Partition#REGISTER REGISTER}
  * パーティション内の0番アドレス（即ち0番レジスタ）に書き込みます。
  * </p>
  *
@@ -84,8 +84,8 @@ import org.vcssl.nano.memory.Memory;
  *
  * <p>
  * このような仮想プロセッサの仕様に合わせて、Vnano処理系内では、全てのデータが配列単位で扱われます。
- * 詳細は {@link org.vcssl.nano.memory.DataContainer DataContainer} クラスや
- * {@link org.vcssl.nano.memory.Memory Memory} クラスの説明を参照してください。
+ * 詳細は {@link org.vcssl.nano.vm.memory.DataContainer DataContainer} クラスや
+ * {@link org.vcssl.nano.vm.memory.Memory Memory} クラスの説明を参照してください。
  * </p>
  *
  * @author RINEARN (Fumihiro Matsui)

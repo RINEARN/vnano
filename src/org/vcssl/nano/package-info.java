@@ -12,11 +12,11 @@
  *   <dl>
  *     <dt>{@link org.vcssl.nano.compiler org.vcssl.nano.compiler}</dt>
  *        <dd>スクリプトから仮想アセンブリコードへの変換を行う、コンパイラを構成するパッケージ</dd>
- *     <dt>{@link org.vcssl.nano.assembler org.vcssl.nano.assembler}</dt>
+ *     <dt>{@link org.vcssl.nano.vm.assembler org.vcssl.nano.vm.assembler}</dt>
  *        <dd>仮想アセンブリコードから実行用中間コードへの変換を行う、アセンブラを構成するパッケージ</dd>
- *     <dt>{@link org.vcssl.nano.memory org.vcssl.nano.memory}</dt>
+ *     <dt>{@link org.vcssl.nano.vm.memory org.vcssl.nano.vm.memory}</dt>
  *        <dd>データの保持や受け渡し、および変換などの機能を提供する、仮想メモリーを構成するパッケージ</dd>
- *     <dt>{@link org.vcssl.nano.processor org.vcssl.nano.processor}</dt>
+ *     <dt>{@link org.vcssl.nano.vm.processor org.vcssl.nano.vm.processor}</dt>
  *        <dd>中間コードを実行する、仮想プロセッサー（プロセス仮想マシンとしてのVM）を構成するパッケージ</dd>
  *     <dt>{@link org.vcssl.nano.interconnect org.vcssl.nano.interconnect}</dt>
  *        <dd>外部変数・外部関数プラグインの接続や、関数・変数の参照解決および仲介など、接続レイヤーを構成するパッケージ</dd>

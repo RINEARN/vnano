@@ -3,7 +3,7 @@
  * This software is released under the MIT License.
  */
 
-package org.vcssl.nano.processor;
+package org.vcssl.nano.vm.processor;
 
 import java.util.HashMap;
 

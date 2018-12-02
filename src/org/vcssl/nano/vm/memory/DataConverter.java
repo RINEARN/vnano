@@ -3,7 +3,7 @@
  * This software is released under the MIT License.
  */
 
-package org.vcssl.nano.memory;
+package org.vcssl.nano.vm.memory;
 
 import java.util.HashMap;
 
@@ -123,7 +123,7 @@ public class DataConverter {
 	/**
 	 * ホスト言語のデータ型名（クラス名またはプリミティブ名）をキーとし、
 	 * それをホスト言語のデータ型（クラス）を分類した
-	 * {@link org.vcssl.nano.memory.DataConverter.ExternalType} 列挙子の要素に変換するためのマップです。
+	 * {@link org.vcssl.nano.vm.memory.DataConverter.ExternalType} 列挙子の要素に変換するためのマップです。
 	 */
 	private static final HashMap<String,ExternalType> EXTERNAL_NAME_EXTERNAL_TYPE_MAP = new HashMap<String,ExternalType>();
 	static {
@@ -145,7 +145,7 @@ public class DataConverter {
 
 	/**
 	 * ホスト言語のデータ型（クラス）を分類した
-	 * {@link org.vcssl.nano.memory.DataConverter.ExternalType} 列挙子の要素をキーとし、
+	 * {@link org.vcssl.nano.vm.memory.DataConverter.ExternalType} 列挙子の要素をキーとし、
 	 * それをVnano処理系内でのデータ型を分類した
 	 * {@link DataType DataType} 列挙子の要素に変換するためのマップです。
 	 */
@@ -162,7 +162,7 @@ public class DataConverter {
 	 * Vnano処理系内でのデータ型を分類した
 	 * {@link DataType DataType} 列挙子の要素をキーとし、
 	 * それをホスト言語のデータ型（クラス）を分類した
-	 * {@link org.vcssl.nano.memory.DataConverter.ExternalType} 列挙子の要素に変換するためのマップです。
+	 * {@link org.vcssl.nano.vm.memory.DataConverter.ExternalType} 列挙子の要素に変換するためのマップです。
 	 */
 	private static final HashMap<DataType, ExternalType> DATA_TYPE_EXTERNAL_TYPE_MAP = new HashMap<DataType, ExternalType>();
 	static {

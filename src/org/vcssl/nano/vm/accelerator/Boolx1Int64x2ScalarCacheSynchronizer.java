@@ -3,9 +3,9 @@
  * This software is released under the MIT License.
  */
 
-package org.vcssl.nano.accelerator;
+package org.vcssl.nano.vm.accelerator;
 
-import org.vcssl.nano.memory.DataContainer;
+import org.vcssl.nano.vm.memory.DataContainer;
 
 class Boolx1Int64x2ScalarCacheSynchronizer extends CacheSynchronizer {
 	private final DataContainer<boolean[]> container0;

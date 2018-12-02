@@ -3,7 +3,7 @@
  * This software is released under the MIT License.
  */
 
-package org.vcssl.nano.processor;
+package org.vcssl.nano.vm.processor;
 
 import static org.junit.Assert.*;
 
@@ -15,10 +15,10 @@ import org.junit.Test;
 import org.vcssl.nano.interconnect.Interconnect;
 import org.vcssl.nano.lang.AbstractFunction;
 import org.vcssl.nano.lang.DataType;
-import org.vcssl.nano.memory.DataContainer;
-import org.vcssl.nano.memory.DataException;
-import org.vcssl.nano.memory.Memory;
-import org.vcssl.nano.memory.MemoryAccessException;
+import org.vcssl.nano.vm.memory.DataContainer;
+import org.vcssl.nano.vm.memory.DataException;
+import org.vcssl.nano.vm.memory.Memory;
+import org.vcssl.nano.vm.memory.MemoryAccessException;
 
 
 public class DispatchUnitTest {

@@ -3,7 +3,7 @@
  * This software is released under the MIT License.
  */
 
-package org.vcssl.nano.assembler;
+package org.vcssl.nano.vm.assembler;
 
 import java.util.HashMap;
 

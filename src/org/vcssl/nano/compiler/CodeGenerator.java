@@ -11,12 +11,12 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.vcssl.nano.VnanoRuntimeException;
-import org.vcssl.nano.processor.OperationCode;
 import org.vcssl.nano.spec.AssemblyWord;
 import org.vcssl.nano.spec.DataTypeName;
 import org.vcssl.nano.spec.IdentifierSyntax;
 import org.vcssl.nano.spec.LiteralSyntax;
 import org.vcssl.nano.spec.ScriptWord;
+import org.vcssl.nano.vm.processor.OperationCode;
 
 
 /**
@@ -24,7 +24,7 @@ import org.vcssl.nano.spec.ScriptWord;
  * コンパイラ内において、
  * {@link SemanticAnalyzer SemanticAnalyzer}（意味解析器）
  * が出力した情報補間済みAST（抽象構文木）から、
- * {@link org.vcssl.nano.assembler.Assembler Assembler}
+ * {@link org.vcssl.nano.vm.assembler.Assembler Assembler}
  * が解釈可能な中間アセンブリコードへと変換する、コード生成器のクラスです。
  * </p>
  *

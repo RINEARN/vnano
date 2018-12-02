@@ -3,7 +3,7 @@
  * This software is released under the MIT License.
  */
 
-package org.vcssl.nano.processor;
+package org.vcssl.nano.vm.processor;
 
 import static org.junit.Assert.*;
 
@@ -11,7 +11,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.vcssl.nano.lang.DataType;
-import org.vcssl.nano.memory.Memory;
+import org.vcssl.nano.vm.memory.Memory;
 
 public class InstructionTest {
 

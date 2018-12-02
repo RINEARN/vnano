@@ -3,7 +3,7 @@
  * This software is released under the MIT License.
  */
 
-package org.vcssl.nano.memory;
+package org.vcssl.nano.vm.memory;
 
 
 import java.util.ArrayList;
@@ -13,9 +13,9 @@ import java.util.List;
 import org.vcssl.nano.spec.AssemblyWord;
 import org.vcssl.nano.spec.DataTypeName;
 import org.vcssl.nano.spec.LiteralSyntax;
+import org.vcssl.nano.vm.assembler.AssemblyCodeException;
 import org.vcssl.nano.VnanoIntermediateCode;
 import org.vcssl.nano.VnanoRuntimeException;
-import org.vcssl.nano.assembler.AssemblyCodeException;
 import org.vcssl.nano.lang.AbstractVariable;
 import org.vcssl.nano.lang.DataType;
 import org.vcssl.nano.lang.VariableTable;
@@ -48,7 +48,7 @@ import org.vcssl.nano.lang.VariableTable;
  * パーティションには、例えばローカル変数のデータを保持する
  * {@link Memory.Partition#LOCAL LOCAL} パーティションなどがあります。
  * また、Vnano処理系の仮想プロセッサー（
- * {@link org.vcssl.nano.processor.Processor Processor}: プロセス仮想マシンとしてのVM
+ * {@link org.vcssl.nano.vm.processor.Processor Processor}: プロセス仮想マシンとしてのVM
  * ）はレジスタマシンであり、そのレジスタ領域も、この仮想メモリーが
  * {@link Memory.Partition#REGISTER REGISTER} パーティションとして提供します。
  * </p>
@@ -64,7 +64,7 @@ import org.vcssl.nano.lang.VariableTable;
  * </p>
  *
  * <p>
- * なお、現在のVnano処理系の仮想プロセッサー（{@link org.vcssl.nano.processor.Processor}）
+ * なお、現在のVnano処理系の仮想プロセッサー（{@link org.vcssl.nano.vm.processor.Processor}）
  * はベクトル演算主体の命令セットを採用しているため、
  * Vnano処理系内では全てのデータが配列単位で扱われます。
  * そのため、データコンテナの内部には配列データが格納されます。

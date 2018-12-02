@@ -3,11 +3,11 @@
  * This software is released under the MIT License.
  */
 
-package org.vcssl.nano.accelerator;
+package org.vcssl.nano.vm.accelerator;
 
 import org.vcssl.nano.VnanoFatalException;
 import org.vcssl.nano.lang.DataType;
-import org.vcssl.nano.memory.DataContainer;
+import org.vcssl.nano.vm.memory.DataContainer;
 
 public class BoolScalarTransferUnit extends AccelerationUnit {
 

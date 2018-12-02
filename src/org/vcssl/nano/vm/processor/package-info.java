@@ -4,4 +4,4 @@
  * 仮想プロセッサ（プロセス仮想マシンとしてのVM）の機能を提供するパッケージです。
  * </p>
  */
-package org.vcssl.nano.processor;
+package org.vcssl.nano.vm.processor;

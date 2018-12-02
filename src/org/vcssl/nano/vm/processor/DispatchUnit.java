@@ -3,21 +3,21 @@
  * This software is released under the MIT License.
  */
 
-package org.vcssl.nano.processor;
+package org.vcssl.nano.vm.processor;
 
 
 import org.vcssl.nano.interconnect.Interconnect;
 import org.vcssl.nano.lang.DataType;
-import org.vcssl.nano.memory.DataContainer;
-import org.vcssl.nano.memory.DataException;
-import org.vcssl.nano.memory.MemoryAccessException;
-import org.vcssl.nano.memory.Memory;
+import org.vcssl.nano.vm.memory.DataContainer;
+import org.vcssl.nano.vm.memory.DataException;
+import org.vcssl.nano.vm.memory.Memory;
+import org.vcssl.nano.vm.memory.MemoryAccessException;
 
 
 /**
  * <p>
  * 仮想プロセッサ内において、命令を解釈し、
- * {@link org.vcssl.nano.memory.Memory Memory}（仮想メモリー）からのデータのロードや、
+ * {@link org.vcssl.nano.vm.memory.Memory Memory}（仮想メモリー）からのデータのロードや、
  * {@link ExecutionUnit ExecutionUnit} （演算ユニット）への命令ディスパッチなどを行う、
  * 制御ユニットのクラスです。
  * </p>

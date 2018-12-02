@@ -2,19 +2,19 @@
  * Copyright(C) 2017-2018 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
-package org.vcssl.nano.accelerator;
+package org.vcssl.nano.vm.accelerator;
 
 import org.vcssl.nano.VnanoFatalException;
 import org.vcssl.nano.interconnect.Interconnect;
 import org.vcssl.nano.lang.DataType;
-import org.vcssl.nano.memory.DataContainer;
-import org.vcssl.nano.memory.DataException;
-import org.vcssl.nano.memory.Memory;
-import org.vcssl.nano.memory.MemoryAccessException;
-import org.vcssl.nano.processor.Instruction;
-import org.vcssl.nano.processor.InvalidInstructionException;
-import org.vcssl.nano.processor.OperationCode;
-import org.vcssl.nano.processor.Processor;
+import org.vcssl.nano.vm.memory.DataContainer;
+import org.vcssl.nano.vm.memory.DataException;
+import org.vcssl.nano.vm.memory.Memory;
+import org.vcssl.nano.vm.memory.MemoryAccessException;
+import org.vcssl.nano.vm.processor.Instruction;
+import org.vcssl.nano.vm.processor.InvalidInstructionException;
+import org.vcssl.nano.vm.processor.OperationCode;
+import org.vcssl.nano.vm.processor.Processor;
 
 public class AccelerationDispatcher {
 

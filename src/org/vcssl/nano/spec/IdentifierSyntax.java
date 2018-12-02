@@ -10,7 +10,7 @@ import org.vcssl.nano.compiler.AttributeKey;
 import org.vcssl.nano.lang.AbstractFunction;
 import org.vcssl.nano.lang.AbstractVariable;
 import org.vcssl.nano.lang.DataType;
-import org.vcssl.nano.memory.DataException;
+import org.vcssl.nano.vm.memory.DataException;
 
 
 public class IdentifierSyntax {

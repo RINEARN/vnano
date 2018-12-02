@@ -1,9 +1,9 @@
-package org.vcssl.nano.accelerator;
+package org.vcssl.nano.vm.accelerator;
 
-import org.vcssl.nano.memory.Memory;
-import org.vcssl.nano.processor.Instruction;
-import org.vcssl.nano.processor.OperationCode;
 import org.vcssl.nano.spec.AssemblyWord;
+import org.vcssl.nano.vm.memory.Memory;
+import org.vcssl.nano.vm.processor.Instruction;
+import org.vcssl.nano.vm.processor.OperationCode;
 
 public class AcceleratorInstruction extends Instruction {
 
