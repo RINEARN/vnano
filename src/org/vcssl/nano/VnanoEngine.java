@@ -19,20 +19,20 @@ import javax.script.ScriptException;
 import javax.script.SimpleBindings;
 import javax.script.SimpleScriptContext;
 
-import org.vcssl.nano.assembler.Assembler;
-import org.vcssl.nano.assembler.AssemblyCodeException;
 import org.vcssl.nano.compiler.Compiler;
 import org.vcssl.nano.interconnect.Interconnect;
-import org.vcssl.nano.memory.DataContainer;
-import org.vcssl.nano.memory.DataConverter;
-import org.vcssl.nano.memory.DataException;
-import org.vcssl.nano.memory.MemoryAccessException;
-import org.vcssl.nano.memory.Memory;
-import org.vcssl.nano.processor.Instruction;
-import org.vcssl.nano.processor.InvalidInstructionException;
-import org.vcssl.nano.processor.Processor;
 import org.vcssl.nano.spec.ErrorMessage;
-import org.vcssl.nano.accelerator.Accelerator;
+import org.vcssl.nano.vm.accelerator.Accelerator;
+import org.vcssl.nano.vm.assembler.Assembler;
+import org.vcssl.nano.vm.assembler.AssemblyCodeException;
+import org.vcssl.nano.vm.memory.DataContainer;
+import org.vcssl.nano.vm.memory.DataConverter;
+import org.vcssl.nano.vm.memory.DataException;
+import org.vcssl.nano.vm.memory.Memory;
+import org.vcssl.nano.vm.memory.MemoryAccessException;
+import org.vcssl.nano.vm.processor.Instruction;
+import org.vcssl.nano.vm.processor.InvalidInstructionException;
+import org.vcssl.nano.vm.processor.Processor;
 
 
 /**

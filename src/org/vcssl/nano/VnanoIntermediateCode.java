@@ -15,9 +15,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.vcssl.nano.memory.Memory;
-import org.vcssl.nano.processor.Instruction;
 import org.vcssl.nano.spec.AssemblyWord;
+import org.vcssl.nano.vm.memory.Memory;
+import org.vcssl.nano.vm.processor.Instruction;
 
 
 /**

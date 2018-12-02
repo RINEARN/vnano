@@ -10,9 +10,9 @@ import org.vcssl.connect.ExternalVariableException;
 import org.vcssl.nano.VnanoRuntimeException;
 import org.vcssl.nano.lang.AbstractVariable;
 import org.vcssl.nano.lang.DataType;
-import org.vcssl.nano.memory.DataContainer;
-import org.vcssl.nano.memory.DataConverter;
-import org.vcssl.nano.memory.DataException;
+import org.vcssl.nano.vm.memory.DataContainer;
+import org.vcssl.nano.vm.memory.DataConverter;
+import org.vcssl.nano.vm.memory.DataException;
 
 /**
  * <p>

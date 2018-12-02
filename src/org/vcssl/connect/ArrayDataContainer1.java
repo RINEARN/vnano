@@ -53,7 +53,7 @@ package org.vcssl.connect;
  *
  * <p>
  * データの格納のされ方などの詳細については、具体的な実装を交えた説明の方が適しているため、
- * {@link org.vcssl.nano.memory.DataContainer org.vcssl.nano.memory.DataContainer}
+ * {@link org.vcssl.nano.vm.memory.DataContainer org.vcssl.nano.vm.memory.DataContainer}
  * クラスの説明などを参照してください。
  * </p>
  * 

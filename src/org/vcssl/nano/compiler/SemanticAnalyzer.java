@@ -19,12 +19,12 @@ import org.vcssl.nano.lang.AbstractVariable;
 import org.vcssl.nano.lang.DataType;
 import org.vcssl.nano.lang.FunctionTable;
 import org.vcssl.nano.lang.VariableTable;
-import org.vcssl.nano.memory.DataException;
 import org.vcssl.nano.spec.DataTypeName;
 import org.vcssl.nano.spec.ErrorType;
 import org.vcssl.nano.spec.IdentifierSyntax;
 import org.vcssl.nano.spec.LiteralSyntax;
 import org.vcssl.nano.spec.ScriptWord;
+import org.vcssl.nano.vm.memory.DataException;
 
 
 /**
