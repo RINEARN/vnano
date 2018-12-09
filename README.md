@@ -4,8 +4,8 @@ Vnano (VCSSL nano) is a simple scripting language and its interpreter for embedd
 
 Vnano (VCSSL nano) は、Java&reg; アプリケーション上に搭載して用いる簡易スクリプト言語＆インタープリタです。
 
-<div style="background-color:white; width:100%; text-align:center;" />
-  <img src="https://github.com/RINEARN/vnano/blob/master/logo.png" alt="logo.png" />
+<div style="background-color:white; width: 720px; height: 395px; text-align:center; background-image: url('./logo.png'); background-repeat: no-repeat; background-size: contain;">
+  <img src="https://github.com/RINEARN/vnano/blob/master/logo.png" alt="" />
 </div>
 
 
@@ -373,8 +373,9 @@ Vnanoエンジンが概ね1秒間あたり48億回のペースで浮動小数点
 ただし、ベクトル演算の実行速度は、演算対象データのサイズと、CPUの1次/2次/3次キャッシュのサイズに大きく依存します。
 以下の図は、ベクトルの要素数を横軸として、このベンチマークプログラムでの計測性能値を表したものです。
 
-<img src="https://github.com/RINEARN/vnano/blob/master/vectorflops.png" alt="vectorflops.png" />
-
+<div style="background-color:white; width: 700px; height: 612px; text-align:center; background-image: url('./vectorflops.png'); background-repeat: no-repeat; background-size: contain;">
+	<img src="https://github.com/RINEARN/vnano/blob/master/vectorflops.png" alt="" />
+</div>
 
 
 
@@ -389,8 +390,10 @@ Vnanoエンジンは、内部でスクリプトコードを中間コードにコ
 それを仮想マシン(VM)上で実行する、オーソドックスなアーキテクチャを採用しています。
 以下では、Vnanoエンジンを構成する各パッケージの役割について説明します。
 
-<img src="https://github.com/RINEARN/vnano/blob/master/architecture.jpg" alt="architecture.jpg" width="700" />
 
+<div style="background-color:black; width: 700px; height: 1150px; text-align:center; background-image: url('./architecture.jpg'); background-repeat: no-repeat; background-size: contain;">
+	<img src="https://github.com/RINEARN/vnano/blob/master/architecture.jpg" alt="" width="700" />
+</div>
 
 
 ### Compiler - コンパイラ
