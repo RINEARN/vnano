@@ -1,36 +1,66 @@
 # Vnano
 
+
+
 Vnano (VCSSL nano) is a simple scripting language and its interpreter for embedded use in Java&reg; applications.
 
-Vnano (VCSSL nano) は、Java&reg; アプリケーション上に搭載して用いる簡易スクリプト言語＆インタープリタです。
+Vnano (VCSSL nano) は、Java&reg; アプリケーションに組み込んで用いる簡易スクリプト言語＆インタープリタです。
+
+
 
 <div style="background-color:white; width: 720px; height: 395px; text-align:center; background-image: url('./logo.png'); background-repeat: no-repeat; background-size: contain;">
-  <img src="https://github.com/RINEARN/vnano/blob/master/logo.png" alt="" />
+  <img src="https://github.com/RINEARN/vnano/blob/master/logo.png" alt="" width="720" />
 </div>
 
 
 
+<div style="border: solid 1px #ff8800; width:700px; margin-top: 30px; margin-bottom: 30px; padding: 0px 10px; 0px 10px">
+
 ## Caution - 注意
 
-Vnano is under development, so it have not practical quality yet.
+Vnano is under development, so it has not practical quality yet.
 
 Vnanoは開発の途中であり、現時点でまだ実用的な品質ではありません。
 
+</div>
 
 
+
+<div style="border: solid 1px #777777; width:700px; margin-top: 30px; margin-bottom: 30px; padding: 10px;">
+	- Index - 目次 - 
+	<ul>
+		<li><a href="#requirements">Requirements - 必要な環境</a></li>
+		<li><a href="#example">Application Code Example - アプリケーションコード例</a></li>
+		<li><a href="#how-to-use-in-java">How to Use in Java&reg; - Java&reg;言語での使用方法</a></li>
+		<li><a href="#how-to-use-in-kotlin">How to Use in Kotlin&reg; - Kotlin&reg;での使用方法</a></li>
+		<li><a href="#performances">Performances - 演算速度</a></li>
+		<li><a href="#architecture">Architecture - アーキテクチャ</a></li>
+		<li><a href="#license">License - ライセンス</a></li>
+	</ul>
+</div>
+
+
+
+
+
+<a id="requirements"></a>
 ## Requirements - 必要な環境
 
-1. Java Development Kit (JDK) 7 or later - Java開発環境 (JDK) 7以降
-1. Java Runtime Environment (JRE) 7 or later - Java実行環境 (JRE) 7以降
+1. Java&reg; Development Kit (JDK) 7 or later - Java&reg;開発環境 (JDK) 7以降
+1. Java&reg; Runtime Environment (JRE) 7 or later - Java&reg;実行環境 (JRE) 7以降
 
 
 
+<a id="example"></a>
 ## Application Code Example - アプリケーションコード例
 
-The following is an example Java application code which executes 
+The following is an example Java&reg; application code which executes 
 a script code by using Vnano:
 
-Vnano を使用してスクリプトを実行するJavaアプリケーションのコード例は、以下の通りです：
+Vnano を使用してスクリプトを実行するJava&reg;アプリケーションのコード例は、以下の通りです：
+
+
+	( Example.java )
 
 	import javax.script.ScriptEngine;
 	import javax.script.ScriptEngineManager;
@@ -91,25 +121,82 @@ Vnano を使用してスクリプトを実行するJavaアプリケーション�
 		}
 	}
 
-This example code is contained in this repository as "Example.jar".
-We will actually execute this example code in the next section.
 
-このサンプルコードは Example.java として、このリポジトリ内に含まれています。
+The following is the same example written in Kotlin&reg;:
+
+また、Kotlin&reg;で記述された同様のアプリケーションのコード例は以下の通りです：
+
+
+	( Example.kt )
+
+	import javax.script.ScriptEngine
+	import org.vcssl.nano.VnanoEngineFactory
+
+	// A class which provides a field/method accessed from the script.
+	// スクリプト内からアクセスされるフィールドとメソッドを提供するクラス
+	class ScriptIO {
+		@JvmField val LOOP_MAX: Int = 100
+
+		fun output(value: Int) {
+			println("Output from script: " + value)
+		}
+	}
+
+	fun main(args: Array<String>) {
+
+		// Get a script engine of Vnano.
+		// Vnanoのスクリプトエンジンを取得
+		val factory = VnanoEngineFactory()
+		val engine = factory.getScriptEngine()
+
+		// Connect a field/method to the engine as an external variable/function.
+		// フィールドとメソッドを外部関数・変数としてスクリプトエンジンに接続
+		val loopMaxField = ScriptIO::class.java.getField("LOOP_MAX")
+		val outputMethod = ScriptIO::class.java.getMethod("output", Int::class.java)
+		val ioInstance = ScriptIO()
+		engine.put("LOOP_MAX", arrayOf(loopMaxField, ioInstance));
+		engine.put("output(int)", arrayOf(outputMethod, ioInstance));
+
+		// Create a script code (calculates the value of summation from 1 to 100).
+		// スクリプトコードを用意（1から100までの和を求める）
+		val scriptCode = """
+				int sum = 0;
+				int n = LOOP_MAX;
+				for (int i=1; i<=n; i++) {
+					sum += i;
+				}
+				output(sum);
+		"""
+
+		// Run the script code by the script engine of Vnano.
+		// Vnanoのスクリプトエンジンにスクリプトコードを渡して実行
+		engine.eval(scriptCode)
+	}
+
+
+These example code are contained in this repository as "Example.java" (for Java&reg;) and "Example.kt" (for Kotlin&reg;).
+We will actually execute these example code in the next section.
+
+これらのサンプルコードは、"Example.java" (Java&reg;用) および "Example.kt" (Kotlin&reg;用) として、このリポジトリ内に含まれています。
 次節では、実際にこのサンプルコードを実行してみます。
 
 
-## How to Use - 使用方法
+
+
+
+<a id="how-to-use-in-java"></a>
+## How to Use in Java&reg; - Java&reg;言語での使用方法
 
 ### 1. Build Vnano Engine - Vnanoエンジンのビルド
 
 Firstly, build source code of Vnano Engine (The script engine of Vnano).
 If you are using Microsoft&reg; Windows&reg;, please double-click "build.bat".
-If you are using Linux, etc., please execute "build.sh" on the bash-compatible shell.
+If you are using Linux&reg;, etc., please execute "build.sh" on the bash-compatible shell.
 Alternatively, you can build Vnano Engine by Apache Ant as:
 
 はじめに、Vnanoエンジン（Vnanoのスクリプトエンジン）をビルドします。
 Microsoft&reg; Windows&reg; をご使用の場合は、"build.bat" をダブルクリック実行してください。
-Linux 等をご使用の場合は、bash互換シェル上で "build.sh" を実行してください。もしくは以下のように、Apache Ant を用いてVnanoエンジンをビルドする事もできます：
+Linux&reg; 等をご使用の場合は、bash互換シェル上で "build.sh" を実行してください。もしくは以下のように、Apache Ant を用いてVnanoエンジンをビルドする事もできます：
 
     ant -buildfile build.xml
 
@@ -133,16 +220,16 @@ As the result of the compilation, "Example.class" will be generated in the same 
 
 ### 3. Execute the Example Application - サンプルアプリケーションの実行
 
-Then, execute the compiled example application with appending "Vnano.jar" to the classpath as follows. If you are using Microsoft Windows:
+Then, execute the compiled example application with appending "Vnano.jar" to the classpath as follows. If you are using Microsoft&reg; Windows&reg;:
 
 コンパイルしたサンプルアプリケーションは、Vnano.jar にクラスパスを通して実行します。
-Microsoft Windows の場合は：
+Microsoft&reg; Windows&reg; の場合は：
 
     java -classpath ".;Vnano.jar" Example
 
-If you are using Linux, etc.:
+If you are using Linux&reg;, etc.:
 
-Linux等の場合は：
+Linux&reg;等の場合は：
 
     java -classpath ".:Vnano.jar" Example
 
@@ -183,6 +270,75 @@ Vnano.jar を同じフォルダ内に置いておけば使用できます。
 Example.jar から見た相対パスで書き換えてください（例：lib/Vnano.jar ）。
 
 
+
+
+
+<a id="how-to-use-in-kotlin"></a>
+## How to Use in Kotlin&reg; - Kotlin&reg;での使用方法
+
+### 1. Build Vnano Engine - Vnanoエンジンのビルド
+
+Firstly, build source code of Vnano Engine (The script engine of Vnano).
+If you are using Microsoft&reg; Windows&reg;, please double-click "build.bat".
+If you are using Linux, etc., please execute "build.sh" on the bash-compatible shell.
+Alternatively, you can build Vnano Engine by Apache Ant as:
+
+はじめに、Vnanoエンジン（Vnanoのスクリプトエンジン）をビルドします。
+Microsoft&reg; Windows&reg; をご使用の場合は、"build.bat" をダブルクリック実行してください。
+Linux 等をご使用の場合は、bash互換シェル上で "build.sh" を実行してください。もしくは以下のように、Apache Ant を用いてVnanoエンジンをビルドする事もできます：
+
+    ant -buildfile build.xml
+
+If you succeeded to build Vnano Engine, "Vnano.jar" will be generated in the same folder in the above files.
+You can use Vnano on your Java applications by appending this JAR file to the classpath.
+
+Vnanoエンジンのビルドが成功すると、"Vnano.jar" が上記ファイルと同じフォルダ内に生成されます。
+Vnanoを使用したいJavaアプリケーションから、このJARファイルにクラスパスを通せば、それだけでVnanoが使用できます。
+
+### 2. Compile the Example Application - サンプルアプリケーションのコンパイル
+
+Let's compile the simple example code of host application written in Kotlin, which executes a script code by using Vnano Engine. It is necessary to compile the application with appending "Vnano.jar" to the classpath as follows. If you are using Microsoft&reg; Windows&reg;:
+
+それでは、実際にVnanoエンジンを使用して、スクリプトを実行する、Kotlinで記述されたホストアプリケーションのサンプルコードをコンパイルしてみましょう。コンパイルは、Vnano.jar にクラスパスを通しながら行います。Microsoft&reg; Windows&reg; の場合は：
+
+    kotlinc -classpath ".;Vnano.jar" Example.kt
+
+If you are using Linux&reg;, etc.:
+
+Linux等の場合は&reg;：
+
+    kotlinc -classpath ".:Vnano.jar" Example.kt
+
+As the result of the compilation, "ExampleKt.class" will be generated in the same folder.
+
+コンパイルが成功すると、同じフォルダ内に ExampleKt.class が生成されます。
+
+### 3. Execute the Example Application - サンプルアプリケーションの実行
+
+Then, execute the compiled example application with appending "Vnano.jar" to the classpath as follows. If you are using Microsoft Windows:
+
+コンパイルしたサンプルアプリケーションは、Vnano.jar にクラスパスを通して実行します。
+Microsoft Windows の場合は：
+
+    kotlin -classpath ".;Vnano.jar" ExampleKt
+
+If you are using Linux, etc.:
+
+Linux等の場合は：
+
+    kotlin -classpath ".:Vnano.jar" ExampleKt
+
+As the result of the execution, the following line will be printed to the standard output:
+
+正常に実行されると、以下の内容が標準出力に表示されます：
+
+    Output from script: 5050
+
+
+
+
+
+<a id="performances"></a>
 ## Performances - 演算速度
 
 In addition to the above example application, some benchmarking programs for measuring performances 
@@ -346,6 +502,8 @@ Vnanoエンジンが概ね1秒間あたり48億回のペースで浮動小数点
 
 
 
+
+<a id="architecture"></a>
 ## Architecture - アーキテクチャ
 
 The architecture of Vnano Engine is a commonplace "compiler + VM" type.
@@ -461,6 +619,7 @@ Vnanoエンジン内でこのコンポーネントに接続されます。
 
 
 
+<a id="license"></a>
 ## License - ライセンス
 
 This software is released under the MIT License.
@@ -473,6 +632,8 @@ This software is released under the MIT License.
 
 - Oracle and Java are registered trademarks of Oracle and/or its affiliates. 
 
+- Kotlin is a trademark of Kotlin Foundation in the United States and/or other countries. 
+
 - Microsoft Windows is either a registered trademarks or trademarks of Microsoft Corporation in the United States and/or other countries. 
 
 - Linux is a trademark of linus torvalds in the United States and/or other countries. 
@@ -480,6 +641,8 @@ This software is released under the MIT License.
 - Other names may be either a registered trademarks or trademarks of their respective owners. 
 
 - OracleとJavaは、Oracle Corporation 及びその子会社、関連会社の米国及びその他の国における登録商標です。文中の社名、商品名等は各社の商標または登録商標である場合があります。
+
+- Kotlin は、Kotlin Foundation の米国およびその他の国における商標または登録商標です。
 
 - Windows は、米国 Microsoft Corporation の米国およびその他の国における登録商標です。
 
