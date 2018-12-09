@@ -57,18 +57,22 @@ Vnano を使用してスクリプトを実行するJava&reg;アプリケーシ�
 	import javax.script.ScriptEngine;
 	import javax.script.ScriptEngineManager;
 	import javax.script.ScriptException;
-	
+	import java.lang.reflect.Field;
+	import java.lang.reflect.Method;
+
 	public class Example {
-		
-		// A method/field accessed from the script as an external function/variable.
-		// スクリプト側から外部変数・外部関数としてアクセスするメソッドとフィールド
-		public static int LOOP_MAX = 100;
-		public static void output(int value) {
-			System.out.println("Output from script: " + value);
+
+		// A class which provides a field/method accessed from the script as external functions/variables.
+		// スクリプト内から外部変数・外部関数としてアクセスされるフィールドとメソッドを提供するクラス
+		public class ScriptIO {
+			public int LOOP_MAX = 100;
+			public void output(int value) {
+				System.out.println("Output from script: " + value);
+			}
 		}
-		
+
 		public static void main(String[] args) {
-			
+
 			// Get ScriptEngine of Vnano from ScriptEngineManager.
 			// ScriptEngineManagerでVnanoのスクリプトエンジンを検索して取得
 			ScriptEngineManager manager = new ScriptEngineManager();
@@ -77,34 +81,40 @@ Vnano を使用してスクリプトを実行するJava&reg;アプリケーシ�
 				System.err.println("Script engine not found.");
 				return;
 			}
-			
+
 			// Connect a method/field to the script engine as an external function/variable.
 			// メソッド・フィールドを外部関数・変数としてスクリプトエンジンに接続
 			try {
-				engine.put("LOOP_MAX", Example.class.getField("LOOP_MAX"));
-				engine.put("output(int)", Example.class.getMethod("output",int.class));
-				
-			} catch (NoSuchFieldException|NoSuchMethodException e){
+				Field loopMaxField  = ScriptIO.class.getField("LOOP_MAX");
+				Method outputMethod = ScriptIO.class.getMethod("output",int.class);
+				ScriptIO ioInstance = new Example().new ScriptIO();
+
+				engine.put("LOOP_MAX",    new Object[]{ loopMaxField, ioInstance });
+				engine.put("output(int)", new Object[]{ outputMethod, ioInstance} );
+				// see "Float64ScalarFlopsBenchmark.java" to connect static methods/fields.
+				// メソッド/フィールドがstaticな場合の接続例は Float64ScalarFlopsBenchmark.java 参照
+
+			} catch (NoSuchFieldException | NoSuchMethodException e){
 				System.err.println("Method/field not found.");
 				e.printStackTrace();
 				return;
 			}
-			
+
 			// Create a script code (calculates the value of summation from 1 to 100).
 			// スクリプトコードを用意（1から100までの和を求める）
-			String scriptCode =
+			String scriptCode = 
 					"  int sum = 0;                " +
 					"  int n = LOOP_MAX;           " +
 					"  for (int i=1; i<=n; i++) {  " +
 					"      sum += i;               " +
 					"  }                           " +
 					"  output(sum);                " ;
-			
+
 			// Run the script code by the script engine of Vnano.
 			// Vnanoのスクリプトエンジンにスクリプトコードを渡して実行
 			try{
 				engine.eval(scriptCode);
-				
+
 			} catch (ScriptException e) {
 				System.err.println("Scripting error occurred.");
 				e.printStackTrace();

@@ -39,8 +39,8 @@
 import javax.script.ScriptEngine
 import org.vcssl.nano.VnanoEngineFactory
 
-// A class which provides a field/method accessed from the script.
-// スクリプト内からアクセスされるフィールドとメソッドを提供するクラス
+// A class which provides a field/method accessed from the script as external functions/variables.
+// スクリプト内から外部変数・外部関数としてアクセスされるフィールドとメソッドを提供するクラス
 class ScriptIO {
 	@JvmField val LOOP_MAX: Int = 100
 
