@@ -14,32 +14,24 @@ Vnano (VCSSL nano) は、Java&reg; アプリケーションに組み込んで用
 
 
 
-<div style="border: solid 1px #ff8800; width:700px; margin-top: 30px; margin-bottom: 30px; padding: 0px 10px; 0px 10px">
+## Index - 目次
+- <a href="#caution">Caution - 注意</a>
+- <a href="#requirements">Requirements - 必要な環境</a>
+- <a href="#example">Application Code Example - アプリケーションコード例</a>
+- <a href="#how-to-use-in-java">How to Use in Java&reg; - Java&reg;言語での使用方法</a>
+- <a href="#how-to-use-in-kotlin">How to Use in Kotlin&reg; - Kotlin&reg;での使用方法</a>
+- <a href="#performances">Performances - 演算速度</a>
+- <a href="#architecture">Architecture - アーキテクチャ</a>
+- <a href="#license">License - ライセンス</a>
 
+
+
+<a id="caution"></a>
 ## Caution - 注意
 
 Vnano is under development, so it has not practical quality yet.
 
 Vnanoは開発の途中であり、現時点でまだ実用的な品質ではありません。
-
-</div>
-
-
-
-<div style="border: solid 1px #777777; width:700px; margin-top: 30px; margin-bottom: 30px; padding: 10px;">
-	- Index - 目次 - 
-	<ul>
-		<li><a href="#requirements">Requirements - 必要な環境</a></li>
-		<li><a href="#example">Application Code Example - アプリケーションコード例</a></li>
-		<li><a href="#how-to-use-in-java">How to Use in Java&reg; - Java&reg;言語での使用方法</a></li>
-		<li><a href="#how-to-use-in-kotlin">How to Use in Kotlin&reg; - Kotlin&reg;での使用方法</a></li>
-		<li><a href="#performances">Performances - 演算速度</a></li>
-		<li><a href="#architecture">Architecture - アーキテクチャ</a></li>
-		<li><a href="#license">License - ライセンス</a></li>
-	</ul>
-</div>
-
-
 
 
 
