@@ -89,9 +89,10 @@ Vnano を使用してスクリプトを実行するJava&reg;アプリケーシ�
 				Method outputMethod = ScriptIO.class.getMethod("output",int.class);
 				ScriptIO ioInstance = new Example().new ScriptIO();
 
-				engine.put("LOOP_MAX",    new Object[]{ loopMaxField, ioInstance });
-				engine.put("output(int)", new Object[]{ outputMethod, ioInstance} );
-				// see "Float64ScalarFlopsBenchmark.java" to connect static methods/fields.
+				engine.put("LOOP_MAX",    new Object[]{ loopMaxField, ioInstance } );
+				engine.put("output(int)", new Object[]{ outputMethod, ioInstance } );
+
+				// see "Float64ScalarFlopsBenchmark.java" to connect STATIC methods/fields.
 				// メソッド/フィールドがstaticな場合の接続例は Float64ScalarFlopsBenchmark.java 参照
 
 			} catch (NoSuchFieldException | NoSuchMethodException e){
