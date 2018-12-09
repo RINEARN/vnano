@@ -100,105 +100,63 @@ We will actually execute this example code in the next section.
 
 ## How to Use - 使用方法
 
-※ 日本語は後方
-
-### 1. Build Vnano Engine
+### 1. Build Vnano Engine - Vnanoエンジンのビルド
 
 Firstly, build source code of Vnano Engine (The script engine of Vnano).
 If you are using Microsoft&reg; Windows&reg;, please double-click "build.bat".
 If you are using Linux, etc., please execute "build.sh" on the bash-compatible shell.
-
 Alternatively, you can build Vnano Engine by Apache Ant as:
+
+はじめに、Vnanoエンジン（Vnanoのスクリプトエンジン）をビルドします。
+Microsoft&reg; Windows&reg; をご使用の場合は、"build.bat" をダブルクリック実行してください。
+Linux 等をご使用の場合は、bash互換シェル上で "build.sh" を実行してください。もしくは以下のように、Apache Ant を用いてVnanoエンジンをビルドする事もできます：
 
     ant -buildfile build.xml
 
 If you succeeded to build Vnano Engine, "Vnano.jar" will be generated in the same folder in the above files.
 You can use Vnano on your Java applications by appending this JAR file to the classpath.
 
-### 2. Compile the Example Application
-
-Let's compile the simple example code of host Java application which executes a script code by using Vnano Engine: 
-
-    javac Example.java
-
-As the result of the compilation, "Example.class" will be generated in the same folder.
-
-### 3. Execute the Example Application
-
-Then, execute the compiled example application with appending "Vnano.jar" to the classpath as follows.
-
-If you are using Microsoft Windows:
-
-    java -classpath ".;Vnano.jar" Example
-
-If you are using Linux, etc.:
-
-    java -classpath ".:Vnano.jar" Example
-
-As the result of the execution, the following line will be printed to the standard output:
-
-    Output from script: 5050
-
-### 4. Create the JAR file of the Example Application
-
-To create the JAR file of the example application, 
-please create a manifest file "manifest.txt" in advance, 
-and in there specify "Vnano.jar" to the Class-Path section as follows:
-
-    Main-Class: Example
-    Class-Path: . Vnano.jar
-
-Then create the JAR file with specifying the above manifest file as follows:
-
-    jar cvfm Example.jar manifest.txt Example.class
-
-As the result of the above processing, "Example.jar" will be generated in the same folder.
-
-It is necessary to locate "Vnano.jar" in the same folder to execute "Example.jar". 
-If you want to locate "Vnano.jar" in the different folder (e.g. lib folder),
-please rewrite the description "Vnano.jar" in "Class-Path" section of the manifest file
-to the relative path (e.g. "lib/Vnano.jar").
-
-
-
-### 1. Vnanoエンジンのビルド
-
-はじめに、Vnanoエンジン（Vnanoのスクリプトエンジン）をビルドします。
-Microsoft&reg; Windows&reg; をご使用の場合は、"build.bat" をダブルクリック実行してください。
-Linux 等をご使用の場合は、bash互換シェル上で "build.sh" を実行してください。
-
-もしくは以下のように、Apache Ant を用いてVnanoエンジンをビルドする事もできます：
-
-    ant -buildfile build.xml
-
 Vnanoエンジンのビルドが成功すると、"Vnano.jar" が上記ファイルと同じフォルダ内に生成されます。
 Vnanoを使用したいJavaアプリケーションから、このJARファイルにクラスパスを通せば、それだけでVnanoが使用できます。
 
-### 2. サンプルアプリケーションのコンパイル
+### 2. Compile the Example Application - サンプルアプリケーションのコンパイル
+
+Let's compile the simple example code of host Java application which executes a script code by using Vnano Engine: 
 
 それでは、実際にVnanoエンジンを使用して、スクリプトを実行する、ホストアプリケーションのサンプルコードをコンパイルしてみましょう：
 
     javac Example.java
 
+As the result of the compilation, "Example.class" will be generated in the same folder.
+
 コンパイルが成功すると、同じフォルダ内に Example.class が生成されます。
 
-### 3. サンプルアプリケーションの実行
+### 3. Execute the Example Application - サンプルアプリケーションの実行
+
+Then, execute the compiled example application with appending "Vnano.jar" to the classpath as follows. If you are using Microsoft Windows:
 
 コンパイルしたサンプルアプリケーションは、Vnano.jar にクラスパスを通して実行します。
-
 Microsoft Windows の場合は：
 
     java -classpath ".;Vnano.jar" Example
+
+If you are using Linux, etc.:
 
 Linux等の場合は：
 
     java -classpath ".:Vnano.jar" Example
 
+As the result of the execution, the following line will be printed to the standard output:
+
 正常に実行されると、以下の内容が標準出力に表示されます：
 
     Output from script: 5050
 
-### 4. サンプルアプリケーションのJARファイル化
+### 4. Create the JAR file of the Example Application - サンプルアプリケーションのJARファイル化
+
+To create the JAR file of the example application, 
+please create a manifest file "manifest.txt" in advance, 
+and in there specify "Vnano.jar" to the Class-Path section as follows:
 
 サンプルアプリケーションをJARファイル化するには、まずマニフェストファイル manifest.txt を作成し、
 その中で通常のメインクラス指定に加えて、以下のようにVnano.jar のクラスパスを記載します：
@@ -206,9 +164,17 @@ Linux等の場合は：
     Main-Class: Example
     Class-Path: . Vnano.jar
 
+Then create the JAR file with specifying the above manifest file as follows:
+
 このマニフェストファイルを指定して、JARファイルを生成します：
 
     jar cvfm Example.jar manifest.txt Example.class
+
+As the result of the above processing, "Example.jar" will be generated in the same folder.
+It is necessary to locate "Vnano.jar" in the same folder to execute "Example.jar". 
+If you want to locate "Vnano.jar" in the different folder (e.g. lib folder),
+please rewrite the description "Vnano.jar" in "Class-Path" section of the manifest file
+to the relative path (e.g. "lib/Vnano.jar").
 
 これで Example.jar が生成されます。このJARファイルを実行する際に、
 Vnano.jar を同じフォルダ内に置いておけば使用できます。
@@ -307,42 +273,42 @@ operations of 64-bit floating-point vector (array) data. The scripting part in t
 
 	String scriptCode =
 
-	"  int VECTOR_SIZE = 2048;                                               " + 
-	"  int LOOP_N = 1000*1000;                                               " + 
-	"  int FLOP_PER_LOOP = VECTOR_SIZE * 100;                                " + 
-	"  int TOTAL_FLOP = FLOP_PER_LOOP * LOOP_N;                              " + 
-	"                                                                        " + 
-	"  double x[VECTOR_SIZE];                                                " + 
-	"  double y[VECTOR_SIZE];                                                " + 
-	"  for (int i=0; i<VECTOR_SIZE; i++) {                                   " + 
-	"    x[i] = 0.0;                                                         " + 
-	"    y[i] = i + 1.0;                                                     " + 
-	"  }                                                                     " + 
-	"                                                                        " + 
-	"  int beginTime = time();                                               " + 
-	"                                                                        " + 
-	"  for (int i=0; i<LOOP_N; ++i) {                                        " + 
-	"    x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y;         " + 
-	"    x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y;         " + 
-	"    x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y;         " + 
-	"    x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y;         " + 
-	"    x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y;         " + 
-	"    x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y;         " + 
-	"    x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y;         " + 
-	"    x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y;         " + 
-	"    x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y;         " + 
-	"    x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y;         " + 
-	"  }                                                                     " + 
-	"                                                                        " + 
-	"  int endTime = time();                                                 " + 
-	"  double requiredTime = (endTime - beginTime) / 1000.0;                 " + 
-	"  double flops = TOTAL_FLOP / requiredTime;                             " + 
-	"                                                                        " + 
-	"  output(\"OPERATING_SPEED\", flops/(1000.0*1000.0*1000.0), \"GFLOPS\");" + 
-	"  output(\"REQUIRED_TIME\", requiredTime, \"SEC\");                     " + 
-	"  output(\"TOTAL_OPERATIONS\", TOTAL_FLOP, \"xFLOAT64_ADD\");           " + 
-	"  output(\"VECTOR_SIZE\", VECTOR_SIZE, \"x64BIT\");                     " + 
-	"  output(\"OPERATED_VALUES\", x);                                       " ;
+	"  int VECTOR_SIZE = 2048;                                                 " + 
+	"  int LOOP_N = 1000*1000;                                                 " + 
+	"  int FLOP_PER_LOOP = VECTOR_SIZE * 100;                                  " + 
+	"  int TOTAL_FLOP = FLOP_PER_LOOP * LOOP_N;                                " + 
+	"                                                                          " + 
+	"  double x[VECTOR_SIZE];                                                  " + 
+	"  double y[VECTOR_SIZE];                                                  " + 
+	"  for (int i=0; i<VECTOR_SIZE; i++) {                                     " + 
+	"    x[i] = 0.0;                                                           " + 
+	"    y[i] = i + 1.0;                                                       " + 
+	"  }                                                                       " + 
+	"                                                                          " + 
+	"  int beginTime = time();                                                 " + 
+	"                                                                          " + 
+	"  for (int i=0; i<LOOP_N; ++i) {                                          " + 
+	"    x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y;           " + 
+	"    x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y;           " + 
+	"    x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y;           " + 
+	"    x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y;           " + 
+	"    x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y;           " + 
+	"    x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y;           " + 
+	"    x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y;           " + 
+	"    x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y;           " + 
+	"    x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y;           " + 
+	"    x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y;           " + 
+	"  }                                                                       " + 
+	"                                                                          " + 
+	"  int endTime = time();                                                   " + 
+	"  double requiredTime = (endTime - beginTime) / 1000.0;                   " + 
+	"  double flops = TOTAL_FLOP / requiredTime;                               " + 
+	"                                                                          " + 
+	"  output(\"OPERATING_SPEED\", flops/(1000.0*1000.0*1000.0), \"GFLOPS\");  " + 
+	"  output(\"REQUIRED_TIME\", requiredTime, \"SEC\");                       " + 
+	"  output(\"TOTAL_OPERATIONS\", TOTAL_FLOP, \"xFLOAT64_ADD\");             " + 
+	"  output(\"VECTOR_SIZE\", VECTOR_SIZE, \"x64BIT\");                       " + 
+	"  output(\"OPERATED_VALUES\", x);                                         " ;
 
 How to execute is:
 
@@ -374,7 +340,7 @@ Vnanoエンジンが概ね1秒間あたり48億回のペースで浮動小数点
 以下の図は、ベクトルの要素数を横軸として、このベンチマークプログラムでの計測性能値を表したものです。
 
 <div style="background-color:white; width: 700px; height: 612px; text-align:center; background-image: url('./vectorflops.png'); background-repeat: no-repeat; background-size: contain;">
-	<img src="https://github.com/RINEARN/vnano/blob/master/vectorflops.png" alt="" />
+	<img src="https://github.com/RINEARN/vnano/blob/master/vectorflops.png" alt="" width="700" />
 </div>
 
 
