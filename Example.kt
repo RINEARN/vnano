@@ -39,9 +39,9 @@
 import javax.script.ScriptEngine
 import org.vcssl.nano.VnanoEngineFactory
 
-// A class which provides a field/method accessed from the script.
-// スクリプト内からアクセスされるフィールドとメソッドを提供するクラス
-class IO {
+// A class which provides a field/method accessed from the script as external functions/variables.
+// スクリプト内から外部変数・外部関数としてアクセスされるフィールドとメソッドを提供するクラス
+class ScriptIO {
 	@JvmField val LOOP_MAX: Int = 100
 
 	fun output(value: Int) {
@@ -58,9 +58,9 @@ fun main(args: Array<String>) {
 
 	// Connect a field/method to the engine as an external variable/function.
 	// フィールドとメソッドを外部関数・変数としてスクリプトエンジンに接続
-	val loopMaxField = IO::class.java.getField("LOOP_MAX")
-	val outputMethod = IO::class.java.getMethod("output", Int::class.java)
-	val ioInstance = IO()
+	val loopMaxField = ScriptIO::class.java.getField("LOOP_MAX")
+	val outputMethod = ScriptIO::class.java.getMethod("output", Int::class.java)
+	val ioInstance = ScriptIO()
 	engine.put("LOOP_MAX", arrayOf(loopMaxField, ioInstance));
 	engine.put("output(int)", arrayOf(outputMethod, ioInstance));
 
