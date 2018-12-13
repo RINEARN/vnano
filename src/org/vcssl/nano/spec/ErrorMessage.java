@@ -53,6 +53,8 @@ public class ErrorMessage {
 			case ELEMENTS_OF_FOR_STATEMENT_IS_DEFICIENT : return "for 文の括弧 (...) 内は、「 ( 変数宣言や初期化 ; 繰り返し条件 ; 繰り返し毎の更新処理 ) 」のように記述する必要があります";
 			case TOO_MANY_TOKENS_FOR_CONTROL_STATEMENT : return words[0] + " 文の末尾に、余分な記述が存在します";
 			case NO_BLOCK_AFTER_CONTROL_STATEMENT : return "この言語では、" + words[0] + " 文には常にブロック {...} が必要です";
+			case UNKNOWN_DATA_TYPE : return "存在しないデータ型「 " + words[0] + " 」を使用しています。";
+			case INVALID_IMMEDIATE_VALUE : return "解釈できないリテラルまたは即値「 " + words[0] + " 」が記述されています。";
 			case UNKNOWN : return "不明なエラー";
 			default : return "不明なエラー種類：" + errorType;
 		}
@@ -83,6 +85,8 @@ public class ErrorMessage {
 			case ELEMENTS_OF_FOR_STATEMENT_IS_DEFICIENT : return "Elements such as \"( initialization ; loop_condition ; updating_per_loops )\" are required between parentheses (...) of the \"for\" statement";
 			case TOO_MANY_TOKENS_FOR_CONTROL_STATEMENT : return "Unexpected description exists at the tail of the \"" + words[0] + "\" statement";
 			case NO_BLOCK_AFTER_CONTROL_STATEMENT : return "A block {...} is always necessary for the " + words[0] + "statement in this language" ;
+			case UNKNOWN_DATA_TYPE : return "Unknown data type \"" + words[0] + "\" is used";
+			case INVALID_IMMEDIATE_VALUE : return "Invalid immediate value or literal \"" + words[0] + "\" is described.";
 			case UNKNOWN : return "Unknown Error";
 			default : return "Unknown Error Type：" + errorType;
 		}

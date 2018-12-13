@@ -44,11 +44,10 @@ public class VnanoSyntaxException extends Exception {
 		super(ErrorMessage.generateErrorMessage(errorType, errorWords));
 
 		this.errorType = errorType;
-		this.errorWords = new String[ errorWords.length ];
-		System.arraycopy(errorWords, 0, this.errorWords, 0, errorWords.length);
-
 		this.fileName = fileName;
 		this.lineNumber = lineNumber;
+
+		this.setErrorWords(errorWords);
 	}
 
 
@@ -60,6 +59,11 @@ public class VnanoSyntaxException extends Exception {
 		return this.errorWords;
 	}
 
+	public void setErrorWords(String[] errorWords) {
+		this.errorWords = new String[ errorWords.length ];
+		System.arraycopy(errorWords, 0, this.errorWords, 0, errorWords.length);
+	}
+
 	public boolean hasFileName() {
 		return this.fileName != null;
 	}
@@ -68,8 +72,16 @@ public class VnanoSyntaxException extends Exception {
 		return this.fileName;
 	}
 
+	public void setFileName(String fileName) {
+		this.fileName = fileName;
+	}
+
 	public int getLineNumber() {
 		return this.lineNumber;
+	}
+
+	public void setLineNumber(int lineNumber) {
+		this.lineNumber = lineNumber;
 	}
 
 	public boolean hasLineNumber() {
