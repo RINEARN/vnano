@@ -18,6 +18,14 @@ package org.vcssl.connect;
  * </p>
  *
  * <p>
+ * <span style="font-weight: bold;">
+ * ※ このインターフェースは未確定であり、
+ * このインターフェースをサポートする処理系が正式にリリースされるまでの間、
+ * 一部仕様が変更される可能性があります。
+ * </span>
+ * </p>
+ *
+ * <p>
  * XVCI 1 では、外部関数プラグイン用のインターフェースである
  * XFCI 1 ({@link ExternalFunctionConnector1 External Function Connector Interface Gen.1})
  * ベースとしています。
@@ -31,7 +39,7 @@ package org.vcssl.connect;
  * <p>
  * 現時点で XVCI 1 準拠のプラグイン接続をサポートしている処理系は、以下の通りです:
  * </p>
- * 
+ *
  * <ul>
  *   <li>{@link org.vcssl.nano.VnanoEngine VnanoEngine} (パーミッション関連機能には未対応)</li>
  * </ul>
@@ -39,7 +47,7 @@ package org.vcssl.connect;
  * <p>
  * 将来的に XVCI 1 準拠のプラグイン接続をサポートする可能性がある処理系は、以下の通りです:
  * </p>
- * 
+ *
  * <ul>
  *   <li>RINEARN VCSSL Runtime</li>
  * </ul>
@@ -161,6 +169,18 @@ public interface ExternalVariableConnector1 {
 	 * @return 不要なパーミッションを格納する配列
 	 */
 	public abstract String[] getUnnecessaryParmissions();
+
+
+	/**
+	 * このプラグインが、スクリプトエンジンに接続された際に呼び出され、
+	 * そのエンジンに依存するやり取りを行うためのオブジェクトが渡されます。
+	 *
+	 * 同オブジェクトは、恐らく {@link EngineConnector1 EngineConnector1}
+	 * もしくはその後継の、抽象化されたインターフェースでラップされた形で渡されます。
+	 *
+	 * @param engineConnector エンジンに依存するやり取りを行うためのオブジェクト
+	 */
+	public abstract void setEngine(Object engineConnector);
 
 
 	/**

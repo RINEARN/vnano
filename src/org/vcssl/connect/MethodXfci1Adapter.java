@@ -249,6 +249,19 @@ public class MethodXfci1Adapter implements ExternalFunctionConnector1 {
 
 
 	/**
+	 * このプラグインが、スクリプトエンジンに接続された際に呼び出され、
+	 * そのエンジンに依存するやり取りを行うためのオブジェクトが渡されます。
+	 *
+	 * 同オブジェクトは、恐らく {@link EngineConnector1 EngineConnector1}
+	 * もしくはその後継の、抽象化されたインターフェースでラップされた形で渡されます。
+	 *
+	 * @param engineConnector エンジンに依存するやり取りを行うためのオブジェクト
+	 */
+	public void setEngine(Object engineConnector) {
+	}
+
+
+	/**
 	 * 関数を実行します。
 	 *
 	 * @param arguments 全ての実引数を格納する配列
