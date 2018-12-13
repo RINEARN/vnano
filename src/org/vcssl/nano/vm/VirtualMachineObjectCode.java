@@ -6,7 +6,6 @@
 package org.vcssl.nano.vm;
 
 import javax.script.Bindings;
-import javax.script.CompiledScript;
 import javax.script.ScriptContext;
 import javax.script.ScriptEngine;
 
@@ -33,7 +32,7 @@ import org.vcssl.nano.vm.processor.Instruction;
  *
  * @author RINEARN (Fumihiro Matsui)
  */
-public class VirtualMachineObjectCode extends CompiledScript implements Cloneable {
+public class VirtualMachineObjectCode implements Cloneable {
 
 	private List<Instruction> instructionList = null;
 
@@ -58,8 +57,6 @@ public class VirtualMachineObjectCode extends CompiledScript implements Cloneabl
 
 	/** {@link VnanoEngine#eval VnanoEngine.eval} の戻り値が格納される、ローカルパーティション内アドレスを保持します。 */
 	private int evalValueAddress = -1;
-
-	private VnanoEngine engine = null;
 
 	public VirtualMachineObjectCode() {
 
@@ -337,28 +334,4 @@ public class VirtualMachineObjectCode extends CompiledScript implements Cloneabl
 		System.out.println(builder.toString());
 	}
 
-
-	public void setEngine(ScriptEngine engine) {
-		this.engine = (VnanoEngine)engine;
-	}
-
-	@Override
-	public ScriptEngine getEngine() {
-		return (ScriptEngine)this.engine;
-	}
-
-	@Override
-	public Object eval() {
-		return null;
-	}
-
-	@Override
-	public Object eval(Bindings scriptBindings) {
-		return null;
-	}
-
-	@Override
-	public Object eval(ScriptContext scriptContext) {
-		return null;
-	}
 }
