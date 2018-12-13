@@ -17,7 +17,6 @@ import org.vcssl.nano.spec.AssemblyWord;
 import org.vcssl.nano.spec.DataTypeName;
 import org.vcssl.nano.spec.LiteralSyntax;
 import org.vcssl.nano.vm.VirtualMachineObjectCode;
-import org.vcssl.nano.vm.memory.DataException;
 import org.vcssl.nano.vm.memory.Memory;
 import org.vcssl.nano.vm.processor.Instruction;
 import org.vcssl.nano.vm.processor.OperationCode;
@@ -53,7 +52,7 @@ public class Assembler {
 	 * @throws VnanoSyntaxException 仮想アセンブリコードの内容に異常があった場合にスローされます。
 	 */
 	public VirtualMachineObjectCode assemble(String assemblyCode, Interconnect interconnect)
-			throws VnanoSyntaxException, AssemblyCodeException, DataException { // 例外は後で一本化すべき
+			throws VnanoSyntaxException { // 例外は後で一本化すべき
 
 
 		// !!!  1メソッドに突っ込みすぎなので分割して要リファクタ
@@ -76,6 +75,9 @@ public class Assembler {
 		int lineLength = lines.length;
 
 		int metaAddress = -1;
+
+		String sourceFileName = "(none)";
+		int sourceLineNumber = -1;
 
 		for (int i=0; i<lineLength; i++) {
 
@@ -103,6 +105,9 @@ public class Assembler {
 				intermediateCode.addConstantData(metaImmediateValue, constantAddress);
 				metaAddress = constantAddress;
 				constantAddress++;
+
+				// 後々でここで sourceFileName と sourceLineNumber の値の設定を行う（アセンブラのリファクタ時の予定）
+
 				continue;
 
 			// ラベルディレクティブ -> NOPを置く（ジャンプ先命令に、演算ではなく着地点の役割だけを担わせる事で、最適化を容易にする）
@@ -127,7 +132,13 @@ public class Assembler {
 			int dataTypeLength = dataTypeNames.length;
 			DataType[] dataTypes = new DataType[dataTypeLength];
 			for (int dataTypeIndex=0; dataTypeIndex<dataTypeLength; dataTypeIndex++) {
-				dataTypes[dataTypeIndex] = DataTypeName.getDataTypeOf(dataTypeNames[dataTypeIndex]);
+				try {
+					dataTypes[dataTypeIndex] = DataTypeName.getDataTypeOf(dataTypeNames[dataTypeIndex]);
+				} catch (VnanoSyntaxException e) {
+					e.setFileName(sourceFileName);
+					e.setLineNumber(sourceLineNumber);
+					throw e;
+				}
 			}
 
 
@@ -259,17 +270,12 @@ public class Assembler {
 	 * @return 読みとったデータ型
 	 * @throws AssemblyCodeException 不明なデータ型が記述されていた場合にスローされます。
 	 */
-	private DataType getDataTypeOfImmediateValueLiteral(String immediateValueLiteral) throws AssemblyCodeException {
+	private DataType getDataTypeOfImmediateValueLiteral(String immediateValueLiteral) throws VnanoSyntaxException {
 
 		int separatorIndex = immediateValueLiteral.indexOf(AssemblyWord.VALUE_SEPARATOR);
 		String dataTypeName = immediateValueLiteral.substring(1, separatorIndex);
 
-		DataType dataType = null;
-		try {
-			dataType = DataTypeName.getDataTypeOf(dataTypeName);
-		} catch (DataException e) {
-			throw new AssemblyCodeException(AssemblyCodeException.ILLEGAL_IMMEDIATE_VALUE_TYPE, dataTypeName);
-		}
+		DataType dataType = DataTypeName.getDataTypeOf(dataTypeName);
 		return dataType;
 	}
 

@@ -1,4 +1,5 @@
 ./org/vcssl/connect/ArrayDataContainer1.java
+./org/vcssl/connect/EngineConnector1.java
 ./org/vcssl/connect/ExternalFunctionConnector1.java
 ./org/vcssl/connect/ExternalFunctionException.java
 ./org/vcssl/connect/ExternalPermission.java
@@ -32,7 +33,6 @@
 ./org/vcssl/nano/lang/package-info.java
 ./org/vcssl/nano/lang/Variable.java
 ./org/vcssl/nano/lang/VariableTable.java
-./org/vcssl/nano/linker/Linker.java
 ./org/vcssl/nano/package-info.java
 ./org/vcssl/nano/spec/AssemblyWord.java
 ./org/vcssl/nano/spec/DataTypeName.java
@@ -100,7 +100,6 @@
 ./org/vcssl/nano/vm/accelerator/package-info.java
 ./org/vcssl/nano/vm/accelerator/ScalarCache.java
 ./org/vcssl/nano/vm/assembler/Assembler.java
-./org/vcssl/nano/vm/assembler/AssemblyCodeException.java
 ./org/vcssl/nano/vm/assembler/package-info.java
 ./org/vcssl/nano/vm/memory/DataContainer.java
 ./org/vcssl/nano/vm/memory/DataConverter.java
@@ -116,9 +115,10 @@
 ./org/vcssl/nano/vm/processor/package-info.java
 ./org/vcssl/nano/vm/processor/Processable.java
 ./org/vcssl/nano/vm/processor/Processor.java
+./org/vcssl/nano/vm/VirtualMachine.java
+./org/vcssl/nano/vm/VirtualMachineObjectCode.java
 ./org/vcssl/nano/VnanoEngine.java
 ./org/vcssl/nano/VnanoEngineFactory.java
 ./org/vcssl/nano/VnanoFatalException.java
-./org/vcssl/nano/VnanoIntermediateCode.java
 ./org/vcssl/nano/VnanoRuntimeException.java
 ./org/vcssl/nano/VnanoSyntaxException.java

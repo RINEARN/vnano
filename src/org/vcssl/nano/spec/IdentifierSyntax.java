@@ -5,12 +5,12 @@
 
 package org.vcssl.nano.spec;
 
+import org.vcssl.nano.VnanoSyntaxException;
 import org.vcssl.nano.compiler.AstNode;
 import org.vcssl.nano.compiler.AttributeKey;
 import org.vcssl.nano.lang.AbstractFunction;
 import org.vcssl.nano.lang.AbstractVariable;
 import org.vcssl.nano.lang.DataType;
-import org.vcssl.nano.vm.memory.DataException;
 
 
 public class IdentifierSyntax {
@@ -64,7 +64,7 @@ public class IdentifierSyntax {
 			try {
 				DataType dataType = DataTypeName.getDataTypeOf(dataTypeName);
 				dataTypeName = DataTypeName.getDataTypeNameOf(dataType);
-			} catch (DataException e) {
+			} catch (VnanoSyntaxException e) {
 				// DataTypeに定義されない未知の型の場合は、記述された型名をそのまま使用する
 			}
 

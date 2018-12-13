@@ -205,6 +205,20 @@ public class FieldXvci1Adapter implements ExternalVariableConnector1 {
 		return this.unnecessaryPermissions;
 	}
 
+
+	/**
+	 * このプラグインが、スクリプトエンジンに接続された際に呼び出され、
+	 * そのエンジンに依存するやり取りを行うためのオブジェクトが渡されます。
+	 *
+	 * 同オブジェクトは、恐らく {@link EngineConnector1 EngineConnector1}
+	 * もしくはその後継の、抽象化されたインターフェースでラップされた形で渡されます。
+	 *
+	 * @param engineConnector エンジンに依存するやり取りを行うためのオブジェクト
+	 */
+	public void setEngine(Object engineConnector) {
+	}
+
+
 	/**
 	 * 変数のデータを取得します。
 	 *

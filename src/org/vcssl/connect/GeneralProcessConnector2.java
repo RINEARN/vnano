@@ -21,14 +21,14 @@ package org.vcssl.connect;
  * {@link GeneralProcessConnector1 GeneralProcessConnector1}
  * インターフェースも同時に実装する事が可能です。
  * </p>
- * 
+ *
  * <p>
  * GPCI は、初期のVCSSLからサポートされている古いインターフェースですが、
  * 現在のVCSSL処理系においても利用できます。
  * Vnano (VCSSL nano) 処理系においては現時点では未サポートですが、
  * 将来的には利用可能になる可能性があります。
  * </p>
- * 
+ *
  * <p>
  * GCPIでは、引数や戻り値を全て文字列配列として受け渡しするため、
  * 型変換などのオーバーヘッドが大きい事がネックになりますが、
@@ -47,7 +47,7 @@ package org.vcssl.connect;
  * 適切なシグネチャの関数をスクリプト内で定義し、
  * その中でプラグイン関数を呼び出すようにラッピングする事が推奨されます。
  * </p>
- * 
+ *
  * <p>
  * GPCI 2 は、{@link GeneralProcessConnector1 GPCI 1} の全機能に加えて、
  * スクリプトの実行毎に初期化・終了時処理を行える機能がサポートされています。
@@ -56,18 +56,18 @@ package org.vcssl.connect;
  * ただし、GPCI 3 準拠のプラグインは GPCI 2 準拠と接続する事が可能なため、
  * GPCIプラグインの新規開発では GPCI 3 への準拠が推奨されます。
  * </p>
- * 
+ *
  * <p>
  * 現時点でGPCI 2 準拠のプラグイン接続をサポートしている処理系は、以下の通りです:
  * </p>
- * 
+ *
  * <ul>
  *   <li>RINEARN VCSSL Runtime</li>
  * </ul>
  *
  * @author RINEARN (Fumihiro Matsui)
  */
-public interface GeneralProcessConnector2 {
+public interface GeneralProcessConnector2 extends GeneralProcessConnector1 {
 
 
 	/**

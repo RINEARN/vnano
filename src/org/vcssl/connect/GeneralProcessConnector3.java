@@ -25,6 +25,14 @@ package org.vcssl.connect;
  * </p>
  *
  * <p>
+ * <span style="font-weight: bold;">
+ * ※ このインターフェースは未確定であり、
+ * このインターフェースをサポートする処理系が正式にリリースされるまでの間、
+ * 一部仕様が変更される可能性があります。
+ * </span>
+ * </p>
+ *
+ * <p>
  * GPCI は、初期のVCSSLからサポートされている古いインターフェースですが、
  * 現在のVCSSL処理系においても利用できます。
  * Vnano (VCSSL nano) 処理系においては現時点では未サポートですが、
@@ -77,7 +85,7 @@ package org.vcssl.connect;
  *
  * @author RINEARN (Fumihiro Matsui)
  */
-public interface GeneralProcessConnector3 {
+public interface GeneralProcessConnector3 extends GeneralProcessConnector2 {
 
 
 	/** 動的ロード時などに処理系側から参照される、インターフェースの形式名（値は"GPCI"）です。 */
@@ -193,5 +201,17 @@ public interface GeneralProcessConnector3 {
 	 * @return 不要なパーミッションを格納する配列
 	 */
 	public abstract String[] getUnnecessaryParmissions(String functionName);
-	
+
+
+	/**
+	 * このプラグインが、スクリプトエンジンに接続された際に呼び出され、
+	 * そのエンジンに依存するやり取りを行うためのオブジェクトが渡されます。
+	 *
+	 * 同オブジェクトは、恐らく {@link EngineConnector1 EngineConnector1}
+	 * もしくはその後継の、抽象化されたインターフェースでラップされた形で渡されます。
+	 *
+	 * @param engineConnector エンジンに依存するやり取りを行うためのオブジェクト
+	 */
+	public abstract void setEngine(Object engineConnector);
+
 }

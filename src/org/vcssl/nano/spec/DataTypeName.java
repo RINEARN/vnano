@@ -8,6 +8,7 @@ package org.vcssl.nano.spec;
 import java.util.HashMap;
 import java.util.HashSet;
 
+import org.vcssl.nano.VnanoSyntaxException;
 import org.vcssl.nano.lang.DataType;
 import org.vcssl.nano.vm.memory.DataException;
 
@@ -136,12 +137,14 @@ public class DataTypeName {
 	 * @return データ型
 	 */
 	public static final DataType getDataTypeOf(String dataTypeName)
-			throws DataException {
+			throws VnanoSyntaxException {
 
 		if (DATA_TYPE_NAME_ENUM_MAP.containsKey(dataTypeName)) {
 			return DATA_TYPE_NAME_ENUM_MAP.get(dataTypeName);
 		} else {
-			throw new DataException(DataException.UNKNOWN_DATA_TYPE, dataTypeName);
+			VnanoSyntaxException e = new VnanoSyntaxException(ErrorType.UNKNOWN_DATA_TYPE);
+			e.setErrorWords(new String[] { dataTypeName });
+			throw e;
 		}
 	}
 
@@ -155,7 +158,7 @@ public class DataTypeName {
 	 * @throws DataException
 	 */
 	public static final DataType[] getDataTypesOf(String[] dataTypeNames)
-			throws DataException {
+			throws VnanoSyntaxException {
 
 		int length = dataTypeNames.length;
 		DataType[] dataTypes = new DataType[length];
