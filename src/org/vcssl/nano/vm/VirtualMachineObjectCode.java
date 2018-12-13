@@ -3,7 +3,7 @@
  * This software is released under the MIT License.
  */
 
-package org.vcssl.nano;
+package org.vcssl.nano.vm;
 
 import javax.script.Bindings;
 import javax.script.CompiledScript;
@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.vcssl.nano.VnanoEngine;
 import org.vcssl.nano.spec.AssemblyWord;
 import org.vcssl.nano.vm.memory.Memory;
 import org.vcssl.nano.vm.processor.Instruction;
@@ -32,7 +33,7 @@ import org.vcssl.nano.vm.processor.Instruction;
  *
  * @author RINEARN (Fumihiro Matsui)
  */
-public class VnanoIntermediateCode extends CompiledScript implements Cloneable {
+public class VirtualMachineObjectCode extends CompiledScript implements Cloneable {
 
 	private List<Instruction> instructionList = null;
 
@@ -60,7 +61,7 @@ public class VnanoIntermediateCode extends CompiledScript implements Cloneable {
 
 	private VnanoEngine engine = null;
 
-	public VnanoIntermediateCode() {
+	public VirtualMachineObjectCode() {
 
 		this.instructionList = new ArrayList<Instruction>();
 

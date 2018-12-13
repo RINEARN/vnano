@@ -5,7 +5,6 @@
 
 package org.vcssl.nano.vm.assembler;
 
-import org.vcssl.nano.VnanoIntermediateCode;
 import org.vcssl.nano.lang.AbstractFunction;
 import org.vcssl.nano.lang.AbstractVariable;
 import org.vcssl.nano.lang.DataType;
@@ -17,6 +16,7 @@ import org.vcssl.nano.interconnect.Interconnect;
 import org.vcssl.nano.spec.AssemblyWord;
 import org.vcssl.nano.spec.DataTypeName;
 import org.vcssl.nano.spec.LiteralSyntax;
+import org.vcssl.nano.vm.VirtualMachineObjectCode;
 import org.vcssl.nano.vm.memory.DataException;
 import org.vcssl.nano.vm.memory.Memory;
 import org.vcssl.nano.vm.processor.Instruction;
@@ -26,7 +26,7 @@ import org.vcssl.nano.vm.processor.OperationCode;
 /**
  * <p>
  * {@link org.vcssl.nano.compiler.Compiler} が出力した仮想アセンブリコード（文字列）を、
- * 実行用中間コードである {@link org.vcssl.nano.VnanoIntermediateCode}
+ * 実行用中間コードである {@link org.vcssl.nano.vm.VirtualMachineObjectCode}
  * オブジェクトに変換する、アセンブラのクラスです。
  * </p>
  *
@@ -44,7 +44,7 @@ public class Assembler {
 
 	/**
 	 * 仮想アセンブリコードを解釈し、より実行に適した中間コードである、
-	 * {@link org.vcssl.nano.VnanoIntermediateCode}
+	 * {@link org.vcssl.nano.vm.VirtualMachineObjectCode}
 	 * オブジェクトに変換して返します。
 	 *
 	 * @param assemblyCode 仮想アセンブリコード
@@ -52,7 +52,7 @@ public class Assembler {
 	 * @return 実行用中間コード
 	 * @throws VnanoSyntaxException 仮想アセンブリコードの内容に異常があった場合にスローされます。
 	 */
-	public VnanoIntermediateCode assemble(String assemblyCode, Interconnect interconnect)
+	public VirtualMachineObjectCode assemble(String assemblyCode, Interconnect interconnect)
 			throws VnanoSyntaxException, AssemblyCodeException, DataException { // 例外は後で一本化すべき
 
 
@@ -67,7 +67,7 @@ public class Assembler {
 		VariableTable globalVariableTable = interconnect.getGlobalVariableTable();
 		FunctionTable functionTable = interconnect.getGlobalFunctionTable();
 
-		VnanoIntermediateCode intermediateCode = this.preprocessDirectives(assemblyCode, globalVariableTable, functionTable);
+		VirtualMachineObjectCode intermediateCode = this.preprocessDirectives(assemblyCode, globalVariableTable, functionTable);
 		int registerMaxAddress = 0;
 
 		int constantAddress = 0;
@@ -312,9 +312,9 @@ public class Assembler {
 	 * @param assemblyCode 中間アセンブリコード
 	 * @return シンボルテーブル情報を設定された（未完成の）中間オブジェクトコード
 	 */
-	private VnanoIntermediateCode preprocessDirectives(String assemblyCode, VariableTable globalVariableTable, FunctionTable functionTable) {
+	private VirtualMachineObjectCode preprocessDirectives(String assemblyCode, VariableTable globalVariableTable, FunctionTable functionTable) {
 
-		VnanoIntermediateCode assembledObject = new VnanoIntermediateCode();
+		VirtualMachineObjectCode assembledObject = new VirtualMachineObjectCode();
 
 		int localAddress = 0;
 

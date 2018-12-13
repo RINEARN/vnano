@@ -22,6 +22,7 @@ import javax.script.SimpleScriptContext;
 import org.vcssl.nano.compiler.Compiler;
 import org.vcssl.nano.interconnect.Interconnect;
 import org.vcssl.nano.spec.ErrorMessage;
+import org.vcssl.nano.vm.VirtualMachineObjectCode;
 import org.vcssl.nano.vm.accelerator.Accelerator;
 import org.vcssl.nano.vm.assembler.Assembler;
 import org.vcssl.nano.vm.assembler.AssemblyCodeException;
@@ -82,7 +83,7 @@ public class VnanoEngine implements ScriptEngine, Compilable {
 
 			// アセンブラで中間アセンブリコード（VRILコード）から実行用の中間コードに変換
 			Assembler assembler = new Assembler();
-			VnanoIntermediateCode intermediateCode = assembler.assemble(assemblyCode, interconnect);
+			VirtualMachineObjectCode intermediateCode = assembler.assemble(assemblyCode, interconnect);
 
 			// 実行用メモリー領域を確保し、外部変数のデータをロード
 			Memory memory = new Memory();
@@ -185,7 +186,7 @@ public class VnanoEngine implements ScriptEngine, Compilable {
 
 			// アセンブラで中間アセンブリコード（VRILコード）から実行用の中間コードに変換
 			Assembler assembler = new Assembler();
-			VnanoIntermediateCode intermediateCode = assembler.assemble(assemblyCode, interconnect);
+			VirtualMachineObjectCode intermediateCode = assembler.assemble(assemblyCode, interconnect);
 			return intermediateCode;
 
 		// 発生する例外は ScriptException でラップ
@@ -225,7 +226,7 @@ public class VnanoEngine implements ScriptEngine, Compilable {
 
 
 
-	private Object getEvaluatedValue(Memory memory, VnanoIntermediateCode intermediateCode)
+	private Object getEvaluatedValue(Memory memory, VirtualMachineObjectCode intermediateCode)
 			throws MemoryAccessException, DataException {
 
 		if (intermediateCode.hasEvalValue()) {
