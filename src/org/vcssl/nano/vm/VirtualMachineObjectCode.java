@@ -5,10 +5,6 @@
 
 package org.vcssl.nano.vm;
 
-import javax.script.Bindings;
-import javax.script.ScriptContext;
-import javax.script.ScriptEngine;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
