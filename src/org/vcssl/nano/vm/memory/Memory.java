@@ -13,8 +13,8 @@ import java.util.List;
 import org.vcssl.nano.spec.AssemblyWord;
 import org.vcssl.nano.spec.DataTypeName;
 import org.vcssl.nano.spec.LiteralSyntax;
+import org.vcssl.nano.vm.VirtualMachineObjectCode;
 import org.vcssl.nano.vm.assembler.AssemblyCodeException;
-import org.vcssl.nano.VnanoIntermediateCode;
 import org.vcssl.nano.VnanoRuntimeException;
 import org.vcssl.nano.lang.AbstractVariable;
 import org.vcssl.nano.lang.DataType;
@@ -207,7 +207,7 @@ public final class Memory {
 	 * @throws AssemblyCodeException これはアセンブラでやるべき
 	 * @throws DataException これもかな
 	 */
-	public void allocate(VnanoIntermediateCode intermediateCode, VariableTable globalVariableTable)
+	public void allocate(VirtualMachineObjectCode intermediateCode, VariableTable globalVariableTable)
 			throws AssemblyCodeException, DataException {
 
 		// レジスタ確保の確保

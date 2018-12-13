@@ -17,7 +17,6 @@ import org.vcssl.connect.ExternalFunctionConnector1;
 import org.vcssl.connect.ExternalVariableConnector1;
 import org.vcssl.connect.FieldXvci1Adapter;
 import org.vcssl.connect.MethodXfci1Adapter;
-import org.vcssl.nano.VnanoIntermediateCode;
 import org.vcssl.nano.VnanoRuntimeException;
 import org.vcssl.nano.lang.AbstractFunction;
 import org.vcssl.nano.lang.AbstractVariable;
@@ -26,6 +25,7 @@ import org.vcssl.nano.lang.FunctionTable;
 import org.vcssl.nano.lang.Variable;
 import org.vcssl.nano.lang.VariableTable;
 import org.vcssl.nano.spec.IdentifierSyntax;
+import org.vcssl.nano.vm.VirtualMachineObjectCode;
 import org.vcssl.nano.vm.memory.DataContainer;
 import org.vcssl.nano.vm.memory.DataConverter;
 import org.vcssl.nano.vm.memory.DataException;
@@ -387,7 +387,7 @@ public class Interconnect {
 	 *  	外部変数に対応するデータユニットが、仮想メモリー内に保持されていない場合にスローされます。
 	 *  	外部変数からバインディングへ値を書き戻す際に、データの変換に失敗（型の非互換など）した場合にスローされます。
 	 */
-	public void writeback(Memory memory, VnanoIntermediateCode intermediateCode)
+	public void writeback(Memory memory, VirtualMachineObjectCode intermediateCode)
 			throws MemoryAccessException, DataException {
 
 		// グローバル変数の書き戻し

@@ -3,18 +3,14 @@
  * This software is released under the MIT License.
  */
 
-package org.vcssl.nano;
-
-import javax.script.Bindings;
-import javax.script.CompiledScript;
-import javax.script.ScriptContext;
-import javax.script.ScriptEngine;
+package org.vcssl.nano.vm;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.vcssl.nano.VnanoEngine;
 import org.vcssl.nano.spec.AssemblyWord;
 import org.vcssl.nano.vm.memory.Memory;
 import org.vcssl.nano.vm.processor.Instruction;
@@ -32,7 +28,7 @@ import org.vcssl.nano.vm.processor.Instruction;
  *
  * @author RINEARN (Fumihiro Matsui)
  */
-public class VnanoIntermediateCode extends CompiledScript implements Cloneable {
+public class VirtualMachineObjectCode implements Cloneable {
 
 	private List<Instruction> instructionList = null;
 
@@ -58,9 +54,7 @@ public class VnanoIntermediateCode extends CompiledScript implements Cloneable {
 	/** {@link VnanoEngine#eval VnanoEngine.eval} の戻り値が格納される、ローカルパーティション内アドレスを保持します。 */
 	private int evalValueAddress = -1;
 
-	private VnanoEngine engine = null;
-
-	public VnanoIntermediateCode() {
+	public VirtualMachineObjectCode() {
 
 		this.instructionList = new ArrayList<Instruction>();
 
@@ -336,28 +330,4 @@ public class VnanoIntermediateCode extends CompiledScript implements Cloneable {
 		System.out.println(builder.toString());
 	}
 
-
-	public void setEngine(ScriptEngine engine) {
-		this.engine = (VnanoEngine)engine;
-	}
-
-	@Override
-	public ScriptEngine getEngine() {
-		return (ScriptEngine)this.engine;
-	}
-
-	@Override
-	public Object eval() {
-		return null;
-	}
-
-	@Override
-	public Object eval(Bindings scriptBindings) {
-		return null;
-	}
-
-	@Override
-	public Object eval(ScriptContext scriptContext) {
-		return null;
-	}
 }
