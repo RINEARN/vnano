@@ -42,7 +42,7 @@ import org.vcssl.nano.vm.processor.Processor;
  *
  * @author RINEARN (Fumihiro Matsui)
  */
-public class VnanoEngine implements ScriptEngine, Compilable {
+public class VnanoEngine implements ScriptEngine {
 
 	private static final String DEFAULT_SCRIPT_NAME = "EVAL_CODE";
 
@@ -174,55 +174,6 @@ public class VnanoEngine implements ScriptEngine, Compilable {
 		}
 	}
 
-
-
-
-	private CompiledScript compile(String script, Interconnect interconnect) throws ScriptException {
-		try {
-
-			// コンパイラでVnanoスクリプトから中間アセンブリコード（VRILコード）に変換
-			Compiler compiler = new Compiler();
-			String assemblyCode = compiler.compile(script, DEFAULT_SCRIPT_NAME, interconnect);
-
-			// アセンブラで中間アセンブリコード（VRILコード）から実行用の中間コードに変換
-			Assembler assembler = new Assembler();
-			VirtualMachineObjectCode intermediateCode = assembler.assemble(assemblyCode, interconnect);
-			return intermediateCode;
-
-		// 発生する例外は ScriptException でラップ
-		} catch (VnanoSyntaxException | AssemblyCodeException | DataException e) {
-
-			ScriptException scriptException = new ScriptException(e);
-			scriptException.initCause(e);
-			throw scriptException;
-		}
-	}
-
-
-	@Override
-	public CompiledScript compile(String script) throws ScriptException {
-		try {
-
-			// 現在のBindingsを取得し、処理系内の接続仲介オブジェクト（インターコネクト）に変換
-			Bindings bindings = this.scriptContext.getBindings(ScriptContext.ENGINE_SCOPE);
-			Interconnect interconnect = new Interconnect(bindings);
-
-			// コンパイルして返す
-			return this.compile(script, interconnect);
-
-		// 発生する例外は ScriptException でラップ
-		} catch (DataException e) {
-
-			ScriptException scriptException = new ScriptException(e);
-			scriptException.initCause(e);
-			throw scriptException;
-		}
-	}
-
-	@Override
-	public CompiledScript compile(Reader script) throws ScriptException {
-		return null;
-	}
 
 
 
