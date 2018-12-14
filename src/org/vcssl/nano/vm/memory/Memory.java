@@ -209,7 +209,7 @@ public final class Memory {
 	 * @throws DataException これもかな
 	 */
 	public void allocate(VirtualMachineObjectCode intermediateCode, VariableTable globalVariableTable)
-			throws VnanoSyntaxException, DataException {
+			throws VnanoSyntaxException {
 
 		// レジスタ確保の確保
 		int maxRegisterAddress = intermediateCode.getMaximumRegisterAddress();

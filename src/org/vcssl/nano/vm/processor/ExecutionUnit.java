@@ -5,11 +5,13 @@
 
 package org.vcssl.nano.vm.processor;
 
+import org.vcssl.nano.VnanoFatalException;
 import org.vcssl.nano.lang.DataType;
 import org.vcssl.nano.spec.DataTypeName;
+import org.vcssl.nano.spec.ErrorType;
 import org.vcssl.nano.vm.accelerator.Accelerator;
 import org.vcssl.nano.vm.memory.DataContainer;
-import org.vcssl.nano.vm.memory.DataException;
+import org.vcssl.nano.VnanoSyntaxException;
 
 
 /**
@@ -49,12 +51,11 @@ public class ExecutionUnit {
 	 * @param output 結果を格納するデータ
 	 * @param inputA 演算対象データ（中置記法における左側）
 	 * @param inputB 演算対象データ（中置記法における右側）
-	 * @throws DataException
+	 * @throws VnanoFatalException
 	 *   この命令が対応していないデータ型が指定された場合や、
 	 *   指定データ型とオペランドの実際のデータ型が一致しない場合に発生します。
 	 */
-	public void add(DataType type, DataContainer<?> output, DataContainer<?> inputA, DataContainer<?> inputB)
-				throws DataException {
+	public void add(DataType type, DataContainer<?> output, DataContainer<?> inputA, DataContainer<?> inputB) {
 
 		int outputOffset = output.getOffset();
 		int inputAOffset = inputA.getOffset();
@@ -94,7 +95,7 @@ public class ExecutionUnit {
 				return;
 			}
 			default : {
-				throw new DataException(DataException.UNOPERATABLE_DATA_TYPE, type);
+				throw new VnanoFatalException("Unoperatable data type: " + type);
 			}
 		}
 	}
@@ -118,12 +119,11 @@ public class ExecutionUnit {
 	 * @param output 結果を格納するデータ
 	 * @param inputA 演算対象データ（中置記法における左側）
 	 * @param inputB 演算対象データ（中置記法における右側）
-	 * @throws DataException
+	 * @throws VnanoFatalException
 	 *   この命令が対応していないデータ型が指定された場合や、
 	 *   指定データ型とオペランドの実際のデータ型が一致しない場合に発生します。
 	 */
-	public void sub(DataType type, DataContainer<?> output, DataContainer<?> inputA, DataContainer<?> inputB)
-				throws DataException {
+	public void sub(DataType type, DataContainer<?> output, DataContainer<?> inputA, DataContainer<?> inputB) {
 
 		int outputOffset = output.getOffset();
 		int inputAOffset = inputA.getOffset();
@@ -154,7 +154,7 @@ public class ExecutionUnit {
 				return;
 			}
 			default : {
-				throw new DataException(DataException.UNOPERATABLE_DATA_TYPE, type);
+				throw new VnanoFatalException("Unoperatable data type: " + type);
 			}
 		}
 	}
@@ -178,12 +178,11 @@ public class ExecutionUnit {
 	 * @param output 結果を格納するデータ
 	 * @param inputA 演算対象データ（中置記法における左側）
 	 * @param inputB 演算対象データ（中置記法における右側）
-	 * @throws DataException
+	 * @throws VnanoFatalException
 	 *   この命令が対応していないデータ型が指定された場合や、
 	 *   指定データ型とオペランドの実際のデータ型が一致しない場合に発生します。
 	 */
-	public void mul(DataType type, DataContainer<?> output, DataContainer<?> inputA, DataContainer<?> inputB)
-				throws DataException {
+	public void mul(DataType type, DataContainer<?> output, DataContainer<?> inputA, DataContainer<?> inputB) {
 
 		int outputOffset = output.getOffset();
 		int inputAOffset = inputA.getOffset();
@@ -214,7 +213,7 @@ public class ExecutionUnit {
 				return;
 			}
 			default : {
-				throw new DataException(DataException.UNOPERATABLE_DATA_TYPE, type);
+				throw new VnanoFatalException("Unoperatable data type: " + type);
 			}
 		}
 	}
@@ -238,12 +237,11 @@ public class ExecutionUnit {
 	 * @param output 結果を格納するデータ
 	 * @param inputA 演算対象データ（中置記法における左側）
 	 * @param inputB 演算対象データ（中置記法における右側）
-	 * @throws DataException
+	 * @throws VnanoFatalException
 	 *   この命令が対応していないデータ型が指定された場合や、
 	 *   指定データ型とオペランドの実際のデータ型が一致しない場合に発生します。
 	 */
-	public void div(DataType type, DataContainer<?> output, DataContainer<?> inputA, DataContainer<?> inputB)
-				throws DataException {
+	public void div(DataType type, DataContainer<?> output, DataContainer<?> inputA, DataContainer<?> inputB) {
 
 		int outputOffset = output.getOffset();
 		int inputAOffset = inputA.getOffset();
@@ -274,7 +272,7 @@ public class ExecutionUnit {
 				return;
 			}
 			default : {
-				throw new DataException(DataException.UNOPERATABLE_DATA_TYPE, type);
+				throw new VnanoFatalException("Unoperatable data type: " + type);
 			}
 		}
 	}
@@ -298,12 +296,11 @@ public class ExecutionUnit {
 	 * @param output 結果を格納するデータ
 	 * @param inputA 演算対象データ（中置記法における左側）
 	 * @param inputB 演算対象データ（中置記法における右側）
-	 * @throws DataException
+	 * @throws VnanoFatalException
 	 *   この命令が対応していないデータ型が指定された場合や、
 	 *   指定データ型とオペランドの実際のデータ型が一致しない場合に発生します。
 	 */
-	public void rem(DataType type, DataContainer<?> output, DataContainer<?> inputA, DataContainer<?> inputB)
-				throws DataException {
+	public void rem(DataType type, DataContainer<?> output, DataContainer<?> inputA, DataContainer<?> inputB) {
 
 		int outputOffset = output.getOffset();
 		int inputAOffset = inputA.getOffset();
@@ -334,7 +331,7 @@ public class ExecutionUnit {
 				return;
 			}
 			default : {
-				throw new DataException(DataException.UNOPERATABLE_DATA_TYPE, type);
+				throw new VnanoFatalException("Unoperatable data type: " + type);
 			}
 		}
 	}
@@ -358,12 +355,11 @@ public class ExecutionUnit {
 	 * @param type 演算データ型
 	 * @param output 結果を格納するデータ
 	 * @param input 演算対象データ
-	 * @throws DataException
+	 * @throws VnanoFatalException
 	 *   この命令が対応していないデータ型が指定された場合や、
 	 *   指定データ型とオペランドの実際のデータ型が一致しない場合に発生します。
 	 */
-	public void neg(DataType type, DataContainer<?> output, DataContainer<?> input)
-				throws DataException {
+	public void neg(DataType type, DataContainer<?> output, DataContainer<?> input) {
 
 		int outputOffset = output.getOffset();
 		int inputOffset = input.getOffset();
@@ -390,8 +386,7 @@ public class ExecutionUnit {
 				return;
 			}
 			default : {
-				throw new DataException(DataException.UNOPERATABLE_DATA_TYPE, type);
-
+				throw new VnanoFatalException("Unoperatable data type: " + type);
 			}
 		}
 	}
@@ -416,12 +411,11 @@ public class ExecutionUnit {
 	 * @param output 結果を格納するデータ
 	 * @param inputA 演算対象データ（中置記法における左側）
 	 * @param inputB 演算対象データ（中置記法における右側）
-	 * @throws DataException
+	 * @throws VnanoFatalException
 	 *   この命令が対応していないデータ型が指定された場合や、
 	 *   指定データ型とオペランドの実際のデータ型が一致しない場合に発生します。
 	 */
-	public void eq(DataType type, DataContainer<?> output, DataContainer<?> inputA, DataContainer<?> inputB)
-				throws DataException {
+	public void eq(DataType type, DataContainer<?> output, DataContainer<?> inputA, DataContainer<?> inputB) {
 
 		int outputOffset = output.getOffset();
 		int inputAOffset = inputA.getOffset();
@@ -470,7 +464,7 @@ public class ExecutionUnit {
 				return;
 			}
 			default : {
-				throw new DataException(DataException.UNOPERATABLE_DATA_TYPE, type);
+				throw new VnanoFatalException("Unoperatable data type: " + type);
 			}
 		}
 	}
@@ -495,12 +489,11 @@ public class ExecutionUnit {
 	 * @param output 結果を格納するデータ
 	 * @param inputA 演算対象データ（中置記法における左側）
 	 * @param inputB 演算対象データ（中置記法における右側）
-	 * @throws DataException
+	 * @throws VnanoFatalException
 	 *   この命令が対応していないデータ型が指定された場合や、
 	 *   指定データ型とオペランドの実際のデータ型が一致しない場合に発生します。
 	 */
-	public void neq(DataType type, DataContainer<?> output, DataContainer<?> inputA, DataContainer<?> inputB)
-				throws DataException {
+	public void neq(DataType type, DataContainer<?> output, DataContainer<?> inputA, DataContainer<?> inputB) {
 
 		int outputOffset = output.getOffset();
 		int inputAOffset = inputA.getOffset();
@@ -549,7 +542,7 @@ public class ExecutionUnit {
 				return;
 			}
 			default : {
-				throw new DataException(DataException.UNOPERATABLE_DATA_TYPE, type);
+				throw new VnanoFatalException("Unoperatable data type: " + type);
 			}
 		}
 	}
@@ -576,12 +569,11 @@ public class ExecutionUnit {
 	 * @param output 結果を格納するデータ
 	 * @param inputA 演算対象データ（中置記法における左側）
 	 * @param inputB 演算対象データ（中置記法における右側）
-	 * @throws DataException
+	 * @throws VnanoFatalException
 	 *   この命令が対応していないデータ型が指定された場合や、
 	 *   指定データ型とオペランドの実際のデータ型が一致しない場合に発生します。
 	 */
-	public void geq(DataType type, DataContainer<?> output, DataContainer<?> inputA, DataContainer<?> inputB)
-				throws DataException {
+	public void geq(DataType type, DataContainer<?> output, DataContainer<?> inputA, DataContainer<?> inputB) {
 
 		int outputOffset = output.getOffset();
 		int inputAOffset = inputA.getOffset();
@@ -612,7 +604,7 @@ public class ExecutionUnit {
 				return;
 			}
 			default : {
-				throw new DataException(DataException.UNOPERATABLE_DATA_TYPE, type);
+				throw new VnanoFatalException("Unoperatable data type: " + type);
 			}
 		}
 	}
@@ -638,12 +630,11 @@ public class ExecutionUnit {
 	 * @param output 結果を格納するデータ
 	 * @param inputA 演算対象データ（中置記法における左側）
 	 * @param inputB 演算対象データ（中置記法における右側）
-	 * @throws DataException
+	 * @throws VnanoFatalException
 	 *   この命令が対応していないデータ型が指定された場合や、
 	 *   指定データ型とオペランドの実際のデータ型が一致しない場合に発生します。
 	 */
-	public void leq(DataType type, DataContainer<?> output, DataContainer<?> inputA, DataContainer<?> inputB)
-				throws DataException {
+	public void leq(DataType type, DataContainer<?> output, DataContainer<?> inputA, DataContainer<?> inputB) {
 
 		int outputOffset = output.getOffset();
 		int inputAOffset = inputA.getOffset();
@@ -674,7 +665,7 @@ public class ExecutionUnit {
 				return;
 			}
 			default : {
-				throw new DataException(DataException.UNOPERATABLE_DATA_TYPE, type);
+				throw new VnanoFatalException("Unoperatable data type: " + type);
 			}
 		}
 	}
@@ -700,12 +691,11 @@ public class ExecutionUnit {
 	 * @param output 結果を格納するデータ
 	 * @param inputA 演算対象データ（中置記法における左側）
 	 * @param inputB 演算対象データ（中置記法における右側）
-	 * @throws DataException
+	 * @throws VnanoFatalException
 	 *   この命令が対応していないデータ型が指定された場合や、
 	 *   指定データ型とオペランドの実際のデータ型が一致しない場合に発生します。
 	 */
-	public void gt(DataType type, DataContainer<?> output, DataContainer<?> inputA, DataContainer<?> inputB)
-				throws DataException {
+	public void gt(DataType type, DataContainer<?> output, DataContainer<?> inputA, DataContainer<?> inputB) {
 
 		int outputOffset = output.getOffset();
 		int inputAOffset = inputA.getOffset();
@@ -736,7 +726,7 @@ public class ExecutionUnit {
 				return;
 			}
 			default : {
-				throw new DataException(DataException.UNOPERATABLE_DATA_TYPE, type);
+				throw new VnanoFatalException("Unoperatable data type: " + type);
 			}
 		}
 	}
@@ -762,12 +752,11 @@ public class ExecutionUnit {
 	 * @param output 結果を格納するデータ
 	 * @param inputA 演算対象データ（中置記法における左側）
 	 * @param inputB 演算対象データ（中置記法における右側）
-	 * @throws DataException
+	 * @throws VnanoFatalException
 	 *   この命令が対応していないデータ型が指定された場合や、
 	 *   指定データ型とオペランドの実際のデータ型が一致しない場合に発生します。
 	 */
-	public void lt(DataType type, DataContainer<?> output, DataContainer<?> inputA, DataContainer<?> inputB)
-				throws DataException {
+	public void lt(DataType type, DataContainer<?> output, DataContainer<?> inputA, DataContainer<?> inputB) {
 
 		int outputOffset = output.getOffset();
 		int inputAOffset = inputA.getOffset();
@@ -798,7 +787,7 @@ public class ExecutionUnit {
 				return;
 			}
 			default : {
-				throw new DataException(DataException.UNOPERATABLE_DATA_TYPE, type);
+				throw new VnanoFatalException("Unoperatable data type: " + type);
 			}
 		}
 	}
@@ -831,15 +820,14 @@ public class ExecutionUnit {
 	 * @param output 結果を格納するデータ
 	 * @param inputA 演算対象データ（中置記法における左側）
 	 * @param inputB 演算対象データ（中置記法における右側）
-	 * @throws DataException
+	 * @throws VnanoFatalException
 	 *   この命令が対応していないデータ型が指定された場合や、
 	 *   指定データ型とオペランドの実際のデータ型が一致しない場合に発生します。
 	 */
-	public void and(DataType type, DataContainer<?> output, DataContainer<?> inputA, DataContainer<?> inputB)
-				throws DataException {
+	public void and(DataType type, DataContainer<?> output, DataContainer<?> inputA, DataContainer<?> inputB) {
 
 		if (type != DataType.BOOL) {
-			throw new DataException(DataException.UNOPERATABLE_DATA_TYPE, type);
+			throw new VnanoFatalException("Unoperatable data type: " + type);
 		}
 
 		int outputOffset = output.getOffset();
@@ -899,16 +887,15 @@ public class ExecutionUnit {
 	 * @param output 結果を格納するデータ
 	 * @param inputA 演算対象データ（中置記法における左側）
 	 * @param inputB 演算対象データ（中置記法における右側）
-	 * @throws DataException
+	 * @throws VnanoFatalException
 	 *   この命令が対応していないデータ型が指定された場合や、
 	 *   指定データ型とオペランドの実際のデータ型が一致しない場合に発生します。
 	 */
 	// 短絡評価により、inputB は null の場合がある
-	public void or(DataType type, DataContainer<?> output, DataContainer<?> inputA, DataContainer<?> inputB)
-				throws DataException {
+	public void or(DataType type, DataContainer<?> output, DataContainer<?> inputA, DataContainer<?> inputB) {
 
 		if (type != DataType.BOOL) {
-			throw new DataException(DataException.UNOPERATABLE_DATA_TYPE, type);
+			throw new VnanoFatalException("Unoperatable data type: " + type);
 		}
 
 		int outputOffset = output.getOffset();
@@ -966,12 +953,11 @@ public class ExecutionUnit {
 	 * @param type 演算データ型
 	 * @param output 結果を格納するデータ
 	 * @param input 演算対象データ
-	 * @throws DataException
+	 * @throws VnanoFatalException
 	 *   この命令が対応していないデータ型が指定された場合や、
 	 *   指定データ型とオペランドの実際のデータ型が一致しない場合に発生します。
 	 */
-	public void not(DataType type, DataContainer<?> output, DataContainer<?> input)
-				throws DataException {
+	public void not(DataType type, DataContainer<?> output, DataContainer<?> input) {
 
 		int outputOffset = output.getOffset();
 		int inputOffset = input.getOffset();
@@ -990,7 +976,7 @@ public class ExecutionUnit {
 				return;
 			}
 			default : {
-				throw new DataException(DataException.UNOPERATABLE_DATA_TYPE, type);
+				throw new VnanoFatalException("Unoperatable data type: " + type);
 			}
 		}
 	}
@@ -1008,10 +994,10 @@ public class ExecutionUnit {
 	 *
 	 * @param type 確保するデータの型
 	 * @param target 対象データ
-	 * @throws DataException 無効なデータ型が指定された場合に発生します。
+	 * @throws VnanoSyntaxException 無効なデータ型が指定された場合に発生します。
 	 */
 	@SuppressWarnings("unchecked")
-	public void alloc(DataType type, DataContainer<?> target) throws DataException {
+	public void alloc(DataType type, DataContainer<?> target) {
 		switch (type) {
 			case INT64 : {
 				((DataContainer<long[]>)target).setData(new long[DataContainer.SIZE_OF_SCALAR]);
@@ -1030,24 +1016,11 @@ public class ExecutionUnit {
 				return;
 			}
 			default : {
-				throw new DataException(DataException.UNKNOWN_DATA_TYPE, type);
+				throw new VnanoFatalException("Unoperatable data type: " + type);
 			}
 		}
 	}
 
-
-	/**
-	 * 2オペランドの {@link org.vcssl.nano.vm.processor.OperationCode#ALLOC ALLOC} 命令（1次元の配列確保用）を実行します。
-	 *
-	 * この命令により、引数 target のデータの格納領域が、
-	 * 引数 type に指定されたデータ型の1次元配列値を保持できるように確保されます。
-	 * 配列の要素数は引数 len で指定します。
-	 *
-	 * @param type 確保するデータの型
-	 * @param target 対象データ
-	 * @param len 1次元配列の要素数
-	 * @throws DataException 無効なデータ型が指定された場合に発生します。
-	 */
 
 	/**
 	 * 2オペランドの {@link org.vcssl.nano.vm.processor.OperationCode#ALLOC ALLOC} 命令（配列確保用）を実行します。
@@ -1061,11 +1034,11 @@ public class ExecutionUnit {
 	 * @param type 確保するデータの型
 	 * @param target 対象データ
 	 * @param len 確保する配列の、各次元ごとの要素数を格納する配列
-	 * @throws DataException 無効なデータ型が指定された場合に発生します。
+	 * @throws VnanoFatalException 無効なデータ型が指定された場合に発生します。
 	 */
 	@SuppressWarnings("unchecked")
-	public void alloc(DataType type, DataContainer<?> target, DataContainer<?> len)
-			throws DataException {
+	public void alloc(DataType type, DataContainer<?> target, DataContainer<?> len) {
+
 		long[] lenData = ((DataContainer<long[]>)len).getData();
 		int[] arrayLength = new int[lenData.length];
 		int dataLength = 1;
@@ -1102,12 +1075,10 @@ public class ExecutionUnit {
 	 * @param target 対象データ
 	 * @param dataLength 多次元配列の総要素数
 	 * @param arrayLength 多次元配列における、各次元の要素数を格納する配列
-	 * @throws DataException 無効なデータ型が指定された場合に発生します。
+	 * @throws VnanoFatalException 無効なデータ型が指定された場合に発生します。
 	 */
 	@SuppressWarnings("unchecked")
-	public void alloc(DataType type, DataContainer<?> target, int dataLength, int[] arrayLength)
-			throws DataException {
-
+	public void alloc(DataType type, DataContainer<?> target, int dataLength, int[] arrayLength) {
 
 		target.setLengths(arrayLength);
 
@@ -1142,7 +1113,7 @@ public class ExecutionUnit {
 				return;
 			}
 			default : {
-				throw new DataException(DataException.UNKNOWN_DATA_TYPE, type);
+				throw new VnanoFatalException("Unoperatable data type: " + type);
 			}
 		}
 	}
@@ -1171,11 +1142,10 @@ public class ExecutionUnit {
 	 * @param type オペランドのデータ型
 	 * @param dest コピー先データ
 	 * @param src コピー元データ
-	 * @throws DataException
+	 * @throws VnanoFatalException
 	 *   指定データ型とオペランドの実際のデータ型が一致しない場合に発生します。
 	 */
-	public void mov(DataType type, DataContainer<?> dest, DataContainer<?> src)
-			throws DataException {
+	public void mov(DataType type, DataContainer<?> dest, DataContainer<?> src) {
 
 		this.checkDataType(dest, type);
 		this.checkDataType(src, type);
@@ -1190,7 +1160,7 @@ public class ExecutionUnit {
 				return;
 			}
 			default : {
-				throw new DataException(DataException.UNKNOWN_DATA_TYPE, type);
+				throw new VnanoFatalException("Unoperatable data type: " + type);
 			}
 		}
 	}
@@ -1208,13 +1178,13 @@ public class ExecutionUnit {
 	 * @param type オペランドのデータ型
 	 * @param dest コピー先データ
 	 * @param src コピー元データ
-	 * @throws DataException
+	 * @throws VnanoFatalException
 	 *   指定データ型とオペランドの実際のデータ型が一致しない場合に発生します。
 	 */
 	/*
 	// 現時点では不要
 	public void reord(DataType type, DataContainer<?> dest, DataContainer<?> src)
-			throws DataException {
+			throws VnanoSyntaxException {
 
 		this.checkDataType(dest, type);
 		this.checkDataType(src, type);
@@ -1286,12 +1256,11 @@ public class ExecutionUnit {
 	 * @param type オペランドのデータ型
 	 * @param dest コピー先データ
 	 * @param src コピー元データ
-	 * @throws DataException
+	 * @throws VnanoFatalException
 	 *   この命令が対応していないデータ型が指定された場合や、
 	 *   指定データ型とオペランドの実際のデータ型が一致しない場合に発生します。
 	 */
-	public void fill(DataType type, DataContainer<?> dest, DataContainer<?> src)
-				throws DataException {
+	public void fill(DataType type, DataContainer<?> dest, DataContainer<?> src) {
 
 		int destOffset = dest.getOffset();
 		int fillerOffset = src.getOffset();
@@ -1334,7 +1303,7 @@ public class ExecutionUnit {
 				return;
 			}
 			default : {
-				throw new DataException(DataException.UNOPERATABLE_DATA_TYPE, type);
+				throw new VnanoFatalException("Unoperatable data type: " + type);
 			}
 		}
 	}
@@ -1349,13 +1318,12 @@ public class ExecutionUnit {
 	 * @param type オペランドのデータ型
 	 * @param dest 配列要素とするデータ
 	 * @param src 配列のデータ
-	 * @throws DataException
+	 * @throws VnanoFatalException
 	 *   この命令が対応していないデータ型が指定された場合や、
 	 *   指定データ型とオペランドの実際のデータ型が一致しない場合に発生します。
 	 */
 	@SuppressWarnings("unchecked")
-	public void elem(DataType type, DataContainer<?> dest, DataContainer<?> src, DataContainer<?> index)
-			throws DataException {
+	public void elem(DataType type, DataContainer<?> dest, DataContainer<?> src, DataContainer<?> index) {
 
 		this.checkDataType(src, type);
 
@@ -1389,8 +1357,7 @@ public class ExecutionUnit {
 				break;
 			}
 			default : {
-				throw new DataException(
-						DataException.UNKNOWN_DATA_TYPE, type);
+				throw new VnanoFatalException("Unknown data type: " + type);
 			}
 		}
 		dest.setOffset(dataIndex);
@@ -1411,13 +1378,12 @@ public class ExecutionUnit {
 	 * @param type オペランドのデータ型
 	 * @param dest コピー先データ
 	 * @param elements コピー元データ（スカラ値）の配列
-	 * @throws DataException
+	 * @throws VnanoFatalException
 	 *   この命令が対応していないデータ型が指定された場合や、
 	 *   指定データ型とオペランドの実際のデータ型が一致しない場合に発生します。
 	 */
 	@SuppressWarnings("unchecked")
-	public void vec(DataType type, DataContainer<?> dest, DataContainer<?>[] elements)
-			throws DataException {
+	public void vec(DataType type, DataContainer<?> dest, DataContainer<?>[] elements) {
 
 		int dataLength = elements.length;
 		int[] arrayLength = new int[]{dataLength};
@@ -1468,8 +1434,7 @@ public class ExecutionUnit {
 				return;
 			}
 			default : {
-				throw new DataException(
-						DataException.UNKNOWN_DATA_TYPE, type);
+				throw new VnanoFatalException("Unknown data type: " + type);
 			}
 		}
 	}
@@ -1490,12 +1455,14 @@ public class ExecutionUnit {
 	 * @param src コピー元データ
 	 * @param dest コピー先データ
 	 * @param src コピー元データ
-	 * @throws DataException
+	 * @throws VnanoFatalException
 	 *   この命令が対応していないデータ型が指定された場合や、
 	 *   指定データ型とオペランドの実際のデータ型が一致しない場合に発生します。
+	 * @throws VnanoSyntaxException
+	 *   型変換に失敗した場合にスローされます。
 	 */
 	public void cast(DataType destType, DataType srcType, DataContainer<?> dest, DataContainer<?> src)
-			throws DataException {
+			throws VnanoSyntaxException {
 
 		int outputOffset = dest.getOffset();
 		int targetIndex = src.getOffset();
@@ -1536,17 +1503,17 @@ public class ExecutionUnit {
 									outputData[outputOffset+i] = Long.parseLong(targetData[targetIndex + i]);
 								}
 							} catch (NumberFormatException nfe){
-								throw new DataException(
-										DataException.UNCONVERTIBLE_DATA, targetData[targetIndex + i] + " to int"
-								);
+								VnanoSyntaxException e = new VnanoSyntaxException(ErrorType.CAST_FAILED_DUE_TO_VALUE);
+								e.setErrorWords(new String[] {targetData[targetIndex + i], "int" });
+								throw e;
 							}
 						}
 						return;
 					}
 					default : {
-						throw new DataException(
-								DataException.UNCONVERTIBLE_DATA_TYPE, DataTypeName.getDataTypeNameOf(srcType) + " to int"
-						);
+						VnanoSyntaxException e = new VnanoSyntaxException(ErrorType.CAST_FAILED_DUE_TO_TYPE);
+						e.setErrorWords(new String[] {DataTypeName.getDataTypeNameOf(srcType), "int" });
+						throw e;
 					}
 				}
 			}
@@ -1573,17 +1540,17 @@ public class ExecutionUnit {
 							try {
 								outputData[outputOffset+i] = Double.parseDouble(targetData[targetIndex + i]);
 							} catch (NumberFormatException nfe){
-								throw new DataException(
-										DataException.UNCONVERTIBLE_DATA, targetData[targetIndex + i] + " to float"
-								);
+								VnanoSyntaxException e = new VnanoSyntaxException(ErrorType.CAST_FAILED_DUE_TO_VALUE);
+								e.setErrorWords(new String[] {targetData[targetIndex + i], "float" });
+								throw e;
 							}
 						}
 						return;
 					}
 					default : {
-						throw new DataException(
-								DataException.UNCONVERTIBLE_DATA_TYPE, DataTypeName.getDataTypeNameOf(srcType) + " to float"
-						);
+						VnanoSyntaxException e = new VnanoSyntaxException(ErrorType.CAST_FAILED_DUE_TO_TYPE);
+						e.setErrorWords(new String[] {DataTypeName.getDataTypeNameOf(srcType), "float" });
+						throw e;
 					}
 				}
 			}
@@ -1607,17 +1574,17 @@ public class ExecutionUnit {
 							} else if (targetData[targetIndex + i].equals(falseString)) {
 								outputData[outputOffset+i] = false;
 							} else {
-								throw new DataException(
-										DataException.UNCONVERTIBLE_DATA, targetData[targetIndex + i] + " to bool"
-								);
+								VnanoSyntaxException e = new VnanoSyntaxException(ErrorType.CAST_FAILED_DUE_TO_VALUE);
+								e.setErrorWords(new String[] {targetData[targetIndex + i], "bool" });
+								throw e;
 							}
 						}
 						return;
 					}
 					default : {
-						throw new DataException(
-								DataException.UNCONVERTIBLE_DATA_TYPE, DataTypeName.getDataTypeNameOf(srcType) + " to bool"
-						);
+						VnanoSyntaxException e = new VnanoSyntaxException(ErrorType.CAST_FAILED_DUE_TO_TYPE);
+						e.setErrorWords(new String[] {DataTypeName.getDataTypeNameOf(srcType), "bool" });
+						throw e;
 					}
 				}
 			}
@@ -1653,17 +1620,16 @@ public class ExecutionUnit {
 						return;
 					}
 					default : {
-						throw new DataException(
-								DataException.UNCONVERTIBLE_DATA_TYPE, DataTypeName.getDataTypeNameOf(srcType) + " to string"
-						);
+						VnanoSyntaxException e = new VnanoSyntaxException(ErrorType.CAST_FAILED_DUE_TO_TYPE);
+						e.setErrorWords(new String[] {DataTypeName.getDataTypeNameOf(srcType), "to string" });
+						throw e;
 					}
 				}
 			}
 			default : {
-				throw new DataException(
-						DataException.UNCONVERTIBLE_DATA_TYPE,
-						DataTypeName.getDataTypeNameOf(srcType) + " to " + DataTypeName.getDataTypeNameOf(destType)
-				);
+				VnanoSyntaxException e = new VnanoSyntaxException(ErrorType.CAST_FAILED_DUE_TO_TYPE);
+				e.setErrorWords(new String[] {DataTypeName.getDataTypeNameOf(srcType), DataTypeName.getDataTypeNameOf(destType) });
+				throw e;
 			}
 		}
 	}
@@ -1674,14 +1640,15 @@ public class ExecutionUnit {
 	/**
 	 * {@link org.vcssl.nano.vm.memory.DataContainer Data} オブジェクトが保持するデータの型を検査し、
 	 * 期待された型と異なれば
-	 * {@link org.vcssl.nano.vm.memory.DataException InvalidDataTypeException}
+	 * {@link org.vcssl.nano.vm.memory.VnanoSyntaxException InvalidDataTypeException}
 	 * 例外をスローします。
 	 *
 	 * @param data 型検査するデータ
 	 * @param type 期待されるデータ型
-	 * @throws DataException 実際のデータ型が、期待された型と異なる場合に発生します。
+	 * @throws VnanoFatalException 実際のデータ型が、期待された型と異なる場合に発生します。
 	 */
-	private void checkDataType(DataContainer<?> data, DataType type) throws DataException {
+	private void checkDataType(DataContainer<?> data, DataType type) {
+
 		switch(type) {
 			case INT64 : {
 				if (data.getData() instanceof long[]) {
@@ -1716,9 +1683,8 @@ public class ExecutionUnit {
 				break;
 			}
 		}
-		throw new DataException(DataException.UNEXPECTED_DATA_TYPE, type);
+		throw new VnanoFatalException("Unexpected data type: " + type);
 	}
-
 
 }
 

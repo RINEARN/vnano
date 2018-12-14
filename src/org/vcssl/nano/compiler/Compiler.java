@@ -7,7 +7,6 @@ package org.vcssl.nano.compiler;
 
 import org.vcssl.nano.VnanoSyntaxException;
 import org.vcssl.nano.interconnect.Interconnect;
-import org.vcssl.nano.vm.memory.DataException;
 
 /**
  * <p>
@@ -40,7 +39,7 @@ public class Compiler {
 	 * @throws VnanoSyntaxException スクリプトコードの内容に異常があった場合にスローされます。
 	 */
 	public String compile(String script, String fileName, Interconnect interconnect)
-					throws VnanoSyntaxException, DataException { // スクリプト内の型エラーはScriptCodeExceptionに入れるべき？
+					throws VnanoSyntaxException { // スクリプト内の型エラーはScriptCodeExceptionに入れるべき？
 
 		/*
 		// デバッグ用出力（入力スクリプト）

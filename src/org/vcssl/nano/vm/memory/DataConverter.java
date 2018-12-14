@@ -9,7 +9,10 @@ import java.util.HashMap;
 
 import org.vcssl.nano.lang.DataType;
 import org.vcssl.nano.spec.DataTypeName;
+import org.vcssl.nano.spec.ErrorType;
+import org.vcssl.nano.spec.ScriptWord;
 import org.vcssl.nano.VnanoRuntimeException;
+import org.vcssl.nano.VnanoSyntaxException;
 
 /**
  * <p>
@@ -193,19 +196,18 @@ public class DataConverter {
 	 * そのラッパークラスを指定してください。
 	 *
 	 * @param objectClass ホスト言語側でのデータ型を表すクラス（プリミティブ型の場合はラッパークラス）
-	 * @throws DataException 未対応のデータ型が指定された場合にスローされます。
+	 * @throws VnanoSyntaxException 未対応のデータ型が指定された場合にスローされます。
 	 */
-	public DataConverter(Class<?> objectClass) throws DataException {
+	public DataConverter(Class<?> objectClass) throws VnanoSyntaxException {
 		this.rank = this.getRankOf(objectClass);
 		String externalDataTypeName = getExternalTypeNameOf(objectClass);
 		this.externalType = EXTERNAL_NAME_EXTERNAL_TYPE_MAP.get(externalDataTypeName);
 		this.dataType = EXTERNAL_NAME_DATA_TYPE_MAP.get(externalDataTypeName);
 
 		if (this.dataType == null) {
-			throw new DataException(
-					DataException.UNCONVERTIBLE_DATA_TYPE,
-					externalDataTypeName
-			);
+			VnanoSyntaxException e = new VnanoSyntaxException(ErrorType.UNCONVERTIBLE_DATA_TYPE);
+			e.setErrorWords(new String[] {externalType.getClass().getCanonicalName()});
+			throw e;
 		}
 	}
 
@@ -221,9 +223,9 @@ public class DataConverter {
 	 * そのラッパークラスを指定してください。
 	 *
 	 * @param objectClass ホスト言語側でのデータ型を表すクラス（プリミティブ型の場合はラッパークラス）
-	 * @throws DataException 未対応のデータ型が指定された場合にスローされます。
+	 * @throws VnanoSyntaxException 未対応のデータ型が指定された場合にスローされます。
 	 */
-	public DataConverter(DataType dataType, int rank) throws DataException {
+	public DataConverter(DataType dataType, int rank) throws VnanoSyntaxException {
 		this.rank = rank;
 		this.dataType = dataType;
 		this.externalType = DATA_TYPE_EXTERNAL_TYPE_MAP.get(dataType);
@@ -312,12 +314,12 @@ public class DataConverter {
 	 *
 	 * @param externalObject ホスト言語側におけるデータのオブジェクト
 	 * @return 変換されたデータを保持するデータコンテナ
-	 * @throws DataException
+	 * @throws VnanoSyntaxException
 	 * 		変換対象データが、処理系内で表現できない型を持っていた場合や、
 	 * 		配列次元数が変換処理の上限（現在の実装では 3 次元まで）
 	 * 		を超えていた場合にスローされます。
 	 */
-	public DataContainer<?> convertToDataContainer(Object externalObject) throws DataException {
+	public DataContainer<?> convertToDataContainer(Object externalObject) throws VnanoSyntaxException {
 		DataContainer<?> internalData = (DataContainer<?>)new DataContainer<Void>();
 		this.convertToDataContainer(externalObject, internalData);
 		return internalData;
@@ -331,13 +333,13 @@ public class DataConverter {
 	 *
 	 * @param object ホスト言語側におけるデータのオブジェクト
 	 * @param resultDataContainer 変換されたデータを格納するデータコンテナ
-	 * @throws DataException
+	 * @throws VnanoSyntaxException
 	 * 		変換対象データが、処理系内で表現できない型を持っていた場合や、
 	 * 		配列次元数が変換処理の上限（現在の実装では 3 次元まで）を超えていた場合、
 	 * 		またはジャグ配列となっていた場合にスローされます。
 	 */
 	public void convertToDataContainer(Object object, DataContainer<?> resultDataContainer)
-			throws DataException {
+			throws VnanoSyntaxException {
 
 		switch (this.rank) {
 			case 0 : {
@@ -357,10 +359,9 @@ public class DataConverter {
 				return;
 			}
 			default : {
-				throw new DataException(
-						DataException.UNCONVERTIBLE_ARRAY,
-						getExternalTypeNameOf(object.getClass())
-				);
+				VnanoSyntaxException e = new VnanoSyntaxException(ErrorType.UNCONVERTIBLE_ARRAY);
+				e.setErrorWords(new String[] {getExternalTypeNameOf(object.getClass())});
+				throw e;
 			}
 		}
 	}
@@ -372,10 +373,11 @@ public class DataConverter {
 	 *
 	 * @param object ホスト言語側におけるデータのオブジェクト
 	 * @param resultDataContainer 変換されたデータを格納するデータコンテナ
-	 * @throws DataException データの型が void 型であった場合にスローされます。
+	 * @throws VnanoSyntaxException データの型が void 型であった場合にスローされます。
 	 */
 	@SuppressWarnings("unchecked")
-	private void convertToDataContainer0D(Object object, DataContainer<?> resultDataContainer) throws DataException {
+	private void convertToDataContainer0D(Object object, DataContainer<?> resultDataContainer)
+			throws VnanoSyntaxException {
 
 		int dataLength = DataContainer.SIZE_OF_SCALAR;
 		int[] arrayLength = DataContainer.LENGTHS_OF_SCALAR;
@@ -413,10 +415,10 @@ public class DataConverter {
 				return;
 			}
 			case VOID : {
-				throw new DataException(
-						DataException.UNCONVERTIBLE_DATA_TYPE,
-						DataTypeName.getDataTypeNameOf(DataType.VOID)
-				);
+
+				VnanoSyntaxException e = new VnanoSyntaxException(ErrorType.UNCONVERTIBLE_DATA_TYPE);
+				e.setErrorWords(new String[] {DataTypeName.getDataTypeNameOf(DataType.VOID)});
+				throw e;
 			}
 		}
 	}
@@ -430,7 +432,8 @@ public class DataConverter {
 	 * @param resultDataContainer 変換されたデータを格納するデータコンテナ
 	 */
 	@SuppressWarnings("unchecked")
-	private void convertToDataContainer1D(Object object, DataContainer<?> resultDataContainer) throws DataException {
+	private void convertToDataContainer1D(Object object, DataContainer<?> resultDataContainer)
+			throws VnanoSyntaxException {
 
 		int[] arrayLength = new int[1];
 		int dataLength = -1;
@@ -519,11 +522,11 @@ public class DataConverter {
 	 *
 	 * @param object ホスト言語側におけるデータのオブジェクト
 	 * @param resultDataContainer 変換されたデータを格納するデータコンテナ
-	 * @throws DataException データがジャグ配列であった場合にスローされます。
+	 * @throws VnanoSyntaxException データがジャグ配列であった場合にスローされます。
 	 */
 	@SuppressWarnings("unchecked")
 	private void convertToDataContainer2D(Object object, DataContainer<?> resultDataContainer)
-			throws DataException {
+			throws VnanoSyntaxException {
 
 		int[] arrayLength = new int[2];
 		int dataLength = -1;
@@ -537,7 +540,7 @@ public class DataConverter {
 				for (int arrayIndex0=0; arrayIndex0<arrayLength[0]; arrayIndex0++) {
 					// ジャグ配列検査
 					if ( ((int[][])object)[arrayIndex0].length != arrayLength[1] ) {
-						throw new DataException(DataException.UNCONVERTIBLE_ARRAY);
+						throw new VnanoSyntaxException(ErrorType.JAGGED_ARRAY);
 					}
 					// 変換
 					for (int arrayIndex1=0; arrayIndex1<arrayLength[1]; arrayIndex1++) {
@@ -557,7 +560,7 @@ public class DataConverter {
 				for (int arrayIndex0=0; arrayIndex0<arrayLength[0]; arrayIndex0++) {
 					// ジャグ配列検査
 					if ( ((long[][])object)[arrayIndex0].length != arrayLength[1] ) {
-						throw new DataException(DataException.UNCONVERTIBLE_ARRAY);
+						throw new VnanoSyntaxException(ErrorType.JAGGED_ARRAY);
 					}
 					// 変換
 					for (int arrayIndex1=0; arrayIndex1<arrayLength[1]; arrayIndex1++) {
@@ -577,7 +580,7 @@ public class DataConverter {
 				for (int arrayIndex0=0; arrayIndex0<arrayLength[0]; arrayIndex0++) {
 					// ジャグ配列検査
 					if ( ((double[][])object)[arrayIndex0].length != arrayLength[1] ) {
-						throw new DataException(DataException.UNCONVERTIBLE_ARRAY);
+						throw new VnanoSyntaxException(ErrorType.JAGGED_ARRAY);
 					}
 					// 変換
 					for (int arrayIndex1=0; arrayIndex1<arrayLength[1]; arrayIndex1++) {
@@ -597,7 +600,7 @@ public class DataConverter {
 				for (int arrayIndex0=0; arrayIndex0<arrayLength[0]; arrayIndex0++) {
 					// ジャグ配列検査
 					if ( ((float[][])object)[arrayIndex0].length != arrayLength[1] ) {
-						throw new DataException(DataException.UNCONVERTIBLE_ARRAY);
+						throw new VnanoSyntaxException(ErrorType.JAGGED_ARRAY);
 					}
 					// 変換
 					for (int arrayIndex1=0; arrayIndex1<arrayLength[1]; arrayIndex1++) {
@@ -617,7 +620,7 @@ public class DataConverter {
 				for (int arrayIndex0=0; arrayIndex0<arrayLength[0]; arrayIndex0++) {
 					// ジャグ配列検査
 					if ( ((boolean[][])object)[arrayIndex0].length != arrayLength[1] ) {
-						throw new DataException(DataException.UNCONVERTIBLE_ARRAY);
+						throw new VnanoSyntaxException(ErrorType.JAGGED_ARRAY);
 					}
 					// 変換
 					for (int arrayIndex1=0; arrayIndex1<arrayLength[1]; arrayIndex1++) {
@@ -637,7 +640,7 @@ public class DataConverter {
 				for (int arrayIndex0=0; arrayIndex0<arrayLength[0]; arrayIndex0++) {
 					// ジャグ配列検査
 					if ( ((String[][])object)[arrayIndex0].length != arrayLength[1] ) {
-						throw new DataException(DataException.UNCONVERTIBLE_ARRAY);
+						throw new VnanoSyntaxException(ErrorType.JAGGED_ARRAY);
 					}
 					// 変換
 					for (int arrayIndex1=0; arrayIndex1<arrayLength[1]; arrayIndex1++) {
@@ -665,11 +668,11 @@ public class DataConverter {
 	 *
 	 * @param object ホスト言語側におけるデータのオブジェクト
 	 * @param resultDataContainer 変換されたデータを格納するデータコンテナ
-	 * @throws DataException データがジャグ配列であった場合にスローされます。
+	 * @throws VnanoSyntaxException データがジャグ配列であった場合にスローされます。
 	 */
 	@SuppressWarnings("unchecked")
 	private void convertToDataContainer3D(Object object, DataContainer<?> resultDataContainer)
-			throws DataException {
+			throws VnanoSyntaxException {
 
 		int[] arrayLength = new int[3];
 		int dataLength = -1;
@@ -684,12 +687,12 @@ public class DataConverter {
 				for (int arrayIndex0=0; arrayIndex0<arrayLength[0]; arrayIndex0++) {
 					// ジャグ配列検査
 					if ( ((int[][])object)[arrayIndex0].length != arrayLength[1] ) {
-						throw new DataException(DataException.UNCONVERTIBLE_ARRAY);
+						throw new VnanoSyntaxException(ErrorType.JAGGED_ARRAY);
 					}
 					for (int arrayIndex1=0; arrayIndex1<arrayLength[1]; arrayIndex1++) {
 						// ジャグ配列検査
 						if ( ((int[][][])object)[arrayIndex0][arrayIndex1].length != arrayLength[2] ) {
-							throw new DataException(DataException.UNCONVERTIBLE_ARRAY);
+							throw new VnanoSyntaxException(ErrorType.JAGGED_ARRAY);
 						}
 						// 変換
 						for (int arrayIndex2=0; arrayIndex2<arrayLength[2]; arrayIndex2++) {
@@ -711,12 +714,12 @@ public class DataConverter {
 				for (int arrayIndex0=0; arrayIndex0<arrayLength[0]; arrayIndex0++) {
 					// ジャグ配列検査
 					if ( ((long[][])object)[arrayIndex0].length != arrayLength[1] ) {
-						throw new DataException(DataException.UNCONVERTIBLE_ARRAY);
+						throw new VnanoSyntaxException(ErrorType.JAGGED_ARRAY);
 					}
 					for (int arrayIndex1=0; arrayIndex1<arrayLength[1]; arrayIndex1++) {
 						// ジャグ配列検査
 						if ( ((long[][][])object)[arrayIndex0][arrayIndex1].length != arrayLength[2] ) {
-							throw new DataException(DataException.UNCONVERTIBLE_ARRAY);
+							throw new VnanoSyntaxException(ErrorType.JAGGED_ARRAY);
 						}
 						// 変換
 						for (int arrayIndex2=0; arrayIndex2<arrayLength[2]; arrayIndex2++) {
@@ -738,12 +741,12 @@ public class DataConverter {
 				for (int arrayIndex0=0; arrayIndex0<arrayLength[0]; arrayIndex0++) {
 					// ジャグ配列検査
 					if ( ((float[][])object)[arrayIndex0].length != arrayLength[1] ) {
-						throw new DataException(DataException.UNCONVERTIBLE_ARRAY);
+						throw new VnanoSyntaxException(ErrorType.JAGGED_ARRAY);
 					}
 					for (int arrayIndex1=0; arrayIndex1<arrayLength[1]; arrayIndex1++) {
 						// ジャグ配列検査
 						if ( ((float[][][])object)[arrayIndex0][arrayIndex1].length != arrayLength[2] ) {
-							throw new DataException(DataException.UNCONVERTIBLE_ARRAY);
+							throw new VnanoSyntaxException(ErrorType.JAGGED_ARRAY);
 						}
 						// 変換
 						for (int arrayIndex2=0; arrayIndex2<arrayLength[2]; arrayIndex2++) {
@@ -765,12 +768,12 @@ public class DataConverter {
 				for (int arrayIndex0=0; arrayIndex0<arrayLength[0]; arrayIndex0++) {
 					// ジャグ配列検査
 					if ( ((float[][])object)[arrayIndex0].length != arrayLength[1] ) {
-						throw new DataException(DataException.UNCONVERTIBLE_ARRAY);
+						throw new VnanoSyntaxException(ErrorType.JAGGED_ARRAY);
 					}
 					for (int arrayIndex1=0; arrayIndex1<arrayLength[1]; arrayIndex1++) {
 						// ジャグ配列検査
 						if ( ((double[][][])object)[arrayIndex0][arrayIndex1].length != arrayLength[2] ) {
-							throw new DataException(DataException.UNCONVERTIBLE_ARRAY);
+							throw new VnanoSyntaxException(ErrorType.JAGGED_ARRAY);
 						}
 						// 変換
 						for (int arrayIndex2=0; arrayIndex2<arrayLength[2]; arrayIndex2++) {
@@ -792,12 +795,12 @@ public class DataConverter {
 				for (int arrayIndex0=0; arrayIndex0<arrayLength[0]; arrayIndex0++) {
 					// ジャグ配列検査
 					if ( ((boolean[][])object)[arrayIndex0].length != arrayLength[1] ) {
-						throw new DataException(DataException.UNCONVERTIBLE_ARRAY);
+						throw new VnanoSyntaxException(ErrorType.JAGGED_ARRAY);
 					}
 					for (int arrayIndex1=0; arrayIndex1<arrayLength[1]; arrayIndex1++) {
 						// ジャグ配列検査
 						if ( ((boolean[][][])object)[arrayIndex0][arrayIndex1].length != arrayLength[2] ) {
-							throw new DataException(DataException.UNCONVERTIBLE_ARRAY);
+							throw new VnanoSyntaxException(ErrorType.JAGGED_ARRAY);
 						}
 						// 変換
 						for (int arrayIndex2=0; arrayIndex2<arrayLength[2]; arrayIndex2++) {
@@ -819,12 +822,12 @@ public class DataConverter {
 				for (int arrayIndex0=0; arrayIndex0<arrayLength[0]; arrayIndex0++) {
 					// ジャグ配列検査
 					if ( ((String[][])object)[arrayIndex0].length != arrayLength[1] ) {
-						throw new DataException(DataException.UNCONVERTIBLE_ARRAY);
+						throw new VnanoSyntaxException(ErrorType.JAGGED_ARRAY);
 					}
 					for (int arrayIndex1=0; arrayIndex1<arrayLength[1]; arrayIndex1++) {
 						// ジャグ配列検査
 						if ( ((String[][][])object)[arrayIndex0][arrayIndex1].length != arrayLength[2] ) {
-							throw new DataException(DataException.UNCONVERTIBLE_ARRAY);
+							throw new VnanoSyntaxException(ErrorType.JAGGED_ARRAY);
 						}
 						// 変換
 						for (int arrayIndex2=0; arrayIndex2<arrayLength[2]; arrayIndex2++) {
@@ -854,11 +857,11 @@ public class DataConverter {
 	 *
 	 * @param dataContainer 変換するデータを保持するデータコンテナ
 	 * @return ホスト言語側のデータ型に変換されたオブジェクト
-	 * @throws DataException
+	 * @throws VnanoSyntaxException
 	 * 		変換対象データの型が void 型であった場合や、
 	 * 		配列次元数が変換処理の上限（現在の実装では 3 次元まで）を超えていた場合にスローされます。
 	 */
-	public Object convertToExternalObject(DataContainer<?> dataContainer) throws DataException {
+	public Object convertToExternalObject(DataContainer<?> dataContainer) throws VnanoSyntaxException {
 			//throws InvalidDataTypeException {
 
 		Object internalData = dataContainer.getData();
@@ -891,10 +894,9 @@ public class DataConverter {
 						return ((String[])internalData)[dataIndex];
 					}
 					case VOID : {
-						throw new DataException(
-								DataException.UNCONVERTIBLE_DATA,
-								DataTypeName.getDataTypeNameOf(DataType.VOID)
-						);
+						VnanoSyntaxException e = new VnanoSyntaxException(ErrorType.UNCONVERTIBLE_DATA_TYPE);
+						e.setErrorWords(new String[] { DataTypeName.getDataTypeNameOf(DataType.VOID) });
+						throw e;
 					}
 				}
 				break;
@@ -945,10 +947,9 @@ public class DataConverter {
 						return externalData;
 					}
 					case VOID : {
-						throw new DataException(
-								DataException.UNCONVERTIBLE_DATA,
-								DataTypeName.getDataTypeNameOf(DataType.VOID)
-						);
+						VnanoSyntaxException e = new VnanoSyntaxException(ErrorType.UNCONVERTIBLE_DATA_TYPE);
+						e.setErrorWords(new String[] { DataTypeName.getDataTypeNameOf(DataType.VOID) });
+						throw e;
 					}
 				}
 				break;
@@ -1023,20 +1024,28 @@ public class DataConverter {
 						return externalData;
 					}
 					case VOID : {
-						throw new DataException(
-								DataException.UNCONVERTIBLE_DATA,
-								DataTypeName.getDataTypeNameOf(DataType.VOID)
-						);
+						VnanoSyntaxException e = new VnanoSyntaxException(ErrorType.UNCONVERTIBLE_DATA_TYPE);
+						e.setErrorWords(new String[] { DataTypeName.getDataTypeNameOf(DataType.VOID) });
+						throw e;
 					}
 				}
 			}
 
 			default : {
-				// 暫定的な簡易例外処理
-				throw new DataException(
-						DataException.UNCONVERTIBLE_ARRAY,
-						"次元が多すぎます"
-				);
+
+				// 内部での配列型名の表記（ int[][][][][] など ）を求める
+				String externalTypeName = DataConverter.getExternalTypeNameOf(internalData.getClass());
+				DataType internalType = EXTERNAL_NAME_DATA_TYPE_MAP.get(externalTypeName);
+				String internalTypeName = DataTypeName.getDataTypeNameOf(internalType);
+				String internalArrayTypeName = internalTypeName;
+				for(int dim=0; dim<this.rank; dim++) {
+					internalArrayTypeName += ScriptWord.INDEX_BEGIN + ScriptWord.INDEX_END; // "[]" を追加
+				}
+
+				// それをエラーメッセージ用情報に渡して例外スロー
+				VnanoSyntaxException e = new VnanoSyntaxException(ErrorType.UNCONVERTIBLE_INTERNAL_ARRAY);
+				e.setErrorWords(new String[] {internalArrayTypeName});
+				throw e;
 			}
 		}
 

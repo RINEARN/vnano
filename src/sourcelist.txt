@@ -103,7 +103,6 @@
 ./org/vcssl/nano/vm/assembler/package-info.java
 ./org/vcssl/nano/vm/memory/DataContainer.java
 ./org/vcssl/nano/vm/memory/DataConverter.java
-./org/vcssl/nano/vm/memory/DataException.java
 ./org/vcssl/nano/vm/memory/Memory.java
 ./org/vcssl/nano/vm/memory/MemoryAccessException.java
 ./org/vcssl/nano/vm/memory/package-info.java

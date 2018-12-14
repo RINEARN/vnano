@@ -16,9 +16,9 @@ import org.vcssl.nano.interconnect.Interconnect;
 import org.vcssl.nano.lang.AbstractFunction;
 import org.vcssl.nano.lang.DataType;
 import org.vcssl.nano.vm.memory.DataContainer;
-import org.vcssl.nano.vm.memory.DataException;
 import org.vcssl.nano.vm.memory.Memory;
 import org.vcssl.nano.vm.memory.MemoryAccessException;
+import org.vcssl.nano.VnanoSyntaxException;
 
 public class ProcessorTest {
 
@@ -104,7 +104,7 @@ public class ProcessorTest {
 		int programCounter = 10; // 実行時点でのプログラムカウンタの値（実行によって戻り値で更新される）
 		try {
 			programCounter = new Processor().process(instruction, this.memory, this.interconnect, programCounter);
-		} catch (InvalidInstructionException | DataException | MemoryAccessException e) {
+		} catch (InvalidInstructionException | VnanoSyntaxException | MemoryAccessException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occurred");
 		}
@@ -141,7 +141,7 @@ public class ProcessorTest {
 		// 命令列を逐次実行
 		try {
 			new Processor().process(instructions, this.memory, this.interconnect);
-		} catch (InvalidInstructionException | DataException | MemoryAccessException e) {
+		} catch (InvalidInstructionException | VnanoSyntaxException | MemoryAccessException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occurred");
 		}
@@ -175,7 +175,7 @@ public class ProcessorTest {
 		((DataContainer<boolean[]>)this.registers[0]).setData(new boolean[]{ true });  // R0=true
 		try {
 			new Processor().process(instructions, this.memory, this.interconnect);
-		} catch (InvalidInstructionException | DataException | MemoryAccessException e) {
+		} catch (InvalidInstructionException | VnanoSyntaxException | MemoryAccessException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occurred");
 		}
@@ -187,7 +187,7 @@ public class ProcessorTest {
 		((DataContainer<boolean[]>)this.registers[0]).setData(new boolean[]{ false });  // R0=false
 		try {
 			new Processor().process(instructions, this.memory, this.interconnect);
-		} catch (InvalidInstructionException | DataException | MemoryAccessException e) {
+		} catch (InvalidInstructionException | VnanoSyntaxException | MemoryAccessException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occurred");
 		}
@@ -202,7 +202,7 @@ public class ProcessorTest {
 		((DataContainer<boolean[]>)this.registers[0]).setData(new boolean[]{ true });  // R0=true
 		try {
 			new Processor().process(instructions, this.memory, this.interconnect);
-		} catch (InvalidInstructionException | DataException | MemoryAccessException e) {
+		} catch (InvalidInstructionException | VnanoSyntaxException | MemoryAccessException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occurred");
 		}
@@ -236,7 +236,7 @@ public class ProcessorTest {
 		// 命令を実行
 		try {
 			new Processor().process(instructions, this.memory, this.interconnect);
-		} catch (InvalidInstructionException | DataException | MemoryAccessException e) {
+		} catch (InvalidInstructionException | VnanoSyntaxException | MemoryAccessException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occurred");
 		}

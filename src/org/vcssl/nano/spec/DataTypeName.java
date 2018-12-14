@@ -10,7 +10,6 @@ import java.util.HashSet;
 
 import org.vcssl.nano.VnanoSyntaxException;
 import org.vcssl.nano.lang.DataType;
-import org.vcssl.nano.vm.memory.DataException;
 
 /**
  * <p>
