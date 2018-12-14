@@ -14,10 +14,20 @@ package org.vcssl.connect;
  * <p>
  * XFCI 形式の関数プラグインにおいて、実行時に生じた例外をラップし、処理系側に通知するための例外です。
  * </p>
- * 
+ *
  * @author RINEARN (Fumihiro Matsui)
  */
 @SuppressWarnings("serial")
 public class ExternalFunctionException extends Exception {
-
+	public ExternalFunctionException() {
+	}
+	public ExternalFunctionException(Throwable wrappedThrowable) {
+		super(wrappedThrowable);
+	}
+	public ExternalFunctionException(String errorMessage) {
+		super(errorMessage);
+	}
+	public ExternalFunctionException(String errorMessage, Throwable wrappedThrowable) {
+		super(errorMessage, wrappedThrowable);
+	}
 }
