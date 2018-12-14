@@ -10,9 +10,7 @@ import org.vcssl.nano.interconnect.Interconnect;
 import org.vcssl.nano.lang.DataType;
 import org.vcssl.nano.vm.memory.DataContainer;
 import org.vcssl.nano.vm.memory.Memory;
-import org.vcssl.nano.vm.memory.MemoryAccessException;
 import org.vcssl.nano.vm.processor.Instruction;
-import org.vcssl.nano.vm.processor.InvalidInstructionException;
 import org.vcssl.nano.vm.processor.OperationCode;
 import org.vcssl.nano.vm.processor.Processor;
 
@@ -55,7 +53,7 @@ public class AccelerationDispatcher {
 			for (int operandIndex=0; operandIndex<operandLength; operandIndex++) {
 				try {
 					operandContainers[operandIndex] = memory.getDataContainer(partitions[operandIndex], addresses[operandIndex]);
-				} catch (MemoryAccessException e) {
+				} catch (VnanoFatalException e) {
 					// 命令が指しているデータアドレスにアクセスできないのはアセンブラかメモリ初期化の異常
 					throw new VnanoFatalException(e);
 				}
@@ -431,7 +429,7 @@ public class AccelerationDispatcher {
 					this.synchronizer.writeCache();
 					this.allocated = true;
 					return this.nextNode;
-				} catch (VnanoSyntaxException | InvalidInstructionException | MemoryAccessException e) {
+				} catch (VnanoSyntaxException | VnanoFatalException e) {
 					e.printStackTrace();
 					return null;
 				}

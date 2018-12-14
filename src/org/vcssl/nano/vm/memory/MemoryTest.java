@@ -10,6 +10,7 @@ import static org.junit.Assert.*;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.vcssl.nano.VnanoFatalException;
 
 public class MemoryTest {
 
@@ -81,7 +82,7 @@ public class MemoryTest {
 			if (containerA != memory.getDataContainer(partition, 8)) {
 				fail("Incorrect container");
 			}
-		} catch (MemoryAccessException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -92,7 +93,7 @@ public class MemoryTest {
 			if (containerB != memory.getDataContainer(partition, 2)) {
 				fail("Incorrect container");
 			}
-		} catch (MemoryAccessException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -103,7 +104,7 @@ public class MemoryTest {
 			if (containerC != memory.getDataContainer(partition, 1000)) {
 				fail("Incorrect container");
 			}
-		} catch (MemoryAccessException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -114,7 +115,7 @@ public class MemoryTest {
 			if (containerD != memory.getDataContainer(partition, 1001)) {
 				fail("Incorrect container");
 			}
-		} catch (MemoryAccessException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -127,7 +128,7 @@ public class MemoryTest {
 
 				fail("Incorrect container");
 			}
-		} catch (MemoryAccessException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -137,7 +138,7 @@ public class MemoryTest {
 			@SuppressWarnings("unused")
 			DataContainer<?> c = memory.getDataContainer(partition, 2000);
 			fail("Expected exception did not occured");
-		} catch (MemoryAccessException e) {
+		} catch (VnanoFatalException e) {
 			// 例外が発生するのが正しい挙動
 		}
 	}

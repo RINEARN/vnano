@@ -13,7 +13,6 @@ import org.vcssl.nano.VnanoSyntaxException;
 import org.vcssl.nano.lang.AbstractFunction;
 import org.vcssl.nano.lang.DataType;
 import org.vcssl.nano.vm.memory.DataContainer;
-import org.vcssl.nano.vm.memory.DataConverter;
 
 /**
  * <p>

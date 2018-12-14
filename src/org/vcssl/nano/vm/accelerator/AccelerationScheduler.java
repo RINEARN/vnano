@@ -14,7 +14,6 @@ import org.vcssl.nano.VnanoFatalException;
 import org.vcssl.nano.lang.DataType;
 import org.vcssl.nano.vm.memory.DataContainer;
 import org.vcssl.nano.vm.memory.Memory;
-import org.vcssl.nano.vm.memory.MemoryAccessException;
 import org.vcssl.nano.vm.processor.Instruction;
 import org.vcssl.nano.vm.processor.OperationCode;
 
@@ -253,12 +252,7 @@ public class AccelerationScheduler {
 
 			DataContainer<?>[] containers = new DataContainer[operandLength];
 			for (int operandIndex=0; operandIndex<operandLength; operandIndex++) {
-				try {
-					containers[operandIndex] = memory.getDataContainer(partitions[operandIndex], addresses[operandIndex]);
-				} catch (MemoryAccessException e) {
-					// オペランドに指定されているメモリ領域にアクセスできないのはアセンブラかメモリ初期化処理の異常
-					throw new VnanoFatalException(e);
-				}
+				containers[operandIndex] = memory.getDataContainer(partitions[operandIndex], addresses[operandIndex]);
 			}
 
 
@@ -501,15 +495,10 @@ public class AccelerationScheduler {
 
 				// ジャンプ先アドレスの値を格納するオペランドのデータコンテナをメモリから取得
 				DataContainer<?> addressContiner = null;
-				try {
-					addressContiner = memory.getDataContainer(
-							instruction.getOperandPartitions()[1],
-							instruction.getOperandAddresses()[1]
-					);
-				} catch (MemoryAccessException e) {
-					// ジャンプ先アドレスを格納する定数にアクセスできないのは、アセンブラかメモリ初期化の異常
-					throw new VnanoFatalException(e);
-				}
+				addressContiner = memory.getDataContainer(
+						instruction.getOperandPartitions()[1],
+						instruction.getOperandAddresses()[1]
+				);
 
 				// データコンテナからジャンプ先アドレスの値を読む
 				int jumpAddress = -1;

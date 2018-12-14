@@ -22,6 +22,7 @@
 ./org/vcssl/nano/compiler/Parser.java
 ./org/vcssl/nano/compiler/SemanticAnalyzer.java
 ./org/vcssl/nano/compiler/Token.java
+./org/vcssl/nano/interconnect/DataConverter.java
 ./org/vcssl/nano/interconnect/Interconnect.java
 ./org/vcssl/nano/interconnect/package-info.java
 ./org/vcssl/nano/interconnect/Xfci1FunctionAdapter.java
@@ -102,14 +103,11 @@
 ./org/vcssl/nano/vm/assembler/Assembler.java
 ./org/vcssl/nano/vm/assembler/package-info.java
 ./org/vcssl/nano/vm/memory/DataContainer.java
-./org/vcssl/nano/vm/memory/DataConverter.java
 ./org/vcssl/nano/vm/memory/Memory.java
-./org/vcssl/nano/vm/memory/MemoryAccessException.java
 ./org/vcssl/nano/vm/memory/package-info.java
 ./org/vcssl/nano/vm/processor/DispatchUnit.java
 ./org/vcssl/nano/vm/processor/ExecutionUnit.java
 ./org/vcssl/nano/vm/processor/Instruction.java
-./org/vcssl/nano/vm/processor/InvalidInstructionException.java
 ./org/vcssl/nano/vm/processor/OperationCode.java
 ./org/vcssl/nano/vm/processor/package-info.java
 ./org/vcssl/nano/vm/processor/Processable.java

@@ -6,23 +6,20 @@
 package org.vcssl.nano.vm;
 
 import org.vcssl.nano.VnanoSyntaxException;
+import org.vcssl.nano.interconnect.DataConverter;
 import org.vcssl.nano.interconnect.Interconnect;
 import org.vcssl.nano.vm.accelerator.Accelerator;
 import org.vcssl.nano.vm.assembler.Assembler;
 import org.vcssl.nano.vm.memory.DataContainer;
-import org.vcssl.nano.vm.memory.DataConverter;
 import org.vcssl.nano.vm.memory.Memory;
-import org.vcssl.nano.vm.memory.MemoryAccessException;
 import org.vcssl.nano.vm.processor.Instruction;
-import org.vcssl.nano.vm.processor.InvalidInstructionException;
 import org.vcssl.nano.vm.processor.Processor;
 
 public class VirtualMachine {
 
 	private boolean acceleratorEnabled = true;
 
-	public Object eval(String assemblyCode, Interconnect interconnect)
-			throws VnanoSyntaxException, MemoryAccessException, InvalidInstructionException {
+	public Object eval(String assemblyCode, Interconnect interconnect) throws VnanoSyntaxException {
 
 		// アセンブラで中間アセンブリコード（VRILコード）から実行用の中間コードに変換
 		Assembler assembler = new Assembler();
@@ -52,8 +49,7 @@ public class VirtualMachine {
 
 
 
-	private Object getEvaluatedValue(Memory memory, VirtualMachineObjectCode intermediateCode)
-			throws MemoryAccessException, VnanoSyntaxException {
+	private Object getEvaluatedValue(Memory memory, VirtualMachineObjectCode intermediateCode) throws VnanoSyntaxException {
 
 		if (intermediateCode.hasEvalValue()) {
 			int evalValueAddress = intermediateCode.getEvalValueAddress();

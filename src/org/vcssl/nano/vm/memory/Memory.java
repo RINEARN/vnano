@@ -15,6 +15,7 @@ import org.vcssl.nano.spec.DataTypeName;
 import org.vcssl.nano.spec.ErrorType;
 import org.vcssl.nano.spec.LiteralSyntax;
 import org.vcssl.nano.vm.VirtualMachineObjectCode;
+import org.vcssl.nano.VnanoFatalException;
 import org.vcssl.nano.VnanoRuntimeException;
 import org.vcssl.nano.VnanoSyntaxException;
 import org.vcssl.nano.lang.AbstractVariable;
@@ -154,16 +155,15 @@ public final class Memory {
 	 * @param partition 対象データコンテナが属するパーティション
 	 * @param address 対象のデータコンテナのアドレス
 	 * @return 取得したデータコンテナ
-	 * @throws MemoryAccessException
+	 * @throws VnanoFatalException
 	 * 		指定されたアドレスが、使用領域外であった場合にスローされます。
 	 */
-	public DataContainer<?> getDataContainer(Partition partition, int address) throws MemoryAccessException {
+	public DataContainer<?> getDataContainer(Partition partition, int address) {
 		List<DataContainer<?>> list = this.containerListMap.get(partition);
 		try {
 			return list.get(address);
 		} catch (IndexOutOfBoundsException e){
-			throw new MemoryAccessException(
-					MemoryAccessException.ADDRESS_OUT_OF_BOUNDS, partition, address);
+			throw new VnanoFatalException("Address " + address + " is out of bounds of the " + partition + " partition.");
 		}
 	}
 
