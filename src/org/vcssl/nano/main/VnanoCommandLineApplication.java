@@ -424,46 +424,55 @@ public final class VnanoCommandLineApplication {
 		if (dumpTarget == null) {
 			dumpTarget = DUMP_TARGET_DEFAULT;
 		}
-		switch (dumpTarget) {
-			case DUMP_TARGET_INPUT_CODE : {
-				this.dump(inputFilePath, false, true, false, false, false, false, false);
-				return;
+		try {
+			switch (dumpTarget) {
+				case DUMP_TARGET_INPUT_CODE : {
+					this.dump(inputFilePath, false, true, false, false, false, false, false);
+					return;
+				}
+				case DUMP_TARGET_TOKEN : {
+					this.dump(inputFilePath, false, false, true, false, false, false, false);
+					return;
+				}
+				case DUMP_TARGET_PARSED_AST : {
+					this.dump(inputFilePath, false, false, false, true, false, false, false);
+					return;
+				}
+				case DUMP_TARGET_ANALYZED_AST : {
+					this.dump(inputFilePath, false, false, false, false, true, false, false);
+					return;
+				}
+				case DUMP_TARGET_ASSEMBLY_CODE : {
+					this.dump(inputFilePath, false, false, false, false, false, true, false);
+					return;
+				}
+				case DUMP_TARGET_OBJECT_CODE : {
+					this.dump(inputFilePath, false, false, false, false, false, false, true);
+					return;
+				}
+				case DUMP_TARGET_ALL : {
+					this.dump(inputFilePath, true, true, true, true, true, true, true);
+					return;
+				}
+				default : {
+					System.err.println("Fatal error: invalid dump target: " + dumpTarget);
+					return;
+				}
 			}
-			case DUMP_TARGET_TOKEN : {
-				this.dump(inputFilePath, false, false, true, false, false, false, false);
-				return;
-			}
-			case DUMP_TARGET_PARSED_AST : {
-				this.dump(inputFilePath, false, false, false, true, false, false, false);
-				return;
-			}
-			case DUMP_TARGET_ANALYZED_AST : {
-				this.dump(inputFilePath, false, false, false, false, true, false, false);
-				return;
-			}
-			case DUMP_TARGET_ASSEMBLY_CODE : {
-				this.dump(inputFilePath, false, false, false, false, false, true, false);
-				return;
-			}
-			case DUMP_TARGET_OBJECT_CODE : {
-				this.dump(inputFilePath, false, false, false, false, false, false, true);
-				return;
-			}
-			case DUMP_TARGET_ALL : {
-				this.dump(inputFilePath, true, true, true, true, true, true, true);
-				return;
-			}
-			default : {
-				System.err.println("Fatal error: invalid dump target: " + dumpTarget);
-				return;
-			}
+		} catch (VnanoException e) {
+			e.printStackTrace();
+			return;
 		}
 	}
 
 
 	private void dump(String inputFilePath, boolean withHeader, boolean dumpInputCode,
 			boolean dumpTokens, boolean dumpParsedAst, boolean dumpAnalyzedAst,
-			boolean dumpAssemblyCode, boolean dumpObjectCode) {
+			boolean dumpAssemblyCode, boolean dumpObjectCode) throws VnanoException {
+
+		// 入力ファイルの分類：中間アセンブリコード（VRILコード）の場合はコンパイル済みなので、後工程のみダンプする
+		boolean inputIsAssemblyCode = inputFilePath.endsWith(EXTENSION_VRIL);
+		boolean inputIsScriptCode   = inputFilePath.endsWith(EXTENSION_VNANO);
 
 		// ファイルからスクリプトコードを全部読み込む
 		String inputCode = this.loadCode(inputFilePath);
@@ -495,8 +504,17 @@ public final class VnanoCommandLineApplication {
 			System.out.println(inputCode);
 		}
 
+		// コンパイル結果である中間アセンブリコードを控える
+		String assemblyCode = null;
 
-		try {
+		// 入力が中間アセンブリコードである場合は、上の変数を入力コードでそのまま上書き
+		if (inputIsAssemblyCode) {
+			assemblyCode = inputCode;
+		}
+
+		// 入力がスクリプトコードである場合は、コンパイラでアセンブリコードに変換し、その過程も逐次ダンプする
+		if (inputIsScriptCode) {
+
 			// 字句解析器でトークンを生成
 			Token[] tokens = new LexicalAnalyzer().analyze(inputCode, inputFilePath);
 
@@ -548,7 +566,7 @@ public final class VnanoCommandLineApplication {
 			}
 
 			// ASTから中間アセンブリコード（VRILコード）を生成
-			String assemblyCode = new CodeGenerator().generate(analyzedNode);
+			assemblyCode = new CodeGenerator().generate(analyzedNode);
 
 			// 中間アセンブリコードをダンプ
 			if (dumpAssemblyCode) {
@@ -562,32 +580,29 @@ public final class VnanoCommandLineApplication {
 				}
 				System.out.println(assemblyCode);
 			}
-
-			// 生成した中間アセンブリコード（VRILコード）をアセンブルし、VM用オブジェクトコードを生成
-			VirtualMachineObjectCode vmObjectCode = new Assembler().assemble(assemblyCode, interconnect);
-
-			// VMオブジェクトコードをダンプ
-			if (dumpObjectCode) {
-				if (withHeader) {
-					System.out.println("");
-					System.out.println("================================================================================");
-					System.out.println("= VM Object Code");
-					System.out.println("= - Output of: org.vcssl.nano.vm.assembler.Assembler");
-					System.out.println("================================================================================");
-				}
-				vmObjectCode.dump();
-			}
-
-			if (withHeader) {
-				System.out.println("================================================================================");
-				System.out.println("= DUMP END");
-				System.out.println("================================================================================");
-			}
-
-		} catch (VnanoException e) {
-			e.printStackTrace();
-			return;
 		}
+
+		// 中間アセンブリコード（VRILコード）をアセンブルし、VM用オブジェクトコードを生成
+		VirtualMachineObjectCode vmObjectCode = new Assembler().assemble(assemblyCode, interconnect);
+
+		// VMオブジェクトコードをダンプ
+		if (dumpObjectCode) {
+			if (withHeader) {
+				System.out.println("");
+				System.out.println("================================================================================");
+				System.out.println("= VM Object Code");
+				System.out.println("= - Output of: org.vcssl.nano.vm.assembler.Assembler");
+				System.out.println("================================================================================");
+			}
+			vmObjectCode.dump();
+		}
+
+		if (withHeader) {
+			System.out.println("================================================================================");
+			System.out.println("= DUMP END");
+			System.out.println("================================================================================");
+		}
+
 	}
 
 	private void executeFile(String inputFilePath) {
