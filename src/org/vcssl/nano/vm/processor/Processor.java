@@ -5,8 +5,8 @@
 
 package org.vcssl.nano.vm.processor;
 
+import org.vcssl.nano.VnanoSyntaxException;
 import org.vcssl.nano.interconnect.Interconnect;
-import org.vcssl.nano.vm.memory.DataException;
 import org.vcssl.nano.vm.memory.Memory;
 import org.vcssl.nano.vm.memory.MemoryAccessException;
 
@@ -118,7 +118,7 @@ public class Processor implements Processable {
 	 * @throws MemoryAccessException 仮想メモリーへのアクセスに異常があった場合にスローされます。
 	 */
 	public void process(Instruction[] instructions, Memory memory, Interconnect interconnect)
-			throws InvalidInstructionException, DataException, MemoryAccessException {
+			throws VnanoSyntaxException, InvalidInstructionException, MemoryAccessException {
 
 		// 加減算やその他様々な演算処理を行う演算ユニット
 		ExecutionUnit executionUnit = new ExecutionUnit();
@@ -155,7 +155,7 @@ public class Processor implements Processable {
 	 * @throws MemoryAccessException 仮想メモリーへのアクセスに異常があった場合にスローされます。
 	 */
 	public int process(Instruction instruction, Memory memory, Interconnect interconnect, int programCounter)
-			throws InvalidInstructionException, DataException, MemoryAccessException {
+			throws VnanoSyntaxException, InvalidInstructionException, MemoryAccessException {
 
 		// 加減算やその他様々な演算処理を行う演算ユニット
 		ExecutionUnit executionUnit = new ExecutionUnit();

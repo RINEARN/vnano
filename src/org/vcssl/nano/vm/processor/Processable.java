@@ -5,17 +5,17 @@
 
 package org.vcssl.nano.vm.processor;
 
+import org.vcssl.nano.VnanoSyntaxException;
 import org.vcssl.nano.interconnect.Interconnect;
-import org.vcssl.nano.vm.memory.DataException;
 import org.vcssl.nano.vm.memory.Memory;
 import org.vcssl.nano.vm.memory.MemoryAccessException;
 
 public interface Processable {
 
 	public void process(Instruction[] instructions, Memory memory, Interconnect interconnect)
-			throws InvalidInstructionException, DataException, MemoryAccessException;
+			throws VnanoSyntaxException, InvalidInstructionException, MemoryAccessException;
 
 	public int process(Instruction instruction, Memory memory, Interconnect interconnect, int programCounter)
-			throws InvalidInstructionException, DataException, MemoryAccessException;
+			throws VnanoSyntaxException, InvalidInstructionException, MemoryAccessException;
 
 }

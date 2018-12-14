@@ -55,6 +55,12 @@ public class ErrorMessage {
 			case NO_BLOCK_AFTER_CONTROL_STATEMENT : return "この言語では、" + words[0] + " 文には常にブロック {...} が必要です";
 			case UNKNOWN_DATA_TYPE : return "存在しないデータ型「 " + words[0] + " 」を使用しています。";
 			case INVALID_IMMEDIATE_VALUE : return "解釈できないリテラルまたは即値「 " + words[0] + " 」が記述されています。";
+			case UNCONVERTIBLE_DATA_TYPE : return "外部のデータ型「 " + words[0] + " 」は、このスクリプトエンジンがサポートしているデータ型に変換できません。" ;
+			case UNCONVERTIBLE_ARRAY : return "外部の配列型「 " + words[0] + " 」は、次元数またはデータ型などの問題で、このスクリプトエンジンでは扱えません。" ;
+			case UNCONVERTIBLE_INTERNAL_ARRAY : return "スクリプト内の配列型「 " + words[0] + " 」は、次元数またはデータ型などの問題で、スクリプトエンジン外部のデータ型に変換できません。" ;
+			case JAGGED_ARRAY : return "長さが異なる配列をまとめた配列、いわゆるジャグ配列は、このスクリプトエンジンでは扱えません。";
+			case CAST_FAILED_DUE_TO_VALUE : return "データ「 " + words[0] + " 」の「 " + words[1] + " 」型への変換に失敗しました。";
+			case CAST_FAILED_DUE_TO_TYPE : return words[0] + "型のデータの「 " + words[1] + " 」型への変換に失敗しました。";
 			case UNKNOWN : return "不明なエラー";
 			default : return "不明なエラー種類：" + errorType;
 		}
@@ -87,6 +93,12 @@ public class ErrorMessage {
 			case NO_BLOCK_AFTER_CONTROL_STATEMENT : return "A block {...} is always necessary for the " + words[0] + "statement in this language" ;
 			case UNKNOWN_DATA_TYPE : return "Unknown data type \"" + words[0] + "\" is used";
 			case INVALID_IMMEDIATE_VALUE : return "Invalid immediate value or literal \"" + words[0] + "\" is described.";
+			case UNCONVERTIBLE_DATA_TYPE : return "External data type \"" + words[0] + "\" is not convertible to supported data types in this script engine." ;
+			case UNCONVERTIBLE_ARRAY : return "External array type \"" + words[0] + "\" is not convertible to supported array in this script engine due to the number of dimensions or the type-convertibility" ;
+			case UNCONVERTIBLE_INTERNAL_ARRAY : return "Internal array type \"" + words[0] + "\" is not convertible to external array types due to the number of dimensions or the type-convertibility" ;
+			case JAGGED_ARRAY : return "Jagged array (the array having arrays as elements and array-lengths of elements are different each other) is not available for this script engine.";
+			case CAST_FAILED_DUE_TO_VALUE : return "Cast operation of the data \"" + words[0] + "\" to \"" + words[1] + "\" type has failed.";
+			case CAST_FAILED_DUE_TO_TYPE : return "Cast operation from \"" + words[0] + "\" type to \"" + words[1] + "\" type has failed.";
 			case UNKNOWN : return "Unknown Error";
 			default : return "Unknown Error Type：" + errorType;
 		}

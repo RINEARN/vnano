@@ -24,7 +24,6 @@ import org.vcssl.nano.spec.ErrorType;
 import org.vcssl.nano.spec.IdentifierSyntax;
 import org.vcssl.nano.spec.LiteralSyntax;
 import org.vcssl.nano.spec.ScriptWord;
-import org.vcssl.nano.vm.memory.DataException;
 
 
 /**
@@ -57,7 +56,7 @@ public class SemanticAnalyzer {
 	 * @throws VnanoSyntaxException 存在しない変数を参照している場合に発生します。
 	 */
 	public AstNode analyze(AstNode inputAst, Interconnect interconnect)
-			throws VnanoSyntaxException, DataException {
+			throws VnanoSyntaxException {
 
 		// インターコネクトから外部変数・外部関数のテーブルを取得
 		VariableTable globalVariableTable = interconnect.getGlobalVariableTable();
@@ -94,7 +93,7 @@ public class SemanticAnalyzer {
 	 * @throws VnanoSyntaxException 存在しない変数を参照している場合にスローされます。
 	 */
 	private void supplementLeafAttributes(AstNode astRootNode, VariableTable globalVariableTable)
-			throws VnanoSyntaxException, DataException {
+			throws VnanoSyntaxException {
 
 		if (!astRootNode.hasChildNodes()) {
 			return;

@@ -12,7 +12,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.vcssl.nano.lang.DataType;
 import org.vcssl.nano.vm.memory.DataContainer;
-import org.vcssl.nano.vm.memory.DataException;
+import org.vcssl.nano.VnanoFatalException;
+import org.vcssl.nano.VnanoSyntaxException;
 
 public class ExecutionUnitTest {
 
@@ -256,7 +257,7 @@ public class ExecutionUnitTest {
 		// 演算を実行
 		try {
 			new ExecutionUnit().add(DataType.INT64, output, inputA, inputB);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -275,7 +276,7 @@ public class ExecutionUnitTest {
 		inputB.setOffset(1);
 		try {
 			new ExecutionUnit().add(DataType.INT64, output, inputA, inputB);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -308,7 +309,7 @@ public class ExecutionUnitTest {
 		// 演算を実行
 		try {
 			new ExecutionUnit().add(DataType.INT64, output, inputA, inputB);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -337,7 +338,7 @@ public class ExecutionUnitTest {
 		// 演算を実行
 		try {
 			new ExecutionUnit().add(DataType.FLOAT64, output, inputA, inputB);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -356,7 +357,7 @@ public class ExecutionUnitTest {
 		inputB.setOffset(1);
 		try {
 			new ExecutionUnit().add(DataType.FLOAT64, output, inputA, inputB);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -389,7 +390,7 @@ public class ExecutionUnitTest {
 		// 演算を実行
 		try {
 			new ExecutionUnit().add(DataType.FLOAT64, output, inputA, inputB);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -418,7 +419,7 @@ public class ExecutionUnitTest {
 		// 演算を実行
 		try {
 			new ExecutionUnit().add(DataType.STRING, output, inputA, inputB);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -437,7 +438,7 @@ public class ExecutionUnitTest {
 		inputB.setOffset(1);
 		try {
 			new ExecutionUnit().add(DataType.STRING, output, inputA, inputB);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -470,7 +471,7 @@ public class ExecutionUnitTest {
 		// 演算を実行
 		try {
 			new ExecutionUnit().add(DataType.STRING, output, inputA, inputB);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -503,7 +504,7 @@ public class ExecutionUnitTest {
 		try {
 			new ExecutionUnit().add(DataType.BOOL, output, inputA, inputB);
 			fail("Expected exception did not occured");
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			// 例外が発生するのが正しい挙動
 		}
 
@@ -511,19 +512,19 @@ public class ExecutionUnitTest {
 		try {
 			new ExecutionUnit().add(DataType.INT64, output, inputA, inputB);
 			fail("Expected exception did not occured");
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			// 例外が発生するのが正しい挙動
 		}
 		try {
 			new ExecutionUnit().add(DataType.FLOAT64, output, inputA, inputB);
 			fail("Expected exception did not occured");
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			// 例外が発生するのが正しい挙動
 		}
 		try {
 			new ExecutionUnit().add(DataType.STRING, output, inputA, inputB);
 			fail("Expected exception did not occured");
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			// 例外が発生するのが正しい挙動
 		}
 	}
@@ -553,7 +554,7 @@ public class ExecutionUnitTest {
 		// 演算を実行
 		try {
 			new ExecutionUnit().sub(DataType.INT64, output, inputA, inputB);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -572,7 +573,7 @@ public class ExecutionUnitTest {
 		inputB.setOffset(1);
 		try {
 			new ExecutionUnit().sub(DataType.INT64, output, inputA, inputB);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -605,7 +606,7 @@ public class ExecutionUnitTest {
 		// 演算を実行
 		try {
 			new ExecutionUnit().sub(DataType.INT64, output, inputA, inputB);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -633,7 +634,7 @@ public class ExecutionUnitTest {
 		// 演算を実行
 		try {
 			new ExecutionUnit().sub(DataType.FLOAT64, output, inputA, inputB);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -652,7 +653,7 @@ public class ExecutionUnitTest {
 		inputB.setOffset(1);
 		try {
 			new ExecutionUnit().sub(DataType.FLOAT64, output, inputA, inputB);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -685,7 +686,7 @@ public class ExecutionUnitTest {
 		// 演算を実行
 		try {
 			new ExecutionUnit().sub(DataType.FLOAT64, output, inputA, inputB);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -714,7 +715,7 @@ public class ExecutionUnitTest {
 		try {
 			new ExecutionUnit().sub(DataType.BOOL, output, inputA, inputB);
 			fail("Expected exception did not occured");
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			// 例外が発生するのが正しい挙動
 		}
 
@@ -722,13 +723,13 @@ public class ExecutionUnitTest {
 		try {
 			new ExecutionUnit().sub(DataType.INT64, output, inputA, inputB);
 			fail("Expected exception did not occured");
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			// 例外が発生するのが正しい挙動
 		}
 		try {
 			new ExecutionUnit().sub(DataType.FLOAT64, output, inputA, inputB);
 			fail("Expected exception did not occured");
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			// 例外が発生するのが正しい挙動
 		}
 	}
@@ -758,7 +759,7 @@ public class ExecutionUnitTest {
 		// 演算を実行
 		try {
 			new ExecutionUnit().mul(DataType.INT64, output, inputA, inputB);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -777,7 +778,7 @@ public class ExecutionUnitTest {
 		inputB.setOffset(1);
 		try {
 			new ExecutionUnit().mul(DataType.INT64, output, inputA, inputB);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -810,7 +811,7 @@ public class ExecutionUnitTest {
 		// 演算を実行
 		try {
 			new ExecutionUnit().mul(DataType.INT64, output, inputA, inputB);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -838,7 +839,7 @@ public class ExecutionUnitTest {
 		// 演算を実行
 		try {
 			new ExecutionUnit().mul(DataType.FLOAT64, output, inputA, inputB);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -857,7 +858,7 @@ public class ExecutionUnitTest {
 		inputB.setOffset(1);
 		try {
 			new ExecutionUnit().mul(DataType.FLOAT64, output, inputA, inputB);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -890,7 +891,7 @@ public class ExecutionUnitTest {
 		// 演算を実行
 		try {
 			new ExecutionUnit().mul(DataType.FLOAT64, output, inputA, inputB);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -920,7 +921,7 @@ public class ExecutionUnitTest {
 		try {
 			new ExecutionUnit().mul(DataType.BOOL, output, inputA, inputB);
 			fail("Expected exception did not occured");
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			// 例外が発生するのが正しい挙動
 		}
 
@@ -928,13 +929,13 @@ public class ExecutionUnitTest {
 		try {
 			new ExecutionUnit().mul(DataType.INT64, output, inputA, inputB);
 			fail("Expected exception did not occured");
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			// 例外が発生するのが正しい挙動
 		}
 		try {
 			new ExecutionUnit().mul(DataType.FLOAT64, output, inputA, inputB);
 			fail("Expected exception did not occured");
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			// 例外が発生するのが正しい挙動
 		}
 	}
@@ -964,7 +965,7 @@ public class ExecutionUnitTest {
 		// 演算を実行
 		try {
 			new ExecutionUnit().div(DataType.INT64, output, inputA, inputB);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -983,7 +984,7 @@ public class ExecutionUnitTest {
 		inputB.setOffset(1);
 		try {
 			new ExecutionUnit().div(DataType.INT64, output, inputA, inputB);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -1016,7 +1017,7 @@ public class ExecutionUnitTest {
 		// 演算を実行
 		try {
 			new ExecutionUnit().div(DataType.INT64, output, inputA, inputB);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -1046,7 +1047,7 @@ public class ExecutionUnitTest {
 		// 演算を実行
 		try {
 			new ExecutionUnit().div(DataType.FLOAT64, output, inputA, inputB);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -1065,7 +1066,7 @@ public class ExecutionUnitTest {
 		inputB.setOffset(1);
 		try {
 			new ExecutionUnit().div(DataType.FLOAT64, output, inputA, inputB);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -1098,7 +1099,7 @@ public class ExecutionUnitTest {
 		// 演算を実行
 		try {
 			new ExecutionUnit().div(DataType.FLOAT64, output, inputA, inputB);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -1128,7 +1129,7 @@ public class ExecutionUnitTest {
 		try {
 			new ExecutionUnit().div(DataType.BOOL, output, inputA, inputB);
 			fail("Expected exception did not occured");
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			// 例外が発生するのが正しい挙動
 		}
 
@@ -1136,13 +1137,13 @@ public class ExecutionUnitTest {
 		try {
 			new ExecutionUnit().div(DataType.INT64, output, inputA, inputB);
 			fail("Expected exception did not occured");
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			// 例外が発生するのが正しい挙動
 		}
 		try {
 			new ExecutionUnit().div(DataType.FLOAT64, output, inputA, inputB);
 			fail("Expected exception did not occured");
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			// 例外が発生するのが正しい挙動
 		}
 	}
@@ -1172,7 +1173,7 @@ public class ExecutionUnitTest {
 		// 演算を実行
 		try {
 			new ExecutionUnit().rem(DataType.INT64, output, inputA, inputB);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -1191,7 +1192,7 @@ public class ExecutionUnitTest {
 		inputB.setOffset(1);
 		try {
 			new ExecutionUnit().rem(DataType.INT64, output, inputA, inputB);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -1224,7 +1225,7 @@ public class ExecutionUnitTest {
 		// 演算を実行
 		try {
 			new ExecutionUnit().rem(DataType.INT64, output, inputA, inputB);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -1254,7 +1255,7 @@ public class ExecutionUnitTest {
 		// 演算を実行
 		try {
 			new ExecutionUnit().rem(DataType.FLOAT64, output, inputA, inputB);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -1273,7 +1274,7 @@ public class ExecutionUnitTest {
 		inputB.setOffset(1);
 		try {
 			new ExecutionUnit().rem(DataType.FLOAT64, output, inputA, inputB);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -1306,7 +1307,7 @@ public class ExecutionUnitTest {
 		// 演算を実行
 		try {
 			new ExecutionUnit().rem(DataType.FLOAT64, output, inputA, inputB);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -1341,7 +1342,7 @@ public class ExecutionUnitTest {
 		try {
 			new ExecutionUnit().rem(DataType.BOOL, output, inputA, inputB);
 			fail("Expected exception did not occured");
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			// 例外が発生するのが正しい挙動
 		}
 
@@ -1349,13 +1350,13 @@ public class ExecutionUnitTest {
 		try {
 			new ExecutionUnit().rem(DataType.INT64, output, inputA, inputB);
 			fail("Expected exception did not occured");
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			// 例外が発生するのが正しい挙動
 		}
 		try {
 			new ExecutionUnit().rem(DataType.FLOAT64, output, inputA, inputB);
 			fail("Expected exception did not occured");
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			// 例外が発生するのが正しい挙動
 		}
 	}
@@ -1383,7 +1384,7 @@ public class ExecutionUnitTest {
 		// 演算を実行
 		try {
 			new ExecutionUnit().neg(DataType.INT64, output, input);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -1400,7 +1401,7 @@ public class ExecutionUnitTest {
 		input.setOffset(1);
 		try {
 			new ExecutionUnit().neg(DataType.INT64, output, input);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -1429,7 +1430,7 @@ public class ExecutionUnitTest {
 		// 演算を実行
 		try {
 			new ExecutionUnit().neg(DataType.INT64, output, input);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -1455,7 +1456,7 @@ public class ExecutionUnitTest {
 		// 演算を実行
 		try {
 			new ExecutionUnit().neg(DataType.FLOAT64, output, input);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -1472,7 +1473,7 @@ public class ExecutionUnitTest {
 		input.setOffset(1);
 		try {
 			new ExecutionUnit().neg(DataType.FLOAT64, output, input);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -1501,7 +1502,7 @@ public class ExecutionUnitTest {
 		// 演算を実行
 		try {
 			new ExecutionUnit().neg(DataType.FLOAT64, output, input);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -1528,7 +1529,7 @@ public class ExecutionUnitTest {
 		try {
 			new ExecutionUnit().neg(DataType.BOOL, output, input);
 			fail("Expected exception did not occured");
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			// 例外が発生するのが正しい挙動
 		}
 
@@ -1536,13 +1537,13 @@ public class ExecutionUnitTest {
 		try {
 			new ExecutionUnit().neg(DataType.INT64, output, input);
 			fail("Expected exception did not occured");
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			// 例外が発生するのが正しい挙動
 		}
 		try {
 			new ExecutionUnit().neg(DataType.FLOAT64, output, input);
 			fail("Expected exception did not occured");
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			// 例外が発生するのが正しい挙動
 		}
 	}
@@ -1572,7 +1573,7 @@ public class ExecutionUnitTest {
 		// 演算を実行
 		try {
 			new ExecutionUnit().eq(DataType.INT64, output, inputA, inputB);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -1585,7 +1586,7 @@ public class ExecutionUnitTest {
 		// オペランドを変えて演算を実行
 		try {
 			new ExecutionUnit().eq(DataType.INT64, output, inputA, inputA);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -1604,7 +1605,7 @@ public class ExecutionUnitTest {
 		inputB.setOffset(1);
 		try {
 			new ExecutionUnit().eq(DataType.INT64, output, inputA, inputB);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -1613,7 +1614,7 @@ public class ExecutionUnitTest {
 		}
 		try {
 			new ExecutionUnit().eq(DataType.INT64, output, inputA, inputA);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -1646,7 +1647,7 @@ public class ExecutionUnitTest {
 		// 演算を実行
 		try {
 			new ExecutionUnit().eq(DataType.INT64, output, inputA, inputB);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -1675,7 +1676,7 @@ public class ExecutionUnitTest {
 		// 演算を実行
 		try {
 			new ExecutionUnit().eq(DataType.FLOAT64, output, inputA, inputB);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -1688,7 +1689,7 @@ public class ExecutionUnitTest {
 		// オペランドを変えて演算を実行
 		try {
 			new ExecutionUnit().eq(DataType.FLOAT64, output, inputA, inputA);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -1707,7 +1708,7 @@ public class ExecutionUnitTest {
 		inputB.setOffset(1);
 		try {
 			new ExecutionUnit().eq(DataType.FLOAT64, output, inputA, inputB);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -1716,7 +1717,7 @@ public class ExecutionUnitTest {
 		}
 		try {
 			new ExecutionUnit().eq(DataType.FLOAT64, output, inputA, inputA);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -1749,7 +1750,7 @@ public class ExecutionUnitTest {
 		// 演算を実行
 		try {
 			new ExecutionUnit().eq(DataType.FLOAT64, output, inputA, inputB);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -1778,7 +1779,7 @@ public class ExecutionUnitTest {
 		// 演算を実行
 		try {
 			new ExecutionUnit().eq(DataType.STRING, output, inputA, inputB);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -1791,7 +1792,7 @@ public class ExecutionUnitTest {
 		// オペランドを変えて演算を実行
 		try {
 			new ExecutionUnit().eq(DataType.STRING, output, inputA, inputA);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -1810,7 +1811,7 @@ public class ExecutionUnitTest {
 		inputB.setOffset(1);
 		try {
 			new ExecutionUnit().eq(DataType.STRING, output, inputA, inputB);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -1819,7 +1820,7 @@ public class ExecutionUnitTest {
 		}
 		try {
 			new ExecutionUnit().eq(DataType.STRING, output, inputA, inputA);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -1852,7 +1853,7 @@ public class ExecutionUnitTest {
 		// 演算を実行
 		try {
 			new ExecutionUnit().eq(DataType.STRING, output, inputA, inputB);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -1881,7 +1882,7 @@ public class ExecutionUnitTest {
 		// 演算を実行
 		try {
 			new ExecutionUnit().eq(DataType.BOOL, output, inputA, inputB);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -1894,7 +1895,7 @@ public class ExecutionUnitTest {
 		// オペランドを変えて演算を実行
 		try {
 			new ExecutionUnit().eq(DataType.BOOL, output, inputA, inputA);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -1913,7 +1914,7 @@ public class ExecutionUnitTest {
 		inputB.setOffset(1);
 		try {
 			new ExecutionUnit().eq(DataType.BOOL, output, inputA, inputB);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -1922,7 +1923,7 @@ public class ExecutionUnitTest {
 		}
 		try {
 			new ExecutionUnit().eq(DataType.BOOL, output, inputA, inputA);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -1955,7 +1956,7 @@ public class ExecutionUnitTest {
 		// 演算を実行
 		try {
 			new ExecutionUnit().eq(DataType.BOOL, output, inputA, inputB);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -1984,7 +1985,7 @@ public class ExecutionUnitTest {
 		try {
 			new ExecutionUnit().eq(DataType.VOID, output, inputA, inputB);
 			fail("Expected exception did not occured");
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			// 例外が発生するのが正しい挙動
 		}
 	}
@@ -2014,7 +2015,7 @@ public class ExecutionUnitTest {
 		// 演算を実行
 		try {
 			new ExecutionUnit().neq(DataType.INT64, output, inputA, inputB);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -2027,7 +2028,7 @@ public class ExecutionUnitTest {
 		// オペランドを変えて演算を実行
 		try {
 			new ExecutionUnit().neq(DataType.INT64, output, inputA, inputA);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -2046,7 +2047,7 @@ public class ExecutionUnitTest {
 		inputB.setOffset(1);
 		try {
 			new ExecutionUnit().neq(DataType.INT64, output, inputA, inputB);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -2055,7 +2056,7 @@ public class ExecutionUnitTest {
 		}
 		try {
 			new ExecutionUnit().neq(DataType.INT64, output, inputA, inputA);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -2088,7 +2089,7 @@ public class ExecutionUnitTest {
 		// 演算を実行
 		try {
 			new ExecutionUnit().neq(DataType.INT64, output, inputA, inputB);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -2116,7 +2117,7 @@ public class ExecutionUnitTest {
 		// 演算を実行
 		try {
 			new ExecutionUnit().neq(DataType.FLOAT64, output, inputA, inputB);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -2129,7 +2130,7 @@ public class ExecutionUnitTest {
 		// オペランドを変えて演算を実行
 		try {
 			new ExecutionUnit().neq(DataType.FLOAT64, output, inputA, inputA);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -2148,7 +2149,7 @@ public class ExecutionUnitTest {
 		inputB.setOffset(1);
 		try {
 			new ExecutionUnit().neq(DataType.FLOAT64, output, inputA, inputB);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -2157,7 +2158,7 @@ public class ExecutionUnitTest {
 		}
 		try {
 			new ExecutionUnit().neq(DataType.FLOAT64, output, inputA, inputA);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -2190,7 +2191,7 @@ public class ExecutionUnitTest {
 		// 演算を実行
 		try {
 			new ExecutionUnit().neq(DataType.FLOAT64, output, inputA, inputB);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -2218,7 +2219,7 @@ public class ExecutionUnitTest {
 		// 演算を実行
 		try {
 			new ExecutionUnit().neq(DataType.STRING, output, inputA, inputB);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -2231,7 +2232,7 @@ public class ExecutionUnitTest {
 		// オペランドを変えて演算を実行
 		try {
 			new ExecutionUnit().neq(DataType.STRING, output, inputA, inputA);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -2250,7 +2251,7 @@ public class ExecutionUnitTest {
 		inputB.setOffset(1);
 		try {
 			new ExecutionUnit().neq(DataType.STRING, output, inputA, inputB);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -2259,7 +2260,7 @@ public class ExecutionUnitTest {
 		}
 		try {
 			new ExecutionUnit().neq(DataType.STRING, output, inputA, inputA);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -2292,7 +2293,7 @@ public class ExecutionUnitTest {
 		// 演算を実行
 		try {
 			new ExecutionUnit().neq(DataType.STRING, output, inputA, inputB);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -2321,7 +2322,7 @@ public class ExecutionUnitTest {
 		// 演算を実行
 		try {
 			new ExecutionUnit().neq(DataType.BOOL, output, inputA, inputB);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -2334,7 +2335,7 @@ public class ExecutionUnitTest {
 		// オペランドを変えて演算を実行
 		try {
 			new ExecutionUnit().neq(DataType.BOOL, output, inputA, inputA);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -2353,7 +2354,7 @@ public class ExecutionUnitTest {
 		inputB.setOffset(1);
 		try {
 			new ExecutionUnit().neq(DataType.BOOL, output, inputA, inputB);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -2362,7 +2363,7 @@ public class ExecutionUnitTest {
 		}
 		try {
 			new ExecutionUnit().neq(DataType.BOOL, output, inputA, inputA);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -2395,7 +2396,7 @@ public class ExecutionUnitTest {
 		// 演算を実行
 		try {
 			new ExecutionUnit().neq(DataType.BOOL, output, inputA, inputB);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -2424,7 +2425,7 @@ public class ExecutionUnitTest {
 		try {
 			new ExecutionUnit().neq(DataType.VOID, output, inputA, inputB);
 			fail("Expected exception did not occured");
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			// 例外が発生するのが正しい挙動
 		}
 	}
@@ -2451,7 +2452,7 @@ public class ExecutionUnitTest {
 		// 演算を実行
 		try {
 			new ExecutionUnit().geq(DataType.INT64, output, inputA, inputB);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -2464,7 +2465,7 @@ public class ExecutionUnitTest {
 		// オペランドを変えて演算を実行
 		try {
 			new ExecutionUnit().geq(DataType.INT64, output, inputB, inputA);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -2477,7 +2478,7 @@ public class ExecutionUnitTest {
 		// オペランドを変えて演算を実行
 		try {
 			new ExecutionUnit().geq(DataType.INT64, output, inputA, inputA);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -2496,7 +2497,7 @@ public class ExecutionUnitTest {
 		inputB.setOffset(1);
 		try {
 			new ExecutionUnit().geq(DataType.INT64, output, inputA, inputB);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -2505,7 +2506,7 @@ public class ExecutionUnitTest {
 		}
 		try {
 			new ExecutionUnit().geq(DataType.INT64, output, inputB, inputA);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -2514,7 +2515,7 @@ public class ExecutionUnitTest {
 		}
 		try {
 			new ExecutionUnit().geq(DataType.INT64, output, inputA, inputA);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -2548,7 +2549,7 @@ public class ExecutionUnitTest {
 		// 演算を実行
 		try {
 			new ExecutionUnit().geq(DataType.INT64, output, inputA, inputB);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -2576,7 +2577,7 @@ public class ExecutionUnitTest {
 		// 演算を実行
 		try {
 			new ExecutionUnit().geq(DataType.FLOAT64, output, inputA, inputB);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -2589,7 +2590,7 @@ public class ExecutionUnitTest {
 		// オペランドを変えて演算を実行
 		try {
 			new ExecutionUnit().geq(DataType.FLOAT64, output, inputB, inputA);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -2602,7 +2603,7 @@ public class ExecutionUnitTest {
 		// オペランドを変えて演算を実行
 		try {
 			new ExecutionUnit().geq(DataType.FLOAT64, output, inputA, inputA);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -2621,7 +2622,7 @@ public class ExecutionUnitTest {
 		inputB.setOffset(1);
 		try {
 			new ExecutionUnit().geq(DataType.FLOAT64, output, inputA, inputB);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -2630,7 +2631,7 @@ public class ExecutionUnitTest {
 		}
 		try {
 			new ExecutionUnit().geq(DataType.FLOAT64, output, inputB, inputA);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -2639,7 +2640,7 @@ public class ExecutionUnitTest {
 		}
 		try {
 			new ExecutionUnit().geq(DataType.FLOAT64, output, inputA, inputA);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -2672,7 +2673,7 @@ public class ExecutionUnitTest {
 		// 演算を実行
 		try {
 			new ExecutionUnit().geq(DataType.FLOAT64, output, inputA, inputB);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -2701,7 +2702,7 @@ public class ExecutionUnitTest {
 		try {
 			new ExecutionUnit().geq(DataType.BOOL, output, inputA, inputB);
 			fail("Expected exception did not occured");
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			// 例外が発生するのが正しい挙動
 		}
 
@@ -2709,13 +2710,13 @@ public class ExecutionUnitTest {
 		try {
 			new ExecutionUnit().geq(DataType.INT64, output, inputA, inputB);
 			fail("Expected exception did not occured");
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			// 例外が発生するのが正しい挙動
 		}
 		try {
 			new ExecutionUnit().geq(DataType.FLOAT64, output, inputA, inputB);
 			fail("Expected exception did not occured");
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			// 例外が発生するのが正しい挙動
 		}
 	}
@@ -2743,7 +2744,7 @@ public class ExecutionUnitTest {
 		// 演算を実行
 		try {
 			new ExecutionUnit().leq(DataType.INT64, output, inputA, inputB);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -2756,7 +2757,7 @@ public class ExecutionUnitTest {
 		// オペランドを変えて演算を実行
 		try {
 			new ExecutionUnit().leq(DataType.INT64, output, inputB, inputA);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -2769,7 +2770,7 @@ public class ExecutionUnitTest {
 		// オペランドを変えて演算を実行
 		try {
 			new ExecutionUnit().leq(DataType.INT64, output, inputA, inputA);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -2788,7 +2789,7 @@ public class ExecutionUnitTest {
 		inputB.setOffset(1);
 		try {
 			new ExecutionUnit().leq(DataType.INT64, output, inputA, inputB);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -2797,7 +2798,7 @@ public class ExecutionUnitTest {
 		}
 		try {
 			new ExecutionUnit().leq(DataType.INT64, output, inputB, inputA);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -2806,7 +2807,7 @@ public class ExecutionUnitTest {
 		}
 		try {
 			new ExecutionUnit().leq(DataType.INT64, output, inputA, inputA);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -2839,7 +2840,7 @@ public class ExecutionUnitTest {
 		// 演算を実行
 		try {
 			new ExecutionUnit().leq(DataType.INT64, output, inputA, inputB);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -2867,7 +2868,7 @@ public class ExecutionUnitTest {
 		// 演算を実行
 		try {
 			new ExecutionUnit().leq(DataType.FLOAT64, output, inputA, inputB);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -2880,7 +2881,7 @@ public class ExecutionUnitTest {
 		// オペランドを変えて演算を実行
 		try {
 			new ExecutionUnit().leq(DataType.FLOAT64, output, inputB, inputA);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -2893,7 +2894,7 @@ public class ExecutionUnitTest {
 		// オペランドを変えて演算を実行
 		try {
 			new ExecutionUnit().leq(DataType.FLOAT64, output, inputA, inputA);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -2912,7 +2913,7 @@ public class ExecutionUnitTest {
 		inputB.setOffset(1);
 		try {
 			new ExecutionUnit().leq(DataType.FLOAT64, output, inputA, inputB);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -2921,7 +2922,7 @@ public class ExecutionUnitTest {
 		}
 		try {
 			new ExecutionUnit().leq(DataType.FLOAT64, output, inputB, inputA);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -2930,7 +2931,7 @@ public class ExecutionUnitTest {
 		}
 		try {
 			new ExecutionUnit().leq(DataType.FLOAT64, output, inputA, inputA);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -2963,7 +2964,7 @@ public class ExecutionUnitTest {
 		// 演算を実行
 		try {
 			new ExecutionUnit().leq(DataType.FLOAT64, output, inputA, inputB);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -2992,7 +2993,7 @@ public class ExecutionUnitTest {
 		try {
 			new ExecutionUnit().leq(DataType.BOOL, output, inputA, inputB);
 			fail("Expected exception did not occured");
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			// 例外が発生するのが正しい挙動
 		}
 
@@ -3000,13 +3001,13 @@ public class ExecutionUnitTest {
 		try {
 			new ExecutionUnit().leq(DataType.INT64, output, inputA, inputB);
 			fail("Expected exception did not occured");
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			// 例外が発生するのが正しい挙動
 		}
 		try {
 			new ExecutionUnit().leq(DataType.FLOAT64, output, inputA, inputB);
 			fail("Expected exception did not occured");
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			// 例外が発生するのが正しい挙動
 		}
 	}
@@ -3036,7 +3037,7 @@ public class ExecutionUnitTest {
 		// 演算を実行
 		try {
 			new ExecutionUnit().gt(DataType.INT64, output, inputA, inputB);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -3049,7 +3050,7 @@ public class ExecutionUnitTest {
 		// オペランドを変えて演算を実行
 		try {
 			new ExecutionUnit().gt(DataType.INT64, output, inputB, inputA);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -3062,7 +3063,7 @@ public class ExecutionUnitTest {
 		// オペランドを変えて演算を実行
 		try {
 			new ExecutionUnit().gt(DataType.INT64, output, inputA, inputA);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -3081,7 +3082,7 @@ public class ExecutionUnitTest {
 		inputB.setOffset(1);
 		try {
 			new ExecutionUnit().gt(DataType.INT64, output, inputA, inputB);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -3090,7 +3091,7 @@ public class ExecutionUnitTest {
 		}
 		try {
 			new ExecutionUnit().gt(DataType.INT64, output, inputB, inputA);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -3099,7 +3100,7 @@ public class ExecutionUnitTest {
 		}
 		try {
 			new ExecutionUnit().gt(DataType.INT64, output, inputA, inputA);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -3132,7 +3133,7 @@ public class ExecutionUnitTest {
 		// 演算を実行
 		try {
 			new ExecutionUnit().gt(DataType.INT64, output, inputA, inputB);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -3160,7 +3161,7 @@ public class ExecutionUnitTest {
 		// 演算を実行
 		try {
 			new ExecutionUnit().gt(DataType.FLOAT64, output, inputA, inputB);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -3173,7 +3174,7 @@ public class ExecutionUnitTest {
 		// オペランドを変えて演算を実行
 		try {
 			new ExecutionUnit().gt(DataType.FLOAT64, output, inputB, inputA);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -3186,7 +3187,7 @@ public class ExecutionUnitTest {
 		// オペランドを変えて演算を実行
 		try {
 			new ExecutionUnit().gt(DataType.FLOAT64, output, inputA, inputA);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -3205,7 +3206,7 @@ public class ExecutionUnitTest {
 		inputB.setOffset(1);
 		try {
 			new ExecutionUnit().gt(DataType.FLOAT64, output, inputA, inputB);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -3214,7 +3215,7 @@ public class ExecutionUnitTest {
 		}
 		try {
 			new ExecutionUnit().gt(DataType.FLOAT64, output, inputB, inputA);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -3223,7 +3224,7 @@ public class ExecutionUnitTest {
 		}
 		try {
 			new ExecutionUnit().gt(DataType.FLOAT64, output, inputA, inputA);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -3256,7 +3257,7 @@ public class ExecutionUnitTest {
 		// 演算を実行
 		try {
 			new ExecutionUnit().gt(DataType.FLOAT64, output, inputA, inputB);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -3285,7 +3286,7 @@ public class ExecutionUnitTest {
 		try {
 			new ExecutionUnit().gt(DataType.BOOL, output, inputA, inputB);
 			fail("Expected exception did not occured");
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			// 例外が発生するのが正しい挙動
 		}
 
@@ -3293,13 +3294,13 @@ public class ExecutionUnitTest {
 		try {
 			new ExecutionUnit().gt(DataType.INT64, output, inputA, inputB);
 			fail("Expected exception did not occured");
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			// 例外が発生するのが正しい挙動
 		}
 		try {
 			new ExecutionUnit().gt(DataType.FLOAT64, output, inputA, inputB);
 			fail("Expected exception did not occured");
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			// 例外が発生するのが正しい挙動
 		}
 	}
@@ -3327,7 +3328,7 @@ public class ExecutionUnitTest {
 		// 演算を実行
 		try {
 			new ExecutionUnit().lt(DataType.INT64, output, inputA, inputB);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -3340,7 +3341,7 @@ public class ExecutionUnitTest {
 		// オペランドを変えて演算を実行
 		try {
 			new ExecutionUnit().lt(DataType.INT64, output, inputB, inputA);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -3353,7 +3354,7 @@ public class ExecutionUnitTest {
 		// オペランドを変えて演算を実行
 		try {
 			new ExecutionUnit().lt(DataType.INT64, output, inputA, inputA);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -3372,7 +3373,7 @@ public class ExecutionUnitTest {
 		inputB.setOffset(1);
 		try {
 			new ExecutionUnit().lt(DataType.INT64, output, inputA, inputB);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -3381,7 +3382,7 @@ public class ExecutionUnitTest {
 		}
 		try {
 			new ExecutionUnit().lt(DataType.INT64, output, inputB, inputA);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -3390,7 +3391,7 @@ public class ExecutionUnitTest {
 		}
 		try {
 			new ExecutionUnit().lt(DataType.INT64, output, inputA, inputA);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -3423,7 +3424,7 @@ public class ExecutionUnitTest {
 		// 演算を実行
 		try {
 			new ExecutionUnit().lt(DataType.INT64, output, inputA, inputB);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -3451,7 +3452,7 @@ public class ExecutionUnitTest {
 		// 演算を実行
 		try {
 			new ExecutionUnit().lt(DataType.FLOAT64, output, inputA, inputB);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -3464,7 +3465,7 @@ public class ExecutionUnitTest {
 		// オペランドを変えて演算を実行
 		try {
 			new ExecutionUnit().lt(DataType.FLOAT64, output, inputB, inputA);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -3477,7 +3478,7 @@ public class ExecutionUnitTest {
 		// オペランドを変えて演算を実行
 		try {
 			new ExecutionUnit().lt(DataType.FLOAT64, output, inputA, inputA);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -3496,7 +3497,7 @@ public class ExecutionUnitTest {
 		inputB.setOffset(1);
 		try {
 			new ExecutionUnit().lt(DataType.FLOAT64, output, inputA, inputB);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -3505,7 +3506,7 @@ public class ExecutionUnitTest {
 		}
 		try {
 			new ExecutionUnit().lt(DataType.FLOAT64, output, inputB, inputA);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -3514,7 +3515,7 @@ public class ExecutionUnitTest {
 		}
 		try {
 			new ExecutionUnit().lt(DataType.FLOAT64, output, inputA, inputA);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -3547,7 +3548,7 @@ public class ExecutionUnitTest {
 		// 演算を実行
 		try {
 			new ExecutionUnit().lt(DataType.FLOAT64, output, inputA, inputB);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -3576,7 +3577,7 @@ public class ExecutionUnitTest {
 		try {
 			new ExecutionUnit().lt(DataType.BOOL, output, inputA, inputB);
 			fail("Expected exception did not occured");
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			// 例外が発生するのが正しい挙動
 		}
 
@@ -3584,13 +3585,13 @@ public class ExecutionUnitTest {
 		try {
 			new ExecutionUnit().lt(DataType.INT64, output, inputA, inputB);
 			fail("Expected exception did not occured");
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			// 例外が発生するのが正しい挙動
 		}
 		try {
 			new ExecutionUnit().lt(DataType.FLOAT64, output, inputA, inputB);
 			fail("Expected exception did not occured");
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			// 例外が発生するのが正しい挙動
 		}
 	}
@@ -3618,7 +3619,7 @@ public class ExecutionUnitTest {
 		// 演算を実行
 		try {
 			new ExecutionUnit().and(DataType.BOOL, output, inputA, inputB);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -3631,7 +3632,7 @@ public class ExecutionUnitTest {
 		// オペランドを変えて演算を実行
 		try {
 			new ExecutionUnit().and(DataType.BOOL, output, inputB, inputA);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -3644,7 +3645,7 @@ public class ExecutionUnitTest {
 		// オペランドを変えて演算を実行
 		try {
 			new ExecutionUnit().and(DataType.BOOL, output, inputA, inputA);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -3657,7 +3658,7 @@ public class ExecutionUnitTest {
 		// オペランドを変えて演算を実行
 		try {
 			new ExecutionUnit().and(DataType.BOOL, output, inputB, inputB);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -3676,7 +3677,7 @@ public class ExecutionUnitTest {
 		inputB.setOffset(1);
 		try {
 			new ExecutionUnit().and(DataType.BOOL, output, inputA, inputB);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -3685,7 +3686,7 @@ public class ExecutionUnitTest {
 		}
 		try {
 			new ExecutionUnit().and(DataType.BOOL, output, inputB, inputA);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -3694,7 +3695,7 @@ public class ExecutionUnitTest {
 		}
 		try {
 			new ExecutionUnit().and(DataType.BOOL, output, inputA, inputA);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -3703,7 +3704,7 @@ public class ExecutionUnitTest {
 		}
 		try {
 			new ExecutionUnit().and(DataType.BOOL, output, inputB, inputB);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -3736,7 +3737,7 @@ public class ExecutionUnitTest {
 		// 演算を実行
 		try {
 			new ExecutionUnit().and(DataType.BOOL, output, inputA, inputB);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -3769,7 +3770,7 @@ public class ExecutionUnitTest {
 		try {
 			new ExecutionUnit().and(DataType.FLOAT64, output, inputA, inputB);
 			fail("Expected exception did not occured");
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			// 例外が発生するのが正しい挙動
 		}
 
@@ -3777,7 +3778,7 @@ public class ExecutionUnitTest {
 		try {
 			new ExecutionUnit().and(DataType.BOOL, output, inputA, inputB);
 			fail("Expected exception did not occured");
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			// 例外が発生するのが正しい挙動
 		}
 	}
@@ -3805,7 +3806,7 @@ public class ExecutionUnitTest {
 		// 演算を実行
 		try {
 			new ExecutionUnit().or(DataType.BOOL, output, inputA, inputB);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -3818,7 +3819,7 @@ public class ExecutionUnitTest {
 		// オペランドを変えて演算を実行
 		try {
 			new ExecutionUnit().or(DataType.BOOL, output, inputB, inputA);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -3831,7 +3832,7 @@ public class ExecutionUnitTest {
 		// オペランドを変えて演算を実行
 		try {
 			new ExecutionUnit().or(DataType.BOOL, output, inputA, inputA);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -3844,7 +3845,7 @@ public class ExecutionUnitTest {
 		// オペランドを変えて演算を実行
 		try {
 			new ExecutionUnit().or(DataType.BOOL, output, inputB, inputB);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -3863,7 +3864,7 @@ public class ExecutionUnitTest {
 		inputB.setOffset(1);
 		try {
 			new ExecutionUnit().or(DataType.BOOL, output, inputA, inputB);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -3872,7 +3873,7 @@ public class ExecutionUnitTest {
 		}
 		try {
 			new ExecutionUnit().or(DataType.BOOL, output, inputB, inputA);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -3881,7 +3882,7 @@ public class ExecutionUnitTest {
 		}
 		try {
 			new ExecutionUnit().or(DataType.BOOL, output, inputA, inputA);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -3890,7 +3891,7 @@ public class ExecutionUnitTest {
 		}
 		try {
 			new ExecutionUnit().or(DataType.BOOL, output, inputB, inputB);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -3923,7 +3924,7 @@ public class ExecutionUnitTest {
 		// 演算を実行
 		try {
 			new ExecutionUnit().or(DataType.BOOL, output, inputA, inputB);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -3956,7 +3957,7 @@ public class ExecutionUnitTest {
 		try {
 			new ExecutionUnit().or(DataType.FLOAT64, output, inputA, inputB);
 			fail("Expected exception did not occured");
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			// 例外が発生するのが正しい挙動
 		}
 
@@ -3964,7 +3965,7 @@ public class ExecutionUnitTest {
 		try {
 			new ExecutionUnit().or(DataType.BOOL, output, inputA, inputB);
 			fail("Expected exception did not occured");
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			// 例外が発生するのが正しい挙動
 		}
 	}
@@ -3992,7 +3993,7 @@ public class ExecutionUnitTest {
 		// 演算を実行
 		try {
 			new ExecutionUnit().not(DataType.BOOL, output, inputA);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -4005,7 +4006,7 @@ public class ExecutionUnitTest {
 		// オペランドを変えて演算を実行
 		try {
 			new ExecutionUnit().not(DataType.BOOL, output, inputB);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -4024,7 +4025,7 @@ public class ExecutionUnitTest {
 		inputB.setOffset(1);
 		try {
 			new ExecutionUnit().not(DataType.BOOL, output, inputA);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -4033,7 +4034,7 @@ public class ExecutionUnitTest {
 		}
 		try {
 			new ExecutionUnit().not(DataType.BOOL, output, inputB);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -4059,7 +4060,7 @@ public class ExecutionUnitTest {
 		// 演算を実行
 		try {
 			new ExecutionUnit().not(DataType.BOOL, output, input);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -4086,7 +4087,7 @@ public class ExecutionUnitTest {
 		try {
 			new ExecutionUnit().not(DataType.FLOAT64, output, input);
 			fail("Expected exception did not occured");
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			// 例外が発生するのが正しい挙動
 		}
 
@@ -4094,7 +4095,7 @@ public class ExecutionUnitTest {
 		try {
 			new ExecutionUnit().not(DataType.BOOL, output, input);
 			fail("Expected exception did not occured");
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			// 例外が発生するのが正しい挙動
 		}
 	}
@@ -4119,7 +4120,7 @@ public class ExecutionUnitTest {
 		// 確保処理を実行
 		try {
 			new ExecutionUnit().alloc(DataType.INT64, target);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -4145,7 +4146,7 @@ public class ExecutionUnitTest {
 		// 確保処理を実行
 		try {
 			new ExecutionUnit().alloc(DataType.INT64, target, len);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -4166,7 +4167,7 @@ public class ExecutionUnitTest {
 		len.setData(new long[]{ 5L });
 		try {
 			new ExecutionUnit().alloc(DataType.INT64, target, len);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -4185,7 +4186,7 @@ public class ExecutionUnitTest {
 		len.setData(new long[]{ 5L });
 		try {
 			new ExecutionUnit().alloc(DataType.INT64, target, len);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -4214,7 +4215,7 @@ public class ExecutionUnitTest {
 		// 確保処理を実行
 		try {
 			new ExecutionUnit().alloc(DataType.INT64, target, len);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -4237,7 +4238,7 @@ public class ExecutionUnitTest {
 		len.setData(new long[]{ 5L, 6L, 7L });
 		try {
 			new ExecutionUnit().alloc(DataType.INT64, target, len);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -4258,7 +4259,7 @@ public class ExecutionUnitTest {
 		len.setData(new long[]{ 5L, 6L, 7L });
 		try {
 			new ExecutionUnit().alloc(DataType.INT64, target, len);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -4289,7 +4290,7 @@ public class ExecutionUnitTest {
 		// 確保処理を実行
 		try {
 			new ExecutionUnit().alloc(DataType.FLOAT64, target);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -4315,7 +4316,7 @@ public class ExecutionUnitTest {
 		// 確保処理を実行
 		try {
 			new ExecutionUnit().alloc(DataType.FLOAT64, target, len);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -4336,7 +4337,7 @@ public class ExecutionUnitTest {
 		len.setData(new long[]{ 5L });
 		try {
 			new ExecutionUnit().alloc(DataType.FLOAT64, target, len);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -4355,7 +4356,7 @@ public class ExecutionUnitTest {
 		len.setData(new long[]{ 5L });
 		try {
 			new ExecutionUnit().alloc(DataType.FLOAT64, target, len);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -4384,7 +4385,7 @@ public class ExecutionUnitTest {
 		// 確保処理を実行
 		try {
 			new ExecutionUnit().alloc(DataType.FLOAT64, target, len);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -4407,7 +4408,7 @@ public class ExecutionUnitTest {
 		len.setData(new long[]{ 5L, 6L, 7L });
 		try {
 			new ExecutionUnit().alloc(DataType.FLOAT64, target, len);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -4428,7 +4429,7 @@ public class ExecutionUnitTest {
 		len.setData(new long[]{ 5L, 6L, 7L });
 		try {
 			new ExecutionUnit().alloc(DataType.FLOAT64, target, len);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -4459,7 +4460,7 @@ public class ExecutionUnitTest {
 		// 確保処理を実行
 		try {
 			new ExecutionUnit().alloc(DataType.BOOL, target);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -4485,7 +4486,7 @@ public class ExecutionUnitTest {
 		// 確保処理を実行
 		try {
 			new ExecutionUnit().alloc(DataType.BOOL, target, len);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -4506,7 +4507,7 @@ public class ExecutionUnitTest {
 		len.setData(new long[]{ 5L });
 		try {
 			new ExecutionUnit().alloc(DataType.BOOL, target, len);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -4525,7 +4526,7 @@ public class ExecutionUnitTest {
 		len.setData(new long[]{ 5L });
 		try {
 			new ExecutionUnit().alloc(DataType.BOOL, target, len);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -4554,7 +4555,7 @@ public class ExecutionUnitTest {
 		// 確保処理を実行
 		try {
 			new ExecutionUnit().alloc(DataType.BOOL, target, len);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -4577,7 +4578,7 @@ public class ExecutionUnitTest {
 		len.setData(new long[]{ 5L, 6L, 7L });
 		try {
 			new ExecutionUnit().alloc(DataType.BOOL, target, len);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -4598,7 +4599,7 @@ public class ExecutionUnitTest {
 		len.setData(new long[]{ 5L, 6L, 7L });
 		try {
 			new ExecutionUnit().alloc(DataType.BOOL, target, len);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -4629,7 +4630,7 @@ public class ExecutionUnitTest {
 		// 確保処理を実行
 		try {
 			new ExecutionUnit().alloc(DataType.STRING, target);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -4655,7 +4656,7 @@ public class ExecutionUnitTest {
 		// 確保処理を実行
 		try {
 			new ExecutionUnit().alloc(DataType.STRING, target, len);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -4676,7 +4677,7 @@ public class ExecutionUnitTest {
 		len.setData(new long[]{ 5L });
 		try {
 			new ExecutionUnit().alloc(DataType.STRING, target, len);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -4695,7 +4696,7 @@ public class ExecutionUnitTest {
 		len.setData(new long[]{ 5L });
 		try {
 			new ExecutionUnit().alloc(DataType.STRING, target, len);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -4724,7 +4725,7 @@ public class ExecutionUnitTest {
 		// 確保処理を実行
 		try {
 			new ExecutionUnit().alloc(DataType.STRING, target, len);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -4747,7 +4748,7 @@ public class ExecutionUnitTest {
 		len.setData(new long[]{ 5L, 6L, 7L });
 		try {
 			new ExecutionUnit().alloc(DataType.STRING, target, len);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -4768,7 +4769,7 @@ public class ExecutionUnitTest {
 		len.setData(new long[]{ 5L, 6L, 7L });
 		try {
 			new ExecutionUnit().alloc(DataType.STRING, target, len);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -4799,7 +4800,7 @@ public class ExecutionUnitTest {
 		try {
 			new ExecutionUnit().alloc(DataType.VOID, target);
 			fail("Expected exception did not occured");
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			// 例外が発生するのが正しい挙動
 		}
 
@@ -4809,7 +4810,7 @@ public class ExecutionUnitTest {
 		try {
 			new ExecutionUnit().alloc(DataType.VOID, target, len);
 			fail("Expected exception did not occured");
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			// 例外が発生するのが正しい挙動
 		}
 
@@ -4837,7 +4838,7 @@ public class ExecutionUnitTest {
 		// 演算を実行
 		try {
 			new ExecutionUnit().mov(DataType.INT64, output, input);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -4854,7 +4855,7 @@ public class ExecutionUnitTest {
 		input.setOffset(1);
 		try {
 			new ExecutionUnit().mov(DataType.INT64, output, input);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -4882,7 +4883,7 @@ public class ExecutionUnitTest {
 		// 演算を実行
 		try {
 			new ExecutionUnit().mov(DataType.INT64, output, input);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -4909,7 +4910,7 @@ public class ExecutionUnitTest {
 		// 演算を実行
 		try {
 			new ExecutionUnit().mov(DataType.FLOAT64, output, input);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -4926,7 +4927,7 @@ public class ExecutionUnitTest {
 		input.setOffset(1);
 		try {
 			new ExecutionUnit().mov(DataType.FLOAT64, output, input);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -4954,7 +4955,7 @@ public class ExecutionUnitTest {
 		// 演算を実行
 		try {
 			new ExecutionUnit().mov(DataType.FLOAT64, output, input);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -4981,7 +4982,7 @@ public class ExecutionUnitTest {
 		// 演算を実行
 		try {
 			new ExecutionUnit().mov(DataType.BOOL, output, input);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -4998,7 +4999,7 @@ public class ExecutionUnitTest {
 		input.setOffset(1);
 		try {
 			new ExecutionUnit().mov(DataType.BOOL, output, input);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -5027,7 +5028,7 @@ public class ExecutionUnitTest {
 		// 演算を実行
 		try {
 			new ExecutionUnit().mov(DataType.BOOL, output, input);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -5054,7 +5055,7 @@ public class ExecutionUnitTest {
 		// 演算を実行
 		try {
 			new ExecutionUnit().mov(DataType.STRING, output, input);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -5071,7 +5072,7 @@ public class ExecutionUnitTest {
 		input.setOffset(1);
 		try {
 			new ExecutionUnit().mov(DataType.STRING, output, input);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -5100,7 +5101,7 @@ public class ExecutionUnitTest {
 		// 演算を実行
 		try {
 			new ExecutionUnit().mov(DataType.STRING, output, input);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -5131,7 +5132,7 @@ public class ExecutionUnitTest {
 		try {
 			new ExecutionUnit().mov(DataType.VOID, output, input);
 			fail("Expected exception did not occured");
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			// 例外が発生するのが正しい挙動
 		}
 
@@ -5139,25 +5140,25 @@ public class ExecutionUnitTest {
 		try {
 			new ExecutionUnit().mov(DataType.INT64, output, input);
 			fail("Expected exception did not occured");
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			// 例外が発生するのが正しい挙動
 		}
 		try {
 			new ExecutionUnit().mov(DataType.FLOAT64, output, input);
 			fail("Expected exception did not occured");
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			// 例外が発生するのが正しい挙動
 		}
 		try {
 			new ExecutionUnit().mov(DataType.BOOL, output, input);
 			fail("Expected exception did not occured");
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			// 例外が発生するのが正しい挙動
 		}
 		try {
 			new ExecutionUnit().mov(DataType.STRING, output, input);
 			fail("Expected exception did not occured");
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			// 例外が発生するのが正しい挙動
 		}
 	}
@@ -5187,7 +5188,7 @@ public class ExecutionUnitTest {
 		// 演算を実行
 		try {
 			new ExecutionUnit().fill(DataType.INT64, output, input);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -5203,7 +5204,7 @@ public class ExecutionUnitTest {
 		input.setOffset(1);
 		try {
 			new ExecutionUnit().fill(DataType.INT64, output, input);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -5230,7 +5231,7 @@ public class ExecutionUnitTest {
 		// 演算を実行
 		try {
 			new ExecutionUnit().fill(DataType.FLOAT64, output, input);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -5246,7 +5247,7 @@ public class ExecutionUnitTest {
 		input.setOffset(1);
 		try {
 			new ExecutionUnit().fill(DataType.FLOAT64, output, input);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -5272,7 +5273,7 @@ public class ExecutionUnitTest {
 		// 演算を実行
 		try {
 			new ExecutionUnit().fill(DataType.BOOL, output, input);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -5288,7 +5289,7 @@ public class ExecutionUnitTest {
 		input.setOffset(1);
 		try {
 			new ExecutionUnit().fill(DataType.BOOL, output, input);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -5314,7 +5315,7 @@ public class ExecutionUnitTest {
 		// 演算を実行
 		try {
 			new ExecutionUnit().fill(DataType.STRING, output, input);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -5333,7 +5334,7 @@ public class ExecutionUnitTest {
 		input.setOffset(1);
 		try {
 			new ExecutionUnit().fill(DataType.STRING, output, input);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -5360,7 +5361,7 @@ public class ExecutionUnitTest {
 		try {
 			new ExecutionUnit().fill(DataType.VOID, output, input);
 			fail("Expected exception did not occured");
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			// 例外が発生するのが正しい挙動
 		}
 	}
@@ -5404,7 +5405,7 @@ public class ExecutionUnitTest {
 		index.setData(new long[]{1, 0, 2});
 		try {
 			new ExecutionUnit().elem(DataType.INT64, dest, src, index);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -5418,7 +5419,7 @@ public class ExecutionUnitTest {
 		index.setData(new long[]{0, 2, 3});
 		try {
 			new ExecutionUnit().elem(DataType.INT64, dest, src, index);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -5468,7 +5469,7 @@ public class ExecutionUnitTest {
 		index.setData(new long[]{1, 0, 2});
 		try {
 			new ExecutionUnit().elem(DataType.FLOAT64, dest, src, index);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -5482,7 +5483,7 @@ public class ExecutionUnitTest {
 		index.setData(new long[]{0, 2, 3});
 		try {
 			new ExecutionUnit().elem(DataType.FLOAT64, dest, src, index);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -5532,7 +5533,7 @@ public class ExecutionUnitTest {
 		index.setData(new long[]{1, 0, 2});
 		try {
 			new ExecutionUnit().elem(DataType.BOOL, dest, src, index);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -5546,7 +5547,7 @@ public class ExecutionUnitTest {
 		index.setData(new long[]{0, 2, 3});
 		try {
 			new ExecutionUnit().elem(DataType.BOOL, dest, src, index);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -5595,7 +5596,7 @@ public class ExecutionUnitTest {
 		index.setData(new long[]{1, 0, 2});
 		try {
 			new ExecutionUnit().elem(DataType.STRING, dest, src, index);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -5609,7 +5610,7 @@ public class ExecutionUnitTest {
 		index.setData(new long[]{0, 2, 3});
 		try {
 			new ExecutionUnit().elem(DataType.STRING, dest, src, index);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -5646,7 +5647,7 @@ public class ExecutionUnitTest {
 		try {
 			new ExecutionUnit().elem(DataType.VOID, dest, src, index);
 			fail("Expected exception did not occured");
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			// 例外が発生するのが正しい挙動
 		}
 	}
@@ -5681,7 +5682,7 @@ public class ExecutionUnitTest {
 		// 演算を実行
 		try {
 			new ExecutionUnit().vec(DataType.INT64, output, input);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -5717,7 +5718,7 @@ public class ExecutionUnitTest {
 		// 演算を実行
 		try {
 			new ExecutionUnit().vec(DataType.FLOAT64, output, input);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -5752,7 +5753,7 @@ public class ExecutionUnitTest {
 		// 演算を実行
 		try {
 			new ExecutionUnit().vec(DataType.BOOL, output, input);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -5787,7 +5788,7 @@ public class ExecutionUnitTest {
 		// 演算を実行
 		try {
 			new ExecutionUnit().vec(DataType.STRING, output, input);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -5826,7 +5827,7 @@ public class ExecutionUnitTest {
 		try {
 			new ExecutionUnit().vec(DataType.VOID, output, input);
 			fail("Expected exception did not occured");
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			// 例外が発生するのが正しい挙動
 		}
 
@@ -5834,25 +5835,25 @@ public class ExecutionUnitTest {
 		try {
 			new ExecutionUnit().vec(DataType.INT64, output, input);
 			fail("Expected exception did not occured");
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			// 例外が発生するのが正しい挙動
 		}
 		try {
 			new ExecutionUnit().vec(DataType.FLOAT64, output, input);
 			fail("Expected exception did not occured");
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			// 例外が発生するのが正しい挙動
 		}
 		try {
 			new ExecutionUnit().vec(DataType.BOOL, output, input);
 			fail("Expected exception did not occured");
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			// 例外が発生するのが正しい挙動
 		}
 		try {
 			new ExecutionUnit().vec(DataType.STRING, output, input);
 			fail("Expected exception did not occured");
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			// 例外が発生するのが正しい挙動
 		}
 	}
@@ -5877,9 +5878,12 @@ public class ExecutionUnitTest {
 		// 演算を実行
 		try {
 			new ExecutionUnit().cast(DataType.INT64, DataType.INT64, output, input);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
+		} catch (VnanoSyntaxException e) {
+			e.printStackTrace();
+			fail("Cast failed");
 		}
 
 		// 正しい演算結果が格納されているか検査
@@ -5894,9 +5898,12 @@ public class ExecutionUnitTest {
 		input.setOffset(2);
 		try {
 			new ExecutionUnit().cast(DataType.INT64, DataType.INT64, output, input);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
+		} catch (VnanoSyntaxException e) {
+			e.printStackTrace();
+			fail("Cast failed");
 		}
 
 		// オフセット指定位置の値が正しく書き換わり、他の値が書き換わっていないか検査
@@ -5923,9 +5930,12 @@ public class ExecutionUnitTest {
 		// 演算を実行
 		try {
 			new ExecutionUnit().cast(DataType.INT64, DataType.INT64, output, input);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
+		} catch (VnanoSyntaxException e) {
+			e.printStackTrace();
+			fail("Cast failed");
 		}
 
 		// 正しい演算結果が格納されているか検査
@@ -5949,9 +5959,12 @@ public class ExecutionUnitTest {
 		// 演算を実行
 		try {
 			new ExecutionUnit().cast(DataType.FLOAT64, DataType.INT64, output, input);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
+		} catch (VnanoSyntaxException e) {
+			e.printStackTrace();
+			fail("Cast failed");
 		}
 
 		// 正しい演算結果が格納されているか検査
@@ -5966,10 +5979,14 @@ public class ExecutionUnitTest {
 		input.setOffset(2);
 		try {
 			new ExecutionUnit().cast(DataType.FLOAT64, DataType.INT64, output, input);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
+		} catch (VnanoSyntaxException e) {
+			e.printStackTrace();
+			fail("Cast failed");
 		}
+
 		// オフセット指定位置の値が正しく書き換わり、他の値が書き換わっていないか検査
 		if (output.getData()[ output.getOffset() ] != 2.0) {
 			fail("Incorrect output value");
@@ -5994,9 +6011,12 @@ public class ExecutionUnitTest {
 		// 演算を実行
 		try {
 			new ExecutionUnit().cast(DataType.FLOAT64, DataType.INT64, output, input);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
+		} catch (VnanoSyntaxException e) {
+			e.printStackTrace();
+			fail("Cast failed");
 		}
 
 		// 正しい演算結果が格納されているか検査
@@ -6020,9 +6040,12 @@ public class ExecutionUnitTest {
 		// 演算を実行
 		try {
 			new ExecutionUnit().cast(DataType.STRING, DataType.INT64, output, input);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
+		} catch (VnanoSyntaxException e) {
+			e.printStackTrace();
+			fail("Cast failed");
 		}
 
 		// 正しい演算結果が格納されているか検査
@@ -6037,9 +6060,12 @@ public class ExecutionUnitTest {
 		input.setOffset(2);
 		try {
 			new ExecutionUnit().cast(DataType.STRING, DataType.INT64, output, input);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
+		} catch (VnanoSyntaxException e) {
+			e.printStackTrace();
+			fail("Cast failed");
 		}
 
 		// オフセット指定位置の値が正しく書き換わり、他の値が書き換わっていないか検査
@@ -6066,9 +6092,12 @@ public class ExecutionUnitTest {
 		// 演算を実行
 		try {
 			new ExecutionUnit().cast(DataType.STRING, DataType.INT64, output, input);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
+		} catch (VnanoSyntaxException e) {
+			e.printStackTrace();
+			fail("Cast failed");
 		}
 
 		// 正しい演算結果が格納されているか検査
@@ -6096,9 +6125,12 @@ public class ExecutionUnitTest {
 		// 演算を実行
 		try {
 			new ExecutionUnit().cast(DataType.FLOAT64, DataType.FLOAT64, output, input);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
+		} catch (VnanoSyntaxException e) {
+			e.printStackTrace();
+			fail("Cast failed");
 		}
 
 		// 正しい演算結果が格納されているか検査
@@ -6113,9 +6145,12 @@ public class ExecutionUnitTest {
 		input.setOffset(2);
 		try {
 			new ExecutionUnit().cast(DataType.FLOAT64, DataType.FLOAT64, output, input);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
+		} catch (VnanoSyntaxException e) {
+			e.printStackTrace();
+			fail("Cast failed");
 		}
 
 		// オフセット指定位置の値が正しく書き換わり、他の値が書き換わっていないか検査
@@ -6142,9 +6177,12 @@ public class ExecutionUnitTest {
 		// 演算を実行
 		try {
 			new ExecutionUnit().cast(DataType.FLOAT64, DataType.FLOAT64, output, input);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
+		} catch (VnanoSyntaxException e) {
+			e.printStackTrace();
+			fail("Cast failed");
 		}
 
 		// 正しい演算結果が格納されているか検査
@@ -6168,9 +6206,12 @@ public class ExecutionUnitTest {
 		// 演算を実行
 		try {
 			new ExecutionUnit().cast(DataType.INT64, DataType.FLOAT64, output, input);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
+		} catch (VnanoSyntaxException e) {
+			e.printStackTrace();
+			fail("Cast failed");
 		}
 
 		// 正しい演算結果が格納されているか検査
@@ -6185,9 +6226,12 @@ public class ExecutionUnitTest {
 		input.setOffset(2);
 		try {
 			new ExecutionUnit().cast(DataType.INT64, DataType.FLOAT64, output, input);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
+		} catch (VnanoSyntaxException e) {
+			e.printStackTrace();
+			fail("Cast failed");
 		}
 
 		// オフセット指定位置の値が正しく書き換わり、他の値が書き換わっていないか検査
@@ -6214,9 +6258,12 @@ public class ExecutionUnitTest {
 		// 演算を実行
 		try {
 			new ExecutionUnit().cast(DataType.INT64, DataType.FLOAT64, output, input);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
+		} catch (VnanoSyntaxException e) {
+			e.printStackTrace();
+			fail("Cast failed");
 		}
 
 		// 正しい演算結果が格納されているか検査
@@ -6240,9 +6287,12 @@ public class ExecutionUnitTest {
 		// 演算を実行
 		try {
 			new ExecutionUnit().cast(DataType.STRING, DataType.FLOAT64, output, input);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
+		} catch (VnanoSyntaxException e) {
+			e.printStackTrace();
+			fail("Cast failed");
 		}
 
 		// 正しい演算結果が格納されているか検査
@@ -6257,9 +6307,12 @@ public class ExecutionUnitTest {
 		input.setOffset(2);
 		try {
 			new ExecutionUnit().cast(DataType.STRING, DataType.FLOAT64, output, input);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
+		} catch (VnanoSyntaxException e) {
+			e.printStackTrace();
+			fail("Cast failed");
 		}
 
 		// オフセット指定位置の値が正しく書き換わり、他の値が書き換わっていないか検査
@@ -6286,9 +6339,12 @@ public class ExecutionUnitTest {
 		// 演算を実行
 		try {
 			new ExecutionUnit().cast(DataType.STRING, DataType.FLOAT64, output, input);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
+		} catch (VnanoSyntaxException e) {
+			e.printStackTrace();
+			fail("Cast failed");
 		}
 
 		// 正しい演算結果が格納されているか検査
@@ -6315,9 +6371,12 @@ public class ExecutionUnitTest {
 		// 演算を実行
 		try {
 			new ExecutionUnit().cast(DataType.BOOL, DataType.BOOL, output, input);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
+		} catch (VnanoSyntaxException e) {
+			e.printStackTrace();
+			fail("Cast failed");
 		}
 
 		// 正しい演算結果が格納されているか検査
@@ -6332,9 +6391,12 @@ public class ExecutionUnitTest {
 		input.setOffset(2);
 		try {
 			new ExecutionUnit().cast(DataType.BOOL, DataType.BOOL, output, input);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
+		} catch (VnanoSyntaxException e) {
+			e.printStackTrace();
+			fail("Cast failed");
 		}
 
 		// オフセット指定位置の値が正しく書き換わり、他の値が書き換わっていないか検査
@@ -6361,9 +6423,12 @@ public class ExecutionUnitTest {
 		// 演算を実行
 		try {
 			new ExecutionUnit().cast(DataType.BOOL, DataType.BOOL, output, input);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
+		} catch (VnanoSyntaxException e) {
+			e.printStackTrace();
+			fail("Cast failed");
 		}
 
 		// 正しい演算結果が格納されているか検査
@@ -6387,9 +6452,12 @@ public class ExecutionUnitTest {
 		// 演算を実行
 		try {
 			new ExecutionUnit().cast(DataType.STRING, DataType.BOOL, output, input);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
+		} catch (VnanoSyntaxException e) {
+			e.printStackTrace();
+			fail("Cast failed");
 		}
 
 		// 正しい演算結果が格納されているか検査
@@ -6404,9 +6472,12 @@ public class ExecutionUnitTest {
 		input.setOffset(2);
 		try {
 			new ExecutionUnit().cast(DataType.STRING, DataType.BOOL, output, input);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
+		} catch (VnanoSyntaxException e) {
+			e.printStackTrace();
+			fail("Cast failed");
 		}
 
 		// オフセット指定位置の値が正しく書き換わり、他の値が書き換わっていないか検査
@@ -6433,9 +6504,12 @@ public class ExecutionUnitTest {
 		// 演算を実行
 		try {
 			new ExecutionUnit().cast(DataType.STRING, DataType.BOOL, output, input);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
+		} catch (VnanoSyntaxException e) {
+			e.printStackTrace();
+			fail("Cast failed");
 		}
 
 		// 正しい演算結果が格納されているか検査
@@ -6463,9 +6537,12 @@ public class ExecutionUnitTest {
 		// 演算を実行
 		try {
 			new ExecutionUnit().cast(DataType.STRING, DataType.STRING, output, input);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
+		} catch (VnanoSyntaxException e) {
+			e.printStackTrace();
+			fail("Cast failed");
 		}
 
 		// 正しい演算結果が格納されているか検査
@@ -6480,9 +6557,12 @@ public class ExecutionUnitTest {
 		input.setOffset(2);
 		try {
 			new ExecutionUnit().cast(DataType.STRING, DataType.STRING, output, input);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
+		} catch (VnanoSyntaxException e) {
+			e.printStackTrace();
+			fail("Cast failed");
 		}
 
 		// オフセット指定位置の値が正しく書き換わり、他の値が書き換わっていないか検査
@@ -6509,9 +6589,12 @@ public class ExecutionUnitTest {
 		// 演算を実行
 		try {
 			new ExecutionUnit().cast(DataType.STRING, DataType.STRING, output, input);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
+		} catch (VnanoSyntaxException e) {
+			e.printStackTrace();
+			fail("Cast failed");
 		}
 
 		// 正しい演算結果が格納されているか検査
@@ -6538,9 +6621,12 @@ public class ExecutionUnitTest {
 		// 演算を実行
 		try {
 			new ExecutionUnit().cast(DataType.INT64, DataType.STRING, output, input);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
+		} catch (VnanoSyntaxException e) {
+			e.printStackTrace();
+			fail("Cast failed");
 		}
 
 		// 正しい演算結果が格納されているか検査
@@ -6555,9 +6641,12 @@ public class ExecutionUnitTest {
 		input.setOffset(2);
 		try {
 			new ExecutionUnit().cast(DataType.INT64, DataType.STRING, output, input);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
+		} catch (VnanoSyntaxException e) {
+			e.printStackTrace();
+			fail("Cast failed");
 		}
 
 		// オフセット指定位置の値が正しく書き換わり、他の値が書き換わっていないか検査
@@ -6573,9 +6662,12 @@ public class ExecutionUnitTest {
 		input.setData( new String[]{ "0", "0", "8.25", "0", "0" } ); // 2進表現で割り切れる値
 		try {
 			new ExecutionUnit().cast(DataType.INT64, DataType.STRING, output, input);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
+		} catch (VnanoSyntaxException e) {
+			e.printStackTrace();
+			fail("Cast failed");
 		}
 		if (output.getData()[ output.getOffset() ] != 8L) {
 			fail("Incorrect output value");
@@ -6590,7 +6682,7 @@ public class ExecutionUnitTest {
 		try {
 			new ExecutionUnit().cast(DataType.INT64, DataType.STRING, output, input);
 			fail("Expected exception did not occured");
-		} catch (DataException e) {
+		} catch (VnanoSyntaxException e) {
 			// 例外が発生するのが正しい挙動
 		}
 	}
@@ -6610,9 +6702,12 @@ public class ExecutionUnitTest {
 		// 演算を実行
 		try {
 			new ExecutionUnit().cast(DataType.INT64, DataType.STRING, output, input);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
+		} catch (VnanoSyntaxException e) {
+			e.printStackTrace();
+			fail("Cast failed");
 		}
 
 		// 正しい演算結果が格納されているか検査
@@ -6636,9 +6731,12 @@ public class ExecutionUnitTest {
 		// 演算を実行
 		try {
 			new ExecutionUnit().cast(DataType.FLOAT64, DataType.STRING, output, input);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
+		} catch (VnanoSyntaxException e) {
+			e.printStackTrace();
+			fail("Cast failed");
 		}
 
 		// 正しい演算結果が格納されているか検査
@@ -6653,9 +6751,12 @@ public class ExecutionUnitTest {
 		input.setOffset(2);
 		try {
 			new ExecutionUnit().cast(DataType.FLOAT64, DataType.STRING, output, input);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
+		} catch (VnanoSyntaxException e) {
+			e.printStackTrace();
+			fail("Cast failed");
 		}
 
 		// オフセット指定位置の値が正しく書き換わり、他の値が書き換わっていないか検査
@@ -6672,7 +6773,7 @@ public class ExecutionUnitTest {
 		try {
 			new ExecutionUnit().cast(DataType.FLOAT64, DataType.STRING, output, input);
 			fail("Expected exception did not occured");
-		} catch (DataException e) {
+		} catch (VnanoSyntaxException e) {
 			// 例外が発生するのが正しい挙動
 		}
 	}
@@ -6692,9 +6793,12 @@ public class ExecutionUnitTest {
 		// 演算を実行
 		try {
 			new ExecutionUnit().cast(DataType.FLOAT64, DataType.STRING, output, input);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
+		} catch (VnanoSyntaxException e) {
+			e.printStackTrace();
+			fail("Cast failed");
 		}
 
 		// 正しい演算結果が格納されているか検査
@@ -6718,9 +6822,12 @@ public class ExecutionUnitTest {
 		// 演算を実行
 		try {
 			new ExecutionUnit().cast(DataType.BOOL, DataType.STRING, output, input);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
+		} catch (VnanoSyntaxException e) {
+			e.printStackTrace();
+			fail("Cast failed");
 		}
 
 		// 正しい演算結果が格納されているか検査
@@ -6735,9 +6842,12 @@ public class ExecutionUnitTest {
 		input.setOffset(2);
 		try {
 			new ExecutionUnit().cast(DataType.BOOL, DataType.STRING, output, input);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
+		} catch (VnanoSyntaxException e) {
+			e.printStackTrace();
+			fail("Cast failed");
 		}
 
 		// オフセット指定位置の値が正しく書き換わり、他の値が書き換わっていないか検査
@@ -6754,7 +6864,7 @@ public class ExecutionUnitTest {
 		try {
 			new ExecutionUnit().cast(DataType.BOOL, DataType.STRING, output, input);
 			fail("Expected exception did not occured");
-		} catch (DataException e) {
+		} catch (VnanoSyntaxException e) {
 			// 例外が発生するのが正しい挙動
 		}
 	}
@@ -6774,9 +6884,12 @@ public class ExecutionUnitTest {
 		// 演算を実行
 		try {
 			new ExecutionUnit().cast(DataType.BOOL, DataType.STRING, output, input);
-		} catch (DataException e) {
+		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
+		} catch (VnanoSyntaxException e) {
+			e.printStackTrace();
+			fail("Cast failed");
 		}
 
 		// 正しい演算結果が格納されているか検査
@@ -6802,7 +6915,7 @@ public class ExecutionUnitTest {
 			((DataContainer<boolean[]>)input).setData(new boolean[]{ false });
 			new ExecutionUnit().cast(DataType.INT64, DataType.BOOL, output, input);
 			fail("Expected exception did not occured");
-		} catch (DataException e) {
+		} catch (VnanoSyntaxException e) {
 			// 例外が発生するのが正しい挙動
 		}
 		try {
@@ -6810,7 +6923,7 @@ public class ExecutionUnitTest {
 			((DataContainer<Object[]>)input).setData(new Object[]{ "" });
 			new ExecutionUnit().cast(DataType.INT64, DataType.VOID, output, input);
 			fail("Expected exception did not occured");
-		} catch (DataException e) {
+		} catch (VnanoSyntaxException e) {
 			// 例外が発生するのが正しい挙動
 		}
 		try {
@@ -6818,7 +6931,7 @@ public class ExecutionUnitTest {
 			((DataContainer<boolean[]>)input).setData(new boolean[]{ false });
 			new ExecutionUnit().cast(DataType.FLOAT64, DataType.BOOL, output, input);
 			fail("Expected exception did not occured");
-		} catch (DataException e) {
+		} catch (VnanoSyntaxException e) {
 			// 例外が発生するのが正しい挙動
 		}
 		try {
@@ -6826,7 +6939,7 @@ public class ExecutionUnitTest {
 			((DataContainer<Object[]>)input).setData(new Object[]{ "" });
 			new ExecutionUnit().cast(DataType.FLOAT64, DataType.VOID, output, input);
 			fail("Expected exception did not occured");
-		} catch (DataException e) {
+		} catch (VnanoSyntaxException e) {
 			// 例外が発生するのが正しい挙動
 		}
 		try {
@@ -6834,7 +6947,7 @@ public class ExecutionUnitTest {
 			((DataContainer<long[]>)input).setData(new long[]{ 123L });
 			new ExecutionUnit().cast(DataType.BOOL, DataType.INT64, output, input);
 			fail("Expected exception did not occured");
-		} catch (DataException e) {
+		} catch (VnanoSyntaxException e) {
 			// 例外が発生するのが正しい挙動
 		}
 		try {
@@ -6842,7 +6955,7 @@ public class ExecutionUnitTest {
 			((DataContainer<double[]>)input).setData(new double[]{ 2.25 });
 			new ExecutionUnit().cast(DataType.BOOL, DataType.FLOAT64, output, input);
 			fail("Expected exception did not occured");
-		} catch (DataException e) {
+		} catch (VnanoSyntaxException e) {
 			// 例外が発生するのが正しい挙動
 		}
 		try {
@@ -6850,7 +6963,7 @@ public class ExecutionUnitTest {
 			((DataContainer<Object[]>)input).setData(new Object[]{ "" });
 			new ExecutionUnit().cast(DataType.BOOL, DataType.VOID, output, input);
 			fail("Expected exception did not occured");
-		} catch (DataException e) {
+		} catch (VnanoSyntaxException e) {
 			// 例外が発生するのが正しい挙動
 		}
 		try {
@@ -6858,7 +6971,7 @@ public class ExecutionUnitTest {
 			((DataContainer<Object[]>)input).setData(new Object[]{ "" });
 			new ExecutionUnit().cast(DataType.STRING, DataType.VOID, output, input);
 			fail("Expected exception did not occured");
-		} catch (DataException e) {
+		} catch (VnanoSyntaxException e) {
 			// 例外が発生するのが正しい挙動
 		}
 		try {
@@ -6866,7 +6979,7 @@ public class ExecutionUnitTest {
 			((DataContainer<Object[]>)input).setData(new Object[]{ "" });
 			new ExecutionUnit().cast(DataType.VOID, DataType.VOID, output, input);
 			fail("Expected exception did not occured");
-		} catch (DataException e) {
+		} catch (VnanoSyntaxException e) {
 			// 例外が発生するのが正しい挙動
 		}
 	}

@@ -5,10 +5,10 @@
 package org.vcssl.nano.vm.accelerator;
 
 import org.vcssl.nano.VnanoFatalException;
+import org.vcssl.nano.VnanoSyntaxException;
 import org.vcssl.nano.interconnect.Interconnect;
 import org.vcssl.nano.lang.DataType;
 import org.vcssl.nano.vm.memory.DataContainer;
-import org.vcssl.nano.vm.memory.DataException;
 import org.vcssl.nano.vm.memory.Memory;
 import org.vcssl.nano.vm.memory.MemoryAccessException;
 import org.vcssl.nano.vm.processor.Instruction;
@@ -431,7 +431,7 @@ public class AccelerationDispatcher {
 					this.synchronizer.writeCache();
 					this.allocated = true;
 					return this.nextNode;
-				} catch (DataException | InvalidInstructionException | MemoryAccessException e) {
+				} catch (VnanoSyntaxException | InvalidInstructionException | MemoryAccessException e) {
 					e.printStackTrace();
 					return null;
 				}
