@@ -5,7 +5,7 @@
 
 package org.vcssl.nano.vm;
 
-import org.vcssl.nano.VnanoSyntaxException;
+import org.vcssl.nano.VnanoException;
 import org.vcssl.nano.interconnect.DataConverter;
 import org.vcssl.nano.interconnect.Interconnect;
 import org.vcssl.nano.vm.accelerator.Accelerator;
@@ -19,7 +19,7 @@ public class VirtualMachine {
 
 	private boolean acceleratorEnabled = true;
 
-	public Object eval(String assemblyCode, Interconnect interconnect) throws VnanoSyntaxException {
+	public Object eval(String assemblyCode, Interconnect interconnect) throws VnanoException {
 
 		// アセンブラで中間アセンブリコード（VRILコード）から実行用の中間コードに変換
 		Assembler assembler = new Assembler();
@@ -49,7 +49,7 @@ public class VirtualMachine {
 
 
 
-	private Object getEvaluatedValue(Memory memory, VirtualMachineObjectCode intermediateCode) throws VnanoSyntaxException {
+	private Object getEvaluatedValue(Memory memory, VirtualMachineObjectCode intermediateCode) throws VnanoException {
 
 		if (intermediateCode.hasEvalValue()) {
 			int evalValueAddress = intermediateCode.getEvalValueAddress();

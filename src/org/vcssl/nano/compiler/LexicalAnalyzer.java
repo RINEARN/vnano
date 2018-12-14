@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.vcssl.nano.VnanoSyntaxException;
+import org.vcssl.nano.VnanoException;
 import org.vcssl.nano.spec.DataTypeName;
 import org.vcssl.nano.spec.LiteralSyntax;
 import org.vcssl.nano.spec.PriorityTable;
@@ -49,9 +49,9 @@ public class LexicalAnalyzer {
 	 * @param sourceCode ソースコード文字列
 	 * @param fileName ソースコードのファイル名
 	 * @return 分割・解析されたトークンの配列
-	 * @throws VnanoSyntaxException ソースコードの内容に異常があった場合にスローされます。
+	 * @throws VnanoException ソースコードの内容に異常があった場合にスローされます。
 	 */
-	public Token[] analyze(String sourceCode, String fileName) throws VnanoSyntaxException {
+	public Token[] analyze(String sourceCode, String fileName) throws VnanoException {
 
 		// 最初に、コード内の文字列リテラルを全て "1", "2", ... などのように番号化リテラルで置き換える
 		String[] stringLiteralExtractResult = LiteralSyntax.extractStringLiterals(sourceCode);
@@ -148,7 +148,7 @@ public class LexicalAnalyzer {
 	 * トークン配列を解析し、各要素にトークンタイプを設定します。
 	 *
 	 * @param tokens 解析・設定対象のトークン配列（情報が追加されます）
-	 * @throws VnanoSyntaxException 開き括弧と閉じ括弧の数が合っていない場合にスローされます。
+	 * @throws VnanoException 開き括弧と閉じ括弧の数が合っていない場合にスローされます。
 	 */
 	private void analyzeTokenType(Token[] tokens) { //throws ScriptCodeException {
 

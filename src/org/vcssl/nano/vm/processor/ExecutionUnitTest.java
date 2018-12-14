@@ -13,7 +13,7 @@ import org.junit.Test;
 import org.vcssl.nano.lang.DataType;
 import org.vcssl.nano.vm.memory.DataContainer;
 import org.vcssl.nano.VnanoFatalException;
-import org.vcssl.nano.VnanoSyntaxException;
+import org.vcssl.nano.VnanoException;
 
 public class ExecutionUnitTest {
 
@@ -5881,7 +5881,7 @@ public class ExecutionUnitTest {
 		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
-		} catch (VnanoSyntaxException e) {
+		} catch (VnanoException e) {
 			e.printStackTrace();
 			fail("Cast failed");
 		}
@@ -5901,7 +5901,7 @@ public class ExecutionUnitTest {
 		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
-		} catch (VnanoSyntaxException e) {
+		} catch (VnanoException e) {
 			e.printStackTrace();
 			fail("Cast failed");
 		}
@@ -5933,7 +5933,7 @@ public class ExecutionUnitTest {
 		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
-		} catch (VnanoSyntaxException e) {
+		} catch (VnanoException e) {
 			e.printStackTrace();
 			fail("Cast failed");
 		}
@@ -5962,7 +5962,7 @@ public class ExecutionUnitTest {
 		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
-		} catch (VnanoSyntaxException e) {
+		} catch (VnanoException e) {
 			e.printStackTrace();
 			fail("Cast failed");
 		}
@@ -5982,7 +5982,7 @@ public class ExecutionUnitTest {
 		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
-		} catch (VnanoSyntaxException e) {
+		} catch (VnanoException e) {
 			e.printStackTrace();
 			fail("Cast failed");
 		}
@@ -6014,7 +6014,7 @@ public class ExecutionUnitTest {
 		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
-		} catch (VnanoSyntaxException e) {
+		} catch (VnanoException e) {
 			e.printStackTrace();
 			fail("Cast failed");
 		}
@@ -6043,7 +6043,7 @@ public class ExecutionUnitTest {
 		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
-		} catch (VnanoSyntaxException e) {
+		} catch (VnanoException e) {
 			e.printStackTrace();
 			fail("Cast failed");
 		}
@@ -6063,7 +6063,7 @@ public class ExecutionUnitTest {
 		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
-		} catch (VnanoSyntaxException e) {
+		} catch (VnanoException e) {
 			e.printStackTrace();
 			fail("Cast failed");
 		}
@@ -6095,7 +6095,7 @@ public class ExecutionUnitTest {
 		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
-		} catch (VnanoSyntaxException e) {
+		} catch (VnanoException e) {
 			e.printStackTrace();
 			fail("Cast failed");
 		}
@@ -6128,7 +6128,7 @@ public class ExecutionUnitTest {
 		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
-		} catch (VnanoSyntaxException e) {
+		} catch (VnanoException e) {
 			e.printStackTrace();
 			fail("Cast failed");
 		}
@@ -6148,7 +6148,7 @@ public class ExecutionUnitTest {
 		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
-		} catch (VnanoSyntaxException e) {
+		} catch (VnanoException e) {
 			e.printStackTrace();
 			fail("Cast failed");
 		}
@@ -6180,7 +6180,7 @@ public class ExecutionUnitTest {
 		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
-		} catch (VnanoSyntaxException e) {
+		} catch (VnanoException e) {
 			e.printStackTrace();
 			fail("Cast failed");
 		}
@@ -6209,7 +6209,7 @@ public class ExecutionUnitTest {
 		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
-		} catch (VnanoSyntaxException e) {
+		} catch (VnanoException e) {
 			e.printStackTrace();
 			fail("Cast failed");
 		}
@@ -6229,7 +6229,7 @@ public class ExecutionUnitTest {
 		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
-		} catch (VnanoSyntaxException e) {
+		} catch (VnanoException e) {
 			e.printStackTrace();
 			fail("Cast failed");
 		}
@@ -6261,7 +6261,7 @@ public class ExecutionUnitTest {
 		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
-		} catch (VnanoSyntaxException e) {
+		} catch (VnanoException e) {
 			e.printStackTrace();
 			fail("Cast failed");
 		}
@@ -6290,7 +6290,7 @@ public class ExecutionUnitTest {
 		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
-		} catch (VnanoSyntaxException e) {
+		} catch (VnanoException e) {
 			e.printStackTrace();
 			fail("Cast failed");
 		}
@@ -6310,7 +6310,7 @@ public class ExecutionUnitTest {
 		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
-		} catch (VnanoSyntaxException e) {
+		} catch (VnanoException e) {
 			e.printStackTrace();
 			fail("Cast failed");
 		}
@@ -6342,7 +6342,7 @@ public class ExecutionUnitTest {
 		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
-		} catch (VnanoSyntaxException e) {
+		} catch (VnanoException e) {
 			e.printStackTrace();
 			fail("Cast failed");
 		}
@@ -6374,7 +6374,7 @@ public class ExecutionUnitTest {
 		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
-		} catch (VnanoSyntaxException e) {
+		} catch (VnanoException e) {
 			e.printStackTrace();
 			fail("Cast failed");
 		}
@@ -6394,7 +6394,7 @@ public class ExecutionUnitTest {
 		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
-		} catch (VnanoSyntaxException e) {
+		} catch (VnanoException e) {
 			e.printStackTrace();
 			fail("Cast failed");
 		}
@@ -6426,7 +6426,7 @@ public class ExecutionUnitTest {
 		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
-		} catch (VnanoSyntaxException e) {
+		} catch (VnanoException e) {
 			e.printStackTrace();
 			fail("Cast failed");
 		}
@@ -6455,7 +6455,7 @@ public class ExecutionUnitTest {
 		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
-		} catch (VnanoSyntaxException e) {
+		} catch (VnanoException e) {
 			e.printStackTrace();
 			fail("Cast failed");
 		}
@@ -6475,7 +6475,7 @@ public class ExecutionUnitTest {
 		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
-		} catch (VnanoSyntaxException e) {
+		} catch (VnanoException e) {
 			e.printStackTrace();
 			fail("Cast failed");
 		}
@@ -6507,7 +6507,7 @@ public class ExecutionUnitTest {
 		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
-		} catch (VnanoSyntaxException e) {
+		} catch (VnanoException e) {
 			e.printStackTrace();
 			fail("Cast failed");
 		}
@@ -6540,7 +6540,7 @@ public class ExecutionUnitTest {
 		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
-		} catch (VnanoSyntaxException e) {
+		} catch (VnanoException e) {
 			e.printStackTrace();
 			fail("Cast failed");
 		}
@@ -6560,7 +6560,7 @@ public class ExecutionUnitTest {
 		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
-		} catch (VnanoSyntaxException e) {
+		} catch (VnanoException e) {
 			e.printStackTrace();
 			fail("Cast failed");
 		}
@@ -6592,7 +6592,7 @@ public class ExecutionUnitTest {
 		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
-		} catch (VnanoSyntaxException e) {
+		} catch (VnanoException e) {
 			e.printStackTrace();
 			fail("Cast failed");
 		}
@@ -6624,7 +6624,7 @@ public class ExecutionUnitTest {
 		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
-		} catch (VnanoSyntaxException e) {
+		} catch (VnanoException e) {
 			e.printStackTrace();
 			fail("Cast failed");
 		}
@@ -6644,7 +6644,7 @@ public class ExecutionUnitTest {
 		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
-		} catch (VnanoSyntaxException e) {
+		} catch (VnanoException e) {
 			e.printStackTrace();
 			fail("Cast failed");
 		}
@@ -6665,7 +6665,7 @@ public class ExecutionUnitTest {
 		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
-		} catch (VnanoSyntaxException e) {
+		} catch (VnanoException e) {
 			e.printStackTrace();
 			fail("Cast failed");
 		}
@@ -6682,7 +6682,7 @@ public class ExecutionUnitTest {
 		try {
 			new ExecutionUnit().cast(DataType.INT64, DataType.STRING, output, input);
 			fail("Expected exception did not occured");
-		} catch (VnanoSyntaxException e) {
+		} catch (VnanoException e) {
 			// 例外が発生するのが正しい挙動
 		}
 	}
@@ -6705,7 +6705,7 @@ public class ExecutionUnitTest {
 		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
-		} catch (VnanoSyntaxException e) {
+		} catch (VnanoException e) {
 			e.printStackTrace();
 			fail("Cast failed");
 		}
@@ -6734,7 +6734,7 @@ public class ExecutionUnitTest {
 		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
-		} catch (VnanoSyntaxException e) {
+		} catch (VnanoException e) {
 			e.printStackTrace();
 			fail("Cast failed");
 		}
@@ -6754,7 +6754,7 @@ public class ExecutionUnitTest {
 		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
-		} catch (VnanoSyntaxException e) {
+		} catch (VnanoException e) {
 			e.printStackTrace();
 			fail("Cast failed");
 		}
@@ -6773,7 +6773,7 @@ public class ExecutionUnitTest {
 		try {
 			new ExecutionUnit().cast(DataType.FLOAT64, DataType.STRING, output, input);
 			fail("Expected exception did not occured");
-		} catch (VnanoSyntaxException e) {
+		} catch (VnanoException e) {
 			// 例外が発生するのが正しい挙動
 		}
 	}
@@ -6796,7 +6796,7 @@ public class ExecutionUnitTest {
 		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
-		} catch (VnanoSyntaxException e) {
+		} catch (VnanoException e) {
 			e.printStackTrace();
 			fail("Cast failed");
 		}
@@ -6825,7 +6825,7 @@ public class ExecutionUnitTest {
 		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
-		} catch (VnanoSyntaxException e) {
+		} catch (VnanoException e) {
 			e.printStackTrace();
 			fail("Cast failed");
 		}
@@ -6845,7 +6845,7 @@ public class ExecutionUnitTest {
 		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
-		} catch (VnanoSyntaxException e) {
+		} catch (VnanoException e) {
 			e.printStackTrace();
 			fail("Cast failed");
 		}
@@ -6864,7 +6864,7 @@ public class ExecutionUnitTest {
 		try {
 			new ExecutionUnit().cast(DataType.BOOL, DataType.STRING, output, input);
 			fail("Expected exception did not occured");
-		} catch (VnanoSyntaxException e) {
+		} catch (VnanoException e) {
 			// 例外が発生するのが正しい挙動
 		}
 	}
@@ -6887,7 +6887,7 @@ public class ExecutionUnitTest {
 		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
-		} catch (VnanoSyntaxException e) {
+		} catch (VnanoException e) {
 			e.printStackTrace();
 			fail("Cast failed");
 		}
@@ -6915,7 +6915,7 @@ public class ExecutionUnitTest {
 			((DataContainer<boolean[]>)input).setData(new boolean[]{ false });
 			new ExecutionUnit().cast(DataType.INT64, DataType.BOOL, output, input);
 			fail("Expected exception did not occured");
-		} catch (VnanoSyntaxException e) {
+		} catch (VnanoException e) {
 			// 例外が発生するのが正しい挙動
 		}
 		try {
@@ -6923,7 +6923,7 @@ public class ExecutionUnitTest {
 			((DataContainer<Object[]>)input).setData(new Object[]{ "" });
 			new ExecutionUnit().cast(DataType.INT64, DataType.VOID, output, input);
 			fail("Expected exception did not occured");
-		} catch (VnanoSyntaxException e) {
+		} catch (VnanoException e) {
 			// 例外が発生するのが正しい挙動
 		}
 		try {
@@ -6931,7 +6931,7 @@ public class ExecutionUnitTest {
 			((DataContainer<boolean[]>)input).setData(new boolean[]{ false });
 			new ExecutionUnit().cast(DataType.FLOAT64, DataType.BOOL, output, input);
 			fail("Expected exception did not occured");
-		} catch (VnanoSyntaxException e) {
+		} catch (VnanoException e) {
 			// 例外が発生するのが正しい挙動
 		}
 		try {
@@ -6939,7 +6939,7 @@ public class ExecutionUnitTest {
 			((DataContainer<Object[]>)input).setData(new Object[]{ "" });
 			new ExecutionUnit().cast(DataType.FLOAT64, DataType.VOID, output, input);
 			fail("Expected exception did not occured");
-		} catch (VnanoSyntaxException e) {
+		} catch (VnanoException e) {
 			// 例外が発生するのが正しい挙動
 		}
 		try {
@@ -6947,7 +6947,7 @@ public class ExecutionUnitTest {
 			((DataContainer<long[]>)input).setData(new long[]{ 123L });
 			new ExecutionUnit().cast(DataType.BOOL, DataType.INT64, output, input);
 			fail("Expected exception did not occured");
-		} catch (VnanoSyntaxException e) {
+		} catch (VnanoException e) {
 			// 例外が発生するのが正しい挙動
 		}
 		try {
@@ -6955,7 +6955,7 @@ public class ExecutionUnitTest {
 			((DataContainer<double[]>)input).setData(new double[]{ 2.25 });
 			new ExecutionUnit().cast(DataType.BOOL, DataType.FLOAT64, output, input);
 			fail("Expected exception did not occured");
-		} catch (VnanoSyntaxException e) {
+		} catch (VnanoException e) {
 			// 例外が発生するのが正しい挙動
 		}
 		try {
@@ -6963,7 +6963,7 @@ public class ExecutionUnitTest {
 			((DataContainer<Object[]>)input).setData(new Object[]{ "" });
 			new ExecutionUnit().cast(DataType.BOOL, DataType.VOID, output, input);
 			fail("Expected exception did not occured");
-		} catch (VnanoSyntaxException e) {
+		} catch (VnanoException e) {
 			// 例外が発生するのが正しい挙動
 		}
 		try {
@@ -6971,7 +6971,7 @@ public class ExecutionUnitTest {
 			((DataContainer<Object[]>)input).setData(new Object[]{ "" });
 			new ExecutionUnit().cast(DataType.STRING, DataType.VOID, output, input);
 			fail("Expected exception did not occured");
-		} catch (VnanoSyntaxException e) {
+		} catch (VnanoException e) {
 			// 例外が発生するのが正しい挙動
 		}
 		try {
@@ -6979,7 +6979,7 @@ public class ExecutionUnitTest {
 			((DataContainer<Object[]>)input).setData(new Object[]{ "" });
 			new ExecutionUnit().cast(DataType.VOID, DataType.VOID, output, input);
 			fail("Expected exception did not occured");
-		} catch (VnanoSyntaxException e) {
+		} catch (VnanoException e) {
 			// 例外が発生するのが正しい挙動
 		}
 	}

@@ -7,7 +7,7 @@ package org.vcssl.nano.vm.processor;
 
 
 import org.vcssl.nano.VnanoFatalException;
-import org.vcssl.nano.VnanoSyntaxException;
+import org.vcssl.nano.VnanoException;
 import org.vcssl.nano.interconnect.Interconnect;
 import org.vcssl.nano.lang.DataType;
 import org.vcssl.nano.vm.memory.DataContainer;
@@ -62,7 +62,7 @@ public class DispatchUnit {
 	@SuppressWarnings("unchecked")
 	public final int dispatch(Instruction instruction, Memory memory, Interconnect interconnect,
 			ExecutionUnit executionUnit, int programCounter)
-					throws VnanoSyntaxException {
+					throws VnanoException {
 
 		OperationCode opcode = instruction.getOperationCode();
 		DataType[] dataTypes = instruction.getDataTypes();

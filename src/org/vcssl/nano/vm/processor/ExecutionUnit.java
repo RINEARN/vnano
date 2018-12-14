@@ -11,7 +11,7 @@ import org.vcssl.nano.spec.DataTypeName;
 import org.vcssl.nano.spec.ErrorType;
 import org.vcssl.nano.vm.accelerator.Accelerator;
 import org.vcssl.nano.vm.memory.DataContainer;
-import org.vcssl.nano.VnanoSyntaxException;
+import org.vcssl.nano.VnanoException;
 
 
 /**
@@ -994,7 +994,7 @@ public class ExecutionUnit {
 	 *
 	 * @param type 確保するデータの型
 	 * @param target 対象データ
-	 * @throws VnanoSyntaxException 無効なデータ型が指定された場合に発生します。
+	 * @throws VnanoException 無効なデータ型が指定された場合に発生します。
 	 */
 	@SuppressWarnings("unchecked")
 	public void alloc(DataType type, DataContainer<?> target) {
@@ -1184,7 +1184,7 @@ public class ExecutionUnit {
 	/*
 	// 現時点では不要
 	public void reord(DataType type, DataContainer<?> dest, DataContainer<?> src)
-			throws VnanoSyntaxException {
+			throws VnanoException {
 
 		this.checkDataType(dest, type);
 		this.checkDataType(src, type);
@@ -1458,11 +1458,11 @@ public class ExecutionUnit {
 	 * @throws VnanoFatalException
 	 *   この命令が対応していないデータ型が指定された場合や、
 	 *   指定データ型とオペランドの実際のデータ型が一致しない場合に発生します。
-	 * @throws VnanoSyntaxException
+	 * @throws VnanoException
 	 *   型変換に失敗した場合にスローされます。
 	 */
 	public void cast(DataType destType, DataType srcType, DataContainer<?> dest, DataContainer<?> src)
-			throws VnanoSyntaxException {
+			throws VnanoException {
 
 		int outputOffset = dest.getOffset();
 		int targetIndex = src.getOffset();
@@ -1503,7 +1503,7 @@ public class ExecutionUnit {
 									outputData[outputOffset+i] = Long.parseLong(targetData[targetIndex + i]);
 								}
 							} catch (NumberFormatException nfe){
-								VnanoSyntaxException e = new VnanoSyntaxException(ErrorType.CAST_FAILED_DUE_TO_VALUE);
+								VnanoException e = new VnanoException(ErrorType.CAST_FAILED_DUE_TO_VALUE);
 								e.setErrorWords(new String[] {targetData[targetIndex + i], "int" });
 								throw e;
 							}
@@ -1511,7 +1511,7 @@ public class ExecutionUnit {
 						return;
 					}
 					default : {
-						VnanoSyntaxException e = new VnanoSyntaxException(ErrorType.CAST_FAILED_DUE_TO_TYPE);
+						VnanoException e = new VnanoException(ErrorType.CAST_FAILED_DUE_TO_TYPE);
 						e.setErrorWords(new String[] {DataTypeName.getDataTypeNameOf(srcType), "int" });
 						throw e;
 					}
@@ -1540,7 +1540,7 @@ public class ExecutionUnit {
 							try {
 								outputData[outputOffset+i] = Double.parseDouble(targetData[targetIndex + i]);
 							} catch (NumberFormatException nfe){
-								VnanoSyntaxException e = new VnanoSyntaxException(ErrorType.CAST_FAILED_DUE_TO_VALUE);
+								VnanoException e = new VnanoException(ErrorType.CAST_FAILED_DUE_TO_VALUE);
 								e.setErrorWords(new String[] {targetData[targetIndex + i], "float" });
 								throw e;
 							}
@@ -1548,7 +1548,7 @@ public class ExecutionUnit {
 						return;
 					}
 					default : {
-						VnanoSyntaxException e = new VnanoSyntaxException(ErrorType.CAST_FAILED_DUE_TO_TYPE);
+						VnanoException e = new VnanoException(ErrorType.CAST_FAILED_DUE_TO_TYPE);
 						e.setErrorWords(new String[] {DataTypeName.getDataTypeNameOf(srcType), "float" });
 						throw e;
 					}
@@ -1574,7 +1574,7 @@ public class ExecutionUnit {
 							} else if (targetData[targetIndex + i].equals(falseString)) {
 								outputData[outputOffset+i] = false;
 							} else {
-								VnanoSyntaxException e = new VnanoSyntaxException(ErrorType.CAST_FAILED_DUE_TO_VALUE);
+								VnanoException e = new VnanoException(ErrorType.CAST_FAILED_DUE_TO_VALUE);
 								e.setErrorWords(new String[] {targetData[targetIndex + i], "bool" });
 								throw e;
 							}
@@ -1582,7 +1582,7 @@ public class ExecutionUnit {
 						return;
 					}
 					default : {
-						VnanoSyntaxException e = new VnanoSyntaxException(ErrorType.CAST_FAILED_DUE_TO_TYPE);
+						VnanoException e = new VnanoException(ErrorType.CAST_FAILED_DUE_TO_TYPE);
 						e.setErrorWords(new String[] {DataTypeName.getDataTypeNameOf(srcType), "bool" });
 						throw e;
 					}
@@ -1620,14 +1620,14 @@ public class ExecutionUnit {
 						return;
 					}
 					default : {
-						VnanoSyntaxException e = new VnanoSyntaxException(ErrorType.CAST_FAILED_DUE_TO_TYPE);
+						VnanoException e = new VnanoException(ErrorType.CAST_FAILED_DUE_TO_TYPE);
 						e.setErrorWords(new String[] {DataTypeName.getDataTypeNameOf(srcType), "to string" });
 						throw e;
 					}
 				}
 			}
 			default : {
-				VnanoSyntaxException e = new VnanoSyntaxException(ErrorType.CAST_FAILED_DUE_TO_TYPE);
+				VnanoException e = new VnanoException(ErrorType.CAST_FAILED_DUE_TO_TYPE);
 				e.setErrorWords(new String[] {DataTypeName.getDataTypeNameOf(srcType), DataTypeName.getDataTypeNameOf(destType) });
 				throw e;
 			}
@@ -1640,7 +1640,7 @@ public class ExecutionUnit {
 	/**
 	 * {@link org.vcssl.nano.vm.memory.DataContainer Data} オブジェクトが保持するデータの型を検査し、
 	 * 期待された型と異なれば
-	 * {@link org.vcssl.nano.vm.memory.VnanoSyntaxException InvalidDataTypeException}
+	 * {@link org.vcssl.nano.vm.memory.VnanoException InvalidDataTypeException}
 	 * 例外をスローします。
 	 *
 	 * @param data 型検査するデータ

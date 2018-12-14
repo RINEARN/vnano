@@ -19,7 +19,7 @@ import org.vcssl.nano.spec.ErrorType;
  * @author RINEARN (Fumihiro Matsui)
  */
 @SuppressWarnings("serial")
-public class VnanoSyntaxException extends Exception {
+public class VnanoException extends Exception {
 
 	private static final int LINE_NUMBER_DEFAULT_VALUE = -1;
 
@@ -28,19 +28,19 @@ public class VnanoSyntaxException extends Exception {
 	private String fileName = null;
 	private int lineNumber = LINE_NUMBER_DEFAULT_VALUE;
 
-	public VnanoSyntaxException(ErrorType errorType) {
+	public VnanoException(ErrorType errorType) {
 		this(errorType, (String)null, -1);
 	}
 
-	public VnanoSyntaxException(ErrorType errorType, String fileName, int lineNumber) {
+	public VnanoException(ErrorType errorType, String fileName, int lineNumber) {
 		this(errorType, (String)null, fileName, lineNumber);
 	}
 
-	public VnanoSyntaxException(ErrorType errorType, String errorWord, String fileName, int lineNumber) {
+	public VnanoException(ErrorType errorType, String errorWord, String fileName, int lineNumber) {
 		this(errorType, new String[] {errorWord}, fileName, lineNumber);
 	}
 
-	public VnanoSyntaxException(ErrorType errorType, String[] errorWords, String fileName, int lineNumber) {
+	public VnanoException(ErrorType errorType, String[] errorWords, String fileName, int lineNumber) {
 		super(ErrorMessage.generateErrorMessage(errorType, errorWords));
 
 		this.errorType = errorType;

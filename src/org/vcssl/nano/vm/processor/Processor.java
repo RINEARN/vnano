@@ -5,7 +5,7 @@
 
 package org.vcssl.nano.vm.processor;
 
-import org.vcssl.nano.VnanoSyntaxException;
+import org.vcssl.nano.VnanoException;
 import org.vcssl.nano.interconnect.Interconnect;
 import org.vcssl.nano.vm.memory.Memory;
 
@@ -112,13 +112,13 @@ public class Processor implements Processable {
 	 * @param instructions 命令列
 	 * @param memory 命令列の実行に使用する済み仮想メモリー
 	 * @param interconnect 外部関数プラグインが接続されているインターコネクト（呼び出しに使用）
-	 * @throws VnanoSyntaxException
+	 * @throws VnanoException
 	 *   形式は問題なく、実行するまで成功・失敗が不明な命令（型変換など）の実行に失敗した際などにスローされます。
 	 * @throws VnanoFatalException
 	 *   命令の形式の異常や、仮想メモリーへのアクセスの異常、およびデータの内容や状態に異常があった場合などにスローされます。
 	 */
 	public void process(Instruction[] instructions, Memory memory, Interconnect interconnect)
-			throws VnanoSyntaxException {
+			throws VnanoException {
 
 		// 加減算やその他様々な演算処理を行う演算ユニット
 		ExecutionUnit executionUnit = new ExecutionUnit();
@@ -150,13 +150,13 @@ public class Processor implements Processable {
 	 * @param memory 命令の実行に使用する済み仮想メモリー
 	 * @param interconnect 外部関数プラグインが接続されているインターコネクト（呼び出しに使用）
 	 * @param programCounter 命令実行前のプログラムカウンタの値
-	 * @throws VnanoSyntaxException
+	 * @throws VnanoException
 	 *   形式は問題なく、実行するまで成功・失敗が不明な命令（型変換など）の実行に失敗した際などにスローされます。
 	 * @throws VnanoFatalException
 	 *   命令の形式の異常や、仮想メモリーへのアクセスの異常、およびデータの内容や状態に異常があった場合などにスローされます。
 	 */
 	public int process(Instruction instruction, Memory memory, Interconnect interconnect, int programCounter)
-			throws VnanoSyntaxException {
+			throws VnanoException {
 
 		// 加減算やその他様々な演算処理を行う演算ユニット
 		ExecutionUnit executionUnit = new ExecutionUnit();

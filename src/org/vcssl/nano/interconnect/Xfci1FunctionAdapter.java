@@ -8,8 +8,7 @@ package org.vcssl.nano.interconnect;
 import org.vcssl.connect.ExternalFunctionConnector1;
 import org.vcssl.connect.ExternalFunctionException;
 import org.vcssl.nano.VnanoFatalException;
-import org.vcssl.nano.VnanoRuntimeException;
-import org.vcssl.nano.VnanoSyntaxException;
+import org.vcssl.nano.VnanoException;
 import org.vcssl.nano.lang.AbstractFunction;
 import org.vcssl.nano.lang.DataType;
 import org.vcssl.nano.vm.memory.DataContainer;
@@ -54,10 +53,10 @@ public class Xfci1FunctionAdapter extends AbstractFunction {
 	 * 処理系内部での仕様に準拠した関数へと変換するアダプタを生成します。
 	 *
 	 * @param xfciPlugin XFCI準拠の外部変数プラグイン
-	 * @throws VnanoSyntaxException
+	 * @throws VnanoException
 	 * 		引数のデータや型が、この処理系内部では使用できない場合に発生します。
 	 */
-	public Xfci1FunctionAdapter(ExternalFunctionConnector1 xfciPlugin) throws VnanoSyntaxException {
+	public Xfci1FunctionAdapter(ExternalFunctionConnector1 xfciPlugin) throws VnanoException {
 
 		this.xfciPlugin = xfciPlugin;
 
@@ -172,7 +171,7 @@ public class Xfci1FunctionAdapter extends AbstractFunction {
 			if (!this.parameterDataTypes[argIndex].equals(DataType.VOID)) {
 				try {
 					convertedArgs[argIndex] = this.parameterDataConverters[argIndex].convertToExternalObject(argumentDataUnits[argIndex]);
-				} catch (VnanoSyntaxException e) {
+				} catch (VnanoException e) {
 					// 暫定的な簡易例外処理
 					throw new VnanoFatalException(e);
 				}
@@ -183,15 +182,13 @@ public class Xfci1FunctionAdapter extends AbstractFunction {
 		try {
 			returnObject = this.xfciPlugin.invoke(convertedArgs);
 		} catch (ExternalFunctionException e) {
-			// 暫定的な簡易例外処理
-			throw new VnanoRuntimeException();
+			throw new VnanoFatalException(e);
 		}
 
 		if (!this.returnDataType.equals(DataType.VOID)) {
 			try {
 				this.returnDataConverter.convertToDataContainer(returnObject, returnDataUnit);
-			} catch (VnanoSyntaxException e) {
-				// 暫定的な簡易例外処理
+			} catch (VnanoException e) {
 				throw new VnanoFatalException(e);
 			}
 		}

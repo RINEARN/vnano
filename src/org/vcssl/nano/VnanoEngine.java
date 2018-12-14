@@ -74,7 +74,7 @@ public class VnanoEngine implements ScriptEngine {
 			return evalValue;
 
 		// 発生し得る例外は ScriptException でラップして投げる
-		} catch (VnanoSyntaxException e) {
+		} catch (VnanoException e) {
 
 			String message = ErrorMessage.generateErrorMessage(e.getErrorType(), e.getErrorWords(), this.locale);
 			if (e.hasFileName() && e.hasLineNumber()) {

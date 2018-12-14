@@ -18,7 +18,6 @@ import org.vcssl.connect.ExternalVariableConnector1;
 import org.vcssl.connect.FieldXvci1Adapter;
 import org.vcssl.connect.MethodXfci1Adapter;
 import org.vcssl.nano.VnanoFatalException;
-import org.vcssl.nano.VnanoRuntimeException;
 import org.vcssl.nano.lang.AbstractFunction;
 import org.vcssl.nano.lang.AbstractVariable;
 import org.vcssl.nano.lang.DataType;
@@ -29,7 +28,7 @@ import org.vcssl.nano.spec.IdentifierSyntax;
 import org.vcssl.nano.vm.VirtualMachineObjectCode;
 import org.vcssl.nano.vm.memory.DataContainer;
 import org.vcssl.nano.vm.memory.Memory;
-import org.vcssl.nano.VnanoSyntaxException;
+import org.vcssl.nano.VnanoException;
 
 
 /**
@@ -103,7 +102,7 @@ public class Interconnect {
 	 * @throws DataException データ型の互換性により、接続に失敗した要素があった場合にスローされます。
 	 * @throws IllegalArgumentException サポート対象の関数・変数の形式に準拠していない要素があった場合にスローされます。
 	 */
-	public Interconnect(Bindings bindings) throws VnanoSyntaxException {
+	public Interconnect(Bindings bindings) throws VnanoException {
 		this.functionTable = new FunctionTable();
 		this.globalVariableTable = new VariableTable();
 		this.identifierBindNameMap = new HashMap<String, String>();
@@ -148,7 +147,7 @@ public class Interconnect {
 	 * @throws DataException データ型の互換性により、接続に失敗した要素があった場合にスローされます。
 	 * @throws IllegalArgumentException サポート対象の関数・変数の形式に準拠していない要素があった場合にスローされます。
 	 */
-	private void bind(Bindings bindings) throws VnanoSyntaxException {
+	private void bind(Bindings bindings) throws VnanoException {
 		if (this.bindings != null) {
 			throw new VnanoFatalException("Bindings can be set ONLY ONCE for an instance of the Interconnect.");
 		}
@@ -191,7 +190,7 @@ public class Interconnect {
 	 * @throws DataException データ型の互換性により、接続に失敗した場合にスローされます。
 	 * @throws IllegalArgumentException サポート対象の関数・変数の形式に準拠していないオブジェクトが渡された場合にスローされます。
 	 */
-	private void bind(String bindName, Object object) throws VnanoSyntaxException {
+	private void bind(String bindName, Object object) throws VnanoException {
 
 		// 接続オブジェクトに処理系内で割り当てられる一意識別子
 		String identifier = null;
@@ -247,8 +246,8 @@ public class Interconnect {
 			DataConverter dataConverter;
 			try {
 				dataConverter = new DataConverter(object.getClass());
-			} catch (VnanoSyntaxException e) {
-				throw new VnanoRuntimeException();
+			} catch (VnanoException e) {
+				throw new VnanoFatalException(e);
 			}
 			DataType dataType = dataConverter.getDataType();
 			int rank = dataConverter.getRank();
@@ -256,14 +255,11 @@ public class Interconnect {
 			variable.setDataContainer(dataConverter.convertToDataContainer(object));
 			identifier = this.connect(variable);
 		} else {
-			// 暫定的な簡易例外処理
-			System.err.println("接続不能な形式: " + object.getClass());
-			throw new VnanoRuntimeException();
+			throw new VnanoFatalException("Unconnectable object type: " + object.getClass().getCanonicalName());
 		}
 
 		if (identifier == null) {
-			// 暫定的な簡易例外処理
-			throw new IllegalArgumentException("接続不能な形式");
+			throw new VnanoFatalException("Unconnectable object type: " + object.getClass().getCanonicalName());
 		} else {
 			this.identifierBindNameMap.put(identifier, bindName);
 			return;
@@ -281,7 +277,7 @@ public class Interconnect {
 	 * @return プラグインと一意に対応する管理用キー
 	 * @throws DataException 引数や戻り値のデータ型が非対応であった場合にスローされます。
 	 */
-	public String connect(Field field, Object instance) throws VnanoSyntaxException {
+	public String connect(Field field, Object instance) throws VnanoException {
 		FieldXvci1Adapter adapter = new FieldXvci1Adapter(field, instance);
 		return this.connect(adapter);
 	}
@@ -296,7 +292,7 @@ public class Interconnect {
 	 * @return プラグインと一意に対応する管理用キー
 	 * @throws DataException データ型が非対応であった場合にスローされます。
 	 */
-	public String connect(Method method, Object instance) throws VnanoSyntaxException {
+	public String connect(Method method, Object instance) throws VnanoException {
 		MethodXfci1Adapter adapter = new MethodXfci1Adapter(method,instance);
 		return this.connect(adapter);
 	}
@@ -311,7 +307,7 @@ public class Interconnect {
 	 * @return プラグインと一意に対応する管理用キー
 	 * @throws DataException データ型が非対応であった場合にスローされます。
 	 */
-	public String connect(ExternalVariableConnector1 connector) throws VnanoSyntaxException {
+	public String connect(ExternalVariableConnector1 connector) throws VnanoException {
 		connector.initializeForConnection();
 		Xvci1VariableAdapter adapter = new Xvci1VariableAdapter(connector);
 		this.globalVariableTable.addVariable(adapter);
@@ -329,7 +325,7 @@ public class Interconnect {
 	 * @return プラグインと一意に対応する管理用キー
 	 * @throws DataException 引数や戻り値のデータ型が非対応であった場合にスローされます。
 	 */
-	public String connect(ExternalFunctionConnector1 connector) throws VnanoSyntaxException {
+	public String connect(ExternalFunctionConnector1 connector) throws VnanoException {
 		connector.initializeForConnection();
 		Xfci1FunctionAdapter adapter = new Xfci1FunctionAdapter(connector);
 		this.functionTable.addFunction(adapter);
@@ -384,7 +380,7 @@ public class Interconnect {
 	 *  	外部変数に対応するデータユニットが、仮想メモリー内に保持されていない場合にスローされます。
 	 *  	外部変数からバインディングへ値を書き戻す際に、データの変換に失敗（型の非互換など）した場合にスローされます。
 	 */
-	public void writeback(Memory memory, VirtualMachineObjectCode intermediateCode) throws VnanoSyntaxException {
+	public void writeback(Memory memory, VirtualMachineObjectCode intermediateCode) throws VnanoException {
 
 		// グローバル変数の書き戻し
 		int maxGlobalAddress = intermediateCode.getMaximumGlobalAddress();
