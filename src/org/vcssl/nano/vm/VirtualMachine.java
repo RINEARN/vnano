@@ -14,7 +14,6 @@ import org.vcssl.nano.vm.memory.DataContainer;
 import org.vcssl.nano.vm.memory.Memory;
 import org.vcssl.nano.vm.memory.MemoryAccessException;
 import org.vcssl.nano.vm.processor.Instruction;
-import org.vcssl.nano.vm.processor.InvalidInstructionException;
 import org.vcssl.nano.vm.processor.Processor;
 
 public class VirtualMachine {
@@ -22,7 +21,7 @@ public class VirtualMachine {
 	private boolean acceleratorEnabled = true;
 
 	public Object eval(String assemblyCode, Interconnect interconnect)
-			throws VnanoSyntaxException, MemoryAccessException, InvalidInstructionException {
+			throws VnanoSyntaxException, MemoryAccessException {
 
 		// アセンブラで中間アセンブリコード（VRILコード）から実行用の中間コードに変換
 		Assembler assembler = new Assembler();

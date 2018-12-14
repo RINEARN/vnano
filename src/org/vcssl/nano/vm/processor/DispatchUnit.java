@@ -6,6 +6,7 @@
 package org.vcssl.nano.vm.processor;
 
 
+import org.vcssl.nano.VnanoFatalException;
 import org.vcssl.nano.VnanoSyntaxException;
 import org.vcssl.nano.interconnect.Interconnect;
 import org.vcssl.nano.lang.DataType;
@@ -62,7 +63,7 @@ public class DispatchUnit {
 	@SuppressWarnings("unchecked")
 	public final int dispatch(Instruction instruction, Memory memory, Interconnect interconnect,
 			ExecutionUnit executionUnit, int programCounter)
-					throws VnanoSyntaxException, InvalidInstructionException, MemoryAccessException {
+					throws VnanoSyntaxException, MemoryAccessException {
 
 		OperationCode opcode = instruction.getOperationCode();
 		DataType[] dataTypes = instruction.getDataTypes();
@@ -166,9 +167,7 @@ public class DispatchUnit {
 					executionUnit.alloc(dataTypes[0], operands[0], operands[1]);
 
 				} else {
-					throw new InvalidInstructionException(
-						InvalidInstructionException.ILLEGAL_NUMBER_OF_OPERANDS, Integer.toString(operands.length)
-					);
+					throw new VnanoFatalException("Invalid number of operands: " + Integer.toString(operands.length));
 				}
 				return programCounter + 1;
 			}
@@ -280,8 +279,7 @@ public class DispatchUnit {
 
 			// このディスパッチユニットで未対応の命令（上層で処理すべき拡張命令など）
 			default : {
-				throw new InvalidInstructionException(
-						InvalidInstructionException.ILLEGAL_OPERATION_CODE, opcode);
+				throw new VnanoFatalException("Unsupported operation code: " +  opcode);
 			}
 		}
 	}
@@ -293,25 +291,20 @@ public class DispatchUnit {
 	 *
 	 * @param instruction 確認対象の命令
 	 * @param expectedValue 期待されるオペランドの個数
-	 * @throws InvalidInstructionException
+	 * @throws VnanoFatalException
 	 * 		実際の個数が、期待される個数と異なる場合に発生します。
 	 */
-	private void checkNumberOfOperands(Instruction instruction, int numberOfOperands)
-			throws InvalidInstructionException {
+	private void checkNumberOfOperands(Instruction instruction, int numberOfOperands) {
 
 		int partitionLength = instruction.getOperandPartitions().length;
 		int addressLength = instruction.getOperandPartitions().length;
 
 		if (addressLength != numberOfOperands) {
-			throw new InvalidInstructionException(
-					InvalidInstructionException.ILLEGAL_NUMBER_OF_OPERANDS, Integer.toString(addressLength)
-			);
+			throw new VnanoFatalException("Invalid number of operands: " + Integer.toString(addressLength));
 		}
 
 		if (partitionLength != numberOfOperands) {
-			throw new InvalidInstructionException(
-					InvalidInstructionException.ILLEGAL_NUMBER_OF_OPERANDS, Integer.toString(partitionLength)
-			);
+			throw new VnanoFatalException("Invalid number of operands: " + Integer.toString(addressLength));
 		}
 	}
 

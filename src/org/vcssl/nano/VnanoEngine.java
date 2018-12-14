@@ -22,7 +22,6 @@ import org.vcssl.nano.interconnect.Interconnect;
 import org.vcssl.nano.spec.ErrorMessage;
 import org.vcssl.nano.vm.VirtualMachine;
 import org.vcssl.nano.vm.memory.MemoryAccessException;
-import org.vcssl.nano.vm.processor.InvalidInstructionException;
 
 
 /**
@@ -85,7 +84,7 @@ public class VnanoEngine implements ScriptEngine {
 				throw new ScriptException(message);
 			}
 
-		} catch (InvalidInstructionException | MemoryAccessException e) {
+		} catch (MemoryAccessException e) {
 
 			// 実装最終段階において、例外の種類や原因に応じてより細かく処理を分けて、
 			// エラーメッセージの生成・格納などを行う。現在は暫定的な処理

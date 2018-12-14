@@ -109,7 +109,6 @@
 ./org/vcssl/nano/vm/processor/DispatchUnit.java
 ./org/vcssl/nano/vm/processor/ExecutionUnit.java
 ./org/vcssl/nano/vm/processor/Instruction.java
-./org/vcssl/nano/vm/processor/InvalidInstructionException.java
 ./org/vcssl/nano/vm/processor/OperationCode.java
 ./org/vcssl/nano/vm/processor/package-info.java
 ./org/vcssl/nano/vm/processor/Processable.java

@@ -11,7 +11,6 @@ import org.vcssl.nano.interconnect.Interconnect;
 import org.vcssl.nano.vm.memory.Memory;
 import org.vcssl.nano.vm.memory.MemoryAccessException;
 import org.vcssl.nano.vm.processor.Instruction;
-import org.vcssl.nano.vm.processor.InvalidInstructionException;
 import org.vcssl.nano.vm.processor.Processor;
 
 
@@ -66,7 +65,7 @@ public class Accelerator {
 	 * 		不正な仮想メモリーアクセスが生じた場合などに発生します。
 	 */
 	public void process(Instruction[] instructions, Memory memory, Interconnect interconnect, Processor processor)
-					throws MemoryAccessException, InvalidInstructionException {
+					throws MemoryAccessException {
 
 		// スカラ判定やキャッシュ確保などの高速化用データ解析を実行
 		AccelerationDataManager dataManager = new AccelerationDataManager();

@@ -12,7 +12,6 @@ import org.vcssl.nano.vm.memory.DataContainer;
 import org.vcssl.nano.vm.memory.Memory;
 import org.vcssl.nano.vm.memory.MemoryAccessException;
 import org.vcssl.nano.vm.processor.Instruction;
-import org.vcssl.nano.vm.processor.InvalidInstructionException;
 import org.vcssl.nano.vm.processor.OperationCode;
 import org.vcssl.nano.vm.processor.Processor;
 
@@ -431,7 +430,7 @@ public class AccelerationDispatcher {
 					this.synchronizer.writeCache();
 					this.allocated = true;
 					return this.nextNode;
-				} catch (VnanoSyntaxException | InvalidInstructionException | MemoryAccessException e) {
+				} catch (VnanoSyntaxException | MemoryAccessException e) {
 					e.printStackTrace();
 					return null;
 				}
