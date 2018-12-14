@@ -11,6 +11,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
 
@@ -20,18 +22,33 @@ import javax.script.ScriptException;
 
 import org.vcssl.connect.MethodXfci1Adapter;
 import org.vcssl.nano.VnanoException;
+import org.vcssl.nano.compiler.AstNode;
+import org.vcssl.nano.compiler.CodeGenerator;
+import org.vcssl.nano.compiler.Parser;
+import org.vcssl.nano.compiler.LexicalAnalyzer;
+import org.vcssl.nano.compiler.SemanticAnalyzer;
+import org.vcssl.nano.compiler.Token;
 import org.vcssl.nano.interconnect.Interconnect;
 import org.vcssl.nano.vm.VirtualMachine;
+import org.vcssl.nano.vm.VirtualMachineObjectCode;
+import org.vcssl.nano.vm.assembler.Assembler;
 
 public final class VnanoCommandLineApplication {
 
 	private static final String EXTENSION_VNANO = ".vnano";
-	private static final String EXTENSION_VRIL  = ".vril";
-	private static final String ARGUMENT_OPTION_PREFIX  = "--";
-	private static final String ARGUMENT_OPTION_FILE    = "file";
-	private static final String ARGUMENT_OPTION_DUMP    = "dump";
-	private static final String ARGUMENT_OPTION_RUN     = "run";
+	private static final String EXTENSION_VRIL = ".vril";
+	private static final String ARGUMENT_OPTION_PREFIX = "--";
+	private static final String ARGUMENT_OPTION_FILE = "file";
+	private static final String ARGUMENT_OPTION_DUMP = "dump";
+	private static final String ARGUMENT_OPTION_RUN = "run";
 	private static final String ARGUMENT_OPTION_DEFAULT = ARGUMENT_OPTION_FILE;
+	private static final String DUMP_TARGET_TOKEN = "token";
+	private static final String DUMP_TARGET_PARSED_AST = "parsedAst";
+	private static final String DUMP_TARGET_ANALYZED_AST = "analyzedAst";
+	private static final String DUMP_TARGET_ASSEMBLY_CODE = "assemblyCode";
+	private static final String DUMP_TARGET_OBJECT_CODE = "objectCode";
+	private static final String DUMP_TARGET_ALL = "all";
+	private static final String DUMP_TARGET_DEFAULT = DUMP_TARGET_ALL;
 
 	private boolean runRequired = true;
 
@@ -96,8 +113,8 @@ public final class VnanoCommandLineApplication {
 	}
 
 	public void dispatchOptionProcessing (String optionName, String optionValue, String inputFilePath) {
-		if (optionName == null || optionValue == null) {
-			System.err.println("Fatal error: option name/value is null.");
+		if (optionName == null) {
+			System.err.println("Fatal error: option name is null.");
 			return;
 		}
 		switch (optionName) {
@@ -113,6 +130,7 @@ public final class VnanoCommandLineApplication {
 			// --run オプションの場合
 			case ARGUMENT_OPTION_RUN : {
 				this.setRunRequired(optionValue);
+				return;
 			}
 
 			// --dump オプションの場合
@@ -132,6 +150,8 @@ public final class VnanoCommandLineApplication {
 	private Map<String, String> parseArguments(String[] args) {
 		int argLength = args.length;
 
+		List<String> optionNameList = new LinkedList<String>();
+
 		// オプションの名前をキーとし、その指定内容を値とする紐づけるマップ
 		HashMap<String, String> optionNameValueMap = new HashMap<String, String>();
 
@@ -146,6 +166,7 @@ public final class VnanoCommandLineApplication {
 			if (args[argIndex].startsWith(ARGUMENT_OPTION_PREFIX)) {
 				currentArgIsOption = true;
 				currentOptionName = args[argIndex].substring(ARGUMENT_OPTION_PREFIX.length(), args[argIndex].length());
+				optionNameList.add(currentOptionName);
 
 			} else {
 				// 事前にオプション名が指定されていた場合は、その名前をキーとして、引数値をマップに追加
@@ -162,6 +183,16 @@ public final class VnanoCommandLineApplication {
 				currentOptionName = null;
 			}
 		}
+
+		// オプション名が存在したのにマップで値と紐づけられていないものは、値が省略されているので、マップにnullを値として入れておく
+		Iterator<String> optionNameIterator = optionNameList.iterator();
+		while (optionNameIterator.hasNext()) {
+			String optionName = optionNameIterator.next();
+			if (!optionNameValueMap.containsKey(optionName)) {
+				optionNameValueMap.put(optionName, null);
+			}
+		}
+
 		return optionNameValueMap;
 	}
 
@@ -228,8 +259,167 @@ public final class VnanoCommandLineApplication {
 		return interconnect;
 	}
 
-	private void dump(String inputFilePath, String dumpTarget) {
+	private String loadCode(String inputFilePath) {
+		String code = "";
+		try {
+			List<String> lines = Files.readAllLines(Paths.get(inputFilePath));
+			StringBuilder codeBuilder = new StringBuilder();
+			String eol = System.getProperty("line.separator");
+			for (String line: lines) {
+				codeBuilder.append(line);
+				codeBuilder.append(eol);
+			}
+			code = codeBuilder.toString();
+		} catch (IOException e) {
+			e.printStackTrace();
+			return null;
+		}
+		return code;
+	}
 
+	private void dump(String inputFilePath, String dumpTarget) {
+		if (dumpTarget == null) {
+			dumpTarget = DUMP_TARGET_DEFAULT;
+		}
+		switch (dumpTarget) {
+			case DUMP_TARGET_TOKEN : {
+				this.dump(inputFilePath, false, true, false, false, false, false);
+				return;
+			}
+			case DUMP_TARGET_PARSED_AST : {
+				this.dump(inputFilePath, false, false, true, false, false, false);
+				return;
+			}
+			case DUMP_TARGET_ANALYZED_AST : {
+				this.dump(inputFilePath, false, false, false, true, false, false);
+				return;
+			}
+			case DUMP_TARGET_ASSEMBLY_CODE : {
+				this.dump(inputFilePath, false, false, false, false, true, false);
+				return;
+			}
+			case DUMP_TARGET_OBJECT_CODE : {
+				this.dump(inputFilePath, false, false, false, false, false, true);
+				return;
+			}
+			case DUMP_TARGET_ALL : {
+				this.dump(inputFilePath, true, true, true, true, true, true);
+				return;
+			}
+			default : {
+				System.err.println("Fatal error: invalid dump target: " + dumpTarget);
+				return;
+			}
+		}
+	}
+
+
+	private void dump(String inputFilePath, boolean withHeader,
+			boolean dumpTokens, boolean dumpParsedAst, boolean dumpAnalyzedAst,
+			boolean dumpAssemblyCode, boolean dumpObjectCode) {
+
+		// ファイルからスクリプトコードを全部読み込む
+		String scriptCode = this.loadCode(inputFilePath);
+		if (scriptCode == null) {
+			return;
+		}
+
+		// メソッド接続済みのインターコネクトを生成して取得
+		Interconnect interconnect = this.createInitializedInterconnect();
+		if (interconnect == null) {
+			return;
+		}
+
+		if (withHeader) {
+			System.out.println("================================================================================");
+			System.out.println("= DUMP BEGIN");
+			System.out.println("================================================================================");
+		}
+
+
+		try {
+			// 字句解析器でトークンを生成
+			Token[] tokens = new LexicalAnalyzer().analyze(scriptCode, inputFilePath);
+
+			// トークンをダンプ
+			if (dumpTokens) {
+				if (withHeader) {
+					System.out.println("");
+					System.out.println("================================================================================");
+					System.out.println("= Tokens");
+					System.out.println("================================================================================");
+				}
+				for (Token token : tokens) {
+					System.out.println(token);
+				}
+			}
+
+			// 構文解析器でAST（抽象構文木）を生成
+			AstNode parsedNode = new Parser().parse(tokens);
+
+			// ASTをダンプ
+			if (dumpParsedAst) {
+				if (withHeader) {
+					System.out.println("");
+					System.out.println("================================================================================");
+					System.out.println("= Parsed AST");
+					System.out.println("================================================================================");
+				}
+				System.out.println(parsedNode.toString());
+			}
+
+			// 意味解析器でASTの情報を補間したものを取得
+			AstNode analyzedNode = new SemanticAnalyzer().analyze(parsedNode, interconnect);
+
+			// 意味解析済みASTをダンプ
+			if (dumpAnalyzedAst) {
+				if (withHeader) {
+					System.out.println("");
+					System.out.println("================================================================================");
+					System.out.println("= Analyzed AST");
+					System.out.println("================================================================================");
+				}
+				System.out.println(analyzedNode.toString());
+			}
+
+			// ASTから中間アセンブリコード（VRILコード）を生成
+			String assemblyCode = new CodeGenerator().generate(analyzedNode);
+
+			// 中間アセンブリコードをダンプ
+			if (dumpAssemblyCode) {
+				if (withHeader) {
+					System.out.println("");
+					System.out.println("================================================================================");
+					System.out.println("= Assembly Code (VRIL Code)");
+					System.out.println("================================================================================");
+				}
+				System.out.println(assemblyCode);
+			}
+
+			// 生成した中間アセンブリコード（VRILコード）をアセンブルし、VM用オブジェクトコードを生成
+			VirtualMachineObjectCode vmObjectCode = new Assembler().assemble(assemblyCode, interconnect);
+
+			// VMオブジェクトコードをダンプ
+			if (dumpObjectCode) {
+				if (withHeader) {
+					System.out.println("");
+					System.out.println("================================================================================");
+					System.out.println("= VM Object Code");
+					System.out.println("================================================================================");
+				}
+				vmObjectCode.dump();
+			}
+
+			if (withHeader) {
+				System.out.println("================================================================================");
+				System.out.println("= DUMP END");
+				System.out.println("================================================================================");
+			}
+
+		} catch (VnanoException e) {
+			e.printStackTrace();
+			return;
+		}
 	}
 
 	private void executeFile(String inputFilePath) {
@@ -262,18 +452,8 @@ public final class VnanoCommandLineApplication {
 	public void executeVrilCodeFile(String inputFilePath) {
 
 		// ファイルからVRILコードを全部読み込む
-		String vrilCode = "";
-		try {
-			List<String> lines = Files.readAllLines(Paths.get(inputFilePath));
-			StringBuilder codeBuilder = new StringBuilder();
-			String eol = System.getProperty("line.separator");
-			for (String line: lines) {
-				codeBuilder.append(line);
-				codeBuilder.append(eol);
-			}
-			vrilCode = codeBuilder.toString();
-		} catch (IOException e) {
-			e.printStackTrace();
+		String vrilCode = this.loadCode(inputFilePath);
+		if (vrilCode == null) {
 			return;
 		}
 
