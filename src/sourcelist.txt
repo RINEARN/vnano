@@ -35,6 +35,7 @@
 ./org/vcssl/nano/lang/package-info.java
 ./org/vcssl/nano/lang/Variable.java
 ./org/vcssl/nano/lang/VariableTable.java
+./org/vcssl/nano/main/VnanoCommandLineApplication.java
 ./org/vcssl/nano/package-info.java
 ./org/vcssl/nano/spec/AssemblyWord.java
 ./org/vcssl/nano/spec/DataTypeName.java

@@ -20,4 +20,4 @@ cp -r src/META-INF/. bin/META-INF/.
 # create a JAR file
 # --------------------------------------------------
 
-jar cvf Vnano.jar -C bin org -C bin META-INF/services
+jar cvfm Vnano.jar src/main.mf -C bin org -C bin META-INF/services

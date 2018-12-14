@@ -1,0 +1,664 @@
+/*
+ * Copyright(C) 2018 RINEARN (Fumihiro Matsui)
+ * This software is released under the MIT License.
+ */
+
+package org.vcssl.nano.main;
+
+import java.util.List;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.Map;
+import java.util.Set;
+
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
+
+import org.vcssl.connect.MethodXfci1Adapter;
+import org.vcssl.nano.VnanoException;
+import org.vcssl.nano.compiler.AstNode;
+import org.vcssl.nano.compiler.CodeGenerator;
+import org.vcssl.nano.compiler.Parser;
+import org.vcssl.nano.compiler.LexicalAnalyzer;
+import org.vcssl.nano.compiler.SemanticAnalyzer;
+import org.vcssl.nano.compiler.Token;
+import org.vcssl.nano.interconnect.Interconnect;
+import org.vcssl.nano.vm.VirtualMachine;
+import org.vcssl.nano.vm.VirtualMachineObjectCode;
+import org.vcssl.nano.vm.assembler.Assembler;
+
+public final class VnanoCommandLineApplication {
+
+	private static final String EXTENSION_VNANO = ".vnano";
+	private static final String EXTENSION_VRIL = ".vril";
+
+	private static final String OPTION_NAME_PREFIX = "--";
+	private static final String OPTION_NAME_FILE = "file";
+	private static final String OPTION_NAME_HELP = "help";
+	private static final String OPTION_NAME_DUMP = "dump";
+	private static final String OPTION_NAME_RUN = "run";
+	private static final String OPTION_NAME_ENCODING = "encoding";
+	private static final String OPTION_NAME_DEFAULT = OPTION_NAME_FILE;
+
+	private static final String DUMP_TARGET_INPUT_CODE = "inputCode";
+	private static final String DUMP_TARGET_TOKEN = "token";
+	private static final String DUMP_TARGET_PARSED_AST = "parsedAst";
+	private static final String DUMP_TARGET_ANALYZED_AST = "analyzedAst";
+	private static final String DUMP_TARGET_ASSEMBLY_CODE = "assemblyCode";
+	private static final String DUMP_TARGET_OBJECT_CODE = "objectCode";
+	private static final String DUMP_TARGET_ALL = "all";
+	private static final String DUMP_TARGET_DEFAULT = DUMP_TARGET_ALL;
+
+	private boolean runRequired = true;
+	private String encoding = null;
+
+	// スクリプトからアクセスするメソッドを提供するクラス
+	public class ScriptIO {
+		public void output(long value) {
+			System.out.print(value);
+		}
+		public void output(double value) {
+			System.out.print(value);
+		}
+		public void output(boolean value) {
+			System.out.print(value);
+		}
+		public void output(String value) {
+			System.out.print(value);
+		}
+	}
+
+	public static void main(String[] args) {
+		//args = new String[] { "Test.vnano", "--dump" };
+		VnanoCommandLineApplication application = new VnanoCommandLineApplication();
+		application.dispatch(args);
+	}
+
+	public VnanoCommandLineApplication() {
+	}
+
+	public void help() {
+		System.out.println("Vnano ( Command-Line Mode for Development and Debugging )");
+		System.out.println("");
+		System.out.println("[ Usage ]");
+		System.out.println("");
+		System.out.println("      java -jar Vnano.jar fileName");
+		System.out.println("");
+		System.out.println("        or,");
+		System.out.println("");
+		System.out.println("      java -jar Vnano.jar fileName --option1 value1 --option2 value2 ...");
+		System.out.println("");
+		System.out.println("[ Options ]");
+		System.out.println("");
+
+		System.out.println("  --help");
+		System.out.println("");
+		System.out.println("    Show this help messages.");
+		System.out.println("");
+		System.out.println("");
+
+		System.out.println("  --file <filePath>");
+		System.out.println("");
+		System.out.println("    Load the script code (.vnano) or the VRIL code (.vril) from the file.");
+		System.out.println("    This is the default option for 1-argument.");
+		System.out.println("    You can skip to describe this option name for simplicity of the commands.");
+		System.out.println("");
+		System.out.println("    e.g.");
+		System.out.println("");
+		System.out.println("      java -jar Vnano.jar --file Example.vnano");
+		System.out.println("      java -jar Vnano.jar --file Example.vril");
+		System.out.println("      java -jar Vnano.jar Example.vnano");
+		System.out.println("      java -jar Vnano.jar Example.vril");
+		System.out.println("");
+		System.out.println("");
+
+		System.out.println("  --encoding <encodingName>");
+		System.out.println("");
+		System.out.println("      Specify the text-encoding of the script file.");
+		System.out.println("");
+		System.out.println("    e.g.");
+		System.out.println("");
+		System.out.println("      java -jar Vnano.jar Example.vnano --encoding UTF-8");
+		System.out.println("      java -jar Vnano.jar Example.vnano --encoding Shift_JIS");
+		System.out.println("");
+		System.out.println("");
+
+		System.out.println("  --dump <dumpTarget>");
+		System.out.println("");
+		System.out.println("      Dump the intermediate information to the standard output.");
+		System.out.println("      You can choose and specify the <dumpTarget> from the following list:");
+		System.out.println("");
+		System.out.println("        inputCode     : Content of the code loaded from the file.");
+		System.out.println("        token         : Tokens generated by the lexical analyzer.");
+		System.out.println("        parsedAst     : Abstract Syntax Tree (AST) generated by the parser.");
+		System.out.println("        analyzedAst   : Information-appended AST generated by the semantic analyzer.");
+		System.out.println("        assemblyCode  : Virtual assembly code written in VRIL generated by the code generator.");
+		System.out.println("        objectCode    : Virtual object code for running on the VM generated by the assembler.");
+		System.out.println("        all (default) : All of the above dump targets.");
+		System.out.println("");
+		System.out.println("    e.g.");
+		System.out.println("");
+		System.out.println("      java -jar Vnano.jar Example.vnano --dump");
+		System.out.println("      java -jar Vnano.jar Example.vnano --dump all");
+		System.out.println("      java -jar Vnano.jar Example.vnano --dump assemblyCode");
+		System.out.println("");
+		System.out.println("");
+
+		System.out.println("  --run <runOrNot>");
+		System.out.println("");
+		System.out.println("      Specify whether you want to run the code loaded from the file or not.");
+		System.out.println("      This option is enabled as the default, and the default value is true.");
+		System.out.println("      You can choose and specify the value of <runOrNot> from the followings:");
+		System.out.println("");
+		System.out.println("        true (default) : Run the code.");
+		System.out.println("        false          : Don't run the code.");
+		System.out.println("");
+		System.out.println("      This option is useful for the combination usage with the --dump option.");
+		System.out.println("");
+		System.out.println("    e.g.");
+		System.out.println("");
+		System.out.println("      java -jar Vnano.jar Example.vnano --run false");
+		System.out.println("      java -jar Vnano.jar Example.vnano --run false --dump assemblyCode");
+		System.out.println("      java -jar Vnano.jar Example.vnano --run false --dump assemblyCode > debug.txt");
+		System.out.println("");
+		System.out.println("");
+		System.out.println("[ Supported Functions ]");
+		System.out.println("");
+		System.out.println("    For development and debugging, following functions are available");
+		System.out.println("    in the script code running on this mode:");
+		System.out.println("");
+		System.out.println("      void output(int)");
+		System.out.println("      void output(long)");
+		System.out.println("      void output(float)");
+		System.out.println("      void output(double)");
+		System.out.println("      void output(bool)");
+		System.out.println("      void output(string)");
+		System.out.println("");
+		System.out.println("    Please note that these functions are supported by default ONLY ON THIS MODE.");
+		System.out.println("    No default functions are supported when the script engine is embedded in ");
+		System.out.println("    other applications, so it is necessary to implement and connect ");
+		System.out.println("    functions(methods) you want to use in the other application to the script engine.");
+		System.out.println("");
+		System.out.println("    Please see the source code of:");
+		System.out.println("");
+		System.out.println("      src/org/vcssl/nano/main/VnanoCommanLineApplication.java");
+		System.out.println("");
+		System.out.println("    as a reference.");
+		System.out.println("");
+	}
+
+	public void dispatch(String[] args) {
+		int argLength = args.length;
+
+		// 引数が無ければヘルプを表示して終了
+		if (argLength == 0) {
+			this.help();
+			return;
+		}
+
+		// 引数が--helpの場合もヘルプを表示して終了
+		if (argLength == 1 && args[0].equals(OPTION_NAME_PREFIX + OPTION_NAME_HELP)) {
+			this.help();
+			return;
+		}
+
+		// 引数を解釈し、オプション名をキーとしてオプション値を返すマップを取得
+		Map<String, String> optionNameValueMap = this.parseArguments(args);
+
+		// 読み込むファイルのパス（デフォルトオプションなので名称未指定の引数もこれに該当）を取得
+		if (!optionNameValueMap.containsKey(OPTION_NAME_FILE)) {
+			System.err.println("No script file is specified.");
+		}
+		String inputFilePath = optionNameValueMap.get(OPTION_NAME_FILE);
+
+		// オプションを一つずつ読み、対応する処理を実行する
+		Set<Map.Entry<String, String>> optionNameValueSet = optionNameValueMap.entrySet();
+		for (Map.Entry<String, String> optionNameValuePair : optionNameValueSet) {
+			String optionName = optionNameValuePair.getKey();
+			String optionValue = optionNameValuePair.getValue();
+			this.dispatchOptionProcessing(optionName, optionValue, inputFilePath);
+		}
+
+		// スクリプトの実行が必要なら実行する
+		if (this.runRequired) {
+			this.executeFile(inputFilePath);
+		}
+	}
+
+	public void dispatchOptionProcessing (String optionName, String optionValue, String inputFilePath) {
+		if (optionName == null) {
+			System.err.println("Fatal error: option name is null.");
+			return;
+		}
+		switch (optionName) {
+
+			// --file または無名（デフォルト）オプションの場合
+			case OPTION_NAME_FILE : {
+				// このオプションの値は、事前に dispatch 側で取得され、
+				// スクリプトの実行が必要な場合もそちら側で行うため、
+				// ここでは何もしない
+				return;
+			}
+
+			// --help オプションの場合
+			case OPTION_NAME_HELP : {
+				this.help();
+				return;
+			}
+
+			// --run オプションの場合
+			case OPTION_NAME_RUN : {
+				this.setRunRequired(optionValue);
+				return;
+			}
+
+			// --encoding オプションの場合
+			case OPTION_NAME_ENCODING : {
+				this.setEncoding(optionValue);
+				return;
+			}
+
+			// --dump オプションの場合
+			case OPTION_NAME_DUMP : {
+				this.dump(inputFilePath, optionValue);
+				return;
+			}
+
+			// その他のオプションの場合
+			default : {
+				System.err.println("Unknown option name: " + optionName);
+				return;
+			}
+		}
+	}
+
+	private Map<String, String> parseArguments(String[] args) {
+		int argLength = args.length;
+
+		List<String> optionNameList = new LinkedList<String>();
+
+		// オプションの名前をキーとし、その指定内容を値とする紐づけるマップ
+		HashMap<String, String> optionNameValueMap = new HashMap<String, String>();
+
+		// オプション名の指定（「--」で始まる引数）があった場合に内容を控え、値を読んでマップ登録する際に使う
+		boolean currentArgIsOption = false;
+		String currentOptionName = null;
+
+		// 全ての引数を先頭から読んでいく
+		for (int argIndex=0; argIndex<argLength; argIndex++) {
+
+			// オプションプレフィックス(--)で始まる場合は、オプション名の指定と見なし、次引数の解釈のために保持
+			if (args[argIndex].startsWith(OPTION_NAME_PREFIX)) {
+				currentArgIsOption = true;
+				currentOptionName = args[argIndex].substring(OPTION_NAME_PREFIX.length(), args[argIndex].length());
+				optionNameList.add(currentOptionName);
+
+			} else {
+				// 事前にオプション名が指定されていた場合は、その名前をキーとして、引数値をマップに追加
+				if (currentArgIsOption) {
+					optionNameValueMap.put(currentOptionName, args[argIndex]);
+
+				// 事前にオプション名が無指定だった場合は、デフォルトオプション名をキーとし、引数値をマップに追加
+				} else {
+					optionNameValueMap.put(OPTION_NAME_DEFAULT, args[argIndex]);
+				}
+
+				// オプション名指定をリセット
+				currentArgIsOption = false;
+				currentOptionName = null;
+			}
+		}
+
+		// オプション名が存在したのにマップで値と紐づけられていないものは、値が省略されているので、マップにnullを値として入れておく
+		Iterator<String> optionNameIterator = optionNameList.iterator();
+		while (optionNameIterator.hasNext()) {
+			String optionName = optionNameIterator.next();
+			if (!optionNameValueMap.containsKey(optionName)) {
+				optionNameValueMap.put(optionName, null);
+			}
+		}
+
+		return optionNameValueMap;
+	}
+
+	private void setEncoding(String encoding) {
+		if (encoding == null) {
+			System.err.println("No encoding is specified.");
+		}
+		this.encoding = encoding;
+	}
+
+	private void setRunRequired(String optionValue) {
+		// Boolean.valueOf だと true 以外が全て false になるので直球で比較
+		if (optionValue.equals("true")) {
+			this.runRequired = true;
+		} else if (optionValue.equals("false")) {
+			this.runRequired = false;
+		} else {
+			System.err.println(
+					"Invalid value for " + OPTION_NAME_PREFIX + OPTION_NAME_RUN + "option: " + optionValue
+			);
+		}
+	}
+
+	private ScriptEngine createInitializedScriptEngine() {
+
+		// ScriptEngineManagerでVnanoのスクリプトエンジンを検索して取得
+		ScriptEngineManager manager = new ScriptEngineManager();
+		ScriptEngine engine = manager.getEngineByName("vnano");
+		if (engine == null) {
+			System.err.println("Faital error: ScriptEngine not found.");
+			return null;
+		}
+
+		// メソッド・フィールドを外部関数・変数としてスクリプトエンジンに接続
+		try {
+			ScriptIO ioInstance = new ScriptIO();
+			engine.put("output(int)",    new Object[]{ ScriptIO.class.getMethod("output",long.class    ), ioInstance } );
+			engine.put("output(float)",  new Object[]{ ScriptIO.class.getMethod("output",double.class ), ioInstance } );
+			engine.put("output(bool)",   new Object[]{ ScriptIO.class.getMethod("output",boolean.class), ioInstance } );
+			engine.put("output(string)", new Object[]{ ScriptIO.class.getMethod("output",String.class ), ioInstance } );
+
+		} catch (NoSuchMethodException e){
+			System.err.println("Method/field not found.");
+			e.printStackTrace();
+			return null;
+		}
+		return engine;
+	}
+
+	private Interconnect createInitializedInterconnect() {
+
+		// 何も接続されていない、空のインターコネクトを生成
+		Interconnect interconnect = new Interconnect();
+
+		// メソッド・フィールドを外部関数・変数としてインターコネクトに接続
+		try {
+			ScriptIO ioInstance = new ScriptIO();
+			interconnect.connect( new MethodXfci1Adapter( ScriptIO.class.getMethod("output",long.class    ), ioInstance) );
+			interconnect.connect( new MethodXfci1Adapter( ScriptIO.class.getMethod("output",double.class ), ioInstance) );
+			interconnect.connect( new MethodXfci1Adapter( ScriptIO.class.getMethod("output",boolean.class), ioInstance) );
+			interconnect.connect( new MethodXfci1Adapter( ScriptIO.class.getMethod("output",String.class ), ioInstance) );
+
+		} catch (NoSuchMethodException e){
+			System.err.println("Method/field not found.");
+			e.printStackTrace();
+			return null;
+		} catch (VnanoException e) {
+			System.err.println("Method/field could not be connected.");
+			e.printStackTrace();
+		}
+		return interconnect;
+	}
+
+	private String loadCode(String inputFilePath) {
+		String code = "";
+		try {
+			List<String> lines;
+			if (this.encoding == null) {
+				lines = Files.readAllLines(Paths.get(inputFilePath));
+			} else {
+				lines = Files.readAllLines(Paths.get(inputFilePath), Charset.forName(this.encoding));
+			}
+			StringBuilder codeBuilder = new StringBuilder();
+			String eol = System.getProperty("line.separator");
+			for (String line: lines) {
+				codeBuilder.append(line);
+				codeBuilder.append(eol);
+			}
+			code = codeBuilder.toString();
+		} catch (IOException e) {
+			e.printStackTrace();
+			return null;
+		}
+		return code;
+	}
+
+	private void dump(String inputFilePath, String dumpTarget) {
+		if (dumpTarget == null) {
+			dumpTarget = DUMP_TARGET_DEFAULT;
+		}
+		try {
+			switch (dumpTarget) {
+				case DUMP_TARGET_INPUT_CODE : {
+					this.dump(inputFilePath, false, true, false, false, false, false, false);
+					return;
+				}
+				case DUMP_TARGET_TOKEN : {
+					this.dump(inputFilePath, false, false, true, false, false, false, false);
+					return;
+				}
+				case DUMP_TARGET_PARSED_AST : {
+					this.dump(inputFilePath, false, false, false, true, false, false, false);
+					return;
+				}
+				case DUMP_TARGET_ANALYZED_AST : {
+					this.dump(inputFilePath, false, false, false, false, true, false, false);
+					return;
+				}
+				case DUMP_TARGET_ASSEMBLY_CODE : {
+					this.dump(inputFilePath, false, false, false, false, false, true, false);
+					return;
+				}
+				case DUMP_TARGET_OBJECT_CODE : {
+					this.dump(inputFilePath, false, false, false, false, false, false, true);
+					return;
+				}
+				case DUMP_TARGET_ALL : {
+					this.dump(inputFilePath, true, true, true, true, true, true, true);
+					return;
+				}
+				default : {
+					System.err.println("Fatal error: invalid dump target: " + dumpTarget);
+					return;
+				}
+			}
+		} catch (VnanoException e) {
+			e.printStackTrace();
+			return;
+		}
+	}
+
+
+	private void dump(String inputFilePath, boolean withHeader, boolean dumpInputCode,
+			boolean dumpTokens, boolean dumpParsedAst, boolean dumpAnalyzedAst,
+			boolean dumpAssemblyCode, boolean dumpObjectCode) throws VnanoException {
+
+		// 入力ファイルの分類：中間アセンブリコード（VRILコード）の場合はコンパイル済みなので、後工程のみダンプする
+		boolean inputIsAssemblyCode = inputFilePath.endsWith(EXTENSION_VRIL);
+		boolean inputIsScriptCode   = inputFilePath.endsWith(EXTENSION_VNANO);
+
+		// ファイルからスクリプトコードを全部読み込む
+		String inputCode = this.loadCode(inputFilePath);
+		if (inputCode == null) {
+			return;
+		}
+
+		// メソッド接続済みのインターコネクトを生成して取得
+		Interconnect interconnect = this.createInitializedInterconnect();
+		if (interconnect == null) {
+			return;
+		}
+
+		if (withHeader) {
+			System.out.println("================================================================================");
+			System.out.println("= DUMP BEGIN");
+			System.out.println("================================================================================");
+		}
+
+		// 読み込んだコードをダンプ
+		if (dumpInputCode) {
+			if (withHeader) {
+				System.out.println("");
+				System.out.println("================================================================================");
+				System.out.println("= Input Code");
+				System.out.println("= - Loaded from: " + inputFilePath);
+				System.out.println("================================================================================");
+			}
+			System.out.println(inputCode);
+		}
+
+		// コンパイル結果である中間アセンブリコードを控える
+		String assemblyCode = null;
+
+		// 入力が中間アセンブリコードである場合は、上の変数を入力コードでそのまま上書き
+		if (inputIsAssemblyCode) {
+			assemblyCode = inputCode;
+		}
+
+		// 入力がスクリプトコードである場合は、コンパイラでアセンブリコードに変換し、その過程も逐次ダンプする
+		if (inputIsScriptCode) {
+
+			// 字句解析器でトークンを生成
+			Token[] tokens = new LexicalAnalyzer().analyze(inputCode, inputFilePath);
+
+			// トークンをダンプ
+			if (dumpTokens) {
+				if (withHeader) {
+					System.out.println("");
+					System.out.println("================================================================================");
+					System.out.println("= Tokens");
+					System.out.println("= - Output of: org.vcssl.nano.compiler.LexicalAnalyzer");
+					System.out.println("= - Input  of: org.vcssl.nano.compiler.Parser");
+					System.out.println("================================================================================");
+				}
+				for (Token token : tokens) {
+					System.out.println(token);
+				}
+			}
+
+			// 構文解析器でAST（抽象構文木）を生成
+			AstNode parsedNode = new Parser().parse(tokens);
+
+			// ASTをダンプ
+			if (dumpParsedAst) {
+				if (withHeader) {
+					System.out.println("");
+					System.out.println("================================================================================");
+					System.out.println("= Parsed AST");
+					System.out.println("= - Output of: org.vcssl.nano.compiler.Parser");
+					System.out.println("= - Input  of: org.vcssl.nano.compiler.SemanticAnalyzer");
+					System.out.println("================================================================================");
+				}
+				System.out.println(parsedNode.toString());
+			}
+
+			// 意味解析器でASTの情報を補間したものを取得
+			AstNode analyzedNode = new SemanticAnalyzer().analyze(parsedNode, interconnect);
+
+			// 意味解析済みASTをダンプ
+			if (dumpAnalyzedAst) {
+				if (withHeader) {
+					System.out.println("");
+					System.out.println("================================================================================");
+					System.out.println("= Analyzed AST");
+					System.out.println("= - Output of: org.vcssl.nano.compiler.SemanticAnalyzer");
+					System.out.println("= - Input  of: org.vcssl.nano.compiler.CodeGenerator");
+					System.out.println("================================================================================");
+				}
+				System.out.println(analyzedNode.toString());
+			}
+
+			// ASTから中間アセンブリコード（VRILコード）を生成
+			assemblyCode = new CodeGenerator().generate(analyzedNode);
+
+			// 中間アセンブリコードをダンプ
+			if (dumpAssemblyCode) {
+				if (withHeader) {
+					System.out.println("");
+					System.out.println("================================================================================");
+					System.out.println("= Assembly Code (VRIL Code)");
+					System.out.println("= - Output of: org.vcssl.nano.compiler.CodeGenerator");
+					System.out.println("= - Input  of: org.vcssl.nano.vm.assembler.Assembler");
+					System.out.println("================================================================================");
+				}
+				System.out.println(assemblyCode);
+			}
+		}
+
+		// 中間アセンブリコード（VRILコード）をアセンブルし、VM用オブジェクトコードを生成
+		VirtualMachineObjectCode vmObjectCode = new Assembler().assemble(assemblyCode, interconnect);
+
+		// VMオブジェクトコードをダンプ
+		if (dumpObjectCode) {
+			if (withHeader) {
+				System.out.println("");
+				System.out.println("================================================================================");
+				System.out.println("= VM Object Code");
+				System.out.println("= - Output of: org.vcssl.nano.vm.assembler.Assembler");
+				System.out.println("================================================================================");
+			}
+			vmObjectCode.dump();
+		}
+
+		if (withHeader) {
+			System.out.println("================================================================================");
+			System.out.println("= DUMP END");
+			System.out.println("================================================================================");
+		}
+
+	}
+
+	private void executeFile(String inputFilePath) {
+		if (inputFilePath.endsWith(EXTENSION_VNANO)) {
+			this.executeVnanoScriptFile(inputFilePath);
+		} else if (inputFilePath.endsWith(EXTENSION_VRIL)) {
+			this.executeVrilCodeFile(inputFilePath);
+		} else {
+			System.err.println("Unknown file type (extension): " + inputFilePath);
+		}
+	}
+
+	public void executeVnanoScriptFile(String inputFilePath) {
+
+		// ファイルからVRILコードを全部読み込む
+		String scriptCode = this.loadCode(inputFilePath);
+		if (scriptCode == null) {
+			return;
+		}
+
+		// メソッド接続済みのスクリプトエンジンを生成して取得
+		ScriptEngine engine = this.createInitializedScriptEngine();
+		if (engine == null) {
+			return;
+		}
+
+		// スクリプトを実行
+		try {
+			engine.eval(scriptCode);
+		} catch (ScriptException e) {
+			e.printStackTrace();
+			return;
+		}
+	}
+
+	public void executeVrilCodeFile(String inputFilePath) {
+
+		// ファイルからVRILコードを全部読み込む
+		String vrilCode = this.loadCode(inputFilePath);
+		if (vrilCode == null) {
+			return;
+		}
+
+		// メソッド接続済みのインターコネクトを生成して取得
+		Interconnect interconnect = this.createInitializedInterconnect();
+		if (interconnect == null) {
+			return;
+		}
+
+		// プロセス仮想マシンを生成し、VRILコードを渡して実行
+		VirtualMachine vm = new VirtualMachine();
+		try {
+			vm.eval(vrilCode, interconnect);
+		} catch (VnanoException e) {
+			e.printStackTrace();
+			return;
+		}
+	}
+}

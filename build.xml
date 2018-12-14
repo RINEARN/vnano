@@ -8,6 +8,9 @@
 	
 	<target name="archive" depends="compile">
 		<jar jarfile="${build.jarname}" basedir="${build.bindir}">
+			<manifest>
+				<attribute name="Main-Class" value="org.vcssl.nano.main.VnanoCommandLineApplication" />
+			</manifest>
 			<fileset dir="${build.srcdir}">
 				<include name="META-INF/services/*" />
 			</fileset>
