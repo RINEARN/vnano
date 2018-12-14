@@ -6,11 +6,11 @@
 package org.vcssl.nano.vm;
 
 import org.vcssl.nano.VnanoSyntaxException;
+import org.vcssl.nano.interconnect.DataConverter;
 import org.vcssl.nano.interconnect.Interconnect;
 import org.vcssl.nano.vm.accelerator.Accelerator;
 import org.vcssl.nano.vm.assembler.Assembler;
 import org.vcssl.nano.vm.memory.DataContainer;
-import org.vcssl.nano.vm.memory.DataConverter;
 import org.vcssl.nano.vm.memory.Memory;
 import org.vcssl.nano.vm.memory.MemoryAccessException;
 import org.vcssl.nano.vm.processor.Instruction;

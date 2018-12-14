@@ -28,7 +28,6 @@ import org.vcssl.nano.lang.VariableTable;
 import org.vcssl.nano.spec.IdentifierSyntax;
 import org.vcssl.nano.vm.VirtualMachineObjectCode;
 import org.vcssl.nano.vm.memory.DataContainer;
-import org.vcssl.nano.vm.memory.DataConverter;
 import org.vcssl.nano.vm.memory.Memory;
 import org.vcssl.nano.vm.memory.MemoryAccessException;
 import org.vcssl.nano.VnanoSyntaxException;
