@@ -8,6 +8,7 @@ package org.vcssl.nano.main;
 import java.util.List;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashMap;
@@ -37,11 +38,14 @@ public final class VnanoCommandLineApplication {
 
 	private static final String EXTENSION_VNANO = ".vnano";
 	private static final String EXTENSION_VRIL = ".vril";
-	private static final String ARGUMENT_OPTION_PREFIX = "--";
-	private static final String ARGUMENT_OPTION_FILE = "file";
-	private static final String ARGUMENT_OPTION_DUMP = "dump";
-	private static final String ARGUMENT_OPTION_RUN = "run";
-	private static final String ARGUMENT_OPTION_DEFAULT = ARGUMENT_OPTION_FILE;
+
+	private static final String OPTION_NAME_PREFIX = "--";
+	private static final String OPTION_NAME_FILE = "file";
+	private static final String OPTION_NAME_DUMP = "dump";
+	private static final String OPTION_NAME_RUN = "run";
+	private static final String OPTION_NAME_ENCODING = "encoding";
+	private static final String OPTION_NAME_DEFAULT = OPTION_NAME_FILE;
+
 	private static final String DUMP_TARGET_TOKEN = "token";
 	private static final String DUMP_TARGET_PARSED_AST = "parsedAst";
 	private static final String DUMP_TARGET_ANALYZED_AST = "analyzedAst";
@@ -51,6 +55,7 @@ public final class VnanoCommandLineApplication {
 	private static final String DUMP_TARGET_DEFAULT = DUMP_TARGET_ALL;
 
 	private boolean runRequired = true;
+	private String encoding = null;
 
 	// スクリプトからアクセスするメソッドを提供するクラス
 	public class ScriptIO {
@@ -93,10 +98,10 @@ public final class VnanoCommandLineApplication {
 		Map<String, String> optionNameValueMap = this.parseArguments(args);
 
 		// 読み込むファイルのパス（デフォルトオプションなので名称未指定の引数もこれに該当）を取得
-		if (!optionNameValueMap.containsKey(ARGUMENT_OPTION_FILE)) {
+		if (!optionNameValueMap.containsKey(OPTION_NAME_FILE)) {
 			System.err.println("No script file is specified.");
 		}
-		String inputFilePath = optionNameValueMap.get(ARGUMENT_OPTION_FILE);
+		String inputFilePath = optionNameValueMap.get(OPTION_NAME_FILE);
 
 		// オプションを一つずつ読み、対応する処理を実行する
 		Set<Map.Entry<String, String>> optionNameValueSet = optionNameValueMap.entrySet();
@@ -120,7 +125,7 @@ public final class VnanoCommandLineApplication {
 		switch (optionName) {
 
 			// --file または無名（デフォルト）オプションの場合
-			case ARGUMENT_OPTION_FILE : {
+			case OPTION_NAME_FILE : {
 				// このオプションの値は、事前に dispatch 側で取得され、
 				// スクリプトの実行が必要な場合もそちら側で行うため、
 				// ここでは何もしない
@@ -128,13 +133,19 @@ public final class VnanoCommandLineApplication {
 			}
 
 			// --run オプションの場合
-			case ARGUMENT_OPTION_RUN : {
+			case OPTION_NAME_RUN : {
 				this.setRunRequired(optionValue);
 				return;
 			}
 
+			// --encoding オプションの場合
+			case OPTION_NAME_ENCODING : {
+				this.setEncoding(optionValue);
+				return;
+			}
+
 			// --dump オプションの場合
-			case ARGUMENT_OPTION_DUMP : {
+			case OPTION_NAME_DUMP : {
 				this.dump(inputFilePath, optionValue);
 				return;
 			}
@@ -163,9 +174,9 @@ public final class VnanoCommandLineApplication {
 		for (int argIndex=0; argIndex<argLength; argIndex++) {
 
 			// オプションプレフィックス(--)で始まる場合は、オプション名の指定と見なし、次引数の解釈のために保持
-			if (args[argIndex].startsWith(ARGUMENT_OPTION_PREFIX)) {
+			if (args[argIndex].startsWith(OPTION_NAME_PREFIX)) {
 				currentArgIsOption = true;
-				currentOptionName = args[argIndex].substring(ARGUMENT_OPTION_PREFIX.length(), args[argIndex].length());
+				currentOptionName = args[argIndex].substring(OPTION_NAME_PREFIX.length(), args[argIndex].length());
 				optionNameList.add(currentOptionName);
 
 			} else {
@@ -175,7 +186,7 @@ public final class VnanoCommandLineApplication {
 
 				// 事前にオプション名が無指定だった場合は、デフォルトオプション名をキーとし、引数値をマップに追加
 				} else {
-					optionNameValueMap.put(ARGUMENT_OPTION_DEFAULT, args[argIndex]);
+					optionNameValueMap.put(OPTION_NAME_DEFAULT, args[argIndex]);
 				}
 
 				// オプション名指定をリセット
@@ -196,6 +207,13 @@ public final class VnanoCommandLineApplication {
 		return optionNameValueMap;
 	}
 
+	private void setEncoding(String encoding) {
+		if (encoding == null) {
+			System.err.println("No encoding is specified.");
+		}
+		this.encoding = encoding;
+	}
+
 	private void setRunRequired(String optionValue) {
 		// Boolean.valueOf だと true 以外が全て false になるので直球で比較
 		if (optionValue.equals("true")) {
@@ -204,7 +222,7 @@ public final class VnanoCommandLineApplication {
 			this.runRequired = false;
 		} else {
 			System.err.println(
-					"Invalid value for " + ARGUMENT_OPTION_PREFIX + ARGUMENT_OPTION_RUN + "option: " + optionValue
+					"Invalid value for " + OPTION_NAME_PREFIX + OPTION_NAME_RUN + "option: " + optionValue
 			);
 		}
 	}
@@ -262,7 +280,12 @@ public final class VnanoCommandLineApplication {
 	private String loadCode(String inputFilePath) {
 		String code = "";
 		try {
-			List<String> lines = Files.readAllLines(Paths.get(inputFilePath));
+			List<String> lines;
+			if (this.encoding == null) {
+				lines = Files.readAllLines(Paths.get(inputFilePath));
+			} else {
+				lines = Files.readAllLines(Paths.get(inputFilePath), Charset.forName(this.encoding));
+			}
 			StringBuilder codeBuilder = new StringBuilder();
 			String eol = System.getProperty("line.separator");
 			for (String line: lines) {
@@ -434,6 +457,12 @@ public final class VnanoCommandLineApplication {
 
 	public void executeVnanoScriptFile(String inputFilePath) {
 
+		// ファイルからVRILコードを全部読み込む
+		String scriptCode = this.loadCode(inputFilePath);
+		if (scriptCode == null) {
+			return;
+		}
+
 		// メソッド接続済みのスクリプトエンジンを生成して取得
 		ScriptEngine engine = this.createInitializedScriptEngine();
 		if (engine == null) {
@@ -441,9 +470,9 @@ public final class VnanoCommandLineApplication {
 		}
 
 		// スクリプトを実行
-		try (FileReader fileReader = new FileReader(inputFilePath)) {
-			engine.eval(fileReader);
-		} catch (ScriptException | IOException e) {
+		try {
+			engine.eval(scriptCode);
+		} catch (ScriptException e) {
 			e.printStackTrace();
 			return;
 		}
