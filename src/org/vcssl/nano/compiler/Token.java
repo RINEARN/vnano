@@ -208,6 +208,25 @@ public class Token implements Cloneable {
 
 
 	/**
+	 * トークン配列から、指定された値を持つトークンを検索し、最初に見つかったものを返します。
+	 *
+	 * @param tokens トークン配列
+	 * @param tokenValue 検索対象のトークンの値
+	 * @param fromIndex 検索を開始する位置のインデックス
+	 * @return 見つかったトークンのインデックス（見つからなかった場合は -1）
+	 */
+	public static int getIndexOf(Token[] tokens, String tokenValue, int fromIndex) {
+		int n = tokens.length;
+		for(int i=fromIndex; i<n; i++) {
+			if (tokens[i].getValue().equals(tokenValue)) {
+				return i;
+			}
+		}
+		return -1;
+	}
+
+
+	/**
 	 * トークンの文字列表現を返します（デバッグ用）。
 	 *
 	 * @return トークンの文字列表現

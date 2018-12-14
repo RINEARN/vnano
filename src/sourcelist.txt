@@ -18,6 +18,7 @@
 ./org/vcssl/nano/compiler/CodeGenerator.java
 ./org/vcssl/nano/compiler/Compiler.java
 ./org/vcssl/nano/compiler/LexicalAnalyzer.java
+./org/vcssl/nano/compiler/LexicalChecker.java
 ./org/vcssl/nano/compiler/package-info.java
 ./org/vcssl/nano/compiler/Parser.java
 ./org/vcssl/nano/compiler/SemanticAnalyzer.java
