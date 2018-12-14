@@ -17,4 +17,4 @@ xcopy src\META-INF bin\META-INF /I/S/E/Y
 :: create a JAR file
 :: --------------------------------------------------
 
-jar cvf Vnano.jar -C bin org -C bin META-INF/services
+jar cvfm Vnano.jar src/main.mf -C bin org -C bin META-INF/services
