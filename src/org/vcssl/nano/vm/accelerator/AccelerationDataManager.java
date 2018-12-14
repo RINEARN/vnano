@@ -6,7 +6,6 @@ import org.vcssl.nano.VnanoFatalException;
 import org.vcssl.nano.lang.DataType;
 import org.vcssl.nano.vm.memory.DataContainer;
 import org.vcssl.nano.vm.memory.Memory;
-import org.vcssl.nano.vm.memory.MemoryAccessException;
 import org.vcssl.nano.vm.processor.Instruction;
 
 // final はファイナライザ攻撃を防ぐため
@@ -124,7 +123,7 @@ public final class AccelerationDataManager {
 				container = memory.getDataContainer(Memory.Partition.CONSTANT, constantIndex);
 
 			// 存在するはずの定数アドレスにアクセスしているので、この例外が発生する場合は実装の異常
-			} catch (MemoryAccessException e) {
+			} catch (VnanoFatalException e) {
 				throw new VnanoFatalException(e);
 			}
 

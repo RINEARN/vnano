@@ -9,7 +9,6 @@ package org.vcssl.nano.vm.accelerator;
 import org.vcssl.nano.VnanoFatalException;
 import org.vcssl.nano.interconnect.Interconnect;
 import org.vcssl.nano.vm.memory.Memory;
-import org.vcssl.nano.vm.memory.MemoryAccessException;
 import org.vcssl.nano.vm.processor.Instruction;
 import org.vcssl.nano.vm.processor.Processor;
 
@@ -64,8 +63,7 @@ public class Accelerator {
 	 * 		命令のオペランドに指定された仮想メモリーアドレスが使用領域外であった場合など、
 	 * 		不正な仮想メモリーアクセスが生じた場合などに発生します。
 	 */
-	public void process(Instruction[] instructions, Memory memory, Interconnect interconnect, Processor processor)
-					throws MemoryAccessException {
+	public void process(Instruction[] instructions, Memory memory, Interconnect interconnect, Processor processor) {
 
 		// スカラ判定やキャッシュ確保などの高速化用データ解析を実行
 		AccelerationDataManager dataManager = new AccelerationDataManager();

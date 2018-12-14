@@ -12,7 +12,6 @@ import org.vcssl.nano.interconnect.Interconnect;
 import org.vcssl.nano.lang.DataType;
 import org.vcssl.nano.vm.memory.DataContainer;
 import org.vcssl.nano.vm.memory.Memory;
-import org.vcssl.nano.vm.memory.MemoryAccessException;
 
 
 /**
@@ -63,7 +62,7 @@ public class DispatchUnit {
 	@SuppressWarnings("unchecked")
 	public final int dispatch(Instruction instruction, Memory memory, Interconnect interconnect,
 			ExecutionUnit executionUnit, int programCounter)
-					throws VnanoSyntaxException, MemoryAccessException {
+					throws VnanoSyntaxException {
 
 		OperationCode opcode = instruction.getOperationCode();
 		DataType[] dataTypes = instruction.getDataTypes();
@@ -315,12 +314,11 @@ public class DispatchUnit {
 	 * @param instruction 命令
 	 * @param memoryController 仮想メモリー
 	 * @return データ
-	 * @throws MemoryAccessException
+	 * @throws VnanoFatalException
 	 * 		命令のオペランドに指定された仮想メモリーアドレスが使用領域外であった場合など、
-	 * 		不正な仮想メモリーアクセスが生じた場合などに発生します。
+	 * 		異常な仮想メモリーアクセスが生じた場合などに発生します。
 	 */
-	private DataContainer<?>[] loadOperandData(Instruction instruction, Memory memory)
-			throws MemoryAccessException {
+	private DataContainer<?>[] loadOperandData(Instruction instruction, Memory memory) {
 
 		Memory.Partition[] operandAddressType = instruction.getOperandPartitions();
 		int[] operandAddress = instruction.getOperandAddresses();

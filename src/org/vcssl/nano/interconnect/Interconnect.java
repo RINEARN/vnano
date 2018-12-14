@@ -29,7 +29,6 @@ import org.vcssl.nano.spec.IdentifierSyntax;
 import org.vcssl.nano.vm.VirtualMachineObjectCode;
 import org.vcssl.nano.vm.memory.DataContainer;
 import org.vcssl.nano.vm.memory.Memory;
-import org.vcssl.nano.vm.memory.MemoryAccessException;
 import org.vcssl.nano.VnanoSyntaxException;
 
 
@@ -385,8 +384,7 @@ public class Interconnect {
 	 *  	外部変数に対応するデータユニットが、仮想メモリー内に保持されていない場合にスローされます。
 	 *  	外部変数からバインディングへ値を書き戻す際に、データの変換に失敗（型の非互換など）した場合にスローされます。
 	 */
-	public void writeback(Memory memory, VirtualMachineObjectCode intermediateCode)
-			throws MemoryAccessException, VnanoSyntaxException {
+	public void writeback(Memory memory, VirtualMachineObjectCode intermediateCode) throws VnanoSyntaxException {
 
 		// グローバル変数の書き戻し
 		int maxGlobalAddress = intermediateCode.getMaximumGlobalAddress();
