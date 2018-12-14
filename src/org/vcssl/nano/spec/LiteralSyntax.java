@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Iterator;
 
 import org.vcssl.nano.VnanoFatalException;
-import org.vcssl.nano.VnanoRuntimeException;
 import org.vcssl.nano.VnanoSyntaxException;
 
 /**
@@ -133,7 +132,7 @@ public class LiteralSyntax {
 					case 'n' : resultBuilder.append('\n'); break;
 					case 'r' : resultBuilder.append('\r'); break;
 					case '"' : resultBuilder.append('"'); break;
-					default : throw new VnanoRuntimeException("Unknown escape sequence: \\" + chars[i]);
+					default : throw new VnanoFatalException("Unknown escape sequence: " + chars[i]);
 				}
 				// エスケープ対象文字の処理が完了したら、直前エスケープフラグは階乗する
 				previousIsEscapeChar = false;

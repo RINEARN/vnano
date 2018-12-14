@@ -10,7 +10,7 @@ import org.vcssl.nano.lang.AbstractVariable;
 import org.vcssl.nano.lang.DataType;
 import org.vcssl.nano.lang.FunctionTable;
 import org.vcssl.nano.lang.VariableTable;
-import org.vcssl.nano.VnanoRuntimeException;
+import org.vcssl.nano.VnanoFatalException;
 import org.vcssl.nano.VnanoSyntaxException;
 import org.vcssl.nano.interconnect.Interconnect;
 import org.vcssl.nano.spec.AssemblyWord;
@@ -224,8 +224,7 @@ public class Assembler {
 							constantAddress++;
 
 						} else {
-							// 暫定的な簡易例外処理
-							throw new VnanoRuntimeException();
+							throw new VnanoFatalException("Undefined identifier has detected in operands: " + word);
 						}
 
 						break;

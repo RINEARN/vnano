@@ -18,7 +18,6 @@ import org.vcssl.connect.ExternalVariableConnector1;
 import org.vcssl.connect.FieldXvci1Adapter;
 import org.vcssl.connect.MethodXfci1Adapter;
 import org.vcssl.nano.VnanoFatalException;
-import org.vcssl.nano.VnanoRuntimeException;
 import org.vcssl.nano.lang.AbstractFunction;
 import org.vcssl.nano.lang.AbstractVariable;
 import org.vcssl.nano.lang.DataType;
@@ -248,7 +247,7 @@ public class Interconnect {
 			try {
 				dataConverter = new DataConverter(object.getClass());
 			} catch (VnanoSyntaxException e) {
-				throw new VnanoRuntimeException();
+				throw new VnanoFatalException(e);
 			}
 			DataType dataType = dataConverter.getDataType();
 			int rank = dataConverter.getRank();
@@ -256,14 +255,11 @@ public class Interconnect {
 			variable.setDataContainer(dataConverter.convertToDataContainer(object));
 			identifier = this.connect(variable);
 		} else {
-			// 暫定的な簡易例外処理
-			System.err.println("接続不能な形式: " + object.getClass());
-			throw new VnanoRuntimeException();
+			throw new VnanoFatalException("Unconnectable object type: " + object.getClass().getCanonicalName());
 		}
 
 		if (identifier == null) {
-			// 暫定的な簡易例外処理
-			throw new IllegalArgumentException("接続不能な形式");
+			throw new VnanoFatalException("Unconnectable object type: " + object.getClass().getCanonicalName());
 		} else {
 			this.identifierBindNameMap.put(identifier, bindName);
 			return;

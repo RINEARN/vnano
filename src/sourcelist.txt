@@ -117,5 +117,4 @@
 ./org/vcssl/nano/VnanoEngine.java
 ./org/vcssl/nano/VnanoEngineFactory.java
 ./org/vcssl/nano/VnanoFatalException.java
-./org/vcssl/nano/VnanoRuntimeException.java
 ./org/vcssl/nano/VnanoSyntaxException.java

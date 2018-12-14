@@ -10,7 +10,7 @@ import java.util.Deque;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.vcssl.nano.VnanoRuntimeException;
+import org.vcssl.nano.VnanoFatalException;
 import org.vcssl.nano.spec.AssemblyWord;
 import org.vcssl.nano.spec.DataTypeName;
 import org.vcssl.nano.spec.IdentifierSyntax;
@@ -315,9 +315,7 @@ public class CodeGenerator {
 					}
 
 					default : {
-						// 暫定的な簡易例外処理
-						System.err.println("未知のリーフ型: " + leafType);
-						throw new VnanoRuntimeException();
+						throw new VnanoFatalException("Unknown leaf type: " + leafType);
 					}
 				}
 			}
@@ -960,8 +958,7 @@ public class CodeGenerator {
 							break;
 						}
 						default : {
-							// 暫定的な簡易例外処理
-							throw new VnanoRuntimeException();
+							throw new VnanoFatalException("Invalid operator syntax for arithmetic operators: " + operatorSyntax);
 						}
 					}
 					break;
@@ -985,8 +982,7 @@ public class CodeGenerator {
 							break;
 						}
 						default : {
-							// 暫定的な簡易例外処理
-							throw new VnanoRuntimeException();
+							throw new VnanoFatalException("Invalid operator syntax for logical operators: " + operatorSyntax);
 						}
 					}
 					break;
@@ -996,8 +992,7 @@ public class CodeGenerator {
 					break;
 				}
 				default : {
-					// 暫定的な簡易例外処理
-					throw new VnanoRuntimeException();
+					throw new VnanoFatalException("Unknown operator execution type: " + operatorExecution);
 				}
 			}
 
@@ -1066,8 +1061,7 @@ public class CodeGenerator {
 			case ScriptWord.DIVISION :        opcode = OperationCode.DIV.name(); break;
 			case ScriptWord.REMAINDER :       opcode = OperationCode.REM.name(); break;
 			default : {
-				// 暫定的な簡易例外処理
-				throw new VnanoRuntimeException();
+				throw new VnanoFatalException("Invalid operator symbol for logical operators: " + operatorSymbol);
 			}
 		}
 
@@ -1287,8 +1281,7 @@ public class CodeGenerator {
 			case ScriptWord.AND :       opcode = OperationCode.AND.name(); break;
 			case ScriptWord.OR :    opcode = OperationCode.OR.name(); break;
 			default : {
-				// 暫定的な簡易例外処理
-				throw new VnanoRuntimeException();
+				throw new VnanoFatalException("Invalid operator symbol for logical binary operators: " + operatorSymbol);
 			}
 		}
 
@@ -1362,8 +1355,7 @@ public class CodeGenerator {
 			case ScriptWord.GRATER_THAN : opcode = OperationCode.GT.name(); break;
 			case ScriptWord.GRATER_EQUAL :        opcode = OperationCode.GEQ.name(); break;
 			default : {
-				// 暫定的な簡易例外処理
-				throw new VnanoRuntimeException();
+				throw new VnanoFatalException("Invalid operator symbol for comparison operators: " + operatorSymbol);
 			}
 		}
 
@@ -1461,8 +1453,7 @@ public class CodeGenerator {
 			case ScriptWord.DIVISION_ASSIGNMENT :        opcode = OperationCode.DIV.name(); break;
 			case ScriptWord.REMAINDER_ASSIGNMENT :       opcode = OperationCode.REM.name(); break;
 			default : {
-				// 暫定的な簡易例外処理
-				throw new VnanoRuntimeException();
+				throw new VnanoFatalException("Invalid operator symbol for arithmetic compound assignment operators: " + operatorSymbol);
 			}
 		}
 

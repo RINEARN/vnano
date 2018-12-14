@@ -10,10 +10,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.vcssl.nano.VnanoFatalException;
 import org.vcssl.nano.compiler.AstNode;
 import org.vcssl.nano.spec.DataTypeName;
 import org.vcssl.nano.spec.IdentifierSyntax;
-import org.vcssl.nano.VnanoRuntimeException;
 
 /**
  * <p>
@@ -90,11 +90,20 @@ public class FunctionTable {
 	/**
 	 * 指定されたシグネチャ（関数の名称と引数情報）に該当する関数を取得します。
 	 *
+	 * このメソッドは、関数がこのテーブルに存在する事を前提としており、存在しない場合は
+	 * {@link org.vcssl.nano.VnanoFatalException VnanoFatalException} を発生させます。
+	 *
+	 * 存在しない場合にこの例外を発生させたくない場合は、事前に
+	 * {@link FunctionTable#hasFunctionWithAssemblyIdentifier hasFunctionWithAssemblyIdentifier}
+	 * メソッド等を使用し、関数がこのテーブルに存在する事を確認した上で使用してください。
+	 *
 	 * @param functionName 関数名
 	 * @param parameterDataTypes 全引数のデータ型を格納する配列（各要素が各引数に対応）
 	 * @param parameterArrayRanks 全引数の配列次元数を格納する配列
 	 * 		（各要素が各引数に対応、スカラは0次元として扱う）
 	 * @return 対象の関数
+	 * @throws VnanoFatalException
+	 *   指定された関数がこのテーブルに存在しなかった場合にスローされます。
 	 */
 	public AbstractFunction getFunctionBySignature(String functionName, DataType[] parameterDataTypes, int[] parameterArrayRanks) {
 
@@ -104,12 +113,11 @@ public class FunctionTable {
 		);
 
 		if (!this.assemblyIdentifierFunctionMap.containsKey(assemblyIdentifier)) {
-			// 暫定的な簡易例外処理
-			throw new VnanoRuntimeException();
+			// 事前に hasFunctionWithAssemblyIdentifier 等で関数の存在を確認すべきなので、見つからない場合はエラーとする
+			throw new VnanoFatalException("Function is not found.");
 		}
 		if (parameterDataTypes.length != parameterArrayRanks.length) {
-			// 暫定的な簡易例外処理
-			throw new VnanoRuntimeException();
+			throw new VnanoFatalException("Parameters of the function is not muched.");
 		}
 
 		return this.assemblyIdentifierFunctionMap.get(assemblyIdentifier);

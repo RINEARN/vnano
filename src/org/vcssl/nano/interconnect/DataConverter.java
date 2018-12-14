@@ -12,7 +12,7 @@ import org.vcssl.nano.spec.DataTypeName;
 import org.vcssl.nano.spec.ErrorType;
 import org.vcssl.nano.spec.ScriptWord;
 import org.vcssl.nano.vm.memory.DataContainer;
-import org.vcssl.nano.VnanoRuntimeException;
+import org.vcssl.nano.VnanoFatalException;
 import org.vcssl.nano.VnanoSyntaxException;
 
 /**
@@ -1051,7 +1051,7 @@ public class DataConverter {
 		}
 
 		// ここに到達するのは異常
-		throw new VnanoRuntimeException();
+		throw new VnanoFatalException();
 	}
 
 }

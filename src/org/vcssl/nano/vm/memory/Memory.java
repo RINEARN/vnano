@@ -16,7 +16,6 @@ import org.vcssl.nano.spec.ErrorType;
 import org.vcssl.nano.spec.LiteralSyntax;
 import org.vcssl.nano.vm.VirtualMachineObjectCode;
 import org.vcssl.nano.VnanoFatalException;
-import org.vcssl.nano.VnanoRuntimeException;
 import org.vcssl.nano.VnanoSyntaxException;
 import org.vcssl.nano.lang.AbstractVariable;
 import org.vcssl.nano.lang.DataType;
@@ -293,9 +292,7 @@ public final class Memory {
 					break;
 				}
 				default: {
-					// 暫定的な簡易例外処理
-					System.err.println("未対応のリテラル型");
-					throw new VnanoRuntimeException();
+					throw new VnanoFatalException("Unknown literal data type: " + dataType);
 				}
 			}
 		}

@@ -8,7 +8,6 @@ package org.vcssl.nano.interconnect;
 import org.vcssl.connect.ExternalFunctionConnector1;
 import org.vcssl.connect.ExternalFunctionException;
 import org.vcssl.nano.VnanoFatalException;
-import org.vcssl.nano.VnanoRuntimeException;
 import org.vcssl.nano.VnanoSyntaxException;
 import org.vcssl.nano.lang.AbstractFunction;
 import org.vcssl.nano.lang.DataType;
@@ -183,15 +182,13 @@ public class Xfci1FunctionAdapter extends AbstractFunction {
 		try {
 			returnObject = this.xfciPlugin.invoke(convertedArgs);
 		} catch (ExternalFunctionException e) {
-			// 暫定的な簡易例外処理
-			throw new VnanoRuntimeException();
+			throw new VnanoFatalException(e);
 		}
 
 		if (!this.returnDataType.equals(DataType.VOID)) {
 			try {
 				this.returnDataConverter.convertToDataContainer(returnObject, returnDataUnit);
 			} catch (VnanoSyntaxException e) {
-				// 暫定的な簡易例外処理
 				throw new VnanoFatalException(e);
 			}
 		}
