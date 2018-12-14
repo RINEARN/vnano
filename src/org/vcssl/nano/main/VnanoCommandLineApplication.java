@@ -145,7 +145,7 @@ public final class VnanoCommandLineApplication {
 			// オプションプレフィックス(--)で始まる場合は、オプション名の指定と見なし、次引数の解釈のために保持
 			if (args[argIndex].startsWith(ARGUMENT_OPTION_PREFIX)) {
 				currentArgIsOption = true;
-				currentOptionName = args[argIndex];
+				currentOptionName = args[argIndex].substring(ARGUMENT_OPTION_PREFIX.length(), args[argIndex].length());
 
 			} else {
 				// 事前にオプション名が指定されていた場合は、その名前をキーとして、引数値をマップに追加
