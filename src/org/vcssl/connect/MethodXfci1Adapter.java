@@ -270,8 +270,26 @@ public class MethodXfci1Adapter implements ExternalFunctionConnector1 {
 	public Object invoke(Object[] arguments) throws ExternalFunctionException {
 		try {
 			return this.method.invoke(objectInstance, arguments);
-		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-			throw new ExternalFunctionException();
+
+		// アクセス修飾子などが原因で呼び出せない場合
+		} catch (IllegalArgumentException illegalArgumentException) {
+			throw new ExternalFunctionException(
+					objectInstance.getClass().getCanonicalName() + " class has no method named \"" + this.method.getName()
+					+ "\" with expected parameters.",
+					illegalArgumentException
+			);
+
+		// そもそもインスタンスが対象メソッドを持っていない場合
+		} catch (IllegalAccessException illegalAccessException) {
+			throw new ExternalFunctionException(
+					"The method \"" + this.method.getName() + "\" of " + objectInstance.getClass().getCanonicalName()
+					+ " class is not accessable (probably it is private or protected).",
+					illegalAccessException
+			);
+
+		// 呼び出し対象のメソッドが、実行中に内部から例外をスローしてきた場合
+		} catch (InvocationTargetException invocationTargetException) {
+			throw new ExternalFunctionException(invocationTargetException);
 		}
 	}
 

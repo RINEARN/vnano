@@ -429,9 +429,8 @@ public class AccelerationDispatcher {
 					this.synchronizer.writeCache();
 					this.allocated = true;
 					return this.nextNode;
-				} catch (VnanoException | VnanoFatalException e) {
-					e.printStackTrace();
-					return null;
+				} catch (VnanoException e) {
+					throw new VnanoFatalException(e);
 				}
 			}
 		}

@@ -227,8 +227,21 @@ public class FieldXvci1Adapter implements ExternalVariableConnector1 {
 	public Object getData() throws ExternalVariableException {
 		try {
 			return this.field.get(this.objectInstance);
-		} catch (IllegalArgumentException | IllegalAccessException e) {
-			throw new ExternalVariableException();
+
+		// アクセス修飾子などが原因で取得できない場合
+		} catch (IllegalArgumentException illegalArgumentException) {
+			throw new ExternalVariableException(
+					objectInstance.getClass().getCanonicalName() + " class has no field named \"" + this.field.getName() + "\"",
+					illegalArgumentException
+			);
+
+		// そもそもインスタンスが対象フィールドを持っていない場合
+		} catch (IllegalAccessException illegalAccessException) {
+			throw new ExternalVariableException(
+					"The field \"" + this.field.getName() + "\" of " + objectInstance.getClass().getCanonicalName()
+					+ " class is not accessable (probably it is private or protected).",
+					illegalAccessException
+			);
 		}
 	}
 
@@ -241,8 +254,21 @@ public class FieldXvci1Adapter implements ExternalVariableConnector1 {
 	public void setData(Object data) throws ExternalVariableException {
 		try {
 			this.field.set(this.objectInstance, data);
-		} catch (IllegalArgumentException | IllegalAccessException e) {
-			throw new ExternalVariableException();
+
+		// アクセス修飾子などが原因で設定できない場合
+		} catch (IllegalArgumentException illegalArgumentException) {
+			throw new ExternalVariableException(
+					objectInstance.getClass().getCanonicalName() + " class has no field named \"" + this.field.getName() + "\"",
+					illegalArgumentException
+			);
+
+		// そもそもインスタンスが対象フィールドを持っていない場合
+		} catch (IllegalAccessException illegalAccessException) {
+			throw new ExternalVariableException(
+					"The field \"" + this.field.getName() + "\" of " + objectInstance.getClass().getCanonicalName()
+					+ " class is not accessable (probably it is private or protected).",
+					illegalAccessException
+			);
 		}
 	}
 

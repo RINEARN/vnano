@@ -19,6 +19,15 @@ package org.vcssl.connect;
  */
 @SuppressWarnings("serial")
 public class ExternalVariableException extends Exception {
-
-
+	public ExternalVariableException() {
+	}
+	public ExternalVariableException(Throwable wrappedThrowable) {
+		super(wrappedThrowable);
+	}
+	public ExternalVariableException(String errorMessage) {
+		super(errorMessage);
+	}
+	public ExternalVariableException(String errorMessage, Throwable wrappedThrowable) {
+		super(errorMessage, wrappedThrowable);
+	}
 }
