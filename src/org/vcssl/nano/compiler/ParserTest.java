@@ -10,7 +10,7 @@ import static org.junit.Assert.*;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.vcssl.nano.VnanoSyntaxException;
+import org.vcssl.nano.VnanoException;
 import org.vcssl.nano.spec.PriorityTable;
 import org.vcssl.nano.spec.ScriptWord;
 
@@ -120,7 +120,7 @@ public class ParserTest {
 
 
 	@Test
-	public void testParseVariableDeclarationStatementScalar() throws VnanoSyntaxException {
+	public void testParseVariableDeclarationStatementScalar() throws VnanoException {
 
 		// "int x;" のトークン配列を用意
 		Token[] tokens = new Token[]{
@@ -150,7 +150,7 @@ public class ParserTest {
 	}
 
 	//@Test
-	public void testParseVariableDeclarationStatementArray1D() throws VnanoSyntaxException {
+	public void testParseVariableDeclarationStatementArray1D() throws VnanoException {
 
 		// "int x [ 2 ];" のトークン配列を用意
 		Token[] tokens = new Token[]{
@@ -194,7 +194,7 @@ public class ParserTest {
 	}
 
 	@Test
-	public void testParseVariableDeclarationStatementArray1DWithLengthExpr() throws VnanoSyntaxException {
+	public void testParseVariableDeclarationStatementArray1DWithLengthExpr() throws VnanoException {
 
 		// "int x [ 1 + 2 * 3 ];" のトークン配列を用意
 		Token[] tokens = new Token[]{
@@ -250,7 +250,7 @@ public class ParserTest {
 	}
 
 	@Test
-	public void testParseVariableDeclarationStatementArray3D() throws VnanoSyntaxException {
+	public void testParseVariableDeclarationStatementArray3D() throws VnanoException {
 
 		// "int x [ 2 ][ 3 ][ 4 ];" のトークン配列を用意
 		Token[] tokens = new Token[]{
@@ -310,7 +310,7 @@ public class ParserTest {
 	}
 
 	@Test
-	public void testParseVariableDeclarationStatementWithInitExpr() throws VnanoSyntaxException {
+	public void testParseVariableDeclarationStatementWithInitExpr() throws VnanoException {
 
 		// "int x = 1 + 2 * 3;" のトークン配列を用意
 		Token[] tokens = new Token[]{
@@ -371,7 +371,7 @@ public class ParserTest {
 
 
 	@Test
-	public void testBlockStatement() throws VnanoSyntaxException {
+	public void testBlockStatement() throws VnanoException {
 
 		// "{ 1; 2; { 3; 4; { 5; } 6; } 7; }" のトークン配列を用意
 		Token[] tokens = new Token[]{
@@ -465,7 +465,7 @@ public class ParserTest {
 
 
 	@Test
-	public void testIfStatement() throws VnanoSyntaxException {
+	public void testIfStatement() throws VnanoException {
 
 		// " if (x == 2) { } " のトークン配列を用意
 		Token[] tokens = new Token[]{
@@ -516,7 +516,7 @@ public class ParserTest {
 
 
 	@Test
-	public void testElseStatement() throws VnanoSyntaxException {
+	public void testElseStatement() throws VnanoException {
 
 		// " if (x == 2) { 1; } else { 2; }" のトークン配列を用意
 		Token[] tokens = new Token[]{
@@ -588,7 +588,7 @@ public class ParserTest {
 
 
 	@Test
-	public void testWhileStatement() throws VnanoSyntaxException {
+	public void testWhileStatement() throws VnanoException {
 
 		// " while (x == 2) { } " のトークン配列を用意
 		Token[] tokens = new Token[]{
@@ -639,7 +639,7 @@ public class ParserTest {
 
 
 	@Test
-	public void testForStatement() throws VnanoSyntaxException {
+	public void testForStatement() throws VnanoException {
 
 		// " for (i=0; i<10; ++i) { } " のトークン配列を用意
 		Token[] tokens = new Token[]{
@@ -713,7 +713,7 @@ public class ParserTest {
 	}
 
 	@Test
-	public void testForStatementWithCounterVariableDeclaration() throws VnanoSyntaxException {
+	public void testForStatementWithCounterVariableDeclaration() throws VnanoException {
 
 		// " for (int i=0; i<10; ++i) { } " のトークン配列を用意
 		Token[] tokens = new Token[]{
@@ -797,7 +797,7 @@ public class ParserTest {
 
 
 	@Test
-	public void testContinueStatement() throws VnanoSyntaxException {
+	public void testContinueStatement() throws VnanoException {
 
 		// "while (true) { continue; }" のトークン配列を用意
 		Token[] tokens = new Token[]{
@@ -847,7 +847,7 @@ public class ParserTest {
 
 
 	@Test
-	public void testBreakStatement() throws VnanoSyntaxException {
+	public void testBreakStatement() throws VnanoException {
 
 		// "while (true) { break; }" のトークン配列を用意
 		Token[] tokens = new Token[]{
@@ -900,7 +900,7 @@ public class ParserTest {
 
 	// 前置演算子のテスト
 	@Test
-	public void testParseExpressionPrefixOperator() throws VnanoSyntaxException {
+	public void testParseExpressionPrefixOperator() throws VnanoException {
 
 		// "++x" のトークン配列を用意
 		Token rightToken = this.createVariableIdentifierToken("x");
@@ -945,7 +945,7 @@ public class ParserTest {
 
 	// 後置演算子のテスト
 	@Test
-	public void testParseExpressionPostfixOperator() throws VnanoSyntaxException {
+	public void testParseExpressionPostfixOperator() throws VnanoException {
 
 		// "x++" のトークン配列を用意
 		Token leftToken = this.createVariableIdentifierToken("x");
@@ -990,7 +990,7 @@ public class ParserTest {
 
 	// 二項演算子のテスト
 	@Test
-	public void testParseExpressionBinaryOperator() throws VnanoSyntaxException {
+	public void testParseExpressionBinaryOperator() throws VnanoException {
 
 		// "1 + x" のトークン配列を用意
 		Token leftToken = this.createLiteralToken("1");
@@ -1038,7 +1038,7 @@ public class ParserTest {
 
 	// 多項演算子のテスト
 	@Test
-	public void testParseExpressionMultiaryOperator() throws VnanoSyntaxException {
+	public void testParseExpressionMultiaryOperator() throws VnanoException {
 
 		// "func(1,x)" のトークン配列を用意
 		Token identifierToken = this.createVariableIdentifierToken("func");
@@ -1098,7 +1098,7 @@ public class ParserTest {
 
 	// 括弧のテスト "1 * (2 + 3)"
 	@Test
-	public void testParseExpressionParenthesis1() throws VnanoSyntaxException {
+	public void testParseExpressionParenthesis1() throws VnanoException {
 
 		// "1 * (2 + 3)" のトークン配列を用意
 		Token one = this.createLiteralToken("1");
@@ -1158,7 +1158,7 @@ public class ParserTest {
 
 	// 括弧のテスト "1 + (2 * 3)"
 	@Test
-	public void testParseExpressionParenthesis2() throws VnanoSyntaxException {
+	public void testParseExpressionParenthesis2() throws VnanoException {
 
 		// "1 + (2 * 3)" のトークン配列を用意
 		Token one = this.createLiteralToken("1");
@@ -1219,7 +1219,7 @@ public class ParserTest {
 
 	// 括弧のテスト "(1 + 2) * 3"
 	@Test
-	public void testParseExpressionParenthesis3() throws VnanoSyntaxException {
+	public void testParseExpressionParenthesis3() throws VnanoException {
 
 		// "(1 + 2) * 3" のトークン配列を用意
 		Token one = this.createLiteralToken("1");
@@ -1279,7 +1279,7 @@ public class ParserTest {
 
 	// 括弧のテスト "(1 * 2) + 3"
 	@Test
-	public void testParseExpressionParenthesis4() throws VnanoSyntaxException {
+	public void testParseExpressionParenthesis4() throws VnanoException {
 
 		// "(1 + 2) * 3" のトークン配列を用意
 		Token one = this.createLiteralToken("1");
@@ -1340,7 +1340,7 @@ public class ParserTest {
 
 	// 複数演算子が混合する式のテスト / + + + + のパターン
 	@Test
-	public void testParseExpressionAddAddAddAdd() throws VnanoSyntaxException {
+	public void testParseExpressionAddAddAddAdd() throws VnanoException {
 
 		// "1 + 2 + 3 + 4 + 5" のトークン配列を用意
 		Token[] tokens = new Token[]{
@@ -1414,7 +1414,7 @@ public class ParserTest {
 
 	// 複数演算子が混合する式のテスト / + * * + のパターン
 	@Test
-	public void testParseExpressionAddMulMulAdd() throws VnanoSyntaxException {
+	public void testParseExpressionAddMulMulAdd() throws VnanoException {
 
 		// "1 + 2 * 3 * 4 + 5" のトークン配列を用意
 		Token[] tokens = new Token[]{
@@ -1488,7 +1488,7 @@ public class ParserTest {
 
 	// 複数演算子が混合する式のテスト / * + + * のパターン
 	@Test
-	public void testParseExpressionMulAddAddMul() throws VnanoSyntaxException {
+	public void testParseExpressionMulAddAddMul() throws VnanoException {
 
 		// "1 * 2 + 3 + 4 * 5" のトークン配列を用意
 		Token[] tokens = new Token[]{
@@ -1560,7 +1560,7 @@ public class ParserTest {
 
 	// 複数演算子が混合する式のテスト / + * + * のパターン
 	@Test
-	public void testParseExpressionAddMulAddMul() throws VnanoSyntaxException {
+	public void testParseExpressionAddMulAddMul() throws VnanoException {
 
 		// "1 + 2 * 3 + 4 * 5" のトークン配列を用意
 		Token[] tokens = new Token[]{

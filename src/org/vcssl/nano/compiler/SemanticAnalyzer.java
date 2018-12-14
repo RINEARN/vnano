@@ -11,7 +11,7 @@ import java.util.Deque;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.vcssl.nano.VnanoSyntaxException;
+import org.vcssl.nano.VnanoException;
 import org.vcssl.nano.compiler.AstNode;
 import org.vcssl.nano.interconnect.Interconnect;
 import org.vcssl.nano.lang.AbstractFunction;
@@ -53,10 +53,10 @@ public class SemanticAnalyzer {
 	 * @param Intterconnect interconnect 外部変数・関数の情報を保持しているインターコネクト
 	 * @return 各種情報を補完したASTのルートノード
 	 * @throws DataException ローカル変数のデータ型が無効な場合に発生します。
-	 * @throws VnanoSyntaxException 存在しない変数を参照している場合に発生します。
+	 * @throws VnanoException 存在しない変数を参照している場合に発生します。
 	 */
 	public AstNode analyze(AstNode inputAst, Interconnect interconnect)
-			throws VnanoSyntaxException {
+			throws VnanoException {
 
 		// インターコネクトから外部変数・外部関数のテーブルを取得
 		VariableTable globalVariableTable = interconnect.getGlobalVariableTable();
@@ -90,10 +90,10 @@ public class SemanticAnalyzer {
 	 * @param astRootNode 解析・設定対象のASTのルートノード（メソッド実行後、各ノードに属性値が追加されます）
 	 * @param globalVariableTable AST内で参照しているグローバル変数情報を持つ変数テーブル
 	 * @throws DataException ローカル変数のデータ型が無効な場合にスローされます。
-	 * @throws VnanoSyntaxException 存在しない変数を参照している場合にスローされます。
+	 * @throws VnanoException 存在しない変数を参照している場合にスローされます。
 	 */
 	private void supplementLeafAttributes(AstNode astRootNode, VariableTable globalVariableTable)
-			throws VnanoSyntaxException {
+			throws VnanoException {
 
 		if (!astRootNode.hasChildNodes()) {
 			return;
@@ -167,7 +167,7 @@ public class SemanticAnalyzer {
 						);
 
 					} else {
-						throw new VnanoSyntaxException(
+						throw new VnanoException(
 								ErrorType.VARIABLE_IS_NOT_FOUND, identifier,
 								currentNode.getFileName(), currentNode.getLineNumber()
 						);
@@ -195,9 +195,9 @@ public class SemanticAnalyzer {
 	 *
 	 * @param astRootNode 解析・設定対象のASTのルートノード（メソッド実行後、各ノードに属性値が追加されます）
 	 * @param functionTable AST内で参照している関数情報を持つ関数テーブル
-	 * @throws VnanoSyntaxException ASTの内容が構文的に正しくない場合にスローされます。
+	 * @throws VnanoException ASTの内容が構文的に正しくない場合にスローされます。
 	 */
-	private void supplementOperatorAttributes(AstNode astRootNode, FunctionTable functionTable) throws VnanoSyntaxException {
+	private void supplementOperatorAttributes(AstNode astRootNode, FunctionTable functionTable) throws VnanoException {
 
 
 		// !!! 重複が多いので切り出して要リファクタ
@@ -312,7 +312,7 @@ public class SemanticAnalyzer {
 						if (!functionTable.hasCalleeFunctionOf(currentNode)) {
 							String functionIdentifier = IdentifierSyntax.getUniqueIdentifierOfCalleeFunctionOf(currentNode);
 							System.out.println(currentNode);
-							throw new VnanoSyntaxException(
+							throw new VnanoException(
 									ErrorType.FUNCTION_IS_NOT_FOUND, functionIdentifier,
 									currentNode.getFileName(), currentNode.getLineNumber()
 							);
@@ -401,11 +401,11 @@ public class SemanticAnalyzer {
 	 * @param fileName 対象処理が記述されたファイル名（例外発生時のエラー情報に使用）
 	 * @param fileName 対象処理が記述された行番号（例外発生時のエラー情報に使用）
 	 * @return 演算子の演算実行データ型の名前
-	 * @throws VnanoSyntaxException 対象演算子に対して使用できないデータ型であった場合にスローされます。
+	 * @throws VnanoException 対象演算子に対して使用できないデータ型であった場合にスローされます。
 	 */
 	private String analyzeArithmeticBinaryOperatorDataType(
 			String leftOperandType, String rightOperandType, String operatorSymbol,
-			String fileName, int lineNumber) throws VnanoSyntaxException {
+			String fileName, int lineNumber) throws VnanoException {
 
 		// 文字列型を含む場合は文字列
 		if (DataTypeName.isDataTypeNameOf(DataType.STRING,leftOperandType)
@@ -436,7 +436,7 @@ public class SemanticAnalyzer {
 			return DataTypeName.FLOAT;
 		}
 
-		throw new VnanoSyntaxException(
+		throw new VnanoException(
 			ErrorType.INVALID_DATA_TYPES_FOR_BINARY_OPERATOR,
 			new String[] {operatorSymbol, leftOperandType, rightOperandType},
 			fileName, lineNumber
@@ -460,11 +460,11 @@ public class SemanticAnalyzer {
 	 * @param fileName 対象処理が記述されたファイル名（例外発生時のエラー情報に使用）
 	 * @param fileName 対象処理が記述された行番号（例外発生時のエラー情報に使用）
 	 * @return 演算子の演算実行データ型の名前
-	 * @throws VnanoSyntaxException 対象演算子に対して使用できないデータ型であった場合にスローされます。
+	 * @throws VnanoException 対象演算子に対して使用できないデータ型であった場合にスローされます。
 	 */
 	private String analyzeComparisonBinaryOperatorDataType(
 			String leftOperandType, String rightOperandType, String operatorSymbol,
-			String fileName, int lineNumber) throws VnanoSyntaxException {
+			String fileName, int lineNumber) throws VnanoException {
 
 		// 文字列型を含む場合は文字列
 		if (DataTypeName.isDataTypeNameOf(DataType.STRING,leftOperandType)
@@ -497,7 +497,7 @@ public class SemanticAnalyzer {
 			return DataTypeName.FLOAT;
 		}
 
-		throw new VnanoSyntaxException(
+		throw new VnanoException(
 			ErrorType.INVALID_DATA_TYPES_FOR_BINARY_OPERATOR,
 			new String[] {operatorSymbol, leftOperandType, rightOperandType},
 			fileName, lineNumber
@@ -522,18 +522,18 @@ public class SemanticAnalyzer {
 	 * @param fileName 対象処理が記述されたファイル名（例外発生時のエラー情報に使用）
 	 * @param fileName 対象処理が記述された行番号（例外発生時のエラー情報に使用）
 	 * @return 演算子の演算実行データ型の名前
-	 * @throws VnanoSyntaxException 対象演算子に対して使用できないデータ型であった場合にスローされます。
+	 * @throws VnanoException 対象演算子に対して使用できないデータ型であった場合にスローされます。
 	 */
 	private String analyzeLogicalBinaryOperatorDataType(
 			String leftOperandType, String rightOperandType, String operatorSymbol,
-			String fileName, int lineNumber) throws VnanoSyntaxException {
+			String fileName, int lineNumber) throws VnanoException {
 
 		if (DataTypeName.isDataTypeNameOf(DataType.BOOL,leftOperandType)
 				&& DataTypeName.isDataTypeNameOf(DataType.BOOL,rightOperandType) ) {
 			return DataTypeName.BOOL;
 		}
 
-		throw new VnanoSyntaxException(
+		throw new VnanoException(
 			ErrorType.INVALID_DATA_TYPES_FOR_BINARY_OPERATOR,
 			new String[] {operatorSymbol, leftOperandType, rightOperandType},
 			fileName, lineNumber

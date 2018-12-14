@@ -5,7 +5,7 @@
 
 package org.vcssl.nano.compiler;
 
-import org.vcssl.nano.VnanoSyntaxException;
+import org.vcssl.nano.VnanoException;
 import org.vcssl.nano.interconnect.Interconnect;
 
 /**
@@ -36,10 +36,10 @@ public class Compiler {
 	 * @param fileName スクリプトのファイル名
 	 * @param Intterconnect interconnect スクリプト内で参照する外部変数・関数の情報を保持しているインターコネクト
 	 * @return 仮想アセンブリコード
-	 * @throws VnanoSyntaxException スクリプトコードの内容に異常があった場合にスローされます。
+	 * @throws VnanoException スクリプトコードの内容に異常があった場合にスローされます。
 	 */
 	public String compile(String script, String fileName, Interconnect interconnect)
-					throws VnanoSyntaxException { // スクリプト内の型エラーはScriptCodeExceptionに入れるべき？
+					throws VnanoException { // スクリプト内の型エラーはScriptCodeExceptionに入れるべき？
 
 		/*
 		// デバッグ用出力（入力スクリプト）

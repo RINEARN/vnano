@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Iterator;
 
 import org.vcssl.nano.VnanoFatalException;
-import org.vcssl.nano.VnanoSyntaxException;
+import org.vcssl.nano.VnanoException;
 
 /**
  * リテラルの書式や値、判定処理、およびリテラルの解釈に必要な処理などが定義・実装されたクラスです。
@@ -179,9 +179,9 @@ public class LiteralSyntax {
 	 *
 	 * @param code 文字列リテラルを抽出したいコード
 	 * @param return 抽出済みコードと全リテラル内容を格納する配列
-	 * @throws VnanoSyntaxException 文字列リテラルが全て閉じていない場合にスローされます。
+	 * @throws VnanoException 文字列リテラルが全て閉じていない場合にスローされます。
 	 */
-	public static String[] extractStringLiterals(String code) throws VnanoSyntaxException {
+	public static String[] extractStringLiterals(String code) throws VnanoException {
 
 		// コードのchar配列表現と要素数を取得
 		char[] chars = code.toCharArray();
@@ -254,7 +254,7 @@ public class LiteralSyntax {
 
 		// コードを全て読み終えても文字列リテラル内なら、閉じていない文字列リテラルがある
 		if (inLiteral) {
-			throw new VnanoSyntaxException(
+			throw new VnanoException(
 					ErrorType.STRING_LITERAL_IS_NOT_CLOSED
 			);
 		}

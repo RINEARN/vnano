@@ -11,7 +11,7 @@ import org.vcssl.nano.lang.DataType;
 import org.vcssl.nano.lang.FunctionTable;
 import org.vcssl.nano.lang.VariableTable;
 import org.vcssl.nano.VnanoFatalException;
-import org.vcssl.nano.VnanoSyntaxException;
+import org.vcssl.nano.VnanoException;
 import org.vcssl.nano.interconnect.Interconnect;
 import org.vcssl.nano.spec.AssemblyWord;
 import org.vcssl.nano.spec.DataTypeName;
@@ -49,10 +49,10 @@ public class Assembler {
 	 * @param assemblyCode 仮想アセンブリコード
 	 * @param Intterconnect interconnect 外部変数・関数の情報を保持しているインターコネクト
 	 * @return 実行用中間コード
-	 * @throws VnanoSyntaxException 仮想アセンブリコードの内容に異常があった場合にスローされます。
+	 * @throws VnanoException 仮想アセンブリコードの内容に異常があった場合にスローされます。
 	 */
 	public VirtualMachineObjectCode assemble(String assemblyCode, Interconnect interconnect)
-			throws VnanoSyntaxException { // 例外は後で一本化すべき
+			throws VnanoException { // 例外は後で一本化すべき
 
 
 		// !!!  1メソッドに突っ込みすぎなので分割して要リファクタ
@@ -134,7 +134,7 @@ public class Assembler {
 			for (int dataTypeIndex=0; dataTypeIndex<dataTypeLength; dataTypeIndex++) {
 				try {
 					dataTypes[dataTypeIndex] = DataTypeName.getDataTypeOf(dataTypeNames[dataTypeIndex]);
-				} catch (VnanoSyntaxException e) {
+				} catch (VnanoException e) {
 					e.setFileName(sourceFileName);
 					e.setLineNumber(sourceLineNumber);
 					throw e;
@@ -269,7 +269,7 @@ public class Assembler {
 	 * @return 読みとったデータ型
 	 * @throws AssemblyCodeException 不明なデータ型が記述されていた場合にスローされます。
 	 */
-	private DataType getDataTypeOfImmediateValueLiteral(String immediateValueLiteral) throws VnanoSyntaxException {
+	private DataType getDataTypeOfImmediateValueLiteral(String immediateValueLiteral) throws VnanoException {
 
 		int separatorIndex = immediateValueLiteral.indexOf(AssemblyWord.VALUE_SEPARATOR);
 		String dataTypeName = immediateValueLiteral.substring(1, separatorIndex);

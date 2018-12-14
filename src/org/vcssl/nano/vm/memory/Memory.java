@@ -16,7 +16,7 @@ import org.vcssl.nano.spec.ErrorType;
 import org.vcssl.nano.spec.LiteralSyntax;
 import org.vcssl.nano.vm.VirtualMachineObjectCode;
 import org.vcssl.nano.VnanoFatalException;
-import org.vcssl.nano.VnanoSyntaxException;
+import org.vcssl.nano.VnanoException;
 import org.vcssl.nano.lang.AbstractVariable;
 import org.vcssl.nano.lang.DataType;
 import org.vcssl.nano.lang.VariableTable;
@@ -204,11 +204,11 @@ public final class Memory {
 	 *
 	 * @param intermediateCode この仮想メモリーを用いて実行する中間コード
 	 * @param globalVariableTable グローバル領域に保持させる外部変数の変数テーブル
-	 * @throws VnanoSyntaxException これはアセンブラでやるべき
+	 * @throws VnanoException これはアセンブラでやるべき
 	 * @throws DataException これもかな
 	 */
 	public void allocate(VirtualMachineObjectCode intermediateCode, VariableTable globalVariableTable)
-			throws VnanoSyntaxException {
+			throws VnanoException {
 
 		// レジスタ確保の確保
 		int maxRegisterAddress = intermediateCode.getMaximumRegisterAddress();
@@ -251,7 +251,7 @@ public final class Memory {
 					try {
 						data.setData(new long[]{ Long.parseLong(valueText) });
 					} catch(NumberFormatException e) {
-						VnanoSyntaxException vse = new VnanoSyntaxException(ErrorType.INVALID_IMMEDIATE_VALUE);
+						VnanoException vse = new VnanoException(ErrorType.INVALID_IMMEDIATE_VALUE);
 						vse.setErrorWords(new String[] { valueText});
 						throw vse;
 					}
@@ -263,7 +263,7 @@ public final class Memory {
 					try {
 						data.setData(new double[]{ Double.parseDouble(valueText) });
 					} catch(NumberFormatException e) {
-						VnanoSyntaxException vse = new VnanoSyntaxException(ErrorType.INVALID_IMMEDIATE_VALUE);
+						VnanoException vse = new VnanoException(ErrorType.INVALID_IMMEDIATE_VALUE);
 						vse.setErrorWords(new String[] { valueText});
 						throw vse;
 					}
@@ -277,7 +277,7 @@ public final class Memory {
 					} else if (valueText.equals(LiteralSyntax.FALSE)) {
 						data.setData(new boolean[]{ false });
 					} else {
-						VnanoSyntaxException vse = new VnanoSyntaxException(ErrorType.INVALID_IMMEDIATE_VALUE);
+						VnanoException vse = new VnanoException(ErrorType.INVALID_IMMEDIATE_VALUE);
 						vse.setErrorWords(new String[] { valueText});
 						throw vse;
 					}

@@ -12,7 +12,7 @@ import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.vcssl.nano.VnanoSyntaxException;
+import org.vcssl.nano.VnanoException;
 import org.vcssl.nano.VnanoFatalException;
 import org.vcssl.nano.spec.DataTypeName;
 import org.vcssl.nano.spec.PriorityTable;
@@ -57,9 +57,9 @@ public class Parser {
 	 *
 	 * @param tokens 字句解析によって生成されたトークン配列
 	 * @return 構築したAST（抽象構文木）のルートノード
-	 * @throws VnanoSyntaxException 文の終端が見つからない場合にスローされます。
+	 * @throws VnanoException 文の終端が見つからない場合にスローされます。
 	 */
-	public AstNode parse(Token[] tokens) throws VnanoSyntaxException {
+	public AstNode parse(Token[] tokens) throws VnanoException {
 
 		// パース作業用のスタックとして使用する双方向キュー
 		Deque<AstNode> statementStack = new ArrayDeque<AstNode>();
@@ -76,7 +76,7 @@ public class Parser {
 
 			// 文末記号が無い場合のエラー（3つめの条件は、ブロック終端後に文が無い場合のため）
 			if (statementEnd < 0 && blockBegin < 0 && statementBegin!=blockEnd) {
-				throw new VnanoSyntaxException(
+				throw new VnanoException(
 						ErrorType.STATEMENT_END_IS_NOT_FOUND,
 						tokens[statementBegin].getFileName(), tokens[statementBegin].getLineNumber()
 				);
@@ -187,11 +187,11 @@ public class Parser {
 	 *
 	 * @param tokens 検査対象のトークン配列
 	 * @param controlStatementBegin 対象の制御文の始点インデックス
-	 * @throws VnanoSyntaxException トークン配列に、制御文の構成トークンとしての問題があった場合にスローされます。
+	 * @throws VnanoException トークン配列に、制御文の構成トークンとしての問題があった場合にスローされます。
 	 */
 	void checkTokensAfterControlStatement(
 			Token[] tokens, int controlStatementBegin, boolean arrowStatementsInParentheses)
-					throws VnanoSyntaxException {
+					throws VnanoException {
 
 		// 「 if 」や「 for 」などの制御文のキーワードのトークン
 		Token controlToken = tokens[controlStatementBegin];
@@ -207,7 +207,7 @@ public class Parser {
 			if (tokens.length <= controlStatementBegin+1
 					|| !tokens[controlStatementBegin+1].getValue().equals(ScriptWord.PARENTHESIS_BEGIN)) {
 
-				throw new VnanoSyntaxException(
+				throw new VnanoException(
 					ErrorType.NO_OPEN_PARENTHESIS_OF_CONTROL_STATEMENT, controlToken.getValue(),
 					controlToken.getFileName(), controlToken.getLineNumber()
 				);
@@ -235,7 +235,7 @@ public class Parser {
 						|| readingToken.getValue().equals(ScriptWord.BLOCK_END)
 						|| (!arrowStatementsInParentheses&&readingToken.getValue().equals(ScriptWord.END_OF_STATEMENT)) ) {
 
-					throw new VnanoSyntaxException(
+					throw new VnanoException(
 						ErrorType.NO_CLOSING_PARENTHESIS_OF_CONTROL_STATEMENT, controlToken.getValue(),
 						controlToken.getFileName(), controlToken.getLineNumber()
 					);
@@ -254,7 +254,7 @@ public class Parser {
 			if (readingIndex == tokens.length-1
 					|| !tokens[readingIndex+1].getValue().equals(ScriptWord.BLOCK_BEGIN)) {
 
-				throw new VnanoSyntaxException(
+				throw new VnanoException(
 					ErrorType.NO_BLOCK_AFTER_CONTROL_STATEMENT, controlToken.getValue(),
 					controlToken.getFileName(), controlToken.getLineNumber()
 				);
@@ -278,9 +278,9 @@ public class Parser {
 	 *
 	 * @param tokens 文のトークン配列（文末記号は含まない）
 	 * @return 構築したAST（抽象構文木）のルートノード
-	 * @throws VnanoSyntaxException 文の構文に異常があった場合にスローされます。
+	 * @throws VnanoException 文の構文に異常があった場合にスローされます。
 	 */
-	private AstNode parseVariableDeclarationStatement(Token[] tokens) throws VnanoSyntaxException {
+	private AstNode parseVariableDeclarationStatement(Token[] tokens) throws VnanoException {
 
 		AstNode variableNode = new AstNode(AstNode.Type.VARIABLE, tokens[0].getLineNumber(), tokens[0].getFileName());
 
@@ -300,7 +300,7 @@ public class Parser {
 		if (tokens.length <= readingIndex || tokens[readingIndex].getType()!=Token.Type.LEAF
 			|| !tokens[readingIndex].getAttribute(AttributeKey.LEAF_TYPE).equals(AttributeValue.VARIABLE_IDENTIFIER)) {
 
-			throw new VnanoSyntaxException(
+			throw new VnanoException(
 					ErrorType.NO_IDENTIFIER_IN_VARIABLE_DECLARATION,
 					tokens[readingIndex-1].getFileName(), tokens[readingIndex-1].getLineNumber()
 			);
@@ -342,7 +342,7 @@ public class Parser {
 
 		// それ以上トークンが続く場合は、余計なトークンであるため構文エラー
 		if (readingIndex < tokens.length) {
-			throw new VnanoSyntaxException(
+			throw new VnanoException(
 					ErrorType.TOO_MANY_TOKENS_FOR_VARIABLE_DECLARATION,
 					tokens[readingIndex-1].getFileName(), tokens[readingIndex-1].getLineNumber()
 			);
@@ -362,9 +362,9 @@ public class Parser {
 	 *
 	 * @param tokens 要素数宣言部のトークン配列
 	 * @return 構築したAST（抽象構文木）のルートノード
-	 * @throws VnanoSyntaxException 文の構文に異常があった場合にスローされます。
+	 * @throws VnanoException 文の構文に異常があった場合にスローされます。
 	 */
-	private AstNode parseVariableDeclarationArrayLengths(Token[] tokens) throws VnanoSyntaxException {
+	private AstNode parseVariableDeclarationArrayLengths(Token[] tokens) throws VnanoException {
 		AstNode lengthsNode = new AstNode(AstNode.Type.LENGTHS, tokens[0].getLineNumber(), tokens[0].getFileName());
 		int currentExprBegin = -1;
 
@@ -419,9 +419,9 @@ public class Parser {
 	 * 検査の結果、問題が無かった場合には何もせず、問題が見つかった場合には例外をスローします。
 	 *
 	 * @param tokens 検査対象のトークン配列
-	 * @throws VnanoSyntaxException トークン配列に、制御文の構成トークンとしての問題があった場合にスローされます。
+	 * @throws VnanoException トークン配列に、制御文の構成トークンとしての問題があった場合にスローされます。
 	 */
-	private void checkControlStatementTokens(Token[] tokens) throws VnanoSyntaxException {
+	private void checkControlStatementTokens(Token[] tokens) throws VnanoException {
 		Token controlTypeToken = tokens[0];
 		int lineNumber = controlTypeToken.getLineNumber();
 		String fileName = controlTypeToken.getFileName();
@@ -431,7 +431,7 @@ public class Parser {
 
 			// 条件式が空の場合は構文エラー
 			if (tokens.length == 3) {
-				throw new VnanoSyntaxException(ErrorType.NO_CONDITION_EXPRESSION_OF_IF_STATEMENT, fileName, lineNumber);
+				throw new VnanoException(ErrorType.NO_CONDITION_EXPRESSION_OF_IF_STATEMENT, fileName, lineNumber);
 			}
 
 		// while文の場合
@@ -439,7 +439,7 @@ public class Parser {
 
 			// 条件式が空の場合は構文エラー
 			if (tokens.length == 3) {
-				throw new VnanoSyntaxException(ErrorType.NO_CONDITION_EXPRESSION_OF_WHILE_STATEMENT, fileName, lineNumber);
+				throw new VnanoException(ErrorType.NO_CONDITION_EXPRESSION_OF_WHILE_STATEMENT, fileName, lineNumber);
 			}
 
 		// for文の場合
@@ -451,7 +451,7 @@ public class Parser {
 
 			// 括弧 (...;...;...) 内の区切りが無いか足りない場合は構文エラー
 			if (initializationEnd < 0 || conditionEnd < 0) {
-				throw new VnanoSyntaxException(
+				throw new VnanoException(
 						ErrorType.ELEMENTS_OF_FOR_STATEMENT_IS_DEFICIENT, fileName, lineNumber
 				);
 			}
@@ -463,7 +463,7 @@ public class Parser {
 
 			// 余計な記述が付いている
 			if (tokens.length > 1) {
-				throw new VnanoSyntaxException(
+				throw new VnanoException(
 						ErrorType.TOO_MANY_TOKENS_FOR_CONTROL_STATEMENT, controlTypeToken.getValue(), fileName, lineNumber
 				);
 			}
@@ -496,9 +496,9 @@ public class Parser {
 	 *
 	 * @param tokens 制御文を構成するトークン配列
 	 * @return 構築したAST（抽象構文木）のルートノード
-	 * @throws VnanoSyntaxException 文の構文に異常があった場合にスローされます。
+	 * @throws VnanoException 文の構文に異常があった場合にスローされます。
 	 */
-	private AstNode parseControlStatement(Token[] tokens) throws VnanoSyntaxException {
+	private AstNode parseControlStatement(Token[] tokens) throws VnanoException {
 
 		// 最初に、括弧の存在や条件式・文の存在などを検査しておく（問題がある場合はここで例外発生）
 		this.checkControlStatementTokens(tokens);
@@ -611,9 +611,9 @@ public class Parser {
 	 * 検査の結果、個数が合っていた場合には何もせず、合っていなかった場合には例外をスローします。
 	 *
 	 * @param tokens 検査対象のトークン配列
-	 * @throws VnanoSyntaxException 開き括弧と閉じ括弧の個数が合っていなかった場合にスローされます。
+	 * @throws VnanoException 開き括弧と閉じ括弧の個数が合っていなかった場合にスローされます。
 	 */
-	private void checkNumberOfParenthesesInExpression(Token[] tokens) throws VnanoSyntaxException {
+	private void checkNumberOfParenthesesInExpression(Token[] tokens) throws VnanoException {
 		int tokenLength = tokens.length;
 		int hierarchy = 0; // 開き括弧で上がり、閉じ括弧で下がる階層カウンタ
 		for (int tokenIndex=0; tokenIndex<tokenLength; tokenIndex++) {
@@ -627,7 +627,7 @@ public class Parser {
 			}
 			// 階層が負になった場合は、その時点で明らかに開き括弧が足りない
 			if (hierarchy < 0) {
-				throw new VnanoSyntaxException(
+				throw new VnanoException(
 					ErrorType.OPENING_PARENTHESES_IS_DEFICIENT,
 					tokens[0].getFileName(), tokens[0].getLineNumber() // 階層が0でない時点でトークンは1個以上あるので[0]で参照可能
 				);
@@ -635,7 +635,7 @@ public class Parser {
 		}
 		// 式のトークンを全て読み終えた時点で階層が1以上残っているなら、閉じ括弧が足りない
 		if (hierarchy > 0) {
-			throw new VnanoSyntaxException(
+			throw new VnanoException(
 				ErrorType.CLOSING_PARENTHESES_IS_DEFICIENT,
 				tokens[0].getFileName(), tokens[0].getLineNumber()
 			);
@@ -648,9 +648,9 @@ public class Parser {
 	 * 検査の結果、問題が無かった場合には何もせず、問題が見つかった場合には例外をスローします。
 	 *
 	 * @param tokens 検査対象のトークン配列
-	 * @throws VnanoSyntaxException 式の構成要素になり得ないタイプのトークンが存在していた場合にスローされます。
+	 * @throws VnanoException 式の構成要素になり得ないタイプのトークンが存在していた場合にスローされます。
 	 */
-	private void checkTypeOfTokensInExpression(Token[] tokens) throws VnanoSyntaxException {
+	private void checkTypeOfTokensInExpression(Token[] tokens) throws VnanoException {
 		for(Token token: tokens) {
 			switch (token.getType()) {
 
@@ -664,7 +664,7 @@ public class Parser {
 				// 式文の中にブロックの始点・終点がある場合は、スクリプト内に文末記号を書き忘れているので、
 				// そういった方向のエラーメッセージで構文エラーとする
 				case BLOCK : {
-					throw new VnanoSyntaxException(
+					throw new VnanoException(
 							ErrorType.STATEMENT_END_IS_NOT_FOUND,
 							token.getValue(),
 							token.getFileName(), token.getLineNumber()
@@ -673,7 +673,7 @@ public class Parser {
 
 				// それ以外も式の構成要素になり得ないので、単純にそういったエラーメッセージで構文エラーとする
 				default : {
-					throw new VnanoSyntaxException(
+					throw new VnanoException(
 							ErrorType.INVALID_TYPE_TOKEN_IN_EXPRESSION,
 							token.getValue(),
 							token.getFileName(), token.getLineNumber()
@@ -690,9 +690,9 @@ public class Parser {
 	 * 検査の結果、問題が無かった場合には何もせず、問題が見つかった場合には例外をスローします。
 	 *
 	 * @param tokens 検査対象のトークン配列
-	 * @throws VnanoSyntaxException 空の部分式が含まれていた場合にスローされます。
+	 * @throws VnanoException 空の部分式が含まれていた場合にスローされます。
 	 */
-	private void checkBlankParenthesesInExpression(Token[] tokens) throws VnanoSyntaxException {
+	private void checkBlankParenthesesInExpression(Token[] tokens) throws VnanoException {
 		int tokenLength = tokens.length;
 		int contentCounter = 0;
 		for (int tokenIndex=0; tokenIndex<tokenLength; tokenIndex++) {
@@ -702,7 +702,7 @@ public class Parser {
 					contentCounter = 0;
 				} else if (token.getValue().equals(ScriptWord.PARENTHESIS_END)) {
 					if (contentCounter == 0) {
-						throw new VnanoSyntaxException(
+						throw new VnanoException(
 								ErrorType.NO_PARTIAL_EXPRESSION,
 								token.getFileName(), token.getLineNumber()
 						);
@@ -721,9 +721,9 @@ public class Parser {
 	 * 検査の結果、問題が無かった場合には何もせず、問題が見つかった場合には例外をスローします。
 	 *
 	 * @param tokens 検査対象のトークン配列
-	 * @throws VnanoSyntaxException 問題が見つかった場合にスローされます。
+	 * @throws VnanoException 問題が見つかった場合にスローされます。
 	 */
-	private void checkLocationsOfOperatorsAndLeafsInExpression(Token[] tokens) throws VnanoSyntaxException {
+	private void checkLocationsOfOperatorsAndLeafsInExpression(Token[] tokens) throws VnanoException {
 		int tokenLength = tokens.length;
 
 		// トークンを先頭から末尾まで辿って検査
@@ -757,7 +757,7 @@ public class Parser {
 				if (operatorSyntax.equals(AttributeValue.PREFIX)
 						&& !(  nextIsLeaf || nextIsOpenParenthesis || nextIsMultialyBegin  ) ) {
 
-					throw new VnanoSyntaxException(
+					throw new VnanoException(
 							ErrorType.OPERAND_IS_MISSING_AT_RIGHT,
 							token.getValue(), token.getFileName(), token.getLineNumber()
 					);
@@ -767,7 +767,7 @@ public class Parser {
 				if (operatorSyntax.equals(AttributeValue.POSTFIX)
 						&& !(  prevIsLeaf || prevIsCloseParenthesis || prevIsMultialyEnd ) ) {
 
-					throw new VnanoSyntaxException(
+					throw new VnanoException(
 							ErrorType.OPERAND_IS_MISSING_AT_LEFT,
 							token.getValue(), token.getFileName(), token.getLineNumber()
 					);
@@ -779,14 +779,14 @@ public class Parser {
 
 					// 右がリーフか開き括弧か多項演算子（関数呼び出しや配列アクセス）の始点でないとエラー
 					if( !(  nextIsLeaf || nextIsOpenParenthesis || nextIsMultialyBegin  ) ) {
-						throw new VnanoSyntaxException(
+						throw new VnanoException(
 							ErrorType.OPERAND_IS_MISSING_AT_RIGHT,
 							token.getValue(), token.getFileName(), token.getLineNumber()
 						);
 					}
 					// 左のトークンがリーフか閉じ括弧か多項演算子（関数呼び出しや配列アクセス）の終点でないとエラー
 					if( !(  prevIsLeaf || prevIsCloseParenthesis || prevIsMultialyEnd  ) ) {
-						throw new VnanoSyntaxException(
+						throw new VnanoException(
 							ErrorType.OPERAND_IS_MISSING_AT_LEFT,
 							token.getValue(), token.getFileName(), token.getLineNumber()
 						);
@@ -800,7 +800,7 @@ public class Parser {
 
 				// 右のトークンが開き括弧やリーフの場合はエラー
 				if (nextIsOpenParenthesis || nextIsLeaf) {     // nextIsMultialyBegin は付加してはいけない（普通に配列アクセスや関数呼び出しが来る右に場合が該当してしまう）
-					throw new VnanoSyntaxException(
+					throw new VnanoException(
 						ErrorType.OPERATOR_IS_MISSING_AT_RIGHT,
 						new String[] {token.getValue(), tokens[tokenIndex+1].getValue()},
 						token.getFileName(), token.getLineNumber()
@@ -809,7 +809,7 @@ public class Parser {
 
 				// 左のトークンが閉じ括弧やリーフの場合はエラー
 				if (prevIsCloseParenthesis || prevIsLeaf || prevIsMultialyEnd) {
-					throw new VnanoSyntaxException(
+					throw new VnanoException(
 						ErrorType.OPERATOR_IS_MISSING_AT_LEFT,
 						new String[] {tokens[tokenIndex-1].getValue(), token.getValue()},
 						token.getFileName(), token.getLineNumber()
@@ -827,9 +827,9 @@ public class Parser {
 	 * 検査の結果、問題が無かった場合には何もせず、問題が見つかった場合には例外をスローします。
 	 *
 	 * @param tokens 検査対象のトークン配列
-	 * @throws VnanoSyntaxException トークン配列に、式の構成トークンとしての問題があった場合にスローされます。
+	 * @throws VnanoException トークン配列に、式の構成トークンとしての問題があった場合にスローされます。
 	 */
-	private void checkTokensInExpression(Token[] tokens) throws VnanoSyntaxException {
+	private void checkTokensInExpression(Token[] tokens) throws VnanoException {
 
 		// トークン列内の開き括弧と閉じ括弧の対応を確認（合っていなければここで例外発生）
 		this.checkNumberOfParenthesesInExpression(tokens);
@@ -850,9 +850,9 @@ public class Parser {
 	 *
 	 * @param tokens 式のトークン配列
 	 * @return 構築したAST（抽象構文木）のルートノード
-	 * @throws VnanoSyntaxException 式の構文に異常があった場合にスローされます。
+	 * @throws VnanoException 式の構文に異常があった場合にスローされます。
 	 */
-	private AstNode parseExpression(Token[] tokens) throws VnanoSyntaxException {
+	private AstNode parseExpression(Token[] tokens) throws VnanoException {
 
 		// 最初に、トークンの種類や括弧の数などに、式の構成トークンとして問題無いか検査
 		checkTokensInExpression(tokens);
@@ -1187,9 +1187,9 @@ public class Parser {
 	 * @param stack 構文解析の作業用スタックとして使用している双方向キュー
 	 * @param marker 回収の最深部に配置してあるフタノードのマーカー値
 	 * @return 回収した部分式のASTのルートノードを格納する配列（スタック上で深い側にあるものが先頭）
-	 * @throws VnanoSyntaxException 部分式が空の場合にスローされます。
+	 * @throws VnanoException 部分式が空の場合にスローされます。
 	 */
-	private AstNode[] popPartialExpressionNodes(Deque<AstNode> stack, String marker) throws VnanoSyntaxException {
+	private AstNode[] popPartialExpressionNodes(Deque<AstNode> stack, String marker) throws VnanoException {
 
 		List<AstNode> partialExprNodeList = new LinkedList<AstNode>();
 		while(stack.size() != 0) {

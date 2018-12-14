@@ -18,7 +18,7 @@ import org.vcssl.nano.lang.DataType;
 import org.vcssl.nano.vm.memory.DataContainer;
 import org.vcssl.nano.vm.memory.Memory;
 import org.vcssl.nano.VnanoFatalException;
-import org.vcssl.nano.VnanoSyntaxException;
+import org.vcssl.nano.VnanoException;
 
 
 public class DispatchUnitTest {
@@ -223,7 +223,7 @@ public class DispatchUnitTest {
 		int pc = 10; // プログラムカウンタ
 		try {
 			pc = new DispatchUnit().dispatch(instruction, this.memory, this.interconnect, new ExecutionUnit(), pc);
-		} catch (VnanoSyntaxException | VnanoFatalException e) {
+		} catch (VnanoException | VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occurred");
 		}
@@ -244,7 +244,7 @@ public class DispatchUnitTest {
 			instruction = this.generateInt64x2Instruction(OperationCode.ADD);
 			pc = new DispatchUnit().dispatch(instruction, this.memory, this.interconnect, new ExecutionUnit(), pc);
 			fail("Unexpected exception occurred");
-		} catch (VnanoSyntaxException | VnanoFatalException e) {
+		} catch (VnanoException | VnanoFatalException e) {
 			// 例外が発生するのが正しい挙動
 		}
 	}
@@ -263,7 +263,7 @@ public class DispatchUnitTest {
 		int pc = 10; // プログラムカウンタ
 		try {
 			pc = new DispatchUnit().dispatch(instruction, this.memory, this.interconnect, new ExecutionUnit(), pc);
-		} catch (VnanoSyntaxException | VnanoFatalException e) {
+		} catch (VnanoException | VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occurred");
 		}
@@ -284,7 +284,7 @@ public class DispatchUnitTest {
 			instruction = this.generateInt64x2Instruction(OperationCode.SUB);
 			pc = new DispatchUnit().dispatch(instruction, this.memory, this.interconnect, new ExecutionUnit(), pc);
 			fail("Unexpected exception occurred");
-		} catch (VnanoSyntaxException | VnanoFatalException e) {
+		} catch (VnanoException | VnanoFatalException e) {
 			// 例外が発生するのが正しい挙動
 		}
 	}
@@ -303,7 +303,7 @@ public class DispatchUnitTest {
 		int pc = 10; // プログラムカウンタ
 		try {
 			pc = new DispatchUnit().dispatch(instruction, this.memory, this.interconnect, new ExecutionUnit(), pc);
-		} catch (VnanoSyntaxException | VnanoFatalException e) {
+		} catch (VnanoException | VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occurred");
 		}
@@ -324,7 +324,7 @@ public class DispatchUnitTest {
 			instruction = this.generateInt64x2Instruction(OperationCode.MUL);
 			pc = new DispatchUnit().dispatch(instruction, this.memory, this.interconnect, new ExecutionUnit(), pc);
 			fail("Unexpected exception occurred");
-		} catch (VnanoSyntaxException | VnanoFatalException e) {
+		} catch (VnanoException | VnanoFatalException e) {
 			// 例外が発生するのが正しい挙動
 		}
 	}
@@ -343,7 +343,7 @@ public class DispatchUnitTest {
 		int pc = 10; // プログラムカウンタ
 		try {
 			pc = new DispatchUnit().dispatch(instruction, this.memory, this.interconnect, new ExecutionUnit(), pc);
-		} catch (VnanoSyntaxException | VnanoFatalException e) {
+		} catch (VnanoException | VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occurred");
 		}
@@ -364,7 +364,7 @@ public class DispatchUnitTest {
 			instruction = this.generateInt64x2Instruction(OperationCode.DIV);
 			pc = new DispatchUnit().dispatch(instruction, this.memory, this.interconnect, new ExecutionUnit(), pc);
 			fail("Unexpected exception occurred");
-		} catch (VnanoSyntaxException | VnanoFatalException e) {
+		} catch (VnanoException | VnanoFatalException e) {
 			// 例外が発生するのが正しい挙動
 		}
 	}
@@ -383,7 +383,7 @@ public class DispatchUnitTest {
 		int pc = 10; // プログラムカウンタ
 		try {
 			pc = new DispatchUnit().dispatch(instruction, this.memory, this.interconnect, new ExecutionUnit(), pc);
-		} catch (VnanoSyntaxException | VnanoFatalException e) {
+		} catch (VnanoException | VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occurred");
 		}
@@ -404,7 +404,7 @@ public class DispatchUnitTest {
 			instruction = this.generateInt64x2Instruction(OperationCode.REM);
 			pc = new DispatchUnit().dispatch(instruction, this.memory, this.interconnect, new ExecutionUnit(), pc);
 			fail("Unexpected exception occurred");
-		} catch (VnanoSyntaxException | VnanoFatalException e) {
+		} catch (VnanoException | VnanoFatalException e) {
 			// 例外が発生するのが正しい挙動
 		}
 	}
@@ -422,7 +422,7 @@ public class DispatchUnitTest {
 		int pc = 10; // プログラムカウンタ
 		try {
 			pc = new DispatchUnit().dispatch(instruction, this.memory, this.interconnect, new ExecutionUnit(), pc);
-		} catch (VnanoSyntaxException | VnanoFatalException e) {
+		} catch (VnanoException | VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occurred");
 		}
@@ -443,7 +443,7 @@ public class DispatchUnitTest {
 			instruction = this.generateInt64x3Instruction(OperationCode.NEG);
 			pc = new DispatchUnit().dispatch(instruction, this.memory, this.interconnect, new ExecutionUnit(), pc);
 			fail("Unexpected exception occurred");
-		} catch (VnanoSyntaxException | VnanoFatalException e) {
+		} catch (VnanoException | VnanoFatalException e) {
 			// 例外が発生するのが正しい挙動
 		}
 	}
@@ -462,7 +462,7 @@ public class DispatchUnitTest {
 		int pc = 10; // プログラムカウンタ
 		try {
 			pc = new DispatchUnit().dispatch(instruction, this.memory, this.interconnect, new ExecutionUnit(), pc);
-		} catch (VnanoSyntaxException | VnanoFatalException e) {
+		} catch (VnanoException | VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occurred");
 		}
@@ -483,7 +483,7 @@ public class DispatchUnitTest {
 			instruction = this.generateInt64x2Instruction(OperationCode.EQ);
 			pc = new DispatchUnit().dispatch(instruction, this.memory, this.interconnect, new ExecutionUnit(), pc);
 			fail("Unexpected exception occurred");
-		} catch (VnanoSyntaxException | VnanoFatalException e) {
+		} catch (VnanoException | VnanoFatalException e) {
 			// 例外が発生するのが正しい挙動
 		}
 	}
@@ -502,7 +502,7 @@ public class DispatchUnitTest {
 		int pc = 10; // プログラムカウンタ
 		try {
 			pc = new DispatchUnit().dispatch(instruction, this.memory, this.interconnect, new ExecutionUnit(), pc);
-		} catch (VnanoSyntaxException | VnanoFatalException e) {
+		} catch (VnanoException | VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occurred");
 		}
@@ -523,7 +523,7 @@ public class DispatchUnitTest {
 			instruction = this.generateInt64x2Instruction(OperationCode.NEQ);
 			pc = new DispatchUnit().dispatch(instruction, this.memory, this.interconnect, new ExecutionUnit(), pc);
 			fail("Unexpected exception occurred");
-		} catch (VnanoSyntaxException | VnanoFatalException e) {
+		} catch (VnanoException | VnanoFatalException e) {
 			// 例外が発生するのが正しい挙動
 		}
 	}
@@ -543,7 +543,7 @@ public class DispatchUnitTest {
 		int pc = 10; // プログラムカウンタ
 		try {
 			pc = new DispatchUnit().dispatch(instruction, this.memory, this.interconnect, new ExecutionUnit(), pc);
-		} catch (VnanoSyntaxException | VnanoFatalException e) {
+		} catch (VnanoException | VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occurred");
 		}
@@ -564,7 +564,7 @@ public class DispatchUnitTest {
 			instruction = this.generateInt64x2Instruction(OperationCode.GEQ);
 			pc = new DispatchUnit().dispatch(instruction, this.memory, this.interconnect, new ExecutionUnit(), pc);
 			fail("Unexpected exception occurred");
-		} catch (VnanoSyntaxException | VnanoFatalException e) {
+		} catch (VnanoException | VnanoFatalException e) {
 			// 例外が発生するのが正しい挙動
 		}
 	}
@@ -584,7 +584,7 @@ public class DispatchUnitTest {
 		int pc = 10; // プログラムカウンタ
 		try {
 			pc = new DispatchUnit().dispatch(instruction, this.memory, this.interconnect, new ExecutionUnit(), pc);
-		} catch (VnanoSyntaxException | VnanoFatalException e) {
+		} catch (VnanoException | VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occurred");
 		}
@@ -605,7 +605,7 @@ public class DispatchUnitTest {
 			instruction = this.generateInt64x2Instruction(OperationCode.LEQ);
 			pc = new DispatchUnit().dispatch(instruction, this.memory, this.interconnect, new ExecutionUnit(), pc);
 			fail("Unexpected exception occurred");
-		} catch (VnanoSyntaxException | VnanoFatalException e) {
+		} catch (VnanoException | VnanoFatalException e) {
 			// 例外が発生するのが正しい挙動
 		}
 	}
@@ -625,7 +625,7 @@ public class DispatchUnitTest {
 		int pc = 10; // プログラムカウンタ
 		try {
 			pc = new DispatchUnit().dispatch(instruction, this.memory, this.interconnect, new ExecutionUnit(), pc);
-		} catch (VnanoSyntaxException | VnanoFatalException e) {
+		} catch (VnanoException | VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occurred");
 		}
@@ -646,7 +646,7 @@ public class DispatchUnitTest {
 			instruction = this.generateInt64x2Instruction(OperationCode.GT);
 			pc = new DispatchUnit().dispatch(instruction, this.memory, this.interconnect, new ExecutionUnit(), pc);
 			fail("Unexpected exception occurred");
-		} catch (VnanoSyntaxException | VnanoFatalException e) {
+		} catch (VnanoException | VnanoFatalException e) {
 			// 例外が発生するのが正しい挙動
 		}
 	}
@@ -666,7 +666,7 @@ public class DispatchUnitTest {
 		int pc = 10; // プログラムカウンタ
 		try {
 			pc = new DispatchUnit().dispatch(instruction, this.memory, this.interconnect, new ExecutionUnit(), pc);
-		} catch (VnanoSyntaxException | VnanoFatalException e) {
+		} catch (VnanoException | VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occurred");
 		}
@@ -687,7 +687,7 @@ public class DispatchUnitTest {
 			instruction = this.generateInt64x2Instruction(OperationCode.LT);
 			pc = new DispatchUnit().dispatch(instruction, this.memory, this.interconnect, new ExecutionUnit(), pc);
 			fail("Unexpected exception occurred");
-		} catch (VnanoSyntaxException | VnanoFatalException e) {
+		} catch (VnanoException | VnanoFatalException e) {
 			// 例外が発生するのが正しい挙動
 		}
 	}
@@ -707,7 +707,7 @@ public class DispatchUnitTest {
 		int pc = 10; // プログラムカウンタ
 		try {
 			pc = new DispatchUnit().dispatch(instruction, this.memory, this.interconnect, new ExecutionUnit(), pc);
-		} catch (VnanoSyntaxException | VnanoFatalException e) {
+		} catch (VnanoException | VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occurred");
 		}
@@ -728,7 +728,7 @@ public class DispatchUnitTest {
 			instruction = this.generateInt64x2Instruction(OperationCode.AND);
 			pc = new DispatchUnit().dispatch(instruction, this.memory, this.interconnect, new ExecutionUnit(), pc);
 			fail("Unexpected exception occurred");
-		} catch (VnanoSyntaxException | VnanoFatalException e) {
+		} catch (VnanoException | VnanoFatalException e) {
 			// 例外が発生するのが正しい挙動
 		}
 	}
@@ -747,7 +747,7 @@ public class DispatchUnitTest {
 		int pc = 10; // プログラムカウンタ
 		try {
 			pc = new DispatchUnit().dispatch(instruction, this.memory, this.interconnect, new ExecutionUnit(), pc);
-		} catch (VnanoSyntaxException | VnanoFatalException e) {
+		} catch (VnanoException | VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occurred");
 		}
@@ -768,7 +768,7 @@ public class DispatchUnitTest {
 			instruction = this.generateInt64x2Instruction(OperationCode.OR);
 			pc = new DispatchUnit().dispatch(instruction, this.memory, this.interconnect, new ExecutionUnit(), pc);
 			fail("Unexpected exception occurred");
-		} catch (VnanoSyntaxException | VnanoFatalException e) {
+		} catch (VnanoException | VnanoFatalException e) {
 			// 例外が発生するのが正しい挙動
 		}
 	}
@@ -786,7 +786,7 @@ public class DispatchUnitTest {
 		int pc = 10; // プログラムカウンタ
 		try {
 			pc = new DispatchUnit().dispatch(instruction, this.memory, this.interconnect, new ExecutionUnit(), pc);
-		} catch (VnanoSyntaxException | VnanoFatalException e) {
+		} catch (VnanoException | VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occurred");
 		}
@@ -807,7 +807,7 @@ public class DispatchUnitTest {
 			instruction = this.generateInt64x2Instruction(OperationCode.NOT);
 			pc = new DispatchUnit().dispatch(instruction, this.memory, this.interconnect, new ExecutionUnit(), pc);
 			fail("Unexpected exception occurred");
-		} catch (VnanoSyntaxException | VnanoFatalException e) {
+		} catch (VnanoException | VnanoFatalException e) {
 			// 例外が発生するのが正しい挙動
 		}
 	}
@@ -840,7 +840,7 @@ public class DispatchUnitTest {
 		int pc = 10; // プログラムカウンタ
 		try {
 			pc = new DispatchUnit().dispatch(instruction, this.memory, this.interconnect, new ExecutionUnit(), pc);
-		} catch (VnanoSyntaxException | VnanoFatalException e) {
+		} catch (VnanoException | VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occurred");
 		}
@@ -870,7 +870,7 @@ public class DispatchUnitTest {
 		int pc = 10; // プログラムカウンタ
 		try {
 			pc = new DispatchUnit().dispatch(instruction, this.memory, this.interconnect, new ExecutionUnit(), pc);
-		} catch (VnanoSyntaxException | VnanoFatalException e) {
+		} catch (VnanoException | VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occurred");
 		}
@@ -891,7 +891,7 @@ public class DispatchUnitTest {
 			instruction = this.generateInt64x3Instruction(OperationCode.MOV);
 			pc = new DispatchUnit().dispatch(instruction, this.memory, this.interconnect, new ExecutionUnit(), pc);
 			fail("Unexpected exception occurred");
-		} catch (VnanoSyntaxException | VnanoFatalException e) {
+		} catch (VnanoException | VnanoFatalException e) {
 			// 例外が発生するのが正しい挙動
 		}
 	}
@@ -921,7 +921,7 @@ public class DispatchUnitTest {
 		int pc = 10; // プログラムカウンタ
 		try {
 			pc = new DispatchUnit().dispatch(instruction, this.memory, this.interconnect, new ExecutionUnit(), pc);
-		} catch (VnanoSyntaxException | VnanoFatalException e) {
+		} catch (VnanoException | VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occurred");
 		}
@@ -960,7 +960,7 @@ public class DispatchUnitTest {
 		int pc = 10; // プログラムカウンタ
 		try {
 			pc = new DispatchUnit().dispatch(instruction, this.memory, this.interconnect, new ExecutionUnit(), pc);
-		} catch (VnanoSyntaxException | VnanoFatalException e) {
+		} catch (VnanoException | VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occurred");
 		}
@@ -1002,7 +1002,7 @@ public class DispatchUnitTest {
 		int pc = 10; // プログラムカウンタ
 		try {
 			pc = new DispatchUnit().dispatch(instruction, this.memory, this.interconnect, new ExecutionUnit(), pc);
-		} catch (VnanoSyntaxException | VnanoFatalException e) {
+		} catch (VnanoException | VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occurred");
 		}
@@ -1046,7 +1046,7 @@ public class DispatchUnitTest {
 		int pc = 10; // プログラムカウンタ
 		try {
 			pc = new DispatchUnit().dispatch(instruction, this.memory, this.interconnect, new ExecutionUnit(), pc);
-		} catch (VnanoSyntaxException | VnanoFatalException e) {
+		} catch (VnanoException | VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occurred");
 		}
@@ -1098,7 +1098,7 @@ public class DispatchUnitTest {
 		int pc = 10; // プログラムカウンタ
 		try {
 			pc = new DispatchUnit().dispatch(instruction, this.memory, this.interconnect, new ExecutionUnit(), pc);
-		} catch (VnanoSyntaxException | VnanoFatalException e) {
+		} catch (VnanoException | VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occurred");
 		}
@@ -1143,7 +1143,7 @@ public class DispatchUnitTest {
 		int pc = 10; // プログラムカウンタ
 		try {
 			pc = new DispatchUnit().dispatch(instruction, this.memory, this.interconnect, new ExecutionUnit(), pc);
-		} catch (VnanoSyntaxException | VnanoFatalException e) {
+		} catch (VnanoException | VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occurred");
 		}
@@ -1158,7 +1158,7 @@ public class DispatchUnitTest {
 		pc = 10; // プログラムカウンタ
 		try {
 			pc = new DispatchUnit().dispatch(instruction, this.memory, this.interconnect, new ExecutionUnit(), pc);
-		} catch (VnanoSyntaxException | VnanoFatalException e) {
+		} catch (VnanoException | VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occurred");
 		}
@@ -1194,7 +1194,7 @@ public class DispatchUnitTest {
 		int pc = 10; // プログラムカウンタ
 		try {
 			pc = new DispatchUnit().dispatch(instruction, this.memory, this.interconnect, new ExecutionUnit(), pc);
-		} catch (VnanoSyntaxException | VnanoFatalException e) {
+		} catch (VnanoException | VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occurred");
 		}
@@ -1209,7 +1209,7 @@ public class DispatchUnitTest {
 		pc = 10; // プログラムカウンタ
 		try {
 			pc = new DispatchUnit().dispatch(instruction, this.memory, this.interconnect, new ExecutionUnit(), pc);
-		} catch (VnanoSyntaxException | VnanoFatalException e) {
+		} catch (VnanoException | VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occurred");
 		}
@@ -1245,7 +1245,7 @@ public class DispatchUnitTest {
 		this.connectedMethodCalled = false;
 		try {
 			pc = new DispatchUnit().dispatch(instruction, this.memory, this.interconnect, new ExecutionUnit(), pc);
-		} catch (VnanoSyntaxException | VnanoFatalException e) {
+		} catch (VnanoException | VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occurred");
 		}
@@ -1295,7 +1295,7 @@ public class DispatchUnitTest {
 		this.connectedMethodCalled = false;
 		try {
 			pc = new DispatchUnit().dispatch(instruction, this.memory, this.interconnect, new ExecutionUnit(), pc);
-		} catch (VnanoSyntaxException | VnanoFatalException e) {
+		} catch (VnanoException | VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occurred");
 		}
@@ -1329,7 +1329,7 @@ public class DispatchUnitTest {
 		try {
 			pc = new DispatchUnit().dispatch(instruction, this.memory, this.interconnect, new ExecutionUnit(), pc);
 			fail("Unexpected exception occurred");
-		} catch (VnanoSyntaxException | VnanoFatalException e) {
+		} catch (VnanoException | VnanoFatalException e) {
 			// 例外が発生するのが正しい挙動
 		}
 	}
@@ -1348,7 +1348,7 @@ public class DispatchUnitTest {
 		// 処理系にメソッドを接続
 		try {
 			this.interconnect.connect(method, this);
-		} catch (VnanoSyntaxException e) {
+		} catch (VnanoException e) {
 			fail("Connection failed");
 		}
 
@@ -1386,7 +1386,7 @@ public class DispatchUnitTest {
 		this.connectedMethodCalled = false;
 		try {
 			pc = new DispatchUnit().dispatch(instruction, this.memory, this.interconnect, new ExecutionUnit(), pc);
-		} catch (VnanoSyntaxException | VnanoFatalException e) {
+		} catch (VnanoException | VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occurred");
 		}
@@ -1417,7 +1417,7 @@ public class DispatchUnitTest {
 		int pc = 10; // プログラムカウンタ
 		try {
 			pc = new DispatchUnit().dispatch(instruction, this.memory, this.interconnect, new ExecutionUnit(), pc);
-		} catch (VnanoSyntaxException | VnanoFatalException e) {
+		} catch (VnanoException | VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occurred");
 		}
@@ -1432,7 +1432,7 @@ public class DispatchUnitTest {
 			instruction = this.generateInt64x3Instruction(OperationCode.NOP);
 			pc = new DispatchUnit().dispatch(instruction, this.memory, this.interconnect, new ExecutionUnit(), pc);
 			fail("Unexpected exception occurred");
-		} catch (VnanoSyntaxException | VnanoFatalException e) {
+		} catch (VnanoException | VnanoFatalException e) {
 			// 例外が発生するのが正しい挙動
 		}
 	}
