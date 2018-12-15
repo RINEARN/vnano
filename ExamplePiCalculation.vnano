@@ -1,0 +1,85 @@
+/*
+ * A Vnano script code calculating PI as a little complicated example and a test.
+ * 円周率の値を計算する、少し複雑なサンプル & 簡易テスト用のVnano のスクリプトコード
+ * --------------------------------------------------------------------------------
+ * This file is released under CC0.
+ * Written in 2018 by RINEARN (Fumihiro Matsui)
+ * --------------------------------------------------------------------------------
+ * 
+ * Preparing - 事前準備
+ * 
+ *     Execute "build.bat" or "build.sh" in advance to generate "Vnano.jar".
+ *     あらかじめ build.bat か build.sh を実行し、Vnano.jar を生成しておいて下さい。
+ * 
+ * 
+ * How to run this code - このコードの実行方法 :
+ * 
+ *         java -jar Vnano.jar ExamplePiCalculation.vnano --encoding UTF-8
+ * 
+ *     The expected culculated result is :
+ *     正常な実行結果の値は：
+ * 
+ *         3.141592653589794
+ * 
+ *     The true value of PI is:
+ *     なお、円周率の真の値は:
+ * 
+ *         3.141592653589793...
+ * 
+ *     If you dump the compiling contents for the debugging of the script engine:
+ *     もし、スクリプトエンジンのデバッグ用などでコンパイル過程をダンプしたい場合は：
+ * 
+ *         java -jar Vnano.jar ExamplePiCalculation.vnano --encoding UTF-8 --dump
+ *         (dump all contents)
+ * 
+ *     or,
+ * 
+ *         java -jar Vnano.jar ExamplePiCalculation.vnano --encoding UTF-8 --dump assemblyCode --run false
+ *         (dump compiled VRIL code only)
+ * 
+ * 
+ * Algorithms - アルゴリズム
+ * 
+ *     see: https://www.vcssl.org/ja-jp/code/archive/0001/0700-pi/
+ * 
+ * --------------------------------------------------------------------------------
+ */
+
+double a = 1.0;
+double b;
+double c = 0.25;
+double d = 1.0;
+double aStock;
+double bStock;
+double sqrtValue = 1.0;
+double sqrtValueStock = -1.0;
+double sqrtArg = 0.5;
+
+while (sqrtValue != sqrtValueStock) {
+	sqrtValueStock = sqrtValue;
+	sqrtValue += sqrtArg / sqrtValue;
+	sqrtValue *= 0.5;
+}
+b = sqrtValue;
+
+while (a != aStock && b != bStock) {
+	aStock = a;
+	bStock = b;
+	a = (aStock + bStock) * 0.5;
+	sqrtArg = aStock * bStock;
+	sqrtValueStock = -1.0;
+	
+	while(sqrtValue != sqrtValueStock) {
+		sqrtValueStock = sqrtValue;
+		sqrtValue += sqrtArg / sqrtValue;
+		sqrtValue *= 0.5;
+	}
+	
+	b = sqrtValue;
+	c = c - d * (a - aStock) * (a - aStock);
+	d = 2.0 * d;
+}
+
+double pi = (a + b) * (a + b) / (4.0 * c);
+
+output(pi);
