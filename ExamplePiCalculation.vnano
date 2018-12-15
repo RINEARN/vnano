@@ -26,8 +26,8 @@
  * 
  *         3.141592653589793...
  * 
- *     Also, if you dump the compiling contents for the debugging of the script engine:
- *     なお、スクリプトエンジンのデバッグ用などでコンパイル過程をダンプしたい場合は：
+ *     If you dump the compiling contents for the debugging of the script engine:
+ *     もし、スクリプトエンジンのデバッグ用などでコンパイル過程をダンプしたい場合は：
  * 
  *         java -jar Vnano.jar ExamplePiCalculation.vnano --encoding UTF-8 --dump
  *         (dump all contents)
