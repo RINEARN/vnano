@@ -21,6 +21,7 @@
 ./org/vcssl/nano/compiler/LexicalChecker.java
 ./org/vcssl/nano/compiler/package-info.java
 ./org/vcssl/nano/compiler/Parser.java
+./org/vcssl/nano/compiler/Preprocessor.java
 ./org/vcssl/nano/compiler/SemanticAnalyzer.java
 ./org/vcssl/nano/compiler/Token.java
 ./org/vcssl/nano/interconnect/DataConverter.java

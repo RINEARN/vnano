@@ -47,6 +47,15 @@ public class Compiler {
 		System.out.println("-----");
 		*/
 
+		// プリプロセッサでコメントを削除し、改行コードを LF (0x0A) に統一
+		script = new Preprocessor().preprocess(script);
+
+		/*
+		// デバッグ用出力（コメント削除結果）
+		System.out.println(script);
+		System.out.println("-----");
+		*/
+
 		// 字句解析でトークン配列を生成
 		Token[] tokens = new LexicalAnalyzer().analyze(script, fileName);
 

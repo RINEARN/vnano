@@ -140,6 +140,15 @@ public class ScriptWord {
 	/** return文のキーワードです。 */
 	public static final String RETURN = "return";
 
+	/** 行コメントの先頭文字列です。 */
+	public static final String LINE_COMMENT_PREFIX = "//";
+
+	/** ブロックコメントの開始文字列です。 */
+	public static final String BLOCK_COMMENT_BEGIN = "/*";
+
+	/** ブロックコメントの終了文字列です。 */
+	public static final String BLOCK_COMMENT_END = "*/";
+
 
 	// 以下のセットに投げて予約語判定するようなメソッドが居る。意味解析で識別子を検査するため。
 

@@ -25,6 +25,7 @@ import org.vcssl.nano.VnanoException;
 import org.vcssl.nano.compiler.AstNode;
 import org.vcssl.nano.compiler.CodeGenerator;
 import org.vcssl.nano.compiler.Parser;
+import org.vcssl.nano.compiler.Preprocessor;
 import org.vcssl.nano.compiler.LexicalAnalyzer;
 import org.vcssl.nano.compiler.SemanticAnalyzer;
 import org.vcssl.nano.compiler.Token;
@@ -75,7 +76,7 @@ public final class VnanoCommandLineApplication {
 	}
 
 	public static void main(String[] args) {
-		//args = new String[] { "Test.vnano", "--dump" };
+		args = new String[] { "Example.vnano", "--dump" };
 		VnanoCommandLineApplication application = new VnanoCommandLineApplication();
 		application.dispatch(args);
 	}
@@ -514,6 +515,9 @@ public final class VnanoCommandLineApplication {
 
 		// 入力がスクリプトコードである場合は、コンパイラでアセンブリコードに変換し、その過程も逐次ダンプする
 		if (inputIsScriptCode) {
+
+			// プリプロセッサでコメントを削除し、改行コードを LF (0x0A) に統一
+			inputCode = new Preprocessor().preprocess(inputCode);
 
 			// 字句解析器でトークンを生成
 			Token[] tokens = new LexicalAnalyzer().analyze(inputCode, inputFilePath);
