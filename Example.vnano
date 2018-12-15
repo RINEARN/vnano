@@ -1,0 +1,75 @@
+/*
+ * A simple example of a Vnano script code to run directly on the command-line.
+ * コマンドラインから直接実行する際のVnano のスクリプトコードの簡単な例
+ * --------------------------------------------------------------------------------
+ * This file is released under CC0.
+ * Written in 2018 by RINEARN (Fumihiro Matsui)
+ * --------------------------------------------------------------------------------
+ * 
+ * Preparing - 事前準備
+ * 
+ *     Execute "build.bat" or "build.sh" in advance to generate "Vnano.jar".
+ *     あらかじめ build.bat か build.sh を実行し、Vnano.jar を生成しておいて下さい。
+ * 
+ * 
+ * How to run this code - このコードの実行方法 :
+ * 
+ *         java -jar Vnano.jar Example.vnano
+ * 
+ *     or, specify the text-encoding (default is UTF-8) explicitly as follows :
+ *     または、以下のように明示的に文字コード（デフォルトはUTF-8）を指定して:
+ * 
+ *         java -jar Vnano.jar Example.vnano --encoding UTF-8
+ * 
+ *     The expected result is :
+ *     正常な実行結果は：
+ * 
+ *         5050
+ * 
+ * 
+ * --------------------------------------------------------------------------------
+ * ###  The followings are for development and debugging of the script engine.  ###
+ * ###  以下はスクリプトエンジンの開発・デバッグ用の手順です。                  ###
+ * --------------------------------------------------------------------------------
+ * 
+ * How to dump compiling/assembling contents - コンパイル・アセンブル内容の表示
+ * 
+ *         java -jar Vnano.jar Example.vnano --dump
+ * 
+ * 
+ * How to save the compiled intermediate code to the file - コンパイル結果の中間コードの保存方法
+ * 
+ *         java -jar Vnano.jar Example.vnano --dump assemblyCode --run false > Example.vril
+ * 
+ *     Where the extension ".vril" means the Vector Register Intermediate Language (VRIL)
+ *     which is the language of the intermediate code of the Vnano.
+ *     ここで拡張子 ".vril" は、Vnanoの中間コードであるベクトルレジスタ中間言語(VRIL)を意味します。
+ * 
+ *     Please note that the text-encoding of the file of the VRIL code saved by the above command
+ *     depends on the default text-encoding of your command-line terminal (shell).
+ *     なお、上のコマンドで保存したVRILコードのファイルの文字コードは、ご使用のコマンドライン端末
+ *     のデフォルトの文字コードに依存する事にご注意ください。
+ * 
+ * 
+ * How to run the VRIL code compiled above - 上でコンパイルしたVRILコードの実行方法
+ * 
+ *         java -jar Vnano.jar Example.vnano --encoding UTF-8
+ * 
+ *     or,
+ * 
+ *         java -jar Vnano.jar Example.vnano --encoding Shift_JIS
+ * 
+ * 
+ * Other features and descriptions - その他の機能と説明
+ * 
+ *         java -jar Vnano.jar --help
+ * 
+ * --------------------------------------------------------------------------------
+ */
+
+int sum = 0;
+int n = 100;
+for (int i=1; i<=n; i++) {
+	sum += i;
+}
+output(sum);
