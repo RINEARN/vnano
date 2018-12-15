@@ -20,6 +20,7 @@ Vnano (VCSSL nano) は、Java&reg; アプリケーションに組み込んで用
 - <a href="#example">Application Code Example - アプリケーションコード例</a>
 - <a href="#how-to-use-in-java">How to Use in Java&reg; - Java&reg;言語での使用方法</a>
 - <a href="#how-to-use-in-kotlin">How to Use in Kotlin&reg; - Kotlin&reg;での使用方法</a>
+- <a href="#how-to-use-in-command">How to Use in Command Line - コマンドラインでの使用方法</a>
 - <a href="#performances">Performances - 演算速度</a>
 - <a href="#architecture">Architecture - アーキテクチャ</a>
 - <a href="#license">License - ライセンス</a>
@@ -192,7 +193,7 @@ We will actually execute these example code in the next section.
 
 ### 1. Build Vnano Engine - Vnanoエンジンのビルド
 
-Firstly, build source code of Vnano Engine (The script engine of Vnano).
+Firstly, build source code of Vnano Engine (The script engine of the Vnano).
 If you are using Microsoft&reg; Windows&reg;, please double-click "build.bat".
 If you are using Linux&reg;, etc., please execute "build.sh" on the bash-compatible shell.
 Alternatively, you can build Vnano Engine by Apache Ant as:
@@ -281,7 +282,7 @@ Example.jar から見た相対パスで書き換えてください（例：lib/V
 
 ### 1. Build Vnano Engine - Vnanoエンジンのビルド
 
-Firstly, build source code of Vnano Engine (The script engine of Vnano).
+Firstly, build source code of Vnano Engine (The script engine of the Vnano).
 If you are using Microsoft&reg; Windows&reg;, please double-click "build.bat".
 If you are using Linux, etc., please execute "build.sh" on the bash-compatible shell.
 Alternatively, you can build Vnano Engine by Apache Ant as:
@@ -339,6 +340,280 @@ As the result of the execution, the following line will be printed to the standa
 
 
 
+
+
+<a id="how-to-use-in-command"></a>
+## How to Use in Command Line - コマンドラインでの使用方法
+
+### 1. About Command-Line Mode - コマンドラインモードについて
+
+The main purpose of the Vnano is the embedded use in applications, 
+however, for the development and the debugging usages, 
+you can use the script engine of the Vnano on a command-line terminal 
+and can directly run script code.
+Please note that this command-line mode is NOT the feature for using Vnano alone for the practical purpose. 
+It is NOT convenient at all. In such purpose, we recommend to use the VCSSL instead of the Vnano.
+The Vnano is a subset of the VCSSL for embedded use in apprications.
+
+Vnano の本来の用途はアプリケーション組み込み用ですが、一方で開発時やデバッグ時などのため、
+Vnanoのスクリプトエンジンをコマンドライン端末上で使用して、
+Vnanoで記述されたスクリプトコードを直接実行する事ができます。
+ただし、このコマンドラインモードは、Vnanoを単独で実用目的のスクリプト言語として使うための機能ではない事に注意してください。
+そのような用途にはVnanoは全く便利ではありません。
+Vnanoは、VCSSLのアプリケーション組み込み用サブセットであるため、単独での使用にはフル機能版であるVCSSLのご使用をおすすめします。
+
+
+### 2. Build Vnano Engine - Vnanoエンジンのビルド
+
+Firstly, build source code of Vnano Engine (The script engine of the Vnano).
+If you are using Microsoft&reg; Windows&reg;, please double-click "build.bat".
+If you are using Linux&reg;, etc., please execute "build.sh" on the bash-compatible shell.
+Alternatively, you can build Vnano Engine by Apache Ant as:
+
+はじめに、Vnanoエンジン（Vnanoのスクリプトエンジン）をビルドします。
+Microsoft&reg; Windows&reg; をご使用の場合は、"build.bat" をダブルクリック実行してください。
+Linux&reg; 等をご使用の場合は、bash互換シェル上で "build.sh" を実行してください。もしくは以下のように、Apache Ant を用いてVnanoエンジンをビルドする事もできます：
+
+    ant -buildfile build.xml
+
+If you succeeded to build Vnano Engine, "Vnano.jar" will be generated in the same folder in the above files.
+You can use Vnano on your Java applications by appending this JAR file to the classpath.
+
+Vnanoエンジンのビルドが成功すると、"Vnano.jar" が上記ファイルと同じフォルダ内に生成されます。
+Vnanoを使用したいJavaアプリケーションから、このJARファイルにクラスパスを通せば、それだけでVnanoが使用できます。
+
+### 3. Run the Example Script Code - サンプルスクリプトコードの実行
+
+An example Vnano script code "Example.vnano" is contained in the repository.
+
+このリポジトリ内には、Vnanoのサンプルスクリプトコードも含まれています。
+
+    (Example.vnano)
+
+    int sum = 0;
+    int n = 100;
+    for (int i=1; i<=n; i++) {
+        sum += i;
+    }
+    output(sum);
+
+This sample script code calculates the value of summation from 1 to 100. Let's run it as follows:
+
+このサンプルスクリプトコードは、1から100までの和を求めて出力するものです。以下のように実行できます：
+
+    java -jar Vnano.jar Example.vnano
+
+As the result, the following line will be printed to the standard output:
+
+正常に実行されると、以下の内容が標準出力に表示されます：
+
+    5050
+
+Also, if you want to specify the text-encoding of the script file, use --encoding option:
+
+なお、スクリプトコードの文字コードを指定したい場合は、以下のように --encoding オプションを使用します：
+
+    java -jar Vnano.jar Example.vnano --encoding UTF-8
+    java -jar Vnano.jar Example.vnano --encoding Shift_JIS
+
+The default text-encoding of this command-line mode is UTF-8.
+
+コマンドラインモードでのデフォルトの文字コードは UTF-8 です。
+
+
+### 4. Dump AST, Intermediate Code (VRIL), etc. - 抽象構文木(AST)や中間コード(VRIL)などのダンプ
+
+If you want to dump the Abstract Syntax Tree (AST), Intermediate Code (VRIL Code) for VM, etc. 
+for the analyzation or the debugging, 
+use --dump option:
+
+もしも抽象構文木(AST)やVM用の中間コード(VRILコード)をダンプして解析やデバッグを行いたい場合は、
+--dump オプションを使用してください：
+
+    java -jar Vnano.jar Example.vnano --dump
+
+The (abbreviated) result is :
+
+実行結果は（かなり省略しています）：
+
+	...
+	================================================================================
+	= Preprocessed Code
+	= - Output of: org.vcssl.nano.compiler.Preprocessor
+	= - Input  of: org.vcssl.nano.compiler.LexicalAnalyzer
+	================================================================================
+	int sum = 0;
+	int n = 100;
+	for (int i=1; i<=n; i++) {
+		sum += i;
+	}
+	output(sum);
+
+	================================================================================
+	= Tokens
+	= - Output of: org.vcssl.nano.compiler.LexicalAnalyzer
+	= - Input  of: org.vcssl.nano.compiler.Parser
+	================================================================================
+	[Token word="int", lineNumber=70, fileName="Example.vnano", type=DATA_TYPE, priority=0]
+	[Token word="sum", lineNumber=70, fileName="Example.vnano", type=LEAF, priority=0, LEAF_TYPE="variableIdentifier"]
+	[Token word="=", lineNumber=70, fileName="Example.vnano", type=OPERATOR, priority=6000, OPERATOR_EXECUTOR="assignment", OPERATOR_SYNTAX="binary"]
+	...
+
+	================================================================================
+	= Parsed AST
+	= - Output of: org.vcssl.nano.compiler.Parser
+	= - Input  of: org.vcssl.nano.compiler.SemanticAnalyzer
+	================================================================================
+	<ROOT>
+ 	  <VARIABLE DATA_TYPE="int" IDENTIFIER_VALUE="sum" RANK="0">
+	    <EXPRESSION>
+	      <OPERATOR OPERATOR_SYNTAX="binary" OPERATOR_EXECUTOR="assignment" OPERATOR_SYMBOL="=" OPERATOR_PRIORITY="6000">
+            <LEAF LEAF_TYPE="variableIdentifier" IDENTIFIER_VALUE="sum" />
+            <LEAF LEAF_TYPE="literal" LITERAL_VALUE="0" />
+   	      </OPERATOR>
+  	    </EXPRESSION>
+	...
+
+	================================================================================
+	= Analyzed AST
+	= - Output of: org.vcssl.nano.compiler.SemanticAnalyzer
+	= - Input  of: org.vcssl.nano.compiler.CodeGenerator
+	================================================================================
+	<ROOT>
+ 	  <VARIABLE DATA_TYPE="int" IDENTIFIER_VALUE="sum" RANK="0">
+        <EXPRESSION DATA_TYPE="int" RANK="0">
+          <OPERATOR OPERATOR_SYNTAX="binary" OPERATOR_EXECUTOR="assignment" OPERATOR_SYMBOL="=" OPERATOR_PRIORITY="6000" DATA_TYPE="int" OPERATOR_EXECUTION_DATA_TYPE="int" RANK="0">
+            <LEAF LEAF_TYPE="variableIdentifier" IDENTIFIER_VALUE="sum" SCOPE="local" RANK="0" DATA_TYPE="int" />
+            <LEAF LEAF_TYPE="literal" LITERAL_VALUE="0" RANK="0" DATA_TYPE="int" />
+          </OPERATOR>
+        </EXPRESSION>
+	...
+
+	================================================================================
+	= Assembly Code (VRIL Code)
+	= - Output of: org.vcssl.nano.compiler.CodeGenerator
+	= - Input  of: org.vcssl.nano.vm.assembler.Assembler
+	================================================================================
+	#FUNCTION	_output(int);
+	#META	"line=70, file=Example.vnano";
+	#LOCAL	_sum;
+		ALLOC	int	_sum;
+		MOV	int	_sum	~int:0;
+	#META	"line=71, file=Example.vnano";
+	#LOCAL	_n;
+		ALLOC	int	_n;
+		MOV	int	_n	~int:100;
+	...
+
+	================================================================================
+	= VM Object Code
+	= - Output of: org.vcssl.nano.vm.assembler.Assembler
+	================================================================================
+	#INSTRUCTION
+		0	ALLOC	INT64		L0	C0
+		1	MOV	INT64		L0	C1	C0
+		2	ALLOC	INT64		L1	C2
+		3	MOV	INT64		L1	C3	C2
+		4	ALLOC	INT64		L2	C4
+		5	MOV	INT64		L2	C5	C4
+	...
+
+Sometimes the above content might be too long 
+and you want to concentrate on only 1 section in the above content.
+In such case, specify the name of the dump-target (see --help) as an argument of --dump option.
+And more, you can specify to not to run the script code after dump by --run option, 
+which is useful to prevent that output from the script mixes in the standard output.
+For example: 
+
+場合によっては、上記のようなダンプ内容の全体は長くなりすぎる場合がありますし、
+その中の一つのセクションにのみ注目したい場合もあるでしょう。
+そのような場合は、--dump オプションの引数にダンプ対象の名前（--help参照）を指定します。
+さらに、--run オプションを指定する事で、ダンプ後のスクリプト実行を行わないように指定して、
+余計な標準出力が混ざるのも防げます。
+これらを用いたコマンド例は：
+
+    java -jar Vnano.jar Example.vnano --dump assemblyCode --run false
+
+The result is :
+
+実行結果は：
+
+	#FUNCTION	_output(int);
+	#META	"line=70, file=Example.vnano";
+	#LOCAL	_sum;
+		ALLOC	int	_sum;
+		MOV	int	_sum	~int:0;
+	#META	"line=71, file=Example.vnano";
+	#LOCAL	_n;
+		ALLOC	int	_n;
+		MOV	int	_n	~int:100;
+	#META	"line=72, file=Example.vnano";
+	#LOCAL	_i;
+		ALLOC	int	_i;
+		MOV	int	_i	~int:1;
+	#LABEL	&LABEL0;
+		ALLOC	bool	R0;
+		LEQ	int	R0	_i	_n;
+		JMPN	bool	R0	&LABEL2;
+	#META	"line=73, file=Example.vnano";
+		ADD	int	_sum	_sum	_i;
+	#LABEL	&LABEL1;
+		ALLOC	int	R3;
+		MOV	int	R3	_i;
+		ALLOC	int	R1;
+		ADD	int	R1	_i	~int:1;
+		MOV	int	_i	R1;
+		JMP	bool	~bool:true	&LABEL0;
+	#LABEL	&LABEL2;
+	#META	"line=75, file=Example.vnano";
+		CALL	void	R2	_output(int)	_sum;
+
+This is the compiled intermediate code of the script engine of Vnano, 
+which is written in Vector Register Intermediate Language (VRIL).
+See <a href="#architecture">Architecture</a> section for more details.
+You can save this VRIL code to a file by using redirect:
+
+これはVnanoのスクリプトエンジン内でコンパイルされた中間コードで、
+ベクトルレジスタ中間言語（VRIL）で記述されています。
+詳細は <a href="#architecture">アーキテクチャ</a> の項目を参照してください。
+このVRILコードをファイルに保存するには、以下のようにリダイレクトを使用します：
+
+    java -jar Vnano.jar Example.vnano --dump assemblyCode --run false > Example.vril
+
+As the result of the above command, the compiled VRIL code is saved the file "Example.vril".
+However, please Note that the text-encoding of that file depends on your environment.
+By the way, you can run VRIL code as the same as Vnano script code:
+
+これでコンパイル済みVRILコードが Example.vril として保存されます。
+ただし、保存されるファイルの文字コードは環境に応じて異なる事に注意してくさい。
+ところで、VRILコードもVnanoスクリプトコードと同じように実行できます：
+
+    java -jar Vnano.jar Example.vril
+
+or, on some environment, VRIL code will be saved by using Shift_JIS encoding, so
+
+または、先ほどのコマンドでは環境によってはVRILコードが Shift_JIS で保存されるので：
+
+    java -jar Vnano.jar Example.vril --encoding Shift_JIS
+
+The result is :
+
+実行結果は：
+
+    5050
+
+For other features of the command-line mode of the Vnano, please see the result of:
+
+Vnanoのコマンドラインモードのその他の機能については、以下で出力される内容をご参照ください。
+
+    java -jar Vnano --help
+
+The command-line mode we described in this section may assist you 
+to customize the script engine of the Vnano to your applications. Good luck!
+
+ここまでで説明したVnanoのコマンドラインモードは、
+Vnanoのスクリプトエンジンを搭載アプリケーション等に合わせて改造する際に役立つかもしれません。
+改造したくなったら、ぜひ活用して試してみてください。
 
 
 <a id="performances"></a>
