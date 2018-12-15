@@ -53,11 +53,11 @@
  * 
  * How to run the VRIL code compiled above - 上でコンパイルしたVRILコードの実行方法
  * 
- *         java -jar Vnano.jar Example.vnano --encoding UTF-8
+ *         java -jar Vnano.jar Example.vril --encoding UTF-8
  * 
  *     or,
  * 
- *         java -jar Vnano.jar Example.vnano --encoding Shift_JIS
+ *         java -jar Vnano.jar Example.vril --encoding Shift_JIS
  * 
  * 
  * Other features and descriptions - その他の機能と説明
