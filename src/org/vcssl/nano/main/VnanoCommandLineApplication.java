@@ -122,6 +122,7 @@ public final class VnanoCommandLineApplication {
 		System.out.println("  --encoding <encodingName>");
 		System.out.println("");
 		System.out.println("      Specify the text-encoding of the script file.");
+		System.out.println("      The default text-encoding on this mode is UTF-8.");
 		System.out.println("");
 		System.out.println("    e.g.");
 		System.out.println("");
