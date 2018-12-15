@@ -76,7 +76,7 @@ public final class VnanoCommandLineApplication {
 	}
 
 	public static void main(String[] args) {
-		args = new String[] { "Example.vnano", "--dump" };
+		//args = new String[] { "Example.vnano", "--dump" };
 		VnanoCommandLineApplication application = new VnanoCommandLineApplication();
 		application.dispatch(args);
 	}
