@@ -300,6 +300,14 @@ public class LexicalChecker {
 					&& tokens[tokenIndex-1].getType() == Token.Type.OPERATOR
 					&& tokens[tokenIndex-1].getAttribute(AttributeKey.OPERATOR_SYNTAX).equals(AttributeValue.MULTIARY_END);
 
+			boolean nextIsPrefixOperator = tokenIndex != tokenLength-1
+					&& tokens[tokenIndex+1].getType()==Token.Type.OPERATOR
+					&& tokens[tokenIndex+1].getAttribute(AttributeKey.OPERATOR_SYNTAX).equals(AttributeValue.PREFIX);
+
+			boolean prevIsPostfixOperator = tokenIndex != 0
+					&& tokens[tokenIndex-1].getType()==Token.Type.OPERATOR
+					&& tokens[tokenIndex-1].getAttribute(AttributeKey.OPERATOR_SYNTAX).equals(AttributeValue.POSTFIX);
+
 			// 演算子の場合
 			if (token.getType() == Token.Type.OPERATOR) {
 				String operatorSyntax = token.getAttribute(AttributeKey.OPERATOR_SYNTAX);
@@ -328,15 +336,15 @@ public class LexicalChecker {
 				if (operatorSyntax.equals(AttributeValue.BINARY)
 						|| operatorSyntax.equals(AttributeValue.MULTIARY_SEPARATOR)) {
 
-					// 右がリーフか開き括弧か多項演算子（関数呼び出しや配列アクセス）の始点でないとエラー
-					if( !(  nextIsLeaf || nextIsOpenParenthesis || nextIsMultialyBegin  ) ) {
+					// 右がリーフか開き括弧か前置演算子か多項演算子（関数呼び出しや配列アクセス）の始点でないとエラー
+					if( !(  nextIsLeaf || nextIsOpenParenthesis || nextIsPrefixOperator || nextIsMultialyBegin  ) ) {
 						throw new VnanoException(
 							ErrorType.OPERAND_IS_MISSING_AT_RIGHT,
 							token.getValue(), token.getFileName(), token.getLineNumber()
 						);
 					}
-					// 左のトークンがリーフか閉じ括弧か多項演算子（関数呼び出しや配列アクセス）の終点でないとエラー
-					if( !(  prevIsLeaf || prevIsCloseParenthesis || prevIsMultialyEnd  ) ) {
+					// 左のトークンがリーフか閉じ括弧か後置演算子か多項演算子（関数呼び出しや配列アクセス）の終点でないとエラー
+					if( !(  prevIsLeaf || prevIsCloseParenthesis || prevIsPostfixOperator || prevIsMultialyEnd  ) ) {
 						throw new VnanoException(
 							ErrorType.OPERAND_IS_MISSING_AT_LEFT,
 							token.getValue(), token.getFileName(), token.getLineNumber()
