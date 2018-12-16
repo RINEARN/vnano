@@ -30,6 +30,7 @@ public class LexicalChecker {
 		String controlWord = controlToken.getValue();
 
 		int readingIndex = controlStatementBegin + 1; // 読んでいるトークン位置
+
 		// 括弧 (...) が必要な場合は検査
 		if ( controlWord.equals(ScriptWord.IF)
 				|| controlWord.equals(ScriptWord.WHILE)
@@ -74,7 +75,13 @@ public class LexicalChecker {
 				}
 				readingIndex++;
 			}
+
+			readingIndex++;
 		}
+
+		// この時点で readingIndex の値は、
+		// if / for / while 文については閉じ丸括弧トークン「 ) 」の次、
+		// else 文については「 else 」トークンの次を指している
 
 		// ブロック始点「 { 」が必要な場合（この言語では仕様で必須化されている）
 		if ( controlWord.equals(ScriptWord.IF)
@@ -84,7 +91,7 @@ public class LexicalChecker {
 
 			// 「 { 」が無ければ構文エラー
 			if (readingIndex == tokens.length-1
-					|| !tokens[readingIndex+1].getValue().equals(ScriptWord.BLOCK_BEGIN)) {
+					|| !tokens[readingIndex].getValue().equals(ScriptWord.BLOCK_BEGIN)) {
 
 				throw new VnanoException(
 					ErrorType.NO_BLOCK_AFTER_CONTROL_STATEMENT, controlToken.getValue(),
