@@ -487,8 +487,9 @@ public class CodeGenerator {
 				}
 			}
 
-			// ブロック終端まで処理終了
-			if (statementIndex == statementLength) {
+			// ブロック終端まで処理終了 ... ブロック階層を降りる処理を行う
+			//（if文ではなくwhile文なのは、降りた地点がさらにブロック終端の場合もあるため）
+			while (statementIndex == statementLength) {
 
 				// コンテキスト（状態変数の集合）のスタックが空なら、ルートブロックまでコード生成できているので、処理を終了
 				if (contextStack.isEmpty()) {
@@ -526,7 +527,6 @@ public class CodeGenerator {
 					codeBuilder.append(this.generateLabelDirectiveCode(context.getEndPointLabel()));
 					context.clearEndPointLabel();
 				}
-
 			}
 		}
 		return codeBuilder.toString();

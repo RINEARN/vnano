@@ -16,6 +16,7 @@ Vnano (VCSSL nano) は、Java&reg; アプリケーションに組み込んで用
 
 ## Index - 目次
 - <a href="#caution">Caution - 注意</a>
+- <a href="#license">License - ライセンス</a>
 - <a href="#requirements">Requirements - 必要な環境</a>
 - <a href="#example">Application Code Example - アプリケーションコード例</a>
 - <a href="#how-to-use-in-java">How to Use in Java&reg; - Java&reg;言語での使用方法</a>
@@ -23,7 +24,17 @@ Vnano (VCSSL nano) は、Java&reg; アプリケーションに組み込んで用
 - <a href="#how-to-use-in-command">How to Use in Command Line - コマンドラインでの使用方法</a>
 - <a href="#performances">Performances - 演算速度</a>
 - <a href="#architecture">Architecture - アーキテクチャ</a>
-- <a href="#license">License - ライセンス</a>
+- <a href="#language">Language - 言語</a>
+  - <a href="#language-data-type">Data Types - データ型</a>
+  - <a href="#language-variable">Variable Declaration Statements - 変数宣言文</a>
+    - <a href="#language-variable-scalar">Daclaration of scalar variables - スカラ変数の宣言</a>
+    - <a href="#language-variable-scalar">Daclaration of arrays - 配列の宣言</a>
+  - <a href="#language-control">Control Statements - 制御文</a>
+    - <a href="#language-control-if-else">if and else statements - if 文と else 文</a>
+    - <a href="#language-control-for">for statement - for 文</a>
+    - <a href="#language-control-while">while statement - while 文</a>
+    - <a href="#language-control-break">break statement - break 文</a>
+    - <a href="#language-control-continue">continue statement - continue 文</a>
 
 
 
@@ -34,6 +45,13 @@ Vnano is under development, so it has not practical quality yet.
 
 Vnanoは開発の途中であり、現時点でまだ実用的な品質ではありません。
 
+
+<a id="license"></a>
+## License - ライセンス
+
+This software is released under the MIT License.
+
+このソフトウェアはMITライセンスで公開されています。
 
 
 <a id="requirements"></a>
@@ -619,12 +637,12 @@ Vnanoのスクリプトエンジンを搭載アプリケーション等に合わ
 <a id="performances"></a>
 ## Performances - 演算速度
 
-In addition to the above example application, some benchmarking programs for measuring performances 
+In addition to the above example code, some benchmarking programs for measuring performances 
 are also contained in this repository. Let's execute them in this section.
 Please note that, those benchmarking programs measure maximum performances Vnano Engine can perform, 
 not effective performances expected for general programs.
 
-このリポジトリ内には、上記のサンプルアプリケーションに加えて、性能計測用のベンチマークプログラムも含まれています。
+このリポジトリ内には、上記のサンプルコード類に加えて、性能計測用のベンチマークプログラムも含まれています。
 以下では、実際にそれらを実行してみましょう。
 ただし、これらのベンチマークプログラムが測定するのは、Vnanoエンジンが発揮し得る性能の上限値であり、
 一般的なプログラムにおいて期待できる実効性能とは異なる事にあらかじめ留意が必要です。
@@ -896,13 +914,262 @@ Vnanoエンジン内でこのコンポーネントに接続されます。
 
 
 
+<a id="language"></a>
+## Language - 言語
 
-<a id="license"></a>
-## License - ライセンス
+The language specification of the Vnano ( = VCSSL nano ) is a small subset of the VCSSL 
+which is a programming language having simple C-like syntax, so Vnano also has simple C-like syntax.
+Vnano is specialized for embedded use in applications, 
+so compared with other programming languages, many features not necessary for the embedded use are omitted 
+for making the implementation of the script engine compact.
+It is the concept for giving priority to customizability, maintainability, security, portability 
+and so on than the functionality.
 
-This software is released under the MIT License.
+プログラミング言語としての Vnano の仕様は、VCSSLの言語仕様の小さなサブセットになっています。
+VCSSLはC言語系の単純な文法を持つプログラミング言語であるため，VnanoもまたC言語系の単純な文法を持っています。
+Vnanoはアプリケーション組み込み用途に焦点を絞った言語であるため、
+一般的なプログラミング言語と比べると、用途的に必要性の低い機能は大幅に削られています。
+これはスクリプトエンジンの実装規模をコンパクトに抑える事で、
+機能性よりもカスタマイズ性や保守性、セキュリティ、および移植性などを優先的に高めるためです。
 
-このソフトウェアはMITライセンスで公開されています。
+
+<a id="language-data-type"></a>
+### Data Types - データ型
+
+Vnano supports only int (=long), float (=double), bool, and string for data-types.
+
+Vnano は、データ型として int (=long)、float (=double)、bool、および string 型のみをサポートしています。
+
+| Type name - 型名 | Description - 説明 | 
+| --- | --- |
+| int (or long) | The 64-bit signed integer type - 64ビット精度符号付き整数型 |
+| float (or double) | The 64-bit floating point number type - 64ビット精度浮動小数点数型 |
+| bool | The boolean type - 論理型 |
+| string | The character string type - 文字列型 |
+
+Other primitive data types, pointer, struct and class are not supported.
+On the other hand, array types of the data types in the above table are supported, 
+and you can use it with C-like syntax.
+However, please note that arrays in the Vnano (and VCSSL) behaves as value types, not reference types or pointers.
+The assignment operation (=) of an array behaves as the copy of all values of elements, not the copy of the reference to (address on) the memory.
+
+上記以外の基本データ型や、ポインタ、構造体、およびクラスなどはサポートされません。
+ただし、上記の表にあるデータ型の配列型はサポートされており、C言語系の記法で使用できます。
+ただし、Vnano（および VCSSL）における配列は、ポインタや参照型ではなく、値型として振舞う事に注意してください。
+配列の代入演算（=）も、参照の代入ではなく、全要素値のコピー代入になります。
+
+
+<a id="language-varaiable"></a>
+### Variable Declaration Statements - 変数宣言文
+
+You can describe the variable declaration statements with C-like syntax.
+
+以下のように、C言語系の表記で変数宣言文を記述できます。
+
+
+<a id="language-varaiable-scalar"></a>
+#### Declaration of scalar variables - スカラ変数の宣言
+
+The following is an example code of declaration statements of scalar variables (non-array variables) :
+
+以下は、スカラ変数（配列ではない普通の変数）を宣言する例のコードです：
+
+	int    i = 1;
+	float  f = 2.3;
+	bool   b = true;
+	string s = "Hello, World !";
+
+	output(i);
+	output("\n");
+	output(f);
+	output("\n");
+	output(b);
+	output("\n");
+	output(s);
+	output("\n");
+
+The result on <a href="#how-to-use-in-command">the command-line mode</a> is: 
+
+このコードを<a href="#how-to-use-in-command">コマンドラインモード</a>で実行すると、実行結果は：
+
+	1
+	2.3
+	true
+	Hello, World !
+
+However, you can NOT declare multiple variable in 1 statement in Vnano:
+
+一方でVnanoでは、以下のように一つの文の中で複数の変数を宣言する事はできません：
+
+	(!!! This code will not work - このコードは動作しません !!!)
+
+	int i, j;
+	int n = 1, m = 2;
+
+
+<a id="language-varaiable-array"></a>
+#### Declaration of arrays - 配列宣言
+
+You can declare and use arrays as follows:
+
+配列は以下のように宣言して使用できます：
+
+	int a[8];
+	a[2] = 123;
+	output(a[2]);
+
+The result on <a href="#how-to-use-in-command">the command-line mode</a> is: 
+
+このコードを<a href="#how-to-use-in-command">コマンドラインモード</a>で実行すると、実行結果は：
+
+	123
+
+However, you can NOT use array initializers in Vnano:
+
+一方でVnanoでは、以下のような配列初期化子は使用できません：
+
+	(!!! This code will not work - このコードは動作しません !!!)
+
+	int a[8] = { 10, 20, 30, 40, 50, 60, 70, 80 };
+
+
+<a id="language-control"></a>
+### Control Statements - 制御文
+
+In control statements of C-like languages, Vnano supports if / else / for / while / continue / break statements.
+
+C言語系の制御文の中で、Vnano では if / else / for / while / break / continue 文がサポートされています。
+
+<a id="language-control-if-else"></a>
+#### if and else statements - if 文と else 文
+
+The folloing is an example code of if and else statements:
+
+以下は if 文と else 文の使用例です：
+
+	int x = 1;
+	if (x == 1) {
+		output("x is 1.");
+	} else {
+		output("x is not 1.");
+	}
+
+The result is:
+
+実行結果は：
+
+	x is 1.
+
+By the way, in Vnano, after of if / else / for / while statements must be a block statement {...}.
+Therefore, you can NOT write single statement which is not enclosed by braces { } after the if statement as follows:
+
+ところでVnanoでは、if / else / for / while 文の後には必ずブロック文 {...} が続かなければいけません。
+従って、以下のように if 文の後に、波括弧 { } で囲まれていない単文を記述する事はできません：
+
+	(!!! This code will not work - このコードは動作しません !!!)
+
+	int x = 1;
+	if (x == 1) output("x is 1.");
+
+
+<a id="language-control-for"></a>
+### for statement - for 文
+
+The folloing is an example code of for statement:
+
+以下は for 文の使用例です：
+
+	for (int i=1; i<=5; i++) {
+		output("i=" + i + "\n");
+	}
+
+
+Please note that braces { } can not be omitted. The result is:
+
+ここでも波括弧 { } は省略できない事に注意してください。実行結果は：
+
+	i=1
+	i=2
+	i=3
+	i=4
+	i=5
+
+
+<a id="language-control-while"></a>
+### while statement - while 文
+
+The folloing is an example code of while statement:
+
+以下は while 文の使用例です：
+
+	int a = 500;
+	while (0 <= a) {
+		output("a=" + a + "\n");
+		a -= 123;
+	}
+
+Please note that braces { } can not be omitted. The result is:
+
+ここでも波括弧 { } は省略できない事に注意してください。実行結果は：
+
+	a=500
+	a=377
+	a=254
+	a=131
+	a=8
+
+
+<a id="language-control-break"></a>
+### break statement - break 文
+
+The folloing is an example code of break statement:
+
+以下は break 文の使用例です：
+
+	for (int i=1; i<=10; i++) {
+		output("i=" + i + "\n");
+		if (i == 3) {
+			break;
+		}
+	}
+
+The result is:
+
+実行結果は：
+
+	i=1
+	i=2
+	i=3
+
+<a id="language-control-continue"></a>
+### continue statement - continue 文
+
+The folloing is an example code of continue statement:
+
+以下は continue 文の使用例です：
+
+	for (int i=1; i<=10; i++) {
+		if (i % 3 == 0) {
+			continue;
+		}
+		output("i=" + i + "\n");
+	}
+
+The result is:
+
+実行結果は：
+
+	i=1
+	i=2
+	i=4
+	i=5
+	i=7
+	i=8
+	i=10
+
+
+
+
 
 
 
