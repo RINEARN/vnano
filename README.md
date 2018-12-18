@@ -38,6 +38,7 @@ Vnano (VCSSL nano) は、Java&reg; アプリケーションに組み込んで用
   - <a href="#language-expression">Expressions - 式</a>
     - <a href="#language-expression-syntax">Syntax elements of expressions - 式の構文要素</a>
     - <a href="#language-expression-operator">Operators - 演算子</a>
+  - <a href="#language-expression">Functions - 関数</a>
 
 
 
@@ -957,11 +958,14 @@ On the other hand, array types of the data types in the above table are supporte
 and you can use it with C-like syntax.
 However, please note that arrays in the Vnano (and VCSSL) behaves as value types, not reference types or pointers.
 The assignment operation (=) of an array behaves as the copy of all values of elements, not the copy of the reference to (address on) the memory.
+It is the same for character strings. 
+In Vnano, the "string" type which is the data type to store character strings behaves as the value type, not reference type.
 
 上記以外の基本データ型や、ポインタ、構造体、およびクラスなどはサポートされません。
-ただし、上記の表にあるデータ型の配列型はサポートされており、C言語系の記法で使用できます。
+一方で、上記の表にあるデータ型の配列型はサポートされており、C言語系の記法で使用できます。
 ただし、Vnano（および VCSSL）における配列は、ポインタや参照型ではなく、値型として振舞う事に注意してください。
 配列の代入演算（=）も、参照の代入ではなく、全要素値のコピー代入になります。
+文字列についても同様で、Vnanoで文字列を扱う string 型は、参照型ではなく値型として振舞います。
 
 
 <a id="language-varaiable"></a>
@@ -1249,7 +1253,7 @@ Vnano でサポートされている演算子は、以下の一覧の通りで�
 The value type (the data-type of the operated value) of binary arithmetic operators (\*, /, %, +, -) 
 and compound arithmetic assignment operators (*=, /=, %=, +=, -=) are decided by the following table:
 
-算術演算子（\*, /, %, +, -）および算術複合代入演算子（*=, /=, %=, +=, -=）値の型（演算された値のデータ型）は、以下の表の通りに決定されます：
+算術演算子（\*, /, %, +, -）および算術複合代入演算子（*=, /=, %=, +=, -=）における値の型（演算された値のデータ型）は、以下の表の通りに決定されます：
 
 | Operand type A - オペランドAの型 | Operand type B - オペランドBの型 | Value type - 値の型 |
 | --- | --- | --- |
