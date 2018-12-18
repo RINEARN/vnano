@@ -24,7 +24,7 @@ Vnano (VCSSL nano) は、Java&reg; アプリケーションに組み込んで用
 - <a href="#how-to-use-in-command">How to Use in Command Line - コマンドラインでの使用方法</a>
 - <a href="#performances">Performances - 演算速度</a>
 - <a href="#architecture">Architecture - アーキテクチャ</a>
-- <a href="#language">Language - 言語</a>
+- <a href="#language">The Vnano as a Programming Language - プログラミング言語としての Vnano</a>
   - <a href="#language-data-type">Data Types - データ型</a>
   - <a href="#language-variable">Variable Declaration Statements - 変数宣言文</a>
     - <a href="#language-variable-scalar">Daclaration of scalar variables - スカラ変数の宣言</a>
@@ -35,6 +35,10 @@ Vnano (VCSSL nano) は、Java&reg; アプリケーションに組み込んで用
     - <a href="#language-control-while">while statement - while 文</a>
     - <a href="#language-control-break">break statement - break 文</a>
     - <a href="#language-control-continue">continue statement - continue 文</a>
+  - <a href="#language-expression">Expressions - 式</a>
+    - <a href="#language-expression-syntax">Syntax elements of expressions - 式の構文要素</a>
+    - <a href="#language-expression-operator">Operators - 演算子</a>
+
 
 
 
@@ -378,7 +382,8 @@ Vnanoのスクリプトエンジンをコマンドライン端末上で使用し
 Vnanoで記述されたスクリプトコードを直接実行する事ができます。
 ただし、このコマンドラインモードは、Vnanoを単独で実用目的のスクリプト言語として使うための機能ではない事に注意してください。
 そのような用途にはVnanoは全く便利ではありません。
-Vnanoは、VCSSLのアプリケーション組み込み用サブセットであるため、単独での使用にはフル機能版であるVCSSLのご使用をおすすめします。
+Vnanoは、VCSSLという言語から、アプリケーション組み込み用に機能を絞ったサブセットであるため、
+単独での使用にはフル機能版であるVCSSLのご使用をおすすめします。
 
 
 ### 2. Build Vnano Engine - Vnanoエンジンのビルド
@@ -915,7 +920,7 @@ Vnanoエンジン内でこのコンポーネントに接続されます。
 
 
 <a id="language"></a>
-## Language - 言語
+## The Vnano as a Programming Language - プログラミング言語としての Vnano
 
 The language specification of the Vnano ( = VCSSL nano ) is a small subset of the VCSSL 
 which is a programming language having simple C-like syntax, so Vnano also has simple C-like syntax.
@@ -925,7 +930,7 @@ for making the implementation of the script engine compact.
 It is the concept for giving priority to customizability, maintainability, security, portability 
 and so on than the functionality.
 
-プログラミング言語としての Vnano の仕様は、VCSSLの言語仕様の小さなサブセットになっています。
+プログラミング言語としての Vnano ( = VCSSL nano ) の仕様は、その名前の通り、VCSSLという言語の仕様の小さなサブセットになっています。
 VCSSLはC言語系の単純な文法を持つプログラミング言語であるため，VnanoもまたC言語系の単純な文法を持っています。
 Vnanoはアプリケーション組み込み用途に焦点を絞った言語であるため、
 一般的なプログラミング言語と比べると、用途的に必要性の低い機能は大幅に削られています。
@@ -1001,7 +1006,7 @@ However, you can NOT declare multiple variable in 1 statement in Vnano:
 
 一方でVnanoでは、以下のように一つの文の中で複数の変数を宣言する事はできません：
 
-	(!!! This code will not work - このコードは動作しません !!!)
+	(!!! This code does not work - このコードは動作しません !!!)
 
 	int i, j;
 	int n = 1, m = 2;
@@ -1028,7 +1033,7 @@ However, you can NOT use array initializers in Vnano:
 
 一方でVnanoでは、以下のような配列初期化子は使用できません：
 
-	(!!! This code will not work - このコードは動作しません !!!)
+	(!!! This code does not work - このコードは動作しません !!!)
 
 	int a[8] = { 10, 20, 30, 40, 50, 60, 70, 80 };
 
@@ -1066,7 +1071,7 @@ Therefore, you can NOT write single statement which is not enclosed by braces { 
 ところでVnanoでは、if / else / for / while 文の後には必ずブロック文 {...} が続かなければいけません。
 従って、以下のように if 文の後に、波括弧 { } で囲まれていない単文を記述する事はできません：
 
-	(!!! This code will not work - このコードは動作しません !!!)
+	(!!! This code does not work - このコードは動作しません !!!)
 
 	int x = 1;
 	if (x == 1) output("x is 1.");
@@ -1168,9 +1173,99 @@ The result is:
 	i=10
 
 
+<a id="language-expression"></a>
+### Expressions - 式
+
+<a id="language-expression-syntax"></a>
+#### Syntax elements of expressions - 式の構文要素
+
+The expression is the set of tokens consists of operators, operands, and parentheses ( ), 
+where operands are literals or identifiers (variable names and function names).
+For example:
+
+式は、演算子とオペランドおよび括弧 ( ) で構成される一連のトークン（字句）列です。
+ここでオペランドはリテラルまたは識別子（変数名や関数名）です。例えば：
+
+	(x + 2) * 3;
+
+In the above expression, + and * are operators, x and 2 and 3 are operands, 
+( ) are parentheses.
+Please note that parentheses ( ) as syntax elements are 
+different with the function-call operator ( ... , ... , ... ).
+In Vnano, as the same with the C programming language, 
+the symbol of the assignment "=" is an operator, so the following is also expression:
+
+上の式において、 + と * は演算子、x と 2 と 3 はオペランド、そして ( ) は括弧です。
+なお、構文要素としての括弧 ( ) は、関数呼び出し演算子 ( ... , ... , ... ) とは別のものである事に注意が必要です。
+VnanoではC言語と同様、代入の記号「=」も演算子なので、以下の内容も式になります：
+
+	y = (x + 2) * 3;
+
+An expression alone can be a statement as "expression statement". 
+In addition, an expression can be described as a part of other statements, e.g., a condition expression of an if statement.
+
+式は、単独でも「式文」として文となり得ます。加えて、if 文の条件式など、他の種類の文の構成要素にもなります。
 
 
+<a id="language-expression-operator"></a>
+#### Operators - 演算子
 
+The following is the list of operators supported in Vnano:
+
+Vnano でサポートされている演算子は、以下の一覧の通りです：
+
+| Operators - 演算子 | Priority - 優先度 | Syntax - 構文 | Operand Types - オペランドの型 | Value Type - 値の型 |
+| --- | --- | --- | --- | --- |
+| ( ... , ... , ... ) as call | 1000 | multiary | any, any, ... | any |
+| [ ... ][ ... ] ... as index | 1000 | multiary | int, int, ... | any |
+| ++ | 1000 | postfix | int | int |
+| -- | 1000 | postfix | int | int |
+| ++ | 2000 | prefix | int | int |
+| -- | 2000 | prefix | int | int |
+| + | 2000 | prefix | int | int |
+| - | 2000 | prefix | int | int |
+| ! | 2000 | prefix | bool | bool |
+| * | 3000 | binary | int, float | int, float |
+| / | 3000 | binary | int, float | int, float |
+| % | 3000 | binary | int, float | int, float |
+| + | 3100 | binary | int, float, string | int, float, string |
+| - | 3100 | binary | int, float | int, float |
+| < | 4000 | binary | int, float | bool |
+| <= | 4000 | binary | int, float | bool |
+| > | 4000 | binary | int, float | bool |
+| >= | 4000 | binary | int, float | bool |
+| == | 4100 | binary | any | bool |
+| != | 4100 | binary | any | bool |
+| && | 5000 | binary | bool | bool |
+| \|\| | 5100 | binary | bool | bool |
+| = | 6000 | binary | any | any |
+| *= | 6000 | binary | int, float | int, float |
+| /= | 6000 | binary | int, float | int, float |
+| %= | 6000 | binary | int, float | int, float |
+| += | 6000 | binary | int, float, string | int, float, string |
+| -= | 6000 | binary | int, float | int, float |
+
+
+The value type (the data-type of the operated value) of binary arithmetic operators (\*, /, %, +, -) 
+and compound arithmetic assignment operators (*=, /=, %=, +=, -=) are decided by the following table:
+
+算術演算子（\*, /, %, +, -）および算術複合代入演算子（*=, /=, %=, +=, -=）値の型（演算された値のデータ型）は、以下の表の通りに決定されます：
+
+| Operand type A - オペランドAの型 | Operand type B - オペランドBの型 | Value type - 値の型 |
+| --- | --- | --- |
+| int | int | int |
+| int | float | float |
+| int | string | string |
+| float | int | float |
+| float | float | float |
+| float | string | string |
+| string | int | string |
+| string | float | string |
+| string | string | string |
+
+Where you can choose the right or the left operand as the operand A (or operand B) freely in the above table.
+
+上の表において、右と左のどちらのオペランドをオペランドA（またはB）に選んでも構いません。
 
 
 ---
