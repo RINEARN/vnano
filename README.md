@@ -826,7 +826,7 @@ Vnanoエンジンは、内部でスクリプトコードを中間コードにコ
 
 <a href="https://github.com/RINEARN/vnano/tree/master/src/org/vcssl/nano/compiler">org.vcssl.nano.compiler</a> 
 package performs the function as a compiler, 
-which compiles script code written in Vnano to a kind of intermediate code, 
+which compiles script code written in the Vnano to a kind of intermediate code, 
 named as "VRIL" code.
 VRIL ― Vector Register Intermediate Language ― is a low-level (but readable text format) 
 language designed as a virtual assembly code of the VM (Virtual Machine) layer of Vnano Engine.
@@ -905,7 +905,7 @@ One virtual data address corresponds one vector.
 
 <a href="https://github.com/RINEARN/vnano/tree/master/src/org/vcssl/nano/interconnect">org.vcssl.nano.interconnect</a>
 package performs the function as a component which manages and provides some information shared between multiple components explained above. 
-We refer this component as "Interconnect" in Vnano Engine.
+We refer this component as "Interconnect" in the Vnano Engine.
 For example, information to resolve references of variables and functions are managed by this interconnect component. 
 Bindings to external functions/variables are intermediated by this interconnect component, so plug-ins of 
 external functions/variables will be connected to this component.
@@ -956,17 +956,22 @@ Vnano は、データ型として int (=long)、float (=double)、bool、およ�
 Other primitive data types, pointer, struct and class are not supported.
 On the other hand, array types of the data types in the above table are supported, 
 and you can use it with C-like syntax.
-However, please note that arrays in the Vnano (and VCSSL) behaves as value types, not reference types or pointers.
-The assignment operation (=) of an array behaves as the copy of all values of elements, not the copy of the reference to (address on) the memory.
-It is the same for character strings. 
-In Vnano, the "string" type which is the data type to store character strings behaves as the value type, not reference type.
 
 上記以外の基本データ型や、ポインタ、構造体、およびクラスなどはサポートされません。
 一方で、上記の表にあるデータ型の配列型はサポートされており、C言語系の記法で使用できます。
+
+However, please note that arrays in the Vnano (and VCSSL) behaves as value types, not reference types or pointers.
+The assignment operation (=) of an array behaves as the copy of all values of elements, not the copy of the reference to (address on) the memory.
+It is the same for character strings. 
+In the Vnano, the "string" type which is the data type to store character strings behaves as the value type, not reference type.
+In short, Vnano has no reference types, so all data types in the Vnano are value types.
+Therefore, the script engine of the Vnano has no garbage-collection (GC) modules.
+
 ただし、Vnano（および VCSSL）における配列は、ポインタや参照型ではなく、値型として振舞う事に注意してください。
 配列の代入演算（=）も、参照の代入ではなく、全要素値のコピー代入になります。
 文字列についても同様で、Vnanoで文字列を扱う string 型は、参照型ではなく値型として振舞います。
-
+つまるところ、Vnano に参照型は存在せず、全てのデータ型は値型になっています。
+これにより、Vnanoのスクリプトエンジンではガベージコレクション（GC）を省略しています。
 
 <a id="language-varaiable"></a>
 ### Variable Declaration Statements - 変数宣言文
@@ -1006,7 +1011,7 @@ The result on <a href="#how-to-use-in-command">the command-line mode</a> is:
 	true
 	Hello, World !
 
-However, you can NOT declare multiple variable in 1 statement in Vnano:
+However, you can NOT declare multiple variable in 1 statement in the Vnano:
 
 一方でVnanoでは、以下のように一つの文の中で複数の変数を宣言する事はできません：
 
@@ -1033,7 +1038,7 @@ The result on <a href="#how-to-use-in-command">the command-line mode</a> is:
 
 	123
 
-However, you can NOT use array initializers in Vnano:
+However, you can NOT use array initializers in the Vnano:
 
 一方でVnanoでは、以下のような配列初期化子は使用できません：
 
@@ -1069,7 +1074,7 @@ The result is:
 
 	x is 1.
 
-By the way, in Vnano, after of if / else / for / while statements must be a block statement {...}.
+By the way, in the Vnano, after of if / else / for / while statements must be a block statement {...}.
 Therefore, you can NOT write single statement which is not enclosed by braces { } after the if statement as follows:
 
 ところでVnanoでは、if / else / for / while 文の後には必ずブロック文 {...} が続かなければいけません。
@@ -1196,7 +1201,7 @@ In the above expression, + and * are operators, x and 2 and 3 are operands,
 ( ) are parentheses.
 Please note that parentheses ( ) as syntax elements are 
 different with the function-call operator ( ... , ... , ... ).
-In Vnano, as the same with the C programming language, 
+In the Vnano, as the same with the C programming language, 
 the symbol of the assignment "=" is an operator, so the following is also expression:
 
 上の式において、 + と * は演算子、x と 2 と 3 はオペランド、そして ( ) は括弧です。
@@ -1214,7 +1219,7 @@ In addition, an expression can be described as a part of other statements, e.g.,
 <a id="language-expression-operator"></a>
 #### Operators - 演算子
 
-The following is the list of operators supported in Vnano:
+The following is the list of operators supported in the Vnano:
 
 Vnano でサポートされている演算子は、以下の一覧の通りです：
 
