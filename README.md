@@ -38,7 +38,9 @@ Vnano (VCSSL nano) は、Java&reg; アプリケーションに組み込んで用
   - <a href="#language-expression">Expressions - 式</a>
     - <a href="#language-expression-syntax">Syntax elements of expressions - 式の構文要素</a>
     - <a href="#language-expression-operator">Operators - 演算子</a>
-  - <a href="#language-external">External Functions and External Variable - 外部関数と外部変数</a>
+  - <a href="#language-external">External Functions and External Variables - 外部関数と外部変数</a>
+    - <a href="#language-external-functions">外部関数</a>
+    - <a href="#language-external-variables">外部変数</a>
 
 
 
@@ -1279,8 +1281,9 @@ Where you can choose the right or the left operand as the operand A (or operand 
 
 
 <a id="language-external"></a>
-### External Functions and External Variable - 外部関数と外部変数
+### External Functions and External Variables - 外部関数と外部変数
 
+<a id="language-external-functions"></a>
 #### External functions - 外部関数
 
 You can not declare functions in script code written in the Vnano, at least for the current version.
@@ -1302,6 +1305,7 @@ Vnanoでは、それらを「外部関数」と呼びます。
 ホストアプリケーション側にJava&reg;言語（またはその代替言語）で実装し、
 スクリプトエンジンに外部関数として接続する必要があります。
 
+<a id="language-external-variables"></a>
 #### External variables - 外部変数
 
 For variables, you can declare them in the script code written the Vnano by using <a href="#language-variable">variable declaration statements</a>.
