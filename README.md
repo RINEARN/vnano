@@ -38,7 +38,9 @@ Vnano (VCSSL nano) は、Java&reg; アプリケーションに組み込んで用
   - <a href="#language-expression">Expressions - 式</a>
     - <a href="#language-expression-syntax">Syntax elements of expressions - 式の構文要素</a>
     - <a href="#language-expression-operator">Operators - 演算子</a>
-  - <a href="#language-external">External Functions and External Variable - 外部関数と外部変数</a>
+  - <a href="#language-external">External Functions and External Variables - 外部関数と外部変数</a>
+    - <a href="#language-external-functions">外部関数</a>
+    - <a href="#language-external-variables">外部変数</a>
 
 
 
@@ -1279,8 +1281,9 @@ Where you can choose the right or the left operand as the operand A (or operand 
 
 
 <a id="language-external"></a>
-### External Functions and External Variable - 外部関数と外部変数
+### External Functions and External Variables - 外部関数と外部変数
 
+<a id="language-external-functions"></a>
 #### External functions - 外部関数
 
 You can not declare functions in script code written in the Vnano, at least for the current version.
@@ -1302,15 +1305,57 @@ Vnanoでは、それらを「外部関数」と呼びます。
 ホストアプリケーション側にJava&reg;言語（またはその代替言語）で実装し、
 スクリプトエンジンに外部関数として接続する必要があります。
 
+<a id="language-external-variables"></a>
 #### External variables - 外部変数
 
 For variables, you can declare them in the script code written the Vnano by using <a href="#language-variable">variable declaration statements</a>.
-In addition, host applications can provide so-called "build-in variables", and we refer it as "external variables" in the Vnano.
+In addition, host applications can provide so-called "build-in variables", and we refer them as "external variables" in the Vnano.
+In the contrast, we refer variables declared in the Vnano script code as "internal variables".
 
 変数については、<a href="#language-variable">変数宣言文</a>を用いて、
 Vnanoのスクリプトコード内で宣言する事ができます。
 一方で、ホストアプリケーション側も、スクリプト内から読み書きできる変数（いわゆる組み込み変数）を提供する事ができ、Vnanoではそれらを「外部変数」と呼びます。
+それに対して、Vnanoのスクリプト内で宣言された通常の変数は「内部変数」と呼びます。
 
+There are two important points about external variables.
+The first point is, overhead processing costs of reading and writing for external variables 
+are greater than them of internal variables.
+Therefore, especially in the expression locating in the high-speed loop, 
+it is prefer to store the value of the external variable to a internal variable and use it.
+
+外部変数を使用する際には、注意が必要な点が2つあります。
+一つは、外部変数に対する読み書きのオーバーヘッドが、内部変数に比べて大きい事です。
+従って、非常に高速に反復実行されるループ内での式の中などでは、外部変数を直接使用するよりも、
+値を内部変数に代入して、その内部変数を使用する方が高速化が見込めます。
+
+The second point is, 
+the changing of values of external variables during the script code is running 
+DOES NOT affect to values of them in the Vnano script code.
+The script engine of the Vnano loads values of all external variables to the virtual memory 
+at the beginning of the execution of the script code, 
+and write back values from the virtual memory to all external variables at the end of the execution.
+Values of external variables will be synchronized between the host-application-side and script-side only when these two moment.
+The aim of this specification is: 
+it gives the big advantage for speeding up processings, 
+that excluding changings of values on the virtual memory caused by operations from the outside of the script engine.
+
+もう一つの注意点は、スクリプトの実行中に、ホストアプリケーション側から外部変数の値を変更しても、
+効果は無いという点です。
+Vnanoのスクリプトエンジンは、スクリプトの実行直前に外部変数の値を仮想メモリーに一括で読み込み、
+そしてスクリプトの実行完了時点で、仮想メモリーから外部変数へ値を一括で書き戻します。
+つまり、ホストアプリケーション側とスクリプト側とで、外部変数の値が同期されるのは、
+実行直前と実行完了時点の2つの瞬間のみです。
+この仕様の理由は、実行中に仮想メモリーのデータが外部から変更される事を考慮しない方が、
+スクリプトエンジンの高速化において大幅に有利であるためです。
+
+If you want to make it possible to access the host-apprication-side value 
+which changes during execution from the script-side, 
+please make and connect so-called "setter" and "getter" of the value as external FUNCTIONS,
+instead of the external variable.
+
+もしも、スクリプト実行中にホストアプリケーション側で変更され得る値に、
+スクリプト内からリアルタイムにアクセスしたい場合は、外部変数ではなく外部関数として、
+その値に対する setter と getter を用意して接続してください。
 
 ---
 
