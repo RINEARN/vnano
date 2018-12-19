@@ -24,7 +24,7 @@ Vnano (VCSSL nano) は、Java&reg; アプリケーションに組み込んで用
 - <a href="#how-to-use-in-command">How to Use in Command Line - コマンドラインでの使用方法</a>
 - <a href="#performances">Performances - 演算速度</a>
 - <a href="#architecture">Architecture - アーキテクチャ</a>
-- <a href="#language">The Vnano as a Programming Language - プログラミング言語としての Vnano</a>
+- <a href="#language">The Vnano as a Language - 言語としての Vnano</a>
   - <a href="#language-data-type">Data Types - データ型</a>
   - <a href="#language-variable">Variable Declaration Statements - 変数宣言文</a>
     - <a href="#language-variable-scalar">Daclaration of scalar variables - スカラ変数の宣言</a>
@@ -38,7 +38,7 @@ Vnano (VCSSL nano) は、Java&reg; アプリケーションに組み込んで用
   - <a href="#language-expression">Expressions - 式</a>
     - <a href="#language-expression-syntax">Syntax elements of expressions - 式の構文要素</a>
     - <a href="#language-expression-operator">Operators - 演算子</a>
-  - <a href="#language-expression">Functions - 関数</a>
+  - <a href="#language-external">External Functions and External Variable - 外部関数と外部変数</a>
 
 
 
@@ -921,7 +921,7 @@ Vnanoエンジン内でこのコンポーネントに接続されます。
 
 
 <a id="language"></a>
-## The Vnano as a Programming Language - プログラミング言語としての Vnano
+## The Vnano as a Language - 言語としての Vnano
 
 The language specification of the Vnano ( = VCSSL nano ) is a small subset of the VCSSL 
 which is a programming language having simple C-like syntax, so Vnano also has simple C-like syntax.
@@ -973,7 +973,7 @@ Therefore, the script engine of the Vnano has no garbage-collection (GC) modules
 つまるところ、Vnano に参照型は存在せず、全てのデータ型は値型になっています。
 これにより、Vnanoのスクリプトエンジンではガベージコレクション（GC）を省略しています。
 
-<a id="language-varaiable"></a>
+<a id="language-variable"></a>
 ### Variable Declaration Statements - 変数宣言文
 
 You can describe the variable declaration statements with C-like syntax.
@@ -981,7 +981,7 @@ You can describe the variable declaration statements with C-like syntax.
 以下のように、C言語系の表記で変数宣言文を記述できます。
 
 
-<a id="language-varaiable-scalar"></a>
+<a id="language-variable-scalar"></a>
 #### Declaration of scalar variables - スカラ変数の宣言
 
 The following is an example code of declaration statements of scalar variables (non-array variables) :
@@ -1021,7 +1021,7 @@ However, you can NOT declare multiple variable in 1 statement in the Vnano:
 	int n = 1, m = 2;
 
 
-<a id="language-varaiable-array"></a>
+<a id="language-variable-array"></a>
 #### Declaration of arrays - 配列宣言
 
 You can declare and use arrays as follows:
@@ -1275,6 +1275,41 @@ and compound arithmetic assignment operators (*=, /=, %=, +=, -=) are decided by
 Where you can choose the right or the left operand as the operand A (or operand B) freely in the above table.
 
 上の表において、右と左のどちらのオペランドをオペランドA（またはB）に選んでも構いません。
+
+
+
+<a id="language-external"></a>
+### External Functions and External Variable - 外部関数と外部変数
+
+#### External functions - 外部関数
+
+You can not declare functions in script code written in the Vnano, at least for the current version.
+This is for making the script engine compact, and for giving priority to maintainability and security.
+The Vnano is the language for executing partial processings on host applications as scripts, 
+so functions called from scripts are provided by host applications as so-called "built-in functions".
+In the Vnano, we refer them as "external functions".
+Therefore, all functions you want to call from the Vnano script code 
+are necessary to be implemented on the host application by using Java&reg; (or alternative languages), 
+and necessary to be connected to the script engine as external functions.
+
+Vnanoでは、少なくとも現時点において、スクリプト内でユーザーが関数を宣言する事はできません。
+これは、用途的に必要性が低い機能は削る事で、スクリプトエンジンをなるべくコンパクトに抑え、
+保守性やセキュリティ等を優先させるためです。
+Vnanoは、ホストアプリケーション上での部分的な処理をスクリプトとして実行する事に焦点を絞った言語なので、
+関数はホストアプリケーション側から、いわゆる「組み込み関数」として提供されます。
+Vnanoでは、それらを「外部関数」と呼びます。
+従って、Vnanoのスクリプトコード内で使用したい全ての関数は、
+ホストアプリケーション側にJava&reg;言語（またはその代替言語）で実装し、
+スクリプトエンジンに外部関数として接続する必要があります。
+
+#### External variables - 外部変数
+
+For variables, you can declare them in the script code written the Vnano by using <a href="#language-variable">variable declaration statements</a>.
+In addition, host applications can provide so-called "build-in variables", and we refer it as "external variables" in the Vnano.
+
+変数については、<a href="#language-variable">変数宣言文</a>を用いて、
+Vnanoのスクリプトコード内で宣言する事ができます。
+一方で、ホストアプリケーション側も、スクリプト内から読み書きできる変数（いわゆる組み込み変数）を提供する事ができ、Vnanoではそれらを「外部変数」と呼びます。
 
 
 ---
