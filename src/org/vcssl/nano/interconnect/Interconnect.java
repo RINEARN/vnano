@@ -208,7 +208,7 @@ public class Interconnect {
 			identifier = this.connect( (ExternalVariableConnector1)object );
 
 		// XFCI 1 形式の外部関数プラグイン >> そのまま接続
-		} else if (object instanceof ExternalVariableConnector1) {
+		} else if (object instanceof ExternalFunctionConnector1) {
 			identifier = this.connect( (ExternalFunctionConnector1)object );
 
 		// クラスフィールドの場合 >> アダプタで XVCI1 に変換して接続
