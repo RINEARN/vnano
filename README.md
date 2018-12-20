@@ -22,6 +22,7 @@ Vnano (VCSSL nano) は、Java&reg; アプリケーションに組み込んで用
 - <a href="#how-to-use-in-java">How to Use in Java&reg; - Java&reg;言語での使用方法</a>
 - <a href="#how-to-use-in-kotlin">How to Use in Kotlin&reg; - Kotlin&reg;での使用方法</a>
 - <a href="#how-to-use-in-command">How to Use in Command Line - コマンドラインでの使用方法</a>
+- <a href="#how-to-connect">How to Connect External Functions and Variables - 外部関数や外部変数の接続方法</a>
 - <a href="#performances">Performances - 演算速度</a>
 - <a href="#architecture">Architecture - アーキテクチャ</a>
 - <a href="#language">The Vnano as a Language - 言語としての Vnano</a>
@@ -38,7 +39,7 @@ Vnano (VCSSL nano) は、Java&reg; アプリケーションに組み込んで用
   - <a href="#language-expression">Expressions - 式</a>
     - <a href="#language-expression-syntax">Syntax elements of expressions - 式の構文要素</a>
     - <a href="#language-expression-operator">Operators - 演算子</a>
-  - <a href="#language-external">External Functions and External Variables - 外部関数と外部変数</a>
+  - <a href="#language-external">External Functions and Variables - 外部関数と外部変数</a>
     - <a href="#language-external-functions">外部関数</a>
     - <a href="#language-external-variables">外部変数</a>
 
@@ -640,6 +641,105 @@ to customize the script engine of the Vnano to your applications. Good luck!
 ここまでで説明したVnanoのコマンドラインモードは、
 Vnanoのスクリプトエンジンを搭載アプリケーション等に合わせて改造する際に役立つかもしれません。
 改造したくなったら、ぜひ活用して試してみてください。
+
+
+<a id="how-to-connect"></a>
+## How to Connect External Functions and Variables - 外部関数や外部変数の接続方法
+
+You can connect functions and variables of the host-application-side to the script engine 
+as external functions/variables, to call/access them from the script code.
+About the abstract of external functions/variables, 
+please see the section "<a href="#language-external">External Functions and Variables</a>".
+Here we describe the practical way to connect them. 
+
+ホストアプリケーション側に実装された関数や変数を、
+Vnanoのスクリプトエンジンに外部関数/外部変数として接続すると、
+それらをスクリプトコードから呼び出す/読み書きする事ができます。
+外部関数/外部変数そのものの概要については、"<a href="#language-external">外部関数と外部変数</a>" の項目を参照してください。ここでは、実際の接続方法について解説します。
+
+By the way, if you connect external functions and variables to the <a href="#how-to-use-in-command">command-line mode</a>, please modity the code "<a href="https://github.com/RINEARN/vnano/blob/master/src/org/vcssl/nano/main/VnanoCommandLineApplication.java">src/org/vcssl/nano/main/VnanoCommandLineApplication.java</a>", 
+and then re-build "Vnano.jar".
+
+なお、もし<a href="#how-to-use-in-command">コマンドラインモード</a>に外部変数/外部関数を接続したい場合は、
+"<a href="https://github.com/RINEARN/vnano/blob/master/src/org/vcssl/nano/main/VnanoCommandLineApplication.java">src/org/vcssl/nano/main/VnanoCommandLineApplication.java</a>" のコードを編集し、
+Vnano.jar を再ビルドしてください。
+
+### How to Connect Methods and Fields as External Functions and Variables - メソッドやフィールドを外部関数や外部変数として接続する方法
+
+You can connect public methods and fields of the object in host-application-side as external function and variables. 
+For example, see the following part in "Example.java":
+
+ホストアプリケーション側のオブジェクトにおける、public なメソッド/フィールドは、外部関数/外部変数として接続できます。
+例えば、Example.java を見てみると：
+
+		(Example.java)
+
+		// A class which provides a field/method accessed from the script as external functions/variables.
+		// スクリプト内から外部変数・外部関数としてアクセスされるフィールドとメソッドを提供するクラス
+		public class ScriptIO {
+			public int LOOP_MAX = 100;
+			public void output(int value) {
+				System.out.println("Output from script: " + value);
+			}
+		}
+
+		public static void main(String[] args) {
+
+				...
+
+				Field loopMaxField  = ScriptIO.class.getField("LOOP_MAX");
+				Method outputMethod = ScriptIO.class.getMethod("output",int.class);
+				ScriptIO ioInstance = new Example().new ScriptIO();
+
+				engine.put("LOOP_MAX",    new Object[]{ loopMaxField, ioInstance } );
+				engine.put("output(int)", new Object[]{ outputMethod, ioInstance } );
+				
+				...
+
+
+In the above code, we are getting "output" method and "LOOP_MAX" field of ScriptIO class by using reflection, 
+and then connecting them by using the "put" method of the script engine.
+In general, behaviour/values of methods/fields depend on the instance of the class to which they are belong. Therefore, in the above code, we are packing the method/field and an instance of the ScriptIO class by Object[] { ... } and connecting it.
+
+上記のコードでは、まず ScriptIO クラスに属する output メソッドと LOOP_MAX フィールドをリフレクションで取得し、
+そしてスクリプトエンジンの put メソッドを使用して、それらを接続しています。
+一般に、メソッドの振る舞いやフィールドの値は、所属するクラスのインスタンスの状態に依存します。
+従って上では、メソッド/フィールドとScriptIOクラスのインスタンスを、Object[]{ ... } でパックして接続しています。
+
+However, if methods/fields are declared as static (are not depending on the state of the instance), 
+you can connect them more simply.
+Actually, in the above code, "output" method and "LOOP_MAX" field do not depend on 
+the state of the instance of ScriptIO class.
+Therefore, we can append "static" to declarations of them, and connect them more simply as follows:
+
+一方で、メソッドやフィールドが static として宣言されている（インスタンスの状態に依存しない）場合、
+以下のように、より単純に接続できます。
+実際に上の例のコードでは、output メソッドと LOOP_MAX フィールドはインスタンスの状態に依存していないため、
+宣言に static を付加し、以下のように単純に接続する事ができます：
+
+		(Example.java, modified code - 書き換えたコード)
+
+		// A class which provides a field/method accessed from the script as external functions/variables.
+		// スクリプト内から外部変数・外部関数としてアクセスされるフィールドとメソッドを提供するクラス
+		public class ScriptIO {
+			public static int LOOP_MAX = 100;
+			public static void output(int value) {
+				System.out.println("Output from script: " + value);
+			}
+		}
+
+		public static void main(String[] args) {
+
+				...
+
+				Field loopMaxField  = ScriptIO.class.getField("LOOP_MAX");
+				Method outputMethod = ScriptIO.class.getMethod("output",int.class);
+
+				engine.put("LOOP_MAX",    loopMaxField);
+				engine.put("output(int)", outputMethod);
+				
+				...
+
 
 
 <a id="performances"></a>
@@ -1281,7 +1381,7 @@ Where you can choose the right or the left operand as the operand A (or operand 
 
 
 <a id="language-external"></a>
-### External Functions and External Variables - 外部関数と外部変数
+### External Functions and Variables - 外部関数と外部変数
 
 <a id="language-external-functions"></a>
 #### External functions - 外部関数
@@ -1294,6 +1394,9 @@ In the Vnano, we refer them as "external functions".
 Therefore, all functions you want to call from the Vnano script code 
 are necessary to be implemented on the host application by using Java&reg; (or alternative languages), 
 and necessary to be connected to the script engine as external functions.
+To connect external functions, see the section 
+"<a href="#how-to-connect">How to Connect External Functions and Variables</a>".
+
 
 Vnanoでは、少なくとも現時点において、スクリプト内でユーザーが関数を宣言する事はできません。
 これは、用途的に必要性が低い機能は削る事で、スクリプトエンジンをなるべくコンパクトに抑え、
@@ -1304,6 +1407,9 @@ Vnanoでは、それらを「外部関数」と呼びます。
 従って、Vnanoのスクリプトコード内で使用したい全ての関数は、
 ホストアプリケーション側にJava&reg;言語（またはその代替言語）で実装し、
 スクリプトエンジンに外部関数として接続する必要があります。
+具体的な接続方法については、
+「<a href="#how-to-connect">外部関数や外部変数の接続方法</a>」の項目を参照してください。
+
 
 <a id="language-external-variables"></a>
 #### External variables - 外部変数
@@ -1311,11 +1417,17 @@ Vnanoでは、それらを「外部関数」と呼びます。
 For variables, you can declare them in the script code written the Vnano by using <a href="#language-variable">variable declaration statements</a>.
 In addition, host applications can provide so-called "build-in variables", and we refer them as "external variables" in the Vnano.
 In the contrast, we refer variables declared in the Vnano script code as "internal variables".
+To connect external variables to the script engine, see the section 
+"<a href="#how-to-connect">How to Connect External Functions and Variables</a>".
+
 
 変数については、<a href="#language-variable">変数宣言文</a>を用いて、
 Vnanoのスクリプトコード内で宣言する事ができます。
 一方で、ホストアプリケーション側も、スクリプト内から読み書きできる変数（いわゆる組み込み変数）を提供する事ができ、Vnanoではそれらを「外部変数」と呼びます。
 それに対して、Vnanoのスクリプト内で宣言された通常の変数は「内部変数」と呼びます。
+外部変数をスクリプトエンジンに接続する具体的な方法については、
+「<a href="#how-to-connect">外部関数や外部変数の接続方法</a>」の項目を参照してください。
+
 
 There are two important points about external variables.
 The first point is, overhead processing costs of reading and writing for external variables 
