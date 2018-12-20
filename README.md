@@ -40,8 +40,10 @@ Vnano (VCSSL nano) は、Java&reg; アプリケーションに組み込んで用
     - <a href="#language-expression-syntax">Syntax elements of expressions - 式の構文要素</a>
     - <a href="#language-expression-operator">Operators - 演算子</a>
   - <a href="#language-external">External Functions and Variables - 外部関数と外部変数</a>
-    - <a href="#language-external-functions">外部関数</a>
-    - <a href="#language-external-variables">外部変数</a>
+    - <a href="#language-external-functions">External functions - 外部関数</a>
+    - <a href="#language-external-variables">External variables - 外部変数</a>
+    - <a href="#language-external-connect-methods-and-fields">Connecting Methods and Fields as External Functions and Variables - メソッドやフィールドを外部関数や外部変数として接続する</a>
+    - <a href="#language-external-connect-xfci1-and-xvci1">Developing and Connecting Plug-Ins as External Functions and Variables - プラグインを開発して外部関数や外部変数として接続する</a>
 
 
 
@@ -642,103 +644,6 @@ to customize the script engine of the Vnano to your applications. Good luck!
 Vnanoのスクリプトエンジンを搭載アプリケーション等に合わせて改造する際に役立つかもしれません。
 改造したくなったら、ぜひ活用して試してみてください。
 
-
-<a id="how-to-connect"></a>
-## How to Connect External Functions and Variables - 外部関数や外部変数の接続方法
-
-You can connect functions and variables of the host-application-side to the script engine 
-as external functions/variables, to call/access them from the script code.
-About the abstract of external functions/variables, 
-please see the section "<a href="#language-external">External Functions and Variables</a>".
-Here we describe the practical way to connect them. 
-
-ホストアプリケーション側に実装された関数や変数を、
-Vnanoのスクリプトエンジンに外部関数/外部変数として接続すると、
-それらをスクリプトコードから呼び出す/読み書きする事ができます。
-外部関数/外部変数そのものの概要については、"<a href="#language-external">外部関数と外部変数</a>" の項目を参照してください。ここでは、実際の接続方法について解説します。
-
-By the way, if you connect external functions and variables to the <a href="#how-to-use-in-command">command-line mode</a>, please modity the code "<a href="https://github.com/RINEARN/vnano/blob/master/src/org/vcssl/nano/main/VnanoCommandLineApplication.java">src/org/vcssl/nano/main/VnanoCommandLineApplication.java</a>", 
-and then re-build "Vnano.jar".
-
-なお、もし<a href="#how-to-use-in-command">コマンドラインモード</a>に外部変数/外部関数を接続したい場合は、
-"<a href="https://github.com/RINEARN/vnano/blob/master/src/org/vcssl/nano/main/VnanoCommandLineApplication.java">src/org/vcssl/nano/main/VnanoCommandLineApplication.java</a>" のコードを編集し、
-Vnano.jar を再ビルドしてください。
-
-### How to Connect Methods and Fields as External Functions and Variables - メソッドやフィールドを外部関数や外部変数として接続する方法
-
-You can connect public methods and fields of the object in host-application-side as external function and variables. 
-For example, see the following part in "Example.java":
-
-ホストアプリケーション側のオブジェクトにおける、public なメソッド/フィールドは、外部関数/外部変数として接続できます。
-例えば、Example.java を見てみると：
-
-		(Example.java)
-
-		// A class which provides a field/method accessed from the script as external functions/variables.
-		// スクリプト内から外部変数・外部関数としてアクセスされるフィールドとメソッドを提供するクラス
-		public class ScriptIO {
-			public int LOOP_MAX = 100;
-			public void output(int value) {
-				System.out.println("Output from script: " + value);
-			}
-		}
-
-		public static void main(String[] args) {
-
-				...
-
-				Field loopMaxField  = ScriptIO.class.getField("LOOP_MAX");
-				Method outputMethod = ScriptIO.class.getMethod("output",int.class);
-				ScriptIO ioInstance = new Example().new ScriptIO();
-
-				engine.put("LOOP_MAX",    new Object[]{ loopMaxField, ioInstance } );
-				engine.put("output(int)", new Object[]{ outputMethod, ioInstance } );
-				
-				...
-
-
-In the above code, we are getting "output" method and "LOOP_MAX" field of ScriptIO class by using reflection, 
-and then connecting them by using the "put" method of the script engine.
-In general, behaviour/values of methods/fields depend on the instance of the class to which they are belong. Therefore, in the above code, we are packing the method/field and an instance of the ScriptIO class by Object[] { ... } and connecting it.
-
-上記のコードでは、まず ScriptIO クラスに属する output メソッドと LOOP_MAX フィールドをリフレクションで取得し、
-そしてスクリプトエンジンの put メソッドを使用して、それらを接続しています。
-一般に、メソッドの振る舞いやフィールドの値は、所属するクラスのインスタンスの状態に依存します。
-従って上では、メソッド/フィールドとScriptIOクラスのインスタンスを、Object[]{ ... } でパックして接続しています。
-
-However, if methods/fields are declared as static (are not depending on the state of the instance), 
-you can connect them more simply.
-Actually, in the above code, "output" method and "LOOP_MAX" field do not depend on 
-the state of the instance of ScriptIO class.
-Therefore, we can append "static" to declarations of them, and connect them more simply as follows:
-
-一方で、メソッドやフィールドが static として宣言されている（インスタンスの状態に依存しない）場合、
-以下のように、より単純に接続できます。
-実際に上の例のコードでは、output メソッドと LOOP_MAX フィールドはインスタンスの状態に依存していないため、
-宣言に static を付加し、以下のように単純に接続する事ができます：
-
-		(Example.java, modified code - 書き換えたコード)
-
-		// A class which provides a field/method accessed from the script as external functions/variables.
-		// スクリプト内から外部変数・外部関数としてアクセスされるフィールドとメソッドを提供するクラス
-		public class ScriptIO {
-			public static int LOOP_MAX = 100;
-			public static void output(int value) {
-				System.out.println("Output from script: " + value);
-			}
-		}
-
-		public static void main(String[] args) {
-
-				...
-
-				Field loopMaxField  = ScriptIO.class.getField("LOOP_MAX");
-				Method outputMethod = ScriptIO.class.getMethod("output",int.class);
-
-				engine.put("LOOP_MAX",    loopMaxField);
-				engine.put("output(int)", outputMethod);
-				
-				...
 
 
 
@@ -1468,6 +1373,207 @@ instead of the external variable.
 もしも、スクリプト実行中にホストアプリケーション側で変更され得る値に、
 スクリプト内からリアルタイムにアクセスしたい場合は、外部変数ではなく外部関数として、
 その値に対する setter と getter を用意して接続してください。
+
+
+
+
+<a id="language-external-connect-methods-and-fields"></a>
+### Connecting Methods and Fields as External Functions and Variables - メソッドやフィールドを外部関数や外部変数として接続する
+
+Here we describe the practical way to connect external functions/variables by taking "Example.java" in this repository as an example. 
+By the way, if you want to connect external functions/variables to the <a href="#how-to-use-in-command">command-line mode</a>, please modity the code "<a href="https://github.com/RINEARN/vnano/blob/master/src/org/vcssl/nano/main/VnanoCommandLineApplication.java">src/org/vcssl/nano/main/VnanoCommandLineApplication.java</a>", 
+and then re-build "Vnano.jar".
+
+ここでは、このリポジトリ内にある Example.java のコードを例にとって、実際に外部関数/外部変数を接続する方法について解説します。
+なお、もし<a href="#how-to-use-in-command">コマンドラインモード</a>に外部変数/外部関数を接続したい場合は、
+"<a href="https://github.com/RINEARN/vnano/blob/master/src/org/vcssl/nano/main/VnanoCommandLineApplication.java">src/org/vcssl/nano/main/VnanoCommandLineApplication.java</a>" のコードを編集し、
+Vnano.jar を再ビルドしてください。
+
+
+You can connect public methods and fields of the object in host-application-side as external function and variables. 
+For example, see the following part in "Example.java":
+
+ホストアプリケーション側のオブジェクトにおける、public なメソッド/フィールドは、外部関数/外部変数として接続できます。
+例えば、Example.java を見てみると：
+
+		(Example.java)
+
+		// A class which provides a field/method accessed from the script as external functions/variables.
+		// スクリプト内から外部変数・外部関数としてアクセスされるフィールドとメソッドを提供するクラス
+		public class ScriptIO {
+			public int LOOP_MAX = 100;
+			public void output(int value) {
+				System.out.println("Output from script: " + value);
+			}
+		}
+
+		public static void main(String[] args) {
+
+				...
+
+				Field loopMaxField  = ScriptIO.class.getField("LOOP_MAX");
+				Method outputMethod = ScriptIO.class.getMethod("output",int.class);
+				ScriptIO ioInstance = new Example().new ScriptIO();
+
+				engine.put("LOOP_MAX",    new Object[]{ loopMaxField, ioInstance } );
+				engine.put("output(int)", new Object[]{ outputMethod, ioInstance } );
+				
+				...
+
+
+In the above code, we are getting "output" method and "LOOP_MAX" field of ScriptIO class by using reflection, 
+and then connecting them by using the "put" method of the script engine.
+In general, behaviour/values of methods/fields depend on the instance of the class to which they are belong. Therefore, in the above code, we are packing the method/field and an instance of the ScriptIO class by Object[] { ... } and connecting it.
+
+上記のコードでは、まず ScriptIO クラスに属する output メソッドと LOOP_MAX フィールドをリフレクションで取得し、
+そしてスクリプトエンジンの put メソッドを使用して、それらを接続しています。
+一般に、メソッドの振る舞いやフィールドの値は、所属するクラスのインスタンスの状態に依存します。
+従って上では、メソッド/フィールドとScriptIOクラスのインスタンスを、Object[]{ ... } でパックして接続しています。
+
+However, if methods/fields are declared as static (are not depending on the state of the instance), 
+you can connect them more simply.
+Actually, in the above code, "output" method and "LOOP_MAX" field do not depend on 
+the state of the instance of ScriptIO class.
+Therefore, we can append "static" to declarations of them, and connect them more simply as follows:
+
+一方で、メソッドやフィールドが static として宣言されている（インスタンスの状態に依存しない）場合、
+以下のように、より単純に接続できます。
+実際に上の例のコードでは、output メソッドと LOOP_MAX フィールドはインスタンスの状態に依存していないため、
+宣言に static を付加し、以下のように単純に接続する事ができます：
+
+		(Example.java, modified code - 書き換えたコード)
+
+		// A class which provides a field/method accessed from the script as external functions/variables.
+		// スクリプト内から外部変数・外部関数としてアクセスされるフィールドとメソッドを提供するクラス
+		public class ScriptIO {
+			public static int LOOP_MAX = 100;
+			public static void output(int value) {
+				System.out.println("Output from script: " + value);
+			}
+		}
+
+		public static void main(String[] args) {
+
+				...
+
+				Field loopMaxField  = ScriptIO.class.getField("LOOP_MAX");
+				Method outputMethod = ScriptIO.class.getMethod("output",int.class);
+
+				engine.put("LOOP_MAX",    loopMaxField);
+				engine.put("output(int)", outputMethod);
+				
+				...
+
+
+### Developing and Connecting Plug-Ins as External Functions and Variables - プラグインを開発して外部関数や外部変数として接続する
+
+To connect methods/fields as external functions/variables is an easy way, 
+but it has a demerit that they have heavy overhead costs to access from the script code.
+To avoid such overhead costs, you can implement an external function/variable as a plug-in.
+This way is especially appropriate to provide functions which are called from high-speed loops in the script code.
+Interfaces to develop external functions/variables plug-ins are defined as 
+"<a href="https://github.com/RINEARN/vnano/blob/master/src/org/vcssl/connect/ExternalFunctionConnector1.java">org/vcssl/connect/ExternalFunctionConnector1.java (XFCI1)</a>"
+and 
+"<a href="https://github.com/RINEARN/vnano/blob/master/src/org/vcssl/connect/ExternalVariableConnector1.java">org/vcssl/connect/ExternalVariableConnector1.java (XVCI1)</a>".
+Let's implement them:
+
+上で述べた、メソッド/フィールドを外部関数/変数として接続する方法は手軽ですが、
+スクリプト側から使用する際に、処理のオーバーヘッドが大きいというデメリットもあります。
+そのようなオーバーヘッドを避けたい場合は、外部関数/変数をプラグインとして実装する事もできます。
+これは、特にスクリプトコード内で高速に回るループ内などから呼び出される関数を提供する場合に有効です。
+外部関数および外部変数を開発するためのインターフェースは、それぞれ
+"<a href="https://github.com/RINEARN/vnano/blob/master/src/org/vcssl/connect/ExternalFunctionConnector1.java">org/vcssl/connect/ExternalFunctionConnector1.java (XFCI1)</a>"
+および 
+"<a href="https://github.com/RINEARN/vnano/blob/master/src/org/vcssl/connect/ExternalVariableConnector1.java">org/vcssl/connect/ExternalVariableConnector1.java (XVCI1)</a>"
+として定義されています。実際に実装してみましょう：
+
+		(Example.java, modified codde - 書き換えたコード)
+
+	...
+	import org.vcssl.connect.ExternalFunctionConnector1;
+	import org.vcssl.connect.ExternalFunctionException;
+	import org.vcssl.connect.ExternalVariableConnector1;
+	import org.vcssl.connect.ExternalVariableException;
+	import org.vcssl.connect.ExternalPermission;
+
+	public class Example2 {
+
+		// A XFCI1 Plug-In which provides the external function "output(int)".
+		// 外部関数 output(int) を提供するXFCI1形式のプラグイン
+		public class OutputFunction implements ExternalFunctionConnector1 {
+
+			public String getFunctionName() { return "output"; }
+			public boolean hasParameterNames() { return true; }
+			public String[] getParameterNames() { return new String[]{ "value" }; }
+			public Class<?>[] getParameterClasses() { return new Class<?>[]{ int.class }; } 
+			public Class<?> getReturnClass() { return Void.class; }
+			public boolean isVariadic() { return false; }
+			public String[] getNecessaryParmissions() { return new String[]{ ExternalPermission.NONE }; }
+			public String[] getUnnecessaryParmissions() { return new String[]{ ExternalPermission.ALL }; }
+			public void setEngine(Object engineConnector) { }
+			public void initializeForConnection() { }
+			public void finalizeForDisconnection() { }
+			public void initializeForScript() { }
+			public void finalizeForScript() { }
+
+			public boolean isDataConversionNecessary() { return true; }
+
+			public Object invoke(Object[] arguments) throws ExternalFunctionException {
+				int value = (int)(arguments[0]);
+				System.out.print(value);
+				return null;
+			}
+		}
+
+		// A XVCI1 Plug-In which provides the external variable "LOOP_MAX".
+		// 外部変数 LOOP_MAX を提供するXVCI1形式のプラグイン
+		public class LoopMaxVariable implements ExternalVariableConnector1 {
+			
+			private int value = 100;
+
+			public String getVariableName() { return "LOOP_MAX"; }
+			public Class<?> getDataClass() { return int.class; }
+			public boolean isConstant() { return false; }
+			public String[] getNecessaryParmissions() { return new String[]{ ExternalPermission.NONE }; }
+			public String[] getUnnecessaryParmissions() { return new String[]{ ExternalPermission.ALL }; }
+			public void setEngine(Object engineConnector) { }
+			public void initializeForConnection() { }
+			public void finalizeForDisconnection() { }
+			public void initializeForScript() { }
+			public void finalizeForScript() { }
+		
+			public boolean isDataConversionNecessary() { return true; }
+		
+			public Object getData() throws ExternalVariableException {
+				return (Integer)this.value;
+			}
+			public void setData(Object data) throws ExternalVariableException {
+				this.value = (Integer)data;
+			}
+		}
+	
+		public static void main(String[] args) {
+	
+			...	
+
+			// Connect plug-ins to the script engine as an external function/variable.
+			// プラグインを外部関数・変数としてスクリプトエンジンに接続
+			ExternalVariableConnector1 loopMaxVariable = new Example2().new LoopMaxVariable();
+			ExternalFunctionConnector1 outputFunction = new Example2().new OutputFunction();
+			engine.put("LOOP_MAX",    loopMaxVariable);
+			engine.put("output(int)", outputFunction);
+			...
+
+
+The above code is a most simple example to implement XFCI1/XVCI1 plug-ins.
+Overhead costs of accessings to external functions/variables provided by these plug-ins are relatively light, compared with accessing costs to methods/fields.
+
+以上のコードが、XFCI1/XVCI1形式のプラグインを実装する、最も簡単な例です。
+この例で実装したプラグインは、メソッド/フィールドを接続するよりは、いくらかオーバーヘッドの少ない外部関数/外部変数を提供します。
+
+
+
+
 
 ---
 
