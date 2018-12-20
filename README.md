@@ -22,7 +22,6 @@ Vnano (VCSSL nano) は、Java&reg; アプリケーションに組み込んで用
 - <a href="#how-to-use-in-java">How to Use in Java&reg; - Java&reg;言語での使用方法</a>
 - <a href="#how-to-use-in-kotlin">How to Use in Kotlin&reg; - Kotlin&reg;での使用方法</a>
 - <a href="#how-to-use-in-command">How to Use in Command Line - コマンドラインでの使用方法</a>
-- <a href="#how-to-connect">How to Connect External Functions and Variables - 外部関数や外部変数の接続方法</a>
 - <a href="#performances">Performances - 演算速度</a>
 - <a href="#architecture">Architecture - アーキテクチャ</a>
 - <a href="#language">The Vnano as a Language - 言語としての Vnano</a>
@@ -1501,7 +1500,6 @@ Let's implement them:
 		// A XFCI1 Plug-In which provides the external function "output(int)".
 		// 外部関数 output(int) を提供するXFCI1形式のプラグイン
 		public class OutputFunction implements ExternalFunctionConnector1 {
-
 			public String getFunctionName() { return "output"; }
 			public boolean hasParameterNames() { return true; }
 			public String[] getParameterNames() { return new String[]{ "value" }; }
@@ -1528,7 +1526,6 @@ Let's implement them:
 		// A XVCI1 Plug-In which provides the external variable "LOOP_MAX".
 		// 外部変数 LOOP_MAX を提供するXVCI1形式のプラグイン
 		public class LoopMaxVariable implements ExternalVariableConnector1 {
-			
 			private int value = 100;
 
 			public String getVariableName() { return "LOOP_MAX"; }
