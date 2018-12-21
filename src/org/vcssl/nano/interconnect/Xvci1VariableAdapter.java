@@ -88,18 +88,31 @@ public class Xvci1VariableAdapter extends AbstractVariable {
 	@Override
 	public DataContainer<?> getDataContainer() {
 
-		Object data = null;
-		try {
-			data = this.xvciPlugin.getData();
-		} catch (ExternalVariableException e) {
-			// 例外
-		}
+		// 自動のデータ型変換が有効な場合
+		if (this.xvciPlugin.isDataConversionNecessary()) {
 
-		try {
-			return this.dataConverter.convertToDataContainer(data);
-		} catch (VnanoException e) {
-			// 暫定的な簡易例外処理
-			throw new VnanoFatalException(e);
+			Object data = null;
+			try {
+				data = this.xvciPlugin.getData();
+			} catch (ExternalVariableException e) {
+				throw new VnanoFatalException(e);
+			}
+
+			try {
+				return this.dataConverter.convertToDataContainer(data);
+			} catch (VnanoException e) {
+				throw new VnanoFatalException(e);
+			}
+
+		// 自動のデータ型変換が無効な場合
+		} else {
+			DataContainer<?> dataContainer = new DataContainer<>();
+			try {
+				this.xvciPlugin.getData(dataContainer);
+				return dataContainer;
+			} catch (ExternalVariableException e) {
+				throw new VnanoFatalException(e);
+			}
 		}
 	}
 
@@ -111,19 +124,30 @@ public class Xvci1VariableAdapter extends AbstractVariable {
 	 */
 	@Override
 	public void setDataContainer(DataContainer<?> dataContainer) {
-		Object data = null;
-		try {
-			data = this.dataConverter.convertToExternalObject(dataContainer);
-		} catch (VnanoException e) {
-			// 暫定的な簡易例外処理
-			throw new VnanoFatalException(e);
-		}
 
-		try {
-			this.xvciPlugin.setData(data);
-		} catch (ExternalVariableException e) {
-			// 暫定的な簡易例外処理
-			throw new VnanoFatalException(e);
+		// 自動のデータ型変換が有効な場合
+		if (this.xvciPlugin.isDataConversionNecessary()) {
+
+			Object data = null;
+			try {
+				data = this.dataConverter.convertToExternalObject(dataContainer);
+			} catch (VnanoException e) {
+				throw new VnanoFatalException(e);
+			}
+
+			try {
+				this.xvciPlugin.setData(data);
+			} catch (ExternalVariableException e) {
+				throw new VnanoFatalException(e);
+			}
+
+		// 自動のデータ型変換が無効な場合
+		}else {
+			try {
+				this.xvciPlugin.setData(dataContainer);
+			} catch (ExternalVariableException e) {
+				throw new VnanoFatalException(e);
+			}
 		}
 	}
 
