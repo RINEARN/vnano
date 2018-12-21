@@ -81,9 +81,9 @@ public class Xvci1VariableAdapter extends AbstractVariable {
 
 
 	/**
-	 * 変数のデータを保持するデータユニットを取得します。
+	 * 変数のデータを保持するデータコンテナを取得します。
 	 *
-	 * @return 変数のデータユニット
+	 * @return 変数のデータコンテナ
 	 */
 	@Override
 	public DataContainer<?> getDataContainer() {
@@ -105,15 +105,15 @@ public class Xvci1VariableAdapter extends AbstractVariable {
 
 
 	/**
-	 * 変数のデータを保持するデータユニットを設定します。
+	 * 変数のデータを保持するデータコンテナを設定します。
 	 *
-	 * @param dataUnit 変数のデータユニット
+	 * @param dataContainer 変数のデータコンテナ
 	 */
 	@Override
-	public void setDataContainer(DataContainer<?> dataUnit) {
+	public void setDataContainer(DataContainer<?> dataContainer) {
 		Object data = null;
 		try {
-			data = this.dataConverter.convertToExternalObject(dataUnit);
+			data = this.dataConverter.convertToExternalObject(dataContainer);
 		} catch (VnanoException e) {
 			// 暫定的な簡易例外処理
 			throw new VnanoFatalException(e);

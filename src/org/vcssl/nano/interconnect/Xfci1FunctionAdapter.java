@@ -159,18 +159,18 @@ public class Xfci1FunctionAdapter extends AbstractFunction {
 	/**
 	 * 関数を実行します。
 	 *
-	 * @param argumentDataUnits 実引数のデータを保持するデータユニットの配列（各要素が個々の実引数に対応）
-	 * @param returnDataUnit 戻り値のデータを格納するデータユニット
+	 * @param argumentDataContainers 実引数のデータを保持するデータコンテナの配列（各要素が個々の実引数に対応）
+	 * @param returnDataContainer 戻り値のデータを格納するデータコンテナ
 	 */
-	public void invoke(DataContainer<?>[] argumentDataUnits, DataContainer<?> returnDataUnit) {
+	public void invoke(DataContainer<?>[] argumentDataContainers, DataContainer<?> returnDataContainer) {
 
-		int argLength = argumentDataUnits.length;
+		int argLength = argumentDataContainers.length;
 		Object[] convertedArgs = new Object[argLength];
 
 		for (int argIndex=0; argIndex<argLength; argIndex++) {
 			if (!this.parameterDataTypes[argIndex].equals(DataType.VOID)) {
 				try {
-					convertedArgs[argIndex] = this.parameterDataConverters[argIndex].convertToExternalObject(argumentDataUnits[argIndex]);
+					convertedArgs[argIndex] = this.parameterDataConverters[argIndex].convertToExternalObject(argumentDataContainers[argIndex]);
 				} catch (VnanoException e) {
 					// 暫定的な簡易例外処理
 					throw new VnanoFatalException(e);
@@ -187,7 +187,7 @@ public class Xfci1FunctionAdapter extends AbstractFunction {
 
 		if (!this.returnDataType.equals(DataType.VOID)) {
 			try {
-				this.returnDataConverter.convertToDataContainer(returnObject, returnDataUnit);
+				this.returnDataConverter.convertToDataContainer(returnObject, returnDataContainer);
 			} catch (VnanoException e) {
 				throw new VnanoFatalException(e);
 			}
