@@ -1538,12 +1538,17 @@ Let's implement them:
 			public void finalizeForDisconnection() { }
 			public void initializeForScript() { }
 			public void finalizeForScript() { }
-		
+
 			public boolean isDataConversionNecessary() { return true; }
 		
 			public Object getData() throws ExternalVariableException {
 				return (Integer)this.value;
 			}
+
+			public Object getData(Object dataContainer) throws ExternalVariableException {
+				// This method is for the case of the data conversion is disabled.
+			}
+
 			public void setData(Object data) throws ExternalVariableException {
 				this.value = (Integer)data;
 			}
@@ -1570,6 +1575,166 @@ Overhead costs of accessings to external functions/variables provided by these p
 
 
 
+However, these implementations have still heavy overhead costs for the automatic data-type conversions 
+(we enabled it in the above example code for simplicity)
+between the host-application side and the script-side.
+To reduce overhead costs of these plug-ins as far as possible, 
+you can disable the automatic data-type conversions, 
+although in such case it is necessary to handle data container objects of the script engine directly.
+This way requires you to grasp how the script engine store data in the conteiner object.
+In addition, it deeply depends on the implementation of the script engine so it may vary in the future. 
+The source code of the data container class used in the script engine of the Vnano is "<a href="https://github.com/RINEARN/vnano/blob/master/src/org/vcssl/nano/vm/memory/DataContainer.java">src/org/vcssl/nano/vm/memory/DataContainer.java</a>", 
+and this class is an implementation of a interface defined as "<a href="https://github.com/RINEARN/vnano/blob/master/src/org/vcssl/connect/ArrayDataContainer1.java">src/org/vcssl/connect/ArrayDataContainer1.java (ADCI1)</a>".
+You can handle data container objects through APIs defined as this interface, 
+to reduce dependency on the implementation of the script engine as much as possible.
+The following is an example code:
+
+一方で上の例の実装では、ホストアプリケーション側とスクリプト側の境界で、
+自動でデータ型の変換を行う機能を有効にしているため、そこでまだ比較的大きなオーバーヘッドが発生します。
+オーバーヘッドを可能な限り削りたい場合のために、上で述べた自動でのデータ型変換機能を無効にする事もできます。
+ただしその場合、スクリプトエンジン内部で使用しているデータコンテナのオブジェクトを、プラグイン側でも直接操作する必要があります。そのため、スクリプトエンジンがどのようにデータを保持して格納しているかについて、ある程度把握する必要があります。加えて、その内容は将来的なスクリプトエンジンの実装次第で変化するかもしれません。
+Vnanoのスクリプトエンジン内部でデータを格納するコンテナのソースコードは
+<a href="https://github.com/RINEARN/vnano/blob/master/src/org/vcssl/nano/vm/memory/DataContainer.java">src/org/vcssl/nano/vm/memory/DataContainer.java</a>
+ですが、処理系に対するプラグインの依存度をできるだけ軽減するため、
+このクラスは
+<a href="https://github.com/RINEARN/vnano/blob/master/src/org/vcssl/connect/ArrayDataContainer1.java">src/org/vcssl/connect/ArrayDataContainer1.java (ADCI1)</a> 
+として定義されるインターフェースを実装しています。
+従ってプラグイン側では、このインターフェースのメソッドを通してデータコンテナを操作します。
+実際のコードの例は以下の通りです：
+
+
+		(Example.java, modified codde - 書き換えたコード)
+
+	...
+	import org.vcssl.connect.ExternalFunctionConnector1;
+	import org.vcssl.connect.ExternalFunctionException;
+	import org.vcssl.connect.ExternalVariableConnector1;
+	import org.vcssl.connect.ExternalVariableException;
+	import org.vcssl.connect.ExternalPermission;
+	import org.vcssl.connect.ArrayDataContainer1;
+
+	public class Example2 {
+
+		// A XFCI1 Plug-In which provides the external function "output(int)".
+		// 外部関数 output(int) を提供するXFCI1形式のプラグイン
+		public class OutputFunction implements ExternalFunctionConnector1 {
+			public String getFunctionName() { return "output"; }
+			public boolean hasParameterNames() { return true; }
+			public String[] getParameterNames() { return new String[]{ "value" }; }
+			public Class<?>[] getParameterClasses() { return new Class<?>[]{ int.class }; } 
+			public Class<?> getReturnClass() { return Void.class; }
+			public boolean isVariadic() { return false; }
+			public String[] getNecessaryParmissions() { return new String[]{ ExternalPermission.NONE }; }
+			public String[] getUnnecessaryParmissions() { return new String[]{ ExternalPermission.ALL }; }
+			public void setEngine(Object engineConnector) { }
+			public void initializeForConnection() { }
+			public void finalizeForDisconnection() { }
+			public void initializeForScript() { }
+			public void finalizeForScript() { }
+
+			public boolean isDataConversionNecessary() { return false; }
+		
+			public Object invoke(Object[] arguments) throws ExternalFunctionException {
+				
+				// check the type of the data container.
+				// データコンテナの型を確認
+				if (!(arguments instanceof ArrayDataContainer1[])) {
+					throw new ExternalFunctionException("The type of the data container is not supported by this plug-in.");
+				}
+
+				// When the data conversion is disabled,
+				// the element [0] is to contain the return value, so the element [1] is the first argument.
+				// データ変換が無効化されている場合、[0]番要素は戻り値格納用なので、[1]番要素が最初の引数
+				@SuppressWarnings("unchecked")
+				ArrayDataContainer1<long[]> outputArgContainer = (ArrayDataContainer1<long[]>)( arguments[1] );
+				long[] outputArgData = outputArgContainer.getData();
+
+				// print the value of the argument (behaviour of the output function).
+				// 引数の内容を表示（output関数の動作）
+				System.out.print(outputArgData[ outputArgContainer.getOffset() ]);
+
+				return null;
+			}
+		}
+
+		// A XVCI1 Plug-In which provides the external variable "LOOP_MAX".
+		// 外部変数 LOOP_MAX を提供するXVCI1形式のプラグイン
+		public class LoopMaxVariable implements ExternalVariableConnector1 {
+			private int value = 100;
+
+			public String getVariableName() { return "LOOP_MAX"; }
+			public Class<?> getDataClass() { return int.class; }
+			public boolean isConstant() { return false; }
+			public String[] getNecessaryParmissions() { return new String[]{ ExternalPermission.NONE }; }
+			public String[] getUnnecessaryParmissions() { return new String[]{ ExternalPermission.ALL }; }
+			public void setEngine(Object engineConnector) { }
+			public void initializeForConnection() { }
+			public void finalizeForDisconnection() { }
+			public void initializeForScript() { }
+			public void finalizeForScript() { }
+
+			public boolean isDataConversionNecessary() { return false; }
+
+			public Object getData() throws ExternalVariableException {
+				// This method is for the case of the data conversion is enabled.
+				return null;
+			}
+
+			public void getData(Object dataContainer) throws ExternalVariableException {
+				
+				// check the type of the data container.
+				// データコンテナの型を確認
+				if (!(dataContainer instanceof ArrayDataContainer1)) {
+					throw new ExternalVariableException("The type of the data container is not supported by this plug-in.");
+				}
+				@SuppressWarnings("unchecked")
+				ArrayDataContainer1<long[]> adci1Container = (ArrayDataContainer1<long[]>)dataContainer;
+
+				// store data to return it.
+				// 戻り値用コンテナにデータを格納する
+				adci1Container.setData(this.data);
+				adci1Container.setLengths(this.dataLengths);
+			}
+		
+			public void setData(Object dataContainer) throws ExternalVariableException {
+				
+				// check the type of the data container.
+				// データコンテナの型を確認
+				if (!(dataContainer instanceof ArrayDataContainer1)) {
+					throw new ExternalVariableException("The type of the data container is not supported by this plug-in.");
+				}
+				ArrayDataContainer1 adci1Container = (ArrayDataContainer1)dataContainer;
+				Object targetData = adci1Container.getData();
+			
+				// check the data-type of data contained in the data container.
+				// データコンテナに格納されているデータの型を確認
+				if (targetData == null || !(targetData instanceof long[])) {
+					throw new ExternalVariableException("The data-type contained in the data container is not compatible for this plug-in.");
+				}
+			
+				// set data to the field of this instance.
+				// このインスタンスのフィールドにデータをセットする
+				long[] longTargetData = (long[])targetData;
+				this.data[0] = longTargetData[ adci1Container.getOffset() ];
+			}
+		}
+	
+		public static void main(String[] args) {
+	
+			...	
+
+			// Connect plug-ins to the script engine as an external function/variable.
+			// プラグインを外部関数・変数としてスクリプトエンジンに接続
+			ExternalVariableConnector1 loopMaxVariable = new Example2().new LoopMaxVariable();
+			ExternalFunctionConnector1 outputFunction = new Example2().new OutputFunction();
+			engine.put("LOOP_MAX",    loopMaxVariable);
+			engine.put("output(int)", outputFunction);
+			...
+
+
+Implementation of these plug-ins are little complicated, but overhead costs of accessings to external functions/variables provided by them are light as far as possible.
+
+この例で実装したプラグインは、コード内容は少し複雑ですが、その代わりとして、可能な限りオーバーヘッドの少ない外部関数/外部変数を提供するものになっています。
 
 
 ---

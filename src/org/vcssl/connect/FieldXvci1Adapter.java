@@ -221,8 +221,6 @@ public class FieldXvci1Adapter implements ExternalVariableConnector1 {
 
 	/**
 	 * 変数のデータを取得します。
-	 *
-	 * @return 変数のデータ
 	 */
 	public Object getData() throws ExternalVariableException {
 		try {
@@ -243,6 +241,16 @@ public class FieldXvci1Adapter implements ExternalVariableConnector1 {
 					illegalAccessException
 			);
 		}
+	}
+
+
+	/**
+	 * データの自動変換が無効化されている場合において、変数のデータを取得します。
+	 * このアダプタでは、この機能は使用されません。
+	 *
+	 * @return 変数のデータ
+	 */
+	public void getData(Object dataContainer) throws ExternalVariableException {
 	}
 
 
