@@ -186,6 +186,10 @@ public interface ExternalVariableConnector1 {
 	/**
 	 * 変数のデータを取得します。
 	 *
+	 * このメソッドは、データの自動変換が有効である場合、
+	 * つまり {@link ExternalVariableConnector1#isDataConversionNecessary()} メソッドが
+	 * true を返すよう実装されている場合に使用されます。
+	 *
 	 * @return 変数のデータ
 	 * @throws ExternalVariableException
 	 * 		何らかの問題により、データへのアクセスが行えない場合にスローします。
@@ -194,7 +198,30 @@ public interface ExternalVariableConnector1 {
 
 
 	/**
+	 * 変数のデータを取得します。
+	 *
+	 * このメソッドは、データの自動変換が無効である場合、
+	 * つまり {@link ExternalVariableConnector1#isDataConversionNecessary()} メソッドが
+	 * false を返すよう実装されている場合に使用されます。
+	 *
+	 * データは、戻り値として返す代わりに、
+	 * 引数に渡される処理系依存のデータコンテナオブジェクトに格納してください。
+	 *
+	 * @param dataContainer データを格納する、処理系依存のデータコンテナオブジェクト
+	 * @throws ExternalVariableException
+	 * 		何らかの問題により、データへのアクセスが行えない場合にスローします。
+	 */
+	public abstract void getData(Object dataContainer) throws ExternalVariableException;
+
+
+	/**
 	 * 変数のデータを設定します。
+	 *
+	 * データの自動変換が有効である場合、
+	 * つまり {@link ExternalVariableConnector1#isDataConversionNecessary()} メソッドが
+	 * true を返すよう実装されている場合には、引数には適切に型変換されたデータが渡されます。
+	 *
+	 * データの自動変換が無効である場合には、引数には処理系依存のデータコンテナオブジェクトが渡されます。
 	 *
 	 * @param data 変数のデータ
 	 * @throws ExternalVariableException
