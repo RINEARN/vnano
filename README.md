@@ -44,6 +44,7 @@ Vnano (<a href="https://www.vcssl.org/">VCSSL</a> nano) は、Java&reg; アプ�
     - <a href="#language-external-connect-methods-and-fields">Connecting Methods and Fields as External Functions and Variables - メソッドやフィールドを外部関数や外部変数として接続する</a>
     - <a href="#language-external-connect-plug-ins">Developing and Connecting Plug-Ins as External Functions and Variables - プラグインを開発して外部関数や外部変数として接続する</a>
 	- <a href="#language-external-correspondence-of-data-types">The correspondence of the the data type between the Vnano and the data container - Vnano内とデータコンテナ内でのデータ型の対応関係</a>
+- <a href="#about-us">About Us - 開発元について</a>
 
 
 
@@ -1829,7 +1830,30 @@ where the symbol "=" means the mathematical equal, not the assignment operator.
 
 ここで「 = 」は代入演算子ではなく、数学的な等号の意味で用いています。
 
+
+<a id="about-us"></a>
+## About Us - 開発元について
+
+<div style="background-color:white; width: 890px; height: 356px; text-align:center; background-image: url('./rinearn.jpg'); background-repeat: no-repeat; background-size: contain;">
+  <img src="https://github.com/RINEARN/vnano/blob/master/rinearn.jpg" alt="" width="890" />
+</div>
+
+The vnano is developed by <a href="https://www.rinearn.com/">RINEARN</a> 
+which is a personal studio in Japan developing software for data-analysis, visualization, computation, and so on.
+Please feel free to contact us if you have any question about the Vnano, or you are interested in the Vnano.
+
+Vnanoは、日本の開発スタジオである <a href="https://www.rinearn.com/">RINEARN</a> が開発しています。
+RINEARNでは、主にデータ解析や可視化、計算向けのソフトウェアを開発しています。
+Vnanoに関するご質問や、Vnanoにご興味をお持ちの場合は、ご気軽にお問い合せください。
+
+### Our website - ウェブサイト
+
+- <a href="https://www.rinearn.com/">https://www.rinearn.com/</a>
+
+
 ---
+
+## Credits - 本文中の商標など
 
 - Oracle and Java are registered trademarks of Oracle and/or its affiliates. 
 
