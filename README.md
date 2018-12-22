@@ -42,7 +42,8 @@ Vnano (VCSSL nano) は、Java&reg; アプリケーションに組み込んで用
     - <a href="#language-external-functions">External functions - 外部関数</a>
     - <a href="#language-external-variables">External variables - 外部変数</a>
     - <a href="#language-external-connect-methods-and-fields">Connecting Methods and Fields as External Functions and Variables - メソッドやフィールドを外部関数や外部変数として接続する</a>
-    - <a href="#language-external-connect-xfci1-and-xvci1">Developing and Connecting Plug-Ins as External Functions and Variables - プラグインを開発して外部関数や外部変数として接続する</a>
+    - <a href="#language-external-connect-plug-ins">Developing and Connecting Plug-Ins as External Functions and Variables - プラグインを開発して外部関数や外部変数として接続する</a>
+	- <a href="#language-external-correspondence-of-data-types">The correspondence of the the data type between the Vnano and the data container - Vnano内とデータコンテナ内でのデータ型の対応関係</a>
 
 
 
@@ -1464,6 +1465,7 @@ Therefore, we can append "static" to declarations of them, and connect them more
 				...
 
 
+<a id="language-external-connect-plug-ins"></a>
 ### Developing and Connecting Plug-Ins as External Functions and Variables - プラグインを開発して外部関数や外部変数として接続する
 
 !!! CAUTION: Specifications of plug-in interfaces we use in this section are not fixed yet,
@@ -1728,7 +1730,7 @@ Vnanoのスクリプトエンジン内部でデータを格納するコンテナ
 				// データコンテナに格納されているデータの型を確認
 				if (targetData == null || !(targetData instanceof long[])) {
 					throw new ExternalVariableException(
-						"The data-type contained in the data container is not compatible for this plug-in."
+						"The data-type is not compatible for this plug-in."
 					);
 				}
 			
@@ -1780,10 +1782,13 @@ in the plug-in implementations of XFCI1, as the above example code.
 非常に効果的となるケースも現実的に考えられます。
 
 
+<a id="language-external-correspondence-of-data-types"></a>
+### The correspondence of the the data type between the Vnano and the data container - Vnano内とデータコンテナ内でのデータ型の対応関係
+
 The correspondence table between data types in the Vnano script code and 
 data types in data containers are as follows:
 
-なお、Vnanoのスクリプト内でのデータ型と、上記で扱ったデータコンテナ内でのデータ型の対応関係は、以下の表の通りです：
+Vnanoのスクリプト内でのデータ型と、上記で扱ったデータコンテナ内でのデータ型の対応関係は、以下の表の通りです：
 
 | The Data Type in the Vnano | The Data Type in the Data Container (Java&reg;) |
 | --- | --- |
