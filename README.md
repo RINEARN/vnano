@@ -549,6 +549,11 @@ The (abbreviated) result is :
 		3	MOV	INT64		L1	C3	C2
 		4	ALLOC	INT64		L2	C4
 		5	MOV	INT64		L2	C5	C4
+		6	NOP	VOID		C4
+		7	ALLOC	BOOL		R0	C4
+		8	LEQ	INT64		R0	L2	L1	C4
+		9	JMPN	BOOL		R0	C6	C4
+		10	ADD	INT64		L0	L0	L2	C7
 	...
 
 Sometimes the above content might be too long 
