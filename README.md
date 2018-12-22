@@ -1813,7 +1813,7 @@ Vnanoのスクリプト内でのデータ型と、上記で扱ったデータコ
 | string[ N ] | String[ N ] |
 | int[ N1 ][ N2 ] | long[ N1 * N2 ] |
 | float[ N1 ][ N2 ] | doube[ N1 * N2 ] |
-| bool[ N2 ][ N2 ] | boolean[ N1 * N2 ] |
+| bool[ N1 ][ N2 ] | boolean[ N1 * N2 ] |
 | string[ N1 ][ N2 ] | String[ N1 * N2 ] |
 | int[ N1 ][ N2 ][ N3 ] | long[ N1 * N2 * N3 ] |
 | float[ N1 ][ N2 ][ N3 ] | double[ N1 * N2 * N3 ] |
