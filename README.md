@@ -1389,10 +1389,10 @@ and then re-build "Vnano.jar".
 Vnano.jar を再ビルドしてください。
 
 
-You can connect public methods and fields of the object in host-application-side as external function and variables. 
+You can connect public methods and fields of the object in host-application-side as external function and variables by using reflection API. 
 For example, see the following part in "Example.java":
 
-ホストアプリケーション側のオブジェクトにおける、public なメソッド/フィールドは、外部関数/外部変数として接続できます。
+ホストアプリケーション側のオブジェクトにおける、public なメソッド/フィールドは、リフレクションAPIを介して外部関数/外部変数として接続できます。
 例えば、Example.java を見てみると：
 
 		(Example.java)
@@ -1466,7 +1466,14 @@ Therefore, we can append "static" to declarations of them, and connect them more
 
 ### Developing and Connecting Plug-Ins as External Functions and Variables - プラグインを開発して外部関数や外部変数として接続する
 
+!!! CAUTION: Specifications of plug-in interfaces we use in this section are not fixed yet,
+so they may change before the release of Ver.1.0.0 of the Vnano.  !!!
+
+!!! 注意: このセクションで扱うプラグインインターフェースの仕様はまだ完全には確定していないため、
+Vnano の Ver.1.0.0 のリリースまでは細部が変更される可能性があります。 !!!
+
 To connect methods/fields as external functions/variables is an easy way, 
+however, 
 but it has a demerit that they have heavy overhead costs to access from the script code.
 To avoid such overhead costs, you can implement an external function/variable as a plug-in.
 This way is especially appropriate to provide functions which are called from high-speed loops in the script code.
@@ -1476,7 +1483,7 @@ and
 "<a href="https://github.com/RINEARN/vnano/blob/master/src/org/vcssl/connect/ExternalVariableConnector1.java">org/vcssl/connect/ExternalVariableConnector1.java (XVCI1)</a>".
 Let's implement them:
 
-上で述べた、メソッド/フィールドを外部関数/変数として接続する方法は手軽ですが、
+上で述べた、リフレクションAPIを介してメソッド/フィールドを外部関数/変数として接続する方法は手軽ですが、
 スクリプト側から使用する際に、処理のオーバーヘッドが大きいというデメリットもあります。
 そのようなオーバーヘッドを避けたい場合は、外部関数/変数をプラグインとして実装する事もできます。
 これは、特にスクリプトコード内で高速に回るループ内などから呼び出される関数を提供する場合に有効です。
@@ -1639,14 +1646,16 @@ Vnanoのスクリプトエンジン内部でデータを格納するコンテナ
 				// check the type of the data container.
 				// データコンテナの型を確認
 				if (!(arguments instanceof ArrayDataContainer1[])) {
-					throw new ExternalFunctionException("The type of the data container is not supported by this plug-in.");
+					throw new ExternalFunctionException(
+						"The type of the data container is not supported by this plug-in."
+					);
 				}
 
 				// When the data conversion is disabled,
 				// the element [0] is to contain the return value, so the element [1] is the first argument.
 				// データ変換が無効化されている場合、[0]番要素は戻り値格納用なので、[1]番要素が最初の引数
 				@SuppressWarnings("unchecked")
-				ArrayDataContainer1<long[]> outputArgContainer = (ArrayDataContainer1<long[]>)( arguments[1] );
+				ArrayDataContainer1<long[]> outputArgContainer = (ArrayDataContainer1<long[]>)(arguments[1]);
 				long[] outputArgData = outputArgContainer.getData();
 
 				// print the value of the argument (behaviour of the output function).
@@ -1660,8 +1669,9 @@ Vnanoのスクリプトエンジン内部でデータを格納するコンテナ
 		// A XVCI1 Plug-In which provides the external variable "LOOP_MAX".
 		// 外部変数 LOOP_MAX を提供するXVCI1形式のプラグイン
 		public class LoopMaxVariable implements ExternalVariableConnector1 {
-			private int value = 100;
-
+			private long[] data = new long[]{ 100l };
+			int[] dataLengths = new int[]{ 1 };
+		
 			public String getVariableName() { return "LOOP_MAX"; }
 			public Class<?> getDataClass() { return int.class; }
 			public boolean isConstant() { return false; }
@@ -1685,7 +1695,9 @@ Vnanoのスクリプトエンジン内部でデータを格納するコンテナ
 				// check the type of the data container.
 				// データコンテナの型を確認
 				if (!(dataContainer instanceof ArrayDataContainer1)) {
-					throw new ExternalVariableException("The type of the data container is not supported by this plug-in.");
+					throw new ExternalVariableException(
+						"The type of the data container is not supported by this plug-in."
+					);
 				}
 				@SuppressWarnings("unchecked")
 				ArrayDataContainer1<long[]> adci1Container = (ArrayDataContainer1<long[]>)dataContainer;
@@ -1701,7 +1713,9 @@ Vnanoのスクリプトエンジン内部でデータを格納するコンテナ
 				// check the type of the data container.
 				// データコンテナの型を確認
 				if (!(dataContainer instanceof ArrayDataContainer1)) {
-					throw new ExternalVariableException("The type of the data container is not supported by this plug-in.");
+					throw new ExternalVariableException(
+						"The type of the data container is not supported by this plug-in."
+					);
 				}
 				ArrayDataContainer1 adci1Container = (ArrayDataContainer1)dataContainer;
 				Object targetData = adci1Container.getData();
@@ -1709,7 +1723,9 @@ Vnanoのスクリプトエンジン内部でデータを格納するコンテナ
 				// check the data-type of data contained in the data container.
 				// データコンテナに格納されているデータの型を確認
 				if (targetData == null || !(targetData instanceof long[])) {
-					throw new ExternalVariableException("The data-type contained in the data container is not compatible for this plug-in.");
+					throw new ExternalVariableException(
+						"The data-type contained in the data container is not compatible for this plug-in."
+					);
 				}
 			
 				// set data to the field of this instance.
