@@ -1728,7 +1728,7 @@ Vnanoのスクリプトエンジン内部でデータを格納するコンテナ
 				// データコンテナに格納されているデータの型を確認
 				if (targetData == null || !(targetData instanceof long[])) {
 					throw new ExternalVariableException(
-						"The data-type contained in the data container is not compatible for this plug-in."
+						"The data-type is not compatible for this plug-in."
 					);
 				}
 			
