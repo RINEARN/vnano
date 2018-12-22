@@ -1266,7 +1266,7 @@ and compound arithmetic assignment operators (*=, /=, %=, +=, -=) are decided by
 
 算術演算子（\*, /, %, +, -）および算術複合代入演算子（*=, /=, %=, +=, -=）における値の型（演算された値のデータ型）は、以下の表の通りに決定されます：
 
-| Operand type A - オペランドAの型 | Operand type B - オペランドBの型 | Value type - 値の型 |
+| Operand Type A - オペランドAの型 | Operand Type B - オペランドBの型 | Value Type - 値の型 |
 | --- | --- | --- |
 | int | int | int |
 | int | float | float |
@@ -1350,7 +1350,7 @@ DOES NOT affect to values of them in the Vnano script code.
 The script engine of the Vnano loads values of all external variables to the virtual memory 
 at the beginning of the execution of the script code, 
 and write back values from the virtual memory to all external variables at the end of the execution.
-Values of external variables will be synchronized between the host-application-side and script-side only when these two moment.
+Values of external variables will be synchronized between the host-application-side and script-side only when these two moments.
 The aim of this specification is: 
 it gives the big advantage for speeding up processings, 
 that excluding changings of values on the virtual memory caused by operations from the outside of the script engine.
@@ -1389,10 +1389,10 @@ and then re-build "Vnano.jar".
 Vnano.jar を再ビルドしてください。
 
 
-You can connect public methods and fields of the object in host-application-side as external function and variables. 
+You can connect public methods and fields of the object in host-application-side as external function and variables by using reflection API. 
 For example, see the following part in "Example.java":
 
-ホストアプリケーション側のオブジェクトにおける、public なメソッド/フィールドは、外部関数/外部変数として接続できます。
+ホストアプリケーション側のオブジェクトにおける、public なメソッド/フィールドは、リフレクションAPIを介して外部関数/外部変数として接続できます。
 例えば、Example.java を見てみると：
 
 		(Example.java)
@@ -1466,7 +1466,14 @@ Therefore, we can append "static" to declarations of them, and connect them more
 
 ### Developing and Connecting Plug-Ins as External Functions and Variables - プラグインを開発して外部関数や外部変数として接続する
 
+!!! CAUTION: Specifications of plug-in interfaces we use in this section are not fixed yet,
+so they may change before the release of Ver.1.0.0 of the Vnano.  !!!
+
+!!! 注意: このセクションで扱うプラグインインターフェースの仕様はまだ完全には確定していないため、
+Vnano の Ver.1.0.0 のリリースまでは細部が変更される可能性があります。 !!!
+
 To connect methods/fields as external functions/variables is an easy way, 
+however, 
 but it has a demerit that they have heavy overhead costs to access from the script code.
 To avoid such overhead costs, you can implement an external function/variable as a plug-in.
 This way is especially appropriate to provide functions which are called from high-speed loops in the script code.
@@ -1476,7 +1483,7 @@ and
 "<a href="https://github.com/RINEARN/vnano/blob/master/src/org/vcssl/connect/ExternalVariableConnector1.java">org/vcssl/connect/ExternalVariableConnector1.java (XVCI1)</a>".
 Let's implement them:
 
-上で述べた、メソッド/フィールドを外部関数/変数として接続する方法は手軽ですが、
+上で述べた、リフレクションAPIを介してメソッド/フィールドを外部関数/変数として接続する方法は手軽ですが、
 スクリプト側から使用する際に、処理のオーバーヘッドが大きいというデメリットもあります。
 そのようなオーバーヘッドを避けたい場合は、外部関数/変数をプラグインとして実装する事もできます。
 これは、特にスクリプトコード内で高速に回るループ内などから呼び出される関数を提供する場合に有効です。
@@ -1495,7 +1502,7 @@ Let's implement them:
 	import org.vcssl.connect.ExternalVariableException;
 	import org.vcssl.connect.ExternalPermission;
 
-	public class Example2 {
+	public class Example {
 
 		// A XFCI1 Plug-In which provides the external function "output(int)".
 		// 外部関数 output(int) を提供するXFCI1形式のプラグイン
@@ -1569,30 +1576,34 @@ Let's implement them:
 
 The above code is a most simple example to implement XFCI1/XVCI1 plug-ins.
 Overhead costs of accessings to external functions/variables provided by these plug-ins are relatively light, compared with accessing costs to methods/fields.
-
-以上のコードが、XFCI1/XVCI1形式のプラグインを実装する、最も簡単な例です。
-この例で実装したプラグインは、メソッド/フィールドを接続するよりは、いくらかオーバーヘッドの少ない外部関数/外部変数を提供します。
-
-
-
 However, these implementations have still heavy overhead costs for the automatic data-type conversions 
 (we enabled it in the above example code for simplicity)
 between the host-application side and the script-side.
 To reduce overhead costs of these plug-ins as far as possible, 
 you can disable the automatic data-type conversions, 
 although in such case it is necessary to handle data container objects of the script engine directly.
-This way requires you to grasp how the script engine store data in the conteiner object.
-In addition, it deeply depends on the implementation of the script engine so it may vary in the future. 
+
+以上のコードが、XFCI1/XVCI1形式のプラグインを実装する、最も簡単な例です。
+この例で実装したプラグインは、メソッド/フィールドを接続するよりは、いくらかオーバーヘッドの少ない外部関数/外部変数を提供します。
+一方で上の例の実装では、ホストアプリケーション側とスクリプト側の境界で、
+自動でデータ型の変換を行う機能を有効にしているため、そこでまだ比較的大きなオーバーヘッドが発生します。
+オーバーヘッドを可能な限り削りたい場合のために、上で述べた自動でのデータ型変換機能を無効にする事もできます。
+ただしその場合、スクリプトエンジン内部で使用しているデータコンテナのオブジェクトを、プラグイン側でも直接操作する必要があります。
+
+Therefore, to disable the automatic data-type conversions, 
+it is required that you grasp how the script engine store data in the container object.
+In addition, please note that it deeply depends on the implementation of the script engine 
+so it may vary in the future. 
 The source code of the data container class used in the script engine of the Vnano is "<a href="https://github.com/RINEARN/vnano/blob/master/src/org/vcssl/nano/vm/memory/DataContainer.java">src/org/vcssl/nano/vm/memory/DataContainer.java</a>", 
 and this class is an implementation of a interface defined as "<a href="https://github.com/RINEARN/vnano/blob/master/src/org/vcssl/connect/ArrayDataContainer1.java">src/org/vcssl/connect/ArrayDataContainer1.java (ADCI1)</a>".
 You can handle data container objects through APIs defined as this interface, 
 to reduce dependency on the implementation of the script engine as much as possible.
 The following is an example code:
 
-一方で上の例の実装では、ホストアプリケーション側とスクリプト側の境界で、
-自動でデータ型の変換を行う機能を有効にしているため、そこでまだ比較的大きなオーバーヘッドが発生します。
-オーバーヘッドを可能な限り削りたい場合のために、上で述べた自動でのデータ型変換機能を無効にする事もできます。
-ただしその場合、スクリプトエンジン内部で使用しているデータコンテナのオブジェクトを、プラグイン側でも直接操作する必要があります。そのため、スクリプトエンジンがどのようにデータを保持して格納しているかについて、ある程度把握する必要があります。加えて、その内容は将来的なスクリプトエンジンの実装次第で変化するかもしれません。
+
+そのため、自動でのデータ型変換機能を無効化するためには、
+スクリプトエンジンがどのようにデータをコンテナに格納しているかについて、ある程度把握する必要があります。
+加えて、その内容は将来的なスクリプトエンジンの実装次第で変化するかもしれない事にも留意しておく必要があります。
 Vnanoのスクリプトエンジン内部でデータを格納するコンテナのソースコードは
 <a href="https://github.com/RINEARN/vnano/blob/master/src/org/vcssl/nano/vm/memory/DataContainer.java">src/org/vcssl/nano/vm/memory/DataContainer.java</a>
 ですが、処理系に対するプラグインの依存度をできるだけ軽減するため、
@@ -1613,7 +1624,7 @@ Vnanoのスクリプトエンジン内部でデータを格納するコンテナ
 	import org.vcssl.connect.ExternalPermission;
 	import org.vcssl.connect.ArrayDataContainer1;
 
-	public class Example2 {
+	public class Example {
 
 		// A XFCI1 Plug-In which provides the external function "output(int)".
 		// 外部関数 output(int) を提供するXFCI1形式のプラグイン
@@ -1639,14 +1650,16 @@ Vnanoのスクリプトエンジン内部でデータを格納するコンテナ
 				// check the type of the data container.
 				// データコンテナの型を確認
 				if (!(arguments instanceof ArrayDataContainer1[])) {
-					throw new ExternalFunctionException("The type of the data container is not supported by this plug-in.");
+					throw new ExternalFunctionException(
+						"The type of the data container is not supported by this plug-in."
+					);
 				}
 
 				// When the data conversion is disabled,
 				// the element [0] is to contain the return value, so the element [1] is the first argument.
 				// データ変換が無効化されている場合、[0]番要素は戻り値格納用なので、[1]番要素が最初の引数
 				@SuppressWarnings("unchecked")
-				ArrayDataContainer1<long[]> outputArgContainer = (ArrayDataContainer1<long[]>)( arguments[1] );
+				ArrayDataContainer1<long[]> outputArgContainer = (ArrayDataContainer1<long[]>)(arguments[1]);
 				long[] outputArgData = outputArgContainer.getData();
 
 				// print the value of the argument (behaviour of the output function).
@@ -1660,8 +1673,9 @@ Vnanoのスクリプトエンジン内部でデータを格納するコンテナ
 		// A XVCI1 Plug-In which provides the external variable "LOOP_MAX".
 		// 外部変数 LOOP_MAX を提供するXVCI1形式のプラグイン
 		public class LoopMaxVariable implements ExternalVariableConnector1 {
-			private int value = 100;
-
+			private long[] data = new long[]{ 100l };
+			int[] dataLengths = new int[]{ 1 };
+		
 			public String getVariableName() { return "LOOP_MAX"; }
 			public Class<?> getDataClass() { return int.class; }
 			public boolean isConstant() { return false; }
@@ -1685,7 +1699,9 @@ Vnanoのスクリプトエンジン内部でデータを格納するコンテナ
 				// check the type of the data container.
 				// データコンテナの型を確認
 				if (!(dataContainer instanceof ArrayDataContainer1)) {
-					throw new ExternalVariableException("The type of the data container is not supported by this plug-in.");
+					throw new ExternalVariableException(
+						"The type of the data container is not supported by this plug-in."
+					);
 				}
 				@SuppressWarnings("unchecked")
 				ArrayDataContainer1<long[]> adci1Container = (ArrayDataContainer1<long[]>)dataContainer;
@@ -1701,7 +1717,9 @@ Vnanoのスクリプトエンジン内部でデータを格納するコンテナ
 				// check the type of the data container.
 				// データコンテナの型を確認
 				if (!(dataContainer instanceof ArrayDataContainer1)) {
-					throw new ExternalVariableException("The type of the data container is not supported by this plug-in.");
+					throw new ExternalVariableException(
+						"The type of the data container is not supported by this plug-in."
+					);
 				}
 				ArrayDataContainer1 adci1Container = (ArrayDataContainer1)dataContainer;
 				Object targetData = adci1Container.getData();
@@ -1709,7 +1727,9 @@ Vnanoのスクリプトエンジン内部でデータを格納するコンテナ
 				// check the data-type of data contained in the data container.
 				// データコンテナに格納されているデータの型を確認
 				if (targetData == null || !(targetData instanceof long[])) {
-					throw new ExternalVariableException("The data-type contained in the data container is not compatible for this plug-in.");
+					throw new ExternalVariableException(
+						"The data-type contained in the data container is not compatible for this plug-in."
+					);
 				}
 			
 				// set data to the field of this instance.
@@ -1736,6 +1756,71 @@ Implementation of these plug-ins are little complicated, but overhead costs of a
 
 この例で実装したプラグインは、コード内容は少し複雑ですが、その代わりとして、可能な限りオーバーヘッドの少ない外部関数/外部変数を提供するものになっています。
 
+For external variables, as we described at the top of this chapter, 
+values of them will be synchronized between the host-application-side (plug-in-side) and script-side 
+ONLY at the beginning and end of the execution of the script code, 
+so it rarely has the merit to handle data container objects directly 
+in the plug-in implementations of XVCI1 to reduce overhead costs of accessings.
+
+外部変数については、先に述べた通り、
+スクリプト内と値が同期されるのは実行開始時/終了時の2回のみであるため、
+あまりそこのオーバーヘッドを削ってもメリットはなく、
+従って普通は、上のようにXVCI1プラグイン内で、処理系依存のデータコンテナを直接操作するメリットもほとんどありません。
+
+In the contrast, for external functions, 
+overhead costs will be burdens every time for each callings from the script code, 
+so if those functions will be called frequently, it has big merit to reduce overhead costs of callings.
+Therefore, although it is little complicated way, 
+sometimes it gives great advantage to handle data container objects directly 
+in the plug-in implementations of XFCI1, as the above example code.
+
+一方で外部関数については、スクリプト内から呼び出す度に毎回オーバーヘッドが影響するため、
+呼び出し頻度によってはそのオーバーヘッドを削る事には大きなメリットがあります。
+従って、多少面倒な方法ではありますが、上記のようにXFCI1プラグイン内で処理系依存のデータコンテナを直接操作する事が、
+非常に効果的となるケースも現実的に考えられます。
+
+
+The correspondence table between data types in the Vnano script code and 
+data types in data containers are as follows:
+
+なお、Vnanoのスクリプト内でのデータ型と、上記で扱ったデータコンテナ内でのデータ型の対応関係は、以下の表の通りです：
+
+| The Data Type in the Vnano | The Data Type in the Data Container (Java&reg;) |
+| --- | --- |
+| int (or long) | long[ ? ] |
+| float (or double) | doube[ ? ] |
+| bool | boolean[ ? ] |
+| string | String[ ? ] |
+| int[ N ] | long[ N ] |
+| float[ N ] | doube[ N ] |
+| bool[ N ] | boolean[ N ] |
+| string[ N ] | String[ N ] |
+| int[ N1 ][ N2 ] | long[ N1 * N2 ] |
+| float[ N1 ][ N2 ] | doube[ N1 * N2 ] |
+| bool[ N2 ][ N2 ] | boolean[ N1 * N2 ] |
+| string[ N1 ][ N2 ] | String[ N1 * N2 ] |
+| int[ N1 ][ N2 ][ N3 ] | long[ N1 * N2 * N3 ] |
+| float[ N1 ][ N2 ][ N3 ] | double[ N1 * N2 * N3 ] |
+| bool[ N1 ][ N2 ][ N3 ] | boolean[ N1 * N2 * N3 ] |
+| string[ N1 ][ N2 ][ N3 ] | String[ N1 * N2 * N3 ] |
+| ... | ... |
+
+Where "[ ? ]" in the above table means that the size of the array is undetermined, 
+but the value is stored as an element with the index which is gotten by using getOffset() method 
+of the data container.
+By the way, a multi-dimentional array in the Vnano script code will be stored in a data container 
+as a 1D array. The correspondence between indices of those arrays is:
+
+ここで上の表の「 [ ? ] 」は、配列の長さが不確定である事を示すものですが、
+対象の値は、データコンテナの getOffset() メソッドが返すインデックスが指す要素として格納されています。
+また、上の表の後半部分の通り、Vnano内における多次元配列は、データコンテナ内では1次元化された配列として格納されています。両者の配列間のインデックス対応は、以下の式の通りです：
+
+	arrayInDataContainer[ dcIndex ] = arrayInVnano[ vnanoIndex1 ][ vnanoIndex2 ][ vnanoIndex3 ]
+	dcIndex = N3*N2*vnanoIndex1 + N3*vnanoIndex2 + vnanoIndex3
+
+where the symbol "=" means the mathematical equal, not the assignment operator.
+
+ここで「 = 」は代入演算子ではなく、数学的な等号の意味で用いています。
 
 ---
 
