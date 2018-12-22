@@ -217,12 +217,12 @@ We will actually execute these example code in the next section.
 <a id="how-to-use-in-java"></a>
 ## How to Use in Java&reg; - Java&reg;言語での使用方法
 
-### 1. Build Vnano Engine - Vnanoエンジンのビルド
+### 1. Build the Vnano Engine - Vnanoエンジンのビルド
 
-Firstly, build source code of Vnano Engine (The script engine of the Vnano).
+Firstly, build source code of the Vnano Engine (The script engine of the Vnano).
 If you are using Microsoft&reg; Windows&reg;, please double-click "build.bat".
 If you are using Linux&reg;, etc., please execute "build.sh" on the bash-compatible shell.
-Alternatively, you can build Vnano Engine by Apache Ant as:
+Alternatively, you can build the Vnano Engine by Apache Ant as:
 
 はじめに、Vnanoエンジン（Vnanoのスクリプトエンジン）をビルドします。
 Microsoft&reg; Windows&reg; をご使用の場合は、"build.bat" をダブルクリック実行してください。
@@ -230,7 +230,7 @@ Linux&reg; 等をご使用の場合は、bash互換シェル上で "build.sh" �
 
     ant -buildfile build.xml
 
-If you succeeded to build Vnano Engine, "Vnano.jar" will be generated in the same folder in the above files.
+If you succeeded to build the Vnano Engine, "Vnano.jar" will be generated in the same folder in the above files.
 You can use Vnano on your Java applications by appending this JAR file to the classpath.
 
 Vnanoエンジンのビルドが成功すると、"Vnano.jar" が上記ファイルと同じフォルダ内に生成されます。
@@ -306,12 +306,12 @@ Example.jar から見た相対パスで書き換えてください（例：lib/V
 <a id="how-to-use-in-kotlin"></a>
 ## How to Use in Kotlin&reg; - Kotlin&reg;での使用方法
 
-### 1. Build Vnano Engine - Vnanoエンジンのビルド
+### 1. Build the Vnano Engine - Vnanoエンジンのビルド
 
 Firstly, build source code of Vnano Engine (The script engine of the Vnano).
 If you are using Microsoft&reg; Windows&reg;, please double-click "build.bat".
 If you are using Linux, etc., please execute "build.sh" on the bash-compatible shell.
-Alternatively, you can build Vnano Engine by Apache Ant as:
+Alternatively, you can build the Vnano Engine by Apache Ant as:
 
 はじめに、Vnanoエンジン（Vnanoのスクリプトエンジン）をビルドします。
 Microsoft&reg; Windows&reg; をご使用の場合は、"build.bat" をダブルクリック実行してください。
@@ -319,7 +319,7 @@ Linux 等をご使用の場合は、bash互換シェル上で "build.sh" を実�
 
     ant -buildfile build.xml
 
-If you succeeded to build Vnano Engine, "Vnano.jar" will be generated in the same folder in the above files.
+If you succeeded to build the Vnano Engine, "Vnano.jar" will be generated in the same folder in the above files.
 You can use Vnano on your Java applications by appending this JAR file to the classpath.
 
 Vnanoエンジンのビルドが成功すると、"Vnano.jar" が上記ファイルと同じフォルダ内に生成されます。
@@ -378,7 +378,8 @@ however, for the development and the debugging usages,
 you can use the script engine of the Vnano on a command-line terminal 
 and can directly run script code.
 Please note that this command-line mode is NOT the feature for using Vnano alone for the practical purpose. 
-It is NOT convenient at all. In such purpose, we recommend to use the <a href="https://www.vcssl.org/">VCSSL</a> instead of the Vnano.
+It is NOT convenient at all. In such purpose, we recommend to use the 
+<a href="https://www.vcssl.org/">VCSSL</a> instead of the Vnano.
 The Vnano is a subset of the VCSSL for embedded use in apprications.
 
 Vnano の本来の用途はアプリケーション組み込み用ですが、一方で開発時やデバッグ時などのため、
@@ -387,15 +388,15 @@ Vnanoで記述されたスクリプトコードを直接実行する事ができ
 ただし、このコマンドラインモードは、Vnanoを単独で実用目的のスクリプト言語として使うための機能ではない事に注意してください。
 そのような用途にはVnanoは全く便利ではありません。
 Vnanoは、<a href="https://www.vcssl.org/">VCSSL</a>という言語から、アプリケーション組み込み用に機能を絞ったサブセットであるため、
-単独での使用にはフル機能版であるVCSSLのご使用をおすすめします。
+単独での使用には、少なくともフル機能版であるVCSSLのご使用をおすすめします。
 
 
-### 2. Build Vnano Engine - Vnanoエンジンのビルド
+### 2. Build the Vnano Engine - Vnanoエンジンのビルド
 
 Firstly, build source code of Vnano Engine (The script engine of the Vnano).
 If you are using Microsoft&reg; Windows&reg;, please double-click "build.bat".
 If you are using Linux&reg;, etc., please execute "build.sh" on the bash-compatible shell.
-Alternatively, you can build Vnano Engine by Apache Ant as:
+Alternatively, you can build the Vnano Engine by Apache Ant as:
 
 はじめに、Vnanoエンジン（Vnanoのスクリプトエンジン）をビルドします。
 Microsoft&reg; Windows&reg; をご使用の場合は、"build.bat" をダブルクリック実行してください。
@@ -403,7 +404,7 @@ Linux&reg; 等をご使用の場合は、bash互換シェル上で "build.sh" �
 
     ant -buildfile build.xml
 
-If you succeeded to build Vnano Engine, "Vnano.jar" will be generated in the same folder in the above files.
+If you succeeded to build the Vnano Engine, "Vnano.jar" will be generated in the same folder in the above files.
 You can use Vnano on your Java applications by appending this JAR file to the classpath.
 
 Vnanoエンジンのビルドが成功すると、"Vnano.jar" が上記ファイルと同じフォルダ内に生成されます。
@@ -416,6 +417,8 @@ An example Vnano script code "Example.vnano" is contained in the repository.
 このリポジトリ内には、Vnanoのサンプルスクリプトコードも含まれています。
 
     (Example.vnano)
+
+	...
 
     int sum = 0;
     int n = 100;
@@ -448,7 +451,7 @@ The default text-encoding of this command-line mode is UTF-8.
 コマンドラインモードでのデフォルトの文字コードは UTF-8 です。
 
 
-### 4. Dump AST, Intermediate Code (VRIL), etc. - 抽象構文木(AST)や中間コード(VRIL)などのダンプ
+### 4. Dump the AST, Intermediate Code (VRIL), etc. - 抽象構文木(AST)や中間コード(VRIL)などのダンプ
 
 If you want to dump the Abstract Syntax Tree (AST), Intermediate Code (VRIL Code) for VM, etc. 
 for the analyzation or the debugging, 
@@ -469,6 +472,7 @@ The (abbreviated) result is :
 	= - Output of: org.vcssl.nano.compiler.Preprocessor
 	= - Input  of: org.vcssl.nano.compiler.LexicalAnalyzer
 	================================================================================
+	...
 	int sum = 0;
 	int n = 100;
 	for (int i=1; i<=n; i++) {
@@ -484,6 +488,8 @@ The (abbreviated) result is :
 	[Token word="int", lineNumber=70, fileName="Example.vnano", type=DATA_TYPE, priority=0]
 	[Token word="sum", lineNumber=70, fileName="Example.vnano", type=LEAF, priority=0, LEAF_TYPE="variableIdentifier"]
 	[Token word="=", lineNumber=70, fileName="Example.vnano", type=OPERATOR, priority=6000, OPERATOR_EXECUTOR="assignment", OPERATOR_SYNTAX="binary"]
+	[Token word="0", lineNumber=70, fileName="Example.vnano", type=LEAF, priority=0, LEAF_TYPE="literal"]
+	[Token word=";", lineNumber=70, fileName="Example.vnano", type=END_OF_STATEMENT, priority=0]
 	...
 
 	================================================================================
@@ -1828,12 +1834,14 @@ where the symbol "=" means the mathematical equal, not the assignment operator.
 ここで「 = 」は代入演算子ではなく、数学的な等号の意味で用いています。
 
 
+
 <a id="about-us"></a>
 ## About Us - 開発元について
 
 <div style="background-color:white; width: 890px; height: 356px; text-align:center; background-image: url('./rinearn.jpg'); background-repeat: no-repeat; background-size: contain;">
   <img src="https://github.com/RINEARN/vnano/blob/master/rinearn.jpg" alt="" width="890" />
 </div>
+
 
 The vnano is developed by <a href="https://www.rinearn.com/">RINEARN</a> 
 which is a personal studio in Japan developing software for data-analysis, visualization, computation, and so on.
