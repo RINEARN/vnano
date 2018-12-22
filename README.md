@@ -8,8 +8,8 @@ Vnano (VCSSL nano) は、Java&reg; アプリケーションに組み込んで用
 
 
 
-<div style="background-color:white; width: 720px; height: 395px; text-align:center; background-image: url('./logo.png'); background-repeat: no-repeat; background-size: contain;">
-  <img src="https://github.com/RINEARN/vnano/blob/master/logo.png" alt="" width="720" />
+<div style="background-color:white; width: 890px; height: 470px; text-align:center; background-image: url('./logo.png'); background-repeat: no-repeat; background-size: contain;">
+  <img src="https://github.com/RINEARN/vnano/blob/master/logo.png" alt="" width="890" />
 </div>
 
 
