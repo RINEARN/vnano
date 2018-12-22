@@ -38,7 +38,7 @@
  *     or,
  * 
  *         java -jar Vnano.jar OtherExamples/PiCalculation.vnano --encoding UTF-8 --dump assemblyCode --run false
- *         (dump compiled VRIL code only)
+ *         (dump the compiled VRIL code only)
  * 
  * 
  * Algorithms - アルゴリズム
