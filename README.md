@@ -1502,7 +1502,7 @@ Let's implement them:
 	import org.vcssl.connect.ExternalVariableException;
 	import org.vcssl.connect.ExternalPermission;
 
-	public class Example2 {
+	public class Example {
 
 		// A XFCI1 Plug-In which provides the external function "output(int)".
 		// 外部関数 output(int) を提供するXFCI1形式のプラグイン
@@ -1620,7 +1620,7 @@ Vnanoのスクリプトエンジン内部でデータを格納するコンテナ
 	import org.vcssl.connect.ExternalPermission;
 	import org.vcssl.connect.ArrayDataContainer1;
 
-	public class Example2 {
+	public class Example {
 
 		// A XFCI1 Plug-In which provides the external function "output(int)".
 		// 外部関数 output(int) を提供するXFCI1形式のプラグイン
