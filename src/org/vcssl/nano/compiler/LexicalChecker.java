@@ -83,13 +83,18 @@ public class LexicalChecker {
 		// if / for / while 文については閉じ丸括弧トークン「 ) 」の次、
 		// else 文については「 else 」トークンの次を指している
 
-		// ブロック始点「 { 」が必要な場合（この言語では仕様で必須化されている）
+		// else の後に if が続く場合は、else 直後に特例的にブロック始点が無くても許可する
+		if ( controlWord.equals(ScriptWord.ELSE) && tokens[readingIndex].getValue().equals(ScriptWord.IF) ) {
+			return;
+		}
+
+		// それ以外の if / else / for / while 文は、直後にブロック始点「 { 」が必要（この言語では仕様で必須化されている）
 		if ( controlWord.equals(ScriptWord.IF)
 				|| controlWord.equals(ScriptWord.ELSE)
-				|| controlWord.equals(ScriptWord.WHILE)
-				|| controlWord.equals(ScriptWord.FOR) ) {
+				|| controlWord.equals(ScriptWord.FOR)
+				|| controlWord.equals(ScriptWord.WHILE) ) {
 
-			// 「 { 」が無ければ構文エラー
+			// 直後に「 { 」が続いていなければ構文エラーとする
 			if (readingIndex == tokens.length-1
 					|| !tokens[readingIndex].getValue().equals(ScriptWord.BLOCK_BEGIN)) {
 
@@ -98,6 +103,7 @@ public class LexicalChecker {
 					controlToken.getFileName(), controlToken.getLineNumber()
 				);
 			}
+			return;
 		}
 	}
 
