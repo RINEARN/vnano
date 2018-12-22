@@ -2,9 +2,9 @@
 
 
 
-Vnano (<a href="https://www.vcssl.org/" target="_blank">VCSSL</a> nano) is a simple scripting language and its interpreter for embedded use in Java&reg; applications.
+Vnano (<a href="https://www.vcssl.org/">VCSSL</a> nano) is a simple scripting language and its interpreter for embedded use in Java&reg; applications.
 
-Vnano (<a href="https://www.vcssl.org/" target="_blank">VCSSL</a> nano) は、Java&reg; アプリケーションに組み込んで用いる簡易スクリプト言語＆インタープリタです。
+Vnano (<a href="https://www.vcssl.org/">VCSSL</a> nano) は、Java&reg; アプリケーションに組み込んで用いる簡易スクリプト言語＆インタープリタです。
 
 
 
@@ -380,7 +380,7 @@ however, for the development and the debugging usages,
 you can use the script engine of the Vnano on a command-line terminal 
 and can directly run script code.
 Please note that this command-line mode is NOT the feature for using Vnano alone for the practical purpose. 
-It is NOT convenient at all. In such purpose, we recommend to use the <a href="https://www.vcssl.org/" target="_blank">VCSSL</a> instead of the Vnano.
+It is NOT convenient at all. In such purpose, we recommend to use the <a href="https://www.vcssl.org/">VCSSL</a> instead of the Vnano.
 The Vnano is a subset of the VCSSL for embedded use in apprications.
 
 Vnano の本来の用途はアプリケーション組み込み用ですが、一方で開発時やデバッグ時などのため、
@@ -388,7 +388,7 @@ Vnanoのスクリプトエンジンをコマンドライン端末上で使用し
 Vnanoで記述されたスクリプトコードを直接実行する事ができます。
 ただし、このコマンドラインモードは、Vnanoを単独で実用目的のスクリプト言語として使うための機能ではない事に注意してください。
 そのような用途にはVnanoは全く便利ではありません。
-Vnanoは、<a href="https://www.vcssl.org/" target="_blank">VCSSL</a>という言語から、アプリケーション組み込み用に機能を絞ったサブセットであるため、
+Vnanoは、<a href="https://www.vcssl.org/">VCSSL</a>という言語から、アプリケーション組み込み用に機能を絞ったサブセットであるため、
 単独での使用にはフル機能版であるVCSSLのご使用をおすすめします。
 
 
@@ -931,7 +931,7 @@ Vnanoエンジン内でこのコンポーネントに接続されます。
 ## The Vnano as a Language - 言語としての Vnano
 
 The language specification of the Vnano ( = VCSSL nano ) is a small subset of the 
-<a href="https://www.vcssl.org/" target="_blank">VCSSL</a> 
+<a href="https://www.vcssl.org/">VCSSL</a> 
 which is a programming language having simple C-like syntax, so Vnano also has simple C-like syntax.
 Vnano is specialized for embedded use in applications, 
 so compared with other programming languages, many features not necessary for the embedded use are omitted 
@@ -940,7 +940,7 @@ It is the concept for giving priority to customizability, maintainability, secur
 and so on than the functionality.
 
 プログラミング言語としての Vnano ( = VCSSL nano ) の仕様は、その名前の通り、
-<a href="https://www.vcssl.org/" target="_blank">VCSSL</a>という言語の仕様の小さなサブセットになっています。
+<a href="https://www.vcssl.org/">VCSSL</a>という言語の仕様の小さなサブセットになっています。
 VCSSLはC言語系の単純な文法を持つプログラミング言語であるため，VnanoもまたC言語系の単純な文法を持っています。
 Vnanoはアプリケーション組み込み用途に焦点を絞った言語であるため、
 一般的なプログラミング言語と比べると、用途的に必要性の低い機能は大幅に削られています。
