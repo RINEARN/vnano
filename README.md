@@ -644,7 +644,7 @@ For other features of the command-line mode of the Vnano, please see the result 
 
 Vnanoのコマンドラインモードのその他の機能については、以下で出力される内容をご参照ください。
 
-    java -jar Vnano --help
+    java -jar Vnano.jar --help
 
 The command-line mode we described in this section may assist you 
 to customize the script engine of the Vnano to your applications. Good luck!
