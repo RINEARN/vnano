@@ -22,6 +22,7 @@ import javax.script.ScriptException;
 
 import org.vcssl.connect.MethodXfci1Adapter;
 import org.vcssl.nano.VnanoException;
+import org.vcssl.nano.compiler.Compiler;
 import org.vcssl.nano.compiler.AstNode;
 import org.vcssl.nano.compiler.CodeGenerator;
 import org.vcssl.nano.compiler.Parser;
@@ -32,7 +33,15 @@ import org.vcssl.nano.compiler.Token;
 import org.vcssl.nano.interconnect.Interconnect;
 import org.vcssl.nano.vm.VirtualMachine;
 import org.vcssl.nano.vm.VirtualMachineObjectCode;
+import org.vcssl.nano.vm.accelerator.AccelerationDataManager;
+import org.vcssl.nano.vm.accelerator.AccelerationDispatcher;
+import org.vcssl.nano.vm.accelerator.AccelerationExecutorNode;
+import org.vcssl.nano.vm.accelerator.AccelerationScheduler;
+import org.vcssl.nano.vm.accelerator.AcceleratorInstruction;
 import org.vcssl.nano.vm.assembler.Assembler;
+import org.vcssl.nano.vm.memory.Memory;
+import org.vcssl.nano.vm.processor.Instruction;
+import org.vcssl.nano.vm.processor.Processor;
 
 public final class VnanoCommandLineApplication {
 
@@ -44,6 +53,7 @@ public final class VnanoCommandLineApplication {
 	private static final String OPTION_NAME_HELP = "help";
 	private static final String OPTION_NAME_DUMP = "dump";
 	private static final String OPTION_NAME_RUN = "run";
+	private static final String OPTION_NAME_ACCELERATOR = "accelerator";
 	private static final String OPTION_NAME_ENCODING = "encoding";
 	private static final String OPTION_NAME_DEFAULT = OPTION_NAME_FILE;
 
@@ -57,6 +67,8 @@ public final class VnanoCommandLineApplication {
 	private static final String DUMP_TARGET_ALL = "all";
 	private static final String DUMP_TARGET_DEFAULT = DUMP_TARGET_ALL;
 
+
+	private boolean acceleratorEnabled = true;
 	private boolean runRequired = true;
 	private String encoding = null;
 
@@ -157,7 +169,7 @@ public final class VnanoCommandLineApplication {
 		System.out.println("  --run <runOrNot>");
 		System.out.println("");
 		System.out.println("      Specify whether you want to run the code loaded from the file or not.");
-		System.out.println("      This option is enabled as the default, and the default value is true.");
+		System.out.println("      This option is specified by default, and the default value is true.");
 		System.out.println("      You can choose and specify the value of <runOrNot> from the followings:");
 		System.out.println("");
 		System.out.println("        true (default) : Run the code.");
@@ -172,6 +184,22 @@ public final class VnanoCommandLineApplication {
 		System.out.println("      java -jar Vnano.jar Example.vnano --run false --dump assemblyCode > debug.txt");
 		System.out.println("");
 		System.out.println("");
+
+		System.out.println("  --accelerator <enableOrDisable>");
+		System.out.println("");
+		System.out.println("      Specify whether you want to enable the accelerator.");
+		System.out.println("      This option is specified by default, and the default value is true.");
+		System.out.println("      You can choose and specify the value of <enableOrDisable> from the followings:");
+		System.out.println("");
+		System.out.println("        true (default) : Enable the accelerator.");
+		System.out.println("        false          : Disable the accelerator.");
+		System.out.println("");
+		System.out.println("    e.g.");
+		System.out.println("");
+		System.out.println("      java -jar Vnano.jar Example.vnano --accelerator true");
+		System.out.println("      java -jar Vnano.jar Example.vnano --accelerator false");
+		System.out.println("");
+
 		System.out.println("[ Supported Functions ]");
 		System.out.println("");
 		System.out.println("    For development and debugging, following functions are available");
@@ -259,6 +287,12 @@ public final class VnanoCommandLineApplication {
 			// --run オプションの場合
 			case OPTION_NAME_RUN : {
 				this.setRunRequired(optionValue);
+				return;
+			}
+
+			// --accelerator オプションの場合
+			case OPTION_NAME_ACCELERATOR : {
+				this.setAcceleratorEnabled(optionValue);
 				return;
 			}
 
@@ -351,6 +385,19 @@ public final class VnanoCommandLineApplication {
 		}
 	}
 
+	private void setAcceleratorEnabled(String optionValue) {
+		// Boolean.valueOf だと true 以外が全て false になるので直球で比較
+		if (optionValue.equals("true")) {
+			this.acceleratorEnabled = true;
+		} else if (optionValue.equals("false")) {
+			this.acceleratorEnabled = false;
+		} else {
+			System.err.println(
+					"Invalid value for " + OPTION_NAME_PREFIX + OPTION_NAME_ACCELERATOR + "option: " + optionValue
+			);
+		}
+	}
+
 	private ScriptEngine createInitializedScriptEngine() {
 
 		// ScriptEngineManagerでVnanoのスクリプトエンジンを検索して取得
@@ -431,35 +478,35 @@ public final class VnanoCommandLineApplication {
 		try {
 			switch (dumpTarget) {
 				case DUMP_TARGET_INPUT_CODE : {
-					this.dump(inputFilePath, false, true,  false, false, false, false, false, false);
+					this.dump(inputFilePath, false, true,  false, false, false, false, false, false, false, false);
 					return;
 				}
 				case DUMP_TARGET_PREPROCESSED_CODE : {
-					this.dump(inputFilePath, false, false, true,  false, false, false, false, false);
+					this.dump(inputFilePath, false, false, true,  false, false, false, false, false, false, false);
 					return;
 				}
 				case DUMP_TARGET_TOKEN : {
-					this.dump(inputFilePath, false, false, false, true,  false, false, false, false);
+					this.dump(inputFilePath, false, false, false, true,  false, false, false, false, false, false);
 					return;
 				}
 				case DUMP_TARGET_PARSED_AST : {
-					this.dump(inputFilePath, false, false, false, false, true,  false, false, false);
+					this.dump(inputFilePath, false, false, false, false, true,  false, false, false, false, false);
 					return;
 				}
 				case DUMP_TARGET_ANALYZED_AST : {
-					this.dump(inputFilePath, false, false, false, false, false, true,  false, false);
+					this.dump(inputFilePath, false, false, false, false, false, true,  false, false, false, false);
 					return;
 				}
 				case DUMP_TARGET_ASSEMBLY_CODE : {
-					this.dump(inputFilePath, false, false, false, false, false, false, true,  false);
+					this.dump(inputFilePath, false, false, false, false, false, false, true,  false, false, false);
 					return;
 				}
 				case DUMP_TARGET_OBJECT_CODE : {
-					this.dump(inputFilePath, false, false, false, false, false, false, false, true );
+					this.dump(inputFilePath, false, false, false, false, false, false, false, true,  false, false );
 					return;
 				}
 				case DUMP_TARGET_ALL : {
-					this.dump(inputFilePath, true,  true,  true,  true,  true,  true,  true,  true );
+					this.dump(inputFilePath, true,  true,  true,  true,  true,  true,  true,  true,  true,  true );
 					return;
 				}
 				default : {
@@ -477,7 +524,8 @@ public final class VnanoCommandLineApplication {
 	private void dump(String inputFilePath, boolean withHeader,
 			boolean dumpInputCode, boolean dumpPreprocessedCode,
 			boolean dumpTokens, boolean dumpParsedAst, boolean dumpAnalyzedAst,
-			boolean dumpAssemblyCode, boolean dumpObjectCode) throws VnanoException {
+			boolean dumpAssemblyCode, boolean dumpObjectCode,
+			boolean accelerationInstruction, boolean accelerationNode) throws VnanoException {
 
 		// 入力ファイルの分類：中間アセンブリコード（VRILコード）の場合はコンパイル済みなので、後工程のみダンプする
 		boolean inputIsAssemblyCode = inputFilePath.endsWith(EXTENSION_VRIL);
@@ -617,17 +665,66 @@ public final class VnanoCommandLineApplication {
 				System.out.println("================================================================================");
 				System.out.println("= VM Object Code");
 				System.out.println("= - Output of: org.vcssl.nano.vm.assembler.Assembler");
+				System.out.println("= - Input  of: org.vcssl.nano.vm.processor.Processor");
+				System.out.println("= -        or: org.vcssl.nano.vm.accelerator.Accelerator");
 				System.out.println("================================================================================");
 			}
 			vmObjectCode.dump();
 		}
 
+		// Acceleratorが有効の場合は、その内部での高速化リソースもダンプする
+		if (this.acceleratorEnabled) {
+
+			Memory memory = new Memory();
+			memory.allocate(vmObjectCode, interconnect.getGlobalVariableTable());
+			Instruction[] instructions = vmObjectCode.getInstructions();
+			AccelerationDataManager dataManager = new AccelerationDataManager();
+			dataManager.allocate(instructions, memory);
+			AccelerationScheduler scheduler = new AccelerationScheduler();
+			AcceleratorInstruction[] acceleratorInstructions = scheduler.schedule(instructions, memory, dataManager);
+
+			if (accelerationInstruction) {
+				if (withHeader) {
+					System.out.println("");
+					System.out.println("================================================================================");
+					System.out.println("= Accelerator Instructions");
+					System.out.println("= - Output of: org.vcssl.nano.vm.accelerator.AccelerationScheduler");
+					System.out.println("= - Input  of: org.vcssl.nano.vm.accelerator.AccelerationDispatcher");
+					System.out.println("================================================================================");
+				}
+				int acceleratorInstructionLength = acceleratorInstructions.length;
+				for (int i=0; i<acceleratorInstructionLength; i++) {
+					System.out.println("[" + i + "]\t" + acceleratorInstructions[i]);
+				}
+			}
+
+			AccelerationDispatcher dispatcher = new AccelerationDispatcher();
+			AccelerationExecutorNode[] executorNodes = dispatcher.dispatch(
+					new Processor(), memory, interconnect, acceleratorInstructions, dataManager
+			);
+
+			if (accelerationNode) {
+				if (withHeader) {
+					System.out.println("");
+					System.out.println("================================================================================");
+					System.out.println("= Acceleration Executor Nodes");
+					System.out.println("= - Output of: org.vcssl.nano.vm.accelerator.AccelerationDispatcher");
+					System.out.println("================================================================================");
+				}
+				int executorNodeLength = executorNodes.length;
+				for (int i=0; i<executorNodeLength; i++) {
+					System.out.println("[" + i + "]\t" + executorNodes[i].getClass().getName().replace("org.vcssl.nano.vm.accelerator.", ""));
+				}
+			}
+		}
+
+
 		if (withHeader) {
+			System.out.println("");
 			System.out.println("================================================================================");
 			System.out.println("= DUMP END");
 			System.out.println("================================================================================");
 		}
-
 	}
 
 	private void executeFile(String inputFilePath) {
@@ -654,6 +751,8 @@ public final class VnanoCommandLineApplication {
 			return;
 		}
 
+		// --accelerator オプション対応のため、暫定的にスクリプトエンジン内のコンパイラとVMを直接呼ぶよう変更
+		/*
 		// スクリプトを実行
 		try {
 			engine.eval(scriptCode);
@@ -661,13 +760,32 @@ public final class VnanoCommandLineApplication {
 			e.printStackTrace();
 			return;
 		}
+		*/
+
+		// メソッド接続済みのインターコネクトを生成して取得
+		Interconnect interconnect = this.createInitializedInterconnect();
+		if (interconnect == null) {
+			return;
+		}
+
+		// スクリプトコードをコンパイルし、プロセス仮想マシンで実行
+		try {
+			Compiler compiler = new Compiler();
+			String assemblyCode = compiler.compile(scriptCode, inputFilePath, interconnect);
+			VirtualMachine vm = new VirtualMachine();
+			vm.setAcceleratorEnabled(this.acceleratorEnabled);
+			vm.eval(assemblyCode, interconnect);
+		} catch (VnanoException e) {
+			new ScriptException(e).printStackTrace();
+			return;
+		}
 	}
 
 	public void executeVrilCodeFile(String inputFilePath) {
 
-		// ファイルからVRILコードを全部読み込む
-		String vrilCode = this.loadCode(inputFilePath);
-		if (vrilCode == null) {
+		// ファイルから仮想アセンブリコード（VRILコード）を全部読み込む
+		String assemblyCode = this.loadCode(inputFilePath);
+		if (assemblyCode == null) {
 			return;
 		}
 
@@ -679,10 +797,11 @@ public final class VnanoCommandLineApplication {
 
 		// プロセス仮想マシンを生成し、VRILコードを渡して実行
 		VirtualMachine vm = new VirtualMachine();
+		vm.setAcceleratorEnabled(this.acceleratorEnabled);
 		try {
-			vm.eval(vrilCode, interconnect);
+			vm.eval(assemblyCode, interconnect);
 		} catch (VnanoException e) {
-			e.printStackTrace();
+			new ScriptException(e).printStackTrace();
 			return;
 		}
 	}

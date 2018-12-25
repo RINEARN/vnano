@@ -549,6 +549,11 @@ The (abbreviated) result is :
 		3	MOV	INT64		L1	C3	C2
 		4	ALLOC	INT64		L2	C4
 		5	MOV	INT64		L2	C5	C4
+		6	NOP	VOID		C4
+		7	ALLOC	BOOL		R0	C4
+		8	LEQ	INT64		R0	L2	L1	C4
+		9	JMPN	BOOL		R0	C6	C4
+		10	ADD	INT64		L0	L0	L2	C7
 	...
 
 Sometimes the above content might be too long 
@@ -639,7 +644,7 @@ For other features of the command-line mode of the Vnano, please see the result 
 
 Vnanoのコマンドラインモードのその他の機能については、以下で出力される内容をご参照ください。
 
-    java -jar Vnano --help
+    java -jar Vnano.jar --help
 
 The command-line mode we described in this section may assist you 
 to customize the script engine of the Vnano to your applications. Good luck!
@@ -1808,7 +1813,7 @@ Vnanoのスクリプト内でのデータ型と、上記で扱ったデータコ
 | string[ N ] | String[ N ] |
 | int[ N1 ][ N2 ] | long[ N1 * N2 ] |
 | float[ N1 ][ N2 ] | doube[ N1 * N2 ] |
-| bool[ N2 ][ N2 ] | boolean[ N1 * N2 ] |
+| bool[ N1 ][ N2 ] | boolean[ N1 * N2 ] |
 | string[ N1 ][ N2 ] | String[ N1 * N2 ] |
 | int[ N1 ][ N2 ][ N3 ] | long[ N1 * N2 * N3 ] |
 | float[ N1 ][ N2 ][ N3 ] | double[ N1 * N2 * N3 ] |
