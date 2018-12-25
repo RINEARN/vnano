@@ -478,35 +478,35 @@ public final class VnanoCommandLineApplication {
 		try {
 			switch (dumpTarget) {
 				case DUMP_TARGET_INPUT_CODE : {
-					this.dump(inputFilePath, false, true,  false, false, false, false, false, false);
+					this.dump(inputFilePath, false, true,  false, false, false, false, false, false, false, false);
 					return;
 				}
 				case DUMP_TARGET_PREPROCESSED_CODE : {
-					this.dump(inputFilePath, false, false, true,  false, false, false, false, false);
+					this.dump(inputFilePath, false, false, true,  false, false, false, false, false, false, false);
 					return;
 				}
 				case DUMP_TARGET_TOKEN : {
-					this.dump(inputFilePath, false, false, false, true,  false, false, false, false);
+					this.dump(inputFilePath, false, false, false, true,  false, false, false, false, false, false);
 					return;
 				}
 				case DUMP_TARGET_PARSED_AST : {
-					this.dump(inputFilePath, false, false, false, false, true,  false, false, false);
+					this.dump(inputFilePath, false, false, false, false, true,  false, false, false, false, false);
 					return;
 				}
 				case DUMP_TARGET_ANALYZED_AST : {
-					this.dump(inputFilePath, false, false, false, false, false, true,  false, false);
+					this.dump(inputFilePath, false, false, false, false, false, true,  false, false, false, false);
 					return;
 				}
 				case DUMP_TARGET_ASSEMBLY_CODE : {
-					this.dump(inputFilePath, false, false, false, false, false, false, true,  false);
+					this.dump(inputFilePath, false, false, false, false, false, false, true,  false, false, false);
 					return;
 				}
 				case DUMP_TARGET_OBJECT_CODE : {
-					this.dump(inputFilePath, false, false, false, false, false, false, false, true );
+					this.dump(inputFilePath, false, false, false, false, false, false, false, true,  false, false );
 					return;
 				}
 				case DUMP_TARGET_ALL : {
-					this.dump(inputFilePath, true,  true,  true,  true,  true,  true,  true,  true );
+					this.dump(inputFilePath, true,  true,  true,  true,  true,  true,  true,  true,  true,  true );
 					return;
 				}
 				default : {
@@ -524,7 +524,8 @@ public final class VnanoCommandLineApplication {
 	private void dump(String inputFilePath, boolean withHeader,
 			boolean dumpInputCode, boolean dumpPreprocessedCode,
 			boolean dumpTokens, boolean dumpParsedAst, boolean dumpAnalyzedAst,
-			boolean dumpAssemblyCode, boolean dumpObjectCode) throws VnanoException {
+			boolean dumpAssemblyCode, boolean dumpObjectCode,
+			boolean accelerationInstruction, boolean accelerationNode) throws VnanoException {
 
 		// 入力ファイルの分類：中間アセンブリコード（VRILコード）の場合はコンパイル済みなので、後工程のみダンプする
 		boolean inputIsAssemblyCode = inputFilePath.endsWith(EXTENSION_VRIL);
@@ -682,17 +683,19 @@ public final class VnanoCommandLineApplication {
 			AccelerationScheduler scheduler = new AccelerationScheduler();
 			AcceleratorInstruction[] acceleratorInstructions = scheduler.schedule(instructions, memory, dataManager);
 
-			if (withHeader) {
-				System.out.println("");
-				System.out.println("================================================================================");
-				System.out.println("= Accelerator Instructions");
-				System.out.println("= - Output of: org.vcssl.nano.vm.accelerator.AccelerationScheduler");
-				System.out.println("= - Input  of: org.vcssl.nano.vm.accelerator.AccelerationDispatcher");
-				System.out.println("================================================================================");
-			}
-			int acceleratorInstructionLength = acceleratorInstructions.length;
-			for (int i=0; i<acceleratorInstructionLength; i++) {
-				System.out.println("[" + i + "]\t" + acceleratorInstructions[i]);
+			if (accelerationInstruction) {
+				if (withHeader) {
+					System.out.println("");
+					System.out.println("================================================================================");
+					System.out.println("= Accelerator Instructions");
+					System.out.println("= - Output of: org.vcssl.nano.vm.accelerator.AccelerationScheduler");
+					System.out.println("= - Input  of: org.vcssl.nano.vm.accelerator.AccelerationDispatcher");
+					System.out.println("================================================================================");
+				}
+				int acceleratorInstructionLength = acceleratorInstructions.length;
+				for (int i=0; i<acceleratorInstructionLength; i++) {
+					System.out.println("[" + i + "]\t" + acceleratorInstructions[i]);
+				}
 			}
 
 			AccelerationDispatcher dispatcher = new AccelerationDispatcher();
@@ -700,16 +703,18 @@ public final class VnanoCommandLineApplication {
 					new Processor(), memory, interconnect, acceleratorInstructions, dataManager
 			);
 
-			if (withHeader) {
-				System.out.println("");
-				System.out.println("================================================================================");
-				System.out.println("= Acceleration Executor Nodes");
-				System.out.println("= - Output of: org.vcssl.nano.vm.accelerator.AccelerationDispatcher");
-				System.out.println("================================================================================");
-			}
-			int executorNodeLength = executorNodes.length;
-			for (int i=0; i<executorNodeLength; i++) {
-				System.out.println("[" + i + "]\t" + executorNodes[i].getClass().getName().replace("org.vcssl.nano.vm.accelerator.", ""));
+			if (accelerationNode) {
+				if (withHeader) {
+					System.out.println("");
+					System.out.println("================================================================================");
+					System.out.println("= Acceleration Executor Nodes");
+					System.out.println("= - Output of: org.vcssl.nano.vm.accelerator.AccelerationDispatcher");
+					System.out.println("================================================================================");
+				}
+				int executorNodeLength = executorNodes.length;
+				for (int i=0; i<executorNodeLength; i++) {
+					System.out.println("[" + i + "]\t" + executorNodes[i].getClass().getName().replace("org.vcssl.nano.vm.accelerator.", ""));
+				}
 			}
 		}
 
