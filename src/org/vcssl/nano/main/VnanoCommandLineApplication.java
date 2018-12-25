@@ -32,7 +32,15 @@ import org.vcssl.nano.compiler.Token;
 import org.vcssl.nano.interconnect.Interconnect;
 import org.vcssl.nano.vm.VirtualMachine;
 import org.vcssl.nano.vm.VirtualMachineObjectCode;
+import org.vcssl.nano.vm.accelerator.AccelerationDataManager;
+import org.vcssl.nano.vm.accelerator.AccelerationDispatcher;
+import org.vcssl.nano.vm.accelerator.AccelerationExecutorNode;
+import org.vcssl.nano.vm.accelerator.AccelerationScheduler;
+import org.vcssl.nano.vm.accelerator.AcceleratorInstruction;
 import org.vcssl.nano.vm.assembler.Assembler;
+import org.vcssl.nano.vm.memory.Memory;
+import org.vcssl.nano.vm.processor.Instruction;
+import org.vcssl.nano.vm.processor.Processor;
 
 public final class VnanoCommandLineApplication {
 
@@ -44,6 +52,7 @@ public final class VnanoCommandLineApplication {
 	private static final String OPTION_NAME_HELP = "help";
 	private static final String OPTION_NAME_DUMP = "dump";
 	private static final String OPTION_NAME_RUN = "run";
+	private static final String OPTION_NAME_ACCELERATOR = "accelerator";
 	private static final String OPTION_NAME_ENCODING = "encoding";
 	private static final String OPTION_NAME_DEFAULT = OPTION_NAME_FILE;
 
@@ -57,6 +66,8 @@ public final class VnanoCommandLineApplication {
 	private static final String DUMP_TARGET_ALL = "all";
 	private static final String DUMP_TARGET_DEFAULT = DUMP_TARGET_ALL;
 
+
+	private boolean acceleratorEnabled = true;
 	private boolean runRequired = true;
 	private String encoding = null;
 
@@ -262,6 +273,12 @@ public final class VnanoCommandLineApplication {
 				return;
 			}
 
+			// --accelerator オプションの場合
+			case OPTION_NAME_ACCELERATOR : {
+				this.setAcceleratorEnabled(optionValue);
+				return;
+			}
+
 			// --encoding オプションの場合
 			case OPTION_NAME_ENCODING : {
 				this.setEncoding(optionValue);
@@ -347,6 +364,19 @@ public final class VnanoCommandLineApplication {
 		} else {
 			System.err.println(
 					"Invalid value for " + OPTION_NAME_PREFIX + OPTION_NAME_RUN + "option: " + optionValue
+			);
+		}
+	}
+
+	private void setAcceleratorEnabled(String optionValue) {
+		// Boolean.valueOf だと true 以外が全て false になるので直球で比較
+		if (optionValue.equals("true")) {
+			this.acceleratorEnabled = true;
+		} else if (optionValue.equals("false")) {
+			this.acceleratorEnabled = false;
+		} else {
+			System.err.println(
+					"Invalid value for " + OPTION_NAME_PREFIX + OPTION_NAME_ACCELERATOR + "option: " + optionValue
 			);
 		}
 	}
@@ -617,17 +647,62 @@ public final class VnanoCommandLineApplication {
 				System.out.println("================================================================================");
 				System.out.println("= VM Object Code");
 				System.out.println("= - Output of: org.vcssl.nano.vm.assembler.Assembler");
+				System.out.println("= - Input  of: org.vcssl.nano.vm.processor.Processor");
+				System.out.println("= -        or: org.vcssl.nano.vm.accelerator.Accelerator");
 				System.out.println("================================================================================");
 			}
 			vmObjectCode.dump();
 		}
 
+		// Acceleratorが有効の場合は、その内部での高速化リソースもダンプする
+		if (this.acceleratorEnabled) {
+
+			Memory memory = new Memory();
+			memory.allocate(vmObjectCode, interconnect.getGlobalVariableTable());
+			Instruction[] instructions = vmObjectCode.getInstructions();
+			AccelerationDataManager dataManager = new AccelerationDataManager();
+			dataManager.allocate(instructions, memory);
+			AccelerationScheduler scheduler = new AccelerationScheduler();
+			AcceleratorInstruction[] acceleratorInstructions = scheduler.schedule(instructions, memory, dataManager);
+
+			if (withHeader) {
+				System.out.println("");
+				System.out.println("================================================================================");
+				System.out.println("= Accelerator Instructions");
+				System.out.println("= - Output of: org.vcssl.nano.vm.accelerator.AccelerationScheduler");
+				System.out.println("= - Input  of: org.vcssl.nano.vm.accelerator.AccelerationDispatcher");
+				System.out.println("================================================================================");
+			}
+			int acceleratorInstructionLength = acceleratorInstructions.length;
+			for (int i=0; i<acceleratorInstructionLength; i++) {
+				System.out.println("[" + i + "]\t" + acceleratorInstructions[i]);
+			}
+
+			AccelerationDispatcher dispatcher = new AccelerationDispatcher();
+			AccelerationExecutorNode[] executorNodes = dispatcher.dispatch(
+					new Processor(), memory, interconnect, acceleratorInstructions, dataManager
+			);
+
+			if (withHeader) {
+				System.out.println("");
+				System.out.println("================================================================================");
+				System.out.println("= Acceleration Executor Nodes");
+				System.out.println("= - Output of: org.vcssl.nano.vm.accelerator.AccelerationDispatcher");
+				System.out.println("================================================================================");
+			}
+			int executorNodeLength = executorNodes.length;
+			for (int i=0; i<executorNodeLength; i++) {
+				System.out.println("[" + i + "]\t" + executorNodes[i].getClass().getName().replace("org.vcssl.nano.vm.accelerator.", ""));
+			}
+		}
+
+
 		if (withHeader) {
+			System.out.println("");
 			System.out.println("================================================================================");
 			System.out.println("= DUMP END");
 			System.out.println("================================================================================");
 		}
-
 	}
 
 	private void executeFile(String inputFilePath) {
