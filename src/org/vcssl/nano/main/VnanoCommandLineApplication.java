@@ -22,6 +22,7 @@ import javax.script.ScriptException;
 
 import org.vcssl.connect.MethodXfci1Adapter;
 import org.vcssl.nano.VnanoException;
+import org.vcssl.nano.compiler.Compiler;
 import org.vcssl.nano.compiler.AstNode;
 import org.vcssl.nano.compiler.CodeGenerator;
 import org.vcssl.nano.compiler.Parser;
@@ -168,7 +169,7 @@ public final class VnanoCommandLineApplication {
 		System.out.println("  --run <runOrNot>");
 		System.out.println("");
 		System.out.println("      Specify whether you want to run the code loaded from the file or not.");
-		System.out.println("      This option is enabled as the default, and the default value is true.");
+		System.out.println("      This option is specified by default, and the default value is true.");
 		System.out.println("      You can choose and specify the value of <runOrNot> from the followings:");
 		System.out.println("");
 		System.out.println("        true (default) : Run the code.");
@@ -183,6 +184,22 @@ public final class VnanoCommandLineApplication {
 		System.out.println("      java -jar Vnano.jar Example.vnano --run false --dump assemblyCode > debug.txt");
 		System.out.println("");
 		System.out.println("");
+
+		System.out.println("  --accelerator <enableOrDisable>");
+		System.out.println("");
+		System.out.println("      Specify whether you want to enable the accelerator.");
+		System.out.println("      This option is specified by default, and the default value is true.");
+		System.out.println("      You can choose and specify the value of <enableOrDisable> from the followings:");
+		System.out.println("");
+		System.out.println("        true (default) : Enable the accelerator.");
+		System.out.println("        false          : Disable the accelerator.");
+		System.out.println("");
+		System.out.println("    e.g.");
+		System.out.println("");
+		System.out.println("      java -jar Vnano.jar Example.vnano --accelerator true");
+		System.out.println("      java -jar Vnano.jar Example.vnano --accelerator false");
+		System.out.println("");
+
 		System.out.println("[ Supported Functions ]");
 		System.out.println("");
 		System.out.println("    For development and debugging, following functions are available");
@@ -729,6 +746,8 @@ public final class VnanoCommandLineApplication {
 			return;
 		}
 
+		// --accelerator オプション対応のため、暫定的にスクリプトエンジン内のコンパイラとVMを直接呼ぶよう変更
+		/*
 		// スクリプトを実行
 		try {
 			engine.eval(scriptCode);
@@ -736,13 +755,32 @@ public final class VnanoCommandLineApplication {
 			e.printStackTrace();
 			return;
 		}
+		*/
+
+		// メソッド接続済みのインターコネクトを生成して取得
+		Interconnect interconnect = this.createInitializedInterconnect();
+		if (interconnect == null) {
+			return;
+		}
+
+		// スクリプトコードをコンパイルし、プロセス仮想マシンで実行
+		try {
+			Compiler compiler = new Compiler();
+			String assemblyCode = compiler.compile(scriptCode, inputFilePath, interconnect);
+			VirtualMachine vm = new VirtualMachine();
+			vm.setAcceleratorEnabled(this.acceleratorEnabled);
+			vm.eval(assemblyCode, interconnect);
+		} catch (VnanoException e) {
+			new ScriptException(e).printStackTrace();
+			return;
+		}
 	}
 
 	public void executeVrilCodeFile(String inputFilePath) {
 
-		// ファイルからVRILコードを全部読み込む
-		String vrilCode = this.loadCode(inputFilePath);
-		if (vrilCode == null) {
+		// ファイルから仮想アセンブリコード（VRILコード）を全部読み込む
+		String assemblyCode = this.loadCode(inputFilePath);
+		if (assemblyCode == null) {
 			return;
 		}
 
@@ -754,10 +792,11 @@ public final class VnanoCommandLineApplication {
 
 		// プロセス仮想マシンを生成し、VRILコードを渡して実行
 		VirtualMachine vm = new VirtualMachine();
+		vm.setAcceleratorEnabled(this.acceleratorEnabled);
 		try {
-			vm.eval(vrilCode, interconnect);
+			vm.eval(assemblyCode, interconnect);
 		} catch (VnanoException e) {
-			e.printStackTrace();
+			new ScriptException(e).printStackTrace();
 			return;
 		}
 	}

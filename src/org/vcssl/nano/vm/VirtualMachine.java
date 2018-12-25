@@ -19,6 +19,10 @@ public class VirtualMachine {
 
 	private boolean acceleratorEnabled = true;
 
+	public void setAcceleratorEnabled(boolean enabled) {
+		this.acceleratorEnabled = enabled;
+	}
+
 	public Object eval(String assemblyCode, Interconnect interconnect) throws VnanoException {
 
 		// アセンブラで中間アセンブリコード（VRILコード）から実行用の中間コードに変換
