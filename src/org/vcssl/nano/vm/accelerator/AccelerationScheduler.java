@@ -7,6 +7,7 @@ package org.vcssl.nano.vm.accelerator;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -20,11 +21,36 @@ import org.vcssl.nano.vm.processor.OperationCode;
 public class AccelerationScheduler {
 
 
-	List<AcceleratorInstruction> acceleratorInstructionList;
-	AcceleratorInstruction[] buffer;
-	Map<Integer,Integer> addressReorderingMap;
-	int registerWrittenPointCount[];
-	int registerReadPointCount[];
+	private List<AcceleratorInstruction> acceleratorInstructionList;
+	private AcceleratorInstruction[] buffer;
+	private Map<Integer,Integer> addressReorderingMap;
+	private int registerWrittenPointCount[];
+	private int registerReadPointCount[];
+
+	// 演算結果格納レジスタからのMOV命令でのコピーを削る最適化を、適用してもよい命令の集合
+	// (算術演算命令などは可能、ELEM命令などのメモリー関連命令では不可能)
+	private static final HashSet<OperationCode> movReducableOpcodeSet = new HashSet<OperationCode>();
+	static {
+		movReducableOpcodeSet.add(OperationCode.ADD);
+		movReducableOpcodeSet.add(OperationCode.SUB);
+		movReducableOpcodeSet.add(OperationCode.MUL);
+		movReducableOpcodeSet.add(OperationCode.DIV);
+		movReducableOpcodeSet.add(OperationCode.REM);
+		movReducableOpcodeSet.add(OperationCode.NEG);
+
+		movReducableOpcodeSet.add(OperationCode.EQ);
+		movReducableOpcodeSet.add(OperationCode.NEQ);
+		movReducableOpcodeSet.add(OperationCode.GT);
+		movReducableOpcodeSet.add(OperationCode.LT);
+		movReducableOpcodeSet.add(OperationCode.GEQ);
+		movReducableOpcodeSet.add(OperationCode.LEQ);
+
+		movReducableOpcodeSet.add(OperationCode.AND);
+		movReducableOpcodeSet.add(OperationCode.OR);
+		movReducableOpcodeSet.add(OperationCode.NOT);
+		movReducableOpcodeSet.add(OperationCode.CAST);
+	}
+
 
 	public AcceleratorInstruction[] schedule(
 			Instruction[] instructions, Memory memory, AccelerationDataManager dataManager) {
@@ -704,10 +730,22 @@ public class AccelerationScheduler {
 				continue;
 			}
 
+			// 次に続くMOV命令を削るとまずい命令ならスキップ（ELEM命令など）
+			if(!movReducableOpcodeSet.contains(currentInstruction.getOperationCode())) {
+				continue;
+			}
 
-			// ここまで到達するのは、演算結果をレジスタに格納し、次で別の領域にMOVしている場合であり、
-			// かつ、そのレジスタを他のどこでも使用していない場合なので、
-			// MOV先に演算結果を直接に格納するようにして、MOV命令を削る
+
+			// --------------------------------------------------------------------------------
+			// ここまで到達するのは：
+			//
+			// ・演算結果をレジスタに格納し、
+			// ・次で別の領域にMOVしていて、
+			// ・そのレジスタを他のどこでも使用しておらず、
+			// ・命令の演算結果を、MOV先に直接格納するように改変しても問題ない場合
+			//
+			// なので、オペランドを入れ替えて冗長なMOV命令を削る
+			// --------------------------------------------------------------------------------
 
 
 			// 対象演算命令のオペランド部を複製
