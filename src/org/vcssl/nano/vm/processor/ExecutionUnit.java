@@ -1074,13 +1074,11 @@ public class ExecutionUnit {
 	 * @param type 確保するデータの型
 	 * @param target 対象データ
 	 * @param dataLength 多次元配列の総要素数
-	 * @param arrayLength 多次元配列における、各次元の要素数を格納する配列
+	 * @param arrayLengths 多次元配列における、各次元の要素数を格納する配列
 	 * @throws VnanoFatalException 無効なデータ型が指定された場合に発生します。
 	 */
 	@SuppressWarnings("unchecked")
-	public void alloc(DataType type, DataContainer<?> target, int dataLength, int[] arrayLength) {
-
-		target.setLengths(arrayLength);
+	public void alloc(DataType type, DataContainer<?> target, int dataLength, int[] arrayLengths) {
 
 		Object currentData = target.getData();
 		int currentDataLength = target.getSize();
@@ -1090,25 +1088,25 @@ public class ExecutionUnit {
 		switch (type) {
 			case INT64 : {
 				if (!(currentData instanceof long[]) || currentDataLength != dataLength) {
-					((DataContainer<long[]>)target).setData(new long[dataLength]);
+					((DataContainer<long[]>)target).setData(new long[dataLength], arrayLengths);
 				}
 				return;
 			}
 			case FLOAT64 : {
 				if (!(currentData instanceof double[]) || currentDataLength != dataLength) {
-					((DataContainer<double[]>)target).setData(new double[dataLength]);
+					((DataContainer<double[]>)target).setData(new double[dataLength], arrayLengths);
 				}
 				return;
 			}
 			case BOOL : {
 				if (!(currentData instanceof boolean[]) || currentDataLength != dataLength) {
-					((DataContainer<boolean[]>)target).setData(new boolean[dataLength]);
+					((DataContainer<boolean[]>)target).setData(new boolean[dataLength], arrayLengths);
 				}
 				return;
 			}
 			case STRING : {
 				if (!(currentData instanceof String[]) || currentDataLength != dataLength) {
-					((DataContainer<String[]>)target).setData(new String[dataLength]);
+					((DataContainer<String[]>)target).setData(new String[dataLength], arrayLengths);
 				}
 				return;
 			}
@@ -1360,8 +1358,8 @@ public class ExecutionUnit {
 				throw new VnanoFatalException("Unknown data type: " + type);
 			}
 		}
-		dest.setSize(DataContainer.SIZE_OF_SCALAR);
-		dest.setLengths(DataContainer.LENGTHS_OF_SCALAR);
+		//dest.setSize(DataContainer.SIZE_OF_SCALAR);
+		//dest.setLengths(DataContainer.LENGTHS_OF_SCALAR);
 	}
 
 
@@ -1385,15 +1383,15 @@ public class ExecutionUnit {
 	public void vec(DataType type, DataContainer<?> dest, DataContainer<?>[] elements) {
 
 		int dataLength = elements.length;
-		int[] arrayLength = new int[]{dataLength};
+		int[] arrayLengths = new int[]{dataLength};
 
 		this.checkDataType(dest, type);
 		for (int dataIndex=0; dataIndex<dataLength; dataIndex++) {
 			this.checkDataType(elements[dataIndex], type);
 		}
 
-		dest.setSize(dataLength);
-		dest.setLengths(arrayLength);
+		//dest.setSize(dataLength);
+		//dest.setLengths(arrayLength);
 
 		switch (type) {
 			case INT64 : {
@@ -1402,7 +1400,7 @@ public class ExecutionUnit {
 					int fromDataIndex = elements[dataIndex].getOffset();
 					data[dataIndex] = ((long[])(elements[dataIndex].getData()))[fromDataIndex];
 				}
-				((DataContainer<long[]>)dest).setData(data);
+				((DataContainer<long[]>)dest).setData(data, arrayLengths);
 				return;
 			}
 			case FLOAT64 : {
@@ -1411,7 +1409,7 @@ public class ExecutionUnit {
 					int fromDataIndex = elements[dataIndex].getOffset();
 					data[dataIndex] = ((double[])(elements[dataIndex].getData()))[fromDataIndex];
 				}
-				((DataContainer<double[]>)dest).setData(data);
+				((DataContainer<double[]>)dest).setData(data, arrayLengths);
 				return;
 			}
 			case BOOL : {
@@ -1420,7 +1418,7 @@ public class ExecutionUnit {
 					int fromDataIndex = elements[dataIndex].getOffset();
 					data[dataIndex] = ((boolean[])(elements[dataIndex].getData()))[fromDataIndex];
 				}
-				((DataContainer<boolean[]>)dest).setData(data);
+				((DataContainer<boolean[]>)dest).setData(data, arrayLengths);
 				return;
 			}
 			case STRING : {
@@ -1429,7 +1427,7 @@ public class ExecutionUnit {
 					int fromDataIndex = elements[dataIndex].getOffset();
 					data[dataIndex] = ((String[])(elements[dataIndex].getData()))[fromDataIndex];
 				}
-				((DataContainer<String[]>)dest).setData(data);
+				((DataContainer<String[]>)dest).setData(data, arrayLengths);
 				return;
 			}
 			default : {

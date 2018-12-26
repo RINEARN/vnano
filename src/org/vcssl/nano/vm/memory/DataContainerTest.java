@@ -29,7 +29,7 @@ public class DataContainerTest {
 		this.testSetGetData();
 		this.testSetGetData();
 		this.testGetOffset();
-		this.testSetGetLengths();
+		this.testGetLengths();
 		this.testGetRank();
 		this.testGetDataType();
 	}
@@ -110,10 +110,10 @@ public class DataContainerTest {
 		}
 	}
 
-	private void testSetGetLengths() {
+	private void testGetLengths() {
 		int[] lengths = new int[]{1, 2, 3};
 		DataContainer<long[]> container = new DataContainer<long[]>();
-		container.setLengths(lengths);
+		container.setData(new long[] {1l, 2l, 3l, 4l, 5l, 6l}, lengths);
 		if (container.getLengths().length != 3
 				|| container.getLengths()[0] != 1
 				|| container.getLengths()[1] != 2
@@ -126,7 +126,7 @@ public class DataContainerTest {
 	private void testGetRank() {
 		int[] lengths = new int[]{1, 2, 3};
 		DataContainer<long[]> container = new DataContainer<long[]>();
-		container.setLengths(lengths);
+		container.setData(new long[] {1l, 2l, 3l, 4l, 5l, 6l}, lengths);
 		if (container.getRank() != 3) {
 			fail("Incorrect value");
 		}

@@ -261,6 +261,7 @@ public class DataContainer<T> implements ArrayDataContainer1<T> {
 
 	/**
 	 * このデータコンテナが格納するデータを、次元ごとの長さ情報と共に設定します。
+	 * 同時に {@link DataContainer#size size} フィールドの値も、全次元の長さの積に設定されます。
 	 *
 	 * @param data 格納するデータ
 	 * @param arrayLengths 次元ごとの長さを格納する配列
@@ -268,6 +269,11 @@ public class DataContainer<T> implements ArrayDataContainer1<T> {
 	public final void setData(T data, int[] lengths) {
 		this.setData(data);
 		this.lengths = lengths;
+		int dataSize = 1;
+		for (int length: lengths) {
+			dataSize *= length;
+		}
+		this.size = dataSize;
 	}
 
 
@@ -275,6 +281,8 @@ public class DataContainer<T> implements ArrayDataContainer1<T> {
 	 * このデータコンテナが格納するデータをスカラ値と見なしたい場合において、
 	 * そのスカラ値を中に含んでいる配列データと、
 	 * その中でスカラ値が保持されているオフセット値を指定します。
+	 * 同時に {@link DataContainer#size size} フィールドや {@link DataContainer#lengths lengths}
+	 * フィールドも、スカラ値用の値に設定されます。
 	 *
 	 * @param data 格納するデータ
 	 * @param offset オフセット値（データ内でスカラ値が存在する配列インデックス）
@@ -282,6 +290,8 @@ public class DataContainer<T> implements ArrayDataContainer1<T> {
 	public final void setData(T data, int offset) {
 		this.setData(data);
 		this.offset = offset;
+		this.lengths = LENGTHS_OF_SCALAR;
+		this.size = SIZE_OF_SCALAR;
 	}
 
 
@@ -299,6 +309,7 @@ public class DataContainer<T> implements ArrayDataContainer1<T> {
 
 
 	/**
+	 * (本来はdataと独立に設定してもよい場面は限られているため、このメソッドへの依存性を低減させるために暫定的に無効化中)
 	 * オフセット値を指定します。
 	 *
 	 * オフセット値とは、このデータコンテナの格納対象データが、
@@ -365,6 +376,7 @@ public class DataContainer<T> implements ArrayDataContainer1<T> {
 
 
 	/**
+	 * (本来はdataと独立に設定してもよい場面は限られているため、このメソッドへの依存性を低減させるために暫定的に無効化中)
 	 * このデータコンテナが保持するデータの、
 	 * 多次元配列における各次元ごとの次元長（要素数）を、配列にまとめて設定します。
 	 *
@@ -376,9 +388,11 @@ public class DataContainer<T> implements ArrayDataContainer1<T> {
 	 *
 	 * @param lengths 各次元の次元長を格納する配列
 	 */
+	/*
 	public final void setLengths(int[] lengths) {
 		this.lengths = lengths;
 	}
+	*/
 
 
 	/**
