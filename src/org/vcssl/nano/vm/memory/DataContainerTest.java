@@ -28,8 +28,8 @@ public class DataContainerTest {
 		this.testInitialize();
 		this.testSetGetData();
 		this.testSetGetData();
-		this.testSetGetOffset();
-		this.testSetGetLengths();
+		this.testGetOffset();
+		this.testGetLengths();
 		this.testGetRank();
 		this.testGetDataType();
 	}
@@ -66,10 +66,19 @@ public class DataContainerTest {
 		DataContainer<long[]> container = new DataContainer<long[]>();
 
 		// 状態をデフォルトから変える
-		container.setSize(5);
-		container.setLengths(new int[]{ 5 });
-		container.setOffset(1); // 本来ベクトルは常にオフセット0であるが初期化検証のため設定
-		container.setData(new long[4]);
+		int lengths[] = new int[] { 5 };
+		container.setData(new long[4], lengths);
+
+		// 初期化
+		container.initialize();
+
+		// デフォルトに戻っているか検査
+		this.testDefaultState(container);
+
+		// オフセット値を変える場合も試す
+		container = new DataContainer<long[]>();
+		int offset = 1;
+		container.setData(new long[4], offset);
 
 		// 初期化
 		container.initialize();
@@ -91,18 +100,19 @@ public class DataContainerTest {
 		// ここで未対応のデータを設定してエラーが出る事を確認すべき？
 	}
 
-	private void testSetGetOffset() {
+	private void testGetOffset() {
 		DataContainer<long[]> container = new DataContainer<long[]>();
-		container.setOffset(3);
+		int offset = 3;
+		container.setData(new long[5], offset);
 		if (container.getOffset() != 3) {
 			fail("Incorrect value");
 		}
 	}
 
-	private void testSetGetLengths() {
+	private void testGetLengths() {
 		int[] lengths = new int[]{1, 2, 3};
 		DataContainer<long[]> container = new DataContainer<long[]>();
-		container.setLengths(lengths);
+		container.setData(new long[] {1l, 2l, 3l, 4l, 5l, 6l}, lengths);
 		if (container.getLengths().length != 3
 				|| container.getLengths()[0] != 1
 				|| container.getLengths()[1] != 2
@@ -115,7 +125,7 @@ public class DataContainerTest {
 	private void testGetRank() {
 		int[] lengths = new int[]{1, 2, 3};
 		DataContainer<long[]> container = new DataContainer<long[]>();
-		container.setLengths(lengths);
+		container.setData(new long[] {1l, 2l, 3l, 4l, 5l, 6l}, lengths);
 		if (container.getRank() != 3) {
 			fail("Incorrect value");
 		}

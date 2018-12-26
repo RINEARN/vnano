@@ -116,22 +116,16 @@ public class DispatchUnitTest {
 		this.int64Output = new DataContainer<long[]>();
 		this.int64InputA = new DataContainer<long[]>();
 		this.int64InputB = new DataContainer<long[]>();
-		this.int64Output.setSize(3);
-		this.int64InputA.setSize(3);
-		this.int64InputB.setSize(3);
-		this.int64Output.setLengths(new int[]{ 3 });
-		this.int64InputA.setLengths(new int[]{ 3 });
-		this.int64InputB.setLengths(new int[]{ 3 });
+		this.int64Output.setData(new long[3], new int[]{ 3 });
+		this.int64InputA.setData(new long[3], new int[]{ 3 });
+		this.int64InputB.setData(new long[3], new int[]{ 3 });
 
 		this.boolOutput = new DataContainer<boolean[]>();
 		this.boolInputA = new DataContainer<boolean[]>();
 		this.boolInputB = new DataContainer<boolean[]>();
-		this.boolOutput.setSize(3);
-		this.boolInputA.setSize(3);
-		this.boolInputB.setSize(3);
-		this.boolOutput.setLengths(new int[]{ 3 });
-		this.boolInputA.setLengths(new int[]{ 3 });
-		this.boolInputB.setLengths(new int[]{ 3 });
+		this.boolOutput.setData(new boolean[3], new int[]{ 3 });
+		this.boolInputA.setData(new boolean[3], new int[]{ 3 });
+		this.boolInputB.setData(new boolean[3], new int[]{ 3 });
 
 		this.memory = new Memory();
 		this.memory.setDataContainer(INT64_OUTPUT_PART, INT64_OUTPUT_ADDR, this.int64Output);
@@ -900,12 +894,11 @@ public class DispatchUnitTest {
 
 		// キャスト元のFLOAT64データを雑用アドレスに用意
 		DataContainer<double[]> float64Input = new DataContainer<double[]>();
-		float64Input.setSize(3);
-		float64Input.setLengths(new int[]{ 3 });
 		this.memory.setDataContainer(TMP_A_PART, TMP_A_ADDR, float64Input);
 
 		// 入出力オペランドに値を設定
-		float64Input.setData(new double[]{ 1.25, 2.25, 3.5 }); // 2進表現で割り切れる値
+		int[] lengths = new int[]{ 3 };
+		float64Input.setData(new double[]{ 1.25, 2.25, 3.5 }, lengths); // 2進表現で割り切れる値
 		this.int64Output.setData(new long[]{ -1L, -1L, -1L });
 
 		// 上記オペランドで演算を行う命令を生成
@@ -1023,16 +1016,14 @@ public class DispatchUnitTest {
 		// 配列や要素数を格納するコンテナを雑用アドレスに用意
 		DataContainer<long[]> len = new DataContainer<long[]>();
 		DataContainer<long[]> array = new DataContainer<long[]>();
-		len.setLengths(new int[]{ 3 });
-		array.setLengths(new int[]{ 2, 3, 4 });
-		len.setSize(3);
-		array.setSize(24);
+		int[] lenLengths = new int[]{ 3 };
+		int[] arrayLengths = new int[]{ 2, 3, 4 };
 		this.memory.setDataContainer(TMP_A_PART, TMP_A_ADDR, len);
 		this.memory.setDataContainer(TMP_B_PART, TMP_B_ADDR, array);
 
 		// 入出力オペランドに値を設定
-		array.setData(new long[]{0L,1L,2L,3L,4L,5L,6L,7L,8L,9L,10L,11L,12L,13L,14L,15L,16L,17L,18L,19L,20L,21L,22L,23L});
-		len.setData(new long[]{ -1L, -1L, -1L });
+		array.setData(new long[]{0L,1L,2L,3L,4L,5L,6L,7L,8L,9L,10L,11L,12L,13L,14L,15L,16L,17L,18L,19L,20L,21L,22L,23L}, arrayLengths);
+		len.setData(new long[]{ -1L, -1L, -1L }, lenLengths);
 
 		// 上記オペランドで演算を行う命令を生成
 		Instruction instruction = new Instruction(
@@ -1068,14 +1059,12 @@ public class DispatchUnitTest {
 
 		// 解放するコンテナを雑用アドレスに用意
 		DataContainer<long[]> target = new DataContainer<long[]>();
-		target.setOffset(1); // 本来ベクトルは常にオフセット0であるが初期化検証のため設定
-		target.setSize(4); // 5-offset
-		target.setLengths(new int[]{ 4 }); // 5-offset
+		int[] targetLengths = new int[]{ 4 }; // 5-offset
 		this.memory.setDataContainer(TMP_A_PART, TMP_A_ADDR, target);
 
 		// データを格納
 		long[] data = new long[]{ 1L, 2L, 3L, 4L, 5L };
-		target.setData(data);
+		target.setData(data, targetLengths);
 
 		// 上記オペランドで演算を行う命令を生成
 		Instruction instruction = new Instruction(
@@ -1087,7 +1076,7 @@ public class DispatchUnitTest {
 
 		// データ解放前の状態を念のため検査
 		if (target.getData() != data
-				|| target.getOffset() != 1
+				|| target.getOffset() != 0
 				|| target.getSize() != 4
 				|| target.getLengths()[0] != 4) {
 
@@ -1278,9 +1267,8 @@ public class DispatchUnitTest {
 		this.memory.setDataContainer(TMP_B_PART, TMP_B_ADDR, len);
 
 		// 要素数指定値を設定
-		len.setSize(3);
-		len.setLengths(new int[ 3 ]);
-		len.setData(new long[]{ 2L, 3L, 4L });
+		int[] lenLengths = new int[ 3 ];
+		len.setData(new long[]{ 2L, 3L, 4L }, lenLengths);
 
 		// 1オペランドのALLOC命令（スカラ確保）を生成
 		Instruction instruction = new Instruction(

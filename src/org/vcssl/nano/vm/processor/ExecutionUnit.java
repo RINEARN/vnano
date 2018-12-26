@@ -1074,41 +1074,36 @@ public class ExecutionUnit {
 	 * @param type 確保するデータの型
 	 * @param target 対象データ
 	 * @param dataLength 多次元配列の総要素数
-	 * @param arrayLength 多次元配列における、各次元の要素数を格納する配列
+	 * @param arrayLengths 多次元配列における、各次元の要素数を格納する配列
 	 * @throws VnanoFatalException 無効なデータ型が指定された場合に発生します。
 	 */
 	@SuppressWarnings("unchecked")
-	public void alloc(DataType type, DataContainer<?> target, int dataLength, int[] arrayLength) {
-
-		target.setLengths(arrayLength);
+	public void alloc(DataType type, DataContainer<?> target, int dataLength, int[] arrayLengths) {
 
 		Object currentData = target.getData();
-		int currentDataLength = target.getSize();
-		if (currentDataLength != dataLength) {
-			target.setSize(dataLength);
-		}
+		int currentSize = target.getSize();
 		switch (type) {
 			case INT64 : {
-				if (!(currentData instanceof long[]) || currentDataLength != dataLength) {
-					((DataContainer<long[]>)target).setData(new long[dataLength]);
+				if (!(currentData instanceof long[]) || currentSize != dataLength) {
+					((DataContainer<long[]>)target).setData(new long[dataLength], arrayLengths);
 				}
 				return;
 			}
 			case FLOAT64 : {
-				if (!(currentData instanceof double[]) || currentDataLength != dataLength) {
-					((DataContainer<double[]>)target).setData(new double[dataLength]);
+				if (!(currentData instanceof double[]) || currentSize != dataLength) {
+					((DataContainer<double[]>)target).setData(new double[dataLength], arrayLengths);
 				}
 				return;
 			}
 			case BOOL : {
-				if (!(currentData instanceof boolean[]) || currentDataLength != dataLength) {
-					((DataContainer<boolean[]>)target).setData(new boolean[dataLength]);
+				if (!(currentData instanceof boolean[]) || currentSize != dataLength) {
+					((DataContainer<boolean[]>)target).setData(new boolean[dataLength], arrayLengths);
 				}
 				return;
 			}
 			case STRING : {
-				if (!(currentData instanceof String[]) || currentDataLength != dataLength) {
-					((DataContainer<String[]>)target).setData(new String[dataLength]);
+				if (!(currentData instanceof String[]) || currentSize != dataLength) {
+					((DataContainer<String[]>)target).setData(new String[dataLength], arrayLengths);
 				}
 				return;
 			}
@@ -1341,28 +1336,27 @@ public class ExecutionUnit {
 
 		switch (type) {
 			case INT64 : {
-				((DataContainer<long[]>)dest).setData(((DataContainer<long[]>)src).getData());
+				((DataContainer<long[]>)dest).setData(((DataContainer<long[]>)src).getData(), dataIndex);
 				break;
 			}
 			case FLOAT64 : {
-				((DataContainer<double[]>)dest).setData(((DataContainer<double[]>)src).getData());
+				((DataContainer<double[]>)dest).setData(((DataContainer<double[]>)src).getData(), dataIndex);
 				break;
 			}
 			case BOOL : {
-				((DataContainer<boolean[]>)dest).setData(((DataContainer<boolean[]>)src).getData());
+				((DataContainer<boolean[]>)dest).setData(((DataContainer<boolean[]>)src).getData(), dataIndex);
 				break;
 			}
 			case STRING : {
-				((DataContainer<String[]>)dest).setData(((DataContainer<String[]>)src).getData());
+				((DataContainer<String[]>)dest).setData(((DataContainer<String[]>)src).getData(), dataIndex);
 				break;
 			}
 			default : {
 				throw new VnanoFatalException("Unknown data type: " + type);
 			}
 		}
-		dest.setOffset(dataIndex);
-		dest.setSize(DataContainer.SIZE_OF_SCALAR);
-		dest.setLengths(DataContainer.LENGTHS_OF_SCALAR);
+		//dest.setSize(DataContainer.SIZE_OF_SCALAR);
+		//dest.setLengths(DataContainer.LENGTHS_OF_SCALAR);
 	}
 
 
@@ -1386,15 +1380,15 @@ public class ExecutionUnit {
 	public void vec(DataType type, DataContainer<?> dest, DataContainer<?>[] elements) {
 
 		int dataLength = elements.length;
-		int[] arrayLength = new int[]{dataLength};
+		int[] arrayLengths = new int[]{dataLength};
 
 		this.checkDataType(dest, type);
 		for (int dataIndex=0; dataIndex<dataLength; dataIndex++) {
 			this.checkDataType(elements[dataIndex], type);
 		}
 
-		dest.setSize(dataLength);
-		dest.setLengths(arrayLength);
+		//dest.setSize(dataLength);
+		//dest.setLengths(arrayLength);
 
 		switch (type) {
 			case INT64 : {
@@ -1403,7 +1397,7 @@ public class ExecutionUnit {
 					int fromDataIndex = elements[dataIndex].getOffset();
 					data[dataIndex] = ((long[])(elements[dataIndex].getData()))[fromDataIndex];
 				}
-				((DataContainer<long[]>)dest).setData(data);
+				((DataContainer<long[]>)dest).setData(data, arrayLengths);
 				return;
 			}
 			case FLOAT64 : {
@@ -1412,7 +1406,7 @@ public class ExecutionUnit {
 					int fromDataIndex = elements[dataIndex].getOffset();
 					data[dataIndex] = ((double[])(elements[dataIndex].getData()))[fromDataIndex];
 				}
-				((DataContainer<double[]>)dest).setData(data);
+				((DataContainer<double[]>)dest).setData(data, arrayLengths);
 				return;
 			}
 			case BOOL : {
@@ -1421,7 +1415,7 @@ public class ExecutionUnit {
 					int fromDataIndex = elements[dataIndex].getOffset();
 					data[dataIndex] = ((boolean[])(elements[dataIndex].getData()))[fromDataIndex];
 				}
-				((DataContainer<boolean[]>)dest).setData(data);
+				((DataContainer<boolean[]>)dest).setData(data, arrayLengths);
 				return;
 			}
 			case STRING : {
@@ -1430,7 +1424,7 @@ public class ExecutionUnit {
 					int fromDataIndex = elements[dataIndex].getOffset();
 					data[dataIndex] = ((String[])(elements[dataIndex].getData()))[fromDataIndex];
 				}
-				((DataContainer<String[]>)dest).setData(data);
+				((DataContainer<String[]>)dest).setData(data, arrayLengths);
 				return;
 			}
 			default : {
@@ -1503,16 +1497,20 @@ public class ExecutionUnit {
 									outputData[outputOffset+i] = Long.parseLong(targetData[targetIndex + i]);
 								}
 							} catch (NumberFormatException nfe){
-								VnanoException e = new VnanoException(ErrorType.CAST_FAILED_DUE_TO_VALUE);
-								e.setErrorWords(new String[] {targetData[targetIndex + i], "int" });
+								VnanoException e = new VnanoException(
+										ErrorType.CAST_FAILED_DUE_TO_VALUE,
+										new String[] {targetData[targetIndex + i], "int" }
+								);
 								throw e;
 							}
 						}
 						return;
 					}
 					default : {
-						VnanoException e = new VnanoException(ErrorType.CAST_FAILED_DUE_TO_TYPE);
-						e.setErrorWords(new String[] {DataTypeName.getDataTypeNameOf(srcType), "int" });
+						VnanoException e = new VnanoException(
+								ErrorType.CAST_FAILED_DUE_TO_TYPE,
+								new String[] {DataTypeName.getDataTypeNameOf(srcType), "int" }
+						);
 						throw e;
 					}
 				}
@@ -1540,16 +1538,20 @@ public class ExecutionUnit {
 							try {
 								outputData[outputOffset+i] = Double.parseDouble(targetData[targetIndex + i]);
 							} catch (NumberFormatException nfe){
-								VnanoException e = new VnanoException(ErrorType.CAST_FAILED_DUE_TO_VALUE);
-								e.setErrorWords(new String[] {targetData[targetIndex + i], "float" });
+								VnanoException e = new VnanoException(
+										ErrorType.CAST_FAILED_DUE_TO_VALUE,
+										new String[] {targetData[targetIndex + i], "float" }
+								);
 								throw e;
 							}
 						}
 						return;
 					}
 					default : {
-						VnanoException e = new VnanoException(ErrorType.CAST_FAILED_DUE_TO_TYPE);
-						e.setErrorWords(new String[] {DataTypeName.getDataTypeNameOf(srcType), "float" });
+						VnanoException e = new VnanoException(
+								ErrorType.CAST_FAILED_DUE_TO_TYPE,
+								new String[] {DataTypeName.getDataTypeNameOf(srcType), "float" }
+						);
 						throw e;
 					}
 				}
@@ -1574,16 +1576,20 @@ public class ExecutionUnit {
 							} else if (targetData[targetIndex + i].equals(falseString)) {
 								outputData[outputOffset+i] = false;
 							} else {
-								VnanoException e = new VnanoException(ErrorType.CAST_FAILED_DUE_TO_VALUE);
-								e.setErrorWords(new String[] {targetData[targetIndex + i], "bool" });
+								VnanoException e = new VnanoException(
+										ErrorType.CAST_FAILED_DUE_TO_VALUE,
+										new String[] {targetData[targetIndex + i], "bool" }
+								);
 								throw e;
 							}
 						}
 						return;
 					}
 					default : {
-						VnanoException e = new VnanoException(ErrorType.CAST_FAILED_DUE_TO_TYPE);
-						e.setErrorWords(new String[] {DataTypeName.getDataTypeNameOf(srcType), "bool" });
+						VnanoException e = new VnanoException(
+								ErrorType.CAST_FAILED_DUE_TO_TYPE,
+								new String[] {DataTypeName.getDataTypeNameOf(srcType), "bool" }
+						);
 						throw e;
 					}
 				}
@@ -1620,15 +1626,19 @@ public class ExecutionUnit {
 						return;
 					}
 					default : {
-						VnanoException e = new VnanoException(ErrorType.CAST_FAILED_DUE_TO_TYPE);
-						e.setErrorWords(new String[] {DataTypeName.getDataTypeNameOf(srcType), "to string" });
+						VnanoException e = new VnanoException(
+								ErrorType.CAST_FAILED_DUE_TO_TYPE,
+								new String[] {DataTypeName.getDataTypeNameOf(srcType), "to string" }
+						);
 						throw e;
 					}
 				}
 			}
 			default : {
-				VnanoException e = new VnanoException(ErrorType.CAST_FAILED_DUE_TO_TYPE);
-				e.setErrorWords(new String[] {DataTypeName.getDataTypeNameOf(srcType), DataTypeName.getDataTypeNameOf(destType) });
+				VnanoException e = new VnanoException(
+						ErrorType.CAST_FAILED_DUE_TO_TYPE,
+						new String[] {DataTypeName.getDataTypeNameOf(srcType), DataTypeName.getDataTypeNameOf(destType) }
+				);
 				throw e;
 			}
 		}
