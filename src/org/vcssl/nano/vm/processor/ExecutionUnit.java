@@ -34,7 +34,7 @@ public class ExecutionUnit {
 
 
 	/**
-	 * {@link org.vcssl.nano.vm.processor.OperationCode#ADD ADD} 命令を実行します。
+	 * {@link org.vcssl.nano.spec.OperationCode#ADD ADD} 命令を実行します。
 	 *
 	 * この命令により、引数 inputA のデータと、引数 inputB のデータが加算され、
 	 * 結果が引数 output のデータに格納されます。
@@ -102,7 +102,7 @@ public class ExecutionUnit {
 
 
 	/**
-	 * {@link org.vcssl.nano.vm.processor.OperationCode#SUB SUB} 命令を実行します。
+	 * {@link org.vcssl.nano.spec.OperationCode#SUB SUB} 命令を実行します。
 	 *
 	 * この命令により、引数 inputA のデータから、引数 inputB のデータが減算され、
 	 * 結果が引数 output のデータに格納されます。
@@ -161,7 +161,7 @@ public class ExecutionUnit {
 
 
 	/**
-	 * {@link org.vcssl.nano.vm.processor.OperationCode#MUL MUL} 命令を実行します。
+	 * {@link org.vcssl.nano.spec.OperationCode#MUL MUL} 命令を実行します。
 	 *
 	 * この命令により、引数 inputA のデータに、引数 inputB のデータが乗算され、
 	 * 結果が引数 output のデータに格納されます。
@@ -220,7 +220,7 @@ public class ExecutionUnit {
 
 
 	/**
-	 * {@link org.vcssl.nano.vm.processor.OperationCode#DIV DIV} 命令を実行します。
+	 * {@link org.vcssl.nano.spec.OperationCode#DIV DIV} 命令を実行します。
 	 *
 	 * この命令により、引数 inputA のデータが、引数 inputB のデータで除算され、
 	 * 結果が引数 output のデータに格納されます。
@@ -279,7 +279,7 @@ public class ExecutionUnit {
 
 
 	/**
-	 * {@link org.vcssl.nano.vm.processor.OperationCode#REM REM} 命令を実行します。
+	 * {@link org.vcssl.nano.spec.OperationCode#REM REM} 命令を実行します。
 	 *
 	 * この命令により、引数 inputA のデータを、引数 inputB のデータで除算した剰余が計算され、
 	 * 結果が引数 output のデータに格納されます。
@@ -340,7 +340,7 @@ public class ExecutionUnit {
 
 
 	/**
-	 * {@link org.vcssl.nano.vm.processor.OperationCode#NEG NEG} 命令を実行します。
+	 * {@link org.vcssl.nano.spec.OperationCode#NEG NEG} 命令を実行します。
 	 *
 	 * この命令により、引数 input のデータの符号反転を行った結果が、
 	 * 引数 output のデータに格納されます。
@@ -393,7 +393,7 @@ public class ExecutionUnit {
 
 
 	/**
-	 * {@link org.vcssl.nano.vm.processor.OperationCode#EQ EQ} 命令を実行します。
+	 * {@link org.vcssl.nano.spec.OperationCode#EQ EQ} 命令を実行します。
 	 *
 	 * この命令により、引数 inputA のデータと、引数 inputB のデータの等値比較が行われ、
 	 * 結果が output のデータに格納されます。
@@ -471,7 +471,7 @@ public class ExecutionUnit {
 
 
 	/**
-	 * {@link org.vcssl.nano.vm.processor.OperationCode#NEQ NEQ} 命令を実行します。
+	 * {@link org.vcssl.nano.spec.OperationCode#NEQ NEQ} 命令を実行します。
 	 *
 	 * この命令により、引数 inputA のデータと、引数 inputB のデータの非等値比較が行われ、
 	 * 結果が output のデータに格納されます。
@@ -550,7 +550,7 @@ public class ExecutionUnit {
 
 
 	/**
-	 * {@link org.vcssl.nano.vm.processor.OperationCode#GEQ GEQ} 命令を実行します。
+	 * {@link org.vcssl.nano.spec.OperationCode#GEQ GEQ} 命令を実行します。
 	 *
 	 * この命令により、引数 inputA のデータと、引数 inputB のデータの大小比較が行われ、
 	 * 結果が output のデータに格納されます。
@@ -611,7 +611,7 @@ public class ExecutionUnit {
 
 
 	/**
-	 * {@link org.vcssl.nano.vm.processor.OperationCode#LEQ LEQ} 命令を実行します。
+	 * {@link org.vcssl.nano.spec.OperationCode#LEQ LEQ} 命令を実行します。
 	 *
 	 * この命令により、引数 inputA のデータと、引数 inputB のデータの大小比較が行われ、
 	 * 結果が output のデータに格納されます。
@@ -672,7 +672,7 @@ public class ExecutionUnit {
 
 
 	/**
-	 * {@link org.vcssl.nano.vm.processor.OperationCode#GT GT} 命令を実行します。
+	 * {@link org.vcssl.nano.spec.OperationCode#GT GT} 命令を実行します。
 	 *
 	 * この命令により、引数 inputA のデータと、引数 inputB のデータの大小比較が行われ、
 	 * 結果が output のデータに格納されます。
@@ -733,7 +733,7 @@ public class ExecutionUnit {
 
 
 	/**
-	 * {@link org.vcssl.nano.vm.processor.OperationCode#LT LT} 命令を実行します。
+	 * {@link org.vcssl.nano.spec.OperationCode#LT LT} 命令を実行します。
 	 *
 	 * この命令により、引数 inputA のデータと、引数 inputB のデータの大小比較が行われ、
 	 * 結果が output のデータに格納されます。
@@ -795,7 +795,7 @@ public class ExecutionUnit {
 
 
 	/**
-	 * {@link org.vcssl.nano.vm.processor.OperationCode#AND AND} 命令を実行します。
+	 * {@link org.vcssl.nano.spec.OperationCode#AND AND} 命令を実行します。
 	 *
 	 * この命令により、引数 inputA のデータと、引数 inputB との論理積が計算され、
 	 * 結果が output のデータに格納されます。
@@ -862,7 +862,7 @@ public class ExecutionUnit {
 
 
 	/**
-	 * {@link org.vcssl.nano.vm.processor.OperationCode#OR OR} 命令を実行します。
+	 * {@link org.vcssl.nano.spec.OperationCode#OR OR} 命令を実行します。
 	 *
 	 * この命令により、引数 inputA のデータと、引数 inputB との論理和が計算され、
 	 * 結果が output のデータに格納されます。
@@ -931,7 +931,7 @@ public class ExecutionUnit {
 
 
 	/**
-	 * {@link org.vcssl.nano.vm.processor.OperationCode#NOT NOT} 命令を実行します。
+	 * {@link org.vcssl.nano.spec.OperationCode#NOT NOT} 命令を実行します。
 	 *
 	 * この命令により、引数 input のデータの論理否定値が計算され、
 	 * 結果が output のデータに格納されます。
@@ -987,7 +987,7 @@ public class ExecutionUnit {
 
 
 	/**
-	 * 1オペランドの {@link org.vcssl.nano.vm.processor.OperationCode#ALLOC ALLOC} 命令（スカラ確保用）を実行します。
+	 * 1オペランドの {@link org.vcssl.nano.spec.OperationCode#ALLOC ALLOC} 命令（スカラ確保用）を実行します。
 	 *
 	 * この命令により、引数 target のデータの格納領域が、
 	 * 引数 type に指定されたデータ型のスカラ値を保持できるように確保されます。
@@ -1023,7 +1023,7 @@ public class ExecutionUnit {
 
 
 	/**
-	 * 2オペランドの {@link org.vcssl.nano.vm.processor.OperationCode#ALLOC ALLOC} 命令（配列確保用）を実行します。
+	 * 2オペランドの {@link org.vcssl.nano.spec.OperationCode#ALLOC ALLOC} 命令（配列確保用）を実行します。
 	 *
 	 * この命令により、引数 target のデータの格納領域が、
 	 * 引数 type に指定されたデータ型の、任意次元の配列値を保持できるように確保されます。
@@ -1055,7 +1055,7 @@ public class ExecutionUnit {
 	 * !!!!!これは引数の型からして内部用では？ 上の2オペランドのもので多次元配列の対応も必要なのでは？
 	 * 恐らくコメントの書き直しが必要。
 	 *
-	 * 3オペランドの {@link org.vcssl.nano.vm.processor.OperationCode#ALLOC ALLOC} 命令（多次元配列確保用）を実行します。
+	 * 3オペランドの {@link org.vcssl.nano.spec.OperationCode#ALLOC ALLOC} 命令（多次元配列確保用）を実行します。
 	 *
 	 * この命令により、引数 target のデータの格納領域が、
 	 * 引数 type に指定されたデータ型の多次元配列値を保持できるように確保されます。
@@ -1066,7 +1066,7 @@ public class ExecutionUnit {
 	 * ただし、この処理系では、スカラは0次元の配列として扱われるため、
 	 * 0次元の場合は dataLength に 1 を指定する必要があります。
 	 * しかしながら、その場合は1オペランドの
-	 * {@link org.vcssl.nano.vm.processor.OperationCode#ALLOC ALLOC}
+	 * {@link org.vcssl.nano.spec.OperationCode#ALLOC ALLOC}
 	 * 命令を実行する
 	 * {@link ExecutionUnit#alloc(org.vcssl.nano.vm.memory.DataContainer.DataType, DataContainer) alloc(Data.Type, Data)}
 	 * メソッドを使用する方が簡潔です。
@@ -1115,7 +1115,7 @@ public class ExecutionUnit {
 
 
 	/**
-	 * {@link org.vcssl.nano.vm.processor.OperationCode#MOV MOV} 命令を実行します。
+	 * {@link org.vcssl.nano.spec.OperationCode#MOV MOV} 命令を実行します。
 	 *
 	 * この命令の実行により、引数 src のデータが、引数 dest にコピーされます。
 	 * その際、データの参照がコピーされるのではなく、内容がコピーされます。
@@ -1126,12 +1126,12 @@ public class ExecutionUnit {
 	 * 引数 type に指定された型に揃っていなければなりません。
 	 *
 	 * コピー元とコピー先の型が異なる場合は、この命令の代わりに、
-	 * {@link org.vcssl.nano.vm.processor.OperationCode#CAST CAST}
+	 * {@link org.vcssl.nano.spec.OperationCode#CAST CAST}
 	 * 命令を使用する事で対応できます。
 	 *
 	 * しかしながら、この命令は型変換が不要な分だけ、一般に
 	 * （特に {@link Accelerator Accelerator}を有効化した場合において）
-	 * {@link org.vcssl.nano.vm.processor.OperationCode#CAST CAST}
+	 * {@link org.vcssl.nano.spec.OperationCode#CAST CAST}
 	 * 命令よりも処理速度面で有利です。
 	 *
 	 * @param type オペランドのデータ型
@@ -1238,7 +1238,7 @@ public class ExecutionUnit {
 
 
 	/**
-	 * {@link org.vcssl.nano.vm.processor.OperationCode#FILL FILL} 命令を実行します。
+	 * {@link org.vcssl.nano.spec.OperationCode#FILL FILL} 命令を実行します。
 	 *
 	 * この命令により、引数 output のデータの全要素値に、
 	 * 引数 filler のデータの値がコピーされます。
@@ -1306,7 +1306,7 @@ public class ExecutionUnit {
 
 	// これ可変長引数にするべきかも。多次元配列要素アクセスでVEC命令と交互に呼ぶのはコストが大きすぎる
 	/**
-	 * {@link org.vcssl.nano.vm.processor.OperationCode#ELEM ELEM} 命令を実行します。
+	 * {@link org.vcssl.nano.spec.OperationCode#ELEM ELEM} 命令を実行します。
 	 *
 	 * この命令の実行により、引数 dest が、引数 src のデータの配列要素を参照するようになります。
 	 *
@@ -1361,7 +1361,7 @@ public class ExecutionUnit {
 
 
 	/**
-	 * {@link org.vcssl.nano.vm.processor.OperationCode#VEC VEC} 命令を実行します。
+	 * {@link org.vcssl.nano.spec.OperationCode#VEC VEC} 命令を実行します。
 	 *
 	 * この命令の実行により、引数 dest の配列データの各要素に、
 	 * 引数 elements の各要素のデータのスカラ値がコピーされます。
@@ -1437,7 +1437,7 @@ public class ExecutionUnit {
 
 
 	/**
-	 * {@link org.vcssl.nano.vm.processor.OperationCode#CAST CAST} 命令を実行します。
+	 * {@link org.vcssl.nano.spec.OperationCode#CAST CAST} 命令を実行します。
 	 *
 	 * この命令の実行により、引数 src のデータが、
 	 * 型変換をされた上で、引数 dest のデータへとコピーされます。

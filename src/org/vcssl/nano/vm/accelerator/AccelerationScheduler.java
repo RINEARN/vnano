@@ -13,10 +13,10 @@ import java.util.Map;
 
 import org.vcssl.nano.VnanoFatalException;
 import org.vcssl.nano.lang.DataType;
+import org.vcssl.nano.spec.OperationCode;
 import org.vcssl.nano.vm.memory.DataContainer;
 import org.vcssl.nano.vm.memory.Memory;
 import org.vcssl.nano.vm.processor.Instruction;
-import org.vcssl.nano.vm.processor.OperationCode;
 
 public class AccelerationScheduler {
 

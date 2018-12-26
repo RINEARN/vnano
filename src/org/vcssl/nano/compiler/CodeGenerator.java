@@ -16,8 +16,8 @@ import org.vcssl.nano.spec.AssemblyWord;
 import org.vcssl.nano.spec.DataTypeName;
 import org.vcssl.nano.spec.IdentifierSyntax;
 import org.vcssl.nano.spec.LiteralSyntax;
+import org.vcssl.nano.spec.OperationCode;
 import org.vcssl.nano.spec.ScriptWord;
-import org.vcssl.nano.vm.processor.OperationCode;
 
 
 /**

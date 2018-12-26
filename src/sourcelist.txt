@@ -45,6 +45,7 @@
 ./org/vcssl/nano/spec/ErrorType.java
 ./org/vcssl/nano/spec/IdentifierSyntax.java
 ./org/vcssl/nano/spec/LiteralSyntax.java
+./org/vcssl/nano/spec/OperationCode.java
 ./org/vcssl/nano/spec/package-info.java
 ./org/vcssl/nano/spec/PriorityTable.java
 ./org/vcssl/nano/spec/ScriptWord.java
@@ -111,7 +112,6 @@
 ./org/vcssl/nano/vm/processor/DispatchUnit.java
 ./org/vcssl/nano/vm/processor/ExecutionUnit.java
 ./org/vcssl/nano/vm/processor/Instruction.java
-./org/vcssl/nano/vm/processor/OperationCode.java
 ./org/vcssl/nano/vm/processor/package-info.java
 ./org/vcssl/nano/vm/processor/Processable.java
 ./org/vcssl/nano/vm/processor/Processor.java

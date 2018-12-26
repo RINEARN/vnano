@@ -15,9 +15,9 @@ import org.vcssl.nano.lang.DataType;
 import org.vcssl.nano.lang.Variable;
 import org.vcssl.nano.spec.AssemblyWord;
 import org.vcssl.nano.spec.DataTypeName;
+import org.vcssl.nano.spec.OperationCode;
 import org.vcssl.nano.spec.PriorityTable;
 import org.vcssl.nano.spec.ScriptWord;
-import org.vcssl.nano.vm.processor.OperationCode;
 
 public class CodeGeneratorTest {
 

@@ -16,10 +16,10 @@ import org.vcssl.nano.interconnect.Interconnect;
 import org.vcssl.nano.spec.AssemblyWord;
 import org.vcssl.nano.spec.DataTypeName;
 import org.vcssl.nano.spec.LiteralSyntax;
+import org.vcssl.nano.spec.OperationCode;
 import org.vcssl.nano.vm.VirtualMachineObjectCode;
 import org.vcssl.nano.vm.memory.Memory;
 import org.vcssl.nano.vm.processor.Instruction;
-import org.vcssl.nano.vm.processor.OperationCode;
 
 
 /**

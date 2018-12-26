@@ -8,10 +8,10 @@ import org.vcssl.nano.VnanoFatalException;
 import org.vcssl.nano.VnanoException;
 import org.vcssl.nano.interconnect.Interconnect;
 import org.vcssl.nano.lang.DataType;
+import org.vcssl.nano.spec.OperationCode;
 import org.vcssl.nano.vm.memory.DataContainer;
 import org.vcssl.nano.vm.memory.Memory;
 import org.vcssl.nano.vm.processor.Instruction;
-import org.vcssl.nano.vm.processor.OperationCode;
 import org.vcssl.nano.vm.processor.Processor;
 
 public class AccelerationDispatcher {
