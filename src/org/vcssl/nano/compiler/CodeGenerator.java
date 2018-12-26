@@ -1794,7 +1794,7 @@ public class CodeGenerator {
 		StringBuilder codeBuilder = new StringBuilder();
 
 		// 中間言語名ディレクティブ
-		codeBuilder.append(AssemblyWord.ASSEMBLY_LANGUAGE_NAME_DIRECTIVE);
+		codeBuilder.append(AssemblyWord.ASSEMBLY_LANGUAGE_IDENTIFIER_DIRECTIVE);
 		codeBuilder.append(AssemblyWord.WORD_SEPARATOR);
 		codeBuilder.append("\"");
 		codeBuilder.append(AssemblyWord.ASSEMBLY_LANGUAGE_NAME);
@@ -1813,7 +1813,7 @@ public class CodeGenerator {
 
 
 		// スクリプト言語名ディレクティブ
-		codeBuilder.append(AssemblyWord.SCRIPT_LANGUAGE_NAME_DIRECTIVE);
+		codeBuilder.append(AssemblyWord.SCRIPT_LANGUAGE_IDENTIFIER_DIRECTIVE);
 		codeBuilder.append(AssemblyWord.WORD_SEPARATOR);
 		codeBuilder.append("\"");
 		codeBuilder.append(ScriptWord.SCRIPT_LANGUAGE_NAME);

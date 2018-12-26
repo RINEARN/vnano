@@ -42,9 +42,9 @@ public final class AssemblyWord {
 	public static final String INDENT_REGEX = "\t| ";
 
 	public static final char   DIRECTIVE_PREFIX = '#';
-	public static final String ASSEMBLY_LANGUAGE_NAME_DIRECTIVE = "#ASSEMBLY_LANGUAGE_NAME";
+	public static final String ASSEMBLY_LANGUAGE_IDENTIFIER_DIRECTIVE = "#ASSEMBLY_LANGUAGE_IDENTIFIER";
 	public static final String ASSEMBLY_LANGUAGE_VERSION_DIRECTIVE = "#ASSEMBLY_LANGUAGE_VERSION";
-	public static final String SCRIPT_LANGUAGE_NAME_DIRECTIVE = "#SCRIPT_LANGUAGE_NAME";
+	public static final String SCRIPT_LANGUAGE_IDENTIFIER_DIRECTIVE = "#SCRIPT_LANGUAGE_IDENTIFIER";
 	public static final String SCRIPT_LANGUAGE_VERSION_DIRECTIVE = "#SCRIPT_LANGUAGE_VERSION";
 	public static final String LOCAL_VARIABLE_DIRECTIVE = "#LOCAL_VARIABLE";
 	public static final String GLOBAL_VARIABLE_DIRECTIVE = "#GLOBAL_VARIABLE";
