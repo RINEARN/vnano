@@ -527,13 +527,22 @@ The (abbreviated) result is :
 	= - Output of: org.vcssl.nano.compiler.CodeGenerator
 	= - Input  of: org.vcssl.nano.vm.assembler.Assembler
 	================================================================================
+	#ASSEMBLY_LANGUAGE_IDENTIFIER   "Vector Register Intermediate Language (VRIL)";
+	#ASSEMBLY_LANGUAGE_VERSION      "0.0.1";
+	#SCRIPT_LANGUAGE_IDENTIFIER     "Vnano";
+	#SCRIPT_LANGUAGE_VERSION        "0.0.1";
+
 	#GLOBAL_FUNCTION        _output(int);
-	#META   "line=70, file=Example.vnano";
+
 	#LOCAL_VARIABLE _sum@0;
+	#LOCAL_VARIABLE _n@1;
+	#LOCAL_VARIABLE _i@2;
+
+	#META   "line=70, file=Example.vnano";
 	        ALLOC   int     _sum@0;
 	        MOV     int     _sum@0  ~int:0;
+
 	#META   "line=71, file=Example.vnano";
-	#LOCAL_VARIABLE _n@1;
 	        ALLOC   int     _n@1;
 	        MOV     int     _n@1    ~int:100;
 	        ...
@@ -576,23 +585,33 @@ The result is :
 
 実行結果は：
 
+	#ASSEMBLY_LANGUAGE_IDENTIFIER   "Vector Register Intermediate Language (VRIL)";
+	#ASSEMBLY_LANGUAGE_VERSION      "0.0.1";
+	#SCRIPT_LANGUAGE_IDENTIFIER     "Vnano";
+	#SCRIPT_LANGUAGE_VERSION        "0.0.1";
+
 	#GLOBAL_FUNCTION        _output(int);
-	#META   "line=70, file=Example.vnano";
+
 	#LOCAL_VARIABLE _sum@0;
+	#LOCAL_VARIABLE _n@1;
+	#LOCAL_VARIABLE _i@2;
+
+	#META   "line=70, file=Example.vnano";
 	        ALLOC   int     _sum@0;
 	        MOV     int     _sum@0  ~int:0;
+
 	#META   "line=71, file=Example.vnano";
-	#LOCAL_VARIABLE _n@1;
 	        ALLOC   int     _n@1;
 	        MOV     int     _n@1    ~int:100;
+
 	#META   "line=72, file=Example.vnano";
-	#LOCAL_VARIABLE _i@2;
 	        ALLOC   int     _i@2;
 	        MOV     int     _i@2    ~int:1;
 	#LABEL  &LABEL0;
 	        ALLOC   bool    R0;
 	        LEQ     int     R0      _i@2    _n@1;
 	        JMPN    bool    R0      &LABEL2;
+
 	#META   "line=73, file=Example.vnano";
 	        ADD     int     _sum@0  _sum@0  _i@2;
 	#LABEL  &LABEL1;
@@ -603,8 +622,10 @@ The result is :
 	        MOV     int     _i@2    R1;
 	        JMP     bool    ~bool:true      &LABEL0;
 	#LABEL  &LABEL2;
+
 	#META   "line=75, file=Example.vnano";
-	        CALL    void    R2      _output(int)    _sum@0;
+	        CALLX   void    R2      _output(int)    _sum@0;
+
 
 This is the compiled intermediate code of the script engine of Vnano, 
 which is written in Vector Register Intermediate Language (VRIL).

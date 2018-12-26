@@ -89,7 +89,6 @@ public class Assembler {
 			String[] words = line.split(AssemblyWord.WORD_SEPARATOR_REGEX);
 			int wordLength = words.length;
 
-
 			// メタディレクティブ -> 内容を控える定数データを生成
 			if (line.startsWith(AssemblyWord.META_DIRECTIVE)) {
 

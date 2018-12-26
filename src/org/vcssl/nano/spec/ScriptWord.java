@@ -17,6 +17,13 @@ import java.util.HashSet;
  */
 public class ScriptWord {
 
+	/** スクリプト言語の名称です。 */
+	public static final String SCRIPT_LANGUAGE_NAME = "Vnano";
+
+	/** スクリプト言語のバージョンです。 */
+	public static final String SCRIPT_LANGUAGE_VERSION = "0.0.1";
+
+
 	/** 空文字や改行など、トークンの区切りとなる文字の正規表現です。 */
 	public static final String TOKEN_SEPARATOR_REGEX = "( |　|\t|\n|\r|\r\n|\n\r)";
 

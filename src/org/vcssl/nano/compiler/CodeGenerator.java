@@ -257,6 +257,10 @@ public class CodeGenerator {
 
 		StringBuilder codeBuilder = new StringBuilder();
 
+		// 言語の識別用情報関連のディレクティブ（言語名やバージョンなど）を一括生成
+		codeBuilder.append( this.generateLanguageInformationDirectives() );
+
+
 		// 引数のASTに破壊的変更を加えないように複製
 		AstNode cloneAst = inputAst.clone();
 
@@ -265,18 +269,20 @@ public class CodeGenerator {
 		this.assignLabels(cloneAst);
 
 		// 関数ディレクティブを一括生成
-		String functionDirectives = generateFunctionIdentifierDirectives(cloneAst);
-		codeBuilder.append(functionDirectives);
+		codeBuilder.append( generateFunctionIdentifierDirectives(cloneAst) );
 
 		// グローバル変数ディレクティブを一括生成
-		String globalDirectives = generateGlobalIdentifierDirectives(cloneAst);
-		codeBuilder.append(globalDirectives);
+		codeBuilder.append( generateGlobalIdentifierDirectives(cloneAst) );
 
 		// 全ての文を辿ってコード生成
-		String code = this.trackAllStatements(cloneAst);
-		codeBuilder.append(code);
+		codeBuilder.append( this.trackAllStatements(cloneAst) );
 
-		return codeBuilder.toString();
+		// ここまでの内容で、コードは動作上は完成しているので取得
+		String code = codeBuilder.toString();
+
+		// 可読性を上げるため、生成コードの再整形を行う（行の並べ替えなどの軽い範囲）
+		String realignedCode = this.realign(code);
+		return realignedCode;
 	}
 
 
@@ -1781,8 +1787,53 @@ public class CodeGenerator {
 
 
 
+	/**
+	 * 言語の名称およびバージョンなどを記載したディレクティブを一括生成して返します。
+	 *
+	 * @return 言語の識別用情報関連のディレクティブ
+	 */
+	private String generateLanguageInformationDirectives() {
+		StringBuilder codeBuilder = new StringBuilder();
+
+		// 中間言語名ディレクティブ
+		codeBuilder.append(AssemblyWord.ASSEMBLY_LANGUAGE_IDENTIFIER_DIRECTIVE);
+		codeBuilder.append(AssemblyWord.WORD_SEPARATOR);
+		codeBuilder.append("\"");
+		codeBuilder.append(AssemblyWord.ASSEMBLY_LANGUAGE_NAME);
+		codeBuilder.append("\"");
+		codeBuilder.append(AssemblyWord.INSTRUCTION_SEPARATOR);
+		codeBuilder.append(AssemblyWord.LINE_SEPARATOR);
+
+		// 中間言語バージョンディレクティブ
+		codeBuilder.append(AssemblyWord.ASSEMBLY_LANGUAGE_VERSION_DIRECTIVE);
+		codeBuilder.append(AssemblyWord.WORD_SEPARATOR);
+		codeBuilder.append("\"");
+		codeBuilder.append(AssemblyWord.ASSEMBLY_LANGUAGE_VERSION);
+		codeBuilder.append("\"");
+		codeBuilder.append(AssemblyWord.INSTRUCTION_SEPARATOR);
+		codeBuilder.append(AssemblyWord.LINE_SEPARATOR);
 
 
+		// スクリプト言語名ディレクティブ
+		codeBuilder.append(AssemblyWord.SCRIPT_LANGUAGE_IDENTIFIER_DIRECTIVE);
+		codeBuilder.append(AssemblyWord.WORD_SEPARATOR);
+		codeBuilder.append("\"");
+		codeBuilder.append(ScriptWord.SCRIPT_LANGUAGE_NAME);
+		codeBuilder.append("\"");
+		codeBuilder.append(AssemblyWord.INSTRUCTION_SEPARATOR);
+		codeBuilder.append(AssemblyWord.LINE_SEPARATOR);
+
+		// スクリプト言語バージョンディレクティブ
+		codeBuilder.append(AssemblyWord.SCRIPT_LANGUAGE_VERSION_DIRECTIVE);
+		codeBuilder.append(AssemblyWord.WORD_SEPARATOR);
+		codeBuilder.append("\"");
+		codeBuilder.append(ScriptWord.SCRIPT_LANGUAGE_VERSION);
+		codeBuilder.append("\"");
+		codeBuilder.append(AssemblyWord.INSTRUCTION_SEPARATOR);
+		codeBuilder.append(AssemblyWord.LINE_SEPARATOR);
+
+		return codeBuilder.toString();
+	}
 
 
 	/**
@@ -1993,4 +2044,113 @@ public class CodeGenerator {
 	}
 
 
+	/**
+	 * 生成済みのコードに対して、可読性を向上させるための際整形を行います。
+	 *
+	 * @param code 元のコード
+	 * @return 際整形済みのコード
+	 */
+	private String realign(String code) {
+		StringBuilder codeBuilder = new StringBuilder();
+
+		String[] lines = code.split(AssemblyWord.LINE_SEPARATOR_REGEX);
+		int lineLength = lines.length;
+
+		// 言語情報ディレクティブの抽出/配置
+		boolean languageDirectiveExist = false;
+		for (int lineIndex=0; lineIndex<lineLength; lineIndex++) {
+			if (lines[lineIndex].startsWith(AssemblyWord.ASSEMBLY_LANGUAGE_IDENTIFIER_DIRECTIVE)
+					|| lines[lineIndex].startsWith(AssemblyWord.ASSEMBLY_LANGUAGE_VERSION_DIRECTIVE)
+					|| lines[lineIndex].startsWith(AssemblyWord.SCRIPT_LANGUAGE_IDENTIFIER_DIRECTIVE)
+					|| lines[lineIndex].startsWith(AssemblyWord.SCRIPT_LANGUAGE_VERSION_DIRECTIVE)) {
+
+				languageDirectiveExist = true;
+				codeBuilder.append(lines[lineIndex]);
+				codeBuilder.append(AssemblyWord.LINE_SEPARATOR);
+				lines[lineIndex] = "";
+			}
+		}
+
+		// ディレクティブの種類が変わる箇所で空白行を挟む
+		if (languageDirectiveExist) {
+			codeBuilder.append(AssemblyWord.LINE_SEPARATOR);
+		}
+
+		// グローバル関数ディレクティブの抽出/配置
+		boolean globalFunctionDirectiveExist = false;
+		for (int lineIndex=0; lineIndex<lineLength; lineIndex++) {
+			if (lines[lineIndex].startsWith(AssemblyWord.GLOBAL_FUNCTION_DIRECTIVE)) {
+				globalFunctionDirectiveExist = true;
+				codeBuilder.append(lines[lineIndex]);
+				codeBuilder.append(AssemblyWord.LINE_SEPARATOR);
+				lines[lineIndex] = "";
+			}
+		}
+
+		// ディレクティブの種類が変わる箇所で空白行を挟む
+		if (globalFunctionDirectiveExist) {
+			codeBuilder.append(AssemblyWord.LINE_SEPARATOR);
+		}
+
+		// グローバル変数ディレクティブの抽出/配置
+		boolean globalVariableDirectiveExist = false;
+		for (int lineIndex=0; lineIndex<lineLength; lineIndex++) {
+			if (lines[lineIndex].startsWith(AssemblyWord.GLOBAL_VARIABLE_DIRECTIVE)) {
+				globalVariableDirectiveExist = true;
+				codeBuilder.append(lines[lineIndex]);
+				codeBuilder.append(AssemblyWord.LINE_SEPARATOR);
+				lines[lineIndex] = "";
+			}
+		}
+
+		// ディレクティブの種類が変わる箇所で空白行を挟む
+		if (globalVariableDirectiveExist) {
+			codeBuilder.append(AssemblyWord.LINE_SEPARATOR);
+		}
+
+		// ローカル変数ディレクティブの抽出/配置
+		boolean localVariableDirectiveExist = false;
+		for (int lineIndex=0; lineIndex<lineLength; lineIndex++) {
+			if (lines[lineIndex].startsWith(AssemblyWord.LOCAL_VARIABLE_DIRECTIVE)) {
+				localVariableDirectiveExist = true;
+				codeBuilder.append(lines[lineIndex]);
+				codeBuilder.append(AssemblyWord.LINE_SEPARATOR);
+				lines[lineIndex] = "";
+			}
+		}
+
+		// 直後に続くメタディレクティブの空白行と重複するので、ここでは挟まない
+		/*
+		// ディレクティブの種類が変わる箇所で空白行を挟む
+		if (localVariableDirectiveExist) {
+			codeBuilder.append(AssemblyWord.LINE_SEPARATOR);
+		}
+		*/
+
+		// その他の行の抽出/配置
+		for (int lineIndex=0; lineIndex<lineLength; lineIndex++) {
+
+			// 元のコード内にあった空白行は削る
+			if (lines[lineIndex].length() == 0) {
+				continue;
+			}
+
+			// メタディレクティブの直前には空白行を挟む
+			if (lines[lineIndex].startsWith(AssemblyWord.META_DIRECTIVE)) {
+				codeBuilder.append(AssemblyWord.LINE_SEPARATOR);
+			}
+
+			codeBuilder.append(lines[lineIndex]);
+			codeBuilder.append(AssemblyWord.LINE_SEPARATOR);
+			lines[lineIndex] = "";
+		}
+
+		return codeBuilder.toString();
+	}
+
+
+
 }
+
+
+
