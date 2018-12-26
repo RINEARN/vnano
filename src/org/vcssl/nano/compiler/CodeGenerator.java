@@ -12,6 +12,7 @@ import java.util.LinkedList;
 import java.util.Set;
 
 import org.vcssl.nano.VnanoFatalException;
+import org.vcssl.nano.lang.DataType;
 import org.vcssl.nano.spec.AssemblyWord;
 import org.vcssl.nano.spec.DataTypeName;
 import org.vcssl.nano.spec.IdentifierSyntax;
@@ -84,7 +85,7 @@ public class CodeGenerator {
 		private String updatePointStatement = null; // for文の更新式の文
 		private LinkedList<String> endPointLabelList = null; // IF文など、後の文の生成後の地点にラベルを置いてほしい場合、これにラベル値を入れる(ifの後にelseが続く場合のみ要素が2個になり得る)
 
-		private String lastIfConditionValue = null; // 直前の if 文の条件式結果を格納するレジスタを控えて、else 文で使う
+		private String lastIfConditionRegister = null; // 直前の if 文の条件式結果を格納するレジスタを控えて、else 文で使う
 		private String lastLoopBeginPointLabel = null; // 最後に踏んだループの始点ラベル
 		private String lastLoopUpdatePointLabel = null; // 最後に踏んだループの更新ラベル
 		private String lastLoopEndPointLabel = null;   // 最後に踏んだループの終点ラベル
@@ -101,18 +102,22 @@ public class CodeGenerator {
 		@SuppressWarnings("unchecked")
 		public StatementTrackingContext clone() {
 			StatementTrackingContext clone = new StatementTrackingContext();
+
 			clone.beginPointLabel = this.beginPointLabel;
 			clone.updatePointLabel = this.updatePointLabel;
-			clone.endPointLabelList = (LinkedList<String>)this.endPointLabelList.clone();
 			clone.updatePointStatement = this.updatePointStatement;
-			clone.lastIfConditionValue = this.lastIfConditionValue;
+			clone.endPointLabelList = (LinkedList<String>)this.endPointLabelList.clone();
+
+			clone.lastIfConditionRegister = this.lastIfConditionRegister;
 			clone.lastLoopBeginPointLabel = this.lastLoopBeginPointLabel;
 			clone.lastLoopUpdatePointLabel = this.lastLoopUpdatePointLabel;
 			clone.lastLoopEndPointLabel = this.lastLoopEndPointLabel;
+
 			clone.statementNodes = this.statementNodes;
 			clone.statementIndex = this.statementIndex;
 			clone.statementLength = this.statementLength;
 			clone.lastStatementCode = this.lastStatementCode;
+
 			return clone;
 		}
 
@@ -168,14 +173,17 @@ public class CodeGenerator {
 			this.updatePointStatement = null;
 		}
 
-		public String getLastIfConditionValue() {
-			return this.lastIfConditionValue;
+		public boolean hasLastIfConditionRegister() {
+			return this.lastIfConditionRegister != null;
+		}
+		public String getLastIfConditionRegister() {
+			return this.lastIfConditionRegister;
 		}
 		public void setLastIfConditionValue(String lastIfConditionValue) {
-			this.lastIfConditionValue = lastIfConditionValue;
+			this.lastIfConditionRegister = lastIfConditionValue;
 		}
 		public void clearLastIfConditionValue() {
-			this.lastIfConditionValue = null;
+			this.lastIfConditionRegister = null;
 		}
 
 		public String getLastLoopBeginPointLabel() {
@@ -451,7 +459,6 @@ public class CodeGenerator {
 
 				// ブロック文に突入する場合
 				case BLOCK : {
-
 					// 現在のコンテキスト（状態変数の集合）をスタックに退避して新規生成
 					context.setStatementIndex(statementIndex);
 					context.setStatementLength(statementLength);
@@ -528,7 +535,6 @@ public class CodeGenerator {
 					context.clearBeginPointLabel();
 				}
 
-				// if 文の次など、ラベルを置く必要があれば置く
 				if (context.hasEndPointLabel()) {
 					String[] endPointLabels = context.getEndPointLabels();
 					for (String endPointLabel: endPointLabels) {
@@ -538,6 +544,7 @@ public class CodeGenerator {
 				}
 			}
 		}
+
 		return codeBuilder.toString();
 	}
 
@@ -578,17 +585,24 @@ public class CodeGenerator {
 			}
 			// if 文
 			case IF : {
-				code = this.generateIfStatementCode(node);
 				context.addEndPointLabel(node.getAttribute(AttributeKey.END_LABEL));
-				AstNode conditionExprNode = node.getChildNodes(AstNode.Type.EXPRESSION)[0];
-				context.setLastIfConditionValue( conditionExprNode.getAttribute(AttributeKey.ASSEMBLY_VALUE) );
+				String lastIfConditionRegister = null;
+				boolean lastIfConditionRegisterAllocRequired = false;
+				if( context.hasLastIfConditionRegister() ) {
+					lastIfConditionRegister = context.getLastIfConditionRegister();
+				} else {
+					lastIfConditionRegister = this.generateRegisterOperandCode();
+					lastIfConditionRegisterAllocRequired = true;
+				}
+				context.setLastIfConditionValue(lastIfConditionRegister);
+				code = this.generateIfStatementCode(node, lastIfConditionRegister, lastIfConditionRegisterAllocRequired);
 				break;
 			}
 			// else 文
 			case ELSE : {
-				code = this.generateElseStatementCode(node, context.getLastIfConditionValue());
+				code = this.generateElseStatementCode(node, context.getLastIfConditionRegister());
 				context.addEndPointLabel(node.getAttribute(AttributeKey.END_LABEL));
-				context.clearLastIfConditionValue();
+				//context.clearLastIfConditionValue(); // else if 対応後はさらに else 文が続く場合があるので消してはいけない
 				break;
 			}
 			// while 文
@@ -751,9 +765,13 @@ public class CodeGenerator {
 	 * 終端ラベルを配置する必要があります。
 	 *
 	 * @param node if文のASTノード（{@link AstNode.Type#IF IF}タイプ）
+	 * @param lastIfConditionRegister 文を実行していく過程で、最後（直前）のif文の条件式結果を控えておくレジスタ
+	 * @param lastIfConditionRegisterAllocRequired 条件式結果を控えておくレジスタのメモリ確保(ALLOC)処理が必要かどうか
 	 * @return 生成コード
 	 */
-	private String generateIfStatementCode(AstNode node) {
+	private String generateIfStatementCode(AstNode node,
+			String lastIfConditionRegister, boolean lastIfConditionRegisteAllocRequired) {
+
 		StringBuilder codeBuilder = new StringBuilder();
 
 		// 条件式の評価コードを生成
@@ -764,6 +782,16 @@ public class CodeGenerator {
 			// 条件式が配列の場合は弾くべき
 			return null;
 		}
+
+		// 条件式の結果を lastIfConditionRegister に控える (else文のコード生成で必要)
+		if (lastIfConditionRegisteAllocRequired) {
+			codeBuilder.append( this.generateInstruction(OperationCode.ALLOC.name(), DataTypeName.BOOL, lastIfConditionRegister));
+		}
+		String lastIfConditionMovCode = this.generateInstruction(
+				OperationCode.MOV.name(), DataTypeName.BOOL,
+				lastIfConditionRegister, conditionExprNode.getAttribute(AttributeKey.ASSEMBLY_VALUE)
+		);
+		codeBuilder.append(lastIfConditionMovCode);
 
 		// 条件不成立の時に終端ラベルに飛ぶコードを生成
 		String endLabel = node.getAttribute(AttributeKey.END_LABEL);
@@ -792,7 +820,7 @@ public class CodeGenerator {
 	 * 従って、else文の実行対象範囲のコード生成が終わった後に、
 	 * 終端ラベルを配置する必要があります。
 	 *
-	 * @param lastIfConditionValue 直前のif文における条件式の値（レジスタや変数の識別子、または即値）
+	 * @param lastIfConditionRegister 直前のif文における条件式の値（レジスタや変数の識別子、または即値）
 	 * @return 生成コード
 	 */
 	private String generateElseStatementCode(AstNode node, String lastIfConditionValue) {
