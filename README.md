@@ -513,30 +513,30 @@ The (abbreviated) result is :
 	= - Input  of: org.vcssl.nano.compiler.CodeGenerator
 	================================================================================
 	<ROOT>
- 	  <VARIABLE DATA_TYPE="int" IDENTIFIER_VALUE="sum" RANK="0">
-        <EXPRESSION DATA_TYPE="int" RANK="0">
-          <OPERATOR OPERATOR_SYNTAX="binary" OPERATOR_EXECUTOR="assignment" OPERATOR_SYMBOL="=" OPERATOR_PRIORITY="6000" DATA_TYPE="int" OPERATOR_EXECUTION_DATA_TYPE="int" RANK="0">
-            <LEAF LEAF_TYPE="variableIdentifier" IDENTIFIER_VALUE="sum" SCOPE="local" RANK="0" DATA_TYPE="int" />
-            <LEAF LEAF_TYPE="literal" LITERAL_VALUE="0" RANK="0" DATA_TYPE="int" />
-          </OPERATOR>
-        </EXPRESSION>
-	...
+	  <VARIABLE DATA_TYPE="int" IDENTIFIER_VALUE="sum" RANK="0" SCOPE="local" IDENTIFIER_SERIAL_NUMBER="0">
+	    <EXPRESSION DATA_TYPE="int" RANK="0">
+	      <OPERATOR OPERATOR_SYNTAX="binary" OPERATOR_EXECUTOR="assignment" OPERATOR_SYMBOL="=" OPERATOR_PRIORITY="6000" DATA_TYPE="int" OPERATOR_EXECUTION_DATA_TYPE="int" RANK="0">
+	        <LEAF LEAF_TYPE="variableIdentifier" IDENTIFIER_VALUE="sum" IDENTIFIER_SERIAL_NUMBER="0" SCOPE="local" RANK="0" DATA_TYPE="int" />
+	        <LEAF LEAF_TYPE="literal" LITERAL_VALUE="0" RANK="0" DATA_TYPE="int" />
+	      </OPERATOR>
+	    </EXPRESSION>
+		...
 
 	================================================================================
 	= Assembly Code (VRIL Code)
 	= - Output of: org.vcssl.nano.compiler.CodeGenerator
 	= - Input  of: org.vcssl.nano.vm.assembler.Assembler
 	================================================================================
-	#FUNCTION	_output(int);
-	#META	"line=70, file=Example.vnano";
-	#LOCAL	_sum;
-		ALLOC	int	_sum;
-		MOV	int	_sum	~int:0;
-	#META	"line=71, file=Example.vnano";
-	#LOCAL	_n;
-		ALLOC	int	_n;
-		MOV	int	_n	~int:100;
-	...
+	#GLOBAL_FUNCTION        _output(int);
+	#META   "line=70, file=Example.vnano";
+	#LOCAL_VARIABLE _sum@0;
+	        ALLOC   int     _sum@0;
+	        MOV     int     _sum@0  ~int:0;
+	#META   "line=71, file=Example.vnano";
+	#LOCAL_VARIABLE _n@1;
+	        ALLOC   int     _n@1;
+	        MOV     int     _n@1    ~int:100;
+	        ...
 
 	================================================================================
 	= VM Object Code
@@ -576,35 +576,35 @@ The result is :
 
 実行結果は：
 
-	#FUNCTION	_output(int);
-	#META	"line=70, file=Example.vnano";
-	#LOCAL	_sum;
-		ALLOC	int	_sum;
-		MOV	int	_sum	~int:0;
-	#META	"line=71, file=Example.vnano";
-	#LOCAL	_n;
-		ALLOC	int	_n;
-		MOV	int	_n	~int:100;
-	#META	"line=72, file=Example.vnano";
-	#LOCAL	_i;
-		ALLOC	int	_i;
-		MOV	int	_i	~int:1;
-	#LABEL	&LABEL0;
-		ALLOC	bool	R0;
-		LEQ	int	R0	_i	_n;
-		JMPN	bool	R0	&LABEL2;
-	#META	"line=73, file=Example.vnano";
-		ADD	int	_sum	_sum	_i;
-	#LABEL	&LABEL1;
-		ALLOC	int	R3;
-		MOV	int	R3	_i;
-		ALLOC	int	R1;
-		ADD	int	R1	_i	~int:1;
-		MOV	int	_i	R1;
-		JMP	bool	~bool:true	&LABEL0;
-	#LABEL	&LABEL2;
-	#META	"line=75, file=Example.vnano";
-		CALL	void	R2	_output(int)	_sum;
+	#GLOBAL_FUNCTION        _output(int);
+	#META   "line=70, file=Example.vnano";
+	#LOCAL_VARIABLE _sum@0;
+	        ALLOC   int     _sum@0;
+	        MOV     int     _sum@0  ~int:0;
+	#META   "line=71, file=Example.vnano";
+	#LOCAL_VARIABLE _n@1;
+	        ALLOC   int     _n@1;
+	        MOV     int     _n@1    ~int:100;
+	#META   "line=72, file=Example.vnano";
+	#LOCAL_VARIABLE _i@2;
+	        ALLOC   int     _i@2;
+	        MOV     int     _i@2    ~int:1;
+	#LABEL  &LABEL0;
+	        ALLOC   bool    R0;
+	        LEQ     int     R0      _i@2    _n@1;
+	        JMPN    bool    R0      &LABEL2;
+	#META   "line=73, file=Example.vnano";
+	        ADD     int     _sum@0  _sum@0  _i@2;
+	#LABEL  &LABEL1;
+	        ALLOC   int     R3;
+	        MOV     int     R3      _i@2;
+	        ALLOC   int     R1;
+	        ADD     int     R1      _i@2    ~int:1;
+	        MOV     int     _i@2    R1;
+	        JMP     bool    ~bool:true      &LABEL0;
+	#LABEL  &LABEL2;
+	#META   "line=75, file=Example.vnano";
+	        CALL    void    R2      _output(int)    _sum@0;
 
 This is the compiled intermediate code of the script engine of Vnano, 
 which is written in Vector Register Intermediate Language (VRIL).

@@ -23,6 +23,7 @@ public final class AssemblyWord {
 	public static final String INSTRUCTION_SEPARATOR = ";";
 	public static final String WORD_SEPARATOR = "\t";
 	public static final String VALUE_SEPARATOR = ":";
+	public static final String IDENTIFIER_SERIAL_NUMBER_SEPARATOR = "@";
 	public static final String INDENT = "\t";
 
 	// 読み込み用
@@ -30,12 +31,13 @@ public final class AssemblyWord {
 	public static final String INSTRUCTION_SEPARATOR_REGEX = ";";
 	public static final String WORD_SEPARATOR_REGEX = "\t| ";
 	public static final String VALUE_SEPARATOR_REGEX = ":";
+	public static final String IDENTIFIER_ADDRESS_SEPARATOR_REGEX = "@";
 	public static final String INDENT_REGEX = "\t| ";
 
 	public static final char   DIRECTIVE_PREFIX = '#';
-	public static final String LOCAL_VARIABLE_DIRECTIVE = "#LOCAL";
-	public static final String GLOBAL_VARIABLE_DIRECTIVE = "#GLOBAL";
-	public static final String FUNCTION_DIRECTIVE = "#FUNCTION";
+	public static final String LOCAL_VARIABLE_DIRECTIVE = "#LOCAL_VARIABLE";
+	public static final String GLOBAL_VARIABLE_DIRECTIVE = "#GLOBAL_VARIABLE";
+	public static final String GLOBAL_FUNCTION_DIRECTIVE = "#GLOBAL_FUNCTION";
 	public static final String META_DIRECTIVE = "#META";
 	public static final String LABEL_DIRECTIVE = "#LABEL";
 	public static final String COMMENT_DIRECTIVE = "#COMMENT";

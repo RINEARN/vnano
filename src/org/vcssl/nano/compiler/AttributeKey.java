@@ -41,6 +41,9 @@ public enum AttributeKey {
 	/** 識別子を保持する属性のキーです。 */
 	IDENTIFIER_VALUE,
 
+	/** 複数の同じ識別子を区別するためのシリアルナンバー属性のキーです。 */
+	IDENTIFIER_SERIAL_NUMBER,
+
 	/** リテラルの記載内容を保持する属性のキーです。 */
 	LITERAL_VALUE,
 

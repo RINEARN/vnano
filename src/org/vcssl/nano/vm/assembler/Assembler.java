@@ -352,7 +352,7 @@ public class Assembler {
 			}
 
 			// 関数ディレクティブ
-			if (line.startsWith(AssemblyWord.FUNCTION_DIRECTIVE)) {
+			if (line.startsWith(AssemblyWord.GLOBAL_FUNCTION_DIRECTIVE)) {
 				String identifier = words[1];
 				AbstractFunction function = functionTable.getFunctionByAssemblyIdentifier(identifier);
 				int functionAddress = functionTable.indexOf(function);
