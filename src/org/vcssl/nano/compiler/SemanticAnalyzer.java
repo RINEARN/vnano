@@ -9,6 +9,9 @@ package org.vcssl.nano.compiler;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import org.vcssl.nano.VnanoException;
@@ -99,36 +102,57 @@ public class SemanticAnalyzer {
 			return;
 		}
 
+		// 同じ識別子（変数名）の変数を区別できるようにするため、識別子に加えてカウンタ情報を付加する
+		int localVariableCounter = 0;
+
+		// 注意: 同じキーがHashMapに重複登録された場合、get は最後に登録された要素を返り、remove も最後の要素が削られる
+		//（実際にその挙動を利用している）
 		Map<String, String> localVariableTypeMap = new HashMap<String, String>();
 		Map<String, Integer> localVariableRankMap = new HashMap<String, Integer>();
+		Map<String, Integer> localVariableSerialNumberMap = new HashMap<String, Integer>();
 
 		AstNode currentNode = astRootNode;
 		int currentDepth = 0; // ブロック終端による変数削除などで使用
 		int lastDepth = 0;
-		int localVariableCount = 0;
-		Deque<Integer> localVariableCountStack = new ArrayDeque<Integer>();
+
+		List<String> scopeLocalVariableNameList = new LinkedList<String>();
+		Deque<List<String>>scopeLocalVariableNameListStack = new ArrayDeque<List<String>>();
+
 
 		do {
 			currentNode = currentNode.getPreorderTraversalNextNode();
 			lastDepth = currentDepth;
 			currentDepth = currentNode.getDepth();
 
-			// ブロック文に入った場合: 上階層のローカル変数個数をスタックに退避してリセット
+			// ブロック文に入った場合: 上階層のスコープ内ローカル変数リストをスタックに退避し、リセット
 			if (currentDepth > lastDepth) {
-				localVariableCountStack.push(localVariableCount);
-				localVariableCount = 0;
+				scopeLocalVariableNameListStack.push(scopeLocalVariableNameList);
+				scopeLocalVariableNameList = new LinkedList<String>();
 
-			// ブロック文を抜けた場合: その階層のローカル変数を削除
+			// ブロック文を抜ける場合: その階層のローカル変数を削除し、スコープ内ローカル変数リストをスタックから復元
 			} else if (currentDepth < lastDepth) {
-				localVariableCount = (int)localVariableCountStack.pop();
+				Iterator<String> iterator = scopeLocalVariableNameList.iterator();
+				while (iterator.hasNext()) {
+					String scopeLocalVariableName = iterator.next();
+					localVariableTypeMap.remove(scopeLocalVariableName);
+					localVariableRankMap.remove(scopeLocalVariableName);
+					localVariableSerialNumberMap.remove(scopeLocalVariableName);
+				}
+				scopeLocalVariableNameList = scopeLocalVariableNameListStack.pop();
 			}
 
-			// ローカル変数ノードの場合: ローカル変数テーブルに追加
+			// ローカル変数ノードの場合: ローカル変数テーブルに追加し、ノード自身にローカル変数インデックスやスコープも設定
 			if (currentNode.getType() == AstNode.Type.VARIABLE) {
 				String variableName = currentNode.getAttribute(AttributeKey.IDENTIFIER_VALUE);
+
 				localVariableTypeMap.put(variableName, currentNode.getDataTypeName());
 				localVariableRankMap.put(variableName, currentNode.getRank());
-				localVariableCount++;
+				localVariableSerialNumberMap.put(variableName, localVariableCounter);
+				scopeLocalVariableNameList.add(variableName);
+
+				currentNode.addAttribute(AttributeKey.SCOPE, AttributeValue.LOCAL);
+				currentNode.addAttribute(AttributeKey.IDENTIFIER_SERIAL_NUMBER, Integer.toString(localVariableCounter));
+				localVariableCounter++;
 			}
 
 			// リーフノードの場合: 属性値を求めて設定
@@ -152,6 +176,7 @@ public class SemanticAnalyzer {
 					// ローカル変数
 					if (localVariableTypeMap.containsKey(identifier)) {
 
+						currentNode.addAttribute(AttributeKey.IDENTIFIER_SERIAL_NUMBER, localVariableSerialNumberMap.get(identifier).toString());
 						currentNode.addAttribute(AttributeKey.SCOPE, AttributeValue.LOCAL);
 						currentNode.addAttribute(AttributeKey.RANK, Integer.toString(localVariableRankMap.get(identifier)));
 						currentNode.addAttribute(AttributeKey.DATA_TYPE, localVariableTypeMap.get(identifier));

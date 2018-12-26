@@ -12,7 +12,6 @@ import java.util.LinkedList;
 import java.util.Set;
 
 import org.vcssl.nano.VnanoFatalException;
-import org.vcssl.nano.lang.DataType;
 import org.vcssl.nano.spec.AssemblyWord;
 import org.vcssl.nano.spec.DataTypeName;
 import org.vcssl.nano.spec.IdentifierSyntax;
@@ -182,9 +181,11 @@ public class CodeGenerator {
 		public void setLastIfConditionValue(String lastIfConditionValue) {
 			this.lastIfConditionRegister = lastIfConditionValue;
 		}
+		/*
 		public void clearLastIfConditionValue() {
 			this.lastIfConditionRegister = null;
 		}
+		*/
 
 		public String getLastLoopBeginPointLabel() {
 			return this.lastLoopBeginPointLabel;
@@ -295,42 +296,42 @@ public class CodeGenerator {
 		AstNode currentNode = inputAst.getPostorderTraversalFirstNode();
 		while (currentNode != inputAst) {
 
-			// リテラルや識別子などの末端（リーフ）ノード: アセンブリ用識別子や即値に変換
-			if (currentNode.getType() == AstNode.Type.LEAF) {
+			AstNode.Type nodeType = currentNode.getType();
 
+
+			// 変数ノードやリーフ（リテラルや識別子などの末端）ノード: アセンブリ用識別子や即値に変換
+			if (nodeType == AstNode.Type.VARIABLE || nodeType == AstNode.Type.LEAF) {
+
+				boolean isVariable = nodeType == AstNode.Type.VARIABLE;
+				boolean isLeaf = nodeType == AstNode.Type.LEAF;
 				String leafType = currentNode.getAttribute(AttributeKey.LEAF_TYPE);
 
-				switch(leafType) {
+				// 関数識別子
+				if(isLeaf && leafType == AttributeValue.FUNCTION_IDENTIFIER) {
+					AstNode callOperatorNode = currentNode.getParentNode();
+					String assemblyValue = IdentifierSyntax.getAssemblyIdentifierOfCalleeFunctionOf(callOperatorNode);
+					currentNode.addAttribute(AttributeKey.ASSEMBLY_VALUE, assemblyValue);
 
-					// 関数識別子
-					case AttributeValue.FUNCTION_IDENTIFIER : {
-						AstNode callOperatorNode = currentNode.getParentNode();
-						String assemblyValue = IdentifierSyntax.getAssemblyIdentifierOfCalleeFunctionOf(callOperatorNode);
-						currentNode.addAttribute(AttributeKey.ASSEMBLY_VALUE, assemblyValue);
-						break;
+				// 変数または変数識別子
+				} else if(isVariable || (isLeaf && leafType == AttributeValue.VARIABLE_IDENTIFIER) ) {
+					String identifier = currentNode.getAttribute(AttributeKey.IDENTIFIER_VALUE);
+					String assemblyValue = IdentifierSyntax.getAssemblyIdentifierOf(identifier);
+					if (currentNode.hasAttribute(AttributeKey.IDENTIFIER_SERIAL_NUMBER)) {
+						assemblyValue += AssemblyWord.IDENTIFIER_SERIAL_NUMBER_SEPARATOR
+						              + currentNode.getAttribute(AttributeKey.IDENTIFIER_SERIAL_NUMBER);
 					}
+					currentNode.addAttribute(AttributeKey.ASSEMBLY_VALUE, assemblyValue);
 
-					// 変数識別子
-					case AttributeValue.VARIABLE_IDENTIFIER : {
-						String identifier = currentNode.getAttribute(AttributeKey.IDENTIFIER_VALUE);
-						String assemblyValue = IdentifierSyntax.getAssemblyIdentifierOf(identifier);
-						currentNode.addAttribute(AttributeKey.ASSEMBLY_VALUE, assemblyValue);
-						break;
-					}
+				// リテラル
+				} else if(isLeaf && leafType == AttributeValue.LITERAL) {
 
-					// リテラル
-					case AttributeValue.LITERAL : {
+					String dataTypeName = currentNode.getAttribute(AttributeKey.DATA_TYPE);
+					String literal = currentNode.getAttribute(AttributeKey.LITERAL_VALUE);
+					String assemblyValue = AssemblyWord.getImmediateValueOf(dataTypeName, literal);
+					currentNode.addAttribute(AttributeKey.ASSEMBLY_VALUE, assemblyValue);
 
-						String dataTypeName = currentNode.getAttribute(AttributeKey.DATA_TYPE);
-						String literal = currentNode.getAttribute(AttributeKey.LITERAL_VALUE);
-						String assemblyValue = AssemblyWord.getImmediateValueOf(dataTypeName, literal);
-						currentNode.addAttribute(AttributeKey.ASSEMBLY_VALUE, assemblyValue);
-						break;
-					}
-
-					default : {
-						throw new VnanoFatalException("Unknown leaf type: " + leafType);
-					}
+				} else {
+					throw new VnanoFatalException("Unknown leaf type: " + leafType);
 				}
 			}
 
@@ -675,14 +676,14 @@ public class CodeGenerator {
 	private String generateVariableDeclarationStatementCode (AstNode node) {
 
 		StringBuilder codeBuilder = new StringBuilder();
-		String variableName= node.getAttribute(AttributeKey.IDENTIFIER_VALUE);
-		String variableOperand = AssemblyWord.OPERAND_PREFIX_IDENTIFIER+variableName;
+		//String variableName= node.getAttribute(AttributeKey.IDENTIFIER_VALUE);
+		//String variableOperand = AssemblyWord.OPERAND_PREFIX_IDENTIFIER+variableName;
+		String variableOperand = node.getAttribute(AttributeKey.ASSEMBLY_VALUE);
 
 		// 識別子ディレクティブを生成
 		codeBuilder.append(AssemblyWord.LOCAL_VARIABLE_DIRECTIVE);
 		codeBuilder.append(AssemblyWord.WORD_SEPARATOR);
-		codeBuilder.append(AssemblyWord.OPERAND_PREFIX_IDENTIFIER);
-		codeBuilder.append(variableName);
+		codeBuilder.append(variableOperand);
 		codeBuilder.append(AssemblyWord.INSTRUCTION_SEPARATOR);
 		codeBuilder.append(AssemblyWord.LINE_SEPARATOR);
 
@@ -1812,7 +1813,7 @@ public class CodeGenerator {
 				// 既に出力済みでなければ出力
 				if (!generatedSet.contains(identifier)) {
 					generatedSet.add(identifier);
-					codeBuilder.append(AssemblyWord.FUNCTION_DIRECTIVE);
+					codeBuilder.append(AssemblyWord.GLOBAL_FUNCTION_DIRECTIVE);
 					codeBuilder.append(AssemblyWord.WORD_SEPARATOR);
 					codeBuilder.append(identifier);
 					codeBuilder.append(AssemblyWord.INSTRUCTION_SEPARATOR);
