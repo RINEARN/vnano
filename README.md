@@ -527,6 +527,10 @@ The (abbreviated) result is :
 	= - Output of: org.vcssl.nano.compiler.CodeGenerator
 	= - Input  of: org.vcssl.nano.vm.assembler.Assembler
 	================================================================================
+	#ASSEMBLY_LANGUAGE_IDENTIFIER   "Vector Register Intermediate Language (VRIL)";
+	#ASSEMBLY_LANGUAGE_VERSION      "0.0.1";
+	#SCRIPT_LANGUAGE_IDENTIFIER     "Vnano";
+	#SCRIPT_LANGUAGE_VERSION        "0.0.1";	#GLOBAL_FUNCTION        _output(int);
 	#GLOBAL_FUNCTION        _output(int);
 	#META   "line=70, file=Example.vnano";
 	#LOCAL_VARIABLE _sum@0;
@@ -536,6 +540,7 @@ The (abbreviated) result is :
 	#LOCAL_VARIABLE _n@1;
 	        ALLOC   int     _n@1;
 	        MOV     int     _n@1    ~int:100;
+	#META   "line=72, file=Example.vnano";
 	        ...
 
 	================================================================================
@@ -576,6 +581,10 @@ The result is :
 
 実行結果は：
 
+	#ASSEMBLY_LANGUAGE_IDENTIFIER   "Vector Register Intermediate Language (VRIL)";
+	#ASSEMBLY_LANGUAGE_VERSION      "0.0.1";
+	#SCRIPT_LANGUAGE_IDENTIFIER     "Vnano";
+	#SCRIPT_LANGUAGE_VERSION        "0.0.1";
 	#GLOBAL_FUNCTION        _output(int);
 	#META   "line=70, file=Example.vnano";
 	#LOCAL_VARIABLE _sum@0;
