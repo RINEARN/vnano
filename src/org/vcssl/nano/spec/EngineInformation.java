@@ -12,7 +12,7 @@ import javax.script.ScriptEngine;
 
 public class EngineInformation {
 
-	public static final String ENGINE_NAME = "Vnano Engine";
+	public static final String ENGINE_NAME = "RINEARN Vnano Engine";
 
 	public static final String ENGINE_VERSION = "VNE0000";
 
@@ -27,12 +27,14 @@ public class EngineInformation {
 			"vnanoengine",
 			"Vnano Engine",
 			"vnano engine",
+			"RINEARN Vnano Engine",
+			"rinearn vnano engine",
 			ENGINE_NAME,
 	};
 
-	public static final String LANGUAGE_NAME = "Vnano";
+	public static final String LANGUAGE_NAME = ScriptWord.SCRIPT_LANGUAGE_NAME;
 
-	public static final String LANGUAGE_VERSION = "0.0.1";
+	public static final String LANGUAGE_VERSION = ScriptWord.SCRIPT_LANGUAGE_VERSION;
 
 
 	private static final Map<String, Object> KEY_INFORMATION_MAP = new HashMap<String, Object>();

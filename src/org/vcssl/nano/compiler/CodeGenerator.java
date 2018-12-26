@@ -257,6 +257,10 @@ public class CodeGenerator {
 
 		StringBuilder codeBuilder = new StringBuilder();
 
+		// 言語の識別用情報関連のディレクティブ（言語名やバージョンなど）を一括生成
+		codeBuilder.append(this.generateLanguageInformationDirectives());
+
+
 		// 引数のASTに破壊的変更を加えないように複製
 		AstNode cloneAst = inputAst.clone();
 
@@ -1781,8 +1785,53 @@ public class CodeGenerator {
 
 
 
+	/**
+	 * 言語の名称およびバージョンなどを記載したディレクティブを一括生成して返します。
+	 *
+	 * @return 言語の識別用情報関連のディレクティブ
+	 */
+	private String generateLanguageInformationDirectives() {
+		StringBuilder codeBuilder = new StringBuilder();
+
+		// 中間言語名ディレクティブ
+		codeBuilder.append(AssemblyWord.ASSEMBLY_LANGUAGE_NAME_DIRECTIVE);
+		codeBuilder.append(AssemblyWord.WORD_SEPARATOR);
+		codeBuilder.append("\"");
+		codeBuilder.append(AssemblyWord.ASSEMBLY_LANGUAGE_NAME);
+		codeBuilder.append("\"");
+		codeBuilder.append(AssemblyWord.INSTRUCTION_SEPARATOR);
+		codeBuilder.append(AssemblyWord.LINE_SEPARATOR);
+
+		// 中間言語バージョンディレクティブ
+		codeBuilder.append(AssemblyWord.ASSEMBLY_LANGUAGE_VERSION_DIRECTIVE);
+		codeBuilder.append(AssemblyWord.WORD_SEPARATOR);
+		codeBuilder.append("\"");
+		codeBuilder.append(AssemblyWord.ASSEMBLY_LANGUAGE_VERSION);
+		codeBuilder.append("\"");
+		codeBuilder.append(AssemblyWord.INSTRUCTION_SEPARATOR);
+		codeBuilder.append(AssemblyWord.LINE_SEPARATOR);
 
 
+		// スクリプト言語名ディレクティブ
+		codeBuilder.append(AssemblyWord.SCRIPT_LANGUAGE_NAME_DIRECTIVE);
+		codeBuilder.append(AssemblyWord.WORD_SEPARATOR);
+		codeBuilder.append("\"");
+		codeBuilder.append(ScriptWord.SCRIPT_LANGUAGE_NAME);
+		codeBuilder.append("\"");
+		codeBuilder.append(AssemblyWord.INSTRUCTION_SEPARATOR);
+		codeBuilder.append(AssemblyWord.LINE_SEPARATOR);
+
+		// スクリプト言語バージョンディレクティブ
+		codeBuilder.append(AssemblyWord.SCRIPT_LANGUAGE_VERSION_DIRECTIVE);
+		codeBuilder.append(AssemblyWord.WORD_SEPARATOR);
+		codeBuilder.append("\"");
+		codeBuilder.append(ScriptWord.SCRIPT_LANGUAGE_VERSION);
+		codeBuilder.append("\"");
+		codeBuilder.append(AssemblyWord.INSTRUCTION_SEPARATOR);
+		codeBuilder.append(AssemblyWord.LINE_SEPARATOR);
+
+		return codeBuilder.toString();
+	}
 
 
 	/**

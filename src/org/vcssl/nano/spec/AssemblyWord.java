@@ -18,6 +18,13 @@ import org.vcssl.nano.vm.memory.Memory;
  */
 public final class AssemblyWord {
 
+	/** 中間アセンブリ言語の名称です。 */
+	public static final String ASSEMBLY_LANGUAGE_NAME = "Vector Register Intermediate Language (VRIL)";
+
+	/** 中間アセンブリ言語のバージョンです。 */
+	public static final String ASSEMBLY_LANGUAGE_VERSION = "0.0.1";
+
+
 	// 書き込み用
 	public static final String LINE_SEPARATOR = System.getProperty("line.separator");
 	public static final String INSTRUCTION_SEPARATOR = ";";
@@ -35,13 +42,16 @@ public final class AssemblyWord {
 	public static final String INDENT_REGEX = "\t| ";
 
 	public static final char   DIRECTIVE_PREFIX = '#';
+	public static final String ASSEMBLY_LANGUAGE_NAME_DIRECTIVE = "#ASSEMBLY_LANGUAGE_NAME";
+	public static final String ASSEMBLY_LANGUAGE_VERSION_DIRECTIVE = "#ASSEMBLY_LANGUAGE_VERSION";
+	public static final String SCRIPT_LANGUAGE_NAME_DIRECTIVE = "#SCRIPT_LANGUAGE_NAME";
+	public static final String SCRIPT_LANGUAGE_VERSION_DIRECTIVE = "#SCRIPT_LANGUAGE_VERSION";
 	public static final String LOCAL_VARIABLE_DIRECTIVE = "#LOCAL_VARIABLE";
 	public static final String GLOBAL_VARIABLE_DIRECTIVE = "#GLOBAL_VARIABLE";
 	public static final String GLOBAL_FUNCTION_DIRECTIVE = "#GLOBAL_FUNCTION";
 	public static final String META_DIRECTIVE = "#META";
 	public static final String LABEL_DIRECTIVE = "#LABEL";
 	public static final String COMMENT_DIRECTIVE = "#COMMENT";
-
 
 	public static final char OPERAND_PREFIX_GLOBAL = 'G';
 	public static final char OPERAND_PREFIX_LOCAL = 'L';
