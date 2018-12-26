@@ -1081,31 +1081,28 @@ public class ExecutionUnit {
 	public void alloc(DataType type, DataContainer<?> target, int dataLength, int[] arrayLengths) {
 
 		Object currentData = target.getData();
-		int currentDataLength = target.getSize();
-		if (currentDataLength != dataLength) {
-			target.setSize(dataLength);
-		}
+		int currentSize = target.getSize();
 		switch (type) {
 			case INT64 : {
-				if (!(currentData instanceof long[]) || currentDataLength != dataLength) {
+				if (!(currentData instanceof long[]) || currentSize != dataLength) {
 					((DataContainer<long[]>)target).setData(new long[dataLength], arrayLengths);
 				}
 				return;
 			}
 			case FLOAT64 : {
-				if (!(currentData instanceof double[]) || currentDataLength != dataLength) {
+				if (!(currentData instanceof double[]) || currentSize != dataLength) {
 					((DataContainer<double[]>)target).setData(new double[dataLength], arrayLengths);
 				}
 				return;
 			}
 			case BOOL : {
-				if (!(currentData instanceof boolean[]) || currentDataLength != dataLength) {
+				if (!(currentData instanceof boolean[]) || currentSize != dataLength) {
 					((DataContainer<boolean[]>)target).setData(new boolean[dataLength], arrayLengths);
 				}
 				return;
 			}
 			case STRING : {
-				if (!(currentData instanceof String[]) || currentDataLength != dataLength) {
+				if (!(currentData instanceof String[]) || currentSize != dataLength) {
 					((DataContainer<String[]>)target).setData(new String[dataLength], arrayLengths);
 				}
 				return;

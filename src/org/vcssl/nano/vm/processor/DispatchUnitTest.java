@@ -116,9 +116,6 @@ public class DispatchUnitTest {
 		this.int64Output = new DataContainer<long[]>();
 		this.int64InputA = new DataContainer<long[]>();
 		this.int64InputB = new DataContainer<long[]>();
-		this.int64Output.setSize(3);
-		this.int64InputA.setSize(3);
-		this.int64InputB.setSize(3);
 		this.int64Output.setData(new long[3], new int[]{ 3 });
 		this.int64InputA.setData(new long[3], new int[]{ 3 });
 		this.int64InputB.setData(new long[3], new int[]{ 3 });
@@ -126,9 +123,6 @@ public class DispatchUnitTest {
 		this.boolOutput = new DataContainer<boolean[]>();
 		this.boolInputA = new DataContainer<boolean[]>();
 		this.boolInputB = new DataContainer<boolean[]>();
-		this.boolOutput.setSize(3);
-		this.boolInputA.setSize(3);
-		this.boolInputB.setSize(3);
 		this.boolOutput.setData(new boolean[3], new int[]{ 3 });
 		this.boolInputA.setData(new boolean[3], new int[]{ 3 });
 		this.boolInputB.setData(new boolean[3], new int[]{ 3 });
@@ -1024,8 +1018,6 @@ public class DispatchUnitTest {
 		DataContainer<long[]> array = new DataContainer<long[]>();
 		int[] lenLengths = new int[]{ 3 };
 		int[] arrayLengths = new int[]{ 2, 3, 4 };
-		len.setSize(3);
-		array.setSize(24);
 		this.memory.setDataContainer(TMP_A_PART, TMP_A_ADDR, len);
 		this.memory.setDataContainer(TMP_B_PART, TMP_B_ADDR, array);
 
@@ -1067,7 +1059,6 @@ public class DispatchUnitTest {
 
 		// 解放するコンテナを雑用アドレスに用意
 		DataContainer<long[]> target = new DataContainer<long[]>();
-		target.setSize(4); // 5-offset
 		int[] targetLengths = new int[]{ 4 }; // 5-offset
 		this.memory.setDataContainer(TMP_A_PART, TMP_A_ADDR, target);
 
@@ -1276,7 +1267,6 @@ public class DispatchUnitTest {
 		this.memory.setDataContainer(TMP_B_PART, TMP_B_ADDR, len);
 
 		// 要素数指定値を設定
-		len.setSize(3);
 		int[] lenLengths = new int[ 3 ];
 		len.setData(new long[]{ 2L, 3L, 4L }, lenLengths);
 

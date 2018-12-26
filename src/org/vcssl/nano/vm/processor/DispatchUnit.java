@@ -222,7 +222,6 @@ public class DispatchUnit {
 					data[dim] = length[dim];
 				}
 				((DataContainer<long[]>)operands[0]).setData(data, new int[]{data.length});
-				operands[0].setSize(data.length);
 				return programCounter + 1;
 			}
 

@@ -386,7 +386,6 @@ public class DataConverter {
 
 		int dataLength = DataContainer.SIZE_OF_SCALAR;
 		int[] arrayLength = DataContainer.LENGTHS_OF_SCALAR;
-		resultDataContainer.setSize(dataLength);
 		switch (this.externalType) {
 			case INT32 : {
 				long[] data = new long[]{ ((Integer)object).longValue() };
@@ -462,7 +461,6 @@ public class DataConverter {
 					((long[])data)[dataIndex] = ((long[])object)[dataIndex];
 				}
 				((DataContainer<long[]>)resultDataContainer).setData(data, arrayLength);
-				resultDataContainer.setSize(dataLength);
 				break;
 			}
 			case FLOAT32 : {
@@ -473,7 +471,6 @@ public class DataConverter {
 					((double[])data)[dataIndex] = ((float[])object)[dataIndex];
 				}
 				((DataContainer<double[]>)resultDataContainer).setData(data, arrayLength);
-				resultDataContainer.setSize(dataLength);
 				break;
 			}
 			case FLOAT64 : {
@@ -484,7 +481,6 @@ public class DataConverter {
 					((double[])data)[dataIndex] = ((double[])object)[dataIndex];
 				}
 				((DataContainer<double[]>)resultDataContainer).setData(data, arrayLength);
-				resultDataContainer.setSize(dataLength);
 				break;
 			}
 			case BOOL : {
@@ -495,7 +491,6 @@ public class DataConverter {
 					((boolean[])data)[dataIndex] = ((boolean[])object)[dataIndex];
 				}
 				((DataContainer<boolean[]>)resultDataContainer).setData(data, arrayLength);
-				resultDataContainer.setSize(dataLength);
 				break;
 			}
 			case STRING : {

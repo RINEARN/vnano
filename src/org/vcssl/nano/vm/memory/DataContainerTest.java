@@ -66,7 +66,6 @@ public class DataContainerTest {
 		DataContainer<long[]> container = new DataContainer<long[]>();
 
 		// 状態をデフォルトから変える
-		container.setSize(5);
 		int lengths[] = new int[] { 5 };
 		container.setData(new long[4], lengths);
 

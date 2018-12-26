@@ -296,9 +296,6 @@ public class ExecutionUnitTest {
 		output.setData( new long[]{ -1L, -1L, -1L }, new int[]{3});
 		inputA.setData( new long[]{ 0L, 1L, 2L }, new int[]{3});
 		inputB.setData( new long[]{ 3L, 4L, 5L }, new int[]{3});
-		output.setSize(3);
-		inputA.setSize(3);
-		inputB.setSize(3);
 
 		// 演算を実行
 		try {
@@ -371,9 +368,6 @@ public class ExecutionUnitTest {
 		output.setData( new double[]{ -1.0, -1.0, -1.0 }, new int[]{3} );
 		inputA.setData( new double[]{ 1.0, 0.5, 0.25 }, new int[]{3} );         // 2進表現で割り切れる値
 		inputB.setData( new double[]{ 0.125, 0.0625, 0.03125 }, new int[]{3} ); // 2進表現で割り切れる値
-		output.setSize(3);
-		inputA.setSize(3);
-		inputB.setSize(3);
 
 		// 演算を実行
 		try {
@@ -446,9 +440,6 @@ public class ExecutionUnitTest {
 		output.setData( new String[]{ "Init0", "Init1", "Init2" }, new int[]{3} );
 		inputA.setData( new String[]{ "Good", "Hello", "Thank" }, new int[]{3} );
 		inputB.setData( new String[]{ "Morning", "World", "You" }, new int[]{3} );
-		output.setSize(3);
-		inputA.setSize(3);
-		inputB.setSize(3);
 
 		// 演算を実行
 		try {
@@ -575,9 +566,6 @@ public class ExecutionUnitTest {
 		output.setData( new long[]{ -1L, -1L, -1L }, new int[]{3} );
 		inputA.setData( new long[]{ 5L, 1L, 7L }, new int[]{3} );
 		inputB.setData( new long[]{ 3L, 8L, 7L }, new int[]{3} );
-		output.setSize(3);
-		inputA.setSize(3);
-		inputB.setSize(3);
 
 		// 演算を実行
 		try {
@@ -649,9 +637,6 @@ public class ExecutionUnitTest {
 		output.setData( new double[]{ -1.0, -1.0, -1.0 }, new int[]{3} );
 		inputA.setData( new double[]{ 1.0, 0.5, 0.03125 }, new int[]{3} );         // 2進表現で割り切れる値
 		inputB.setData( new double[]{ 0.125, 0.0625, 0.25 }, new int[]{3} ); // 2進表現で割り切れる値
-		output.setSize(3);
-		inputA.setSize(3);
-		inputB.setSize(3);
 
 		// 演算を実行
 		try {
@@ -768,9 +753,6 @@ public class ExecutionUnitTest {
 		output.setData( new long[]{ -1L, -1L, -1L }, new int[]{3} );
 		inputA.setData( new long[]{ 5L, 1L, -7L }, new int[]{3} );
 		inputB.setData( new long[]{ 3L, -8L, -2L }, new int[]{3} );
-		output.setSize(3);
-		inputA.setSize(3);
-		inputB.setSize(3);
 
 		// 演算を実行
 		try {
@@ -842,9 +824,6 @@ public class ExecutionUnitTest {
 		output.setData( new double[]{ -1.0, -1.0, -1.0 }, new int[]{3} );
 		inputA.setData( new double[]{ 1.0, -0.5, -0.03125 }, new int[]{3} );  // 2進表現で割り切れる値
 		inputB.setData( new double[]{ 0.125, 0.0625, -0.25 }, new int[]{3} ); // 2進表現で割り切れる値
-		output.setSize(3);
-		inputA.setSize(3);
-		inputB.setSize(3);
 
 		// 演算を実行
 		try {
@@ -962,9 +941,6 @@ public class ExecutionUnitTest {
 		output.setData( new long[]{ -1L, -1L, -1L }, new int[]{3} );
 		inputA.setData( new long[]{ 8L, 5L, -7L }, new int[]{3} );
 		inputB.setData( new long[]{ 3L, -1L, -2L }, new int[]{3} );
-		output.setSize(3);
-		inputA.setSize(3);
-		inputB.setSize(3);
 
 		// 演算を実行
 		try {
@@ -1038,9 +1014,6 @@ public class ExecutionUnitTest {
 		output.setData( new double[]{ -1.0, -1.0, -1.0 }, new int[]{3} );
 		inputA.setData( new double[]{ 1.0, -0.5, -0.03125 }, new int[]{3} );  // 2進表現で割り切れる値
 		inputB.setData( new double[]{ 0.125, 0.0625, -0.25 }, new int[]{3} ); // 2進表現で割り切れる値
-		output.setSize(3);
-		inputA.setSize(3);
-		inputB.setSize(3);
 
 		// 演算を実行
 		try {
@@ -1155,12 +1128,9 @@ public class ExecutionUnitTest {
 		DataContainer<long[]> output = new DataContainer<long[]>();
 		DataContainer<long[]> inputA = new DataContainer<long[]>();
 		DataContainer<long[]> inputB = new DataContainer<long[]>();
-		output.setData( new long[]{ -1L, -1L, -1L, -1L }, new int[]{3} );
-		inputA.setData( new long[]{ 8L, 8L, -8L, -8L }, new int[]{3} );
-		inputB.setData( new long[]{ 3L, -3L, 3L, -3L }, new int[]{3} );
-		output.setSize(4);
-		inputA.setSize(4);
-		inputB.setSize(4);
+		output.setData( new long[]{ -1L, -1L, -1L, -1L }, new int[]{4} );
+		inputA.setData( new long[]{ 8L, 8L, -8L, -8L }, new int[]{4} );
+		inputB.setData( new long[]{ 3L, -3L, 3L, -3L }, new int[]{4} );
 
 		// 演算を実行
 		try {
@@ -1231,12 +1201,9 @@ public class ExecutionUnitTest {
 		DataContainer<double[]> output = new DataContainer<double[]>();
 		DataContainer<double[]> inputA = new DataContainer<double[]>();
 		DataContainer<double[]> inputB = new DataContainer<double[]>();
-		output.setData( new double[]{ -1.0, -1.0, -1.0, -1.0, -1.0 }, new int[]{3} );
-		inputA.setData( new double[]{ 1.0, 0.8, 0.8, -0.8, -0.8 }, new int[]{3} );
-		inputB.setData( new double[]{ 0.125, 0.3, -0.3, 0.3, -0.3 }, new int[]{3} );
-		output.setSize(5);
-		inputA.setSize(5);
-		inputB.setSize(5);
+		output.setData( new double[]{ -1.0, -1.0, -1.0, -1.0, -1.0 }, new int[]{5} );
+		inputA.setData( new double[]{ 1.0, 0.8, 0.8, -0.8, -0.8 }, new int[]{5} );
+		inputB.setData( new double[]{ 0.125, 0.3, -0.3, 0.3, -0.3 }, new int[]{5} );
 
 		// 演算を実行
 		try {
@@ -1354,8 +1321,6 @@ public class ExecutionUnitTest {
 		DataContainer<long[]> input = new DataContainer<long[]>();
 		output.setData( new long[]{ -1L, -1L, -1L }, new int[]{3} );
 		input.setData( new long[]{ 0L, 5L, -7L }, new int[]{3} );
-		output.setSize(3);
-		input.setSize(3);
 
 		// 演算を実行
 		try {
@@ -1422,8 +1387,6 @@ public class ExecutionUnitTest {
 		DataContainer<double[]> input = new DataContainer<double[]>();
 		output.setData( new double[]{ -1.0, -1.0, -1.0 }, new int[]{3} );
 		input.setData( new double[]{ 0L, 0.8, -0.2 }, new int[]{3} );
-		output.setSize(3);
-		input.setSize(3);
 
 		// 演算を実行
 		try {
@@ -1560,9 +1523,6 @@ public class ExecutionUnitTest {
 		output.setData( new boolean[]{ false, false, false }, new int[]{3} );
 		inputA.setData( new long[]{ 0L, 1L, 2L }, new int[]{3} );
 		inputB.setData( new long[]{ 0L, 1L, 3L }, new int[]{3} );
-		output.setSize(3);
-		inputA.setSize(3);
-		inputB.setSize(3);
 
 		// 演算を実行
 		try {
@@ -1657,9 +1617,6 @@ public class ExecutionUnitTest {
 		output.setData( new boolean[]{ false, false, false }, new int[]{3} );
 		inputA.setData( new double[]{ 0.0, 0.125, 0.5  }, new int[]{3} );   // 2進表現で割り切れる値
 		inputB.setData( new double[]{ 0.0, 0.125, 0.25 }, new int[]{3} ); // 2進表現で割り切れる値
-		output.setSize(3);
-		inputA.setSize(3);
-		inputB.setSize(3);
 
 		// 演算を実行
 		try {
@@ -1754,9 +1711,6 @@ public class ExecutionUnitTest {
 		output.setData( new boolean[]{ false, false, false }, new int[]{3} );
 		inputA.setData( new String[]{ "", "Hello", "Good"  }, new int[]{3} );
 		inputB.setData( new String[]{ "", "Hello", "Morning" }, new int[]{3} );
-		output.setSize(3);
-		inputA.setSize(3);
-		inputB.setSize(3);
 
 		// 演算を実行
 		try {
@@ -1851,9 +1805,6 @@ public class ExecutionUnitTest {
 		output.setData( new boolean[]{ false, false, false }, new int[]{3} );
 		inputA.setData( new boolean[]{ false, true, true  }, new int[]{3} );
 		inputB.setData( new boolean[]{ false, true, false }, new int[]{3} );
-		output.setSize(3);
-		inputA.setSize(3);
-		inputB.setSize(3);
 
 		// 演算を実行
 		try {
@@ -1978,9 +1929,6 @@ public class ExecutionUnitTest {
 		output.setData( new boolean[]{ false, false, false }, new int[]{3} );
 		inputA.setData( new long[]{ 0L, 1L, 2L }, new int[]{3} );
 		inputB.setData( new long[]{ 0L, 1L, 3L }, new int[]{3} );
-		output.setSize(3);
-		inputA.setSize(3);
-		inputB.setSize(3);
 
 		// 演算を実行
 		try {
@@ -2074,9 +2022,6 @@ public class ExecutionUnitTest {
 		output.setData( new boolean[]{ false, false, false }, new int[]{3} );
 		inputA.setData( new double[]{ 0.0, 0.125, 0.5  }, new int[]{3} );   // 2進表現で割り切れる値
 		inputB.setData( new double[]{ 0.0, 0.125, 0.25 }, new int[]{3} ); // 2進表現で割り切れる値
-		output.setSize(3);
-		inputA.setSize(3);
-		inputB.setSize(3);
 
 		// 演算を実行
 		try {
@@ -2170,9 +2115,6 @@ public class ExecutionUnitTest {
 		output.setData( new boolean[]{ false, false, false }, new int[]{3} );
 		inputA.setData( new String[]{ "", "Hello", "Good"  }, new int[]{3} );
 		inputB.setData( new String[]{ "", "Hello", "Morning" }, new int[]{3} );
-		output.setSize(3);
-		inputA.setSize(3);
-		inputB.setSize(3);
 
 		// 演算を実行
 		try {
@@ -2267,9 +2209,6 @@ public class ExecutionUnitTest {
 		output.setData( new boolean[]{ false, false, false }, new int[]{3} );
 		inputA.setData( new boolean[]{ false, true, true  }, new int[]{3} );
 		inputB.setData( new boolean[]{ false, true, false }, new int[]{3} );
-		output.setSize(3);
-		inputA.setSize(3);
-		inputB.setSize(3);
 
 		// 演算を実行
 		try {
@@ -2414,9 +2353,6 @@ public class ExecutionUnitTest {
 		output.setData( new boolean[]{ false, false, false }, new int[]{3} );
 		inputA.setData( new long[]{ 1L, 2L, 3L }, new int[]{3} );
 		inputB.setData( new long[]{ 1L, 3L, 2L }, new int[]{3} );
-		output.setSize(3);
-		inputA.setSize(3);
-		inputB.setSize(3);
 
 		// 演算を実行
 		try {
@@ -2532,9 +2468,6 @@ public class ExecutionUnitTest {
 		output.setData( new boolean[]{ false, false, false }, new int[]{3} );
 		inputA.setData( new double[]{ 0.5, 0.125, 0.25 }, new int[]{3} ); // 2進表現で割り切れる値
 		inputB.setData( new double[]{ 0.5, 0.25, 0.125 }, new int[]{3} ); // 2進表現で割り切れる値
-		output.setSize(3);
-		inputA.setSize(3);
-		inputB.setSize(3);
 
 		// 演算を実行
 		try {
@@ -2693,9 +2626,6 @@ public class ExecutionUnitTest {
 		output.setData( new boolean[]{ false, false, false }, new int[]{3} );
 		inputA.setData( new long[]{ 1L, 2L, 3L }, new int[]{3} );
 		inputB.setData( new long[]{ 1L, 3L, 2L }, new int[]{3} );
-		output.setSize(3);
-		inputA.setSize(3);
-		inputB.setSize(3);
 
 		// 演算を実行
 		try {
@@ -2811,9 +2741,6 @@ public class ExecutionUnitTest {
 		output.setData( new boolean[]{ false, false, false }, new int[]{3} );
 		inputA.setData( new double[]{ 0.5, 0.125, 0.25 }, new int[]{3} ); // 2進表現で割り切れる値
 		inputB.setData( new double[]{ 0.5, 0.25, 0.125 }, new int[]{3} ); // 2進表現で割り切れる値
-		output.setSize(3);
-		inputA.setSize(3);
-		inputB.setSize(3);
 
 		// 演算を実行
 		try {
@@ -2974,9 +2901,6 @@ public class ExecutionUnitTest {
 		output.setData( new boolean[]{ false, false, false }, new int[]{3} );
 		inputA.setData( new long[]{ 1L, 2L, 3L }, new int[]{3} );
 		inputB.setData( new long[]{ 1L, 3L, 2L }, new int[]{3} );
-		output.setSize(3);
-		inputA.setSize(3);
-		inputB.setSize(3);
 
 		// 演算を実行
 		try {
@@ -3092,9 +3016,6 @@ public class ExecutionUnitTest {
 		output.setData( new boolean[]{ false, false, false }, new int[]{3} );
 		inputA.setData( new double[]{ 0.5, 0.125, 0.25 }, new int[]{3} ); // 2進表現で割り切れる値
 		inputB.setData( new double[]{ 0.5, 0.25, 0.125 }, new int[]{3} ); // 2進表現で割り切れる値
-		output.setSize(3);
-		inputA.setSize(3);
-		inputB.setSize(3);
 
 		// 演算を実行
 		try {
@@ -3253,9 +3174,6 @@ public class ExecutionUnitTest {
 		output.setData( new boolean[]{ false, false, false }, new int[]{3} );
 		inputA.setData( new long[]{ 1L, 2L, 3L }, new int[]{3} );
 		inputB.setData( new long[]{ 1L, 3L, 2L }, new int[]{3} );
-		output.setSize(3);
-		inputA.setSize(3);
-		inputB.setSize(3);
 
 		// 演算を実行
 		try {
@@ -3371,9 +3289,6 @@ public class ExecutionUnitTest {
 		output.setData( new boolean[]{ false, false, false }, new int[]{3} );
 		inputA.setData( new double[]{ 0.5, 0.125, 0.25 }, new int[]{3} ); // 2進表現で割り切れる値
 		inputB.setData( new double[]{ 0.5, 0.25, 0.125 }, new int[]{3} ); // 2進表現で割り切れる値
-		output.setSize(3);
-		inputA.setSize(3);
-		inputB.setSize(3);
 
 		// 演算を実行
 		try {
@@ -3554,9 +3469,6 @@ public class ExecutionUnitTest {
 		output.setData( new boolean[]{ false, false, false, false }, new int[]{4} );
 		inputA.setData( new boolean[]{ false, true, false, true }, new int[]{4} );
 		inputB.setData( new boolean[]{ false, false, true, true }, new int[]{4} );
-		output.setSize(4);
-		inputA.setSize(4);
-		inputB.setSize(4);
 
 		// 演算を実行
 		try {
@@ -3735,9 +3647,6 @@ public class ExecutionUnitTest {
 		output.setData( new boolean[]{ false, false, false, false }, new int[]{4} );
 		inputA.setData( new boolean[]{ false, true, false, true }, new int[]{4} );
 		inputB.setData( new boolean[]{ false, false, true, true }, new int[]{4} );
-		output.setSize(4);
-		inputA.setSize(4);
-		inputB.setSize(4);
 
 		// 演算を実行
 		try {
@@ -3867,8 +3776,6 @@ public class ExecutionUnitTest {
 		DataContainer<boolean[]> input = new DataContainer<boolean[]>();
 		output.setData( new boolean[]{ false, false}, new int[]{2} );
 		input.setData( new boolean[]{ false, true }, new int[]{2} );
-		output.setSize(2);
-		input.setSize(2);
 
 		// 演算を実行
 		try {
@@ -4021,7 +3928,6 @@ public class ExecutionUnitTest {
 		DataContainer<?> target = new DataContainer<Object>();
 
 		DataContainer<long[]> len = new DataContainer<long[]>();
-		len.setSize(3);
 		len.setData(new long[]{ 2L, 3L, 4L }, new int[]{3});
 
 		// 確保処理を実行
@@ -4190,7 +4096,6 @@ public class ExecutionUnitTest {
 		DataContainer<?> target = new DataContainer<Object>();
 
 		DataContainer<long[]> len = new DataContainer<long[]>();
-		len.setSize(3);
 		len.setData(new long[]{ 2L, 3L, 4L }, new int[]{3});
 
 		// 確保処理を実行
@@ -4359,7 +4264,6 @@ public class ExecutionUnitTest {
 		DataContainer<?> target = new DataContainer<Object>();
 
 		DataContainer<long[]> len = new DataContainer<long[]>();
-		len.setSize(3);
 		len.setData(new long[]{ 2L, 3L, 4L }, new int[]{3});
 
 		// 確保処理を実行
@@ -4528,7 +4432,6 @@ public class ExecutionUnitTest {
 		DataContainer<?> target = new DataContainer<Object>();
 
 		DataContainer<long[]> len = new DataContainer<long[]>();
-		len.setSize(3);
 		len.setData(new long[]{ 2L, 3L, 4L }, new int[]{3});
 
 		// 確保処理を実行
@@ -4682,8 +4585,6 @@ public class ExecutionUnitTest {
 		DataContainer<long[]> input = new DataContainer<long[]>();
 		output.setData( new long[]{ -1L, -1L, -1L }, new int[]{3} );
 		input.setData( new long[]{ 1L, 2L, 3L }, new int[]{3} );
-		output.setSize(3);
-		input.setSize(3);
 
 		// 演算を実行
 		try {
@@ -4750,8 +4651,6 @@ public class ExecutionUnitTest {
 		DataContainer<double[]> input = new DataContainer<double[]>();
 		output.setData( new double[]{ -1.0, -1.0, -1.0 }, new int[]{3} );
 		input.setData( new double[]{ 0.5, -0.25, 0.125 }, new int[]{3} ); // 2進表現で割り切れる値
-		output.setSize(3);
-		input.setSize(3);
 
 		// 演算を実行
 		try {
@@ -4819,8 +4718,6 @@ public class ExecutionUnitTest {
 		DataContainer<boolean[]> input = new DataContainer<boolean[]>();
 		output.setData( new boolean[]{ false, false, false }, new int[]{3} );
 		input.setData( new boolean[]{ true, false, true }, new int[]{3} );
-		output.setSize(3);
-		input.setSize(3);
 
 		// 演算を実行
 		try {
@@ -4888,8 +4785,6 @@ public class ExecutionUnitTest {
 		DataContainer<String[]> input = new DataContainer<String[]>();
 		output.setData( new String[]{ "Init0", "Init1", "Init2" }, new int[]{3} );
 		input.setData( new String[]{ "Hello", "World", "!" }, new int[]{3} );
-		output.setSize(3);
-		input.setSize(3);
 
 		// 演算を実行
 		try {
@@ -4973,7 +4868,6 @@ public class ExecutionUnitTest {
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<long[]> output = new DataContainer<long[]>();
 		DataContainer<long[]> input = new DataContainer<long[]>();
-		output.setSize(3);
 		output.setData( new long[]{ -1L, -1L, -1L }, new int[]{3} );
 		input.setData( new long[]{ 2L } );
 
@@ -5014,7 +4908,6 @@ public class ExecutionUnitTest {
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<double[]> output = new DataContainer<double[]>();
 		DataContainer<double[]> input = new DataContainer<double[]>();
-		output.setSize(3);
 		output.setData( new double[]{ -1.0, -1.0, -1.0 }, new int[]{3} );
 		input.setData( new double[]{ 0.25 } ); // 2進表現で割り切れる値
 
@@ -5054,7 +4947,6 @@ public class ExecutionUnitTest {
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
 		DataContainer<boolean[]> input = new DataContainer<boolean[]>();
-		output.setSize(3);
 		output.setData( new boolean[]{ false, false, false }, new int[]{3} );
 		input.setData( new boolean[]{ true } );
 
@@ -5094,7 +4986,6 @@ public class ExecutionUnitTest {
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<String[]> output = new DataContainer<String[]>();
 		DataContainer<String[]> input = new DataContainer<String[]>();
-		output.setSize(3);
 		output.setData( new String[]{ "Init0", "Init1", "Init2" }, new int[]{3} );
 		input.setData( new String[]{ "Hello" } );
 
@@ -5168,9 +5059,7 @@ public class ExecutionUnitTest {
 		DataContainer<long[]> src = new DataContainer<long[]>();   // 参照する配列のコンテナ
 		DataContainer<long[]> index = new DataContainer<long[]>(); // インデックス指定コンテナ
 
-		src.setSize(6);
 		int[] srcLengths = new int[]{2, 3, 4}; // 参照する配列の要素数は [2][3][4]
-		index.setSize(3);
 		int[] indexLengths = new int[]{ 3 }; // 3次元の参照なのでインデックスは3要素
 
 		// テスト用の配列データを src に設定
@@ -5232,9 +5121,7 @@ public class ExecutionUnitTest {
 		DataContainer<double[]> src = new DataContainer<double[]>();   // 参照する配列のコンテナ
 		DataContainer<long[]> index = new DataContainer<long[]>(); // インデックス指定コンテナ
 
-		src.setSize(6);
 		int[] srcLengths = new int[]{2, 3, 4}; // 参照する配列の要素数は [2][3][4]
-		index.setSize(3);
 		int[] indexLengths = new int[]{ 3 }; // 3次元の参照なのでインデックスは3要素
 
 		// テスト用の配列データを src に設定
@@ -5297,9 +5184,7 @@ public class ExecutionUnitTest {
 		DataContainer<boolean[]> src = new DataContainer<boolean[]>();   // 参照する配列のコンテナ
 		DataContainer<long[]> index = new DataContainer<long[]>(); // インデックス指定コンテナ
 
-		src.setSize(6);
 		int[] srcLengths = new int[]{2, 3, 4}; // 参照する配列の要素数は [2][3][4]
-		index.setSize(3);
 		int[] indexLengths = new int[]{ 3 }; // 3次元の参照なのでインデックスは3要素
 
 		// テスト用の配列データを src に設定
@@ -5360,9 +5245,7 @@ public class ExecutionUnitTest {
 		DataContainer<String[]> src = new DataContainer<String[]>();   // 参照する配列のコンテナ
 		DataContainer<long[]> index = new DataContainer<long[]>(); // インデックス指定コンテナ
 
-		src.setSize(6);
 		int[] srcLengths = new int[]{2, 3, 4}; // 参照する配列の要素数は [2][3][4]
-		index.setSize(3);
 		int[] indexLengths = new int[]{ 3 }; // 3次元の参照なのでインデックスは3要素
 
 		// テスト用の配列データを src に設定
@@ -5423,7 +5306,6 @@ public class ExecutionUnitTest {
 		DataContainer<ExecutionUnitTest[]> src = new DataContainer<ExecutionUnitTest[]>();   // 参照する配列のコンテナ(演算不能な型の例として便宜的にExecutionUnitTest[]を使用)
 		DataContainer<long[]> index = new DataContainer<long[]>(); // インデックス指定コンテナ
 		src.setData((ExecutionUnitTest[])null, new int[] { 1, 2, 3 });
-		index.setSize(3);
 		int[] indexLengths = new int[]{ 3 }; // 3次元の参照なのでインデックスは3要素
 		index.setData(new long[]{1, 0, 2}, indexLengths);
 
@@ -5449,7 +5331,6 @@ public class ExecutionUnitTest {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<long[]> output = new DataContainer<long[]>();
-		output.setSize(3);
 		output.setData(new long[]{ -1L, -1L, -1L }, new int[]{ 3 });
 
 		DataContainer<long[]> elem0 = new DataContainer<long[]>();
@@ -5484,7 +5365,6 @@ public class ExecutionUnitTest {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<double[]> output = new DataContainer<double[]>();
-		output.setSize(3);
 		output.setData(new double[]{ -1.0, -1.0, -1.0 }, new int[]{ 3 });
 
 		DataContainer<double[]> elem0 = new DataContainer<double[]>();
@@ -5519,7 +5399,6 @@ public class ExecutionUnitTest {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
-		output.setSize(3);
 		output.setData(new boolean[]{ false, false, false }, new int[]{ 3 });
 
 		DataContainer<boolean[]> elem0 = new DataContainer<boolean[]>();
@@ -5553,7 +5432,6 @@ public class ExecutionUnitTest {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<String[]> output = new DataContainer<String[]>();
-		output.setSize(3);
 		output.setData(new String[]{ "Init0", "Init1", "Init2" }, new int[]{ 3 });
 
 		DataContainer<String[]> elem0 = new DataContainer<String[]>();
@@ -5590,7 +5468,6 @@ public class ExecutionUnitTest {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<Object[]> output = new DataContainer<Object[]>();
-		output.setSize(3);
 		output.setData(new Object[]{ this, this, this }, new int[]{ 3 }); // thisは、とにかく演算できないデータを格納するため
 
 		DataContainer<Object[]> elem0 = new DataContainer<Object[]>();
@@ -5699,8 +5576,6 @@ public class ExecutionUnitTest {
 		DataContainer<long[]> input = new DataContainer<long[]>();
 		output.setData( new long[]{ -1L, -1L, -1L }, new int[]{ 3 } );
 		input.setData( new long[]{ 1L, 2L, 3L }, new int[]{ 3 } );
-		output.setSize(3);
-		input.setSize(3);
 
 		// 演算を実行
 		try {
@@ -5776,8 +5651,6 @@ public class ExecutionUnitTest {
 		DataContainer<long[]> input = new DataContainer<long[]>();
 		output.setData( new double[]{ -1.0, -1.0, -1.0 }, new int[]{ 3 } );
 		input.setData( new long[]{ 1L, 2L, 3L }, new int[]{ 3 } );
-		output.setSize(3);
-		input.setSize(3);
 
 		// 演算を実行
 		try {
@@ -5853,8 +5726,6 @@ public class ExecutionUnitTest {
 		DataContainer<long[]> input = new DataContainer<long[]>();
 		output.setData( new String[]{ "Init0", "Init1", "Init2" }, new int[]{ 3 } );
 		input.setData( new long[]{ 1L, 2L, 3L }, new int[]{ 3 } );
-		output.setSize(3);
-		input.setSize(3);
 
 		// 演算を実行
 		try {
@@ -5934,8 +5805,6 @@ public class ExecutionUnitTest {
 		DataContainer<double[]> input = new DataContainer<double[]>();
 		output.setData( new double[]{ -1.0, -1.0, -1.0 }, new int[]{ 3 } );
 		input.setData( new double[]{ 1.125, 2.25, 3.5 }, new int[]{ 3 } ); // 2進表現で割り切れる値
-		output.setSize(3);
-		input.setSize(3);
 
 		// 演算を実行
 		try {
@@ -6011,8 +5880,6 @@ public class ExecutionUnitTest {
 		DataContainer<double[]> input = new DataContainer<double[]>();
 		output.setData( new long[]{ -1L, -1L, -1L }, new int[]{ 3 } );
 		input.setData( new double[]{ 1.125, 2.25, 3.5 }, new int[]{ 3 } ); // 2進表現で割り切れる値
-		output.setSize(3);
-		input.setSize(3);
 
 		// 演算を実行
 		try {
@@ -6088,8 +5955,6 @@ public class ExecutionUnitTest {
 		DataContainer<double[]> input = new DataContainer<double[]>();
 		output.setData( new String[]{ "Init0", "Init1", "Init2" }, new int[]{ 3 } );
 		input.setData( new double[]{ 1.125, 2.25, 3.5 }, new int[]{ 3 } ); // 2進表現で割り切れる値
-		output.setSize(3);
-		input.setSize(3);
 
 		// 演算を実行
 		try {
@@ -6168,8 +6033,6 @@ public class ExecutionUnitTest {
 		DataContainer<boolean[]> input = new DataContainer<boolean[]>();
 		output.setData( new boolean[]{ false, false, false }, new int[]{ 3 } );
 		input.setData( new boolean[]{ true, false, true }, new int[]{ 3 } );
-		output.setSize(3);
-		input.setSize(3);
 
 		// 演算を実行
 		try {
@@ -6245,8 +6108,6 @@ public class ExecutionUnitTest {
 		DataContainer<boolean[]> input = new DataContainer<boolean[]>();
 		output.setData( new String[]{ "Init0", "Init1", "Init2" }, new int[]{ 3 } );
 		input.setData( new boolean[]{ true, false, true }, new int[]{ 3 } );
-		output.setSize(3);
-		input.setSize(3);
 
 		// 演算を実行
 		try {
@@ -6326,8 +6187,6 @@ public class ExecutionUnitTest {
 		DataContainer<String[]> input = new DataContainer<String[]>();
 		output.setData( new String[]{ "Init0", "Init1", "Init2" }, new int[]{ 3 } );
 		input.setData( new String[]{ "Hello", "World", "!" }, new int[]{ 3 } );
-		output.setSize(3);
-		input.setSize(3);
 
 		// 演算を実行
 		try {
@@ -6435,8 +6294,6 @@ public class ExecutionUnitTest {
 		DataContainer<String[]> input = new DataContainer<String[]>();
 		output.setData( new long[]{ -1L, -1L, -1L }, new int[]{ 3 } );
 		input.setData( new String[]{ "1", "2", "3" }, new int[]{ 3 } );
-		output.setSize(3);
-		input.setSize(3);
 
 		// 演算を実行
 		try {
@@ -6522,8 +6379,6 @@ public class ExecutionUnitTest {
 		DataContainer<String[]> input = new DataContainer<String[]>();
 		output.setData( new double[]{ -1.0, -1.0, -1.0 }, new int[]{ 3 } );
 		input.setData( new String[]{ "1.125", "2.25", "3.5" }, new int[]{ 3 } ); // 2進表現で割り切れる値
-		output.setSize(3);
-		input.setSize(3);
 
 		// 演算を実行
 		try {
@@ -6609,8 +6464,6 @@ public class ExecutionUnitTest {
 		DataContainer<String[]> input = new DataContainer<String[]>();
 		output.setData( new boolean[]{ false, false, false }, new int[]{ 3 } );
 		input.setData( new String[]{ "true", "false", "true" }, new int[]{ 3 } ); // 2進表現で割り切れる値
-		output.setSize(3);
-		input.setSize(3);
 
 		// 演算を実行
 		try {

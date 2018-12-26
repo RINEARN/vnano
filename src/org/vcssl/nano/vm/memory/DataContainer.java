@@ -340,6 +340,7 @@ public class DataContainer<T> implements ArrayDataContainer1<T> {
 
 
 	/**
+	 * (本来はdataと独立に設定してもよい場面は限られているため、このメソッドへの依存性を低減させるために暫定的に無効化中)
 	 * このデータコンテナが格納するデータのサイズを設定します。
 	 *
 	 * ここでのサイズとは、このデータコンテナが格納対象とするデータの総要素数の事です。
@@ -352,9 +353,11 @@ public class DataContainer<T> implements ArrayDataContainer1<T> {
 	 *
 	 * @param size データの総要素数
 	 */
+	/*
 	public final void setSize(int size) {
 		this.size = size;
 	}
+	*/
 
 
 	/**
