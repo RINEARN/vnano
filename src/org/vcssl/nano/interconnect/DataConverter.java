@@ -384,7 +384,6 @@ public class DataConverter {
 	private void convertToDataContainer0D(Object object, DataContainer<?> resultDataContainer)
 			throws VnanoException {
 
-		int dataLength = DataContainer.SIZE_OF_SCALAR;
 		int[] arrayLength = DataContainer.LENGTHS_OF_SCALAR;
 		switch (this.externalType) {
 			case INT32 : {
