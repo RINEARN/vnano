@@ -10,6 +10,7 @@ import org.vcssl.nano.VnanoFatalException;
 import org.vcssl.nano.VnanoException;
 import org.vcssl.nano.interconnect.Interconnect;
 import org.vcssl.nano.lang.DataType;
+import org.vcssl.nano.spec.OperationCode;
 import org.vcssl.nano.vm.memory.DataContainer;
 import org.vcssl.nano.vm.memory.Memory;
 
@@ -258,7 +259,7 @@ public class DispatchUnit {
 				}
 			}
 
-			case CALL : {
+			case CALLX : {
 				int functionIndex = (int)( (long[])operands[1].getData() )[0];
 				int argumentLength = operands.length - 2;
 				DataContainer<?>[] arguments = new DataContainer[argumentLength];

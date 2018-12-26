@@ -6,8 +6,8 @@
 package org.vcssl.nano.vm.accelerator;
 
 import org.vcssl.nano.VnanoFatalException;
+import org.vcssl.nano.spec.OperationCode;
 import org.vcssl.nano.vm.memory.DataContainer;
-import org.vcssl.nano.vm.processor.OperationCode;
 
 public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 

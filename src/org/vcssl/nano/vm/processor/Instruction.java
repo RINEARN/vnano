@@ -7,6 +7,7 @@ package org.vcssl.nano.vm.processor;
 
 import org.vcssl.nano.lang.DataType;
 import org.vcssl.nano.spec.AssemblyWord;
+import org.vcssl.nano.spec.OperationCode;
 import org.vcssl.nano.vm.memory.Memory;
 
 /**
@@ -103,13 +104,13 @@ public class Instruction implements Cloneable {
 	 *
 	 * ほとんどの命令では、オペランドのデータ型は同一のものに揃っている必要があるため、
 	 * 通常はそのデータ型が、単要素の配列として返されます。
-	 * ただし、{@link org.vcssl.nano.vm.processor.OperationCode#EQ EQ} 命令や
-	 * {@link org.vcssl.nano.vm.processor.OperationCode#LT LT} 命令などの比較演算命令では、
+	 * ただし、{@link org.vcssl.nano.spec.OperationCode#EQ EQ} 命令や
+	 * {@link org.vcssl.nano.spec.OperationCode#LT LT} 命令などの比較演算命令では、
 	 * 結果を格納するオペランドの型は常に {@link org.vcssl.nano.lang.DataType#BOOL BOOL}
 	 * 型であるため、それ以外の比較対象オペランドのデータ型が、単要素配列として返されます。
-	 * 型変換を行う {@link org.vcssl.nano.vm.processor.OperationCode#CAST CAST} 命令では、
+	 * 型変換を行う {@link org.vcssl.nano.spec.OperationCode#CAST CAST} 命令では、
 	 * 変換後と変換前のデータ型をそれぞれ要素[0]と[1]に保持する、要素数2の配列が返されます。
-	 * 関数呼び出しを行う {@link org.vcssl.nano.vm.processor.OperationCode#CALL CALL} 命令では、
+	 * 関数呼び出しを行う {@link org.vcssl.nano.spec.OperationCode#CALLX CALLX} 命令では、
 	 * 戻り値のデータ型を格納する単要素の配列が返されます（引数の型情報は含まれません）。
 	 *
 	 * @return 命令の演算を行う際のデータ型情報

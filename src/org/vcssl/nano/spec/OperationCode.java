@@ -3,7 +3,7 @@
  * This software is released under the MIT License.
  */
 
-package org.vcssl.nano.vm.processor;
+package org.vcssl.nano.spec;
 
 /**
  * <p>
@@ -386,9 +386,9 @@ public enum OperationCode {
 
 
 	/**
-	 * 関数呼び出し命令です。
+	 * 外部関数呼び出し命令です。
 	 */
-	CALL,
+	CALLX,
 
 
 	/**

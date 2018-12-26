@@ -15,6 +15,7 @@ import org.junit.Test;
 import org.vcssl.nano.interconnect.Interconnect;
 import org.vcssl.nano.lang.AbstractFunction;
 import org.vcssl.nano.lang.DataType;
+import org.vcssl.nano.spec.OperationCode;
 import org.vcssl.nano.vm.memory.DataContainer;
 import org.vcssl.nano.vm.memory.Memory;
 import org.vcssl.nano.VnanoFatalException;
@@ -1363,7 +1364,7 @@ public class DispatchUnitTest {
 
 		// 上記オペランドでメソッドコールを行う命令を生成
 		Instruction instruction = new Instruction(
-				OperationCode.CALL, INT64_TYPE,
+				OperationCode.CALLX, INT64_TYPE,
 				new Memory.Partition[]{ TMP_C_PART, TMP_D_PART, TMP_A_PART, TMP_B_PART },
 				new int[]{ TMP_C_ADDR, TMP_D_ADDR, TMP_A_ADDR, TMP_B_ADDR },
 				META_PART, META_ADDR
