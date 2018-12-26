@@ -227,9 +227,9 @@ public class ProcessorTest {
 		int functionAddress = this.interconnect.getGlobalFunctionTable().indexOf(function);
 		((DataContainer<long[]>)this.registers[10]).setData(new long[]{ (long)functionAddress });
 
-		// メソッドを呼び出す CALL 命令を生成
+		// メソッドを呼び出す CALLX 命令を生成
 		Instruction[] instructions = new Instruction[]{
-				this.generateInstruction(OperationCode.CALL, DataType.INT64, 0, 10, 1, 2), // CALL R0 R10 R1 R2 (R0=methodToConnect(R1,R2))
+				this.generateInstruction(OperationCode.CALLX, DataType.INT64, 0, 10, 1, 2), // CALLX R0 R10 R1 R2 (R0=methodToConnect(R1,R2))
 		};
 
 		// 命令を実行

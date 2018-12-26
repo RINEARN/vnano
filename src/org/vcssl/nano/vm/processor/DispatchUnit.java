@@ -258,7 +258,7 @@ public class DispatchUnit {
 				}
 			}
 
-			case CALL : {
+			case CALLX : {
 				int functionIndex = (int)( (long[])operands[1].getData() )[0];
 				int argumentLength = operands.length - 2;
 				DataContainer<?>[] arguments = new DataContainer[argumentLength];

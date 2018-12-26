@@ -1694,7 +1694,7 @@ public class CodeGenerator {
 	 *
 	 * @param operatorNode 関数呼び出し演算子のASTノード
 	 * （{@link AstNode.Type#OPERATOR OPERATOR}タイプ、
-	 *   {@link AttributeKey#OPERATOR_EXECUTOR OPERATOR_EXECUTION}属性値が{@link AttributeValue#CALL CALL}、
+	 *   {@link AttributeKey#OPERATOR_EXECUTOR OPERATOR_EXECUTION}属性値が{@link AttributeValue#CALL CALLX}、
 	 *   {@link AttributeKey#OPERATOR_SYNTAX OPERATOR_SYNTAX}属性値が{@link AttributeValue#MULTIARY MULTIARY}）
 	 * @return 生成コード
 	 */
@@ -1715,7 +1715,7 @@ public class CodeGenerator {
 		}
 
 		codeBuilder.append(
-				this.generateInstruction(OperationCode.CALL.name(), operatorNode.getDataTypeName(), operands)
+				this.generateInstruction(OperationCode.CALLX.name(), operatorNode.getDataTypeName(), operands)
 		);
 
 		return codeBuilder.toString();

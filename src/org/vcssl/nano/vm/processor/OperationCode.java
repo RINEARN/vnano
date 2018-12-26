@@ -386,9 +386,9 @@ public enum OperationCode {
 
 
 	/**
-	 * 関数呼び出し命令です。
+	 * 外部関数呼び出し命令です。
 	 */
-	CALL,
+	CALLX,
 
 
 	/**
