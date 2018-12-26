@@ -711,9 +711,9 @@ public class AccelerationScheduler {
 				continue;
 			}
 
-			// そのレジスタに書き込む & 読み込む箇所がそこだけ（それぞれ1箇所だけ）でない場合はスキップ
+			// そのレジスタに書き込む/読み込む箇所がそこだけでない（書き込みが複数、または読み込みが複数ある）場合はスキップ
 			if (this.registerWrittenPointCount[writingRegisterAddress] != 1
-					&& this.registerReadPointCount[writingRegisterAddress] != 1) {
+					|| this.registerReadPointCount[writingRegisterAddress] != 1) {
 
 				continue;
 			}
