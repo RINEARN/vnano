@@ -43,16 +43,16 @@ public class CodeGeneratorTest {
 	//private static final String BVA = AssemblyWord.OPERAND_PREFIX_IDENTIFIER + "boolVectorA";
 	//private static final String BVB = AssemblyWord.OPERAND_PREFIX_IDENTIFIER + "boolVectorB";
 
-	private static final String GLOBAL_DIRECTIVE_IVA = "#GLOBAL	_intVectorA";
-	private static final String GLOBAL_DIRECTIVE_IVB = "#GLOBAL	_intVectorB";
-	private static final String GLOBAL_DIRECTIVE_ISA = "#GLOBAL	_intScalarA";
-	private static final String GLOBAL_DIRECTIVE_ISB = "#GLOBAL	_intScalarB";
-	private static final String GLOBAL_DIRECTIVE_FVA = "#GLOBAL	_floatVectorA";
-	//private static final String GLOBAL_DIRECTIVE_FVB = "#GLOBAL	_floatVectorB";
-	//private static final String GLOBAL_DIRECTIVE_FSA = "#GLOBAL	_floatScalarA";
-	private static final String GLOBAL_DIRECTIVE_FSB = "#GLOBAL	_floatScalarB";
-	//private static final String GLOBAL_DIRECTIVE_BVA = "#GLOBAL	_boolVectorA";
-	//private static final String GLOBAL_DIRECTIVE_BVB = "#GLOBAL	_boolVectorB";
+	private static final String GLOBAL_DIRECTIVE_IVA = "#GLOBAL_VARIABLE	_intVectorA";
+	private static final String GLOBAL_DIRECTIVE_IVB = "#GLOBAL_VARIABLE	_intVectorB";
+	private static final String GLOBAL_DIRECTIVE_ISA = "#GLOBAL_VARIABLE	_intScalarA";
+	private static final String GLOBAL_DIRECTIVE_ISB = "#GLOBAL_VARIABLE	_intScalarB";
+	private static final String GLOBAL_DIRECTIVE_FVA = "#GLOBAL_VARIABLE	_floatVectorA";
+	//private static final String GLOBAL_DIRECTIVE_FVB = "#GLOBAL_VARIABLE	_floatVectorB";
+	//private static final String GLOBAL_DIRECTIVE_FSA = "#GLOBAL_VARIABLE	_floatScalarA";
+	private static final String GLOBAL_DIRECTIVE_FSB = "#GLOBAL_VARIABLE	_floatScalarB";
+	//private static final String GLOBAL_DIRECTIVE_BVA = "#GLOBAL_VARIABLE	_boolVectorA";
+	//private static final String GLOBAL_DIRECTIVE_BVB = "#GLOBAL_VARIABLE	_boolVectorB";
 
 	private Interconnect interconnect;
 
@@ -632,8 +632,8 @@ public class CodeGeneratorTest {
 			+ IND + operationCode + WS + DataTypeName.INT + WS + ISA + WS + ISA + WS + ISB + EOI;
 
 		// 生成コードと期待コードの内容を確認
-		//System.out.println(generatedCode);
-		//System.out.println(expectedCode);
+		System.out.println(generatedCode);
+		System.out.println(expectedCode);
 
 		// 生成コードと期待コードを比較検査
 		assertEquals(expectedCode, generatedCode);

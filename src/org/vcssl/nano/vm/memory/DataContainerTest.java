@@ -28,7 +28,7 @@ public class DataContainerTest {
 		this.testInitialize();
 		this.testSetGetData();
 		this.testSetGetData();
-		this.testSetGetOffset();
+		this.testGetOffset();
 		this.testSetGetLengths();
 		this.testGetRank();
 		this.testGetDataType();
@@ -67,9 +67,19 @@ public class DataContainerTest {
 
 		// 状態をデフォルトから変える
 		container.setSize(5);
-		container.setLengths(new int[]{ 5 });
-		container.setOffset(1); // 本来ベクトルは常にオフセット0であるが初期化検証のため設定
-		container.setData(new long[4]);
+		int lengths[] = new int[] { 5 };
+		container.setData(new long[4], lengths);
+
+		// 初期化
+		container.initialize();
+
+		// デフォルトに戻っているか検査
+		this.testDefaultState(container);
+
+		// オフセット値を変える場合も試す
+		container = new DataContainer<long[]>();
+		int offset = 1;
+		container.setData(new long[4], offset);
 
 		// 初期化
 		container.initialize();
@@ -91,9 +101,10 @@ public class DataContainerTest {
 		// ここで未対応のデータを設定してエラーが出る事を確認すべき？
 	}
 
-	private void testSetGetOffset() {
+	private void testGetOffset() {
 		DataContainer<long[]> container = new DataContainer<long[]>();
-		container.setOffset(3);
+		int offset = 3;
+		container.setData(new long[5], offset);
 		if (container.getOffset() != 3) {
 			fail("Incorrect value");
 		}

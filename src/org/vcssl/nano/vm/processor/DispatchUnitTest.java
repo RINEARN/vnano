@@ -1068,7 +1068,6 @@ public class DispatchUnitTest {
 
 		// 解放するコンテナを雑用アドレスに用意
 		DataContainer<long[]> target = new DataContainer<long[]>();
-		target.setOffset(1); // 本来ベクトルは常にオフセット0であるが初期化検証のため設定
 		target.setSize(4); // 5-offset
 		target.setLengths(new int[]{ 4 }); // 5-offset
 		this.memory.setDataContainer(TMP_A_PART, TMP_A_ADDR, target);
@@ -1087,7 +1086,7 @@ public class DispatchUnitTest {
 
 		// データ解放前の状態を念のため検査
 		if (target.getData() != data
-				|| target.getOffset() != 1
+				|| target.getOffset() != 0
 				|| target.getSize() != 4
 				|| target.getLengths()[0] != 4) {
 

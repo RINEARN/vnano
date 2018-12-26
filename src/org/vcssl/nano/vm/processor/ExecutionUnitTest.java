@@ -268,12 +268,9 @@ public class ExecutionUnitTest {
 		}
 
 		// オフセット設定された条件下でも正しく機能するか検査
-		output.setData( new long[]{ -1L, -1L, -1L } );
-		inputA.setData( new long[]{ 0L, 1L, 0L } );
-		inputB.setData( new long[]{ 0L, 2L, 0L } );
-		output.setOffset(1);
-		inputA.setOffset(1);
-		inputB.setOffset(1);
+		output.setData( new long[]{ -1L, -1L, -1L }, 1 );
+		inputA.setData( new long[]{ 0L, 1L, 0L }, 1 );
+		inputB.setData( new long[]{ 0L, 2L, 0L }, 1 );
 		try {
 			new ExecutionUnit().add(DataType.INT64, output, inputA, inputB);
 		} catch (VnanoFatalException e) {
@@ -349,12 +346,9 @@ public class ExecutionUnitTest {
 		}
 
 		// オフセット設定された条件下でも正しく機能するか検査
-		output.setData( new double[]{ -1.0, -1.0, -1.0 } );
-		inputA.setData( new double[]{ 0.0, 0.25,  0.0 } ); // 2進表現で割り切れる値
-		inputB.setData( new double[]{ 0.0, 0.125, 0.0 } ); // 2進表現で割り切れる値
-		output.setOffset(1);
-		inputA.setOffset(1);
-		inputB.setOffset(1);
+		output.setData( new double[]{ -1.0, -1.0, -1.0 }, 1 );
+		inputA.setData( new double[]{ 0.0, 0.25,  0.0 }, 1 ); // 2進表現で割り切れる値
+		inputB.setData( new double[]{ 0.0, 0.125, 0.0 }, 1 ); // 2進表現で割り切れる値
 		try {
 			new ExecutionUnit().add(DataType.FLOAT64, output, inputA, inputB);
 		} catch (VnanoFatalException e) {
@@ -430,12 +424,9 @@ public class ExecutionUnitTest {
 		}
 
 		// オフセット設定された条件下でも正しく機能するか検査
-		output.setData( new String[]{ "Init0", "Init1", "Init2" } );
-		inputA.setData( new String[]{ "", "Hello", "" } );
-		inputB.setData( new String[]{ "", "World", "" } );
-		output.setOffset(1);
-		inputA.setOffset(1);
-		inputB.setOffset(1);
+		output.setData( new String[]{ "Init0", "Init1", "Init2" }, 1 );
+		inputA.setData( new String[]{ "", "Hello", "" }, 1 );
+		inputB.setData( new String[]{ "", "World", "" }, 1 );
 		try {
 			new ExecutionUnit().add(DataType.STRING, output, inputA, inputB);
 		} catch (VnanoFatalException e) {
@@ -565,12 +556,9 @@ public class ExecutionUnitTest {
 		}
 
 		// オフセット設定された条件下でも正しく機能するか検査
-		output.setData( new long[]{ -1L, -1L, -1L } );
-		inputA.setData( new long[]{ 0L, 5L, 0L } );
-		inputB.setData( new long[]{ 0L, 3L, 0L } );
-		output.setOffset(1);
-		inputA.setOffset(1);
-		inputB.setOffset(1);
+		output.setData( new long[]{ -1L, -1L, -1L }, 1 );
+		inputA.setData( new long[]{ 0L, 5L, 0L }, 1 );
+		inputB.setData( new long[]{ 0L, 3L, 0L }, 1 );
 		try {
 			new ExecutionUnit().sub(DataType.INT64, output, inputA, inputB);
 		} catch (VnanoFatalException e) {
@@ -645,12 +633,9 @@ public class ExecutionUnitTest {
 		}
 
 		// オフセット設定された条件下でも正しく機能するか検査
-		output.setData( new double[]{ -1.0, -1.0, -1.0 } );
-		inputA.setData( new double[]{ 0.0, 0.5,  0.0 } ); // 2進表現で割り切れる値
-		inputB.setData( new double[]{ 0.0, 0.125, 0.0 } ); // 2進表現で割り切れる値
-		output.setOffset(1);
-		inputA.setOffset(1);
-		inputB.setOffset(1);
+		output.setData( new double[]{ -1.0, -1.0, -1.0 }, 1 );
+		inputA.setData( new double[]{ 0.0, 0.5,  0.0 }, 1 ); // 2進表現で割り切れる値
+		inputB.setData( new double[]{ 0.0, 0.125, 0.0 }, 1 ); // 2進表現で割り切れる値
 		try {
 			new ExecutionUnit().sub(DataType.FLOAT64, output, inputA, inputB);
 		} catch (VnanoFatalException e) {
@@ -770,12 +755,9 @@ public class ExecutionUnitTest {
 		}
 
 		// オフセット設定された条件下でも正しく機能するか検査
-		output.setData( new long[]{ -1L, -1L, -1L } );
-		inputA.setData( new long[]{ 0L, 5L, 0L } );
-		inputB.setData( new long[]{ 0L, 3L, 0L } );
-		output.setOffset(1);
-		inputA.setOffset(1);
-		inputB.setOffset(1);
+		output.setData( new long[]{ -1L, -1L, -1L }, 1 );
+		inputA.setData( new long[]{ 0L, 5L, 0L }, 1 );
+		inputB.setData( new long[]{ 0L, 3L, 0L }, 1 );
 		try {
 			new ExecutionUnit().mul(DataType.INT64, output, inputA, inputB);
 		} catch (VnanoFatalException e) {
@@ -850,12 +832,9 @@ public class ExecutionUnitTest {
 		}
 
 		// オフセット設定された条件下でも正しく機能するか検査
-		output.setData( new double[]{ -1.0, -1.0, -1.0 } );
-		inputA.setData( new double[]{ 0.0, 0.5,  0.0 } );  // 2進表現で割り切れる値
-		inputB.setData( new double[]{ 0.0, 0.125, 0.0 } ); // 2進表現で割り切れる値
-		output.setOffset(1);
-		inputA.setOffset(1);
-		inputB.setOffset(1);
+		output.setData( new double[]{ -1.0, -1.0, -1.0 }, 1 );
+		inputA.setData( new double[]{ 0.0, 0.5,  0.0 }, 1 );  // 2進表現で割り切れる値
+		inputB.setData( new double[]{ 0.0, 0.125, 0.0 }, 1 ); // 2進表現で割り切れる値
 		try {
 			new ExecutionUnit().mul(DataType.FLOAT64, output, inputA, inputB);
 		} catch (VnanoFatalException e) {
@@ -976,12 +955,9 @@ public class ExecutionUnitTest {
 		}
 
 		// オフセット設定された条件下でも正しく機能するか検査
-		output.setData( new long[]{ -1L, -1L, -1L } );
-		inputA.setData( new long[]{ 0L, 8L, 0L } );
-		inputB.setData( new long[]{ 0L, 3L, 0L } );
-		output.setOffset(1);
-		inputA.setOffset(1);
-		inputB.setOffset(1);
+		output.setData( new long[]{ -1L, -1L, -1L }, 1 );
+		inputA.setData( new long[]{ 0L, 8L, 0L }, 1 );
+		inputB.setData( new long[]{ 0L, 3L, 0L }, 1 );
 		try {
 			new ExecutionUnit().div(DataType.INT64, output, inputA, inputB);
 		} catch (VnanoFatalException e) {
@@ -1058,12 +1034,9 @@ public class ExecutionUnitTest {
 		}
 
 		// オフセット設定された条件下でも正しく機能するか検査
-		output.setData( new double[]{ -1.0, -1.0, -1.0 } );
-		inputA.setData( new double[]{ 0.0, 0.5,  0.0 } );  // 2進表現で割り切れる値
-		inputB.setData( new double[]{ 0.0, 0.125, 0.0 } ); // 2進表現で割り切れる値
-		output.setOffset(1);
-		inputA.setOffset(1);
-		inputB.setOffset(1);
+		output.setData( new double[]{ -1.0, -1.0, -1.0 }, 1 );
+		inputA.setData( new double[]{ 0.0, 0.5,  0.0 }, 1 );  // 2進表現で割り切れる値
+		inputB.setData( new double[]{ 0.0, 0.125, 0.0 }, 1 ); // 2進表現で割り切れる値
 		try {
 			new ExecutionUnit().div(DataType.FLOAT64, output, inputA, inputB);
 		} catch (VnanoFatalException e) {
@@ -1184,12 +1157,9 @@ public class ExecutionUnitTest {
 		}
 
 		// オフセット設定された条件下でも正しく機能するか検査
-		output.setData( new long[]{ -1L, -1L, -1L } );
-		inputA.setData( new long[]{ 0L, 8L, 0L } );
-		inputB.setData( new long[]{ 0L, 3L, 0L } );
-		output.setOffset(1);
-		inputA.setOffset(1);
-		inputB.setOffset(1);
+		output.setData( new long[]{ -1L, -1L, -1L }, 1 );
+		inputA.setData( new long[]{ 0L, 8L, 0L }, 1 );
+		inputB.setData( new long[]{ 0L, 3L, 0L }, 1 );
 		try {
 			new ExecutionUnit().rem(DataType.INT64, output, inputA, inputB);
 		} catch (VnanoFatalException e) {
@@ -1266,12 +1236,9 @@ public class ExecutionUnitTest {
 		}
 
 		// オフセット設定された条件下でも正しく機能するか検査
-		output.setData( new double[]{ -1.0, -1.0, -1.0 } );
-		inputA.setData( new double[]{ 0.0, 0.8,  0.0 } );
-		inputB.setData( new double[]{ 0.0, 0.3, 0.0 } );
-		output.setOffset(1);
-		inputA.setOffset(1);
-		inputB.setOffset(1);
+		output.setData( new double[]{ -1.0, -1.0, -1.0 }, 1 );
+		inputA.setData( new double[]{ 0.0, 0.8,  0.0 }, 1 );
+		inputB.setData( new double[]{ 0.0, 0.3, 0.0 }, 1 );
 		try {
 			new ExecutionUnit().rem(DataType.FLOAT64, output, inputA, inputB);
 		} catch (VnanoFatalException e) {
@@ -1395,10 +1362,8 @@ public class ExecutionUnitTest {
 		}
 
 		// オフセット設定された条件下でも正しく機能するか検査
-		output.setData( new long[]{ -1L, -1L, -1L } );
-		input.setData( new long[]{ 0L, 8L, 0L } );
-		output.setOffset(1);
-		input.setOffset(1);
+		output.setData( new long[]{ -1L, -1L, -1L }, 1 );
+		input.setData( new long[]{ 0L, 8L, 0L }, 1 );
 		try {
 			new ExecutionUnit().neg(DataType.INT64, output, input);
 		} catch (VnanoFatalException e) {
@@ -1467,10 +1432,8 @@ public class ExecutionUnitTest {
 		}
 
 		// オフセット設定された条件下でも正しく機能するか検査
-		output.setData( new double[]{ -1.0, -1.0, -1.0 } );
-		input.setData( new double[]{ 0, 0.8, 0 } );
-		output.setOffset(1);
-		input.setOffset(1);
+		output.setData( new double[]{ -1.0, -1.0, -1.0 }, 1 );
+		input.setData( new double[]{ 0, 0.8, 0 }, 1 );
 		try {
 			new ExecutionUnit().neg(DataType.FLOAT64, output, input);
 		} catch (VnanoFatalException e) {
@@ -1597,12 +1560,9 @@ public class ExecutionUnitTest {
 		}
 
 		// オフセット設定された条件下でも正しく機能するか検査
-		output.setData( new boolean[]{ false, false, false } );
-		inputA.setData( new long[]{ 0L, 1L, 0L } );
-		inputB.setData( new long[]{ 0L, 2L, 0L } );
-		output.setOffset(1);
-		inputA.setOffset(1);
-		inputB.setOffset(1);
+		output.setData( new boolean[]{ false, false, false }, 1 );
+		inputA.setData( new long[]{ 0L, 1L, 0L }, 1 );
+		inputB.setData( new long[]{ 0L, 2L, 0L }, 1 );
 		try {
 			new ExecutionUnit().eq(DataType.INT64, output, inputA, inputB);
 		} catch (VnanoFatalException e) {
@@ -1700,12 +1660,9 @@ public class ExecutionUnitTest {
 		}
 
 		// オフセット設定された条件下でも正しく機能するか検査
-		output.setData( new boolean[]{ false, false, false } );
-		inputA.setData( new double[]{ -1.0, 0.125, -1.0 } ); // 2進表現で割り切れる値
-		inputB.setData( new double[]{ -1.0, 0.5, -1.0 } );   // 2進表現で割り切れる値
-		output.setOffset(1);
-		inputA.setOffset(1);
-		inputB.setOffset(1);
+		output.setData( new boolean[]{ false, false, false }, 1 );
+		inputA.setData( new double[]{ -1.0, 0.125, -1.0 }, 1 ); // 2進表現で割り切れる値
+		inputB.setData( new double[]{ -1.0, 0.5, -1.0 }, 1 );   // 2進表現で割り切れる値
 		try {
 			new ExecutionUnit().eq(DataType.FLOAT64, output, inputA, inputB);
 		} catch (VnanoFatalException e) {
@@ -1803,12 +1760,9 @@ public class ExecutionUnitTest {
 		}
 
 		// オフセット設定された条件下でも正しく機能するか検査
-		output.setData( new boolean[]{ false, false, false } );
-		inputA.setData( new String[]{ "", "Hello", "" } );
-		inputB.setData( new String[]{ "", "World", "" } );
-		output.setOffset(1);
-		inputA.setOffset(1);
-		inputB.setOffset(1);
+		output.setData( new boolean[]{ false, false, false }, 1 );
+		inputA.setData( new String[]{ "", "Hello", "" }, 1 );
+		inputB.setData( new String[]{ "", "World", "" }, 1 );
 		try {
 			new ExecutionUnit().eq(DataType.STRING, output, inputA, inputB);
 		} catch (VnanoFatalException e) {
@@ -1906,12 +1860,9 @@ public class ExecutionUnitTest {
 		}
 
 		// オフセット設定された条件下でも正しく機能するか検査
-		output.setData( new boolean[]{ false, false, false } );
-		inputA.setData( new boolean[]{ false, true, false } );
-		inputB.setData( new boolean[]{ false, false, false } );
-		output.setOffset(1);
-		inputA.setOffset(1);
-		inputB.setOffset(1);
+		output.setData( new boolean[]{ false, false, false }, 1 );
+		inputA.setData( new boolean[]{ false, true, false }, 1 );
+		inputB.setData( new boolean[]{ false, false, false }, 1 );
 		try {
 			new ExecutionUnit().eq(DataType.BOOL, output, inputA, inputB);
 		} catch (VnanoFatalException e) {
@@ -2039,12 +1990,9 @@ public class ExecutionUnitTest {
 		}
 
 		// オフセット設定された条件下でも正しく機能するか検査
-		output.setData( new boolean[]{ false, false, false } );
-		inputA.setData( new long[]{ 0L, 1L, 0L } );
-		inputB.setData( new long[]{ 0L, 2L, 0L } );
-		output.setOffset(1);
-		inputA.setOffset(1);
-		inputB.setOffset(1);
+		output.setData( new boolean[]{ false, false, false }, 1 );
+		inputA.setData( new long[]{ 0L, 1L, 0L }, 1 );
+		inputB.setData( new long[]{ 0L, 2L, 0L }, 1 );
 		try {
 			new ExecutionUnit().neq(DataType.INT64, output, inputA, inputB);
 		} catch (VnanoFatalException e) {
@@ -2141,12 +2089,9 @@ public class ExecutionUnitTest {
 		}
 
 		// オフセット設定された条件下でも正しく機能するか検査
-		output.setData( new boolean[]{ false, false, false } );
-		inputA.setData( new double[]{ -1.0, 0.125, -1.0 } ); // 2進表現で割り切れる値
-		inputB.setData( new double[]{ -1.0, 0.5, -1.0 } );   // 2進表現で割り切れる値
-		output.setOffset(1);
-		inputA.setOffset(1);
-		inputB.setOffset(1);
+		output.setData( new boolean[]{ false, false, false }, 1 );
+		inputA.setData( new double[]{ -1.0, 0.125, -1.0 }, 1 ); // 2進表現で割り切れる値
+		inputB.setData( new double[]{ -1.0, 0.5, -1.0 }, 1 );   // 2進表現で割り切れる値
 		try {
 			new ExecutionUnit().neq(DataType.FLOAT64, output, inputA, inputB);
 		} catch (VnanoFatalException e) {
@@ -2243,12 +2188,9 @@ public class ExecutionUnitTest {
 		}
 
 		// オフセット設定された条件下でも正しく機能するか検査
-		output.setData( new boolean[]{ false, false, false } );
-		inputA.setData( new String[]{ "", "Hello", "" } );
-		inputB.setData( new String[]{ "", "World", "" } );
-		output.setOffset(1);
-		inputA.setOffset(1);
-		inputB.setOffset(1);
+		output.setData( new boolean[]{ false, false, false }, 1 );
+		inputA.setData( new String[]{ "", "Hello", "" }, 1 );
+		inputB.setData( new String[]{ "", "World", "" }, 1 );
 		try {
 			new ExecutionUnit().neq(DataType.STRING, output, inputA, inputB);
 		} catch (VnanoFatalException e) {
@@ -2346,12 +2288,9 @@ public class ExecutionUnitTest {
 		}
 
 		// オフセット設定された条件下でも正しく機能するか検査
-		output.setData( new boolean[]{ false, false, false } );
-		inputA.setData( new boolean[]{ false, true, false } );
-		inputB.setData( new boolean[]{ false, false, false } );
-		output.setOffset(1);
-		inputA.setOffset(1);
-		inputB.setOffset(1);
+		output.setData( new boolean[]{ false, false, false }, 1 );
+		inputA.setData( new boolean[]{ false, true, false }, 1 );
+		inputB.setData( new boolean[]{ false, false, false }, 1 );
 		try {
 			new ExecutionUnit().neq(DataType.BOOL, output, inputA, inputB);
 		} catch (VnanoFatalException e) {
@@ -2489,12 +2428,9 @@ public class ExecutionUnitTest {
 		}
 
 		// オフセット設定された条件下でも正しく機能するか検査
-		output.setData( new boolean[]{ false, false, false } );
-		inputA.setData( new long[]{ 0L, 1L, 0L } );
-		inputB.setData( new long[]{ 0L, 2L, 0L } );
-		output.setOffset(1);
-		inputA.setOffset(1);
-		inputB.setOffset(1);
+		output.setData( new boolean[]{ false, false, false }, 1 );
+		inputA.setData( new long[]{ 0L, 1L, 0L }, 1 );
+		inputB.setData( new long[]{ 0L, 2L, 0L }, 1 );
 		try {
 			new ExecutionUnit().geq(DataType.INT64, output, inputA, inputB);
 		} catch (VnanoFatalException e) {
@@ -2614,12 +2550,9 @@ public class ExecutionUnitTest {
 		}
 
 		// オフセット設定された条件下でも正しく機能するか検査
-		output.setData( new boolean[]{ false, false, false } );
-		inputA.setData( new double[]{ 0.0, 0.125, 0.0 } ); // 2進表現で割り切れる値
-		inputB.setData( new double[]{ 0.0, 0.5,   0.0 } ); // 2進表現で割り切れる値
-		output.setOffset(1);
-		inputA.setOffset(1);
-		inputB.setOffset(1);
+		output.setData( new boolean[]{ false, false, false }, 1 );
+		inputA.setData( new double[]{ 0.0, 0.125, 0.0 }, 1 ); // 2進表現で割り切れる値
+		inputB.setData( new double[]{ 0.0, 0.5,   0.0 }, 1 ); // 2進表現で割り切れる値
 		try {
 			new ExecutionUnit().geq(DataType.FLOAT64, output, inputA, inputB);
 		} catch (VnanoFatalException e) {
@@ -2781,12 +2714,9 @@ public class ExecutionUnitTest {
 		}
 
 		// オフセット設定された条件下でも正しく機能するか検査
-		output.setData( new boolean[]{ false, false, false } );
-		inputA.setData( new long[]{ 0L, 1L, 0L } );
-		inputB.setData( new long[]{ 0L, 2L, 0L } );
-		output.setOffset(1);
-		inputA.setOffset(1);
-		inputB.setOffset(1);
+		output.setData( new boolean[]{ false, false, false }, 1 );
+		inputA.setData( new long[]{ 0L, 1L, 0L }, 1 );
+		inputB.setData( new long[]{ 0L, 2L, 0L }, 1 );
 		try {
 			new ExecutionUnit().leq(DataType.INT64, output, inputA, inputB);
 		} catch (VnanoFatalException e) {
@@ -2905,12 +2835,9 @@ public class ExecutionUnitTest {
 		}
 
 		// オフセット設定された条件下でも正しく機能するか検査
-		output.setData( new boolean[]{ false, false, false } );
-		inputA.setData( new double[]{ 0.0, 0.125, 0.0 } ); // 2進表現で割り切れる値
-		inputB.setData( new double[]{ 0.0, 0.5,   0.0 } ); // 2進表現で割り切れる値
-		output.setOffset(1);
-		inputA.setOffset(1);
-		inputB.setOffset(1);
+		output.setData( new boolean[]{ false, false, false }, 1 );
+		inputA.setData( new double[]{ 0.0, 0.125, 0.0 }, 1 ); // 2進表現で割り切れる値
+		inputB.setData( new double[]{ 0.0, 0.5,   0.0 }, 1 ); // 2進表現で割り切れる値
 		try {
 			new ExecutionUnit().leq(DataType.FLOAT64, output, inputA, inputB);
 		} catch (VnanoFatalException e) {
@@ -3074,12 +3001,9 @@ public class ExecutionUnitTest {
 		}
 
 		// オフセット設定された条件下でも正しく機能するか検査
-		output.setData( new boolean[]{ false, false, false } );
-		inputA.setData( new long[]{ 0L, 1L, 0L } );
-		inputB.setData( new long[]{ 0L, 2L, 0L } );
-		output.setOffset(1);
-		inputA.setOffset(1);
-		inputB.setOffset(1);
+		output.setData( new boolean[]{ false, false, false }, 1 );
+		inputA.setData( new long[]{ 0L, 1L, 0L }, 1 );
+		inputB.setData( new long[]{ 0L, 2L, 0L }, 1 );
 		try {
 			new ExecutionUnit().gt(DataType.INT64, output, inputA, inputB);
 		} catch (VnanoFatalException e) {
@@ -3198,12 +3122,9 @@ public class ExecutionUnitTest {
 		}
 
 		// オフセット設定された条件下でも正しく機能するか検査
-		output.setData( new boolean[]{ false, false, false } );
-		inputA.setData( new double[]{ 0.0, 0.125, 0.0 } ); // 2進表現で割り切れる値
-		inputB.setData( new double[]{ 0.0, 0.5,   0.0 } ); // 2進表現で割り切れる値
-		output.setOffset(1);
-		inputA.setOffset(1);
-		inputB.setOffset(1);
+		output.setData( new boolean[]{ false, false, false }, 1 );
+		inputA.setData( new double[]{ 0.0, 0.125, 0.0 }, 1 ); // 2進表現で割り切れる値
+		inputB.setData( new double[]{ 0.0, 0.5,   0.0 }, 1 ); // 2進表現で割り切れる値
 		try {
 			new ExecutionUnit().gt(DataType.FLOAT64, output, inputA, inputB);
 		} catch (VnanoFatalException e) {
@@ -3365,12 +3286,9 @@ public class ExecutionUnitTest {
 		}
 
 		// オフセット設定された条件下でも正しく機能するか検査
-		output.setData( new boolean[]{ false, false, false } );
-		inputA.setData( new long[]{ 0L, 1L, 0L } );
-		inputB.setData( new long[]{ 0L, 2L, 0L } );
-		output.setOffset(1);
-		inputA.setOffset(1);
-		inputB.setOffset(1);
+		output.setData( new boolean[]{ false, false, false }, 1 );
+		inputA.setData( new long[]{ 0L, 1L, 0L }, 1 );
+		inputB.setData( new long[]{ 0L, 2L, 0L }, 1 );
 		try {
 			new ExecutionUnit().lt(DataType.INT64, output, inputA, inputB);
 		} catch (VnanoFatalException e) {
@@ -3489,12 +3407,9 @@ public class ExecutionUnitTest {
 		}
 
 		// オフセット設定された条件下でも正しく機能するか検査
-		output.setData( new boolean[]{ false, false, false } );
-		inputA.setData( new double[]{ 0.0, 0.125, 0.0 } ); // 2進表現で割り切れる値
-		inputB.setData( new double[]{ 0.0, 0.5,   0.0 } ); // 2進表現で割り切れる値
-		output.setOffset(1);
-		inputA.setOffset(1);
-		inputB.setOffset(1);
+		output.setData( new boolean[]{ false, false, false }, 1 );
+		inputA.setData( new double[]{ 0.0, 0.125, 0.0 }, 1 ); // 2進表現で割り切れる値
+		inputB.setData( new double[]{ 0.0, 0.5,   0.0 }, 1 ); // 2進表現で割り切れる値
 		try {
 			new ExecutionUnit().lt(DataType.FLOAT64, output, inputA, inputB);
 		} catch (VnanoFatalException e) {
@@ -3669,12 +3584,9 @@ public class ExecutionUnitTest {
 		}
 
 		// オフセット設定された条件下でも正しく機能するか検査
-		output.setData( new boolean[]{ false, false, false } );
-		inputA.setData( new boolean[]{ false, true, false } );
-		inputB.setData( new boolean[]{ false, false, false } );
-		output.setOffset(1);
-		inputA.setOffset(1);
-		inputB.setOffset(1);
+		output.setData( new boolean[]{ false, false, false }, 1 );
+		inputA.setData( new boolean[]{ false, true, false }, 1 );
+		inputB.setData( new boolean[]{ false, false, false }, 1 );
 		try {
 			new ExecutionUnit().and(DataType.BOOL, output, inputA, inputB);
 		} catch (VnanoFatalException e) {
@@ -3856,12 +3768,9 @@ public class ExecutionUnitTest {
 		}
 
 		// オフセット設定された条件下でも正しく機能するか検査
-		output.setData( new boolean[]{ false, false, false } );
-		inputA.setData( new boolean[]{ false, true, false } );
-		inputB.setData( new boolean[]{ false, false, false } );
-		output.setOffset(1);
-		inputA.setOffset(1);
-		inputB.setOffset(1);
+		output.setData( new boolean[]{ false, false, false }, 1 );
+		inputA.setData( new boolean[]{ false, true, false }, 1 );
+		inputB.setData( new boolean[]{ false, false, false }, 1 );
 		try {
 			new ExecutionUnit().or(DataType.BOOL, output, inputA, inputB);
 		} catch (VnanoFatalException e) {
@@ -4017,12 +3926,9 @@ public class ExecutionUnitTest {
 		}
 
 		// オフセット設定された条件下でも正しく機能するか検査
-		output.setData( new boolean[]{ false, false, false } );
-		inputA.setData( new boolean[]{ false, true, false } );
-		inputB.setData( new boolean[]{ false, false, false } );
-		output.setOffset(1);
-		inputA.setOffset(1);
-		inputB.setOffset(1);
+		output.setData( new boolean[]{ false, false, false }, 1 );
+		inputA.setData( new boolean[]{ false, true, false }, 1 );
+		inputB.setData( new boolean[]{ false, false, false }, 1 );
 		try {
 			new ExecutionUnit().not(DataType.BOOL, output, inputA);
 		} catch (VnanoFatalException e) {
@@ -4849,10 +4755,8 @@ public class ExecutionUnitTest {
 		}
 
 		// オフセット設定された条件下でも正しく機能するか検査
-		output.setData( new long[]{ -1L, -1L, -1L } );
-		input.setData( new long[]{ 0L, 2L, 0L } );
-		output.setOffset(1);
-		input.setOffset(1);
+		output.setData( new long[]{ -1L, -1L, -1L }, 1 );
+		input.setData( new long[]{ 0L, 2L, 0L }, 1);
 		try {
 			new ExecutionUnit().mov(DataType.INT64, output, input);
 		} catch (VnanoFatalException e) {
@@ -4921,10 +4825,8 @@ public class ExecutionUnitTest {
 		}
 
 		// オフセット設定された条件下でも正しく機能するか検査
-		output.setData( new double[]{ -1.0, -1.0, -1.0 } );
-		input.setData( new double[]{ 0.0, 0.25, 0.0 } ); // 2進表現で割り切れる値
-		output.setOffset(1);
-		input.setOffset(1);
+		output.setData( new double[]{ -1.0, -1.0, -1.0 }, 1 );
+		input.setData( new double[]{ 0.0, 0.25, 0.0 }, 1 ); // 2進表現で割り切れる値
 		try {
 			new ExecutionUnit().mov(DataType.FLOAT64, output, input);
 		} catch (VnanoFatalException e) {
@@ -4993,10 +4895,8 @@ public class ExecutionUnitTest {
 		}
 
 		// オフセット設定された条件下でも正しく機能するか検査
-		output.setData( new boolean[]{ false, false, false } );
-		input.setData( new boolean[]{ false, true, false } );
-		output.setOffset(1);
-		input.setOffset(1);
+		output.setData( new boolean[]{ false, false, false }, 1 );
+		input.setData( new boolean[]{ false, true, false }, 1 );
 		try {
 			new ExecutionUnit().mov(DataType.BOOL, output, input);
 		} catch (VnanoFatalException e) {
@@ -5066,10 +4966,8 @@ public class ExecutionUnitTest {
 		}
 
 		// オフセット設定された条件下でも正しく機能するか検査
-		output.setData( new String[]{ "Init0", "Init1", "Init2" } );
-		input.setData( new String[]{ "", "Hello", "" } );
-		output.setOffset(1);
-		input.setOffset(1);
+		output.setData( new String[]{ "Init0", "Init1", "Init2" }, 1 );
+		input.setData( new String[]{ "", "Hello", "" }, 1 );
 		try {
 			new ExecutionUnit().mov(DataType.STRING, output, input);
 		} catch (VnanoFatalException e) {
@@ -5200,8 +5098,7 @@ public class ExecutionUnitTest {
 
 		// inoutがオフセット設定された場合でも正常に動作するか検査
 		output.setData( new long[]{ -1L, -1L, -1L } );
-		input.setData( new long[]{ 0L, 8L, 0L } );
-		input.setOffset(1);
+		input.setData( new long[]{ 0L, 8L, 0L }, 1 );
 		try {
 			new ExecutionUnit().fill(DataType.INT64, output, input);
 		} catch (VnanoFatalException e) {
@@ -5243,8 +5140,7 @@ public class ExecutionUnitTest {
 
 		// inoutがオフセット設定された場合でも正常に動作するか検査
 		output.setData( new double[]{ -1.0, -1.0, -1.0 } );
-		input.setData( new double[]{ 0.0, 0.125, 0.0 } );
-		input.setOffset(1);
+		input.setData( new double[]{ 0.0, 0.125, 0.0 }, 1 );
 		try {
 			new ExecutionUnit().fill(DataType.FLOAT64, output, input);
 		} catch (VnanoFatalException e) {
@@ -5285,8 +5181,7 @@ public class ExecutionUnitTest {
 
 		// inoutがオフセット設定された場合でも正常に動作するか検査
 		output.setData( new boolean[]{ false, false, false } );
-		input.setData( new boolean[]{ false, true, false } );
-		input.setOffset(1);
+		input.setData( new boolean[]{ false, true, false }, 1 );
 		try {
 			new ExecutionUnit().fill(DataType.BOOL, output, input);
 		} catch (VnanoFatalException e) {
@@ -5330,8 +5225,7 @@ public class ExecutionUnitTest {
 
 		// inoutがオフセット設定された場合でも正常に動作するか検査
 		output.setData( new String[]{ "Init0", "Init1", "Init2" } );
-		input.setData( new String[]{ "", "Hello", "" } );
-		input.setOffset(1);
+		input.setData( new String[]{ "", "Hello", "" }, 1 );
 		try {
 			new ExecutionUnit().fill(DataType.STRING, output, input);
 		} catch (VnanoFatalException e) {
@@ -5892,10 +5786,8 @@ public class ExecutionUnitTest {
 		}
 
 		// オフセット設定された条件下でも正しく機能するか検査
-		output.setData( new long[]{ -1L, -1L, -1L } );
-		output.setOffset(1);
-		input.setData( new long[]{ 0L, 0L, 2L, 0L, 0L } );
-		input.setOffset(2);
+		output.setData( new long[]{ -1L, -1L, -1L }, 1 );
+		input.setData( new long[]{ 0L, 0L, 2L, 0L, 0L }, 2 );
 		try {
 			new ExecutionUnit().cast(DataType.INT64, DataType.INT64, output, input);
 		} catch (VnanoFatalException e) {
@@ -5973,10 +5865,8 @@ public class ExecutionUnitTest {
 		}
 
 		// オフセット設定された条件下でも正しく機能するか検査
-		output.setData( new double[]{ -1.0, -1.0, -1.0 } );
-		output.setOffset(1);
-		input.setData( new long[]{ 0L, 0L, 2L, 0L, 0L } );
-		input.setOffset(2);
+		output.setData( new double[]{ -1.0, -1.0, -1.0 }, 1 );
+		input.setData( new long[]{ 0L, 0L, 2L, 0L, 0L }, 2 );
 		try {
 			new ExecutionUnit().cast(DataType.FLOAT64, DataType.INT64, output, input);
 		} catch (VnanoFatalException e) {
@@ -6054,10 +5944,8 @@ public class ExecutionUnitTest {
 		}
 
 		// オフセット設定された条件下でも正しく機能するか検査
-		output.setData( new String[]{ "Init0", "Init1", "Init2" } );
-		output.setOffset(1);
-		input.setData( new long[]{ 0L, 0L, 2L, 0L, 0L } );
-		input.setOffset(2);
+		output.setData( new String[]{ "Init0", "Init1", "Init2" }, 1 );
+		input.setData( new long[]{ 0L, 0L, 2L, 0L, 0L }, 2 );
 		try {
 			new ExecutionUnit().cast(DataType.STRING, DataType.INT64, output, input);
 		} catch (VnanoFatalException e) {
@@ -6139,10 +6027,8 @@ public class ExecutionUnitTest {
 		}
 
 		// オフセット設定された条件下でも正しく機能するか検査
-		output.setData( new double[]{ -1.0, -1.0, -1.0 } );
-		output.setOffset(1);
-		input.setData( new double[]{ 0.0, 0.0, 2.25, 0.0, 0.0 } );
-		input.setOffset(2);
+		output.setData( new double[]{ -1.0, -1.0, -1.0 }, 1 );
+		input.setData( new double[]{ 0.0, 0.0, 2.25, 0.0, 0.0 }, 2 );
 		try {
 			new ExecutionUnit().cast(DataType.FLOAT64, DataType.FLOAT64, output, input);
 		} catch (VnanoFatalException e) {
@@ -6220,10 +6106,8 @@ public class ExecutionUnitTest {
 		}
 
 		// オフセット設定された条件下でも正しく機能するか検査
-		output.setData( new long[]{ -1L, -1L, -1L } );
-		output.setOffset(1);
-		input.setData( new double[]{ 0.0, 0.0, 2.25, 0.0, 0.0 } );
-		input.setOffset(2);
+		output.setData( new long[]{ -1L, -1L, -1L }, 1 );
+		input.setData( new double[]{ 0.0, 0.0, 2.25, 0.0, 0.0 }, 2 );
 		try {
 			new ExecutionUnit().cast(DataType.INT64, DataType.FLOAT64, output, input);
 		} catch (VnanoFatalException e) {
@@ -6301,10 +6185,8 @@ public class ExecutionUnitTest {
 		}
 
 		// オフセット設定された条件下でも正しく機能するか検査
-		output.setData( new String[]{ "Init0", "Init1", "Init2" } );
-		output.setOffset(1);
-		input.setData( new double[]{ 0.0, 0.0, 2.25, 0.0, 0.0 } );
-		input.setOffset(2);
+		output.setData( new String[]{ "Init0", "Init1", "Init2" }, 1 );
+		input.setData( new double[]{ 0.0, 0.0, 2.25, 0.0, 0.0 }, 2 );
 		try {
 			new ExecutionUnit().cast(DataType.STRING, DataType.FLOAT64, output, input);
 		} catch (VnanoFatalException e) {
@@ -6385,10 +6267,8 @@ public class ExecutionUnitTest {
 		}
 
 		// オフセット設定された条件下でも正しく機能するか検査
-		output.setData( new boolean[]{ false, false, false } );
-		output.setOffset(1);
-		input.setData( new boolean[]{ false, false, true, false, false } );
-		input.setOffset(2);
+		output.setData( new boolean[]{ false, false, false }, 1 );
+		input.setData( new boolean[]{ false, false, true, false, false }, 2 );
 		try {
 			new ExecutionUnit().cast(DataType.BOOL, DataType.BOOL, output, input);
 		} catch (VnanoFatalException e) {
@@ -6466,10 +6346,8 @@ public class ExecutionUnitTest {
 		}
 
 		// オフセット設定された条件下でも正しく機能するか検査
-		output.setData( new String[]{ "Init0", "Init1", "Init2" } );
-		output.setOffset(1);
-		input.setData( new boolean[]{ false, false, true, false, false } );
-		input.setOffset(2);
+		output.setData( new String[]{ "Init0", "Init1", "Init2" }, 1 );
+		input.setData( new boolean[]{ false, false, true, false, false }, 2 );
 		try {
 			new ExecutionUnit().cast(DataType.STRING, DataType.BOOL, output, input);
 		} catch (VnanoFatalException e) {
@@ -6551,10 +6429,8 @@ public class ExecutionUnitTest {
 		}
 
 		// オフセット設定された条件下でも正しく機能するか検査
-		output.setData( new String[]{ "Init0", "Init1", "Init2" } );
-		output.setOffset(1);
-		input.setData( new String[]{ "", "", "Hello", "", "" } );
-		input.setOffset(2);
+		output.setData( new String[]{ "Init0", "Init1", "Init2" }, 1 );
+		input.setData( new String[]{ "", "", "Hello", "", "" }, 2 );
 		try {
 			new ExecutionUnit().cast(DataType.STRING, DataType.STRING, output, input);
 		} catch (VnanoFatalException e) {
@@ -6635,10 +6511,8 @@ public class ExecutionUnitTest {
 		}
 
 		// オフセット設定された条件下でも正しく機能するか検査
-		output.setData( new long[]{ -1L, -1L, -1L } );
-		output.setOffset(1);
-		input.setData( new String[]{ "0", "0", "2", "0", "0" } );
-		input.setOffset(2);
+		output.setData( new long[]{ -1L, -1L, -1L }, 1 );
+		input.setData( new String[]{ "0", "0", "2", "0", "0" }, 2 );
 		try {
 			new ExecutionUnit().cast(DataType.INT64, DataType.STRING, output, input);
 		} catch (VnanoFatalException e) {
@@ -6745,10 +6619,8 @@ public class ExecutionUnitTest {
 		}
 
 		// オフセット設定された条件下でも正しく機能するか検査
-		output.setData( new double[]{ -1.0, -1.0, -1.0 } );
-		output.setOffset(1);
-		input.setData( new String[]{ "0.0", "0.0", "2.25", "0.0", "0.0" } );
-		input.setOffset(2);
+		output.setData( new double[]{ -1.0, -1.0, -1.0 }, 1 );
+		input.setData( new String[]{ "0.0", "0.0", "2.25", "0.0", "0.0" }, 2 );
 		try {
 			new ExecutionUnit().cast(DataType.FLOAT64, DataType.STRING, output, input);
 		} catch (VnanoFatalException e) {
@@ -6836,10 +6708,8 @@ public class ExecutionUnitTest {
 		}
 
 		// オフセット設定された条件下でも正しく機能するか検査
-		output.setData( new boolean[]{ false, false, false } );
-		output.setOffset(1);
-		input.setData( new String[]{ "false", "false", "true", "false", "false" } );
-		input.setOffset(2);
+		output.setData( new boolean[]{ false, false, false }, 1 );
+		input.setData( new String[]{ "false", "false", "true", "false", "false" }, 2 );
 		try {
 			new ExecutionUnit().cast(DataType.BOOL, DataType.STRING, output, input);
 		} catch (VnanoFatalException e) {

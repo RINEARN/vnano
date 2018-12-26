@@ -141,8 +141,7 @@ public class DataTypeName {
 		if (DATA_TYPE_NAME_ENUM_MAP.containsKey(dataTypeName)) {
 			return DATA_TYPE_NAME_ENUM_MAP.get(dataTypeName);
 		} else {
-			VnanoException e = new VnanoException(ErrorType.UNKNOWN_DATA_TYPE);
-			e.setErrorWords(new String[] { dataTypeName });
+			VnanoException e = new VnanoException(ErrorType.UNKNOWN_DATA_TYPE, new String[] { dataTypeName });
 			throw e;
 		}
 	}

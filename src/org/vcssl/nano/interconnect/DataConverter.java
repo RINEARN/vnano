@@ -206,8 +206,10 @@ public class DataConverter {
 		this.dataType = EXTERNAL_NAME_DATA_TYPE_MAP.get(externalDataTypeName);
 
 		if (this.dataType == null) {
-			VnanoException e = new VnanoException(ErrorType.UNCONVERTIBLE_DATA_TYPE);
-			e.setErrorWords(new String[] {externalType.getClass().getCanonicalName()});
+			VnanoException e = new VnanoException(
+					ErrorType.UNCONVERTIBLE_DATA_TYPE,
+					new String[] {externalType.getClass().getCanonicalName()}
+			);
 			throw e;
 		}
 	}
@@ -360,8 +362,10 @@ public class DataConverter {
 				return;
 			}
 			default : {
-				VnanoException e = new VnanoException(ErrorType.UNCONVERTIBLE_ARRAY);
-				e.setErrorWords(new String[] {getExternalTypeNameOf(object.getClass())});
+				VnanoException e = new VnanoException(
+						ErrorType.UNCONVERTIBLE_ARRAY,
+						new String[] {getExternalTypeNameOf(object.getClass())}
+				);
 				throw e;
 			}
 		}
@@ -417,8 +421,10 @@ public class DataConverter {
 			}
 			case VOID : {
 
-				VnanoException e = new VnanoException(ErrorType.UNCONVERTIBLE_DATA_TYPE);
-				e.setErrorWords(new String[] {DataTypeName.getDataTypeNameOf(DataType.VOID)});
+				VnanoException e = new VnanoException(
+						ErrorType.UNCONVERTIBLE_DATA_TYPE,
+						new String[] {DataTypeName.getDataTypeNameOf(DataType.VOID)}
+				);
 				throw e;
 			}
 		}
@@ -895,8 +901,10 @@ public class DataConverter {
 						return ((String[])internalData)[dataIndex];
 					}
 					case VOID : {
-						VnanoException e = new VnanoException(ErrorType.UNCONVERTIBLE_DATA_TYPE);
-						e.setErrorWords(new String[] { DataTypeName.getDataTypeNameOf(DataType.VOID) });
+						VnanoException e = new VnanoException(
+								ErrorType.UNCONVERTIBLE_DATA_TYPE,
+								new String[] { DataTypeName.getDataTypeNameOf(DataType.VOID) }
+						);
 						throw e;
 					}
 				}
@@ -948,8 +956,10 @@ public class DataConverter {
 						return externalData;
 					}
 					case VOID : {
-						VnanoException e = new VnanoException(ErrorType.UNCONVERTIBLE_DATA_TYPE);
-						e.setErrorWords(new String[] { DataTypeName.getDataTypeNameOf(DataType.VOID) });
+						VnanoException e = new VnanoException(
+								ErrorType.UNCONVERTIBLE_DATA_TYPE,
+								new String[] { DataTypeName.getDataTypeNameOf(DataType.VOID) }
+						);
 						throw e;
 					}
 				}
@@ -1025,8 +1035,10 @@ public class DataConverter {
 						return externalData;
 					}
 					case VOID : {
-						VnanoException e = new VnanoException(ErrorType.UNCONVERTIBLE_DATA_TYPE);
-						e.setErrorWords(new String[] { DataTypeName.getDataTypeNameOf(DataType.VOID) });
+						VnanoException e = new VnanoException(
+								ErrorType.UNCONVERTIBLE_DATA_TYPE,
+								new String[] { DataTypeName.getDataTypeNameOf(DataType.VOID) }
+						);
 						throw e;
 					}
 				}
@@ -1044,8 +1056,10 @@ public class DataConverter {
 				}
 
 				// それをエラーメッセージ用情報に渡して例外スロー
-				VnanoException e = new VnanoException(ErrorType.UNCONVERTIBLE_INTERNAL_ARRAY);
-				e.setErrorWords(new String[] {internalArrayTypeName});
+				VnanoException e = new VnanoException(
+						ErrorType.UNCONVERTIBLE_INTERNAL_ARRAY,
+						new String[] {internalArrayTypeName}
+				);
 				throw e;
 			}
 		}

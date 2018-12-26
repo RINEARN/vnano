@@ -24,9 +24,9 @@ public class VnanoException extends Exception {
 	private static final int LINE_NUMBER_DEFAULT_VALUE = -1;
 
 	private ErrorType errorType = null;
-	private String[] errorWords = null;
 	private String fileName = null;
 	private int lineNumber = LINE_NUMBER_DEFAULT_VALUE;
+	private String[] errorWords = null;
 
 	public VnanoException(ErrorType errorType) {
 		this(errorType, (String)null, -1);
@@ -40,14 +40,17 @@ public class VnanoException extends Exception {
 		this(errorType, new String[] {errorWord}, fileName, lineNumber);
 	}
 
+	public VnanoException(ErrorType errorType, String[] errorWords) {
+		this(errorType, errorWords, (String)null, -1);
+	}
+
 	public VnanoException(ErrorType errorType, String[] errorWords, String fileName, int lineNumber) {
 		super(ErrorMessage.generateErrorMessage(errorType, errorWords));
 
 		this.errorType = errorType;
+		this.errorWords = errorWords;
 		this.fileName = fileName;
 		this.lineNumber = lineNumber;
-
-		this.setErrorWords(errorWords);
 	}
 
 
@@ -57,11 +60,6 @@ public class VnanoException extends Exception {
 
 	public String[] getErrorWords() {
 		return this.errorWords;
-	}
-
-	public void setErrorWords(String[] errorWords) {
-		this.errorWords = new String[ errorWords.length ];
-		System.arraycopy(errorWords, 0, this.errorWords, 0, errorWords.length);
 	}
 
 	public boolean hasFileName() {

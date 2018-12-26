@@ -251,8 +251,7 @@ public final class Memory {
 					try {
 						data.setData(new long[]{ Long.parseLong(valueText) });
 					} catch(NumberFormatException e) {
-						VnanoException vse = new VnanoException(ErrorType.INVALID_IMMEDIATE_VALUE);
-						vse.setErrorWords(new String[] { valueText});
+						VnanoException vse = new VnanoException(ErrorType.INVALID_IMMEDIATE_VALUE, new String[] { valueText});
 						throw vse;
 					}
 					this.constantList.add(data);
@@ -263,8 +262,7 @@ public final class Memory {
 					try {
 						data.setData(new double[]{ Double.parseDouble(valueText) });
 					} catch(NumberFormatException e) {
-						VnanoException vse = new VnanoException(ErrorType.INVALID_IMMEDIATE_VALUE);
-						vse.setErrorWords(new String[] { valueText});
+						VnanoException vse = new VnanoException(ErrorType.INVALID_IMMEDIATE_VALUE, new String[] { valueText});
 						throw vse;
 					}
 					this.constantList.add(data);
@@ -277,8 +275,7 @@ public final class Memory {
 					} else if (valueText.equals(LiteralSyntax.FALSE)) {
 						data.setData(new boolean[]{ false });
 					} else {
-						VnanoException vse = new VnanoException(ErrorType.INVALID_IMMEDIATE_VALUE);
-						vse.setErrorWords(new String[] { valueText});
+						VnanoException vse = new VnanoException(ErrorType.INVALID_IMMEDIATE_VALUE, new String[] { valueText});
 						throw vse;
 					}
 					this.constantList.add(data);

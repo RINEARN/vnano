@@ -307,9 +307,11 @@ public class DataContainer<T> implements ArrayDataContainer1<T> {
 	 *
 	 * @param offset オフセット値
 	 */
+	/*
 	public void setOffset(int offset) {
 		this.offset = offset;
 	}
+	*/
 
 
 	/**
