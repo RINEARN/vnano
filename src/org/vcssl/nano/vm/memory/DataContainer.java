@@ -39,21 +39,6 @@ import org.vcssl.nano.lang.DataType;
  * </p>
  *
  * <p>
- * なお、効率化のために、複数のデータコンテナが同じデータ保持領域を共有している場合もあるため、
- * {@link DataContainer#data data} フィールドには、
- * データコンテナの格納対象のデータのみが含まれているとは限りません。
- * そのため、{@link DataContainer#offset offset} フィールドに、
- * そのデータコンテナの対象データが {@link DataContainer#data data}
- * 配列内で格納されている領域の先頭インデックスを保持し、
- * その値は {@link DataContainer#getOffset getOffset} メソッドで取得する事ができます。
- * つまり、データコンテナが格納対象とするデータは、
- * {@link DataContainer#data data} 配列内の、
- * [{@link DataContainer#offset offset}] 番目から
- * [{@link DataContainer#offset offset}+{@link DataContainer#size size}-1] 番目までを使用して、
- * 1 次元化されて保持されます。
- * </p>
- *
- * <p>
  * 1次元化されたデータが、多次元配列のどの要素に対応するかを計算で求めるためには、
  * 多次元配列の各次元ごとの長さ（次元長）が必要ですが、
  * それは {@link DataContainer#lengths lengths} フィールドに保持され、
@@ -82,12 +67,12 @@ import org.vcssl.nano.lang.DataType;
  * この場合において、各インデックスは以下の関係に従います:
  *
  * <div style="border-style: solid; padding-left: 10px; margin:10px;">
- * serialIndex = len2*len1*dimIndex0 + len2*dimIndex1 + dimIndex2 + offset
+ * serialIndex = len2*len1*dimIndex0 + len2*dimIndex1 + dimIndex2
  * </div>
  *
  * つまり、
  * 「ある次元のインデックス * それよりも右側にある全次元の次元長の積（無い場合は1とする）」
- * の項を、全て足して {@link DataContainer#offet offset} だけずらしたものが、
+ * の項を、全て足したものが、
  * 1次元化インデックスとなります。
  * </p>
  *
@@ -112,20 +97,25 @@ import org.vcssl.nano.lang.DataType;
  * {@link DataContainer#data data} フィールドに保持されます。
  * ただし、要素数 1 の配列に格納されるとは限らず、
  * より長い配列のどこかに格納される場合もあります。
- * その格納位置のインデックスは、既に述べたように
+ * その格納位置のインデックスは、
  * {@link DataContainer#offset offset} フィールドによって保持され、
  * {@link DataContainer#getOffset getOffset()} メソッドによって取得できます。
  * この仕組みは、スクリプトコード側において、
  * 配列変数の要素を配列アクセス演算子（ [ ] ）によって参照する事に対応する処理を、
- * 効率的に行うためのものです。
+ * 仮想マシン側で効率的に行うためのものです。
  * 具体的には、スクリプト側での配列変数のデータを {@link DataContener#data data} フィールドに保持し、
  * {@link DataContainer#offset offset} フィールドの値を操作する事によって、
  * 配列変数への要素アクセスを単純かつ低オーバーヘッドな方法で行いながら、
  * 処理上は通常のスカラデータと区別せず統一的に扱う実装を可能にするという利点があります。
+ * ところで、上述ような仕組みで配列要素へのアクセスを実現している事から、
+ * この処理系では、複数のデータコンテナが同じデータ保持領域（{@link DataContener#data data} フィールドの参照先）
+ * を共有する場合が生じる事には留意する必要があります。
+ * なお、このデータコンテナが表現する対象がスカラではない場合は、
+ * {@link DataContainer#offset offset} フィールドの値は常に 0 である事が保証されます。
  * </p>
  *
  * <p>
- * なお、このデータコンテナは、外部変数・外部関数プラグインとVnano処理系内との間で、
+ * このデータコンテナは、外部変数・外部関数プラグインとVnano処理系内との間で、
  * オーバーヘッドの無いデータの受け渡しをサポートするため、
  * {@link org.vcssl.connect.ArrayDataContainer1 ADCI 1}
  * 形式のデータコンテナ・インターフェースを実装しています。
@@ -266,6 +256,32 @@ public class DataContainer<T> implements ArrayDataContainer1<T> {
 		if (this.dataType == null) {
 			this.dataType = DataType.VOID;
 		}
+	}
+
+
+	/**
+	 * このデータコンテナが格納するデータを、次元ごとの長さ情報と共に設定します。
+	 *
+	 * @param data 格納するデータ
+	 * @param arrayLengths 次元ごとの長さを格納する配列
+	 */
+	public final void setData(T data, int[] lengths) {
+		this.setData(data);
+		this.lengths = lengths;
+	}
+
+
+	/**
+	 * このデータコンテナが格納するデータをスカラ値と見なしたい場合において、
+	 * そのスカラ値を中に含んでいる配列データと、
+	 * その中でスカラ値が保持されているオフセット値を指定します。
+	 *
+	 * @param data 格納するデータ
+	 * @param offset オフセット値（データ内でスカラ値が存在する配列インデックス）
+	 */
+	public final void setData(T data, int offset) {
+		this.setData(data);
+		this.offset = offset;
 	}
 
 
