@@ -721,7 +721,7 @@ public class CodeGenerator {
 			);
 
 		// 配列確保なら要素数オペランドを付けたALLOC命令を生成
-		} else if (rank == 1) {
+		} else {
 
 			String[] allocOperands = new String[ arrayLengthValues.length + 1 ];
 			allocOperands[0] = variableOperand;
