@@ -1021,6 +1021,7 @@ public class ExecutionUnit {
 		}
 	}
 
+
 	/**
 	 * 2オペランド以上の {@link org.vcssl.nano.spec.OperationCode#ALLOCR ALLOCR} 命令（配列確保用）を実行します。
 	 *
@@ -1386,82 +1387,6 @@ public class ExecutionUnit {
 			}
 		}
 	}
-
-
-	/**
-	 * {@link org.vcssl.nano.spec.OperationCode#VEC VEC} 命令を実行します。
-	 *
-	 * この命令の実行により、引数 dest の配列データの各要素に、
-	 * 引数 elements の各要素のデータのスカラ値がコピーされます。
-	 *
-	 * すべてのオペランド（destを含む）のデータは、
-	 * 引数 type に指定されたデータ型のものに揃っている必要があります。
-	 *
-	 * @param type オペランドのデータ型
-	 * @param dest コピー先データ
-	 * @param elements コピー元データ（スカラ値）の配列
-	 * @throws VnanoFatalException
-	 *   この命令が対応していないデータ型が指定された場合や、
-	 *   指定データ型とオペランドの実際のデータ型が一致しない場合に発生します。
-	 */
-	@SuppressWarnings("unchecked")
-	public void vec(DataType type, DataContainer<?> dest, DataContainer<?>[] elements) {
-
-		int dataLength = elements.length;
-		int[] arrayLengths = new int[]{dataLength};
-
-		this.checkDataType(dest, type);
-		for (int dataIndex=0; dataIndex<dataLength; dataIndex++) {
-			this.checkDataType(elements[dataIndex], type);
-		}
-
-		//dest.setSize(dataLength);
-		//dest.setLengths(arrayLength);
-
-		switch (type) {
-			case INT64 : {
-				long[] data = new long[dataLength];
-				for (int dataIndex=0; dataIndex<dataLength; dataIndex++) {
-					int fromDataIndex = elements[dataIndex].getOffset();
-					data[dataIndex] = ((long[])(elements[dataIndex].getData()))[fromDataIndex];
-				}
-				((DataContainer<long[]>)dest).setData(data, arrayLengths);
-				return;
-			}
-			case FLOAT64 : {
-				double[] data = new double[dataLength];
-				for (int dataIndex=0; dataIndex<dataLength; dataIndex++) {
-					int fromDataIndex = elements[dataIndex].getOffset();
-					data[dataIndex] = ((double[])(elements[dataIndex].getData()))[fromDataIndex];
-				}
-				((DataContainer<double[]>)dest).setData(data, arrayLengths);
-				return;
-			}
-			case BOOL : {
-				boolean[] data = new boolean[dataLength];
-				for (int dataIndex=0; dataIndex<dataLength; dataIndex++) {
-					int fromDataIndex = elements[dataIndex].getOffset();
-					data[dataIndex] = ((boolean[])(elements[dataIndex].getData()))[fromDataIndex];
-				}
-				((DataContainer<boolean[]>)dest).setData(data, arrayLengths);
-				return;
-			}
-			case STRING : {
-				String[] data = new String[dataLength];
-				for (int dataIndex=0; dataIndex<dataLength; dataIndex++) {
-					int fromDataIndex = elements[dataIndex].getOffset();
-					data[dataIndex] = ((String[])(elements[dataIndex].getData()))[fromDataIndex];
-				}
-				((DataContainer<String[]>)dest).setData(data, arrayLengths);
-				return;
-			}
-			default : {
-				throw new VnanoFatalException("Unknown data type: " + type);
-			}
-		}
-	}
-
-
 
 
 	/**
