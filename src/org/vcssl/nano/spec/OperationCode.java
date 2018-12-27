@@ -313,6 +313,9 @@ public enum OperationCode {
 	ALLOC,
 
 
+	ALLOCR,
+
+
 	/**
 	 * メモリー解放命令です。
 	 *
@@ -352,7 +355,7 @@ public enum OperationCode {
 	/**
 	 * （暫定）配列化命令です。
 	 */
-	VEC, // 複数のスカラを1次元の配列にする。INDEXの引数を1-clockで作るため。あと配列初期化子に使えるかも。
+	//VEC, // 複数のスカラを1次元の配列にする。INDEXの引数を1-clockで作るため。あと配列初期化子に使えるかも。
 
 
 	/**
@@ -370,7 +373,7 @@ public enum OperationCode {
 	/**
 	 * （暫定）要素数取得命令です。
 	 */
-	LEN,
+	//LEN,
 
 
 	/**

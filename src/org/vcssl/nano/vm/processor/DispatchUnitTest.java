@@ -160,12 +160,12 @@ public class DispatchUnitTest {
 		this.testDispatchAnd();
 		this.testDispatchOr();
 		this.testDispatchNot();
-		this.testDispatchVec();
+		//this.testDispatchVec();
 		this.testDispatchMov();
 		this.testDispatchCast();
 		this.testDispatchFill();
 		this.testDispatchElem();
-		this.testDispatchLen();
+		//this.testDispatchLen();
 		this.testDispatchFree();
 		this.testDispatchJmp();
 		this.testDispatchJmpn();
@@ -806,7 +806,7 @@ public class DispatchUnitTest {
 			// 例外が発生するのが正しい挙動
 		}
 	}
-
+/*
 	private void testDispatchVec() {
 
 		// ベクトルにまとめるスカラを雑用アドレスに用意
@@ -851,7 +851,7 @@ public class DispatchUnitTest {
 			fail("Incorrect output");
 		}
 	}
-
+*/
 	private void testDispatchMov() {
 
 		// 入出力オペランドに値を設定
@@ -1012,6 +1012,7 @@ public class DispatchUnitTest {
 		}
 	}
 
+	/*
 	private void testDispatchLen() {
 
 		// 配列や要素数を格納するコンテナを雑用アドレスに用意
@@ -1054,7 +1055,7 @@ public class DispatchUnitTest {
 			fail("Incorrect output");
 		}
 	}
-
+*/
 
 	private void testDispatchFree() {
 
@@ -1263,19 +1264,24 @@ public class DispatchUnitTest {
 
 		// データ確保対象および要素数指定のコンテナを雑用アドレスに用意
 		DataContainer<long[]> target = new DataContainer<long[]>();
-		DataContainer<long[]> len = new DataContainer<long[]>();
+		DataContainer<long[]> len0 = new DataContainer<long[]>();
+		DataContainer<long[]> len1 = new DataContainer<long[]>();
+		DataContainer<long[]> len2 = new DataContainer<long[]>();
 		this.memory.setDataContainer(TMP_A_PART, TMP_A_ADDR, target);
-		this.memory.setDataContainer(TMP_B_PART, TMP_B_ADDR, len);
+		this.memory.setDataContainer(TMP_B_PART, TMP_B_ADDR, len0);
+		this.memory.setDataContainer(TMP_C_PART, TMP_C_ADDR, len1);
+		this.memory.setDataContainer(TMP_D_PART, TMP_D_ADDR, len2);
 
-		// 要素数指定値を設定
-		int[] lenLengths = new int[ 3 ];
-		len.setData(new long[]{ 2L, 3L, 4L }, lenLengths);
+		// 要素数指定値を設定（ [2][3][4] ）
+		len0.setData(new long[] { 2L });
+		len1.setData(new long[] { 3L });
+		len2.setData(new long[] { 4L });
 
-		// 1オペランドのALLOC命令（スカラ確保）を生成
+		// ALLOC命令（スカラ確保）を生成
 		Instruction instruction = new Instruction(
 				OperationCode.ALLOC, INT64_TYPE,
-				new Memory.Partition[]{ TMP_A_PART, TMP_B_PART },
-				new int[]{ TMP_A_ADDR, TMP_B_ADDR },
+				new Memory.Partition[]{ TMP_A_PART, TMP_B_PART, TMP_C_PART, TMP_D_PART },
+				new int[]{ TMP_A_ADDR, TMP_B_ADDR, TMP_C_ADDR, TMP_D_ADDR },
 				META_PART, META_ADDR
 		);
 
@@ -1299,27 +1305,12 @@ public class DispatchUnitTest {
 		if (target.getRank() != 3) {
 			fail("Incorrect rank");
 		}
-		long[] lenData = len.getData();
-		if (lenData.length !=3 || lenData[0] != 2L || lenData[1] != 3L || lenData[2] != 4L) {
+		if (target.getLengths()[0] != 2 || target.getLengths()[1] != 3L || target.getLengths()[2] != 4L) {
 			fail("Incorrect lengths");
 		}
 		long[] targetData = target.getData();
 		if (!(0 < targetData.length) || !(target.getSize()+target.getOffset() <= targetData.length)) {
-			fail("Incorrect length of data");
-		}
-
-		// オペランドの個数が間違っている場合の検査
-		instruction = new Instruction(
-				OperationCode.ALLOC, INT64_TYPE,
-				new Memory.Partition[]{ TMP_A_PART, TMP_B_PART, TMP_B_PART },
-				new int[]{ TMP_A_ADDR, TMP_B_ADDR, TMP_B_ADDR },
-				META_PART, META_ADDR
-		);
-		try {
-			pc = new DispatchUnit().dispatch(instruction, this.memory, this.interconnect, new ExecutionUnit(), pc);
-			fail("Unexpected exception occurred");
-		} catch (VnanoException | VnanoFatalException e) {
-			// 例外が発生するのが正しい挙動
+			fail("Incorrect actual length of data");
 		}
 	}
 

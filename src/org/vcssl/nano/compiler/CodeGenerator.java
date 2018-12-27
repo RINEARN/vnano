@@ -711,21 +711,26 @@ public class CodeGenerator {
 			}
 		}
 
+		// 以下、メモリ確保のためのALLOC命令を生成
+
+		// スカラなら1オペランドのALLOC命令を生成
 		if (rank == RANK_OF_SCALAR) {
 
-			// 1オペランドのALLOC命令を発行
 			codeBuilder.append(
 				this.generateInstruction(OperationCode.ALLOC.name(), variableType, variableOperand)
 			);
 
-		// 1次元配列なら要素数オペランドをスカラで渡せる
+		// 配列確保なら要素数オペランドを付けたALLOC命令を生成
 		} else if (rank == 1) {
 
-			// 2オペランドのALLOC命令を発行
+			String[] allocOperands = new String[ arrayLengthValues.length + 1 ];
+			allocOperands[0] = variableOperand;
+			System.arraycopy(arrayLengthValues, 0, allocOperands, 1, arrayLengthValues.length);
 			codeBuilder.append(
-				this.generateInstruction(OperationCode.ALLOC.name(), variableType, variableOperand, arrayLengthValues[0])
+				this.generateInstruction(OperationCode.ALLOC.name(), variableType, allocOperands)
 			);
 
+		/*
 		// 2次元以上は要素数をVEC命令で配列にまとめてレジスタに置き、それを要素数オペランドに渡す
 		} else {
 
@@ -744,6 +749,7 @@ public class CodeGenerator {
 			codeBuilder.append(
 				this.generateInstruction(OperationCode.ALLOC.name(), variableType, variableOperand, indexRegister)
 			);
+		*/
 		}
 
 		// 初期化式があればコード生成
@@ -1144,13 +1150,16 @@ public class CodeGenerator {
 				this.generateInstruction(OperationCode.ALLOC.name(), executionDataType, storageRegister)
 			);
 		} else {
+			/*
 			String lengthRegister = this.generateRegisterOperandCode();
 			codeBuilder.append(
 				this.generateInstruction(OperationCode.LEN.name(), DataTypeName.INT, lengthRegister, variableValue)
 			);
+			*/
 			storageRegister = this.generateRegisterOperandCode();
 			codeBuilder.append(
-				this.generateInstruction(OperationCode.ALLOC.name(), executionDataType, storageRegister, lengthRegister)
+				//this.generateInstruction(OperationCode.ALLOC.name(), executionDataType, storageRegister, lengthRegister)
+				this.generateInstruction(OperationCode.ALLOCR.name(), executionDataType, storageRegister, variableValue)
 			);
 		}
 
@@ -1288,12 +1297,15 @@ public class CodeGenerator {
 				this.generateInstruction(OperationCode.ALLOC.name(), operandNode.getDataTypeName(), accumulatorRegister)
 			);
 		} else {
+			/*
 			String lengthRegister = this.generateRegisterOperandCode();
 			codeBuilder.append(
 				this.generateInstruction(OperationCode.LEN.name(), DataTypeName.INT, lengthRegister, operandValue)
 			);
+			*/
 			codeBuilder.append(
-				this.generateInstruction(OperationCode.ALLOC.name(), operandNode.getDataTypeName(), accumulatorRegister, lengthRegister)
+				//this.generateInstruction(OperationCode.ALLOC.name(), operandNode.getDataTypeName(), accumulatorRegister, lengthRegister)
+				this.generateInstruction(OperationCode.ALLOCR.name(), operandNode.getDataTypeName(), accumulatorRegister, operandValue)
 			);
 		}
 
@@ -1358,12 +1370,15 @@ public class CodeGenerator {
 				this.generateInstruction(OperationCode.ALLOC.name(), DataTypeName.BOOL, accumulatorRegister)
 			);
 		} else {
+			/*
 			String lengthRegister = this.generateRegisterOperandCode();
 			codeBuilder.append(
 				this.generateInstruction(OperationCode.LEN.name(), DataTypeName.INT, lengthRegister, operandValue)
 			);
+			*/
 			codeBuilder.append(
-				this.generateInstruction(OperationCode.ALLOC.name(), DataTypeName.BOOL, accumulatorRegister, lengthRegister)
+				//this.generateInstruction(OperationCode.ALLOC.name(), DataTypeName.BOOL, accumulatorRegister, lengthRegister)
+				this.generateInstruction(OperationCode.ALLOCR.name(), DataTypeName.BOOL, accumulatorRegister, operandValue)
 			);
 		}
 
@@ -1445,12 +1460,15 @@ public class CodeGenerator {
 				);
 			// キャスト元が配列の場合の確保
 			} else {
+				/*
 				String lengthRegister = this.generateRegisterOperandCode();
 				codeBuilder.append(
 					this.generateInstruction(OperationCode.LEN.name(), DataTypeName.INT, lengthRegister, operandValues[1])
 				);
+				*/
 				codeBuilder.append(
-					this.generateInstruction(OperationCode.ALLOC.name(), operandNodes[0].getDataTypeName(), castedRegister, lengthRegister)
+					//this.generateInstruction(OperationCode.ALLOC.name(), operandNodes[0].getDataTypeName(), castedRegister, lengthRegister)
+					this.generateInstruction(OperationCode.ALLOCR.name(), operandNodes[0].getDataTypeName(), castedRegister, operandValues[1])
 				);
 			}
 
@@ -1607,14 +1625,17 @@ public class CodeGenerator {
 
 					// 変換元の値がベクトルの場合は、LEN命令で要素数を取得した上で、同要素数のレジスタをALLOC命令で確保
 					} else {
+						/*
 						String lengthRegister = this.generateRegisterOperandCode();
 						codeBuilder.append(
 							this.generateInstruction(OperationCode.LEN.name(), DataTypeName.INT, lengthRegister, input[inputIndex])
 						);
+						*/
 						castedRegister = this.generateRegisterOperandCode();
 						codeBuilder.append(
 							this.generateInstruction(
-								OperationCode.ALLOC.name(), executionDataType, castedRegister, lengthRegister
+								//OperationCode.ALLOC.name(), executionDataType, castedRegister, lengthRegister
+								OperationCode.ALLOCR.name(), executionDataType, castedRegister, input[inputIndex]
 							)
 						);
 					}
@@ -1640,15 +1661,18 @@ public class CodeGenerator {
 				if (inputNodes[inputIndex].getRank() == RANK_OF_SCALAR) {
 
 					// ベクトルレジスタを確保するために要素数情報をLEN命令で取得し、別のレジスタに格納
+					/*
 					String lengthRegister = this.generateRegisterOperandCode();
 					codeBuilder.append(
 						this.generateInstruction(OperationCode.LEN.name(), DataTypeName.INT, lengthRegister, firstVectorInput)
 					);
+					*/
 
-					// ベクトルレジスタをALLOC命令で確保
+					// ベクトルレジスタをALLOCR命令で確保
 					String filledRegister = this.generateRegisterOperandCode();
 					codeBuilder.append(
-						this.generateInstruction(OperationCode.ALLOC.name(), executionDataType, filledRegister, lengthRegister)
+						//this.generateInstruction(OperationCode.ALLOC.name(), executionDataType, filledRegister, lengthRegister)
+						this.generateInstruction(OperationCode.ALLOCR.name(), executionDataType, filledRegister, firstVectorInput)
 					);
 
 					// FILL命令でベクトルレジスタの中身にスカラ値を詰める
@@ -1670,16 +1694,18 @@ public class CodeGenerator {
 						this.generateInstruction(OperationCode.ALLOC.name(), resultDataType, output)
 				);
 			} else {
-
+				/*
 				// ベクトルレジスタを確保するために要素数情報をLEN命令で取得し、別のレジスタに格納
 				String lengthRegister = this.generateRegisterOperandCode();
 				codeBuilder.append(
 					this.generateInstruction(OperationCode.LEN.name(), DataTypeName.INT, lengthRegister, firstVectorInput)
 				);
+				*/
 
 				// ALLOC命令でベクトルレジスタを確保
 				codeBuilder.append(
-						this.generateInstruction(OperationCode.ALLOC.name(), resultDataType, output, lengthRegister)
+						//this.generateInstruction(OperationCode.ALLOC.name(), resultDataType, output, lengthRegister)
+						this.generateInstruction(OperationCode.ALLOCR.name(), resultDataType, output, firstVectorInput)
 				);
 			}
 		}
@@ -1742,23 +1768,24 @@ public class CodeGenerator {
 		StringBuilder codeBuilder = new StringBuilder();
 
 		AstNode[] inputNodes = operatorNode.getChildNodes();
-
-		int inputLength = inputNodes.length;
-
-		int numberOfIndex = inputLength - 1;
+		int rank = inputNodes.length - 1;
 
 		String targetOperand = inputNodes[0].getAttribute(AttributeKey.ASSEMBLY_VALUE);
 
 		// ELEM命令のインデックス指定部に渡すオペランド
-		String indexOperand = null;
+		String[] indexOperands = new String[rank];
+		for (int dim=0; dim<rank; dim++) {
+			indexOperands[dim] = inputNodes[dim + 1].getAttribute(AttributeKey.ASSEMBLY_VALUE);
+		}
 
+		/*
 		// インデックスが1個ならスカラとしてそのまま渡せる
-		if (numberOfIndex == 1) {
+		if (rank == 1) {
 			indexOperand = inputNodes[1].getAttribute(AttributeKey.ASSEMBLY_VALUE);
 
 		// インデックスが複数あれば、VEC命令で配列にまとめてレジスタに置き、それを渡す
 		} else {
-			int rank = numberOfIndex;
+			int rank = rank;
 			indexOperand = this.generateRegisterOperandCode();
 			String[] arrayInstructionOperands = new String[rank + 1];
 			arrayInstructionOperands[0] = indexOperand;
@@ -1770,14 +1797,19 @@ public class CodeGenerator {
 				this.generateInstruction(OperationCode.VEC.name(), DataTypeName.INT, arrayInstructionOperands)
 			);
 		}
+		*/
 
 		// 結果を格納するレジスタを用意
 		String accumulator = operatorNode.getAttribute(AttributeKey.ASSEMBLY_VALUE);
 
 		// INDEX命令を発行
+		String[] allOperands = new String[indexOperands.length + 2];
+		allOperands[0] = accumulator;
+		allOperands[1] = targetOperand;
+		System.arraycopy(indexOperands, 0, allOperands, 2, indexOperands.length);
 		codeBuilder.append(
 			this.generateInstruction(
-					OperationCode.ELEM.name(), inputNodes[0].getDataTypeName(), accumulator, targetOperand, indexOperand
+					OperationCode.ELEM.name(), inputNodes[0].getDataTypeName(), allOperands
 			)
 		);
 
@@ -2109,6 +2141,7 @@ public class CodeGenerator {
 		}
 
 		// ローカル変数ディレクティブの抽出/配置
+		@SuppressWarnings("unused")
 		boolean localVariableDirectiveExist = false;
 		for (int lineIndex=0; lineIndex<lineLength; lineIndex++) {
 			if (lines[lineIndex].startsWith(AssemblyWord.LOCAL_VARIABLE_DIRECTIVE)) {
