@@ -92,8 +92,20 @@ public class BoolVectorLogicalUnit extends AccelerationUnit {
 			boolean[] data2 = this.container2.getData();
 			int size = this.container0.getSize();
 
-			for (int i=0; i<size; i++) {
-				data0[i] = data1[i] & data2[i];
+			// 短絡評価により「 && 」演算子の右オペランドが評価されなかった場合、レジスタが確保されずに null が入っている
+			if (data2 == null) {
+
+				// 短絡評価になったという事は、「 && 」演算子の結果は左オペランドから自明に false である場合なので、
+				// AND命令においても、右オペランドのデータが未確保の場合の挙動はそのように定義する
+				for (int i=0; i<size; i++) {
+					data0[i] = false;
+				}
+
+			// 普通に「 && 」演算子の両オペランドが評価されて、両者の結果が入力されている場合
+			} else {
+				for (int i=0; i<size; i++) {
+					data0[i] = data1[i] & data2[i];
+				}
 			}
 
 			this.synchronizer.writeCache();
@@ -117,8 +129,20 @@ public class BoolVectorLogicalUnit extends AccelerationUnit {
 			boolean[] data2 = this.container2.getData();
 			int size = this.container0.getSize();
 
-			for (int i=0; i<size; i++) {
-				data0[i] = data1[i] | data2[i];
+			// 短絡評価により「 || 」演算子の右オペランドが評価されなかった場合、レジスタが確保されずに null が入っている
+			if (data2 == null) {
+
+				// 短絡評価になったという事は、「 || 」演算子の結果は左オペランドから自明に true である場合なので、
+				// AND命令においても、右オペランドのデータが未確保の場合の挙動はそのように定義する
+				for (int i=0; i<size; i++) {
+					data0[i] = true;
+				}
+
+			// 普通に「 && 」演算子の両オペランドが評価されて、両者の結果が入力されている場合
+			} else {
+				for (int i=0; i<size; i++) {
+					data0[i] = data1[i] | data2[i];
+				}
 			}
 
 			this.synchronizer.writeCache();
