@@ -713,7 +713,7 @@ public final class VnanoCommandLineApplication {
 				}
 				int executorNodeLength = executorNodes.length;
 				for (int i=0; i<executorNodeLength; i++) {
-					System.out.println("[" + i + "]\t" + executorNodes[i].getClass().getName().replace("org.vcssl.nano.vm.accelerator.", ""));
+					System.out.println("[" + i + "]\t" + executorNodes[i].getClass().getName());
 				}
 			}
 		}
