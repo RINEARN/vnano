@@ -1065,10 +1065,15 @@ public class ExecutionUnit {
 
 		int size = sameLengthsContainer.getSize();
 		int rank = sameLengthsContainer.getRank();
-		int[] lengths = null;
-		System.arraycopy(sameLengthsContainer.getLengths(), 0, lengths, 0, rank);
 
-		this.alloc(type, target, size, lengths);
+		int[] lengths = sameLengthsContainer.getLengths();
+		int[] copiedLengths = new int[rank];
+
+		if (0 < rank) {
+			System.arraycopy(lengths, 0, copiedLengths, 0, rank);
+		}
+
+		this.alloc(type, target, size, copiedLengths);
 	}
 
 
