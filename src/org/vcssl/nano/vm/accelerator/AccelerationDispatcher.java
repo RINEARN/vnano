@@ -84,12 +84,26 @@ public class AccelerationDispatcher {
 			AccelerationType accelType = instruction.getAccelerationType();
 
 			// 対象命令（1個）を演算器にディスパッチして演算ノードを取得
-			AccelerationExecutorNode currentNode = this.dispatchToAccelerationUnit(
+			AccelerationExecutorNode currentNode = null;
+			try {
+				currentNode = this.dispatchToAccelerationUnit(
 					accelType, opcode, dataTypes,
 					operandContainers, operandCaches, operandCached, operandScalar, operandConstant,
 					instruction, processor, memory, interconnect,
 					nextNode
-			);
+				);
+			} catch (Exception causeException) {
+				AcceleratorInstruction causeInstruction = instruction;
+				int unreorderedAddress = causeInstruction.getUnreorderedAddress();
+				int reorderedAddress = causeInstruction.getReorderedAddress();
+				throw new VnanoFatalException(
+						"Accelerator dispatch failed at:"
+						+ " address=" + unreorderedAddress
+						+ " reorderedAddress=" + reorderedAddress
+						+ " instruction=" + causeInstruction,
+						causeException
+				);
+			}
 
 
 			// エラー発生時に原因命令を辿れるように、ノードに元の命令を格納
