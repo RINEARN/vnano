@@ -37,8 +37,8 @@ public class Float64ScalarTransferUnit extends AccelerationUnit {
 							(DataContainer<double[]>)operandContainers[0], (DataContainer<double[]>)operandContainers[1],
 							synchronizer, nextNode);
 				} else if (instruction.getDataTypes()[1] == DataType.INT64) {
-					Int64x1Float64x1ScalarCacheSynchronizer synchronizer
-							= new Int64x1Float64x1ScalarCacheSynchronizer(operandContainers, operandCaches, operandCached);
+					Float64x1Int64x1ScalarCacheSynchronizer synchronizer
+							= new Float64x1Int64x1ScalarCacheSynchronizer(operandContainers, operandCaches, operandCached);
 					executor = new Float64FromInt64ScalarCastExecutorNode(
 							(DataContainer<double[]>)operandContainers[0], (DataContainer<long[]>)operandContainers[1],
 							synchronizer, nextNode);
@@ -89,11 +89,11 @@ public class Float64ScalarTransferUnit extends AccelerationUnit {
 
 		protected final DataContainer<double[]> container0;
 		protected final DataContainer<long[]> container1;
-		protected final Int64x1Float64x1ScalarCacheSynchronizer synchronizer;
+		protected final Float64x1Int64x1ScalarCacheSynchronizer synchronizer;
 
 		public Float64FromInt64ScalarCastExecutorNode(
 				DataContainer<double[]> container0, DataContainer<long[]> container1,
-				Int64x1Float64x1ScalarCacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
+				Float64x1Int64x1ScalarCacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
 
 			super(nextNode);
 			this.container0 = container0;
