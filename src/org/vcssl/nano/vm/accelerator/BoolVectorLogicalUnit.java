@@ -138,7 +138,7 @@ public class BoolVectorLogicalUnit extends AccelerationUnit {
 					data0[i] = true;
 				}
 
-			// 普通に「 && 」演算子の両オペランドが評価されて、両者の結果が入力されている場合
+			// 普通に「 || 」演算子の両オペランドが評価されて、両者の結果が入力されている場合
 			} else {
 				for (int i=0; i<size; i++) {
 					data0[i] = data1[i] | data2[i];
