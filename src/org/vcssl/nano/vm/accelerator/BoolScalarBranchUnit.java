@@ -59,7 +59,7 @@ public class BoolScalarBranchUnit extends AccelerationUnit {
 		}
 
 		public final AccelerationExecutorNode execute() {
-			this.synchronizer.readCache();
+			this.synchronizer.synchronizeFromCacheToMemory();
 			if (this.container0.getData()[ this.container0.getOffset() ]) {
 				return this.branchedNode;
 			} else {
@@ -86,7 +86,7 @@ public class BoolScalarBranchUnit extends AccelerationUnit {
 		}
 
 		public final AccelerationExecutorNode execute() {
-			this.synchronizer.readCache();
+			this.synchronizer.synchronizeFromCacheToMemory();
 			if (this.container0.getData()[ this.container0.getOffset() ]) {
 				return this.nextNode;
 			} else {

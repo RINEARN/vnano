@@ -19,11 +19,11 @@ class Boolx1ScalarCacheSynchronizer extends CacheSynchronizer {
 		cached0 = cached[0];
 	}
 
-	public final void readCache() {
+	public final void synchronizeFromCacheToMemory() {
 		if (cached0) container0.getData()[ container0.getOffset() ] = cache0.value;
 	}
 
-	public final void writeCache() {
+	public final void synchronizeFromMemoryToCache() {
 		if (cached0) cache0.value = container0.getData()[ container0.getOffset() ];
 	}
 }

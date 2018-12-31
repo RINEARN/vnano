@@ -86,7 +86,7 @@ public class BoolVectorLogicalUnit extends AccelerationUnit {
 		}
 
 		public final AccelerationExecutorNode execute() {
-			this.synchronizer.readCache();
+			this.synchronizer.synchronizeFromCacheToMemory();
 			boolean[] data0 = this.container0.getData();
 			boolean[] data1 = this.container1.getData();
 			boolean[] data2 = this.container2.getData();
@@ -108,7 +108,7 @@ public class BoolVectorLogicalUnit extends AccelerationUnit {
 				}
 			}
 
-			this.synchronizer.writeCache();
+			this.synchronizer.synchronizeFromMemoryToCache();
 			return this.nextNode;
 		}
 	}
@@ -123,7 +123,7 @@ public class BoolVectorLogicalUnit extends AccelerationUnit {
 		}
 
 		public final AccelerationExecutorNode execute() {
-			this.synchronizer.readCache();
+			this.synchronizer.synchronizeFromCacheToMemory();
 			boolean[] data0 = this.container0.getData();
 			boolean[] data1 = this.container1.getData();
 			boolean[] data2 = this.container2.getData();
@@ -145,7 +145,7 @@ public class BoolVectorLogicalUnit extends AccelerationUnit {
 				}
 			}
 
-			this.synchronizer.writeCache();
+			this.synchronizer.synchronizeFromMemoryToCache();
 			return this.nextNode;
 		}
 	}
@@ -160,7 +160,7 @@ public class BoolVectorLogicalUnit extends AccelerationUnit {
 		}
 
 		public final AccelerationExecutorNode execute() {
-			this.synchronizer.readCache();
+			this.synchronizer.synchronizeFromCacheToMemory();
 			boolean[] data0 = this.container0.getData();
 			boolean[] data1 = this.container1.getData();
 			int size = this.container0.getSize();
@@ -169,7 +169,7 @@ public class BoolVectorLogicalUnit extends AccelerationUnit {
 				data0[i] = !data1[i];
 			}
 
-			this.synchronizer.writeCache();
+			this.synchronizer.synchronizeFromMemoryToCache();
 			return this.nextNode;
 		}
 	}

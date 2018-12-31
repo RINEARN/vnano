@@ -86,7 +86,7 @@ public class Float64VectorComparisonUnit extends AccelerationUnit {
 		}
 
 		public final AccelerationExecutorNode execute() {
-			this.synchronizer.readCache();
+			this.synchronizer.synchronizeFromCacheToMemory();
 			boolean[] data0 = this.container0.getData();
 			double[] data1 = this.container1.getData();
 			double[] data2 = this.container2.getData();
@@ -96,7 +96,7 @@ public class Float64VectorComparisonUnit extends AccelerationUnit {
 				data0[i] = data1[i] < data2[i];
 			}
 
-			this.synchronizer.writeCache();
+			this.synchronizer.synchronizeFromMemoryToCache();
 			return this.nextNode;
 		}
 	}
@@ -111,7 +111,7 @@ public class Float64VectorComparisonUnit extends AccelerationUnit {
 		}
 
 		public final AccelerationExecutorNode execute() {
-			this.synchronizer.readCache();
+			this.synchronizer.synchronizeFromCacheToMemory();
 			boolean[] data0 = this.container0.getData();
 			double[] data1 = this.container1.getData();
 			double[] data2 = this.container2.getData();
@@ -121,7 +121,7 @@ public class Float64VectorComparisonUnit extends AccelerationUnit {
 				data0[i] = data1[i] > data2[i];
 			}
 
-			this.synchronizer.writeCache();
+			this.synchronizer.synchronizeFromMemoryToCache();
 			return this.nextNode;
 		}
 	}
@@ -136,7 +136,7 @@ public class Float64VectorComparisonUnit extends AccelerationUnit {
 		}
 
 		public final AccelerationExecutorNode execute() {
-			this.synchronizer.readCache();
+			this.synchronizer.synchronizeFromCacheToMemory();
 			boolean[] data0 = this.container0.getData();
 			double[] data1 = this.container1.getData();
 			double[] data2 = this.container2.getData();
@@ -146,7 +146,7 @@ public class Float64VectorComparisonUnit extends AccelerationUnit {
 				data0[i] = data1[i] <= data2[i];
 			}
 
-			this.synchronizer.writeCache();
+			this.synchronizer.synchronizeFromMemoryToCache();
 			return this.nextNode;
 		}
 	}
@@ -161,7 +161,7 @@ public class Float64VectorComparisonUnit extends AccelerationUnit {
 		}
 
 		public final AccelerationExecutorNode execute() {
-			this.synchronizer.readCache();
+			this.synchronizer.synchronizeFromCacheToMemory();
 			boolean[] data0 = this.container0.getData();
 			double[] data1 = this.container1.getData();
 			double[] data2 = this.container2.getData();
@@ -171,7 +171,7 @@ public class Float64VectorComparisonUnit extends AccelerationUnit {
 				data0[i] = data1[i] >= data2[i];
 			}
 
-			this.synchronizer.writeCache();
+			this.synchronizer.synchronizeFromMemoryToCache();
 			return this.nextNode;
 		}
 	}
@@ -186,7 +186,7 @@ public class Float64VectorComparisonUnit extends AccelerationUnit {
 		}
 
 		public final AccelerationExecutorNode execute() {
-			this.synchronizer.readCache();
+			this.synchronizer.synchronizeFromCacheToMemory();
 			boolean[] data0 = this.container0.getData();
 			double[] data1 = this.container1.getData();
 			double[] data2 = this.container2.getData();
@@ -196,7 +196,7 @@ public class Float64VectorComparisonUnit extends AccelerationUnit {
 				data0[i] = data1[i] == data2[i];
 			}
 
-			this.synchronizer.writeCache();
+			this.synchronizer.synchronizeFromMemoryToCache();
 			return this.nextNode;
 		}
 	}
@@ -211,7 +211,7 @@ public class Float64VectorComparisonUnit extends AccelerationUnit {
 		}
 
 		public final AccelerationExecutorNode execute() {
-			this.synchronizer.readCache();
+			this.synchronizer.synchronizeFromCacheToMemory();
 			boolean[] data0 = this.container0.getData();
 			double[] data1 = this.container1.getData();
 			double[] data2 = this.container2.getData();
@@ -221,7 +221,7 @@ public class Float64VectorComparisonUnit extends AccelerationUnit {
 				data0[i] = data1[i] != data2[i];
 			}
 
-			this.synchronizer.writeCache();
+			this.synchronizer.synchronizeFromMemoryToCache();
 			return this.nextNode;
 		}
 	}

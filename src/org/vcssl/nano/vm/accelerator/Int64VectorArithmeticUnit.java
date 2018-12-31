@@ -80,7 +80,7 @@ public class Int64VectorArithmeticUnit extends AccelerationUnit {
 		}
 
 		public final AccelerationExecutorNode execute() {
-			this.synchronizer.readCache();
+			this.synchronizer.synchronizeFromCacheToMemory();
 			long[] data0 = this.container0.getData();
 			long[] data1 = this.container1.getData();
 			long[] data2 = this.container2.getData();
@@ -90,7 +90,7 @@ public class Int64VectorArithmeticUnit extends AccelerationUnit {
 				data0[i] = data1[i] + data2[i];
 			}
 
-			this.synchronizer.writeCache();
+			this.synchronizer.synchronizeFromMemoryToCache();
 			return this.nextNode;
 		}
 	}
@@ -105,7 +105,7 @@ public class Int64VectorArithmeticUnit extends AccelerationUnit {
 		}
 
 		public final AccelerationExecutorNode execute() {
-			this.synchronizer.readCache();
+			this.synchronizer.synchronizeFromCacheToMemory();
 			long[] data0 = this.container0.getData();
 			long[] data1 = this.container1.getData();
 			long[] data2 = this.container2.getData();
@@ -115,7 +115,7 @@ public class Int64VectorArithmeticUnit extends AccelerationUnit {
 				data0[i] = data1[i] - data2[i];
 			}
 
-			this.synchronizer.writeCache();
+			this.synchronizer.synchronizeFromMemoryToCache();
 			return this.nextNode;
 		}
 	}
@@ -130,7 +130,7 @@ public class Int64VectorArithmeticUnit extends AccelerationUnit {
 		}
 
 		public final AccelerationExecutorNode execute() {
-			this.synchronizer.readCache();
+			this.synchronizer.synchronizeFromCacheToMemory();
 			long[] data0 = this.container0.getData();
 			long[] data1 = this.container1.getData();
 			long[] data2 = this.container2.getData();
@@ -140,7 +140,7 @@ public class Int64VectorArithmeticUnit extends AccelerationUnit {
 				data0[i] = data1[i] * data2[i];
 			}
 
-			this.synchronizer.writeCache();
+			this.synchronizer.synchronizeFromMemoryToCache();
 			return this.nextNode;
 		}
 	}
@@ -155,7 +155,7 @@ public class Int64VectorArithmeticUnit extends AccelerationUnit {
 		}
 
 		public final AccelerationExecutorNode execute() {
-			this.synchronizer.readCache();
+			this.synchronizer.synchronizeFromCacheToMemory();
 			long[] data0 = this.container0.getData();
 			long[] data1 = this.container1.getData();
 			long[] data2 = this.container2.getData();
@@ -165,7 +165,7 @@ public class Int64VectorArithmeticUnit extends AccelerationUnit {
 				data0[i] = data1[i] / data2[i];
 			}
 
-			this.synchronizer.writeCache();
+			this.synchronizer.synchronizeFromMemoryToCache();
 			return this.nextNode;
 		}
 	}
@@ -180,7 +180,7 @@ public class Int64VectorArithmeticUnit extends AccelerationUnit {
 		}
 
 		public final AccelerationExecutorNode execute() {
-			this.synchronizer.readCache();
+			this.synchronizer.synchronizeFromCacheToMemory();
 			long[] data0 = this.container0.getData();
 			long[] data1 = this.container1.getData();
 			long[] data2 = this.container2.getData();
@@ -190,7 +190,7 @@ public class Int64VectorArithmeticUnit extends AccelerationUnit {
 				data0[i] = data1[i] % data2[i];
 			}
 
-			this.synchronizer.writeCache();
+			this.synchronizer.synchronizeFromMemoryToCache();
 			return this.nextNode;
 		}
 	}

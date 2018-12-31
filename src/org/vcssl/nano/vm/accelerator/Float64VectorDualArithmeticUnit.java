@@ -428,7 +428,7 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 				data10[i] = (data01[i] + data02[i]) + data12[i];
 			}
 
-			this.synchronizer.writeCache();
+			this.synchronizer.synchronizeFromMemoryToCache();
 			return this.nextNode;
 		}
 	}
@@ -454,7 +454,7 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 				data10[i] = data11[i] + (data01[i] + data02[i]);
 			}
 
-			this.synchronizer.writeCache();
+			this.synchronizer.synchronizeFromMemoryToCache();
 			return this.nextNode;
 		}
 	}
@@ -482,7 +482,7 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 				data10[i] = (data01[i] + data02[i]) - data12[i];
 			}
 
-			this.synchronizer.writeCache();
+			this.synchronizer.synchronizeFromMemoryToCache();
 			return this.nextNode;
 		}
 	}
@@ -508,7 +508,7 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 				data10[i] = data11[i] - (data01[i] + data02[i]);
 			}
 
-			this.synchronizer.writeCache();
+			this.synchronizer.synchronizeFromMemoryToCache();
 			return this.nextNode;
 		}
 	}
@@ -536,7 +536,7 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 				data10[i] = (data01[i] + data02[i]) * data12[i];
 			}
 
-			this.synchronizer.writeCache();
+			this.synchronizer.synchronizeFromMemoryToCache();
 			return this.nextNode;
 		}
 	}
@@ -562,7 +562,7 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 				data10[i] = data11[i] * (data01[i] + data02[i]);
 			}
 
-			this.synchronizer.writeCache();
+			this.synchronizer.synchronizeFromMemoryToCache();
 			return this.nextNode;
 		}
 	}
@@ -590,7 +590,7 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 				data10[i] = (data01[i] + data02[i]) / data12[i];
 			}
 
-			this.synchronizer.writeCache();
+			this.synchronizer.synchronizeFromMemoryToCache();
 			return this.nextNode;
 		}
 	}
@@ -616,7 +616,7 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 				data10[i] = data11[i] / (data01[i] + data02[i]);
 			}
 
-			this.synchronizer.writeCache();
+			this.synchronizer.synchronizeFromMemoryToCache();
 			return this.nextNode;
 		}
 	}
@@ -644,7 +644,7 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 				data10[i] = (data01[i] + data02[i]) % data12[i];
 			}
 
-			this.synchronizer.writeCache();
+			this.synchronizer.synchronizeFromMemoryToCache();
 			return this.nextNode;
 		}
 	}
@@ -670,7 +670,7 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 				data10[i] = data11[i] % (data01[i] + data02[i]);
 			}
 
-			this.synchronizer.writeCache();
+			this.synchronizer.synchronizeFromMemoryToCache();
 			return this.nextNode;
 		}
 	}
@@ -702,7 +702,7 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 				data10[i] = (data01[i] - data02[i]) + data12[i];
 			}
 
-			this.synchronizer.writeCache();
+			this.synchronizer.synchronizeFromMemoryToCache();
 			return this.nextNode;
 		}
 	}
@@ -728,7 +728,7 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 				data10[i] = data11[i] + (data01[i] - data02[i]);
 			}
 
-			this.synchronizer.writeCache();
+			this.synchronizer.synchronizeFromMemoryToCache();
 			return this.nextNode;
 		}
 	}
@@ -756,7 +756,7 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 				data10[i] = (data01[i] - data02[i]) - data12[i];
 			}
 
-			this.synchronizer.writeCache();
+			this.synchronizer.synchronizeFromMemoryToCache();
 			return this.nextNode;
 		}
 	}
@@ -782,7 +782,7 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 				data10[i] = data11[i] - (data01[i] - data02[i]);
 			}
 
-			this.synchronizer.writeCache();
+			this.synchronizer.synchronizeFromMemoryToCache();
 			return this.nextNode;
 		}
 	}
@@ -810,7 +810,7 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 				data10[i] = (data01[i] - data02[i]) * data12[i];
 			}
 
-			this.synchronizer.writeCache();
+			this.synchronizer.synchronizeFromMemoryToCache();
 			return this.nextNode;
 		}
 	}
@@ -836,7 +836,7 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 				data10[i] = data11[i] * (data01[i] - data02[i]);
 			}
 
-			this.synchronizer.writeCache();
+			this.synchronizer.synchronizeFromMemoryToCache();
 			return this.nextNode;
 		}
 	}
@@ -864,7 +864,7 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 				data10[i] = (data01[i] - data02[i]) / data12[i];
 			}
 
-			this.synchronizer.writeCache();
+			this.synchronizer.synchronizeFromMemoryToCache();
 			return this.nextNode;
 		}
 	}
@@ -890,7 +890,7 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 				data10[i] = data11[i] / (data01[i] - data02[i]);
 			}
 
-			this.synchronizer.writeCache();
+			this.synchronizer.synchronizeFromMemoryToCache();
 			return this.nextNode;
 		}
 	}
@@ -918,7 +918,7 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 				data10[i] = (data01[i] - data02[i]) % data12[i];
 			}
 
-			this.synchronizer.writeCache();
+			this.synchronizer.synchronizeFromMemoryToCache();
 			return this.nextNode;
 		}
 	}
@@ -944,7 +944,7 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 				data10[i] = data11[i] % (data01[i] - data02[i]);
 			}
 
-			this.synchronizer.writeCache();
+			this.synchronizer.synchronizeFromMemoryToCache();
 			return this.nextNode;
 		}
 	}
@@ -976,7 +976,7 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 				data10[i] = (data01[i] * data02[i]) + data12[i];
 			}
 
-			this.synchronizer.writeCache();
+			this.synchronizer.synchronizeFromMemoryToCache();
 			return this.nextNode;
 		}
 	}
@@ -1002,7 +1002,7 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 				data10[i] = data11[i] + (data01[i] * data02[i]);
 			}
 
-			this.synchronizer.writeCache();
+			this.synchronizer.synchronizeFromMemoryToCache();
 			return this.nextNode;
 		}
 	}
@@ -1030,7 +1030,7 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 				data10[i] = (data01[i] * data02[i]) - data12[i];
 			}
 
-			this.synchronizer.writeCache();
+			this.synchronizer.synchronizeFromMemoryToCache();
 			return this.nextNode;
 		}
 	}
@@ -1056,7 +1056,7 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 				data10[i] = data11[i] - (data01[i] * data02[i]);
 			}
 
-			this.synchronizer.writeCache();
+			this.synchronizer.synchronizeFromMemoryToCache();
 			return this.nextNode;
 		}
 	}
@@ -1084,7 +1084,7 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 				data10[i] = (data01[i] * data02[i]) * data12[i];
 			}
 
-			this.synchronizer.writeCache();
+			this.synchronizer.synchronizeFromMemoryToCache();
 			return this.nextNode;
 		}
 	}
@@ -1110,7 +1110,7 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 				data10[i] = data11[i] * (data01[i] * data02[i]);
 			}
 
-			this.synchronizer.writeCache();
+			this.synchronizer.synchronizeFromMemoryToCache();
 			return this.nextNode;
 		}
 	}
@@ -1138,7 +1138,7 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 				data10[i] = (data01[i] * data02[i]) / data12[i];
 			}
 
-			this.synchronizer.writeCache();
+			this.synchronizer.synchronizeFromMemoryToCache();
 			return this.nextNode;
 		}
 	}
@@ -1164,7 +1164,7 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 				data10[i] = data11[i] / (data01[i] * data02[i]);
 			}
 
-			this.synchronizer.writeCache();
+			this.synchronizer.synchronizeFromMemoryToCache();
 			return this.nextNode;
 		}
 	}
@@ -1192,7 +1192,7 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 				data10[i] = (data01[i] * data02[i]) % data12[i];
 			}
 
-			this.synchronizer.writeCache();
+			this.synchronizer.synchronizeFromMemoryToCache();
 			return this.nextNode;
 		}
 	}
@@ -1218,7 +1218,7 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 				data10[i] = data11[i] % (data01[i] * data02[i]);
 			}
 
-			this.synchronizer.writeCache();
+			this.synchronizer.synchronizeFromMemoryToCache();
 			return this.nextNode;
 		}
 	}
@@ -1246,7 +1246,7 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 				data10[i] = (data01[i] / data02[i]) + data12[i];
 			}
 
-			this.synchronizer.writeCache();
+			this.synchronizer.synchronizeFromMemoryToCache();
 			return this.nextNode;
 		}
 	}
@@ -1272,7 +1272,7 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 				data10[i] = data11[i] + (data01[i] / data02[i]);
 			}
 
-			this.synchronizer.writeCache();
+			this.synchronizer.synchronizeFromMemoryToCache();
 			return this.nextNode;
 		}
 	}
@@ -1300,7 +1300,7 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 				data10[i] = (data01[i] / data02[i]) - data12[i];
 			}
 
-			this.synchronizer.writeCache();
+			this.synchronizer.synchronizeFromMemoryToCache();
 			return this.nextNode;
 		}
 	}
@@ -1326,7 +1326,7 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 				data10[i] = data11[i] - (data01[i] / data02[i]);
 			}
 
-			this.synchronizer.writeCache();
+			this.synchronizer.synchronizeFromMemoryToCache();
 			return this.nextNode;
 		}
 	}
@@ -1354,7 +1354,7 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 				data10[i] = (data01[i] / data02[i]) * data12[i];
 			}
 
-			this.synchronizer.writeCache();
+			this.synchronizer.synchronizeFromMemoryToCache();
 			return this.nextNode;
 		}
 	}
@@ -1380,7 +1380,7 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 				data10[i] = data11[i] * (data01[i] / data02[i]);
 			}
 
-			this.synchronizer.writeCache();
+			this.synchronizer.synchronizeFromMemoryToCache();
 			return this.nextNode;
 		}
 	}
@@ -1408,7 +1408,7 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 				data10[i] = (data01[i] / data02[i]) / data12[i];
 			}
 
-			this.synchronizer.writeCache();
+			this.synchronizer.synchronizeFromMemoryToCache();
 			return this.nextNode;
 		}
 	}
@@ -1434,7 +1434,7 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 				data10[i] = data11[i] / (data01[i] / data02[i]);
 			}
 
-			this.synchronizer.writeCache();
+			this.synchronizer.synchronizeFromMemoryToCache();
 			return this.nextNode;
 		}
 	}
@@ -1462,7 +1462,7 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 				data10[i] = (data01[i] / data02[i]) % data12[i];
 			}
 
-			this.synchronizer.writeCache();
+			this.synchronizer.synchronizeFromMemoryToCache();
 			return this.nextNode;
 		}
 	}
@@ -1488,7 +1488,7 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 				data10[i] = data11[i] % (data01[i] / data02[i]);
 			}
 
-			this.synchronizer.writeCache();
+			this.synchronizer.synchronizeFromMemoryToCache();
 			return this.nextNode;
 		}
 	}
@@ -1520,7 +1520,7 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 				data10[i] = (data01[i] % data02[i]) + data12[i];
 			}
 
-			this.synchronizer.writeCache();
+			this.synchronizer.synchronizeFromMemoryToCache();
 			return this.nextNode;
 		}
 	}
@@ -1546,7 +1546,7 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 				data10[i] = data11[i] + (data01[i] % data02[i]);
 			}
 
-			this.synchronizer.writeCache();
+			this.synchronizer.synchronizeFromMemoryToCache();
 			return this.nextNode;
 		}
 	}
@@ -1574,7 +1574,7 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 				data10[i] = (data01[i] % data02[i]) - data12[i];
 			}
 
-			this.synchronizer.writeCache();
+			this.synchronizer.synchronizeFromMemoryToCache();
 			return this.nextNode;
 		}
 	}
@@ -1600,7 +1600,7 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 				data10[i] = data11[i] - (data01[i] % data02[i]);
 			}
 
-			this.synchronizer.writeCache();
+			this.synchronizer.synchronizeFromMemoryToCache();
 			return this.nextNode;
 		}
 	}
@@ -1628,7 +1628,7 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 				data10[i] = (data01[i] % data02[i]) * data12[i];
 			}
 
-			this.synchronizer.writeCache();
+			this.synchronizer.synchronizeFromMemoryToCache();
 			return this.nextNode;
 		}
 	}
@@ -1654,7 +1654,7 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 				data10[i] = data11[i] * (data01[i] % data02[i]);
 			}
 
-			this.synchronizer.writeCache();
+			this.synchronizer.synchronizeFromMemoryToCache();
 			return this.nextNode;
 		}
 	}
@@ -1682,7 +1682,7 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 				data10[i] = (data01[i] % data02[i]) / data12[i];
 			}
 
-			this.synchronizer.writeCache();
+			this.synchronizer.synchronizeFromMemoryToCache();
 			return this.nextNode;
 		}
 	}
@@ -1708,7 +1708,7 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 				data10[i] = data11[i] / (data01[i] % data02[i]);
 			}
 
-			this.synchronizer.writeCache();
+			this.synchronizer.synchronizeFromMemoryToCache();
 			return this.nextNode;
 		}
 	}
@@ -1736,7 +1736,7 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 				data10[i] = (data01[i] % data02[i]) % data12[i];
 			}
 
-			this.synchronizer.writeCache();
+			this.synchronizer.synchronizeFromMemoryToCache();
 			return this.nextNode;
 		}
 	}
@@ -1762,7 +1762,7 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 				data10[i] = data11[i] % (data01[i] % data02[i]);
 			}
 
-			this.synchronizer.writeCache();
+			this.synchronizer.synchronizeFromMemoryToCache();
 			return this.nextNode;
 		}
 	}

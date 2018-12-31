@@ -19,7 +19,7 @@ class GeneralScalarCacheSynchronizer extends CacheSynchronizer {
 		this.cached = cached;
 	}
 
-	public final void readCache() {
+	public final void synchronizeFromCacheToMemory() {
 		int n = containers.length;
 		for (int i=0; i<n; i++) {
 			if (!this.cached[i]) {
@@ -43,7 +43,7 @@ class GeneralScalarCacheSynchronizer extends CacheSynchronizer {
 		}
 	}
 
-	public final void writeCache() {
+	public final void synchronizeFromMemoryToCache() {
 		int n = containers.length;
 		for (int i=0; i<n; i++) {
 			if (!this.cached[i]) {

@@ -439,9 +439,8 @@ public class AccelerationDispatcher {
 
 				try {
 					int programCounter = 0; // この命令はプログラムカウンタの値に依存しないため、便宜的に 0 を指定
-					this.processor.process(this.instruction, this.memory, this.interconnect, programCounter);
-					//this.synchronizer.writeCache(); // これだとキャッシュの値が、上でメモリ確保されたデフォルト値でクリアされてしまう
-					this.synchronizer.readCache(); // 正しくはこちらで、確保したメモリにキャッシュ値を書き出す
+					this.processor.process(this.instruction, this.memory, this.interconnect, programCounter); // ALLOCを実行してメモリ確保
+					this.synchronizer.synchronizeFromCacheToMemory(); // 確保したメモリにキャッシュ値を書き込んでおく
 					this.allocated = true;
 					return this.nextNode;
 				} catch (VnanoException e) {
@@ -476,10 +475,10 @@ public class AccelerationDispatcher {
 		public final AccelerationExecutorNode execute() {
 			try {
 
-				this.synchronizer.readCache();
+				this.synchronizer.synchronizeFromCacheToMemory();
 				int programCounter = 0; // 暫定的なダミー値
 				this.processor.process(this.instruction, this.memory, this.interconnect, programCounter);
-				this.synchronizer.writeCache();
+				this.synchronizer.synchronizeFromMemoryToCache();
 				return this.nextNode;
 
 			} catch (Exception e) {

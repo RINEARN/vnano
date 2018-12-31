@@ -31,13 +31,13 @@ class Float64x3ScalarCacheSynchronizer extends CacheSynchronizer {
 		cached2 = cached[2];
 	}
 
-	public final void readCache() {
+	public final void synchronizeFromCacheToMemory() {
 		if (cached0) container0.getData()[ container0.getOffset() ] = cache0.value;
 		if (cached1) container1.getData()[ container1.getOffset() ] = cache1.value;
 		if (cached2) container2.getData()[ container2.getOffset() ] = cache2.value;
 	}
 
-	public final void writeCache() {
+	public final void synchronizeFromMemoryToCache() {
 		if (cached0) cache0.value = container0.getData()[ container0.getOffset() ];
 		if (cached1) cache1.value = container1.getData()[ container1.getOffset() ];
 		if (cached2) cache2.value = container2.getData()[ container2.getOffset() ];
