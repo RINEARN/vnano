@@ -412,7 +412,6 @@ public class AccelerationDispatcher {
 	}
 
 
-
 	private final class ScalarAllocExecutor extends AccelerationExecutorNode {
 		private final Instruction instruction;
 		private final Interconnect interconnect;
@@ -437,10 +436,12 @@ public class AccelerationDispatcher {
 			if (this.allocated) {
 				return this.nextNode;
 			} else {
+
 				try {
 					int programCounter = 0; // この命令はプログラムカウンタの値に依存しないため、便宜的に 0 を指定
 					this.processor.process(this.instruction, this.memory, this.interconnect, programCounter);
-					this.synchronizer.writeCache();
+					//this.synchronizer.writeCache(); // これだとキャッシュの値が、上でメモリ確保されたデフォルト値でクリアされてしまう
+					this.synchronizer.readCache(); // 正しくはこちらで、確保したメモリにキャッシュ値を書き出す
 					this.allocated = true;
 					return this.nextNode;
 				} catch (VnanoException e) {
@@ -449,6 +450,8 @@ public class AccelerationDispatcher {
 			}
 		}
 	}
+
+
 
 
 	private final class PassThroughExecutor extends AccelerationExecutorNode {
