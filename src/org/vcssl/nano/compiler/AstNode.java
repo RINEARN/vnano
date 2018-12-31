@@ -40,10 +40,13 @@ public class AstNode implements Cloneable {
 		/** 変数宣言文のノードを表します。 */
 		VARIABLE,
 
+		/** 関数宣言文のノードを表します。 */
+		FUNCTION,
+
 		/** 式文のノードを表します。 */
 		EXPRESSION,
 
-		/** ブロック文のノードを表します。 */
+		/** ブロック文または関数ブロックのノードを表します。 */
 		BLOCK,
 
 		/** if 文のノードを表します。 */
