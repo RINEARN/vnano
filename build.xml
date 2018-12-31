@@ -19,7 +19,7 @@
 	
 	<target name="compile">
 		<mkdir dir="bin" />
-		<javac srcdir="${build.srcdir}" destdir="${build.bindir}" encoding="UTF-8" includeantruntime="false">
+		<javac srcdir="${build.srcdir}" destdir="${build.bindir}" encoding="UTF-8" includeantruntime="false" debug="true">
 			<exclude name="example/*"/>
 			<exclude name="**/*Test.java"/>
 		</javac>
