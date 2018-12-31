@@ -66,7 +66,7 @@ public class AccelerationScheduler {
 		this.detectAccelerationTypes(memory, dataManager);
 
 		// スカラのALLOC命令をコード先頭に並べ替える（メモリコストが低いので、ループ内に混ざるよりも利点が多い）
-		this.reorderAllocInstructions();
+		this.reorderAllocAndAllocrInstructions(dataManager);
 
 		// オペランドを並び替え、不要になったMOV命令を削る
 		this.reduceMovInstructions(dataManager);
@@ -305,11 +305,14 @@ public class AccelerationScheduler {
 
 			switch (opcode) {
 
-				// メモリ確保命令 Memory allocation instruction opcode
+				// メモリ確保命令 Memory allocation opcodes
 				case ALLOC :
+				case ALLOCR :
 				{
+					// スカラ確保の場合
 					if (dataManager.isScalar(partitions[0], addresses[0])) {
 						instruction.setAccelerationType(AccelerationType.S_ALLOC);
+					// ベクトル確保の場合
 					} else {
 						instruction.setAccelerationType(AccelerationType.Unsupported);
 					}
@@ -547,8 +550,8 @@ public class AccelerationScheduler {
 	}
 
 
-	// スカラのALLOC命令をコード先頭に移す
-	private void reorderAllocInstructions() {
+	// スカラのALLOC/ALLOCR命令をコード先頭に移す
+	private void reorderAllocAndAllocrInstructions(AccelerationDataManager dataManager) {
 
 		int instructionLength = this.acceleratorInstructionList.size();
 
@@ -565,15 +568,14 @@ public class AccelerationScheduler {
 
 		int reorderedInstructionIndex = 0;
 
-		// acceleratorInstructionList を先頭から末尾までスイープし、スカラALLOC命令を reorderedInstruction に移す
+		// acceleratorInstructionList を先頭から末尾まで辿り、スカラALLOC/ALLOCR命令を reorderedInstruction に移す
 		for (int instructionIndex=0; instructionIndex<instructionLength; instructionIndex++) {
 
 			AcceleratorInstruction instruction = acceleratorInstructionList.get(instructionIndex);
 			OperationCode opcode = instruction.getOperationCode();
-			int operandLength = instruction.getOperandLength();
 
-			// 1オペランドのALLOC命令はスカラALLOC
-			if (opcode == OperationCode.ALLOC && operandLength == 1) {
+			if ( (opcode == OperationCode.ALLOC || opcode == OperationCode.ALLOCR)
+					&& dataManager.isScalar(instruction.getOperandPartitions()[0], instruction.getOperandAddresses()[0])) {
 
 				// reorderedInstruction に積む
 				this.buffer[reorderedInstructionIndex] = instruction;
@@ -584,7 +586,7 @@ public class AccelerationScheduler {
 			}
 		}
 
-		// 再び acceleratorInstructionList をスイープし、再配置されていない（スカラALLOC以外の）命令を移す
+		// 再び acceleratorInstructionList を辿り、再配置されていない（スカラALLOC以外の）命令を移す
 		for (int instructionIndex=0; instructionIndex<instructionLength; instructionIndex++) {
 			if (!reordered[instructionIndex]) {
 				AcceleratorInstruction instruction = acceleratorInstructionList.get(instructionIndex);

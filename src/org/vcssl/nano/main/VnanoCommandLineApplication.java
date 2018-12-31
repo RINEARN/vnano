@@ -74,6 +74,8 @@ public final class VnanoCommandLineApplication {
 
 	// スクリプトからアクセスするメソッドを提供するクラス
 	public class ScriptIO {
+		private long launchedTime = System.nanoTime() / 1000000l;
+
 		public void output(long value) {
 			System.out.print(value);
 		}
@@ -85,6 +87,9 @@ public final class VnanoCommandLineApplication {
 		}
 		public void output(String value) {
 			System.out.print(value);
+		}
+		public long time() {
+			return System.nanoTime() / 1000000l - launchedTime;
 		}
 	}
 
@@ -211,6 +216,7 @@ public final class VnanoCommandLineApplication {
 		System.out.println("      void output(double)");
 		System.out.println("      void output(bool)");
 		System.out.println("      void output(string)");
+		System.out.println("      int  time()");
 		System.out.println("");
 		System.out.println("    Please note that these functions are supported by default ONLY ON THIS MODE.");
 		System.out.println("    No default functions are supported when the script engine is embedded in ");
@@ -436,6 +442,7 @@ public final class VnanoCommandLineApplication {
 			interconnect.connect( new MethodXfci1Adapter( ScriptIO.class.getMethod("output",double.class ), ioInstance) );
 			interconnect.connect( new MethodXfci1Adapter( ScriptIO.class.getMethod("output",boolean.class), ioInstance) );
 			interconnect.connect( new MethodXfci1Adapter( ScriptIO.class.getMethod("output",String.class ), ioInstance) );
+			interconnect.connect( new MethodXfci1Adapter( ScriptIO.class.getMethod("time"), ioInstance) );
 
 		} catch (NoSuchMethodException e){
 			System.err.println("Method/field not found.");
@@ -713,7 +720,7 @@ public final class VnanoCommandLineApplication {
 				}
 				int executorNodeLength = executorNodes.length;
 				for (int i=0; i<executorNodeLength; i++) {
-					System.out.println("[" + i + "]\t" + executorNodes[i].getClass().getName().replace("org.vcssl.nano.vm.accelerator.", ""));
+					System.out.println("[" + i + "]\t" + executorNodes[i].getClass().getName());
 				}
 			}
 		}

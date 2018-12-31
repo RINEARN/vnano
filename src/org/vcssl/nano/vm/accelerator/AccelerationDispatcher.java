@@ -84,12 +84,26 @@ public class AccelerationDispatcher {
 			AccelerationType accelType = instruction.getAccelerationType();
 
 			// 対象命令（1個）を演算器にディスパッチして演算ノードを取得
-			AccelerationExecutorNode currentNode = this.dispatchToAccelerationUnit(
+			AccelerationExecutorNode currentNode = null;
+			try {
+				currentNode = this.dispatchToAccelerationUnit(
 					accelType, opcode, dataTypes,
 					operandContainers, operandCaches, operandCached, operandScalar, operandConstant,
 					instruction, processor, memory, interconnect,
 					nextNode
-			);
+				);
+			} catch (Exception causeException) {
+				AcceleratorInstruction causeInstruction = instruction;
+				int unreorderedAddress = causeInstruction.getUnreorderedAddress();
+				int reorderedAddress = causeInstruction.getReorderedAddress();
+				throw new VnanoFatalException(
+						"Accelerator dispatch failed at:"
+						+ " address=" + unreorderedAddress
+						+ " reorderedAddress=" + reorderedAddress
+						+ " instruction=" + causeInstruction,
+						causeException
+				);
+			}
 
 
 			// エラー発生時に原因命令を辿れるように、ノードに元の命令を格納
@@ -398,7 +412,6 @@ public class AccelerationDispatcher {
 	}
 
 
-
 	private final class ScalarAllocExecutor extends AccelerationExecutorNode {
 		private final Instruction instruction;
 		private final Interconnect interconnect;
@@ -423,10 +436,11 @@ public class AccelerationDispatcher {
 			if (this.allocated) {
 				return this.nextNode;
 			} else {
+
 				try {
 					int programCounter = 0; // この命令はプログラムカウンタの値に依存しないため、便宜的に 0 を指定
-					this.processor.process(this.instruction, this.memory, this.interconnect, programCounter);
-					this.synchronizer.writeCache();
+					this.processor.process(this.instruction, this.memory, this.interconnect, programCounter); // ALLOCを実行してメモリ確保
+					this.synchronizer.synchronizeFromCacheToMemory(); // 確保したメモリにキャッシュ値を書き込んでおく
 					this.allocated = true;
 					return this.nextNode;
 				} catch (VnanoException e) {
@@ -435,6 +449,8 @@ public class AccelerationDispatcher {
 			}
 		}
 	}
+
+
 
 
 	private final class PassThroughExecutor extends AccelerationExecutorNode {
@@ -459,10 +475,10 @@ public class AccelerationDispatcher {
 		public final AccelerationExecutorNode execute() {
 			try {
 
-				this.synchronizer.readCache();
+				this.synchronizer.synchronizeFromCacheToMemory();
 				int programCounter = 0; // 暫定的なダミー値
 				this.processor.process(this.instruction, this.memory, this.interconnect, programCounter);
-				this.synchronizer.writeCache();
+				this.synchronizer.synchronizeFromMemoryToCache();
 				return this.nextNode;
 
 			} catch (Exception e) {

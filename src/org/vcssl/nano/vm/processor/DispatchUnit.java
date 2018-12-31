@@ -60,7 +60,6 @@ public class DispatchUnit {
 	 * 		命令のオペランドに期待されるデータ型と、
 	 * 		仮想メモリー上のデータの実際の型が異なる場合などに発生します。
 	 */
-	@SuppressWarnings("unchecked")
 	public final int dispatch(Instruction instruction, Memory memory, Interconnect interconnect,
 			ExecutionUnit executionUnit, int programCounter)
 					throws VnanoException {
@@ -155,31 +154,25 @@ public class DispatchUnit {
 				return programCounter + 1;
 			}
 
-			// 配列確保
+			// メモリ確保
 			case ALLOC : {
 
-				// スカラの型付け
+				// スカラの場合
 				if (operands.length == 1) {
-					executionUnit.alloc(dataTypes[0], operands[0]);
+					executionUnit.allocScalar(dataTypes[0], operands[0]);
 
-				// 配列の型付け
-				} else if (operands.length == 2) {
-					executionUnit.alloc(dataTypes[0], operands[0], operands[1]);
-
+				// 配列の場合
 				} else {
-					throw new VnanoFatalException("Invalid number of operands: " + Integer.toString(operands.length));
+					DataContainer<?>[] lengths = new DataContainer<?>[operands.length-1 ];
+					System.arraycopy(operands, 1, lengths, 0, operands.length-1);
+					executionUnit.allocVector(dataTypes[0], operands[0], lengths);
 				}
 				return programCounter + 1;
 			}
 
-			// スカラを配列にパックする
-			case VEC : {
-				int dataLength = operands.length - 1;
-				int[] arrayLength = new int[]{dataLength};
-				executionUnit.alloc(dataTypes[0], operands[0], dataLength, arrayLength);
-				DataContainer<?>[] elements = new DataContainer<?>[dataLength];
-				System.arraycopy(operands, 1, elements, 0, dataLength);
-				executionUnit.vec(dataTypes[0], operands[0], elements);
+			// 第2オペランドと同じ配列要素数で第1オペランドをメモリ確保
+			case ALLOCR : {
+				executionUnit.allocSameLengths(dataTypes[0], operands[0], operands[1]);
 				return programCounter + 1;
 			}
 
@@ -214,22 +207,11 @@ public class DispatchUnit {
 				return programCounter + 1;
 			}
 
-			// 要素数を取得する
-			case LEN : {
-				int[] length = operands[1].getLengths();
-				int rank = length.length;
-				long[] data = new long[rank];
-				for (int dim=0; dim<rank; dim++) {
-					data[dim] = length[dim];
-				}
-				((DataContainer<long[]>)operands[0]).setData(data, new int[]{data.length});
-				return programCounter + 1;
-			}
-
 			// 配列要素参照
 			case ELEM : {
-				this.checkNumberOfOperands(instruction, 3);
-				executionUnit.elem(dataTypes[0], operands[0], operands[1], operands[2]);
+				DataContainer<?>[] indices = new DataContainer<?>[ operands.length - 2 ];
+				System.arraycopy(operands, 2, indices, 0, operands.length-2);
+				executionUnit.elem(dataTypes[0], operands[0], operands[1], indices);
 				return programCounter + 1;
 			}
 

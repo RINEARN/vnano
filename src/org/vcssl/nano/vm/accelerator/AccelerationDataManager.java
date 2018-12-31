@@ -176,30 +176,29 @@ public final class AccelerationDataManager {
 			int operandLength = addresses.length;
 
 			switch (instruction.getOperationCode()) {
-				case ALLOC : {
+
+			case ALLOC : {
+					// 1-オペランドのALLOC命令は、0次元なのでスカラ
 					if (operandLength == 1) {
 						this.scalar[ partitions[0].ordinal() ][ addresses[0] ] = true;
 
 						switch (instruction.getDataTypes()[0]) {
 							case INT64 : {
-								//System.out.println("CACHE INT64 " + partitions[0].ordinal() + " / " + addresses[0]);
+								//System.out.println("CACHE INT64 " + partitions[0] + " / " + addresses[0]);
 								this.caches[ partitions[0].ordinal() ][ addresses[0] ] = new Int64ScalarCache();
 								this.cached[ partitions[0].ordinal() ][ addresses[0] ] = true;
-								//this.cachable[ partitions[0].ordinal() ][ addresses[0] ] = true;
 								break;
 							}
 							case FLOAT64 : {
-								//System.out.println("CACHE FLOAT64 " + partitions[0].ordinal() + " / " + addresses[0]);
+								//System.out.println("CACHE FLOAT64 " + partitions[0] + " / " + addresses[0]);
 								this.caches[ partitions[0].ordinal() ][ addresses[0] ] = new Float64ScalarCache();
 								this.cached[ partitions[0].ordinal() ][ addresses[0] ] = true;
-								//this.cachable[ partitions[0].ordinal() ][ addresses[0] ] = true;
 								break;
 							}
 							case BOOL : {
-								//System.out.println("CACHE BOOL " + partitions[0].ordinal() + " / " + addresses[0]);
+								//System.out.println("CACHE BOOL " + partitions[0] + " / " + addresses[0]);
 								this.caches[ partitions[0].ordinal() ][ addresses[0] ] = new BoolScalarCache();
 								this.cached[ partitions[0].ordinal() ][ addresses[0] ] = true;
-								//this.cachable[ partitions[0].ordinal() ][ addresses[0] ] = true;
 								break;
 							}
 							default : break;
@@ -207,6 +206,38 @@ public final class AccelerationDataManager {
 					}
 					break;
 				}
+
+				case ALLOCR : {
+
+					// ALLOCR命令の場合はオペランド [1] と同次元・同要素数でメモリ確保するので、それがスカラであればスカラ
+					if (this.scalar[ partitions[1].ordinal() ][ addresses[1] ]) {
+						this.scalar[ partitions[0].ordinal() ][ addresses[0] ] = true;
+
+						switch (instruction.getDataTypes()[0]) {
+							case INT64 : {
+								//System.out.println("CACHE INT64 " + partitions[0] + " / " + addresses[0]);
+								this.caches[ partitions[0].ordinal() ][ addresses[0] ] = new Int64ScalarCache();
+								this.cached[ partitions[0].ordinal() ][ addresses[0] ] = true;
+								break;
+							}
+							case FLOAT64 : {
+								//System.out.println("CACHE FLOAT64 " + partitions[0] + " / " + addresses[0]);
+								this.caches[ partitions[0].ordinal() ][ addresses[0] ] = new Float64ScalarCache();
+								this.cached[ partitions[0].ordinal() ][ addresses[0] ] = true;
+								break;
+							}
+							case BOOL : {
+								//System.out.println("CACHE BOOL " + partitions[0] + " / " + addresses[0]);
+								this.caches[ partitions[0].ordinal() ][ addresses[0] ] = new BoolScalarCache();
+								this.cached[ partitions[0].ordinal() ][ addresses[0] ] = true;
+								break;
+							}
+							default : break;
+						}
+					}
+					break;
+				}
+
 				case ELEM : {
 					this.scalar[ partitions[0].ordinal() ][ addresses[0] ] = true;
 					break;

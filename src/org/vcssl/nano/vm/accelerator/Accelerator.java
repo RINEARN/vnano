@@ -95,8 +95,8 @@ public class Accelerator {
 		);
 
 		// キャッシュにメモリのデータを書き込む
-		dataManager.getCacheSynchronizers(Memory.Partition.CONSTANT).writeCache();
-		dataManager.getCacheSynchronizers(Memory.Partition.GLOBAL).writeCache();
+		dataManager.getCacheSynchronizers(Memory.Partition.CONSTANT).synchronizeFromMemoryToCache();
+		dataManager.getCacheSynchronizers(Memory.Partition.GLOBAL).synchronizeFromMemoryToCache();
 
 
 		// 以下、命令の逐次実行ループ
