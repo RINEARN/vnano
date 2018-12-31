@@ -71,10 +71,10 @@ public class BoolScalarTransferUnit extends AccelerationUnit {
 		}
 
 		public final AccelerationExecutorNode execute() {
-			this.synchronizer.readCache();
+			this.synchronizer.synchronizeFromCacheToMemory();
 			this.container0.getData()[ this.container0.getOffset() ] =
 			this.container1.getData()[ this.container1.getOffset() ];
-			this.synchronizer.writeCache();
+			this.synchronizer.synchronizeFromMemoryToCache();
 			return this.nextNode;
 		}
 	}

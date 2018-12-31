@@ -84,14 +84,14 @@ public class Int64VectorTransferUnit extends AccelerationUnit {
 		}
 
 		public final AccelerationExecutorNode execute() {
-			this.synchronizer.readCache();
+			this.synchronizer.synchronizeFromCacheToMemory();
 			long[] data0 = this.container0.getData();
 			long[] data1 = this.container1.getData();
 			int size = this.container0.getSize();
 
 			System.arraycopy(data1, 0, data0, 0, size);
 
-			this.synchronizer.writeCache();
+			this.synchronizer.synchronizeFromMemoryToCache();
 			return this.nextNode;
 		}
 	}
@@ -112,7 +112,7 @@ public class Int64VectorTransferUnit extends AccelerationUnit {
 		}
 
 		public final AccelerationExecutorNode execute() {
-			this.synchronizer.readCache();
+			this.synchronizer.synchronizeFromCacheToMemory();
 			long[] data0 = this.container0.getData();
 			double[] data1 = this.container1.getData();
 			int size = this.container0.getSize();
@@ -121,7 +121,7 @@ public class Int64VectorTransferUnit extends AccelerationUnit {
 				data0[i] = (long)data1[i];
 			}
 
-			this.synchronizer.writeCache();
+			this.synchronizer.synchronizeFromMemoryToCache();
 			return this.nextNode;
 		}
 	}
@@ -142,13 +142,13 @@ public class Int64VectorTransferUnit extends AccelerationUnit {
 		}
 
 		public final AccelerationExecutorNode execute() {
-			this.synchronizer.readCache();
+			this.synchronizer.synchronizeFromCacheToMemory();
 			long[] data0 = this.container0.getData();
 			long fillValue = this.container1.getData()[ this.container1.getOffset() ];
 
 			Arrays.fill(data0, fillValue);
 
-			this.synchronizer.writeCache();
+			this.synchronizer.synchronizeFromMemoryToCache();
 			return this.nextNode;
 		}
 	}

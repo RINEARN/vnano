@@ -198,14 +198,6 @@ public class ExecutionUnitTest {
 		this.testElemString();
 		this.testElemUnoperatableData();
 
-		// VEC命令
-
-		this.testVecInt64();
-		this.testVecFloat64();
-		this.testVecBool();
-		this.testVecString();
-		this.testVecUnoperatableData();
-
 		// CAST命令
 
 		this.testCastInt64Int64Scalar();
@@ -3839,7 +3831,7 @@ public class ExecutionUnitTest {
 
 		// 確保処理を実行
 		try {
-			new ExecutionUnit().alloc(DataType.INT64, target);
+			new ExecutionUnit().allocScalar(DataType.INT64, target);
 		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
@@ -3865,7 +3857,7 @@ public class ExecutionUnitTest {
 
 		// 確保処理を実行
 		try {
-			new ExecutionUnit().alloc(DataType.INT64, target, len);
+			new ExecutionUnit().allocVector(DataType.INT64, target, len);
 		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
@@ -3886,7 +3878,7 @@ public class ExecutionUnitTest {
 		// 要素数を変えての再allocも検査
 		len.setData(new long[]{ 5L });
 		try {
-			new ExecutionUnit().alloc(DataType.INT64, target, len);
+			new ExecutionUnit().allocVector(DataType.INT64, target, len);
 		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
@@ -3905,7 +3897,7 @@ public class ExecutionUnitTest {
 		// 同じ要素数での再allocも検査
 		len.setData(new long[]{ 5L });
 		try {
-			new ExecutionUnit().alloc(DataType.INT64, target, len);
+			new ExecutionUnit().allocVector(DataType.INT64, target, len);
 		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
@@ -3927,12 +3919,16 @@ public class ExecutionUnitTest {
 		// 確保用のデータコンテナを生成して値をセット
 		DataContainer<?> target = new DataContainer<Object>();
 
-		DataContainer<long[]> len = new DataContainer<long[]>();
-		len.setData(new long[]{ 2L, 3L, 4L }, new int[]{3});
+		DataContainer<long[]> len0 = new DataContainer<long[]>();
+		DataContainer<long[]> len1 = new DataContainer<long[]>();
+		DataContainer<long[]> len2 = new DataContainer<long[]>();
+		len0.setData(new long[] { 2L });
+		len1.setData(new long[] { 3L });
+		len2.setData(new long[] { 4L });
 
 		// 確保処理を実行
 		try {
-			new ExecutionUnit().alloc(DataType.INT64, target, len);
+			new ExecutionUnit().allocVector(DataType.INT64, target, len0, len1, len2);
 		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
@@ -3953,9 +3949,11 @@ public class ExecutionUnitTest {
 		}
 
 		// 要素数を変えての再allocも検査
-		len.setData(new long[]{ 5L, 6L, 7L });
+		len0.setData(new long[] { 5L });
+		len1.setData(new long[] { 6L });
+		len2.setData(new long[] { 7L });
 		try {
-			new ExecutionUnit().alloc(DataType.INT64, target, len);
+			new ExecutionUnit().allocVector(DataType.INT64, target, len0, len1, len2);
 		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
@@ -3974,9 +3972,11 @@ public class ExecutionUnitTest {
 		}
 
 		// 同じ要素数での再allocも検査
-		len.setData(new long[]{ 5L, 6L, 7L });
+		len0.setData(new long[] { 5L });
+		len1.setData(new long[] { 6L });
+		len2.setData(new long[] { 7L });
 		try {
-			new ExecutionUnit().alloc(DataType.INT64, target, len);
+			new ExecutionUnit().allocVector(DataType.INT64, target, len0, len1, len2);
 		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
@@ -4007,7 +4007,7 @@ public class ExecutionUnitTest {
 
 		// 確保処理を実行
 		try {
-			new ExecutionUnit().alloc(DataType.FLOAT64, target);
+			new ExecutionUnit().allocScalar(DataType.FLOAT64, target);
 		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
@@ -4033,7 +4033,7 @@ public class ExecutionUnitTest {
 
 		// 確保処理を実行
 		try {
-			new ExecutionUnit().alloc(DataType.FLOAT64, target, len);
+			new ExecutionUnit().allocVector(DataType.FLOAT64, target, len);
 		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
@@ -4054,7 +4054,7 @@ public class ExecutionUnitTest {
 		// 要素数を変えての再allocも検査
 		len.setData(new long[]{ 5L });
 		try {
-			new ExecutionUnit().alloc(DataType.FLOAT64, target, len);
+			new ExecutionUnit().allocVector(DataType.FLOAT64, target, len);
 		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
@@ -4073,7 +4073,7 @@ public class ExecutionUnitTest {
 		// 同じ要素数での再allocも検査
 		len.setData(new long[]{ 5L });
 		try {
-			new ExecutionUnit().alloc(DataType.FLOAT64, target, len);
+			new ExecutionUnit().allocVector(DataType.FLOAT64, target, len);
 		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
@@ -4095,12 +4095,16 @@ public class ExecutionUnitTest {
 		// 確保用のデータコンテナを生成して値をセット
 		DataContainer<?> target = new DataContainer<Object>();
 
-		DataContainer<long[]> len = new DataContainer<long[]>();
-		len.setData(new long[]{ 2L, 3L, 4L }, new int[]{3});
+		DataContainer<long[]> len0 = new DataContainer<long[]>();
+		DataContainer<long[]> len1 = new DataContainer<long[]>();
+		DataContainer<long[]> len2 = new DataContainer<long[]>();
+		len0.setData(new long[] { 2L });
+		len1.setData(new long[] { 3L });
+		len2.setData(new long[] { 4L });
 
 		// 確保処理を実行
 		try {
-			new ExecutionUnit().alloc(DataType.FLOAT64, target, len);
+			new ExecutionUnit().allocVector(DataType.FLOAT64, target, len0, len1, len2);
 		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
@@ -4121,9 +4125,11 @@ public class ExecutionUnitTest {
 		}
 
 		// 要素数を変えての再allocも検査
-		len.setData(new long[]{ 5L, 6L, 7L });
+		len0.setData(new long[] { 5L });
+		len1.setData(new long[] { 6L });
+		len2.setData(new long[] { 7L });
 		try {
-			new ExecutionUnit().alloc(DataType.FLOAT64, target, len);
+			new ExecutionUnit().allocVector(DataType.FLOAT64, target, len0, len1, len2);
 		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
@@ -4142,9 +4148,11 @@ public class ExecutionUnitTest {
 		}
 
 		// 同じ要素数での再allocも検査
-		len.setData(new long[]{ 5L, 6L, 7L });
+		len0.setData(new long[] { 5L });
+		len1.setData(new long[] { 6L });
+		len2.setData(new long[] { 7L });
 		try {
-			new ExecutionUnit().alloc(DataType.FLOAT64, target, len);
+			new ExecutionUnit().allocVector(DataType.FLOAT64, target, len0, len1, len2);
 		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
@@ -4175,7 +4183,7 @@ public class ExecutionUnitTest {
 
 		// 確保処理を実行
 		try {
-			new ExecutionUnit().alloc(DataType.BOOL, target);
+			new ExecutionUnit().allocScalar(DataType.BOOL, target);
 		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
@@ -4201,7 +4209,7 @@ public class ExecutionUnitTest {
 
 		// 確保処理を実行
 		try {
-			new ExecutionUnit().alloc(DataType.BOOL, target, len);
+			new ExecutionUnit().allocVector(DataType.BOOL, target, len);
 		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
@@ -4222,7 +4230,7 @@ public class ExecutionUnitTest {
 		// 要素数を変えての再allocも検査
 		len.setData(new long[]{ 5L });
 		try {
-			new ExecutionUnit().alloc(DataType.BOOL, target, len);
+			new ExecutionUnit().allocVector(DataType.BOOL, target, len);
 		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
@@ -4241,7 +4249,7 @@ public class ExecutionUnitTest {
 		// 同じ要素数での再allocも検査
 		len.setData(new long[]{ 5L });
 		try {
-			new ExecutionUnit().alloc(DataType.BOOL, target, len);
+			new ExecutionUnit().allocVector(DataType.BOOL, target, len);
 		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
@@ -4263,12 +4271,16 @@ public class ExecutionUnitTest {
 		// 確保用のデータコンテナを生成して値をセット
 		DataContainer<?> target = new DataContainer<Object>();
 
-		DataContainer<long[]> len = new DataContainer<long[]>();
-		len.setData(new long[]{ 2L, 3L, 4L }, new int[]{3});
+		DataContainer<long[]> len0 = new DataContainer<long[]>();
+		DataContainer<long[]> len1 = new DataContainer<long[]>();
+		DataContainer<long[]> len2 = new DataContainer<long[]>();
+		len0.setData(new long[] { 2L });
+		len1.setData(new long[] { 3L });
+		len2.setData(new long[] { 4L });
 
 		// 確保処理を実行
 		try {
-			new ExecutionUnit().alloc(DataType.BOOL, target, len);
+			new ExecutionUnit().allocVector(DataType.BOOL, target, len0, len1, len2);
 		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
@@ -4289,9 +4301,11 @@ public class ExecutionUnitTest {
 		}
 
 		// 要素数を変えての再allocも検査
-		len.setData(new long[]{ 5L, 6L, 7L });
+		len0.setData(new long[] { 5L });
+		len1.setData(new long[] { 6L });
+		len2.setData(new long[] { 7L });
 		try {
-			new ExecutionUnit().alloc(DataType.BOOL, target, len);
+			new ExecutionUnit().allocVector(DataType.BOOL, target, len0, len1, len2);
 		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
@@ -4310,9 +4324,11 @@ public class ExecutionUnitTest {
 		}
 
 		// 同じ要素数での再allocも検査
-		len.setData(new long[]{ 5L, 6L, 7L });
+		len0.setData(new long[] { 5L });
+		len1.setData(new long[] { 6L });
+		len2.setData(new long[] { 7L });
 		try {
-			new ExecutionUnit().alloc(DataType.BOOL, target, len);
+			new ExecutionUnit().allocVector(DataType.BOOL, target, len0, len1, len2);
 		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
@@ -4343,7 +4359,7 @@ public class ExecutionUnitTest {
 
 		// 確保処理を実行
 		try {
-			new ExecutionUnit().alloc(DataType.STRING, target);
+			new ExecutionUnit().allocScalar(DataType.STRING, target);
 		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
@@ -4369,7 +4385,7 @@ public class ExecutionUnitTest {
 
 		// 確保処理を実行
 		try {
-			new ExecutionUnit().alloc(DataType.STRING, target, len);
+			new ExecutionUnit().allocVector(DataType.STRING, target, len);
 		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
@@ -4390,7 +4406,7 @@ public class ExecutionUnitTest {
 		// 要素数を変えての再allocも検査
 		len.setData(new long[]{ 5L });
 		try {
-			new ExecutionUnit().alloc(DataType.STRING, target, len);
+			new ExecutionUnit().allocVector(DataType.STRING, target, len);
 		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
@@ -4409,7 +4425,7 @@ public class ExecutionUnitTest {
 		// 同じ要素数での再allocも検査
 		len.setData(new long[]{ 5L });
 		try {
-			new ExecutionUnit().alloc(DataType.STRING, target, len);
+			new ExecutionUnit().allocVector(DataType.STRING, target, len);
 		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
@@ -4431,12 +4447,16 @@ public class ExecutionUnitTest {
 		// 確保用のデータコンテナを生成して値をセット
 		DataContainer<?> target = new DataContainer<Object>();
 
-		DataContainer<long[]> len = new DataContainer<long[]>();
-		len.setData(new long[]{ 2L, 3L, 4L }, new int[]{3});
+		DataContainer<long[]> len0 = new DataContainer<long[]>();
+		DataContainer<long[]> len1 = new DataContainer<long[]>();
+		DataContainer<long[]> len2 = new DataContainer<long[]>();
+		len0.setData(new long[] { 2L });
+		len1.setData(new long[] { 3L });
+		len2.setData(new long[] { 4L });
 
 		// 確保処理を実行
 		try {
-			new ExecutionUnit().alloc(DataType.STRING, target, len);
+			new ExecutionUnit().allocVector(DataType.STRING, target, len0, len1, len2);
 		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
@@ -4457,9 +4477,11 @@ public class ExecutionUnitTest {
 		}
 
 		// 要素数を変えての再allocも検査
-		len.setData(new long[]{ 5L, 6L, 7L });
+		len0.setData(new long[] { 5L });
+		len1.setData(new long[] { 6L });
+		len2.setData(new long[] { 7L });
 		try {
-			new ExecutionUnit().alloc(DataType.STRING, target, len);
+			new ExecutionUnit().allocVector(DataType.STRING, target, len0, len1, len2);
 		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
@@ -4478,9 +4500,11 @@ public class ExecutionUnitTest {
 		}
 
 		// 同じ要素数での再allocも検査
-		len.setData(new long[]{ 5L, 6L, 7L });
+		len0.setData(new long[] { 5L });
+		len1.setData(new long[] { 6L });
+		len2.setData(new long[] { 7L });
 		try {
-			new ExecutionUnit().alloc(DataType.STRING, target, len);
+			new ExecutionUnit().allocVector(DataType.STRING, target, len0, len1, len2);
 		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
@@ -4510,7 +4534,7 @@ public class ExecutionUnitTest {
 
 		// スカラの確保処理を実行
 		try {
-			new ExecutionUnit().alloc(DataType.VOID, target);
+			new ExecutionUnit().allocScalar(DataType.VOID, target);
 			fail("Expected exception did not occured");
 		} catch (VnanoFatalException e) {
 			// 例外が発生するのが正しい挙動
@@ -4520,7 +4544,7 @@ public class ExecutionUnitTest {
 		DataContainer<long[]> len = new DataContainer<long[]>();
 		len.setData(new long[]{ 3 });
 		try {
-			new ExecutionUnit().alloc(DataType.VOID, target, len);
+			new ExecutionUnit().allocVector(DataType.VOID, target, len);
 			fail("Expected exception did not occured");
 		} catch (VnanoFatalException e) {
 			// 例外が発生するのが正しい挙動
@@ -5057,10 +5081,12 @@ public class ExecutionUnitTest {
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<long[]> dest = new DataContainer<long[]>();  // 要素を格納するコンテナ
 		DataContainer<long[]> src = new DataContainer<long[]>();   // 参照する配列のコンテナ
-		DataContainer<long[]> index = new DataContainer<long[]>(); // インデックス指定コンテナ
+
+		DataContainer<long[]> index0 = new DataContainer<long[]>();
+		DataContainer<long[]> index1 = new DataContainer<long[]>();
+		DataContainer<long[]> index2 = new DataContainer<long[]>();
 
 		int[] srcLengths = new int[]{2, 3, 4}; // 参照する配列の要素数は [2][3][4]
-		int[] indexLengths = new int[]{ 3 }; // 3次元の参照なのでインデックスは3要素
 
 		// テスト用の配列データを src に設定
 		// { {{0,1,2,3}, {4,5,6,7}, {8,9,10,11}}, {{12,13,14,15}, {16,17,18,19}, {20,21,22,23}} }
@@ -5076,9 +5102,11 @@ public class ExecutionUnitTest {
 		src.setData(arrayData, srcLengths);
 
 		// [1][0][2] の要素(=14)を参照する
-		index.setData(new long[]{1, 0, 2}, indexLengths);
+		index0.setData(new long[] {1});
+		index1.setData(new long[] {0});
+		index2.setData(new long[] {2});
 		try {
-			new ExecutionUnit().elem(DataType.INT64, dest, src, index);
+			new ExecutionUnit().elem(DataType.INT64, dest, src, index0, index1, index2);
 		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
@@ -5090,9 +5118,11 @@ public class ExecutionUnitTest {
 		}
 
 		// [0][2][3] の要素(=11)を参照する
-		index.setData(new long[]{0, 2, 3}, indexLengths);
+		index0.setData(new long[] {0});
+		index1.setData(new long[] {2});
+		index2.setData(new long[] {3});
 		try {
-			new ExecutionUnit().elem(DataType.INT64, dest, src, index);
+			new ExecutionUnit().elem(DataType.INT64, dest, src, index0, index1, index2);
 		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
@@ -5119,10 +5149,12 @@ public class ExecutionUnitTest {
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<double[]> dest = new DataContainer<double[]>();  // 要素を格納するコンテナ
 		DataContainer<double[]> src = new DataContainer<double[]>();   // 参照する配列のコンテナ
-		DataContainer<long[]> index = new DataContainer<long[]>(); // インデックス指定コンテナ
+
+		DataContainer<long[]> index0 = new DataContainer<long[]>();
+		DataContainer<long[]> index1 = new DataContainer<long[]>();
+		DataContainer<long[]> index2 = new DataContainer<long[]>();
 
 		int[] srcLengths = new int[]{2, 3, 4}; // 参照する配列の要素数は [2][3][4]
-		int[] indexLengths = new int[]{ 3 }; // 3次元の参照なのでインデックスは3要素
 
 		// テスト用の配列データを src に設定
 		// { {{0,1,2,3}, {4,5,6,7}, {8,9,10,11}}, {{12,13,14,15}, {16,17,18,19}, {20,21,22,23}} }
@@ -5138,9 +5170,11 @@ public class ExecutionUnitTest {
 		src.setData(arrayData, srcLengths);
 
 		// [1][0][2] の要素(=14)を参照する
-		index.setData(new long[]{1, 0, 2}, indexLengths);
+		index0.setData(new long[] {1});
+		index1.setData(new long[] {0});
+		index2.setData(new long[] {2});
 		try {
-			new ExecutionUnit().elem(DataType.FLOAT64, dest, src, index);
+			new ExecutionUnit().elem(DataType.FLOAT64, dest, src, index0, index1, index2);
 		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
@@ -5152,9 +5186,11 @@ public class ExecutionUnitTest {
 		}
 
 		// [0][2][3] の要素(=11)を参照する
-		index.setData(new long[]{0, 2, 3}, indexLengths);
+		index0.setData(new long[] {0});
+		index1.setData(new long[] {2});
+		index2.setData(new long[] {3});
 		try {
-			new ExecutionUnit().elem(DataType.FLOAT64, dest, src, index);
+			new ExecutionUnit().elem(DataType.FLOAT64, dest, src, index0, index1, index2);
 		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
@@ -5182,10 +5218,12 @@ public class ExecutionUnitTest {
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<boolean[]> dest = new DataContainer<boolean[]>();  // 要素を格納するコンテナ
 		DataContainer<boolean[]> src = new DataContainer<boolean[]>();   // 参照する配列のコンテナ
-		DataContainer<long[]> index = new DataContainer<long[]>(); // インデックス指定コンテナ
+
+		DataContainer<long[]> index0 = new DataContainer<long[]>();
+		DataContainer<long[]> index1 = new DataContainer<long[]>();
+		DataContainer<long[]> index2 = new DataContainer<long[]>();
 
 		int[] srcLengths = new int[]{2, 3, 4}; // 参照する配列の要素数は [2][3][4]
-		int[] indexLengths = new int[]{ 3 }; // 3次元の参照なのでインデックスは3要素
 
 		// テスト用の配列データを src に設定
 		boolean[] arrayData = new boolean[]{
@@ -5200,9 +5238,11 @@ public class ExecutionUnitTest {
 		src.setData(arrayData, srcLengths);
 
 		// [1][0][2] の要素(=true)を参照する
-		index.setData(new long[]{1, 0, 2}, indexLengths);
+		index0.setData(new long[] {1});
+		index1.setData(new long[] {0});
+		index2.setData(new long[] {2});
 		try {
-			new ExecutionUnit().elem(DataType.BOOL, dest, src, index);
+			new ExecutionUnit().elem(DataType.BOOL, dest, src, index0, index1, index2);
 		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
@@ -5214,9 +5254,11 @@ public class ExecutionUnitTest {
 		}
 
 		// [0][2][3] の要素(=false)を参照する
-		index.setData(new long[]{0, 2, 3}, indexLengths);
+		index0.setData(new long[] {0});
+		index1.setData(new long[] {2});
+		index2.setData(new long[] {3});
 		try {
-			new ExecutionUnit().elem(DataType.BOOL, dest, src, index);
+			new ExecutionUnit().elem(DataType.BOOL, dest, src, index0, index1, index2);
 		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
@@ -5243,10 +5285,12 @@ public class ExecutionUnitTest {
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<String[]> dest = new DataContainer<String[]>();  // 要素を格納するコンテナ
 		DataContainer<String[]> src = new DataContainer<String[]>();   // 参照する配列のコンテナ
-		DataContainer<long[]> index = new DataContainer<long[]>(); // インデックス指定コンテナ
+
+		DataContainer<long[]> index0 = new DataContainer<long[]>();
+		DataContainer<long[]> index1 = new DataContainer<long[]>();
+		DataContainer<long[]> index2 = new DataContainer<long[]>();
 
 		int[] srcLengths = new int[]{2, 3, 4}; // 参照する配列の要素数は [2][3][4]
-		int[] indexLengths = new int[]{ 3 }; // 3次元の参照なのでインデックスは3要素
 
 		// テスト用の配列データを src に設定
 		String[] arrayData = new String[]{
@@ -5261,9 +5305,11 @@ public class ExecutionUnitTest {
 		src.setData(arrayData, srcLengths);
 
 		// [1][0][2] の要素(=true)を参照する
-		index.setData(new long[]{1, 0, 2}, indexLengths);
+		index0.setData(new long[] {1});
+		index1.setData(new long[] {0});
+		index2.setData(new long[] {2});
 		try {
-			new ExecutionUnit().elem(DataType.STRING, dest, src, index);
+			new ExecutionUnit().elem(DataType.STRING, dest, src, index0, index1, index2);
 		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
@@ -5275,9 +5321,11 @@ public class ExecutionUnitTest {
 		}
 
 		// [0][2][3] の要素(=false)を参照する
-		index.setData(new long[]{0, 2, 3}, indexLengths);
+		index0.setData(new long[] {0});
+		index1.setData(new long[] {2});
+		index2.setData(new long[] {3});
 		try {
-			new ExecutionUnit().elem(DataType.STRING, dest, src, index);
+			new ExecutionUnit().elem(DataType.STRING, dest, src, index0, index1, index2);
 		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
@@ -5304,210 +5352,21 @@ public class ExecutionUnitTest {
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<?> dest = new DataContainer<Object>();  // 要素を格納するコンテナ
 		DataContainer<ExecutionUnitTest[]> src = new DataContainer<ExecutionUnitTest[]>();   // 参照する配列のコンテナ(演算不能な型の例として便宜的にExecutionUnitTest[]を使用)
-		DataContainer<long[]> index = new DataContainer<long[]>(); // インデックス指定コンテナ
+
+		DataContainer<long[]> index0 = new DataContainer<long[]>();
+		DataContainer<long[]> index1 = new DataContainer<long[]>();
+		DataContainer<long[]> index2 = new DataContainer<long[]>();
+
 		src.setData((ExecutionUnitTest[])null, new int[] { 1, 2, 3 });
-		int[] indexLengths = new int[]{ 3 }; // 3次元の参照なのでインデックスは3要素
-		index.setData(new long[]{1, 0, 2}, indexLengths);
+
+		// [1][0][2] の要素(=true)を参照する
+		index0.setData(new long[] {1});
+		index1.setData(new long[] {0});
+		index2.setData(new long[] {2});
 
 		// 演算を実行
 		try {
-			new ExecutionUnit().elem(DataType.VOID, dest, src, index);
-			fail("Expected exception did not occured");
-		} catch (VnanoFatalException e) {
-			// 例外が発生するのが正しい挙動
-		}
-	}
-
-
-	// ==================================================
-	// vec
-	// ==================================================
-
-	// --------------------------------------------------
-	// vec, INT64 (long)
-	// --------------------------------------------------
-
-	private void testVecInt64() {
-
-		// 入力・出力用のデータコンテナを生成して値をセット
-		DataContainer<long[]> output = new DataContainer<long[]>();
-		output.setData(new long[]{ -1L, -1L, -1L }, new int[]{ 3 });
-
-		DataContainer<long[]> elem0 = new DataContainer<long[]>();
-		elem0.setData(new long[]{ 10L });
-		DataContainer<long[]> elem1 = new DataContainer<long[]>();
-		elem1.setData(new long[]{ 11L });
-		DataContainer<long[]> elem2 = new DataContainer<long[]>();
-		elem2.setData(new long[]{ 12L });
-
-		DataContainer<?>[] input = new DataContainer<?>[]{ elem0, elem1, elem2 };
-
-
-		// 演算を実行
-		try {
-			new ExecutionUnit().vec(DataType.INT64, output, input);
-		} catch (VnanoFatalException e) {
-			e.printStackTrace();
-			fail("Unexpected exception occured");
-		}
-
-		// 正しい演算結果が格納されているか検査
-		if (output.getData()[0]!=10L || output.getData()[1]!=11L || output.getData()[2]!=12L) {
-			fail("Incorrect output value");
-		}
-	}
-
-	// --------------------------------------------------
-	// vec, FLOAT64 (double)
-	// --------------------------------------------------
-
-	private void testVecFloat64() {
-
-		// 入力・出力用のデータコンテナを生成して値をセット
-		DataContainer<double[]> output = new DataContainer<double[]>();
-		output.setData(new double[]{ -1.0, -1.0, -1.0 }, new int[]{ 3 });
-
-		DataContainer<double[]> elem0 = new DataContainer<double[]>();
-		elem0.setData(new double[]{ 0.125 });
-		DataContainer<double[]> elem1 = new DataContainer<double[]>();
-		elem1.setData(new double[]{ 0.25 });
-		DataContainer<double[]> elem2 = new DataContainer<double[]>();
-		elem2.setData(new double[]{ 0.5 });
-
-		DataContainer<?>[] input = new DataContainer<?>[]{ elem0, elem1, elem2 };
-
-
-		// 演算を実行
-		try {
-			new ExecutionUnit().vec(DataType.FLOAT64, output, input);
-		} catch (VnanoFatalException e) {
-			e.printStackTrace();
-			fail("Unexpected exception occured");
-		}
-
-		// 正しい演算結果が格納されているか検査
-		if (output.getData()[0]!=0.125 || output.getData()[1]!=0.25 || output.getData()[2]!=0.5) {
-			fail("Incorrect output value");
-		}
-	}
-
-	// --------------------------------------------------
-	// vec, BOOL (boolean)
-	// --------------------------------------------------
-
-	private void testVecBool() {
-
-		// 入力・出力用のデータコンテナを生成して値をセット
-		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
-		output.setData(new boolean[]{ false, false, false }, new int[]{ 3 });
-
-		DataContainer<boolean[]> elem0 = new DataContainer<boolean[]>();
-		elem0.setData(new boolean[]{ true });
-		DataContainer<boolean[]> elem1 = new DataContainer<boolean[]>();
-		elem1.setData(new boolean[]{ false });
-		DataContainer<boolean[]> elem2 = new DataContainer<boolean[]>();
-		elem2.setData(new boolean[]{ true });
-
-		DataContainer<?>[] input = new DataContainer<?>[]{ elem0, elem1, elem2 };
-
-		// 演算を実行
-		try {
-			new ExecutionUnit().vec(DataType.BOOL, output, input);
-		} catch (VnanoFatalException e) {
-			e.printStackTrace();
-			fail("Unexpected exception occured");
-		}
-
-		// 正しい演算結果が格納されているか検査
-		if (output.getData()[0]!=true || output.getData()[1]!=false || output.getData()[2]!=true) {
-			fail("Incorrect output value");
-		}
-	}
-
-	// --------------------------------------------------
-	// vec, STRING (String)
-	// --------------------------------------------------
-
-	private void testVecString() {
-
-		// 入力・出力用のデータコンテナを生成して値をセット
-		DataContainer<String[]> output = new DataContainer<String[]>();
-		output.setData(new String[]{ "Init0", "Init1", "Init2" }, new int[]{ 3 });
-
-		DataContainer<String[]> elem0 = new DataContainer<String[]>();
-		elem0.setData(new String[]{ "Hello" });
-		DataContainer<String[]> elem1 = new DataContainer<String[]>();
-		elem1.setData(new String[]{ "World" });
-		DataContainer<String[]> elem2 = new DataContainer<String[]>();
-		elem2.setData(new String[]{ "!" });
-
-		DataContainer<?>[] input = new DataContainer<?>[]{ elem0, elem1, elem2 };
-
-		// 演算を実行
-		try {
-			new ExecutionUnit().vec(DataType.STRING, output, input);
-		} catch (VnanoFatalException e) {
-			e.printStackTrace();
-			fail("Unexpected exception occured");
-		}
-
-		// 正しい演算結果が格納されているか検査
-		if (!output.getData()[0].equals("Hello")
-				|| !output.getData()[1].equals("World")
-				|| !output.getData()[2].equals("!")) {
-
-			fail("Incorrect output value");
-		}
-	}
-
-	// --------------------------------------------------
-	// vec, Unoperatable type (e.g. VOID)
-	// --------------------------------------------------
-
-	private void testVecUnoperatableData() {
-
-		// 入力・出力用のデータコンテナを生成して値をセット
-		DataContainer<Object[]> output = new DataContainer<Object[]>();
-		output.setData(new Object[]{ this, this, this }, new int[]{ 3 }); // thisは、とにかく演算できないデータを格納するため
-
-		DataContainer<Object[]> elem0 = new DataContainer<Object[]>();
-		elem0.setData(new Object[]{ this });
-		DataContainer<Object[]> elem1 = new DataContainer<Object[]>();
-		elem1.setData(new Object[]{ this });
-		DataContainer<Object[]> elem2 = new DataContainer<Object[]>();
-		elem2.setData(new Object[]{ this });
-
-		DataContainer<?>[] input = new DataContainer<?>[]{ elem0, elem1, elem2 };
-
-		// 対応していないデータ型を指定して演算を実行
-		try {
-			new ExecutionUnit().vec(DataType.VOID, output, input);
-			fail("Expected exception did not occured");
-		} catch (VnanoFatalException e) {
-			// 例外が発生するのが正しい挙動
-		}
-
-		// 指定したデータ型と異なる型のデータで演算を実行
-		try {
-			new ExecutionUnit().vec(DataType.INT64, output, input);
-			fail("Expected exception did not occured");
-		} catch (VnanoFatalException e) {
-			// 例外が発生するのが正しい挙動
-		}
-		try {
-			new ExecutionUnit().vec(DataType.FLOAT64, output, input);
-			fail("Expected exception did not occured");
-		} catch (VnanoFatalException e) {
-			// 例外が発生するのが正しい挙動
-		}
-		try {
-			new ExecutionUnit().vec(DataType.BOOL, output, input);
-			fail("Expected exception did not occured");
-		} catch (VnanoFatalException e) {
-			// 例外が発生するのが正しい挙動
-		}
-		try {
-			new ExecutionUnit().vec(DataType.STRING, output, input);
+			new ExecutionUnit().elem(DataType.VOID, dest, src, index0, index1, index2);
 			fail("Expected exception did not occured");
 		} catch (VnanoFatalException e) {
 			// 例外が発生するのが正しい挙動

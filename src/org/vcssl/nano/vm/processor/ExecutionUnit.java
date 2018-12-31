@@ -997,7 +997,7 @@ public class ExecutionUnit {
 	 * @throws VnanoException 無効なデータ型が指定された場合に発生します。
 	 */
 	@SuppressWarnings("unchecked")
-	public void alloc(DataType type, DataContainer<?> target) {
+	public void allocScalar(DataType type, DataContainer<?> target) {
 		switch (type) {
 			case INT64 : {
 				((DataContainer<long[]>)target).setData(new long[DataContainer.SIZE_OF_SCALAR]);
@@ -1023,31 +1023,57 @@ public class ExecutionUnit {
 
 
 	/**
-	 * 2オペランドの {@link org.vcssl.nano.spec.OperationCode#ALLOC ALLOC} 命令（配列確保用）を実行します。
+	 * 2オペランド以上の {@link org.vcssl.nano.spec.OperationCode#ALLOCR ALLOCR} 命令（配列確保用）を実行します。
 	 *
 	 * この命令により、引数 target のデータの格納領域が、
 	 * 引数 type に指定されたデータ型の、任意次元の配列値を保持できるように確保されます。
-	 * 配列の次元および各次元の要素数は、引数 len で指定します。
-	 * len に格納されている配列データの要素数が、確保対象データの配列次元となります。
-	 * また、len に格納されている配列データの各要素の値が、確保対象データの次元ごとの要素数となります。
+	 * 確保される配列の、各次元における要素数は、引数 lengthsContainers の各要素が保持する値によって決定されます。
 	 *
 	 * @param type 確保するデータの型
 	 * @param target 対象データ
-	 * @param len 確保する配列の、各次元ごとの要素数を格納する配列
-	 * @throws VnanoFatalException 無効なデータ型が指定された場合に発生します。
+	 * @param lengthsContainers 確保したい配列の、各次元の要素数を格納するコンテナの配列
+	 * @throws VnanoException 無効なデータ型が指定された場合に発生します。
 	 */
 	@SuppressWarnings("unchecked")
-	public void alloc(DataType type, DataContainer<?> target, DataContainer<?> len) {
+	public void allocVector(DataType type, DataContainer<?> target, DataContainer<?> ... lengthsContainers) {
+		int size = 1;
+		int rank = lengthsContainers.length;
+		int[] lengths = new int[rank];
+		for (int dim=0; dim<rank; dim++) {
+			long[] lengthContainerData = ( (DataContainer<long[]>)lengthsContainers[dim] ).getData();
+			lengths[dim] = (int)( lengthContainerData[ lengthsContainers[dim].getOffset() ] );
+			size *= lengths[dim];
+		}
+		this.alloc(type, target, size, lengths);
+	}
 
-		long[] lenData = ((DataContainer<long[]>)len).getData();
-		int[] arrayLength = new int[lenData.length];
-		int dataLength = 1;
-		for (int dim=0; dim<lenData.length; dim++) {
-			arrayLength[dim] = (int)lenData[dim];
-			dataLength *= lenData[dim];
+
+	/**
+	 * {@link org.vcssl.nano.spec.OperationCode#ALLOCR ALLOCR} 命令（配列確保用）を実行します。
+	 *
+	 * この命令により、引数 target のデータの格納領域が、
+	 * 引数 type に指定されたデータ型の、任意次元の配列値を保持できるように確保されます。
+	 * 配列の次元数および各次元の要素数は、引数 len に指定したデータコンテナと等しいものになります。
+	 * この命令は主に、ベクトル演算の結果を格納するためのレジスタ確保に使用されます。
+	 *
+	 * @param type 確保するデータの型
+	 * @param target 対象データ
+	 * @param sameLengthsContainer 確保したい配列と、全次元において同じ要素数を持つデータコンテナ（要素数の情報が参照されます）
+	 * @throws VnanoFatalException 無効なデータ型が指定された場合に発生します。
+	 */
+	public void allocSameLengths(DataType type, DataContainer<?> target, DataContainer<?> sameLengthsContainer) {
+
+		int size = sameLengthsContainer.getSize();
+		int rank = sameLengthsContainer.getRank();
+
+		int[] lengths = sameLengthsContainer.getLengths();
+		int[] copiedLengths = new int[rank];
+
+		if (0 < rank) {
+			System.arraycopy(lengths, 0, copiedLengths, 0, rank);
 		}
 
-		this.alloc(type, target, dataLength, arrayLength);
+		this.alloc(type, target, size, copiedLengths);
 	}
 
 
@@ -1068,7 +1094,7 @@ public class ExecutionUnit {
 	 * しかしながら、その場合は1オペランドの
 	 * {@link org.vcssl.nano.spec.OperationCode#ALLOC ALLOC}
 	 * 命令を実行する
-	 * {@link ExecutionUnit#alloc(org.vcssl.nano.vm.memory.DataContainer.DataType, DataContainer) alloc(Data.Type, Data)}
+	 * {@link ExecutionUnit#allocScalar(org.vcssl.nano.vm.memory.DataContainer.DataType, DataContainer) alloc(Data.Type, Data)}
 	 * メソッドを使用する方が簡潔です。
 	 *
 	 * @param type 確保するデータの型
@@ -1313,27 +1339,37 @@ public class ExecutionUnit {
 	 * @param type オペランドのデータ型
 	 * @param dest 配列要素とするデータ
 	 * @param src 配列のデータ
+	 * @param indices 要素を参照する、次元ごとのインデックスをまとめた配列
 	 * @throws VnanoFatalException
 	 *   この命令が対応していないデータ型が指定された場合や、
 	 *   指定データ型とオペランドの実際のデータ型が一致しない場合に発生します。
 	 */
 	@SuppressWarnings("unchecked")
-	public void elem(DataType type, DataContainer<?> dest, DataContainer<?> src, DataContainer<?> index) {
+	public void elem(DataType type, DataContainer<?> dest, DataContainer<?> src, DataContainer<?> ... indices) {
 
 		this.checkDataType(src, type);
 
-		int arrayRank = index.getSize();
-		long[] arrayIndices = (long[])(index.getData());
 		int[] arrayLength = src.getLengths();
 
-		// 1 次元化されたインデックスに変換する
+		// 以下、1 次元化されたインデックスに変換する
+
+		int rank = indices.length;
 		int dataIndex = 0;
 		int scale = 1;
-		for (int i=arrayRank-1; 0 <= i; i--) {
-			dataIndex += arrayIndices[i] * scale;
+
+		for (int i=rank-1; 0 <= i; i--) {
+
+			// indices[i] が格納しているスカラ値を取得（＝ i 番目次元の配列インデックス）
+			long index = ( (long[])(indices[i].getData()) )[ indices[i].getOffset() ];
+
+			// 上で取得したインデックスに、その次元での単位変化量(scale)をかけたものを、1次元化インデックスに加える
+			dataIndex += (int)index * scale;
+
+			// 次の次元の単位変化量は、今の単位変化量に、今の次元の長さをかけたものとして求まる
 			scale *= arrayLength[i];
 		}
 
+		// 1次元化されたインデックスに基づいて、dest が src 内のその配列要素を参照するよう設定
 		switch (type) {
 			case INT64 : {
 				((DataContainer<long[]>)dest).setData(((DataContainer<long[]>)src).getData(), dataIndex);
@@ -1355,85 +1391,7 @@ public class ExecutionUnit {
 				throw new VnanoFatalException("Unknown data type: " + type);
 			}
 		}
-		//dest.setSize(DataContainer.SIZE_OF_SCALAR);
-		//dest.setLengths(DataContainer.LENGTHS_OF_SCALAR);
 	}
-
-
-	/**
-	 * {@link org.vcssl.nano.spec.OperationCode#VEC VEC} 命令を実行します。
-	 *
-	 * この命令の実行により、引数 dest の配列データの各要素に、
-	 * 引数 elements の各要素のデータのスカラ値がコピーされます。
-	 *
-	 * すべてのオペランド（destを含む）のデータは、
-	 * 引数 type に指定されたデータ型のものに揃っている必要があります。
-	 *
-	 * @param type オペランドのデータ型
-	 * @param dest コピー先データ
-	 * @param elements コピー元データ（スカラ値）の配列
-	 * @throws VnanoFatalException
-	 *   この命令が対応していないデータ型が指定された場合や、
-	 *   指定データ型とオペランドの実際のデータ型が一致しない場合に発生します。
-	 */
-	@SuppressWarnings("unchecked")
-	public void vec(DataType type, DataContainer<?> dest, DataContainer<?>[] elements) {
-
-		int dataLength = elements.length;
-		int[] arrayLengths = new int[]{dataLength};
-
-		this.checkDataType(dest, type);
-		for (int dataIndex=0; dataIndex<dataLength; dataIndex++) {
-			this.checkDataType(elements[dataIndex], type);
-		}
-
-		//dest.setSize(dataLength);
-		//dest.setLengths(arrayLength);
-
-		switch (type) {
-			case INT64 : {
-				long[] data = new long[dataLength];
-				for (int dataIndex=0; dataIndex<dataLength; dataIndex++) {
-					int fromDataIndex = elements[dataIndex].getOffset();
-					data[dataIndex] = ((long[])(elements[dataIndex].getData()))[fromDataIndex];
-				}
-				((DataContainer<long[]>)dest).setData(data, arrayLengths);
-				return;
-			}
-			case FLOAT64 : {
-				double[] data = new double[dataLength];
-				for (int dataIndex=0; dataIndex<dataLength; dataIndex++) {
-					int fromDataIndex = elements[dataIndex].getOffset();
-					data[dataIndex] = ((double[])(elements[dataIndex].getData()))[fromDataIndex];
-				}
-				((DataContainer<double[]>)dest).setData(data, arrayLengths);
-				return;
-			}
-			case BOOL : {
-				boolean[] data = new boolean[dataLength];
-				for (int dataIndex=0; dataIndex<dataLength; dataIndex++) {
-					int fromDataIndex = elements[dataIndex].getOffset();
-					data[dataIndex] = ((boolean[])(elements[dataIndex].getData()))[fromDataIndex];
-				}
-				((DataContainer<boolean[]>)dest).setData(data, arrayLengths);
-				return;
-			}
-			case STRING : {
-				String[] data = new String[dataLength];
-				for (int dataIndex=0; dataIndex<dataLength; dataIndex++) {
-					int fromDataIndex = elements[dataIndex].getOffset();
-					data[dataIndex] = ((String[])(elements[dataIndex].getData()))[fromDataIndex];
-				}
-				((DataContainer<String[]>)dest).setData(data, arrayLengths);
-				return;
-			}
-			default : {
-				throw new VnanoFatalException("Unknown data type: " + type);
-			}
-		}
-	}
-
-
 
 
 	/**

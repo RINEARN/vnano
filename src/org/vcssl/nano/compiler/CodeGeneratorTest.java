@@ -23,7 +23,6 @@ public class CodeGeneratorTest {
 
 	private static final int RANK_OF_SCALAR = 0;
 
-	private static final String META_DIRECTIVE = "#META\t\"line=123, file=Test.vnano\""; // メタ情報行の内容
 	private static final String EOI = AssemblyWord.INSTRUCTION_SEPARATOR + AssemblyWord.LINE_SEPARATOR; // 命令末尾記号+改行
 	private static final String WS = AssemblyWord.WORD_SEPARATOR;
 	private static final String VS = AssemblyWord.VALUE_SEPARATOR;
@@ -53,6 +52,31 @@ public class CodeGeneratorTest {
 	private static final String GLOBAL_DIRECTIVE_FSB = "#GLOBAL_VARIABLE	_floatScalarB";
 	//private static final String GLOBAL_DIRECTIVE_BVA = "#GLOBAL_VARIABLE	_boolVectorA";
 	//private static final String GLOBAL_DIRECTIVE_BVB = "#GLOBAL_VARIABLE	_boolVectorB";
+
+	// テストコードの先頭に常に付く定型コード（バージョン情報など）
+	private static final String HEADER =
+			AssemblyWord.ASSEMBLY_LANGUAGE_IDENTIFIER_DIRECTIVE + AssemblyWord.WORD_SEPARATOR
+			+
+			"\"" + AssemblyWord.ASSEMBLY_LANGUAGE_NAME + "\"" + EOI
+			+
+			AssemblyWord.ASSEMBLY_LANGUAGE_VERSION_DIRECTIVE + AssemblyWord.WORD_SEPARATOR
+			+
+			"\"" + AssemblyWord.ASSEMBLY_LANGUAGE_VERSION + "\"" + EOI
+			+
+			AssemblyWord.SCRIPT_LANGUAGE_IDENTIFIER_DIRECTIVE + AssemblyWord.WORD_SEPARATOR
+			+
+			"\"" + ScriptWord.SCRIPT_LANGUAGE_NAME + "\"" + EOI
+			+
+			AssemblyWord.SCRIPT_LANGUAGE_VERSION_DIRECTIVE + AssemblyWord.WORD_SEPARATOR
+			+
+			"\"" + ScriptWord.SCRIPT_LANGUAGE_VERSION + "\"" + EOI
+			+
+			AssemblyWord.LINE_SEPARATOR;
+
+	// メタディレクティブコード
+	private static final String META = AssemblyWord.LINE_SEPARATOR
+			+ AssemblyWord.META_DIRECTIVE + AssemblyWord.WORD_SEPARATOR + "\"line=123, file=Test.vnano\"";
+
 
 	private Interconnect interconnect;
 
@@ -257,11 +281,11 @@ public class CodeGeneratorTest {
 		/* 期待コードを用意（内容は下記コメントの通り、ただし空白幅は見やすいよう調整）
 
 		  #META  "line=123, file=Test.vnano";
-		      ALLOC   int    R0;
+		      ALLOCR  int    R0    ~int:1;
 		      ???     int    R0    ~int:1    ~int:2;   (???の箇所に算術演算の命令コードが入る)
 		 */
-		String expectedCode = META_DIRECTIVE + EOI
-			+ IND + OperationCode.ALLOC + WS + DataTypeName.INT + WS + R + "0" + EOI
+		String expectedCode = HEADER + META + EOI
+			+ IND + OperationCode.ALLOCR + WS + DataTypeName.INT + WS + R + "0" + WS + IINT + VS + "1" + EOI
 			+ IND + operationCode + WS + DataTypeName.INT + WS + R + "0" + WS + IINT + VS + "1" + WS + IINT + VS + "2" + EOI;
 
 		// 生成コードと期待コードの内容を確認
@@ -269,7 +293,7 @@ public class CodeGeneratorTest {
 		//System.out.println(expectedCode);
 
 		// 生成コードと期待コードを比較検査
-		assertEquals(expectedCode, generatedCode);
+		assertEquals(expectedCode.replace(AssemblyWord.LINE_SEPARATOR,""), generatedCode.replace(AssemblyWord.LINE_SEPARATOR,""));
 	}
 	public void testGenerateArithmeticBinaryOperatorCodeScalarCast(String symbol, int priority, OperationCode operationCode) {
 
@@ -296,15 +320,15 @@ public class CodeGeneratorTest {
 		/* 期待コードを用意（内容は下記コメントの通り、ただし空白幅は見やすいよう調整）
 
 		  #META  "line=123, file=Test.vnano";
-		      ALLOC   float      R1;
+		      ALLOCR  float      R1    ~int:2;
 		      CAST    float:int  R1    ~int:2;
-		      ALLOC   float      R0;
-		      ???     float      R0    ~int:1    ~int:2;   (???の箇所に算術演算の命令コードが入る)
+		      ALLOCR  float      R0    ~float:1;
+		      ???     float      R0    ~float:1    ~int:2;   (???の箇所に算術演算の命令コードが入る)
 		 */
-		String expectedCode = META_DIRECTIVE + EOI
-			+ IND + OperationCode.ALLOC + WS + DataTypeName.FLOAT + WS + R + "1" + EOI
+		String expectedCode = HEADER + META + EOI
+			+ IND + OperationCode.ALLOCR + WS + DataTypeName.FLOAT + WS + R + "1" + WS + IINT + VS + "2" + EOI
 			+ IND + OperationCode.CAST + WS + DataTypeName.FLOAT + VS + DataTypeName.INT + WS + R + "1" + WS + IINT + VS + "2" + EOI
-			+ IND + OperationCode.ALLOC + WS + DataTypeName.FLOAT + WS + R + "0" + EOI
+			+ IND + OperationCode.ALLOCR + WS + DataTypeName.FLOAT + WS + R + "0" + WS + IFLOAT + VS + "1" + EOI
 			+ IND + operationCode + WS + DataTypeName.FLOAT + WS + R + "0" + WS + IFLOAT + VS + "1" + WS + R + "1" + EOI;
 
 		// 生成コードと期待コードの内容を確認
@@ -312,7 +336,7 @@ public class CodeGeneratorTest {
 		//System.out.println(expectedCode);
 
 		// 生成コードと期待コードを比較検査
-		assertEquals(expectedCode, generatedCode);
+		assertEquals(expectedCode.replace(AssemblyWord.LINE_SEPARATOR,""), generatedCode.replace(AssemblyWord.LINE_SEPARATOR,""));
 	}
 	public void testGenerateArithmeticBinaryOperatorCodeVector(String symbol, int priority, OperationCode operationCode) {
 
@@ -341,13 +365,11 @@ public class CodeGeneratorTest {
 		  #GLOBAL	_intVectorA
 		  #GLOBAL	_intVectorB
 		  #META  "line=123, file=Test.vnano";
-		      LEN     int    R1    _intVectorA;
-		      ALLOC   int    R0    R1;
+		      ALLOCR  int    R0    _intVectorA;
 		      ???     int    R0    _intVectorA    _intVectorB;   (???の箇所に算術演算の命令コードが入る)
 		 */
-		String expectedCode = GLOBAL_DIRECTIVE_IVA + EOI + GLOBAL_DIRECTIVE_IVB + EOI + META_DIRECTIVE + EOI
-			+ IND + OperationCode.LEN + WS + DataTypeName.INT + WS + R + 1 + WS + IVA + EOI
-			+ IND + OperationCode.ALLOC + WS + DataTypeName.INT + WS + R + "0" + WS + R + 1 + EOI
+		String expectedCode = HEADER + GLOBAL_DIRECTIVE_IVA + EOI + GLOBAL_DIRECTIVE_IVB + EOI + META + EOI
+			+ IND + OperationCode.ALLOCR + WS + DataTypeName.INT + WS + R + "0" + WS + IVA + EOI
 			+ IND + operationCode + WS + DataTypeName.INT + WS + R + "0" + WS + IVA + WS + IVB + EOI;
 
 		// 生成コードと期待コードの内容を確認
@@ -355,7 +377,7 @@ public class CodeGeneratorTest {
 		//System.out.println(expectedCode);
 
 		// 生成コードと期待コードを比較検査
-		assertEquals(expectedCode, generatedCode);
+		assertEquals(expectedCode.replace(AssemblyWord.LINE_SEPARATOR,""), generatedCode.replace(AssemblyWord.LINE_SEPARATOR,""));
 	}
 
 	public void testGenerateArithmeticBinaryOperatorCodeVectorCast(String symbol, int priority, OperationCode operationCode) {
@@ -385,27 +407,23 @@ public class CodeGeneratorTest {
 		  #GLOBAL	_floatVectorA
 		  #GLOBAL	_intVectorB
 		  #META  "line=123, file=Test.vnano";
-		      LEN     int        R1    _intVectorB;
-		      ALLOC   float      R2    R1;
-		      CAST    float:int  R2    _intVectorB;
-		      LEN     int        R3    _floatVectorA;
-		      ALLOC   float      R0    R3;
-		      ???     float      R0    _floatVectorA    R2;   (???の箇所に算術演算の命令コードが入る)
+		      ALLOCR  float      R1    _intVectorB;
+		      CAST    float:int  R1    _intVectorB;
+		      ALLOCR  float      R0    _floatVectorA;
+		      ???     float      R0    _floatVectorA    R1;   (???の箇所に算術演算の命令コードが入る)
 		 */
-		String expectedCode = GLOBAL_DIRECTIVE_FVA + EOI + GLOBAL_DIRECTIVE_IVB + EOI + META_DIRECTIVE + EOI
-			+ IND + OperationCode.LEN + WS + DataTypeName.INT + WS + R + "1" + WS + IVB + EOI
-			+ IND + OperationCode.ALLOC + WS + DataTypeName.FLOAT + WS + R + "2" + WS + R + "1" + EOI
-			+ IND + OperationCode.CAST + WS + DataTypeName.FLOAT + VS + DataTypeName.INT + WS + R + "2" + WS + IVB + EOI
-			+ IND + OperationCode.LEN + WS + DataTypeName.INT + WS + R + "3" + WS + FVA + EOI
-			+ IND + OperationCode.ALLOC + WS + DataTypeName.FLOAT + WS + R + "0" + WS + R + "3" + EOI
-			+ IND + operationCode + WS + DataTypeName.FLOAT + WS + R + "0" + WS + FVA + WS + R + "2" + EOI;
+		String expectedCode = HEADER + GLOBAL_DIRECTIVE_FVA + EOI + GLOBAL_DIRECTIVE_IVB + EOI + META + EOI
+			+ IND + OperationCode.ALLOCR + WS + DataTypeName.FLOAT + WS + R + "1" + WS + IVB + EOI
+			+ IND + OperationCode.CAST + WS + DataTypeName.FLOAT + VS + DataTypeName.INT + WS + R + "1" + WS + IVB + EOI
+			+ IND + OperationCode.ALLOCR + WS + DataTypeName.FLOAT + WS + R + "0" + WS + FVA + EOI
+			+ IND + operationCode + WS + DataTypeName.FLOAT + WS + R + "0" + WS + FVA + WS + R + "1" + EOI;
 
 		// 生成コードと期待コードの内容を確認
 		//System.out.println(generatedCode);
 		//System.out.println(expectedCode);
 
 		// 生成コードと期待コードを比較検査
-		assertEquals(expectedCode, generatedCode);
+		assertEquals(expectedCode.replace(AssemblyWord.LINE_SEPARATOR,""), generatedCode.replace(AssemblyWord.LINE_SEPARATOR,""));
 	}
 	public void testGenerateArithmeticBinaryOperatorCodeVectorScalarMixed(String symbol, int priority, OperationCode operationCode) {
 
@@ -434,27 +452,23 @@ public class CodeGeneratorTest {
 		  #GLOBAL	_floatVectorA
 		  #GLOBAL	_intVectorB
 		  #META  "line=123, file=Test.vnano";
-		      LEN     int        R1    _intVectorA;
-		      ALLOC   int        R2    R1;
-		      FILL    int        R2    _intScalarB;
-		      LEN     int        R3    _intVectorA;
-		      ALLOC   int        R0    R3;
-		      ???     int        R0    _intVectorA    R2;   (???の箇所に算術演算の命令コードが入る)
+		      ALLOCR  int        R1    _intVectorA;
+		      FILL    int        R1    _intScalarB;
+		      ALLOCR  int        R0    _intVectorA;
+		      ???     int        R0    _intVectorA    R1;   (???の箇所に算術演算の命令コードが入る)
 		 */
-		String expectedCode = GLOBAL_DIRECTIVE_IVA + EOI + GLOBAL_DIRECTIVE_ISB + EOI + META_DIRECTIVE + EOI
-			+ IND + OperationCode.LEN + WS + DataTypeName.INT + WS + R + "1" + WS + IVA + EOI
-			+ IND + OperationCode.ALLOC + WS + DataTypeName.INT + WS + R + "2" + WS + R + "1" + EOI
-			+ IND + OperationCode.FILL + WS + DataTypeName.INT + WS + R + "2" + WS + ISB + EOI
-			+ IND + OperationCode.LEN + WS + DataTypeName.INT + WS + R + "3" + WS + IVA + EOI
-			+ IND + OperationCode.ALLOC + WS + DataTypeName.INT + WS + R + "0" + WS + R + "3" + EOI
-			+ IND + operationCode + WS + DataTypeName.INT + WS + R + "0" + WS + IVA + WS + R + "2" + EOI;
+		String expectedCode = HEADER + GLOBAL_DIRECTIVE_IVA + EOI + GLOBAL_DIRECTIVE_ISB + EOI + META + EOI
+			+ IND + OperationCode.ALLOCR + WS + DataTypeName.INT + WS + R + "1" + WS + IVA + EOI
+			+ IND + OperationCode.FILL + WS + DataTypeName.INT + WS + R + "1" + WS + ISB + EOI
+			+ IND + OperationCode.ALLOCR + WS + DataTypeName.INT + WS + R + "0" + WS + IVA + EOI
+			+ IND + operationCode + WS + DataTypeName.INT + WS + R + "0" + WS + IVA + WS + R + "1" + EOI;
 
 		// 生成コードと期待コードの内容を確認
 		//System.out.println(generatedCode);
 		//System.out.println(expectedCode);
 
 		// 生成コードと期待コードを比較検査
-		assertEquals(expectedCode, generatedCode);
+		assertEquals(expectedCode.replace(AssemblyWord.LINE_SEPARATOR,""), generatedCode.replace(AssemblyWord.LINE_SEPARATOR,""));
 	}
 	public void testGenerateArithmeticBinaryOperatorCodeVectorScalarMixedCastVector(String symbol, int priority, OperationCode operationCode) {
 
@@ -483,33 +497,27 @@ public class CodeGeneratorTest {
 		  #GLOBAL	_floatVectorA
 		  #GLOBAL	_intVectorB
 		  #META  "line=123, file=Test.vnano";
-		      LEN     int        R1    _intVectorA;
-		      ALLOC   float      R2    R1;
-		      CAST    float:int  R2    _intVectorA;
-		      LEN     int        R3    _intVectorA;
-		      ALLOC   float      R4    R3;
-		      FILL    float      R4    _floatScalarB;
-		      LEN     int        R5    _intVectorA;
-		      ALLOC   float      R0    R5;
-		      ???     float      R0    R2    R4;   (???の箇所に算術演算の命令コードが入る)
+		      ALLOCR  float      R1    _intVectorA;
+		      CAST    float:int  R1    _intVectorA;
+		      ALLOCR  float      R2    _intVectorA;
+		      FILL    float      R2    _floatScalarB;
+		      ALLOCR  float      R0    _intVectorA;
+		      ???     float      R0    R1    R2;   (???の箇所に算術演算の命令コードが入る)
 		 */
-		String expectedCode = GLOBAL_DIRECTIVE_IVA + EOI + GLOBAL_DIRECTIVE_FSB + EOI + META_DIRECTIVE + EOI
-			+ IND + OperationCode.LEN + WS + DataTypeName.INT + WS + R + "1" + WS + IVA + EOI
-			+ IND + OperationCode.ALLOC + WS + DataTypeName.FLOAT + WS + R + "2" + WS + R + "1" + EOI
-			+ IND + OperationCode.CAST + WS + DataTypeName.FLOAT + VS + DataTypeName.INT + WS + R + "2" + WS + IVA + EOI
-			+ IND + OperationCode.LEN + WS + DataTypeName.INT + WS + R + "3" + WS + IVA + EOI
-			+ IND + OperationCode.ALLOC + WS + DataTypeName.FLOAT + WS + R + "4" + WS + R + "3" + EOI
-			+ IND + OperationCode.FILL + WS + DataTypeName.FLOAT + WS + R + "4" + WS + FSB + EOI
-			+ IND + OperationCode.LEN + WS + DataTypeName.INT + WS + R + "5" + WS + IVA + EOI
-			+ IND + OperationCode.ALLOC + WS + DataTypeName.FLOAT + WS + R + "0" + WS + R + "5" + EOI
-			+ IND + operationCode + WS + DataTypeName.FLOAT + WS + R + "0" + WS + R + "2" + WS + R + "4" + EOI;
+		String expectedCode = HEADER + GLOBAL_DIRECTIVE_IVA + EOI + GLOBAL_DIRECTIVE_FSB + EOI + META + EOI
+			+ IND + OperationCode.ALLOCR + WS + DataTypeName.FLOAT + WS + R + "1" + WS + IVA + EOI
+			+ IND + OperationCode.CAST + WS + DataTypeName.FLOAT + VS + DataTypeName.INT + WS + R + "1" + WS + IVA + EOI
+			+ IND + OperationCode.ALLOCR + WS + DataTypeName.FLOAT + WS + R + "2" + WS + IVA + EOI
+			+ IND + OperationCode.FILL + WS + DataTypeName.FLOAT + WS + R + "2" + WS + FSB + EOI
+			+ IND + OperationCode.ALLOCR + WS + DataTypeName.FLOAT + WS + R + "0" + WS + IVA + EOI
+			+ IND + operationCode + WS + DataTypeName.FLOAT + WS + R + "0" + WS + R + "1" + WS + R + "2" + EOI;
 
 		// 生成コードと期待コードの内容を確認
 		//System.out.println(generatedCode);
 		//System.out.println(expectedCode);
 
 		// 生成コードと期待コードを比較検査
-		assertEquals(expectedCode, generatedCode);
+		assertEquals(expectedCode.replace(AssemblyWord.LINE_SEPARATOR,""), generatedCode.replace(AssemblyWord.LINE_SEPARATOR,""));
 	}
 	public void testGenerateArithmeticBinaryOperatorCodeVectorScalarMixedCastScalar(String symbol, int priority, OperationCode operationCode) {
 
@@ -538,31 +546,27 @@ public class CodeGeneratorTest {
 		  #GLOBAL	_floatVectorA
 		  #GLOBAL	_intVectorB
 		  #META  "line=123, file=Test.vnano";
-		      LEN     int        R1;
+		      ALLOCR  int        R1    _intScalarB;
 		      CAST    float:int  R1    _intScalarB;
-		      LEN     int        R2    _floatVectorA;
-		      ALLOC   float      R3    R2;
-              FILL 	  float      R3    R1;
-		      LEN     int        R4    _floatVectorA;
-		      ALLOC   float      R0    R4;
-		      ???     float      R0    _floatVectorA    R3;   (???の箇所に算術演算の命令コードが入る)
+		      ALLOCR  float      R2    _floatVectorA;
+              FILL 	  float      R2    R1;
+		      ALLOCR  float      R0    _floatVectorA;
+		      ???     float      R0    _floatVectorA    R2;   (???の箇所に算術演算の命令コードが入る)
 		 */
-		String expectedCode = GLOBAL_DIRECTIVE_FVA + EOI + GLOBAL_DIRECTIVE_ISB + EOI + META_DIRECTIVE + EOI
-			+ IND + OperationCode.ALLOC + WS + DataTypeName.FLOAT + WS + R + "1" + EOI
+		String expectedCode = HEADER + GLOBAL_DIRECTIVE_FVA + EOI + GLOBAL_DIRECTIVE_ISB + EOI + META + EOI
+			+ IND + OperationCode.ALLOCR + WS + DataTypeName.FLOAT + WS + R + "1" + WS + ISB + EOI
 			+ IND + OperationCode.CAST + WS + DataTypeName.FLOAT + VS + DataTypeName.INT + WS + R + "1" + WS + ISB + EOI
-			+ IND + OperationCode.LEN + WS + DataTypeName.INT + WS + R + "2" + WS + FVA + EOI
-			+ IND + OperationCode.ALLOC + WS + DataTypeName.FLOAT + WS + R + "3" + WS + R + "2" + EOI
-			+ IND + OperationCode.FILL + WS + DataTypeName.FLOAT + WS + R + "3" + WS + R + "1" + EOI
-			+ IND + OperationCode.LEN + WS + DataTypeName.INT + WS + R + "4" + WS + FVA + EOI
-			+ IND + OperationCode.ALLOC + WS + DataTypeName.FLOAT + WS + R + "0" + WS + R + "4" + EOI
-			+ IND + operationCode + WS + DataTypeName.FLOAT + WS + R + "0" + WS + FVA + WS + R + "3" + EOI;
+			+ IND + OperationCode.ALLOCR + WS + DataTypeName.FLOAT + WS + R + "2" + WS + FVA + EOI
+			+ IND + OperationCode.FILL + WS + DataTypeName.FLOAT + WS + R + "2" + WS + R + "1" + EOI
+			+ IND + OperationCode.ALLOCR + WS + DataTypeName.FLOAT + WS + R + "0" + WS + FVA + EOI
+			+ IND + operationCode + WS + DataTypeName.FLOAT + WS + R + "0" + WS + FVA + WS + R + "2" + EOI;
 
 		// 生成コードと期待コードの内容を確認
 		//System.out.println(generatedCode);
 		//System.out.println(expectedCode);
 
 		// 生成コードと期待コードを比較検査
-		assertEquals(expectedCode, generatedCode);
+		assertEquals(expectedCode.replace(AssemblyWord.LINE_SEPARATOR,""), generatedCode.replace(AssemblyWord.LINE_SEPARATOR,""));
 	}
 
 	// 算術複合代入演算子のテスト
@@ -628,15 +632,15 @@ public class CodeGeneratorTest {
 		  #META  "line=123, file=Test.vnano";
 		      ???     int    _intScalarA    _intScalarA    _intScalarB;   (???の箇所に算術演算の命令コードが入る)
 		 */
-		String expectedCode = GLOBAL_DIRECTIVE_ISA + EOI + GLOBAL_DIRECTIVE_ISB + EOI + META_DIRECTIVE + EOI
+		String expectedCode = HEADER + GLOBAL_DIRECTIVE_ISA + EOI + GLOBAL_DIRECTIVE_ISB + EOI + META + EOI
 			+ IND + operationCode + WS + DataTypeName.INT + WS + ISA + WS + ISA + WS + ISB + EOI;
 
 		// 生成コードと期待コードの内容を確認
-		System.out.println(generatedCode);
-		System.out.println(expectedCode);
+		//System.out.println(generatedCode);
+		//System.out.println(expectedCode);
 
 		// 生成コードと期待コードを比較検査
-		assertEquals(expectedCode, generatedCode);
+		assertEquals(expectedCode.replace(AssemblyWord.LINE_SEPARATOR,""), generatedCode.replace(AssemblyWord.LINE_SEPARATOR,""));
 	}
 	public void testGenerateArithmeticCompoundAssignmentOperatorCodeVector(String symbol, int priority, OperationCode operationCode) {
 
@@ -667,7 +671,7 @@ public class CodeGeneratorTest {
 		  #META  "line=123, file=Test.vnano";
 		      ???     int    _intVectorA    _intVectorA    _intVectorB;   (???の箇所に算術演算の命令コードが入る)
 		 */
-		String expectedCode = GLOBAL_DIRECTIVE_IVA + EOI + GLOBAL_DIRECTIVE_IVB + EOI + META_DIRECTIVE + EOI
+		String expectedCode = HEADER + GLOBAL_DIRECTIVE_IVA + EOI + GLOBAL_DIRECTIVE_IVB + EOI + META + EOI
 			+ IND + operationCode + WS + DataTypeName.INT + WS + IVA + WS + IVA + WS + IVB + EOI;
 
 		// 生成コードと期待コードの内容を確認
@@ -675,7 +679,7 @@ public class CodeGeneratorTest {
 		//System.out.println(expectedCode);
 
 		// 生成コードと期待コードを比較検査
-		assertEquals(expectedCode, generatedCode);
+		assertEquals(expectedCode.replace(AssemblyWord.LINE_SEPARATOR,""), generatedCode.replace(AssemblyWord.LINE_SEPARATOR,""));
 	}
 
 
