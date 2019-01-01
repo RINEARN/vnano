@@ -120,25 +120,24 @@ public class SemanticAnalyzer {
 		Map<String, Integer> localVariableSerialNumberMap = new HashMap<String, Integer>();
 
 		AstNode currentNode = astRootNode;
-		int currentDepth = 0; // ブロック終端による変数削除などで使用
-		int lastDepth = 0;
+		int currentBlockDepth = 0; // ブロック終端による変数削除などで使用
+		int lastBlockDepth = 0;
 
 		List<String> scopeLocalVariableNameList = new LinkedList<String>();
 		Deque<List<String>>scopeLocalVariableNameListStack = new ArrayDeque<List<String>>();
 
 		do {
 			currentNode = currentNode.getPreorderTraversalNextNode();
-			lastDepth = currentDepth;
-			currentDepth = currentNode.getDepth();
+			lastBlockDepth = currentBlockDepth;
+			currentBlockDepth = currentNode.getBlockDepth();
 
 			// ブロック文に入った場合: 上階層のスコープ内ローカル変数/関数リストをスタックに退避し、リセット
-			if (currentDepth > lastDepth) {
+			if (currentBlockDepth > lastBlockDepth) {
 				scopeLocalVariableNameListStack.push(scopeLocalVariableNameList);
 				scopeLocalVariableNameList = new LinkedList<String>();
 
 			// ブロック文を抜ける場合: その階層のローカル変数/関数を削除し、スコープ内ローカル変数/関数リストをスタックから復元
-			} else if (currentDepth < lastDepth) {
-				// 変数
+			} else if (currentBlockDepth < lastBlockDepth) {
 				Iterator<String> variableIterator = scopeLocalVariableNameList.iterator();
 				while (variableIterator.hasNext()) {
 					String scopeLocalVariableName = variableIterator.next();
@@ -149,10 +148,9 @@ public class SemanticAnalyzer {
 				scopeLocalVariableNameList = scopeLocalVariableNameListStack.pop();
 			}
 
-			// ローカル変数ノードの場合: ローカル変数マップに追加し、ノード自身にローカル変数インデックスやスコープも設定
+			// ローカル変数宣言文ノードの場合: ローカル変数マップに追加し、ノード自身にローカル変数インデックスやスコープも設定
 			if (currentNode.getType() == AstNode.Type.VARIABLE) {
 				String variableName = currentNode.getAttribute(AttributeKey.IDENTIFIER_VALUE);
-
 				localVariableTypeMap.put(variableName, currentNode.getDataTypeName());
 				localVariableRankMap.put(variableName, currentNode.getRank());
 				localVariableSerialNumberMap.put(variableName, localVariableCounter);
@@ -229,24 +227,24 @@ public class SemanticAnalyzer {
 		Map<String, Integer> localFunctionSerialNumberMap = new HashMap<String, Integer>();
 
 		AstNode currentNode = astRootNode;
-		int currentDepth = 0; // ブロック終端による変数削除などで使用
-		int lastDepth = 0;
+		int currentBlockDepth = 0; // ブロック終端による変数削除などで使用
+		int lastBlockDepth = 0;
 
 		List<String> scopeLocalFunctionSignatureList = new LinkedList<String>();
 		Deque<List<String>>scopeLocalFunctionSignatureListStack = new ArrayDeque<List<String>>();
 
 		do {
 			currentNode = currentNode.getPreorderTraversalNextNode();
-			lastDepth = currentDepth;
-			currentDepth = currentNode.getDepth();
+			lastBlockDepth = currentBlockDepth;
+			currentBlockDepth = currentNode.getBlockDepth();
 
 			// ブロック文に入った場合: 上階層のスコープ内ローカル変数/関数リストをスタックに退避し、リセット
-			if (currentDepth > lastDepth) {
+			if (currentBlockDepth > lastBlockDepth) {
 				scopeLocalFunctionSignatureListStack.push(scopeLocalFunctionSignatureList);
 				scopeLocalFunctionSignatureList = new LinkedList<String>();
 
 			// ブロック文を抜ける場合: その階層のローカル変数/関数を削除し、スコープ内ローカル変数/関数リストをスタックから復元
-			} else if (currentDepth < lastDepth) {
+			} else if (currentBlockDepth < lastBlockDepth) {
 				Iterator<String> functionIterator = scopeLocalFunctionSignatureList.iterator();
 				while (functionIterator.hasNext()) {
 					String scopeLocalFunctionSignature = functionIterator.next();
@@ -257,7 +255,7 @@ public class SemanticAnalyzer {
 				scopeLocalFunctionSignatureList = scopeLocalFunctionSignatureListStack.pop();
 			}
 
-			// ローカル関数ノードの場合: ローカル関数マップに追加し、ノード自身にローカル関数インデックスやスコープも設定
+			// ローカル関数宣言文ノードの場合: ローカル関数マップに追加し、ノード自身にローカル関数インデックスやスコープも設定
 			if (currentNode.getType() == AstNode.Type.FUNCTION) {
 				String functionSignature = IdentifierSyntax.getSignatureOf(currentNode);
 

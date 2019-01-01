@@ -335,6 +335,24 @@ public class AstNode implements Cloneable {
 
 
 	/**
+	 * このASTノードの、構文木内でのブロックの階層深度（根が深度0）を取得します。
+	 *
+	 * @return 構文木内でのブロックの階層深度（根が深度0）
+	 */
+	public int getBlockDepth() {
+		if (this.hasParentNode()) {
+			if (this.type == AstNode.Type.BLOCK) {
+				return this.getParentNode().getBlockDepth() + 1;
+			} else {
+				return this.getParentNode().getBlockDepth();
+			}
+		} else {
+			return 0;
+		}
+	}
+
+
+	/**
 	 * {@link AttributeKey#DATA_TYPE DATA_TYPE} 属性の値を参照する事により、
 	 * このASTノードにおけるデータ型の名称を取得します。
 	 *
