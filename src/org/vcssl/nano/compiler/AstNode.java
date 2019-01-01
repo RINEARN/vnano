@@ -67,6 +67,9 @@ public class AstNode implements Cloneable {
 		/** continue 文のノードを表します。 */
 		CONTINUE,
 
+		/** return 文のノードを表します。 */
+		RETURN,
+
 		/** 式の構文木における末端（根）ノードを表します。 */
 		LEAF,
 

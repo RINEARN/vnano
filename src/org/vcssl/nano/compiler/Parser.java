@@ -75,9 +75,6 @@ public class Parser {
 			int blockEnd = Token.getIndexOf(tokens, ScriptWord.BLOCK_END, statementBegin);
 
 			Token beginToken = tokens[statementBegin];
-			if (statementBegin+1 < tokenLength) {
-				nextToken = tokens[statementBegin+1];
-			}
 
 			// 文末記号が無い場合のエラー（3つめの条件は、ブロック終端後に文が無い場合のため）
 			if (statementEnd < 0 && blockBegin < 0 && statementBegin!=blockEnd) {
