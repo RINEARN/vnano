@@ -151,7 +151,11 @@ public class LexicalChecker {
 				);
 			}
 
-		// else文の場合: else文ノードを生成するのみ
+		} else if (controlTypeToken.getValue().equals(ScriptWord.RETURN)) {
+
+			// 後に任意の式が続き、省略も可能なので、トークン列の段階では特に制約しない
+
+		// else / break / continue 文の場合
 		} else if(controlTypeToken.getValue().equals(ScriptWord.ELSE)
 				|| controlTypeToken.getValue().equals(ScriptWord.BREAK)
 				|| controlTypeToken.getValue().equals(ScriptWord.CONTINUE) ) {

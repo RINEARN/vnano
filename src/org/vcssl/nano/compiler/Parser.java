@@ -142,7 +142,7 @@ public class Parser {
 					statementStack.push(this.parseControlStatement(subTokens));
 					statementBegin++;
 
-				// break / continue文など
+				// break / continue / return 文など
 				} else {
 					Token[] subTokens = Arrays.copyOfRange(tokens, statementBegin, statementEnd);
 					statementStack.push(this.parseControlStatement(subTokens));
@@ -556,9 +556,20 @@ public class Parser {
 			node.addChildNode(this.parseExpression(Arrays.copyOfRange(tokens, conditionEnd+1, tokens.length-1)));
 			return node;
 
+		// return文の場合: return文ノードを生成し、戻り値の式をパースしてぶら下げる
+		} else if(controlTypeToken.getValue().equals(ScriptWord.RETURN)) {
+			AstNode node = new AstNode(AstNode.Type.RETURN, lineNumber, fileName);
+			if (1 <= tokens.length) {
+				node.addChildNode(this.parseExpression(Arrays.copyOfRange(tokens, 1, tokens.length)));
+			}
+			return node;
+
 		// break文の場合: break文ノードを生成するのみ
 		} else if(controlTypeToken.getValue().equals(ScriptWord.BREAK)) {
 			AstNode node = new AstNode(AstNode.Type.BREAK, lineNumber, fileName);
+			if (1 <= tokens.length) {
+				node.addChildNode(this.parseExpression(Arrays.copyOfRange(tokens, 1, tokens.length)));
+			}
 			return node;
 
 		// continue文の場合: continue文ノードを生成するのみ
