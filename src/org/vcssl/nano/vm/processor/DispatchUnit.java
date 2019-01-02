@@ -171,9 +171,15 @@ public class DispatchUnit {
 				return programCounter + 1;
 			}
 
-			// 第2オペランドと同じ配列要素数で第1オペランドをメモリ確保
+			// 第2オペランドと同じ配列要素数で、第1オペランドをメモリ確保
 			case ALLOCR : {
 				executionUnit.allocSameLengths(dataTypes[0], operands[0], operands[1]);
+				return programCounter + 1;
+			}
+
+			// スタック上の先端に積まれているデータと同じ配列要素数で、第1オペランドをメモリ確保
+			case ALLOCP : {
+				executionUnit.allocSameLengths(dataTypes[0], operands[0], memory.peek());
 				return programCounter + 1;
 			}
 

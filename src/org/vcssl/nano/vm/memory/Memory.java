@@ -225,7 +225,7 @@ public final class Memory {
 
 
 	/**
-	 * スタック領域の末尾にデータを追加します。
+	 * スタック領域の先端にデータを追加します。
 	 *
 	 * @param dataContainer 追加するデータ
 	 */
@@ -235,12 +235,22 @@ public final class Memory {
 
 
 	/**
-	 * スタック領域の末尾からデータを取り出します。
+	 * スタック領域の先端からデータを取り出します。
 	 *
 	 * @return 取り出したデータ
 	 */
 	public final DataContainer<?> pop() {
 		return this.stack.pop();
+	}
+
+
+	/**
+	 * スタック領域の先端にあるデータを、取り出さずに参照します。
+	 *
+	 * @return スタック領域の先端のデータ
+	 */
+	public final DataContainer<?> peek() {
+		return this.stack.peek();
 	}
 
 
