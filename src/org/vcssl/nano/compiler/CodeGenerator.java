@@ -391,7 +391,7 @@ public class CodeGenerator {
 	/**
 	 * AST(抽象構文木)内の各ノードに対して、
 	 * 中間アセンブリコード内で使用するラベルを割りふり、
-	 * それらを各ノードの {@link AttributeKey#ASSEMBLY_VALUE ASSEMBLY_VALUE} 属性値に設定します
+	 * それらを各ノードのラベル関連の属性値に設定します
 	 * （従って、このメソッドは破壊的メソッドです）。
 	 *
 	 * @param inputAst 解析対象のAST(抽象構文木)
@@ -414,6 +414,9 @@ public class CodeGenerator {
 			}
 			if (currentNode.getType() == AstNode.Type.WHILE) {
 				currentNode.addAttribute(AttributeKey.BEGIN_LABEL, this.generateLabelOperandCode());
+				currentNode.addAttribute(AttributeKey.END_LABEL, this.generateLabelOperandCode());
+			}
+			if (currentNode.getType() == AstNode.Type.FUNCTION) {
 				currentNode.addAttribute(AttributeKey.END_LABEL, this.generateLabelOperandCode());
 			}
 
@@ -487,12 +490,14 @@ public class CodeGenerator {
 
 				// ブロック文以外の文の場合
 				case VARIABLE :
+				case FUNCTION :
 				case IF :
 				case ELSE :
 				case WHILE :
 				case FOR :
 				case BREAK :
 				case CONTINUE :
+				case RETURN :
 				case EXPRESSION : {
 					context = this.generateStatementCode(currentNode, context);
 					codeBuilder.append( context.getLastStatementCode() );
@@ -590,6 +595,12 @@ public class CodeGenerator {
 				code = this.generateVariableDeclarationStatementCode(node);
 				break;
 			}
+			// 関数宣言文
+			case FUNCTION : {
+				code = this.generateFunctionDeclarationStatementCode(node);
+				context.addEndPointLabel(node.getAttribute(AttributeKey.END_LABEL));
+				break;
+			}
 			// if 文
 			case IF : {
 				context.addEndPointLabel(node.getAttribute(AttributeKey.END_LABEL));
@@ -655,6 +666,11 @@ public class CodeGenerator {
 						OperationCode.JMP.name(), DataTypeName.BOOL, IMMEDIATE_TRUE,
 						continueJumpPointLabel
 				);
+				break;
+			}
+			// return 文
+			case RETURN : {
+				code = this.generateReturnStatementCode(node);
 				break;
 			}
 			// 式文
@@ -735,6 +751,102 @@ public class CodeGenerator {
 		AstNode[] initExprNodes = node.getChildNodes(AstNode.Type.EXPRESSION);
 		if (initExprNodes.length == 1) {
 			codeBuilder.append( this.generateExpressionCode(initExprNodes[0]) );
+		}
+
+		return codeBuilder.toString();
+	}
+
+
+	/**
+	 * 関数宣言文の処理を実行するコードを生成して返します。
+	 *
+	 * @param node 関数宣言文のASTノード（{@link AstNode.Type#FUNCTION FUNCTION}タイプ）
+	 * @return 生成コード
+	 */
+	private String generateFunctionDeclarationStatementCode (AstNode node) {
+
+		StringBuilder codeBuilder = new StringBuilder();
+
+		// 関数の外側のコードを上から逐次実行されている時に、関数内のコードを実行せず読み飛ばすためのJMP命令を生成
+		String skipLabel = node.getAttribute(AttributeKey.END_LABEL);
+		codeBuilder.append(
+			this.generateInstruction(OperationCode.JMP.name(), DataTypeName.BOOL, IMMEDIATE_TRUE, skipLabel)
+		);
+
+		// 関数先頭のラベルを生成 ... 先頭はラベルである事を示すプレフィックス、その後に識別子プレフィックス + 関数シグネチャ
+		String functionLabelName
+				= Character.toString(AssemblyWord.OPERAND_PREFIX_LABEL)
+				+ Character.toString(AssemblyWord.OPERAND_PREFIX_IDENTIFIER)
+				+ IdentifierSyntax.getSignatureOf(node);
+
+		// 生成した関数先頭ラベルを配置
+		codeBuilder.append( this.generateLabelDirectiveCode(functionLabelName) );
+
+		// 子ノードは引数のノードなので、それらに対してスタック上のデータを取りだして格納するコードを生成
+		AstNode[] argNodes = node.getChildNodes();
+		for (AstNode argNode: argNodes) {
+
+			String argIdentifier = argNode.getAttribute(AttributeKey.ASSEMBLY_VALUE);
+			String argDataType = argNode.getAttribute(AttributeKey.DATA_TYPE);
+			int argRank = argNode.getRank();
+
+			// 引数のローカル変数ディレクティブを生成
+			codeBuilder.append(AssemblyWord.LOCAL_VARIABLE_DIRECTIVE);
+			codeBuilder.append(AssemblyWord.WORD_SEPARATOR);
+			codeBuilder.append(argIdentifier);
+			codeBuilder.append(AssemblyWord.INSTRUCTION_SEPARATOR);
+			codeBuilder.append(AssemblyWord.LINE_SEPARATOR);
+
+			// スカラの場合は固定サイズなので、普通にALLOC命令を生成
+			if (argRank == RANK_OF_SCALAR) {
+				codeBuilder.append(
+					this.generateInstruction(OperationCode.ALLOC.name(), argDataType, argIdentifier)
+				);
+
+			// 配列の場合は、スタック上のデータが収まるサイズでメモリーを確保するために、ALLOCP命令を生成
+			} else {
+				codeBuilder.append(
+					this.generateInstruction(OperationCode.ALLOCP.name(), argDataType, argIdentifier)
+				);
+			}
+
+			// スタックから引数に値を取り出すMOVPOP命令のコードを生成
+			codeBuilder.append(
+				this.generateInstruction(OperationCode.MOVPOP.name(), argDataType, argIdentifier)
+			);
+		}
+
+		return codeBuilder.toString();
+	}
+
+
+	/**
+	 * return文の処理を実行するコードを生成して返します。
+	 *
+	 * @param node return文のASTノード（{@link AstNode.Type#RETURN RETURN}タイプ）
+	 * @return 生成コード
+	 */
+	private String generateReturnStatementCode(AstNode node) {
+
+		StringBuilder codeBuilder = new StringBuilder();
+
+		AstNode[] childNodes = node.getChildNodes();
+
+		// 戻り値が無い場合 ... オペランド無しのRET命令を生成
+		if (childNodes.length == 0) {
+			codeBuilder.append(
+				this.generateInstruction(OperationCode.RET.name(), DataTypeName.VOID)
+			);
+
+		// 戻り値がある場合 ... 戻り値の式を解釈し、その結果をオペランドとするRET命令を生成
+		} else {
+			AstNode exprNode = childNodes[0];
+			String exprValue = exprNode.getAttribute(AttributeKey.ASSEMBLY_VALUE);
+			String exprCode = this.generateExpressionCode(exprNode);
+			codeBuilder.append(exprCode);
+			codeBuilder.append(
+				this.generateInstruction(OperationCode.RET.name(), DataTypeName.VOID, exprValue)
+			);
 		}
 
 		return codeBuilder.toString();
@@ -1594,7 +1706,6 @@ public class CodeGenerator {
 	}
 
 
-
 	/**
 	 * 関数呼び出し演算子の演算を実行するコードを生成して返します。
 	 *
@@ -1612,21 +1723,60 @@ public class CodeGenerator {
 		AstNode[] childNodes = operatorNode.getChildNodes();
 		int childNLength = childNodes.length;
 
+		AstNode functionIdentifierNode = childNodes[0];
+		String scope = functionIdentifierNode.getAttribute(AttributeKey.SCOPE);
+
 		int operandLength = childNLength + 1;
 		String[] operands = new String[operandLength];
-
-		operands[0] = returnRegister;
 		for (int operandIndex=1; operandIndex<operandLength; operandIndex++) {
 			operands[operandIndex] = childNodes[operandIndex-1].getAttribute(AttributeKey.ASSEMBLY_VALUE);
 		}
 
-		codeBuilder.append(
+		// 外部関数: CALLX命令を生成
+		if (scope.equals(AttributeValue.GLOBAL)) {
+			operands[0] = returnRegister;
+			codeBuilder.append(
 				this.generateInstruction(OperationCode.CALLX.name(), operatorNode.getDataTypeName(), operands)
-		);
+			);
+
+		// 内部関数: CALL命令と、戻り値を取得して格納するコードを生成
+		} else if (scope.equals(AttributeValue.LOCAL)) {
+
+			// CALL命令は戻り値をスタックに積むので第0オペランドには何も書き込まない。後でNONE的なプレースホルダを使うよう直すべき
+			operands[0] = generateRegisterOperandCode();
+
+			// CALL命令の対象関数指定オペランド値はラベルなので、ラベルのプレフィックスを付加
+			operands[1] = AssemblyWord.OPERAND_PREFIX_LABEL + operands[1];
+
+			// CALL命令を生成
+			codeBuilder.append(
+				this.generateInstruction(OperationCode.CALL.name(), operatorNode.getDataTypeName(), operands)
+			);
+
+			// 戻り値の格納先のメモリー領域を確保するコードを生成
+			if(operatorNode.getRank() == RANK_OF_SCALAR) {
+				// スカラの場合はサイズが固定なので、普通にALLOC命令で確保する
+				codeBuilder.append(
+					this.generateInstruction(OperationCode.ALLOC.name(), operatorNode.getDataTypeName(), returnRegister)
+				);
+			} else {
+				// 配列の場合は、スタック上のデータがちょうど収まるサイズになるように、ALLOCP命令で確保する
+				codeBuilder.append(
+					this.generateInstruction(OperationCode.ALLOCP.name(), operatorNode.getDataTypeName(), returnRegister)
+				);
+			}
+
+			// MOVPOP命令で、スタック上のデータを戻り値の格納先にコピーするコードを生成
+			codeBuilder.append(
+				this.generateInstruction(OperationCode.MOVPOP.name(), operatorNode.getDataTypeName(), returnRegister)
+			);
+
+		} else {
+			throw new VnanoFatalException("Unknown function scope: " + scope);
+		}
 
 		return codeBuilder.toString();
 	}
-
 
 
 	/**
@@ -1744,12 +1894,22 @@ public class CodeGenerator {
 			if (currentNode.getType() == AstNode.Type.OPERATOR
 				&& currentNode.getAttribute(AttributeKey.OPERATOR_EXECUTOR).equals(AttributeValue.CALL)) {
 
+				// 呼び出し対象関数のアセンブリコード用識別子を生成
 				String identifier = IdentifierSyntax.getAssemblyIdentifierOfCalleeFunctionOf(currentNode);
+
+				// 呼び出し対象関数のスコープを取得(子ノードの先頭要素が関数識別子ノードで、それがSCOPE属性の値として持っている)
+				String scope = currentNode.getChildNodes()[0].getAttribute(AttributeKey.SCOPE);
 
 				// 既に出力済みでなければ出力
 				if (!generatedSet.contains(identifier)) {
 					generatedSet.add(identifier);
-					codeBuilder.append(AssemblyWord.GLOBAL_FUNCTION_DIRECTIVE);
+					if (scope.equals(AttributeValue.GLOBAL)) {
+						codeBuilder.append(AssemblyWord.GLOBAL_FUNCTION_DIRECTIVE);
+					} else if (scope.equals(AttributeValue.LOCAL)) {
+						codeBuilder.append(AssemblyWord.LOCAL_FUNCTION_DIRECTIVE);
+					} else {
+						throw new VnanoFatalException("Unknown function scope: " + currentNode.getAttribute(AttributeKey.SCOPE));
+					}
 					codeBuilder.append(AssemblyWord.WORD_SEPARATOR);
 					codeBuilder.append(identifier);
 					codeBuilder.append(AssemblyWord.INSTRUCTION_SEPARATOR);
@@ -1974,6 +2134,22 @@ public class CodeGenerator {
 
 		// ディレクティブの種類が変わる箇所で空白行を挟む
 		if (globalFunctionDirectiveExist) {
+			codeBuilder.append(AssemblyWord.LINE_SEPARATOR);
+		}
+
+		// ローカル関数ディレクティブの抽出/配置
+		boolean localFunctionDirectiveExist = false;
+		for (int lineIndex=0; lineIndex<lineLength; lineIndex++) {
+			if (lines[lineIndex].startsWith(AssemblyWord.LOCAL_FUNCTION_DIRECTIVE)) {
+				localFunctionDirectiveExist = true;
+				codeBuilder.append(lines[lineIndex]);
+				codeBuilder.append(AssemblyWord.LINE_SEPARATOR);
+				lines[lineIndex] = "";
+			}
+		}
+
+		// ディレクティブの種類が変わる箇所で空白行を挟む
+		if (localFunctionDirectiveExist) {
 			codeBuilder.append(AssemblyWord.LINE_SEPARATOR);
 		}
 

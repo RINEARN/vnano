@@ -135,8 +135,6 @@ public class IdentifierSyntax {
 	}
 
 
-	// 以下はもう呼び出し側で行ってもいいのでは？　
-	// 関数定義サポートしたのでローカルかグローバルかでprefix変わってくるし
 
 	public static String getAssemblyIdentifierOf(String functionName,
 			String[] parameterDataTypeNames, int[] parameterArrayRanks) {
@@ -160,6 +158,19 @@ public class IdentifierSyntax {
 		return AssemblyWord.OPERAND_PREFIX_IDENTIFIER + variableName;
 	}
 
+	public static String getAssemblyIdentifierOf(AstNode variableNode) {
+		String variableName = variableNode.getAttribute(AttributeKey.IDENTIFIER_VALUE);
+		String serialNumber = variableNode.getAttribute(AttributeKey.IDENTIFIER_SERIAL_NUMBER);
+		String assemblyIdentifier
+				= AssemblyWord.OPERAND_PREFIX_IDENTIFIER
+				+ variableName
+				+ AssemblyWord.IDENTIFIER_SERIAL_NUMBER_SEPARATOR
+				+ serialNumber;
+
+		return assemblyIdentifier;
+	}
+
+	// 後で AbstractVariable がシリアルナンバーを持てるようにした場合は、持っていれば付けるべき
 	public static String getAssemblyIdentifierOf(AbstractVariable variable) {
 		return AssemblyWord.OPERAND_PREFIX_IDENTIFIER + variable.getVariableName();
 	}

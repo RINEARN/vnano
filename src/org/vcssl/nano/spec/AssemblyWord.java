@@ -48,6 +48,7 @@ public final class AssemblyWord {
 	public static final String SCRIPT_LANGUAGE_VERSION_DIRECTIVE = "#SCRIPT_LANGUAGE_VERSION";
 	public static final String LOCAL_VARIABLE_DIRECTIVE = "#LOCAL_VARIABLE";
 	public static final String GLOBAL_VARIABLE_DIRECTIVE = "#GLOBAL_VARIABLE";
+	public static final String LOCAL_FUNCTION_DIRECTIVE = "#LOCAL_FUNCTION";
 	public static final String GLOBAL_FUNCTION_DIRECTIVE = "#GLOBAL_FUNCTION";
 	public static final String META_DIRECTIVE = "#META";
 	public static final String LABEL_DIRECTIVE = "#LABEL";
