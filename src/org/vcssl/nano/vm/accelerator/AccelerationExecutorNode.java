@@ -24,6 +24,6 @@ public abstract class AccelerationExecutorNode {
 
 	public abstract AccelerationExecutorNode execute();
 
-	public void setBranchedNode(AccelerationExecutorNode branchedNode) {
+	public void setLaundingPointNodes(AccelerationExecutorNode ... branchedNode) {
 	}
 }

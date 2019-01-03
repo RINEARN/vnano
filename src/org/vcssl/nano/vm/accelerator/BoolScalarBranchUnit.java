@@ -54,8 +54,8 @@ public class BoolScalarBranchUnit extends AccelerationUnit {
 			this.synchronizer = synchronizer;
 		}
 
-		public void setBranchedNode(AccelerationExecutorNode branchedNode) {
-			this.branchedNode = branchedNode;
+		public void setLaundingPointNodes(AccelerationExecutorNode[] branchedNode) {
+			this.branchedNode = branchedNode[0];
 		}
 
 		public final AccelerationExecutorNode execute() {
@@ -81,8 +81,8 @@ public class BoolScalarBranchUnit extends AccelerationUnit {
 			this.synchronizer = synchronizer;
 		}
 
-		public void setBranchedNode(AccelerationExecutorNode branchedNode) {
-			this.branchedNode = branchedNode;
+		public void setLaundingPointNodes(AccelerationExecutorNode[] branchedNode) {
+			this.branchedNode = branchedNode[0];
 		}
 
 		public final AccelerationExecutorNode execute() {
