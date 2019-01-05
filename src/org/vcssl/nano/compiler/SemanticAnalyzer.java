@@ -127,7 +127,7 @@ public class SemanticAnalyzer {
 		Deque<List<String>>scopeLocalVariableNameListStack = new ArrayDeque<List<String>>();
 
 		do {
-			currentNode = currentNode.getPreorderTraversalNextNode();
+			currentNode = currentNode.getPreorderDfsTraversalNextNode();
 			lastBlockDepth = currentBlockDepth;
 			currentBlockDepth = currentNode.getBlockDepth();
 
@@ -181,7 +181,7 @@ public class SemanticAnalyzer {
 					currentNode.addAttribute(AttributeKey.SCOPE, AttributeValue.GLOBAL);
 					AbstractVariable variable = globalVariableTable.getVariableByName(identifier);
 					currentNode.addAttribute(AttributeKey.RANK, Integer.toString(variable.getRank()));
-					currentNode.addAttribute(AttributeKey.DATA_TYPE, DataTypeName.getDataTypeNameOf(variable.getDataType()));
+					currentNode.addAttribute(AttributeKey.DATA_TYPE, variable.getDataTypeName());
 
 				} else {
 					throw new VnanoException(
@@ -190,7 +190,7 @@ public class SemanticAnalyzer {
 					);
 				}
 			}
-		} while (!currentNode.isPreorderTraversalLastNode());
+		} while (!currentNode.isPreorderDfsTraversalLastNode());
 	}
 
 
@@ -234,7 +234,7 @@ public class SemanticAnalyzer {
 		Deque<List<String>>scopeLocalFunctionSignatureListStack = new ArrayDeque<List<String>>();
 
 		do {
-			currentNode = currentNode.getPreorderTraversalNextNode();
+			currentNode = currentNode.getPreorderDfsTraversalNextNode();
 			lastBlockDepth = currentBlockDepth;
 			currentBlockDepth = currentNode.getBlockDepth();
 
@@ -275,7 +275,10 @@ public class SemanticAnalyzer {
 
 				AstNode callOperator = currentNode.getParentNode(); // 関数識別子ノードの親階層にある、呼び出し演算子のノードを取得
 
-				// この時点で、渡す引数のノードの配列ランクが確定してないといけない（シグネチャ生成に必要）
+				// 注： この時点で、渡す引数のノードの配列ランクが確定してないといけない（シグネチャ生成に必要）
+				// -> ローカル関数はローカル変数と違ってルート階層での宣言のみにして、
+				//    演算子の型解決の前処理で全部テーブルに登録して、その代わりに後方参照を可能にするべき
+
 				String signature = IdentifierSyntax.getSignatureOfCalleeFunctionOf(callOperator); // 呼び出している関数のシグネチャを取得
 
 				// ローカル関数
@@ -290,7 +293,7 @@ public class SemanticAnalyzer {
 					currentNode.addAttribute(AttributeKey.SCOPE, AttributeValue.GLOBAL);
 					AbstractFunction function = globalFunctionTable.getCalleeFunctionOf(callOperator);
 					currentNode.addAttribute(AttributeKey.RANK, Integer.toString(function.getReturnArrayRank()));
-					currentNode.addAttribute(AttributeKey.DATA_TYPE, DataTypeName.getDataTypeNameOf(function.getReturnDataType()));
+					currentNode.addAttribute(AttributeKey.DATA_TYPE, function.getReturnDataTypeName());
 
 				} else {
 					throw new VnanoException(
@@ -300,7 +303,7 @@ public class SemanticAnalyzer {
 				}
 			}
 
-		} while (!currentNode.isPreorderTraversalLastNode());
+		} while (!currentNode.isPreorderDfsTraversalLastNode());
 	}
 
 
@@ -324,7 +327,7 @@ public class SemanticAnalyzer {
 
 		AstNode currentNode = astRootNode;
 		do {
-			currentNode = currentNode.getPreorderTraversalNextNode();
+			currentNode = currentNode.getPreorderDfsTraversalNextNode();
 
 			// リテラルのリーフノードの場合: 属性値を求めて設定
 			if (currentNode.getType() == AstNode.Type.LEAF
@@ -334,7 +337,7 @@ public class SemanticAnalyzer {
 				currentNode.addAttribute(AttributeKey.RANK, "0"); // 現状では配列のリテラルは存在しないため、常にスカラ
 				currentNode.addAttribute(AttributeKey.DATA_TYPE, LiteralSyntax.getDataTypeNameOfLiteral(literal));
 			}
-		} while (!currentNode.isPreorderTraversalLastNode());
+		} while (!currentNode.isPreorderDfsTraversalLastNode());
 	}
 
 
@@ -364,7 +367,7 @@ public class SemanticAnalyzer {
 
 
 		// 構文木の全ノードに対し、末端からボトムアップの順序で辿りながら処理する
-		AstNode currentNode = astRootNode.getPostorderTraversalFirstNode();
+		AstNode currentNode = astRootNode.getPostorderDfsTraversalFirstNode();
 		while(currentNode != astRootNode) {
 
 			if(currentNode.getType() == AstNode.Type.OPERATOR) {
@@ -505,7 +508,7 @@ public class SemanticAnalyzer {
 			}
 
 			// 次のノードへボトムアップの順序で移動
-			currentNode = currentNode.getPostorderTraversalNextNode();
+			currentNode = currentNode.getPostorderDfsTraversalNextNode();
 		}
 	}
 
@@ -527,7 +530,7 @@ public class SemanticAnalyzer {
 	 */
 	private void supplementExpressionAttributes(AstNode astRootNode) {
 
-		AstNode currentNode = astRootNode.getPostorderTraversalFirstNode();
+		AstNode currentNode = astRootNode.getPostorderDfsTraversalFirstNode();
 		while(currentNode != astRootNode) {
 
 			if(currentNode.getType() == AstNode.Type.EXPRESSION) {
@@ -536,7 +539,7 @@ public class SemanticAnalyzer {
 				currentNode.addAttribute(AttributeKey.RANK, Integer.toString(inputNodes[0].getRank()));
 			}
 
-			currentNode = currentNode.getPostorderTraversalNextNode();
+			currentNode = currentNode.getPostorderDfsTraversalNextNode();
 		}
 	}
 

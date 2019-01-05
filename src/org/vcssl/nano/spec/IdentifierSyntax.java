@@ -117,16 +117,8 @@ public class IdentifierSyntax {
 
 	public static String getSignatureOf(AbstractFunction connector) {
 
-		DataType[] parameterDataTypes = connector.getParameterDataTypes();
+		String[] parameterDataTypeNames = connector.getParameterDataTypeNames();
 		int[] parameterArrayRanks = connector.getParameterArrayRanks();
-
-		int parameterLength = parameterDataTypes.length;
-		String[] parameterDataTypeNames = new String[parameterLength];
-		for (int parameterIndex=0; parameterIndex<parameterLength; parameterIndex++) {
-			parameterDataTypeNames[parameterIndex]
-					= DataTypeName.getDataTypeNameOf(parameterDataTypes[parameterIndex]);
-		}
-
 		String signature = getSignatureOf(
 				connector.getFunctionName(), parameterDataTypeNames, parameterArrayRanks
 		);

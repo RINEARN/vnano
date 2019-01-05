@@ -11,6 +11,7 @@ import org.vcssl.nano.VnanoFatalException;
 import org.vcssl.nano.VnanoException;
 import org.vcssl.nano.lang.AbstractFunction;
 import org.vcssl.nano.lang.DataType;
+import org.vcssl.nano.spec.DataTypeName;
 import org.vcssl.nano.vm.memory.DataContainer;
 
 /**
@@ -91,6 +92,7 @@ public class Xfci1FunctionAdapter extends AbstractFunction {
 	 *
 	 * @return 関数名
 	 */
+	@Override
 	public String getFunctionName() {
 		return this.xfciPlugin.getFunctionName();
 	}
@@ -101,6 +103,7 @@ public class Xfci1FunctionAdapter extends AbstractFunction {
 	 *
 	 * @return 全ての仮引数の名称を格納する配列
 	 */
+	@Override
 	public String[] getParameterNames() {
 		return this.xfciPlugin.getParameterNames();
 	}
@@ -111,8 +114,28 @@ public class Xfci1FunctionAdapter extends AbstractFunction {
 	 *
 	 * @return 全ての仮引数のデータ型を格納する配列
 	 */
+	/*
 	public DataType[] getParameterDataTypes() {
 		return this.parameterDataTypes;
+	}
+	*/
+
+
+	/**
+	 * 全ての仮引数のデータ型名を配列として取得します。
+	 *
+	 * @return 全ての仮引数のデータ型を格納する配列
+	 */
+	@Override
+	public String[] getParameterDataTypeNames() {
+		int parameterLength = this.parameterDataTypes.length;
+		String[] dataTypeNames = new String[parameterLength];
+		for (int parameterIndex=0; parameterIndex<parameterLength; parameterIndex++) {
+			dataTypeNames[parameterIndex] = DataTypeName.getDataTypeNameOf(
+					this.parameterDataConverters[parameterIndex].getDataType()
+			);
+		}
+		return dataTypeNames;
 	}
 
 
@@ -121,6 +144,7 @@ public class Xfci1FunctionAdapter extends AbstractFunction {
 	 *
 	 * @return 全ての仮引数の配列次元数を格納する配列
 	 */
+	@Override
 	public int[] getParameterArrayRanks() {
 		return this.parameterArrayRanks;
 	}
@@ -131,6 +155,7 @@ public class Xfci1FunctionAdapter extends AbstractFunction {
 	 *
 	 * @return 可変長引数であればtrue
 	 */
+	@Override
 	public boolean isVariadic() {
 		return this.xfciPlugin.isVariadic();
 	}
@@ -141,8 +166,22 @@ public class Xfci1FunctionAdapter extends AbstractFunction {
 	 *
 	 * @return 戻り値のデータ型
 	 */
+	/*
 	public DataType getReturnDataType() {
 		return this.returnDataType;
+	}
+	*/
+
+
+	/**
+	 * 戻り値のデータ型名を取得します。
+	 * 返される型名の表記内に、配列部分 [][]...[] は含まれません。
+	 *
+	 * @return 戻り値のデータ型名
+	 */
+	@Override
+	public String getReturnDataTypeName() {
+		return DataTypeName.getDataTypeNameOf(this.returnDataType);
 	}
 
 
@@ -151,6 +190,7 @@ public class Xfci1FunctionAdapter extends AbstractFunction {
 	 *
 	 * @return 戻り値の配列次元数
 	 */
+	@Override
 	public int getReturnArrayRank() {
 		return this.returnArrayRank;
 	}
@@ -162,6 +202,7 @@ public class Xfci1FunctionAdapter extends AbstractFunction {
 	 * @param argumentDataContainers 実引数のデータを保持するデータコンテナの配列（各要素が個々の実引数に対応）
 	 * @param returnDataContainer 戻り値のデータを格納するデータコンテナ
 	 */
+	@Override
 	public void invoke(DataContainer<?>[] argumentDataContainers, DataContainer<?> returnDataContainer) {
 
 		int argLength = argumentDataContainers.length;

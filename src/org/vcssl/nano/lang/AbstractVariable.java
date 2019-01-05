@@ -53,8 +53,20 @@ public abstract class AbstractVariable {
 	 * データ型を取得します。
 	 *
 	 * @return この変数のデータ型
+	 * @throws VnanoException
+	 * 		このインスタンスが保持するデータ型名から、
+	 * 		この処理系でサポートされているデータ型に変換できなかった場合にスローされます。
 	 */
-	public abstract DataType getDataType();
+	//public abstract DataType getDataType() throws VnanoException;
+
+
+	/**
+	 * データ型の名称を取得します。
+	 * 返される型名の表記内に、配列部分 [][]...[] は含まれません。
+	 *
+	 * @return この変数のデータ型名
+	 */
+	public abstract String getDataTypeName();
 
 
 	// これ例外を色々と投げる必要がある。XvciFunctionConector#getData参照

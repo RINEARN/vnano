@@ -65,10 +65,12 @@ public class BoolCachedScalarBranchUnit extends AccelerationUnit {
 			this.cache0 = cache0;
 		}
 
-		public void setLaundingPointNodes(AccelerationExecutorNode[] branchedNode) {
+		@Override
+		public void setLaundingPointNodes(AccelerationExecutorNode ... branchedNode) {
 			this.branchedNode = branchedNode[0];
 		}
 
+		@Override
 		public final AccelerationExecutorNode execute() {
 			if (this.cache0.value) {
 				return this.branchedNode;
@@ -90,10 +92,12 @@ public class BoolCachedScalarBranchUnit extends AccelerationUnit {
 			this.cache0 = cache0;
 		}
 
-		public void setLaundingPointNodes(AccelerationExecutorNode[] branchedNode) {
+		@Override
+		public void setLaundingPointNodes(AccelerationExecutorNode ... branchedNode) {
 			this.branchedNode = branchedNode[0];
 		}
 
+		@Override
 		public final AccelerationExecutorNode execute() {
 			if (this.cache0.value) {
 				return this.nextNode;
@@ -111,10 +115,12 @@ public class BoolCachedScalarBranchUnit extends AccelerationUnit {
 			super(nextNode);
 		}
 
-		public void setLaundingPointNodes(AccelerationExecutorNode[] branchedNode) {
+		@Override
+		public void setLaundingPointNodes(AccelerationExecutorNode ... branchedNode) {
 			this.branchedNode = branchedNode[0];
 		}
 
+		@Override
 		public final AccelerationExecutorNode execute() {
 			return this.branchedNode;
 		}
@@ -126,6 +132,7 @@ public class BoolCachedScalarBranchUnit extends AccelerationUnit {
 			super(nextNode);
 		}
 
+		@Override
 		public final AccelerationExecutorNode execute() {
 			return this.nextNode;
 		}

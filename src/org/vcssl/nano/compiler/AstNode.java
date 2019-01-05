@@ -381,7 +381,7 @@ public class AstNode implements Cloneable {
 	 *
 	 * @return 次のノード
 	 */
-	public AstNode getPreorderTraversalNextNode() {
+	public AstNode getPreorderDfsTraversalNextNode() {
 
 		// 子ノードがある場合は子ノードに移動
 		if (this.hasChildNodes()) {
@@ -407,13 +407,13 @@ public class AstNode implements Cloneable {
 
 
 	/**
-	 * AST内のノードを、行がけ順で深さ優先走査する場合における、
+	 * AST内のノードを、行がけ順で深さ優先走査する場合において、
 	 * このノードが最後のノードかどうかを判定します。
 	 *
 	 * @return 判定結果（このノードが最後なら true ）
 	 */
-	public boolean isPreorderTraversalLastNode() {
-		return this.getPreorderTraversalNextNode() == null;
+	public boolean isPreorderDfsTraversalLastNode() {
+		return this.getPreorderDfsTraversalNextNode() == null;
 	}
 
 
@@ -423,7 +423,7 @@ public class AstNode implements Cloneable {
 	 *
 	 * @return 最初のノード
 	 */
-	public AstNode getPostorderTraversalFirstNode() {
+	public AstNode getPostorderDfsTraversalFirstNode() {
 		AstNode currentNode = this;
 		while (currentNode.hasChildNodes()) {
 			currentNode = currentNode.getChildNodes()[0];
@@ -438,7 +438,7 @@ public class AstNode implements Cloneable {
 	 *
 	 * @return 次のノード
 	 */
-	public AstNode getPostorderTraversalNextNode() {
+	public AstNode getPostorderDfsTraversalNextNode() {
 
 		// 親階層が無ければルートノードなので終了
 		// ( 本来は呼び出し側で isBottomUpLastNode で確認しておくのが好ましい )
@@ -456,18 +456,18 @@ public class AstNode implements Cloneable {
 
 		// 右にまだ兄弟が居る場合は、右隣の兄弟の末端まで降りる
 		} else {
-			return brothers[this.getSiblingIndex() + 1].getPostorderTraversalFirstNode();
+			return brothers[this.getSiblingIndex() + 1].getPostorderDfsTraversalFirstNode();
 		}
 	}
 
 
 	/**
-	 * AST内のノードを、帰りがけ順で深さ優先走査する場合における、
+	 * AST内のノードを、帰りがけ順で深さ優先走査する場合において、
 	 * このノードが最後のノードかどうかを判定します。
 	 *
 	 * @return 判定結果（このノードが最後なら true ）
 	 */
-	public boolean isPostorderTraversalLastNode() {
+	public boolean isPostorderDfsTraversalLastNode() {
 		return !this.hasParentNode();
 	}
 

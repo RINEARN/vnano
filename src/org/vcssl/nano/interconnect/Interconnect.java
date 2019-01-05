@@ -24,6 +24,7 @@ import org.vcssl.nano.lang.DataType;
 import org.vcssl.nano.lang.FunctionTable;
 import org.vcssl.nano.lang.Variable;
 import org.vcssl.nano.lang.VariableTable;
+import org.vcssl.nano.spec.DataTypeName;
 import org.vcssl.nano.spec.IdentifierSyntax;
 import org.vcssl.nano.vm.VirtualMachineObjectCode;
 import org.vcssl.nano.vm.memory.DataContainer;
@@ -251,7 +252,7 @@ public class Interconnect {
 			}
 			DataType dataType = dataConverter.getDataType();
 			int rank = dataConverter.getRank();
-			Variable variable = new Variable(bindName, dataType, rank);
+			Variable variable = new Variable(bindName, DataTypeName.getDataTypeNameOf(dataType), rank);
 			variable.setDataContainer(dataConverter.convertToDataContainer(object));
 			identifier = this.connect(variable);
 		} else {

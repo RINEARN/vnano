@@ -19,8 +19,9 @@ public class Variable extends AbstractVariable {
 	/** 変数名を保持します。 */
 	private String variableName = null;
 
-	/** データ型を保持します。 */
-	private DataType dataType = null;
+	// コンパイルの段階では、なるべくデータ型をサポート範囲内には絞らず拡張性を持たせるため、DataType列挙子ではなくデータ型名を保持する
+	/** データ型名を保持します。 */
+	private String dataTypeName = null;
 
 	/** 配列次元数（スカラは0次元として扱う）を保持します。 */
 	private int rank = -1;
@@ -36,12 +37,12 @@ public class Variable extends AbstractVariable {
 	 * メソッドで設定する必要がああります。
 	 *
 	 * @param variableName 変数名
-	 * @param dataType データ型
+	 * @param dataTypeName データ型名（配列部分 [][]...[] は含まない）
 	 * @param rank 恥列次元数（スカラは0次元として扱う）
 	 */
-	public Variable(String variableName, DataType dataType, int rank) {
+	public Variable(String variableName, String dataTypeName, int rank) {
 		this.variableName = variableName;
-		this.dataType = dataType;
+		this.dataTypeName = dataTypeName;
 		this.rank = rank;
 	}
 
@@ -61,10 +62,27 @@ public class Variable extends AbstractVariable {
 	 * データ型を取得します。
 	 *
 	 * @return データ型
+	 * @throws VnanoException
+	 * 		このインスタンスが保持するデータ型名から、
+	 * 		この処理系でサポートされているデータ型に変換できなかった場合にスローされます。
+	 */
+	/*
+	@Override
+	public DataType getDataType() throws VnanoException {
+		//return this.dataType;
+		return DataTypeName.getDataTypeOf(this.dataTypeName);
+	}
+	*/
+
+
+	/**
+	 * データ型の名称を取得します。
+	 *
+	 * @return データ型の名称
 	 */
 	@Override
-	public DataType getDataType() {
-		return this.dataType;
+	public String getDataTypeName() {
+		return this.dataTypeName;
 	}
 
 

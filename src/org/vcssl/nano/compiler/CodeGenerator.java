@@ -299,7 +299,7 @@ public class CodeGenerator {
 	 */
 	private void assignAssemblyValues(AstNode inputAst) {
 
-		AstNode currentNode = inputAst.getPostorderTraversalFirstNode();
+		AstNode currentNode = inputAst.getPostorderDfsTraversalFirstNode();
 		while (currentNode != inputAst) {
 
 			AstNode.Type nodeType = currentNode.getType();
@@ -382,7 +382,7 @@ public class CodeGenerator {
 				currentNode.addAttribute(AttributeKey.ASSEMBLY_VALUE, value);
 			}
 
-			currentNode = currentNode.getPostorderTraversalNextNode();
+			currentNode = currentNode.getPostorderDfsTraversalNextNode();
 		}
 	}
 
@@ -398,7 +398,7 @@ public class CodeGenerator {
 	 */
 	private void assignLabels(AstNode inputAst) {
 
-		AstNode currentNode = inputAst.getPostorderTraversalFirstNode();
+		AstNode currentNode = inputAst.getPostorderDfsTraversalFirstNode();
 		while (currentNode != inputAst) {
 
 			if (currentNode.getType() == AstNode.Type.IF) {
@@ -429,7 +429,7 @@ public class CodeGenerator {
 				}
 			}
 
-			currentNode = currentNode.getPostorderTraversalNextNode();
+			currentNode = currentNode.getPostorderDfsTraversalNextNode();
 		}
 	}
 
@@ -1062,12 +1062,12 @@ public class CodeGenerator {
 
 		StringBuilder codeBuilder = new StringBuilder();
 
-		AstNode currentNode = exprRootNode.getPostorderTraversalFirstNode();
+		AstNode currentNode = exprRootNode.getPostorderDfsTraversalFirstNode();
 		while(currentNode != exprRootNode) {
 
 			// リーフノードは演算コードを生成する必要がない
 			if (currentNode.getType() != AstNode.Type.OPERATOR) {
-				currentNode = currentNode.getPostorderTraversalNextNode();
+				currentNode = currentNode.getPostorderDfsTraversalNextNode();
 				continue;
 			}
 
@@ -1170,7 +1170,7 @@ public class CodeGenerator {
 				}
 			}
 
-			currentNode = currentNode.getPostorderTraversalNextNode();
+			currentNode = currentNode.getPostorderDfsTraversalNextNode();
 		}
 
 		return codeBuilder.toString();
@@ -1882,7 +1882,7 @@ public class CodeGenerator {
 	 */
 	private String generateFunctionIdentifierDirectives(AstNode inputAst) {
 		StringBuilder codeBuilder = new StringBuilder();
-		AstNode currentNode = inputAst.getPostorderTraversalFirstNode();
+		AstNode currentNode = inputAst.getPostorderDfsTraversalFirstNode();
 
 		// 出力済みのものを控える
 		Set<String> generatedSet = new HashSet<String>();
@@ -1917,7 +1917,7 @@ public class CodeGenerator {
 				}
 			}
 
-			currentNode = currentNode.getPostorderTraversalNextNode();
+			currentNode = currentNode.getPostorderDfsTraversalNextNode();
 		}
 		return codeBuilder.toString();
 	}
@@ -1934,7 +1934,7 @@ public class CodeGenerator {
 	 */
 	private String generateGlobalIdentifierDirectives(AstNode inputAst) {
 		StringBuilder codeBuilder = new StringBuilder();
-		AstNode currentNode = inputAst.getPostorderTraversalFirstNode();
+		AstNode currentNode = inputAst.getPostorderDfsTraversalFirstNode();
 
 		// 出力済みのものを控える
 		Set<String> generatedSet = new HashSet<String>();
@@ -1963,7 +1963,7 @@ public class CodeGenerator {
 				}
 			}
 
-			currentNode = currentNode.getPostorderTraversalNextNode();
+			currentNode = currentNode.getPostorderDfsTraversalNextNode();
 		}
 		return codeBuilder.toString();
 	}

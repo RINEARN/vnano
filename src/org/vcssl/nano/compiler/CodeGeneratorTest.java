@@ -11,7 +11,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.vcssl.nano.interconnect.Interconnect;
-import org.vcssl.nano.lang.DataType;
 import org.vcssl.nano.lang.Variable;
 import org.vcssl.nano.spec.AssemblyWord;
 import org.vcssl.nano.spec.DataTypeName;
@@ -83,14 +82,14 @@ public class CodeGeneratorTest {
 	@Before
 	public void setUp() throws Exception {
 		this.interconnect = new Interconnect();
-		this.interconnect.connect(new Variable("intVectorA", DataType.INT64, 1));
-		this.interconnect.connect(new Variable("intVectorB", DataType.INT64, 1));
-		this.interconnect.connect(new Variable("intScalarA", DataType.INT64, RANK_OF_SCALAR));
-		this.interconnect.connect(new Variable("intScalarB", DataType.INT64, RANK_OF_SCALAR));
-		this.interconnect.connect(new Variable("floatVectorA", DataType.FLOAT64, 1));
-		this.interconnect.connect(new Variable("floatVectorB", DataType.FLOAT64, 1));
-		this.interconnect.connect(new Variable("boolVectorA", DataType.BOOL, 1));
-		this.interconnect.connect(new Variable("boolVectorB", DataType.BOOL, 1));
+		this.interconnect.connect(new Variable("intVectorA", DataTypeName.INT, 1));
+		this.interconnect.connect(new Variable("intVectorB", DataTypeName.INT, 1));
+		this.interconnect.connect(new Variable("intScalarA", DataTypeName.INT, RANK_OF_SCALAR));
+		this.interconnect.connect(new Variable("intScalarB", DataTypeName.INT, RANK_OF_SCALAR));
+		this.interconnect.connect(new Variable("floatVectorA", DataTypeName.FLOAT, 1));
+		this.interconnect.connect(new Variable("floatVectorB", DataTypeName.FLOAT, 1));
+		this.interconnect.connect(new Variable("boolVectorA", DataTypeName.BOOL, 1));
+		this.interconnect.connect(new Variable("boolVectorB", DataTypeName.BOOL, 1));
 	}
 
 	@After

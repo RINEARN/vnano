@@ -10,7 +10,7 @@ import org.vcssl.connect.ExternalVariableException;
 import org.vcssl.nano.VnanoFatalException;
 import org.vcssl.nano.VnanoException;
 import org.vcssl.nano.lang.AbstractVariable;
-import org.vcssl.nano.lang.DataType;
+import org.vcssl.nano.spec.DataTypeName;
 import org.vcssl.nano.vm.memory.DataContainer;
 
 /**
@@ -63,9 +63,23 @@ public class Xvci1VariableAdapter extends AbstractVariable {
 	 *
 	 * @return 変数のデータ型
 	 */
+	/*
 	@Override
 	public DataType getDataType() {
 		return this.dataConverter.getDataType();
+	}
+	*/
+
+
+	/**
+	 * データ型の名称を取得します。
+	 * 返される型名の表記内に、配列部分 [][]...[] は含まれません。
+	 *
+	 * @return 変数のデータ型名
+	 */
+	@Override
+	public String getDataTypeName() {
+		return DataTypeName.getDataTypeNameOf(this.dataConverter.getDataType());
 	}
 
 
