@@ -8,11 +8,6 @@ package org.vcssl.nano.compiler;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
 
 import org.vcssl.nano.VnanoException;
 import org.vcssl.nano.compiler.AstNode;
@@ -20,7 +15,9 @@ import org.vcssl.nano.interconnect.Interconnect;
 import org.vcssl.nano.lang.AbstractFunction;
 import org.vcssl.nano.lang.AbstractVariable;
 import org.vcssl.nano.lang.DataType;
+import org.vcssl.nano.lang.Function;
 import org.vcssl.nano.lang.FunctionTable;
+import org.vcssl.nano.lang.Variable;
 import org.vcssl.nano.lang.VariableTable;
 import org.vcssl.nano.spec.DataTypeName;
 import org.vcssl.nano.spec.ErrorType;
@@ -74,11 +71,11 @@ public class SemanticAnalyzer {
 		// 変数識別子タイプのリーフノード（変数宣言文ノードではない）に対して、参照している変数を判定し、その属性値を設定
 		this.supplementVariableIdentifierLeafAttributes(outputAst, globalVariableTable);
 
-		// 関数識別子タイプのリーフノード（関数宣言文ノードではない）に対して、呼び出している関数を判定し、その属性値を設定
-		this.supplementFunctionIdentifierLeafAttributes(outputAst, globalFunctionTable);
+		// 内部関数を抽出して関数テーブルを取得
+		FunctionTable localFunctionTable = this.extractFunctions(outputAst);
 
 		// 演算子ノードの属性値を設定
-		this.supplementOperatorAttributes(outputAst, globalFunctionTable);
+		this.supplementOperatorAttributes(outputAst, globalFunctionTable, localFunctionTable);
 
 		// 式ノードの属性値を設定
 		this.supplementExpressionAttributes(outputAst);
@@ -108,84 +105,85 @@ public class SemanticAnalyzer {
 			return;
 		}
 
-		// 同じ識別子/シグネチャのローカル変数を区別できるようにするため、識別子に加えてカウンタ情報を付加する
-		int localVariableCounter = 0;
+		// 同じ識別子/シグネチャのローカル変数を区別できるようにするため、識別子に加えてシリアルナンバー情報を付加する
+		int localVariableSerialNumber = 0;
 
-		// 注意: 同じキーがHashMapに重複登録された場合、get は最後に登録された要素を返り、remove も最後の要素が削られる
-		//（実際にその挙動を利用している）
-
-		// ローカル変数マップ
-		Map<String, String> localVariableTypeMap = new HashMap<String, String>();
-		Map<String, Integer> localVariableRankMap = new HashMap<String, Integer>();
-		Map<String, Integer> localVariableSerialNumberMap = new HashMap<String, Integer>();
+		// ローカル変数テーブル
+		VariableTable localVariableTable = new VariableTable();
 
 		AstNode currentNode = astRootNode;
 		int currentBlockDepth = 0; // ブロック終端による変数削除などで使用
 		int lastBlockDepth = 0;
 
-		List<String> scopeLocalVariableNameList = new LinkedList<String>();
-		Deque<List<String>>scopeLocalVariableNameListStack = new ArrayDeque<List<String>>();
+		// ブロックスコープ内で宣言されたローカル変素の数を控えるカウンタ（ブロックスコープ脱出時に変数をテーブルから削除するため）
+		int scopeLocalVariableCounter = 0;
+
+		// 入れ子ブロックに入る際に、上記のローカル変数カウンタの値を退避するためのスタック
+		Deque<Integer>scopeLocalVariableCounterStack = new ArrayDeque<Integer>();
 
 		do {
 			currentNode = currentNode.getPreorderDfsTraversalNextNode();
 			lastBlockDepth = currentBlockDepth;
 			currentBlockDepth = currentNode.getBlockDepth();
 
-			// ブロック文に入った場合: 上階層のスコープ内ローカル変数/関数リストをスタックに退避し、リセット
+			// ブロック文に入った場合: 上階層のスコープ内ローカル変数カウンタの値をスタックに退避し、リセット
 			if (currentBlockDepth > lastBlockDepth) {
-				scopeLocalVariableNameListStack.push(scopeLocalVariableNameList);
-				scopeLocalVariableNameList = new LinkedList<String>();
+				scopeLocalVariableCounterStack.add(scopeLocalVariableCounter);
+				scopeLocalVariableCounter = 0;
 
 			// ブロック文を抜ける場合: その階層のローカル変数/関数を削除し、スコープ内ローカル変数/関数リストをスタックから復元
 			} else if (currentBlockDepth < lastBlockDepth) {
-				Iterator<String> variableIterator = scopeLocalVariableNameList.iterator();
-				while (variableIterator.hasNext()) {
-					String scopeLocalVariableName = variableIterator.next();
-					localVariableTypeMap.remove(scopeLocalVariableName);
-					localVariableRankMap.remove(scopeLocalVariableName);
-					localVariableSerialNumberMap.remove(scopeLocalVariableName);
+				// ブロック内の変数は末尾に連続して詰まっているはずなので、末尾から連続で削除
+				for (int i=0; i<scopeLocalVariableCounter; i++) {
+					localVariableTable.removeLastVariable();
 				}
-				scopeLocalVariableNameList = scopeLocalVariableNameListStack.pop();
+				// 脱出先ブロックスコープ内の変数の数をスタックから復元
+				scopeLocalVariableCounter = scopeLocalVariableCounterStack.pop();
 			}
 
 			// ローカル変数宣言文ノードの場合: ローカル変数マップに追加し、ノード自身にローカル変数インデックスやスコープも設定
 			if (currentNode.getType() == AstNode.Type.VARIABLE) {
 				String variableName = currentNode.getAttribute(AttributeKey.IDENTIFIER_VALUE);
-				localVariableTypeMap.put(variableName, currentNode.getDataTypeName());
-				localVariableRankMap.put(variableName, currentNode.getRank());
-				localVariableSerialNumberMap.put(variableName, localVariableCounter);
-				scopeLocalVariableNameList.add(variableName);
+				String dataTypeName = currentNode.getDataTypeName();
+				int rank = currentNode.getRank();
 
+				// ローカル変数の情報を保持するインスタンスを生成して変数テーブルに登録
+				Variable variable = new Variable(variableName, dataTypeName, rank, localVariableSerialNumber);
+				localVariableTable.addVariable(variable);
+
+				// ノードに属性を付加
 				currentNode.addAttribute(AttributeKey.SCOPE, AttributeValue.LOCAL);
-				currentNode.addAttribute(AttributeKey.IDENTIFIER_SERIAL_NUMBER, Integer.toString(localVariableCounter));
-				localVariableCounter++;
+				currentNode.addAttribute(AttributeKey.IDENTIFIER_SERIAL_NUMBER, Integer.toString(localVariableSerialNumber));
+
+				localVariableSerialNumber++;
 			}
 
 			// 変数の参照箇所のリーフノードの場合: 属性値を求めて設定
 			if (currentNode.getType() == AstNode.Type.LEAF
 					&& currentNode.getAttribute(AttributeKey.LEAF_TYPE).equals(AttributeValue.VARIABLE_IDENTIFIER)) {
 
-				String identifier = currentNode.getAttribute(AttributeKey.IDENTIFIER_VALUE);
+				String variableName = currentNode.getAttribute(AttributeKey.IDENTIFIER_VALUE);
 
 				// ローカル変数
-				if (localVariableTypeMap.containsKey(identifier)) {
+				if (localVariableTable.containsVariableWithName(variableName)) {
 
-					currentNode.addAttribute(AttributeKey.IDENTIFIER_SERIAL_NUMBER, localVariableSerialNumberMap.get(identifier).toString());
+					AbstractVariable variable = localVariableTable.getVariableByName(variableName);
+					currentNode.addAttribute(AttributeKey.IDENTIFIER_SERIAL_NUMBER, Integer.toString(variable.getSerialNumber()));
 					currentNode.addAttribute(AttributeKey.SCOPE, AttributeValue.LOCAL);
-					currentNode.addAttribute(AttributeKey.RANK, Integer.toString(localVariableRankMap.get(identifier)));
-					currentNode.addAttribute(AttributeKey.DATA_TYPE, localVariableTypeMap.get(identifier));
+					currentNode.addAttribute(AttributeKey.RANK, Integer.toString(variable.getRank()));
+					currentNode.addAttribute(AttributeKey.DATA_TYPE, variable.getDataTypeName());
 
 				// グローバル変数
-				} else if (globalVariableTable.containsVariableWithName(identifier)) {
+				} else if (globalVariableTable.containsVariableWithName(variableName)) {
 
+					AbstractVariable variable = globalVariableTable.getVariableByName(variableName);
 					currentNode.addAttribute(AttributeKey.SCOPE, AttributeValue.GLOBAL);
-					AbstractVariable variable = globalVariableTable.getVariableByName(identifier);
 					currentNode.addAttribute(AttributeKey.RANK, Integer.toString(variable.getRank()));
 					currentNode.addAttribute(AttributeKey.DATA_TYPE, variable.getDataTypeName());
 
 				} else {
 					throw new VnanoException(
-							ErrorType.VARIABLE_IS_NOT_FOUND, identifier,
+							ErrorType.VARIABLE_IS_NOT_FOUND, variableName,
 							currentNode.getFileName(), currentNode.getLineNumber()
 					);
 				}
@@ -195,115 +193,75 @@ public class SemanticAnalyzer {
 
 
 	/**
-	 * 引数に渡されたAST（抽象構文木）の内容を解析し、その中の関数呼び出し箇所の識別子リーフノード
-	 * （{@link AttributeKey#LEAF_TYPE LEAF_TYPE} 属性の値が {@link AttributeValue#FUNCTION_IDENTIFIER FUNCTION_IDENTIFIER}）
-	 * に対して、中間コード生成を行うために不足している属性値を追加設定します
-	 * （従って、このメソッドは破壊的メソッドです）。
+	 * 引数に渡されたAST（抽象構文木）から関数宣言文を読み込み、
+	 * その中で宣言されている関数（ローカル関数）を抽出して、関数テーブルにまとめて返します。
 	 *
-	 * 具体的な例としては、呼び出し対象の関数を判定し、その戻り値のデータ型を、
-	 * 関数識別子ノードの {@link AttributeKey#DATA_TYPE DATA_TYPE} 属性の値として設定されます。
-	 * 同様に、戻り値の配列次元数が {@link AttributeKey#RANK RANK} 属性の値として設定されます。
-	 *
-	 * @param astRootNode 解析・設定対象のASTのルートノード（メソッド実行後、各ノードに属性値が追加されます）
-	 * @param globalFunctionTable AST内で参照しているグローバル関数情報を持つ関数テーブル
-	 * @throws VnanoException 存在しない関数を呼び出している場合やなどにスローされます。
+	 * @param astRootNode 関数を抽出する対象のASTのルートノード（メソッド実行後、各ノードに属性値が追加されます）
+	 * @throws VnanoException 関数を宣言できない場所で宣言していた場合や、宣言内容に誤りがあった場合にスローされます。
 	 */
-	private void supplementFunctionIdentifierLeafAttributes(AstNode astRootNode, FunctionTable globalFunctionTable)
-					throws VnanoException {
+	private FunctionTable extractFunctions(AstNode astRootNode) throws VnanoException {
+
+		FunctionTable localFunctionTable = new FunctionTable();
 
 		if (!astRootNode.hasChildNodes()) {
-			return;
+			return localFunctionTable;
 		}
 
-		// 同じ識別子/シグネチャのローカル関数を区別できるようにするため、識別子に加えてカウンタ情報を付加する
-		int localFunctionCounter = 0;
-
-		// 注意: 同じキーがHashMapに重複登録された場合、get は最後に登録された要素を返り、remove も最後の要素が削られる
-		//（実際にその挙動を利用している）
-
-		// ローカル関数マップ
-		Map<String, String> localFunctionTypeMap = new HashMap<String, String>();
-		Map<String, Integer> localFunctionRankMap = new HashMap<String, Integer>();
-		Map<String, Integer> localFunctionSerialNumberMap = new HashMap<String, Integer>();
-
 		AstNode currentNode = astRootNode;
-		int currentBlockDepth = 0; // ブロック終端による変数削除などで使用
-		int lastBlockDepth = 0;
-
-		List<String> scopeLocalFunctionSignatureList = new LinkedList<String>();
-		Deque<List<String>>scopeLocalFunctionSignatureListStack = new ArrayDeque<List<String>>();
 
 		do {
 			currentNode = currentNode.getPreorderDfsTraversalNextNode();
-			lastBlockDepth = currentBlockDepth;
-			currentBlockDepth = currentNode.getBlockDepth();
-
-			// ブロック文に入った場合: 上階層のスコープ内ローカル変数/関数リストをスタックに退避し、リセット
-			if (currentBlockDepth > lastBlockDepth) {
-				scopeLocalFunctionSignatureListStack.push(scopeLocalFunctionSignatureList);
-				scopeLocalFunctionSignatureList = new LinkedList<String>();
-
-			// ブロック文を抜ける場合: その階層のローカル変数/関数を削除し、スコープ内ローカル変数/関数リストをスタックから復元
-			} else if (currentBlockDepth < lastBlockDepth) {
-				Iterator<String> functionIterator = scopeLocalFunctionSignatureList.iterator();
-				while (functionIterator.hasNext()) {
-					String scopeLocalFunctionSignature = functionIterator.next();
-					localFunctionTypeMap.remove(scopeLocalFunctionSignature);
-					localFunctionRankMap.remove(scopeLocalFunctionSignature);
-					localFunctionSerialNumberMap.remove(scopeLocalFunctionSignature);
-				}
-				scopeLocalFunctionSignatureList = scopeLocalFunctionSignatureListStack.pop();
-			}
 
 			// ローカル関数宣言文ノードの場合: ローカル関数マップに追加し、ノード自身にローカル関数インデックスやスコープも設定
 			if (currentNode.getType() == AstNode.Type.FUNCTION) {
-				String functionSignature = IdentifierSyntax.getSignatureOf(currentNode);
 
-				localFunctionTypeMap.put(functionSignature, currentNode.getDataTypeName());
-				localFunctionRankMap.put(functionSignature, currentNode.getRank());
-				localFunctionSerialNumberMap.put(functionSignature, localFunctionCounter);
-				scopeLocalFunctionSignatureList.add(functionSignature);
-
-				currentNode.addAttribute(AttributeKey.SCOPE, AttributeValue.LOCAL);
-				currentNode.addAttribute(AttributeKey.IDENTIFIER_SERIAL_NUMBER, Integer.toString(localFunctionCounter));
-				localFunctionCounter++;
-			}
-
-			// 関数の呼び出し箇所のリーフノードの場合: 属性値を求めて設定
-			if (currentNode.getType() == AstNode.Type.LEAF
-					&& currentNode.getAttribute(AttributeKey.LEAF_TYPE).equals(AttributeValue.FUNCTION_IDENTIFIER)) {
-
-				AstNode callOperator = currentNode.getParentNode(); // 関数識別子ノードの親階層にある、呼び出し演算子のノードを取得
-
-				// 注： この時点で、渡す引数のノードの配列ランクが確定してないといけない（シグネチャ生成に必要）
-				// -> ローカル関数はローカル変数と違ってルート階層での宣言のみにして、
-				//    演算子の型解決の前処理で全部テーブルに登録して、その代わりに後方参照を可能にするべき
-
-				String signature = IdentifierSyntax.getSignatureOfCalleeFunctionOf(callOperator); // 呼び出している関数のシグネチャを取得
-
-				// ローカル関数
-				if (localFunctionTypeMap.containsKey(signature)) {
-					currentNode.addAttribute(AttributeKey.IDENTIFIER_SERIAL_NUMBER, localFunctionSerialNumberMap.get(signature).toString());
-					currentNode.addAttribute(AttributeKey.SCOPE, AttributeValue.LOCAL);
-					currentNode.addAttribute(AttributeKey.RANK, Integer.toString(localFunctionRankMap.get(signature)));
-					currentNode.addAttribute(AttributeKey.DATA_TYPE, localFunctionTypeMap.get(signature));
-
-				// グローバル関数
-				} else if (globalFunctionTable.hasCalleeFunctionOf(callOperator)) {
-					currentNode.addAttribute(AttributeKey.SCOPE, AttributeValue.GLOBAL);
-					AbstractFunction function = globalFunctionTable.getCalleeFunctionOf(callOperator);
-					currentNode.addAttribute(AttributeKey.RANK, Integer.toString(function.getReturnArrayRank()));
-					currentNode.addAttribute(AttributeKey.DATA_TYPE, function.getReturnDataTypeName());
-
-				} else {
-					throw new VnanoException(
-							ErrorType.FUNCTION_IS_NOT_FOUND, signature,
-							currentNode.getFileName(), currentNode.getLineNumber()
-					);
+				// ローカル関数はルート直下の階層でしか宣言を許さない
+				//（後方参照を可能にするので、あまり宣言場所が自由すぎるとコード上でも紛らわしくなりそうなので、少なくとも今は制約しておく）
+				if (currentNode.getDepth() != 1) {
+					throw new VnanoException(ErrorType.FUNCTION_IS_DECLARED_IN_INVALID_PLASE);
 				}
+
+				// 関数名を取得
+				String functionName = currentNode.getAttribute(AttributeKey.IDENTIFIER_VALUE);
+
+				// 戻り値のデータ型と次元を取得
+				String returnTypeName = currentNode.getAttribute(AttributeKey.DATA_TYPE);
+				int returnRank = currentNode.getRank();
+
+				// 引数のノードを一括で取得
+				AstNode[] argNodes = currentNode.getChildNodes();
+				int argLength = argNodes.length;
+
+				// 引数ノードの内容を検査
+				for (int argIndex=0; argIndex<argLength; argIndex++) {
+					AstNode argNode = argNodes[argIndex];
+
+					// そもそも変数宣言ノードでなければ明らかにNG
+					if (argNode.getType() != AstNode.Type.VARIABLE) {
+						throw new VnanoException(ErrorType.FUNCTION_IS_DECLARED_IN_INVALID_PLASE);
+					}
+					// デフォルト引数などはサポートされていないので、余計なASTがぶら下がっていたらNG
+					if (argNode.hasChildNodes()) {
+						throw new VnanoException(ErrorType.FUNCTION_IS_DECLARED_IN_INVALID_PLASE);
+					}
+				}
+
+				// 引数のデータ型と次元を取得
+				String[] argTypeNames = new String[argLength];
+				int[] argRanks = new int[argLength];
+				for (int argIndex=0; argIndex<argLength; argIndex++) {
+					argTypeNames[argIndex] = argNodes[argIndex].getAttribute(AttributeKey.DATA_TYPE);
+					argRanks[argIndex] = argNodes[argIndex].getRank();
+				}
+
+				// 関数情報を保持するインスタンスを生成してテーブルに登録
+				Function function = new Function(functionName, argTypeNames, argRanks, returnTypeName, returnRank);
+				localFunctionTable.addFunction(function);
 			}
 
 		} while (!currentNode.isPreorderDfsTraversalLastNode());
+
+		return localFunctionTable;
 	}
 
 
@@ -357,10 +315,12 @@ public class SemanticAnalyzer {
 	 * リーフノードの属性値の設定を済ませておく必要があります。
 	 *
 	 * @param astRootNode 解析・設定対象のASTのルートノード（メソッド実行後、各ノードに属性値が追加されます）
-	 * @param functionTable AST内で参照している関数情報を持つ関数テーブル
+	 * @param globalFunctionTable AST内で参照している外部関数の情報を持つ関数テーブル
+	 * @param localFunctionTable AST内で参照している内部関数の情報を持つ関数テーブル
 	 * @throws VnanoException ASTの内容が構文的に正しくない場合にスローされます。
 	 */
-	private void supplementOperatorAttributes(AstNode astRootNode, FunctionTable functionTable) throws VnanoException {
+	private void supplementOperatorAttributes(AstNode astRootNode,
+			FunctionTable globalFunctionTable, FunctionTable localFunctionTable) throws VnanoException {
 
 
 		// !!! 重複が多いので切り出して要リファクタ
@@ -478,11 +438,30 @@ public class SemanticAnalyzer {
 
 					// 関数呼び出し演算子の場合
 					case AttributeValue.CALL : {
-						// supplementLeafAttributesの結果、リーフの関数識別子に必要な情報が格納されている
-						AstNode identifierNode = currentNode.getChildNodes()[0];
-						dataType = identifierNode.getDataTypeName();
+
+						AbstractFunction function = null;
+
+						// ローカル関数
+						if (localFunctionTable.hasCalleeFunctionOf(currentNode)) {
+							currentNode.addAttribute(AttributeKey.SCOPE, AttributeValue.LOCAL);
+							function = localFunctionTable.getCalleeFunctionOf(currentNode);
+
+						// グローバル関数
+						} else if (globalFunctionTable.hasCalleeFunctionOf(currentNode)) {
+							currentNode.addAttribute(AttributeKey.SCOPE, AttributeValue.GLOBAL);
+							function = globalFunctionTable.getCalleeFunctionOf(currentNode);
+
+						} else {
+							throw new VnanoException(
+									ErrorType.FUNCTION_IS_NOT_FOUND,
+									IdentifierSyntax.getSignatureOfCalleeFunctionOf(currentNode),
+									currentNode.getFileName(), currentNode.getLineNumber()
+							);
+						}
+
+						dataType = function.getReturnDataTypeName();
 						operationDataType = dataType;
-						rank = identifierNode.getRank();
+						rank = function.getReturnArrayRank();
 						break;
 					}
 

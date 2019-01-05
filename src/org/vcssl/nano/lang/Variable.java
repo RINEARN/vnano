@@ -29,6 +29,12 @@ public class Variable extends AbstractVariable {
 	/** この変数のデータを保持する、データユニットを保持します。 */
 	private DataContainer<?> dataContainer;
 
+	/** 変数名が競合している変数を区別するためのシリアルナンバーを保持します。 */
+	private int serialNumber = -1;
+
+	/** 変数名が競合している変数を区別するためのシリアルナンバーを保持しているかどうかを表すフラグです。 */
+	private boolean hasSerialNumber = false;
+
 
 	/**
 	 * 変数名とデータ型、および配列次元数を指定して、変数を生成します。
@@ -38,12 +44,31 @@ public class Variable extends AbstractVariable {
 	 *
 	 * @param variableName 変数名
 	 * @param dataTypeName データ型名（配列部分 [][]...[] は含まない）
-	 * @param rank 恥列次元数（スカラは0次元として扱う）
+	 * @param rank 配列次元数（スカラは0次元として扱う）
 	 */
 	public Variable(String variableName, String dataTypeName, int rank) {
 		this.variableName = variableName;
 		this.dataTypeName = dataTypeName;
 		this.rank = rank;
+	}
+
+	/**
+	 * 変数名とデータ型、配列次元数、およびシリアルナンバーを指定して、変数を生成します。
+	 * ただし、変数のデータを保持するデータユニットは、自動では生成されないため、
+	 * 外部で生成したものを {@link Variable#setDataUnit dataUnit}
+	 * メソッドで設定する必要がああります。
+	 *
+	 * @param variableName 変数名
+	 * @param dataTypeName データ型名（配列部分 [][]...[] は含まない）
+	 * @param rank 配列次元数（スカラは0次元として扱う）
+	 * @param int serialNumber 変数名が競合している変数を区別するためのシリアルナンバー
+	 */
+	public Variable(String variableName, String dataTypeName, int rank, int serialNumber) {
+		this.variableName = variableName;
+		this.dataTypeName = dataTypeName;
+		this.rank = rank;
+		this.serialNumber = serialNumber;
+		this.hasSerialNumber = true;
 	}
 
 
@@ -125,5 +150,25 @@ public class Variable extends AbstractVariable {
 	 */
 	public boolean isConstant() {
 		return false;
+	}
+
+
+	/**
+	 * 同じ変数名の変数を区別するためのシリアルナンバーを保持しているかどうかを判定します。
+	 *
+	 * @return 保持していれば true
+	 */
+	public boolean hasSerialNumber() {
+		return this.hasSerialNumber;
+	}
+
+
+	/**
+	 * 同じ変数名の変数を区別するためのシリアルナンバーを返します。
+	 *
+	 * @return シリアルナンバー
+	 */
+	public int getSerialNumber() {
+		return this.serialNumber;
 	}
 }

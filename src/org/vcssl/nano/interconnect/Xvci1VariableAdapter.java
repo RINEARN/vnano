@@ -176,4 +176,25 @@ public class Xvci1VariableAdapter extends AbstractVariable {
 		return this.xvciPlugin.isConstant();
 	}
 
+
+	/**
+	 * 同じ変数名の変数を区別するためのシリアルナンバーを保持しているかどうかを判定します。
+	 *
+	 * @return 保持していれば true
+	 */
+	@Override
+	public boolean hasSerialNumber() {
+		return false;
+	}
+
+
+	/**
+	 * 同じ変数名の変数を区別するためのシリアルナンバーを返します。
+	 *
+	 * @return シリアルナンバー
+	 */
+	@Override
+	public int getSerialNumber() {
+		return -1;
+	}
 }

@@ -7,8 +7,11 @@ package org.vcssl.nano.lang;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import org.vcssl.nano.spec.IdentifierSyntax;
 
@@ -22,7 +25,7 @@ import org.vcssl.nano.spec.IdentifierSyntax;
 public class VariableTable implements Cloneable {
 
 	/** 変数を保持するリストです。 */
-	List<AbstractVariable> variableList = null;
+	LinkedList<AbstractVariable> variableList = null;
 
 	/** 変数名と、変数とを対応付けるマップです。 */
 	Map<String, AbstractVariable> nameVariableMap = null;
@@ -30,15 +33,12 @@ public class VariableTable implements Cloneable {
 	/** 中間アセンブリコード識別子と、変数とを対応付けるマップです。 */
 	Map<String, AbstractVariable> assemblyIdentifierVariableMap = null;
 
-	/** 中間アセンブリコード識別子と、仮想メモリーでのアドレスとを対応付けるマップです。 */
-	Map<String, Integer> assemblyIdentifierAddressMap = null;
-
 
 	/**
 	 * 空の変数テーブルを生成します。
 	 */
 	public VariableTable() {
-		this.variableList = new ArrayList<AbstractVariable>();
+		this.variableList = new LinkedList<AbstractVariable>();
 		this.assemblyIdentifierVariableMap = new HashMap<String, AbstractVariable>();
 		this.nameVariableMap = new HashMap<String, AbstractVariable>();
 	}
@@ -59,14 +59,20 @@ public class VariableTable implements Cloneable {
 
 
 	/**
-	 * 指定された変数に対応する、仮想メモリー内でのアドレスを登録します。
+	 * 指定された変数名の変数（複数存在する場合は最後に登録されたもの）を削除します。
 	 *
-	 * @param variable 対象の変数
-	 * @param address 仮想メモリー内でのアドレス
+	 * @param variableName 削除する変数名
 	 */
-	public void setAddress(AbstractVariable variable, int address) {
-		String assemblyIdentifier = IdentifierSyntax.getAssemblyIdentifierOf(variable);
-		this.assemblyIdentifierAddressMap.put(assemblyIdentifier, address);
+	public void removeLastVariable() {
+		// リストから最終要素を取得して変数名を控えておき、変数自体はリストから削除
+		AbstractVariable variable = this.variableList.getLast();
+		variableList.removeLast();
+
+		// マップから変数名に基づいて変数を削除
+		String variableName = variable.getVariableName();
+		String assemblyIdentifier = IdentifierSyntax.getAssemblyIdentifierOf(variableName);
+		nameVariableMap.remove(variableName);
+		assemblyIdentifierVariableMap.remove(assemblyIdentifier);
 	}
 
 
@@ -76,7 +82,12 @@ public class VariableTable implements Cloneable {
 	 * @return 登録されている全ての変数を格納する配列
 	 */
 	public AbstractVariable[] getVariables() {
-		return this.variableList.toArray(new AbstractVariable[0]);
+		Set<Entry<String, AbstractVariable>> entrySet = this.nameVariableMap.entrySet();
+		List<AbstractVariable> variableList = new ArrayList<AbstractVariable>();
+		for (Entry<String, AbstractVariable> entry: entrySet) {
+			variableList.add(entry.getValue());
+		}
+		return variableList.toArray(new AbstractVariable[0]);
 	}
 
 

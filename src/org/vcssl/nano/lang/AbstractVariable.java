@@ -101,5 +101,21 @@ public abstract class AbstractVariable {
 	 * @return 定数ならtrue
 	 */
 	public abstract boolean isConstant();
+
+
+	/**
+	 * 同じ変数名の変数を区別するためのシリアルナンバーを保持しているかどうかを判定します。
+	 *
+	 * @return 保持していれば true
+	 */
+	public abstract boolean hasSerialNumber();
+
+
+	/**
+	 * 同じ変数名の変数を区別するためのシリアルナンバーを返します。
+	 *
+	 * @return シリアルナンバー
+	 */
+	public abstract int getSerialNumber();
 }
 

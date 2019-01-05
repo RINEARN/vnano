@@ -1723,8 +1723,7 @@ public class CodeGenerator {
 		AstNode[] childNodes = operatorNode.getChildNodes();
 		int childNLength = childNodes.length;
 
-		AstNode functionIdentifierNode = childNodes[0];
-		String scope = functionIdentifierNode.getAttribute(AttributeKey.SCOPE);
+		String scope = operatorNode.getAttribute(AttributeKey.SCOPE);
 
 		int operandLength = childNLength + 1;
 		String[] operands = new String[operandLength];
@@ -1897,8 +1896,8 @@ public class CodeGenerator {
 				// 呼び出し対象関数のアセンブリコード用識別子を生成
 				String identifier = IdentifierSyntax.getAssemblyIdentifierOfCalleeFunctionOf(currentNode);
 
-				// 呼び出し対象関数のスコープを取得(子ノードの先頭要素が関数識別子ノードで、それがSCOPE属性の値として持っている)
-				String scope = currentNode.getChildNodes()[0].getAttribute(AttributeKey.SCOPE);
+				// 呼び出し対象関数のスコープを取得
+				String scope = currentNode.getAttribute(AttributeKey.SCOPE);
 
 				// 既に出力済みでなければ出力
 				if (!generatedSet.contains(identifier)) {
