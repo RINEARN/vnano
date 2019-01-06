@@ -21,7 +21,8 @@ public class AccelerationDispatcher {
 	// 命令列の内容を全て演算器に割り当て、演算を実行するための演算ノード（演算器内部に実装）の列を返す
 	public AccelerationExecutorNode[] dispatch (
 			Processor processor, Memory memory, Interconnect interconnect,
-			AcceleratorInstruction[] instructions, AccelerationDataManager dataManager) {
+			AcceleratorInstruction[] instructions, AccelerationDataManager dataManager,
+			InternalFunctionControlUnit functionControlUnit) {
 
 
 		// いきなり Executor を生成するのではなく、
@@ -90,7 +91,7 @@ public class AccelerationDispatcher {
 				currentNode = this.dispatchToAccelerationUnit(
 					accelType, opcode, dataTypes,
 					operandContainers, operandCaches, operandCached, operandScalar, operandConstant,
-					instruction, processor, memory, interconnect,
+					instruction, processor, memory, interconnect, functionControlUnit,
 					instructionIndex, nextNode
 				);
 			} catch (Exception causeException) {
@@ -127,9 +128,10 @@ public class AccelerationDispatcher {
 				executors[instructionIndex].setLaundingPointNodes(executors[branchedAddress]);
 			}
 
-			// RET命令は、スタックに積まれた値を読んでその命令アドレスに飛ぶので、
-			// 実行時まで着地先がわからないため、全ノードを持たせておく必要がある(ノード内で実行時に飛び先ノードを特定する)。
-			// なお、CALL命令は命令再配置後のアドレスをスタックに積むので、命令再配置によるずれは気にしなくてもいい。
+			// 関数のRET命令などは、スタックに積まれた値を読んでその命令アドレスに飛ぶので、
+			// 実行時まで着地先がわからない。全ノードを持たせておく必要がある。
+			// そのため、それらの命令を管理する InternalFunctionControlUnit に全ノードを持たせておき、
+			// 実行時に飛び先ノードを特定する。
 			if (opcode == OperationCode.RET) {
 				executors[instructionIndex].setLaundingPointNodes(executors);
 			}
@@ -142,8 +144,9 @@ public class AccelerationDispatcher {
 	private AccelerationExecutorNode dispatchToAccelerationUnit (
 			AccelerationType accelType,
 			OperationCode opcode, DataType[] dataTypes, DataContainer<?>[] operandContainers,
-			Object[] operandCaches, boolean[] operandCached, boolean[] operandScalar, boolean[] operandConstant,
+			ScalarCache[] operandCaches, boolean[] operandCached, boolean[] operandScalar, boolean[] operandConstant,
 			AcceleratorInstruction instruction, Processor processor, Memory memory, Interconnect interconnect,
+			InternalFunctionControlUnit functionControlUnit,
 			int reorderedAddress, AccelerationExecutorNode nextNode) {
 
 		AccelerationExecutorNode currentNode = null;
@@ -359,33 +362,22 @@ public class AccelerationDispatcher {
 				CacheSynchronizer synchronizer = new GeneralScalarCacheSynchronizer(
 						operandContainers, operandCaches, operandCached
 				);
-				currentNode = new ScalarAllocExecutor(
+				currentNode = new ScalarAllocExecutorNode(
 						instruction, memory, interconnect, processor, synchronizer, nextNode
 				);
 				break;
 			}
 
 
-			// 内部関数コール
+			// 内部関数関連
 
-			case CALL : {
+			case IFCU : {
 				CacheSynchronizer synchronizer = new GeneralScalarCacheSynchronizer(
-						operandContainers, operandCaches, operandCached
+					operandContainers, operandCaches, operandCached
 				);
-				currentNode = new CallExecutorNode(
-					memory, operandContainers, synchronizer, reorderedAddress, nextNode
-				);
-				break;
-			}
-
-			// 内部関数リターン
-
-			case RET : {
-				CacheSynchronizer synchronizer = new GeneralScalarCacheSynchronizer(
-						operandContainers, operandCaches, operandCached
-				);
-				currentNode = new ReturnExecutorNode(
-					memory, operandContainers, synchronizer, nextNode
+				currentNode = functionControlUnit.generateExecutorNode(
+					instruction, operandContainers, operandCaches, operandCached, operandScalar, synchronizer,
+					reorderedAddress, nextNode
 				);
 				break;
 			}
@@ -440,7 +432,7 @@ public class AccelerationDispatcher {
 	}
 
 
-	private final class ScalarAllocExecutor extends AccelerationExecutorNode {
+	private final class ScalarAllocExecutorNode extends AccelerationExecutorNode {
 		private final Instruction instruction;
 		private final Interconnect interconnect;
 		private final Processor processor;
@@ -448,7 +440,7 @@ public class AccelerationDispatcher {
 		private final CacheSynchronizer synchronizer;
 		private boolean allocated = false;
 
-		public ScalarAllocExecutor(Instruction instruction, Memory memory, Interconnect interconnect,
+		public ScalarAllocExecutorNode(Instruction instruction, Memory memory, Interconnect interconnect,
 				Processor processor, CacheSynchronizer synchronizer,
 				AccelerationExecutorNode nextNode) {
 
@@ -509,98 +501,6 @@ public class AccelerationDispatcher {
 				this.processor.process(this.instruction, this.memory, this.interconnect, programCounter);
 				this.synchronizer.synchronizeFromMemoryToCache();
 				return this.nextNode;
-
-			} catch (Exception e) {
-				e.printStackTrace();
-				return null;
-			}
-		}
-	}
-
-
-	private final class CallExecutorNode extends AccelerationExecutorNode {
-		private final Memory memory;
-		private final DataContainer<?>[] operandContainers;
-		private final CacheSynchronizer synchronizer;
-		private AccelerationExecutorNode functionHeadNode;
-		private DataContainer<long[]> returnAddressContainer;
-
-		public CallExecutorNode(Memory memory, DataContainer<?>[] operandContainers, CacheSynchronizer synchronizer,
-				int reorderedAddressOfThisInstruction, AccelerationExecutorNode nextNode) {
-
-			super(nextNode);
-			this.memory = memory;
-			this.synchronizer = synchronizer;
-			this.operandContainers = operandContainers;
-			this.returnAddressContainer = new DataContainer<long[]>();
-			this.returnAddressContainer.setData(new long[] { reorderedAddressOfThisInstruction + 1 });
-		}
-
-		@Override
-		public final void setLaundingPointNodes(AccelerationExecutorNode ... nodes) {
-			this.functionHeadNode = nodes[0];
-		}
-
-		@Override
-		public final AccelerationExecutorNode execute() {
-			try {
-				this.synchronizer.synchronizeFromCacheToMemory();
-
-				// 戻り先アドレスをスタックに積む
-				this.memory.push(this.returnAddressContainer);
-
-				// 引数をスタックに積む
-				int operandLength = operandContainers.length;
-				for (int i=2; i<operandLength; i++) { // [0]はプレースホルダ、[1]は飛び先ラベルアドレス、なので[2]からが引数
-					this.memory.push(operandContainers[i]);
-				}
-
-				// 関数の先頭の命令に飛ぶ
-				return this.functionHeadNode;
-
-			} catch (Exception e) {
-				e.printStackTrace();
-				return null;
-			}
-		}
-	}
-
-
-	private final class ReturnExecutorNode extends AccelerationExecutorNode {
-		private final Memory memory;
-		private final DataContainer<?> returnValueContainer;
-		private final CacheSynchronizer synchronizer;
-		private AccelerationExecutorNode[] allNodes;
-
-		public ReturnExecutorNode(Memory memory, DataContainer<?>[] operandContainers, CacheSynchronizer synchronizer,
-				AccelerationExecutorNode nextNode) {
-
-			super(nextNode);
-			this.memory = memory;
-			this.synchronizer = synchronizer;
-			this.returnValueContainer = operandContainers[0];
-		}
-
-		@Override
-		public final void setLaundingPointNodes(AccelerationExecutorNode ... nodes) {
-			this.allNodes = nodes;
-		}
-
-		@Override
-		public final AccelerationExecutorNode execute() {
-			try {
-				this.synchronizer.synchronizeFromCacheToMemory();
-
-				// 戻り先アドレスをスタックから取り出す
-				@SuppressWarnings("unchecked")
-				DataContainer<long[]> returnAddressContainer = (DataContainer<long[]>)memory.pop();
-				int returnedPointAddress = (int)(returnAddressContainer.getData()[0]);
-
-				// 戻り値をスタックに積む
-				memory.push(this.returnValueContainer);
-
-				// 戻り先地点のノードを返す
-				return allNodes[returnedPointAddress];
 
 			} catch (Exception e) {
 				e.printStackTrace();

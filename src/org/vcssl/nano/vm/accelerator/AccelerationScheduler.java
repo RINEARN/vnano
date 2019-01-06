@@ -49,6 +49,8 @@ public class AccelerationScheduler {
 		movReducableOpcodeSet.add(OperationCode.OR);
 		movReducableOpcodeSet.add(OperationCode.NOT);
 		movReducableOpcodeSet.add(OperationCode.CAST);
+
+		movReducableOpcodeSet.add(OperationCode.MOVPOP); // MOVPOPでスタックから取って直後にMOVするだけのは削っても安全（REFPOPは無理）
 	}
 
 
@@ -137,10 +139,10 @@ public class AccelerationScheduler {
 		     && operationCode != OperationCode.JMPN
 		     ;
 
-		// CALL & RET 命令について：
+		// IFCU & RET 命令について：
 		//   関数の引数や戻り値はスタックに積まれるので、CALL命令やRET命令自体はオペランドには何も書き込まないが、
 		//   スタックに積まれた後のデータがどこで取り出されて読み書きされるかを静的に解析するのは複雑なので、
-		//   CALL & RET 命令のオペランドは便宜的に、書き込み箇所カウントに含める（最適化予防のため）
+		//   IFCU & RET 命令のオペランドは便宜的に、書き込み箇所カウントに含める（最適化予防のため）
 	}
 
 
@@ -493,17 +495,13 @@ public class AccelerationScheduler {
 					break;
 				}
 
-				// 内部数コール命令 Return instruction opcode
+				// 内部関数関連命令 Internal function related opcode
 				case CALL :
-				{
-					instruction.setAccelerationType(AccelerationType.CALL);
-					break;
-				}
-
-				// 内部関数リターン命令 Return instruction opcode
 				case RET :
+				case MOVPOP :
+				case REFPOP :
 				{
-					instruction.setAccelerationType(AccelerationType.RET);
+					instruction.setAccelerationType(AccelerationType.IFCU);
 					break;
 				}
 

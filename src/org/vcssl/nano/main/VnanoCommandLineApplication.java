@@ -38,6 +38,7 @@ import org.vcssl.nano.vm.accelerator.AccelerationDispatcher;
 import org.vcssl.nano.vm.accelerator.AccelerationExecutorNode;
 import org.vcssl.nano.vm.accelerator.AccelerationScheduler;
 import org.vcssl.nano.vm.accelerator.AcceleratorInstruction;
+import org.vcssl.nano.vm.accelerator.InternalFunctionControlUnit;
 import org.vcssl.nano.vm.assembler.Assembler;
 import org.vcssl.nano.vm.memory.Memory;
 import org.vcssl.nano.vm.processor.Instruction;
@@ -705,9 +706,10 @@ public final class VnanoCommandLineApplication {
 				}
 			}
 
+			InternalFunctionControlUnit functionControlUnit = new InternalFunctionControlUnit();
 			AccelerationDispatcher dispatcher = new AccelerationDispatcher();
 			AccelerationExecutorNode[] executorNodes = dispatcher.dispatch(
-					new Processor(), memory, interconnect, acceleratorInstructions, dataManager
+					new Processor(), memory, interconnect, acceleratorInstructions, dataManager, functionControlUnit
 			);
 
 			if (accelerationNode) {
