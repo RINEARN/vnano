@@ -69,6 +69,7 @@ public class DispatchUnit {
 
 		// 仮想メモリ―からデータを取り寄せる
 		DataContainer<?>[] operands = this.loadOperandData(instruction, memory);
+		int operandLength = operands.length;
 
 		// 演算器で演算実行
 		switch (opcode) {
@@ -170,16 +171,43 @@ public class DispatchUnit {
 				return programCounter + 1;
 			}
 
-			// 第2オペランドと同じ配列要素数で第1オペランドをメモリ確保
+			// 第2オペランドと同じ配列要素数で、第1オペランドをメモリ確保
 			case ALLOCR : {
 				executionUnit.allocSameLengths(dataTypes[0], operands[0], operands[1]);
+				return programCounter + 1;
+			}
+
+			// スタック上の先端に積まれているデータと同じ配列要素数で、第1オペランドをメモリ確保
+			case ALLOCP : {
+				executionUnit.allocSameLengths(dataTypes[0], operands[0], memory.peek());
 				return programCounter + 1;
 			}
 
 			// コピー代入、同型かつ同要素数の場合のみ可能
 			case MOV : {
 				this.checkNumberOfOperands(instruction, 2);
-				System.arraycopy(operands[1].getData(), operands[1].getOffset(), operands[0].getData(), operands[0].getOffset(), operands[0].getSize());
+				executionUnit.mov(dataTypes[0], operands[0], operands[1]);
+				return programCounter + 1;
+			}
+
+			// 参照代入
+			case REF : {
+				this.checkNumberOfOperands(instruction, 2);
+				executionUnit.ref(dataTypes[0], operands[0], operands[1]);
+				return programCounter + 1;
+			}
+
+			// スタックからデータコンテナを1つ取ってコピー代入
+			case MOVPOP : {
+				this.checkNumberOfOperands(instruction, 1);
+				executionUnit.mov(dataTypes[0], operands[0], memory.pop());
+				return programCounter + 1;
+			}
+
+			// スタックからデータコンテナを1つ取って参照代入
+			case REFPOP : {
+				this.checkNumberOfOperands(instruction, 1);
+				executionUnit.ref(dataTypes[0], operands[0], memory.pop());
 				return programCounter + 1;
 			}
 
@@ -194,7 +222,7 @@ public class DispatchUnit {
 			// 現時点では不要
 			// 同じインデックスの要素同士を同じ値に保って配列コピー
 			case REORD : {
-				this.checkNumberOfOperands(operands.length, 2);
+				this.checkNumberOfOperands(instruction, 2);
 				executionUnit.reord(dataTypes[0], operands[0], operands[1]);
 				return programCounter + 1;
 			}
@@ -223,32 +251,68 @@ public class DispatchUnit {
 			}
 
 			case JMP : {
+				 // 以下、0番オペランドを書き込み対象に統一した際に要変更
 				this.checkNumberOfOperands(instruction, 2);
 				boolean condition = ((boolean[])operands[0].getData())[0];
 				if (condition) {
-					return (int)((long[])operands[1].getData())[0]; // オペランドに分岐先の命令番地が入っている
+					return (int)( (long[])operands[1].getData() )[0]; // オペランド[1]に分岐先の命令アドレスが入っている
 				} else {
 					return programCounter + 1;
 				}
 			}
 			case JMPN : {
+				 // 以下、0番オペランドを書き込み対象に統一した際に要変更
 				this.checkNumberOfOperands(instruction, 2);
 				boolean condition = ((boolean[])operands[0].getData())[0];
 				if (condition) {
 					return programCounter + 1;
 				} else {
-					return (int)((long[])operands[1].getData())[0]; // オペランドに分岐先の命令番地が入っている
+					return (int)( (long[])operands[1].getData() )[0]; // オペランド[1]に分岐先の命令アドレスが入っている
 				}
 			}
 
+			case CALL : {
+
+				// 関数から戻ってくる命令アドレス（現在の命令アドレス+1）を戻り値スタックに詰む
+				int returnAddress = programCounter + 1;
+				DataContainer<long[]> returnAddressContainer = new DataContainer<long[]>();
+				returnAddressContainer.setData(new long[] { returnAddress });
+				memory.push(returnAddressContainer);
+
+				// 引数（オペランド[2]以降に並んでいる）を引数スタックに積む
+				for (int operandIndex=2; operandIndex<operandLength; operandIndex++) {
+					memory.push(operands[operandIndex]);
+				}
+
+				// 関数先頭の命令アドレスに飛ぶ
+				return (int)( (long[])operands[1].getData() )[0]; // オペランド[1]に関数先頭の命令アドレスが入っている
+			}
+
+			case RET : {
+				// スタックから戻り先の命令アドレスを取り出す
+				//（関数先頭で引数を正しい個数取り出していれば、スタック末尾には、CALL命令で引数より前に積んだ戻り先アドレスが積まれている）
+				DataContainer<?> returnAddressContainer = memory.pop();
+				int returnAddress = (int)( (long[])returnAddressContainer.getData() )[0];
+
+				// 戻り値が無い場合は、スタック上のプレースホルダとして空のデータコンテナを積む
+				if (operands.length == 0) { // ここ、命令の0番を書き込み対象に統一した際に要変更
+					memory.push(new DataContainer<Void>());
+
+				// 戻り値がある場合は、それをスタック上に積む
+				} else {
+					memory.push(operands[0]);
+				}
+
+				// 戻り先の命令アドレスに飛ぶ
+				return returnAddress;
+			}
+
 			case CALLX : {
-				int functionIndex = (int)( (long[])operands[1].getData() )[0];
+				int externalFunctionIndex = (int)( (long[])operands[1].getData() )[0];
 				int argumentLength = operands.length - 2;
 				DataContainer<?>[] arguments = new DataContainer[argumentLength];
-				for (int argumentIndex=0; argumentIndex<argumentLength; argumentIndex++) {
-					arguments[argumentIndex] = operands[argumentIndex + 2];
-				}
-				interconnect.call(functionIndex, arguments, operands[0]);
+				System.arraycopy(operands, 2, arguments, 0, argumentLength);
+				interconnect.call(externalFunctionIndex, arguments, operands[0]);
 				return programCounter + 1;
 			}
 

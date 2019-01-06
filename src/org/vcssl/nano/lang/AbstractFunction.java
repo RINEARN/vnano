@@ -59,9 +59,20 @@ public abstract class AbstractFunction {
 	 * 全ての仮引数のデータ型を配列として取得します。
 	 *
 	 * @return 全ての仮引数のデータ型を格納する配列
+	 * @throws VnanoException
+	 * 		このインスタンスが保持するデータ型名から、
+	 * 		この処理系でサポートされているデータ型に変換できなかった場合にスローされます。
 	 */
-	public abstract DataType[] getParameterDataTypes();
+	//public abstract DataType[] getParameterDataTypes() throws VnanoException;
 
+
+	/**
+	 * 全ての仮引数のデータ型名を配列として取得します。
+	 * 返される型名の表記内に、配列部分 [][]...[] は含まれません。
+	 *
+	 * @return 仮引数のデータ型名を格納する配列
+	 */
+	public abstract String[] getParameterDataTypeNames();
 
 	/**
 	 * 全ての仮引数の配列次元数（スカラは0次元として扱う）を配列として取得します。
@@ -83,8 +94,20 @@ public abstract class AbstractFunction {
 	 * 戻り値のデータ型を取得します。
 	 *
 	 * @return 戻り値のデータ型
+	 * @throws VnanoException
+	 * 		このインスタンスが保持するデータ型名から、
+	 * 		この処理系でサポートされているデータ型に変換できなかった場合にスローされます。
 	 */
-	public abstract DataType getReturnDataType();
+	//public abstract DataType getReturnDataType() throws VnanoException;
+
+
+	/**
+	 * 戻り値のデータ型名を取得します。
+	 * 返される型名の表記内に、配列部分 [][]...[] は含まれません。
+	 *
+	 * @return 戻り値のデータ型名
+	 */
+	public abstract String getReturnDataTypeName();
 
 
 	/**

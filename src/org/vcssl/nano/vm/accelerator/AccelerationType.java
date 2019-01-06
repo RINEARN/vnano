@@ -42,5 +42,7 @@ public enum AccelerationType {
 	BCS_BRANCH,  // BoolCachedScalarBranch
 
 	S_ALLOC, // ScalarAlloc
+	CALL,
+	RET,
 	NOP, // Nop
 }

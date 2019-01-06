@@ -74,27 +74,28 @@ public class Parser {
 			int blockBegin = Token.getIndexOf(tokens, ScriptWord.BLOCK_BEGIN, statementBegin);
 			int blockEnd = Token.getIndexOf(tokens, ScriptWord.BLOCK_END, statementBegin);
 
+			Token beginToken = tokens[statementBegin];
+
 			// 文末記号が無い場合のエラー（3つめの条件は、ブロック終端後に文が無い場合のため）
 			if (statementEnd < 0 && blockBegin < 0 && statementBegin!=blockEnd) {
 				throw new VnanoException(
-						ErrorType.STATEMENT_END_IS_NOT_FOUND,
-						tokens[statementBegin].getFileName(), tokens[statementBegin].getLineNumber()
+						ErrorType.STATEMENT_END_IS_NOT_FOUND, beginToken.getFileName(), beginToken.getLineNumber()
 				);
 			}
 
 			// 空文（内容が無い文）の場合
 			if (statementBegin == statementEnd) {
 				AstNode emptyStatementNode = new AstNode(
-						AstNode.Type.EMPTY, tokens[statementBegin].getLineNumber(), tokens[statementBegin].getFileName()
+						AstNode.Type.EMPTY, tokens[statementBegin].getLineNumber(), beginToken.getFileName()
 				);
 				statementStack.push(emptyStatementNode);
 				statementBegin++;
 
 			// ブロック文の始点 or 終点の場合
-			} else if (tokens[statementBegin].getType()==Token.Type.BLOCK) {
+			} else if (beginToken.getType()==Token.Type.BLOCK) {
 
 				// ブロック始点 -> スタックに目印のフタをつめる（第二引数は目印とするマーカー）
-				if (tokens[statementBegin].getValue().equals(ScriptWord.BLOCK_BEGIN)) {
+				if (beginToken.getValue().equals(ScriptWord.BLOCK_BEGIN)) {
 					this.pushLid(statementStack);
 					statementBegin++;
 
@@ -106,7 +107,7 @@ public class Parser {
 
 					// ブロック文ノードを生成し、上で取り出した文のノードを全てぶら下げる
 					AstNode blockNode = new AstNode(
-						AstNode.Type.BLOCK, tokens[statementBegin].getLineNumber(), tokens[statementBegin].getFileName()
+						AstNode.Type.BLOCK, beginToken.getLineNumber(), beginToken.getFileName()
 					);
 					for (AstNode statementNode: statementsInBlock) {
 						blockNode.addChildNode(statementNode);
@@ -118,8 +119,8 @@ public class Parser {
 				}
 
 			// 制御文の場合
-			} else if (tokens[statementBegin].getType()==Token.Type.CONTROL) {
-				String word = tokens[statementBegin].getValue();
+			} else if (beginToken.getType()==Token.Type.CONTROL) {
+				String word = beginToken.getValue();
 
 				// if / for / while文 (この処理系では直後にブロックが必須)
 				if (word.equals(ScriptWord.IF) || word.equals(ScriptWord.FOR) || word.equals(ScriptWord.WHILE)) {
@@ -132,7 +133,7 @@ public class Parser {
 					statementBegin = blockBegin;
 
 				// else文
-				} else if (tokens[statementBegin].getValue().equals(ScriptWord.ELSE)) {
+				} else if (beginToken.getValue().equals(ScriptWord.ELSE)) {
 
 					// ブロック {...} が存在するか確認（この言語ではif/else/for/whileのブロックは必須）
 					LexicalChecker.checkTokensAfterControlStatement(tokens, statementBegin, false); // 最後の引数は、括弧内に文末記号を許すかどうか
@@ -141,15 +142,23 @@ public class Parser {
 					statementStack.push(this.parseControlStatement(subTokens));
 					statementBegin++;
 
-				// break / continue文など
+				// break / continue / return 文など
 				} else {
 					Token[] subTokens = Arrays.copyOfRange(tokens, statementBegin, statementEnd);
 					statementStack.push(this.parseControlStatement(subTokens));
 					statementBegin = statementEnd + 1;
 				}
 
+			// 関数宣言文の場合）
+			} else if (this.startsWithFunctionDeclarationTokens(tokens, statementBegin)) {
+
+				//LexicalChecker.checkTokensAfterFunctionDeclarationStatement(tokens, statementBegin, false);
+				Token[] subTokens = Arrays.copyOfRange(tokens, statementBegin, blockBegin);
+				statementStack.push(this.parseFunctionDeclarationStatement(subTokens));
+				statementBegin = blockBegin;
+
 			// 変数宣言文の場合
-			} else if (tokens[statementBegin].getType()==Token.Type.DATA_TYPE) {
+			} else if (beginToken.getType()==Token.Type.DATA_TYPE) {
 
 				Token[] subTokens = Arrays.copyOfRange(tokens, statementBegin, statementEnd);
 				statementStack.push(this.parseVariableDeclarationStatement(subTokens));
@@ -177,6 +186,51 @@ public class Parser {
 			rootNode.addChildNode(statementStack.pollLast());
 		}
 		return rootNode;
+	}
+
+
+	/**
+	 * トークン配列内の指定位置から読み進み、それが関数宣言文で始まっているかを判定します。
+	 *
+	 * @param tokens トークン配列
+	 * @param begin 読み進む視点
+	 * @return 判定結果（関数宣言文で始まっていれば true ）
+	 */
+	private boolean startsWithFunctionDeclarationTokens(Token[] tokens, int begin) {
+		int tokenLength = tokens.length;
+
+		// 最初がデータ型でなければ明らかに関数宣言ではない
+		if (tokens[begin].getType() != Token.Type.DATA_TYPE) {
+			return false;
+		}
+
+		// 識別子が来るまで読み進める
+		int readingIndex = begin + 1;
+		while (readingIndex < tokenLength) {
+
+			Token readingToken = tokens[readingIndex];
+
+			boolean readingTokenIsFunctionIdenfifier = readingToken.getType() == Token.Type.LEAF
+					&& readingToken.getAttribute(AttributeKey.LEAF_TYPE).equals(AttributeValue.FUNCTION_IDENTIFIER);
+
+			boolean readingTokenIsIndex = readingToken.getType() == Token.Type.OPERATOR
+					&& readingToken.getAttribute(AttributeKey.OPERATOR_EXECUTOR) == AttributeValue.INDEX;
+
+			// 最初に見つかったのが関数識別子であれば関数宣言
+			if (readingTokenIsFunctionIdenfifier) {
+				return true;
+
+			// 識別子の前に、データ型の後に付いて配列である事を示す [ ] が付いている事は有り得る。
+			// しかし、それ以外のトークンがそこに存在する事はあり得ないので、その場合は関数宣言ではない。
+			} else if (!readingTokenIsIndex) {
+
+				return false;
+			}
+			readingIndex++;
+		}
+
+		// ここに到達するのは、データ型の後に [ ] のみが続いてトークン末尾に達した場合なので、関数宣言文ではない
+		return false;
 	}
 
 
@@ -331,6 +385,105 @@ public class Parser {
 	}
 
 
+	/**
+	 * 関数宣言文を構成するトークン配列に対して構文解析を行い、AST（抽象構文木）を構築して返します。
+	 *
+	 * このメソッドが返すASTのルートは、{@link AstNode.Type#FUNCTION FUNCTION} タイプのノードとなります。
+	 * また、関数名（識別子）を {@link AttributeKey#IDENTIFIER_VALUE IDENTIFIER} 属性、
+	 * データ型を {@link AttributeKey#DATA_TYPE DATA_TYPE} 属性、
+	 * 配列次元を {@link AttributeKey#RANK RANK} 属性の値に持ちます。
+	 * さらに、引数がある場合には、子ノードとして {@link AstNode.Type#VARIABLE VARIABLE}
+	 * タイプのノードがぶら下がります。
+	 *
+	 * なお、関数のシグネチャ宣言部を除いた、ブロック { ... } の中身のコードに関する内容は、
+	 * この {@link AstNode.Type#FUNCTION FUNCTION}
+	 * タイプのノードやその子ノードには含まれません。
+	 * 関数のブロック内の内容は、
+	 * {@link Parser#parse(Token[]) parse} メソッドによるコード全体の構文解析結果のASTにおいて、
+	 * この {@link AstNode.Type#FUNCTION FUNCTION} タイプのノードの直後に続く
+	 * {@link AstNode.Type#BLOCK BLOCK} タイプのノードとして保持されます。
+	 *
+	 * @param tokens 文のトークン配列（関数宣言の先頭からブロック直前までの、いわゆるシグネチャ部分）
+	 * @return 構築したAST（抽象構文木）のルートノード
+	 * @throws VnanoException 文の構文に異常があった場合にスローされます。
+	 */
+	private AstNode parseFunctionDeclarationStatement(Token[] tokens) throws VnanoException {
+
+		int tokenLength = tokens.length;
+		int lineNumber = tokens[0].getLineNumber();
+		String fileName = tokens[0].getFileName();
+
+		int rank = 0;
+		Token identifierToken = null;
+
+		// 最初のトークンはデータ型
+		Token dataTypeToken = tokens[0];
+
+		// それ以降のトークンを、識別子が来るまで読み進める
+		int readingIndex = 1;
+		while(readingIndex < tokenLength) {
+
+			// 識別子トークンの場合
+			if (tokens[readingIndex].getType() == Token.Type.LEAF
+					&& tokens[readingIndex].getAttribute(AttributeKey.LEAF_TYPE).equals(AttributeValue.FUNCTION_IDENTIFIER) ) {
+				identifierToken = tokens[readingIndex];
+				readingIndex++;
+				break;
+
+			// それ以外は、データ型の後に付く配列の「 [ 」か「 ][ 」か「 ] 」しか有り得ないので、配列次元数をカウントする
+			// (文の種類の判断時に startsWithFunctionDeclarationTokens メソッドで既に検査されている)
+			} else {
+
+				// 以下、後でもっと開き閉じが対応しているかの検査などが追加で必要
+				// -> 処理中に検査入れると読むの難しくなるし、検査は LexicalChecker に分離して対応すべき（どうせ引数部の検査もあるし）
+
+				String operatorSyntax = tokens[readingIndex].getAttribute(AttributeKey.OPERATOR_SYNTAX);
+
+				// 「 [ 」か「 ][ 」の場合
+				if (operatorSyntax.equals(AttributeValue.MULTIARY) || operatorSyntax.equals(AttributeValue.MULTIARY_SEPARATOR)) {
+					rank++;
+				// 「 ] 」の場合
+				} else {
+					break;
+				}
+			}
+			readingIndex++;
+		}
+
+		// 次のトークンは引数部の始点の「 ( 」なので読み飛ばす
+		readingIndex++;
+
+		// 引数部を読み進む
+		int argumentBegin = readingIndex;
+		LinkedList<AstNode> argumentNodeList = new LinkedList<AstNode>();
+		while (readingIndex < tokenLength) {
+
+			// 「 , 」 か 「 ) 」が出現する度に、そこまでで1つの引数宣言として一旦切って解釈
+			if (tokens[readingIndex].getValue().equals(ScriptWord.ARGUMENT_SEPARATOR) ||
+					tokens[readingIndex].getValue().equals(ScriptWord.PARENTHESIS_END)) {
+
+				// 引数のトークンを変数宣言文として解釈してASTノードを生成（トークン数が0の場合はvoidなので無視）
+				Token[] argTokens = Arrays.copyOfRange(tokens, argumentBegin, readingIndex);
+				if (0 < argTokens.length) {
+					AstNode argNode = this.parseVariableDeclarationStatement(argTokens);
+					argumentNodeList.add(argNode);
+					argumentBegin = readingIndex + 1;
+				}
+			}
+			readingIndex++;
+		}
+
+		// 関数宣言文のASTノードを生成し、属性値や引数ノードを登録
+		AstNode node = new AstNode(AstNode.Type.FUNCTION, lineNumber, fileName);
+		node.addAttribute(AttributeKey.IDENTIFIER_VALUE, identifierToken.getValue());
+		node.addAttribute(AttributeKey.DATA_TYPE, dataTypeToken.getValue());
+		node.addAttribute(AttributeKey.RANK, Integer.toString(rank));
+		for (AstNode argNode: argumentNodeList) {
+			node.addChildNode(argNode);
+		}
+		return node;
+	}
+
 
 	/**
 	 * 制御文を構成するトークン配列に対して構文解析を行い、AST（抽象構文木）を構築して返します。
@@ -403,9 +556,20 @@ public class Parser {
 			node.addChildNode(this.parseExpression(Arrays.copyOfRange(tokens, conditionEnd+1, tokens.length-1)));
 			return node;
 
+		// return文の場合: return文ノードを生成し、戻り値の式をパースしてぶら下げる
+		} else if(controlTypeToken.getValue().equals(ScriptWord.RETURN)) {
+			AstNode node = new AstNode(AstNode.Type.RETURN, lineNumber, fileName);
+			if (1 <= tokens.length) {
+				node.addChildNode(this.parseExpression(Arrays.copyOfRange(tokens, 1, tokens.length)));
+			}
+			return node;
+
 		// break文の場合: break文ノードを生成するのみ
 		} else if(controlTypeToken.getValue().equals(ScriptWord.BREAK)) {
 			AstNode node = new AstNode(AstNode.Type.BREAK, lineNumber, fileName);
+			if (1 <= tokens.length) {
+				node.addChildNode(this.parseExpression(Arrays.copyOfRange(tokens, 1, tokens.length)));
+			}
 			return node;
 
 		// continue文の場合: continue文ノードを生成するのみ

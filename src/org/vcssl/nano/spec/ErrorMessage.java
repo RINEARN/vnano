@@ -61,6 +61,8 @@ public class ErrorMessage {
 			case JAGGED_ARRAY : return "長さが異なる配列をまとめた配列、いわゆるジャグ配列は、このスクリプトエンジンでは扱えません。";
 			case CAST_FAILED_DUE_TO_VALUE : return "データ「 " + words[0] + " 」の「 " + words[1] + " 」型への変換に失敗しました。";
 			case CAST_FAILED_DUE_TO_TYPE : return words[0] + "型のデータの「 " + words[1] + " 」型への変換に失敗しました。";
+			case FUNCTION_IS_DECLARED_IN_INVALID_PLASE : return "関数をここで宣言する事はできません";
+			case INVALID_ARGUMENT_DECLARATION : return "引数の宣言内容が正しくありません";
 			case UNKNOWN : return "不明なエラー";
 			default : return "不明なエラー種類：" + errorType;
 		}
@@ -92,13 +94,15 @@ public class ErrorMessage {
 			case TOO_MANY_TOKENS_FOR_CONTROL_STATEMENT : return "Unexpected description exists at the tail of the \"" + words[0] + "\" statement";
 			case NO_BLOCK_AFTER_CONTROL_STATEMENT : return "A block {...} is always necessary for the " + words[0] + "statement in this language" ;
 			case UNKNOWN_DATA_TYPE : return "Unknown data type \"" + words[0] + "\" is used";
-			case INVALID_IMMEDIATE_VALUE : return "Invalid immediate value or literal \"" + words[0] + "\" is described.";
-			case UNCONVERTIBLE_DATA_TYPE : return "External data type \"" + words[0] + "\" is not convertible to supported data types in this script engine." ;
+			case INVALID_IMMEDIATE_VALUE : return "Invalid immediate value or literal \"" + words[0] + "\" is described";
+			case UNCONVERTIBLE_DATA_TYPE : return "External data type \"" + words[0] + "\" is not convertible to supported data types in this script engine" ;
 			case UNCONVERTIBLE_ARRAY : return "External array type \"" + words[0] + "\" is not convertible to supported array in this script engine due to the number of dimensions or the type-convertibility" ;
 			case UNCONVERTIBLE_INTERNAL_ARRAY : return "Internal array type \"" + words[0] + "\" is not convertible to external array types due to the number of dimensions or the type-convertibility" ;
-			case JAGGED_ARRAY : return "Jagged array (the array having arrays as elements and array-lengths of elements are different each other) is not available for this script engine.";
-			case CAST_FAILED_DUE_TO_VALUE : return "Cast operation of the data \"" + words[0] + "\" to \"" + words[1] + "\" type has failed.";
-			case CAST_FAILED_DUE_TO_TYPE : return "Cast operation from \"" + words[0] + "\" type to \"" + words[1] + "\" type has failed.";
+			case JAGGED_ARRAY : return "Jagged array (the array having arrays as elements and array-lengths of elements are different each other) is not available for this script engine";
+			case CAST_FAILED_DUE_TO_VALUE : return "Cast operation of the data \"" + words[0] + "\" to \"" + words[1] + "\" type has failed";
+			case CAST_FAILED_DUE_TO_TYPE : return "Cast operation from \"" + words[0] + "\" type to \"" + words[1] + "\" type has failed";
+			case FUNCTION_IS_DECLARED_IN_INVALID_PLASE : return "A function is declared in the invalid place";
+			case INVALID_ARGUMENT_DECLARATION : return "Invalid argument declaration is detected";
 			case UNKNOWN : return "Unknown Error";
 			default : return "Unknown Error Type：" + errorType;
 		}

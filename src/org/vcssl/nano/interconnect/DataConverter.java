@@ -235,8 +235,9 @@ public class DataConverter {
 	}
 
 
+	// VM内でデータ型が不整合だった際のエラーメッセージの生成などで使用するので public
 	/**
-	 * 指定されたホスト言語側のクラスのオブジェクトが、処理系内側のデータ型に変換かのうかどうかを判断して返します。
+	 * 指定されたホスト言語側のクラスのオブジェクトが、処理系内側のデータ型に変換可能かどうかを判断して返します。
 	 *
 	 * @param objectClass 変換可能か検査するクラス
 	 * @return 変換可能であればtrue
@@ -263,6 +264,18 @@ public class DataConverter {
 			typeName = className;
 		}
 		return typeName;
+	}
+
+
+	/**
+	 * データ型を表すホスト言語側のクラスから、それに対応する処理系内側のデータ型を求めて返します。
+	 *
+	 * @param objectClass 対象データ型のクラス
+	 * @return 処理系内側のデータ型
+	 */
+	public static DataType getDataTypeOf(Class<?> objectClass) {
+		String externalDataTypeName = getExternalTypeNameOf(objectClass);
+		return EXTERNAL_NAME_DATA_TYPE_MAP.get(externalDataTypeName);
 	}
 
 

@@ -32,6 +32,7 @@
 ./org/vcssl/nano/lang/AbstractFunction.java
 ./org/vcssl/nano/lang/AbstractVariable.java
 ./org/vcssl/nano/lang/DataType.java
+./org/vcssl/nano/lang/Function.java
 ./org/vcssl/nano/lang/FunctionTable.java
 ./org/vcssl/nano/lang/package-info.java
 ./org/vcssl/nano/lang/Variable.java

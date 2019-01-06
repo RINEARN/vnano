@@ -13,10 +13,11 @@ import org.vcssl.nano.lang.AbstractVariable;
 import org.vcssl.nano.lang.DataType;
 
 
+// SignatureSyntax に変更する？
 public class IdentifierSyntax {
 
 
-	public static String getUniqueIdentifierOf(String functionName,
+	public static String getSignatureOf(String functionName,
 			String[] parameterDataTypeNames, int[] parameterArrayRanks) {
 
 		StringBuilder builder = new StringBuilder();
@@ -41,16 +42,12 @@ public class IdentifierSyntax {
 		return builder.toString();
 	}
 
-	public static String getUniqueIdentifierOfCalleeFunctionOf(AstNode callerNode) {
+	public static String getSignatureOf(AstNode functionDeclarationNode) {
 
-		AstNode[] childNodes = callerNode.getChildNodes();
 
-		// 最初の子ノードが関数識別子ノード
-		String functionName = childNodes[0].getAttribute(AttributeKey.IDENTIFIER_VALUE);
-
-		int argumentNodeLength = childNodes.length-1;
-		AstNode[] argumentNodes = new AstNode[argumentNodeLength];
-		System.arraycopy(childNodes, 1, argumentNodes, 0, argumentNodeLength);
+		String functionName = functionDeclarationNode.getAttribute(AttributeKey.IDENTIFIER_VALUE);
+		AstNode[] argumentNodes = functionDeclarationNode.getChildNodes();
+		int argumentNodeLength = argumentNodes.length;
 
 		//DataType[] argumentDataTypes = new DataType[argumentNodeLength];
 		String[] argumentDataTypeNames = new String[argumentNodeLength];
@@ -73,49 +70,79 @@ public class IdentifierSyntax {
 			argumentArrayRanks[argumentNodeIndex] = argumentNodes[argumentNodeIndex].getRank();
 		}
 
-		String signature = getUniqueIdentifierOf(
+		String signature = getSignatureOf(
 				functionName, argumentDataTypeNames, argumentArrayRanks
 		);
 
 		return signature;
 	}
 
-	// この中身の文字列リテラルは、後で Mnemonic の定数に置き換えるべき？
-	public static String getUniqueIdentifierOf(AbstractFunction connector) {
+	public static String getSignatureOfCalleeFunctionOf(AstNode callerNode) {
 
-		DataType[] parameterDataTypes = connector.getParameterDataTypes();
-		int[] parameterArrayRanks = connector.getParameterArrayRanks();
+		AstNode[] childNodes = callerNode.getChildNodes();
 
-		int parameterLength = parameterDataTypes.length;
-		String[] parameterDataTypeNames = new String[parameterLength];
-		for (int parameterIndex=0; parameterIndex<parameterLength; parameterIndex++) {
-			parameterDataTypeNames[parameterIndex]
-					= DataTypeName.getDataTypeNameOf(parameterDataTypes[parameterIndex]);
+		// 最初の子ノードが関数識別子ノード
+		String functionName = childNodes[0].getAttribute(AttributeKey.IDENTIFIER_VALUE);
+
+		int argumentNodeLength = childNodes.length-1;
+		AstNode[] argumentNodes = new AstNode[argumentNodeLength];
+		System.arraycopy(childNodes, 1, argumentNodes, 0, argumentNodeLength);
+
+		String[] argumentDataTypeNames = new String[argumentNodeLength];
+		int[] argumentArrayRanks = new int[argumentNodeLength];
+
+		for (int argumentNodeIndex=0; argumentNodeIndex<argumentNodeLength; argumentNodeIndex++) {
+			String dataTypeName = argumentNodes[argumentNodeIndex].getAttribute(AttributeKey.DATA_TYPE);
+
+			// データ型名のエイリアス（floatに対するdoubleなど）を一意な型名に揃えるため、一旦DataTypeに変換して戻す
+			try {
+				DataType dataType = DataTypeName.getDataTypeOf(dataTypeName);
+				dataTypeName = DataTypeName.getDataTypeNameOf(dataType);
+			} catch (VnanoException e) {
+				// DataTypeに定義されない未知の型の場合は、記述された型名をそのまま使用する
+			}
+
+			argumentDataTypeNames[argumentNodeIndex] = dataTypeName;
+
+			argumentArrayRanks[argumentNodeIndex] = argumentNodes[argumentNodeIndex].getRank();
 		}
 
-		String signature = getUniqueIdentifierOf(
+		String signature = getSignatureOf(
+				functionName, argumentDataTypeNames, argumentArrayRanks
+		);
+
+		return signature;
+	}
+
+
+	public static String getSignatureOf(AbstractFunction connector) {
+
+		String[] parameterDataTypeNames = connector.getParameterDataTypeNames();
+		int[] parameterArrayRanks = connector.getParameterArrayRanks();
+		String signature = getSignatureOf(
 				connector.getFunctionName(), parameterDataTypeNames, parameterArrayRanks
 		);
 
 		return signature;
 	}
 
+
+
 	public static String getAssemblyIdentifierOf(String functionName,
 			String[] parameterDataTypeNames, int[] parameterArrayRanks) {
 
 		return AssemblyWord.OPERAND_PREFIX_IDENTIFIER
-				+ getUniqueIdentifierOf(functionName, parameterDataTypeNames, parameterArrayRanks);
+				+ getSignatureOf(functionName, parameterDataTypeNames, parameterArrayRanks);
 	}
 
 	public static String getAssemblyIdentifierOfCalleeFunctionOf(AstNode callerNode) {
 		return AssemblyWord.OPERAND_PREFIX_IDENTIFIER
-				+ getUniqueIdentifierOfCalleeFunctionOf(callerNode);
+				+ getSignatureOfCalleeFunctionOf(callerNode);
 	}
 
-	// この中身の文字列リテラルは、後で Mnemonic の定数に置き換えるべき？
 	public static String getAssemblyIdentifierOf(AbstractFunction connector) {
 		return AssemblyWord.OPERAND_PREFIX_IDENTIFIER
-				+ getUniqueIdentifierOf(connector);
+				+ getSignatureOf(connector);
 	}
 
 	// 後の工程での削除候補
@@ -123,6 +150,19 @@ public class IdentifierSyntax {
 		return AssemblyWord.OPERAND_PREFIX_IDENTIFIER + variableName;
 	}
 
+	public static String getAssemblyIdentifierOf(AstNode variableNode) {
+		String variableName = variableNode.getAttribute(AttributeKey.IDENTIFIER_VALUE);
+		String serialNumber = variableNode.getAttribute(AttributeKey.IDENTIFIER_SERIAL_NUMBER);
+		String assemblyIdentifier
+				= AssemblyWord.OPERAND_PREFIX_IDENTIFIER
+				+ variableName
+				+ AssemblyWord.IDENTIFIER_SERIAL_NUMBER_SEPARATOR
+				+ serialNumber;
+
+		return assemblyIdentifier;
+	}
+
+	// 後で AbstractVariable がシリアルナンバーを持てるようにした場合は、持っていれば付けるべき
 	public static String getAssemblyIdentifierOf(AbstractVariable variable) {
 		return AssemblyWord.OPERAND_PREFIX_IDENTIFIER + variable.getVariableName();
 	}

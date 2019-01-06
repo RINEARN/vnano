@@ -112,12 +112,12 @@ public class Assembler {
 			// ラベルディレクティブ -> NOPを置く（ジャンプ先命令に、演算ではなく着地点の役割だけを担わせる事で、最適化を容易にする）
 			} else if (line.startsWith(AssemblyWord.LABEL_DIRECTIVE)) {
 
-				Instruction instruction = new Instruction(
+				intermediateCode.addInstruction(
+					new Instruction(
 						OperationCode.NOP, new DataType[]{DataType.VOID},
-						new Memory.Partition[0], new int[0],
-						Memory.Partition.CONSTANT, metaAddress
+						new Memory.Partition[0], new int[0], Memory.Partition.CONSTANT, metaAddress
+					)
 				);
-				intermediateCode.addInstruction(instruction);
 				continue;
 
 			} else if (line.startsWith(Character.toString(AssemblyWord.DIRECTIVE_PREFIX))) {
@@ -251,11 +251,24 @@ public class Assembler {
 				}
 			}
 
-			Instruction instruction = new Instruction(
+			intermediateCode.addInstruction(
+				new Instruction(
 					operationCode, dataTypes, operandAddressTypes, operandAddresses,
 					Memory.Partition.CONSTANT, metaAddress
+				)
 			);
-			intermediateCode.addInstruction(instruction);
+
+			// CALL命令の次の位置は、RET命令で飛んで来る着地点になるので、ラベル同様にNOPを置いておく
+			//（ジャンプ先命令に、演算ではなく着地点の役割だけを担わせる事で、最適化を容易にする）
+			if (operationCode == OperationCode.CALL) {
+
+				intermediateCode.addInstruction(
+					new Instruction(
+						OperationCode.NOP, new DataType[]{DataType.VOID},
+						new Memory.Partition[0], new int[0], Memory.Partition.CONSTANT, metaAddress
+					)
+				);
+			}
 		}
 
 		return intermediateCode;

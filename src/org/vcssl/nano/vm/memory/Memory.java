@@ -6,7 +6,9 @@
 package org.vcssl.nano.vm.memory;
 
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.List;
 
@@ -97,6 +99,9 @@ public final class Memory {
 
 		/** レジスタ領域を表します。この領域には、演算用の一時データなどが保持されます。 */
 		REGISTER,
+
+		/** スタック領域を表します。この領域は、関数コール時の引数や戻り値の受け渡しなど、データの一時的な保持と取り出しに使用されます。 */
+		STACK,
 	}
 
 
@@ -112,7 +117,10 @@ public final class Memory {
 	/** レジスタ領域のデータを保持するリストです。この領域には、演算用の一時データなどが保持されます。 */
 	private List<DataContainer<?>> registerList;
 
-	// 分岐なしで各パーティションのリストにアクセスするためのマップ
+	/** スタック領域として使用する双方向キューです。この領域は、関数コール時の引数や戻り値の受け渡しなど、データの一時的な保持と取り出しに使用されます。 */
+	private Deque<DataContainer<?>> stack;
+
+	/** 分岐なしで各パーティションのリストにアクセスするためのマップです。 */
 	private HashMap<Partition, List<DataContainer<?>>> containerListMap;
 
 
@@ -124,6 +132,7 @@ public final class Memory {
 		this.localList = new ArrayList<DataContainer<?>>();
 		this.globalList = new ArrayList<DataContainer<?>>();
 		this.constantList = new ArrayList<DataContainer<?>>();
+		this.stack = new ArrayDeque<DataContainer<?>>();
 
 		this.containerListMap = new HashMap<Partition, List<DataContainer<?>>>();
 		this.containerListMap.put(Memory.Partition.REGISTER, this.registerList);
@@ -142,8 +151,12 @@ public final class Memory {
 	 * @return サイズ（データコンテナの数）
 	 * @throws MemoryAccessException
 	 */
-	public int getSize(Memory.Partition partition) {
-		return this.containerListMap.get(partition).size();
+	public final int getSize(Memory.Partition partition) {
+		if (partition == Memory.Partition.STACK) {
+			return this.stack.size();
+		} else {
+			return this.containerListMap.get(partition).size();
+		}
 	}
 
 
@@ -157,7 +170,10 @@ public final class Memory {
 	 * @throws VnanoFatalException
 	 * 		指定されたアドレスが、使用領域外であった場合にスローされます。
 	 */
-	public DataContainer<?> getDataContainer(Partition partition, int address) {
+	public final DataContainer<?> getDataContainer(Partition partition, int address) {
+		if (!containerListMap.containsKey(partition)) {
+			throw new VnanoFatalException("Unsupported operation for " + partition + " partition.");
+		}
 		List<DataContainer<?>> list = this.containerListMap.get(partition);
 		try {
 			return list.get(address);
@@ -166,7 +182,10 @@ public final class Memory {
 		}
 	}
 
-	public void setDataContainers(Partition partition, DataContainer<?>[] containers) {
+	public final void setDataContainers(Partition partition, DataContainer<?>[] containers) {
+		if (!containerListMap.containsKey(partition)) {
+			throw new VnanoFatalException("Unsupported operation for " + partition + " partition.");
+		}
 		List<DataContainer<?>> list = this.containerListMap.get(partition);
 		list.clear();
 		for (DataContainer<?> container: containers) {
@@ -174,13 +193,19 @@ public final class Memory {
 		}
 	}
 
-	public DataContainer<?>[] getDataContainers(Memory.Partition partition) {
+	public final DataContainer<?>[] getDataContainers(Memory.Partition partition) {
+		if (!containerListMap.containsKey(partition)) {
+			throw new VnanoFatalException("Unsupported operation for " + partition + " partition.");
+		}
 		List<DataContainer<?>> list = this.containerListMap.get(partition);
 		return list.toArray(new DataContainer<?>[]{});
 	}
 
 
-	public void setDataContainer(Partition partition, int address, DataContainer<?> container) {
+	public final void setDataContainer(Partition partition, int address, DataContainer<?> container) {
+		if (!containerListMap.containsKey(partition)) {
+			throw new VnanoFatalException("Unsupported operation for " + partition + " partition.");
+		}
 		List<DataContainer<?>> list = this.containerListMap.get(partition);
 		if (address < list.size()) {
 			list.set(address, container);
@@ -192,10 +217,40 @@ public final class Memory {
 		}
 	}
 
-	private void paddList(List<DataContainer<?>> list, int n) {
+	private final void paddList(List<DataContainer<?>> list, int n) {
 		for (int i=0; i<n; i++) {
 			list.add(new DataContainer<Object>());
 		}
+	}
+
+
+	/**
+	 * スタック領域の先端にデータを追加します。
+	 *
+	 * @param dataContainer 追加するデータ
+	 */
+	public final void push(DataContainer<?> dataContainer) {
+		this.stack.push(dataContainer);
+	}
+
+
+	/**
+	 * スタック領域の先端からデータを取り出します。
+	 *
+	 * @return 取り出したデータ
+	 */
+	public final DataContainer<?> pop() {
+		return this.stack.pop();
+	}
+
+
+	/**
+	 * スタック領域の先端にあるデータを、取り出さずに参照します。
+	 *
+	 * @return スタック領域の先端のデータ
+	 */
+	public final DataContainer<?> peek() {
+		return this.stack.peek();
 	}
 
 
@@ -207,7 +262,7 @@ public final class Memory {
 	 * @throws VnanoException これはアセンブラでやるべき
 	 * @throws DataException これもかな
 	 */
-	public void allocate(VirtualMachineObjectCode intermediateCode, VariableTable globalVariableTable)
+	public final void allocate(VirtualMachineObjectCode intermediateCode, VariableTable globalVariableTable)
 			throws VnanoException {
 
 		// レジスタ確保の確保

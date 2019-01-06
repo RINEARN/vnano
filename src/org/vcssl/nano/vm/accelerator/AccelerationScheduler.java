@@ -134,7 +134,13 @@ public class AccelerationScheduler {
 		     && operationCode != OperationCode.FREE
 		     && operationCode != OperationCode.NOP
 		     && operationCode != OperationCode.JMP
-		     && operationCode != OperationCode.JMPN   ;
+		     && operationCode != OperationCode.JMPN
+		     ;
+
+		// CALL & RET 命令について：
+		//   関数の引数や戻り値はスタックに積まれるので、CALL命令やRET命令自体はオペランドには何も書き込まないが、
+		//   スタックに積まれた後のデータがどこで取り出されて読み書きされるかを静的に解析するのは複雑なので、
+		//   CALL & RET 命令のオペランドは便宜的に、書き込み箇所カウントに含める（最適化予防のため）
 	}
 
 
@@ -163,21 +169,23 @@ public class AccelerationScheduler {
 			int writingRegisterAddress = instruction.getOperandAddresses()[0];
 			this.registerWrittenPointCount[writingRegisterAddress]++;
 		}
-		/*
-		for (int i=0; i<registerLength; i++) {
-			System.out.println("Written Count of R" + i + " = " + this.registerWrittenPointCount[i]);
-		}
-		*/
 	}
 
 
 
-	// データから読み込みを行う命令なら true を返す（ただしレジスタの確保・解放は除外）
+	// オペランドからデータの読み込みを行う命令なら true を返す
+	//（ただしレジスタの確保・解放やなどは除外）
 	private boolean isDataReadingOperationCode(OperationCode operationCode) {
 
 		return operationCode != OperationCode.ALLOC
 		     && operationCode != OperationCode.FREE
-		     && operationCode != OperationCode.NOP ;
+		     && operationCode != OperationCode.MOVPOP   // MOVPOP はスタックからデータを読むので、オペランドからは読まない（書く）
+		     && operationCode != OperationCode.REFPOP   // REFPOP はスタックからデータを読むので、オペランドからは読まない（書く）
+		     && operationCode != OperationCode.NOP   // NOP は何もしないので明らかに何も読まない
+		     ;
+
+		// スタックとデータをやり取りする CALL & RET 命令は要注意
+		// ( isDataWritingOperationCode のコメント参照 )
 	}
 
 
@@ -197,22 +205,35 @@ public class AccelerationScheduler {
 				continue;
 			}
 
+			// オペランドの個数
 			int operandLength = instruction.getOperandLength();
-
-			if (operandLength < 2) {
-				// 入力オペランドを持つ命令でオペランド数が2個未満のものは無いため、isDataReadingOperationCode 実装か命令の異常
-				throw new VnanoFatalException("Unexpected Number of Operands for Data-Reading Instruction: " + instruction);
-			}
 
 			// 入力オペランドが始まるインデックス ... 通常は先頭が出力オペランドで、その次（1番）から始まる
 			int inputOperandsBeginIndex = 1;
 
+
+			// !!! 以下、やはり命令セットの仕様で先頭オペランドは状態変更対象で統一して、無い場合はプレースホルダを置くべき
+			//     後々で要変更
+
+
 			// 分岐命令はデータの出力をしないので、先頭オペランド（0番）から入力オペランドが並ぶ
 			if (opcode == OperationCode.JMP || opcode == OperationCode.JMPN) {
 				inputOperandsBeginIndex = 0;
+
+			// RET命令も先頭オペランドが読み込み対象（通常は先頭は書き込み対象）で、省略も可能なので、特別な措置が必要
+			} else if (opcode == OperationCode.RET) {
+				if (operandLength == 0) {
+					continue; // オペランドが省略されていればスキップ
+				}
+				inputOperandsBeginIndex = 0; // 先頭オペランドを読み込み開始オペランドに指定
+
+			// それ以外の、入力オペランドを持つ命令の中で、オペランド数が2個未満のものは無いため、
+			// 実際に2個未満でない場合は isDataReadingOperationCode 実装か命令の異常
+			} else if (operandLength < 2) {
+				throw new VnanoFatalException("Unexpected Number of Operands for Data-Reading Instruction: " + instruction);
 			}
 
-
+			// オペランドのメモリパーティションとアドレスを取得
 			Memory.Partition[] operandPartitions = instruction.getOperandPartitions();
 			int[] operandAddresses = instruction.getOperandAddresses();
 
@@ -260,7 +281,7 @@ public class AccelerationScheduler {
 		return true;
 	}
 
-	// 2つの連続するスカラ算術演算命令を融合して1つの命令にする。ただしオペランドがキャッシュ可能な場合限定。
+
 	private void detectAccelerationTypes(Memory memory, AccelerationDataManager dataManager) {
 
 		int instructionLength = this.acceleratorInstructionList.size();
@@ -472,6 +493,20 @@ public class AccelerationScheduler {
 					break;
 				}
 
+				// 内部数コール命令 Return instruction opcode
+				case CALL :
+				{
+					instruction.setAccelerationType(AccelerationType.CALL);
+					break;
+				}
+
+				// 内部関数リターン命令 Return instruction opcode
+				case RET :
+				{
+					instruction.setAccelerationType(AccelerationType.RET);
+					break;
+				}
+
 				// 何もしない命令（ジャンプ先に配置されている） Nop instruction opcode
 				case NOP :
 				{
@@ -513,14 +548,14 @@ public class AccelerationScheduler {
 	}
 
 
-	// ジャンプ系命令のジャンプ先命令アドレスは、命令再配置によって変わるため、再配置後のアドレス情報を追加
+	// ジャンプ系命令（CALL含む）のジャンプ先命令アドレスは、命令再配置によって変わるため、再配置後のアドレス情報を追加
 	private void resolveReorderedJumpAddress(Memory memory) {
 		int instructionLength = this.acceleratorInstructionList.size();
 		for (int instructionIndex=0; instructionIndex<instructionLength; instructionIndex++) {
 			AcceleratorInstruction instruction = this.acceleratorInstructionList.get(instructionIndex);
 			OperationCode opcode = instruction.getOperationCode();
 
-			if (opcode == OperationCode.JMP || opcode == OperationCode.JMPN) {
+			if (opcode == OperationCode.JMP || opcode == OperationCode.JMPN || opcode == OperationCode.CALL) {
 
 				// ジャンプ先アドレスの値を格納するオペランドのデータコンテナをメモリから取得
 				DataContainer<?> addressContiner = null;

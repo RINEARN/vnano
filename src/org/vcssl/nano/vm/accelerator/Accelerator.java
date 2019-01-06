@@ -79,7 +79,6 @@ public class Accelerator {
 		// 命令スケジューラで命令列を高速化用に再配置・変換
 		AccelerationScheduler scheduler = new AccelerationScheduler();
 		AcceleratorInstruction[] acceleratorInstructions = scheduler.schedule(instructions, memory, dataManager);
-
 		/*
 		System.out.println("===== SCHEDULED INSTRUCTIONS =====");
 		for (int i=0; i<acceleratorInstructions.length; i++) {

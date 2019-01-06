@@ -5,6 +5,7 @@
 package org.vcssl.nano.vm.accelerator;
 
 import org.vcssl.nano.VnanoFatalException;
+
 import org.vcssl.nano.VnanoException;
 import org.vcssl.nano.interconnect.Interconnect;
 import org.vcssl.nano.lang.DataType;
@@ -90,7 +91,7 @@ public class AccelerationDispatcher {
 					accelType, opcode, dataTypes,
 					operandContainers, operandCaches, operandCached, operandScalar, operandConstant,
 					instruction, processor, memory, interconnect,
-					nextNode
+					instructionIndex, nextNode
 				);
 			} catch (Exception causeException) {
 				AcceleratorInstruction causeInstruction = instruction;
@@ -99,7 +100,7 @@ public class AccelerationDispatcher {
 				throw new VnanoFatalException(
 						"Accelerator dispatch failed at:"
 						+ " address=" + unreorderedAddress
-						+ " reorderedAddress=" + reorderedAddress
+						+ " reorderedAddressOfThisInstruction=" + reorderedAddress
 						+ " instruction=" + causeInstruction,
 						causeException
 				);
@@ -116,18 +117,23 @@ public class AccelerationDispatcher {
 			nextNode = currentNode;
 		}
 
-		// 分岐ノードに分岐先ノードの参照を設定
+		// 別の命令アドレスに飛ぶ処理のノードに、着地先ノードの参照を持たせる
 		for (int instructionIndex = instructionLength-1; 0<=instructionIndex; instructionIndex--) {
-
 			OperationCode opcode = instructions[instructionIndex].getOperationCode();
-			if (opcode == OperationCode.JMP || opcode == OperationCode.JMPN) {
 
-				// 命令再配置でジャンプ命令先アドレスは変化するので、補正後のアドレスを使う
-				int branchedAddress = instructions[instructionIndex].getReorderedJumpAddress();
-				executors[instructionIndex].setBranchedNode( executors[branchedAddress] );
+			// 分岐命令と内部関数コール命令: 飛び先の命令アドレスは静的に確定しているので、着地先ノードを求めて持たせる
+			if (opcode == OperationCode.JMP || opcode == OperationCode.JMPN || opcode == OperationCode.CALL) {
+				int branchedAddress = instructions[instructionIndex].getReorderedJumpAddress(); // 注：命令再配置で飛び先アドレスは変わる
+				executors[instructionIndex].setLaundingPointNodes(executors[branchedAddress]);
+			}
+
+			// RET命令は、スタックに積まれた値を読んでその命令アドレスに飛ぶので、
+			// 実行時まで着地先がわからないため、全ノードを持たせておく必要がある(ノード内で実行時に飛び先ノードを特定する)。
+			// なお、CALL命令は命令再配置後のアドレスをスタックに積むので、命令再配置によるずれは気にしなくてもいい。
+			if (opcode == OperationCode.RET) {
+				executors[instructionIndex].setLaundingPointNodes(executors);
 			}
 		}
-
 
 		return executors;
 	}
@@ -138,7 +144,7 @@ public class AccelerationDispatcher {
 			OperationCode opcode, DataType[] dataTypes, DataContainer<?>[] operandContainers,
 			Object[] operandCaches, boolean[] operandCached, boolean[] operandScalar, boolean[] operandConstant,
 			AcceleratorInstruction instruction, Processor processor, Memory memory, Interconnect interconnect,
-			AccelerationExecutorNode nextNode) {
+			int reorderedAddress, AccelerationExecutorNode nextNode) {
 
 		AccelerationExecutorNode currentNode = null;
 		switch (accelType) {
@@ -347,8 +353,6 @@ public class AccelerationDispatcher {
 				break;
 			}
 
-
-
 			// スカラALLOC
 
 			case S_ALLOC : {
@@ -361,6 +365,30 @@ public class AccelerationDispatcher {
 				break;
 			}
 
+
+			// 内部関数コール
+
+			case CALL : {
+				CacheSynchronizer synchronizer = new GeneralScalarCacheSynchronizer(
+						operandContainers, operandCaches, operandCached
+				);
+				currentNode = new CallExecutorNode(
+					memory, operandContainers, synchronizer, reorderedAddress, nextNode
+				);
+				break;
+			}
+
+			// 内部関数リターン
+
+			case RET : {
+				CacheSynchronizer synchronizer = new GeneralScalarCacheSynchronizer(
+						operandContainers, operandCaches, operandCached
+				);
+				currentNode = new ReturnExecutorNode(
+					memory, operandContainers, synchronizer, nextNode
+				);
+				break;
+			}
 
 
 			// NOP（分岐先の着地点に存在）
@@ -378,7 +406,7 @@ public class AccelerationDispatcher {
 				CacheSynchronizer synchronizer = new GeneralScalarCacheSynchronizer(
 						operandContainers, operandCaches, operandCached
 				);
-				currentNode = new PassThroughExecutor(
+				currentNode = new PassThroughExecutorNode(
 						instruction, memory, interconnect, processor, synchronizer, nextNode
 				);
 				break;
@@ -453,14 +481,14 @@ public class AccelerationDispatcher {
 
 
 
-	private final class PassThroughExecutor extends AccelerationExecutorNode {
+	private final class PassThroughExecutorNode extends AccelerationExecutorNode {
 		private final Instruction instruction;
 		private final Interconnect interconnect;
 		private final Processor processor;
 		private final Memory memory;
 		private final CacheSynchronizer synchronizer;
 
-		public PassThroughExecutor(Instruction instruction, Memory memory, Interconnect interconnect,
+		public PassThroughExecutorNode(Instruction instruction, Memory memory, Interconnect interconnect,
 				Processor processor, CacheSynchronizer synchronizer,
 				AccelerationExecutorNode nextNode) {
 
@@ -472,6 +500,7 @@ public class AccelerationDispatcher {
 			this.synchronizer = synchronizer;
 		}
 
+		@Override
 		public final AccelerationExecutorNode execute() {
 			try {
 
@@ -480,6 +509,98 @@ public class AccelerationDispatcher {
 				this.processor.process(this.instruction, this.memory, this.interconnect, programCounter);
 				this.synchronizer.synchronizeFromMemoryToCache();
 				return this.nextNode;
+
+			} catch (Exception e) {
+				e.printStackTrace();
+				return null;
+			}
+		}
+	}
+
+
+	private final class CallExecutorNode extends AccelerationExecutorNode {
+		private final Memory memory;
+		private final DataContainer<?>[] operandContainers;
+		private final CacheSynchronizer synchronizer;
+		private AccelerationExecutorNode functionHeadNode;
+		private DataContainer<long[]> returnAddressContainer;
+
+		public CallExecutorNode(Memory memory, DataContainer<?>[] operandContainers, CacheSynchronizer synchronizer,
+				int reorderedAddressOfThisInstruction, AccelerationExecutorNode nextNode) {
+
+			super(nextNode);
+			this.memory = memory;
+			this.synchronizer = synchronizer;
+			this.operandContainers = operandContainers;
+			this.returnAddressContainer = new DataContainer<long[]>();
+			this.returnAddressContainer.setData(new long[] { reorderedAddressOfThisInstruction + 1 });
+		}
+
+		@Override
+		public final void setLaundingPointNodes(AccelerationExecutorNode ... nodes) {
+			this.functionHeadNode = nodes[0];
+		}
+
+		@Override
+		public final AccelerationExecutorNode execute() {
+			try {
+				this.synchronizer.synchronizeFromCacheToMemory();
+
+				// 戻り先アドレスをスタックに積む
+				this.memory.push(this.returnAddressContainer);
+
+				// 引数をスタックに積む
+				int operandLength = operandContainers.length;
+				for (int i=2; i<operandLength; i++) { // [0]はプレースホルダ、[1]は飛び先ラベルアドレス、なので[2]からが引数
+					this.memory.push(operandContainers[i]);
+				}
+
+				// 関数の先頭の命令に飛ぶ
+				return this.functionHeadNode;
+
+			} catch (Exception e) {
+				e.printStackTrace();
+				return null;
+			}
+		}
+	}
+
+
+	private final class ReturnExecutorNode extends AccelerationExecutorNode {
+		private final Memory memory;
+		private final DataContainer<?> returnValueContainer;
+		private final CacheSynchronizer synchronizer;
+		private AccelerationExecutorNode[] allNodes;
+
+		public ReturnExecutorNode(Memory memory, DataContainer<?>[] operandContainers, CacheSynchronizer synchronizer,
+				AccelerationExecutorNode nextNode) {
+
+			super(nextNode);
+			this.memory = memory;
+			this.synchronizer = synchronizer;
+			this.returnValueContainer = operandContainers[0];
+		}
+
+		@Override
+		public final void setLaundingPointNodes(AccelerationExecutorNode ... nodes) {
+			this.allNodes = nodes;
+		}
+
+		@Override
+		public final AccelerationExecutorNode execute() {
+			try {
+				this.synchronizer.synchronizeFromCacheToMemory();
+
+				// 戻り先アドレスをスタックから取り出す
+				@SuppressWarnings("unchecked")
+				DataContainer<long[]> returnAddressContainer = (DataContainer<long[]>)memory.pop();
+				int returnedPointAddress = (int)(returnAddressContainer.getData()[0]);
+
+				// 戻り値をスタックに積む
+				memory.push(this.returnValueContainer);
+
+				// 戻り先地点のノードを返す
+				return allNodes[returnedPointAddress];
 
 			} catch (Exception e) {
 				e.printStackTrace();

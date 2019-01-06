@@ -8,11 +8,6 @@ package org.vcssl.nano.compiler;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
 
 import org.vcssl.nano.VnanoException;
 import org.vcssl.nano.compiler.AstNode;
@@ -20,7 +15,9 @@ import org.vcssl.nano.interconnect.Interconnect;
 import org.vcssl.nano.lang.AbstractFunction;
 import org.vcssl.nano.lang.AbstractVariable;
 import org.vcssl.nano.lang.DataType;
+import org.vcssl.nano.lang.Function;
 import org.vcssl.nano.lang.FunctionTable;
+import org.vcssl.nano.lang.Variable;
 import org.vcssl.nano.lang.VariableTable;
 import org.vcssl.nano.spec.DataTypeName;
 import org.vcssl.nano.spec.ErrorType;
@@ -63,16 +60,22 @@ public class SemanticAnalyzer {
 
 		// インターコネクトから外部変数・外部関数のテーブルを取得
 		VariableTable globalVariableTable = interconnect.getGlobalVariableTable();
-		FunctionTable functionTable = interconnect.getGlobalFunctionTable();
+		FunctionTable globalFunctionTable = interconnect.getGlobalFunctionTable();
 
 		// ASTを入力ASTをクローンして出力ASTを生成
 		AstNode outputAst = inputAst.clone();
 
-		// リーフノードの属性値を設定
-		this.supplementLeafAttributes(outputAst, globalVariableTable);
+		// リテラルタイプのリーフノードの属性値を設定（シグネチャ確定のため、関数識別子リーフノードの解析よりも前に済ませる必要がある）
+		this.supplementLiteralLeafAttributes(outputAst);
+
+		// 変数識別子タイプのリーフノード（変数宣言文ノードではない）に対して、参照している変数を判定し、その属性値を設定
+		this.supplementVariableIdentifierLeafAttributes(outputAst, globalVariableTable);
+
+		// 内部関数を抽出して関数テーブルを取得
+		FunctionTable localFunctionTable = this.extractFunctions(outputAst);
 
 		// 演算子ノードの属性値を設定
-		this.supplementOperatorAttributes(outputAst, functionTable);
+		this.supplementOperatorAttributes(outputAst, globalFunctionTable, localFunctionTable);
 
 		// 式ノードの属性値を設定
 		this.supplementExpressionAttributes(outputAst);
@@ -82,124 +85,217 @@ public class SemanticAnalyzer {
 
 
 	/**
-	 * 引数に渡されたAST（抽象構文木）の内容を解析し、その中のリーフノードに対して、
-	 * 中間コード生成を行うために不足している属性値を追加設定します
+	 * 引数に渡されたAST（抽象構文木）の内容を解析し、その中の変数参照箇所の箇所の識別子リーフノード
+	 * （{@link AttributeKey#LEAF_TYPE LEAF_TYPE} 属性の値が {@link AttributeValue#VARIABLE_IDENTIFIER VARIABLE_IDENTIFIER}）
+	 * に対して、中間コード生成を行うために不足している属性値を追加設定します
 	 * （従って、このメソッドは破壊的メソッドです）。
 	 *
-	 * 具体的な例としては、式中のリテラルや、変数へのアクセスを行っているノードのデータ型が解析され、
-	 * 各ノードの {@link AttributeKey#DATA_TYPE DATA_TYPE} 属性の値として設定されます。
-	 * 同様に配列次元数も解析され、 {@link AttributeKey#RANK RANK} 属性の値として設定されます。
+	 * 具体的な例としては、呼び出し対象の関数を判定し、その戻り値のデータ型を、
+	 * 関数識別子ノードの {@link AttributeKey#DATA_TYPE DATA_TYPE} 属性の値として設定されます。
+	 * 同様に、戻り値の配列次元数が {@link AttributeKey#RANK RANK} 属性の値として設定されます。
 	 *
 	 * @param astRootNode 解析・設定対象のASTのルートノード（メソッド実行後、各ノードに属性値が追加されます）
-	 * @param globalVariableTable AST内で参照しているグローバル変数情報を持つ変数テーブル
-	 * @throws DataException ローカル変数のデータ型が無効な場合にスローされます。
-	 * @throws VnanoException 存在しない変数を参照している場合にスローされます。
+	 * @param globalFunctionTable AST内で参照しているグローバル変数情報を持つ変数テーブル
+	 * @throws VnanoException 存在しない変数を参照している場合などにスローされます。
 	 */
-	private void supplementLeafAttributes(AstNode astRootNode, VariableTable globalVariableTable)
-			throws VnanoException {
+	private void supplementVariableIdentifierLeafAttributes(AstNode astRootNode, VariableTable globalVariableTable)
+					throws VnanoException {
 
 		if (!astRootNode.hasChildNodes()) {
 			return;
 		}
 
-		// 同じ識別子（変数名）の変数を区別できるようにするため、識別子に加えてカウンタ情報を付加する
-		int localVariableCounter = 0;
+		// 同じ識別子/シグネチャのローカル変数を区別できるようにするため、識別子に加えてシリアルナンバー情報を付加する
+		int localVariableSerialNumber = 0;
 
-		// 注意: 同じキーがHashMapに重複登録された場合、get は最後に登録された要素を返り、remove も最後の要素が削られる
-		//（実際にその挙動を利用している）
-		Map<String, String> localVariableTypeMap = new HashMap<String, String>();
-		Map<String, Integer> localVariableRankMap = new HashMap<String, Integer>();
-		Map<String, Integer> localVariableSerialNumberMap = new HashMap<String, Integer>();
+		// ローカル変数テーブル
+		VariableTable localVariableTable = new VariableTable();
 
 		AstNode currentNode = astRootNode;
-		int currentDepth = 0; // ブロック終端による変数削除などで使用
-		int lastDepth = 0;
+		int currentBlockDepth = 0; // ブロック終端による変数削除などで使用
+		int lastBlockDepth = 0;
 
-		List<String> scopeLocalVariableNameList = new LinkedList<String>();
-		Deque<List<String>>scopeLocalVariableNameListStack = new ArrayDeque<List<String>>();
+		// ブロックスコープ内で宣言されたローカル変素の数を控えるカウンタ（ブロックスコープ脱出時に変数をテーブルから削除するため）
+		int scopeLocalVariableCounter = 0;
 
+		// 入れ子ブロックに入る際に、上記のローカル変数カウンタの値を退避するためのスタック
+		Deque<Integer>scopeLocalVariableCounterStack = new ArrayDeque<Integer>();
 
 		do {
-			currentNode = currentNode.getPreorderTraversalNextNode();
-			lastDepth = currentDepth;
-			currentDepth = currentNode.getDepth();
+			currentNode = currentNode.getPreorderDfsTraversalNextNode();
+			lastBlockDepth = currentBlockDepth;
+			currentBlockDepth = currentNode.getBlockDepth();
 
-			// ブロック文に入った場合: 上階層のスコープ内ローカル変数リストをスタックに退避し、リセット
-			if (currentDepth > lastDepth) {
-				scopeLocalVariableNameListStack.push(scopeLocalVariableNameList);
-				scopeLocalVariableNameList = new LinkedList<String>();
+			// ブロック文に入った場合: 上階層のスコープ内ローカル変数カウンタの値をスタックに退避し、リセット
+			if (currentBlockDepth > lastBlockDepth) {
+				scopeLocalVariableCounterStack.add(scopeLocalVariableCounter);
+				scopeLocalVariableCounter = 0;
 
-			// ブロック文を抜ける場合: その階層のローカル変数を削除し、スコープ内ローカル変数リストをスタックから復元
-			} else if (currentDepth < lastDepth) {
-				Iterator<String> iterator = scopeLocalVariableNameList.iterator();
-				while (iterator.hasNext()) {
-					String scopeLocalVariableName = iterator.next();
-					localVariableTypeMap.remove(scopeLocalVariableName);
-					localVariableRankMap.remove(scopeLocalVariableName);
-					localVariableSerialNumberMap.remove(scopeLocalVariableName);
+			// ブロック文を抜ける場合: その階層のローカル変数/関数を削除し、スコープ内ローカル変数/関数リストをスタックから復元
+			} else if (currentBlockDepth < lastBlockDepth) {
+				// ブロック内の変数は末尾に連続して詰まっているはずなので、末尾から連続で削除
+				for (int i=0; i<scopeLocalVariableCounter; i++) {
+					localVariableTable.removeLastVariable();
 				}
-				scopeLocalVariableNameList = scopeLocalVariableNameListStack.pop();
+				// 脱出先ブロックスコープ内の変数の数をスタックから復元
+				scopeLocalVariableCounter = scopeLocalVariableCounterStack.pop();
 			}
 
-			// ローカル変数ノードの場合: ローカル変数テーブルに追加し、ノード自身にローカル変数インデックスやスコープも設定
+			// ローカル変数宣言文ノードの場合: ローカル変数マップに追加し、ノード自身にローカル変数インデックスやスコープも設定
 			if (currentNode.getType() == AstNode.Type.VARIABLE) {
 				String variableName = currentNode.getAttribute(AttributeKey.IDENTIFIER_VALUE);
+				String dataTypeName = currentNode.getDataTypeName();
+				int rank = currentNode.getRank();
 
-				localVariableTypeMap.put(variableName, currentNode.getDataTypeName());
-				localVariableRankMap.put(variableName, currentNode.getRank());
-				localVariableSerialNumberMap.put(variableName, localVariableCounter);
-				scopeLocalVariableNameList.add(variableName);
+				// ローカル変数の情報を保持するインスタンスを生成して変数テーブルに登録
+				Variable variable = new Variable(variableName, dataTypeName, rank, localVariableSerialNumber);
+				localVariableTable.addVariable(variable);
 
+				// ノードに属性を付加
 				currentNode.addAttribute(AttributeKey.SCOPE, AttributeValue.LOCAL);
-				currentNode.addAttribute(AttributeKey.IDENTIFIER_SERIAL_NUMBER, Integer.toString(localVariableCounter));
-				localVariableCounter++;
+				currentNode.addAttribute(AttributeKey.IDENTIFIER_SERIAL_NUMBER, Integer.toString(localVariableSerialNumber));
+
+				localVariableSerialNumber++;
 			}
 
-			// リーフノードの場合: 属性値を求めて設定
-			if (currentNode.getType() == AstNode.Type.LEAF) {
+			// 変数の参照箇所のリーフノードの場合: 属性値を求めて設定
+			if (currentNode.getType() == AstNode.Type.LEAF
+					&& currentNode.getAttribute(AttributeKey.LEAF_TYPE).equals(AttributeValue.VARIABLE_IDENTIFIER)) {
 
-				//Variable variable = null;
-				String operandType = currentNode.getAttribute(AttributeKey.LEAF_TYPE);
+				String variableName = currentNode.getAttribute(AttributeKey.IDENTIFIER_VALUE);
 
-				// 定数リテラル
-				if (operandType.equals(AttributeValue.LITERAL)){
-					String literal = currentNode.getAttribute(AttributeKey.LITERAL_VALUE);
-					currentNode.addAttribute(AttributeKey.RANK, "0");
-					currentNode.addAttribute(AttributeKey.DATA_TYPE, LiteralSyntax.getDataTypeNameOfLiteral(literal));
+				// ローカル変数
+				if (localVariableTable.containsVariableWithName(variableName)) {
+
+					AbstractVariable variable = localVariableTable.getVariableByName(variableName);
+					currentNode.addAttribute(AttributeKey.IDENTIFIER_SERIAL_NUMBER, Integer.toString(variable.getSerialNumber()));
+					currentNode.addAttribute(AttributeKey.SCOPE, AttributeValue.LOCAL);
+					currentNode.addAttribute(AttributeKey.RANK, Integer.toString(variable.getRank()));
+					currentNode.addAttribute(AttributeKey.DATA_TYPE, variable.getDataTypeName());
+
+				// グローバル変数
+				} else if (globalVariableTable.containsVariableWithName(variableName)) {
+
+					AbstractVariable variable = globalVariableTable.getVariableByName(variableName);
+					currentNode.addAttribute(AttributeKey.SCOPE, AttributeValue.GLOBAL);
+					currentNode.addAttribute(AttributeKey.RANK, Integer.toString(variable.getRank()));
+					currentNode.addAttribute(AttributeKey.DATA_TYPE, variable.getDataTypeName());
+
+				} else {
+					throw new VnanoException(
+							ErrorType.VARIABLE_IS_NOT_FOUND, variableName,
+							currentNode.getFileName(), currentNode.getLineNumber()
+					);
+				}
+			}
+		} while (!currentNode.isPreorderDfsTraversalLastNode());
+	}
+
+
+	/**
+	 * 引数に渡されたAST（抽象構文木）から関数宣言文を読み込み、
+	 * その中で宣言されている関数（ローカル関数）を抽出して、関数テーブルにまとめて返します。
+	 *
+	 * @param astRootNode 関数を抽出する対象のASTのルートノード（メソッド実行後、各ノードに属性値が追加されます）
+	 * @throws VnanoException 関数を宣言できない場所で宣言していた場合や、宣言内容に誤りがあった場合にスローされます。
+	 */
+	private FunctionTable extractFunctions(AstNode astRootNode) throws VnanoException {
+
+		FunctionTable localFunctionTable = new FunctionTable();
+
+		if (!astRootNode.hasChildNodes()) {
+			return localFunctionTable;
+		}
+
+		AstNode currentNode = astRootNode;
+
+		do {
+			currentNode = currentNode.getPreorderDfsTraversalNextNode();
+
+			// ローカル関数宣言文ノードの場合: ローカル関数マップに追加し、ノード自身にローカル関数インデックスやスコープも設定
+			if (currentNode.getType() == AstNode.Type.FUNCTION) {
+
+				// ローカル関数はルート直下の階層でしか宣言を許さない
+				//（後方参照を可能にするので、あまり宣言場所が自由すぎるとコード上でも紛らわしくなりそうなので、少なくとも今は制約しておく）
+				if (currentNode.getDepth() != 1) {
+					throw new VnanoException(ErrorType.FUNCTION_IS_DECLARED_IN_INVALID_PLASE);
 				}
 
-				// 変数
-				if (operandType.equals(AttributeValue.VARIABLE_IDENTIFIER)) {
+				// 関数名を取得
+				String functionName = currentNode.getAttribute(AttributeKey.IDENTIFIER_VALUE);
 
-					String identifier = currentNode.getAttribute(AttributeKey.IDENTIFIER_VALUE);
+				// 戻り値のデータ型と次元を取得
+				String returnTypeName = currentNode.getAttribute(AttributeKey.DATA_TYPE);
+				int returnRank = currentNode.getRank();
 
-					// ローカル変数
-					if (localVariableTypeMap.containsKey(identifier)) {
+				// 引数のノードを一括で取得
+				AstNode[] argNodes = currentNode.getChildNodes();
+				int argLength = argNodes.length;
 
-						currentNode.addAttribute(AttributeKey.IDENTIFIER_SERIAL_NUMBER, localVariableSerialNumberMap.get(identifier).toString());
-						currentNode.addAttribute(AttributeKey.SCOPE, AttributeValue.LOCAL);
-						currentNode.addAttribute(AttributeKey.RANK, Integer.toString(localVariableRankMap.get(identifier)));
-						currentNode.addAttribute(AttributeKey.DATA_TYPE, localVariableTypeMap.get(identifier));
+				// 引数ノードの内容を検査
+				for (int argIndex=0; argIndex<argLength; argIndex++) {
+					AstNode argNode = argNodes[argIndex];
 
-					// グローバル変数
-					} else if (globalVariableTable.containsVariableWithName(identifier)) {
-
-						currentNode.addAttribute(AttributeKey.SCOPE, AttributeValue.GLOBAL);
-						AbstractVariable variable = globalVariableTable.getVariableByName(identifier);
-						currentNode.addAttribute(AttributeKey.RANK, Integer.toString(variable.getRank()));
-						currentNode.addAttribute(
-								AttributeKey.DATA_TYPE, DataTypeName.getDataTypeNameOf(variable.getDataType())
-						);
-
-					} else {
-						throw new VnanoException(
-								ErrorType.VARIABLE_IS_NOT_FOUND, identifier,
-								currentNode.getFileName(), currentNode.getLineNumber()
-						);
+					// そもそも変数宣言ノードでなければ明らかにNG
+					if (argNode.getType() != AstNode.Type.VARIABLE) {
+						throw new VnanoException(ErrorType.FUNCTION_IS_DECLARED_IN_INVALID_PLASE);
+					}
+					// デフォルト引数などはサポートされていないので、余計なASTがぶら下がっていたらNG
+					if (argNode.hasChildNodes()) {
+						throw new VnanoException(ErrorType.FUNCTION_IS_DECLARED_IN_INVALID_PLASE);
 					}
 				}
+
+				// 引数のデータ型と次元を取得
+				String[] argTypeNames = new String[argLength];
+				int[] argRanks = new int[argLength];
+				for (int argIndex=0; argIndex<argLength; argIndex++) {
+					argTypeNames[argIndex] = argNodes[argIndex].getAttribute(AttributeKey.DATA_TYPE);
+					argRanks[argIndex] = argNodes[argIndex].getRank();
+				}
+
+				// 関数情報を保持するインスタンスを生成してテーブルに登録
+				Function function = new Function(functionName, argTypeNames, argRanks, returnTypeName, returnRank);
+				localFunctionTable.addFunction(function);
 			}
-		} while (!currentNode.isPreorderTraversalLastNode());
+
+		} while (!currentNode.isPreorderDfsTraversalLastNode());
+
+		return localFunctionTable;
+	}
+
+
+	/**
+	 * 引数に渡されたAST（抽象構文木）の内容を解析し、その中のリテラルのリーフノード
+	 * （{@link AttributeKey#LEAF_TYPE LEAF_TYPE} 属性の値が {@link AttributeValue#LITERAL LITERAL}）
+	 * に対して中間コード生成を行うために不足している属性値を追加設定します
+	 * （従って、このメソッドは破壊的メソッドです）。
+	 *
+	 * 具体的な例としては、リテラルの記述内容からデータ型が解析され、
+	 * 各ノードの {@link AttributeKey#DATA_TYPE DATA_TYPE} 属性の値として設定されます。
+	 * 同様に配列次元数も {@link AttributeKey#RANK RANK} 属性の値として設定されます。
+	 *
+	 * @param astRootNode 解析・設定対象のASTのルートノード（メソッド実行後、各ノードに属性値が追加されます）
+	 */
+	private void supplementLiteralLeafAttributes(AstNode astRootNode) {
+
+		if (!astRootNode.hasChildNodes()) {
+			return;
+		}
+
+		AstNode currentNode = astRootNode;
+		do {
+			currentNode = currentNode.getPreorderDfsTraversalNextNode();
+
+			// リテラルのリーフノードの場合: 属性値を求めて設定
+			if (currentNode.getType() == AstNode.Type.LEAF
+					&& currentNode.getAttribute(AttributeKey.LEAF_TYPE).equals(AttributeValue.LITERAL)) {
+
+				String literal = currentNode.getAttribute(AttributeKey.LITERAL_VALUE);
+				currentNode.addAttribute(AttributeKey.RANK, "0"); // 現状では配列のリテラルは存在しないため、常にスカラ
+				currentNode.addAttribute(AttributeKey.DATA_TYPE, LiteralSyntax.getDataTypeNameOfLiteral(literal));
+			}
+		} while (!currentNode.isPreorderDfsTraversalLastNode());
 	}
 
 
@@ -219,17 +315,19 @@ public class SemanticAnalyzer {
 	 * リーフノードの属性値の設定を済ませておく必要があります。
 	 *
 	 * @param astRootNode 解析・設定対象のASTのルートノード（メソッド実行後、各ノードに属性値が追加されます）
-	 * @param functionTable AST内で参照している関数情報を持つ関数テーブル
+	 * @param globalFunctionTable AST内で参照している外部関数の情報を持つ関数テーブル
+	 * @param localFunctionTable AST内で参照している内部関数の情報を持つ関数テーブル
 	 * @throws VnanoException ASTの内容が構文的に正しくない場合にスローされます。
 	 */
-	private void supplementOperatorAttributes(AstNode astRootNode, FunctionTable functionTable) throws VnanoException {
+	private void supplementOperatorAttributes(AstNode astRootNode,
+			FunctionTable globalFunctionTable, FunctionTable localFunctionTable) throws VnanoException {
 
 
 		// !!! 重複が多いので切り出して要リファクタ
 
 
 		// 構文木の全ノードに対し、末端からボトムアップの順序で辿りながら処理する
-		AstNode currentNode = astRootNode.getPostorderTraversalFirstNode();
+		AstNode currentNode = astRootNode.getPostorderDfsTraversalFirstNode();
 		while(currentNode != astRootNode) {
 
 			if(currentNode.getType() == AstNode.Type.OPERATOR) {
@@ -241,7 +339,9 @@ public class SemanticAnalyzer {
 
 				String execType = currentNode.getAttribute(AttributeKey.OPERATOR_EXECUTOR);
 				String syntaxType = currentNode.getAttribute(AttributeKey.OPERATOR_SYNTAX);
+
 				switch (execType) {
+
 					// 代入演算子の場合
 					case AttributeValue.ASSIGNMENT : {
 						AstNode[] inputNodes = currentNode.getChildNodes();
@@ -250,6 +350,7 @@ public class SemanticAnalyzer {
 						rank = inputNodes[0].getRank();
 						break;
 					}
+
 					// 算術演算子の場合
 					case AttributeValue.ARITHMETIC : {
 						switch (syntaxType) {
@@ -283,6 +384,7 @@ public class SemanticAnalyzer {
 						}
 						break;
 					}
+
 					// 比較演算子の場合
 					case AttributeValue.COMPARISON : {
 						AstNode[] inputNodes = currentNode.getChildNodes();
@@ -297,6 +399,7 @@ public class SemanticAnalyzer {
 						rank = Math.max(inputNodes[0].getRank(), inputNodes[1].getRank());
 						break;
 					}
+
 					// 論理演算子の場合
 					case AttributeValue.LOGICAL : {
 						switch (syntaxType) {
@@ -323,6 +426,7 @@ public class SemanticAnalyzer {
 						}
 						break;
 					}
+
 					// 複合代入演算子の場合
 					case AttributeValue.ARITHMETIC_COMPOUND_ASSIGNMENT : {
 						AstNode[] inputNodes = currentNode.getChildNodes();
@@ -331,22 +435,36 @@ public class SemanticAnalyzer {
 						rank = inputNodes[0].getRank();
 						break;
 					}
+
 					// 関数呼び出し演算子の場合
 					case AttributeValue.CALL : {
-						// 関数テーブルから取り寄せられない場合は構文エラー
-						if (!functionTable.hasCalleeFunctionOf(currentNode)) {
-							String functionIdentifier = IdentifierSyntax.getUniqueIdentifierOfCalleeFunctionOf(currentNode);
+
+						AbstractFunction function = null;
+
+						// ローカル関数
+						if (localFunctionTable.hasCalleeFunctionOf(currentNode)) {
+							currentNode.addAttribute(AttributeKey.SCOPE, AttributeValue.LOCAL);
+							function = localFunctionTable.getCalleeFunctionOf(currentNode);
+
+						// グローバル関数
+						} else if (globalFunctionTable.hasCalleeFunctionOf(currentNode)) {
+							currentNode.addAttribute(AttributeKey.SCOPE, AttributeValue.GLOBAL);
+							function = globalFunctionTable.getCalleeFunctionOf(currentNode);
+
+						} else {
 							throw new VnanoException(
-									ErrorType.FUNCTION_IS_NOT_FOUND, functionIdentifier,
+									ErrorType.FUNCTION_IS_NOT_FOUND,
+									IdentifierSyntax.getSignatureOfCalleeFunctionOf(currentNode),
 									currentNode.getFileName(), currentNode.getLineNumber()
 							);
 						}
-						AbstractFunction function = functionTable.getCalleeFunctionOf(currentNode);
-						dataType = DataTypeName.getDataTypeNameOf(function.getReturnDataType());
+
+						dataType = function.getReturnDataTypeName();
 						operationDataType = dataType;
 						rank = function.getReturnArrayRank();
 						break;
 					}
+
 					// 配列要素アクセス演算子の場合
 					case AttributeValue.INDEX : {
 						AstNode[] inputNodes = currentNode.getChildNodes();
@@ -369,7 +487,7 @@ public class SemanticAnalyzer {
 			}
 
 			// 次のノードへボトムアップの順序で移動
-			currentNode = currentNode.getPostorderTraversalNextNode();
+			currentNode = currentNode.getPostorderDfsTraversalNextNode();
 		}
 	}
 
@@ -391,7 +509,7 @@ public class SemanticAnalyzer {
 	 */
 	private void supplementExpressionAttributes(AstNode astRootNode) {
 
-		AstNode currentNode = astRootNode.getPostorderTraversalFirstNode();
+		AstNode currentNode = astRootNode.getPostorderDfsTraversalFirstNode();
 		while(currentNode != astRootNode) {
 
 			if(currentNode.getType() == AstNode.Type.EXPRESSION) {
@@ -400,7 +518,7 @@ public class SemanticAnalyzer {
 				currentNode.addAttribute(AttributeKey.RANK, Integer.toString(inputNodes[0].getRank()));
 			}
 
-			currentNode = currentNode.getPostorderTraversalNextNode();
+			currentNode = currentNode.getPostorderDfsTraversalNextNode();
 		}
 	}
 

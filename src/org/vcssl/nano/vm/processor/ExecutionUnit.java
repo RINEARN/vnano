@@ -6,6 +6,7 @@
 package org.vcssl.nano.vm.processor;
 
 import org.vcssl.nano.VnanoFatalException;
+import org.vcssl.nano.interconnect.DataConverter;
 import org.vcssl.nano.lang.DataType;
 import org.vcssl.nano.spec.DataTypeName;
 import org.vcssl.nano.spec.ErrorType;
@@ -1167,23 +1168,17 @@ public class ExecutionUnit {
 	 *   指定データ型とオペランドの実際のデータ型が一致しない場合に発生します。
 	 */
 	public void mov(DataType type, DataContainer<?> dest, DataContainer<?> src) {
-
 		this.checkDataType(dest, type);
 		this.checkDataType(src, type);
+		System.arraycopy(src.getData(), src.getOffset(), dest.getData(), dest.getOffset(), dest.getSize());
+	}
 
-		switch (type) {
-			case INT64:
-			case FLOAT64:
-			case BOOL:
-			case STRING: {
 
-				System.arraycopy(src.getData(), src.getOffset(), dest.getData(), dest.getOffset(), dest.getSize());
-				return;
-			}
-			default : {
-				throw new VnanoFatalException("Unoperatable data type: " + type);
-			}
-		}
+	@SuppressWarnings("unchecked")
+	public void ref(DataType type, DataContainer<?> dest, DataContainer<?> src) {
+		this.checkDataType(dest, type);
+		this.checkDataType(src, type);
+		((DataContainer<Object>)dest).setData(src.getData(), src.getLengths());
 	}
 
 
@@ -1622,7 +1617,6 @@ public class ExecutionUnit {
 				if (data.getData() instanceof long[]) {
 					return;
 				}
-				break;
 			}
 			case FLOAT64 : {
 				if (data.getData() instanceof double[]) {
@@ -1651,7 +1645,16 @@ public class ExecutionUnit {
 				break;
 			}
 		}
-		throw new VnanoFatalException("Unexpected data type: " + type);
+
+		if (data.getData() == null) {
+			throw new VnanoFatalException(
+				"Data of the operand is null."
+			);
+		} else {
+			throw new VnanoFatalException(
+				"Data of the operand is unexpected type: " + DataConverter.getDataTypeOf(data.getData().getClass()) + " (expected: "+ type + ")"
+			);
+		}
 	}
 
 }
