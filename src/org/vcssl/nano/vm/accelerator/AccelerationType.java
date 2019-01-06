@@ -42,7 +42,7 @@ public enum AccelerationType {
 	BCS_BRANCH,  // BoolCachedScalarBranch
 
 	S_ALLOC, // ScalarAlloc
-	CALL,
+	IFCU,  // Internal Function Control Unit
 	RET,
 	NOP, // Nop
 }
