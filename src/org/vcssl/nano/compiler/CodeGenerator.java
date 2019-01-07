@@ -83,6 +83,7 @@ public class CodeGenerator {
 		private String updatePointLabel = null; // ループ文などで、ループ毎の更新処理の直前にラベルを置いてほしい場合、これにラベル値を入れる
 		private String updatePointStatement = null; // for文の更新式の文
 		private LinkedList<String> endPointLabelList = null; // IF文など、後の文の生成後の地点にラベルを置いてほしい場合、これにラベル値を入れる(ifの後にelseが続く場合のみ要素が2個になり得る)
+		private String endPointStatement = null; // 関数など、ブロック末尾にデフォルトの return 文などを置きたい場合、これに文を入れる
 
 		private String lastIfConditionRegister = null; // 直前の if 文の条件式結果を格納するレジスタを控えて、else 文で使う
 		private String lastLoopBeginPointLabel = null; // 最後に踏んだループの始点ラベル
@@ -106,6 +107,7 @@ public class CodeGenerator {
 			clone.updatePointLabel = this.updatePointLabel;
 			clone.updatePointStatement = this.updatePointStatement;
 			clone.endPointLabelList = (LinkedList<String>)this.endPointLabelList.clone();
+			clone.endPointStatement = this.endPointStatement;
 
 			clone.lastIfConditionRegister = this.lastIfConditionRegister;
 			clone.lastLoopBeginPointLabel = this.lastLoopBeginPointLabel;
@@ -159,6 +161,19 @@ public class CodeGenerator {
 			this.endPointLabelList.clear();
 		}
 
+		public boolean hasEndPointStatement() {
+			return this.endPointStatement != null;
+		}
+		public void setEndPointStatement(String endPointStatement) {
+			this.endPointStatement = endPointStatement;
+		}
+		public String getEndPointStatement() {
+			return this.endPointStatement;
+		}
+		public void clearEndPointStatement() {
+			this.endPointStatement = null;
+		}
+
 		public String getUpdatePointStatement() {
 			return this.updatePointStatement;
 		}
@@ -168,7 +183,7 @@ public class CodeGenerator {
 		public boolean hasUpdatePointStatement() {
 			return this.updatePointStatement != null;
 		}
-		public void clearEndPointStatement() {
+		public void clearUpdatePointStatement() {
 			this.updatePointStatement = null;
 		}
 
@@ -535,10 +550,12 @@ public class CodeGenerator {
 				}
 				if (context.hasUpdatePointStatement()) {
 					codeBuilder.append(context.getUpdatePointStatement());
-					context.clearEndPointStatement();
+					context.clearUpdatePointStatement();
 				}
 
-				// ループ文などで先頭に戻りたい場合のコードがあれば置く
+				// 以下、ループの先頭に戻るコードなど、ブロック末尾に置きたいコードがあれば置く
+
+				// ループの先頭に戻るJMP命令など
 				if (context.hasBeginPointLabel()) {
 					String jumpCode = this.generateInstruction(
 							OperationCode.JMP.name(), DataTypeName.BOOL, IMMEDIATE_TRUE, context.getBeginPointLabel()
@@ -547,6 +564,13 @@ public class CodeGenerator {
 					context.clearBeginPointLabel();
 				}
 
+				// 関数のデフォルトの return 文など
+				if (context.hasEndPointStatement()) {
+					codeBuilder.append(context.getEndPointStatement());
+					context.clearEndPointStatement();
+				}
+
+				// ループ脱出ラベルや、関数終端ラベル（命令列の逐次実行で上から関数内に突入しないように避けているJMP命令の着地点）など
 				if (context.hasEndPointLabel()) {
 					String[] endPointLabels = context.getEndPointLabels();
 					for (String endPointLabel: endPointLabels) {
@@ -599,6 +623,7 @@ public class CodeGenerator {
 			case FUNCTION : {
 				code = this.generateFunctionDeclarationStatementCode(node);
 				context.addEndPointLabel(node.getAttribute(AttributeKey.END_LABEL));
+				context.setEndPointStatement(this.generateInstruction(OperationCode.RET.name(), DataTypeName.VOID));
 				break;
 			}
 			// if 文
@@ -1752,23 +1777,27 @@ public class CodeGenerator {
 				this.generateInstruction(OperationCode.CALL.name(), operatorNode.getDataTypeName(), operands)
 			);
 
-			// 戻り値の格納先のメモリー領域を確保するコードを生成
-			if(operatorNode.getRank() == RANK_OF_SCALAR) {
-				// スカラの場合はサイズが固定なので、普通にALLOC命令で確保する
+			// 戻り値の型が void でない場合は、戻り値を受け取るコードを生成
+			if ( !operatorNode.getDataTypeName().equals(DataTypeName.VOID) ) {
+
+				// 戻り値の格納先のメモリー領域を確保するコードを生成
+				if(operatorNode.getRank() == RANK_OF_SCALAR) {
+					// スカラの場合はサイズが固定なので、普通にALLOC命令で確保する
+					codeBuilder.append(
+						this.generateInstruction(OperationCode.ALLOC.name(), operatorNode.getDataTypeName(), returnRegister)
+					);
+				} else {
+					// 配列の場合は、スタック上のデータがちょうど収まるサイズになるように、ALLOCP命令で確保する
+					codeBuilder.append(
+						this.generateInstruction(OperationCode.ALLOCP.name(), operatorNode.getDataTypeName(), returnRegister)
+					);
+				}
+
+				// MOVPOP命令で、スタック上のデータを戻り値の格納先にコピーするコードを生成
 				codeBuilder.append(
-					this.generateInstruction(OperationCode.ALLOC.name(), operatorNode.getDataTypeName(), returnRegister)
-				);
-			} else {
-				// 配列の場合は、スタック上のデータがちょうど収まるサイズになるように、ALLOCP命令で確保する
-				codeBuilder.append(
-					this.generateInstruction(OperationCode.ALLOCP.name(), operatorNode.getDataTypeName(), returnRegister)
+					this.generateInstruction(OperationCode.MOVPOP.name(), operatorNode.getDataTypeName(), returnRegister)
 				);
 			}
-
-			// MOVPOP命令で、スタック上のデータを戻り値の格納先にコピーするコードを生成
-			codeBuilder.append(
-				this.generateInstruction(OperationCode.MOVPOP.name(), operatorNode.getDataTypeName(), returnRegister)
-			);
 
 		} else {
 			throw new VnanoFatalException("Unknown function scope: " + scope);

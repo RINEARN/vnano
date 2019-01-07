@@ -6,6 +6,7 @@
 package org.vcssl.nano.main;
 
 import java.util.List;
+import java.util.Locale;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
@@ -31,6 +32,7 @@ import org.vcssl.nano.compiler.LexicalAnalyzer;
 import org.vcssl.nano.compiler.SemanticAnalyzer;
 import org.vcssl.nano.compiler.Token;
 import org.vcssl.nano.interconnect.Interconnect;
+import org.vcssl.nano.spec.ErrorMessage;
 import org.vcssl.nano.vm.VirtualMachine;
 import org.vcssl.nano.vm.VirtualMachineObjectCode;
 import org.vcssl.nano.vm.accelerator.AccelerationDataManager;
@@ -45,6 +47,11 @@ import org.vcssl.nano.vm.processor.Instruction;
 import org.vcssl.nano.vm.processor.Processor;
 
 public final class VnanoCommandLineApplication {
+
+	/**
+	 * エラーメッセージの表示言語指定などに使用されるロケールを保持します。
+	 */
+	private Locale locale = Locale.getDefault();
 
 	private static final String EXTENSION_VNANO = ".vnano";
 	private static final String EXTENSION_VRIL = ".vril";
@@ -257,23 +264,24 @@ public final class VnanoCommandLineApplication {
 		String inputFilePath = optionNameValueMap.get(OPTION_NAME_FILE);
 
 		// オプションを一つずつ読み、対応する処理を実行する
+		boolean optionProcessingSucceeded = true;
 		Set<Map.Entry<String, String>> optionNameValueSet = optionNameValueMap.entrySet();
 		for (Map.Entry<String, String> optionNameValuePair : optionNameValueSet) {
 			String optionName = optionNameValuePair.getKey();
 			String optionValue = optionNameValuePair.getValue();
-			this.dispatchOptionProcessing(optionName, optionValue, inputFilePath);
+			optionProcessingSucceeded &= this.dispatchOptionProcessing(optionName, optionValue, inputFilePath);
 		}
 
-		// スクリプトの実行が必要なら実行する
-		if (this.runRequired) {
+		// スクリプトの実行が必要なら実行する（ただし、オプション処理に失敗していた場合は実行しない）
+		if (this.runRequired && optionProcessingSucceeded) {
 			this.executeFile(inputFilePath);
 		}
 	}
 
-	public void dispatchOptionProcessing (String optionName, String optionValue, String inputFilePath) {
+	public boolean dispatchOptionProcessing (String optionName, String optionValue, String inputFilePath) {
 		if (optionName == null) {
 			System.err.println("Fatal error: option name is null.");
-			return;
+			return false;
 		}
 		switch (optionName) {
 
@@ -282,43 +290,48 @@ public final class VnanoCommandLineApplication {
 				// このオプションの値は、事前に dispatch 側で取得され、
 				// スクリプトの実行が必要な場合もそちら側で行うため、
 				// ここでは何もしない
-				return;
+				return true;
 			}
 
 			// --help オプションの場合
 			case OPTION_NAME_HELP : {
 				this.help();
-				return;
+				return true;
 			}
 
 			// --run オプションの場合
 			case OPTION_NAME_RUN : {
 				this.setRunRequired(optionValue);
-				return;
+				return true;
 			}
 
 			// --accelerator オプションの場合
 			case OPTION_NAME_ACCELERATOR : {
 				this.setAcceleratorEnabled(optionValue);
-				return;
+				return true;
 			}
 
 			// --encoding オプションの場合
 			case OPTION_NAME_ENCODING : {
 				this.setEncoding(optionValue);
-				return;
+				return true;
 			}
 
 			// --dump オプションの場合
 			case OPTION_NAME_DUMP : {
-				this.dump(inputFilePath, optionValue);
-				return;
+				try {
+					this.dump(inputFilePath, optionValue);
+				} catch (VnanoException vne) {
+					this.dumpException(vne);
+					return false;
+				}
+				return true;
 			}
 
 			// その他のオプションの場合
 			default : {
 				System.err.println("Unknown option name: " + optionName);
-				return;
+				return false;
 			}
 		}
 	}
@@ -479,52 +492,47 @@ public final class VnanoCommandLineApplication {
 		return code;
 	}
 
-	private void dump(String inputFilePath, String dumpTarget) {
+	private void dump(String inputFilePath, String dumpTarget) throws VnanoException {
 		if (dumpTarget == null) {
 			dumpTarget = DUMP_TARGET_DEFAULT;
 		}
-		try {
-			switch (dumpTarget) {
-				case DUMP_TARGET_INPUT_CODE : {
-					this.dump(inputFilePath, false, true,  false, false, false, false, false, false, false, false);
-					return;
-				}
-				case DUMP_TARGET_PREPROCESSED_CODE : {
-					this.dump(inputFilePath, false, false, true,  false, false, false, false, false, false, false);
-					return;
-				}
-				case DUMP_TARGET_TOKEN : {
-					this.dump(inputFilePath, false, false, false, true,  false, false, false, false, false, false);
-					return;
-				}
-				case DUMP_TARGET_PARSED_AST : {
-					this.dump(inputFilePath, false, false, false, false, true,  false, false, false, false, false);
-					return;
-				}
-				case DUMP_TARGET_ANALYZED_AST : {
-					this.dump(inputFilePath, false, false, false, false, false, true,  false, false, false, false);
-					return;
-				}
-				case DUMP_TARGET_ASSEMBLY_CODE : {
-					this.dump(inputFilePath, false, false, false, false, false, false, true,  false, false, false);
-					return;
-				}
-				case DUMP_TARGET_OBJECT_CODE : {
-					this.dump(inputFilePath, false, false, false, false, false, false, false, true,  false, false );
-					return;
-				}
-				case DUMP_TARGET_ALL : {
-					this.dump(inputFilePath, true,  true,  true,  true,  true,  true,  true,  true,  true,  true );
-					return;
-				}
-				default : {
-					System.err.println("Fatal error: invalid dump target: " + dumpTarget);
-					return;
-				}
+		switch (dumpTarget) {
+			case DUMP_TARGET_INPUT_CODE : {
+				this.dump(inputFilePath, false, true,  false, false, false, false, false, false, false, false);
+				return;
 			}
-		} catch (VnanoException e) {
-			e.printStackTrace();
-			return;
+			case DUMP_TARGET_PREPROCESSED_CODE : {
+				this.dump(inputFilePath, false, false, true,  false, false, false, false, false, false, false);
+				return;
+			}
+			case DUMP_TARGET_TOKEN : {
+				this.dump(inputFilePath, false, false, false, true,  false, false, false, false, false, false);
+				return;
+			}
+			case DUMP_TARGET_PARSED_AST : {
+				this.dump(inputFilePath, false, false, false, false, true,  false, false, false, false, false);
+				return;
+			}
+			case DUMP_TARGET_ANALYZED_AST : {
+				this.dump(inputFilePath, false, false, false, false, false, true,  false, false, false, false);
+				return;
+			}
+			case DUMP_TARGET_ASSEMBLY_CODE : {
+				this.dump(inputFilePath, false, false, false, false, false, false, true,  false, false, false);
+				return;
+			}
+			case DUMP_TARGET_OBJECT_CODE : {
+				this.dump(inputFilePath, false, false, false, false, false, false, false, true,  false, false );
+				return;
+			}
+			case DUMP_TARGET_ALL : {
+				this.dump(inputFilePath, true,  true,  true,  true,  true,  true,  true,  true,  true,  true );
+				return;
+			}
+			default : {
+				System.err.println("Fatal error: invalid dump target: " + dumpTarget);
+				return;
+			}
 		}
 	}
 
@@ -784,8 +792,8 @@ public final class VnanoCommandLineApplication {
 			VirtualMachine vm = new VirtualMachine();
 			vm.setAcceleratorEnabled(this.acceleratorEnabled);
 			vm.eval(assemblyCode, interconnect);
-		} catch (VnanoException e) {
-			new ScriptException(e).printStackTrace();
+		} catch (VnanoException vne) {
+			this.dumpException(vne);
 			return;
 		}
 	}
@@ -809,9 +817,24 @@ public final class VnanoCommandLineApplication {
 		vm.setAcceleratorEnabled(this.acceleratorEnabled);
 		try {
 			vm.eval(assemblyCode, interconnect);
-		} catch (VnanoException e) {
-			new ScriptException(e).printStackTrace();
+		} catch (VnanoException vne) {
+			this.dumpException(vne);
 			return;
 		}
+	}
+
+	public void dumpException(VnanoException vne) {
+
+		String message = ErrorMessage.generateErrorMessage(vne.getErrorType(), vne.getErrorWords(), this.locale);
+		ScriptException se = null;
+		if (vne.hasFileName() && vne.hasLineNumber()) {
+			se = new ScriptException(message + ":", vne.getFileName(), vne.getLineNumber());
+		} else {
+			se = new ScriptException(message);
+		}
+		se.printStackTrace();
+
+		System.err.println("Cause: ");
+		vne.printStackTrace();
 	}
 }

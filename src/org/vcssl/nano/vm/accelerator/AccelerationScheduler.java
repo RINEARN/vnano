@@ -132,11 +132,15 @@ public class AccelerationScheduler {
 	// データに対して書き込みを行う命令なら true を返す（ただしレジスタの確保・解放は除外）
 	private boolean isDataWritingOperationCode(OperationCode operationCode) {
 
+		// 書き込みを「行わない」ものを以下に列挙し、それ以外なら true を返す
 		return operationCode != OperationCode.ALLOC
+		     && operationCode != OperationCode.ALLOCP
+		     && operationCode != OperationCode.ALLOCR
 		     && operationCode != OperationCode.FREE
 		     && operationCode != OperationCode.NOP
 		     && operationCode != OperationCode.JMP
 		     && operationCode != OperationCode.JMPN
+		     && operationCode != OperationCode.RET
 		     ;
 
 		// IFCU & RET 命令について：
@@ -176,10 +180,13 @@ public class AccelerationScheduler {
 
 
 	// オペランドからデータの読み込みを行う命令なら true を返す
-	//（ただしレジスタの確保・解放やなどは除外）
+	//（ただしメモリの確保・解放やなどは除外）
 	private boolean isDataReadingOperationCode(OperationCode operationCode) {
 
+		// 読み込みを「行わない」ものを以下に列挙し、それ以外なら true を返す
 		return operationCode != OperationCode.ALLOC
+		     && operationCode != OperationCode.ALLOCP
+		     && operationCode != OperationCode.ALLOCR
 		     && operationCode != OperationCode.FREE
 		     && operationCode != OperationCode.MOVPOP   // MOVPOP はスタックからデータを読むので、オペランドからは読まない（書く）
 		     && operationCode != OperationCode.REFPOP   // REFPOP はスタックからデータを読むので、オペランドからは読まない（書く）
@@ -500,6 +507,7 @@ public class AccelerationScheduler {
 				case RET :
 				case MOVPOP :
 				case REFPOP :
+				case ALLOCP :
 				{
 					instruction.setAccelerationType(AccelerationType.IFCU);
 					break;

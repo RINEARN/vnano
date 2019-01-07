@@ -218,7 +218,10 @@ public class SemanticAnalyzer {
 				// ローカル関数はルート直下の階層でしか宣言を許さない
 				//（後方参照を可能にするので、あまり宣言場所が自由すぎるとコード上でも紛らわしくなりそうなので、少なくとも今は制約しておく）
 				if (currentNode.getDepth() != 1) {
-					throw new VnanoException(ErrorType.FUNCTION_IS_DECLARED_IN_INVALID_PLASE);
+					throw new VnanoException(
+							ErrorType.FUNCTION_IS_DECLARED_IN_INVALID_PLASE,
+							currentNode.getFileName(), currentNode.getLineNumber()
+					);
 				}
 
 				// 関数名を取得
@@ -233,18 +236,7 @@ public class SemanticAnalyzer {
 				int argLength = argNodes.length;
 
 				// 引数ノードの内容を検査
-				for (int argIndex=0; argIndex<argLength; argIndex++) {
-					AstNode argNode = argNodes[argIndex];
-
-					// そもそも変数宣言ノードでなければ明らかにNG
-					if (argNode.getType() != AstNode.Type.VARIABLE) {
-						throw new VnanoException(ErrorType.FUNCTION_IS_DECLARED_IN_INVALID_PLASE);
-					}
-					// デフォルト引数などはサポートされていないので、余計なASTがぶら下がっていたらNG
-					if (argNode.hasChildNodes()) {
-						throw new VnanoException(ErrorType.FUNCTION_IS_DECLARED_IN_INVALID_PLASE);
-					}
-				}
+				this.checkArgumentDeclarationNodes(argNodes);
 
 				// 引数のデータ型と次元を取得
 				String[] argTypeNames = new String[argLength];
@@ -262,6 +254,42 @@ public class SemanticAnalyzer {
 		} while (!currentNode.isPreorderDfsTraversalLastNode());
 
 		return localFunctionTable;
+	}
+
+
+	/**
+	 * 関数の引数宣言のASTノードが正しいか検査します。
+	 * 検査の結果、正しかった場合には何も行わず、正しくなかった場合には例外をスローします。
+	 *
+	 * @param argNodes 全ての引数宣言のASTノードを格納する配列
+	 * @throws VnanoException 引数宣言が正しくなかった場合にスローされます。
+	 */
+	private void checkArgumentDeclarationNodes(AstNode[] argNodes) throws VnanoException {
+		for (AstNode argNode: argNodes) {
+			// そもそも変数宣言ノードでなければ明らかにNG
+			if (argNode.getType() != AstNode.Type.VARIABLE) {
+				throw new VnanoException(
+						ErrorType.INVALID_ARGUMENT_DECLARATION,
+						argNode.getFileName(), argNode.getLineNumber()
+				);
+			}
+
+			// デフォルト引数などはサポートされていないので、余計なASTがぶら下がっていたらNG
+			if (argNode.hasChildNodes()) {
+				AstNode[] argChildNodes = argNode.getChildNodes();
+				for (AstNode argChildNode: argChildNodes) {
+					AstNode.Type type = argChildNode.getType();
+
+					// 配列である事を示す [ ] のノードだけはOKで、後は全てNG
+					if (type != AstNode.Type.LENGTHS) {
+						throw new VnanoException(
+								ErrorType.INVALID_ARGUMENT_DECLARATION,
+								argNode.getFileName(), argNode.getLineNumber()
+						);
+					}
+				}
+			}
+		}
 	}
 
 
