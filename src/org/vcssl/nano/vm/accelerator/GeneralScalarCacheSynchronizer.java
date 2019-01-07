@@ -36,6 +36,9 @@ class GeneralScalarCacheSynchronizer extends CacheSynchronizer {
 			} else if (caches[i] instanceof BoolScalarCache) {
 				((boolean[])(containers[i].getData()))[ containers[i].getOffset() ] = ((BoolScalarCache)caches[i]).value;
 
+			} else if (caches[i] instanceof NoneCache) {
+				// プレースホルダの空オペランドなので、何もしない
+
 			} else {
 				// 不明なキャッシュ
 				throw new VnanoFatalException("Unknown Cache Type: " + caches[1]);
@@ -59,6 +62,9 @@ class GeneralScalarCacheSynchronizer extends CacheSynchronizer {
 
 			} else if (caches[i] instanceof BoolScalarCache) {
 				((BoolScalarCache)caches[i]).value = ((boolean[])(containers[i].getData()))[ containers[i].getOffset() ];
+
+			} else if (caches[i] instanceof NoneCache) {
+				// プレースホルダの空オペランドなので、何もしない
 
 			} else {
 				// 不明なキャッシュ

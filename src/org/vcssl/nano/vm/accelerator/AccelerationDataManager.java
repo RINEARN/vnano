@@ -16,6 +16,7 @@ public final class AccelerationDataManager {
 	private static final int GLOBAL_PARTITION_ORDINAL = Memory.Partition.GLOBAL.ordinal();
 	private static final int CONSTANT_PARTITION_ORDINAL = Memory.Partition.CONSTANT.ordinal();
 	private static final int STACK_PARTITION_ORDINAL = Memory.Partition.STACK.ordinal();
+	private static final int NONE_PARTITION_ORDINAL = Memory.Partition.NONE.ordinal();
 	private static final int PARTITION_LENGTH = Memory.Partition.values().length;
 
 	// [Partition][Address]
@@ -31,6 +32,7 @@ public final class AccelerationDataManager {
 	private int globalSize = -1;
 	private int constantSize = -1;
 	private int stackSize = -1;
+	private int noneSize = -1;
 
 	/*
 	public boolean isCachable(Memory.Partition partition, int address) {
@@ -76,42 +78,47 @@ public final class AccelerationDataManager {
 		this.globalSize = memory.getSize(Memory.Partition.GLOBAL);
 		this.constantSize = memory.getSize(Memory.Partition.CONSTANT);
 		this.stackSize = 0;
+		this.noneSize = 1;
 
 		// [Partition][Address]
 		this.caches = new ScalarCache[PARTITION_LENGTH][];
 		this.cached = new boolean[PARTITION_LENGTH][];
 		this.scalar = new boolean[PARTITION_LENGTH][];
 
+		this.scalar[REGISTER_PARTITION_ORDINAL] = new boolean[registerSize];
+		this.cached[REGISTER_PARTITION_ORDINAL] = new boolean[registerSize];
+		this.caches[REGISTER_PARTITION_ORDINAL] = new ScalarCache[registerSize];
+
+		this.scalar[LOCAL_PARTITION_ORDINAL] = new boolean[localSize];
+		this.cached[LOCAL_PARTITION_ORDINAL] = new boolean[localSize];
+		this.caches[LOCAL_PARTITION_ORDINAL] = new ScalarCache[localSize];
+
+		this.scalar[GLOBAL_PARTITION_ORDINAL] = new boolean[globalSize];
+		this.cached[GLOBAL_PARTITION_ORDINAL] = new boolean[globalSize];
+		this.caches[GLOBAL_PARTITION_ORDINAL] = new ScalarCache[globalSize];
+
+		this.scalar[CONSTANT_PARTITION_ORDINAL] = new boolean[constantSize];
+		this.cached[CONSTANT_PARTITION_ORDINAL] = new boolean[constantSize];
+		this.caches[CONSTANT_PARTITION_ORDINAL] = new ScalarCache[constantSize];
+
+		this.scalar[STACK_PARTITION_ORDINAL] = new boolean[stackSize];
+		this.cached[STACK_PARTITION_ORDINAL] = new boolean[stackSize];
+		this.caches[STACK_PARTITION_ORDINAL] = new ScalarCache[stackSize];
+
+		this.scalar[NONE_PARTITION_ORDINAL] = new boolean[noneSize];
+		this.cached[NONE_PARTITION_ORDINAL] = new boolean[noneSize];
+		this.caches[NONE_PARTITION_ORDINAL] = new ScalarCache[noneSize];
+
 		for (int partitionIndex=0; partitionIndex<PARTITION_LENGTH; partitionIndex++) {
-			if (partitionIndex == REGISTER_PARTITION_ORDINAL) {
-				this.scalar[partitionIndex] = new boolean[registerSize];
-				this.cached[partitionIndex] = new boolean[registerSize];
-				this.caches[partitionIndex] = new ScalarCache[registerSize];
-			}
-			else if (partitionIndex == LOCAL_PARTITION_ORDINAL) {
-				this.scalar[partitionIndex] = new boolean[localSize];
-				this.cached[partitionIndex] = new boolean[localSize];
-				this.caches[partitionIndex] = new ScalarCache[localSize];
-			}
-			else if (partitionIndex == GLOBAL_PARTITION_ORDINAL) {
-				this.scalar[partitionIndex] = new boolean[globalSize];
-				this.cached[partitionIndex] = new boolean[globalSize];
-				this.caches[partitionIndex] = new ScalarCache[globalSize];
-			}
-			else if (partitionIndex == CONSTANT_PARTITION_ORDINAL) {
-				this.scalar[partitionIndex] = new boolean[constantSize];
-				this.cached[partitionIndex] = new boolean[constantSize];
-				this.caches[partitionIndex] = new ScalarCache[constantSize];
-			}
-			else if (partitionIndex == STACK_PARTITION_ORDINAL) {
-				this.scalar[partitionIndex] = new boolean[stackSize];
-				this.cached[partitionIndex] = new boolean[stackSize];
-				this.caches[partitionIndex] = new ScalarCache[stackSize];
-			}
 			Arrays.fill(this.scalar[partitionIndex], false);
 			Arrays.fill(this.cached[partitionIndex], false);
 			Arrays.fill(this.caches[partitionIndex], null);
 		}
+
+		// NONEパーティションのオペランドは読み書きされないプレースホルダなので、最適化が効くようにキャッシュ済みとマークしておく
+		Arrays.fill(this.scalar[NONE_PARTITION_ORDINAL], true);
+		Arrays.fill(this.cached[NONE_PARTITION_ORDINAL], true);
+		Arrays.fill(this.caches[NONE_PARTITION_ORDINAL], new NoneCache());
 	}
 
 	private void allocateConstantScalarCaches(Memory memory) {
@@ -140,19 +147,16 @@ public final class AccelerationDataManager {
 				case INT64 : {
 					this.caches[CONSTANT_PARTITION_ORDINAL][constantIndex] = new Int64ScalarCache();
 					this.cached[CONSTANT_PARTITION_ORDINAL][constantIndex] = true;
-					//this.cachable[CONSTANT_PARTITION_ORDINAL][constantIndex] = true;
 					break;
 				}
 				case FLOAT64 : {
 					this.caches[CONSTANT_PARTITION_ORDINAL][constantIndex] = new Float64ScalarCache();
 					this.cached[CONSTANT_PARTITION_ORDINAL][constantIndex] = true;
-					//this.cachable[CONSTANT_PARTITION_ORDINAL][constantIndex] = true;
 					break;
 				}
 				case BOOL : {
 					this.caches[CONSTANT_PARTITION_ORDINAL][constantIndex] = new BoolScalarCache();
 					this.cached[CONSTANT_PARTITION_ORDINAL][constantIndex] = true;
-					//this.cachable[CONSTANT_PARTITION_ORDINAL][constantIndex] = true;
 					break;
 				}
 				default : {

@@ -252,22 +252,22 @@ public class DispatchUnit {
 
 			case JMP : {
 				 // 以下、0番オペランドを書き込み対象に統一した際に要変更
-				this.checkNumberOfOperands(instruction, 2);
-				boolean condition = ((boolean[])operands[0].getData())[0];
+				this.checkNumberOfOperands(instruction, 3);
+				boolean condition = ((boolean[])operands[1].getData())[0]; // オペランド[1] に条件が入っている（[0]はプレースホルダ）
 				if (condition) {
-					return (int)( (long[])operands[1].getData() )[0]; // オペランド[1]に分岐先の命令アドレスが入っている
+					return (int)( (long[])operands[2].getData() )[0]; // オペランド[2]に分岐先の命令アドレスが入っている
 				} else {
 					return programCounter + 1;
 				}
 			}
 			case JMPN : {
 				 // 以下、0番オペランドを書き込み対象に統一した際に要変更
-				this.checkNumberOfOperands(instruction, 2);
-				boolean condition = ((boolean[])operands[0].getData())[0];
+				this.checkNumberOfOperands(instruction, 3);
+				boolean condition = ((boolean[])operands[1].getData())[0]; // オペランド[1] に条件が入っている（[0]はプレースホルダ）
 				if (condition) {
 					return programCounter + 1;
 				} else {
-					return (int)( (long[])operands[1].getData() )[0]; // オペランド[1]に分岐先の命令アドレスが入っている
+					return (int)( (long[])operands[2].getData() )[0]; // オペランド[2]に分岐先の命令アドレスが入っている
 				}
 			}
 
@@ -294,13 +294,13 @@ public class DispatchUnit {
 				DataContainer<?> returnAddressContainer = memory.pop();
 				int returnAddress = (int)( (long[])returnAddressContainer.getData() )[0];
 
-				// 戻り値が無い場合は、スタック上のプレースホルダとして空のデータコンテナを積む
-				if (operands.length == 0) { // ここ、命令の0番を書き込み対象に統一した際に要変更
+				// 戻り値が無い場合は、戻り値がある場合とスタック上の順序を合わせるため、空のデータコンテナを積む
+				if (operands.length <= 1) { // この命令の先頭オペランドはプレースホルダなので、戻り値が無い場合でもオペランドは1個ある
 					memory.push(new DataContainer<Void>());
 
 				// 戻り値がある場合は、それをスタック上に積む
 				} else {
-					memory.push(operands[0]);
+					memory.push(operands[1]);
 				}
 
 				// 戻り先の命令アドレスに飛ぶ
@@ -365,12 +365,12 @@ public class DispatchUnit {
 	 */
 	private DataContainer<?>[] loadOperandData(Instruction instruction, Memory memory) {
 
-		Memory.Partition[] operandAddressType = instruction.getOperandPartitions();
+		Memory.Partition[] operandPartitions = instruction.getOperandPartitions();
 		int[] operandAddress = instruction.getOperandAddresses();
 		int operandLength = operandAddress.length;
 		DataContainer<?>[] operandVariable = new DataContainer<?>[operandLength];
 		for (int i=0; i<operandLength; i++) {
-			operandVariable[i] = memory.getDataContainer(operandAddressType[i], operandAddress[i]);
+			operandVariable[i] = memory.getDataContainer(operandPartitions[i], operandAddress[i]);
 		}
 		return operandVariable;
 	}

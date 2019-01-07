@@ -248,6 +248,12 @@ public class Assembler {
 
 						break;
 					}
+
+					case AssemblyWord.OPERAND_PREFIX_PLACEHOLDER : {
+						operandAddresses[operandIndex] = 0;
+						operandAddressTypes[operandIndex] = Memory.Partition.NONE;
+						break;
+					}
 				}
 			}
 
