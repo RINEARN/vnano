@@ -25,7 +25,7 @@ import org.vcssl.nano.spec.IdentifierSyntax;
 public class FunctionTable {
 	List<AbstractFunction> functionList = null;
 	Map<String, AbstractFunction> signatureFunctionMap = null;
-	//Map<String, Integer> assemblyIdentifierAddressMap = null;
+	Map<String, AbstractFunction> assemblyIdentifierFunctionMap = null;
 
 
 	/**
@@ -34,6 +34,7 @@ public class FunctionTable {
 	public FunctionTable() {
 		this.functionList = new ArrayList<AbstractFunction>();
 		this.signatureFunctionMap = new HashMap<String, AbstractFunction>();
+		this.assemblyIdentifierFunctionMap = new HashMap<String, AbstractFunction>();
 	}
 
 
@@ -48,8 +49,12 @@ public class FunctionTable {
 		this.functionList.add(function);
 
 		// シグネチャリストに追加
+		String signature = IdentifierSyntax.getSignatureOf(function);
+		this.signatureFunctionMap.put(signature, function);
+
+		// アセンブリ識別子リストに追加
 		String assemblyIdentifier = IdentifierSyntax.getAssemblyIdentifierOf(function);
-		this.signatureFunctionMap.put(assemblyIdentifier, function);
+		this.assemblyIdentifierFunctionMap.put(assemblyIdentifier, function);
 	}
 
 
@@ -108,19 +113,21 @@ public class FunctionTable {
 	public AbstractFunction getFunctionBySignature(String functionName, DataType[] parameterDataTypes, int[] parameterArrayRanks) {
 
 		String[] parameterDataTypeNames = DataTypeName.getDataTypeNamesOf(parameterDataTypes);
-		String assemblyIdentifier = IdentifierSyntax.getAssemblyIdentifierOf(
+		String signature = IdentifierSyntax.getSignatureOf(
 				functionName, parameterDataTypeNames, parameterArrayRanks
 		);
+		return this.getFunctionBySignature(signature);
+	}
 
-		if (!this.signatureFunctionMap.containsKey(assemblyIdentifier)) {
-			// 事前に hasFunctionWithSignature 等で関数の存在を確認すべきなので、見つからない場合はエラーとする
-			throw new VnanoFatalException("Function is not found.");
-		}
-		if (parameterDataTypes.length != parameterArrayRanks.length) {
-			throw new VnanoFatalException("Parameters of the function is not muched.");
-		}
 
-		return this.signatureFunctionMap.get(assemblyIdentifier);
+	/**
+	 * 指定されたシグネチャ（関数の名称と引数情報）に該当する関数を取得します。
+	 *
+	 * @param signature 対象関数のシグネチャの文字列表現
+	 * @return 登録されていればtrue
+	 */
+	public AbstractFunction getFunctionBySignature(String signature) {
+		return this.signatureFunctionMap.get(signature);
 	}
 
 
@@ -128,11 +135,11 @@ public class FunctionTable {
 	 * 指定されたシグネチャ（関数の名称と引数情報）に対応する関数が、
 	 * この関数テーブルに登録されているかどうかを判定します。
 	 *
-	 * @param signature 対象関数のアセンブリコード識別子
+	 * @param signature 対象関数のシグネチャの文字列表現
 	 * @return 登録されていればtrue
 	 */
-	public boolean hasFunctionWithSignature(String assemblyIdentifier) {
-		return this.signatureFunctionMap.containsKey(assemblyIdentifier);
+	public boolean hasFunctionWithSignature(String signature) {
+		return this.signatureFunctionMap.containsKey(signature);
 	}
 
 
@@ -143,7 +150,19 @@ public class FunctionTable {
 	 * @return 対象の関数
 	 */
 	public AbstractFunction getFunctionByAssemblyIdentifier(String assemblyIdentifier) {
-		return this.signatureFunctionMap.get(assemblyIdentifier);
+		return this.assemblyIdentifierFunctionMap.get(assemblyIdentifier);
+	}
+
+
+	/**
+	 * 指定された中間アセンブリコード識別子に対応する関数が、
+	 * この関数テーブルに登録されているかどうかを判定します。
+	 *
+	 * @param signature 対象関数のアセンブリコード識別子
+	 * @return 登録されていればtrue
+	 */
+	public boolean hasFunctionWithAssemblyIdentifier(String assemblyIdentifier) {
+		return this.assemblyIdentifierFunctionMap.containsKey(assemblyIdentifier);
 	}
 
 
@@ -155,8 +174,8 @@ public class FunctionTable {
 	 * @return 登録されていればtrue
 	 */
 	public boolean hasCalleeFunctionOf(AstNode callerNode) {
-		String assemblyIdentifier = IdentifierSyntax.getAssemblyIdentifierOfCalleeFunctionOf(callerNode);
-		return this.signatureFunctionMap.containsKey(assemblyIdentifier);
+		String signature = IdentifierSyntax.getSignatureOfCalleeFunctionOf(callerNode);
+		return this.hasFunctionWithSignature(signature);
 	}
 
 
@@ -169,8 +188,8 @@ public class FunctionTable {
 	 * @throws DataException 引数などのデータ型名が非対応のものであった場合にスローされます。
 	 */
 	public AbstractFunction getCalleeFunctionOf(AstNode callerNode) {
-		String assemblyIdentifier = IdentifierSyntax.getAssemblyIdentifierOfCalleeFunctionOf(callerNode);
-		return this.signatureFunctionMap.get(assemblyIdentifier);
+		String signature = IdentifierSyntax.getSignatureOfCalleeFunctionOf(callerNode);
+		return this.getFunctionBySignature(signature);
 	}
 
 

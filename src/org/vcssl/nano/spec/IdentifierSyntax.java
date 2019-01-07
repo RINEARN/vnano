@@ -115,12 +115,11 @@ public class IdentifierSyntax {
 	}
 
 
-	public static String getSignatureOf(AbstractFunction connector) {
-
-		String[] parameterDataTypeNames = connector.getParameterDataTypeNames();
-		int[] parameterArrayRanks = connector.getParameterArrayRanks();
+	public static String getSignatureOf(AbstractFunction function) {
+		String[] parameterDataTypeNames = function.getParameterDataTypeNames();
+		int[] parameterArrayRanks = function.getParameterArrayRanks();
 		String signature = getSignatureOf(
-				connector.getFunctionName(), parameterDataTypeNames, parameterArrayRanks
+				function.getFunctionName(), parameterDataTypeNames, parameterArrayRanks
 		);
 
 		return signature;

@@ -4,6 +4,7 @@ import org.vcssl.nano.VnanoFatalException;
 import org.vcssl.nano.lang.DataType;
 import org.vcssl.nano.spec.OperationCode;
 import org.vcssl.nano.vm.memory.DataContainer;
+import org.vcssl.nano.vm.processor.ExecutionUnit;
 import org.vcssl.nano.vm.processor.Instruction;
 
 public class InternalFunctionControlUnit {
@@ -56,7 +57,7 @@ public class InternalFunctionControlUnit {
 		this.addressStack = new int[ this.addressStackLength ];
 
 		// 仮の配列から現在のスタックの中身を復元
-		System.arraycopy(stock, 0, this.addressStack, 0, this.addressStackLength);
+		System.arraycopy(stock, 0, this.addressStack, 0, stock.length);
 	}
 
 
@@ -74,7 +75,7 @@ public class InternalFunctionControlUnit {
 		this.dataStack = new DataContainer<?>[ this.dataStackLength ];
 
 		// 仮の配列から現在のスタックの中身を復元
-		System.arraycopy(stock, 0, this.dataStack, 0, this.dataStackLength);
+		System.arraycopy(stock, 0, this.dataStack, 0, stock.length);
 	}
 
 	public AccelerationExecutorNode generateExecutorNode(
@@ -83,12 +84,16 @@ public class InternalFunctionControlUnit {
 			int reorderedAddressOfThisInstruction, AccelerationExecutorNode nextNode) {
 
 		OperationCode opcode = instruction.getOperationCode();
+		DataType dataType = instruction.getDataTypes()[0];
 		switch (opcode) {
 			case CALL : {
 				return new CallExecutorNode(operandContainers, synchronizer, reorderedAddressOfThisInstruction, nextNode);
 			}
 			case RET : {
 				return new ReturnExecutorNode(operandContainers, synchronizer, nextNode);
+			}
+			case ALLOCP : {
+				return new AllocpExecutorNode(operandContainers, synchronizer, dataType, nextNode);
 			}
 			case REFPOP : {
 				return new RefpopExecutorNode(operandContainers, synchronizer, nextNode);
@@ -208,7 +213,15 @@ public class InternalFunctionControlUnit {
 
 			super(nextNode);
 			this.synchronizer = synchronizer;
-			this.returnValueContainer = operandContainers[0];
+
+			// 戻り値のデータコンテナをこのインスタンスに保持しておく
+			if (0 < operandContainers.length) {
+				this.returnValueContainer = operandContainers[0];
+
+			// 戻り値が無い場合でも、スタックにはプレースホルダを詰む必要があるので、空のデータコンテナを生成
+			} else {
+				this.returnValueContainer = new DataContainer<Void>();
+			}
 		}
 
 
@@ -245,6 +258,37 @@ public class InternalFunctionControlUnit {
 
 			// 戻り先地点のノードを返す
 			return allNodes[returnedPointAddress];
+		}
+	}
+
+
+	private final class AllocpExecutorNode extends AccelerationExecutorNode {
+		private final DataContainer<?> allocTargetContainer;
+		private final CacheSynchronizer synchronizer;
+		private final DataType dataType;
+
+		public AllocpExecutorNode(DataContainer<?>[] operandContainers, CacheSynchronizer synchronizer, DataType dataType,
+				AccelerationExecutorNode nextNode) {
+
+			super(nextNode);
+			this.synchronizer = synchronizer;
+			this.allocTargetContainer = operandContainers[0];
+			this.dataType = dataType;
+		}
+
+
+		@Override
+		public final void setLaundingPointNodes(AccelerationExecutorNode ... nodes) {
+		}
+
+
+		@Override
+		public final AccelerationExecutorNode execute() {
+			this.synchronizer.synchronizeFromCacheToMemory();
+
+			DataContainer<?> src = InternalFunctionControlUnit.this.dataStack[ InternalFunctionControlUnit.this.dataStackPointer - 1 ];
+			new ExecutionUnit().allocSameLengths(dataType, allocTargetContainer, src);
+			return this.nextNode;
 		}
 	}
 

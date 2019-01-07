@@ -363,10 +363,12 @@ public class Parser {
 
 					// 要素数宣言の内容が省略されている場合は、要素数 0 の宣言と同じものとする（言語仕様）
 					if (exprTokens.length == 0) {
-						AstNode zeroNode = this.createLeafNode(
+						AstNode zeroExprNode = new AstNode(AstNode.Type.EXPRESSION, tokens[i].getLineNumber(), tokens[i].getFileName());
+						AstNode zeroLeafNode = this.createLeafNode(
 								"0", AttributeValue.LITERAL, tokens[i].getFileName(), tokens[i].getLineNumber()
 						);
-						lengthsNode.addChildNode(zeroNode);
+						zeroExprNode.addChildNode(zeroLeafNode);
+						lengthsNode.addChildNode(zeroExprNode);
 
 					// 省略されていなければ、内容を式として解釈してぶら下げる
 					} else {
