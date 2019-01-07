@@ -1207,7 +1207,27 @@ public class CodeGenerator {
 
 
 
-
+	/**
+	 * 次元や要素数に応じて、最適なレジスタ確保コードを生成します。
+	 *
+	 * 本来は、スカラかベクトルかを問わず {@link OperationCode#ALLOCR ALLOCR} 命令でレジスタ確保を行う事が可能ですが、
+	 * 確保対象がスカラである場合には、{@link OperationCode#ALLOCR ALLOCR} 命令の要素数参照オペランドは冗長になります。
+	 * そのためこのメソッドでは、確保対象がスカラの場合には、
+	 * 最も単純な1オペランドの {@link OperationCode#ALLOC ALLOC} 命令を使用します。
+	 *
+	 * @param dataType 確保するレジスタのデータ型名
+	 * @param target 確保対象のレジスタ
+	 * @param lengthsDeterminer レジスタがベクトルの場合の要素数参照オペランド（スカラの場合には使用されません）
+	 * @param rank レジスタの次元数
+	 * @return レジスタを確保するコード
+	 */
+	private String generateRegisterAllocationCode(String dataType, String target, String lengthsDeterminer, int rank) {
+		if (rank == RANK_OF_SCALAR) {
+			return this.generateInstruction(OperationCode.ALLOC.name(), dataType, target);
+		} else {
+			return this.generateInstruction(OperationCode.ALLOCR.name(), dataType, lengthsDeterminer, target);
+		}
+	}
 
 
 	/**
@@ -1265,7 +1285,7 @@ public class CodeGenerator {
 		// レジスタを確保し、演算前の値をそこに控える
 		String storageRegister = this.generateRegisterOperandCode();
 		codeBuilder.append(
-			this.generateInstruction(OperationCode.ALLOCR.name(), executionDataType, storageRegister, variableValue)
+			this.generateRegisterAllocationCode(executionDataType, storageRegister, variableValue, operatorNode.getRank())
 		);
 		codeBuilder.append(
 			this.generateInstruction(OperationCode.MOV.name(), executionDataType, storageRegister, variableValue)
@@ -1395,7 +1415,7 @@ public class CodeGenerator {
 		// 演算結果を格納するレジスタを確保
 		String accumulatorRegister = operatorNode.getAttribute(AttributeKey.ASSEMBLY_VALUE);
 		codeBuilder.append(
-			this.generateInstruction(OperationCode.ALLOCR.name(), operandNode.getDataTypeName(), accumulatorRegister, operandValue)
+			this.generateRegisterAllocationCode(operatorNode.getDataTypeName(), accumulatorRegister, operandValue, operatorNode.getRank())
 		);
 
 		// 演算
@@ -1456,7 +1476,7 @@ public class CodeGenerator {
 		// 演算結果を格納するレジスタを確保
 		String accumulatorRegister = this.generateRegisterOperandCode();
 		codeBuilder.append(
-			this.generateInstruction(OperationCode.ALLOCR.name(), DataTypeName.BOOL, accumulatorRegister, operandValue)
+			this.generateRegisterAllocationCode(DataTypeName.BOOL, accumulatorRegister, operandValue, operatorNode.getRank())
 		);
 
 		// 演算
@@ -1525,20 +1545,21 @@ public class CodeGenerator {
 
 		// 型が違う場合はキャストが必要
 		String rightHandValue = operandValues[1];
-		if (!operandNodes[0].getDataTypeName().equals(operandNodes[1].getDataTypeName())) {
+		String toType = operandNodes[0].getDataTypeName();  // キャスト先のデータ型名
+		String fromType = operandNodes[1].getDataTypeName(); // キャスト元のデータ型名
+		if (!toType.equals(fromType)) {
 
 			// キャスト先レジスタを確保
 			String castedRegister = this.generateRegisterOperandCode();
 			codeBuilder.append(
-				this.generateInstruction(OperationCode.ALLOCR.name(), operandNodes[0].getDataTypeName(), castedRegister, operandValues[1])
+				this.generateRegisterAllocationCode(toType, castedRegister, operandValues[1], operatorNode.getRank())
 			);
 
 			// レジスタに右辺値をキャスト
+			String typeSpecification = toType + AssemblyWord.VALUE_SEPARATOR + fromType;
 			codeBuilder.append(
 				this.generateInstruction(
-						OperationCode.CAST.name(),
-						operandNodes[0].getDataTypeName() + AssemblyWord.VALUE_SEPARATOR + operandNodes[1].getDataTypeName(),
-						castedRegister, operandValues[1]
+					OperationCode.CAST.name(), typeSpecification, castedRegister, operandValues[1]
 				)
 			);
 
@@ -1548,7 +1569,7 @@ public class CodeGenerator {
 
 		// MOV命令の発行
 		codeBuilder.append(
-			this.generateInstruction(OperationCode.MOV.name(), operandNodes[0].getDataTypeName(), operandValues[0], rightHandValue)
+			this.generateInstruction(OperationCode.MOV.name(), toType, operandValues[0], rightHandValue)
 		);
 		return codeBuilder.toString();
 	}
@@ -1675,17 +1696,16 @@ public class CodeGenerator {
 				if (!operandDataType.equals(executionDataType)) {
 
 					// レジスタを確保してそこにキャスト
+					String castTarget = input[inputIndex];
 					String castedRegister = this.generateRegisterOperandCode();
 					codeBuilder.append(
-						this.generateInstruction(OperationCode.ALLOCR.name(), executionDataType, castedRegister, input[inputIndex])
+						this.generateRegisterAllocationCode(executionDataType, castedRegister, castTarget, rank)
 					);
 
 					// CAST命令で型変換を実行
+					String typeSpecification = executionDataType + AssemblyWord.VALUE_SEPARATOR + operandDataType;
 					codeBuilder.append(
-						this.generateInstruction(
-							OperationCode.CAST.name(),
-							executionDataType + AssemblyWord.VALUE_SEPARATOR + operandDataType,
-							castedRegister, input[inputIndex]
+						this.generateInstruction(OperationCode.CAST.name(), typeSpecification, castedRegister, castTarget
 						)
 					);
 					input[inputIndex] = castedRegister;
@@ -1704,7 +1724,7 @@ public class CodeGenerator {
 					// ベクトルレジスタを確保
 					String filledRegister = this.generateRegisterOperandCode();
 					codeBuilder.append(
-						this.generateInstruction(OperationCode.ALLOCR.name(), executionDataType, filledRegister, lengthsDeterminer)
+						this.generateRegisterAllocationCode(executionDataType, filledRegister, lengthsDeterminer, rank)
 					);
 
 					// FILL命令でベクトルレジスタの中身にスカラ値を詰める
@@ -1721,7 +1741,7 @@ public class CodeGenerator {
 		// 演算結果の格納先がレジスタの場合は、そのレジスタを確保
 		if (outputIsRegister) {
 			codeBuilder.append(
-					this.generateInstruction(OperationCode.ALLOCR.name(), resultDataType, output, lengthsDeterminer)
+				this.generateRegisterAllocationCode(resultDataType, output, lengthsDeterminer, rank)
 			);
 		}
 
