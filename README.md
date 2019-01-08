@@ -561,7 +561,7 @@ The (abbreviated) result is :
 		6	NOP	VOID		C4
 		7	ALLOC	BOOL		R0	C4
 		8	LEQ	INT64		R0	L2	L1	C4
-		9	JMPN	BOOL		R0	C6	C4
+		9	JMPN	BOOL		N0	C6	R0	C4
 		10	ADD	INT64		L0	L0	L2	C7
 	...
 
@@ -609,22 +609,22 @@ The result is :
 	        MOV     int     _i@2    ~int:1;
 	#LABEL  &LABEL0;
 	        ALLOC   bool    R0;
-	        LEQ     int     R0      _i@2    _n@1;
-	        JMPN    bool    R0      &LABEL2;
+	        LEQ     int     R0      _i@2     _n@1;
+	        JMPN    bool    -       &LABEL2  R0;
 
 	#META   "line=73, file=Example.vnano";
-	        ADD     int     _sum@0  _sum@0  _i@2;
+	        ADD     int     _sum@0  _sum@0   _i@2;
 	#LABEL  &LABEL1;
 	        ALLOC   int     R3;
 	        MOV     int     R3      _i@2;
 	        ALLOC   int     R1;
-	        ADD     int     R1      _i@2    ~int:1;
+	        ADD     int     R1      _i@2     ~int:1;
 	        MOV     int     _i@2    R1;
-	        JMP     bool    ~bool:true      &LABEL0;
+	        JMP     bool    -       &LABEL0  ~bool:true; 
 	#LABEL  &LABEL2;
 
 	#META   "line=75, file=Example.vnano";
-	        CALLX   void    R2      _output(int)    _sum@0;
+	        CALLX   void    -       _output(int)   _sum@0;
 
 
 This is the compiled intermediate code of the script engine of Vnano, 
