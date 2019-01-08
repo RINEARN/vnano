@@ -280,11 +280,11 @@ public class CodeGeneratorTest {
 		/* 期待コードを用意（内容は下記コメントの通り、ただし空白幅は見やすいよう調整）
 
 		  #META  "line=123, file=Test.vnano";
-		      ALLOCR  int    R0    ~int:1;
+		      ALLOC   int    R0;
 		      ???     int    R0    ~int:1    ~int:2;   (???の箇所に算術演算の命令コードが入る)
 		 */
 		String expectedCode = HEADER + META + EOI
-			+ IND + OperationCode.ALLOCR + WS + DataTypeName.INT + WS + R + "0" + WS + IINT + VS + "1" + EOI
+			+ IND + OperationCode.ALLOC + WS + DataTypeName.INT + WS + R + "0" + EOI
 			+ IND + operationCode + WS + DataTypeName.INT + WS + R + "0" + WS + IINT + VS + "1" + WS + IINT + VS + "2" + EOI;
 
 		// 生成コードと期待コードの内容を確認
@@ -319,15 +319,15 @@ public class CodeGeneratorTest {
 		/* 期待コードを用意（内容は下記コメントの通り、ただし空白幅は見やすいよう調整）
 
 		  #META  "line=123, file=Test.vnano";
-		      ALLOCR  float      R1    ~int:2;
+		      ALLOC   float      R1;
 		      CAST    float:int  R1    ~int:2;
-		      ALLOCR  float      R0    ~float:1;
+		      ALLOC   float      R0;
 		      ???     float      R0    ~float:1    ~int:2;   (???の箇所に算術演算の命令コードが入る)
 		 */
 		String expectedCode = HEADER + META + EOI
-			+ IND + OperationCode.ALLOCR + WS + DataTypeName.FLOAT + WS + R + "1" + WS + IINT + VS + "2" + EOI
+			+ IND + OperationCode.ALLOC + WS + DataTypeName.FLOAT + WS + R + "1" + EOI
 			+ IND + OperationCode.CAST + WS + DataTypeName.FLOAT + VS + DataTypeName.INT + WS + R + "1" + WS + IINT + VS + "2" + EOI
-			+ IND + OperationCode.ALLOCR + WS + DataTypeName.FLOAT + WS + R + "0" + WS + IFLOAT + VS + "1" + EOI
+			+ IND + OperationCode.ALLOC + WS + DataTypeName.FLOAT + WS + R + "0" + EOI
 			+ IND + operationCode + WS + DataTypeName.FLOAT + WS + R + "0" + WS + IFLOAT + VS + "1" + WS + R + "1" + EOI;
 
 		// 生成コードと期待コードの内容を確認
@@ -545,7 +545,7 @@ public class CodeGeneratorTest {
 		  #GLOBAL	_floatVectorA
 		  #GLOBAL	_intVectorB
 		  #META  "line=123, file=Test.vnano";
-		      ALLOCR  int        R1    _intScalarB;
+		      ALLOC   int        R1;
 		      CAST    float:int  R1    _intScalarB;
 		      ALLOCR  float      R2    _floatVectorA;
               FILL 	  float      R2    R1;
@@ -553,7 +553,7 @@ public class CodeGeneratorTest {
 		      ???     float      R0    _floatVectorA    R2;   (???の箇所に算術演算の命令コードが入る)
 		 */
 		String expectedCode = HEADER + GLOBAL_DIRECTIVE_FVA + EOI + GLOBAL_DIRECTIVE_ISB + EOI + META + EOI
-			+ IND + OperationCode.ALLOCR + WS + DataTypeName.FLOAT + WS + R + "1" + WS + ISB + EOI
+			+ IND + OperationCode.ALLOC + WS + DataTypeName.FLOAT + WS + R + "1" + EOI
 			+ IND + OperationCode.CAST + WS + DataTypeName.FLOAT + VS + DataTypeName.INT + WS + R + "1" + WS + ISB + EOI
 			+ IND + OperationCode.ALLOCR + WS + DataTypeName.FLOAT + WS + R + "2" + WS + FVA + EOI
 			+ IND + OperationCode.FILL + WS + DataTypeName.FLOAT + WS + R + "2" + WS + R + "1" + EOI
