@@ -1223,7 +1223,7 @@ public class CodeGenerator {
 		if (rank == RANK_OF_SCALAR) {
 			return this.generateInstruction(OperationCode.ALLOC.name(), dataType, target);
 		} else {
-			return this.generateInstruction(OperationCode.ALLOCR.name(), dataType, lengthsDeterminer, target);
+			return this.generateInstruction(OperationCode.ALLOCR.name(), dataType, target, lengthsDeterminer);
 		}
 	}
 
