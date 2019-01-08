@@ -562,7 +562,7 @@ public class CodeGenerator {
 				// ループの先頭に戻るJMP命令など
 				if (context.hasBeginPointLabel()) {
 					String jumpCode = this.generateInstruction(
-							OperationCode.JMP.name(), DataTypeName.BOOL, PLACE_HOLDER, IMMEDIATE_TRUE, context.getBeginPointLabel()
+							OperationCode.JMP.name(), DataTypeName.BOOL, PLACE_HOLDER, context.getBeginPointLabel(), IMMEDIATE_TRUE
 					);
 					codeBuilder.append(jumpCode);
 					context.clearBeginPointLabel();
@@ -680,8 +680,7 @@ public class CodeGenerator {
 			// break 文: ループ末端へのジャンプ命令そのもの
 			case BREAK : {
 				code = this.generateInstruction(
-						OperationCode.JMP.name(), DataTypeName.BOOL, PLACE_HOLDER, IMMEDIATE_TRUE,
-						context.getLastLoopEndPointLabel()
+					OperationCode.JMP.name(), DataTypeName.BOOL, PLACE_HOLDER, context.getLastLoopEndPointLabel(), IMMEDIATE_TRUE
 				);
 				break;
 			}
@@ -692,8 +691,7 @@ public class CodeGenerator {
 					continueJumpPointLabel = context.getLastLoopUpdatePointLabel(); // for文は更新式の位置に飛ぶ
 				}
 				code = this.generateInstruction(
-						OperationCode.JMP.name(), DataTypeName.BOOL, PLACE_HOLDER, IMMEDIATE_TRUE,
-						continueJumpPointLabel
+					OperationCode.JMP.name(), DataTypeName.BOOL, PLACE_HOLDER, continueJumpPointLabel, IMMEDIATE_TRUE
 				);
 				break;
 			}
@@ -799,7 +797,7 @@ public class CodeGenerator {
 		// 関数の外側のコードを上から逐次実行されている時に、関数内のコードを実行せず読み飛ばすためのJMP命令を生成
 		String skipLabel = node.getAttribute(AttributeKey.END_LABEL);
 		codeBuilder.append(
-			this.generateInstruction(OperationCode.JMP.name(), DataTypeName.BOOL, PLACE_HOLDER, IMMEDIATE_TRUE, skipLabel)
+			this.generateInstruction(OperationCode.JMP.name(), DataTypeName.BOOL, PLACE_HOLDER, skipLabel, IMMEDIATE_TRUE)
 		);
 
 		// 関数先頭のラベルを生成 ... 先頭はラベルである事を示すプレフィックス、その後に識別子プレフィックス + 関数シグネチャ
@@ -930,7 +928,7 @@ public class CodeGenerator {
 		String endLabel = node.getAttribute(AttributeKey.END_LABEL);
 		String conditionExprValue = conditionExprNode.getAttribute(AttributeKey.ASSEMBLY_VALUE);
 		codeBuilder.append(
-			this.generateInstruction(OperationCode.JMPN.name(), DataTypeName.BOOL, PLACE_HOLDER, conditionExprValue, endLabel)
+			this.generateInstruction(OperationCode.JMPN.name(), DataTypeName.BOOL, PLACE_HOLDER, endLabel, conditionExprValue)
 		);
 
 		return codeBuilder.toString();
@@ -964,7 +962,7 @@ public class CodeGenerator {
 		// 条件成立の時に末端ラベルへ飛ぶコードを生成
 		//（ else は直前の if 文が不成立だった場合に実行するので、成立していた場合は逆にelse末尾まで飛ぶ ）
 		codeBuilder.append(
-			this.generateInstruction(OperationCode.JMP.name(), DataTypeName.BOOL, PLACE_HOLDER, lastIfConditionValue, endLabel)
+			this.generateInstruction(OperationCode.JMP.name(), DataTypeName.BOOL, PLACE_HOLDER, endLabel, lastIfConditionValue)
 		);
 
 		return codeBuilder.toString();
@@ -1009,7 +1007,7 @@ public class CodeGenerator {
 		// 条件不成立時はループ外に脱出するコードを生成
 		String conditionExprValue = conditionExprNode.getAttribute(AttributeKey.ASSEMBLY_VALUE);
 		codeBuilder.append(
-			this.generateInstruction(OperationCode.JMPN.name(), DataTypeName.BOOL, PLACE_HOLDER, conditionExprValue, endLabel)
+			this.generateInstruction(OperationCode.JMPN.name(), DataTypeName.BOOL, PLACE_HOLDER, endLabel, conditionExprValue)
 		);
 
 		return codeBuilder.toString();
@@ -1071,7 +1069,7 @@ public class CodeGenerator {
 		// 条件不成立時はループ外に脱出するコードを生成
 		String conditionValue = childNodes[1].getAttribute(AttributeKey.ASSEMBLY_VALUE);
 		codeBuilder.append(
-			this.generateInstruction(OperationCode.JMPN.name(), DataTypeName.BOOL, PLACE_HOLDER, conditionValue, endLabel)
+			this.generateInstruction(OperationCode.JMPN.name(), DataTypeName.BOOL, PLACE_HOLDER, endLabel, conditionValue)
 		);
 
 		return codeBuilder.toString();
@@ -1187,7 +1185,7 @@ public class CodeGenerator {
 					// 左オペランドの場合: スキップ用のジャンプ系命令を置く
 					if (currentNode == parentNode.getChildNodes()[0]) {
 						codeBuilder.append(
-								this.generateInstruction(jumpOpcode, DataTypeName.BOOL, PLACE_HOLDER, leftOperandValue, jumpLabel)
+								this.generateInstruction(jumpOpcode, DataTypeName.BOOL, PLACE_HOLDER, jumpLabel, leftOperandValue)
 						);
 
 					// 右オペランド場合: スキップ地点のラベルを置く

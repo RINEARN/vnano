@@ -467,9 +467,11 @@ public class AccelerationScheduler {
 				{
 					if(dataTypes[0] == DataType.BOOL) {
 
+						// 大半の場合、条件はキャッシュ可能なスカラ
 						if (isAllScalar(operandScalar) && isAllCached(operandCached)) {
 							instruction.setAccelerationType(AccelerationType.BCS_BRANCH);
-						// 有り得ない？ 長さ1のベクトルなら可能？ >> 配列の要素などが渡される場合はあり得るのでは
+
+						// 配列の要素などが条件に指定される場合など、キャッシュ不可能なスカラも一応あり得る
 						} else {
 							instruction.setAccelerationType(AccelerationType.BS_BRANCH);
 						}
@@ -544,8 +546,8 @@ public class AccelerationScheduler {
 				// ジャンプ先アドレスの値を格納するオペランドのデータコンテナをメモリから取得
 				DataContainer<?> addressContiner = null;
 				addressContiner = memory.getDataContainer(
-						instruction.getOperandPartitions()[2],
-						instruction.getOperandAddresses()[2]
+						instruction.getOperandPartitions()[1],
+						instruction.getOperandAddresses()[1]
 				);
 
 				// データコンテナからジャンプ先アドレスの値を読む

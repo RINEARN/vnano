@@ -252,22 +252,22 @@ public class DispatchUnit {
 
 			case JMP : {
 				 // 以下、0番オペランドを書き込み対象に統一した際に要変更
-				this.checkNumberOfOperands(instruction, 3);
-				boolean condition = ((boolean[])operands[1].getData())[0]; // オペランド[1] に条件が入っている（[0]はプレースホルダ）
+				this.checkNumberOfOperands(instruction, 3); // オペランド[0]はプレースホルダなので、オペランドは3個ある
+				boolean condition = ((boolean[])operands[2].getData())[0]; // オペランド[2] に条件が入っている（[0]はプレースホルダ）
 				if (condition) {
-					return (int)( (long[])operands[2].getData() )[0]; // オペランド[2]に分岐先の命令アドレスが入っている
+					return (int)( (long[])operands[1].getData() )[0]; // オペランド[1]に分岐先の命令アドレスが入っている
 				} else {
 					return programCounter + 1;
 				}
 			}
 			case JMPN : {
 				 // 以下、0番オペランドを書き込み対象に統一した際に要変更
-				this.checkNumberOfOperands(instruction, 3);
-				boolean condition = ((boolean[])operands[1].getData())[0]; // オペランド[1] に条件が入っている（[0]はプレースホルダ）
+				this.checkNumberOfOperands(instruction, 3); // オペランド[0]はプレースホルダなので、オペランドは3個ある
+				boolean condition = ((boolean[])operands[2].getData())[0]; // オペランド[2] に条件が入っている
 				if (condition) {
 					return programCounter + 1;
 				} else {
-					return (int)( (long[])operands[2].getData() )[0]; // オペランド[2]に分岐先の命令アドレスが入っている
+					return (int)( (long[])operands[1].getData() )[0]; // オペランド[1]に分岐先の命令アドレスが入っている
 				}
 			}
 

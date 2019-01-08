@@ -16,14 +16,14 @@ public class BoolCachedScalarBranchUnit extends AccelerationUnit {
 			Object[] operandCaches, boolean[] operandCached, boolean[] operandScalar, boolean[] operandConstant,
 			AccelerationExecutorNode nextNode) {
 
-		BoolScalarCache cache1 = (BoolScalarCache)operandCaches[1];
+		BoolScalarCache conditionCache = (BoolScalarCache)operandCaches[2];
 
 		AccelerationExecutorNode executor = null;
 		switch (instruction.getOperationCode()) {
 			case JMP : {
 				// 条件値が定数の場合は、常に成功か失敗のどちらか（固定）に飛ぶノードを生成
-				if (operandConstant[1]) {
-					boolean condition = ( (boolean[])operandContainers[1].getData() )[0];
+				if (operandConstant[2]) {
+					boolean condition = ( (boolean[])operandContainers[2].getData() )[0]; // 条件の低数値
 					if (condition) {
 						executor = new CachedScalarUnconditionalJmpExecutorNode(nextNode);
 					} else {
@@ -31,14 +31,14 @@ public class BoolCachedScalarBranchUnit extends AccelerationUnit {
 					}
 				// そうでない通常の場合は、スカラキャッシュから条件値を読んで飛ぶノードを生成
 				} else {
-					executor = new CachedScalarJmpExecutorNode(cache1, nextNode);
+					executor = new CachedScalarJmpExecutorNode(conditionCache, nextNode);
 				}
 				break;
 			}
 			case JMPN : {
 				// 条件値が定数の場合は、常に成功か失敗のどちらか（固定）に飛ぶノードを生成
-				if (operandConstant[1]) {
-					boolean condition = ( (boolean[])operandContainers[1].getData() )[0];
+				if (operandConstant[2]) {
+					boolean condition = ( (boolean[])operandContainers[2].getData() )[0]; // 条件の低数値
 					if (condition) {
 						executor = new CachedScalarUnconditionalNeverJmpExecutorNode(nextNode);
 					} else {
@@ -46,7 +46,7 @@ public class BoolCachedScalarBranchUnit extends AccelerationUnit {
 					}
 				// そうでない通常の場合は、スカラキャッシュから条件値を読んで飛ぶノードを生成
 				} else {
-					executor = new CachedScalarJmpnExecutorNode(cache1, nextNode);
+					executor = new CachedScalarJmpnExecutorNode(conditionCache, nextNode);
 				}
 				break;
 			}
@@ -61,12 +61,12 @@ public class BoolCachedScalarBranchUnit extends AccelerationUnit {
 
 
 	private final class CachedScalarJmpExecutorNode extends AccelerationExecutorNode {
-		private final BoolScalarCache cache1;
+		private final BoolScalarCache conditionCache;
 		private AccelerationExecutorNode branchedNode = null;
 
-		public CachedScalarJmpExecutorNode(BoolScalarCache cache1, AccelerationExecutorNode nextNode) {
+		public CachedScalarJmpExecutorNode(BoolScalarCache conditionCache, AccelerationExecutorNode nextNode) {
 			super(nextNode);
-			this.cache1 = cache1;
+			this.conditionCache = conditionCache;
 		}
 
 		@Override
@@ -76,7 +76,7 @@ public class BoolCachedScalarBranchUnit extends AccelerationUnit {
 
 		@Override
 		public final AccelerationExecutorNode execute() {
-			if (this.cache1.value) {
+			if (this.conditionCache.value) {
 				return this.branchedNode;
 			} else {
 				return this.nextNode;
@@ -87,13 +87,13 @@ public class BoolCachedScalarBranchUnit extends AccelerationUnit {
 
 
 	private final class CachedScalarJmpnExecutorNode extends AccelerationExecutorNode {
-		private final BoolScalarCache cache1;
+		private final BoolScalarCache conditionCache;
 		private AccelerationExecutorNode branchedNode = null;
 
-		public CachedScalarJmpnExecutorNode(BoolScalarCache cache1, AccelerationExecutorNode nextNode) {
+		public CachedScalarJmpnExecutorNode(BoolScalarCache conditionCache, AccelerationExecutorNode nextNode) {
 			super(nextNode);
 
-			this.cache1 = cache1;
+			this.conditionCache = conditionCache;
 		}
 
 		@Override
@@ -103,7 +103,7 @@ public class BoolCachedScalarBranchUnit extends AccelerationUnit {
 
 		@Override
 		public final AccelerationExecutorNode execute() {
-			if (this.cache1.value) {
+			if (this.conditionCache.value) {
 				return this.nextNode;
 			} else {
 				return this.branchedNode;

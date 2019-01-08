@@ -17,9 +17,9 @@ public class BoolScalarBranchUnit extends AccelerationUnit {
 			Object[] operandCaches, boolean[] operandCached, boolean[] operandScalar, boolean[] operandConstant,
 			AccelerationExecutorNode nextNode) {
 
-		DataContainer<boolean[]> conditionContainer = (DataContainer<boolean[]>)operandContainers[1];
+		DataContainer<boolean[]> conditionContainer = (DataContainer<boolean[]>)operandContainers[2];
 		Boolx1ScalarCacheSynchronizer synchronizer
-				= new Boolx1ScalarCacheSynchronizer(operandContainers, operandCaches, operandCached, 1);
+				= new Boolx1ScalarCacheSynchronizer(operandContainers, operandCaches, operandCached, 2);
 
 		AccelerationExecutorNode executor = null;
 		switch (instruction.getOperationCode()) {
