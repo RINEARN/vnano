@@ -1695,9 +1695,10 @@ public class CodeGenerator {
 
 					// レジスタを確保してそこにキャスト
 					String castTarget = input[inputIndex];
+					int castTargetRank = inputNodes[inputIndex].getRank();
 					String castedRegister = this.generateRegisterOperandCode();
 					codeBuilder.append(
-						this.generateRegisterAllocationCode(executionDataType, castedRegister, castTarget, rank)
+						this.generateRegisterAllocationCode(executionDataType, castedRegister, castTarget, castTargetRank)
 					);
 
 					// CAST命令で型変換を実行
