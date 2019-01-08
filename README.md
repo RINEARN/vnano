@@ -1264,8 +1264,8 @@ Vnano でサポートされている演算子は、以下の一覧の通りで�
 
 | Operators - 演算子 | Priority - 優先度 | Syntax - 構文 | Operand Types - オペランドの型 | Value Type - 値の型 |
 | --- | --- | --- | --- | --- |
-| ( ... , ... , ... ) as call | 1000 | multiary | any, any, ... | any |
-| [ ... ][ ... ] ... as index | 1000 | multiary | int, int, ... | any |
+| ( ... , ... , ... ) as call | 1000 | multiary | any | any |
+| [ ... ][ ... ] ... as index | 1000 | multiary | int | any |
 | ++ | 1000 | postfix | int | int |
 | -- | 1000 | postfix | int | int |
 | ++ | 2000 | prefix | int | int |
