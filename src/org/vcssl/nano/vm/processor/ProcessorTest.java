@@ -22,7 +22,7 @@ import org.vcssl.nano.VnanoException;
 
 public class ProcessorTest {
 
-	private static final int REGISTER_N = 100;
+	private static final int REGISTER_N = 200;
 	private Interconnect interconnect;
 	private Memory memory;
 	private DataContainer<?>[] registers;
@@ -166,7 +166,7 @@ public class ProcessorTest {
 		// R0 = (R1+R2) * (R4-$5) の値を求める逐次演算の命令列を生成
 		Instruction[] instructions = new Instruction[]{
 				this.generateInstruction(OperationCode.MOV, DataType.INT64, 3, 1),   // MOV INT64 R3 R1  (R3=R1)
-				this.generateInstruction(OperationCode.JMP, DataType.BOOL,  0, 10),  // JMP BOOL  R0 R10 (R0がtrueならR10番命令に飛ぶ)
+				this.generateInstruction(OperationCode.JMP, DataType.BOOL,  100, 10, 0),  // JMP BOOL  R100 R10 R0 (R0がtrueならR10番命令に飛ぶ / 先頭オペランドは読み書きされないプレースホルダ)
 				this.generateInstruction(OperationCode.MOV, DataType.INT64, 3, 2),   // MOV INT64 R3 R2  (R3=R2 ... 分岐成立で飛ばされる)
 				this.generateInstruction(OperationCode.MOV, DataType.INT64, 4, 3),   // MOV INT64 R4 R3  (R4=R3 ... 分岐成立でここに着地)
 		};

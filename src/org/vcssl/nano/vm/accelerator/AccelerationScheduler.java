@@ -217,29 +217,12 @@ public class AccelerationScheduler {
 			// オペランドの個数
 			int operandLength = instruction.getOperandLength();
 
-			// 入力オペランドが始まるインデックス ... 通常は先頭が出力オペランドで、その次（1番）から始まる
+			// 入力オペランドが始まるインデックス ... 命令の仕様上、先頭は必ず書き込みオペランドで、入力はその次（1番）から始まる
 			int inputOperandsBeginIndex = 1;
 
-
-			// !!! 以下、やはり命令セットの仕様で先頭オペランドは状態変更対象で統一して、無い場合はプレースホルダを置くべき
-			//     後々で要変更
-
-
-			// 分岐命令はデータの出力をしないので、先頭オペランド（0番）から入力オペランドが並ぶ
-			if (opcode == OperationCode.JMP || opcode == OperationCode.JMPN) {
-				inputOperandsBeginIndex = 0;
-
-			// RET命令も先頭オペランドが読み込み対象（通常は先頭は書き込み対象）で、省略も可能なので、特別な措置が必要
-			} else if (opcode == OperationCode.RET) {
-				if (operandLength == 0) {
-					continue; // オペランドが省略されていればスキップ
-				}
-				inputOperandsBeginIndex = 0; // 先頭オペランドを読み込み開始オペランドに指定
-
-			// それ以外の、入力オペランドを持つ命令の中で、オペランド数が2個未満のものは無いため、
-			// 実際に2個未満でない場合は isDataReadingOperationCode 実装か命令の異常
-			} else if (operandLength < 2) {
-				throw new VnanoFatalException("Unexpected Number of Operands for Data-Reading Instruction: " + instruction);
+			// 入力オペランドは個数可変や省略可能な命令もあるため、オペランド数が2未満の場合＝入力オペランドが無い場合はスキップする
+			if (operandLength < 2) {
+				continue;
 			}
 
 			// オペランドのメモリパーティションとアドレスを取得
@@ -254,11 +237,6 @@ public class AccelerationScheduler {
 				}
 			}
 		}
-		/*
-		for (int i=0; i<registerLength; i++) {
-			System.out.println("Read Count of R" + i + " = " + this.registerReadPointCount[i]);
-		}
-		*/
 	}
 
 
@@ -489,9 +467,11 @@ public class AccelerationScheduler {
 				{
 					if(dataTypes[0] == DataType.BOOL) {
 
+						// 大半の場合、条件はキャッシュ可能なスカラ
 						if (isAllScalar(operandScalar) && isAllCached(operandCached)) {
 							instruction.setAccelerationType(AccelerationType.BCS_BRANCH);
-						// 有り得ない？ 長さ1のベクトルなら可能？ >> 配列の要素などが渡される場合はあり得るのでは
+
+						// 配列の要素などが条件に指定される場合など、キャッシュ不可能なスカラも一応あり得る
 						} else {
 							instruction.setAccelerationType(AccelerationType.BS_BRANCH);
 						}
@@ -582,7 +562,7 @@ public class AccelerationScheduler {
 				// ジャンプ先命令アドレスの、命令再配置前における位置に対応する、再配置後のジャンプ先命令アドレスを取得
 				int reorderedJumpAddress = this.addressReorderingMap.get(jumpAddress);
 
-				//System.out.println("Jump addr reordered: " + jumpAddress + " to " + reorderedJumpAddress);
+				// System.out.println("Jump addr reordered: " + jumpAddress + " to " + reorderedJumpAddress);
 
 				// 再配置後のジャンプ先アドレス情報をジャンプ命令に追加
 				instruction.setReorderedJumpAddress(reorderedJumpAddress);

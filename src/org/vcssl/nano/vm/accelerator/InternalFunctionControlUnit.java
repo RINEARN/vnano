@@ -215,10 +215,10 @@ public class InternalFunctionControlUnit {
 			this.synchronizer = synchronizer;
 
 			// 戻り値のデータコンテナをこのインスタンスに保持しておく
-			if (0 < operandContainers.length) {
-				this.returnValueContainer = operandContainers[0];
+			if (1 < operandContainers.length) {
+				this.returnValueContainer = operandContainers[1]; // この命令の先頭オペランドはプレースホルダなので、[1]が戻り値
 
-			// 戻り値が無い場合でも、スタックにはプレースホルダを詰む必要があるので、空のデータコンテナを生成
+			// 戻り値が無い場合でも、戻り値がある場合とスタックの積み下ろしを同じ順序に統一するため、戻る時に積む空のデータコンテナを用意
 			} else {
 				this.returnValueContainer = new DataContainer<Void>();
 			}

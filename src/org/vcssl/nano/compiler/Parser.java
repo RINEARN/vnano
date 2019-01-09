@@ -569,9 +569,6 @@ public class Parser {
 		// break文の場合: break文ノードを生成するのみ
 		} else if(controlTypeToken.getValue().equals(ScriptWord.BREAK)) {
 			AstNode node = new AstNode(AstNode.Type.BREAK, lineNumber, fileName);
-			if (1 <= tokens.length) {
-				node.addChildNode(this.parseExpression(Arrays.copyOfRange(tokens, 1, tokens.length)));
-			}
 			return node;
 
 		// continue文の場合: continue文ノードを生成するのみ

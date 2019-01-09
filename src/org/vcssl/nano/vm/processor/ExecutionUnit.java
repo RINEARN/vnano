@@ -1170,7 +1170,11 @@ public class ExecutionUnit {
 	public void mov(DataType type, DataContainer<?> dest, DataContainer<?> src) {
 		this.checkDataType(dest, type);
 		this.checkDataType(src, type);
-		System.arraycopy(src.getData(), src.getOffset(), dest.getData(), dest.getOffset(), dest.getSize());
+		try {
+			System.arraycopy(src.getData(), src.getOffset(), dest.getData(), dest.getOffset(), dest.getSize());
+		} catch (ArrayStoreException e) {
+			throw new VnanoFatalException(e);
+		}
 	}
 
 

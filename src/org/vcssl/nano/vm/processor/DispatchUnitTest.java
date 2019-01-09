@@ -1115,8 +1115,8 @@ public class DispatchUnitTest {
 		// 分岐条件や分岐先アドレスを格納するコンテナを雑用アドレスに用意
 		DataContainer<boolean[]> condition = new DataContainer<boolean[]>();
 		DataContainer<long[]> jumpAddress = new DataContainer<long[]>();
-		this.memory.setDataContainer(TMP_A_PART, TMP_A_ADDR, condition);
-		this.memory.setDataContainer(TMP_B_PART, TMP_B_ADDR, jumpAddress);
+		this.memory.setDataContainer(TMP_A_PART, TMP_A_ADDR, jumpAddress);
+		this.memory.setDataContainer(TMP_B_PART, TMP_B_ADDR, condition);
 
 		// 入出力オペランドに値を設定
 		condition.setData(new boolean[]{ true });
@@ -1125,8 +1125,8 @@ public class DispatchUnitTest {
 		// 上記オペランドで演算を行う命令を生成
 		Instruction instruction = new Instruction(
 				OperationCode.JMP, BOOL_TYPE,
-				new Memory.Partition[]{ TMP_A_PART, TMP_B_PART },
-				new int[]{ TMP_A_ADDR, TMP_B_ADDR },
+				new Memory.Partition[]{ Memory.Partition.NONE, TMP_A_PART, TMP_B_PART },
+				new int[]{ 0, TMP_A_ADDR, TMP_B_ADDR },
 				META_PART, META_ADDR
 		);
 
@@ -1166,8 +1166,8 @@ public class DispatchUnitTest {
 		// 分岐条件や分岐先アドレスを格納するコンテナを雑用アドレスに用意
 		DataContainer<boolean[]> condition = new DataContainer<boolean[]>();
 		DataContainer<long[]> jumpAddress = new DataContainer<long[]>();
-		this.memory.setDataContainer(TMP_A_PART, TMP_A_ADDR, condition);
-		this.memory.setDataContainer(TMP_B_PART, TMP_B_ADDR, jumpAddress);
+		this.memory.setDataContainer(TMP_A_PART, TMP_A_ADDR, jumpAddress);
+		this.memory.setDataContainer(TMP_B_PART, TMP_B_ADDR, condition);
 
 		// 入出力オペランドに値を設定
 		condition.setData(new boolean[]{ true });
@@ -1176,8 +1176,8 @@ public class DispatchUnitTest {
 		// 上記オペランドで演算を行う命令を生成
 		Instruction instruction = new Instruction(
 				OperationCode.JMPN, BOOL_TYPE,
-				new Memory.Partition[]{ TMP_A_PART, TMP_B_PART },
-				new int[]{ TMP_A_ADDR, TMP_B_ADDR },
+				new Memory.Partition[]{ Memory.Partition.NONE, TMP_A_PART, TMP_B_PART },
+				new int[]{ 0, TMP_A_ADDR, TMP_B_ADDR },
 				META_PART, META_ADDR
 		);
 

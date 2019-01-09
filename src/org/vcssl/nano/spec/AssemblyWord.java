@@ -62,6 +62,7 @@ public final class AssemblyWord {
 	public static final char OPERAND_PREFIX_IDENTIFIER = '_';
 	public static final char OPERAND_PREFIX_IMMEDIATE = '~';  // 定数の値そのものを即値で記述( % はインラインアセンブラでレジスタに使われている
 	public static final char OPERAND_PREFIX_LABEL = '&';
+	public static final char OPERAND_PREFIX_PLACEHOLDER = '-';   // オペランド順序を統一するため、値が無いオペランド位置に便宜的に置くプレースホルダ
 
 	public static final HashMap<Character, Memory.Partition> OPERAND_PREFIX_PARTITION_MAP = new HashMap<Character, Memory.Partition>();
 	static {

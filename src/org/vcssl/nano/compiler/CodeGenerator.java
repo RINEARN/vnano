@@ -48,6 +48,10 @@ public class CodeGenerator {
 	private static final String IMMEDIATE_TRUE
 			= AssemblyWord.OPERAND_PREFIX_IMMEDIATE + DataTypeName.BOOL + AssemblyWord.VALUE_SEPARATOR + LiteralSyntax.TRUE;
 
+	/** 命令仕様上、先頭オペランドを書き込み対象に統一するため、書き込み対象が無い場合に置くプレースホルダ */
+	private static final String PLACE_HOLDER = Character.toString(AssemblyWord.OPERAND_PREFIX_PLACEHOLDER);
+
+
 	/** 生成コード内の各レジスタに、固有のアドレスを割り当てるためのカウンタです。 */
 	private int registerCounter;
 
@@ -558,7 +562,7 @@ public class CodeGenerator {
 				// ループの先頭に戻るJMP命令など
 				if (context.hasBeginPointLabel()) {
 					String jumpCode = this.generateInstruction(
-							OperationCode.JMP.name(), DataTypeName.BOOL, IMMEDIATE_TRUE, context.getBeginPointLabel()
+							OperationCode.JMP.name(), DataTypeName.BOOL, PLACE_HOLDER, context.getBeginPointLabel(), IMMEDIATE_TRUE
 					);
 					codeBuilder.append(jumpCode);
 					context.clearBeginPointLabel();
@@ -623,7 +627,7 @@ public class CodeGenerator {
 			case FUNCTION : {
 				code = this.generateFunctionDeclarationStatementCode(node);
 				context.addEndPointLabel(node.getAttribute(AttributeKey.END_LABEL));
-				context.setEndPointStatement(this.generateInstruction(OperationCode.RET.name(), DataTypeName.VOID));
+				context.setEndPointStatement(this.generateInstruction(OperationCode.RET.name(), DataTypeName.VOID, PLACE_HOLDER));
 				break;
 			}
 			// if 文
@@ -676,8 +680,7 @@ public class CodeGenerator {
 			// break 文: ループ末端へのジャンプ命令そのもの
 			case BREAK : {
 				code = this.generateInstruction(
-						OperationCode.JMP.name(), DataTypeName.BOOL, IMMEDIATE_TRUE,
-						context.getLastLoopEndPointLabel()
+					OperationCode.JMP.name(), DataTypeName.BOOL, PLACE_HOLDER, context.getLastLoopEndPointLabel(), IMMEDIATE_TRUE
 				);
 				break;
 			}
@@ -688,8 +691,7 @@ public class CodeGenerator {
 					continueJumpPointLabel = context.getLastLoopUpdatePointLabel(); // for文は更新式の位置に飛ぶ
 				}
 				code = this.generateInstruction(
-						OperationCode.JMP.name(), DataTypeName.BOOL, IMMEDIATE_TRUE,
-						continueJumpPointLabel
+					OperationCode.JMP.name(), DataTypeName.BOOL, PLACE_HOLDER, continueJumpPointLabel, IMMEDIATE_TRUE
 				);
 				break;
 			}
@@ -795,7 +797,7 @@ public class CodeGenerator {
 		// 関数の外側のコードを上から逐次実行されている時に、関数内のコードを実行せず読み飛ばすためのJMP命令を生成
 		String skipLabel = node.getAttribute(AttributeKey.END_LABEL);
 		codeBuilder.append(
-			this.generateInstruction(OperationCode.JMP.name(), DataTypeName.BOOL, IMMEDIATE_TRUE, skipLabel)
+			this.generateInstruction(OperationCode.JMP.name(), DataTypeName.BOOL, PLACE_HOLDER, skipLabel, IMMEDIATE_TRUE)
 		);
 
 		// 関数先頭のラベルを生成 ... 先頭はラベルである事を示すプレフィックス、その後に識別子プレフィックス + 関数シグネチャ
@@ -857,20 +859,20 @@ public class CodeGenerator {
 
 		AstNode[] childNodes = node.getChildNodes();
 
-		// 戻り値が無い場合 ... オペランド無しのRET命令を生成
+		// 戻り値が無い場合
 		if (childNodes.length == 0) {
 			codeBuilder.append(
-				this.generateInstruction(OperationCode.RET.name(), DataTypeName.VOID)
+				this.generateInstruction(OperationCode.RET.name(), DataTypeName.VOID, PLACE_HOLDER)
 			);
 
-		// 戻り値がある場合 ... 戻り値の式を解釈し、その結果をオペランドとするRET命令を生成
+		// 戻り値がある場合 ... 戻り値の式を解釈し、その結果をオペランドに追加したRET命令を生成
 		} else {
 			AstNode exprNode = childNodes[0];
 			String exprValue = exprNode.getAttribute(AttributeKey.ASSEMBLY_VALUE);
 			String exprCode = this.generateExpressionCode(exprNode);
 			codeBuilder.append(exprCode);
 			codeBuilder.append(
-				this.generateInstruction(OperationCode.RET.name(), DataTypeName.VOID, exprValue)
+				this.generateInstruction(OperationCode.RET.name(), DataTypeName.VOID, PLACE_HOLDER, exprValue)
 			);
 		}
 
@@ -926,7 +928,7 @@ public class CodeGenerator {
 		String endLabel = node.getAttribute(AttributeKey.END_LABEL);
 		String conditionExprValue = conditionExprNode.getAttribute(AttributeKey.ASSEMBLY_VALUE);
 		codeBuilder.append(
-			this.generateInstruction(OperationCode.JMPN.name(), DataTypeName.BOOL, conditionExprValue, endLabel)
+			this.generateInstruction(OperationCode.JMPN.name(), DataTypeName.BOOL, PLACE_HOLDER, endLabel, conditionExprValue)
 		);
 
 		return codeBuilder.toString();
@@ -960,7 +962,7 @@ public class CodeGenerator {
 		// 条件成立の時に末端ラベルへ飛ぶコードを生成
 		//（ else は直前の if 文が不成立だった場合に実行するので、成立していた場合は逆にelse末尾まで飛ぶ ）
 		codeBuilder.append(
-			this.generateInstruction(OperationCode.JMP.name(), DataTypeName.BOOL, lastIfConditionValue, endLabel)
+			this.generateInstruction(OperationCode.JMP.name(), DataTypeName.BOOL, PLACE_HOLDER, endLabel, lastIfConditionValue)
 		);
 
 		return codeBuilder.toString();
@@ -1005,7 +1007,7 @@ public class CodeGenerator {
 		// 条件不成立時はループ外に脱出するコードを生成
 		String conditionExprValue = conditionExprNode.getAttribute(AttributeKey.ASSEMBLY_VALUE);
 		codeBuilder.append(
-			this.generateInstruction(OperationCode.JMPN.name(), DataTypeName.BOOL, conditionExprValue, endLabel)
+			this.generateInstruction(OperationCode.JMPN.name(), DataTypeName.BOOL, PLACE_HOLDER, endLabel, conditionExprValue)
 		);
 
 		return codeBuilder.toString();
@@ -1067,7 +1069,7 @@ public class CodeGenerator {
 		// 条件不成立時はループ外に脱出するコードを生成
 		String conditionValue = childNodes[1].getAttribute(AttributeKey.ASSEMBLY_VALUE);
 		codeBuilder.append(
-			this.generateInstruction(OperationCode.JMPN.name(), DataTypeName.BOOL, conditionValue, endLabel)
+			this.generateInstruction(OperationCode.JMPN.name(), DataTypeName.BOOL, PLACE_HOLDER, endLabel, conditionValue)
 		);
 
 		return codeBuilder.toString();
@@ -1183,7 +1185,7 @@ public class CodeGenerator {
 					// 左オペランドの場合: スキップ用のジャンプ系命令を置く
 					if (currentNode == parentNode.getChildNodes()[0]) {
 						codeBuilder.append(
-								this.generateInstruction(jumpOpcode, DataTypeName.BOOL, leftOperandValue, jumpLabel)
+								this.generateInstruction(jumpOpcode, DataTypeName.BOOL, PLACE_HOLDER, jumpLabel, leftOperandValue)
 						);
 
 					// 右オペランド場合: スキップ地点のラベルを置く
@@ -1203,7 +1205,27 @@ public class CodeGenerator {
 
 
 
-
+	/**
+	 * 次元や要素数に応じて、最適なレジスタ確保コードを生成します。
+	 *
+	 * 本来は、スカラかベクトルかを問わず {@link OperationCode#ALLOCR ALLOCR} 命令でレジスタ確保を行う事が可能ですが、
+	 * 確保対象がスカラである場合には、{@link OperationCode#ALLOCR ALLOCR} 命令の要素数参照オペランドは冗長になります。
+	 * そのためこのメソッドでは、確保対象がスカラの場合には、
+	 * 最も単純な1オペランドの {@link OperationCode#ALLOC ALLOC} 命令を使用します。
+	 *
+	 * @param dataType 確保するレジスタのデータ型名
+	 * @param target 確保対象のレジスタ
+	 * @param lengthsDeterminer レジスタがベクトルの場合の要素数参照オペランド（スカラの場合には使用されません）
+	 * @param rank レジスタの次元数
+	 * @return レジスタを確保するコード
+	 */
+	private String generateRegisterAllocationCode(String dataType, String target, String lengthsDeterminer, int rank) {
+		if (rank == RANK_OF_SCALAR) {
+			return this.generateInstruction(OperationCode.ALLOC.name(), dataType, target);
+		} else {
+			return this.generateInstruction(OperationCode.ALLOCR.name(), dataType, target, lengthsDeterminer);
+		}
+	}
 
 
 	/**
@@ -1261,7 +1283,7 @@ public class CodeGenerator {
 		// レジスタを確保し、演算前の値をそこに控える
 		String storageRegister = this.generateRegisterOperandCode();
 		codeBuilder.append(
-			this.generateInstruction(OperationCode.ALLOCR.name(), executionDataType, storageRegister, variableValue)
+			this.generateRegisterAllocationCode(executionDataType, storageRegister, variableValue, operatorNode.getRank())
 		);
 		codeBuilder.append(
 			this.generateInstruction(OperationCode.MOV.name(), executionDataType, storageRegister, variableValue)
@@ -1391,7 +1413,7 @@ public class CodeGenerator {
 		// 演算結果を格納するレジスタを確保
 		String accumulatorRegister = operatorNode.getAttribute(AttributeKey.ASSEMBLY_VALUE);
 		codeBuilder.append(
-			this.generateInstruction(OperationCode.ALLOCR.name(), operandNode.getDataTypeName(), accumulatorRegister, operandValue)
+			this.generateRegisterAllocationCode(operatorNode.getDataTypeName(), accumulatorRegister, operandValue, operatorNode.getRank())
 		);
 
 		// 演算
@@ -1452,7 +1474,7 @@ public class CodeGenerator {
 		// 演算結果を格納するレジスタを確保
 		String accumulatorRegister = this.generateRegisterOperandCode();
 		codeBuilder.append(
-			this.generateInstruction(OperationCode.ALLOCR.name(), DataTypeName.BOOL, accumulatorRegister, operandValue)
+			this.generateRegisterAllocationCode(DataTypeName.BOOL, accumulatorRegister, operandValue, operatorNode.getRank())
 		);
 
 		// 演算
@@ -1521,20 +1543,21 @@ public class CodeGenerator {
 
 		// 型が違う場合はキャストが必要
 		String rightHandValue = operandValues[1];
-		if (!operandNodes[0].getDataTypeName().equals(operandNodes[1].getDataTypeName())) {
+		String toType = operandNodes[0].getDataTypeName();  // キャスト先のデータ型名
+		String fromType = operandNodes[1].getDataTypeName(); // キャスト元のデータ型名
+		if (!toType.equals(fromType)) {
 
 			// キャスト先レジスタを確保
 			String castedRegister = this.generateRegisterOperandCode();
 			codeBuilder.append(
-				this.generateInstruction(OperationCode.ALLOCR.name(), operandNodes[0].getDataTypeName(), castedRegister, operandValues[1])
+				this.generateRegisterAllocationCode(toType, castedRegister, operandValues[1], operatorNode.getRank())
 			);
 
 			// レジスタに右辺値をキャスト
+			String typeSpecification = toType + AssemblyWord.VALUE_SEPARATOR + fromType;
 			codeBuilder.append(
 				this.generateInstruction(
-						OperationCode.CAST.name(),
-						operandNodes[0].getDataTypeName() + AssemblyWord.VALUE_SEPARATOR + operandNodes[1].getDataTypeName(),
-						castedRegister, operandValues[1]
+					OperationCode.CAST.name(), typeSpecification, castedRegister, operandValues[1]
 				)
 			);
 
@@ -1544,7 +1567,7 @@ public class CodeGenerator {
 
 		// MOV命令の発行
 		codeBuilder.append(
-			this.generateInstruction(OperationCode.MOV.name(), operandNodes[0].getDataTypeName(), operandValues[0], rightHandValue)
+			this.generateInstruction(OperationCode.MOV.name(), toType, operandValues[0], rightHandValue)
 		);
 		return codeBuilder.toString();
 	}
@@ -1671,17 +1694,17 @@ public class CodeGenerator {
 				if (!operandDataType.equals(executionDataType)) {
 
 					// レジスタを確保してそこにキャスト
+					String castTarget = input[inputIndex];
+					int castTargetRank = inputNodes[inputIndex].getRank();
 					String castedRegister = this.generateRegisterOperandCode();
 					codeBuilder.append(
-						this.generateInstruction(OperationCode.ALLOCR.name(), executionDataType, castedRegister, input[inputIndex])
+						this.generateRegisterAllocationCode(executionDataType, castedRegister, castTarget, castTargetRank)
 					);
 
 					// CAST命令で型変換を実行
+					String typeSpecification = executionDataType + AssemblyWord.VALUE_SEPARATOR + operandDataType;
 					codeBuilder.append(
-						this.generateInstruction(
-							OperationCode.CAST.name(),
-							executionDataType + AssemblyWord.VALUE_SEPARATOR + operandDataType,
-							castedRegister, input[inputIndex]
+						this.generateInstruction(OperationCode.CAST.name(), typeSpecification, castedRegister, castTarget
 						)
 					);
 					input[inputIndex] = castedRegister;
@@ -1700,7 +1723,7 @@ public class CodeGenerator {
 					// ベクトルレジスタを確保
 					String filledRegister = this.generateRegisterOperandCode();
 					codeBuilder.append(
-						this.generateInstruction(OperationCode.ALLOCR.name(), executionDataType, filledRegister, lengthsDeterminer)
+						this.generateRegisterAllocationCode(executionDataType, filledRegister, lengthsDeterminer, rank)
 					);
 
 					// FILL命令でベクトルレジスタの中身にスカラ値を詰める
@@ -1717,7 +1740,7 @@ public class CodeGenerator {
 		// 演算結果の格納先がレジスタの場合は、そのレジスタを確保
 		if (outputIsRegister) {
 			codeBuilder.append(
-					this.generateInstruction(OperationCode.ALLOCR.name(), resultDataType, output, lengthsDeterminer)
+				this.generateRegisterAllocationCode(resultDataType, output, lengthsDeterminer, rank)
 			);
 		}
 
@@ -1744,6 +1767,7 @@ public class CodeGenerator {
 		StringBuilder codeBuilder = new StringBuilder();
 
 		String returnRegister = operatorNode.getAttribute(AttributeKey.ASSEMBLY_VALUE);
+		String returnDataTypeName = operatorNode.getDataTypeName();
 
 		AstNode[] childNodes = operatorNode.getChildNodes();
 		int childNLength = childNodes.length;
@@ -1758,7 +1782,11 @@ public class CodeGenerator {
 
 		// 外部関数: CALLX命令を生成
 		if (scope.equals(AttributeValue.GLOBAL)) {
-			operands[0] = returnRegister;
+			if (returnDataTypeName.equals(DataTypeName.VOID)) {
+				operands[0] = PLACE_HOLDER;
+			} else {
+				operands[0] = returnRegister;
+			}
 			codeBuilder.append(
 				this.generateInstruction(OperationCode.CALLX.name(), operatorNode.getDataTypeName(), operands)
 			);
@@ -1778,7 +1806,7 @@ public class CodeGenerator {
 			);
 
 			// 戻り値の型が void でない場合は、戻り値を受け取るコードを生成
-			if ( !operatorNode.getDataTypeName().equals(DataTypeName.VOID) ) {
+			if ( !returnDataTypeName.equals(DataTypeName.VOID) ) {
 
 				// 戻り値の格納先のメモリー領域を確保するコードを生成
 				if(operatorNode.getRank() == RANK_OF_SCALAR) {

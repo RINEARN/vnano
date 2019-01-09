@@ -102,6 +102,9 @@ public final class Memory {
 
 		/** スタック領域を表します。この領域は、関数コール時の引数や戻り値の受け渡しなど、データの一時的な保持と取り出しに使用されます。 */
 		STACK,
+
+		/** 何もデータが無い領域を表します。この領域は、命令でのオペランドの順序を統一するため、プレースホルダとしての空オペランドなどに使用されます。 */
+		NONE,
 	}
 
 
@@ -123,6 +126,8 @@ public final class Memory {
 	/** 分岐なしで各パーティションのリストにアクセスするためのマップです。 */
 	private HashMap<Partition, List<DataContainer<?>>> containerListMap;
 
+	/** NONEオペランドへのアクセスで返される、空のデータコンテナです。プレースホルダとしての空オペランドなどに使用されます。 */
+	private DataContainer<Void> voidContainer;
 
 	/**
 	 * 何もデータを保持していない、空の仮想メモリーのインスタンスを生成します。
@@ -139,6 +144,8 @@ public final class Memory {
 		this.containerListMap.put(Memory.Partition.LOCAL, this.localList);
 		this.containerListMap.put(Memory.Partition.GLOBAL, this.globalList);
 		this.containerListMap.put(Memory.Partition.CONSTANT, this.constantList);
+
+		this.voidContainer = new DataContainer<Void>();
 	}
 
 
@@ -163,6 +170,7 @@ public final class Memory {
 
 	/**
 	 * 指定されたアドレスに格納されているデータコンテナを取得します。
+	 * なお、引数 partition に {@link Memory.Partition.NONE NONE} が指定された場合は、空のデータコンテナを返します。
 	 *
 	 * @param partition 対象データコンテナが属するパーティション
 	 * @param address 対象のデータコンテナのアドレス
@@ -171,6 +179,9 @@ public final class Memory {
 	 * 		指定されたアドレスが、使用領域外であった場合にスローされます。
 	 */
 	public final DataContainer<?> getDataContainer(Partition partition, int address) {
+		if (partition == Memory.Partition.NONE) {
+			return this.voidContainer;
+		}
 		if (!containerListMap.containsKey(partition)) {
 			throw new VnanoFatalException("Unsupported operation for " + partition + " partition.");
 		}
