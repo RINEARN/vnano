@@ -5,6 +5,8 @@
 
 package org.vcssl.nano.vm.processor;
 
+import java.util.Arrays;
+
 import org.vcssl.nano.VnanoException;
 import org.vcssl.nano.interconnect.Interconnect;
 import org.vcssl.nano.spec.OperationCode;
@@ -133,12 +135,16 @@ public class Processor implements Processable {
 		// 命令列の長さ（＝プログラムカウンタにとっては命令列の末尾+1を指すインデックス）
 		int instructionLength = instructions.length;
 
+		// この処理系では関数の再帰呼び出しをサポートしていないため、CALL命令で実行する関数が既に実行中かどうか確認し、
+		// 実行中ならエラーにするためのテーブル（インデックスは関数先頭の命令アドレス）
+		boolean[] functionRunningFlags = new boolean[instructionLength];
+		Arrays.fill(functionRunningFlags, false);
+
 		// プログラムカウンタが命令列の末尾に達するまで、1個ずつ命令を演算ユニットにディスパッチして実行
 		while (0 <= programCounter && programCounter < instructionLength) {
-
 			// 命令を1個実行し、プログラムカウンタの値を更新
 			programCounter = dispatchUnit.dispatch(
-					instructions[programCounter], memory, interconnect, executionUnit, programCounter
+				instructions[programCounter], memory, interconnect, executionUnit, functionRunningFlags, programCounter
 			);
 		}
 	}
@@ -146,6 +152,9 @@ public class Processor implements Processable {
 
 	/**
 	 * 指定された単一の命令を実行し、指定されたプログラムカウンタの値を更新して返します。
+	 *
+	 * ただし、{@link OperationCode#CALL CALL} 命令や {@link OperationCode#RET RET} 命令など、
+	 * 関数関連の命令をこのメソッドで実行した場合、関数の再帰呼び出し（未サポート）の検出やエラー処理は行われません。
 	 *
 	 * @param instruction 命令
 	 * @param memory 命令の実行に使用する済み仮想メモリー
@@ -166,7 +175,7 @@ public class Processor implements Processable {
 		DispatchUnit dispatchUnit = new DispatchUnit();
 
 		// 命令を1個実行し、更新されたプログラムカウンタの値を返す
-		return dispatchUnit.dispatch(instruction, memory, interconnect, executionUnit, programCounter);
+		return dispatchUnit.dispatch(instruction, memory, interconnect, executionUnit, null, programCounter);
 	}
 
 }

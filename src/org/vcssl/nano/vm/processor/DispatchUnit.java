@@ -10,6 +10,7 @@ import org.vcssl.nano.VnanoFatalException;
 import org.vcssl.nano.VnanoException;
 import org.vcssl.nano.interconnect.Interconnect;
 import org.vcssl.nano.lang.DataType;
+import org.vcssl.nano.spec.ErrorType;
 import org.vcssl.nano.spec.OperationCode;
 import org.vcssl.nano.vm.memory.DataContainer;
 import org.vcssl.nano.vm.memory.Memory;
@@ -45,23 +46,20 @@ public class DispatchUnit {
 	 * その際、仮想メモリーからオペランドのデータを取り寄せる処理も行います。
 	 *
 	 * @param instruction 実行対象の命令
-	 * @param memory データの入出力に用いる仮想メモリー
+	 * @param memory データの入出力に用いる仮想メモリー（実行によって書き換えられます）
 	 * @param interconnect 外部関数が接続されたインターコネクト
 	 * @param executionUnit 命令実行に用いる演算ユニット
+	 * @param functionRunningFlags 関数の実行中に、その先頭の命令アドレス番目の要素がtrueになるテーブル（実行によって書き換えられます）
 	 * @param programCounter 命令実行前におけるプログラムカウンタの値
 	 * @return 命令実行後におけるプログラムカウンタの値
-	 * @throws InvalidInstructionException
+	 * @throws VnanoException
 	 * 		このコントロールユニットが対応していない命令が実行要求された場合や、
-	 * 		オペランドの数が期待値と異なる場合など、命令内容が不正である場合に発生します。
-	 * @throws MemoryAccessException
-	 * 		命令のオペランドに指定された仮想メモリーアドレスが使用領域外であった場合など、
-	 * 		不正な仮想メモリーアクセスが生じた場合などに発生します。
-	 * @throws DataException
-	 * 		命令のオペランドに期待されるデータ型と、
-	 * 		仮想メモリー上のデータの実際の型が異なる場合などに発生します。
+	 * 		オペランド数やオペランド内容（アドレス値やデータ型など）が不正であった場合、
+	 * 		もしくはこの処理系でサポートされていない操作（関数の再帰呼び出しなど）
+	 * 		が行われた場合に発生します。
 	 */
 	public final int dispatch(Instruction instruction, Memory memory, Interconnect interconnect,
-			ExecutionUnit executionUnit, int programCounter)
+			ExecutionUnit executionUnit, boolean[] functionRunningFlags, int programCounter)
 					throws VnanoException {
 
 		OperationCode opcode = instruction.getOperationCode();
@@ -197,17 +195,26 @@ public class DispatchUnit {
 				return programCounter + 1;
 			}
 
+			// スタックからデータコンテナを1つ取って何もしない（void関数の戻り値取り出し用）
+			case POP : {
+				this.checkNumberOfOperands(instruction, 1);
+				memory.pop();
+				return programCounter + 1;
+			}
+
 			// スタックからデータコンテナを1つ取ってコピー代入
 			case MOVPOP : {
 				this.checkNumberOfOperands(instruction, 1);
-				executionUnit.mov(dataTypes[0], operands[0], memory.pop());
+				DataContainer<?> src = memory.pop();
+				executionUnit.mov(dataTypes[0], operands[0], src);
 				return programCounter + 1;
 			}
 
 			// スタックからデータコンテナを1つ取って参照代入
 			case REFPOP : {
 				this.checkNumberOfOperands(instruction, 1);
-				executionUnit.ref(dataTypes[0], operands[0], memory.pop());
+				DataContainer<?> src = memory.pop();
+				executionUnit.ref(dataTypes[0], operands[0], src);
 				return programCounter + 1;
 			}
 
@@ -284,8 +291,17 @@ public class DispatchUnit {
 					memory.push(operands[operandIndex]);
 				}
 
+				// オペランドから関数の先頭の命令アドレスを取得
+				int functionAddress = (int)( (long[])operands[1].getData() )[0];
+
+				// この処理系では関数の再帰/多重呼び出しをサポートしていないため、呼び出し対象の関数が既に実行中であればエラーとする
+				if(functionRunningFlags[functionAddress]) {
+					throw new VnanoException(ErrorType.RECURSIVE_FUNCTION_CALL);
+				}
+				functionRunningFlags[functionAddress] = true;
+
 				// 関数先頭の命令アドレスに飛ぶ
-				return (int)( (long[])operands[1].getData() )[0]; // オペランド[1]に関数先頭の命令アドレスが入っている
+				return functionAddress;
 			}
 
 			case RET : {
@@ -295,13 +311,17 @@ public class DispatchUnit {
 				int returnAddress = (int)( (long[])returnAddressContainer.getData() )[0];
 
 				// 戻り値が無い場合は、戻り値がある場合とスタック上の順序を合わせるため、空のデータコンテナを積む
-				if (operands.length <= 1) { // この命令の先頭オペランドはプレースホルダなので、戻り値が無い場合でもオペランドは1個ある
+				if (operands.length <= 2) { // 先頭オペランドはプレースホルダ、その次は関数アドレスなので、戻り値が無くてもオペランドは2個ある
 					memory.push(new DataContainer<Void>());
 
 				// 戻り値がある場合は、それをスタック上に積む
 				} else {
-					memory.push(operands[1]);
+					memory.push(operands[2]);
 				}
+
+				// 再帰呼び出し判定用のテーブルから、対象関数の値を解除する
+				int functionAddress = (int)( (long[])operands[1].getData() )[0];
+				functionRunningFlags[functionAddress] = false;
 
 				// 戻り先の命令アドレスに飛ぶ
 				return returnAddress;
@@ -317,7 +337,7 @@ public class DispatchUnit {
 			}
 
 			case NOP : {
-				this.checkNumberOfOperands(instruction, 0);
+				this.checkNumberOfOperands(instruction, 1);
 				return programCounter + 1;
 			}
 

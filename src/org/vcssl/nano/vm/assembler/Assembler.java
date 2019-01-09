@@ -40,6 +40,63 @@ public class Assembler {
 	public Assembler() {
 	}
 
+	/**
+	 * ラベルや{@link OperationCode#CALL CALL}命令の直後など、
+	 * 別の命令から飛ぶ着地点になり得る場所に、{@link OperationCode#NOP NOP}命令を配置したコードを返します。
+	 * これは、各命令において、本来の演算の役割と、ジャンプの着地点としての役割を分離させる事で、
+	 * 最適化を用意にするための処理です。
+	 *
+	 * @param assemblyCode 元の仮想アセンブリコード
+	 * @return 着地点にNOP命令を配置した仮想アセンブリコード
+	 */
+	private String appendNopInstructions(String assemblyCode) {
+
+		StringBuilder codeBuilder = new StringBuilder();
+
+		String[] lines = assemblyCode.split(AssemblyWord.INSTRUCTION_SEPARATOR_REGEX);
+		int lineLength = lines.length;
+
+		for (int lineIndex=0; lineIndex<lineLength; lineIndex++) {
+
+			String line = lines[lineIndex];
+			codeBuilder.append(line);
+			codeBuilder.append(AssemblyWord.INSTRUCTION_SEPARATOR);
+
+			line = line.trim();
+			String nopCode
+				= AssemblyWord.LINE_SEPARATOR
+				+ AssemblyWord.WORD_SEPARATOR
+				+ OperationCode.NOP.name()
+				+ AssemblyWord.WORD_SEPARATOR
+				+ DataTypeName.VOID
+				+ AssemblyWord.WORD_SEPARATOR
+				+ AssemblyWord.OPERAND_PREFIX_PLACEHOLDER
+				+ AssemblyWord.INSTRUCTION_SEPARATOR
+				;
+
+			// 空行
+			if (line.length() == 0) {
+				continue;
+			}
+
+			// ラベルディレクティブの場合はNOPを置く
+			if (line.startsWith(AssemblyWord.LABEL_DIRECTIVE)) {
+				codeBuilder.append(nopCode);
+				continue;
+			}
+
+			String[] words = line.split(AssemblyWord.WORD_SEPARATOR_REGEX);
+			String operationCode = words[0];
+
+			// CALL命令の場合はNOPを置く
+			if (operationCode.equals(OperationCode.CALL.name())) {
+				codeBuilder.append(nopCode);
+			}
+		}
+		//System.out.println(codeBuilder.toString());
+		return codeBuilder.toString();
+	}
+
 
 	/**
 	 * 仮想アセンブリコードを解釈し、より実行に適した中間コードである、
@@ -61,6 +118,10 @@ public class Assembler {
 		// 最初に、コード内の文字列リテラルを全て "1", "2", ... などのように番号化リテラルで置き換える
 		String[] stringLiteralExtractResult = LiteralSyntax.extractStringLiterals(assemblyCode);
 		assemblyCode = stringLiteralExtractResult[0]; // [0] 番に置き換え済みコードが格納されている（1番以降はリテラル内容）
+
+		// ラベルやCALL命令の着地点の位置にNOP命令を配置（最適化しやすくするため）
+		assemblyCode = this.appendNopInstructions(assemblyCode);
+
 
 		// インターコネクトから外部変数・外部関数のテーブルを取得
 		VariableTable globalVariableTable = interconnect.getGlobalVariableTable();
@@ -107,17 +168,6 @@ public class Assembler {
 
 				// 後々でここで sourceFileName と sourceLineNumber の値の設定を行う（アセンブラのリファクタ時の予定）
 
-				continue;
-
-			// ラベルディレクティブ -> NOPを置く（ジャンプ先命令に、演算ではなく着地点の役割だけを担わせる事で、最適化を容易にする）
-			} else if (line.startsWith(AssemblyWord.LABEL_DIRECTIVE)) {
-
-				intermediateCode.addInstruction(
-					new Instruction(
-						OperationCode.NOP, new DataType[]{DataType.VOID},
-						new Memory.Partition[0], new int[0], Memory.Partition.CONSTANT, metaAddress
-					)
-				);
 				continue;
 
 			} else if (line.startsWith(Character.toString(AssemblyWord.DIRECTIVE_PREFIX))) {
@@ -263,18 +313,6 @@ public class Assembler {
 					Memory.Partition.CONSTANT, metaAddress
 				)
 			);
-
-			// CALL命令の次の位置は、RET命令で飛んで来る着地点になるので、ラベル同様にNOPを置いておく
-			//（ジャンプ先命令に、演算ではなく着地点の役割だけを担わせる事で、最適化を容易にする）
-			if (operationCode == OperationCode.CALL) {
-
-				intermediateCode.addInstruction(
-					new Instruction(
-						OperationCode.NOP, new DataType[]{DataType.VOID},
-						new Memory.Partition[0], new int[0], Memory.Partition.CONSTANT, metaAddress
-					)
-				);
-			}
 		}
 
 		return intermediateCode;
@@ -381,7 +419,6 @@ public class Assembler {
 			if (line.startsWith(AssemblyWord.LABEL_DIRECTIVE)) {
 				String identifier = words[1];
 				assembledObject.addLabel(identifier, instructionIndex);
-				instructionIndex++; // 他のディレクティブとは異なり、ラベルの位置にはNOP命令を置くのでカウンタを進める
 			}
 
 			if (!line.startsWith(Character.toString(AssemblyWord.DIRECTIVE_PREFIX))) {
