@@ -329,7 +329,6 @@ public class InternalFunctionControlUnit {
 
 	private final class PopExecutorNode extends AccelerationExecutorNode {
 
-		@SuppressWarnings("unchecked")
 		public PopExecutorNode(AccelerationExecutorNode nextNode) {
 			super(nextNode);
 		}

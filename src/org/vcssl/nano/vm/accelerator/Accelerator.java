@@ -8,7 +8,6 @@ package org.vcssl.nano.vm.accelerator;
 
 import org.vcssl.nano.VnanoFatalException;
 import org.vcssl.nano.interconnect.Interconnect;
-import org.vcssl.nano.spec.OperationCode;
 import org.vcssl.nano.vm.memory.Memory;
 import org.vcssl.nano.vm.processor.Instruction;
 import org.vcssl.nano.vm.processor.Processor;
