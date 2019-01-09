@@ -93,6 +93,7 @@ public class CodeGenerator {
 		private String lastLoopBeginPointLabel = null; // 最後に踏んだループの始点ラベル
 		private String lastLoopUpdatePointLabel = null; // 最後に踏んだループの更新ラベル
 		private String lastLoopEndPointLabel = null;   // 最後に踏んだループの終点ラベル
+		private String lastFunctionLabel = null; // 最後に踏んだ関数の先頭ラベル
 
 		private AstNode[] statementNodes = null;
 		private int statementLength = -1;
@@ -117,6 +118,7 @@ public class CodeGenerator {
 			clone.lastLoopBeginPointLabel = this.lastLoopBeginPointLabel;
 			clone.lastLoopUpdatePointLabel = this.lastLoopUpdatePointLabel;
 			clone.lastLoopEndPointLabel = this.lastLoopEndPointLabel;
+			clone.lastFunctionLabel = this.lastFunctionLabel;
 
 			clone.statementNodes = this.statementNodes;
 			clone.statementIndex = this.statementIndex;
@@ -233,6 +235,16 @@ public class CodeGenerator {
 		public void setLastLoopEndPointLabel(String lastLoopEndPointLabel) {
 			this.lastLoopEndPointLabel = lastLoopEndPointLabel;
 		}
+
+		public String getLastFunctionLabel() {
+			return this.lastFunctionLabel;
+		}
+
+		public void setLastFunctionLabel(String lastFunctionLabel) {
+			this.lastFunctionLabel = lastFunctionLabel;
+		}
+
+
 
 		public AstNode[] getStatementNodes() {
 			return this.statementNodes;
@@ -623,13 +635,23 @@ public class CodeGenerator {
 				code = this.generateVariableDeclarationStatementCode(node);
 				break;
 			}
+
 			// 関数宣言文
 			case FUNCTION : {
-				code = this.generateFunctionDeclarationStatementCode(node);
+				// 関数先頭のラベルを生成 ... 先頭はラベルである事を示すプレフィックス、その後に識別子プレフィックス + 関数シグネチャ
+				String functionLabelName
+						= Character.toString(AssemblyWord.OPERAND_PREFIX_LABEL)
+						+ Character.toString(AssemblyWord.OPERAND_PREFIX_IDENTIFIER)
+						+ IdentifierSyntax.getSignatureOf(node);
+				code = this.generateFunctionDeclarationStatementCode(node, functionLabelName);
+				context.setLastFunctionLabel(functionLabelName);
 				context.addEndPointLabel(node.getAttribute(AttributeKey.END_LABEL));
-				context.setEndPointStatement(this.generateInstruction(OperationCode.RET.name(), DataTypeName.VOID, PLACE_HOLDER));
+				context.setEndPointStatement(
+						this.generateInstruction(OperationCode.RET.name(), DataTypeName.VOID, PLACE_HOLDER, functionLabelName)
+				);
 				break;
 			}
+
 			// if 文
 			case IF : {
 				context.addEndPointLabel(node.getAttribute(AttributeKey.END_LABEL));
@@ -645,6 +667,7 @@ public class CodeGenerator {
 				code = this.generateIfStatementCode(node, lastIfConditionRegister, lastIfConditionRegisterAllocRequired);
 				break;
 			}
+
 			// else 文
 			case ELSE : {
 				code = this.generateElseStatementCode(node, context.getLastIfConditionRegister());
@@ -652,6 +675,7 @@ public class CodeGenerator {
 				//context.clearLastIfConditionValue(); // else if 対応後はさらに else 文が続く場合があるので消してはいけない
 				break;
 			}
+
 			// while 文
 			case WHILE : {
 				code = this.generateWhileStatementCode(node);
@@ -662,6 +686,7 @@ public class CodeGenerator {
 				context.setLastLoopEndPointLabel( context.getEndPointLabels()[0] ); // while文の場合は endPointLabels は1要素のはず
 				break;
 			}
+
 			// for 文
 			case FOR : {
 				code = this.generateForStatementCode(node);
@@ -677,6 +702,7 @@ public class CodeGenerator {
 				context.setLastLoopEndPointLabel( context.getEndPointLabels()[0] ); // for文の場合は endPointLabels は1要素のはず
 				break;
 			}
+
 			// break 文: ループ末端へのジャンプ命令そのもの
 			case BREAK : {
 				code = this.generateInstruction(
@@ -684,6 +710,7 @@ public class CodeGenerator {
 				);
 				break;
 			}
+
 			// continue 文: ループ先頭か更新式の位置へのジャンプ命令そのもの
 			case CONTINUE : {
 				String continueJumpPointLabel = context.getLastLoopBeginPointLabel(); // ループ先頭に飛ぶラベル
@@ -695,16 +722,19 @@ public class CodeGenerator {
 				);
 				break;
 			}
+
 			// return 文
 			case RETURN : {
-				code = this.generateReturnStatementCode(node);
+				code = this.generateReturnStatementCode(node, context.getLastFunctionLabel());
 				break;
 			}
+
 			// 式文
 			case EXPRESSION : {
 				code = this.generateExpressionCode(node);
 				break;
 			}
+
 			// 文以外のノードは式中の演算子やリーフノードなので、上の式文のケース内で処理される
 			default : {
 				break;
@@ -788,9 +818,10 @@ public class CodeGenerator {
 	 * 関数宣言文の処理を実行するコードを生成して返します。
 	 *
 	 * @param node 関数宣言文のASTノード（{@link AstNode.Type#FUNCTION FUNCTION}タイプ）
+	 * @param functionLabelName 関数の先頭に配置するラベル名
 	 * @return 生成コード
 	 */
-	private String generateFunctionDeclarationStatementCode (AstNode node) {
+	private String generateFunctionDeclarationStatementCode (AstNode node, String functionLabelName) {
 
 		StringBuilder codeBuilder = new StringBuilder();
 
@@ -800,13 +831,7 @@ public class CodeGenerator {
 			this.generateInstruction(OperationCode.JMP.name(), DataTypeName.BOOL, PLACE_HOLDER, skipLabel, IMMEDIATE_TRUE)
 		);
 
-		// 関数先頭のラベルを生成 ... 先頭はラベルである事を示すプレフィックス、その後に識別子プレフィックス + 関数シグネチャ
-		String functionLabelName
-				= Character.toString(AssemblyWord.OPERAND_PREFIX_LABEL)
-				+ Character.toString(AssemblyWord.OPERAND_PREFIX_IDENTIFIER)
-				+ IdentifierSyntax.getSignatureOf(node);
-
-		// 生成した関数先頭ラベルを配置
+		// 関数先頭ラベルを配置
 		codeBuilder.append( this.generateLabelDirectiveCode(functionLabelName) );
 
 		// 子ノードは引数のノードなので、それらに対してスタック上のデータを取りだして格納するコードを生成
@@ -851,9 +876,10 @@ public class CodeGenerator {
 	 * return文の処理を実行するコードを生成して返します。
 	 *
 	 * @param node return文のASTノード（{@link AstNode.Type#RETURN RETURN}タイプ）
+	 * @param functionLabelName このreturn文が属する関数のラベル名
 	 * @return 生成コード
 	 */
-	private String generateReturnStatementCode(AstNode node) {
+	private String generateReturnStatementCode(AstNode node, String functionLabelName) {
 
 		StringBuilder codeBuilder = new StringBuilder();
 
@@ -862,7 +888,7 @@ public class CodeGenerator {
 		// 戻り値が無い場合
 		if (childNodes.length == 0) {
 			codeBuilder.append(
-				this.generateInstruction(OperationCode.RET.name(), DataTypeName.VOID, PLACE_HOLDER)
+				this.generateInstruction(OperationCode.RET.name(), DataTypeName.VOID, PLACE_HOLDER, functionLabelName)
 			);
 
 		// 戻り値がある場合 ... 戻り値の式を解釈し、その結果をオペランドに追加したRET命令を生成
@@ -872,7 +898,7 @@ public class CodeGenerator {
 			String exprCode = this.generateExpressionCode(exprNode);
 			codeBuilder.append(exprCode);
 			codeBuilder.append(
-				this.generateInstruction(OperationCode.RET.name(), DataTypeName.VOID, PLACE_HOLDER, exprValue)
+				this.generateInstruction(OperationCode.RET.name(), DataTypeName.VOID, PLACE_HOLDER, functionLabelName, exprValue)
 			);
 		}
 
@@ -1794,8 +1820,8 @@ public class CodeGenerator {
 		// 内部関数: CALL命令と、戻り値を取得して格納するコードを生成
 		} else if (scope.equals(AttributeValue.LOCAL)) {
 
-			// CALL命令は戻り値をスタックに積むので第0オペランドには何も書き込まない。後でNONE的なプレースホルダを使うよう直すべき
-			operands[0] = generateRegisterOperandCode();
+			// CALL命令は戻り値をスタックに積むので、第0オペランドには何も書き込まないため、プレースホルダを置く。
+			operands[0] = Character.toString(AssemblyWord.OPERAND_PREFIX_PLACEHOLDER);
 
 			// CALL命令の対象関数指定オペランド値はラベルなので、ラベルのプレフィックスを付加
 			operands[1] = AssemblyWord.OPERAND_PREFIX_LABEL + operands[1];
@@ -1805,8 +1831,14 @@ public class CodeGenerator {
 				this.generateInstruction(OperationCode.CALL.name(), operatorNode.getDataTypeName(), operands)
 			);
 
+			// 戻り値の型が void の場合は、スタック上の仮の戻り値（スタック順序維持用のために積まれている）を捨てるコードを生成
+			if (returnDataTypeName.equals(DataTypeName.VOID)) {
+				codeBuilder.append(
+					this.generateInstruction(OperationCode.POP.name(), operatorNode.getDataTypeName(), PLACE_HOLDER)
+				);
+
 			// 戻り値の型が void でない場合は、戻り値を受け取るコードを生成
-			if ( !returnDataTypeName.equals(DataTypeName.VOID) ) {
+			} else {
 
 				// 戻り値の格納先のメモリー領域を確保するコードを生成
 				if(operatorNode.getRank() == RANK_OF_SCALAR) {

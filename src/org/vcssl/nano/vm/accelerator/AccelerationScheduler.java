@@ -101,7 +101,7 @@ public class AccelerationScheduler {
 		this.generateAddressReorderingMap();
 
 		// ジャンプ命令の飛び先アドレスを補正したものを求めて設定
-		this.resolveReorderedJumpAddress(memory);
+		this.resolveReorderedLabelAddress(memory);
 
 		return this.acceleratorInstructionList.toArray(new AcceleratorInstruction[0]);
 	}
@@ -141,6 +141,7 @@ public class AccelerationScheduler {
 		     && operationCode != OperationCode.JMP
 		     && operationCode != OperationCode.JMPN
 		     && operationCode != OperationCode.RET
+		     && operationCode != OperationCode.POP      // POP はスタックからデータを取り出すだけで何もしない
 		     ;
 
 		// IFCU & RET 命令について：
@@ -188,6 +189,7 @@ public class AccelerationScheduler {
 		     && operationCode != OperationCode.ALLOCP
 		     && operationCode != OperationCode.ALLOCR
 		     && operationCode != OperationCode.FREE
+		     && operationCode != OperationCode.POP      // POP はスタックからデータを取り出すだけで何もしない
 		     && operationCode != OperationCode.MOVPOP   // MOVPOP はスタックからデータを読むので、オペランドからは読まない（書く）
 		     && operationCode != OperationCode.REFPOP   // REFPOP はスタックからデータを読むので、オペランドからは読まない（書く）
 		     && operationCode != OperationCode.NOP   // NOP は何もしないので明らかに何も読まない
@@ -485,6 +487,7 @@ public class AccelerationScheduler {
 				// 内部関数関連命令 Internal function related opcode
 				case CALL :
 				case RET :
+				case POP :
 				case MOVPOP :
 				case REFPOP :
 				case ALLOCP :
@@ -534,38 +537,37 @@ public class AccelerationScheduler {
 	}
 
 
-	// ジャンプ系命令（CALL含む）のジャンプ先命令アドレスは、命令再配置によって変わるため、再配置後のアドレス情報を追加
-	private void resolveReorderedJumpAddress(Memory memory) {
+	// JMP命令など、ラベルオペランドを持つ命令は、ラベルの命令アドレスが命令再配置によって変わるため、再配置後のアドレス情報を追加
+	private void resolveReorderedLabelAddress(Memory memory) {
 		int instructionLength = this.acceleratorInstructionList.size();
 		for (int instructionIndex=0; instructionIndex<instructionLength; instructionIndex++) {
 			AcceleratorInstruction instruction = this.acceleratorInstructionList.get(instructionIndex);
 			OperationCode opcode = instruction.getOperationCode();
 
-			if (opcode == OperationCode.JMP || opcode == OperationCode.JMPN || opcode == OperationCode.CALL) {
+			// JMP & JMPN & CALL はオペランドアドレスに飛ぶ。RETはスタックから取ったアドレスに飛ぶが、オペランドに所属関数ラベルを持っている
+			if (opcode == OperationCode.JMP || opcode == OperationCode.JMPN || opcode == OperationCode.CALL || opcode == OperationCode.RET) {
 
-				// ジャンプ先アドレスの値を格納するオペランドのデータコンテナをメモリから取得
+				// ラベルの命令アドレスの値を格納するオペランドのデータコンテナをメモリから取得（必ずオペランド[1]にあるよう統一されている）
 				DataContainer<?> addressContiner = null;
 				addressContiner = memory.getDataContainer(
 						instruction.getOperandPartitions()[1],
 						instruction.getOperandAddresses()[1]
 				);
 
-				// データコンテナからジャンプ先アドレスの値を読む
-				int jumpAddress = -1;
+				// データコンテナからラベルの命令アドレスの値を読む
+				int labelAddress = -1;
 				Object addressData = addressContiner.getData();
 				if (addressData instanceof long[]) {
-					jumpAddress = (int)( ((long[])addressData)[0] );
+					labelAddress = (int)( ((long[])addressData)[0] );
 				} else {
-					throw new VnanoFatalException("Non-integer jump address detected.");
+					throw new VnanoFatalException("Non-integer instruction address (label) operand detected.");
 				}
 
-				// ジャンプ先命令アドレスの、命令再配置前における位置に対応する、再配置後のジャンプ先命令アドレスを取得
-				int reorderedJumpAddress = this.addressReorderingMap.get(jumpAddress);
+				// ラベル命令アドレスの、命令再配置前における位置に対応する、再配置後のラベル命令アドレスを取得
+				int reorderedLabelAddress = this.addressReorderingMap.get(labelAddress);
 
-				// System.out.println("Jump addr reordered: " + jumpAddress + " to " + reorderedJumpAddress);
-
-				// 再配置後のジャンプ先アドレス情報をジャンプ命令に追加
-				instruction.setReorderedJumpAddress(reorderedJumpAddress);
+				// 再配置後のラベル命令アドレス情報を命令に持たせる
+				instruction.setReorderedLabelAddress(reorderedLabelAddress);
 			}
 		}
 	}

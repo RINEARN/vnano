@@ -82,6 +82,9 @@ public class Accelerator {
 				processor, memory, interconnect, acceleratorInstructions, dataManager, functionControlUnit
 		);
 
+		// 内部関数のリターンは、スタック上に動的に積まれた命令アドレスに飛ぶため、全命令のノードを保持する必要がある
+		functionControlUnit.setNodes(executorNodes);
+
 		// キャッシュにメモリのデータを書き込む
 		dataManager.getCacheSynchronizers(Memory.Partition.CONSTANT).synchronizeFromMemoryToCache();
 		dataManager.getCacheSynchronizers(Memory.Partition.GLOBAL).synchronizeFromMemoryToCache();

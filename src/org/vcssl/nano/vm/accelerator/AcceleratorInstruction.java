@@ -7,13 +7,25 @@ import org.vcssl.nano.vm.processor.Instruction;
 
 public class AcceleratorInstruction extends Instruction {
 
+	/** この命令を処理する {AccelerationUnit AccelerationUnit} を区別するために割りふられる分類タイプです。 */
 	private AccelerationType accelerationType = null;
-	private OperationCode[] fusedOperationCodes = null;
-	private int jumpLabelId = -1;
+
+	/** 最適化による再配置後における、この命令の命令アドレスです。 */
 	private int reorderedAddress = -1;
+
+	/** 最適化による再配置前における、この命令の命令アドレスです。 */
 	private int unreorderedAddress = -1;
-	private int reorderedJumpAddress = -1;
-	private boolean jumpAddressReordered = false;
+
+	/** 最適化による再配置後における、ラベルオペランドの命令アドレスです。 */
+	private int reorderedLabelAddress = -1;
+
+	/** ラベルオペランドの命令アドレスが、再配置済みかどうかを保持します。 */
+	private boolean labelAddressReordered = false;
+
+	/** 最適化による複数命令の融合において、元の命令（複数）のオペレーションコードをまとめる配列です。 */
+	private OperationCode[] fusedOperationCodes = null;
+
+	/** 最適化による複合命令の融合において、入力オペランドの位置の識別に使用される配列です。 */
 	private int[] fusedInputOperandIndices = null;
 
 
@@ -37,11 +49,10 @@ public class AcceleratorInstruction extends Instruction {
 		);
 		this.accelerationType = instruction.accelerationType;
 		this.fusedOperationCodes = instruction.fusedOperationCodes;
-		this.jumpLabelId = instruction.jumpLabelId;
 		this.reorderedAddress = instruction.reorderedAddress;
 		this.unreorderedAddress = instruction.unreorderedAddress;
-		this.reorderedJumpAddress = instruction.reorderedJumpAddress;
-		this.jumpAddressReordered = instruction.jumpAddressReordered;
+		this.reorderedLabelAddress = instruction.reorderedLabelAddress;
+		this.labelAddressReordered = instruction.labelAddressReordered;
 	}
 
 	// AcceleratorInstruction をコピーし、オペランド部だけを置き換えたものを生成
@@ -55,11 +66,10 @@ public class AcceleratorInstruction extends Instruction {
 		);
 		this.accelerationType = instruction.accelerationType;
 		this.fusedOperationCodes = instruction.fusedOperationCodes;
-		this.jumpLabelId = instruction.jumpLabelId;
 		this.reorderedAddress = instruction.reorderedAddress;
 		this.unreorderedAddress = instruction.unreorderedAddress;
-		this.reorderedJumpAddress = instruction.reorderedJumpAddress;
-		this.jumpAddressReordered = instruction.jumpAddressReordered;
+		this.reorderedLabelAddress = instruction.reorderedLabelAddress;
+		this.labelAddressReordered = instruction.labelAddressReordered;
 	}
 
 
@@ -152,14 +162,6 @@ public class AcceleratorInstruction extends Instruction {
 		return this.accelerationType;
 	}
 
-	public void setJumpLabelId(int jumpLabelId) {
-		this.jumpLabelId = jumpLabelId;
-	}
-
-	public int getJumpLabelId() {
-		return jumpLabelId;
-	}
-
 	public void setReorderedAddress(int reorderedAddress) {
 		this.reorderedAddress = reorderedAddress;
 	}
@@ -176,17 +178,17 @@ public class AcceleratorInstruction extends Instruction {
 		return this.unreorderedAddress;
 	}
 
-	public void setReorderedJumpAddress(int reorderedJumpAddress) {
-		this.reorderedJumpAddress = reorderedJumpAddress;
-		this.jumpAddressReordered = true;
+	public void setReorderedLabelAddress(int reorderedLabelAddress) {
+		this.reorderedLabelAddress = reorderedLabelAddress;
+		this.labelAddressReordered = true;
 	}
 
-	public int getReorderedJumpAddress() {
-		return this.reorderedJumpAddress;
+	public int getReorderedLabelAddress() {
+		return this.reorderedLabelAddress;
 	}
 
-	public boolean isJumpAddressReordered() {
-		return this.jumpAddressReordered;
+	public boolean isLabelAddressReordered() {
+		return this.labelAddressReordered;
 	}
 
 	public String toString() {
