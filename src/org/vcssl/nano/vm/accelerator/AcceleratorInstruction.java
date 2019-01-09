@@ -181,7 +181,7 @@ public class AcceleratorInstruction extends Instruction {
 		this.jumpAddressReordered = true;
 	}
 
-	public int getReorderedJumpAddress() {
+	public int getReorderedLabelAddress() {
 		return this.reorderedJumpAddress;
 	}
 

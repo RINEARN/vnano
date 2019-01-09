@@ -124,17 +124,14 @@ public class AccelerationDispatcher {
 
 			// 分岐命令と内部関数コール命令: 飛び先の命令アドレスは静的に確定しているので、着地先ノードを求めて持たせる
 			if (opcode == OperationCode.JMP || opcode == OperationCode.JMPN || opcode == OperationCode.CALL) {
-				int branchedAddress = instructions[instructionIndex].getReorderedJumpAddress(); // 注：命令再配置で飛び先アドレスは変わる
+				int branchedAddress = instructions[instructionIndex].getReorderedLabelAddress(); // 注：命令再配置で飛び先アドレスは変わる
 				executors[instructionIndex].setLaundingPointNodes(executors[branchedAddress]);
 			}
 
 			// 関数のRET命令などは、スタックに積まれた値を読んでその命令アドレスに飛ぶので、
-			// 実行時まで着地先がわからない。全ノードを持たせておく必要がある。
+			// 実行時まで着地先がわからないため、全ノードを持たせておく必要がある。
 			// そのため、それらの命令を管理する InternalFunctionControlUnit に全ノードを持たせておき、
 			// 実行時に飛び先ノードを特定する。
-			if (opcode == OperationCode.RET) {
-				executors[instructionIndex].setLaundingPointNodes(executors);
-			}
 		}
 
 		return executors;
@@ -376,8 +373,7 @@ public class AccelerationDispatcher {
 					operandContainers, operandCaches, operandCached
 				);
 				currentNode = functionControlUnit.generateExecutorNode(
-					instruction, operandContainers, operandCaches, operandCached, operandScalar, synchronizer,
-					reorderedAddress, nextNode
+					instruction, operandContainers, operandCaches, operandCached, operandScalar, synchronizer, reorderedAddress, nextNode
 				);
 				break;
 			}

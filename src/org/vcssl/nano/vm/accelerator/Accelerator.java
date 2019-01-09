@@ -8,6 +8,7 @@ package org.vcssl.nano.vm.accelerator;
 
 import org.vcssl.nano.VnanoFatalException;
 import org.vcssl.nano.interconnect.Interconnect;
+import org.vcssl.nano.spec.OperationCode;
 import org.vcssl.nano.vm.memory.Memory;
 import org.vcssl.nano.vm.processor.Instruction;
 import org.vcssl.nano.vm.processor.Processor;
@@ -81,6 +82,9 @@ public class Accelerator {
 		AccelerationExecutorNode[] executorNodes = dispatcher.dispatch(
 				processor, memory, interconnect, acceleratorInstructions, dataManager, functionControlUnit
 		);
+
+		// 内部関数のリターンは、スタック上に動的に積まれた命令アドレスに飛ぶため、全命令のノードを保持する必要がある
+		functionControlUnit.setNodes(executorNodes);
 
 		// キャッシュにメモリのデータを書き込む
 		dataManager.getCacheSynchronizers(Memory.Partition.CONSTANT).synchronizeFromMemoryToCache();

@@ -1,7 +1,11 @@
 package org.vcssl.nano.vm.accelerator;
 
+import java.util.Arrays;
+
+import org.vcssl.nano.VnanoException;
 import org.vcssl.nano.VnanoFatalException;
 import org.vcssl.nano.lang.DataType;
+import org.vcssl.nano.spec.ErrorType;
 import org.vcssl.nano.spec.OperationCode;
 import org.vcssl.nano.vm.memory.DataContainer;
 import org.vcssl.nano.vm.processor.ExecutionUnit;
@@ -33,6 +37,12 @@ public class InternalFunctionControlUnit {
 	/** データスタックの先頭位置です。 */
 	private int dataStackPointer = 0;
 
+	/** 全命令（順序は最適化による再配置済み）に対応するノードを格納する配列です。関数からのリターン時に参照します。 */
+	private AccelerationExecutorNode[] allNodes;
+
+	/** 関数先頭の命令アドレスをインデックスとして、関数が実行中に、対応する要素の値が true になるテーブルです。 */
+	private boolean[] functionRunningFlags;
+
 
 	/**
 	 * デフォルトの要素数のスタック領域（可変）を持つインスタンスを生成します。
@@ -40,6 +50,22 @@ public class InternalFunctionControlUnit {
 	public InternalFunctionControlUnit () {
 		this.addressStack = new int[ this.addressStackLength ];
 		this.dataStack = new DataContainer<?>[ this.dataStackLength ];
+	}
+
+
+	/**
+	 * 全命令（順序は最適化による再配置済み）に対応するノードを設定します。
+	 * 設定したノードに対応できるように、関数実行判定テーブルなどのリソースも初期化されます。
+	 *
+	 * 関数からのリターン時には、スタック上に動的に積まれた命令アドレスに戻る必要があるため、
+	 * 実行時にこのメソッドで設定されたノード配列を参照し、該当するノードに処理が戻ります。
+	 *
+	 * @param allNodes 全命令に対応するノードを格納する配列
+	 */
+	public void setNodes(AccelerationExecutorNode[] allNodes) {
+		this.allNodes = allNodes;
+		this.functionRunningFlags = new boolean[ allNodes.length ];
+		Arrays.fill(functionRunningFlags, false);
 	}
 
 
@@ -87,21 +113,27 @@ public class InternalFunctionControlUnit {
 		DataType dataType = instruction.getDataTypes()[0];
 		switch (opcode) {
 			case CALL : {
-				return new CallExecutorNode(operandContainers, synchronizer, reorderedAddressOfThisInstruction, nextNode);
+				int reorderdFunctionAddress = instruction.getReorderedLabelAddress();
+				return new CallExecutorNode(
+					operandContainers, synchronizer, reorderedAddressOfThisInstruction, reorderdFunctionAddress, nextNode
+				);
 			}
 			case RET : {
-				return new ReturnExecutorNode(operandContainers, synchronizer, nextNode);
+				int reorderdFunctionAddress = instruction.getReorderedLabelAddress();
+				return new ReturnExecutorNode(operandContainers, synchronizer, reorderdFunctionAddress, nextNode);
 			}
 			case ALLOCP : {
 				return new AllocpExecutorNode(operandContainers, synchronizer, dataType, nextNode);
+			}
+			case POP : {
+				return new PopExecutorNode(nextNode);
 			}
 			case REFPOP : {
 				return new RefpopExecutorNode(operandContainers, synchronizer, nextNode);
 			}
 			case MOVPOP : {
 				return this.generateMovpopExecutorNode(
-						instruction, operandContainers, operandCaches, operandCached, operandScalar, synchronizer,
-						reorderedAddressOfThisInstruction, nextNode
+					instruction, operandContainers, operandCaches, operandCached, operandScalar, synchronizer, nextNode
 				);
 			}
 			default : {
@@ -113,7 +145,7 @@ public class InternalFunctionControlUnit {
 	private AccelerationExecutorNode generateMovpopExecutorNode(
 			Instruction instruction, DataContainer<?>[] operandContainers,
 			ScalarCache[] operandCaches, boolean[] operandCached, boolean[] operandScalar, CacheSynchronizer synchronizer,
-			int reorderedAddressOfThisInstruction, AccelerationExecutorNode nextNode) {
+			AccelerationExecutorNode nextNode) {
 
 		DataType dataType = instruction.getDataTypes()[0];
 
@@ -160,15 +192,17 @@ public class InternalFunctionControlUnit {
 		private final DataContainer<?>[] operandContainers;
 		private final CacheSynchronizer synchronizer;
 		private AccelerationExecutorNode functionHeadNode;
+		private int functionAddress;
 		private int returnAddress;
 
 		public CallExecutorNode(DataContainer<?>[] operandContainers, CacheSynchronizer synchronizer,
-				int reorderedAddressOfThisInstruction, AccelerationExecutorNode nextNode) {
+				int reorderedAddressOfThisInstruction, int functionAddress, AccelerationExecutorNode nextNode) {
 
 			super(nextNode);
 			this.synchronizer = synchronizer;
 			this.operandContainers = operandContainers;
 			this.returnAddress = reorderedAddressOfThisInstruction + 1;
+			this.functionAddress = functionAddress;
 		}
 
 		@Override
@@ -177,8 +211,14 @@ public class InternalFunctionControlUnit {
 		}
 
 		@Override
-		public final AccelerationExecutorNode execute() {
+		public final AccelerationExecutorNode execute() throws VnanoException {
 			this.synchronizer.synchronizeFromCacheToMemory();
+
+			// このスクリプトエンジンでは再帰呼び出しをサポートしていないため、関数が既に実行中ならエラーとし、そうでなければマークする
+			if (InternalFunctionControlUnit.this.functionRunningFlags[this.functionAddress]) {
+				throw new VnanoException(ErrorType.RECURSIVE_FUNCTION_CALL);
+			}
+			InternalFunctionControlUnit.this.functionRunningFlags[this.functionAddress] = true;
 
 			// 戻り先地点の命令アドレスを、アドレススタックに積む
 			if (InternalFunctionControlUnit.this.addressStackLength <= InternalFunctionControlUnit.this.addressStackPointer) {
@@ -206,38 +246,29 @@ public class InternalFunctionControlUnit {
 	private final class ReturnExecutorNode extends AccelerationExecutorNode {
 		private final DataContainer<?> returnValueContainer;
 		private final CacheSynchronizer synchronizer;
-		private AccelerationExecutorNode[] allNodes;
+		private int functionAddress;
 
 		public ReturnExecutorNode(DataContainer<?>[] operandContainers, CacheSynchronizer synchronizer,
-				AccelerationExecutorNode nextNode) {
+				int reorderedAddressOfFunction, AccelerationExecutorNode nextNode) {
 
 			super(nextNode);
 			this.synchronizer = synchronizer;
 
 			// 戻り値のデータコンテナをこのインスタンスに保持しておく
-			if (1 < operandContainers.length) {
-				this.returnValueContainer = operandContainers[1]; // この命令の先頭オペランドはプレースホルダなので、[1]が戻り値
+			if (2 < operandContainers.length) {
+				this.returnValueContainer = operandContainers[2]; // オペランド[0]はプレースホルダ、[1]は関数アドレスなので、[2]が戻り値
 
 			// 戻り値が無い場合でも、戻り値がある場合とスタックの積み下ろしを同じ順序に統一するため、戻る時に積む空のデータコンテナを用意
 			} else {
 				this.returnValueContainer = new DataContainer<Void>();
 			}
+
+			this.functionAddress = reorderedAddressOfFunction;
 		}
 
 
-		/**
-		 * コード内の全命令に対応する、全ての演算ノードを格納する配列を指定します。
-		 *
-		 * 配列のインデックスは、その要素の演算ノードが対応する、
-		 * （最適化による再配置済みの）命令アドレスに一致している必要があります。
-		 * このメソッドで指定した演算ノードは、関数からのリターンの際に、
-		 * 別の命令アドレスの処理に飛ぶために使用されます。
-		 *
-		 * @param nodes 全ての演算ノードを格納する配列
-		 */
 		@Override
 		public final void setLaundingPointNodes(AccelerationExecutorNode ... nodes) {
-			this.allNodes = nodes;
 		}
 
 
@@ -256,8 +287,11 @@ public class InternalFunctionControlUnit {
 			InternalFunctionControlUnit.this.dataStack[ InternalFunctionControlUnit.this.dataStackPointer ] = this.returnValueContainer;
 			InternalFunctionControlUnit.this.dataStackPointer++;
 
+			// 再帰呼び出し検出用のマークを解除する
+			InternalFunctionControlUnit.this.functionRunningFlags[this.functionAddress] = false;
+
 			// 戻り先地点のノードを返す
-			return allNodes[returnedPointAddress];
+			return InternalFunctionControlUnit.this.allNodes[returnedPointAddress];
 		}
 	}
 
@@ -288,6 +322,25 @@ public class InternalFunctionControlUnit {
 
 			DataContainer<?> src = InternalFunctionControlUnit.this.dataStack[ InternalFunctionControlUnit.this.dataStackPointer - 1 ];
 			new ExecutionUnit().allocSameLengths(dataType, allocTargetContainer, src);
+			return this.nextNode;
+		}
+	}
+
+
+	private final class PopExecutorNode extends AccelerationExecutorNode {
+
+		@SuppressWarnings("unchecked")
+		public PopExecutorNode(AccelerationExecutorNode nextNode) {
+			super(nextNode);
+		}
+
+		@Override
+		public final void setLaundingPointNodes(AccelerationExecutorNode ... nodes) {
+		}
+
+		@Override
+		public final AccelerationExecutorNode execute() {
+			--InternalFunctionControlUnit.this.dataStackPointer;
 			return this.nextNode;
 		}
 	}

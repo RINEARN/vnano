@@ -141,6 +141,7 @@ public class AccelerationScheduler {
 		     && operationCode != OperationCode.JMP
 		     && operationCode != OperationCode.JMPN
 		     && operationCode != OperationCode.RET
+		     && operationCode != OperationCode.POP      // POP はスタックからデータを取り出すだけで何もしない
 		     ;
 
 		// IFCU & RET 命令について：
@@ -188,6 +189,7 @@ public class AccelerationScheduler {
 		     && operationCode != OperationCode.ALLOCP
 		     && operationCode != OperationCode.ALLOCR
 		     && operationCode != OperationCode.FREE
+		     && operationCode != OperationCode.POP      // POP はスタックからデータを取り出すだけで何もしない
 		     && operationCode != OperationCode.MOVPOP   // MOVPOP はスタックからデータを読むので、オペランドからは読まない（書く）
 		     && operationCode != OperationCode.REFPOP   // REFPOP はスタックからデータを読むので、オペランドからは読まない（書く）
 		     && operationCode != OperationCode.NOP   // NOP は何もしないので明らかに何も読まない
@@ -485,6 +487,7 @@ public class AccelerationScheduler {
 				// 内部関数関連命令 Internal function related opcode
 				case CALL :
 				case RET :
+				case POP :
 				case MOVPOP :
 				case REFPOP :
 				case ALLOCP :
@@ -541,9 +544,10 @@ public class AccelerationScheduler {
 			AcceleratorInstruction instruction = this.acceleratorInstructionList.get(instructionIndex);
 			OperationCode opcode = instruction.getOperationCode();
 
-			if (opcode == OperationCode.JMP || opcode == OperationCode.JMPN || opcode == OperationCode.CALL) {
+			// JMP & JMPN & CALL はオペランドアドレスに飛ぶ。RETはスタックから取ったアドレスに飛ぶが、オペランドに所属関数アドレスを持っている
+			if (opcode == OperationCode.JMP || opcode == OperationCode.JMPN || opcode == OperationCode.CALL || opcode == OperationCode.RET) {
 
-				// ジャンプ先アドレスの値を格納するオペランドのデータコンテナをメモリから取得
+				// ジャンプ先アドレスの値を格納するオペランドのデータコンテナをメモリから取得（必ずオペランド[1]にあるよう統一されている）
 				DataContainer<?> addressContiner = null;
 				addressContiner = memory.getDataContainer(
 						instruction.getOperandPartitions()[1],
