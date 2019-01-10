@@ -223,7 +223,6 @@ public class Parser {
 			// 識別子の前に、データ型の後に付いて配列である事を示す [ ] が付いている事は有り得る。
 			// しかし、それ以外のトークンがそこに存在する事はあり得ないので、その場合は関数宣言ではない。
 			} else if (!readingTokenIsIndex) {
-
 				return false;
 			}
 			readingIndex++;
@@ -441,12 +440,9 @@ public class Parser {
 
 				String operatorSyntax = tokens[readingIndex].getAttribute(AttributeKey.OPERATOR_SYNTAX);
 
-				// 「 [ 」か「 ][ 」の場合
+				// 「 [ 」か「 ][ 」の場合は次元を1つ上げる（検査ではなくただの次元カウントなので、「 ] 」では特に何もしない）
 				if (operatorSyntax.equals(AttributeValue.MULTIARY) || operatorSyntax.equals(AttributeValue.MULTIARY_SEPARATOR)) {
 					rank++;
-				// 「 ] 」の場合
-				} else {
-					break;
 				}
 			}
 			readingIndex++;
