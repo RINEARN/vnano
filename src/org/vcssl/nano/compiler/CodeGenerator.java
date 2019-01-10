@@ -511,6 +511,7 @@ public class CodeGenerator {
 					context.setLastLoopBeginPointLabel(contextStack.peek().getLastLoopBeginPointLabel());
 					context.setLastLoopUpdatePointLabel(contextStack.peek().getLastLoopUpdatePointLabel());
 					context.setLastLoopEndPointLabel(contextStack.peek().getLastLoopEndPointLabel());
+					context.setLastFunctionLabel(contextStack.peek().getLastFunctionLabel());
 
 					// ブロック内の文を、読み込み対象として展開する
 					statementNodes = currentNode.getChildNodes();
