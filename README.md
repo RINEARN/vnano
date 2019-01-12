@@ -38,6 +38,9 @@ Vnano (<a href="https://www.vcssl.org/">VCSSL</a> nano) は、Java&reg; アプ�
   - <a href="#language-expression">Expressions - 式</a>
     - <a href="#language-expression-syntax">Syntax elements of expressions - 式の構文要素</a>
     - <a href="#language-expression-operator">Operators - 演算子</a>
+  - <a href="#language-function">Functions - 関数</a>
+	- <a href="#language-function-scalar">Scalar input/output functions - スカラを引数や戻り値とする関数</a>
+	- <a href="#language-function-array">Array input/output functions - 配列を引数や戻り値とする関数</a>
   - <a href="#language-external">External Functions and Variables - 外部関数と外部変数</a>
     - <a href="#language-external-functions">External functions - 外部関数</a>
     - <a href="#language-external-variables">External variables - 外部変数</a>
@@ -1012,6 +1015,7 @@ Therefore, the script engine of the Vnano has no garbage-collection (GC) modules
 つまるところ、Vnano に参照型は存在せず、全てのデータ型は値型になっています。
 これにより、Vnanoのスクリプトエンジンではガベージコレクション（GC）を省略しています。
 
+
 <a id="language-variable"></a>
 ### Variable Declaration Statements - 変数宣言文
 
@@ -1316,6 +1320,92 @@ Where you can choose the right or the left operand as the operand A (or operand 
 上の表において、右と左のどちらのオペランドをオペランドA（またはB）に選んでも構いません。
 
 
+<a id="language-function"></a>
+### Functions - 関数
+
+You can declare and call functions in the Vnano script code with C-like syntax. 
+However, this script engine does not support recursive calls of functions, 
+because allocations of local variables are implemented in very simple way.
+
+Vnanoのスクリプトコード内で、C言語系の記法で関数を宣言し、呼び出す事ができます。
+ただし、このスクリプトエンジンでは、ローカル変数が非常に単純な仕組みで実装されているため、
+関数の再帰呼び出しには対応していません。
+
+<a id="language-function-scalar"></a>
+#### Scalar input/output functions - スカラを引数や戻り値とする関数
+
+
+The following is an example code of the function of which arguments and the return value is scalar (non-array) values:
+
+以下は、スカラ変数（配列ではない普通の変数）を引数や戻り値とする関数のコード例です：
+
+	int fun(int a, int b) {
+		return a + b;
+	}
+
+	int v = fun(1, 2);
+	output(v);
+
+The result on <a href="#how-to-use-in-command">the command-line mode</a> is: 
+
+このコードを<a href="#how-to-use-in-command">コマンドラインモード</a>で実行すると、実行結果は：
+
+	3
+
+<a id="language-function-array"></a>
+#### Array input/output functions - 配列を引数や戻り値とする関数
+
+If you want to return an array, or get arrays as arguments, the following code is an example:
+
+配列を引数や戻り値にしたい場合の例は、以下の通りです：
+
+	int[] fun(int a[], int b[], int n) {
+		int c[n];
+		for (int i=0; i<n; i++) {
+			c[i] = a[i] + b[i];
+		}
+		return c;
+	}
+
+	int x[3];
+	x[0] = 0;
+	x[1] = 1;
+	x[2] = 2;
+
+	int y[3];
+	y[0] = 3;
+	y[1] = 4;
+	y[2] = 5;
+
+	int z[] = fun(x, y, 3);
+
+	output("z[0]=" + z[0] + "\n");
+	output("z[1]=" + z[1] + "\n");
+	output("z[2]=" + z[2] + "\n");
+
+The result is:
+
+実行結果は：
+
+	z[0]=3
+	z[1]=5
+	z[2]=7
+
+
+Please note that, as we mentioned in the section of <a href="language-data-type">Data Types</a>, 
+arrays in the Vnano (and VCSSL) behaves as value types, not reference types or pointers.
+Assignment operations of arguments and the return value behaves as the copy of all values of elements, not the copy of the reference to (address on) the memory.
+In addition, the size of the array will be adjusted automatically when an array having different size will copied to it, 
+so we omitted to specify size of array declarations in several places in the above code, e.g.: "int a[]", "int b[]", and "int z[] = fun(x, y, 3)".
+
+ただし、<a href="language-data-type">データ型</a>の項目でも触れた通り、
+Vnano（および VCSSL）における配列は、ポインタや参照型ではなく、値型として振舞う事に注意してください。
+この事により、配列の引数/戻り値の受け渡しは、参照の代入ではなく、全要素値のコピー代入によって行われます。
+その際、要素数の異なる配列がコピーされる場合には、過不足なく全要素のコピーを行うために、コピー先(受け取り側)
+の配列のメモリー領域が自動で再確保され、コピー元と同じ要素数になるように調整されます。
+従って上記のコードでは、いくつかの場所で、配列宣言時に要素数を指定するのを省略しています（ "int a[]"、 "int b[]"、 および "int z[] = fun(x, y, 3)" の箇所 ）。
+
+
 
 <a id="language-external"></a>
 ### External Functions and Variables - 外部関数と外部変数
@@ -1346,6 +1436,7 @@ Vnanoでは、それらを「外部関数」と呼びます。
 スクリプトエンジンに外部関数として接続する必要があります。
 具体的な接続方法については、
 「<a href="#how-to-connect">外部関数や外部変数の接続方法</a>」の項目を参照してください。
+
 
 
 <a id="language-external-variables"></a>
