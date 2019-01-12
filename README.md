@@ -1400,13 +1400,13 @@ The result is:
 	z[2]=7
 
 
-Please note that, as we mentioned in the section of <a href="language-data-type">Data Types</a>, 
+Please note that, as we mentioned in the section of <a href="#language-data-type">Data Types</a>, 
 arrays in the Vnano (and VCSSL) behaves as value types, not reference types or pointers.
 Assignment operations of arguments and the return value behaves as the copy of all values of elements, not the copy of the reference to (address on) the memory.
 In addition, the size of the array will be adjusted automatically when an array having different size will copied to it, 
 so we omitted to specify size of array declarations in several places in the above code, e.g.: "int a[]", "int b[]", and "int z[] = fun(x, y, 3)".
 
-ただし、<a href="language-data-type">データ型</a>の項目でも触れた通り、
+なお、<a href="#language-data-type">データ型</a>の項目でも触れた通り、
 Vnano（および VCSSL）における配列は、ポインタや参照型ではなく、値型として振舞う事に注意してください。
 この事により、配列の引数/戻り値の受け渡しは、参照の代入ではなく、全要素値のコピー代入によって行われます。
 その際、要素数の異なる配列がコピーされる場合には、過不足なく全要素のコピーを行うために、コピー先(受け取り側)
