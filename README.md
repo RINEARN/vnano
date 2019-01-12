@@ -1461,8 +1461,8 @@ Therefore, at first, we recommend to figure out what kinds of external accesses
 from script code are necessary for the aim of the host-application, 
 and to decide whether support them or not by considering deeply 
 the balance between the functionality and the security.
-Depending on the kind of the host-application, 
-please note that the user of the application may be different person with the author of the script code.
+**Depending on the kind of the host-application, 
+please note that the user of the application may be different person with the author of the script code.**
 
 外部関数/変数を接続する事は、スクリプトの機能性を拡張する代償として、
 サンドボックスを弱める、もしくは穴をあける事を意味します。
@@ -1470,8 +1470,8 @@ please note that the user of the application may be different person with the au
 スクリプトにどの程度の外部アクセスが必要になるのかを事前に吟味し、
 実際にそれらをサポートするかどうかは、
 ホストアプリケーションに要求される機能性とセキュリティのバランスを十分に考慮した上で行う事をおすすめします。
-ホストアプリケーションの種類によっては、スクリプトの記述者と、
-アプリケーションのユーザーは必ずしも一致しない事にも留意しておく必要があります。
+**ホストアプリケーションの種類によっては、スクリプトの記述者と、
+アプリケーションのユーザーは必ずしも一致しない事にも留意しておく必要があります。**
 
 If you want to support rich functions on the scripting feature of your application, 
 it might be one compromise plan to implement the "security barrier" 
