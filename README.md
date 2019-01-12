@@ -1015,6 +1015,14 @@ Therefore, the script engine of the Vnano has no garbage-collection (GC) modules
 つまるところ、Vnano に参照型は存在せず、全てのデータ型は値型になっています。
 これにより、Vnanoのスクリプトエンジンではガベージコレクション（GC）を省略しています。
 
+By the way, if sizes of arrays at the left-hand and the right-hand of the assignment operation (=) are different, 
+the size of the left-hand array will be adjusted to the same size with the right-hand array, 
+by re-allocating memory of the left-hand array automatically.
+
+なお、配列に、要素数の異なる配列が代入される場合には、過不足なく全要素のコピーを行うために、
+コピー先（代入演算子「=」の左辺）の配列のメモリー領域が自動で再確保され、
+コピー元（右辺）と同じ要素数になるように調整されます。
+
 
 <a id="language-variable"></a>
 ### Variable Declaration Statements - 変数宣言文
