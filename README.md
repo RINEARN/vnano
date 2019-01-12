@@ -1443,13 +1443,13 @@ Vnanoのスクリプトコード内で使用したい全ての外部関数は、
 <a id="language-external-security"></a>
 ### Caution about the security - セキュリティに関する注意
 
-**PLEASE CONSIDER DEEPLY THE BALANCE BETWEEN THE FUNCTIONALITY AND THE SECURITY BEFORE CONNECTING EXTERNAL FUNCTIONS/VARIABLES TO THE SCRIPT ENGINE.**
+**PLEASE CONSIDER DEEPLY THE BALANCE BETWEEN THE FUNCTIONALITY AND THE SECURITY BEFORE CONNECTING EXTERNAL FUNCTIONS/VARIABLES TO THE SCRIPT ENGINE EMBEDDED IN THE APPLICATION.**
 No external functions and variables are connected to the Vnano script engine by default, 
 so script code can not access any information and systems locating outside of the script engine, 
 e.g.: files in the PC, commands of the OS, networks, and so on. 
 Therefore, from the viewpoint of the security, the default Vnano script engine is a kind of the sandbox.
 
-**はじめに、外部関数/変数をスクリプトエンジンに接続する際には、
+**はじめに、アプリケーションに組み込まれたスクリプトエンジンに、外部関数/変数を接続する際には、
 機能性とセキュリティのバランスについて深く検討を行う事をおすすめします。**
 デフォルトでは、Vnanoスクリプトエンジンには外部関数/変数は一切接続されていないため、
 スクリプトコード内からスクリプトエンジン外部の情報やシステム（例えば、PC内のファイルや、OSのコマンド、ネットワークなど）にはアクセスできない状態になっています。
