@@ -836,8 +836,12 @@ public class CodeGenerator {
 		codeBuilder.append( this.generateLabelDirectiveCode(functionLabelName) );
 
 		// 子ノードは引数のノードなので、それらに対してスタック上のデータを取りだして格納するコードを生成
+		// 注意；引数は宣言順にスタックに積まれてて、取り出す際は逆順で出てくるので、逆順で受け取るコードを生成する必要がある
 		AstNode[] argNodes = node.getChildNodes();
-		for (AstNode argNode: argNodes) {
+		int argLength = argNodes.length;
+		for (int argIndex=argLength-1; 0 <= argIndex; argIndex--) {
+
+			AstNode argNode = argNodes[argIndex];
 
 			String argIdentifier = argNode.getAttribute(AttributeKey.ASSEMBLY_VALUE);
 			String argDataType = argNode.getAttribute(AttributeKey.DATA_TYPE);

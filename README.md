@@ -38,12 +38,15 @@ Vnano (<a href="https://www.vcssl.org/">VCSSL</a> nano) は、Java&reg; アプ�
   - <a href="#language-expression">Expressions - 式</a>
     - <a href="#language-expression-syntax">Syntax elements of expressions - 式の構文要素</a>
     - <a href="#language-expression-operator">Operators - 演算子</a>
-  - <a href="#language-external">External Functions and Variables - 外部関数と外部変数</a>
-    - <a href="#language-external-functions">External functions - 外部関数</a>
-    - <a href="#language-external-variables">External variables - 外部変数</a>
-    - <a href="#language-external-connect-methods-and-fields">Connecting Methods and Fields as External Functions and Variables - メソッドやフィールドを外部関数や外部変数として接続する</a>
-    - <a href="#language-external-connect-plug-ins">Developing and Connecting Plug-Ins as External Functions and Variables - プラグインを開発して外部関数や外部変数として接続する</a>
-	- <a href="#language-external-correspondence-of-data-types">The correspondence of the the data type between the Vnano and the data container - Vnano内とデータコンテナ内でのデータ型の対応関係</a>
+  - <a href="#language-function">Functions - 関数</a>
+	- <a href="#language-function-scalar">Scalar input/output functions - スカラを引数や戻り値とする関数</a>
+	- <a href="#language-function-array">Array input/output functions - 配列を引数や戻り値とする関数</a>
+- <a href="#language-external">External Functions and Variables - 外部関数と外部変数</a>
+  - <a href="#language-external-security">Caution about the security - セキュリティに関する注意</a>
+  - <a href="#language-external-variables-synchronization">Caution about the synchronization of values of external variables - 外部変数の値の同期タイミングに関する注意</a>
+  - <a href="#language-external-connect-methods-and-fields">Connecting Methods and Fields as External Functions and Variables - メソッドやフィールドを外部関数や外部変数として接続する</a>
+  - <a href="#language-external-connect-plug-ins">Developing and Connecting Plug-Ins as External Functions and Variables - プラグインを開発して外部関数や外部変数として接続する</a>
+  - <a href="#language-external-correspondence-of-data-types">The correspondence of the the data type between the Vnano and the data container - Vnano内とデータコンテナ内でのデータ型の対応関係</a>
 - <a href="#about-us">About Us - 開発元について</a>
 
 
@@ -1012,6 +1015,15 @@ Therefore, the script engine of the Vnano has no garbage-collection (GC) modules
 つまるところ、Vnano に参照型は存在せず、全てのデータ型は値型になっています。
 これにより、Vnanoのスクリプトエンジンではガベージコレクション（GC）を省略しています。
 
+By the way, if sizes of arrays at the left-hand and the right-hand of the assignment operation (=) are different, 
+the size of the left-hand array will be adjusted to the same size with the right-hand array, 
+by re-allocating memory of the left-hand array automatically.
+
+なお、配列に、要素数の異なる配列が代入される場合には、過不足なく全要素のコピーを行うために、
+コピー先（代入演算子「=」の左辺）の配列のメモリー領域が自動で再確保され、
+コピー元（右辺）と同じ要素数になるように調整されます。
+
+
 <a id="language-variable"></a>
 ### Variable Declaration Statements - 変数宣言文
 
@@ -1316,68 +1328,166 @@ Where you can choose the right or the left operand as the operand A (or operand 
 上の表において、右と左のどちらのオペランドをオペランドA（またはB）に選んでも構いません。
 
 
+<a id="language-function"></a>
+### Functions - 関数
+
+You can declare and call functions in the Vnano script code with C-like syntax. 
+However, this script engine does not support recursive calls of functions, 
+because allocations of local variables are implemented in very simple way.
+
+Vnanoのスクリプトコード内で、C言語系の記法で関数を宣言し、呼び出す事ができます。
+ただし、このスクリプトエンジンでは、ローカル変数が非常に単純な仕組みで実装されているため、
+関数の再帰呼び出しには対応していません。
+
+<a id="language-function-scalar"></a>
+#### Scalar input/output functions - スカラを引数や戻り値とする関数
+
+
+The following is an example code of the function of which arguments and the return value is scalar (non-array) values:
+
+以下は、スカラ変数（配列ではない普通の変数）を引数や戻り値とする関数のコード例です：
+
+	int fun(int a, int b) {
+		return a + b;
+	}
+
+	int v = fun(1, 2);
+	output(v);
+
+The result on <a href="#how-to-use-in-command">the command-line mode</a> is: 
+
+このコードを<a href="#how-to-use-in-command">コマンドラインモード</a>で実行すると、実行結果は：
+
+	3
+
+<a id="language-function-array"></a>
+#### Array input/output functions - 配列を引数や戻り値とする関数
+
+If you want to return an array, or get arrays as arguments, the following code is an example:
+
+配列を引数や戻り値にしたい場合の例は、以下の通りです：
+
+	int[] fun(int a[], int b[], int n) {
+		int c[n];
+		for (int i=0; i<n; i++) {
+			c[i] = a[i] + b[i];
+		}
+		return c;
+	}
+
+	int x[3];
+	x[0] = 0;
+	x[1] = 1;
+	x[2] = 2;
+
+	int y[3];
+	y[0] = 3;
+	y[1] = 4;
+	y[2] = 5;
+
+	int z[] = fun(x, y, 3);
+
+	output("z[0]=" + z[0] + "\n");
+	output("z[1]=" + z[1] + "\n");
+	output("z[2]=" + z[2] + "\n");
+
+The result is:
+
+実行結果は：
+
+	z[0]=3
+	z[1]=5
+	z[2]=7
+
+
+Please note that, as we mentioned in the section of <a href="language-data-type">Data Types</a>, 
+arrays in the Vnano (and VCSSL) behaves as value types, not reference types or pointers.
+Assignment operations of arguments and the return value behaves as the copy of all values of elements, not the copy of the reference to (address on) the memory.
+In addition, the size of the array will be adjusted automatically when an array having different size will copied to it, 
+so we omitted to specify size of array declarations in several places in the above code, e.g.: "int a[]", "int b[]", and "int z[] = fun(x, y, 3)".
+
+ただし、<a href="language-data-type">データ型</a>の項目でも触れた通り、
+Vnano（および VCSSL）における配列は、ポインタや参照型ではなく、値型として振舞う事に注意してください。
+この事により、配列の引数/戻り値の受け渡しは、参照の代入ではなく、全要素値のコピー代入によって行われます。
+その際、要素数の異なる配列がコピーされる場合には、過不足なく全要素のコピーを行うために、コピー先(受け取り側)
+の配列のメモリー領域が自動で再確保され、コピー元と同じ要素数になるように調整されます。
+従って上記のコードでは、いくつかの場所で、配列宣言時に要素数を指定するのを省略しています（ "int a[]"、 "int b[]"、 および "int z[] = fun(x, y, 3)" の箇所 ）。
+
+
 
 <a id="language-external"></a>
-### External Functions and Variables - 外部関数と外部変数
+## External Functions and Variables - 外部関数と外部変数
 
-<a id="language-external-functions"></a>
-#### External functions - 外部関数
-
-You can not declare functions in script code written in the Vnano, at least for the current version.
-This is for making the script engine compact, and for giving priority to maintainability and security.
 The Vnano is the language for executing partial processings on host applications as scripts, 
-so functions called from scripts are provided by host applications as so-called "built-in functions".
-In the Vnano, we refer them as "external functions".
-Therefore, all functions you want to call from the Vnano script code 
-are necessary to be implemented on the host application by using Java&reg; (or alternative languages), 
-and necessary to be connected to the script engine as external functions.
-To connect external functions, see the section 
-"<a href="#how-to-connect">How to Connect External Functions and Variables</a>".
+so you can connect functions and variables of host applications to the script engine, and can access them from script code as so-called "built-in functions/variables".
+In the Vnano, We refer them as "external functions/variables". 
+In contrast to them, we refer functions and variables declared in the Vnano script code as "internal functions/variables".
 
-
-Vnanoでは、少なくとも現時点において、スクリプト内でユーザーが関数を宣言する事はできません。
-これは、用途的に必要性が低い機能は削る事で、スクリプトエンジンをなるべくコンパクトに抑え、
-保守性やセキュリティ等を優先させるためです。
 Vnanoは、ホストアプリケーション上での部分的な処理をスクリプトとして実行する事に焦点を絞った言語なので、
-関数はホストアプリケーション側から、いわゆる「組み込み関数」として提供されます。
-Vnanoでは、それらを「外部関数」と呼びます。
-従って、Vnanoのスクリプトコード内で使用したい全ての関数は、
+ホストアプリケーション側の関数や変数を、いわゆる「組み込み関数/変数」としてスクリプトエンジンに接続し、
+スクリプトコード内からアクセスする事ができます。
+Vnanoでは、それらを「外部関数/変数」と呼びます。
+それに対して、これまでのようにスクリプト内で宣言された関数および変数を「内部関数/変数」と呼びます。
+
+All external functions and variables you want to access from the Vnano script code 
+are necessary to be implemented on the host application by using Java&reg; (or alternative languages), 
+and necessary to be connected to the script engine explicitly.
+In this section, we will explain how to connect them to the script engine practically.
+
+Vnanoのスクリプトコード内で使用したい全ての外部関数は、
 ホストアプリケーション側にJava&reg;言語（またはその代替言語）で実装し、
-スクリプトエンジンに外部関数として接続する必要があります。
-具体的な接続方法については、
-「<a href="#how-to-connect">外部関数や外部変数の接続方法</a>」の項目を参照してください。
+スクリプトエンジンに明示的に接続する必要があります。
+このセクションでは、その具体的な方法について解説します。
 
 
-<a id="language-external-variables"></a>
-#### External variables - 外部変数
+<a id="language-external-security"></a>
+### Caution about the security - セキュリティに関する注意
 
-For variables, you can declare them in the script code written the Vnano by using <a href="#language-variable">variable declaration statements</a>.
-In addition, host applications can provide so-called "build-in variables", and we refer them as "external variables" in the Vnano.
-In the contrast, we refer variables declared in the Vnano script code as "internal variables".
-To connect external variables to the script engine, see the section 
-"<a href="#how-to-connect">How to Connect External Functions and Variables</a>".
+**PLEASE CONSIDER DEEPLY THE BALANCE BETWEEN THE FUNCTIONALITY AND THE SECURITY BEFORE CONNECTING EXTERNAL FUNCTIONS/VARIABLES TO THE SCRIPT ENGINE.**
+No external functions and variables are connected to the Vnano script engine by default, 
+so script code can not access any information and systems locating outside of the script engine, 
+e.g.: files in the PC, commands of the OS, networks, and so on. 
+Therefore, from the viewpoint of the security, the default Vnano script engine is a kind of the sandbox.
+
+**はじめに、外部関数/変数をスクリプトエンジンに接続する際には、
+機能性とセキュリティのバランスについて深く検討を行う事をおすすめします。**
+デフォルトでは、Vnanoスクリプトエンジンには外部関数/変数は一切接続されていないため、
+スクリプトコード内からスクリプトエンジン外部の情報やシステム（例えば、PC内のファイルや、OSのコマンド、ネットワークなど）にはアクセスできない状態になっています。
+つまり、セキュリティの観点からは、デフォルトのVnanoスクリプトエンジンは一種のサンドボックスになっています。
+
+Connecting external functions/variables means making the sandbox weakened, 
+or making holes on the sandbox, as the compensation for enhancing functionality of the scripting.
+Therefore, at first, we recommend to figure out what kinds of external accesses 
+from script code are necessary for the aim of the host-application, 
+and to decide whether support them or not by considering deeply 
+the balance between the functionality and the security.
+Depending on the kind of the host-application, 
+please note that the user of the application may be different person with the author of the script code.
+
+外部関数/変数を接続する事は、スクリプトの機能性を拡張する代償として、
+サンドボックスを弱める、もしくは穴をあける事を意味します。
+そのため、まずはスクリプトエンジンを搭載するホストアプリケーション側の目的から見て、
+スクリプトにどの程度の外部アクセスが必要になるのかを事前に吟味し、
+実際にそれらをサポートするかどうかは、
+ホストアプリケーションに要求される機能性とセキュリティのバランスを十分に考慮した上で行う事をおすすめします。
+ホストアプリケーションの種類によっては、スクリプトの記述者と、
+アプリケーションのユーザーは必ずしも一致しない事にも留意しておく必要があります。
+
+If you want to support rich functions on the scripting feature of your application, 
+it might be one compromise plan to implement the "security barrier" 
+which requesting permissions to the user of the host-application, 
+when the external functions which access to securitically critical resources (files, networks, etc.) are invoked.
+
+スクリプト内で豊富な機能を利用できるようにしたい場合は、
+ファイルやネットワークなどの、セキュリティ上重要なリソースにアクセスする外部関数が実行される際に、
+ユーザーなどに許可を求める、いわゆる「関所」のようなものを実装する事なども、妥協案の一つになるかもしれません。
 
 
-変数については、<a href="#language-variable">変数宣言文</a>を用いて、
-Vnanoのスクリプトコード内で宣言する事ができます。
-一方で、ホストアプリケーション側も、スクリプト内から読み書きできる変数（いわゆる組み込み変数）を提供する事ができ、Vnanoではそれらを「外部変数」と呼びます。
-それに対して、Vnanoのスクリプト内で宣言された通常の変数は「内部変数」と呼びます。
-外部変数をスクリプトエンジンに接続する具体的な方法については、
-「<a href="#how-to-connect">外部関数や外部変数の接続方法</a>」の項目を参照してください。
+<a id="language-external-variables-synchronization"></a>
+### Caution about the synchronization of values of external variables - 外部変数の値の同期タイミングに関する注意
 
-
-There are two important points about external variables.
-The first point is, overhead processing costs of reading and writing for external variables 
-are greater than them of internal variables.
-Therefore, especially in the expression locating in the high-speed loop, 
-it is prefer to store the value of the external variable to a internal variable and use it.
-
-外部変数を使用する際には、注意が必要な点が2つあります。
-一つは、外部変数に対する読み書きのオーバーヘッドが、内部変数に比べて大きい事です。
-従って、非常に高速に反復実行されるループ内での式の中などでは、外部変数を直接使用するよりも、
-値を内部変数に代入して、その内部変数を使用する方が高速化が見込めます。
-
-The second point is, 
+There is an important point about external variables.
+That is, 
 the changing of values of external variables during the script code is running 
 DOES NOT affect to values of them in the Vnano script code.
 The script engine of the Vnano loads values of all external variables to the virtual memory 
@@ -1388,7 +1498,8 @@ The aim of this specification is:
 it gives the big advantage for speeding up processings, 
 that excluding changings of values on the virtual memory caused by operations from the outside of the script engine.
 
-もう一つの注意点は、スクリプトの実行中に、ホストアプリケーション側から外部変数の値を変更しても、
+外部変数には、一つ注意が必要な点があります。
+それは、スクリプトの実行中に、ホストアプリケーション側から外部変数の値を変更しても、
 効果は無いという点です。
 Vnanoのスクリプトエンジンは、スクリプトの実行直前に外部変数の値を仮想メモリーに一括で読み込み、
 そしてスクリプトの実行完了時点で、仮想メモリーから外部変数へ値を一括で書き戻します。
@@ -1405,7 +1516,6 @@ instead of the external variable.
 もしも、スクリプト実行中にホストアプリケーション側で変更され得る値に、
 スクリプト内からリアルタイムにアクセスしたい場合は、外部変数ではなく外部関数として、
 その値に対する setter と getter を用意して接続してください。
-
 
 
 
