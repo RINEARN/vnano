@@ -1549,9 +1549,6 @@ public class CodeGenerator {
 	}
 
 
-
-
-
 	/**
 	 * 代入演算子の演算を実行するコードを生成して返します。
 	 *
@@ -1596,6 +1593,13 @@ public class CodeGenerator {
 			rightHandValue = castedRegister;
 		}
 
+		// 配列の場合は要素数の同期処理が必要
+		if (operatorNode.getRank() != RANK_OF_SCALAR) {
+			codeBuilder.append(
+				this.generateInstruction(OperationCode.ALLOCR.name(), toType, operandValues[0], rightHandValue)
+			);
+		}
+
 		// MOV命令の発行
 		codeBuilder.append(
 			this.generateInstruction(OperationCode.MOV.name(), toType, operandValues[0], rightHandValue)
@@ -1617,6 +1621,12 @@ public class CodeGenerator {
 	 * @return 生成コード
 	 */
 	private String generateArithmeticCompoundAssignmentOperatorCode(AstNode operatorNode) {
+
+		// 複合代入演算は、右辺と左辺で配列要素数が揃っている事を前提とする。
+		// 自動で配列要素数の同期などを行うようにしても、拡張された部分には単純に 0 などの初期値が詰まっているし、
+		// それに対して、元から意味ある値が詰まっている要素と一緒に算術演算などを行えても嬉しい場面はないし、
+		// むしろエラーとして弾いてくれた方が嬉しいと思うので。配列要素数の同期は、純粋な代入演算子のみとする。
+
 		String operatorSymbol = operatorNode.getAttribute(AttributeKey.OPERATOR_SYMBOL);
 
 		String opcode = null;
@@ -1635,6 +1645,13 @@ public class CodeGenerator {
 		AstNode[] operandNodes = { childNodes[0], childNodes[1] };
 
 		return this.generateBinaryOperatorCode(operatorNode, opcode, operandNodes);
+
+		// 型が違う場合のオペランドのキャストをどういうルールにするかは、どこかのタイミングで再検討すべきかも。
+		// 現状では int += float; の加算は、両オペランドを代入先の型である int に揃えてから行うようにしている。
+		// しかし単純な算術二項演算子の加算のコンパイル結果では、両オペランドを float に揃えてから行うので、
+		// 算術複合代入演算子でも、算術二項演算子と同じようにキャストして演算してから、代入先の型に再キャストして代入すべき？
+		// 仮に int += string; とかの場合は、結合文字列を整数に再変換するのか、それとも右辺を整数に変換してから加算するのかで結果が違う。
+		// それとも、型が異なる複合代入演算は解釈が紛らわしいのでコンパイラで弾くべき？
 	}
 
 
