@@ -55,7 +55,11 @@ public class VirtualMachine {
 
 	private Object getEvaluatedValue(Memory memory, VirtualMachineObjectCode intermediateCode) throws VnanoException {
 		DataContainer<?> container = memory.getResultDataContainer();
-		return new DataConverter(container.getDataType(), container.getRank()).convertToExternalObject(container);
+		if (container == null) {
+			return null;
+		} else {
+			return new DataConverter(container.getDataType(), container.getRank()).convertToExternalObject(container);
+		}
 	}
 
 }
