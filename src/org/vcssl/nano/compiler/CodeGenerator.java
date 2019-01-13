@@ -308,6 +308,10 @@ public class CodeGenerator {
 		// 全ての文を辿ってコード生成
 		codeBuilder.append( this.trackAllStatements(cloneAst) );
 
+		// 終了処理のコードを生成
+		// （スクリプトエンジンのevalメソッドの評価値に対応するデータをメモリに設定して終了する）
+		codeBuilder.append( generateFinalizationCode(cloneAst) );
+
 		// ここまでの内容で、コードは動作上は完成しているので取得
 		String code = codeBuilder.toString();
 
@@ -2320,6 +2324,48 @@ public class CodeGenerator {
 		return codeBuilder.toString();
 	}
 
+
+
+	// （スクリプトエンジンのevalメソッドの評価値に対応するデータをメモリに設定して終了する）
+	/**
+	 * 終了処理のコードを生成します。
+	 *
+	 * 具体的には、必要に応じてスクリプトエンジンのevalメソッドの評価値に対応するデータをメモリに設定して、
+	 * 実行を終了する処理のコードを生成します。
+	 *
+	 * @param inputAst AST(抽象構文木)全体のルートノード
+	 * @return 生成コード
+	 */
+	private String generateFinalizationCode(AstNode inputAst) {
+		StringBuilder codeBuilder = new StringBuilder();
+
+		// 最上階層の文のノードを全て取得
+		AstNode[] topLevelStatementNodes = inputAst.getChildNodes();
+		int statementLength = topLevelStatementNodes.length;
+
+		// 最後の文が式文なら、その値をスクリプトエンジンの eval メソッドの評価値とする
+		String evalResult = null;
+		AstNode lastStatementNode = topLevelStatementNodes[statementLength-1];
+		if (lastStatementNode.getType() == AstNode.Type.EXPRESSION) {
+			evalResult = lastStatementNode.getAttribute(AttributeKey.ASSEMBLY_VALUE);
+		}
+
+		// 評価値が無ければ無指定のEND命令を生成
+		if (evalResult == null) {
+			codeBuilder.append(
+				this.generateInstruction(OperationCode.END.name(), DataTypeName.VOID, PLACE_HOLDER)
+			);
+
+		// 評価値があればそれをオペランドに指定してEND命令を生成
+		} else {
+			String dataType = lastStatementNode.getAttribute(AttributeKey.DATA_TYPE);
+			codeBuilder.append(
+				this.generateInstruction(OperationCode.END.name(), dataType, PLACE_HOLDER, evalResult)
+			);
+		}
+
+		return codeBuilder.toString();
+	}
 
 
 }

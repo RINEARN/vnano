@@ -123,11 +123,14 @@ public final class Memory {
 	/** スタック領域として使用する双方向キューです。この領域は、関数コール時の引数や戻り値の受け渡しなど、データの一時的な保持と取り出しに使用されます。 */
 	private Deque<DataContainer<?>> stack;
 
-	/** 分岐なしで各パーティションのリストにアクセスするためのマップです。 */
-	private HashMap<Partition, List<DataContainer<?>>> containerListMap;
+	/** スクリプトエンジンの eval メソッドの評価値に対応する値を格納するデータコンテナです。 */
+	private DataContainer<?> resultContainer;
 
 	/** NONEオペランドへのアクセスで返される、空のデータコンテナです。プレースホルダとしての空オペランドなどに使用されます。 */
 	private DataContainer<Void> voidContainer;
+
+	/** 分岐なしで各パーティションのリストにアクセスするためのマップです。 */
+	private HashMap<Partition, List<DataContainer<?>>> containerListMap;
 
 	/**
 	 * 何もデータを保持していない、空の仮想メモリーのインスタンスを生成します。
@@ -262,6 +265,26 @@ public final class Memory {
 	 */
 	public final DataContainer<?> peek() {
 		return this.stack.peek();
+	}
+
+
+	/**
+	 * スクリプトエンジンの eval メソッドの評価値に対応するデータを設定します。
+	 *
+	 * @param resultContainer 評価値に対応するデータ
+	 */
+	public final void setResultDataContainer(DataContainer<?> resultContainer) {
+		this.resultContainer = resultContainer;
+	}
+
+
+	/**
+	 * スクリプトエンジンの eval メソッドの評価値に対応するデータを取得します。
+	 *
+	 * @param resultContainer 評価値に対応するデータ
+	 */
+	public final DataContainer<?> getResultDataContainer() {
+		return this.resultContainer;
 	}
 
 
