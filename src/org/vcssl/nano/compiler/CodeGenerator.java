@@ -2343,24 +2343,25 @@ public class CodeGenerator {
 		AstNode[] topLevelStatementNodes = inputAst.getChildNodes();
 		int statementLength = topLevelStatementNodes.length;
 
-		// 最後の文が式文なら、その値をスクリプトエンジンの eval メソッドの評価値とする
-		String evalResult = null;
+		// 最後の文が式文なら、その値をスクリプトエンジンのevalメソッドの評価結果とし、型と値の格納先を取得
+		String evalDataType = null;
+		String evalValue = null;
 		AstNode lastStatementNode = topLevelStatementNodes[statementLength-1];
 		if (lastStatementNode.getType() == AstNode.Type.EXPRESSION) {
-			evalResult = lastStatementNode.getAttribute(AttributeKey.ASSEMBLY_VALUE);
+			evalDataType = lastStatementNode.getAttribute(AttributeKey.DATA_TYPE);
+			evalValue = lastStatementNode.getAttribute(AttributeKey.ASSEMBLY_VALUE);
 		}
 
-		// 評価値が無ければ無指定のEND命令を生成
-		if (evalResult == null) {
+		// 評価結果とすべき値が無いか、もしくはあってもvoid型な場合は、無指定のEND命令を生成
+		if (evalDataType == null || evalDataType.equals(DataTypeName.VOID)) {
 			codeBuilder.append(
 				this.generateInstruction(OperationCode.END.name(), DataTypeName.VOID, PLACE_HOLDER)
 			);
 
-		// 評価値があればそれをオペランドに指定してEND命令を生成
+		// 評価値がある場合は、それをオペランドに指定してEND命令を生成
 		} else {
-			String dataType = lastStatementNode.getAttribute(AttributeKey.DATA_TYPE);
 			codeBuilder.append(
-				this.generateInstruction(OperationCode.END.name(), dataType, PLACE_HOLDER, evalResult)
+				this.generateInstruction(OperationCode.END.name(), evalDataType, PLACE_HOLDER, evalValue)
 			);
 		}
 
