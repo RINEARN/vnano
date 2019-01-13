@@ -336,6 +336,19 @@ public class DispatchUnit {
 				return programCounter + 1;
 			}
 
+			case END : {
+				// スクリプトエンジンの eval メソッドの評価値とするデータがオペランドに指定されていれば、それをメモリに格納
+				if (operandLength == 2) {
+
+					// 将来的に、スクリプト終了時にリソースを即時解放するようにした場合に対応するため、データをコピーしてから格納する
+					DataContainer<?> result = new DataContainer<Object>();
+					executionUnit.allocSameLengths(dataTypes[0], result, operands[1]); // データコンテナの領域確保
+					executionUnit.mov(dataTypes[0], result, operands[1]); // データをコピー代入
+					memory.setResultDataContainer(operands[1]); // 仮想メモリの評価値格納用コンテナに格納
+				}
+				return -1; // この命令でコード実行は終了するので、プログラムカウンタを命令列の領域外に飛ばす（すると終了する）
+			}
+
 			case NOP : {
 				this.checkNumberOfOperands(instruction, 1);
 				return programCounter + 1;
