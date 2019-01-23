@@ -62,14 +62,40 @@ public class LexicalAnalyzer {
 		// 置き換え済みコードを字句解析し、トークン配列を生成
 		Token[] tokens = this.tokenize(stringLiteralReplacedCode, fileName);
 
-		// トークン配列の内容を追加で解析し、トークンタイプや演算子優先度などの情報を付加
+		// トークン配列の内容を追加で解析し、トークンタイプや演算子優先度、リテラルのデータ型などの情報を付加
 		this.analyzeTokenType(tokens);
 		this.analyzePriority(tokens);
+		this.analyzeLiteralAttributes(tokens);
 
 		// トークン配列が保持する文字列リテラルを復元する
 		this.embedStringLiterals(tokens, stringLiteralExtractResult);
 
 		return tokens;
+	}
+
+
+	/**
+	 * 指定されたトークン配列の中で、特定のデータ型のリテラルを、別のデータ型に置き換えます。
+	 *
+	 * @param tokens 対象のトークン配列
+	 * @param fromTypeName 置き換え前のデータ型
+	 * @param toTypeName 置き換え後のデータ型
+	 * @return リテラルのデータ型を置き換えたトークン配列
+	 */
+	public Token[] replaceDataTypeOfLiteralTokens(Token[] tokens, String fromTypeName, String toTypeName) {
+		int tokenLength = tokens.length;
+		Token[] replacedTokens = new Token[tokenLength];
+		for (int tokenIndex=0; tokenIndex<tokenLength; tokenIndex++) {
+			Token token = tokens[tokenIndex].clone();
+			if (token.getType() == Token.Type.LEAF
+				&& token.getAttribute(AttributeKey.LEAF_TYPE).equals(AttributeValue.LITERAL)
+				&& token.getAttribute(AttributeKey.DATA_TYPE).equals(DataTypeName.INT) ) {
+
+				token.setAttribute(AttributeKey.DATA_TYPE, DataTypeName.FLOAT);
+			}
+			replacedTokens[tokenIndex] = token;
+		}
+		return replacedTokens;
 	}
 
 
@@ -180,8 +206,8 @@ public class LexicalAnalyzer {
 
 					callParenthesisStages.add(parenthesisStage);
 					tokens[i].setType(Token.Type.OPERATOR);
-					tokens[i].addAttribute(AttributeKey.OPERATOR_EXECUTOR, AttributeValue.CALL);
-					tokens[i].addAttribute(AttributeKey.OPERATOR_SYNTAX, AttributeValue.MULTIARY);
+					tokens[i].setAttribute(AttributeKey.OPERATOR_EXECUTOR, AttributeValue.CALL);
+					tokens[i].setAttribute(AttributeKey.OPERATOR_SYNTAX, AttributeValue.MULTIARY);
 
 				// 部分式の括弧
 				} else {
@@ -195,8 +221,8 @@ public class LexicalAnalyzer {
 				if (callParenthesisStages.contains(parenthesisStage)) {
 					callParenthesisStages.remove(parenthesisStage);
 					tokens[i].setType(Token.Type.OPERATOR);
-					tokens[i].addAttribute(AttributeKey.OPERATOR_EXECUTOR, AttributeValue.CALL);
-					tokens[i].addAttribute(AttributeKey.OPERATOR_SYNTAX, AttributeValue.MULTIARY_END);
+					tokens[i].setAttribute(AttributeKey.OPERATOR_EXECUTOR, AttributeValue.CALL);
+					tokens[i].setAttribute(AttributeKey.OPERATOR_SYNTAX, AttributeValue.MULTIARY_END);
 
 				// 部分式の括弧
 				} else {
@@ -207,29 +233,29 @@ public class LexicalAnalyzer {
 			// 関数呼び出し演算子内の引数区切りのカンマ（独立したカンマ演算子は非サポート）
 			} else if (word.equals(ScriptWord.ARGUMENT_SEPARATOR)) {
 				tokens[i].setType(Token.Type.OPERATOR);
-				tokens[i].addAttribute(AttributeKey.OPERATOR_EXECUTOR, AttributeValue.CALL);
-				tokens[i].addAttribute(AttributeKey.OPERATOR_SYNTAX, AttributeValue.MULTIARY_SEPARATOR);
+				tokens[i].setAttribute(AttributeKey.OPERATOR_EXECUTOR, AttributeValue.CALL);
+				tokens[i].setAttribute(AttributeKey.OPERATOR_SYNTAX, AttributeValue.MULTIARY_SEPARATOR);
 
 			// インデックスの開き括弧「 [ 」
 			} else if (word.equals(ScriptWord.INDEX_BEGIN)) {
 				tokens[i].setType(Token.Type.OPERATOR);
-				tokens[i].addAttribute(AttributeKey.OPERATOR_EXECUTOR, AttributeValue.INDEX);
-				tokens[i].addAttribute(AttributeKey.OPERATOR_SYNTAX, AttributeValue.MULTIARY);
+				tokens[i].setAttribute(AttributeKey.OPERATOR_EXECUTOR, AttributeValue.INDEX);
+				tokens[i].setAttribute(AttributeKey.OPERATOR_SYNTAX, AttributeValue.MULTIARY);
 
 			// 多次元インデックスの区切り「 ][ 」
 			// (この処理系では、多次元配列は「配列の配列」ではなく、あくまでもインデックスを複数持つ1個の配列)
 			} else if (word.equals(ScriptWord.INDEX_END + ScriptWord.INDEX_BEGIN)) {
 
 				tokens[i].setType(Token.Type.OPERATOR);
-				tokens[i].addAttribute(AttributeKey.OPERATOR_EXECUTOR, AttributeValue.INDEX);
-				tokens[i].addAttribute(AttributeKey.OPERATOR_SYNTAX, AttributeValue.MULTIARY_SEPARATOR);
+				tokens[i].setAttribute(AttributeKey.OPERATOR_EXECUTOR, AttributeValue.INDEX);
+				tokens[i].setAttribute(AttributeKey.OPERATOR_SYNTAX, AttributeValue.MULTIARY_SEPARATOR);
 
 			// インデックスの閉じ括弧「 ] 」
 			} else if (word.equals(ScriptWord.INDEX_END)) {
 
 				tokens[i].setType(Token.Type.OPERATOR);
-				tokens[i].addAttribute(AttributeKey.OPERATOR_EXECUTOR, AttributeValue.INDEX);
-				tokens[i].addAttribute(AttributeKey.OPERATOR_SYNTAX, AttributeValue.MULTIARY_END);
+				tokens[i].setAttribute(AttributeKey.OPERATOR_EXECUTOR, AttributeValue.INDEX);
+				tokens[i].setAttribute(AttributeKey.OPERATOR_SYNTAX, AttributeValue.MULTIARY_END);
 
 			// 文末
 			} else if (word.equals(ScriptWord.END_OF_STATEMENT)) {
@@ -238,8 +264,8 @@ public class LexicalAnalyzer {
 			// 代入演算子
 			} else if (word.equals(ScriptWord.ASSIGNMENT)) {
 				tokens[i].setType(Token.Type.OPERATOR);
-				tokens[i].addAttribute(AttributeKey.OPERATOR_EXECUTOR, AttributeValue.ASSIGNMENT);
-				tokens[i].addAttribute(AttributeKey.OPERATOR_SYNTAX, AttributeValue.BINARY);
+				tokens[i].setAttribute(AttributeKey.OPERATOR_EXECUTOR, AttributeValue.ASSIGNMENT);
+				tokens[i].setAttribute(AttributeKey.OPERATOR_SYNTAX, AttributeValue.BINARY);
 
 			// 加減算もしくは符号
 			} else if (word.equals(ScriptWord.PLUS) || word.equals(ScriptWord.MINUS)) {
@@ -250,14 +276,14 @@ public class LexicalAnalyzer {
 						|| lastToken.getValue().equals(ScriptWord.INDEX_END))) {
 
 					tokens[i].setType(Token.Type.OPERATOR);
-					tokens[i].addAttribute(AttributeKey.OPERATOR_EXECUTOR, AttributeValue.ARITHMETIC);
-					tokens[i].addAttribute(AttributeKey.OPERATOR_SYNTAX, AttributeValue.BINARY);
+					tokens[i].setAttribute(AttributeKey.OPERATOR_EXECUTOR, AttributeValue.ARITHMETIC);
+					tokens[i].setAttribute(AttributeKey.OPERATOR_SYNTAX, AttributeValue.BINARY);
 
 				// そうでなければ符号演算子の単項プラスマイナス
 				} else {
 					tokens[i].setType(Token.Type.OPERATOR);
-					tokens[i].addAttribute(AttributeKey.OPERATOR_EXECUTOR, AttributeValue.ARITHMETIC);
-					tokens[i].addAttribute(AttributeKey.OPERATOR_SYNTAX, AttributeValue.PREFIX);
+					tokens[i].setAttribute(AttributeKey.OPERATOR_EXECUTOR, AttributeValue.ARITHMETIC);
+					tokens[i].setAttribute(AttributeKey.OPERATOR_SYNTAX, AttributeValue.PREFIX);
 				}
 
 			// 	上記の加減算以外の算術二項演算子
@@ -266,8 +292,8 @@ public class LexicalAnalyzer {
 					|| word.equals(ScriptWord.REMAINDER)) {
 
 				tokens[i].setType(Token.Type.OPERATOR);
-				tokens[i].addAttribute(AttributeKey.OPERATOR_EXECUTOR, AttributeValue.ARITHMETIC);
-				tokens[i].addAttribute(AttributeKey.OPERATOR_SYNTAX, AttributeValue.BINARY);
+				tokens[i].setAttribute(AttributeKey.OPERATOR_EXECUTOR, AttributeValue.ARITHMETIC);
+				tokens[i].setAttribute(AttributeKey.OPERATOR_SYNTAX, AttributeValue.BINARY);
 
 			// 	算術系の複合代入演算子
 			} else if (word.equals(ScriptWord.ADDITION_ASSIGNMENT)
@@ -276,8 +302,8 @@ public class LexicalAnalyzer {
 					|| word.equals(ScriptWord.DIVISION_ASSIGNMENT)) {
 
 				tokens[i].setType(Token.Type.OPERATOR);
-				tokens[i].addAttribute(AttributeKey.OPERATOR_EXECUTOR, AttributeValue.ARITHMETIC_COMPOUND_ASSIGNMENT);
-				tokens[i].addAttribute(AttributeKey.OPERATOR_SYNTAX, AttributeValue.BINARY);
+				tokens[i].setAttribute(AttributeKey.OPERATOR_EXECUTOR, AttributeValue.ARITHMETIC_COMPOUND_ASSIGNMENT);
+				tokens[i].setAttribute(AttributeKey.OPERATOR_SYNTAX, AttributeValue.BINARY);
 
 			// 	比較二項演算子
 			} else if (word.equals(ScriptWord.EQUAL)
@@ -288,22 +314,22 @@ public class LexicalAnalyzer {
 					|| word.equals(ScriptWord.LESS_EQUAL)) {
 
 				tokens[i].setType(Token.Type.OPERATOR);
-				tokens[i].addAttribute(AttributeKey.OPERATOR_EXECUTOR, AttributeValue.COMPARISON);
-				tokens[i].addAttribute(AttributeKey.OPERATOR_SYNTAX, AttributeValue.BINARY);
+				tokens[i].setAttribute(AttributeKey.OPERATOR_EXECUTOR, AttributeValue.COMPARISON);
+				tokens[i].setAttribute(AttributeKey.OPERATOR_SYNTAX, AttributeValue.BINARY);
 
 			// 	論理二項演算子
 			} else if (word.equals(ScriptWord.AND)
 					|| word.equals(ScriptWord.OR)) {
 
 				tokens[i].setType(Token.Type.OPERATOR);
-				tokens[i].addAttribute(AttributeKey.OPERATOR_EXECUTOR, AttributeValue.LOGICAL);
-				tokens[i].addAttribute(AttributeKey.OPERATOR_SYNTAX, AttributeValue.BINARY);
+				tokens[i].setAttribute(AttributeKey.OPERATOR_EXECUTOR, AttributeValue.LOGICAL);
+				tokens[i].setAttribute(AttributeKey.OPERATOR_SYNTAX, AttributeValue.BINARY);
 
 			// 論理前置演算子
 			} else if (word.equals(ScriptWord.NOT)) {
 				tokens[i].setType(Token.Type.OPERATOR);
-				tokens[i].addAttribute(AttributeKey.OPERATOR_EXECUTOR, AttributeValue.LOGICAL);
-				tokens[i].addAttribute(AttributeKey.OPERATOR_SYNTAX, AttributeValue.PREFIX);
+				tokens[i].setAttribute(AttributeKey.OPERATOR_EXECUTOR, AttributeValue.LOGICAL);
+				tokens[i].setAttribute(AttributeKey.OPERATOR_SYNTAX, AttributeValue.PREFIX);
 
 			// インクリメントとデクリメント
 			} else if (word.equals(ScriptWord.INCREMENT) || word.equals(ScriptWord.DECREMENT)) {
@@ -314,12 +340,12 @@ public class LexicalAnalyzer {
 						&& lastToken.getAttribute(AttributeKey.OPERATOR_SYNTAX).equals(AttributeValue.POSTFIX) ) ) {
 
 					tokens[i].setType(Token.Type.OPERATOR);
-					tokens[i].addAttribute(AttributeKey.OPERATOR_EXECUTOR, AttributeValue.ARITHMETIC);
-					tokens[i].addAttribute(AttributeKey.OPERATOR_SYNTAX, AttributeValue.POSTFIX);
+					tokens[i].setAttribute(AttributeKey.OPERATOR_EXECUTOR, AttributeValue.ARITHMETIC);
+					tokens[i].setAttribute(AttributeKey.OPERATOR_SYNTAX, AttributeValue.POSTFIX);
 				} else {
 					tokens[i].setType(Token.Type.OPERATOR);
-					tokens[i].addAttribute(AttributeKey.OPERATOR_EXECUTOR, AttributeValue.ARITHMETIC);
-					tokens[i].addAttribute(AttributeKey.OPERATOR_SYNTAX, AttributeValue.PREFIX);
+					tokens[i].setAttribute(AttributeKey.OPERATOR_EXECUTOR, AttributeValue.ARITHMETIC);
+					tokens[i].setAttribute(AttributeKey.OPERATOR_SYNTAX, AttributeValue.PREFIX);
 				}
 
 			} else if (word.equals(ScriptWord.IF)
@@ -342,13 +368,13 @@ public class LexicalAnalyzer {
 
 				// リテラルとして有効な内容 -> リテラル
 				if (LiteralSyntax.isValidLiteral(word)) {
-					tokens[i].addAttribute(AttributeKey.LEAF_TYPE, AttributeValue.LITERAL);
+					tokens[i].setAttribute(AttributeKey.LEAF_TYPE, AttributeValue.LITERAL);
 				// 次のトークンが「 ( 」記号 -> 関数識別子
 				} else if (i<tokenLength-1 && tokens[i+1].getValue().equals(ScriptWord.PARENTHESIS_BEGIN)) {
-					tokens[i].addAttribute(AttributeKey.LEAF_TYPE, AttributeValue.FUNCTION_IDENTIFIER);
+					tokens[i].setAttribute(AttributeKey.LEAF_TYPE, AttributeValue.FUNCTION_IDENTIFIER);
 				// それ以外は変数識別子
 				} else {
-					tokens[i].addAttribute(AttributeKey.LEAF_TYPE, AttributeValue.VARIABLE_IDENTIFIER);
+					tokens[i].setAttribute(AttributeKey.LEAF_TYPE, AttributeValue.VARIABLE_IDENTIFIER);
 				}
 			}
 			lastToken = tokens[i];
@@ -508,6 +534,24 @@ public class LexicalAnalyzer {
 				default : {
 					break;
 				}
+			}
+		}
+	}
+
+	/**
+	 * トークン配列内のリテラルトークン要素に対して、データ型などの属性値を解析して設定します。
+	 *
+	 * @tokens 解析対象のトークン配列
+	 */
+	private void analyzeLiteralAttributes(Token[] tokens) {
+		for (Token token: tokens) {
+			if (token.getType() == Token.Type.LEAF
+				&& token.getAttribute(AttributeKey.LEAF_TYPE).equals(AttributeValue.LITERAL)) {
+
+				String literal = token.getValue();
+				String dataTypeName = LiteralSyntax.getDataTypeNameOfLiteral(literal);
+				token.setAttribute(AttributeKey.DATA_TYPE, dataTypeName);
+				token.setAttribute(AttributeKey.RANK, "0"); // 現状では配列のリテラルは存在しないため、常にスカラ
 			}
 		}
 	}

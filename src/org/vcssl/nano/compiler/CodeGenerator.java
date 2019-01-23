@@ -351,7 +351,7 @@ public class CodeGenerator {
 				if(isLeaf && leafType == AttributeValue.FUNCTION_IDENTIFIER) {
 					AstNode callOperatorNode = currentNode.getParentNode();
 					String assemblyValue = IdentifierSyntax.getAssemblyIdentifierOfCalleeFunctionOf(callOperatorNode);
-					currentNode.addAttribute(AttributeKey.ASSEMBLY_VALUE, assemblyValue);
+					currentNode.setAttribute(AttributeKey.ASSEMBLY_VALUE, assemblyValue);
 
 				// 変数または変数識別子
 				} else if(isVariable || (isLeaf && leafType == AttributeValue.VARIABLE_IDENTIFIER) ) {
@@ -361,7 +361,7 @@ public class CodeGenerator {
 						assemblyValue += AssemblyWord.IDENTIFIER_SERIAL_NUMBER_SEPARATOR
 						              + currentNode.getAttribute(AttributeKey.IDENTIFIER_SERIAL_NUMBER);
 					}
-					currentNode.addAttribute(AttributeKey.ASSEMBLY_VALUE, assemblyValue);
+					currentNode.setAttribute(AttributeKey.ASSEMBLY_VALUE, assemblyValue);
 
 				// リテラル
 				} else if(isLeaf && leafType == AttributeValue.LITERAL) {
@@ -369,7 +369,7 @@ public class CodeGenerator {
 					String dataTypeName = currentNode.getAttribute(AttributeKey.DATA_TYPE);
 					String literal = currentNode.getAttribute(AttributeKey.LITERAL_VALUE);
 					String assemblyValue = AssemblyWord.getImmediateValueOf(dataTypeName, literal);
-					currentNode.addAttribute(AttributeKey.ASSEMBLY_VALUE, assemblyValue);
+					currentNode.setAttribute(AttributeKey.ASSEMBLY_VALUE, assemblyValue);
 
 				} else {
 					throw new VnanoFatalException("Unknown leaf type: " + leafType);
@@ -385,26 +385,26 @@ public class CodeGenerator {
 				switch (execType) {
 					case AttributeValue.ASSIGNMENT : {
 						String value = currentNode.getChildNodes()[0].getAttribute(AttributeKey.ASSEMBLY_VALUE);
-						currentNode.addAttribute(AttributeKey.ASSEMBLY_VALUE, value);
+						currentNode.setAttribute(AttributeKey.ASSEMBLY_VALUE, value);
 						break;
 					}
 					case AttributeValue.ARITHMETIC_COMPOUND_ASSIGNMENT : {
 						String value = currentNode.getChildNodes()[0].getAttribute(AttributeKey.ASSEMBLY_VALUE);
-						currentNode.addAttribute(AttributeKey.ASSEMBLY_VALUE, value);
+						currentNode.setAttribute(AttributeKey.ASSEMBLY_VALUE, value);
 						break;
 					}
 					case AttributeValue.ARITHMETIC : {
 						if (syntaxType.equals(AttributeValue.PREFIX)) {
 							if (operatorSymbol.equals(ScriptWord.INCREMENT) || operatorSymbol.equals(ScriptWord.DECREMENT)) {
 								String value = currentNode.getChildNodes()[0].getAttribute(AttributeKey.ASSEMBLY_VALUE);
-								currentNode.addAttribute(AttributeKey.ASSEMBLY_VALUE, value);
+								currentNode.setAttribute(AttributeKey.ASSEMBLY_VALUE, value);
 								break;
 							}
 						}
 					}
 					default : {
 						String register = AssemblyWord.OPERAND_PREFIX_REGISTER + Integer.toString(registerCounter);
-						currentNode.addAttribute(AttributeKey.ASSEMBLY_VALUE, register);
+						currentNode.setAttribute(AttributeKey.ASSEMBLY_VALUE, register);
 						this.registerCounter++;
 						break;
 					}
@@ -414,7 +414,7 @@ public class CodeGenerator {
 			// 式ノード: 直下にあるルート演算子の結果 = 式の結果
 			if (currentNode.getType() == AstNode.Type.EXPRESSION) {
 				String value = currentNode.getChildNodes()[0].getAttribute(AttributeKey.ASSEMBLY_VALUE);
-				currentNode.addAttribute(AttributeKey.ASSEMBLY_VALUE, value);
+				currentNode.setAttribute(AttributeKey.ASSEMBLY_VALUE, value);
 			}
 
 			currentNode = currentNode.getPostorderDfsTraversalNextNode();
@@ -437,22 +437,22 @@ public class CodeGenerator {
 		while (currentNode != inputAst) {
 
 			if (currentNode.getType() == AstNode.Type.IF) {
-				currentNode.addAttribute(AttributeKey.END_LABEL, this.generateLabelOperandCode());
+				currentNode.setAttribute(AttributeKey.END_LABEL, this.generateLabelOperandCode());
 			}
 			if (currentNode.getType() == AstNode.Type.ELSE) {
-				currentNode.addAttribute(AttributeKey.END_LABEL, this.generateLabelOperandCode());
+				currentNode.setAttribute(AttributeKey.END_LABEL, this.generateLabelOperandCode());
 			}
 			if (currentNode.getType() == AstNode.Type.FOR) {
-				currentNode.addAttribute(AttributeKey.BEGIN_LABEL, this.generateLabelOperandCode());
-				currentNode.addAttribute(AttributeKey.UPDATE_LABEL, this.generateLabelOperandCode());
-				currentNode.addAttribute(AttributeKey.END_LABEL, this.generateLabelOperandCode());
+				currentNode.setAttribute(AttributeKey.BEGIN_LABEL, this.generateLabelOperandCode());
+				currentNode.setAttribute(AttributeKey.UPDATE_LABEL, this.generateLabelOperandCode());
+				currentNode.setAttribute(AttributeKey.END_LABEL, this.generateLabelOperandCode());
 			}
 			if (currentNode.getType() == AstNode.Type.WHILE) {
-				currentNode.addAttribute(AttributeKey.BEGIN_LABEL, this.generateLabelOperandCode());
-				currentNode.addAttribute(AttributeKey.END_LABEL, this.generateLabelOperandCode());
+				currentNode.setAttribute(AttributeKey.BEGIN_LABEL, this.generateLabelOperandCode());
+				currentNode.setAttribute(AttributeKey.END_LABEL, this.generateLabelOperandCode());
 			}
 			if (currentNode.getType() == AstNode.Type.FUNCTION) {
-				currentNode.addAttribute(AttributeKey.END_LABEL, this.generateLabelOperandCode());
+				currentNode.setAttribute(AttributeKey.END_LABEL, this.generateLabelOperandCode());
 			}
 
 			// 演算子ノード
@@ -460,7 +460,7 @@ public class CodeGenerator {
 				String symbol = currentNode.getAttribute(AttributeKey.OPERATOR_SYMBOL);
 				if (symbol.equals(ScriptWord.AND) || symbol.equals(ScriptWord.OR)) {
 					// 短絡評価で第二オペランドの演算をスキップする場合のラベル
-					currentNode.addAttribute(AttributeKey.END_LABEL, this.generateLabelOperandCode());
+					currentNode.setAttribute(AttributeKey.END_LABEL, this.generateLabelOperandCode());
 				}
 			}
 
@@ -1340,17 +1340,17 @@ public class CodeGenerator {
 		// インクリメント/デクリメントの変化幅
 		AstNode stepNode = new AstNode(AstNode.Type.LEAF, variableNode.getLineNumber(), variableNode.getFileName());
 
-		stepNode.addAttribute(AttributeKey.DATA_TYPE, executionDataType);
-		stepNode.addAttribute(AttributeKey.RANK, Integer.toString(RANK_OF_SCALAR));
+		stepNode.setAttribute(AttributeKey.DATA_TYPE, executionDataType);
+		stepNode.setAttribute(AttributeKey.RANK, Integer.toString(RANK_OF_SCALAR));
 		switch (executionDataType) {
 			case DataTypeName.INT : {
 				String immediateValue = this.generateImmediateOperandCode(executionDataType, "1");
-				stepNode.addAttribute(AttributeKey.ASSEMBLY_VALUE, immediateValue);
+				stepNode.setAttribute(AttributeKey.ASSEMBLY_VALUE, immediateValue);
 				break;
 			}
 			case DataTypeName.FLOAT : {
 				String immediateValue = this.generateImmediateOperandCode(executionDataType, "1.0");
-				stepNode.addAttribute(AttributeKey.ASSEMBLY_VALUE, immediateValue);
+				stepNode.setAttribute(AttributeKey.ASSEMBLY_VALUE, immediateValue);
 				break;
 			}
 		}
@@ -1407,17 +1407,17 @@ public class CodeGenerator {
 			AstNode stepNode = new AstNode(AstNode.Type.LEAF, variableNode.getLineNumber(), variableNode.getFileName());
 
 			String executionDataType = operatorNode.getAttribute(AttributeKey.OPERATOR_EXECUTION_DATA_TYPE);
-			stepNode.addAttribute(AttributeKey.DATA_TYPE, executionDataType);
-			stepNode.addAttribute(AttributeKey.RANK, Integer.toString(RANK_OF_SCALAR));
+			stepNode.setAttribute(AttributeKey.DATA_TYPE, executionDataType);
+			stepNode.setAttribute(AttributeKey.RANK, Integer.toString(RANK_OF_SCALAR));
 			switch (executionDataType) {
 				case DataTypeName.INT : {
 					String immediateValue = this.generateImmediateOperandCode(executionDataType, "1");
-					stepNode.addAttribute(AttributeKey.ASSEMBLY_VALUE, immediateValue);
+					stepNode.setAttribute(AttributeKey.ASSEMBLY_VALUE, immediateValue);
 					break;
 				}
 				case DataTypeName.FLOAT : {
 					String immediateValue = this.generateImmediateOperandCode(executionDataType, "1.0");
-					stepNode.addAttribute(AttributeKey.ASSEMBLY_VALUE, immediateValue);
+					stepNode.setAttribute(AttributeKey.ASSEMBLY_VALUE, immediateValue);
 					break;
 				}
 			}

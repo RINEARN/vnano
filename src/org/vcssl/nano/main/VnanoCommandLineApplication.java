@@ -23,7 +23,6 @@ import javax.script.ScriptException;
 
 import org.vcssl.connect.MethodXfci1Adapter;
 import org.vcssl.nano.VnanoException;
-import org.vcssl.nano.compiler.Compiler;
 import org.vcssl.nano.compiler.AstNode;
 import org.vcssl.nano.compiler.CodeGenerator;
 import org.vcssl.nano.compiler.Parser;
@@ -33,6 +32,8 @@ import org.vcssl.nano.compiler.SemanticAnalyzer;
 import org.vcssl.nano.compiler.Token;
 import org.vcssl.nano.interconnect.Interconnect;
 import org.vcssl.nano.spec.ErrorMessage;
+import org.vcssl.nano.spec.OptionName;
+import org.vcssl.nano.spec.OptionValue;
 import org.vcssl.nano.vm.VirtualMachine;
 import org.vcssl.nano.vm.VirtualMachineObjectCode;
 import org.vcssl.nano.vm.accelerator.AccelerationDataManager;
@@ -61,6 +62,7 @@ public final class VnanoCommandLineApplication {
 	private static final String OPTION_NAME_HELP = "help";
 	private static final String OPTION_NAME_DUMP = "dump";
 	private static final String OPTION_NAME_RUN = "run";
+	private static final String OPTION_NAME_LOCALE = "locale";
 	private static final String OPTION_NAME_ACCELERATOR = "accelerator";
 	private static final String OPTION_NAME_ENCODING = "encoding";
 	private static final String OPTION_NAME_DEFAULT = OPTION_NAME_FILE;
@@ -75,8 +77,8 @@ public final class VnanoCommandLineApplication {
 	private static final String DUMP_TARGET_ALL = "all";
 	private static final String DUMP_TARGET_DEFAULT = DUMP_TARGET_ALL;
 
+	private HashMap<String, Object> optionMap = new HashMap<String, Object>();
 
-	private boolean acceleratorEnabled = true;
 	private boolean runRequired = true;
 	private String encoding = null;
 
@@ -154,6 +156,18 @@ public final class VnanoCommandLineApplication {
 		System.out.println("");
 		System.out.println("      java -jar Vnano.jar Example.vnano --encoding UTF-8");
 		System.out.println("      java -jar Vnano.jar Example.vnano --encoding Shift_JIS");
+		System.out.println("");
+		System.out.println("");
+
+		System.out.println("  --locale <localeCode>");
+		System.out.println("");
+		System.out.println("      Specify the locale to determine the language of error messages.");
+		System.out.println("      The default locale depends on your environment.");
+		System.out.println("");
+		System.out.println("    e.g.");
+		System.out.println("");
+		System.out.println("      java -jar Vnano.jar Example.vnano --locale En-US");
+		System.out.println("      java -jar Vnano.jar Example.vnano --locale Ja-JP");
 		System.out.println("");
 		System.out.println("");
 
@@ -307,7 +321,27 @@ public final class VnanoCommandLineApplication {
 
 			// --accelerator オプションの場合
 			case OPTION_NAME_ACCELERATOR : {
-				this.setAcceleratorEnabled(optionValue);
+				if (optionValue.equals("true") || optionValue.equals("false")) {
+					this.optionMap.put(OptionName.ACCELERATOR, Boolean.valueOf(optionValue));
+				} else {
+					System.err.println(
+							"Invalid value for " + OPTION_NAME_PREFIX + OPTION_NAME_ACCELERATOR + "option: " + optionValue
+					);
+				}
+				return true;
+			}
+
+			// --locale オプションの場合
+			case OPTION_NAME_LOCALE : {
+				// 先頭と末尾以外に「 - 」がある場合は、言語コードと国コードの区切りなので、分割して解釈
+				if (0 < optionValue.indexOf("-") && optionValue.indexOf("-") < optionValue.length()-1) {
+					String[] localeStrings = optionValue.split("-");
+					this.optionMap.put(OptionName.LOCALE, new Locale(localeStrings[0], localeStrings[1]));
+
+				// それ以外は言語コードとして解釈
+				} else {
+					this.optionMap.put(OptionName.LOCALE, new Locale(optionValue));
+				}
 				return true;
 			}
 
@@ -405,19 +439,6 @@ public final class VnanoCommandLineApplication {
 		}
 	}
 
-	private void setAcceleratorEnabled(String optionValue) {
-		// Boolean.valueOf だと true 以外が全て false になるので直球で比較
-		if (optionValue.equals("true")) {
-			this.acceleratorEnabled = true;
-		} else if (optionValue.equals("false")) {
-			this.acceleratorEnabled = false;
-		} else {
-			System.err.println(
-					"Invalid value for " + OPTION_NAME_PREFIX + OPTION_NAME_ACCELERATOR + "option: " + optionValue
-			);
-		}
-	}
-
 	private ScriptEngine createInitializedScriptEngine() {
 
 		// ScriptEngineManagerでVnanoのスクリプトエンジンを検索して取得
@@ -435,6 +456,7 @@ public final class VnanoCommandLineApplication {
 			engine.put("output(float)",  new Object[]{ ScriptIO.class.getMethod("output",double.class ), ioInstance } );
 			engine.put("output(bool)",   new Object[]{ ScriptIO.class.getMethod("output",boolean.class), ioInstance } );
 			engine.put("output(string)", new Object[]{ ScriptIO.class.getMethod("output",String.class ), ioInstance } );
+			engine.put("time()",         new Object[]{ ScriptIO.class.getMethod("time"), ioInstance } );
 
 		} catch (NoSuchMethodException e){
 			System.err.println("Method/field not found.");
@@ -689,7 +711,8 @@ public final class VnanoCommandLineApplication {
 		}
 
 		// Acceleratorが有効の場合は、その内部での高速化リソースもダンプする
-		if (this.acceleratorEnabled) {
+		boolean acceleratorEnabled = OptionValue.booleanValueOf(OptionName.ACCELERATOR, optionMap);
+		if (acceleratorEnabled) {
 
 			Memory memory = new Memory();
 			memory.allocate(vmObjectCode, interconnect.getGlobalVariableTable());
@@ -768,32 +791,14 @@ public final class VnanoCommandLineApplication {
 			return;
 		}
 
-		// --accelerator オプション対応のため、暫定的にスクリプトエンジン内のコンパイラとVMを直接呼ぶよう変更
-		/*
+		// オプションを設定
+		engine.put(OptionName.OPTION_MAP, this.optionMap);
+
 		// スクリプトを実行
 		try {
 			engine.eval(scriptCode);
 		} catch (ScriptException e) {
 			e.printStackTrace();
-			return;
-		}
-		*/
-
-		// メソッド接続済みのインターコネクトを生成して取得
-		Interconnect interconnect = this.createInitializedInterconnect();
-		if (interconnect == null) {
-			return;
-		}
-
-		// スクリプトコードをコンパイルし、プロセス仮想マシンで実行
-		try {
-			Compiler compiler = new Compiler();
-			String assemblyCode = compiler.compile(scriptCode, inputFilePath, interconnect);
-			VirtualMachine vm = new VirtualMachine();
-			vm.setAcceleratorEnabled(this.acceleratorEnabled);
-			vm.eval(assemblyCode, interconnect);
-		} catch (VnanoException vne) {
-			this.dumpException(vne);
 			return;
 		}
 	}
@@ -814,9 +819,8 @@ public final class VnanoCommandLineApplication {
 
 		// プロセス仮想マシンを生成し、VRILコードを渡して実行
 		VirtualMachine vm = new VirtualMachine();
-		vm.setAcceleratorEnabled(this.acceleratorEnabled);
 		try {
-			vm.eval(assemblyCode, interconnect);
+			vm.eval(assemblyCode, interconnect, this.optionMap);
 		} catch (VnanoException vne) {
 			this.dumpException(vne);
 			return;

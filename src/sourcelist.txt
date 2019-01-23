@@ -47,6 +47,8 @@
 ./org/vcssl/nano/spec/IdentifierSyntax.java
 ./org/vcssl/nano/spec/LiteralSyntax.java
 ./org/vcssl/nano/spec/OperationCode.java
+./org/vcssl/nano/spec/OptionName.java
+./org/vcssl/nano/spec/OptionValue.java
 ./org/vcssl/nano/spec/package-info.java
 ./org/vcssl/nano/spec/PriorityTable.java
 ./org/vcssl/nano/spec/ScriptWord.java

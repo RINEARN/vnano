@@ -109,32 +109,32 @@ public class CodeGeneratorTest {
 			String dataTypeName, int rank) {
 
 		AstNode node = new AstNode(AstNode.Type.OPERATOR, 123, "Test.vnano");
-		node.addAttribute(AttributeKey.OPERATOR_SYMBOL, symbol);
-		node.addAttribute(AttributeKey.OPERATOR_PRIORITY, Integer.toString(priority));
-		node.addAttribute(AttributeKey.OPERATOR_SYNTAX, syntax);
-		node.addAttribute(AttributeKey.OPERATOR_EXECUTOR, executor);
-		node.addAttribute(AttributeKey.OPERATOR_EXECUTION_DATA_TYPE, dataTypeName);
-		node.addAttribute(AttributeKey.DATA_TYPE, dataTypeName);
-		node.addAttribute(AttributeKey.RANK, Integer.toString(rank));
+		node.setAttribute(AttributeKey.OPERATOR_SYMBOL, symbol);
+		node.setAttribute(AttributeKey.OPERATOR_PRIORITY, Integer.toString(priority));
+		node.setAttribute(AttributeKey.OPERATOR_SYNTAX, syntax);
+		node.setAttribute(AttributeKey.OPERATOR_EXECUTOR, executor);
+		node.setAttribute(AttributeKey.OPERATOR_EXECUTION_DATA_TYPE, dataTypeName);
+		node.setAttribute(AttributeKey.DATA_TYPE, dataTypeName);
+		node.setAttribute(AttributeKey.RANK, Integer.toString(rank));
 		return node;
 	}
 
 	private AstNode createLiteralNode(String value, String dataTypeName, int rank) {
 		AstNode node = new AstNode(AstNode.Type.LEAF, 123, "Test.vnano");
-		node.addAttribute(AttributeKey.LEAF_TYPE, AttributeValue.LITERAL);
-		node.addAttribute(AttributeKey.LITERAL_VALUE, value);
-		node.addAttribute(AttributeKey.DATA_TYPE, dataTypeName);
-		node.addAttribute(AttributeKey.RANK, Integer.toString(rank));
+		node.setAttribute(AttributeKey.LEAF_TYPE, AttributeValue.LITERAL);
+		node.setAttribute(AttributeKey.LITERAL_VALUE, value);
+		node.setAttribute(AttributeKey.DATA_TYPE, dataTypeName);
+		node.setAttribute(AttributeKey.RANK, Integer.toString(rank));
 		return node;
 	}
 
 	private AstNode createVariableIdentifierNode(String identifier, String dataTypeName, int rank, String scope) {
 		AstNode node = new AstNode(AstNode.Type.LEAF, 123, "Test.vnano");
-		node.addAttribute(AttributeKey.LEAF_TYPE, AttributeValue.VARIABLE_IDENTIFIER);
-		node.addAttribute(AttributeKey.IDENTIFIER_VALUE, identifier);
-		node.addAttribute(AttributeKey.DATA_TYPE, dataTypeName);
-		node.addAttribute(AttributeKey.RANK, Integer.toString(rank));
-		node.addAttribute(AttributeKey.SCOPE, scope);
+		node.setAttribute(AttributeKey.LEAF_TYPE, AttributeValue.VARIABLE_IDENTIFIER);
+		node.setAttribute(AttributeKey.IDENTIFIER_VALUE, identifier);
+		node.setAttribute(AttributeKey.DATA_TYPE, dataTypeName);
+		node.setAttribute(AttributeKey.RANK, Integer.toString(rank));
+		node.setAttribute(AttributeKey.SCOPE, scope);
 		return node;
 	}
 

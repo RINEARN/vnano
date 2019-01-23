@@ -67,10 +67,10 @@ public class TokenTest {
 	}
 
 	@Test
-	public void testAddGetHasAttribute() {
+	public void testSetGetHasAttribute() {
 		Token token = new Token("Hello", 123, "Test.vnano");
 		assertFalse(token.hasAttribute(AttributeKey.IDENTIFIER_VALUE));
-		token.addAttribute(AttributeKey.IDENTIFIER_VALUE, "world");
+		token.setAttribute(AttributeKey.IDENTIFIER_VALUE, "world");
 		assertTrue(token.hasAttribute(AttributeKey.IDENTIFIER_VALUE));
 		assertEquals("world", token.getAttribute(AttributeKey.IDENTIFIER_VALUE));
 	}
@@ -87,8 +87,8 @@ public class TokenTest {
 	public void testToString() {
 		Token token = new Token("+", 123, "Test.vnano");
 		token.setType(Token.Type.OPERATOR);
-		token.addAttribute(AttributeKey.DATA_TYPE, "int");
-		token.addAttribute(AttributeKey.OPERATOR_SYMBOL, "+");
+		token.setAttribute(AttributeKey.DATA_TYPE, "int");
+		token.setAttribute(AttributeKey.OPERATOR_SYMBOL, "+");
 		token.setPriority(1);
 
 		assertEquals(
