@@ -61,6 +61,7 @@ public final class VnanoCommandLineApplication {
 	private static final String OPTION_NAME_HELP = "help";
 	private static final String OPTION_NAME_DUMP = "dump";
 	private static final String OPTION_NAME_RUN = "run";
+	private static final String OPTION_NAME_LOCALE = "locale";
 	private static final String OPTION_NAME_ACCELERATOR = "accelerator";
 	private static final String OPTION_NAME_ENCODING = "encoding";
 	private static final String OPTION_NAME_DEFAULT = OPTION_NAME_FILE;
@@ -154,6 +155,18 @@ public final class VnanoCommandLineApplication {
 		System.out.println("");
 		System.out.println("      java -jar Vnano.jar Example.vnano --encoding UTF-8");
 		System.out.println("      java -jar Vnano.jar Example.vnano --encoding Shift_JIS");
+		System.out.println("");
+		System.out.println("");
+
+		System.out.println("  --locale <localeCode>");
+		System.out.println("");
+		System.out.println("      Specify the locale to determine the language of error messages.");
+		System.out.println("      The default locale depends on your environment.");
+		System.out.println("");
+		System.out.println("    e.g.");
+		System.out.println("");
+		System.out.println("      java -jar Vnano.jar Example.vnano --locale En-US");
+		System.out.println("      java -jar Vnano.jar Example.vnano --locale Ja-JP");
 		System.out.println("");
 		System.out.println("");
 
@@ -307,7 +320,27 @@ public final class VnanoCommandLineApplication {
 
 			// --accelerator オプションの場合
 			case OPTION_NAME_ACCELERATOR : {
-				this.setAcceleratorEnabled(optionValue);
+				if (optionValue.equals("true") || optionValue.equals("false")) {
+					this.optionMap.put(OptionName.ACCELERATOR, Boolean.valueOf(optionValue));
+				} else {
+					System.err.println(
+							"Invalid value for " + OPTION_NAME_PREFIX + OPTION_NAME_ACCELERATOR + "option: " + optionValue
+					);
+				}
+				return true;
+			}
+
+			// --locale オプションの場合
+			case OPTION_NAME_LOCALE : {
+				// 先頭と末尾以外に「 - 」がある場合は、言語コードと国コードの区切りなので、分割して解釈
+				if (0 < optionValue.indexOf("-") && optionValue.indexOf("-") < optionValue.length()-1) {
+					String[] localeStrings = optionValue.split("-");
+					this.optionMap.put(OptionName.LOCALE, new Locale(localeStrings[0], localeStrings[1]));
+
+				// それ以外は言語コードとして解釈
+				} else {
+					this.optionMap.put(OptionName.LOCALE, new Locale(optionValue));
+				}
 				return true;
 			}
 
@@ -401,16 +434,6 @@ public final class VnanoCommandLineApplication {
 		} else {
 			System.err.println(
 					"Invalid value for " + OPTION_NAME_PREFIX + OPTION_NAME_RUN + "option: " + optionValue
-			);
-		}
-	}
-
-	private void setAcceleratorEnabled(String optionValue) {
-		if (optionValue.equals("true") || optionValue.equals("false")) {
-			this.optionMap.put(OptionName.ACCELERATOR, Boolean.valueOf(optionValue));
-		} else {
-			System.err.println(
-					"Invalid value for " + OPTION_NAME_PREFIX + OPTION_NAME_ACCELERATOR + "option: " + optionValue
 			);
 		}
 	}
