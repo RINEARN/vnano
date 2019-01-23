@@ -23,6 +23,7 @@ import org.vcssl.nano.compiler.Compiler;
 import org.vcssl.nano.interconnect.Interconnect;
 import org.vcssl.nano.spec.ErrorMessage;
 import org.vcssl.nano.spec.OptionName;
+import org.vcssl.nano.spec.OptionValue;
 import org.vcssl.nano.vm.VirtualMachine;
 
 
@@ -84,7 +85,7 @@ public class VnanoEngine implements ScriptEngine {
 
 			// コンパイラでVnanoスクリプトから中間アセンブリコード（VRILコード）に変換
 			Compiler compiler = new Compiler();
-			String assemblyCode = compiler.compile(scripts, names, interconnect);
+			String assemblyCode = compiler.compile(scripts, names, interconnect, this.optionMap);
 
 			// VMで中間アセンブリコード（VRILコード）を実行
 			VirtualMachine vm = new VirtualMachine();
@@ -237,23 +238,10 @@ public class VnanoEngine implements ScriptEngine {
 		this.optionMap = optionMap;
 
 		// ロケール設定を、このインスタンスの locale フィールドに反映
-		if (this.optionMap.containsKey(OptionName.LOCALE)) {
-			Object value = this.optionMap.get(OptionName.LOCALE);
-			if (!(value instanceof Locale)) {
-				throw new VnanoFatalException("The type of \"" + OptionName.LOCALE + "\" option should be \"Locale\"");
-			}
-			this.locale = (Locale)value;
-		}
+		this.locale = OptionValue.valueOf(OptionName.LOCALE, this.optionMap, Locale.class);
 
 		// eval対象スクリプト名の設定を、このインスタンスの evalScriptName フィールドに反映
-		if (this.optionMap.containsKey(OptionName.EVAL_SCRIPT_NAME)) {
-			Object value = this.optionMap.get(OptionName.EVAL_SCRIPT_NAME);
-			if (value instanceof String) {
-				this.evalScriptName = (String)value;
-			} else {
-				throw new VnanoFatalException("The type of \"" + OptionName.EVAL_SCRIPT_NAME + "\" option should be \"String\"");
-			}
-		}
+		this.evalScriptName = OptionValue.valueOf(OptionName.EVAL_SCRIPT_NAME, this.optionMap, String.class);
 
 		// ライブラリ名の設定を、このインスタンスの libraryScriptNames フィールドに反映
 		if (this.optionMap.containsKey(OptionName.LIBRARY_SCRIPT_NAME)) {
@@ -261,9 +249,7 @@ public class VnanoEngine implements ScriptEngine {
 			if (value instanceof String) {
 				this.libraryScriptNames = new String[] { (String)value };
 			} else if (value instanceof String[]) {
-				int length = ((String[])value).length;
-				this.libraryScriptNames = new String[length];
-				System.arraycopy(value, 0, this.libraryScriptNames, 0, length);
+				this.libraryScriptNames = OptionValue.stringArrayValueOf(OptionName.LIBRARY_SCRIPT_NAME, optionMap);
 			} else {
 				throw new VnanoFatalException(
 					"The type of \"" + OptionName.LIBRARY_SCRIPT_NAME + "\" option should be \"String\" or \"String[]\""
@@ -277,9 +263,7 @@ public class VnanoEngine implements ScriptEngine {
 			if (value instanceof String) {
 				this.libraryScriptCode = new String[] { (String)value };
 			} else if (value instanceof String[]) {
-				int length = ((String[])value).length;
-				this.libraryScriptCode = new String[length];
-				System.arraycopy(value, 0, this.libraryScriptCode, 0, length);
+				this.libraryScriptCode = OptionValue.stringArrayValueOf(OptionName.LIBRARY_SCRIPT_CODE, optionMap);
 			} else {
 				throw new VnanoFatalException(
 					"The type of \"" + OptionName.LIBRARY_SCRIPT_CODE + "\" option should be \"String\" or \"String[]\""

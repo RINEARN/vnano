@@ -152,8 +152,8 @@ public class SemanticAnalyzer {
 				localVariableTable.addVariable(variable);
 
 				// ノードに属性を付加
-				currentNode.addAttribute(AttributeKey.SCOPE, AttributeValue.LOCAL);
-				currentNode.addAttribute(AttributeKey.IDENTIFIER_SERIAL_NUMBER, Integer.toString(localVariableSerialNumber));
+				currentNode.setAttribute(AttributeKey.SCOPE, AttributeValue.LOCAL);
+				currentNode.setAttribute(AttributeKey.IDENTIFIER_SERIAL_NUMBER, Integer.toString(localVariableSerialNumber));
 
 				localVariableSerialNumber++;
 			}
@@ -168,18 +168,18 @@ public class SemanticAnalyzer {
 				if (localVariableTable.containsVariableWithName(variableName)) {
 
 					AbstractVariable variable = localVariableTable.getVariableByName(variableName);
-					currentNode.addAttribute(AttributeKey.IDENTIFIER_SERIAL_NUMBER, Integer.toString(variable.getSerialNumber()));
-					currentNode.addAttribute(AttributeKey.SCOPE, AttributeValue.LOCAL);
-					currentNode.addAttribute(AttributeKey.RANK, Integer.toString(variable.getRank()));
-					currentNode.addAttribute(AttributeKey.DATA_TYPE, variable.getDataTypeName());
+					currentNode.setAttribute(AttributeKey.IDENTIFIER_SERIAL_NUMBER, Integer.toString(variable.getSerialNumber()));
+					currentNode.setAttribute(AttributeKey.SCOPE, AttributeValue.LOCAL);
+					currentNode.setAttribute(AttributeKey.RANK, Integer.toString(variable.getRank()));
+					currentNode.setAttribute(AttributeKey.DATA_TYPE, variable.getDataTypeName());
 
 				// グローバル変数
 				} else if (globalVariableTable.containsVariableWithName(variableName)) {
 
 					AbstractVariable variable = globalVariableTable.getVariableByName(variableName);
-					currentNode.addAttribute(AttributeKey.SCOPE, AttributeValue.GLOBAL);
-					currentNode.addAttribute(AttributeKey.RANK, Integer.toString(variable.getRank()));
-					currentNode.addAttribute(AttributeKey.DATA_TYPE, variable.getDataTypeName());
+					currentNode.setAttribute(AttributeKey.SCOPE, AttributeValue.GLOBAL);
+					currentNode.setAttribute(AttributeKey.RANK, Integer.toString(variable.getRank()));
+					currentNode.setAttribute(AttributeKey.DATA_TYPE, variable.getDataTypeName());
 
 				} else {
 					throw new VnanoException(
@@ -319,9 +319,12 @@ public class SemanticAnalyzer {
 			if (currentNode.getType() == AstNode.Type.LEAF
 					&& currentNode.getAttribute(AttributeKey.LEAF_TYPE).equals(AttributeValue.LITERAL)) {
 
-				String literal = currentNode.getAttribute(AttributeKey.LITERAL_VALUE);
-				currentNode.addAttribute(AttributeKey.RANK, "0"); // 現状では配列のリテラルは存在しないため、常にスカラ
-				currentNode.addAttribute(AttributeKey.DATA_TYPE, LiteralSyntax.getDataTypeNameOfLiteral(literal));
+				currentNode.setAttribute(AttributeKey.RANK, "0"); // 現状では配列のリテラルは存在しないため、常にスカラ
+
+				// リテラルのデータ型はLexicalAnalyzerの時点で自明なので、その段階で既に設定されている
+				//（ EVAL_NUMBER_AS_FLOATオプションの実装上も、そうした方が都合が良い ）
+				// String literal = currentNode.getAttribute(AttributeKey.LITERAL_VALUE);
+				// currentNode.setAttribute(AttributeKey.DATA_TYPE, LiteralSyntax.getDataTypeNameOfLiteral(literal));
 			}
 		} while (!currentNode.isPreorderDfsTraversalLastNode());
 	}
@@ -471,12 +474,12 @@ public class SemanticAnalyzer {
 
 						// ローカル関数
 						if (localFunctionTable.hasCalleeFunctionOf(currentNode)) {
-							currentNode.addAttribute(AttributeKey.SCOPE, AttributeValue.LOCAL);
+							currentNode.setAttribute(AttributeKey.SCOPE, AttributeValue.LOCAL);
 							function = localFunctionTable.getCalleeFunctionOf(currentNode);
 
 						// グローバル関数
 						} else if (globalFunctionTable.hasCalleeFunctionOf(currentNode)) {
-							currentNode.addAttribute(AttributeKey.SCOPE, AttributeValue.GLOBAL);
+							currentNode.setAttribute(AttributeKey.SCOPE, AttributeValue.GLOBAL);
 							function = globalFunctionTable.getCalleeFunctionOf(currentNode);
 
 						} else {
@@ -504,13 +507,13 @@ public class SemanticAnalyzer {
 
 				// 演算子ノードに属性値を設定
 				if (dataType != null) {
-					currentNode.addAttribute(AttributeKey.DATA_TYPE, dataType);
+					currentNode.setAttribute(AttributeKey.DATA_TYPE, dataType);
 				}
 				if (operationDataType != null) {
-					currentNode.addAttribute(AttributeKey.OPERATOR_EXECUTION_DATA_TYPE, operationDataType);
+					currentNode.setAttribute(AttributeKey.OPERATOR_EXECUTION_DATA_TYPE, operationDataType);
 				}
 				if (rank != -1) {
-					currentNode.addAttribute(AttributeKey.RANK, Integer.toString(rank));
+					currentNode.setAttribute(AttributeKey.RANK, Integer.toString(rank));
 				}
 			}
 
@@ -542,8 +545,8 @@ public class SemanticAnalyzer {
 
 			if(currentNode.getType() == AstNode.Type.EXPRESSION) {
 				AstNode[] inputNodes = currentNode.getChildNodes();
-				currentNode.addAttribute(AttributeKey.DATA_TYPE, inputNodes[0].getDataTypeName());
-				currentNode.addAttribute(AttributeKey.RANK, Integer.toString(inputNodes[0].getRank()));
+				currentNode.setAttribute(AttributeKey.DATA_TYPE, inputNodes[0].getDataTypeName());
+				currentNode.setAttribute(AttributeKey.RANK, Integer.toString(inputNodes[0].getRank()));
 			}
 
 			currentNode = currentNode.getPostorderDfsTraversalNextNode();

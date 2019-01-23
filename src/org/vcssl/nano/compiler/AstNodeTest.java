@@ -154,7 +154,7 @@ public class AstNodeTest {
 		assertFalse(node.hasAttribute(AttributeKey.IDENTIFIER_VALUE));
 
 		// 属性を追加すると、その属性キーに対して  hasAttributes は true を返すようになる
-		node.addAttribute(AttributeKey.IDENTIFIER_VALUE, "hello");
+		node.setAttribute(AttributeKey.IDENTIFIER_VALUE, "hello");
 		assertTrue(node.hasAttribute(AttributeKey.IDENTIFIER_VALUE));
 
 		// 属性値を取得して一致比較
@@ -166,7 +166,7 @@ public class AstNodeTest {
 
 		// ノードを用意し、データ型名を属性値として設定
 		AstNode node = new AstNode(AstNode.Type.OPERATOR, 123, "Test.vnano");
-		node.addAttribute(AttributeKey.DATA_TYPE, "int");
+		node.setAttribute(AttributeKey.DATA_TYPE, "int");
 
 		// データ型名を取得して一致比較
 		assertEquals("int", node.getDataTypeName());
@@ -177,7 +177,7 @@ public class AstNodeTest {
 
 		// ノードを用意し、次元を属性値として設定
 		AstNode node = new AstNode(AstNode.Type.OPERATOR, 123, "Test.vnano");
-		node.addAttribute(AttributeKey.RANK, "3");
+		node.setAttribute(AttributeKey.RANK, "3");
 
 		// データ型名を取得して一致比較
 		assertEquals(3, node.getRank());

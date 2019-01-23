@@ -264,7 +264,7 @@ public class Parser {
 
 		// 型情報を付加
 		Token typeToken = tokens[readingIndex];
-		variableNode.addAttribute(AttributeKey.DATA_TYPE, typeToken.getValue());
+		variableNode.setAttribute(AttributeKey.DATA_TYPE, typeToken.getValue());
 		readingIndex++;
 
 		// 次のトークンが存在しないか、識別子トークンではない場合は構文エラー
@@ -279,7 +279,7 @@ public class Parser {
 
 		// 識別子情報を付加
 		Token nameToken = tokens[readingIndex];
-		variableNode.addAttribute(AttributeKey.IDENTIFIER_VALUE, nameToken.getValue());
+		variableNode.setAttribute(AttributeKey.IDENTIFIER_VALUE, nameToken.getValue());
 		readingIndex++;
 
 		// 配列要素数の検出
@@ -297,7 +297,7 @@ public class Parser {
 			arrayRank = arrayLengthNode.getChildNodes(AstNode.Type.EXPRESSION).length;
 			variableNode.addChildNode(arrayLengthNode);
 		}
-		variableNode.addAttribute(AttributeKey.RANK, Integer.toString(arrayRank));
+		variableNode.setAttribute(AttributeKey.RANK, Integer.toString(arrayRank));
 
 		// 初期化式
 		if(readingIndex<tokens.length-1 && tokens[readingIndex].getValue().equals(ScriptWord.ASSIGNMENT)) {
@@ -473,9 +473,9 @@ public class Parser {
 
 		// 関数宣言文のASTノードを生成し、属性値や引数ノードを登録
 		AstNode node = new AstNode(AstNode.Type.FUNCTION, lineNumber, fileName);
-		node.addAttribute(AttributeKey.IDENTIFIER_VALUE, identifierToken.getValue());
-		node.addAttribute(AttributeKey.DATA_TYPE, dataTypeToken.getValue());
-		node.addAttribute(AttributeKey.RANK, Integer.toString(rank));
+		node.setAttribute(AttributeKey.IDENTIFIER_VALUE, identifierToken.getValue());
+		node.setAttribute(AttributeKey.DATA_TYPE, dataTypeToken.getValue());
+		node.setAttribute(AttributeKey.RANK, Integer.toString(rank));
 		for (AstNode argNode: argumentNodeList) {
 			node.addChildNode(argNode);
 		}
@@ -804,10 +804,10 @@ public class Parser {
 	 */
 	private AstNode createOperatorNode(Token token) {
 		AstNode operatorNode = new AstNode(AstNode.Type.OPERATOR, token.getLineNumber(), token.getFileName());
-		operatorNode.addAttribute(AttributeKey.OPERATOR_SYNTAX, token.getAttribute(AttributeKey.OPERATOR_SYNTAX));
-		operatorNode.addAttribute(AttributeKey.OPERATOR_EXECUTOR, token.getAttribute(AttributeKey.OPERATOR_EXECUTOR));
-		operatorNode.addAttribute(AttributeKey.OPERATOR_SYMBOL, token.getValue());
-		operatorNode.addAttribute(AttributeKey.OPERATOR_PRIORITY, Integer.toString(token.getPriority()));
+		operatorNode.setAttribute(AttributeKey.OPERATOR_SYNTAX, token.getAttribute(AttributeKey.OPERATOR_SYNTAX));
+		operatorNode.setAttribute(AttributeKey.OPERATOR_EXECUTOR, token.getAttribute(AttributeKey.OPERATOR_EXECUTOR));
+		operatorNode.setAttribute(AttributeKey.OPERATOR_SYMBOL, token.getValue());
+		operatorNode.setAttribute(AttributeKey.OPERATOR_PRIORITY, Integer.toString(token.getPriority()));
 		return operatorNode;
 	}
 
@@ -821,15 +821,16 @@ public class Parser {
 	 */
 	private AstNode createLeafNode(Token token) {
 		AstNode node = new AstNode(AstNode.Type.LEAF, token.getLineNumber(), token.getFileName());
-		node.addAttribute(AttributeKey.LEAF_TYPE, token.getAttribute(AttributeKey.LEAF_TYPE));
+		node.setAttribute(AttributeKey.LEAF_TYPE, token.getAttribute(AttributeKey.LEAF_TYPE));
 
-		// リテラルなら値を LITERAL 属性に設定
+		// リテラルなら値を LITERAL 属性に設定し、LexicalAnalyzerで設定されているデータ型も設定
 		if (token.getAttribute(AttributeKey.LEAF_TYPE).equals(AttributeValue.LITERAL)) {
-			node.addAttribute(AttributeKey.LITERAL_VALUE, token.getValue());
+			node.setAttribute(AttributeKey.LITERAL_VALUE, token.getValue());
+			node.setAttribute(AttributeKey.DATA_TYPE, token.getAttribute(AttributeKey.DATA_TYPE));
 
 		// それ以外は識別子なので値を IDENTIFIER 属性に設定
 		} else {
-			node.addAttribute(AttributeKey.IDENTIFIER_VALUE, token.getValue());
+			node.setAttribute(AttributeKey.IDENTIFIER_VALUE, token.getValue());
 		}
 		return node;
 	}
@@ -846,7 +847,7 @@ public class Parser {
 	private AstNode createLeafNode(String tokenValue, String leafType, String fileName, int lineNumber) {
 		Token token = new Token(tokenValue, lineNumber, fileName);
 		token.setType(Token.Type.LEAF);
-		token.addAttribute(AttributeKey.LEAF_TYPE, leafType);
+		token.setAttribute(AttributeKey.LEAF_TYPE, leafType);
 		return this.createLeafNode(token);
 	}
 
@@ -864,7 +865,7 @@ public class Parser {
 	 */
 	private void pushLid(Deque<AstNode> stack) {
 		AstNode stackLid = new AstNode(AstNode.Type.STACK_LID, 0, "");
-		stackLid.addAttribute(AttributeKey.OPERATOR_PRIORITY, Integer.toString(PriorityTable.LEAST_PRIOR));
+		stackLid.setAttribute(AttributeKey.OPERATOR_PRIORITY, Integer.toString(PriorityTable.LEAST_PRIOR));
 		stack.push(stackLid);
 	}
 
@@ -888,8 +889,8 @@ public class Parser {
 	 */
 	private void pushLid(Deque<AstNode> stack, String marker) {
 		AstNode stackLid = new AstNode(AstNode.Type.STACK_LID, 0, "");
-		stackLid.addAttribute(AttributeKey.OPERATOR_PRIORITY, Integer.toString(PriorityTable.LEAST_PRIOR));
-		stackLid.addAttribute(AttributeKey.LID_MARKER, marker);
+		stackLid.setAttribute(AttributeKey.OPERATOR_PRIORITY, Integer.toString(PriorityTable.LEAST_PRIOR));
+		stackLid.setAttribute(AttributeKey.LID_MARKER, marker);
 		stack.push(stackLid);
 	}
 

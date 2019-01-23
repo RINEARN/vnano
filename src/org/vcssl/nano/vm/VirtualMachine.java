@@ -11,6 +11,7 @@ import org.vcssl.nano.VnanoException;
 import org.vcssl.nano.interconnect.DataConverter;
 import org.vcssl.nano.interconnect.Interconnect;
 import org.vcssl.nano.spec.OptionName;
+import org.vcssl.nano.spec.OptionValue;
 import org.vcssl.nano.vm.accelerator.Accelerator;
 import org.vcssl.nano.vm.assembler.Assembler;
 import org.vcssl.nano.vm.memory.DataContainer;
@@ -24,10 +25,7 @@ public class VirtualMachine {
 			throws VnanoException {
 
 		// オプションマップから、Accelerator（高速VM）を使用するかどうかの設定を取得
-		boolean acceleratorEnabled = true;
-		if (optionMap.containsKey(OptionName.ACCELERATOR)) {
-			acceleratorEnabled = (Boolean)optionMap.get(OptionName.ACCELERATOR);
-		}
+		boolean acceleratorEnabled = OptionValue.booleanValueOf(OptionName.ACCELERATOR, optionMap);
 
 		// アセンブラで中間アセンブリコード（VRILコード）から実行用の中間コードに変換
 		Assembler assembler = new Assembler();

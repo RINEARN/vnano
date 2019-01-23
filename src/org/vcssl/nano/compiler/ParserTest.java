@@ -29,14 +29,14 @@ public class ParserTest {
 	private Token createLiteralToken(String word) {
 		Token token = new Token(word, 123, "Test.vnano");
 		token.setType(Token.Type.LEAF);
-		token.addAttribute(AttributeKey.LEAF_TYPE, AttributeValue.LITERAL);
+		token.setAttribute(AttributeKey.LEAF_TYPE, AttributeValue.LITERAL);
 		return token;
 	}
 
 	private Token createVariableIdentifierToken(String word) {
 		Token token = new Token(word, 123, "Test.vnano");
 		token.setType(Token.Type.LEAF);
-		token.addAttribute(AttributeKey.LEAF_TYPE, AttributeValue.VARIABLE_IDENTIFIER);
+		token.setAttribute(AttributeKey.LEAF_TYPE, AttributeValue.VARIABLE_IDENTIFIER);
 		return token;
 	}
 
@@ -51,8 +51,8 @@ public class ParserTest {
 		Token token = new Token(word, 124, "Test.vnano");
 		token.setType(Token.Type.OPERATOR);
 		token.setPriority(priority);
-		token.addAttribute(AttributeKey.OPERATOR_SYNTAX, syntax);
-		token.addAttribute(AttributeKey.OPERATOR_EXECUTOR, executor);
+		token.setAttribute(AttributeKey.OPERATOR_SYNTAX, syntax);
+		token.setAttribute(AttributeKey.OPERATOR_EXECUTOR, executor);
 		return token;
 	}
 

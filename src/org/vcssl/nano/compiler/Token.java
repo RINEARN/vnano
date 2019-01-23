@@ -94,6 +94,16 @@ public class Token implements Cloneable {
 		this.attributeMap = new LinkedHashMap<AttributeKey, String>();
 	}
 
+	@SuppressWarnings("unchecked")
+	@Override
+	public Token clone() {
+		Token clone = new Token(this.value, this.lineNumber, this.fileName);
+		clone.type = this.type;
+		clone.priority = this.priority;
+		clone.attributeMap = (Map<AttributeKey,String>)( ((LinkedHashMap<AttributeKey,String>)this.attributeMap).clone() );
+		return clone;
+	}
+
 
 	/**
 	 * トークンの値を設定（変更）します。
@@ -155,12 +165,15 @@ public class Token implements Cloneable {
 
 
 	/**
-	 * 属性情報を追加します。
+	 * 属性情報を設定します。既に同じキーの属性が存在する場合は、上書きされます。
 	 *
 	 * @param attributeKey 属性キー
 	 * @param attributeValue 属性値
 	 */
-	public void addAttribute(AttributeKey attributeKey, String attributeValue) {
+	public void setAttribute(AttributeKey attributeKey, String attributeValue) {
+		if (this.attributeMap.containsKey(attributeKey)) {
+			this.attributeMap.remove(attributeKey);
+		}
 		this.attributeMap.put(attributeKey, attributeValue);
 	}
 
