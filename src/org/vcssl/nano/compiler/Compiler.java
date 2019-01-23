@@ -5,7 +5,11 @@
 
 package org.vcssl.nano.compiler;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import org.vcssl.nano.VnanoException;
+import org.vcssl.nano.VnanoFatalException;
 import org.vcssl.nano.interconnect.Interconnect;
 
 /**
@@ -32,43 +36,59 @@ public class Compiler {
 	 * {@link org.vcssl.nano.vm.assembler.Assembler Assembler}
 	 * が解釈可能な仮想アセンブリコード（文字列）に変換して返します。
 	 *
-	 * @param script スクリプトコード
-	 * @param fileName スクリプトのファイル名
+	 * @param scripts スクリプトコード
+	 * @param names スクリプトのファイル名
 	 * @param Intterconnect interconnect スクリプト内で参照する外部変数・関数の情報を保持しているインターコネクト
 	 * @return 仮想アセンブリコード
 	 * @throws VnanoException スクリプトコードの内容に異常があった場合にスローされます。
 	 */
-	public String compile(String script, String fileName, Interconnect interconnect)
+	public String compile(String[] scripts, String[] names, Interconnect interconnect)
 					throws VnanoException { // スクリプト内の型エラーはScriptCodeExceptionに入れるべき？
 
-		/*
-		// デバッグ用出力（入力スクリプト）
-		System.out.println(script);
-		System.out.println("-----");
-		*/
+		if (scripts.length != names.length) {
+			throw new VnanoFatalException(
+				"The array-length of \"scripts\" argument should be same with the length of \"names\" argument"
+			);
+		}
+
+		// スクリプトコードの枚数
+		int scriptLength = scripts.length;
+
+		// 最初に全スクリプトコードを結合してから処理すると、エラーメッセージの行番号などがずれてしまうため、
+		// 字句解析までは別々に処理し、行番号コードなどを保持するトークン配列まで変換してから結合する
 
 		// プリプロセッサでコメントを削除し、改行コードを LF (0x0A) に統一
-		script = new Preprocessor().preprocess(script);
-
-		/*
-		// デバッグ用出力（コメント削除結果）
-		System.out.println(script);
-		System.out.println("-----");
-		*/
+		String[] preprocessedScripts = new String[scriptLength];
+		for (int scriptIndex=0; scriptIndex<scriptLength; scriptIndex++) {
+			preprocessedScripts[scriptIndex] = new Preprocessor().preprocess(scripts[scriptIndex]);
+		}
 
 		// 字句解析でトークン配列を生成
-		Token[] tokens = new LexicalAnalyzer().analyze(script, fileName);
+		LexicalAnalyzer lexer = new LexicalAnalyzer();
+		Token[][] tokens = new Token[scriptLength][]; // [ スクリプトのインデックス ][ トークンのインデックス ]
+		for (int scriptIndex=0; scriptIndex<scriptLength; scriptIndex++) {
+			tokens[scriptIndex] = lexer.analyze(preprocessedScripts[scriptIndex], names[scriptIndex]);
+		}
+
+		// 全スクリプトのトークン配列を結合（各トークンが行番号情報などを保持しているため、結合によってずれる事はない）
+		List<Token> tokenList = new LinkedList<Token>();
+		for (int scriptIndex=0; scriptIndex<scriptLength; scriptIndex++) {
+			for (Token token: tokens[scriptIndex]) {
+				tokenList.add(token);
+			}
+		}
+		Token[] unifiedTokens = tokenList.toArray(new Token[0]);
 
 		/*
 		// デバッグ用出力（トークン配列）
-		for (Token token : tokens) {
+		for (Token token : unifiedTokens) {
 			System.out.println(token);
 		}
 		System.out.println("-----");
 		*/
 
 		// 構文解析でAST（抽象構文木）を生成
-		AstNode parsedNode = new Parser().parse(tokens);
+		AstNode parsedNode = new Parser().parse(unifiedTokens);
 
 		/*
 		// デバッグ用出力（構文解析後のAST）

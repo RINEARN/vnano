@@ -34,7 +34,8 @@ import org.vcssl.nano.vm.VirtualMachine;
  */
 public class VnanoEngine implements ScriptEngine {
 
-	private static final String DEFAULT_EVAL_SCRIPT_NAME = "EVAL_CODE";
+	private static final String DEFAULT_EVAL_SCRIPT_NAME = "EVAL_SCRIPT";
+	private static final String DEFAULT_LIBRARY_SCRIPT_NAME = "LIBRARY_SCRIPT";
 
 	/**
 	 * コンテキストを指定しない {@link VnanoEngine#eval eval} メソッドの呼び出し時に使用される、
@@ -49,8 +50,8 @@ public class VnanoEngine implements ScriptEngine {
 	/** エラーメッセージの言語を決めるロケール設定を保持します。 */
 	private Locale locale = Locale.getDefault();
 
-	private String[] libraryScriptNames;
-	private String[] libraryScriptCode;
+	private String[] libraryScriptNames = new String[0];
+	private String[] libraryScriptCode = new String[0];
 	private String evalScriptName = DEFAULT_EVAL_SCRIPT_NAME;
 
 
@@ -73,9 +74,17 @@ public class VnanoEngine implements ScriptEngine {
 			// Bindingsを処理系内の接続仲介オブジェクト（インターコネクト）に変換
 			Interconnect interconnect = new Interconnect(bindings);
 
+			// eval対象のコードとライブラリコードを配列にまとめる
+			String[] scripts = new String[this.libraryScriptCode.length  + 1];
+			String[] names   = new String[this.libraryScriptNames.length + 1];
+			System.arraycopy(this.libraryScriptCode,  0, scripts, 0, this.libraryScriptCode.length );
+			System.arraycopy(this.libraryScriptNames, 0, names,   0, this.libraryScriptNames.length);
+			scripts[this.libraryScriptCode.length] = script;
+			names[this.libraryScriptNames.length ] = this.evalScriptName;
+
 			// コンパイラでVnanoスクリプトから中間アセンブリコード（VRILコード）に変換
 			Compiler compiler = new Compiler();
-			String assemblyCode = compiler.compile(script, this.evalScriptName, interconnect);
+			String assemblyCode = compiler.compile(scripts, names, interconnect);
 
 			// VMで中間アセンブリコード（VRILコード）を実行
 			VirtualMachine vm = new VirtualMachine();
@@ -275,6 +284,15 @@ public class VnanoEngine implements ScriptEngine {
 				throw new VnanoFatalException(
 					"The type of \"" + OptionName.LIBRARY_SCRIPT_CODE + "\" option should be \"String\" or \"String[]\""
 				);
+			}
+
+			// ライブラリ名が指定されていない場合は、デフォルト値 + "[ライブラリインデックス]" として生成しておく
+			if (this.optionMap.containsKey(OptionName.LIBRARY_SCRIPT_NAME)) {
+				int libraryLength = this.libraryScriptCode.length;
+				this.libraryScriptNames = new String[libraryLength];
+				for (int libraryIndex=0; libraryIndex<libraryLength; libraryIndex++) {
+					this.libraryScriptNames[libraryIndex] = DEFAULT_LIBRARY_SCRIPT_NAME + "[" + libraryIndex + "]";
+				}
 			}
 		}
 	}
