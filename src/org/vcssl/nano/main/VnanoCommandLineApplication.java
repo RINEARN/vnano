@@ -23,7 +23,6 @@ import javax.script.ScriptException;
 
 import org.vcssl.connect.MethodXfci1Adapter;
 import org.vcssl.nano.VnanoException;
-import org.vcssl.nano.compiler.Compiler;
 import org.vcssl.nano.compiler.AstNode;
 import org.vcssl.nano.compiler.CodeGenerator;
 import org.vcssl.nano.compiler.Parser;
@@ -33,6 +32,7 @@ import org.vcssl.nano.compiler.SemanticAnalyzer;
 import org.vcssl.nano.compiler.Token;
 import org.vcssl.nano.interconnect.Interconnect;
 import org.vcssl.nano.spec.ErrorMessage;
+import org.vcssl.nano.spec.OptionName;
 import org.vcssl.nano.vm.VirtualMachine;
 import org.vcssl.nano.vm.VirtualMachineObjectCode;
 import org.vcssl.nano.vm.accelerator.AccelerationDataManager;
@@ -75,8 +75,8 @@ public final class VnanoCommandLineApplication {
 	private static final String DUMP_TARGET_ALL = "all";
 	private static final String DUMP_TARGET_DEFAULT = DUMP_TARGET_ALL;
 
+	private HashMap<String, Object> optionMap = new HashMap<String, Object>();
 
-	private boolean acceleratorEnabled = true;
 	private boolean runRequired = true;
 	private String encoding = null;
 
@@ -406,11 +406,8 @@ public final class VnanoCommandLineApplication {
 	}
 
 	private void setAcceleratorEnabled(String optionValue) {
-		// Boolean.valueOf だと true 以外が全て false になるので直球で比較
-		if (optionValue.equals("true")) {
-			this.acceleratorEnabled = true;
-		} else if (optionValue.equals("false")) {
-			this.acceleratorEnabled = false;
+		if (optionValue.equals("true") || optionValue.equals("false")) {
+			this.optionMap.put(OptionName.ACCELERATOR, Boolean.valueOf(optionValue));
 		} else {
 			System.err.println(
 					"Invalid value for " + OPTION_NAME_PREFIX + OPTION_NAME_ACCELERATOR + "option: " + optionValue
@@ -435,6 +432,7 @@ public final class VnanoCommandLineApplication {
 			engine.put("output(float)",  new Object[]{ ScriptIO.class.getMethod("output",double.class ), ioInstance } );
 			engine.put("output(bool)",   new Object[]{ ScriptIO.class.getMethod("output",boolean.class), ioInstance } );
 			engine.put("output(string)", new Object[]{ ScriptIO.class.getMethod("output",String.class ), ioInstance } );
+			engine.put("time()",         new Object[]{ ScriptIO.class.getMethod("time"), ioInstance } );
 
 		} catch (NoSuchMethodException e){
 			System.err.println("Method/field not found.");
@@ -689,7 +687,11 @@ public final class VnanoCommandLineApplication {
 		}
 
 		// Acceleratorが有効の場合は、その内部での高速化リソースもダンプする
-		if (this.acceleratorEnabled) {
+		boolean acceleratorEnabled = true;
+		if (this.optionMap.containsKey(OptionName.ACCELERATOR)) {
+			acceleratorEnabled = ((Boolean)this.optionMap.get(OptionName.ACCELERATOR)).booleanValue();
+		}
+		if (acceleratorEnabled) {
 
 			Memory memory = new Memory();
 			memory.allocate(vmObjectCode, interconnect.getGlobalVariableTable());
@@ -768,32 +770,14 @@ public final class VnanoCommandLineApplication {
 			return;
 		}
 
-		// --accelerator オプション対応のため、暫定的にスクリプトエンジン内のコンパイラとVMを直接呼ぶよう変更
-		/*
+		// オプションを設定
+		engine.put(OptionName.OPTION_MAP, this.optionMap);
+
 		// スクリプトを実行
 		try {
 			engine.eval(scriptCode);
 		} catch (ScriptException e) {
 			e.printStackTrace();
-			return;
-		}
-		*/
-
-		// メソッド接続済みのインターコネクトを生成して取得
-		Interconnect interconnect = this.createInitializedInterconnect();
-		if (interconnect == null) {
-			return;
-		}
-
-		// スクリプトコードをコンパイルし、プロセス仮想マシンで実行
-		try {
-			Compiler compiler = new Compiler();
-			String assemblyCode = compiler.compile(scriptCode, inputFilePath, interconnect);
-			VirtualMachine vm = new VirtualMachine();
-			vm.setAcceleratorEnabled(this.acceleratorEnabled);
-			vm.eval(assemblyCode, interconnect);
-		} catch (VnanoException vne) {
-			this.dumpException(vne);
 			return;
 		}
 	}
@@ -814,9 +798,8 @@ public final class VnanoCommandLineApplication {
 
 		// プロセス仮想マシンを生成し、VRILコードを渡して実行
 		VirtualMachine vm = new VirtualMachine();
-		vm.setAcceleratorEnabled(this.acceleratorEnabled);
 		try {
-			vm.eval(assemblyCode, interconnect);
+			vm.eval(assemblyCode, interconnect, this.optionMap);
 		} catch (VnanoException vne) {
 			this.dumpException(vne);
 			return;

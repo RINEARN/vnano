@@ -5,9 +5,12 @@
 
 package org.vcssl.nano.vm;
 
+import java.util.Map;
+
 import org.vcssl.nano.VnanoException;
 import org.vcssl.nano.interconnect.DataConverter;
 import org.vcssl.nano.interconnect.Interconnect;
+import org.vcssl.nano.spec.OptionName;
 import org.vcssl.nano.vm.accelerator.Accelerator;
 import org.vcssl.nano.vm.assembler.Assembler;
 import org.vcssl.nano.vm.memory.DataContainer;
@@ -17,13 +20,14 @@ import org.vcssl.nano.vm.processor.Processor;
 
 public class VirtualMachine {
 
-	private boolean acceleratorEnabled = true;
+	public Object eval(String assemblyCode, Interconnect interconnect, Map<String, Object> optionMap)
+			throws VnanoException {
 
-	public void setAcceleratorEnabled(boolean enabled) {
-		this.acceleratorEnabled = enabled;
-	}
-
-	public Object eval(String assemblyCode, Interconnect interconnect) throws VnanoException {
+		// オプションマップから、Accelerator（高速VM）を使用するかどうかの設定を取得
+		boolean acceleratorEnabled = true;
+		if (optionMap.containsKey(OptionName.ACCELERATOR)) {
+			acceleratorEnabled = (Boolean)optionMap.get(OptionName.ACCELERATOR);
+		}
 
 		// アセンブラで中間アセンブリコード（VRILコード）から実行用の中間コードに変換
 		Assembler assembler = new Assembler();
@@ -36,7 +40,7 @@ public class VirtualMachine {
 		// VMで中間コードの命令列を実行
 		Instruction[] instructions = intermediateCode.getInstructions();
 		Processor processor = new Processor();
-		if (this.acceleratorEnabled) {
+		if (acceleratorEnabled) {
 			Accelerator accelerator = new Accelerator();
 			accelerator.process(instructions, memory, interconnect, processor);
 		} else {

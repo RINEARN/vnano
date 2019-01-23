@@ -7,7 +7,9 @@ package org.vcssl.nano;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 import javax.script.Bindings;
 import javax.script.ScriptContext;
@@ -20,6 +22,7 @@ import javax.script.SimpleScriptContext;
 import org.vcssl.nano.compiler.Compiler;
 import org.vcssl.nano.interconnect.Interconnect;
 import org.vcssl.nano.spec.ErrorMessage;
+import org.vcssl.nano.spec.OptionName;
 import org.vcssl.nano.vm.VirtualMachine;
 
 
@@ -31,7 +34,7 @@ import org.vcssl.nano.vm.VirtualMachine;
  */
 public class VnanoEngine implements ScriptEngine {
 
-	private static final String DEFAULT_SCRIPT_NAME = "EVAL_CODE";
+	private static final String DEFAULT_EVAL_SCRIPT_NAME = "EVAL_CODE";
 
 	/**
 	 * コンテキストを指定しない {@link VnanoEngine#eval eval} メソッドの呼び出し時に使用される、
@@ -40,10 +43,16 @@ public class VnanoEngine implements ScriptEngine {
 	private ScriptContext scriptContext = null;
 
 
-	/**
-	 * エラーメッセージの表示言語指定などに使用されるロケールを保持します。
-	 */
+	/** 全てのオプション名と値を保持するマップです。 */
+	private Map<String, Object> optionMap = new HashMap<String, Object>();
+
+	/** エラーメッセージの言語を決めるロケール設定を保持します。 */
 	private Locale locale = Locale.getDefault();
+
+	private String[] libraryScriptNames;
+	private String[] libraryScriptCode;
+	private String evalScriptName = DEFAULT_EVAL_SCRIPT_NAME;
+
 
 
 	/**
@@ -66,17 +75,20 @@ public class VnanoEngine implements ScriptEngine {
 
 			// コンパイラでVnanoスクリプトから中間アセンブリコード（VRILコード）に変換
 			Compiler compiler = new Compiler();
-			String assemblyCode = compiler.compile(script, DEFAULT_SCRIPT_NAME, interconnect);
+			String assemblyCode = compiler.compile(script, this.evalScriptName, interconnect);
 
 			// VMで中間アセンブリコード（VRILコード）を実行
 			VirtualMachine vm = new VirtualMachine();
-			Object evalValue = vm.eval(assemblyCode, interconnect);
+			Object evalValue = vm.eval(assemblyCode, interconnect, this.optionMap);
 			return evalValue;
 
 		// 発生し得る例外は ScriptException でラップして投げる
 		} catch (VnanoException e) {
 
+			// ロケール設定に応じた言語でエラーメッセージを生成
 			String message = ErrorMessage.generateErrorMessage(e.getErrorType(), e.getErrorWords(), this.locale);
+
+			// エラーメッセージから ScriptException を生成して投げる
 			if (e.hasFileName() && e.hasLineNumber()) {
 				throw new ScriptException(message + ":", e.getFileName(), e.getLineNumber());
 			} else {
@@ -137,14 +149,33 @@ public class VnanoEngine implements ScriptEngine {
 	}
 
 
-
-
-
-
 	@Override
 	public void put(String name, Object value) {
-		this.scriptContext.getBindings(ScriptContext.ENGINE_SCOPE).put(name, value);
+
+		// オプションの場合
+		if (name.equals(OptionName.OPTION_MAP)) {
+			if (value instanceof Map) {
+				try {
+					// 型パラメータ情報はコンパイル時に落ちているので、String をキーとして渡してみてエラーになれば弾く
+					@SuppressWarnings({ "unused" })
+					boolean b = ((Map<?,?>)value).containsKey("abcde");
+
+					// エラーにならなければキャストして読み込み
+					@SuppressWarnings("unchecked")
+					Map<String, Object> castedMap = (Map<String, Object>)value;
+					this.setOptions(castedMap);
+
+				} catch (Exception e) {
+					throw new VnanoFatalException("The type of \"" + optionMap + "\" should be \"Map<String,Object>\"", e);
+				}
+			}
+
+		// 外部変数/関数のバインディングの場合
+		} else {
+			this.scriptContext.getBindings(ScriptContext.ENGINE_SCOPE).put(name, value);
+		}
 	}
+
 
 	@Override
 	public Object get(String name) {
@@ -181,5 +212,71 @@ public class VnanoEngine implements ScriptEngine {
 		return new VnanoEngineFactory();
 	}
 
+
+	/**
+	 * 全オプションの名前と値を格納するマップによって、オプションを設定します。
+	 *
+	 * オプションマップは Map<String,Object> 型で、そのキーにはオプション名を指定します。
+	 * オプション名の具体的な値は {@link org.vcssl.nano.spec.OptionName} クラスに文字列定数として定義されています。
+	 * オプションマップの値は Object 型ですが、実際の値は対応するオプション名によって異なります。
+	 * こちらも、具体的な内容は {@link org.vcssl.nano.spec.OptionName} クラスに記載されている説明を参照してください。
+	 *
+	 * @param optionMap 全オプションの名前と値を格納するマップ
+	 */
+	private void setOptions(Map<String,Object> optionMap) {
+
+		this.optionMap = optionMap;
+
+		// ロケール設定を、このインスタンスの locale フィールドに反映
+		if (this.optionMap.containsKey(OptionName.LOCALE)) {
+			Object value = this.optionMap.get(OptionName.LOCALE);
+			if (!(value instanceof Locale)) {
+				throw new VnanoFatalException("The type of \"" + OptionName.LOCALE + "\" option should be \"Locale\"");
+			}
+			this.locale = (Locale)value;
+		}
+
+		// eval対象スクリプト名の設定を、このインスタンスの evalScriptName フィールドに反映
+		if (this.optionMap.containsKey(OptionName.EVAL_SCRIPT_NAME)) {
+			Object value = this.optionMap.get(OptionName.EVAL_SCRIPT_NAME);
+			if (value instanceof String) {
+				this.evalScriptName = (String)value;
+			} else {
+				throw new VnanoFatalException("The type of \"" + OptionName.EVAL_SCRIPT_NAME + "\" option should be \"String\"");
+			}
+		}
+
+		// ライブラリ名の設定を、このインスタンスの libraryScriptNames フィールドに反映
+		if (this.optionMap.containsKey(OptionName.LIBRARY_SCRIPT_NAME)) {
+			Object value = this.optionMap.get(OptionName.LIBRARY_SCRIPT_NAME);
+			if (value instanceof String) {
+				this.libraryScriptNames = new String[] { (String)value };
+			} else if (value instanceof String[]) {
+				int length = ((String[])value).length;
+				this.libraryScriptNames = new String[length];
+				System.arraycopy(value, 0, this.libraryScriptNames, 0, length);
+			} else {
+				throw new VnanoFatalException(
+					"The type of \"" + OptionName.LIBRARY_SCRIPT_NAME + "\" option should be \"String\" or \"String[]\""
+				);
+			}
+		}
+
+		// ライブラリコードの設定を、このインスタンスの libraryScriptCode フィールドに反映
+		if (this.optionMap.containsKey(OptionName.LIBRARY_SCRIPT_CODE)) {
+			Object value = this.optionMap.get(OptionName.LIBRARY_SCRIPT_CODE);
+			if (value instanceof String) {
+				this.libraryScriptCode = new String[] { (String)value };
+			} else if (value instanceof String[]) {
+				int length = ((String[])value).length;
+				this.libraryScriptCode = new String[length];
+				System.arraycopy(value, 0, this.libraryScriptCode, 0, length);
+			} else {
+				throw new VnanoFatalException(
+					"The type of \"" + OptionName.LIBRARY_SCRIPT_CODE + "\" option should be \"String\" or \"String[]\""
+				);
+			}
+		}
+	}
 
 }
