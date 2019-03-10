@@ -30,6 +30,18 @@ public class AttributeValue {
 	// OPERATOR_EXECUTION
 
 	/**
+	 * {@link AttributeKey#OPERATOR_ASSOCIATIVITY
+	 * OPERATOR_ASSOCIATIVITY}属性の値であり、右結合を表します。
+	 */
+	public static final String RIGHT = "right";
+
+	/**
+	 * {@link AttributeKey#OPERATOR_ASSOCIATIVITY
+	 * OPERATOR_ASSOCIATIVITY}属性の値であり、右結合を表します。
+	 */
+	public static final String LEFT = "left";
+
+	/**
 	 * {@link AttributeKey#OPERATOR_EXECUTOR
 	 * OPERATOR_EXECUTION}属性の値であり、算術演算子を表します。
 	 */
