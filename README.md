@@ -12,6 +12,9 @@ Vnano (<a href="https://www.vcssl.org/">VCSSL</a> nano) は、Java&reg; アプ�
   <img src="https://github.com/RINEARN/vnano/blob/master/logo.png" alt="" width="890" />
 </div>
 
+As an example of a practical application using the Vnano, see also: <a href="https://github.com/RINEARN/rinearn-processor-nano">RINEARN Processor nano</a>.
+
+実際に Vnano を使用した、実用目的のアプリケーションの例としては「 <a href="https://github.com/RINEARN/rinearn-processor-nano">リニアンプロセッサー nano</a> 」をご参照ください。
 
 
 ## Index - 目次
