@@ -62,10 +62,11 @@ public class LexicalAnalyzer {
 		// 置き換え済みコードを字句解析し、トークン配列を生成
 		Token[] tokens = this.tokenize(stringLiteralReplacedCode, fileName);
 
-		// トークン配列の内容を追加で解析し、トークンタイプや演算子優先度、リテラルのデータ型などの情報を付加
-		this.analyzeTokenType(tokens);
-		this.analyzePriority(tokens);
-		this.analyzeLiteralAttributes(tokens);
+		// トークン配列の内容を追加で解析し、トークンタイプや演算子の優先度/結合性、リテラルのデータ型などの情報を付加
+		this.analyzeTokenType(tokens);         // トークンタイプ
+		this.analyzePriority(tokens);          // 演算子の優先度
+		this.analyzeAssociativity(tokens);     // 演算子の結合性
+		this.analyzeLiteralAttributes(tokens); // リテラルのデータ型
 
 		// トークン配列が保持する文字列リテラルを復元する
 		this.embedStringLiterals(tokens, stringLiteralExtractResult);
@@ -537,6 +538,101 @@ public class LexicalAnalyzer {
 			}
 		}
 	}
+
+
+	/**
+	 * トークン配列内の演算子トークンに、結合性を設定します。
+	 *
+	 * @param tokens 解析・設定対象のトークン配列
+	 */
+	private void analyzeAssociativity(Token[] tokens) {
+		int length = tokens.length;
+		for(int i=0; i<length; i++) {
+
+			// 演算子トークンのみが解析対象なので、それ以外のトークンはスキップ
+			if (tokens[i].getType() != Token.Type.OPERATOR) {
+				continue;
+			}
+
+			// 大半の演算子は左結合なので、デフォルトを左結合とし、右結合の演算子のみを抽出して設定する
+			String associativity = AttributeValue.LEFT;
+
+			String symbol = tokens[i].getValue();
+			switch (symbol) {
+
+				// 前置インクリメント
+				case ScriptWord.INCREMENT : {
+					if (tokens[i].getAttribute(AttributeKey.OPERATOR_SYNTAX).equals(AttributeValue.PREFIX)) {
+						associativity = AttributeValue.RIGHT;
+					}
+					break;
+				}
+				// 前置デクリメント
+				case ScriptWord.DECREMENT : {
+					if (tokens[i].getAttribute(AttributeKey.OPERATOR_SYNTAX).equals(AttributeValue.PREFIX)) {
+						associativity = AttributeValue.RIGHT;
+					}
+					break;
+				}
+				// 論理否定
+				case ScriptWord.NOT : {
+					associativity = AttributeValue.RIGHT;
+					break;
+				}
+				// 単項プラス
+				case ScriptWord.PLUS : {
+					if (tokens[i].getAttribute(AttributeKey.OPERATOR_SYNTAX).equals(AttributeValue.PREFIX)) {
+						associativity = AttributeValue.RIGHT;
+					}
+					break;
+				}
+				// 単項マイナス
+				case ScriptWord.MINUS : {
+					if (tokens[i].getAttribute(AttributeKey.OPERATOR_SYNTAX).equals(AttributeValue.PREFIX)) {
+						associativity = AttributeValue.RIGHT;
+					}
+					break;
+				}
+				// 代入
+				case ScriptWord.ASSIGNMENT : {
+					associativity = AttributeValue.RIGHT;
+					break;
+				}
+				// 加算代入
+				case ScriptWord.ADDITION_ASSIGNMENT : {
+					associativity = AttributeValue.RIGHT;
+					break;
+				}
+				// 減算代入
+				case ScriptWord.SUBTRACTION_ASSIGNMENT : {
+					associativity = AttributeValue.RIGHT;
+					break;
+				}
+				// 乗算代入
+				case ScriptWord.MULTIPLICATION_ASSIGNMENT : {
+					associativity = AttributeValue.RIGHT;
+					break;
+				}
+				// 除算代入
+				case ScriptWord.DIVISION_ASSIGNMENT : {
+					associativity = AttributeValue.RIGHT;
+					break;
+				}
+				// 剰余算代入
+				case ScriptWord.REMAINDER_ASSIGNMENT : {
+					associativity = AttributeValue.RIGHT;
+					break;
+				}
+				default : {
+					break;
+				}
+			}
+
+			// 求めた結合性情報を、トークンに属性値として設定
+			tokens[i].setAttribute(AttributeKey.OPERATOR_ASSOCIATIVITY, associativity);
+		}
+	}
+
 
 	/**
 	 * トークン配列内のリテラルトークン要素に対して、データ型などの属性値を解析して設定します。
