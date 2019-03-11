@@ -660,7 +660,16 @@ public class Parser {
 						operatorNode.addChildNode(stack.pop());
 
 						// 優先度が次の演算子よりも強い場合、右トークンを先読みし、リーフノードとして演算子ノードにぶら下げる
-						if (readingPriority <= rightOperatorPriorities[readingIndex]) { // 数字が小さい方が優先度が高い
+
+						// 右結合実装前の記述
+						//if (readingPriority <= rightOperatorPriorities[readingIndex]) { // 数字が小さい方が優先度が高い
+
+						// 右結合実装のため改変中
+						int rightPriority = rightOperatorPriorities[readingIndex];
+						String associativity = readingToken.getAttribute(AttributeKey.OPERATOR_ASSOCIATIVITY);
+						if (readingPriority < rightPriority // ※数字が小さい方が優先度が高い
+								|| (readingPriority == rightPriority && associativity.equals(AttributeValue.LEFT))) {
+
 							operatorNode.addChildNode( this.createLeafNode(tokens[readingIndex+1]) );
 							readingIndex++; // 次のトークンは先読みして処理を終えたので1つ余分に進める -> これのせいで関数切り分けできない
 						}
@@ -804,6 +813,7 @@ public class Parser {
 	 */
 	private AstNode createOperatorNode(Token token) {
 		AstNode operatorNode = new AstNode(AstNode.Type.OPERATOR, token.getLineNumber(), token.getFileName());
+		operatorNode.setAttribute(AttributeKey.OPERATOR_ASSOCIATIVITY, token.getAttribute(AttributeKey.OPERATOR_ASSOCIATIVITY));
 		operatorNode.setAttribute(AttributeKey.OPERATOR_SYNTAX, token.getAttribute(AttributeKey.OPERATOR_SYNTAX));
 		operatorNode.setAttribute(AttributeKey.OPERATOR_EXECUTOR, token.getAttribute(AttributeKey.OPERATOR_EXECUTOR));
 		operatorNode.setAttribute(AttributeKey.OPERATOR_SYMBOL, token.getValue());
