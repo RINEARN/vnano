@@ -329,9 +329,9 @@ public class LexicalChecker {
 			if (token.getType() == Token.Type.OPERATOR) {
 				String operatorSyntax = token.getAttribute(AttributeKey.OPERATOR_SYNTAX);
 
-				// 前置演算子の場合は、右がリーフか開き括弧か多項演算子（関数呼び出しや配列アクセス）始点でないとエラー
+				// 前置演算子の場合は、右がリーフか開き括弧か多項演算子（関数呼び出しや配列アクセス）始点か前置演算子でないとエラー
 				if (operatorSyntax.equals(AttributeValue.PREFIX)
-						&& !(  nextIsLeaf || nextIsOpenParenthesis || nextIsMultialyBegin  ) ) {
+						&& !(  nextIsLeaf || nextIsOpenParenthesis || nextIsMultialyBegin || nextIsPrefixOperator  ) ) {
 
 					throw new VnanoException(
 							ErrorType.OPERAND_IS_MISSING_AT_RIGHT,
@@ -339,9 +339,9 @@ public class LexicalChecker {
 					);
 				} // 前置演算子の場合
 
-				// 後置演算子の場合は、右がリーフか閉じ括弧か多項演算子（関数呼び出しや配列アクセス）終点でないとエラー
+				// 後置演算子の場合は、右がリーフか閉じ括弧か多項演算子（関数呼び出しや配列アクセス）終点や後置演算子でないとエラー
 				if (operatorSyntax.equals(AttributeValue.POSTFIX)
-						&& !(  prevIsLeaf || prevIsCloseParenthesis || prevIsMultialyEnd ) ) {
+						&& !(  prevIsLeaf || prevIsCloseParenthesis || prevIsMultialyEnd || prevIsPostfixOperator ) ) {
 
 					throw new VnanoException(
 							ErrorType.OPERAND_IS_MISSING_AT_LEFT,

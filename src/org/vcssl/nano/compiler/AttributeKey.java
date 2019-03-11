@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2018 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2019 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -67,6 +67,9 @@ public enum AttributeKey {
 
 	/** 演算子ノードにおいて、演算子の優先度を保持する属性のキーです。 */
 	OPERATOR_PRIORITY,
+
+	/** 演算子ノードにおいて、結合性（右結合か左結合か）を区別する属性のキーです。 */
+	OPERATOR_ASSOCIATIVITY,
 
 	/** 演算子ノードにおいて、演算子の構文の種類（二項演算子など）を区別する属性のキーです。 */
 	OPERATOR_SYNTAX,

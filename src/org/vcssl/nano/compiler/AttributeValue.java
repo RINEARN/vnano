@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2018 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2019 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -28,6 +28,18 @@ package org.vcssl.nano.compiler;
 public class AttributeValue {
 
 	// OPERATOR_EXECUTION
+
+	/**
+	 * {@link AttributeKey#OPERATOR_ASSOCIATIVITY
+	 * OPERATOR_ASSOCIATIVITY}属性の値であり、右結合を表します。
+	 */
+	public static final String RIGHT = "right";
+
+	/**
+	 * {@link AttributeKey#OPERATOR_ASSOCIATIVITY
+	 * OPERATOR_ASSOCIATIVITY}属性の値であり、右結合を表します。
+	 */
+	public static final String LEFT = "left";
 
 	/**
 	 * {@link AttributeKey#OPERATOR_EXECUTOR
