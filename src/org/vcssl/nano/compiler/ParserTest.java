@@ -1338,11 +1338,11 @@ public class ParserTest {
 	}
 
 
-	// 複数演算子が混合する式のテスト / + + + + のパターン
+	// 複数演算子が混合する式のテスト ( + + + + のパターン )
 	@Test
 	public void testParseExpressionAddAddAddAdd() throws VnanoException {
 
-		// "1 + 2 + 3 + 4 + 5" のトークン配列を用意
+		// "1 + 2 + 3 + 4 + 5 ;" のトークン配列を用意
 		Token[] tokens = new Token[]{
 			this.createLiteralToken("1"),
 			this.createOperatorToken(ScriptWord.PLUS, PriorityTable.ADDITION, AttributeValue.BINARY, AttributeValue.ARITHMETIC),
@@ -1412,11 +1412,11 @@ public class ParserTest {
 	}
 
 
-	// 複数演算子が混合する式のテスト / + * * + のパターン
+	// 複数演算子が混合する式のテスト ( + * * + のパターン )
 	@Test
 	public void testParseExpressionAddMulMulAdd() throws VnanoException {
 
-		// "1 + 2 * 3 * 4 + 5" のトークン配列を用意
+		// "1 + 2 * 3 * 4 + 5 ;" のトークン配列を用意
 		Token[] tokens = new Token[]{
 			this.createLiteralToken("1"),
 			this.createOperatorToken(ScriptWord.PLUS, PriorityTable.ADDITION, AttributeValue.BINARY, AttributeValue.ARITHMETIC),
@@ -1486,11 +1486,11 @@ public class ParserTest {
 	}
 
 
-	// 複数演算子が混合する式のテスト / * + + * のパターン
+	// 複数演算子が混合する式のテスト ( * + + * のパターン )
 	@Test
 	public void testParseExpressionMulAddAddMul() throws VnanoException {
 
-		// "1 * 2 + 3 + 4 * 5" のトークン配列を用意
+		// "1 * 2 + 3 + 4 * 5 ;" のトークン配列を用意
 		Token[] tokens = new Token[]{
 			this.createLiteralToken("1"),
 			this.createOperatorToken(ScriptWord.MULTIPLICATION, PriorityTable.MULTIPLICATION, AttributeValue.BINARY, AttributeValue.ARITHMETIC),
@@ -1558,11 +1558,11 @@ public class ParserTest {
 		this.checkLiteralNode(operatorNode.getChildNodes()[1], "2");
 	}
 
-	// 複数演算子が混合する式のテスト / + * + * のパターン
+	// 複数演算子が混合する式のテスト ( + * + * のパターン )
 	@Test
 	public void testParseExpressionAddMulAddMul() throws VnanoException {
 
-		// "1 + 2 * 3 + 4 * 5" のトークン配列を用意
+		// "1 + 2 * 3 + 4 * 5 ;" のトークン配列を用意
 		Token[] tokens = new Token[]{
 			this.createLiteralToken("1"),
 			this.createOperatorToken(ScriptWord.PLUS, PriorityTable.ADDITION, AttributeValue.BINARY, AttributeValue.ARITHMETIC),
@@ -1628,6 +1628,63 @@ public class ParserTest {
 		this.checkOperatorNode(operatorNode, ScriptWord.MULTIPLICATION, PriorityTable.MULTIPLICATION, AttributeValue.BINARY, AttributeValue.ARITHMETIC);
 		this.checkLiteralNode(operatorNode.getChildNodes()[0], "2");
 		this.checkLiteralNode(operatorNode.getChildNodes()[1], "3");
+	}
+
+
+	// 複数演算子が混合する式のテスト ( = = のパターン )
+	@Test
+	public void testParseExpressionDualAssignment() throws VnanoException {
+
+		// "x = y = 2 ;" のトークン配列を用意
+		Token[] tokens = new Token[]{
+			this.createVariableIdentifierToken("x"),
+			this.createOperatorToken(ScriptWord.ASSIGNMENT, PriorityTable.ASSIGNMENT, AttributeValue.BINARY, AttributeValue.ASSIGNMENT),
+			this.createVariableIdentifierToken("y"),
+			this.createOperatorToken(ScriptWord.ASSIGNMENT, PriorityTable.ASSIGNMENT, AttributeValue.BINARY, AttributeValue.ASSIGNMENT),
+			this.createLiteralToken("1"),
+			this.createEndToken()
+		};
+
+		/*
+		   // 期待されるASTの構造（※ 代入演算子「 = 」は右結合）
+
+               ROOT
+                |
+               EXPR
+                |
+              __=__    < 第1階層
+             |    _=_  < 第2階層
+             |   |   |
+             x   y   1
+		*/
+
+		// トークン配列の内容を確認
+		//this.dumpTokens(tokens);
+
+		AstNode rootNode = new Parser().parse(tokens);
+
+		// ASTの内容を確認
+		//System.out.println(rootNode);
+
+		// ルートノードの検査
+		assertEquals(AstNode.Type.ROOT, rootNode.getType());
+		assertEquals(1, rootNode.getChildNodes().length);
+
+		// 式ノードの検査
+		AstNode expressionNode = rootNode.getChildNodes()[0];
+		assertEquals(AstNode.Type.EXPRESSION, expressionNode.getType());
+		assertEquals(1, expressionNode.getChildNodes().length);
+
+		// 第1階層の演算子・オペランドの検査
+		AstNode operatorNode = expressionNode.getChildNodes()[0];
+		this.checkOperatorNode(operatorNode, ScriptWord.ASSIGNMENT, PriorityTable.ASSIGNMENT, AttributeValue.BINARY, AttributeValue.ASSIGNMENT);
+		this.checkVariableIdentifierNode(operatorNode.getChildNodes()[0], "x");
+
+		// 第2階層の演算子・オペランドの検査
+		operatorNode = operatorNode.getChildNodes()[1];
+		this.checkOperatorNode(operatorNode, ScriptWord.ASSIGNMENT, PriorityTable.ASSIGNMENT, AttributeValue.BINARY, AttributeValue.ASSIGNMENT);
+		this.checkVariableIdentifierNode(operatorNode.getChildNodes()[0], "y");
+		this.checkLiteralNode(operatorNode.getChildNodes()[1], "1");
 	}
 
 
