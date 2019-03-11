@@ -664,7 +664,7 @@ public class Parser {
 						// 右結合実装前の記述
 						//if (readingPriority <= rightOperatorPriorities[readingIndex]) { // 数字が小さい方が優先度が高い
 
-						// 右結合実装のため改変中
+						// 右結合実装のため改変中（まだ即席の試験実装）
 						int rightPriority = rightOperatorPriorities[readingIndex];
 						String associativity = readingToken.getAttribute(AttributeKey.OPERATOR_ASSOCIATIVITY);
 						if (readingPriority < rightPriority // ※数字が小さい方が優先度が高い
