@@ -1754,4 +1754,77 @@ public class ParserTest {
 		this.checkLiteralNode(operatorNode.getChildNodes()[1], "1");
 	}
 
+
+	// 複数演算子が混合する式のテスト ( = = = = のパターン )
+	@Test
+	public void testParseExpressionQuadrupleAssignment() throws VnanoException {
+
+		// "x = y = z = w = 1 ;" のトークン配列を用意
+		Token[] tokens = new Token[]{
+			this.createVariableIdentifierToken("x"),
+			this.createOperatorToken(ScriptWord.ASSIGNMENT, PriorityTable.ASSIGNMENT, AttributeValue.RIGHT, AttributeValue.BINARY, AttributeValue.ASSIGNMENT),
+			this.createVariableIdentifierToken("y"),
+			this.createOperatorToken(ScriptWord.ASSIGNMENT, PriorityTable.ASSIGNMENT, AttributeValue.RIGHT, AttributeValue.BINARY, AttributeValue.ASSIGNMENT),
+			this.createVariableIdentifierToken("z"),
+			this.createOperatorToken(ScriptWord.ASSIGNMENT, PriorityTable.ASSIGNMENT, AttributeValue.RIGHT, AttributeValue.BINARY, AttributeValue.ASSIGNMENT),
+			this.createVariableIdentifierToken("w"),
+			this.createOperatorToken(ScriptWord.ASSIGNMENT, PriorityTable.ASSIGNMENT, AttributeValue.RIGHT, AttributeValue.BINARY, AttributeValue.ASSIGNMENT),
+			this.createLiteralToken("1"),
+			this.createEndToken()
+		};
+
+		/*
+		   // 期待されるASTの構造（※ 代入演算子「 = 」は右結合）
+
+		       ROOT
+		        |
+		       EXPR
+		        |
+		      __=__             < 第1階層
+		     |    _=___         < 第2階層
+		     |   |    _=___     < 第3階層
+		     |   |   |    _=_   < 第4海藻
+		     |   |   |   |   |
+		     x   y   z   w   1
+		*/
+
+		// トークン配列の内容を確認
+		//this.dumpTokens(tokens);
+
+		AstNode rootNode = new Parser().parse(tokens);
+
+		// ASTの内容を確認
+		//System.out.println(rootNode);
+
+		// ルートノードの検査
+		assertEquals(AstNode.Type.ROOT, rootNode.getType());
+		assertEquals(1, rootNode.getChildNodes().length);
+
+		// 式ノードの検査
+		AstNode expressionNode = rootNode.getChildNodes()[0];
+		assertEquals(AstNode.Type.EXPRESSION, expressionNode.getType());
+		assertEquals(1, expressionNode.getChildNodes().length);
+
+		// 第1階層の演算子・オペランドの検査
+		AstNode operatorNode = expressionNode.getChildNodes()[0];
+		this.checkOperatorNode(operatorNode, ScriptWord.ASSIGNMENT, PriorityTable.ASSIGNMENT, AttributeValue.RIGHT, AttributeValue.BINARY, AttributeValue.ASSIGNMENT);
+		this.checkVariableIdentifierNode(operatorNode.getChildNodes()[0], "x");
+
+		// 第2階層の演算子・オペランドの検査
+		operatorNode = operatorNode.getChildNodes()[1];
+		this.checkOperatorNode(operatorNode, ScriptWord.ASSIGNMENT, PriorityTable.ASSIGNMENT, AttributeValue.RIGHT, AttributeValue.BINARY, AttributeValue.ASSIGNMENT);
+		this.checkVariableIdentifierNode(operatorNode.getChildNodes()[0], "y");
+
+		// 第3階層の演算子・オペランドの検査
+		operatorNode = operatorNode.getChildNodes()[1];
+		this.checkOperatorNode(operatorNode, ScriptWord.ASSIGNMENT, PriorityTable.ASSIGNMENT, AttributeValue.RIGHT, AttributeValue.BINARY, AttributeValue.ASSIGNMENT);
+		this.checkVariableIdentifierNode(operatorNode.getChildNodes()[0], "z");
+
+		// 第4階層の演算子・オペランドの検査
+		operatorNode = operatorNode.getChildNodes()[1];
+		this.checkOperatorNode(operatorNode, ScriptWord.ASSIGNMENT, PriorityTable.ASSIGNMENT, AttributeValue.RIGHT, AttributeValue.BINARY, AttributeValue.ASSIGNMENT);
+		this.checkVariableIdentifierNode(operatorNode.getChildNodes()[0], "w");
+		this.checkLiteralNode(operatorNode.getChildNodes()[1], "1");
+	}
+
 }
