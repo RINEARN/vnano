@@ -918,14 +918,21 @@ however, its processing speed is not so high.
 
 <a href="https://github.com/RINEARN/vnano/tree/master/src/org/vcssl/nano/vm/accelerator">org.vcssl.nano.vm.accelerator</a>
 package provides a high-speed (but complicated) implementation of the virtual processor referred above.
-Whether you use this component or don't is optional,
-so Vnano engine can run even under the condition of that this component is completely disabled.
+Whether you use this component or don't is optional as follows,
+and Vnano engine can run even under the condition of that this component is completely disabled.
 
 <a href="https://github.com/RINEARN/vnano/tree/master/src/org/vcssl/nano/vm/accelerator">org.vcssl.nano.vm.accelerator</a>
 パッケージは、上記の仮想プロセッサの、より高速な実装を提供します。半面、実装コードの内容もより複雑になっています。
-このコンポーネントを使用するかどうかは、任意に選択できます。
+このコンポーネントを使用するかどうかは、下記のように任意に選択できます。
 Vnanoエンジンは、このコンポーネントの動作を完全に無効化しても、機能上は欠損なく成立するようにできています。
 
+		// Enable/Disable the accelerator (fast version VM) by the option setting.
+		// オプション設定でAccelerator（高速版VM）を有効化/無効化
+		
+		Map<String, Object> optionMap = new HashMap<String, Object>();
+		optionMap.put("ACCELERATOR", true);     // Enable  - 有効化
+		//optionMap.put("ACCELERATOR", false);  // Disable - 無効化
+		engine.put("VNANO_OPTION", optionMap);  // "engine" is an instance of the VnanoEngine class
 
 
 ### Memory - メモリ

@@ -42,6 +42,8 @@
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
+import java.util.Map;
+import java.util.HashMap;
 
 public class Float64ScalarFlopsBenchmark {
 	
@@ -70,6 +72,12 @@ public class Float64ScalarFlopsBenchmark {
 			System.err.println("Script engine not found.");
 			return;
 		}
+
+		// Enable the accelerator (fast version VM) by the option setting.
+		// オプション設定でAccelerator（高速版VM）を有効化
+		Map<String, Object> optionMap = new HashMap<String, Object>();
+		optionMap.put("ACCELERATOR", true);
+		engine.put("VNANO_OPTION", optionMap);
 
 		// Connect methods to the script engine as external functions.
 		// メソッドを外部関数としてスクリプトエンジンに接続
