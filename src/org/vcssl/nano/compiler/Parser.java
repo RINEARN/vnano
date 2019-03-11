@@ -785,10 +785,17 @@ public class Parser {
 	}
 
 
+	/**
+	 * 演算子の優先度や結合性を考慮した上で、注目演算子ノードを、
+	 * 現在作業用スタック上の先頭にある演算子ノードに、子ノードとしてぶら下げるべきかどうかを判定します。
+	 *
+	 * @param rightOperatorPriority 注目演算子の次（右側の最も近く）にある演算子の優先度
+	 * @param stack 構文解析の作業用スタックとして使用している双方向キュー
+	 * @return ぶら下げるべきなら true
+	 */
 	private boolean shouldAddOperatorToStackedOperatorAsChild(int rightOperatorPriority, Deque<AstNode> stack) {
 
 		// スタック上の演算子の優先度が、注目トークンの次の演算子よりも強い場合、スタック上の演算子に注目トークンの演算子をぶら下げる
-		// （LexicalAnalyzer の処理により、各トークンは次（右）に来る演算子の優先度を知っている）
 
 		if (stack.size() == 0) {
 			return false;
@@ -798,9 +805,26 @@ public class Parser {
 			return false;
 		}
 
-		// 数字が小さい方が優先度が高い
+		// スタック上の演算子の優先度（※数字が小さい方が優先度が高い）
 		int stackedOperatorPriority = Integer.parseInt(stack.peek().getAttribute(AttributeKey.OPERATOR_PRIORITY));
-		return stackedOperatorPriority <= rightOperatorPriority; // 数字が小さい方が優先度が高い
+
+		// スタック上の演算子の結合性（右/左）
+		String stackedOperatorAssociativity = stack.peek().getAttribute(AttributeKey.OPERATOR_ASSOCIATIVITY);
+
+
+		// スタック上の演算子の優先度が、注目トークンの次の演算子よりも強い場合に true
+		boolean stackedOpPriorityIsStrong = stackedOperatorPriority < rightOperatorPriority; // ※数字が小さい方が高優先度
+
+		// スタック上の演算子の優先度が、注目トークンの次の演算子と等しい場合に true
+		boolean stackedOpPriorityIsEqual = stackedOperatorPriority == rightOperatorPriority; // ※数字が小さい方が高優先度
+
+		// スタック上の演算子が左結合なら true、右結合なら false
+		boolean stackedOpAssociativityIsLeft = stackedOperatorAssociativity.equals(AttributeValue.LEFT);
+
+		// 結果を以下の通りに返す。
+		// ・スタック上の演算子の方が次の演算子よりも強い場合は true、弱い場合は false。
+		// ・優先度がちょうど等しい場合、スタック上の演算子が左結合であれば true、右結合なら false。
+		return stackedOpPriorityIsStrong || (stackedOpPriorityIsEqual && stackedOpAssociativityIsLeft);
 	}
 
 
