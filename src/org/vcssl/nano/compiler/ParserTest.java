@@ -1827,4 +1827,58 @@ public class ParserTest {
 		this.checkLiteralNode(operatorNode.getChildNodes()[1], "1");
 	}
 
+
+	// 複数演算子が混合する式のテスト ( 前置 ++ -- のパターン )
+	@Test
+	public void testParseExpressionPrefixIncrementDecrement() throws VnanoException {
+
+		// "++ -- x ;" のトークン配列を用意
+		Token[] tokens = new Token[]{
+			this.createOperatorToken(ScriptWord.INCREMENT, PriorityTable.PREFIX_INCREMENT, AttributeValue.RIGHT, AttributeValue.PREFIX, AttributeValue.ARITHMETIC),
+			this.createOperatorToken(ScriptWord.DECREMENT, PriorityTable.PREFIX_DECREMENT, AttributeValue.RIGHT, AttributeValue.PREFIX, AttributeValue.ARITHMETIC),
+			this.createVariableIdentifierToken("x"),
+			this.createEndToken()
+		};
+
+		/*
+		   // 期待されるASTの構造（※ 代入演算子「 = 」は右結合）
+
+		       ROOT
+		        |
+		       EXPR
+		        |
+		       ++      < 第1階層
+		        |
+		       --      < 第2階層
+		        |
+		        x
+		*/
+
+		// トークン配列の内容を確認
+		//this.dumpTokens(tokens);
+
+		AstNode rootNode = new Parser().parse(tokens);
+
+		// ASTの内容を確認
+		System.out.println(rootNode);
+
+		// ルートノードの検査
+		assertEquals(AstNode.Type.ROOT, rootNode.getType());
+		assertEquals(1, rootNode.getChildNodes().length);
+
+		// 式ノードの検査
+		AstNode expressionNode = rootNode.getChildNodes()[0];
+		assertEquals(AstNode.Type.EXPRESSION, expressionNode.getType());
+		assertEquals(1, expressionNode.getChildNodes().length);
+
+		// 第1階層の演算子・オペランドの検査
+		AstNode operatorNode = expressionNode.getChildNodes()[0];
+		this.checkOperatorNode(operatorNode, ScriptWord.INCREMENT, PriorityTable.PREFIX_INCREMENT, AttributeValue.RIGHT, AttributeValue.PREFIX, AttributeValue.ARITHMETIC);
+
+		// 第2階層の演算子・オペランドの検査
+		operatorNode = operatorNode.getChildNodes()[0];
+		this.checkOperatorNode(operatorNode, ScriptWord.DECREMENT, PriorityTable.PREFIX_INCREMENT, AttributeValue.RIGHT, AttributeValue.PREFIX, AttributeValue.ARITHMETIC);
+		this.checkVariableIdentifierNode(operatorNode.getChildNodes()[0], "x");
+	}
+
 }
