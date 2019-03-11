@@ -86,13 +86,12 @@ public class ParserTest {
 		return token;
 	}
 
-	/*
+	@SuppressWarnings("unused")
 	private void dumpTokens(Token[] tokens) {
 		for (Token token: tokens) {
 			System.out.println(token);
 		}
 	}
-	*/
 
 	private void checkLiteralNode(AstNode node, String word) {
 		assertEquals(0, node.getChildNodes().length);
@@ -1860,7 +1859,7 @@ public class ParserTest {
 		AstNode rootNode = new Parser().parse(tokens);
 
 		// ASTの内容を確認
-		System.out.println(rootNode);
+		//System.out.println(rootNode);
 
 		// ルートノードの検査
 		assertEquals(AstNode.Type.ROOT, rootNode.getType());
