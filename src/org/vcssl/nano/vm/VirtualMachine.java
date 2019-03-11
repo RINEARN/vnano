@@ -21,11 +21,19 @@ import org.vcssl.nano.vm.processor.Processor;
 
 public class VirtualMachine {
 
+	/** Accelerator（高速版VM）の有効/無効設定のデフォルト値です。 */
+	private static final boolean ACCELERATOR_ENABLED_DEFAULT_VALUE = true;
+
+
 	public Object eval(String assemblyCode, Interconnect interconnect, Map<String, Object> optionMap)
 			throws VnanoException {
 
 		// オプションマップから、Accelerator（高速VM）を使用するかどうかの設定を取得
-		boolean acceleratorEnabled = OptionValue.booleanValueOf(OptionName.ACCELERATOR, optionMap);
+		// （デフォルト値は、もっと上の層でオプションマップ自体に入れておくべき？ デフォルト値の定義も別の場所で。後で要検討）
+		boolean acceleratorEnabled = ACCELERATOR_ENABLED_DEFAULT_VALUE;
+		if (optionMap.containsKey(OptionName.ACCELERATOR)) {
+			OptionValue.booleanValueOf(OptionName.ACCELERATOR, optionMap);
+		}
 
 		// アセンブラで中間アセンブリコード（VRILコード）から実行用の中間コードに変換
 		Assembler assembler = new Assembler();
@@ -52,7 +60,6 @@ public class VirtualMachine {
 		Object evalValue = this.getEvaluatedValue(memory, intermediateCode);
 		return evalValue;
 	}
-
 
 
 	private Object getEvaluatedValue(Memory memory, VirtualMachineObjectCode intermediateCode) throws VnanoException {
