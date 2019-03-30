@@ -66,10 +66,10 @@ public final class AssemblyWord {
 
 	public static final HashMap<Character, Memory.Partition> OPERAND_PREFIX_PARTITION_MAP = new HashMap<Character, Memory.Partition>();
 	static {
-		OPERAND_PREFIX_PARTITION_MAP.put(new Character(OPERAND_PREFIX_GLOBAL), Memory.Partition.GLOBAL);
-		OPERAND_PREFIX_PARTITION_MAP.put(new Character(OPERAND_PREFIX_LOCAL), Memory.Partition.LOCAL);
-		OPERAND_PREFIX_PARTITION_MAP.put(new Character(OPERAND_PREFIX_REGISTER), Memory.Partition.REGISTER);
-		OPERAND_PREFIX_PARTITION_MAP.put(new Character(OPERAND_PREFIX_CONSTANT), Memory.Partition.CONSTANT);
+		OPERAND_PREFIX_PARTITION_MAP.put(Character.valueOf(OPERAND_PREFIX_GLOBAL), Memory.Partition.GLOBAL);
+		OPERAND_PREFIX_PARTITION_MAP.put(Character.valueOf(OPERAND_PREFIX_LOCAL), Memory.Partition.LOCAL);
+		OPERAND_PREFIX_PARTITION_MAP.put(Character.valueOf(OPERAND_PREFIX_REGISTER), Memory.Partition.REGISTER);
+		OPERAND_PREFIX_PARTITION_MAP.put(Character.valueOf(OPERAND_PREFIX_CONSTANT), Memory.Partition.CONSTANT);
 	}
 	public static String getImmediateValueOf(String dataTypeName, String literal) {
 		StringBuilder builder = new StringBuilder();

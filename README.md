@@ -763,7 +763,7 @@ The above result means that Vnano Engine performed about 417 million floating-po
 その演算速度はちょうど1MFLOPSになります。従って上の結果は、
 Vnanoエンジンが概ね1秒間あたり約4億回のペースで浮動小数点加算（64-bit精度）を行った事を表しています。
 
-### 64-bit vector Operation FLOPS Performance - 64-bitベクトル演算FLOPS性能
+### 64-bit Vector Operation FLOPS Performance - 64-bitベクトル演算FLOPS性能
 
 "Float64VectorFlopsBenchmark.java" is a benchmarking program for measuring the peak performance of 
 operations of 64-bit floating-point vector (array) data. The scripting part in this program is as follows:
