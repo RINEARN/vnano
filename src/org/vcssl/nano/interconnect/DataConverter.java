@@ -885,19 +885,19 @@ public class DataConverter {
 				switch (this.externalType) {
 
 					case INT32 : {
-						return new Integer( (int)( ((long[])internalData)[dataIndex] ) );
+						return Integer.valueOf( (int)( ((long[])internalData)[dataIndex] ) );
 					}
 					case INT64 : {
-						return new Long( ((long[])internalData)[dataIndex] );
+						return Long.valueOf( ((long[])internalData)[dataIndex] );
 					}
 					case FLOAT32 : {
-						return new Float( (float)( ((double[])internalData)[dataIndex] ) );
+						return Float.valueOf( (float)( ((double[])internalData)[dataIndex] ) );
 					}
 					case FLOAT64 : {
-						return new Double( ((double[])internalData)[dataIndex] );
+						return Double.valueOf( ((double[])internalData)[dataIndex] );
 					}
 					case BOOL : {
-						return new Boolean( ((boolean[])internalData)[dataIndex] );
+						return Boolean.valueOf( ((boolean[])internalData)[dataIndex] );
 					}
 					case STRING : {
 						return ((String[])internalData)[dataIndex];
