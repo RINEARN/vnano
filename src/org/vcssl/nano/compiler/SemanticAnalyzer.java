@@ -22,7 +22,6 @@ import org.vcssl.nano.lang.VariableTable;
 import org.vcssl.nano.spec.DataTypeName;
 import org.vcssl.nano.spec.ErrorType;
 import org.vcssl.nano.spec.IdentifierSyntax;
-import org.vcssl.nano.spec.LiteralSyntax;
 import org.vcssl.nano.spec.ScriptWord;
 
 

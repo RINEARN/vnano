@@ -2346,10 +2346,12 @@ public class CodeGenerator {
 		// 最後の文が式文なら、その値をスクリプトエンジンのevalメソッドの評価結果とし、型と値の格納先を取得
 		String evalDataType = null;
 		String evalValue = null;
-		AstNode lastStatementNode = topLevelStatementNodes[statementLength-1];
-		if (lastStatementNode.getType() == AstNode.Type.EXPRESSION) {
-			evalDataType = lastStatementNode.getAttribute(AttributeKey.DATA_TYPE);
-			evalValue = lastStatementNode.getAttribute(AttributeKey.ASSEMBLY_VALUE);
+		if (statementLength != 0) {
+			AstNode lastStatementNode = topLevelStatementNodes[statementLength-1];
+			if (lastStatementNode.getType() == AstNode.Type.EXPRESSION) {
+				evalDataType = lastStatementNode.getAttribute(AttributeKey.DATA_TYPE);
+				evalValue = lastStatementNode.getAttribute(AttributeKey.ASSEMBLY_VALUE);
+			}
 		}
 
 		// 評価結果とすべき値が無いか、もしくはあってもvoid型な場合は、無指定のEND命令を生成
