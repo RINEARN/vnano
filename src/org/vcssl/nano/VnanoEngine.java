@@ -271,7 +271,7 @@ public class VnanoEngine implements ScriptEngine {
 			}
 
 			// ライブラリ名が指定されていない場合は、デフォルト値 + "[ライブラリインデックス]" として生成しておく
-			if (this.optionMap.containsKey(OptionName.LIBRARY_SCRIPT_NAME)) {
+			if (!this.optionMap.containsKey(OptionName.LIBRARY_SCRIPT_NAME)) {
 				int libraryLength = this.libraryScriptCode.length;
 				this.libraryScriptNames = new String[libraryLength];
 				for (int libraryIndex=0; libraryIndex<libraryLength; libraryIndex++) {
