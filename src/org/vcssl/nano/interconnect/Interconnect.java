@@ -386,7 +386,7 @@ public class Interconnect {
 		// グローバル変数の書き戻し
 		int maxGlobalAddress = intermediateCode.getMaximumGlobalAddress();
 		int minGlobalAddress = intermediateCode.getMinimumGlobalAddress();
-		for (int address=minGlobalAddress; address<maxGlobalAddress; address++) {
+		for (int address=minGlobalAddress; address<=maxGlobalAddress; address++) {
 
 			// 仮想メモリーを参照し、グローバル変数アドレスからデータコンテナを取得
 			DataContainer<?> dataContainer = memory.getDataContainer(Memory.Partition.GLOBAL, address);
