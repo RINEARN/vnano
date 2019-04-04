@@ -153,6 +153,9 @@ public class Interconnect {
 			throw new VnanoFatalException("Bindings can be set ONLY ONCE for an instance of the Interconnect.");
 		}
 		this.bindings = bindings;
+
+		// Bindings から1個ずつ全ての要素を取り出して接続
+		// 注: 要素を取り出す順序については、登録順と一致する事は保証されていない模様（実際にしばしば異なる）
 		for (Entry<String,Object> pair: bindings.entrySet()) {
 			this.bind(pair.getKey(), pair.getValue());
 		}
