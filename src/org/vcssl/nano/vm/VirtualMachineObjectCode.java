@@ -159,6 +159,10 @@ public class VirtualMachineObjectCode implements Cloneable {
 		this.labelAddressIdentifierMap.put(address, uniqueIdentifier);
 	}
 
+	public boolean hasGlobalVariableRegisteredAt(int address) {
+		return this.globalVariableAddressIdentifierMap.containsKey(address);
+	}
+
 	public int getLocalVariableAddress(String uniqueIdentifier) {
 		int index = this.localVariableIdentifierList.indexOf(uniqueIdentifier);
 		return this.localVariableAddressList.get(index);

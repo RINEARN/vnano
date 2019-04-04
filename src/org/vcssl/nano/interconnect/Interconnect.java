@@ -391,6 +391,11 @@ public class Interconnect {
 		int minGlobalAddress = intermediateCode.getMinimumGlobalAddress();
 		for (int address=minGlobalAddress; address<=maxGlobalAddress; address++) {
 
+			// 注目アドレスのグローバル変数に、スクリプト内のどこからもアクセスしていない場合はスキップ
+			if (!intermediateCode.hasGlobalVariableRegisteredAt(address)) {
+				continue;
+			}
+
 			// 仮想メモリーを参照し、グローバル変数アドレスからデータコンテナを取得
 			DataContainer<?> dataContainer = memory.getDataContainer(Memory.Partition.GLOBAL, address);
 
