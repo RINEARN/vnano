@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2018 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2019 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -153,6 +153,9 @@ public class Interconnect {
 			throw new VnanoFatalException("Bindings can be set ONLY ONCE for an instance of the Interconnect.");
 		}
 		this.bindings = bindings;
+
+		// Bindings から1個ずつ全ての要素を取り出して接続
+		// 注: 要素を取り出す順序については、登録順と一致する事は保証されていない模様（実際にしばしば異なる）
 		for (Entry<String,Object> pair: bindings.entrySet()) {
 			this.bind(pair.getKey(), pair.getValue());
 		}
@@ -386,7 +389,7 @@ public class Interconnect {
 		// グローバル変数の書き戻し
 		int maxGlobalAddress = intermediateCode.getMaximumGlobalAddress();
 		int minGlobalAddress = intermediateCode.getMinimumGlobalAddress();
-		for (int address=minGlobalAddress; address<maxGlobalAddress; address++) {
+		for (int address=minGlobalAddress; address<=maxGlobalAddress; address++) {
 
 			// 仮想メモリーを参照し、グローバル変数アドレスからデータコンテナを取得
 			DataContainer<?> dataContainer = memory.getDataContainer(Memory.Partition.GLOBAL, address);
