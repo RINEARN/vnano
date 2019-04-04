@@ -299,22 +299,33 @@ public class VirtualMachineObjectCode implements Cloneable {
 		builder.append(eol);
 		builder.append("#FUNCTION" + eol);
 		for(int i=0; i<this.functionIdentifierList.size(); i++) {
-			builder.append("\t" + i + "\t" + this.functionIdentifierList.get(i) + eol);
+			int address = this.functionAddressList.get(i);
+			String identifier = this.functionIdentifierList.get(i);
+			builder.append("\t" + address + "\t" + identifier + eol);
 		}
+
+		// 以下、addressListを無視してる。たぶんメモリのロードも。
+
 		builder.append(eol);
 		builder.append("#GLOBAL" + eol);
 		for(int i=0; i<this.globalVariableIdentifierList.size(); i++) {
-			builder.append("\t" + Memory.Partition.GLOBAL.toString().charAt(0) + i + "\t" + this.globalVariableIdentifierList.get(i) + eol);
+			int address = this.globalVariableAddressList.get(i);
+			String identifier = this.globalVariableIdentifierList.get(i);
+			builder.append("\t" + Memory.Partition.GLOBAL.toString().charAt(0) + address + "\t" + identifier + eol);
 		}
 		builder.append(eol);
 		builder.append("#LOCAL" + eol);
 		for(int i=0; i<this.localVariableIdentifierList.size(); i++) {
-			builder.append("\t" + Memory.Partition.LOCAL.toString().charAt(0) + i + "\t" + this.localVariableIdentifierList.get(i) + eol);
+			int address = this.localVariableAddressList.get(i);
+			String identifier = this.localVariableIdentifierList.get(i);
+			builder.append("\t" + Memory.Partition.LOCAL.toString().charAt(0) + address + "\t" + identifier + eol);
 		}
 		builder.append(eol);
 		builder.append("#CONSTANT" + eol);
 		for(int i=0; i<this.constantDataValueList.size(); i++) {
-			builder.append("\t" + Memory.Partition.CONSTANT.toString().charAt(0) + i + "\t" + this.constantDataValueList.get(i) + eol);
+			int address = this.constantDataAddressList.get(i);
+			String constantValue = this.constantDataValueList.get(i);
+			builder.append("\t" + Memory.Partition.CONSTANT.toString().charAt(0) + address + "\t" + constantValue + eol);
 		}
 		builder.append(eol);
 		builder.append("#REGISTER" + eol);
