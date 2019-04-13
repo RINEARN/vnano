@@ -102,6 +102,12 @@ public class AstNode implements Cloneable {
 	/** このASTノードが、親ノードから見て、何番目の子ノードかを表すインデックスを保持します。 */
 	private int siblingIndex = 0;
 
+	/** このASTノードの、構文木内での階層深度（根が深度0）を保持します。 */
+	private int depth = 0;
+
+	/** このASTノードの、構文木内でのブロックの階層深度（根が深度0）を保持します。 */
+	private int blockDepth = 0;
+
 	/** スクリプト内での行番号を保持します。 */
 	private int lineNumber = -1;
 
@@ -216,11 +222,32 @@ public class AstNode implements Cloneable {
 	/**
 	 * 子ノードを追加します。
 	 *
+	 * このメソッドは、指定された子ノードをこのASTノードに登録するだけでなく、
+	 * 子ノードの保持する情報も書き変えます。具体的には、子ノードが内部で保持する親ノードの参照や、
+	 * 兄弟ノード内での順序情報、およびAST内での階層深度などが設定されます。
+	 *
+	 * なお、このASTノードの実装では、上述の通り、親ノードによって定まる情報を保持しているため、
+	 * 同一の子ノードのインスタンスを、同時に複数の親ノードのインスタンスに追加する事は想定されていません。
+	 *
 	 * @param node 子ノード
 	 */
 	public void addChildNode(AstNode node) {
+
+		// 子ノードの親ノードをこのASTノードに設定
 		node.parentNode = this;
+
+		// このASTノードから見た、子ノードの順番を示すインデックスを、子ノードに設定
 		node.siblingIndex = this.childNodeList.size();
+
+		// 子ノードの深度情報を設定
+		node.depth = this.getDepth() + 1;
+		if (node.type == AstNode.Type.BLOCK) {
+			node.blockDepth = this.getBlockDepth() + 1;
+		} else {
+			node.blockDepth = this.getBlockDepth();
+		}
+
+		// このASTノードに子ノードを登録
 		this.childNodeList.add(node);
 	}
 
@@ -329,11 +356,7 @@ public class AstNode implements Cloneable {
 	 * @return 構文木内での階層深度（根が深度0）
 	 */
 	public int getDepth() {
-		if (this.hasParentNode()) {
-			return this.getParentNode().getDepth() + 1;
-		} else {
-			return 0;
-		}
+		return this.depth;
 	}
 
 
@@ -343,15 +366,7 @@ public class AstNode implements Cloneable {
 	 * @return 構文木内でのブロックの階層深度（根が深度0）
 	 */
 	public int getBlockDepth() {
-		if (this.hasParentNode()) {
-			if (this.type == AstNode.Type.BLOCK) {
-				return this.getParentNode().getBlockDepth() + 1;
-			} else {
-				return this.getParentNode().getBlockDepth();
-			}
-		} else {
-			return 0;
-		}
+		return this.blockDepth;
 	}
 
 
