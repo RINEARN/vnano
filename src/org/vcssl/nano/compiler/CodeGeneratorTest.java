@@ -52,6 +52,9 @@ public class CodeGeneratorTest {
 	//private static final String GLOBAL_DIRECTIVE_BVA = "#GLOBAL_VARIABLE	_boolVectorA";
 	//private static final String GLOBAL_DIRECTIVE_BVB = "#GLOBAL_VARIABLE	_boolVectorB";
 
+	private static final String END_CODE = IND + OperationCode.END + WS + DataTypeName.VOID
+	                                     + WS + AssemblyWord.OPERAND_PREFIX_PLACEHOLDER + EOI;
+
 	// テストコードの先頭に常に付く定型コード（バージョン情報など）
 	private static final String HEADER =
 			AssemblyWord.ASSEMBLY_LANGUAGE_IDENTIFIER_DIRECTIVE + AssemblyWord.WORD_SEPARATOR
@@ -285,7 +288,8 @@ public class CodeGeneratorTest {
 		 */
 		String expectedCode = HEADER + META + EOI
 			+ IND + OperationCode.ALLOC + WS + DataTypeName.INT + WS + R + "0" + EOI
-			+ IND + operationCode + WS + DataTypeName.INT + WS + R + "0" + WS + IINT + VS + "1" + WS + IINT + VS + "2" + EOI;
+			+ IND + operationCode + WS + DataTypeName.INT + WS + R + "0" + WS + IINT + VS + "1" + WS + IINT + VS + "2" + EOI
+			+ END_CODE;
 
 		// 生成コードと期待コードの内容を確認
 		//System.out.println(generatedCode);
@@ -328,7 +332,8 @@ public class CodeGeneratorTest {
 			+ IND + OperationCode.ALLOC + WS + DataTypeName.FLOAT + WS + R + "1" + EOI
 			+ IND + OperationCode.CAST + WS + DataTypeName.FLOAT + VS + DataTypeName.INT + WS + R + "1" + WS + IINT + VS + "2" + EOI
 			+ IND + OperationCode.ALLOC + WS + DataTypeName.FLOAT + WS + R + "0" + EOI
-			+ IND + operationCode + WS + DataTypeName.FLOAT + WS + R + "0" + WS + IFLOAT + VS + "1" + WS + R + "1" + EOI;
+			+ IND + operationCode + WS + DataTypeName.FLOAT + WS + R + "0" + WS + IFLOAT + VS + "1" + WS + R + "1" + EOI
+			+ END_CODE;
 
 		// 生成コードと期待コードの内容を確認
 		//System.out.println(generatedCode);
@@ -369,7 +374,8 @@ public class CodeGeneratorTest {
 		 */
 		String expectedCode = HEADER + GLOBAL_DIRECTIVE_IVA + EOI + GLOBAL_DIRECTIVE_IVB + EOI + META + EOI
 			+ IND + OperationCode.ALLOCR + WS + DataTypeName.INT + WS + R + "0" + WS + IVA + EOI
-			+ IND + operationCode + WS + DataTypeName.INT + WS + R + "0" + WS + IVA + WS + IVB + EOI;
+			+ IND + operationCode + WS + DataTypeName.INT + WS + R + "0" + WS + IVA + WS + IVB + EOI
+			+ END_CODE;
 
 		// 生成コードと期待コードの内容を確認
 		//System.out.println(generatedCode);
@@ -415,7 +421,8 @@ public class CodeGeneratorTest {
 			+ IND + OperationCode.ALLOCR + WS + DataTypeName.FLOAT + WS + R + "1" + WS + IVB + EOI
 			+ IND + OperationCode.CAST + WS + DataTypeName.FLOAT + VS + DataTypeName.INT + WS + R + "1" + WS + IVB + EOI
 			+ IND + OperationCode.ALLOCR + WS + DataTypeName.FLOAT + WS + R + "0" + WS + FVA + EOI
-			+ IND + operationCode + WS + DataTypeName.FLOAT + WS + R + "0" + WS + FVA + WS + R + "1" + EOI;
+			+ IND + operationCode + WS + DataTypeName.FLOAT + WS + R + "0" + WS + FVA + WS + R + "1" + EOI
+			+ END_CODE;
 
 		// 生成コードと期待コードの内容を確認
 		//System.out.println(generatedCode);
@@ -460,7 +467,8 @@ public class CodeGeneratorTest {
 			+ IND + OperationCode.ALLOCR + WS + DataTypeName.INT + WS + R + "1" + WS + IVA + EOI
 			+ IND + OperationCode.FILL + WS + DataTypeName.INT + WS + R + "1" + WS + ISB + EOI
 			+ IND + OperationCode.ALLOCR + WS + DataTypeName.INT + WS + R + "0" + WS + IVA + EOI
-			+ IND + operationCode + WS + DataTypeName.INT + WS + R + "0" + WS + IVA + WS + R + "1" + EOI;
+			+ IND + operationCode + WS + DataTypeName.INT + WS + R + "0" + WS + IVA + WS + R + "1" + EOI
+			+ END_CODE;
 
 		// 生成コードと期待コードの内容を確認
 		//System.out.println(generatedCode);
@@ -509,7 +517,8 @@ public class CodeGeneratorTest {
 			+ IND + OperationCode.ALLOCR + WS + DataTypeName.FLOAT + WS + R + "2" + WS + IVA + EOI
 			+ IND + OperationCode.FILL + WS + DataTypeName.FLOAT + WS + R + "2" + WS + FSB + EOI
 			+ IND + OperationCode.ALLOCR + WS + DataTypeName.FLOAT + WS + R + "0" + WS + IVA + EOI
-			+ IND + operationCode + WS + DataTypeName.FLOAT + WS + R + "0" + WS + R + "1" + WS + R + "2" + EOI;
+			+ IND + operationCode + WS + DataTypeName.FLOAT + WS + R + "0" + WS + R + "1" + WS + R + "2" + EOI
+			+ END_CODE;
 
 		// 生成コードと期待コードの内容を確認
 		//System.out.println(generatedCode);
@@ -558,7 +567,8 @@ public class CodeGeneratorTest {
 			+ IND + OperationCode.ALLOCR + WS + DataTypeName.FLOAT + WS + R + "2" + WS + FVA + EOI
 			+ IND + OperationCode.FILL + WS + DataTypeName.FLOAT + WS + R + "2" + WS + R + "1" + EOI
 			+ IND + OperationCode.ALLOCR + WS + DataTypeName.FLOAT + WS + R + "0" + WS + FVA + EOI
-			+ IND + operationCode + WS + DataTypeName.FLOAT + WS + R + "0" + WS + FVA + WS + R + "2" + EOI;
+			+ IND + operationCode + WS + DataTypeName.FLOAT + WS + R + "0" + WS + FVA + WS + R + "2" + EOI
+			+ END_CODE;
 
 		// 生成コードと期待コードの内容を確認
 		//System.out.println(generatedCode);
@@ -632,7 +642,8 @@ public class CodeGeneratorTest {
 		      ???     int    _intScalarA    _intScalarA    _intScalarB;   (???の箇所に算術演算の命令コードが入る)
 		 */
 		String expectedCode = HEADER + GLOBAL_DIRECTIVE_ISA + EOI + GLOBAL_DIRECTIVE_ISB + EOI + META + EOI
-			+ IND + operationCode + WS + DataTypeName.INT + WS + ISA + WS + ISA + WS + ISB + EOI;
+			+ IND + operationCode + WS + DataTypeName.INT + WS + ISA + WS + ISA + WS + ISB + EOI
+			+ END_CODE;
 
 		// 生成コードと期待コードの内容を確認
 		//System.out.println(generatedCode);
@@ -671,7 +682,8 @@ public class CodeGeneratorTest {
 		      ???     int    _intVectorA    _intVectorA    _intVectorB;   (???の箇所に算術演算の命令コードが入る)
 		 */
 		String expectedCode = HEADER + GLOBAL_DIRECTIVE_IVA + EOI + GLOBAL_DIRECTIVE_IVB + EOI + META + EOI
-			+ IND + operationCode + WS + DataTypeName.INT + WS + IVA + WS + IVA + WS + IVB + EOI;
+			+ IND + operationCode + WS + DataTypeName.INT + WS + IVA + WS + IVA + WS + IVB + EOI
+			+ END_CODE;
 
 		// 生成コードと期待コードの内容を確認
 		//System.out.println(generatedCode);
