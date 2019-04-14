@@ -31,6 +31,7 @@ import org.vcssl.nano.compiler.LexicalAnalyzer;
 import org.vcssl.nano.compiler.SemanticAnalyzer;
 import org.vcssl.nano.compiler.Token;
 import org.vcssl.nano.interconnect.Interconnect;
+import org.vcssl.nano.spec.EngineInformation;
 import org.vcssl.nano.spec.ErrorMessage;
 import org.vcssl.nano.spec.OptionName;
 import org.vcssl.nano.spec.OptionValue;
@@ -113,7 +114,9 @@ public final class VnanoCommandLineApplication {
 	}
 
 	public void help() {
-		System.out.println("Vnano ( Command-Line Mode for Development and Debugging )");
+		System.out.print("Vnano " + EngineInformation.ENGINE_VERSION);
+		System.out.println("  (Command-Line Mode for Developments and Debuggings)");
+
 		System.out.println("");
 		System.out.println("[ Usage ]");
 		System.out.println("");
