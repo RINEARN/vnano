@@ -21,7 +21,7 @@ public class ScriptWord {
 	public static final String SCRIPT_LANGUAGE_NAME = "Vnano";
 
 	/** スクリプト言語のバージョンです。 */
-	public static final String SCRIPT_LANGUAGE_VERSION = "0.0.1";
+	public static final String SCRIPT_LANGUAGE_VERSION = EngineInformation.ENGINE_VERSION;
 
 
 	/** 空文字や改行など、トークンの区切りとなる文字の正規表現です。 */
