@@ -2010,7 +2010,7 @@ Vnanoに関するご質問や、Vnanoにご興味をお持ちの場合は、ご�
 
 <dl>
 	<dt style="display: list-item; margin-left:40px;">
-		"オープンソースの小型・軽量スクリプトエンジン「 Vnano (VCSSL nano) 」のコンセプト" - RINEARN Website (2018/06/02)
+		"オープンソースの小型・軽量スクリプトエンジン「 Vnano 」のコンセプト" - RINEARN Website (2018/06/02)
 	</dt>
 	<dd>
 		<a href="https://www.rinearn.com/ja-jp/info/news/2018/0602-vnano-concept">https://www.rinearn.com/ja-jp/info/news/2018/0602-vnano-concept</a>
