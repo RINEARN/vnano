@@ -51,6 +51,7 @@ As an example of a practical application using the Vnano, see also: <a href="htt
   - <a href="#language-external-connect-plug-ins">Developing and Connecting Plug-Ins as External Functions and Variables - プラグインを開発して外部関数や外部変数として接続する</a>
   - <a href="#language-external-correspondence-of-data-types">The correspondence of the the data type between the Vnano and the data container - Vnano内とデータコンテナ内でのデータ型の対応関係</a>
 - <a href="#about-us">About Us - 開発元について</a>
+- <a href="#references">References - 関連記事</a>
 
 
 
@@ -2001,6 +2002,26 @@ Vnanoに関するご質問や、Vnanoにご興味をお持ちの場合は、ご�
 
 - <a href="https://www.rinearn.com/">https://www.rinearn.com/</a>
 
+
+---
+
+<a id="references"></a>
+## References - 関連記事
+
+<dl>
+	<dt style="display: list-item; margin-left:40px;">
+		"オープンソースの小型・軽量スクリプトエンジン「 Vnano (VCSSL nano) 」のコンセプト" - RINEARN Website (2018/06/02)
+	</dt>
+	<dd>
+		<a href="https://www.rinearn.com/ja-jp/info/news/2018/0602-vnano-concept">https://www.rinearn.com/ja-jp/info/news/2018/0602-vnano-concept</a>
+	</dd>
+	<dt style="display: list-item; margin-left:40px;">
+		"Vnanoのソースコードと開発リポジトリを公開" - RINEARN Website (2018/09/30)
+	</dt>
+	<dd>
+		<a href="https://www.rinearn.com/ja-jp/info/news/2018/0930-vnano-repository-published">https://www.rinearn.com/ja-jp/info/news/2018/0930-vnano-repository-published</a>
+	</dd>
+</dl>
 
 ---
 
