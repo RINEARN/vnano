@@ -4,7 +4,7 @@
  * ( for VCSSL / Vnano Plug-in Development )
  * --------------------------------------------------
  * This file is released under CC0.
- * Written in 2017-2018 by RINEARN (Fumihiro Matsui)
+ * Written in 2017-2019 by RINEARN (Fumihiro Matsui)
  * ==================================================
  */
 
@@ -38,11 +38,11 @@ package org.vcssl.connect;
  * における型制約の緩さやオーバーヘッドの大きさなどを解消するため、
  * GPCIよりも抽象化レイヤーの薄い外部関数プラグイン用インターフェースとして、
  * 新たに定義されたものです。
- * <br />
+ * <br>
  * そのため、XFCI 準拠のプラグインが提供する外部関数は、
  * 一般の関数と同様に、スクリプト側での型システムによる保護や判別の対象となります。
  * これにより、引数には型検査が行われ、同じ関数名でも異なるシグネチャを持つ関数は共存する事ができます。
- * <br />
+ * <br>
  * また、必要に応じて言語処理系-プラグイン間でのデータの自動変換を無効化し、
  * 処理系内部で使用されているデータコンテナを直接やり取りする事で、
  * 関数呼び出しのオーバーヘッドを軽減する機能などもサポートされています
@@ -55,7 +55,7 @@ package org.vcssl.connect;
  * 半面、XFCI 準拠の外部関数プラグインの開発は、
  * GPCI と比べれば煩雑となります。
  * そのため、簡素なプラグインを手短に開発するためには、GPCI の方が適しています。
- * <br />
+ * <br>
  * ただし、現時点ではまだ GPCI と XFCI の両方をサポートしている処理系は存在しないため、
  * 単純に処理系が対応している方を使用する必要があります。
  * </p>
@@ -65,7 +65,7 @@ package org.vcssl.connect;
  * </p>
  *
  * <ul>
- *   <li>{@link org.vcssl.nano.VnanoEngine VnanoEngine} (パーミッション関連機能には未対応)</li>
+ *   <li>RINEARN Vnano Engine (パーミッション関連機能には未対応)</li>
  * </ul>
  *
  * <p>
@@ -103,7 +103,7 @@ public interface ExternalFunctionConnector1 {
 	 *
 	 * @return 全仮引数の名称を取得可能かどうか
 	 */
-	public boolean hasParameterNames();
+	public abstract boolean hasParameterNames();
 
 
 	/**
@@ -172,12 +172,12 @@ public interface ExternalFunctionConnector1 {
 	 * このメソッドは機能しません（呼び出されません）。
 	 *
 	 * このメソッドが返す必要パーミッション配列と、
-	 * {@link ExternalFunctionConnector1#getNesessaryParmissions getUnnesessaryParmissions}
+	 * {@link ExternalFunctionConnector1#getUnnecessaryPermissions getUnnecessaryPermissions}
 	 * メソッドが返す不要パーミッション配列において、重複している要素がある場合は、
 	 * 前者の方が優先されます（つまり、そのパーミッションは必要と判断されます）。
 	 *
 	 * なお、このメソッドの戻り値に、
-	 * {@link ExternalParmission#ALL ExternalParmission.NONE}
+	 * {@link ExternalPermission#NONE ExternalPermission.NONE}
 	 * のみを格納する配列を返す事で、全てのパーミッションが不要となります。
 	 * ただし、そのような事は、
 	 * この関数が一切のシステムリソースやネットワークにアクセスしない場合など、
@@ -185,7 +185,7 @@ public interface ExternalFunctionConnector1 {
 	 *
 	 * @return 必要なパーミッションを格納する配列
 	 */
-	public abstract String[] getNecessaryParmissions();
+	public abstract String[] getNecessaryPermissions();
 
 
 	/**
@@ -196,12 +196,12 @@ public interface ExternalFunctionConnector1 {
 	 * このメソッドは機能しません（呼び出されません）。
 	 *
 	 * このメソッドが返す不要パーミッション配列と、
-	 * {@link ExternalFunctionConnector1#getNesessaryParmissions getNesessaryParmissions}
+	 * {@link ExternalFunctionConnector1#getNecessaryPermissions getNecessaryPermissions}
 	 * メソッドが返す必要パーミッション配列において、重複している要素がある場合は、
 	 * 後者の方が優先されます（つまり、そのパーミッションは必要と判断されます）。
 	 *
 	 * なお、このメソッドの戻り値に
-	 * {@link ExternalParmission#ALL ExternalParmission.ALL} のみを格納する配列を返す事で、
+	 * {@link ExternalPermission#ALL ExternalPermission.ALL} のみを格納する配列を返す事で、
 	 * 必要パーミッション配列に含まれているものを除いた、全てのパーミッションが不要となります。
 	 * これは、将来的に新しいパーミッションが追加された場合に、
 	 * そのパーミッションによって、この関数の実行が拒否される事を回避する事ができます。
@@ -218,7 +218,7 @@ public interface ExternalFunctionConnector1 {
 	 *
 	 * @return 不要なパーミッションを格納する配列
 	 */
-	public abstract String[] getUnnecessaryParmissions();
+	public abstract String[] getUnnecessaryPermissions();
 
 
 	/**
@@ -250,25 +250,25 @@ public interface ExternalFunctionConnector1 {
 
 
 	/**
-	 * (これはホストアプリケーション側の役目では？)処理系への接続時に必要な初期化処理を行います。
+	 * 処理系への接続時に必要な初期化処理を行います。 // 例外が必要？
 	 */
 	public abstract void initializeForConnection();
 
 
 	/**
-	 * (これはホストアプリケーション側の役目では？)処理系からの接続解除時に必要な終了時処理を行います。
+	 * 処理系からの接続解除時に必要な終了時処理を行います。 // 例外が必要？
 	 */
 	public abstract void finalizeForDisconnection();
 
 
 	/**
-	 * スクリプト実行毎の初期化処理を行います。
+	 * スクリプト実行毎の初期化処理を行います。 // 例外が必要？
 	 */
-	public abstract void initializeForScript();
+	public abstract void initializeForExecution();
 
 
 	/**
-	 * (名前をfinalizeにするとまずいので、なんか考える必要がある)スクリプト実行毎の終了時処理を行います。
+	 * スクリプト実行毎の終了時処理を行います。 // 例外が必要？
 	 */
-	public abstract void finalizeForScript();
+	public abstract void finalizeForTermination();
 }

@@ -4,7 +4,7 @@
  * ( for VCSSL / Vnano Plug-in Development )
  * --------------------------------------------------
  * This file is released under CC0.
- * Written in 2017-2018 by RINEARN (Fumihiro Matsui)
+ * Written in 2017-2019 by RINEARN (Fumihiro Matsui)
  * ==================================================
  */
 
@@ -15,7 +15,7 @@ package org.vcssl.connect;
  * GPCI 3 (General Process Connector Interface 3)
  * 形式の外部関数プラグインを開発するための、
  * プラグイン側のコネクター・インターフェースです。
- * <br />
+ * <br>
  * GPCI 3 は GPCI 2 以前の仕様を全て含むため、
  * このインターフェースを実装するクラスは、必要に応じて
  * {@link GeneralProcessConnector2 GeneralProcessConnector2}
@@ -45,13 +45,13 @@ package org.vcssl.connect;
  * その代わり手短に外部関数プラグインを開発する事ができます。
  * スクリプト側からは任意型の可変長引数の関数として認識されるなど、
  * 型の制約が緩いのも特徴です。
- * <br />
+ * <br>
  * GPCIにおける型の制約の緩さは、print 関数のような、
  * そもそも任意型の可変長引数の関数を作りたい場合にはメリットになり得ます。
  * しかしながら、引数が数値である事を想定しているプラグイン関数に、
  * 実際には数値でない引数を渡す事が可能になってしまうなど、
  * 静的型付けの利益を享受できないという面ではデメリットにもなります。
- * <br />
+ * <br>
  * GPCIのプラグインが提供する関数に対して、
  * 型システムによる区別や保護を効かせたい場合には、
  * 適切なシグネチャの関数をスクリプト内で定義し、
@@ -59,10 +59,10 @@ package org.vcssl.connect;
  * </p>
  *
  * <p>
- * GPCI 3 は、{@link GeneralProcessConnector1 GPCI 2} の全機能に加えて、
+ * GPCI 3 は、{@link GeneralProcessConnector2 GPCI 2} の全機能に加えて、
  * パーミッション設定ベースのセキュリティレイヤーを持つ処理系のため、
  * 必要・不要パーミッションの通知機能がサポートされています。
- * <br />
+ * <br>
  * ただし、この機能に対応している処理系は現時点では存在しないため、
  * 現状のVCSSL処理系などでは、
  * GPCI 3 準拠のプラグインはGPCI 2 準拠のものと認識されて接続され、
@@ -80,7 +80,7 @@ package org.vcssl.connect;
  * 将来的にGPCI 3 準拠のプラグイン接続をサポートする可能性がある処理系は、以下の通りです:
  * </p>
  * <ul>
- *   <li>{@link org.vcssl.nano.VnanoEngine VnanoEngine}</li>
+ *   <li>RINEARN Vnano Engine</li>
  * </ul>
  *
  * @author RINEARN (Fumihiro Matsui)
@@ -112,7 +112,7 @@ public interface GeneralProcessConnector3 extends GeneralProcessConnector2 {
 	 *
 	 * このメソッドは、処理系側から、スクリプト実行前の段階で呼び出されます。
 	 * そこで渡された関数名に対して true を返すと、スクリプト実行時に該当関数の処理が、
-	 * このプラグインの {@link GeneralProcessConnector1#process process}
+	 * このプラグインの {@link GeneralProcessConnector3#process process}
 	 * メソッドで実行するように紐づけられます。
 	 *
 	 * 関数の引数情報は渡されず、
@@ -152,12 +152,12 @@ public interface GeneralProcessConnector3 extends GeneralProcessConnector2 {
 	 * このメソッドは機能しません（呼び出されません）。
 	 *
 	 * このメソッドが返す必要パーミッション配列と、
-	 * {@link ExternalFunctionConnector1#getNesessaryParmissions getUnnesessaryParmissions}
+	 * {@link GeneralProcessConnector3#getUnnecessaryPermissions getUnnecessaryPermissions}
 	 * メソッドが返す不要パーミッション配列において、重複している要素がある場合は、
 	 * 前者の方が優先されます（つまり、そのパーミッションは必要と判断されます）。
 	 *
 	 * なお、このメソッドの戻り値に、
-	 * {@link ExternalParmission#ALL ExternalParmission.NONE}
+	 * {@link ExternalPermission#NONE ExternalPermission.NONE}
 	 * のみを格納する配列を返す事で、全てのパーミッションが不要となります。
 	 * ただし、そのような事は、
 	 * この関数が一切のシステムリソースやネットワークにアクセスしない場合など、
@@ -166,7 +166,7 @@ public interface GeneralProcessConnector3 extends GeneralProcessConnector2 {
 	 * @param functionName 実行対象関数の関数名
 	 * @return 必要なパーミッションを格納する配列
 	 */
-	public abstract String[] getNecessaryParmissions(String functionName);
+	public abstract String[] getNecessaryPermissions(String functionName);
 
 
 	/**
@@ -177,12 +177,12 @@ public interface GeneralProcessConnector3 extends GeneralProcessConnector2 {
 	 * このメソッドは機能しません（呼び出されません）。
 	 *
 	 * このメソッドが返す不要パーミッション配列と、
-	 * {@link ExternalFunctionConnector1#getNesessaryParmissions getNesessaryParmissions}
+	 * {@link GeneralProcessConnector3#getNecessaryPermissions getNecessaryPermissions}
 	 * メソッドが返す必要パーミッション配列において、重複している要素がある場合は、
 	 * 後者の方が優先されます（つまり、そのパーミッションは必要と判断されます）。
 	 *
 	 * なお、このメソッドの戻り値に
-	 * {@link ExternalParmission#ALL ExternalParmission.ALL} のみを格納する配列を返す事で、
+	 * {@link ExternalPermission#ALL ExternalPermission.ALL} のみを格納する配列を返す事で、
 	 * 必要パーミッション配列に含まれているものを除いた、全てのパーミッションが不要となります。
 	 * これは、将来的に新しいパーミッションが追加された場合に、
 	 * そのパーミッションによって、この関数の実行が拒否される事を回避する事ができます。
@@ -200,7 +200,7 @@ public interface GeneralProcessConnector3 extends GeneralProcessConnector2 {
 	 * @param functionName 実行対象関数の関数名
 	 * @return 不要なパーミッションを格納する配列
 	 */
-	public abstract String[] getUnnecessaryParmissions(String functionName);
+	public abstract String[] getUnnecessaryPermissions(String functionName);
 
 
 	/**

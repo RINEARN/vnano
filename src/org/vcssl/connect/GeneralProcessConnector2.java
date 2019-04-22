@@ -4,7 +4,7 @@
  * ( for VCSSL / Vnano Plug-in Development )
  * --------------------------------------------------
  * This file is released under CC0.
- * Written in 2017-2018 by RINEARN (Fumihiro Matsui)
+ * Written in 2017-2019 by RINEARN (Fumihiro Matsui)
  * ==================================================
  */
 
@@ -15,7 +15,7 @@ package org.vcssl.connect;
  * GPCI 2 (General Process Connector Interface 2)
  * 形式の外部関数プラグインを開発するための、
  * プラグイン側のコネクター・インターフェースです。
- * <br />
+ * <br>
  * GPCI 2 は GPCI 1 の仕様を全て含むため、
  * このインターフェースを実装するクラスは、必要に応じて
  * {@link GeneralProcessConnector1 GeneralProcessConnector1}
@@ -35,13 +35,13 @@ package org.vcssl.connect;
  * その代わり手短に外部関数プラグインを開発する事ができます。
  * スクリプト側からは任意型の可変長引数の関数として認識されるなど、
  * 型の制約が緩いのも特徴です。
- * <br />
+ * <br>
  * GPCIにおける型の制約の緩さは、print 関数のような、
  * そもそも任意型の可変長引数の関数を作りたい場合にはメリットになり得ます。
  * しかしながら、引数が数値である事を想定しているプラグイン関数に、
  * 実際には数値でない引数を渡す事が可能になってしまうなど、
  * 静的型付けの利益を享受できないという面ではデメリットにもなります。
- * <br />
+ * <br>
  * GPCIのプラグインが提供する関数に対して、
  * 型システムによる区別や保護を効かせたい場合には、
  * 適切なシグネチャの関数をスクリプト内で定義し、
@@ -75,7 +75,7 @@ public interface GeneralProcessConnector2 extends GeneralProcessConnector1 {
 	 *
 	 * このメソッドは、処理系側から、スクリプト実行前の段階で呼び出されます。
 	 * そこで渡された関数名に対して true を返すと、スクリプト実行時に該当関数の処理が、
-	 * このプラグインの {@link GeneralProcessConnector1#process process}
+	 * このプラグインの {@link GeneralProcessConnector2#process process}
 	 * メソッドで実行するように紐づけられます。
 	 *
 	 * 関数の引数情報は渡されず、

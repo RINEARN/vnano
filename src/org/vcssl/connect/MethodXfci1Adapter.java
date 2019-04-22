@@ -3,7 +3,7 @@
  * Method to XFCI Plug-in Adapter
  * --------------------------------------------------
  * This file is released under CC0.
- * Written in 2017-2018 by RINEARN (Fumihiro Matsui)
+ * Written in 2017-2019 by RINEARN (Fumihiro Matsui)
  * ==================================================
  */
 
@@ -171,12 +171,12 @@ public class MethodXfci1Adapter implements ExternalFunctionConnector1 {
 	 * この関数の実行に必要な全てのパーミッションを、配列にまとめて設定します。
 	 *
 	 * このメソッドで設定される必要パーミッション配列と、
-	 * {@link ExternalFunctionConnector1#setNesessaryParmissions setUnnesessaryParmissions}
+	 * {@link FieldXvci1Adapter#setUnnecessaryPermissions setUnnesessaryPermissions}
 	 * メソッドで設定される不要パーミッション配列において、重複している要素がある場合は、
 	 * 前者の方が優先されます（つまり、そのパーミッションは必要と判断されます）。
 	 *
 	 * なお、このメソッドの引数に、
-	 * {@link ExternalParmission#ALL ExternalParmission.NONE}
+	 * {@link ExternalPermission#ALL ExternalPermission.NONE}
 	 * のみを格納する配列を渡す事で、全てのパーミッションが不要となります。
 	 * ただし、そのような事は、
 	 * この関数が一切のシステムリソースやネットワークにアクセスしない場合など、
@@ -198,7 +198,7 @@ public class MethodXfci1Adapter implements ExternalFunctionConnector1 {
 	 *
 	 * @return 必要なパーミッションを格納する配列
 	 */
-	public String[] getNecessaryParmissions() {
+	public String[] getNecessaryPermissions() {
 		return this.necessaryPermissions;
 	}
 
@@ -207,12 +207,12 @@ public class MethodXfci1Adapter implements ExternalFunctionConnector1 {
 	 * この関数の実行に不要な全てのパーミッションを、配列にまとめて設定します。
 	 *
 	 * このメソッドで設定される不要パーミッション配列と、
-	 * {@link ExternalFunctionConnector1#getNesessaryParmissions getNesessaryParmissions}
+	 * {@link FieldXvci1Adapter#setNecessaryPermissions setNecessaryPermissions}
 	 * メソッドで設定される必要パーミッション配列において、重複している要素がある場合は、
 	 * 後者の方が優先されます（つまり、そのパーミッションは必要と判断されます）。
 	 *
 	 * なお、このメソッドの引数に
-	 * {@link ExternalParmission#ALL ExternalParmission.ALL} のみを格納する配列を返す事で、
+	 * {@link ExternalPermission#ALL ExternalPermission.ALL} のみを格納する配列を返す事で、
 	 * 必要パーミッション配列に含まれているものを除いた、全てのパーミッションが不要となります。
 	 * これは、将来的に新しいパーミッションが追加された場合に、
 	 * そのパーミッションによって、この関数の実行が拒否される事を回避する事ができます。
@@ -243,7 +243,7 @@ public class MethodXfci1Adapter implements ExternalFunctionConnector1 {
 	 *
 	 * @return 不要なパーミッションを格納する配列
 	 */
-	public String[] getUnnecessaryParmissions() {
+	public String[] getUnnecessaryPermissions() {
 		return this.unnecessaryPermissions;
 	}
 
@@ -298,7 +298,7 @@ public class MethodXfci1Adapter implements ExternalFunctionConnector1 {
 	 * XVCIに定義されたスクリプト実行毎の初期化処理ですが、
 	 * このアダプタでは不要なため何も行いません。
 	 */
-	public void initializeForScript() {
+	public void initializeForExecution() {
 	}
 
 
@@ -306,7 +306,7 @@ public class MethodXfci1Adapter implements ExternalFunctionConnector1 {
 	 * XVCIに定義されたスクリプト実行毎の終了時処理ですが、
 	 * このアダプタでは不要なため何も行いません。
 	 */
-	public void finalizeForScript() {
+	public void finalizeForTermination() {
 	}
 
 

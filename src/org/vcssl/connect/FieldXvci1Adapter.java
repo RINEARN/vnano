@@ -3,7 +3,7 @@
  * Field to XVCI Plug-in Adapter
  * --------------------------------------------------
  * This file is released under CC0.
- * Written in 2017-2018 by RINEARN (Fumihiro Matsui)
+ * Written in 2017-2019 by RINEARN (Fumihiro Matsui)
  * ==================================================
  */
 
@@ -129,12 +129,12 @@ public class FieldXvci1Adapter implements ExternalVariableConnector1 {
 	 * この変数のデータの読み書きに必要な全てのパーミッションを、配列にまとめて設定します。
 	 *
 	 * このメソッドで設定される必要パーミッション配列と、
-	 * {@link ExternalFunctionConnector1#setNesessaryParmissions setUnnesessaryParmissions}
+	 * {@link FieldXvci1Adapter#setUnnecessaryPermissions setUnnecessaryPermissions}
 	 * メソッドで設定される不要パーミッション配列において、重複している要素がある場合は、
 	 * 前者の方が優先されます（つまり、そのパーミッションは必要と判断されます）。
 	 *
 	 * なお、このメソッドの引数に、
-	 * {@link ExternalParmission#ALL ExternalParmission.NONE}
+	 * {@link ExternalPermission#ALL ExternalPermission.NONE}
 	 * のみを格納する配列を渡す事で、全てのパーミッションが不要となります。
 	 * ただし、そのような事は、
 	 * この関数が一切のシステムリソースやネットワークにアクセスしない場合など、
@@ -156,7 +156,7 @@ public class FieldXvci1Adapter implements ExternalVariableConnector1 {
 	 *
 	 * @return 必要なパーミッションを格納する配列
 	 */
-	public String[] getNecessaryParmissions() {
+	public String[] getNecessaryPermissions() {
 		return this.necessaryPermissions;
 	}
 
@@ -165,12 +165,12 @@ public class FieldXvci1Adapter implements ExternalVariableConnector1 {
 	 * この変数のデータの読み書きに不要な全てのパーミッションを、配列にまとめて設定します。
 	 *
 	 * このメソッドで設定される不要パーミッション配列と、
-	 * {@link ExternalFunctionConnector1#getNesessaryParmissions getNesessaryParmissions}
+	 * {@link FieldXvci1Adapter#getNecessaryPermissions getNecessaryPermissions}
 	 * メソッドで設定される必要パーミッション配列において、重複している要素がある場合は、
 	 * 後者の方が優先されます（つまり、そのパーミッションは必要と判断されます）。
 	 *
 	 * なお、このメソッドの引数に
-	 * {@link ExternalParmission#ALL ExternalParmission.ALL} のみを格納する配列を返す事で、
+	 * {@link ExternalPermission#ALL ExternalPermission.ALL} のみを格納する配列を返す事で、
 	 * 必要パーミッション配列に含まれているものを除いた、全てのパーミッションが不要となります。
 	 * これは、将来的に新しいパーミッションが追加された場合に、
 	 * そのパーミッションによって、この関数の実行が拒否される事を回避する事ができます。
@@ -201,7 +201,7 @@ public class FieldXvci1Adapter implements ExternalVariableConnector1 {
 	 *
 	 * @return 不要なパーミッションを格納する配列
 	 */
-	public String[] getUnnecessaryParmissions() {
+	public String[] getUnnecessaryPermissions() {
 		return this.unnecessaryPermissions;
 	}
 
@@ -247,8 +247,6 @@ public class FieldXvci1Adapter implements ExternalVariableConnector1 {
 	/**
 	 * データの自動変換が無効化されている場合において、変数のデータを取得します。
 	 * このアダプタでは、この機能は使用されません。
-	 *
-	 * @return 変数のデータ
 	 */
 	public void getData(Object dataContainer) throws ExternalVariableException {
 	}
@@ -285,7 +283,7 @@ public class FieldXvci1Adapter implements ExternalVariableConnector1 {
 	 * XVCIに定義されたスクリプト実行毎の初期化処理ですが、
 	 * このアダプタでは不要なため何も行いません。
 	 */
-	public void initializeForScript() {
+	public void initializeForExecution() {
 	}
 
 
@@ -293,7 +291,7 @@ public class FieldXvci1Adapter implements ExternalVariableConnector1 {
 	 * XVCIに定義されたスクリプト実行毎の終了時処理ですが、
 	 * このアダプタでは不要なため何も行いません。
 	 */
-	public void finalizeForScript() {
+	public void finalizeForTermination() {
 	}
 
 
