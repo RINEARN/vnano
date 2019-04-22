@@ -1,7 +1,11 @@
 ./org/vcssl/connect/ArrayDataContainer1.java
+./org/vcssl/connect/ConnectorImplementationContainer.java
+./org/vcssl/connect/ConnectorImplementationException.java
+./org/vcssl/connect/ConnectorImplementationLoader.java
 ./org/vcssl/connect/EngineConnector1.java
 ./org/vcssl/connect/ExternalFunctionConnector1.java
 ./org/vcssl/connect/ExternalFunctionException.java
+./org/vcssl/connect/ExternalLibraryConnector1.java
 ./org/vcssl/connect/ExternalPermission.java
 ./org/vcssl/connect/ExternalVariableConnector1.java
 ./org/vcssl/connect/ExternalVariableException.java

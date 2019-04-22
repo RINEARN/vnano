@@ -4,7 +4,7 @@
  * ( for VCSSL / Vnano Plug-in Development )
  * --------------------------------------------------
  * This file is released under CC0.
- * Written in 2017-2018 by RINEARN (Fumihiro Matsui)
+ * Written in 2017-2019 by RINEARN (Fumihiro Matsui)
  * ==================================================
  */
 
@@ -61,7 +61,7 @@ package org.vcssl.connect;
  *
  * <p>
  * データの格納のされ方などの詳細については、具体的な実装を交えた説明の方が適しているため、
- * {@link org.vcssl.nano.vm.memory.DataContainer org.vcssl.nano.vm.memory.DataContainer}
+ * Vnano のスクリプトエンジン実装における org.vcssl.nano.vm.memory.DataContainer
  * クラスの説明などを参照してください。
  * </p>
  *
@@ -145,7 +145,7 @@ public interface ArrayDataContainer1<T> {
 	 * 次元ごとの長さ情報（引数 lengths）のみを設定するメソッドは提供されません。
 	 *
 	 * @param data 格納するデータ（1次元配列）
-	 * @param arrayLengths 次元ごとの長さを格納する配列
+	 * @param lengths 次元ごとの長さを格納する配列
 	 */
 	public abstract void setData(T data, int[] lengths);
 
@@ -208,14 +208,11 @@ public interface ArrayDataContainer1<T> {
 	 * メソッドで取得できる次元長配列の、全要素の積に一致します。
 	 *
 	 * データがスカラである場合には、サイズは常に 1 となります。
-	 * 仮に {@link ArrayDataContainer1#get get}
+	 * 仮に {@link ArrayDataContainer1#getData getData}
 	 * メソッドで取得したデータの配列の要素数が 1 よりも大きく
 	 * その配列内に要素として（オフセット値で指定される位置に）
 	 * スカラ値が格納されている場合でも、
 	 * このメソッドで返されるサイズは 1 になります。
-	 *
-	 * なお、サイズは {@link ArrayDataContainer1#setLengths setLengths}
-	 * メソッドで全次元の次元長を設定した時点で自動的に定まります。
 	 *
 	 * サイズとデータの要素数を独立に設定する事はできないため、
 	 * サイズの setter はありません。
@@ -232,9 +229,6 @@ public interface ArrayDataContainer1<T> {
 	 *
 	 * 具体的には、{@link ArrayDataContainer1#getLengths getLengths}
 	 * メソッドで取得できる次元長配列の、要素数に一致します。
-	 *
-	 * なお、次元数は {@link ArrayDataContainer1#setLengths setLengths}
-	 * メソッドで次元長を設定した時点で自動的に定まります。
 	 *
 	 * 次元数と、次元ごとの長さを独立に設定する事はできないため、
 	 * 次元数の setter はありません。

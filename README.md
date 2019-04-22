@@ -1668,13 +1668,13 @@ Let's implement them:
 			public Class<?>[] getParameterClasses() { return new Class<?>[]{ int.class }; } 
 			public Class<?> getReturnClass() { return Void.class; }
 			public boolean isVariadic() { return false; }
-			public String[] getNecessaryParmissions() { return new String[]{ ExternalPermission.NONE }; }
-			public String[] getUnnecessaryParmissions() { return new String[]{ ExternalPermission.ALL }; }
+			public String[] getNecessaryPermissions() { return new String[]{ ExternalPermission.NONE }; }
+			public String[] getUnnecessaryPermissions() { return new String[]{ ExternalPermission.ALL }; }
 			public void setEngine(Object engineConnector) { }
 			public void initializeForConnection() { }
 			public void finalizeForDisconnection() { }
-			public void initializeForScript() { }
-			public void finalizeForScript() { }
+			public void initializeForExecution() { }
+			public void finalizeForTermination() { }
 
 			public boolean isDataConversionNecessary() { return true; }
 
@@ -1693,13 +1693,13 @@ Let's implement them:
 			public String getVariableName() { return "LOOP_MAX"; }
 			public Class<?> getDataClass() { return int.class; }
 			public boolean isConstant() { return false; }
-			public String[] getNecessaryParmissions() { return new String[]{ ExternalPermission.NONE }; }
-			public String[] getUnnecessaryParmissions() { return new String[]{ ExternalPermission.ALL }; }
+			public String[] getNecessaryPermissions() { return new String[]{ ExternalPermission.NONE }; }
+			public String[] getUnnecessaryPermissions() { return new String[]{ ExternalPermission.ALL }; }
 			public void setEngine(Object engineConnector) { }
 			public void initializeForConnection() { }
 			public void finalizeForDisconnection() { }
-			public void initializeForScript() { }
-			public void finalizeForScript() { }
+			public void initializeForExecution() { }
+			public void finalizeForTermination() { }
 
 			public boolean isDataConversionNecessary() { return true; }
 		
@@ -1790,13 +1790,13 @@ Vnanoのスクリプトエンジン内部でデータを格納するコンテナ
 			public Class<?>[] getParameterClasses() { return new Class<?>[]{ int.class }; } 
 			public Class<?> getReturnClass() { return Void.class; }
 			public boolean isVariadic() { return false; }
-			public String[] getNecessaryParmissions() { return new String[]{ ExternalPermission.NONE }; }
-			public String[] getUnnecessaryParmissions() { return new String[]{ ExternalPermission.ALL }; }
+			public String[] getNecessaryPermissions() { return new String[]{ ExternalPermission.NONE }; }
+			public String[] getUnnecessaryPermissions() { return new String[]{ ExternalPermission.ALL }; }
 			public void setEngine(Object engineConnector) { }
 			public void initializeForConnection() { }
 			public void finalizeForDisconnection() { }
-			public void initializeForScript() { }
-			public void finalizeForScript() { }
+			public void initializeForExecution() { }
+			public void finalizeForTermination() { }
 
 			public boolean isDataConversionNecessary() { return false; }
 		
@@ -1834,13 +1834,13 @@ Vnanoのスクリプトエンジン内部でデータを格納するコンテナ
 			public String getVariableName() { return "LOOP_MAX"; }
 			public Class<?> getDataClass() { return int.class; }
 			public boolean isConstant() { return false; }
-			public String[] getNecessaryParmissions() { return new String[]{ ExternalPermission.NONE }; }
-			public String[] getUnnecessaryParmissions() { return new String[]{ ExternalPermission.ALL }; }
+			public String[] getNecessaryPermissions() { return new String[]{ ExternalPermission.NONE }; }
+			public String[] getUnnecessaryPermissions() { return new String[]{ ExternalPermission.ALL }; }
 			public void setEngine(Object engineConnector) { }
 			public void initializeForConnection() { }
 			public void finalizeForDisconnection() { }
-			public void initializeForScript() { }
-			public void finalizeForScript() { }
+			public void initializeForExecution() { }
+			public void finalizeForTermination() { }
 
 			public boolean isDataConversionNecessary() { return false; }
 
