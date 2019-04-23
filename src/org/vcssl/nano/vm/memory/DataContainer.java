@@ -6,7 +6,7 @@
 package org.vcssl.nano.vm.memory;
 
 import org.vcssl.connect.ArrayDataContainer1;
-import org.vcssl.nano.lang.DataType;
+import org.vcssl.nano.spec.DataType;
 
 
 /**
@@ -429,7 +429,7 @@ public class DataContainer<T> implements ArrayDataContainer1<T> {
 
 	/**
 	 * このデータコンテナが格納しているデータの型を返します。
-	 * 何もデータを格納していない場合は {@link org.vcssl.nano.lang.DataType#VOID VOID} を返します。
+	 * 何もデータを格納していない場合は {@link org.vcssl.nano.spec.DataType#VOID VOID} を返します。
 	 *
 	 * @return データ型
 	 */

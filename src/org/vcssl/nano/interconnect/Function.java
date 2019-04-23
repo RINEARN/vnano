@@ -1,4 +1,4 @@
-package org.vcssl.nano.lang;
+package org.vcssl.nano.interconnect;
 
 import org.vcssl.nano.VnanoFatalException;
 import org.vcssl.nano.vm.memory.DataContainer;

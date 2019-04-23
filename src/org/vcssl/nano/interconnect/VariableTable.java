@@ -3,7 +3,7 @@
  * This software is released under the MIT License.
  */
 
-package org.vcssl.nano.lang;
+package org.vcssl.nano.interconnect;
 
 import java.util.ArrayList;
 import java.util.HashMap;

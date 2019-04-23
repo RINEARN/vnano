@@ -6,7 +6,7 @@
 package org.vcssl.nano.vm.accelerator;
 
 import org.vcssl.nano.VnanoFatalException;
-import org.vcssl.nano.lang.DataType;
+import org.vcssl.nano.spec.DataType;
 import org.vcssl.nano.vm.memory.DataContainer;
 
 public class Float64CachedScalarTransferUnit extends AccelerationUnit {

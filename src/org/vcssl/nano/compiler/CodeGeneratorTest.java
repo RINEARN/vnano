@@ -11,7 +11,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.vcssl.nano.interconnect.Interconnect;
-import org.vcssl.nano.lang.Variable;
+import org.vcssl.nano.interconnect.Variable;
 import org.vcssl.nano.spec.AssemblyWord;
 import org.vcssl.nano.spec.DataTypeName;
 import org.vcssl.nano.spec.OperationCode;

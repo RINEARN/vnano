@@ -7,7 +7,7 @@ package org.vcssl.nano.interconnect;
 
 import java.util.HashMap;
 
-import org.vcssl.nano.lang.DataType;
+import org.vcssl.nano.spec.DataType;
 import org.vcssl.nano.spec.DataTypeName;
 import org.vcssl.nano.spec.ErrorType;
 import org.vcssl.nano.spec.ScriptWord;
@@ -216,7 +216,7 @@ public class DataConverter {
 
 
 	/**
-	 * {@link org.vcssl.nano.lang.DataType DataType}
+	 * {@link org.vcssl.nano.spec.DataType DataType}
 	 * で指定された処理系内部におけるデータ型と、指定された配列次元数を持つデータを、
 	 * ホスト言語側と処理系内側で双方向変換可能なデータコンバータを生成します。
 	 *

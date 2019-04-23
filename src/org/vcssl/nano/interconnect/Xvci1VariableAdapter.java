@@ -9,7 +9,6 @@ import org.vcssl.connect.ExternalVariableConnector1;
 import org.vcssl.connect.ExternalVariableException;
 import org.vcssl.nano.VnanoFatalException;
 import org.vcssl.nano.VnanoException;
-import org.vcssl.nano.lang.AbstractVariable;
 import org.vcssl.nano.spec.DataTypeName;
 import org.vcssl.nano.vm.memory.DataContainer;
 
@@ -17,7 +16,7 @@ import org.vcssl.nano.vm.memory.DataContainer;
  * <p>
  * {@link org.vcssl.connect.ExternalVariableConnector1 XVCI 1}
  * 形式の外部変数プラグインを、Vnano処理系内での変数仕様
- * （{@link org.vcssl.nano.lang.AbstractVariable AbstractVariable}）
+ * （{@link org.vcssl.nano.interconnect.AbstractVariable AbstractVariable}）
  * に基づく変数オブジェクトへと変換し、
  * {@link Interconnect Interconnect} に接続するためのアダプタです。
  * </p>

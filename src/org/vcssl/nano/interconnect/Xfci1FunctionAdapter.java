@@ -9,8 +9,7 @@ import org.vcssl.connect.ExternalFunctionConnector1;
 import org.vcssl.connect.ExternalFunctionException;
 import org.vcssl.nano.VnanoFatalException;
 import org.vcssl.nano.VnanoException;
-import org.vcssl.nano.lang.AbstractFunction;
-import org.vcssl.nano.lang.DataType;
+import org.vcssl.nano.spec.DataType;
 import org.vcssl.nano.spec.DataTypeName;
 import org.vcssl.nano.vm.memory.DataContainer;
 
@@ -18,7 +17,7 @@ import org.vcssl.nano.vm.memory.DataContainer;
  * <p>
  * {@link org.vcssl.connect.ExternalFunctionConnector1 XFCI 1}
  * 形式の外部関数プラグインを、Vnano処理系内での関数仕様
- * （{@link org.vcssl.nano.lang.AbstractVariable AbstractFunction}）
+ * （{@link org.vcssl.nano.interconnect.AbstractVariable AbstractFunction}）
  * に基づく関数オブジェクトへと変換し、
  * {@link Interconnect Interconnect} に接続するためのアダプタです。
  * </p>

@@ -10,9 +10,9 @@ import static org.junit.Assert.*;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.vcssl.nano.lang.DataType;
 import org.vcssl.nano.vm.memory.DataContainer;
 import org.vcssl.nano.VnanoFatalException;
+import org.vcssl.nano.spec.DataType;
 import org.vcssl.nano.VnanoException;
 
 public class ExecutionUnitTest {

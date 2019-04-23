@@ -13,15 +13,15 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.vcssl.nano.spec.AssemblyWord;
+import org.vcssl.nano.spec.DataType;
 import org.vcssl.nano.spec.DataTypeName;
 import org.vcssl.nano.spec.ErrorType;
 import org.vcssl.nano.spec.LiteralSyntax;
 import org.vcssl.nano.vm.VirtualMachineObjectCode;
 import org.vcssl.nano.VnanoFatalException;
+import org.vcssl.nano.interconnect.AbstractVariable;
+import org.vcssl.nano.interconnect.VariableTable;
 import org.vcssl.nano.VnanoException;
-import org.vcssl.nano.lang.AbstractVariable;
-import org.vcssl.nano.lang.DataType;
-import org.vcssl.nano.lang.VariableTable;
 
 
 /**

@@ -17,10 +17,6 @@ import org.vcssl.connect.ExternalVariableConnector1;
 import org.vcssl.connect.FieldXvci1Adapter;
 import org.vcssl.connect.MethodXfci1Adapter;
 import org.vcssl.nano.VnanoFatalException;
-import org.vcssl.nano.lang.AbstractFunction;
-import org.vcssl.nano.lang.AbstractVariable;
-import org.vcssl.nano.lang.FunctionTable;
-import org.vcssl.nano.lang.VariableTable;
 import org.vcssl.nano.vm.VirtualMachineObjectCode;
 import org.vcssl.nano.vm.memory.DataContainer;
 import org.vcssl.nano.vm.memory.Memory;
@@ -166,8 +162,8 @@ public class Interconnect {
 	 * {@link org.vcssl.connect.ExternalVariableConnector1 XVCI 1} や
 	 * {@link org.vcssl.connect.ExternalFunctionConnector1 XFCI 2} の実装クラス、
 	 * または
-	 * {@link org.vcssl.nano.lang.AbstractVariable AbstractVariable} や
-	 * {@link org.vcssl.nano.lang.AbstractVariable AbstractFunction} の継承クラス
+	 * {@link org.vcssl.nano.interconnect.AbstractVariable AbstractVariable} や
+	 * {@link org.vcssl.nano.interconnect.AbstractVariable AbstractFunction} の継承クラス
 	 * ）であった場合は、そのプラグインが保持している名称の変数・関数として接続します
 	 * （この場合、引数 bindName は単にプラグインを一意に識別するためのキー名と見なされ、
 	 * スクリプト内における変数・関数名とは無関係となります）。

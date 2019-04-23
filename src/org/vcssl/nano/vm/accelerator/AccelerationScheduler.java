@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.vcssl.nano.VnanoFatalException;
-import org.vcssl.nano.lang.DataType;
+import org.vcssl.nano.spec.DataType;
 import org.vcssl.nano.spec.OperationCode;
 import org.vcssl.nano.vm.memory.DataContainer;
 import org.vcssl.nano.vm.memory.Memory;

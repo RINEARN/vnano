@@ -5,15 +5,15 @@
 
 package org.vcssl.nano.vm.assembler;
 
-import org.vcssl.nano.lang.AbstractFunction;
-import org.vcssl.nano.lang.AbstractVariable;
-import org.vcssl.nano.lang.DataType;
-import org.vcssl.nano.lang.FunctionTable;
-import org.vcssl.nano.lang.VariableTable;
 import org.vcssl.nano.VnanoFatalException;
 import org.vcssl.nano.VnanoException;
+import org.vcssl.nano.interconnect.AbstractFunction;
+import org.vcssl.nano.interconnect.AbstractVariable;
+import org.vcssl.nano.interconnect.FunctionTable;
 import org.vcssl.nano.interconnect.Interconnect;
+import org.vcssl.nano.interconnect.VariableTable;
 import org.vcssl.nano.spec.AssemblyWord;
+import org.vcssl.nano.spec.DataType;
 import org.vcssl.nano.spec.DataTypeName;
 import org.vcssl.nano.spec.LiteralSyntax;
 import org.vcssl.nano.spec.OperationCode;
