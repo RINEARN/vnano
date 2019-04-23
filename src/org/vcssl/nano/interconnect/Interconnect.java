@@ -78,9 +78,6 @@ public class Interconnect {
 	/** 外部変数の情報を保持するグローバル変数テーブルです。 */
 	private VariableTable globalVariableTable = null;
 
-	/** 処理系内における変数・関数の一意識別子を、バインディング内の名前に変換するマップです。 */
-	private Map<String, String> identifierBindNameMap = null;
-
 	/** コンストラクタに渡された、外部変数・外部関数の情報を格納する Bindings オブジェクトを保持します。 */
 	private Bindings bindings = null;
 
@@ -94,7 +91,6 @@ public class Interconnect {
 	public Interconnect() {
 		this.functionTable = new FunctionTable();
 		this.globalVariableTable = new VariableTable();
-		this.identifierBindNameMap = new HashMap<String, String>();
 	}
 
 
@@ -108,7 +104,6 @@ public class Interconnect {
 	public Interconnect(Bindings bindings) throws VnanoException {
 		this.functionTable = new FunctionTable();
 		this.globalVariableTable = new VariableTable();
-		this.identifierBindNameMap = new HashMap<String, String>();
 		this.bind(bindings);
 	}
 
@@ -198,38 +193,35 @@ public class Interconnect {
 	 */
 	private void bind(String bindName, Object object) throws VnanoException {
 
-		// 接続オブジェクトに処理系内で割り当てられる一意識別子
-		String identifier = null;
-
 		// 内部変数と互換の変数オブジェクト >> そのまま接続
 		if (object instanceof AbstractVariable) {
 			this.connect( (AbstractVariable)object );
 
 		// 内部関数と互換の変数オブジェクト >> そのまま接続
 		} else if (object instanceof AbstractFunction) {
-			identifier = this.connect( (AbstractFunction)object );
+			this.connect( (AbstractFunction)object );
 
 		// XVCI 1 形式の外部変数プラグイン >> そのまま接続
 		} else if (object instanceof ExternalVariableConnector1) {
-			identifier = this.connect( (ExternalVariableConnector1)object );
+			this.connect( (ExternalVariableConnector1)object );
 
 		// XFCI 1 形式の外部関数プラグイン >> そのまま接続
 		} else if (object instanceof ExternalFunctionConnector1) {
-			identifier = this.connect( (ExternalFunctionConnector1)object );
+			this.connect( (ExternalFunctionConnector1)object );
 
 		// XLCI 1 形式の外部関数プラグイン >> そのまま接続
 		} else if (object instanceof ExternalLibraryConnector1) {
-			identifier = this.connect( (ExternalLibraryConnector1)object );
+			this.connect( (ExternalLibraryConnector1)object );
 
 		// クラスフィールドの場合 >> アダプタで XVCI1 に変換して接続
 		} else if (object instanceof Field) {
 			FieldXvci1Adapter adapter = new FieldXvci1Adapter((Field)object);
-			identifier = this.connect(adapter);
+			this.connect(adapter);
 
 		// クラスメソッドの場合 >> アダプタで XFCI1 に変換して接続
 		} else if (object instanceof Method) {
 			MethodXfci1Adapter adapter = new MethodXfci1Adapter((Method)object);
-			identifier = this.connect(adapter);
+			this.connect(adapter);
 
 		// インスタンスフィールドやインスタンスメソッドは、所属インスタンスも格納する配列で渡される
 		} else if (object instanceof Object[]) {
@@ -241,14 +233,14 @@ public class Interconnect {
 				Field field = (Field)objects[0]; // [0] はフィールドのリフレクション
 				Object instance = objects[1];    // [1] はフィールドの所属インスタンス
 				FieldXvci1Adapter adapter = new FieldXvci1Adapter(field, instance);
-				identifier = this.connect(adapter);
+				this.connect(adapter);
 
 			// インスタンスフィールドの場合 >> 引数からMethodとインスタンスを取り出し、アダプタで XFCI1 に変換して接続
 			} else if (objects.length == 2 && objects[0] instanceof Method) {
 				Method method = (Method)objects[0]; // [0] はメソッドのリフレクション
 				Object instance = objects[1];       // [1] はメソッドの所属インスタンス
 				MethodXfci1Adapter adapter = new MethodXfci1Adapter(method, instance);
-				identifier = this.connect(adapter);
+				this.connect(adapter);
 			}
 
 		// プリミティブラッパー -> 変数を生成して登録
@@ -263,16 +255,9 @@ public class Interconnect {
 			int rank = dataConverter.getRank();
 			Variable variable = new Variable(bindName, DataTypeName.getDataTypeNameOf(dataType), rank);
 			variable.setDataContainer(dataConverter.convertToDataContainer(object));
-			identifier = this.connect(variable);
+			this.connect(variable);
 		} else {
 			throw new VnanoFatalException("Unconnectable object type: " + object.getClass().getCanonicalName());
-		}
-
-		if (identifier == null) {
-			throw new VnanoFatalException("Unconnectable object type: " + object.getClass().getCanonicalName());
-		} else {
-			this.identifierBindNameMap.put(identifier, bindName);
-			return;
 		}
 	}
 
@@ -284,12 +269,11 @@ public class Interconnect {
 	 *
 	 * @param field 外部変数として接続するフィールド
 	 * @param instance フィールドの属するクラスのインスタンス
-	 * @return プラグインと一意に対応する管理用キー
 	 * @throws DataException 引数や戻り値のデータ型が非対応であった場合にスローされます。
 	 */
-	public String connect(Field field, Object instance) throws VnanoException {
+	public void connect(Field field, Object instance) throws VnanoException {
 		FieldXvci1Adapter adapter = new FieldXvci1Adapter(field, instance);
-		return this.connect(adapter);
+		this.connect(adapter);
 	}
 
 
@@ -299,12 +283,11 @@ public class Interconnect {
 	 *
 	 * @param method 外部関数として接続するメソッド
 	 * @param instance メソッドの属するクラスのインスタンス
-	 * @return プラグインと一意に対応する管理用キー
 	 * @throws DataException データ型が非対応であった場合にスローされます。
 	 */
-	public String connect(Method method, Object instance) throws VnanoException {
+	public void connect(Method method, Object instance) throws VnanoException {
 		MethodXfci1Adapter adapter = new MethodXfci1Adapter(method,instance);
-		return this.connect(adapter);
+		this.connect(adapter);
 	}
 
 
@@ -314,15 +297,12 @@ public class Interconnect {
 	 * ホスト言語で実装された外部変数オブジェクトを接続します。
 	 *
 	 * @param connector XVCI準拠の外部変数
-	 * @return プラグインと一意に対応する管理用キー
 	 * @throws VnanoException データ型が非対応であった場合にスローされます。
 	 */
-	public String connect(ExternalVariableConnector1 connector) throws VnanoException {
+	public void connect(ExternalVariableConnector1 connector) throws VnanoException {
 		connector.initializeForConnection();
 		Xvci1VariableAdapter adapter = new Xvci1VariableAdapter(connector);
 		this.globalVariableTable.addVariable(adapter);
-		String identifier = IdentifierSyntax.getAssemblyIdentifierOf(adapter);
-		return identifier;
 	}
 
 
@@ -332,15 +312,12 @@ public class Interconnect {
 	 * ホスト言語で実装された外部関数オブジェクトを接続します。
 	 *
 	 * @param connector XFCI準拠の外部関数
-	 * @return プラグインと一意に対応する管理用キー
 	 * @throws VnanoException 引数や戻り値のデータ型が非対応であった場合にスローされます。
 	 */
-	public String connect(ExternalFunctionConnector1 connector) throws VnanoException {
+	public void connect(ExternalFunctionConnector1 connector) throws VnanoException {
 		connector.initializeForConnection();
 		Xfci1FunctionAdapter adapter = new Xfci1FunctionAdapter(connector);
 		this.functionTable.addFunction(adapter);
-		String identifier = IdentifierSyntax.getAssemblyIdentifierOf(adapter);
-		return identifier;
 	}
 
 
@@ -348,12 +325,9 @@ public class Interconnect {
 	 * Vnano処理系内部の変数形式に準拠した変数オブジェクトを接続します。
 	 *
 	 * @param variable 変数オブジェクト
-	 * @return 変数オブジェクトと一意に対応する管理用キー
 	 */
-	public String connect(AbstractVariable variable) {
+	public void connect(AbstractVariable variable) {
 		this.globalVariableTable.addVariable(variable);
-		String identifier = IdentifierSyntax.getAssemblyIdentifierOf(variable);
-		return identifier;
 	}
 
 
@@ -361,12 +335,9 @@ public class Interconnect {
 	 * Vnano処理系内部の関数形式に準拠した関数オブジェクトを接続します。
 	 *
 	 * @param function 関数オブジェクト
-	 * @return 関数オブジェクトと一意に対応する管理用キー
 	 */
-	public String connect(AbstractFunction function) {
+	public void connect(AbstractFunction function) {
 		this.functionTable.addFunction(function);
-		String identifier = IdentifierSyntax.getAssemblyIdentifierOf(function);
-		return identifier;
 	}
 
 
@@ -376,10 +347,9 @@ public class Interconnect {
 	 * ホスト言語で実装された外部関数・外部変数オブジェクトを複数まとめて接続します。
 	 *
 	 * @param connector XLCI準拠でまとめられた外部関数・外部変数の集合（ライブラリ）
-	 * @return ライブラリオブジェクトと一意に対応する管理用キー
 	 * @throws VnanoException データ型が非対応であった場合にスローされます。
 	 */
-	public String connect(ExternalLibraryConnector1 connector) throws VnanoException {
+	public void connect(ExternalLibraryConnector1 connector) throws VnanoException {
 		connector.initializeForConnection();
 
 		ExternalFunctionConnector1[] functions = connector.getFunctions();
@@ -391,8 +361,6 @@ public class Interconnect {
 		for (ExternalVariableConnector1 variable: variables) {
 			this.connect(variable);
 		}
-
-		return connector.getLibraryName();
 	}
 
 
@@ -439,24 +407,6 @@ public class Interconnect {
 
 			// 外部変数オブジェクトにデータコンテナを渡して値を更新させる
 			variable.setDataContainer(dataContainer);
-
-			// バインディングオブジェクトに含まれていた変数の場合、必要に応じてそちらの値も更新
-			if (this.identifierBindNameMap.containsKey(identifier)) {
-				String bindName = this.identifierBindNameMap.get(identifier);
-				Object bindData = this.bindings.get(bindName);
-				Class<?> bindClass = bindData.getClass();
-
-				// バインディング側にプリミティブラッパー型として保持されている場合は、値の更新が必要
-				if (DataConverter.isConvertible(bindClass)) {
-
-					// データコンテナが保持するデータを、バインディングデータと同じ型に変換
-					DataConverter converter = new DataConverter(bindClass);
-					Object updatedData = converter.convertToExternalObject(dataContainer);
-
-					// バインディングの値を上書きして更新
-					this.bindings.put(bindName, updatedData);
-				}
-			}
 		}
 	}
 
