@@ -1,3 +1,8 @@
+/*
+ * Copyright(C) 2018-2019 RINEARN (Fumihiro Matsui)
+ * This software is released under the MIT License.
+ */
+
 package org.vcssl.nano.vm.accelerator;
 
 import java.util.Arrays;
