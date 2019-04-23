@@ -7,8 +7,6 @@ package org.vcssl.nano.interconnect;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.script.Bindings;
@@ -21,12 +19,8 @@ import org.vcssl.connect.MethodXfci1Adapter;
 import org.vcssl.nano.VnanoFatalException;
 import org.vcssl.nano.lang.AbstractFunction;
 import org.vcssl.nano.lang.AbstractVariable;
-import org.vcssl.nano.lang.DataType;
 import org.vcssl.nano.lang.FunctionTable;
-import org.vcssl.nano.lang.Variable;
 import org.vcssl.nano.lang.VariableTable;
-import org.vcssl.nano.spec.DataTypeName;
-import org.vcssl.nano.spec.IdentifierSyntax;
 import org.vcssl.nano.vm.VirtualMachineObjectCode;
 import org.vcssl.nano.vm.memory.DataContainer;
 import org.vcssl.nano.vm.memory.Memory;
@@ -243,19 +237,6 @@ public class Interconnect {
 				this.connect(adapter);
 			}
 
-		// プリミティブラッパー -> 変数を生成して登録
-		} else if (DataConverter.isConvertible(object.getClass())) {
-			DataConverter dataConverter;
-			try {
-				dataConverter = new DataConverter(object.getClass());
-			} catch (VnanoException e) {
-				throw new VnanoFatalException(e);
-			}
-			DataType dataType = dataConverter.getDataType();
-			int rank = dataConverter.getRank();
-			Variable variable = new Variable(bindName, DataTypeName.getDataTypeNameOf(dataType), rank);
-			variable.setDataContainer(dataConverter.convertToDataContainer(object));
-			this.connect(variable);
 		} else {
 			throw new VnanoFatalException("Unconnectable object type: " + object.getClass().getCanonicalName());
 		}
@@ -300,6 +281,21 @@ public class Interconnect {
 	 * @throws VnanoException データ型が非対応であった場合にスローされます。
 	 */
 	public void connect(ExternalVariableConnector1 connector) throws VnanoException {
+		connector.initializeForConnection();
+		Xvci1VariableAdapter adapter = new Xvci1VariableAdapter(connector);
+		this.globalVariableTable.addVariable(adapter);
+	}
+
+	/**
+	 * {@link org.vcssl.connect.ExternalVariableConnector1 XVCI 1}
+	 * のプラグイン・インターフェースを用いて、
+	 * ホスト言語で実装された外部変数オブジェクトを接続します。
+	 *
+	 * @param connector XVCI準拠の外部変数
+	 * @param alias スクリプト内での外部変数を参照する際の変数名
+	 * @throws VnanoException データ型が非対応であった場合にスローされます。
+	 */
+	public void connect(ExternalVariableConnector1 connector, String aliasName) throws VnanoException {
 		connector.initializeForConnection();
 		Xvci1VariableAdapter adapter = new Xvci1VariableAdapter(connector);
 		this.globalVariableTable.addVariable(adapter);
