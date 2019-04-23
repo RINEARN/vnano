@@ -136,7 +136,7 @@ public class FunctionTable {
 	 * @return 登録されていればtrue
 	 */
 	public AbstractFunction getFunctionBySignature(String signature) {
-		return this.signatureFunctionMap.get(signature).getLast();
+		return IdentifierMapManager.getLastFromMap(this.signatureFunctionMap, signature);
 	}
 
 
@@ -160,7 +160,7 @@ public class FunctionTable {
 	 * @return 対象の関数
 	 */
 	public AbstractFunction getFunctionByAssemblyIdentifier(String assemblyIdentifier) {
-		return this.assemblyIdentifierFunctionMap.get(assemblyIdentifier).getLast();
+		return IdentifierMapManager.getLastFromMap(this.assemblyIdentifierFunctionMap, assemblyIdentifier);
 	}
 
 

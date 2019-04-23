@@ -117,7 +117,7 @@ public class VariableTable implements Cloneable {
 	 * @return 対象の変数
 	 */
 	public AbstractVariable getVariableByName(String name) {
-		return this.nameVariableMap.get(name).getLast();
+		return IdentifierMapManager.getLastFromMap(this.nameVariableMap, name);
 	}
 
 
@@ -141,7 +141,7 @@ public class VariableTable implements Cloneable {
 	 * @return 対象の変数
 	 */
 	public AbstractVariable getVariableByAssemblyIdentifier(String identifier) {
-		return this.assemblyIdentifierVariableMap.get(identifier).getLast();
+		return IdentifierMapManager.getLastFromMap(this.assemblyIdentifierVariableMap, identifier);
 	}
 
 

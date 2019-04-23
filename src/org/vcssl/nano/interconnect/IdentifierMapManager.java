@@ -35,8 +35,6 @@ import java.util.Map;
  * </p>
  *
  * @author RINEARN (Fumihiro Matsui)
- *
- * @param <Type>
  */
 public class IdentifierMapManager {
 
@@ -59,8 +57,22 @@ public class IdentifierMapManager {
 
 
 	/**
+	 * マップから要素を取得します。
+	 * 同じキーを持つ要素が複数存在する場合は、最後に追加されたものを取得します。
+	 * @param map
+	 * @param key
+	 * @return
+	 */
+	public static <KeyType, ValueType> ValueType getLastFromMap(
+			Map<KeyType, LinkedList<ValueType>> map, KeyType key) {
+
+		return map.get(key).getLast();
+	}
+
+
+	/**
 	 * マップから要素を削除します。
-	 * 同じキーを持つ複数存在する場合は、最後に追加されたものを削除します。
+	 * 同じキーを持つ要素が複数存在する場合は、最後に追加されたものを削除します。
 	 *
 	 * @param map 操作対象のマップ
 	 * @param key 削除する要素のキー
