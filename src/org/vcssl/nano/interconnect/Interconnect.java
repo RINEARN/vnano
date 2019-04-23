@@ -143,6 +143,9 @@ public class Interconnect {
 
 		// Bindings から1個ずつ全ての要素を取り出して接続
 		// 注: 要素を取り出す順序については、登録順と一致する事は保証されていない模様（実際にしばしば異なる）
+		// -> SimpleBindingsを使う場合は、コンストラクタで LinkedHashMap を指定する等して対応可能、
+		//    しかしBindingsはインターフェースなので、実際に外側からどのような実装が渡されるかは未知
+		//    -> また後の段階で要検討
 		for (Entry<String,Object> pair: bindings.entrySet()) {
 			this.bind(pair.getKey(), pair.getValue());
 		}
