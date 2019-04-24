@@ -31,6 +31,9 @@ public class Xvci1VariableAdapter extends AbstractVariable {
 	/** 外部変数と処理系内部の変数とで、データの型変換を行うコンバータです。 */
 	private DataConverter dataConverter = null;
 
+	/** 変数名を保持します。 */
+	private String variableName = null;
+
 
 	/**
 	 * 指定されたXVCI準拠の外部変数プラグインを、
@@ -43,6 +46,7 @@ public class Xvci1VariableAdapter extends AbstractVariable {
 	public Xvci1VariableAdapter(ExternalVariableConnector1 xvciPlugin) throws VnanoException {
 		this.xvciPlugin = xvciPlugin;
 		this.dataConverter = new DataConverter(this.xvciPlugin.getDataClass());
+		this.variableName = this.xvciPlugin.getVariableName();
 	}
 
 
@@ -53,7 +57,17 @@ public class Xvci1VariableAdapter extends AbstractVariable {
 	 */
 	@Override
 	public String getVariableName() {
-		return this.xvciPlugin.getVariableName();
+		return this.variableName;
+	}
+
+
+	/**
+	 * 変数名を上書き変更します。
+	 *
+	 * @param variableName 変数名
+	 */
+	public void setVariableName(String variableName) {
+		this.variableName = variableName;
 	}
 
 
