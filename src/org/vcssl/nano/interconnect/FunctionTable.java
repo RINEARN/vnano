@@ -1,17 +1,19 @@
 /*
- * Copyright(C) 2017-2018 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2019 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
-package org.vcssl.nano.lang;
+package org.vcssl.nano.interconnect;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 import org.vcssl.nano.VnanoFatalException;
 import org.vcssl.nano.compiler.AstNode;
+import org.vcssl.nano.spec.DataType;
 import org.vcssl.nano.spec.DataTypeName;
 import org.vcssl.nano.spec.IdentifierSyntax;
 
@@ -23,9 +25,15 @@ import org.vcssl.nano.spec.IdentifierSyntax;
  * @author RINEARN (Fumihiro Matsui)
  */
 public class FunctionTable {
+
+	/** 関数を保持するリストです。 */
 	List<AbstractFunction> functionList = null;
-	Map<String, AbstractFunction> signatureFunctionMap = null;
-	Map<String, AbstractFunction> assemblyIdentifierFunctionMap = null;
+
+	/** 関数シグネチャと、関数とを対応付けるマップです。同じキーの要素を複数格納するため、値をリスト化して保持します。 */
+	Map<String, LinkedList<AbstractFunction>> signatureFunctionMap = null;
+
+	/** 中間アセンブリコード識別子と、関数とを対応付けるマップです。同じキーの要素を複数格納するため、値をリスト化して保持します。 */
+	Map<String, LinkedList<AbstractFunction>> assemblyIdentifierFunctionMap = null;
 
 
 	/**
@@ -33,8 +41,8 @@ public class FunctionTable {
 	 */
 	public FunctionTable() {
 		this.functionList = new ArrayList<AbstractFunction>();
-		this.signatureFunctionMap = new HashMap<String, AbstractFunction>();
-		this.assemblyIdentifierFunctionMap = new HashMap<String, AbstractFunction>();
+		this.signatureFunctionMap = new LinkedHashMap<String, LinkedList<AbstractFunction>>();
+		this.assemblyIdentifierFunctionMap = new LinkedHashMap<String, LinkedList<AbstractFunction>>();
 	}
 
 
@@ -50,11 +58,11 @@ public class FunctionTable {
 
 		// シグネチャリストに追加
 		String signature = IdentifierSyntax.getSignatureOf(function);
-		this.signatureFunctionMap.put(signature, function);
+		IdentifierMapManager.putToMap(this.signatureFunctionMap, signature, function);
 
 		// アセンブリ識別子リストに追加
 		String assemblyIdentifier = IdentifierSyntax.getAssemblyIdentifierOf(function);
-		this.assemblyIdentifierFunctionMap.put(assemblyIdentifier, function);
+		IdentifierMapManager.putToMap(this.assemblyIdentifierFunctionMap, assemblyIdentifier, function);
 	}
 
 
@@ -122,12 +130,13 @@ public class FunctionTable {
 
 	/**
 	 * 指定されたシグネチャ（関数の名称と引数情報）に該当する関数を取得します。
+	 * 複数存在する場合は、最後に登録されたものを返します。
 	 *
 	 * @param signature 対象関数のシグネチャの文字列表現
 	 * @return 登録されていればtrue
 	 */
 	public AbstractFunction getFunctionBySignature(String signature) {
-		return this.signatureFunctionMap.get(signature);
+		return IdentifierMapManager.getLastFromMap(this.signatureFunctionMap, signature);
 	}
 
 
@@ -145,12 +154,13 @@ public class FunctionTable {
 
 	/**
 	 * 指定された中間アセンブリコード識別子に対応する関数を取得します。
+	 * 複数存在する場合は、最後に登録されたものを返します。
 	 *
 	 * @param assemblyIdentifier 対象関数のアセンブリコード識別子
 	 * @return 対象の関数
 	 */
 	public AbstractFunction getFunctionByAssemblyIdentifier(String assemblyIdentifier) {
-		return this.assemblyIdentifierFunctionMap.get(assemblyIdentifier);
+		return IdentifierMapManager.getLastFromMap(this.assemblyIdentifierFunctionMap, assemblyIdentifier);
 	}
 
 
@@ -191,6 +201,5 @@ public class FunctionTable {
 		String signature = IdentifierSyntax.getSignatureOfCalleeFunctionOf(callerNode);
 		return this.getFunctionBySignature(signature);
 	}
-
 
 }

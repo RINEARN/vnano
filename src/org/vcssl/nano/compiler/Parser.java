@@ -161,7 +161,7 @@ public class Parser {
 			} else if (beginToken.getType()==Token.Type.DATA_TYPE) {
 
 				Token[] subTokens = Arrays.copyOfRange(tokens, statementBegin, statementEnd);
-				statementStack.push(this.parseVariableDeclarationStatement(subTokens));
+				statementStack.push(this.parseVariableDeclarationStatement(subTokens, true));
 				statementBegin = statementEnd + 1;
 
 			// 式文の場合
@@ -248,10 +248,12 @@ public class Parser {
 	 * メソッドによって生成される {@link AstNode.Type#LENGTHS LENGTHS} タイプのノードがぶら下がります。
 	 *
 	 * @param tokens 文のトークン配列（文末記号は含まない）
+	 * @param requiresIdentifier 識別子を必須にするかどうか（trueなら必須）
 	 * @return 構築したAST（抽象構文木）のルートノード
 	 * @throws VnanoException 文の構文に異常があった場合にスローされます。
 	 */
-	private AstNode parseVariableDeclarationStatement(Token[] tokens) throws VnanoException {
+	private AstNode parseVariableDeclarationStatement(Token[] tokens, boolean requiresIdentifier)
+			throws VnanoException {
 
 		AstNode variableNode = new AstNode(AstNode.Type.VARIABLE, tokens[0].getLineNumber(), tokens[0].getFileName());
 
@@ -267,20 +269,27 @@ public class Parser {
 		variableNode.setAttribute(AttributeKey.DATA_TYPE, typeToken.getValue());
 		readingIndex++;
 
+		// 識別子トークン
+		Token nameToken = null;
+
 		// 次のトークンが存在しないか、識別子トークンではない場合は構文エラー
 		if (tokens.length <= readingIndex || tokens[readingIndex].getType()!=Token.Type.LEAF
 			|| !tokens[readingIndex].getAttribute(AttributeKey.LEAF_TYPE).equals(AttributeValue.VARIABLE_IDENTIFIER)) {
 
-			throw new VnanoException(
+			// 識別子が省略可能と指定されている場合はエラーにしない（関数シグネチャでの引数宣言など）
+			if (requiresIdentifier) {
+				throw new VnanoException(
 					ErrorType.NO_IDENTIFIER_IN_VARIABLE_DECLARATION,
 					tokens[readingIndex-1].getFileName(), tokens[readingIndex-1].getLineNumber()
-			);
-		}
+				);
+			}
 
-		// 識別子情報を付加
-		Token nameToken = tokens[readingIndex];
-		variableNode.setAttribute(AttributeKey.IDENTIFIER_VALUE, nameToken.getValue());
-		readingIndex++;
+		// 識別子トークンがあるので、識別子情報を付加
+		} else {
+			nameToken = tokens[readingIndex];
+			variableNode.setAttribute(AttributeKey.IDENTIFIER_VALUE, nameToken.getValue());
+			readingIndex++;
+		}
 
 		// 配列要素数の検出
 		AstNode arrayLengthNode = null;
@@ -299,7 +308,15 @@ public class Parser {
 		}
 		variableNode.setAttribute(AttributeKey.RANK, Integer.toString(arrayRank));
 
-		// 初期化式
+		// ここ以降は初期化式であるが、識別子が省略されているのに初期化式がある場合はエラー
+		if (!requiresIdentifier && readingIndex < tokens.length) {
+			throw new VnanoException(
+					ErrorType.TOO_MANY_TOKENS_FOR_VARIABLE_DECLARATION,
+					tokens[readingIndex-1].getFileName(), tokens[readingIndex-1].getLineNumber()
+			);
+		}
+
+		// 初期化式のトークン列を、parseExpressionで解釈してASTを構築して付加
 		if(readingIndex<tokens.length-1 && tokens[readingIndex].getValue().equals(ScriptWord.ASSIGNMENT)) {
 			int initTokenLength = tokens.length - readingIndex + 1;
 			Token[] initTokens = new Token[initTokenLength];
@@ -311,7 +328,7 @@ public class Parser {
 			variableNode.addChildNode(this.parseExpression(initTokens));
 		}
 
-		// それ以上トークンが続く場合は、余計なトークンであるため構文エラー
+		// それ以上トークンが続く場合は、明らかに余計なトークンであるため構文エラー
 		if (readingIndex < tokens.length) {
 			throw new VnanoException(
 					ErrorType.TOO_MANY_TOKENS_FOR_VARIABLE_DECLARATION,
@@ -463,7 +480,9 @@ public class Parser {
 				// 引数のトークンを変数宣言文として解釈してASTノードを生成（トークン数が0の場合はvoidなので無視）
 				Token[] argTokens = Arrays.copyOfRange(tokens, argumentBegin, readingIndex);
 				if (0 < argTokens.length) {
-					AstNode argNode = this.parseVariableDeclarationStatement(argTokens);
+
+					// シグネチャのみをパースする用途の事を考えて、ここでは引数名は省略可能とし、意味解析で検査する
+					AstNode argNode = this.parseVariableDeclarationStatement(argTokens, false);
 					argumentNodeList.add(argNode);
 					argumentBegin = readingIndex + 1;
 				}
@@ -542,7 +561,7 @@ public class Parser {
 
 			// 初期化文をパースしてfor文ノードにぶら下げる: 初期化文が変数宣言文の場合
 			if (DataTypeName.isDataTypeName(tokens[2].getValue())) {
-				node.addChildNode(this.parseVariableDeclarationStatement(Arrays.copyOfRange(tokens, 2, initializationEnd)));
+				node.addChildNode(this.parseVariableDeclarationStatement(Arrays.copyOfRange(tokens, 2, initializationEnd), true));
 
 			// そうでなければ式文（しか許されない）
 			} else {

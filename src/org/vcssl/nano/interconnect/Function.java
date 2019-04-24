@@ -1,4 +1,9 @@
-package org.vcssl.nano.lang;
+/*
+ * Copyright(C) 2019 RINEARN (Fumihiro Matsui)
+ * This software is released under the MIT License.
+ */
+
+package org.vcssl.nano.interconnect;
 
 import org.vcssl.nano.VnanoFatalException;
 import org.vcssl.nano.vm.memory.DataContainer;

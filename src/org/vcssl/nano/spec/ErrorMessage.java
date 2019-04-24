@@ -64,6 +64,8 @@ public class ErrorMessage {
 			case FUNCTION_IS_DECLARED_IN_INVALID_PLASE : return "関数をここで宣言する事はできません";
 			case INVALID_ARGUMENT_DECLARATION : return "引数の宣言内容が正しくありません。";
 			case RECURSIVE_FUNCTION_CALL : return "関数の再帰呼び出しが検出されましたが、このスクリプトエンジンではサポートされていません。";
+			case INVALID_EXTERNAL_FUNCTION_SIGNATURE : return "外部関数の接続時の表記「 " + words[0] + " 」が正しくありません。正しい表記は「 " + words[1] + " 」か、そこから関数名のみを変更したものです。";
+			case UNSUPPORTED_PLUGIN : return "この処理系では、「 " + words[0] + " 」型のオブジェクトをプラグインとして接続する事はサポートされていません。";
 			case UNKNOWN : return "不明なエラー";
 			default : return "不明なエラー種類：" + errorType;
 		}
@@ -105,6 +107,8 @@ public class ErrorMessage {
 			case FUNCTION_IS_DECLARED_IN_INVALID_PLASE : return "A function is declared in the invalid place";
 			case INVALID_ARGUMENT_DECLARATION : return "Invalid argument declaration is detected";
 			case RECURSIVE_FUNCTION_CALL : return "A recursive call of the function (this script engine is not support it) is detected";
+			case INVALID_EXTERNAL_FUNCTION_SIGNATURE : return "A signature \"" + words[0] + "\" of the connected external function is invalid. A valid example is \"" + words[1] + "\", and you can change the function name only.";
+			case UNSUPPORTED_PLUGIN : return "For this script engine, the class \"" + words[0] + "\" is not supported as a plug-in.";
 			case UNKNOWN : return "Unknown Error";
 			default : return "Unknown Error Type：" + errorType;
 		}

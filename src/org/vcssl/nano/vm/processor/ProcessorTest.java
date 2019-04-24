@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2018 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2019 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -12,9 +12,9 @@ import java.util.Arrays;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.vcssl.nano.interconnect.AbstractFunction;
 import org.vcssl.nano.interconnect.Interconnect;
-import org.vcssl.nano.lang.AbstractFunction;
-import org.vcssl.nano.lang.DataType;
+import org.vcssl.nano.spec.DataType;
 import org.vcssl.nano.spec.OperationCode;
 import org.vcssl.nano.vm.memory.DataContainer;
 import org.vcssl.nano.vm.memory.Memory;
@@ -44,7 +44,7 @@ public class ProcessorTest {
 
 		// テストで関数として呼び出すメソッドを接続したインターコネクトを用意
 		this.interconnect = new Interconnect();
-		this.interconnect.connect(this.getClass().getMethod("methodToConnect", long.class, long.class), this);
+		this.interconnect.connect(this.getClass().getMethod("methodToConnect", long.class, long.class), this, false, null);
 
 		// レジスタを生成してメモリに配置
 		this.memory = new Memory();

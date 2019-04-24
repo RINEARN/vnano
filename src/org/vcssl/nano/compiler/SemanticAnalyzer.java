@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2018 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2019 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -11,14 +11,14 @@ import java.util.Deque;
 
 import org.vcssl.nano.VnanoException;
 import org.vcssl.nano.compiler.AstNode;
+import org.vcssl.nano.interconnect.AbstractFunction;
+import org.vcssl.nano.interconnect.AbstractVariable;
+import org.vcssl.nano.interconnect.Function;
+import org.vcssl.nano.interconnect.FunctionTable;
 import org.vcssl.nano.interconnect.Interconnect;
-import org.vcssl.nano.lang.AbstractFunction;
-import org.vcssl.nano.lang.AbstractVariable;
-import org.vcssl.nano.lang.DataType;
-import org.vcssl.nano.lang.Function;
-import org.vcssl.nano.lang.FunctionTable;
-import org.vcssl.nano.lang.Variable;
-import org.vcssl.nano.lang.VariableTable;
+import org.vcssl.nano.interconnect.Variable;
+import org.vcssl.nano.interconnect.VariableTable;
+import org.vcssl.nano.spec.DataType;
 import org.vcssl.nano.spec.DataTypeName;
 import org.vcssl.nano.spec.ErrorType;
 import org.vcssl.nano.spec.IdentifierSyntax;
@@ -78,6 +78,9 @@ public class SemanticAnalyzer {
 
 		// 式ノードの属性値を設定
 		this.supplementExpressionAttributes(outputAst);
+
+		// 関数ノードの属性を検査
+		this.checkFunctionAttributes(outputAst);
 
 		return outputAst;
 	}
@@ -710,6 +713,54 @@ public class SemanticAnalyzer {
 			new String[] {operatorSymbol, leftOperandType, rightOperandType},
 			fileName, lineNumber
 		);
+	}
+
+
+	/**
+	 * 引数に渡されたAST（抽象構文木）の内容を解析し、その中の関数ノードの属性値を検査します。
+	 *
+	 * 例えば、{@link Parser Parser} による構文解析の段階では、引数の識別子は省略が許されています。
+	 * （外部関数の接続などにおいて、そのようなコールシグネチャをパースする用途などがあるためです。）
+	 * 一方で、スクリプト内でシグネチャ宣言と同時に実装が定義されている関数では、
+	 * 引数の識別子の省略は許されず、実際にこのメソッド内で検査されます。
+	 *
+	 * @param astRootNode 検査対象のASTのルートノード
+	 * @throws VnanoException 属性値に異常があった場合にスローされます。
+	 */
+	private void checkFunctionAttributes(AstNode astRootNode) throws VnanoException {
+
+		// ASTノードを辿り、関数ノードがあれば検査
+		AstNode currentNode = astRootNode.getPostorderDfsTraversalFirstNode();
+		while(currentNode != astRootNode) {
+
+			// 関数ノードの場合
+			if(currentNode.getType() == AstNode.Type.FUNCTION) {
+
+				// 全ての子ノードを走査して検査
+				AstNode[] childNodes = currentNode.getChildNodes();
+				for (AstNode childNode: childNodes) {
+
+					// 変数ノード以外は引数ではないのでスキップ
+					if (childNode.getType() != AstNode.Type.VARIABLE) {
+						continue;
+					}
+
+					// 以下は引数の変数ノードに対する検査
+
+					// 識別子属性が無ければエラーにする
+					if (!childNode.hasAttribute(AttributeKey.IDENTIFIER_VALUE)) {
+
+						throw new VnanoException(
+							ErrorType.NO_IDENTIFIER_IN_VARIABLE_DECLARATION,
+							childNode.getFileName(), childNode.getLineNumber()
+						);
+					}
+				} // 全ての子ノードに対する検査
+
+			} // 関数ノードの場合
+
+			currentNode = currentNode.getPostorderDfsTraversalNextNode();
+		} // ASTを辿るループ
 	}
 
 }

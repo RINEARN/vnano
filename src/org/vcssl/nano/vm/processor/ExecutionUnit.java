@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2018 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2019 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -7,7 +7,7 @@ package org.vcssl.nano.vm.processor;
 
 import org.vcssl.nano.VnanoFatalException;
 import org.vcssl.nano.interconnect.DataConverter;
-import org.vcssl.nano.lang.DataType;
+import org.vcssl.nano.spec.DataType;
 import org.vcssl.nano.spec.DataTypeName;
 import org.vcssl.nano.spec.ErrorType;
 import org.vcssl.nano.vm.accelerator.Accelerator;
@@ -406,7 +406,7 @@ public class ExecutionUnit {
 	 * （スカラは要素数1かつ0次元の配列として演算されます）。
 	 *
 	 * また、inputA および inputB のデータは、引数 type に指定されたデータ型のものに揃っている必要があります。
-	 * output のデータ型は、必ず {@link org.vcssl.nano.lang.DataType#BOOL BOOL} 型である事が必要です。
+	 * output のデータ型は、必ず {@link org.vcssl.nano.spec.DataType#BOOL BOOL} 型である事が必要です。
 	 *
 	 * @param type 演算データ型
 	 * @param output 結果を格納するデータ
@@ -484,7 +484,7 @@ public class ExecutionUnit {
 	 * （スカラは要素数1かつ0次元の配列として演算されます）。
 	 *
 	 * また、inputA および inputB のデータは、引数 type に指定されたデータ型のものに揃っている必要があります。
-	 * output のデータ型は、必ず {@link org.vcssl.nano.lang.DataType#BOOL BOOL} 型である事が必要です。
+	 * output のデータ型は、必ず {@link org.vcssl.nano.spec.DataType#BOOL BOOL} 型である事が必要です。
 	 *
 	 * @param type 演算データ型
 	 * @param output 結果を格納するデータ
@@ -564,7 +564,7 @@ public class ExecutionUnit {
 	 * （スカラは要素数1かつ0次元の配列として演算されます）。
 	 *
 	 * また、inputA および inputB のデータは、引数 type に指定されたデータ型のものに揃っている必要があります。
-	 * output のデータ型は、必ず {@link org.vcssl.nano.lang.DataType#BOOL BOOL} 型である事が必要です。
+	 * output のデータ型は、必ず {@link org.vcssl.nano.spec.DataType#BOOL BOOL} 型である事が必要です。
 	 *
 	 * @param type 演算データ型
 	 * @param output 結果を格納するデータ
@@ -625,7 +625,7 @@ public class ExecutionUnit {
 	 * （スカラは要素数1かつ0次元の配列として演算されます）。
 	 *
 	 * また、inputA および inputB のデータは、引数 type に指定されたデータ型のものに揃っている必要があります。
-	 * output のデータ型は、必ず {@link org.vcssl.nano.lang.DataType#BOOL BOOL} 型である事が必要です。
+	 * output のデータ型は、必ず {@link org.vcssl.nano.spec.DataType#BOOL BOOL} 型である事が必要です。
 	 *
 	 * @param type 演算データ型
 	 * @param output 結果を格納するデータ
@@ -686,7 +686,7 @@ public class ExecutionUnit {
 	 * （スカラは要素数1かつ0次元の配列として演算されます）。
 	 *
 	 * また、inputA および inputB のデータは、引数 type に指定されたデータ型のものに揃っている必要があります。
-	 * output のデータ型は、必ず {@link org.vcssl.nano.lang.DataType#BOOL BOOL} 型である事が必要です。
+	 * output のデータ型は、必ず {@link org.vcssl.nano.spec.DataType#BOOL BOOL} 型である事が必要です。
 	 *
 	 * @param type 演算データ型
 	 * @param output 結果を格納するデータ
@@ -747,7 +747,7 @@ public class ExecutionUnit {
 	 * （スカラは要素数1かつ0次元の配列として演算されます）。
 	 *
 	 * また、inputA および inputB のデータは、引数 type に指定されたデータ型のものに揃っている必要があります。
-	 * output のデータ型は、必ず {@link org.vcssl.nano.lang.DataType#BOOL BOOL} 型である事が必要です。
+	 * output のデータ型は、必ず {@link org.vcssl.nano.spec.DataType#BOOL BOOL} 型である事が必要です。
 	 *
 	 * @param type 演算データ型
 	 * @param output 結果を格納するデータ
@@ -809,10 +809,10 @@ public class ExecutionUnit {
 	 * （スカラは要素数1かつ0次元の配列として演算されます）。
 	 *
 	 * また、すべてのオペランド（outputを含む）のデータは、
-	 * {@link org.vcssl.nano.lang.DataType#BOOL BOOL}
+	 * {@link org.vcssl.nano.spec.DataType#BOOL BOOL}
 	 * 型のものに揃っている必要があります。
 	 * 引数 type にも、必ず
-	 * {@link org.vcssl.nano.lang.DataType#BOOL BOOL}
+	 * {@link org.vcssl.nano.spec.DataType#BOOL BOOL}
 	 * 型を指定しなければなりません。
 	 *
 	 * ただし、（ここに短絡評価に関する説明）
@@ -876,10 +876,10 @@ public class ExecutionUnit {
 	 * （スカラは要素数1かつ0次元の配列として演算されます）。
 	 *
 	 * また、すべてのオペランド（outputを含む）のデータは、
-	 * {@link org.vcssl.nano.lang.DataType#BOOL BOOL}
+	 * {@link org.vcssl.nano.spec.DataType#BOOL BOOL}
 	 * 型のものに揃っている必要があります。
 	 * 引数 type にも、必ず
-	 * {@link org.vcssl.nano.lang.DataType#BOOL BOOL}
+	 * {@link org.vcssl.nano.spec.DataType#BOOL BOOL}
 	 * 型を指定しなければなりません。
 	 *
 	 * ただし、（ここに短絡評価に関する説明）
@@ -945,10 +945,10 @@ public class ExecutionUnit {
 	 * （スカラは要素数1かつ0次元の配列として演算されます）。
 	 *
 	 * また、すべてのオペランド（outputを含む）のデータは、
-	 * {@link org.vcssl.nano.lang.DataType#BOOL BOOL}
+	 * {@link org.vcssl.nano.spec.DataType#BOOL BOOL}
 	 * 型のものに揃っている必要があります。
 	 * 引数 type にも、必ず
-	 * {@link org.vcssl.nano.lang.DataType#BOOL BOOL}
+	 * {@link org.vcssl.nano.spec.DataType#BOOL BOOL}
 	 * 型を指定しなければなりません。
 	 *
 	 * @param type 演算データ型

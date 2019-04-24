@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2018 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2019 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -12,9 +12,9 @@ import java.lang.reflect.Method;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.vcssl.nano.interconnect.AbstractFunction;
 import org.vcssl.nano.interconnect.Interconnect;
-import org.vcssl.nano.lang.AbstractFunction;
-import org.vcssl.nano.lang.DataType;
+import org.vcssl.nano.spec.DataType;
 import org.vcssl.nano.spec.OperationCode;
 import org.vcssl.nano.vm.memory.DataContainer;
 import org.vcssl.nano.vm.memory.Memory;
@@ -1333,7 +1333,7 @@ public class DispatchUnitTest {
 
 		// 処理系にメソッドを接続
 		try {
-			this.interconnect.connect(method, this);
+			this.interconnect.connect(method, this, false, null);
 		} catch (VnanoException e) {
 			fail("Connection failed");
 		}

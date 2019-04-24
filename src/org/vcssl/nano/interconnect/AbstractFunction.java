@@ -1,11 +1,10 @@
 /*
- * Copyright(C) 2017-2018 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2019 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
-package org.vcssl.nano.lang;
+package org.vcssl.nano.interconnect;
 
-import org.vcssl.nano.interconnect.Xfci1FunctionAdapter;
 import org.vcssl.nano.vm.memory.DataContainer;
 
 
@@ -15,16 +14,14 @@ import org.vcssl.nano.vm.memory.DataContainer;
  * </p>
  *
  * <p>
- * 外部関数プラグインが提供する関数は、
- * 処理系内部ではこの抽象クラスのサブクラスとして扱われます。
  * 各種の外部関数プラグイン・インターフェースも、
  * 最終的にこの抽象クラスを継承したアダプタクラスによってラップされて扱われます
  * （{@link Xfci1FunctionAdapter Xfci1FunctionAdapter} などを参照）。
  * </p>
  *
  * <p>
- * なお、この処理系ではスクリプト内での関数定義をサポートしていないため、
- * この抽象クラスを継承する内部関数用の実装クラスは存在しません。
+ * この抽象クラスの機能を、内部関数用に素直に実装したクラスとしては、
+ * {@link Function Function} が存在します。
  * </p>
  *
  * @author RINEARN (Fumihiro Matsui)

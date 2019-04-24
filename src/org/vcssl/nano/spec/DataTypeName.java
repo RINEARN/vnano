@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2018 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2019 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -9,12 +9,11 @@ import java.util.HashMap;
 import java.util.HashSet;
 
 import org.vcssl.nano.VnanoException;
-import org.vcssl.nano.lang.DataType;
 
 /**
  * <p>
  * データ型の名称が定義されたクラスであり、データ型名と
- * {@link org.vcssl.nano.lang.DataType DataType} 列挙子の要素とを相互変換するメソッドなども提供します。
+ * {@link org.vcssl.nano.spec.DataType DataType} 列挙子の要素とを相互変換するメソッドなども提供します。
  * </p>
  *
  * @author RINEARN (Fumihiro Matsui)

@@ -165,19 +165,11 @@ public class VnanoEngine implements ScriptEngine {
 		// オプションの場合
 		if (name.equals(OptionName.OPTION_MAP)) {
 			if (value instanceof Map) {
-				try {
-					// 型パラメータ情報はコンパイル時に落ちているので、String をキーとして渡してみてエラーになれば弾く
-					@SuppressWarnings({ "unused" })
-					boolean b = ((Map<?,?>)value).containsKey("abcde");
-
-					// エラーにならなければキャストして読み込み
-					@SuppressWarnings("unchecked")
-					Map<String, Object> castedMap = (Map<String, Object>)value;
-					this.setOptions(castedMap);
-
-				} catch (Exception e) {
-					throw new VnanoFatalException("The type of \"" + optionMap + "\" should be \"Map<String,Object>\"", e);
-				}
+				@SuppressWarnings("unchecked")
+				Map<String, Object> castedMap = (Map<String, Object>)value;
+				this.setOptions(castedMap);
+			} else {
+				throw new VnanoFatalException("The type of \"" + OptionName.OPTION_MAP + "\" should be \"Map<String,Object>\"");
 			}
 
 		// 外部変数/関数のバインディングの場合

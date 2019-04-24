@@ -1,12 +1,12 @@
 /*
- * Copyright(C) 2017-2018 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2019 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
 package org.vcssl.nano.vm.accelerator;
 
 import org.vcssl.nano.VnanoFatalException;
-import org.vcssl.nano.lang.DataType;
+import org.vcssl.nano.spec.DataType;
 import org.vcssl.nano.vm.memory.DataContainer;
 
 public class Float64ScalarTransferUnit extends AccelerationUnit {

@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2018 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2019 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -8,9 +8,8 @@ package org.vcssl.nano.spec;
 import org.vcssl.nano.VnanoException;
 import org.vcssl.nano.compiler.AstNode;
 import org.vcssl.nano.compiler.AttributeKey;
-import org.vcssl.nano.lang.AbstractFunction;
-import org.vcssl.nano.lang.AbstractVariable;
-import org.vcssl.nano.lang.DataType;
+import org.vcssl.nano.interconnect.AbstractFunction;
+import org.vcssl.nano.interconnect.AbstractVariable;
 
 
 // SignatureSyntax に変更する？

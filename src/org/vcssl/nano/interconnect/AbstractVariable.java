@@ -1,11 +1,10 @@
 /*
- * Copyright(C) 2017-2018 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2019 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
-package org.vcssl.nano.lang;
+package org.vcssl.nano.interconnect;
 
-import org.vcssl.nano.interconnect.Xvci1VariableAdapter;
 import org.vcssl.nano.vm.memory.DataContainer;
 
 
@@ -15,8 +14,6 @@ import org.vcssl.nano.vm.memory.DataContainer;
  * </p>
  *
  * <p>
- * 外部変数プラグインが提供する関数は、
- * 処理系内部ではこの抽象クラスのサブクラスとして扱われます。
  * 各種の外部変数プラグイン・インターフェースも、
  * 最終的にこの抽象クラスを継承したアダプタクラスによってラップされて扱われます
  * （{@link Xvci1VariableAdapter Xvci1VariableAdapter} などを参照）。

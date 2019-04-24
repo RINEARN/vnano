@@ -1,12 +1,12 @@
 /*
- * Copyright(C) 2017-2018 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2019 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
-package org.vcssl.nano.lang;
+package org.vcssl.nano.interconnect;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -27,11 +27,14 @@ public class VariableTable implements Cloneable {
 	/** 変数を保持するリストです。 */
 	LinkedList<AbstractVariable> variableList = null;
 
-	/** 変数名と、変数とを対応付けるマップです。 */
-	Map<String, AbstractVariable> nameVariableMap = null;
+	/** 変数名と、変数とを対応付けるマップです。同じキーの要素を複数格納するため、値をリスト化して保持します。 */
+	Map<String, LinkedList<AbstractVariable>> nameVariableMap = null;
 
-	/** 中間アセンブリコード識別子と、変数とを対応付けるマップです。 */
-	Map<String, AbstractVariable> assemblyIdentifierVariableMap = null;
+	/** 中間アセンブリコード識別子と、変数とを対応付けるマップです。同じキーの要素を複数格納するため、値をリスト化して保持します。 */
+	Map<String, LinkedList<AbstractVariable>> assemblyIdentifierVariableMap = null;
+
+
+	// 後で、名前空間指定に対応しつつ省略可能にする場合は、名前空間込みのMapと、名前空間省略のMapを持つようにする（暫定案）
 
 
 	/**
@@ -39,8 +42,8 @@ public class VariableTable implements Cloneable {
 	 */
 	public VariableTable() {
 		this.variableList = new LinkedList<AbstractVariable>();
-		this.assemblyIdentifierVariableMap = new HashMap<String, AbstractVariable>();
-		this.nameVariableMap = new HashMap<String, AbstractVariable>();
+		this.nameVariableMap = new LinkedHashMap<String, LinkedList<AbstractVariable>>();
+		this.assemblyIdentifierVariableMap = new LinkedHashMap<String, LinkedList<AbstractVariable>>();
 	}
 
 
@@ -50,11 +53,13 @@ public class VariableTable implements Cloneable {
 	 * @param variable 対象の変数
 	 */
 	public void addVariable(AbstractVariable variable) {
+		String varName = variable.getVariableName();
+		String asmName = IdentifierSyntax.getAssemblyIdentifierOf(variable);
+
+		// リストとマップに変数を追加
 		this.variableList.add(variable);
-		this.nameVariableMap.put(variable.getVariableName(), variable);
-		this.assemblyIdentifierVariableMap.put(
-				IdentifierSyntax.getAssemblyIdentifierOf(variable), variable
-		);
+		IdentifierMapManager.putToMap(this.nameVariableMap, varName, variable); // 重複キーに対応するためのマップ操作メソッド
+		IdentifierMapManager.putToMap(this.assemblyIdentifierVariableMap, asmName, variable);
 	}
 
 
@@ -64,15 +69,14 @@ public class VariableTable implements Cloneable {
 	 * @param variableName 削除する変数名
 	 */
 	public void removeLastVariable() {
-		// リストから最終要素を取得して変数名を控えておき、変数自体はリストから削除
 		AbstractVariable variable = this.variableList.getLast();
-		variableList.removeLast();
+		String varName = variable.getVariableName();
+		String asmName = IdentifierSyntax.getAssemblyIdentifierOf(variable);
 
-		// マップから変数名に基づいて変数を削除
-		String variableName = variable.getVariableName();
-		String assemblyIdentifier = IdentifierSyntax.getAssemblyIdentifierOf(variableName);
-		nameVariableMap.remove(variableName);
-		assemblyIdentifierVariableMap.remove(assemblyIdentifier);
+		// リストとマップから変数を削除
+		this.variableList.removeLast();
+		IdentifierMapManager.removeLastFromMap(this.nameVariableMap, varName); // 重複キーに対応するためのマップ操作メソッド
+		IdentifierMapManager.removeLastFromMap(this.assemblyIdentifierVariableMap, asmName);
 	}
 
 
@@ -82,10 +86,13 @@ public class VariableTable implements Cloneable {
 	 * @return 登録されている全ての変数を格納する配列
 	 */
 	public AbstractVariable[] getVariables() {
-		Set<Entry<String, AbstractVariable>> entrySet = this.nameVariableMap.entrySet();
+
+		// このリストに変数を全部リストアップして、配列に変換して返す
 		List<AbstractVariable> variableList = new ArrayList<AbstractVariable>();
-		for (Entry<String, AbstractVariable> entry: entrySet) {
-			variableList.add(entry.getValue());
+
+		Set<Entry<String, LinkedList<AbstractVariable>>> entrySet = this.nameVariableMap.entrySet();
+		for (Entry<String, LinkedList<AbstractVariable>> entry: entrySet) {
+			variableList.addAll(entry.getValue());
 		}
 		return variableList.toArray(new AbstractVariable[0]);
 	}
@@ -104,12 +111,13 @@ public class VariableTable implements Cloneable {
 
 	/**
 	 * 指定された名称の変数を取得します。
+	 * 同名の要素が複数存在する場合は、最後に登録されたものを返します。
 	 *
 	 * @param name 対象変数の名称
 	 * @return 対象の変数
 	 */
 	public AbstractVariable getVariableByName(String name) {
-		return this.nameVariableMap.get(name);
+		return IdentifierMapManager.getLastFromMap(this.nameVariableMap, name);
 	}
 
 
@@ -127,12 +135,13 @@ public class VariableTable implements Cloneable {
 
 	/**
 	 * 指定された中間アセンブリコード識別子に対応する変数を取得します。
+	 * 同名の要素が複数存在する場合は、最後に登録されたものを返します。
 	 *
 	 * @param identifier 対象変数のアセンブリコード識別子
 	 * @return 対象の変数
 	 */
 	public AbstractVariable getVariableByAssemblyIdentifier(String identifier) {
-		return this.assemblyIdentifierVariableMap.get(identifier);
+		return IdentifierMapManager.getLastFromMap(this.assemblyIdentifierVariableMap, identifier);
 	}
 
 
