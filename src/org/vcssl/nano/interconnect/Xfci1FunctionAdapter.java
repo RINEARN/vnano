@@ -11,15 +11,8 @@ import org.vcssl.nano.VnanoFatalException;
 import org.vcssl.nano.VnanoException;
 import org.vcssl.nano.spec.DataType;
 import org.vcssl.nano.spec.DataTypeName;
-import org.vcssl.nano.spec.ErrorType;
-import org.vcssl.nano.spec.IdentifierSyntax;
-import org.vcssl.nano.spec.ScriptWord;
 import org.vcssl.nano.vm.memory.DataContainer;
-import org.vcssl.nano.compiler.AstNode;
-import org.vcssl.nano.compiler.AttributeKey;
-import org.vcssl.nano.compiler.LexicalAnalyzer;
-import org.vcssl.nano.compiler.Parser;
-import org.vcssl.nano.compiler.Token;
+
 
 /**
  * <p>
@@ -37,20 +30,11 @@ public class Xfci1FunctionAdapter extends AbstractFunction {
 	/** XFCI準拠の外部変数プラグインです。 */
 	private ExternalFunctionConnector1 xfciPlugin = null;
 
-	/** 関数名を保持します。 */
-	private String functionName = null;
-
-	/** 全引数の名称を保持します。 */
-	private String[] parameterNames = null;
-
 	/** 外部関数の引数と処理系内部の関数の引数とで、データの型変換を行うコンバータです。 */
 	private DataConverter[] parameterDataConverters = null;
 
 	/** 処理系内部側での全引数のデータ型を配列として保持します。 */
 	private DataType[] parameterDataTypes = null;
-
-	/** 処理系内側での全引数のデータ型名を配列として保持します。 */
-	private String[] parameterDataTypeNames = null;
 
 	/** 処理系内部側での全引数の配列次元数（スカラは0次元として扱う）を配列として保持します。 */
 	private int[] parameterArrayRanks = null;
@@ -100,15 +84,6 @@ public class Xfci1FunctionAdapter extends AbstractFunction {
 			this.parameterArrayRanks[parameterIndex]
 					= this.parameterDataConverters[parameterIndex].getRank();
 		}
-
-		this.functionName = xfciPlugin.getFunctionName();
-		this.parameterNames = xfciPlugin.getParameterNames();
-		this.parameterDataTypeNames = new String[parameterLength];
-		for (int parameterIndex=0; parameterIndex<parameterLength; parameterIndex++) {
-			this.parameterDataTypeNames[parameterIndex] = DataTypeName.getDataTypeNameOf(
-					this.parameterDataConverters[parameterIndex].getDataType()
-			);
-		}
 	}
 
 
@@ -119,7 +94,7 @@ public class Xfci1FunctionAdapter extends AbstractFunction {
 	 */
 	@Override
 	public String getFunctionName() {
-		return this.functionName;
+		return this.xfciPlugin.getFunctionName();
 	}
 
 
@@ -130,7 +105,7 @@ public class Xfci1FunctionAdapter extends AbstractFunction {
 	 */
 	@Override
 	public String[] getParameterNames() {
-		return this.parameterNames;
+		return this.xfciPlugin.getParameterNames();
 	}
 
 
@@ -153,7 +128,16 @@ public class Xfci1FunctionAdapter extends AbstractFunction {
 	 */
 	@Override
 	public String[] getParameterDataTypeNames() {
-		return this.parameterDataTypeNames;
+		int parameterLength = this.parameterDataTypes.length;
+
+		String[] parameterDataTypeNames = new String[parameterLength];
+		for (int parameterIndex=0; parameterIndex<parameterLength; parameterIndex++) {
+			parameterDataTypeNames[parameterIndex] = DataTypeName.getDataTypeNameOf(
+					this.parameterDataConverters[parameterIndex].getDataType()
+			);
+		}
+
+		return parameterDataTypeNames;
 	}
 
 
@@ -270,82 +254,6 @@ public class Xfci1FunctionAdapter extends AbstractFunction {
 			}
 		}
 
-	}
-
-
-	/**
-	 * 関数名や引数情報など、スクリプト内から呼び出し対象関数を識別するために必要な情報を上書きします。
-	 * これにより、このアダプタがラップする外部関数に対して、スクリプト内から別名でアクセスする事ができます。
-	 *
-	 * 引数 signature は、コールシグネチャ表記で指定してください。
-	 * コールシグネチャ表記では、例えばその関数をスクリプトの文法で宣言すると
-	 * void fun(int a, int b, float c[]) {...} となるような場合、fun(int,int,float[]) と表記します。
-	 * 引数名の有無は任意です。
-	 *
-	 * @param signature 上書きする関数情報のコールシグネチャ表記
-	 * @throws シグネチャ表記に文法エラーがあった場合にスローされます
-	 */
-	public void overwriteCallSignature(String signature) throws VnanoException {
-
-		// プラグインから素直に求めたコールシグネチャを用意（エラーメッセージで使用）
-		String expectedSignature = IdentifierSyntax.getSignatureOf(this);
-
-		// コールシグネチャに仮の戻り値とブロックを付けて関数宣言のコードにする
-		String functionDeclarationCode
-			= DataTypeName.VOID + " " + signature + ScriptWord.BLOCK_BEGIN + ScriptWord.BLOCK_END;
-
-		// 字句解析でトークン列に変換
-		Token[] tokens = new LexicalAnalyzer().analyze(functionDeclarationCode, "");
-
-		// 構文解析で関数宣言のASTに変換
-		AstNode rootAst = new Parser().parse(tokens);
-		if (!rootAst.hasChildNodes()) {
-			throw new VnanoException(
-				ErrorType.INVALID_EXTERNAL_FUNCTION_SIGNATURE, new String[] { signature, expectedSignature }
-			);
-		}
-		AstNode functionAst = rootAst.getChildNodes()[0];
-
-		// 関数のASTとして解釈できていなければ、表記が文法的に正しくないのでエラー
-		if (functionAst.getType() != AstNode.Type.FUNCTION) {
-			throw new VnanoException(
-				ErrorType.INVALID_EXTERNAL_FUNCTION_SIGNATURE, new String[] { signature, expectedSignature }
-			);
-		}
-
-		// 関数名を上書き
-		this.functionName = functionAst.getAttribute(AttributeKey.IDENTIFIER_VALUE);
-
-		// 以下、引数情報などの不一致が無いか検査
-
-		boolean errorDetected = false; // 異常があれば true にする
-
-		AstNode[] childNodes = functionAst.getChildNodes();
-		int paramLength = childNodes.length;
-
-		// 子ノードの数が引数の個数が一致していなければエラー
-		errorDetected |= (paramLength != this.parameterDataTypeNames.length);
-
-		// 引数を1個ずつ検査
-		for (int paramIndex=0; paramIndex<paramLength; paramIndex++) {
-			AstNode paramNode = childNodes[paramIndex];
-
-			// 引数の変数ノードがあるべき箇所に別の種類のノードがあればエラー
-			errorDetected |= (paramNode.getType() != AstNode.Type.VARIABLE);
-
-			// 引数のデータ型名が違っていればエラー
-			errorDetected |= ( !paramNode.getDataTypeName().equals(this.parameterDataTypeNames[paramIndex]) );
-
-			// 引数の配列次元数が違っていればエラー
-			errorDetected |= ( paramNode.getRank() != this.parameterArrayRanks[paramIndex] );
-		}
-
-		// 上で異常が見つかっていればエラー処理
-		if (errorDetected) {
-			throw new VnanoException(
-				ErrorType.INVALID_EXTERNAL_FUNCTION_SIGNATURE, new String[] { signature, expectedSignature }
-			);
-		}
 	}
 
 }

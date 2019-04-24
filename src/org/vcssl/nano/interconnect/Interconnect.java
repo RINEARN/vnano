@@ -295,9 +295,10 @@ public class Interconnect {
 	 */
 	public void connect(ExternalVariableConnector1 connector, String variableName) throws VnanoException {
 		connector.initializeForConnection();
-		Xvci1VariableAdapter adapter = new Xvci1VariableAdapter(connector);
+		AbstractVariable adapter = new Xvci1VariableAdapter(connector);
 		if (variableName != null) {
-			adapter.setVariableName(variableName);
+			adapter = new VariableAliasAdapter(adapter);
+			((VariableAliasAdapter)adapter).setVariableName(variableName);
 		}
 		this.globalVariableTable.addVariable(adapter);
 	}
@@ -329,9 +330,10 @@ public class Interconnect {
 			throws VnanoException {
 
 		connector.initializeForConnection();
-		Xfci1FunctionAdapter adapter = new Xfci1FunctionAdapter(connector);
+		AbstractFunction adapter = new Xfci1FunctionAdapter(connector);
 		if (callSignature != null) {
-			adapter.overwriteCallSignature(callSignature);
+			adapter = new FunctionAliasAdapter(adapter);
+			((FunctionAliasAdapter)adapter).setCallSignature(callSignature);
 		}
 		this.functionTable.addFunction(adapter);
 	}

@@ -32,11 +32,13 @@
 ./org/vcssl/nano/interconnect/AbstractVariable.java
 ./org/vcssl/nano/interconnect/DataConverter.java
 ./org/vcssl/nano/interconnect/Function.java
+./org/vcssl/nano/interconnect/FunctionAliasAdapter.java
 ./org/vcssl/nano/interconnect/FunctionTable.java
 ./org/vcssl/nano/interconnect/IdentifierMapManager.java
 ./org/vcssl/nano/interconnect/Interconnect.java
 ./org/vcssl/nano/interconnect/package-info.java
 ./org/vcssl/nano/interconnect/Variable.java
+./org/vcssl/nano/interconnect/VariableAliasAdapter.java
 ./org/vcssl/nano/interconnect/VariableTable.java
 ./org/vcssl/nano/interconnect/Xfci1FunctionAdapter.java
 ./org/vcssl/nano/interconnect/Xvci1VariableAdapter.java
