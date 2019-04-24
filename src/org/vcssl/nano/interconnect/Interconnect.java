@@ -17,6 +17,7 @@ import org.vcssl.connect.ExternalVariableConnector1;
 import org.vcssl.connect.FieldXvci1Adapter;
 import org.vcssl.connect.MethodXfci1Adapter;
 import org.vcssl.nano.VnanoFatalException;
+import org.vcssl.nano.spec.ErrorType;
 import org.vcssl.nano.vm.VirtualMachineObjectCode;
 import org.vcssl.nano.vm.memory.DataContainer;
 import org.vcssl.nano.vm.memory.Memory;
@@ -182,39 +183,37 @@ public class Interconnect {
 	 * @param bindName 変数名またはプラグイン識別用キー名
 	 * @param object 外部変数・外部関数として接続したいオブジェクト
 	 * @throws DataException データ型の互換性により、接続に失敗した場合にスローされます。
-	 * @throws IllegalArgumentException サポート対象の関数・変数の形式に準拠していないオブジェクトが渡された場合にスローされます。
+	 * @throws VnanoException サポートしていない形式のプラグインが渡された場合や、接続時にエラーが生じた場合にスローされます。
 	 */
 	private void bind(String bindName, Object object) throws VnanoException {
 
-		// 内部変数と互換の変数オブジェクト >> そのまま接続
+		// 内部変数と互換の変数オブジェクト
 		if (object instanceof AbstractVariable) {
-			this.connect( (AbstractVariable)object );
+			this.connect( (AbstractVariable)object, true, bindName );
 
-		// 内部関数と互換の変数オブジェクト >> そのまま接続
+		// 内部関数と互換の変数オブジェクト
 		} else if (object instanceof AbstractFunction) {
-			this.connect( (AbstractFunction)object );
+			this.connect( (AbstractFunction)object, true, bindName );
 
-		// XVCI 1 形式の外部変数プラグイン >> そのまま接続
+		// XVCI 1 形式の外部変数プラグイン
 		} else if (object instanceof ExternalVariableConnector1) {
-			this.connect( (ExternalVariableConnector1)object, bindName );
+			this.connect( (ExternalVariableConnector1)object, true, bindName );
 
-		// XFCI 1 形式の外部関数プラグイン >> そのまま接続
+		// XFCI 1 形式の外部関数プラグイン
 		} else if (object instanceof ExternalFunctionConnector1) {
-			this.connect( (ExternalFunctionConnector1)object, bindName );
+			this.connect( (ExternalFunctionConnector1)object, true, bindName );
 
-		// XLCI 1 形式の外部関数プラグイン >> そのまま接続
+		// XLCI 1 形式の外部関数プラグイン
 		} else if (object instanceof ExternalLibraryConnector1) {
 			this.connect( (ExternalLibraryConnector1)object, bindName );
 
-		// クラスフィールドの場合 >> アダプタで XVCI1 に変換して接続
+		// クラスフィールドの場合
 		} else if (object instanceof Field) {
-			FieldXvci1Adapter adapter = new FieldXvci1Adapter((Field)object);
-			this.connect(adapter, bindName);
+			this.connect( (Field)object, null, true, bindName );
 
-		// クラスメソッドの場合 >> アダプタで XFCI1 に変換して接続
+		// クラスメソッドの場合
 		} else if (object instanceof Method) {
-			MethodXfci1Adapter adapter = new MethodXfci1Adapter((Method)object);
-			this.connect(adapter, bindName);
+			this.connect( (Method)object, null, true, bindName );
 
 		// インスタンスフィールドやインスタンスメソッドは、所属インスタンスも格納する配列で渡される
 		} else if (object instanceof Object[]) {
@@ -225,19 +224,19 @@ public class Interconnect {
 			if (objects.length == 2 && objects[0] instanceof Field) {
 				Field field = (Field)objects[0]; // [0] はフィールドのリフレクション
 				Object instance = objects[1];    // [1] はフィールドの所属インスタンス
-				FieldXvci1Adapter adapter = new FieldXvci1Adapter(field, instance);
-				this.connect(adapter, bindName);
+				this.connect( field, instance, true, bindName );
 
 			// インスタンスフィールドの場合 >> 引数からMethodとインスタンスを取り出し、アダプタで XFCI1 に変換して接続
 			} else if (objects.length == 2 && objects[0] instanceof Method) {
 				Method method = (Method)objects[0]; // [0] はメソッドのリフレクション
 				Object instance = objects[1];       // [1] はメソッドの所属インスタンス
-				MethodXfci1Adapter adapter = new MethodXfci1Adapter(method, instance);
-				this.connect(adapter, bindName);
+				this.connect( method, instance, true, bindName );
 			}
 
 		} else {
-			throw new VnanoFatalException("Unconnectable object type: " + object.getClass().getCanonicalName());
+			throw new VnanoException(
+				ErrorType.UNSUPPORTED_PLUGIN, new String[] {object.getClass().getCanonicalName()}
+			);
 		}
 	}
 
@@ -249,11 +248,15 @@ public class Interconnect {
 	 *
 	 * @param field 外部変数として接続するフィールド
 	 * @param instance フィールドの属するクラスのインスタンス
+	 * @param aliasingRequired スクリプト内から別名でアクセスするかどうか（する場合にtrue）
+	 * @param aliasName スクリプト内での別名（aliasingRequiredがtrueの場合のみ参照されます）
 	 * @throws DataException 引数や戻り値のデータ型が非対応であった場合にスローされます。
 	 */
-	public void connect(Field field, Object instance) throws VnanoException {
+	public void connect(Field field, Object instance, boolean aliasingRequired, String aliasName)
+			throws VnanoException {
+
 		FieldXvci1Adapter adapter = new FieldXvci1Adapter(field, instance);
-		this.connect(adapter);
+		this.connect(adapter, aliasingRequired, aliasName);
 	}
 
 
@@ -263,11 +266,15 @@ public class Interconnect {
 	 *
 	 * @param method 外部関数として接続するメソッド
 	 * @param instance メソッドの属するクラスのインスタンス
+	 * @param aliasingRequired スクリプト内から別名でアクセスするかどうか（する場合にtrue）
+	 * @param aliasSignature 別名アクセスのためのコールシグネチャ（aliasingRequiredがtrueの場合のみ参照されます）
 	 * @throws DataException データ型が非対応であった場合にスローされます。
 	 */
-	public void connect(Method method, Object instance) throws VnanoException {
+	public void connect(Method method, Object instance, boolean aliasingRequired, String aliasName)
+			throws VnanoException {
+
 		MethodXfci1Adapter adapter = new MethodXfci1Adapter(method,instance);
-		this.connect(adapter);
+		this.connect(adapter, aliasingRequired, aliasName);
 	}
 
 
@@ -277,74 +284,50 @@ public class Interconnect {
 	 * ホスト言語で実装された外部変数オブジェクトを接続します。
 	 *
 	 * @param connector XVCI準拠の外部変数
+	 * @param aliasingRequired スクリプト内から別名でアクセスするかどうか（する場合にtrue）
+	 * @param aliasName スクリプト内での別名（aliasingRequiredがtrueの場合のみ参照されます）
 	 * @throws VnanoException データ型が非対応であった場合にスローされます。
 	 */
-	public void connect(ExternalVariableConnector1 connector) throws VnanoException {
-		this.connect(connector, null);
-	}
-
-
-	/**
-	 * {@link org.vcssl.connect.ExternalVariableConnector1 XVCI 1}
-	 * のプラグイン・インターフェースを用いて、
-	 * ホスト言語で実装された外部変数オブジェクトを接続します。
-	 *
-	 * @param connector XVCI準拠の外部変数
-	 * @param variableName スクリプト内での外部変数を参照する際の変数名
-	 * @throws VnanoException データ型が非対応であった場合にスローされます。
-	 */
-	public void connect(ExternalVariableConnector1 connector, String variableName) throws VnanoException {
-		connector.initializeForConnection();
-		AbstractVariable adapter = new Xvci1VariableAdapter(connector);
-		if (variableName != null) {
-			adapter = new VariableAliasAdapter(adapter);
-			((VariableAliasAdapter)adapter).setVariableName(variableName);
-		}
-		this.globalVariableTable.addVariable(adapter);
-	}
-
-
-	/**
-	 * {@link org.vcssl.connect.ExternalFunctionConnector1 XFCI 1}
-	 * のプラグイン・インターフェースを用いて、
-	 * ホスト言語で実装された外部関数オブジェクトを接続します。
-	 *
-	 * @param connector XFCI準拠の外部関数
-	 * @throws VnanoException 引数や戻り値のデータ型が非対応であった場合にスローされます。
-	 */
-	public void connect(ExternalFunctionConnector1 connector) throws VnanoException {
-		this.connect(connector, null);
-	}
-
-
-	/**
-	 * {@link org.vcssl.connect.ExternalFunctionConnector1 XFCI 1}
-	 * のプラグイン・インターフェースを用いて、
-	 * ホスト言語で実装された外部関数オブジェクトを接続します。
-	 *
-	 * @param connector XFCI準拠の外部関数
-	 * @param callSignature スクリプト内での外部関数を参照する際のコールシグネチャ
-	 * @throws VnanoException 引数や戻り値のデータ型が非対応であった場合にスローされます。
-	 */
-	public void connect(ExternalFunctionConnector1 connector, String callSignature)
+	public void connect(ExternalVariableConnector1 connector, boolean aliasingRequired, String aliasName)
 			throws VnanoException {
 
 		connector.initializeForConnection();
-		AbstractFunction adapter = new Xfci1FunctionAdapter(connector);
-		if (callSignature != null) {
-			adapter = new FunctionAliasAdapter(adapter);
-			((FunctionAliasAdapter)adapter).setCallSignature(callSignature);
-		}
-		this.functionTable.addFunction(adapter);
+		Xvci1VariableAdapter adapter = new Xvci1VariableAdapter(connector);
+		this.connect(adapter, aliasingRequired, aliasName);
+	}
+
+
+	/**
+	 * {@link org.vcssl.connect.ExternalFunctionConnector1 XFCI 1}
+	 * のプラグイン・インターフェースを用いて、
+	 * ホスト言語で実装された外部関数オブジェクトを接続します。
+	 *
+	 * @param connector XFCI準拠の外部関数
+	 * @param aliasingRequired スクリプト内から別名でアクセスするかどうか（する場合にtrue）
+	 * @param aliasSignature 別名アクセスのためのコールシグネチャ（aliasingRequiredがtrueの場合のみ参照されます）
+	 * @throws VnanoException 引数や戻り値のデータ型が非対応であった場合にスローされます。
+	 */
+	public void connect(ExternalFunctionConnector1 connector, boolean aliasingRequired, String aliasSignature)
+			throws VnanoException {
+
+		connector.initializeForConnection();
+		Xfci1FunctionAdapter adapter = new Xfci1FunctionAdapter(connector);
+		this.connect(adapter, aliasingRequired, aliasSignature);
 	}
 
 
 	/**
 	 * Vnano処理系内部の変数形式に準拠した変数オブジェクトを接続します。
+	 * @param aliasingRequired スクリプト内から別名でアクセスするかどうか（する場合にtrue）
+	 * @param aliasName スクリプト内での別名（aliasingRequiredがtrueの場合のみ参照されます）
 	 *
 	 * @param variable 変数オブジェクト
 	 */
-	public void connect(AbstractVariable variable) {
+	public void connect(AbstractVariable variable, boolean aliasingRequired, String aliasName) {
+		if (aliasingRequired) {
+			variable = new VariableAliasAdapter(variable);
+			((VariableAliasAdapter)variable).setVariableName(aliasName);
+		}
 		this.globalVariableTable.addVariable(variable);
 	}
 
@@ -353,8 +336,17 @@ public class Interconnect {
 	 * Vnano処理系内部の関数形式に準拠した関数オブジェクトを接続します。
 	 *
 	 * @param function 関数オブジェクト
+	 * @param aliasingRequired スクリプト内から別名でアクセスするかどうか（する場合にtrue）
+	 * @param aliasSignature 別名アクセスのためのコールシグネチャ（aliasingRequiredがtrueの場合のみ参照されます）
+	 * @throws VnanoException 引数に指定されたコールシグネチャが正しくない場合にスローされます。
 	 */
-	public void connect(AbstractFunction function) {
+	public void connect(AbstractFunction function, boolean aliasingRequired, String aliasSignature)
+			throws VnanoException {
+
+		if (aliasingRequired) {
+			function = new FunctionAliasAdapter(function);
+			((FunctionAliasAdapter)function).setCallSignature(aliasSignature);
+		}
 		this.functionTable.addFunction(function);
 	}
 
@@ -373,12 +365,12 @@ public class Interconnect {
 
 		ExternalFunctionConnector1[] functions = connector.getFunctions();
 		for (ExternalFunctionConnector1 function: functions) {
-			this.connect(function);
+			this.connect(function, false, null);
 		}
 
 		ExternalVariableConnector1[] variables = connector.getVariables();
 		for (ExternalVariableConnector1 variable: variables) {
-			this.connect(variable);
+			this.connect(variable, false, null);
 		}
 	}
 

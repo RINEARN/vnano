@@ -44,7 +44,7 @@ public class ProcessorTest {
 
 		// テストで関数として呼び出すメソッドを接続したインターコネクトを用意
 		this.interconnect = new Interconnect();
-		this.interconnect.connect(this.getClass().getMethod("methodToConnect", long.class, long.class), this);
+		this.interconnect.connect(this.getClass().getMethod("methodToConnect", long.class, long.class), this, false, null);
 
 		// レジスタを生成してメモリに配置
 		this.memory = new Memory();

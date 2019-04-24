@@ -1333,7 +1333,7 @@ public class DispatchUnitTest {
 
 		// 処理系にメソッドを接続
 		try {
-			this.interconnect.connect(method, this);
+			this.interconnect.connect(method, this, false, null);
 		} catch (VnanoException e) {
 			fail("Connection failed");
 		}

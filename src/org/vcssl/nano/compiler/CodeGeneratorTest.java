@@ -85,14 +85,14 @@ public class CodeGeneratorTest {
 	@Before
 	public void setUp() throws Exception {
 		this.interconnect = new Interconnect();
-		this.interconnect.connect(new Variable("intVectorA", DataTypeName.INT, 1));
-		this.interconnect.connect(new Variable("intVectorB", DataTypeName.INT, 1));
-		this.interconnect.connect(new Variable("intScalarA", DataTypeName.INT, RANK_OF_SCALAR));
-		this.interconnect.connect(new Variable("intScalarB", DataTypeName.INT, RANK_OF_SCALAR));
-		this.interconnect.connect(new Variable("floatVectorA", DataTypeName.FLOAT, 1));
-		this.interconnect.connect(new Variable("floatVectorB", DataTypeName.FLOAT, 1));
-		this.interconnect.connect(new Variable("boolVectorA", DataTypeName.BOOL, 1));
-		this.interconnect.connect(new Variable("boolVectorB", DataTypeName.BOOL, 1));
+		this.interconnect.connect(new Variable("intVectorA", DataTypeName.INT, 1), false, null);
+		this.interconnect.connect(new Variable("intVectorB", DataTypeName.INT, 1), false, null);
+		this.interconnect.connect(new Variable("intScalarA", DataTypeName.INT, RANK_OF_SCALAR), false, null);
+		this.interconnect.connect(new Variable("intScalarB", DataTypeName.INT, RANK_OF_SCALAR), false, null);
+		this.interconnect.connect(new Variable("floatVectorA", DataTypeName.FLOAT, 1), false, null);
+		this.interconnect.connect(new Variable("floatVectorB", DataTypeName.FLOAT, 1), false, null);
+		this.interconnect.connect(new Variable("boolVectorA", DataTypeName.BOOL, 1), false, null);
+		this.interconnect.connect(new Variable("boolVectorB", DataTypeName.BOOL, 1), false, null);
 	}
 
 	@After
