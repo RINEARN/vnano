@@ -196,25 +196,25 @@ public class Interconnect {
 
 		// XVCI 1 形式の外部変数プラグイン >> そのまま接続
 		} else if (object instanceof ExternalVariableConnector1) {
-			this.connect( (ExternalVariableConnector1)object );
+			this.connect( (ExternalVariableConnector1)object, bindName );
 
 		// XFCI 1 形式の外部関数プラグイン >> そのまま接続
 		} else if (object instanceof ExternalFunctionConnector1) {
-			this.connect( (ExternalFunctionConnector1)object );
+			this.connect( (ExternalFunctionConnector1)object, bindName );
 
 		// XLCI 1 形式の外部関数プラグイン >> そのまま接続
 		} else if (object instanceof ExternalLibraryConnector1) {
-			this.connect( (ExternalLibraryConnector1)object );
+			this.connect( (ExternalLibraryConnector1)object, bindName );
 
 		// クラスフィールドの場合 >> アダプタで XVCI1 に変換して接続
 		} else if (object instanceof Field) {
 			FieldXvci1Adapter adapter = new FieldXvci1Adapter((Field)object);
-			this.connect(adapter);
+			this.connect(adapter, bindName);
 
 		// クラスメソッドの場合 >> アダプタで XFCI1 に変換して接続
 		} else if (object instanceof Method) {
 			MethodXfci1Adapter adapter = new MethodXfci1Adapter((Method)object);
-			this.connect(adapter);
+			this.connect(adapter, bindName);
 
 		// インスタンスフィールドやインスタンスメソッドは、所属インスタンスも格納する配列で渡される
 		} else if (object instanceof Object[]) {
@@ -226,14 +226,14 @@ public class Interconnect {
 				Field field = (Field)objects[0]; // [0] はフィールドのリフレクション
 				Object instance = objects[1];    // [1] はフィールドの所属インスタンス
 				FieldXvci1Adapter adapter = new FieldXvci1Adapter(field, instance);
-				this.connect(adapter);
+				this.connect(adapter, bindName);
 
 			// インスタンスフィールドの場合 >> 引数からMethodとインスタンスを取り出し、アダプタで XFCI1 に変換して接続
 			} else if (objects.length == 2 && objects[0] instanceof Method) {
 				Method method = (Method)objects[0]; // [0] はメソッドのリフレクション
 				Object instance = objects[1];       // [1] はメソッドの所属インスタンス
 				MethodXfci1Adapter adapter = new MethodXfci1Adapter(method, instance);
-				this.connect(adapter);
+				this.connect(adapter, bindName);
 			}
 
 		} else {
@@ -280,10 +280,9 @@ public class Interconnect {
 	 * @throws VnanoException データ型が非対応であった場合にスローされます。
 	 */
 	public void connect(ExternalVariableConnector1 connector) throws VnanoException {
-		connector.initializeForConnection();
-		Xvci1VariableAdapter adapter = new Xvci1VariableAdapter(connector);
-		this.globalVariableTable.addVariable(adapter);
+		this.connect(connector, null);
 	}
+
 
 	/**
 	 * {@link org.vcssl.connect.ExternalVariableConnector1 XVCI 1}
@@ -291,12 +290,15 @@ public class Interconnect {
 	 * ホスト言語で実装された外部変数オブジェクトを接続します。
 	 *
 	 * @param connector XVCI準拠の外部変数
-	 * @param alias スクリプト内での外部変数を参照する際の変数名
+	 * @param variableName スクリプト内での外部変数を参照する際の変数名
 	 * @throws VnanoException データ型が非対応であった場合にスローされます。
 	 */
-	public void connect(ExternalVariableConnector1 connector, String aliasName) throws VnanoException {
+	public void connect(ExternalVariableConnector1 connector, String variableName) throws VnanoException {
 		connector.initializeForConnection();
 		Xvci1VariableAdapter adapter = new Xvci1VariableAdapter(connector);
+		if (variableName != null) {
+			adapter.setVariableName(variableName);
+		}
 		this.globalVariableTable.addVariable(adapter);
 	}
 
@@ -310,8 +312,27 @@ public class Interconnect {
 	 * @throws VnanoException 引数や戻り値のデータ型が非対応であった場合にスローされます。
 	 */
 	public void connect(ExternalFunctionConnector1 connector) throws VnanoException {
+		this.connect(connector, null);
+	}
+
+
+	/**
+	 * {@link org.vcssl.connect.ExternalFunctionConnector1 XFCI 1}
+	 * のプラグイン・インターフェースを用いて、
+	 * ホスト言語で実装された外部関数オブジェクトを接続します。
+	 *
+	 * @param connector XFCI準拠の外部関数
+	 * @param callSignature スクリプト内での外部関数を参照する際のコールシグネチャ
+	 * @throws VnanoException 引数や戻り値のデータ型が非対応であった場合にスローされます。
+	 */
+	public void connect(ExternalFunctionConnector1 connector, String callSignature)
+			throws VnanoException {
+
 		connector.initializeForConnection();
 		Xfci1FunctionAdapter adapter = new Xfci1FunctionAdapter(connector);
+		if (callSignature != null) {
+			adapter.overwriteCallSignature(callSignature);
+		}
 		this.functionTable.addFunction(adapter);
 	}
 
@@ -342,9 +363,10 @@ public class Interconnect {
 	 * ホスト言語で実装された外部関数・外部変数オブジェクトを複数まとめて接続します。
 	 *
 	 * @param connector XLCI準拠でまとめられた外部関数・外部変数の集合（ライブラリ）
+	 * @param libraryName ライブラリ名
 	 * @throws VnanoException データ型が非対応であった場合にスローされます。
 	 */
-	public void connect(ExternalLibraryConnector1 connector) throws VnanoException {
+	public void connect(ExternalLibraryConnector1 connector, String libraryName) throws VnanoException {
 		connector.initializeForConnection();
 
 		ExternalFunctionConnector1[] functions = connector.getFunctions();
