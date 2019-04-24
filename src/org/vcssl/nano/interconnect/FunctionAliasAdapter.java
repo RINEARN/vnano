@@ -17,6 +17,16 @@ import org.vcssl.nano.spec.IdentifierSyntax;
 import org.vcssl.nano.spec.ScriptWord;
 import org.vcssl.nano.vm.memory.DataContainer;
 
+
+/**
+ * <p>
+ * 関数を、別名の関数としてラップするためのアダプタークラスです。
+ * 主に、{@link Interconnect Interconnect} 内で外部関数プラグインを接続する際に、
+ * スクリプト内からアクセスするための識別子を変更可能にするために使用されます。
+ * </p>
+ *
+ * @author RINEARN (Fumihiro Matsui)
+ */
 public class FunctionAliasAdapter extends AbstractFunction {
 
 	/** このアダプタで変換する関数を保持します。 */

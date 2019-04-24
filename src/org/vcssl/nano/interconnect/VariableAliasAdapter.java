@@ -8,6 +8,15 @@ package org.vcssl.nano.interconnect;
 import org.vcssl.nano.vm.memory.DataContainer;
 
 
+/**
+ * <p>
+ * 変数を、別名の変数としてラップするためのアダプタークラスです。
+ * 主に、{@link Interconnect Interconnect} 内で外部変数プラグインを接続する際に、
+ * スクリプト内からアクセスするための識別子を変更可能にするために使用されます。
+ * </p>
+ *
+ * @author RINEARN (Fumihiro Matsui)
+ */
 public class VariableAliasAdapter extends AbstractVariable {
 
 	/** このアダプタで変換する変数を保持します。 */
