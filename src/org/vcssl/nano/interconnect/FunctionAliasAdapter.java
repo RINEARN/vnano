@@ -1,3 +1,8 @@
+/*
+ * Copyright(C) 2019 RINEARN (Fumihiro Matsui)
+ * This software is released under the MIT License.
+ */
+
 package org.vcssl.nano.interconnect;
 
 import org.vcssl.nano.VnanoException;
@@ -95,8 +100,10 @@ public class FunctionAliasAdapter extends AbstractFunction {
 			// 引数の変数ノードがあるべき箇所に別の種類のノードがあればエラー
 			errorDetected |= (paramNode.getType() != AstNode.Type.VARIABLE);
 
-			// 引数のデータ型名が違っていればエラー
-			errorDetected |= ( !paramNode.getDataTypeName().equals(parameterDataTypeNames[paramIndex]) );
+			// 引数のデータ型が、非互換なものに変わっていればエラー
+			errorDetected |= ( !this.isCompatibleDataTypeName(
+				paramNode.getDataTypeName(), parameterDataTypeNames[paramIndex]
+			));
 
 			// 引数の配列次元数が違っていればエラー
 			errorDetected |= ( paramNode.getRank() != parameterArrayRanks[paramIndex] );
@@ -108,6 +115,37 @@ public class FunctionAliasAdapter extends AbstractFunction {
 				ErrorType.INVALID_EXTERNAL_FUNCTION_SIGNATURE, new String[] { signature, expectedSignature }
 			);
 		}
+	}
+
+
+	/**
+	 * コールシグネチャ表記の変更おいて、新しいシグネチャ内での引数のデータ型が、
+	 * 元のデータ型に対して互換（同型か、同型のエイリアス）であるかどうかを判定します。
+	 *
+	 * @param typeA 引数の型（変更前と変更後のどちらか一方）
+	 * @param typeB 引数の型（typeAの他方）
+	 * @return 互換ならtrue
+	 */
+	private boolean isCompatibleDataTypeName(String typeA, String typeB) {
+		if (typeA.equals(typeB)) {
+			return true;
+		}
+
+		if (typeA.equals(DataTypeName.INT) && typeB.equals(DataTypeName.LONG)) {
+			return true;
+		}
+		if (typeA.equals(DataTypeName.LONG) && typeB.equals(DataTypeName.INT)) {
+			return true;
+		}
+
+		if (typeA.equals(DataTypeName.FLOAT) && typeB.equals(DataTypeName.DOUBLE)) {
+			return true;
+		}
+		if (typeA.equals(DataTypeName.DOUBLE) && typeB.equals(DataTypeName.FLOAT)) {
+			return true;
+		}
+
+		return false;
 	}
 
 
