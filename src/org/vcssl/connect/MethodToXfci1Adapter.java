@@ -22,7 +22,7 @@ import java.util.Arrays;
  *
  * @author RINEARN (Fumihiro Matsui)
  */
-public class MethodXfci1Adapter implements ExternalFunctionConnector1 {
+public class MethodToXfci1Adapter implements ExternalFunctionConnector1 {
 
 
 	/** デフォルトの必要パーミッション配列（値は { {@link ExternalPermission#NONE ExternalPermission.NONE} } ）です。 */
@@ -52,7 +52,7 @@ public class MethodXfci1Adapter implements ExternalFunctionConnector1 {
 	 * @param method 対象メソッドへのリフレクションによるアクセスを提供するMethodインスタンス
 	 * @param objectInstance 対象メソッドが属するオブジェクトのインスタンス
 	 */
-	public MethodXfci1Adapter(Method method, Object objectInstance) {
+	public MethodToXfci1Adapter(Method method, Object objectInstance) {
 		this.method = method;
 		this.objectInstance = objectInstance;
 
@@ -71,7 +71,7 @@ public class MethodXfci1Adapter implements ExternalFunctionConnector1 {
 	 *
 	 * @param method 対象メソッドへのリフレクションによるアクセスを提供するMethodインスタンス
 	 */
-	public MethodXfci1Adapter(Method method) {
+	public MethodToXfci1Adapter(Method method) {
 		this.method = method;
 		this.objectInstance = null;
 
@@ -111,7 +111,7 @@ public class MethodXfci1Adapter implements ExternalFunctionConnector1 {
 	/**
 	 * 全ての仮引数の名称を配列として取得するメソッドですが、
 	 * このアダプタではサポートしない（
-	 * {@link MethodXfci1Adapter#hasParameterNames hasParameterNames}
+	 * {@link MethodToXfci1Adapter#hasParameterNames hasParameterNames}
 	 * の戻り値が false）ため常に null を返します。
 	 *
 	 * @return null
@@ -171,7 +171,7 @@ public class MethodXfci1Adapter implements ExternalFunctionConnector1 {
 	 * この関数の実行に必要な全てのパーミッションを、配列にまとめて設定します。
 	 *
 	 * このメソッドで設定される必要パーミッション配列と、
-	 * {@link FieldXvci1Adapter#setUnnecessaryPermissions setUnnesessaryPermissions}
+	 * {@link FieldToXvci1Adapter#setUnnecessaryPermissions setUnnesessaryPermissions}
 	 * メソッドで設定される不要パーミッション配列において、重複している要素がある場合は、
 	 * 前者の方が優先されます（つまり、そのパーミッションは必要と判断されます）。
 	 *
@@ -207,7 +207,7 @@ public class MethodXfci1Adapter implements ExternalFunctionConnector1 {
 	 * この関数の実行に不要な全てのパーミッションを、配列にまとめて設定します。
 	 *
 	 * このメソッドで設定される不要パーミッション配列と、
-	 * {@link FieldXvci1Adapter#setNecessaryPermissions setNecessaryPermissions}
+	 * {@link FieldToXvci1Adapter#setNecessaryPermissions setNecessaryPermissions}
 	 * メソッドで設定される必要パーミッション配列において、重複している要素がある場合は、
 	 * 後者の方が優先されます（つまり、そのパーミッションは必要と判断されます）。
 	 *

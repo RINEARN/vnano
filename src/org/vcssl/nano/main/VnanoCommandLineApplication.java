@@ -21,7 +21,7 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
-import org.vcssl.connect.MethodXfci1Adapter;
+import org.vcssl.connect.MethodToXfci1Adapter;
 import org.vcssl.nano.VnanoException;
 import org.vcssl.nano.compiler.AstNode;
 import org.vcssl.nano.compiler.CodeGenerator;
@@ -477,11 +477,11 @@ public final class VnanoCommandLineApplication {
 		// メソッド・フィールドを外部関数・変数としてインターコネクトに接続
 		try {
 			ScriptIO ioInstance = new ScriptIO();
-			interconnect.connect( new MethodXfci1Adapter( ScriptIO.class.getMethod("output",long.class    ), ioInstance), false, null );
-			interconnect.connect( new MethodXfci1Adapter( ScriptIO.class.getMethod("output",double.class ), ioInstance), false, null );
-			interconnect.connect( new MethodXfci1Adapter( ScriptIO.class.getMethod("output",boolean.class), ioInstance), false, null );
-			interconnect.connect( new MethodXfci1Adapter( ScriptIO.class.getMethod("output",String.class ), ioInstance), false, null );
-			interconnect.connect( new MethodXfci1Adapter( ScriptIO.class.getMethod("time"), ioInstance), false, null );
+			interconnect.connect( new MethodToXfci1Adapter( ScriptIO.class.getMethod("output",long.class    ), ioInstance), false, null );
+			interconnect.connect( new MethodToXfci1Adapter( ScriptIO.class.getMethod("output",double.class ), ioInstance), false, null );
+			interconnect.connect( new MethodToXfci1Adapter( ScriptIO.class.getMethod("output",boolean.class), ioInstance), false, null );
+			interconnect.connect( new MethodToXfci1Adapter( ScriptIO.class.getMethod("output",String.class ), ioInstance), false, null );
+			interconnect.connect( new MethodToXfci1Adapter( ScriptIO.class.getMethod("time"), ioInstance), false, null );
 
 		} catch (NoSuchMethodException e){
 			System.err.println("Method/field not found.");

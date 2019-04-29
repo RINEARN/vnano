@@ -14,8 +14,8 @@ import javax.script.Bindings;
 import org.vcssl.connect.ExternalFunctionConnector1;
 import org.vcssl.connect.ExternalLibraryConnector1;
 import org.vcssl.connect.ExternalVariableConnector1;
-import org.vcssl.connect.FieldXvci1Adapter;
-import org.vcssl.connect.MethodXfci1Adapter;
+import org.vcssl.connect.FieldToXvci1Adapter;
+import org.vcssl.connect.MethodToXfci1Adapter;
 import org.vcssl.nano.VnanoFatalException;
 import org.vcssl.nano.spec.ErrorType;
 import org.vcssl.nano.vm.VirtualMachineObjectCode;
@@ -54,8 +54,8 @@ import org.vcssl.nano.VnanoException;
  *   <li>XVCI 1 ({@link org.vcssl.connect.ExternalVariableConnector1 org.vcssl.connector.ExternalVariableConnector1})</li>
  *   <li>XFCI 1 ({@link org.vcssl.connect.ExternalFunctionConnector1 org.vcssl.connector.ExternalFunctionConnector1})</li>
  *   <li>XLCI 1 ({@link org.vcssl.connect.ExternalLibraryConnector1 org.vcssl.connector.ExternalLibraryConnector1})</li>
- *   <li>java.lang.reflect.Field (内部で {@link org.vcssl.connect.FieldXvci1Adapter FieldXvci1Adapter} を介し、XVCI 1 で接続されます。)</li>
- *   <li>java.lang.reflect.Method (内部で {@link org.vcssl.connect.MethodXfci1Adapter MethodXfci1Adapter} を介し、XFCI 1 で接続されます。)</li>
+ *   <li>java.lang.reflect.Field (内部で {@link org.vcssl.connect.FieldToXvci1Adapter FieldToXvci1Adapter} を介し、XVCI 1 で接続されます。)</li>
+ *   <li>java.lang.reflect.Method (内部で {@link org.vcssl.connect.MethodToXfci1Adapter MethodToXfci1Adapter} を介し、XFCI 1 で接続されます。)</li>
  * </ul>
  *
  * @author RINEARN (Fumihiro Matsui)
@@ -255,7 +255,7 @@ public class Interconnect {
 	public void connect(Field field, Object instance, boolean aliasingRequired, String aliasName)
 			throws VnanoException {
 
-		FieldXvci1Adapter adapter = new FieldXvci1Adapter(field, instance);
+		FieldToXvci1Adapter adapter = new FieldToXvci1Adapter(field, instance);
 		this.connect(adapter, aliasingRequired, aliasName);
 	}
 
@@ -273,7 +273,7 @@ public class Interconnect {
 	public void connect(Method method, Object instance, boolean aliasingRequired, String aliasName)
 			throws VnanoException {
 
-		MethodXfci1Adapter adapter = new MethodXfci1Adapter(method,instance);
+		MethodToXfci1Adapter adapter = new MethodToXfci1Adapter(method,instance);
 		this.connect(adapter, aliasingRequired, aliasName);
 	}
 

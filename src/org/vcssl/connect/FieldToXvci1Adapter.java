@@ -22,7 +22,7 @@ import java.util.Arrays;
  *
  * @author RINEARN (Fumihiro Matsui)
  */
-public class FieldXvci1Adapter implements ExternalVariableConnector1 {
+public class FieldToXvci1Adapter implements ExternalVariableConnector1 {
 
 
 	/** デフォルトの必要パーミッション配列（値は { {@link ExternalPermission#NONE ExternalPermission.NONE} } ）です。 */
@@ -52,7 +52,7 @@ public class FieldXvci1Adapter implements ExternalVariableConnector1 {
 	 * @param field 対象フィールドへのリフレクションによるアクセスを提供するFieldインスタンス
 	 * @param objectInstance 対象フィールドが属するオブジェクトのインスタンス
 	 */
-	public FieldXvci1Adapter (Field field, Object objectInstance) {
+	public FieldToXvci1Adapter (Field field, Object objectInstance) {
 		this.field = field;
 		this.objectInstance = objectInstance;
 
@@ -71,7 +71,7 @@ public class FieldXvci1Adapter implements ExternalVariableConnector1 {
 	 *
 	 * @param field 対象フィールドへのリフレクションによるアクセスを提供するFieldインスタンス
 	 */
-	public FieldXvci1Adapter (Field field) {
+	public FieldToXvci1Adapter (Field field) {
 		this.field = field;
 		this.objectInstance = null;
 
@@ -129,7 +129,7 @@ public class FieldXvci1Adapter implements ExternalVariableConnector1 {
 	 * この変数のデータの読み書きに必要な全てのパーミッションを、配列にまとめて設定します。
 	 *
 	 * このメソッドで設定される必要パーミッション配列と、
-	 * {@link FieldXvci1Adapter#setUnnecessaryPermissions setUnnecessaryPermissions}
+	 * {@link FieldToXvci1Adapter#setUnnecessaryPermissions setUnnecessaryPermissions}
 	 * メソッドで設定される不要パーミッション配列において、重複している要素がある場合は、
 	 * 前者の方が優先されます（つまり、そのパーミッションは必要と判断されます）。
 	 *
@@ -165,7 +165,7 @@ public class FieldXvci1Adapter implements ExternalVariableConnector1 {
 	 * この変数のデータの読み書きに不要な全てのパーミッションを、配列にまとめて設定します。
 	 *
 	 * このメソッドで設定される不要パーミッション配列と、
-	 * {@link FieldXvci1Adapter#getNecessaryPermissions getNecessaryPermissions}
+	 * {@link FieldToXvci1Adapter#getNecessaryPermissions getNecessaryPermissions}
 	 * メソッドで設定される必要パーミッション配列において、重複している要素がある場合は、
 	 * 後者の方が優先されます（つまり、そのパーミッションは必要と判断されます）。
 	 *
