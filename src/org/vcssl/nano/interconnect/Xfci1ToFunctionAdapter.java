@@ -25,7 +25,7 @@ import org.vcssl.nano.vm.memory.DataContainer;
  *
  * @author RINEARN (Fumihiro Matsui)
  */
-public class Xfci1FunctionAdapter extends AbstractFunction {
+public class Xfci1ToFunctionAdapter extends AbstractFunction {
 
 	/** XFCI準拠の外部変数プラグインです。 */
 	private ExternalFunctionConnector1 xfciPlugin = null;
@@ -57,7 +57,7 @@ public class Xfci1FunctionAdapter extends AbstractFunction {
 	 * @throws VnanoException
 	 * 		引数のデータや型が、この処理系内部では使用できない場合に発生します。
 	 */
-	public Xfci1FunctionAdapter(ExternalFunctionConnector1 xfciPlugin) throws VnanoException {
+	public Xfci1ToFunctionAdapter(ExternalFunctionConnector1 xfciPlugin) throws VnanoException {
 
 		this.xfciPlugin = xfciPlugin;
 

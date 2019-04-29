@@ -292,7 +292,7 @@ public class Interconnect {
 			throws VnanoException {
 
 		connector.initializeForConnection();
-		Xvci1VariableAdapter adapter = new Xvci1VariableAdapter(connector);
+		Xvci1ToVariableAdapter adapter = new Xvci1ToVariableAdapter(connector);
 		this.connect(adapter, aliasingRequired, aliasName);
 	}
 
@@ -311,7 +311,7 @@ public class Interconnect {
 			throws VnanoException {
 
 		connector.initializeForConnection();
-		Xfci1FunctionAdapter adapter = new Xfci1FunctionAdapter(connector);
+		Xfci1ToFunctionAdapter adapter = new Xfci1ToFunctionAdapter(connector);
 		this.connect(adapter, aliasingRequired, aliasSignature);
 	}
 

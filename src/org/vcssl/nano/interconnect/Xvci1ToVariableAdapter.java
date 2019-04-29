@@ -23,7 +23,7 @@ import org.vcssl.nano.vm.memory.DataContainer;
  *
  * @author RINEARN (Fumihiro Matsui)
  */
-public class Xvci1VariableAdapter extends AbstractVariable {
+public class Xvci1ToVariableAdapter extends AbstractVariable {
 
 	/** XVCI準拠の外部変数プラグインです。 */
 	private ExternalVariableConnector1 xvciPlugin = null;
@@ -40,7 +40,7 @@ public class Xvci1VariableAdapter extends AbstractVariable {
 	 * @throws VnanoException
 	 * 		外部変数のデータや型が、この処理系内部では変数として使用できない場合に発生します。
 	 */
-	public Xvci1VariableAdapter(ExternalVariableConnector1 xvciPlugin) throws VnanoException {
+	public Xvci1ToVariableAdapter(ExternalVariableConnector1 xvciPlugin) throws VnanoException {
 		this.xvciPlugin = xvciPlugin;
 		this.dataConverter = new DataConverter(this.xvciPlugin.getDataClass());
 	}
