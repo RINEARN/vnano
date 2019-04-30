@@ -25,7 +25,7 @@ import org.vcssl.nano.vm.memory.DataContainer;
  *
  * @author RINEARN (Fumihiro Matsui)
  */
-public class Xfci1FunctionAdapter extends AbstractFunction {
+public final class Xfci1ToFunctionAdapter extends AbstractFunction {
 
 	/** XFCI準拠の外部変数プラグインです。 */
 	private ExternalFunctionConnector1 xfciPlugin = null;
@@ -48,6 +48,12 @@ public class Xfci1FunctionAdapter extends AbstractFunction {
 	/** 処理系内部側での戻り値の配列次元数（スカラは0次元として扱う）を保持します。 */
 	private int returnArrayRank = -1;
 
+	/** 所属している名前空間があるかどうかを保持します。 */
+	private boolean hasNameSpace = false;
+
+	/** 所属している名前空間を保持します。 */
+	private String nameSpace = null;
+
 
 	/**
 	 * 指定されたXFCI準拠の外部変数プラグインを、
@@ -57,7 +63,7 @@ public class Xfci1FunctionAdapter extends AbstractFunction {
 	 * @throws VnanoException
 	 * 		引数のデータや型が、この処理系内部では使用できない場合に発生します。
 	 */
-	public Xfci1FunctionAdapter(ExternalFunctionConnector1 xfciPlugin) throws VnanoException {
+	public Xfci1ToFunctionAdapter(ExternalFunctionConnector1 xfciPlugin) throws VnanoException {
 
 		this.xfciPlugin = xfciPlugin;
 
@@ -88,6 +94,24 @@ public class Xfci1FunctionAdapter extends AbstractFunction {
 
 
 	/**
+	 * 指定されたXFCI準拠の外部変数プラグインを、名前空間に所属させつつ、
+	 * 処理系内部での仕様に準拠した関数へと変換するアダプタを生成します。
+	 *
+	 * @param xfciPlugin XFCI準拠の外部変数プラグイン
+	 * @param nameSpace 名前空間
+	 * @throws VnanoException
+	 * 		引数のデータや型が、この処理系内部では使用できない場合に発生します。
+	 */
+	public Xfci1ToFunctionAdapter(ExternalFunctionConnector1 xfciPlugin, String nameSpace)
+			throws VnanoException {
+
+		this(xfciPlugin);
+		this.hasNameSpace = true;
+		this.nameSpace = nameSpace;
+	}
+
+
+	/**
 	 * 関数名を取得します。
 	 *
 	 * @return 関数名
@@ -95,6 +119,28 @@ public class Xfci1FunctionAdapter extends AbstractFunction {
 	@Override
 	public String getFunctionName() {
 		return this.xfciPlugin.getFunctionName();
+	}
+
+
+	/**
+	 * 所属している名前空間があるかどうかを判定します。
+	 *
+	 * @return 名前空間に所属していれば true
+	 */
+	@Override
+	public boolean hasNameSpace() {
+		return this.hasNameSpace;
+	}
+
+
+	/**
+	 * 所属している名前空間を返します。
+	 *
+	 * @return 名前空間
+	 */
+	@Override
+	public String getNameSpace() {
+		return this.nameSpace;
 	}
 
 

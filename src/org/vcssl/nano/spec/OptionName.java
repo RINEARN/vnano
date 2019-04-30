@@ -3,6 +3,7 @@ package org.vcssl.nano.spec;
 public class OptionName {
 
 	public static final String OPTION_MAP = "VNANO_OPTION";
+	public static final String AUTO_KEY = "VNANO_AUTO_KEY";
 
 	public static final String LOCALE = "LOCALE";
 

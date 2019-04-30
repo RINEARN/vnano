@@ -34,6 +34,16 @@ public final class Function extends AbstractFunction {
 	}
 
 	@Override
+	public boolean hasNameSpace() {
+		return false; // スクリプト内での名前空間定義はサポートされていない
+	}
+
+	@Override
+	public String getNameSpace() {
+		return null; // スクリプト内での名前空間定義はサポートされていない
+	}
+
+	@Override
 	public final String[] getParameterNames() {
 		return this.parameterNames;
 	}

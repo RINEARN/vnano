@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.vcssl.nano.VnanoFatalException;
 import org.vcssl.nano.spec.IdentifierSyntax;
 
 /**
@@ -30,11 +31,14 @@ public class VariableTable implements Cloneable {
 	/** 変数名と、変数とを対応付けるマップです。同じキーの要素を複数格納するため、値をリスト化して保持します。 */
 	Map<String, LinkedList<AbstractVariable>> nameVariableMap = null;
 
+	/** 名前空間付きの変数名と、変数とを対応付けるマップです。同じキーの要素を複数格納するため、値をリスト化して保持します。 */
+	Map<String, LinkedList<AbstractVariable>> fullNameVariableMap = null;
+
 	/** 中間アセンブリコード識別子と、変数とを対応付けるマップです。同じキーの要素を複数格納するため、値をリスト化して保持します。 */
 	Map<String, LinkedList<AbstractVariable>> assemblyIdentifierVariableMap = null;
 
-
-	// 後で、名前空間指定に対応しつつ省略可能にする場合は、名前空間込みのMapと、名前空間省略のMapを持つようにする（暫定案）
+	/** 名前空間付きの中間アセンブリコード識別子と、変数とを対応付けるマップです。同じキーの要素を複数格納するため、値をリスト化して保持します。 */
+	Map<String, LinkedList<AbstractVariable>> fullAssemblyIdentifierVariableMap = null;
 
 
 	/**
@@ -43,7 +47,9 @@ public class VariableTable implements Cloneable {
 	public VariableTable() {
 		this.variableList = new LinkedList<AbstractVariable>();
 		this.nameVariableMap = new LinkedHashMap<String, LinkedList<AbstractVariable>>();
+		this.fullNameVariableMap = new LinkedHashMap<String, LinkedList<AbstractVariable>>();
 		this.assemblyIdentifierVariableMap = new LinkedHashMap<String, LinkedList<AbstractVariable>>();
+		this.fullAssemblyIdentifierVariableMap = new LinkedHashMap<String, LinkedList<AbstractVariable>>();
 	}
 
 
@@ -53,13 +59,17 @@ public class VariableTable implements Cloneable {
 	 * @param variable 対象の変数
 	 */
 	public void addVariable(AbstractVariable variable) {
+		String nameSpacePrefix = IdentifierSyntax.getNameSpacePrefixOf(variable);
 		String varName = variable.getVariableName();
 		String asmName = IdentifierSyntax.getAssemblyIdentifierOf(variable);
+		String fullAsmName = IdentifierSyntax.getAssemblyIdentifierOf(variable, nameSpacePrefix);
 
 		// リストとマップに変数を追加
 		this.variableList.add(variable);
 		IdentifierMapManager.putToMap(this.nameVariableMap, varName, variable); // 重複キーに対応するためのマップ操作メソッド
+		IdentifierMapManager.putToMap(this.fullNameVariableMap, nameSpacePrefix + varName, variable);
 		IdentifierMapManager.putToMap(this.assemblyIdentifierVariableMap, asmName, variable);
+		IdentifierMapManager.putToMap(this.fullAssemblyIdentifierVariableMap, fullAsmName, variable);
 	}
 
 
@@ -70,13 +80,17 @@ public class VariableTable implements Cloneable {
 	 */
 	public void removeLastVariable() {
 		AbstractVariable variable = this.variableList.getLast();
+		String nameSpacePrefix = IdentifierSyntax.getNameSpacePrefixOf(variable);
 		String varName = variable.getVariableName();
 		String asmName = IdentifierSyntax.getAssemblyIdentifierOf(variable);
+		String fullAsmName = IdentifierSyntax.getAssemblyIdentifierOf(variable, nameSpacePrefix);
 
 		// リストとマップから変数を削除
 		this.variableList.removeLast();
 		IdentifierMapManager.removeLastFromMap(this.nameVariableMap, varName); // 重複キーに対応するためのマップ操作メソッド
+		IdentifierMapManager.removeLastFromMap(this.fullNameVariableMap, nameSpacePrefix + varName);
 		IdentifierMapManager.removeLastFromMap(this.assemblyIdentifierVariableMap, asmName);
+		IdentifierMapManager.removeLastFromMap(this.fullAssemblyIdentifierVariableMap, fullAsmName);
 	}
 
 
@@ -105,7 +119,7 @@ public class VariableTable implements Cloneable {
 	 * @return 含まれていればtrue
 	 */
 	public boolean containsVariableWithName(String name) {
-		return this.nameVariableMap.containsKey(name);
+		return this.nameVariableMap.containsKey(name) || this.fullNameVariableMap.containsKey(name);
 	}
 
 
@@ -117,7 +131,13 @@ public class VariableTable implements Cloneable {
 	 * @return 対象の変数
 	 */
 	public AbstractVariable getVariableByName(String name) {
-		return IdentifierMapManager.getLastFromMap(this.nameVariableMap, name);
+		if (this.nameVariableMap.containsKey(name)) {
+			return IdentifierMapManager.getLastFromMap(this.nameVariableMap, name);
+		}
+		if (this.fullNameVariableMap.containsKey(name)) {
+			return IdentifierMapManager.getLastFromMap(this.fullNameVariableMap, name);
+		}
+		throw new VnanoFatalException("Variable not found: " + name);
 	}
 
 
@@ -129,7 +149,8 @@ public class VariableTable implements Cloneable {
 	 * @return 登録されていればtrue
 	 */
 	public boolean containsVariableWithAssemblyIdentifier(String identifier) {
-		return this.assemblyIdentifierVariableMap.containsKey(identifier);
+		return this.assemblyIdentifierVariableMap.containsKey(identifier)
+				|| this.fullAssemblyIdentifierVariableMap.containsKey(identifier);
 	}
 
 
@@ -141,7 +162,13 @@ public class VariableTable implements Cloneable {
 	 * @return 対象の変数
 	 */
 	public AbstractVariable getVariableByAssemblyIdentifier(String identifier) {
-		return IdentifierMapManager.getLastFromMap(this.assemblyIdentifierVariableMap, identifier);
+		if (assemblyIdentifierVariableMap.containsKey(identifier)) {
+			return IdentifierMapManager.getLastFromMap(this.assemblyIdentifierVariableMap, identifier);
+		}
+		if (fullAssemblyIdentifierVariableMap.containsKey(identifier)) {
+			return IdentifierMapManager.getLastFromMap(this.fullAssemblyIdentifierVariableMap, identifier);
+		}
+		throw new VnanoFatalException("Variable not found: " + identifier);
 	}
 
 

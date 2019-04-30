@@ -11,13 +11,16 @@ import java.util.Map.Entry;
 
 import javax.script.Bindings;
 
+import org.vcssl.connect.ClassToXlci1Adapter;
 import org.vcssl.connect.ExternalFunctionConnector1;
 import org.vcssl.connect.ExternalLibraryConnector1;
 import org.vcssl.connect.ExternalVariableConnector1;
-import org.vcssl.connect.FieldXvci1Adapter;
-import org.vcssl.connect.MethodXfci1Adapter;
+import org.vcssl.connect.FieldToXvci1Adapter;
+import org.vcssl.connect.MethodToXfci1Adapter;
 import org.vcssl.nano.VnanoFatalException;
 import org.vcssl.nano.spec.ErrorType;
+import org.vcssl.nano.spec.IdentifierSyntax;
+import org.vcssl.nano.spec.OptionName;
 import org.vcssl.nano.vm.VirtualMachineObjectCode;
 import org.vcssl.nano.vm.memory.DataContainer;
 import org.vcssl.nano.vm.memory.Memory;
@@ -54,8 +57,8 @@ import org.vcssl.nano.VnanoException;
  *   <li>XVCI 1 ({@link org.vcssl.connect.ExternalVariableConnector1 org.vcssl.connector.ExternalVariableConnector1})</li>
  *   <li>XFCI 1 ({@link org.vcssl.connect.ExternalFunctionConnector1 org.vcssl.connector.ExternalFunctionConnector1})</li>
  *   <li>XLCI 1 ({@link org.vcssl.connect.ExternalLibraryConnector1 org.vcssl.connector.ExternalLibraryConnector1})</li>
- *   <li>java.lang.reflect.Field (内部で {@link org.vcssl.connect.FieldXvci1Adapter FieldXvci1Adapter} を介し、XVCI 1 で接続されます。)</li>
- *   <li>java.lang.reflect.Method (内部で {@link org.vcssl.connect.MethodXfci1Adapter MethodXfci1Adapter} を介し、XFCI 1 で接続されます。)</li>
+ *   <li>java.lang.reflect.Field (内部で {@link org.vcssl.connect.FieldToXvci1Adapter FieldToXvci1Adapter} を介し、XVCI 1 で接続されます。)</li>
+ *   <li>java.lang.reflect.Method (内部で {@link org.vcssl.connect.MethodToXfci1Adapter MethodToXfci1Adapter} を介し、XFCI 1 で接続されます。)</li>
  * </ul>
  *
  * @author RINEARN (Fumihiro Matsui)
@@ -187,6 +190,10 @@ public class Interconnect {
 	 */
 	private void bind(String bindName, Object object) throws VnanoException {
 
+		if (bindName.equals(OptionName.AUTO_KEY)) {
+			bindName = this.generateBindingKey(object);
+		}
+
 		// 内部変数と互換の変数オブジェクト
 		if (object instanceof AbstractVariable) {
 			this.connect( (AbstractVariable)object, true, bindName );
@@ -205,7 +212,7 @@ public class Interconnect {
 
 		// XLCI 1 形式の外部関数プラグイン
 		} else if (object instanceof ExternalLibraryConnector1) {
-			this.connect( (ExternalLibraryConnector1)object, bindName );
+			this.connect( (ExternalLibraryConnector1)object, true, bindName, false );
 
 		// クラスフィールドの場合
 		} else if (object instanceof Field) {
@@ -215,28 +222,119 @@ public class Interconnect {
 		} else if (object instanceof Method) {
 			this.connect( (Method)object, null, true, bindName );
 
-		// インスタンスフィールドやインスタンスメソッドは、所属インスタンスも格納する配列で渡される
+		// クラスの場合
+		} else if (object instanceof Class) {
+			this.connect( (Class<?>)object, null, true, bindName );
+
+		// インスタンスフィールドやインスタンスメソッド等は、所属インスタンスも格納する配列で渡される
 		} else if (object instanceof Object[]) {
 
 			Object[] objects = (Object[])object;
 
-			// インスタンスフィールドの場合 >> 引数からFieldとインスタンスを取り出し、アダプタで XVCI1 に変換して接続
+			// インスタンスフィールドの場合 >> 引数からFieldとインスタンスを取り出し、外部変数として接続
 			if (objects.length == 2 && objects[0] instanceof Field) {
 				Field field = (Field)objects[0]; // [0] はフィールドのリフレクション
 				Object instance = objects[1];    // [1] はフィールドの所属インスタンス
 				this.connect( field, instance, true, bindName );
 
-			// インスタンスフィールドの場合 >> 引数からMethodとインスタンスを取り出し、アダプタで XFCI1 に変換して接続
+			// インスタンスメソッドの場合 >> 引数からMethodとインスタンスを取り出し、外部関数として接続
 			} else if (objects.length == 2 && objects[0] instanceof Method) {
 				Method method = (Method)objects[0]; // [0] はメソッドのリフレクション
 				Object instance = objects[1];       // [1] はメソッドの所属インスタンス
 				this.connect( method, instance, true, bindName );
+
+			// クラスの場合 >> 引数からClassとインスタンスを取り出し、外部ライブラリとして接続
+			} else if (objects.length == 2 && objects[0] instanceof Class) {
+				Class<?> pluginClass = (Class<?>)objects[0];
+				Object instance = objects[1];
+				this.connect( pluginClass, instance, true, bindName );
+			} else {
+				throw new VnanoException(
+					ErrorType.UNSUPPORTED_PLUGIN, new String[] {objects[0].getClass().getCanonicalName()}
+				);
 			}
 
+		// その他のオブジェクトは、Classを取得して外部ライブラリとして接続
 		} else {
-			throw new VnanoException(
-				ErrorType.UNSUPPORTED_PLUGIN, new String[] {object.getClass().getCanonicalName()}
-			);
+			Class<?> pluginClass = object.getClass();
+			this.connect( pluginClass, object, true, bindName );
+		}
+	}
+
+
+	/**
+	 * 指定されたオブジェクトをバインディングするためのキーを、自動で生成します。
+	 *
+	 * @param object バインディングしたいオブジェクト
+	 * @return キー
+	 * @throws VnanoException 接続不可能なオブジェクトが引数に指定された場合にスローされます。
+	 */
+	public String generateBindingKey(Object object) throws VnanoException {
+
+		// 内部変数と互換の変数オブジェクト
+		if (object instanceof AbstractVariable) {
+			return ((AbstractVariable)object).getVariableName();
+
+		// 内部関数と互換の変数オブジェクト
+		} else if (object instanceof AbstractFunction) {
+			return IdentifierSyntax.getSignatureOf((AbstractFunction)object);
+
+		// XVCI 1 形式の外部変数プラグイン
+		} else if (object instanceof ExternalVariableConnector1) {
+			return ((ExternalVariableConnector1)object).getVariableName();
+
+		// XFCI 1 形式の外部関数プラグイン
+		} else if (object instanceof ExternalFunctionConnector1) {
+			AbstractFunction functionAdapter = new Xfci1ToFunctionAdapter((ExternalFunctionConnector1)object);
+			return IdentifierSyntax.getSignatureOf(functionAdapter);
+
+		// XLCI 1 形式の外部関数プラグイン
+		} else if (object instanceof ExternalLibraryConnector1) {
+			return ((ExternalLibraryConnector1)object).getLibraryName();
+
+		// クラスフィールドの場合
+		} else if (object instanceof Field) {
+			return ((Field)object).getName();
+
+		// クラスメソッドの場合
+		} else if (object instanceof Method) {
+			ExternalFunctionConnector1 xfci1Adapter = new MethodToXfci1Adapter((Method)object);
+			AbstractFunction functionAdapter = new Xfci1ToFunctionAdapter(xfci1Adapter);
+			return IdentifierSyntax.getSignatureOf(functionAdapter);
+
+		// クラスの場合
+		} else if (object instanceof Class) {
+			return ((Class<?>)object).getCanonicalName();
+
+		// インスタンスフィールドやインスタンスメソッド等は、所属インスタンスも格納する配列で渡される
+		} else if (object instanceof Object[]) {
+
+			Object[] objects = (Object[])object;
+
+			// インスタンスフィールドの場合
+			if (objects.length == 2 && objects[0] instanceof Field) {
+				Field field = (Field)objects[0]; // [0] はフィールドのリフレクション
+				return this.generateBindingKey(field);
+
+			// インスタンスメソッドの場合
+			} else if (objects.length == 2 && objects[0] instanceof Method) {
+				Method method = (Method)objects[0]; // [0] はメソッドのリフレクション
+				return this.generateBindingKey(method);
+
+			// クラスの場合 >> 引数からClassとインスタンスを取り出し、外部ライブラリとして接続
+			} else if (objects.length == 2 && objects[0] instanceof Class) {
+				Class<?> pluginClass = (Class<?>)objects[0];
+				return this.generateBindingKey(pluginClass);
+			} else {
+				throw new VnanoException(
+					ErrorType.UNSUPPORTED_PLUGIN, new String[] {objects[0].getClass().getCanonicalName()}
+				);
+			}
+
+		// その他のオブジェクトは、Classを取得して外部ライブラリとして接続
+		} else {
+			Class<?> pluginClass = object.getClass();
+			return this.generateBindingKey(pluginClass);
 		}
 	}
 
@@ -255,7 +353,7 @@ public class Interconnect {
 	public void connect(Field field, Object instance, boolean aliasingRequired, String aliasName)
 			throws VnanoException {
 
-		FieldXvci1Adapter adapter = new FieldXvci1Adapter(field, instance);
+		FieldToXvci1Adapter adapter = new FieldToXvci1Adapter(field, instance);
 		this.connect(adapter, aliasingRequired, aliasName);
 	}
 
@@ -270,11 +368,29 @@ public class Interconnect {
 	 * @param aliasSignature 別名アクセスのためのコールシグネチャ（aliasingRequiredがtrueの場合のみ参照されます）
 	 * @throws DataException データ型が非対応であった場合にスローされます。
 	 */
-	public void connect(Method method, Object instance, boolean aliasingRequired, String aliasName)
+	public void connect(Method method, Object instance, boolean aliasingRequired, String aliasSignature)
 			throws VnanoException {
 
-		MethodXfci1Adapter adapter = new MethodXfci1Adapter(method,instance);
-		this.connect(adapter, aliasingRequired, aliasName);
+		MethodToXfci1Adapter adapter = new MethodToXfci1Adapter(method,instance);
+		this.connect(adapter, aliasingRequired, aliasSignature);
+	}
+
+
+	/**
+	 * ホスト言語側のコード内で宣言されているクラスを、
+	 * スクリプト内からアクセスできる外部関数/変数を提供するライブラリとして接続します。
+	 *
+	 * @param pluginClass 外部ライブラリとして接続するクラス
+	 * @param instance クラスのインスタンス
+	 * @param aliasingRequired スクリプト内から別名でアクセスするかどうか（する場合にtrue）
+	 * @param aliasName 別名アクセスのためのライブラリ名（aliasingRequiredがtrueの場合のみ参照されます）
+	 * @throws DataException データ型などが非対応であった場合にスローされます。
+	 */
+	public void connect(Class<?> pluginClass, Object instance, boolean aliasingRequired, String aliasName)
+			throws VnanoException {
+
+		ClassToXlci1Adapter adapter = new ClassToXlci1Adapter(pluginClass,instance);
+		this.connect(adapter, aliasingRequired, aliasName, true);
 	}
 
 
@@ -292,7 +408,7 @@ public class Interconnect {
 			throws VnanoException {
 
 		connector.initializeForConnection();
-		Xvci1VariableAdapter adapter = new Xvci1VariableAdapter(connector);
+		Xvci1ToVariableAdapter adapter = new Xvci1ToVariableAdapter(connector);
 		this.connect(adapter, aliasingRequired, aliasName);
 	}
 
@@ -311,8 +427,60 @@ public class Interconnect {
 			throws VnanoException {
 
 		connector.initializeForConnection();
-		Xfci1FunctionAdapter adapter = new Xfci1FunctionAdapter(connector);
+		Xfci1ToFunctionAdapter adapter = new Xfci1ToFunctionAdapter(connector);
 		this.connect(adapter, aliasingRequired, aliasSignature);
+	}
+
+
+	/**
+	 * {@link org.vcssl.connect.ExternalLibraryConnector1 XLCI 1}
+	 * のプラグイン・インターフェースを用いて、
+	 * ホスト言語で実装された外部ライブラリオブジェクトを接続します。
+	 *
+	 * @param connector XLCI準拠の外部ライブラリ
+	 * @param aliasingRequired スクリプト内から別名でアクセスするかどうか（する場合にtrue）
+	 * @param aliasName 別名アクセスのためのライブラリ名（aliasingRequiredがtrueの場合のみ参照されます）
+	 * @param ignoreIncompatibles 接続できない関数/変数をエラーにせず無視するかどうか（する場合にtrue）
+	 * @throws VnanoException データ型などが非対応であった場合にスローされます。
+	 */
+	public void connect(ExternalLibraryConnector1 connector, boolean aliasingRequired, String aliasName,
+			boolean ignoreIncompatibles) throws VnanoException {
+
+		connector.initializeForConnection();
+
+		// デフォルトではライブラリ名を名前空間とし、エイリアスが指定されている場合はそちらを使用する
+		String nameSpace = connector.getLibraryName();
+		if (aliasingRequired) {
+			nameSpace = aliasName;
+		}
+
+		// 関数をアダプタで変換して接続
+		ExternalFunctionConnector1[] xfciConnectors = connector.getFunctions();
+		for (ExternalFunctionConnector1 xfciConnector: xfciConnectors) {
+			try {
+				xfciConnector.initializeForConnection();
+				AbstractFunction adapter = new Xfci1ToFunctionAdapter(xfciConnector, nameSpace);
+				this.connect(adapter, false, null);
+			} catch (VnanoException e) {
+				if (!ignoreIncompatibles) {
+					throw e;
+				}
+			}
+		}
+
+		// 変数をアダプタで変換して接続
+		ExternalVariableConnector1[] xvciConnectors = connector.getVariables();
+		for (ExternalVariableConnector1 xvciConnector: xvciConnectors) {
+			try {
+				xvciConnector.initializeForConnection();
+				AbstractVariable adapter = new Xvci1ToVariableAdapter(xvciConnector, nameSpace);
+				this.connect(adapter, false, null);
+			} catch (VnanoException e) {
+				if (!ignoreIncompatibles) {
+					throw e;
+				}
+			}
+		}
 	}
 
 
@@ -348,30 +516,6 @@ public class Interconnect {
 			((FunctionAliasAdapter)function).setCallSignature(aliasSignature);
 		}
 		this.functionTable.addFunction(function);
-	}
-
-
-	/**
-	 * {@link org.vcssl.connect.ExternalLibraryConnector1 XLCI 1}
-	 * のプラグイン・インターフェースを用いて、
-	 * ホスト言語で実装された外部関数・外部変数オブジェクトを複数まとめて接続します。
-	 *
-	 * @param connector XLCI準拠でまとめられた外部関数・外部変数の集合（ライブラリ）
-	 * @param libraryName ライブラリ名
-	 * @throws VnanoException データ型が非対応であった場合にスローされます。
-	 */
-	public void connect(ExternalLibraryConnector1 connector, String libraryName) throws VnanoException {
-		connector.initializeForConnection();
-
-		ExternalFunctionConnector1[] functions = connector.getFunctions();
-		for (ExternalFunctionConnector1 function: functions) {
-			this.connect(function, false, null);
-		}
-
-		ExternalVariableConnector1[] variables = connector.getVariables();
-		for (ExternalVariableConnector1 variable: variables) {
-			this.connect(variable, false, null);
-		}
 	}
 
 
@@ -415,6 +559,11 @@ public class Interconnect {
 
 			// グローバル変数テーブルを参照し、一意識別子から外部変数オブジェクトを取得
 			AbstractVariable variable = this.globalVariableTable.getVariableByAssemblyIdentifier(identifier);
+
+			// 書き換え不可能な定数の場合はスキップ
+			if (variable.isConstant()) {
+				continue;
+			}
 
 			// 外部変数オブジェクトにデータコンテナを渡して値を更新させる
 			variable.setDataContainer(dataContainer);

@@ -16,7 +16,7 @@ import org.vcssl.nano.vm.memory.DataContainer;
  * <p>
  * 各種の外部変数プラグイン・インターフェースも、
  * 最終的にこの抽象クラスを継承したアダプタクラスによってラップされて扱われます
- * （{@link Xvci1VariableAdapter Xvci1VariableAdapter} などを参照）。
+ * （{@link Xvci1ToVariableAdapter Xvci1ToVariableAdapter} などを参照）。
  * </p>
  *
  * <p>
@@ -42,6 +42,22 @@ public abstract class AbstractVariable {
 	 * @return 変数名
 	 */
 	public abstract String getVariableName();
+
+
+	/**
+	 * 所属している名前空間があるかどうかを判定します。
+	 *
+	 * @return 名前空間に所属していれば true
+	 */
+	public abstract boolean hasNameSpace();
+
+
+	/**
+	 * 所属している名前空間を返します。
+	 *
+	 * @return 名前空間
+	 */
+	public abstract String getNameSpace();
 
 
 	// -> これ、String の型名にしたほうがいいかも。抽象性からして。あとInvalidDataTypeException出まくる

@@ -27,6 +27,9 @@ public class ScriptWord {
 	/** 空文字や改行など、トークンの区切りとなる文字の正規表現です。 */
 	public static final String TOKEN_SEPARATOR_REGEX = "( |　|\t|\n|\r|\r\n|\n\r)";
 
+	/** 名前空間の区切りのキーワードです。 */
+	public static final String NAME_SPACE_SEPARATOR = ".";
+
 	/** 文末記号です。 */
 	public static final String END_OF_STATEMENT = ";";
 

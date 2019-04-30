@@ -84,6 +84,28 @@ public class Variable extends AbstractVariable {
 
 
 	/**
+	 * 所属している名前空間があるかどうかを判定します。
+	 *
+	 * @return 名前空間に所属していれば true
+	 */
+	@Override
+	public boolean hasNameSpace() {
+		return false; // スクリプト内での名前空間定義はサポートされていない
+	}
+
+
+	/**
+	 * 所属している名前空間を返します。
+	 *
+	 * @return 名前空間
+	 */
+	@Override
+	public String getNameSpace() {
+		return null; // スクリプト内での名前空間定義はサポートされていない
+	}
+
+
+	/**
 	 * データ型を取得します。
 	 *
 	 * @return データ型

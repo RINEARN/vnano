@@ -180,6 +180,26 @@ public class FunctionAliasAdapter extends AbstractFunction {
 
 
 	/**
+	 * 所属している名前空間があるかどうかを判定します。
+	 *
+	 * @return 名前空間に所属していれば true
+	 */
+	public boolean hasNameSpace() {
+		return this.function.hasNameSpace();
+	}
+
+
+	/**
+	 * 所属している名前空間を返します。
+	 *
+	 * @return 名前空間
+	 */
+	public String getNameSpace() {
+		return this.function.getNameSpace();
+	}
+
+
+	/**
 	 * 全ての仮引数の名称を配列として取得します。
 	 *
 	 * @return 全ての仮引数の名称を格納する配列

@@ -58,6 +58,26 @@ public class VariableAliasAdapter extends AbstractVariable {
 
 
 	/**
+	 * 所属している名前空間があるかどうかを判定します。
+	 *
+	 * @return 名前空間に所属していれば true
+	 */
+	public boolean hasNameSpace() {
+		return this.variable.hasNameSpace();
+	}
+
+
+	/**
+	 * 所属している名前空間を返します。
+	 *
+	 * @return 名前空間
+	 */
+	public String getNameSpace() {
+		return this.variable.getNameSpace();
+	}
+
+
+	/**
 	 * データ型の名称を取得します。
 	 * 返される型名の表記内に、配列部分 [][]...[] は含まれません。
 	 *

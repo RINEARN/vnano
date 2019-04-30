@@ -115,10 +115,14 @@ public class IdentifierSyntax {
 
 
 	public static String getSignatureOf(AbstractFunction function) {
+		return getSignatureOf(function, "");
+	}
+	public static String getSignatureOf(AbstractFunction function, String nameSpacePrefix) {
 		String[] parameterDataTypeNames = function.getParameterDataTypeNames();
 		int[] parameterArrayRanks = function.getParameterArrayRanks();
+		String functionName = nameSpacePrefix + function.getFunctionName();
 		String signature = getSignatureOf(
-				function.getFunctionName(), parameterDataTypeNames, parameterArrayRanks
+				functionName, parameterDataTypeNames, parameterArrayRanks
 		);
 
 		return signature;
@@ -139,8 +143,12 @@ public class IdentifierSyntax {
 	}
 
 	public static String getAssemblyIdentifierOf(AbstractFunction connector) {
+		return getAssemblyIdentifierOf(connector, "");
+	}
+
+	public static String getAssemblyIdentifierOf(AbstractFunction connector, String nameSpacePrefix) {
 		return AssemblyWord.OPERAND_PREFIX_IDENTIFIER
-				+ getSignatureOf(connector);
+				+ getSignatureOf(connector, nameSpacePrefix);
 	}
 
 	// 後の工程での削除候補
@@ -162,7 +170,28 @@ public class IdentifierSyntax {
 
 	// 後で AbstractVariable がシリアルナンバーを持てるようにした場合は、持っていれば付けるべき
 	public static String getAssemblyIdentifierOf(AbstractVariable variable) {
-		return AssemblyWord.OPERAND_PREFIX_IDENTIFIER + variable.getVariableName();
+		return getAssemblyIdentifierOf(variable, "");
+	}
+
+	public static String getAssemblyIdentifierOf(AbstractVariable variable, String nameSpacePrefix) {
+		String variableName = variable.getVariableName();
+		return AssemblyWord.OPERAND_PREFIX_IDENTIFIER + nameSpacePrefix + variableName;
+	}
+
+	public static String getNameSpacePrefixOf(AbstractVariable variable) {
+		if (variable.hasNameSpace()) {
+			return variable.getNameSpace() + ScriptWord.NAME_SPACE_SEPARATOR;
+		} else {
+			return "";
+		}
+	}
+
+	public static String getNameSpacePrefixOf(AbstractFunction function) {
+		if (function.hasNameSpace()) {
+			return function.getNameSpace() + ScriptWord.NAME_SPACE_SEPARATOR;
+		} else {
+			return "";
+		}
 	}
 
 }
