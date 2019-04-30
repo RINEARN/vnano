@@ -11,6 +11,7 @@ import java.util.Map.Entry;
 
 import javax.script.Bindings;
 
+import org.vcssl.connect.ClassToXlci1Adapter;
 import org.vcssl.connect.ExternalFunctionConnector1;
 import org.vcssl.connect.ExternalLibraryConnector1;
 import org.vcssl.connect.ExternalVariableConnector1;
@@ -205,7 +206,7 @@ public class Interconnect {
 
 		// XLCI 1 形式の外部関数プラグイン
 		} else if (object instanceof ExternalLibraryConnector1) {
-			this.connect( (ExternalLibraryConnector1)object, bindName );
+			this.connect( (ExternalLibraryConnector1)object, true, bindName );
 
 		// クラスフィールドの場合
 		} else if (object instanceof Field) {
@@ -215,28 +216,45 @@ public class Interconnect {
 		} else if (object instanceof Method) {
 			this.connect( (Method)object, null, true, bindName );
 
-		// インスタンスフィールドやインスタンスメソッドは、所属インスタンスも格納する配列で渡される
+		// クラスの場合
+		} else if (object instanceof Class) {
+			this.connect( (Class<?>)object, null, true, bindName );
+
+		// インスタンスフィールドやインスタンスメソッド等は、所属インスタンスも格納する配列で渡される
 		} else if (object instanceof Object[]) {
 
 			Object[] objects = (Object[])object;
 
-			// インスタンスフィールドの場合 >> 引数からFieldとインスタンスを取り出し、アダプタで XVCI1 に変換して接続
+			// インスタンスフィールドの場合 >> 引数からFieldとインスタンスを取り出し、外部変数として接続
 			if (objects.length == 2 && objects[0] instanceof Field) {
 				Field field = (Field)objects[0]; // [0] はフィールドのリフレクション
 				Object instance = objects[1];    // [1] はフィールドの所属インスタンス
 				this.connect( field, instance, true, bindName );
 
-			// インスタンスフィールドの場合 >> 引数からMethodとインスタンスを取り出し、アダプタで XFCI1 に変換して接続
+			// インスタンスフィールドの場合 >> 引数からMethodとインスタンスを取り出し、外部関数として接続
 			} else if (objects.length == 2 && objects[0] instanceof Method) {
 				Method method = (Method)objects[0]; // [0] はメソッドのリフレクション
 				Object instance = objects[1];       // [1] はメソッドの所属インスタンス
 				this.connect( method, instance, true, bindName );
+
+			// クラスの場合 >> 引数からClassとインスタンスを取り出し、外部ライブラリとして接続
+			} else if (objects.length == 2 && objects[0] instanceof Class) {
+				Class<?> pluginClass = (Class<?>)objects[0];
+				Object instance = objects[1];
+				this.connect( pluginClass, instance, true, bindName );
 			}
 
+		// その他のオブジェクトは、Classを取得して外部ライブラリとして接続
+		} else {
+			Class<?> pluginClass = object.getClass();
+			this.connect( pluginClass, object, true, bindName );
+
+		/*
 		} else {
 			throw new VnanoException(
 				ErrorType.UNSUPPORTED_PLUGIN, new String[] {object.getClass().getCanonicalName()}
 			);
+		*/
 		}
 	}
 
@@ -270,10 +288,28 @@ public class Interconnect {
 	 * @param aliasSignature 別名アクセスのためのコールシグネチャ（aliasingRequiredがtrueの場合のみ参照されます）
 	 * @throws DataException データ型が非対応であった場合にスローされます。
 	 */
-	public void connect(Method method, Object instance, boolean aliasingRequired, String aliasName)
+	public void connect(Method method, Object instance, boolean aliasingRequired, String aliasSignature)
 			throws VnanoException {
 
 		MethodToXfci1Adapter adapter = new MethodToXfci1Adapter(method,instance);
+		this.connect(adapter, aliasingRequired, aliasSignature);
+	}
+
+
+	/**
+	 * ホスト言語側のコード内で宣言されているクラスを、
+	 * スクリプト内からアクセスできる外部関数/変数を提供するライブラリとして接続します。
+	 *
+	 * @param pluginClass 外部ライブラリとして接続するクラス
+	 * @param instance クラスのインスタンス
+	 * @param aliasingRequired スクリプト内から別名でアクセスするかどうか（する場合にtrue）
+	 * @param aliasName 別名アクセスのためのライブラリ名（aliasingRequiredがtrueの場合のみ参照されます）
+	 * @throws DataException データ型などが非対応であった場合にスローされます。
+	 */
+	public void connect(Class<?> pluginClass, Object instance, boolean aliasingRequired, String aliasName)
+			throws VnanoException {
+
+		ClassToXlci1Adapter adapter = new ClassToXlci1Adapter(pluginClass,instance);
 		this.connect(adapter, aliasingRequired, aliasName);
 	}
 
@@ -317,6 +353,45 @@ public class Interconnect {
 
 
 	/**
+	 * {@link org.vcssl.connect.ExternalLibraryConnector1 XLCI 1}
+	 * のプラグイン・インターフェースを用いて、
+	 * ホスト言語で実装された外部ライブラリオブジェクトを接続します。
+	 *
+	 * @param connector XLCI準拠の外部ライブラリ
+	 * @param aliasingRequired スクリプト内から別名でアクセスするかどうか（する場合にtrue）
+	 * @param aliasName 別名アクセスのためのライブラリ名（aliasingRequiredがtrueの場合のみ参照されます）
+	 * @throws VnanoException データ型などが非対応であった場合にスローされます。
+	 */
+	public void connect(ExternalLibraryConnector1 connector, boolean aliasingRequired, String aliasName)
+			throws VnanoException {
+
+		connector.initializeForConnection();
+
+		// デフォルトではライブラリ名を名前空間とし、エイリアスが指定されている場合はそちらを使用する
+		String nameSpace = connector.getLibraryName();
+		if (aliasingRequired) {
+			nameSpace = aliasName;
+		}
+
+		// 関数をアダプタで変換して接続
+		ExternalFunctionConnector1[] xfciConnectors = connector.getFunctions();
+		for (ExternalFunctionConnector1 xfciConnector: xfciConnectors) {
+			xfciConnector.initializeForConnection();
+			AbstractFunction adapter = new Xfci1ToFunctionAdapter(xfciConnector, nameSpace);
+			this.connect(adapter, false, null);
+		}
+
+		// 変数をアダプタで変換して接続
+		ExternalVariableConnector1[] xvciConnectors = connector.getVariables();
+		for (ExternalVariableConnector1 xvciConnector: xvciConnectors) {
+			xvciConnector.initializeForConnection();
+			AbstractVariable adapter = new Xvci1ToVariableAdapter(xvciConnector, nameSpace);
+			this.connect(adapter, false, null);
+		}
+	}
+
+
+	/**
 	 * Vnano処理系内部の変数形式に準拠した変数オブジェクトを接続します。
 	 * @param aliasingRequired スクリプト内から別名でアクセスするかどうか（する場合にtrue）
 	 * @param aliasName スクリプト内での別名（aliasingRequiredがtrueの場合のみ参照されます）
@@ -348,30 +423,6 @@ public class Interconnect {
 			((FunctionAliasAdapter)function).setCallSignature(aliasSignature);
 		}
 		this.functionTable.addFunction(function);
-	}
-
-
-	/**
-	 * {@link org.vcssl.connect.ExternalLibraryConnector1 XLCI 1}
-	 * のプラグイン・インターフェースを用いて、
-	 * ホスト言語で実装された外部関数・外部変数オブジェクトを複数まとめて接続します。
-	 *
-	 * @param connector XLCI準拠でまとめられた外部関数・外部変数の集合（ライブラリ）
-	 * @param libraryName ライブラリ名
-	 * @throws VnanoException データ型が非対応であった場合にスローされます。
-	 */
-	public void connect(ExternalLibraryConnector1 connector, String libraryName) throws VnanoException {
-		connector.initializeForConnection();
-
-		ExternalFunctionConnector1[] functions = connector.getFunctions();
-		for (ExternalFunctionConnector1 function: functions) {
-			this.connect(function, false, null);
-		}
-
-		ExternalVariableConnector1[] variables = connector.getVariables();
-		for (ExternalVariableConnector1 variable: variables) {
-			this.connect(variable, false, null);
-		}
 	}
 
 
