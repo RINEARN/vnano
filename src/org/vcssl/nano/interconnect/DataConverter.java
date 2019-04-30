@@ -206,11 +206,10 @@ public class DataConverter {
 		this.dataType = EXTERNAL_NAME_DATA_TYPE_MAP.get(externalDataTypeName);
 
 		if (this.dataType == null) {
-			VnanoException e = new VnanoException(
-					ErrorType.UNCONVERTIBLE_DATA_TYPE,
-					new String[] {externalType.getClass().getCanonicalName()}
+			throw new VnanoException(
+				ErrorType.UNCONVERTIBLE_DATA_TYPE,
+				new String[] {objectClass.getCanonicalName()}
 			);
-			throw e;
 		}
 	}
 
