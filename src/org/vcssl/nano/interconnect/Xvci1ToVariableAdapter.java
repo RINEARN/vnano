@@ -5,6 +5,7 @@
 
 package org.vcssl.nano.interconnect;
 
+import org.vcssl.connect.ExternalFunctionConnector1;
 import org.vcssl.connect.ExternalVariableConnector1;
 import org.vcssl.connect.ExternalVariableException;
 import org.vcssl.nano.VnanoFatalException;
@@ -14,7 +15,7 @@ import org.vcssl.nano.vm.memory.DataContainer;
 
 /**
  * <p>
- * {@link org.vcssl.connect.ExternalVariableConnector1 XVCI 1}
+ * 指定された {@link org.vcssl.connect.ExternalVariableConnector1 XVCI 1}
  * 形式の外部変数プラグインを、Vnano処理系内での変数仕様
  * （{@link org.vcssl.nano.interconnect.AbstractVariable AbstractVariable}）
  * に基づく変数オブジェクトへと変換し、
@@ -30,6 +31,12 @@ public class Xvci1ToVariableAdapter extends AbstractVariable {
 
 	/** 外部変数と処理系内部の変数とで、データの型変換を行うコンバータです。 */
 	private DataConverter dataConverter = null;
+
+	/** 所属している名前空間があるかどうかを保持します。 */
+	private boolean hasNameSpace = false;
+
+	/** 所属している名前空間を保持します。 */
+	private String nameSpace = null;
 
 
 	/**
@@ -47,6 +54,24 @@ public class Xvci1ToVariableAdapter extends AbstractVariable {
 
 
 	/**
+	 * 指定されたXVCI準拠の外部変数プラグインを、名前空間に所属させつつ、
+	 * 処理系内部での仕様に準拠した関数へと変換するアダプタを生成します。
+	 *
+	 * @param xvciPlugin XVCI準拠の外部変数プラグイン
+	 * @param nameSpace 名前空間
+	 * @throws VnanoException
+	 * 		外部変数のデータや型が、この処理系内部では変数として使用できない場合に発生します。
+	 */
+	public Xvci1ToVariableAdapter(ExternalVariableConnector1 xvciPlugin, String nameSpace)
+			throws VnanoException {
+
+		this(xvciPlugin);
+		this.hasNameSpace = true;
+		this.nameSpace = nameSpace;
+	}
+
+
+	/**
 	 * 変数名を取得します。
 	 *
 	 * @return 変数名
@@ -54,6 +79,28 @@ public class Xvci1ToVariableAdapter extends AbstractVariable {
 	@Override
 	public String getVariableName() {
 		return this.xvciPlugin.getVariableName();
+	}
+
+
+	/**
+	 * 所属している名前空間があるかどうかを判定します。
+	 *
+	 * @return 名前空間に所属していれば true
+	 */
+	@Override
+	public boolean hasNameSpace() {
+		return this.hasNameSpace;
+	}
+
+
+	/**
+	 * 所属している名前空間を返します。
+	 *
+	 * @return 名前空間
+	 */
+	@Override
+	public String getNameSpace() {
+		return this.nameSpace;
 	}
 
 

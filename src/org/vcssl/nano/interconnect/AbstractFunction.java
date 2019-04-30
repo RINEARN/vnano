@@ -45,6 +45,22 @@ public abstract class AbstractFunction {
 
 
 	/**
+	 * 所属している名前空間があるかどうかを判定します。
+	 *
+	 * @return 名前空間に所属していれば true
+	 */
+	public abstract boolean hasNameSpace();
+
+
+	/**
+	 * 所属している名前空間を返します。
+	 *
+	 * @return 名前空間
+	 */
+	public abstract String getNameSpace();
+
+
+	/**
 	 * 全ての仮引数の名称を配列として取得します。
 	 *
 	 * @return 全ての仮引数の名称を格納する配列
