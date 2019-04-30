@@ -35,6 +35,12 @@ public class FunctionTable {
 	/** 中間アセンブリコード識別子と、関数とを対応付けるマップです。同じキーの要素を複数格納するため、値をリスト化して保持します。 */
 	Map<String, LinkedList<AbstractFunction>> assemblyIdentifierFunctionMap = null;
 
+	/** 名前空間付きの関数シグネチャと、関数とを対応付けるマップです。同じキーの要素を複数格納するため、値をリスト化して保持します。 */
+	Map<String, LinkedList<AbstractFunction>> fullSignatureFunctionMap = null;
+
+	/** 名前空間付きの中間アセンブリコード識別子と、関数とを対応付けるマップです。同じキーの要素を複数格納するため、値をリスト化して保持します。 */
+	Map<String, LinkedList<AbstractFunction>> fullAssemblyIdentifierFunctionMap = null;
+
 
 	/**
 	 * 空の関数テーブルを生成します。
@@ -43,6 +49,8 @@ public class FunctionTable {
 		this.functionList = new ArrayList<AbstractFunction>();
 		this.signatureFunctionMap = new LinkedHashMap<String, LinkedList<AbstractFunction>>();
 		this.assemblyIdentifierFunctionMap = new LinkedHashMap<String, LinkedList<AbstractFunction>>();
+		this.fullSignatureFunctionMap = new LinkedHashMap<String, LinkedList<AbstractFunction>>();
+		this.fullAssemblyIdentifierFunctionMap = new LinkedHashMap<String, LinkedList<AbstractFunction>>();
 	}
 
 
@@ -56,13 +64,16 @@ public class FunctionTable {
 		// 全関数リストに追加
 		this.functionList.add(function);
 
-		// シグネチャリストに追加
+		String nameSpacePrefix = IdentifierSyntax.getNameSpacePrefixOf(function);
 		String signature = IdentifierSyntax.getSignatureOf(function);
-		IdentifierMapManager.putToMap(this.signatureFunctionMap, signature, function);
-
-		// アセンブリ識別子リストに追加
+		String fullSignature = IdentifierSyntax.getSignatureOf(function, nameSpacePrefix);
 		String assemblyIdentifier = IdentifierSyntax.getAssemblyIdentifierOf(function);
+		String fullAssemblyIdentifier = IdentifierSyntax.getAssemblyIdentifierOf(function, nameSpacePrefix);
+
+		IdentifierMapManager.putToMap(this.signatureFunctionMap, signature, function);
 		IdentifierMapManager.putToMap(this.assemblyIdentifierFunctionMap, assemblyIdentifier, function);
+		IdentifierMapManager.putToMap(this.fullSignatureFunctionMap, fullSignature, function);
+		IdentifierMapManager.putToMap(this.assemblyIdentifierFunctionMap, fullAssemblyIdentifier, function);
 	}
 
 
@@ -136,7 +147,13 @@ public class FunctionTable {
 	 * @return 登録されていればtrue
 	 */
 	public AbstractFunction getFunctionBySignature(String signature) {
-		return IdentifierMapManager.getLastFromMap(this.signatureFunctionMap, signature);
+		if (this.signatureFunctionMap.containsKey(signature)) {
+			return IdentifierMapManager.getLastFromMap(this.signatureFunctionMap, signature);
+		}
+		if (this.fullSignatureFunctionMap.containsKey(signature)) {
+			return IdentifierMapManager.getLastFromMap(this.fullSignatureFunctionMap, signature);
+		}
+		throw new VnanoFatalException("Function not found: " + signature);
 	}
 
 
@@ -148,7 +165,8 @@ public class FunctionTable {
 	 * @return 登録されていればtrue
 	 */
 	public boolean hasFunctionWithSignature(String signature) {
-		return this.signatureFunctionMap.containsKey(signature);
+		return this.signatureFunctionMap.containsKey(signature)
+				|| this.fullSignatureFunctionMap.containsKey(signature);
 	}
 
 
@@ -160,7 +178,13 @@ public class FunctionTable {
 	 * @return 対象の関数
 	 */
 	public AbstractFunction getFunctionByAssemblyIdentifier(String assemblyIdentifier) {
-		return IdentifierMapManager.getLastFromMap(this.assemblyIdentifierFunctionMap, assemblyIdentifier);
+		if (this.assemblyIdentifierFunctionMap.containsKey(assemblyIdentifier)) {
+			return IdentifierMapManager.getLastFromMap(this.assemblyIdentifierFunctionMap, assemblyIdentifier);
+		}
+		if (this.fullAssemblyIdentifierFunctionMap.containsKey(assemblyIdentifier)) {
+			return IdentifierMapManager.getLastFromMap(this.fullAssemblyIdentifierFunctionMap, assemblyIdentifier);
+		}
+		throw new VnanoFatalException("Function not found: " + assemblyIdentifier);
 	}
 
 
@@ -172,7 +196,8 @@ public class FunctionTable {
 	 * @return 登録されていればtrue
 	 */
 	public boolean hasFunctionWithAssemblyIdentifier(String assemblyIdentifier) {
-		return this.assemblyIdentifierFunctionMap.containsKey(assemblyIdentifier);
+		return this.assemblyIdentifierFunctionMap.containsKey(assemblyIdentifier)
+				|| this.fullAssemblyIdentifierFunctionMap.containsKey(assemblyIdentifier);
 	}
 
 

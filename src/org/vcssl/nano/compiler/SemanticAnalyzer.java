@@ -174,6 +174,9 @@ public class SemanticAnalyzer {
 					currentNode.setAttribute(AttributeKey.SCOPE, AttributeValue.LOCAL);
 					currentNode.setAttribute(AttributeKey.RANK, Integer.toString(variable.getRank()));
 					currentNode.setAttribute(AttributeKey.DATA_TYPE, variable.getDataTypeName());
+					if (variable.hasNameSpace()) {
+						currentNode.setAttribute(AttributeKey.NAME_SPACE, variable.getNameSpace());
+					}
 
 				// グローバル変数
 				} else if (globalVariableTable.containsVariableWithName(variableName)) {
@@ -481,11 +484,17 @@ public class SemanticAnalyzer {
 						if (localFunctionTable.hasCalleeFunctionOf(currentNode)) {
 							currentNode.setAttribute(AttributeKey.SCOPE, AttributeValue.LOCAL);
 							function = localFunctionTable.getCalleeFunctionOf(currentNode);
+							if (function.hasNameSpace()) {
+								currentNode.setAttribute(AttributeKey.NAME_SPACE, function.getNameSpace());
+							}
 
 						// グローバル関数
 						} else if (globalFunctionTable.hasCalleeFunctionOf(currentNode)) {
 							currentNode.setAttribute(AttributeKey.SCOPE, AttributeValue.GLOBAL);
 							function = globalFunctionTable.getCalleeFunctionOf(currentNode);
+							if (function.hasNameSpace()) {
+								currentNode.setAttribute(AttributeKey.NAME_SPACE, function.getNameSpace());
+							}
 
 						} else {
 							throw new VnanoException(

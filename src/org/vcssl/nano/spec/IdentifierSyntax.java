@@ -115,10 +115,14 @@ public class IdentifierSyntax {
 
 
 	public static String getSignatureOf(AbstractFunction function) {
+		return getSignatureOf(function, "");
+	}
+	public static String getSignatureOf(AbstractFunction function, String nameSpacePrefix) {
 		String[] parameterDataTypeNames = function.getParameterDataTypeNames();
 		int[] parameterArrayRanks = function.getParameterArrayRanks();
+		String functionName = nameSpacePrefix + function.getFunctionName();
 		String signature = getSignatureOf(
-				function.getFunctionName(), parameterDataTypeNames, parameterArrayRanks
+				functionName, parameterDataTypeNames, parameterArrayRanks
 		);
 
 		return signature;
@@ -139,8 +143,12 @@ public class IdentifierSyntax {
 	}
 
 	public static String getAssemblyIdentifierOf(AbstractFunction connector) {
+		return getAssemblyIdentifierOf(connector, "");
+	}
+
+	public static String getAssemblyIdentifierOf(AbstractFunction connector, String nameSpacePrefix) {
 		return AssemblyWord.OPERAND_PREFIX_IDENTIFIER
-				+ getSignatureOf(connector);
+				+ getSignatureOf(connector, nameSpacePrefix);
 	}
 
 	// 後の工程での削除候補
