@@ -416,6 +416,11 @@ public class Interconnect {
 			// グローバル変数テーブルを参照し、一意識別子から外部変数オブジェクトを取得
 			AbstractVariable variable = this.globalVariableTable.getVariableByAssemblyIdentifier(identifier);
 
+			// 書き換え不可能な定数の場合はスキップ
+			if (variable.isConstant()) {
+				continue;
+			}
+
 			// 外部変数オブジェクトにデータコンテナを渡して値を更新させる
 			variable.setDataContainer(dataContainer);
 		}
