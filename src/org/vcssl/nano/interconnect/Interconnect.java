@@ -205,7 +205,7 @@ public class Interconnect {
 
 		// XLCI 1 形式の外部関数プラグイン
 		} else if (object instanceof ExternalLibraryConnector1) {
-			this.connect( (ExternalLibraryConnector1)object, true, bindName );
+			this.connect( (ExternalLibraryConnector1)object, true, bindName, false );
 
 		// クラスフィールドの場合
 		} else if (object instanceof Field) {
@@ -309,7 +309,7 @@ public class Interconnect {
 			throws VnanoException {
 
 		ClassToXlci1Adapter adapter = new ClassToXlci1Adapter(pluginClass,instance);
-		this.connect(adapter, aliasingRequired, aliasName);
+		this.connect(adapter, aliasingRequired, aliasName, true);
 	}
 
 
@@ -359,10 +359,11 @@ public class Interconnect {
 	 * @param connector XLCI準拠の外部ライブラリ
 	 * @param aliasingRequired スクリプト内から別名でアクセスするかどうか（する場合にtrue）
 	 * @param aliasName 別名アクセスのためのライブラリ名（aliasingRequiredがtrueの場合のみ参照されます）
+	 * @param ignoreIncompatibles 接続できない関数/変数をエラーにせず無視するかどうか（する場合にtrue）
 	 * @throws VnanoException データ型などが非対応であった場合にスローされます。
 	 */
-	public void connect(ExternalLibraryConnector1 connector, boolean aliasingRequired, String aliasName)
-			throws VnanoException {
+	public void connect(ExternalLibraryConnector1 connector, boolean aliasingRequired, String aliasName,
+			boolean ignoreIncompatibles) throws VnanoException {
 
 		connector.initializeForConnection();
 
@@ -375,17 +376,29 @@ public class Interconnect {
 		// 関数をアダプタで変換して接続
 		ExternalFunctionConnector1[] xfciConnectors = connector.getFunctions();
 		for (ExternalFunctionConnector1 xfciConnector: xfciConnectors) {
-			xfciConnector.initializeForConnection();
-			AbstractFunction adapter = new Xfci1ToFunctionAdapter(xfciConnector, nameSpace);
-			this.connect(adapter, false, null);
+			try {
+				xfciConnector.initializeForConnection();
+				AbstractFunction adapter = new Xfci1ToFunctionAdapter(xfciConnector, nameSpace);
+				this.connect(adapter, false, null);
+			} catch (VnanoException e) {
+				if (!ignoreIncompatibles) {
+					throw e;
+				}
+			}
 		}
 
 		// 変数をアダプタで変換して接続
 		ExternalVariableConnector1[] xvciConnectors = connector.getVariables();
 		for (ExternalVariableConnector1 xvciConnector: xvciConnectors) {
-			xvciConnector.initializeForConnection();
-			AbstractVariable adapter = new Xvci1ToVariableAdapter(xvciConnector, nameSpace);
-			this.connect(adapter, false, null);
+			try {
+				xvciConnector.initializeForConnection();
+				AbstractVariable adapter = new Xvci1ToVariableAdapter(xvciConnector, nameSpace);
+				this.connect(adapter, false, null);
+			} catch (VnanoException e) {
+				if (!ignoreIncompatibles) {
+					throw e;
+				}
+			}
 		}
 	}
 
