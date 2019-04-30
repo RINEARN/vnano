@@ -1,4 +1,5 @@
 ./org/vcssl/connect/ArrayDataContainer1.java
+./org/vcssl/connect/ClassToXlci1Adapter.java
 ./org/vcssl/connect/ConnectorImplementationContainer.java
 ./org/vcssl/connect/ConnectorImplementationException.java
 ./org/vcssl/connect/ConnectorImplementationLoader.java
@@ -9,12 +10,12 @@
 ./org/vcssl/connect/ExternalPermission.java
 ./org/vcssl/connect/ExternalVariableConnector1.java
 ./org/vcssl/connect/ExternalVariableException.java
-./org/vcssl/connect/FieldXvci1Adapter.java
+./org/vcssl/connect/FieldToXvci1Adapter.java
 ./org/vcssl/connect/GeneralProcessConnector1.java
 ./org/vcssl/connect/GeneralProcessConnector2.java
 ./org/vcssl/connect/GeneralProcessConnector3.java
 ./org/vcssl/connect/GeneralProcessException.java
-./org/vcssl/connect/MethodXfci1Adapter.java
+./org/vcssl/connect/MethodToXfci1Adapter.java
 ./org/vcssl/connect/package-info.java
 ./org/vcssl/nano/compiler/AstNode.java
 ./org/vcssl/nano/compiler/AttributeKey.java
@@ -40,8 +41,8 @@
 ./org/vcssl/nano/interconnect/Variable.java
 ./org/vcssl/nano/interconnect/VariableAliasAdapter.java
 ./org/vcssl/nano/interconnect/VariableTable.java
-./org/vcssl/nano/interconnect/Xfci1FunctionAdapter.java
-./org/vcssl/nano/interconnect/Xvci1VariableAdapter.java
+./org/vcssl/nano/interconnect/Xfci1ToFunctionAdapter.java
+./org/vcssl/nano/interconnect/Xvci1ToVariableAdapter.java
 ./org/vcssl/nano/main/VnanoCommandLineApplication.java
 ./org/vcssl/nano/package-info.java
 ./org/vcssl/nano/spec/AssemblyWord.java
