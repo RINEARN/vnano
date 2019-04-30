@@ -162,7 +162,28 @@ public class IdentifierSyntax {
 
 	// 後で AbstractVariable がシリアルナンバーを持てるようにした場合は、持っていれば付けるべき
 	public static String getAssemblyIdentifierOf(AbstractVariable variable) {
-		return AssemblyWord.OPERAND_PREFIX_IDENTIFIER + variable.getVariableName();
+		return getAssemblyIdentifierOf(variable, "");
+	}
+
+	public static String getAssemblyIdentifierOf(AbstractVariable variable, String nameSpacePrefix) {
+		String variableName = variable.getVariableName();
+		return AssemblyWord.OPERAND_PREFIX_IDENTIFIER + nameSpacePrefix + variableName;
+	}
+
+	public static String getNameSpacePrefixOf(AbstractVariable variable) {
+		if (variable.hasNameSpace()) {
+			return variable.getNameSpace() + ScriptWord.NAME_SPACE_SEPARATOR;
+		} else {
+			return "";
+		}
+	}
+
+	public static String getNameSpacePrefixOf(AbstractFunction function) {
+		if (function.hasNameSpace()) {
+			return function.getNameSpace() + ScriptWord.NAME_SPACE_SEPARATOR;
+		} else {
+			return "";
+		}
 	}
 
 }

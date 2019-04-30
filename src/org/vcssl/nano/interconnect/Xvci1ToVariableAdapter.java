@@ -5,7 +5,6 @@
 
 package org.vcssl.nano.interconnect;
 
-import org.vcssl.connect.ExternalFunctionConnector1;
 import org.vcssl.connect.ExternalVariableConnector1;
 import org.vcssl.connect.ExternalVariableException;
 import org.vcssl.nano.VnanoFatalException;

@@ -182,6 +182,9 @@ public class SemanticAnalyzer {
 					currentNode.setAttribute(AttributeKey.SCOPE, AttributeValue.GLOBAL);
 					currentNode.setAttribute(AttributeKey.RANK, Integer.toString(variable.getRank()));
 					currentNode.setAttribute(AttributeKey.DATA_TYPE, variable.getDataTypeName());
+					if (variable.hasNameSpace()) {
+						currentNode.setAttribute(AttributeKey.NAME_SPACE, variable.getNameSpace());
+					}
 
 				} else {
 					throw new VnanoException(

@@ -50,6 +50,9 @@ public enum AttributeKey {
 	/** スコープ情報を保持する属性のキーです。 */
 	SCOPE,
 
+	/** 名前空間を保持する属性のキーです。 */
+	NAME_SPACE,
+
 	/** 始点ラベルを保持する属性のキーです。 */
 	BEGIN_LABEL,
 

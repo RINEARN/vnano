@@ -18,7 +18,6 @@ import org.vcssl.connect.ExternalVariableConnector1;
 import org.vcssl.connect.FieldToXvci1Adapter;
 import org.vcssl.connect.MethodToXfci1Adapter;
 import org.vcssl.nano.VnanoFatalException;
-import org.vcssl.nano.spec.ErrorType;
 import org.vcssl.nano.vm.VirtualMachineObjectCode;
 import org.vcssl.nano.vm.memory.DataContainer;
 import org.vcssl.nano.vm.memory.Memory;
