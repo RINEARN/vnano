@@ -18,6 +18,9 @@ import org.vcssl.connect.ExternalVariableConnector1;
 import org.vcssl.connect.FieldToXvci1Adapter;
 import org.vcssl.connect.MethodToXfci1Adapter;
 import org.vcssl.nano.VnanoFatalException;
+import org.vcssl.nano.spec.ErrorType;
+import org.vcssl.nano.spec.IdentifierSyntax;
+import org.vcssl.nano.spec.OptionName;
 import org.vcssl.nano.vm.VirtualMachineObjectCode;
 import org.vcssl.nano.vm.memory.DataContainer;
 import org.vcssl.nano.vm.memory.Memory;
@@ -187,6 +190,10 @@ public class Interconnect {
 	 */
 	private void bind(String bindName, Object object) throws VnanoException {
 
+		if (bindName.equals(OptionName.AUTO_KEY)) {
+			bindName = this.generateBindingKey(object);
+		}
+
 		// 内部変数と互換の変数オブジェクト
 		if (object instanceof AbstractVariable) {
 			this.connect( (AbstractVariable)object, true, bindName );
@@ -230,7 +237,7 @@ public class Interconnect {
 				Object instance = objects[1];    // [1] はフィールドの所属インスタンス
 				this.connect( field, instance, true, bindName );
 
-			// インスタンスフィールドの場合 >> 引数からMethodとインスタンスを取り出し、外部関数として接続
+			// インスタンスメソッドの場合 >> 引数からMethodとインスタンスを取り出し、外部関数として接続
 			} else if (objects.length == 2 && objects[0] instanceof Method) {
 				Method method = (Method)objects[0]; // [0] はメソッドのリフレクション
 				Object instance = objects[1];       // [1] はメソッドの所属インスタンス
@@ -241,19 +248,93 @@ public class Interconnect {
 				Class<?> pluginClass = (Class<?>)objects[0];
 				Object instance = objects[1];
 				this.connect( pluginClass, instance, true, bindName );
+			} else {
+				throw new VnanoException(
+					ErrorType.UNSUPPORTED_PLUGIN, new String[] {objects[0].getClass().getCanonicalName()}
+				);
 			}
 
 		// その他のオブジェクトは、Classを取得して外部ライブラリとして接続
 		} else {
 			Class<?> pluginClass = object.getClass();
 			this.connect( pluginClass, object, true, bindName );
+		}
+	}
 
-		/*
+
+	/**
+	 * 指定されたオブジェクトをバインディングするためのキーを、自動で生成します。
+	 *
+	 * @param object バインディングしたいオブジェクト
+	 * @return キー
+	 * @throws VnanoException 接続不可能なオブジェクトが引数に指定された場合にスローされます。
+	 */
+	public String generateBindingKey(Object object) throws VnanoException {
+
+		// 内部変数と互換の変数オブジェクト
+		if (object instanceof AbstractVariable) {
+			return ((AbstractVariable)object).getVariableName();
+
+		// 内部関数と互換の変数オブジェクト
+		} else if (object instanceof AbstractFunction) {
+			return IdentifierSyntax.getSignatureOf((AbstractFunction)object);
+
+		// XVCI 1 形式の外部変数プラグイン
+		} else if (object instanceof ExternalVariableConnector1) {
+			return ((ExternalVariableConnector1)object).getVariableName();
+
+		// XFCI 1 形式の外部関数プラグイン
+		} else if (object instanceof ExternalFunctionConnector1) {
+			AbstractFunction functionAdapter = new Xfci1ToFunctionAdapter((ExternalFunctionConnector1)object);
+			return IdentifierSyntax.getSignatureOf(functionAdapter);
+
+		// XLCI 1 形式の外部関数プラグイン
+		} else if (object instanceof ExternalLibraryConnector1) {
+			return ((ExternalLibraryConnector1)object).getLibraryName();
+
+		// クラスフィールドの場合
+		} else if (object instanceof Field) {
+			return ((Field)object).getName();
+
+		// クラスメソッドの場合
+		} else if (object instanceof Method) {
+			ExternalFunctionConnector1 xfci1Adapter = new MethodToXfci1Adapter((Method)object);
+			AbstractFunction functionAdapter = new Xfci1ToFunctionAdapter(xfci1Adapter);
+			return IdentifierSyntax.getSignatureOf(functionAdapter);
+
+		// クラスの場合
+		} else if (object instanceof Class) {
+			return ((Class<?>)object).getCanonicalName();
+
+		// インスタンスフィールドやインスタンスメソッド等は、所属インスタンスも格納する配列で渡される
+		} else if (object instanceof Object[]) {
+
+			Object[] objects = (Object[])object;
+
+			// インスタンスフィールドの場合
+			if (objects.length == 2 && objects[0] instanceof Field) {
+				Field field = (Field)objects[0]; // [0] はフィールドのリフレクション
+				return this.generateBindingKey(field);
+
+			// インスタンスメソッドの場合
+			} else if (objects.length == 2 && objects[0] instanceof Method) {
+				Method method = (Method)objects[0]; // [0] はメソッドのリフレクション
+				return this.generateBindingKey(method);
+
+			// クラスの場合 >> 引数からClassとインスタンスを取り出し、外部ライブラリとして接続
+			} else if (objects.length == 2 && objects[0] instanceof Class) {
+				Class<?> pluginClass = (Class<?>)objects[0];
+				return this.generateBindingKey(pluginClass);
+			} else {
+				throw new VnanoException(
+					ErrorType.UNSUPPORTED_PLUGIN, new String[] {objects[0].getClass().getCanonicalName()}
+				);
+			}
+
+		// その他のオブジェクトは、Classを取得して外部ライブラリとして接続
 		} else {
-			throw new VnanoException(
-				ErrorType.UNSUPPORTED_PLUGIN, new String[] {object.getClass().getCanonicalName()}
-			);
-		*/
+			Class<?> pluginClass = object.getClass();
+			return this.generateBindingKey(pluginClass);
 		}
 	}
 
