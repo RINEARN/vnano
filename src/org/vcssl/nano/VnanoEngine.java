@@ -162,6 +162,18 @@ public class VnanoEngine implements ScriptEngine {
 	@Override
 	public void put(String name, Object value) {
 
+		// キーを自動生成するよう設定されている場合は、キーを置き換え
+		if (name.equals(OptionName.AUTO_KEY)) {
+			try {
+				name = Interconnect.generateBindingKey(value);
+			} catch (VnanoException e) {
+				throw new VnanoFatalException(
+					"A binding key of \"" + value.getClass().getCanonicalName()
+					+ "\" could not be generted automatically."
+				);
+			}
+		}
+
 		// オプションの場合
 		if (name.equals(OptionName.OPTION_MAP)) {
 			if (value instanceof Map) {
@@ -169,7 +181,9 @@ public class VnanoEngine implements ScriptEngine {
 				Map<String, Object> castedMap = (Map<String, Object>)value;
 				this.setOptions(castedMap);
 			} else {
-				throw new VnanoFatalException("The type of \"" + OptionName.OPTION_MAP + "\" should be \"Map<String,Object>\"");
+				throw new VnanoFatalException(
+					"The type of \"" + OptionName.OPTION_MAP + "\" should be \"Map<String,Object>\""
+				);
 			}
 
 		// 外部変数/関数のバインディングの場合
