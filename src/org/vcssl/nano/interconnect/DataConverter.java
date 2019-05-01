@@ -461,7 +461,7 @@ public class DataConverter {
 				for (int dataIndex=0; dataIndex<dataLength; dataIndex++) {
 					((long[])data)[dataIndex] = ((int[])object)[dataIndex];
 				}
-				((DataContainer<long[]>)resultDataContainer).setData(data);
+				((DataContainer<long[]>)resultDataContainer).setData(data, arrayLength);
 				break;
 			}
 			case INT64 : {
@@ -511,7 +511,7 @@ public class DataConverter {
 				for (int dataIndex=0; dataIndex<dataLength; dataIndex++) {
 					((String[])data)[dataIndex] = ((String[])object)[dataIndex];
 				}
-				((DataContainer<String[]>)resultDataContainer).setData(data);
+				((DataContainer<String[]>)resultDataContainer).setData(data, arrayLength);
 				break;
 			}
 			case VOID : {

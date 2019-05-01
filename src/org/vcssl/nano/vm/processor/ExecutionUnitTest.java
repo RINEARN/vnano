@@ -27,206 +27,6 @@ public class ExecutionUnitTest {
 	public void tearDown() throws Exception {
 	}
 
-	@Test
-	public void test() {
-
-		// ADD命令
-
-		this.testAddInt64Scalar();
-		this.testAddInt64Vector();
-		this.testAddFloat64Scalar();
-		this.testAddFloat64Vector();
-		this.testAddStringScalar();
-		this.testAddStringVector();
-		this.testAddUnoperatableData();
-
-		// SUB命令
-
-		this.testSubInt64Scalar();
-		this.testSubInt64Vector();
-		this.testSubFloat64Scalar();
-		this.testSubFloat64Vector();
-		this.testSubUnoperatableData();
-
-		// MUL命令
-
-		this.testMulInt64Scalar();
-		this.testMulInt64Vector();
-		this.testMulFloat64Scalar();
-		this.testMulFloat64Vector();
-		this.testMulUnoperatableData();
-
-		// DIV命令
-
-		this.testDivInt64Scalar();
-		this.testDivInt64Vector();
-		this.testDivFloat64Scalar();
-		this.testDivFloat64Vector();
-		this.testDivUnoperatableData();
-
-		// REM命令
-
-		this.testRemInt64Scalar();
-		this.testRemInt64Vector();
-		this.testRemFloat64Scalar();
-		this.testRemFloat64Vector();
-		this.testRemUnoperatableData();
-
-		// NEG命令
-
-		this.testNegInt64Scalar();
-		this.testNegInt64Vector();
-		this.testNegFloat64Scalar();
-		this.testNegFloat64Vector();
-		this.testNegUnoperatableData();
-
-		// EQ命令
-
-		this.testEqInt64Scalar();
-		this.testEqInt64Vector();
-		this.testEqFloat64Scalar();
-		this.testEqFloat64Vector();
-		this.testEqStringScalar();
-		this.testEqStringVector();
-		this.testEqBoolScalar();
-		this.testEqBoolVector();
-		this.testEqUnoperatableData();
-
-		// NEQ命令
-
-		this.testNeqInt64Scalar();
-		this.testNeqInt64Vector();
-		this.testNeqFloat64Scalar();
-		this.testNeqFloat64Vector();
-		this.testNeqStringScalar();
-		this.testNeqStringVector();
-		this.testNeqBoolScalar();
-		this.testNeqBoolVector();
-		this.testNeqUnoperatableData();
-
-		// GEQ命令
-
-		this.testGeqInt64Scalar();
-		this.testGeqInt64Vector();
-		this.testGeqFloat64Scalar();
-		this.testGeqFloat64Vector();
-		this.testGeqUnoperatableData();
-
-		// LEQ命令
-
-		this.testLeqInt64Scalar();
-		this.testLeqInt64Vector();
-		this.testLeqFloat64Scalar();
-		this.testLeqFloat64Vector();
-		this.testLeqUnoperatableData();
-
-		// GT命令
-
-		this.testGtInt64Scalar();
-		this.testGtInt64Vector();
-		this.testGtFloat64Scalar();
-		this.testGtFloat64Vector();
-		this.testGtUnoperatableData();
-
-		// LT命令
-
-		this.testLtInt64Scalar();
-		this.testLtInt64Vector();
-		this.testLtFloat64Scalar();
-		this.testLtFloat64Vector();
-		this.testLtUnoperatableData();
-
-		// AND命令
-
-		this.testAndBoolScalar();
-		this.testAndBoolVector();
-		this.testAndUnoperatableData();
-
-		// OR命令
-
-		this.testOrBoolScalar();
-		this.testOrBoolVector();
-		this.testOrUnoperatableData();
-
-		// NOT命令
-
-		this.testNotBoolScalar();
-		this.testNotBoolVector();
-		this.testNotUnoperatableData();
-
-		// ALLOC命令
-
-		this.testAllocInt64Scalar();
-		this.testAllocInt64Array1D();
-		this.testAllocInt64Array3D();
-		this.testAllocFloat64Scalar();
-		this.testAllocFloat64Array1D();
-		this.testAllocFloat64Array3D();
-		this.testAllocBoolScalar();
-		this.testAllocBoolArray1D();
-		this.testAllocBoolArray3D();
-		this.testAllocStringScalar();
-		this.testAllocStringArray1D();
-		this.testAllocStringArray3D();
-		this.testAllocUnoperatableData();
-
-		// MOV命令
-
-		this.testMovInt64Scalar();
-		this.testMovInt64Vector();
-		this.testMovFloat64Scalar();
-		this.testMovFloat64Vector();
-		this.testMovBoolScalar();
-		this.testMovBoolVector();
-		this.testMovStringScalar();
-		this.testMovStringVector();
-		this.testMovUnoperatableData();
-
-		// FILL命令
-
-		this.testFillInt64();
-		this.testFillFloat64();
-		this.testFillBool();
-		this.testFillString();
-		this.testFillUnoperatableData();
-
-		// ELEM命令
-
-		this.testElemInt64();
-		this.testElemFloat64();
-		this.testElemBool();
-		this.testElemString();
-		this.testElemUnoperatableData();
-
-		// CAST命令
-
-		this.testCastInt64Int64Scalar();
-		this.testCastInt64Int64Vector();
-		this.testCastInt64Float64Scalar();
-		this.testCastInt64Float64Vector();
-		this.testCastInt64StringScalar();
-		this.testCastInt64StringVector();
-		this.testCastFloat64Float64Scalar();
-		this.testCastFloat64Float64Vector();
-		this.testCastFloat64Int64Scalar();
-		this.testCastFloat64Int64Vector();
-		this.testCastFloat64StringScalar();
-		this.testCastFloat64StringVector();
-		this.testCastBoolBoolScalar();
-		this.testCastBoolBoolVector();
-		this.testCastBoolStringScalar();
-		this.testCastBoolStringVector();
-		this.testCastStringStringScalar();
-		this.testCastStringStringVector();
-		this.testCastStringInt64Scalar();
-		this.testCastStringInt64Vector();
-		this.testCastStringFloat64Scalar();
-		this.testCastStringFloat64Vector();
-		this.testCastStringBoolScalar();
-		this.testCastStringBoolVector();
-		this.testCastUnoperatableData();
-	}
-
 
 	// ==================================================
 	// add
@@ -236,7 +36,8 @@ public class ExecutionUnitTest {
 	// add, INT64 (long)
 	// --------------------------------------------------
 
-	private void testAddInt64Scalar() {
+	@Test
+	public void testAddInt64Scalar() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<long[]> output = new DataContainer<long[]>();
@@ -279,7 +80,8 @@ public class ExecutionUnitTest {
 		}
 	}
 
-	private void testAddInt64Vector() {
+	@Test
+	public void testAddInt64Vector() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<long[]> output = new DataContainer<long[]>();
@@ -308,7 +110,8 @@ public class ExecutionUnitTest {
 	// add, FLOAT64 (double)
 	// --------------------------------------------------
 
-	private void testAddFloat64Scalar() {
+	@Test
+	public void testAddFloat64Scalar() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<double[]> output = new DataContainer<double[]>();
@@ -351,7 +154,8 @@ public class ExecutionUnitTest {
 		}
 	}
 
-	private void testAddFloat64Vector() {
+	@Test
+	public void testAddFloat64Vector() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<double[]> output = new DataContainer<double[]>();
@@ -380,7 +184,8 @@ public class ExecutionUnitTest {
 	// add, STRING(String)
 	// --------------------------------------------------
 
-	private void testAddStringScalar() {
+	@Test
+	public void testAddStringScalar() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<String[]> output = new DataContainer<String[]>();
@@ -423,7 +228,8 @@ public class ExecutionUnitTest {
 		}
 	}
 
-	private void testAddStringVector() {
+	@Test
+	public void testAddStringVector() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<String[]> output = new DataContainer<String[]>();
@@ -455,7 +261,8 @@ public class ExecutionUnitTest {
 	// add, Unoperatable type (e.g. BOOL)
 	// --------------------------------------------------
 
-	private void testAddUnoperatableData() {
+	@Test
+	public void testAddUnoperatableData() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
@@ -506,7 +313,8 @@ public class ExecutionUnitTest {
 	// sub, INT64 (long)
 	// --------------------------------------------------
 
-	private void testSubInt64Scalar() {
+	@Test
+	public void testSubInt64Scalar() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<long[]> output = new DataContainer<long[]>();
@@ -549,7 +357,8 @@ public class ExecutionUnitTest {
 		}
 	}
 
-	private void testSubInt64Vector() {
+	@Test
+	public void testSubInt64Vector() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<long[]> output = new DataContainer<long[]>();
@@ -577,7 +386,8 @@ public class ExecutionUnitTest {
 	// sub, FLOAT64 (double)
 	// --------------------------------------------------
 
-	private void testSubFloat64Scalar() {
+	@Test
+	public void testSubFloat64Scalar() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<double[]> output = new DataContainer<double[]>();
@@ -620,7 +430,8 @@ public class ExecutionUnitTest {
 		}
 	}
 
-	private void testSubFloat64Vector() {
+	@Test
+	public void testSubFloat64Vector() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<double[]> output = new DataContainer<double[]>();
@@ -648,7 +459,8 @@ public class ExecutionUnitTest {
 	// sub, Unoperatable type (e.g. BOOL)
 	// --------------------------------------------------
 
-	private void testSubUnoperatableData() {
+	@Test
+	public void testSubUnoperatableData() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
@@ -693,7 +505,8 @@ public class ExecutionUnitTest {
 	// mul, INTT64 (long)
 	// --------------------------------------------------
 
-	private void testMulInt64Scalar() {
+	@Test
+	public void testMulInt64Scalar() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<long[]> output = new DataContainer<long[]>();
@@ -736,7 +549,8 @@ public class ExecutionUnitTest {
 		}
 	}
 
-	private void testMulInt64Vector() {
+	@Test
+	public void testMulInt64Vector() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<long[]> output = new DataContainer<long[]>();
@@ -764,7 +578,8 @@ public class ExecutionUnitTest {
 	// mul, FLOAT64 (double)
 	// --------------------------------------------------
 
-	private void testMulFloat64Scalar() {
+	@Test
+	public void testMulFloat64Scalar() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<double[]> output = new DataContainer<double[]>();
@@ -807,7 +622,8 @@ public class ExecutionUnitTest {
 		}
 	}
 
-	private void testMulFloat64Vector() {
+	@Test
+	public void testMulFloat64Vector() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<double[]> output = new DataContainer<double[]>();
@@ -836,7 +652,8 @@ public class ExecutionUnitTest {
 	// mul, Unoperatable type (e.g. BOOL)
 	// --------------------------------------------------
 
-	private void testMulUnoperatableData() {
+	@Test
+	public void testMulUnoperatableData() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
@@ -881,7 +698,8 @@ public class ExecutionUnitTest {
 	// div, INTT64 (long)
 	// --------------------------------------------------
 
-	private void testDivInt64Scalar() {
+	@Test
+	public void testDivInt64Scalar() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<long[]> output = new DataContainer<long[]>();
@@ -924,7 +742,8 @@ public class ExecutionUnitTest {
 		}
 	}
 
-	private void testDivInt64Vector() {
+	@Test
+	public void testDivInt64Vector() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<long[]> output = new DataContainer<long[]>();
@@ -954,7 +773,8 @@ public class ExecutionUnitTest {
 	// div, FLOAT64 (double)
 	// --------------------------------------------------
 
-	private void testDivFloat64Scalar() {
+	@Test
+	public void testDivFloat64Scalar() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<double[]> output = new DataContainer<double[]>();
@@ -997,7 +817,8 @@ public class ExecutionUnitTest {
 		}
 	}
 
-	private void testDivFloat64Vector() {
+	@Test
+	public void testDivFloat64Vector() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<double[]> output = new DataContainer<double[]>();
@@ -1026,7 +847,8 @@ public class ExecutionUnitTest {
 	// div, Unoperatable type (e.g. BOOL)
 	// --------------------------------------------------
 
-	private void testDivUnoperatableData() {
+	@Test
+	public void testDivUnoperatableData() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
@@ -1071,7 +893,8 @@ public class ExecutionUnitTest {
 	// rem, INTT64 (long)
 	// --------------------------------------------------
 
-	private void testRemInt64Scalar() {
+	@Test
+	public void testRemInt64Scalar() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<long[]> output = new DataContainer<long[]>();
@@ -1114,7 +937,8 @@ public class ExecutionUnitTest {
 		}
 	}
 
-	private void testRemInt64Vector() {
+	@Test
+	public void testRemInt64Vector() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<long[]> output = new DataContainer<long[]>();
@@ -1144,7 +968,8 @@ public class ExecutionUnitTest {
 	// rem, FLOAT64 (double)
 	// --------------------------------------------------
 
-	private void testRemFloat64Scalar() {
+	@Test
+	public void testRemFloat64Scalar() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<double[]> output = new DataContainer<double[]>();
@@ -1187,7 +1012,8 @@ public class ExecutionUnitTest {
 		}
 	}
 
-	private void testRemFloat64Vector() {
+	@Test
+	public void testRemFloat64Vector() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<double[]> output = new DataContainer<double[]>();
@@ -1221,7 +1047,8 @@ public class ExecutionUnitTest {
 	// rem, Unoperatable type (e.g. BOOL)
 	// --------------------------------------------------
 
-	private void testRemUnoperatableData() {
+	@Test
+	public void testRemUnoperatableData() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
@@ -1266,7 +1093,8 @@ public class ExecutionUnitTest {
 	// neg, INTT64 (long)
 	// --------------------------------------------------
 
-	private void testNegInt64Scalar() {
+	@Test
+	public void testNegInt64Scalar() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<long[]> output = new DataContainer<long[]>();
@@ -1306,7 +1134,8 @@ public class ExecutionUnitTest {
 		}
 	}
 
-	private void testNegInt64Vector() {
+	@Test
+	public void testNegInt64Vector() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<long[]> output = new DataContainer<long[]>();
@@ -1332,7 +1161,8 @@ public class ExecutionUnitTest {
 	// neg, INTT64 (long)
 	// --------------------------------------------------
 
-	private void testNegFloat64Scalar() {
+	@Test
+	public void testNegFloat64Scalar() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<double[]> output = new DataContainer<double[]>();
@@ -1372,7 +1202,8 @@ public class ExecutionUnitTest {
 		}
 	}
 
-	private void testNegFloat64Vector() {
+	@Test
+	public void testNegFloat64Vector() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<double[]> output = new DataContainer<double[]>();
@@ -1398,7 +1229,8 @@ public class ExecutionUnitTest {
 	// neg, Unoperatable type (e.g. BOOL)
 	// --------------------------------------------------
 
-	private void testNegUnoperatableData() {
+	@Test
+	public void testNegUnoperatableData() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
@@ -1441,7 +1273,8 @@ public class ExecutionUnitTest {
 	// eq, INT64 (long)
 	// --------------------------------------------------
 
-	private void testEqInt64Scalar() {
+	@Test
+	public void testEqInt64Scalar() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
@@ -1506,7 +1339,8 @@ public class ExecutionUnitTest {
 		}
 	}
 
-	private void testEqInt64Vector() {
+	@Test
+	public void testEqInt64Vector() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
@@ -1535,7 +1369,8 @@ public class ExecutionUnitTest {
 	// eq, FLOAT64 (long)
 	// --------------------------------------------------
 
-	private void testEqFloat64Scalar() {
+	@Test
+	public void testEqFloat64Scalar() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
@@ -1600,7 +1435,8 @@ public class ExecutionUnitTest {
 		}
 	}
 
-	private void testEqFloat64Vector() {
+	@Test
+	public void testEqFloat64Vector() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
@@ -1629,7 +1465,8 @@ public class ExecutionUnitTest {
 	// eq, STRING (String)
 	// --------------------------------------------------
 
-	private void testEqStringScalar() {
+	@Test
+	public void testEqStringScalar() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
@@ -1694,7 +1531,8 @@ public class ExecutionUnitTest {
 		}
 	}
 
-	private void testEqStringVector() {
+	@Test
+	public void testEqStringVector() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
@@ -1723,7 +1561,8 @@ public class ExecutionUnitTest {
 	// eq, BOOL (boolean)
 	// --------------------------------------------------
 
-	private void testEqBoolScalar() {
+	@Test
+	public void testEqBoolScalar() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
@@ -1788,7 +1627,8 @@ public class ExecutionUnitTest {
 		}
 	}
 
-	private void testEqBoolVector() {
+	@Test
+	public void testEqBoolVector() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
@@ -1816,7 +1656,8 @@ public class ExecutionUnitTest {
 	// eq, Unoperatable type (e.g. VOID)
 	// --------------------------------------------------
 
-	private void testEqUnoperatableData() {
+	@Test
+	public void testEqUnoperatableData() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
@@ -1847,7 +1688,8 @@ public class ExecutionUnitTest {
 	// neq, INT64 (long)
 	// --------------------------------------------------
 
-	private void testNeqInt64Scalar() {
+	@Test
+	public void testNeqInt64Scalar() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
@@ -1912,7 +1754,8 @@ public class ExecutionUnitTest {
 		}
 	}
 
-	private void testNeqInt64Vector() {
+	@Test
+	public void testNeqInt64Vector() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
@@ -1940,7 +1783,8 @@ public class ExecutionUnitTest {
 	// neq, FLOAT64 (long)
 	// --------------------------------------------------
 
-	private void testNeqFloat64Scalar() {
+	@Test
+	public void testNeqFloat64Scalar() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
@@ -2005,7 +1849,8 @@ public class ExecutionUnitTest {
 		}
 	}
 
-	private void testNeqFloat64Vector() {
+	@Test
+	public void testNeqFloat64Vector() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
@@ -2033,7 +1878,8 @@ public class ExecutionUnitTest {
 	// neq, STRING (String)
 	// --------------------------------------------------
 
-	private void testNeqStringScalar() {
+	@Test
+	public void testNeqStringScalar() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
@@ -2098,7 +1944,8 @@ public class ExecutionUnitTest {
 		}
 	}
 
-	private void testNeqStringVector() {
+	@Test
+	public void testNeqStringVector() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
@@ -2127,7 +1974,8 @@ public class ExecutionUnitTest {
 	// neq, BOOL (boolean)
 	// --------------------------------------------------
 
-	private void testNeqBoolScalar() {
+	@Test
+	public void testNeqBoolScalar() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
@@ -2192,7 +2040,8 @@ public class ExecutionUnitTest {
 		}
 	}
 
-	private void testNeqBoolVector() {
+	@Test
+	public void testNeqBoolVector() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
@@ -2220,7 +2069,8 @@ public class ExecutionUnitTest {
 	// neq, Unoperatable type (e.g. VOID)
 	// --------------------------------------------------
 
-	private void testNeqUnoperatableData() {
+	@Test
+	public void testNeqUnoperatableData() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
@@ -2248,7 +2098,8 @@ public class ExecutionUnitTest {
 	// geq, INT64 (long)
 	// --------------------------------------------------
 
-	private void testGeqInt64Scalar() {
+	@Test
+	public void testGeqInt64Scalar() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
@@ -2335,8 +2186,8 @@ public class ExecutionUnitTest {
 		}
 	}
 
-
-	private void testGeqInt64Vector() {
+	@Test
+	public void testGeqInt64Vector() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
@@ -2364,7 +2215,8 @@ public class ExecutionUnitTest {
 	// geq, FLOAT64 (long)
 	// --------------------------------------------------
 
-	private void testGeqFloat64Scalar() {
+	@Test
+	public void testGeqFloat64Scalar() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
@@ -2451,7 +2303,8 @@ public class ExecutionUnitTest {
 		}
 	}
 
-	private void testGeqFloat64Vector() {
+	@Test
+	public void testGeqFloat64Vector() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
@@ -2479,7 +2332,8 @@ public class ExecutionUnitTest {
 	// geq, Unoperatable type (e.g. BOOL)
 	// --------------------------------------------------
 
-	private void testGeqUnoperatableData() {
+	@Test
+	public void testGeqUnoperatableData() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
@@ -2522,7 +2376,8 @@ public class ExecutionUnitTest {
 	// leq, INT64 (long)
 	// --------------------------------------------------
 
-	private void testLeqInt64Scalar() {
+	@Test
+	public void testLeqInt64Scalar() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
@@ -2609,7 +2464,8 @@ public class ExecutionUnitTest {
 		}
 	}
 
-	private void testLeqInt64Vector() {
+	@Test
+	public void testLeqInt64Vector() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
@@ -2637,7 +2493,8 @@ public class ExecutionUnitTest {
 	// leq, FLOAT64 (long)
 	// --------------------------------------------------
 
-	private void testLeqFloat64Scalar() {
+	@Test
+	public void testLeqFloat64Scalar() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
@@ -2724,7 +2581,8 @@ public class ExecutionUnitTest {
 		}
 	}
 
-	private void testLeqFloat64Vector() {
+	@Test
+	public void testLeqFloat64Vector() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
@@ -2752,7 +2610,8 @@ public class ExecutionUnitTest {
 	// leq, Unoperatable type (e.g. BOOL)
 	// --------------------------------------------------
 
-	private void testLeqUnoperatableData() {
+	@Test
+	public void testLeqUnoperatableData() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
@@ -2797,7 +2656,8 @@ public class ExecutionUnitTest {
 	// gt, INT64 (long)
 	// --------------------------------------------------
 
-	private void testGtInt64Scalar() {
+	@Test
+	public void testGtInt64Scalar() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
@@ -2884,7 +2744,8 @@ public class ExecutionUnitTest {
 		}
 	}
 
-	private void testGtInt64Vector() {
+	@Test
+	public void testGtInt64Vector() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
@@ -2912,7 +2773,8 @@ public class ExecutionUnitTest {
 	// gt, FLOAT64 (long)
 	// --------------------------------------------------
 
-	private void testGtFloat64Scalar() {
+	@Test
+	public void testGtFloat64Scalar() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
@@ -2999,7 +2861,8 @@ public class ExecutionUnitTest {
 		}
 	}
 
-	private void testGtFloat64Vector() {
+	@Test
+	public void testGtFloat64Vector() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
@@ -3027,7 +2890,8 @@ public class ExecutionUnitTest {
 	// gt, Unoperatable type (e.g. BOOL)
 	// --------------------------------------------------
 
-	private void testGtUnoperatableData() {
+	@Test
+	public void testGtUnoperatableData() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
@@ -3070,7 +2934,8 @@ public class ExecutionUnitTest {
 	// lt, INT64 (long)
 	// --------------------------------------------------
 
-	private void testLtInt64Scalar() {
+	@Test
+	public void testLtInt64Scalar() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
@@ -3157,7 +3022,8 @@ public class ExecutionUnitTest {
 		}
 	}
 
-	private void testLtInt64Vector() {
+	@Test
+	public void testLtInt64Vector() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
@@ -3185,7 +3051,8 @@ public class ExecutionUnitTest {
 	// lt, FLOAT64 (long)
 	// --------------------------------------------------
 
-	private void testLtFloat64Scalar() {
+	@Test
+	public void testLtFloat64Scalar() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
@@ -3272,7 +3139,8 @@ public class ExecutionUnitTest {
 		}
 	}
 
-	private void testLtFloat64Vector() {
+	@Test
+	public void testLtFloat64Vector() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
@@ -3300,7 +3168,8 @@ public class ExecutionUnitTest {
 	// lt, Unoperatable type (e.g. BOOL)
 	// --------------------------------------------------
 
-	private void testLtUnoperatableData() {
+	@Test
+	public void testLtUnoperatableData() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
@@ -3343,7 +3212,8 @@ public class ExecutionUnitTest {
 	// and, BOOL (boolean)
 	// --------------------------------------------------
 
-	private void testAndBoolScalar() {
+	@Test
+	public void testAndBoolScalar() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
@@ -3452,7 +3322,8 @@ public class ExecutionUnitTest {
 		}
 	}
 
-	private void testAndBoolVector() {
+	@Test
+	public void testAndBoolVector() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
@@ -3484,7 +3355,8 @@ public class ExecutionUnitTest {
 	// and, Unoperatable type (e.g. FLOAT64)
 	// --------------------------------------------------
 
-	private void testAndUnoperatableData() {
+	@Test
+	public void testAndUnoperatableData() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
@@ -3521,7 +3393,8 @@ public class ExecutionUnitTest {
 	// or, BOOL (boolean)
 	// --------------------------------------------------
 
-	private void testOrBoolScalar() {
+	@Test
+	public void testOrBoolScalar() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
@@ -3630,7 +3503,8 @@ public class ExecutionUnitTest {
 		}
 	}
 
-	private void testOrBoolVector() {
+	@Test
+	public void testOrBoolVector() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
@@ -3662,7 +3536,8 @@ public class ExecutionUnitTest {
 	// or, Unoperatable type (e.g. FLOAT64)
 	// --------------------------------------------------
 
-	private void testOrUnoperatableData() {
+	@Test
+	public void testOrUnoperatableData() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
@@ -3699,7 +3574,8 @@ public class ExecutionUnitTest {
 	// not, BOOL (boolean)
 	// --------------------------------------------------
 
-	private void testNotBoolScalar() {
+	@Test
+	public void testNotBoolScalar() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
@@ -3761,7 +3637,8 @@ public class ExecutionUnitTest {
 		}
 	}
 
-	private void testNotBoolVector() {
+	@Test
+	public void testNotBoolVector() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
@@ -3784,10 +3661,11 @@ public class ExecutionUnitTest {
 	}
 
 	// --------------------------------------------------
-	// or, Unoperatable type (e.g. FLOAT64)
+	// not, Unoperatable type (e.g. FLOAT64)
 	// --------------------------------------------------
 
-	private void testNotUnoperatableData() {
+	@Test
+	public void testNotUnoperatableData() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<double[]> output = new DataContainer<double[]>();
@@ -3824,7 +3702,8 @@ public class ExecutionUnitTest {
 	// alloc, INT64 (long)
 	// --------------------------------------------------
 
-	private void testAllocInt64Scalar() {
+	@Test
+	public void testAllocInt64Scalar() {
 
 		// 確保用のデータコンテナを生成して値をセット
 		DataContainer<?> target = new DataContainer<Object>();
@@ -3848,7 +3727,8 @@ public class ExecutionUnitTest {
 		}
 	}
 
-	private void testAllocInt64Array1D() {
+	@Test
+	public void testAllocInt64Array1D() {
 
 		// 確保用のデータコンテナを生成して値をセット
 		DataContainer<?> target = new DataContainer<Object>();
@@ -3914,7 +3794,8 @@ public class ExecutionUnitTest {
 		}
 	}
 
-	private void testAllocInt64Array3D() {
+	@Test
+	public void testAllocInt64Array3D() {
 
 		// 確保用のデータコンテナを生成して値をセット
 		DataContainer<?> target = new DataContainer<Object>();
@@ -4000,7 +3881,8 @@ public class ExecutionUnitTest {
 	// alloc, FLOAT64 (double)
 	// --------------------------------------------------
 
-	private void testAllocFloat64Scalar() {
+	@Test
+	public void testAllocFloat64Scalar() {
 
 		// 確保用のデータコンテナを生成して値をセット
 		DataContainer<?> target = new DataContainer<Object>();
@@ -4024,7 +3906,8 @@ public class ExecutionUnitTest {
 		}
 	}
 
-	private void testAllocFloat64Array1D() {
+	@Test
+	public void testAllocFloat64Array1D() {
 
 		// 確保用のデータコンテナを生成して値をセット
 		DataContainer<?> target = new DataContainer<Object>();
@@ -4090,7 +3973,8 @@ public class ExecutionUnitTest {
 		}
 	}
 
-	private void testAllocFloat64Array3D() {
+	@Test
+	public void testAllocFloat64Array3D() {
 
 		// 確保用のデータコンテナを生成して値をセット
 		DataContainer<?> target = new DataContainer<Object>();
@@ -4176,7 +4060,8 @@ public class ExecutionUnitTest {
 	// alloc, BOOL (boolean)
 	// --------------------------------------------------
 
-	private void testAllocBoolScalar() {
+	@Test
+	public void testAllocBoolScalar() {
 
 		// 確保用のデータコンテナを生成して値をセット
 		DataContainer<?> target = new DataContainer<Object>();
@@ -4200,7 +4085,8 @@ public class ExecutionUnitTest {
 		}
 	}
 
-	private void testAllocBoolArray1D() {
+	@Test
+	public void testAllocBoolArray1D() {
 
 		// 確保用のデータコンテナを生成して値をセット
 		DataContainer<?> target = new DataContainer<Object>();
@@ -4266,7 +4152,8 @@ public class ExecutionUnitTest {
 		}
 	}
 
-	private void testAllocBoolArray3D() {
+	@Test
+	public void testAllocBoolArray3D() {
 
 		// 確保用のデータコンテナを生成して値をセット
 		DataContainer<?> target = new DataContainer<Object>();
@@ -4352,7 +4239,8 @@ public class ExecutionUnitTest {
 	// alloc, STRING (String)
 	// --------------------------------------------------
 
-	private void testAllocStringScalar() {
+	@Test
+	public void testAllocStringScalar() {
 
 		// 確保用のデータコンテナを生成して値をセット
 		DataContainer<?> target = new DataContainer<Object>();
@@ -4376,7 +4264,8 @@ public class ExecutionUnitTest {
 		}
 	}
 
-	private void testAllocStringArray1D() {
+	@Test
+	public void testAllocStringArray1D() {
 
 		// 確保用のデータコンテナを生成して値をセット
 		DataContainer<?> target = new DataContainer<Object>();
@@ -4442,7 +4331,8 @@ public class ExecutionUnitTest {
 		}
 	}
 
-	private void testAllocStringArray3D() {
+	@Test
+	public void testAllocStringArray3D() {
 
 		// 確保用のデータコンテナを生成して値をセット
 		DataContainer<?> target = new DataContainer<Object>();
@@ -4527,7 +4417,8 @@ public class ExecutionUnitTest {
 	// alloc, Unoperatable type (e.g. VOID)
 	// --------------------------------------------------
 
-	private void testAllocUnoperatableData() {
+	@Test
+	public void testAllocUnoperatableData() {
 
 		// 確保用のデータコンテナを生成して値をセット
 		DataContainer<boolean[]> target = new DataContainer<boolean[]>();
@@ -4554,6 +4445,695 @@ public class ExecutionUnitTest {
 
 
 
+	// ==================================================
+	// allocr
+	// ==================================================
+
+	// --------------------------------------------------
+	// allocr, INT64 (long)
+	// --------------------------------------------------
+
+	@Test
+	public void testAllocrInt64Scalar() {
+
+		// 確保用のデータコンテナを生成して値をセット
+		DataContainer<?> target = new DataContainer<Object>();
+		DataContainer<long[]> src = new DataContainer<long[]>();
+		src.setData(new long[1], new int[0]);
+
+		// 確保処理を実行
+		try {
+			new ExecutionUnit().allocSameLengths(DataType.INT64, target, src);
+		} catch (VnanoFatalException e) {
+			e.printStackTrace();
+			fail("Unexpected exception occured");
+		}
+
+		// 正しくデータ領域が確保されているか検査
+		Object data = target.getData();
+		if (!(data instanceof long[])
+				|| ((long[])data).length <= target.getOffset()
+				|| target.getSize() != 1
+				|| target.getLengths().length != 0) {
+
+			fail("Incorrect allocated data");
+		}
+	}
+
+	@Test
+	public void testAllocrInt64Array1D() {
+
+		// 確保用のデータコンテナを生成して値をセット
+		DataContainer<Object> target = new DataContainer<Object>();
+		DataContainer<long[]> src = new DataContainer<long[]>();
+		src.setData(new long[3], new int[] { 3 });
+
+		// 確保処理を実行
+		try {
+			new ExecutionUnit().allocSameLengths(DataType.INT64, target, src);
+		} catch (VnanoFatalException e) {
+			e.printStackTrace();
+			fail("Unexpected exception occured");
+		}
+
+		// 正しくデータ領域が確保されているか検査
+		Object data = target.getData();
+		if (!(data instanceof long[])
+				|| ((long[])data).length != 3
+				|| target.getOffset() != 0
+				|| target.getSize() != 3
+				|| target.getLengths().length != 1
+				|| target.getLengths()[0] != 3) {
+
+			fail("Incorrect allocated data");
+		}
+
+		// 要素数を変えての再allocrも検査
+		src.setData(new long[5], new int[] { 5 });
+		try {
+			new ExecutionUnit().allocSameLengths(DataType.INT64, target, src);
+		} catch (VnanoFatalException e) {
+			e.printStackTrace();
+			fail("Unexpected exception occured");
+		}
+		data = target.getData();
+		if (!(data instanceof long[])
+				|| ((long[])data).length != 5
+				|| target.getOffset() != 0
+				|| target.getSize() != 5
+				|| target.getLengths().length != 1
+				|| target.getLengths()[0] != 5) {
+
+			fail("Incorrect allocated data");
+		}
+
+		// 同じ要素数での再allocも検査
+		src.setData(new long[5], new int[] { 5 });
+		try {
+			new ExecutionUnit().allocSameLengths(DataType.INT64, target, src);
+		} catch (VnanoFatalException e) {
+			e.printStackTrace();
+			fail("Unexpected exception occured");
+		}
+		data = target.getData();
+		if (!(data instanceof long[])
+				|| ((long[])data).length != 5
+				|| target.getOffset() != 0
+				|| target.getSize() != 5
+				|| target.getLengths().length != 1
+				|| target.getLengths()[0] != 5) {
+
+			fail("Incorrect allocated data");
+		}
+	}
+
+	@Test
+	public void testAllocrInt64Array3D() {
+
+		// 確保用のデータコンテナを生成して値をセット
+		DataContainer<?> target = new DataContainer<Object>();
+		DataContainer<long[]> src = new DataContainer<long[]>();
+		src.setData(new long[ 2 * 3 * 4 ], new int[] { 2, 3, 4 });
+
+		// 確保処理を実行
+		try {
+			new ExecutionUnit().allocSameLengths(DataType.INT64, target, src);
+		} catch (VnanoFatalException e) {
+			e.printStackTrace();
+			fail("Unexpected exception occured");
+		}
+
+		// 正しくデータ領域が確保されているか検査
+		Object data = target.getData();
+		if (!(data instanceof long[])
+				|| ((long[])data).length != 24
+				|| target.getOffset() != 0
+				|| target.getSize() != 24
+				|| target.getLengths().length != 3
+				|| target.getLengths()[0] != 2
+				|| target.getLengths()[1] != 3
+				|| target.getLengths()[2] != 4) {
+
+			fail("Incorrect allocated data");
+		}
+
+		// 要素数を変えての再allocも検査
+		src.setData(new long[ 5 * 6 * 7 ], new int[] { 5, 6, 7 });
+		try {
+			new ExecutionUnit().allocSameLengths(DataType.INT64, target, src);
+		} catch (VnanoFatalException e) {
+			e.printStackTrace();
+			fail("Unexpected exception occured");
+		}
+		data = target.getData();
+		if (!(data instanceof long[])
+				|| ((long[])data).length != 210
+				|| target.getOffset() != 0
+				|| target.getSize() != 210
+				|| target.getLengths().length != 3
+				|| target.getLengths()[0] != 5
+				|| target.getLengths()[1] != 6
+				|| target.getLengths()[2] != 7) {
+
+			fail("Incorrect allocated data");
+		}
+
+		// 同じ要素数での再allocも検査
+		src.setData(new long[ 5 * 6 * 7 ], new int[] { 5, 6, 7 });
+		try {
+			new ExecutionUnit().allocSameLengths(DataType.INT64, target, src);
+		} catch (VnanoFatalException e) {
+			e.printStackTrace();
+			fail("Unexpected exception occured");
+		}
+		data = target.getData();
+		if (!(data instanceof long[])
+				|| ((long[])data).length != 210
+				|| target.getOffset() != 0
+				|| target.getSize() != 210
+				|| target.getLengths().length != 3
+				|| target.getLengths()[0] != 5
+				|| target.getLengths()[1] != 6
+				|| target.getLengths()[2] != 7) {
+
+			fail("Incorrect allocated data");
+		}
+	}
+
+	// --------------------------------------------------
+	// allocr, FLOAT64 (double)
+	// --------------------------------------------------
+
+	@Test
+	public void testAllocrFloat64Scalar() {
+
+		// 確保用のデータコンテナを生成して値をセット
+		DataContainer<?> target = new DataContainer<Object>();
+		DataContainer<double[]> src = new DataContainer<double[]>();
+		src.setData(new double[1], new int[0]);
+
+		// 確保処理を実行
+		try {
+			new ExecutionUnit().allocSameLengths(DataType.FLOAT64, target, src);
+		} catch (VnanoFatalException e) {
+			e.printStackTrace();
+			fail("Unexpected exception occured");
+		}
+
+		// 正しくデータ領域が確保されているか検査
+		Object data = target.getData();
+		if (!(data instanceof double[])
+				|| ((double[])data).length <= target.getOffset()
+				|| target.getSize() != 1
+				|| target.getLengths().length != 0) {
+
+			fail("Incorrect allocated data");
+		}
+	}
+
+	@Test
+	public void testAllocrFloat64Array1D() {
+
+		// 確保用のデータコンテナを生成して値をセット
+		DataContainer<Object> target = new DataContainer<Object>();
+		DataContainer<double[]> src = new DataContainer<double[]>();
+		src.setData(new double[3], new int[] { 3 });
+
+		// 確保処理を実行
+		try {
+			new ExecutionUnit().allocSameLengths(DataType.FLOAT64, target, src);
+		} catch (VnanoFatalException e) {
+			e.printStackTrace();
+			fail("Unexpected exception occured");
+		}
+
+		// 正しくデータ領域が確保されているか検査
+		Object data = target.getData();
+		if (!(data instanceof double[])
+				|| ((double[])data).length != 3
+				|| target.getOffset() != 0
+				|| target.getSize() != 3
+				|| target.getLengths().length != 1
+				|| target.getLengths()[0] != 3) {
+
+			fail("Incorrect allocated data");
+		}
+
+		// 要素数を変えての再allocrも検査
+		src.setData(new double[5], new int[] { 5 });
+		try {
+			new ExecutionUnit().allocSameLengths(DataType.FLOAT64, target, src);
+		} catch (VnanoFatalException e) {
+			e.printStackTrace();
+			fail("Unexpected exception occured");
+		}
+		data = target.getData();
+		if (!(data instanceof double[])
+				|| ((double[])data).length != 5
+				|| target.getOffset() != 0
+				|| target.getSize() != 5
+				|| target.getLengths().length != 1
+				|| target.getLengths()[0] != 5) {
+
+			fail("Incorrect allocated data");
+		}
+
+		// 同じ要素数での再allocも検査
+		src.setData(new double[5], new int[] { 5 });
+		try {
+			new ExecutionUnit().allocSameLengths(DataType.FLOAT64, target, src);
+		} catch (VnanoFatalException e) {
+			e.printStackTrace();
+			fail("Unexpected exception occured");
+		}
+		data = target.getData();
+		if (!(data instanceof double[])
+				|| ((double[])data).length != 5
+				|| target.getOffset() != 0
+				|| target.getSize() != 5
+				|| target.getLengths().length != 1
+				|| target.getLengths()[0] != 5) {
+
+			fail("Incorrect allocated data");
+		}
+	}
+
+	@Test
+	public void testAllocrFloat64Array3D() {
+
+		// 確保用のデータコンテナを生成して値をセット
+		DataContainer<?> target = new DataContainer<Object>();
+		DataContainer<double[]> src = new DataContainer<double[]>();
+		src.setData(new double[ 2 * 3 * 4 ], new int[] { 2, 3, 4 });
+
+		// 確保処理を実行
+		try {
+			new ExecutionUnit().allocSameLengths(DataType.FLOAT64, target, src);
+		} catch (VnanoFatalException e) {
+			e.printStackTrace();
+			fail("Unexpected exception occured");
+		}
+
+		// 正しくデータ領域が確保されているか検査
+		Object data = target.getData();
+		if (!(data instanceof double[])
+				|| ((double[])data).length != 24
+				|| target.getOffset() != 0
+				|| target.getSize() != 24
+				|| target.getLengths().length != 3
+				|| target.getLengths()[0] != 2
+				|| target.getLengths()[1] != 3
+				|| target.getLengths()[2] != 4) {
+
+			fail("Incorrect allocated data");
+		}
+
+		// 要素数を変えての再allocも検査
+		src.setData(new double[ 5 * 6 * 7 ], new int[] { 5, 6, 7 });
+		try {
+			new ExecutionUnit().allocSameLengths(DataType.FLOAT64, target, src);
+		} catch (VnanoFatalException e) {
+			e.printStackTrace();
+			fail("Unexpected exception occured");
+		}
+		data = target.getData();
+		if (!(data instanceof double[])
+				|| ((double[])data).length != 210
+				|| target.getOffset() != 0
+				|| target.getSize() != 210
+				|| target.getLengths().length != 3
+				|| target.getLengths()[0] != 5
+				|| target.getLengths()[1] != 6
+				|| target.getLengths()[2] != 7) {
+
+			fail("Incorrect allocated data");
+		}
+
+		// 同じ要素数での再allocも検査
+		src.setData(new double[ 5 * 6 * 7 ], new int[] { 5, 6, 7 });
+		try {
+			new ExecutionUnit().allocSameLengths(DataType.FLOAT64, target, src);
+		} catch (VnanoFatalException e) {
+			e.printStackTrace();
+			fail("Unexpected exception occured");
+		}
+		data = target.getData();
+		if (!(data instanceof double[])
+				|| ((double[])data).length != 210
+				|| target.getOffset() != 0
+				|| target.getSize() != 210
+				|| target.getLengths().length != 3
+				|| target.getLengths()[0] != 5
+				|| target.getLengths()[1] != 6
+				|| target.getLengths()[2] != 7) {
+
+			fail("Incorrect allocated data");
+		}
+	}
+
+	// --------------------------------------------------
+	// allocr, BOOL (boolean)
+	// --------------------------------------------------
+
+	@Test
+	public void testAllocrBoolScalar() {
+
+		// 確保用のデータコンテナを生成して値をセット
+		DataContainer<?> target = new DataContainer<Object>();
+		DataContainer<boolean[]> src = new DataContainer<boolean[]>();
+		src.setData(new boolean[1], new int[0]);
+
+		// 確保処理を実行
+		try {
+			new ExecutionUnit().allocSameLengths(DataType.BOOL, target, src);
+		} catch (VnanoFatalException e) {
+			e.printStackTrace();
+			fail("Unexpected exception occured");
+		}
+
+		// 正しくデータ領域が確保されているか検査
+		Object data = target.getData();
+		if (!(data instanceof boolean[])
+				|| ((boolean[])data).length <= target.getOffset()
+				|| target.getSize() != 1
+				|| target.getLengths().length != 0) {
+
+			fail("Incorrect allocated data");
+		}
+	}
+
+	@Test
+	public void testAllocrBoolArray1D() {
+
+		// 確保用のデータコンテナを生成して値をセット
+		DataContainer<Object> target = new DataContainer<Object>();
+		DataContainer<boolean[]> src = new DataContainer<boolean[]>();
+		src.setData(new boolean[3], new int[] { 3 });
+
+		// 確保処理を実行
+		try {
+			new ExecutionUnit().allocSameLengths(DataType.BOOL, target, src);
+		} catch (VnanoFatalException e) {
+			e.printStackTrace();
+			fail("Unexpected exception occured");
+		}
+
+		// 正しくデータ領域が確保されているか検査
+		Object data = target.getData();
+		if (!(data instanceof boolean[])
+				|| ((boolean[])data).length != 3
+				|| target.getOffset() != 0
+				|| target.getSize() != 3
+				|| target.getLengths().length != 1
+				|| target.getLengths()[0] != 3) {
+
+			fail("Incorrect allocated data");
+		}
+
+		// 要素数を変えての再allocrも検査
+		src.setData(new boolean[5], new int[] { 5 });
+		try {
+			new ExecutionUnit().allocSameLengths(DataType.BOOL, target, src);
+		} catch (VnanoFatalException e) {
+			e.printStackTrace();
+			fail("Unexpected exception occured");
+		}
+		data = target.getData();
+		if (!(data instanceof boolean[])
+				|| ((boolean[])data).length != 5
+				|| target.getOffset() != 0
+				|| target.getSize() != 5
+				|| target.getLengths().length != 1
+				|| target.getLengths()[0] != 5) {
+
+			fail("Incorrect allocated data");
+		}
+
+		// 同じ要素数での再allocも検査
+		src.setData(new boolean[5], new int[] { 5 });
+		try {
+			new ExecutionUnit().allocSameLengths(DataType.BOOL, target, src);
+		} catch (VnanoFatalException e) {
+			e.printStackTrace();
+			fail("Unexpected exception occured");
+		}
+		data = target.getData();
+		if (!(data instanceof boolean[])
+				|| ((boolean[])data).length != 5
+				|| target.getOffset() != 0
+				|| target.getSize() != 5
+				|| target.getLengths().length != 1
+				|| target.getLengths()[0] != 5) {
+
+			fail("Incorrect allocated data");
+		}
+	}
+
+	@Test
+	public void testAllocrBoolArray3D() {
+
+		// 確保用のデータコンテナを生成して値をセット
+		DataContainer<?> target = new DataContainer<Object>();
+		DataContainer<boolean[]> src = new DataContainer<boolean[]>();
+		src.setData(new boolean[ 2 * 3 * 4 ], new int[] { 2, 3, 4 });
+
+		// 確保処理を実行
+		try {
+			new ExecutionUnit().allocSameLengths(DataType.BOOL, target, src);
+		} catch (VnanoFatalException e) {
+			e.printStackTrace();
+			fail("Unexpected exception occured");
+		}
+
+		// 正しくデータ領域が確保されているか検査
+		Object data = target.getData();
+		if (!(data instanceof boolean[])
+				|| ((boolean[])data).length != 24
+				|| target.getOffset() != 0
+				|| target.getSize() != 24
+				|| target.getLengths().length != 3
+				|| target.getLengths()[0] != 2
+				|| target.getLengths()[1] != 3
+				|| target.getLengths()[2] != 4) {
+
+			fail("Incorrect allocated data");
+		}
+
+		// 要素数を変えての再allocも検査
+		src.setData(new boolean[ 5 * 6 * 7 ], new int[] { 5, 6, 7 });
+		try {
+			new ExecutionUnit().allocSameLengths(DataType.BOOL, target, src);
+		} catch (VnanoFatalException e) {
+			e.printStackTrace();
+			fail("Unexpected exception occured");
+		}
+		data = target.getData();
+		if (!(data instanceof boolean[])
+				|| ((boolean[])data).length != 210
+				|| target.getOffset() != 0
+				|| target.getSize() != 210
+				|| target.getLengths().length != 3
+				|| target.getLengths()[0] != 5
+				|| target.getLengths()[1] != 6
+				|| target.getLengths()[2] != 7) {
+
+			fail("Incorrect allocated data");
+		}
+
+		// 同じ要素数での再allocも検査
+		src.setData(new boolean[ 5 * 6 * 7 ], new int[] { 5, 6, 7 });
+		try {
+			new ExecutionUnit().allocSameLengths(DataType.BOOL, target, src);
+		} catch (VnanoFatalException e) {
+			e.printStackTrace();
+			fail("Unexpected exception occured");
+		}
+		data = target.getData();
+		if (!(data instanceof boolean[])
+				|| ((boolean[])data).length != 210
+				|| target.getOffset() != 0
+				|| target.getSize() != 210
+				|| target.getLengths().length != 3
+				|| target.getLengths()[0] != 5
+				|| target.getLengths()[1] != 6
+				|| target.getLengths()[2] != 7) {
+
+			fail("Incorrect allocated data");
+		}
+	}
+
+	// --------------------------------------------------
+	// allocr, STRIG (String)
+	// --------------------------------------------------
+
+	@Test
+	public void testAllocrStringScalar() {
+
+		// 確保用のデータコンテナを生成して値をセット
+		DataContainer<?> target = new DataContainer<Object>();
+		DataContainer<String[]> src = new DataContainer<String[]>();
+		src.setData(new String[1], new int[0]);
+
+		// 確保処理を実行
+		try {
+			new ExecutionUnit().allocSameLengths(DataType.STRING, target, src);
+		} catch (VnanoFatalException e) {
+			e.printStackTrace();
+			fail("Unexpected exception occured");
+		}
+
+		// 正しくデータ領域が確保されているか検査
+		Object data = target.getData();
+		if (!(data instanceof String[])
+				|| ((String[])data).length <= target.getOffset()
+				|| target.getSize() != 1
+				|| target.getLengths().length != 0) {
+
+			fail("Incorrect allocated data");
+		}
+	}
+
+	@Test
+	public void testAllocrStringArray1D() {
+
+		// 確保用のデータコンテナを生成して値をセット
+		DataContainer<Object> target = new DataContainer<Object>();
+		DataContainer<String[]> src = new DataContainer<String[]>();
+		src.setData(new String[3], new int[] { 3 });
+
+		// 確保処理を実行
+		try {
+			new ExecutionUnit().allocSameLengths(DataType.STRING, target, src);
+		} catch (VnanoFatalException e) {
+			e.printStackTrace();
+			fail("Unexpected exception occured");
+		}
+
+		// 正しくデータ領域が確保されているか検査
+		Object data = target.getData();
+		if (!(data instanceof String[])
+				|| ((String[])data).length != 3
+				|| target.getOffset() != 0
+				|| target.getSize() != 3
+				|| target.getLengths().length != 1
+				|| target.getLengths()[0] != 3) {
+
+			fail("Incorrect allocated data");
+		}
+
+		// 要素数を変えての再allocrも検査
+		src.setData(new String[5], new int[] { 5 });
+		try {
+			new ExecutionUnit().allocSameLengths(DataType.STRING, target, src);
+		} catch (VnanoFatalException e) {
+			e.printStackTrace();
+			fail("Unexpected exception occured");
+		}
+		data = target.getData();
+		if (!(data instanceof String[])
+				|| ((String[])data).length != 5
+				|| target.getOffset() != 0
+				|| target.getSize() != 5
+				|| target.getLengths().length != 1
+				|| target.getLengths()[0] != 5) {
+
+			fail("Incorrect allocated data");
+		}
+
+		// 同じ要素数での再allocも検査
+		src.setData(new String[5], new int[] { 5 });
+		try {
+			new ExecutionUnit().allocSameLengths(DataType.STRING, target, src);
+		} catch (VnanoFatalException e) {
+			e.printStackTrace();
+			fail("Unexpected exception occured");
+		}
+		data = target.getData();
+		if (!(data instanceof String[])
+				|| ((String[])data).length != 5
+				|| target.getOffset() != 0
+				|| target.getSize() != 5
+				|| target.getLengths().length != 1
+				|| target.getLengths()[0] != 5) {
+
+			fail("Incorrect allocated data");
+		}
+	}
+
+	@Test
+	public void testAllocrStringArray3D() {
+
+		// 確保用のデータコンテナを生成して値をセット
+		DataContainer<?> target = new DataContainer<Object>();
+		DataContainer<String[]> src = new DataContainer<String[]>();
+		src.setData(new String[ 2 * 3 * 4 ], new int[] { 2, 3, 4 });
+
+		// 確保処理を実行
+		try {
+			new ExecutionUnit().allocSameLengths(DataType.STRING, target, src);
+		} catch (VnanoFatalException e) {
+			e.printStackTrace();
+			fail("Unexpected exception occured");
+		}
+
+		// 正しくデータ領域が確保されているか検査
+		Object data = target.getData();
+		if (!(data instanceof String[])
+				|| ((String[])data).length != 24
+				|| target.getOffset() != 0
+				|| target.getSize() != 24
+				|| target.getLengths().length != 3
+				|| target.getLengths()[0] != 2
+				|| target.getLengths()[1] != 3
+				|| target.getLengths()[2] != 4) {
+
+			fail("Incorrect allocated data");
+		}
+
+		// 要素数を変えての再allocも検査
+		src.setData(new String[ 5 * 6 * 7 ], new int[] { 5, 6, 7 });
+		try {
+			new ExecutionUnit().allocSameLengths(DataType.STRING, target, src);
+		} catch (VnanoFatalException e) {
+			e.printStackTrace();
+			fail("Unexpected exception occured");
+		}
+		data = target.getData();
+		if (!(data instanceof String[])
+				|| ((String[])data).length != 210
+				|| target.getOffset() != 0
+				|| target.getSize() != 210
+				|| target.getLengths().length != 3
+				|| target.getLengths()[0] != 5
+				|| target.getLengths()[1] != 6
+				|| target.getLengths()[2] != 7) {
+
+			fail("Incorrect allocated data");
+		}
+
+		// 同じ要素数での再allocも検査
+		src.setData(new String[ 5 * 6 * 7 ], new int[] { 5, 6, 7 });
+		try {
+			new ExecutionUnit().allocSameLengths(DataType.STRING, target, src);
+		} catch (VnanoFatalException e) {
+			e.printStackTrace();
+			fail("Unexpected exception occured");
+		}
+		data = target.getData();
+		if (!(data instanceof String[])
+				|| ((String[])data).length != 210
+				|| target.getOffset() != 0
+				|| target.getSize() != 210
+				|| target.getLengths().length != 3
+				|| target.getLengths()[0] != 5
+				|| target.getLengths()[1] != 6
+				|| target.getLengths()[2] != 7) {
+
+			fail("Incorrect allocated data");
+		}
+	}
+
+
 
 	// ==================================================
 	// mov
@@ -4563,7 +5143,8 @@ public class ExecutionUnitTest {
 	// mov, INT64 (long)
 	// --------------------------------------------------
 
-	private void testMovInt64Scalar() {
+	@Test
+	public void testMovInt64Scalar() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<long[]> output = new DataContainer<long[]>();
@@ -4602,7 +5183,8 @@ public class ExecutionUnitTest {
 		}
 	}
 
-	private void testMovInt64Vector() {
+	@Test
+	public void testMovInt64Vector() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<long[]> output = new DataContainer<long[]>();
@@ -4629,7 +5211,8 @@ public class ExecutionUnitTest {
 	// mov, FLOAT64 (double)
 	// --------------------------------------------------
 
-	private void testMovFloat64Scalar() {
+	@Test
+	public void testMovFloat64Scalar() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<double[]> output = new DataContainer<double[]>();
@@ -4668,7 +5251,8 @@ public class ExecutionUnitTest {
 		}
 	}
 
-	private void testMovFloat64Vector() {
+	@Test
+	public void testMovFloat64Vector() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<double[]> output = new DataContainer<double[]>();
@@ -4695,7 +5279,8 @@ public class ExecutionUnitTest {
 	// mov, BOOL (boolean)
 	// --------------------------------------------------
 
-	private void testMovBoolScalar() {
+	@Test
+	public void testMovBoolScalar() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
@@ -4735,7 +5320,8 @@ public class ExecutionUnitTest {
 		}
 	}
 
-	private void testMovBoolVector() {
+	@Test
+	public void testMovBoolVector() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
@@ -4762,7 +5348,8 @@ public class ExecutionUnitTest {
 	// mov, STRING (String)
 	// --------------------------------------------------
 
-	private void testMovStringScalar() {
+	@Test
+	public void testMovStringScalar() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<String[]> output = new DataContainer<String[]>();
@@ -4802,7 +5389,8 @@ public class ExecutionUnitTest {
 		}
 	}
 
-	private void testMovStringVector() {
+	@Test
+	public void testMovStringVector() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<String[]> output = new DataContainer<String[]>();
@@ -4832,7 +5420,8 @@ public class ExecutionUnitTest {
 	// mov, Unoperatable type (e.g. VOID)
 	// --------------------------------------------------
 
-	private void testMovUnoperatableData() {
+	@Test
+	public void testMovUnoperatableData() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<Object> output = new DataContainer<Object>();
@@ -4887,7 +5476,8 @@ public class ExecutionUnitTest {
 	// fill, INT64 (long)
 	// --------------------------------------------------
 
-	private void testFillInt64() {
+	@Test
+	public void testFillInt64() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<long[]> output = new DataContainer<long[]>();
@@ -4927,7 +5517,8 @@ public class ExecutionUnitTest {
 	// fill, FLOAT64 (double)
 	// --------------------------------------------------
 
-	private void testFillFloat64() {
+	@Test
+	public void testFillFloat64() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<double[]> output = new DataContainer<double[]>();
@@ -4966,7 +5557,8 @@ public class ExecutionUnitTest {
 	// fill, BOOL (boolean)
 	// --------------------------------------------------
 
-	private void testFillBool() {
+	@Test
+	public void testFillBool() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
@@ -5005,7 +5597,8 @@ public class ExecutionUnitTest {
 	// fill, STRING (String)
 	// --------------------------------------------------
 
-	private void testFillString() {
+	@Test
+	public void testFillString() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<String[]> output = new DataContainer<String[]>();
@@ -5051,7 +5644,8 @@ public class ExecutionUnitTest {
 	// fill, Unoperatable type (e.g. VOID)
 	// --------------------------------------------------
 
-	private void testFillUnoperatableData() {
+	@Test
+	public void testFillUnoperatableData() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<?> output = new DataContainer<Object>();
@@ -5076,7 +5670,8 @@ public class ExecutionUnitTest {
 	// elem, INT64 (long)
 	// --------------------------------------------------
 
-	private void testElemInt64() {
+	@Test
+	public void testElemInt64() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<long[]> dest = new DataContainer<long[]>();  // 要素を格納するコンテナ
@@ -5144,7 +5739,8 @@ public class ExecutionUnitTest {
 	// elem, FLOAT64 (double)
 	// --------------------------------------------------
 
-	private void testElemFloat64() {
+	@Test
+	public void testElemFloat64() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<double[]> dest = new DataContainer<double[]>();  // 要素を格納するコンテナ
@@ -5213,7 +5809,8 @@ public class ExecutionUnitTest {
 	// elem, BOOL (boolean)
 	// --------------------------------------------------
 
-	private void testElemBool() {
+	@Test
+	public void testElemBool() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<boolean[]> dest = new DataContainer<boolean[]>();  // 要素を格納するコンテナ
@@ -5280,7 +5877,8 @@ public class ExecutionUnitTest {
 	// elem, STRING (String)
 	// --------------------------------------------------
 
-	private void testElemString() {
+	@Test
+	public void testElemString() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<String[]> dest = new DataContainer<String[]>();  // 要素を格納するコンテナ
@@ -5347,7 +5945,8 @@ public class ExecutionUnitTest {
 	// elem, Unoperatable type (e.g. VOID)
 	// --------------------------------------------------
 
-	private void testElemUnoperatableData() {
+	@Test
+	public void testElemUnoperatableData() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<?> dest = new DataContainer<Object>();  // 要素を格納するコンテナ
@@ -5382,7 +5981,8 @@ public class ExecutionUnitTest {
 	// cast, INT64 to INT64 (long to long)
 	// --------------------------------------------------
 
-	private void testCastInt64Int64Scalar() {
+	@Test
+	public void testCastInt64Int64Scalar() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<long[]> output = new DataContainer<long[]>();
@@ -5428,7 +6028,8 @@ public class ExecutionUnitTest {
 		}
 	}
 
-	private void testCastInt64Int64Vector() {
+	@Test
+	public void testCastInt64Int64Vector() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<long[]> output = new DataContainer<long[]>();
@@ -5457,7 +6058,8 @@ public class ExecutionUnitTest {
 	// cast, INT64 to FLOAT64 (long to double)
 	// --------------------------------------------------
 
-	private void testCastInt64Float64Scalar() {
+	@Test
+	public void testCastInt64Float64Scalar() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<double[]> output = new DataContainer<double[]>();
@@ -5503,7 +6105,8 @@ public class ExecutionUnitTest {
 		}
 	}
 
-	private void testCastInt64Float64Vector() {
+	@Test
+	public void testCastInt64Float64Vector() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<double[]> output = new DataContainer<double[]>();
@@ -5532,7 +6135,8 @@ public class ExecutionUnitTest {
 	// cast, INT64 to STRING (long to String)
 	// --------------------------------------------------
 
-	private void testCastInt64StringScalar() {
+	@Test
+	public void testCastInt64StringScalar() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<String[]> output = new DataContainer<String[]>();
@@ -5578,7 +6182,8 @@ public class ExecutionUnitTest {
 		}
 	}
 
-	private void testCastInt64StringVector() {
+	@Test
+	public void testCastInt64StringVector() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<String[]> output = new DataContainer<String[]>();
@@ -5611,7 +6216,8 @@ public class ExecutionUnitTest {
 	// cast, FLOAT64 to FLOAT64 (double to double)
 	// --------------------------------------------------
 
-	private void testCastFloat64Float64Scalar() {
+	@Test
+	public void testCastFloat64Float64Scalar() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<double[]> output = new DataContainer<double[]>();
@@ -5657,7 +6263,8 @@ public class ExecutionUnitTest {
 		}
 	}
 
-	private void testCastFloat64Float64Vector() {
+	@Test
+	public void testCastFloat64Float64Vector() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<double[]> output = new DataContainer<double[]>();
@@ -5686,7 +6293,8 @@ public class ExecutionUnitTest {
 	// cast, FLOAT64 to INT64 (double to long)
 	// --------------------------------------------------
 
-	private void testCastFloat64Int64Scalar() {
+	@Test
+	public void testCastFloat64Int64Scalar() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<long[]> output = new DataContainer<long[]>();
@@ -5732,7 +6340,8 @@ public class ExecutionUnitTest {
 		}
 	}
 
-	private void testCastFloat64Int64Vector() {
+	@Test
+	public void testCastFloat64Int64Vector() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<long[]> output = new DataContainer<long[]>();
@@ -5761,7 +6370,8 @@ public class ExecutionUnitTest {
 	// cast, FLOAT64 to STRING (double to String)
 	// --------------------------------------------------
 
-	private void testCastFloat64StringScalar() {
+	@Test
+	public void testCastFloat64StringScalar() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<String[]> output = new DataContainer<String[]>();
@@ -5807,7 +6417,8 @@ public class ExecutionUnitTest {
 		}
 	}
 
-	private void testCastFloat64StringVector() {
+	@Test
+	public void testCastFloat64StringVector() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<String[]> output = new DataContainer<String[]>();
@@ -5839,7 +6450,8 @@ public class ExecutionUnitTest {
 	// cast, BOOL to BOOL (boolean to String)
 	// --------------------------------------------------
 
-	private void testCastBoolBoolScalar() {
+	@Test
+	public void testCastBoolBoolScalar() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
@@ -5885,7 +6497,8 @@ public class ExecutionUnitTest {
 		}
 	}
 
-	private void testCastBoolBoolVector() {
+	@Test
+	public void testCastBoolBoolVector() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
@@ -5914,7 +6527,8 @@ public class ExecutionUnitTest {
 	// cast, BOOL to STRING (boolean to String)
 	// --------------------------------------------------
 
-	private void testCastBoolStringScalar() {
+	@Test
+	public void testCastBoolStringScalar() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<String[]> output = new DataContainer<String[]>();
@@ -5960,7 +6574,8 @@ public class ExecutionUnitTest {
 		}
 	}
 
-	private void testCastBoolStringVector() {
+	@Test
+	public void testCastBoolStringVector() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<String[]> output = new DataContainer<String[]>();
@@ -5993,7 +6608,8 @@ public class ExecutionUnitTest {
 	// cast, STRING to STRING (String to String)
 	// --------------------------------------------------
 
-	private void testCastStringStringScalar() {
+	@Test
+	public void testCastStringStringScalar() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<String[]> output = new DataContainer<String[]>();
@@ -6039,7 +6655,8 @@ public class ExecutionUnitTest {
 		}
 	}
 
-	private void testCastStringStringVector() {
+	@Test
+	public void testCastStringStringVector() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<String[]> output = new DataContainer<String[]>();
@@ -6071,7 +6688,8 @@ public class ExecutionUnitTest {
 	// cast, STRING to INT64 (String to long)
 	// --------------------------------------------------
 
-	private void testCastStringInt64Scalar() {
+	@Test
+	public void testCastStringInt64Scalar() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<long[]> output = new DataContainer<long[]>();
@@ -6146,7 +6764,8 @@ public class ExecutionUnitTest {
 		}
 	}
 
-	private void testCastStringInt64Vector() {
+	@Test
+	public void testCastStringInt64Vector() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<long[]> output = new DataContainer<long[]>();
@@ -6175,7 +6794,8 @@ public class ExecutionUnitTest {
 	// cast, STRING to FLOAT64 (String to double)
 	// --------------------------------------------------
 
-	private void testCastStringFloat64Scalar() {
+	@Test
+	public void testCastStringFloat64Scalar() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<double[]> output = new DataContainer<double[]>();
@@ -6231,7 +6851,8 @@ public class ExecutionUnitTest {
 		}
 	}
 
-	private void testCastStringFloat64Vector() {
+	@Test
+	public void testCastStringFloat64Vector() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<double[]> output = new DataContainer<double[]>();
@@ -6260,7 +6881,8 @@ public class ExecutionUnitTest {
 	// cast, STRING to BOOL (String to boolean)
 	// --------------------------------------------------
 
-	private void testCastStringBoolScalar() {
+	@Test
+	public void testCastStringBoolScalar() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
@@ -6316,7 +6938,8 @@ public class ExecutionUnitTest {
 		}
 	}
 
-	private void testCastStringBoolVector() {
+	@Test
+	public void testCastStringBoolVector() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
@@ -6346,7 +6969,8 @@ public class ExecutionUnitTest {
 	// --------------------------------------------------
 
 	@SuppressWarnings("unchecked")
-	private void testCastUnoperatableData() {
+	@Test
+	public void testCastUnoperatableData() {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<?> output = new DataContainer<Object>();
