@@ -264,7 +264,7 @@ public class Interconnect {
 	 * @return キー
 	 * @throws VnanoException 接続不可能なオブジェクトが引数に指定された場合にスローされます。
 	 */
-	public static String generateBindingKey(Object object) throws VnanoException {
+	public static String generateBindingKeyOf(Object object) throws VnanoException {
 
 		// 内部変数と互換の変数オブジェクト
 		if (object instanceof AbstractVariable) {
@@ -309,17 +309,17 @@ public class Interconnect {
 			// インスタンスフィールドの場合
 			if (objects.length == 2 && objects[0] instanceof Field) {
 				Field field = (Field)objects[0]; // [0] はフィールドのリフレクション
-				return generateBindingKey(field);
+				return generateBindingKeyOf(field);
 
 			// インスタンスメソッドの場合
 			} else if (objects.length == 2 && objects[0] instanceof Method) {
 				Method method = (Method)objects[0]; // [0] はメソッドのリフレクション
-				return generateBindingKey(method);
+				return generateBindingKeyOf(method);
 
 			// クラスの場合 >> 引数からClassとインスタンスを取り出し、外部ライブラリとして接続
 			} else if (objects.length == 2 && objects[0] instanceof Class) {
 				Class<?> pluginClass = (Class<?>)objects[0];
-				return generateBindingKey(pluginClass);
+				return generateBindingKeyOf(pluginClass);
 			} else {
 				throw new VnanoException(
 					ErrorType.UNSUPPORTED_PLUGIN, new String[] {objects[0].getClass().getCanonicalName()}
@@ -329,7 +329,7 @@ public class Interconnect {
 		// その他のオブジェクトは、Classを取得して外部ライブラリとして接続
 		} else {
 			Class<?> pluginClass = object.getClass();
-			return generateBindingKey(pluginClass);
+			return generateBindingKeyOf(pluginClass);
 		}
 	}
 

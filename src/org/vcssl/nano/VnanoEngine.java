@@ -165,7 +165,7 @@ public class VnanoEngine implements ScriptEngine {
 		// キーを自動生成するよう設定されている場合は、キーを置き換え
 		if (name.equals(OptionName.AUTO_KEY)) {
 			try {
-				name = Interconnect.generateBindingKey(value);
+				name = Interconnect.generateBindingKeyOf(value);
 			} catch (VnanoException e) {
 				throw new VnanoFatalException(
 					"A binding key of \"" + value.getClass().getCanonicalName()
