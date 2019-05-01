@@ -22,7 +22,7 @@ import javax.script.SimpleScriptContext;
 import org.vcssl.nano.compiler.Compiler;
 import org.vcssl.nano.interconnect.Interconnect;
 import org.vcssl.nano.spec.ErrorMessage;
-import org.vcssl.nano.spec.OptionName;
+import org.vcssl.nano.spec.OptionKey;
 import org.vcssl.nano.spec.OptionValue;
 import org.vcssl.nano.vm.VirtualMachine;
 
@@ -163,7 +163,7 @@ public class VnanoEngine implements ScriptEngine {
 	public void put(String name, Object value) {
 
 		// キーを自動生成するよう設定されている場合は、キーを置き換え
-		if (name.equals(OptionName.AUTO_KEY)) {
+		if (name.equals(OptionKey.AUTO_KEY)) {
 			try {
 				name = Interconnect.generateBindingKeyOf(value);
 			} catch (VnanoException e) {
@@ -175,14 +175,14 @@ public class VnanoEngine implements ScriptEngine {
 		}
 
 		// オプションの場合
-		if (name.equals(OptionName.OPTION_MAP)) {
+		if (name.equals(OptionKey.OPTION_MAP)) {
 			if (value instanceof Map) {
 				@SuppressWarnings("unchecked")
 				Map<String, Object> castedMap = (Map<String, Object>)value;
 				this.setOptions(castedMap);
 			} else {
 				throw new VnanoFatalException(
-					"The type of \"" + OptionName.OPTION_MAP + "\" should be \"Map<String,Object>\""
+					"The type of \"" + OptionKey.OPTION_MAP + "\" should be \"Map<String,Object>\""
 				);
 			}
 
@@ -233,9 +233,9 @@ public class VnanoEngine implements ScriptEngine {
 	 * 全オプションの名前と値を格納するマップによって、オプションを設定します。
 	 *
 	 * オプションマップは Map<String,Object> 型で、そのキーにはオプション名を指定します。
-	 * オプション名の具体的な値は {@link org.vcssl.nano.spec.OptionName} クラスに文字列定数として定義されています。
+	 * オプション名の具体的な値は {@link org.vcssl.nano.spec.OptionKey} クラスに文字列定数として定義されています。
 	 * オプションマップの値は Object 型ですが、実際の値は対応するオプション名によって異なります。
-	 * こちらも、具体的な内容は {@link org.vcssl.nano.spec.OptionName} クラスに記載されている説明を参照してください。
+	 * こちらも、具体的な内容は {@link org.vcssl.nano.spec.OptionKey} クラスに記載されている説明を参照してください。
 	 *
 	 * @param optionMap 全オプションの名前と値を格納するマップ
 	 */
@@ -244,40 +244,40 @@ public class VnanoEngine implements ScriptEngine {
 		this.optionMap = optionMap;
 
 		// ロケール設定を、このインスタンスの locale フィールドに反映
-		this.locale = OptionValue.valueOf(OptionName.LOCALE, this.optionMap, Locale.class);
+		this.locale = OptionValue.valueOf(OptionKey.LOCALE, this.optionMap, Locale.class);
 
 		// eval対象スクリプト名の設定を、このインスタンスの evalScriptName フィールドに反映
-		this.evalScriptName = OptionValue.valueOf(OptionName.EVAL_SCRIPT_NAME, this.optionMap, String.class);
+		this.evalScriptName = OptionValue.valueOf(OptionKey.EVAL_SCRIPT_NAME, this.optionMap, String.class);
 
 		// ライブラリ名の設定を、このインスタンスの libraryScriptNames フィールドに反映
-		if (this.optionMap.containsKey(OptionName.LIBRARY_SCRIPT_NAMES)) {
-			Object value = this.optionMap.get(OptionName.LIBRARY_SCRIPT_NAMES);
+		if (this.optionMap.containsKey(OptionKey.LIBRARY_SCRIPT_NAMES)) {
+			Object value = this.optionMap.get(OptionKey.LIBRARY_SCRIPT_NAMES);
 			if (value instanceof String) {
 				this.libraryScriptNames = new String[] { (String)value };
 			} else if (value instanceof String[]) {
-				this.libraryScriptNames = OptionValue.stringArrayValueOf(OptionName.LIBRARY_SCRIPT_NAMES, optionMap);
+				this.libraryScriptNames = OptionValue.stringArrayValueOf(OptionKey.LIBRARY_SCRIPT_NAMES, optionMap);
 			} else {
 				throw new VnanoFatalException(
-					"The type of \"" + OptionName.LIBRARY_SCRIPT_NAMES + "\" option should be \"String\" or \"String[]\""
+					"The type of \"" + OptionKey.LIBRARY_SCRIPT_NAMES + "\" option should be \"String\" or \"String[]\""
 				);
 			}
 		}
 
 		// ライブラリコードの設定を、このインスタンスの libraryScriptCode フィールドに反映
-		if (this.optionMap.containsKey(OptionName.LIBRARY_SCRIPTS)) {
-			Object value = this.optionMap.get(OptionName.LIBRARY_SCRIPTS);
+		if (this.optionMap.containsKey(OptionKey.LIBRARY_SCRIPTS)) {
+			Object value = this.optionMap.get(OptionKey.LIBRARY_SCRIPTS);
 			if (value instanceof String) {
 				this.libraryScriptCode = new String[] { (String)value };
 			} else if (value instanceof String[]) {
-				this.libraryScriptCode = OptionValue.stringArrayValueOf(OptionName.LIBRARY_SCRIPTS, optionMap);
+				this.libraryScriptCode = OptionValue.stringArrayValueOf(OptionKey.LIBRARY_SCRIPTS, optionMap);
 			} else {
 				throw new VnanoFatalException(
-					"The type of \"" + OptionName.LIBRARY_SCRIPTS + "\" option should be \"String\" or \"String[]\""
+					"The type of \"" + OptionKey.LIBRARY_SCRIPTS + "\" option should be \"String\" or \"String[]\""
 				);
 			}
 
 			// ライブラリ名が指定されていない場合は、デフォルト値 + "[ライブラリインデックス]" として生成しておく
-			if (!this.optionMap.containsKey(OptionName.LIBRARY_SCRIPT_NAMES)) {
+			if (!this.optionMap.containsKey(OptionKey.LIBRARY_SCRIPT_NAMES)) {
 				int libraryLength = this.libraryScriptCode.length;
 				this.libraryScriptNames = new String[libraryLength];
 				for (int libraryIndex=0; libraryIndex<libraryLength; libraryIndex++) {
