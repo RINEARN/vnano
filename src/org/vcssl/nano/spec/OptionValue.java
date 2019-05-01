@@ -12,10 +12,10 @@ public class OptionValue {
 	static {
 		DEFAULT_VALUE_MAP.put(OptionName.EVAL_SCRIPT_NAME, "EVAL_SCRIPT");
 		DEFAULT_VALUE_MAP.put(OptionName.EVAL_NUMBER_AS_FLOAT, Boolean.valueOf(false));
-		DEFAULT_VALUE_MAP.put(OptionName.LIBRARY_SCRIPT_CODE, new String[0]);
-		DEFAULT_VALUE_MAP.put(OptionName.LIBRARY_SCRIPT_NAME, new String[0]);
+		DEFAULT_VALUE_MAP.put(OptionName.LIBRARY_SCRIPTS, new String[0]);
+		DEFAULT_VALUE_MAP.put(OptionName.LIBRARY_SCRIPT_NAMES, new String[0]);
 		DEFAULT_VALUE_MAP.put(OptionName.LOCALE, Locale.getDefault());
-		DEFAULT_VALUE_MAP.put(OptionName.ACCELERATOR, Boolean.valueOf(false));
+		DEFAULT_VALUE_MAP.put(OptionName.ACCELERATOR_ENABLED, Boolean.valueOf(false));
 	}
 
 	@SuppressWarnings("unchecked")

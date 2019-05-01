@@ -250,34 +250,34 @@ public class VnanoEngine implements ScriptEngine {
 		this.evalScriptName = OptionValue.valueOf(OptionName.EVAL_SCRIPT_NAME, this.optionMap, String.class);
 
 		// ライブラリ名の設定を、このインスタンスの libraryScriptNames フィールドに反映
-		if (this.optionMap.containsKey(OptionName.LIBRARY_SCRIPT_NAME)) {
-			Object value = this.optionMap.get(OptionName.LIBRARY_SCRIPT_NAME);
+		if (this.optionMap.containsKey(OptionName.LIBRARY_SCRIPT_NAMES)) {
+			Object value = this.optionMap.get(OptionName.LIBRARY_SCRIPT_NAMES);
 			if (value instanceof String) {
 				this.libraryScriptNames = new String[] { (String)value };
 			} else if (value instanceof String[]) {
-				this.libraryScriptNames = OptionValue.stringArrayValueOf(OptionName.LIBRARY_SCRIPT_NAME, optionMap);
+				this.libraryScriptNames = OptionValue.stringArrayValueOf(OptionName.LIBRARY_SCRIPT_NAMES, optionMap);
 			} else {
 				throw new VnanoFatalException(
-					"The type of \"" + OptionName.LIBRARY_SCRIPT_NAME + "\" option should be \"String\" or \"String[]\""
+					"The type of \"" + OptionName.LIBRARY_SCRIPT_NAMES + "\" option should be \"String\" or \"String[]\""
 				);
 			}
 		}
 
 		// ライブラリコードの設定を、このインスタンスの libraryScriptCode フィールドに反映
-		if (this.optionMap.containsKey(OptionName.LIBRARY_SCRIPT_CODE)) {
-			Object value = this.optionMap.get(OptionName.LIBRARY_SCRIPT_CODE);
+		if (this.optionMap.containsKey(OptionName.LIBRARY_SCRIPTS)) {
+			Object value = this.optionMap.get(OptionName.LIBRARY_SCRIPTS);
 			if (value instanceof String) {
 				this.libraryScriptCode = new String[] { (String)value };
 			} else if (value instanceof String[]) {
-				this.libraryScriptCode = OptionValue.stringArrayValueOf(OptionName.LIBRARY_SCRIPT_CODE, optionMap);
+				this.libraryScriptCode = OptionValue.stringArrayValueOf(OptionName.LIBRARY_SCRIPTS, optionMap);
 			} else {
 				throw new VnanoFatalException(
-					"The type of \"" + OptionName.LIBRARY_SCRIPT_CODE + "\" option should be \"String\" or \"String[]\""
+					"The type of \"" + OptionName.LIBRARY_SCRIPTS + "\" option should be \"String\" or \"String[]\""
 				);
 			}
 
 			// ライブラリ名が指定されていない場合は、デフォルト値 + "[ライブラリインデックス]" として生成しておく
-			if (!this.optionMap.containsKey(OptionName.LIBRARY_SCRIPT_NAME)) {
+			if (!this.optionMap.containsKey(OptionName.LIBRARY_SCRIPT_NAMES)) {
 				int libraryLength = this.libraryScriptCode.length;
 				this.libraryScriptNames = new String[libraryLength];
 				for (int libraryIndex=0; libraryIndex<libraryLength; libraryIndex++) {

@@ -325,7 +325,7 @@ public final class VnanoCommandLineApplication {
 			// --accelerator オプションの場合
 			case OPTION_NAME_ACCELERATOR : {
 				if (optionValue.equals("true") || optionValue.equals("false")) {
-					this.optionMap.put(OptionName.ACCELERATOR, Boolean.valueOf(optionValue));
+					this.optionMap.put(OptionName.ACCELERATOR_ENABLED, Boolean.valueOf(optionValue));
 				} else {
 					System.err.println(
 							"Invalid value for " + OPTION_NAME_PREFIX + OPTION_NAME_ACCELERATOR + "option: " + optionValue
@@ -714,7 +714,7 @@ public final class VnanoCommandLineApplication {
 		}
 
 		// Acceleratorが有効の場合は、その内部での高速化リソースもダンプする
-		boolean acceleratorEnabled = OptionValue.booleanValueOf(OptionName.ACCELERATOR, optionMap);
+		boolean acceleratorEnabled = OptionValue.booleanValueOf(OptionName.ACCELERATOR_ENABLED, optionMap);
 		if (acceleratorEnabled) {
 
 			Memory memory = new Memory();

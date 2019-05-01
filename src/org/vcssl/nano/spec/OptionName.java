@@ -2,28 +2,27 @@ package org.vcssl.nano.spec;
 
 public class OptionName {
 
-	public static final String OPTION_MAP = "VNANO_OPTION";
-	public static final String AUTO_KEY = "VNANO_AUTO_KEY";
+	public static final String OPTION_MAP = "___VNANO_OPTION_MAP";
+	public static final String AUTO_KEY = "___VNANO_AUTO_KEY";
 
 	public static final String LOCALE = "LOCALE";
 
 	public static final String EVAL_SCRIPT_NAME = "EVAL_SCRIPT_NAME";
 	public static final String EVAL_NUMBER_AS_FLOAT = "EVAL_NUMBER_AS_FLOAT";
 
-	public static final String LIBRARY_SCRIPT_NAME = "LIBRARY_SCRIPT_NAME";
-	public static final String LIBRARY_SCRIPT_CODE = "LIBRARY_SCRIPT_CODE";
+	public static final String LIBRARY_SCRIPTS = "LIBRARY_SCRIPTS";
+	public static final String LIBRARY_SCRIPT_NAMES = "LIBRARY_SCRIPT_NAMES";
 
-	public static final String ACCELERATOR = "ACCELERATOR";
+	public static final String ACCELERATOR_ENABLED = "ACCELERATOR_ENABLED";
 
 
 	// 以下は将来的に追加するオプション項目の暫定案（未サポート）
 
-	public static final String EVAL_CACHE = "EVAL_CACHE";
-	public static final String LIBRARY_SCRIPT_FILE = "LIBRARY_SCRIPT_FILE";
-	public static final String LOOP = "LOOP";
-	public static final String BRANCH = "BRANCH";
-	public static final String INTERNAL_FUNCTION = "INTERNAL_FUNCTION";
-	public static final String INTERNAL_SCALAR_VARIABLE = "INTERNAL_SCALAR_VARIABLE";
-	public static final String INTERNAL_ARRAY_VARIABLE = "INTERNAL_ARRAY_VARIABLE";
-	public static final String VECTOR_OPERATION = "VECTOR_OPERATION";
+	public static final String EVAL_CACHE_ENABLED = "EVAL_CACHE_ENABLED";
+	public static final String LOOP_ENABLED = "LOOP_ENABLED";
+	public static final String BRANCH_ENABLED = "BRANCH_ENABLED";
+	public static final String INTERNAL_FUNCTION_ENABLED = "INTERNAL_FUNCTION_ENABLED";
+	public static final String INTERNAL_SCALAR_VARIABLE_ENABLED = "INTERNAL_SCALAR_VARIABLE_ENABLED";
+	public static final String INTERNAL_ARRAY_VARIABLE_ENABLED = "INTERNAL_ARRAY_VARIABLE_ENABLED";
+	public static final String VECTOR_OPERATION_ENABLED = "VECTOR_OPERATION_ENABLED";
 }

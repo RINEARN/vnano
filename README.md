@@ -927,13 +927,15 @@ and Vnano engine can run even under the condition of that this component is comp
 このコンポーネントを使用するかどうかは、下記のように任意に選択できます。
 Vnanoエンジンは、このコンポーネントの動作を完全に無効化しても、機能上は欠損なく成立するようにできています。
 
-		// Enable/Disable the accelerator (fast version VM) by the option setting.
-		// オプション設定でAccelerator（高速版VM）を有効化/無効化
-		
+		// Create an option-map to enable/disable the accelerator (fast version VM).
+		// Accelerator（高速版VM）を有効化/無効化するためのオプションマップを用意
 		Map<String, Object> optionMap = new HashMap<String, Object>();
-		optionMap.put("ACCELERATOR", true);     // Enable  - 有効化
-		//optionMap.put("ACCELERATOR", false);  // Disable - 無効化
-		engine.put("VNANO_OPTION", optionMap);  // "engine" is an instance of the VnanoEngine class
+		optionMap.put("ACCELERATOR_ENABLED", true);     // Enable  - 有効化
+		//optionMap.put("ACCELERATOR_ENABLED", false);  // Disable - 無効化
+
+		// Set the option-map to an instance of the VnanoEngine class: engine.
+		// オプションマップをVnanoEngineのインスタンス（engine）に設定
+		engine.put("___VNANO_OPTION_MAP", optionMap);
 
 
 ### Memory - メモリ

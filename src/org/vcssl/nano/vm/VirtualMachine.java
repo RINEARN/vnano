@@ -31,8 +31,8 @@ public class VirtualMachine {
 		// オプションマップから、Accelerator（高速VM）を使用するかどうかの設定を取得
 		// （デフォルト値は、もっと上の層でオプションマップ自体に入れておくべき？ デフォルト値の定義も別の場所で。後で要検討）
 		boolean acceleratorEnabled = ACCELERATOR_ENABLED_DEFAULT_VALUE;
-		if (optionMap.containsKey(OptionName.ACCELERATOR)) {
-			OptionValue.booleanValueOf(OptionName.ACCELERATOR, optionMap);
+		if (optionMap.containsKey(OptionName.ACCELERATOR_ENABLED)) {
+			OptionValue.booleanValueOf(OptionName.ACCELERATOR_ENABLED, optionMap);
 		}
 
 		// アセンブラで中間アセンブリコード（VRILコード）から実行用の中間コードに変換
