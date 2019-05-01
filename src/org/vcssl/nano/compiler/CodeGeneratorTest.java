@@ -142,6 +142,58 @@ public class CodeGeneratorTest {
 	}
 
 
+	// 代入演算子のテスト
+	@Test
+	public void testGenerateAssignmentOperatorCode() {
+		this.testGenerateAssignmentOperatorCodeVector();
+	}
+
+	public void testGenerateAssignmentOperatorCodeVector() {
+
+		//「 intVectorA = intVectorB; 」のASTを用意（symbolは引数に渡された二項算術演算子）
+		AstNode rootNode = this.createRootNode();
+		AstNode exprNode = this.createExpressionNode(DataTypeName.INT, 1);
+		AstNode operatorNode = this.createOperatorNode(
+				ScriptWord.ASSIGNMENT, PriorityTable.ASSIGNMENT, AttributeValue.BINARY,
+				AttributeValue.ASSIGNMENT, DataTypeName.INT, 1
+		);
+		AstNode[] operandNodes = new AstNode[] {
+			this.createVariableIdentifierNode("intVectorA", DataTypeName.INT, 1, AttributeValue.GLOBAL),
+			this.createVariableIdentifierNode("intVectorB", DataTypeName.INT, 1, AttributeValue.GLOBAL),
+		};
+		rootNode.addChildNode(exprNode);
+		exprNode.addChildNode(operatorNode);
+		operatorNode.addChildNodes(operandNodes);
+
+		// ASTの内容を確認
+		//System.out.println(rootNode);
+
+		// コード生成
+		String generatedCode = new CodeGenerator().generate(rootNode);
+
+		/* 期待コードを用意（内容は下記コメントの通り、ただし空白幅は見やすいよう調整）
+
+		  #GLOBAL	_intVectorA
+		  #GLOBAL	_intVectorB
+		  #META  "line=123, file=Test.vnano";
+		      ALLOCR  int    _intVectorA    _intVectorB;
+		      MOV     int    _intVectorA    _intVectorB;
+		      END     void    -;
+		 */
+		String expectedCode = HEADER + GLOBAL_DIRECTIVE_IVA + EOI + GLOBAL_DIRECTIVE_IVB + EOI + META + EOI
+			+ IND + OperationCode.ALLOCR + WS + DataTypeName.INT + WS + IVA + WS + IVB + EOI
+			+ IND + OperationCode.MOV + WS + DataTypeName.INT + WS + IVA + WS + IVB + EOI
+			+ END_CODE;
+
+		// 生成コードと期待コードの内容を確認
+		//System.out.println(generatedCode);
+		//System.out.println(expectedCode);
+
+		// 生成コードと期待コードを比較検査
+		assertEquals(expectedCode.replace(AssemblyWord.LINE_SEPARATOR,""), generatedCode.replace(AssemblyWord.LINE_SEPARATOR,""));
+	}
+
+
 	// 算術二項演算子のテスト
 	@Test
 	public void testGenerateArithmeticBinaryOperatorCode() {
@@ -285,6 +337,7 @@ public class CodeGeneratorTest {
 		  #META  "line=123, file=Test.vnano";
 		      ALLOC   int    R0;
 		      ???     int    R0    ~int:1    ~int:2;   (???の箇所に算術演算の命令コードが入る)
+		      END     void    -;
 		 */
 		String expectedCode = HEADER + META + EOI
 			+ IND + OperationCode.ALLOC + WS + DataTypeName.INT + WS + R + "0" + EOI
@@ -327,6 +380,7 @@ public class CodeGeneratorTest {
 		      CAST    float:int  R1    ~int:2;
 		      ALLOC   float      R0;
 		      ???     float      R0    ~float:1    ~int:2;   (???の箇所に算術演算の命令コードが入る)
+		      END     void    -;
 		 */
 		String expectedCode = HEADER + META + EOI
 			+ IND + OperationCode.ALLOC + WS + DataTypeName.FLOAT + WS + R + "1" + EOI
@@ -371,6 +425,7 @@ public class CodeGeneratorTest {
 		  #META  "line=123, file=Test.vnano";
 		      ALLOCR  int    R0    _intVectorA;
 		      ???     int    R0    _intVectorA    _intVectorB;   (???の箇所に算術演算の命令コードが入る)
+		      END     void    -;
 		 */
 		String expectedCode = HEADER + GLOBAL_DIRECTIVE_IVA + EOI + GLOBAL_DIRECTIVE_IVB + EOI + META + EOI
 			+ IND + OperationCode.ALLOCR + WS + DataTypeName.INT + WS + R + "0" + WS + IVA + EOI
@@ -416,6 +471,7 @@ public class CodeGeneratorTest {
 		      CAST    float:int  R1    _intVectorB;
 		      ALLOCR  float      R0    _floatVectorA;
 		      ???     float      R0    _floatVectorA    R1;   (???の箇所に算術演算の命令コードが入る)
+		      END     void    -;
 		 */
 		String expectedCode = HEADER + GLOBAL_DIRECTIVE_FVA + EOI + GLOBAL_DIRECTIVE_IVB + EOI + META + EOI
 			+ IND + OperationCode.ALLOCR + WS + DataTypeName.FLOAT + WS + R + "1" + WS + IVB + EOI
@@ -459,9 +515,10 @@ public class CodeGeneratorTest {
 		  #GLOBAL	_intVectorB
 		  #META  "line=123, file=Test.vnano";
 		      ALLOCR  int        R1    _intVectorA;
-		      FILL    int        R1    _intScalarB;
+              FILL    int        R1    _intScalarB;
 		      ALLOCR  int        R0    _intVectorA;
 		      ???     int        R0    _intVectorA    R1;   (???の箇所に算術演算の命令コードが入る)
+		      END     void    -;
 		 */
 		String expectedCode = HEADER + GLOBAL_DIRECTIVE_IVA + EOI + GLOBAL_DIRECTIVE_ISB + EOI + META + EOI
 			+ IND + OperationCode.ALLOCR + WS + DataTypeName.INT + WS + R + "1" + WS + IVA + EOI
@@ -507,9 +564,10 @@ public class CodeGeneratorTest {
 		      ALLOCR  float      R1    _intVectorA;
 		      CAST    float:int  R1    _intVectorA;
 		      ALLOCR  float      R2    _intVectorA;
-		      FILL    float      R2    _floatScalarB;
+              FILL    float      R2    _floatScalarB;
 		      ALLOCR  float      R0    _intVectorA;
 		      ???     float      R0    R1    R2;   (???の箇所に算術演算の命令コードが入る)
+		      END     void    -;
 		 */
 		String expectedCode = HEADER + GLOBAL_DIRECTIVE_IVA + EOI + GLOBAL_DIRECTIVE_FSB + EOI + META + EOI
 			+ IND + OperationCode.ALLOCR + WS + DataTypeName.FLOAT + WS + R + "1" + WS + IVA + EOI
@@ -560,6 +618,7 @@ public class CodeGeneratorTest {
               FILL 	  float      R2    R1;
 		      ALLOCR  float      R0    _floatVectorA;
 		      ???     float      R0    _floatVectorA    R2;   (???の箇所に算術演算の命令コードが入る)
+		      END     void    -;
 		 */
 		String expectedCode = HEADER + GLOBAL_DIRECTIVE_FVA + EOI + GLOBAL_DIRECTIVE_ISB + EOI + META + EOI
 			+ IND + OperationCode.ALLOC + WS + DataTypeName.FLOAT + WS + R + "1" + EOI
@@ -640,6 +699,7 @@ public class CodeGeneratorTest {
 
 		  #META  "line=123, file=Test.vnano";
 		      ???     int    _intScalarA    _intScalarA    _intScalarB;   (???の箇所に算術演算の命令コードが入る)
+		      END     void    -;
 		 */
 		String expectedCode = HEADER + GLOBAL_DIRECTIVE_ISA + EOI + GLOBAL_DIRECTIVE_ISB + EOI + META + EOI
 			+ IND + operationCode + WS + DataTypeName.INT + WS + ISA + WS + ISA + WS + ISB + EOI
@@ -680,6 +740,7 @@ public class CodeGeneratorTest {
 		  #GLOBAL	_intVectorB
 		  #META  "line=123, file=Test.vnano";
 		      ???     int    _intVectorA    _intVectorA    _intVectorB;   (???の箇所に算術演算の命令コードが入る)
+		      END     void    -;
 		 */
 		String expectedCode = HEADER + GLOBAL_DIRECTIVE_IVA + EOI + GLOBAL_DIRECTIVE_IVB + EOI + META + EOI
 			+ IND + operationCode + WS + DataTypeName.INT + WS + IVA + WS + IVA + WS + IVB + EOI
