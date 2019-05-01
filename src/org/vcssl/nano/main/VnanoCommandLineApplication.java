@@ -31,9 +31,10 @@ import org.vcssl.nano.compiler.LexicalAnalyzer;
 import org.vcssl.nano.compiler.SemanticAnalyzer;
 import org.vcssl.nano.compiler.Token;
 import org.vcssl.nano.interconnect.Interconnect;
+import org.vcssl.nano.spec.SpecialBindingKey;
 import org.vcssl.nano.spec.EngineInformation;
 import org.vcssl.nano.spec.ErrorMessage;
-import org.vcssl.nano.spec.OptionName;
+import org.vcssl.nano.spec.OptionKey;
 import org.vcssl.nano.spec.OptionValue;
 import org.vcssl.nano.vm.VirtualMachine;
 import org.vcssl.nano.vm.VirtualMachineObjectCode;
@@ -325,7 +326,7 @@ public final class VnanoCommandLineApplication {
 			// --accelerator オプションの場合
 			case OPTION_NAME_ACCELERATOR : {
 				if (optionValue.equals("true") || optionValue.equals("false")) {
-					this.optionMap.put(OptionName.ACCELERATOR, Boolean.valueOf(optionValue));
+					this.optionMap.put(OptionKey.ACCELERATOR_ENABLED, Boolean.valueOf(optionValue));
 				} else {
 					System.err.println(
 							"Invalid value for " + OPTION_NAME_PREFIX + OPTION_NAME_ACCELERATOR + "option: " + optionValue
@@ -339,11 +340,11 @@ public final class VnanoCommandLineApplication {
 				// 先頭と末尾以外に「 - 」がある場合は、言語コードと国コードの区切りなので、分割して解釈
 				if (0 < optionValue.indexOf("-") && optionValue.indexOf("-") < optionValue.length()-1) {
 					String[] localeStrings = optionValue.split("-");
-					this.optionMap.put(OptionName.LOCALE, new Locale(localeStrings[0], localeStrings[1]));
+					this.optionMap.put(OptionKey.LOCALE, new Locale(localeStrings[0], localeStrings[1]));
 
 				// それ以外は言語コードとして解釈
 				} else {
-					this.optionMap.put(OptionName.LOCALE, new Locale(optionValue));
+					this.optionMap.put(OptionKey.LOCALE, new Locale(optionValue));
 				}
 				return true;
 			}
@@ -714,7 +715,7 @@ public final class VnanoCommandLineApplication {
 		}
 
 		// Acceleratorが有効の場合は、その内部での高速化リソースもダンプする
-		boolean acceleratorEnabled = OptionValue.booleanValueOf(OptionName.ACCELERATOR, optionMap);
+		boolean acceleratorEnabled = OptionValue.booleanValueOf(OptionKey.ACCELERATOR_ENABLED, optionMap);
 		if (acceleratorEnabled) {
 
 			Memory memory = new Memory();
@@ -795,7 +796,7 @@ public final class VnanoCommandLineApplication {
 		}
 
 		// オプションを設定
-		engine.put(OptionName.OPTION_MAP, this.optionMap);
+		engine.put(SpecialBindingKey.OPTION_MAP, this.optionMap);
 
 		// スクリプトを実行
 		try {
