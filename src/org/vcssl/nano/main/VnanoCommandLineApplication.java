@@ -31,6 +31,7 @@ import org.vcssl.nano.compiler.LexicalAnalyzer;
 import org.vcssl.nano.compiler.SemanticAnalyzer;
 import org.vcssl.nano.compiler.Token;
 import org.vcssl.nano.interconnect.Interconnect;
+import org.vcssl.nano.spec.SpecialBindingKey;
 import org.vcssl.nano.spec.EngineInformation;
 import org.vcssl.nano.spec.ErrorMessage;
 import org.vcssl.nano.spec.OptionKey;
@@ -795,7 +796,7 @@ public final class VnanoCommandLineApplication {
 		}
 
 		// オプションを設定
-		engine.put(OptionKey.OPTION_MAP, this.optionMap);
+		engine.put(SpecialBindingKey.OPTION_MAP, this.optionMap);
 
 		// スクリプトを実行
 		try {

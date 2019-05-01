@@ -21,6 +21,7 @@ import javax.script.SimpleScriptContext;
 
 import org.vcssl.nano.compiler.Compiler;
 import org.vcssl.nano.interconnect.Interconnect;
+import org.vcssl.nano.spec.SpecialBindingKey;
 import org.vcssl.nano.spec.ErrorMessage;
 import org.vcssl.nano.spec.OptionKey;
 import org.vcssl.nano.spec.OptionValue;
@@ -163,7 +164,7 @@ public class VnanoEngine implements ScriptEngine {
 	public void put(String name, Object value) {
 
 		// キーを自動生成するよう設定されている場合は、キーを置き換え
-		if (name.equals(OptionKey.AUTO_KEY)) {
+		if (name.equals(SpecialBindingKey.AUTO_KEY)) {
 			try {
 				name = Interconnect.generateBindingKeyOf(value);
 			} catch (VnanoException e) {
@@ -175,14 +176,14 @@ public class VnanoEngine implements ScriptEngine {
 		}
 
 		// オプションの場合
-		if (name.equals(OptionKey.OPTION_MAP)) {
+		if (name.equals(SpecialBindingKey.OPTION_MAP)) {
 			if (value instanceof Map) {
 				@SuppressWarnings("unchecked")
 				Map<String, Object> castedMap = (Map<String, Object>)value;
 				this.setOptions(castedMap);
 			} else {
 				throw new VnanoFatalException(
-					"The type of \"" + OptionKey.OPTION_MAP + "\" should be \"Map<String,Object>\""
+					"The type of \"" + SpecialBindingKey.OPTION_MAP + "\" should be \"Map<String,Object>\""
 				);
 			}
 

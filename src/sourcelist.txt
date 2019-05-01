@@ -59,6 +59,7 @@
 ./org/vcssl/nano/spec/package-info.java
 ./org/vcssl/nano/spec/PriorityTable.java
 ./org/vcssl/nano/spec/ScriptWord.java
+./org/vcssl/nano/spec/SpecialBindingKey.java
 ./org/vcssl/nano/vm/accelerator/AccelerationDataManager.java
 ./org/vcssl/nano/vm/accelerator/AccelerationDispatcher.java
 ./org/vcssl/nano/vm/accelerator/AccelerationExecutorNode.java
