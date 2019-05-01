@@ -1024,7 +1024,7 @@ public class ExecutionUnit {
 
 
 	/**
-	 * 2オペランド以上の {@link org.vcssl.nano.spec.OperationCode#ALLOCR ALLOCR} 命令（配列確保用）を実行します。
+	 * 2オペランド以上の {@link org.vcssl.nano.spec.OperationCode#ALLOC ALLOC} 命令（配列確保用）を実行します。
 	 *
 	 * この命令により、引数 target のデータの格納領域が、
 	 * 引数 type に指定されたデータ型の、任意次元の配列値を保持できるように確保されます。

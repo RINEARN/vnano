@@ -4445,6 +4445,695 @@ public class ExecutionUnitTest {
 
 
 
+	// ==================================================
+	// allocr
+	// ==================================================
+
+	// --------------------------------------------------
+	// allocr, INT64 (long)
+	// --------------------------------------------------
+
+	@Test
+	public void testAllocrInt64Scalar() {
+
+		// 確保用のデータコンテナを生成して値をセット
+		DataContainer<?> target = new DataContainer<Object>();
+		DataContainer<long[]> src = new DataContainer<long[]>();
+		src.setData(new long[1], new int[0]);
+
+		// 確保処理を実行
+		try {
+			new ExecutionUnit().allocSameLengths(DataType.INT64, target, src);
+		} catch (VnanoFatalException e) {
+			e.printStackTrace();
+			fail("Unexpected exception occured");
+		}
+
+		// 正しくデータ領域が確保されているか検査
+		Object data = target.getData();
+		if (!(data instanceof long[])
+				|| ((long[])data).length <= target.getOffset()
+				|| target.getSize() != 1
+				|| target.getLengths().length != 0) {
+
+			fail("Incorrect allocated data");
+		}
+	}
+
+	@Test
+	public void testAllocrInt64Array1D() {
+
+		// 確保用のデータコンテナを生成して値をセット
+		DataContainer<Object> target = new DataContainer<Object>();
+		DataContainer<long[]> src = new DataContainer<long[]>();
+		src.setData(new long[3], new int[] { 3 });
+
+		// 確保処理を実行
+		try {
+			new ExecutionUnit().allocSameLengths(DataType.INT64, target, src);
+		} catch (VnanoFatalException e) {
+			e.printStackTrace();
+			fail("Unexpected exception occured");
+		}
+
+		// 正しくデータ領域が確保されているか検査
+		Object data = target.getData();
+		if (!(data instanceof long[])
+				|| ((long[])data).length != 3
+				|| target.getOffset() != 0
+				|| target.getSize() != 3
+				|| target.getLengths().length != 1
+				|| target.getLengths()[0] != 3) {
+
+			fail("Incorrect allocated data");
+		}
+
+		// 要素数を変えての再allocrも検査
+		src.setData(new long[5], new int[] { 5 });
+		try {
+			new ExecutionUnit().allocSameLengths(DataType.INT64, target, src);
+		} catch (VnanoFatalException e) {
+			e.printStackTrace();
+			fail("Unexpected exception occured");
+		}
+		data = target.getData();
+		if (!(data instanceof long[])
+				|| ((long[])data).length != 5
+				|| target.getOffset() != 0
+				|| target.getSize() != 5
+				|| target.getLengths().length != 1
+				|| target.getLengths()[0] != 5) {
+
+			fail("Incorrect allocated data");
+		}
+
+		// 同じ要素数での再allocも検査
+		src.setData(new long[5], new int[] { 5 });
+		try {
+			new ExecutionUnit().allocSameLengths(DataType.INT64, target, src);
+		} catch (VnanoFatalException e) {
+			e.printStackTrace();
+			fail("Unexpected exception occured");
+		}
+		data = target.getData();
+		if (!(data instanceof long[])
+				|| ((long[])data).length != 5
+				|| target.getOffset() != 0
+				|| target.getSize() != 5
+				|| target.getLengths().length != 1
+				|| target.getLengths()[0] != 5) {
+
+			fail("Incorrect allocated data");
+		}
+	}
+
+	@Test
+	public void testAllocrInt64Array3D() {
+
+		// 確保用のデータコンテナを生成して値をセット
+		DataContainer<?> target = new DataContainer<Object>();
+		DataContainer<long[]> src = new DataContainer<long[]>();
+		src.setData(new long[ 2 * 3 * 4 ], new int[] { 2, 3, 4 });
+
+		// 確保処理を実行
+		try {
+			new ExecutionUnit().allocSameLengths(DataType.INT64, target, src);
+		} catch (VnanoFatalException e) {
+			e.printStackTrace();
+			fail("Unexpected exception occured");
+		}
+
+		// 正しくデータ領域が確保されているか検査
+		Object data = target.getData();
+		if (!(data instanceof long[])
+				|| ((long[])data).length != 24
+				|| target.getOffset() != 0
+				|| target.getSize() != 24
+				|| target.getLengths().length != 3
+				|| target.getLengths()[0] != 2
+				|| target.getLengths()[1] != 3
+				|| target.getLengths()[2] != 4) {
+
+			fail("Incorrect allocated data");
+		}
+
+		// 要素数を変えての再allocも検査
+		src.setData(new long[ 5 * 6 * 7 ], new int[] { 5, 6, 7 });
+		try {
+			new ExecutionUnit().allocSameLengths(DataType.INT64, target, src);
+		} catch (VnanoFatalException e) {
+			e.printStackTrace();
+			fail("Unexpected exception occured");
+		}
+		data = target.getData();
+		if (!(data instanceof long[])
+				|| ((long[])data).length != 210
+				|| target.getOffset() != 0
+				|| target.getSize() != 210
+				|| target.getLengths().length != 3
+				|| target.getLengths()[0] != 5
+				|| target.getLengths()[1] != 6
+				|| target.getLengths()[2] != 7) {
+
+			fail("Incorrect allocated data");
+		}
+
+		// 同じ要素数での再allocも検査
+		src.setData(new long[ 5 * 6 * 7 ], new int[] { 5, 6, 7 });
+		try {
+			new ExecutionUnit().allocSameLengths(DataType.INT64, target, src);
+		} catch (VnanoFatalException e) {
+			e.printStackTrace();
+			fail("Unexpected exception occured");
+		}
+		data = target.getData();
+		if (!(data instanceof long[])
+				|| ((long[])data).length != 210
+				|| target.getOffset() != 0
+				|| target.getSize() != 210
+				|| target.getLengths().length != 3
+				|| target.getLengths()[0] != 5
+				|| target.getLengths()[1] != 6
+				|| target.getLengths()[2] != 7) {
+
+			fail("Incorrect allocated data");
+		}
+	}
+
+	// --------------------------------------------------
+	// allocr, FLOAT64 (double)
+	// --------------------------------------------------
+
+	@Test
+	public void testAllocrFloat64Scalar() {
+
+		// 確保用のデータコンテナを生成して値をセット
+		DataContainer<?> target = new DataContainer<Object>();
+		DataContainer<double[]> src = new DataContainer<double[]>();
+		src.setData(new double[1], new int[0]);
+
+		// 確保処理を実行
+		try {
+			new ExecutionUnit().allocSameLengths(DataType.FLOAT64, target, src);
+		} catch (VnanoFatalException e) {
+			e.printStackTrace();
+			fail("Unexpected exception occured");
+		}
+
+		// 正しくデータ領域が確保されているか検査
+		Object data = target.getData();
+		if (!(data instanceof double[])
+				|| ((double[])data).length <= target.getOffset()
+				|| target.getSize() != 1
+				|| target.getLengths().length != 0) {
+
+			fail("Incorrect allocated data");
+		}
+	}
+
+	@Test
+	public void testAllocrFloat64Array1D() {
+
+		// 確保用のデータコンテナを生成して値をセット
+		DataContainer<Object> target = new DataContainer<Object>();
+		DataContainer<double[]> src = new DataContainer<double[]>();
+		src.setData(new double[3], new int[] { 3 });
+
+		// 確保処理を実行
+		try {
+			new ExecutionUnit().allocSameLengths(DataType.FLOAT64, target, src);
+		} catch (VnanoFatalException e) {
+			e.printStackTrace();
+			fail("Unexpected exception occured");
+		}
+
+		// 正しくデータ領域が確保されているか検査
+		Object data = target.getData();
+		if (!(data instanceof double[])
+				|| ((double[])data).length != 3
+				|| target.getOffset() != 0
+				|| target.getSize() != 3
+				|| target.getLengths().length != 1
+				|| target.getLengths()[0] != 3) {
+
+			fail("Incorrect allocated data");
+		}
+
+		// 要素数を変えての再allocrも検査
+		src.setData(new double[5], new int[] { 5 });
+		try {
+			new ExecutionUnit().allocSameLengths(DataType.FLOAT64, target, src);
+		} catch (VnanoFatalException e) {
+			e.printStackTrace();
+			fail("Unexpected exception occured");
+		}
+		data = target.getData();
+		if (!(data instanceof double[])
+				|| ((double[])data).length != 5
+				|| target.getOffset() != 0
+				|| target.getSize() != 5
+				|| target.getLengths().length != 1
+				|| target.getLengths()[0] != 5) {
+
+			fail("Incorrect allocated data");
+		}
+
+		// 同じ要素数での再allocも検査
+		src.setData(new double[5], new int[] { 5 });
+		try {
+			new ExecutionUnit().allocSameLengths(DataType.FLOAT64, target, src);
+		} catch (VnanoFatalException e) {
+			e.printStackTrace();
+			fail("Unexpected exception occured");
+		}
+		data = target.getData();
+		if (!(data instanceof double[])
+				|| ((double[])data).length != 5
+				|| target.getOffset() != 0
+				|| target.getSize() != 5
+				|| target.getLengths().length != 1
+				|| target.getLengths()[0] != 5) {
+
+			fail("Incorrect allocated data");
+		}
+	}
+
+	@Test
+	public void testAllocrFloat64Array3D() {
+
+		// 確保用のデータコンテナを生成して値をセット
+		DataContainer<?> target = new DataContainer<Object>();
+		DataContainer<double[]> src = new DataContainer<double[]>();
+		src.setData(new double[ 2 * 3 * 4 ], new int[] { 2, 3, 4 });
+
+		// 確保処理を実行
+		try {
+			new ExecutionUnit().allocSameLengths(DataType.FLOAT64, target, src);
+		} catch (VnanoFatalException e) {
+			e.printStackTrace();
+			fail("Unexpected exception occured");
+		}
+
+		// 正しくデータ領域が確保されているか検査
+		Object data = target.getData();
+		if (!(data instanceof double[])
+				|| ((double[])data).length != 24
+				|| target.getOffset() != 0
+				|| target.getSize() != 24
+				|| target.getLengths().length != 3
+				|| target.getLengths()[0] != 2
+				|| target.getLengths()[1] != 3
+				|| target.getLengths()[2] != 4) {
+
+			fail("Incorrect allocated data");
+		}
+
+		// 要素数を変えての再allocも検査
+		src.setData(new double[ 5 * 6 * 7 ], new int[] { 5, 6, 7 });
+		try {
+			new ExecutionUnit().allocSameLengths(DataType.FLOAT64, target, src);
+		} catch (VnanoFatalException e) {
+			e.printStackTrace();
+			fail("Unexpected exception occured");
+		}
+		data = target.getData();
+		if (!(data instanceof double[])
+				|| ((double[])data).length != 210
+				|| target.getOffset() != 0
+				|| target.getSize() != 210
+				|| target.getLengths().length != 3
+				|| target.getLengths()[0] != 5
+				|| target.getLengths()[1] != 6
+				|| target.getLengths()[2] != 7) {
+
+			fail("Incorrect allocated data");
+		}
+
+		// 同じ要素数での再allocも検査
+		src.setData(new double[ 5 * 6 * 7 ], new int[] { 5, 6, 7 });
+		try {
+			new ExecutionUnit().allocSameLengths(DataType.FLOAT64, target, src);
+		} catch (VnanoFatalException e) {
+			e.printStackTrace();
+			fail("Unexpected exception occured");
+		}
+		data = target.getData();
+		if (!(data instanceof double[])
+				|| ((double[])data).length != 210
+				|| target.getOffset() != 0
+				|| target.getSize() != 210
+				|| target.getLengths().length != 3
+				|| target.getLengths()[0] != 5
+				|| target.getLengths()[1] != 6
+				|| target.getLengths()[2] != 7) {
+
+			fail("Incorrect allocated data");
+		}
+	}
+
+	// --------------------------------------------------
+	// allocr, BOOL (boolean)
+	// --------------------------------------------------
+
+	@Test
+	public void testAllocrBoolScalar() {
+
+		// 確保用のデータコンテナを生成して値をセット
+		DataContainer<?> target = new DataContainer<Object>();
+		DataContainer<boolean[]> src = new DataContainer<boolean[]>();
+		src.setData(new boolean[1], new int[0]);
+
+		// 確保処理を実行
+		try {
+			new ExecutionUnit().allocSameLengths(DataType.BOOL, target, src);
+		} catch (VnanoFatalException e) {
+			e.printStackTrace();
+			fail("Unexpected exception occured");
+		}
+
+		// 正しくデータ領域が確保されているか検査
+		Object data = target.getData();
+		if (!(data instanceof boolean[])
+				|| ((boolean[])data).length <= target.getOffset()
+				|| target.getSize() != 1
+				|| target.getLengths().length != 0) {
+
+			fail("Incorrect allocated data");
+		}
+	}
+
+	@Test
+	public void testAllocrBoolArray1D() {
+
+		// 確保用のデータコンテナを生成して値をセット
+		DataContainer<Object> target = new DataContainer<Object>();
+		DataContainer<boolean[]> src = new DataContainer<boolean[]>();
+		src.setData(new boolean[3], new int[] { 3 });
+
+		// 確保処理を実行
+		try {
+			new ExecutionUnit().allocSameLengths(DataType.BOOL, target, src);
+		} catch (VnanoFatalException e) {
+			e.printStackTrace();
+			fail("Unexpected exception occured");
+		}
+
+		// 正しくデータ領域が確保されているか検査
+		Object data = target.getData();
+		if (!(data instanceof boolean[])
+				|| ((boolean[])data).length != 3
+				|| target.getOffset() != 0
+				|| target.getSize() != 3
+				|| target.getLengths().length != 1
+				|| target.getLengths()[0] != 3) {
+
+			fail("Incorrect allocated data");
+		}
+
+		// 要素数を変えての再allocrも検査
+		src.setData(new boolean[5], new int[] { 5 });
+		try {
+			new ExecutionUnit().allocSameLengths(DataType.BOOL, target, src);
+		} catch (VnanoFatalException e) {
+			e.printStackTrace();
+			fail("Unexpected exception occured");
+		}
+		data = target.getData();
+		if (!(data instanceof boolean[])
+				|| ((boolean[])data).length != 5
+				|| target.getOffset() != 0
+				|| target.getSize() != 5
+				|| target.getLengths().length != 1
+				|| target.getLengths()[0] != 5) {
+
+			fail("Incorrect allocated data");
+		}
+
+		// 同じ要素数での再allocも検査
+		src.setData(new boolean[5], new int[] { 5 });
+		try {
+			new ExecutionUnit().allocSameLengths(DataType.BOOL, target, src);
+		} catch (VnanoFatalException e) {
+			e.printStackTrace();
+			fail("Unexpected exception occured");
+		}
+		data = target.getData();
+		if (!(data instanceof boolean[])
+				|| ((boolean[])data).length != 5
+				|| target.getOffset() != 0
+				|| target.getSize() != 5
+				|| target.getLengths().length != 1
+				|| target.getLengths()[0] != 5) {
+
+			fail("Incorrect allocated data");
+		}
+	}
+
+	@Test
+	public void testAllocrBoolArray3D() {
+
+		// 確保用のデータコンテナを生成して値をセット
+		DataContainer<?> target = new DataContainer<Object>();
+		DataContainer<boolean[]> src = new DataContainer<boolean[]>();
+		src.setData(new boolean[ 2 * 3 * 4 ], new int[] { 2, 3, 4 });
+
+		// 確保処理を実行
+		try {
+			new ExecutionUnit().allocSameLengths(DataType.BOOL, target, src);
+		} catch (VnanoFatalException e) {
+			e.printStackTrace();
+			fail("Unexpected exception occured");
+		}
+
+		// 正しくデータ領域が確保されているか検査
+		Object data = target.getData();
+		if (!(data instanceof boolean[])
+				|| ((boolean[])data).length != 24
+				|| target.getOffset() != 0
+				|| target.getSize() != 24
+				|| target.getLengths().length != 3
+				|| target.getLengths()[0] != 2
+				|| target.getLengths()[1] != 3
+				|| target.getLengths()[2] != 4) {
+
+			fail("Incorrect allocated data");
+		}
+
+		// 要素数を変えての再allocも検査
+		src.setData(new boolean[ 5 * 6 * 7 ], new int[] { 5, 6, 7 });
+		try {
+			new ExecutionUnit().allocSameLengths(DataType.BOOL, target, src);
+		} catch (VnanoFatalException e) {
+			e.printStackTrace();
+			fail("Unexpected exception occured");
+		}
+		data = target.getData();
+		if (!(data instanceof boolean[])
+				|| ((boolean[])data).length != 210
+				|| target.getOffset() != 0
+				|| target.getSize() != 210
+				|| target.getLengths().length != 3
+				|| target.getLengths()[0] != 5
+				|| target.getLengths()[1] != 6
+				|| target.getLengths()[2] != 7) {
+
+			fail("Incorrect allocated data");
+		}
+
+		// 同じ要素数での再allocも検査
+		src.setData(new boolean[ 5 * 6 * 7 ], new int[] { 5, 6, 7 });
+		try {
+			new ExecutionUnit().allocSameLengths(DataType.BOOL, target, src);
+		} catch (VnanoFatalException e) {
+			e.printStackTrace();
+			fail("Unexpected exception occured");
+		}
+		data = target.getData();
+		if (!(data instanceof boolean[])
+				|| ((boolean[])data).length != 210
+				|| target.getOffset() != 0
+				|| target.getSize() != 210
+				|| target.getLengths().length != 3
+				|| target.getLengths()[0] != 5
+				|| target.getLengths()[1] != 6
+				|| target.getLengths()[2] != 7) {
+
+			fail("Incorrect allocated data");
+		}
+	}
+
+	// --------------------------------------------------
+	// allocr, STRIG (String)
+	// --------------------------------------------------
+
+	@Test
+	public void testAllocrStringScalar() {
+
+		// 確保用のデータコンテナを生成して値をセット
+		DataContainer<?> target = new DataContainer<Object>();
+		DataContainer<String[]> src = new DataContainer<String[]>();
+		src.setData(new String[1], new int[0]);
+
+		// 確保処理を実行
+		try {
+			new ExecutionUnit().allocSameLengths(DataType.STRING, target, src);
+		} catch (VnanoFatalException e) {
+			e.printStackTrace();
+			fail("Unexpected exception occured");
+		}
+
+		// 正しくデータ領域が確保されているか検査
+		Object data = target.getData();
+		if (!(data instanceof String[])
+				|| ((String[])data).length <= target.getOffset()
+				|| target.getSize() != 1
+				|| target.getLengths().length != 0) {
+
+			fail("Incorrect allocated data");
+		}
+	}
+
+	@Test
+	public void testAllocrStringArray1D() {
+
+		// 確保用のデータコンテナを生成して値をセット
+		DataContainer<Object> target = new DataContainer<Object>();
+		DataContainer<String[]> src = new DataContainer<String[]>();
+		src.setData(new String[3], new int[] { 3 });
+
+		// 確保処理を実行
+		try {
+			new ExecutionUnit().allocSameLengths(DataType.STRING, target, src);
+		} catch (VnanoFatalException e) {
+			e.printStackTrace();
+			fail("Unexpected exception occured");
+		}
+
+		// 正しくデータ領域が確保されているか検査
+		Object data = target.getData();
+		if (!(data instanceof String[])
+				|| ((String[])data).length != 3
+				|| target.getOffset() != 0
+				|| target.getSize() != 3
+				|| target.getLengths().length != 1
+				|| target.getLengths()[0] != 3) {
+
+			fail("Incorrect allocated data");
+		}
+
+		// 要素数を変えての再allocrも検査
+		src.setData(new String[5], new int[] { 5 });
+		try {
+			new ExecutionUnit().allocSameLengths(DataType.STRING, target, src);
+		} catch (VnanoFatalException e) {
+			e.printStackTrace();
+			fail("Unexpected exception occured");
+		}
+		data = target.getData();
+		if (!(data instanceof String[])
+				|| ((String[])data).length != 5
+				|| target.getOffset() != 0
+				|| target.getSize() != 5
+				|| target.getLengths().length != 1
+				|| target.getLengths()[0] != 5) {
+
+			fail("Incorrect allocated data");
+		}
+
+		// 同じ要素数での再allocも検査
+		src.setData(new String[5], new int[] { 5 });
+		try {
+			new ExecutionUnit().allocSameLengths(DataType.STRING, target, src);
+		} catch (VnanoFatalException e) {
+			e.printStackTrace();
+			fail("Unexpected exception occured");
+		}
+		data = target.getData();
+		if (!(data instanceof String[])
+				|| ((String[])data).length != 5
+				|| target.getOffset() != 0
+				|| target.getSize() != 5
+				|| target.getLengths().length != 1
+				|| target.getLengths()[0] != 5) {
+
+			fail("Incorrect allocated data");
+		}
+	}
+
+	@Test
+	public void testAllocrStringArray3D() {
+
+		// 確保用のデータコンテナを生成して値をセット
+		DataContainer<?> target = new DataContainer<Object>();
+		DataContainer<String[]> src = new DataContainer<String[]>();
+		src.setData(new String[ 2 * 3 * 4 ], new int[] { 2, 3, 4 });
+
+		// 確保処理を実行
+		try {
+			new ExecutionUnit().allocSameLengths(DataType.STRING, target, src);
+		} catch (VnanoFatalException e) {
+			e.printStackTrace();
+			fail("Unexpected exception occured");
+		}
+
+		// 正しくデータ領域が確保されているか検査
+		Object data = target.getData();
+		if (!(data instanceof String[])
+				|| ((String[])data).length != 24
+				|| target.getOffset() != 0
+				|| target.getSize() != 24
+				|| target.getLengths().length != 3
+				|| target.getLengths()[0] != 2
+				|| target.getLengths()[1] != 3
+				|| target.getLengths()[2] != 4) {
+
+			fail("Incorrect allocated data");
+		}
+
+		// 要素数を変えての再allocも検査
+		src.setData(new String[ 5 * 6 * 7 ], new int[] { 5, 6, 7 });
+		try {
+			new ExecutionUnit().allocSameLengths(DataType.STRING, target, src);
+		} catch (VnanoFatalException e) {
+			e.printStackTrace();
+			fail("Unexpected exception occured");
+		}
+		data = target.getData();
+		if (!(data instanceof String[])
+				|| ((String[])data).length != 210
+				|| target.getOffset() != 0
+				|| target.getSize() != 210
+				|| target.getLengths().length != 3
+				|| target.getLengths()[0] != 5
+				|| target.getLengths()[1] != 6
+				|| target.getLengths()[2] != 7) {
+
+			fail("Incorrect allocated data");
+		}
+
+		// 同じ要素数での再allocも検査
+		src.setData(new String[ 5 * 6 * 7 ], new int[] { 5, 6, 7 });
+		try {
+			new ExecutionUnit().allocSameLengths(DataType.STRING, target, src);
+		} catch (VnanoFatalException e) {
+			e.printStackTrace();
+			fail("Unexpected exception occured");
+		}
+		data = target.getData();
+		if (!(data instanceof String[])
+				|| ((String[])data).length != 210
+				|| target.getOffset() != 0
+				|| target.getSize() != 210
+				|| target.getLengths().length != 3
+				|| target.getLengths()[0] != 5
+				|| target.getLengths()[1] != 6
+				|| target.getLengths()[2] != 7) {
+
+			fail("Incorrect allocated data");
+		}
+	}
+
+
 
 	// ==================================================
 	// mov
