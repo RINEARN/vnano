@@ -20,7 +20,6 @@ import org.vcssl.connect.MethodToXfci1Adapter;
 import org.vcssl.nano.VnanoFatalException;
 import org.vcssl.nano.spec.ErrorType;
 import org.vcssl.nano.spec.IdentifierSyntax;
-import org.vcssl.nano.spec.OptionName;
 import org.vcssl.nano.vm.VirtualMachineObjectCode;
 import org.vcssl.nano.vm.memory.DataContainer;
 import org.vcssl.nano.vm.memory.Memory;
@@ -190,10 +189,6 @@ public class Interconnect {
 	 */
 	private void bind(String bindName, Object object) throws VnanoException {
 
-		if (bindName.equals(OptionName.AUTO_KEY)) {
-			bindName = this.generateBindingKey(object);
-		}
-
 		// 内部変数と互換の変数オブジェクト
 		if (object instanceof AbstractVariable) {
 			this.connect( (AbstractVariable)object, true, bindName );
@@ -269,7 +264,7 @@ public class Interconnect {
 	 * @return キー
 	 * @throws VnanoException 接続不可能なオブジェクトが引数に指定された場合にスローされます。
 	 */
-	public String generateBindingKey(Object object) throws VnanoException {
+	public static String generateBindingKey(Object object) throws VnanoException {
 
 		// 内部変数と互換の変数オブジェクト
 		if (object instanceof AbstractVariable) {
@@ -314,17 +309,17 @@ public class Interconnect {
 			// インスタンスフィールドの場合
 			if (objects.length == 2 && objects[0] instanceof Field) {
 				Field field = (Field)objects[0]; // [0] はフィールドのリフレクション
-				return this.generateBindingKey(field);
+				return generateBindingKey(field);
 
 			// インスタンスメソッドの場合
 			} else if (objects.length == 2 && objects[0] instanceof Method) {
 				Method method = (Method)objects[0]; // [0] はメソッドのリフレクション
-				return this.generateBindingKey(method);
+				return generateBindingKey(method);
 
 			// クラスの場合 >> 引数からClassとインスタンスを取り出し、外部ライブラリとして接続
 			} else if (objects.length == 2 && objects[0] instanceof Class) {
 				Class<?> pluginClass = (Class<?>)objects[0];
-				return this.generateBindingKey(pluginClass);
+				return generateBindingKey(pluginClass);
 			} else {
 				throw new VnanoException(
 					ErrorType.UNSUPPORTED_PLUGIN, new String[] {objects[0].getClass().getCanonicalName()}
@@ -334,7 +329,7 @@ public class Interconnect {
 		// その他のオブジェクトは、Classを取得して外部ライブラリとして接続
 		} else {
 			Class<?> pluginClass = object.getClass();
-			return this.generateBindingKey(pluginClass);
+			return generateBindingKey(pluginClass);
 		}
 	}
 
