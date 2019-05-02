@@ -1654,33 +1654,46 @@ Let's implement them:
 
 	...
 	import org.vcssl.connect.ExternalFunctionConnector1;
-	import org.vcssl.connect.ExternalFunctionException;
 	import org.vcssl.connect.ExternalVariableConnector1;
-	import org.vcssl.connect.ExternalVariableException;
-	import org.vcssl.connect.ExternalPermission;
+	import org.vcssl.connect.ConnectorPermission;
+	import org.vcssl.connect.ConnectorException;
 
 	public class Example {
 
 		// A XFCI1 Plug-In which provides the external function "output(int)".
 		// 外部関数 output(int) を提供するXFCI1形式のプラグイン
-		public class OutputFunction implements ExternalFunctionConnector1 {
-			public String getFunctionName() { return "output"; }
-			public boolean hasParameterNames() { return true; }
-			public String[] getParameterNames() { return new String[]{ "value" }; }
-			public Class<?>[] getParameterClasses() { return new Class<?>[]{ int.class }; } 
-			public Class<?> getReturnClass() { return Void.class; }
-			public boolean isVariadic() { return false; }
-			public String[] getNecessaryPermissions() { return new String[]{ ExternalPermission.NONE }; }
-			public String[] getUnnecessaryPermissions() { return new String[]{ ExternalPermission.ALL }; }
-			public void setEngine(Object engineConnector) { }
-			public void initializeForConnection() { }
-			public void finalizeForDisconnection() { }
-			public void initializeForExecution() { }
-			public void finalizeForTermination() { }
+		public class OutputFunction implements ConnectorException {
 
+			@Override
+			public String getFunctionName() { return "output"; }
+			@Override
+			public boolean hasParameterNames() { return true; }
+			@Override
+			public String[] getParameterNames() { return new String[]{ "value" }; }
+			@Override
+			public Class<?>[] getParameterClasses() { return new Class<?>[]{ int.class }; } 
+			@Override
+			public Class<?> getReturnClass() { return Void.class; }
+			@Override
+			public boolean isVariadic() { return false; }
+			@Override
+			public String[] getNecessaryPermissions() { return new String[]{ ConnectorPermission.NONE }; }
+			@Override
+			public String[] getUnnecessaryPermissions() { return new String[]{ ConnectorPermission.ALL }; }
+			@Override
+			public void initializeForConnection(Object engineConnector) { }
+			@Override
+			public void finalizeForDisconnection(Object engineConnector) { }
+			@Override
+			public void initializeForExecution(Object engineConnector) { }
+			@Override
+			public void finalizeForTermination(Object engineConnector) { }
+
+			@Override
 			public boolean isDataConversionNecessary() { return true; }
 
-			public Object invoke(Object[] arguments) throws ExternalFunctionException {
+			@Override
+			public Object invoke(Object[] arguments) throws ConnectorException {
 				int value = (int)(arguments[0]);
 				System.out.print(value);
 				return null;
@@ -1689,31 +1702,44 @@ Let's implement them:
 
 		// A XVCI1 Plug-In which provides the external variable "LOOP_MAX".
 		// 外部変数 LOOP_MAX を提供するXVCI1形式のプラグイン
-		public class LoopMaxVariable implements ExternalVariableConnector1 {
+		public class LoopMaxVariable implements ConnectorException {
+
 			private int value = 100;
 
+			@Override
 			public String getVariableName() { return "LOOP_MAX"; }
+			@Override
 			public Class<?> getDataClass() { return int.class; }
+			@Override
 			public boolean isConstant() { return false; }
-			public String[] getNecessaryPermissions() { return new String[]{ ExternalPermission.NONE }; }
-			public String[] getUnnecessaryPermissions() { return new String[]{ ExternalPermission.ALL }; }
-			public void setEngine(Object engineConnector) { }
-			public void initializeForConnection() { }
-			public void finalizeForDisconnection() { }
-			public void initializeForExecution() { }
-			public void finalizeForTermination() { }
+			@Override
+			public String[] getNecessaryPermissions() { return new String[]{ ConnectorPermission.NONE }; }
+			@Override
+			public String[] getUnnecessaryPermissions() { return new String[]{ ConnectorPermission.ALL }; }
+			@Override
+			public void initializeForConnection(Object engineConnector) { }
+			@Override
+			public void finalizeForDisconnection(Object engineConnector) { }
+			@Override
+			public void initializeForExecution(Object engineConnector) { }
+			@Override
+			public void finalizeForTermination(Object engineConnector) { }
 
+			@Override
 			public boolean isDataConversionNecessary() { return true; }
 		
-			public Object getData() throws ExternalVariableException {
+			@Override
+			public Object getData() throws ConnectorException {
 				return (Integer)this.value;
 			}
 
-			public Object getData(Object dataContainer) throws ExternalVariableException {
+			@Override
+			public Object getData(Object dataContainer) throws ConnectorException {
 				// This method is for the case of the data conversion is disabled.
 			}
 
-			public void setData(Object data) throws ExternalVariableException {
+			@Override
+			public void setData(Object data) throws ConnectorException {
 				this.value = (Integer)data;
 			}
 		}
@@ -1775,39 +1801,52 @@ Vnanoのスクリプトエンジン内部でデータを格納するコンテナ
 
 	...
 	import org.vcssl.connect.ExternalFunctionConnector1;
-	import org.vcssl.connect.ExternalFunctionException;
 	import org.vcssl.connect.ExternalVariableConnector1;
-	import org.vcssl.connect.ExternalVariableException;
-	import org.vcssl.connect.ExternalPermission;
+	import org.vcssl.connect.ConnectorPermission;
+	import org.vcssl.connect.ConnectorException;
 	import org.vcssl.connect.ArrayDataContainer1;
 
 	public class Example {
 
 		// A XFCI1 Plug-In which provides the external function "output(int)".
 		// 外部関数 output(int) を提供するXFCI1形式のプラグイン
-		public class OutputFunction implements ExternalFunctionConnector1 {
-			public String getFunctionName() { return "output"; }
-			public boolean hasParameterNames() { return true; }
-			public String[] getParameterNames() { return new String[]{ "value" }; }
-			public Class<?>[] getParameterClasses() { return new Class<?>[]{ int.class }; } 
-			public Class<?> getReturnClass() { return Void.class; }
-			public boolean isVariadic() { return false; }
-			public String[] getNecessaryPermissions() { return new String[]{ ExternalPermission.NONE }; }
-			public String[] getUnnecessaryPermissions() { return new String[]{ ExternalPermission.ALL }; }
-			public void setEngine(Object engineConnector) { }
-			public void initializeForConnection() { }
-			public void finalizeForDisconnection() { }
-			public void initializeForExecution() { }
-			public void finalizeForTermination() { }
+		public class OutputFunction implements ConnectorException {
 
+			@Override
+			public String getFunctionName() { return "output"; }
+			@Override
+			public boolean hasParameterNames() { return true; }
+			@Override
+			public String[] getParameterNames() { return new String[]{ "value" }; }
+			@Override
+			public Class<?>[] getParameterClasses() { return new Class<?>[]{ int.class }; } 
+			@Override
+			public Class<?> getReturnClass() { return Void.class; }
+			@Override
+			public boolean isVariadic() { return false; }
+			@Override
+			public String[] getNecessaryPermissions() { return new String[]{ ConnectorPermission.NONE }; }
+			@Override
+			public String[] getUnnecessaryPermissions() { return new String[]{ ConnectorPermission.ALL }; }
+			@Override
+			public void initializeForConnection(Object engineConnector) { }
+			@Override
+			public void finalizeForDisconnection(Object engineConnector) { }
+			@Override
+			public void initializeForExecution(Object engineConnector) { }
+			@Override
+			public void finalizeForTermination(Object engineConnector) { }
+
+			@Override
 			public boolean isDataConversionNecessary() { return false; }
 		
-			public Object invoke(Object[] arguments) throws ExternalFunctionException {
+			@Override
+			public Object invoke(Object[] arguments) throws ConnectorException {
 				
 				// check the type of the data container.
 				// データコンテナの型を確認
 				if (!(arguments instanceof ArrayDataContainer1[])) {
-					throw new ExternalFunctionException(
+					throw new ConnectorException(
 						"The type of the data container is not supported by this plug-in."
 					);
 				}
@@ -1829,34 +1868,46 @@ Vnanoのスクリプトエンジン内部でデータを格納するコンテナ
 
 		// A XVCI1 Plug-In which provides the external variable "LOOP_MAX".
 		// 外部変数 LOOP_MAX を提供するXVCI1形式のプラグイン
-		public class LoopMaxVariable implements ExternalVariableConnector1 {
+		public class LoopMaxVariable implements ConnectorException {
+
 			private long[] data = new long[]{ 100l };
 			int[] dataLengths = new int[]{ 1 };
 		
+			@Override
 			public String getVariableName() { return "LOOP_MAX"; }
+			@Override
 			public Class<?> getDataClass() { return int.class; }
+			@Override
 			public boolean isConstant() { return false; }
-			public String[] getNecessaryPermissions() { return new String[]{ ExternalPermission.NONE }; }
-			public String[] getUnnecessaryPermissions() { return new String[]{ ExternalPermission.ALL }; }
-			public void setEngine(Object engineConnector) { }
-			public void initializeForConnection() { }
-			public void finalizeForDisconnection() { }
-			public void initializeForExecution() { }
-			public void finalizeForTermination() { }
+			@Override
+			public String[] getNecessaryPermissions() { return new String[]{ ConnectorPermission.NONE }; }
+			@Override
+			public String[] getUnnecessaryPermissions() { return new String[]{ ConnectorPermission.ALL }; }
+			@Override
+			public void initializeForConnection(Object engineConnector) { }
+			@Override
+			public void finalizeForDisconnection(Object engineConnector) { }
+			@Override
+			public void initializeForExecution(Object engineConnector) { }
+			@Override
+			public void finalizeForTermination(Object engineConnector) { }
 
+			@Override
 			public boolean isDataConversionNecessary() { return false; }
 
-			public Object getData() throws ExternalVariableException {
+			@Override
+			public Object getData() throws ConnectorException {
 				// This method is for the case of the data conversion is enabled.
 				return null;
 			}
 
-			public void getData(Object dataContainer) throws ExternalVariableException {
+			@Override
+			public void getData(Object dataContainer) throws ConnectorException {
 				
 				// check the type of the data container.
 				// データコンテナの型を確認
 				if (!(dataContainer instanceof ArrayDataContainer1)) {
-					throw new ExternalVariableException(
+					throw new ConnectorException(
 						"The type of the data container is not supported by this plug-in."
 					);
 				}
@@ -1869,12 +1920,13 @@ Vnanoのスクリプトエンジン内部でデータを格納するコンテナ
 				adci1Container.setLengths(this.dataLengths);
 			}
 		
-			public void setData(Object dataContainer) throws ExternalVariableException {
+			@Override
+			public void setData(Object dataContainer) throws ConnectorException {
 				
 				// check the type of the data container.
 				// データコンテナの型を確認
 				if (!(dataContainer instanceof ArrayDataContainer1)) {
-					throw new ExternalVariableException(
+					throw new ConnectorException(
 						"The type of the data container is not supported by this plug-in."
 					);
 				}
@@ -1884,7 +1936,7 @@ Vnanoのスクリプトエンジン内部でデータを格納するコンテナ
 				// check the data-type of data contained in the data container.
 				// データコンテナに格納されているデータの型を確認
 				if (targetData == null || !(targetData instanceof long[])) {
-					throw new ExternalVariableException(
+					throw new ConnectorException(
 						"The data-type is not compatible for this plug-in."
 					);
 				}
