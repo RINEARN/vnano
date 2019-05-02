@@ -59,17 +59,17 @@ fun main(args: Array<String>) {
 
 	// Connect methods/fields of ExamplePlugin class to the script engine as external functions/variables.
 	// ExamplePluginクラスのメソッド・フィールドを外部関数・変数としてスクリプトエンジンに接続
-	val plugin = ExamplePlugin();
-	engine.put("plugin", plugin);
+	val examplePlugin = ExamplePlugin();
+	engine.put("examplePlugin", examplePlugin);
 
 	// Or, if you want to connect each fields/methods to the engine individually:
 	// または、もしフィールド/メソッドを個別にスクリプトエンジンに接続したい場合は：
 	/*
 	val loopMaxField = ExamplePlugin::class.java.getField("LOOP_MAX")
 	val outputMethod = ExamplePlugin::class.java.getMethod("output", Int::class.java)
-	val plugin = ExamplePlugin()
-	engine.put("LOOP_MAX", arrayOf(loopMaxField, plugin));
-	engine.put("output(int)", arrayOf(outputMethod, plugin));
+	val examplePlugin = ExamplePlugin()
+	engine.put("LOOP_MAX", arrayOf(loopMaxField, examplePlugin));
+	engine.put("output(int)", arrayOf(outputMethod, examplePlugin));
 	*/
 
 
@@ -84,11 +84,11 @@ fun main(args: Array<String>) {
 			output(sum);
 	"""
 
-	// Note: You can also access to "LOOP_MAX" as "plugin.LOOP_MAX",
-	//       and can also call "output(sum)" as "plugin.output(sum)".
+	// Note: You can also access to "LOOP_MAX" as "examplePlugin.LOOP_MAX",
+	//       and can also call "output(sum)" as "examplePlugin.output(sum)".
 	//       It might be useful when multiple classes/instances are connected to the script engine.
-	// 備考:「 LOOP_MAX 」へのアクセスを「 plugin.LOOP_MAX 」と書いたり、
-	//      「 output(sum) 」の呼び出しを「 plugin.output(sum) 」と書く事もできます。
+	// 備考:「 LOOP_MAX 」へのアクセスを「 examplePlugin.LOOP_MAX 」と書いたり、
+	//      「 output(sum) 」の呼び出しを「 examplePlugin.output(sum) 」と書く事もできます。
 	//       これは、複数のクラス/インスタンスをスクリプトエンジンに接続している場合に便利です。
 
 

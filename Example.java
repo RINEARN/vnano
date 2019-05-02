@@ -62,13 +62,13 @@ public class Example {
 
 		// Connect methods/fields of ExamplePlugin class to the script engine as external functions/variables.
 		// ExamplePluginクラスのメソッド・フィールドを外部関数・変数としてスクリプトエンジンに接続
-		ExamplePlugin plugin = new Example().new ExamplePlugin();
-		engine.put("plugin", plugin);
+		ExamplePlugin examplePlugin = new Example().new ExamplePlugin();
+		engine.put("examplePlugin", examplePlugin);
 
 		// Or, if connect only static fields/methods of a class:
 		// もしクラスのstaticなフィールド/メソッドのみを接続する場合は：
 		/*
-		engine.put("plugin", ExamplePlugin.class);
+		engine.put("examplePlugin", ExamplePlugin.class);
 		*/
 
 
@@ -78,10 +78,10 @@ public class Example {
 		try {
 			Field loopMaxField  = ExamplePlugin.class.getField("LOOP_MAX");
 			Method outputMethod = ExamplePlugin.class.getMethod("output",int.class);
-			ExamplePlugin plugin = new Example().new ExamplePlugin();
+			ExamplePlugin examplePlugin = new Example().new ExamplePlugin();
 
-			engine.put("LOOP_MAX",    new Object[]{ loopMaxField, plugin } );
-			engine.put("output(int)", new Object[]{ outputMethod, plugin } );
+			engine.put("LOOP_MAX",    new Object[]{ loopMaxField, examplePlugin } );
+			engine.put("output(int)", new Object[]{ outputMethod, examplePlugin } );
 
 		} catch (NoSuchFieldException | NoSuchMethodException e){
 			System.err.println("Method/field not found.");
@@ -115,11 +115,11 @@ public class Example {
 				"  }                           " +
 				"  output(sum);                " ;
 
-		// Note: You can also access to "LOOP_MAX" as "plugin.LOOP_MAX",
-		//       and can also call "output(sum)" as "plugin.output(sum)".
+		// Note: You can also access to "LOOP_MAX" as "examplePlugin.LOOP_MAX",
+		//       and can also call "output(sum)" as "examplePlugin.output(sum)".
 		//       It might be useful when multiple classes/instances are connected to the script engine.
-		// 備考:「 LOOP_MAX 」へのアクセスを「 plugin.LOOP_MAX 」と書いたり、
-		//      「 output(sum) 」の呼び出しを「 plugin.output(sum) 」と書く事もできます。
+		// 備考:「 LOOP_MAX 」へのアクセスを「 examplePlugin.LOOP_MAX 」と書いたり、
+		//      「 output(sum) 」の呼び出しを「 examplePlugin.output(sum) 」と書く事もできます。
 		//       これは、複数のクラス/インスタンスをスクリプトエンジンに接続している場合に便利です。
 
 
