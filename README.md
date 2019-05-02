@@ -120,7 +120,7 @@ Vnano を使用してスクリプトを実行するJava&reg;アプリケーシ�
 			// Connect methods/fields of ExamplePlugin to the script engine as external functions/variables.
 			// ExamplePluginクラスのメソッド・フィールドを外部関数・変数としてスクリプトエンジンに接続
 			ExamplePlugin examplePlugin = new Example().new ExamplePlugin();
-			engine.put("examplePlugin", examplePlugin);
+			engine.put("ExamplePlugin", examplePlugin);
 
 
 			// Create a script code (calculates the value of summation from 1 to 100).
@@ -133,10 +133,12 @@ Vnano を使用してスクリプトを実行するJava&reg;アプリケーシ�
 					"  }                           " +
 					"  output(sum);                " ;
 
-			// Note: You can also access to "LOOP_MAX" as "examplePlugin.LOOP_MAX",
-			//       and can also call "output(sum)" as "examplePlugin.output(sum)".
-			// 備考:「 LOOP_MAX 」へのアクセスを「 examplePlugin.LOOP_MAX 」と書いたり、
-			//      「 output(sum) 」の呼び出しを「 examplePlugin.output(sum) 」と書く事もできます。
+			// Note: You can also access to "LOOP_MAX" as "ExamplePlugin.LOOP_MAX",
+			//       and can also call "output(sum)" as "ExamplePlugin.output(sum)".
+			//       where "ExamplePlugin" is the strings specified to the "put" method of the script engine.
+			// 備考:「 LOOP_MAX 」へのアクセスを「 ExamplePlugin.LOOP_MAX 」と書いたり、
+			//      「 output(sum) 」の呼び出しを「 ExamplePlugin.output(sum) 」と書く事もできます。
+			//       ここで「 ExamplePlugin 」は、スクリプトエンジンの put メソッドに指定した文字列です。
 
 
 			// Run the script code by the script engine of Vnano.
@@ -183,7 +185,7 @@ The following is the same example written in Kotlin&reg;:
 		// Connect methods/fields of ExamplePlugin to the script engine as external functions/variables.
 		// ExamplePluginクラスのメソッド・フィールドを外部関数・変数としてスクリプトエンジンに接続
 		val examplePlugin = ExamplePlugin();
-		engine.put("examplePlugin", examplePlugin);
+		engine.put("ExamplePlugin", examplePlugin);
 
 
 		// Create a script code (calculates the value of summation from 1 to 100).
@@ -197,10 +199,12 @@ The following is the same example written in Kotlin&reg;:
 				output(sum);
 		"""
 
-		// Note: You can also access to "LOOP_MAX" as "examplePlugin.LOOP_MAX",
-		//       and can also call "output(sum)" as "examplePlugin.output(sum)".
-		// 備考:「 LOOP_MAX 」へのアクセスを「 examplePlugin.LOOP_MAX 」と書いたり、
-		//      「 output(sum) 」の呼び出しを「 examplePlugin.output(sum) 」と書く事もできます。
+		// Note: You can also access to "LOOP_MAX" as "ExamplePlugin.LOOP_MAX",
+		//       and can also call "output(sum)" as "ExamplePlugin.output(sum)".
+		//       where "ExamplePlugin" is the strings specified to the "put" method of the script engine.
+		// 備考:「 LOOP_MAX 」へのアクセスを「 ExamplePlugin.LOOP_MAX 」と書いたり、
+		//      「 output(sum) 」の呼び出しを「 ExamplePlugin.output(sum) 」と書く事もできます。
+		//       ここで「 ExamplePlugin 」は、スクリプトエンジンの put メソッドに指定した文字列です。
 
 
 		// Run the script code by the script engine of Vnano.

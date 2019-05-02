@@ -60,7 +60,7 @@ fun main(args: Array<String>) {
 	// Connect methods/fields of ExamplePlugin class to the script engine as external functions/variables.
 	// ExamplePluginクラスのメソッド・フィールドを外部関数・変数としてスクリプトエンジンに接続
 	val examplePlugin = ExamplePlugin();
-	engine.put("examplePlugin", examplePlugin);
+	engine.put("ExamplePlugin", examplePlugin);
 
 	// Or, if you want to connect each fields/methods to the engine individually:
 	// または、もしフィールド/メソッドを個別にスクリプトエンジンに接続したい場合は：
@@ -84,12 +84,14 @@ fun main(args: Array<String>) {
 			output(sum);
 	"""
 
-	// Note: You can also access to "LOOP_MAX" as "examplePlugin.LOOP_MAX",
-	//       and can also call "output(sum)" as "examplePlugin.output(sum)".
+	// Note: You can also access to "LOOP_MAX" as "ExamplePlugin.LOOP_MAX",
+	//       and can also call "output(sum)" as "ExamplePlugin.output(sum)",
+	//       where "ExamplePlugin" is the strings specified to the "put" method of the script engine.
 	//       It might be useful when multiple classes/instances are connected to the script engine.
-	// 備考:「 LOOP_MAX 」へのアクセスを「 examplePlugin.LOOP_MAX 」と書いたり、
-	//      「 output(sum) 」の呼び出しを「 examplePlugin.output(sum) 」と書く事もできます。
-	//       これは、複数のクラス/インスタンスをスクリプトエンジンに接続している場合に便利です。
+	// 備考:「 LOOP_MAX 」へのアクセスを「 ExamplePlugin.LOOP_MAX 」と書いたり、
+	//      「 output(sum) 」の呼び出しを「 ExamplePlugin.output(sum) 」と書く事もできます。
+	//       ここで「 ExamplePlugin 」は、スクリプトエンジンの put メソッドに指定した文字列です。
+	//       この書き方は、複数のクラス/インスタンスをスクリプトエンジンに接続している場合に便利です。
 
 
 	// Run the script code by the script engine of Vnano.
