@@ -12,7 +12,6 @@
 ./org/vcssl/connect/GeneralProcessConnector1.java
 ./org/vcssl/connect/GeneralProcessConnector2.java
 ./org/vcssl/connect/GeneralProcessConnector3.java
-./org/vcssl/connect/GeneralProcessException.java
 ./org/vcssl/connect/MethodToXfci1Adapter.java
 ./org/vcssl/connect/package-info.java
 ./org/vcssl/nano/compiler/AstNode.java
