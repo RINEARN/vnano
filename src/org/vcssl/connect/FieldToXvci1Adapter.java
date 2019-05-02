@@ -207,35 +207,22 @@ public class FieldToXvci1Adapter implements ExternalVariableConnector1 {
 
 
 	/**
-	 * このプラグインが、スクリプトエンジンに接続された際に呼び出され、
-	 * そのエンジンに依存するやり取りを行うためのオブジェクトが渡されます。
-	 *
-	 * 同オブジェクトは、恐らく {@link EngineConnector1 EngineConnector1}
-	 * もしくはその後継の、抽象化されたインターフェースでラップされた形で渡されます。
-	 *
-	 * @param engineConnector エンジンに依存するやり取りを行うためのオブジェクト
-	 */
-	public void setEngine(Object engineConnector) {
-	}
-
-
-	/**
 	 * 変数のデータを取得します。
 	 */
-	public Object getData() throws ExternalVariableException {
+	public Object getData() throws ConnectorException {
 		try {
 			return this.field.get(this.objectInstance);
 
 		// アクセス修飾子などが原因で取得できない場合
 		} catch (IllegalArgumentException illegalArgumentException) {
-			throw new ExternalVariableException(
+			throw new ConnectorException(
 					objectInstance.getClass().getCanonicalName() + " class has no field named \"" + this.field.getName() + "\"",
 					illegalArgumentException
 			);
 
 		// そもそもインスタンスが対象フィールドを持っていない場合
 		} catch (IllegalAccessException illegalAccessException) {
-			throw new ExternalVariableException(
+			throw new ConnectorException(
 					"The field \"" + this.field.getName() + "\" of " + objectInstance.getClass().getCanonicalName()
 					+ " class is not accessable (probably it is private or protected).",
 					illegalAccessException
@@ -248,7 +235,7 @@ public class FieldToXvci1Adapter implements ExternalVariableConnector1 {
 	 * データの自動変換が無効化されている場合において、変数のデータを取得します。
 	 * このアダプタでは、この機能は使用されません。
 	 */
-	public void getData(Object dataContainer) throws ExternalVariableException {
+	public void getData(Object dataContainer) throws ConnectorException {
 	}
 
 
@@ -257,20 +244,20 @@ public class FieldToXvci1Adapter implements ExternalVariableConnector1 {
 	 *
 	 * @param data 変数のデータ
 	 */
-	public void setData(Object data) throws ExternalVariableException {
+	public void setData(Object data) throws ConnectorException {
 		try {
 			this.field.set(this.objectInstance, data);
 
 		// アクセス修飾子などが原因で設定できない場合
 		} catch (IllegalArgumentException illegalArgumentException) {
-			throw new ExternalVariableException(
+			throw new ConnectorException(
 					objectInstance.getClass().getCanonicalName() + " class has no field named \"" + this.field.getName() + "\"",
 					illegalArgumentException
 			);
 
 		// そもそもインスタンスが対象フィールドを持っていない場合
 		} catch (IllegalAccessException illegalAccessException) {
-			throw new ExternalVariableException(
+			throw new ConnectorException(
 					"The field \"" + this.field.getName() + "\" of " + objectInstance.getClass().getCanonicalName()
 					+ " class is not accessable (probably it is private or protected).",
 					illegalAccessException
@@ -280,34 +267,58 @@ public class FieldToXvci1Adapter implements ExternalVariableConnector1 {
 
 
 	/**
-	 * XVCIに定義されたスクリプト実行毎の初期化処理ですが、
-	 * このアダプタでは不要なため何も行いません。
+	 * 処理系への接続時に必要な初期化処理を行います。
+	 *
+	 * 引数には、スクリプトエンジンに依存するやり取りを行うためのオブジェクトが渡されます。
+	 * このオブジェクトは、恐らく {@link EngineConnector1 EngineConnector1}
+	 * もしくはその後継の、抽象化されたインターフェースでラップされた形で渡されます。
+	 *
+	 * @param engineConnector エンジンに依存するやり取りを行うためのオブジェクト
+	 * @throws ConnectorException 初期化処理に失敗した場合にスローされます。
 	 */
-	public void initializeForExecution() {
+	public void initializeForConnection(Object engineConnector) throws ConnectorException {
 	}
 
 
 	/**
-	 * XVCIに定義されたスクリプト実行毎の終了時処理ですが、
-	 * このアダプタでは不要なため何も行いません。
+	 * 処理系からの接続解除時に必要な終了時処理を行います。
+	 *
+	 * 引数には、スクリプトエンジンに依存するやり取りを行うためのオブジェクトが渡されます。
+	 * このオブジェクトは、恐らく {@link EngineConnector1 EngineConnector1}
+	 * もしくはその後継の、抽象化されたインターフェースでラップされた形で渡されます。
+	 *
+	 * @param engineConnector エンジンに依存するやり取りを行うためのオブジェクト
+	 * @throws ConnectorException 終了時処理に失敗した場合にスローされます。
 	 */
-	public void finalizeForTermination() {
+	public void finalizeForDisconnection(Object engineConnector) throws ConnectorException {
 	}
 
 
 	/**
-	 * XVCIに定義された処理系への接続時の初期化処理ですが、
-	 * このアダプタでは不要なため何も行いません。
+	 * スクリプト実行毎の初期化処理を行います。
+	 *
+	 * 引数には、スクリプトエンジンに依存するやり取りを行うためのオブジェクトが渡されます。
+	 * このオブジェクトは、恐らく {@link EngineConnector1 EngineConnector1}
+	 * もしくはその後継の、抽象化されたインターフェースでラップされた形で渡されます。
+	 *
+	 * @param engineConnector エンジンに依存するやり取りを行うためのオブジェクト
+	 * @throws ConnectorException 初期化処理に失敗した場合にスローされます。
 	 */
-	public void initializeForConnection() {
+	public void initializeForExecution(Object engineConnector) throws ConnectorException {
 	}
 
 
 	/**
-	 * XVCIに定義された処理系からの接続解除時の終了時処理ですが、
-	 * このアダプタでは不要なため何も行いません。
+	 * スクリプト実行毎の終了時処理を行います。
+	 *
+	 * 引数には、スクリプトエンジンに依存するやり取りを行うためのオブジェクトが渡されます。
+	 * このオブジェクトは、恐らく {@link EngineConnector1 EngineConnector1}
+	 * もしくはその後継の、抽象化されたインターフェースでラップされた形で渡されます。
+	 *
+	 * @param engineConnector エンジンに依存するやり取りを行うためのオブジェクト
+	 * @throws ConnectorException 終了時処理に失敗した場合にスローされます。
 	 */
-	public void finalizeForDisconnection() {
+	public void finalizeForTermination(Object engineConnector) throws ConnectorException {
 	}
 
 }

@@ -222,18 +222,6 @@ public interface ExternalFunctionConnector1 {
 
 
 	/**
-	 * このプラグインが、スクリプトエンジンに接続された際に呼び出され、
-	 * そのエンジンに依存するやり取りを行うためのオブジェクトが渡されます。
-	 *
-	 * 同オブジェクトは、恐らく {@link EngineConnector1 EngineConnector1}
-	 * もしくはその後継の、抽象化されたインターフェースでラップされた形で渡されます。
-	 *
-	 * @param engineConnector エンジンに依存するやり取りを行うためのオブジェクト
-	 */
-	public abstract void setEngine(Object engineConnector);
-
-
-	/**
 	 * 関数を実行します。
 	 *
 	 * データの自動変換が無効である場合には、
@@ -243,32 +231,60 @@ public interface ExternalFunctionConnector1 {
 	 *
 	 * @param arguments 全ての実引数を格納する配列（データの自動変換が無効の場合、最初の要素は戻り値格納用）
 	 * @return 実行結果の戻り値
-	 * @throws ExternalFunctionException
-	 * 		何らかの問題により、関数の実行を完了できなかった場合にスローします。
+	 * @throws ConnectorException 何らかの問題により、関数の実行を完了できなかった場合にスローします。
 	 */
-	public abstract Object invoke(Object[] arguments) throws ExternalFunctionException ;
+	public abstract Object invoke(Object[] arguments) throws ConnectorException ;
 
 
 	/**
-	 * 処理系への接続時に必要な初期化処理を行います。 // 例外が必要？
+	 * 処理系への接続時に必要な初期化処理を行います。
+	 *
+	 * 引数には、スクリプトエンジンに依存するやり取りを行うためのオブジェクトが渡されます。
+	 * このオブジェクトは、恐らく {@link EngineConnector1 EngineConnector1}
+	 * もしくはその後継の、抽象化されたインターフェースでラップされた形で渡されます。
+	 *
+	 * @param engineConnector エンジンに依存するやり取りを行うためのオブジェクト
+	 * @throws ConnectorException 初期化処理に失敗した場合にスローされます。
 	 */
-	public abstract void initializeForConnection();
+	public abstract void initializeForConnection(Object engineConnector) throws ConnectorException;
 
 
 	/**
-	 * 処理系からの接続解除時に必要な終了時処理を行います。 // 例外が必要？
+	 * 処理系からの接続解除時に必要な終了時処理を行います。
+	 *
+	 * 引数には、スクリプトエンジンに依存するやり取りを行うためのオブジェクトが渡されます。
+	 * このオブジェクトは、恐らく {@link EngineConnector1 EngineConnector1}
+	 * もしくはその後継の、抽象化されたインターフェースでラップされた形で渡されます。
+	 *
+	 * @param engineConnector エンジンに依存するやり取りを行うためのオブジェクト
+	 * @throws ConnectorException 終了時処理に失敗した場合にスローされます。
 	 */
-	public abstract void finalizeForDisconnection();
+	public abstract void finalizeForDisconnection(Object engineConnector) throws ConnectorException;
 
 
 	/**
-	 * スクリプト実行毎の初期化処理を行います。 // 例外が必要？
+	 * スクリプト実行毎の初期化処理を行います。
+	 *
+	 * 引数には、スクリプトエンジンに依存するやり取りを行うためのオブジェクトが渡されます。
+	 * このオブジェクトは、恐らく {@link EngineConnector1 EngineConnector1}
+	 * もしくはその後継の、抽象化されたインターフェースでラップされた形で渡されます。
+	 *
+	 * @param engineConnector エンジンに依存するやり取りを行うためのオブジェクト
+	 * @throws ConnectorException 初期化処理に失敗した場合にスローされます。
 	 */
-	public abstract void initializeForExecution();
+	public abstract void initializeForExecution(Object engineConnector) throws ConnectorException;
 
 
 	/**
-	 * スクリプト実行毎の終了時処理を行います。 // 例外が必要？
+	 * スクリプト実行毎の終了時処理を行います。
+	 *
+	 * 引数には、スクリプトエンジンに依存するやり取りを行うためのオブジェクトが渡されます。
+	 * このオブジェクトは、恐らく {@link EngineConnector1 EngineConnector1}
+	 * もしくはその後継の、抽象化されたインターフェースでラップされた形で渡されます。
+	 *
+	 * @param engineConnector エンジンに依存するやり取りを行うためのオブジェクト
+	 * @throws ConnectorException 終了時処理に失敗した場合にスローされます。
 	 */
-	public abstract void finalizeForTermination();
+	public abstract void finalizeForTermination(Object engineConnector) throws ConnectorException;
+
 }

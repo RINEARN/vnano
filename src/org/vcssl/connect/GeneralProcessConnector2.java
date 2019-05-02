@@ -67,7 +67,7 @@ package org.vcssl.connect;
  *
  * @author RINEARN (Fumihiro Matsui)
  */
-public interface GeneralProcessConnector2 extends GeneralProcessConnector1 {
+public interface GeneralProcessConnector2 {
 
 
 	/**

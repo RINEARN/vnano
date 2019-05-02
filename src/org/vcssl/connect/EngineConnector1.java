@@ -28,6 +28,22 @@ package org.vcssl.connect;
  */
 public interface EngineConnector1 {
 
-	// プラグイン側から処理系側を呼び出すためのインターフェースを定義する
+
+	/**
+	 * 指定された名称のオプションの値を保持しているかどうかを判定します。
+	 *
+	 * @param optionName オプションの名称
+	 * @return 判定結果（保持していれば true）
+	 */
+	public abstract Object hasOptionValue(String optionName);
+
+
+	/**
+	 * 指定された名称のオプションの値を取得します。
+	 *
+	 * @param optionName オプションの名称
+	 * @return オプションの値
+	 */
+	public abstract Object getOptionValue(String optionName);
 
 }

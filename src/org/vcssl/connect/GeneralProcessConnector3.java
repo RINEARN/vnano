@@ -15,13 +15,6 @@ package org.vcssl.connect;
  * GPCI 3 (General Process Connector Interface 3)
  * 形式の外部関数プラグインを開発するための、
  * プラグイン側のコネクター・インターフェースです。
- * <br>
- * GPCI 3 は GPCI 2 以前の仕様を全て含むため、
- * このインターフェースを実装するクラスは、必要に応じて
- * {@link GeneralProcessConnector2 GeneralProcessConnector2}
- * および
- * {@link GeneralProcessConnector1 GeneralProcessConnector1}
- * インターフェースも同時に実装する事が可能です。
  * </p>
  *
  * <p>
@@ -30,6 +23,28 @@ package org.vcssl.connect;
  * このインターフェースをサポートする処理系が正式にリリースされるまでの間、
  * 一部仕様が変更される可能性があります。
  * </span>
+ * </p>
+ *
+ * <p>
+ * GPCI 3 は GPCI 2 以前の仕様の完全な拡張（以前の使用を全て含む形）ではありませんが、
+ * 両者の仕様は競合しないため、必要に応じて
+ * {@link GeneralProcessConnector2 GeneralProcessConnector2}
+ * および
+ * {@link GeneralProcessConnector1 GeneralProcessConnector1}
+ * インターフェースも同時に実装することで、GPCI 2までしか対応していない処理系にも対応する事が可能です。
+ * <br>
+ * その際、GPCI 2の
+ * {@link GeneralProcessConnector2#init init}/{@link GeneralProcessConnector2#dispose dispose}
+ * メソッドと、このGPCI 3の
+ * {@link GeneralProcessConnector3#initializeForExecution initializeForExecution}/
+ * {@link GeneralProcessConnector3#finalizeForTermination finalizeForTermination}
+ * メソッドは、役割がほぼ同じである事に留意してください。
+ * <br>
+ * 処理系は、プラグインに複数のインターフェースが実装されている場合、
+ * （サポート範囲内で）より新しいインターフェースで優先的に接続するため、
+ * GPCI 3対応の処理系では上記の後者が、GPCI 2までの対応の処理系では前者が呼び出されます。
+ * <br>
+ * よって、後者の中で前者を呼び出すように実装すると、簡潔で重複コードを避けられます。
  * </p>
  *
  * <p>
@@ -59,9 +74,10 @@ package org.vcssl.connect;
  * </p>
  *
  * <p>
- * GPCI 3 は、{@link GeneralProcessConnector2 GPCI 2} の全機能に加えて、
+ * GPCI 3 は、{@link GeneralProcessConnector2 GPCI 2} をベースに、
  * パーミッション設定ベースのセキュリティレイヤーを持つ処理系のため、
  * 必要・不要パーミッションの通知機能がサポートされています。
+ * また、初期化/終了時処理も拡張されています。
  * <br>
  * ただし、この機能に対応している処理系は現時点では存在しないため、
  * 現状のVCSSL処理系などでは、
@@ -85,7 +101,7 @@ package org.vcssl.connect;
  *
  * @author RINEARN (Fumihiro Matsui)
  */
-public interface GeneralProcessConnector3 extends GeneralProcessConnector2 {
+public interface GeneralProcessConnector3 {
 
 
 	/** 動的ロード時などに処理系側から参照される、インターフェースの形式名（値は"GPCI"）です。 */
@@ -93,18 +109,6 @@ public interface GeneralProcessConnector3 extends GeneralProcessConnector2 {
 
 	/** 動的ロード時などに処理系側から参照される、インターフェースの世代名（値は"3"）です。*/
 	public static String INTERFACE_GENERATION = "3";
-
-
-	/**
-	 * スクリプト実行毎の初期化処理を行います。
-	 */
-	public void init();
-
-
-	/**
-	 * スクリプト実行毎の終了時処理を行います。
-	 */
-	public void dispose();
 
 
 	/**
@@ -124,7 +128,7 @@ public interface GeneralProcessConnector3 extends GeneralProcessConnector2 {
 	 * @param functionName 判定対象関数の関数名
 	 * @return 処理可能であれば true
 	 */
-	public boolean isProcessable(String functionName);
+	public abstract boolean isProcessable(String functionName);
 
 
 	/**
@@ -141,7 +145,7 @@ public interface GeneralProcessConnector3 extends GeneralProcessConnector2 {
 	 * @param args 実引数
 	 * @return 実行結果の戻り値
 	 */
-	public String[] process( String functionName, String[] args );
+	public abstract String[] process( String functionName, String[] args );
 
 
 	/**
@@ -204,14 +208,54 @@ public interface GeneralProcessConnector3 extends GeneralProcessConnector2 {
 
 
 	/**
-	 * このプラグインが、スクリプトエンジンに接続された際に呼び出され、
-	 * そのエンジンに依存するやり取りを行うためのオブジェクトが渡されます。
+	 * 処理系への接続時に必要な初期化処理を行います。
 	 *
-	 * 同オブジェクトは、恐らく {@link EngineConnector1 EngineConnector1}
+	 * 引数には、スクリプトエンジンに依存するやり取りを行うためのオブジェクトが渡されます。
+	 * このオブジェクトは、恐らく {@link EngineConnector1 EngineConnector1}
 	 * もしくはその後継の、抽象化されたインターフェースでラップされた形で渡されます。
 	 *
 	 * @param engineConnector エンジンに依存するやり取りを行うためのオブジェクト
+	 * @throws ConnectorException 初期化処理に失敗した場合にスローされます。
 	 */
-	public abstract void setEngine(Object engineConnector);
+	public abstract void initializeForConnection(Object engineConnector) throws ConnectorException;
+
+
+	/**
+	 * 処理系からの接続解除時に必要な終了時処理を行います。
+	 *
+	 * 引数には、スクリプトエンジンに依存するやり取りを行うためのオブジェクトが渡されます。
+	 * このオブジェクトは、恐らく {@link EngineConnector1 EngineConnector1}
+	 * もしくはその後継の、抽象化されたインターフェースでラップされた形で渡されます。
+	 *
+	 * @param engineConnector エンジンに依存するやり取りを行うためのオブジェクト
+	 * @throws ConnectorException 終了時処理に失敗した場合にスローされます。
+	 */
+	public abstract void finalizeForDisconnection(Object engineConnector) throws ConnectorException;
+
+
+	/**
+	 * スクリプト実行毎の初期化処理を行います。
+	 *
+	 * 引数には、スクリプトエンジンに依存するやり取りを行うためのオブジェクトが渡されます。
+	 * このオブジェクトは、恐らく {@link EngineConnector1 EngineConnector1}
+	 * もしくはその後継の、抽象化されたインターフェースでラップされた形で渡されます。
+	 *
+	 * @param engineConnector エンジンに依存するやり取りを行うためのオブジェクト
+	 * @throws ConnectorException 初期化処理に失敗した場合にスローされます。
+	 */
+	public abstract void initializeForExecution(Object engineConnector) throws ConnectorException;
+
+
+	/**
+	 * スクリプト実行毎の終了時処理を行います。
+	 *
+	 * 引数には、スクリプトエンジンに依存するやり取りを行うためのオブジェクトが渡されます。
+	 * このオブジェクトは、恐らく {@link EngineConnector1 EngineConnector1}
+	 * もしくはその後継の、抽象化されたインターフェースでラップされた形で渡されます。
+	 *
+	 * @param engineConnector エンジンに依存するやり取りを行うためのオブジェクト
+	 * @throws ConnectorException 終了時処理に失敗した場合にスローされます。
+	 */
+	public abstract void finalizeForTermination(Object engineConnector) throws ConnectorException;
 
 }
