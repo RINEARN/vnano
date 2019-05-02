@@ -41,7 +41,7 @@ import org.vcssl.nano.VnanoEngineFactory
 
 // A class which provides a field/method accessed from the script as external functions/variables.
 // スクリプト内から外部変数・外部関数としてアクセスされるフィールドとメソッドを提供するクラス
-class ScriptIO {
+class ExamplePlugin {
 	@JvmField val LOOP_MAX: Int = 100
 
 	fun output(value: Int) {
@@ -56,13 +56,22 @@ fun main(args: Array<String>) {
 	val factory = VnanoEngineFactory()
 	val engine = factory.getScriptEngine()
 
-	// Connect a field/method to the engine as an external variable/function.
-	// フィールドとメソッドを外部関数・変数としてスクリプトエンジンに接続
-	val loopMaxField = ScriptIO::class.java.getField("LOOP_MAX")
-	val outputMethod = ScriptIO::class.java.getMethod("output", Int::class.java)
-	val ioInstance = ScriptIO()
-	engine.put("LOOP_MAX", arrayOf(loopMaxField, ioInstance));
-	engine.put("output(int)", arrayOf(outputMethod, ioInstance));
+
+	// Connect methods/fields of ExamplePlugin class to the script engine as external functions/variables.
+	// ExamplePluginクラスのメソッド・フィールドを外部関数・変数としてスクリプトエンジンに接続
+	val plugin = ExamplePlugin();
+	engine.put("plugin", plugin);
+
+	// Or, if you want to connect each fields/methods to the engine individually:
+	// または、もしフィールド/メソッドを個別にスクリプトエンジンに接続したい場合は：
+	/*
+	val loopMaxField = ExamplePlugin::class.java.getField("LOOP_MAX")
+	val outputMethod = ExamplePlugin::class.java.getMethod("output", Int::class.java)
+	val plugin = ExamplePlugin()
+	engine.put("LOOP_MAX", arrayOf(loopMaxField, plugin));
+	engine.put("output(int)", arrayOf(outputMethod, plugin));
+	*/
+
 
 	// Create a script code (calculates the value of summation from 1 to 100).
 	// スクリプトコードを用意（1から100までの和を求める）
@@ -74,6 +83,14 @@ fun main(args: Array<String>) {
 			}
 			output(sum);
 	"""
+
+	// Note: You can also access to "LOOP_MAX" as "plugin.LOOP_MAX",
+	//       and can also call "output(sum)" as "plugin.output(sum)".
+	//       It might be useful when multiple classes/instances are connected to the script engine.
+	// 備考:「 LOOP_MAX 」へのアクセスを「 plugin.LOOP_MAX 」と書いたり、
+	//      「 output(sum) 」の呼び出しを「 plugin.output(sum) 」と書く事もできます。
+	//       これは、複数のクラス/インスタンスをスクリプトエンジンに接続している場合に便利です。
+
 
 	// Run the script code by the script engine of Vnano.
 	// Vnanoのスクリプトエンジンにスクリプトコードを渡して実行

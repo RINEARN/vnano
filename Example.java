@@ -42,7 +42,7 @@ public class Example {
 
 	// A class which provides a field/method accessed from the script as external functions/variables.
 	// スクリプト内から外部変数・外部関数としてアクセスされるフィールドとメソッドを提供するクラス
-	public class ScriptIO {
+	public class ExamplePlugin {
 		public int LOOP_MAX = 100;
 		public void output(int value) {
 			System.out.println("Output from script: " + value);
@@ -60,23 +60,50 @@ public class Example {
 			return;
 		}
 
-		// Connect a method/field to the script engine as an external function/variable.
-		// メソッド・フィールドを外部関数・変数としてスクリプトエンジンに接続
-		try {
-			Field loopMaxField  = ScriptIO.class.getField("LOOP_MAX");
-			Method outputMethod = ScriptIO.class.getMethod("output",int.class);
-			ScriptIO ioInstance = new Example().new ScriptIO();
+		// Connect methods/fields of ExamplePlugin class to the script engine as external functions/variables.
+		// ExamplePluginクラスのメソッド・フィールドを外部関数・変数としてスクリプトエンジンに接続
+		ExamplePlugin plugin = new Example().new ExamplePlugin();
+		engine.put("plugin", plugin);
 
-			engine.put("LOOP_MAX",    new Object[]{ loopMaxField, ioInstance });
-			engine.put("output(int)", new Object[]{ outputMethod, ioInstance} );
-			// see "Float64ScalarFlopsBenchmark.java" to connect static methods/fields.
-			// メソッド/フィールドがstaticな場合の接続例は Float64ScalarFlopsBenchmark.java 参照
+		// Or, if connect only static fields/methods of a class:
+		// もしクラスのstaticなフィールド/メソッドのみを接続する場合は：
+		/*
+		engine.put("plugin", ExamplePlugin.class);
+		*/
+
+
+		// Or, if you want to connect each fields/methods to the engine individually:
+		// もしくは、フィールド/メソッドを個別にスクリプトエンジンに接続したい場合は：
+		/*
+		try {
+			Field loopMaxField  = ExamplePlugin.class.getField("LOOP_MAX");
+			Method outputMethod = ExamplePlugin.class.getMethod("output",int.class);
+			ExamplePlugin plugin = new Example().new ExamplePlugin();
+
+			engine.put("LOOP_MAX",    new Object[]{ loopMaxField, plugin } );
+			engine.put("output(int)", new Object[]{ outputMethod, plugin } );
 
 		} catch (NoSuchFieldException | NoSuchMethodException e){
 			System.err.println("Method/field not found.");
 			e.printStackTrace();
 			return;
 		}
+		*/
+
+		// For static fields/methods:
+		// staticなフィールド/メソッドの場合は：
+		/*
+		try {
+			engine.put("LOOP_MAX",    ExamplePlugin.class.getField("LOOP_MAX") );
+			engine.put("output(int)", ExamplePlugin.class.getMethod("output",int.class) );
+
+		} catch (NoSuchFieldException | NoSuchMethodException e){
+			System.err.println("Method/field not found.");
+			e.printStackTrace();
+			return;
+		}
+		*/
+
 
 		// Create a script code (calculates the value of summation from 1 to 100).
 		// スクリプトコードを用意（1から100までの和を求める）
@@ -87,6 +114,14 @@ public class Example {
 				"      sum += i;               " +
 				"  }                           " +
 				"  output(sum);                " ;
+
+		// Note: You can also access to "LOOP_MAX" as "plugin.LOOP_MAX",
+		//       and can also call "output(sum)" as "plugin.output(sum)".
+		//       It might be useful when multiple classes/instances are connected to the script engine.
+		// 備考:「 LOOP_MAX 」へのアクセスを「 plugin.LOOP_MAX 」と書いたり、
+		//      「 output(sum) 」の呼び出しを「 plugin.output(sum) 」と書く事もできます。
+		//       これは、複数のクラス/インスタンスをスクリプトエンジンに接続している場合に便利です。
+
 
 		// Run the script code by the script engine of Vnano.
 		// Vnanoのスクリプトエンジンにスクリプトコードを渡して実行
