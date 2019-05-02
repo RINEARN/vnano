@@ -27,11 +27,11 @@ import java.util.List;
 public class ClassToXlci1Adapter implements ExternalLibraryConnector1 {
 
 
-	/** デフォルトの必要パーミッション配列（値は { {@link ExternalPermission#NONE ExternalPermission.NONE} } ）です。 */
-	private static final String[] DEFAULT_NECESSARY_PERMISSIONS = { ExternalPermission.NONE };
+	/** デフォルトの必要パーミッション配列（値は { {@link ConnectorPermission#NONE ConnectorPermission.NONE} } ）です。 */
+	private static final String[] DEFAULT_NECESSARY_PERMISSIONS = { ConnectorPermission.NONE };
 
-	/** デフォルトの不要パーミッション配列（値は { {@link ExternalPermission#ALL ExternalPermission.ALL} } ）です。 */
-	private static final String[] DEFAULT_UNNECESSARY_PERMISSIONS = { ExternalPermission.ALL };
+	/** デフォルトの不要パーミッション配列（値は { {@link ConnectorPermission#ALL ConnectorPermission.ALL} } ）です。 */
+	private static final String[] DEFAULT_UNNECESSARY_PERMISSIONS = { ConnectorPermission.ALL };
 
 
 	/** ホスト言語側のクラスです。 */
@@ -116,7 +116,7 @@ public class ClassToXlci1Adapter implements ExternalLibraryConnector1 {
 	 * このメソッドは機能しません（呼び出されません）。
 	 *
 	 * このメソッドの戻り値に、
-	 * {@link ExternalPermission#NONE ExternalPermission.NONE}
+	 * {@link ConnectorPermission#NONE ConnectorPermission.NONE}
 	 * のみを格納する配列を返す事で、全てのパーミッションが不要となります。
 	 * 現状では、このライブラリに属する関数・変数のインターフェースである
 	 * {@link ExternalFunctionConnector1 XFCI1}/{@link ExternalFunctionConnector1 XVCI1}
@@ -154,7 +154,7 @@ public class ClassToXlci1Adapter implements ExternalLibraryConnector1 {
 	 * このメソッドは機能しません（呼び出されません）。
 	 *
 	 * このメソッドの戻り値に
-	 * {@link ExternalPermission#ALL ExternalPermission.ALL} のみを格納する配列を返す事で、
+	 * {@link ConnectorPermission#ALL ConnectorPermission.ALL} のみを格納する配列を返す事で、
 	 * 必要パーミッション配列に含まれているものを除いた、全てのパーミッションが不要となります。
 	 * 現状では、このライブラリに属する関数・変数のインターフェースである
 	 * {@link ExternalFunctionConnector1 XFCI1}/{@link ExternalFunctionConnector1 XVCI1}

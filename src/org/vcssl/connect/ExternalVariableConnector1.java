@@ -127,7 +127,7 @@ public interface ExternalVariableConnector1 {
 	 * 前者の方が優先されます（つまり、そのパーミッションは必要と判断されます）。
 	 *
 	 * なお、このメソッドの戻り値に、
-	 * {@link ExternalPermission#NONE ExternalPermission.NONE}
+	 * {@link ConnectorPermission#NONE ConnectorPermission.NONE}
 	 * のみを格納する配列を返す事で、全てのパーミッションが不要となります。
 	 * ただし、そのような事は、
 	 * この関数が一切のシステムリソースやネットワークにアクセスしない場合など、
@@ -151,7 +151,7 @@ public interface ExternalVariableConnector1 {
 	 * 後者の方が優先されます（つまり、そのパーミッションは必要と判断されます）。
 	 *
 	 * なお、このメソッドの戻り値に
-	 * {@link ExternalPermission#ALL ExternalPermission.ALL} のみを格納する配列を返す事で、
+	 * {@link ConnectorPermission#ALL ConnectorPermission.ALL} のみを格納する配列を返す事で、
 	 * 必要パーミッション配列に含まれているものを除いた、全てのパーミッションが不要となります。
 	 * これは、将来的に新しいパーミッションが追加された場合に、
 	 * そのパーミッションによって、この関数の実行が拒否される事を回避する事ができます。
