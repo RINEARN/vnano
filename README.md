@@ -133,11 +133,11 @@ Vnano を使用してスクリプトを実行するJava&reg;アプリケーシ�
 					"  }                           " +
 					"  output(sum);                " ;
 
-			// Note: You can also access to "LOOP_MAX" as "ExamplePlugin.LOOP_MAX",
-			//       and can also call "output(sum)" as "ExamplePlugin.output(sum)".
+			// Note: You can also access to the external variable "LOOP_MAX" as "ExamplePlugin.LOOP_MAX",
+			//       and can also call the external function "output(sum)" as "ExamplePlugin.output(sum)",
 			//       where "ExamplePlugin" is the strings specified to the "put" method of the script engine.
-			// 備考:「 LOOP_MAX 」へのアクセスを「 ExamplePlugin.LOOP_MAX 」と書いたり、
-			//      「 output(sum) 」の呼び出しを「 ExamplePlugin.output(sum) 」と書く事もできます。
+			// 備考: 外部変数「 LOOP_MAX 」へのアクセスを「 ExamplePlugin.LOOP_MAX 」と書いたり、
+			//       外部関数「 output(sum) 」の呼び出しを「 ExamplePlugin.output(sum) 」と書く事もできます。
 			//       ここで「 ExamplePlugin 」は、スクリプトエンジンの put メソッドに指定した文字列です。
 
 
@@ -199,11 +199,11 @@ The following is the same example written in Kotlin&reg;:
 				output(sum);
 		"""
 
-		// Note: You can also access to "LOOP_MAX" as "ExamplePlugin.LOOP_MAX",
-		//       and can also call "output(sum)" as "ExamplePlugin.output(sum)".
+		// Note: You can also access to the external variable "LOOP_MAX" as "ExamplePlugin.LOOP_MAX",
+		//       and can also call the external function "output(sum)" as "ExamplePlugin.output(sum)",
 		//       where "ExamplePlugin" is the strings specified to the "put" method of the script engine.
-		// 備考:「 LOOP_MAX 」へのアクセスを「 ExamplePlugin.LOOP_MAX 」と書いたり、
-		//      「 output(sum) 」の呼び出しを「 ExamplePlugin.output(sum) 」と書く事もできます。
+		// 備考: 外部変数「 LOOP_MAX 」へのアクセスを「 ExamplePlugin.LOOP_MAX 」と書いたり、
+		//       外部関数「 output(sum) 」の呼び出しを「 ExamplePlugin.output(sum) 」と書く事もできます。
 		//       ここで「 ExamplePlugin 」は、スクリプトエンジンの put メソッドに指定した文字列です。
 
 

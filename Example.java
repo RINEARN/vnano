@@ -115,12 +115,12 @@ public class Example {
 				"  }                           " +
 				"  output(sum);                " ;
 
-		// Note: You can also access to "LOOP_MAX" as "ExamplePlugin.LOOP_MAX",
-		//       and can also call "output(sum)" as "ExamplePlugin.output(sum)",
+		// Note: You can also access to the external variable "LOOP_MAX" as "ExamplePlugin.LOOP_MAX",
+		//       and can also call the external function "output(sum)" as "ExamplePlugin.output(sum)",
 		//       where "ExamplePlugin" is the strings specified to the "put" method of the script engine.
 		//       It might be useful when multiple classes/instances are connected to the script engine.
-		// 備考:「 LOOP_MAX 」へのアクセスを「 ExamplePlugin.LOOP_MAX 」と書いたり、
-		//      「 output(sum) 」の呼び出しを「 ExamplePlugin.output(sum) 」と書く事もできます。
+		// 備考: 外部変数「 LOOP_MAX 」へのアクセスを「 ExamplePlugin.LOOP_MAX 」と書いたり、
+		//       外部関数「 output(sum) 」の呼び出しを「 ExamplePlugin.output(sum) 」と書く事もできます。
 		//       ここで「 ExamplePlugin 」は、スクリプトエンジンの put メソッドに指定した文字列です。
 		//       この書き方は、複数のクラス/インスタンスをスクリプトエンジンに接続している場合に便利です。
 
