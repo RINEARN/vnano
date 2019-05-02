@@ -74,7 +74,9 @@ public class VnanoEngine implements ScriptEngine {
 		try {
 
 			// Bindingsを処理系内の接続仲介オブジェクト（インターコネクト）に変換
-			Interconnect interconnect = new Interconnect(bindings);
+			Interconnect interconnect = new Interconnect(
+				bindings, new VnanoEngineConnector(this.optionMap)
+			);
 
 			// eval対象のコードとライブラリコードを配列にまとめる
 			String[] scripts = new String[this.libraryScriptCode.length  + 1];

@@ -25,11 +25,11 @@ import java.util.Arrays;
 public class MethodToXfci1Adapter implements ExternalFunctionConnector1 {
 
 
-	/** デフォルトの必要パーミッション配列（値は { {@link ExternalPermission#NONE ExternalPermission.NONE} } ）です。 */
-	private static final String[] DEFAULT_NECESSARY_PERMISSIONS = { ExternalPermission.NONE };
+	/** デフォルトの必要パーミッション配列（値は { {@link ConnectorPermission#NONE ConnectorPermission.NONE} } ）です。 */
+	private static final String[] DEFAULT_NECESSARY_PERMISSIONS = { ConnectorPermission.NONE };
 
-	/** デフォルトの不要パーミッション配列（値は { {@link ExternalPermission#ALL ExternalPermission.ALL} } ）です。 */
-	private static final String[] DEFAULT_UNNECESSARY_PERMISSIONS = { ExternalPermission.ALL };
+	/** デフォルトの不要パーミッション配列（値は { {@link ConnectorPermission#ALL ConnectorPermission.ALL} } ）です。 */
+	private static final String[] DEFAULT_UNNECESSARY_PERMISSIONS = { ConnectorPermission.ALL };
 
 
 	/** ホスト言語側のメソッドへの、リフレクションによるアクセスを提供するMethodインスタンスです。 */
@@ -176,7 +176,7 @@ public class MethodToXfci1Adapter implements ExternalFunctionConnector1 {
 	 * 前者の方が優先されます（つまり、そのパーミッションは必要と判断されます）。
 	 *
 	 * なお、このメソッドの引数に、
-	 * {@link ExternalPermission#ALL ExternalPermission.NONE}
+	 * {@link ConnectorPermission#ALL ConnectorPermission.NONE}
 	 * のみを格納する配列を渡す事で、全てのパーミッションが不要となります。
 	 * ただし、そのような事は、
 	 * この関数が一切のシステムリソースやネットワークにアクセスしない場合など、
@@ -193,7 +193,7 @@ public class MethodToXfci1Adapter implements ExternalFunctionConnector1 {
 	 * この関数の実行に必要な全てのパーミッションを、配列にまとめて返します。
 	 *
 	 * デフォルトでは、パーミッションが不要である事を意味する
-	 * { {@link ExternalPermission#NONE ExternalPermission.NONE}
+	 * { {@link ConnectorPermission#NONE ConnectorPermission.NONE}
 	 * が返されます。
 	 *
 	 * @return 必要なパーミッションを格納する配列
@@ -212,7 +212,7 @@ public class MethodToXfci1Adapter implements ExternalFunctionConnector1 {
 	 * 後者の方が優先されます（つまり、そのパーミッションは必要と判断されます）。
 	 *
 	 * なお、このメソッドの引数に
-	 * {@link ExternalPermission#ALL ExternalPermission.ALL} のみを格納する配列を返す事で、
+	 * {@link ConnectorPermission#ALL ConnectorPermission.ALL} のみを格納する配列を返す事で、
 	 * 必要パーミッション配列に含まれているものを除いた、全てのパーミッションが不要となります。
 	 * これは、将来的に新しいパーミッションが追加された場合に、
 	 * そのパーミッションによって、この関数の実行が拒否される事を回避する事ができます。
@@ -238,7 +238,7 @@ public class MethodToXfci1Adapter implements ExternalFunctionConnector1 {
 	 * この関数の実行に不要な全てのパーミッションを、配列にまとめて取得します。
 	 *
 	 * デフォルトでは、パーミッションが不要である事を意味する
-	 * { {@link ExternalPermission#NONE ExternalPermission.NONE}
+	 * { {@link ConnectorPermission#NONE ConnectorPermission.NONE}
 	 * が返されます。
 	 *
 	 * @return 不要なパーミッションを格納する配列
@@ -249,31 +249,18 @@ public class MethodToXfci1Adapter implements ExternalFunctionConnector1 {
 
 
 	/**
-	 * このプラグインが、スクリプトエンジンに接続された際に呼び出され、
-	 * そのエンジンに依存するやり取りを行うためのオブジェクトが渡されます。
-	 *
-	 * 同オブジェクトは、恐らく {@link EngineConnector1 EngineConnector1}
-	 * もしくはその後継の、抽象化されたインターフェースでラップされた形で渡されます。
-	 *
-	 * @param engineConnector エンジンに依存するやり取りを行うためのオブジェクト
-	 */
-	public void setEngine(Object engineConnector) {
-	}
-
-
-	/**
 	 * 関数を実行します。
 	 *
 	 * @param arguments 全ての実引数を格納する配列
 	 */
 	@Override
-	public Object invoke(Object[] arguments) throws ExternalFunctionException {
+	public Object invoke(Object[] arguments) throws ConnectorException {
 		try {
 			return this.method.invoke(objectInstance, arguments);
 
 		// アクセス修飾子などが原因で呼び出せない場合
 		} catch (IllegalArgumentException illegalArgumentException) {
-			throw new ExternalFunctionException(
+			throw new ConnectorException(
 					objectInstance.getClass().getCanonicalName() + " class has no method named \"" + this.method.getName()
 					+ "\" with expected parameters.",
 					illegalArgumentException
@@ -281,7 +268,7 @@ public class MethodToXfci1Adapter implements ExternalFunctionConnector1 {
 
 		// そもそもインスタンスが対象メソッドを持っていない場合
 		} catch (IllegalAccessException illegalAccessException) {
-			throw new ExternalFunctionException(
+			throw new ConnectorException(
 					"The method \"" + this.method.getName() + "\" of " + objectInstance.getClass().getCanonicalName()
 					+ " class is not accessable (probably it is private or protected).",
 					illegalAccessException
@@ -289,39 +276,64 @@ public class MethodToXfci1Adapter implements ExternalFunctionConnector1 {
 
 		// 呼び出し対象のメソッドが、実行中に内部から例外をスローしてきた場合
 		} catch (InvocationTargetException invocationTargetException) {
-			throw new ExternalFunctionException(invocationTargetException);
+			throw new ConnectorException(invocationTargetException);
 		}
 	}
 
 
 	/**
-	 * XVCIに定義されたスクリプト実行毎の初期化処理ですが、
-	 * このアダプタでは不要なため何も行いません。
+	 * 処理系への接続時に必要な初期化処理を行います。
+	 *
+	 * 引数には、スクリプトエンジンに依存するやり取りを行うためのオブジェクトが渡されます。
+	 * このオブジェクトは、恐らく {@link EngineConnector1 EngineConnector1}
+	 * もしくはその後継の、抽象化されたインターフェースでラップされた形で渡されます。
+	 *
+	 * @param engineConnector エンジンに依存するやり取りを行うためのオブジェクト
+	 * @throws ConnectorException 初期化処理に失敗した場合にスローされます。
 	 */
-	public void initializeForExecution() {
+	public void initializeForConnection(Object engineConnector) throws ConnectorException {
 	}
 
 
 	/**
-	 * XVCIに定義されたスクリプト実行毎の終了時処理ですが、
-	 * このアダプタでは不要なため何も行いません。
+	 * 処理系からの接続解除時に必要な終了時処理を行います。
+	 *
+	 * 引数には、スクリプトエンジンに依存するやり取りを行うためのオブジェクトが渡されます。
+	 * このオブジェクトは、恐らく {@link EngineConnector1 EngineConnector1}
+	 * もしくはその後継の、抽象化されたインターフェースでラップされた形で渡されます。
+	 *
+	 * @param engineConnector エンジンに依存するやり取りを行うためのオブジェクト
+	 * @throws ConnectorException 終了時処理に失敗した場合にスローされます。
 	 */
-	public void finalizeForTermination() {
+	public void finalizeForDisconnection(Object engineConnector) throws ConnectorException {
 	}
 
 
 	/**
-	 * XVCIに定義された処理系への接続時の初期化処理ですが、
-	 * このアダプタでは不要なため何も行いません。
+	 * スクリプト実行毎の初期化処理を行います。
+	 *
+	 * 引数には、スクリプトエンジンに依存するやり取りを行うためのオブジェクトが渡されます。
+	 * このオブジェクトは、恐らく {@link EngineConnector1 EngineConnector1}
+	 * もしくはその後継の、抽象化されたインターフェースでラップされた形で渡されます。
+	 *
+	 * @param engineConnector エンジンに依存するやり取りを行うためのオブジェクト
+	 * @throws ConnectorException 初期化処理に失敗した場合にスローされます。
 	 */
-	public void initializeForConnection() {
+	public void initializeForExecution(Object engineConnector) throws ConnectorException {
 	}
 
 
 	/**
-	 * XVCIに定義された処理系からの接続解除時の終了時処理ですが、
-	 * このアダプタでは不要なため何も行いません。
+	 * スクリプト実行毎の終了時処理を行います。
+	 *
+	 * 引数には、スクリプトエンジンに依存するやり取りを行うためのオブジェクトが渡されます。
+	 * このオブジェクトは、恐らく {@link EngineConnector1 EngineConnector1}
+	 * もしくはその後継の、抽象化されたインターフェースでラップされた形で渡されます。
+	 *
+	 * @param engineConnector エンジンに依存するやり取りを行うためのオブジェクト
+	 * @throws ConnectorException 終了時処理に失敗した場合にスローされます。
 	 */
-	public void finalizeForDisconnection() {
+	public void finalizeForTermination(Object engineConnector) throws ConnectorException {
 	}
+
 }

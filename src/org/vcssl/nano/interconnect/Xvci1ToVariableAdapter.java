@@ -5,8 +5,8 @@
 
 package org.vcssl.nano.interconnect;
 
+import org.vcssl.connect.ConnectorException;
 import org.vcssl.connect.ExternalVariableConnector1;
-import org.vcssl.connect.ExternalVariableException;
 import org.vcssl.nano.VnanoFatalException;
 import org.vcssl.nano.VnanoException;
 import org.vcssl.nano.spec.DataTypeName;
@@ -153,7 +153,7 @@ public class Xvci1ToVariableAdapter extends AbstractVariable {
 			Object data = null;
 			try {
 				data = this.xvciPlugin.getData();
-			} catch (ExternalVariableException e) {
+			} catch (ConnectorException e) {
 				throw new VnanoFatalException(e);
 			}
 
@@ -169,7 +169,7 @@ public class Xvci1ToVariableAdapter extends AbstractVariable {
 			try {
 				this.xvciPlugin.getData(dataContainer);
 				return dataContainer;
-			} catch (ExternalVariableException e) {
+			} catch (ConnectorException e) {
 				throw new VnanoFatalException(e);
 			}
 		}
@@ -196,7 +196,7 @@ public class Xvci1ToVariableAdapter extends AbstractVariable {
 
 			try {
 				this.xvciPlugin.setData(data);
-			} catch (ExternalVariableException e) {
+			} catch (ConnectorException e) {
 				throw new VnanoFatalException(e);
 			}
 
@@ -204,7 +204,7 @@ public class Xvci1ToVariableAdapter extends AbstractVariable {
 		}else {
 			try {
 				this.xvciPlugin.setData(dataContainer);
-			} catch (ExternalVariableException e) {
+			} catch (ConnectorException e) {
 				throw new VnanoFatalException(e);
 			}
 		}

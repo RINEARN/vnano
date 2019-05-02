@@ -27,11 +27,11 @@ import java.util.List;
 public class ClassToXlci1Adapter implements ExternalLibraryConnector1 {
 
 
-	/** デフォルトの必要パーミッション配列（値は { {@link ExternalPermission#NONE ExternalPermission.NONE} } ）です。 */
-	private static final String[] DEFAULT_NECESSARY_PERMISSIONS = { ExternalPermission.NONE };
+	/** デフォルトの必要パーミッション配列（値は { {@link ConnectorPermission#NONE ConnectorPermission.NONE} } ）です。 */
+	private static final String[] DEFAULT_NECESSARY_PERMISSIONS = { ConnectorPermission.NONE };
 
-	/** デフォルトの不要パーミッション配列（値は { {@link ExternalPermission#ALL ExternalPermission.ALL} } ）です。 */
-	private static final String[] DEFAULT_UNNECESSARY_PERMISSIONS = { ExternalPermission.ALL };
+	/** デフォルトの不要パーミッション配列（値は { {@link ConnectorPermission#ALL ConnectorPermission.ALL} } ）です。 */
+	private static final String[] DEFAULT_UNNECESSARY_PERMISSIONS = { ConnectorPermission.ALL };
 
 
 	/** ホスト言語側のクラスです。 */
@@ -116,7 +116,7 @@ public class ClassToXlci1Adapter implements ExternalLibraryConnector1 {
 	 * このメソッドは機能しません（呼び出されません）。
 	 *
 	 * このメソッドの戻り値に、
-	 * {@link ExternalPermission#NONE ExternalPermission.NONE}
+	 * {@link ConnectorPermission#NONE ConnectorPermission.NONE}
 	 * のみを格納する配列を返す事で、全てのパーミッションが不要となります。
 	 * 現状では、このライブラリに属する関数・変数のインターフェースである
 	 * {@link ExternalFunctionConnector1 XFCI1}/{@link ExternalFunctionConnector1 XVCI1}
@@ -154,7 +154,7 @@ public class ClassToXlci1Adapter implements ExternalLibraryConnector1 {
 	 * このメソッドは機能しません（呼び出されません）。
 	 *
 	 * このメソッドの戻り値に
-	 * {@link ExternalPermission#ALL ExternalPermission.ALL} のみを格納する配列を返す事で、
+	 * {@link ConnectorPermission#ALL ConnectorPermission.ALL} のみを格納する配列を返す事で、
 	 * 必要パーミッション配列に含まれているものを除いた、全てのパーミッションが不要となります。
 	 * 現状では、このライブラリに属する関数・変数のインターフェースである
 	 * {@link ExternalFunctionConnector1 XFCI1}/{@link ExternalFunctionConnector1 XVCI1}
@@ -258,48 +258,58 @@ public class ClassToXlci1Adapter implements ExternalLibraryConnector1 {
 
 
 	/**
-	 * このプラグインが、スクリプトエンジンに接続された際に呼び出され、
-	 * そのエンジンに依存するやり取りを行うためのオブジェクトが渡されます。
+	 * 処理系への接続時に必要な初期化処理を行います。
 	 *
-	 * 同オブジェクトは、恐らく {@link EngineConnector1 EngineConnector1}
+	 * 引数には、スクリプトエンジンに依存するやり取りを行うためのオブジェクトが渡されます。
+	 * このオブジェクトは、恐らく {@link EngineConnector1 EngineConnector1}
 	 * もしくはその後継の、抽象化されたインターフェースでラップされた形で渡されます。
 	 *
 	 * @param engineConnector エンジンに依存するやり取りを行うためのオブジェクト
+	 * @throws ConnectorException 初期化処理に失敗した場合にスローされます。
 	 */
-	@Override
-	public void setEngine(Object engineConnector) {
-	}
-
-
-	/**
-	 * 処理系への接続時に必要な初期化処理を行います。
-	 */
-	@Override
-	public void initializeForConnection() {
+	public void initializeForConnection(Object engineConnector) throws ConnectorException {
 	}
 
 
 	/**
 	 * 処理系からの接続解除時に必要な終了時処理を行います。
+	 *
+	 * 引数には、スクリプトエンジンに依存するやり取りを行うためのオブジェクトが渡されます。
+	 * このオブジェクトは、恐らく {@link EngineConnector1 EngineConnector1}
+	 * もしくはその後継の、抽象化されたインターフェースでラップされた形で渡されます。
+	 *
+	 * @param engineConnector エンジンに依存するやり取りを行うためのオブジェクト
+	 * @throws ConnectorException 終了時処理に失敗した場合にスローされます。
 	 */
-	@Override
-	public void finalizeForDisconnection() {
+	public void finalizeForDisconnection(Object engineConnector) throws ConnectorException {
 	}
 
 
 	/**
 	 * スクリプト実行毎の初期化処理を行います。
+	 *
+	 * 引数には、スクリプトエンジンに依存するやり取りを行うためのオブジェクトが渡されます。
+	 * このオブジェクトは、恐らく {@link EngineConnector1 EngineConnector1}
+	 * もしくはその後継の、抽象化されたインターフェースでラップされた形で渡されます。
+	 *
+	 * @param engineConnector エンジンに依存するやり取りを行うためのオブジェクト
+	 * @throws ConnectorException 初期化処理に失敗した場合にスローされます。
 	 */
-	@Override
-	public void initializeForExecution() {
+	public void initializeForExecution(Object engineConnector) throws ConnectorException {
 	}
 
 
 	/**
 	 * スクリプト実行毎の終了時処理を行います。
+	 *
+	 * 引数には、スクリプトエンジンに依存するやり取りを行うためのオブジェクトが渡されます。
+	 * このオブジェクトは、恐らく {@link EngineConnector1 EngineConnector1}
+	 * もしくはその後継の、抽象化されたインターフェースでラップされた形で渡されます。
+	 *
+	 * @param engineConnector エンジンに依存するやり取りを行うためのオブジェクト
+	 * @throws ConnectorException 終了時処理に失敗した場合にスローされます。
 	 */
-	@Override
-	public void finalizeForTermination() {
+	public void finalizeForTermination(Object engineConnector) throws ConnectorException {
 	}
 
 }

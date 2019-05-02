@@ -48,13 +48,13 @@ public class ConnectorImplementationLoader {
 	}
 
 	public ConnectorImplementationContainer load(String connectorImplementationName)
-			throws ConnectorImplementationException {
+			throws ConnectorException {
 
 		if (this.classLoader == null) {
 			try {
 				this.initializeDefaultClassLoader();
 			} catch (MalformedURLException e) {
-				throw new ConnectorImplementationException(
+				throw new ConnectorException(
 					"ClassLoader initialization failed.", e
 				);
 			}
@@ -65,7 +65,7 @@ public class ConnectorImplementationLoader {
 		try {
 			connectorImplClass = this.classLoader.loadClass(connectorImplementationName);
 		} catch (ClassNotFoundException e) {
-			throw new ConnectorImplementationException(
+			throw new ConnectorException(
 				"Loading failed: " + connectorImplementationName, e
 			);
 		}
@@ -77,7 +77,7 @@ public class ConnectorImplementationLoader {
 		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException
 					| InvocationTargetException | NoSuchMethodException | SecurityException e) {
 
-			throw new ConnectorImplementationException(
+			throw new ConnectorException(
 				"Instantiation failed: " + connectorImplementationName, e
 			);
 		}
@@ -100,7 +100,7 @@ public class ConnectorImplementationLoader {
 				interfaceType = "GPCI";
 				interfaceGeneration = "1";
 			} else {
-				throw new ConnectorImplementationException(
+				throw new ConnectorException(
 					"Invalid implementation (unknown interface): "
 					+ connectorImplementationName
 					+ " (interface-type: " + interfaceType + ", "
@@ -120,17 +120,17 @@ public class ConnectorImplementationLoader {
 
 	private void checkImplementation(
 			ConnectorImplementationContainer container, String connectorImplementationName)
-					throws ConnectorImplementationException {
+					throws ConnectorException {
 
 		String interfaceType = container.getInterfaceType();
 		String interfaceGeneration = container.getInterfaceGeneration();
 		if (interfaceType == null) {
-			throw new ConnectorImplementationException(
+			throw new ConnectorException(
 				"Invalid implementation (null interface-type): " + connectorImplementationName
 			);
 		}
 		if (interfaceGeneration == null) {
-			throw new ConnectorImplementationException(
+			throw new ConnectorException(
 				"Invalid implementation (null interface-generation): " + connectorImplementationName
 			);
 		}
@@ -142,7 +142,7 @@ public class ConnectorImplementationLoader {
 
 			case "XFCI1" : {
 				if ( !(implementation instanceof ExternalFunctionConnector1) ) {
-					throw new ConnectorImplementationException(
+					throw new ConnectorException(
 						"Invalid implementation"
 						+ " (should implement org.vcssl.connect.ExternalFunctionConnector1): "
 						+ connectorImplementationName
@@ -153,7 +153,7 @@ public class ConnectorImplementationLoader {
 
 			case "XVCI1" : {
 				if ( !(implementation instanceof ExternalVariableConnector1) ) {
-					throw new ConnectorImplementationException(
+					throw new ConnectorException(
 						"Invalid implementation"
 						+ " (should implement org.vcssl.connect.ExternalVariableConnector1): "
 						+ connectorImplementationName
@@ -164,7 +164,7 @@ public class ConnectorImplementationLoader {
 
 			case "GPCI1" : {
 				if ( !(implementation instanceof GeneralProcessConnector1) ) {
-					throw new ConnectorImplementationException(
+					throw new ConnectorException(
 						"Invalid implementation"
 						+ " (should implement org.vcssl.connect.GeneralProcessConnector1): "
 						+ connectorImplementationName
@@ -175,7 +175,7 @@ public class ConnectorImplementationLoader {
 
 			case "GPCI2" : {
 				if ( !(implementation instanceof GeneralProcessConnector2) ) {
-					throw new ConnectorImplementationException(
+					throw new ConnectorException(
 						"Invalid implementation"
 						+ " (should implement org.vcssl.connect.GeneralProcessConnector2): "
 						+ connectorImplementationName
@@ -186,7 +186,7 @@ public class ConnectorImplementationLoader {
 
 			case "GPCI3" : {
 				if ( !(implementation instanceof GeneralProcessConnector3) ) {
-					throw new ConnectorImplementationException(
+					throw new ConnectorException(
 						"Invalid implementation"
 						+ " (should implement org.vcssl.connect.GeneralProcessConnector3): "
 						+ connectorImplementationName
@@ -196,7 +196,7 @@ public class ConnectorImplementationLoader {
 			}
 
 			default : {
-				throw new ConnectorImplementationException(
+				throw new ConnectorException(
 					"Invalid implementation (unsupported interface): "
 					+ connectorImplementationName
 					+ " (interface-type: " + interfaceType + ", "

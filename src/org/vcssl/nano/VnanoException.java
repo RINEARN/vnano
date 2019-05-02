@@ -46,13 +46,25 @@ public class VnanoException extends Exception {
 
 	public VnanoException(ErrorType errorType, String[] errorWords, String fileName, int lineNumber) {
 		super(ErrorMessage.generateErrorMessage(errorType, errorWords));
-
 		this.errorType = errorType;
 		this.errorWords = errorWords;
 		this.fileName = fileName;
 		this.lineNumber = lineNumber;
 	}
 
+	public VnanoException(ErrorType errorType, String[] errorWords, Throwable cause) {
+		super(cause);
+		this.errorType = errorType;
+		this.errorWords = errorWords;
+	}
+
+	public VnanoException(ErrorType errorType, String errorWord, Throwable cause) {
+		this(errorType, new String[] {errorWord}, cause);
+	}
+
+	public VnanoException(ErrorType errorType, Throwable cause) {
+		this(errorType, (String)null, cause);
+	}
 
 	public ErrorType getErrorType() {
 		return this.errorType;

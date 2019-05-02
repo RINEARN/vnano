@@ -12,6 +12,8 @@ import java.util.Map.Entry;
 import javax.script.Bindings;
 
 import org.vcssl.connect.ClassToXlci1Adapter;
+import org.vcssl.connect.ConnectorException;
+import org.vcssl.connect.EngineConnector1;
 import org.vcssl.connect.ExternalFunctionConnector1;
 import org.vcssl.connect.ExternalLibraryConnector1;
 import org.vcssl.connect.ExternalVariableConnector1;
@@ -77,9 +79,24 @@ public class Interconnect {
 	/** 実行結果（式の評価結果やスクリプトの戻り値）を保持するデータコンテナです。 */
 	DataContainer<?> returnedDataContainer;
 
+	/** プラグインからスクリプトエンジンにアクセスする際に使用するコネクタです。 */
+	EngineConnector1 engineConnector = null;
+
 
 	/**
 	 * 何も接続されていないインターコネクトのインスタンスを生成します。
+	 *
+	 * このコンストラクタでは、プラグイン側からスクリプトエンジンにアクセスするためのコネクタを設定しません。
+	 * XVCI/XVCI/XLCI/GPCI系のプラグインを接続して用いる場合は、スクリプトエンジンのコネクタが必要なため、
+	 * 別のコンストラクタ
+	 * {@link Interconnect#Interconnect(EngineConnector1) Interconnect(EngineConnector1)}
+	 * または
+	 * {@link Interconnect#Interconnect(Bindings,EngineConnector1) Interconnect(Bindings,EngineConnector1)}
+	 * を使用してください。
+	 *
+	 * このコンストラクタは、プラグインを一切接続しない、
+	 * スクリプトエンジン内ユニットのテストコードなどにおいて使用されます。
+	 * 通用の用途において使用される事はありません。
 	 */
 	public Interconnect() {
 		this.functionTable = new FunctionTable();
@@ -88,15 +105,27 @@ public class Interconnect {
 
 
 	/**
+	 * 何も接続されていないインターコネクトのインスタンスを生成します。
+	 *
+	 * @param engineConnector プラグインからスクリプトエンジンにアクセスするためのコネクタ実装
+	 */
+	public Interconnect(EngineConnector1 engineConnector) {
+		this();
+		this.engineConnector = engineConnector;
+	}
+
+
+	/**
 	 * 指定された Bindings オブジェクト内の要素を、
 	 * Vnano処理系における変数・関数に変換して接続したインターコネクトを生成します。
 	 *
-	 * @throws DataException データ型の互換性により、接続に失敗した要素があった場合にスローされます。
-	 * @throws IllegalArgumentException サポート対象の関数・変数の形式に準拠していない要素があった場合にスローされます。
+	 * @param bindings バインディング内容を保持する、Bindings 実装クラスのインスタンス
+	 * @param engineConnector プラグインからスクリプトエンジンにアクセスするためのコネクタ実装
+	 *
+	 * @throws VnanoException データ型の互換性等により、接続に失敗した要素があった場合にスローされます。
 	 */
-	public Interconnect(Bindings bindings) throws VnanoException {
-		this.functionTable = new FunctionTable();
-		this.globalVariableTable = new VariableTable();
+	public Interconnect(Bindings bindings, EngineConnector1 engineConnector) throws VnanoException {
+		this(engineConnector);
 		this.bind(bindings);
 	}
 
@@ -402,7 +431,13 @@ public class Interconnect {
 	public void connect(ExternalVariableConnector1 connector, boolean aliasingRequired, String aliasName)
 			throws VnanoException {
 
-		connector.initializeForConnection();
+		try {
+			connector.initializeForConnection(this.engineConnector);
+		} catch (ConnectorException e) {
+			throw new VnanoException(
+				ErrorType.PLUGIN_NITIALIZATION_FAILED, connector.getClass().getCanonicalName(), e
+			);
+		}
 		Xvci1ToVariableAdapter adapter = new Xvci1ToVariableAdapter(connector);
 		this.connect(adapter, aliasingRequired, aliasName);
 	}
@@ -421,7 +456,13 @@ public class Interconnect {
 	public void connect(ExternalFunctionConnector1 connector, boolean aliasingRequired, String aliasSignature)
 			throws VnanoException {
 
-		connector.initializeForConnection();
+		try {
+			connector.initializeForConnection(this.engineConnector);
+		} catch (ConnectorException e) {
+			throw new VnanoException(
+				ErrorType.PLUGIN_NITIALIZATION_FAILED, connector.getClass().getCanonicalName(), e
+			);
+		}
 		Xfci1ToFunctionAdapter adapter = new Xfci1ToFunctionAdapter(connector);
 		this.connect(adapter, aliasingRequired, aliasSignature);
 	}
@@ -441,7 +482,13 @@ public class Interconnect {
 	public void connect(ExternalLibraryConnector1 connector, boolean aliasingRequired, String aliasName,
 			boolean ignoreIncompatibles) throws VnanoException {
 
-		connector.initializeForConnection();
+		try {
+			connector.initializeForConnection(this.engineConnector);
+		} catch (ConnectorException e) {
+			throw new VnanoException(
+				ErrorType.PLUGIN_NITIALIZATION_FAILED, connector.getClass().getCanonicalName(), e
+			);
+		}
 
 		// デフォルトではライブラリ名を名前空間とし、エイリアスが指定されている場合はそちらを使用する
 		String nameSpace = connector.getLibraryName();
@@ -453,9 +500,15 @@ public class Interconnect {
 		ExternalFunctionConnector1[] xfciConnectors = connector.getFunctions();
 		for (ExternalFunctionConnector1 xfciConnector: xfciConnectors) {
 			try {
-				xfciConnector.initializeForConnection();
+				xfciConnector.initializeForConnection(this.engineConnector);
 				AbstractFunction adapter = new Xfci1ToFunctionAdapter(xfciConnector, nameSpace);
 				this.connect(adapter, false, null);
+
+			} catch (ConnectorException e) {
+				throw new VnanoException(
+					ErrorType.PLUGIN_NITIALIZATION_FAILED, connector.getClass().getCanonicalName(), e
+				);
+
 			} catch (VnanoException e) {
 				if (!ignoreIncompatibles) {
 					throw e;
@@ -467,9 +520,15 @@ public class Interconnect {
 		ExternalVariableConnector1[] xvciConnectors = connector.getVariables();
 		for (ExternalVariableConnector1 xvciConnector: xvciConnectors) {
 			try {
-				xvciConnector.initializeForConnection();
+				xvciConnector.initializeForConnection(this.engineConnector);
 				AbstractVariable adapter = new Xvci1ToVariableAdapter(xvciConnector, nameSpace);
 				this.connect(adapter, false, null);
+
+			} catch (ConnectorException e) {
+				throw new VnanoException(
+					ErrorType.PLUGIN_NITIALIZATION_FAILED, connector.getClass().getCanonicalName(), e
+				);
+
 			} catch (VnanoException e) {
 				if (!ignoreIncompatibles) {
 					throw e;

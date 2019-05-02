@@ -5,8 +5,8 @@
 
 package org.vcssl.nano.interconnect;
 
+import org.vcssl.connect.ConnectorException;
 import org.vcssl.connect.ExternalFunctionConnector1;
-import org.vcssl.connect.ExternalFunctionException;
 import org.vcssl.nano.VnanoFatalException;
 import org.vcssl.nano.VnanoException;
 import org.vcssl.nano.spec.DataType;
@@ -274,7 +274,7 @@ public final class Xfci1ToFunctionAdapter extends AbstractFunction {
 			Object returnObject = null;
 			try {
 				returnObject = this.xfciPlugin.invoke(convertedArgs);
-			} catch (ExternalFunctionException e) {
+			} catch (ConnectorException e) {
 				throw new VnanoFatalException(e);
 			}
 
@@ -295,7 +295,7 @@ public final class Xfci1ToFunctionAdapter extends AbstractFunction {
 				xfciArgContainers[0] = returnDataContainer;
 				System.arraycopy(argumentDataContainers, 0, xfciArgContainers, 1, argLength);
 				this.xfciPlugin.invoke(xfciArgContainers);
-			} catch (ExternalFunctionException e) {
+			} catch (ConnectorException e) {
 				throw new VnanoFatalException(e);
 			}
 		}

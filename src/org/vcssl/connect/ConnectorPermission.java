@@ -1,10 +1,10 @@
 /*
  * ==================================================
- * XFCI / GPCI Parmission
+ * Connector Parmission
  * ( for VCSSL / Vnano Plug-in Development )
  * --------------------------------------------------
  * This file is released under CC0.
- * Written in 2017-2018 by RINEARN (Fumihiro Matsui)
+ * Written in 2017-2019 by RINEARN (Fumihiro Matsui)
  * ==================================================
  */
 
@@ -15,7 +15,7 @@ package org.vcssl.connect;
  * パーミッション設定ベースのセキュリティレイヤーを持つ処理系のために、
  * 列挙的にパーミッションが定義されたクラスです。
  * </p>
- * 
+ *
  * <p>
  * このクラスがフィールドとして提供する各パーミッションは、
  * 本来は列挙子の要素として定義されるのが素直であり、
@@ -24,17 +24,17 @@ package org.vcssl.connect;
  * その他の互換性を考慮して、
  * public static final な文字列フィールドとして定義されています。
  * </p>
- * 
+ *
  * <p>
  * その上で、検査オーバーヘッドを可能な限り軽減するために、
  * 各パーミッションの定義値は、明瞭さと引き換えに文字列長を短く抑えています。
  * そのため、各定義値をリテラルなどで直接使用する事は避け、
  * なるべくこのクラスのフィールドを参照して使用してください。
  * </p>
- * 
+ *
  * @author RINEARN (Fumihiro Matsui)
  */
-public class ExternalPermission {
+public class ConnectorPermission {
 
 	/** 全てのパーミッションを含む事を表します。 */
 	public static final String ALL = "a";

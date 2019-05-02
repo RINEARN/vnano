@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2018 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2019 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -43,5 +43,6 @@ public enum ErrorType {
 	RECURSIVE_FUNCTION_CALL,
 	INVALID_EXTERNAL_FUNCTION_SIGNATURE,
 	UNSUPPORTED_PLUGIN,
+	PLUGIN_NITIALIZATION_FAILED,
 	UNKNOWN,
 }
