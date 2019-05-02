@@ -35,7 +35,7 @@ public interface EngineConnector1 {
 	 * @param optionName オプションの名称
 	 * @return 判定結果（保持していれば true）
 	 */
-	public abstract Object hasOptionValue(String optionName);
+	public abstract boolean hasOptionValue(String optionName);
 
 
 	/**
