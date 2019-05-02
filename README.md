@@ -94,14 +94,12 @@ Vnano を使用してスクリプトを実行するJava&reg;アプリケーシ�
 	import javax.script.ScriptEngine;
 	import javax.script.ScriptEngineManager;
 	import javax.script.ScriptException;
-	import java.lang.reflect.Field;
-	import java.lang.reflect.Method;
 
 	public class Example {
 
 		// A class which provides a field/method accessed from the script as external functions/variables.
 		// スクリプト内から外部変数・外部関数としてアクセスされるフィールドとメソッドを提供するクラス
-		public class ScriptIO {
+		public class ExamplePlugin {
 			public int LOOP_MAX = 100;
 			public void output(int value) {
 				System.out.println("Output from script: " + value);
@@ -119,21 +117,11 @@ Vnano を使用してスクリプトを実行するJava&reg;アプリケーシ�
 				return;
 			}
 
-			// Connect a method/field to the script engine as an external function/variable.
-			// メソッド・フィールドを外部関数・変数としてスクリプトエンジンに接続
-			try {
-				Field loopMaxField  = ScriptIO.class.getField("LOOP_MAX");
-				Method outputMethod = ScriptIO.class.getMethod("output",int.class);
-				ScriptIO ioInstance = new Example().new ScriptIO();
+			// Connect methods/fields of ExamplePlugin class to the script engine as external functions/variables.
+			// ExamplePluginクラスのメソッド・フィールドを外部関数・変数としてスクリプトエンジンに接続
+			ExamplePlugin plugin = new Example().new ExamplePlugin();
+			engine.put("plugin", plugin);
 
-				engine.put("LOOP_MAX",    new Object[]{ loopMaxField, ioInstance } );
-				engine.put("output(int)", new Object[]{ outputMethod, ioInstance } );
-
-			} catch (NoSuchFieldException | NoSuchMethodException e){
-				System.err.println("Method/field not found.");
-				e.printStackTrace();
-				return;
-			}
 
 			// Create a script code (calculates the value of summation from 1 to 100).
 			// スクリプトコードを用意（1から100までの和を求める）
@@ -144,6 +132,7 @@ Vnano を使用してスクリプトを実行するJava&reg;アプリケーシ�
 					"      sum += i;               " +
 					"  }                           " +
 					"  output(sum);                " ;
+
 
 			// Run the script code by the script engine of Vnano.
 			// Vnanoのスクリプトエンジンにスクリプトコードを渡して実行
@@ -171,7 +160,7 @@ The following is the same example written in Kotlin&reg;:
 
 	// A class which provides a field/method accessed from the script as external functions/variables.
 	// スクリプト内から外部変数・外部関数としてアクセスされるフィールドとメソッドを提供するクラス
-	class ScriptIO {
+	class ExamplePlugin {
 		@JvmField val LOOP_MAX: Int = 100
 
 		fun output(value: Int) {
@@ -186,13 +175,11 @@ The following is the same example written in Kotlin&reg;:
 		val factory = VnanoEngineFactory()
 		val engine = factory.getScriptEngine()
 
-		// Connect a field/method to the engine as an external variable/function.
-		// フィールドとメソッドを外部関数・変数としてスクリプトエンジンに接続
-		val loopMaxField = ScriptIO::class.java.getField("LOOP_MAX")
-		val outputMethod = ScriptIO::class.java.getMethod("output", Int::class.java)
-		val ioInstance = ScriptIO()
-		engine.put("LOOP_MAX", arrayOf(loopMaxField, ioInstance));
-		engine.put("output(int)", arrayOf(outputMethod, ioInstance));
+		// Connect methods/fields of ExamplePlugin class to the script engine as external functions/variables.
+		// ExamplePluginクラスのメソッド・フィールドを外部関数・変数としてスクリプトエンジンに接続
+		val plugin = ExamplePlugin();
+		engine.put("plugin", plugin);
+
 
 		// Create a script code (calculates the value of summation from 1 to 100).
 		// スクリプトコードを用意（1から100までの和を求める）
@@ -204,6 +191,7 @@ The following is the same example written in Kotlin&reg;:
 				}
 				output(sum);
 		"""
+
 
 		// Run the script code by the script engine of Vnano.
 		// Vnanoのスクリプトエンジンにスクリプトコードを渡して実行
