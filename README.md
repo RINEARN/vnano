@@ -117,7 +117,7 @@ Vnano を使用してスクリプトを実行するJava&reg;アプリケーシ�
 				return;
 			}
 
-			// Connect methods/fields of ExamplePlugin class to the script engine as external functions/variables.
+			// Connect methods/fields of ExamplePlugin to the script engine as external functions/variables.
 			// ExamplePluginクラスのメソッド・フィールドを外部関数・変数としてスクリプトエンジンに接続
 			ExamplePlugin plugin = new Example().new ExamplePlugin();
 			engine.put("plugin", plugin);
@@ -175,7 +175,7 @@ The following is the same example written in Kotlin&reg;:
 		val factory = VnanoEngineFactory()
 		val engine = factory.getScriptEngine()
 
-		// Connect methods/fields of ExamplePlugin class to the script engine as external functions/variables.
+		// Connect methods/fields of ExamplePlugin to the script engine as external functions/variables.
 		// ExamplePluginクラスのメソッド・フィールドを外部関数・変数としてスクリプトエンジンに接続
 		val plugin = ExamplePlugin();
 		engine.put("plugin", plugin);
