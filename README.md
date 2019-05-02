@@ -119,8 +119,8 @@ Vnano を使用してスクリプトを実行するJava&reg;アプリケーシ�
 
 			// Connect methods/fields of ExamplePlugin to the script engine as external functions/variables.
 			// ExamplePluginクラスのメソッド・フィールドを外部関数・変数としてスクリプトエンジンに接続
-			ExamplePlugin plugin = new Example().new ExamplePlugin();
-			engine.put("plugin", plugin);
+			ExamplePlugin examplePlugin = new Example().new ExamplePlugin();
+			engine.put("examplePlugin", examplePlugin);
 
 
 			// Create a script code (calculates the value of summation from 1 to 100).
@@ -132,6 +132,11 @@ Vnano を使用してスクリプトを実行するJava&reg;アプリケーシ�
 					"      sum += i;               " +
 					"  }                           " +
 					"  output(sum);                " ;
+
+			// Note: You can also access to "LOOP_MAX" as "examplePlugin.LOOP_MAX",
+			//       and can also call "output(sum)" as "examplePlugin.output(sum)".
+			// 備考:「 LOOP_MAX 」へのアクセスを「 examplePlugin.LOOP_MAX 」と書いたり、
+			//      「 output(sum) 」の呼び出しを「 examplePlugin.output(sum) 」と書く事もできます。
 
 
 			// Run the script code by the script engine of Vnano.
@@ -177,8 +182,8 @@ The following is the same example written in Kotlin&reg;:
 
 		// Connect methods/fields of ExamplePlugin to the script engine as external functions/variables.
 		// ExamplePluginクラスのメソッド・フィールドを外部関数・変数としてスクリプトエンジンに接続
-		val plugin = ExamplePlugin();
-		engine.put("plugin", plugin);
+		val examplePlugin = ExamplePlugin();
+		engine.put("examplePlugin", examplePlugin);
 
 
 		// Create a script code (calculates the value of summation from 1 to 100).
@@ -191,6 +196,11 @@ The following is the same example written in Kotlin&reg;:
 				}
 				output(sum);
 		"""
+
+		// Note: You can also access to "LOOP_MAX" as "examplePlugin.LOOP_MAX",
+		//       and can also call "output(sum)" as "examplePlugin.output(sum)".
+		// 備考:「 LOOP_MAX 」へのアクセスを「 examplePlugin.LOOP_MAX 」と書いたり、
+		//      「 output(sum) 」の呼び出しを「 examplePlugin.output(sum) 」と書く事もできます。
 
 
 		// Run the script code by the script engine of Vnano.
