@@ -57,8 +57,8 @@ fun main(args: Array<String>) {
 	val engine = factory.getScriptEngine()
 
 
-	// Connect methods/fields of ExamplePlugin class to the script engine as external functions/variables.
-	// ExamplePluginクラスのメソッド・フィールドを外部関数・変数としてスクリプトエンジンに接続
+	// Connect methods/fields of ExamplePlugin class as external functions/variables.
+	// ExamplePluginクラスのメソッド・フィールドを外部関数・変数として接続
 	val examplePlugin = ExamplePlugin();
 	engine.put("ExamplePlugin", examplePlugin);
 

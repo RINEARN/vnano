@@ -60,8 +60,8 @@ public class Example {
 			return;
 		}
 
-		// Connect methods/fields of ExamplePlugin class to the script engine as external functions/variables.
-		// ExamplePluginクラスのメソッド・フィールドを外部関数・変数としてスクリプトエンジンに接続
+		// Connect methods/fields of an instance of ExamplePlugin class as external functions/variables.
+		// ExamplePluginクラスのインスタンスのメソッド・フィールドを外部関数・変数として接続
 		ExamplePlugin examplePlugin = new Example().new ExamplePlugin();
 		engine.put("ExamplePlugin", examplePlugin);
 
