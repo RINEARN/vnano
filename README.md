@@ -44,14 +44,15 @@ As an example of a practical application using the Vnano, see also: <a href="htt
   - <a href="#language-function">Functions - 関数</a>
 	- <a href="#language-function-scalar">Scalar input/output functions - スカラを引数や戻り値とする関数</a>
 	- <a href="#language-function-array">Array input/output functions - 配列を引数や戻り値とする関数</a>
-- <a href="#language-external">External Functions and Variables - 外部関数と外部変数</a>
+- <a href="#language-external">Plug-in Development - プラグインの開発</a>
+  - <a href="#language-external-function-variable">External Functions/Variables and Plug-in - 外部関数/変数とプラグイン</a>
   - <a href="#language-external-security">Point of attention about the security - セキュリティに関する留意点</a>
-  - <a href="#language-external-variables-synchronization">Caution about the synchronization of values of external variables - 外部変数の値の同期タイミングに関する注意</a>
-  - <a href="#language-external-connect-class">Connecting a Class or an Instance to Use Its Methods and Fields as External Functions and Variables - クラスやインスタンスを接続し、そのメソッドやフィールドを外部関数や外部変数として使用する</a>
-  - <a href="#language-external-connect-methods-and-fields">Connecting Methods and Fields as External Functions and Variables - メソッドやフィールドを外部関数や外部変数として接続する</a>
-  - <a href="#language-external-connect-plug-ins">Developing and Connecting Plug-Ins as External Functions and Variables - プラグインを開発して外部関数や外部変数として接続する</a>
+  - <a href="#language-external-variables-synchronization">Caution about the Synchronization of Values of External Variables - 外部変数の値の同期タイミングに関する注意</a>
+  - <a href="#language-external-connect-class">Connecting a Class or an Instance as an Plug-in to Use Its All Methods/Fields as External Functions/Variables - クラスやインスタンスをプラグインとして接続し、その全メソッド/フィールドを外部関数/変数として使用する</a>
+  - <a href="#language-external-connect-methods-and-fields">Connecting a Particular Method/Field Only as an External Function/Variable Individually - 特定のメソッド/フィールドのみを個別に外部関数/変数として接続する</a>
+  - <a href="#language-external-connect-plug-ins">Implementation of Plug-ins of External Functions/Variables by Using Low-Overhead Plug-in Interfaces - 低オーバーヘッドのプラグイン用インターフェースを用いて外部関数/変数プラグインを実装する</a>
   - <a href="#language-external-correspondence-of-data-types">The correspondence of the the data type between the Vnano and the data container - Vnano内とデータコンテナ内でのデータ型の対応関係</a>
-  - <a href="#language-external-pack">Packing of Multiple External Functions and Variables as a Plug-in - 複数の外部関数/変数プラグインを一つのプラグインにまとめる</a>
+  - <a href="#language-external-pack">Packing of Multiple External Functions/Variables as a Plug-in - 複数の外部関数/変数プラグインを1つのプラグインにまとめる</a>
 - <a href="#about-us">About Us - 開発元について</a>
 - <a href="#references">References - 関連記事</a>
 
@@ -1433,7 +1434,14 @@ Vnano（および VCSSL）における配列は、ポインタや参照型では
 
 
 <a id="language-external"></a>
-## External Functions and Variables - 外部関数と外部変数
+## Plug-in Development - プラグインの開発
+
+In this section, we will explain how to develop and connect plug-ins which provide external functions/variables to the script engine of the Vnano.
+
+このセクションでは、Vnanoのスクリプトエンジンに外部関数/変数を提供する、プラグインの開発方法について解説します。
+
+<a id="language-external-function-variable"></a>
+### External Functions/Variables and Plug-in - 外部関数/変数とプラグイン
 
 The Vnano is the language for executing partial processings on host applications as scripts, 
 so you can connect functions and variables of host applications to the script engine, and can access them from script code as so-called "built-in functions/variables".
@@ -1446,15 +1454,19 @@ Vnanoは、ホストアプリケーション上での部分的な処理をスク
 Vnanoでは、それらを「外部関数/変数」と呼びます。
 それに対して、これまでのようにスクリプト内で宣言された関数および変数を「内部関数/変数」と呼びます。
 
-All external functions and variables you want to access from the Vnano script code 
+All external functions/variables you want to access from the Vnano script code 
 are necessary to be implemented on the host application by using Java&reg; (or alternative languages), 
 and necessary to be connected to the script engine explicitly.
-In this section, we will explain how to connect them to the script engine practically.
+We call such program (implemented in Java&reg;) which provides external functions/variables to the Vnano as "Plug-in".
+The script engine of the Vnano supports multiple plug-in format.
+We will implement them in this section.
 
-Vnanoのスクリプトコード内で使用したい全ての外部関数は、
+Vnanoのスクリプトコード内で使用したい全ての外部関数/変数は、
 ホストアプリケーション側にJava&reg;言語（またはその代替言語）で実装し、
 スクリプトエンジンに明示的に接続する必要があります。
-このセクションでは、その具体的な方法について解説します。
+そのように、Vnanoに外部関数/変数を提供するためのJava&reg;言語のプログラムを、プラグインと呼びます。
+Vnano用のスクリプトエンジンでは、複数のプラグイン形式がサポートされています。
+このセクションでは実際にそれらを実装します。
 
 
 <a id="language-external-security"></a>
@@ -1501,7 +1513,7 @@ when the external functions which access to securitically critical resources (fi
 
 
 <a id="language-external-variables-synchronization"></a>
-### Caution about the synchronization of values of external variables - 外部変数の値の同期タイミングに関する注意
+### Caution about the Synchronization of Values of External Variables - 外部変数の値の同期タイミングに関する注意
 
 There is an important point about external variables.
 That is, 
@@ -1536,7 +1548,7 @@ instead of the external variable.
 
 
 <a id="language-external-connect-class"></a>
-### Connecting a Class or an Instance to Use Its Methods and Fields as External Functions and Variables - クラスやインスタンスを接続し、そのメソッドやフィールドを外部関数や外部変数として使用する
+### Connecting a Class or an Instance as an Plug-in to Use Its All Methods/Fields as External Functions/Variables - クラスやインスタンスをプラグインとして接続し、その全メソッド/フィールドを外部関数/変数として使用する
 
 From here, we explain various ways to connect external functions/variables by taking "Example.java" in this repository as an example. 
 By the way, if you want to connect external functions/variables to the <a href="#how-to-use-in-command">command-line mode</a>, please modity the code "<a href="https://github.com/RINEARN/vnano/blob/master/src/org/vcssl/nano/main/VnanoCommandLineApplication.java">src/org/vcssl/nano/main/VnanoCommandLineApplication.java</a>", 
@@ -1547,10 +1559,10 @@ and then re-build "Vnano.jar".
 "<a href="https://github.com/RINEARN/vnano/blob/master/src/org/vcssl/nano/main/VnanoCommandLineApplication.java">src/org/vcssl/nano/main/VnanoCommandLineApplication.java</a>" のコードを編集し、
 Vnano.jar を再ビルドしてください。
 
-The most simple way to connect external functions/variable is to implement them as methods/fields in a class, and then connect the class or its instance to the Vnano engine. 
-For example, see the following part in "Example.java":"Example.java":
+The most simple way to connect external functions/variable is to implement them as methods/fields in a class, and then connect the class or its instance to the Vnano engine as a plug-in. 
+For example, see the following part in "Example.java":
 
-外部関数/変数を接続する最も簡単な方法は、それらを適当なクラスのメソッド/フィールドとして実装し、そのクラスやインスタンスをVnanoエンジンに接続する事です。
+外部関数/変数を接続する最も簡単な方法は、それらを適当なクラスのメソッド/フィールドとして実装し、そのクラスやインスタンスをそのままプラグインとしてVnanoエンジンに接続する事です。
 例えば、Example.java を見てみると：
 
 		(Example.java)
@@ -1615,7 +1627,7 @@ Therefore, we can append "static" to declarations of them, and connect the class
 
 
 <a id="language-external-connect-methods-and-fields"></a>
-### Connecting Methods and Fields as External Functions and Variables - メソッドやフィールドを外部関数や外部変数として接続する
+### Connecting a Method/Field as an External Function/Variable Individually - 個々のメソッド/フィールドを個別に外部関数/変数として接続する
 
 
 You can connect each methods and fields individually, by using reflection API：
@@ -1702,32 +1714,6 @@ you can connect them more simply:
 
 
 
-
-
-		(Example.java, modified code - 書き換えたコード)
-
-		// A class which provides a field/method accessed from the script as external functions/variables.
-		// スクリプト内から外部変数・外部関数としてアクセスされるフィールドとメソッドを提供するクラス
-		public class ScriptIO {
-			public static int LOOP_MAX = 100;
-			public static void output(int value) {
-				System.out.println("Output from script: " + value);
-			}
-		}
-
-		public static void main(String[] args) {
-
-				...
-
-				Field loopMaxField  = ScriptIO.class.getField("LOOP_MAX");
-				Method outputMethod = ScriptIO.class.getMethod("output",int.class);
-
-				engine.put("LOOP_MAX",    loopMaxField);
-				engine.put("output(int)", outputMethod);
-				
-				...
-
-
 <a id="language-external-connect-plug-ins"></a>
 ### Implementation of External Functions and Variables by Using Low-Overhead Plug-in Interfaces - 低オーバーヘッドのプラグイン用インターフェースを用いて外部関数や外部変数を実装する
 
@@ -1747,7 +1733,7 @@ and
 "<a href="https://github.com/RINEARN/vnano/blob/master/src/org/vcssl/connect/ExternalVariableConnector1.java">org/vcssl/connect/ExternalVariableConnector1.java (XVCI1)</a>".
 Let's implement them:
 
-これまでセクションで示した例の通り、クラスに実装したメソッド/フィールドを外部関数/変数として接続するのは、比較的手軽です。
+これまでのセクションで示した例の通り、クラスに実装したメソッド/フィールドを外部関数/変数として接続するのは、比較的手軽です。
 一方で、そうして接続した外部関数/変数は、スクリプト側から使用する際に、処理のオーバーヘッドコストが大きいというデメリットもあります。
 そのような余分な処理コストを可能な限り削りたい場合は、外部関数/変数を、Vnanoエンジンでサポートされている低オーバーヘッドなプラグイン用インターフェースを用いて実装する事もできます。
 これは、特にスクリプトコード内で高速に回るループ内などから呼び出される関数を提供する場合に有効です。
@@ -1769,7 +1755,7 @@ Let's implement them:
 
 		// A XFCI1 Plug-In which provides the external function "output(int)".
 		// 外部関数 output(int) を提供するXFCI1形式のプラグイン
-		public class OutputFunction implements ConnectorException {
+		public class OutputFunction implements ExternalFunctionConnector1 {
 
 			@Override
 			public String getFunctionName() { return "output"; }
@@ -1809,7 +1795,7 @@ Let's implement them:
 
 		// A XVCI1 Plug-In which provides the external variable "LOOP_MAX".
 		// 外部変数 LOOP_MAX を提供するXVCI1形式のプラグイン
-		public class LoopMaxVariable implements ConnectorException {
+		public class LoopMaxVariable implements ExternalVariableConnector1 {
 
 			private int value = 100;
 
@@ -1841,7 +1827,7 @@ Let's implement them:
 			}
 
 			@Override
-			public Object getData(Object dataContainer) throws ConnectorException {
+			public void getData(Object dataContainer) throws ConnectorException {
 				// This method is for the case of the data conversion is disabled.
 			}
 
@@ -1888,8 +1874,8 @@ The source code of the data container class used in the script engine of the Vna
 and this class is an implementation of a interface defined as "<a href="https://github.com/RINEARN/vnano/blob/master/src/org/vcssl/connect/ArrayDataContainer1.java">src/org/vcssl/connect/ArrayDataContainer1.java (ADCI1)</a>".
 You can handle data container objects through APIs defined as this interface, 
 to reduce dependency on the implementation of the script engine as much as possible.
-The following is an example code:
-
+About data-types of data in the data container, see the later section: 
+"<a href="#language-external-correspondence-of-data-types">The correspondence of the the data type between the Vnano and the data container</a>".
 
 そのため、自動でのデータ型変換機能を無効化するためには、
 スクリプトエンジンがどのようにデータをコンテナに格納しているかについて、ある程度把握する必要があります。
@@ -1901,10 +1887,16 @@ Vnanoのスクリプトエンジン内部でデータを格納するコンテナ
 <a href="https://github.com/RINEARN/vnano/blob/master/src/org/vcssl/connect/ArrayDataContainer1.java">src/org/vcssl/connect/ArrayDataContainer1.java (ADCI1)</a> 
 として定義されるインターフェースを実装しています。
 従ってプラグイン側では、このインターフェースのメソッドを通してデータコンテナを操作します。
-実際のコードの例は以下の通りです：
+データコンテナ内におけるデータの型については、後の
+「 <a href="#language-external-correspondence-of-data-types">Vnano内とデータコンテナ内でのデータ型の対応関係</a> 」のセクションに記載しています。
 
 
-		(Example.java, modified codde - 書き換えたコード)
+Let's implement. The following is an example code:
+
+実際に実装してみましょう。コードの例は以下の通りです：
+
+
+	(Example.java, modified codde - 書き換えたコード)
 
 	...
 	import org.vcssl.connect.ExternalFunctionConnector1;
@@ -1917,7 +1909,7 @@ Vnanoのスクリプトエンジン内部でデータを格納するコンテナ
 
 		// A XFCI1 Plug-In which provides the external function "output(int)".
 		// 外部関数 output(int) を提供するXFCI1形式のプラグイン
-		public class OutputFunction implements ConnectorException {
+		public class OutputFunction implements ExternalFunctionConnector1 {
 
 			@Override
 			public String getFunctionName() { return "output"; }
@@ -1975,7 +1967,7 @@ Vnanoのスクリプトエンジン内部でデータを格納するコンテナ
 
 		// A XVCI1 Plug-In which provides the external variable "LOOP_MAX".
 		// 外部変数 LOOP_MAX を提供するXVCI1形式のプラグイン
-		public class LoopMaxVariable implements ConnectorException {
+		public class LoopMaxVariable implements ExternalVariableConnector1 {
 
 			private long[] data = new long[]{ 100l };
 			int[] dataLengths = new int[]{ 1 };
@@ -2145,10 +2137,120 @@ where the symbol "=" means the mathematical equal, not the assignment operator.
 
 
 <a id="language-external-pack"></a>
-### Packing of Multiple External Functions and Variables as a Plug-in - 複数の外部関数/変数プラグインを一つのプラグインにまとめる
+### Packing of Multiple External Functions/Variables as a Plug-in - 複数の外部関数/変数プラグインを1つのプラグインにまとめる
 
-(この項目の内容はまだ書かれていません)
+By using 
+"<a href="https://github.com/RINEARN/vnano/blob/master/src/org/vcssl/connect/ExternalNamespaceConnector1.java">org/vcssl/connect/ExternalNamespaceConnector1.java (XNCI1)</a>" 
+interface, you can pack multiple plug-ins of external functions/variables into one plug-in:
 
+複数の外部関数/変数プラグインを1つのプラグインにまとめたい場合は、
+"<a href="https://github.com/RINEARN/vnano/blob/master/src/org/vcssl/connect/ExternalNamespaceConnector1.java">org/vcssl/connect/ExternalNamespaceConnector1.java (XNCI1)</a>" 
+形式のインターフェースを用います：
+
+	(in XnciExamplePlugin.java)
+
+	import org.vcssl.connect.ExternalNamespaceConnector1;
+	import org.vcssl.connect.ExternalFunctionConnector1;
+	import org.vcssl.connect.ExternalVariableConnector1;
+	import org.vcssl.connect.ConnectorPermission;
+	import org.vcssl.connect.ConnectorException;
+
+	public class XnciExamplePlugin implements ExternalNamespaceConnector1 {
+
+		XnciExamplePlugin instance = new XnciExamplePlugin();
+
+
+		// XFCI1 plug-ins for external functions.
+		// XFCI1形式の外部関数プラグイン（複数）
+		public class FunctionPluginA implements ExternalFunctionConnector1 {
+			...
+		}
+		public class FunctionPluginB implements ExternalFunctionConnector1 {
+			...
+		}
+		public class FunctionPluginC implements ExternalFunctionConnector1 {
+			...
+		}
+
+		// XVCI1 plug-ins for external variables.
+		// XVCI1形式の外部変数プラグイン（複数）
+		public class VariablePluginA implements ExternalVariableConnector1 {
+			...
+		}
+		public class VariablePluginB implements ExternalVariableConnector1 {
+			...
+		}
+		public class VariablePluginC implements ExternalVariableConnector1 {
+			...
+		}
+
+
+		// A method returns all XFCI plug-ins for providing exteral functions.
+		// 全てのXFCI1形式の外部関数プラグインを一括提供するメソッド
+		@Override
+		public ExternalFunctionConnector1[] getFunctions() {
+			return new ExternalFunctionConnector1[]{
+				this.instance.new FunctionPluginA(),
+				this.instance.new FunctionPluginB(),
+				this.instance.new FunctionPluginC(),
+			};
+		}
+
+		// A method returns all XVCI plug-ins for providing exteral variables.
+		// 全てのXFCI1形式の外部関数プラグインを一括提供するメソッド
+		@Override
+		public ExternalVariableConnector1[] getVariables() {
+			return new ExternalVariableConnector1[]{
+				this.instance.new VariablePluginA(),
+				this.instance.new VariablePluginB(),
+				this.instance.new VariablePluginC(),
+			};
+		}
+
+
+		@Override
+		public String getNamespaceName() {
+			return "XnciExamplePlugin";
+		}
+		@Override
+		public String[] getNecessaryPermissions() { return new String[]{ ConnectorPermission.NONE }; }
+		@Override
+		public String[] getUnnecessaryPermissions() { return new String[]{ ConnectorPermission.ALL }; }
+		@Override
+		public void initializeForConnection(Object engineConnector) { }
+		@Override
+		public void finalizeForDisconnection(Object engineConnector) { }
+		@Override
+		public void initializeForExecution(Object engineConnector) { }
+		@Override
+		public void finalizeForTermination(Object engineConnector) { }
+	}
+
+
+and connect this plug-in to the script engine as follows:
+
+これをスクリプトエンジンに接続するには：
+
+	(in Example.java, modified codde - 書き換えたコード)
+
+	...
+
+		public static void main(String[] args) {
+	
+			...	
+
+			// Connect the plug-in to the script engine.
+			// プラグインをスクリプトエンジンに接続
+			XnciExamplePlugin plugin = new XnciExamplePlugin();
+			engine.put("XnciExamplePlugin", plugin);
+			...
+
+
+As the above, you can connect multiple functions/variables to the script engine very easily, if you pack them in one plug-in.
+In addition, it help you to specify briefly the plug-in in a setting file of a software supporting Vnano (e.g. <a href="https://github.com/RINEARN/rinearn-processor-nano">RINEARN Processor nano</a>).
+
+上記のように、複数の外部関数/変数プラグインを1つのプラグインにまとめると、スクリプトエンジンへの接続が手軽になります。
+また、Vnanoを使用するソフトウェア（ 例えば<a href="https://github.com/RINEARN/rinearn-processor-nano">リニアンプロセッサー nano</a> など ）において、設定ファイルでプラグインを指定する際などにも、手軽に済むようになります。
 
 <a id="about-us"></a>
 ## About Us - 開発元について
