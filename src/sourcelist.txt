@@ -1,12 +1,12 @@
 ./org/vcssl/connect/ArrayDataContainer1.java
-./org/vcssl/connect/ClassToXlci1Adapter.java
+./org/vcssl/connect/ClassToXnci1Adapter.java
 ./org/vcssl/connect/ConnectorException.java
 ./org/vcssl/connect/ConnectorImplementationContainer.java
 ./org/vcssl/connect/ConnectorImplementationLoader.java
 ./org/vcssl/connect/ConnectorPermission.java
 ./org/vcssl/connect/EngineConnector1.java
 ./org/vcssl/connect/ExternalFunctionConnector1.java
-./org/vcssl/connect/ExternalLibraryConnector1.java
+./org/vcssl/connect/ExternalNamespaceConnector1.java
 ./org/vcssl/connect/ExternalVariableConnector1.java
 ./org/vcssl/connect/FieldToXvci1Adapter.java
 ./org/vcssl/connect/GeneralProcessConnector1.java
