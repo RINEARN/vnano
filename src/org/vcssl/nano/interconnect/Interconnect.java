@@ -11,11 +11,11 @@ import java.util.Map.Entry;
 
 import javax.script.Bindings;
 
-import org.vcssl.connect.ClassToXlci1Adapter;
+import org.vcssl.connect.ClassToXnci1Adapter;
 import org.vcssl.connect.ConnectorException;
 import org.vcssl.connect.EngineConnector1;
 import org.vcssl.connect.ExternalFunctionConnector1;
-import org.vcssl.connect.ExternalLibraryConnector1;
+import org.vcssl.connect.ExternalNamespaceConnector1;
 import org.vcssl.connect.ExternalVariableConnector1;
 import org.vcssl.connect.FieldToXvci1Adapter;
 import org.vcssl.connect.MethodToXfci1Adapter;
@@ -57,9 +57,11 @@ import org.vcssl.nano.VnanoException;
  * <ul>
  *   <li>XVCI 1 ({@link org.vcssl.connect.ExternalVariableConnector1 org.vcssl.connector.ExternalVariableConnector1})</li>
  *   <li>XFCI 1 ({@link org.vcssl.connect.ExternalFunctionConnector1 org.vcssl.connector.ExternalFunctionConnector1})</li>
- *   <li>XLCI 1 ({@link org.vcssl.connect.ExternalLibraryConnector1 org.vcssl.connector.ExternalLibraryConnector1})</li>
+ *   <li>XNCI 1 ({@link org.vcssl.connect.ExternalNamespaceConnector1 org.vcssl.connector.ExternalNamespaceConnector1})</li>
  *   <li>java.lang.reflect.Field (内部で {@link org.vcssl.connect.FieldToXvci1Adapter FieldToXvci1Adapter} を介し、XVCI 1 で接続されます。)</li>
  *   <li>java.lang.reflect.Method (内部で {@link org.vcssl.connect.MethodToXfci1Adapter MethodToXfci1Adapter} を介し、XFCI 1 で接続されます。)</li>
+ *   <li>java.lang.Class (内部で {@link org.vcssl.connect.ClassToXnci1Adapter ClassToXnci1Adapter} を介し、XNCI 1 で接続されます。)</li>
+ *   <li>java.lang.Object (内部で {@link org.vcssl.connect.ClassToXnci1Adapter ClassToXnci1Adapter} を介し、XNCI 1 で接続されます。)</li>
  * </ul>
  *
  * @author RINEARN (Fumihiro Matsui)
@@ -234,9 +236,9 @@ public class Interconnect {
 		} else if (object instanceof ExternalFunctionConnector1) {
 			this.connect( (ExternalFunctionConnector1)object, true, bindName );
 
-		// XLCI 1 形式の外部関数プラグイン
-		} else if (object instanceof ExternalLibraryConnector1) {
-			this.connect( (ExternalLibraryConnector1)object, true, bindName, false );
+		// XNCI 1 形式の外部関数プラグイン
+		} else if (object instanceof ExternalNamespaceConnector1) {
+			this.connect( (ExternalNamespaceConnector1)object, true, bindName, false );
 
 		// クラスフィールドの場合
 		} else if (object instanceof Field) {
@@ -312,9 +314,9 @@ public class Interconnect {
 			AbstractFunction functionAdapter = new Xfci1ToFunctionAdapter((ExternalFunctionConnector1)object);
 			return IdentifierSyntax.getSignatureOf(functionAdapter);
 
-		// XLCI 1 形式の外部関数プラグイン
-		} else if (object instanceof ExternalLibraryConnector1) {
-			return ((ExternalLibraryConnector1)object).getLibraryName();
+		// XNCI 1 形式の外部関数プラグイン
+		} else if (object instanceof ExternalNamespaceConnector1) {
+			return ((ExternalNamespaceConnector1)object).getNamespaceName();
 
 		// クラスフィールドの場合
 		} else if (object instanceof Field) {
@@ -401,19 +403,19 @@ public class Interconnect {
 
 
 	/**
-	 * ホスト言語側のコード内で宣言されているクラスを、
-	 * スクリプト内からアクセスできる外部関数/変数を提供するライブラリとして接続します。
+	 * ホスト言語側のコード内で宣言されているクラスの、全てのpublicなメソッドおよびフィールドを、
+	 * 共通の名前空間に属する外部関数/変数として一括で接続します。
 	 *
-	 * @param pluginClass 外部ライブラリとして接続するクラス
+	 * @param pluginClass 接続するクラス
 	 * @param instance クラスのインスタンス
-	 * @param aliasingRequired スクリプト内から別名でアクセスするかどうか（する場合にtrue）
-	 * @param aliasName 別名アクセスのためのライブラリ名（aliasingRequiredがtrueの場合のみ参照されます）
+	 * @param aliasingRequired 名前空間に、クラス名と別の名前を用いるかどうか（用いる場合にtrue）
+	 * @param aliasName 別名アクセスのための名前空間の名称（aliasingRequiredがtrueの場合のみ参照されます）
 	 * @throws DataException データ型などが非対応であった場合にスローされます。
 	 */
 	public void connect(Class<?> pluginClass, Object instance, boolean aliasingRequired, String aliasName)
 			throws VnanoException {
 
-		ClassToXlci1Adapter adapter = new ClassToXlci1Adapter(pluginClass,instance);
+		ClassToXnci1Adapter adapter = new ClassToXnci1Adapter(pluginClass,instance);
 		this.connect(adapter, aliasingRequired, aliasName, true);
 	}
 
@@ -469,17 +471,17 @@ public class Interconnect {
 
 
 	/**
-	 * {@link org.vcssl.connect.ExternalLibraryConnector1 XLCI 1}
+	 * {@link org.vcssl.connect.ExternalNamespaceConnector1 XNCI 1}
 	 * のプラグイン・インターフェースを用いて、
-	 * ホスト言語で実装された外部ライブラリオブジェクトを接続します。
+	 * ホスト言語で実装されたプラグインを接続します。
 	 *
-	 * @param connector XLCI準拠の外部ライブラリ
+	 * @param connector XNCI準拠のプラグイン
 	 * @param aliasingRequired スクリプト内から別名でアクセスするかどうか（する場合にtrue）
-	 * @param aliasName 別名アクセスのためのライブラリ名（aliasingRequiredがtrueの場合のみ参照されます）
+	 * @param aliasName 別名アクセスのための名前空間の名称（aliasingRequiredがtrueの場合のみ参照されます）
 	 * @param ignoreIncompatibles 接続できない関数/変数をエラーにせず無視するかどうか（する場合にtrue）
 	 * @throws VnanoException データ型などが非対応であった場合にスローされます。
 	 */
-	public void connect(ExternalLibraryConnector1 connector, boolean aliasingRequired, String aliasName,
+	public void connect(ExternalNamespaceConnector1 connector, boolean aliasingRequired, String aliasName,
 			boolean ignoreIncompatibles) throws VnanoException {
 
 		try {
@@ -490,8 +492,8 @@ public class Interconnect {
 			);
 		}
 
-		// デフォルトではライブラリ名を名前空間とし、エイリアスが指定されている場合はそちらを使用する
-		String nameSpace = connector.getLibraryName();
+		// 名前空間（の名前）を取得し、エイリアスが指定されている場合はその名前で置き換える
+		String nameSpace = connector.getNamespaceName();
 		if (aliasingRequired) {
 			nameSpace = aliasName;
 		}

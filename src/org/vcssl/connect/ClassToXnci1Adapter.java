@@ -18,13 +18,13 @@ import java.util.List;
 
 /**
  * <p>
- * ホスト言語側のクラスを、{@link org.vcssl.connect.ExternalLibraryConnector1 XLCI 1}
- * 形式の外部変数プラグイン仕様に変換し、XLCI 1 対応の言語処理系に接続するためのアダプタです。
+ * ホスト言語側のクラスを、{@link org.vcssl.connect.ExternalNamespaceConnector1 XNCI 1}
+ * 形式の外部変数プラグイン仕様に変換し、XNCI 1 対応の言語処理系に接続するためのアダプタです。
  * </p>
  *
  * @author RINEARN (Fumihiro Matsui)
  */
-public class ClassToXlci1Adapter implements ExternalLibraryConnector1 {
+public class ClassToXnci1Adapter implements ExternalNamespaceConnector1 {
 
 
 	/** デフォルトの必要パーミッション配列（値は { {@link ConnectorPermission#NONE ConnectorPermission.NONE} } ）です。 */
@@ -50,12 +50,12 @@ public class ClassToXlci1Adapter implements ExternalLibraryConnector1 {
 
 	/**
 	 * 指定されたホスト言語側のクラスを、インスタンスメソッドやインスタンスフィールドを含めて、
-	 * XLCI準拠の外部変数プラグインへと変換するアダプタを生成します。
+	 * XNCI準拠の外部変数プラグインへと変換するアダプタを生成します。
 	 *
 	 * @param pluginClass 対象クラス
 	 * @param objectInstance 対象クラスのインスタンス
 	 */
-	public ClassToXlci1Adapter(Class<?> pluginClass, Object pluginInstance) {
+	public ClassToXnci1Adapter(Class<?> pluginClass, Object pluginInstance) {
 		this.pluginClass = pluginClass;
 		this.pluginInstance = pluginInstance;
 
@@ -70,11 +70,11 @@ public class ClassToXlci1Adapter implements ExternalLibraryConnector1 {
 
 	/**
 	 * 指定されたホスト言語側のクラスを、staticメソッドやstaticフィールドのみの範囲で、
-	 * XLCI準拠の外部変数プラグインへと変換するアダプタを生成します。
+	 * XNCI準拠の外部変数プラグインへと変換するアダプタを生成します。
 	 *
 	 * @param pluginClass 対象クラス
 	 */
-	public ClassToXlci1Adapter(Class<?> pluginClass) {
+	public ClassToXnci1Adapter(Class<?> pluginClass) {
 		this.pluginClass = pluginClass;
 
 		this.necessaryPermissions = Arrays.copyOf(
@@ -87,19 +87,19 @@ public class ClassToXlci1Adapter implements ExternalLibraryConnector1 {
 
 
 	/**
-	 * ライブラリ名を取得します。
+	 * 名前空間の名称を取得します。
 	 *
-	 * @return ライブラリ名
+	 * @return 名前空間の名称
 	 */
 	@Override
-	public String getLibraryName() {
+	public String getNamespaceName() {
 		return null;
 	}
 
 
 	/**
 	 * パーミッション設定ベースのセキュリティレイヤーを持つ処理系において、
-	 * このライブラリの接続に必要な全てのパーミッションを、配列にまとめて設定します。
+	 * この名前空間へのアクセスに必要な全てのパーミッションを、配列にまとめて設定します。
 	 *
 	 * @param necessaryPermissions 必要なパーミッションを格納する配列
 	 */
@@ -110,7 +110,7 @@ public class ClassToXlci1Adapter implements ExternalLibraryConnector1 {
 
 	/**
 	 * パーミッション設定ベースのセキュリティレイヤーを持つ処理系において、
-	 * このライブラリの接続に必要な全てのパーミッションを、配列にまとめて取得します。
+	 * この名前空間へのアクセスに必要な全てのパーミッションを、配列にまとめて取得します。
 	 *
 	 * パーミッションベースのセキュリティレイヤ―を持たない処理系では、
 	 * このメソッドは機能しません（呼び出されません）。
@@ -118,12 +118,12 @@ public class ClassToXlci1Adapter implements ExternalLibraryConnector1 {
 	 * このメソッドの戻り値に、
 	 * {@link ConnectorPermission#NONE ConnectorPermission.NONE}
 	 * のみを格納する配列を返す事で、全てのパーミッションが不要となります。
-	 * 現状では、このライブラリに属する関数・変数のインターフェースである
+	 * 現状では、この名前空間に属する関数・変数のインターフェースである
 	 * {@link ExternalFunctionConnector1 XFCI1}/{@link ExternalFunctionConnector1 XVCI1}
 	 * の階層でもパーミッション指定機能を持っているため、このメソッドは冗長であり、
 	 * 上記のように実装する以外の具体的な使い道は、あまり考えられません。
 	 *
-	 * このメソッドは、将来的に、ライブラリを接続する事そのものに対して、
+	 * このメソッドは、将来的に、名前空間にアクセスする事そのものに対して、
 	 * それに属する関数・変数とは独立にパーミッション設定を行いたい用途が生じた場合のために、
 	 * 予約的に宣言されています。
 	 *
@@ -148,7 +148,7 @@ public class ClassToXlci1Adapter implements ExternalLibraryConnector1 {
 
 	/**
 	 * パーミッション設定ベースのセキュリティレイヤーを持つ処理系において、
-	 * このライブラリの接続に不要な全てのパーミッションを、配列にまとめて取得します。
+	 * この名前空間へのアクセスに不要な全てのパーミッションを、配列にまとめて取得します。
 	 *
 	 * パーミッションベースのセキュリティレイヤ―を持たない処理系では、
 	 * このメソッドは機能しません（呼び出されません）。
@@ -156,12 +156,12 @@ public class ClassToXlci1Adapter implements ExternalLibraryConnector1 {
 	 * このメソッドの戻り値に
 	 * {@link ConnectorPermission#ALL ConnectorPermission.ALL} のみを格納する配列を返す事で、
 	 * 必要パーミッション配列に含まれているものを除いた、全てのパーミッションが不要となります。
-	 * 現状では、このライブラリに属する関数・変数のインターフェースである
+	 * 現状では、この名前空間に属する関数・変数のインターフェースである
 	 * {@link ExternalFunctionConnector1 XFCI1}/{@link ExternalFunctionConnector1 XVCI1}
 	 * の階層でもパーミッション指定機能を持っているため、このメソッドは冗長であり、
 	 * 上記のように実装する以外の具体的な使い道は、あまり考えられません。
 	 *
-	 * このメソッドは、将来的に、ライブラリを接続する事そのものに対して、
+	 * このメソッドは、将来的に、名前空間にアクセスする事そのものに対して、
 	 * それに属する関数・変数とは独立にパーミッション設定を行いたい用途が生じた場合のために、
 	 * 予約的に宣言されています。
 	 *
@@ -174,9 +174,9 @@ public class ClassToXlci1Adapter implements ExternalLibraryConnector1 {
 
 
 	/**
-	 * このライブラリに属する全ての関数を、配列にまとめて返します。
+	 * この名前空間に属する全ての関数を、配列にまとめて返します。
 	 *
-	 * @return このライブラリに属する関数をまとめた配列
+	 * @return この名前空間に属する関数をまとめた配列
 	 */
 	@Override
 	public ExternalFunctionConnector1[] getFunctions() {
@@ -216,9 +216,9 @@ public class ClassToXlci1Adapter implements ExternalLibraryConnector1 {
 
 
 	/**
-	 * このライブラリに属する全ての変数を、配列にまとめて返します。
+	 * この名前空間に属する全ての変数を、配列にまとめて返します。
 	 *
-	 * @return このライブラリに属する変数をまとめた配列
+	 * @return この名前空間に属する変数をまとめた配列
 	 */
 	@Override
 	public ExternalVariableConnector1[] getVariables() {

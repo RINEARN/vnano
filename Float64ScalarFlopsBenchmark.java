@@ -47,19 +47,21 @@ import java.util.HashMap;
 
 public class Float64ScalarFlopsBenchmark {
 	
-	// Methods accessed from the script as an external functions.
-	// スクリプト側から外部関数としてアクセスするメソッドとフィールド
-	public static void output(String paramName, long score, String unit) {
-		System.out.println(paramName + " = " + score + " [" + unit + "]");
-	}
-	public static void output(String paramName, double score, String unit) {
-		System.out.println(paramName + " = " + score + " [" + unit + "]");
-	}
-	public static void output(String paramName, double value) {
-		System.out.println(paramName + " = " + value);
-	}
-	public static long time() {
-		return System.nanoTime() / 1000000l;
+	// A class which provides a field/method accessed from the script as external functions/variables.
+	// スクリプト内から外部変数・外部関数としてアクセスされるフィールドとメソッドを提供するクラス
+	public static class Plugin {
+		public static void output(String paramName, long score, String unit) {
+			System.out.println(paramName + " = " + score + " [" + unit + "]");
+		}
+		public static void output(String paramName, double score, String unit) {
+			System.out.println(paramName + " = " + score + " [" + unit + "]");
+		}
+		public static void output(String paramName, double value) {
+			System.out.println(paramName + " = " + value);
+		}
+		public static long time() {
+			return System.nanoTime() / 1000000l;
+		}
 	}
 
 	public static void main(String[] args) {
@@ -79,31 +81,9 @@ public class Float64ScalarFlopsBenchmark {
 		optionMap.put("ACCELERATOR", true);
 		engine.put("VNANO_OPTION", optionMap);
 
-		// Connect methods to the script engine as external functions.
-		// メソッドを外部関数としてスクリプトエンジンに接続
-		try {
-			engine.put(
-				"output(string,int,string)", 
-				Float64ScalarFlopsBenchmark.class.getMethod("output", String.class, long.class, String.class)
-			);
-			engine.put(
-				"output(string,double,string)", 
-				Float64ScalarFlopsBenchmark.class.getMethod("output", String.class, double.class, String.class)
-			);
-			engine.put(
-				"output(string,double)", 
-				Float64ScalarFlopsBenchmark.class.getMethod("output", String.class, double.class)
-			);
-			engine.put(
-				"time()", 
-				Float64ScalarFlopsBenchmark.class.getMethod("time")
-			);
-
-		} catch (NoSuchMethodException e){
-			System.err.println("Method not found.");
-			e.printStackTrace();
-			return;
-		}
+		// Connect methods/fields of Plugin class to the script engine as external functions/variables.
+		// Pluginクラスのメソッド・フィールドを外部関数・変数としてスクリプトエンジンに接続
+		engine.put("Plugin", Plugin.class);
 
 
 		// Create a script code.
