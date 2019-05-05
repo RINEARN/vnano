@@ -44,15 +44,15 @@ As an example of a practical application using the Vnano, see also: <a href="htt
   - <a href="#language-function">Functions - 関数</a>
 	- <a href="#language-function-scalar">Scalar input/output functions - スカラを引数や戻り値とする関数</a>
 	- <a href="#language-function-array">Array input/output functions - 配列を引数や戻り値とする関数</a>
-- <a href="#language-external">Plug-in Development - プラグインの開発</a>
-  - <a href="#language-external-function-variable">External Functions/Variables and Plug-in - 外部関数/変数とプラグイン</a>
-  - <a href="#language-external-security">Point of attention about the security - セキュリティに関する留意点</a>
-  - <a href="#language-external-variables-synchronization">Caution about the Synchronization of Values of External Variables - 外部変数の値の同期タイミングに関する注意</a>
-  - <a href="#language-external-connect-class">Connecting a Class or an Instance as an Plug-in to Use Its All Methods/Fields as External Functions/Variables - クラスやインスタンスをプラグインとして接続し、その全メソッド/フィールドを外部関数/変数として使用する</a>
-  - <a href="#language-external-connect-methods-and-fields">Connecting a Particular Method/Field Only as an External Function/Variable Individually - 特定のメソッド/フィールドのみを個別に外部関数/変数として接続する</a>
-  - <a href="#language-external-connect-plug-ins">Implementation of Plug-ins of External Functions/Variables by Using Low-Overhead Plug-in Interfaces - 低オーバーヘッドのプラグイン用インターフェースを用いて外部関数/変数プラグインを実装する</a>
-  - <a href="#language-external-correspondence-of-data-types">The correspondence of the the data type between the Vnano and the data container - Vnano内とデータコンテナ内でのデータ型の対応関係</a>
-  - <a href="#language-external-pack">Packing of Multiple External Functions/Variables as a Plug-in - 複数の外部関数/変数プラグインを1つのプラグインにまとめる</a>
+- <a href="#plugin">Plug-in Development - プラグインの開発</a>
+  - <a href="#plugin-external-function-variable">External Functions/Variables and Plug-in - 外部関数/変数とプラグイン</a>
+  - <a href="#plugin-security">Point of attention about the security - セキュリティに関する留意点</a>
+  - <a href="#plugin-external-variables-synchronization">Caution about the Synchronization of Values of External Variables - 外部変数の値の同期タイミングに関する注意</a>
+  - <a href="#plugin-class">Connecting a Class or an Instance as an Plug-in to Use Its All Methods/Fields as External Functions/Variables - クラスやインスタンスをプラグインとして接続し、その全メソッド/フィールドを外部関数/変数として使用する</a>
+  - <a href="#plugin-methods-and-fields">Connecting a Particular Method/Field Only as an External Function/Variable Individually - 特定のメソッド/フィールドのみを個別に外部関数/変数として接続する</a>
+  - <a href="#plugin-interfaces">Implementation of Plug-ins of External Functions/Variables by Using Low-Overhead Plug-in Interfaces - 低オーバーヘッドのプラグイン用インターフェースを用いて外部関数/変数プラグインを実装する</a>
+  - <a href="#plugin-correspondence-of-data-types">The correspondence of the the data type between the Vnano and the data container - Vnano内とデータコンテナ内でのデータ型の対応関係</a>
+  - <a href="#plugin-pack">Packing of Multiple External Functions/Variables as a Plug-in - 複数の外部関数/変数プラグインを1つのプラグインにまとめる</a>
 - <a href="#about-us">About Us - 開発元について</a>
 - <a href="#references">References - 関連記事</a>
 
@@ -1433,14 +1433,14 @@ Vnano（および VCSSL）における配列は、ポインタや参照型では
 
 
 
-<a id="language-external"></a>
+<a id="plugin"></a>
 ## Plug-in Development - プラグインの開発
 
 In this section, we will explain how to develop and connect plug-ins which provide external functions/variables to the script engine of the Vnano.
 
 このセクションでは、Vnanoのスクリプトエンジンに外部関数/変数を提供する、プラグインの開発方法について解説します。
 
-<a id="language-external-function-variable"></a>
+<a id="plugin-external-function-variable"></a>
 ### External Functions/Variables and Plug-in - 外部関数/変数とプラグイン
 
 The Vnano is the language for executing partial processings on host applications as scripts, 
@@ -1469,7 +1469,7 @@ Vnano用のスクリプトエンジンでは、複数のプラグイン形式が
 このセクションでは実際にそれらを実装します。
 
 
-<a id="language-external-security"></a>
+<a id="plugin-security"></a>
 ### Point of attention about the security - セキュリティに関する留意点
 
 **PLEASE CONSIDER DEEPLY THE BALANCE BETWEEN THE FUNCTIONALITY AND THE SECURITY BEFORE CONNECTING EXTERNAL FUNCTIONS/VARIABLES TO THE SCRIPT ENGINE EMBEDDED IN THE APPLICATION.**
@@ -1512,7 +1512,7 @@ when the external functions which access to securitically critical resources (fi
 ユーザーなどに許可を求める、いわゆる「関所」のようなものを実装する事なども、妥協案の一つになるかもしれません。
 
 
-<a id="language-external-variables-synchronization"></a>
+<a id="plugin-external-variables-synchronization"></a>
 ### Caution about the Synchronization of Values of External Variables - 外部変数の値の同期タイミングに関する注意
 
 There is an important point about external variables.
@@ -1547,7 +1547,7 @@ instead of the external variable.
 その値に対する setter と getter を用意して接続してください。
 
 
-<a id="language-external-connect-class"></a>
+<a id="plugin-class"></a>
 ### Connecting a Class or an Instance as an Plug-in to Use Its All Methods/Fields as External Functions/Variables - クラスやインスタンスをプラグインとして接続し、その全メソッド/フィールドを外部関数/変数として使用する
 
 From here, we explain various ways to connect external functions/variables by taking "Example.java" in this repository as an example. 
@@ -1626,7 +1626,7 @@ Therefore, we can append "static" to declarations of them, and connect the class
 
 
 
-<a id="language-external-connect-methods-and-fields"></a>
+<a id="plugin-methods-and-fields"></a>
 ### Connecting a Method/Field as an External Function/Variable Individually - 個々のメソッド/フィールドを個別に外部関数/変数として接続する
 
 
@@ -1714,7 +1714,7 @@ you can connect them more simply:
 
 
 
-<a id="language-external-connect-plug-ins"></a>
+<a id="plugin-interfaces"></a>
 ### Implementation of External Functions and Variables by Using Low-Overhead Plug-in Interfaces - 低オーバーヘッドのプラグイン用インターフェースを用いて外部関数や外部変数を実装する
 
 !!! CAUTION: Specifications of plug-in interfaces we use in this section are not fixed yet,
@@ -1875,7 +1875,7 @@ and this class is an implementation of a interface defined as "<a href="https://
 You can handle data container objects through APIs defined as this interface, 
 to reduce dependency on the implementation of the script engine as much as possible.
 About data-types of data in the data container, see the later section: 
-"<a href="#language-external-correspondence-of-data-types">The correspondence of the the data type between the Vnano and the data container</a>".
+"<a href="#plugin-correspondence-of-data-types">The correspondence of the the data type between the Vnano and the data container</a>".
 
 そのため、自動でのデータ型変換機能を無効化するためには、
 スクリプトエンジンがどのようにデータをコンテナに格納しているかについて、ある程度把握する必要があります。
@@ -1888,7 +1888,7 @@ Vnanoのスクリプトエンジン内部でデータを格納するコンテナ
 として定義されるインターフェースを実装しています。
 従ってプラグイン側では、このインターフェースのメソッドを通してデータコンテナを操作します。
 データコンテナ内におけるデータの型については、後の
-「 <a href="#language-external-correspondence-of-data-types">Vnano内とデータコンテナ内でのデータ型の対応関係</a> 」のセクションに記載しています。
+「 <a href="#plugin-correspondence-of-data-types">Vnano内とデータコンテナ内でのデータ型の対応関係</a> 」のセクションに記載しています。
 
 
 Let's implement. The following is an example code:
@@ -2088,7 +2088,7 @@ in the plug-in implementations of XFCI1, as the above example code.
 非常に効果的となるケースも現実的に考えられます。
 
 
-<a id="language-external-correspondence-of-data-types"></a>
+<a id="plugin-correspondence-of-data-types"></a>
 ### The correspondence of the the data type between the Vnano and the data container - Vnano内とデータコンテナ内でのデータ型の対応関係
 
 The correspondence table between data types in the Vnano script code and 
@@ -2136,7 +2136,7 @@ where the symbol "=" means the mathematical equal, not the assignment operator.
 
 
 
-<a id="language-external-pack"></a>
+<a id="plugin-pack"></a>
 ### Packing of Multiple External Functions/Variables as a Plug-in - 複数の外部関数/変数プラグインを1つのプラグインにまとめる
 
 By using 
