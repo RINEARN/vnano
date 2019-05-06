@@ -1,6 +1,6 @@
 /*
  * ==================================================
- * External Namespace Connector Interface 1 (XLCI 1)
+ * External Namespace Connector Interface 1 (XNCI 1)
  * ( for VCSSL / Vnano Plug-in Development )
  * --------------------------------------------------
  * This file is released under CC0.
