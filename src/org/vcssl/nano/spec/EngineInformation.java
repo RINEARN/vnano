@@ -14,7 +14,7 @@ public class EngineInformation {
 
 	public static final String ENGINE_NAME = "RINEARN Vnano Engine";
 
-	public static final String ENGINE_VERSION = "0.1.1";
+	public static final String ENGINE_VERSION = "0.1.2";
 
 	public static final String[] EXTENTIONS = { "vnano" };
 
