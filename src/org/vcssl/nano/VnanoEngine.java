@@ -46,7 +46,7 @@ public class VnanoEngine {
 	/**
 	 * 何もバインディングされていない、標準設定のVnanoエンジンを生成します。
 	 */
-	protected VnanoEngine() {
+	public VnanoEngine() {
 		this.interconnect = new Interconnect();
 	}
 
