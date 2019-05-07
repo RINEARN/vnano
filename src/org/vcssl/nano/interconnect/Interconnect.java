@@ -7,9 +7,6 @@ package org.vcssl.nano.interconnect;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.Map.Entry;
-
-import javax.script.Bindings;
 
 import org.vcssl.connect.ClassToXnci1Adapter;
 import org.vcssl.connect.ConnectorException;
@@ -19,7 +16,6 @@ import org.vcssl.connect.ExternalNamespaceConnector1;
 import org.vcssl.connect.ExternalVariableConnector1;
 import org.vcssl.connect.FieldToXvci1Adapter;
 import org.vcssl.connect.MethodToXfci1Adapter;
-import org.vcssl.nano.VnanoFatalException;
 import org.vcssl.nano.spec.ErrorType;
 import org.vcssl.nano.spec.IdentifierSyntax;
 import org.vcssl.nano.vm.VirtualMachineObjectCode;
@@ -75,9 +71,6 @@ public class Interconnect {
 	/** 外部変数の情報を保持するグローバル変数テーブルです。 */
 	private VariableTable globalVariableTable = null;
 
-	/** コンストラクタに渡された、外部変数・外部関数の情報を格納する Bindings オブジェクトを保持します。 */
-	private Bindings bindings = null;
-
 	/** 実行結果（式の評価結果やスクリプトの戻り値）を保持するデータコンテナです。 */
 	DataContainer<?> returnedDataContainer;
 
@@ -91,20 +84,6 @@ public class Interconnect {
 	public Interconnect() {
 		this.functionTable = new FunctionTable();
 		this.globalVariableTable = new VariableTable();
-	}
-
-
-	/**
-	 * 指定された Bindings オブジェクト内の要素を、
-	 * Vnano処理系における変数・関数に変換して接続したインターコネクトを生成します。
-	 *
-	 * @param bindings バインディング内容を保持する、Bindings 実装クラスのインスタンス
-	 * @param engineConnector プラグインからスクリプトエンジンにアクセスするためのコネクタ実装
-	 *
-	 * @throws VnanoException データ型の互換性等により、接続に失敗した要素があった場合にスローされます。
-	 */
-	public Interconnect(Bindings bindings, EngineConnector1 engineConnector) throws VnanoException {
-		this.bind(bindings);
 	}
 
 
@@ -135,40 +114,6 @@ public class Interconnect {
 	 */
 	public VariableTable getGlobalVariableTable() {
 		return this.globalVariableTable;
-	}
-
-
-	/**
-	 * 外部変数・外部関数の情報を保持するバインディング内の全ての要素を、
-	 * 必要に応じて適切な形式に変換した上で接続します。
-	 * なお、一つのインターコネクトに対して、バインディングは一つしか接続できず、
-	 * 接続済みのバインディングを差し替える事もできません。
-	 * そのため、このメソッドはコンストラクタからのみ呼ばれます。
-	 *
-	 * このメソッドは、バインディング内の全ペアに対して、
-	 * {@link Interconnect#connectElementInBindings(String,Object) connectElementInBindings(String,Object)}
-	 * メソッドを呼び出して接続します。
-	 * バインディング内の各要素が、どう解釈・変換されて接続されるかは、
-	 * 上記のメソッドの説明を参照してください。
-	 *
-	 * @param bindings 外部変数・外部関数の情報を保持するバインディング
-	 * @throws DataException データ型の互換性により、接続に失敗した要素があった場合にスローされます。
-	 * @throws IllegalArgumentException サポート対象の関数・変数の形式に準拠していない要素があった場合にスローされます。
-	 */
-	private void bind(Bindings bindings) throws VnanoException {
-		if (this.bindings != null) {
-			throw new VnanoFatalException("Bindings can be set ONLY ONCE for an instance of the Interconnect.");
-		}
-		this.bindings = bindings;
-
-		// Bindings から1個ずつ全ての要素を取り出して接続
-		// 注: 要素を取り出す順序については、登録順と一致する事は保証されていない模様（実際にしばしば異なる）
-		// -> SimpleBindingsを使う場合は、コンストラクタで LinkedHashMap を指定する等して対応可能、
-		//    しかしBindingsはインターフェースなので、実際に外側からどのような実装が渡されるかは未知
-		//    -> また後の段階で要検討
-		for (Entry<String,Object> pair: bindings.entrySet()) {
-			this.connect(pair.getKey(), pair.getValue());
-		}
 	}
 
 

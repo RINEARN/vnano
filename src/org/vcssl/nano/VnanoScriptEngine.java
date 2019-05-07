@@ -10,6 +10,7 @@ import java.io.Reader;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.script.Bindings;
 import javax.script.ScriptContext;
@@ -73,10 +74,17 @@ public class VnanoScriptEngine implements ScriptEngine {
 	public Object eval(String script, Bindings bindings) throws ScriptException {
 		try {
 
-			// Bindingsを処理系内の接続仲介オブジェクト（インターコネクト）に変換
-			Interconnect interconnect = new Interconnect(
-				bindings, new VnanoEngineConnector(this.optionMap)
-			);
+			// 処理系内の接続仲介オブジェクト（インターコネクト）を生成
+			Interconnect interconnect = new Interconnect();
+
+			// Bindings から1個ずつ全ての要素を取り出してインターコネクトに接続
+			// 注: 要素を取り出す順序については、登録順と一致する事は保証されていない模様（実際にしばしば異なる）
+			// -> SimpleBindingsを使う場合は、コンストラクタで LinkedHashMap を指定する等して対応可能、
+			//    しかしBindingsはインターフェースなので、実際に外側からどのような実装が渡されるかは未知
+			//    -> また後の段階で要検討
+			for (Entry<String,Object> pair: bindings.entrySet()) {
+				interconnect.connect(pair.getKey(), pair.getValue());
+			}
 
 			// eval対象のコードとライブラリコードを配列にまとめる
 			String[] scripts = new String[this.libraryScriptCode.length  + 1];
