@@ -127,8 +127,8 @@
 ./org/vcssl/nano/vm/processor/Processor.java
 ./org/vcssl/nano/vm/VirtualMachine.java
 ./org/vcssl/nano/vm/VirtualMachineObjectCode.java
-./org/vcssl/nano/VnanoEngine.java
 ./org/vcssl/nano/VnanoEngineConnector.java
-./org/vcssl/nano/VnanoEngineFactory.java
 ./org/vcssl/nano/VnanoException.java
 ./org/vcssl/nano/VnanoFatalException.java
+./org/vcssl/nano/VnanoScriptEngine.java
+./org/vcssl/nano/VnanoScriptEngineFactory.java
