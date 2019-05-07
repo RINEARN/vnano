@@ -179,4 +179,18 @@ public class VnanoEngine {
 		}
 	}
 
+
+	/**
+	 * 全オプションの名前と値を、対応付けて格納するマップを返します。
+	 * オプションマップは Map<String,Object> 型で、そのキーにはオプション名を指定します。
+	 * オプション名の具体的な値は {@link org.vcssl.nano.spec.OptionKey} クラスに文字列定数として定義されています。
+	 * オプションマップの値は Object 型ですが、実際の値は対応するオプション名によって異なります。
+	 * こちらも、具体的な内容は {@link org.vcssl.nano.spec.OptionKey} クラスに記載されている説明を参照してください。
+	 *
+	 * @return 全オプションの名前と値を格納するマップ
+	 */
+	public Map<String,Object> getOptionMap() {
+		return this.optionMap;
+	}
+
 }
