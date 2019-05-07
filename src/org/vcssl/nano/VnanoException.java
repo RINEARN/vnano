@@ -109,6 +109,14 @@ public class VnanoException extends Exception {
 
 	@Override
 	public String getMessage() {
+		String message = this.errorMessage;
+		if (this.hasFileName() && this.hasLineNumber()) {
+			message += " (script:" + this.getFileName() + ", line:" + this.getLineNumber() + ")";
+		}
+		return message;
+	}
+
+	public String getMessageWithoutLocation() {
 		return this.errorMessage;
 	}
 }

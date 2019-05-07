@@ -7,7 +7,6 @@ package org.vcssl.nano;
 
 import java.io.IOException;
 import java.io.Reader;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -20,8 +19,6 @@ import javax.script.SimpleBindings;
 import javax.script.SimpleScriptContext;
 
 import org.vcssl.nano.spec.SpecialBindingKey;
-import org.vcssl.nano.spec.ErrorMessage;
-import org.vcssl.nano.spec.OptionKey;
 
 
 /**
@@ -71,20 +68,37 @@ public class VnanoScriptEngine implements ScriptEngine {
 			return value;
 
 		// 発生し得る例外は ScriptException でラップして投げる
-		} catch (VnanoException e) {
+		} catch (VnanoException vnanoException) {
+
+			// 行番号などを除いたエラーメッセージを取得（ScriptException側が行番号などを付加するので、重複しないように）
+			String message = vnanoException.getMessageWithoutLocation();
 
 			// エラーメッセージがある場合は、そのメッセージで ScriptException を生成して投げる
-			String message = e.getMessage();
 			if (message != null) {
-				if (e.hasFileName() && e.hasLineNumber()) {
-					throw new ScriptException(message + ":", e.getFileName(), e.getLineNumber());
+
+				// エラーメッセージを指定してScriptExceptionを生成
+				ScriptException scriptException = null;
+				if (vnanoException.hasFileName() && vnanoException.hasLineNumber()) {
+					scriptException = new ScriptException(
+						message + ":", vnanoException.getFileName(), vnanoException.getLineNumber()
+					);
 				} else {
-					throw new ScriptException(message);
+					scriptException = new ScriptException(message);
 				}
+
+				// 原因となった例外の情報（cause情報）を持たせる
+				try {
+					scriptException.initCause(vnanoException); // Throwable のメソッド
+				} catch (IllegalStateException ise) {
+					// Throwableのcause情報は、既に持っていた場合は更新できないので、失敗した場合は既に持っている
+					// （現状ではあり得ないが、将来的な事を考えて catch しておく）
+				}
+
+				throw scriptException;
 
 			// エラーメッセージが無い場合はそのままラップして投げる
 			} else {
-				throw new ScriptException(e);
+				throw new ScriptException(vnanoException);
 			}
 
 		// 実装の不備等による予期しない例外も ScriptException でラップして投げる（上層を落としたくない用途のため）

@@ -76,9 +76,6 @@ public class VnanoEngine {
 
 			// ロケール設定に応じた言語でエラーメッセージを生成
 			String message = ErrorMessage.generateErrorMessage(e.getErrorType(), e.getErrorWords(), this.locale);
-			if (e.hasFileName() && e.hasLineNumber()) {
-				message += " ( file=" + e.getFileName() + " line=" + e.getLineNumber() + " )";
-			}
 
 			// 例外にエラーメッセージを設定して上層に投げる
 			e.setMessage(message);
