@@ -73,27 +73,21 @@ public class VnanoScriptEngine implements ScriptEngine {
 		// 発生し得る例外は ScriptException でラップして投げる
 		} catch (VnanoException e) {
 
-			// 設定されているロケールを取得
-			Locale locale = Locale.getDefault();
-			Map<String,Object> optionMap = this.vnanoEngine.getOptionMap();
-			if (optionMap.containsKey(OptionKey.LOCALE)) {
-				Object optionLocale = this.vnanoEngine.getOptionMap().get(OptionKey.LOCALE);
-				if (optionLocale instanceof Locale) {
-					locale = (Locale)optionLocale;
+			// エラーメッセージがある場合は、そのメッセージで ScriptException を生成して投げる
+			String message = e.getMessage();
+			if (message != null) {
+				if (e.hasFileName() && e.hasLineNumber()) {
+					throw new ScriptException(message + ":", e.getFileName(), e.getLineNumber());
+				} else {
+					throw new ScriptException(message);
 				}
-			}
 
-			// ロケールに応じた言語でエラーメッセージを生成
-			String message = ErrorMessage.generateErrorMessage(e.getErrorType(), e.getErrorWords(), locale);
-
-			// エラーメッセージから ScriptException を生成して投げる
-			if (e.hasFileName() && e.hasLineNumber()) {
-				throw new ScriptException(message + ":", e.getFileName(), e.getLineNumber());
+			// エラーメッセージが無い場合はそのままラップして投げる
 			} else {
-				throw new ScriptException(message);
+				throw new ScriptException(e);
 			}
 
-		// 実装の不備等による予期しない例外も ScriptException でラップする（上層を落としたくない用途のため）
+		// 実装の不備等による予期しない例外も ScriptException でラップして投げる（上層を落としたくない用途のため）
 		} catch (Exception unexpectedException) {
 
 			ScriptException scriptException = new ScriptException(unexpectedException);
