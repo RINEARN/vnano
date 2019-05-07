@@ -27,6 +27,11 @@ public class VnanoException extends Exception {
 	private String fileName = null;
 	private int lineNumber = LINE_NUMBER_DEFAULT_VALUE;
 	private String[] errorWords = null;
+	private String errorMessage = null;
+
+	public VnanoException(Throwable errorCauseThrowable) {
+		super(errorCauseThrowable);
+	}
 
 	public VnanoException(ErrorType errorType) {
 		this(errorType, (String)null, -1);
@@ -96,5 +101,14 @@ public class VnanoException extends Exception {
 
 	public boolean hasLineNumber() {
 		return this.lineNumber != LINE_NUMBER_DEFAULT_VALUE;
+	}
+
+	public void setMessage(String errorMessage) {
+		this.errorMessage = errorMessage;
+	}
+
+	@Override
+	public String getMessage() {
+		return this.errorMessage;
 	}
 }

@@ -87,33 +87,10 @@ public class Interconnect {
 
 	/**
 	 * 何も接続されていないインターコネクトのインスタンスを生成します。
-	 *
-	 * このコンストラクタでは、プラグイン側からスクリプトエンジンにアクセスするためのコネクタを設定しません。
-	 * XVCI/XVCI/XLCI/GPCI系のプラグインを接続して用いる場合は、スクリプトエンジンのコネクタが必要なため、
-	 * 別のコンストラクタ
-	 * {@link Interconnect#Interconnect(EngineConnector1) Interconnect(EngineConnector1)}
-	 * または
-	 * {@link Interconnect#Interconnect(Bindings,EngineConnector1) Interconnect(Bindings,EngineConnector1)}
-	 * を使用してください。
-	 *
-	 * このコンストラクタは、プラグインを一切接続しない、
-	 * スクリプトエンジン内ユニットのテストコードなどにおいて使用されます。
-	 * 通用の用途において使用される事はありません。
 	 */
 	public Interconnect() {
 		this.functionTable = new FunctionTable();
 		this.globalVariableTable = new VariableTable();
-	}
-
-
-	/**
-	 * 何も接続されていないインターコネクトのインスタンスを生成します。
-	 *
-	 * @param engineConnector プラグインからスクリプトエンジンにアクセスするためのコネクタ実装
-	 */
-	public Interconnect(EngineConnector1 engineConnector) {
-		this();
-		this.engineConnector = engineConnector;
 	}
 
 
@@ -127,8 +104,17 @@ public class Interconnect {
 	 * @throws VnanoException データ型の互換性等により、接続に失敗した要素があった場合にスローされます。
 	 */
 	public Interconnect(Bindings bindings, EngineConnector1 engineConnector) throws VnanoException {
-		this(engineConnector);
 		this.bind(bindings);
+	}
+
+
+	/**
+	 * プラグインからスクリプトエンジンにアクセスするための、エンジンコネクタを指定します。
+	 *
+	 * @param engineConnector エンジンコネクタ
+	 */
+	public void setEngineConnector(EngineConnector1 engineConnector) {
+		this.engineConnector = engineConnector;
 	}
 
 
@@ -181,7 +167,7 @@ public class Interconnect {
 		//    しかしBindingsはインターフェースなので、実際に外側からどのような実装が渡されるかは未知
 		//    -> また後の段階で要検討
 		for (Entry<String,Object> pair: bindings.entrySet()) {
-			this.bind(pair.getKey(), pair.getValue());
+			this.connect(pair.getKey(), pair.getValue());
 		}
 	}
 
@@ -218,7 +204,7 @@ public class Interconnect {
 	 * @throws DataException データ型の互換性により、接続に失敗した場合にスローされます。
 	 * @throws VnanoException サポートしていない形式のプラグインが渡された場合や、接続時にエラーが生じた場合にスローされます。
 	 */
-	private void bind(String bindName, Object object) throws VnanoException {
+	public void connect(String bindName, Object object) throws VnanoException {
 
 		// 内部変数と互換の変数オブジェクト
 		if (object instanceof AbstractVariable) {
