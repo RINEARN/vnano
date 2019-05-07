@@ -165,8 +165,8 @@ The following is the same example written in Kotlin&reg;:
 
 	( Example.kt )
 
-	import javax.script.ScriptEngine
-	import org.vcssl.nano.VnanoEngineFactory
+	import org.vcssl.nano.VnanoEngine
+	import org.vcssl.nano.VnanoException
 
 	// A class which provides a field/method accessed from the script as external functions/variables.
 	// スクリプト内から外部変数・外部関数としてアクセスされるフィールドとメソッドを提供するクラス
@@ -180,15 +180,14 @@ The following is the same example written in Kotlin&reg;:
 
 	fun main(args: Array<String>) {
 
-		// Get a script engine of Vnano.
-		// Vnanoのスクリプトエンジンを取得
-		val factory = VnanoEngineFactory()
-		val engine = factory.getScriptEngine()
+		// Create an instance of the script engine of the Vnano.
+		// Vnanoのスクリプトエンジンを生成
+		val engine = VnanoEngine()
 
 		// Connect methods/fields of ExamplePlugin to the script engine as external functions/variables.
 		// ExamplePluginクラスのメソッド・フィールドを外部関数・変数としてスクリプトエンジンに接続
 		val examplePlugin = ExamplePlugin();
-		engine.put("ExamplePlugin", examplePlugin);
+		engine.connectPlugin("ExamplePlugin", examplePlugin);
 
 
 		// Create a script code (calculates the value of summation from 1 to 100).
@@ -210,9 +209,9 @@ The following is the same example written in Kotlin&reg;:
 		//       ここで「 ExamplePlugin 」は、スクリプトエンジンの put メソッドに指定した文字列です。
 
 
-		// Run the script code by the script engine of Vnano.
+		// Run the script code by the script engine of the Vnano.
 		// Vnanoのスクリプトエンジンにスクリプトコードを渡して実行
-		engine.eval(scriptCode)
+		engine.executeScript(scriptCode)
 	}
 
 

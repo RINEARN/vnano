@@ -3,7 +3,7 @@
  * Vnano のスクリプトエンジンを呼び出すホストアプリケーションの簡単なコード例
  * --------------------------------------------------------------------------------
  * This file is released under CC0.
- * Written in 2018 by RINEARN (Fumihiro Matsui)
+ * Written in 2018-2019 by RINEARN (Fumihiro Matsui)
  * --------------------------------------------------------------------------------
  * 
  * Preparing - 事前準備
@@ -36,8 +36,8 @@
  * 
  */
 
-import javax.script.ScriptEngine
-import org.vcssl.nano.VnanoEngineFactory
+import org.vcssl.nano.VnanoEngine
+import org.vcssl.nano.VnanoException
 
 // A class which provides a field/method accessed from the script as external functions/variables.
 // スクリプト内から外部変数・外部関数としてアクセスされるフィールドとメソッドを提供するクラス
@@ -51,16 +51,15 @@ class ExamplePlugin {
 
 fun main(args: Array<String>) {
 
-	// Get a script engine of Vnano.
-	// Vnanoのスクリプトエンジンを取得
-	val factory = VnanoEngineFactory()
-	val engine = factory.getScriptEngine()
+	// Create an instance of the script engine of the Vnano.
+	// Vnanoのスクリプトエンジンを生成
+	val engine = VnanoEngine()
 
 
 	// Connect methods/fields of ExamplePlugin class as external functions/variables.
 	// ExamplePluginクラスのメソッド・フィールドを外部関数・変数として接続
 	val examplePlugin = ExamplePlugin();
-	engine.put("ExamplePlugin", examplePlugin);
+	engine.connectPlugin("ExamplePlugin", examplePlugin);
 
 	// Or, if you want to connect each fields/methods to the engine individually:
 	// または、もしフィールド/メソッドを個別にスクリプトエンジンに接続したい場合は：
@@ -68,8 +67,8 @@ fun main(args: Array<String>) {
 	val loopMaxField = ExamplePlugin::class.java.getField("LOOP_MAX")
 	val outputMethod = ExamplePlugin::class.java.getMethod("output", Int::class.java)
 	val examplePlugin = ExamplePlugin()
-	engine.put("LOOP_MAX", arrayOf(loopMaxField, examplePlugin));
-	engine.put("output(int)", arrayOf(outputMethod, examplePlugin));
+	engine.connectPlugin("LOOP_MAX", arrayOf(loopMaxField, examplePlugin));
+	engine.connectPlugin("output(int)", arrayOf(outputMethod, examplePlugin));
 	*/
 
 
@@ -94,7 +93,7 @@ fun main(args: Array<String>) {
 	//       この書き方は、複数のクラス/インスタンスをスクリプトエンジンに接続している場合に便利です。
 
 
-	// Run the script code by the script engine of Vnano.
+	// Run the script code by the script engine of the Vnano.
 	// Vnanoのスクリプトエンジンにスクリプトコードを渡して実行
-	engine.eval(scriptCode)
+	engine.executeScript(scriptCode)
 }
