@@ -1,13 +1,13 @@
 /**
  * <p>
  * Vnano の処理系の最上階層である、
- * {@link org.vcssl.nano.VnanoEngine VnanoEngine} およびその周辺クラスなどを提供するパッケージです。
+ * {@link org.vcssl.nano.VnanoScriptEngine VnanoScriptEngine} およびその周辺クラスなどを提供するパッケージです。
  * </p>
  *
  * <p>
  * Vnano処理系の内部を構成するパッケージとしては、下記のものがあります:
  * </p>
- * 
+ *
  * <div style="border-style: solid; padding-left: 10px;">
  *   <dl>
  *     <dt>{@link org.vcssl.nano.compiler org.vcssl.nano.compiler}</dt>

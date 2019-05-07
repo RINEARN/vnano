@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2018 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2019 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -34,13 +34,13 @@ import org.vcssl.nano.vm.VirtualMachine;
  *
  * @author RINEARN (Fumihiro Matsui)
  */
-public class VnanoEngine implements ScriptEngine {
+public class VnanoScriptEngine implements ScriptEngine {
 
 	private static final String DEFAULT_EVAL_SCRIPT_NAME = "EVAL_SCRIPT";
 	private static final String DEFAULT_LIBRARY_SCRIPT_NAME = "LIBRARY_SCRIPT";
 
 	/**
-	 * コンテキストを指定しない {@link VnanoEngine#eval eval} メソッドの呼び出し時に使用される、
+	 * コンテキストを指定しない {@link VnanoScriptEngine#eval eval} メソッドの呼び出し時に使用される、
 	 * デフォルトのコンテキストを保持します。
 	 */
 	private ScriptContext scriptContext = null;
@@ -60,11 +60,11 @@ public class VnanoEngine implements ScriptEngine {
 
 	/**
 	 * 標準設定のVnanoエンジンを生成しますが、通常利用では
-	 * {@link VnanoEngineFactory VnanoEngineFactory} クラスの
-	 * {@link VnanoEngineFactory#getScriptEngine getScriptEngine} メソッドや、
+	 * {@link VnanoScriptEngineFactory VnanoEngineFactory} クラスの
+	 * {@link VnanoScriptEngineFactory#getScriptEngine getScriptEngine} メソッドや、
 	 * ScriptEngineManager クラスの getEngineByName メソッドを使用してください。
 	 */
-	protected VnanoEngine() {
+	protected VnanoScriptEngine() {
 		this.scriptContext = new SimpleScriptContext();
 	}
 
@@ -228,7 +228,7 @@ public class VnanoEngine implements ScriptEngine {
 
 	@Override
 	public ScriptEngineFactory getFactory() {
-		return new VnanoEngineFactory();
+		return new VnanoScriptEngineFactory();
 	}
 
 

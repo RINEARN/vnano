@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2018 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2019 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -9,8 +9,7 @@ import java.util.HashSet;
 
 
 /**
- * {@link org.vcssl.nano.VnanoEngine VnanoEngine}
- * がサポートするスクリプト言語 （無改造状態ではVnano）
+ * この処理系がサポートするスクリプト言語 （無改造状態ではVnano）
  * における、キーワードや記号などが定義されたクラスです。
  *
  * @author RINEARN (Fumihiro Matsui)
