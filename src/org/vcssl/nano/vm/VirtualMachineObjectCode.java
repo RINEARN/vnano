@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.vcssl.nano.VnanoEngine;
+import org.vcssl.nano.VnanoScriptEngine;
 import org.vcssl.nano.spec.AssemblyWord;
 import org.vcssl.nano.vm.memory.Memory;
 import org.vcssl.nano.vm.processor.Instruction;
@@ -51,7 +51,7 @@ public class VirtualMachineObjectCode implements Cloneable {
 	private Map<Integer, String> functionAddressIdentifierMap = null;
 	private Map<Integer, String> labelAddressIdentifierMap = null;
 
-	/** {@link VnanoEngine#eval VnanoEngine.eval} の戻り値が格納される、ローカルパーティション内アドレスを保持します。 */
+	/** {@link VnanoScriptEngine#eval VnanoScriptEngine.eval} の戻り値が格納される、ローカルパーティション内アドレスを保持します。 */
 	private int evalValueAddress = -1;
 
 	public VirtualMachineObjectCode() {
@@ -79,7 +79,7 @@ public class VirtualMachineObjectCode implements Cloneable {
 	}
 
 	/**
-	 * {@link VnanoEngine#eval VnanoEngine.eval} メソッドの戻り値として返すべき値が、存在するかどうかを返します。
+	 * {@link VnanoScriptEngine#eval VnanoScriptEngine.eval} メソッドの戻り値として返すべき値が、存在するかどうかを返します。
 	 *
 	 * @return evalの戻り値に返すべき値があればtrue
 	 */
@@ -89,7 +89,7 @@ public class VirtualMachineObjectCode implements Cloneable {
 
 
 	/**
-	 * {@link VnanoEngine#eval VnanoEngine.eval} メソッドの戻り値として返すべき値が格納される、
+	 * {@link VnanoScriptEngine#eval VnanoScriptEngine.eval} メソッドの戻り値として返すべき値が格納される、
 	 * ローカルパーティション内アドレスを設定ます。
 	 *
 	 * @return evalの戻り値が格納されるローカルアドレス
@@ -100,7 +100,7 @@ public class VirtualMachineObjectCode implements Cloneable {
 
 
 	/**
-	 * {@link VnanoEngine#eval VnanoEngine.eval} メソッドの戻り値として返すべき値が格納される、
+	 * {@link VnanoScriptEngine#eval VnanoScriptEngine.eval} メソッドの戻り値として返すべき値が格納される、
 	 * ローカルパーティション内アドレスを設定ます。
 	 *
 	 * @return evalの戻り値が格納されるローカルアドレス
@@ -296,6 +296,7 @@ public class VirtualMachineObjectCode implements Cloneable {
 			builder.append(eol);
 		}
 		builder.append(eol);
+
 		builder.append("#LABEL" + eol);
 		for(int i=0; i<this.labelIdentifierList.size(); i++) {
 			builder.append("\t" + this.labelAddressList.get(i) + "\t" + this.labelIdentifierList.get(i) + eol);
@@ -307,10 +308,8 @@ public class VirtualMachineObjectCode implements Cloneable {
 			String identifier = this.functionIdentifierList.get(i);
 			builder.append("\t" + address + "\t" + identifier + eol);
 		}
-
-		// 以下、addressListを無視してる。たぶんメモリのロードも。
-
 		builder.append(eol);
+
 		builder.append("#GLOBAL" + eol);
 		for(int i=0; i<this.globalVariableIdentifierList.size(); i++) {
 			int address = this.globalVariableAddressList.get(i);
@@ -318,6 +317,7 @@ public class VirtualMachineObjectCode implements Cloneable {
 			builder.append("\t" + Memory.Partition.GLOBAL.toString().charAt(0) + address + "\t" + identifier + eol);
 		}
 		builder.append(eol);
+
 		builder.append("#LOCAL" + eol);
 		for(int i=0; i<this.localVariableIdentifierList.size(); i++) {
 			int address = this.localVariableAddressList.get(i);
@@ -325,6 +325,7 @@ public class VirtualMachineObjectCode implements Cloneable {
 			builder.append("\t" + Memory.Partition.LOCAL.toString().charAt(0) + address + "\t" + identifier + eol);
 		}
 		builder.append(eol);
+
 		builder.append("#CONSTANT" + eol);
 		for(int i=0; i<this.constantDataValueList.size(); i++) {
 			int address = this.constantDataAddressList.get(i);
@@ -332,6 +333,7 @@ public class VirtualMachineObjectCode implements Cloneable {
 			builder.append("\t" + Memory.Partition.CONSTANT.toString().charAt(0) + address + "\t" + constantValue + eol);
 		}
 		builder.append(eol);
+
 		builder.append("#REGISTER" + eol);
 		int minRegisterAddress = this.getMinimumRegisterAddress();
 		int maxRegisterAddress = this.getMaximumRegisterAddress();
@@ -342,6 +344,7 @@ public class VirtualMachineObjectCode implements Cloneable {
 				builder.append("\t" + "..." + eol);
 			}
 		}
+
 		System.out.println(builder.toString());
 	}
 

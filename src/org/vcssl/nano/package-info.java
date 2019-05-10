@@ -7,7 +7,7 @@
  * <p>
  * Vnano処理系の内部を構成するパッケージとしては、下記のものがあります:
  * </p>
- * 
+ *
  * <div style="border-style: solid; padding-left: 10px;">
  *   <dl>
  *     <dt>{@link org.vcssl.nano.compiler org.vcssl.nano.compiler}</dt>

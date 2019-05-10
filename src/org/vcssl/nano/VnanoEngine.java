@@ -1,23 +1,13 @@
 /*
- * Copyright(C) 2017-2018 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2019 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
 package org.vcssl.nano;
 
-import java.io.IOException;
-import java.io.Reader;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
-
-import javax.script.Bindings;
-import javax.script.ScriptContext;
-import javax.script.ScriptEngine;
-import javax.script.ScriptEngineFactory;
-import javax.script.ScriptException;
-import javax.script.SimpleBindings;
-import javax.script.SimpleScriptContext;
 
 import org.vcssl.nano.compiler.Compiler;
 import org.vcssl.nano.interconnect.Interconnect;
@@ -34,17 +24,10 @@ import org.vcssl.nano.vm.VirtualMachine;
  *
  * @author RINEARN (Fumihiro Matsui)
  */
-public class VnanoEngine implements ScriptEngine {
+public class VnanoEngine {
 
 	private static final String DEFAULT_EVAL_SCRIPT_NAME = "EVAL_SCRIPT";
 	private static final String DEFAULT_LIBRARY_SCRIPT_NAME = "LIBRARY_SCRIPT";
-
-	/**
-	 * コンテキストを指定しない {@link VnanoEngine#eval eval} メソッドの呼び出し時に使用される、
-	 * デフォルトのコンテキストを保持します。
-	 */
-	private ScriptContext scriptContext = null;
-
 
 	/** 全てのオプション名と値を保持するマップです。 */
 	private Map<String, Object> optionMap = new HashMap<String, Object>();
@@ -56,43 +39,36 @@ public class VnanoEngine implements ScriptEngine {
 	private String[] libraryScriptCode = new String[0];
 	private String evalScriptName = DEFAULT_EVAL_SCRIPT_NAME;
 
+	/** 処理系内の接続仲介オブジェクト（インターコネクト）です。 */
+	Interconnect interconnect = null;
 
 
 	/**
-	 * 標準設定のVnanoエンジンを生成しますが、通常利用では
-	 * {@link VnanoEngineFactory VnanoEngineFactory} クラスの
-	 * {@link VnanoEngineFactory#getScriptEngine getScriptEngine} メソッドや、
-	 * ScriptEngineManager クラスの getEngineByName メソッドを使用してください。
+	 * 何もバインディングされていない、標準設定のVnanoエンジンを生成します。
 	 */
-	protected VnanoEngine() {
-		this.scriptContext = new SimpleScriptContext();
+	public VnanoEngine() {
+		this.interconnect = new Interconnect();
 	}
 
 
-	@Override
-	public Object eval(String script, Bindings bindings) throws ScriptException {
+	public Object executeScript(String scriptCode) throws VnanoException {
 		try {
-
-			// Bindingsを処理系内の接続仲介オブジェクト（インターコネクト）に変換
-			Interconnect interconnect = new Interconnect(
-				bindings, new VnanoEngineConnector(this.optionMap)
-			);
 
 			// eval対象のコードとライブラリコードを配列にまとめる
 			String[] scripts = new String[this.libraryScriptCode.length  + 1];
 			String[] names   = new String[this.libraryScriptNames.length + 1];
 			System.arraycopy(this.libraryScriptCode,  0, scripts, 0, this.libraryScriptCode.length );
 			System.arraycopy(this.libraryScriptNames, 0, names,   0, this.libraryScriptNames.length);
-			scripts[this.libraryScriptCode.length] = script;
+			scripts[this.libraryScriptCode.length] = scriptCode;
 			names[this.libraryScriptNames.length ] = this.evalScriptName;
 
 			// コンパイラでVnanoスクリプトから中間アセンブリコード（VRILコード）に変換
 			Compiler compiler = new Compiler();
-			String assemblyCode = compiler.compile(scripts, names, interconnect, this.optionMap);
+			String assemblyCode = compiler.compile(scripts, names, this.interconnect, this.optionMap);
 
 			// VMで中間アセンブリコード（VRILコード）を実行
 			VirtualMachine vm = new VirtualMachine();
-			Object evalValue = vm.eval(assemblyCode, interconnect, this.optionMap);
+			Object evalValue = vm.eval(assemblyCode, this.interconnect, this.optionMap);
 			return evalValue;
 
 		// 発生し得る例外は ScriptException でラップして投げる
@@ -101,135 +77,36 @@ public class VnanoEngine implements ScriptEngine {
 			// ロケール設定に応じた言語でエラーメッセージを生成
 			String message = ErrorMessage.generateErrorMessage(e.getErrorType(), e.getErrorWords(), this.locale);
 
-			// エラーメッセージから ScriptException を生成して投げる
-			if (e.hasFileName() && e.hasLineNumber()) {
-				throw new ScriptException(message + ":", e.getFileName(), e.getLineNumber());
-			} else {
-				throw new ScriptException(message);
-			}
+			// 例外にエラーメッセージを設定して上層に投げる
+			e.setMessage(message);
+			throw e;
 
-		// 実装の不備等による予期しない例外も ScriptException でラップする（上層を落としたくない用途のため）
+		// 実装の不備等による予期しない例外も VnanoException でラップする（上層を落としたくない用途のため）
 		} catch (Exception unexpectedException) {
-
-			ScriptException scriptException = new ScriptException(unexpectedException);
-			throw scriptException;
-		}
-	}
-
-	@Override
-	public Object eval(String script, ScriptContext context) throws ScriptException {
-		Bindings bindings = context.getBindings(ScriptContext.ENGINE_SCOPE);
-		return this.eval(script, bindings);
-	}
-
-
-	@Override
-	public Object eval(String script) throws ScriptException {
-		return this.eval(script, this.scriptContext);
-	}
-
-
-
-
-	@Override
-	public Object eval(Reader reader, ScriptContext context) throws ScriptException {
-		Bindings bindings = context.getBindings(ScriptContext.ENGINE_SCOPE);
-		return this.eval(reader, bindings);
-	}
-
-	@Override
-	public Object eval(Reader reader) throws ScriptException {
-		Bindings bindings = this.scriptContext.getBindings(ScriptContext.ENGINE_SCOPE);
-		return this.eval(reader, bindings);
-	}
-
-	@Override
-	public Object eval(Reader reader, Bindings bindings) throws ScriptException {
-		try {
-
-			StringBuilder builder = new StringBuilder();
-			int charcode = -1;
-			while ((charcode = reader.read()) != -1) {
-				builder.append((char)charcode);
-			}
-
-			String script = builder.toString();
-			return this.eval(script, bindings);
-
-		} catch (IOException e) {
-			throw new ScriptException(e);
+			throw new VnanoException(unexpectedException);
 		}
 	}
 
 
-	@Override
-	public void put(String name, Object value) {
+
+	public void connectPlugin(String bindingKey, Object bindingPlugin) throws VnanoException {
 
 		// キーを自動生成するよう設定されている場合は、キーを置き換え
-		if (name.equals(SpecialBindingKey.AUTO_KEY)) {
+		if (bindingKey.equals(SpecialBindingKey.AUTO_KEY)) {
 			try {
-				name = Interconnect.generateBindingKeyOf(value);
+				bindingKey = Interconnect.generateBindingKeyOf(bindingPlugin);
 			} catch (VnanoException e) {
+				// インターフェースの制約が無くなったので、後で検査例外に置き換える？
 				throw new VnanoFatalException(
-					"A binding key of \"" + value.getClass().getCanonicalName()
+					"A binding key of \"" + bindingPlugin.getClass().getCanonicalName()
 					+ "\" could not be generted automatically."
 				);
 			}
 		}
 
-		// オプションの場合
-		if (name.equals(SpecialBindingKey.OPTION_MAP)) {
-			if (value instanceof Map) {
-				@SuppressWarnings("unchecked")
-				Map<String, Object> castedMap = (Map<String, Object>)value;
-				this.setOptions(castedMap);
-			} else {
-				throw new VnanoFatalException(
-					"The type of \"" + SpecialBindingKey.OPTION_MAP + "\" should be \"Map<String,Object>\""
-				);
-			}
-
-		// 外部変数/関数のバインディングの場合
-		} else {
-			this.scriptContext.getBindings(ScriptContext.ENGINE_SCOPE).put(name, value);
-		}
+		this.interconnect.connect(bindingKey, bindingPlugin);
 	}
 
-
-	@Override
-	public Object get(String name) {
-		return this.scriptContext.getBindings(ScriptContext.ENGINE_SCOPE).get(name);
-	}
-
-	@Override
-	public Bindings getBindings(int scope) {
-		return this.scriptContext.getBindings(scope);
-	}
-
-	@Override
-	public void setBindings(Bindings bind, int scope) {
-		this.scriptContext.setBindings(bind, scope);
-	}
-
-	@Override
-	public Bindings createBindings() {
-		return new SimpleBindings();
-	}
-
-	@Override
-	public ScriptContext getContext() {
-		return this.scriptContext;
-	}
-
-	@Override
-	public void setContext(ScriptContext context) {
-		this.scriptContext = context;
-	}
-
-	@Override
-	public ScriptEngineFactory getFactory() {
-		return new VnanoEngineFactory();
-	}
 
 
 	/**
@@ -242,9 +119,16 @@ public class VnanoEngine implements ScriptEngine {
 	 *
 	 * @param optionMap 全オプションの名前と値を格納するマップ
 	 */
-	private void setOptions(Map<String,Object> optionMap) {
+	public void setOptionMap(Map<String,Object> optionMap) {
 
+		// コンパイラやVMなどの下層にもオプションを渡すため、フィールドに控えておく
 		this.optionMap = optionMap;
+
+		// 以下、この階層でのオプション処理
+
+		// プラグインからエンジン情報にアクセスするためのエンジンコネクタを生成し、インターコネクトに設定
+		VnanoEngineConnector engineConnector = new VnanoEngineConnector(optionMap);
+		this.interconnect.setEngineConnector(engineConnector);
 
 		// ロケール設定を、このインスタンスの locale フィールドに反映
 		this.locale = OptionValue.valueOf(OptionKey.LOCALE, this.optionMap, Locale.class);
@@ -260,6 +144,7 @@ public class VnanoEngine implements ScriptEngine {
 			} else if (value instanceof String[]) {
 				this.libraryScriptNames = OptionValue.stringArrayValueOf(OptionKey.LIBRARY_SCRIPT_NAMES, optionMap);
 			} else {
+				// インターフェースの制約が無くなったので、後で検査例外に置き換える？
 				throw new VnanoFatalException(
 					"The type of \"" + OptionKey.LIBRARY_SCRIPT_NAMES + "\" option should be \"String\" or \"String[]\""
 				);
@@ -274,6 +159,7 @@ public class VnanoEngine implements ScriptEngine {
 			} else if (value instanceof String[]) {
 				this.libraryScriptCode = OptionValue.stringArrayValueOf(OptionKey.LIBRARY_SCRIPTS, optionMap);
 			} else {
+				// インターフェースの制約が無くなったので、後で検査例外に置き換える？
 				throw new VnanoFatalException(
 					"The type of \"" + OptionKey.LIBRARY_SCRIPTS + "\" option should be \"String\" or \"String[]\""
 				);
@@ -288,6 +174,20 @@ public class VnanoEngine implements ScriptEngine {
 				}
 			}
 		}
+	}
+
+
+	/**
+	 * 全オプションの名前と値を、対応付けて格納するマップを返します。
+	 * オプションマップは Map<String,Object> 型で、そのキーにはオプション名を指定します。
+	 * オプション名の具体的な値は {@link org.vcssl.nano.spec.OptionKey} クラスに文字列定数として定義されています。
+	 * オプションマップの値は Object 型ですが、実際の値は対応するオプション名によって異なります。
+	 * こちらも、具体的な内容は {@link org.vcssl.nano.spec.OptionKey} クラスに記載されている説明を参照してください。
+	 *
+	 * @return 全オプションの名前と値を格納するマップ
+	 */
+	public Map<String,Object> getOptionMap() {
+		return this.optionMap;
 	}
 
 }

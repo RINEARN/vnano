@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2018 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2019 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -14,7 +14,7 @@ public class EngineInformation {
 
 	public static final String ENGINE_NAME = "RINEARN Vnano Engine";
 
-	public static final String ENGINE_VERSION = "0.1.2";
+	public static final String ENGINE_VERSION = "0.1.3";
 
 	public static final String[] EXTENTIONS = { "vnano" };
 

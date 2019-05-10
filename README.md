@@ -89,6 +89,7 @@ This software is released under the MIT License.
 The following is an example Java&reg; application code which executes 
 a script code by using Vnano:
 
+<a id="example-scripting-api"></a>
 Vnano を使用してスクリプトを実行するJava&reg;アプリケーションのコード例は、以下の通りです：
 
 
@@ -136,13 +137,6 @@ Vnano を使用してスクリプトを実行するJava&reg;アプリケーシ�
 					"  }                           " +
 					"  output(sum);                " ;
 
-			// Note: You can also access to the external variable "LOOP_MAX" as "ExamplePlugin.LOOP_MAX",
-			//       and can also call the external function "output(sum)" as "ExamplePlugin.output(sum)",
-			//       where "ExamplePlugin" is the strings specified to the "put" method of the script engine.
-			// 備考: 外部変数「 LOOP_MAX 」へのアクセスを「 ExamplePlugin.LOOP_MAX 」と書いたり、
-			//       外部関数「 output(sum) 」の呼び出しを「 ExamplePlugin.output(sum) 」と書く事もできます。
-			//       ここで「 ExamplePlugin 」は、スクリプトエンジンの put メソッドに指定した文字列です。
-
 
 			// Run the script code by the script engine of Vnano.
 			// Vnanoのスクリプトエンジンにスクリプトコードを渡して実行
@@ -157,16 +151,96 @@ Vnano を使用してスクリプトを実行するJava&reg;アプリケーシ�
 		}
 	}
 
+( &raquo; <a href="#how-to-use-in-java-compile">How to compile - コンパイル方法</a> )
 
-The following is the same example written in Kotlin&reg;:
+In the above code, we search and get a Vnano engine (scripting engine of the Vnano) by features of Java Scripting API, and use it through methods of javax.script.ScriptEngine interface.
+In this way, you can keep independence high between your application and the script engine.
+For example, you can compile the above code without the Vnano engine.
 
-また、Kotlin&reg;で記述された同様のアプリケーションのコード例は以下の通りです：
+上記のコードでは、Java Scripting API の機能を用いてVnanoエンジン（Vnanoのスクリプトエンジン）を検索・取得し、javax.script.ScriptEngineインターフェースのメソッドを介して使用します。この方法では、アプリケーションとスクリプトエンジン間の分離性を高める事ができます。実際、上記のコードのコンパイル時にはVnanoエンジンは不要です。
+
+<a id="example-direct"></a>
+On the other hand, you can also create an instance of the Vnano engine directly and use it, as follows:
+
+一方で、以下のように、直接的にVnanoエンジンのインスタンスを生成して使用する事もできます：
+
+
+	( DirectExample.java )
+
+	import org.vcssl.nano.VnanoEngine;
+	import org.vcssl.nano.VnanoException;
+	import java.lang.reflect.Field;
+	import java.lang.reflect.Method;
+
+	public class DirectExample {
+
+		// A class which provides a field/method accessed from the script as external functions/variables.
+		// スクリプト内から外部変数・外部関数としてアクセスされるフィールドとメソッドを提供するクラス
+		public class ExamplePlugin {
+			public int LOOP_MAX = 100;
+			public void output(int value) {
+				System.out.println("Output from script: " + value);
+			}
+		}
+
+		public static void main(String[] args) {
+
+			// Create an instance of the script engine of the Vnano.
+			// Vnanoのスクリプトエンジンを生成
+			VnanoEngine engine = new VnanoEngine();
+
+			// Connect methods/fields of an instance of ExamplePlugin class as external functions/variables.
+			// ExamplePluginクラスのインスタンスのメソッド・フィールドを外部関数・変数として接続
+			ExamplePlugin examplePlugin = new DirectExample().new ExamplePlugin();
+			try {
+				engine.connectPlugin("ExamplePlugin", examplePlugin);
+			} catch (VnanoException e) {
+				System.err.println("Connection error occurred.");
+				e.printStackTrace();
+			}
+
+
+			// Connect methods/fields of ExamplePlugin to the script engine as external functions/variables.
+			// ExamplePluginクラスのメソッド・フィールドを外部関数・変数としてスクリプトエンジンに接続
+			String scriptCode = 
+					"  int sum = 0;                " +
+					"  int n = LOOP_MAX;           " +
+					"  for (int i=1; i<=n; i++) {  " +
+					"      sum += i;               " +
+					"  }                           " +
+					"  output(sum);                " ;
+
+
+			// Run the script code by the script engine of Vnano.
+			// Vnanoのスクリプトエンジンにスクリプトコードを渡して実行
+			try{
+				engine.executeScript(scriptCode);
+
+			} catch (VnanoException e) {
+				System.err.println("Scripting error occurred.");
+				e.printStackTrace();
+				return;
+			}
+		}
+	}
+
+( &raquo; <a href="#how-to-use-in-java-compile">How to compile - コンパイル方法</a> )
+
+
+The above way may be useful for environments in which Java Scripting API (javax.script package) is not available.
+
+上記の使い方は、Java Scripting API (javax.scriptパッケージ) が使用できない環境などで有用かもしれません。
+
+By the way, the Vnano is also available for apprications written in Kotlin&reg;. An example code is:
+
+<a id="example-kt"></a>
+なお、Vnanoは、Kotlin&reg;で記述されたアプリケーションからも使用できます。コード例は以下の通りです：
 
 
 	( Example.kt )
 
-	import javax.script.ScriptEngine
-	import org.vcssl.nano.VnanoEngineFactory
+	import org.vcssl.nano.VnanoEngine
+	import org.vcssl.nano.VnanoException
 
 	// A class which provides a field/method accessed from the script as external functions/variables.
 	// スクリプト内から外部変数・外部関数としてアクセスされるフィールドとメソッドを提供するクラス
@@ -180,15 +254,14 @@ The following is the same example written in Kotlin&reg;:
 
 	fun main(args: Array<String>) {
 
-		// Get a script engine of Vnano.
-		// Vnanoのスクリプトエンジンを取得
-		val factory = VnanoEngineFactory()
-		val engine = factory.getScriptEngine()
+		// Create an instance of the script engine of the Vnano.
+		// Vnanoのスクリプトエンジンを生成
+		val engine = VnanoEngine()
 
 		// Connect methods/fields of ExamplePlugin to the script engine as external functions/variables.
 		// ExamplePluginクラスのメソッド・フィールドを外部関数・変数としてスクリプトエンジンに接続
 		val examplePlugin = ExamplePlugin();
-		engine.put("ExamplePlugin", examplePlugin);
+		engine.connectPlugin("ExamplePlugin", examplePlugin);
 
 
 		// Create a script code (calculates the value of summation from 1 to 100).
@@ -202,18 +275,13 @@ The following is the same example written in Kotlin&reg;:
 				output(sum);
 		"""
 
-		// Note: You can also access to the external variable "LOOP_MAX" as "ExamplePlugin.LOOP_MAX",
-		//       and can also call the external function "output(sum)" as "ExamplePlugin.output(sum)",
-		//       where "ExamplePlugin" is the strings specified to the "put" method of the script engine.
-		// 備考: 外部変数「 LOOP_MAX 」へのアクセスを「 ExamplePlugin.LOOP_MAX 」と書いたり、
-		//       外部関数「 output(sum) 」の呼び出しを「 ExamplePlugin.output(sum) 」と書く事もできます。
-		//       ここで「 ExamplePlugin 」は、スクリプトエンジンの put メソッドに指定した文字列です。
 
-
-		// Run the script code by the script engine of Vnano.
+		// Run the script code by the script engine of the Vnano.
 		// Vnanoのスクリプトエンジンにスクリプトコードを渡して実行
-		engine.eval(scriptCode)
+		engine.executeScript(scriptCode)
 	}
+
+( &raquo; <a href="#how-to-use-in-kotlin-compile">How to compile - コンパイル方法</a> )
 
 
 These example code are contained in this repository as "Example.java" (for Java&reg;) and "Example.kt" (for Kotlin&reg;).
@@ -250,16 +318,37 @@ Vnanoを使用したいJavaアプリケーションから、このJARファイ�
 
 ### 2. Compile the Example Application - サンプルアプリケーションのコンパイル
 
-Let's compile the simple example code of host Java application which executes a script code by using Vnano Engine: 
+Let's compile the simple example code of host Java application "<a href="#example-scripting-api">Example.java</a>" which executes a script code by using Vnano Engine: 
 
-それでは、実際にVnanoエンジンを使用して、スクリプトを実行する、ホストアプリケーションのサンプルコードをコンパイルしてみましょう：
+それでは、実際にVnanoエンジンを使用して、スクリプトを実行する、ホストアプリケーションのサンプルコード「 <a href="#example-scripting-api">Example.java</a> 」をコンパイルしてみましょう：
 
-    javac Example.java
+    javac -encoding UTF-8 Example.java
+
 
 As the result of the compilation, "Example.class" will be generated in the same folder.
 
-コンパイルが成功すると、同じフォルダ内に Example.class が生成されます。
+コンパイルが無事成功すると、同じフォルダ内に Example.class が生成されます。
 
+However, if Java Scripting API (javax.script package) is not available for your environment, some errors will be occur for the compilation or the execution. 
+In that case, instead of Example.java, use "<a href="#example-direct">DirectExample.java</a>" as follows.
+
+しかし、Java Scripting API （javax.script パッケージ） が使用できない環境では、上記のコンパイル時か実行時にエラーになってしまいます。その場合は以下のように、Example.java の代わりに「 <a href="#example-direct">DirectExample.java</a> 」を使用してください。
+
+If you are using Microsoft&reg; Windows&reg;:
+
+Microsoft&reg; Windows&reg; の場合は：
+
+    javac -encoding UTF-8 -classpath ".;Vnano.jar" DirectExample.java
+
+If you are using Linux&reg;, etc.:
+
+Linux&reg;等の場合は：
+
+    javac -encoding UTF-8 -classpath ".:Vnano.jar" DirectExample.java
+
+
+
+<a id="how-to-use-in-java-compile"></a>
 ### 3. Execute the Example Application - サンプルアプリケーションの実行
 
 Then, execute the compiled example application with appending "Vnano.jar" to the classpath as follows. If you are using Microsoft&reg; Windows&reg;:
@@ -269,11 +358,19 @@ Microsoft&reg; Windows&reg; の場合は：
 
     java -classpath ".;Vnano.jar" Example
 
+    or, 
+	
+	java -classpath ".;Vnano.jar" DirectExample
+
 If you are using Linux&reg;, etc.:
 
 Linux&reg;等の場合は：
 
     java -classpath ".:Vnano.jar" Example
+
+	or, 
+
+    java -classpath ".:Vnano.jar" DirectExample
 
 As the result of the execution, the following line will be printed to the standard output:
 
@@ -337,11 +434,12 @@ You can use Vnano on your Java applications by appending this JAR file to the cl
 Vnanoエンジンのビルドが成功すると、"Vnano.jar" が上記ファイルと同じフォルダ内に生成されます。
 Vnanoを使用したいJavaアプリケーションから、このJARファイルにクラスパスを通せば、それだけでVnanoが使用できます。
 
+<a id="how-to-use-in-kotlin-compile"></a>
 ### 2. Compile the Example Application - サンプルアプリケーションのコンパイル
 
-Let's compile the simple example code of host application written in Kotlin, which executes a script code by using Vnano Engine. It is necessary to compile the application with appending "Vnano.jar" to the classpath as follows. If you are using Microsoft&reg; Windows&reg;:
+Let's compile the simple example code of host application written in Kotlin, "<a href="#example-kt">Example.kt</a>", which executes a script code by using Vnano Engine. It is necessary to compile the application with appending "Vnano.jar" to the classpath as follows. If you are using Microsoft&reg; Windows&reg;:
 
-それでは、実際にVnanoエンジンを使用して、スクリプトを実行する、Kotlinで記述されたホストアプリケーションのサンプルコードをコンパイルしてみましょう。コンパイルは、Vnano.jar にクラスパスを通しながら行います。Microsoft&reg; Windows&reg; の場合は：
+それでは、実際にVnanoエンジンを使用して、スクリプトを実行する、Kotlinで記述されたホストアプリケーションのサンプルコード「 <a href="#example-kt">Example.kt</a> 」をコンパイルしてみましょう。コンパイルは、Vnano.jar にクラスパスを通しながら行います。Microsoft&reg; Windows&reg; の場合は：
 
     kotlinc -classpath ".;Vnano.jar" Example.kt
 
@@ -748,7 +846,7 @@ How to execute is:
 
 実行方法は：
 
-	javac Float64ScalarFlopsBenchmark.java -encoding UTF-8
+	javac -encoding UTF-8 Float64ScalarFlopsBenchmark.java
 	java -classpath ".;Vnano.jar" Float64ScalarFlopsBenchmark  (for Microsoft Windows)
 	java -classpath ".:Vnano.jar" Float64ScalarFlopsBenchmark  (for Linux, etc.)
 
@@ -821,7 +919,7 @@ How to execute is:
 
 実行方法は：
 
-	javac Float64VectorFlopsBenchmark.java -encoding UTF-8
+	javac -encoding UTF-8 Float64VectorFlopsBenchmark.java
 	java -classpath ".;Vnano.jar" Float64VectorFlopsBenchmark  (for Microsoft Windows)
 	java -classpath ".:Vnano.jar" Float64VectorFlopsBenchmark  (for Linux, etc.)
 
@@ -929,7 +1027,7 @@ and Vnano engine can run even under the condition of that this component is comp
 
 <a href="https://github.com/RINEARN/vnano/tree/master/src/org/vcssl/nano/vm/accelerator">org.vcssl.nano.vm.accelerator</a>
 パッケージは、上記の仮想プロセッサの、より高速な実装を提供します。半面、実装コードの内容もより複雑になっています。
-このコンポーネントを使用するかどうかは、下記のように任意に選択できます。
+このコンポーネントを使用するかどうかは、下記のようにオプションで選択できます。
 Vnanoエンジンは、このコンポーネントの動作を完全に無効化しても、機能上は欠損なく成立するようにできています。
 
 		// Create an option-map to enable/disable the accelerator (fast version VM).
@@ -938,10 +1036,20 @@ Vnanoエンジンは、このコンポーネントの動作を完全に無効化
 		optionMap.put("ACCELERATOR_ENABLED", true);     // Enable  - 有効化
 		//optionMap.put("ACCELERATOR_ENABLED", false);  // Disable - 無効化
 
-		// Set the option-map to an instance of the VnanoEngine class: engine.
-		// オプションマップをVnanoEngineのインスタンス（engine）に設定
-		engine.put("___VNANO_OPTION_MAP", optionMap);
+		// Set the option-map to the script engine of the Vnano
+		// オプションマップをVnanoのスクリプトエンジンに設定
+		engine.put("___VNANO_OPTION_MAP", optionMap);   // engine: javax.script.ScriptEngine
 
+If you created an instance of the VnanoEngine class directly and are using it 
+ ( as <a href="#example-direct">DirectExample.java</a> or <a href="#example-kt">Example.kt</a> ) :
+
+もし（ <a href="#example-direct">DirectExample.java</a> や <a href="#example-kt">Example.kt</a> のように ）VnanoEngineクラスのインスタンスを直接使用している場合は：
+
+		...
+
+		// Set the option-map to the script engine of the Vnano
+		// オプションマップをVnanoのスクリプトエンジンに設定
+		engine.setOptionMap(optionMap);    // engine: org.vcssl.nano.VnanoEngine
 
 ### Memory - メモリ
 
@@ -1292,36 +1400,36 @@ The following is the list of operators supported in the Vnano:
 
 Vnano でサポートされている演算子は、以下の一覧の通りです：
 
-| Operators - 演算子 | Priority - 優先度 | Syntax - 構文 | Operand Types - オペランドの型 | Value Type - 値の型 |
-| --- | --- | --- | --- | --- |
-| ( ... , ... , ... ) as call | 1000 | multiary | any | any |
-| [ ... ][ ... ] ... as index | 1000 | multiary | int | any |
-| ++ | 1000 | postfix | int | int |
-| -- | 1000 | postfix | int | int |
-| ++ | 2000 | prefix | int | int |
-| -- | 2000 | prefix | int | int |
-| + | 2000 | prefix | int | int |
-| - | 2000 | prefix | int | int |
-| ! | 2000 | prefix | bool | bool |
-| * | 3000 | binary | int, float | int, float |
-| / | 3000 | binary | int, float | int, float |
-| % | 3000 | binary | int, float | int, float |
-| + | 3100 | binary | int, float, string | int, float, string |
-| - | 3100 | binary | int, float | int, float |
-| < | 4000 | binary | int, float | bool |
-| <= | 4000 | binary | int, float | bool |
-| > | 4000 | binary | int, float | bool |
-| >= | 4000 | binary | int, float | bool |
-| == | 4100 | binary | any | bool |
-| != | 4100 | binary | any | bool |
-| && | 5000 | binary | bool | bool |
-| \|\| | 5100 | binary | bool | bool |
-| = | 6000 | binary | any | any |
-| *= | 6000 | binary | int, float | int, float |
-| /= | 6000 | binary | int, float | int, float |
-| %= | 6000 | binary | int, float | int, float |
-| += | 6000 | binary | int, float, string | int, float, string |
-| -= | 6000 | binary | int, float | int, float |
+| Operators<br>演算子 | Priority<br>優先度 | Syntax<br>構文 | Associativity<br>結合性の左右 | Type of Operands<br>オペランドの型 | Type of Operated Value<br>演算結果の値の型 |
+| --- | --- | --- | --- | --- | --- |
+| ( ... , ... , ... ) as call | 1000 | multiary | left | any | any |
+| [ ... ][ ... ] ... as index | 1000 | multiary | left | int | any |
+| ++ | 1000 | postfix | left | int | int |
+| -- | 1000 | postfix | left | int | int |
+| ++ | 2000 | prefix | right | int | int |
+| -- | 2000 | prefix | right | int | int |
+| + | 2000 | prefix | right | int | int |
+| - | 2000 | prefix | right | int | int |
+| ! | 2000 | prefix | right | bool | bool |
+| * | 3000 | binary | left | int, float | int, float |
+| / | 3000 | binary | left | int, float | int, float |
+| % | 3000 | binary | left | int, float | int, float |
+| + | 3100 | binary | left | int, float, string | int, float, string |
+| - | 3100 | binary | left | int, float | int, float |
+| < | 4000 | binary | left | int, float | bool |
+| <= | 4000 | binary | left | int, float | bool |
+| > | 4000 | binary | left | int, float | bool |
+| >= | 4000 | binary | left | int, float | bool |
+| == | 4100 | binary | left | any | bool |
+| != | 4100 | binary | left | any | bool |
+| && | 5000 | binary | left | bool | bool |
+| \|\| | 5100 | binary | left | bool | bool |
+| = | 6000 | binary | right | any | any |
+| *= | 6000 | binary | right | int, float | int, float |
+| /= | 6000 | binary | right | int, float | int, float |
+| %= | 6000 | binary | right | int, float | int, float |
+| += | 6000 | binary | right | int, float, string | int, float, string |
+| -= | 6000 | binary | right | int, float | int, float |
 
 
 The value type (the data-type of the operated value) of binary arithmetic operators (\*, /, %, +, -) 
@@ -1329,7 +1437,7 @@ and compound arithmetic assignment operators (*=, /=, %=, +=, -=) are decided by
 
 算術演算子（\*, /, %, +, -）および算術複合代入演算子（*=, /=, %=, +=, -=）における値の型（演算された値のデータ型）は、以下の表の通りに決定されます：
 
-| Operand Type A - オペランドAの型 | Operand Type B - オペランドBの型 | Value Type - 値の型 |
+| Type of Operand A<br>オペランドAの型 | Type of Operand B<br>オペランドBの型 | Type of Operated Value<br>演算結果の値の型 |
 | --- | --- | --- |
 | int | int | int |
 | int | float | float |

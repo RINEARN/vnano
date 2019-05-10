@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2018 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2019 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -14,11 +14,11 @@ import org.vcssl.nano.spec.EngineInformation;
 
 
 /**
- * {@link VnanoEngine VnanoEngine} のインスタンスを生成するためのファクトリークラスです。
+ * {@link VnanoScriptEngine VnanoScriptEngine} のインスタンスを生成するためのファクトリークラスです。
  *
  * @author RINEARN (Fumihiro Matsui)
  */
-public class VnanoEngineFactory implements ScriptEngineFactory {
+public class VnanoScriptEngineFactory implements ScriptEngineFactory {
 
 	@Override
 	public String getEngineName() {
@@ -81,7 +81,7 @@ public class VnanoEngineFactory implements ScriptEngineFactory {
 
 	@Override
 	public ScriptEngine getScriptEngine() {
-		return new VnanoEngine();
+		return new VnanoScriptEngine();
 	}
 
 }
