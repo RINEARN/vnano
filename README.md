@@ -322,7 +322,7 @@ Let's compile the simple example code of host Java application "<a href="#exampl
 
 それでは、実際にVnanoエンジンを使用して、スクリプトを実行する、ホストアプリケーションのサンプルコード「 <a href="#example-scripting-api">Example.java</a> 」をコンパイルしてみましょう：
 
-    javac Example.java
+    javac -encoding UTF-8 Example.java
 
 
 As the result of the compilation, "Example.class" will be generated in the same folder.
@@ -338,13 +338,13 @@ If you are using Microsoft&reg; Windows&reg;:
 
 Microsoft&reg; Windows&reg; の場合は：
 
-    javac -classpath ".;Vnano.jar" DirectExample.java
+    javac -encoding UTF-8 -classpath ".;Vnano.jar" DirectExample.java
 
 If you are using Linux&reg;, etc.:
 
 Linux&reg;等の場合は：
 
-    java -classpath ".:Vnano.jar" DirectExample.java
+    java -encoding UTF-8 -classpath ".:Vnano.jar" DirectExample.java
 
 
 
@@ -846,7 +846,7 @@ How to execute is:
 
 実行方法は：
 
-	javac Float64ScalarFlopsBenchmark.java -encoding UTF-8
+	javac -encoding UTF-8 Float64ScalarFlopsBenchmark.java
 	java -classpath ".;Vnano.jar" Float64ScalarFlopsBenchmark  (for Microsoft Windows)
 	java -classpath ".:Vnano.jar" Float64ScalarFlopsBenchmark  (for Linux, etc.)
 
@@ -919,7 +919,7 @@ How to execute is:
 
 実行方法は：
 
-	javac Float64VectorFlopsBenchmark.java -encoding UTF-8
+	javac -encoding UTF-8 Float64VectorFlopsBenchmark.java
 	java -classpath ".;Vnano.jar" Float64VectorFlopsBenchmark  (for Microsoft Windows)
 	java -classpath ".:Vnano.jar" Float64VectorFlopsBenchmark  (for Linux, etc.)
 
