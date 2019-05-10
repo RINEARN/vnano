@@ -1027,7 +1027,7 @@ and Vnano engine can run even under the condition of that this component is comp
 
 <a href="https://github.com/RINEARN/vnano/tree/master/src/org/vcssl/nano/vm/accelerator">org.vcssl.nano.vm.accelerator</a>
 パッケージは、上記の仮想プロセッサの、より高速な実装を提供します。半面、実装コードの内容もより複雑になっています。
-このコンポーネントを使用するかどうかは、下記のようにオプションで任意に選択できます。
+このコンポーネントを使用するかどうかは、下記のようにオプションで選択できます。
 Vnanoエンジンは、このコンポーネントの動作を完全に無効化しても、機能上は欠損なく成立するようにできています。
 
 		// Create an option-map to enable/disable the accelerator (fast version VM).
@@ -1043,7 +1043,7 @@ Vnanoエンジンは、このコンポーネントの動作を完全に無効化
 If you created an instance of the VnanoEngine class directly and are using it 
  ( as <a href="#example-direct">DirectExample.java</a> or <a href="#example-kt">Example.kt</a> ) :
 
-もし（ <a href="#example-direct">DirectExample.java</a> や <a href="#example-kt">Example.kt</a> のように ）VnanoEngineクラスのインスタンスを直接生成して使用している場合は：
+もし（ <a href="#example-direct">DirectExample.java</a> や <a href="#example-kt">Example.kt</a> のように ）VnanoEngineクラスのインスタンスを直接使用している場合は：
 
 		...
 
@@ -1400,36 +1400,36 @@ The following is the list of operators supported in the Vnano:
 
 Vnano でサポートされている演算子は、以下の一覧の通りです：
 
-| Operators - 演算子 | Priority - 優先度 | Syntax - 構文 | Operand Types - オペランドの型 | Value Type - 値の型 |
-| --- | --- | --- | --- | --- |
-| ( ... , ... , ... ) as call | 1000 | multiary | any | any |
-| [ ... ][ ... ] ... as index | 1000 | multiary | int | any |
-| ++ | 1000 | postfix | int | int |
-| -- | 1000 | postfix | int | int |
-| ++ | 2000 | prefix | int | int |
-| -- | 2000 | prefix | int | int |
-| + | 2000 | prefix | int | int |
-| - | 2000 | prefix | int | int |
-| ! | 2000 | prefix | bool | bool |
-| * | 3000 | binary | int, float | int, float |
-| / | 3000 | binary | int, float | int, float |
-| % | 3000 | binary | int, float | int, float |
-| + | 3100 | binary | int, float, string | int, float, string |
-| - | 3100 | binary | int, float | int, float |
-| < | 4000 | binary | int, float | bool |
-| <= | 4000 | binary | int, float | bool |
-| > | 4000 | binary | int, float | bool |
-| >= | 4000 | binary | int, float | bool |
-| == | 4100 | binary | any | bool |
-| != | 4100 | binary | any | bool |
-| && | 5000 | binary | bool | bool |
-| \|\| | 5100 | binary | bool | bool |
-| = | 6000 | binary | any | any |
-| *= | 6000 | binary | int, float | int, float |
-| /= | 6000 | binary | int, float | int, float |
-| %= | 6000 | binary | int, float | int, float |
-| += | 6000 | binary | int, float, string | int, float, string |
-| -= | 6000 | binary | int, float | int, float |
+| Operators<br>演算子 | Priority<br>優先度 | Syntax<br>構文 | Associativity<br>結合性の左右 | Type of Operands<br>オペランドの型 | Type of Operated Value<br>演算結果の値の型 |
+| --- | --- | --- | --- | --- | --- |
+| ( ... , ... , ... ) as call | 1000 | multiary | left | any | any |
+| [ ... ][ ... ] ... as index | 1000 | multiary | left | int | any |
+| ++ | 1000 | postfix | left | int | int |
+| -- | 1000 | postfix | left | int | int |
+| ++ | 2000 | prefix | right | int | int |
+| -- | 2000 | prefix | right | int | int |
+| + | 2000 | prefix | right | int | int |
+| - | 2000 | prefix | right | int | int |
+| ! | 2000 | prefix | right | bool | bool |
+| * | 3000 | binary | left | int, float | int, float |
+| / | 3000 | binary | left | int, float | int, float |
+| % | 3000 | binary | left | int, float | int, float |
+| + | 3100 | binary | left | int, float, string | int, float, string |
+| - | 3100 | binary | left | int, float | int, float |
+| < | 4000 | binary | left | int, float | bool |
+| <= | 4000 | binary | left | int, float | bool |
+| > | 4000 | binary | left | int, float | bool |
+| >= | 4000 | binary | left | int, float | bool |
+| == | 4100 | binary | left | any | bool |
+| != | 4100 | binary | left | any | bool |
+| && | 5000 | binary | left | bool | bool |
+| \|\| | 5100 | binary | left | bool | bool |
+| = | 6000 | binary | right | any | any |
+| *= | 6000 | binary | right | int, float | int, float |
+| /= | 6000 | binary | right | int, float | int, float |
+| %= | 6000 | binary | right | int, float | int, float |
+| += | 6000 | binary | right | int, float, string | int, float, string |
+| -= | 6000 | binary | right | int, float | int, float |
 
 
 The value type (the data-type of the operated value) of binary arithmetic operators (\*, /, %, +, -) 
@@ -1437,7 +1437,7 @@ and compound arithmetic assignment operators (*=, /=, %=, +=, -=) are decided by
 
 算術演算子（\*, /, %, +, -）および算術複合代入演算子（*=, /=, %=, +=, -=）における値の型（演算された値のデータ型）は、以下の表の通りに決定されます：
 
-| Operand Type A - オペランドAの型 | Operand Type B - オペランドBの型 | Value Type - 値の型 |
+| Type of Operand A<br>オペランドAの型 | Type of Operand B<br>オペランドBの型 | Type of Operated Value<br>演算結果の値の型 |
 | --- | --- | --- |
 | int | int | int |
 | int | float | float |
