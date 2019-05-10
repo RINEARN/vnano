@@ -191,8 +191,13 @@ On the other hand, you can also create an instance of the Vnano engine directly 
 
 			// Connect methods/fields of an instance of ExamplePlugin class as external functions/variables.
 			// ExamplePluginクラスのインスタンスのメソッド・フィールドを外部関数・変数として接続
-			ExamplePlugin examplePlugin = new Example().new ExamplePlugin();
-			engine.connectPlugin("ExamplePlugin", examplePlugin);
+			ExamplePlugin examplePlugin = new DirectExample().new ExamplePlugin();
+			try {
+				engine.connectPlugin("ExamplePlugin", examplePlugin);
+			} catch (VnanoException e) {
+				System.err.println("Connection error occurred.");
+				e.printStackTrace();
+			}
 
 
 			// Connect methods/fields of ExamplePlugin to the script engine as external functions/variables.
