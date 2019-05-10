@@ -344,7 +344,7 @@ If you are using Linux&reg;, etc.:
 
 Linux&reg;等の場合は：
 
-    java -encoding UTF-8 -classpath ".:Vnano.jar" DirectExample.java
+    javac -encoding UTF-8 -classpath ".:Vnano.jar" DirectExample.java
 
 
 
