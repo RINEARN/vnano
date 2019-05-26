@@ -200,8 +200,8 @@ On the other hand, you can also create an instance of the Vnano engine directly 
 			}
 
 
-			// Connect methods/fields of ExamplePlugin to the script engine as external functions/variables.
-			// ExamplePluginクラスのメソッド・フィールドを外部関数・変数としてスクリプトエンジンに接続
+			// Create a script code (calculates the value of summation from 1 to 100).
+			// スクリプトコードを用意（1から100までの和を求める）
 			String scriptCode = 
 					"  int sum = 0;                " +
 					"  int n = LOOP_MAX;           " +
