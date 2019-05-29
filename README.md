@@ -735,6 +735,7 @@ The result is :
 
 	#META   "line=75, file=Example.vnano";
 	        CALLX   void    -       _output(int)   _sum@0;
+	        END     void    -;
 
 
 This is the compiled intermediate code of the script engine of Vnano, 
@@ -2398,6 +2399,12 @@ Vnanoに関するご質問や、Vnanoにご興味をお持ちの場合は、ご�
 	</dt>
 	<dd>
 		<a href="https://www.rinearn.com/ja-jp/info/news/2018/0930-vnano-repository-published">https://www.rinearn.com/ja-jp/info/news/2018/0930-vnano-repository-published</a>
+	</dd>
+	<dt style="display: list-item; margin-left:40px;">
+		"Vnanoのスクリプトエンジンアーキテクチャ解説1: 全体像" - RINEARN Website (2019/05/28)
+	</dt>
+	<dd>
+		<a href="https://www.rinearn.com/ja-jp/info/news/2019/0528-vnano-architecture">https://www.rinearn.com/ja-jp/info/news/2019/0528-vnano-architecture</a>
 	</dd>
 </dl>
 
