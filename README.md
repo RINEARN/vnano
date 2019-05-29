@@ -200,8 +200,8 @@ On the other hand, you can also create an instance of the Vnano engine directly 
 			}
 
 
-			// Connect methods/fields of ExamplePlugin to the script engine as external functions/variables.
-			// ExamplePluginクラスのメソッド・フィールドを外部関数・変数としてスクリプトエンジンに接続
+			// Create a script code (calculates the value of summation from 1 to 100).
+			// スクリプトコードを用意（1から100までの和を求める）
 			String scriptCode = 
 					"  int sum = 0;                " +
 					"  int n = LOOP_MAX;           " +
@@ -735,6 +735,7 @@ The result is :
 
 	#META   "line=75, file=Example.vnano";
 	        CALLX   void    -       _output(int)   _sum@0;
+	        END     void    -;
 
 
 This is the compiled intermediate code of the script engine of Vnano, 
@@ -2398,6 +2399,12 @@ Vnanoに関するご質問や、Vnanoにご興味をお持ちの場合は、ご�
 	</dt>
 	<dd>
 		<a href="https://www.rinearn.com/ja-jp/info/news/2018/0930-vnano-repository-published">https://www.rinearn.com/ja-jp/info/news/2018/0930-vnano-repository-published</a>
+	</dd>
+	<dt style="display: list-item; margin-left:40px;">
+		"Vnanoのスクリプトエンジンアーキテクチャ解説1: 全体像" - RINEARN Website (2019/05/28)
+	</dt>
+	<dd>
+		<a href="https://www.rinearn.com/ja-jp/info/news/2019/0528-vnano-architecture">https://www.rinearn.com/ja-jp/info/news/2019/0528-vnano-architecture</a>
 	</dd>
 </dl>
 
