@@ -17,6 +17,9 @@ public class OptionKey {
 
 	public static final String ACCELERATOR_ENABLED = "ACCELERATOR_ENABLED";
 
+	public static final String DUMPER_ENABLED = "DUMPER_ENABLED";
+	public static final String DUMPER_TARGET = "DUMPER_TARGET";
+
 
 	// 以下は将来的に追加するオプション項目の暫定案（未サポート）
 
