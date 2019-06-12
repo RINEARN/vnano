@@ -45,6 +45,10 @@ public class VnanoException extends Exception {
 		this(errorType, new String[] {errorWord}, fileName, lineNumber);
 	}
 
+	public VnanoException(ErrorType errorType, String errorWord) {
+		this(errorType, new String[] {errorWord}, (String)null, -1);
+	}
+
 	public VnanoException(ErrorType errorType, String[] errorWords) {
 		this(errorType, errorWords, (String)null, -1);
 	}

@@ -35,7 +35,6 @@ import org.vcssl.nano.spec.SpecialBindingKey;
 import org.vcssl.nano.spec.EngineInformation;
 import org.vcssl.nano.spec.ErrorMessage;
 import org.vcssl.nano.spec.OptionKey;
-import org.vcssl.nano.spec.OptionValue;
 import org.vcssl.nano.vm.VirtualMachine;
 import org.vcssl.nano.vm.VirtualMachineObjectCode;
 import org.vcssl.nano.vm.accelerator.AccelerationDataManager;
@@ -715,7 +714,7 @@ public final class VnanoCommandLineApplication {
 		}
 
 		// Acceleratorが有効の場合は、その内部での高速化リソースもダンプする
-		boolean acceleratorEnabled = OptionValue.booleanValueOf(OptionKey.ACCELERATOR_ENABLED, optionMap);
+		boolean acceleratorEnabled = (Boolean)optionMap.get(OptionKey.ACCELERATOR_ENABLED);
 		if (acceleratorEnabled) {
 
 			Memory memory = new Memory();

@@ -14,7 +14,6 @@ import org.vcssl.nano.VnanoFatalException;
 import org.vcssl.nano.interconnect.Interconnect;
 import org.vcssl.nano.spec.DataTypeName;
 import org.vcssl.nano.spec.OptionKey;
-import org.vcssl.nano.spec.OptionValue;
 
 /**
  * <p>
@@ -61,7 +60,7 @@ public class Compiler {
 		int scriptLength = scripts.length;
 
 		// EVAL_NUMBER_AS_FLOAT オプションの値を取得
-		boolean evalNumberAsFloat = OptionValue.booleanValueOf(OptionKey.EVAL_NUMBER_AS_FLOAT, optionMap);
+		boolean evalNumberAsFloat = (Boolean)optionMap.get(OptionKey.EVAL_NUMBER_AS_FLOAT);
 
 
 		// 最初に全スクリプトコードを結合してから処理すると、エラーメッセージの行番号などがずれてしまうため、
