@@ -135,7 +135,7 @@ public class Compiler {
 
 		// 意味解析後のASTをダンプ
 		if (shouldDump && (dumpTargetIsAll || dumpTarget.equals(OptionValue.DUMPER_TARGET_ANALYZED_AST)) ) {
-			this.dumpAnalyzedAst(parsedAstRootNode, dumpTargetIsAll, dumpStream);
+			this.dumpAnalyzedAst(analyzedAstRootNode, dumpTargetIsAll, dumpStream);
 		}
 
 
