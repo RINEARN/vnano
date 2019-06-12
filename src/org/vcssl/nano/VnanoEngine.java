@@ -5,14 +5,13 @@
 
 package org.vcssl.nano;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
 
 import org.vcssl.nano.compiler.Compiler;
 import org.vcssl.nano.interconnect.Interconnect;
 import org.vcssl.nano.spec.SpecialBindingKey;
-import org.vcssl.nano.spec.ErrorMessage;
 import org.vcssl.nano.spec.OptionKey;
 import org.vcssl.nano.spec.OptionValue;
 import org.vcssl.nano.vm.VirtualMachine;
@@ -30,7 +29,7 @@ public class VnanoEngine {
 	private static final String DEFAULT_LIBRARY_SCRIPT_NAME = "LIBRARY_SCRIPT";
 
 	/** 全てのオプション名と値を保持するマップです。 */
-	private Map<String, Object> optionMap = new HashMap<String, Object>();
+	private Map<String, Object> optionMap = null;
 
 	/** エラーメッセージの言語を決めるロケール設定を保持します。 */
 	private Locale locale = Locale.getDefault();
@@ -44,10 +43,20 @@ public class VnanoEngine {
 
 
 	/**
-	 * 何もバインディングされていない、標準設定のVnanoエンジンを生成します。
+	 * 標準設定のVnanoエンジンを生成します。
 	 */
 	public VnanoEngine() {
+
+		// オプションマップを生成し、必須項目をデフォルト値で補完
+		this.optionMap = new LinkedHashMap<String, Object>();
+		optionMap = OptionValue.supplementDefaultValuesOf(optionMap);
+
+		// 何もバインディングされていない、空のインターコネクトを生成
 		this.interconnect = new Interconnect();
+
+		// プラグインからエンジン側の情報（オプション含む）にアクセスするためのコネクタを生成し、インターコネクトに設定
+		VnanoEngineConnector engineConnector = new VnanoEngineConnector(this.optionMap);
+		this.interconnect.setEngineConnector(engineConnector);
 	}
 
 
@@ -71,14 +80,9 @@ public class VnanoEngine {
 			Object evalValue = vm.eval(assemblyCode, this.interconnect, this.optionMap);
 			return evalValue;
 
-		// 発生し得る例外は ScriptException でラップして投げる
+		// スクリプト内容による例外は、エラーメッセージに使用する言語ロケールを設定してから上に投げる
 		} catch (VnanoException e) {
-
-			// ロケール設定に応じた言語でエラーメッセージを生成
-			String message = ErrorMessage.generateErrorMessage(e.getErrorType(), e.getErrorWords(), this.locale);
-
-			// 例外にエラーメッセージを設定して上層に投げる
-			e.setMessage(message);
+			e.setLocale(this.locale);
 			throw e;
 
 		// 実装の不備等による予期しない例外も VnanoException でラップする（上層を落としたくない用途のため）
@@ -118,16 +122,21 @@ public class VnanoEngine {
 	 * こちらも、具体的な内容は {@link org.vcssl.nano.spec.OptionKey} クラスに記載されている説明を参照してください。
 	 *
 	 * @param optionMap 全オプションの名前と値を格納するマップ
+	 * @throws VnanoException オプションの指定内容が正しくなかった場合にスローされます。
 	 */
-	public void setOptionMap(Map<String,Object> optionMap) {
+	public void setOptionMap(Map<String,Object> optionMap) throws VnanoException {
 
-		// コンパイラやVMなどの下層にもオプションを渡すため、フィールドに控えておく
-		this.optionMap = optionMap;
+		// 必須項目をデフォルト値で補完し、フィールドに設定
+		this.optionMap = OptionValue.supplementDefaultValuesOf(optionMap);
 
-		// 以下、この階層でのオプション処理
+		// オプション内容を検査
+		OptionValue.checkValuesOf(this.optionMap);
 
-		// プラグインからエンジン情報にアクセスするためのエンジンコネクタを生成し、インターコネクトに設定
-		VnanoEngineConnector engineConnector = new VnanoEngineConnector(optionMap);
+
+		// 以下、この階層で行うオプション反映処理
+
+		// プラグインからエンジン側の情報（オプション含む）にアクセスするためのコネクタを生成し、インターコネクトに設定
+		VnanoEngineConnector engineConnector = new VnanoEngineConnector(this.optionMap);
 		this.interconnect.setEngineConnector(engineConnector);
 
 		// ロケール設定を、このインスタンスの locale フィールドに反映
@@ -142,7 +151,7 @@ public class VnanoEngine {
 			if (value instanceof String) {
 				this.libraryScriptNames = new String[] { (String)value };
 			} else if (value instanceof String[]) {
-				this.libraryScriptNames = OptionValue.stringArrayValueOf(OptionKey.LIBRARY_SCRIPT_NAMES, optionMap);
+				this.libraryScriptNames = (String[])this.optionMap.get(OptionKey.LIBRARY_SCRIPT_NAMES);
 			} else {
 				// インターフェースの制約が無くなったので、後で検査例外に置き換える？
 				throw new VnanoFatalException(
@@ -157,7 +166,7 @@ public class VnanoEngine {
 			if (value instanceof String) {
 				this.libraryScriptCode = new String[] { (String)value };
 			} else if (value instanceof String[]) {
-				this.libraryScriptCode = OptionValue.stringArrayValueOf(OptionKey.LIBRARY_SCRIPTS, optionMap);
+				this.libraryScriptCode = (String[])this.optionMap.get(OptionKey.LIBRARY_SCRIPTS);
 			} else {
 				// インターフェースの制約が無くなったので、後で検査例外に置き換える？
 				throw new VnanoFatalException(

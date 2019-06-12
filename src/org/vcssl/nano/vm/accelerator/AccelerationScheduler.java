@@ -322,10 +322,10 @@ public class AccelerationScheduler {
 				{
 					// スカラ確保の場合
 					if (dataManager.isScalar(partitions[0], addresses[0])) {
-						instruction.setAccelerationType(AccelerationType.S_ALLOC);
+						instruction.setAccelerationType(AccelerationType.SCALAR_ALLOC);
 					// ベクトル確保の場合
 					} else {
-						instruction.setAccelerationType(AccelerationType.Unsupported);
+						instruction.setAccelerationType(AccelerationType.UNACCELERATED);
 					}
 					break;
 				}
@@ -363,7 +363,7 @@ public class AccelerationScheduler {
 						}
 
 					} else {
-						instruction.setAccelerationType(AccelerationType.Unsupported);
+						instruction.setAccelerationType(AccelerationType.UNACCELERATED);
 					}
 					break;
 				}
@@ -397,7 +397,7 @@ public class AccelerationScheduler {
 						}
 
 					} else {
-						instruction.setAccelerationType(AccelerationType.Unsupported);
+						instruction.setAccelerationType(AccelerationType.UNACCELERATED);
 					}
 					break;
 				}
@@ -418,7 +418,7 @@ public class AccelerationScheduler {
 						}
 
 					} else {
-						instruction.setAccelerationType(AccelerationType.Unsupported);
+						instruction.setAccelerationType(AccelerationType.UNACCELERATED);
 					}
 					break;
 				}
@@ -459,7 +459,7 @@ public class AccelerationScheduler {
 						}
 
 					} else {
-						instruction.setAccelerationType(AccelerationType.Unsupported);
+						instruction.setAccelerationType(AccelerationType.UNACCELERATED);
 					}
 					break;
 				}
@@ -480,7 +480,7 @@ public class AccelerationScheduler {
 						}
 
 					} else {
-						instruction.setAccelerationType(AccelerationType.Unsupported);
+						instruction.setAccelerationType(AccelerationType.UNACCELERATED);
 					}
 					break;
 				}
@@ -493,7 +493,7 @@ public class AccelerationScheduler {
 				case REFPOP :
 				case ALLOCP :
 				{
-					instruction.setAccelerationType(AccelerationType.IFCU);
+					instruction.setAccelerationType(AccelerationType.FUNCTION_CONTROL);
 					break;
 				}
 
@@ -507,7 +507,7 @@ public class AccelerationScheduler {
 
 				// その他の命令は全て現時点で未対応
 				default : {
-					instruction.setAccelerationType(AccelerationType.Unsupported);
+					instruction.setAccelerationType(AccelerationType.UNACCELERATED);
 				}
 			}
 		}

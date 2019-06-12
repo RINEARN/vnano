@@ -8,6 +8,8 @@ package org.vcssl.nano.vm.processor;
 import static org.junit.Assert.*;
 
 import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import org.junit.After;
 import org.junit.Before;
@@ -16,6 +18,7 @@ import org.vcssl.nano.interconnect.AbstractFunction;
 import org.vcssl.nano.interconnect.Interconnect;
 import org.vcssl.nano.spec.DataType;
 import org.vcssl.nano.spec.OperationCode;
+import org.vcssl.nano.spec.OptionValue;
 import org.vcssl.nano.vm.memory.DataContainer;
 import org.vcssl.nano.vm.memory.Memory;
 import org.vcssl.nano.VnanoException;
@@ -29,6 +32,7 @@ public class ProcessorTest {
 
 	private static final int META_ADDR = 888;
 	private static final Memory.Partition META_PART = Memory.Partition.CONSTANT;
+	private Map<String, Object> optionMap = null;
 
 	// 処理系から関数が呼ばれた事を確認する
 	private boolean connectedMethodCalled = false;
@@ -58,6 +62,10 @@ public class ProcessorTest {
 		DataContainer<String[]> metaContainer = new DataContainer<String[]>();
 		metaContainer.setData(new String[]{ "meta" });
 		memory.setDataContainer(META_PART, META_ADDR, metaContainer);
+
+		// デフォルトのオプションマップを用意
+		this.optionMap = new LinkedHashMap<String, Object>();
+		this.optionMap = OptionValue.supplementDefaultValuesOf(this.optionMap);
 	}
 
 	@After
@@ -140,7 +148,7 @@ public class ProcessorTest {
 
 		// 命令列を逐次実行
 		try {
-			new Processor().process(instructions, this.memory, this.interconnect);
+			new Processor().process(instructions, this.memory, this.interconnect, this.optionMap);
 		} catch (VnanoException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occurred");
@@ -174,7 +182,7 @@ public class ProcessorTest {
 		// 分岐成立の条件（R0==true）で命令列を逐次実行
 		((DataContainer<boolean[]>)this.registers[0]).setData(new boolean[]{ true });  // R0=true
 		try {
-			new Processor().process(instructions, this.memory, this.interconnect);
+			new Processor().process(instructions, this.memory, this.interconnect, this.optionMap);
 		} catch (VnanoException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occurred");
@@ -186,7 +194,7 @@ public class ProcessorTest {
 		// 分岐不成立の条件（R0==false）で命令列を逐次実行
 		((DataContainer<boolean[]>)this.registers[0]).setData(new boolean[]{ false });  // R0=false
 		try {
-			new Processor().process(instructions, this.memory, this.interconnect);
+			new Processor().process(instructions, this.memory, this.interconnect, this.optionMap);
 		} catch (VnanoException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occurred");
@@ -201,7 +209,7 @@ public class ProcessorTest {
 		((DataContainer<long[]>)this.registers[10]).setData(new long[]{ -1L });  // R10=-1 ... 分岐先の命令位置
 		((DataContainer<boolean[]>)this.registers[0]).setData(new boolean[]{ true });  // R0=true
 		try {
-			new Processor().process(instructions, this.memory, this.interconnect);
+			new Processor().process(instructions, this.memory, this.interconnect, this.optionMap);
 		} catch (VnanoException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occurred");
@@ -235,7 +243,7 @@ public class ProcessorTest {
 
 		// 命令を実行
 		try {
-			new Processor().process(instructions, this.memory, this.interconnect);
+			new Processor().process(instructions, this.memory, this.interconnect, this.optionMap);
 		} catch (VnanoException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occurred");

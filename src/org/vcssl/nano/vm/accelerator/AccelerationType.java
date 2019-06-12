@@ -2,7 +2,7 @@ package org.vcssl.nano.vm.accelerator;
 
 public enum AccelerationType {
 
-	Unsupported,
+	UNACCELERATED,
 
 	I64V_ARITHMETIC,    // Int64VectorArithmetic
 	I64S_ARITHMETIC,    // Int64ScalarArithmetic
@@ -41,8 +41,7 @@ public enum AccelerationType {
 	BS_BRANCH,   // BoolScalarBranch
 	BCS_BRANCH,  // BoolCachedScalarBranch
 
-	S_ALLOC, // ScalarAlloc
-	IFCU,  // Internal Function Control Unit
-	RET,
+	SCALAR_ALLOC, // ScalarAlloc
+	FUNCTION_CONTROL,  // FunctionControl
 	NOP, // Nop
 }

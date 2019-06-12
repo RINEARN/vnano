@@ -164,8 +164,11 @@ public class VnanoScriptEngine implements ScriptEngine {
 
 				@SuppressWarnings("unchecked")
 				Map<String, Object> castedMap = (Map<String, Object>)value;
-
-				this.vnanoEngine.setOptionMap(castedMap);
+				try {
+					this.vnanoEngine.setOptionMap(castedMap);
+				} catch (VnanoException e) {
+					throw new VnanoFatalException(e);
+				}
 
 			} else {
 				throw new VnanoFatalException(
