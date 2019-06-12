@@ -66,7 +66,7 @@ public class VirtualMachine {
 			Accelerator accelerator = new Accelerator();
 			accelerator.process(instructions, memory, interconnect, processor, optionMap);
 		} else {
-			processor.process(instructions, memory, interconnect);
+			processor.process(instructions, memory, interconnect, optionMap);
 		}
 
 		// メモリーのデータをinterconnect経由で外部変数に書き戻す（このタイミングでBindings側が更新される）

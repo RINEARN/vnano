@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2018 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2019 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -122,6 +122,13 @@ public class Accelerator {
 		// キャッシュにメモリのデータを書き込む
 		dataManager.getCacheSynchronizers(Memory.Partition.CONSTANT).synchronizeFromMemoryToCache();
 		dataManager.getCacheSynchronizers(Memory.Partition.GLOBAL).synchronizeFromMemoryToCache();
+
+		// ダンプ内容に実行開始点を表す区切りを入れる
+		if (shouldDump && dumpTargetIsAll) {
+			dumpStream.println("================================================================================");
+			dumpStream.println("= Run");
+			dumpStream.println("================================================================================");
+		}
 
 
 		// 以下、命令の逐次実行ループ

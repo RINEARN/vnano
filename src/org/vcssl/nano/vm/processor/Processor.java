@@ -1,15 +1,19 @@
 /*
- * Copyright(C) 2017-2018 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2019 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
 package org.vcssl.nano.vm.processor;
 
+import java.io.PrintStream;
 import java.util.Arrays;
+import java.util.Map;
 
 import org.vcssl.nano.VnanoException;
 import org.vcssl.nano.interconnect.Interconnect;
 import org.vcssl.nano.spec.OperationCode;
+import org.vcssl.nano.spec.OptionKey;
+import org.vcssl.nano.spec.OptionValue;
 import org.vcssl.nano.vm.memory.Memory;
 
 
@@ -115,13 +119,21 @@ public class Processor implements Processable {
 	 * @param instructions 命令列
 	 * @param memory 命令列の実行に使用する済み仮想メモリー
 	 * @param interconnect 外部関数プラグインが接続されているインターコネクト（呼び出しに使用）
+	 * @param optionMap オプション内容を保持するマップ
 	 * @throws VnanoException
 	 *   形式は問題なく、実行するまで成功・失敗が不明な命令（型変換など）の実行に失敗した際などにスローされます。
 	 * @throws VnanoFatalException
 	 *   命令の形式の異常や、仮想メモリーへのアクセスの異常、およびデータの内容や状態に異常があった場合などにスローされます。
 	 */
-	public void process(Instruction[] instructions, Memory memory, Interconnect interconnect)
+	public void process(Instruction[] instructions, Memory memory, Interconnect interconnect, Map<String, Object> optionMap)
 			throws VnanoException {
+
+		// オプションマップから指定内容を取得
+		boolean shouldDump = (Boolean)optionMap.get(OptionKey.DUMPER_ENABLED);        // ダンプするかどうか
+		String dumpTarget = (String)optionMap.get(OptionKey.DUMPER_TARGET);           // ダンプ対象
+		boolean dumpTargetIsAll = dumpTarget.equals(OptionValue.DUMPER_TARGET_ALL);   // ダンプ対象が全てかどうか
+		PrintStream dumpStream = (PrintStream)optionMap.get(OptionKey.DUMPER_STREAM); // ダンプ先ストリーム
+
 
 		// 加減算やその他様々な演算処理を行う演算ユニット
 		ExecutionUnit executionUnit = new ExecutionUnit();
@@ -140,7 +152,17 @@ public class Processor implements Processable {
 		boolean[] functionRunningFlags = new boolean[instructionLength];
 		Arrays.fill(functionRunningFlags, false);
 
-		// プログラムカウンタが命令列の末尾に達するまで、1個ずつ命令を演算ユニットにディスパッチして実行
+
+		// ダンプ内容に実行開始点を表す区切りを入れる
+		if (shouldDump && dumpTargetIsAll) {
+			dumpStream.println("================================================================================");
+			dumpStream.println("= Run");
+			dumpStream.println("================================================================================");
+		}
+
+
+		// 命令の逐次実行ループ
+		// (プログラムカウンタが命令列の末尾に達するまで、1個ずつ命令を演算ユニットにディスパッチして実行する)
 		while (0 <= programCounter && programCounter < instructionLength) {
 			// 命令を1個実行し、プログラムカウンタの値を更新
 			programCounter = dispatchUnit.dispatch(
