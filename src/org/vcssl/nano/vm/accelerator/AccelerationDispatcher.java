@@ -356,7 +356,7 @@ public class AccelerationDispatcher {
 
 			// スカラALLOC
 
-			case S_ALLOC : {
+			case SCALAR_ALLOC : {
 				CacheSynchronizer synchronizer = new GeneralScalarCacheSynchronizer(
 						operandContainers, operandCaches, operandCached
 				);
@@ -369,7 +369,7 @@ public class AccelerationDispatcher {
 
 			// 内部関数関連
 
-			case IFCU : {
+			case FUNCTION_CONTROL : {
 				CacheSynchronizer synchronizer = new GeneralScalarCacheSynchronizer(
 					operandContainers, operandCaches, operandCached
 				);
@@ -391,7 +391,7 @@ public class AccelerationDispatcher {
 
 			// このアクセラレータで未対応の場合（下層のプロセッサにそのまま投げるノードを生成）
 
-			case Unsupported : {
+			case UNACCELERATED : {
 				CacheSynchronizer synchronizer = new GeneralScalarCacheSynchronizer(
 						operandContainers, operandCaches, operandCached
 				);
