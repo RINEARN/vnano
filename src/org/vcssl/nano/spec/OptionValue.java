@@ -77,7 +77,7 @@ public class OptionValue {
 		checkValueOf(OptionKey.LIBRARY_SCRIPT_NAMES, optionMap, String[].class);
 		checkValueOf(OptionKey.LOCALE, optionMap, Locale.class);
 		checkValueOf(OptionKey.ACCELERATOR_ENABLED, optionMap, Boolean.class);
-		checkValueOf(OptionKey.DUMPER_ENABLED, optionMap, String.class);
+		checkValueOf(OptionKey.DUMPER_ENABLED, optionMap, Boolean.class);
 		checkValueOf(OptionKey.DUMPER_TARGET, optionMap, String.class);
 	}
 
@@ -97,7 +97,9 @@ public class OptionValue {
 
 		Object optionValue = optionMap.get(optionKey);
 		if (!classOfValue.isInstance(optionValue)) {
-			throw new VnanoException(ErrorType.INVALID_OPTION_VALUE_TYPE, classOfValue.getCanonicalName());
+			throw new VnanoException(
+				ErrorType.INVALID_OPTION_VALUE_TYPE, new String[] { optionKey, classOfValue.getCanonicalName() }
+			);
 		}
 	}
 
