@@ -23,30 +23,13 @@ import javax.script.ScriptException;
 
 import org.vcssl.connect.MethodToXfci1Adapter;
 import org.vcssl.nano.VnanoException;
-import org.vcssl.nano.compiler.AstNode;
-import org.vcssl.nano.compiler.CodeGenerator;
-import org.vcssl.nano.compiler.Parser;
-import org.vcssl.nano.compiler.Preprocessor;
-import org.vcssl.nano.compiler.LexicalAnalyzer;
-import org.vcssl.nano.compiler.SemanticAnalyzer;
-import org.vcssl.nano.compiler.Token;
 import org.vcssl.nano.interconnect.Interconnect;
 import org.vcssl.nano.spec.SpecialBindingKey;
 import org.vcssl.nano.spec.EngineInformation;
 import org.vcssl.nano.spec.ErrorMessage;
 import org.vcssl.nano.spec.OptionKey;
+import org.vcssl.nano.spec.OptionValue;
 import org.vcssl.nano.vm.VirtualMachine;
-import org.vcssl.nano.vm.VirtualMachineObjectCode;
-import org.vcssl.nano.vm.accelerator.AccelerationDataManager;
-import org.vcssl.nano.vm.accelerator.AccelerationDispatcher;
-import org.vcssl.nano.vm.accelerator.AccelerationExecutorNode;
-import org.vcssl.nano.vm.accelerator.AccelerationScheduler;
-import org.vcssl.nano.vm.accelerator.AcceleratorInstruction;
-import org.vcssl.nano.vm.accelerator.InternalFunctionControlUnit;
-import org.vcssl.nano.vm.assembler.Assembler;
-import org.vcssl.nano.vm.memory.Memory;
-import org.vcssl.nano.vm.processor.Instruction;
-import org.vcssl.nano.vm.processor.Processor;
 
 public final class VnanoCommandLineApplication {
 
@@ -78,9 +61,21 @@ public final class VnanoCommandLineApplication {
 	private static final String DUMP_TARGET_ALL = "all";
 	private static final String DUMP_TARGET_DEFAULT = DUMP_TARGET_ALL;
 
+	// コマンドラインでの--dumpオプションの値を、スクリプトエンジンのオプションマップ用の値に変換するマップ
+	private static final Map<String, String> DUMP_TARGET_ARGVALUE_OPTVALUE_MAP = new HashMap<String, String>();
+	static {
+		DUMP_TARGET_ARGVALUE_OPTVALUE_MAP.put(DUMP_TARGET_INPUT_CODE, OptionValue.DUMPER_TARGET_INPUTTED_CODE);
+		DUMP_TARGET_ARGVALUE_OPTVALUE_MAP.put(DUMP_TARGET_PREPROCESSED_CODE, OptionValue.DUMPER_TARGET_PREPROCESSED_CODE);
+		DUMP_TARGET_ARGVALUE_OPTVALUE_MAP.put(DUMP_TARGET_TOKEN, OptionValue.DUMPER_TARGET_TOKEN);
+		DUMP_TARGET_ARGVALUE_OPTVALUE_MAP.put(DUMP_TARGET_PARSED_AST, OptionValue.DUMPER_TARGET_PARSED_AST);
+		DUMP_TARGET_ARGVALUE_OPTVALUE_MAP.put(DUMP_TARGET_ANALYZED_AST, OptionValue.DUMPER_TARGET_ANALYZED_AST);
+		DUMP_TARGET_ARGVALUE_OPTVALUE_MAP.put(DUMP_TARGET_ASSEMBLY_CODE, OptionValue.DUMPER_TARGET_ASSEMBLY_CODE);
+		DUMP_TARGET_ARGVALUE_OPTVALUE_MAP.put(DUMP_TARGET_OBJECT_CODE, OptionValue.DUMPER_TARGET_OBJECT_CODE);
+		DUMP_TARGET_ARGVALUE_OPTVALUE_MAP.put(DUMP_TARGET_ALL, OptionValue.DUMPER_TARGET_ALL);
+	}
+
 	private HashMap<String, Object> optionMap = new HashMap<String, Object>();
 
-	private boolean runRequired = true;
 	private String encoding = null;
 
 	// スクリプトからアクセスするメソッドを提供するクラス
@@ -290,11 +285,13 @@ public final class VnanoCommandLineApplication {
 		}
 
 		// スクリプトの実行が必要なら実行する（ただし、オプション処理に失敗していた場合は実行しない）
-		if (this.runRequired && optionProcessingSucceeded) {
+		if (optionProcessingSucceeded) {
 			this.executeFile(inputFilePath);
 		}
 	}
 
+
+	// 戻り値は成功:true/失敗:false
 	public boolean dispatchOptionProcessing (String optionName, String optionValue, String inputFilePath) {
 		if (optionName == null) {
 			System.err.println("Fatal error: option name is null.");
@@ -318,7 +315,7 @@ public final class VnanoCommandLineApplication {
 
 			// --run オプションの場合
 			case OPTION_NAME_RUN : {
-				this.setRunRequired(optionValue);
+				this.optionMap.put(OptionKey.RUNNING_ENABLED, Boolean.valueOf(optionValue));
 				return true;
 			}
 
@@ -356,12 +353,17 @@ public final class VnanoCommandLineApplication {
 
 			// --dump オプションの場合
 			case OPTION_NAME_DUMP : {
-				try {
-					this.dump(inputFilePath, optionValue);
-				} catch (VnanoException vne) {
-					this.dumpException(vne);
-					return false;
+				if (optionValue == null) {
+					optionValue = DUMP_TARGET_DEFAULT;
 				}
+				String convertedOptionValue = null;
+				if (DUMP_TARGET_ARGVALUE_OPTVALUE_MAP.containsKey(optionValue)) {
+					convertedOptionValue = DUMP_TARGET_ARGVALUE_OPTVALUE_MAP.get(optionValue);
+				} else {
+					System.err.println("Invalid value for " + OPTION_NAME_PREFIX + OPTION_NAME_DUMP + " option: " + optionValue);
+				}
+				this.optionMap.put(OptionKey.DUMPER_TARGET, convertedOptionValue);
+				this.optionMap.put(OptionKey.DUMPER_ENABLED, Boolean.valueOf(true));
 				return true;
 			}
 
@@ -429,18 +431,6 @@ public final class VnanoCommandLineApplication {
 		this.encoding = encoding;
 	}
 
-	private void setRunRequired(String optionValue) {
-		// Boolean.valueOf だと true 以外が全て false になるので直球で比較
-		if (optionValue.equals("true")) {
-			this.runRequired = true;
-		} else if (optionValue.equals("false")) {
-			this.runRequired = false;
-		} else {
-			System.err.println(
-					"Invalid value for " + OPTION_NAME_PREFIX + OPTION_NAME_RUN + "option: " + optionValue
-			);
-		}
-	}
 
 	private ScriptEngine createInitializedScriptEngine() {
 
@@ -515,259 +505,6 @@ public final class VnanoCommandLineApplication {
 			return null;
 		}
 		return code;
-	}
-
-	private void dump(String inputFilePath, String dumpTarget) throws VnanoException {
-		if (dumpTarget == null) {
-			dumpTarget = DUMP_TARGET_DEFAULT;
-		}
-		switch (dumpTarget) {
-			case DUMP_TARGET_INPUT_CODE : {
-				this.dump(inputFilePath, false, true,  false, false, false, false, false, false, false, false);
-				return;
-			}
-			case DUMP_TARGET_PREPROCESSED_CODE : {
-				this.dump(inputFilePath, false, false, true,  false, false, false, false, false, false, false);
-				return;
-			}
-			case DUMP_TARGET_TOKEN : {
-				this.dump(inputFilePath, false, false, false, true,  false, false, false, false, false, false);
-				return;
-			}
-			case DUMP_TARGET_PARSED_AST : {
-				this.dump(inputFilePath, false, false, false, false, true,  false, false, false, false, false);
-				return;
-			}
-			case DUMP_TARGET_ANALYZED_AST : {
-				this.dump(inputFilePath, false, false, false, false, false, true,  false, false, false, false);
-				return;
-			}
-			case DUMP_TARGET_ASSEMBLY_CODE : {
-				this.dump(inputFilePath, false, false, false, false, false, false, true,  false, false, false);
-				return;
-			}
-			case DUMP_TARGET_OBJECT_CODE : {
-				this.dump(inputFilePath, false, false, false, false, false, false, false, true,  false, false );
-				return;
-			}
-			case DUMP_TARGET_ALL : {
-				this.dump(inputFilePath, true,  true,  true,  true,  true,  true,  true,  true,  true,  true );
-				return;
-			}
-			default : {
-				System.err.println("Fatal error: invalid dump target: " + dumpTarget);
-				return;
-			}
-		}
-	}
-
-
-	private void dump(String inputFilePath, boolean withHeader,
-			boolean dumpInputCode, boolean dumpPreprocessedCode,
-			boolean dumpTokens, boolean dumpParsedAst, boolean dumpAnalyzedAst,
-			boolean dumpAssemblyCode, boolean dumpObjectCode,
-			boolean accelerationInstruction, boolean accelerationNode) throws VnanoException {
-
-		// 入力ファイルの分類：中間アセンブリコード（VRILコード）の場合はコンパイル済みなので、後工程のみダンプする
-		boolean inputIsAssemblyCode = inputFilePath.endsWith(EXTENSION_VRIL);
-		boolean inputIsScriptCode   = inputFilePath.endsWith(EXTENSION_VNANO);
-
-		// ファイルからスクリプトコードを全部読み込む
-		String inputCode = this.loadCode(inputFilePath);
-		if (inputCode == null) {
-			return;
-		}
-
-		// メソッド接続済みのインターコネクトを生成して取得
-		Interconnect interconnect = this.createInitializedInterconnect();
-		if (interconnect == null) {
-			return;
-		}
-
-		if (withHeader) {
-			System.out.println("================================================================================");
-			System.out.println("= DUMP BEGIN");
-			System.out.println("================================================================================");
-		}
-
-		// 読み込んだコードをダンプ
-		if (dumpInputCode) {
-			if (withHeader) {
-				System.out.println("");
-				System.out.println("================================================================================");
-				System.out.println("= Input Code");
-				System.out.println("= - Loaded from: " + inputFilePath);
-				System.out.println("================================================================================");
-			}
-			System.out.println(inputCode);
-		}
-
-		// コンパイル結果である中間アセンブリコードを控える
-		String assemblyCode = null;
-
-		// 入力が中間アセンブリコードである場合は、上の変数を入力コードでそのまま上書き
-		if (inputIsAssemblyCode) {
-			assemblyCode = inputCode;
-		}
-
-		// 入力がスクリプトコードである場合は、コンパイラでアセンブリコードに変換し、その過程も逐次ダンプする
-		if (inputIsScriptCode) {
-
-			// プリプロセッサでコメントを削除し、改行コードを LF (0x0A) に統一
-			inputCode = new Preprocessor().preprocess(inputCode);
-
-			// プリプロセッサ出力コードをダンプ
-			if (dumpInputCode) {
-				if (withHeader) {
-					System.out.println("");
-					System.out.println("================================================================================");
-					System.out.println("= Preprocessed Code");
-					System.out.println("= - Output of: org.vcssl.nano.compiler.Preprocessor");
-					System.out.println("= - Input  of: org.vcssl.nano.compiler.LexicalAnalyzer");
-					System.out.println("================================================================================");
-				}
-				System.out.println(inputCode);
-			}
-
-			// 字句解析器でトークンを生成
-			Token[] tokens = new LexicalAnalyzer().analyze(inputCode, inputFilePath);
-
-			// トークンをダンプ
-			if (dumpTokens) {
-				if (withHeader) {
-					System.out.println("");
-					System.out.println("================================================================================");
-					System.out.println("= Tokens");
-					System.out.println("= - Output of: org.vcssl.nano.compiler.LexicalAnalyzer");
-					System.out.println("= - Input  of: org.vcssl.nano.compiler.Parser");
-					System.out.println("================================================================================");
-				}
-				for (Token token : tokens) {
-					System.out.println(token);
-				}
-			}
-
-			// 構文解析器でAST（抽象構文木）を生成
-			AstNode parsedNode = new Parser().parse(tokens);
-
-			// ASTをダンプ
-			if (dumpParsedAst) {
-				if (withHeader) {
-					System.out.println("");
-					System.out.println("================================================================================");
-					System.out.println("= Parsed AST");
-					System.out.println("= - Output of: org.vcssl.nano.compiler.Parser");
-					System.out.println("= - Input  of: org.vcssl.nano.compiler.SemanticAnalyzer");
-					System.out.println("================================================================================");
-				}
-				System.out.println(parsedNode.toString());
-			}
-
-			// 意味解析器でASTの情報を補間したものを取得
-			AstNode analyzedNode = new SemanticAnalyzer().analyze(parsedNode, interconnect);
-
-			// 意味解析済みASTをダンプ
-			if (dumpAnalyzedAst) {
-				if (withHeader) {
-					System.out.println("");
-					System.out.println("================================================================================");
-					System.out.println("= Analyzed AST");
-					System.out.println("= - Output of: org.vcssl.nano.compiler.SemanticAnalyzer");
-					System.out.println("= - Input  of: org.vcssl.nano.compiler.CodeGenerator");
-					System.out.println("================================================================================");
-				}
-				System.out.println(analyzedNode.toString());
-			}
-
-			// ASTから中間アセンブリコード（VRILコード）を生成
-			assemblyCode = new CodeGenerator().generate(analyzedNode);
-
-			// 中間アセンブリコードをダンプ
-			if (dumpAssemblyCode) {
-				if (withHeader) {
-					System.out.println("");
-					System.out.println("================================================================================");
-					System.out.println("= Assembly Code (VRIL Code)");
-					System.out.println("= - Output of: org.vcssl.nano.compiler.CodeGenerator");
-					System.out.println("= - Input  of: org.vcssl.nano.vm.assembler.Assembler");
-					System.out.println("================================================================================");
-				}
-				System.out.println(assemblyCode);
-			}
-		}
-
-		// 中間アセンブリコード（VRILコード）をアセンブルし、VM用オブジェクトコードを生成
-		VirtualMachineObjectCode vmObjectCode = new Assembler().assemble(assemblyCode, interconnect);
-
-		// VMオブジェクトコードをダンプ
-		if (dumpObjectCode) {
-			if (withHeader) {
-				System.out.println("");
-				System.out.println("================================================================================");
-				System.out.println("= VM Object Code");
-				System.out.println("= - Output of: org.vcssl.nano.vm.assembler.Assembler");
-				System.out.println("= - Input  of: org.vcssl.nano.vm.processor.Processor");
-				System.out.println("= -        or: org.vcssl.nano.vm.accelerator.Accelerator");
-				System.out.println("================================================================================");
-			}
-			vmObjectCode.dump();
-		}
-
-		// Acceleratorが有効の場合は、その内部での高速化リソースもダンプする
-		boolean acceleratorEnabled = (Boolean)optionMap.get(OptionKey.ACCELERATOR_ENABLED);
-		if (acceleratorEnabled) {
-
-			Memory memory = new Memory();
-			memory.allocate(vmObjectCode, interconnect.getGlobalVariableTable());
-			Instruction[] instructions = vmObjectCode.getInstructions();
-			AccelerationDataManager dataManager = new AccelerationDataManager();
-			dataManager.allocate(instructions, memory);
-			AccelerationScheduler scheduler = new AccelerationScheduler();
-			AcceleratorInstruction[] acceleratorInstructions = scheduler.schedule(instructions, memory, dataManager);
-
-			if (accelerationInstruction) {
-				if (withHeader) {
-					System.out.println("");
-					System.out.println("================================================================================");
-					System.out.println("= Accelerator Instructions");
-					System.out.println("= - Output of: org.vcssl.nano.vm.accelerator.AccelerationScheduler");
-					System.out.println("= - Input  of: org.vcssl.nano.vm.accelerator.AccelerationDispatcher");
-					System.out.println("================================================================================");
-				}
-				int acceleratorInstructionLength = acceleratorInstructions.length;
-				for (int i=0; i<acceleratorInstructionLength; i++) {
-					System.out.println("[" + i + "]\t" + acceleratorInstructions[i]);
-				}
-			}
-
-			InternalFunctionControlUnit functionControlUnit = new InternalFunctionControlUnit();
-			AccelerationDispatcher dispatcher = new AccelerationDispatcher();
-			AccelerationExecutorNode[] executorNodes = dispatcher.dispatch(
-					new Processor(), memory, interconnect, acceleratorInstructions, dataManager, functionControlUnit
-			);
-
-			if (accelerationNode) {
-				if (withHeader) {
-					System.out.println("");
-					System.out.println("================================================================================");
-					System.out.println("= Acceleration Executor Nodes");
-					System.out.println("= - Output of: org.vcssl.nano.vm.accelerator.AccelerationDispatcher");
-					System.out.println("================================================================================");
-				}
-				int executorNodeLength = executorNodes.length;
-				for (int i=0; i<executorNodeLength; i++) {
-					System.out.println("[" + i + "]\t" + executorNodes[i].getClass().getName());
-				}
-			}
-		}
-
-
-		if (withHeader) {
-			System.out.println("");
-			System.out.println("================================================================================");
-			System.out.println("= DUMP END");
-			System.out.println("================================================================================");
-		}
 	}
 
 	private void executeFile(String inputFilePath) {
