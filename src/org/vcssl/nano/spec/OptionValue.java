@@ -11,15 +11,15 @@ import org.vcssl.nano.VnanoFatalException;
 
 public class OptionValue {
 
-	public static final String DUMPER_TARGET_ALL = "DUMPER_TARGET_ALL";
-	public static final String DUMPER_TARGET_INPUTTED_CODE = "DUMPER_TARGET_INPUTTED_CODE";
-	public static final String DUMPER_TARGET_PREPROCESSED_CODE = "DUMPER_TARGET_PREPROCESSED_CODE";
-	public static final String DUMPER_TARGET_TOKEN = "DUMPER_TARGET_TOKEN";
-	public static final String DUMPER_TARGET_PARSED_AST = "DUMPER_TARGET_PARSED_AST";
-	public static final String DUMPER_TARGET_ANALYZED_AST = "DUMPER_TARGET_ANALYZED_AST";
-	public static final String DUMPER_TARGET_ASSEMBLY_CODE = "DUMPER_TARGET_ASSEMBLY_CODE";
-	public static final String DUMPER_TARGET_OBJECT_CODE = "DUMPER_TARGET_OBJECT_CODE";
-	public static final String DUMPER_TARGET_ACCELERATOR_CODE = "DUMPER_TARGET_ACCELERATOR_CODE";
+	public static final String DUMPER_TARGET_ALL = "ALL";
+	public static final String DUMPER_TARGET_INPUTTED_CODE = "INPUTTED_CODE";
+	public static final String DUMPER_TARGET_PREPROCESSED_CODE = "PREPROCESSED_CODE";
+	public static final String DUMPER_TARGET_TOKEN = "TOKEN";
+	public static final String DUMPER_TARGET_PARSED_AST = "PARSED_AST";
+	public static final String DUMPER_TARGET_ANALYZED_AST = "ANALYZED_AST";
+	public static final String DUMPER_TARGET_ASSEMBLY_CODE = "ASSEMBLY_CODE";
+	public static final String DUMPER_TARGET_OBJECT_CODE = "OBJECT_CODE";
+	public static final String DUMPER_TARGET_ACCELERATOR_CODE = "ACCELERATOR_CODE";
 
 
 	private static final Map<String, Object> DEFAULT_VALUE_MAP = new LinkedHashMap<String, Object>();
