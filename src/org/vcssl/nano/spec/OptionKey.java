@@ -19,6 +19,7 @@ public class OptionKey {
 
 	public static final String DUMPER_ENABLED = "DUMPER_ENABLED";
 	public static final String DUMPER_TARGET = "DUMPER_TARGET";
+	public static final String DUMPER_STREAM = "DUMPER_OUTPUT_STREAM";
 
 
 	// 以下は将来的に追加するオプション項目の暫定案（未サポート）

@@ -5,6 +5,7 @@
 
 package org.vcssl.nano.compiler;
 
+import java.io.PrintStream;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -67,14 +68,14 @@ public class Compiler {
 		boolean evalNumberAsFloat = (Boolean)optionMap.get(OptionKey.EVAL_NUMBER_AS_FLOAT);
 
 		// ダンプ関連のオプション指定内容を取得
-		boolean shouldDump = (Boolean)optionMap.get(OptionKey.DUMPER_ENABLED);      // ダンプするかどうか
-		String dumpTarget = (String)optionMap.get(OptionKey.DUMPER_TARGET);         // ダンプ対象
-		boolean dumpTargetIsAll = dumpTarget.equals(OptionValue.DUMPER_TARGET_ALL); // ダンプ対象が全てかどうか
-
+		boolean shouldDump = (Boolean)optionMap.get(OptionKey.DUMPER_ENABLED);        // ダンプするかどうか
+		String dumpTarget = (String)optionMap.get(OptionKey.DUMPER_TARGET);           // ダンプ対象
+		boolean dumpTargetIsAll = dumpTarget.equals(OptionValue.DUMPER_TARGET_ALL);   // ダンプ対象が全てかどうか
+		PrintStream dumpStream = (PrintStream)optionMap.get(OptionKey.DUMPER_STREAM); // ダンプ先ストリーム
 
 		// 入力スクリプトコードをダンプ
 		if (shouldDump && (dumpTargetIsAll || dumpTarget.equals(OptionValue.DUMPER_TARGET_INPUTTED_CODE)) ) {
-			this.dumpInputtedCode(scripts, names, dumpTargetIsAll);
+			this.dumpInputtedCode(scripts, names, dumpTargetIsAll, dumpStream);
 		}
 
 
@@ -86,7 +87,7 @@ public class Compiler {
 
 		// プリプロセッサ処理後のコードをダンプ
 		if (shouldDump && (dumpTargetIsAll || dumpTarget.equals(OptionValue.DUMPER_TARGET_PREPROCESSED_CODE)) ) {
-			this.dumpPreprocessedCode(scripts, names, dumpTargetIsAll);
+			this.dumpPreprocessedCode(scripts, names, dumpTargetIsAll, dumpStream);
 		}
 
 
@@ -116,7 +117,7 @@ public class Compiler {
 
 		// トークン配列をダンプ
 		if (shouldDump && (dumpTargetIsAll || dumpTarget.equals(OptionValue.DUMPER_TARGET_TOKEN)) ) {
-			this.dumpTokens(unifiedTokens, dumpTargetIsAll);
+			this.dumpTokens(unifiedTokens, dumpTargetIsAll, dumpStream);
 		}
 
 
@@ -125,7 +126,7 @@ public class Compiler {
 
 		// 構文解析後のASTをダンプ
 		if (shouldDump && (dumpTargetIsAll || dumpTarget.equals(OptionValue.DUMPER_TARGET_PARSED_AST)) ) {
-			this.dumpParsedAst(parsedAstRootNode, dumpTargetIsAll);
+			this.dumpParsedAst(parsedAstRootNode, dumpTargetIsAll, dumpStream);
 		}
 
 
@@ -134,7 +135,7 @@ public class Compiler {
 
 		// 意味解析後のASTをダンプ
 		if (shouldDump && (dumpTargetIsAll || dumpTarget.equals(OptionValue.DUMPER_TARGET_ANALYZED_AST)) ) {
-			this.dumpAnalyzedAst(parsedAstRootNode, dumpTargetIsAll);
+			this.dumpAnalyzedAst(parsedAstRootNode, dumpTargetIsAll, dumpStream);
 		}
 
 
@@ -143,123 +144,131 @@ public class Compiler {
 
 		// 中間アセンブリコードをダンプ
 		if (shouldDump && (dumpTargetIsAll || dumpTarget.equals(OptionValue.DUMPER_TARGET_ASSEMBLY_CODE)) ) {
-			this.dumpAssemblyCode(assemblyCode, dumpTargetIsAll);
+			this.dumpAssemblyCode(assemblyCode, dumpTargetIsAll, dumpStream);
 		}
 
 		return assemblyCode;
 	}
 
-	private void dumpInputtedCode(String[] inputtedCode, String[] scriptNames, boolean withHeader) {
+	private void dumpInputtedCode(
+			String[] inputtedCode, String[] scriptNames, boolean withHeader, PrintStream dumpStream) {
+
 		int scriptLength = scriptNames.length;
 
 		if (withHeader) {
-			System.out.println("================================================================================");
-			System.out.println("= Inputted Code");
-			System.out.println("= - Input  of: org.vcssl.nano.compiler.Preprocessor");
-			System.out.println("================================================================================");
+			dumpStream.println("================================================================================");
+			dumpStream.println("= Inputted Code");
+			dumpStream.println("= - Input  of: org.vcssl.nano.compiler.Preprocessor");
+			dumpStream.println("================================================================================");
 		}
 
 		for (int scriptIndex=0; scriptIndex<scriptLength; scriptIndex++) {
 			if (2 <= scriptLength) {
-				System.out.println("( " + scriptNames[scriptIndex] + ")");
+				dumpStream.println("( " + scriptNames[scriptIndex] + ")");
 			}
-			System.out.println(inputtedCode[scriptIndex]);
+			dumpStream.println(inputtedCode[scriptIndex]);
 		}
 
 		if (withHeader) {
-			System.out.println("");
+			dumpStream.println("");
 		}
 	}
 
 
-	private void dumpPreprocessedCode(String[] preprocessedCode, String[] scriptNames, boolean withHeader) {
+	private void dumpPreprocessedCode(
+			String[] preprocessedCode, String[] scriptNames, boolean withHeader, PrintStream dumpStream) {
+
 		int scriptLength = scriptNames.length;
 
 		if (withHeader) {
-			System.out.println("================================================================================");
-			System.out.println("= Preprocessed Code" );
-			System.out.println("= - Output of: org.vcssl.nano.compiler.Preprocessor");
-			System.out.println("= - Input  of: org.vcssl.nano.compiler.LexicalAnalyzer");
-			System.out.println("================================================================================");
+			dumpStream.println("================================================================================");
+			dumpStream.println("= Preprocessed Code" );
+			dumpStream.println("= - Output of: org.vcssl.nano.compiler.Preprocessor");
+			dumpStream.println("= - Input  of: org.vcssl.nano.compiler.LexicalAnalyzer");
+			dumpStream.println("================================================================================");
 		}
 
 		for (int scriptIndex=0; scriptIndex<scriptLength; scriptIndex++) {
 			if (2 <= scriptLength) {
-				System.out.println("( " + scriptNames[scriptIndex] + ")");
+				dumpStream.println("( " + scriptNames[scriptIndex] + ")");
 			}
-			System.out.println(preprocessedCode[scriptIndex]);
+			dumpStream.println(preprocessedCode[scriptIndex]);
 		}
 
 		if (withHeader) {
-			System.out.println("");
+			dumpStream.println("");
 		}
 	}
 
-	private void dumpTokens(Token[] tokens, boolean withHeader) {
+	private void dumpTokens(Token[] tokens, boolean withHeader, PrintStream dumpStream) {
+
 		if (withHeader) {
-			System.out.println("================================================================================");
-			System.out.println("= Tokens");
-			System.out.println("= - Output of: org.vcssl.nano.compiler.LexicalAnalyzer");
-			System.out.println("= - Input  of: org.vcssl.nano.compiler.Parser");
-			System.out.println("================================================================================");
+			dumpStream.println("================================================================================");
+			dumpStream.println("= Tokens");
+			dumpStream.println("= - Output of: org.vcssl.nano.compiler.LexicalAnalyzer");
+			dumpStream.println("= - Input  of: org.vcssl.nano.compiler.Parser");
+			dumpStream.println("================================================================================");
 		}
 
 		for (Token token: tokens) {
-			System.out.println(token.toString());
+			dumpStream.println(token.toString());
 		}
 
 		if (withHeader) {
-			System.out.println("");
-		}
-	}
-
-	private void dumpParsedAst(AstNode astRootNode, boolean withHeader) {
-		if (withHeader) {
-			System.out.println("================================================================================");
-			System.out.println("= Parsed AST");
-			System.out.println("= - Output of: org.vcssl.nano.compiler.Parser");
-			System.out.println("= - Input  of: org.vcssl.nano.compiler.SemanticAnalyzer");
-			System.out.println("================================================================================");
-		}
-
-		System.out.println(astRootNode.toString());
-
-		if (withHeader) {
-			System.out.println("");
+			dumpStream.println("");
 		}
 	}
 
+	private void dumpParsedAst(AstNode astRootNode, boolean withHeader, PrintStream dumpStream) {
 
-	private void dumpAnalyzedAst(AstNode astRootNode, boolean withHeader) {
 		if (withHeader) {
-			System.out.println("================================================================================");
-			System.out.println("= Analyzed AST");
-			System.out.println("= - Output of: org.vcssl.nano.compiler.SemanticAnalyzer");
-			System.out.println("= - Input  of: org.vcssl.nano.compiler.CodeGenerator");
-			System.out.println("================================================================================");
+			dumpStream.println("================================================================================");
+			dumpStream.println("= Parsed AST");
+			dumpStream.println("= - Output of: org.vcssl.nano.compiler.Parser");
+			dumpStream.println("= - Input  of: org.vcssl.nano.compiler.SemanticAnalyzer");
+			dumpStream.println("================================================================================");
 		}
 
-		System.out.println(astRootNode.toString());
+		dumpStream.println(astRootNode.toString());
 
 		if (withHeader) {
-			System.out.println("");
+			dumpStream.println("");
 		}
 	}
 
 
-	private void dumpAssemblyCode(String assemblyCode, boolean withHeader) {
+	private void dumpAnalyzedAst(AstNode astRootNode, boolean withHeader, PrintStream dumpStream) {
+
 		if (withHeader) {
-			System.out.println("================================================================================");
-			System.out.println("= Assembly Code (VRIL Code)");
-			System.out.println("= - Output of: org.vcssl.nano.compiler.CodeGenerator");
-			System.out.println("= - Input  of: org.vcssl.nano.vm.assembler.Assembler");
-			System.out.println("================================================================================");
+			dumpStream.println("================================================================================");
+			dumpStream.println("= Analyzed AST");
+			dumpStream.println("= - Output of: org.vcssl.nano.compiler.SemanticAnalyzer");
+			dumpStream.println("= - Input  of: org.vcssl.nano.compiler.CodeGenerator");
+			dumpStream.println("================================================================================");
 		}
 
-		System.out.println(assemblyCode);
+		dumpStream.println(astRootNode.toString());
 
 		if (withHeader) {
-			System.out.println("");
+			dumpStream.println("");
+		}
+	}
+
+
+	private void dumpAssemblyCode(String assemblyCode, boolean withHeader, PrintStream dumpStream) {
+
+		if (withHeader) {
+			dumpStream.println("================================================================================");
+			dumpStream.println("= Assembly Code (VRIL Code)");
+			dumpStream.println("= - Output of: org.vcssl.nano.compiler.CodeGenerator");
+			dumpStream.println("= - Input  of: org.vcssl.nano.vm.assembler.Assembler");
+			dumpStream.println("================================================================================");
+		}
+
+		dumpStream.println(assemblyCode);
+
+		if (withHeader) {
+			dumpStream.println("");
 		}
 	}
 
