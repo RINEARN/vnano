@@ -133,6 +133,7 @@ public class Processor implements Processable {
 		String dumpTarget = (String)optionMap.get(OptionKey.DUMPER_TARGET);           // ダンプ対象
 		boolean dumpTargetIsAll = dumpTarget.equals(OptionValue.DUMPER_TARGET_ALL);   // ダンプ対象が全てかどうか
 		PrintStream dumpStream = (PrintStream)optionMap.get(OptionKey.DUMPER_STREAM); // ダンプ先ストリーム
+		boolean shouldRun = (Boolean)optionMap.get(OptionKey.RUNNING_ENABLED);        // コードを実行するかどうか
 
 
 		// 加減算やその他様々な演算処理を行う演算ユニット
@@ -152,6 +153,10 @@ public class Processor implements Processable {
 		boolean[] functionRunningFlags = new boolean[instructionLength];
 		Arrays.fill(functionRunningFlags, false);
 
+		// オプションでコード実行が無効化されていた場合はここで終了
+		if (!shouldRun) {
+			return;
+		}
 
 		// ダンプ内容に実行開始点を表す区切りを入れる
 		if (shouldDump && dumpTargetIsAll) {
@@ -161,7 +166,7 @@ public class Processor implements Processable {
 		}
 
 
-		// 命令の逐次実行ループ
+		// 以下、命令の逐次実行ループ
 		// (プログラムカウンタが命令列の末尾に達するまで、1個ずつ命令を演算ユニットにディスパッチして実行する)
 		while (0 <= programCounter && programCounter < instructionLength) {
 			// 命令を1個実行し、プログラムカウンタの値を更新

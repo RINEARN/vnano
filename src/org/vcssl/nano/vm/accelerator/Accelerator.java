@@ -78,6 +78,7 @@ public class Accelerator {
 		String dumpTarget = (String)optionMap.get(OptionKey.DUMPER_TARGET);           // ダンプ対象
 		boolean dumpTargetIsAll = dumpTarget.equals(OptionValue.DUMPER_TARGET_ALL);   // ダンプ対象が全てかどうか
 		PrintStream dumpStream = (PrintStream)optionMap.get(OptionKey.DUMPER_STREAM); // ダンプ先ストリーム
+		boolean shouldRun = (Boolean)optionMap.get(OptionKey.RUNNING_ENABLED);        // コードを実行するかどうか
 
 
 		// スカラ判定やキャッシュ確保などの高速化用データ解析を実行
@@ -122,6 +123,11 @@ public class Accelerator {
 		// キャッシュにメモリのデータを書き込む
 		dataManager.getCacheSynchronizers(Memory.Partition.CONSTANT).synchronizeFromMemoryToCache();
 		dataManager.getCacheSynchronizers(Memory.Partition.GLOBAL).synchronizeFromMemoryToCache();
+
+		// オプションでコード実行が無効化されていた場合はここで終了
+		if (!shouldRun) {
+			return;
+		}
 
 		// ダンプ内容に実行開始点を表す区切りを入れる
 		if (shouldDump && dumpTargetIsAll) {

@@ -34,6 +34,7 @@ public class OptionValue {
 		DEFAULT_VALUE_MAP.put(OptionKey.DUMPER_ENABLED, false);
 		DEFAULT_VALUE_MAP.put(OptionKey.DUMPER_TARGET, DUMPER_TARGET_ALL);
 		DEFAULT_VALUE_MAP.put(OptionKey.DUMPER_STREAM, System.out);
+		DEFAULT_VALUE_MAP.put(OptionKey.RUNNING_ENABLED, Boolean.valueOf(true));
 	}
 
 	/**
@@ -82,6 +83,7 @@ public class OptionValue {
 		checkValueOf(OptionKey.DUMPER_ENABLED, optionMap, Boolean.class);
 		checkValueOf(OptionKey.DUMPER_TARGET, optionMap, String.class);
 		checkValueOf(OptionKey.DUMPER_STREAM, optionMap, PrintStream.class);
+		checkValueOf(OptionKey.RUNNING_ENABLED, optionMap, Boolean.class);
 	}
 
 	/**
