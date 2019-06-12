@@ -6,8 +6,13 @@
 package org.vcssl.nano.vm.accelerator;
 
 
+import java.io.PrintStream;
+import java.util.Map;
+
 import org.vcssl.nano.VnanoFatalException;
 import org.vcssl.nano.interconnect.Interconnect;
+import org.vcssl.nano.spec.OptionKey;
+import org.vcssl.nano.spec.OptionValue;
 import org.vcssl.nano.vm.memory.Memory;
 import org.vcssl.nano.vm.processor.Instruction;
 import org.vcssl.nano.vm.processor.Processor;
@@ -55,7 +60,9 @@ public class Accelerator {
 	 *
 	 * @param instructions 実行対象の命令配列
 	 * @param memory データの入出力に用いる仮想メモリー
+	 * @param interconnect 外部関数プラグインが接続されているインターコネクト（呼び出しに使用）
 	 * @param processor 高速実行の対象外の命令を処理する仮想プロセッサ
+	 * @param optionMap オプション内容を保持するマップ
 	 * @throws InvalidInstructionException
 	 * 		このコントロールユニットが対応していない命令が実行要求された場合や、
 	 * 		オペランドの数が期待値と異なる場合など、命令内容が不正である場合に発生します。
@@ -63,7 +70,15 @@ public class Accelerator {
 	 * 		命令のオペランドに指定された仮想メモリーアドレスが使用領域外であった場合など、
 	 * 		不正な仮想メモリーアクセスが生じた場合などに発生します。
 	 */
-	public void process(Instruction[] instructions, Memory memory, Interconnect interconnect, Processor processor) {
+	public void process(Instruction[] instructions, Memory memory, Interconnect interconnect, Processor processor,
+			Map<String, Object> optionMap) {
+
+		// オプションマップから指定内容を取得
+		boolean shouldDump = (Boolean)optionMap.get(OptionKey.DUMPER_ENABLED);        // ダンプするかどうか
+		String dumpTarget = (String)optionMap.get(OptionKey.DUMPER_TARGET);           // ダンプ対象
+		boolean dumpTargetIsAll = dumpTarget.equals(OptionValue.DUMPER_TARGET_ALL);   // ダンプ対象が全てかどうか
+		PrintStream dumpStream = (PrintStream)optionMap.get(OptionKey.DUMPER_STREAM); // ダンプ先ストリーム
+
 
 		// スカラ判定やキャッシュ確保などの高速化用データ解析を実行
 		AccelerationDataManager dataManager = new AccelerationDataManager();
@@ -72,6 +87,25 @@ public class Accelerator {
 		// 命令スケジューラで命令列を高速化用に再配置・変換
 		AccelerationScheduler scheduler = new AccelerationScheduler();
 		AcceleratorInstruction[] acceleratorInstructions = scheduler.schedule(instructions, memory, dataManager);
+
+		// 変換後の命令列をダンプ
+		if (shouldDump && (dumpTargetIsAll || dumpTarget.equals(OptionValue.DUMPER_TARGET_ACCELERATOR_CODE)) ) {
+			if (dumpTargetIsAll) {
+				dumpStream.println("================================================================================");
+				dumpStream.println("= Accelerator Code");
+				dumpStream.println("= - Output of: org.vcssl.nano.vm.accelerator.AccelerationScheduler");
+				dumpStream.println("= - Input  of: org.vcssl.nano.vm.accelerator.AccelerationDispatcher");
+				dumpStream.println("================================================================================");
+			}
+			int acceleratorInstructionLength = acceleratorInstructions.length;
+			for (int i=0; i<acceleratorInstructionLength; i++) {
+				dumpStream.println("[" + i + "]\t" + acceleratorInstructions[i]);
+			}
+			if (dumpTargetIsAll) {
+				dumpStream.println("");
+			}
+		}
+
 
 		// 内部関数関連の命令やスタックなどを統合的に管理する、内部関数制御ユニットを生成
 		InternalFunctionControlUnit functionControlUnit = new InternalFunctionControlUnit();

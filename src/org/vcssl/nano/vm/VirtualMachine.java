@@ -5,12 +5,14 @@
 
 package org.vcssl.nano.vm;
 
+import java.io.PrintStream;
 import java.util.Map;
 
 import org.vcssl.nano.VnanoException;
 import org.vcssl.nano.interconnect.DataConverter;
 import org.vcssl.nano.interconnect.Interconnect;
 import org.vcssl.nano.spec.OptionKey;
+import org.vcssl.nano.spec.OptionValue;
 import org.vcssl.nano.vm.accelerator.Accelerator;
 import org.vcssl.nano.vm.assembler.Assembler;
 import org.vcssl.nano.vm.memory.DataContainer;
@@ -24,23 +26,45 @@ public class VirtualMachine {
 	public Object eval(String assemblyCode, Interconnect interconnect, Map<String, Object> optionMap)
 			throws VnanoException {
 
-		// オプションマップから、Accelerator（高速VM）を使用するかどうかの設定を取得
-		boolean acceleratorEnabled = (Boolean)optionMap.get(OptionKey.ACCELERATOR_ENABLED);
+		// オプションマップから指定内容を取得
+		boolean acceleratorEnabled = (Boolean)optionMap.get(OptionKey.ACCELERATOR_ENABLED); // 高速版実装を使用するかどうか
+		boolean shouldDump = (Boolean)optionMap.get(OptionKey.DUMPER_ENABLED);        // ダンプするかどうか
+		String dumpTarget = (String)optionMap.get(OptionKey.DUMPER_TARGET);           // ダンプ対象
+		boolean dumpTargetIsAll = dumpTarget.equals(OptionValue.DUMPER_TARGET_ALL);   // ダンプ対象が全てかどうか
+		PrintStream dumpStream = (PrintStream)optionMap.get(OptionKey.DUMPER_STREAM); // ダンプ先ストリーム
 
-		// アセンブラで中間アセンブリコード（VRILコード）から実行用の中間コードに変換
+
+		// アセンブラで中間アセンブリコード（VRILコード）から実行用のVMオブジェクトコードに変換
 		Assembler assembler = new Assembler();
 		VirtualMachineObjectCode intermediateCode = assembler.assemble(assemblyCode, interconnect);
+
+		// VMオブジェクトコードをダンプ
+		if (shouldDump && (dumpTargetIsAll || dumpTarget.equals(OptionValue.DUMPER_TARGET_OBJECT_CODE)) ) {
+			if (dumpTargetIsAll) {
+				dumpStream.println("================================================================================");
+				dumpStream.println("= VM Object Code");
+				dumpStream.println("= - Output of: org.vcssl.nano.vm.assembler.Assembler");
+				dumpStream.println("= - Input  of: org.vcssl.nano.vm.processor.Processor");
+				dumpStream.println("= -        or: org.vcssl.nano.vm.accelerator.Accelerator");
+				dumpStream.println("================================================================================");
+			}
+			dumpStream.print(intermediateCode.dump());
+			if (dumpTargetIsAll) {
+				dumpStream.println("");
+			}
+		}
+
 
 		// 実行用メモリー領域を確保し、外部変数のデータをロード
 		Memory memory = new Memory();
 		memory.allocate(intermediateCode, interconnect.getGlobalVariableTable());
 
-		// VMで中間コードの命令列を実行
+		// プロセッサでVMオブジェクトコードの命令列を実行
 		Instruction[] instructions = intermediateCode.getInstructions();
 		Processor processor = new Processor();
 		if (acceleratorEnabled) {
 			Accelerator accelerator = new Accelerator();
-			accelerator.process(instructions, memory, interconnect, processor);
+			accelerator.process(instructions, memory, interconnect, processor, optionMap);
 		} else {
 			processor.process(instructions, memory, interconnect);
 		}

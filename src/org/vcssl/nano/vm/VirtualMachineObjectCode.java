@@ -18,12 +18,17 @@ import org.vcssl.nano.vm.processor.Instruction;
 
 /**
  * <p>
- * Vnano処理系における中間コードのクラスです。
+ * VM内部での実行に適した形に変換された中間コードである、VMオブジェクトコードのクラスです。
  * </p>
  *
  * <p>
- * 中間コードは、仮想プロセッサで直接実行可能な命令オブジェクト列と、
+ * VMオブジェクトコードは、仮想プロセッサで直接実行可能な命令オブジェクト列と、
  * 仮想メモリー確保のためのシンボルテーブルなどの情報を保持しています。
+ * </p>
+ *
+ * <p>
+ * VnanoのVM層は、可読なテキスト形式の中間アセンブリコード（VRILコード）を入力として受け取りますが、
+ * それをVM内部のアセンブラにより、VMオブジェクトコードに変換してから実行します。
  * </p>
  *
  * @author RINEARN (Fumihiro Matsui)
@@ -258,7 +263,7 @@ public class VirtualMachineObjectCode implements Cloneable {
 		return this.getMaxAddressOf(this.functionAddressList);
 	}
 
-	public void dump() {
+	public String dump() {
 		String eol = System.getProperty("line.separator");
 		StringBuilder builder = new StringBuilder();
 
@@ -345,7 +350,7 @@ public class VirtualMachineObjectCode implements Cloneable {
 			}
 		}
 
-		System.out.println(builder.toString());
+		return builder.toString();
 	}
 
 }
