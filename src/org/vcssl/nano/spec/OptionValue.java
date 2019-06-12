@@ -21,6 +21,7 @@ public class OptionValue {
 	public static final String DUMPER_TARGET_ASSEMBLY_CODE = "ASSEMBLY_CODE";
 	public static final String DUMPER_TARGET_OBJECT_CODE = "OBJECT_CODE";
 	public static final String DUMPER_TARGET_ACCELERATOR_CODE = "ACCELERATOR_CODE";
+	public static final String DUMPER_TARGET_ACCELERATOR_STATE = "ACCELERATOR_STATE";
 
 
 	private static final Map<String, Object> DEFAULT_VALUE_MAP = new LinkedHashMap<String, Object>();

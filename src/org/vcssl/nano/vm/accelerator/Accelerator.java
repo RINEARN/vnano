@@ -117,6 +117,23 @@ public class Accelerator {
 				processor, memory, interconnect, acceleratorInstructions, dataManager, functionControlUnit
 		);
 
+		// 演算実行ノード列をダンプ
+		if (shouldDump && (dumpTargetIsAll || dumpTarget.equals(OptionValue.DUMPER_TARGET_ACCELERATOR_STATE)) ) {
+			if (dumpTargetIsAll) {
+				dumpStream.println("================================================================================");
+				dumpStream.println("= Accelerator State (Execution Unit Dispatchment)");
+				dumpStream.println("= - Output of: org.vcssl.nano.vm.accelerator.AccelerationDispatcher");
+				dumpStream.println("================================================================================");
+			}
+			for (int i=0; i<executorNodes.length; i++) {
+				dumpStream.println("[" + i + "]\t" + executorNodes[i]);
+			}
+			if (dumpTargetIsAll) {
+				dumpStream.println("");
+			}
+		}
+
+
 		// 内部関数のリターンは、スタック上に動的に積まれた命令アドレスに飛ぶため、全命令のノードを保持する必要がある
 		functionControlUnit.setNodes(executorNodes);
 
