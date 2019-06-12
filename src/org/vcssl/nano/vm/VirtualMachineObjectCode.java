@@ -315,7 +315,7 @@ public class VirtualMachineObjectCode implements Cloneable {
 		}
 		builder.append(eol);
 
-		builder.append("#GLOBAL" + eol);
+		builder.append("#GLOBAL_DATA" + eol);
 		for(int i=0; i<this.globalVariableIdentifierList.size(); i++) {
 			int address = this.globalVariableAddressList.get(i);
 			String identifier = this.globalVariableIdentifierList.get(i);
@@ -323,7 +323,7 @@ public class VirtualMachineObjectCode implements Cloneable {
 		}
 		builder.append(eol);
 
-		builder.append("#LOCAL" + eol);
+		builder.append("#LOCAL_DATA" + eol);
 		for(int i=0; i<this.localVariableIdentifierList.size(); i++) {
 			int address = this.localVariableAddressList.get(i);
 			String identifier = this.localVariableIdentifierList.get(i);
@@ -331,7 +331,7 @@ public class VirtualMachineObjectCode implements Cloneable {
 		}
 		builder.append(eol);
 
-		builder.append("#CONSTANT" + eol);
+		builder.append("#CONSTANT_DATA" + eol);
 		for(int i=0; i<this.constantDataValueList.size(); i++) {
 			int address = this.constantDataAddressList.get(i);
 			String constantValue = this.constantDataValueList.get(i);
