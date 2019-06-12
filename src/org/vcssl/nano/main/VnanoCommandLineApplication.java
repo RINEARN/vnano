@@ -327,6 +327,7 @@ public final class VnanoCommandLineApplication {
 					System.err.println(
 							"Invalid value for " + OPTION_NAME_PREFIX + OPTION_NAME_ACCELERATOR + "option: " + optionValue
 					);
+					return false;
 				}
 				return true;
 			}
@@ -361,6 +362,7 @@ public final class VnanoCommandLineApplication {
 					convertedOptionValue = DUMP_TARGET_ARGVALUE_OPTVALUE_MAP.get(optionValue);
 				} else {
 					System.err.println("Invalid value for " + OPTION_NAME_PREFIX + OPTION_NAME_DUMP + " option: " + optionValue);
+					return false;
 				}
 				this.optionMap.put(OptionKey.DUMPER_TARGET, convertedOptionValue);
 				this.optionMap.put(OptionKey.DUMPER_ENABLED, Boolean.valueOf(true));
