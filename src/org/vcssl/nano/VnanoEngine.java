@@ -12,7 +12,6 @@ import java.util.Map;
 import org.vcssl.nano.compiler.Compiler;
 import org.vcssl.nano.interconnect.Interconnect;
 import org.vcssl.nano.spec.SpecialBindingKey;
-import org.vcssl.nano.spec.ErrorMessage;
 import org.vcssl.nano.spec.OptionKey;
 import org.vcssl.nano.spec.OptionValue;
 import org.vcssl.nano.vm.VirtualMachine;
@@ -81,14 +80,9 @@ public class VnanoEngine {
 			Object evalValue = vm.eval(assemblyCode, this.interconnect, this.optionMap);
 			return evalValue;
 
-		// 発生し得る例外は ScriptException でラップして投げる
+		// スクリプト内容による例外は、エラーメッセージに使用する言語ロケールを設定してから上に投げる
 		} catch (VnanoException e) {
-
-			// ロケール設定に応じた言語でエラーメッセージを生成
-			String message = ErrorMessage.generateErrorMessage(e.getErrorType(), e.getErrorWords(), this.locale);
-
-			// 例外にエラーメッセージを設定して上層に投げる
-			e.setMessage(message);
+			e.setLocale(this.locale);
 			throw e;
 
 		// 実装の不備等による予期しない例外も VnanoException でラップする（上層を落としたくない用途のため）

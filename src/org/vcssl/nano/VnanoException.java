@@ -5,6 +5,8 @@
 
 package org.vcssl.nano;
 
+import java.util.Locale;
+
 import org.vcssl.nano.compiler.Compiler;
 import org.vcssl.nano.spec.ErrorMessage;
 import org.vcssl.nano.spec.ErrorType;
@@ -28,6 +30,9 @@ public class VnanoException extends Exception {
 	private int lineNumber = LINE_NUMBER_DEFAULT_VALUE;
 	private String[] errorWords = null;
 	private String errorMessage = null;
+
+	/** エラーメッセージに使用される言語を指定するためのロケールです。 */
+	private Locale locale = Locale.getDefault();
 
 	public VnanoException(Throwable errorCauseThrowable) {
 		super(errorCauseThrowable);
@@ -107,20 +112,35 @@ public class VnanoException extends Exception {
 		return this.lineNumber != LINE_NUMBER_DEFAULT_VALUE;
 	}
 
+	public void setLocale(Locale locale) {
+		this.locale = locale;
+	}
+
 	public void setMessage(String errorMessage) {
 		this.errorMessage = errorMessage;
 	}
 
 	@Override
 	public String getMessage() {
-		String message = this.errorMessage;
+		String message = this.getMessageWithoutLocation();
 		if (this.hasFileName() && this.hasLineNumber()) {
 			message += " (script:" + this.getFileName() + ", line:" + this.getLineNumber() + ")";
 		}
 		return message;
 	}
 
+
 	public String getMessageWithoutLocation() {
-		return this.errorMessage;
+		String message = null;
+
+		if (this.errorMessage != null) {
+			message = this.errorMessage;
+		}
+
+		if (this.errorType != null) {
+			message = ErrorMessage.generateErrorMessage(this.errorType, this.errorWords, this.locale);
+		}
+
+		return message;
 	}
 }
