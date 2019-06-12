@@ -87,7 +87,7 @@ public class Compiler {
 
 		// プリプロセッサ処理後のコードをダンプ
 		if (shouldDump && (dumpTargetIsAll || dumpTarget.equals(OptionValue.DUMPER_TARGET_PREPROCESSED_CODE)) ) {
-			this.dumpPreprocessedCode(scripts, names, dumpTargetIsAll, dumpStream);
+			this.dumpPreprocessedCode(preprocessedScripts, names, dumpTargetIsAll, dumpStream);
 		}
 
 
