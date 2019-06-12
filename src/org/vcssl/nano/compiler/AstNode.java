@@ -539,7 +539,6 @@ public class AstNode implements Cloneable {
 				sb.append(eol);
 				for(int i=0; i<nodes.length; i++){
 					sb.append(nodes[i].dump(true, ""));
-					sb.append(eol);
 				}
 			} else {
 				sb.append("...");
@@ -550,8 +549,7 @@ public class AstNode implements Cloneable {
 		} else {
 			sb.append(" />");
 		}
-		sb.append(eol);
-		return this.indent(sb.toString(), indentString);
+		return this.indent(sb.toString(), indentString) + eol;
 	}
 
 

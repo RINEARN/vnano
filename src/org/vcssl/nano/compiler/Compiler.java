@@ -229,7 +229,7 @@ public class Compiler {
 			dumpStream.println("================================================================================");
 		}
 
-		dumpStream.println(astRootNode.toString());
+		dumpStream.print(astRootNode.dump());
 
 		if (withHeader) {
 			dumpStream.println("");
@@ -247,7 +247,7 @@ public class Compiler {
 			dumpStream.println("================================================================================");
 		}
 
-		dumpStream.println(astRootNode.toString());
+		dumpStream.print(astRootNode.dump());
 
 		if (withHeader) {
 			dumpStream.println("");
@@ -265,7 +265,7 @@ public class Compiler {
 			dumpStream.println("================================================================================");
 		}
 
-		dumpStream.println(assemblyCode);
+		dumpStream.print(assemblyCode);
 
 		if (withHeader) {
 			dumpStream.println("");
