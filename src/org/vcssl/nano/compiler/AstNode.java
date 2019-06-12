@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2018 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2019 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -491,25 +491,24 @@ public class AstNode implements Cloneable {
 
 
 	/**
-	 * このASTノードの文字列表現を返します。
+	 * このASTノードの、詳細内容を含めた文字列表現を返します。
 	 *
 	 * 文字列表現の書式は、XMLライクな入れ子構造のタグによって、
 	 * 構文木のツリー構造が記述されたものとなります。
 	 *
 	 * 内容に子ノードを含めるかどうかや、インデントの幅を調整したい場合には、
-	 * {@link AstNode#toString(boolean,String) toString(boolean,String)}
+	 * {@link AstNode#dump(boolean,String) dump(boolean,String)}
 	 * メソッドの方を使用してください。
 	 *
 	 * @return ASTノードの文字列表現
 	 */
-	@Override
-	public String toString() {
-		return this.toString(true, AstNode.DEFAULT_INDENT);
+	public String dump() {
+		return this.dump(true, AstNode.DEFAULT_INDENT);
 	}
 
 
 	/**
-	 * このASTノードの文字列表現を返します。
+	 * このASTノード、詳細内容を含めた文字列表現を返します。
 	 *
 	 * 文字列表現の書式は、XMLライクな入れ子構造のタグによって、
 	 * 構文木のツリー構造が記述されたものとなります。
@@ -518,7 +517,7 @@ public class AstNode implements Cloneable {
 	 * @param indentString インデントに使用する文字列
 	 * @return ASTノードの文字列表現
 	 */
-	public String toString(boolean containsChildNodes, String indentString) {
+	public String dump(boolean containsChildNodes, String indentString) {
 		String eol = System.getProperty("line.separator");
 		AstNode[] nodes = (AstNode[])childNodeList.toArray(new AstNode[childNodeList.size()]);
 		StringBuilder sb = new StringBuilder();
@@ -539,7 +538,7 @@ public class AstNode implements Cloneable {
 			if (containsChildNodes) {
 				sb.append(eol);
 				for(int i=0; i<nodes.length; i++){
-					sb.append(nodes[i].toString(true, ""));
+					sb.append(nodes[i].dump(true, ""));
 					sb.append(eol);
 				}
 			} else {
@@ -551,21 +550,22 @@ public class AstNode implements Cloneable {
 		} else {
 			sb.append(" />");
 		}
+		sb.append(eol);
 		return this.indent(sb.toString(), indentString);
 	}
 
 
 	/**
-	 * {@link AstNode#toString(boolean,String) toString(boolean,String)}
-	 * メソッド内で使用され、出力コードにインデントを付加する処理を行います。
+	 * {@link AstNode#dump(boolean,String) dump(boolean,String)}
+	 * メソッド内で使用され、出力内容にインデントを付加する処理を行います。
 	 *
-	 * @param codeString toStringの出力コード（未インデント）
+	 * @param dumpString dumpの出力内容（未インデント）
 	 * @param indentString インデントに使用する文字列
 	 * @return 引数codeStringの内容にインデントが付加されたコード
 	 */
-	private String indent(String codeString, String indentString) {
+	private String indent(String dumpString, String indentString) {
 		String eol = System.getProperty("line.separator");
-		String[] line = codeString.split(eol);
+		String[] line = dumpString.split(eol);
 		int n = line.length;
 		StringBuilder sb = new StringBuilder();
 		int indent = 0;
