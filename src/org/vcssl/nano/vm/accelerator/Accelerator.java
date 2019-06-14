@@ -170,13 +170,11 @@ public class Accelerator {
 			AcceleratorInstruction causeInstruction = nextNode.getSourceInstruction();
 			int unreorderedAddress = causeInstruction.getUnreorderedAddress();
 			int reorderedAddress = causeInstruction.getReorderedAddress();
-			throw new VnanoFatalException(
-					"Accelerator crashed at:"
-					+ " address=" + unreorderedAddress
+			String errorMessage = "Accelerator crashed at:"
+					+ " originalAddress=" + unreorderedAddress
 					+ " reorderedAddress=" + reorderedAddress
-					+ " instruction=" + causeInstruction,
-					causeException
-			);
+					+ " instruction=" + causeInstruction;
+			throw new VnanoFatalException(errorMessage, causeException);
 		}
 	}
 }

@@ -11,18 +11,19 @@ import org.vcssl.nano.vm.memory.DataContainer;
 class GeneralScalarCacheSynchronizer extends CacheSynchronizer {
 	private final DataContainer<?>[] containers;
 	private final Object[] caches;
-	private final boolean[] cached;
+	private final boolean[] cacheSyncEnabled;
 
-	public GeneralScalarCacheSynchronizer(DataContainer<?>[] containers, Object[] caches, boolean[] cached) {
+	public GeneralScalarCacheSynchronizer(DataContainer<?>[] containers, Object[] caches, boolean[] cacheSyncEnabled) {
 		this.containers = containers;
 		this.caches = caches;
-		this.cached = cached;
+		this.cacheSyncEnabled = cacheSyncEnabled;
 	}
+
 
 	public final void synchronizeFromCacheToMemory() {
 		int n = containers.length;
 		for (int i=0; i<n; i++) {
-			if (!this.cached[i]) {
+			if (!this.cacheSyncEnabled[i]) {
 				continue;
 			}
 
@@ -49,7 +50,7 @@ class GeneralScalarCacheSynchronizer extends CacheSynchronizer {
 	public final void synchronizeFromMemoryToCache() {
 		int n = containers.length;
 		for (int i=0; i<n; i++) {
-			if (!this.cached[i]) {
+			if (!this.cacheSyncEnabled[i]) {
 				continue;
 			}
 

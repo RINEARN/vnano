@@ -1,5 +1,8 @@
 package org.vcssl.nano.vm.accelerator;
 
+import java.util.Arrays;
+
+import org.vcssl.nano.VnanoFatalException;
 import org.vcssl.nano.interconnect.Interconnect;
 import org.vcssl.nano.spec.OperationCode;
 import org.vcssl.nano.vm.memory.DataContainer;
@@ -25,11 +28,39 @@ public class BypassUnit extends AcceleratorExecutionUnit {
 			Object[] operandCaches, boolean[] operandCached, boolean[] operandScalar, boolean[] operandConstant,
 			AcceleratorExecutionNode nextNode) {
 
-		CacheSynchronizer synchronizer = new GeneralScalarCacheSynchronizer(operandContainers, operandCaches, operandCached);
+		int operandLength = operandContainers.length;
 
-		return new ProcessorCallNode(
-			instruction, this.memory, this.interconnect, this.processor, synchronizer, nextNode
-		);
+		OperationCode operationCode = instruction.getOperationCode();
+		switch (operationCode) {
+
+			// ALLOC命令（メモリ確保）
+			case ALLOC : {
+
+				// ALLOC命令実行前は先頭オペランドは未確保なので、キャッシュのSynchronizerは先頭の同期を無効化して用いる
+				// （先頭オペランドはキャッシュからメモリ方向は同期されなくなるが、どうせALLOCで初期化するので問題ない）
+				boolean[] cacheSyncEnabled = new boolean[operandLength];
+				Arrays.fill(cacheSyncEnabled, true);
+				cacheSyncEnabled[0] = false;
+				CacheSynchronizer preSynchronizer = new GeneralScalarCacheSynchronizer(
+						operandContainers, operandCaches, cacheSyncEnabled
+				);
+
+				// 命令実行後は全オペランドを対象とするキャッシュSynchronizerを用いる
+				CacheSynchronizer postSynchronizer = new GeneralScalarCacheSynchronizer(operandContainers, operandCaches, operandCached);
+
+				return new ProcessorCallNode(
+					instruction, this.memory, this.interconnect, this.processor, preSynchronizer, postSynchronizer, nextNode
+				);
+			}
+
+			// ALLOC以外の命令
+			default : {
+				CacheSynchronizer synchronizer = new GeneralScalarCacheSynchronizer(operandContainers, operandCaches, operandCached);
+				return new ProcessorCallNode(
+					instruction, this.memory, this.interconnect, this.processor, synchronizer, synchronizer, nextNode
+				);
+			}
+		}
 
 	}
 
@@ -38,38 +69,34 @@ public class BypassUnit extends AcceleratorExecutionUnit {
 		private final Interconnect interconnect;
 		private final Processor processor;
 		private final Memory memory;
-		private final CacheSynchronizer synchronizer;
+		private final CacheSynchronizer preSynchronizer;
+		private final CacheSynchronizer postSynchronizer;
 
 		public ProcessorCallNode(Instruction instruction, Memory memory, Interconnect interconnect, Processor processor,
-				CacheSynchronizer synchronizer, AcceleratorExecutionNode nextNode) {
+				CacheSynchronizer preSynchronizer, CacheSynchronizer postSynchronizer, AcceleratorExecutionNode nextNode) {
 
 			super(nextNode);
 			this.instruction = instruction;
 			this.interconnect = interconnect;
 			this.processor = processor;
 			this.memory = memory;
-			this.synchronizer = synchronizer;
+			this.preSynchronizer = preSynchronizer;
+			this.postSynchronizer = postSynchronizer;
 		}
 
 		@Override
 		public final AcceleratorExecutionNode execute() {
 			try {
+				this.preSynchronizer.synchronizeFromCacheToMemory();
 
-				this.synchronizer.synchronizeFromCacheToMemory();
 				int programCounter = 0; // 暫定的なダミー値
 				this.processor.process(this.instruction, this.memory, this.interconnect, programCounter);
-				this.synchronizer.synchronizeFromMemoryToCache();
-
-				// スカラ変数のALLOCの場合は
-				if (instruction.getOperationCode() == OperationCode.ALLOC) {
-
-				}
+				this.postSynchronizer.synchronizeFromMemoryToCache();
 
 				return this.nextNode;
 
 			} catch (Exception e) {
-				e.printStackTrace();
-				return null;
+				throw new VnanoFatalException(e);
 			}
 		}
 	}
