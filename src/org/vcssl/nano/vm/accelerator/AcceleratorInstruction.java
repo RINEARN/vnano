@@ -7,7 +7,7 @@ import org.vcssl.nano.vm.processor.Instruction;
 
 public class AcceleratorInstruction extends Instruction {
 
-	/** この命令を処理する {AccelerationUnit AccelerationUnit} を区別するために割りふられる分類タイプです。 */
+	/** この命令を処理する {AcceleratorExecutionUnit AcceleratorExecutionUnit} を区別するために割りふられる分類タイプです。 */
 	private AccelerationType accelerationType = null;
 
 	/** 最適化による再配置後における、この命令の命令アドレスです。 */

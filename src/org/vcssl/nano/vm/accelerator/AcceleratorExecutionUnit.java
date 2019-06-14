@@ -7,11 +7,11 @@ package org.vcssl.nano.vm.accelerator;
 
 import org.vcssl.nano.vm.memory.DataContainer;
 
-public abstract class AccelerationUnit {
+public abstract class AcceleratorExecutionUnit {
 
-	public abstract AccelerationExecutorNode generateExecutorNode(
+	public abstract AcceleratorExecutionNode generateNode(
 			AcceleratorInstruction instruction, DataContainer<?>[] operandContainers,
 			Object[] operandCaches, boolean[] operandCached, boolean[] operandScalar, boolean[] operandConstant,
-			AccelerationExecutorNode nextNode);
+			AcceleratorExecutionNode nextNode);
 
 }

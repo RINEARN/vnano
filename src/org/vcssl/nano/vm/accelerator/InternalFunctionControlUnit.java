@@ -43,7 +43,7 @@ public class InternalFunctionControlUnit {
 	private int dataStackPointer = 0;
 
 	/** 全命令（順序は最適化による再配置済み）に対応するノードを格納する配列です。関数からのリターン時に参照します。 */
-	private AccelerationExecutorNode[] allNodes;
+	private AcceleratorExecutionNode[] allNodes;
 
 	/** 関数先頭の命令アドレスをインデックスとして、関数が実行中に、対応する要素の値が true になるテーブルです。 */
 	private boolean[] functionRunningFlags;
@@ -67,7 +67,7 @@ public class InternalFunctionControlUnit {
 	 *
 	 * @param allNodes 全命令に対応するノードを格納する配列
 	 */
-	public void setNodes(AccelerationExecutorNode[] allNodes) {
+	public void setNodes(AcceleratorExecutionNode[] allNodes) {
 		this.allNodes = allNodes;
 		this.functionRunningFlags = new boolean[ allNodes.length ];
 		Arrays.fill(functionRunningFlags, false);
@@ -109,35 +109,35 @@ public class InternalFunctionControlUnit {
 		System.arraycopy(stock, 0, this.dataStack, 0, stock.length);
 	}
 
-	public AccelerationExecutorNode generateExecutorNode(
+	public AcceleratorExecutionNode generateNode(
 			AcceleratorInstruction instruction, DataContainer<?>[] operandContainers,
 			ScalarCache[] operandCaches, boolean[] operandCached, boolean[] operandScalar, CacheSynchronizer synchronizer,
-			int reorderedAddressOfThisInstruction, AccelerationExecutorNode nextNode) {
+			int reorderedAddressOfThisInstruction, AcceleratorExecutionNode nextNode) {
 
 		OperationCode opcode = instruction.getOperationCode();
 		DataType dataType = instruction.getDataTypes()[0];
 		switch (opcode) {
 			case CALL : {
 				int reorderdFunctionAddress = instruction.getReorderedLabelAddress();
-				return new CallExecutorNode(
+				return new CallNode(
 					operandContainers, synchronizer, reorderedAddressOfThisInstruction, reorderdFunctionAddress, nextNode
 				);
 			}
 			case RET : {
 				int reorderdFunctionAddress = instruction.getReorderedLabelAddress();
-				return new ReturnExecutorNode(operandContainers, synchronizer, reorderdFunctionAddress, nextNode);
+				return new ReturnNode(operandContainers, synchronizer, reorderdFunctionAddress, nextNode);
 			}
 			case ALLOCP : {
-				return new AllocpExecutorNode(operandContainers, synchronizer, dataType, nextNode);
+				return new AllocpNode(operandContainers, synchronizer, dataType, nextNode);
 			}
 			case POP : {
-				return new PopExecutorNode(nextNode);
+				return new PopNode(nextNode);
 			}
 			case REFPOP : {
-				return new RefpopExecutorNode(operandContainers, synchronizer, nextNode);
+				return new RefpopNode(operandContainers, synchronizer, nextNode);
 			}
 			case MOVPOP : {
-				return this.generateMovpopExecutorNode(
+				return this.generateMovpopNode(
 					instruction, operandContainers, operandCaches, operandCached, operandScalar, synchronizer, nextNode
 				);
 			}
@@ -147,10 +147,10 @@ public class InternalFunctionControlUnit {
 		}
 	}
 
-	private AccelerationExecutorNode generateMovpopExecutorNode(
+	private AcceleratorExecutionNode generateMovpopNode(
 			Instruction instruction, DataContainer<?>[] operandContainers,
 			ScalarCache[] operandCaches, boolean[] operandCached, boolean[] operandScalar, CacheSynchronizer synchronizer,
-			AccelerationExecutorNode nextNode) {
+			AcceleratorExecutionNode nextNode) {
 
 		DataType dataType = instruction.getDataTypes()[0];
 
@@ -158,16 +158,16 @@ public class InternalFunctionControlUnit {
 
 			switch (dataType) {
 				case INT64 : {
-					return new Int64CachedScalarMovpopExecutorNode((Int64ScalarCache)operandCaches[0], nextNode);
+					return new Int64CachedScalarMovpopNode((Int64ScalarCache)operandCaches[0], nextNode);
 				}
 				case FLOAT64 : {
-					return new Float64CachedScalarMovpopExecutorNode((Float64ScalarCache)operandCaches[0], nextNode);
+					return new Float64CachedScalarMovpopNode((Float64ScalarCache)operandCaches[0], nextNode);
 				}
 				case BOOL : {
-					return new BoolCachedScalarMovpopExecutorNode((BoolScalarCache)operandCaches[0], nextNode);
+					return new BoolCachedScalarMovpopNode((BoolScalarCache)operandCaches[0], nextNode);
 				}
 				default : {
-					return new MovpopExecutorNode(operandContainers, synchronizer, nextNode);
+					return new MovpopNode(operandContainers, synchronizer, nextNode);
 				}
 			}
 
@@ -175,33 +175,33 @@ public class InternalFunctionControlUnit {
 
 			switch (dataType) {
 				case INT64 : {
-					return new Int64ScalarMovpopExecutorNode(operandContainers, synchronizer, nextNode);
+					return new Int64ScalarMovpopNode(operandContainers, synchronizer, nextNode);
 				}
 				case FLOAT64 : {
-					return new Float64ScalarMovpopExecutorNode(operandContainers, synchronizer, nextNode);
+					return new Float64ScalarMovpopNode(operandContainers, synchronizer, nextNode);
 				}
 				case BOOL : {
-					return new BoolScalarMovpopExecutorNode(operandContainers, synchronizer, nextNode);
+					return new BoolScalarMovpopNode(operandContainers, synchronizer, nextNode);
 				}
 				default : {
-					return new MovpopExecutorNode(operandContainers, synchronizer, nextNode);
+					return new MovpopNode(operandContainers, synchronizer, nextNode);
 				}
 			}
 
 		} else {
-			return new MovpopExecutorNode(operandContainers, synchronizer, nextNode);
+			return new MovpopNode(operandContainers, synchronizer, nextNode);
 		}
 	}
 
-	private final class CallExecutorNode extends AccelerationExecutorNode {
+	private final class CallNode extends AcceleratorExecutionNode {
 		private final DataContainer<?>[] operandContainers;
 		private final CacheSynchronizer synchronizer;
-		private AccelerationExecutorNode functionHeadNode;
+		private AcceleratorExecutionNode functionHeadNode;
 		private int functionAddress;
 		private int returnAddress;
 
-		public CallExecutorNode(DataContainer<?>[] operandContainers, CacheSynchronizer synchronizer,
-				int reorderedAddressOfThisInstruction, int functionAddress, AccelerationExecutorNode nextNode) {
+		public CallNode(DataContainer<?>[] operandContainers, CacheSynchronizer synchronizer,
+				int reorderedAddressOfThisInstruction, int functionAddress, AcceleratorExecutionNode nextNode) {
 
 			super(nextNode);
 			this.synchronizer = synchronizer;
@@ -211,12 +211,12 @@ public class InternalFunctionControlUnit {
 		}
 
 		@Override
-		public final void setLaundingPointNodes(AccelerationExecutorNode ... nodes) {
+		public final void setLaundingPointNodes(AcceleratorExecutionNode ... nodes) {
 			this.functionHeadNode = nodes[0];
 		}
 
 		@Override
-		public final AccelerationExecutorNode execute() throws VnanoException {
+		public final AcceleratorExecutionNode execute() throws VnanoException {
 			this.synchronizer.synchronizeFromCacheToMemory();
 
 			// このスクリプトエンジンでは再帰呼び出しをサポートしていないため、関数が既に実行中ならエラーとし、そうでなければマークする
@@ -248,13 +248,13 @@ public class InternalFunctionControlUnit {
 	}
 
 
-	private final class ReturnExecutorNode extends AccelerationExecutorNode {
+	private final class ReturnNode extends AcceleratorExecutionNode {
 		private final DataContainer<?> returnValueContainer;
 		private final CacheSynchronizer synchronizer;
 		private int functionAddress;
 
-		public ReturnExecutorNode(DataContainer<?>[] operandContainers, CacheSynchronizer synchronizer,
-				int reorderedAddressOfFunction, AccelerationExecutorNode nextNode) {
+		public ReturnNode(DataContainer<?>[] operandContainers, CacheSynchronizer synchronizer,
+				int reorderedAddressOfFunction, AcceleratorExecutionNode nextNode) {
 
 			super(nextNode);
 			this.synchronizer = synchronizer;
@@ -273,12 +273,12 @@ public class InternalFunctionControlUnit {
 
 
 		@Override
-		public final void setLaundingPointNodes(AccelerationExecutorNode ... nodes) {
+		public final void setLaundingPointNodes(AcceleratorExecutionNode ... nodes) {
 		}
 
 
 		@Override
-		public final AccelerationExecutorNode execute() {
+		public final AcceleratorExecutionNode execute() {
 			this.synchronizer.synchronizeFromCacheToMemory();
 
 			// 戻り先地点の命令アドレスを、アドレススタックから取り出す
@@ -301,13 +301,13 @@ public class InternalFunctionControlUnit {
 	}
 
 
-	private final class AllocpExecutorNode extends AccelerationExecutorNode {
+	private final class AllocpNode extends AcceleratorExecutionNode {
 		private final DataContainer<?> allocTargetContainer;
 		private final CacheSynchronizer synchronizer;
 		private final DataType dataType;
 
-		public AllocpExecutorNode(DataContainer<?>[] operandContainers, CacheSynchronizer synchronizer, DataType dataType,
-				AccelerationExecutorNode nextNode) {
+		public AllocpNode(DataContainer<?>[] operandContainers, CacheSynchronizer synchronizer, DataType dataType,
+				AcceleratorExecutionNode nextNode) {
 
 			super(nextNode);
 			this.synchronizer = synchronizer;
@@ -317,12 +317,12 @@ public class InternalFunctionControlUnit {
 
 
 		@Override
-		public final void setLaundingPointNodes(AccelerationExecutorNode ... nodes) {
+		public final void setLaundingPointNodes(AcceleratorExecutionNode ... nodes) {
 		}
 
 
 		@Override
-		public final AccelerationExecutorNode execute() {
+		public final AcceleratorExecutionNode execute() {
 			this.synchronizer.synchronizeFromCacheToMemory();
 
 			DataContainer<?> src = InternalFunctionControlUnit.this.dataStack[ InternalFunctionControlUnit.this.dataStackPointer - 1 ];
@@ -332,31 +332,31 @@ public class InternalFunctionControlUnit {
 	}
 
 
-	private final class PopExecutorNode extends AccelerationExecutorNode {
+	private final class PopNode extends AcceleratorExecutionNode {
 
-		public PopExecutorNode(AccelerationExecutorNode nextNode) {
+		public PopNode(AcceleratorExecutionNode nextNode) {
 			super(nextNode);
 		}
 
 		@Override
-		public final void setLaundingPointNodes(AccelerationExecutorNode ... nodes) {
+		public final void setLaundingPointNodes(AcceleratorExecutionNode ... nodes) {
 		}
 
 		@Override
-		public final AccelerationExecutorNode execute() {
+		public final AcceleratorExecutionNode execute() {
 			--InternalFunctionControlUnit.this.dataStackPointer;
 			return this.nextNode;
 		}
 	}
 
 
-	private final class RefpopExecutorNode extends AccelerationExecutorNode {
+	private final class RefpopNode extends AcceleratorExecutionNode {
 		private final DataContainer<long[]>[] operandContainers;
 		private final CacheSynchronizer synchronizer;
 
 		@SuppressWarnings("unchecked")
-		public RefpopExecutorNode(DataContainer<?>[] operandContainers, CacheSynchronizer synchronizer,
-				AccelerationExecutorNode nextNode) {
+		public RefpopNode(DataContainer<?>[] operandContainers, CacheSynchronizer synchronizer,
+				AcceleratorExecutionNode nextNode) {
 
 			super(nextNode);
 			this.synchronizer = synchronizer;
@@ -364,12 +364,12 @@ public class InternalFunctionControlUnit {
 		}
 
 		@Override
-		public final void setLaundingPointNodes(AccelerationExecutorNode ... nodes) {
+		public final void setLaundingPointNodes(AcceleratorExecutionNode ... nodes) {
 		}
 
 		@SuppressWarnings("unchecked")
 		@Override
-		public final AccelerationExecutorNode execute() {
+		public final AcceleratorExecutionNode execute() {
 			--InternalFunctionControlUnit.this.dataStackPointer;
 			DataContainer<?> src = InternalFunctionControlUnit.this.dataStack[ InternalFunctionControlUnit.this.dataStackPointer ];
 			DataContainer<?> dest = this.operandContainers[0];
@@ -383,12 +383,12 @@ public class InternalFunctionControlUnit {
 
 
 
-	private final class MovpopExecutorNode extends AccelerationExecutorNode {
+	private final class MovpopNode extends AcceleratorExecutionNode {
 		private final DataContainer<?>[] operandContainers;
 		private final CacheSynchronizer synchronizer;
 
-		public MovpopExecutorNode(DataContainer<?>[] operandContainers, CacheSynchronizer synchronizer,
-				AccelerationExecutorNode nextNode) {
+		public MovpopNode(DataContainer<?>[] operandContainers, CacheSynchronizer synchronizer,
+				AcceleratorExecutionNode nextNode) {
 
 			super(nextNode);
 			this.synchronizer = synchronizer;
@@ -396,11 +396,11 @@ public class InternalFunctionControlUnit {
 		}
 
 		@Override
-		public final void setLaundingPointNodes(AccelerationExecutorNode ... nodes) {
+		public final void setLaundingPointNodes(AcceleratorExecutionNode ... nodes) {
 		}
 
 		@Override
-		public final AccelerationExecutorNode execute() {
+		public final AcceleratorExecutionNode execute() {
 			--InternalFunctionControlUnit.this.dataStackPointer;
 			DataContainer<?> src = InternalFunctionControlUnit.this.dataStack[ InternalFunctionControlUnit.this.dataStackPointer ];
 			DataContainer<?> dest = this.operandContainers[0];
@@ -413,12 +413,12 @@ public class InternalFunctionControlUnit {
 	}
 
 
-	private final class Int64ScalarMovpopExecutorNode extends AccelerationExecutorNode {
+	private final class Int64ScalarMovpopNode extends AcceleratorExecutionNode {
 		private final DataContainer<?>[] operandContainers;
 		private final CacheSynchronizer synchronizer;
 
-		public Int64ScalarMovpopExecutorNode(DataContainer<?>[] operandContainers, CacheSynchronizer synchronizer,
-				AccelerationExecutorNode nextNode) {
+		public Int64ScalarMovpopNode(DataContainer<?>[] operandContainers, CacheSynchronizer synchronizer,
+				AcceleratorExecutionNode nextNode) {
 
 			super(nextNode);
 			this.synchronizer = synchronizer;
@@ -426,11 +426,11 @@ public class InternalFunctionControlUnit {
 		}
 
 		@Override
-		public final void setLaundingPointNodes(AccelerationExecutorNode ... nodes) {
+		public final void setLaundingPointNodes(AcceleratorExecutionNode ... nodes) {
 		}
 
 		@Override
-		public final AccelerationExecutorNode execute() {
+		public final AcceleratorExecutionNode execute() {
 			--InternalFunctionControlUnit.this.dataStackPointer;
 			@SuppressWarnings("unchecked")
 			DataContainer<long[]> src = (DataContainer<long[]>)InternalFunctionControlUnit.this.dataStack[
@@ -448,12 +448,12 @@ public class InternalFunctionControlUnit {
 	}
 
 
-	private final class Float64ScalarMovpopExecutorNode extends AccelerationExecutorNode {
+	private final class Float64ScalarMovpopNode extends AcceleratorExecutionNode {
 		private final DataContainer<?>[] operandContainers;
 		private final CacheSynchronizer synchronizer;
 
-		public Float64ScalarMovpopExecutorNode(DataContainer<?>[] operandContainers, CacheSynchronizer synchronizer,
-				AccelerationExecutorNode nextNode) {
+		public Float64ScalarMovpopNode(DataContainer<?>[] operandContainers, CacheSynchronizer synchronizer,
+				AcceleratorExecutionNode nextNode) {
 
 			super(nextNode);
 			this.synchronizer = synchronizer;
@@ -461,11 +461,11 @@ public class InternalFunctionControlUnit {
 		}
 
 		@Override
-		public final void setLaundingPointNodes(AccelerationExecutorNode ... nodes) {
+		public final void setLaundingPointNodes(AcceleratorExecutionNode ... nodes) {
 		}
 
 		@Override
-		public final AccelerationExecutorNode execute() {
+		public final AcceleratorExecutionNode execute() {
 			--InternalFunctionControlUnit.this.dataStackPointer;
 			@SuppressWarnings("unchecked")
 			DataContainer<double[]> src = (DataContainer<double[]>)InternalFunctionControlUnit.this.dataStack[
@@ -483,12 +483,12 @@ public class InternalFunctionControlUnit {
 	}
 
 
-	private final class BoolScalarMovpopExecutorNode extends AccelerationExecutorNode {
+	private final class BoolScalarMovpopNode extends AcceleratorExecutionNode {
 		private final DataContainer<?>[] operandContainers;
 		private final CacheSynchronizer synchronizer;
 
-		public BoolScalarMovpopExecutorNode(DataContainer<?>[] operandContainers, CacheSynchronizer synchronizer,
-				AccelerationExecutorNode nextNode) {
+		public BoolScalarMovpopNode(DataContainer<?>[] operandContainers, CacheSynchronizer synchronizer,
+				AcceleratorExecutionNode nextNode) {
 
 			super(nextNode);
 			this.synchronizer = synchronizer;
@@ -496,11 +496,11 @@ public class InternalFunctionControlUnit {
 		}
 
 		@Override
-		public final void setLaundingPointNodes(AccelerationExecutorNode ... nodes) {
+		public final void setLaundingPointNodes(AcceleratorExecutionNode ... nodes) {
 		}
 
 		@Override
-		public final AccelerationExecutorNode execute() {
+		public final AcceleratorExecutionNode execute() {
 			--InternalFunctionControlUnit.this.dataStackPointer;
 			@SuppressWarnings("unchecked")
 			DataContainer<boolean[]> src = (DataContainer<boolean[]>)InternalFunctionControlUnit.this.dataStack[
@@ -518,20 +518,20 @@ public class InternalFunctionControlUnit {
 	}
 
 
-	private final class Int64CachedScalarMovpopExecutorNode extends AccelerationExecutorNode {
+	private final class Int64CachedScalarMovpopNode extends AcceleratorExecutionNode {
 		private final Int64ScalarCache cache;
 
-		public Int64CachedScalarMovpopExecutorNode(Int64ScalarCache cache, AccelerationExecutorNode nextNode) {
+		public Int64CachedScalarMovpopNode(Int64ScalarCache cache, AcceleratorExecutionNode nextNode) {
 			super(nextNode);
 			this.cache = cache;
 		}
 
 		@Override
-		public final void setLaundingPointNodes(AccelerationExecutorNode ... nodes) {
+		public final void setLaundingPointNodes(AcceleratorExecutionNode ... nodes) {
 		}
 
 		@Override
-		public final AccelerationExecutorNode execute() {
+		public final AcceleratorExecutionNode execute() {
 			--InternalFunctionControlUnit.this.dataStackPointer;
 			@SuppressWarnings("unchecked")
 			DataContainer<long[]> src = (DataContainer<long[]>)InternalFunctionControlUnit.this.dataStack[
@@ -545,20 +545,20 @@ public class InternalFunctionControlUnit {
 	}
 
 
-	private final class Float64CachedScalarMovpopExecutorNode extends AccelerationExecutorNode {
+	private final class Float64CachedScalarMovpopNode extends AcceleratorExecutionNode {
 		private final Float64ScalarCache cache;
 
-		public Float64CachedScalarMovpopExecutorNode(Float64ScalarCache cache, AccelerationExecutorNode nextNode) {
+		public Float64CachedScalarMovpopNode(Float64ScalarCache cache, AcceleratorExecutionNode nextNode) {
 			super(nextNode);
 			this.cache = cache;
 		}
 
 		@Override
-		public final void setLaundingPointNodes(AccelerationExecutorNode ... nodes) {
+		public final void setLaundingPointNodes(AcceleratorExecutionNode ... nodes) {
 		}
 
 		@Override
-		public final AccelerationExecutorNode execute() {
+		public final AcceleratorExecutionNode execute() {
 			--InternalFunctionControlUnit.this.dataStackPointer;
 			@SuppressWarnings("unchecked")
 			DataContainer<double[]> src = (DataContainer<double[]>)InternalFunctionControlUnit.this.dataStack[
@@ -572,20 +572,20 @@ public class InternalFunctionControlUnit {
 	}
 
 
-	private final class BoolCachedScalarMovpopExecutorNode extends AccelerationExecutorNode {
+	private final class BoolCachedScalarMovpopNode extends AcceleratorExecutionNode {
 		private final BoolScalarCache cache;
 
-		public BoolCachedScalarMovpopExecutorNode(BoolScalarCache cache, AccelerationExecutorNode nextNode) {
+		public BoolCachedScalarMovpopNode(BoolScalarCache cache, AcceleratorExecutionNode nextNode) {
 			super(nextNode);
 			this.cache = cache;
 		}
 
 		@Override
-		public final void setLaundingPointNodes(AccelerationExecutorNode ... nodes) {
+		public final void setLaundingPointNodes(AcceleratorExecutionNode ... nodes) {
 		}
 
 		@Override
-		public final AccelerationExecutorNode execute() {
+		public final AcceleratorExecutionNode execute() {
 			--InternalFunctionControlUnit.this.dataStackPointer;
 			@SuppressWarnings("unchecked")
 			DataContainer<boolean[]> src = (DataContainer<boolean[]>)InternalFunctionControlUnit.this.dataStack[

@@ -59,11 +59,11 @@
 ./org/vcssl/nano/spec/SpecialBindingKey.java
 ./org/vcssl/nano/vm/accelerator/AccelerationDataManager.java
 ./org/vcssl/nano/vm/accelerator/AccelerationDispatcher.java
-./org/vcssl/nano/vm/accelerator/AccelerationExecutorNode.java
 ./org/vcssl/nano/vm/accelerator/AccelerationScheduler.java
 ./org/vcssl/nano/vm/accelerator/AccelerationType.java
-./org/vcssl/nano/vm/accelerator/AccelerationUnit.java
 ./org/vcssl/nano/vm/accelerator/Accelerator.java
+./org/vcssl/nano/vm/accelerator/AcceleratorExecutionNode.java
+./org/vcssl/nano/vm/accelerator/AcceleratorExecutionUnit.java
 ./org/vcssl/nano/vm/accelerator/AcceleratorInstruction.java
 ./org/vcssl/nano/vm/accelerator/BoolCachedScalarBranchUnit.java
 ./org/vcssl/nano/vm/accelerator/BoolCachedScalarLogicalUnit.java

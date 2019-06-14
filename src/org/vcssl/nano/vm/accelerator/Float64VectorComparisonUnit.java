@@ -8,14 +8,14 @@ package org.vcssl.nano.vm.accelerator;
 import org.vcssl.nano.VnanoFatalException;
 import org.vcssl.nano.vm.memory.DataContainer;
 
-public class Float64VectorComparisonUnit extends AccelerationUnit {
+public class Float64VectorComparisonUnit extends AcceleratorExecutionUnit {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public AccelerationExecutorNode generateExecutorNode(
+	public AcceleratorExecutionNode generateNode(
 			AcceleratorInstruction instruction, DataContainer<?>[] operandContainers,
 			Object[] operandCaches, boolean[] operandCached, boolean[] operandScalar, boolean[] operandConstant,
-			AccelerationExecutorNode nextNode) {
+			AcceleratorExecutionNode nextNode) {
 
 		DataContainer<boolean[]> container0 = (DataContainer<boolean[]>)operandContainers[0];
 		DataContainer<double[]> container1 = (DataContainer<double[]>)operandContainers[1];
@@ -23,30 +23,30 @@ public class Float64VectorComparisonUnit extends AccelerationUnit {
 		Float64x3ScalarCacheSynchronizer synchronizer
 				= new Float64x3ScalarCacheSynchronizer(operandContainers, operandCaches, operandCached);
 
-		Float64VectorComparisonExecutorNode executor = null;
+		Float64VectorComparisonNode node = null;
 		switch (instruction.getOperationCode()) {
 			case LT : {
-				executor = new Float64VectorLtExecutorNode(container0, container1, container2, synchronizer, nextNode);
+				node = new Float64VectorLtNode(container0, container1, container2, synchronizer, nextNode);
 				break;
 			}
 			case GT : {
-				executor = new Float64VectorGtExecutorNode(container0, container1, container2, synchronizer, nextNode);
+				node = new Float64VectorGtNode(container0, container1, container2, synchronizer, nextNode);
 				break;
 			}
 			case LEQ : {
-				executor = new Float64VectorLeqExecutorNode(container0, container1, container2, synchronizer, nextNode);
+				node = new Float64VectorLeqNode(container0, container1, container2, synchronizer, nextNode);
 				break;
 			}
 			case GEQ : {
-				executor = new Float64VectorGeqExecutorNode(container0, container1, container2, synchronizer, nextNode);
+				node = new Float64VectorGeqNode(container0, container1, container2, synchronizer, nextNode);
 				break;
 			}
 			case EQ : {
-				executor = new Float64VectorEqExecutorNode(container0, container1, container2, synchronizer, nextNode);
+				node = new Float64VectorEqNode(container0, container1, container2, synchronizer, nextNode);
 				break;
 			}
 			case NEQ : {
-				executor = new Float64VectorNeqExecutorNode(container0, container1, container2, synchronizer, nextNode);
+				node = new Float64VectorNeqNode(container0, container1, container2, synchronizer, nextNode);
 				break;
 			}
 			default : {
@@ -55,18 +55,18 @@ public class Float64VectorComparisonUnit extends AccelerationUnit {
 				);
 			}
 		}
-		return executor;
+		return node;
 	}
 
-	private abstract class Float64VectorComparisonExecutorNode extends AccelerationExecutorNode {
+	private abstract class Float64VectorComparisonNode extends AcceleratorExecutionNode {
 		protected final DataContainer<boolean[]> container0;
 		protected final DataContainer<double[]> container1;
 		protected final DataContainer<double[]> container2;
 		protected final Float64x3ScalarCacheSynchronizer synchronizer;
 
-		public Float64VectorComparisonExecutorNode(
+		public Float64VectorComparisonNode(
 				DataContainer<boolean[]> container0, DataContainer<double[]> container1, DataContainer<double[]> container2,
-				Float64x3ScalarCacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
+				Float64x3ScalarCacheSynchronizer synchronizer, AcceleratorExecutionNode nextNode) {
 
 			super(nextNode);
 			this.container0 = container0;
@@ -76,16 +76,16 @@ public class Float64VectorComparisonUnit extends AccelerationUnit {
 		}
 	}
 
-	private final class Float64VectorLtExecutorNode extends Float64VectorComparisonExecutorNode {
+	private final class Float64VectorLtNode extends Float64VectorComparisonNode {
 
-		public Float64VectorLtExecutorNode(
+		public Float64VectorLtNode(
 				DataContainer<boolean[]> container0, DataContainer<double[]> container1, DataContainer<double[]> container2,
-				Float64x3ScalarCacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
+				Float64x3ScalarCacheSynchronizer synchronizer, AcceleratorExecutionNode nextNode) {
 
 			super(container0, container1, container2, synchronizer, nextNode);
 		}
 
-		public final AccelerationExecutorNode execute() {
+		public final AcceleratorExecutionNode execute() {
 			this.synchronizer.synchronizeFromCacheToMemory();
 			boolean[] data0 = this.container0.getData();
 			double[] data1 = this.container1.getData();
@@ -101,16 +101,16 @@ public class Float64VectorComparisonUnit extends AccelerationUnit {
 		}
 	}
 
-	private final class Float64VectorGtExecutorNode extends Float64VectorComparisonExecutorNode {
+	private final class Float64VectorGtNode extends Float64VectorComparisonNode {
 
-		public Float64VectorGtExecutorNode(
+		public Float64VectorGtNode(
 				DataContainer<boolean[]> container0, DataContainer<double[]> container1, DataContainer<double[]> container2,
-				Float64x3ScalarCacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
+				Float64x3ScalarCacheSynchronizer synchronizer, AcceleratorExecutionNode nextNode) {
 
 			super(container0, container1, container2, synchronizer, nextNode);
 		}
 
-		public final AccelerationExecutorNode execute() {
+		public final AcceleratorExecutionNode execute() {
 			this.synchronizer.synchronizeFromCacheToMemory();
 			boolean[] data0 = this.container0.getData();
 			double[] data1 = this.container1.getData();
@@ -126,16 +126,16 @@ public class Float64VectorComparisonUnit extends AccelerationUnit {
 		}
 	}
 
-	private final class Float64VectorLeqExecutorNode extends Float64VectorComparisonExecutorNode {
+	private final class Float64VectorLeqNode extends Float64VectorComparisonNode {
 
-		public Float64VectorLeqExecutorNode(
+		public Float64VectorLeqNode(
 				DataContainer<boolean[]> container0, DataContainer<double[]> container1, DataContainer<double[]> container2,
-				Float64x3ScalarCacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
+				Float64x3ScalarCacheSynchronizer synchronizer, AcceleratorExecutionNode nextNode) {
 
 			super(container0, container1, container2, synchronizer, nextNode);
 		}
 
-		public final AccelerationExecutorNode execute() {
+		public final AcceleratorExecutionNode execute() {
 			this.synchronizer.synchronizeFromCacheToMemory();
 			boolean[] data0 = this.container0.getData();
 			double[] data1 = this.container1.getData();
@@ -151,16 +151,16 @@ public class Float64VectorComparisonUnit extends AccelerationUnit {
 		}
 	}
 
-	private final class Float64VectorGeqExecutorNode extends Float64VectorComparisonExecutorNode {
+	private final class Float64VectorGeqNode extends Float64VectorComparisonNode {
 
-		public Float64VectorGeqExecutorNode(
+		public Float64VectorGeqNode(
 				DataContainer<boolean[]> container0, DataContainer<double[]> container1, DataContainer<double[]> container2,
-				Float64x3ScalarCacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
+				Float64x3ScalarCacheSynchronizer synchronizer, AcceleratorExecutionNode nextNode) {
 
 			super(container0, container1, container2, synchronizer, nextNode);
 		}
 
-		public final AccelerationExecutorNode execute() {
+		public final AcceleratorExecutionNode execute() {
 			this.synchronizer.synchronizeFromCacheToMemory();
 			boolean[] data0 = this.container0.getData();
 			double[] data1 = this.container1.getData();
@@ -176,16 +176,16 @@ public class Float64VectorComparisonUnit extends AccelerationUnit {
 		}
 	}
 
-	private final class Float64VectorEqExecutorNode extends Float64VectorComparisonExecutorNode {
+	private final class Float64VectorEqNode extends Float64VectorComparisonNode {
 
-		public Float64VectorEqExecutorNode(
+		public Float64VectorEqNode(
 				DataContainer<boolean[]> container0, DataContainer<double[]> container1, DataContainer<double[]> container2,
-				Float64x3ScalarCacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
+				Float64x3ScalarCacheSynchronizer synchronizer, AcceleratorExecutionNode nextNode) {
 
 			super(container0, container1, container2, synchronizer, nextNode);
 		}
 
-		public final AccelerationExecutorNode execute() {
+		public final AcceleratorExecutionNode execute() {
 			this.synchronizer.synchronizeFromCacheToMemory();
 			boolean[] data0 = this.container0.getData();
 			double[] data1 = this.container1.getData();
@@ -201,16 +201,16 @@ public class Float64VectorComparisonUnit extends AccelerationUnit {
 		}
 	}
 
-	private final class Float64VectorNeqExecutorNode extends Float64VectorComparisonExecutorNode {
+	private final class Float64VectorNeqNode extends Float64VectorComparisonNode {
 
-		public Float64VectorNeqExecutorNode(
+		public Float64VectorNeqNode(
 				DataContainer<boolean[]> container0, DataContainer<double[]> container1, DataContainer<double[]> container2,
-				Float64x3ScalarCacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
+				Float64x3ScalarCacheSynchronizer synchronizer, AcceleratorExecutionNode nextNode) {
 
 			super(container0, container1, container2, synchronizer, nextNode);
 		}
 
-		public final AccelerationExecutorNode execute() {
+		public final AcceleratorExecutionNode execute() {
 			this.synchronizer.synchronizeFromCacheToMemory();
 			boolean[] data0 = this.container0.getData();
 			double[] data1 = this.container1.getData();

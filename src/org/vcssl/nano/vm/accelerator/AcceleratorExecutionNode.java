@@ -6,14 +6,14 @@ package org.vcssl.nano.vm.accelerator;
 
 import org.vcssl.nano.VnanoException;
 
-public abstract class AccelerationExecutorNode {
+public abstract class AcceleratorExecutionNode {
 
-	protected final AccelerationExecutorNode nextNode;
+	protected final AcceleratorExecutionNode nextNode;
 
 	// 演算には使用しないが、エラー発生時に実行対象命令を辿れるように保持
 	AcceleratorInstruction sourceInstruction;
 
-	public AccelerationExecutorNode(AccelerationExecutorNode nextNode) {
+	public AcceleratorExecutionNode(AcceleratorExecutionNode nextNode) {
 		this.nextNode = nextNode;
 	}
 
@@ -24,8 +24,8 @@ public abstract class AccelerationExecutorNode {
 		return this.sourceInstruction;
 	}
 
-	public abstract AccelerationExecutorNode execute() throws VnanoException;
+	public abstract AcceleratorExecutionNode execute() throws VnanoException;
 
-	public void setLaundingPointNodes(AccelerationExecutorNode ... branchedNode) {
+	public void setLaundingPointNodes(AcceleratorExecutionNode ... branchedNode) {
 	}
 }

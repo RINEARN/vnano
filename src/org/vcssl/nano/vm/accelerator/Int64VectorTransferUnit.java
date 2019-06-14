@@ -11,21 +11,21 @@ import org.vcssl.nano.VnanoFatalException;
 import org.vcssl.nano.spec.DataType;
 import org.vcssl.nano.vm.memory.DataContainer;
 
-public class Int64VectorTransferUnit extends AccelerationUnit {
+public class Int64VectorTransferUnit extends AcceleratorExecutionUnit {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public AccelerationExecutorNode generateExecutorNode(
+	public AcceleratorExecutionNode generateNode(
 			AcceleratorInstruction instruction, DataContainer<?>[] operandContainers,
 			Object[] operandCaches, boolean[] operandCached, boolean[] operandScalar, boolean[] operandConstant,
-			AccelerationExecutorNode nextNode) {
+			AcceleratorExecutionNode nextNode) {
 
-		AccelerationExecutorNode executor = null;
+		AcceleratorExecutionNode node = null;
 		switch (instruction.getOperationCode()) {
 			case MOV : {
 				Int64x2ScalarCacheSynchronizer synchronizer
 						= new Int64x2ScalarCacheSynchronizer(operandContainers, operandCaches, operandCached);
-				executor = new Int64VectorMovExecutorNode(
+				node = new Int64VectorMovNode(
 						(DataContainer<long[]>)operandContainers[0], (DataContainer<long[]>)operandContainers[1],
 						synchronizer, nextNode);
 				break;
@@ -34,13 +34,13 @@ public class Int64VectorTransferUnit extends AccelerationUnit {
 				if (instruction.getDataTypes()[1] == DataType.INT64) {
 					Int64x2ScalarCacheSynchronizer synchronizer
 							= new Int64x2ScalarCacheSynchronizer(operandContainers, operandCaches, operandCached);
-					executor = new Int64VectorMovExecutorNode(
+					node = new Int64VectorMovNode(
 							(DataContainer<long[]>)operandContainers[0], (DataContainer<long[]>)operandContainers[1],
 							synchronizer, nextNode);
 				} else if (instruction.getDataTypes()[1] == DataType.FLOAT64) {
 					Int64x1Float64x1ScalarCacheSynchronizer synchronizer
 							= new Int64x1Float64x1ScalarCacheSynchronizer(operandContainers, operandCaches, operandCached);
-					executor = new Int64FromFloat64VectorCastExecutorNode(
+					node = new Int64FromFloat64VectorCastNode(
 							(DataContainer<long[]>)operandContainers[0], (DataContainer<double[]>)operandContainers[1],
 							synchronizer, nextNode);
 				} else {
@@ -54,7 +54,7 @@ public class Int64VectorTransferUnit extends AccelerationUnit {
 			case FILL : {
 				Int64x2ScalarCacheSynchronizer synchronizer
 						= new Int64x2ScalarCacheSynchronizer(operandContainers, operandCaches, operandCached);
-				executor = new Int64VectorFillExecutorNode(
+				node = new Int64VectorFillNode(
 						(DataContainer<long[]>)operandContainers[0], (DataContainer<long[]>)operandContainers[1],
 						synchronizer, nextNode);
 				break;
@@ -65,17 +65,17 @@ public class Int64VectorTransferUnit extends AccelerationUnit {
 				);
 			}
 		}
-		return executor;
+		return node;
 	}
 
-	private final class Int64VectorMovExecutorNode extends AccelerationExecutorNode {
+	private final class Int64VectorMovNode extends AcceleratorExecutionNode {
 		protected final DataContainer<long[]> container0;
 		protected final DataContainer<long[]> container1;
 		protected final Int64x2ScalarCacheSynchronizer synchronizer;
 
-		public Int64VectorMovExecutorNode(
+		public Int64VectorMovNode(
 				DataContainer<long[]> container0, DataContainer<long[]> container1,
-				Int64x2ScalarCacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
+				Int64x2ScalarCacheSynchronizer synchronizer, AcceleratorExecutionNode nextNode) {
 
 			super(nextNode);
 			this.container0 = container0;
@@ -83,7 +83,7 @@ public class Int64VectorTransferUnit extends AccelerationUnit {
 			this.synchronizer = synchronizer;
 		}
 
-		public final AccelerationExecutorNode execute() {
+		public final AcceleratorExecutionNode execute() {
 			this.synchronizer.synchronizeFromCacheToMemory();
 			long[] data0 = this.container0.getData();
 			long[] data1 = this.container1.getData();
@@ -96,14 +96,14 @@ public class Int64VectorTransferUnit extends AccelerationUnit {
 		}
 	}
 
-	private final class Int64FromFloat64VectorCastExecutorNode extends AccelerationExecutorNode {
+	private final class Int64FromFloat64VectorCastNode extends AcceleratorExecutionNode {
 		protected final DataContainer<long[]> container0;
 		protected final DataContainer<double[]> container1;
 		protected final Int64x1Float64x1ScalarCacheSynchronizer synchronizer;
 
-		public Int64FromFloat64VectorCastExecutorNode(
+		public Int64FromFloat64VectorCastNode(
 				DataContainer<long[]> container0, DataContainer<double[]> container1,
-				Int64x1Float64x1ScalarCacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
+				Int64x1Float64x1ScalarCacheSynchronizer synchronizer, AcceleratorExecutionNode nextNode) {
 
 			super(nextNode);
 			this.container0 = container0;
@@ -111,7 +111,7 @@ public class Int64VectorTransferUnit extends AccelerationUnit {
 			this.synchronizer = synchronizer;
 		}
 
-		public final AccelerationExecutorNode execute() {
+		public final AcceleratorExecutionNode execute() {
 			this.synchronizer.synchronizeFromCacheToMemory();
 			long[] data0 = this.container0.getData();
 			double[] data1 = this.container1.getData();
@@ -126,14 +126,14 @@ public class Int64VectorTransferUnit extends AccelerationUnit {
 		}
 	}
 
-	private final class Int64VectorFillExecutorNode extends AccelerationExecutorNode {
+	private final class Int64VectorFillNode extends AcceleratorExecutionNode {
 		protected final DataContainer<long[]> container0;
 		protected final DataContainer<long[]> container1;
 		protected final Int64x2ScalarCacheSynchronizer synchronizer;
 
-		public Int64VectorFillExecutorNode(
+		public Int64VectorFillNode(
 				DataContainer<long[]> container0, DataContainer<long[]> container1,
-				Int64x2ScalarCacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
+				Int64x2ScalarCacheSynchronizer synchronizer, AcceleratorExecutionNode nextNode) {
 
 			super(nextNode);
 			this.container0 = container0;
@@ -141,7 +141,7 @@ public class Int64VectorTransferUnit extends AccelerationUnit {
 			this.synchronizer = synchronizer;
 		}
 
-		public final AccelerationExecutorNode execute() {
+		public final AcceleratorExecutionNode execute() {
 			this.synchronizer.synchronizeFromCacheToMemory();
 			long[] data0 = this.container0.getData();
 			long fillValue = this.container1.getData()[ this.container1.getOffset() ];

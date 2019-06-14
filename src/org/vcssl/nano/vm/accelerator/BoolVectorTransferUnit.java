@@ -11,21 +11,21 @@ import org.vcssl.nano.VnanoFatalException;
 import org.vcssl.nano.spec.DataType;
 import org.vcssl.nano.vm.memory.DataContainer;
 
-public class BoolVectorTransferUnit extends AccelerationUnit {
+public class BoolVectorTransferUnit extends AcceleratorExecutionUnit {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public AccelerationExecutorNode generateExecutorNode(
+	public AcceleratorExecutionNode generateNode(
 			AcceleratorInstruction instruction, DataContainer<?>[] operandContainers,
 			Object[] operandCaches, boolean[] operandCached, boolean[] operandScalar, boolean[] operandConstant,
-			AccelerationExecutorNode nextNode) {
+			AcceleratorExecutionNode nextNode) {
 
-		AccelerationExecutorNode executor = null;
+		AcceleratorExecutionNode node = null;
 		switch (instruction.getOperationCode()) {
 			case MOV : {
 				Boolx2ScalarCacheSynchronizer synchronizer
 						= new Boolx2ScalarCacheSynchronizer(operandContainers, operandCaches, operandCached);
-				executor = new BoolVectorMovExecutorNode(
+				node = new BoolVectorMovNode(
 						(DataContainer<boolean[]>)operandContainers[0], (DataContainer<boolean[]>)operandContainers[1],
 						synchronizer, nextNode);
 				break;
@@ -34,7 +34,7 @@ public class BoolVectorTransferUnit extends AccelerationUnit {
 				if (instruction.getDataTypes()[1] == DataType.BOOL) {
 					Boolx2ScalarCacheSynchronizer synchronizer
 							= new Boolx2ScalarCacheSynchronizer(operandContainers, operandCaches, operandCached);
-					executor = new BoolVectorMovExecutorNode(
+					node = new BoolVectorMovNode(
 							(DataContainer<boolean[]>)operandContainers[0], (DataContainer<boolean[]>)operandContainers[1],
 							synchronizer, nextNode);
 				} else {
@@ -48,7 +48,7 @@ public class BoolVectorTransferUnit extends AccelerationUnit {
 			case FILL : {
 				Boolx2ScalarCacheSynchronizer synchronizer
 						= new Boolx2ScalarCacheSynchronizer(operandContainers, operandCaches, operandCached);
-				executor = new BoolVectorFillExecutorNode(
+				node = new BoolVectorFillNode(
 						(DataContainer<boolean[]>)operandContainers[0], (DataContainer<boolean[]>)operandContainers[1],
 						synchronizer, nextNode);
 				break;
@@ -59,17 +59,17 @@ public class BoolVectorTransferUnit extends AccelerationUnit {
 				);
 			}
 		}
-		return executor;
+		return node;
 	}
 
-	private final class BoolVectorMovExecutorNode extends AccelerationExecutorNode {
+	private final class BoolVectorMovNode extends AcceleratorExecutionNode {
 		protected final DataContainer<boolean[]> container0;
 		protected final DataContainer<boolean[]> container1;
 		protected final Boolx2ScalarCacheSynchronizer synchronizer;
 
-		public BoolVectorMovExecutorNode(
+		public BoolVectorMovNode(
 				DataContainer<boolean[]> container0, DataContainer<boolean[]> container1,
-				Boolx2ScalarCacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
+				Boolx2ScalarCacheSynchronizer synchronizer, AcceleratorExecutionNode nextNode) {
 
 			super(nextNode);
 			this.container0 = container0;
@@ -77,7 +77,7 @@ public class BoolVectorTransferUnit extends AccelerationUnit {
 			this.synchronizer = synchronizer;
 		}
 
-		public final AccelerationExecutorNode execute() {
+		public final AcceleratorExecutionNode execute() {
 			this.synchronizer.synchronizeFromCacheToMemory();
 			boolean[] data0 = this.container0.getData();
 			boolean[] data1 = this.container1.getData();
@@ -90,14 +90,14 @@ public class BoolVectorTransferUnit extends AccelerationUnit {
 		}
 	}
 
-	private final class BoolVectorFillExecutorNode extends AccelerationExecutorNode {
+	private final class BoolVectorFillNode extends AcceleratorExecutionNode {
 		protected final DataContainer<boolean[]> container0;
 		protected final DataContainer<boolean[]> container1;
 		protected final Boolx2ScalarCacheSynchronizer synchronizer;
 
-		public BoolVectorFillExecutorNode(
+		public BoolVectorFillNode(
 				DataContainer<boolean[]> container0, DataContainer<boolean[]> container1,
-				Boolx2ScalarCacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
+				Boolx2ScalarCacheSynchronizer synchronizer, AcceleratorExecutionNode nextNode) {
 
 			super(nextNode);
 			this.container0 = container0;
@@ -105,7 +105,7 @@ public class BoolVectorTransferUnit extends AccelerationUnit {
 			this.synchronizer = synchronizer;
 		}
 
-		public final AccelerationExecutorNode execute() {
+		public final AcceleratorExecutionNode execute() {
 			this.synchronizer.synchronizeFromCacheToMemory();
 			boolean[] data0 = this.container0.getData();
 			boolean fillValue = this.container1.getData()[ this.container1.getOffset() ];

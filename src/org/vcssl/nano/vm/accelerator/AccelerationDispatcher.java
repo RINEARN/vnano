@@ -20,7 +20,7 @@ public class AccelerationDispatcher {
 
 
 	// 命令列の内容を全て演算器に割り当て、演算を実行するための演算ノード（演算器内部に実装）の列を返す
-	public AccelerationExecutorNode[] dispatch (
+	public AcceleratorExecutionNode[] dispatch (
 			Processor processor, Memory memory, Interconnect interconnect,
 			AcceleratorInstruction[] instructions, AccelerationDataManager dataManager,
 			InternalFunctionControlUnit functionControlUnit) {
@@ -34,11 +34,11 @@ public class AccelerationDispatcher {
 
 
 		int instructionLength = instructions.length;
-		AccelerationExecutorNode[] executors = new AccelerationExecutorNode[instructionLength];
+		AcceleratorExecutionNode[] executors = new AcceleratorExecutionNode[instructionLength];
 
 
 		// 命令列から演算ノード列を生成（ループは命令列の末尾から先頭の順で辿る）
-		AccelerationExecutorNode nextNode = null; // 現在の対象命令の次の命令（＝前ループでの対象命令）を控える
+		AcceleratorExecutionNode nextNode = null; // 現在の対象命令の次の命令（＝前ループでの対象命令）を控える
 		for (int instructionIndex = instructionLength-1; 0<=instructionIndex; instructionIndex--) {
 		//for (int instructionIndex=0; instructionIndex<instructionLength; instructionIndex++) {
 
@@ -87,7 +87,7 @@ public class AccelerationDispatcher {
 			AccelerationType accelType = instruction.getAccelerationType();
 
 			// 対象命令（1個）を演算器にディスパッチして演算ノードを取得
-			AccelerationExecutorNode currentNode = null;
+			AcceleratorExecutionNode currentNode = null;
 			try {
 				currentNode = this.dispatchToAccelerationUnit(
 					accelType, opcode, dataTypes,
@@ -139,76 +139,76 @@ public class AccelerationDispatcher {
 	}
 
 	// 命令を1つ演算器にディスパッチし、それを実行する演算ノードを返す
-	private AccelerationExecutorNode dispatchToAccelerationUnit (
+	private AcceleratorExecutionNode dispatchToAccelerationUnit (
 			AccelerationType accelType,
 			OperationCode opcode, DataType[] dataTypes, DataContainer<?>[] operandContainers,
 			ScalarCache[] operandCaches, boolean[] operandCached, boolean[] operandScalar, boolean[] operandConstant,
 			AcceleratorInstruction instruction, Processor processor, Memory memory, Interconnect interconnect,
 			InternalFunctionControlUnit functionControlUnit,
-			int reorderedAddress, AccelerationExecutorNode nextNode) {
+			int reorderedAddress, AcceleratorExecutionNode nextNode) {
 
-		AccelerationExecutorNode currentNode = null;
+		AcceleratorExecutionNode currentNode = null;
 		switch (accelType) {
 
 			// 算術演算
 
 			case I64V_ARITHMETIC : {
-				currentNode = new Int64VectorArithmeticUnit().generateExecutorNode(
+				currentNode = new Int64VectorArithmeticUnit().generateNode(
 					instruction, operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
 				);
 				break;
 			}
 			case I64S_ARITHMETIC : {
-				currentNode = new Int64ScalarArithmeticUnit().generateExecutorNode(
+				currentNode = new Int64ScalarArithmeticUnit().generateNode(
 					instruction, operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
 				);
 				break;
 			}
 			case I64CS_ARITHMETIC : {
-				currentNode = new Int64CachedScalarArithmeticUnit().generateExecutorNode(
+				currentNode = new Int64CachedScalarArithmeticUnit().generateNode(
 					instruction, operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
 				);
 				break;
 			}
 			case I64V_DUAL_ARITHMETIC : {
-				currentNode = new Int64VectorDualArithmeticUnit().generateExecutorNode(
+				currentNode = new Int64VectorDualArithmeticUnit().generateNode(
 					instruction, operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
 				);
 				break;
 			}
 			case I64CS_DUAL_ARITHMETIC : {
-				currentNode = new Int64CachedScalarDualArithmeticUnit().generateExecutorNode(
+				currentNode = new Int64CachedScalarDualArithmeticUnit().generateNode(
 					instruction, operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
 				);
 				break;
 			}
 
 			case F64V_ARITHMETIC : {
-				currentNode = new Float64VectorArithmeticUnit().generateExecutorNode(
+				currentNode = new Float64VectorArithmeticUnit().generateNode(
 					instruction, operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
 				);
 				break;
 			}
 			case F64S_ARITHMETIC : {
-				currentNode = new Float64ScalarArithmeticUnit().generateExecutorNode(
+				currentNode = new Float64ScalarArithmeticUnit().generateNode(
 					instruction, operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
 				);
 				break;
 			}
 			case F64CS_ARITHMETIC : {
-				currentNode = new Float64CachedScalarArithmeticUnit().generateExecutorNode(
+				currentNode = new Float64CachedScalarArithmeticUnit().generateNode(
 					instruction, operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
 				);
 				break;
 			}
 			case F64V_DUAL_ARITHMETIC : {
-				currentNode = new Float64VectorDualArithmeticUnit().generateExecutorNode(
+				currentNode = new Float64VectorDualArithmeticUnit().generateNode(
 					instruction, operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
 				);
 				break;
 			}
 			case F64CS_DUAL_ARITHMETIC : {
-				currentNode = new Float64CachedScalarDualArithmeticUnit().generateExecutorNode(
+				currentNode = new Float64CachedScalarDualArithmeticUnit().generateNode(
 					instruction, operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
 				);
 				break;
@@ -218,38 +218,38 @@ public class AccelerationDispatcher {
 			// 比較演算
 
 			case I64V_COMPARISON : {
-				currentNode = new Int64VectorComparisonUnit().generateExecutorNode(
+				currentNode = new Int64VectorComparisonUnit().generateNode(
 					instruction, operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
 				);
 				break;
 			}
 			case I64S_COMPARISON : {
-				currentNode = new Int64ScalarComparisonUnit().generateExecutorNode(
+				currentNode = new Int64ScalarComparisonUnit().generateNode(
 					instruction, operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
 				);
 				break;
 			}
 			case I64CS_COMPARISON : {
-				currentNode = new Int64CachedScalarComparisonUnit().generateExecutorNode(
+				currentNode = new Int64CachedScalarComparisonUnit().generateNode(
 					instruction, operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
 				);
 				break;
 			}
 
 			case F64V_COMPARISON : {
-				currentNode = new Float64VectorComparisonUnit().generateExecutorNode(
+				currentNode = new Float64VectorComparisonUnit().generateNode(
 					instruction, operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
 				);
 				break;
 			}
 			case F64S_COMPARISON : {
-				currentNode = new Float64ScalarComparisonUnit().generateExecutorNode(
+				currentNode = new Float64ScalarComparisonUnit().generateNode(
 					instruction, operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
 				);
 				break;
 			}
 			case F64CS_COMPARISON : {
-				currentNode = new Float64CachedScalarComparisonUnit().generateExecutorNode(
+				currentNode = new Float64CachedScalarComparisonUnit().generateNode(
 					instruction, operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
 				);
 				break;
@@ -259,19 +259,19 @@ public class AccelerationDispatcher {
 			// 論理演算
 
 			case BV_LOGICAL : {
-				currentNode = new BoolVectorLogicalUnit().generateExecutorNode(
+				currentNode = new BoolVectorLogicalUnit().generateNode(
 					instruction, operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
 				);
 				break;
 			}
 			case BS_LOGICAL : {
-				currentNode = new BoolScalarLogicalUnit().generateExecutorNode(
+				currentNode = new BoolScalarLogicalUnit().generateNode(
 					instruction, operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
 				);
 				break;
 			}
 			case BCS_LOGICAL : {
-				currentNode = new BoolCachedScalarLogicalUnit().generateExecutorNode(
+				currentNode = new BoolCachedScalarLogicalUnit().generateNode(
 					instruction, operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
 				);
 				break;
@@ -281,57 +281,57 @@ public class AccelerationDispatcher {
 				// データ転送
 
 			case I64V_TRANSFER : {
-				currentNode = new Int64VectorTransferUnit().generateExecutorNode(
+				currentNode = new Int64VectorTransferUnit().generateNode(
 					instruction, operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
 				);
 				break;
 			}
 			case I64S_TRANSFER : {
-				currentNode = new Int64ScalarTransferUnit().generateExecutorNode(
+				currentNode = new Int64ScalarTransferUnit().generateNode(
 					instruction, operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
 				);
 				break;
 			}
 			case I64CS_TRANSFER : {
-				currentNode = new Int64CachedScalarTransferUnit().generateExecutorNode(
+				currentNode = new Int64CachedScalarTransferUnit().generateNode(
 					instruction, operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
 				);
 				break;
 			}
 
 			case F64V_TRANSFER : {
-				currentNode = new Float64VectorTransferUnit().generateExecutorNode(
+				currentNode = new Float64VectorTransferUnit().generateNode(
 					instruction, operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
 				);
 				break;
 			}
 			case F64S_TRANSFER : {
-				currentNode = new Float64ScalarTransferUnit().generateExecutorNode(
+				currentNode = new Float64ScalarTransferUnit().generateNode(
 					instruction, operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
 				);
 				break;
 			}
 			case F64CS_TRANSFER : {
-				currentNode = new Float64CachedScalarTransferUnit().generateExecutorNode(
+				currentNode = new Float64CachedScalarTransferUnit().generateNode(
 					instruction, operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
 				);
 				break;
 			}
 
 			case BV_TRANSFER : {
-				currentNode = new BoolVectorTransferUnit().generateExecutorNode(
+				currentNode = new BoolVectorTransferUnit().generateNode(
 					instruction, operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
 				);
 				break;
 			}
 			case BS_TRANSFER : {
-				currentNode = new BoolScalarTransferUnit().generateExecutorNode(
+				currentNode = new BoolScalarTransferUnit().generateNode(
 					instruction, operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
 				);
 				break;
 			}
 			case BCS_TRANSFER : {
-				currentNode = new BoolCachedScalarTransferUnit().generateExecutorNode(
+				currentNode = new BoolCachedScalarTransferUnit().generateNode(
 					instruction, operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
 				);
 				break;
@@ -342,13 +342,13 @@ public class AccelerationDispatcher {
 			// 分岐
 
 			case BS_BRANCH : {
-				currentNode = new BoolScalarBranchUnit().generateExecutorNode(
+				currentNode = new BoolScalarBranchUnit().generateNode(
 					instruction, operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
 				);
 				break;
 			}
 			case BCS_BRANCH : {
-				currentNode = new BoolCachedScalarBranchUnit().generateExecutorNode(
+				currentNode = new BoolCachedScalarBranchUnit().generateNode(
 					instruction, operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
 				);
 				break;
@@ -373,7 +373,7 @@ public class AccelerationDispatcher {
 				CacheSynchronizer synchronizer = new GeneralScalarCacheSynchronizer(
 					operandContainers, operandCaches, operandCached
 				);
-				currentNode = functionControlUnit.generateExecutorNode(
+				currentNode = functionControlUnit.generateNode(
 					instruction, operandContainers, operandCaches, operandCached, operandScalar, synchronizer, reorderedAddress, nextNode
 				);
 				break;
@@ -417,19 +417,19 @@ public class AccelerationDispatcher {
 
 	// 以下は後で別の所属に移す
 
-	private final class NopExecutor extends AccelerationExecutorNode {
+	private final class NopExecutor extends AcceleratorExecutionNode {
 
-		public NopExecutor(AccelerationExecutorNode nextNode) {
+		public NopExecutor(AcceleratorExecutionNode nextNode) {
 			super(nextNode);
 		}
 
-		public final AccelerationExecutorNode execute() {
+		public final AcceleratorExecutionNode execute() {
 			return this.nextNode;
 		}
 	}
 
 
-	private final class ScalarAllocExecutorNode extends AccelerationExecutorNode {
+	private final class ScalarAllocExecutorNode extends AcceleratorExecutionNode {
 		private final Instruction instruction;
 		private final Interconnect interconnect;
 		private final Processor processor;
@@ -439,7 +439,7 @@ public class AccelerationDispatcher {
 
 		public ScalarAllocExecutorNode(Instruction instruction, Memory memory, Interconnect interconnect,
 				Processor processor, CacheSynchronizer synchronizer,
-				AccelerationExecutorNode nextNode) {
+				AcceleratorExecutionNode nextNode) {
 
 			super(nextNode);
 			this.instruction = instruction;
@@ -449,7 +449,7 @@ public class AccelerationDispatcher {
 			this.synchronizer = synchronizer;
 		}
 
-		public final AccelerationExecutorNode execute() {
+		public final AcceleratorExecutionNode execute() {
 			if (this.allocated) {
 				return this.nextNode;
 			} else {
@@ -470,7 +470,7 @@ public class AccelerationDispatcher {
 
 
 
-	private final class PassThroughExecutorNode extends AccelerationExecutorNode {
+	private final class PassThroughExecutorNode extends AcceleratorExecutionNode {
 		private final Instruction instruction;
 		private final Interconnect interconnect;
 		private final Processor processor;
@@ -479,7 +479,7 @@ public class AccelerationDispatcher {
 
 		public PassThroughExecutorNode(Instruction instruction, Memory memory, Interconnect interconnect,
 				Processor processor, CacheSynchronizer synchronizer,
-				AccelerationExecutorNode nextNode) {
+				AcceleratorExecutionNode nextNode) {
 
 			super(nextNode);
 			this.instruction = instruction;
@@ -490,7 +490,7 @@ public class AccelerationDispatcher {
 		}
 
 		@Override
-		public final AccelerationExecutorNode execute() {
+		public final AcceleratorExecutionNode execute() {
 			try {
 
 				this.synchronizer.synchronizeFromCacheToMemory();

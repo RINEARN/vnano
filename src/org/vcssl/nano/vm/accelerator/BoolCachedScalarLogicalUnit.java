@@ -8,18 +8,18 @@ package org.vcssl.nano.vm.accelerator;
 import org.vcssl.nano.VnanoFatalException;
 import org.vcssl.nano.vm.memory.DataContainer;
 
-public class BoolCachedScalarLogicalUnit extends AccelerationUnit {
+public class BoolCachedScalarLogicalUnit extends AcceleratorExecutionUnit {
 
 	@Override
-	public AccelerationExecutorNode generateExecutorNode(
+	public AcceleratorExecutionNode generateNode(
 			AcceleratorInstruction instruction, DataContainer<?>[] operandContainers,
 			Object[] operandCaches, boolean[] operandCached, boolean[] operandScalar, boolean[] operandConstant,
-			AccelerationExecutorNode nextNode) {
+			AcceleratorExecutionNode nextNode) {
 
-		BoolCachedScalarLogicalExecutorNode executor = null;
+		BoolCachedScalarLogicalNode node = null;
 		switch (instruction.getOperationCode()) {
 			case AND : {
-				executor = new BoolCachedScalarAndExecutorNode(
+				node = new BoolCachedScalarAndNode(
 						(BoolScalarCache)operandCaches[0],
 						(BoolScalarCache)operandCaches[1],
 						(BoolScalarCache)operandCaches[2],
@@ -27,7 +27,7 @@ public class BoolCachedScalarLogicalUnit extends AccelerationUnit {
 				break;
 			}
 			case OR : {
-				executor = new BoolCachedScalarOrExecutorNode(
+				node = new BoolCachedScalarOrNode(
 						(BoolScalarCache)operandCaches[0],
 						(BoolScalarCache)operandCaches[1],
 						(BoolScalarCache)operandCaches[2],
@@ -35,7 +35,7 @@ public class BoolCachedScalarLogicalUnit extends AccelerationUnit {
 				break;
 			}
 			case NOT : {
-				executor = new BoolCachedScalarNotExecutorNode(
+				node = new BoolCachedScalarNotNode(
 						(BoolScalarCache)operandCaches[0],
 						(BoolScalarCache)operandCaches[1],
 						nextNode);
@@ -47,22 +47,22 @@ public class BoolCachedScalarLogicalUnit extends AccelerationUnit {
 				);
 			}
 		}
-		return executor;
+		return node;
 	}
 
-	private abstract class BoolCachedScalarLogicalExecutorNode extends AccelerationExecutorNode {
+	private abstract class BoolCachedScalarLogicalNode extends AcceleratorExecutionNode {
 		protected final BoolScalarCache cache0;
 		protected final BoolScalarCache cache1;
 		protected final BoolScalarCache cache2;
 
-		public BoolCachedScalarLogicalExecutorNode(BoolScalarCache cache0, BoolScalarCache cache1, BoolScalarCache cache2, AccelerationExecutorNode nextNode) {
+		public BoolCachedScalarLogicalNode(BoolScalarCache cache0, BoolScalarCache cache1, BoolScalarCache cache2, AcceleratorExecutionNode nextNode) {
 			super(nextNode);
 			this.cache0 = cache0;
 			this.cache1 = cache1;
 			this.cache2 = cache2;
 		}
 
-		public BoolCachedScalarLogicalExecutorNode(BoolScalarCache cache0, BoolScalarCache cache1, AccelerationExecutorNode nextNode) {
+		public BoolCachedScalarLogicalNode(BoolScalarCache cache0, BoolScalarCache cache1, AcceleratorExecutionNode nextNode) {
 			super(nextNode);
 			this.cache0 = cache0;
 			this.cache1 = cache1;
@@ -70,31 +70,31 @@ public class BoolCachedScalarLogicalUnit extends AccelerationUnit {
 		}
 	}
 
-	private final class BoolCachedScalarAndExecutorNode extends BoolCachedScalarLogicalExecutorNode {
-		public BoolCachedScalarAndExecutorNode(BoolScalarCache cache0, BoolScalarCache cache1, BoolScalarCache cache2, AccelerationExecutorNode nextNode) {
+	private final class BoolCachedScalarAndNode extends BoolCachedScalarLogicalNode {
+		public BoolCachedScalarAndNode(BoolScalarCache cache0, BoolScalarCache cache1, BoolScalarCache cache2, AcceleratorExecutionNode nextNode) {
 			super(cache0, cache1, cache2, nextNode);
 		}
-		public final AccelerationExecutorNode execute() {
+		public final AcceleratorExecutionNode execute() {
 			this.cache0.value = this.cache1.value & this.cache2.value;
 			return this.nextNode;
 		}
 	}
 
-	private final class BoolCachedScalarOrExecutorNode extends BoolCachedScalarLogicalExecutorNode {
-		public BoolCachedScalarOrExecutorNode(BoolScalarCache cache0, BoolScalarCache cache1, BoolScalarCache cache2, AccelerationExecutorNode nextNode) {
+	private final class BoolCachedScalarOrNode extends BoolCachedScalarLogicalNode {
+		public BoolCachedScalarOrNode(BoolScalarCache cache0, BoolScalarCache cache1, BoolScalarCache cache2, AcceleratorExecutionNode nextNode) {
 			super(cache0, cache1, cache2, nextNode);
 		}
-		public final AccelerationExecutorNode execute() {
+		public final AcceleratorExecutionNode execute() {
 			this.cache0.value = this.cache1.value | this.cache2.value;
 			return this.nextNode;
 		}
 	}
 
-	private final class BoolCachedScalarNotExecutorNode extends BoolCachedScalarLogicalExecutorNode {
-		public BoolCachedScalarNotExecutorNode(BoolScalarCache cache0, BoolScalarCache cache1, AccelerationExecutorNode nextNode) {
+	private final class BoolCachedScalarNotNode extends BoolCachedScalarLogicalNode {
+		public BoolCachedScalarNotNode(BoolScalarCache cache0, BoolScalarCache cache1, AcceleratorExecutionNode nextNode) {
 			super(cache0, cache1, nextNode);
 		}
-		public final AccelerationExecutorNode execute() {
+		public final AcceleratorExecutionNode execute() {
 			this.cache0.value = !this.cache1.value;
 			return this.nextNode;
 		}

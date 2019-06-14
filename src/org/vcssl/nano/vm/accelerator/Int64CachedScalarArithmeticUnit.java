@@ -8,13 +8,13 @@ package org.vcssl.nano.vm.accelerator;
 import org.vcssl.nano.VnanoFatalException;
 import org.vcssl.nano.vm.memory.DataContainer;
 
-public class Int64CachedScalarArithmeticUnit extends AccelerationUnit {
+public class Int64CachedScalarArithmeticUnit extends AcceleratorExecutionUnit {
 
 	@Override
-	public AccelerationExecutorNode generateExecutorNode(
+	public AcceleratorExecutionNode generateNode(
 			AcceleratorInstruction instruction, DataContainer<?>[] operandContainers,
 			Object[] operandCaches, boolean[] operandCached, boolean[] operandScalar, boolean[] operandConstant,
-			AccelerationExecutorNode nextNode) {
+			AcceleratorExecutionNode nextNode) {
 
 		Int64ScalarCache[] caches = new Int64ScalarCache[]{
 				(Int64ScalarCache)operandCaches[0],
@@ -22,7 +22,7 @@ public class Int64CachedScalarArithmeticUnit extends AccelerationUnit {
 				(Int64ScalarCache)operandCaches[2]
 		};
 
-		Int64CachedScalarArithmeticExecutorNode executor = null;
+		Int64CachedScalarArithmeticNode node = null;
 		switch (instruction.getOperationCode()) {
 			case ADD : {
 
@@ -32,16 +32,16 @@ public class Int64CachedScalarArithmeticUnit extends AccelerationUnit {
 
 					// インクリメント
 					if (diff == 1) {
-						executor = new Int64CachedScalarIncrementUnit(caches[0], nextNode);
+						node = new Int64CachedScalarIncrementUnit(caches[0], nextNode);
 
 					// 定数複合代入演算の減算(i+=2など)
 					} else {
-						executor = new Int64CachedScalarConstantAddUnit(caches[0], diff, nextNode);
+						node = new Int64CachedScalarConstantAddUnit(caches[0], diff, nextNode);
 					}
 
 				// 通常の加算
 				} else {
-					executor = new Int64CachedScalarAddUnit(caches[0], caches[1], caches[2], nextNode);
+					node = new Int64CachedScalarAddUnit(caches[0], caches[1], caches[2], nextNode);
 				}
 				break;
 			}
@@ -52,29 +52,29 @@ public class Int64CachedScalarArithmeticUnit extends AccelerationUnit {
 
 					// デクリメント
 					if (diff == 1) {
-						executor = new Int64CachedScalarDecrementUnit(caches[0], nextNode);
+						node = new Int64CachedScalarDecrementUnit(caches[0], nextNode);
 
 					// 定数複合代入演算の減算(i-=2など)
 					} else {
-						executor = new Int64CachedScalarConstantSubUnit(caches[0], diff, nextNode);
+						node = new Int64CachedScalarConstantSubUnit(caches[0], diff, nextNode);
 					}
 
 				// 通常の減算
 				} else {
-					executor = new Int64CachedScalarSubUnit(caches[0], caches[1], caches[2], nextNode);
+					node = new Int64CachedScalarSubUnit(caches[0], caches[1], caches[2], nextNode);
 				}
 				break;
 			}
 			case MUL : {
-				executor = new Int64CachedScalarMulUnit(caches[0], caches[1], caches[2], nextNode);
+				node = new Int64CachedScalarMulUnit(caches[0], caches[1], caches[2], nextNode);
 				break;
 			}
 			case DIV : {
-				executor = new Int64CachedScalarDivUnit(caches[0], caches[1], caches[2], nextNode);
+				node = new Int64CachedScalarDivUnit(caches[0], caches[1], caches[2], nextNode);
 				break;
 			}
 			case REM : {
-				executor = new Int64CachedScalarRemUnit(caches[0], caches[1], caches[2], nextNode);
+				node = new Int64CachedScalarRemUnit(caches[0], caches[1], caches[2], nextNode);
 				break;
 			}
 			default : {
@@ -83,24 +83,24 @@ public class Int64CachedScalarArithmeticUnit extends AccelerationUnit {
 				);
 			}
 		}
-		return executor;
+		return node;
 	}
 
-	private abstract class Int64CachedScalarArithmeticExecutorNode extends AccelerationExecutorNode {
+	private abstract class Int64CachedScalarArithmeticNode extends AcceleratorExecutionNode {
 		protected final Int64ScalarCache cache0;
 		protected final Int64ScalarCache cache1;
 		protected final Int64ScalarCache cache2;
 
-		public Int64CachedScalarArithmeticExecutorNode(Int64ScalarCache cache0, Int64ScalarCache cache1, Int64ScalarCache cache2,
-				AccelerationExecutorNode nextNode) {
+		public Int64CachedScalarArithmeticNode(Int64ScalarCache cache0, Int64ScalarCache cache1, Int64ScalarCache cache2,
+				AcceleratorExecutionNode nextNode) {
 
 			super(nextNode);
 			this.cache0 = cache0;
 			this.cache1 = cache1;
 			this.cache2 = cache2;
 		}
-		public Int64CachedScalarArithmeticExecutorNode(Int64ScalarCache cache0,
-				AccelerationExecutorNode nextNode) {
+		public Int64CachedScalarArithmeticNode(Int64ScalarCache cache0,
+				AcceleratorExecutionNode nextNode) {
 
 			super(nextNode);
 			this.cache0 = cache0;
@@ -109,100 +109,100 @@ public class Int64CachedScalarArithmeticUnit extends AccelerationUnit {
 		}
 	}
 
-	private final class Int64CachedScalarAddUnit extends Int64CachedScalarArithmeticExecutorNode {
+	private final class Int64CachedScalarAddUnit extends Int64CachedScalarArithmeticNode {
 		public Int64CachedScalarAddUnit(Int64ScalarCache cache0, Int64ScalarCache cache1, Int64ScalarCache cache2,
-				AccelerationExecutorNode nextNode) {
+				AcceleratorExecutionNode nextNode) {
 			super(cache0, cache1, cache2, nextNode);
 		}
-		public final AccelerationExecutorNode execute() {
+		public final AcceleratorExecutionNode execute() {
 			this.cache0.value = this.cache1.value + this.cache2.value;
 			return this.nextNode;
 		}
 	}
 
-	private final class Int64CachedScalarSubUnit extends Int64CachedScalarArithmeticExecutorNode {
+	private final class Int64CachedScalarSubUnit extends Int64CachedScalarArithmeticNode {
 		public Int64CachedScalarSubUnit(Int64ScalarCache cache0, Int64ScalarCache cache1, Int64ScalarCache cache2,
-				AccelerationExecutorNode nextNode) {
+				AcceleratorExecutionNode nextNode) {
 			super(cache0, cache1, cache2, nextNode);
 		}
-		public final AccelerationExecutorNode execute() {
+		public final AcceleratorExecutionNode execute() {
 			this.cache0.value = this.cache1.value - this.cache2.value;
 			return this.nextNode;
 		}
 	}
 
-	private final class Int64CachedScalarMulUnit extends Int64CachedScalarArithmeticExecutorNode {
+	private final class Int64CachedScalarMulUnit extends Int64CachedScalarArithmeticNode {
 		public Int64CachedScalarMulUnit(Int64ScalarCache cache0, Int64ScalarCache cache1, Int64ScalarCache cache2,
-				AccelerationExecutorNode nextNode) {
+				AcceleratorExecutionNode nextNode) {
 			super(cache0, cache1, cache2, nextNode);
 		}
-		public final AccelerationExecutorNode execute() {
+		public final AcceleratorExecutionNode execute() {
 			this.cache0.value = this.cache1.value * this.cache2.value;
 			return this.nextNode;
 		}
 	}
 
-	private final class Int64CachedScalarDivUnit extends Int64CachedScalarArithmeticExecutorNode {
+	private final class Int64CachedScalarDivUnit extends Int64CachedScalarArithmeticNode {
 		public Int64CachedScalarDivUnit(Int64ScalarCache cache0, Int64ScalarCache cache1, Int64ScalarCache cache2,
-				AccelerationExecutorNode nextNode) {
+				AcceleratorExecutionNode nextNode) {
 			super(cache0, cache1, cache2, nextNode);
 		}
-		public final AccelerationExecutorNode execute() {
+		public final AcceleratorExecutionNode execute() {
 			this.cache0.value = this.cache1.value / this.cache2.value;
 			return this.nextNode;
 		}
 	}
 
-	private final class Int64CachedScalarRemUnit extends Int64CachedScalarArithmeticExecutorNode {
+	private final class Int64CachedScalarRemUnit extends Int64CachedScalarArithmeticNode {
 		public Int64CachedScalarRemUnit(Int64ScalarCache cache0, Int64ScalarCache cache1, Int64ScalarCache cache2,
-				AccelerationExecutorNode nextNode) {
+				AcceleratorExecutionNode nextNode) {
 			super(cache0, cache1, cache2, nextNode);
 		}
-		public final AccelerationExecutorNode execute() {
+		public final AcceleratorExecutionNode execute() {
 			this.cache0.value = this.cache1.value % this.cache2.value;
 			return this.nextNode;
 		}
 	}
 
-	private final class Int64CachedScalarIncrementUnit extends Int64CachedScalarArithmeticExecutorNode {
-		public Int64CachedScalarIncrementUnit(Int64ScalarCache cache0, AccelerationExecutorNode nextNode) {
+	private final class Int64CachedScalarIncrementUnit extends Int64CachedScalarArithmeticNode {
+		public Int64CachedScalarIncrementUnit(Int64ScalarCache cache0, AcceleratorExecutionNode nextNode) {
 			super(cache0, nextNode);
 		}
-		public final AccelerationExecutorNode execute() {
+		public final AcceleratorExecutionNode execute() {
 			++this.cache0.value;
 			return this.nextNode;
 		}
 	}
 
-	private final class Int64CachedScalarDecrementUnit extends Int64CachedScalarArithmeticExecutorNode {
-		public Int64CachedScalarDecrementUnit(Int64ScalarCache cache0, AccelerationExecutorNode nextNode) {
+	private final class Int64CachedScalarDecrementUnit extends Int64CachedScalarArithmeticNode {
+		public Int64CachedScalarDecrementUnit(Int64ScalarCache cache0, AcceleratorExecutionNode nextNode) {
 			super(cache0, nextNode);
 		}
-		public final AccelerationExecutorNode execute() {
+		public final AcceleratorExecutionNode execute() {
 			--this.cache0.value;
 			return this.nextNode;
 		}
 	}
 
-	private final class Int64CachedScalarConstantAddUnit extends Int64CachedScalarArithmeticExecutorNode {
+	private final class Int64CachedScalarConstantAddUnit extends Int64CachedScalarArithmeticNode {
 		private final long diff;
-		public Int64CachedScalarConstantAddUnit(Int64ScalarCache cache0, long diff, AccelerationExecutorNode nextNode) {
+		public Int64CachedScalarConstantAddUnit(Int64ScalarCache cache0, long diff, AcceleratorExecutionNode nextNode) {
 			super(cache0, nextNode);
 			this.diff = diff;
 		}
-		public final AccelerationExecutorNode execute() {
+		public final AcceleratorExecutionNode execute() {
 			this.cache0.value += diff;
 			return this.nextNode;
 		}
 	}
 
-	private final class Int64CachedScalarConstantSubUnit extends Int64CachedScalarArithmeticExecutorNode {
+	private final class Int64CachedScalarConstantSubUnit extends Int64CachedScalarArithmeticNode {
 		private final long diff;
-		public Int64CachedScalarConstantSubUnit(Int64ScalarCache cache0, long diff, AccelerationExecutorNode nextNode) {
+		public Int64CachedScalarConstantSubUnit(Int64ScalarCache cache0, long diff, AcceleratorExecutionNode nextNode) {
 			super(cache0, nextNode);
 			this.diff = diff;
 		}
-		public final AccelerationExecutorNode execute() {
+		public final AcceleratorExecutionNode execute() {
 			this.cache0.value -= diff;
 			return this.nextNode;
 		}

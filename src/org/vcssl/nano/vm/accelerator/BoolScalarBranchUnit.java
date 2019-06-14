@@ -8,27 +8,27 @@ package org.vcssl.nano.vm.accelerator;
 import org.vcssl.nano.VnanoFatalException;
 import org.vcssl.nano.vm.memory.DataContainer;
 
-public class BoolScalarBranchUnit extends AccelerationUnit {
+public class BoolScalarBranchUnit extends AcceleratorExecutionUnit {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public AccelerationExecutorNode generateExecutorNode(
+	public AcceleratorExecutionNode generateNode(
 			AcceleratorInstruction instruction, DataContainer<?>[] operandContainers,
 			Object[] operandCaches, boolean[] operandCached, boolean[] operandScalar, boolean[] operandConstant,
-			AccelerationExecutorNode nextNode) {
+			AcceleratorExecutionNode nextNode) {
 
 		DataContainer<boolean[]> conditionContainer = (DataContainer<boolean[]>)operandContainers[2];
 		Boolx1ScalarCacheSynchronizer synchronizer
 				= new Boolx1ScalarCacheSynchronizer(operandContainers, operandCaches, operandCached, 2);
 
-		AccelerationExecutorNode executor = null;
+		AcceleratorExecutionNode node = null;
 		switch (instruction.getOperationCode()) {
 			case JMP : {
-				executor = new ScalarJmpExecutorNode(conditionContainer, synchronizer, nextNode);
+				node = new ScalarJmpNode(conditionContainer, synchronizer, nextNode);
 				break;
 			}
 			case JMPN : {
-				executor = new ScalarJmpnExecutorNode(conditionContainer, synchronizer, nextNode);
+				node = new ScalarJmpnNode(conditionContainer, synchronizer, nextNode);
 				break;
 			}
 			default : {
@@ -37,17 +37,17 @@ public class BoolScalarBranchUnit extends AccelerationUnit {
 				);
 			}
 		}
-		return executor;
+		return node;
 	}
 
 
-	private final class ScalarJmpExecutorNode extends AccelerationExecutorNode {
+	private final class ScalarJmpNode extends AcceleratorExecutionNode {
 		private final DataContainer<boolean[]> conditionContainer;
 		private final Boolx1ScalarCacheSynchronizer synchronizer;
-		private AccelerationExecutorNode branchedNode = null;
+		private AcceleratorExecutionNode branchedNode = null;
 
-		public ScalarJmpExecutorNode(DataContainer<boolean[]> conditionContainer, Boolx1ScalarCacheSynchronizer synchronizer,
-				AccelerationExecutorNode nextNode) {
+		public ScalarJmpNode(DataContainer<boolean[]> conditionContainer, Boolx1ScalarCacheSynchronizer synchronizer,
+				AcceleratorExecutionNode nextNode) {
 
 			super(nextNode);
 			this.conditionContainer = conditionContainer;
@@ -55,12 +55,12 @@ public class BoolScalarBranchUnit extends AccelerationUnit {
 		}
 
 		@Override
-		public void setLaundingPointNodes(AccelerationExecutorNode ... branchedNode) {
+		public void setLaundingPointNodes(AcceleratorExecutionNode ... branchedNode) {
 			this.branchedNode = branchedNode[0];
 		}
 
 		@Override
-		public final AccelerationExecutorNode execute() {
+		public final AcceleratorExecutionNode execute() {
 			this.synchronizer.synchronizeFromCacheToMemory();
 			if (this.conditionContainer.getData()[ this.conditionContainer.getOffset() ]) {
 				return this.branchedNode;
@@ -69,13 +69,13 @@ public class BoolScalarBranchUnit extends AccelerationUnit {
 			}
 		}
 	}
-	private final class ScalarJmpnExecutorNode extends AccelerationExecutorNode {
+	private final class ScalarJmpnNode extends AcceleratorExecutionNode {
 		private final DataContainer<boolean[]> conditionContainer;
 		private final Boolx1ScalarCacheSynchronizer synchronizer;
-		private AccelerationExecutorNode branchedNode = null;
+		private AcceleratorExecutionNode branchedNode = null;
 
-		public ScalarJmpnExecutorNode(DataContainer<boolean[]> conditionContainer, Boolx1ScalarCacheSynchronizer synchronizer,
-				AccelerationExecutorNode nextNode) {
+		public ScalarJmpnNode(DataContainer<boolean[]> conditionContainer, Boolx1ScalarCacheSynchronizer synchronizer,
+				AcceleratorExecutionNode nextNode) {
 
 			super(nextNode);
 			this.conditionContainer = conditionContainer;
@@ -83,12 +83,12 @@ public class BoolScalarBranchUnit extends AccelerationUnit {
 		}
 
 		@Override
-		public void setLaundingPointNodes(AccelerationExecutorNode ... branchedNode) {
+		public void setLaundingPointNodes(AcceleratorExecutionNode ... branchedNode) {
 			this.branchedNode = branchedNode[0];
 		}
 
 		@Override
-		public final AccelerationExecutorNode execute() {
+		public final AcceleratorExecutionNode execute() {
 			this.synchronizer.synchronizeFromCacheToMemory();
 			if (this.conditionContainer.getData()[ this.conditionContainer.getOffset() ]) {
 				return this.nextNode;
