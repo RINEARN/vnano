@@ -112,8 +112,10 @@
 ./org/vcssl/nano/vm/accelerator/Int64x3ScalarCacheSynchronizer.java
 ./org/vcssl/nano/vm/accelerator/InternalFunctionControlUnit.java
 ./org/vcssl/nano/vm/accelerator/NoneCache.java
+./org/vcssl/nano/vm/accelerator/NopUnit.java
 ./org/vcssl/nano/vm/accelerator/package-info.java
 ./org/vcssl/nano/vm/accelerator/ScalarCache.java
+./org/vcssl/nano/vm/accelerator/UnacceleratedUnit.java
 ./org/vcssl/nano/vm/assembler/Assembler.java
 ./org/vcssl/nano/vm/assembler/package-info.java
 ./org/vcssl/nano/vm/memory/DataContainer.java

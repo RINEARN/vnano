@@ -12,13 +12,11 @@ public class UnacceleratedUnit extends AcceleratorExecutionUnit {
 	Processor processor = null;
 	Memory memory = null;
 	Interconnect interconnect = null;
-	CacheSynchronizer synchronizer = null;
 
-	public UnacceleratedUnit(Processor processor, Memory memory, Interconnect interconnect, CacheSynchronizer synchronizer) {
+	public UnacceleratedUnit(Processor processor, Memory memory, Interconnect interconnect) {
 		this.processor = processor;
 		this.memory = memory;
 		this.interconnect = interconnect;
-		this.synchronizer = synchronizer;
 	}
 
 	@Override
@@ -27,8 +25,10 @@ public class UnacceleratedUnit extends AcceleratorExecutionUnit {
 			Object[] operandCaches, boolean[] operandCached, boolean[] operandScalar, boolean[] operandConstant,
 			AcceleratorExecutionNode nextNode) {
 
+		CacheSynchronizer synchronizer = new GeneralScalarCacheSynchronizer(operandContainers, operandCaches, operandCached);
+
 		return new PassThroughExecutorNode(
-			instruction, this.memory, this.interconnect, this.processor, this.synchronizer, nextNode
+			instruction, this.memory, this.interconnect, this.processor, synchronizer, nextNode
 		);
 
 	}
@@ -40,9 +40,8 @@ public class UnacceleratedUnit extends AcceleratorExecutionUnit {
 		private final Memory memory;
 		private final CacheSynchronizer synchronizer;
 
-		public PassThroughExecutorNode(Instruction instruction, Memory memory, Interconnect interconnect,
-				Processor processor, CacheSynchronizer synchronizer,
-				AcceleratorExecutionNode nextNode) {
+		public PassThroughExecutorNode(Instruction instruction, Memory memory, Interconnect interconnect, Processor processor,
+				CacheSynchronizer synchronizer, AcceleratorExecutionNode nextNode) {
 
 			super(nextNode);
 			this.instruction = instruction;

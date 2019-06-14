@@ -16,7 +16,7 @@ import org.vcssl.nano.vm.memory.DataContainer;
 import org.vcssl.nano.vm.processor.ExecutionUnit;
 import org.vcssl.nano.vm.processor.Instruction;
 
-public class InternalFunctionControlUnit {
+public class InternalFunctionControlUnit extends AcceleratorExecutionUnit {
 
 	/* 関数の戻り先地点の命令アドレスを詰む、命令アドレススタックのデフォルトの要素数です。 */
 	private static final int DEFAULT_ADDRESS_STACK_LENGTH = 1024;
@@ -109,15 +109,19 @@ public class InternalFunctionControlUnit {
 		System.arraycopy(stock, 0, this.dataStack, 0, stock.length);
 	}
 
+	@Override
 	public AcceleratorExecutionNode generateNode(
 			AcceleratorInstruction instruction, DataContainer<?>[] operandContainers,
-			ScalarCache[] operandCaches, boolean[] operandCached, boolean[] operandScalar, CacheSynchronizer synchronizer,
-			int reorderedAddressOfThisInstruction, AcceleratorExecutionNode nextNode) {
+			Object[] operandCaches, boolean[] operandCached, boolean[] operandScalar, boolean[] operandConstant,
+			AcceleratorExecutionNode nextNode) {
+
+		CacheSynchronizer synchronizer = new GeneralScalarCacheSynchronizer(operandContainers, operandCaches, operandCached);
 
 		OperationCode opcode = instruction.getOperationCode();
 		DataType dataType = instruction.getDataTypes()[0];
 		switch (opcode) {
 			case CALL : {
+				int reorderedAddressOfThisInstruction = instruction.getReorderedAddress();
 				int reorderdFunctionAddress = instruction.getReorderedLabelAddress();
 				return new CallNode(
 					operandContainers, synchronizer, reorderedAddressOfThisInstruction, reorderdFunctionAddress, nextNode
@@ -138,7 +142,8 @@ public class InternalFunctionControlUnit {
 			}
 			case MOVPOP : {
 				return this.generateMovpopNode(
-					instruction, operandContainers, operandCaches, operandCached, operandScalar, synchronizer, nextNode
+					(Instruction)instruction, operandContainers,
+					(ScalarCache[])operandCaches, operandCached, operandScalar, synchronizer, nextNode
 				);
 			}
 			default : {
