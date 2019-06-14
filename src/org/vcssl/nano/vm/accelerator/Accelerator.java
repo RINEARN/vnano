@@ -100,7 +100,8 @@ public class Accelerator {
 			}
 			int acceleratorInstructionLength = acceleratorInstructions.length;
 			for (int i=0; i<acceleratorInstructionLength; i++) {
-				dumpStream.println("[" + i + "]\t" + acceleratorInstructions[i]);
+				int unreorderedAddr = acceleratorInstructions[i].getUnreorderedAddress();
+				dumpStream.println("[" + i + "] <- [" + unreorderedAddr + "]\t" + acceleratorInstructions[i]);
 			}
 			if (dumpTargetIsAll) {
 				dumpStream.println("");
