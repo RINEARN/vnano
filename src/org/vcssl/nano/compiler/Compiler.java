@@ -49,17 +49,15 @@ public class Compiler {
 	 * @throws VnanoException スクリプトコードの内容に異常があった場合にスローされます。
 	 */
 	public String compile(String[] scripts, String[] names, Interconnect interconnect, Map<String, Object> optionMap)
-					throws VnanoException { // スクリプト内の型エラーはScriptCodeExceptionに入れるべき？
+					throws VnanoException {
 
 		// スクリプトコードの枚数とスクリプト名の個数が違う場合はエラー
 		if (scripts.length != names.length) {
-			throw new VnanoFatalException(
-				"The array-length of \"scripts\" argument should be same with the length of \"names\" argument"
-			);
+			throw new VnanoFatalException("Array-lengths of \"scripts\" and \"names\" arguments are mismatching.");
 		}
 
-		// 最初に全スクリプトコードを結合してから処理すると、エラーメッセージの行番号などがずれてしまうため、
-		// 字句解析までは別々に処理し、行番号コードなどを保持するトークン配列まで変換してから結合する
+		// VRIL生成用途でアプリケーションから直接呼ばれる事も考えられるため、オプション内容の正規化を再度行っておく
+		optionMap = OptionValue.normalizeValuesOf(optionMap);
 
 		// スクリプトコードの枚数を取得
 		int scriptLength = scripts.length;
@@ -98,15 +96,15 @@ public class Compiler {
 			tokens[scriptIndex] = lexer.analyze(preprocessedScripts[scriptIndex], names[scriptIndex]);
 		}
 
-		// EVAL_NUMBER_AS_FLOAT オプションが有効な場合、eval対象スクリプトコードのintリテラルの型をfloatに変更
+		// EVAL_NUMBER_AS_FLOAT オプションが有効な場合、エンジンのevalに渡されたスクリプト内のintリテラルをfloat型に変更
 		if (evalNumberAsFloat) {
-			int evalScriptIndex = scriptLength - 1; // eval対象スクリプトコードは、引数 scripts の最終要素に格納されている
-			tokens[evalScriptIndex] = lexer.replaceDataTypeOfLiteralTokens(
-				tokens[evalScriptIndex], DataTypeName.INT, DataTypeName.FLOAT
+			tokens[scriptLength-1] = lexer.replaceDataTypeOfLiteralTokens( // [scriptLength-1]番目はeval対象のスクリプト
+				tokens[scriptLength-1], DataTypeName.INT, DataTypeName.FLOAT
 			);
 		}
 
-		// 全スクリプトのトークン配列を結合（各トークンが行番号情報などを保持しているため、結合によってずれる事はない）
+		// 全スクリプトのトークン配列を結合 ( 最初にスクリプトそのものを結合せず、わざわざ
+		// 字句解析後に結合している理由は、エラー情報などで使用する、行番号やファイル名情報のずれを防ぐため ）
 		List<Token> tokenList = new LinkedList<Token>();
 		for (int scriptIndex=0; scriptIndex<scriptLength; scriptIndex++) {
 			for (Token token: tokens[scriptIndex]) {
@@ -114,6 +112,7 @@ public class Compiler {
 			}
 		}
 		Token[] unifiedTokens = tokenList.toArray(new Token[0]);
+
 
 		// トークン配列をダンプ
 		if (shouldDump && (dumpTargetIsAll || dumpTarget.equals(OptionValue.DUMPER_TARGET_TOKEN)) ) {

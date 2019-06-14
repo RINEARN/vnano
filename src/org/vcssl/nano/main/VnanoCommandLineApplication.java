@@ -446,7 +446,7 @@ public final class VnanoCommandLineApplication {
 		ScriptEngineManager manager = new ScriptEngineManager();
 		ScriptEngine engine = manager.getEngineByName("vnano");
 		if (engine == null) {
-			System.err.println("Faital error: ScriptEngine not found.");
+			System.err.println("Fatal error: ScriptEngine not found.");
 			return null;
 		}
 
@@ -539,7 +539,10 @@ public final class VnanoCommandLineApplication {
 			return;
 		}
 
-		// オプションを設定
+		// オプションマップにスクリプト名を設定
+		this.optionMap.put(OptionKey.EVAL_SCRIPT_NAME, inputFilePath);
+
+		// オプションマップをスクリプトエンジンに設定
 		engine.put(SpecialBindingKey.OPTION_MAP, this.optionMap);
 
 		// スクリプトを実行
@@ -564,6 +567,9 @@ public final class VnanoCommandLineApplication {
 		if (interconnect == null) {
 			return;
 		}
+
+		// オプションマップにスクリプト名を設定
+		this.optionMap.put(OptionKey.EVAL_SCRIPT_NAME, inputFilePath);
 
 		// プロセス仮想マシンを生成し、VRILコードを渡して実行
 		VirtualMachine vm = new VirtualMachine();

@@ -49,7 +49,7 @@ public class VnanoEngine {
 
 		// オプションマップを生成し、必須項目をデフォルト値で補完
 		this.optionMap = new LinkedHashMap<String, Object>();
-		optionMap = OptionValue.supplementDefaultValuesOf(optionMap);
+		optionMap = OptionValue.normalizeValuesOf(optionMap);
 
 		// 何もバインディングされていない、空のインターコネクトを生成
 		this.interconnect = new Interconnect();
@@ -127,7 +127,7 @@ public class VnanoEngine {
 	public void setOptionMap(Map<String,Object> optionMap) throws VnanoException {
 
 		// 必須項目をデフォルト値で補完し、フィールドに設定
-		this.optionMap = OptionValue.supplementDefaultValuesOf(optionMap);
+		this.optionMap = OptionValue.normalizeValuesOf(optionMap);
 
 		// オプション内容を検査
 		OptionValue.checkValuesOf(this.optionMap);

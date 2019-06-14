@@ -45,8 +45,16 @@ public class VnanoScriptEngine implements ScriptEngine {
 	 * ScriptEngineManager クラスの getEngineByName メソッドを使用してください。
 	 */
 	protected VnanoScriptEngine() {
-		this.scriptContext = new SimpleScriptContext();
-		this.vnanoEngine = new VnanoEngine();
+		try {
+			this.scriptContext = new SimpleScriptContext();
+			this.vnanoEngine = new VnanoEngine();
+
+		// ScriptEngineManager 経由でインスタンスを取得している場合（失敗時は null が返る）に
+		// エラー情報の詳細を把握しやすいようにスタックトレースを出力しておく
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
 	}
 
 
