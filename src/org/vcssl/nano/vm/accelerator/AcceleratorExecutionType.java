@@ -2,8 +2,6 @@ package org.vcssl.nano.vm.accelerator;
 
 public enum AcceleratorExecutionType {
 
-	UNACCELERATED,
-
 	I64V_ARITHMETIC,    // Int64VectorArithmetic
 	I64S_ARITHMETIC,    // Int64ScalarArithmetic
 	I64CS_ARITHMETIC,   // Int64CachedScalarArithmetic
@@ -46,4 +44,6 @@ public enum AcceleratorExecutionType {
 
 	FUNCTION_CONTROL,  // FunctionControl
 	NOP, // Nop
+
+	BYPASS,
 }

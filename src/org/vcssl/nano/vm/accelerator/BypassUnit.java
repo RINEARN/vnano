@@ -7,13 +7,13 @@ import org.vcssl.nano.vm.memory.Memory;
 import org.vcssl.nano.vm.processor.Instruction;
 import org.vcssl.nano.vm.processor.Processor;
 
-public class UnacceleratedUnit extends AcceleratorExecutionUnit {
+public class BypassUnit extends AcceleratorExecutionUnit {
 
 	Processor processor = null;
 	Memory memory = null;
 	Interconnect interconnect = null;
 
-	public UnacceleratedUnit(Processor processor, Memory memory, Interconnect interconnect) {
+	public BypassUnit(Processor processor, Memory memory, Interconnect interconnect) {
 		this.processor = processor;
 		this.memory = memory;
 		this.interconnect = interconnect;
@@ -27,20 +27,20 @@ public class UnacceleratedUnit extends AcceleratorExecutionUnit {
 
 		CacheSynchronizer synchronizer = new GeneralScalarCacheSynchronizer(operandContainers, operandCaches, operandCached);
 
-		return new PassThroughExecutorNode(
+		return new ProcessorCallNode(
 			instruction, this.memory, this.interconnect, this.processor, synchronizer, nextNode
 		);
 
 	}
 
-	private final class PassThroughExecutorNode extends AcceleratorExecutionNode {
+	private final class ProcessorCallNode extends AcceleratorExecutionNode {
 		private final Instruction instruction;
 		private final Interconnect interconnect;
 		private final Processor processor;
 		private final Memory memory;
 		private final CacheSynchronizer synchronizer;
 
-		public PassThroughExecutorNode(Instruction instruction, Memory memory, Interconnect interconnect, Processor processor,
+		public ProcessorCallNode(Instruction instruction, Memory memory, Interconnect interconnect, Processor processor,
 				CacheSynchronizer synchronizer, AcceleratorExecutionNode nextNode) {
 
 			super(nextNode);
@@ -73,5 +73,8 @@ public class UnacceleratedUnit extends AcceleratorExecutionUnit {
 			}
 		}
 	}
+
+
+	// （暫定案）ExternalFunctionCallNode を追加する場合はここ
 
 }

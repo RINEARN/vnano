@@ -328,11 +328,11 @@ public class AcceleratorSchedulingUnit {
 						instruction.setAccelerationType(AcceleratorExecutionType.SCALAR_ALLOC);
 					// ベクトル確保の場合
 					} else {
-						instruction.setAccelerationType(AcceleratorExecutionType.UNACCELERATED);
+						instruction.setAccelerationType(AcceleratorExecutionType.BYPASS);
 					}
 					*/
 
-					instruction.setAccelerationType(AcceleratorExecutionType.UNACCELERATED);
+					instruction.setAccelerationType(AcceleratorExecutionType.BYPASS);
 					break;
 				}
 
@@ -369,7 +369,7 @@ public class AcceleratorSchedulingUnit {
 						}
 
 					} else {
-						instruction.setAccelerationType(AcceleratorExecutionType.UNACCELERATED);
+						instruction.setAccelerationType(AcceleratorExecutionType.BYPASS);
 					}
 					break;
 				}
@@ -403,7 +403,7 @@ public class AcceleratorSchedulingUnit {
 						}
 
 					} else {
-						instruction.setAccelerationType(AcceleratorExecutionType.UNACCELERATED);
+						instruction.setAccelerationType(AcceleratorExecutionType.BYPASS);
 					}
 					break;
 				}
@@ -424,7 +424,7 @@ public class AcceleratorSchedulingUnit {
 						}
 
 					} else {
-						instruction.setAccelerationType(AcceleratorExecutionType.UNACCELERATED);
+						instruction.setAccelerationType(AcceleratorExecutionType.BYPASS);
 					}
 					break;
 				}
@@ -465,7 +465,7 @@ public class AcceleratorSchedulingUnit {
 						}
 
 					} else {
-						instruction.setAccelerationType(AcceleratorExecutionType.UNACCELERATED);
+						instruction.setAccelerationType(AcceleratorExecutionType.BYPASS);
 					}
 					break;
 				}
@@ -486,7 +486,7 @@ public class AcceleratorSchedulingUnit {
 						}
 
 					} else {
-						instruction.setAccelerationType(AcceleratorExecutionType.UNACCELERATED);
+						instruction.setAccelerationType(AcceleratorExecutionType.BYPASS);
 					}
 					break;
 				}
@@ -513,7 +513,7 @@ public class AcceleratorSchedulingUnit {
 
 				// その他の命令は全て現時点で未対応
 				default : {
-					instruction.setAccelerationType(AcceleratorExecutionType.UNACCELERATED);
+					instruction.setAccelerationType(AcceleratorExecutionType.BYPASS);
 				}
 			}
 		}

@@ -108,7 +108,7 @@ public class Accelerator {
 		}
 
 		// アクセラレータで対応していない命令を、そのまま下層の仮想プロセッサに投げる、バイパス演算ユニットを生成
-		UnacceleratedUnit unacceleratedUnit = new UnacceleratedUnit(processor, memory, interconnect);
+		BypassUnit bypassUnit = new BypassUnit(processor, memory, interconnect);
 
 		// コールスタックやアドレスなどを統合的に管理しつつ、内部関数関連の命令を実行する、内部関数演算ユニットを生成
 		InternalFunctionControlUnit functionControlUnit = new InternalFunctionControlUnit();
@@ -116,7 +116,7 @@ public class Accelerator {
 		// 命令列をアクセラレータ内の演算器に割り当てて演算実行ノード列を生成
 		AcceleratorDispatchUnit dispatcher = new AcceleratorDispatchUnit();
 		AcceleratorExecutionNode[] nodes = dispatcher.dispatch(
-				processor, memory, interconnect, acceleratorInstructions, dataManager, unacceleratedUnit, functionControlUnit
+				processor, memory, interconnect, acceleratorInstructions, dataManager, bypassUnit, functionControlUnit
 		);
 
 		// 演算実行ノード列をダンプ

@@ -20,7 +20,7 @@ public class AcceleratorDispatchUnit {
 	public AcceleratorExecutionNode[] dispatch (
 			Processor processor, Memory memory, Interconnect interconnect,
 			AcceleratorInstruction[] instructions, AcceleratorDataManagementUnit dataManager,
-			UnacceleratedUnit unacceleratedUnit, InternalFunctionControlUnit functionControlUnit) {
+			BypassUnit bypassUnit, InternalFunctionControlUnit functionControlUnit) {
 
 		int instructionLength = instructions.length;
 		AcceleratorExecutionNode[] nodes = new AcceleratorExecutionNode[instructionLength];
@@ -73,7 +73,7 @@ public class AcceleratorDispatchUnit {
 			try {
 				currentNode = this.dispatchToAcceleratorExecutionUnit(
 					instruction, operandContainers, operandCaches, operandCached, operandScalar, operandConstant,
-					unacceleratedUnit, functionControlUnit,
+					bypassUnit, functionControlUnit,
 					nextNode
 				);
 			} catch (Exception causeException) {
@@ -122,7 +122,7 @@ public class AcceleratorDispatchUnit {
 	private AcceleratorExecutionNode dispatchToAcceleratorExecutionUnit (
 			AcceleratorInstruction instruction, DataContainer<?>[] operandContainers,
 			ScalarCache[] operandCaches, boolean[] operandCached, boolean[] operandScalar, boolean[] operandConstant,
-			UnacceleratedUnit unacceleratedUnit, InternalFunctionControlUnit functionControlUnit,
+			BypassUnit bypassUnit, InternalFunctionControlUnit functionControlUnit,
 			AcceleratorExecutionNode nextNode) {
 
 		// 演算器タイプを取得
@@ -322,8 +322,8 @@ public class AcceleratorDispatchUnit {
 
 			// このアクセラレータで未対応の場合（下層のプロセッサにそのまま投げるノードを生成）
 
-			case UNACCELERATED : {
-				return unacceleratedUnit.generateNode(
+			case BYPASS : {
+				return bypassUnit.generateNode(
 					instruction, operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
 				);
 			}
