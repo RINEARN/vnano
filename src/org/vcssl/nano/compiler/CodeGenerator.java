@@ -17,6 +17,7 @@ import org.vcssl.nano.spec.DataTypeName;
 import org.vcssl.nano.spec.IdentifierSyntax;
 import org.vcssl.nano.spec.LiteralSyntax;
 import org.vcssl.nano.spec.OperationCode;
+import org.vcssl.nano.spec.OptionValue;
 import org.vcssl.nano.spec.ScriptWord;
 
 
@@ -2101,7 +2102,11 @@ public class CodeGenerator {
 		codeBuilder.append(node.getLineNumber());
 		codeBuilder.append(", ");
 		codeBuilder.append("file=");
-		codeBuilder.append(node.getFileName());
+
+		// オプションマップの正規化時に既にエスケープされているはずだが、念のため出力直前にもエスケープしておく
+		String escapedFileName = OptionValue.escapeScriptName(node.getFileName());
+		codeBuilder.append(escapedFileName);
+
 		codeBuilder.append("\"");
 		codeBuilder.append(AssemblyWord.INSTRUCTION_SEPARATOR);
 		codeBuilder.append(AssemblyWord.LINE_SEPARATOR);
