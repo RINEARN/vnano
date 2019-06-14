@@ -86,7 +86,7 @@ public class Accelerator {
 		dataManager.allocate(instructions, memory);
 
 		// 命令スケジューラで命令列を高速化用に再配置・変換
-		AccelerationScheduler scheduler = new AccelerationScheduler();
+		AcceleratorSchedulingUnit scheduler = new AcceleratorSchedulingUnit();
 		AcceleratorInstruction[] acceleratorInstructions = scheduler.schedule(instructions, memory, dataManager);
 
 		// 変換後の命令列をダンプ
@@ -94,8 +94,8 @@ public class Accelerator {
 			if (dumpTargetIsAll) {
 				dumpStream.println("================================================================================");
 				dumpStream.println("= Accelerator Code");
-				dumpStream.println("= - Output of: org.vcssl.nano.vm.accelerator.AccelerationScheduler");
-				dumpStream.println("= - Input  of: org.vcssl.nano.vm.accelerator.AccelerationDispatcher");
+				dumpStream.println("= - Output of: org.vcssl.nano.vm.accelerator.AcceleratorSchedulingUnit");
+				dumpStream.println("= - Input  of: org.vcssl.nano.vm.accelerator.AcceleratorDispatchUnit");
 				dumpStream.println("================================================================================");
 			}
 			int acceleratorInstructionLength = acceleratorInstructions.length;
@@ -112,7 +112,7 @@ public class Accelerator {
 		InternalFunctionControlUnit functionControlUnit = new InternalFunctionControlUnit();
 
 		// 命令列を演算器に割り当てて演算実行ノード列を生成
-		AccelerationDispatcher dispatcher = new AccelerationDispatcher();
+		AcceleratorDispatchUnit dispatcher = new AcceleratorDispatchUnit();
 		AcceleratorExecutionNode[] nodes = dispatcher.dispatch(
 				processor, memory, interconnect, acceleratorInstructions, dataManager, functionControlUnit
 		);
@@ -122,7 +122,7 @@ public class Accelerator {
 			if (dumpTargetIsAll) {
 				dumpStream.println("================================================================================");
 				dumpStream.println("= Accelerator State (Execution Unit Dispatchment)");
-				dumpStream.println("= - Output of: org.vcssl.nano.vm.accelerator.AccelerationDispatcher");
+				dumpStream.println("= - Output of: org.vcssl.nano.vm.accelerator.AcceleratorDispatchUnit");
 				dumpStream.println("================================================================================");
 			}
 			for (int i=0; i<nodes.length; i++) {

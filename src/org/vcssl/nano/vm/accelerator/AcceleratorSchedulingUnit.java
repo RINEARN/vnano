@@ -19,7 +19,7 @@ import org.vcssl.nano.vm.memory.DataContainer;
 import org.vcssl.nano.vm.memory.Memory;
 import org.vcssl.nano.vm.processor.Instruction;
 
-public class AccelerationScheduler {
+public class AcceleratorSchedulingUnit {
 
 
 	private List<AcceleratorInstruction> acceleratorInstructionList;

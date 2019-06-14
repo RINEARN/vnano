@@ -16,7 +16,7 @@ import org.vcssl.nano.vm.memory.Memory;
 import org.vcssl.nano.vm.processor.Instruction;
 import org.vcssl.nano.vm.processor.Processor;
 
-public class AccelerationDispatcher {
+public class AcceleratorDispatchUnit {
 
 
 	// 命令列の内容を全て演算器に割り当て、演算を実行するための演算ノード（演算器内部に実装）の列を返す
