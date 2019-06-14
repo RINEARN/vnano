@@ -446,7 +446,7 @@ public final class VnanoCommandLineApplication {
 		ScriptEngineManager manager = new ScriptEngineManager();
 		ScriptEngine engine = manager.getEngineByName("vnano");
 		if (engine == null) {
-			System.err.println("Faital error: ScriptEngine not found.");
+			System.err.println("Fatal error: ScriptEngine not found.");
 			return null;
 		}
 

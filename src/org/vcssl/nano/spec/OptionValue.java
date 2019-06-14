@@ -39,13 +39,13 @@ public class OptionValue {
 	}
 
 	/**
-	 * 指定されたオプションマップ内を走査し、未指定のキーを、デフォルト値を用いて補完して返します。
-	 * 結果、{@link OptionKey OptionKey} 列挙子に定義された全てのキーを持つオプションマップが得られます。
+	 * オプションマップの内容を、この処理系内での各処理において期待される状態に正規化します。
+	 * 具体的には、未指定の項目をデフォルト値で補完したり、一部項目内の特殊文字をエスケープしたりします。
 	 *
 	 * @param optionMap 補完対象のオプションマップ
 	 * @return 補完済みのオプションマップ
 	 */
-	public static Map<String, Object> supplementDefaultValuesOf(Map<String, Object> optionMap) {
+	public static Map<String, Object> normalizeValuesOf(Map<String, Object> optionMap) {
 
 		// 補完結果として返すマップを生成
 		Map<String, Object> returnMap = new LinkedHashMap<String, Object>();
@@ -64,7 +64,64 @@ public class OptionValue {
 			}
 		}
 
+		// スクリプト名の中の特殊文字をエスケープ（VRILコード内にメタ情報として記載されるため）
+		if (returnMap.get(OptionKey.EVAL_SCRIPT_NAME) instanceof String) {
+			String evalScriptName = (String)returnMap.get(OptionKey.EVAL_SCRIPT_NAME);
+			returnMap.put(OptionKey.EVAL_SCRIPT_NAME, escapeScriptName(evalScriptName));
+		}
+
+		// 同様にライブラリスクリプト名の中の特殊文字もエスケープ
+		if (returnMap.get(OptionKey.LIBRARY_SCRIPT_NAMES) instanceof String[]) {
+			String[] libraryScriptNames = (String[])returnMap.get(OptionKey.LIBRARY_SCRIPT_NAMES);
+			int libraryLength = libraryScriptNames.length;
+
+			String[] escapedLibraryScriptNames = new String[libraryLength];
+			for (int i=0; i<libraryLength; i++) {
+				escapedLibraryScriptNames[i] = libraryScriptNames[i];
+			}
+			returnMap.put(OptionKey.LIBRARY_SCRIPT_NAMES, escapedLibraryScriptNames);
+		}
+
 		return returnMap;
+	}
+
+
+	/**
+	 * スクリプト名の中にある特殊文字を、エスケープしたものを返します。
+	 *
+	 * スクリプト名は、この処理系の中間アセンブリコードであるVRILコード内において、
+	 * メタ情報として文字列リテラル内に記載されます。
+	 * そのため、メタ情報の書式やリテラルの範囲を崩さない内容に変換します。
+	 *
+	 * @param scriptName スクリプト名
+	 * @return エスケープされたスクリプト名
+	 */
+	public static String escapeScriptName(String scriptName) {
+		String escapedName = scriptName;
+
+		// エスケープする箇所をこの文字列で置き換える
+		String escapedWord = "_";
+
+		// 文字列リテラルの範囲を崩さないようにダブルクォーテーションをエスケープ
+		escapedName = escapedName.replaceAll("\"", escapedWord);
+
+		// メタ情報の記法「key1=value1,key2=value2,...」を崩さないように「,」と「=」をエスケープ
+		escapedName = escapedName.replaceAll("=", escapedWord);
+		escapedName = escapedName.replaceAll(",", escapedWord);
+
+		// VRILの処理単位の区切りになるセミコロンをエスケープ
+		escapedName = escapedName.replaceAll(";", escapedWord);
+
+		// 空白/改行は問題にならないものの、VRILコードのメタ情報が改行されたりすると読みづらいのでエスケープ
+		escapedName = escapedName.replaceAll(" ", escapedWord);
+		escapedName = escapedName.replaceAll("\t", escapedWord);
+		escapedName = escapedName.replaceAll("\r", escapedWord);
+		escapedName = escapedName.replaceAll("\n", escapedWord);
+
+		// 階層区切りのバックスラッシュはスラッシュに統一
+		escapedName = escapedName.replace("\\", "/");
+
+		return escapedName;
 	}
 
 
