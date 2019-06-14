@@ -52,14 +52,14 @@ public class AcceleratorDispatchUnit {
 			// オペランドの状態とキャッシュ参照などを控える配列を用意
 			boolean[] operandConstant = new boolean[operandLength];
 			boolean[] operandScalar = new boolean[operandLength];
-			boolean[] operandCached = new boolean[operandLength];
+			boolean[] operandCachingEnabled = new boolean[operandLength];
 			ScalarCache[] operandCaches = new ScalarCache[operandLength];
 
 			// データマネージャから、オペランドのスカラ判定結果、キャッシュ有無、キャッシュ参照、定数かどうかの状態を控える
 			for (int operandIndex=0; operandIndex<operandLength; operandIndex++) {
 				operandScalar[operandIndex] = dataManager.isScalar(partitions[operandIndex], addresses[operandIndex]);
-				operandCached[operandIndex] = dataManager.isCached(partitions[operandIndex], addresses[operandIndex]);
-				if (operandCached[operandIndex]) {
+				operandCachingEnabled[operandIndex] = dataManager.isCachingEnabled(partitions[operandIndex], addresses[operandIndex]);
+				if (operandCachingEnabled[operandIndex]) {
 					operandCaches[operandIndex] = dataManager.getCache(partitions[operandIndex], addresses[operandIndex]);
 				}
 				if (partitions[operandIndex] == Memory.Partition.CONSTANT) {
@@ -72,7 +72,7 @@ public class AcceleratorDispatchUnit {
 			AcceleratorExecutionNode currentNode = null;
 			try {
 				currentNode = this.dispatchToAcceleratorExecutionUnit(
-					instruction, operandContainers, operandCaches, operandCached, operandScalar, operandConstant,
+					instruction, operandContainers, operandCaches, operandCachingEnabled, operandScalar, operandConstant,
 					bypassUnit, functionControlUnit,
 					nextNode
 				);
@@ -121,7 +121,7 @@ public class AcceleratorDispatchUnit {
 	// 命令を1つ演算器にディスパッチし、それを実行する演算ノードを返す
 	private AcceleratorExecutionNode dispatchToAcceleratorExecutionUnit (
 			AcceleratorInstruction instruction, DataContainer<?>[] operandContainers,
-			ScalarCache[] operandCaches, boolean[] operandCached, boolean[] operandScalar, boolean[] operandConstant,
+			ScalarCache[] operandCaches, boolean[] operandCachingEnabled, boolean[] operandScalar, boolean[] operandConstant,
 			BypassUnit bypassUnit, InternalFunctionControlUnit functionControlUnit,
 			AcceleratorExecutionNode nextNode) {
 
@@ -133,53 +133,53 @@ public class AcceleratorDispatchUnit {
 
 			case I64V_ARITHMETIC : {
 				return new Int64VectorArithmeticUnit().generateNode(
-					instruction, operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
+					instruction, operandContainers, operandCaches, operandCachingEnabled, operandScalar, operandConstant, nextNode
 				);
 			}
 			case I64S_ARITHMETIC : {
 				return new Int64ScalarArithmeticUnit().generateNode(
-					instruction, operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
+					instruction, operandContainers, operandCaches, operandCachingEnabled, operandScalar, operandConstant, nextNode
 				);
 			}
 			case I64CS_ARITHMETIC : {
 				return new Int64CachedScalarArithmeticUnit().generateNode(
-					instruction, operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
+					instruction, operandContainers, operandCaches, operandCachingEnabled, operandScalar, operandConstant, nextNode
 				);
 			}
 			case I64V_DUAL_ARITHMETIC : {
 				return new Int64VectorDualArithmeticUnit().generateNode(
-					instruction, operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
+					instruction, operandContainers, operandCaches, operandCachingEnabled, operandScalar, operandConstant, nextNode
 				);
 			}
 			case I64CS_DUAL_ARITHMETIC : {
 				return new Int64CachedScalarDualArithmeticUnit().generateNode(
-					instruction, operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
+					instruction, operandContainers, operandCaches, operandCachingEnabled, operandScalar, operandConstant, nextNode
 				);
 			}
 
 			case F64V_ARITHMETIC : {
 				return new Float64VectorArithmeticUnit().generateNode(
-					instruction, operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
+					instruction, operandContainers, operandCaches, operandCachingEnabled, operandScalar, operandConstant, nextNode
 				);
 			}
 			case F64S_ARITHMETIC : {
 				return new Float64ScalarArithmeticUnit().generateNode(
-					instruction, operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
+					instruction, operandContainers, operandCaches, operandCachingEnabled, operandScalar, operandConstant, nextNode
 				);
 			}
 			case F64CS_ARITHMETIC : {
 				return new Float64CachedScalarArithmeticUnit().generateNode(
-					instruction, operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
+					instruction, operandContainers, operandCaches, operandCachingEnabled, operandScalar, operandConstant, nextNode
 				);
 			}
 			case F64V_DUAL_ARITHMETIC : {
 				return new Float64VectorDualArithmeticUnit().generateNode(
-					instruction, operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
+					instruction, operandContainers, operandCaches, operandCachingEnabled, operandScalar, operandConstant, nextNode
 				);
 			}
 			case F64CS_DUAL_ARITHMETIC : {
 				return new Float64CachedScalarDualArithmeticUnit().generateNode(
-					instruction, operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
+					instruction, operandContainers, operandCaches, operandCachingEnabled, operandScalar, operandConstant, nextNode
 				);
 			}
 
@@ -188,33 +188,33 @@ public class AcceleratorDispatchUnit {
 
 			case I64V_COMPARISON : {
 				return new Int64VectorComparisonUnit().generateNode(
-					instruction, operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
+					instruction, operandContainers, operandCaches, operandCachingEnabled, operandScalar, operandConstant, nextNode
 				);
 			}
 			case I64S_COMPARISON : {
 				return new Int64ScalarComparisonUnit().generateNode(
-					instruction, operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
+					instruction, operandContainers, operandCaches, operandCachingEnabled, operandScalar, operandConstant, nextNode
 				);
 			}
 			case I64CS_COMPARISON : {
 				return new Int64CachedScalarComparisonUnit().generateNode(
-					instruction, operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
+					instruction, operandContainers, operandCaches, operandCachingEnabled, operandScalar, operandConstant, nextNode
 				);
 			}
 
 			case F64V_COMPARISON : {
 				return new Float64VectorComparisonUnit().generateNode(
-					instruction, operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
+					instruction, operandContainers, operandCaches, operandCachingEnabled, operandScalar, operandConstant, nextNode
 				);
 			}
 			case F64S_COMPARISON : {
 				return new Float64ScalarComparisonUnit().generateNode(
-					instruction, operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
+					instruction, operandContainers, operandCaches, operandCachingEnabled, operandScalar, operandConstant, nextNode
 				);
 			}
 			case F64CS_COMPARISON : {
 				return new Float64CachedScalarComparisonUnit().generateNode(
-					instruction, operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
+					instruction, operandContainers, operandCaches, operandCachingEnabled, operandScalar, operandConstant, nextNode
 				);
 			}
 
@@ -223,17 +223,17 @@ public class AcceleratorDispatchUnit {
 
 			case BV_LOGICAL : {
 				return new BoolVectorLogicalUnit().generateNode(
-					instruction, operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
+					instruction, operandContainers, operandCaches, operandCachingEnabled, operandScalar, operandConstant, nextNode
 				);
 			}
 			case BS_LOGICAL : {
 				return new BoolScalarLogicalUnit().generateNode(
-					instruction, operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
+					instruction, operandContainers, operandCaches, operandCachingEnabled, operandScalar, operandConstant, nextNode
 				);
 			}
 			case BCS_LOGICAL : {
 				return new BoolCachedScalarLogicalUnit().generateNode(
-					instruction, operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
+					instruction, operandContainers, operandCaches, operandCachingEnabled, operandScalar, operandConstant, nextNode
 				);
 			}
 
@@ -242,49 +242,49 @@ public class AcceleratorDispatchUnit {
 
 			case I64V_TRANSFER : {
 				return new Int64VectorTransferUnit().generateNode(
-					instruction, operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
+					instruction, operandContainers, operandCaches, operandCachingEnabled, operandScalar, operandConstant, nextNode
 				);
 			}
 			case I64S_TRANSFER : {
 				return new Int64ScalarTransferUnit().generateNode(
-					instruction, operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
+					instruction, operandContainers, operandCaches, operandCachingEnabled, operandScalar, operandConstant, nextNode
 				);
 			}
 			case I64CS_TRANSFER : {
 				return new Int64CachedScalarTransferUnit().generateNode(
-					instruction, operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
+					instruction, operandContainers, operandCaches, operandCachingEnabled, operandScalar, operandConstant, nextNode
 				);
 			}
 
 			case F64V_TRANSFER : {
 				return new Float64VectorTransferUnit().generateNode(
-					instruction, operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
+					instruction, operandContainers, operandCaches, operandCachingEnabled, operandScalar, operandConstant, nextNode
 				);
 			}
 			case F64S_TRANSFER : {
 				return new Float64ScalarTransferUnit().generateNode(
-					instruction, operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
+					instruction, operandContainers, operandCaches, operandCachingEnabled, operandScalar, operandConstant, nextNode
 				);
 			}
 			case F64CS_TRANSFER : {
 				return new Float64CachedScalarTransferUnit().generateNode(
-					instruction, operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
+					instruction, operandContainers, operandCaches, operandCachingEnabled, operandScalar, operandConstant, nextNode
 				);
 			}
 
 			case BV_TRANSFER : {
 				return new BoolVectorTransferUnit().generateNode(
-					instruction, operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
+					instruction, operandContainers, operandCaches, operandCachingEnabled, operandScalar, operandConstant, nextNode
 				);
 			}
 			case BS_TRANSFER : {
 				return new BoolScalarTransferUnit().generateNode(
-					instruction, operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
+					instruction, operandContainers, operandCaches, operandCachingEnabled, operandScalar, operandConstant, nextNode
 				);
 			}
 			case BCS_TRANSFER : {
 				return new BoolCachedScalarTransferUnit().generateNode(
-					instruction, operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
+					instruction, operandContainers, operandCaches, operandCachingEnabled, operandScalar, operandConstant, nextNode
 				);
 			}
 
@@ -294,12 +294,12 @@ public class AcceleratorDispatchUnit {
 
 			case BS_BRANCH : {
 				return new BoolScalarBranchUnit().generateNode(
-					instruction, operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
+					instruction, operandContainers, operandCaches, operandCachingEnabled, operandScalar, operandConstant, nextNode
 				);
 			}
 			case BCS_BRANCH : {
 				return new BoolCachedScalarBranchUnit().generateNode(
-					instruction, operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
+					instruction, operandContainers, operandCaches, operandCachingEnabled, operandScalar, operandConstant, nextNode
 				);
 			}
 
@@ -307,7 +307,7 @@ public class AcceleratorDispatchUnit {
 
 			case NOP : {
 				return new NopUnit().generateNode(
-					instruction, operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
+					instruction, operandContainers, operandCaches, operandCachingEnabled, operandScalar, operandConstant, nextNode
 				);
 			}
 
@@ -315,7 +315,7 @@ public class AcceleratorDispatchUnit {
 
 			case FUNCTION_CONTROL : {
 				return functionControlUnit.generateNode(
-					instruction, operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
+					instruction, operandContainers, operandCaches, operandCachingEnabled, operandScalar, operandConstant, nextNode
 				);
 			}
 
@@ -324,7 +324,7 @@ public class AcceleratorDispatchUnit {
 
 			case BYPASS : {
 				return bypassUnit.generateNode(
-					instruction, operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
+					instruction, operandContainers, operandCaches, operandCachingEnabled, operandScalar, operandConstant, nextNode
 				);
 			}
 
@@ -335,46 +335,6 @@ public class AcceleratorDispatchUnit {
 			}
 		}
 	}
-
-
-
-
-
-
-	/*
-	// スカラのALLOC命令は、スケジューリングでコード先頭に移動させて最初に行うようにしたため、複数回実行のための高速化はもう不要？
-	private final class ScalarAllocExecutorNode extends AcceleratorExecutionNode {
-		private final DataType dataType;
-		private final DataContainer<?> allocTargetContainer;
-		private boolean allocated = false;
-		private CacheSynchronizer synchronizer;
-		private ExecutionUnit executionUnit;
-
-		public ScalarAllocExecutorNode(Instruction instruction, DataContainer<?> target, CacheSynchronizer synchronizer,
-				AcceleratorExecutionNode nextNode) {
-
-			super(nextNode);
-			this.dataType = instruction.getDataTypes()[0];
-			this.allocTargetContainer = target;
-			this.synchronizer = synchronizer;
-			this.executionUnit = new ExecutionUnit();
-		}
-
-		public final AcceleratorExecutionNode execute() {
-
-			if (this.allocated) {
-				return this.nextNode;
-
-			} else {
-
-				this.executionUnit.allocScalar(this.dataType, this.allocTargetContainer);
-				this.synchronizer.synchronizeFromCacheToMemory(); // 確保したメモリにキャッシュ値を書き込んでおく
-				this.allocated = true;
-				return this.nextNode;
-			}
-		}
-	}
-	*/
 
 
 

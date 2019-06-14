@@ -15,7 +15,7 @@ public class BoolScalarTransferUnit extends AcceleratorExecutionUnit {
 	@Override
 	public AcceleratorExecutionNode generateNode(
 			AcceleratorInstruction instruction, DataContainer<?>[] operandContainers,
-			Object[] operandCaches, boolean[] operandCached, boolean[] operandScalar, boolean[] operandConstant,
+			Object[] operandCaches, boolean[] operandCachingEnabled, boolean[] operandScalar, boolean[] operandConstant,
 			AcceleratorExecutionNode nextNode) {
 
 		AcceleratorExecutionNode node = null;
@@ -23,7 +23,7 @@ public class BoolScalarTransferUnit extends AcceleratorExecutionUnit {
 			case MOV :
 			case FILL : {
 				Boolx2ScalarCacheSynchronizer synchronizer
-						= new Boolx2ScalarCacheSynchronizer(operandContainers, operandCaches, operandCached);
+						= new Boolx2ScalarCacheSynchronizer(operandContainers, operandCaches, operandCachingEnabled);
 				node = new BoolScalarMovNode(
 						(DataContainer<boolean[]>)operandContainers[0], (DataContainer<boolean[]>)operandContainers[1],
 						synchronizer, nextNode);
@@ -32,7 +32,7 @@ public class BoolScalarTransferUnit extends AcceleratorExecutionUnit {
 			case CAST : {
 				if (instruction.getDataTypes()[1] == DataType.BOOL) {
 					Boolx2ScalarCacheSynchronizer synchronizer
-							= new Boolx2ScalarCacheSynchronizer(operandContainers, operandCaches, operandCached);
+							= new Boolx2ScalarCacheSynchronizer(operandContainers, operandCaches, operandCachingEnabled);
 					node = new BoolScalarMovNode(
 							(DataContainer<boolean[]>)operandContainers[0], (DataContainer<boolean[]>)operandContainers[1],
 							synchronizer, nextNode);

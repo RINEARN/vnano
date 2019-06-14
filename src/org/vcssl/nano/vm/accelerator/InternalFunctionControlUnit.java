@@ -112,10 +112,10 @@ public class InternalFunctionControlUnit extends AcceleratorExecutionUnit {
 	@Override
 	public AcceleratorExecutionNode generateNode(
 			AcceleratorInstruction instruction, DataContainer<?>[] operandContainers,
-			Object[] operandCaches, boolean[] operandCached, boolean[] operandScalar, boolean[] operandConstant,
+			Object[] operandCaches, boolean[] operandCachingEnabled, boolean[] operandScalar, boolean[] operandConstant,
 			AcceleratorExecutionNode nextNode) {
 
-		CacheSynchronizer synchronizer = new GeneralScalarCacheSynchronizer(operandContainers, operandCaches, operandCached);
+		CacheSynchronizer synchronizer = new GeneralScalarCacheSynchronizer(operandContainers, operandCaches, operandCachingEnabled);
 
 		OperationCode opcode = instruction.getOperationCode();
 		DataType dataType = instruction.getDataTypes()[0];
@@ -143,7 +143,7 @@ public class InternalFunctionControlUnit extends AcceleratorExecutionUnit {
 			case MOVPOP : {
 				return this.generateMovpopNode(
 					(Instruction)instruction, operandContainers,
-					(ScalarCache[])operandCaches, operandCached, operandScalar, synchronizer, nextNode
+					(ScalarCache[])operandCaches, operandCachingEnabled, operandScalar, synchronizer, nextNode
 				);
 			}
 			default : {
@@ -154,12 +154,12 @@ public class InternalFunctionControlUnit extends AcceleratorExecutionUnit {
 
 	private AcceleratorExecutionNode generateMovpopNode(
 			Instruction instruction, DataContainer<?>[] operandContainers,
-			ScalarCache[] operandCaches, boolean[] operandCached, boolean[] operandScalar, CacheSynchronizer synchronizer,
-			AcceleratorExecutionNode nextNode) {
+			ScalarCache[] operandCaches, boolean[] operandCachingEnabled, boolean[] operandScalar,
+			CacheSynchronizer synchronizer, AcceleratorExecutionNode nextNode) {
 
 		DataType dataType = instruction.getDataTypes()[0];
 
-		if (operandCached[0] && operandScalar[0]) {
+		if (operandCachingEnabled[0] && operandScalar[0]) {
 
 			switch (dataType) {
 				case INT64 : {

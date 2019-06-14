@@ -15,12 +15,12 @@ public class Int64VectorDualArithmeticUnit extends AcceleratorExecutionUnit {
 	@Override
 	public AcceleratorExecutionNode generateNode(
 			AcceleratorInstruction instruction, DataContainer<?>[] operandContainers,
-			Object[] operandCaches, boolean[] operandCached, boolean[] operandScalar, boolean[] operandConstant,
+			Object[] operandCaches, boolean[] operandCachingEnabled, boolean[] operandScalar, boolean[] operandConstant,
 			AcceleratorExecutionNode nextNode) {
 
 		DataContainer<double[]>[] containers = (DataContainer<double[]>[])operandContainers;
 		Int64x3ScalarCacheSynchronizer synchronizer
-				= new Int64x3ScalarCacheSynchronizer(operandContainers, operandCaches, operandCached);
+				= new Int64x3ScalarCacheSynchronizer(operandContainers, operandCaches, operandCachingEnabled);
 
 		OperationCode[] fusedOpcodes = instruction.getFusedOperationCodes();
 		int fusedInputOperandIndex = instruction.getFusedInputOperandIndices()[0];

@@ -11,7 +11,7 @@ public abstract class AcceleratorExecutionUnit {
 
 	public abstract AcceleratorExecutionNode generateNode(
 			AcceleratorInstruction instruction, DataContainer<?>[] operandContainers,
-			Object[] operandCaches, boolean[] operandCached, boolean[] operandScalar, boolean[] operandConstant,
+			Object[] operandCaches, boolean[] operandCachingEnabled, boolean[] operandScalar, boolean[] operandConstant,
 			AcceleratorExecutionNode nextNode);
 
 }

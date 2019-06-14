@@ -14,14 +14,14 @@ public class Float64VectorComparisonUnit extends AcceleratorExecutionUnit {
 	@Override
 	public AcceleratorExecutionNode generateNode(
 			AcceleratorInstruction instruction, DataContainer<?>[] operandContainers,
-			Object[] operandCaches, boolean[] operandCached, boolean[] operandScalar, boolean[] operandConstant,
+			Object[] operandCaches, boolean[] operandCachingEnabled, boolean[] operandScalar, boolean[] operandConstant,
 			AcceleratorExecutionNode nextNode) {
 
 		DataContainer<boolean[]> container0 = (DataContainer<boolean[]>)operandContainers[0];
 		DataContainer<double[]> container1 = (DataContainer<double[]>)operandContainers[1];
 		DataContainer<double[]> container2 = (DataContainer<double[]>)operandContainers[2];
 		Float64x3ScalarCacheSynchronizer synchronizer
-				= new Float64x3ScalarCacheSynchronizer(operandContainers, operandCaches, operandCached);
+				= new Float64x3ScalarCacheSynchronizer(operandContainers, operandCaches, operandCachingEnabled);
 
 		Float64VectorComparisonNode node = null;
 		switch (instruction.getOperationCode()) {

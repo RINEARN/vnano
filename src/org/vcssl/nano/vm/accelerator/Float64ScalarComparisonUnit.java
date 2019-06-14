@@ -14,11 +14,11 @@ public class Float64ScalarComparisonUnit extends AcceleratorExecutionUnit {
 	@Override
 	public AcceleratorExecutionNode generateNode(
 			AcceleratorInstruction instruction, DataContainer<?>[] operandContainers,
-			Object[] operandCaches, boolean[] operandCached, boolean[] operandScalar, boolean[] operandConstant,
+			Object[] operandCaches, boolean[] operandCachingEnabled, boolean[] operandScalar, boolean[] operandConstant,
 			AcceleratorExecutionNode nextNode) {
 
 		Boolx1Int64x2ScalarCacheSynchronizer synchronizer
-				= new Boolx1Int64x2ScalarCacheSynchronizer(operandContainers, operandCaches, operandCached);
+				= new Boolx1Int64x2ScalarCacheSynchronizer(operandContainers, operandCaches, operandCachingEnabled);
 
 		DataContainer<boolean[]> container0 = (DataContainer<boolean[]>)operandContainers[0];
 		DataContainer<double[]> container1 = (DataContainer<double[]>)operandContainers[1];

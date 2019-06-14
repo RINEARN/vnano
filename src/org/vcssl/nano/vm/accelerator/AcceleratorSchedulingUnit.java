@@ -296,7 +296,7 @@ public class AcceleratorSchedulingUnit {
 			// オペランドの状態とキャッシュ参照などを控える配列を用意
 			boolean[] operandConstant = new boolean[operandLength];
 			boolean[] operandScalar = new boolean[operandLength];
-			boolean[] operandCached = new boolean[operandLength];
+			boolean[] operandCachingEnabled = new boolean[operandLength];
 			ScalarCache[] operandCaches = new ScalarCache[operandLength];
 
 
@@ -304,8 +304,8 @@ public class AcceleratorSchedulingUnit {
 			// 定数かどうかも控える
 			for (int operandIndex=0; operandIndex<operandLength; operandIndex++) {
 				operandScalar[operandIndex] = dataManager.isScalar(partitions[operandIndex], addresses[operandIndex]);
-				operandCached[operandIndex] = dataManager.isCached(partitions[operandIndex], addresses[operandIndex]);
-				if (operandCached[operandIndex]) {
+				operandCachingEnabled[operandIndex] = dataManager.isCachingEnabled(partitions[operandIndex], addresses[operandIndex]);
+				if (operandCachingEnabled[operandIndex]) {
 					operandCaches[operandIndex] = dataManager.getCache(partitions[operandIndex], addresses[operandIndex]);
 				}
 				if (partitions[operandIndex] == Memory.Partition.CONSTANT) {
@@ -320,18 +320,6 @@ public class AcceleratorSchedulingUnit {
 				case ALLOC :
 				case ALLOCR :
 				{
-					/*
-					// スカラのALLOC命令は、スケジューリングでコード先頭に移動させて最初に行うようにしたため、複数回実行のための高速化はもう不要？
-
-					// スカラ確保の場合
-					if (dataManager.isScalar(partitions[0], addresses[0])) {
-						instruction.setAccelerationType(AcceleratorExecutionType.SCALAR_ALLOC);
-					// ベクトル確保の場合
-					} else {
-						instruction.setAccelerationType(AcceleratorExecutionType.BYPASS);
-					}
-					*/
-
 					instruction.setAccelerationType(AcceleratorExecutionType.BYPASS);
 					break;
 				}
@@ -349,7 +337,7 @@ public class AcceleratorSchedulingUnit {
 						if (isAllVector(operandScalar)) {
 							instruction.setAccelerationType(AcceleratorExecutionType.I64V_ARITHMETIC);
 						// 全部キャッシュ可能なスカラの場合の演算
-						} else if (isAllScalar(operandScalar) && isAllCached(operandCached)) {
+						} else if (isAllScalar(operandScalar) && isAllCached(operandCachingEnabled)) {
 							instruction.setAccelerationType(AcceleratorExecutionType.I64CS_ARITHMETIC);
 						// キャッシュ不可能なスカラ演算の場合（インデックス参照がある場合や、長さ1のベクトルとの混合演算など）
 						} else {
@@ -362,7 +350,7 @@ public class AcceleratorSchedulingUnit {
 
 						if (isAllVector(operandScalar)) {
 							instruction.setAccelerationType(AcceleratorExecutionType.F64V_ARITHMETIC);
-						} else if (isAllScalar(operandScalar) && isAllCached(operandCached)) {
+						} else if (isAllScalar(operandScalar) && isAllCached(operandCachingEnabled)) {
 							instruction.setAccelerationType(AcceleratorExecutionType.F64CS_ARITHMETIC);
 						} else {
 							instruction.setAccelerationType(AcceleratorExecutionType.F64S_ARITHMETIC);
@@ -386,7 +374,7 @@ public class AcceleratorSchedulingUnit {
 
 						if (isAllVector(operandScalar)) {
 							instruction.setAccelerationType(AcceleratorExecutionType.I64V_COMPARISON);
-						} else if (isAllScalar(operandScalar) && isAllCached(operandCached)) {
+						} else if (isAllScalar(operandScalar) && isAllCached(operandCachingEnabled)) {
 							instruction.setAccelerationType(AcceleratorExecutionType.I64CS_COMPARISON);
 						} else {
 							instruction.setAccelerationType(AcceleratorExecutionType.I64S_COMPARISON);
@@ -396,7 +384,7 @@ public class AcceleratorSchedulingUnit {
 
 						if (isAllVector(operandScalar)) {
 							instruction.setAccelerationType(AcceleratorExecutionType.F64V_COMPARISON);
-						} else if (isAllScalar(operandScalar) && isAllCached(operandCached)) {
+						} else if (isAllScalar(operandScalar) && isAllCached(operandCachingEnabled)) {
 							instruction.setAccelerationType(AcceleratorExecutionType.F64CS_COMPARISON);
 						} else {
 							instruction.setAccelerationType(AcceleratorExecutionType.F64S_COMPARISON);
@@ -417,7 +405,7 @@ public class AcceleratorSchedulingUnit {
 
 						if (isAllVector(operandScalar)) {
 							instruction.setAccelerationType(AcceleratorExecutionType.BV_LOGICAL);
-						} else if (isAllScalar(operandScalar) && isAllCached(operandCached)) {
+						} else if (isAllScalar(operandScalar) && isAllCached(operandCachingEnabled)) {
 							instruction.setAccelerationType(AcceleratorExecutionType.BCS_LOGICAL);
 						} else {
 							instruction.setAccelerationType(AcceleratorExecutionType.BS_LOGICAL);
@@ -438,7 +426,7 @@ public class AcceleratorSchedulingUnit {
 
 						if (isAllVector(operandScalar)) {
 							instruction.setAccelerationType(AcceleratorExecutionType.I64V_TRANSFER);
-						} else if (isAllScalar(operandScalar) && isAllCached(operandCached)) {
+						} else if (isAllScalar(operandScalar) && isAllCached(operandCachingEnabled)) {
 							instruction.setAccelerationType(AcceleratorExecutionType.I64CS_TRANSFER);
 						} else {
 							instruction.setAccelerationType(AcceleratorExecutionType.I64S_TRANSFER);
@@ -448,7 +436,7 @@ public class AcceleratorSchedulingUnit {
 
 						if (isAllVector(operandScalar)) {
 							instruction.setAccelerationType(AcceleratorExecutionType.F64V_TRANSFER);
-						} else if (isAllScalar(operandScalar) && isAllCached(operandCached)) {
+						} else if (isAllScalar(operandScalar) && isAllCached(operandCachingEnabled)) {
 							instruction.setAccelerationType(AcceleratorExecutionType.F64CS_TRANSFER);
 						} else {
 							instruction.setAccelerationType(AcceleratorExecutionType.F64S_TRANSFER);
@@ -458,7 +446,7 @@ public class AcceleratorSchedulingUnit {
 
 						if (isAllVector(operandScalar)) {
 							instruction.setAccelerationType(AcceleratorExecutionType.BV_TRANSFER);
-						} else if (isAllScalar(operandScalar) && isAllCached(operandCached)) {
+						} else if (isAllScalar(operandScalar) && isAllCached(operandCachingEnabled)) {
 							instruction.setAccelerationType(AcceleratorExecutionType.BCS_TRANSFER);
 						} else {
 							instruction.setAccelerationType(AcceleratorExecutionType.BS_TRANSFER);
@@ -477,7 +465,7 @@ public class AcceleratorSchedulingUnit {
 					if(dataTypes[0] == DataType.BOOL) {
 
 						// 大半の場合、条件はキャッシュ可能なスカラ
-						if (isAllScalar(operandScalar) && isAllCached(operandCached)) {
+						if (isAllScalar(operandScalar) && isAllCached(operandCachingEnabled)) {
 							instruction.setAccelerationType(AcceleratorExecutionType.BCS_BRANCH);
 
 						// 配列の要素などが条件に指定される場合など、キャッシュ不可能なスカラも一応あり得る
@@ -538,7 +526,6 @@ public class AcceleratorSchedulingUnit {
 		int instructionLength = acceleratorInstructionList.size();
 		for (int instructionIndex=0; instructionIndex<instructionLength; instructionIndex++) {
 			AcceleratorInstruction instruction = this.acceleratorInstructionList.get(instructionIndex);
-			//System.out.println("Put reordering map: " + instruction.getUnreorderedAddress() + ", " + instruction.getReorderedAddress());
 			addressReorderingMap.put(instruction.getUnreorderedAddress(), instruction.getReorderedAddress());
 		}
 	}
@@ -757,8 +744,8 @@ public class AcceleratorSchedulingUnit {
 					!= dataManager.isScalar(movOutputPartition, movOutputAddress)) {
 				continue;
 			}
-			if (dataManager.isCached(Memory.Partition.REGISTER, writingRegisterAddress)
-					!= dataManager.isCached(movOutputPartition, movOutputAddress)) {
+			if (dataManager.isCachingEnabled(Memory.Partition.REGISTER, writingRegisterAddress)
+					!= dataManager.isCachingEnabled(movOutputPartition, movOutputAddress)) {
 				continue;
 			}
 
@@ -838,8 +825,6 @@ public class AcceleratorSchedulingUnit {
 		// bufferからacceleratorInstructionListに戻す
 		for (int instructionIndex=0; instructionIndex<instructionLength; instructionIndex++) {
 			this.acceleratorInstructionList.add(buffer[instructionIndex]);
-			//AcceleratorInstruction instruction = this.acceleratorInstructionList.get(instructionIndex);
-			//System.out.println("ACCEL TYPE=" + instruction.getAccelerationType() + " INST=" + instruction);
 		}
 	}
 

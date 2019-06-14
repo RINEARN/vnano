@@ -14,14 +14,14 @@ public class Int64ScalarComparisonUnit extends AcceleratorExecutionUnit {
 	@Override
 	public AcceleratorExecutionNode generateNode(
 			AcceleratorInstruction instruction, DataContainer<?>[] operandContainers,
-			Object[] operandCaches, boolean[] operandCached, boolean[] operandScalar, boolean[] operandConstant,
+			Object[] operandCaches, boolean[] operandCachingEnabled, boolean[] operandScalar, boolean[] operandConstant,
 			AcceleratorExecutionNode nextNode) {
 
 		DataContainer<boolean[]> cont0 = (DataContainer<boolean[]>)operandContainers[0];
 		DataContainer<long[]> cont1 = (DataContainer<long[]>)operandContainers[1];
 		DataContainer<long[]> cont2 = (DataContainer<long[]>)operandContainers[2];
 		Boolx1Int64x2ScalarCacheSynchronizer synchronizer
-				= new Boolx1Int64x2ScalarCacheSynchronizer(operandContainers, operandCaches, operandCached);
+				= new Boolx1Int64x2ScalarCacheSynchronizer(operandContainers, operandCaches, operandCachingEnabled);
 
 		AcceleratorExecutionNode node = null;
 		switch (instruction.getOperationCode()) {

@@ -14,7 +14,7 @@ public class BoolVectorLogicalUnit extends AcceleratorExecutionUnit {
 	@Override
 	public AcceleratorExecutionNode generateNode(
 			AcceleratorInstruction instruction, DataContainer<?>[] operandContainers,
-			Object[] operandCaches, boolean[] operandCached, boolean[] operandScalar, boolean[] operandConstant,
+			Object[] operandCaches, boolean[] operandCachingEnabled, boolean[] operandScalar, boolean[] operandConstant,
 			AcceleratorExecutionNode nextNode) {
 
 		DataContainer<boolean[]>[] containers = (DataContainer<boolean[]>[])operandContainers;
@@ -23,19 +23,19 @@ public class BoolVectorLogicalUnit extends AcceleratorExecutionUnit {
 		switch (instruction.getOperationCode()) {
 			case AND : {
 				Boolx3ScalarCacheSynchronizer synchronizer = new Boolx3ScalarCacheSynchronizer(
-						operandContainers, operandCaches, operandCached);
+						operandContainers, operandCaches, operandCachingEnabled);
 				node = new BoolVectorAndNode(containers[0], containers[1], containers[2], synchronizer, nextNode);
 				break;
 			}
 			case OR : {
 				Boolx3ScalarCacheSynchronizer synchronizer = new Boolx3ScalarCacheSynchronizer(
-						operandContainers, operandCaches, operandCached);
+						operandContainers, operandCaches, operandCachingEnabled);
 				node = new BoolVectorOrNode(containers[0], containers[1], containers[2], synchronizer, nextNode);
 				break;
 			}
 			case NOT : {
 				Boolx2ScalarCacheSynchronizer synchronizer = new Boolx2ScalarCacheSynchronizer(
-						operandContainers, operandCaches, operandCached);
+						operandContainers, operandCaches, operandCachingEnabled);
 				node = new BoolVectorNotNode(containers[0], containers[1], synchronizer, nextNode);
 				break;
 			}

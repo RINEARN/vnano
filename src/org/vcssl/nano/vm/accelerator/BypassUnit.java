@@ -25,7 +25,7 @@ public class BypassUnit extends AcceleratorExecutionUnit {
 	@Override
 	public AcceleratorExecutionNode generateNode(
 			AcceleratorInstruction instruction, DataContainer<?>[] operandContainers,
-			Object[] operandCaches, boolean[] operandCached, boolean[] operandScalar, boolean[] operandConstant,
+			Object[] operandCaches, boolean[] operandCachingEnabled, boolean[] operandScalar, boolean[] operandConstant,
 			AcceleratorExecutionNode nextNode) {
 
 		int operandLength = operandContainers.length;
@@ -46,7 +46,7 @@ public class BypassUnit extends AcceleratorExecutionUnit {
 				);
 
 				// 命令実行後は全オペランドを対象とするキャッシュSynchronizerを用いる
-				CacheSynchronizer postSynchronizer = new GeneralScalarCacheSynchronizer(operandContainers, operandCaches, operandCached);
+				CacheSynchronizer postSynchronizer = new GeneralScalarCacheSynchronizer(operandContainers, operandCaches, operandCachingEnabled);
 
 				return new ProcessorCallNode(
 					instruction, this.memory, this.interconnect, this.processor, preSynchronizer, postSynchronizer, nextNode
@@ -55,7 +55,7 @@ public class BypassUnit extends AcceleratorExecutionUnit {
 
 			// ALLOC以外の命令
 			default : {
-				CacheSynchronizer synchronizer = new GeneralScalarCacheSynchronizer(operandContainers, operandCaches, operandCached);
+				CacheSynchronizer synchronizer = new GeneralScalarCacheSynchronizer(operandContainers, operandCaches, operandCachingEnabled);
 				return new ProcessorCallNode(
 					instruction, this.memory, this.interconnect, this.processor, synchronizer, synchronizer, nextNode
 				);

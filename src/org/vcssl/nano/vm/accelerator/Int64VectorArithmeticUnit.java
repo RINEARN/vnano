@@ -14,12 +14,12 @@ public class Int64VectorArithmeticUnit extends AcceleratorExecutionUnit {
 	@Override
 	public AcceleratorExecutionNode generateNode(
 			AcceleratorInstruction instruction, DataContainer<?>[] operandContainers,
-			Object[] operandCaches, boolean[] operandCached, boolean[] operandScalar, boolean[] operandConstant,
+			Object[] operandCaches, boolean[] operandCachingEnabled, boolean[] operandScalar, boolean[] operandConstant,
 			AcceleratorExecutionNode nextNode) {
 
 		DataContainer<long[]>[] containers = (DataContainer<long[]>[])operandContainers;
 		Int64x3ScalarCacheSynchronizer synchronizer
-				= new Int64x3ScalarCacheSynchronizer(operandContainers, operandCaches, operandCached);
+				= new Int64x3ScalarCacheSynchronizer(operandContainers, operandCaches, operandCachingEnabled);
 
 		Int64VectorArithmeticNode node = null;
 		switch (instruction.getOperationCode()) {

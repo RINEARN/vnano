@@ -17,14 +17,14 @@ public class BoolVectorTransferUnit extends AcceleratorExecutionUnit {
 	@Override
 	public AcceleratorExecutionNode generateNode(
 			AcceleratorInstruction instruction, DataContainer<?>[] operandContainers,
-			Object[] operandCaches, boolean[] operandCached, boolean[] operandScalar, boolean[] operandConstant,
+			Object[] operandCaches, boolean[] operandCachingEnabled, boolean[] operandScalar, boolean[] operandConstant,
 			AcceleratorExecutionNode nextNode) {
 
 		AcceleratorExecutionNode node = null;
 		switch (instruction.getOperationCode()) {
 			case MOV : {
 				Boolx2ScalarCacheSynchronizer synchronizer
-						= new Boolx2ScalarCacheSynchronizer(operandContainers, operandCaches, operandCached);
+						= new Boolx2ScalarCacheSynchronizer(operandContainers, operandCaches, operandCachingEnabled);
 				node = new BoolVectorMovNode(
 						(DataContainer<boolean[]>)operandContainers[0], (DataContainer<boolean[]>)operandContainers[1],
 						synchronizer, nextNode);
@@ -33,7 +33,7 @@ public class BoolVectorTransferUnit extends AcceleratorExecutionUnit {
 			case CAST : {
 				if (instruction.getDataTypes()[1] == DataType.BOOL) {
 					Boolx2ScalarCacheSynchronizer synchronizer
-							= new Boolx2ScalarCacheSynchronizer(operandContainers, operandCaches, operandCached);
+							= new Boolx2ScalarCacheSynchronizer(operandContainers, operandCaches, operandCachingEnabled);
 					node = new BoolVectorMovNode(
 							(DataContainer<boolean[]>)operandContainers[0], (DataContainer<boolean[]>)operandContainers[1],
 							synchronizer, nextNode);
@@ -47,7 +47,7 @@ public class BoolVectorTransferUnit extends AcceleratorExecutionUnit {
 			}
 			case FILL : {
 				Boolx2ScalarCacheSynchronizer synchronizer
-						= new Boolx2ScalarCacheSynchronizer(operandContainers, operandCaches, operandCached);
+						= new Boolx2ScalarCacheSynchronizer(operandContainers, operandCaches, operandCachingEnabled);
 				node = new BoolVectorFillNode(
 						(DataContainer<boolean[]>)operandContainers[0], (DataContainer<boolean[]>)operandContainers[1],
 						synchronizer, nextNode);

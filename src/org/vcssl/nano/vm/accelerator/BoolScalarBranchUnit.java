@@ -14,12 +14,12 @@ public class BoolScalarBranchUnit extends AcceleratorExecutionUnit {
 	@Override
 	public AcceleratorExecutionNode generateNode(
 			AcceleratorInstruction instruction, DataContainer<?>[] operandContainers,
-			Object[] operandCaches, boolean[] operandCached, boolean[] operandScalar, boolean[] operandConstant,
+			Object[] operandCaches, boolean[] operandCachingEnabled, boolean[] operandScalar, boolean[] operandConstant,
 			AcceleratorExecutionNode nextNode) {
 
 		DataContainer<boolean[]> conditionContainer = (DataContainer<boolean[]>)operandContainers[2];
 		Boolx1ScalarCacheSynchronizer synchronizer
-				= new Boolx1ScalarCacheSynchronizer(operandContainers, operandCaches, operandCached, 2);
+				= new Boolx1ScalarCacheSynchronizer(operandContainers, operandCaches, operandCachingEnabled, 2);
 
 		AcceleratorExecutionNode node = null;
 		switch (instruction.getOperationCode()) {

@@ -14,10 +14,10 @@ public class Float64CachedScalarDualArithmeticUnit extends AcceleratorExecutionU
 	@Override
 	public AcceleratorExecutionNode generateNode(
 			AcceleratorInstruction instruction, DataContainer<?>[] operandContainers,
-			Object[] operandCaches, boolean[] operandCached, boolean[] operandScalar, boolean[] operandConstant,
+			Object[] operandCaches, boolean[] operandCachingEnabled, boolean[] operandScalar, boolean[] operandConstant,
 			AcceleratorExecutionNode nextNode) {
 
-		int cacheLength = operandCached.length;
+		int cacheLength = operandCachingEnabled.length;
 		Float64ScalarCache[] caches = new Float64ScalarCache[cacheLength];
 		for (int cacheIndex=0; cacheIndex<cacheLength; cacheIndex++) {
 			caches[cacheIndex] = (Float64ScalarCache)operandCaches[cacheIndex];

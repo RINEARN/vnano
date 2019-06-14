@@ -17,14 +17,14 @@ public class Int64VectorTransferUnit extends AcceleratorExecutionUnit {
 	@Override
 	public AcceleratorExecutionNode generateNode(
 			AcceleratorInstruction instruction, DataContainer<?>[] operandContainers,
-			Object[] operandCaches, boolean[] operandCached, boolean[] operandScalar, boolean[] operandConstant,
+			Object[] operandCaches, boolean[] operandCachingEnabled, boolean[] operandScalar, boolean[] operandConstant,
 			AcceleratorExecutionNode nextNode) {
 
 		AcceleratorExecutionNode node = null;
 		switch (instruction.getOperationCode()) {
 			case MOV : {
 				Int64x2ScalarCacheSynchronizer synchronizer
-						= new Int64x2ScalarCacheSynchronizer(operandContainers, operandCaches, operandCached);
+						= new Int64x2ScalarCacheSynchronizer(operandContainers, operandCaches, operandCachingEnabled);
 				node = new Int64VectorMovNode(
 						(DataContainer<long[]>)operandContainers[0], (DataContainer<long[]>)operandContainers[1],
 						synchronizer, nextNode);
@@ -33,13 +33,13 @@ public class Int64VectorTransferUnit extends AcceleratorExecutionUnit {
 			case CAST : {
 				if (instruction.getDataTypes()[1] == DataType.INT64) {
 					Int64x2ScalarCacheSynchronizer synchronizer
-							= new Int64x2ScalarCacheSynchronizer(operandContainers, operandCaches, operandCached);
+							= new Int64x2ScalarCacheSynchronizer(operandContainers, operandCaches, operandCachingEnabled);
 					node = new Int64VectorMovNode(
 							(DataContainer<long[]>)operandContainers[0], (DataContainer<long[]>)operandContainers[1],
 							synchronizer, nextNode);
 				} else if (instruction.getDataTypes()[1] == DataType.FLOAT64) {
 					Int64x1Float64x1ScalarCacheSynchronizer synchronizer
-							= new Int64x1Float64x1ScalarCacheSynchronizer(operandContainers, operandCaches, operandCached);
+							= new Int64x1Float64x1ScalarCacheSynchronizer(operandContainers, operandCaches, operandCachingEnabled);
 					node = new Int64FromFloat64VectorCastNode(
 							(DataContainer<long[]>)operandContainers[0], (DataContainer<double[]>)operandContainers[1],
 							synchronizer, nextNode);
@@ -53,7 +53,7 @@ public class Int64VectorTransferUnit extends AcceleratorExecutionUnit {
 			}
 			case FILL : {
 				Int64x2ScalarCacheSynchronizer synchronizer
-						= new Int64x2ScalarCacheSynchronizer(operandContainers, operandCaches, operandCached);
+						= new Int64x2ScalarCacheSynchronizer(operandContainers, operandCaches, operandCachingEnabled);
 				node = new Int64VectorFillNode(
 						(DataContainer<long[]>)operandContainers[0], (DataContainer<long[]>)operandContainers[1],
 						synchronizer, nextNode);
