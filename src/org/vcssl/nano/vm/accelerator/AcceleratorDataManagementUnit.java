@@ -14,7 +14,7 @@ import org.vcssl.nano.vm.memory.Memory;
 import org.vcssl.nano.vm.processor.Instruction;
 
 // final はファイナライザ攻撃を防ぐため
-public final class AccelerationDataManager {
+public final class AcceleratorDataManagementUnit {
 
 	private static final int REGISTER_PARTITION_ORDINAL = Memory.Partition.REGISTER.ordinal();
 	private static final int LOCAL_PARTITION_ORDINAL = Memory.Partition.LOCAL.ordinal();

@@ -22,7 +22,7 @@ public class AcceleratorDispatchUnit {
 	// 命令列の内容を全て演算器に割り当て、演算を実行するための演算ノード（演算器内部に実装）の列を返す
 	public AcceleratorExecutionNode[] dispatch (
 			Processor processor, Memory memory, Interconnect interconnect,
-			AcceleratorInstruction[] instructions, AccelerationDataManager dataManager,
+			AcceleratorInstruction[] instructions, AcceleratorDataManagementUnit dataManager,
 			InternalFunctionControlUnit functionControlUnit) {
 
 
@@ -84,7 +84,7 @@ public class AcceleratorDispatchUnit {
 			}
 
 			// 演算器タイプを取得
-			AccelerationType accelType = instruction.getAccelerationType();
+			AcceleratorExecutionType accelType = instruction.getAccelerationType();
 
 			// 対象命令（1個）を演算器にディスパッチして演算ノードを取得
 			AcceleratorExecutionNode currentNode = null;
@@ -140,7 +140,7 @@ public class AcceleratorDispatchUnit {
 
 	// 命令を1つ演算器にディスパッチし、それを実行する演算ノードを返す
 	private AcceleratorExecutionNode dispatchToAccelerationUnit (
-			AccelerationType accelType,
+			AcceleratorExecutionType accelType,
 			OperationCode opcode, DataType[] dataTypes, DataContainer<?>[] operandContainers,
 			ScalarCache[] operandCaches, boolean[] operandCached, boolean[] operandScalar, boolean[] operandConstant,
 			AcceleratorInstruction instruction, Processor processor, Memory memory, Interconnect interconnect,

@@ -82,7 +82,7 @@ public class Accelerator {
 
 
 		// スカラ判定やキャッシュ確保などの高速化用データ解析を実行
-		AccelerationDataManager dataManager = new AccelerationDataManager();
+		AcceleratorDataManagementUnit dataManager = new AcceleratorDataManagementUnit();
 		dataManager.allocate(instructions, memory);
 
 		// 命令スケジューラで命令列を高速化用に再配置・変換

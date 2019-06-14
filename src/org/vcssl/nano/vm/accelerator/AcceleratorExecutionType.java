@@ -1,6 +1,6 @@
 package org.vcssl.nano.vm.accelerator;
 
-public enum AccelerationType {
+public enum AcceleratorExecutionType {
 
 	UNACCELERATED,
 
