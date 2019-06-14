@@ -9,25 +9,25 @@ import org.vcssl.nano.VnanoFatalException;
 import org.vcssl.nano.spec.DataType;
 import org.vcssl.nano.vm.memory.DataContainer;
 
-public class BoolCachedScalarTransferUnit extends AccelerationUnit {
+public class BoolCachedScalarTransferUnit extends AcceleratorExecutionUnit {
 
 	@Override
-	public AccelerationExecutorNode generateExecutorNode(
+	public AcceleratorExecutionNode generateNode(
 			AcceleratorInstruction instruction, DataContainer<?>[] operandContainers,
-			Object[] operandCaches, boolean[] operandCached, boolean[] operandScalar, boolean[] operandConstant,
-			AccelerationExecutorNode nextNode) {
+			Object[] operandCaches, boolean[] operandCachingEnabled, boolean[] operandScalar, boolean[] operandConstant,
+			AcceleratorExecutionNode nextNode) {
 
-		AccelerationExecutorNode executor = null;
+		AcceleratorExecutionNode node = null;
 		switch (instruction.getOperationCode()) {
 			case FILL :
 			case MOV : {
-				executor = new BoolCachedScalarMovExecutorNode(
+				node = new BoolCachedScalarMovNode(
 						(BoolScalarCache)operandCaches[0], (BoolScalarCache)operandCaches[1], nextNode);
 				break;
 			}
 			case CAST : {
 				if (instruction.getDataTypes()[1] == DataType.BOOL) {
-					executor = new BoolCachedScalarMovExecutorNode(
+					node = new BoolCachedScalarMovNode(
 							(BoolScalarCache)operandCaches[0], (BoolScalarCache)operandCaches[1], nextNode);
 					break;
 				} else {
@@ -43,20 +43,20 @@ public class BoolCachedScalarTransferUnit extends AccelerationUnit {
 				);
 			}
 		}
-		return executor;
+		return node;
 	}
 
-	private class BoolCachedScalarMovExecutorNode extends AccelerationExecutorNode {
+	private class BoolCachedScalarMovNode extends AcceleratorExecutionNode {
 		protected final BoolScalarCache cache0;
 		protected final BoolScalarCache cache1;
 
-		public BoolCachedScalarMovExecutorNode(BoolScalarCache cache0, BoolScalarCache cache1, AccelerationExecutorNode nextNode) {
+		public BoolCachedScalarMovNode(BoolScalarCache cache0, BoolScalarCache cache1, AcceleratorExecutionNode nextNode) {
 			super(nextNode);
 			this.cache0 = cache0;
 			this.cache1 = cache1;
 		}
 
-		public final AccelerationExecutorNode execute() {
+		public final AcceleratorExecutionNode execute() {
 			this.cache0.value = this.cache1.value;
 			return this.nextNode;
 		}

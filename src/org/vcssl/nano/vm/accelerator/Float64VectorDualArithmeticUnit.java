@@ -9,61 +9,61 @@ import org.vcssl.nano.VnanoFatalException;
 import org.vcssl.nano.spec.OperationCode;
 import org.vcssl.nano.vm.memory.DataContainer;
 
-public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
+public class Float64VectorDualArithmeticUnit extends AcceleratorExecutionUnit {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public AccelerationExecutorNode generateExecutorNode(
+	public AcceleratorExecutionNode generateNode(
 			AcceleratorInstruction instruction, DataContainer<?>[] operandContainers,
-			Object[] operandCaches, boolean[] operandCached, boolean[] operandScalar, boolean[] operandConstant,
-			AccelerationExecutorNode nextNode) {
+			Object[] operandCaches, boolean[] operandCachingEnabled, boolean[] operandScalar, boolean[] operandConstant,
+			AcceleratorExecutionNode nextNode) {
 
 		DataContainer<double[]>[] containers = (DataContainer<double[]>[])operandContainers;
 		Float64x3ScalarCacheSynchronizer synchronizer
-				= new Float64x3ScalarCacheSynchronizer(operandContainers, operandCaches, operandCached);
+				= new Float64x3ScalarCacheSynchronizer(operandContainers, operandCaches, operandCachingEnabled);
 
 		OperationCode[] fusedOpcodes = instruction.getFusedOperationCodes();
 		int fusedInputOperandIndex = instruction.getFusedInputOperandIndices()[0];
 
-		Float64VectorDualArithmeticExecutorNode executor = null;
+		Float64VectorDualArithmeticNode node = null;
 		if (fusedInputOperandIndex == 1) {
-			executor = this.generateLeftInputExecutorNode(fusedOpcodes, containers, synchronizer, nextNode);
+			node = this.generateLeftInputNode(fusedOpcodes, containers, synchronizer, nextNode);
 		} else if (fusedInputOperandIndex == 2) {
-			executor = this.generateRightInputExecutorNode(fusedOpcodes, containers, synchronizer, nextNode);
+			node = this.generateRightInputNode(fusedOpcodes, containers, synchronizer, nextNode);
 		} else {
 			throw new VnanoFatalException("Invalid fused input operand index: " + fusedInputOperandIndex);
 		}
 
-		return executor;
+		return node;
 	}
 
 
-	private Float64VectorDualArithmeticExecutorNode generateLeftInputExecutorNode(
+	private Float64VectorDualArithmeticNode generateLeftInputNode(
 			OperationCode[] fusedOpcodes, DataContainer<double[]>[] containers,
-			Float64x3ScalarCacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
+			Float64x3ScalarCacheSynchronizer synchronizer, AcceleratorExecutionNode nextNode) {
 
-		Float64VectorDualArithmeticExecutorNode executor = null;
+		Float64VectorDualArithmeticNode node = null;
 		switch (fusedOpcodes[0]) {
 			case ADD : {
 				switch (fusedOpcodes[1]) {
 					case ADD : {
-						executor = new Float64VectorAddAddLeftInputExecutorNode(containers,synchronizer,nextNode);
+						node = new Float64VectorAddAddLeftInputNode(containers,synchronizer,nextNode);
 						break;
 					}
 					case SUB : {
-						executor = new Float64VectorAddSubLeftInputExecutorNode(containers,synchronizer,nextNode);
+						node = new Float64VectorAddSubLeftInputNode(containers,synchronizer,nextNode);
 						break;
 					}
 					case MUL : {
-						executor = new Float64VectorAddMulLeftInputExecutorNode(containers,synchronizer,nextNode);
+						node = new Float64VectorAddMulLeftInputNode(containers,synchronizer,nextNode);
 						break;
 					}
 					case DIV : {
-						executor = new Float64VectorAddDivLeftInputExecutorNode(containers,synchronizer,nextNode);
+						node = new Float64VectorAddDivLeftInputNode(containers,synchronizer,nextNode);
 						break;
 					}
 					case REM : {
-						executor = new Float64VectorAddRemLeftInputExecutorNode(containers,synchronizer,nextNode);
+						node = new Float64VectorAddRemLeftInputNode(containers,synchronizer,nextNode);
 						break;
 					}
 					default : {
@@ -78,23 +78,23 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 			case SUB : {
 				switch (fusedOpcodes[1]) {
 					case ADD : {
-						executor = new Float64VectorSubAddLeftInputExecutorNode(containers,synchronizer,nextNode);
+						node = new Float64VectorSubAddLeftInputNode(containers,synchronizer,nextNode);
 						break;
 					}
 					case SUB : {
-						executor = new Float64VectorSubSubLeftInputExecutorNode(containers,synchronizer,nextNode);
+						node = new Float64VectorSubSubLeftInputNode(containers,synchronizer,nextNode);
 						break;
 					}
 					case MUL : {
-						executor = new Float64VectorSubMulLeftInputExecutorNode(containers,synchronizer,nextNode);
+						node = new Float64VectorSubMulLeftInputNode(containers,synchronizer,nextNode);
 						break;
 					}
 					case DIV : {
-						executor = new Float64VectorSubDivLeftInputExecutorNode(containers,synchronizer,nextNode);
+						node = new Float64VectorSubDivLeftInputNode(containers,synchronizer,nextNode);
 						break;
 					}
 					case REM : {
-						executor = new Float64VectorSubRemLeftInputExecutorNode(containers,synchronizer,nextNode);
+						node = new Float64VectorSubRemLeftInputNode(containers,synchronizer,nextNode);
 						break;
 					}
 					default : {
@@ -109,23 +109,23 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 			case MUL : {
 				switch (fusedOpcodes[1]) {
 					case ADD : {
-						executor = new Float64VectorMulAddLeftInputExecutorNode(containers,synchronizer,nextNode);
+						node = new Float64VectorMulAddLeftInputNode(containers,synchronizer,nextNode);
 						break;
 					}
 					case SUB : {
-						executor = new Float64VectorMulSubLeftInputExecutorNode(containers,synchronizer,nextNode);
+						node = new Float64VectorMulSubLeftInputNode(containers,synchronizer,nextNode);
 						break;
 					}
 					case MUL : {
-						executor = new Float64VectorMulMulLeftInputExecutorNode(containers,synchronizer,nextNode);
+						node = new Float64VectorMulMulLeftInputNode(containers,synchronizer,nextNode);
 						break;
 					}
 					case DIV : {
-						executor = new Float64VectorMulDivLeftInputExecutorNode(containers,synchronizer,nextNode);
+						node = new Float64VectorMulDivLeftInputNode(containers,synchronizer,nextNode);
 						break;
 					}
 					case REM : {
-						executor = new Float64VectorMulRemLeftInputExecutorNode(containers,synchronizer,nextNode);
+						node = new Float64VectorMulRemLeftInputNode(containers,synchronizer,nextNode);
 						break;
 					}
 					default : {
@@ -140,23 +140,23 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 			case DIV : {
 				switch (fusedOpcodes[1]) {
 					case ADD : {
-						executor = new Float64VectorDivAddLeftInputExecutorNode(containers,synchronizer,nextNode);
+						node = new Float64VectorDivAddLeftInputNode(containers,synchronizer,nextNode);
 						break;
 					}
 					case SUB : {
-						executor = new Float64VectorDivSubLeftInputExecutorNode(containers,synchronizer,nextNode);
+						node = new Float64VectorDivSubLeftInputNode(containers,synchronizer,nextNode);
 						break;
 					}
 					case MUL : {
-						executor = new Float64VectorDivMulLeftInputExecutorNode(containers,synchronizer,nextNode);
+						node = new Float64VectorDivMulLeftInputNode(containers,synchronizer,nextNode);
 						break;
 					}
 					case DIV : {
-						executor = new Float64VectorDivDivLeftInputExecutorNode(containers,synchronizer,nextNode);
+						node = new Float64VectorDivDivLeftInputNode(containers,synchronizer,nextNode);
 						break;
 					}
 					case REM : {
-						executor = new Float64VectorDivRemLeftInputExecutorNode(containers,synchronizer,nextNode);
+						node = new Float64VectorDivRemLeftInputNode(containers,synchronizer,nextNode);
 						break;
 					}
 					default : {
@@ -171,23 +171,23 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 			case REM : {
 				switch (fusedOpcodes[1]) {
 					case ADD : {
-						executor = new Float64VectorRemAddLeftInputExecutorNode(containers,synchronizer,nextNode);
+						node = new Float64VectorRemAddLeftInputNode(containers,synchronizer,nextNode);
 						break;
 					}
 					case SUB : {
-						executor = new Float64VectorRemSubLeftInputExecutorNode(containers,synchronizer,nextNode);
+						node = new Float64VectorRemSubLeftInputNode(containers,synchronizer,nextNode);
 						break;
 					}
 					case MUL : {
-						executor = new Float64VectorRemMulLeftInputExecutorNode(containers,synchronizer,nextNode);
+						node = new Float64VectorRemMulLeftInputNode(containers,synchronizer,nextNode);
 						break;
 					}
 					case DIV : {
-						executor = new Float64VectorRemDivLeftInputExecutorNode(containers,synchronizer,nextNode);
+						node = new Float64VectorRemDivLeftInputNode(containers,synchronizer,nextNode);
 						break;
 					}
 					case REM : {
-						executor = new Float64VectorRemRemLeftInputExecutorNode(containers,synchronizer,nextNode);
+						node = new Float64VectorRemRemLeftInputNode(containers,synchronizer,nextNode);
 						break;
 					}
 					default : {
@@ -205,37 +205,37 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 				);
 			}
 		}
-		return executor;
+		return node;
 
 	}
 
 
-	private Float64VectorDualArithmeticExecutorNode generateRightInputExecutorNode(
+	private Float64VectorDualArithmeticNode generateRightInputNode(
 			OperationCode[] fusedOpcodes, DataContainer<double[]>[] containers,
-			Float64x3ScalarCacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
+			Float64x3ScalarCacheSynchronizer synchronizer, AcceleratorExecutionNode nextNode) {
 
-		Float64VectorDualArithmeticExecutorNode executor = null;
+		Float64VectorDualArithmeticNode node = null;
 		switch (fusedOpcodes[0]) {
 			case ADD : {
 				switch (fusedOpcodes[1]) {
 					case ADD : {
-						executor = new Float64VectorAddAddRightInputExecutorNode(containers,synchronizer,nextNode);
+						node = new Float64VectorAddAddRightInputNode(containers,synchronizer,nextNode);
 						break;
 					}
 					case SUB : {
-						executor = new Float64VectorAddSubRightInputExecutorNode(containers,synchronizer,nextNode);
+						node = new Float64VectorAddSubRightInputNode(containers,synchronizer,nextNode);
 						break;
 					}
 					case MUL : {
-						executor = new Float64VectorAddMulRightInputExecutorNode(containers,synchronizer,nextNode);
+						node = new Float64VectorAddMulRightInputNode(containers,synchronizer,nextNode);
 						break;
 					}
 					case DIV : {
-						executor = new Float64VectorAddDivRightInputExecutorNode(containers,synchronizer,nextNode);
+						node = new Float64VectorAddDivRightInputNode(containers,synchronizer,nextNode);
 						break;
 					}
 					case REM : {
-						executor = new Float64VectorAddRemRightInputExecutorNode(containers,synchronizer,nextNode);
+						node = new Float64VectorAddRemRightInputNode(containers,synchronizer,nextNode);
 						break;
 					}
 					default : {
@@ -250,23 +250,23 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 			case SUB : {
 				switch (fusedOpcodes[1]) {
 					case ADD : {
-						executor = new Float64VectorSubAddRightInputExecutorNode(containers,synchronizer,nextNode);
+						node = new Float64VectorSubAddRightInputNode(containers,synchronizer,nextNode);
 						break;
 					}
 					case SUB : {
-						executor = new Float64VectorSubSubRightInputExecutorNode(containers,synchronizer,nextNode);
+						node = new Float64VectorSubSubRightInputNode(containers,synchronizer,nextNode);
 						break;
 					}
 					case MUL : {
-						executor = new Float64VectorSubMulRightInputExecutorNode(containers,synchronizer,nextNode);
+						node = new Float64VectorSubMulRightInputNode(containers,synchronizer,nextNode);
 						break;
 					}
 					case DIV : {
-						executor = new Float64VectorSubDivRightInputExecutorNode(containers,synchronizer,nextNode);
+						node = new Float64VectorSubDivRightInputNode(containers,synchronizer,nextNode);
 						break;
 					}
 					case REM : {
-						executor = new Float64VectorSubRemRightInputExecutorNode(containers,synchronizer,nextNode);
+						node = new Float64VectorSubRemRightInputNode(containers,synchronizer,nextNode);
 						break;
 					}
 					default : {
@@ -281,23 +281,23 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 			case MUL : {
 				switch (fusedOpcodes[1]) {
 					case ADD : {
-						executor = new Float64VectorMulAddRightInputExecutorNode(containers,synchronizer,nextNode);
+						node = new Float64VectorMulAddRightInputNode(containers,synchronizer,nextNode);
 						break;
 					}
 					case SUB : {
-						executor = new Float64VectorMulSubRightInputExecutorNode(containers,synchronizer,nextNode);
+						node = new Float64VectorMulSubRightInputNode(containers,synchronizer,nextNode);
 						break;
 					}
 					case MUL : {
-						executor = new Float64VectorMulMulRightInputExecutorNode(containers,synchronizer,nextNode);
+						node = new Float64VectorMulMulRightInputNode(containers,synchronizer,nextNode);
 						break;
 					}
 					case DIV : {
-						executor = new Float64VectorMulDivRightInputExecutorNode(containers,synchronizer,nextNode);
+						node = new Float64VectorMulDivRightInputNode(containers,synchronizer,nextNode);
 						break;
 					}
 					case REM : {
-						executor = new Float64VectorMulRemRightInputExecutorNode(containers,synchronizer,nextNode);
+						node = new Float64VectorMulRemRightInputNode(containers,synchronizer,nextNode);
 						break;
 					}
 					default : {
@@ -312,23 +312,23 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 			case DIV : {
 				switch (fusedOpcodes[1]) {
 					case ADD : {
-						executor = new Float64VectorDivAddRightInputExecutorNode(containers,synchronizer,nextNode);
+						node = new Float64VectorDivAddRightInputNode(containers,synchronizer,nextNode);
 						break;
 					}
 					case SUB : {
-						executor = new Float64VectorDivSubRightInputExecutorNode(containers,synchronizer,nextNode);
+						node = new Float64VectorDivSubRightInputNode(containers,synchronizer,nextNode);
 						break;
 					}
 					case MUL : {
-						executor = new Float64VectorDivMulRightInputExecutorNode(containers,synchronizer,nextNode);
+						node = new Float64VectorDivMulRightInputNode(containers,synchronizer,nextNode);
 						break;
 					}
 					case DIV : {
-						executor = new Float64VectorDivDivRightInputExecutorNode(containers,synchronizer,nextNode);
+						node = new Float64VectorDivDivRightInputNode(containers,synchronizer,nextNode);
 						break;
 					}
 					case REM : {
-						executor = new Float64VectorDivRemRightInputExecutorNode(containers,synchronizer,nextNode);
+						node = new Float64VectorDivRemRightInputNode(containers,synchronizer,nextNode);
 						break;
 					}
 					default : {
@@ -343,23 +343,23 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 			case REM : {
 				switch (fusedOpcodes[1]) {
 					case ADD : {
-						executor = new Float64VectorRemAddRightInputExecutorNode(containers,synchronizer,nextNode);
+						node = new Float64VectorRemAddRightInputNode(containers,synchronizer,nextNode);
 						break;
 					}
 					case SUB : {
-						executor = new Float64VectorRemSubRightInputExecutorNode(containers,synchronizer,nextNode);
+						node = new Float64VectorRemSubRightInputNode(containers,synchronizer,nextNode);
 						break;
 					}
 					case MUL : {
-						executor = new Float64VectorRemMulRightInputExecutorNode(containers,synchronizer,nextNode);
+						node = new Float64VectorRemMulRightInputNode(containers,synchronizer,nextNode);
 						break;
 					}
 					case DIV : {
-						executor = new Float64VectorRemDivRightInputExecutorNode(containers,synchronizer,nextNode);
+						node = new Float64VectorRemDivRightInputNode(containers,synchronizer,nextNode);
 						break;
 					}
 					case REM : {
-						executor = new Float64VectorRemRemRightInputExecutorNode(containers,synchronizer,nextNode);
+						node = new Float64VectorRemRemRightInputNode(containers,synchronizer,nextNode);
 						break;
 					}
 					default : {
@@ -377,11 +377,11 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 				);
 			}
 		}
-		return executor;
+		return node;
 	}
 
 
-	private abstract class Float64VectorDualArithmeticExecutorNode extends AccelerationExecutorNode {
+	private abstract class Float64VectorDualArithmeticNode extends AcceleratorExecutionNode {
 		//protected final DataContainer<double[]> container00;
 		protected final DataContainer<double[]> container01;
 		protected final DataContainer<double[]> container02;
@@ -390,8 +390,8 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 		protected final DataContainer<double[]> container12;
 		protected final Float64x3ScalarCacheSynchronizer synchronizer;
 
-		public Float64VectorDualArithmeticExecutorNode(DataContainer<double[]>[] containers,
-				Float64x3ScalarCacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
+		public Float64VectorDualArithmeticNode(DataContainer<double[]>[] containers,
+				Float64x3ScalarCacheSynchronizer synchronizer, AcceleratorExecutionNode nextNode) {
 
 			super(nextNode);
 			//this.container00 = containers[0];
@@ -407,14 +407,14 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 
 	// ADD ADD
 
-	private final class Float64VectorAddAddLeftInputExecutorNode extends Float64VectorDualArithmeticExecutorNode {
-		public Float64VectorAddAddLeftInputExecutorNode(
+	private final class Float64VectorAddAddLeftInputNode extends Float64VectorDualArithmeticNode {
+		public Float64VectorAddAddLeftInputNode(
 				DataContainer<double[]>[] containers, Float64x3ScalarCacheSynchronizer synchronizer,
-				AccelerationExecutorNode nextNode) {
+				AcceleratorExecutionNode nextNode) {
 
 			super(containers, synchronizer, nextNode);
 		}
-		public final AccelerationExecutorNode execute() {
+		public final AcceleratorExecutionNode execute() {
 
 			//double[] data00 = this.container00.getData();
 			double[] data01 = this.container01.getData();
@@ -433,14 +433,14 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 		}
 	}
 
-	private final class Float64VectorAddAddRightInputExecutorNode extends Float64VectorDualArithmeticExecutorNode {
-		public Float64VectorAddAddRightInputExecutorNode(
+	private final class Float64VectorAddAddRightInputNode extends Float64VectorDualArithmeticNode {
+		public Float64VectorAddAddRightInputNode(
 				DataContainer<double[]>[] containers, Float64x3ScalarCacheSynchronizer synchronizer,
-				AccelerationExecutorNode nextNode) {
+				AcceleratorExecutionNode nextNode) {
 
 			super(containers, synchronizer, nextNode);
 		}
-		public final AccelerationExecutorNode execute() {
+		public final AcceleratorExecutionNode execute() {
 
 			//double[] data00 = this.container00.getData();
 			double[] data01 = this.container01.getData();
@@ -461,14 +461,14 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 
 	// ADD SUB
 
-	private final class Float64VectorAddSubLeftInputExecutorNode extends Float64VectorDualArithmeticExecutorNode {
-		public Float64VectorAddSubLeftInputExecutorNode(
+	private final class Float64VectorAddSubLeftInputNode extends Float64VectorDualArithmeticNode {
+		public Float64VectorAddSubLeftInputNode(
 				DataContainer<double[]>[] containers, Float64x3ScalarCacheSynchronizer synchronizer,
-				AccelerationExecutorNode nextNode) {
+				AcceleratorExecutionNode nextNode) {
 
 			super(containers, synchronizer, nextNode);
 		}
-		public final AccelerationExecutorNode execute() {
+		public final AcceleratorExecutionNode execute() {
 
 			//double[] data00 = this.container00.getData();
 			double[] data01 = this.container01.getData();
@@ -487,14 +487,14 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 		}
 	}
 
-	private final class Float64VectorAddSubRightInputExecutorNode extends Float64VectorDualArithmeticExecutorNode {
-		public Float64VectorAddSubRightInputExecutorNode(
+	private final class Float64VectorAddSubRightInputNode extends Float64VectorDualArithmeticNode {
+		public Float64VectorAddSubRightInputNode(
 				DataContainer<double[]>[] containers, Float64x3ScalarCacheSynchronizer synchronizer,
-				AccelerationExecutorNode nextNode) {
+				AcceleratorExecutionNode nextNode) {
 
 			super(containers, synchronizer, nextNode);
 		}
-		public final AccelerationExecutorNode execute() {
+		public final AcceleratorExecutionNode execute() {
 
 			//double[] data00 = this.container00.getData();
 			double[] data01 = this.container01.getData();
@@ -515,14 +515,14 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 
 	// ADD MUL
 
-	private final class Float64VectorAddMulLeftInputExecutorNode extends Float64VectorDualArithmeticExecutorNode {
-		public Float64VectorAddMulLeftInputExecutorNode(
+	private final class Float64VectorAddMulLeftInputNode extends Float64VectorDualArithmeticNode {
+		public Float64VectorAddMulLeftInputNode(
 				DataContainer<double[]>[] containers, Float64x3ScalarCacheSynchronizer synchronizer,
-				AccelerationExecutorNode nextNode) {
+				AcceleratorExecutionNode nextNode) {
 
 			super(containers, synchronizer, nextNode);
 		}
-		public final AccelerationExecutorNode execute() {
+		public final AcceleratorExecutionNode execute() {
 
 			//double[] data00 = this.container00.getData();
 			double[] data01 = this.container01.getData();
@@ -541,14 +541,14 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 		}
 	}
 
-	private final class Float64VectorAddMulRightInputExecutorNode extends Float64VectorDualArithmeticExecutorNode {
-		public Float64VectorAddMulRightInputExecutorNode(
+	private final class Float64VectorAddMulRightInputNode extends Float64VectorDualArithmeticNode {
+		public Float64VectorAddMulRightInputNode(
 				DataContainer<double[]>[] containers, Float64x3ScalarCacheSynchronizer synchronizer,
-				AccelerationExecutorNode nextNode) {
+				AcceleratorExecutionNode nextNode) {
 
 			super(containers, synchronizer, nextNode);
 		}
-		public final AccelerationExecutorNode execute() {
+		public final AcceleratorExecutionNode execute() {
 
 			//double[] data00 = this.container00.getData();
 			double[] data01 = this.container01.getData();
@@ -569,14 +569,14 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 
 	// ADD DIV
 
-	private final class Float64VectorAddDivLeftInputExecutorNode extends Float64VectorDualArithmeticExecutorNode {
-		public Float64VectorAddDivLeftInputExecutorNode(
+	private final class Float64VectorAddDivLeftInputNode extends Float64VectorDualArithmeticNode {
+		public Float64VectorAddDivLeftInputNode(
 				DataContainer<double[]>[] containers, Float64x3ScalarCacheSynchronizer synchronizer,
-				AccelerationExecutorNode nextNode) {
+				AcceleratorExecutionNode nextNode) {
 
 			super(containers, synchronizer, nextNode);
 		}
-		public final AccelerationExecutorNode execute() {
+		public final AcceleratorExecutionNode execute() {
 
 			//double[] data00 = this.container00.getData();
 			double[] data01 = this.container01.getData();
@@ -595,14 +595,14 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 		}
 	}
 
-	private final class Float64VectorAddDivRightInputExecutorNode extends Float64VectorDualArithmeticExecutorNode {
-		public Float64VectorAddDivRightInputExecutorNode(
+	private final class Float64VectorAddDivRightInputNode extends Float64VectorDualArithmeticNode {
+		public Float64VectorAddDivRightInputNode(
 				DataContainer<double[]>[] containers, Float64x3ScalarCacheSynchronizer synchronizer,
-				AccelerationExecutorNode nextNode) {
+				AcceleratorExecutionNode nextNode) {
 
 			super(containers, synchronizer, nextNode);
 		}
-		public final AccelerationExecutorNode execute() {
+		public final AcceleratorExecutionNode execute() {
 
 			//double[] data00 = this.container00.getData();
 			double[] data01 = this.container01.getData();
@@ -623,14 +623,14 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 
 	// ADD REM
 
-	private final class Float64VectorAddRemLeftInputExecutorNode extends Float64VectorDualArithmeticExecutorNode {
-		public Float64VectorAddRemLeftInputExecutorNode(
+	private final class Float64VectorAddRemLeftInputNode extends Float64VectorDualArithmeticNode {
+		public Float64VectorAddRemLeftInputNode(
 				DataContainer<double[]>[] containers, Float64x3ScalarCacheSynchronizer synchronizer,
-				AccelerationExecutorNode nextNode) {
+				AcceleratorExecutionNode nextNode) {
 
 			super(containers, synchronizer, nextNode);
 		}
-		public final AccelerationExecutorNode execute() {
+		public final AcceleratorExecutionNode execute() {
 
 			//double[] data00 = this.container00.getData();
 			double[] data01 = this.container01.getData();
@@ -649,14 +649,14 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 		}
 	}
 
-	private final class Float64VectorAddRemRightInputExecutorNode extends Float64VectorDualArithmeticExecutorNode {
-		public Float64VectorAddRemRightInputExecutorNode(
+	private final class Float64VectorAddRemRightInputNode extends Float64VectorDualArithmeticNode {
+		public Float64VectorAddRemRightInputNode(
 				DataContainer<double[]>[] containers, Float64x3ScalarCacheSynchronizer synchronizer,
-				AccelerationExecutorNode nextNode) {
+				AcceleratorExecutionNode nextNode) {
 
 			super(containers, synchronizer, nextNode);
 		}
-		public final AccelerationExecutorNode execute() {
+		public final AcceleratorExecutionNode execute() {
 
 			//double[] data00 = this.container00.getData();
 			double[] data01 = this.container01.getData();
@@ -681,14 +681,14 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 
 	// SUB ADD
 
-	private final class Float64VectorSubAddLeftInputExecutorNode extends Float64VectorDualArithmeticExecutorNode {
-		public Float64VectorSubAddLeftInputExecutorNode(
+	private final class Float64VectorSubAddLeftInputNode extends Float64VectorDualArithmeticNode {
+		public Float64VectorSubAddLeftInputNode(
 				DataContainer<double[]>[] containers, Float64x3ScalarCacheSynchronizer synchronizer,
-				AccelerationExecutorNode nextNode) {
+				AcceleratorExecutionNode nextNode) {
 
 			super(containers, synchronizer, nextNode);
 		}
-		public final AccelerationExecutorNode execute() {
+		public final AcceleratorExecutionNode execute() {
 
 			//double[] data00 = this.container00.getData();
 			double[] data01 = this.container01.getData();
@@ -707,14 +707,14 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 		}
 	}
 
-	private final class Float64VectorSubAddRightInputExecutorNode extends Float64VectorDualArithmeticExecutorNode {
-		public Float64VectorSubAddRightInputExecutorNode(
+	private final class Float64VectorSubAddRightInputNode extends Float64VectorDualArithmeticNode {
+		public Float64VectorSubAddRightInputNode(
 				DataContainer<double[]>[] containers, Float64x3ScalarCacheSynchronizer synchronizer,
-				AccelerationExecutorNode nextNode) {
+				AcceleratorExecutionNode nextNode) {
 
 			super(containers, synchronizer, nextNode);
 		}
-		public final AccelerationExecutorNode execute() {
+		public final AcceleratorExecutionNode execute() {
 
 			//double[] data00 = this.container00.getData();
 			double[] data01 = this.container01.getData();
@@ -735,14 +735,14 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 
 	// SUB SUB
 
-	private final class Float64VectorSubSubLeftInputExecutorNode extends Float64VectorDualArithmeticExecutorNode {
-		public Float64VectorSubSubLeftInputExecutorNode(
+	private final class Float64VectorSubSubLeftInputNode extends Float64VectorDualArithmeticNode {
+		public Float64VectorSubSubLeftInputNode(
 				DataContainer<double[]>[] containers, Float64x3ScalarCacheSynchronizer synchronizer,
-				AccelerationExecutorNode nextNode) {
+				AcceleratorExecutionNode nextNode) {
 
 			super(containers, synchronizer, nextNode);
 		}
-		public final AccelerationExecutorNode execute() {
+		public final AcceleratorExecutionNode execute() {
 
 			//double[] data00 = this.container00.getData();
 			double[] data01 = this.container01.getData();
@@ -761,14 +761,14 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 		}
 	}
 
-	private final class Float64VectorSubSubRightInputExecutorNode extends Float64VectorDualArithmeticExecutorNode {
-		public Float64VectorSubSubRightInputExecutorNode(
+	private final class Float64VectorSubSubRightInputNode extends Float64VectorDualArithmeticNode {
+		public Float64VectorSubSubRightInputNode(
 				DataContainer<double[]>[] containers, Float64x3ScalarCacheSynchronizer synchronizer,
-				AccelerationExecutorNode nextNode) {
+				AcceleratorExecutionNode nextNode) {
 
 			super(containers, synchronizer, nextNode);
 		}
-		public final AccelerationExecutorNode execute() {
+		public final AcceleratorExecutionNode execute() {
 
 			//double[] data00 = this.container00.getData();
 			double[] data01 = this.container01.getData();
@@ -789,14 +789,14 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 
 	// SUB MUL
 
-	private final class Float64VectorSubMulLeftInputExecutorNode extends Float64VectorDualArithmeticExecutorNode {
-		public Float64VectorSubMulLeftInputExecutorNode(
+	private final class Float64VectorSubMulLeftInputNode extends Float64VectorDualArithmeticNode {
+		public Float64VectorSubMulLeftInputNode(
 				DataContainer<double[]>[] containers, Float64x3ScalarCacheSynchronizer synchronizer,
-				AccelerationExecutorNode nextNode) {
+				AcceleratorExecutionNode nextNode) {
 
 			super(containers, synchronizer, nextNode);
 		}
-		public final AccelerationExecutorNode execute() {
+		public final AcceleratorExecutionNode execute() {
 
 			//double[] data00 = this.container00.getData();
 			double[] data01 = this.container01.getData();
@@ -815,14 +815,14 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 		}
 	}
 
-	private final class Float64VectorSubMulRightInputExecutorNode extends Float64VectorDualArithmeticExecutorNode {
-		public Float64VectorSubMulRightInputExecutorNode(
+	private final class Float64VectorSubMulRightInputNode extends Float64VectorDualArithmeticNode {
+		public Float64VectorSubMulRightInputNode(
 				DataContainer<double[]>[] containers, Float64x3ScalarCacheSynchronizer synchronizer,
-				AccelerationExecutorNode nextNode) {
+				AcceleratorExecutionNode nextNode) {
 
 			super(containers, synchronizer, nextNode);
 		}
-		public final AccelerationExecutorNode execute() {
+		public final AcceleratorExecutionNode execute() {
 
 			//double[] data00 = this.container00.getData();
 			double[] data01 = this.container01.getData();
@@ -843,14 +843,14 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 
 	// SUB DIV
 
-	private final class Float64VectorSubDivLeftInputExecutorNode extends Float64VectorDualArithmeticExecutorNode {
-		public Float64VectorSubDivLeftInputExecutorNode(
+	private final class Float64VectorSubDivLeftInputNode extends Float64VectorDualArithmeticNode {
+		public Float64VectorSubDivLeftInputNode(
 				DataContainer<double[]>[] containers, Float64x3ScalarCacheSynchronizer synchronizer,
-				AccelerationExecutorNode nextNode) {
+				AcceleratorExecutionNode nextNode) {
 
 			super(containers, synchronizer, nextNode);
 		}
-		public final AccelerationExecutorNode execute() {
+		public final AcceleratorExecutionNode execute() {
 
 			//double[] data00 = this.container00.getData();
 			double[] data01 = this.container01.getData();
@@ -869,14 +869,14 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 		}
 	}
 
-	private final class Float64VectorSubDivRightInputExecutorNode extends Float64VectorDualArithmeticExecutorNode {
-		public Float64VectorSubDivRightInputExecutorNode(
+	private final class Float64VectorSubDivRightInputNode extends Float64VectorDualArithmeticNode {
+		public Float64VectorSubDivRightInputNode(
 				DataContainer<double[]>[] containers, Float64x3ScalarCacheSynchronizer synchronizer,
-				AccelerationExecutorNode nextNode) {
+				AcceleratorExecutionNode nextNode) {
 
 			super(containers, synchronizer, nextNode);
 		}
-		public final AccelerationExecutorNode execute() {
+		public final AcceleratorExecutionNode execute() {
 
 			//double[] data00 = this.container00.getData();
 			double[] data01 = this.container01.getData();
@@ -897,14 +897,14 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 
 	// SUB REM
 
-	private final class Float64VectorSubRemLeftInputExecutorNode extends Float64VectorDualArithmeticExecutorNode {
-		public Float64VectorSubRemLeftInputExecutorNode(
+	private final class Float64VectorSubRemLeftInputNode extends Float64VectorDualArithmeticNode {
+		public Float64VectorSubRemLeftInputNode(
 				DataContainer<double[]>[] containers, Float64x3ScalarCacheSynchronizer synchronizer,
-				AccelerationExecutorNode nextNode) {
+				AcceleratorExecutionNode nextNode) {
 
 			super(containers, synchronizer, nextNode);
 		}
-		public final AccelerationExecutorNode execute() {
+		public final AcceleratorExecutionNode execute() {
 
 			//double[] data00 = this.container00.getData();
 			double[] data01 = this.container01.getData();
@@ -923,14 +923,14 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 		}
 	}
 
-	private final class Float64VectorSubRemRightInputExecutorNode extends Float64VectorDualArithmeticExecutorNode {
-		public Float64VectorSubRemRightInputExecutorNode(
+	private final class Float64VectorSubRemRightInputNode extends Float64VectorDualArithmeticNode {
+		public Float64VectorSubRemRightInputNode(
 				DataContainer<double[]>[] containers, Float64x3ScalarCacheSynchronizer synchronizer,
-				AccelerationExecutorNode nextNode) {
+				AcceleratorExecutionNode nextNode) {
 
 			super(containers, synchronizer, nextNode);
 		}
-		public final AccelerationExecutorNode execute() {
+		public final AcceleratorExecutionNode execute() {
 
 			//double[] data00 = this.container00.getData();
 			double[] data01 = this.container01.getData();
@@ -955,14 +955,14 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 
 	// MUL ADD
 
-	private final class Float64VectorMulAddLeftInputExecutorNode extends Float64VectorDualArithmeticExecutorNode {
-		public Float64VectorMulAddLeftInputExecutorNode(
+	private final class Float64VectorMulAddLeftInputNode extends Float64VectorDualArithmeticNode {
+		public Float64VectorMulAddLeftInputNode(
 				DataContainer<double[]>[] containers, Float64x3ScalarCacheSynchronizer synchronizer,
-				AccelerationExecutorNode nextNode) {
+				AcceleratorExecutionNode nextNode) {
 
 			super(containers, synchronizer, nextNode);
 		}
-		public final AccelerationExecutorNode execute() {
+		public final AcceleratorExecutionNode execute() {
 
 			//double[] data00 = this.container00.getData();
 			double[] data01 = this.container01.getData();
@@ -981,14 +981,14 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 		}
 	}
 
-	private final class Float64VectorMulAddRightInputExecutorNode extends Float64VectorDualArithmeticExecutorNode {
-		public Float64VectorMulAddRightInputExecutorNode(
+	private final class Float64VectorMulAddRightInputNode extends Float64VectorDualArithmeticNode {
+		public Float64VectorMulAddRightInputNode(
 				DataContainer<double[]>[] containers, Float64x3ScalarCacheSynchronizer synchronizer,
-				AccelerationExecutorNode nextNode) {
+				AcceleratorExecutionNode nextNode) {
 
 			super(containers, synchronizer, nextNode);
 		}
-		public final AccelerationExecutorNode execute() {
+		public final AcceleratorExecutionNode execute() {
 
 			//double[] data00 = this.container00.getData();
 			double[] data01 = this.container01.getData();
@@ -1009,14 +1009,14 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 
 	// MUL SUB
 
-	private final class Float64VectorMulSubLeftInputExecutorNode extends Float64VectorDualArithmeticExecutorNode {
-		public Float64VectorMulSubLeftInputExecutorNode(
+	private final class Float64VectorMulSubLeftInputNode extends Float64VectorDualArithmeticNode {
+		public Float64VectorMulSubLeftInputNode(
 				DataContainer<double[]>[] containers, Float64x3ScalarCacheSynchronizer synchronizer,
-				AccelerationExecutorNode nextNode) {
+				AcceleratorExecutionNode nextNode) {
 
 			super(containers, synchronizer, nextNode);
 		}
-		public final AccelerationExecutorNode execute() {
+		public final AcceleratorExecutionNode execute() {
 
 			//double[] data00 = this.container00.getData();
 			double[] data01 = this.container01.getData();
@@ -1035,14 +1035,14 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 		}
 	}
 
-	private final class Float64VectorMulSubRightInputExecutorNode extends Float64VectorDualArithmeticExecutorNode {
-		public Float64VectorMulSubRightInputExecutorNode(
+	private final class Float64VectorMulSubRightInputNode extends Float64VectorDualArithmeticNode {
+		public Float64VectorMulSubRightInputNode(
 				DataContainer<double[]>[] containers, Float64x3ScalarCacheSynchronizer synchronizer,
-				AccelerationExecutorNode nextNode) {
+				AcceleratorExecutionNode nextNode) {
 
 			super(containers, synchronizer, nextNode);
 		}
-		public final AccelerationExecutorNode execute() {
+		public final AcceleratorExecutionNode execute() {
 
 			//double[] data00 = this.container00.getData();
 			double[] data01 = this.container01.getData();
@@ -1063,14 +1063,14 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 
 	// MUL MUL
 
-	private final class Float64VectorMulMulLeftInputExecutorNode extends Float64VectorDualArithmeticExecutorNode {
-		public Float64VectorMulMulLeftInputExecutorNode(
+	private final class Float64VectorMulMulLeftInputNode extends Float64VectorDualArithmeticNode {
+		public Float64VectorMulMulLeftInputNode(
 				DataContainer<double[]>[] containers, Float64x3ScalarCacheSynchronizer synchronizer,
-				AccelerationExecutorNode nextNode) {
+				AcceleratorExecutionNode nextNode) {
 
 			super(containers, synchronizer, nextNode);
 		}
-		public final AccelerationExecutorNode execute() {
+		public final AcceleratorExecutionNode execute() {
 
 			//double[] data00 = this.container00.getData();
 			double[] data01 = this.container01.getData();
@@ -1089,14 +1089,14 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 		}
 	}
 
-	private final class Float64VectorMulMulRightInputExecutorNode extends Float64VectorDualArithmeticExecutorNode {
-		public Float64VectorMulMulRightInputExecutorNode(
+	private final class Float64VectorMulMulRightInputNode extends Float64VectorDualArithmeticNode {
+		public Float64VectorMulMulRightInputNode(
 				DataContainer<double[]>[] containers, Float64x3ScalarCacheSynchronizer synchronizer,
-				AccelerationExecutorNode nextNode) {
+				AcceleratorExecutionNode nextNode) {
 
 			super(containers, synchronizer, nextNode);
 		}
-		public final AccelerationExecutorNode execute() {
+		public final AcceleratorExecutionNode execute() {
 
 			//double[] data00 = this.container00.getData();
 			double[] data01 = this.container01.getData();
@@ -1117,14 +1117,14 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 
 	// MUL DIV
 
-	private final class Float64VectorMulDivLeftInputExecutorNode extends Float64VectorDualArithmeticExecutorNode {
-		public Float64VectorMulDivLeftInputExecutorNode(
+	private final class Float64VectorMulDivLeftInputNode extends Float64VectorDualArithmeticNode {
+		public Float64VectorMulDivLeftInputNode(
 				DataContainer<double[]>[] containers, Float64x3ScalarCacheSynchronizer synchronizer,
-				AccelerationExecutorNode nextNode) {
+				AcceleratorExecutionNode nextNode) {
 
 			super(containers, synchronizer, nextNode);
 		}
-		public final AccelerationExecutorNode execute() {
+		public final AcceleratorExecutionNode execute() {
 
 			//double[] data00 = this.container00.getData();
 			double[] data01 = this.container01.getData();
@@ -1143,14 +1143,14 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 		}
 	}
 
-	private final class Float64VectorMulDivRightInputExecutorNode extends Float64VectorDualArithmeticExecutorNode {
-		public Float64VectorMulDivRightInputExecutorNode(
+	private final class Float64VectorMulDivRightInputNode extends Float64VectorDualArithmeticNode {
+		public Float64VectorMulDivRightInputNode(
 				DataContainer<double[]>[] containers, Float64x3ScalarCacheSynchronizer synchronizer,
-				AccelerationExecutorNode nextNode) {
+				AcceleratorExecutionNode nextNode) {
 
 			super(containers, synchronizer, nextNode);
 		}
-		public final AccelerationExecutorNode execute() {
+		public final AcceleratorExecutionNode execute() {
 
 			//double[] data00 = this.container00.getData();
 			double[] data01 = this.container01.getData();
@@ -1171,14 +1171,14 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 
 	// MUL REM
 
-	private final class Float64VectorMulRemLeftInputExecutorNode extends Float64VectorDualArithmeticExecutorNode {
-		public Float64VectorMulRemLeftInputExecutorNode(
+	private final class Float64VectorMulRemLeftInputNode extends Float64VectorDualArithmeticNode {
+		public Float64VectorMulRemLeftInputNode(
 				DataContainer<double[]>[] containers, Float64x3ScalarCacheSynchronizer synchronizer,
-				AccelerationExecutorNode nextNode) {
+				AcceleratorExecutionNode nextNode) {
 
 			super(containers, synchronizer, nextNode);
 		}
-		public final AccelerationExecutorNode execute() {
+		public final AcceleratorExecutionNode execute() {
 
 			//double[] data00 = this.container00.getData();
 			double[] data01 = this.container01.getData();
@@ -1197,14 +1197,14 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 		}
 	}
 
-	private final class Float64VectorMulRemRightInputExecutorNode extends Float64VectorDualArithmeticExecutorNode {
-		public Float64VectorMulRemRightInputExecutorNode(
+	private final class Float64VectorMulRemRightInputNode extends Float64VectorDualArithmeticNode {
+		public Float64VectorMulRemRightInputNode(
 				DataContainer<double[]>[] containers, Float64x3ScalarCacheSynchronizer synchronizer,
-				AccelerationExecutorNode nextNode) {
+				AcceleratorExecutionNode nextNode) {
 
 			super(containers, synchronizer, nextNode);
 		}
-		public final AccelerationExecutorNode execute() {
+		public final AcceleratorExecutionNode execute() {
 
 			//double[] data00 = this.container00.getData();
 			double[] data01 = this.container01.getData();
@@ -1225,14 +1225,14 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 
 	// DIV ADD
 
-	private final class Float64VectorDivAddLeftInputExecutorNode extends Float64VectorDualArithmeticExecutorNode {
-		public Float64VectorDivAddLeftInputExecutorNode(
+	private final class Float64VectorDivAddLeftInputNode extends Float64VectorDualArithmeticNode {
+		public Float64VectorDivAddLeftInputNode(
 				DataContainer<double[]>[] containers, Float64x3ScalarCacheSynchronizer synchronizer,
-				AccelerationExecutorNode nextNode) {
+				AcceleratorExecutionNode nextNode) {
 
 			super(containers, synchronizer, nextNode);
 		}
-		public final AccelerationExecutorNode execute() {
+		public final AcceleratorExecutionNode execute() {
 
 			//double[] data00 = this.container00.getData();
 			double[] data01 = this.container01.getData();
@@ -1251,14 +1251,14 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 		}
 	}
 
-	private final class Float64VectorDivAddRightInputExecutorNode extends Float64VectorDualArithmeticExecutorNode {
-		public Float64VectorDivAddRightInputExecutorNode(
+	private final class Float64VectorDivAddRightInputNode extends Float64VectorDualArithmeticNode {
+		public Float64VectorDivAddRightInputNode(
 				DataContainer<double[]>[] containers, Float64x3ScalarCacheSynchronizer synchronizer,
-				AccelerationExecutorNode nextNode) {
+				AcceleratorExecutionNode nextNode) {
 
 			super(containers, synchronizer, nextNode);
 		}
-		public final AccelerationExecutorNode execute() {
+		public final AcceleratorExecutionNode execute() {
 
 			//double[] data00 = this.container00.getData();
 			double[] data01 = this.container01.getData();
@@ -1279,14 +1279,14 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 
 	// DIV SUB
 
-	private final class Float64VectorDivSubLeftInputExecutorNode extends Float64VectorDualArithmeticExecutorNode {
-		public Float64VectorDivSubLeftInputExecutorNode(
+	private final class Float64VectorDivSubLeftInputNode extends Float64VectorDualArithmeticNode {
+		public Float64VectorDivSubLeftInputNode(
 				DataContainer<double[]>[] containers, Float64x3ScalarCacheSynchronizer synchronizer,
-				AccelerationExecutorNode nextNode) {
+				AcceleratorExecutionNode nextNode) {
 
 			super(containers, synchronizer, nextNode);
 		}
-		public final AccelerationExecutorNode execute() {
+		public final AcceleratorExecutionNode execute() {
 
 			//double[] data00 = this.container00.getData();
 			double[] data01 = this.container01.getData();
@@ -1305,14 +1305,14 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 		}
 	}
 
-	private final class Float64VectorDivSubRightInputExecutorNode extends Float64VectorDualArithmeticExecutorNode {
-		public Float64VectorDivSubRightInputExecutorNode(
+	private final class Float64VectorDivSubRightInputNode extends Float64VectorDualArithmeticNode {
+		public Float64VectorDivSubRightInputNode(
 				DataContainer<double[]>[] containers, Float64x3ScalarCacheSynchronizer synchronizer,
-				AccelerationExecutorNode nextNode) {
+				AcceleratorExecutionNode nextNode) {
 
 			super(containers, synchronizer, nextNode);
 		}
-		public final AccelerationExecutorNode execute() {
+		public final AcceleratorExecutionNode execute() {
 
 			//double[] data00 = this.container00.getData();
 			double[] data01 = this.container01.getData();
@@ -1333,14 +1333,14 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 
 	// DIV MUL
 
-	private final class Float64VectorDivMulLeftInputExecutorNode extends Float64VectorDualArithmeticExecutorNode {
-		public Float64VectorDivMulLeftInputExecutorNode(
+	private final class Float64VectorDivMulLeftInputNode extends Float64VectorDualArithmeticNode {
+		public Float64VectorDivMulLeftInputNode(
 				DataContainer<double[]>[] containers, Float64x3ScalarCacheSynchronizer synchronizer,
-				AccelerationExecutorNode nextNode) {
+				AcceleratorExecutionNode nextNode) {
 
 			super(containers, synchronizer, nextNode);
 		}
-		public final AccelerationExecutorNode execute() {
+		public final AcceleratorExecutionNode execute() {
 
 			//double[] data00 = this.container00.getData();
 			double[] data01 = this.container01.getData();
@@ -1359,14 +1359,14 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 		}
 	}
 
-	private final class Float64VectorDivMulRightInputExecutorNode extends Float64VectorDualArithmeticExecutorNode {
-		public Float64VectorDivMulRightInputExecutorNode(
+	private final class Float64VectorDivMulRightInputNode extends Float64VectorDualArithmeticNode {
+		public Float64VectorDivMulRightInputNode(
 				DataContainer<double[]>[] containers, Float64x3ScalarCacheSynchronizer synchronizer,
-				AccelerationExecutorNode nextNode) {
+				AcceleratorExecutionNode nextNode) {
 
 			super(containers, synchronizer, nextNode);
 		}
-		public final AccelerationExecutorNode execute() {
+		public final AcceleratorExecutionNode execute() {
 
 			//double[] data00 = this.container00.getData();
 			double[] data01 = this.container01.getData();
@@ -1387,14 +1387,14 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 
 	// DIV DIV
 
-	private final class Float64VectorDivDivLeftInputExecutorNode extends Float64VectorDualArithmeticExecutorNode {
-		public Float64VectorDivDivLeftInputExecutorNode(
+	private final class Float64VectorDivDivLeftInputNode extends Float64VectorDualArithmeticNode {
+		public Float64VectorDivDivLeftInputNode(
 				DataContainer<double[]>[] containers, Float64x3ScalarCacheSynchronizer synchronizer,
-				AccelerationExecutorNode nextNode) {
+				AcceleratorExecutionNode nextNode) {
 
 			super(containers, synchronizer, nextNode);
 		}
-		public final AccelerationExecutorNode execute() {
+		public final AcceleratorExecutionNode execute() {
 
 			//double[] data00 = this.container00.getData();
 			double[] data01 = this.container01.getData();
@@ -1413,14 +1413,14 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 		}
 	}
 
-	private final class Float64VectorDivDivRightInputExecutorNode extends Float64VectorDualArithmeticExecutorNode {
-		public Float64VectorDivDivRightInputExecutorNode(
+	private final class Float64VectorDivDivRightInputNode extends Float64VectorDualArithmeticNode {
+		public Float64VectorDivDivRightInputNode(
 				DataContainer<double[]>[] containers, Float64x3ScalarCacheSynchronizer synchronizer,
-				AccelerationExecutorNode nextNode) {
+				AcceleratorExecutionNode nextNode) {
 
 			super(containers, synchronizer, nextNode);
 		}
-		public final AccelerationExecutorNode execute() {
+		public final AcceleratorExecutionNode execute() {
 
 			//double[] data00 = this.container00.getData();
 			double[] data01 = this.container01.getData();
@@ -1441,14 +1441,14 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 
 	// DIV REM
 
-	private final class Float64VectorDivRemLeftInputExecutorNode extends Float64VectorDualArithmeticExecutorNode {
-		public Float64VectorDivRemLeftInputExecutorNode(
+	private final class Float64VectorDivRemLeftInputNode extends Float64VectorDualArithmeticNode {
+		public Float64VectorDivRemLeftInputNode(
 				DataContainer<double[]>[] containers, Float64x3ScalarCacheSynchronizer synchronizer,
-				AccelerationExecutorNode nextNode) {
+				AcceleratorExecutionNode nextNode) {
 
 			super(containers, synchronizer, nextNode);
 		}
-		public final AccelerationExecutorNode execute() {
+		public final AcceleratorExecutionNode execute() {
 
 			//double[] data00 = this.container00.getData();
 			double[] data01 = this.container01.getData();
@@ -1467,14 +1467,14 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 		}
 	}
 
-	private final class Float64VectorDivRemRightInputExecutorNode extends Float64VectorDualArithmeticExecutorNode {
-		public Float64VectorDivRemRightInputExecutorNode(
+	private final class Float64VectorDivRemRightInputNode extends Float64VectorDualArithmeticNode {
+		public Float64VectorDivRemRightInputNode(
 				DataContainer<double[]>[] containers, Float64x3ScalarCacheSynchronizer synchronizer,
-				AccelerationExecutorNode nextNode) {
+				AcceleratorExecutionNode nextNode) {
 
 			super(containers, synchronizer, nextNode);
 		}
-		public final AccelerationExecutorNode execute() {
+		public final AcceleratorExecutionNode execute() {
 
 			//double[] data00 = this.container00.getData();
 			double[] data01 = this.container01.getData();
@@ -1499,14 +1499,14 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 
 	// REM ADD
 
-	private final class Float64VectorRemAddLeftInputExecutorNode extends Float64VectorDualArithmeticExecutorNode {
-		public Float64VectorRemAddLeftInputExecutorNode(
+	private final class Float64VectorRemAddLeftInputNode extends Float64VectorDualArithmeticNode {
+		public Float64VectorRemAddLeftInputNode(
 				DataContainer<double[]>[] containers, Float64x3ScalarCacheSynchronizer synchronizer,
-				AccelerationExecutorNode nextNode) {
+				AcceleratorExecutionNode nextNode) {
 
 			super(containers, synchronizer, nextNode);
 		}
-		public final AccelerationExecutorNode execute() {
+		public final AcceleratorExecutionNode execute() {
 
 			//double[] data00 = this.container00.getData();
 			double[] data01 = this.container01.getData();
@@ -1525,14 +1525,14 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 		}
 	}
 
-	private final class Float64VectorRemAddRightInputExecutorNode extends Float64VectorDualArithmeticExecutorNode {
-		public Float64VectorRemAddRightInputExecutorNode(
+	private final class Float64VectorRemAddRightInputNode extends Float64VectorDualArithmeticNode {
+		public Float64VectorRemAddRightInputNode(
 				DataContainer<double[]>[] containers, Float64x3ScalarCacheSynchronizer synchronizer,
-				AccelerationExecutorNode nextNode) {
+				AcceleratorExecutionNode nextNode) {
 
 			super(containers, synchronizer, nextNode);
 		}
-		public final AccelerationExecutorNode execute() {
+		public final AcceleratorExecutionNode execute() {
 
 			//double[] data00 = this.container00.getData();
 			double[] data01 = this.container01.getData();
@@ -1553,14 +1553,14 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 
 	// REM SUB
 
-	private final class Float64VectorRemSubLeftInputExecutorNode extends Float64VectorDualArithmeticExecutorNode {
-		public Float64VectorRemSubLeftInputExecutorNode(
+	private final class Float64VectorRemSubLeftInputNode extends Float64VectorDualArithmeticNode {
+		public Float64VectorRemSubLeftInputNode(
 				DataContainer<double[]>[] containers, Float64x3ScalarCacheSynchronizer synchronizer,
-				AccelerationExecutorNode nextNode) {
+				AcceleratorExecutionNode nextNode) {
 
 			super(containers, synchronizer, nextNode);
 		}
-		public final AccelerationExecutorNode execute() {
+		public final AcceleratorExecutionNode execute() {
 
 			//double[] data00 = this.container00.getData();
 			double[] data01 = this.container01.getData();
@@ -1579,14 +1579,14 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 		}
 	}
 
-	private final class Float64VectorRemSubRightInputExecutorNode extends Float64VectorDualArithmeticExecutorNode {
-		public Float64VectorRemSubRightInputExecutorNode(
+	private final class Float64VectorRemSubRightInputNode extends Float64VectorDualArithmeticNode {
+		public Float64VectorRemSubRightInputNode(
 				DataContainer<double[]>[] containers, Float64x3ScalarCacheSynchronizer synchronizer,
-				AccelerationExecutorNode nextNode) {
+				AcceleratorExecutionNode nextNode) {
 
 			super(containers, synchronizer, nextNode);
 		}
-		public final AccelerationExecutorNode execute() {
+		public final AcceleratorExecutionNode execute() {
 
 			//double[] data00 = this.container00.getData();
 			double[] data01 = this.container01.getData();
@@ -1607,14 +1607,14 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 
 	// REM MUL
 
-	private final class Float64VectorRemMulLeftInputExecutorNode extends Float64VectorDualArithmeticExecutorNode {
-		public Float64VectorRemMulLeftInputExecutorNode(
+	private final class Float64VectorRemMulLeftInputNode extends Float64VectorDualArithmeticNode {
+		public Float64VectorRemMulLeftInputNode(
 				DataContainer<double[]>[] containers, Float64x3ScalarCacheSynchronizer synchronizer,
-				AccelerationExecutorNode nextNode) {
+				AcceleratorExecutionNode nextNode) {
 
 			super(containers, synchronizer, nextNode);
 		}
-		public final AccelerationExecutorNode execute() {
+		public final AcceleratorExecutionNode execute() {
 
 			//double[] data00 = this.container00.getData();
 			double[] data01 = this.container01.getData();
@@ -1633,14 +1633,14 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 		}
 	}
 
-	private final class Float64VectorRemMulRightInputExecutorNode extends Float64VectorDualArithmeticExecutorNode {
-		public Float64VectorRemMulRightInputExecutorNode(
+	private final class Float64VectorRemMulRightInputNode extends Float64VectorDualArithmeticNode {
+		public Float64VectorRemMulRightInputNode(
 				DataContainer<double[]>[] containers, Float64x3ScalarCacheSynchronizer synchronizer,
-				AccelerationExecutorNode nextNode) {
+				AcceleratorExecutionNode nextNode) {
 
 			super(containers, synchronizer, nextNode);
 		}
-		public final AccelerationExecutorNode execute() {
+		public final AcceleratorExecutionNode execute() {
 
 			//double[] data00 = this.container00.getData();
 			double[] data01 = this.container01.getData();
@@ -1661,14 +1661,14 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 
 	// REM DIV
 
-	private final class Float64VectorRemDivLeftInputExecutorNode extends Float64VectorDualArithmeticExecutorNode {
-		public Float64VectorRemDivLeftInputExecutorNode(
+	private final class Float64VectorRemDivLeftInputNode extends Float64VectorDualArithmeticNode {
+		public Float64VectorRemDivLeftInputNode(
 				DataContainer<double[]>[] containers, Float64x3ScalarCacheSynchronizer synchronizer,
-				AccelerationExecutorNode nextNode) {
+				AcceleratorExecutionNode nextNode) {
 
 			super(containers, synchronizer, nextNode);
 		}
-		public final AccelerationExecutorNode execute() {
+		public final AcceleratorExecutionNode execute() {
 
 			//double[] data00 = this.container00.getData();
 			double[] data01 = this.container01.getData();
@@ -1687,14 +1687,14 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 		}
 	}
 
-	private final class Float64VectorRemDivRightInputExecutorNode extends Float64VectorDualArithmeticExecutorNode {
-		public Float64VectorRemDivRightInputExecutorNode(
+	private final class Float64VectorRemDivRightInputNode extends Float64VectorDualArithmeticNode {
+		public Float64VectorRemDivRightInputNode(
 				DataContainer<double[]>[] containers, Float64x3ScalarCacheSynchronizer synchronizer,
-				AccelerationExecutorNode nextNode) {
+				AcceleratorExecutionNode nextNode) {
 
 			super(containers, synchronizer, nextNode);
 		}
-		public final AccelerationExecutorNode execute() {
+		public final AcceleratorExecutionNode execute() {
 
 			//double[] data00 = this.container00.getData();
 			double[] data01 = this.container01.getData();
@@ -1715,14 +1715,14 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 
 	// REM REM
 
-	private final class Float64VectorRemRemLeftInputExecutorNode extends Float64VectorDualArithmeticExecutorNode {
-		public Float64VectorRemRemLeftInputExecutorNode(
+	private final class Float64VectorRemRemLeftInputNode extends Float64VectorDualArithmeticNode {
+		public Float64VectorRemRemLeftInputNode(
 				DataContainer<double[]>[] containers, Float64x3ScalarCacheSynchronizer synchronizer,
-				AccelerationExecutorNode nextNode) {
+				AcceleratorExecutionNode nextNode) {
 
 			super(containers, synchronizer, nextNode);
 		}
-		public final AccelerationExecutorNode execute() {
+		public final AcceleratorExecutionNode execute() {
 
 			//double[] data00 = this.container00.getData();
 			double[] data01 = this.container01.getData();
@@ -1741,14 +1741,14 @@ public class Float64VectorDualArithmeticUnit extends AccelerationUnit {
 		}
 	}
 
-	private final class Float64VectorRemRemRightInputExecutorNode extends Float64VectorDualArithmeticExecutorNode {
-		public Float64VectorRemRemRightInputExecutorNode(
+	private final class Float64VectorRemRemRightInputNode extends Float64VectorDualArithmeticNode {
+		public Float64VectorRemRemRightInputNode(
 				DataContainer<double[]>[] containers, Float64x3ScalarCacheSynchronizer synchronizer,
-				AccelerationExecutorNode nextNode) {
+				AcceleratorExecutionNode nextNode) {
 
 			super(containers, synchronizer, nextNode);
 		}
-		public final AccelerationExecutorNode execute() {
+		public final AcceleratorExecutionNode execute() {
 
 			//double[] data00 = this.container00.getData();
 			double[] data01 = this.container01.getData();

@@ -8,30 +8,30 @@ package org.vcssl.nano.vm.accelerator;
 import org.vcssl.nano.VnanoFatalException;
 import org.vcssl.nano.vm.memory.DataContainer;
 
-public class BoolCachedScalarBranchUnit extends AccelerationUnit {
+public class BoolCachedScalarBranchUnit extends AcceleratorExecutionUnit {
 
 	@Override
-	public AccelerationExecutorNode generateExecutorNode(
+	public AcceleratorExecutionNode generateNode(
 			AcceleratorInstruction instruction, DataContainer<?>[] operandContainers,
-			Object[] operandCaches, boolean[] operandCached, boolean[] operandScalar, boolean[] operandConstant,
-			AccelerationExecutorNode nextNode) {
+			Object[] operandCaches, boolean[] operandCachingEnabled, boolean[] operandScalar, boolean[] operandConstant,
+			AcceleratorExecutionNode nextNode) {
 
 		BoolScalarCache conditionCache = (BoolScalarCache)operandCaches[2];
 
-		AccelerationExecutorNode executor = null;
+		AcceleratorExecutionNode node = null;
 		switch (instruction.getOperationCode()) {
 			case JMP : {
 				// 条件値が定数の場合は、常に成功か失敗のどちらか（固定）に飛ぶノードを生成
 				if (operandConstant[2]) {
 					boolean condition = ( (boolean[])operandContainers[2].getData() )[0]; // 条件の低数値
 					if (condition) {
-						executor = new CachedScalarUnconditionalJmpExecutorNode(nextNode);
+						node = new CachedScalarUnconditionalJmpNode(nextNode);
 					} else {
-						executor = new CachedScalarUnconditionalNeverJmpExecutorNode(nextNode);
+						node = new CachedScalarUnconditionalNeverJmpNode(nextNode);
 					}
 				// そうでない通常の場合は、スカラキャッシュから条件値を読んで飛ぶノードを生成
 				} else {
-					executor = new CachedScalarJmpExecutorNode(conditionCache, nextNode);
+					node = new CachedScalarJmpNode(conditionCache, nextNode);
 				}
 				break;
 			}
@@ -40,13 +40,13 @@ public class BoolCachedScalarBranchUnit extends AccelerationUnit {
 				if (operandConstant[2]) {
 					boolean condition = ( (boolean[])operandContainers[2].getData() )[0]; // 条件の低数値
 					if (condition) {
-						executor = new CachedScalarUnconditionalNeverJmpExecutorNode(nextNode);
+						node = new CachedScalarUnconditionalNeverJmpNode(nextNode);
 					} else {
-						executor = new CachedScalarUnconditionalJmpExecutorNode(nextNode);
+						node = new CachedScalarUnconditionalJmpNode(nextNode);
 					}
 				// そうでない通常の場合は、スカラキャッシュから条件値を読んで飛ぶノードを生成
 				} else {
-					executor = new CachedScalarJmpnExecutorNode(conditionCache, nextNode);
+					node = new CachedScalarJmpnNode(conditionCache, nextNode);
 				}
 				break;
 			}
@@ -56,26 +56,26 @@ public class BoolCachedScalarBranchUnit extends AccelerationUnit {
 				);
 			}
 		}
-		return executor;
+		return node;
 	}
 
 
-	private final class CachedScalarJmpExecutorNode extends AccelerationExecutorNode {
+	private final class CachedScalarJmpNode extends AcceleratorExecutionNode {
 		private final BoolScalarCache conditionCache;
-		private AccelerationExecutorNode branchedNode = null;
+		private AcceleratorExecutionNode branchedNode = null;
 
-		public CachedScalarJmpExecutorNode(BoolScalarCache conditionCache, AccelerationExecutorNode nextNode) {
+		public CachedScalarJmpNode(BoolScalarCache conditionCache, AcceleratorExecutionNode nextNode) {
 			super(nextNode);
 			this.conditionCache = conditionCache;
 		}
 
 		@Override
-		public void setLaundingPointNodes(AccelerationExecutorNode ... branchedNode) {
+		public void setLaundingPointNodes(AcceleratorExecutionNode ... branchedNode) {
 			this.branchedNode = branchedNode[0];
 		}
 
 		@Override
-		public final AccelerationExecutorNode execute() {
+		public final AcceleratorExecutionNode execute() {
 			if (this.conditionCache.value) {
 				return this.branchedNode;
 			} else {
@@ -86,23 +86,23 @@ public class BoolCachedScalarBranchUnit extends AccelerationUnit {
 	}
 
 
-	private final class CachedScalarJmpnExecutorNode extends AccelerationExecutorNode {
+	private final class CachedScalarJmpnNode extends AcceleratorExecutionNode {
 		private final BoolScalarCache conditionCache;
-		private AccelerationExecutorNode branchedNode = null;
+		private AcceleratorExecutionNode branchedNode = null;
 
-		public CachedScalarJmpnExecutorNode(BoolScalarCache conditionCache, AccelerationExecutorNode nextNode) {
+		public CachedScalarJmpnNode(BoolScalarCache conditionCache, AcceleratorExecutionNode nextNode) {
 			super(nextNode);
 
 			this.conditionCache = conditionCache;
 		}
 
 		@Override
-		public void setLaundingPointNodes(AccelerationExecutorNode ... branchedNode) {
+		public void setLaundingPointNodes(AcceleratorExecutionNode ... branchedNode) {
 			this.branchedNode = branchedNode[0];
 		}
 
 		@Override
-		public final AccelerationExecutorNode execute() {
+		public final AcceleratorExecutionNode execute() {
 			if (this.conditionCache.value) {
 				return this.nextNode;
 			} else {
@@ -112,32 +112,32 @@ public class BoolCachedScalarBranchUnit extends AccelerationUnit {
 	}
 
 
-	private final class CachedScalarUnconditionalJmpExecutorNode extends AccelerationExecutorNode {
-		private AccelerationExecutorNode branchedNode = null;
+	private final class CachedScalarUnconditionalJmpNode extends AcceleratorExecutionNode {
+		private AcceleratorExecutionNode branchedNode = null;
 
-		public CachedScalarUnconditionalJmpExecutorNode(AccelerationExecutorNode nextNode) {
+		public CachedScalarUnconditionalJmpNode(AcceleratorExecutionNode nextNode) {
 			super(nextNode);
 		}
 
 		@Override
-		public void setLaundingPointNodes(AccelerationExecutorNode ... branchedNode) {
+		public void setLaundingPointNodes(AcceleratorExecutionNode ... branchedNode) {
 			this.branchedNode = branchedNode[0];
 		}
 
 		@Override
-		public final AccelerationExecutorNode execute() {
+		public final AcceleratorExecutionNode execute() {
 			return this.branchedNode;
 		}
 	}
 
-	private final class CachedScalarUnconditionalNeverJmpExecutorNode extends AccelerationExecutorNode {
+	private final class CachedScalarUnconditionalNeverJmpNode extends AcceleratorExecutionNode {
 
-		public CachedScalarUnconditionalNeverJmpExecutorNode(AccelerationExecutorNode nextNode) {
+		public CachedScalarUnconditionalNeverJmpNode(AcceleratorExecutionNode nextNode) {
 			super(nextNode);
 		}
 
 		@Override
-		public final AccelerationExecutorNode execute() {
+		public final AcceleratorExecutionNode execute() {
 			return this.nextNode;
 		}
 	}

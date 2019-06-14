@@ -9,28 +9,28 @@ import org.vcssl.nano.VnanoFatalException;
 import org.vcssl.nano.spec.DataType;
 import org.vcssl.nano.vm.memory.DataContainer;
 
-public class Float64CachedScalarTransferUnit extends AccelerationUnit {
+public class Float64CachedScalarTransferUnit extends AcceleratorExecutionUnit {
 
 	@Override
-	public AccelerationExecutorNode generateExecutorNode(
+	public AcceleratorExecutionNode generateNode(
 			AcceleratorInstruction instruction, DataContainer<?>[] operandContainers,
-			Object[] operandCaches, boolean[] operandCached, boolean[] operandScalar, boolean[] operandConstant,
-			AccelerationExecutorNode nextNode) {
+			Object[] operandCaches, boolean[] operandCachingEnabled, boolean[] operandScalar, boolean[] operandConstant,
+			AcceleratorExecutionNode nextNode) {
 
-		AccelerationExecutorNode executor = null;
+		AcceleratorExecutionNode node = null;
 		switch (instruction.getOperationCode()) {
 			case MOV :
 			case FILL : {
-				executor = new Float64CachedScalarMovExecutorNode(
+				node = new Float64CachedScalarMovNode(
 						(Float64ScalarCache)operandCaches[0], (Float64ScalarCache)operandCaches[1], nextNode);
 				break;
 			}
 			case CAST : {
 				if (instruction.getDataTypes()[1] == DataType.FLOAT64) {
-					executor = new Float64CachedScalarMovExecutorNode(
+					node = new Float64CachedScalarMovNode(
 							(Float64ScalarCache)operandCaches[0], (Float64ScalarCache)operandCaches[1], nextNode);
 				} else if (instruction.getDataTypes()[1] == DataType.INT64) {
-					executor = new Float64FromInt64CachedScalarCastExecutorNode(
+					node = new Float64FromInt64CachedScalarCastNode(
 							(Float64ScalarCache)operandCaches[0], (Int64ScalarCache)operandCaches[1], nextNode);
 				} else {
 					throw new VnanoFatalException(
@@ -46,40 +46,40 @@ public class Float64CachedScalarTransferUnit extends AccelerationUnit {
 				);
 			}
 		}
-		return executor;
+		return node;
 	}
 
-	private class Float64CachedScalarMovExecutorNode extends AccelerationExecutorNode {
+	private class Float64CachedScalarMovNode extends AcceleratorExecutionNode {
 		protected final Float64ScalarCache cache0;
 		protected final Float64ScalarCache cache1;
 
-		public Float64CachedScalarMovExecutorNode(Float64ScalarCache cache0, Float64ScalarCache cache1,
-				AccelerationExecutorNode nextNode) {
+		public Float64CachedScalarMovNode(Float64ScalarCache cache0, Float64ScalarCache cache1,
+				AcceleratorExecutionNode nextNode) {
 
 			super(nextNode);
 			this.cache0 = cache0;
 			this.cache1 = cache1;
 		}
 
-		public final AccelerationExecutorNode execute() {
+		public final AcceleratorExecutionNode execute() {
 			this.cache0.value = this.cache1.value;
 			return this.nextNode;
 		}
 	}
 
-	private class Float64FromInt64CachedScalarCastExecutorNode extends AccelerationExecutorNode {
+	private class Float64FromInt64CachedScalarCastNode extends AcceleratorExecutionNode {
 		protected final Float64ScalarCache cache0;
 		protected final Int64ScalarCache cache1;
 
-		public Float64FromInt64CachedScalarCastExecutorNode(Float64ScalarCache cache0, Int64ScalarCache cache1,
-				AccelerationExecutorNode nextNode) {
+		public Float64FromInt64CachedScalarCastNode(Float64ScalarCache cache0, Int64ScalarCache cache1,
+				AcceleratorExecutionNode nextNode) {
 
 			super(nextNode);
 			this.cache0 = cache0;
 			this.cache1 = cache1;
 		}
 
-		public final AccelerationExecutorNode execute() {
+		public final AcceleratorExecutionNode execute() {
 			this.cache0.value = this.cache1.value;
 			return this.nextNode;
 		}

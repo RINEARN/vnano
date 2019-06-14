@@ -57,14 +57,14 @@
 ./org/vcssl/nano/spec/PriorityTable.java
 ./org/vcssl/nano/spec/ScriptWord.java
 ./org/vcssl/nano/spec/SpecialBindingKey.java
-./org/vcssl/nano/vm/accelerator/AccelerationDataManager.java
-./org/vcssl/nano/vm/accelerator/AccelerationDispatcher.java
-./org/vcssl/nano/vm/accelerator/AccelerationExecutorNode.java
-./org/vcssl/nano/vm/accelerator/AccelerationScheduler.java
-./org/vcssl/nano/vm/accelerator/AccelerationType.java
-./org/vcssl/nano/vm/accelerator/AccelerationUnit.java
 ./org/vcssl/nano/vm/accelerator/Accelerator.java
+./org/vcssl/nano/vm/accelerator/AcceleratorDataManagementUnit.java
+./org/vcssl/nano/vm/accelerator/AcceleratorDispatchUnit.java
+./org/vcssl/nano/vm/accelerator/AcceleratorExecutionNode.java
+./org/vcssl/nano/vm/accelerator/AcceleratorExecutionType.java
+./org/vcssl/nano/vm/accelerator/AcceleratorExecutionUnit.java
 ./org/vcssl/nano/vm/accelerator/AcceleratorInstruction.java
+./org/vcssl/nano/vm/accelerator/AcceleratorSchedulingUnit.java
 ./org/vcssl/nano/vm/accelerator/BoolCachedScalarBranchUnit.java
 ./org/vcssl/nano/vm/accelerator/BoolCachedScalarLogicalUnit.java
 ./org/vcssl/nano/vm/accelerator/BoolCachedScalarTransferUnit.java
@@ -78,6 +78,7 @@
 ./org/vcssl/nano/vm/accelerator/Boolx1ScalarCacheSynchronizer.java
 ./org/vcssl/nano/vm/accelerator/Boolx2ScalarCacheSynchronizer.java
 ./org/vcssl/nano/vm/accelerator/Boolx3ScalarCacheSynchronizer.java
+./org/vcssl/nano/vm/accelerator/BypassUnit.java
 ./org/vcssl/nano/vm/accelerator/CacheSynchronizer.java
 ./org/vcssl/nano/vm/accelerator/Float64CachedScalarArithmeticUnit.java
 ./org/vcssl/nano/vm/accelerator/Float64CachedScalarComparisonUnit.java
@@ -112,6 +113,7 @@
 ./org/vcssl/nano/vm/accelerator/Int64x3ScalarCacheSynchronizer.java
 ./org/vcssl/nano/vm/accelerator/InternalFunctionControlUnit.java
 ./org/vcssl/nano/vm/accelerator/NoneCache.java
+./org/vcssl/nano/vm/accelerator/NopUnit.java
 ./org/vcssl/nano/vm/accelerator/package-info.java
 ./org/vcssl/nano/vm/accelerator/ScalarCache.java
 ./org/vcssl/nano/vm/assembler/Assembler.java

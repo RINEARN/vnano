@@ -8,39 +8,39 @@ package org.vcssl.nano.vm.accelerator;
 import org.vcssl.nano.VnanoFatalException;
 import org.vcssl.nano.vm.memory.DataContainer;
 
-public class Float64ScalarArithmeticUnit extends AccelerationUnit {
+public class Float64ScalarArithmeticUnit extends AcceleratorExecutionUnit {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public AccelerationExecutorNode generateExecutorNode(
+	public AcceleratorExecutionNode generateNode(
 			AcceleratorInstruction instruction, DataContainer<?>[] operandContainers,
-			Object[] operandCaches, boolean[] operandCached, boolean[] operandScalar, boolean[] operandConstant,
-			AccelerationExecutorNode nextNode) {
+			Object[] operandCaches, boolean[] operandCachingEnabled, boolean[] operandScalar, boolean[] operandConstant,
+			AcceleratorExecutionNode nextNode) {
 
 		DataContainer<double[]>[] containers = (DataContainer<double[]>[])operandContainers;
 		Float64x3ScalarCacheSynchronizer synchronizer =
-				new Float64x3ScalarCacheSynchronizer(operandContainers, operandCaches, operandCached);
+				new Float64x3ScalarCacheSynchronizer(operandContainers, operandCaches, operandCachingEnabled);
 
-		AccelerationExecutorNode executor = null;
+		AcceleratorExecutionNode node = null;
 		switch (instruction.getOperationCode()) {
 			case ADD : {
-				executor = new Float64ScalarAddExecutorNode(containers[0], containers[1], containers[2], synchronizer, nextNode);
+				node = new Float64ScalarAddNode(containers[0], containers[1], containers[2], synchronizer, nextNode);
 				break;
 			}
 			case SUB : {
-				executor = new Float64ScalarSubExecutorNode(containers[0], containers[1], containers[2], synchronizer, nextNode);
+				node = new Float64ScalarSubNode(containers[0], containers[1], containers[2], synchronizer, nextNode);
 				break;
 			}
 			case MUL : {
-				executor = new Float64ScalarMulExecutorNode(containers[0], containers[1], containers[2], synchronizer, nextNode);
+				node = new Float64ScalarMulNode(containers[0], containers[1], containers[2], synchronizer, nextNode);
 				break;
 			}
 			case DIV : {
-				executor = new Float64ScalarDivExecutorNode(containers[0], containers[1], containers[2], synchronizer, nextNode);
+				node = new Float64ScalarDivNode(containers[0], containers[1], containers[2], synchronizer, nextNode);
 				break;
 			}
 			case REM : {
-				executor = new Float64ScalarRemExecutorNode(containers[0], containers[1], containers[2], synchronizer, nextNode);
+				node = new Float64ScalarRemNode(containers[0], containers[1], containers[2], synchronizer, nextNode);
 				break;
 			}
 			default : {
@@ -49,18 +49,18 @@ public class Float64ScalarArithmeticUnit extends AccelerationUnit {
 				);
 			}
 		}
-		return executor;
+		return node;
 	}
 
-	private abstract class Float64ScalarArithmeticExecutorNode extends AccelerationExecutorNode {
+	private abstract class Float64ScalarArithmeticNode extends AcceleratorExecutionNode {
 		protected final DataContainer<double[]> container0;
 		protected final DataContainer<double[]> container1;
 		protected final DataContainer<double[]> container2;
 		protected final Float64x3ScalarCacheSynchronizer synchronizer;
 
-		public Float64ScalarArithmeticExecutorNode(
+		public Float64ScalarArithmeticNode(
 				DataContainer<double[]> container0, DataContainer<double[]> container1, DataContainer<double[]> container2,
-				Float64x3ScalarCacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
+				Float64x3ScalarCacheSynchronizer synchronizer, AcceleratorExecutionNode nextNode) {
 
 			super(nextNode);
 			this.container0 = container0;
@@ -70,16 +70,16 @@ public class Float64ScalarArithmeticUnit extends AccelerationUnit {
 		}
 	}
 
-	private final class Float64ScalarAddExecutorNode extends Float64ScalarArithmeticExecutorNode {
+	private final class Float64ScalarAddNode extends Float64ScalarArithmeticNode {
 
-		public Float64ScalarAddExecutorNode(
+		public Float64ScalarAddNode(
 				DataContainer<double[]> container0, DataContainer<double[]> container1, DataContainer<double[]> container2,
-				Float64x3ScalarCacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
+				Float64x3ScalarCacheSynchronizer synchronizer, AcceleratorExecutionNode nextNode) {
 
 			super(container0, container1, container2, synchronizer, nextNode);
 		}
 
-		public final AccelerationExecutorNode execute() {
+		public final AcceleratorExecutionNode execute() {
 			this.synchronizer.synchronizeFromCacheToMemory();
 			this.container0.getData()[ this.container0.getOffset() ] =
 			this.container1.getData()[ this.container1.getOffset() ] +
@@ -89,16 +89,16 @@ public class Float64ScalarArithmeticUnit extends AccelerationUnit {
 		}
 	}
 
-	private final class Float64ScalarSubExecutorNode extends Float64ScalarArithmeticExecutorNode {
+	private final class Float64ScalarSubNode extends Float64ScalarArithmeticNode {
 
-		public Float64ScalarSubExecutorNode(
+		public Float64ScalarSubNode(
 				DataContainer<double[]> container0, DataContainer<double[]> container1, DataContainer<double[]> container2,
-				Float64x3ScalarCacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
+				Float64x3ScalarCacheSynchronizer synchronizer, AcceleratorExecutionNode nextNode) {
 
 			super(container0, container1, container2, synchronizer, nextNode);
 		}
 
-		public final AccelerationExecutorNode execute() {
+		public final AcceleratorExecutionNode execute() {
 			this.synchronizer.synchronizeFromCacheToMemory();
 			this.container0.getData()[ this.container0.getOffset() ] =
 			this.container1.getData()[ this.container1.getOffset() ] -
@@ -108,16 +108,16 @@ public class Float64ScalarArithmeticUnit extends AccelerationUnit {
 		}
 	}
 
-	private final class Float64ScalarMulExecutorNode extends Float64ScalarArithmeticExecutorNode {
+	private final class Float64ScalarMulNode extends Float64ScalarArithmeticNode {
 
-		public Float64ScalarMulExecutorNode(
+		public Float64ScalarMulNode(
 				DataContainer<double[]> container0, DataContainer<double[]> container1, DataContainer<double[]> container2,
-				Float64x3ScalarCacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
+				Float64x3ScalarCacheSynchronizer synchronizer, AcceleratorExecutionNode nextNode) {
 
 			super(container0, container1, container2, synchronizer, nextNode);
 		}
 
-		public final AccelerationExecutorNode execute() {
+		public final AcceleratorExecutionNode execute() {
 			this.synchronizer.synchronizeFromCacheToMemory();
 			this.container0.getData()[ this.container0.getOffset() ] =
 			this.container1.getData()[ this.container1.getOffset() ] *
@@ -127,16 +127,16 @@ public class Float64ScalarArithmeticUnit extends AccelerationUnit {
 		}
 	}
 
-	private final class Float64ScalarDivExecutorNode extends Float64ScalarArithmeticExecutorNode {
+	private final class Float64ScalarDivNode extends Float64ScalarArithmeticNode {
 
-		public Float64ScalarDivExecutorNode(
+		public Float64ScalarDivNode(
 				DataContainer<double[]> container0, DataContainer<double[]> container1, DataContainer<double[]> container2,
-				Float64x3ScalarCacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
+				Float64x3ScalarCacheSynchronizer synchronizer, AcceleratorExecutionNode nextNode) {
 
 			super(container0, container1, container2, synchronizer, nextNode);
 		}
 
-		public final AccelerationExecutorNode execute() {
+		public final AcceleratorExecutionNode execute() {
 			this.synchronizer.synchronizeFromCacheToMemory();
 			this.container0.getData()[ this.container0.getOffset() ] =
 			this.container1.getData()[ this.container1.getOffset() ] /
@@ -146,16 +146,16 @@ public class Float64ScalarArithmeticUnit extends AccelerationUnit {
 		}
 	}
 
-	private final class Float64ScalarRemExecutorNode extends Float64ScalarArithmeticExecutorNode {
+	private final class Float64ScalarRemNode extends Float64ScalarArithmeticNode {
 
-		public Float64ScalarRemExecutorNode(
+		public Float64ScalarRemNode(
 				DataContainer<double[]> container0, DataContainer<double[]> container1, DataContainer<double[]> container2,
-				Float64x3ScalarCacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
+				Float64x3ScalarCacheSynchronizer synchronizer, AcceleratorExecutionNode nextNode) {
 
 			super(container0, container1, container2, synchronizer, nextNode);
 		}
 
-		public final AccelerationExecutorNode execute() {
+		public final AcceleratorExecutionNode execute() {
 			this.synchronizer.synchronizeFromCacheToMemory();
 			this.container0.getData()[ this.container0.getOffset() ] =
 			this.container1.getData()[ this.container1.getOffset() ] %

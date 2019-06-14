@@ -82,11 +82,11 @@ public class Accelerator {
 
 
 		// スカラ判定やキャッシュ確保などの高速化用データ解析を実行
-		AccelerationDataManager dataManager = new AccelerationDataManager();
+		AcceleratorDataManagementUnit dataManager = new AcceleratorDataManagementUnit();
 		dataManager.allocate(instructions, memory);
 
 		// 命令スケジューラで命令列を高速化用に再配置・変換
-		AccelerationScheduler scheduler = new AccelerationScheduler();
+		AcceleratorSchedulingUnit scheduler = new AcceleratorSchedulingUnit();
 		AcceleratorInstruction[] acceleratorInstructions = scheduler.schedule(instructions, memory, dataManager);
 
 		// 変換後の命令列をダンプ
@@ -94,27 +94,30 @@ public class Accelerator {
 			if (dumpTargetIsAll) {
 				dumpStream.println("================================================================================");
 				dumpStream.println("= Accelerator Code");
-				dumpStream.println("= - Output of: org.vcssl.nano.vm.accelerator.AccelerationScheduler");
-				dumpStream.println("= - Input  of: org.vcssl.nano.vm.accelerator.AccelerationDispatcher");
+				dumpStream.println("= - Output of: org.vcssl.nano.vm.accelerator.AcceleratorSchedulingUnit");
+				dumpStream.println("= - Input  of: org.vcssl.nano.vm.accelerator.AcceleratorDispatchUnit");
 				dumpStream.println("================================================================================");
 			}
 			int acceleratorInstructionLength = acceleratorInstructions.length;
 			for (int i=0; i<acceleratorInstructionLength; i++) {
-				dumpStream.println("[" + i + "]\t" + acceleratorInstructions[i]);
+				int unreorderedAddr = acceleratorInstructions[i].getUnreorderedAddress();
+				dumpStream.println("[" + i + "] <- [" + unreorderedAddr + "]\t" + acceleratorInstructions[i]);
 			}
 			if (dumpTargetIsAll) {
 				dumpStream.println("");
 			}
 		}
 
+		// アクセラレータで対応していない命令を、そのまま下層の仮想プロセッサに投げる、バイパス演算ユニットを生成
+		BypassUnit bypassUnit = new BypassUnit(processor, memory, interconnect);
 
-		// 内部関数関連の命令やスタックなどを統合的に管理する、内部関数制御ユニットを生成
+		// コールスタックやアドレスなどを統合的に管理しつつ、内部関数関連の命令を実行する、内部関数演算ユニットを生成
 		InternalFunctionControlUnit functionControlUnit = new InternalFunctionControlUnit();
 
-		// 命令列を演算器に割り当てて演算実行ノード列を生成
-		AccelerationDispatcher dispatcher = new AccelerationDispatcher();
-		AccelerationExecutorNode[] executorNodes = dispatcher.dispatch(
-				processor, memory, interconnect, acceleratorInstructions, dataManager, functionControlUnit
+		// 命令列をアクセラレータ内の演算器に割り当てて演算実行ノード列を生成
+		AcceleratorDispatchUnit dispatcher = new AcceleratorDispatchUnit();
+		AcceleratorExecutionNode[] nodes = dispatcher.dispatch(
+				processor, memory, interconnect, acceleratorInstructions, dataManager, bypassUnit, functionControlUnit
 		);
 
 		// 演算実行ノード列をダンプ
@@ -122,11 +125,11 @@ public class Accelerator {
 			if (dumpTargetIsAll) {
 				dumpStream.println("================================================================================");
 				dumpStream.println("= Accelerator State (Execution Unit Dispatchment)");
-				dumpStream.println("= - Output of: org.vcssl.nano.vm.accelerator.AccelerationDispatcher");
+				dumpStream.println("= - Output of: org.vcssl.nano.vm.accelerator.AcceleratorDispatchUnit");
 				dumpStream.println("================================================================================");
 			}
-			for (int i=0; i<executorNodes.length; i++) {
-				dumpStream.println("[" + i + "]\t" + executorNodes[i]);
+			for (int i=0; i<nodes.length; i++) {
+				dumpStream.println("[" + i + "]\t" + nodes[i]);
 			}
 			if (dumpTargetIsAll) {
 				dumpStream.println("");
@@ -135,7 +138,7 @@ public class Accelerator {
 
 
 		// 内部関数のリターンは、スタック上に動的に積まれた命令アドレスに飛ぶため、全命令のノードを保持する必要がある
-		functionControlUnit.setNodes(executorNodes);
+		functionControlUnit.setNodes(nodes);
 
 		// キャッシュにメモリのデータを書き込む
 		dataManager.getCacheSynchronizers(Memory.Partition.CONSTANT).synchronizeFromMemoryToCache();
@@ -155,9 +158,9 @@ public class Accelerator {
 
 
 		// 以下、命令の逐次実行ループ
-		AccelerationExecutorNode nextNode = null;
-		if (executorNodes.length != 0) {
-			nextNode = executorNodes[0];
+		AcceleratorExecutionNode nextNode = null;
+		if (nodes.length != 0) {
+			nextNode = nodes[0];
 		}
 		try {
 			while (nextNode != null) {
@@ -167,13 +170,11 @@ public class Accelerator {
 			AcceleratorInstruction causeInstruction = nextNode.getSourceInstruction();
 			int unreorderedAddress = causeInstruction.getUnreorderedAddress();
 			int reorderedAddress = causeInstruction.getReorderedAddress();
-			throw new VnanoFatalException(
-					"Accelerator crashed at:"
-					+ " address=" + unreorderedAddress
+			String errorMessage = "Accelerator crashed at:"
+					+ " originalAddress=" + unreorderedAddress
 					+ " reorderedAddress=" + reorderedAddress
-					+ " instruction=" + causeInstruction,
-					causeException
-			);
+					+ " instruction=" + causeInstruction;
+			throw new VnanoFatalException(errorMessage, causeException);
 		}
 	}
 }

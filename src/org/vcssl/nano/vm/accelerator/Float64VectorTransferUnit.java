@@ -11,21 +11,21 @@ import org.vcssl.nano.VnanoFatalException;
 import org.vcssl.nano.spec.DataType;
 import org.vcssl.nano.vm.memory.DataContainer;
 
-public class Float64VectorTransferUnit extends AccelerationUnit {
+public class Float64VectorTransferUnit extends AcceleratorExecutionUnit {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public AccelerationExecutorNode generateExecutorNode(
+	public AcceleratorExecutionNode generateNode(
 			AcceleratorInstruction instruction, DataContainer<?>[] operandContainers,
-			Object[] operandCaches, boolean[] operandCached, boolean[] operandScalar, boolean[] operandConstant,
-			AccelerationExecutorNode nextNode) {
+			Object[] operandCaches, boolean[] operandCachingEnabled, boolean[] operandScalar, boolean[] operandConstant,
+			AcceleratorExecutionNode nextNode) {
 
-		AccelerationExecutorNode executor = null;
+		AcceleratorExecutionNode node = null;
 		switch (instruction.getOperationCode()) {
 			case MOV : {
 				Float64x2ScalarCacheSynchronizer synchronizer
-						= new Float64x2ScalarCacheSynchronizer(operandContainers, operandCaches, operandCached);
-				executor = new Float64VectorMovExecutorNode(
+						= new Float64x2ScalarCacheSynchronizer(operandContainers, operandCaches, operandCachingEnabled);
+				node = new Float64VectorMovNode(
 						(DataContainer<double[]>)operandContainers[0], (DataContainer<double[]>)operandContainers[1],
 						synchronizer, nextNode);
 				break;
@@ -33,14 +33,14 @@ public class Float64VectorTransferUnit extends AccelerationUnit {
 			case CAST : {
 				if (instruction.getDataTypes()[1] == DataType.FLOAT64) {
 					Float64x2ScalarCacheSynchronizer synchronizer
-							= new Float64x2ScalarCacheSynchronizer(operandContainers, operandCaches, operandCached);
-					executor = new Float64VectorMovExecutorNode(
+							= new Float64x2ScalarCacheSynchronizer(operandContainers, operandCaches, operandCachingEnabled);
+					node = new Float64VectorMovNode(
 							(DataContainer<double[]>)operandContainers[0], (DataContainer<double[]>)operandContainers[1],
 							synchronizer, nextNode);
 				} else if (instruction.getDataTypes()[1] == DataType.INT64) {
 					Float64x1Int64x1ScalarCacheSynchronizer synchronizer
-							= new Float64x1Int64x1ScalarCacheSynchronizer(operandContainers, operandCaches, operandCached);
-					executor = new Float64FromInt64VectorCastExecutorNode(
+							= new Float64x1Int64x1ScalarCacheSynchronizer(operandContainers, operandCaches, operandCachingEnabled);
+					node = new Float64FromInt64VectorCastNode(
 							(DataContainer<double[]>)operandContainers[0], (DataContainer<long[]>)operandContainers[1],
 							synchronizer, nextNode);
 				} else {
@@ -53,8 +53,8 @@ public class Float64VectorTransferUnit extends AccelerationUnit {
 			}
 			case FILL : {
 				Float64x2ScalarCacheSynchronizer synchronizer
-						= new Float64x2ScalarCacheSynchronizer(operandContainers, operandCaches, operandCached);
-				executor = new Float64VectorFillExecutorNode(
+						= new Float64x2ScalarCacheSynchronizer(operandContainers, operandCaches, operandCachingEnabled);
+				node = new Float64VectorFillNode(
 						(DataContainer<double[]>)operandContainers[0], (DataContainer<double[]>)operandContainers[1],
 						synchronizer, nextNode);
 				break;
@@ -63,17 +63,17 @@ public class Float64VectorTransferUnit extends AccelerationUnit {
 				break;
 			}
 		}
-		return executor;
+		return node;
 	}
 
-	private final class Float64VectorMovExecutorNode extends AccelerationExecutorNode {
+	private final class Float64VectorMovNode extends AcceleratorExecutionNode {
 		protected final DataContainer<double[]> container0;
 		protected final DataContainer<double[]> container1;
 		protected final Float64x2ScalarCacheSynchronizer synchronizer;
 
-		public Float64VectorMovExecutorNode(
+		public Float64VectorMovNode(
 				DataContainer<double[]> container0, DataContainer<double[]> container1,
-				Float64x2ScalarCacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
+				Float64x2ScalarCacheSynchronizer synchronizer, AcceleratorExecutionNode nextNode) {
 
 			super(nextNode);
 			this.container0 = container0;
@@ -81,7 +81,7 @@ public class Float64VectorTransferUnit extends AccelerationUnit {
 			this.synchronizer = synchronizer;
 		}
 
-		public final AccelerationExecutorNode execute() {
+		public final AcceleratorExecutionNode execute() {
 			this.synchronizer.synchronizeFromCacheToMemory();
 			double[] data0 = this.container0.getData();
 			double[] data1 = this.container1.getData();
@@ -94,14 +94,14 @@ public class Float64VectorTransferUnit extends AccelerationUnit {
 		}
 	}
 
-	private final class Float64FromInt64VectorCastExecutorNode extends AccelerationExecutorNode {
+	private final class Float64FromInt64VectorCastNode extends AcceleratorExecutionNode {
 		protected final DataContainer<double[]> container0;
 		protected final DataContainer<long[]> container1;
 		protected final Float64x1Int64x1ScalarCacheSynchronizer synchronizer;
 
-		public Float64FromInt64VectorCastExecutorNode(
+		public Float64FromInt64VectorCastNode(
 				DataContainer<double[]> container0, DataContainer<long[]> container1,
-				Float64x1Int64x1ScalarCacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
+				Float64x1Int64x1ScalarCacheSynchronizer synchronizer, AcceleratorExecutionNode nextNode) {
 
 			super(nextNode);
 			this.container0 = container0;
@@ -109,7 +109,7 @@ public class Float64VectorTransferUnit extends AccelerationUnit {
 			this.synchronizer = synchronizer;
 		}
 
-		public final AccelerationExecutorNode execute() {
+		public final AcceleratorExecutionNode execute() {
 			this.synchronizer.synchronizeFromCacheToMemory();
 			double[] data0 = this.container0.getData();
 			long[] data1 = this.container1.getData();
@@ -124,14 +124,14 @@ public class Float64VectorTransferUnit extends AccelerationUnit {
 		}
 	}
 
-	private final class Float64VectorFillExecutorNode extends AccelerationExecutorNode {
+	private final class Float64VectorFillNode extends AcceleratorExecutionNode {
 		protected final DataContainer<double[]> container0;
 		protected final DataContainer<double[]> container1;
 		protected final Float64x2ScalarCacheSynchronizer synchronizer;
 
-		public Float64VectorFillExecutorNode(
+		public Float64VectorFillNode(
 				DataContainer<double[]> container0, DataContainer<double[]> container1,
-				Float64x2ScalarCacheSynchronizer synchronizer, AccelerationExecutorNode nextNode) {
+				Float64x2ScalarCacheSynchronizer synchronizer, AcceleratorExecutionNode nextNode) {
 
 			super(nextNode);
 			this.container0 = container0;
@@ -139,7 +139,7 @@ public class Float64VectorTransferUnit extends AccelerationUnit {
 			this.synchronizer = synchronizer;
 		}
 
-		public final AccelerationExecutorNode execute() {
+		public final AcceleratorExecutionNode execute() {
 			this.synchronizer.synchronizeFromCacheToMemory();
 			double[] data0 = this.container0.getData();
 			double fillValue = this.container1.getData()[ this.container1.getOffset() ];

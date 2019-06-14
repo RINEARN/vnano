@@ -10,24 +10,28 @@ import org.vcssl.nano.vm.memory.DataContainer;
 class Boolx1ScalarCacheSynchronizer extends CacheSynchronizer {
 	private final DataContainer<boolean[]> container;
 	private final BoolScalarCache cache;
-	private final boolean cached;
+	private final boolean cacheSyncEnabled;
 
-	public Boolx1ScalarCacheSynchronizer(DataContainer<?>[] containers, Object[] caches, boolean[] cached) {
-		this(containers, caches, cached, 0);
+	public Boolx1ScalarCacheSynchronizer(DataContainer<?>[] containers, Object[] caches,
+			boolean[] cacheSyncEnabled) {
+
+		this(containers, caches, cacheSyncEnabled, 0);
 	}
 
 	@SuppressWarnings("unchecked" )
-	public Boolx1ScalarCacheSynchronizer(DataContainer<?>[] containers, Object[] caches, boolean[] cached, int operandIndex) {
+	public Boolx1ScalarCacheSynchronizer(DataContainer<?>[] containers, Object[] caches,
+			boolean[] cacheSyncEnabled, int operandIndex) {
+
 		this.container = (DataContainer<boolean[]>)containers[operandIndex];
 		this.cache = (BoolScalarCache)caches[operandIndex];
-		this.cached = cached[operandIndex];
+		this.cacheSyncEnabled = cacheSyncEnabled[operandIndex];
 	}
 
 	public final void synchronizeFromCacheToMemory() {
-		if (cached) container.getData()[ container.getOffset() ] = cache.value;
+		if (cacheSyncEnabled) container.getData()[ container.getOffset() ] = cache.value;
 	}
 
 	public final void synchronizeFromMemoryToCache() {
-		if (cached) cache.value = container.getData()[ container.getOffset() ];
+		if (cacheSyncEnabled) cache.value = container.getData()[ container.getOffset() ];
 	}
 }

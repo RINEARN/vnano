@@ -7,8 +7,8 @@ import org.vcssl.nano.vm.processor.Instruction;
 
 public class AcceleratorInstruction extends Instruction {
 
-	/** この命令を処理する {AccelerationUnit AccelerationUnit} を区別するために割りふられる分類タイプです。 */
-	private AccelerationType accelerationType = null;
+	/** この命令を処理する {AcceleratorExecutionUnit AcceleratorExecutionUnit} を区別するために割りふられる分類タイプです。 */
+	private AcceleratorExecutionType acceleratorExecutionType = null;
 
 	/** 最適化による再配置後における、この命令の命令アドレスです。 */
 	private int reorderedAddress = -1;
@@ -47,7 +47,7 @@ public class AcceleratorInstruction extends Instruction {
 				operandPartitions, operandAddresses,
 				instruction.getMetaPartition(), instruction.getMetaAddress()
 		);
-		this.accelerationType = instruction.accelerationType;
+		this.acceleratorExecutionType = instruction.acceleratorExecutionType;
 		this.fusedOperationCodes = instruction.fusedOperationCodes;
 		this.reorderedAddress = instruction.reorderedAddress;
 		this.unreorderedAddress = instruction.unreorderedAddress;
@@ -64,7 +64,7 @@ public class AcceleratorInstruction extends Instruction {
 				operandPartitions, operandAddresses,
 				instruction.getMetaPartition(), instruction.getMetaAddress()
 		);
-		this.accelerationType = instruction.accelerationType;
+		this.acceleratorExecutionType = instruction.acceleratorExecutionType;
 		this.fusedOperationCodes = instruction.fusedOperationCodes;
 		this.reorderedAddress = instruction.reorderedAddress;
 		this.unreorderedAddress = instruction.unreorderedAddress;
@@ -74,7 +74,7 @@ public class AcceleratorInstruction extends Instruction {
 
 
 	// この命令と、指定された命令を融合した拡張命令（InstructionオペコードはEX）を生成
-	public AcceleratorInstruction fuse(AcceleratorInstruction fusingInstructions, AccelerationType fusedAccelerationType) {
+	public AcceleratorInstruction fuse(AcceleratorInstruction fusingInstructions, AcceleratorExecutionType fusedAccelerationType) {
 
 		int thisOperandLength = this.getOperandLength();
 		int fusingOperandLength = fusingInstructions.getOperandLength();
@@ -154,12 +154,12 @@ public class AcceleratorInstruction extends Instruction {
 	}
 
 
-	public void setAccelerationType(AccelerationType accelerationType) {
-		this.accelerationType = accelerationType;
+	public void setAccelerationType(AcceleratorExecutionType acceleratorExecutionType) {
+		this.acceleratorExecutionType = acceleratorExecutionType;
 	}
 
-	public AccelerationType getAccelerationType() {
-		return this.accelerationType;
+	public AcceleratorExecutionType getAccelerationType() {
+		return this.acceleratorExecutionType;
 	}
 
 	public void setReorderedAddress(int reorderedAddress) {
@@ -214,7 +214,7 @@ public class AcceleratorInstruction extends Instruction {
 		builder.append(this.getMetaPartition().toString().charAt(0));
 		builder.append(this.getMetaAddress());
 
-		if (this.accelerationType != null) {
+		if (this.acceleratorExecutionType != null) {
 			builder.append("\t");
 			builder.append(this.getAccelerationType());
 			if (this.hasFusedOperationCodes()) {
