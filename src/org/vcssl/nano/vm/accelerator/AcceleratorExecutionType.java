@@ -41,7 +41,9 @@ public enum AcceleratorExecutionType {
 	BS_BRANCH,   // BoolScalarBranch
 	BCS_BRANCH,  // BoolCachedScalarBranch
 
-	SCALAR_ALLOC, // ScalarAlloc
+	// スカラのALLOC命令は、スケジューリングでコード先頭に移動させて最初に行うようにしたため、複数回実行のための高速化はもう不要？
+	//SCALAR_ALLOC, // ScalarAlloc
+
 	FUNCTION_CONTROL,  // FunctionControl
 	NOP, // Nop
 }

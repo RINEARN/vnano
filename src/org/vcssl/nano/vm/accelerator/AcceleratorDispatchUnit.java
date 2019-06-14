@@ -7,13 +7,11 @@ package org.vcssl.nano.vm.accelerator;
 
 import org.vcssl.nano.VnanoFatalException;
 
-import org.vcssl.nano.VnanoException;
 import org.vcssl.nano.interconnect.Interconnect;
 import org.vcssl.nano.spec.DataType;
 import org.vcssl.nano.spec.OperationCode;
 import org.vcssl.nano.vm.memory.DataContainer;
 import org.vcssl.nano.vm.memory.Memory;
-import org.vcssl.nano.vm.processor.Instruction;
 import org.vcssl.nano.vm.processor.Processor;
 
 public class AcceleratorDispatchUnit {
@@ -89,7 +87,7 @@ public class AcceleratorDispatchUnit {
 			// 対象命令（1個）を演算器にディスパッチして演算ノードを取得
 			AcceleratorExecutionNode currentNode = null;
 			try {
-				currentNode = this.dispatchToAccelerationUnit(
+				currentNode = this.dispatchToAcceleratorExecutionUnit(
 					accelType, opcode, dataTypes,
 					operandContainers, operandCaches, operandCached, operandScalar, operandConstant,
 					instruction, processor, memory, interconnect, functionControlUnit,
@@ -139,13 +137,16 @@ public class AcceleratorDispatchUnit {
 	}
 
 	// 命令を1つ演算器にディスパッチし、それを実行する演算ノードを返す
-	private AcceleratorExecutionNode dispatchToAccelerationUnit (
+	private AcceleratorExecutionNode dispatchToAcceleratorExecutionUnit (
 			AcceleratorExecutionType accelType,
 			OperationCode opcode, DataType[] dataTypes, DataContainer<?>[] operandContainers,
 			ScalarCache[] operandCaches, boolean[] operandCached, boolean[] operandScalar, boolean[] operandConstant,
 			AcceleratorInstruction instruction, Processor processor, Memory memory, Interconnect interconnect,
 			InternalFunctionControlUnit functionControlUnit,
 			int reorderedAddress, AcceleratorExecutionNode nextNode) {
+
+		CacheSynchronizer synchronizer = new GeneralScalarCacheSynchronizer(operandContainers, operandCaches, operandCached);
+		UnacceleratedUnit unacceleratedUnit = new UnacceleratedUnit(processor, memory, interconnect, synchronizer);
 
 		AcceleratorExecutionNode currentNode = null;
 		switch (accelType) {
@@ -356,47 +357,40 @@ public class AcceleratorDispatchUnit {
 
 			// スカラALLOC
 
+			/*
 			case SCALAR_ALLOC : {
-				CacheSynchronizer synchronizer = new GeneralScalarCacheSynchronizer(
-						operandContainers, operandCaches, operandCached
-				);
 				currentNode = new ScalarAllocExecutorNode(
-						instruction, memory, interconnect, processor, synchronizer, nextNode
+					instruction, operandContainers[0], synchronizer, nextNode
+				);
+				break;
+			}
+			*/
+
+			// NOP（分岐先の着地点に存在）
+
+			case NOP : {
+				currentNode = new NopUnit().generateNode(
+					instruction, operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
 				);
 				break;
 			}
 
-
 			// 内部関数関連
 
 			case FUNCTION_CONTROL : {
-				CacheSynchronizer synchronizer = new GeneralScalarCacheSynchronizer(
-					operandContainers, operandCaches, operandCached
-				);
 				currentNode = functionControlUnit.generateNode(
+					// reorderedAddress は instruction が既に持ってるのでは？
 					instruction, operandContainers, operandCaches, operandCached, operandScalar, synchronizer, reorderedAddress, nextNode
 				);
 				break;
 			}
 
 
-			// NOP（分岐先の着地点に存在）
-
-			case NOP : {
-				currentNode = new NopExecutor(nextNode);
-				break;
-			}
-
-
-
 			// このアクセラレータで未対応の場合（下層のプロセッサにそのまま投げるノードを生成）
 
 			case UNACCELERATED : {
-				CacheSynchronizer synchronizer = new GeneralScalarCacheSynchronizer(
-						operandContainers, operandCaches, operandCached
-				);
-				currentNode = new PassThroughExecutorNode(
-						instruction, memory, interconnect, processor, synchronizer, nextNode
+				currentNode = unacceleratedUnit.generateNode(
+					instruction, operandContainers, operandCaches, operandCached, operandScalar, operandConstant, nextNode
 				);
 				break;
 			}
@@ -415,95 +409,42 @@ public class AcceleratorDispatchUnit {
 
 
 
-	// 以下は後で別の所属に移す
 
-	private final class NopExecutor extends AcceleratorExecutionNode {
-
-		public NopExecutor(AcceleratorExecutionNode nextNode) {
-			super(nextNode);
-		}
-
-		public final AcceleratorExecutionNode execute() {
-			return this.nextNode;
-		}
-	}
-
-
+	/*
+	// スカラのALLOC命令は、スケジューリングでコード先頭に移動させて最初に行うようにしたため、複数回実行のための高速化はもう不要？
 	private final class ScalarAllocExecutorNode extends AcceleratorExecutionNode {
-		private final Instruction instruction;
-		private final Interconnect interconnect;
-		private final Processor processor;
-		private final Memory memory;
-		private final CacheSynchronizer synchronizer;
+		private final DataType dataType;
+		private final DataContainer<?> allocTargetContainer;
 		private boolean allocated = false;
+		private CacheSynchronizer synchronizer;
+		private ExecutionUnit executionUnit;
 
-		public ScalarAllocExecutorNode(Instruction instruction, Memory memory, Interconnect interconnect,
-				Processor processor, CacheSynchronizer synchronizer,
+		public ScalarAllocExecutorNode(Instruction instruction, DataContainer<?> target, CacheSynchronizer synchronizer,
 				AcceleratorExecutionNode nextNode) {
 
 			super(nextNode);
-			this.instruction = instruction;
-			this.interconnect = interconnect;
-			this.processor = processor;
-			this.memory = memory;
+			this.dataType = instruction.getDataTypes()[0];
+			this.allocTargetContainer = target;
 			this.synchronizer = synchronizer;
+			this.executionUnit = new ExecutionUnit();
 		}
 
 		public final AcceleratorExecutionNode execute() {
+
 			if (this.allocated) {
 				return this.nextNode;
+
 			} else {
 
-				try {
-					int programCounter = 0; // この命令はプログラムカウンタの値に依存しないため、便宜的に 0 を指定
-					this.processor.process(this.instruction, this.memory, this.interconnect, programCounter); // ALLOCを実行してメモリ確保
-					this.synchronizer.synchronizeFromCacheToMemory(); // 確保したメモリにキャッシュ値を書き込んでおく
-					this.allocated = true;
-					return this.nextNode;
-				} catch (VnanoException e) {
-					throw new VnanoFatalException(e);
-				}
-			}
-		}
-	}
-
-
-
-
-	private final class PassThroughExecutorNode extends AcceleratorExecutionNode {
-		private final Instruction instruction;
-		private final Interconnect interconnect;
-		private final Processor processor;
-		private final Memory memory;
-		private final CacheSynchronizer synchronizer;
-
-		public PassThroughExecutorNode(Instruction instruction, Memory memory, Interconnect interconnect,
-				Processor processor, CacheSynchronizer synchronizer,
-				AcceleratorExecutionNode nextNode) {
-
-			super(nextNode);
-			this.instruction = instruction;
-			this.interconnect = interconnect;
-			this.processor = processor;
-			this.memory = memory;
-			this.synchronizer = synchronizer;
-		}
-
-		@Override
-		public final AcceleratorExecutionNode execute() {
-			try {
-
-				this.synchronizer.synchronizeFromCacheToMemory();
-				int programCounter = 0; // 暫定的なダミー値
-				this.processor.process(this.instruction, this.memory, this.interconnect, programCounter);
-				this.synchronizer.synchronizeFromMemoryToCache();
+				this.executionUnit.allocScalar(this.dataType, this.allocTargetContainer);
+				this.synchronizer.synchronizeFromCacheToMemory(); // 確保したメモリにキャッシュ値を書き込んでおく
+				this.allocated = true;
 				return this.nextNode;
-
-			} catch (Exception e) {
-				e.printStackTrace();
-				return null;
 			}
 		}
 	}
+	*/
+
+
 
 }

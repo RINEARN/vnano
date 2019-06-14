@@ -320,6 +320,9 @@ public class AcceleratorSchedulingUnit {
 				case ALLOC :
 				case ALLOCR :
 				{
+					/*
+					// スカラのALLOC命令は、スケジューリングでコード先頭に移動させて最初に行うようにしたため、複数回実行のための高速化はもう不要？
+
 					// スカラ確保の場合
 					if (dataManager.isScalar(partitions[0], addresses[0])) {
 						instruction.setAccelerationType(AcceleratorExecutionType.SCALAR_ALLOC);
@@ -327,6 +330,9 @@ public class AcceleratorSchedulingUnit {
 					} else {
 						instruction.setAccelerationType(AcceleratorExecutionType.UNACCELERATED);
 					}
+					*/
+
+					instruction.setAccelerationType(AcceleratorExecutionType.UNACCELERATED);
 					break;
 				}
 
