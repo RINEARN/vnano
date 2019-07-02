@@ -2406,6 +2406,12 @@ Vnanoに関するご質問や、Vnanoにご興味をお持ちの場合は、ご�
 	<dd>
 		<a href="https://www.rinearn.com/ja-jp/info/news/2019/0528-vnano-architecture">https://www.rinearn.com/ja-jp/info/news/2019/0528-vnano-architecture</a>
 	</dd>
+	<dt style="display: list-item; margin-left:40px;">
+		"Vnanoのスクリプトエンジンアーキテクチャ解説2: コンパイラ" - RINEARN Website (2019/07/03)
+	</dt>
+	<dd>
+		<a href="https://www.rinearn.com/ja-jp/info/news/2019/0703-vnano-compiler">https://www.rinearn.com/ja-jp/info/news/2019/0703-vnano-compiler</a>
+	</dd>
 </dl>
 
 ---
