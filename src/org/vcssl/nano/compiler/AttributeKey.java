@@ -69,7 +69,7 @@ public enum AttributeKey {
 	OPERATOR_SYMBOL,
 
 	/** 演算子ノードにおいて、演算子の優先度を保持する属性のキーです。 */
-	OPERATOR_PRIORITY,
+	OPERATOR_PRECEDENCE,
 
 	/** 演算子ノードにおいて、結合性（右結合か左結合か）を区別する属性のキーです。 */
 	OPERATOR_ASSOCIATIVITY,

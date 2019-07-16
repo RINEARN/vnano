@@ -11,7 +11,7 @@ package org.vcssl.nano.spec;
  *
  * @author RINEARN (Fumihiro Matsui)
  */
-public class PriorityTable {
+public class OperatorPrecedence {
 
 	// （重要）数字が小さいほど優先度が高くなります。
 

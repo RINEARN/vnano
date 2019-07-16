@@ -59,7 +59,7 @@ public class Token implements Cloneable {
 	private Type type;
 
 	/** トークンの演算子優先度を保持します（小さい方が高優先度）。 */
-	private int priority;
+	private int precedence;
 
 	/** スクリプト内での行番号を保持します。 */
 	private int lineNumber;
@@ -86,7 +86,7 @@ public class Token implements Cloneable {
 	public Token(String value, int lineNumber, String fileName){
 		this.value = value;
 		this.type = null;
-		this.priority = 0;
+		this.precedence = 0;
 		this.lineNumber = lineNumber;
 		this.fileName = fileName;
 
@@ -99,7 +99,7 @@ public class Token implements Cloneable {
 	public Token clone() {
 		Token clone = new Token(this.value, this.lineNumber, this.fileName);
 		clone.type = this.type;
-		clone.priority = this.priority;
+		clone.precedence = this.precedence;
 		clone.attributeMap = (Map<AttributeKey,String>)( ((LinkedHashMap<AttributeKey,String>)this.attributeMap).clone() );
 		return clone;
 	}
@@ -203,10 +203,10 @@ public class Token implements Cloneable {
 	/**
 	 * トークンの演算子優先度を設定します。
 	 *
-	 * @param priority 演算子優先度
+	 * @param precedence 演算子優先度
 	 */
-	public void setPriority(int priority) {
-		this.priority = priority;
+	public void setPrecedence(int precedence) {
+		this.precedence = precedence;
 	}
 
 
@@ -215,8 +215,8 @@ public class Token implements Cloneable {
 	 *
 	 * @return 演算子優先度
 	 */
-	public int getPriority() {
-		return this.priority;
+	public int getPrecedence() {
+		return this.precedence;
 	}
 
 
@@ -252,7 +252,7 @@ public class Token implements Cloneable {
 				+ ", lineNumber=" + this.lineNumber
 				+ ", fileName=\"" + this.fileName + "\""
 				+ ", type=" + this.type
-				+ ", priority=" + priority
+				+ ", precedence=" + precedence
 		);
 		Set<Map.Entry<AttributeKey,String>> attibutes = this.attributeMap.entrySet();
 		for (Map.Entry<AttributeKey,String> attribute: attibutes) {

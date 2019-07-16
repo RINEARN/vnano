@@ -12,7 +12,7 @@ import java.util.Set;
 import org.vcssl.nano.VnanoException;
 import org.vcssl.nano.spec.DataTypeName;
 import org.vcssl.nano.spec.LiteralSyntax;
-import org.vcssl.nano.spec.PriorityTable;
+import org.vcssl.nano.spec.OperatorPrecedence;
 import org.vcssl.nano.spec.ScriptWord;
 
 
@@ -63,9 +63,9 @@ public class LexicalAnalyzer {
 		Token[] tokens = this.tokenize(stringLiteralReplacedCode, fileName);
 
 		// トークン配列の内容を追加で解析し、トークンタイプや演算子の優先度/結合性、リテラルのデータ型などの情報を付加
-		this.analyzeTokenType(tokens);         // トークンタイプ
-		this.analyzePriority(tokens);          // 演算子の優先度
-		this.analyzeAssociativity(tokens);     // 演算子の結合性
+		this.analyzeTokenTypes(tokens);         // トークンタイプ
+		this.analyzePrecedences(tokens);          // 演算子の優先度
+		this.analyzeAssociativities(tokens);     // 演算子の結合性
 		this.analyzeLiteralAttributes(tokens); // リテラルのデータ型
 
 		// トークン配列が保持する文字列リテラルを復元する
@@ -177,7 +177,7 @@ public class LexicalAnalyzer {
 	 * @param tokens 解析・設定対象のトークン配列（情報が追加されます）
 	 * @throws VnanoException 開き括弧と閉じ括弧の数が合っていない場合にスローされます。
 	 */
-	private void analyzeTokenType(Token[] tokens) { //throws ScriptCodeException {
+	private void analyzeTokenTypes(Token[] tokens) { //throws ScriptCodeException {
 
 		int tokenLength = tokens.length;
 		Token lastToken = null;
@@ -389,7 +389,7 @@ public class LexicalAnalyzer {
 	 *
 	 * @param tokens 解析・設定対象のトークン配列
 	 */
-	private void analyzePriority(Token[] tokens) {
+	private void analyzePrecedences(Token[] tokens) {
 		int length = tokens.length;
 		for(int i=0; i<length; i++) {
 
@@ -399,137 +399,137 @@ public class LexicalAnalyzer {
 				case ScriptWord.PARENTHESIS_BEGIN:
 					//if (1<=i && tokens[i-1].getType()==Token.Type.LEAF) {
 					if (tokens[i].getType() == Token.Type.OPERATOR) { // 関数コールの場合
-						tokens[i].setPriority(PriorityTable.CALL_BEGIN);
+						tokens[i].setPrecedence(OperatorPrecedence.CALL_BEGIN);
 					} else {
-						tokens[i].setPriority(PriorityTable.PARENTHESIS_BEGIN);
+						tokens[i].setPrecedence(OperatorPrecedence.PARENTHESIS_BEGIN);
 					}
 					break;
 
 				case ScriptWord.PARENTHESIS_END:
 					if (tokens[i].getType() == Token.Type.OPERATOR) { // 関数コールの場合
-						tokens[i].setPriority(PriorityTable.CALL_END); // MULTIARY系演算子の終端は優先度最低にする必要がある(そうしないと結合してしまう)
+						tokens[i].setPrecedence(OperatorPrecedence.CALL_END); // MULTIARY系演算子の終端は優先度最低にする必要がある(そうしないと結合してしまう)
 					} else {
-						tokens[i].setPriority(PriorityTable.PARENTHESIS_END);
+						tokens[i].setPrecedence(OperatorPrecedence.PARENTHESIS_END);
 					}
 
 				case ScriptWord.ARGUMENT_SEPARATOR :
-					tokens[i].setPriority(PriorityTable.CALL_SEPARATOR); // 引数区切りのカンマも優先度最低にする必要がある(そうしないと結合してしまう)
+					tokens[i].setPrecedence(OperatorPrecedence.CALL_SEPARATOR); // 引数区切りのカンマも優先度最低にする必要がある(そうしないと結合してしまう)
 					break;
 
 				case ScriptWord.INDEX_BEGIN:
-					tokens[i].setPriority(PriorityTable.INDEX_BEGIN);
+					tokens[i].setPrecedence(OperatorPrecedence.INDEX_BEGIN);
 					break;
 
 				case ScriptWord.INDEX_END:
-					tokens[i].setPriority(PriorityTable.INDEX_END); // MULTIARY系演算子の終端は優先度最低にする必要がある(そうしないと結合してしまう)
+					tokens[i].setPrecedence(OperatorPrecedence.INDEX_END); // MULTIARY系演算子の終端は優先度最低にする必要がある(そうしないと結合してしまう)
 					break;
 
 				case ScriptWord.INDEX_SEPARATOR :
-					tokens[i].setPriority(PriorityTable.INDEX_SEPARATOR); // 次元区切りのカンマも優先度最低にする必要がある(そうしないと結合してしまう)
+					tokens[i].setPrecedence(OperatorPrecedence.INDEX_SEPARATOR); // 次元区切りのカンマも優先度最低にする必要がある(そうしないと結合してしまう)
 					break;
 
 				case ScriptWord.INCREMENT:
 					if (tokens[i].getAttribute(AttributeKey.OPERATOR_SYNTAX).equals(AttributeValue.PREFIX)) {
-						tokens[i].setPriority(PriorityTable.PREFIX_INCREMENT); //前置インクリメント
+						tokens[i].setPrecedence(OperatorPrecedence.PREFIX_INCREMENT); //前置インクリメント
 					} else {
-						tokens[i].setPriority(PriorityTable.POSTFIX_INCREMENT); //後置インクリメント
+						tokens[i].setPrecedence(OperatorPrecedence.POSTFIX_INCREMENT); //後置インクリメント
 					}
 					break;
 
 				case ScriptWord.DECREMENT:
 					if (tokens[i].getAttribute(AttributeKey.OPERATOR_SYNTAX).equals(AttributeValue.PREFIX)) {
-						tokens[i].setPriority(PriorityTable.PREFIX_DECREMENT); //前置デクリメント
+						tokens[i].setPrecedence(OperatorPrecedence.PREFIX_DECREMENT); //前置デクリメント
 					} else {
-						tokens[i].setPriority(PriorityTable.POSTFIX_DECREMENT); //後置デクリメント
+						tokens[i].setPrecedence(OperatorPrecedence.POSTFIX_DECREMENT); //後置デクリメント
 					}
 					break;
 
 				case ScriptWord.NOT:
-					tokens[i].setPriority(PriorityTable.NOT);
+					tokens[i].setPrecedence(OperatorPrecedence.NOT);
 					break;
 
 				case ScriptWord.PLUS:
 					if (tokens[i].getAttribute(AttributeKey.OPERATOR_SYNTAX).equals(AttributeValue.PREFIX)) {
-						tokens[i].setPriority(PriorityTable.PREFIX_PLUS); //単項プラス
+						tokens[i].setPrecedence(OperatorPrecedence.PREFIX_PLUS); //単項プラス
 					} else {
-						tokens[i].setPriority(PriorityTable.ADDITION); //加算
+						tokens[i].setPrecedence(OperatorPrecedence.ADDITION); //加算
 					}
 					break;
 
 				case ScriptWord.MINUS:
 					if (tokens[i].getAttribute(AttributeKey.OPERATOR_SYNTAX).equals(AttributeValue.PREFIX)) {
-						tokens[i].setPriority(PriorityTable.PREFIX_MINUS); //単項マイナス
+						tokens[i].setPrecedence(OperatorPrecedence.PREFIX_MINUS); //単項マイナス
 					} else {
-						tokens[i].setPriority(PriorityTable.SUBTRACTION); //減算
+						tokens[i].setPrecedence(OperatorPrecedence.SUBTRACTION); //減算
 					}
 					break;
 
 				case ScriptWord.MULTIPLICATION:
-					tokens[i].setPriority(PriorityTable.MULTIPLICATION);
+					tokens[i].setPrecedence(OperatorPrecedence.MULTIPLICATION);
 					break;
 
 				case ScriptWord.DIVISION:
-					tokens[i].setPriority(PriorityTable.DIVISION);
+					tokens[i].setPrecedence(OperatorPrecedence.DIVISION);
 					break;
 
 				case ScriptWord.REMAINDER:
-					tokens[i].setPriority(PriorityTable.REMAINDER);
+					tokens[i].setPrecedence(OperatorPrecedence.REMAINDER);
 					break;
 
 				case ScriptWord.LESS_THAN:
-					tokens[i].setPriority(PriorityTable.LESS_THAN);
+					tokens[i].setPrecedence(OperatorPrecedence.LESS_THAN);
 					break;
 
 				case ScriptWord.LESS_EQUAL:
-					tokens[i].setPriority(PriorityTable.LESS_EQUAL);
+					tokens[i].setPrecedence(OperatorPrecedence.LESS_EQUAL);
 					break;
 
 				case ScriptWord.GRATER_THAN:
-					tokens[i].setPriority(PriorityTable.GRATER_THAN);
+					tokens[i].setPrecedence(OperatorPrecedence.GRATER_THAN);
 					break;
 
 				case ScriptWord.GRATER_EQUAL:
-					tokens[i].setPriority(PriorityTable.GRATER_EQUAL);
+					tokens[i].setPrecedence(OperatorPrecedence.GRATER_EQUAL);
 					break;
 
 				case ScriptWord.EQUAL:
-					tokens[i].setPriority(PriorityTable.EQUAL);
+					tokens[i].setPrecedence(OperatorPrecedence.EQUAL);
 					break;
 
 				case ScriptWord.NOT_EQUAL:
-					tokens[i].setPriority(PriorityTable.NOT_EQUAL);
+					tokens[i].setPrecedence(OperatorPrecedence.NOT_EQUAL);
 					break;
 
 				case ScriptWord.AND:
-					tokens[i].setPriority(PriorityTable.AND);
+					tokens[i].setPrecedence(OperatorPrecedence.AND);
 					break;
 
 				case ScriptWord.OR:
-					tokens[i].setPriority(PriorityTable.OR);
+					tokens[i].setPrecedence(OperatorPrecedence.OR);
 					break;
 
 				case ScriptWord.ASSIGNMENT:
-					tokens[i].setPriority(PriorityTable.ASSIGNMENT);
+					tokens[i].setPrecedence(OperatorPrecedence.ASSIGNMENT);
 					break;
 
 				case ScriptWord.ADDITION_ASSIGNMENT:
-					tokens[i].setPriority(PriorityTable.ADDITION_ASSIGNMENT);
+					tokens[i].setPrecedence(OperatorPrecedence.ADDITION_ASSIGNMENT);
 					break;
 
 				case ScriptWord.SUBTRACTION_ASSIGNMENT:
-					tokens[i].setPriority(PriorityTable.SUBTRACTION_ASSIGNMENT);
+					tokens[i].setPrecedence(OperatorPrecedence.SUBTRACTION_ASSIGNMENT);
 					break;
 
 				case ScriptWord.MULTIPLICATION_ASSIGNMENT:
-					tokens[i].setPriority(PriorityTable.MULTIPLICATION_ASSIGNMENT);
+					tokens[i].setPrecedence(OperatorPrecedence.MULTIPLICATION_ASSIGNMENT);
 					break;
 
 				case ScriptWord.DIVISION_ASSIGNMENT:
-					tokens[i].setPriority(PriorityTable.DIVISION_ASSIGNMENT);
+					tokens[i].setPrecedence(OperatorPrecedence.DIVISION_ASSIGNMENT);
 					break;
 
 				case ScriptWord.REMAINDER_ASSIGNMENT:
-					tokens[i].setPriority(PriorityTable.REMAINDER_ASSIGNMENT);
+					tokens[i].setPrecedence(OperatorPrecedence.REMAINDER_ASSIGNMENT);
 					break;
 
 				default : {
@@ -545,7 +545,7 @@ public class LexicalAnalyzer {
 	 *
 	 * @param tokens 解析・設定対象のトークン配列
 	 */
-	private void analyzeAssociativity(Token[] tokens) {
+	private void analyzeAssociativities(Token[] tokens) {
 		int length = tokens.length;
 		for(int i=0; i<length; i++) {
 

@@ -13,7 +13,7 @@ import org.junit.Test;
 import org.vcssl.nano.spec.AssemblyWord;
 import org.vcssl.nano.spec.DataTypeName;
 import org.vcssl.nano.spec.OperationCode;
-import org.vcssl.nano.spec.PriorityTable;
+import org.vcssl.nano.spec.OperatorPrecedence;
 import org.vcssl.nano.spec.ScriptWord;
 
 public class CodeGeneratorTest {
@@ -100,7 +100,7 @@ public class CodeGeneratorTest {
 
 		AstNode node = new AstNode(AstNode.Type.OPERATOR, 123, "Test.vnano");
 		node.setAttribute(AttributeKey.OPERATOR_SYMBOL, symbol);
-		node.setAttribute(AttributeKey.OPERATOR_PRIORITY, Integer.toString(priority));
+		node.setAttribute(AttributeKey.OPERATOR_PRECEDENCE, Integer.toString(priority));
 		node.setAttribute(AttributeKey.OPERATOR_SYNTAX, syntax);
 		node.setAttribute(AttributeKey.OPERATOR_EXECUTOR, executor);
 		node.setAttribute(AttributeKey.OPERATOR_EXECUTION_DATA_TYPE, dataTypeName);
@@ -141,7 +141,7 @@ public class CodeGeneratorTest {
 		AstNode rootNode = this.createRootNode();
 		AstNode exprNode = this.createExpressionNode(DataTypeName.INT, 1);
 		AstNode operatorNode = this.createOperatorNode(
-				ScriptWord.ASSIGNMENT, PriorityTable.ASSIGNMENT, AttributeValue.BINARY,
+				ScriptWord.ASSIGNMENT, OperatorPrecedence.ASSIGNMENT, AttributeValue.BINARY,
 				AttributeValue.ASSIGNMENT, DataTypeName.INT, 1
 		);
 		AstNode[] operandNodes = new AstNode[] {
@@ -186,115 +186,115 @@ public class CodeGeneratorTest {
 	public void testGenerateArithmeticBinaryOperatorCode() {
 
 		this.testGenerateArithmeticBinaryOperatorCodeScalar(
-			ScriptWord.PLUS, PriorityTable.ADDITION, OperationCode.ADD
+			ScriptWord.PLUS, OperatorPrecedence.ADDITION, OperationCode.ADD
 		);
 		this.testGenerateArithmeticBinaryOperatorCodeScalar(
-			ScriptWord.MINUS, PriorityTable.SUBTRACTION, OperationCode.SUB
+			ScriptWord.MINUS, OperatorPrecedence.SUBTRACTION, OperationCode.SUB
 		);
 		this.testGenerateArithmeticBinaryOperatorCodeScalar(
-			ScriptWord.MULTIPLICATION, PriorityTable.MULTIPLICATION, OperationCode.MUL
+			ScriptWord.MULTIPLICATION, OperatorPrecedence.MULTIPLICATION, OperationCode.MUL
 		);
 		this.testGenerateArithmeticBinaryOperatorCodeScalar(
-			ScriptWord.DIVISION, PriorityTable.DIVISION, OperationCode.DIV
+			ScriptWord.DIVISION, OperatorPrecedence.DIVISION, OperationCode.DIV
 		);
 		this.testGenerateArithmeticBinaryOperatorCodeScalar(
-			ScriptWord.REMAINDER, PriorityTable.REMAINDER, OperationCode.REM
+			ScriptWord.REMAINDER, OperatorPrecedence.REMAINDER, OperationCode.REM
 		);
 
 		this.testGenerateArithmeticBinaryOperatorCodeScalarCast(
-			ScriptWord.PLUS, PriorityTable.ADDITION, OperationCode.ADD
+			ScriptWord.PLUS, OperatorPrecedence.ADDITION, OperationCode.ADD
 		);
 		this.testGenerateArithmeticBinaryOperatorCodeScalarCast(
-			ScriptWord.MINUS, PriorityTable.SUBTRACTION, OperationCode.SUB
+			ScriptWord.MINUS, OperatorPrecedence.SUBTRACTION, OperationCode.SUB
 		);
 		this.testGenerateArithmeticBinaryOperatorCodeScalarCast(
-			ScriptWord.MULTIPLICATION, PriorityTable.MULTIPLICATION, OperationCode.MUL
+			ScriptWord.MULTIPLICATION, OperatorPrecedence.MULTIPLICATION, OperationCode.MUL
 		);
 		this.testGenerateArithmeticBinaryOperatorCodeScalarCast(
-			ScriptWord.DIVISION, PriorityTable.DIVISION, OperationCode.DIV
+			ScriptWord.DIVISION, OperatorPrecedence.DIVISION, OperationCode.DIV
 		);
 		this.testGenerateArithmeticBinaryOperatorCodeScalarCast(
-			ScriptWord.REMAINDER, PriorityTable.REMAINDER, OperationCode.REM
+			ScriptWord.REMAINDER, OperatorPrecedence.REMAINDER, OperationCode.REM
 		);
 
 		this.testGenerateArithmeticBinaryOperatorCodeVector(
-			ScriptWord.PLUS, PriorityTable.ADDITION, OperationCode.ADD
+			ScriptWord.PLUS, OperatorPrecedence.ADDITION, OperationCode.ADD
 		);
 		this.testGenerateArithmeticBinaryOperatorCodeVector(
-			ScriptWord.MINUS, PriorityTable.SUBTRACTION, OperationCode.SUB
+			ScriptWord.MINUS, OperatorPrecedence.SUBTRACTION, OperationCode.SUB
 		);
 		this.testGenerateArithmeticBinaryOperatorCodeVector(
-			ScriptWord.MULTIPLICATION, PriorityTable.MULTIPLICATION, OperationCode.MUL
+			ScriptWord.MULTIPLICATION, OperatorPrecedence.MULTIPLICATION, OperationCode.MUL
 		);
 		this.testGenerateArithmeticBinaryOperatorCodeVector(
-			ScriptWord.DIVISION, PriorityTable.DIVISION, OperationCode.DIV
+			ScriptWord.DIVISION, OperatorPrecedence.DIVISION, OperationCode.DIV
 		);
 		this.testGenerateArithmeticBinaryOperatorCodeVector(
-			ScriptWord.REMAINDER, PriorityTable.REMAINDER, OperationCode.REM
+			ScriptWord.REMAINDER, OperatorPrecedence.REMAINDER, OperationCode.REM
 		);
 
 		this.testGenerateArithmeticBinaryOperatorCodeVectorCast(
-			ScriptWord.PLUS, PriorityTable.ADDITION, OperationCode.ADD
+			ScriptWord.PLUS, OperatorPrecedence.ADDITION, OperationCode.ADD
 		);
 		this.testGenerateArithmeticBinaryOperatorCodeVectorCast(
-			ScriptWord.MINUS, PriorityTable.SUBTRACTION, OperationCode.SUB
+			ScriptWord.MINUS, OperatorPrecedence.SUBTRACTION, OperationCode.SUB
 		);
 		this.testGenerateArithmeticBinaryOperatorCodeVectorCast(
-			ScriptWord.MULTIPLICATION, PriorityTable.MULTIPLICATION, OperationCode.MUL
+			ScriptWord.MULTIPLICATION, OperatorPrecedence.MULTIPLICATION, OperationCode.MUL
 		);
 		this.testGenerateArithmeticBinaryOperatorCodeVectorCast(
-			ScriptWord.DIVISION, PriorityTable.DIVISION, OperationCode.DIV
+			ScriptWord.DIVISION, OperatorPrecedence.DIVISION, OperationCode.DIV
 		);
 		this.testGenerateArithmeticBinaryOperatorCodeVectorCast(
-			ScriptWord.REMAINDER, PriorityTable.REMAINDER, OperationCode.REM
+			ScriptWord.REMAINDER, OperatorPrecedence.REMAINDER, OperationCode.REM
 		);
 
 		this.testGenerateArithmeticBinaryOperatorCodeVectorScalarMixed(
-			ScriptWord.PLUS, PriorityTable.ADDITION, OperationCode.ADD
+			ScriptWord.PLUS, OperatorPrecedence.ADDITION, OperationCode.ADD
 		);
 		this.testGenerateArithmeticBinaryOperatorCodeVectorScalarMixed(
-			ScriptWord.MINUS, PriorityTable.SUBTRACTION, OperationCode.SUB
+			ScriptWord.MINUS, OperatorPrecedence.SUBTRACTION, OperationCode.SUB
 		);
 		this.testGenerateArithmeticBinaryOperatorCodeVectorScalarMixed(
-			ScriptWord.MULTIPLICATION, PriorityTable.MULTIPLICATION, OperationCode.MUL
+			ScriptWord.MULTIPLICATION, OperatorPrecedence.MULTIPLICATION, OperationCode.MUL
 		);
 		this.testGenerateArithmeticBinaryOperatorCodeVectorScalarMixed(
-			ScriptWord.DIVISION, PriorityTable.DIVISION, OperationCode.DIV
+			ScriptWord.DIVISION, OperatorPrecedence.DIVISION, OperationCode.DIV
 		);
 		this.testGenerateArithmeticBinaryOperatorCodeVectorScalarMixed(
-			ScriptWord.REMAINDER, PriorityTable.REMAINDER, OperationCode.REM
+			ScriptWord.REMAINDER, OperatorPrecedence.REMAINDER, OperationCode.REM
 		);
 
 		this.testGenerateArithmeticBinaryOperatorCodeVectorScalarMixedCastVector(
-			ScriptWord.PLUS, PriorityTable.ADDITION, OperationCode.ADD
+			ScriptWord.PLUS, OperatorPrecedence.ADDITION, OperationCode.ADD
 		);
 		this.testGenerateArithmeticBinaryOperatorCodeVectorScalarMixedCastVector(
-			ScriptWord.MINUS, PriorityTable.SUBTRACTION, OperationCode.SUB
+			ScriptWord.MINUS, OperatorPrecedence.SUBTRACTION, OperationCode.SUB
 		);
 		this.testGenerateArithmeticBinaryOperatorCodeVectorScalarMixedCastVector(
-			ScriptWord.MULTIPLICATION, PriorityTable.MULTIPLICATION, OperationCode.MUL
+			ScriptWord.MULTIPLICATION, OperatorPrecedence.MULTIPLICATION, OperationCode.MUL
 		);
 		this.testGenerateArithmeticBinaryOperatorCodeVectorScalarMixedCastVector(
-			ScriptWord.DIVISION, PriorityTable.DIVISION, OperationCode.DIV
+			ScriptWord.DIVISION, OperatorPrecedence.DIVISION, OperationCode.DIV
 		);
 		this.testGenerateArithmeticBinaryOperatorCodeVectorScalarMixedCastVector(
-			ScriptWord.REMAINDER, PriorityTable.REMAINDER, OperationCode.REM
+			ScriptWord.REMAINDER, OperatorPrecedence.REMAINDER, OperationCode.REM
 		);
 
 		this.testGenerateArithmeticBinaryOperatorCodeVectorScalarMixedCastScalar(
-			ScriptWord.PLUS, PriorityTable.ADDITION, OperationCode.ADD
+			ScriptWord.PLUS, OperatorPrecedence.ADDITION, OperationCode.ADD
 		);
 		this.testGenerateArithmeticBinaryOperatorCodeVectorScalarMixedCastScalar(
-			ScriptWord.MINUS, PriorityTable.SUBTRACTION, OperationCode.SUB
+			ScriptWord.MINUS, OperatorPrecedence.SUBTRACTION, OperationCode.SUB
 		);
 		this.testGenerateArithmeticBinaryOperatorCodeVectorScalarMixedCastScalar(
-			ScriptWord.MULTIPLICATION, PriorityTable.MULTIPLICATION, OperationCode.MUL
+			ScriptWord.MULTIPLICATION, OperatorPrecedence.MULTIPLICATION, OperationCode.MUL
 		);
 		this.testGenerateArithmeticBinaryOperatorCodeVectorScalarMixedCastScalar(
-			ScriptWord.DIVISION, PriorityTable.DIVISION, OperationCode.DIV
+			ScriptWord.DIVISION, OperatorPrecedence.DIVISION, OperationCode.DIV
 		);
 		this.testGenerateArithmeticBinaryOperatorCodeVectorScalarMixedCastScalar(
-			ScriptWord.REMAINDER, PriorityTable.REMAINDER, OperationCode.REM
+			ScriptWord.REMAINDER, OperatorPrecedence.REMAINDER, OperationCode.REM
 		);
 	}
 	public void testGenerateArithmeticBinaryOperatorCodeScalar(String symbol, int priority, OperationCode operationCode) {
@@ -629,35 +629,35 @@ public class CodeGeneratorTest {
 	public void testGenerateArithmeticCompoundAssignmentOperatorCode() {
 
 		this.testGenerateArithmeticCompoundAssignmentOperatorCodeScalar(
-			ScriptWord.ADDITION_ASSIGNMENT, PriorityTable.ADDITION_ASSIGNMENT, OperationCode.ADD
+			ScriptWord.ADDITION_ASSIGNMENT, OperatorPrecedence.ADDITION_ASSIGNMENT, OperationCode.ADD
 		);
 		this.testGenerateArithmeticCompoundAssignmentOperatorCodeScalar(
-			ScriptWord.SUBTRACTION_ASSIGNMENT, PriorityTable.SUBTRACTION_ASSIGNMENT, OperationCode.SUB
+			ScriptWord.SUBTRACTION_ASSIGNMENT, OperatorPrecedence.SUBTRACTION_ASSIGNMENT, OperationCode.SUB
 		);
 		this.testGenerateArithmeticCompoundAssignmentOperatorCodeScalar(
-			ScriptWord.MULTIPLICATION_ASSIGNMENT, PriorityTable.MULTIPLICATION_ASSIGNMENT, OperationCode.MUL
+			ScriptWord.MULTIPLICATION_ASSIGNMENT, OperatorPrecedence.MULTIPLICATION_ASSIGNMENT, OperationCode.MUL
 		);
 		this.testGenerateArithmeticCompoundAssignmentOperatorCodeScalar(
-			ScriptWord.DIVISION_ASSIGNMENT, PriorityTable.DIVISION_ASSIGNMENT, OperationCode.DIV
+			ScriptWord.DIVISION_ASSIGNMENT, OperatorPrecedence.DIVISION_ASSIGNMENT, OperationCode.DIV
 		);
 		this.testGenerateArithmeticCompoundAssignmentOperatorCodeScalar(
-			ScriptWord.REMAINDER_ASSIGNMENT, PriorityTable.REMAINDER_ASSIGNMENT, OperationCode.REM
+			ScriptWord.REMAINDER_ASSIGNMENT, OperatorPrecedence.REMAINDER_ASSIGNMENT, OperationCode.REM
 		);
 
 		this.testGenerateArithmeticCompoundAssignmentOperatorCodeVector(
-			ScriptWord.ADDITION_ASSIGNMENT, PriorityTable.ADDITION_ASSIGNMENT, OperationCode.ADD
+			ScriptWord.ADDITION_ASSIGNMENT, OperatorPrecedence.ADDITION_ASSIGNMENT, OperationCode.ADD
 		);
 		this.testGenerateArithmeticCompoundAssignmentOperatorCodeVector(
-			ScriptWord.SUBTRACTION_ASSIGNMENT, PriorityTable.SUBTRACTION_ASSIGNMENT, OperationCode.SUB
+			ScriptWord.SUBTRACTION_ASSIGNMENT, OperatorPrecedence.SUBTRACTION_ASSIGNMENT, OperationCode.SUB
 		);
 		this.testGenerateArithmeticCompoundAssignmentOperatorCodeVector(
-			ScriptWord.MULTIPLICATION_ASSIGNMENT, PriorityTable.MULTIPLICATION_ASSIGNMENT, OperationCode.MUL
+			ScriptWord.MULTIPLICATION_ASSIGNMENT, OperatorPrecedence.MULTIPLICATION_ASSIGNMENT, OperationCode.MUL
 		);
 		this.testGenerateArithmeticCompoundAssignmentOperatorCodeVector(
-			ScriptWord.DIVISION_ASSIGNMENT, PriorityTable.DIVISION_ASSIGNMENT, OperationCode.DIV
+			ScriptWord.DIVISION_ASSIGNMENT, OperatorPrecedence.DIVISION_ASSIGNMENT, OperationCode.DIV
 		);
 		this.testGenerateArithmeticCompoundAssignmentOperatorCodeVector(
-			ScriptWord.REMAINDER_ASSIGNMENT, PriorityTable.REMAINDER_ASSIGNMENT, OperationCode.REM
+			ScriptWord.REMAINDER_ASSIGNMENT, OperatorPrecedence.REMAINDER_ASSIGNMENT, OperationCode.REM
 		);
 	}
 	public void testGenerateArithmeticCompoundAssignmentOperatorCodeScalar(String symbol, int priority, OperationCode operationCode) {
