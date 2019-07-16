@@ -51,10 +51,10 @@
 ./org/vcssl/nano/spec/IdentifierSyntax.java
 ./org/vcssl/nano/spec/LiteralSyntax.java
 ./org/vcssl/nano/spec/OperationCode.java
+./org/vcssl/nano/spec/OperatorPrecedence.java
 ./org/vcssl/nano/spec/OptionKey.java
 ./org/vcssl/nano/spec/OptionValue.java
 ./org/vcssl/nano/spec/package-info.java
-./org/vcssl/nano/spec/PriorityTable.java
 ./org/vcssl/nano/spec/ScriptWord.java
 ./org/vcssl/nano/spec/SpecialBindingKey.java
 ./org/vcssl/nano/vm/accelerator/Accelerator.java
@@ -121,6 +121,7 @@
 ./org/vcssl/nano/vm/memory/DataContainer.java
 ./org/vcssl/nano/vm/memory/Memory.java
 ./org/vcssl/nano/vm/memory/package-info.java
+./org/vcssl/nano/vm/package-info.java
 ./org/vcssl/nano/vm/processor/DispatchUnit.java
 ./org/vcssl/nano/vm/processor/ExecutionUnit.java
 ./org/vcssl/nano/vm/processor/Instruction.java
