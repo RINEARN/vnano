@@ -977,7 +977,7 @@ package performs the function as a compiler,
 which compiles script code written in the Vnano to a kind of intermediate code, 
 named as "VRIL" code.
 VRIL ― Vector Register Intermediate Language ― is a low-level (but readable text format) 
-language designed as a virtual assembly code of the VM (Virtual Machine) layer of Vnano Engine.
+language designed as a virtual assembly code for the VM (Virtual Machine) layer of Vnano Engine.
 
 <a href="https://github.com/RINEARN/vnano/tree/master/src/org/vcssl/nano/compiler">org.vcssl.nano.compiler</a> 
 パッケージは、Vnanoのスクリプトコードを、"VRILコード" と呼ぶ一種の中間コードへと変換する、コンパイラの機能を担います。
@@ -996,8 +996,8 @@ to translate VRIL code (text format) into more low level instruction objects
 which are directly executable by the VM layer.
 
 <a href="https://github.com/RINEARN/vnano/tree/master/src/org/vcssl/nano/vm/assembler">org.vcssl.nano.vm.assembler</a>
-パッケージは、テキスト形式のVRILコードを、VnanoのVM層で直接的に実行可能な命令オブジェクト列（より厳密には、
-それを内部に含む実行用オブジェクト）へと変換する、アセンブラとしての機能を担います。
+パッケージは、テキスト形式のVRILコードを、VnanoのVM層で直接的に実行可能な命令オブジェクト列を含む
+"VMオブジェクトコード" へと変換する、アセンブラとしての機能を担います。
 この命令オブジェクト列は、上図の中において "VRIL Instructions" として記述されています。
 
 

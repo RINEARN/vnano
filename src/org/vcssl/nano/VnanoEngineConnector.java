@@ -10,10 +10,16 @@ import java.util.Map;
 import org.vcssl.connect.EngineConnector1;
 
 /**
+ * <span class="lang-en">
+ * The connector class to access the script engine of the Vnano from plug-ins
+ * </span>
+ * <span class="lang-ja">
+ * プラグイン等からVnanoのスクリプトエンジンにアクセスするためのコネクタークラスです
+ * </span>
+ * .
+ *
  * <p>
- * このクラスは、
- * プラグイン等からVnanoのスクリプトエンジンの情報を参照したり、
- * 機能を呼び出したりする際に使用されます。
+ * &raquo <a href="../../../../src/org/vcssl/nano/VnanoEngineConnector.java">Source code</a>
  * </p>
  *
  * @author RINEARN (Fumihiro Matsui)
@@ -27,22 +33,44 @@ public final class VnanoEngineConnector implements EngineConnector1 {
 	}
 
 	/**
-	 * 指定された名称のオプションの値を保持しているかどうかを判定します。
+	 * <span class="lang-en">
+	 * Checks whether the option is set or not
+	 * </span>
+	 * <span class="lang-ja">
+	 * 指定された名称のオプションが設定されているかどうかを判定します
+	 * </span>
+	 * .
 	 *
-	 * @param optionName オプションの名称
-	 * @return 判定結果（保持していれば true）
+	 * @param optionKey
+	 *   <span class="lang-en">The key of the option (option name) to be checked.</span>
+	 *   <span class="lang-ja">判定するオプションのキー（オプション名）.</span>
+	 *
+	 * @return
+	 *   <span class="lang-en">The chech result (if the option is set, then returns true)</span>
+	 *   <span class="lang-ja">判定結果（保持していれば true）.</span>
 	 */
 	@Override
-	public boolean hasOptionValue(String optionName) {
-		return this.optionMap.containsKey(optionName);
+	public boolean hasOptionValue(String optionKey) {
+		return this.optionMap.containsKey(optionKey);
 	}
 
 
 	/**
-	 * 指定された名称のオプションの値を取得します。
+	 * <span class="lang-en">
+	 * Gets the value of the option
+	 * </span>
+	 * <span class="lang-ja">
+	 * 指定されたオプションの値を取得します
+	 * </span>
+	 * .
 	 *
-	 * @param optionName オプションの名称
-	 * @return オプションの値
+	 * @param optionKey
+	 *   <span class="lang-en">The key of the option (option name).</span>
+	 *   <span class="lang-ja">オプションのキー（オプション名）.</span>
+	 *
+	 * @return
+	 *   <span class="lang-en">The option value.</span>
+	 *   <span class="lang-ja">オプションの値.</span>
 	 */
 	@Override
 	public Object getOptionValue(String optionName) {

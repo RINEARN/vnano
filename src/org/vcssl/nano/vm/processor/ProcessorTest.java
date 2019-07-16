@@ -7,6 +7,7 @@ package org.vcssl.nano.vm.processor;
 
 import static org.junit.Assert.*;
 
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -19,6 +20,7 @@ import org.vcssl.nano.interconnect.Interconnect;
 import org.vcssl.nano.spec.DataType;
 import org.vcssl.nano.spec.OperationCode;
 import org.vcssl.nano.spec.OptionValue;
+import org.vcssl.nano.spec.SpecialBindingKey;
 import org.vcssl.nano.vm.memory.DataContainer;
 import org.vcssl.nano.vm.memory.Memory;
 import org.vcssl.nano.VnanoException;
@@ -48,7 +50,8 @@ public class ProcessorTest {
 
 		// テストで関数として呼び出すメソッドを接続したインターコネクトを用意
 		this.interconnect = new Interconnect();
-		this.interconnect.connect(this.getClass().getMethod("methodToConnect", long.class, long.class), this, false, null);
+		Method method = this.getClass().getMethod("methodToConnect", long.class, long.class);
+		this.interconnect.connectPlugin(SpecialBindingKey.AUTO_KEY, new Object[] {method,this} );
 
 		// レジスタを生成してメモリに配置
 		this.memory = new Memory();
@@ -230,10 +233,10 @@ public class ProcessorTest {
 		((DataContainer<long[]>)this.registers[2]).setData(new long[]{ 456L }); // R2=456
 
 		// Interconnect に接続された"methodToConnect" メソッドの関数アドレスを取得し、R10レジスタに設定
-		AbstractFunction function = this.interconnect.getGlobalFunctionTable().getFunctionBySignature(
+		AbstractFunction function = this.interconnect.getExternalFunctionTable().getFunctionBySignature(
 				"methodToConnect", new DataType[]{DataType.INT64, DataType.INT64}, new int[]{0, 0}
 		);
-		int functionAddress = this.interconnect.getGlobalFunctionTable().indexOf(function);
+		int functionAddress = this.interconnect.getExternalFunctionTable().indexOf(function);
 		((DataContainer<long[]>)this.registers[10]).setData(new long[]{ (long)functionAddress });
 
 		// メソッドを呼び出す CALLX 命令を生成

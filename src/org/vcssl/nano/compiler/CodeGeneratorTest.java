@@ -10,8 +10,6 @@ import static org.junit.Assert.*;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.vcssl.nano.interconnect.Interconnect;
-import org.vcssl.nano.interconnect.Variable;
 import org.vcssl.nano.spec.AssemblyWord;
 import org.vcssl.nano.spec.DataTypeName;
 import org.vcssl.nano.spec.OperationCode;
@@ -80,19 +78,8 @@ public class CodeGeneratorTest {
 			+ AssemblyWord.META_DIRECTIVE + AssemblyWord.WORD_SEPARATOR + "\"line=123, file=Test.vnano\"";
 
 
-	private Interconnect interconnect;
-
 	@Before
 	public void setUp() throws Exception {
-		this.interconnect = new Interconnect();
-		this.interconnect.connect(new Variable("intVectorA", DataTypeName.INT, 1), false, null);
-		this.interconnect.connect(new Variable("intVectorB", DataTypeName.INT, 1), false, null);
-		this.interconnect.connect(new Variable("intScalarA", DataTypeName.INT, RANK_OF_SCALAR), false, null);
-		this.interconnect.connect(new Variable("intScalarB", DataTypeName.INT, RANK_OF_SCALAR), false, null);
-		this.interconnect.connect(new Variable("floatVectorA", DataTypeName.FLOAT, 1), false, null);
-		this.interconnect.connect(new Variable("floatVectorB", DataTypeName.FLOAT, 1), false, null);
-		this.interconnect.connect(new Variable("boolVectorA", DataTypeName.BOOL, 1), false, null);
-		this.interconnect.connect(new Variable("boolVectorB", DataTypeName.BOOL, 1), false, null);
 	}
 
 	@After

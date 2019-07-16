@@ -5,6 +5,24 @@
 
 package org.vcssl.nano.spec;
 
+/**
+ * <p>
+ * <span>
+ * <span class="lang-en">
+ * The enum to define types of errors of the script engine of the Vnano
+ * </span>
+ * <span class="lang-ja">
+ * Vnano のスクリプトエンジンのエラーの種類が定義された列挙子です
+ * </span>
+ * .
+ * </p>
+ *
+ * <p>
+ * &raquo <a href="../../../../../src/org/vcssl/nano/spec/ErrorMessage.java">Source code</a>
+ * </p>
+ *
+ * @author RINEARN (Fumihiro Matsui)
+ */
 public enum ErrorType {
 	VARIABLE_IS_NOT_FOUND,
 	FUNCTION_IS_NOT_FOUND,

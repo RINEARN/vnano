@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2018 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2019 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -9,19 +9,33 @@ import java.util.HashMap;
 
 import org.vcssl.nano.vm.memory.Memory;
 
+
 /**
  * <p>
- * Vnano処理系の中間アセンブリコードにおける、キーワードや記号などが定義されたクラスです。
+ * <span>
+ * <span class="lang-en">
+ * The class to define keywords and symbols of the virtual assembly language (VRIL)
+ * which is interpreted by the VM in the script engine of the Vnano
+ * </span>
+ * <span class="lang-ja">
+ * Vnano のスクリプトエンジン内のVMが解釈する仮想的なアセンブリ言語（ VRIL ）における,
+ * キーワードや記号などが定義されたクラスです
+ * </span>
+ * .
+ * </p>
+ *
+ * <p>
+ * &raquo <a href="../../../../../src/org/vcssl/nano/spec/AssemblyWord.java">Source code</a>
  * </p>
  *
  * @author RINEARN (Fumihiro Matsui)
  */
 public final class AssemblyWord {
 
-	/** 中間アセンブリ言語の名称です。 */
+	// 中間アセンブリ言語の名称
 	public static final String ASSEMBLY_LANGUAGE_NAME = "Vector Register Intermediate Language (VRIL)";
 
-	/** 中間アセンブリ言語のバージョンです。 */
+	// 中間アセンブリ言語のバージョン
 	public static final String ASSEMBLY_LANGUAGE_VERSION = "0.0.1";
 
 

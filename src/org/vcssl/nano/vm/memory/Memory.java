@@ -289,6 +289,16 @@ public final class Memory {
 
 
 	/**
+	 * スクリプトエンジンの eval メソッドの評価値に対応するデータが、存在するか確認します。
+	 *
+	 * @param resultContainer 評価値に対応するデータが存在すれば true
+	 */
+	public final boolean hasResultDataContainer() {
+		return (this.resultContainer != null);
+	}
+
+
+	/**
 	 * 指定された中間コードの実行のために、必要なデータを確保します。
 	 *
 	 * @param intermediateCode この仮想メモリーを用いて実行する中間コード

@@ -332,7 +332,7 @@ public class DispatchUnit {
 				int argumentLength = operands.length - 2;
 				DataContainer<?>[] arguments = new DataContainer[argumentLength];
 				System.arraycopy(operands, 2, arguments, 0, argumentLength);
-				interconnect.call(externalFunctionIndex, arguments, operands[0]);
+				interconnect.callExternalFunction(externalFunctionIndex, arguments, operands[0]);
 				return programCounter + 1;
 			}
 

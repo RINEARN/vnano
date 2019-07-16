@@ -7,6 +7,25 @@ package org.vcssl.nano.spec;
 
 import java.util.Locale;
 
+
+/**
+ * <p>
+ * <span>
+ * <span class="lang-en">
+ * The class to define error messages of the script engine of the Vnano
+ * </span>
+ * <span class="lang-ja">
+ * Vnano のスクリプトエンジンのエラーメッセージが定義されたクラスです
+ * </span>
+ * .
+ * </p>
+ *
+ * <p>
+ * &raquo <a href="../../../../../src/org/vcssl/nano/spec/ErrorMessage.java">Source code</a>
+ * </p>
+ *
+ * @author RINEARN (Fumihiro Matsui)
+ */
 public class ErrorMessage {
 
 	public static String generateErrorMessage(ErrorType errorType) {

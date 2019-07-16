@@ -10,6 +10,26 @@ import java.util.Map;
 
 import javax.script.ScriptEngine;
 
+
+/**
+ * <p>
+ * <span>
+ * <span class="lang-en">
+ * The class to define basic information (language name, version, and so on) of
+ * this implementation of the script engine of the Vnano
+ * </span>
+ * <span class="lang-ja">
+ * この Vnano のスクリプトエンジン実装の基本情報（言語名やバージョンなど）が定義されたクラスです
+ * </span>
+ * .
+ * </p>
+ *
+ * <p>
+ * &raquo <a href="../../../../../src/org/vcssl/nano/spec/EngineInformation.java">Source code</a>
+ * </p>
+ *
+ * @author RINEARN (Fumihiro Matsui)
+ */
 public class EngineInformation {
 
 	public static final String ENGINE_NAME = "RINEARN Vnano Engine";

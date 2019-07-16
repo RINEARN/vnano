@@ -16,6 +16,7 @@ import org.vcssl.nano.interconnect.AbstractFunction;
 import org.vcssl.nano.interconnect.Interconnect;
 import org.vcssl.nano.spec.DataType;
 import org.vcssl.nano.spec.OperationCode;
+import org.vcssl.nano.spec.SpecialBindingKey;
 import org.vcssl.nano.vm.memory.DataContainer;
 import org.vcssl.nano.vm.memory.Memory;
 import org.vcssl.nano.VnanoFatalException;
@@ -1333,13 +1334,13 @@ public class DispatchUnitTest {
 
 		// 処理系にメソッドを接続
 		try {
-			this.interconnect.connect(method, this, false, null);
+			this.interconnect.connectPlugin(SpecialBindingKey.AUTO_KEY, new Object[] {method,this} );
 		} catch (VnanoException e) {
 			fail("Connection failed");
 		}
 
 		// 接続された、処理系内部形式の関数オブジェクトを取得（関数テーブルからアドレスを引き出すのに使用）
-		AbstractFunction function = this.interconnect.getGlobalFunctionTable().getFunctionBySignature(
+		AbstractFunction function = this.interconnect.getExternalFunctionTable().getFunctionBySignature(
 				"methodToConnect",
 				new DataType[]{ DataType.INT64, DataType.INT64 },
 				new int[]{ 0, 0 }
@@ -1357,7 +1358,7 @@ public class DispatchUnitTest {
 		argA.setData(new long[]{ 123L });
 		argB.setData(new long[]{ 456L });
 		ret.setData(new long[]{ -1 });
-		functionAddress.setData(new long[]{ this.interconnect.getGlobalFunctionTable().indexOf(function) });
+		functionAddress.setData(new long[]{ this.interconnect.getExternalFunctionTable().indexOf(function) });
 
 		// 上記オペランドでメソッドコールを行う命令を生成
 		Instruction instruction = new Instruction(

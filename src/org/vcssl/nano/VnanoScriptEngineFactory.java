@@ -14,7 +14,17 @@ import org.vcssl.nano.spec.EngineInformation;
 
 
 /**
- * {@link VnanoScriptEngine VnanoScriptEngine} のインスタンスを生成するためのファクトリークラスです。
+ * <span class="lang-en">
+ * The factory class to create instances of {@link VnanoScriptEngine VnanoScriptEngine} class
+ * </span>
+ * <span class="lang-ja">
+ * {@link VnanoScriptEngine VnanoScriptEngine} のインスタンスを生成するためのファクトリークラスです
+ * </span>
+ * .
+ *
+ * <p>
+ * &raquo <a href="../../../../src/org/vcssl/nano/VnanoScriptEngineFactory.java">Source code</a>
+ * </p>
  *
  * @author RINEARN (Fumihiro Matsui)
  */

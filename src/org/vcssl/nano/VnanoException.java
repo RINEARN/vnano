@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2018 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2019 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -7,15 +7,20 @@ package org.vcssl.nano;
 
 import java.util.Locale;
 
-import org.vcssl.nano.compiler.Compiler;
 import org.vcssl.nano.spec.ErrorMessage;
 import org.vcssl.nano.spec.ErrorType;
 
 /**
+ * <span class="lang-ja">
+ * スクリプトコードの内容や実行過程に, 通常想定される範囲内のエラーが検出された際にスローされる例外です
+ * </span>
+ * <span class="lang-en">
+ * The exception class thrown when the (usual type of) error detected for contents or processing of scripts
+ * </span>
+ * .
+ *
  * <p>
- * コンパイラ内において、
- * スクリプトコードの内容に異常がある場合に、
- * {@link Compiler Compiler} やその構成クラスがスローする例外です。
+ * &raquo <a href="../../../../src/org/vcssl/nano/VnanoException.java">Source code</a>
  * </p>
  *
  * @author RINEARN (Fumihiro Matsui)
@@ -31,7 +36,6 @@ public class VnanoException extends Exception {
 	private String[] errorWords = null;
 	private String errorMessage = null;
 
-	/** エラーメッセージに使用される言語を指定するためのロケールです。 */
 	private Locale locale = Locale.getDefault();
 
 	public VnanoException(Throwable errorCauseThrowable) {

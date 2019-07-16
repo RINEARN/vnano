@@ -58,8 +58,8 @@ public class SemanticAnalyzer {
 			throws VnanoException {
 
 		// インターコネクトから外部変数・外部関数のテーブルを取得
-		VariableTable globalVariableTable = interconnect.getGlobalVariableTable();
-		FunctionTable globalFunctionTable = interconnect.getGlobalFunctionTable();
+		VariableTable globalVariableTable = interconnect.getExternalVariableTable();
+		FunctionTable globalFunctionTable = interconnect.getExternalFunctionTable();
 
 		// ASTを入力ASTをクローンして出力ASTを生成
 		AstNode outputAst = inputAst.clone();

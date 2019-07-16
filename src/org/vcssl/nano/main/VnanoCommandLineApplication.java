@@ -21,7 +21,6 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
-import org.vcssl.connect.MethodToXfci1Adapter;
 import org.vcssl.nano.VnanoException;
 import org.vcssl.nano.interconnect.Interconnect;
 import org.vcssl.nano.spec.SpecialBindingKey;
@@ -475,11 +474,11 @@ public final class VnanoCommandLineApplication {
 		// メソッド・フィールドを外部関数・変数としてインターコネクトに接続
 		try {
 			ScriptIO ioInstance = new ScriptIO();
-			interconnect.connect( new MethodToXfci1Adapter( ScriptIO.class.getMethod("output",long.class    ), ioInstance), false, null );
-			interconnect.connect( new MethodToXfci1Adapter( ScriptIO.class.getMethod("output",double.class ), ioInstance), false, null );
-			interconnect.connect( new MethodToXfci1Adapter( ScriptIO.class.getMethod("output",boolean.class), ioInstance), false, null );
-			interconnect.connect( new MethodToXfci1Adapter( ScriptIO.class.getMethod("output",String.class ), ioInstance), false, null );
-			interconnect.connect( new MethodToXfci1Adapter( ScriptIO.class.getMethod("time"), ioInstance), false, null );
+			interconnect.connectPlugin("output(int)",    new Object[]{ ScriptIO.class.getMethod("output",long.class    ), ioInstance } );
+			interconnect.connectPlugin("output(float)",  new Object[]{ ScriptIO.class.getMethod("output",double.class ), ioInstance } );
+			interconnect.connectPlugin("output(bool)",   new Object[]{ ScriptIO.class.getMethod("output",boolean.class), ioInstance } );
+			interconnect.connectPlugin("output(string)", new Object[]{ ScriptIO.class.getMethod("output",String.class ), ioInstance } );
+			interconnect.connectPlugin("time()",         new Object[]{ ScriptIO.class.getMethod("time"), ioInstance } );
 
 		} catch (NoSuchMethodException e){
 			System.err.println("Method/field not found.");
