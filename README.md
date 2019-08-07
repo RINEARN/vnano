@@ -3,8 +3,10 @@
 
 
 Vnano (<a href="https://www.vcssl.org/">VCSSL</a> nano) is a simple scripting language and its interpreter for embedded use in Java&reg; applications.
+( See also: An example of a practical application using the Vnano: <a href="https://github.com/RINEARN/rinearn-processor-nano">RINEARN Processor nano</a>. )
 
 Vnano (<a href="https://www.vcssl.org/">VCSSL</a> nano) は、Java&reg; アプリケーションに組み込んで用いる簡易スクリプト言語＆インタープリタです。
+( 実際に Vnano を使用した、実用目的のアプリケーションの例としては「 <a href="https://github.com/RINEARN/rinearn-processor-nano">リニアンプロセッサー nano</a> 」をご参照ください。 )
 
 
 
@@ -12,12 +14,27 @@ Vnano (<a href="https://www.vcssl.org/">VCSSL</a> nano) は、Java&reg; アプ�
   <img src="https://github.com/RINEARN/vnano/blob/master/logo.png" alt="" width="890" />
 </div>
 
-As an example of a practical application using the Vnano, see also: <a href="https://github.com/RINEARN/rinearn-processor-nano">RINEARN Processor nano</a>.
 
-実際に Vnano を使用した、実用目的のアプリケーションの例としては「 <a href="https://github.com/RINEARN/rinearn-processor-nano">リニアンプロセッサー nano</a> 」をご参照ください。
+### The Official Website - 公式サイト
+
+- English: <a href="https://www.vcssl.org/en-us/vnano/">https://www.vcssl.org/en-us/vnano/</a>
+- 日本語:   <a href="https://www.vcssl.org/ja-jp/vnano/">https://www.vcssl.org/ja-jp/vnano/</a>
+
+### Tutorial - チュートリアル
+
+- English: <a href="https://www.vcssl.org/en-us/vnano/doc/tutorial/">https://www.vcssl.org/en-us/vnano/doc/tutorial/</a>
+- 日本語:   <a href="https://www.vcssl.org/ja-jp/vnano/doc/tutorial/">https://www.vcssl.org/ja-jp/vnano/doc/tutorial/</a>
+
+### API References - API仕様書
+
+- English: <a href="https://www.vcssl.org/en-us/dev/code/main-jimpl/api/org/vcssl/nano/">https://www.vcssl.org/en-us/dev/code/main-jimpl/api/org/vcssl/nano/</a>
+- 日本語:   <a href="https://www.vcssl.org/ja-jp/dev/code/main-jimpl/api/org/vcssl/nano/">https://www.vcssl.org/ja-jp/dev/code/main-jimpl/api/org/vcssl/nano/</a>
+
+<hr />
 
 
-## Index - 目次
+
+## Vnano README<br />- Index - 目次 -
 - <a href="#caution">Caution - 注意</a>
 - <a href="#license">License - ライセンス</a>
 - <a href="#requirements">Requirements - 必要な環境</a>
@@ -51,7 +68,7 @@ As an example of a practical application using the Vnano, see also: <a href="htt
   - <a href="#plugin-class">Connecting a Class or an Instance as an Plug-in to Use Its All Methods/Fields as External Functions/Variables - クラスやインスタンスをプラグインとして接続し、その全メソッド/フィールドを外部関数/変数として使用する</a>
   - <a href="#plugin-methods-and-fields">Connecting a Particular Method/Field Only as an External Function/Variable Individually - 特定のメソッド/フィールドのみを個別に外部関数/変数として接続する</a>
   - <a href="#plugin-interfaces">Implementation of Plug-ins of External Functions/Variables by Using Low-Overhead Plug-in Interfaces - 低オーバーヘッドのプラグイン用インターフェースを用いて外部関数/変数プラグインを実装する</a>
-  - <a href="#plugin-correspondence-of-data-types">The correspondence of the the data type between the Vnano and the data container - Vnano内とデータコンテナ内でのデータ型の対応関係</a>
+  - <a href="#plugin-correspondence-of-data-types">The Correspondence of the Data Type between the Vnano and the Data Container - Vnano内とデータコンテナ内でのデータ型の対応関係</a>
   - <a href="#plugin-pack">Packing of Multiple External Functions/Variables as a Plug-in - 複数の外部関数/変数プラグインを1つのプラグインにまとめる</a>
 - <a href="#about-us">About Us - 開発元について</a>
 - <a href="#references">References - 関連記事</a>
@@ -1984,7 +2001,7 @@ and this class is an implementation of a interface defined as "<a href="https://
 You can handle data container objects through APIs defined as this interface, 
 to reduce dependency on the implementation of the script engine as much as possible.
 About data-types of data in the data container, see the later section: 
-"<a href="#plugin-correspondence-of-data-types">The correspondence of the the data type between the Vnano and the data container</a>".
+"<a href="#plugin-correspondence-of-data-types">The Correspondence of the Data Type Between the Vnano and the Data Container</a>".
 
 そのため、自動でのデータ型変換機能を無効化するためには、
 スクリプトエンジンがどのようにデータをコンテナに格納しているかについて、ある程度把握する必要があります。
