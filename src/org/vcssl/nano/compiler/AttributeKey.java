@@ -5,87 +5,204 @@
 
 package org.vcssl.nano.compiler;
 
+//Documentation:  https://www.vcssl.org/en-us/dev/code/main-jimpl/api/org/vcssl/nano/compiler/AttributeKey.html
+//ドキュメント:   https://www.vcssl.org/ja-jp/dev/code/main-jimpl/api/org/vcssl/nano/compiler/AttributeKey.html
+
 /**
  * <p>
- * コンパイラ内において、
- * {@link Token Token}（トークン、字句）や {@link AstNode AstNode}（ASTノード、
- * 抽象構文木ノード）が保持する属性情報の、キーとなる列挙子です。
- * </p>
+ * <span class="lang-en">
+ * The enum to define keys of attributes of the AST node ({@link AstNode})
+ * and the token ({@link Token}) in the compiler of the Vnano
+ * </span>
+ * <span class="lang-ja">
+ * Vnano のコンパイラ内において, ASTノード ({@link AstNode}) やトークン ({@link Token})
+ * が保持する属性の, キーを定義するための列挙子です
+ * </span>
+ * .
  *
  * <p>
- * このコンパイラでは、移植の簡易さや小規模な実装を優先させるため、
- * サブクラスやインターフェース実装クラスの作成によって
- * トークンやASTノードに多態性を持たせる設計は採用していません。
- * 代わりに、各トークンやASTノードが属性情報を持ち、
- * それによって役割や値などを表現する、古典的なスタイルの設計を採用しています。
+ * &raquo; <a href="../../../../../src/org/vcssl/nano/compiler/AttributeKey.java">Source code</a>
  * </p>
  *
+ * <hr>
+ *
  * <p>
- * 属性の区分（属性キー）はこの列挙子で、属性値は文字列で表されます。
- * 定型的な属性値は {@link AttributeValue Attribute.Value} クラス内に文字列定数として定義されています。
+ * | <a href="../../../../../api/org/vcssl/nano/compiler/AttributeKey.html">Public Only</a>
+ * | <a href="../../../../../api-all/org/vcssl/nano/compiler/AttributeKey.html">All</a> |
  * </p>
  *
  * @author RINEARN (Fumihiro Matsui)
  */
 public enum AttributeKey {
 
-	/** データ型を保持する属性のキーです。 */
+	/**
+	 * <span class="lang-en">The key of the attribute for storing a data type</span>
+	 * <span class="lang-ja">データ型を格納する属性のキーです</span>
+	 * .
+	 */
 	DATA_TYPE,
 
-	/** 配列の次元数を保持する属性のキーです。 */
+	/**
+	 * <span class="lang-en">The key of the attribute for storing an array-rank</span>
+	 * <span class="lang-ja">配列次元数を格納する属性のキーです</span>
+	 * .
+	 */
 	RANK,
 
-	/** 配列の要素数を保持する属性のキーです。 */
+	/**
+	 * <span class="lang-en">The key of the attribute for storing an (multi dimensional) array-lengths</span>
+	 * <span class="lang-ja">配列要素数（多次元）を格納する属性のキーです</span>
+	 * .
+	 */
 	LWNGRHS,
 
-	/** 識別子を保持する属性のキーです。 */
+	/**
+	 * <span class="lang-en">The key of the attribute for storing an identifier</span>
+	 * <span class="lang-ja">識別子を格納する属性のキーです</span>
+	 * .
+	 */
 	IDENTIFIER_VALUE,
 
-	/** 複数の同じ識別子を区別するためのシリアルナンバー属性のキーです。 */
+	/**
+	 * <span class="lang-en">
+	 * The key of the attribute for storing the serial number to distinguish
+	 * different variables/functions having the same identifier
+	 * </span>
+	 * <span class="lang-ja">
+	 * 同じ識別子を持つ, 別の変数/関数を区別するための, シリアルナンバーを格納する属性のキーです
+	 * </span>
+	 * .
+	 */
 	IDENTIFIER_SERIAL_NUMBER,
 
-	/** リテラルの記載内容を保持する属性のキーです。 */
+	/**
+	 * <span class="lang-en">The key of the attribute for storing the content of a literal</span>
+	 * <span class="lang-ja">リテラルの記述内容を格納する属性のキーです</span>
+	 * .
+	 */
 	LITERAL_VALUE,
 
-	/** スコープ情報を保持する属性のキーです。 */
+	/**
+	 * <span class="lang-en">The key of the attribute for storing a scope type</span>
+	 * <span class="lang-ja">スコープのタイプを保持する属性のキーです</span>
+	 * .
+	 */
 	SCOPE,
 
-	/** 名前空間を保持する属性のキーです。 */
+	/**
+	 * <span class="lang-en">The key of the attribute for storing an name space</span>
+	 * <span class="lang-ja">名前空間を保持する属性のキーです</span>
+	 * .
+	 */
 	NAME_SPACE,
 
-	/** 始点ラベルを保持する属性のキーです。 */
+	/**
+	 * <span class="lang-en">The key of the attribute for storing a beginning label of a loop and so on</span>
+	 * <span class="lang-ja">ループなどの始点ラベルを保持する属性のキーです</span>
+	 * .
+	 */
 	BEGIN_LABEL,
 
-	/** 更新地点ラベルを保持する属性のキーです。 */
+	/**
+	 * <span class="lang-en">The key of the attribute for storing a update-point label of a loop and so on</span>
+	 * <span class="lang-ja">ループなどの更新地点ラベルを保持する属性のキーです</span>
+	 * .
+	 */
 	UPDATE_LABEL,
 
-	/** 終点ラベルを保持する属性のキーです。 */
+	/**
+	 * <span class="lang-en">The key of the attribute for storing an end label of a loop and so on</span>
+	 * <span class="lang-ja">ループなどの終点ラベルを保持する属性のキーです</span>
+	 * .
+	 */
 	END_LABEL, // 短絡評価用にも使用
 
-	/** リーフノードの種類を区別する属性のキーです。 */
+	/**
+	 * <span class="lang-en">The key of the attribute for storing a type of a leef node</span>
+	 * <span class="lang-ja">リーフノードの種類を保持する属性のキーです</span>
+	 * .
+	 */
 	LEAF_TYPE,
 
-	/** 演算子ノードにおいて、演算子の記号を保持する属性のキーです。 */
+	/**
+	 * <span class="lang-en">The key of the attribute for storing a symbol of an operator</span>
+	 * <span class="lang-ja">演算子の記号を保持する属性のキーです</span>
+	 * .
+	 */
 	OPERATOR_SYMBOL,
 
-	/** 演算子ノードにおいて、演算子の優先度を保持する属性のキーです。 */
-	OPERATOR_PRIORITY,
+	/**
+	 * <span class="lang-en">The key of the attribute for storing a precedence of an operator</span>
+	 * <span class="lang-ja">演算子の優先度を保持する属性のキーです</span>
+	 * .
+	 */
+	OPERATOR_PRECEDENCE,
 
-	/** 演算子ノードにおいて、結合性（右結合か左結合か）を区別する属性のキーです。 */
+	/**
+	 * <span class="lang-en">The key of the attribute for storing an associativity of an operator</span>
+	 * <span class="lang-ja">演算子の結合性を保持する属性のキーです</span>
+	 * .
+	 */
 	OPERATOR_ASSOCIATIVITY,
 
-	/** 演算子ノードにおいて、演算子の構文の種類（二項演算子など）を区別する属性のキーです。 */
+	/**
+	 * <span class="lang-en">
+	 * The key of the attribute for storing a type of syntax
+	 * (for example, binary operator, prefix operator, and so on) of an operator
+	 * </span>
+	 * <span class="lang-ja">
+	 * 演算子の構文の種類（二項演算子や前置演算子など）を保持する属性のキーです
+	 * </span>
+	 * .
+	 */
 	OPERATOR_SYNTAX,
 
-	/** 演算子ノードにおいて、演算子の演算の種類（算術演算子など）を区別する属性のキーです。 */
+	/**
+	 * <span class="lang-en">
+	 * The key of the attribute for storing a type of operation of
+	 * (for example, arithmetic operator, logical operator, and so on) of an operator
+	 * </span>
+	 * <span class="lang-ja">
+	 * 演算子の演算の種類（算術演算子や論理演算子など）を保持する属性のキーです
+	 * </span>
+	 * .
+	 */
 	OPERATOR_EXECUTOR,
 
-	/** 演算子ノードにおいて、演算実行時の（入力値の）データ型を保持する属性のキーです。 */
+	/**
+	 * <span class="lang-en">
+	 * The key of the attribute for storing a data-type to perform operation of
+	 * (int, float, and so on) of an operator
+	 * </span>
+	 * <span class="lang-ja">
+	 * 演算子の演算を実行する際のデータ型（int型やfloat型など）を保持する属性のキーです
+	 * </span>
+	 * .
+	 */
 	OPERATOR_EXECUTION_DATA_TYPE,
 
-	/** レジスタや即値など、中間アセンブリコード内での値を保持する属性のキーです。 */
+	/**
+	 * <span class="lang-en">
+	 * The key of the attribute for storing a description in the intermediate code
+	 * (for example, immediate value, register name, and so on)
+	 * </span>
+	 * <span class="lang-ja">
+	 * 即値やレジスタ名など, 中間アセンブリコード内での値を保持する属性のキーです
+	 * </span>
+	 * .
+	 */
 	ASSEMBLY_VALUE,
 
-	/** 構文解析の際に使用される {@link AstNode.Type#STACK_LID STACK_LID} 型ノードのマーカー値を保持する属性のキーです。 */
+	/**
+	 * <span class="lang-en">
+	 * The key of the attribute for storing a marker of the AST node of {@link AstNode.Type#STACK_LID} type
+	 * which is used temporary in the parser
+	 * </span>
+	 * <span class="lang-ja">
+	 * 構文解析の際に一時的に使用される,
+	 * {@link AstNode.Type#STACK_LID} 型ASTノードのマーカー値を保持する属性のキーです.
+	 * </span>
+	 * .
+	 */
 	LID_MARKER,
 }

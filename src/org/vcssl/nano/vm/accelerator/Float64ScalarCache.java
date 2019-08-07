@@ -5,7 +5,7 @@
 
 package org.vcssl.nano.vm.accelerator;
 
-class Float64ScalarCache implements ScalarCache {
+public class Float64ScalarCache implements ScalarCache {
 	public Float64ScalarCache(){}
 	public double value;
 }

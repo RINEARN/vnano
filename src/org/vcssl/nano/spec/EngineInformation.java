@@ -10,6 +10,35 @@ import java.util.Map;
 
 import javax.script.ScriptEngine;
 
+// Documentation:  https://www.vcssl.org/en-us/dev/code/main-jimpl/api/org/vcssl/nano/spec/EngineInformation.html
+// ドキュメント:   https://www.vcssl.org/ja-jp/dev/code/main-jimpl/api/org/vcssl/nano/spec/EngineInformation.html
+
+/**
+ * <p>
+ * <span>
+ * <span class="lang-en">
+ * The class to define basic information (language name, version, and so on) of
+ * this implementation of the script engine of the Vnano
+ * </span>
+ * <span class="lang-ja">
+ * この Vnano のスクリプトエンジン実装の基本情報（言語名やバージョンなど）が定義されたクラスです
+ * </span>
+ * .
+ * </p>
+ *
+ * <p>
+ * &raquo; <a href="../../../../../src/org/vcssl/nano/spec/EngineInformation.java">Source code</a>
+ * </p>
+ *
+ * <hr>
+ *
+ * <p>
+ * | <a href="../../../../../api/org/vcssl/nano/spec/EngineInformation.html">Public Only</a>
+ * | <a href="../../../../../api-all/org/vcssl/nano/spec/EngineInformation.html">All</a> |
+ * </p>
+ *
+ * @author RINEARN (Fumihiro Matsui)
+ */
 public class EngineInformation {
 
 	public static final String ENGINE_NAME = "RINEARN Vnano Engine";

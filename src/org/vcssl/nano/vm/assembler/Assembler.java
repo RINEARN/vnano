@@ -124,8 +124,8 @@ public class Assembler {
 
 
 		// インターコネクトから外部変数・外部関数のテーブルを取得
-		VariableTable globalVariableTable = interconnect.getGlobalVariableTable();
-		FunctionTable functionTable = interconnect.getGlobalFunctionTable();
+		VariableTable globalVariableTable = interconnect.getExternalVariableTable();
+		FunctionTable functionTable = interconnect.getExternalFunctionTable();
 
 		VirtualMachineObjectCode intermediateCode = this.preprocessDirectives(assemblyCode, globalVariableTable, functionTable);
 		int registerMaxAddress = 0;

@@ -11,8 +11,36 @@ import org.vcssl.nano.compiler.AttributeKey;
 import org.vcssl.nano.interconnect.AbstractFunction;
 import org.vcssl.nano.interconnect.AbstractVariable;
 
+// Documentation:  https://www.vcssl.org/en-us/dev/code/main-jimpl/api/org/vcssl/nano/spec/IdentifierSyntax.html
+// ドキュメント:   https://www.vcssl.org/ja-jp/dev/code/main-jimpl/api/org/vcssl/nano/spec/IdentifierSyntax.html
 
 // SignatureSyntax に変更する？
+
+/**
+ * <p>
+ * <span>
+ * <span class="lang-en">
+ * The utilities class for handling identifiers and signatures
+ * </span>
+ * <span class="lang-ja">
+ * 識別子やシグネチャの扱いを補助する操作を提供するクラスです
+ * </span>
+ * .
+ * </p>
+ *
+ * <p>
+ * &raquo; <a href="../../../../../src/org/vcssl/nano/spec/IdentifierSyntax.java">Source code</a>
+ * </p>
+ *
+ * <hr>
+ *
+ * <p>
+ * | <a href="../../../../../api/org/vcssl/nano/spec/IdentifierSyntax.html">Public Only</a>
+ * | <a href="../../../../../api-all/org/vcssl/nano/spec/IdentifierSyntax.html">All</a> |
+ * </p>
+ *
+ * @author RINEARN (Fumihiro Matsui)
+ */
 public class IdentifierSyntax {
 
 

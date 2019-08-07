@@ -5,44 +5,84 @@
 
 package org.vcssl.nano.spec;
 
-import java.util.HashMap;
-
+// Documentation:  https://www.vcssl.org/en-us/dev/code/main-jimpl/api/org/vcssl/nano/spec/DataType.html
+// ドキュメント:   https://www.vcssl.org/ja-jp/dev/code/main-jimpl/api/org/vcssl/nano/spec/DataType.html
 
 /**
  * <p>
- * Vnano処理系内部において、データ型を表現・区別するための列挙子です。
+ * <span>
+ * <span class="lang-en">
+ * The enum to define data types of the Vnano
+ * </span>
+ * <span class="lang-ja">
+ * Vnano のデータ型が定義された列挙子です
+ * </span>
+ * .
+ * <span class="lang-en">
+ * Nemes of data types are defined in {@link DataTypeName DataTypeName} class,
+ * and conversion methods between elements of this enum and names of data types
+ * are provided by the class.
+ * </span>
+ *
+ * <span class="lang-ja">
+ * データ型の名称は {@link DataTypeName DataTypeName} クラスで定義され,
+ * この列挙子の要素と, データ型名との間の変換メソッドも, 同クラスによって提供されます.
+ * </span>
  * </p>
  *
  * <p>
- * 各データ型の名称や、この列挙子要素とデータ型名との相互変換機能などは、
- * {@link org.vcssl.nano.spec.DataTypeName DataTypeName} クラスによって提供されます。
+ * &raquo; <a href="../../../../../src/org/vcssl/nano/spec/DataType.java">Source code</a>
+ * </p>
+ *
+ * <hr>
+ *
+ * <p>
+ * | <a href="../../../../../api/org/vcssl/nano/spec/DataType.html">Public Only</a>
+ * | <a href="../../../../../api-all/org/vcssl/nano/spec/DataType.html">All</a> |
  * </p>
  *
  * @author RINEARN (Fumihiro Matsui)
  */
 public enum DataType {
 
-	/** 64ビット符号付き整数型です。 */
+	/**
+	 * <span class="lang-en">The 64-bit signed integer type (name in scripts: "int")</span>
+	 * <span class="lang-ja">64ビット精度の符号付き整数型（ 型名は int ）です</span>
+	 * .
+	 */
 	INT64,
 
-	/** 64ビット符号付き浮動小数点数型です。 */
+
+	/**
+	 * <span class="lang-en">The 64-bit floating-point number type (name: "float")</span>
+	 * <span class="lang-ja">64ビット精度の浮動小数点数型（ 型名は float ）です</span>
+	 * .
+	 */
 	FLOAT64,
 
-	/** 論理型です。 */
+
+	/**
+	 * <span class="lang-en">The boolean type (name: "bool")</span>
+	 * <span class="lang-ja">論理型/真偽型（ 型名は bool ）です</span>
+	 * .
+	 */
 	BOOL,
 
-	/** 文字列型です。*/
+
+	/**
+	 * <span class="lang-en">The character string type (name: "string")</span>
+	 * <span class="lang-ja">文字列型（ 型名は string ）です</span>
+	 * .
+	 */
 	STRING,
 
-	/** データが存在しない場合や、型付け前の段階などで使用される、便宜的なデータ型です。*/
+
+
+	/**
+	 * <span class="lang-en">The void type (name: "void")</span>
+	 * <span class="lang-ja">void 型（ 型名は void ）です</span>
+	 * .
+	 */
 	VOID;
 
-	/** データのクラスから、この列挙子要素へと変換するためのマップです。 */
-	public static final HashMap<Class<?>, DataType> CLASS_DATA_TYPE_MAP = new HashMap<Class<?>, DataType>();
-	static {
-		CLASS_DATA_TYPE_MAP.put(long[].class, DataType.INT64);
-		CLASS_DATA_TYPE_MAP.put(double[].class, DataType.FLOAT64);
-		CLASS_DATA_TYPE_MAP.put(boolean[].class, DataType.BOOL);
-		CLASS_DATA_TYPE_MAP.put(String[].class, DataType.STRING);
-	}
 }

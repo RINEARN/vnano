@@ -1,10 +1,29 @@
 package org.vcssl.nano;
 
+//Documentation:  https://www.vcssl.org/en-us/dev/code/main-jimpl/api/org/vcssl/nano/VnanoFatalException.html
+//ドキュメント:   https://www.vcssl.org/ja-jp/dev/code/main-jimpl/api/org/vcssl/nano/VnanoFatalException.html
+
 /**
- * 実装上の異常に起因する例外です。
- * この例外が発生した場合は、処理系が開発時に想定されていない状態や挙動に陥った事を意味しているため、
- * 処理系の実装を修正する必要があります。
- * 処理系が実装が正常であれば、実行するスクリプトの内容によらず、この例外は本来発生しないべきです。
+ * <span class="lang-en">
+ * The exception class thrown when the unexpected problem occurred in the script engine
+ * </span>
+ * <span class="lang-ja">
+ * スクリプトエンジン内で, 何らかの予期しない異常な状態が検出された際にスローされる例外です
+ * </span>
+ * .
+ *
+ * <p>
+ * &raquo; <a href="../../../../src/org/vcssl/nano/VnanoFatalException.java">Source code</a>
+ * </p>
+ *
+ * <hr>
+ *
+ * <p>
+ * | <a href="../../../../api/org/vcssl/nano/VnanoFatalException.html">Public Only</a>
+ * | <a href="../../../../api-all/org/vcssl/nano/VnanoFatalException.html">All</a> |
+ * </p>
+ *
+ * @author RINEARN (Fumihiro Matsui)
  */
 @SuppressWarnings("serial")
 public class VnanoFatalException extends RuntimeException {

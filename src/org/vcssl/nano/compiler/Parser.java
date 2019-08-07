@@ -15,49 +15,78 @@ import java.util.List;
 import org.vcssl.nano.VnanoException;
 import org.vcssl.nano.VnanoFatalException;
 import org.vcssl.nano.spec.DataTypeName;
-import org.vcssl.nano.spec.PriorityTable;
+import org.vcssl.nano.spec.OperatorPrecedence;
 import org.vcssl.nano.spec.ScriptWord;
 import org.vcssl.nano.spec.ErrorType;
 
+//Documentation:  https://www.vcssl.org/en-us/dev/code/main-jimpl/api/org/vcssl/nano/compiler/Parser.html
+//ドキュメント:   https://www.vcssl.org/ja-jp/dev/code/main-jimpl/api/org/vcssl/nano/compiler/Parser.html
 
 /**
  * <p>
- * コンパイラ内において、
- * {@link LexicalAnalyzer LexicalAnalyzer}（字句解析器）
- * が出力した {@link Token Token} 配列に対して構文解析処理を行い、
- * {@link AstNode AstNode} を組み合わせたAST（抽象構文木）へと変換する、
- * 構文解析器のクラスです。
+ * <span class="lang-en">
+ * The class performing the function of the parser in the compiler of the Vnano
+ * </span>
+ * <span class="lang-ja">
+ * Vnano のコンパイラ内において, パーサ（構文解析器）の機能を担うクラスです
+ * </span>
+ * .
+ * </p>
+ *
+ * <p>
+ * <span class="lang-en">
+ * The processing of this class takes tokens as input,
+ * then constructs the AST (Abstract Syntax Tree) and outputs it.
+ * </span>
+ * <span class="lang-ja">
+ * このクラスが行う構文解析処理は, 入力としてトークン列を受け取り,
+ * AST（抽象構文木）を構築して出力します.
+ * </span>
+ * </p>
+ *
+ * <p>
+ * &raquo; <a href="../../../../../src/org/vcssl/nano/compiler/Parser.java">Source code</a>
+ * </p>
+ *
+ * <hr>
+ *
+ * <p>
+ * | <a href="../../../../../api/org/vcssl/nano/compiler/Parser.html">Public Only</a>
+ * | <a href="../../../../../api-all/org/vcssl/nano/compiler/Parser.html">All</a> |
  * </p>
  *
  * @author RINEARN (Fumihiro Matsui)
  */
 public class Parser {
 
-
 	/**
-	 * このクラスは状態を保持するフィールドを持たないため、コンストラクタは何もしません。
+	 * <span class="lang-en">
+	 * This constructor does nothing, because this class has no fields for storing state
+	 * </span>
+	 * <span class="lang-ja">
+	 * このクラスは状態を保持するフィールドを持たないため, コンストラクタは何もしません
+	 * </span>
+	 * .
 	 */
 	public Parser() {
 	}
 
 
 	/**
-	 * ソースコード全体のトークン配列に対して構文解析を行い、
-	 * AST（抽象構文木）を構築して返します。
+	 * <span class="lang-en">Constructs and returns the AST by parsing tokens</span>
+	 * <span class="lang-ja">トークン列を構文解析し, ASTを構築して返します</span>
+	 * .
+	 * @param tokens
+	 *   <span class="lang-en">Tokens to be parsed.</span>
+	 *   <span class="lang-ja">解析対象のトークン列.</span>
 	 *
-	 * このメソッドの入力値であるトークンの配列は、ソースコードに対し、
-	 * {@link LexicalAnalyzer#analyze LexicalAnalyzer.analyze}
-	 * メソッドによって字句解析を行って得る事ができます。
+	 * @return
+	 *   <span class="lang-en">The constructed AST.</span>
+	 *   <span class="lang-ja">構築されたAST.</span>
 	 *
-	 * このメソッドが出力するASTは、まだ各トークンの構文的な関係をツリー構造に表現した段階のものであり、
-	 * 中間コード生成に必要な情報が全て揃ってはいません。
-	 * 従って、中間コード生成のステージよりも前に、まずこのメソッドが出力するASTに対して、
-	 * {@link SemanticAnalyzer#analyze SemanticAnalyzer.analyze}
-	 * メソッドによって意味解析を行い、各種情報を補完する必要があります。
-	 *
-	 * @param tokens 字句解析によって生成されたトークン配列
-	 * @return 構築したAST（抽象構文木）のルートノード
-	 * @throws VnanoException 文の終端が見つからない場合にスローされます。
+	 * @throws VnanoException
+	 *   <span class="lang-en">Thrown when any syntax error has detected.</span>
+	 *   <span class="lang-ja">構文エラーが検出された場合にスローされます.</span>
 	 */
 	public AstNode parse(Token[] tokens) throws VnanoException {
 
@@ -617,15 +646,15 @@ public class Parser {
 		Deque<AstNode> stack = new ArrayDeque<AstNode>();
 
 		// トークン配列をスキャンし、個々のトークンの次（右側の最も近く）にある演算子の優先度を配列に格納（結合の判断で使用）
-		int[] nextOperatorPriorities = this.getNextOperatorPriorities(tokens);
+		int[] nextOperatorPriorities = this.getNextOperatorPrecedence(tokens);
 
 		// トークンを左から順に末尾まで読み進むループ
 		do {
 			AstNode operatorNode = null; // 生成した演算子ノードを控える
 
 			Token readingToken = tokens[readingIndex];                 // このループでの読み込み対象トークン
-			int readingOpPriority = readingToken.getPriority();        // 読み込み対象トークンの演算子優先度
-			int nextOpPriority = nextOperatorPriorities[readingIndex]; // 読み込み対象トークンの後方（右側）で最初にある演算子の優先度
+			int readingOpPrecedence = readingToken.getPrecedence();        // 読み込み対象トークンの演算子優先度
+			int nextOpPrecedence = nextOperatorPriorities[readingIndex]; // 読み込み対象トークンの後方（右側）で最初にある演算子の優先度
 			String readingOpAssociativity = readingToken.getAttribute(AttributeKey.OPERATOR_ASSOCIATIVITY); // 演算子の結合性（右/左）
 
 			// 識別子やリテラルなどのリーフ（末端オペランド）ノードの場合 -> スタックにプッシュ
@@ -669,7 +698,7 @@ public class Parser {
 					case AttributeValue.PREFIX : {
 
 						// 優先度が次の演算子よりも強い場合、右トークンを先読みし、リーフノードとして演算子ノードにぶら下げる
-						if (this.shouldAddRightOperand(readingOpAssociativity, readingOpPriority, nextOpPriority)) {
+						if (this.shouldAddRightOperand(readingOpAssociativity, readingOpPrecedence, nextOpPrecedence)) {
 							operatorNode.addChildNode( this.createLeafNode(tokens[readingIndex+1]) );
 							readingIndex++; // 次のトークンは先読みして処理を終えたので1つ余分に進める
 						}
@@ -683,7 +712,7 @@ public class Parser {
 						operatorNode.addChildNode(stack.pop());
 
 						// 優先度が次の演算子よりも強い場合、右トークンを先読みし、リーフノードとして演算子ノードにぶら下げる
-						if (this.shouldAddRightOperand(readingOpAssociativity, readingOpPriority, nextOpPriority)) {
+						if (this.shouldAddRightOperand(readingOpAssociativity, readingOpPrecedence, nextOpPrecedence)) {
 							operatorNode.addChildNode( this.createLeafNode(tokens[readingIndex+1]) );
 							readingIndex++; // 次のトークンは先読みして処理を終えたので1つ余分に進める
 						}
@@ -761,23 +790,23 @@ public class Parser {
 	 *
 	 * @param tokens 解析・設定対象のトークン配列
 	 */
-	private int[] getNextOperatorPriorities(Token[] tokens) {
+	private int[] getNextOperatorPrecedence(Token[] tokens) {
 
 		int length = tokens.length;
 		int[] rightOperatorPriorities = new int[ length ];
 
 		// 最も右にある演算子は必ず優先になるよう、最小優先度を初期値とする
-		int rightOperatorPriority = PriorityTable.LEAST_PRIOR;
+		int rightOperatorPrecedence = OperatorPrecedence.LEAST_PRIOR;
 
 		// 末尾から先頭へ向かって要素を見ていく
 		for(int i = length-1; 0 <= i; i--) {
 
 			// i 番の要素に、右の演算子の優先度を設定
-			rightOperatorPriorities[i] = rightOperatorPriority;
+			rightOperatorPriorities[i] = rightOperatorPrecedence;
 
 			// i 番の要素が演算子なら、その優先度を新たな右演算子優先度に設定
 			if (tokens[i].getType() == Token.Type.OPERATOR) {
-				rightOperatorPriority = tokens[i].getPriority();
+				rightOperatorPrecedence = tokens[i].getPrecedence();
 			}
 
 			// 括弧の内部の部分式は外側よりも常に高優先度となるよう、括弧の境界部で調整する
@@ -785,11 +814,11 @@ public class Parser {
 
 				// 部分式内部が常に優先になるよう、開き括弧 ( では右側演算子優先度を最高値に設定する
 				if(tokens[i].getValue().equals(ScriptWord.PARENTHESIS_BEGIN)){
-					rightOperatorPriority = PriorityTable.MOST_PRIOR;
+					rightOperatorPrecedence = OperatorPrecedence.MOST_PRIOR;
 
 				// 閉じ括弧 ) は文末と同じ効果なので、右側演算子優先度を最低に設定する
 				} else {
-					rightOperatorPriority = PriorityTable.LEAST_PRIOR;
+					rightOperatorPrecedence = OperatorPrecedence.LEAST_PRIOR;
 
 				}
 			}
@@ -813,18 +842,18 @@ public class Parser {
 	 * 注目している演算子にぶら下がるべき場合に true が返されます。
 	 *
 	 * @param targetOperatorAssociativity 注目演算子の結合性（右結合や左結合）
-	 * @param targetOperatorPriority 注目演算子の優先度（数字が小さい方が高優先度）
-	 * @param nextOperatorPriority 次の演算子の優先度（数字が小さい方が高優先度）
+	 * @param targetOperatorPrecedence 注目演算子の優先度（数字が小さい方が高優先度）
+	 * @param nextOperatorPrecedence 次の演算子の優先度（数字が小さい方が高優先度）
 	 * @return 注目演算子にぶら下げるべきなら true
 	 */
 	private boolean shouldAddRightOperand(
-			String targetOperatorAssociativity, int targetOperatorPriority, int nextOperatorPriority) {
+			String targetOperatorAssociativity, int targetOperatorPrecedence, int nextOperatorPrecedence) {
 
 		// 注目演算子の優先度が、次の演算子よりも強い場合に true
-		boolean targetOpPriorityIsStrong = targetOperatorPriority < nextOperatorPriority; // ※数字が小さい方が高優先度
+		boolean targetOpPrecedenceIsStrong = targetOperatorPrecedence < nextOperatorPrecedence; // ※数字が小さい方が高優先度
 
 		// 注目演算子の優先度が、次の演算子と等しい場合に true
-		boolean targetOpPriorityIsEqual = targetOperatorPriority == nextOperatorPriority; // ※数字が小さい方が高優先度
+		boolean targetOpPrecedenceIsEqual = targetOperatorPrecedence == nextOperatorPrecedence; // ※数字が小さい方が高優先度
 
 		// 注目演算子が左結合なら true、右結合なら false
 		boolean targetOpAssociativityIsLeft = targetOperatorAssociativity.equals(AttributeValue.LEFT);
@@ -832,7 +861,7 @@ public class Parser {
 		// 結果を以下の通りに返す。
 		// ・注目演算子の方が次の演算子よりも強い場合は true、弱い場合は false。
 		// ・優先度がちょうど等しい場合、注目演算子が左結合であれば true、右結合なら false。
-		return targetOpPriorityIsStrong || (targetOpPriorityIsEqual && targetOpAssociativityIsLeft);
+		return targetOpPrecedenceIsStrong || (targetOpPrecedenceIsEqual && targetOpAssociativityIsLeft);
 	}
 
 
@@ -841,10 +870,10 @@ public class Parser {
 	 * 現在作業用スタック上の先頭にある演算子ノードに、子ノードとしてぶら下げるべきかどうかを判定します。
 	 *
 	 * @param stack 構文解析の作業用スタックとして使用している双方向キュー
-	 * @param nextOperatorPriority 注目演算子の次（右側の最も近く）にある演算子の優先度
+	 * @param nextOperatorPrecedence 注目演算子の次（右側の最も近く）にある演算子の優先度
 	 * @return ぶら下げるべきなら true
 	 */
-	private boolean shouldAddRightOperandToStackedOperator(Deque<AstNode> stack, int nextOperatorPriority) {
+	private boolean shouldAddRightOperandToStackedOperator(Deque<AstNode> stack, int nextOperatorPrecedence) {
 
 		// スタック上にノードが無い場合や、あっても演算子ではない場合は、その時点でfalse
 		if (stack.size() == 0) {
@@ -855,13 +884,13 @@ public class Parser {
 		}
 
 		// スタック上の演算子の優先度（※数字が小さい方が優先度が高い）
-		int stackedOperatorPriority = Integer.parseInt(stack.peek().getAttribute(AttributeKey.OPERATOR_PRIORITY));
+		int stackedOperatorPrecedence = Integer.parseInt(stack.peek().getAttribute(AttributeKey.OPERATOR_PRECEDENCE));
 
 		// スタック上の演算子の結合性（右/左）
 		String stackedOperatorAssociativity = stack.peek().getAttribute(AttributeKey.OPERATOR_ASSOCIATIVITY);
 
 		// 次の演算子の優先度などを考慮した上で判断した結果を返す
-		return this.shouldAddRightOperand(stackedOperatorAssociativity, stackedOperatorPriority, nextOperatorPriority);
+		return this.shouldAddRightOperand(stackedOperatorAssociativity, stackedOperatorPrecedence, nextOperatorPrecedence);
 	}
 
 
@@ -878,7 +907,7 @@ public class Parser {
 		operatorNode.setAttribute(AttributeKey.OPERATOR_SYNTAX, token.getAttribute(AttributeKey.OPERATOR_SYNTAX));
 		operatorNode.setAttribute(AttributeKey.OPERATOR_EXECUTOR, token.getAttribute(AttributeKey.OPERATOR_EXECUTOR));
 		operatorNode.setAttribute(AttributeKey.OPERATOR_SYMBOL, token.getValue());
-		operatorNode.setAttribute(AttributeKey.OPERATOR_PRIORITY, Integer.toString(token.getPriority()));
+		operatorNode.setAttribute(AttributeKey.OPERATOR_PRECEDENCE, Integer.toString(token.getPrecedence()));
 		return operatorNode;
 	}
 
@@ -936,7 +965,7 @@ public class Parser {
 	 */
 	private void pushLid(Deque<AstNode> stack) {
 		AstNode stackLid = new AstNode(AstNode.Type.STACK_LID, 0, "");
-		stackLid.setAttribute(AttributeKey.OPERATOR_PRIORITY, Integer.toString(PriorityTable.LEAST_PRIOR));
+		stackLid.setAttribute(AttributeKey.OPERATOR_PRECEDENCE, Integer.toString(OperatorPrecedence.LEAST_PRIOR));
 		stack.push(stackLid);
 	}
 
@@ -960,7 +989,7 @@ public class Parser {
 	 */
 	private void pushLid(Deque<AstNode> stack, String marker) {
 		AstNode stackLid = new AstNode(AstNode.Type.STACK_LID, 0, "");
-		stackLid.setAttribute(AttributeKey.OPERATOR_PRIORITY, Integer.toString(PriorityTable.LEAST_PRIOR));
+		stackLid.setAttribute(AttributeKey.OPERATOR_PRECEDENCE, Integer.toString(OperatorPrecedence.LEAST_PRIOR));
 		stackLid.setAttribute(AttributeKey.LID_MARKER, marker);
 		stack.push(stackLid);
 	}

@@ -10,7 +10,7 @@ import static org.junit.Assert.*;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.vcssl.nano.spec.PriorityTable;
+import org.vcssl.nano.spec.OperatorPrecedence;
 
 public class TokenTest {
 
@@ -78,8 +78,8 @@ public class TokenTest {
 	@Test
 	public void testSetGetOperatorPriority() {
 		Token token = new Token("Hello", 123, "Test.vnano");
-		token.setPriority(PriorityTable.ADDITION);
-		assertEquals(PriorityTable.ADDITION, token.getPriority());
+		token.setPrecedence(OperatorPrecedence.ADDITION);
+		assertEquals(OperatorPrecedence.ADDITION, token.getPrecedence());
 	}
 
 
@@ -89,7 +89,7 @@ public class TokenTest {
 		token.setType(Token.Type.OPERATOR);
 		token.setAttribute(AttributeKey.DATA_TYPE, "int");
 		token.setAttribute(AttributeKey.OPERATOR_SYMBOL, "+");
-		token.setPriority(1);
+		token.setPrecedence(1);
 
 		assertEquals(
 			"[Token word=\"+\", lineNumber=123, fileName=\"Test.vnano\", type=OPERATOR, priority=1, DATA_TYPE=\"int\", OPERATOR_SYMBOL=\"+\"]",

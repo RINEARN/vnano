@@ -5,4 +5,38 @@
 # After run this script, please open ./api/index.html by a web browser.
 # ----------------------------------------------------------------------------------------------------
 
-javadoc -encoding UTF-8 -charset UTF-8 -windowtitle "Vnano API Reference" -d api -sourcepath src org.vcssl.nano.main org.vcssl.nano.spec org.vcssl.connect org.vcssl.nano org.vcssl.nano.compiler org.vcssl.nano.interconnect org.vcssl.nano.lang org.vcssl.nano.vm org.vcssl.nano.vm.assembler org.vcssl.nano.vm.accelerator org.vcssl.nano.vm.processor org.vcssl.nano.vm.memory
+mkdir api
+mkdir api-all
+
+cd src
+
+javadoc -encoding UTF-8 -charset UTF-8 -windowtitle "Vnano API Reference" -d ../api @sourcelist.txt
+javadoc -private -encoding UTF-8 -charset UTF-8 -windowtitle "Vnano API Reference" -d ../api-all @sourcelist.txt
+
+cd ..
+
+
+echo ====================================================================================================
+echo 
+echo 
+echo 
+echo 
+echo 
+echo 
+echo 
+echo 
+echo 
+echo 
+echo Documents have been generated. See: api/org/vcssl/nano/package-summary.html
+echo 
+echo By default, both of English and Japanese contents will be displayed in each page.
+echo If you want to read only English contents, please append the following line 
+echo in "api/stylesheet.css" and "api-all/stylesheet.css":
+echo 
+echo '	.lang-ja { display: none; }'
+echo 
+echo If you want to read only Japanese contents, please append the following line in 
+echo "api/stylesheet.css" and "api-all/stylesheet.css":
+echo 
+echo '	.lang-en { display: none; }'
+echo 

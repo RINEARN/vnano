@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2018 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2019 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -17,12 +17,47 @@ import org.vcssl.nano.spec.DataTypeName;
 import org.vcssl.nano.spec.OptionKey;
 import org.vcssl.nano.spec.OptionValue;
 
+//Documentation:  https://www.vcssl.org/en-us/dev/code/main-jimpl/api/org/vcssl/nano/compiler/Compiler.html
+//ドキュメント:   https://www.vcssl.org/ja-jp/dev/code/main-jimpl/api/org/vcssl/nano/compiler/Compiler.html
+
 /**
  * <p>
- * Vnano処理系内において、
- * Vnanoで記述されたスクリプトコード（文字列）を、
- * {@link org.vcssl.nano.vm.assembler.Assembler Assembler}
- * が解釈可能な仮想アセンブリコード（文字列）に変換する、コンパイラのクラスです。
+ * <span>
+ * <span class="lang-en">
+ * The class performing the function of a compiler in the script engine of the Vnano
+ * </span>
+ * <span class="lang-ja">
+ * Vnanoのスクリプトエンジン内で, コンパイラの機能を担うクラスです
+ * </span>
+ * .
+ * </p>
+ *
+ * <p>
+ * <span class="lang-en">
+ * This class compiles script code written in the Vnano
+ * to a kind of intermediate code, named as "VRIL" code.
+ * VRIL ― Vector Register Intermediate Language ― is a low-level (but readable text format) language
+ * designed as a virtual assembly code of the VM (Virtual Machine) layer of Vnano Engine.
+ * </span>
+ *
+ * <span class="lang-ja">
+ * このクラスは,
+ * Vnanoのスクリプトコードを, "VRILコード" と呼ぶ一種の中間コードへと変換します.
+ * VRIL（Vector Register Intermediate Language; ベクトルレジスタ中間言語）は, Vnanoエンジンの
+ * VM（仮想マシン）層の単位動作に対応するレベルの低抽象度な命令を提供する,  仮想的なアセンブリ言語です.
+ * VRILコードは, 実在のアセンブリコードと同様に, 人間にとって可読なテキスト形式のコードです.
+ * </span>
+ * </p>
+ *
+ * <p>
+ * &raquo; <a href="../../../../../src/org/vcssl/nano/compiler/Compiler.java">Source code</a>
+ * </p>
+ *
+ * <hr>
+ *
+ * <p>
+ * | <a href="../../../../../api/org/vcssl/nano/compiler/Compiler.html">Public Only</a>
+ * | <a href="../../../../../api-all/org/vcssl/nano/compiler/Compiler.html">All</a> |
  * </p>
  *
  * @author RINEARN (Fumihiro Matsui)
@@ -30,23 +65,50 @@ import org.vcssl.nano.spec.OptionValue;
 public class Compiler {
 
 	/**
-	 * このクラスは状態を保持するフィールドを持たないため、コンストラクタは何もしません。
+	 * <span class="lang-en">
+	 * This constructor does nothing, because this class has no fields for storing state
+	 * </span>
+	 * <span class="lang-ja">
+	 * このクラスは状態を保持するフィールドを持たないため, コンストラクタは何もしません
+	 * </span>
+	 * .
 	 */
 	public Compiler() {
 	}
 
 
 	/**
-	 * Vnanoで記述されたスクリプトコード（文字列）を、
-	 * {@link org.vcssl.nano.vm.assembler.Assembler Assembler}
-	 * が解釈可能な仮想アセンブリコード（文字列）に変換して返します。
+	 * <span class="lang-en">
+	 * Compiles the script code written in the Vnano to VRIL code
+	 * </span>
+	 * <span class="lang-ja">
+	 * Vnanoで記述されたスクリプトコードを, VRILコードにコンパイルします
+	 * </span>
+	 * .
 	 *
-	 * @param scripts スクリプトコード
-	 * @param names スクリプトのファイル名
-	 * @param Intterconnect interconnect スクリプト内で参照する外部変数・関数の情報を保持しているインターコネクト
-	 * @param optionMap オプション名と値を保持するマップ
-	 * @return 仮想アセンブリコード
-	 * @throws VnanoException スクリプトコードの内容に異常があった場合にスローされます。
+	 * @param scripts
+	 *   <span class="lang-en">Code of scripts to be compiled.</span>
+	 *   <span class="lang-ja">コンパイルしたいスクリプト（複数）のコード.</span>
+	 *
+	 * @param names
+	 *   <span class="lang-en">Names of scripts.</span>
+	 *   <span class="lang-ja">スクリプト（複数）の名前.</span>
+	 *
+	 * @param interconnect
+	 *   <span class="lang-en">The interconnect to which external functions/variables are connected.</span>
+	 *   <span class="lang-ja">外部変数/関数が接続されているインターコネクト.</span>
+	 *
+	 * @param optionMap
+	 *   <span class="lang-en">The Map (option map) storing names and values of options.</span>
+	 *   <span class="lang-ja">オプションの名前と値を格納するマップ（オプションマップ）.</span>
+	 *
+	 * @return
+	 *   <span class="lang-en">The compiled VRIL code.</span>
+	 *   <span class="lang-ja">コンパイルされたVRILコード.</span>
+	 *
+	 * @throws VnanoException
+	 *   <span class="lang-en">Thrown when a syntax error will be detected for the content of the script.</span>
+	 *   <span class="lang-ja">スクリプトの内容に構文エラーが検出された場合にスローされます.</span>
 	 */
 	public String compile(String[] scripts, String[] names, Interconnect interconnect, Map<String, Object> optionMap)
 					throws VnanoException {
@@ -98,7 +160,7 @@ public class Compiler {
 
 		// EVAL_NUMBER_AS_FLOAT オプションが有効な場合、エンジンのevalに渡されたスクリプト内のintリテラルをfloat型に変更
 		if (evalNumberAsFloat) {
-			tokens[scriptLength-1] = lexer.replaceDataTypeOfLiteralTokens( // [scriptLength-1]番目はeval対象のスクリプト
+			tokens[scriptLength-1] = this.replaceDataTypeOfLiteralTokens( // [scriptLength-1]番目はeval対象のスクリプト
 				tokens[scriptLength-1], DataTypeName.INT, DataTypeName.FLOAT
 			);
 		}
@@ -269,6 +331,40 @@ public class Compiler {
 		if (withHeader) {
 			dumpStream.println("");
 		}
+	}
+
+
+	/**
+	 * <span class="lang-ja">トークン配列の中で、特定のデータ型のリテラルを、別のデータ型に置き換えます</span>
+	 * .
+	 * <span class="lang-ja">この処理は EVAL_NUMBER_AS_FLOAT オプションの挙動のために使用されます. </span>
+	 *
+	 * @param tokens
+	 *   <span class="lang-ja">対象のトークン配列.</span>
+	 *
+	 * @param fromTypeName
+	 *   <span class="lang-ja">置き換え前のデータ型.</span>
+	 *
+	 * @param toTypeName
+	 *   <span class="lang-ja">置き換え後のデータ型.</span>
+	 *
+	 * @return
+	 *   <span class="lang-ja">リテラルのデータ型を置き換えたトークン配列.</span>
+	 */
+	private Token[] replaceDataTypeOfLiteralTokens(Token[] tokens, String fromTypeName, String toTypeName) {
+		int tokenLength = tokens.length;
+		Token[] replacedTokens = new Token[tokenLength];
+		for (int tokenIndex=0; tokenIndex<tokenLength; tokenIndex++) {
+			Token token = tokens[tokenIndex].clone();
+			if (token.getType() == Token.Type.LEAF
+				&& token.getAttribute(AttributeKey.LEAF_TYPE).equals(AttributeValue.LITERAL)
+				&& token.getAttribute(AttributeKey.DATA_TYPE).equals(DataTypeName.INT) ) {
+
+				token.setAttribute(AttributeKey.DATA_TYPE, DataTypeName.FLOAT);
+			}
+			replacedTokens[tokenIndex] = token;
+		}
+		return replacedTokens;
 	}
 
 }

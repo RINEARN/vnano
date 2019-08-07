@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2018 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2019 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -12,67 +12,132 @@ import java.util.Iterator;
 import org.vcssl.nano.VnanoFatalException;
 import org.vcssl.nano.VnanoException;
 
+// Documentation:  https://www.vcssl.org/en-us/dev/code/main-jimpl/api/org/vcssl/nano/spec/LiteralSyntax.html
+// ドキュメント:   https://www.vcssl.org/ja-jp/dev/code/main-jimpl/api/org/vcssl/nano/spec/LiteralSyntax.html
+
 /**
- * リテラルの書式や値、判定処理、およびリテラルの解釈に必要な処理などが定義・実装されたクラスです。
+ * <p>
+ * <span>
+ * <span class="lang-en">
+ * The class performing functions to interpret literals in script code of the Vnano
+ * </span>
+ * <span class="lang-ja">
+ * Vnano のスクリプトコード内のリテラルを解釈する機能を提供するクラスです
+ * </span>
+ * .
+ * </p>
+ *
+ * <p>
+ * &raquo; <a href="../../../../../src/org/vcssl/nano/spec/LiteralSyntax.java">Source code</a>
+ * </p>
+ *
+ * <hr>
+ *
+ * <p>
+ * | <a href="../../../../../api/org/vcssl/nano/spec/LiteralSyntax.html">Public Only</a>
+ * | <a href="../../../../../api-all/org/vcssl/nano/spec/LiteralSyntax.html">All</a> |
+ * </p>
  *
  * @author RINEARN (Fumihiro Matsui)
  */
 public class LiteralSyntax {
 
-	/** この処理系における、論理型のtrueを表すリテラル値です。 */
+	/**
+	 * <span class="lang-en">The value of the bool type literal: "true"</span>
+	 * <span class="lang-ja">bool 型のリテラル値 true です</span>
+	 * .
+	 */
 	public static final String TRUE = "true";
 
-	/** この処理系における、論理型のfalseを表すリテラル値です。 */
+
+	/**
+	 * <span class="lang-en">The value of the bool type literal: "false"</span>
+	 * <span class="lang-ja">bool 型のリテラル値 false です</span>
+	 * .
+	 */
 	public static final String FALSE = "false";
 
 
-	/** この処理系における、整数型リテラルの正規表現です。 */
+	/**
+	 * <span class="lang-en">The regular expression of "int" type literals</span>
+	 * <span class="lang-ja">int 型リテラルの正規表現です</span>
+	 * .
+	 */
 	private static final String INT_LITERAL_REGEX = "^(\\+|-)?[0-9]+$";
 
-	/** この処理系における、浮動小数点数型リテラルの正規表現です。 */
+
+	/**
+	 * <span class="lang-en">The regular expression of "float" type literals</span>
+	 * <span class="lang-ja">float 型リテラルの正規表現です</span>
+	 * .
+	 */
 	private static final String FLOAT_LITERAL_REGEX =
 		"^(\\+|-)?([0-9]+(d|f|D|F))|((([0-9]+\\.[0-9]*)|([0-9]*\\.[0-9]+))(((e|E)(\\+|-)?[0-9]+)|)|([0-9]*\\.?[0-9]+)(e|E)(\\+|-)?[0-9]+)(d|f|D|F)?$";
 
-	/** この処理系における、論理型リテラルの正規表現です。 */
+
+	/**
+	 * <span class="lang-en">The regular expression of "bool" type literals</span>
+	 * <span class="lang-ja">bool 型リテラルの正規表現です</span>
+	 * .
+	 */
 	private static final String BOOL_LITERAL_REGEX = "^" + TRUE + "|" + FALSE + "$";
 
-	/** この処理系における、文字列型リテラルの始点・終点記号です。 */
+
+	/**
+	 * <span class="lang-en">The beginning/end character of string literals: "</span>
+	 * <span class="lang-ja">文字列型リテラルの始点・終点記号「 " 」です</span>
+	 * .
+	 */
 	private static final char STRING_LITERAL_QUOTATION = '"';
 
-	/** この処理系における、文字列型リテラル内のエスケープ記号です。 */
+
+	/**
+	 * <span class="lang-en">The prefix character of escape sequences in string literals: \</span>
+	 * <span class="lang-ja">文字列型リテラル内のエスケープシーケンスのプレフィックス記号「 \ 」です</span>
+	 * .
+	 */
 	private static final char STRING_LITERAL_ESCAPE = '\\';
 
 
 	/**
-	 * 指定されたトークン（字句）の値が、
-	 * この処理系におけるリテラルとみなせるかどうかを判定します。
+	 * <span class="lang-en">Checks whether the specified token can be interpreted as the literal or not</span>
+	 * <span class="lang-ja">指定された字句が, リテラルとして解釈できるかどうかを判定します</span>
+	 * .
+	 * @param token
+	 *   <span class="lang-en">The token to be checked.</span>
+	 *   <span class="lang-en">判定対象の字句.</span>
 	 *
-	 * @param token 判定対象のトークン（字句）の値
-	 * @return 判定結果（リテラルとみなせる場合に true ）
+	 * @return
+	 *   <span class="lang-en">The check result ("true" if it can be interpreted as the literal).</span>
+	 *   <span class="lang-ja">判定結果（リテラルとみなせる場合に true ）.</span>
 	 */
 	public static boolean isValidLiteral(String token) {
-		String dataTypeName = getDataTypeNameOfLiteral(token);
-		return !dataTypeName.equals(DataTypeName.VOID);
+		try {
+			getDataTypeNameOfLiteral(token);
+			return true;
+		} catch (VnanoFatalException e) {
+			return false;
+		}
 	}
 
 
 	/**
-	 * 指定されたリテラルの記述内容から、データ型を判定し、
-	 * その名称（{@link ScriptWord Word} クラスにおいて定義）を返します。
+	 * <span class="lang-en">Determines the data type of the specified literal and returns its name</span>
+	 * <span class="lang-ja">指定されたリテラルのデータ型を判定し, その型の名称を返します</span>
+	 * .
+	 * @param literal
+	 *   <span class="lang-en">The literal for which get the name of the data type.</span>
+	 *   <span class="lang-ja">データ型の名称を取得したいリテラル.</span>
 	 *
-	 * 引数に指定するリテラルは、事前に
-	 * {@link LiteralSyntax#isValidLiteral isValidLiteral} メソッドを用いて、
-	 * リテラルとしてい有効な記述内容である事が確認されている必要があります。
+	 * @return
+	 *   <span class="lang-en">The name of the data type of the literal.</span>
+	 *   <span class="lang-ja">リテラルのデータ型の名称.</span>
 	 *
-	 * 無効な記述内容が指定された場合、このメソッドは
-	 * 便宜的に {@link DataTypeName#VOID Word.VOID} を返しますが、これは
-	 * {@link LiteralSyntax#isValidLiteral isValidLiteral} メソッドの実装を簡略化するためであり、
-	 * この仕様に依存すべきではありません。
-	 *
-	 * @param literal リテラルの記述内容
-	 * @return データ型の名称
+	 * @throws VnanoFatalException
+	 *   <span class="lang-en">Thrown when the specified literal could not be interpreted.</span>
+	 *   <span class="lang-ja">指定されたリテラルを解釈できなかった場合にスローされます.</span>
 	 */
-	public static String getDataTypeNameOfLiteral(String literal) {
+	public static String getDataTypeNameOfLiteral(String literal) throws VnanoFatalException {
 
 		int literalLength = literal.length();
 
@@ -98,20 +163,24 @@ public class LiteralSyntax {
 			return DataTypeName.STRING;
 		}
 
-		return DataTypeName.VOID;
+		throw new VnanoFatalException("Invalid literal: " + literal);
 	}
 
 
 	/**
-	 * 指定された文字列リテラル内のエスケープシーケンスを処理した文字列を返します。
+	 * <span class="lang-ja">指定された文字列リテラル内のエスケープシーケンスを処理した文字列を返します</span>
+	 * .
+	 * <span class="lang-ja">
+	 * 引数に渡される文字列リテラルは単一である必要があります.
+	 * 即ち、エスケープされていない文字列リテラルの始点・終点記号は,
+	 * 引数 stringLiteral の先頭および末尾のみに存在が許されます（省略可能です）.
+	 * </span>
 	 *
-	 * 引数に渡される文字列リテラルは単一である必要があります。
-	 * 即ち、エスケープされていない文字列リテラルの始点・終点記号は、
-	 * 引数 stringLiteral の先頭および末尾のみに存在が許されます
-	 * （始点・終点記号が省略され、全く存在しなくても、処理に影響はありません）。
+	 * @param stringLiteral
+	 *   <span class="lang-ja">処理対象の文字列リテラル内容</span>
 	 *
-	 * @param stringLiteral 処理対象の文字列リテラル内容
-	 * @return エスケープシーケンスが処理済みの内容
+	 * @return
+	 *   <span class="lang-ja">エスケープシーケンスが処理済みの内容</span>
 	 */
 	public static String decodeEscapeSequences(String stringLiteral) {
 
@@ -160,26 +229,35 @@ public class LiteralSyntax {
 
 
 	/**
-	 * 指定されたコード内の文字列リテラルを全て抽出し、
-	 * それらのリテラルがあった箇所を番号化リテラル（下記参照）で置き換えたコードと、
-	 * 全リテラルの中身を配列にまとめて返します。
-	 *
-	 * 戻り値配列の [0] 番要素には、code 内の文字列リテラルを先頭から順に、
+	 * <span class="lang-ja">
+	 * 指定されたコード内の文字列リテラルを全て抽出し,
+	 * それらのリテラルがあった箇所を番号化リテラル（後述）で置き換えたコードと,
+	 * 全リテラルの中身を配列にまとめて返します
+	 * <span>
+	 * .
+	 * <span class="lang-ja">
+	 * 戻り値配列の [0] 番要素には、code 内の文字列リテラルを先頭から順に,
 	 * "1", "2" ... などのように「 番号を文字列リテラル記号で挟んだもの（番号化リテラル） 」
-	 * で置き換えたものが格納されます。
-	 * その番号をインデックスとする、戻り値配列の要素に、
-	 * その箇所にあった文字列リテラルの中身が格納されます。
+	 * で置き換えたものが格納されます.
+	 * その番号をインデックスとする、戻り値配列の要素に,
+	 * その箇所にあった文字列リテラルの中身が格納されます.
 	 *
-	 * 結果の配列から元の文字列リテラル値を取り出すためのインデックスは、
-	 * 番号化リテラルの文字列を引数として、
+	 * 結果の配列から元の文字列リテラル値を取り出すためのインデックスは,
+	 * 番号化リテラルの文字列を引数として,
 	 * {@link LiteralSyntax#getIndexOfNumberedStringLiteral getIndexOfNumberedStringLiteral}
-	 * メソッドで得る事もできます。
+	 * メソッドで得る事もできます.
 	 *
-	 * 番号は、1番から順に、出現する順序で1ずつ加算して割りふられます。
+	 * 番号は、1番から順に、出現する順序で1ずつ加算して割りふられます.
+	 * <span>
 	 *
-	 * @param code 文字列リテラルを抽出したいコード
-	 * @param return 抽出済みコードと全リテラル内容を格納する配列
-	 * @throws VnanoException 文字列リテラルが全て閉じていない場合にスローされます。
+	 * @param code
+	 *   <span class="lang-ja">文字列リテラルを抽出したいコード.</span>
+	 *
+	 * @return
+	 *   <span class="lang-ja">抽出済みコードと全リテラル内容を格納する配列.<span>
+	 *
+	 * @throws VnanoException
+	 *   <span class="lang-ja">文字列リテラルが全て閉じていない場合にスローされます.</span>
 	 */
 	public static String[] extractStringLiterals(String code) throws VnanoException {
 
@@ -276,12 +354,20 @@ public class LiteralSyntax {
 
 
 	/**
-	 * 指定された文字列を、{@link LiteralSyntax#extractStringLiterals extractStringLiterals}
-	 * メソッドで置き換えられた番号化リテラルであると見なして、
-	 * 同メソッドの戻り値配列から元の文字列リテラル値を取り出すためのインデックスを求めて返します。
-	 *
+	 * <span class="lang-ja">
+	 * 指定された文字列を, {@link LiteralSyntax#extractStringLiterals extractStringLiterals}
+	 * メソッドで置き換えられた番号化リテラルであると見なして,
+	 * 同メソッドの戻り値配列から元の文字列リテラル値を取り出して復元するためのインデックスを求めて返します
+	 * </span>
+	 * .
 	 * @param numberedLiteral
+	 *   <span class="lang-ja">復元したい番号化リテラル</span>
+	 *
 	 * @return
+	 *   <span class="lang-ja">
+	 *   {@link LiteralSyntax#extractStringLiterals extractStringLiterals} メソッドの戻り値の中で,
+	 *   対象リテラルが格納されている要素のインデックス
+	 *   </span>
 	 */
 	public static int getIndexOfNumberedStringLiteral(String numberedLiteral) {
 

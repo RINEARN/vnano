@@ -7,7 +7,7 @@ package org.vcssl.nano.vm.accelerator;
 
 import org.vcssl.nano.vm.memory.DataContainer;
 
-class Int64x3ScalarCacheSynchronizer extends CacheSynchronizer {
+public class Int64x3ScalarCacheSynchronizer extends CacheSynchronizer {
 	private final DataContainer<long[]> container0;
 	private final DataContainer<long[]> container1;
 	private final DataContainer<long[]> container2;

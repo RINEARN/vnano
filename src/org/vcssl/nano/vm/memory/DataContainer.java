@@ -5,6 +5,8 @@
 
 package org.vcssl.nano.vm.memory;
 
+import java.util.HashMap;
+
 import org.vcssl.connect.ArrayDataContainer1;
 import org.vcssl.nano.spec.DataType;
 
@@ -142,6 +144,14 @@ public class DataContainer<T> implements ArrayDataContainer1<T> {
 	/** スカラデータを格納する場合における、データの総要素数（値は1）です。 */
 	public static final int   SIZE_OF_SCALAR = 1;
 
+	/** 引数 data に格納するデータのクラスと、{@link org.vcssl.nano.spec.DataType DataType} 列挙子の要素との対応関係を表すマップです。 */
+	private static final HashMap<Class<?>, DataType> CLASS_DATA_TYPE_MAP = new HashMap<Class<?>, DataType>();
+	static {
+		CLASS_DATA_TYPE_MAP.put(long[].class, DataType.INT64);
+		CLASS_DATA_TYPE_MAP.put(double[].class, DataType.FLOAT64);
+		CLASS_DATA_TYPE_MAP.put(boolean[].class, DataType.BOOL);
+		CLASS_DATA_TYPE_MAP.put(String[].class, DataType.STRING);
+	}
 
 	/**
 	 * このデータコンテナが格納対象とするデータの型を保持します。
@@ -250,7 +260,7 @@ public class DataContainer<T> implements ArrayDataContainer1<T> {
 		}
 
 		// データのクラスからこの処理系でのデータ型へ変換して設定
-		this.dataType = DataType.CLASS_DATA_TYPE_MAP.get(this.data.getClass());
+		this.dataType = CLASS_DATA_TYPE_MAP.get(this.data.getClass());
 
 		// 未知の型の場合もVOID型にする（こちらはUNKNOWNなどの別の型を追加すべきかもしれない）
 		if (this.dataType == null) {
@@ -309,23 +319,6 @@ public class DataContainer<T> implements ArrayDataContainer1<T> {
 
 
 	/**
-	 * (本来はdataと独立に設定してもよい場面は限られているため、このメソッドへの依存性を低減させるために暫定的に無効化中)
-	 * オフセット値を指定します。
-	 *
-	 * オフセット値とは、このデータコンテナの格納対象データが、
-	 * {@link DataContainer#data data} 配列内で格納されている領域の先頭インデックスを意味します。
-	 * 詳細はこのクラスの説明を参照してください。
-	 *
-	 * @param offset オフセット値
-	 */
-	/*
-	public void setOffset(int offset) {
-		this.offset = offset;
-	}
-	*/
-
-
-	/**
 	 * スカラ値を保持している場合のオフセット値を取得します。
 	 *
 	 * オフセット値とは、このデータコンテナの格納対象データが、
@@ -337,27 +330,6 @@ public class DataContainer<T> implements ArrayDataContainer1<T> {
 	public int getOffset() {
 		return this.offset;
 	}
-
-
-	/**
-	 * (本来はdataと独立に設定してもよい場面は限られているため、このメソッドへの依存性を低減させるために暫定的に無効化中)
-	 * このデータコンテナが格納するデータのサイズを設定します。
-	 *
-	 * ここでのサイズとは、このデータコンテナが格納対象とするデータの総要素数の事です。
-	 * 具体的には、データがスカラではない場合には、
-	 * サイズは多次元配列の総要素数、即ち各次元長の積に一致します。
-	 * データがスカラである場合には、サイズは常に 1 となります。
-	 * 例えば、{@link DataContainer#data} 配列の要素数が 1 よりもずっと大きく、
-	 * その配列内に要素として（オフセット値で指定される位置に）格納対象のスカラ値が保持されている場合でも、
-	 * サイズは 1 になります。
-	 *
-	 * @param size データの総要素数
-	 */
-	/*
-	public final void setSize(int size) {
-		this.size = size;
-	}
-	*/
 
 
 	/**
@@ -376,26 +348,6 @@ public class DataContainer<T> implements ArrayDataContainer1<T> {
 	public final int getSize() {
 		return this.size;
 	}
-
-
-	/**
-	 * (本来はdataと独立に設定してもよい場面は限られているため、このメソッドへの依存性を低減させるために暫定的に無効化中)
-	 * このデータコンテナが保持するデータの、
-	 * 多次元配列における各次元ごとの次元長（要素数）を、配列にまとめて設定します。
-	 *
-	 * スクリプトコード側での多次元配列との対応では、左端次元の要素数を[0]番要素、
-	 * その一つ右隣りにある次元の要素数を[1]番要素 ... という順で配列に格納し、
-	 * 引数に渡してください。
-	 *
-	 * データがスカラ値の場合は、0次元の配列と見なし、要素数 0 の配列を渡してください。
-	 *
-	 * @param lengths 各次元の次元長を格納する配列
-	 */
-	/*
-	public final void setLengths(int[] lengths) {
-		this.lengths = lengths;
-	}
-	*/
 
 
 	/**

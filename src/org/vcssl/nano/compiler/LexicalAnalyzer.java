@@ -12,60 +12,114 @@ import java.util.Set;
 import org.vcssl.nano.VnanoException;
 import org.vcssl.nano.spec.DataTypeName;
 import org.vcssl.nano.spec.LiteralSyntax;
-import org.vcssl.nano.spec.PriorityTable;
+import org.vcssl.nano.spec.OperatorPrecedence;
 import org.vcssl.nano.spec.ScriptWord;
 
+//Documentation:  https://www.vcssl.org/en-us/dev/code/main-jimpl/api/org/vcssl/nano/compiler/LexicalAnalyzer.html
+//ドキュメント:   https://www.vcssl.org/ja-jp/dev/code/main-jimpl/api/org/vcssl/nano/compiler/LexicalAnalyzer.html
 
 /**
  * <p>
- * コンパイラ内において、
- * スクリプトコード（文字列）に対して字句解析処理を行い、
- * {@link Token Token} （トークン、字句）の配列へと変換する、字句解析器のクラスです。
+ * <span class="lang-en">
+ * The class performing the function of the lexical analyzer in the compiler of the Vnano
+ * </span>
+ * <span class="lang-ja">
+ * Vnano のコンパイラ内において, レキシカルアナライザ（字句解析器）の機能を担うクラスです
+ * </span>
+ * .
  * </p>
  *
  * <p>
- * なお、このクラスの字句解析処理の実装は、現時点では簡易的なものであり、
- * 演算子等において、2文字シンボルの1文字目も必ずシンボルとなるように字句が設定されている事を前提として、
- * 処理を大幅に単純化しています。
- * そのような前提を外すには、最長一致の原則に則った、より汎用的な実装へと置き換える必要があります。
+ * <span class="lang-en">
+ * The lexical analysis of this class takes script code as the input,
+ * then split it into tokens and outputs them.
+ * In addition, in the analysis, some attributes are analyzed and set for tokens,
+ * for example: types of tokens, data types of literals, precedences of operators, and so on.
+ * </span>
+ * <span class="lang-ja">
+ * このクラスが行う字句解析処理は, 入力としてスクリプトコードを受け取り,
+ * それをトークンの列に分割して出力します.
+ * その過程で, トークンのタイプや, リテラルのデータ型, および演算子の優先度など,
+ * いくつかの属性が分析され, 各トークンに設定されます.
+ * </span>
+ * </p>
+ *
+ * <p>
+ * <span class="lang-ja">
+ * なお, このクラスの字句解析処理の実装は, 現時点では簡易的なものであり,
+ * 演算子等において, 2文字シンボルの1文字目も必ずシンボルとなるように字句が設定されている事を前提として,
+ * 処理を大幅に単純化しています.
+ * そのような前提を外すには, 最長一致の原則に則った, より汎用的な実装へと置き換える必要があります.
+ * </span>
+ * </p>
+ *
+ * <p>
+ * &raquo; <a href="../../../../../src/org/vcssl/nano/compiler/LexicalAnalyzer.java">Source code</a>
+ * </p>
+ *
+ * <hr>
+ *
+ * <p>
+ * | <a href="../../../../../api/org/vcssl/nano/compiler/LexicalAnalyzer.html">Public Only</a>
+ * | <a href="../../../../../api-all/org/vcssl/nano/compiler/LexicalAnalyzer.html">All</a> |
  * </p>
  *
  * @author RINEARN (Fumihiro Matsui)
  */
 public class LexicalAnalyzer {
 
-
 	/**
-	 * このクラスは状態を保持するフィールドを持たないため、コンストラクタは何もしません。
+	 * <span class="lang-en">
+	 * This constructor does nothing, because this class has no fields for storing state
+	 * </span>
+	 * <span class="lang-ja">
+	 * このクラスは状態を保持するフィールドを持たないため, コンストラクタは何もしません
+	 * </span>
+	 * .
 	 */
 	public LexicalAnalyzer() {
 	}
 
 
 	/**
-	 * ソースコードの文字列をトークン（字句）の単位に分割し、
-	 * 各種情報を解析・設定した上で、配列にまとめて返します。
+	 * <span class="lang-en">
+	 * Splits code of the script into tokens, and returns them after analyzing and setting their attributes
+	 * </span>
+	 * <span class="lang-ja">
+	 * スクリプトのコードをトークンの列に分割し, 各トークンに属性値を設定した上で返します
+	 * </span>
+	 * .
+	 * @param script
+	 *   <span class="lang-en">The script to be processed.</span>
+	 *   <span class="lang-ja">処理対象のスクリプト.</span>
 	 *
-	 * @param sourceCode ソースコード文字列
-	 * @param fileName ソースコードのファイル名
-	 * @return 分割・解析されたトークンの配列
-	 * @throws VnanoException ソースコードの内容に異常があった場合にスローされます。
+	 * @param fileName
+	 *   <span class="lang-en">The filename of the script to be processed.</span>
+	 *   <span class="lang-ja">処理対象のスクリプトのファイル名.</span>
+	 *
+	 * @return
+	 *   <span class="lang-en">Tokens.</span>
+	 *   <span class="lang-ja">トークンの列.</span>
+	 *
+	 * @throws VnanoException
+	 *   <span class="lang-en">Thrown when any syntax error has detected.</span>
+	 *   <span class="lang-ja">構文エラーが検出された場合にスローされます.</span>
 	 */
-	public Token[] analyze(String sourceCode, String fileName) throws VnanoException {
+	public Token[] analyze(String script, String fileName) throws VnanoException {
 
-		// 最初に、コード内の文字列リテラルを全て "1", "2", ... などのように番号化リテラルで置き換える
-		String[] stringLiteralExtractResult = LiteralSyntax.extractStringLiterals(sourceCode);
+		// 最初に, コード内の文字列リテラルを全て "1", "2", ... などのように番号化リテラルで置き換える
+		String[] stringLiteralExtractResult = LiteralSyntax.extractStringLiterals(script);
 
-		// 戻り値の [0] に置き換え済みコードが、[1] 以降に番号に対応する文字列リテラルが格納されている
+		// 戻り値の [0] に置き換え済みコードが, [1] 以降に番号に対応する文字列リテラルが格納されている
 		String stringLiteralReplacedCode = stringLiteralExtractResult[0];
 
-		// 置き換え済みコードを字句解析し、トークン配列を生成
+		// 置き換え済みコードを字句解析し, トークン配列を生成
 		Token[] tokens = this.tokenize(stringLiteralReplacedCode, fileName);
 
-		// トークン配列の内容を追加で解析し、トークンタイプや演算子の優先度/結合性、リテラルのデータ型などの情報を付加
-		this.analyzeTokenType(tokens);         // トークンタイプ
-		this.analyzePriority(tokens);          // 演算子の優先度
-		this.analyzeAssociativity(tokens);     // 演算子の結合性
+		// トークン配列の内容を追加で解析し, トークンタイプや演算子の優先度/結合性, リテラルのデータ型などの情報を付加
+		this.analyzeTokenTypes(tokens);         // トークンタイプ
+		this.analyzePrecedences(tokens);          // 演算子の優先度
+		this.analyzeAssociativities(tokens);     // 演算子の結合性
 		this.analyzeLiteralAttributes(tokens); // リテラルのデータ型
 
 		// トークン配列が保持する文字列リテラルを復元する
@@ -76,44 +130,26 @@ public class LexicalAnalyzer {
 
 
 	/**
-	 * 指定されたトークン配列の中で、特定のデータ型のリテラルを、別のデータ型に置き換えます。
+	 * <span class="lang-en">Splits code of the script into tokens</span>
+	 * <span class="lang-ja">ソースコードの文字列をトークン（字句）の単位に分割し, 配列にまとめて返します</span>
+	 * .
+	 * @param script
+	 *   <span class="lang-en">The script to be processed.</span>
+	 *   <span class="lang-ja">処理対象のスクリプト.</span>
 	 *
-	 * @param tokens 対象のトークン配列
-	 * @param fromTypeName 置き換え前のデータ型
-	 * @param toTypeName 置き換え後のデータ型
-	 * @return リテラルのデータ型を置き換えたトークン配列
+	 * @param fileName
+	 *   <span class="lang-en">The filename of the script to be processed.</span>
+	 *   <span class="lang-ja">処理対象のスクリプトのファイル名.</span>
+	 *
+	 * @return
+	 *   <span class="lang-en">Tokens.</span>
+	 *   <span class="lang-ja">トークンの列.</span>
 	 */
-	public Token[] replaceDataTypeOfLiteralTokens(Token[] tokens, String fromTypeName, String toTypeName) {
-		int tokenLength = tokens.length;
-		Token[] replacedTokens = new Token[tokenLength];
-		for (int tokenIndex=0; tokenIndex<tokenLength; tokenIndex++) {
-			Token token = tokens[tokenIndex].clone();
-			if (token.getType() == Token.Type.LEAF
-				&& token.getAttribute(AttributeKey.LEAF_TYPE).equals(AttributeValue.LITERAL)
-				&& token.getAttribute(AttributeKey.DATA_TYPE).equals(DataTypeName.INT) ) {
-
-				token.setAttribute(AttributeKey.DATA_TYPE, DataTypeName.FLOAT);
-			}
-			replacedTokens[tokenIndex] = token;
-		}
-		return replacedTokens;
-	}
-
-
-	/**
-	 * ソースコードの文字列をトークン（字句）の単位に分割し、配列にまとめて返します。
-	 *
-	 * （ここに実装の制約について）
-	 *
-	 * @param sourceCode ソースコード文字列
-	 * @param fileName ソースコードのファイル名
-	 * @return 分割されたトークンの配列
-	 */
-	private Token[] tokenize(String sourceCode, String fileName) {
+	private Token[] tokenize(String script, String fileName) {
 
 
 		ArrayList<Token> tokenList = new ArrayList<Token>();
-		char[] chars = sourceCode.toCharArray();
+		char[] chars = script.toCharArray();
 		int length = chars.length;
 		int pointer = 0;
 		int lineNumber = 1; // 行番号は1から始まる
@@ -123,14 +159,14 @@ public class LexicalAnalyzer {
 			// "&&" が "&" と "&" に分割されてしまう
 			// -> 最長一致の原則を入れないと
 
-			// 記号（=トークンの区切り）を検索し、記号がヒットするまでに読んだ文字を繋ぐ
+			// 記号（=トークンの区切り）を検索し, 記号がヒットするまでに読んだ文字を繋ぐ
 			StringBuilder wordBuilder = new StringBuilder();
 			while(!ScriptWord.SYMBOL_SET.contains(Character.toString(chars[pointer])) && pointer<length-1) {
 				wordBuilder.append(chars[pointer]);
 				pointer++;
 			}
 
-			// リテラルや識別子、制御構文などのワードトークンの場合
+			// リテラルや識別子, 制御構文などのワードトークンの場合
 			if(0 < wordBuilder.length()) {
 
 				tokenList.add(new Token(wordBuilder.toString(), lineNumber, fileName));
@@ -172,21 +208,23 @@ public class LexicalAnalyzer {
 
 
 	/**
-	 * トークン配列を解析し、各要素にトークンタイプを設定します。
-	 *
-	 * @param tokens 解析・設定対象のトークン配列（情報が追加されます）
-	 * @throws VnanoException 開き括弧と閉じ括弧の数が合っていない場合にスローされます。
+	 * <span class="lang-en">Analyze types of tokens and set to them</span>
+	 * <span class="lang-ja">トークンタイプを分析し, 各トークンに設定します</span>
+	 * .
+	 * @parak tokens
+	 *   <span class="lang-en">Tokens to be analyzed.</span>
+	 *   <span class="lang-ja">解析対象のトークン列.</span>
 	 */
-	private void analyzeTokenType(Token[] tokens) { //throws ScriptCodeException {
+	private void analyzeTokenTypes(Token[] tokens) {
 
 		int tokenLength = tokens.length;
 		Token lastToken = null;
 		String lastWord = null;
 
-		// 括弧の中に入ると可算、出ると減算していく括弧階層カウンタ
+		// 括弧の中に入ると可算, 出ると減算していく括弧階層カウンタ
 		int parenthesisStage = 0;
 
-		// 関数呼び出し演算子が始まった括弧階層を控えて置き、閉じ括弧が関数呼び出しの後端であるかの判定で使用
+		// 関数呼び出し演算子が始まった括弧階層を控えて置き, 閉じ括弧が関数呼び出しの後端であるかの判定で使用
 		Set<Integer> callParenthesisStages = new HashSet<Integer>();
 
 		for(int i=0; i<tokenLength; i++) {
@@ -244,7 +282,7 @@ public class LexicalAnalyzer {
 				tokens[i].setAttribute(AttributeKey.OPERATOR_SYNTAX, AttributeValue.MULTIARY);
 
 			// 多次元インデックスの区切り「 ][ 」
-			// (この処理系では、多次元配列は「配列の配列」ではなく、あくまでもインデックスを複数持つ1個の配列)
+			// (この処理系では, 多次元配列は「配列の配列」ではなく, あくまでもインデックスを複数持つ1個の配列)
 			} else if (word.equals(ScriptWord.INDEX_END + ScriptWord.INDEX_BEGIN)) {
 
 				tokens[i].setType(Token.Type.OPERATOR);
@@ -335,7 +373,7 @@ public class LexicalAnalyzer {
 			// インクリメントとデクリメント
 			} else if (word.equals(ScriptWord.INCREMENT) || word.equals(ScriptWord.DECREMENT)) {
 
-				// 前が識別子(WORDに分類)かリテラルか後置演算子(INDEXなど)なら後置インクリメント/デクリメント、そうでなければ前置インクリメント/デクリメント
+				// 前が識別子(WORDに分類)かリテラルか後置演算子(INDEXなど)なら後置インクリメント/デクリメント, そうでなければ前置インクリメント/デクリメント
 				if (lastToken!=null && ( lastToken.getType() == Token.Type.LEAF
 						|| lastToken.getType() == Token.Type.OPERATOR
 						&& lastToken.getAttribute(AttributeKey.OPERATOR_SYNTAX).equals(AttributeValue.POSTFIX) ) ) {
@@ -385,11 +423,14 @@ public class LexicalAnalyzer {
 
 
 	/**
-	 * トークン配列を解析し、各要素に演算子としての優先度を設定します。
-	 *
-	 * @param tokens 解析・設定対象のトークン配列
+	 * <span class="lang-en">Analyze precedences of operator-tokens and set to them</span>
+	 * <span class="lang-ja">演算子トークンの優先度を分析し, 各トークンに設定します</span>
+	 * .
+	 * @parak tokens
+	 *   <span class="lang-en">Tokens to be analyzed.</span>
+	 *   <span class="lang-ja">解析対象のトークン列.</span>
 	 */
-	private void analyzePriority(Token[] tokens) {
+	private void analyzePrecedences(Token[] tokens) {
 		int length = tokens.length;
 		for(int i=0; i<length; i++) {
 
@@ -399,137 +440,137 @@ public class LexicalAnalyzer {
 				case ScriptWord.PARENTHESIS_BEGIN:
 					//if (1<=i && tokens[i-1].getType()==Token.Type.LEAF) {
 					if (tokens[i].getType() == Token.Type.OPERATOR) { // 関数コールの場合
-						tokens[i].setPriority(PriorityTable.CALL_BEGIN);
+						tokens[i].setPrecedence(OperatorPrecedence.CALL_BEGIN);
 					} else {
-						tokens[i].setPriority(PriorityTable.PARENTHESIS_BEGIN);
+						tokens[i].setPrecedence(OperatorPrecedence.PARENTHESIS_BEGIN);
 					}
 					break;
 
 				case ScriptWord.PARENTHESIS_END:
 					if (tokens[i].getType() == Token.Type.OPERATOR) { // 関数コールの場合
-						tokens[i].setPriority(PriorityTable.CALL_END); // MULTIARY系演算子の終端は優先度最低にする必要がある(そうしないと結合してしまう)
+						tokens[i].setPrecedence(OperatorPrecedence.CALL_END); // MULTIARY系演算子の終端は優先度最低にする必要がある(そうしないと結合してしまう)
 					} else {
-						tokens[i].setPriority(PriorityTable.PARENTHESIS_END);
+						tokens[i].setPrecedence(OperatorPrecedence.PARENTHESIS_END);
 					}
 
 				case ScriptWord.ARGUMENT_SEPARATOR :
-					tokens[i].setPriority(PriorityTable.CALL_SEPARATOR); // 引数区切りのカンマも優先度最低にする必要がある(そうしないと結合してしまう)
+					tokens[i].setPrecedence(OperatorPrecedence.CALL_SEPARATOR); // 引数区切りのカンマも優先度最低にする必要がある(そうしないと結合してしまう)
 					break;
 
 				case ScriptWord.INDEX_BEGIN:
-					tokens[i].setPriority(PriorityTable.INDEX_BEGIN);
+					tokens[i].setPrecedence(OperatorPrecedence.INDEX_BEGIN);
 					break;
 
 				case ScriptWord.INDEX_END:
-					tokens[i].setPriority(PriorityTable.INDEX_END); // MULTIARY系演算子の終端は優先度最低にする必要がある(そうしないと結合してしまう)
+					tokens[i].setPrecedence(OperatorPrecedence.INDEX_END); // MULTIARY系演算子の終端は優先度最低にする必要がある(そうしないと結合してしまう)
 					break;
 
 				case ScriptWord.INDEX_SEPARATOR :
-					tokens[i].setPriority(PriorityTable.INDEX_SEPARATOR); // 次元区切りのカンマも優先度最低にする必要がある(そうしないと結合してしまう)
+					tokens[i].setPrecedence(OperatorPrecedence.INDEX_SEPARATOR); // 次元区切りのカンマも優先度最低にする必要がある(そうしないと結合してしまう)
 					break;
 
 				case ScriptWord.INCREMENT:
 					if (tokens[i].getAttribute(AttributeKey.OPERATOR_SYNTAX).equals(AttributeValue.PREFIX)) {
-						tokens[i].setPriority(PriorityTable.PREFIX_INCREMENT); //前置インクリメント
+						tokens[i].setPrecedence(OperatorPrecedence.PREFIX_INCREMENT); //前置インクリメント
 					} else {
-						tokens[i].setPriority(PriorityTable.POSTFIX_INCREMENT); //後置インクリメント
+						tokens[i].setPrecedence(OperatorPrecedence.POSTFIX_INCREMENT); //後置インクリメント
 					}
 					break;
 
 				case ScriptWord.DECREMENT:
 					if (tokens[i].getAttribute(AttributeKey.OPERATOR_SYNTAX).equals(AttributeValue.PREFIX)) {
-						tokens[i].setPriority(PriorityTable.PREFIX_DECREMENT); //前置デクリメント
+						tokens[i].setPrecedence(OperatorPrecedence.PREFIX_DECREMENT); //前置デクリメント
 					} else {
-						tokens[i].setPriority(PriorityTable.POSTFIX_DECREMENT); //後置デクリメント
+						tokens[i].setPrecedence(OperatorPrecedence.POSTFIX_DECREMENT); //後置デクリメント
 					}
 					break;
 
 				case ScriptWord.NOT:
-					tokens[i].setPriority(PriorityTable.NOT);
+					tokens[i].setPrecedence(OperatorPrecedence.NOT);
 					break;
 
 				case ScriptWord.PLUS:
 					if (tokens[i].getAttribute(AttributeKey.OPERATOR_SYNTAX).equals(AttributeValue.PREFIX)) {
-						tokens[i].setPriority(PriorityTable.PREFIX_PLUS); //単項プラス
+						tokens[i].setPrecedence(OperatorPrecedence.PREFIX_PLUS); //単項プラス
 					} else {
-						tokens[i].setPriority(PriorityTable.ADDITION); //加算
+						tokens[i].setPrecedence(OperatorPrecedence.ADDITION); //加算
 					}
 					break;
 
 				case ScriptWord.MINUS:
 					if (tokens[i].getAttribute(AttributeKey.OPERATOR_SYNTAX).equals(AttributeValue.PREFIX)) {
-						tokens[i].setPriority(PriorityTable.PREFIX_MINUS); //単項マイナス
+						tokens[i].setPrecedence(OperatorPrecedence.PREFIX_MINUS); //単項マイナス
 					} else {
-						tokens[i].setPriority(PriorityTable.SUBTRACTION); //減算
+						tokens[i].setPrecedence(OperatorPrecedence.SUBTRACTION); //減算
 					}
 					break;
 
 				case ScriptWord.MULTIPLICATION:
-					tokens[i].setPriority(PriorityTable.MULTIPLICATION);
+					tokens[i].setPrecedence(OperatorPrecedence.MULTIPLICATION);
 					break;
 
 				case ScriptWord.DIVISION:
-					tokens[i].setPriority(PriorityTable.DIVISION);
+					tokens[i].setPrecedence(OperatorPrecedence.DIVISION);
 					break;
 
 				case ScriptWord.REMAINDER:
-					tokens[i].setPriority(PriorityTable.REMAINDER);
+					tokens[i].setPrecedence(OperatorPrecedence.REMAINDER);
 					break;
 
 				case ScriptWord.LESS_THAN:
-					tokens[i].setPriority(PriorityTable.LESS_THAN);
+					tokens[i].setPrecedence(OperatorPrecedence.LESS_THAN);
 					break;
 
 				case ScriptWord.LESS_EQUAL:
-					tokens[i].setPriority(PriorityTable.LESS_EQUAL);
+					tokens[i].setPrecedence(OperatorPrecedence.LESS_EQUAL);
 					break;
 
 				case ScriptWord.GRATER_THAN:
-					tokens[i].setPriority(PriorityTable.GRATER_THAN);
+					tokens[i].setPrecedence(OperatorPrecedence.GRATER_THAN);
 					break;
 
 				case ScriptWord.GRATER_EQUAL:
-					tokens[i].setPriority(PriorityTable.GRATER_EQUAL);
+					tokens[i].setPrecedence(OperatorPrecedence.GRATER_EQUAL);
 					break;
 
 				case ScriptWord.EQUAL:
-					tokens[i].setPriority(PriorityTable.EQUAL);
+					tokens[i].setPrecedence(OperatorPrecedence.EQUAL);
 					break;
 
 				case ScriptWord.NOT_EQUAL:
-					tokens[i].setPriority(PriorityTable.NOT_EQUAL);
+					tokens[i].setPrecedence(OperatorPrecedence.NOT_EQUAL);
 					break;
 
 				case ScriptWord.AND:
-					tokens[i].setPriority(PriorityTable.AND);
+					tokens[i].setPrecedence(OperatorPrecedence.AND);
 					break;
 
 				case ScriptWord.OR:
-					tokens[i].setPriority(PriorityTable.OR);
+					tokens[i].setPrecedence(OperatorPrecedence.OR);
 					break;
 
 				case ScriptWord.ASSIGNMENT:
-					tokens[i].setPriority(PriorityTable.ASSIGNMENT);
+					tokens[i].setPrecedence(OperatorPrecedence.ASSIGNMENT);
 					break;
 
 				case ScriptWord.ADDITION_ASSIGNMENT:
-					tokens[i].setPriority(PriorityTable.ADDITION_ASSIGNMENT);
+					tokens[i].setPrecedence(OperatorPrecedence.ADDITION_ASSIGNMENT);
 					break;
 
 				case ScriptWord.SUBTRACTION_ASSIGNMENT:
-					tokens[i].setPriority(PriorityTable.SUBTRACTION_ASSIGNMENT);
+					tokens[i].setPrecedence(OperatorPrecedence.SUBTRACTION_ASSIGNMENT);
 					break;
 
 				case ScriptWord.MULTIPLICATION_ASSIGNMENT:
-					tokens[i].setPriority(PriorityTable.MULTIPLICATION_ASSIGNMENT);
+					tokens[i].setPrecedence(OperatorPrecedence.MULTIPLICATION_ASSIGNMENT);
 					break;
 
 				case ScriptWord.DIVISION_ASSIGNMENT:
-					tokens[i].setPriority(PriorityTable.DIVISION_ASSIGNMENT);
+					tokens[i].setPrecedence(OperatorPrecedence.DIVISION_ASSIGNMENT);
 					break;
 
 				case ScriptWord.REMAINDER_ASSIGNMENT:
-					tokens[i].setPriority(PriorityTable.REMAINDER_ASSIGNMENT);
+					tokens[i].setPrecedence(OperatorPrecedence.REMAINDER_ASSIGNMENT);
 					break;
 
 				default : {
@@ -541,20 +582,23 @@ public class LexicalAnalyzer {
 
 
 	/**
-	 * トークン配列内の演算子トークンに、結合性を設定します。
-	 *
-	 * @param tokens 解析・設定対象のトークン配列
+	 * <span class="lang-en">Analyze associativities of operator-tokens and set to them</span>
+	 * <span class="lang-ja">演算子トークンの結合性を分析し, 各トークンに設定します</span>
+	 * .
+	 * @parak tokens
+	 *   <span class="lang-en">Tokens to be analyzed.</span>
+	 *   <span class="lang-ja">解析対象のトークン列.</span>
 	 */
-	private void analyzeAssociativity(Token[] tokens) {
+	private void analyzeAssociativities(Token[] tokens) {
 		int length = tokens.length;
 		for(int i=0; i<length; i++) {
 
-			// 演算子トークンのみが解析対象なので、それ以外のトークンはスキップ
+			// 演算子トークンのみが解析対象なので, それ以外のトークンはスキップ
 			if (tokens[i].getType() != Token.Type.OPERATOR) {
 				continue;
 			}
 
-			// 大半の演算子は左結合なので、デフォルトを左結合とし、右結合の演算子のみを抽出して設定する
+			// 大半の演算子は左結合なので, デフォルトを左結合とし, 右結合の演算子のみを抽出して設定する
 			String associativity = AttributeValue.LEFT;
 
 			String symbol = tokens[i].getValue();
@@ -628,16 +672,19 @@ public class LexicalAnalyzer {
 				}
 			}
 
-			// 求めた結合性情報を、トークンに属性値として設定
+			// 求めた結合性情報を, トークンに属性値として設定
 			tokens[i].setAttribute(AttributeKey.OPERATOR_ASSOCIATIVITY, associativity);
 		}
 	}
 
 
 	/**
-	 * トークン配列内のリテラルトークン要素に対して、データ型などの属性値を解析して設定します。
-	 *
-	 * @tokens 解析対象のトークン配列
+	 * <span class="lang-en">Analyze data types of literal-tokens and set to them</span>
+	 * <span class="lang-ja">リテラルトークンのデータ型を分析し, 各トークンに設定します</span>
+	 * .
+	 * @parak tokens
+	 *   <span class="lang-en">Tokens to be analyzed.</span>
+	 *   <span class="lang-ja">解析対象のトークン列.</span>
 	 */
 	private void analyzeLiteralAttributes(Token[] tokens) {
 		for (Token token: tokens) {
@@ -647,24 +694,28 @@ public class LexicalAnalyzer {
 				String literal = token.getValue();
 				String dataTypeName = LiteralSyntax.getDataTypeNameOfLiteral(literal);
 				token.setAttribute(AttributeKey.DATA_TYPE, dataTypeName);
-				token.setAttribute(AttributeKey.RANK, "0"); // 現状では配列のリテラルは存在しないため、常にスカラ
+				token.setAttribute(AttributeKey.RANK, "0"); // 現状では配列のリテラルは存在しないため, 常にスカラ
 			}
 		}
 	}
 
 
 	/**
-	 * トークン配列内の文字列トークンが保持する、前処理で番号化された文字列リテラル（"1", "2", ... 等）を、
-	 * 本来の文字列リテラルで置き換えます。
+	 * <span class="lang-ja">
+	 * トークン配列内の文字列トークンが保持する, 前処理で番号化された文字列リテラル（"1", "2", ... 等）を,
+	 * 本来の文字列リテラルで置き換えます.
 	 *
-	 * 番号化された文字列リテラルの番号をインデックスとする配列要素に、
-	 * 本来の文字列リテラルを格納している配列を、引数 stringLiteralExtractResult に指定してください。
+	 * 番号化された文字列リテラルの番号をインデックスとする配列要素に,
+	 * 本来の文字列リテラルを格納している配列を, 引数 stringLiteralExtractResult に指定してください.
 	 *
-	 * なお、番号リテラルの番号は、トークン配列内で、
-	 * 登場順に1番から1ずつ増えていく昇順で割りふられている必要があります。
+	 * なお, 番号リテラルの番号は, トークン配列内で,
+	 * 登場順に1番から1ずつ増えていく昇順で割りふられている必要があります.
+	 * </span>
 	 *
-	 * @param tokens 処理対象のトークン配列（内容が変更されます）
-	 * @param stringLiteralExtractResult 番号化された文字列リテラルの番号
+	 * @param tokens
+	 *   <span class="lang-ja">処理対象のトークン配列（内容が変更されます）.</span>
+	 * @param
+	 *   <span class="lang-ja">stringLiteralExtractResult 番号化された文字列リテラルの番号.</span>
 	 */
 	private void embedStringLiterals(Token[] tokens, String[] stringLiteralExtractResult) {
 		int tokenLength = tokens.length;
@@ -679,12 +730,12 @@ public class LexicalAnalyzer {
 					&& token.getAttribute(AttributeKey.LEAF_TYPE).equals(AttributeValue.LITERAL)
 					&& LiteralSyntax.getDataTypeNameOfLiteral(value).equals(DataTypeName.STRING)) {
 
-				// この条件下では、value は "1", "2" などのように番号化された文字列リテラルが入っている
+				// この条件下では, value は "1", "2" などのように番号化された文字列リテラルが入っている
 
 				// 元のリテラル値が stringLiteralExtractResult 配列に格納されているインデックスを取得（番号化リテラルの番号）
 				int index = LiteralSyntax.getIndexOfNumberedStringLiteral(value);
 
-				// 番号化リテラルを、本来の文字列リテラルで置き換える
+				// 番号化リテラルを, 本来の文字列リテラルで置き換える
 				token.setValue(stringLiteralExtractResult[index]);
 			}
 		}

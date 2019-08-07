@@ -221,49 +221,49 @@ public class AstNodeTest {
 
 		AstNode node = r;
 
-		assertFalse(node.isPreorderDfsTraversalLastNode());
-		node = node.getPreorderDfsTraversalNextNode();
+		assertFalse(node.isPreorderDftLastNode());
+		node = node.getPreorderDftNextNode();
 		assertEquals(a, node);
 
-		assertFalse(node.isPreorderDfsTraversalLastNode());
-		node = node.getPreorderDfsTraversalNextNode();
+		assertFalse(node.isPreorderDftLastNode());
+		node = node.getPreorderDftNextNode();
 		assertEquals(b, node);
 
-		assertFalse(node.isPreorderDfsTraversalLastNode());
-		node = node.getPreorderDfsTraversalNextNode();
+		assertFalse(node.isPreorderDftLastNode());
+		node = node.getPreorderDftNextNode();
 		assertEquals(b0, node);
 
-		assertFalse(node.isPreorderDfsTraversalLastNode());
-		node = node.getPreorderDfsTraversalNextNode();
+		assertFalse(node.isPreorderDftLastNode());
+		node = node.getPreorderDftNextNode();
 		assertEquals(c, node);
 
-		assertFalse(node.isPreorderDfsTraversalLastNode());
-		node = node.getPreorderDfsTraversalNextNode();
+		assertFalse(node.isPreorderDftLastNode());
+		node = node.getPreorderDftNextNode();
 		assertEquals(c0, node);
 
-		assertFalse(node.isPreorderDfsTraversalLastNode());
-		node = node.getPreorderDfsTraversalNextNode();
+		assertFalse(node.isPreorderDftLastNode());
+		node = node.getPreorderDftNextNode();
 		assertEquals(c1, node);
 
-		assertFalse(node.isPreorderDfsTraversalLastNode());
-		node = node.getPreorderDfsTraversalNextNode();
+		assertFalse(node.isPreorderDftLastNode());
+		node = node.getPreorderDftNextNode();
 		assertEquals(d, node);
 
-		assertFalse(node.isPreorderDfsTraversalLastNode());
-		node = node.getPreorderDfsTraversalNextNode();
+		assertFalse(node.isPreorderDftLastNode());
+		node = node.getPreorderDftNextNode();
 		assertEquals(d0, node);
 
-		assertFalse(node.isPreorderDfsTraversalLastNode());
-		node = node.getPreorderDfsTraversalNextNode();
+		assertFalse(node.isPreorderDftLastNode());
+		node = node.getPreorderDftNextNode();
 		assertEquals(d1, node);
 
-		assertFalse(node.isPreorderDfsTraversalLastNode());
-		node = node.getPreorderDfsTraversalNextNode();
+		assertFalse(node.isPreorderDftLastNode());
+		node = node.getPreorderDftNextNode();
 		assertEquals(d2, node);
 
 		// 走査の終端まで来たので、最終ノードと判定されているはず
-		assertTrue(node.isPreorderDfsTraversalLastNode());
-		assertNull(node.getPreorderDfsTraversalNextNode());
+		assertTrue(node.isPreorderDftLastNode());
+		assertNull(node.getPreorderDftNextNode());
 	}
 
 	@Test
@@ -302,51 +302,51 @@ public class AstNodeTest {
 
 		// 以下、帰りがけ順の深さ優先走査でノードを移動しながら、正しいノードと一致検査
 
-		AstNode node = r.getPostorderDfsTraversalFirstNode();
+		AstNode node = r.getPostorderDftFirstNode();
 		assertEquals(a, node);
 
-		assertFalse(node.isPostorderDfsTraversalLastNode());
-		node = node.getPostorderDfsTraversalNextNode();
+		assertFalse(node.isPostorderDftLastNode());
+		node = node.getPostorderDftNextNode();
 		assertEquals(b0, node);
 
-		assertFalse(node.isPostorderDfsTraversalLastNode());
-		node = node.getPostorderDfsTraversalNextNode();
+		assertFalse(node.isPostorderDftLastNode());
+		node = node.getPostorderDftNextNode();
 		assertEquals(b, node);
 
-		assertFalse(node.isPostorderDfsTraversalLastNode());
-		node = node.getPostorderDfsTraversalNextNode();
+		assertFalse(node.isPostorderDftLastNode());
+		node = node.getPostorderDftNextNode();
 		assertEquals(c0, node);
 
-		assertFalse(node.isPostorderDfsTraversalLastNode());
-		node = node.getPostorderDfsTraversalNextNode();
+		assertFalse(node.isPostorderDftLastNode());
+		node = node.getPostorderDftNextNode();
 		assertEquals(c1, node);
 
-		assertFalse(node.isPostorderDfsTraversalLastNode());
-		node = node.getPostorderDfsTraversalNextNode();
+		assertFalse(node.isPostorderDftLastNode());
+		node = node.getPostorderDftNextNode();
 		assertEquals(c, node);
 
-		assertFalse(node.isPostorderDfsTraversalLastNode());
-		node = node.getPostorderDfsTraversalNextNode();
+		assertFalse(node.isPostorderDftLastNode());
+		node = node.getPostorderDftNextNode();
 		assertEquals(d0, node);
 
-		assertFalse(node.isPostorderDfsTraversalLastNode());
-		node = node.getPostorderDfsTraversalNextNode();
+		assertFalse(node.isPostorderDftLastNode());
+		node = node.getPostorderDftNextNode();
 		assertEquals(d1, node);
 
-		assertFalse(node.isPostorderDfsTraversalLastNode());
-		node = node.getPostorderDfsTraversalNextNode();
+		assertFalse(node.isPostorderDftLastNode());
+		node = node.getPostorderDftNextNode();
 		assertEquals(d2, node);
 
-		assertFalse(node.isPostorderDfsTraversalLastNode());
-		node = node.getPostorderDfsTraversalNextNode();
+		assertFalse(node.isPostorderDftLastNode());
+		node = node.getPostorderDftNextNode();
 		assertEquals(d, node);
 
-		assertFalse(node.isPostorderDfsTraversalLastNode());
-		node = node.getPostorderDfsTraversalNextNode();
+		assertFalse(node.isPostorderDftLastNode());
+		node = node.getPostorderDftNextNode();
 		assertEquals(r, node);
 
 		// 走査の終端まで来たので、最終ノードと判定されているはず
-		assertTrue(node.isPostorderDfsTraversalLastNode());
-		assertNull(node.getPostorderDfsTraversalNextNode());
+		assertTrue(node.isPostorderDftLastNode());
+		assertNull(node.getPostorderDftNextNode());
 	}
 }
