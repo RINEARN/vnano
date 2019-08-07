@@ -5,10 +5,27 @@
 
 package org.vcssl.nano.spec;
 
+// Documentation:  https://www.vcssl.org/en-us/dev/code/main-jimpl/api/org/vcssl/nano/spec/OptionKey.html
+// ドキュメント:   https://www.vcssl.org/ja-jp/dev/code/main-jimpl/api/org/vcssl/nano/spec/OptionKey.html
+
 /**
+ * <p>
  * <span class="lang-en">The class to define keys of the option map (option names)</span>
  * <span class="lang-ja">オプションマップのキー（オプション名）が定義されたクラスです</span>
  * .
+ * </p>
+ *
+ * <p>
+ * &raquo; <a href="../../../../../src/org/vcssl/nano/spec/OptionKey.java">Source code</a>
+ * </p>
+ *
+ * <hr>
+ *
+ * <p>
+ * | <a href="../../../../../api/org/vcssl/nano/spec/OptionKey.html">Public Only</a>
+ * | <a href="../../../../../api-all/org/vcssl/nano/spec/OptionKey.html">All</a> |
+ * </p>
+ *
  * @author RINEARN (Fumihiro Matsui)
  */
 public class OptionKey {

@@ -19,45 +19,74 @@ import org.vcssl.nano.spec.OperatorPrecedence;
 import org.vcssl.nano.spec.ScriptWord;
 import org.vcssl.nano.spec.ErrorType;
 
+//Documentation:  https://www.vcssl.org/en-us/dev/code/main-jimpl/api/org/vcssl/nano/compiler/Parser.html
+//ドキュメント:   https://www.vcssl.org/ja-jp/dev/code/main-jimpl/api/org/vcssl/nano/compiler/Parser.html
 
 /**
  * <p>
- * コンパイラ内において、
- * {@link LexicalAnalyzer LexicalAnalyzer}（字句解析器）
- * が出力した {@link Token Token} 配列に対して構文解析処理を行い、
- * {@link AstNode AstNode} を組み合わせたAST（抽象構文木）へと変換する、
- * 構文解析器のクラスです。
+ * <span class="lang-en">
+ * The class performing the function of the parser in the compiler of the Vnano
+ * </span>
+ * <span class="lang-ja">
+ * Vnano のコンパイラ内において, パーサ（構文解析器）の機能を担うクラスです
+ * </span>
+ * .
+ * </p>
+ *
+ * <p>
+ * <span class="lang-en">
+ * The processing of this class takes tokens as input,
+ * then constructs the AST (Abstract Syntax Tree) and outputs it.
+ * </span>
+ * <span class="lang-ja">
+ * このクラスが行う構文解析処理は, 入力としてトークン列を受け取り,
+ * AST（抽象構文木）を構築して出力します.
+ * </span>
+ * </p>
+ *
+ * <p>
+ * &raquo; <a href="../../../../../src/org/vcssl/nano/compiler/Parser.java">Source code</a>
+ * </p>
+ *
+ * <hr>
+ *
+ * <p>
+ * | <a href="../../../../../api/org/vcssl/nano/compiler/Parser.html">Public Only</a>
+ * | <a href="../../../../../api-all/org/vcssl/nano/compiler/Parser.html">All</a> |
  * </p>
  *
  * @author RINEARN (Fumihiro Matsui)
  */
 public class Parser {
 
-
 	/**
-	 * このクラスは状態を保持するフィールドを持たないため、コンストラクタは何もしません。
+	 * <span class="lang-en">
+	 * This constructor does nothing, because this class has no fields for storing state
+	 * </span>
+	 * <span class="lang-ja">
+	 * このクラスは状態を保持するフィールドを持たないため, コンストラクタは何もしません
+	 * </span>
+	 * .
 	 */
 	public Parser() {
 	}
 
 
 	/**
-	 * ソースコード全体のトークン配列に対して構文解析を行い、
-	 * AST（抽象構文木）を構築して返します。
+	 * <span class="lang-en">Constructs and returns the AST by parsing tokens</span>
+	 * <span class="lang-ja">トークン列を構文解析し, ASTを構築して返します</span>
+	 * .
+	 * @param tokens
+	 *   <span class="lang-en">Tokens to be parsed.</span>
+	 *   <span class="lang-ja">解析対象のトークン列.</span>
 	 *
-	 * このメソッドの入力値であるトークンの配列は、ソースコードに対し、
-	 * {@link LexicalAnalyzer#analyze LexicalAnalyzer.analyze}
-	 * メソッドによって字句解析を行って得る事ができます。
+	 * @return
+	 *   <span class="lang-en">The constructed AST.</span>
+	 *   <span class="lang-ja">構築されたAST.</span>
 	 *
-	 * このメソッドが出力するASTは、まだ各トークンの構文的な関係をツリー構造に表現した段階のものであり、
-	 * 中間コード生成に必要な情報が全て揃ってはいません。
-	 * 従って、中間コード生成のステージよりも前に、まずこのメソッドが出力するASTに対して、
-	 * {@link SemanticAnalyzer#analyze SemanticAnalyzer.analyze}
-	 * メソッドによって意味解析を行い、各種情報を補完する必要があります。
-	 *
-	 * @param tokens 字句解析によって生成されたトークン配列
-	 * @return 構築したAST（抽象構文木）のルートノード
-	 * @throws VnanoException 文の終端が見つからない場合にスローされます。
+	 * @throws VnanoException
+	 *   <span class="lang-en">Thrown when any syntax error has detected.</span>
+	 *   <span class="lang-ja">構文エラーが検出された場合にスローされます.</span>
 	 */
 	public AstNode parse(Token[] tokens) throws VnanoException {
 

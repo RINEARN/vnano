@@ -20,47 +20,103 @@ import org.vcssl.nano.spec.OperationCode;
 import org.vcssl.nano.spec.OptionValue;
 import org.vcssl.nano.spec.ScriptWord;
 
+//Documentation:  https://www.vcssl.org/en-us/dev/code/main-jimpl/api/org/vcssl/nano/compiler/CodeGenerator.html
+//ドキュメント:   https://www.vcssl.org/ja-jp/dev/code/main-jimpl/api/org/vcssl/nano/compiler/CodeGenerator.html
 
 /**
  * <p>
- * コンパイラ内において、
- * {@link SemanticAnalyzer SemanticAnalyzer}（意味解析器）
- * が出力した情報補間済みAST（抽象構文木）から、
- * {@link org.vcssl.nano.vm.assembler.Assembler Assembler}
- * が解釈可能な中間アセンブリコードへと変換する、コード生成器のクラスです。
+ * <span class="lang-en">
+ * The class performing the function of the code generator in the compiler of the Vnano
+ * </span>
+ * <span class="lang-ja">
+ * Vnano のコンパイラ内において, コードジェネレータ（コード生成器）の機能を担うクラスです
+ * </span>
+ * .
  * </p>
  *
  * <p>
- * 中間アセンブリコードは、この処理系のコンパイラである {@link Compiler Compiler}
- * クラスの最終的な出力データです。
- * データ形式は文字列であるため、内容を直接目視で確認する事ができます。
+ * <span class="lang-en">
+ * The processing of this class takes the semantic-analyzed AST as the input,
+ * and outputs a kind of the intermediate code written in the VRIL (Vector Register Intermediate Language)
+ * which is a virtual assembly language interpreted by the VM
+ * ({@link org.vcssl.nano.vm.VirtualMachine}) of the Vnano.
+ * </span>
+ * <span class="lang-ja">
+ * このクラスが行う処理は, 入力として意味解析済みのASTを受け取り,
+ * それを Vnano のVM ({@link org.vcssl.nano.vm.VirtualMachine}) で解釈可能な、
+ * 一種の中間コードに変換して出力します.
+ * この中間コードは、Vnano のVM用に設計された仮想的なアセンブリ言語である,
+ * VRIL（Vector Register Intermediate Language）で記述されます.
+ * </span>
+ * </p>
+ *
+ * <p>
+ * &raquo; <a href="../../../../../src/org/vcssl/nano/compiler/CodeGenerator.java">Source code</a>
+ * </p>
+ *
+ * <hr>
+ *
+ * <p>
+ * | <a href="../../../../../api/org/vcssl/nano/compiler/CodeGenerator.html">Public Only</a>
+ * | <a href="../../../../../api-all/org/vcssl/nano/compiler/CodeGenerator.html">All</a> |
  * </p>
  *
  * @author RINEARN (Fumihiro Matsui)
  */
 public class CodeGenerator {
 
+	/**
+	 * <span class="lang-ja">スカラの配列次元数です</span>
+	 * <span class="lang-en">The array-rank of the scalar</span>
+	 * .
+	 */
 	private static final int RANK_OF_SCALAR = 0;
 
-	/** ラベルの名称において、末尾の番号を除いた部分に使用される文字列です。 */
+	/**
+	 * <span class="lang-en">The string used as the name of labels excluding numbers</span>
+	 * <span class="lang-ja">ラベルの名称において, 末尾の番号を除いた部分に使用される文字列です<span>
+	 * .
+	 */
 	private static final String LABEL_NAME = "LABEL";
 
-	/** 生成コード内で bool 型の true を表す即値であり、無条件ジャンプのコード生成などに使用されます。 */
+	/**
+	 * <span class="lang-en">The immediate value of "true", used in code of jump instructions</span>
+	 * <span class="lang-ja">ジャンプ命令のコード生成などに使用される, true を表す即値の文字列です<span>
+	 * .
+	 */
 	private static final String IMMEDIATE_TRUE
 			= AssemblyWord.OPERAND_PREFIX_IMMEDIATE + DataTypeName.BOOL + AssemblyWord.VALUE_SEPARATOR + LiteralSyntax.TRUE;
 
-	/** 命令仕様上、先頭オペランドを書き込み対象に統一するため、書き込み対象が無い場合に置くプレースホルダ */
+	/**
+	 * <span class="lang-en">The string of the placeholder which is put at the position of the unused operand for some instructions</span>
+	 * <span class="lang-ja">命令仕様上、使用しない位置のオペランドの箇所に置くプレースホルダ</span>
+	 * .
+	 */
 	private static final String PLACE_HOLDER = Character.toString(AssemblyWord.OPERAND_PREFIX_PLACEHOLDER);
 
 
-	/** 生成コード内の各レジスタに、固有のアドレスを割り当てるためのカウンタです。 */
+	/**
+	 * <span class="lang-en">The counter to assign new registers</span>
+	 * <span class="lang-ja">新規レジスタの割り当てに用いるカウンタです</span>
+	 * .
+	 */
 	private int registerCounter;
 
-	/** 生成コード内の各ラベルに、固有の名称を割り当てるためのカウンタです。 */
+	/**
+	 * <span class="lang-en">The counter to assign new labels</span>
+	 * <span class="lang-ja">新規ラベルの割り当てに用いるカウンタです</span>
+	 * .
+	 */
 	private int labelCounter;
 
 	/**
-	 * 各種カウンタ値が 0 で初期化されたインスタンスを作成します。
+	 * <span class="lang-en">
+	 * Creates an new code generator of which counters (e.g. counter to assign registers) are initialized by 0
+	 * </span>
+	 * <span class="lang-ja">
+	 * 各種カウンタ値（レジスタの割り当てカウンタなど）が 0 で初期化されたコードジェネレータを作成します
+	 * </span>
+	 * .
 	 */
 	public CodeGenerator() {
 		this.registerCounter = 0;
@@ -70,17 +126,43 @@ public class CodeGenerator {
 
 
 	/**
-	 * 文を逐次的にコードに変換していく際に必要な、
-	 * 前後の文に依存する情報（コンテキスト）を保持するクラスであり、
-	 * {@link CodeGenerator#trackAllStatements CodeGenerator.trackAllStatements}
-	 * メソッドや
-	 * {@link CodeGenerator#generateStatementCode CodeGenerator.generateStatementCode}
-	 * メソッド内で使用されます。
-	 *
+	 * <span class="lang-ja">
+	 * The class for storing information (context) depending on before/after statements which are
+	 * necessary for transforming sequentially a statement to the (virtual) assembly code from the top.
+	 * </span>
+	 * <span class="lang-ja">
+	 * 文を逐次的にコードに変換していく際に必要な, 前後の文に依存する情報（コンテキスト）を保持するクラスです
+	 * </span>
+	 * .
+	 * <span class="lang-en">
+	 * For example, labels for breaking from the loop should be put at the end the instructions
+	 * corresponding with statements in the loop,
+	 * but should be determined when the instructions at the top of the loop are generated.
+	 * It is because instructions at the top of the loop contains a jump instruction
+	 * to jump to outside of the loop when the condition is false,
+	 * and the jump instruction takes the label as an operand.
+	 * </span>
+	 * </span>
+	 * <span class="lang-ja">
 	 * 例えば、if 文や while 文 および for 文では、その後に続く文のコード生成が完了した後に、
 	 * 条件不成立時やループ脱出時のジャンプ先となるラベルを配置する必要があります。
 	 * また、else 文では、直前の if 文の条件式の結果が、
 	 * 仮想メモリ上のどのアドレスに保持されているのかという情報が必要です。
+	 * </span>
+	 *
+	 * <span class="lang-en">
+	 * This class is used in
+	 * {@link CodeGenerator#trackAllStatements CodeGenerator.trackAllStatements}
+	 * and
+	 * {@link CodeGenerator#generateStatementCode CodeGenerator.generateStatementCode}
+	 * methods.
+	 * </span>
+	 * <span class="lang-ja">
+	 * {@link CodeGenerator#trackAllStatements CodeGenerator.trackAllStatements}
+	 * メソッドや
+	 * {@link CodeGenerator#generateStatementCode CodeGenerator.generateStatementCode}
+	 * メソッド内で使用されます。
+	 * </span>
 	 */
 	private class StatementTrackingContext implements Cloneable {
 
@@ -280,10 +362,25 @@ public class CodeGenerator {
 
 
 	/**
-	 * 意味解析済みのAST(抽象構文木)を読み込み、中間アセンブリコードを生成して返します。
+	 * <span class="lang-en">Generates intermediate code written in the VRIL from the semantic-analyzed AST</span>
+	 * <span class="lang-ja">意味解析済みのASTから、VRILで記述された中間コードを生成して返します</span>
+	 * .
+	 * <span class="lang-en">
+	 * Intermediate code generated by this method can be executed on the VM
+	 * ({@link org.vcssl.nano.vm.VirtualMachine}) of the Vnano.
+	 * </span>
+	 * <span class="lang-ja">
+	 * このメソッドによって生成された中間コードは、Vnano のVM
+	 * ({@link org.vcssl.nano.vm.VirtualMachine}) によって実行できます.
+	 * </span>
 	 *
-	 * @param inputAst 意味解析済みのAST(抽象構文木)のルートノードて
-	 * @return 中間アセンブリコード
+	 * @param inputAst
+	 *   <span class="lang-en">The root node of the sematic-analyzed AST.</span>
+	 *   <span class="lang-ja">意味解析済みのASTのルートノード.</span>
+	 *
+	 * @return
+	 *   <span class="lang-en">Intermediate code written in the VRIL.</span>
+	 *   <span class="lang-ja">VRILで記述された中間コード.</span>
 	 */
 	public String generate(AstNode inputAst) {
 
@@ -335,7 +432,7 @@ public class CodeGenerator {
 	 */
 	private void assignAssemblyValues(AstNode inputAst) {
 
-		AstNode currentNode = inputAst.getPostorderDfsTraversalFirstNode();
+		AstNode currentNode = inputAst.getPostorderDftFirstNode();
 		while (currentNode != inputAst) {
 
 			AstNode.Type nodeType = currentNode.getType();
@@ -418,7 +515,7 @@ public class CodeGenerator {
 				currentNode.setAttribute(AttributeKey.ASSEMBLY_VALUE, value);
 			}
 
-			currentNode = currentNode.getPostorderDfsTraversalNextNode();
+			currentNode = currentNode.getPostorderDftNextNode();
 		}
 	}
 
@@ -434,7 +531,7 @@ public class CodeGenerator {
 	 */
 	private void assignLabels(AstNode inputAst) {
 
-		AstNode currentNode = inputAst.getPostorderDfsTraversalFirstNode();
+		AstNode currentNode = inputAst.getPostorderDftFirstNode();
 		while (currentNode != inputAst) {
 
 			if (currentNode.getType() == AstNode.Type.IF) {
@@ -465,7 +562,7 @@ public class CodeGenerator {
 				}
 			}
 
-			currentNode = currentNode.getPostorderDfsTraversalNextNode();
+			currentNode = currentNode.getPostorderDftNextNode();
 		}
 	}
 
@@ -1125,12 +1222,12 @@ public class CodeGenerator {
 
 		StringBuilder codeBuilder = new StringBuilder();
 
-		AstNode currentNode = exprRootNode.getPostorderDfsTraversalFirstNode();
+		AstNode currentNode = exprRootNode.getPostorderDftFirstNode();
 		while(currentNode != exprRootNode) {
 
 			// リーフノードは演算コードを生成する必要がない
 			if (currentNode.getType() != AstNode.Type.OPERATOR) {
-				currentNode = currentNode.getPostorderDfsTraversalNextNode();
+				currentNode = currentNode.getPostorderDftNextNode();
 				continue;
 			}
 
@@ -1233,7 +1330,7 @@ public class CodeGenerator {
 				}
 			}
 
-			currentNode = currentNode.getPostorderDfsTraversalNextNode();
+			currentNode = currentNode.getPostorderDftNextNode();
 		}
 
 		return codeBuilder.toString();
@@ -1855,7 +1952,8 @@ public class CodeGenerator {
 
 			// CALL命令を生成
 			codeBuilder.append(
-				this.generateInstruction(OperationCode.CALL.name(), operatorNode.getDataTypeName(), operands)
+				//this.generateInstruction(OperationCode.CALL.name(), operatorNode.getDataTypeName(), operands)
+				this.generateInstruction(OperationCode.CALL.name(), PLACE_HOLDER, operands)
 			);
 
 			// 戻り値の型が void の場合は、スタック上の仮の戻り値（スタック順序維持用のために積まれている）を捨てるコードを生成
@@ -1997,7 +2095,7 @@ public class CodeGenerator {
 	 */
 	private String generateFunctionIdentifierDirectives(AstNode inputAst) {
 		StringBuilder codeBuilder = new StringBuilder();
-		AstNode currentNode = inputAst.getPostorderDfsTraversalFirstNode();
+		AstNode currentNode = inputAst.getPostorderDftFirstNode();
 
 		// 出力済みのものを控える
 		Set<String> generatedSet = new HashSet<String>();
@@ -2032,7 +2130,7 @@ public class CodeGenerator {
 				}
 			}
 
-			currentNode = currentNode.getPostorderDfsTraversalNextNode();
+			currentNode = currentNode.getPostorderDftNextNode();
 		}
 		return codeBuilder.toString();
 	}
@@ -2049,7 +2147,7 @@ public class CodeGenerator {
 	 */
 	private String generateGlobalIdentifierDirectives(AstNode inputAst) {
 		StringBuilder codeBuilder = new StringBuilder();
-		AstNode currentNode = inputAst.getPostorderDfsTraversalFirstNode();
+		AstNode currentNode = inputAst.getPostorderDftFirstNode();
 
 		// 出力済みのものを控える
 		Set<String> generatedSet = new HashSet<String>();
@@ -2078,7 +2176,7 @@ public class CodeGenerator {
 				}
 			}
 
-			currentNode = currentNode.getPostorderDfsTraversalNextNode();
+			currentNode = currentNode.getPostorderDftNextNode();
 		}
 		return codeBuilder.toString();
 	}

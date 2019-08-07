@@ -5,7 +5,7 @@
 
 package org.vcssl.nano.vm.accelerator;
 
-abstract class CacheSynchronizer {
+public abstract class CacheSynchronizer {
 	public abstract void synchronizeFromCacheToMemory();
 	public abstract void synchronizeFromMemoryToCache();
 }

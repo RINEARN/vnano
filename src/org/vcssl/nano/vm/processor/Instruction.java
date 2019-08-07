@@ -52,7 +52,7 @@ public class Instruction implements Cloneable {
 	private final int metaAddress;
 
 	/** 拡張命令（ {@link OperationCode.EX EX} 命令 ）の情報を格納するオブジェクトです。 */
-	private final Object extention;
+	private final Object extension;
 
 	/**
 	 * 引数に指定された内容を持つ、命令のインスタンスを生成します。
@@ -81,13 +81,13 @@ public class Instruction implements Cloneable {
 	 * @param operandAddresses オペランドのデータが格納されている仮想メモリー内アドレス
 	 * @param metaPartition メタ情報が格納されている仮想メモリー内パーティション
 	 * @param metaAddress メタ情報が格納されている仮想メモリー内アドレス
-	 * @param extention 格闘命令の情報を格納するオブジェクト
+	 * @param extension 格闘命令の情報を格納するオブジェクト
 	 */
 	public Instruction(
 			OperationCode operationCode, DataType[] dataTypes,
 			Memory.Partition[] operandPartitions, int[] operandAddresses,
 			Memory.Partition metaPartition, int metaAddress,
-			Object extention) {
+			Object extension) {
 
 		this.operationCode = operationCode;
 		this.dataTypes = dataTypes;
@@ -95,7 +95,7 @@ public class Instruction implements Cloneable {
 		this.operandAddresses = operandAddresses;
 		this.metaPartition = metaPartition;
 		this.metaAddress = metaAddress;
-		this.extention = extention;
+		this.extension = extension;
 	}
 
 
@@ -212,7 +212,7 @@ public class Instruction implements Cloneable {
 	 * @return 拡張命令の情報を格納しているかどうか（格納していればtrue）
 	 */
 	public boolean hasExtention() {
-		return this.extention != null;
+		return this.extension != null;
 	}
 
 
@@ -221,15 +221,15 @@ public class Instruction implements Cloneable {
 	 *
 	 * @return 拡張命令の情報を保持するオブジェクト
 	 */
-	public Object getExtention() {
-		return this.extention;
+	public Object getExtension() {
+		return this.extension;
 	}
 
 
 	/**
 	 * この命令を複製します。
 	 * 原則として、フィールドはディープコピーされます。
-	 * ただし、拡張命令の情報を格納する extention フィールドについては、
+	 * ただし、拡張命令の情報を格納する extension フィールドについては、
 	 * Object 型であるため参照のみがシャローコピーされます。
 	 *
 	 * @return 複製された命令
@@ -249,7 +249,7 @@ public class Instruction implements Cloneable {
 				this.operationCode, cloneDataTypes,
 				cloneOperandPartitions, cloneOperandAddresses,
 				this.metaPartition, this.metaAddress,
-				this.extention
+				this.extension
 		);
 
 		return cloneInstruction;
@@ -310,9 +310,9 @@ public class Instruction implements Cloneable {
 		builder.append(this.metaPartition.toString().charAt(0));
 		builder.append(this.metaAddress);
 
-		if (this.extention != null) {
-			builder.append("\t extention={ ");
-			builder.append(this.extention.toString());
+		if (this.extension != null) {
+			builder.append("\t extension={ ");
+			builder.append(this.extension.toString());
 			builder.append(" }");
 		}
 

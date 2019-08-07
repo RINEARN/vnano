@@ -5,6 +5,8 @@
 
 package org.vcssl.nano.spec;
 
+// Documentation:  https://www.vcssl.org/en-us/dev/code/main-jimpl/api/org/vcssl/nano/spec/DataType.html
+// ドキュメント:   https://www.vcssl.org/ja-jp/dev/code/main-jimpl/api/org/vcssl/nano/spec/DataType.html
 
 /**
  * <p>
@@ -29,7 +31,14 @@ package org.vcssl.nano.spec;
  * </p>
  *
  * <p>
- * &raquo <a href="../../../../../src/org/vcssl/nano/spec/DataType.java">Source code</a>
+ * &raquo; <a href="../../../../../src/org/vcssl/nano/spec/DataType.java">Source code</a>
+ * </p>
+ *
+ * <hr>
+ *
+ * <p>
+ * | <a href="../../../../../api/org/vcssl/nano/spec/DataType.html">Public Only</a>
+ * | <a href="../../../../../api-all/org/vcssl/nano/spec/DataType.html">All</a> |
  * </p>
  *
  * @author RINEARN (Fumihiro Matsui)

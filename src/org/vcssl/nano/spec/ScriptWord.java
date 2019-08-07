@@ -7,6 +7,8 @@ package org.vcssl.nano.spec;
 
 import java.util.HashSet;
 
+// Documentation:  https://www.vcssl.org/en-us/dev/code/main-jimpl/api/org/vcssl/nano/spec/ScriptWord.html
+// ドキュメント:   https://www.vcssl.org/ja-jp/dev/code/main-jimpl/api/org/vcssl/nano/spec/ScriptWord.html
 
 /**
  * <p>
@@ -23,7 +25,14 @@ import java.util.HashSet;
  * </p>
  *
  * <p>
- * &raquo <a href="../../../../../src/org/vcssl/nano/spec/ScriptWord.java">Source code</a>
+ * &raquo; <a href="../../../../../src/org/vcssl/nano/spec/ScriptWord.java">Source code</a>
+ * </p>
+ *
+ * <hr>
+ *
+ * <p>
+ * | <a href="../../../../../api/org/vcssl/nano/spec/ScriptWord.html">Public Only</a>
+ * | <a href="../../../../../api-all/org/vcssl/nano/spec/ScriptWord.html">All</a> |
  * </p>
  *
  * @author RINEARN (Fumihiro Matsui)
@@ -183,7 +192,7 @@ public class ScriptWord {
 
 
 	/**
-	 * <span class="lang-en">The symbol of the non-equality comparison operator: "&#33;="</span>
+	 * <span class="lang-en">The symbol of the "non-equality" comparison operator: "&#33;="</span>
 	 * <span class="lang-ja">非等値比較演算子の記号「 &#33;= 」です</span>
 	 * .
 	 */
@@ -191,40 +200,40 @@ public class ScriptWord {
 
 
 	/**
-	 * <span class="lang-en">The symbol of the "grater-than" comparison operator: ">"</span>
-	 * <span class="lang-ja">大なり比較演算子の記号「 > 」です</span>
+	 * <span class="lang-en">The symbol of the "grater-than" comparison operator: "&gt;"</span>
+	 * <span class="lang-ja">大なり比較演算子の記号「 &gt; 」です</span>
 	 * .
 	 */
 	public static final String GRATER_THAN = ">";
 
 
 	/**
-	 * <span class="lang-en">The symbol of the "grater-equal" comparison operator: ">="</span>
-	 * <span class="lang-ja">大なり等値（以上）比較演算子の記号「 >= 」です</span>
+	 * <span class="lang-en">The symbol of the "grater-equal" comparison operator: "&gt;="</span>
+	 * <span class="lang-ja">大なり等値（以上）比較演算子の記号「 &gt;= 」です</span>
 	 * .
 	 */
 	public static final String GRATER_EQUAL = ">=";
 
 
 	/**
-	 * <span class="lang-en">The symbol of the "less-than" comparison operator: "<"</span>
-	 * <span class="lang-ja">小なり比較演算子の記号「 < 」です</span>
+	 * <span class="lang-en">The symbol of the "less-than" comparison operator: "&lt;"</span>
+	 * <span class="lang-ja">小なり比較演算子の記号「 &lt; 」です</span>
 	 * .
 	 */
 	public static final String LESS_THAN = "<";
 
 
 	/**
-	 * <span class="lang-en">The symbol of the "less-equal" comparison operator: "<="</span>
-	 * <span class="lang-ja">小なり等値（以下）比較演算子の記号「 <= 」です</span>
+	 * <span class="lang-en">The symbol of the "less-equal" comparison operator: "&lt;="</span>
+	 * <span class="lang-ja">小なり等値（以下）比較演算子の記号「 &lt;= 」です</span>
 	 * .
 	 */
 	public static final String LESS_EQUAL = "<=";
 
 
 	/**
-	 * <span class="lang-en">(Unsupported) The symbol of bitwise-logical-and operator: "&"</span>
-	 * <span class="lang-ja">（未サポート）ビット論理積演算子の記号「 & 」です</span>
+	 * <span class="lang-en">(Unsupported) The symbol of bitwise-logical-and operator: "&amp;"</span>
+	 * <span class="lang-ja">（未サポート）ビット論理積演算子の記号「 &amp; 」です</span>
 	 * .
 	 */
 	public static final String BIT_AND = "&";
@@ -239,8 +248,8 @@ public class ScriptWord {
 
 
 	/**
-	 * <span class="lang-en">The symbol of logical-and operator: "&&"</span>
-	 * <span class="lang-ja">論理積演算子の記号「 && 」です</span>
+	 * <span class="lang-en">The symbol of logical-and operator: "&amp;&amp;"</span>
+	 * <span class="lang-ja">論理積演算子の記号「 &amp;&amp; 」です</span>
 	 * .
 	 */
 	public static final String AND = "&&";

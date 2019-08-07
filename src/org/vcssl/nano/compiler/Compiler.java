@@ -17,6 +17,9 @@ import org.vcssl.nano.spec.DataTypeName;
 import org.vcssl.nano.spec.OptionKey;
 import org.vcssl.nano.spec.OptionValue;
 
+//Documentation:  https://www.vcssl.org/en-us/dev/code/main-jimpl/api/org/vcssl/nano/compiler/Compiler.html
+//ドキュメント:   https://www.vcssl.org/ja-jp/dev/code/main-jimpl/api/org/vcssl/nano/compiler/Compiler.html
+
 /**
  * <p>
  * <span>
@@ -47,7 +50,14 @@ import org.vcssl.nano.spec.OptionValue;
  * </p>
  *
  * <p>
- * &raquo <a href="../../../../../src/org/vcssl/nano/compiler/Compiler.java">Source code</a>
+ * &raquo; <a href="../../../../../src/org/vcssl/nano/compiler/Compiler.java">Source code</a>
+ * </p>
+ *
+ * <hr>
+ *
+ * <p>
+ * | <a href="../../../../../api/org/vcssl/nano/compiler/Compiler.html">Public Only</a>
+ * | <a href="../../../../../api-all/org/vcssl/nano/compiler/Compiler.html">All</a> |
  * </p>
  *
  * @author RINEARN (Fumihiro Matsui)
@@ -150,7 +160,7 @@ public class Compiler {
 
 		// EVAL_NUMBER_AS_FLOAT オプションが有効な場合、エンジンのevalに渡されたスクリプト内のintリテラルをfloat型に変更
 		if (evalNumberAsFloat) {
-			tokens[scriptLength-1] = lexer.replaceDataTypeOfLiteralTokens( // [scriptLength-1]番目はeval対象のスクリプト
+			tokens[scriptLength-1] = this.replaceDataTypeOfLiteralTokens( // [scriptLength-1]番目はeval対象のスクリプト
 				tokens[scriptLength-1], DataTypeName.INT, DataTypeName.FLOAT
 			);
 		}
@@ -321,6 +331,40 @@ public class Compiler {
 		if (withHeader) {
 			dumpStream.println("");
 		}
+	}
+
+
+	/**
+	 * <span class="lang-ja">トークン配列の中で、特定のデータ型のリテラルを、別のデータ型に置き換えます</span>
+	 * .
+	 * <span class="lang-ja">この処理は EVAL_NUMBER_AS_FLOAT オプションの挙動のために使用されます. </span>
+	 *
+	 * @param tokens
+	 *   <span class="lang-ja">対象のトークン配列.</span>
+	 *
+	 * @param fromTypeName
+	 *   <span class="lang-ja">置き換え前のデータ型.</span>
+	 *
+	 * @param toTypeName
+	 *   <span class="lang-ja">置き換え後のデータ型.</span>
+	 *
+	 * @return
+	 *   <span class="lang-ja">リテラルのデータ型を置き換えたトークン配列.</span>
+	 */
+	private Token[] replaceDataTypeOfLiteralTokens(Token[] tokens, String fromTypeName, String toTypeName) {
+		int tokenLength = tokens.length;
+		Token[] replacedTokens = new Token[tokenLength];
+		for (int tokenIndex=0; tokenIndex<tokenLength; tokenIndex++) {
+			Token token = tokens[tokenIndex].clone();
+			if (token.getType() == Token.Type.LEAF
+				&& token.getAttribute(AttributeKey.LEAF_TYPE).equals(AttributeValue.LITERAL)
+				&& token.getAttribute(AttributeKey.DATA_TYPE).equals(DataTypeName.INT) ) {
+
+				token.setAttribute(AttributeKey.DATA_TYPE, DataTypeName.FLOAT);
+			}
+			replacedTokens[tokenIndex] = token;
+		}
+		return replacedTokens;
 	}
 
 }

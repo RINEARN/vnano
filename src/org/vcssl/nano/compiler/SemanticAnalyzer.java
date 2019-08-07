@@ -24,35 +24,73 @@ import org.vcssl.nano.spec.ErrorType;
 import org.vcssl.nano.spec.IdentifierSyntax;
 import org.vcssl.nano.spec.ScriptWord;
 
+//Documentation:  https://www.vcssl.org/en-us/dev/code/main-jimpl/api/org/vcssl/nano/compiler/SemanticAnalyzer.html
+//ドキュメント:   https://www.vcssl.org/ja-jp/dev/code/main-jimpl/api/org/vcssl/nano/compiler/SemanticAnalyzer.html
 
 /**
  * <p>
- * コンパイラ内において、
- * {@link Parser Parser} （構文解析器）が出力した
- * 抽象構文木（AST）に対して意味解析処理を行い、
- * コード生成に必要な情報の補間や異常の検出などを行う、意味解析器のクラスです。
+ * <span class="lang-en">
+ * The class performing the function of the semantic analyzer in the compiler of the Vnano
+ * </span>
+ * <span class="lang-ja">
+ * Vnano のコンパイラ内において, セマンティックアナライザ（意味解析器）の機能を担うクラスです
+ * </span>
+ * .
+ * </p>
+ *
+ * <p>
+ * &raquo; <a href="../../../../../src/org/vcssl/nano/compiler/SemanticAnalyzer.java">Source code</a>
+ * </p>
+ *
+ * <hr>
+ *
+ * <p>
+ * | <a href="../../../../../api/org/vcssl/nano/compiler/SemanticAnalyzer.html">Public Only</a>
+ * | <a href="../../../../../api-all/org/vcssl/nano/compiler/SemanticAnalyzer.html">All</a> |
  * </p>
  *
  * @author RINEARN (Fumihiro Matsui)
  */
 public class SemanticAnalyzer {
 
-
 	/**
-	 * このクラスは状態を保持するフィールドを持たないため、コンストラクタは何もしません。
+	 * <span class="lang-en">
+	 * This constructor does nothing, because this class has no fields for storing state
+	 * </span>
+	 * <span class="lang-ja">
+	 * このクラスは状態を保持するフィールドを持たないため, コンストラクタは何もしません
+	 * </span>
+	 * .
 	 */
 	public SemanticAnalyzer() {
 	}
 
 
 	/**
-	 * AST(抽象構文木)の内容を解析し、コード生成に必要な各種情報を補完した、新しいASTを生成して返します。
+	 * <span class="lang-en">
+	 * Analyze semantics of the AST and, returns new AST of which information
+	 * required for generating intermediate code are supplemented
+	 * </span>
+	 * <span class="lang-ja">
+	 * ASTの意味（セマンティクス）を解析し、
+	 * 中間コード生成に必要な各種情報を補完した、新しいASTを生成して返します
+	 * <.span>
+	 * .
+	 * @param inputAst
+	 *   <span class="lang-en">The root node of the AST to be analyzed.</span>
+	 *   <span class="lang-ja">解析対象のASTのルートノード.</span>
 	 *
-	 * @param inputAst 解析対象のASTのルートノード
-	 * @param Intterconnect interconnect 外部変数・関数の情報を保持しているインターコネクト
-	 * @return 各種情報を補完したASTのルートノード
-	 * @throws DataException ローカル変数のデータ型が無効な場合に発生します。
-	 * @throws VnanoException 存在しない変数を参照している場合に発生します。
+	 * @param Intterconnect interconnect
+	 *   <span class="lang-en">The interconnect to which external variables/functions are connected.</span>
+	 *   <span class="lang-ja">外部変数・関数が接続されているインターコネクト.</span>
+	 *
+	 * @return
+	 *   <span class="lang-en">The semantic-analyzed/information-supplemented AST.</span>
+	 *   <span class="lang-ja">意味解析/情報補間済みのAST.</span>
+	 *
+	 * @throws VnanoException
+	 *   <span class="lang-en">Thrown when any semantic error has detected.</span>
+	 *   <span class="lang-ja">セマンティクスにエラーが検出された場合にスローされます.</span>
 	 */
 	public AstNode analyze(AstNode inputAst, Interconnect interconnect)
 			throws VnanoException {
@@ -124,7 +162,7 @@ public class SemanticAnalyzer {
 		Deque<Integer>scopeLocalVariableCounterStack = new ArrayDeque<Integer>();
 
 		do {
-			currentNode = currentNode.getPreorderDfsTraversalNextNode();
+			currentNode = currentNode.getPreorderDftNextNode();
 			lastBlockDepth = currentBlockDepth;
 			currentBlockDepth = currentNode.getBlockDepth();
 
@@ -196,7 +234,7 @@ public class SemanticAnalyzer {
 					);
 				}
 			}
-		} while (!currentNode.isPreorderDfsTraversalLastNode());
+		} while (!currentNode.isPreorderDftLastNode());
 	}
 
 
@@ -218,7 +256,7 @@ public class SemanticAnalyzer {
 		AstNode currentNode = astRootNode;
 
 		do {
-			currentNode = currentNode.getPreorderDfsTraversalNextNode();
+			currentNode = currentNode.getPreorderDftNextNode();
 
 			// ローカル関数宣言文ノードの場合: ローカル関数マップに追加し、ノード自身にローカル関数インデックスやスコープも設定
 			if (currentNode.getType() == AstNode.Type.FUNCTION) {
@@ -259,7 +297,7 @@ public class SemanticAnalyzer {
 				localFunctionTable.addFunction(function);
 			}
 
-		} while (!currentNode.isPreorderDfsTraversalLastNode());
+		} while (!currentNode.isPreorderDftLastNode());
 
 		return localFunctionTable;
 	}
@@ -321,7 +359,7 @@ public class SemanticAnalyzer {
 
 		AstNode currentNode = astRootNode;
 		do {
-			currentNode = currentNode.getPreorderDfsTraversalNextNode();
+			currentNode = currentNode.getPreorderDftNextNode();
 
 			// リテラルのリーフノードの場合: 属性値を求めて設定
 			if (currentNode.getType() == AstNode.Type.LEAF
@@ -334,7 +372,7 @@ public class SemanticAnalyzer {
 				// String literal = currentNode.getAttribute(AttributeKey.LITERAL_VALUE);
 				// currentNode.setAttribute(AttributeKey.DATA_TYPE, LiteralSyntax.getDataTypeNameOfLiteral(literal));
 			}
-		} while (!currentNode.isPreorderDfsTraversalLastNode());
+		} while (!currentNode.isPreorderDftLastNode());
 	}
 
 
@@ -366,7 +404,7 @@ public class SemanticAnalyzer {
 
 
 		// 構文木の全ノードに対し、末端からボトムアップの順序で辿りながら処理する
-		AstNode currentNode = astRootNode.getPostorderDfsTraversalFirstNode();
+		AstNode currentNode = astRootNode.getPostorderDftFirstNode();
 		while(currentNode != astRootNode) {
 
 			if(currentNode.getType() == AstNode.Type.OPERATOR) {
@@ -532,7 +570,7 @@ public class SemanticAnalyzer {
 			}
 
 			// 次のノードへボトムアップの順序で移動
-			currentNode = currentNode.getPostorderDfsTraversalNextNode();
+			currentNode = currentNode.getPostorderDftNextNode();
 		}
 	}
 
@@ -554,7 +592,7 @@ public class SemanticAnalyzer {
 	 */
 	private void supplementExpressionAttributes(AstNode astRootNode) {
 
-		AstNode currentNode = astRootNode.getPostorderDfsTraversalFirstNode();
+		AstNode currentNode = astRootNode.getPostorderDftFirstNode();
 		while(currentNode != astRootNode) {
 
 			if(currentNode.getType() == AstNode.Type.EXPRESSION) {
@@ -563,7 +601,7 @@ public class SemanticAnalyzer {
 				currentNode.setAttribute(AttributeKey.RANK, Integer.toString(inputNodes[0].getRank()));
 			}
 
-			currentNode = currentNode.getPostorderDfsTraversalNextNode();
+			currentNode = currentNode.getPostorderDftNextNode();
 		}
 	}
 
@@ -742,7 +780,7 @@ public class SemanticAnalyzer {
 	private void checkFunctionAttributes(AstNode astRootNode) throws VnanoException {
 
 		// ASTノードを辿り、関数ノードがあれば検査
-		AstNode currentNode = astRootNode.getPostorderDfsTraversalFirstNode();
+		AstNode currentNode = astRootNode.getPostorderDftFirstNode();
 		while(currentNode != astRootNode) {
 
 			// 関数ノードの場合
@@ -771,7 +809,7 @@ public class SemanticAnalyzer {
 
 			} // 関数ノードの場合
 
-			currentNode = currentNode.getPostorderDfsTraversalNextNode();
+			currentNode = currentNode.getPostorderDftNextNode();
 		} // ASTを辿るループ
 	}
 

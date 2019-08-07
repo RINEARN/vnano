@@ -12,6 +12,8 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptEngineFactory;
 import org.vcssl.nano.spec.EngineInformation;
 
+//Documentation:  https://www.vcssl.org/en-us/dev/code/main-jimpl/api/org/vcssl/nano/VnanoScriptEngineFactory.html
+//ドキュメント:   https://www.vcssl.org/ja-jp/dev/code/main-jimpl/api/org/vcssl/nano/VnanoScriptEngineFactory.html
 
 /**
  * <span class="lang-en">
@@ -23,7 +25,14 @@ import org.vcssl.nano.spec.EngineInformation;
  * .
  *
  * <p>
- * &raquo <a href="../../../../src/org/vcssl/nano/VnanoScriptEngineFactory.java">Source code</a>
+ * &raquo; <a href="../../../../src/org/vcssl/nano/VnanoScriptEngineFactory.java">Source code</a>
+ * </p>
+ *
+ * <hr>
+ *
+ * <p>
+ * | <a href="../../../../api/org/vcssl/nano/VnanoScriptEngineFactory.html">Public Only</a>
+ * | <a href="../../../../api-all/org/vcssl/nano/VnanoScriptEngineFactory.html">All</a> |
  * </p>
  *
  * @author RINEARN (Fumihiro Matsui)

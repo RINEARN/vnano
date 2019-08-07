@@ -10,17 +10,27 @@ import java.util.Locale;
 import org.vcssl.nano.spec.ErrorMessage;
 import org.vcssl.nano.spec.ErrorType;
 
+//Documentation:  https://www.vcssl.org/en-us/dev/code/main-jimpl/api/org/vcssl/nano/VnanoException.html
+//ドキュメント:   https://www.vcssl.org/ja-jp/dev/code/main-jimpl/api/org/vcssl/nano/VnanoException.html
+
 /**
- * <span class="lang-ja">
- * スクリプトコードの内容や実行過程に, 通常想定される範囲内のエラーが検出された際にスローされる例外です
- * </span>
  * <span class="lang-en">
  * The exception class thrown when the (usual type of) error detected for contents or processing of scripts
+ * </span>
+ * <span class="lang-ja">
+ * スクリプトコードの内容や実行過程に, 通常想定される範囲内のエラーが検出された際にスローされる例外です
  * </span>
  * .
  *
  * <p>
- * &raquo <a href="../../../../src/org/vcssl/nano/VnanoException.java">Source code</a>
+ * &raquo; <a href="../../../../src/org/vcssl/nano/VnanoException.java">Source code</a>
+ * </p>
+ *
+ * <hr>
+ *
+ * <p>
+ * | <a href="../../../../api/org/vcssl/nano/VnanoException.html">Public Only</a>
+ * | <a href="../../../../api-all/org/vcssl/nano/VnanoException.html">All</a> |
  * </p>
  *
  * @author RINEARN (Fumihiro Matsui)

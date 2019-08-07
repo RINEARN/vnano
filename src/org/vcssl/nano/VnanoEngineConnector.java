@@ -9,6 +9,9 @@ import java.util.Map;
 
 import org.vcssl.connect.EngineConnector1;
 
+//Documentation:  https://www.vcssl.org/en-us/dev/code/main-jimpl/api/org/vcssl/nano/VnanoEngineConnector.html
+//ドキュメント:   https://www.vcssl.org/ja-jp/dev/code/main-jimpl/api/org/vcssl/nano/VnanoEngineConnector.html
+
 /**
  * <span class="lang-en">
  * The connector class to access the script engine of the Vnano from plug-ins
@@ -19,7 +22,14 @@ import org.vcssl.connect.EngineConnector1;
  * .
  *
  * <p>
- * &raquo <a href="../../../../src/org/vcssl/nano/VnanoEngineConnector.java">Source code</a>
+ * &raquo; <a href="../../../../src/org/vcssl/nano/VnanoEngineConnector.java">Source code</a>
+ * </p>
+ *
+ * <hr>
+ *
+ * <p>
+ * | <a href="../../../../api/org/vcssl/nano/VnanoEngineConnector.html">Public Only</a>
+ * | <a href="../../../../api-all/org/vcssl/nano/VnanoEngineConnector.html">All</a> |
  * </p>
  *
  * @author RINEARN (Fumihiro Matsui)

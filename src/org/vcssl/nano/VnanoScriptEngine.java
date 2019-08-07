@@ -21,6 +21,8 @@ import javax.script.SimpleScriptContext;
 
 import org.vcssl.nano.spec.SpecialBindingKey;
 
+//Documentation:  https://www.vcssl.org/en-us/dev/code/main-jimpl/api/org/vcssl/nano/VnanoScriptEngine.html
+//ドキュメント:   https://www.vcssl.org/ja-jp/dev/code/main-jimpl/api/org/vcssl/nano/VnanoScriptEngine.html
 
 /**
  * <span class="lang-en">
@@ -34,7 +36,14 @@ import org.vcssl.nano.spec.SpecialBindingKey;
  * .
  *
  * <p>
- * &raquo <a href="../../../../src/org/vcssl/nano/VnanoScriptEngine.java">Source code</a>
+ * &raquo; <a href="../../../../src/org/vcssl/nano/VnanoScriptEngine.java">Source code</a>
+ * </p>
+ *
+ * <hr>
+ *
+ * <p>
+ * | <a href="../../../../api/org/vcssl/nano/VnanoScriptEngine.html">Public Only</a>
+ * | <a href="../../../../api-all/org/vcssl/nano/VnanoScriptEngine.html">All</a> |
  * </p>
  *
  * @author RINEARN (Fumihiro Matsui)
@@ -122,7 +131,7 @@ public class VnanoScriptEngine implements ScriptEngine {
 	 *   </span>
 	 *
 	 * @throws ScriptException
-	 *   <span class="lang-en">Thrown when an error will be detected for the content or the processing of the script.</span>
+	 *   <span class="lang-en">Thrown when any error has detected for the content or the processing of the script.</span>
 	 *   <span class="lang-ja">スクリプトの内容または実行過程にエラーが検出された場合にスローされます.</span>
 	 */
 	@Override

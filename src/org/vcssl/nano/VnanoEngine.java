@@ -15,6 +15,8 @@ import org.vcssl.nano.spec.OptionKey;
 import org.vcssl.nano.spec.OptionValue;
 import org.vcssl.nano.vm.VirtualMachine;
 
+//Documentation:  https://www.vcssl.org/en-us/dev/code/main-jimpl/api/org/vcssl/nano/VnanoEngine.html
+//ドキュメント:   https://www.vcssl.org/ja-jp/dev/code/main-jimpl/api/org/vcssl/nano/VnanoEngine.html
 
 /**
  * <span class="lang-en">The class of the script engine of the Vnano (Vnano Engine)</span>
@@ -31,7 +33,14 @@ import org.vcssl.nano.vm.VirtualMachine;
  * </span>
  *
  * <p>
- * &raquo <a href="../../../../src/org/vcssl/nano/VnanoEngine.java">Source code</a>
+ * &raquo; <a href="../../../../src/org/vcssl/nano/VnanoEngine.java">Source code</a>
+ * </p>
+ *
+ * <hr>
+ *
+ * <p>
+ * | <a href="../../../../api/org/vcssl/nano/VnanoEngine.html">Public Only</a>
+ * | <a href="../../../../api-all/org/vcssl/nano/VnanoEngine.html">All</a> |
  * </p>
  *
  * @author RINEARN (Fumihiro Matsui)
@@ -95,7 +104,7 @@ public class VnanoEngine {
 	 *   </span>
 	 *
 	 * @throws VnanoException
-	 *   <span class="lang-en">Thrown when an error will be detected for the content or the processing of the script.</span>
+	 *   <span class="lang-en">Thrown when any error has detected for the content or the processing of the script.</span>
 	 *   <span class="lang-ja">スクリプトの内容または実行過程にエラーが検出された場合にスローされます.</span>
 	 */
 	public Object executeScript(String script) throws VnanoException {

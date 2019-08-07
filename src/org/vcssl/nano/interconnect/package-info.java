@@ -9,15 +9,25 @@
  * いくつかの情報を管理・提供する機能を担うパッケージです
  * </span>
  * .
- *
  * <span class="lang-en">
  * We refer this component as "Interconnect" in the script engine of the Vnano Engine.
- * The outer-frame is {@link Interconnect Interconnect} class,
- * and others are internal components.
  * </span>
  * <span class="lang-ja">
  * この機能を担うコンポーネントを, Vnanoのスクリプトエンジンでは "インターコネクト" と呼びます.
- * 外枠となるのは {@link Interconnect Interconnect} クラスで,
+ * </span>
+ * </p>
+ *
+ * <p>
+ * &laquo; <a href="../package-summary.html">Upper layer package</a>
+ * </p>
+ *
+ * <p>
+ * <span class="lang-en">
+ * The outer-frame of the interconnect provided by this package is {@link Interconnect Interconnect} class,
+ * and others are internal components.
+ * </span>
+ * <span class="lang-ja">
+ * このパッケージが提供するインターコネクトの外枠となるのは {@link Interconnect Interconnect} クラスで,
  * 他は内部の構成クラスです.
  * </span>
  * </p>

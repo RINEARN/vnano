@@ -7,13 +7,19 @@
  * Vnanoのスクリプトエンジン内で, コンパイラの機能を担うパッケージです
  * </span>
  * .
+ * </p>
  *
+ * <p>
+ * &laquo; <a href="../package-summary.html">Upper layer package</a>
+ * </p>
+ *
+ * <p>
  * <span class="lang-en">
- * The outer-frame is {@link Compiler Compiler} class,
- * and others are internal components.
+ * The outer-frame of the compiler provided by this package is {@link Compiler Compiler} class,
+ * and other classes are internal components.
  * </span>
  * <span class="lang-ja">
- * 外枠となるのは {@link Compiler Compiler} クラスで,
+ * このパッケージが提供するコンパイラの外枠となるのは {@link Compiler Compiler} クラスで,
  * 他は内部の構成クラスです.
  * </span>
  * </p>

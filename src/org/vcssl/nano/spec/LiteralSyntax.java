@@ -12,7 +12,8 @@ import java.util.Iterator;
 import org.vcssl.nano.VnanoFatalException;
 import org.vcssl.nano.VnanoException;
 
-
+// Documentation:  https://www.vcssl.org/en-us/dev/code/main-jimpl/api/org/vcssl/nano/spec/LiteralSyntax.html
+// ドキュメント:   https://www.vcssl.org/ja-jp/dev/code/main-jimpl/api/org/vcssl/nano/spec/LiteralSyntax.html
 
 /**
  * <p>
@@ -27,7 +28,14 @@ import org.vcssl.nano.VnanoException;
  * </p>
  *
  * <p>
- * &raquo <a href="../../../../../src/org/vcssl/nano/spec/LiteralSyntax.java">Source code</a>
+ * &raquo; <a href="../../../../../src/org/vcssl/nano/spec/LiteralSyntax.java">Source code</a>
+ * </p>
+ *
+ * <hr>
+ *
+ * <p>
+ * | <a href="../../../../../api/org/vcssl/nano/spec/LiteralSyntax.html">Public Only</a>
+ * | <a href="../../../../../api-all/org/vcssl/nano/spec/LiteralSyntax.html">All</a> |
  * </p>
  *
  * @author RINEARN (Fumihiro Matsui)
