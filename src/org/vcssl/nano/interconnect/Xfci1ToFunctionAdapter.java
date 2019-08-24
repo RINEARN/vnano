@@ -70,7 +70,7 @@ public final class Xfci1ToFunctionAdapter extends AbstractFunction {
 		Class<?>[] parameterClasses = this.xfciPlugin.getParameterClasses();
 		int parameterLength = parameterClasses.length;
 
-		this.returnDataConverter = new DataConverter(this.xfciPlugin.getReturnClass());
+		this.returnDataConverter = new DataConverter(this.xfciPlugin.getReturnClass(parameterClasses));
 		this.returnDataType = this.returnDataConverter.getDataType();
 		this.returnArrayRank = this.returnDataConverter.getRank();
 

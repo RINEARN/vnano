@@ -1892,7 +1892,7 @@ Let's implement them:
 			@Override
 			public Class<?>[] getParameterClasses() { return new Class<?>[]{ int.class }; } 
 			@Override
-			public Class<?> getReturnClass() { return Void.class; }
+			public Class<?> getReturnClass(Class<?>[] parameterClasses) { return Void.class; }
 			@Override
 			public boolean isVariadic() { return false; }
 			@Override
@@ -2046,7 +2046,7 @@ Let's implement. The following is an example code:
 			@Override
 			public Class<?>[] getParameterClasses() { return new Class<?>[]{ int.class }; } 
 			@Override
-			public Class<?> getReturnClass() { return Void.class; }
+			public Class<?> getReturnClass(Class<?>[] parameterClasses) { return Void.class; }
 			@Override
 			public boolean isVariadic() { return false; }
 			@Override
