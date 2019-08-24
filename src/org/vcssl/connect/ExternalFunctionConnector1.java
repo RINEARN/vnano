@@ -126,9 +126,14 @@ public interface ExternalFunctionConnector1 {
 	/**
 	 * 戻り値のデータの型を表すClassインスタンスを取得します。
 	 *
-	 * @return データ型のClassインスタンス
+	 * parameterClasses には、スクリプト内での呼び出しにおける、引数のデータ型情報が渡されます。
+	 * これにより、引数の型によって戻り値の型が異なるだけの、
+	 * 複数の関数に相当する処理を、まとめて提供する事ができます。
+	 *
+	 * @param parameterClasses 全引数のデータ型のClassインスタンスを格納する配列
+	 * @return 戻り値のデータ型のClassインスタンス
 	 */
-	public abstract Class<?> getReturnClass();
+	public abstract Class<?> getReturnClass(Class<?>[] parameterClasses);
 
 
 	/**

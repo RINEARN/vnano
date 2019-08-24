@@ -137,10 +137,11 @@ public class MethodToXfci1Adapter implements ExternalFunctionConnector1 {
 	/**
 	 * 戻り値のデータの型を表すClassインスタンスを取得します。
 	 *
+	 * @param parameterClasses 全引数のデータ型のClassインスタンスを格納する配列
 	 * @return データ型のClassインスタンス
 	 */
 	@Override
-	public Class<?> getReturnClass() {
+	public Class<?> getReturnClass(Class<?>[] parameterClasses) {
 		return this.method.getReturnType();
 	}
 
