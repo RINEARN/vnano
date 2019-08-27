@@ -246,8 +246,8 @@ public class FunctionAliasAdapter extends AbstractFunction {
 	 *
 	 * @return 戻り値のデータ型名
 	 */
-	public String getReturnDataTypeName() {
-		return this.function.getReturnDataTypeName();
+	public String getReturnDataTypeName(String[] argumentDataTypeNames, int[] argumentArrayRanks) {
+		return this.function.getReturnDataTypeName(argumentDataTypeNames, argumentArrayRanks);
 	}
 
 
@@ -256,8 +256,8 @@ public class FunctionAliasAdapter extends AbstractFunction {
 	 *
 	 * @return 戻り値の配列次元数
 	 */
-	public int getReturnArrayRank() {
-		return this.function.getReturnArrayRank();
+	public int getReturnArrayRank(String[] argumentDataTypeNames, int[] argumentArrayRanks) {
+		return this.function.getReturnArrayRank(argumentDataTypeNames, argumentArrayRanks);
 	}
 
 

@@ -7,12 +7,17 @@ package org.vcssl.nano.main;
 
 import java.util.List;
 import java.util.Locale;
+import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
@@ -21,6 +26,9 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
+import org.vcssl.connect.ConnectorException;
+import org.vcssl.connect.ConnectorImplementationContainer;
+import org.vcssl.connect.ConnectorImplementationLoader;
 import org.vcssl.nano.VnanoException;
 import org.vcssl.nano.interconnect.Interconnect;
 import org.vcssl.nano.spec.SpecialBindingKey;
@@ -48,6 +56,8 @@ public final class VnanoCommandLineApplication {
 	private static final String OPTION_NAME_LOCALE = "locale";
 	private static final String OPTION_NAME_ACCELERATOR = "accelerator";
 	private static final String OPTION_NAME_ENCODING = "encoding";
+	private static final String OPTION_NAME_PLUGIN_DIR = "pluginDir";
+	private static final String OPTION_NAME_PLUGIN = "plugin";
 	private static final String OPTION_NAME_DEFAULT = OPTION_NAME_FILE;
 
 	private static final String DUMP_TARGET_INPUTTED_CODE = "inputtedCode";
@@ -61,6 +71,8 @@ public final class VnanoCommandLineApplication {
 	private static final String DUMP_TARGET_ACCELERATOR_STATE = "acceleratorState";
 	private static final String DUMP_TARGET_ALL = "all";
 	private static final String DUMP_TARGET_DEFAULT = DUMP_TARGET_ALL;
+
+	private static final String DEFAULT_PLUGIN_DIR = ".";
 
 	// コマンドラインでの--dumpオプションの値を、スクリプトエンジンのオプションマップ用の値に変換するマップ
 	private static final Map<String, String> DUMP_TARGET_ARGVALUE_OPTVALUE_MAP = new HashMap<String, String>();
@@ -78,7 +90,8 @@ public final class VnanoCommandLineApplication {
 	}
 
 	private HashMap<String, Object> optionMap = new HashMap<String, Object>();
-
+	private List<String> pluginDirList = new LinkedList<String>();
+	private List<Object> pluginList = new LinkedList<Object>();
 	private String encoding = null;
 
 	// スクリプトからアクセスするメソッドを提供するクラス
@@ -229,8 +242,36 @@ public final class VnanoCommandLineApplication {
 		System.out.println("      java -jar Vnano.jar Example.vnano --accelerator true");
 		System.out.println("      java -jar Vnano.jar Example.vnano --accelerator false");
 		System.out.println("");
+		System.out.println("");
 
-		System.out.println("[ Supported Functions ]");
+		System.out.println("  --pluginDir <pluginDirectoryPath>");
+		System.out.println("");
+		System.out.println("      Specify the path of the directory in which plug-ins are.");
+		System.out.println("      Multiple paths can be specified by separating with \":\" or \";\"");
+		System.out.println("      (depends on the environment).");
+		System.out.println("      The default value is \".\".");
+		System.out.println("");
+		System.out.println("");
+
+		System.out.println("  --plugin <pluginPath>");
+		System.out.println("");
+		System.out.println("      Specify the path of the plug-in to be connected.");
+		System.out.println("      Multiple paths can be specified by separating with \":\" or \";\"");
+		System.out.println("      (depends on the environment).");
+		System.out.println("      If the plug-in is not in the current directory,");
+		System.out.println("      specify the plug-in directory by --pluginDir option BEFORE this option.");
+		System.out.println("");
+		System.out.println("    e.g.");
+		System.out.println("");
+		System.out.println("      java -jar Vnano.jar Example.vnano --plugin ExamplePlugin");
+		System.out.println("      java -jar Vnano.jar Example.vnano --plugin examplepackage.ExamplePlugin");
+		System.out.println("      java -jar Vnano.jar Example.vnano --plugin \"Plugin1;Plugin2;Plugin3\"");
+		System.out.println("      java -jar Vnano.jar Example.vnano --plugin \"Plugin1:Plugin2:Plugin3\"");
+		System.out.println("      java -jar Vnano.jar Example.vnano --pluginDir \"./plugin/\" --plugin \"ExamplePlugin\"");
+		System.out.println("");
+		System.out.println("");
+
+		System.out.println("[ Default Supported Functions ]");
 		System.out.println("");
 		System.out.println("    For development and debugging, following functions are available");
 		System.out.println("    in the script code running on this mode:");
@@ -284,6 +325,9 @@ public final class VnanoCommandLineApplication {
 		boolean optionProcessingSucceeded = true;
 		Set<Map.Entry<String, String>> optionNameValueSet = optionNameValueMap.entrySet();
 		for (Map.Entry<String, String> optionNameValuePair : optionNameValueSet) {
+			if (!optionProcessingSucceeded) {
+				break;
+			}
 			String optionName = optionNameValuePair.getKey();
 			String optionValue = optionNameValuePair.getValue();
 			optionProcessingSucceeded &= this.dispatchOptionProcessing(optionName, optionValue, inputFilePath);
@@ -374,6 +418,64 @@ public final class VnanoCommandLineApplication {
 				return true;
 			}
 
+			// --pluginDir オプションの場合
+			case OPTION_NAME_PLUGIN_DIR : {
+
+				// プラグインディレクトリを分割してリストに格納
+				String[] pluginDirs = new String[0];
+				if (optionValue != null) {
+					pluginDirs = optionValue.split(System.getProperty("path.separator"));
+				}
+				for (String pluginDir: pluginDirs) {
+					this.pluginDirList.add(pluginDir);
+				}
+				return true;
+			}
+
+			// --plugin オプションの場合
+			case OPTION_NAME_PLUGIN : {
+
+				// プラグインパスを分割
+				String[] pluginPaths = new String[0];
+				if (optionValue != null) {
+					pluginPaths = optionValue.split(System.getProperty("path.separator"));
+				}
+
+				// --pluginDir で指定されてリストに格納されている、プラグインディレクトリ（複数）をURLに変換
+				String[] pluginDirs = new String[] { DEFAULT_PLUGIN_DIR };
+				if (0 < this.pluginDirList.size()) {
+					pluginDirs = this.pluginDirList.toArray(new String[0]);
+				}
+				int pluginDirLength = pluginDirs.length;
+				URL[] pluginDirURLs = new URL[pluginDirLength];
+				for (int dirIndex=0; dirIndex<pluginDirLength; dirIndex++) {
+					try {
+						pluginDirURLs[dirIndex] = new File(pluginDirs[dirIndex]).toURI().toURL();
+					} catch (MalformedURLException e) {
+						System.err.print("Invalid plugin directory: " + pluginDirs[dirIndex]);
+						return false;
+					}
+				}
+
+				// プラグインディレクトリを読み込み場所とするクラスローダと、それを用いるプラグインローダを生成
+				URLClassLoader classLoader = new URLClassLoader(pluginDirURLs);
+				ConnectorImplementationLoader pluginLoader = new ConnectorImplementationLoader(classLoader);
+
+				// プラグイン（複数）を全て読み込み、リストに格納
+				for (String pluginPath: pluginPaths) {
+					try {
+						ConnectorImplementationContainer pluginContainer = pluginLoader.load(pluginPath);
+						Object plugin = pluginContainer.getConnectorImplementation();
+						this.pluginList.add(plugin);
+					} catch (ConnectorException e) {
+						System.err.println("Plug-in connection failed: " + pluginPath);
+						e.printStackTrace();
+					}
+				}
+
+				return true;
+			}
+
 			// その他のオプションの場合
 			default : {
 				System.err.println("Unknown option name: " + optionName);
@@ -388,7 +490,7 @@ public final class VnanoCommandLineApplication {
 		List<String> optionNameList = new LinkedList<String>();
 
 		// オプションの名前をキーとし、その指定内容を値とする紐づけるマップ
-		HashMap<String, String> optionNameValueMap = new HashMap<String, String>();
+		Map<String, String> optionNameValueMap = new LinkedHashMap<String, String>();
 
 		// オプション名の指定（「--」で始まる引数）があった場合に内容を控え、値を読んでマップ登録する際に使う
 		boolean currentArgIsOption = false;
@@ -439,7 +541,7 @@ public final class VnanoCommandLineApplication {
 	}
 
 
-	private ScriptEngine createInitializedScriptEngine() {
+	private ScriptEngine createInitializedScriptEngine(List<Object> pluginList) {
 
 		// ScriptEngineManagerでVnanoのスクリプトエンジンを検索して取得
 		ScriptEngineManager manager = new ScriptEngineManager();
@@ -452,17 +554,23 @@ public final class VnanoCommandLineApplication {
 		// メソッド・フィールドを外部関数・変数としてスクリプトエンジンに接続
 		try {
 			ScriptIO ioInstance = new ScriptIO();
-			engine.put("output(int)",    new Object[]{ ScriptIO.class.getMethod("output",long.class    ), ioInstance } );
-			engine.put("output(float)",  new Object[]{ ScriptIO.class.getMethod("output",double.class ), ioInstance } );
-			engine.put("output(bool)",   new Object[]{ ScriptIO.class.getMethod("output",boolean.class), ioInstance } );
-			engine.put("output(string)", new Object[]{ ScriptIO.class.getMethod("output",String.class ), ioInstance } );
-			engine.put("time()",         new Object[]{ ScriptIO.class.getMethod("time"), ioInstance } );
+			engine.put(SpecialBindingKey.AUTO_KEY, new Object[]{ ScriptIO.class.getMethod("output",long.class    ), ioInstance } );
+			engine.put(SpecialBindingKey.AUTO_KEY, new Object[]{ ScriptIO.class.getMethod("output",double.class ), ioInstance } );
+			engine.put(SpecialBindingKey.AUTO_KEY, new Object[]{ ScriptIO.class.getMethod("output",boolean.class), ioInstance } );
+			engine.put(SpecialBindingKey.AUTO_KEY, new Object[]{ ScriptIO.class.getMethod("output",String.class ), ioInstance } );
+			engine.put(SpecialBindingKey.AUTO_KEY, new Object[]{ ScriptIO.class.getMethod("time"), ioInstance } );
 
 		} catch (NoSuchMethodException e){
 			System.err.println("Method/field not found.");
 			e.printStackTrace();
 			return null;
 		}
+
+		// オプションで指定されたプラグイン（読み込み済み）を接続
+		for (Object plugin: pluginList) {
+			engine.put(SpecialBindingKey.AUTO_KEY, plugin);
+		}
+
 		return engine;
 	}
 
@@ -533,7 +641,7 @@ public final class VnanoCommandLineApplication {
 		}
 
 		// メソッド接続済みのスクリプトエンジンを生成して取得
-		ScriptEngine engine = this.createInitializedScriptEngine();
+		ScriptEngine engine = this.createInitializedScriptEngine(this.pluginList);
 		if (engine == null) {
 			return;
 		}

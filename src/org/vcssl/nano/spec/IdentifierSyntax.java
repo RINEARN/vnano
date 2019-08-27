@@ -156,29 +156,6 @@ public class IdentifierSyntax {
 		return signature;
 	}
 
-
-
-	public static String getAssemblyIdentifierOf(String functionName,
-			String[] parameterDataTypeNames, int[] parameterArrayRanks) {
-
-		return AssemblyWord.OPERAND_PREFIX_IDENTIFIER
-				+ getSignatureOf(functionName, parameterDataTypeNames, parameterArrayRanks);
-	}
-
-	public static String getAssemblyIdentifierOfCalleeFunctionOf(AstNode callerNode) {
-		return AssemblyWord.OPERAND_PREFIX_IDENTIFIER
-				+ getSignatureOfCalleeFunctionOf(callerNode);
-	}
-
-	public static String getAssemblyIdentifierOf(AbstractFunction connector) {
-		return getAssemblyIdentifierOf(connector, "");
-	}
-
-	public static String getAssemblyIdentifierOf(AbstractFunction connector, String nameSpacePrefix) {
-		return AssemblyWord.OPERAND_PREFIX_IDENTIFIER
-				+ getSignatureOf(connector, nameSpacePrefix);
-	}
-
 	// 後の工程での削除候補
 	public static String getAssemblyIdentifierOf(String variableName) {
 		return AssemblyWord.OPERAND_PREFIX_IDENTIFIER + variableName;

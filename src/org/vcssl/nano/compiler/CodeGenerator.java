@@ -448,7 +448,9 @@ public class CodeGenerator {
 				// 関数識別子
 				if(isLeaf && leafType == AttributeValue.FUNCTION_IDENTIFIER) {
 					AstNode callOperatorNode = currentNode.getParentNode();
-					String assemblyValue = IdentifierSyntax.getAssemblyIdentifierOfCalleeFunctionOf(callOperatorNode);
+					String calleeSignature = callOperatorNode.getAttribute(AttributeKey.CALLEE_SIGNATURE);
+					String assemblyValue = AssemblyWord.OPERAND_PREFIX_IDENTIFIER + calleeSignature;
+					//String assemblyValue = IdentifierSyntax.getAssemblyIdentifierOfCalleeFunctionOf(callOperatorNode);
 					currentNode.setAttribute(AttributeKey.ASSEMBLY_VALUE, assemblyValue);
 
 				// 変数または変数識別子
@@ -2108,7 +2110,9 @@ public class CodeGenerator {
 				&& currentNode.getAttribute(AttributeKey.OPERATOR_EXECUTOR).equals(AttributeValue.CALL)) {
 
 				// 呼び出し対象関数のアセンブリコード用識別子を生成
-				String identifier = IdentifierSyntax.getAssemblyIdentifierOfCalleeFunctionOf(currentNode);
+				String calleeSignature = currentNode.getAttribute(AttributeKey.CALLEE_SIGNATURE);
+				String identifier = AssemblyWord.OPERAND_PREFIX_IDENTIFIER + calleeSignature;
+				//String identifier = IdentifierSyntax.getAssemblyIdentifierOfCalleeFunctionOf(currentNode);
 
 				// 呼び出し対象関数のスコープを取得
 				String scope = currentNode.getAttribute(AttributeKey.SCOPE);

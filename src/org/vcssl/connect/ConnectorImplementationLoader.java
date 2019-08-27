@@ -23,6 +23,7 @@ public class ConnectorImplementationLoader {
 	private static final String INTERFACE_GENERATION_FIELD_NAME = "INTERFACE_GENERATION";
 
 	private ClassLoader classLoader = null;
+	private boolean interfaceFilterEnabled = false;
 
 	public ConnectorImplementationLoader() {
 		this.classLoader = null;
@@ -45,6 +46,14 @@ public class ConnectorImplementationLoader {
 			directoryURLs[directoryIndex] = directoryURL;
 		}
 		this.classLoader = new URLClassLoader(directoryURLs);
+	}
+
+	public void setInterfaceFilterEnabled(boolean enabled) {
+		this.interfaceFilterEnabled = enabled;
+	}
+
+	public boolean isInterfaceFilterEnabled() {
+		return this.interfaceFilterEnabled;
 	}
 
 	public ConnectorImplementationContainer load(String connectorImplementationName)
@@ -100,12 +109,14 @@ public class ConnectorImplementationLoader {
 				interfaceType = "GPCI";
 				interfaceGeneration = "1";
 			} else {
-				throw new ConnectorException(
-					"Invalid implementation (unknown interface): "
-					+ connectorImplementationName
-					+ " (interface-type: " + interfaceType + ", "
-					+ "interface-generation: " + interfaceGeneration + ")", e
-				);
+				if (this.interfaceFilterEnabled) {
+					throw new ConnectorException(
+						"Invalid implementation (unknown interface): "
+						+ connectorImplementationName
+						+ " (interface-type: " + interfaceType + ", "
+						+ "interface-generation: " + interfaceGeneration + ")", e
+					);
+				}
 			}
 		}
 
@@ -125,6 +136,9 @@ public class ConnectorImplementationLoader {
 		String interfaceType = container.getInterfaceType();
 		String interfaceGeneration = container.getInterfaceGeneration();
 		if (interfaceType == null) {
+			if (!this.interfaceFilterEnabled) {
+				return;
+			}
 			throw new ConnectorException(
 				"Invalid implementation (null interface-type): " + connectorImplementationName
 			);
@@ -196,12 +210,14 @@ public class ConnectorImplementationLoader {
 			}
 
 			default : {
-				throw new ConnectorException(
-					"Invalid implementation (unsupported interface): "
-					+ connectorImplementationName
-					+ " (interface-type: " + interfaceType + ", "
-					+ "interface-generation: " + interfaceGeneration + ")"
-				);
+				if (this.interfaceFilterEnabled) {
+					throw new ConnectorException(
+						"Invalid implementation (unsupported interface): "
+						+ connectorImplementationName
+						+ " (interface-type: " + interfaceType + ", "
+						+ "interface-generation: " + interfaceGeneration + ")"
+					);
+				}
 			}
 
 		} // end of switch

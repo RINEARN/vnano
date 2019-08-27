@@ -65,12 +65,12 @@ public final class Function extends AbstractFunction {
 	}
 
 	@Override
-	public final String getReturnDataTypeName() {
+	public final String getReturnDataTypeName(String[] argumentDataTypeNames, int[] argumentArrayRanks) {
 		return this.returnDataTypeName;
 	}
 
 	@Override
-	public final int getReturnArrayRank() {
+	public final int getReturnArrayRank(String[] argumentDataTypeNames, int[] argumentArrayRanks) {
 		return this.returnRank;
 	}
 

@@ -50,6 +50,9 @@ public class DataConverter {
 		/** 論理型（boolean）です。 */
 		BOOL,
 
+		/* 任意の型を格納可能な型（Object）です。 */
+		ANY,
+
 		/** void型です。 */
 		VOID;
 	}
@@ -72,6 +75,9 @@ public class DataConverter {
 
 	/** ホスト言語における、文字列型の名称です。 */
 	private static final String EXTERNAL_TYPE_NAME_STRING = "java.lang.String";
+
+	/** ホスト言語における、任意の型を格納可能な型の名称です。 */
+	private static final String EXTERNAL_TYPE_NAME_ANY = "java.lang.Object";
 
 	/** ホスト言語における、void型の名称（void）です。 */
 	private static final String EXTERNAL_TYPE_NAME_VOID = "void";
@@ -114,6 +120,7 @@ public class DataConverter {
 		EXTERNAL_NAME_DATA_TYPE_MAP.put(EXTERNAL_TYPE_NAME_FLOAT64, DataType.FLOAT64);
 		EXTERNAL_NAME_DATA_TYPE_MAP.put(EXTERNAL_TYPE_NAME_STRING, DataType.STRING);
 		EXTERNAL_NAME_DATA_TYPE_MAP.put(EXTERNAL_TYPE_NAME_BOOL, DataType.BOOL);
+		EXTERNAL_NAME_DATA_TYPE_MAP.put(EXTERNAL_TYPE_NAME_ANY, DataType.ANY);
 		EXTERNAL_NAME_DATA_TYPE_MAP.put(EXTERNAL_TYPE_NAME_VOID, DataType.VOID);
 		EXTERNAL_NAME_DATA_TYPE_MAP.put(EXTERNAL_TYPE_NAME_INT32_WRAPPER, DataType.INT64);
 		EXTERNAL_NAME_DATA_TYPE_MAP.put(EXTERNAL_TYPE_NAME_INT64_WRAPPER, DataType.INT64);
@@ -137,6 +144,7 @@ public class DataConverter {
 		EXTERNAL_NAME_EXTERNAL_TYPE_MAP.put(EXTERNAL_TYPE_NAME_FLOAT64, ExternalType.FLOAT64);
 		EXTERNAL_NAME_EXTERNAL_TYPE_MAP.put(EXTERNAL_TYPE_NAME_STRING, ExternalType.STRING);
 		EXTERNAL_NAME_EXTERNAL_TYPE_MAP.put(EXTERNAL_TYPE_NAME_BOOL, ExternalType.BOOL);
+		EXTERNAL_NAME_EXTERNAL_TYPE_MAP.put(EXTERNAL_TYPE_NAME_ANY, ExternalType.ANY);
 		EXTERNAL_NAME_EXTERNAL_TYPE_MAP.put(EXTERNAL_TYPE_NAME_VOID, ExternalType.VOID);
 		EXTERNAL_NAME_EXTERNAL_TYPE_MAP.put(EXTERNAL_TYPE_NAME_INT32_WRAPPER, ExternalType.INT32);
 		EXTERNAL_NAME_EXTERNAL_TYPE_MAP.put(EXTERNAL_TYPE_NAME_INT64_WRAPPER, ExternalType.INT64);
@@ -159,6 +167,7 @@ public class DataConverter {
 		EXTERNAL_TYPE_DATA_TYPE_MAP.put(ExternalType.FLOAT64, DataType.FLOAT64);
 		EXTERNAL_TYPE_DATA_TYPE_MAP.put(ExternalType.BOOL, DataType.BOOL);
 		EXTERNAL_TYPE_DATA_TYPE_MAP.put(ExternalType.STRING, DataType.STRING);
+		EXTERNAL_TYPE_DATA_TYPE_MAP.put(ExternalType.ANY, DataType.ANY);
 	}
 
 
@@ -174,6 +183,7 @@ public class DataConverter {
 		DATA_TYPE_EXTERNAL_TYPE_MAP.put(DataType.FLOAT64, ExternalType.FLOAT64);
 		DATA_TYPE_EXTERNAL_TYPE_MAP.put(DataType.BOOL, ExternalType.BOOL);
 		DATA_TYPE_EXTERNAL_TYPE_MAP.put(DataType.STRING, ExternalType.STRING);
+		DATA_TYPE_EXTERNAL_TYPE_MAP.put(DataType.ANY, ExternalType.ANY);
 	}
 
 
@@ -200,7 +210,7 @@ public class DataConverter {
 	 * @throws VnanoException 未対応のデータ型が指定された場合にスローされます。
 	 */
 	public DataConverter(Class<?> objectClass) throws VnanoException {
-		this.rank = this.getRankOf(objectClass);
+		this.rank = getRankOf(objectClass);
 		String externalDataTypeName = getExternalTypeNameOf(objectClass);
 		this.externalType = EXTERNAL_NAME_EXTERNAL_TYPE_MAP.get(externalDataTypeName);
 		this.dataType = EXTERNAL_NAME_DATA_TYPE_MAP.get(externalDataTypeName);
@@ -278,13 +288,77 @@ public class DataConverter {
 	}
 
 
+	public static Class<?> getExternalClassOf(DataType dataType, int rank) {
+		ExternalType externalType = DATA_TYPE_EXTERNAL_TYPE_MAP.get(dataType);
+		if (rank == 0) {
+			switch (externalType) {
+				case INT64 : return long.class;
+				case FLOAT64 : return double.class;
+				case BOOL : return boolean.class;
+				case STRING : return String.class;
+				case ANY : return Object.class;
+				case VOID : return Void.class;
+				default: throw new VnanoFatalException("Unknown data type: " + dataType);
+			}
+		}
+		if (rank == 1) {
+			switch (externalType) {
+				case INT64 : return long[].class;
+				case FLOAT64 : return double[].class;
+				case BOOL : return boolean[].class;
+				case STRING : return String[].class;
+				case ANY : return Object[].class;
+				case VOID : return Void[].class;
+				default: throw new VnanoFatalException("Unknown data type: " + dataType);
+			}
+		}
+		if (rank == 2) {
+			switch (externalType) {
+				case INT64 : return long[][].class;
+				case FLOAT64 : return double[][].class;
+				case BOOL : return boolean[][].class;
+				case STRING : return String[][].class;
+				case ANY : return Object[][].class;
+				case VOID : return Void[][].class;
+				default: throw new VnanoFatalException("Unknown data type: " + dataType);
+			}
+		}
+		if (rank == 3) {
+			switch (externalType) {
+				case INT64 : return long[][][].class;
+				case FLOAT64 : return double[][][].class;
+				case BOOL : return boolean[][][].class;
+				case STRING : return String[][][].class;
+				case ANY : return Object[][][].class;
+				case VOID : return Void[][][].class;
+				default: throw new VnanoFatalException("Unknown data type: " + dataType);
+			}
+		}
+
+		String arrayBlocks = "";
+		for (int i=0; i<rank; i++) {
+			arrayBlocks += "[]";
+		}
+		throw new VnanoFatalException("Unconvertible array: " + dataType + arrayBlocks);
+	}
+
+	public static Class<?>[] getExternalClassesOf(DataType[] dataTypes, int[] arrayRanks){
+		int length = dataTypes.length;
+		Class<?>[] classes = new Class<?>[length];
+		for (int i=0; i<length; i++) {
+			classes[i] = getExternalClassOf(dataTypes[i], arrayRanks[i]);
+		}
+		return classes;
+	}
+
+
 	/**
 	 * データ型を表すホスト言語側のクラスから、配列次元数を判定して返します。
 	 *
 	 * @param objectClass 配列次元数を判定したいクラス
 	 * @return クラスの配列次元数
 	 */
-	private int getRankOf(Class<?> objectClass) {
+	public static int getRankOf(Class<?> objectClass) {
 		String className = objectClass.getCanonicalName();
 		int arrayRank = -1;
 
@@ -428,6 +502,10 @@ public class DataConverter {
 				((DataContainer<String[]>)resultDataContainer).setData(data, arrayLength);
 				return;
 			}
+			case ANY : {
+				// この型は、外部関数においてデータ変換を無効化した場合にしか試用できないため、ここが実行される事は無い
+				throw new VnanoFatalException("Unexpected conversion executed.");
+			}
 			case VOID : {
 
 				VnanoException e = new VnanoException(
@@ -513,6 +591,10 @@ public class DataConverter {
 				}
 				((DataContainer<String[]>)resultDataContainer).setData(data, arrayLength);
 				break;
+			}
+			case ANY : {
+				// この型は、外部関数においてデータ変換を無効化した場合にしか試用できないため、ここが実行される事は無い
+				throw new VnanoFatalException("Unexpected conversion executed.");
 			}
 			case VOID : {
 				// void型の配列はホスト言語側で存在し得ないため、ここが実行される事は無い
@@ -658,6 +740,10 @@ public class DataConverter {
 				}
 				((DataContainer<String[]>)resultDataContainer).setData(data, arrayLength);
 				break;
+			}
+			case ANY : {
+				// この型は、外部関数においてデータ変換を無効化した場合にしか試用できないため、ここが実行される事は無い
+				throw new VnanoFatalException("Unexpected conversion executed.");
 			}
 			case VOID : {
 				// void型の配列はホスト言語側で存在し得ないため、ここが実行される事は無い
@@ -847,9 +933,13 @@ public class DataConverter {
 				((DataContainer<String[]>)resultDataContainer).setData(data, arrayLength);
 				break;
 			}
+			case ANY : {
+				// この型は、外部関数においてデータ変換を無効化した場合にしか試用できないため、ここが実行される事は無い
+				throw new VnanoFatalException("Unexpected conversion executed.");
+			}
 			case VOID : {
 				// void型の配列はホスト言語側で存在し得ないため、ここが実行される事は無い
-				break;
+				throw new VnanoFatalException("Unexpected conversion executed.");
 			}
 		}
 		//resultDataContainer.setSize(dataLength);
@@ -900,6 +990,10 @@ public class DataConverter {
 					}
 					case STRING : {
 						return ((String[])internalData)[dataIndex];
+					}
+					case ANY : {
+						// この型は、外部関数においてデータ変換を無効化した場合にしか試用できないため、ここが実行される事は無い
+						throw new VnanoFatalException("Unexpected conversion executed.");
 					}
 					case VOID : {
 						VnanoException e = new VnanoException(
@@ -955,6 +1049,10 @@ public class DataConverter {
 							externalData[dataIndex] = ((String[])internalData)[dataIndex];
 						}
 						return externalData;
+					}
+					case ANY : {
+						// この型は、外部関数においてデータ変換を無効化した場合にしか試用できないため、ここが実行される事は無い
+						throw new VnanoFatalException("Unexpected conversion executed.");
 					}
 					case VOID : {
 						VnanoException e = new VnanoException(
@@ -1035,6 +1133,10 @@ public class DataConverter {
 						}
 						return externalData;
 					}
+					case ANY : {
+						// この型は、外部関数においてデータ変換を無効化した場合にしか試用できないため、ここが実行される事は無い
+						throw new VnanoFatalException("Unexpected conversion executed.");
+					}
 					case VOID : {
 						VnanoException e = new VnanoException(
 								ErrorType.UNCONVERTIBLE_DATA_TYPE,
@@ -1066,7 +1168,7 @@ public class DataConverter {
 		}
 
 		// ここに到達するのは異常
-		throw new VnanoFatalException();
+		throw new VnanoFatalException("Unexpected conversion executed.");
 	}
 
 }

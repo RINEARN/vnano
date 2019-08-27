@@ -522,6 +522,7 @@ public class SemanticAnalyzer {
 						if (localFunctionTable.hasCalleeFunctionOf(currentNode)) {
 							currentNode.setAttribute(AttributeKey.SCOPE, AttributeValue.LOCAL);
 							function = localFunctionTable.getCalleeFunctionOf(currentNode);
+							currentNode.setAttribute(AttributeKey.CALLEE_SIGNATURE, IdentifierSyntax.getSignatureOf(function));
 							if (function.hasNameSpace()) {
 								currentNode.setAttribute(AttributeKey.NAME_SPACE, function.getNameSpace());
 							}
@@ -530,6 +531,7 @@ public class SemanticAnalyzer {
 						} else if (globalFunctionTable.hasCalleeFunctionOf(currentNode)) {
 							currentNode.setAttribute(AttributeKey.SCOPE, AttributeValue.GLOBAL);
 							function = globalFunctionTable.getCalleeFunctionOf(currentNode);
+							currentNode.setAttribute(AttributeKey.CALLEE_SIGNATURE, IdentifierSyntax.getSignatureOf(function));
 							if (function.hasNameSpace()) {
 								currentNode.setAttribute(AttributeKey.NAME_SPACE, function.getNameSpace());
 							}
@@ -542,9 +544,12 @@ public class SemanticAnalyzer {
 							);
 						}
 
-						dataType = function.getReturnDataTypeName();
+						String[] argumentDataTypeNames = this.getArgumentDataTypeNames(currentNode);
+						int[] argumentArrayRanks = this.getArgumentArrayRanks(currentNode);
+						dataType = function.getReturnDataTypeName(argumentDataTypeNames, argumentArrayRanks);
 						operationDataType = dataType;
-						rank = function.getReturnArrayRank();
+						rank = function.getReturnArrayRank(argumentDataTypeNames, argumentArrayRanks);
+						//rank = function.getReturnArrayRank();
 						break;
 					}
 
@@ -573,6 +578,27 @@ public class SemanticAnalyzer {
 			currentNode = currentNode.getPostorderDftNextNode();
 		}
 	}
+
+	private String[] getArgumentDataTypeNames(AstNode callOperatorNode) {
+		AstNode[] childNodes = callOperatorNode.getChildNodes();
+		int argumentN = childNodes.length - 1; // [0] は関数識別子のノードなので -1
+		String[] dataTypeNames = new String[argumentN];
+		for (int argumentIndex=0; argumentIndex<argumentN; argumentIndex++) {
+			dataTypeNames[argumentIndex] = childNodes[argumentIndex+1].getDataTypeName();
+		}
+		return dataTypeNames;
+	}
+
+	private int[] getArgumentArrayRanks(AstNode callOperatorNode) {
+		AstNode[] childNodes = callOperatorNode.getChildNodes();
+		int argumentN = childNodes.length - 1; // [0] は関数識別子のノードなので -1
+		int[] arrayRanks = new int[argumentN];
+		for (int argumentIndex=0; argumentIndex<argumentN; argumentIndex++) {
+			arrayRanks[argumentIndex] = childNodes[argumentIndex+1].getRank();
+		}
+		return arrayRanks;
+	}
+
 
 	/**
 	 * 引数に渡されたAST（抽象構文木）の内容を解析し、その中の式ノードに対して、

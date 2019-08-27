@@ -6,6 +6,7 @@
 package org.vcssl.nano.interconnect;
 
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -61,7 +62,7 @@ public class IdentifierMapManager {
 	 * 同じキーを持つ要素が複数存在する場合は、最後に追加されたものを取得します。
 	 * @param map
 	 * @param key
-	 * @return
+	 * @return 取得した要素
 	 */
 	public static <KeyType, ValueType> ValueType getLastFromMap(
 			Map<KeyType, LinkedList<ValueType>> map, KeyType key) {
@@ -69,6 +70,18 @@ public class IdentifierMapManager {
 		return map.get(key).getLast();
 	}
 
+
+	/**
+	 * マップから要素を全て取得します。
+	 * @param map
+	 * @param key
+	 * @return 取得した要素を格納するリスト
+	 */
+	public static <KeyType, ValueType> List<ValueType> getAllFromMap(
+			Map<KeyType, LinkedList<ValueType>> map, KeyType key) {
+
+		return map.get(key);
+	}
 
 	/**
 	 * マップから要素を削除します。
@@ -85,6 +98,5 @@ public class IdentifierMapManager {
 			map.remove(key);
 		}
 	}
-
 
 }
