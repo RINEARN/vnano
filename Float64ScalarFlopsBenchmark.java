@@ -79,7 +79,7 @@ public class Float64ScalarFlopsBenchmark {
 		// オプション設定でAccelerator（高速版VM）を有効化
 		Map<String, Object> optionMap = new HashMap<String, Object>();
 		optionMap.put("ACCELERATOR", true);
-		engine.put("VNANO_OPTION", optionMap);
+		engine.put("___VNANO_OPTION_MAP", optionMap);
 
 		// Connect methods/fields of Plugin class to the script engine as external functions/variables.
 		// Pluginクラスのメソッド・フィールドを外部関数・変数としてスクリプトエンジンに接続

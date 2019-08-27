@@ -11,6 +11,7 @@ import org.vcssl.nano.VnanoFatalException;
 import org.vcssl.nano.VnanoException;
 import org.vcssl.nano.spec.DataType;
 import org.vcssl.nano.spec.DataTypeName;
+import org.vcssl.nano.spec.ErrorType;
 import org.vcssl.nano.vm.memory.DataContainer;
 
 
@@ -96,16 +97,16 @@ public final class Xfci1ToFunctionAdapter extends AbstractFunction {
 
 		for (Class<?> parameterClass: parameterClasses) {
 			if (DataConverter.getDataTypeOf(parameterClass)==DataType.ANY && xfciPlugin.isDataConversionNecessary()) {
-				throw new VnanoFatalException(
-					"Data-conversion should be disabled to use Object-type parameters: "
-					+ xfciPlugin.getFunctionName() + " (XFCI-1 plugin)"
+				throw new VnanoException(
+					ErrorType.DATA_CONVERSION_OF_FUNCTION_PLUGIN_USING_OBJECT_TYPE_SHOULD_BE_DISABLED,
+					new String[] { xfciPlugin.getFunctionName() }
 				);
 			}
 		}
 		if (DataConverter.getDataTypeOf(returnClass)==DataType.ANY && xfciPlugin.isDataConversionNecessary()) {
-			throw new VnanoFatalException(
-				"Data-conversion should be disabled to use Object-type for return value: "
-			    + xfciPlugin.getFunctionName() + " (XFCI-1 plugin)"
+			throw new VnanoException(
+				ErrorType.DATA_CONVERSION_OF_FUNCTION_PLUGIN_USING_OBJECT_TYPE_SHOULD_BE_DISABLED,
+				new String[] { xfciPlugin.getFunctionName() }
 			);
 		}
 	}
