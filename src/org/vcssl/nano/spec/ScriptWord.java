@@ -196,7 +196,7 @@ public class ScriptWord {
 	 * <span class="lang-ja">非等値比較演算子の記号「 &#33;= 」です</span>
 	 * .
 	 */
-	public static final String NOT_EQUAL = "！=";
+	public static final String NOT_EQUAL = "!=";
 
 
 	/**
