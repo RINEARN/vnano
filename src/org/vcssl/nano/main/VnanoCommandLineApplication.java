@@ -325,6 +325,9 @@ public final class VnanoCommandLineApplication {
 		boolean optionProcessingSucceeded = true;
 		Set<Map.Entry<String, String>> optionNameValueSet = optionNameValueMap.entrySet();
 		for (Map.Entry<String, String> optionNameValuePair : optionNameValueSet) {
+			if (!optionProcessingSucceeded) {
+				break;
+			}
 			String optionName = optionNameValuePair.getKey();
 			String optionValue = optionNameValuePair.getValue();
 			optionProcessingSucceeded &= this.dispatchOptionProcessing(optionName, optionValue, inputFilePath);
@@ -538,7 +541,7 @@ public final class VnanoCommandLineApplication {
 	}
 
 
-	private ScriptEngine createInitializedScriptEngine() {
+	private ScriptEngine createInitializedScriptEngine(List<Object> pluginList) {
 
 		// ScriptEngineManagerでVnanoのスクリプトエンジンを検索して取得
 		ScriptEngineManager manager = new ScriptEngineManager();
@@ -551,17 +554,23 @@ public final class VnanoCommandLineApplication {
 		// メソッド・フィールドを外部関数・変数としてスクリプトエンジンに接続
 		try {
 			ScriptIO ioInstance = new ScriptIO();
-			engine.put("output(int)",    new Object[]{ ScriptIO.class.getMethod("output",long.class    ), ioInstance } );
-			engine.put("output(float)",  new Object[]{ ScriptIO.class.getMethod("output",double.class ), ioInstance } );
-			engine.put("output(bool)",   new Object[]{ ScriptIO.class.getMethod("output",boolean.class), ioInstance } );
-			engine.put("output(string)", new Object[]{ ScriptIO.class.getMethod("output",String.class ), ioInstance } );
-			engine.put("time()",         new Object[]{ ScriptIO.class.getMethod("time"), ioInstance } );
+			engine.put(SpecialBindingKey.AUTO_KEY, new Object[]{ ScriptIO.class.getMethod("output",long.class    ), ioInstance } );
+			engine.put(SpecialBindingKey.AUTO_KEY, new Object[]{ ScriptIO.class.getMethod("output",double.class ), ioInstance } );
+			engine.put(SpecialBindingKey.AUTO_KEY, new Object[]{ ScriptIO.class.getMethod("output",boolean.class), ioInstance } );
+			engine.put(SpecialBindingKey.AUTO_KEY, new Object[]{ ScriptIO.class.getMethod("output",String.class ), ioInstance } );
+			engine.put(SpecialBindingKey.AUTO_KEY, new Object[]{ ScriptIO.class.getMethod("time"), ioInstance } );
 
 		} catch (NoSuchMethodException e){
 			System.err.println("Method/field not found.");
 			e.printStackTrace();
 			return null;
 		}
+
+		// オプションで指定されたプラグイン（読み込み済み）を接続
+		for (Object plugin: pluginList) {
+			engine.put(SpecialBindingKey.AUTO_KEY, plugin);
+		}
+
 		return engine;
 	}
 
@@ -632,7 +641,7 @@ public final class VnanoCommandLineApplication {
 		}
 
 		// メソッド接続済みのスクリプトエンジンを生成して取得
-		ScriptEngine engine = this.createInitializedScriptEngine();
+		ScriptEngine engine = this.createInitializedScriptEngine(this.pluginList);
 		if (engine == null) {
 			return;
 		}

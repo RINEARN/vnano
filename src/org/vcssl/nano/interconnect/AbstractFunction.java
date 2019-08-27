@@ -118,17 +118,21 @@ public abstract class AbstractFunction {
 	 * 戻り値のデータ型名を取得します。
 	 * 返される型名の表記内に、配列部分 [][]...[] は含まれません。
 	 *
+	 * @param argumentDataTypeNames 呼び出し時の全引数の型名を格納する配列
+	 * @param argumentArrayRanks 呼び出し時の全引数の配列次元数を格納する配列
 	 * @return 戻り値のデータ型名
 	 */
-	public abstract String getReturnDataTypeName();
+	public abstract String getReturnDataTypeName(String[] argumentDataTypeNames, int[] argumentArrayRanks);
 
 
 	/**
 	 * 戻り値の配列次元数を取得します。
 	 *
+	 * @param argumentDataTypeNames 呼び出し時の全引数の型名を格納する配列
+	 * @param argumentArrayRanks 呼び出し時の全引数の配列次元数を格納する配列
 	 * @return 戻り値の配列次元数
 	 */
-	public abstract int getReturnArrayRank();
+	public abstract int getReturnArrayRank(String[] argumentDataTypeNames, int[] argumentArrayRanks);
 
 
 	// このメソッドは例外を投げる必要あり。XfciFunctionConector#invoke参照

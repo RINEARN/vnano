@@ -99,6 +99,15 @@ public class DataTypeName {
 	 */
 	public static final String STRING = "string";
 
+
+	/**
+	 * <span class="lang-en">The name of the special type to represent that any type is available for the argument, the return value, and so on: "any"</span>
+	 * <span class="lang-ja">関数の引数や戻り値などが、任意の型であり得る事を示す、特別な型の名称 "any" です</span>
+	 * .
+	 */
+	public static final String ANY = "any";
+
+
 	/**
 	 * <span class="lang-en">The name of the void type: "void"</span>
 	 * <span class="lang-ja">void 型の名称 "void" です</span>
@@ -117,6 +126,7 @@ public class DataTypeName {
     	DATA_TYPE_NAME_SET.add(DataTypeName.DOUBLE);
     	DATA_TYPE_NAME_SET.add(DataTypeName.BOOL);
     	DATA_TYPE_NAME_SET.add(DataTypeName.STRING);
+    	DATA_TYPE_NAME_SET.add(DataTypeName.ANY);
     	DATA_TYPE_NAME_SET.add(DataTypeName.VOID);
     }
 
@@ -129,6 +139,7 @@ public class DataTypeName {
 		DATA_TYPE_NAME_ENUM_MAP.put(DOUBLE, DataType.FLOAT64);
 		DATA_TYPE_NAME_ENUM_MAP.put(BOOL, DataType.BOOL);
 		DATA_TYPE_NAME_ENUM_MAP.put(STRING, DataType.STRING);
+		DATA_TYPE_NAME_ENUM_MAP.put(ANY, DataType.ANY);
 		DATA_TYPE_NAME_ENUM_MAP.put(VOID, DataType.VOID);
 	}
 
@@ -139,6 +150,7 @@ public class DataTypeName {
 		DATA_TYPE_ENUM_NAME_MAP.put(DataType.FLOAT64, FLOAT);
 		DATA_TYPE_ENUM_NAME_MAP.put(DataType.BOOL, BOOL);
 		DATA_TYPE_ENUM_NAME_MAP.put(DataType.STRING, STRING);
+		DATA_TYPE_ENUM_NAME_MAP.put(DataType.ANY, ANY);
 		DATA_TYPE_ENUM_NAME_MAP.put(DataType.VOID, VOID);
 	}
 

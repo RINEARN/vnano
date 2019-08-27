@@ -13,9 +13,11 @@ import java.util.Map;
 
 import org.vcssl.nano.VnanoFatalException;
 import org.vcssl.nano.compiler.AstNode;
+import org.vcssl.nano.compiler.AttributeKey;
 import org.vcssl.nano.spec.DataType;
 import org.vcssl.nano.spec.DataTypeName;
 import org.vcssl.nano.spec.IdentifierSyntax;
+import org.vcssl.nano.spec.ScriptWord;
 
 /**
  * <p>
@@ -32,14 +34,14 @@ public class FunctionTable {
 	/** 関数シグネチャと、関数とを対応付けるマップです。同じキーの要素を複数格納するため、値をリスト化して保持します。 */
 	Map<String, LinkedList<AbstractFunction>> signatureFunctionMap = null;
 
-	/** 中間アセンブリコード識別子と、関数とを対応付けるマップです。同じキーの要素を複数格納するため、値をリスト化して保持します。 */
-	Map<String, LinkedList<AbstractFunction>> assemblyIdentifierFunctionMap = null;
+	/** 関数名と、関数とを対応付けるマップです。同じキーの要素を複数格納するため、値をリスト化して保持します。 */
+	Map<String, LinkedList<AbstractFunction>> nameFunctionMap = null;
 
 	/** 名前空間付きの関数シグネチャと、関数とを対応付けるマップです。同じキーの要素を複数格納するため、値をリスト化して保持します。 */
 	Map<String, LinkedList<AbstractFunction>> fullSignatureFunctionMap = null;
 
-	/** 名前空間付きの中間アセンブリコード識別子と、関数とを対応付けるマップです。同じキーの要素を複数格納するため、値をリスト化して保持します。 */
-	Map<String, LinkedList<AbstractFunction>> fullAssemblyIdentifierFunctionMap = null;
+	/** 名前空間付きの関数名と、関数とを対応付けるマップです。同じキーの要素を複数格納するため、値をリスト化して保持します。 */
+	Map<String, LinkedList<AbstractFunction>> fullNameFunctionMap = null;
 
 
 	/**
@@ -47,10 +49,12 @@ public class FunctionTable {
 	 */
 	public FunctionTable() {
 		this.functionList = new ArrayList<AbstractFunction>();
+
 		this.signatureFunctionMap = new LinkedHashMap<String, LinkedList<AbstractFunction>>();
-		this.assemblyIdentifierFunctionMap = new LinkedHashMap<String, LinkedList<AbstractFunction>>();
+		this.nameFunctionMap = new LinkedHashMap<String, LinkedList<AbstractFunction>>();
+
 		this.fullSignatureFunctionMap = new LinkedHashMap<String, LinkedList<AbstractFunction>>();
-		this.fullAssemblyIdentifierFunctionMap = new LinkedHashMap<String, LinkedList<AbstractFunction>>();
+		this.fullNameFunctionMap = new LinkedHashMap<String, LinkedList<AbstractFunction>>();
 	}
 
 
@@ -65,15 +69,18 @@ public class FunctionTable {
 		this.functionList.add(function);
 
 		String nameSpacePrefix = IdentifierSyntax.getNameSpacePrefixOf(function);
+
 		String signature = IdentifierSyntax.getSignatureOf(function);
 		String fullSignature = IdentifierSyntax.getSignatureOf(function, nameSpacePrefix);
-		String assemblyIdentifier = IdentifierSyntax.getAssemblyIdentifierOf(function);
-		String fullAssemblyIdentifier = IdentifierSyntax.getAssemblyIdentifierOf(function, nameSpacePrefix);
+
+		String functionName = function.getFunctionName();
+		String fullFunctionName = nameSpacePrefix + ScriptWord.NAME_SPACE_SEPARATOR + functionName;
 
 		IdentifierMapManager.putToMap(this.signatureFunctionMap, signature, function);
-		IdentifierMapManager.putToMap(this.assemblyIdentifierFunctionMap, assemblyIdentifier, function);
+		IdentifierMapManager.putToMap(this.nameFunctionMap, functionName, function);
+
 		IdentifierMapManager.putToMap(this.fullSignatureFunctionMap, fullSignature, function);
-		IdentifierMapManager.putToMap(this.assemblyIdentifierFunctionMap, fullAssemblyIdentifier, function);
+		IdentifierMapManager.putToMap(this.fullNameFunctionMap, fullFunctionName, function);
 	}
 
 
@@ -171,37 +178,6 @@ public class FunctionTable {
 
 
 	/**
-	 * 指定された中間アセンブリコード識別子に対応する関数を取得します。
-	 * 複数存在する場合は、最後に登録されたものを返します。
-	 *
-	 * @param assemblyIdentifier 対象関数のアセンブリコード識別子
-	 * @return 対象の関数
-	 */
-	public AbstractFunction getFunctionByAssemblyIdentifier(String assemblyIdentifier) {
-		if (this.assemblyIdentifierFunctionMap.containsKey(assemblyIdentifier)) {
-			return IdentifierMapManager.getLastFromMap(this.assemblyIdentifierFunctionMap, assemblyIdentifier);
-		}
-		if (this.fullAssemblyIdentifierFunctionMap.containsKey(assemblyIdentifier)) {
-			return IdentifierMapManager.getLastFromMap(this.fullAssemblyIdentifierFunctionMap, assemblyIdentifier);
-		}
-		throw new VnanoFatalException("Function not found: " + assemblyIdentifier);
-	}
-
-
-	/**
-	 * 指定された中間アセンブリコード識別子に対応する関数が、
-	 * この関数テーブルに登録されているかどうかを判定します。
-	 *
-	 * @param signature 対象関数のアセンブリコード識別子
-	 * @return 登録されていればtrue
-	 */
-	public boolean hasFunctionWithAssemblyIdentifier(String assemblyIdentifier) {
-		return this.assemblyIdentifierFunctionMap.containsKey(assemblyIdentifier)
-				|| this.fullAssemblyIdentifierFunctionMap.containsKey(assemblyIdentifier);
-	}
-
-
-	/**
 	 * 指定された関数呼び出し演算子のAST（抽象構文木）ノードにおける、
 	 * 呼び出し対象の関数が、この関数テーブルに登録されているかどうかを判定します。
 	 *
@@ -209,8 +185,7 @@ public class FunctionTable {
 	 * @return 登録されていればtrue
 	 */
 	public boolean hasCalleeFunctionOf(AstNode callerNode) {
-		String signature = IdentifierSyntax.getSignatureOfCalleeFunctionOf(callerNode);
-		return this.hasFunctionWithSignature(signature);
+		return this.getCalleeFunctionOf(callerNode) != null;
 	}
 
 
@@ -223,8 +198,84 @@ public class FunctionTable {
 	 * @throws DataException 引数などのデータ型名が非対応のものであった場合にスローされます。
 	 */
 	public AbstractFunction getCalleeFunctionOf(AstNode callerNode) {
+
+		// まずコールシグネチャと宣言シグネチャが一致するものがあるか検索（あれば最も検索が速い）
 		String signature = IdentifierSyntax.getSignatureOfCalleeFunctionOf(callerNode);
-		return this.getFunctionBySignature(signature);
+		if (this.hasFunctionWithSignature(signature)) {
+			return this.getFunctionBySignature(signature);
+		}
+
+		// 無ければ名前だけでも一致するものがあるか検索
+		String functionName = callerNode.getChildNodes()[0].getAttribute(AttributeKey.IDENTIFIER_VALUE);
+		List<AbstractFunction> functionList = null;
+		if (this.nameFunctionMap.containsKey(functionName)) {
+			functionList = IdentifierMapManager.getAllFromMap(this.nameFunctionMap, functionName);
+		} else if (this.fullNameFunctionMap.containsKey(functionName)) {
+			functionList = IdentifierMapManager.getAllFromMap(this.fullNameFunctionMap, functionName);
+		}
+
+		// 名前が一致するものが無い場合は、明らかに呼び出し可能な関数は無いため検索終了
+		if (functionList == null) {
+			return null;
+		}
+
+		// 名前が一致する関数がある場合は、その中から引数の型のマッチを確認していく
+		// （可変長引数や任意型など、コールシグネチャと宣言シグネチャが異なっても呼び出せるものが有り得る）
+
+		AstNode[] childNodes = callerNode.getChildNodes();
+		int argumentLength = childNodes.length - 1;
+		int[] argumentRanks = new int[argumentLength];
+		String[] argumentDataTypeNames = new String[argumentLength];
+		for (int argumentIndex=0; argumentIndex<argumentLength; argumentIndex++) {
+			argumentRanks[argumentIndex] = childNodes[argumentIndex+1].getRank();
+			argumentDataTypeNames[argumentIndex] = childNodes[argumentIndex+1].getDataTypeName();
+		}
+
+		int functionN = functionList.size();
+		for (int functionIndex=functionN-1; 0<=functionIndex; functionIndex--) {
+
+			AbstractFunction function = functionList.get(functionIndex);
+			int[] parameterRanks = function.getParameterArrayRanks();
+			String[] parameterDataTypeNames = function.getParameterDataTypeNames();
+			int parameterLength = parameterRanks.length;
+
+			// 引数の個数が違えばスキップ（現状では可変長引数はサポートしていないため）
+			if (parameterLength != argumentLength) {
+				continue;
+			}
+
+			// 仮引数と実引数の型の互換性を先頭から比較し、呼び出し可能か判断する
+			boolean isCallable = true; // 呼び出し可能でなければ無ければこの値を false にする
+			for (int parameterIndex=0; parameterIndex<parameterLength; parameterIndex++) {
+				String paramTypeName = parameterDataTypeNames[parameterIndex];
+				String argTypeName = argumentDataTypeNames[parameterIndex];
+				int paramRank = parameterRanks[parameterIndex];
+				int argRank = argumentRanks[parameterIndex];
+
+				if (paramTypeName.equals(DataTypeName.ANY)) {
+					// この引数はどの型とも互換性があるので、次の引数の比較へ
+					continue;
+				}
+
+				if (paramTypeName.equals(argTypeName) && paramRank==argRank) {
+					// この引数の型同士は互換性があるので、次の引数の比較へ
+					continue;
+				}
+
+				// ここまででOKでなければ、引数に互換性が無いので、この関数は呼び出し可能ではない
+				isCallable = false;
+				break;
+			}
+
+			// 呼び出し可能と判断されていれば、その関数を返して終了
+			if (isCallable) {
+				return function;
+			}
+		}
+
+		// 呼び出し可能な関数が見つからなければ便宜的に null を返すが、
+		// その場合は hasCalleeFunctionOf が false になるので、そちらで検査可能
+		return null;
 	}
 
 }

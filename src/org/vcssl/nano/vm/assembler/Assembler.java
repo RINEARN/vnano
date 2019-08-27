@@ -410,7 +410,8 @@ public class Assembler {
 			// 関数ディレクティブ
 			if (line.startsWith(AssemblyWord.GLOBAL_FUNCTION_DIRECTIVE)) {
 				String identifier = words[1];
-				AbstractFunction function = functionTable.getFunctionByAssemblyIdentifier(identifier);
+				String signature = identifier.substring(1, identifier.length()); // 先頭文字は識別子プレフィックスなので除去
+				AbstractFunction function = functionTable.getFunctionBySignature(signature);
 				int functionAddress = functionTable.indexOf(function);
 				assembledObject.addFunction(identifier, functionAddress);
 			}

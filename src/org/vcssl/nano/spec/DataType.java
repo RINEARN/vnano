@@ -77,6 +77,13 @@ public enum DataType {
 	STRING,
 
 
+	/**
+	 * <span class="lang-en">The special type to represent that any type is available for the argument, the return value, and so on  (name: "any")</span>
+	 * <span class="lang-ja">関数の引数や戻り値などが、任意の型であり得る事を示す、特別な型（ 型名は any ）です</span>
+	 * .
+	 */
+	ANY,
+
 
 	/**
 	 * <span class="lang-en">The void type (name: "void")</span>

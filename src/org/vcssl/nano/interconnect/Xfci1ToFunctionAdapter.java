@@ -46,6 +46,7 @@ public final class Xfci1ToFunctionAdapter extends AbstractFunction {
 	private DataType returnDataType = null;
 
 	/** 処理系内部側での戻り値の配列次元数（スカラは0次元として扱う）を保持します。 */
+	@SuppressWarnings("unused")
 	private int returnArrayRank = -1;
 
 	/** 所属している名前空間があるかどうかを保持します。 */
@@ -68,6 +69,7 @@ public final class Xfci1ToFunctionAdapter extends AbstractFunction {
 		this.xfciPlugin = xfciPlugin;
 
 		Class<?>[] parameterClasses = this.xfciPlugin.getParameterClasses();
+		Class<?> returnClass = this.xfciPlugin.getReturnClass(parameterClasses);
 		int parameterLength = parameterClasses.length;
 
 		this.returnDataConverter = new DataConverter(this.xfciPlugin.getReturnClass(parameterClasses));
@@ -89,6 +91,22 @@ public final class Xfci1ToFunctionAdapter extends AbstractFunction {
 
 			this.parameterArrayRanks[parameterIndex]
 					= this.parameterDataConverters[parameterIndex].getRank();
+		}
+
+
+		for (Class<?> parameterClass: parameterClasses) {
+			if (DataConverter.getDataTypeOf(parameterClass)==DataType.ANY && xfciPlugin.isDataConversionNecessary()) {
+				throw new VnanoFatalException(
+					"Data-conversion should be disabled to use Object-type parameters: "
+					+ xfciPlugin.getFunctionName() + " (XFCI-1 plugin)"
+				);
+			}
+		}
+		if (DataConverter.getDataTypeOf(returnClass)==DataType.ANY && xfciPlugin.isDataConversionNecessary()) {
+			throw new VnanoFatalException(
+				"Data-conversion should be disabled to use Object-type for return value: "
+			    + xfciPlugin.getFunctionName() + " (XFCI-1 plugin)"
+			);
 		}
 	}
 
@@ -228,8 +246,17 @@ public final class Xfci1ToFunctionAdapter extends AbstractFunction {
 	 * @return 戻り値のデータ型名
 	 */
 	@Override
-	public String getReturnDataTypeName() {
-		return DataTypeName.getDataTypeNameOf(this.returnDataType);
+	public String getReturnDataTypeName(String[] argumentDataTypeNames, int[] argumentArrayRanks) {
+		DataType[] argumentDataTypes;
+		try {
+			argumentDataTypes = DataTypeName.getDataTypesOf(argumentDataTypeNames);
+		} catch (VnanoException e) {
+			throw new VnanoFatalException(e);
+		}
+		Class<?>[] argumentClasses = DataConverter.getExternalClassesOf(argumentDataTypes, argumentArrayRanks);
+		Class<?> returnValueClass = this.xfciPlugin.getReturnClass(argumentClasses);
+		DataType returnDataType = DataConverter.getDataTypeOf(returnValueClass);
+		return DataTypeName.getDataTypeNameOf(returnDataType);
 	}
 
 
@@ -239,8 +266,16 @@ public final class Xfci1ToFunctionAdapter extends AbstractFunction {
 	 * @return 戻り値の配列次元数
 	 */
 	@Override
-	public int getReturnArrayRank() {
-		return this.returnArrayRank;
+	public int getReturnArrayRank(String[] argumentDataTypeNames, int[] argumentArrayRanks) {
+		DataType[] argumentDataTypes;
+		try {
+			argumentDataTypes = DataTypeName.getDataTypesOf(argumentDataTypeNames);
+		} catch (VnanoException e) {
+			throw new VnanoFatalException(e);
+		}
+		Class<?>[] argumentClasses = DataConverter.getExternalClassesOf(argumentDataTypes, argumentArrayRanks);
+		Class<?> returnValueClass = this.xfciPlugin.getReturnClass(argumentClasses);
+		return DataConverter.getRankOf(returnValueClass);
 	}
 
 

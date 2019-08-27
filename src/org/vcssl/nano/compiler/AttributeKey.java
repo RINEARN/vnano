@@ -195,6 +195,17 @@ public enum AttributeKey {
 
 	/**
 	 * <span class="lang-en">
+	 * The key of the attribute for storing a signature of a callee function
+	 * </span>
+	 * <span class="lang-ja">
+	 * 呼び出し先関数のシグネチャを保持する属性のキーです
+	 * </span>
+	 * .
+	 */
+	CALLEE_SIGNATURE,
+
+	/**
+	 * <span class="lang-en">
 	 * The key of the attribute for storing a marker of the AST node of {@link AstNode.Type#STACK_LID} type
 	 * which is used temporary in the parser
 	 * </span>
