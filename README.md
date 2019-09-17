@@ -1630,7 +1630,7 @@ please note that the user of the application may be different person with the au
 
 If you want to support rich functions on the scripting feature of your application, 
 it might be one compromise plan to implement the "security barrier" 
-which requesting permissions to the user of the host-application, 
+which requesting PermissionNames to the user of the host-application, 
 when the external functions which access to securitically critical resources (files, networks, etc.) are invoked.
 
 スクリプト内で豊富な機能を利用できるようにしたい場合は、
@@ -1854,9 +1854,9 @@ However, it has a demerit that they have heavy overhead costs to access from the
 If you want to reduce extra processing costs as far as possible, you can implement external functions/variables by using low-overhead plug-in interfaces supported by the Vnano engine.
 This way is especially appropriate to provide functions which are called from high-speed loops in the script code.
 Interfaces to implement external functions/variables plug-ins are defined as 
-"<a href="https://github.com/RINEARN/vnano/blob/master/src/org/vcssl/connect/ExternalFunctionConnector1.java">org/vcssl/connect/ExternalFunctionConnector1.java (XFCI1)</a>"
+"<a href="https://github.com/RINEARN/vnano/blob/master/src/org/vcssl/connect/ExternalFunctionConnectorInterface1.java">org/vcssl/connect/ExternalFunctionConnectorInterface1.java (XFCI1)</a>"
 and 
-"<a href="https://github.com/RINEARN/vnano/blob/master/src/org/vcssl/connect/ExternalVariableConnector1.java">org/vcssl/connect/ExternalVariableConnector1.java (XVCI1)</a>".
+"<a href="https://github.com/RINEARN/vnano/blob/master/src/org/vcssl/connect/ExternalVariableConnectorInterface1.java">org/vcssl/connect/ExternalVariableConnectorInterface1.java (XVCI1)</a>".
 Let's implement them:
 
 これまでのセクションで示した例の通り、クラスに実装したメソッド/フィールドを外部関数/変数として接続するのは、比較的手軽です。
@@ -1864,16 +1864,16 @@ Let's implement them:
 そのような余分な処理コストを可能な限り削りたい場合は、外部関数/変数を、Vnanoエンジンでサポートされている低オーバーヘッドなプラグイン用インターフェースを用いて実装する事もできます。
 これは、特にスクリプトコード内で高速に回るループ内などから呼び出される関数を提供する場合に有効です。
 外部関数および外部変数を実装するためのインターフェースは、それぞれ
-"<a href="https://github.com/RINEARN/vnano/blob/master/src/org/vcssl/connect/ExternalFunctionConnector1.java">org/vcssl/connect/ExternalFunctionConnector1.java (XFCI1)</a>"
+"<a href="https://github.com/RINEARN/vnano/blob/master/src/org/vcssl/connect/ExternalFunctionConnectorInterface1.java">org/vcssl/connect/ExternalFunctionConnectorInterface1.java (XFCI1)</a>"
 および 
-"<a href="https://github.com/RINEARN/vnano/blob/master/src/org/vcssl/connect/ExternalVariableConnector1.java">org/vcssl/connect/ExternalVariableConnector1.java (XVCI1)</a>"
+"<a href="https://github.com/RINEARN/vnano/blob/master/src/org/vcssl/connect/ExternalVariableConnectorInterface1.java">org/vcssl/connect/ExternalVariableConnectorInterface1.java (XVCI1)</a>"
 として定義されています。実際に実装してみましょう：
 
 	(Example.java, modified codde - 書き換えたコード)
 
 	...
-	import org.vcssl.connect.ExternalFunctionConnector1;
-	import org.vcssl.connect.ExternalVariableConnector1;
+	import org.vcssl.connect.ExternalFunctionConnectorInterface1;
+	import org.vcssl.connect.ExternalVariableConnectorInterface1;
 	import org.vcssl.connect.ConnectorPermission;
 	import org.vcssl.connect.ConnectorException;
 
@@ -1881,7 +1881,7 @@ Let's implement them:
 
 		// A XFCI1 Plug-In which provides the external function "output(int)".
 		// 外部関数 output(int) を提供するXFCI1形式のプラグイン
-		public class OutputFunction implements ExternalFunctionConnector1 {
+		public class OutputFunction implements ExternalFunctionConnectorInterface1 {
 
 			@Override
 			public String getFunctionName() { return "output"; }
@@ -1896,9 +1896,9 @@ Let's implement them:
 			@Override
 			public boolean isVariadic() { return false; }
 			@Override
-			public String[] getNecessaryPermissions() { return new String[]{ ConnectorPermission.NONE }; }
+			public String[] getNecessaryPermissionNames() { return new String[]{ ConnectorPermissionName.NONE }; }
 			@Override
-			public String[] getUnnecessaryPermissions() { return new String[]{ ConnectorPermission.ALL }; }
+			public String[] getUnnecessaryPermissionNames() { return new String[]{ ConnectorPermissionName.ALL }; }
 			@Override
 			public void initializeForConnection(Object engineConnector) { }
 			@Override
@@ -1921,7 +1921,7 @@ Let's implement them:
 
 		// A XVCI1 Plug-In which provides the external variable "LOOP_MAX".
 		// 外部変数 LOOP_MAX を提供するXVCI1形式のプラグイン
-		public class LoopMaxVariable implements ExternalVariableConnector1 {
+		public class LoopMaxVariable implements ExternalVariableConnectorInterface1 {
 
 			private int value = 100;
 
@@ -1932,9 +1932,9 @@ Let's implement them:
 			@Override
 			public boolean isConstant() { return false; }
 			@Override
-			public String[] getNecessaryPermissions() { return new String[]{ ConnectorPermission.NONE }; }
+			public String[] getNecessaryPermissionNames() { return new String[]{ ConnectorPermissionName.NONE }; }
 			@Override
-			public String[] getUnnecessaryPermissions() { return new String[]{ ConnectorPermission.ALL }; }
+			public String[] getUnnecessaryPermissionNames() { return new String[]{ ConnectorPermissionName.ALL }; }
 			@Override
 			public void initializeForConnection(Object engineConnector) { }
 			@Override
@@ -1969,8 +1969,8 @@ Let's implement them:
 
 			// Connect plug-ins to the script engine as an external function/variable.
 			// プラグインを外部関数・変数としてスクリプトエンジンに接続
-			ExternalVariableConnector1 loopMaxVariable = new Example2().new LoopMaxVariable();
-			ExternalFunctionConnector1 outputFunction = new Example2().new OutputFunction();
+			ExternalVariableConnectorInterface1 loopMaxVariable = new Example2().new LoopMaxVariable();
+			ExternalFunctionConnectorInterface1 outputFunction = new Example2().new OutputFunction();
 			engine.put("LOOP_MAX",    loopMaxVariable);
 			engine.put("output(int)", outputFunction);
 			...
@@ -2025,8 +2025,8 @@ Let's implement. The following is an example code:
 	(Example.java, modified codde - 書き換えたコード)
 
 	...
-	import org.vcssl.connect.ExternalFunctionConnector1;
-	import org.vcssl.connect.ExternalVariableConnector1;
+	import org.vcssl.connect.ExternalFunctionConnectorInterface1;
+	import org.vcssl.connect.ExternalVariableConnectorInterface1;
 	import org.vcssl.connect.ConnectorPermission;
 	import org.vcssl.connect.ConnectorException;
 	import org.vcssl.connect.ArrayDataContainer1;
@@ -2035,7 +2035,7 @@ Let's implement. The following is an example code:
 
 		// A XFCI1 Plug-In which provides the external function "output(int)".
 		// 外部関数 output(int) を提供するXFCI1形式のプラグイン
-		public class OutputFunction implements ExternalFunctionConnector1 {
+		public class OutputFunction implements ExternalFunctionConnectorInterface1 {
 
 			@Override
 			public String getFunctionName() { return "output"; }
@@ -2050,9 +2050,9 @@ Let's implement. The following is an example code:
 			@Override
 			public boolean isVariadic() { return false; }
 			@Override
-			public String[] getNecessaryPermissions() { return new String[]{ ConnectorPermission.NONE }; }
+			public String[] getNecessaryPermissionNames() { return new String[]{ ConnectorPermissionName.NONE }; }
 			@Override
-			public String[] getUnnecessaryPermissions() { return new String[]{ ConnectorPermission.ALL }; }
+			public String[] getUnnecessaryPermissionNames() { return new String[]{ ConnectorPermissionName.ALL }; }
 			@Override
 			public void initializeForConnection(Object engineConnector) { }
 			@Override
@@ -2093,7 +2093,7 @@ Let's implement. The following is an example code:
 
 		// A XVCI1 Plug-In which provides the external variable "LOOP_MAX".
 		// 外部変数 LOOP_MAX を提供するXVCI1形式のプラグイン
-		public class LoopMaxVariable implements ExternalVariableConnector1 {
+		public class LoopMaxVariable implements ExternalVariableConnectorInterface1 {
 
 			private long[] data = new long[]{ 100l };
 			int[] dataLengths = new int[]{ 1 };
@@ -2105,9 +2105,9 @@ Let's implement. The following is an example code:
 			@Override
 			public boolean isConstant() { return false; }
 			@Override
-			public String[] getNecessaryPermissions() { return new String[]{ ConnectorPermission.NONE }; }
+			public String[] getNecessaryPermissionNames() { return new String[]{ ConnectorPermissionName.NONE }; }
 			@Override
-			public String[] getUnnecessaryPermissions() { return new String[]{ ConnectorPermission.ALL }; }
+			public String[] getUnnecessaryPermissionNames() { return new String[]{ ConnectorPermissionName.ALL }; }
 			@Override
 			public void initializeForConnection(Object engineConnector) { }
 			@Override
@@ -2179,8 +2179,8 @@ Let's implement. The following is an example code:
 
 			// Connect plug-ins to the script engine as an external function/variable.
 			// プラグインを外部関数・変数としてスクリプトエンジンに接続
-			ExternalVariableConnector1 loopMaxVariable = new Example2().new LoopMaxVariable();
-			ExternalFunctionConnector1 outputFunction = new Example2().new OutputFunction();
+			ExternalVariableConnectorInterface1 loopMaxVariable = new Example2().new LoopMaxVariable();
+			ExternalFunctionConnectorInterface1 outputFunction = new Example2().new OutputFunction();
 			engine.put("LOOP_MAX",    loopMaxVariable);
 			engine.put("output(int)", outputFunction);
 			...
@@ -2266,47 +2266,47 @@ where the symbol "=" means the mathematical equal, not the assignment operator.
 ### Packing of Multiple External Functions/Variables as a Plug-in - 複数の外部関数/変数プラグインを1つのプラグインにまとめる
 
 By using 
-"<a href="https://github.com/RINEARN/vnano/blob/master/src/org/vcssl/connect/ExternalNamespaceConnector1.java">org/vcssl/connect/ExternalNamespaceConnector1.java (XNCI1)</a>" 
+"<a href="https://github.com/RINEARN/vnano/blob/master/src/org/vcssl/connect/ExternalNamespaceConnectorInterface1.java">org/vcssl/connect/ExternalNamespaceConnectorInterface1.java (XNCI1)</a>" 
 interface, you can pack multiple plug-ins of external functions/variables into one plug-in:
 
 複数の外部関数/変数プラグインを1つのプラグインにまとめたい場合は、
-"<a href="https://github.com/RINEARN/vnano/blob/master/src/org/vcssl/connect/ExternalNamespaceConnector1.java">org/vcssl/connect/ExternalNamespaceConnector1.java (XNCI1)</a>" 
+"<a href="https://github.com/RINEARN/vnano/blob/master/src/org/vcssl/connect/ExternalNamespaceConnectorInterface1.java">org/vcssl/connect/ExternalNamespaceConnectorInterface1.java (XNCI1)</a>" 
 形式のインターフェースを用います：
 
 	(in XnciExamplePlugin.java)
 
-	import org.vcssl.connect.ExternalNamespaceConnector1;
-	import org.vcssl.connect.ExternalFunctionConnector1;
-	import org.vcssl.connect.ExternalVariableConnector1;
+	import org.vcssl.connect.ExternalNamespaceConnectorInterface1;
+	import org.vcssl.connect.ExternalFunctionConnectorInterface1;
+	import org.vcssl.connect.ExternalVariableConnectorInterface1;
 	import org.vcssl.connect.ConnectorPermission;
 	import org.vcssl.connect.ConnectorException;
 
-	public class XnciExamplePlugin implements ExternalNamespaceConnector1 {
+	public class XnciExamplePlugin implements ExternalNamespaceConnectorInterface1 {
 
 		XnciExamplePlugin instance = new XnciExamplePlugin();
 
 
 		// XFCI1 plug-ins for external functions.
 		// XFCI1形式の外部関数プラグイン（複数）
-		public class FunctionPluginA implements ExternalFunctionConnector1 {
+		public class FunctionPluginA implements ExternalFunctionConnectorInterface1 {
 			...
 		}
-		public class FunctionPluginB implements ExternalFunctionConnector1 {
+		public class FunctionPluginB implements ExternalFunctionConnectorInterface1 {
 			...
 		}
-		public class FunctionPluginC implements ExternalFunctionConnector1 {
+		public class FunctionPluginC implements ExternalFunctionConnectorInterface1 {
 			...
 		}
 
 		// XVCI1 plug-ins for external variables.
 		// XVCI1形式の外部変数プラグイン（複数）
-		public class VariablePluginA implements ExternalVariableConnector1 {
+		public class VariablePluginA implements ExternalVariableConnectorInterface1 {
 			...
 		}
-		public class VariablePluginB implements ExternalVariableConnector1 {
+		public class VariablePluginB implements ExternalVariableConnectorInterface1 {
 			...
 		}
-		public class VariablePluginC implements ExternalVariableConnector1 {
+		public class VariablePluginC implements ExternalVariableConnectorInterface1 {
 			...
 		}
 
@@ -2314,8 +2314,8 @@ interface, you can pack multiple plug-ins of external functions/variables into o
 		// A method returns all XFCI plug-ins for providing exteral functions.
 		// 全てのXFCI1形式の外部関数プラグインを一括提供するメソッド
 		@Override
-		public ExternalFunctionConnector1[] getFunctions() {
-			return new ExternalFunctionConnector1[]{
+		public ExternalFunctionConnectorInterface1[] getFunctions() {
+			return new ExternalFunctionConnectorInterface1[]{
 				this.instance.new FunctionPluginA(),
 				this.instance.new FunctionPluginB(),
 				this.instance.new FunctionPluginC(),
@@ -2325,8 +2325,8 @@ interface, you can pack multiple plug-ins of external functions/variables into o
 		// A method returns all XVCI plug-ins for providing exteral variables.
 		// 全てのXFCI1形式の外部関数プラグインを一括提供するメソッド
 		@Override
-		public ExternalVariableConnector1[] getVariables() {
-			return new ExternalVariableConnector1[]{
+		public ExternalVariableConnectorInterface1[] getVariables() {
+			return new ExternalVariableConnectorInterface1[]{
 				this.instance.new VariablePluginA(),
 				this.instance.new VariablePluginB(),
 				this.instance.new VariablePluginC(),
@@ -2339,9 +2339,9 @@ interface, you can pack multiple plug-ins of external functions/variables into o
 			return "XnciExamplePlugin";
 		}
 		@Override
-		public String[] getNecessaryPermissions() { return new String[]{ ConnectorPermission.NONE }; }
+		public String[] getNecessaryPermissionNames() { return new String[]{ ConnectorPermissionName.NONE }; }
 		@Override
-		public String[] getUnnecessaryPermissions() { return new String[]{ ConnectorPermission.ALL }; }
+		public String[] getUnnecessaryPermissionNames() { return new String[]{ ConnectorPermissionName.ALL }; }
 		@Override
 		public void initializeForConnection(Object engineConnector) { }
 		@Override
