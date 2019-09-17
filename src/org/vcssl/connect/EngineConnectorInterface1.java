@@ -26,7 +26,7 @@ package org.vcssl.connect;
  *
  * @author RINEARN (Fumihiro Matsui)
  */
-public interface EngineConnector1 {
+public interface EngineConnectorInterface1 {
 
 
 	/**

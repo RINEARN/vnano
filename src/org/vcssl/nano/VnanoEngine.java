@@ -183,9 +183,9 @@ public class VnanoEngine {
 	 *     and store the Method/Field type instance at [0],
 	 *     and store "Class&lt;T&gt;" type instance of the class defining the method/field at [1] ).
 	 *   Furthermore, the instance of the class implementing
-	 *   {@link org.vcssl.connect.ExternalFunctionConnector1 XFCI1} /
-	 *   {@link org.vcssl.connect.ExternalVariableConnector1 XVCI1} /
-	 *   {@link org.vcssl.connect.ExternalNamespaceConnector1 XNCI1}
+	 *   {@link org.vcssl.connect.ExternalFunctionConnectorInterface1 XFCI1} /
+	 *   {@link org.vcssl.connect.ExternalVariableConnectorInterface1 XVCI1} /
+	 *   {@link org.vcssl.connect.ExternalNamespaceConnectorInterface1 XNCI1}
 	 *   type less-overhead plug-in interface can be connected.
 	 *   </span>
 	 *   <span class="lang-ja">
@@ -199,9 +199,9 @@ public class VnanoEngine {
 	 *      引数 plugin は Object 配列型とし、その [0] 番要素に Field または Method を格納し,
 	 *      [1] 番要素にそのフィールド・メソッドが定義されたクラスの Class&lt;T&gt; 型インスタンスを格納してください ）.
 	 *   加えて,
-	 *   {@link org.vcssl.connect.ExternalFunctionConnector1 XFCI1} /
-	 *   {@link org.vcssl.connect.ExternalVariableConnector1 XVCI1} /
-	 *   {@link org.vcssl.connect.ExternalNamespaceConnector1 XNCI1}
+	 *   {@link org.vcssl.connect.ExternalFunctionConnectorInterface1 XFCI1} /
+	 *   {@link org.vcssl.connect.ExternalVariableConnectorInterface1 XVCI1} /
+	 *   {@link org.vcssl.connect.ExternalNamespaceConnectorInterface1 XNCI1}
 	 *   形式の, 低オーバーヘッドなプラグインインターフェースを実装したクラスのインスタンスも接続できます.
 	 *   </span>
 	 *

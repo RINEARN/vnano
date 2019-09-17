@@ -18,7 +18,7 @@ package org.vcssl.connect;
  * <br>
  * GPCI 2 は GPCI 1 の仕様を全て含むため、
  * このインターフェースを実装するクラスは、必要に応じて
- * {@link GeneralProcessConnector1 GeneralProcessConnector1}
+ * {@link GeneralProcessConnectorInterface1 GeneralProcessConnectorInterface1}
  * インターフェースも同時に実装する事が可能です。
  * </p>
  *
@@ -49,9 +49,9 @@ package org.vcssl.connect;
  * </p>
  *
  * <p>
- * GPCI 2 は、{@link GeneralProcessConnector1 GPCI 1} の全機能に加えて、
+ * GPCI 2 は、{@link GeneralProcessConnectorInterface1 GPCI 1} の全機能に加えて、
  * スクリプトの実行毎に初期化・終了時処理を行える機能がサポートされています。
- * なお、より新しい {@link GeneralProcessConnector3 GPCI 3} が既に定義されていますが、
+ * なお、より新しい {@link GeneralProcessConnectorInterface3 GPCI 3} が既に定義されていますが、
  * そちらにはまだ完全対応している処理系はありません。
  * ただし、GPCI 3 準拠のプラグインは GPCI 2 準拠と接続する事が可能なため、
  * GPCIプラグインの新規開発では GPCI 3 への準拠が推奨されます。
@@ -67,7 +67,7 @@ package org.vcssl.connect;
  *
  * @author RINEARN (Fumihiro Matsui)
  */
-public interface GeneralProcessConnector2 {
+public interface GeneralProcessConnectorInterface2 {
 
 
 	/**
@@ -75,7 +75,7 @@ public interface GeneralProcessConnector2 {
 	 *
 	 * このメソッドは、処理系側から、スクリプト実行前の段階で呼び出されます。
 	 * そこで渡された関数名に対して true を返すと、スクリプト実行時に該当関数の処理が、
-	 * このプラグインの {@link GeneralProcessConnector2#process process}
+	 * このプラグインの {@link GeneralProcessConnectorInterface2#process process}
 	 * メソッドで実行するように紐づけられます。
 	 *
 	 * 関数の引数情報は渡されず、

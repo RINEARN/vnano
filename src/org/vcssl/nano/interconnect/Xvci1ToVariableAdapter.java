@@ -6,7 +6,7 @@
 package org.vcssl.nano.interconnect;
 
 import org.vcssl.connect.ConnectorException;
-import org.vcssl.connect.ExternalVariableConnector1;
+import org.vcssl.connect.ExternalVariableConnectorInterface1;
 import org.vcssl.nano.VnanoFatalException;
 import org.vcssl.nano.VnanoException;
 import org.vcssl.nano.spec.DataTypeName;
@@ -14,7 +14,7 @@ import org.vcssl.nano.vm.memory.DataContainer;
 
 /**
  * <p>
- * 指定された {@link org.vcssl.connect.ExternalVariableConnector1 XVCI 1}
+ * 指定された {@link org.vcssl.connect.ExternalVariableConnectorInterface1 XVCI 1}
  * 形式の外部変数プラグインを、Vnano処理系内での変数仕様
  * （{@link org.vcssl.nano.interconnect.AbstractVariable AbstractVariable}）
  * に基づく変数オブジェクトへと変換し、
@@ -26,7 +26,7 @@ import org.vcssl.nano.vm.memory.DataContainer;
 public class Xvci1ToVariableAdapter extends AbstractVariable {
 
 	/** XVCI準拠の外部変数プラグインです。 */
-	private ExternalVariableConnector1 xvciPlugin = null;
+	private ExternalVariableConnectorInterface1 xvciPlugin = null;
 
 	/** 外部変数と処理系内部の変数とで、データの型変換を行うコンバータです。 */
 	private DataConverter dataConverter = null;
@@ -46,7 +46,7 @@ public class Xvci1ToVariableAdapter extends AbstractVariable {
 	 * @throws VnanoException
 	 * 		外部変数のデータや型が、この処理系内部では変数として使用できない場合に発生します。
 	 */
-	public Xvci1ToVariableAdapter(ExternalVariableConnector1 xvciPlugin) throws VnanoException {
+	public Xvci1ToVariableAdapter(ExternalVariableConnectorInterface1 xvciPlugin) throws VnanoException {
 		this.xvciPlugin = xvciPlugin;
 		this.dataConverter = new DataConverter(this.xvciPlugin.getDataClass());
 	}
@@ -61,7 +61,7 @@ public class Xvci1ToVariableAdapter extends AbstractVariable {
 	 * @throws VnanoException
 	 * 		外部変数のデータや型が、この処理系内部では変数として使用できない場合に発生します。
 	 */
-	public Xvci1ToVariableAdapter(ExternalVariableConnector1 xvciPlugin, String nameSpace)
+	public Xvci1ToVariableAdapter(ExternalVariableConnectorInterface1 xvciPlugin, String nameSpace)
 			throws VnanoException {
 
 		this(xvciPlugin);
