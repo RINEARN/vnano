@@ -6,7 +6,7 @@
 package org.vcssl.nano.interconnect;
 
 import org.vcssl.connect.ConnectorException;
-import org.vcssl.connect.ExternalFunctionConnector1;
+import org.vcssl.connect.ExternalFunctionConnectorInterface1;
 import org.vcssl.nano.VnanoFatalException;
 import org.vcssl.nano.VnanoException;
 import org.vcssl.nano.spec.DataType;
@@ -17,7 +17,7 @@ import org.vcssl.nano.vm.memory.DataContainer;
 
 /**
  * <p>
- * {@link org.vcssl.connect.ExternalFunctionConnector1 XFCI 1}
+ * {@link org.vcssl.connect.ExternalFunctionConnectorInterface1 XFCI 1}
  * 形式の外部関数プラグインを、Vnano処理系内での関数仕様
  * （{@link org.vcssl.nano.interconnect.AbstractVariable AbstractFunction}）
  * に基づく関数オブジェクトへと変換し、
@@ -29,7 +29,7 @@ import org.vcssl.nano.vm.memory.DataContainer;
 public final class Xfci1ToFunctionAdapter extends AbstractFunction {
 
 	/** XFCI準拠の外部変数プラグインです。 */
-	private ExternalFunctionConnector1 xfciPlugin = null;
+	private ExternalFunctionConnectorInterface1 xfciPlugin = null;
 
 	/** 外部関数の引数と処理系内部の関数の引数とで、データの型変換を行うコンバータです。 */
 	private DataConverter[] parameterDataConverters = null;
@@ -65,7 +65,7 @@ public final class Xfci1ToFunctionAdapter extends AbstractFunction {
 	 * @throws VnanoException
 	 * 		引数のデータや型が、この処理系内部では使用できない場合に発生します。
 	 */
-	public Xfci1ToFunctionAdapter(ExternalFunctionConnector1 xfciPlugin) throws VnanoException {
+	public Xfci1ToFunctionAdapter(ExternalFunctionConnectorInterface1 xfciPlugin) throws VnanoException {
 
 		this.xfciPlugin = xfciPlugin;
 
@@ -121,7 +121,7 @@ public final class Xfci1ToFunctionAdapter extends AbstractFunction {
 	 * @throws VnanoException
 	 * 		引数のデータや型が、この処理系内部では使用できない場合に発生します。
 	 */
-	public Xfci1ToFunctionAdapter(ExternalFunctionConnector1 xfciPlugin, String nameSpace)
+	public Xfci1ToFunctionAdapter(ExternalFunctionConnectorInterface1 xfciPlugin, String nameSpace)
 			throws VnanoException {
 
 		this(xfciPlugin);

@@ -22,16 +22,16 @@ package org.vcssl.connect;
  * スクリプトの開始および終了のタイミングをプラグイン側から検知する仕組みが無く、
  * 初期化および終了時処理を行いたい場合に不都合が生じるため、
  * 後継として拡張された
- * {@link GeneralProcessConnector2 GPCI 2}
+ * {@link GeneralProcessConnectorInterface2 GPCI 2}
  * および
- * {@link GeneralProcessConnector3 GPCI 3}
+ * {@link GeneralProcessConnectorInterface3 GPCI 3}
  * が存在します。
  * 最初期のVCSSL処理系を使用するなどの特別な事情が無い場合は、そちらの方を使用してください。
  * </p>
  *
  * @author RINEARN (Fumihiro Matsui)
  */
-public interface GeneralProcessConnector1 {
+public interface GeneralProcessConnectorInterface1 {
 
 
 	/**
@@ -39,7 +39,7 @@ public interface GeneralProcessConnector1 {
 	 *
 	 * このメソッドは、処理系側から、スクリプト実行前の段階で呼び出されます。
 	 * そこで関数名に対して true を返すと、スクリプト実行時に該当関数の処理が
-	 * このプラグインの {@link GeneralProcessConnector1#process process}
+	 * このプラグインの {@link GeneralProcessConnectorInterface1#process process}
 	 * メソッドに一任されます。
 	 *
 	 * 関数の引数情報は渡されず、
@@ -47,7 +47,7 @@ public interface GeneralProcessConnector1 {
 	 * GPCIでは、同名で異なるシグネチャのプラグイン関数をサポートする事はできません。
 	 * そのような事を行いたい場合は、スクリプト側で、
 	 * プラグイン関数をラッピングした関数を用意する必要があります
-	 * （{@link GeneralProcessConnector1#process process} のコメント参照）。
+	 * （{@link GeneralProcessConnectorInterface1#process process} のコメント参照）。
 	 *
 	 * @param functionName 判定対象関数の関数名
 	 * @return 処理可能であれば true

@@ -7,7 +7,7 @@ package org.vcssl.nano;
 
 import java.util.Map;
 
-import org.vcssl.connect.EngineConnector1;
+import org.vcssl.connect.EngineConnectorInterface1;
 
 //Documentation:  https://www.vcssl.org/en-us/dev/code/main-jimpl/api/org/vcssl/nano/VnanoEngineConnector.html
 //ドキュメント:   https://www.vcssl.org/ja-jp/dev/code/main-jimpl/api/org/vcssl/nano/VnanoEngineConnector.html
@@ -34,7 +34,7 @@ import org.vcssl.connect.EngineConnector1;
  *
  * @author RINEARN (Fumihiro Matsui)
  */
-public final class VnanoEngineConnector implements EngineConnector1 {
+public final class VnanoEngineConnector implements EngineConnectorInterface1 {
 
 	Map<String,Object> optionMap = null;
 

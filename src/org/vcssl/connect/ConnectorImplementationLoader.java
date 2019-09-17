@@ -102,10 +102,10 @@ public class ConnectorImplementationLoader {
 
 		} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
 
-			if (connectorImplInstance instanceof GeneralProcessConnector2) {
+			if (connectorImplInstance instanceof GeneralProcessConnectorInterface2) {
 				interfaceType = "GPCI";
 				interfaceGeneration = "2";
-			} else if (connectorImplInstance instanceof GeneralProcessConnector1) {
+			} else if (connectorImplInstance instanceof GeneralProcessConnectorInterface1) {
 				interfaceType = "GPCI";
 				interfaceGeneration = "1";
 			} else {
@@ -155,10 +155,10 @@ public class ConnectorImplementationLoader {
 		switch (interfaceCode) {
 
 			case "XFCI1" : {
-				if ( !(implementation instanceof ExternalFunctionConnector1) ) {
+				if ( !(implementation instanceof ExternalFunctionConnectorInterface1) ) {
 					throw new ConnectorException(
 						"Invalid implementation"
-						+ " (should implement org.vcssl.connect.ExternalFunctionConnector1): "
+						+ " (should implement org.vcssl.connect.ExternalFunctionConnectorInterface1): "
 						+ connectorImplementationName
 					);
 				}
@@ -166,10 +166,10 @@ public class ConnectorImplementationLoader {
 			}
 
 			case "XVCI1" : {
-				if ( !(implementation instanceof ExternalVariableConnector1) ) {
+				if ( !(implementation instanceof ExternalVariableConnectorInterface1) ) {
 					throw new ConnectorException(
 						"Invalid implementation"
-						+ " (should implement org.vcssl.connect.ExternalVariableConnector1): "
+						+ " (should implement org.vcssl.connect.ExternalVariableConnectorInterface1): "
 						+ connectorImplementationName
 					);
 				}
@@ -177,10 +177,10 @@ public class ConnectorImplementationLoader {
 			}
 
 			case "GPCI1" : {
-				if ( !(implementation instanceof GeneralProcessConnector1) ) {
+				if ( !(implementation instanceof GeneralProcessConnectorInterface1) ) {
 					throw new ConnectorException(
 						"Invalid implementation"
-						+ " (should implement org.vcssl.connect.GeneralProcessConnector1): "
+						+ " (should implement org.vcssl.connect.GeneralProcessConnectorInterface1): "
 						+ connectorImplementationName
 					);
 				}
@@ -188,10 +188,10 @@ public class ConnectorImplementationLoader {
 			}
 
 			case "GPCI2" : {
-				if ( !(implementation instanceof GeneralProcessConnector2) ) {
+				if ( !(implementation instanceof GeneralProcessConnectorInterface2) ) {
 					throw new ConnectorException(
 						"Invalid implementation"
-						+ " (should implement org.vcssl.connect.GeneralProcessConnector2): "
+						+ " (should implement org.vcssl.connect.GeneralProcessConnectorInterface2): "
 						+ connectorImplementationName
 					);
 				}
@@ -199,10 +199,10 @@ public class ConnectorImplementationLoader {
 			}
 
 			case "GPCI3" : {
-				if ( !(implementation instanceof GeneralProcessConnector3) ) {
+				if ( !(implementation instanceof GeneralProcessConnectorInterface3) ) {
 					throw new ConnectorException(
 						"Invalid implementation"
-						+ " (should implement org.vcssl.connect.GeneralProcessConnector3): "
+						+ " (should implement org.vcssl.connect.GeneralProcessConnectorInterface3): "
 						+ connectorImplementationName
 					);
 				}

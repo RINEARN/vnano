@@ -10,10 +10,10 @@ import java.lang.reflect.Method;
 
 import org.vcssl.connect.ClassToXnci1Adapter;
 import org.vcssl.connect.ConnectorException;
-import org.vcssl.connect.EngineConnector1;
-import org.vcssl.connect.ExternalFunctionConnector1;
-import org.vcssl.connect.ExternalNamespaceConnector1;
-import org.vcssl.connect.ExternalVariableConnector1;
+import org.vcssl.connect.EngineConnectorInterface1;
+import org.vcssl.connect.ExternalFunctionConnectorInterface1;
+import org.vcssl.connect.ExternalNamespaceConnectorInterface1;
+import org.vcssl.connect.ExternalVariableConnectorInterface1;
 import org.vcssl.connect.FieldToXvci1Adapter;
 import org.vcssl.connect.MethodToXfci1Adapter;
 import org.vcssl.nano.spec.ErrorType;
@@ -75,7 +75,7 @@ public class Interconnect {
 	private VariableTable externalVariableTable = null;
 
 	/** プラグインからスクリプトエンジンにアクセスする際に使用するコネクタです。 */
-	private EngineConnector1 engineConnector = null;
+	private EngineConnectorInterface1 engineConnector = null;
 
 
 	/**
@@ -101,7 +101,7 @@ public class Interconnect {
 	 *   <span class="lang-en">The engine connector to be passed to plug-ins</span>
 	 *   <span class="lang-ja">プラグインに渡すエンジンコネクタ</span>
 	 */
-	public void setEngineConnector(EngineConnector1 engineConnector) {
+	public void setEngineConnector(EngineConnectorInterface1 engineConnector) {
 		this.engineConnector = engineConnector;
 	}
 
@@ -248,9 +248,9 @@ public class Interconnect {
 	 *     and store the Method/Field type instance at [0],
 	 *     and store "Class&lt;T&gt;" type instance of the class defining the method/field at [1] ).
 	 *   Furthermore, the instance of the class implementing
-	 *   {@link org.vcssl.connect.ExternalFunctionConnector1 XFCI1} /
-	 *   {@link org.vcssl.connect.ExternalVariableConnector1 XVCI1} /
-	 *   {@link org.vcssl.connect.ExternalNamespaceConnector1 XNCI1}
+	 *   {@link org.vcssl.connect.ExternalFunctionConnectorInterface1 XFCI1} /
+	 *   {@link org.vcssl.connect.ExternalVariableConnectorInterface1 XVCI1} /
+	 *   {@link org.vcssl.connect.ExternalNamespaceConnectorInterface1 XNCI1}
 	 *   type less-overhead plug-in interface can be connected.
 	 *   </span>
 	 *   <span class="lang-ja">
@@ -264,9 +264,9 @@ public class Interconnect {
 	 *      引数 plugin は Object 配列型とし、その [0] 番要素に Field または Method を格納し,
 	 *      [1] 番要素にそのフィールド・メソッドが定義されたクラスの Class&lt;T&gt; 型インスタンスを格納してください ）.
 	 *   加えて,
-	 *   {@link org.vcssl.connect.ExternalFunctionConnector1 XFCI1} /
-	 *   {@link org.vcssl.connect.ExternalVariableConnector1 XVCI1} /
-	 *   {@link org.vcssl.connect.ExternalNamespaceConnector1 XNCI1}
+	 *   {@link org.vcssl.connect.ExternalFunctionConnectorInterface1 XFCI1} /
+	 *   {@link org.vcssl.connect.ExternalVariableConnectorInterface1 XVCI1} /
+	 *   {@link org.vcssl.connect.ExternalNamespaceConnectorInterface1 XNCI1}
 	 *   形式の, 低オーバーヘッドなプラグインインターフェースを実装したクラスのインスタンスも接続できます.
 	 *   </span>
 	 *
@@ -289,16 +289,16 @@ public class Interconnect {
 		}
 
 		// XVCI 1 形式の外部変数プラグイン
-		if (plugin instanceof ExternalVariableConnector1) {
-			this.connectXvci1Plugin( (ExternalVariableConnector1)plugin, true, bindingKey );
+		if (plugin instanceof ExternalVariableConnectorInterface1) {
+			this.connectXvci1Plugin( (ExternalVariableConnectorInterface1)plugin, true, bindingKey );
 
 		// XFCI 1 形式の外部関数プラグイン
-		} else if (plugin instanceof ExternalFunctionConnector1) {
-			this.connectXfci1Plugin( (ExternalFunctionConnector1)plugin, true, bindingKey );
+		} else if (plugin instanceof ExternalFunctionConnectorInterface1) {
+			this.connectXfci1Plugin( (ExternalFunctionConnectorInterface1)plugin, true, bindingKey );
 
 		// XNCI 1 形式の外部関数プラグイン
-		} else if (plugin instanceof ExternalNamespaceConnector1) {
-			this.connectXnci1Plugin( (ExternalNamespaceConnector1)plugin, true, bindingKey, false );
+		} else if (plugin instanceof ExternalNamespaceConnectorInterface1) {
+			this.connectXnci1Plugin( (ExternalNamespaceConnectorInterface1)plugin, true, bindingKey, false );
 
 		// クラスフィールドの場合
 		} else if (plugin instanceof Field) {
@@ -394,17 +394,17 @@ public class Interconnect {
 			return IdentifierSyntax.getSignatureOf((AbstractFunction)plugin);
 
 		// XVCI 1 形式の外部変数プラグイン
-		} else if (plugin instanceof ExternalVariableConnector1) {
-			return ((ExternalVariableConnector1)plugin).getVariableName();
+		} else if (plugin instanceof ExternalVariableConnectorInterface1) {
+			return ((ExternalVariableConnectorInterface1)plugin).getVariableName();
 
 		// XFCI 1 形式の外部関数プラグイン
-		} else if (plugin instanceof ExternalFunctionConnector1) {
-			AbstractFunction functionAdapter = new Xfci1ToFunctionAdapter((ExternalFunctionConnector1)plugin);
+		} else if (plugin instanceof ExternalFunctionConnectorInterface1) {
+			AbstractFunction functionAdapter = new Xfci1ToFunctionAdapter((ExternalFunctionConnectorInterface1)plugin);
 			return IdentifierSyntax.getSignatureOf(functionAdapter);
 
 		// XNCI 1 形式の外部関数プラグイン
-		} else if (plugin instanceof ExternalNamespaceConnector1) {
-			return ((ExternalNamespaceConnector1)plugin).getNamespaceName();
+		} else if (plugin instanceof ExternalNamespaceConnectorInterface1) {
+			return ((ExternalNamespaceConnectorInterface1)plugin).getNamespaceName();
 
 		// クラスフィールドの場合
 		} else if (plugin instanceof Field) {
@@ -412,7 +412,7 @@ public class Interconnect {
 
 		// クラスメソッドの場合
 		} else if (plugin instanceof Method) {
-			ExternalFunctionConnector1 xfci1Adapter = new MethodToXfci1Adapter((Method)plugin);
+			ExternalFunctionConnectorInterface1 xfci1Adapter = new MethodToXfci1Adapter((Method)plugin);
 			AbstractFunction functionAdapter = new Xfci1ToFunctionAdapter(xfci1Adapter);
 			return IdentifierSyntax.getSignatureOf(functionAdapter);
 
@@ -620,11 +620,11 @@ public class Interconnect {
 
 	/**
 	 * <span class="lang-ja">
-	 * 外部変数を提供する, {@link org.vcssl.connect.ExternalVariableConnector1 XVCI1}
+	 * 外部変数を提供する, {@link org.vcssl.connect.ExternalVariableConnectorInterface1 XVCI1}
 	 * 形式のプラグインを接続します
 	 * </span>
 	 * <span class="lang-en">
-	 * Connects the plug-in of {@link org.vcssl.connect.ExternalVariableConnector1 XVCI1} format,
+	 * Connects the plug-in of {@link org.vcssl.connect.ExternalVariableConnectorInterface1 XVCI1} format,
 	 * which provides an external variable
 	 * </span>
 	 * .
@@ -648,7 +648,7 @@ public class Interconnect {
 	 *   データ型の互換性などの原因により, プラグインの接続に失敗した場合にスローされます.
 	 *   </span>
 	 */
-	private void connectXvci1Plugin(ExternalVariableConnector1 plugin, boolean aliasingRequired, String aliasName)
+	private void connectXvci1Plugin(ExternalVariableConnectorInterface1 plugin, boolean aliasingRequired, String aliasName)
 			throws VnanoException {
 
 		try {
@@ -665,11 +665,11 @@ public class Interconnect {
 
 	/**
 	 * <span class="lang-ja">
-	 * 外部関数を提供する, {@link org.vcssl.connect.ExternalFunctionConnector1 XFCI1}
+	 * 外部関数を提供する, {@link org.vcssl.connect.ExternalFunctionConnectorInterface1 XFCI1}
 	 * 形式のプラグインを接続します
 	 * </span>
 	 * <span class="lang-en">
-	 * Connects the plug-in of {@link org.vcssl.connect.ExternalFunctionConnector1 XFCI1} format,
+	 * Connects the plug-in of {@link org.vcssl.connect.ExternalFunctionConnectorInterface1 XFCI1} format,
 	 * which provides an external function
 	 * </span>
 	 * .
@@ -693,7 +693,7 @@ public class Interconnect {
 	 *   データ型の互換性などの原因により, プラグインの接続に失敗した場合にスローされます.
 	 *   </span>
 	 */
-	private void connectXfci1Plugin(ExternalFunctionConnector1 plugin, boolean aliasingRequired, String aliasSignature)
+	private void connectXfci1Plugin(ExternalFunctionConnectorInterface1 plugin, boolean aliasingRequired, String aliasSignature)
 			throws VnanoException {
 
 		try {
@@ -711,10 +711,10 @@ public class Interconnect {
 	/**
 	 * <span class="lang-ja">
 	 * 複数の外部変数や外部関数をまとめて提供する,
-	 * {@link org.vcssl.connect.ExternalNamespaceConnector1 XNCI1} 形式のプラグインを接続します
+	 * {@link org.vcssl.connect.ExternalNamespaceConnectorInterface1 XNCI1} 形式のプラグインを接続します
 	 * </span>
 	 * <span class="lang-en">
-	 * Connects the plug-in of {@link org.vcssl.connect.ExternalNamespaceConnector1 XNCI1} format,
+	 * Connects the plug-in of {@link org.vcssl.connect.ExternalNamespaceConnectorInterface1 XNCI1} format,
 	 * which provides a set of external variables and external functions
 	 * </span>
 	 * .
@@ -738,7 +738,7 @@ public class Interconnect {
 	 *   データ型の互換性などの原因により, プラグインの接続に失敗した場合にスローされます.
 	 *   </span>
 	 */
-	private void connectXnci1Plugin(ExternalNamespaceConnector1 connector, boolean aliasingRequired, String aliasName,
+	private void connectXnci1Plugin(ExternalNamespaceConnectorInterface1 connector, boolean aliasingRequired, String aliasName,
 			boolean ignoreIncompatibles) throws VnanoException {
 
 		try {
@@ -756,8 +756,8 @@ public class Interconnect {
 		}
 
 		// 関数をアダプタで変換して接続
-		ExternalFunctionConnector1[] xfciConnectors = connector.getFunctions();
-		for (ExternalFunctionConnector1 xfciConnector: xfciConnectors) {
+		ExternalFunctionConnectorInterface1[] xfciConnectors = connector.getFunctions();
+		for (ExternalFunctionConnectorInterface1 xfciConnector: xfciConnectors) {
 			try {
 				xfciConnector.initializeForConnection(this.engineConnector);
 				AbstractFunction adapter = new Xfci1ToFunctionAdapter(xfciConnector, nameSpace);
@@ -776,8 +776,8 @@ public class Interconnect {
 		}
 
 		// 変数をアダプタで変換して接続
-		ExternalVariableConnector1[] xvciConnectors = connector.getVariables();
-		for (ExternalVariableConnector1 xvciConnector: xvciConnectors) {
+		ExternalVariableConnectorInterface1[] xvciConnectors = connector.getVariables();
+		for (ExternalVariableConnectorInterface1 xvciConnector: xvciConnectors) {
 			try {
 				xvciConnector.initializeForConnection(this.engineConnector);
 				AbstractVariable adapter = new Xvci1ToVariableAdapter(xvciConnector, nameSpace);

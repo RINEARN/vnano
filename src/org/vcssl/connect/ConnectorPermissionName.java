@@ -34,38 +34,38 @@ package org.vcssl.connect;
  *
  * @author RINEARN (Fumihiro Matsui)
  */
-public class ConnectorPermission {
+public class ConnectorPermissionName {
 
 	/** 全てのパーミッションを含む事を表します。 */
-	public static final String ALL = "a";
+	public static final String ALL = "ALL";
 
 	/** どのパーミッションも含まない事を表します。 */
-	public static final String NONE = "n";
+	public static final String NONE = "NONE";
 
 	/** 実行対象スクリプトの終了を要求する事に対するパーミッションです。 */
-	public static final String PROGRAM_EXIT = "pe";
+	public static final String PROGRAM_EXIT = "PROGRAM_EXIT";
 
 	/** 実行対象スクリプトのリセットを要求する事に対するパーミッションです。 */
-	public static final String PROGRAM_RESET = "pr";
+	public static final String PROGRAM_RESET = "PROGRAM_RESET";
 
 	/** 実行対象スクリプトの変更を要求する事に対するパーミッションです。 */
-	public static final String PROGRAM_CHANGE = "pc";
+	public static final String PROGRAM_CHANGE = "PROGRAM_CHANGE";
 
 	/** システム経由における外部プログラムやコマンドの実行（execの相当操作に対するパーミッションです。 */
-	public static final String SYSTEM_PROCESS = "sp";
+	public static final String SYSTEM_PROCESS = "SYSTEM_PROCESS";
 
 	/** ファイルの書き込みに対するパーミッションです。 */
-	public static final String FILE_WRITE = "fw";
+	public static final String FILE_WRITE = "FILE_WRITE";
 
 	/** ファイルの書き込みに対するパーミッションです。 */
-	public static final String FILE_READ = "fr";
+	public static final String FILE_READ = "FILE_READ";
 
 	/** ファイルの上書きに対するパーミッションです。 */
-	public static final String FILE_OVERWRITE = "fo";
+	public static final String FILE_OVERWRITE = "FILE_OVERWRITE";
 
 	/** ファイルの情報変更に対するパーミッションです。 */
-	public static final String FILE_INFORMATION_CHANGE = "fc";
+	public static final String FILE_INFORMATION_CHANGE = "FILE_INFORMATION_CHANGE";
 
 	/** ファイルの削除に対するパーミッションです。 */
-	public static final String FILE_DELETE = "fd";
+	public static final String FILE_DELETE = "FILE_DELETE";
 }

@@ -27,7 +27,7 @@ package org.vcssl.connect;
  *
  * <p>
  * XVCI 1 では、外部関数プラグイン用のインターフェースである
- * XFCI 1 ({@link ExternalFunctionConnector1 External Function Connector Interface Gen.1})
+ * XFCI 1 ({@link ExternalFunctionConnectorInterface1 External Function Connector Interface Gen.1})
  * ベースとしています。
  * <br>
  * XFCI と同様に、XVCI は現時点ではまだVCSSL処理系では対応していませんが、
@@ -54,7 +54,7 @@ package org.vcssl.connect;
  *
  * @author RINEARN (Fumihiro Matsui)
  */
-public interface ExternalVariableConnector1 {
+public interface ExternalVariableConnectorInterface1 {
 
 
 	/** 動的ロード時などに処理系側から参照される、インターフェースの形式名（値は"XVCI"）です。 */
@@ -92,8 +92,8 @@ public interface ExternalVariableConnector1 {
 	 * データの自動変換が必要かどうかを返します。
 	 *
 	 * このメソッドがtrueを返すようにプラグインを実装すると、
-	 * {@link ExternalVariableConnector1#getData getData} メソッドや
-	 * {@link ExternalVariableConnector1#setData setData}
+	 * {@link ExternalVariableConnectorInterface1#getData getData} メソッドや
+	 * {@link ExternalVariableConnectorInterface1#setData setData}
 	 * メソッドでのデータのやり取りに際して、
 	 * プラグインを記述しているホスト言語と処理系内部との間でのデータの型変換などを、
 	 * 処理系側が自動で行うようになります。
@@ -101,7 +101,7 @@ public interface ExternalVariableConnector1 {
 	 * 逆に、メソッドがfalseを返すようにプラグインを実装すると、
 	 * 処理系側ではデータの変換は行われず、上述のような場面においては、
 	 * 処理系依存のデータコンテナ
-	 * （{@link org.vcssl.connect.ArrayDataContainer1 ArrayDataContainer1} 参照）
+	 * （{@link org.vcssl.connect.ArrayDataContainerInterface1 ArrayDataContainerInterface1} 参照）
 	 * を直接やり取りするようになります。
 	 *
 	 * データの自動変換を利用すると、プラグインの実装が容易になりますが、
@@ -116,18 +116,18 @@ public interface ExternalVariableConnector1 {
 
 	/**
 	 * パーミッション設定ベースのセキュリティレイヤーを持つ処理系において、
-	 * この変数のデータの読み書きに必要な全てのパーミッションを、配列にまとめて取得します。
+	 * この変数のデータの読み書きに必要な全てのパーミッションの名称を、配列にまとめて取得します。
 	 *
 	 * パーミッションベースのセキュリティレイヤ―を持たない処理系では、
 	 * このメソッドは機能しません（呼び出されません）。
 	 *
 	 * このメソッドが返す必要パーミッション配列と、
-	 * {@link ExternalFunctionConnector1#getUnnecessaryPermissions getUnnecessaryPermissions}
+	 * {@link ExternalFunctionConnectorInterface1#getUnnecessaryPermissions getUnnecessaryPermissions}
 	 * メソッドが返す不要パーミッション配列において、重複している要素がある場合は、
 	 * 前者の方が優先されます（つまり、そのパーミッションは必要と判断されます）。
 	 *
 	 * なお、このメソッドの戻り値に、
-	 * {@link ConnectorPermission#NONE ConnectorPermission.NONE}
+	 * {@link ConnectorPermissionName#NONE ConnectorPermissionName.NONE}
 	 * のみを格納する配列を返す事で、全てのパーミッションが不要となります。
 	 * ただし、そのような事は、
 	 * この関数が一切のシステムリソースやネットワークにアクセスしない場合など、
@@ -135,23 +135,23 @@ public interface ExternalVariableConnector1 {
 	 *
 	 * @return 必要なパーミッションを格納する配列
 	 */
-	public abstract String[] getNecessaryPermissions();
+	public abstract String[] getNecessaryPermissionNameNames();
 
 
 	/**
 	 * パーミッション設定ベースのセキュリティレイヤーを持つ処理系において、
-	 * この変数のデータの読み書きに不要な全てのパーミッションを、配列にまとめて取得します。
+	 * この変数のデータの読み書きに不要な全てのパーミッションの名称を、配列にまとめて取得します。
 	 *
 	 * パーミッションベースのセキュリティレイヤ―を持たない処理系では、
 	 * このメソッドは機能しません（呼び出されません）。
 	 *
 	 * このメソッドが返す不要パーミッション配列と、
-	 * {@link ExternalFunctionConnector1#getNecessaryPermissions getNecessaryPermissions}
+	 * {@link ExternalFunctionConnectorInterface1#getNecessaryPermissions getNecessaryPermissions}
 	 * メソッドが返す必要パーミッション配列において、重複している要素がある場合は、
 	 * 後者の方が優先されます（つまり、そのパーミッションは必要と判断されます）。
 	 *
 	 * なお、このメソッドの戻り値に
-	 * {@link ConnectorPermission#ALL ConnectorPermission.ALL} のみを格納する配列を返す事で、
+	 * {@link ConnectorPermissionName#ALL ConnectorPermissionName.ALL} のみを格納する配列を返す事で、
 	 * 必要パーミッション配列に含まれているものを除いた、全てのパーミッションが不要となります。
 	 * これは、将来的に新しいパーミッションが追加された場合に、
 	 * そのパーミッションによって、この関数の実行が拒否される事を回避する事ができます。
@@ -166,16 +166,16 @@ public interface ExternalVariableConnector1 {
 	 * 開発時点で未知のパーミッションの扱いについては、
 	 * 処理系側やユーザー側の判断に委ねる事ができます。
 	 *
-	 * @return 不要なパーミッションを格納する配列
+	 * @return 不要なパーミッションの名称を格納する配列
 	 */
-	public abstract String[] getUnnecessaryPermissions();
+	public abstract String[] getUnnecessaryPermissionNames();
 
 
 	/**
 	 * 変数のデータを取得します。
 	 *
 	 * このメソッドは、データの自動変換が有効である場合、
-	 * つまり {@link ExternalVariableConnector1#isDataConversionNecessary()} メソッドが
+	 * つまり {@link ExternalVariableConnectorInterface1#isDataConversionNecessary()} メソッドが
 	 * true を返すよう実装されている場合に使用されます。
 	 *
 	 * @return 変数のデータ
@@ -188,7 +188,7 @@ public interface ExternalVariableConnector1 {
 	 * 変数のデータを取得します。
 	 *
 	 * このメソッドは、データの自動変換が無効である場合、
-	 * つまり {@link ExternalVariableConnector1#isDataConversionNecessary()} メソッドが
+	 * つまり {@link ExternalVariableConnectorInterface1#isDataConversionNecessary()} メソッドが
 	 * false を返すよう実装されている場合に使用されます。
 	 *
 	 * データは、戻り値として返す代わりに、
@@ -204,7 +204,7 @@ public interface ExternalVariableConnector1 {
 	 * 変数のデータを設定します。
 	 *
 	 * データの自動変換が有効である場合、
-	 * つまり {@link ExternalVariableConnector1#isDataConversionNecessary()} メソッドが
+	 * つまり {@link ExternalVariableConnectorInterface1#isDataConversionNecessary()} メソッドが
 	 * true を返すよう実装されている場合には、引数には適切に型変換されたデータが渡されます。
 	 *
 	 * データの自動変換が無効である場合には、引数には処理系依存のデータコンテナオブジェクトが渡されます。
@@ -219,7 +219,7 @@ public interface ExternalVariableConnector1 {
 	 * 処理系への接続時に必要な初期化処理を行います。
 	 *
 	 * 引数には、スクリプトエンジンに依存するやり取りを行うためのオブジェクトが渡されます。
-	 * このオブジェクトは、恐らく {@link EngineConnector1 EngineConnector1}
+	 * このオブジェクトは、恐らく {@link EngineConnectorInterface1 EngineConnectorInterface1}
 	 * もしくはその後継の、抽象化されたインターフェースでラップされた形で渡されます。
 	 *
 	 * @param engineConnector エンジンに依存するやり取りを行うためのオブジェクト
@@ -232,7 +232,7 @@ public interface ExternalVariableConnector1 {
 	 * 処理系からの接続解除時に必要な終了時処理を行います。
 	 *
 	 * 引数には、スクリプトエンジンに依存するやり取りを行うためのオブジェクトが渡されます。
-	 * このオブジェクトは、恐らく {@link EngineConnector1 EngineConnector1}
+	 * このオブジェクトは、恐らく {@link EngineConnectorInterface1 EngineConnectorInterface1}
 	 * もしくはその後継の、抽象化されたインターフェースでラップされた形で渡されます。
 	 *
 	 * @param engineConnector エンジンに依存するやり取りを行うためのオブジェクト
@@ -245,7 +245,7 @@ public interface ExternalVariableConnector1 {
 	 * スクリプト実行毎の初期化処理を行います。
 	 *
 	 * 引数には、スクリプトエンジンに依存するやり取りを行うためのオブジェクトが渡されます。
-	 * このオブジェクトは、恐らく {@link EngineConnector1 EngineConnector1}
+	 * このオブジェクトは、恐らく {@link EngineConnectorInterface1 EngineConnectorInterface1}
 	 * もしくはその後継の、抽象化されたインターフェースでラップされた形で渡されます。
 	 *
 	 * @param engineConnector エンジンに依存するやり取りを行うためのオブジェクト
@@ -258,7 +258,7 @@ public interface ExternalVariableConnector1 {
 	 * スクリプト実行毎の終了時処理を行います。
 	 *
 	 * 引数には、スクリプトエンジンに依存するやり取りを行うためのオブジェクトが渡されます。
-	 * このオブジェクトは、恐らく {@link EngineConnector1 EngineConnector1}
+	 * このオブジェクトは、恐らく {@link EngineConnectorInterface1 EngineConnectorInterface1}
 	 * もしくはその後継の、抽象化されたインターフェースでラップされた形で渡されます。
 	 *
 	 * @param engineConnector エンジンに依存するやり取りを行うためのオブジェクト

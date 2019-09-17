@@ -15,7 +15,7 @@ package org.vcssl.connect;
  * XNCI 1 (External Namespace Connector Interface 1) 形式のプラグインを開発するための、
  * プラグイン側のコネクター・インターフェースです。
  * </p>
- * 
+ *
  * <p>
  * <span style="font-weight: bold;">
  * ※ このインターフェースは未確定であり、
@@ -23,7 +23,7 @@ package org.vcssl.connect;
  * 一部仕様が変更される可能性があります。
  * </span>
  * </p>
- * 
+ *
  * <p>
  * XNCIは、関数や変数の集合を、共通の名前空間に属する形で1つにまとめ、
  * いわゆるモジュラープログラミングにおけるモジュールを構成するために用います。
@@ -35,19 +35,19 @@ package org.vcssl.connect;
  * 将来的には、このインターフェースの子要素または親要素として、
  * さらにモジュール相当のインターフェースが新設される可能性もあり得ます。 ）
  * </p>
- * 
+ *
  * <p>
- * XNCI 1 では、関数に {@link ExternalFunctionConnector1 XFCI 1} 形式、
- * 変数に {@link ExternalVariableConnector1 XVCI 1} 形式のインターフェースを採用しています。
+ * XNCI 1 では、関数に {@link ExternalFunctionConnectorInterface1 XFCI 1} 形式、
+ * 変数に {@link ExternalVariableConnectorInterface1 XVCI 1} 形式のインターフェースを採用しています。
  * それらの形式で実装された関数/変数プラグインの集合（配列）を、この名前空間に属するものとして保持し、
- * それぞれ {@link ExternalNamespaceConnector1#getFunctions() getFunctions()} メソッドおよび
- * {@link ExternalNamespaceConnector1#getVariables() getVariables()} メソッドの戻り値として、
+ * それぞれ {@link ExternalNamespaceConnectorInterface1#getFunctions() getFunctions()} メソッドおよび
+ * {@link ExternalNamespaceConnectorInterface1#getVariables() getVariables()} メソッドの戻り値として、
  * 処理系に提供します。
  * </p>
- * 
+ *
  * @author RINEARN (Fumihiro Matsui)
  */
-public interface ExternalNamespaceConnector1 {
+public interface ExternalNamespaceConnectorInterface1 {
 
 
 	/**
@@ -60,16 +60,16 @@ public interface ExternalNamespaceConnector1 {
 
 	/**
 	 * パーミッション設定ベースのセキュリティレイヤーを持つ処理系において、
-	 * この名前空間へのアクセスに必要な全てのパーミッションを、配列にまとめて取得します。
+	 * この名前空間へのアクセスに必要な全てのパーミッションの名称を、配列にまとめて取得します。
 	 *
 	 * パーミッションベースのセキュリティレイヤ―を持たない処理系では、
 	 * このメソッドは機能しません（呼び出されません）。
 	 *
 	 * このメソッドの戻り値に、
-	 * {@link ConnectorPermission#NONE ConnectorPermission.NONE}
+	 * {@link ConnectorPermissionName#NONE ConnectorPermissionName.NONE}
 	 * のみを格納する配列を返す事で、全てのパーミッションが不要となります。
 	 * 現状では、この名前空間に属する関数・変数のインターフェースである
-	 * {@link ExternalFunctionConnector1 XFCI1}/{@link ExternalFunctionConnector1 XVCI1}
+	 * {@link ExternalFunctionConnectorInterface1 XFCI1}/{@link ExternalFunctionConnectorInterface1 XVCI1}
 	 * の階層でもパーミッション指定機能を持っているため、このメソッドは冗長であり、
 	 * 上記のように実装する以外の具体的な使い道は、あまり考えられません。
 	 *
@@ -77,23 +77,23 @@ public interface ExternalNamespaceConnector1 {
 	 * それに属する関数・変数とは独立にパーミッション設定を行いたい用途が生じた場合のために、
 	 * 予約的に宣言されています。
 	 *
-	 * @return 必要なパーミッションを格納する配列
+	 * @return 必要なパーミッションの名称を格納する配列
 	 */
-	public abstract String[] getNecessaryPermissions();
+	public abstract String[] getNecessaryPermissionNames();
 
 
 	/**
 	 * パーミッション設定ベースのセキュリティレイヤーを持つ処理系において、
-	 * この名前空間へのアクセスに不要な全てのパーミッションを、配列にまとめて取得します。
+	 * この名前空間へのアクセスに不要な全てのパーミッションの名称を、配列にまとめて取得します。
 	 *
 	 * パーミッションベースのセキュリティレイヤ―を持たない処理系では、
 	 * このメソッドは機能しません（呼び出されません）。
 	 *
 	 * このメソッドの戻り値に
-	 * {@link ConnectorPermission#ALL ConnectorPermission.ALL} のみを格納する配列を返す事で、
+	 * {@link ConnectorPermissionName#ALL ConnectorPermissionName.ALL} のみを格納する配列を返す事で、
 	 * 必要パーミッション配列に含まれているものを除いた、全てのパーミッションが不要となります。
 	 * 現状では、この名前空間に属する関数・変数のインターフェースである
-	 * {@link ExternalFunctionConnector1 XFCI1}/{@link ExternalFunctionConnector1 XVCI1}
+	 * {@link ExternalFunctionConnectorInterface1 XFCI1}/{@link ExternalFunctionConnectorInterface1 XVCI1}
 	 * の階層でもパーミッション指定機能を持っているため、このメソッドは冗長であり、
 	 * 上記のように実装する以外の具体的な使い道は、あまり考えられません。
 	 *
@@ -101,9 +101,9 @@ public interface ExternalNamespaceConnector1 {
 	 * それに属する関数・変数とは独立にパーミッション設定を行いたい用途が生じた場合のために、
 	 * 予約的に宣言されています。
 	 *
-	 * @return 不要なパーミッションを格納する配列
+	 * @return 不要なパーミッションの名称を格納する配列
 	 */
-	public abstract String[] getUnnecessaryPermissions();
+	public abstract String[] getUnnecessaryPermissionNames();
 
 
 	/**
@@ -111,7 +111,7 @@ public interface ExternalNamespaceConnector1 {
 	 *
 	 * @return この名前空間に属する関数をまとめた配列
 	 */
-	public abstract ExternalFunctionConnector1[] getFunctions();
+	public abstract ExternalFunctionConnectorInterface1[] getFunctions();
 
 
 	/**
@@ -119,14 +119,14 @@ public interface ExternalNamespaceConnector1 {
 	 *
 	 * @return この名前空間に属する変数をまとめた配列
 	 */
-	public abstract ExternalVariableConnector1[] getVariables();
+	public abstract ExternalVariableConnectorInterface1[] getVariables();
 
 
 	/**
 	 * 処理系への接続時に必要な初期化処理を行います。
 	 *
 	 * 引数には、スクリプトエンジンに依存するやり取りを行うためのオブジェクトが渡されます。
-	 * このオブジェクトは、恐らく {@link EngineConnector1 EngineConnector1}
+	 * このオブジェクトは、恐らく {@link EngineConnectorInterface1 EngineConnectorInterface1}
 	 * もしくはその後継の、抽象化されたインターフェースでラップされた形で渡されます。
 	 *
 	 * @param engineConnector エンジンに依存するやり取りを行うためのオブジェクト
@@ -139,7 +139,7 @@ public interface ExternalNamespaceConnector1 {
 	 * 処理系からの接続解除時に必要な終了時処理を行います。
 	 *
 	 * 引数には、スクリプトエンジンに依存するやり取りを行うためのオブジェクトが渡されます。
-	 * このオブジェクトは、恐らく {@link EngineConnector1 EngineConnector1}
+	 * このオブジェクトは、恐らく {@link EngineConnectorInterface1 EngineConnectorInterface1}
 	 * もしくはその後継の、抽象化されたインターフェースでラップされた形で渡されます。
 	 *
 	 * @param engineConnector エンジンに依存するやり取りを行うためのオブジェクト
@@ -152,7 +152,7 @@ public interface ExternalNamespaceConnector1 {
 	 * スクリプト実行毎の初期化処理を行います。
 	 *
 	 * 引数には、スクリプトエンジンに依存するやり取りを行うためのオブジェクトが渡されます。
-	 * このオブジェクトは、恐らく {@link EngineConnector1 EngineConnector1}
+	 * このオブジェクトは、恐らく {@link EngineConnectorInterface1 EngineConnectorInterface1}
 	 * もしくはその後継の、抽象化されたインターフェースでラップされた形で渡されます。
 	 *
 	 * @param engineConnector エンジンに依存するやり取りを行うためのオブジェクト
@@ -165,7 +165,7 @@ public interface ExternalNamespaceConnector1 {
 	 * スクリプト実行毎の終了時処理を行います。
 	 *
 	 * 引数には、スクリプトエンジンに依存するやり取りを行うためのオブジェクトが渡されます。
-	 * このオブジェクトは、恐らく {@link EngineConnector1 EngineConnector1}
+	 * このオブジェクトは、恐らく {@link EngineConnectorInterface1 EngineConnectorInterface1}
 	 * もしくはその後継の、抽象化されたインターフェースでラップされた形で渡されます。
 	 *
 	 * @param engineConnector エンジンに依存するやり取りを行うためのオブジェクト

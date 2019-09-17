@@ -58,9 +58,9 @@
  *
  * <div class="lang-ja" style="border-style: solid; padding-left: 10px; line-height: 160%;">
  * <ul>
- *   <li>XVCI 1 ({@link org.vcssl.connect.ExternalVariableConnector1 org.vcssl.connector.ExternalVariableConnector1})</li>
- *   <li>XFCI 1 ({@link org.vcssl.connect.ExternalFunctionConnector1 org.vcssl.connector.ExternalFunctionConnector1})</li>
- *   <li>XNCI 1 ({@link org.vcssl.connect.ExternalNamespaceConnector1 org.vcssl.connector.ExternalNamespaceConnector1})</li>
+ *   <li>XVCI 1 ({@link org.vcssl.connect.ExternalVariableConnectorInterface1 org.vcssl.connector.ExternalVariableConnector1})</li>
+ *   <li>XFCI 1 ({@link org.vcssl.connect.ExternalFunctionConnectorInterface1 org.vcssl.connector.ExternalFunctionConnector1})</li>
+ *   <li>XNCI 1 ({@link org.vcssl.connect.ExternalNamespaceConnectorInterface1 org.vcssl.connector.ExternalNamespaceConnector1})</li>
  *   <li>java.lang.reflect.Field (内部で {@link org.vcssl.connect.FieldToXvci1Adapter FieldToXvci1Adapter} を介し、XVCI 1 で接続されます。)</li>
  *   <li>java.lang.reflect.Method (内部で {@link org.vcssl.connect.MethodToXfci1Adapter MethodToXfci1Adapter} を介し、XFCI 1 で接続されます。)</li>
  *   <li>java.lang.Class (内部で {@link org.vcssl.connect.ClassToXnci1Adapter ClassToXnci1Adapter} を介し、XNCI 1 で接続されます。)</li>
@@ -70,9 +70,9 @@
  *
  * <div class="lang-en" style="border-style: solid; padding-left: 10px; line-height: 160%;">
  * <ul>
- *   <li>XVCI 1 ({@link org.vcssl.connect.ExternalVariableConnector1 org.vcssl.connector.ExternalVariableConnector1})</li>
- *   <li>XFCI 1 ({@link org.vcssl.connect.ExternalFunctionConnector1 org.vcssl.connector.ExternalFunctionConnector1})</li>
- *   <li>XNCI 1 ({@link org.vcssl.connect.ExternalNamespaceConnector1 org.vcssl.connector.ExternalNamespaceConnector1})</li>
+ *   <li>XVCI 1 ({@link org.vcssl.connect.ExternalVariableConnectorInterface1 org.vcssl.connector.ExternalVariableConnector1})</li>
+ *   <li>XFCI 1 ({@link org.vcssl.connect.ExternalFunctionConnectorInterface1 org.vcssl.connector.ExternalFunctionConnector1})</li>
+ *   <li>XNCI 1 ({@link org.vcssl.connect.ExternalNamespaceConnectorInterface1 org.vcssl.connector.ExternalNamespaceConnector1})</li>
  *   <li>java.lang.reflect.Field (will be connected by XVCI 1 thtough {@link org.vcssl.connect.FieldToXvci1Adapter FieldToXvci1Adapter})</li>
  *   <li>java.lang.reflect.Method (will be connected by XFCI 1 thtough {@link org.vcssl.connect.MethodToXfci1Adapter MethodToXfci1Adapter})</li>
  *   <li>java.lang.Class (will be connected by XNCI 1 thtough {@link org.vcssl.connect.ClassToXnci1Adapter ClassToXnci1Adapter})</li>

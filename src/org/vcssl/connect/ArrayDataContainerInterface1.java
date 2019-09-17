@@ -68,7 +68,7 @@ package org.vcssl.connect;
  * @param <T> 保持するデータの型
  * @author RINEARN (Fumihiro Matsui)
  */
-public interface ArrayDataContainer1<T> {
+public interface ArrayDataContainerInterface1<T> {
 
 
 	/** 動的ロード時などに処理系側から参照される、インターフェースの形式名（値は"ADCI"）です。*/
@@ -91,7 +91,7 @@ public interface ArrayDataContainer1<T> {
 	 * また、スカラ値は、要素数1の配列で包んでください。
 	 * または、より大きな配列の中にそのスカラ値を格納した上で、
 	 * このメソッドの代わりに
-	 * {@link ArrayDataContainer1#setData(Object, int) setData(T, int)}
+	 * {@link ArrayDataContainerInterface1#setData(Object, int) setData(T, int)}
 	 * を使用して、そのインデックスを指定してください。
 	 *
 	 * @param data 格納するデータ（1次元配列）
@@ -131,7 +131,7 @@ public interface ArrayDataContainer1<T> {
 	 * 引数 data に渡してください。
 	 * スカラは、要素数1の配列とするか、より大きな配列のどこかに格納した上で、
 	 * このメソッドの代わりに
-	 * {@link ArrayDataContainer1#setData(Object, int) setData(T, int)}
+	 * {@link ArrayDataContainerInterface1#setData(Object, int) setData(T, int)}
 	 * メソッドでそのインデックスを指定してください。
 	 *
 	 * 引数 lengths には、次元ごとの長さを格納する配列を指定してください。
@@ -160,7 +160,7 @@ public interface ArrayDataContainer1<T> {
 	 * 多次元配列は、右端次元の要素が連続的に並ぶように1次元化されます。
 	 * スカラは、要素数1の配列として返されるか、
 	 * またはより大きな配列のどこかに格納した上で返され、後者の場合は
-	 * {@link ArrayDataContainer1#getOffset getOffset}
+	 * {@link ArrayDataContainerInterface1#getOffset getOffset}
 	 * メソッドでそのインデックスを取得できます。
 	 *
 	 * @return 格納されているデータ（1次元配列）
@@ -178,7 +178,7 @@ public interface ArrayDataContainer1<T> {
 	 *
 	 * なお、データコンテナが保持する設定値の組み合わせが、瞬間的にでも不整合な状態になる事を防ぐため、
 	 * オフセット値のみを設定するメソッドは提供されません。
-	 * 設定したい場合は {@link ArrayDataContainer1#setData(Object, int) setData(T, int) }
+	 * 設定したい場合は {@link ArrayDataContainerInterface1#setData(Object, int) setData(T, int) }
 	 * メソッドを使用して、データと共に設定してください。
 	 *
 	 * @return スカラデータの配列内位置を示すオフセット値
@@ -191,7 +191,7 @@ public interface ArrayDataContainer1<T> {
 	 *
 	 * なお、データコンテナが保持する設定値の組み合わせが、瞬間的にでも不整合な状態になる事を防ぐため、
 	 * 次元ごとの長さのみを設定するメソッドは提供されません。
-	 * 設定したい場合は {@link ArrayDataContainer1#setData(Object, int[]) setData(T, int[]) }
+	 * 設定したい場合は {@link ArrayDataContainerInterface1#setData(Object, int[]) setData(T, int[]) }
 	 * メソッドを使用して、データと共に設定してください。
 	 *
 	 * @return 次元ごとの長さを格納する配列
@@ -204,11 +204,11 @@ public interface ArrayDataContainer1<T> {
 	 *
 	 * ここでのサイズとは、多次元配列における総要素数の事です。
 	 * 具体的には、データがスカラではない場合には、サイズは
-	 * {@link ArrayDataContainer1#getLengths getLengths}
+	 * {@link ArrayDataContainerInterface1#getLengths getLengths}
 	 * メソッドで取得できる次元長配列の、全要素の積に一致します。
 	 *
 	 * データがスカラである場合には、サイズは常に 1 となります。
-	 * 仮に {@link ArrayDataContainer1#getData getData}
+	 * 仮に {@link ArrayDataContainerInterface1#getData getData}
 	 * メソッドで取得したデータの配列の要素数が 1 よりも大きく
 	 * その配列内に要素として（オフセット値で指定される位置に）
 	 * スカラ値が格納されている場合でも、
@@ -216,7 +216,7 @@ public interface ArrayDataContainer1<T> {
 	 *
 	 * サイズとデータの要素数を独立に設定する事はできないため、
 	 * サイズの setter はありません。
-	 * 設定したい場合は {@link ArrayDataContainer1#setData(Object, int[]) setData(T, int[]) }
+	 * 設定したい場合は {@link ArrayDataContainerInterface1#setData(Object, int[]) setData(T, int[]) }
 	 * メソッドなどを使用して、データおよび次元ごとの長さ情報と共に設定してください。
 	 *
 	 * @return サイズ
@@ -227,12 +227,12 @@ public interface ArrayDataContainer1<T> {
 	/**
 	 * 多次元配列の次元数（次元の総数）を取得します。
 	 *
-	 * 具体的には、{@link ArrayDataContainer1#getLengths getLengths}
+	 * 具体的には、{@link ArrayDataContainerInterface1#getLengths getLengths}
 	 * メソッドで取得できる次元長配列の、要素数に一致します。
 	 *
 	 * 次元数と、次元ごとの長さを独立に設定する事はできないため、
 	 * 次元数の setter はありません。
-	 * 設定したい場合は {@link ArrayDataContainer1#setData(Object, int[]) setData(T, int[]) }
+	 * 設定したい場合は {@link ArrayDataContainerInterface1#setData(Object, int[]) setData(T, int[]) }
 	 * メソッドなどを使用して、データおよび次元ごとの長さ情報と共に設定してください。
 	 *
 	 * @return 次元数

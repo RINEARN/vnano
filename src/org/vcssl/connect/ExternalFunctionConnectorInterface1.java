@@ -34,7 +34,7 @@ package org.vcssl.connect;
  * </p>
  *
  * <p>
- * XFCI は、{@link GeneralProcessConnector2 GPCI 2}
+ * XFCI は、{@link GeneralProcessConnectorInterface2 GPCI 2}
  * における型制約の緩さやオーバーヘッドの大きさなどを解消するため、
  * GPCIよりも抽象化レイヤーの薄い外部関数プラグイン用インターフェースとして、
  * 新たに定義されたものです。
@@ -46,9 +46,9 @@ package org.vcssl.connect;
  * また、必要に応じて言語処理系-プラグイン間でのデータの自動変換を無効化し、
  * 処理系内部で使用されているデータコンテナを直接やり取りする事で、
  * 関数呼び出しのオーバーヘッドを軽減する機能などもサポートされています
- * (詳細は {@link ExternalFunctionConnector1#isDataConversionNecessary isDataConversionNecessary}
+ * (詳細は {@link ExternalFunctionConnectorInterface1#isDataConversionNecessary isDataConversionNecessary}
  * メソッドおよび
- * {@link ArrayDataContainer1 ArrayDataContainer1} クラスを参照してください)。
+ * {@link ArrayDataContainerInterface1 ArrayDataContainerInterface1} クラスを参照してください)。
  * </p>
  *
  * <p>
@@ -78,7 +78,7 @@ package org.vcssl.connect;
  *
  * @author RINEARN (Fumihiro Matsui)
  */
-public interface ExternalFunctionConnector1 {
+public interface ExternalFunctionConnectorInterface1 {
 
 
 	/** 動的ロード時などに処理系側から参照される、インターフェースの形式名（値は"XFCI"）です。 */
@@ -98,7 +98,7 @@ public interface ExternalFunctionConnector1 {
 
 	/**
 	 * 全ての仮引数の名称情報を保持しており、
-	 * {@link ExternalFunctionConnector1 getParameterNames}
+	 * {@link ExternalFunctionConnectorInterface1 getParameterNames}
 	 * メソッドによって取得可能であるかどうかを返します。
 	 *
 	 * @return 全仮引数の名称を取得可能かどうか
@@ -148,7 +148,7 @@ public interface ExternalFunctionConnector1 {
 	 * データの自動変換が必要かどうかを返します。
 	 *
 	 * このメソッドがtrueを返すようにプラグインを実装すると、
-	 * {@link ExternalFunctionConnector1#invoke invoke}
+	 * {@link ExternalFunctionConnectorInterface1#invoke invoke}
 	 * メソッドでの引数や戻り値のやり取りに際して、
 	 * プラグインを記述しているホスト言語と処理系内部との間でのデータの型変換などを、
 	 * 処理系側が自動で行うようになります。
@@ -156,7 +156,7 @@ public interface ExternalFunctionConnector1 {
 	 * 逆に、メソッドがfalseを返すようにプラグインを実装すると、
 	 * 処理系側ではデータの変換は行われず、上述のような場面においては、
 	 * 処理系依存のデータコンテナ
-	 * （{@link ArrayDataContainer1 ArrayDataContainer1} 参照）
+	 * （{@link ArrayDataContainerInterface1 ArrayDataContainerInterface1} 参照）
 	 * を直接やり取りするようになります。
 	 *
 	 * データの自動変換を利用すると、プラグインの実装が容易になりますが、
@@ -171,42 +171,42 @@ public interface ExternalFunctionConnector1 {
 
 	/**
 	 * パーミッション設定ベースのセキュリティレイヤーを持つ処理系において、
-	 * この関数の実行に必要な全てのパーミッションを、配列にまとめて取得します。
+	 * この関数の実行に必要な全てのパーミッションの名称を、配列にまとめて取得します。
 	 *
 	 * パーミッションベースのセキュリティレイヤ―を持たない処理系では、
 	 * このメソッドは機能しません（呼び出されません）。
 	 *
 	 * このメソッドが返す必要パーミッション配列と、
-	 * {@link ExternalFunctionConnector1#getUnnecessaryPermissions getUnnecessaryPermissions}
+	 * {@link ExternalFunctionConnectorInterface1#getUnnecessaryPermissions getUnnecessaryPermissions}
 	 * メソッドが返す不要パーミッション配列において、重複している要素がある場合は、
 	 * 前者の方が優先されます（つまり、そのパーミッションは必要と判断されます）。
 	 *
 	 * なお、このメソッドの戻り値に、
-	 * {@link ConnectorPermission#NONE ConnectorPermission.NONE}
+	 * {@link ConnectorPermissionName#NONE ConnectorPermissionName.NONE}
 	 * のみを格納する配列を返す事で、全てのパーミッションが不要となります。
 	 * ただし、そのような事は、
 	 * この関数が一切のシステムリソースやネットワークにアクセスしない場合など、
 	 * スクリプト内で閉じた処理と同等以上のセキュリティが確保されている場合のみ行ってください。
 	 *
-	 * @return 必要なパーミッションを格納する配列
+	 * @return 必要なパーミッションの名称を格納する配列
 	 */
-	public abstract String[] getNecessaryPermissions();
+	public abstract String[] getNecessaryPermissionNames();
 
 
 	/**
 	 * パーミッション設定ベースのセキュリティレイヤーを持つ処理系において、
-	 * この関数の実行に不要な全てのパーミッションを、配列にまとめて取得します。
+	 * この関数の実行に不要な全てのパーミッションの名称を、配列にまとめて取得します。
 	 *
 	 * パーミッションベースのセキュリティレイヤ―を持たない処理系では、
 	 * このメソッドは機能しません（呼び出されません）。
 	 *
 	 * このメソッドが返す不要パーミッション配列と、
-	 * {@link ExternalFunctionConnector1#getNecessaryPermissions getNecessaryPermissions}
+	 * {@link ExternalFunctionConnectorInterface1#getNecessaryPermissions getNecessaryPermissions}
 	 * メソッドが返す必要パーミッション配列において、重複している要素がある場合は、
 	 * 後者の方が優先されます（つまり、そのパーミッションは必要と判断されます）。
 	 *
 	 * なお、このメソッドの戻り値に
-	 * {@link ConnectorPermission#ALL ConnectorPermission.ALL} のみを格納する配列を返す事で、
+	 * {@link ConnectorPermissionName#ALL ConnectorPermissionName.ALL} のみを格納する配列を返す事で、
 	 * 必要パーミッション配列に含まれているものを除いた、全てのパーミッションが不要となります。
 	 * これは、将来的に新しいパーミッションが追加された場合に、
 	 * そのパーミッションによって、この関数の実行が拒否される事を回避する事ができます。
@@ -221,9 +221,9 @@ public interface ExternalFunctionConnector1 {
 	 * 開発時点で未知のパーミッションの扱いについては、
 	 * 処理系側やユーザー側の判断に委ねる事ができます。
 	 *
-	 * @return 不要なパーミッションを格納する配列
+	 * @return 不要なパーミッションの名称を格納する配列
 	 */
-	public abstract String[] getUnnecessaryPermissions();
+	public abstract String[] getUnnecessaryPermissionNames();
 
 
 	/**
@@ -245,7 +245,7 @@ public interface ExternalFunctionConnector1 {
 	 * 処理系への接続時に必要な初期化処理を行います。
 	 *
 	 * 引数には、スクリプトエンジンに依存するやり取りを行うためのオブジェクトが渡されます。
-	 * このオブジェクトは、恐らく {@link EngineConnector1 EngineConnector1}
+	 * このオブジェクトは、恐らく {@link EngineConnectorInterface1 EngineConnectorInterface1}
 	 * もしくはその後継の、抽象化されたインターフェースでラップされた形で渡されます。
 	 *
 	 * @param engineConnector エンジンに依存するやり取りを行うためのオブジェクト
@@ -258,7 +258,7 @@ public interface ExternalFunctionConnector1 {
 	 * 処理系からの接続解除時に必要な終了時処理を行います。
 	 *
 	 * 引数には、スクリプトエンジンに依存するやり取りを行うためのオブジェクトが渡されます。
-	 * このオブジェクトは、恐らく {@link EngineConnector1 EngineConnector1}
+	 * このオブジェクトは、恐らく {@link EngineConnectorInterface1 EngineConnectorInterface1}
 	 * もしくはその後継の、抽象化されたインターフェースでラップされた形で渡されます。
 	 *
 	 * @param engineConnector エンジンに依存するやり取りを行うためのオブジェクト
@@ -271,7 +271,7 @@ public interface ExternalFunctionConnector1 {
 	 * スクリプト実行毎の初期化処理を行います。
 	 *
 	 * 引数には、スクリプトエンジンに依存するやり取りを行うためのオブジェクトが渡されます。
-	 * このオブジェクトは、恐らく {@link EngineConnector1 EngineConnector1}
+	 * このオブジェクトは、恐らく {@link EngineConnectorInterface1 EngineConnectorInterface1}
 	 * もしくはその後継の、抽象化されたインターフェースでラップされた形で渡されます。
 	 *
 	 * @param engineConnector エンジンに依存するやり取りを行うためのオブジェクト
@@ -284,7 +284,7 @@ public interface ExternalFunctionConnector1 {
 	 * スクリプト実行毎の終了時処理を行います。
 	 *
 	 * 引数には、スクリプトエンジンに依存するやり取りを行うためのオブジェクトが渡されます。
-	 * このオブジェクトは、恐らく {@link EngineConnector1 EngineConnector1}
+	 * このオブジェクトは、恐らく {@link EngineConnectorInterface1 EngineConnectorInterface1}
 	 * もしくはその後継の、抽象化されたインターフェースでラップされた形で渡されます。
 	 *
 	 * @param engineConnector エンジンに依存するやり取りを行うためのオブジェクト
