@@ -1997,7 +1997,7 @@ it is required that you grasp how the script engine store data in the container 
 In addition, please note that it deeply depends on the implementation of the script engine 
 so it may vary in the future. 
 The source code of the data container class used in the script engine of the Vnano is "<a href="https://github.com/RINEARN/vnano/blob/master/src/org/vcssl/nano/vm/memory/DataContainer.java">src/org/vcssl/nano/vm/memory/DataContainer.java</a>", 
-and this class is an implementation of a interface defined as "<a href="https://github.com/RINEARN/vnano/blob/master/src/org/vcssl/connect/ArrayDataContainer1.java">src/org/vcssl/connect/ArrayDataContainer1.java (ADCI1)</a>".
+and this class is an implementation of a interface defined as "<a href="https://github.com/RINEARN/vnano/blob/master/src/org/vcssl/connect/ArrayDataContainerInterface1.java">src/org/vcssl/connect/ArrayDataContainerInterface1.java (ADCI1)</a>".
 You can handle data container objects through APIs defined as this interface, 
 to reduce dependency on the implementation of the script engine as much as possible.
 About data-types of data in the data container, see the later section: 
@@ -2010,7 +2010,7 @@ Vnanoのスクリプトエンジン内部でデータを格納するコンテナ
 <a href="https://github.com/RINEARN/vnano/blob/master/src/org/vcssl/nano/vm/memory/DataContainer.java">src/org/vcssl/nano/vm/memory/DataContainer.java</a>
 ですが、処理系に対するプラグインの依存度をできるだけ軽減するため、
 このクラスは
-<a href="https://github.com/RINEARN/vnano/blob/master/src/org/vcssl/connect/ArrayDataContainer1.java">src/org/vcssl/connect/ArrayDataContainer1.java (ADCI1)</a> 
+<a href="https://github.com/RINEARN/vnano/blob/master/src/org/vcssl/connect/ArrayDataContainerInterface1.java">src/org/vcssl/connect/ArrayDataContainerInterface1.java (ADCI1)</a> 
 として定義されるインターフェースを実装しています。
 従ってプラグイン側では、このインターフェースのメソッドを通してデータコンテナを操作します。
 データコンテナ内におけるデータの型については、後の
@@ -2029,7 +2029,7 @@ Let's implement. The following is an example code:
 	import org.vcssl.connect.ExternalVariableConnectorInterface1;
 	import org.vcssl.connect.ConnectorPermission;
 	import org.vcssl.connect.ConnectorException;
-	import org.vcssl.connect.ArrayDataContainer1;
+	import org.vcssl.connect.ArrayDataContainerInterface1;
 
 	public class Example {
 
@@ -2070,7 +2070,7 @@ Let's implement. The following is an example code:
 				
 				// check the type of the data container.
 				// データコンテナの型を確認
-				if (!(arguments instanceof ArrayDataContainer1[])) {
+				if (!(arguments instanceof ArrayDataContainerInterface1[])) {
 					throw new ConnectorException(
 						"The type of the data container is not supported by this plug-in."
 					);
@@ -2080,7 +2080,7 @@ Let's implement. The following is an example code:
 				// the element [0] is to contain the return value, so the element [1] is the first argument.
 				// データ変換が無効化されている場合、[0]番要素は戻り値格納用なので、[1]番要素が最初の引数
 				@SuppressWarnings("unchecked")
-				ArrayDataContainer1<long[]> outputArgContainer = (ArrayDataContainer1<long[]>)(arguments[1]);
+				ArrayDataContainerInterface1<long[]> outputArgContainer = (ArrayDataContainerInterface1<long[]>)(arguments[1]);
 				long[] outputArgData = outputArgContainer.getData();
 
 				// print the value of the argument (behaviour of the output function).
@@ -2131,13 +2131,13 @@ Let's implement. The following is an example code:
 				
 				// check the type of the data container.
 				// データコンテナの型を確認
-				if (!(dataContainer instanceof ArrayDataContainer1)) {
+				if (!(dataContainer instanceof ArrayDataContainerInterface1)) {
 					throw new ConnectorException(
 						"The type of the data container is not supported by this plug-in."
 					);
 				}
 				@SuppressWarnings("unchecked")
-				ArrayDataContainer1<long[]> adci1Container = (ArrayDataContainer1<long[]>)dataContainer;
+				ArrayDataContainerInterface1<long[]> adci1Container = (ArrayDataContainerInterface1<long[]>)dataContainer;
 
 				// store data to return it.
 				// 戻り値用コンテナにデータを格納する
@@ -2150,12 +2150,12 @@ Let's implement. The following is an example code:
 				
 				// check the type of the data container.
 				// データコンテナの型を確認
-				if (!(dataContainer instanceof ArrayDataContainer1)) {
+				if (!(dataContainer instanceof ArrayDataContainerInterface1)) {
 					throw new ConnectorException(
 						"The type of the data container is not supported by this plug-in."
 					);
 				}
-				ArrayDataContainer1 adci1Container = (ArrayDataContainer1)dataContainer;
+				ArrayDataContainerInterface1 adci1Container = (ArrayDataContainerInterface1)dataContainer;
 				Object targetData = adci1Container.getData();
 			
 				// check the data-type of data contained in the data container.
