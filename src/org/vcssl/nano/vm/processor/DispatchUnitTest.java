@@ -1343,7 +1343,9 @@ public class DispatchUnitTest {
 		AbstractFunction function = this.interconnect.getExternalFunctionTable().getFunctionBySignature(
 				"methodToConnect",
 				new DataType[]{ DataType.INT64, DataType.INT64 },
-				new int[]{ 0, 0 }
+				new int[]{ 0, 0 },
+				new boolean[] { false, false },
+				new boolean[] { false, false }
 		);
 
 		// 引数・戻り値・関数アドレスを格納するオペランドを用意して値を設定

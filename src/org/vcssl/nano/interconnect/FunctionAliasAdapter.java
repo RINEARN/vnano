@@ -231,6 +231,26 @@ public class FunctionAliasAdapter extends AbstractFunction {
 
 
 	/**
+	 * 全ての仮引数において、データ型が可変であるかどうかを格納する配列を返します。
+	 *
+	 * @return 全引数のデータ型が可変であるかどうかを格納する配列
+	 */
+	public boolean[] getParameterDataTypeArbitrarinesses() {
+		return this.function.getParameterDataTypeArbitrarinesses();
+	}
+
+
+	/**
+	 * 全ての仮引数において、配列次元数が可変であるかどうかを格納する配列を返します。
+	 *
+	 * @return 全引数の配列次元数が可変であるかどうかを格納する配列
+	 */
+	public boolean[] getParameterArrayRankArbitrarinesses() {
+		return this.function.getParameterArrayRankArbitrarinesses();
+	}
+
+
+	/**
 	 * 可変長引数であるかどうかを判定します。
 	 *
 	 * @return 可変長引数であればtrue

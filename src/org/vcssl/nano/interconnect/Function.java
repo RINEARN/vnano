@@ -5,6 +5,8 @@
 
 package org.vcssl.nano.interconnect;
 
+import java.util.Arrays;
+
 import org.vcssl.nano.VnanoFatalException;
 import org.vcssl.nano.vm.memory.DataContainer;
 
@@ -14,8 +16,11 @@ public final class Function extends AbstractFunction {
 	private String[] parameterNames = null;
 	private String[] parameterDataTypeNames = null;
 	private int[] parameterRanks = null;
+	private boolean[] parameterDataTypeArbitrarinesses = null;
+	private boolean[] parameterRankArbitrarinesses = null;
 	private String returnDataTypeName = null;
 	private int returnRank = -1;
+
 
 	public Function (String functionName,
 			String[] parameterDataTypeNames, int[] parameterRanks,
@@ -26,7 +31,14 @@ public final class Function extends AbstractFunction {
 		this.returnRank = returnRank;
 		this.parameterDataTypeNames = parameterDataTypeNames;
 		this.parameterRanks = parameterRanks;
+
+		int numParameters = parameterDataTypeNames.length;
+		this.parameterDataTypeArbitrarinesses = new boolean[numParameters];
+		this.parameterRankArbitrarinesses = new boolean[numParameters];
+		Arrays.fill(parameterDataTypeArbitrarinesses, false);
+		Arrays.fill(parameterRankArbitrarinesses, false);
 	}
+
 
 	@Override
 	public final String getFunctionName() {
@@ -56,6 +68,16 @@ public final class Function extends AbstractFunction {
 	@Override
 	public final int[] getParameterArrayRanks() {
 		return this.parameterRanks;
+	}
+
+	@Override
+	public boolean[] getParameterDataTypeArbitrarinesses() {
+		return this.parameterDataTypeArbitrarinesses;
+	}
+
+	@Override
+	public boolean[] getParameterArrayRankArbitrarinesses() {
+		return this.parameterRankArbitrarinesses;
 	}
 
 	@Override

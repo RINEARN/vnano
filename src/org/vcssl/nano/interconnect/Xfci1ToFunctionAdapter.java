@@ -175,18 +175,6 @@ public final class Xfci1ToFunctionAdapter extends AbstractFunction {
 
 
 	/**
-	 * 全ての仮引数のデータ型を配列として取得します。
-	 *
-	 * @return 全ての仮引数のデータ型を格納する配列
-	 */
-	/*
-	public DataType[] getParameterDataTypes() {
-		return this.parameterDataTypes;
-	}
-	*/
-
-
-	/**
 	 * 全ての仮引数のデータ型名を配列として取得します。
 	 *
 	 * @return 全ての仮引数のデータ型を格納する配列
@@ -214,6 +202,26 @@ public final class Xfci1ToFunctionAdapter extends AbstractFunction {
 	@Override
 	public int[] getParameterArrayRanks() {
 		return this.parameterArrayRanks;
+	}
+
+
+	/**
+	 * 全ての仮引数において、データ型が可変であるかどうかを格納する配列を返します。
+	 *
+	 * @return 全引数のデータ型が可変であるかどうかを格納する配列
+	 */
+	public boolean[] getParameterDataTypeArbitrarinesses() {
+		return this.xfciPlugin.getParameterClassArbitrarinesses();
+	}
+
+
+	/**
+	 * 全ての仮引数において、配列次元数が可変であるかどうかを格納する配列を返します。
+	 *
+	 * @return 全引数の配列次元数が可変であるかどうかを格納する配列
+	 */
+	public boolean[] getParameterArrayRankArbitrarinesses() {
+		return this.xfciPlugin.getParameterRankArbitrarinesses();
 	}
 
 
