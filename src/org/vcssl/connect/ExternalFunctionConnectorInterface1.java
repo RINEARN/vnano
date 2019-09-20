@@ -124,6 +124,22 @@ public interface ExternalFunctionConnectorInterface1 {
 
 
 	/**
+	 * 全ての仮引数において、データ型が可変であるかどうかを格納する配列を返します。
+	 *
+	 * @return 全引数のデータ型が可変であるかどうかを格納する配列
+	 */
+	public boolean[] getParameterClassArbitrarinesses();
+
+
+	/**
+	 * 全ての仮引数において、配列次元数が可変であるかどうかを格納する配列を返します。
+	 *
+	 * @return 全引数の配列次元数が可変であるかどうかを格納する配列
+	 */
+	public boolean[] getParameterRankArbitrarinesses();
+
+
+	/**
 	 * 戻り値のデータの型を表すClassインスタンスを取得します。
 	 *
 	 * parameterClasses には、スクリプト内での呼び出しにおける、引数のデータ型情報が渡されます。
@@ -141,7 +157,7 @@ public interface ExternalFunctionConnectorInterface1 {
 	 *
 	 * @return 可変長引数であればtrue
 	 */
-	public abstract boolean isVariadic(); // ジェネリックはプリプロセッサで処理するのでこのレイヤーでは考慮しないでいいはず -> そもそも型を問わずデータユニットそのまま受け取る事もできるからジェネリックなプラグイン関数は要らない
+	public abstract boolean isVariadic();
 
 
 	/**
