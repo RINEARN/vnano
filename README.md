@@ -3,10 +3,10 @@
 
 
 Vnano (<a href="https://www.vcssl.org/">VCSSL</a> nano) is a simple scripting language and its interpreter for embedded use in Java&reg; applications.
-( See also: An example of a practical application using the Vnano: <a href="https://github.com/RINEARN/rinearn-processor-nano">RINEARN Processor nano</a>. )
+( See also: An example of a practical application using the Vnano: <a href="https://github.com/RINEARN/rinpn">RINPn</a>. )
 
 Vnano (<a href="https://www.vcssl.org/">VCSSL</a> nano) は、Java&reg; アプリケーションに組み込んで用いる簡易スクリプト言語＆インタープリタです。
-( 実際に Vnano を使用した、実用目的のアプリケーションの例としては「 <a href="https://github.com/RINEARN/rinearn-processor-nano">リニアンプロセッサー nano</a> 」をご参照ください。 )
+( 実際に Vnano を使用した、実用目的のアプリケーションの例としては「 <a href="https://github.com/RINEARN/rinpn">RINPn</a> 」をご参照ください。 )
 
 
 
