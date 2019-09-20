@@ -1892,6 +1892,10 @@ Let's implement them:
 			@Override
 			public Class<?>[] getParameterClasses() { return new Class<?>[]{ int.class }; } 
 			@Override
+			public boolean[] getParameterClassArbitrarinesses() { return new boolean[]{ false }; }
+			@Override
+			public boolean[] getParameterRankArbitrarinesses() { return new boolean[]{ false }; }
+			@Override
 			public Class<?> getReturnClass(Class<?>[] parameterClasses) { return Void.class; }
 			@Override
 			public boolean isVariadic() { return false; }
@@ -2045,6 +2049,10 @@ Let's implement. The following is an example code:
 			public String[] getParameterNames() { return new String[]{ "value" }; }
 			@Override
 			public Class<?>[] getParameterClasses() { return new Class<?>[]{ int.class }; } 
+			@Override
+			public boolean[] getParameterClassArbitrarinesses() { return new boolean[]{ false }; }
+			@Override
+			public boolean[] getParameterRankArbitrarinesses() { return new boolean[]{ false }; }
 			@Override
 			public Class<?> getReturnClass(Class<?>[] parameterClasses) { return Void.class; }
 			@Override
