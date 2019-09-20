@@ -136,11 +136,14 @@ public class FunctionTable {
 	 * @throws VnanoFatalException
 	 *   指定された関数がこのテーブルに存在しなかった場合にスローされます。
 	 */
-	public AbstractFunction getFunctionBySignature(String functionName, DataType[] parameterDataTypes, int[] parameterArrayRanks) {
+	public AbstractFunction getFunctionBySignature(
+			String functionName, DataType[] parameterDataTypes, int[] parameterArrayRanks,
+			boolean[] parameterDataTypeArbitrarinesses, boolean[] parameterArrayRankArbitrarinesses) {
 
 		String[] parameterDataTypeNames = DataTypeName.getDataTypeNamesOf(parameterDataTypes);
 		String signature = IdentifierSyntax.getSignatureOf(
-				functionName, parameterDataTypeNames, parameterArrayRanks
+				functionName, parameterDataTypeNames, parameterArrayRanks,
+				parameterDataTypeArbitrarinesses, parameterArrayRankArbitrarinesses
 		);
 		return this.getFunctionBySignature(signature);
 	}
@@ -237,6 +240,8 @@ public class FunctionTable {
 			AbstractFunction function = functionList.get(functionIndex);
 			int[] parameterRanks = function.getParameterArrayRanks();
 			String[] parameterDataTypeNames = function.getParameterDataTypeNames();
+			boolean[] parameterDataTypeArbitrarinesses = function.getParameterDataTypeArbitrarinesses(); // 仮引数が任意型かどうか
+			boolean[] parameterArrayRankArbitrarinesses = function.getParameterArrayRankArbitrarinesses(); // 仮引数が任意次元かどうか
 			int parameterLength = parameterRanks.length;
 
 			// 引数の個数が違えばスキップ（現状では可変長引数はサポートしていないため）
@@ -247,18 +252,38 @@ public class FunctionTable {
 			// 仮引数と実引数の型の互換性を先頭から比較し、呼び出し可能か判断する
 			boolean isCallable = true; // 呼び出し可能でなければ無ければこの値を false にする
 			for (int parameterIndex=0; parameterIndex<parameterLength; parameterIndex++) {
+
 				String paramTypeName = parameterDataTypeNames[parameterIndex];
 				String argTypeName = argumentDataTypeNames[parameterIndex];
 				int paramRank = parameterRanks[parameterIndex];
 				int argRank = argumentRanks[parameterIndex];
 
-				if (paramTypeName.equals(DataTypeName.ANY)) {
-					// この引数はどの型とも互換性があるので、次の引数の比較へ
+				boolean isParamAnyType = parameterDataTypeArbitrarinesses[parameterIndex];
+				boolean isParamAnyRank = parameterArrayRankArbitrarinesses[parameterIndex];
+				boolean isDataTypeSame = paramTypeName.equals(argTypeName);
+				boolean isRankSame = (paramRank == argRank);
+
+				// 以下、parameterIndex 番目の仮引数と実引数を比較する。
+				// この引数に互換性があれば continue して次の引数の比較へ移行、
+				// 互換性が無ければその時点で呼び出し不可と判断して break する。
+
+				// データ型と次元数の両方が完全に一致している場合は、その時点でOK
+				if (isDataTypeSame && isRankSame) {
 					continue;
 				}
 
-				if (paramTypeName.equals(argTypeName) && paramRank==argRank) {
-					// この引数の型同士は互換性があるので、次の引数の比較へ
+				// 仮引数が任意型かつ任意次元の場合は、実引数が何であっても互換性があるのでOK
+				if (isParamAnyType && isParamAnyRank) {
+					continue;
+				}
+
+				// 仮引数が任意型であり、かつ任意次元ではない場合は、次元数が一致していればOK
+				if (isParamAnyType && !isParamAnyRank && isRankSame) {
+					continue;
+				}
+
+				// 仮引数が任意次元であり、かつ任意型ではない場合は、データ型数が一致していればOK
+				if (isParamAnyRank && !isParamAnyType && isDataTypeSame) {
 					continue;
 				}
 

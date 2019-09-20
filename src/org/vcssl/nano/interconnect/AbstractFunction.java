@@ -69,17 +69,6 @@ public abstract class AbstractFunction {
 
 
 	/**
-	 * 全ての仮引数のデータ型を配列として取得します。
-	 *
-	 * @return 全ての仮引数のデータ型を格納する配列
-	 * @throws VnanoException
-	 * 		このインスタンスが保持するデータ型名から、
-	 * 		この処理系でサポートされているデータ型に変換できなかった場合にスローされます。
-	 */
-	//public abstract DataType[] getParameterDataTypes() throws VnanoException;
-
-
-	/**
 	 * 全ての仮引数のデータ型名を配列として取得します。
 	 * 返される型名の表記内に、配列部分 [][]...[] は含まれません。
 	 *
@@ -87,12 +76,29 @@ public abstract class AbstractFunction {
 	 */
 	public abstract String[] getParameterDataTypeNames();
 
+
 	/**
 	 * 全ての仮引数の配列次元数（スカラは0次元として扱う）を配列として取得します。
 	 *
 	 * @return 全ての仮引数の配列次元数を格納する配列
 	 */
 	public abstract int[] getParameterArrayRanks();
+
+
+	/**
+	 * 全ての仮引数において、データ型が可変であるかどうかを格納する配列を返します。
+	 *
+	 * @return 全引数のデータ型が可変であるかどうかを格納する配列
+	 */
+	public abstract boolean[] getParameterDataTypeArbitrarinesses();
+
+
+	/**
+	 * 全ての仮引数において、配列次元数が可変であるかどうかを格納する配列を返します。
+	 *
+	 * @return 全引数の配列次元数が可変であるかどうかを格納する配列
+	 */
+	public abstract boolean[] getParameterArrayRankArbitrarinesses();
 
 
 	/**

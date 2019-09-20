@@ -612,7 +612,6 @@ public class Interconnect {
 	 */
 	private void connectClassAsPlugin(Class<?> pluginClass, Object instance, boolean aliasingRequired, String aliasName)
 			throws VnanoException {
-
 		ClassToXnci1Adapter adapter = new ClassToXnci1Adapter(pluginClass,instance);
 		this.connectXnci1Plugin(adapter, aliasingRequired, aliasName, true);
 	}

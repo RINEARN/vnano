@@ -5,6 +5,8 @@
 
 package org.vcssl.nano.spec;
 
+import java.util.Arrays;
+
 import org.vcssl.nano.VnanoException;
 import org.vcssl.nano.compiler.AstNode;
 import org.vcssl.nano.compiler.AttributeKey;
@@ -45,7 +47,8 @@ public class IdentifierSyntax {
 
 
 	public static String getSignatureOf(String functionName,
-			String[] parameterDataTypeNames, int[] parameterArrayRanks) {
+			String[] parameterDataTypeNames, int[] parameterArrayRanks,
+			boolean[] parameterDataTypeArbitrarinesses, boolean[] parameterArrayRankArbitrarinesses) {
 
 		StringBuilder builder = new StringBuilder();
 
@@ -55,11 +58,21 @@ public class IdentifierSyntax {
 		int parameterLength = parameterDataTypeNames.length;
 		for (int parameterIndex=0; parameterIndex<parameterLength; parameterIndex++) {
 
-			builder.append(parameterDataTypeNames[parameterIndex]);
-			int paramRank = parameterArrayRanks[parameterIndex];
-			for (int dim=0; dim<paramRank; dim++) {
-				builder.append("[]");
+			if (parameterDataTypeArbitrarinesses[parameterIndex]) {
+				builder.append(DataTypeName.ANY);
+			} else {
+				builder.append(parameterDataTypeNames[parameterIndex]);
 			}
+
+			if (parameterArrayRankArbitrarinesses[parameterIndex]) {
+				builder.append("[...]");
+			} else {
+				int paramRank = parameterArrayRanks[parameterIndex];
+				for (int dim=0; dim<paramRank; dim++) {
+					builder.append("[]");
+				}
+			}
+
 			if (parameterIndex != parameterLength-1) {
 				builder.append(",");
 			}
@@ -71,18 +84,21 @@ public class IdentifierSyntax {
 
 	public static String getSignatureOf(AstNode functionDeclarationNode) {
 
-
 		String functionName = functionDeclarationNode.getAttribute(AttributeKey.IDENTIFIER_VALUE);
-		AstNode[] argumentNodes = functionDeclarationNode.getChildNodes();
-		int argumentNodeLength = argumentNodes.length;
+		AstNode[] parameterNodes = functionDeclarationNode.getChildNodes();
+		int parameterNodeLength = parameterNodes.length;
 
 		//DataType[] argumentDataTypes = new DataType[argumentNodeLength];
-		String[] argumentDataTypeNames = new String[argumentNodeLength];
-		int[] argumentArrayRanks = new int[argumentNodeLength];
+		String[] parameterDataTypeNames = new String[parameterNodeLength];
+		int[] parameterArrayRanks = new int[parameterNodeLength];
+		boolean[] parameterDataTypeArbitrarinesses = new boolean[parameterNodeLength];
+		boolean[] parameterArrayRankArbitrarinesses = new boolean[parameterNodeLength];
+		Arrays.fill(parameterDataTypeArbitrarinesses, false);
+		Arrays.fill(parameterArrayRankArbitrarinesses, false);
 
-		for (int argumentNodeIndex=0; argumentNodeIndex<argumentNodeLength; argumentNodeIndex++) {
+		for (int parameterNodeIndex=0; parameterNodeIndex<parameterNodeLength; parameterNodeIndex++) {
 
-			String dataTypeName = argumentNodes[argumentNodeIndex].getAttribute(AttributeKey.DATA_TYPE);
+			String dataTypeName = parameterNodes[parameterNodeIndex].getAttribute(AttributeKey.DATA_TYPE);
 
 			// データ型名のエイリアス（floatに対するdoubleなど）を一意な型名に揃えるため、一旦DataTypeに変換して戻す
 			try {
@@ -92,13 +108,14 @@ public class IdentifierSyntax {
 				// DataTypeに定義されない未知の型の場合は、記述された型名をそのまま使用する
 			}
 
-			argumentDataTypeNames[argumentNodeIndex] = dataTypeName;
+			parameterDataTypeNames[parameterNodeIndex] = dataTypeName;
 
-			argumentArrayRanks[argumentNodeIndex] = argumentNodes[argumentNodeIndex].getRank();
+			parameterArrayRanks[parameterNodeIndex] = parameterNodes[parameterNodeIndex].getRank();
 		}
 
 		String signature = getSignatureOf(
-				functionName, argumentDataTypeNames, argumentArrayRanks
+				functionName, parameterDataTypeNames, parameterArrayRanks,
+				parameterDataTypeArbitrarinesses, parameterArrayRankArbitrarinesses
 		);
 
 		return signature;
@@ -117,6 +134,10 @@ public class IdentifierSyntax {
 
 		String[] argumentDataTypeNames = new String[argumentNodeLength];
 		int[] argumentArrayRanks = new int[argumentNodeLength];
+		boolean[] argumentDataTypeArbitrarinesses = new boolean[argumentNodeLength];
+		boolean[] argumentArrayRankArbitrarinesses = new boolean[argumentNodeLength];
+		Arrays.fill(argumentDataTypeArbitrarinesses, false);
+		Arrays.fill(argumentArrayRankArbitrarinesses, false);
 
 		for (int argumentNodeIndex=0; argumentNodeIndex<argumentNodeLength; argumentNodeIndex++) {
 			String dataTypeName = argumentNodes[argumentNodeIndex].getAttribute(AttributeKey.DATA_TYPE);
@@ -135,7 +156,8 @@ public class IdentifierSyntax {
 		}
 
 		String signature = getSignatureOf(
-				functionName, argumentDataTypeNames, argumentArrayRanks
+				functionName, argumentDataTypeNames, argumentArrayRanks,
+				argumentDataTypeArbitrarinesses, argumentArrayRankArbitrarinesses
 		);
 
 		return signature;
@@ -148,9 +170,14 @@ public class IdentifierSyntax {
 	public static String getSignatureOf(AbstractFunction function, String nameSpacePrefix) {
 		String[] parameterDataTypeNames = function.getParameterDataTypeNames();
 		int[] parameterArrayRanks = function.getParameterArrayRanks();
+		boolean[] parameterDataTypeArbitrarinesses = function.getParameterDataTypeArbitrarinesses();
+		boolean[] parameterArrayRankArbitrarinesses = function.getParameterArrayRankArbitrarinesses();
+		Arrays.fill(parameterDataTypeArbitrarinesses, false);
+		Arrays.fill(parameterArrayRankArbitrarinesses, false);
 		String functionName = nameSpacePrefix + function.getFunctionName();
 		String signature = getSignatureOf(
-				functionName, parameterDataTypeNames, parameterArrayRanks
+				functionName, parameterDataTypeNames, parameterArrayRanks,
+				parameterDataTypeArbitrarinesses, parameterArrayRankArbitrarinesses
 		);
 
 		return signature;
