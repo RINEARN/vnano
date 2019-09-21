@@ -308,9 +308,23 @@ public final class Xfci1ToFunctionAdapter extends AbstractFunction {
 
 			// 引数のデータ型を変換
 			for (int argIndex=0; argIndex<argLength; argIndex++) {
-				if (!this.parameterDataTypes[argIndex].equals(DataType.VOID)) {
+				boolean isVoid = false;
+				DataConverter converter = null;
+
+				// 引数が任意個数に設定されている場合は、宣言上の仮引数は1個のみなので、0番目の宣言型に変換（仕様）
+				if (this.xfciPlugin.isParameterCountArbitrary()) {
+					converter = this.parameterDataConverters[0];
+					isVoid = this.parameterDataTypes[0].equals(DataType.VOID); // 実用上はあり得ないが宣言上はあり得る
+
+				// 通常の引数の場合
+				} else {
+					converter = this.parameterDataConverters[argIndex];
+					isVoid = this.parameterDataTypes[argIndex].equals(DataType.VOID);
+				}
+
+				if (!isVoid) {
 					try {
-						convertedArgs[argIndex] = this.parameterDataConverters[argIndex].convertToExternalObject(argumentDataContainers[argIndex]);
+						convertedArgs[argIndex] = converter.convertToExternalObject(argumentDataContainers[argIndex]);
 					} catch (VnanoException e) {
 						throw new VnanoFatalException(e);
 					}
