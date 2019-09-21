@@ -1896,9 +1896,11 @@ Let's implement them:
 			@Override
 			public boolean[] getParameterRankArbitrarinesses() { return new boolean[]{ false }; }
 			@Override
-			public Class<?> getReturnClass(Class<?>[] parameterClasses) { return Void.class; }
+			public boolean isParameterCountArbitrary() { return false; }
 			@Override
-			public boolean isVariadic() { return false; }
+			public boolean hasVariadicParameters() { return false; }
+			@Override
+			public Class<?> getReturnClass(Class<?>[] parameterClasses) { return Void.class; }
 			@Override
 			public String[] getNecessaryPermissionNames() { return new String[]{ ConnectorPermissionName.NONE }; }
 			@Override
@@ -2054,9 +2056,11 @@ Let's implement. The following is an example code:
 			@Override
 			public boolean[] getParameterRankArbitrarinesses() { return new boolean[]{ false }; }
 			@Override
-			public Class<?> getReturnClass(Class<?>[] parameterClasses) { return Void.class; }
+			public boolean isParameterCountArbitrary() { return false; }
 			@Override
-			public boolean isVariadic() { return false; }
+			public boolean hasVariadicParameters() { return false; }
+			@Override
+			public Class<?> getReturnClass(Class<?>[] parameterClasses) { return Void.class; }
 			@Override
 			public String[] getNecessaryPermissionNames() { return new String[]{ ConnectorPermissionName.NONE }; }
 			@Override
