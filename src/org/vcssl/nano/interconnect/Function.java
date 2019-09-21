@@ -81,7 +81,7 @@ public final class Function extends AbstractFunction {
 	}
 
 	@Override
-	public final boolean isVariadic() {
+	public final boolean hasVariadicParameters() {
 		// 現在は未対応
 		return false;
 	}

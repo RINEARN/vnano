@@ -231,8 +231,8 @@ public final class Xfci1ToFunctionAdapter extends AbstractFunction {
 	 * @return 可変長引数であればtrue
 	 */
 	@Override
-	public boolean isVariadic() {
-		return this.xfciPlugin.isVariadic();
+	public boolean hasVariadicParameters() {
+		return this.xfciPlugin.hasVariadicParameters();
 	}
 
 

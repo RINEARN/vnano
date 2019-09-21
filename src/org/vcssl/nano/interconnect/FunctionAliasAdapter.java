@@ -255,8 +255,8 @@ public class FunctionAliasAdapter extends AbstractFunction {
 	 *
 	 * @return 可変長引数であればtrue
 	 */
-	public boolean isVariadic() {
-		return this.function.isVariadic();
+	public boolean hasVariadicParameters() {
+		return this.function.hasVariadicParameters();
 	}
 
 

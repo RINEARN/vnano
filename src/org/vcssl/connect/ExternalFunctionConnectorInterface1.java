@@ -124,32 +124,6 @@ public interface ExternalFunctionConnectorInterface1 {
 
 
 	/**
-	 * <p>
-	 * 仮引数の個数が任意であるかどうかを返します。
-	 * </p>
-	 *
-	 * <p>
-	 * この機能を有効にすると、呼び出しにおいて、実引数が 1 個から任意個まで許容されるようになります。
-	 * この機能を有効にした場合は、{@link getParameterClasses() } や
-	 * {@link getParameterRanks() } などでは引数1個分の仕様を指定してください。
-	 * 全ての実引数が、その仕様と適合する場合に、呼び出し可能であると判断されます。
-	 * 呼び出しの際は、{@link invoke(Object[] arguments)} メソッドの引数 arguments に、
-	 * 任意個の実引数がそのままの形で渡されます。
-	 * </p>
-	 *
-	 * <p>
-	 * なお、この機能を有効にした際の挙動は、{@link isVariadic() }
-	 * を有効にした際の挙動とは少し異なる事に留意してください。
-	 * 後者では、引数の型の適合性判断は、VCSSLの可変長引数の仕様に基づいて、
-	 * {@link invoke(Object[] arguments)} メソッドへの実引数の渡され方も異なります。
-	 * </p>
-	 *
-	 * @return 仮引数の個数が任意であるかどうか
-	 */
-	public boolean getParameterCountArbitrariness();
-
-
-	/**
 	 * 全ての仮引数において、データ型が可変であるかどうかを格納する配列を返します。
 	 *
 	 * @return 全引数のデータ型が可変であるかどうかを格納する配列
@@ -166,16 +140,29 @@ public interface ExternalFunctionConnectorInterface1 {
 
 
 	/**
-	 * 戻り値のデータの型を表すClassインスタンスを取得します。
+	 * <p>
+	 * 仮引数の個数が任意であるかどうかを返します。
+	 * </p>
 	 *
-	 * parameterClasses には、スクリプト内での呼び出しにおける、引数のデータ型情報が渡されます。
-	 * これにより、引数の型によって戻り値の型が異なるだけの、
-	 * 複数の関数に相当する処理を、まとめて提供する事ができます。
+	 * <p>
+	 * この機能を有効にすると、呼び出しにおいて、実引数が 1 個から任意個まで許容されるようになります。
+	 * この機能を有効にした場合は、{@link getParameterClasses() } や
+	 * {@link getParameterRanks() } などでは引数1個分の仕様を指定してください。
+	 * 全ての実引数が、その仕様と適合する場合に、呼び出し可能であると判断されます。
+	 * 呼び出しの際は、{@link invoke(Object[] arguments)} メソッドの引数 arguments に、
+	 * 任意個の実引数がそのままの形で渡されます。
+	 * </p>
 	 *
-	 * @param parameterClasses 全引数のデータ型のClassインスタンスを格納する配列
-	 * @return 戻り値のデータ型のClassインスタンス
+	 * <p>
+	 * なお、この機能を有効にした際の挙動は、{@link hasVariadicParameters() }
+	 * を有効にした際の挙動とは少し異なる事に留意してください。
+	 * 後者では、引数の型の適合性判断は、VCSSLの可変長引数の仕様に基づいて、
+	 * {@link invoke(Object[] arguments)} メソッドへの実引数の渡され方も異なります。
+	 * </p>
+	 *
+	 * @return 仮引数の個数が任意であるかどうか
 	 */
-	public abstract Class<?> getReturnClass(Class<?>[] parameterClasses);
+	public boolean isParameterCountArbitrary();
 
 
 	/**
@@ -193,7 +180,20 @@ public interface ExternalFunctionConnectorInterface1 {
 	 *
 	 * @return 可変長引数であればtrue
 	 */
-	public abstract boolean isVariadic();
+	public abstract boolean hasVariadicParameters();
+
+
+	/**
+	 * 戻り値のデータの型を表すClassインスタンスを取得します。
+	 *
+	 * parameterClasses には、スクリプト内での呼び出しにおける、引数のデータ型情報が渡されます。
+	 * これにより、引数の型によって戻り値の型が異なるだけの、
+	 * 複数の関数に相当する処理を、まとめて提供する事ができます。
+	 *
+	 * @param parameterClasses 全引数のデータ型のClassインスタンスを格納する配列
+	 * @return 戻り値のデータ型のClassインスタンス
+	 */
+	public abstract Class<?> getReturnClass(Class<?>[] parameterClasses);
 
 
 	/**

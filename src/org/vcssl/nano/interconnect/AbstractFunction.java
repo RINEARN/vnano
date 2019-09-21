@@ -106,7 +106,7 @@ public abstract class AbstractFunction {
 	 *
 	 * @return 可変長引数であればtrue
 	 */
-	public abstract boolean isVariadic();
+	public abstract boolean hasVariadicParameters();
 
 
 	/**
