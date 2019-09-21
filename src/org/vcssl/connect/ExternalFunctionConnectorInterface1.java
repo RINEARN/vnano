@@ -120,7 +120,33 @@ public interface ExternalFunctionConnectorInterface1 {
 	 *
 	 * @return 全引数のデータ型のClassインスタンスを格納する配列
 	 */
-	public abstract Class<?>[] getParameterClasses(); // Object を指定すると any 的な挙動にする?
+	public abstract Class<?>[] getParameterClasses();
+
+
+	/**
+	 * <p>
+	 * 仮引数の個数が任意であるかどうかを返します。
+	 * </p>
+	 *
+	 * <p>
+	 * この機能を有効にすると、呼び出しにおいて、実引数が 1 個から任意個まで許容されるようになります。
+	 * この機能を有効にした場合は、{@link getParameterClasses() } や
+	 * {@link getParameterRanks() } などでは引数1個分の仕様を指定してください。
+	 * 全ての実引数が、その仕様と適合する場合に、呼び出し可能であると判断されます。
+	 * 呼び出しの際は、{@link invoke(Object[] arguments)} メソッドの引数 arguments に、
+	 * 任意個の実引数がそのままの形で渡されます。
+	 * </p>
+	 *
+	 * <p>
+	 * なお、この機能を有効にした際の挙動は、{@link isVariadic() }
+	 * を有効にした際の挙動とは少し異なる事に留意してください。
+	 * 後者では、引数の型の適合性判断は、VCSSLの可変長引数の仕様に基づいて、
+	 * {@link invoke(Object[] arguments)} メソッドへの実引数の渡され方も異なります。
+	 * </p>
+	 *
+	 * @return 仮引数の個数が任意であるかどうか
+	 */
+	public boolean getParameterCountArbitrariness();
 
 
 	/**
@@ -153,7 +179,17 @@ public interface ExternalFunctionConnectorInterface1 {
 
 
 	/**
-	 * 可変長引数であるかどうかを判定します。
+	 * <p>
+	 * （この機能は、処理系側ではまだ対応していません）可変長引数であるかを判定します。
+	 * </p>
+	 *
+	 * <p>
+	 * この機能を有効にすると、仮引数の中で最後の要素が、可変長要素であると判断されます。
+	 * 可変長要素以外の引数に対しては、通常の関数通り、型や並び方の適合性検査が行われます。
+	 * 可変長要素の引数に対しては、複数の同じ型のスカラーか、または1個の配列を渡す事が許容されます。
+	 * 呼び出し時の実引数においては、可変長要素の引数のデータは 1 個の配列にまとめて渡されます。
+	 * {@link invoke(Object[] arguments)} メソッドの引数 arguments においても同様です。
+	 * </p>
 	 *
 	 * @return 可変長引数であればtrue
 	 */

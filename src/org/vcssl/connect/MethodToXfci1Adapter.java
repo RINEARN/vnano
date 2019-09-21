@@ -135,6 +135,16 @@ public class MethodToXfci1Adapter implements ExternalFunctionConnectorInterface1
 
 
 	/**
+	 * 仮引数の個数が任意であるかどうかを返します。
+	 *
+	 * @return 仮引数の個数が任意であるかどうか
+	 */
+	public boolean getParameterCountArbitrariness() {
+		return false;
+	}
+
+
+	/**
 	 * 全ての仮引数において、データ型が可変であるかどうかを格納する配列を返します。
 	 *
 	 * @return 全引数のデータ型が可変であるかどうかを格納する配列
