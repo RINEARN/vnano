@@ -163,14 +163,13 @@ public class MethodToXfci1Adapter implements ExternalFunctionConnectorInterface1
 
 
 	/**
-	 * 戻り値のデータの型を表すClassインスタンスを取得します。
+	 * 仮引数の個数が任意であるかどうかを返します。
 	 *
-	 * @param parameterClasses 全引数のデータ型のClassインスタンスを格納する配列
-	 * @return データ型のClassインスタンス
+	 * @return 仮引数の個数が任意であるかどうか
 	 */
 	@Override
-	public Class<?> getReturnClass(Class<?>[] parameterClasses) {
-		return this.method.getReturnType();
+	public boolean isParameterCountArbitrary() {
+		return false;
 	}
 
 
@@ -180,8 +179,20 @@ public class MethodToXfci1Adapter implements ExternalFunctionConnectorInterface1
 	 * @return 可変長引数であればtrue
 	 */
 	@Override
-	public boolean isVariadic() {
+	public boolean hasVariadicParameters() {
 		return this.method.isVarArgs();
+	}
+
+
+	/**
+	 * 戻り値のデータの型を表すClassインスタンスを取得します。
+	 *
+	 * @param parameterClasses 全引数のデータ型のClassインスタンスを格納する配列
+	 * @return データ型のClassインスタンス
+	 */
+	@Override
+	public Class<?> getReturnClass(Class<?>[] parameterClasses) {
+		return this.method.getReturnType();
 	}
 
 

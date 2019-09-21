@@ -59,7 +59,7 @@ public class FunctionAliasAdapter extends AbstractFunction {
 	 * @param signature 上書きする関数情報のコールシグネチャ表記
 	 * @throws シグネチャ表記に文法エラーがあった場合にスローされます
 	 */
-	public void setCallSignature(String signature) throws VnanoException {
+	public final void setCallSignature(String signature) throws VnanoException {
 
 		// プラグインから素直に求めたコールシグネチャを用意（エラーメッセージで使用）
 		String expectedSignature = IdentifierSyntax.getSignatureOf(this);
@@ -115,8 +115,14 @@ public class FunctionAliasAdapter extends AbstractFunction {
 				paramNode.getDataTypeName(), parameterDataTypeNames[paramIndex]
 			));
 
-			// 引数の配列次元数が違っていればエラー
-			errorDetected |= ( paramNode.getRank() != parameterArrayRanks[paramIndex] );
+			// 引数の配列次元数の検査
+			if (function.isParameterCountArbitrary()) {
+				// 引数が任意個に設定されている場合は、「 ... type unnamed[...] 」表記なので構文上は1次元
+				errorDetected |= ( paramNode.getRank() != 1 );
+			} else {
+				// 通常の引数の場合は、違っていればエラー
+				errorDetected |= ( paramNode.getRank() != parameterArrayRanks[paramIndex] );
+			}
 		}
 
 		// 上で異常が見つかっていればエラー処理
@@ -136,7 +142,7 @@ public class FunctionAliasAdapter extends AbstractFunction {
 	 * @param typeB 引数の型（typeAの他方）
 	 * @return 互換ならtrue
 	 */
-	private boolean isCompatibleDataTypeName(String typeA, String typeB) {
+	private final boolean isCompatibleDataTypeName(String typeA, String typeB) {
 		if (typeA.equals(typeB)) {
 			return true;
 		}
@@ -164,7 +170,8 @@ public class FunctionAliasAdapter extends AbstractFunction {
 	 *
 	 * @return 関数名
 	 */
-	public String getFunctionName() {
+	@Override
+	public final String getFunctionName() {
 		return this.functionName;
 	}
 
@@ -174,7 +181,7 @@ public class FunctionAliasAdapter extends AbstractFunction {
 	 *
 	 * @param functionName 関数名
 	 */
-	public void setFunctionName(String functionName) {
+	public final void setFunctionName(String functionName) {
 		this.functionName = functionName;
 	}
 
@@ -184,7 +191,8 @@ public class FunctionAliasAdapter extends AbstractFunction {
 	 *
 	 * @return 名前空間に所属していれば true
 	 */
-	public boolean hasNameSpace() {
+	@Override
+	public final boolean hasNameSpace() {
 		return this.function.hasNameSpace();
 	}
 
@@ -194,7 +202,8 @@ public class FunctionAliasAdapter extends AbstractFunction {
 	 *
 	 * @return 名前空間
 	 */
-	public String getNameSpace() {
+	@Override
+	public final String getNameSpace() {
 		return this.function.getNameSpace();
 	}
 
@@ -204,7 +213,8 @@ public class FunctionAliasAdapter extends AbstractFunction {
 	 *
 	 * @return 全ての仮引数の名称を格納する配列
 	 */
-	public String[] getParameterNames() {
+	@Override
+	public final String[] getParameterNames() {
 		return this.function.getParameterNames();
 	}
 
@@ -215,7 +225,8 @@ public class FunctionAliasAdapter extends AbstractFunction {
 	 *
 	 * @return 仮引数のデータ型名を格納する配列
 	 */
-	public String[] getParameterDataTypeNames() {
+	@Override
+	public final String[] getParameterDataTypeNames() {
 		return this.function.getParameterDataTypeNames();
 	}
 
@@ -225,7 +236,8 @@ public class FunctionAliasAdapter extends AbstractFunction {
 	 *
 	 * @return 全ての仮引数の配列次元数を格納する配列
 	 */
-	public int[] getParameterArrayRanks() {
+	@Override
+	public final int[] getParameterArrayRanks() {
 		return this.function.getParameterArrayRanks();
 	}
 
@@ -235,7 +247,8 @@ public class FunctionAliasAdapter extends AbstractFunction {
 	 *
 	 * @return 全引数のデータ型が可変であるかどうかを格納する配列
 	 */
-	public boolean[] getParameterDataTypeArbitrarinesses() {
+	@Override
+	public final boolean[] getParameterDataTypeArbitrarinesses() {
 		return this.function.getParameterDataTypeArbitrarinesses();
 	}
 
@@ -245,8 +258,20 @@ public class FunctionAliasAdapter extends AbstractFunction {
 	 *
 	 * @return 全引数の配列次元数が可変であるかどうかを格納する配列
 	 */
-	public boolean[] getParameterArrayRankArbitrarinesses() {
+	@Override
+	public final boolean[] getParameterArrayRankArbitrarinesses() {
 		return this.function.getParameterArrayRankArbitrarinesses();
+	}
+
+
+	/**
+	 * 仮引数の個数が任意であるかどうかを返します。
+	 *
+	 * @return 仮引数の個数が任意であるかどうか
+	 */
+	@Override
+	public final boolean isParameterCountArbitrary() {
+		return this.function.isParameterCountArbitrary();
 	}
 
 
@@ -255,8 +280,9 @@ public class FunctionAliasAdapter extends AbstractFunction {
 	 *
 	 * @return 可変長引数であればtrue
 	 */
-	public boolean isVariadic() {
-		return this.function.isVariadic();
+	@Override
+	public final boolean hasVariadicParameters() {
+		return this.function.hasVariadicParameters();
 	}
 
 
@@ -266,7 +292,8 @@ public class FunctionAliasAdapter extends AbstractFunction {
 	 *
 	 * @return 戻り値のデータ型名
 	 */
-	public String getReturnDataTypeName(String[] argumentDataTypeNames, int[] argumentArrayRanks) {
+	@Override
+	public final String getReturnDataTypeName(String[] argumentDataTypeNames, int[] argumentArrayRanks) {
 		return this.function.getReturnDataTypeName(argumentDataTypeNames, argumentArrayRanks);
 	}
 
@@ -276,7 +303,8 @@ public class FunctionAliasAdapter extends AbstractFunction {
 	 *
 	 * @return 戻り値の配列次元数
 	 */
-	public int getReturnArrayRank(String[] argumentDataTypeNames, int[] argumentArrayRanks) {
+	@Override
+	public final int getReturnArrayRank(String[] argumentDataTypeNames, int[] argumentArrayRanks) {
 		return this.function.getReturnArrayRank(argumentDataTypeNames, argumentArrayRanks);
 	}
 
@@ -287,7 +315,8 @@ public class FunctionAliasAdapter extends AbstractFunction {
 	 * @param argumentDataUnits 実引数のデータを保持するデータユニットの配列（各要素が個々の実引数に対応）
 	 * @param returnDataUnit 戻り値のデータを格納するデータユニット
 	 */
-	public void invoke(DataContainer<?>[] argumentDataUnits, DataContainer<?> returnDataUnit) {
+	@Override
+	public final void invoke(DataContainer<?>[] argumentDataUnits, DataContainer<?> returnDataUnit) {
 		this.function.invoke(argumentDataUnits, returnDataUnit);
 	}
 }

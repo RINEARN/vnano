@@ -48,12 +48,28 @@ public class IdentifierSyntax {
 
 	public static String getSignatureOf(String functionName,
 			String[] parameterDataTypeNames, int[] parameterArrayRanks,
-			boolean[] parameterDataTypeArbitrarinesses, boolean[] parameterArrayRankArbitrarinesses) {
+			boolean[] parameterDataTypeArbitrarinesses, boolean[] parameterArrayRankArbitrarinesses,
+			boolean parameterCountArbitrary, boolean parameterVariadic) {
 
 		StringBuilder builder = new StringBuilder();
 
 		builder.append(functionName);
 		builder.append("(");
+
+		if (parameterCountArbitrary) {
+			builder.append("...");
+			if (parameterDataTypeArbitrarinesses[0]) {
+				builder.append(DataTypeName.ANY);
+			} else {
+				builder.append(parameterDataTypeNames[0]);
+			}
+			if (parameterArrayRankArbitrarinesses[0]) {
+				builder.append("[...])");
+			} else {
+				builder.append("[])");
+			}
+			return builder.toString();
+		}
 
 		int parameterLength = parameterDataTypeNames.length;
 		for (int parameterIndex=0; parameterIndex<parameterLength; parameterIndex++) {
@@ -115,7 +131,8 @@ public class IdentifierSyntax {
 
 		String signature = getSignatureOf(
 				functionName, parameterDataTypeNames, parameterArrayRanks,
-				parameterDataTypeArbitrarinesses, parameterArrayRankArbitrarinesses
+				parameterDataTypeArbitrarinesses, parameterArrayRankArbitrarinesses,
+				false, false
 		);
 
 		return signature;
@@ -157,7 +174,8 @@ public class IdentifierSyntax {
 
 		String signature = getSignatureOf(
 				functionName, argumentDataTypeNames, argumentArrayRanks,
-				argumentDataTypeArbitrarinesses, argumentArrayRankArbitrarinesses
+				argumentDataTypeArbitrarinesses, argumentArrayRankArbitrarinesses,
+				false, false
 		);
 
 		return signature;
@@ -172,12 +190,11 @@ public class IdentifierSyntax {
 		int[] parameterArrayRanks = function.getParameterArrayRanks();
 		boolean[] parameterDataTypeArbitrarinesses = function.getParameterDataTypeArbitrarinesses();
 		boolean[] parameterArrayRankArbitrarinesses = function.getParameterArrayRankArbitrarinesses();
-		Arrays.fill(parameterDataTypeArbitrarinesses, false);
-		Arrays.fill(parameterArrayRankArbitrarinesses, false);
 		String functionName = nameSpacePrefix + function.getFunctionName();
 		String signature = getSignatureOf(
 				functionName, parameterDataTypeNames, parameterArrayRanks,
-				parameterDataTypeArbitrarinesses, parameterArrayRankArbitrarinesses
+				parameterDataTypeArbitrarinesses, parameterArrayRankArbitrarinesses,
+				function.isParameterCountArbitrary(), function.hasVariadicParameters()
 		);
 
 		return signature;

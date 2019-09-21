@@ -147,6 +147,10 @@ public class LexicalAnalyzer {
 	 */
 	private Token[] tokenize(String script, String fileName) {
 
+		// 現状、演算子などの記号トークンの文字数は3文字までに限定（延ばすと先読み判定コストが増えるため）。
+		// それ以上の長さのトークンは、空白または記号で区切られている条件下でしかトークン分割されない（＝ ワードトークンと呼ぶ）。
+		// 記号トークンは、空白などを挟まずに詰めて書いてもトークン分割される。
+		// 記号トークンとして扱いたい字句内容は、あらかじめ ScriptWord.SYMBOL_SET に指定されている必要がある。
 
 		ArrayList<Token> tokenList = new ArrayList<Token>();
 		char[] chars = script.toCharArray();
@@ -154,50 +158,77 @@ public class LexicalAnalyzer {
 		int pointer = 0;
 		int lineNumber = 1; // 行番号は1から始まる
 
+		// 記号か空白が出現するまでの間、ワードトークンの字句内容と見なして溜めておくバッファ
+		StringBuilder wordTokenBuilder = new StringBuilder();
+		String singleCharSymbol = null;
+		String doubleCharSymbol = null;
+		String tripleCharSymbol = null;
+
 		while(pointer < length) {
 
-			// "&&" が "&" と "&" に分割されてしまう
-			// -> 最長一致の原則を入れないと
+			// 1文字記号トークンの候補文字列を用意
+			singleCharSymbol = Character.toString(chars[pointer]);
 
-			// 記号（=トークンの区切り）を検索し, 記号がヒットするまでに読んだ文字を繋ぐ
-			StringBuilder wordBuilder = new StringBuilder();
-			while(!ScriptWord.SYMBOL_SET.contains(Character.toString(chars[pointer])) && pointer<length-1) {
-				wordBuilder.append(chars[pointer]);
-				pointer++;
+			// 2文字記号トークンの候補文字列を用意（1文字先読み）
+			if (pointer<length-1) {
+				doubleCharSymbol = new String(new char[] {chars[pointer], chars[pointer+1]} );
+			} else {
+				doubleCharSymbol = null;
 			}
 
-			// リテラルや識別子, 制御構文などのワードトークンの場合
-			if(0 < wordBuilder.length()) {
-
-				tokenList.add(new Token(wordBuilder.toString(), lineNumber, fileName));
-				continue;
-
-			// 2文字記号トークンの場合（1文字先読みして判定）
-			} else if (pointer<length-1
-						&& ScriptWord.SYMBOL_SET.contains(new String(new char[]{chars[pointer],chars[pointer+1]}))) {
-
-				tokenList.add(new Token(
-					new String(new char[]{chars[pointer], chars[pointer+1]}),
-					lineNumber, fileName
-				));
-				pointer += 2;	//1文字先読みしたので2つ加算
-				continue;
-
-			// 1文字記号トークンの場合
-			} else if (!Character.toString(chars[pointer]).matches(ScriptWord.TOKEN_SEPARATOR_REGEX)) {
-
-				tokenList.add(new Token(
-					Character.toString(chars[pointer]),
-					lineNumber, fileName
-				));
-				pointer++;
-				continue;
-
-			// 空白や改行などの無視する記号の場合
+			// 3文字記号トークンの候補文字列を用意（2文字先読み）
+			if (pointer<length-2) {
+				tripleCharSymbol = new String(new char[] {chars[pointer], chars[pointer+1], chars[pointer+2]} );
 			} else {
+				tripleCharSymbol = null;
+			}
+
+			// トークン区切り文字または記号トークンが出現した時点で、
+			// これまでワードトークンバッファに控えられている内容を確定させて生成/追加
+			if (Character.toString(chars[pointer]).matches(ScriptWord.TOKEN_SEPARATOR_REGEX)
+					|| ScriptWord.SYMBOL_SET.contains(singleCharSymbol)
+					|| ScriptWord.SYMBOL_SET.contains(doubleCharSymbol)
+					|| ScriptWord.SYMBOL_SET.contains(tripleCharSymbol) ) {
+
+				if (wordTokenBuilder.length() != 0) {
+					tokenList.add(new Token(
+						new String(wordTokenBuilder.toString()), lineNumber, fileName
+					));
+					wordTokenBuilder = new StringBuilder();
+					wordTokenBuilder.delete(0, wordTokenBuilder.length());
+				}
+			}
+
+			// 次が3文字記号トークンが来る場合 ... 記号トークンを生成/追加
+			if (ScriptWord.SYMBOL_SET.contains(tripleCharSymbol)) {
+				tokenList.add(new Token(tripleCharSymbol, lineNumber, fileName));
+				pointer += 3;	//2文字先読みしたので3つ加算
+				continue;
+
+			// 次が2文字記号トークンが来る場合 ... 記号トークンを生成/追加
+			} else if (ScriptWord.SYMBOL_SET.contains(doubleCharSymbol)) {
+				tokenList.add(new Token(doubleCharSymbol, lineNumber, fileName));
+				pointer += 2;	//1文字先読みしたので3つ加算
+				continue;
+
+			// 次に2文字記号トークンが来る場合 ... 記号トークンを生成/追加
+			} else if (ScriptWord.SYMBOL_SET.contains(singleCharSymbol)) {
+				tokenList.add(new Token(singleCharSymbol, lineNumber, fileName));
+				pointer += 1;	//1文字先読みしたので3つ加算
+				continue;
+
+			// 空白、改行、その他のトークン区切り文字の場合 ... 改行なら行番号を追加し、その他は単純に読み飛ばす
+			} else if (chars[pointer]==' ' || chars[pointer]=='\n' || chars[pointer]=='\t') {
+			//} else if (Character.toString(chars[pointer]).matches(ScriptWord.TOKEN_SEPARATOR_REGEX)) {
 				if (chars[pointer] == '\n') {
 					lineNumber++;
 				}
+				pointer++;
+				continue;
+
+			// それ以外はワードトークンの軸内容の文字なので、バッファに溜める
+			} else {
+				wordTokenBuilder.append(chars[pointer]);
 				pointer++;
 				continue;
 			}
@@ -299,6 +330,10 @@ public class LexicalAnalyzer {
 			// 文末
 			} else if (word.equals(ScriptWord.END_OF_STATEMENT)) {
 				tokens[i].setType(Token.Type.END_OF_STATEMENT);
+
+			// 任意個数を表す「...」
+			} else if (word.equals(ScriptWord.ARBITRARY_COUNT)) {
+				tokens[i].setType(Token.Type.MODIFIER);
 
 			// 代入演算子
 			} else if (word.equals(ScriptWord.ASSIGNMENT)) {

@@ -49,6 +49,9 @@ public class Token implements Cloneable {
 
 		/** 演算子のトークンを表します。 */
 		OPERATOR,
+
+		/** 修飾子のトークンを表します。 */
+		MODIFIER,
 	}
 
 

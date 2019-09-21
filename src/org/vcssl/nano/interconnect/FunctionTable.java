@@ -6,6 +6,7 @@
 package org.vcssl.nano.interconnect;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -132,18 +133,25 @@ public class FunctionTable {
 	 * @param parameterDataTypes 全引数のデータ型を格納する配列（各要素が各引数に対応）
 	 * @param parameterArrayRanks 全引数の配列次元数を格納する配列
 	 * 		（各要素が各引数に対応、スカラは0次元として扱う）
+	 * @oaram parameterDataTypeArbitrarinesses 各引数のデータ型が任意かどうかを格納する配列
+	 * @oaram parameterArrayRankArbitrarinesses 各引数のデータ型が任意かどうかを格納する配列
+	 * @param parameterCountArbitrary 引数の個数が任意かどうか
+	 * @param parameterVariadic 可変長の引数要素を持っているかどうか
 	 * @return 対象の関数
 	 * @throws VnanoFatalException
 	 *   指定された関数がこのテーブルに存在しなかった場合にスローされます。
 	 */
 	public AbstractFunction getFunctionBySignature(
 			String functionName, DataType[] parameterDataTypes, int[] parameterArrayRanks,
-			boolean[] parameterDataTypeArbitrarinesses, boolean[] parameterArrayRankArbitrarinesses) {
+			boolean[] parameterDataTypeArbitrarinesses, boolean[] parameterArrayRankArbitrarinesses,
+			boolean parameterCountArbitrary, boolean parameterVariadic) {
 
 		String[] parameterDataTypeNames = DataTypeName.getDataTypeNamesOf(parameterDataTypes);
 		String signature = IdentifierSyntax.getSignatureOf(
 				functionName, parameterDataTypeNames, parameterArrayRanks,
-				parameterDataTypeArbitrarinesses, parameterArrayRankArbitrarinesses
+				parameterDataTypeArbitrarinesses, parameterArrayRankArbitrarinesses,
+				parameterCountArbitrary, parameterVariadic
+
 		);
 		return this.getFunctionBySignature(signature);
 	}
@@ -238,13 +246,29 @@ public class FunctionTable {
 		for (int functionIndex=functionN-1; 0<=functionIndex; functionIndex--) {
 
 			AbstractFunction function = functionList.get(functionIndex);
+
+			// 仮引数の情報を取得
 			int[] parameterRanks = function.getParameterArrayRanks();
 			String[] parameterDataTypeNames = function.getParameterDataTypeNames();
 			boolean[] parameterDataTypeArbitrarinesses = function.getParameterDataTypeArbitrarinesses(); // 仮引数が任意型かどうか
 			boolean[] parameterArrayRankArbitrarinesses = function.getParameterArrayRankArbitrarinesses(); // 仮引数が任意次元かどうか
 			int parameterLength = parameterRanks.length;
 
-			// 引数の個数が違えばスキップ（現状では可変長引数はサポートしていないため）
+			// 任意個数引数（可変長引数とは整合性検査の挙動が異なる）の場合は、
+			// 仮引数情報の個数を実引数に合わせて延長
+			if (function.isParameterCountArbitrary() && parameterLength==1) {
+				parameterLength = argumentLength;
+				parameterRanks = Arrays.copyOf(parameterRanks, parameterLength);
+				parameterDataTypeNames = Arrays.copyOf(parameterDataTypeNames, parameterLength);
+				parameterDataTypeArbitrarinesses = Arrays.copyOf(parameterDataTypeArbitrarinesses, parameterLength);
+				parameterArrayRankArbitrarinesses = Arrays.copyOf(parameterArrayRankArbitrarinesses, parameterLength);
+				Arrays.fill(parameterRanks, parameterRanks[0]);
+				Arrays.fill(parameterDataTypeNames, parameterDataTypeNames[0]);
+				Arrays.fill(parameterDataTypeArbitrarinesses, parameterDataTypeArbitrarinesses[0]);
+				Arrays.fill(parameterDataTypeArbitrarinesses, parameterArrayRankArbitrarinesses[0]);
+			}
+
+			// 仮引数と実引数の個数が違えばスキップ
 			if (parameterLength != argumentLength) {
 				continue;
 			}

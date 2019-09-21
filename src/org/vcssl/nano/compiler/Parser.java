@@ -187,7 +187,7 @@ public class Parser {
 				statementBegin = blockBegin;
 
 			// 変数宣言文の場合
-			} else if (beginToken.getType()==Token.Type.DATA_TYPE) {
+			} else if (beginToken.getType()==Token.Type.DATA_TYPE || beginToken.getType()==Token.Type.MODIFIER) {
 
 				Token[] subTokens = Arrays.copyOfRange(tokens, statementBegin, statementEnd);
 				statementStack.push(this.parseVariableDeclarationStatement(subTokens, true));
@@ -292,6 +292,11 @@ public class Parser {
 		}
 
 		int readingIndex = 0;
+
+		// 現状では可変長引数の「 ... 」は読み飛ばす
+		if (tokens[0].getType() == Token.Type.MODIFIER && tokens[0].getValue().equals(ScriptWord.ARBITRARY_COUNT)) {
+			readingIndex++;
+		}
 
 		// 型情報を付加
 		Token typeToken = tokens[readingIndex];

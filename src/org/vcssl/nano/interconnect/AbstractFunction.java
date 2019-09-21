@@ -102,11 +102,19 @@ public abstract class AbstractFunction {
 
 
 	/**
-	 * 可変長引数であるかどうかを判定します。
+	 * 仮引数の個数が任意であるかどうかを返します。
+	 *
+	 * @return 仮引数の個数が任意であるかどうか
+	 */
+	public abstract boolean isParameterCountArbitrary();
+
+
+	/**
+	 * （未サポート）可変長引数であるかどうかを判定します。
 	 *
 	 * @return 可変長引数であればtrue
 	 */
-	public abstract boolean isVariadic();
+	public abstract boolean hasVariadicParameters();
 
 
 	/**
