@@ -46,12 +46,12 @@ public final class Function extends AbstractFunction {
 	}
 
 	@Override
-	public boolean hasNameSpace() {
+	public final boolean hasNameSpace() {
 		return false; // スクリプト内での名前空間定義はサポートされていない
 	}
 
 	@Override
-	public String getNameSpace() {
+	public final String getNameSpace() {
 		return null; // スクリプト内での名前空間定義はサポートされていない
 	}
 
@@ -71,13 +71,18 @@ public final class Function extends AbstractFunction {
 	}
 
 	@Override
-	public boolean[] getParameterDataTypeArbitrarinesses() {
+	public final boolean[] getParameterDataTypeArbitrarinesses() {
 		return this.parameterDataTypeArbitrarinesses;
 	}
 
 	@Override
-	public boolean[] getParameterArrayRankArbitrarinesses() {
+	public final boolean[] getParameterArrayRankArbitrarinesses() {
 		return this.parameterRankArbitrarinesses;
+	}
+
+	@Override
+	public final boolean isParameterCountArbitrary() {
+		return false;
 	}
 
 	@Override

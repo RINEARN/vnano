@@ -80,6 +80,14 @@ public class ScriptWord {
 
 
 	/**
+	 * <span class="lang-en">The symbol represents that the number of somethings is arbitrary: "..."</span>
+	 * <span class="lang-ja">任意の個数を表す記号「 ... 」です。</span>
+	 * .
+	 */
+	public static final String ARBITRARY_COUNT = "...";
+
+
+	/**
 	 * <span class="lang-en">The symbol of the assignment operator: "="</span>
 	 * <span class="lang-ja">代入演算子の記号「 = 」です</span>
 	 * .
@@ -229,22 +237,6 @@ public class ScriptWord {
 	 * .
 	 */
 	public static final String LESS_EQUAL = "<=";
-
-
-	/**
-	 * <span class="lang-en">(Unsupported) The symbol of bitwise-logical-and operator: "&amp;"</span>
-	 * <span class="lang-ja">（未サポート）ビット論理積演算子の記号「 &amp; 」です</span>
-	 * .
-	 */
-	public static final String BIT_AND = "&";
-
-
-	/**
-	 * <span class="lang-en">(Unsupported) The symbol of bitwise-logical-or operator: "|"</span>
-	 * <span class="lang-ja">（未サポート）ビット論理和演算子の記号「 | 」です</span>
-	 * .
-	 */
-	public static final String BIT_OR = "|";
 
 
 	/**
@@ -452,6 +444,7 @@ public class ScriptWord {
     	// 便宜的にその1文字のシンボルを定義した上でINVALIDを指定する事で実現可能。
 
     	SYMBOL_SET = new HashSet<String>();
+
     	SYMBOL_SET.add(ASSIGNMENT);
     	SYMBOL_SET.add(PLUS);
     	SYMBOL_SET.add(MINUS);
@@ -477,14 +470,12 @@ public class ScriptWord {
     	SYMBOL_SET.add(EQUAL);
     	SYMBOL_SET.add(NOT_EQUAL);
 
-    	SYMBOL_SET.add(BIT_AND); // 2文字シンボルの1文字目もまたシンボルでないといけないため、現状の字句解析の実装では削れない
     	SYMBOL_SET.add(AND);
-
-    	SYMBOL_SET.add(BIT_OR); // 2文字シンボルの1文字目もまたシンボルでないといけないため、現状の字句解析の実装では削れない
     	SYMBOL_SET.add(OR);
     	SYMBOL_SET.add(NOT);
 
     	SYMBOL_SET.add(ARGUMENT_SEPARATOR);
+    	SYMBOL_SET.add(ARBITRARY_COUNT);
 
     	SYMBOL_SET.add(PARENTHESIS_BEGIN);
     	SYMBOL_SET.add(PARENTHESIS_END);
@@ -495,12 +486,5 @@ public class ScriptWord {
     	SYMBOL_SET.add(INDEX_END);
 
     	SYMBOL_SET.add(END_OF_STATEMENT);
-
-    	// これが実装上の都合でシンボルセットに含まれててしまうのは微妙
-    	SYMBOL_SET.add(" ");
-    	SYMBOL_SET.add("　");
-    	SYMBOL_SET.add("\t");
-    	SYMBOL_SET.add("\r");
-    	SYMBOL_SET.add("\n");
     }
 }

@@ -136,7 +136,7 @@ public final class Xfci1ToFunctionAdapter extends AbstractFunction {
 	 * @return 関数名
 	 */
 	@Override
-	public String getFunctionName() {
+	public final String getFunctionName() {
 		return this.xfciPlugin.getFunctionName();
 	}
 
@@ -147,7 +147,7 @@ public final class Xfci1ToFunctionAdapter extends AbstractFunction {
 	 * @return 名前空間に所属していれば true
 	 */
 	@Override
-	public boolean hasNameSpace() {
+	public final boolean hasNameSpace() {
 		return this.hasNameSpace;
 	}
 
@@ -158,7 +158,7 @@ public final class Xfci1ToFunctionAdapter extends AbstractFunction {
 	 * @return 名前空間
 	 */
 	@Override
-	public String getNameSpace() {
+	public final String getNameSpace() {
 		return this.nameSpace;
 	}
 
@@ -169,7 +169,7 @@ public final class Xfci1ToFunctionAdapter extends AbstractFunction {
 	 * @return 全ての仮引数の名称を格納する配列
 	 */
 	@Override
-	public String[] getParameterNames() {
+	public final String[] getParameterNames() {
 		return this.xfciPlugin.getParameterNames();
 	}
 
@@ -180,7 +180,7 @@ public final class Xfci1ToFunctionAdapter extends AbstractFunction {
 	 * @return 全ての仮引数のデータ型を格納する配列
 	 */
 	@Override
-	public String[] getParameterDataTypeNames() {
+	public final String[] getParameterDataTypeNames() {
 		int parameterLength = this.parameterDataTypes.length;
 
 		String[] parameterDataTypeNames = new String[parameterLength];
@@ -200,7 +200,7 @@ public final class Xfci1ToFunctionAdapter extends AbstractFunction {
 	 * @return 全ての仮引数の配列次元数を格納する配列
 	 */
 	@Override
-	public int[] getParameterArrayRanks() {
+	public final int[] getParameterArrayRanks() {
 		return this.parameterArrayRanks;
 	}
 
@@ -210,7 +210,8 @@ public final class Xfci1ToFunctionAdapter extends AbstractFunction {
 	 *
 	 * @return 全引数のデータ型が可変であるかどうかを格納する配列
 	 */
-	public boolean[] getParameterDataTypeArbitrarinesses() {
+	@Override
+	public final boolean[] getParameterDataTypeArbitrarinesses() {
 		return this.xfciPlugin.getParameterClassArbitrarinesses();
 	}
 
@@ -220,32 +221,34 @@ public final class Xfci1ToFunctionAdapter extends AbstractFunction {
 	 *
 	 * @return 全引数の配列次元数が可変であるかどうかを格納する配列
 	 */
-	public boolean[] getParameterArrayRankArbitrarinesses() {
+	@Override
+	public final boolean[] getParameterArrayRankArbitrarinesses() {
 		return this.xfciPlugin.getParameterRankArbitrarinesses();
 	}
 
 
+	// hasVariadicParameters との違いは XFCI1 の同名メソッドの説明参照
 	/**
-	 * 可変長引数であるかどうかを判定します。
+	 * 仮引数の個数が任意であるかどうかを返します。
+	 *
+	 * @return 仮引数の個数が任意であるかどうか
+	 */
+	@Override
+	public final boolean isParameterCountArbitrary() {
+		return this.xfciPlugin.isParameterCountArbitrary();
+	}
+
+
+	// isParameterCountArbitrary との違いは XFCI1 の同名メソッドの説明参照
+	/**
+	 * （未サポート）可変長引数であるかどうかを判定します。
 	 *
 	 * @return 可変長引数であればtrue
 	 */
 	@Override
-	public boolean hasVariadicParameters() {
+	public final boolean hasVariadicParameters() {
 		return this.xfciPlugin.hasVariadicParameters();
 	}
-
-
-	/**
-	 * 戻り値のデータ型を取得します。
-	 *
-	 * @return 戻り値のデータ型
-	 */
-	/*
-	public DataType getReturnDataType() {
-		return this.returnDataType;
-	}
-	*/
 
 
 	/**
@@ -255,7 +258,7 @@ public final class Xfci1ToFunctionAdapter extends AbstractFunction {
 	 * @return 戻り値のデータ型名
 	 */
 	@Override
-	public String getReturnDataTypeName(String[] argumentDataTypeNames, int[] argumentArrayRanks) {
+	public final String getReturnDataTypeName(String[] argumentDataTypeNames, int[] argumentArrayRanks) {
 		DataType[] argumentDataTypes;
 		try {
 			argumentDataTypes = DataTypeName.getDataTypesOf(argumentDataTypeNames);
@@ -275,7 +278,7 @@ public final class Xfci1ToFunctionAdapter extends AbstractFunction {
 	 * @return 戻り値の配列次元数
 	 */
 	@Override
-	public int getReturnArrayRank(String[] argumentDataTypeNames, int[] argumentArrayRanks) {
+	public final int getReturnArrayRank(String[] argumentDataTypeNames, int[] argumentArrayRanks) {
 		DataType[] argumentDataTypes;
 		try {
 			argumentDataTypes = DataTypeName.getDataTypesOf(argumentDataTypeNames);
@@ -295,7 +298,7 @@ public final class Xfci1ToFunctionAdapter extends AbstractFunction {
 	 * @param returnDataContainer 戻り値のデータを格納するデータコンテナ
 	 */
 	@Override
-	public void invoke(DataContainer<?>[] argumentDataContainers, DataContainer<?> returnDataContainer) {
+	public final void invoke(DataContainer<?>[] argumentDataContainers, DataContainer<?> returnDataContainer) {
 
 		int argLength = argumentDataContainers.length;
 		Object[] convertedArgs = new Object[argLength];

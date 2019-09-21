@@ -331,6 +331,10 @@ public class LexicalAnalyzer {
 			} else if (word.equals(ScriptWord.END_OF_STATEMENT)) {
 				tokens[i].setType(Token.Type.END_OF_STATEMENT);
 
+			// 任意個数を表す「...」
+			} else if (word.equals(ScriptWord.ARBITRARY_COUNT)) {
+				tokens[i].setType(Token.Type.MODIFIER);
+
 			// 代入演算子
 			} else if (word.equals(ScriptWord.ASSIGNMENT)) {
 				tokens[i].setType(Token.Type.OPERATOR);

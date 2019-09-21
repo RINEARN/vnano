@@ -235,7 +235,7 @@ public class ProcessorTest {
 		// Interconnect に接続された"methodToConnect" メソッドの関数アドレスを取得し、R10レジスタに設定
 		AbstractFunction function = this.interconnect.getExternalFunctionTable().getFunctionBySignature(
 				"methodToConnect", new DataType[]{DataType.INT64, DataType.INT64}, new int[]{0, 0},
-				new boolean[]{false, false}, new boolean[]{false, false}
+				new boolean[]{false, false}, new boolean[]{false, false}, false, false
 		);
 		int functionAddress = this.interconnect.getExternalFunctionTable().indexOf(function);
 		((DataContainer<long[]>)this.registers[10]).setData(new long[]{ (long)functionAddress });
