@@ -419,7 +419,6 @@ public class AcceleratorSchedulingUnit {
 
 				// 転送命令 Trsndfer instruction opcodes
 				case MOV :
-				case CAST :
 				case FILL :
 				{
 					if(dataTypes[0] == DataType.INT64) {
@@ -450,6 +449,37 @@ public class AcceleratorSchedulingUnit {
 							instruction.setAccelerationType(AcceleratorExecutionType.BCS_TRANSFER);
 						} else {
 							instruction.setAccelerationType(AcceleratorExecutionType.BS_TRANSFER);
+						}
+
+					} else {
+						instruction.setAccelerationType(AcceleratorExecutionType.BYPASS);
+					}
+					break;
+				}
+
+				// 型変換命令 Cast instruction opcodes
+				case CAST :
+				{
+					if(dataTypes[0] == DataType.INT64
+							&& (dataTypes[1] == DataType.INT64 || dataTypes[1] == DataType.FLOAT64)) {
+
+						if (isAllVector(operandScalar)) {
+							instruction.setAccelerationType(AcceleratorExecutionType.I64V_TRANSFER);
+						} else if (isAllScalar(operandScalar) && isAllCached(operandCachingEnabled)) {
+							instruction.setAccelerationType(AcceleratorExecutionType.I64CS_TRANSFER);
+						} else {
+							instruction.setAccelerationType(AcceleratorExecutionType.I64S_TRANSFER);
+						}
+
+					} else if (dataTypes[0] == DataType.FLOAT64
+							&& (dataTypes[1] == DataType.INT64 || dataTypes[1] == DataType.FLOAT64)) {
+
+						if (isAllVector(operandScalar)) {
+							instruction.setAccelerationType(AcceleratorExecutionType.F64V_TRANSFER);
+						} else if (isAllScalar(operandScalar) && isAllCached(operandCachingEnabled)) {
+							instruction.setAccelerationType(AcceleratorExecutionType.F64CS_TRANSFER);
+						} else {
+							instruction.setAccelerationType(AcceleratorExecutionType.F64S_TRANSFER);
 						}
 
 					} else {
