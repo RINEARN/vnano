@@ -641,6 +641,50 @@ public class Parser {
 
 
 	/**
+	 * トークン配列の中に含まれる、全キャスト演算子の「 始点, データ型, 終端 」と並ぶトークン列をまとめ、
+	 * それぞれ単一のトークンに変換したもので置き換えて返します。
+	 *
+	 * @param 変換対象のトークン配列
+	 */
+	private Token[] preprocessCastSequentialTokens(Token[] tokens) {
+
+		int tokenLength = tokens.length; // トークン数
+		int readingIndex = 0; // 注目トークンのインデックス
+
+		// 変換後のトークンを格納するリスト
+		List<Token> tokenList = new LinkedList<Token>();
+
+		while (readingIndex<tokenLength) {
+
+			Token readingToken = tokens[readingIndex];
+
+			boolean isCastBeginToken = readingIndex < tokenLength-2
+				&& readingToken.getType() == Token.Type.OPERATOR
+				&& readingToken.getAttribute(AttributeKey.OPERATOR_EXECUTOR).equals(AttributeValue.CAST);
+
+			// キャスト始点トークンの場合は、次がデータ型トークン、
+			// その後が終端トークン（配列キャストは未サポート）なので、情報を1つにまとめてリストに格納
+			if (isCastBeginToken) {
+				String dataType = tokens[ readingIndex+1 ].getValue();
+				readingToken.setAttribute(AttributeKey.DATA_TYPE, dataType);
+				readingToken.setAttribute(AttributeKey.RANK, Integer.toString(RANK_OF_SCALAR)); // 現在は配列のキャストに未対応なため
+				readingToken.setValue(ScriptWord.PARENTHESIS_BEGIN + dataType + ScriptWord.PARENTHESIS_END);
+				tokenList.add(readingToken);
+				readingIndex += 3;
+
+			// その他のトークンの場合はそのまま変換後リストに格納
+			} else {
+				tokenList.add(readingToken);
+				readingIndex++;
+			}
+		}
+
+		Token[] resultTokens = tokenList.toArray(new Token[0]);
+		return resultTokens;
+	}
+
+
+	/**
 	 * 式のトークン配列を解析し、AST（抽象構文木）を構築して返します。
 	 *
 	 * @param tokens 式のトークン配列
@@ -649,11 +693,14 @@ public class Parser {
 	 */
 	private AstNode parseExpression(Token[] tokens) throws VnanoException {
 
-		int tokenLength = tokens.length; // トークン数
-		int readingIndex = 0; // 注目トークンのインデックス
-
 		// 最初に、トークンの種類や括弧の数などに、式の構成トークンとして問題無いか検査
 		LexicalChecker.checkTokensInExpression(tokens);
+
+		// キャスト演算子は複数トークンから成る特別な前置演算子なので、先に単一トークンの前置演算子に変換する
+		tokens = preprocessCastSequentialTokens(tokens);
+
+		int tokenLength = tokens.length; // トークン数
+		int readingIndex = 0; // 注目トークンのインデックス
 
 		// パース作業用のスタックとして使用する双方向キューを用意
 		Deque<AstNode> stack = new ArrayDeque<AstNode>();
@@ -709,19 +756,6 @@ public class Parser {
 
 					// 前置演算子
 					case AttributeValue.PREFIX : {
-
-						// キャスト演算子の場合は、単記号ではなく、括弧の間にデータ型が挟まっている形なので、特例処理が必要
-						if (readingToken.getAttribute(AttributeKey.OPERATOR_EXECUTOR).equals(AttributeValue.CAST)) {
-
-							// 次のトークンがデータ型なので、キャスト演算子ノードの属性に設定し、閉じ括弧と併せて2個分読み進む
-							operatorNode.setAttribute(AttributeKey.DATA_TYPE, tokens[readingIndex+1].getValue());
-							readingIndex += 2;
-
-							// 現状では配列へのキャストは未サポートなので、次元の解釈は省略し、スカラの次元 0 に設定。サポートする場合はここで解釈。
-							operatorNode.setAttribute(AttributeKey.RANK, Integer.toString(RANK_OF_SCALAR));
-						}
-
-						// !!! キャストの右が括弧でくくってある場合になんか変
 
 						// 優先度が次の演算子よりも強い場合、右トークンを先読みし、リーフノードとして演算子ノードにぶら下げる
 						if (this.shouldAddRightOperand(readingOpAssociativity, readingOpPrecedence, nextOpPrecedence)) {
@@ -934,6 +968,15 @@ public class Parser {
 		operatorNode.setAttribute(AttributeKey.OPERATOR_EXECUTOR, token.getAttribute(AttributeKey.OPERATOR_EXECUTOR));
 		operatorNode.setAttribute(AttributeKey.OPERATOR_SYMBOL, token.getValue());
 		operatorNode.setAttribute(AttributeKey.OPERATOR_PRECEDENCE, Integer.toString(token.getPrecedence()));
+
+		// キャスト演算子など、演算子トークンがランク・型情報を持っている場合があるので、その場合はノードに設定
+		if (token.hasAttribute(AttributeKey.DATA_TYPE)) {
+			operatorNode.setAttribute(AttributeKey.DATA_TYPE, token.getAttribute(AttributeKey.DATA_TYPE));
+		}
+		if (token.hasAttribute(AttributeKey.RANK)) {
+			operatorNode.setAttribute(AttributeKey.RANK, token.getAttribute(AttributeKey.RANK));
+		}
+
 		return operatorNode;
 	}
 
