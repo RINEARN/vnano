@@ -258,6 +258,9 @@ public class LexicalAnalyzer {
 		// 関数呼び出し演算子が始まった括弧階層を控えて置き, 閉じ括弧が関数呼び出しの後端であるかの判定で使用
 		Set<Integer> callParenthesisStages = new HashSet<Integer>();
 
+		// キャスト演算子の括弧の中に入ると true にし、その後の閉じ括弧で false にする
+		boolean inCastParenthesis = false;
+
 		for(int i=0; i<tokenLength; i++) {
 			String word = tokens[i].getValue();
 
@@ -269,8 +272,15 @@ public class LexicalAnalyzer {
 			} else if (word.equals(ScriptWord.PARENTHESIS_BEGIN)) {
 				parenthesisStage++;
 
+				// キャスト演算子の括弧
+				if (i<tokenLength-1 && DataTypeName.isDataTypeName(tokens[i+1].getValue())) {
+					tokens[i].setType(Token.Type.OPERATOR);
+					tokens[i].setAttribute(AttributeKey.OPERATOR_EXECUTOR, AttributeValue.CAST);
+					tokens[i].setAttribute(AttributeKey.OPERATOR_SYNTAX, AttributeValue.PREFIX);
+					inCastParenthesis = true;
+
 				// 関数呼び出し演算子の括弧
-				if (lastToken!=null && lastToken.getType()==Token.Type.LEAF
+				} else if (lastToken!=null && lastToken.getType()==Token.Type.LEAF
 						&& lastToken.getAttribute(AttributeKey.LEAF_TYPE).equals(AttributeValue.FUNCTION_IDENTIFIER)
 						&& !ScriptWord.STATEMENT_NAME_SET.contains(lastWord)) {
 
@@ -287,8 +297,16 @@ public class LexicalAnalyzer {
 			// 閉じ括弧
 			} else if (word.equals(ScriptWord.PARENTHESIS_END)) {
 
+				// キャスト演算子の括弧
+				if (inCastParenthesis) {
+
+					tokens[i].setType(Token.Type.OPERATOR);
+					tokens[i].setAttribute(AttributeKey.OPERATOR_EXECUTOR, AttributeValue.CAST);
+					tokens[i].setAttribute(AttributeKey.OPERATOR_SYNTAX, AttributeValue.PREFIX);
+					inCastParenthesis = false;
+
 				// 関数呼び出し演算子の括弧
-				if (callParenthesisStages.contains(parenthesisStage)) {
+				} else if (callParenthesisStages.contains(parenthesisStage)) {
 					callParenthesisStages.remove(parenthesisStage);
 					tokens[i].setType(Token.Type.OPERATOR);
 					tokens[i].setAttribute(AttributeKey.OPERATOR_EXECUTOR, AttributeValue.CALL);
@@ -473,20 +491,38 @@ public class LexicalAnalyzer {
 			switch (symbol) {
 
 				case ScriptWord.PARENTHESIS_BEGIN:
-					//if (1<=i && tokens[i-1].getType()==Token.Type.LEAF) {
-					if (tokens[i].getType() == Token.Type.OPERATOR) { // 関数コールの場合
-						tokens[i].setPrecedence(OperatorPrecedence.CALL_BEGIN);
+
+					// 演算子の場合
+					if (tokens[i].getType() == Token.Type.OPERATOR) {
+						String executor = tokens[i].getAttribute(AttributeKey.OPERATOR_EXECUTOR);
+						if (executor.equals(AttributeValue.CAST)) { // キャスト演算子の場合
+							tokens[i].setPrecedence(OperatorPrecedence.CAST);
+						} else if (executor.equals(AttributeValue.CALL)) { // 関数コールの場合
+							tokens[i].setPrecedence(OperatorPrecedence.CALL_BEGIN);
+						}
+
+					// 構文上の括弧の場合
 					} else {
 						tokens[i].setPrecedence(OperatorPrecedence.PARENTHESIS_BEGIN);
 					}
 					break;
 
 				case ScriptWord.PARENTHESIS_END:
-					if (tokens[i].getType() == Token.Type.OPERATOR) { // 関数コールの場合
-						tokens[i].setPrecedence(OperatorPrecedence.CALL_END); // MULTIARY系演算子の終端は優先度最低にする必要がある(そうしないと結合してしまう)
+
+					// 演算子の場合
+					if (tokens[i].getType() == Token.Type.OPERATOR) {
+						String executor = tokens[i].getAttribute(AttributeKey.OPERATOR_EXECUTOR);
+						if (executor.equals(AttributeValue.CAST)) { // キャスト演算子の場合
+							tokens[i].setPrecedence(OperatorPrecedence.CAST);
+						} else if (executor.equals(AttributeValue.CALL)) { // 関数コールの場合
+							tokens[i].setPrecedence(OperatorPrecedence.CALL_END);
+						}
+
+					// 構文上の括弧の場合
 					} else {
 						tokens[i].setPrecedence(OperatorPrecedence.PARENTHESIS_END);
 					}
+					break;
 
 				case ScriptWord.ARGUMENT_SEPARATOR :
 					tokens[i].setPrecedence(OperatorPrecedence.CALL_SEPARATOR); // 引数区切りのカンマも優先度最低にする必要がある(そうしないと結合してしまう)
@@ -639,6 +675,20 @@ public class LexicalAnalyzer {
 			String symbol = tokens[i].getValue();
 			switch (symbol) {
 
+				// 開き括弧（キャスト演算子の場合に右結合）
+				case ScriptWord.PARENTHESIS_BEGIN : {
+					if (tokens[i].getAttribute(AttributeKey.OPERATOR_EXECUTOR).equals(AttributeValue.CAST)) {
+						associativity = AttributeValue.RIGHT;
+					}
+					break;
+				}
+				// 閉じ括弧（キャスト演算子の場合に右結合）
+				case ScriptWord.PARENTHESIS_END : {
+					if (tokens[i].getAttribute(AttributeKey.OPERATOR_EXECUTOR).equals(AttributeValue.CAST)) {
+						associativity = AttributeValue.RIGHT;
+					}
+					break;
+				}
 				// 前置インクリメント
 				case ScriptWord.INCREMENT : {
 					if (tokens[i].getAttribute(AttributeKey.OPERATOR_SYNTAX).equals(AttributeValue.PREFIX)) {

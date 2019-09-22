@@ -60,6 +60,14 @@ import org.vcssl.nano.spec.ErrorType;
 public class Parser {
 
 	/**
+	 * <span class="lang-ja">スカラの配列次元数です</span>
+	 * <span class="lang-en">The array-rank of the scalar</span>
+	 * .
+	 */
+	private static final int RANK_OF_SCALAR = 0;
+
+
+	/**
 	 * <span class="lang-en">
 	 * This constructor does nothing, because this class has no fields for storing state
 	 * </span>
@@ -701,6 +709,19 @@ public class Parser {
 
 					// 前置演算子
 					case AttributeValue.PREFIX : {
+
+						// キャスト演算子の場合は、単記号ではなく、括弧の間にデータ型が挟まっている形なので、特例処理が必要
+						if (readingToken.getAttribute(AttributeKey.OPERATOR_EXECUTOR).equals(AttributeValue.CAST)) {
+
+							// 次のトークンがデータ型なので、キャスト演算子ノードの属性に設定し、閉じ括弧と併せて2個分読み進む
+							operatorNode.setAttribute(AttributeKey.DATA_TYPE, tokens[readingIndex+1].getValue());
+							readingIndex += 2;
+
+							// 現状では配列へのキャストは未サポートなので、次元の解釈は省略し、スカラの次元 0 に設定。サポートする場合はここで解釈。
+							operatorNode.setAttribute(AttributeKey.RANK, Integer.toString(RANK_OF_SCALAR));
+						}
+
+						// !!! キャストの右が括弧でくくってある場合になんか変
 
 						// 優先度が次の演算子よりも強い場合、右トークンを先読みし、リーフノードとして演算子ノードにぶら下げる
 						if (this.shouldAddRightOperand(readingOpAssociativity, readingOpPrecedence, nextOpPrecedence)) {

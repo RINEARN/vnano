@@ -560,6 +560,14 @@ public class SemanticAnalyzer {
 						rank = 0;
 						break;
 					}
+
+					// キャスト演算子の場合
+					case AttributeValue.CAST : {
+						dataType = currentNode.getDataTypeName();
+						operationDataType = dataType;
+						rank = currentNode.getRank();
+						break;
+					}
 				}
 
 				// 演算子ノードに属性値を設定

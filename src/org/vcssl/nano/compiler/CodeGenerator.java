@@ -1295,6 +1295,10 @@ public class CodeGenerator {
 					codeBuilder.append( this.generateIndexOperatorCode(currentNode) );
 					break;
 				}
+				case AttributeValue.CAST : {
+					codeBuilder.append( this.generateCastOperatorCode(currentNode) );
+					break;
+				}
 				default : {
 					throw new VnanoFatalException("Unknown operator execution type: " + operatorExecution);
 				}
@@ -1370,7 +1374,7 @@ public class CodeGenerator {
 	 *
 	 * @param operatorNode 算術二項演算子のASTノード
 	 * （{@link AstNode.Type#OPERATOR OPERATOR}タイプ、
-	 *   {@link AttributeKey#OPERATOR_EXECUTOR OPERATOR_EXECUTION}属性値が{@link AttributeValue#ARITHMETIC ARITHMETIC}、
+	 *   {@link AttributeKey#OPERATOR_EXECUTOR OPERATOR_EXECUTOR}属性値が{@link AttributeValue#ARITHMETIC ARITHMETIC}、
 	 *   {@link AttributeKey#OPERATOR_SYNTAX OPERATOR_SYNTAX}属性値が{@link AttributeValue#BINARY BINARY}）
 	 * @return 生成コード
 	 */
@@ -1400,7 +1404,7 @@ public class CodeGenerator {
 	 *
 	 * @param operatorNode 算術後置演算子のASTノード
 	 * （{@link AstNode.Type#OPERATOR OPERATOR}タイプ、
-	 *   {@link AttributeKey#OPERATOR_EXECUTOR OPERATOR_EXECUTION}属性値が{@link AttributeValue#ARITHMETIC ARITHMETIC}、
+	 *   {@link AttributeKey#OPERATOR_EXECUTOR OPERATOR_EXECUTOR}属性値が{@link AttributeValue#ARITHMETIC ARITHMETIC}、
 	 *   {@link AttributeKey#OPERATOR_SYNTAX OPERATOR_SYNTAX}属性値が{@link AttributeValue#POSTFIX POSTFIX}）
 	 * @return 生成コード
 	 */
@@ -1476,7 +1480,7 @@ public class CodeGenerator {
 	 *
 	 * @param operatorNode 算術前置演算子のASTノード
 	 * （{@link AstNode.Type#OPERATOR OPERATOR}タイプ、
-	 *   {@link AttributeKey#OPERATOR_EXECUTOR OPERATOR_EXECUTION}属性値が{@link AttributeValue#ARITHMETIC ARITHMETIC}、
+	 *   {@link AttributeKey#OPERATOR_EXECUTOR OPERATOR_EXECUTOR}属性値が{@link AttributeValue#ARITHMETIC ARITHMETIC}、
 	 *   {@link AttributeKey#OPERATOR_SYNTAX OPERATOR_SYNTAX}属性値が{@link AttributeValue#POSTFIX PREFIX}）
 	 * @return 生成コード
 	 */
@@ -1569,7 +1573,7 @@ public class CodeGenerator {
 	 *
 	 * @param operatorNode 論理二項演算子のASTノード
 	 * （{@link AstNode.Type#OPERATOR OPERATOR}タイプ、
-	 *   {@link AttributeKey#OPERATOR_EXECUTOR OPERATOR_EXECUTION}属性値が{@link AttributeValue#LOGICAL LOGICAL}、
+	 *   {@link AttributeKey#OPERATOR_EXECUTOR OPERATOR_EXECUTOR}属性値が{@link AttributeValue#LOGICAL LOGICAL}、
 	 *   {@link AttributeKey#OPERATOR_SYNTAX OPERATOR_SYNTAX}属性値が{@link AttributeValue#BINARY BINARY}）
 	 * @return 生成コード
 	 */
@@ -1596,7 +1600,7 @@ public class CodeGenerator {
 	 *
 	 * @param operatorNode 論理前置演算子のASTノード
 	 * （{@link AstNode.Type#OPERATOR OPERATOR}タイプ、
-	 *   {@link AttributeKey#OPERATOR_EXECUTOR OPERATOR_EXECUTION}属性値が{@link AttributeValue#LOGICAL LOGICAL}、
+	 *   {@link AttributeKey#OPERATOR_EXECUTOR OPERATOR_EXECUTOR}属性値が{@link AttributeValue#LOGICAL LOGICAL}、
 	 *   {@link AttributeKey#OPERATOR_SYNTAX OPERATOR_SYNTAX}属性値が{@link AttributeValue#PREFIX PREFIX}）
 	 * @return 生成コード
 	 */
@@ -1629,7 +1633,7 @@ public class CodeGenerator {
 	 *
 	 * @param operatorNode 比較二項演算子のASTノード
 	 * （{@link AstNode.Type#OPERATOR OPERATOR}タイプ、
-	 *   {@link AttributeKey#OPERATOR_EXECUTOR OPERATOR_EXECUTION}属性値が{@link AttributeValue#COMPARISON COMPARISON}、
+	 *   {@link AttributeKey#OPERATOR_EXECUTOR OPERATOR_EXECUTOR}属性値が{@link AttributeValue#COMPARISON COMPARISON}、
 	 *   {@link AttributeKey#OPERATOR_SYNTAX OPERATOR_SYNTAX}属性値が{@link AttributeValue#BINARY BINARY}）
 	 * @return 生成コード
 	 */
@@ -1658,7 +1662,7 @@ public class CodeGenerator {
 	 *
 	 * @param operatorNode 代入演算子のASTノード
 	 * （{@link AstNode.Type#OPERATOR OPERATOR}タイプ、
-	 *   {@link AttributeKey#OPERATOR_EXECUTOR OPERATOR_EXECUTION}属性値が{@link AttributeValue#ASSIGNMENT ASSIGNMENT}、
+	 *   {@link AttributeKey#OPERATOR_EXECUTOR OPERATOR_EXECUTOR}属性値が{@link AttributeValue#ASSIGNMENT ASSIGNMENT}、
 	 *   {@link AttributeKey#OPERATOR_SYNTAX OPERATOR_SYNTAX}属性値が{@link AttributeValue#BINARY BINARY}）
 	 * @return 生成コード
 	 */
@@ -1720,7 +1724,7 @@ public class CodeGenerator {
 	 *
 	 * @param operatorNode 代入演算子のASTノード
 	 * （{@link AstNode.Type#OPERATOR OPERATOR}タイプ、
-	 *   {@link AttributeKey#OPERATOR_EXECUTOR OPERATOR_EXECUTION}属性値が{@link AttributeValue#ARITHMETIC_COMPOUND_ASSIGNMENT ARITHMETIC_COMPOUND_ASSIGNMENT}、
+	 *   {@link AttributeKey#OPERATOR_EXECUTOR OPERATOR_EXECUTOR}属性値が{@link AttributeValue#ARITHMETIC_COMPOUND_ASSIGNMENT ARITHMETIC_COMPOUND_ASSIGNMENT}、
 	 *   {@link AttributeKey#OPERATOR_SYNTAX OPERATOR_SYNTAX}属性値が{@link AttributeValue#BINARY BINARY}）
 	 * @return 生成コード
 	 */
@@ -1911,7 +1915,7 @@ public class CodeGenerator {
 	 *
 	 * @param operatorNode 関数呼び出し演算子のASTノード
 	 * （{@link AstNode.Type#OPERATOR OPERATOR}タイプ、
-	 *   {@link AttributeKey#OPERATOR_EXECUTOR OPERATOR_EXECUTION}属性値が{@link AttributeValue#CALL CALLX}、
+	 *   {@link AttributeKey#OPERATOR_EXECUTOR OPERATOR_EXECUTOR}属性値が{@link AttributeValue#CALL CALLX}、
 	 *   {@link AttributeKey#OPERATOR_SYNTAX OPERATOR_SYNTAX}属性値が{@link AttributeValue#MULTIARY MULTIARY}）
 	 * @return 生成コード
 	 */
@@ -1999,7 +2003,7 @@ public class CodeGenerator {
 	 *
 	 * @param operatorNode 関数呼び出し演算子のASTノード
 	 * （{@link AstNode.Type#OPERATOR OPERATOR}タイプ、
-	 *   {@link AttributeKey#OPERATOR_EXECUTOR OPERATOR_EXECUTION}属性値が{@link AttributeValue#INDEX INDEX}、
+	 *   {@link AttributeKey#OPERATOR_EXECUTOR OPERATOR_EXECUTOR}属性値が{@link AttributeValue#INDEX INDEX}、
 	 *   {@link AttributeKey#OPERATOR_SYNTAX OPERATOR_SYNTAX}属性値が{@link AttributeValue#MULTIARY MULTIARY}）
 	 * @return 生成コード
 	 */
@@ -2035,6 +2039,42 @@ public class CodeGenerator {
 	}
 
 
+	/**
+	 * キャスト演算子の演算を実行するコードを生成して返します。
+	 *
+	 * @param operatorNode キャスト演算子のASTノード
+	 * （{@link AstNode.Type#OPERATOR OPERATOR}タイプ、
+	 *   {@link AttributeKey#OPERATOR_EXECUTOR OPERATOR_EXECUTOR}属性値が{@link AttributeValue#CAST CAST}、
+	 *   {@link AttributeKey#OPERATOR_SYNTAX OPERATOR_SYNTAX}属性値が{@link AttributeValue#POSTFIX PREFIX}）
+	 * @return 生成コード
+	 */
+	private String generateCastOperatorCode(AstNode operatorNode) {
+		StringBuilder codeBuilder = new StringBuilder();
+
+		// キャスト対象のASTノードとデータ型を取得
+		AstNode targetNode = operatorNode.getChildNodes()[0];
+		String fromDataType = targetNode.getAttribute(AttributeKey.DATA_TYPE);
+		String fromValue = targetNode.getAttribute(AttributeKey.ASSEMBLY_VALUE);
+		int fromRank = targetNode.getRank();
+
+		// キャスト後のデータ型を取得
+		String toDataType = operatorNode.getAttribute(AttributeKey.DATA_TYPE);
+
+		// キャスト結果を格納するレジスタを確保
+		String castedRegister = operatorNode.getAttribute(AttributeKey.ASSEMBLY_VALUE);
+		codeBuilder.append(
+			this.generateRegisterAllocationCode(toDataType, castedRegister, fromValue, fromRank) // fromValue は length determiner
+		);
+
+		// CAST命令で型変換を実行
+		String typeSpecification = toDataType + AssemblyWord.VALUE_SEPARATOR + fromDataType;
+		codeBuilder.append(
+			this.generateInstruction(OperationCode.CAST.name(), typeSpecification, castedRegister, fromValue
+			)
+		);
+
+		return codeBuilder.toString();
+	}
 
 
 	/**
