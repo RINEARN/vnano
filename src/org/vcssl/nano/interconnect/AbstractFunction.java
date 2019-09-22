@@ -21,7 +21,7 @@ import org.vcssl.nano.vm.memory.DataContainer;
  *
  * <p>
  * この抽象クラスの機能を、内部関数用に素直に実装したクラスとしては、
- * {@link Function Function} が存在します。
+ * {@link InternalFunction InternalFunction} が存在します。
  * </p>
  *
  * @author RINEARN (Fumihiro Matsui)
