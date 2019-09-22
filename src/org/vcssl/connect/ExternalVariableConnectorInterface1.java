@@ -135,7 +135,7 @@ public interface ExternalVariableConnectorInterface1 {
 	 *
 	 * @return 必要なパーミッションを格納する配列
 	 */
-	public abstract String[] getNecessaryPermissionNameNames();
+	public abstract String[] getNecessaryPermissionNames();
 
 
 	/**

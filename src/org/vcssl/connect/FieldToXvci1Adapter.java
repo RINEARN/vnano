@@ -156,7 +156,7 @@ public class FieldToXvci1Adapter implements ExternalVariableConnectorInterface1 
 	 *
 	 * @return 必要なパーミッションの名称を格納する配列
 	 */
-	public String[] getNecessaryPermissionNameNames() {
+	public String[] getNecessaryPermissionNames() {
 		return this.necessaryPermissionNames;
 	}
 
