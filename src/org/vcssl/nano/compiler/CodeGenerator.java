@@ -1958,8 +1958,7 @@ public class CodeGenerator {
 
 			// CALL命令を生成
 			codeBuilder.append(
-				//this.generateInstruction(OperationCode.CALL.name(), operatorNode.getDataTypeName(), operands)
-				this.generateInstruction(OperationCode.CALL.name(), PLACE_HOLDER, operands)
+				this.generateInstruction(OperationCode.CALL.name(), operatorNode.getDataTypeName(), operands)
 			);
 
 			// 戻り値の型が void の場合は、スタック上の仮の戻り値（スタック順序維持用のために積まれている）を捨てるコードを生成
