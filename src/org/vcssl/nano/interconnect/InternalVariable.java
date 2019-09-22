@@ -14,7 +14,7 @@ import org.vcssl.nano.vm.memory.DataContainer;
  *
  * @author RINEARN (Fumihiro Matsui)
  */
-public class Variable extends AbstractVariable {
+public class InternalVariable extends AbstractVariable {
 
 	/** 変数名を保持します。 */
 	private String variableName = null;
@@ -39,14 +39,14 @@ public class Variable extends AbstractVariable {
 	/**
 	 * 変数名とデータ型、および配列次元数を指定して、変数を生成します。
 	 * ただし、変数のデータを保持するデータユニットは、自動では生成されないため、
-	 * 外部で生成したものを {@link Variable#setDataUnit dataUnit}
+	 * 外部で生成したものを {@link InternalVariable#setDataUnit dataUnit}
 	 * メソッドで設定する必要がああります。
 	 *
 	 * @param variableName 変数名
 	 * @param dataTypeName データ型名（配列部分 [][]...[] は含まない）
 	 * @param rank 配列次元数（スカラは0次元として扱う）
 	 */
-	public Variable(String variableName, String dataTypeName, int rank) {
+	public InternalVariable(String variableName, String dataTypeName, int rank) {
 		this.variableName = variableName;
 		this.dataTypeName = dataTypeName;
 		this.rank = rank;
@@ -55,7 +55,7 @@ public class Variable extends AbstractVariable {
 	/**
 	 * 変数名とデータ型、配列次元数、およびシリアルナンバーを指定して、変数を生成します。
 	 * ただし、変数のデータを保持するデータユニットは、自動では生成されないため、
-	 * 外部で生成したものを {@link Variable#setDataUnit dataUnit}
+	 * 外部で生成したものを {@link InternalVariable#setDataUnit dataUnit}
 	 * メソッドで設定する必要がああります。
 	 *
 	 * @param variableName 変数名
@@ -63,7 +63,7 @@ public class Variable extends AbstractVariable {
 	 * @param rank 配列次元数（スカラは0次元として扱う）
 	 * @param int serialNumber 変数名が競合している変数を区別するためのシリアルナンバー
 	 */
-	public Variable(String variableName, String dataTypeName, int rank, int serialNumber) {
+	public InternalVariable(String variableName, String dataTypeName, int rank, int serialNumber) {
 		this.variableName = variableName;
 		this.dataTypeName = dataTypeName;
 		this.rank = rank;

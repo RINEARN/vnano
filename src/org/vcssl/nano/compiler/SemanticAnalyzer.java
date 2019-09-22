@@ -13,10 +13,10 @@ import org.vcssl.nano.VnanoException;
 import org.vcssl.nano.compiler.AstNode;
 import org.vcssl.nano.interconnect.AbstractFunction;
 import org.vcssl.nano.interconnect.AbstractVariable;
-import org.vcssl.nano.interconnect.Function;
+import org.vcssl.nano.interconnect.InternalFunction;
 import org.vcssl.nano.interconnect.FunctionTable;
 import org.vcssl.nano.interconnect.Interconnect;
-import org.vcssl.nano.interconnect.Variable;
+import org.vcssl.nano.interconnect.InternalVariable;
 import org.vcssl.nano.interconnect.VariableTable;
 import org.vcssl.nano.spec.DataType;
 import org.vcssl.nano.spec.DataTypeName;
@@ -188,8 +188,8 @@ public class SemanticAnalyzer {
 				int rank = currentNode.getRank();
 
 				// ローカル変数の情報を保持するインスタンスを生成して変数テーブルに登録
-				Variable variable = new Variable(variableName, dataTypeName, rank, localVariableSerialNumber);
-				localVariableTable.addVariable(variable);
+				InternalVariable internalVariable = new InternalVariable(variableName, dataTypeName, rank, localVariableSerialNumber);
+				localVariableTable.addVariable(internalVariable);
 
 				// ノードに属性を付加
 				currentNode.setAttribute(AttributeKey.SCOPE, AttributeValue.LOCAL);
@@ -293,8 +293,8 @@ public class SemanticAnalyzer {
 				}
 
 				// 関数情報を保持するインスタンスを生成してテーブルに登録
-				Function function = new Function(functionName, argTypeNames, argRanks, returnTypeName, returnRank);
-				localFunctionTable.addFunction(function);
+				InternalFunction internalFunction = new InternalFunction(functionName, argTypeNames, argRanks, returnTypeName, returnRank);
+				localFunctionTable.addFunction(internalFunction);
 			}
 
 		} while (!currentNode.isPreorderDftLastNode());

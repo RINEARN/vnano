@@ -21,7 +21,7 @@ import org.vcssl.nano.vm.memory.DataContainer;
  *
  * <p>
  * この抽象クラスの機能を、内部変数用に素直に実装したクラスとしては、
- * {@link Variable Variable} が存在します。
+ * {@link InternalVariable InternalVariable} が存在します。
  * </p>
  *
  * @author RINEARN (Fumihiro Matsui)

@@ -10,7 +10,7 @@ import java.util.Arrays;
 import org.vcssl.nano.VnanoFatalException;
 import org.vcssl.nano.vm.memory.DataContainer;
 
-public final class Function extends AbstractFunction {
+public final class InternalFunction extends AbstractFunction {
 
 	private String functionName = null;
 	private String[] parameterNames = null;
@@ -22,7 +22,7 @@ public final class Function extends AbstractFunction {
 	private int returnRank = -1;
 
 
-	public Function (String functionName,
+	public InternalFunction (String functionName,
 			String[] parameterDataTypeNames, int[] parameterRanks,
 			String returnDataTypeName, int returnRank) {
 
