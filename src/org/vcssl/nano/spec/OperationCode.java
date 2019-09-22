@@ -1341,8 +1341,9 @@ public enum OperationCode {
 	 * </span>
 	 *
 	 * <div style="border: 1px solid #000000; margin:15px; padding:5px;">
-	 * CALL - - identifier arg1 arg2 arg3 ... argN
+	 * CALL returnType - identifier arg1 arg2 arg3 ... argN
 	 * </div>
+	 * <!-- returnType の存在は動作上は冗長で、省略可能とする事も考えられるが、最適化の事を考えるとスタック上の型判断のためにあった方がよい（それ以外に判断材料がない）。また、省略すると逆にアセンブルやその他で省略を考慮に入れる複雑性が生じる。 -->
 	 *
 	 * <span class="lang-en">
 	 * When this instruction is executed,
@@ -1353,6 +1354,7 @@ public enum OperationCode {
 	 * Then, all arguments will be pushed to the stack from the left to the right.
 	 * Finally, the processing flow will be jumped to the next instruction of the label
 	 * which is declared by the same name as "identifier".
+	 * To "returnType", specify the name of the data type of the return value which will be put on the stack.
 	 * </span>
 	 *
 	 * <span class="lang-ja">
@@ -1361,6 +1363,7 @@ public enum OperationCode {
 	 * 具体的には, まずこの命令の次の命令アドレス（戻り先アドレス）がスタックに積まれ,
 	 * 続いて全ての引数が, 左から順にスタックに積まれます.
 	 * そして, identifier と同名で宣言されているラベルの次の命令に処理が飛びます.
+	 * returnType には、戻り値としてスタックに積まれるデータの型名を指定します。
 	 * </span>
 	 * </p>
 	 *
@@ -1401,7 +1404,7 @@ public enum OperationCode {
 	 * When this instruction is executed,
 	 * the external function of which identifier (mungled name) is "identifier" will be called
 	 * with arguments [arg1, arg2, arg3, ..., argN], and then returned value will be stored to "returnValue".
-	 * Specify the name of the return value to "returnType".
+	 * Specify the name of the data type of the return value to "returnType".
 	 * </span>
 	 *
 	 * <span class="lang-ja">
