@@ -74,6 +74,8 @@ public class ErrorMessage {
 			case OPERAND_IS_MISSING_AT_LEFT : return "「 " + words[0] + " 」の左側に、値や変数などが必要です。";
 			case OPERATOR_IS_MISSING_AT_RIGHT : return "「 " + words[0] + " 」と「 " + words[1] + " 」の間に演算子（「 + 」などの記号）が必要です。";
 			case OPERATOR_IS_MISSING_AT_LEFT : return "「 " + words[0] + " 」と「 " + words[1] + " 」の間に演算子（「 + 」などの記号）が必要です。";
+			case DATA_TYPE_IS_MISSING_AT_RIGHT : return "「 " + words[0] + " 」の右側に、データ型が必要です。";
+			case CLOSE_PARENTHESIS_IS_MISSING_AT_RIGHT : return "「 " + words[0] + " 」の右側に、閉じ括弧「 ) 」が必要です。";
 			case NO_OPEN_PARENTHESIS_OF_CONTROL_STATEMENT : return "「 " + words[0] + " 」の後には括弧 (...) が必要です。";
 			case NO_CLOSING_PARENTHESIS_OF_CONTROL_STATEMENT : return words[0] + " 文の括弧 (...) が閉じていません。";
 			case NO_CONDITION_EXPRESSION_OF_IF_STATEMENT : return "if 文の括弧 (...) の中に条件の記述がありません。";
@@ -119,10 +121,12 @@ public class ErrorMessage {
 			case NO_IDENTIFIER_IN_VARIABLE_DECLARATION : return "Variable name is required after the data type name for variable declarations";
 			case TOO_MANY_TOKENS_FOR_VARIABLE_DECLARATION : return "Unexpected description exists in the latter part of the variable declaration statement";
 			case NO_PARTIAL_EXPRESSION : return "Blank parentheses ( ) exist in the expression";
-			case OPERAND_IS_MISSING_AT_RIGHT : return "Value or variable is necessary at the right of \"" + words[0] + "\"";
-			case OPERAND_IS_MISSING_AT_LEFT : return "Value or variable is necessary at the left of \"" + words[0] + "\"";
+			case OPERAND_IS_MISSING_AT_RIGHT : return "A value or variable is necessary at the right of \"" + words[0] + "\"";
+			case OPERAND_IS_MISSING_AT_LEFT : return "A value or variable is necessary at the left of \"" + words[0] + "\"";
 			case OPERATOR_IS_MISSING_AT_RIGHT : return "An operator (e.g. \"+\") is required between \"" + words[0] + "\" and \"" + words[1] + "\"";
 			case OPERATOR_IS_MISSING_AT_LEFT : return "An operator (e.g. \"+\") is required between \"" + words[0] + "\" and \"" + words[1] + "\"";
+			case DATA_TYPE_IS_MISSING_AT_RIGHT : return "A data type is necessary at the right of \"" + words[0] + "\"";
+			case CLOSE_PARENTHESIS_IS_MISSING_AT_RIGHT : return "A close parenthesis \")\" is necessary at the right of \"" + words[0] + "\"";
 			case NO_OPEN_PARENTHESIS_OF_CONTROL_STATEMENT : return "Parentheses (...) are required after \"" + words[0] + "\"";
 			case NO_CLOSING_PARENTHESIS_OF_CONTROL_STATEMENT : return "Parentheses (...) of \"" + words[0] + "\" statement are not closing";
 			case NO_CONDITION_EXPRESSION_OF_IF_STATEMENT : return "A condition expression is required between parentheses (...) of the \"if\" statement";

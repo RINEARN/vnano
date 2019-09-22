@@ -227,7 +227,8 @@ public class LexicalChecker {
 				case LEAF : break;
 				case PARENTHESIS : break;
 
-				// キャスト演算子をサポートする場合は、DATA_TYPEを通すように追加する必要がある
+				// キャスト演算子ではデータ型も構成要素になる
+				case DATA_TYPE: break;
 
 				// 式文の中にブロックの始点・終点がある場合は、スクリプト内に文末記号を書き忘れているので、
 				// そういった方向のエラーメッセージで構文エラーとする
@@ -301,7 +302,7 @@ public class LexicalChecker {
 			boolean nextIsLeaf = tokenIndex!=tokenLength-1 && tokens[tokenIndex+1].getType()==Token.Type.LEAF;
 			boolean prevIsLeaf = tokenIndex!=0 && tokens[tokenIndex-1].getType()==Token.Type.LEAF;
 
-			boolean nextIsOpenParenthesis = tokenIndex != tokenLength-1
+			boolean nextIsOpenParenthesis = tokenIndex < tokenLength-1
 					&& tokens[tokenIndex+1].getType() == Token.Type.PARENTHESIS
 					&& tokens[tokenIndex+1].getValue().equals(ScriptWord.PARENTHESIS_BEGIN);
 
@@ -309,7 +310,7 @@ public class LexicalChecker {
 					&& tokens[tokenIndex-1].getType() == Token.Type.PARENTHESIS
 					&& tokens[tokenIndex-1].getValue().equals(ScriptWord.PARENTHESIS_END);
 
-			boolean nextIsMultialyBegin = tokenIndex != tokenLength-1
+			boolean nextIsMultialyBegin = tokenIndex < tokenLength-1
 					&& tokens[tokenIndex+1].getType() == Token.Type.OPERATOR
 					&& tokens[tokenIndex+1].getAttribute(AttributeKey.OPERATOR_SYNTAX).equals(AttributeValue.MULTIARY);
 
@@ -317,7 +318,7 @@ public class LexicalChecker {
 					&& tokens[tokenIndex-1].getType() == Token.Type.OPERATOR
 					&& tokens[tokenIndex-1].getAttribute(AttributeKey.OPERATOR_SYNTAX).equals(AttributeValue.MULTIARY_END);
 
-			boolean nextIsPrefixOperator = tokenIndex != tokenLength-1
+			boolean nextIsPrefixOperator = tokenIndex < tokenLength-1
 					&& tokens[tokenIndex+1].getType()==Token.Type.OPERATOR
 					&& tokens[tokenIndex+1].getAttribute(AttributeKey.OPERATOR_SYNTAX).equals(AttributeValue.PREFIX);
 
@@ -325,18 +326,45 @@ public class LexicalChecker {
 					&& tokens[tokenIndex-1].getType()==Token.Type.OPERATOR
 					&& tokens[tokenIndex-1].getAttribute(AttributeKey.OPERATOR_SYNTAX).equals(AttributeValue.POSTFIX);
 
+			boolean nextIsDataType = tokenIndex < tokenLength-1
+					&& tokens[tokenIndex+1].getType()==Token.Type.DATA_TYPE;
+
+			boolean nextNextIsCastEnd = tokenIndex < tokenLength-2
+					&& tokens[tokenIndex+2].getType()==Token.Type.OPERATOR
+					&& tokens[tokenIndex+2].getAttribute(AttributeKey.OPERATOR_EXECUTOR).equals(AttributeValue.CAST)
+					&& tokens[tokenIndex+2].getValue().equals(ScriptWord.PARENTHESIS_END);
+
 			// 演算子の場合
 			if (token.getType() == Token.Type.OPERATOR) {
 				String operatorSyntax = token.getAttribute(AttributeKey.OPERATOR_SYNTAX);
+				String operatorExecutor = token.getAttribute(AttributeKey.OPERATOR_EXECUTOR);
 
-				// 前置演算子の場合は、右がリーフか開き括弧か多項演算子（関数呼び出しや配列アクセス）始点か前置演算子でないとエラー
-				if (operatorSyntax.equals(AttributeValue.PREFIX)
-						&& !(  nextIsLeaf || nextIsOpenParenthesis || nextIsMultialyBegin || nextIsPrefixOperator  ) ) {
+				// 前置演算子の場合
+				if (operatorSyntax.equals(AttributeValue.PREFIX)) {
 
-					throw new VnanoException(
+					// キャスト演算子の始点の場合は、右がデータ型があり、かつその直後が閉じ括弧でないとエラー
+					if (operatorExecutor.equals(AttributeValue.CAST) && token.getValue().equals(ScriptWord.PARENTHESIS_BEGIN)) {
+						if (!nextIsDataType) {
+							throw new VnanoException(
+								ErrorType.DATA_TYPE_IS_MISSING_AT_RIGHT,
+								token.getValue(), token.getFileName(), token.getLineNumber()
+							);
+						}
+						if (!nextNextIsCastEnd) {
+							throw new VnanoException(
+								ErrorType.CLOSE_PARENTHESIS_IS_MISSING_AT_RIGHT,
+								tokens[tokenIndex+1].getValue(), token.getFileName(), token.getLineNumber() // 上でnextIsDataTypeがtrueである時点で tokenIndex+1 番目へのアクセスは可能
+							);
+						}
+
+					// それ以外の場合は、右がリーフか開き括弧か多項演算子（関数呼び出しや配列アクセス）始点か前置演算子でないとエラー
+					} else if ( !(  nextIsLeaf || nextIsOpenParenthesis || nextIsMultialyBegin || nextIsPrefixOperator  ) ) {
+						throw new VnanoException(
 							ErrorType.OPERAND_IS_MISSING_AT_RIGHT,
 							token.getValue(), token.getFileName(), token.getLineNumber()
-					);
+						);
+					}
+
 				} // 前置演算子の場合
 
 				// 後置演算子の場合は、右がリーフか閉じ括弧か多項演算子（関数呼び出しや配列アクセス）終点や後置演算子でないとエラー
@@ -344,8 +372,8 @@ public class LexicalChecker {
 						&& !(  prevIsLeaf || prevIsCloseParenthesis || prevIsMultialyEnd || prevIsPostfixOperator ) ) {
 
 					throw new VnanoException(
-							ErrorType.OPERAND_IS_MISSING_AT_LEFT,
-							token.getValue(), token.getFileName(), token.getLineNumber()
+						ErrorType.OPERAND_IS_MISSING_AT_LEFT,
+						token.getValue(), token.getFileName(), token.getLineNumber()
 					);
 				} // 後置演算子の場合
 

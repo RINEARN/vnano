@@ -213,6 +213,14 @@ public class OperatorPrecedence {
 	public static final int NOT = 2000;
 
 
+	/**
+	 * <span class="lang-en">The precedence of the cast operator: "("</span>
+	 * <span class="lang-ja">キャスト演算子「 (...) 」の優先度です</span>
+	 * .
+	 */
+	public static final int CAST = 2000; // 構文上の括弧とは違い、始点から終端までをまとめて単一演算子として解釈されるので、終端を最低優先度にはしない
+
+
 	// --------------------------------------------------
 	// Arithmetic Binary Operators
 	// 算術二項演算子
