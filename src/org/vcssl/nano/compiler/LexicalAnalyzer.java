@@ -496,7 +496,7 @@ public class LexicalAnalyzer {
 					if (tokens[i].getType() == Token.Type.OPERATOR) {
 						String executor = tokens[i].getAttribute(AttributeKey.OPERATOR_EXECUTOR);
 						if (executor.equals(AttributeValue.CAST)) { // キャスト演算子の場合
-							tokens[i].setPrecedence(OperatorPrecedence.CAST);
+							tokens[i].setPrecedence(OperatorPrecedence.CAST_BEGIN);
 						} else if (executor.equals(AttributeValue.CALL)) { // 関数コールの場合
 							tokens[i].setPrecedence(OperatorPrecedence.CALL_BEGIN);
 						}
@@ -513,7 +513,7 @@ public class LexicalAnalyzer {
 					if (tokens[i].getType() == Token.Type.OPERATOR) {
 						String executor = tokens[i].getAttribute(AttributeKey.OPERATOR_EXECUTOR);
 						if (executor.equals(AttributeValue.CAST)) { // キャスト演算子の場合
-							tokens[i].setPrecedence(OperatorPrecedence.CAST);
+							tokens[i].setPrecedence(OperatorPrecedence.CAST_END);
 						} else if (executor.equals(AttributeValue.CALL)) { // 関数コールの場合
 							tokens[i].setPrecedence(OperatorPrecedence.CALL_END);
 						}

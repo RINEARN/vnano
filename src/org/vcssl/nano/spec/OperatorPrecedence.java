@@ -218,7 +218,18 @@ public class OperatorPrecedence {
 	 * <span class="lang-ja">キャスト演算子「 (...) 」の優先度です</span>
 	 * .
 	 */
-	public static final int CAST = 2000; // 構文上の括弧とは違い、始点から終端までをまとめて単一演算子として解釈されるので、終端を最低優先度にはしない
+	public static final int CAST_BEGIN = 2000;
+
+	/**
+	 * <span class="lang-en">The precedence of the end of the cast operator: ")"</span>
+	 * <span class="lang-ja">キャスト演算子の終端「 ) 」の優先度です</span>
+	 * .
+	 * <span class="lang-en">
+	 * The lowest precedence is set to this symbol for the convenience in the implementation of the parser.
+	 * </span>
+	 * <span class="lang-ja">パーサの実装の都合上, この記号には最低の優先度が設定されています.</span>
+	 */
+	public static final int CAST_END = LEAST_PRIOR;
 
 
 	// --------------------------------------------------
