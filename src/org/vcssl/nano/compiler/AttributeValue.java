@@ -27,67 +27,62 @@ package org.vcssl.nano.compiler;
  */
 public class AttributeValue {
 
-	// OPERATOR_EXECUTION
+	// OPERATOR_EXECUTIOR
 
 	/**
-	 * {@link AttributeKey#OPERATOR_ASSOCIATIVITY
-	 * OPERATOR_ASSOCIATIVITY}属性の値であり、右結合を表します。
+	 * {@link AttributeKey#OPERATOR_ASSOCIATIVITY OPERATOR_ASSOCIATIVITY}属性の値であり、右結合を表します。
 	 */
 	public static final String RIGHT = "right";
 
 	/**
-	 * {@link AttributeKey#OPERATOR_ASSOCIATIVITY
-	 * OPERATOR_ASSOCIATIVITY}属性の値であり、右結合を表します。
+	 * {@link AttributeKey#OPERATOR_ASSOCIATIVITY OPERATOR_ASSOCIATIVITY}属性の値であり、右結合を表します。
 	 */
 	public static final String LEFT = "left";
 
 	/**
-	 * {@link AttributeKey#OPERATOR_EXECUTOR
-	 * OPERATOR_EXECUTION}属性の値であり、算術演算子を表します。
+	 * {@link AttributeKey#OPERATOR_EXECUTOR OPERATOR_EXECUTIOR}属性の値であり、算術演算子を表します。
 	 */
 	public static final String ARITHMETIC = "arithmetic";
 
 	/**
-	 * {@link AttributeKey#OPERATOR_EXECUTOR
-	 * OPERATOR_EXECUTION}属性の値であり、算術複合代入演算子を表します。
+	 * {@link AttributeKey#OPERATOR_EXECUTOR OPERATOR_EXECUTIOR}属性の値であり、算術複合代入演算子を表します。
 	 */
 	public static final String ARITHMETIC_COMPOUND_ASSIGNMENT = "arithmeticCompoundAssignment";
 
 	/**
-	 * {@link AttributeKey#OPERATOR_EXECUTOR
-	 * OPERATOR_EXECUTION}属性の値であり、論理演算子を表します。
+	 * {@link AttributeKey#OPERATOR_EXECUTOR OPERATOR_EXECUTIOR}属性の値であり、論理演算子を表します。
 	 */
 	public static final String LOGICAL = "logical";
 
 	/**
-	 * {@link AttributeKey#OPERATOR_EXECUTOR
-	 * OPERATOR_EXECUTION}属性の値であり、比較演算子を表します。
+	 * {@link AttributeKey#OPERATOR_EXECUTOR OPERATOR_EXECUTIOR}属性の値であり、比較演算子を表します。
 	 */
 	public static final String COMPARISON = "comparison";
 
 	/**
-	 * {@link AttributeKey#OPERATOR_EXECUTOR
-	 * OPERATOR_EXECUTION}属性の値であり、符号演算子を表します。
+	 * {@link AttributeKey#OPERATOR_EXECUTOR OPERATOR_EXECUTIOR}属性の値であり、符号演算子を表します。
 	 */
 	public static final String SIGN = "sign";
 
 	/**
-	 * {@link AttributeKey#OPERATOR_EXECUTOR
-	 * OPERATOR_EXECUTION}属性の値であり、代入演算子を表します。
+	 * {@link AttributeKey#OPERATOR_EXECUTOR OPERATOR_EXECUTIOR}属性の値であり、代入演算子を表します。
 	 */
 	public static final String ASSIGNMENT = "assignment";
 
 	/**
-	 * {@link AttributeKey#OPERATOR_EXECUTOR
-	 * OPERATOR_EXECUTION}属性の値であり、関数呼び出し演算子を表します。
+	 * {@link AttributeKey#OPERATOR_EXECUTOR OPERATOR_EXECUTIOR}属性の値であり、関数呼び出し演算子を表します。
 	 */
 	public static final String CALL = "call";
 
 	/**
-	 * {@link AttributeKey#OPERATOR_EXECUTOR
-	 * OPERATOR_EXECUTION}属性の値であり、配列要素アクセス演算子を表します。
+	 * {@link AttributeKey#OPERATOR_EXECUTOR OPERATOR_EXECUTIOR}属性の値であり、配列要素アクセス演算子を表します。
 	 */
 	public static final String INDEX = "index";
+
+	/**
+	 * {@link AttributeKey#OPERATOR_EXECUTOR OPERATOR_EXECUTIOR} 属性の値であり、キャスト演算子を表します。
+	 */
+	public static final String CAST = "cast";
 
 	// OPERATOR_SYNTAX
 
@@ -107,19 +102,18 @@ public class AttributeValue {
 	public static final String BINARY = "binary";
 
 	/**
-	 * {@link AttributeKey#OPERATOR_SYNTAX OPERATOR_SYNTAX}属性の値であり、多項演算子を表します。
+	 * {@link AttributeKey#OPERATOR_SYNTAX OPERATOR_SYNTAX}属性の値であり、
+	 * 多項演算子やその始点トークンを表します。
 	 */
 	public static final String MULTIARY = "multiary";
 
 	/**
-	 * {@link AttributeKey#OPERATOR_SYNTAX
-	 * OPERATOR_SYNTAX}属性の値であり、多項演算子の区切りトークンを表します。
+	 * {@link AttributeKey#OPERATOR_SYNTAX OPERATOR_SYNTAX}属性の値であり、多項演算子の区切りトークンを表します。
 	 */
 	public static final String MULTIARY_SEPARATOR = "multialySeparator";
 
 	/**
-	 * {@link AttributeKey#OPERATOR_SYNTAX
-	 * OPERATOR_SYNTAX}属性の値であり、多項演算子の終点トークンを表します。
+	 * {@link AttributeKey#OPERATOR_SYNTAX OPERATOR_SYNTAX}属性の値であり、多項演算子の終点トークンを表します。
 	 */
 	public static final String MULTIARY_END = "multialyEnd";
 
