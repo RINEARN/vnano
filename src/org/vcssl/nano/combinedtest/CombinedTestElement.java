@@ -3,66 +3,78 @@ package org.vcssl.nano.combinedtest;
 public class CombinedTestElement {
 
 	// Override on subclasses
-	public void initialize() { };
+	public void initializeTest() { };
 
 	// Override on subclasses
-	public void finalize() { };
+	public void finalizeTest() { };
 
 	// Override on subclasses
-	public void test() { };
+	public void executeTest() { };
 
 
 	@SuppressWarnings("unused")
-	private void evaluateResult(Object resultValue, Object expectedValue, String succeededTestName) {
-		if (resultValue.equals(expectedValue)) {
-			System.out.println(succeededTestName + ": OK.");
+	protected void evaluateResult(
+			Object resultValue, Object correctValue, String testName, String scriptCode) {
+
+		if (resultValue.equals(correctValue)) {
+			System.out.println(testName + ": OK.");
 		} else {
-			throw new CombinedTestException(resultValue, expectedValue);
+			throw new CombinedTestException(resultValue, correctValue, testName, scriptCode);
 		}
 	}
 
 	@SuppressWarnings("unused")
-	private void evaluateResult(int resultValue, int expectedValue, String succeededTestName) {
-		if (resultValue == expectedValue) {
-			System.out.println(succeededTestName + ": OK.");
+	protected void evaluateResult(
+			int resultValue, int correctValue, String testName, String scriptCode) {
+
+		if (resultValue == correctValue) {
+			System.out.println(testName + ": OK.");
 		} else {
-			throw new CombinedTestException(resultValue, expectedValue);
+			throw new CombinedTestException(resultValue, correctValue, testName, scriptCode);
 		}
 	}
 
 	@SuppressWarnings("unused")
-	private void evaluateResult(long resultValue, long expectedValue, String succeededTestName) {
-		if (resultValue == expectedValue) {
-			System.out.println(succeededTestName + ": OK.");
+	protected void evaluateResult(
+			long resultValue, long correctValue, String testName, String scriptCode) {
+
+		if (resultValue == correctValue) {
+			System.out.println(testName + ": OK.");
 		} else {
-			throw new CombinedTestException(resultValue, expectedValue);
+			throw new CombinedTestException(resultValue, correctValue, testName, scriptCode);
 		}
 	}
 
 	@SuppressWarnings("unused")
-	private void evaluateResult(float resultValue, float expectedValue, String succeededTestName) {
-		if (resultValue == expectedValue) {
-			System.out.println(succeededTestName + ": OK.");
+	protected void evaluateResult(
+			float resultValue, float correctValue, String testName, String scriptCode) {
+
+		if (resultValue == correctValue) {
+			System.out.println(testName + ": OK.");
 		} else {
-			throw new CombinedTestException(resultValue, expectedValue);
+			throw new CombinedTestException(resultValue, correctValue, testName, scriptCode);
 		}
 	}
 
 	@SuppressWarnings("unused")
-	private void evaluateResult(double resultValue, double expectedValue, String succeededTestName) {
-		if (resultValue == expectedValue) {
-			System.out.println(succeededTestName + ": OK.");
+	protected void evaluateResult(
+			double resultValue, double correctValue, String testName, String scriptCode) {
+
+		if (resultValue == correctValue) {
+			System.out.println(testName + ": OK.");
 		} else {
-			throw new CombinedTestException(resultValue, expectedValue);
+			throw new CombinedTestException(resultValue, correctValue, testName, scriptCode);
 		}
 	}
 
 	@SuppressWarnings("unused")
-	private void evaluateResult(boolean resultValue, boolean expectedValue, String succeededTestName) {
-		if (resultValue == expectedValue) {
-			System.out.println(succeededTestName + ": OK.");
+	protected void evaluateResult(
+			boolean resultValue, boolean correctValue, String testName, String scriptCode) {
+
+		if (resultValue == correctValue) {
+			System.out.println(testName + ": OK.");
 		} else {
-			throw new CombinedTestException(resultValue, expectedValue);
+			throw new CombinedTestException(resultValue, correctValue, testName, scriptCode);
 		}
 	}
 }

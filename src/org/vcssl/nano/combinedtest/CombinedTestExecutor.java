@@ -16,9 +16,9 @@ public class CombinedTestExecutor {
 		// [ Add test element here ]
 
 		for (CombinedTestElement testElement: testElementList) {
-			testElement.initialize();
-			testElement.test();
-			testElement.finalize();
+			testElement.initializeTest();
+			testElement.executeTest();
+			testElement.finalizeTest();
 		}
 
 		System.out.println("----------------------------------------------------------------");
