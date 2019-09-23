@@ -30,6 +30,7 @@ import org.vcssl.connect.ConnectorException;
 import org.vcssl.connect.ConnectorImplementationContainer;
 import org.vcssl.connect.ConnectorImplementationLoader;
 import org.vcssl.nano.VnanoException;
+import org.vcssl.nano.combinedtest.CombinedTestExecutor;
 import org.vcssl.nano.interconnect.Interconnect;
 import org.vcssl.nano.spec.SpecialBindingKey;
 import org.vcssl.nano.spec.EngineInformation;
@@ -58,6 +59,7 @@ public final class VnanoCommandLineApplication {
 	private static final String OPTION_NAME_ENCODING = "encoding";
 	private static final String OPTION_NAME_PLUGIN_DIR = "pluginDir";
 	private static final String OPTION_NAME_PLUGIN = "plugin";
+	private static final String OPTION_NAME_TEST = "test";
 	private static final String OPTION_NAME_DEFAULT = OPTION_NAME_FILE;
 
 	private static final String DUMP_TARGET_INPUTTED_CODE = "inputtedCode";
@@ -271,6 +273,16 @@ public final class VnanoCommandLineApplication {
 		System.out.println("");
 		System.out.println("");
 
+		System.out.println("  --test");
+		System.out.println("");
+		System.out.println("      Execute combined tests of the script engine of the Vnano.");
+		System.out.println("");
+		System.out.println("    e.g.");
+		System.out.println("");
+		System.out.println("      java -jar Vnano.jar --test");
+		System.out.println("");
+		System.out.println("");
+
 		System.out.println("[ Default Supported Functions ]");
 		System.out.println("");
 		System.out.println("    For development and debugging, following functions are available");
@@ -334,7 +346,7 @@ public final class VnanoCommandLineApplication {
 		}
 
 		// スクリプトの実行が必要なら実行する（ただし、オプション処理に失敗していた場合は実行しない）
-		if (optionProcessingSucceeded) {
+		if (optionProcessingSucceeded && inputFilePath != null) { // --test 時など、実行ファイルを指定しない場合もある
 			this.executeFile(inputFilePath);
 		}
 	}
@@ -473,6 +485,14 @@ public final class VnanoCommandLineApplication {
 					}
 				}
 
+				return true;
+			}
+
+			// --test オプションの場合
+			case OPTION_NAME_TEST : {
+				// 結合テストを実行
+				CombinedTestExecutor testExecutor = new CombinedTestExecutor();
+				testExecutor.test();
 				return true;
 			}
 
