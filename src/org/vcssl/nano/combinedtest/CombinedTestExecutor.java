@@ -13,7 +13,10 @@ public class CombinedTestExecutor {
 
 		List<CombinedTestElement> testElementList = new LinkedList<CombinedTestElement>();
 
-		// [ Add test element here ]
+
+		// Add test element here
+		testElementList.add(new ExpressionCombinedTest());
+
 
 		for (CombinedTestElement testElement: testElementList) {
 			testElement.initializeTest();
