@@ -20,7 +20,11 @@ public class ArithmeticExpressionCombinedTest extends CombinedTestElement {
 	@Override
 	public void executeTest() {
 		try {
-			testAddition();
+			this.testAddition();
+			this.testMultiplication();
+			this.testDivision();
+			this.testSubtraction();
+			this.testRemainder();
 		} catch (VnanoException e) {
 			throw new CombinedTestException(e);
 		}
@@ -67,6 +71,106 @@ public class ArithmeticExpressionCombinedTest extends CombinedTestElement {
 		scriptCode = " \"str\" + \"ing\" ; ";
 		resultS = (String)this.engine.executeScript(scriptCode);
 		super.evaluateResult(resultS, ("string"), "string + string", scriptCode);
+	}
+
+	private void testSubtraction() throws VnanoException {
+		String scriptCode;
+		long resultL;
+		double resultD;
+
+		scriptCode = " 1 - 2 ; ";
+		resultL = (long)this.engine.executeScript(scriptCode);
+		super.evaluateResult(resultL, (1 - 2), "int - int (negative result)", scriptCode);
+
+		scriptCode = " 10 - 3 ; ";
+		resultL = (long)this.engine.executeScript(scriptCode);
+		super.evaluateResult(resultL, (10 - 3), "int - int (positive result)", scriptCode);
+
+		scriptCode = " 1 - 2.3 ; ";
+		resultD = (double)this.engine.executeScript(scriptCode);
+		super.evaluateResult(resultD, (1 - 2.3), "int - float", scriptCode);
+
+		scriptCode = " 1.2 - 3 ; ";
+		resultD = (double)this.engine.executeScript(scriptCode);
+		super.evaluateResult(resultD, (1.2 - 3), "float - int", scriptCode);
+
+		scriptCode = " 1.2 - 3.4 ; ";
+		resultD = (double)this.engine.executeScript(scriptCode);
+		super.evaluateResult(resultD, (1.2 - 3.4), "float - float (negative result)", scriptCode);
+
+		scriptCode = " 5.6 - 3.4 ; ";
+		resultD = (double)this.engine.executeScript(scriptCode);
+		super.evaluateResult(resultD, (5.6 - 3.4), "float - float (positive result)", scriptCode);
+	}
+
+	private void testMultiplication() throws VnanoException {
+		String scriptCode;
+		long resultL;
+		double resultD;
+
+		scriptCode = " 2 * 3 ; ";
+		resultL = (long)this.engine.executeScript(scriptCode);
+		super.evaluateResult(resultL, (2 * 3), "int * int", scriptCode);
+
+		scriptCode = " 2 * 2.3 ; ";
+		resultD = (double)this.engine.executeScript(scriptCode);
+		super.evaluateResult(resultD, (2 * 2.3), "int * float", scriptCode);
+
+		scriptCode = " 2.3 * 2 ; ";
+		resultD = (double)this.engine.executeScript(scriptCode);
+		super.evaluateResult(resultD, (2.3 * 2), "float * int", scriptCode);
+
+		scriptCode = " 2.3 * 4.5 ; ";
+		resultD = (double)this.engine.executeScript(scriptCode);
+		super.evaluateResult(resultD, (2.3 * 4.5), "float * float", scriptCode);
+	}
+
+	private void testDivision() throws VnanoException {
+		String scriptCode;
+		long resultL;
+		double resultD;
+
+		scriptCode = " 10 / 2 ; ";
+		resultL = (long)this.engine.executeScript(scriptCode);
+		super.evaluateResult(resultL, (10 / 2), "int / int", scriptCode);
+
+		scriptCode = " 10 / 3 ; ";
+		resultL = (long)this.engine.executeScript(scriptCode);
+		super.evaluateResult(resultL, (10 / 3), "int / int (indivisible)", scriptCode);
+
+		scriptCode = " 10 / 2.3 ; ";
+		resultD = (double)this.engine.executeScript(scriptCode);
+		super.evaluateResult(resultD, (10 / 2.3), "int / float", scriptCode);
+
+		scriptCode = " 12.3 / 2 ; ";
+		resultD = (double)this.engine.executeScript(scriptCode);
+		super.evaluateResult(resultD, (12.3 / 2), "float / int", scriptCode);
+
+		scriptCode = " 1.2 / 3.4 ; ";
+		resultD = (double)this.engine.executeScript(scriptCode);
+		super.evaluateResult(resultD, (1.2 / 3.4), "float / float", scriptCode);
+	}
+
+	private void testRemainder() throws VnanoException {
+		String scriptCode;
+		long resultL;
+		double resultD;
+
+		scriptCode = " 10 % 3 ; ";
+		resultL = (long)this.engine.executeScript(scriptCode);
+		super.evaluateResult(resultL, (10 % 3), "int % int", scriptCode);
+
+		scriptCode = " 10 % 2.3 ; ";
+		resultD = (double)this.engine.executeScript(scriptCode);
+		super.evaluateResult(resultD, (10 % 2.3), "int % float", scriptCode);
+
+		scriptCode = " 12.3 % 2 ; ";
+		resultD = (double)this.engine.executeScript(scriptCode);
+		super.evaluateResult(resultD, (12.3 % 2), "float % int", scriptCode);
+
+		scriptCode = " 12.3 % 3.4 ; ";
+		resultD = (double)this.engine.executeScript(scriptCode);
+		super.evaluateResult(resultD, (12.3 % 3.4), "float % float", scriptCode);
 	}
 
 }
