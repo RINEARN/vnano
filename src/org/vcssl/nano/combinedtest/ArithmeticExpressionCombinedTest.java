@@ -3,7 +3,7 @@ package org.vcssl.nano.combinedtest;
 import org.vcssl.nano.VnanoEngine;
 import org.vcssl.nano.VnanoException;
 
-public class ExpressionCombinedTest extends CombinedTestElement {
+public class ArithmeticExpressionCombinedTest extends CombinedTestElement {
 
 	VnanoEngine engine = null;
 
