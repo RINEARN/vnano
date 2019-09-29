@@ -20,17 +20,18 @@ public class ArithmeticExpressionCombinedTest extends CombinedTestElement {
 	@Override
 	public void executeTest() {
 		try {
-			this.testAddition();
-			this.testMultiplication();
-			this.testDivision();
-			this.testSubtraction();
-			this.testRemainder();
+			this.testAdditions();
+			this.testMultiplications();
+			this.testDivisions();
+			this.testSubtractions();
+			this.testRemainders();
+			this.testDualOperations();
 		} catch (VnanoException e) {
 			throw new CombinedTestException(e);
 		}
 	}
 
-	private void testAddition() throws VnanoException {
+	private void testAdditions() throws VnanoException {
 		String scriptCode;
 		long resultL;
 		double resultD;
@@ -73,7 +74,7 @@ public class ArithmeticExpressionCombinedTest extends CombinedTestElement {
 		super.evaluateResult(resultS, ("string"), "string + string", scriptCode);
 	}
 
-	private void testSubtraction() throws VnanoException {
+	private void testSubtractions() throws VnanoException {
 		String scriptCode;
 		long resultL;
 		double resultD;
@@ -103,7 +104,7 @@ public class ArithmeticExpressionCombinedTest extends CombinedTestElement {
 		super.evaluateResult(resultD, (5.6 - 3.4), "float - float (positive result)", scriptCode);
 	}
 
-	private void testMultiplication() throws VnanoException {
+	private void testMultiplications() throws VnanoException {
 		String scriptCode;
 		long resultL;
 		double resultD;
@@ -125,7 +126,7 @@ public class ArithmeticExpressionCombinedTest extends CombinedTestElement {
 		super.evaluateResult(resultD, (2.3 * 4.5), "float * float", scriptCode);
 	}
 
-	private void testDivision() throws VnanoException {
+	private void testDivisions() throws VnanoException {
 		String scriptCode;
 		long resultL;
 		double resultD;
@@ -151,7 +152,7 @@ public class ArithmeticExpressionCombinedTest extends CombinedTestElement {
 		super.evaluateResult(resultD, (1.2 / 3.4), "float / float", scriptCode);
 	}
 
-	private void testRemainder() throws VnanoException {
+	private void testRemainders() throws VnanoException {
 		String scriptCode;
 		long resultL;
 		double resultD;
@@ -171,6 +172,94 @@ public class ArithmeticExpressionCombinedTest extends CombinedTestElement {
 		scriptCode = " 12.3 % 3.4 ; ";
 		resultD = (double)this.engine.executeScript(scriptCode);
 		super.evaluateResult(resultD, (12.3 % 3.4), "float % float", scriptCode);
+	}
+
+	private void testDualOperations() throws VnanoException {
+		String scriptCode;
+		long resultL;
+		double resultD;
+
+		scriptCode = " 1 + 2 + 3 ; ";
+		resultL = (long)this.engine.executeScript(scriptCode);
+		super.evaluateResult(resultL, (1 + 2 + 3), "int + int + int", scriptCode);
+
+		scriptCode = " 1.2 + 2.3 + 3.4 ; ";
+		resultD = (double)this.engine.executeScript(scriptCode);
+		super.evaluateResult(resultD, (1.2 + 2.3 + 3.4), "float + float + float", scriptCode);
+
+		scriptCode = " 1.2 + 2 + 3 ; ";
+		resultD = (double)this.engine.executeScript(scriptCode);
+		super.evaluateResult(resultD, (1.2 + 2 + 3), "float + int + int", scriptCode);
+
+		scriptCode = " 1 + 2.3 + 3 ; ";
+		resultD = (double)this.engine.executeScript(scriptCode);
+		super.evaluateResult(resultD, (1 + 2.3 + 3), "int + float + int", scriptCode);
+
+		scriptCode = " 1 + 2 + 3.4 ; ";
+		resultD = (double)this.engine.executeScript(scriptCode);
+		super.evaluateResult(resultD, (1 + 2 + 3.4), "int + int + float", scriptCode);
+
+		scriptCode = " 1.2 + 2 + 3.4 ; ";
+		resultD = (double)this.engine.executeScript(scriptCode);
+		super.evaluateResult(resultD, (1.2 + 2 + 3.4), "float + int + float", scriptCode);
+
+		scriptCode = " 1.2 + 2.3 + 3 ; ";
+		resultD = (double)this.engine.executeScript(scriptCode);
+		super.evaluateResult(resultD, (1.2 + 2.3 + 3), "float + float + int", scriptCode);
+
+		scriptCode = " 1 + 2.3 + 3.4 ; ";
+		resultD = (double)this.engine.executeScript(scriptCode);
+		super.evaluateResult(resultD, (1 + 2.3 + 3.4), "int + float + float", scriptCode);
+
+
+		scriptCode = " 1 - 2 + 3 ; ";
+		resultL = (long)this.engine.executeScript(scriptCode);
+		super.evaluateResult(resultL, (1 - 2 + 3), "int - int + int", scriptCode);
+
+		scriptCode = " (1 - 2) + 3 ; ";
+		resultL = (long)this.engine.executeScript(scriptCode);
+		super.evaluateResult(resultL, ( (1 - 2) + 3), "(int - int) + int", scriptCode);
+
+		scriptCode = " 1 - (2 + 3) ; ";
+		resultL = (long)this.engine.executeScript(scriptCode);
+		super.evaluateResult(resultL, ( 1 - (2 + 3) ), "int - (int + int)", scriptCode);
+
+		scriptCode = " 1.2 - 2.3 + 3.4 ; ";
+		resultD = (double)this.engine.executeScript(scriptCode);
+		super.evaluateResult(resultD, (1.2 - 2.3 + 3.4), "float - float + float", scriptCode);
+
+		scriptCode = " (1.2 - 2.3) + 3.4 ; ";
+		resultD = (double)this.engine.executeScript(scriptCode);
+		super.evaluateResult(resultD, ( (1.2 - 2.3) + 3.4), "(float - float) + float", scriptCode);
+
+		scriptCode = " 1.2 - (2.3 + 3.4) ; ";
+		resultD = (double)this.engine.executeScript(scriptCode);
+		super.evaluateResult(resultD, ( 1.2 - (2.3 + 3.4) ), "float - (float + float)", scriptCode);
+
+
+		scriptCode = " 1 + 2 * 3 ; ";
+		resultL = (long)this.engine.executeScript(scriptCode);
+		super.evaluateResult(resultL, (1 + 2 * 3), "int + int * int", scriptCode);
+
+		scriptCode = " (1 + 2) * 3 ; ";
+		resultL = (long)this.engine.executeScript(scriptCode);
+		super.evaluateResult(resultL, ( (1 + 2) * 3), "(int + int) * int", scriptCode);
+
+		scriptCode = " 1 + (2 * 3) ; ";
+		resultL = (long)this.engine.executeScript(scriptCode);
+		super.evaluateResult(resultL, (1 + (2 * 3) ), "int + (int * int)", scriptCode);
+
+		scriptCode = " 1.2 + 2.3 * 3.4 ; ";
+		resultD = (double)this.engine.executeScript(scriptCode);
+		super.evaluateResult(resultD, (1.2 + 2.3 * 3.4), "float + float * float", scriptCode);
+
+		scriptCode = " (1.2 + 2.3) * 3.4 ; ";
+		resultD = (double)this.engine.executeScript(scriptCode);
+		super.evaluateResult(resultD, ( (1.2 + 2.3) * 3.4), "(float + float) * float", scriptCode);
+
+		scriptCode = " 1.2 + (2.3 * 3.4) ; ";
+		resultD = (double)this.engine.executeScript(scriptCode);
+		super.evaluateResult(resultD, (1.2 + (2.3 * 3.4) ), "float + (float * float)", scriptCode);
 	}
 
 }
