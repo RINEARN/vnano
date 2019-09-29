@@ -19,7 +19,6 @@ public class ExpressionCombinedTest extends CombinedTestElement {
 
 	@Override
 	public void executeTest() {
-		System.out.println("[ ExpressionCombinedTest ]");
 		try {
 			testAddition();
 		} catch (VnanoException e) {
@@ -35,39 +34,39 @@ public class ExpressionCombinedTest extends CombinedTestElement {
 
 		scriptCode = " 1 + 2 ; ";
 		resultL = (long)this.engine.executeScript(scriptCode);
-		super.evaluateResult(resultL, (1 + 2), "Addition of [int,int]", scriptCode);
+		super.evaluateResult(resultL, (1 + 2), "int + int", scriptCode);
 
 		scriptCode = " 1 + 2.2 ; ";
 		resultD = (double)this.engine.executeScript(scriptCode);
-		super.evaluateResult(resultD, (1 + 2.2), "Addition of [int,float]", scriptCode);
+		super.evaluateResult(resultD, (1 + 2.2), "int + float", scriptCode);
 
 		scriptCode = " 1 + \"str\" ; ";
 		resultS = (String)this.engine.executeScript(scriptCode);
-		super.evaluateResult(resultS, "1str", "Addition of [int,string]", scriptCode);
+		super.evaluateResult(resultS, "1str", "int + string", scriptCode);
 
 		scriptCode = " 1.1 + 2 ; ";
 		resultD = (double)this.engine.executeScript(scriptCode);
-		super.evaluateResult(resultD, (1.1 + 2), "Addition of [float,int]", scriptCode);
+		super.evaluateResult(resultD, (1.1 + 2), "float + int", scriptCode);
 
 		scriptCode = " 1.1 + 2.2 ; ";
 		resultD = (double)this.engine.executeScript(scriptCode);
-		super.evaluateResult(resultD, (1.1 + 2.2), "Addition of [float,float]", scriptCode);
+		super.evaluateResult(resultD, (1.1 + 2.2), "float + float", scriptCode);
 
 		scriptCode = " 1.1 + \"str\" ; ";
 		resultS = (String)this.engine.executeScript(scriptCode);
-		super.evaluateResult(resultS, "1.1str", "Addition of [float,string]", scriptCode);
+		super.evaluateResult(resultS, "1.1str", "float + string", scriptCode);
 
 		scriptCode = " \"str\" + 2 ; ";
 		resultS = (String)this.engine.executeScript(scriptCode);
-		super.evaluateResult(resultS, ("str2"), "Addition of [string,int]", scriptCode);
+		super.evaluateResult(resultS, ("str2"), "string + int", scriptCode);
 
 		scriptCode = " \"str\" + 2.2 ; ";
 		resultS = (String)this.engine.executeScript(scriptCode);
-		super.evaluateResult(resultS, ("str2.2"), "Addition of [string,float]", scriptCode);
+		super.evaluateResult(resultS, ("str2.2"), "string + float", scriptCode);
 
 		scriptCode = " \"str\" + \"ing\" ; ";
 		resultS = (String)this.engine.executeScript(scriptCode);
-		super.evaluateResult(resultS, ("string"), "Addition of [string,string]", scriptCode);
+		super.evaluateResult(resultS, ("string"), "string + string", scriptCode);
 	}
 
 }

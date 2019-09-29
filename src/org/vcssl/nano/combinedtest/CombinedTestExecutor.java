@@ -19,6 +19,7 @@ public class CombinedTestExecutor {
 
 
 		for (CombinedTestElement testElement: testElementList) {
+			System.out.println("[ " + testElement.getClass().getCanonicalName() + " ]");
 			testElement.initializeTest();
 			testElement.executeTest();
 			testElement.finalizeTest();
