@@ -15,10 +15,11 @@ public class CombinedTestExecutor {
 
 
 		// Add test element here
-		testElementList.add(new ExpressionCombinedTest());
+		testElementList.add(new ArithmeticExpressionCombinedTest());
 
 
 		for (CombinedTestElement testElement: testElementList) {
+			System.out.println("[ " + testElement.getClass().getCanonicalName() + " ]");
 			testElement.initializeTest();
 			testElement.executeTest();
 			testElement.finalizeTest();

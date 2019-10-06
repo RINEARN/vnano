@@ -19,6 +19,7 @@ import javax.script.ScriptException;
 import javax.script.SimpleBindings;
 import javax.script.SimpleScriptContext;
 
+import org.vcssl.nano.spec.EngineInformation;
 import org.vcssl.nano.spec.SpecialBindingKey;
 
 //Documentation:  https://www.vcssl.org/en-us/dev/code/main-jimpl/api/org/vcssl/nano/VnanoScriptEngine.html
@@ -399,6 +400,21 @@ public class VnanoScriptEngine implements ScriptEngine {
 	 */
 	@Override
 	public Object get(String name) {
+		if (name.equals(ScriptEngine.NAME)) {
+			return EngineInformation.LANGUAGE_NAME;
+		}
+		if (name.equals(ScriptEngine.LANGUAGE)) {
+			return EngineInformation.LANGUAGE_NAME;
+		}
+		if (name.equals(ScriptEngine.LANGUAGE_VERSION)) {
+			return EngineInformation.LANGUAGE_VERSION;
+		}
+		if (name.equals(ScriptEngine.ENGINE)) {
+			return EngineInformation.ENGINE_NAME;
+		}
+		if (name.equals(ScriptEngine.ENGINE_VERSION)) {
+			return EngineInformation.ENGINE_VERSION;
+		}
 		return this.scriptContext.getBindings(ScriptContext.ENGINE_SCOPE).get(name);
 	}
 
