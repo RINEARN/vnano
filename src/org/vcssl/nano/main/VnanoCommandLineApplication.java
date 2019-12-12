@@ -672,7 +672,13 @@ public final class VnanoCommandLineApplication {
 			return true;
 		} catch (CombinedTestException e) {
 			System.err.println("Combined test failed.");
+			System.err.println("");
+			System.err.println("[ Stack Trace ]");
 			e.printStackTrace();
+			if (!this.optionMap.containsKey(OptionKey.DUMPER_ENABLED)) {
+				System.err.println("");
+				System.err.println("For more debug information, re-execute combined tests with \"--dump\" option.");
+			}
 			return false;
 		}
 	}
