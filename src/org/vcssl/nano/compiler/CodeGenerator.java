@@ -1611,7 +1611,7 @@ public class CodeGenerator {
 		String operandValue = operandNode.getAttribute(AttributeKey.ASSEMBLY_VALUE);
 
 		// 演算結果を格納するレジスタを確保
-		String accumulatorRegister = this.generateRegisterOperandCode();
+		String accumulatorRegister = operatorNode.getAttribute(AttributeKey.ASSEMBLY_VALUE);
 		codeBuilder.append(
 			this.generateRegisterAllocationCode(DataTypeName.BOOL, accumulatorRegister, operandValue, operatorNode.getRank())
 		);
