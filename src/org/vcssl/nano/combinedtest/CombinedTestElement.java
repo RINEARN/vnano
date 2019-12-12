@@ -1,9 +1,11 @@
 package org.vcssl.nano.combinedtest;
 
+import org.vcssl.nano.VnanoEngine;
+
 public class CombinedTestElement {
 
 	// Override on subclasses
-	public void initializeTest() { };
+	public void initializeTest(VnanoEngine engine) { };
 
 	// Override on subclasses
 	public void finalizeTest() { };

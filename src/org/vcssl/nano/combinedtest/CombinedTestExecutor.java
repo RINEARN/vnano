@@ -3,8 +3,10 @@ package org.vcssl.nano.combinedtest;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.vcssl.nano.VnanoEngine;
+
 public class CombinedTestExecutor {
-	public void test() {
+	public void test(VnanoEngine engine) {
 
 		System.out.println("");
 		System.out.println(" - Vnano Engine Combined Test -");
@@ -20,7 +22,7 @@ public class CombinedTestExecutor {
 
 		for (CombinedTestElement testElement: testElementList) {
 			System.out.println("[ " + testElement.getClass().getCanonicalName() + " ]");
-			testElement.initializeTest();
+			testElement.initializeTest(engine);
 			testElement.executeTest();
 			testElement.finalizeTest();
 		}

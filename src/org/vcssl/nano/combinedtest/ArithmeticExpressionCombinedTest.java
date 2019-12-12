@@ -8,8 +8,8 @@ public class ArithmeticExpressionCombinedTest extends CombinedTestElement {
 	VnanoEngine engine = null;
 
 	@Override
-	public void initializeTest() {
-		this.engine = new VnanoEngine();
+	public void initializeTest(VnanoEngine engine) {
+		this.engine = engine;
 	}
 
 	@Override
