@@ -20,9 +20,9 @@ public class LogicalExpressionCombinedTest extends CombinedTestElement {
 	@Override
 	public void executeTest() {
 		try {
-			this.testAnd();
-			this.testOr();
-			this.testNot();
+			this.testAndOperations();
+			this.testOrOperations();
+			this.testNotOperations();
 			this.testDualOperations();
 			this.testTripleOperations();
 			this.testQuadOperations();
@@ -32,7 +32,7 @@ public class LogicalExpressionCombinedTest extends CombinedTestElement {
 	}
 
 	@SuppressWarnings("unused")
-	private void testAnd() throws VnanoException {
+	private void testAndOperations() throws VnanoException {
 		String scriptCode;
 		boolean result;
 
@@ -54,7 +54,7 @@ public class LogicalExpressionCombinedTest extends CombinedTestElement {
 	}
 
 	@SuppressWarnings("unused")
-	private void testOr() throws VnanoException {
+	private void testOrOperations() throws VnanoException {
 		String scriptCode;
 		boolean result;
 
@@ -75,7 +75,7 @@ public class LogicalExpressionCombinedTest extends CombinedTestElement {
 		super.evaluateResult(result, (false || false), "false || false", scriptCode);
 	}
 
-	private void testNot() throws VnanoException {
+	private void testNotOperations() throws VnanoException {
 		String scriptCode;
 		boolean result;
 
