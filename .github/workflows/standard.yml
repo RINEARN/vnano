@@ -33,7 +33,7 @@ jobs:
     - name: Copy downloaded built file
       run: cp builtfile/Vnano.jar Vnano.jar
     - name: Execute tests (Accelerator disabled)
-      run: java -jar builtfile/Vnano.jar --test --accelerator false
+      run: java -jar Vnano.jar --test --accelerator false
     - name: Execute tests (Accelerator enabled)
-      run: java -jar builtfile/Vnano.jar --test --accelerator true
+      run: java -jar Vnano.jar --test --accelerator true
 
