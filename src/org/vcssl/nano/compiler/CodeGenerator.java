@@ -1226,20 +1226,6 @@ public class CodeGenerator {
 
 		AstNode currentNode = exprRootNode.getPostorderDftFirstNode();
 		while(currentNode != exprRootNode) {
-			/*
-			// リーフノードは演算コードを生成する必要がない
-			if (currentNode.getType() != AstNode.Type.OPERATOR) {
-				currentNode = currentNode.getPostorderDftNextNode();
-				continue;
-			}
-
-			// ↑ この条件のせいで、論理演算子の子ノードがリーフの場合に短絡評価処理が生成されない。
-			//    パフォーマンス的にはそれがいいかもだけど、でもオペランドの一方が演算子で他方がリーフな場合に、
-			//    短絡評価コードが片方分しか生成されずにバグる
-
-
-			// 以下は演算子ノードなので演算コードを生成
-			*/
 
 			// 演算子ノードに対する演算コード生成処理
 			if (currentNode.getType() == AstNode.Type.OPERATOR) {
