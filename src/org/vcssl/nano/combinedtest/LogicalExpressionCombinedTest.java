@@ -23,6 +23,7 @@ public class LogicalExpressionCombinedTest extends CombinedTestElement {
 			this.testAnd();
 			this.testOr();
 			this.testNot();
+			this.testDualOperations();
 		} catch (VnanoException e) {
 			throw new CombinedTestException(e);
 		}
@@ -83,6 +84,36 @@ public class LogicalExpressionCombinedTest extends CombinedTestElement {
 		scriptCode = " ! false ; ";
 		result = (boolean)this.engine.executeScript(scriptCode);
 		super.evaluateResult(result, (! false), "! false", scriptCode);
+	}
+
+	@SuppressWarnings("unused")
+	private void testDualOperations() throws VnanoException {
+		String scriptCode;
+		boolean result;
+
+		scriptCode = "true && true || true ; "; // == (true && true) || true
+		result = (boolean)this.engine.executeScript(scriptCode);
+		super.evaluateResult(result, (true && true || true), "true && true || true", scriptCode);
+
+		scriptCode = " false && true || true ; "; // == (false && true) || true
+		result = (boolean)this.engine.executeScript(scriptCode);
+		super.evaluateResult(result, (false && true || true), "false && true || true", scriptCode);
+
+		scriptCode = " true && false || false ; "; // == (true && false) || false
+		result = (boolean)this.engine.executeScript(scriptCode);
+		super.evaluateResult(result, (true && false || false), "true && false || false", scriptCode);
+
+		scriptCode = " false && (true || true) ; "; // 短絡評価が発生
+		result = (boolean)this.engine.executeScript(scriptCode);
+		super.evaluateResult(result, (false && (true || true)), "false && (true || true)", scriptCode);
+
+		scriptCode = " true && (false || false); ";
+		result = (boolean)this.engine.executeScript(scriptCode);
+		super.evaluateResult(result, (true && (false || false)), "true && (false || false)", scriptCode);
+
+		scriptCode = " true || (false && false); "; // 短絡評価が発生
+		result = (boolean)this.engine.executeScript(scriptCode);
+		super.evaluateResult(result, (true || (false && false)), "true || (false && false)", scriptCode);
 	}
 
 }
