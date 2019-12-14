@@ -25,6 +25,7 @@ public class LogicalExpressionCombinedTest extends CombinedTestElement {
 			this.testNot();
 			this.testDualOperations();
 			this.testTripleOperations();
+			this.testQuadOperations();
 		} catch (VnanoException e) {
 			throw new CombinedTestException(e);
 		}
@@ -121,7 +122,6 @@ public class LogicalExpressionCombinedTest extends CombinedTestElement {
 		super.evaluateResult(result, (true || (false && false)), "true || (false && false)", scriptCode);
 	}
 
-
 	@SuppressWarnings("unused")
 	private void testTripleOperations() throws VnanoException {
 		String scriptCode;
@@ -150,5 +150,23 @@ public class LogicalExpressionCombinedTest extends CombinedTestElement {
 		scriptCode = " false || false && true || false ; "; // == false || (false && true) || false == false || false || false == false
 		result = (boolean)this.engine.executeScript(scriptCode);
 		super.evaluateResult(result, (false || false && true || false), "false || false && true || false", scriptCode);
+	}
+
+	@SuppressWarnings("unused")
+	private void testQuadOperations() throws VnanoException {
+		String scriptCode;
+		boolean result;
+
+		scriptCode = " true && true && true && true && true ; ";
+		result = (boolean)this.engine.executeScript(scriptCode);
+		super.evaluateResult(result, (true && true && true && true && true), "true && true && true && true && true", scriptCode);
+
+		scriptCode = " true && true || true && false || false ; "; // == (t&&t) || (t&&f) || f == (t||f) || f == t||f == t
+		result = (boolean)this.engine.executeScript(scriptCode);
+		super.evaluateResult(result, (true && true || true && false || false), "true && true || true && false || false", scriptCode);
+
+		scriptCode = " true && (true || true) && (false || false) ; "; // == t && (t||f) && (f||f) == (t&&t) && f == t&&f == f
+		result = (boolean)this.engine.executeScript(scriptCode);
+		super.evaluateResult(result, (true && (true || true) && (false || false)), "true && (true || true) && (false || false)", scriptCode);
 	}
 }
