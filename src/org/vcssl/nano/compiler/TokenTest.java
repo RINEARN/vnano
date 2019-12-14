@@ -90,9 +90,8 @@ public class TokenTest {
 		token.setAttribute(AttributeKey.DATA_TYPE, "int");
 		token.setAttribute(AttributeKey.OPERATOR_SYMBOL, "+");
 		token.setPrecedence(1);
-
 		assertEquals(
-			"[Token word=\"+\", lineNumber=123, fileName=\"Test.vnano\", type=OPERATOR, priority=1, DATA_TYPE=\"int\", OPERATOR_SYMBOL=\"+\"]",
+			"[Token word=\"+\", lineNumber=123, fileName=\"Test.vnano\", type=OPERATOR, precedence=1, DATA_TYPE=\"int\", OPERATOR_SYMBOL=\"+\"]",
 			token.toString()
 		);
 	}
