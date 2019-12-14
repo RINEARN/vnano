@@ -24,6 +24,7 @@ public class LogicalExpressionCombinedTest extends CombinedTestElement {
 			this.testOr();
 			this.testNot();
 			this.testDualOperations();
+			this.testTripleOperations();
 		} catch (VnanoException e) {
 			throw new CombinedTestException(e);
 		}
@@ -91,13 +92,17 @@ public class LogicalExpressionCombinedTest extends CombinedTestElement {
 		String scriptCode;
 		boolean result;
 
-		scriptCode = "true && true || true ; "; // == (true && true) || true
+		scriptCode = " true && true || true ; "; // == (true && true) || true
 		result = (boolean)this.engine.executeScript(scriptCode);
 		super.evaluateResult(result, (true && true || true), "true && true || true", scriptCode);
 
-		scriptCode = " false && true || true ; "; // == (false && true) || true
+		scriptCode = " false && true || true ; "; // == (false && true) || true == false || true == true
 		result = (boolean)this.engine.executeScript(scriptCode);
 		super.evaluateResult(result, (false && true || true), "false && true || true", scriptCode);
+
+		scriptCode = " false && (true || true) ; "; // == false && true == false
+		result = (boolean)this.engine.executeScript(scriptCode);
+		super.evaluateResult(result, (false && (true || true)), "false && (true || true)", scriptCode);
 
 		scriptCode = " true && false || false ; "; // == (true && false) || false
 		result = (boolean)this.engine.executeScript(scriptCode);
@@ -116,4 +121,34 @@ public class LogicalExpressionCombinedTest extends CombinedTestElement {
 		super.evaluateResult(result, (true || (false && false)), "true || (false && false)", scriptCode);
 	}
 
+
+	@SuppressWarnings("unused")
+	private void testTripleOperations() throws VnanoException {
+		String scriptCode;
+		boolean result;
+
+		scriptCode = " true && true || true && true ; "; // == (true && true) || (true && true)
+		result = (boolean)this.engine.executeScript(scriptCode);
+		super.evaluateResult(result, (true && true || true && true), "true && true || true && true", scriptCode);
+
+		scriptCode = " true && false || true && true ; "; // == (true && false) || (true && true)
+		result = (boolean)this.engine.executeScript(scriptCode);
+		super.evaluateResult(result, (true && false || true && true), "true && false || true && true", scriptCode);
+
+		scriptCode = " true && (false || true) && true ; ";
+		result = (boolean)this.engine.executeScript(scriptCode);
+		super.evaluateResult(result, (true && false || true && true), "true && (false || true) && true", scriptCode);
+
+		scriptCode = " true || true && true || true ; "; // == true || (true && true) || true
+		result = (boolean)this.engine.executeScript(scriptCode);
+		super.evaluateResult(result, (true || true && true || true), "true || true && true || true", scriptCode);
+
+		scriptCode = " true || false && true || false ; "; // == true || (false && true) || false == true || false || false == true || false == true
+		result = (boolean)this.engine.executeScript(scriptCode);
+		super.evaluateResult(result, (true || false && true || false), "true || false && true || false", scriptCode);
+
+		scriptCode = " false || false && true || false ; "; // == false || (false && true) || false == false || false || false == false
+		result = (boolean)this.engine.executeScript(scriptCode);
+		super.evaluateResult(result, (false || false && true || false), "false || false && true || false", scriptCode);
+	}
 }
