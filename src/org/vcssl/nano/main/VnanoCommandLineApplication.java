@@ -366,6 +366,9 @@ public final class VnanoCommandLineApplication {
 				System.exit(1);
 			} catch (VnanoException e) {
 				this.dumpException(e);
+				if (!this.optionMap.containsKey(OptionKey.DUMPER_ENABLED)) {
+					System.err.println("For more debug information, re-execute the script with \"--dump\" option.");
+				}
 				System.exit(1);
 			}
 		}
@@ -684,8 +687,8 @@ public final class VnanoCommandLineApplication {
 			System.err.println("");
 			System.err.println("[ Stack Trace ]");
 			e.printStackTrace();
+			System.err.println("");
 			if (!this.optionMap.containsKey(OptionKey.DUMPER_ENABLED)) {
-				System.err.println("");
 				System.err.println("For more debug information, re-execute combined tests with \"--dump\" option.");
 			}
 			return false;
@@ -760,6 +763,8 @@ public final class VnanoCommandLineApplication {
 			se.printStackTrace();
 			System.err.println("Cause: ");
 			e.printStackTrace();
+
+			System.err.println("");
 
 		// それ以外の例外は、普通にスタックトレースをダンプする
 		} else {
