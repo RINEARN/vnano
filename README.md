@@ -1,7 +1,5 @@
 # Vnano
 
-<img src="https://github.com/RINEARN/vnano/workflows/Standard%20Build%2FTest%20CI/badge.svg" alt="CI result" />
-
 Vnano (<a href="https://www.vcssl.org/">VCSSL</a> nano) is a simple scripting language and its interpreter for embedded use in Java&reg; applications.
 ( See also: An example of a practical application using the Vnano: <a href="https://github.com/RINEARN/rinpn">RINPn</a>. )
 
@@ -29,6 +27,12 @@ Vnano (<a href="https://www.vcssl.org/">VCSSL</a> nano) は、Java&reg; アプ�
 
 - English: <a href="https://www.vcssl.org/en-us/dev/code/main-jimpl/api/org/vcssl/nano/">https://www.vcssl.org/en-us/dev/code/main-jimpl/api/org/vcssl/nano/</a>
 - 日本語:   <a href="https://www.vcssl.org/ja-jp/dev/code/main-jimpl/api/org/vcssl/nano/">https://www.vcssl.org/ja-jp/dev/code/main-jimpl/api/org/vcssl/nano/</a>
+
+### Current Build/Test Results - 現在のビルド/テスト検証結果
+
+&nbsp;&nbsp;&nbsp;<img src="https://github.com/RINEARN/vnano/workflows/Standard%20Build%2FTest%20CI/badge.svg" alt="Standard CI Result" /> on JDK 13
+&nbsp;&nbsp;&nbsp;&nbsp;<img src="https://github.com/RINEARN/vnano/workflows/Old-Env%20Build%2FTest%20CI/badge.svg" alt="Old-Env CI Result" /> on JDK 8
+&nbsp;&nbsp;( Green: OK / Red: NG )
 
 <hr />
 
