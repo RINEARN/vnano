@@ -1,6 +1,6 @@
 # Vnano
 
-
+<img src="https://github.com/RINEARN/vnano/workflows/Standard%20Build%2FTest%20CI/badge.svg" alt="CI result" />
 
 Vnano (<a href="https://www.vcssl.org/">VCSSL</a> nano) is a simple scripting language and its interpreter for embedded use in Java&reg; applications.
 ( See also: An example of a practical application using the Vnano: <a href="https://github.com/RINEARN/rinpn">RINPn</a>. )
