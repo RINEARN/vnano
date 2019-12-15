@@ -50,6 +50,7 @@ public class VnanoException extends Exception {
 
 	public VnanoException(Throwable errorCauseThrowable) {
 		super(errorCauseThrowable);
+		this.errorType = ErrorType.UNEXPECTED;
 	}
 
 	public VnanoException(ErrorType errorType) {

@@ -119,7 +119,6 @@ public final class VnanoCommandLineApplication {
 	}
 
 	public static void main(String[] args) {
-		//args = new String[] { "Example.vnano", "--dump" };
 		VnanoCommandLineApplication application = new VnanoCommandLineApplication();
 		application.dispatch(args);
 	}
@@ -351,9 +350,24 @@ public final class VnanoCommandLineApplication {
 			optionProcessingSucceeded &= this.executeCombinedTest();
 		}
 
-		// スクリプトの実行が必要なら実行する（ただし、オプション処理に失敗していた場合は実行しない）
-		if (optionProcessingSucceeded && inputFilePath != null) { // --test 時など、実行ファイルを指定しない場合もある
-			this.executeFile(inputFilePath);
+		// オプション処理（結合テスト含む）で失敗した場合は、その時点でステータスコード1で実行終了
+		if (!optionProcessingSucceeded) {
+			System.exit(1);
+		}
+
+		// スクリプトの実行が必要なら実行する
+		if (inputFilePath != null) { // --test 時など、実行ファイルを指定しない場合もある
+			try {
+				this.executeFile(inputFilePath);
+
+			// スクリプト読み込みや実行でエラーが生じた場合は、内容を表示した上でステータスコード1で実行終了
+			} catch (IOException ioe) {
+				System.err.println("File could not be opened: " + inputFilePath);
+				System.exit(1);
+			} catch (VnanoException e) {
+				this.dumpException(e);
+				System.exit(1);
+			}
 		}
 	}
 
@@ -629,26 +643,21 @@ public final class VnanoCommandLineApplication {
 		return interconnect;
 	}
 
-	private String loadCode(String inputFilePath) {
+	private String loadCode(String inputFilePath) throws IOException {
 		String code = "";
-		try {
-			List<String> lines;
-			if (this.encoding == null) {
-				lines = Files.readAllLines(Paths.get(inputFilePath));
-			} else {
-				lines = Files.readAllLines(Paths.get(inputFilePath), Charset.forName(this.encoding));
-			}
-			StringBuilder codeBuilder = new StringBuilder();
-			String eol = System.getProperty("line.separator");
-			for (String line: lines) {
-				codeBuilder.append(line);
-				codeBuilder.append(eol);
-			}
-			code = codeBuilder.toString();
-		} catch (IOException e) {
-			e.printStackTrace();
-			return null;
+		List<String> lines;
+		if (this.encoding == null) {
+			lines = Files.readAllLines(Paths.get(inputFilePath));
+		} else {
+			lines = Files.readAllLines(Paths.get(inputFilePath), Charset.forName(this.encoding));
 		}
+		StringBuilder codeBuilder = new StringBuilder();
+		String eol = System.getProperty("line.separator");
+		for (String line: lines) {
+			codeBuilder.append(line);
+			codeBuilder.append(eol);
+		}
+		code = codeBuilder.toString();
 		return code;
 	}
 
@@ -684,7 +693,7 @@ public final class VnanoCommandLineApplication {
 	}
 
 
-	private void executeFile(String inputFilePath) {
+	private void executeFile(String inputFilePath) throws VnanoException, IOException {
 		if (inputFilePath.endsWith(EXTENSION_VNANO)) {
 			this.executeVnanoScriptFile(inputFilePath);
 		} else if (inputFilePath.endsWith(EXTENSION_VRIL)) {
@@ -694,13 +703,10 @@ public final class VnanoCommandLineApplication {
 		}
 	}
 
-	public void executeVnanoScriptFile(String inputFilePath) {
+	public void executeVnanoScriptFile(String inputFilePath) throws VnanoException, IOException {
 
 		// ファイルからVRILコードを全部読み込む
 		String scriptCode = this.loadCode(inputFilePath);
-		if (scriptCode == null) {
-			return;
-		}
 
 		// メソッド接続済みのスクリプトエンジンを生成
 		VnanoEngine engine = this.createInitializedVnanoEngine(this.pluginList);
@@ -716,21 +722,13 @@ public final class VnanoCommandLineApplication {
 		}
 
 		// スクリプトを実行
-		try {
-			engine.executeScript(scriptCode);
-		} catch (VnanoException e) {
-			e.printStackTrace();
-			return;
-		}
+		engine.executeScript(scriptCode);
 	}
 
-	public void executeVrilCodeFile(String inputFilePath) {
+	public void executeVrilCodeFile(String inputFilePath) throws VnanoException, IOException {
 
 		// ファイルから仮想アセンブリコード（VRILコード）を全部読み込む
 		String assemblyCode = this.loadCode(inputFilePath);
-		if (assemblyCode == null) {
-			return;
-		}
 
 		// メソッド接続済みのインターコネクトを生成して取得
 		Interconnect interconnect = this.createInitializedInterconnect();
@@ -743,26 +741,29 @@ public final class VnanoCommandLineApplication {
 
 		// プロセス仮想マシンを生成し、VRILコードを渡して実行
 		VirtualMachine vm = new VirtualMachine();
-		try {
-			vm.eval(assemblyCode, interconnect, this.optionMap);
-		} catch (VnanoException vne) {
-			this.dumpException(vne);
-			return;
-		}
+		vm.eval(assemblyCode, interconnect, this.optionMap);
 	}
 
-	public void dumpException(VnanoException vne) {
+	public void dumpException(Exception e) {
 
-		String message = ErrorMessage.generateErrorMessage(vne.getErrorType(), vne.getErrorWords(), this.locale);
-		ScriptException se = null;
-		if (vne.hasFileName() && vne.hasLineNumber()) {
-			se = new ScriptException(message + ":", vne.getFileName(), vne.getLineNumber());
+		// 例外が VnanoException の場合は、VnanoScriptException でラップした上で、そのエラー内容をダンプする
+		// (アプリケーション上でスクリプトエンジンを動作させる場合と、エラー内容をなるべく一貫させるため)
+		if (e instanceof VnanoException) {
+			VnanoException vne = (VnanoException)e;
+			String message = ErrorMessage.generateErrorMessage(vne.getErrorType(), vne.getErrorWords(), this.locale);
+			ScriptException se = null;
+			if (vne.hasFileName() && vne.hasLineNumber()) {
+				se = new ScriptException(message + ":", vne.getFileName(), vne.getLineNumber());
+			} else {
+				se = new ScriptException(message);
+			}
+			se.printStackTrace();
+			System.err.println("Cause: ");
+			e.printStackTrace();
+
+		// それ以外の例外は、普通にスタックトレースをダンプする
 		} else {
-			se = new ScriptException(message);
+			e.printStackTrace();
 		}
-		se.printStackTrace();
-
-		System.err.println("Cause: ");
-		vne.printStackTrace();
 	}
 }
