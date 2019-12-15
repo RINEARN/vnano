@@ -18,6 +18,8 @@ org/vcssl/nano/combinedtest/ArithmeticExpressionCombinedTest.java
 org/vcssl/nano/combinedtest/CombinedTestElement.java
 org/vcssl/nano/combinedtest/CombinedTestException.java
 org/vcssl/nano/combinedtest/CombinedTestExecutor.java
+org/vcssl/nano/combinedtest/ComparisonExpressionCombinedTest.java
+org/vcssl/nano/combinedtest/LogicalExpressionCombinedTest.java
 org/vcssl/nano/combinedtest/package-info.java
 org/vcssl/nano/compiler/AstNode.java
 org/vcssl/nano/compiler/AttributeKey.java

@@ -176,5 +176,14 @@ public class Accelerator {
 					+ " instruction=" + causeInstruction;
 			throw new VnanoFatalException(errorMessage, causeException);
 		}
+
+
+		// ダンプ内容に実行終了点を表す区切りを入れる
+		if (shouldDump && dumpTargetIsAll) {
+			dumpStream.println("");
+			dumpStream.println("================================================================================");
+			dumpStream.println("= End");
+			dumpStream.println("================================================================================");
+		}
 	}
 }

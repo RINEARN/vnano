@@ -22,14 +22,14 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
 
-import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
 import org.vcssl.connect.ConnectorException;
 import org.vcssl.connect.ConnectorImplementationContainer;
 import org.vcssl.connect.ConnectorImplementationLoader;
+import org.vcssl.nano.VnanoEngine;
 import org.vcssl.nano.VnanoException;
+import org.vcssl.nano.combinedtest.CombinedTestException;
 import org.vcssl.nano.combinedtest.CombinedTestExecutor;
 import org.vcssl.nano.interconnect.Interconnect;
 import org.vcssl.nano.spec.SpecialBindingKey;
@@ -95,6 +95,7 @@ public final class VnanoCommandLineApplication {
 	private List<String> pluginDirList = new LinkedList<String>();
 	private List<Object> pluginList = new LinkedList<Object>();
 	private String encoding = null;
+	private boolean combinedTestRequired = false;
 
 	// スクリプトからアクセスするメソッドを提供するクラス
 	public class ScriptIO {
@@ -118,7 +119,6 @@ public final class VnanoCommandLineApplication {
 	}
 
 	public static void main(String[] args) {
-		//args = new String[] { "Example.vnano", "--dump" };
 		VnanoCommandLineApplication application = new VnanoCommandLineApplication();
 		application.dispatch(args);
 	}
@@ -345,9 +345,32 @@ public final class VnanoCommandLineApplication {
 			optionProcessingSucceeded &= this.dispatchOptionProcessing(optionName, optionValue, inputFilePath);
 		}
 
-		// スクリプトの実行が必要なら実行する（ただし、オプション処理に失敗していた場合は実行しない）
-		if (optionProcessingSucceeded && inputFilePath != null) { // --test 時など、実行ファイルを指定しない場合もある
-			this.executeFile(inputFilePath);
+		// オプションで結合テストがリクエストされていた場合は、先にテストを実行する
+		if (this.combinedTestRequired) {
+			optionProcessingSucceeded &= this.executeCombinedTest();
+		}
+
+		// オプション処理（結合テスト含む）で失敗した場合は、その時点でステータスコード1で実行終了
+		if (!optionProcessingSucceeded) {
+			System.exit(1);
+		}
+
+		// スクリプトの実行が必要なら実行する
+		if (inputFilePath != null) { // --test 時など、実行ファイルを指定しない場合もある
+			try {
+				this.executeFile(inputFilePath);
+
+			// スクリプト読み込みや実行でエラーが生じた場合は、内容を表示した上でステータスコード1で実行終了
+			} catch (IOException ioe) {
+				System.err.println("File could not be opened: " + inputFilePath);
+				System.exit(1);
+			} catch (VnanoException e) {
+				this.dumpException(e);
+				if (!this.optionMap.containsKey(OptionKey.DUMPER_ENABLED)) {
+					System.err.println("For more debug information, re-execute the script with \"--dump\" option.");
+				}
+				System.exit(1);
+			}
 		}
 	}
 
@@ -490,9 +513,8 @@ public final class VnanoCommandLineApplication {
 
 			// --test オプションの場合
 			case OPTION_NAME_TEST : {
-				// 結合テストを実行
-				CombinedTestExecutor testExecutor = new CombinedTestExecutor();
-				testExecutor.test();
+				// 後で結合テストを実行する（全オプション指定を反映した条件下でテストするため、ここではまだ実行しない）
+				this.combinedTestRequired = true;
 				return true;
 			}
 
@@ -561,34 +583,39 @@ public final class VnanoCommandLineApplication {
 	}
 
 
-	private ScriptEngine createInitializedScriptEngine(List<Object> pluginList) {
+	private VnanoEngine createInitializedVnanoEngine(List<Object> pluginList) {
 
-		// ScriptEngineManagerでVnanoのスクリプトエンジンを検索して取得
-		ScriptEngineManager manager = new ScriptEngineManager();
-		ScriptEngine engine = manager.getEngineByName("vnano");
-		if (engine == null) {
-			System.err.println("Fatal error: ScriptEngine not found.");
-			return null;
-		}
+		// Vnanoのスクリプトエンジンを生成
+		VnanoEngine engine = new VnanoEngine();
 
 		// メソッド・フィールドを外部関数・変数としてスクリプトエンジンに接続
 		try {
 			ScriptIO ioInstance = new ScriptIO();
-			engine.put(SpecialBindingKey.AUTO_KEY, new Object[]{ ScriptIO.class.getMethod("output",long.class    ), ioInstance } );
-			engine.put(SpecialBindingKey.AUTO_KEY, new Object[]{ ScriptIO.class.getMethod("output",double.class ), ioInstance } );
-			engine.put(SpecialBindingKey.AUTO_KEY, new Object[]{ ScriptIO.class.getMethod("output",boolean.class), ioInstance } );
-			engine.put(SpecialBindingKey.AUTO_KEY, new Object[]{ ScriptIO.class.getMethod("output",String.class ), ioInstance } );
-			engine.put(SpecialBindingKey.AUTO_KEY, new Object[]{ ScriptIO.class.getMethod("time"), ioInstance } );
+			engine.connectPlugin(SpecialBindingKey.AUTO_KEY, new Object[]{ ScriptIO.class.getMethod("output",long.class    ), ioInstance } );
+			engine.connectPlugin(SpecialBindingKey.AUTO_KEY, new Object[]{ ScriptIO.class.getMethod("output",double.class ), ioInstance } );
+			engine.connectPlugin(SpecialBindingKey.AUTO_KEY, new Object[]{ ScriptIO.class.getMethod("output",boolean.class), ioInstance } );
+			engine.connectPlugin(SpecialBindingKey.AUTO_KEY, new Object[]{ ScriptIO.class.getMethod("output",String.class ), ioInstance } );
+			engine.connectPlugin(SpecialBindingKey.AUTO_KEY, new Object[]{ ScriptIO.class.getMethod("time"), ioInstance } );
 
 		} catch (NoSuchMethodException e){
 			System.err.println("Method/field not found.");
+			e.printStackTrace();
+			return null;
+		} catch (VnanoException e){
+			System.err.println("Plug-in connection failed.");
 			e.printStackTrace();
 			return null;
 		}
 
 		// オプションで指定されたプラグイン（読み込み済み）を接続
 		for (Object plugin: pluginList) {
-			engine.put(SpecialBindingKey.AUTO_KEY, plugin);
+			try {
+				engine.connectPlugin(SpecialBindingKey.AUTO_KEY, plugin);
+			} catch (VnanoException e) {
+				System.err.println("Plug-in connection failed.");
+				e.printStackTrace();
+				return null;
+			}
 		}
 
 		return engine;
@@ -619,30 +646,57 @@ public final class VnanoCommandLineApplication {
 		return interconnect;
 	}
 
-	private String loadCode(String inputFilePath) {
+	private String loadCode(String inputFilePath) throws IOException {
 		String code = "";
-		try {
-			List<String> lines;
-			if (this.encoding == null) {
-				lines = Files.readAllLines(Paths.get(inputFilePath));
-			} else {
-				lines = Files.readAllLines(Paths.get(inputFilePath), Charset.forName(this.encoding));
-			}
-			StringBuilder codeBuilder = new StringBuilder();
-			String eol = System.getProperty("line.separator");
-			for (String line: lines) {
-				codeBuilder.append(line);
-				codeBuilder.append(eol);
-			}
-			code = codeBuilder.toString();
-		} catch (IOException e) {
-			e.printStackTrace();
-			return null;
+		List<String> lines;
+		if (this.encoding == null) {
+			lines = Files.readAllLines(Paths.get(inputFilePath));
+		} else {
+			lines = Files.readAllLines(Paths.get(inputFilePath), Charset.forName(this.encoding));
 		}
+		StringBuilder codeBuilder = new StringBuilder();
+		String eol = System.getProperty("line.separator");
+		for (String line: lines) {
+			codeBuilder.append(line);
+			codeBuilder.append(eol);
+		}
+		code = codeBuilder.toString();
 		return code;
 	}
 
-	private void executeFile(String inputFilePath) {
+	private boolean executeCombinedTest() {
+
+		// メソッド接続済みのスクリプトエンジンを生成して取得
+		VnanoEngine engine = this.createInitializedVnanoEngine(this.pluginList);
+
+		// オプションマップをスクリプトエンジンに設定
+		try {
+			engine.setOptionMap(this.optionMap);
+		} catch (VnanoException e) {
+			System.err.println("Option setting failed.");
+			e.printStackTrace();
+			return false;
+		}
+
+		try {
+			CombinedTestExecutor testExecutor = new CombinedTestExecutor();
+			testExecutor.test(engine);
+			return true;
+		} catch (CombinedTestException e) {
+			System.err.println("Combined test failed.");
+			System.err.println("");
+			System.err.println("[ Stack Trace ]");
+			e.printStackTrace();
+			System.err.println("");
+			if (!this.optionMap.containsKey(OptionKey.DUMPER_ENABLED)) {
+				System.err.println("For more debug information, re-execute combined tests with \"--dump\" option.");
+			}
+			return false;
+		}
+	}
+
+
+	private void executeFile(String inputFilePath) throws VnanoException, IOException {
 		if (inputFilePath.endsWith(EXTENSION_VNANO)) {
 			this.executeVnanoScriptFile(inputFilePath);
 		} else if (inputFilePath.endsWith(EXTENSION_VRIL)) {
@@ -652,42 +706,32 @@ public final class VnanoCommandLineApplication {
 		}
 	}
 
-	public void executeVnanoScriptFile(String inputFilePath) {
+	public void executeVnanoScriptFile(String inputFilePath) throws VnanoException, IOException {
 
 		// ファイルからVRILコードを全部読み込む
 		String scriptCode = this.loadCode(inputFilePath);
-		if (scriptCode == null) {
-			return;
-		}
 
-		// メソッド接続済みのスクリプトエンジンを生成して取得
-		ScriptEngine engine = this.createInitializedScriptEngine(this.pluginList);
-		if (engine == null) {
-			return;
-		}
+		// メソッド接続済みのスクリプトエンジンを生成
+		VnanoEngine engine = this.createInitializedVnanoEngine(this.pluginList);
 
 		// オプションマップにスクリプト名を設定
 		this.optionMap.put(OptionKey.EVAL_SCRIPT_NAME, inputFilePath);
 
 		// オプションマップをスクリプトエンジンに設定
-		engine.put(SpecialBindingKey.OPTION_MAP, this.optionMap);
+		try {
+			engine.setOptionMap(this.optionMap);
+		} catch (VnanoException e) {
+			System.err.println("Option setting failed.");
+		}
 
 		// スクリプトを実行
-		try {
-			engine.eval(scriptCode);
-		} catch (ScriptException e) {
-			e.printStackTrace();
-			return;
-		}
+		engine.executeScript(scriptCode);
 	}
 
-	public void executeVrilCodeFile(String inputFilePath) {
+	public void executeVrilCodeFile(String inputFilePath) throws VnanoException, IOException {
 
 		// ファイルから仮想アセンブリコード（VRILコード）を全部読み込む
 		String assemblyCode = this.loadCode(inputFilePath);
-		if (assemblyCode == null) {
-			return;
-		}
 
 		// メソッド接続済みのインターコネクトを生成して取得
 		Interconnect interconnect = this.createInitializedInterconnect();
@@ -700,26 +744,31 @@ public final class VnanoCommandLineApplication {
 
 		// プロセス仮想マシンを生成し、VRILコードを渡して実行
 		VirtualMachine vm = new VirtualMachine();
-		try {
-			vm.eval(assemblyCode, interconnect, this.optionMap);
-		} catch (VnanoException vne) {
-			this.dumpException(vne);
-			return;
-		}
+		vm.eval(assemblyCode, interconnect, this.optionMap);
 	}
 
-	public void dumpException(VnanoException vne) {
+	public void dumpException(Exception e) {
 
-		String message = ErrorMessage.generateErrorMessage(vne.getErrorType(), vne.getErrorWords(), this.locale);
-		ScriptException se = null;
-		if (vne.hasFileName() && vne.hasLineNumber()) {
-			se = new ScriptException(message + ":", vne.getFileName(), vne.getLineNumber());
+		// 例外が VnanoException の場合は、VnanoScriptException でラップした上で、そのエラー内容をダンプする
+		// (アプリケーション上でスクリプトエンジンを動作させる場合と、エラー内容をなるべく一貫させるため)
+		if (e instanceof VnanoException) {
+			VnanoException vne = (VnanoException)e;
+			String message = ErrorMessage.generateErrorMessage(vne.getErrorType(), vne.getErrorWords(), this.locale);
+			ScriptException se = null;
+			if (vne.hasFileName() && vne.hasLineNumber()) {
+				se = new ScriptException(message + ":", vne.getFileName(), vne.getLineNumber());
+			} else {
+				se = new ScriptException(message);
+			}
+			se.printStackTrace();
+			System.err.println("Cause: ");
+			e.printStackTrace();
+
+			System.err.println("");
+
+		// それ以外の例外は、普通にスタックトレースをダンプする
 		} else {
-			se = new ScriptException(message);
+			e.printStackTrace();
 		}
-		se.printStackTrace();
-
-		System.err.println("Cause: ");
-		vne.printStackTrace();
 	}
 }

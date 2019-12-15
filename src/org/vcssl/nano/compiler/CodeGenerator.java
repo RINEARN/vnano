@@ -1227,82 +1227,78 @@ public class CodeGenerator {
 		AstNode currentNode = exprRootNode.getPostorderDftFirstNode();
 		while(currentNode != exprRootNode) {
 
-			// リーフノードは演算コードを生成する必要がない
-			if (currentNode.getType() != AstNode.Type.OPERATOR) {
-				currentNode = currentNode.getPostorderDftNextNode();
-				continue;
-			}
+			// 演算子ノードに対する演算コード生成処理
+			if (currentNode.getType() == AstNode.Type.OPERATOR) {
+				String operatorSyntax = currentNode.getAttribute(AttributeKey.OPERATOR_SYNTAX);
+				String operatorExecution = currentNode.getAttribute(AttributeKey.OPERATOR_EXECUTOR);
 
-			// 以下は演算子ノードなので演算コードを生成
-
-			String operatorSyntax = currentNode.getAttribute(AttributeKey.OPERATOR_SYNTAX);
-			String operatorExecution = currentNode.getAttribute(AttributeKey.OPERATOR_EXECUTOR);
-
-			switch (operatorExecution) {
-				case AttributeValue.CALL : {
-					codeBuilder.append( this.generateCallOperatorCode(currentNode) );
-					break;
-				}
-				case AttributeValue.ASSIGNMENT : {
-					codeBuilder.append( this.generateAsignmentOperatorCode(currentNode) );
-					break;
-				}
-				case AttributeValue.ARITHMETIC : {
-					switch (operatorSyntax) {
-						case AttributeValue.BINARY : {
-							codeBuilder.append( this.generateArithmeticBinaryOperatorCode(currentNode) );
-							break;
-						}
-						case AttributeValue.PREFIX : {
-							codeBuilder.append( this.generateArithmeticPrefixOperatorCode(currentNode) );
-							break;
-						}
-						case AttributeValue.POSTFIX : {
-							codeBuilder.append( this.generateArithmeticPostfixOperatorCode(currentNode) );
-							break;
-						}
-						default : {
-							throw new VnanoFatalException("Invalid operator syntax for arithmetic operators: " + operatorSyntax);
-						}
+				switch (operatorExecution) {
+					case AttributeValue.CALL : { // 関数呼び出し演算子
+						codeBuilder.append( this.generateCallOperatorCode(currentNode) );
+						break;
 					}
-					break;
-				}
-				case AttributeValue.ARITHMETIC_COMPOUND_ASSIGNMENT : {
-					codeBuilder.append( this.generateArithmeticCompoundAssignmentOperatorCode(currentNode) );
-					break;
-				}
-				case AttributeValue.COMPARISON : {
-					codeBuilder.append( this.generateComparisonBinaryOperatorCode(currentNode) );
-					break;
-				}
-				case AttributeValue.LOGICAL : {
-					switch (operatorSyntax) {
-						case AttributeValue.BINARY : {
-							codeBuilder.append( this.generateLogicalBinaryOperatorCode(currentNode) );
-							break;
-						}
-						case AttributeValue.PREFIX : {
-							codeBuilder.append( this.generateLogicalPrefixOperatorCode(currentNode) );
-							break;
-						}
-						default : {
-							throw new VnanoFatalException("Invalid operator syntax for logical operators: " + operatorSyntax);
-						}
+					case AttributeValue.ASSIGNMENT : { // 代入演算子
+						codeBuilder.append( this.generateAsignmentOperatorCode(currentNode) );
+						break;
 					}
-					break;
+					case AttributeValue.ARITHMETIC : { // 算術演算子
+						switch (operatorSyntax) {
+							case AttributeValue.BINARY : { // 二項
+								codeBuilder.append( this.generateArithmeticBinaryOperatorCode(currentNode) );
+								break;
+							}
+							case AttributeValue.PREFIX : { // 前置
+								codeBuilder.append( this.generateArithmeticPrefixOperatorCode(currentNode) );
+								break;
+							}
+							case AttributeValue.POSTFIX : { // 後置
+								codeBuilder.append( this.generateArithmeticPostfixOperatorCode(currentNode) );
+								break;
+							}
+							default : {
+								throw new VnanoFatalException("Invalid operator syntax for arithmetic operators: " + operatorSyntax);
+							}
+						}
+						break;
+					}
+					case AttributeValue.ARITHMETIC_COMPOUND_ASSIGNMENT : { // 複合代入演算子
+						codeBuilder.append( this.generateArithmeticCompoundAssignmentOperatorCode(currentNode) );
+						break;
+					}
+					case AttributeValue.COMPARISON : { // 比較演算子
+						codeBuilder.append( this.generateComparisonBinaryOperatorCode(currentNode) );
+						break;
+					}
+					case AttributeValue.LOGICAL : { // 論理演算子
+						switch (operatorSyntax) {
+							case AttributeValue.BINARY : { // 二項
+								codeBuilder.append( this.generateLogicalBinaryOperatorCode(currentNode) );
+								break;
+							}
+							case AttributeValue.PREFIX : { // 前置
+								codeBuilder.append( this.generateLogicalPrefixOperatorCode(currentNode) );
+								break;
+							}
+							default : {
+								throw new VnanoFatalException("Invalid operator syntax for logical operators: " + operatorSyntax);
+							}
+						}
+						break;
+					}
+					case AttributeValue.INDEX : { // 配列インデックス演算子
+						codeBuilder.append( this.generateIndexOperatorCode(currentNode) );
+						break;
+					}
+					case AttributeValue.CAST : { // キャスト演算子
+						codeBuilder.append( this.generateCastOperatorCode(currentNode) );
+						break;
+					}
+					default : {
+						throw new VnanoFatalException("Unknown operator execution type: " + operatorExecution);
+					}
 				}
-				case AttributeValue.INDEX : {
-					codeBuilder.append( this.generateIndexOperatorCode(currentNode) );
-					break;
-				}
-				case AttributeValue.CAST : {
-					codeBuilder.append( this.generateCastOperatorCode(currentNode) );
-					break;
-				}
-				default : {
-					throw new VnanoFatalException("Unknown operator execution type: " + operatorExecution);
-				}
-			}
+			} // 演算子ノードに対する演算コード生成処理
+
 
 			// 部分式の評価後に、親ノードの演算子に応じて追加処理が必要な場合
 			AstNode parentNode = currentNode.getParentNode();
@@ -1611,7 +1607,7 @@ public class CodeGenerator {
 		String operandValue = operandNode.getAttribute(AttributeKey.ASSEMBLY_VALUE);
 
 		// 演算結果を格納するレジスタを確保
-		String accumulatorRegister = this.generateRegisterOperandCode();
+		String accumulatorRegister = operatorNode.getAttribute(AttributeKey.ASSEMBLY_VALUE);
 		codeBuilder.append(
 			this.generateRegisterAllocationCode(DataTypeName.BOOL, accumulatorRegister, operandValue, operatorNode.getRank())
 		);
