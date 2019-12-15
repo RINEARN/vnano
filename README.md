@@ -30,9 +30,20 @@ Vnano (<a href="https://www.vcssl.org/">VCSSL</a> nano) は、Java&reg; アプ�
 
 ### Current Build/Test Results - 現在のビルド/テスト検証結果
 
-&nbsp;&nbsp;&nbsp;<img src="https://github.com/RINEARN/vnano/workflows/Standard%20Build%2FTest%20CI/badge.svg" alt="Standard CI Result" /> on JDK 13
-&nbsp;&nbsp;&nbsp;&nbsp;<img src="https://github.com/RINEARN/vnano/workflows/Old-Env%20Build%2FTest%20CI/badge.svg" alt="Old-Env CI Result" /> on JDK 8
-&nbsp;&nbsp;( Green: OK / Red: NG )
+&nbsp;&nbsp;- master branch -
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;<img src="https://github.com/RINEARN/vnano/workflows/Standard%20Build%2FTest%20CI/badge.svg?branch=master" alt="Standard CI Result" /> on JDK 13
+&nbsp;&nbsp;&nbsp;&nbsp;<img src="https://github.com/RINEARN/vnano/workflows/Old-Env%20Build%2FTest%20CI/badge.svg?branch=master" alt="Old-Env CI Result" /> on JDK 8
+&nbsp;&nbsp;
+<br />
+&nbsp;&nbsp;- develop branch -
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;<img src="https://github.com/RINEARN/vnano/workflows/Standard%20Build%2FTest%20CI/badge.svg?branch=develop" alt="Standard CI Result" /> on JDK 13
+&nbsp;&nbsp;&nbsp;&nbsp;<img src="https://github.com/RINEARN/vnano/workflows/Old-Env%20Build%2FTest%20CI/badge.svg?branch=develop" alt="Old-Env CI Result" /> on JDK 8
+&nbsp;&nbsp;
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;( Green: OK / Red: NG )
+
 
 <hr />
 
