@@ -276,7 +276,6 @@ public class LexicalChecker {
 								token.getFileName(), token.getLineNumber()
 						);
 					}
-					contentCounter = 0;
 				}
 			} else {
 				contentCounter++;
