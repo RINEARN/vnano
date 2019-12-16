@@ -261,7 +261,7 @@ public class LexicalChecker {
 	 * @param tokens 検査対象のトークン配列
 	 * @throws VnanoException 空の部分式が含まれていた場合にスローされます。
 	 */
-	protected static void checkBlankParenthesesInExpression(Token[] tokens) throws VnanoException {
+	protected static void checkEmptyParenthesesInExpression(Token[] tokens) throws VnanoException {
 		int tokenLength = tokens.length;
 		int contentCounter = 0;
 		for (int tokenIndex=0; tokenIndex<tokenLength; tokenIndex++) {
@@ -441,7 +441,7 @@ public class LexicalChecker {
 		checkTypeOfTokensInExpression(tokens);
 
 		// 式の中に空の括弧が存在しないか確認（関数呼び出し演算子は除く）
-		checkBlankParenthesesInExpression(tokens);
+		checkEmptyParenthesesInExpression(tokens);
 
 		// 演算子やリーフの位置が適切な関係で並んでいるか確認
 		checkLocationsOfOperatorsAndLeafsInExpression(tokens);
