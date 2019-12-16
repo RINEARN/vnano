@@ -26,6 +26,8 @@ public class ArithmeticExpressionCombinedTest extends CombinedTestElement {
 			this.testSubtractions();
 			this.testRemainders();
 			this.testDualOperations();
+			this.testTripleOperations();
+			this.testQuadOperations();
 		} catch (VnanoException e) {
 			throw new CombinedTestException(e);
 		}
@@ -262,4 +264,211 @@ public class ArithmeticExpressionCombinedTest extends CombinedTestElement {
 		super.evaluateResult(resultD, (1.2 + (2.3 * 3.4) ), "float + (float * float)", scriptCode);
 	}
 
+	private void testTripleOperations() throws VnanoException {
+		String scriptCode;
+		long resultL;
+		double resultD;
+
+		scriptCode = " 1 + 2 + 3 + 4 ; ";
+		resultL = (long)this.engine.executeScript(scriptCode);
+		super.evaluateResult(resultL, (1 + 2 + 3 + 4), "int + int + int + int", scriptCode);
+
+		scriptCode = " 1 - 2 + 3 - 4 ; ";
+		resultL = (long)this.engine.executeScript(scriptCode);
+		super.evaluateResult(resultL, (1 - 2 + 3 - 4), "int - int + int - int", scriptCode);
+
+		scriptCode = " 1 - (2 + 3) - 4 ; ";
+		resultL = (long)this.engine.executeScript(scriptCode);
+		super.evaluateResult(resultL, ( 1 - (2 + 3) - 4), "int - (int + int) - int", scriptCode);
+
+		scriptCode = " 1 - (2 + 3 - 4) ; ";
+		resultL = (long)this.engine.executeScript(scriptCode);
+		super.evaluateResult(resultL, ( 1 - (2 + 3 - 4)), "int - (int + int - int)", scriptCode);
+
+
+		scriptCode = " 1.2 + 2.3 + 3.4 + 4.5 ; ";
+		resultD = (double)this.engine.executeScript(scriptCode);
+		super.evaluateResult(resultD, (1.2 + 2.3 + 3.4 + 4.5), "float + float + float + float", scriptCode);
+
+		scriptCode = " 1.2 - 2.3 + 3.4 - 4.5 ; ";
+		resultD = (double)this.engine.executeScript(scriptCode);
+		super.evaluateResult(resultD, (1.2 - 2.3 + 3.4 - 4.5), "float - float + float - float", scriptCode);
+
+		scriptCode = " 1.2 - (2.3 + 3.4) - 4.5 ; ";
+		resultD = (double)this.engine.executeScript(scriptCode);
+		super.evaluateResult(resultD, ( 1.2 - (2.3 + 3.4) - 4.5), "float - (float + float) - float", scriptCode);
+
+		scriptCode = " 1.2 - (2.3 + 3.4 - 4.5) ; ";
+		resultD = (double)this.engine.executeScript(scriptCode);
+		super.evaluateResult(resultD, ( 1.2 - (2.3 + 3.4 - 4.5)), "float - (float + float - float)", scriptCode);
+
+
+		scriptCode = " 1 * 2 * 3 * 4 ; ";
+		resultL = (long)this.engine.executeScript(scriptCode);
+		super.evaluateResult(resultL, (1 * 2 * 3 * 4), "int * int * int * int", scriptCode);
+
+		scriptCode = " 1 + 2 * 3 + 4 ; ";
+		resultL = (long)this.engine.executeScript(scriptCode);
+		super.evaluateResult(resultL, (1 + 2 * 3 + 4), "int + int * int + int", scriptCode);
+
+		scriptCode = " 1 * 2 + 3 * 4 ; ";
+		resultL = (long)this.engine.executeScript(scriptCode);
+		super.evaluateResult(resultL, (1 * 2 + 3 * 4), "int * int + int * int", scriptCode);
+
+		scriptCode = " 1 + 2 * 3 * 4 ; ";
+		resultL = (long)this.engine.executeScript(scriptCode);
+		super.evaluateResult(resultL, (1 + 2 * 3 * 4), "int + int * int * int", scriptCode);
+
+		scriptCode = " 1 * 2 * 3 + 4 ; ";
+		resultL = (long)this.engine.executeScript(scriptCode);
+		super.evaluateResult(resultL, (1 * 2 * 3 + 4), "int * int * int + int", scriptCode);
+
+		scriptCode = " 1 * 2 * (3 + 4) ; ";
+		resultL = (long)this.engine.executeScript(scriptCode);
+		super.evaluateResult(resultL, (1 * 2 * (3 + 4)), "int * int * (int + int)", scriptCode);
+
+		scriptCode = " 1 * (2 * 3 + 4) ; ";
+		resultL = (long)this.engine.executeScript(scriptCode);
+		super.evaluateResult(resultL, (1 * (2 * 3 + 4)), "int * (int * int + int)", scriptCode);
+
+
+		scriptCode = " 1.2 * 2.3 * 3.4 * 4.5 ; ";
+		resultD = (double)this.engine.executeScript(scriptCode);
+		super.evaluateResult(resultD, (1.2 * 2.3 * 3.4 * 4.5), "float * float * float * float", scriptCode);
+
+		scriptCode = " 1.2 + 2.3 * 3.4 + 4.5 ; ";
+		resultD = (double)this.engine.executeScript(scriptCode);
+		super.evaluateResult(resultD, (1.2 + 2.3 * 3.4 + 4.5), "float + float * float + float", scriptCode);
+
+		scriptCode = " 1.2 * 2.3 + 3.4 * 4.5 ; ";
+		resultD = (double)this.engine.executeScript(scriptCode);
+		super.evaluateResult(resultD, (1.2 * 2.3 + 3.4 * 4.5), "float * float + float * float", scriptCode);
+
+		scriptCode = " 1.2 + 2.3 * 3.4 * 4.5 ; ";
+		resultD = (double)this.engine.executeScript(scriptCode);
+		super.evaluateResult(resultD, (1.2 + 2.3 * 3.4 * 4.5), "float + float * float * float", scriptCode);
+
+		scriptCode = " 1.2 * 2.3 * 3.4 + 4.5 ; ";
+		resultD = (double)this.engine.executeScript(scriptCode);
+		super.evaluateResult(resultD, (1.2 * 2.3 * 3.4 + 4.5), "float * float * float + float", scriptCode);
+
+		scriptCode = " 1.2 * 2.3 * (3.4 + 4.5) ; ";
+		resultD = (double)this.engine.executeScript(scriptCode);
+		super.evaluateResult(resultD, (1.2 * 2.3 * (3.4 + 4.5)), "float * float * (float + float)", scriptCode);
+
+		scriptCode = " 1.2 * (2.3 * 3.4 + 4.5) ; ";
+		resultD = (double)this.engine.executeScript(scriptCode);
+		super.evaluateResult(resultD, (1.2 * (2.3 * 3.4 + 4.5)), "float * (float * float + float)", scriptCode);
+	}
+
+	private void testQuadOperations() throws VnanoException {
+		String scriptCode;
+		long resultL;
+		double resultD;
+
+		scriptCode = " 1 + 2 + 3 + 4 + 5 ; ";
+		resultL = (long)this.engine.executeScript(scriptCode);
+		super.evaluateResult(resultL, (1 + 2 + 3 + 4 + 5), "int + int + int + int + int", scriptCode);
+
+		scriptCode = " 1 + 2 + 3 * 4 + 5 ; ";
+		resultL = (long)this.engine.executeScript(scriptCode);
+		super.evaluateResult(resultL, (1 + 2 + 3 * 4 + 5), "int + int + int * int + int", scriptCode);
+
+		scriptCode = " 1 + 2 * 3 * 4 + 5 ; ";
+		resultL = (long)this.engine.executeScript(scriptCode);
+		super.evaluateResult(resultL, (1 + 2 * 3 * 4 + 5), "int + int * int * int + int", scriptCode);
+
+		scriptCode = " 1 + 2 * 3 + 4 * 5 ; ";
+		resultL = (long)this.engine.executeScript(scriptCode);
+		super.evaluateResult(resultL, (1 + 2 * 3 + 4 * 5), "int + int * int + int * int", scriptCode);
+
+		scriptCode = " 1 + 2 * 3 * 4 * 5 ; ";
+		resultL = (long)this.engine.executeScript(scriptCode);
+		super.evaluateResult(resultL, (1 + 2 * 3 * 4 * 5), "int + int * int * int * int", scriptCode);
+
+		scriptCode = " 1 * 2 + 3 + 4 * 5 ; ";
+		resultL = (long)this.engine.executeScript(scriptCode);
+		super.evaluateResult(resultL, (1 * 2 + 3 + 4 * 5), "int * int + int + int * int", scriptCode);
+
+		scriptCode = " 1 * 2 * 3 * 4 * 5 ; ";
+		resultL = (long)this.engine.executeScript(scriptCode);
+		super.evaluateResult(resultL, (1 * 2 * 3 * 4 * 5), "int * int * int * int * int", scriptCode);
+
+		scriptCode = " 10 + 20 * 30 - 40 / 5 ; ";
+		resultL = (long)this.engine.executeScript(scriptCode);
+		super.evaluateResult(resultL, (10 + 20 * 30 - 40 / 5), "int + int * int - int / int", scriptCode);
+
+		scriptCode = " ((10 + 20) * 30 - 40) / 5 ; ";
+		resultL = (long)this.engine.executeScript(scriptCode);
+		super.evaluateResult(resultL, (((10 + 20) * 30 - 40) / 5), "((int + int) * int - int) / int", scriptCode);
+
+		scriptCode = " 10 + 20 * (30 - 40 / 5) ; ";
+		resultL = (long)this.engine.executeScript(scriptCode);
+		super.evaluateResult(resultL, (10 + 20 * (30 - 40 / 5)), "(int + int * (int - int / int)", scriptCode);
+
+		scriptCode = " 10 + 20 * ((30 - 40) / 5) ; ";
+		resultL = (long)this.engine.executeScript(scriptCode);
+		super.evaluateResult(resultL, (10 + 20 * ((30 - 40) / 5)), "(int + int * ((int - int) / int)", scriptCode);
+
+		scriptCode = " 10 + (20 * (30 - 40)) / 5 ; ";
+		resultL = (long)this.engine.executeScript(scriptCode);
+		super.evaluateResult(resultL, (10 + (20 * (30 - 40)) / 5), "(int + (int * (int - int)) / int", scriptCode);
+
+		scriptCode = " (10 + (20 * (30 - 40))) / 5 ; ";
+		resultL = (long)this.engine.executeScript(scriptCode);
+		super.evaluateResult(resultL, ((10 + (20 * (30 - 40))) / 5), "((int + (int * (int - int))) / int", scriptCode);
+
+
+		scriptCode = " 1.2 + 2.3 + 3.4 + 4.5 + 5.6 ; ";
+		resultD = (double)this.engine.executeScript(scriptCode);
+		super.evaluateResult(resultD, (1.2 + 2.3 + 3.4 + 4.5 + 5.6), "float + float + float + float + float", scriptCode);
+
+		scriptCode = " 1.2 + 2.3 + 3.4 * 4.5 + 5.6 ; ";
+		resultD = (double)this.engine.executeScript(scriptCode);
+		super.evaluateResult(resultD, (1.2 + 2.3 + 3.4 * 4.5 + 5.6), "float + float + float * float + float", scriptCode);
+
+		scriptCode = " 1.2 + 2.3 * 3.4 * 4.5 + 5.6 ; ";
+		resultD = (double)this.engine.executeScript(scriptCode);
+		super.evaluateResult(resultD, (1.2 + 2.3 * 3.4 * 4.5 + 5.6), "float + float * float * float + float", scriptCode);
+
+		scriptCode = " 1.2 + 2.3 * 3.4 + 4.5 * 5.6 ; ";
+		resultD = (double)this.engine.executeScript(scriptCode);
+		super.evaluateResult(resultD, (1.2 + 2.3 * 3.4 + 4.5 * 5.6), "float + float * float + float * float", scriptCode);
+
+		scriptCode = " 1.2 + 2.3 * 3.4 * 4.5 * 5.6 ; ";
+		resultD = (double)this.engine.executeScript(scriptCode);
+		super.evaluateResult(resultD, (1.2 + 2.3 * 3.4 * 4.5 * 5.6), "float + float * float * float * float", scriptCode);
+
+		scriptCode = " 1.2 * 2.3 + 3.4 + 4.5 * 5.6 ; ";
+		resultD = (double)this.engine.executeScript(scriptCode);
+		super.evaluateResult(resultD, (1.2 * 2.3 + 3.4 + 4.5 * 5.6), "float * float + float + float * float", scriptCode);
+
+		scriptCode = " 1.2 * 2.3 * 3.4 * 4.5 * 5.6 ; ";
+		resultD = (double)this.engine.executeScript(scriptCode);
+		super.evaluateResult(resultD, (1.2 * 2.3 * 3.4 * 4.5 * 5.6), "float * float * float * float * float", scriptCode);
+
+		scriptCode = " 1.2 + 2.3 * 3.4 - 4.5 / 5.6 ; ";
+		resultD = (double)this.engine.executeScript(scriptCode);
+		super.evaluateResult(resultD, (1.2 + 2.3 * 3.4 - 4.5 / 5.6), "float + float * float - float / float", scriptCode);
+
+		scriptCode = " ((1.2 + 2.3) * 3.4 - 4.5) / 5.6 ; ";
+		resultD = (double)this.engine.executeScript(scriptCode);
+		super.evaluateResult(resultD, (((1.2 + 2.3) * 3.4 - 4.5) / 5.6), "((float + float) * float - float) / float", scriptCode);
+
+		scriptCode = " 1.2 + 2.3 * (3.4 - 4.5 / 5.6) ; ";
+		resultD = (double)this.engine.executeScript(scriptCode);
+		super.evaluateResult(resultD, (1.2 + 2.3 * (3.4 - 4.5 / 5.6)), "float + float * (float - float / float)", scriptCode);
+
+		scriptCode = " 1.2 + 2.3 * ((3.4 - 4.5) / 5.6) ; ";
+		resultD = (double)this.engine.executeScript(scriptCode);
+		super.evaluateResult(resultD, (1.2 + 2.3 * ((3.4 - 4.5) / 5.6)), "float + float * ((float - float) / float)", scriptCode);
+
+		scriptCode = " 1.2 + (2.3 * (3.4 - 4.5)) / 5.6 ; ";
+		resultD = (double)this.engine.executeScript(scriptCode);
+		super.evaluateResult(resultD, (1.2 + (2.3 * (3.4 - 4.5)) / 5.6), "float + (float * ((float - float) / float", scriptCode);
+
+		scriptCode = " (1.2 + (2.3 * (3.4 - 4.5))) / 5.6 ; ";
+		resultD = (double)this.engine.executeScript(scriptCode);
+		super.evaluateResult(resultD, ((1.2 + (2.3 * (3.4 - 4.5))) / 5.6), "(float + (float * ((float - float)) / float", scriptCode);
+	}
 }
