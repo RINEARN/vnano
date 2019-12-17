@@ -270,6 +270,198 @@ public class IfElseStatementCombinedTest extends CombinedTestElement {
 
 		result = (long)this.engine.executeScript(scriptCode);
 		super.evaluateResult(result, 3, "if(false){...} else{...}", scriptCode);
+
+		scriptCode =
+			" int a = 1;   \n" +
+			" if (false) { \n" +
+			"     a = 2;   \n" +
+			" } else {     \n" +
+			"     a = 3;   \n" +
+			" }            \n" +
+			" if (false) { \n" +
+			"     a = 4;   \n" +
+			" } else {     \n" +
+			"     a = 5;   \n" +
+			" }            \n" +
+			" if (false) { \n" +
+			"     a = 6;   \n" +
+			" } else {     \n" +
+			"     a = 7;   \n" +
+			" }            \n" +
+			" if (false) { \n" +
+			"     a = 8;   \n" +
+			" } else {     \n" +
+			"     a = 9;   \n" +
+			" }            \n" +
+			" if (false) { \n" +
+			"     a = 10;  \n" +
+			" } else {     \n" +
+			"     a = 11;  \n" +
+			" }            \n" +
+			" a;           \n" ;
+
+		result = (long)this.engine.executeScript(scriptCode);
+		super.evaluateResult(result, 11, "if(false){...} else{...} if(false){...} else{...} if(false){...} else{...} if(false){...} else{...} if(false){...} else{...}", scriptCode);
+
+		scriptCode =
+			" int a = 1;   \n" +
+			" if (true) {  \n" +
+			"     a = 2;   \n" +
+			" } else {     \n" +
+			"     a = 3;   \n" +
+			" }            \n" +
+			" if (false) { \n" +
+			"     a = 4;   \n" +
+			" } else {     \n" +
+			"     a = 5;   \n" +
+			" }            \n" +
+			" if (false) { \n" +
+			"     a = 6;   \n" +
+			" } else {     \n" +
+			"     a = 7;   \n" +
+			" }            \n" +
+			" if (false) { \n" +
+			"     a = 8;   \n" +
+			" } else {     \n" +
+			"     a = 9;   \n" +
+			" }            \n" +
+			" if (false) { \n" +
+			"     a = 10;  \n" +
+			" } else {     \n" +
+			"     a = 11;  \n" +
+			" }            \n" +
+			" a;           \n" ;
+
+		result = (long)this.engine.executeScript(scriptCode);
+		super.evaluateResult(result, 11, "if(true){...} else{...} if(false){...} else{...} if(false){...} else{...} if(false){...} else{...} if(false){...} else{...}", scriptCode);
+
+		scriptCode =
+			" int a = 1;   \n" +
+			" if (false) { \n" +
+			"     a = 2;   \n" +
+			" } else {     \n" +
+			"     a = 3;   \n" +
+			" }            \n" +
+			" if (true) {  \n" +
+			"     a = 4;   \n" +
+			" } else {     \n" +
+			"     a = 5;   \n" +
+			" }            \n" +
+			" if (false) { \n" +
+			"     a = 6;   \n" +
+			" } else {     \n" +
+			"     a = 7;   \n" +
+			" }            \n" +
+			" if (false) { \n" +
+			"     a = 8;   \n" +
+			" } else {     \n" +
+			"     a = 9;   \n" +
+			" }            \n" +
+			" if (true) {  \n" +
+			"     a = 10;  \n" +
+			" } else {     \n" +
+			"     a = 11;  \n" +
+			" }            \n" +
+			" a;           \n" ;
+
+		result = (long)this.engine.executeScript(scriptCode);
+		super.evaluateResult(result, 10, "if(false){...} else{...} if(true){...} else{...} if(false){...} else{...} if(false){...} else{...} if(false){...} else{...}", scriptCode);
+
+		scriptCode =
+			" int a = 1;   \n" +
+			" if (false) { \n" +
+			"     a = 2;   \n" +
+			" } else {     \n" +
+			"     a = 3;   \n" +
+			" }            \n" +
+			" if (true) {  \n" +
+			"     a = 4;   \n" +
+			" } else {     \n" +
+			"     a = 5;   \n" +
+			" }            \n" +
+			" if (false) { \n" +
+			"     a = 6;   \n" +
+			" } else {     \n" +
+			"     a = 7;   \n" +
+			" }            \n" +
+			" if (false) { \n" +
+			"     a = 8;   \n" +
+			" } else {     \n" +
+			"     a = 9;   \n" +
+			" }            \n" +
+			" if (true) {  \n" +
+			"     a = 10;  \n" +
+			" } else {     \n" +
+			"     a = 11;  \n" +
+			" }            \n" +
+			" a;           \n" ;
+
+		result = (long)this.engine.executeScript(scriptCode);
+		super.evaluateResult(result, 10, "if(false){...} else{...} if(true){...} else{...} if(false){...} else{...} if(false){...} else{...} if(true){...} else{...}", scriptCode);
+
+		scriptCode =
+			" int a = 1;   \n" +
+			" if (false) { \n" +
+			"     a = 2;   \n" +
+			" } else {     \n" +
+			"     a = 3;   \n" +
+			" }            \n" +
+			" if (false) { \n" +
+			"     a = 4;   \n" +
+			" } else {     \n" +
+			"     a = 5;   \n" +
+			" }            \n" +
+			" if (false) { \n" +
+			"     a = 6;   \n" +
+			" } else {     \n" +
+			"     a = 7;   \n" +
+			" }            \n" +
+			" if (false) { \n" +
+			"     a = 8;   \n" +
+			" } else {     \n" +
+			"     a = 9;   \n" +
+			" }            \n" +
+			" if (true) {  \n" +
+			"     a = 10;  \n" +
+			" } else {     \n" +
+			"     a = 11;  \n" +
+			" }            \n" +
+			" a;           \n" ;
+
+		result = (long)this.engine.executeScript(scriptCode);
+		super.evaluateResult(result, 10, "if(false){...} else{...} if(false){...} else{...} if(false){...} else{...} if(false){...} else{...} if(true){...} else{...}", scriptCode);
+
+		scriptCode =
+			" int a = 1;   \n" +
+			" if (true) {  \n" +
+			"     a = 2;   \n" +
+			" } else {     \n" +
+			"     a = 3;   \n" +
+			" }            \n" +
+			" if (true) {  \n" +
+			"     a = 4;   \n" +
+			" } else {     \n" +
+			"     a = 5;   \n" +
+			" }            \n" +
+			" if (true) {  \n" +
+			"     a = 6;   \n" +
+			" } else {     \n" +
+			"     a = 7;   \n" +
+			" }            \n" +
+			" if (true) {  \n" +
+			"     a = 8;   \n" +
+			" } else {     \n" +
+			"     a = 9;   \n" +
+			" }            \n" +
+			" if (true) {  \n" +
+			"     a = 10;  \n" +
+			" } else {     \n" +
+			"     a = 11;  \n" +
+			" }            \n" +
+			" a;           \n" ;
+
+		result = (long)this.engine.executeScript(scriptCode);
+		super.evaluateResult(result, 10, "if(false){...} else{...} if(false){...} else{...} if(false){...} else{...} if(false){...} else{...} if(false){...} else{...}", scriptCode);
 	}
 
 
