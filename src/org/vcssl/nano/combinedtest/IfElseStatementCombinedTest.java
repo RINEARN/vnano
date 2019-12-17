@@ -20,34 +20,64 @@ public class IfElseStatementCombinedTest extends CombinedTestElement {
 	@Override
 	public void executeTest() {
 		try {
-			this.testIfStatement();
+			this.testIfStatements();
+			this.testElseStatements();
 		} catch (VnanoException e) {
 			throw new CombinedTestException(e);
 		}
 	}
 
-	private void testIfStatement() throws VnanoException {
+	private void testIfStatements() throws VnanoException {
 		String scriptCode;
 		long result;
 
 		scriptCode =
-			"int a = 1;   \n" +
-			"if (true) {  \n" +
-			"	a = 2;    \n" +
-			"}            \n" +
-			"a;           \n" ;
+			" int a = 1;   \n" +
+			" if (true) {  \n" +
+			"     a = 2;   \n" +
+			" }            \n" +
+			" a;           \n" ;
 
 		result = (long)this.engine.executeScript(scriptCode);
-		super.evaluateResult(result, 2, "if(true)", scriptCode);
+		super.evaluateResult(result, 2, "if(true){...}", scriptCode);
 
 		scriptCode =
-			"int a = 1;   \n" +
-			"if (false) { \n" +
-			"	a = 2;    \n" +
-			"}            \n" +
-			"a;           \n" ;
+			" int a = 1;   \n" +
+			" if (false) { \n" +
+			"     a = 2;   \n" +
+			" }            \n" +
+			" a;           \n" ;
 
 		result = (long)this.engine.executeScript(scriptCode);
-		super.evaluateResult(result, 1, "if(false)", scriptCode);
+		super.evaluateResult(result, 1, "if(false){...}", scriptCode);
+	}
+
+	private void testElseStatements() throws VnanoException {
+		String scriptCode;
+		long result;
+
+		scriptCode =
+			" int a = 1;  \n" +
+			" if (true) { \n" +
+			"     a = 2;  \n" +
+			" } else {    \n" +
+			"     a = 3;  \n" +
+			" }           \n" +
+			" a;          \n" ;
+
+		result = (long)this.engine.executeScript(scriptCode);
+		super.evaluateResult(result, 2, "if(true){...}else{...}", scriptCode);
+
+		scriptCode =
+			" int a = 1;   \n" +
+			" if (false) { \n" +
+			"     a = 2;   \n" +
+			" } else {     \n" +
+			"     a = 3;   \n" +
+			" }            \n" +
+			" a;           \n" ;
+
+		result = (long)this.engine.executeScript(scriptCode);
+		super.evaluateResult(result, 3, "if(false){...}else{...}", scriptCode);
 	}
 }
