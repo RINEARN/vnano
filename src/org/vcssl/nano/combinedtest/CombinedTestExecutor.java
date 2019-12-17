@@ -21,6 +21,7 @@ public class CombinedTestExecutor {
 		testElementList.add(new ArithmeticExpressionCombinedTest());
 		testElementList.add(new LogicalExpressionCombinedTest());
 		testElementList.add(new ComparisonExpressionCombinedTest());
+		testElementList.add(new IfElseStatementCombinedTest());
 
 		for (CombinedTestElement testElement: testElementList) {
 			System.out.println("[ " + testElement.getClass().getCanonicalName() + " ]");
