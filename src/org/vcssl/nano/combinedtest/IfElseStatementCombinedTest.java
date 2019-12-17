@@ -21,12 +21,18 @@ public class IfElseStatementCombinedTest extends CombinedTestElement {
 	public void executeTest() {
 		try {
 			this.testIfStatements();
-			this.testElseStatements();
 			this.testIfElseStatements();
+			this.testElseIfStatements();
+
+			this.testMultipleIfStatements();
+			this.testMultipleIfElseStatements();
+			this.testMultipleElseIfStatements();
+
 		} catch (VnanoException e) {
 			throw new CombinedTestException(e);
 		}
 	}
+
 
 	private void testIfStatements() throws VnanoException {
 		String scriptCode;
@@ -51,6 +57,84 @@ public class IfElseStatementCombinedTest extends CombinedTestElement {
 
 		result = (long)this.engine.executeScript(scriptCode);
 		super.evaluateResult(result, 1, "if(false){...}", scriptCode);
+	}
+
+
+	private void testIfElseStatements() throws VnanoException {
+		String scriptCode;
+		long result;
+
+		scriptCode =
+			" int a = 1;  \n" +
+			" if (true) { \n" +
+			"     a = 2;  \n" +
+			" } else {    \n" +
+			"     a = 3;  \n" +
+			" }           \n" +
+			" a;          \n" ;
+
+		result = (long)this.engine.executeScript(scriptCode);
+		super.evaluateResult(result, 2, "if(true){...} else{...}", scriptCode);
+
+		scriptCode =
+			" int a = 1;   \n" +
+			" if (false) { \n" +
+			"     a = 2;   \n" +
+			" } else {     \n" +
+			"     a = 3;   \n" +
+			" }            \n" +
+			" a;           \n" ;
+
+		result = (long)this.engine.executeScript(scriptCode);
+		super.evaluateResult(result, 3, "if(false){...} else{...}", scriptCode);
+	}
+
+
+	private void testElseIfStatements() throws VnanoException {
+		String scriptCode;
+		long result;
+
+		scriptCode =
+			" int a = 1;          \n" +
+			" if (true) {         \n" +
+			"     a = 2;          \n" +
+			" } else if (false) { \n" +
+			"     a = 3;          \n" +
+			" }                   \n" +
+			" a;                  \n" ;
+
+		result = (long)this.engine.executeScript(scriptCode);
+		super.evaluateResult(result, 2, "if(true){...} else if(false){...}", scriptCode);
+
+		scriptCode =
+			" int a = 1;          \n" +
+			" if (false) {        \n" +
+			"     a = 2;          \n" +
+			" } else if (false) { \n" +
+			"     a = 3;          \n" +
+			" }                   \n" +
+			" a;                  \n" ;
+
+		result = (long)this.engine.executeScript(scriptCode);
+		super.evaluateResult(result, 1, "if(false){...} else if(false){...}", scriptCode);
+
+		scriptCode =
+			" int a = 1;          \n" +
+			" if (false) {        \n" +
+			"     a = 2;          \n" +
+			" } else if (true) {  \n" +
+			"     a = 3;          \n" +
+			" }                   \n" +
+			" a;                  \n" ;
+
+		result = (long)this.engine.executeScript(scriptCode);
+		super.evaluateResult(result, 3, "if(false){...} else if(true){...}", scriptCode);
+	}
+
+
+	private void testMultipleIfStatements() throws VnanoException {
+		String scriptCode;
+		long result;
 
 		scriptCode =
 			" int a = 1;   \n" +
@@ -243,33 +327,11 @@ public class IfElseStatementCombinedTest extends CombinedTestElement {
 		super.evaluateResult(result, 5, "if(true){...} if(true){...} if(true){...} if(true){...}", scriptCode);
 	}
 
-	private void testElseStatements() throws VnanoException {
+
+
+	private void testMultipleIfElseStatements() throws VnanoException {
 		String scriptCode;
 		long result;
-
-		scriptCode =
-			" int a = 1;  \n" +
-			" if (true) { \n" +
-			"     a = 2;  \n" +
-			" } else {    \n" +
-			"     a = 3;  \n" +
-			" }           \n" +
-			" a;          \n" ;
-
-		result = (long)this.engine.executeScript(scriptCode);
-		super.evaluateResult(result, 2, "if(true){...} else{...}", scriptCode);
-
-		scriptCode =
-			" int a = 1;   \n" +
-			" if (false) { \n" +
-			"     a = 2;   \n" +
-			" } else {     \n" +
-			"     a = 3;   \n" +
-			" }            \n" +
-			" a;           \n" ;
-
-		result = (long)this.engine.executeScript(scriptCode);
-		super.evaluateResult(result, 3, "if(false){...} else{...}", scriptCode);
 
 		scriptCode =
 			" int a = 1;   \n" +
@@ -465,45 +527,9 @@ public class IfElseStatementCombinedTest extends CombinedTestElement {
 	}
 
 
-	private void testIfElseStatements() throws VnanoException {
+	private void testMultipleElseIfStatements() throws VnanoException {
 		String scriptCode;
 		long result;
-
-		scriptCode =
-			" int a = 1;          \n" +
-			" if (true) {         \n" +
-			"     a = 2;          \n" +
-			" } else if (false) { \n" +
-			"     a = 3;          \n" +
-			" }                   \n" +
-			" a;                  \n" ;
-
-		result = (long)this.engine.executeScript(scriptCode);
-		super.evaluateResult(result, 2, "if(true){...} else if(false){...}", scriptCode);
-
-		scriptCode =
-			" int a = 1;          \n" +
-			" if (false) {        \n" +
-			"     a = 2;          \n" +
-			" } else if (false) { \n" +
-			"     a = 3;          \n" +
-			" }                   \n" +
-			" a;                  \n" ;
-
-		result = (long)this.engine.executeScript(scriptCode);
-		super.evaluateResult(result, 1, "if(false){...} else if(false){...}", scriptCode);
-
-		scriptCode =
-			" int a = 1;          \n" +
-			" if (false) {        \n" +
-			"     a = 2;          \n" +
-			" } else if (true) {  \n" +
-			"     a = 3;          \n" +
-			" }                   \n" +
-			" a;                  \n" ;
-
-		result = (long)this.engine.executeScript(scriptCode);
-		super.evaluateResult(result, 3, "if(false){...} else if(true){...}", scriptCode);
 
 		scriptCode =
 			" int a = 1;          \n" +
