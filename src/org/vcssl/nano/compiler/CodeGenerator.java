@@ -1459,7 +1459,15 @@ public class CodeGenerator {
 		String binaryOperationCode = this.generateBinaryOperatorCode(operatorNode, opcode, variableNode, stepNode);
 		codeBuilder.append(binaryOperationCode);
 
-		String movCode = this.generateInstruction(OperationCode.MOV.name(), executionDataType, variableValue, resultValue);
+		String movCode;
+
+		// 変数に演算結果レジスタの値をMOVする
+		movCode = this.generateInstruction(OperationCode.MOV.name(), executionDataType, variableValue, resultValue);
+		codeBuilder.append(movCode);
+
+		// 演算結果レジスタに演算前の値をMOVする
+		//（後置インクリメント/デクリメントは、式の中での参照値は演算前の値となるため）
+		movCode = this.generateInstruction(OperationCode.MOV.name(), executionDataType, resultValue, storageRegister);
 		codeBuilder.append(movCode);
 
 		return codeBuilder.toString();

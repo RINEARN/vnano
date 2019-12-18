@@ -22,6 +22,7 @@ org/vcssl/nano/combinedtest/ComparisonExpressionCombinedTest.java
 org/vcssl/nano/combinedtest/IfElseStatementCombinedTest.java
 org/vcssl/nano/combinedtest/LogicalExpressionCombinedTest.java
 org/vcssl/nano/combinedtest/package-info.java
+org/vcssl/nano/combinedtest/WhileStatementCombinedTest.java
 org/vcssl/nano/compiler/AstNode.java
 org/vcssl/nano/compiler/AttributeKey.java
 org/vcssl/nano/compiler/AttributeValue.java
