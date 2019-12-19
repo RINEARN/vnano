@@ -22,7 +22,9 @@ public class WhileStatementCombinedTest extends CombinedTestElement {
 		try {
 			this.testWhileStatements();
 			this.testMultipleWhileStatements();
-			this.testDeepBlockDepthWhileStatements();
+			this.testDeepBlockDepthWhileLoops();
+			this.testBreakStatementsInWhileLoops();
+			this.testContinueStatementsInWhileLoops();
 
 		} catch (VnanoException e) {
 			throw new CombinedTestException(e);
@@ -163,7 +165,7 @@ public class WhileStatementCombinedTest extends CombinedTestElement {
 	}
 
 
-	private void testDeepBlockDepthWhileStatements() throws VnanoException {
+	private void testDeepBlockDepthWhileLoops() throws VnanoException {
 		String scriptCode;
 		String result;
 
@@ -179,19 +181,19 @@ public class WhileStatementCombinedTest extends CombinedTestElement {
 			" int l = 0;                   \n" +
 			" int m = 0;                   \n" +
 			" int n = 0;                   \n" +
-			" while (i < 1) {             \n" +
+			" while (i < 1) {              \n" +
 			"   i++;                       \n" +
 			"   j = 0;                     \n" +
-			"   while (j < 2) {           \n" +
+			"   while (j < 2) {            \n" +
 			"     j++;                     \n" +
 			"     k = 0;                   \n" +
-			"     while (k < 3) {         \n" +
+			"     while (k < 3) {          \n" +
 			"       k++;                   \n" +
 			"       l = 0;                 \n" +
-			"       while (l < 4) {       \n" +
+			"       while (l < 4) {        \n" +
 			"         l++;                 \n" +
 			"         m = 0;               \n" +
-			"         while (m < 5) {     \n" +
+			"         while (m < 5) {      \n" +
 			"           m++;               \n" +
 			"           n++;               \n" +
 			"         }                    \n" +
@@ -207,10 +209,10 @@ public class WhileStatementCombinedTest extends CombinedTestElement {
 			" result += \",m=\" + m;       \n" +
 			" result += \",n=\" + n;       \n" ;
 
-
 		result = (String)this.engine.executeScript(scriptCode);
 		long n = 1 * 2 * 3 * 4 * 5;
 		super.evaluateResult(result, "i=1,j=2,k=3,l=4,m=5,n=" + n, "while(...){... while(...){... while(...){... while(...){... while(...){...}}}}}", scriptCode);
+
 
 		scriptCode =
 			" int i = 0;                   \n" +
@@ -218,11 +220,11 @@ public class WhileStatementCombinedTest extends CombinedTestElement {
 			" int k = 0;                   \n" +
 			" int l = 0;                   \n" +
 			" int m = 0;                   \n" +
-			" while ((i++) < 1) {         \n" +
-			"   while ((j++) < 2) {       \n" +
-			"     while ((k++) < 3) {     \n" +
-			"       while ((l++) < 4) {   \n" +
-			"         while ((m++) < 5) { \n" +
+			" while ((i++) < 1) {          \n" +
+			"   while ((j++) < 2) {        \n" +
+			"     while ((k++) < 3) {      \n" +
+			"       while ((l++) < 4) {    \n" +
+			"         while ((m++) < 5) {  \n" +
 			"         }                    \n" +
 			"       }                      \n" +
 			"     }                        \n" +
@@ -285,6 +287,400 @@ public class WhileStatementCombinedTest extends CombinedTestElement {
 		result = (String)this.engine.executeScript(scriptCode);
 		super.evaluateResult(result, "i=2,j=3,k=5,l=7,m=9", "while(++i<1){ while(++j<2){ while(++k<3){ while(++l<4){ while(++m<5){}}}}}", scriptCode);
 		// 上のテスト値がバグのように思えた場合は、1個前のテスト値に関する長いコメント参照。バグじゃない。
+	}
+
+
+	private void testBreakStatementsInWhileLoops() throws VnanoException {
+		String scriptCode;
+		String result;
+
+		scriptCode =
+			" int i = 0;             \n" +
+			" while (i < 10) {       \n" +
+			"     i++;               \n" +
+			"     if (i == 7) {      \n" +
+			"         break;         \n" +
+			"     }                  \n" +
+			" }                      \n" +
+			" string result = \"\";  \n" +
+			" result += \"i=\" + i;  \n" ;
+
+		result = (String)this.engine.executeScript(scriptCode);
+		super.evaluateResult(result, "i=7", "while(...){... break; ...}", scriptCode);
+
+		scriptCode =
+			" int i = 0;             \n" +
+			" int j = 0;             \n" +
+			" while (i < 10) {       \n" +
+			"     i++;               \n" +
+			"     j = 0;             \n" +
+			"     while (j < 10) {   \n" +
+			"         j++;           \n" +
+			"     }                  \n" +
+			"     if (i == 7) {      \n" +
+			"         break;         \n" +
+			"     }                  \n" +
+			" }                      \n" +
+			" string result = \"\";  \n" +
+			" result += \"i=\" + i;  \n" +
+			" result += \",j=\" + j; \n" ;
+
+		result = (String)this.engine.executeScript(scriptCode);
+		super.evaluateResult(result, "i=7,j=10", "while(...){... while(...){...} ... break; ...}", scriptCode);
+
+		scriptCode =
+			" int i = 0;             \n" +
+			" int j = 0;             \n" +
+			" while (i < 10) {       \n" +
+			"     i++;               \n" +
+			"     j = 0;             \n" +
+			"     while (j < 10) {   \n" +
+			"         j++;           \n" +
+			"         if (j == 7) {  \n" +
+			"             break;     \n" +
+			"         }              \n" +
+			"     }                  \n" +
+			" }                      \n" +
+			" string result = \"\";  \n" +
+			" result += \"i=\" + i;  \n" +
+			" result += \",j=\" + j; \n" ;
+
+		result = (String)this.engine.executeScript(scriptCode);
+		super.evaluateResult(result, "i=10,j=7", "while(...){... while(...){... break; ...}}", scriptCode);
+
+		scriptCode =
+			" int i = 0;               \n" +
+			" int j = 0;               \n" +
+			" while (i < 10) {         \n" +
+			"     i++;                 \n" +
+			"     j = 0;               \n" +
+			"     while (j < 10) {     \n" +
+			"         j++;             \n" +
+			"         if (j == 7) {    \n" +
+			"             break;       \n" +
+			"         }                \n" +
+			"     }                    \n" +
+			"     if (i == 3) {        \n" +
+			"         break;           \n" +
+			"     }                    \n" +
+			" }                        \n" +
+			" string result = \"\";    \n" +
+			" result += \"i=\" + i;    \n" +
+			" result += \",j=\" + j;   \n" ;
+
+		result = (String)this.engine.executeScript(scriptCode);
+		super.evaluateResult(result, "i=3,j=7", "while(...){... while(...){... break; ...} ... break; ...}", scriptCode);
+
+		scriptCode =
+			" int i = 0;                            \n" +
+			" int j = 0;                            \n" +
+			" int k = 0;                            \n" +
+			" int l = 0;                            \n" +
+			" int m = 0;                            \n" +
+			" int n = 0;                            \n" +
+			" while (i < 3) {                       \n" +
+			"     i++;                              \n" +
+			"     j = 0;                            \n" +
+			"     while (j < 5) {                   \n" +
+			"         j++;                          \n" +
+			"         if (j == 4) {                 \n" +
+			"             break;                    \n" +
+			"         }                             \n" +
+			"         k = 0;                        \n" +
+			"         while (k < 3) {               \n" +
+			"             k++;                      \n" +
+			"             l = 0;                    \n" +
+			"             while (l < 5) {           \n" +
+			"                 l++;                  \n" +
+			"                 m = 0;                \n" +
+			"                 while (m < 3) {       \n" +
+			"                     m++;              \n" +
+			"                     n = 0;            \n" +
+			"                     while (n < 10) {  \n" +
+			"                         n++;          \n" +
+			"                         if (n == 8) { \n" +
+			"                             break;    \n" +
+			"                         }             \n" +
+			"                     }                 \n" +
+			"                 }                     \n" +
+			"                 if (l == 2) {         \n" +
+			"                     break;            \n" +
+			"                 }                     \n" +
+			"             }                         \n" +
+			"         }                             \n" +
+			"     }                                 \n" +
+			" }                                     \n" +
+			" string result = \"\";                 \n" +
+			" result += \"i=\" + i;                 \n" +
+			" result += \",j=\" + j;                \n" +
+			" result += \",k=\" + k;                \n" +
+			" result += \",l=\" + l;                \n" +
+			" result += \",m=\" + m;                \n" +
+			" result += \",n=\" + n;                \n" ;
+
+		result = (String)this.engine.executeScript(scriptCode);
+		super.evaluateResult(result, "i=3,j=4,k=3,l=2,m=3,n=8", "very complicated combinations of break-statements and deep while-loops", scriptCode);
+	}
+
+
+	private void testContinueStatementsInWhileLoops() throws VnanoException {
+		String scriptCode;
+		String result;
+
+		scriptCode =
+			" int i1 = 0;              \n" +
+			" int i2 = 0;              \n" +
+			" while (i1 < 10) {        \n" +
+			"     i1++;                \n" +
+			"     if (i1 == 7) {       \n" +
+			"         continue;        \n" +
+			"     }                    \n" +
+			"     i2++;                \n" +
+			" }                        \n" +
+			" string result = \"\";    \n" +
+			" result += \"i1=\" + i1;  \n" +
+			" result += \",i2=\" + i2; \n" ;
+
+		result = (String)this.engine.executeScript(scriptCode);
+		super.evaluateResult(result, "i1=10,i2=9", "while(...){... if(x==y){continue;} ...}", scriptCode);
+
+		scriptCode =
+			" int i1 = 0;               \n" +
+			" int i2 = 0;               \n" +
+			" while (i1 < 10) {         \n" +
+			"     i1++;                 \n" +
+			"     if (i1==3 || i1==7) { \n" +
+			"         continue;         \n" +
+			"     }                     \n" +
+			"     i2++;                 \n" +
+			" }                         \n" +
+			" string result = \"\";     \n" +
+			" result += \"i1=\" + i1;   \n" +
+			" result += \",i2=\" + i2;  \n" ;
+
+		result = (String)this.engine.executeScript(scriptCode);
+		super.evaluateResult(result, "i1=10,i2=8", "while(...){... if(x==y||x==z){continue;} ...}", scriptCode);
+
+		scriptCode =
+			" int i1 = 0;              \n" +
+			" int i2 = 0;              \n" +
+			" while (i1 < 10) {        \n" +
+			"     i1++;                \n" +
+			"     if (i1 % 2 == 0) {   \n" +
+			"         continue;        \n" +
+			"     }                    \n" +
+			"     i2++;                \n" +
+			" }                        \n" +
+			" string result = \"\";    \n" +
+			" result += \"i1=\" + i1;  \n" +
+			" result += \",i2=\" + i2; \n" ;
+
+		result = (String)this.engine.executeScript(scriptCode);
+		super.evaluateResult(result, "i1=10,i2=5", "while(...){... if(x%y==0){continue;} ...}", scriptCode);
+
+		scriptCode =
+			" int i1 = 0;              \n" +
+			" int i2 = 0;              \n" +
+			" int j1 = 0;              \n" +
+			" int j2 = 0;              \n" +
+			" while (i1 < 10) {        \n" +
+			"     i1++;                \n" +
+			"     if (i1 % 2 == 0) {   \n" +
+			"         continue;        \n" +
+			"     }                    \n" +
+			"     j1 = 0;              \n" +
+			"     while(j1 < 10) {     \n" +
+			"         j1++;            \n" +
+			"         j2++;            \n" +
+			"     }                    \n" +
+			"     i2++;                \n" +
+			" }                        \n" +
+			" string result = \"\";    \n" +
+			" result += \"i1=\" + i1;  \n" +
+			" result += \",i2=\" + i2; \n" +
+			" result += \",j1=\" + j1; \n" +
+			" result += \",j2=\" + j2; \n" ;
+
+		result = (String)this.engine.executeScript(scriptCode);
+		super.evaluateResult(result, "i1=10,i2=5,j1=10,j2=50", "while(...){... if(x%y==0){continue;} ... while(...){...} ...}", scriptCode);
+
+		scriptCode =
+			" int i1 = 0;              \n" +
+			" int i2 = 0;              \n" +
+			" int j1 = 0;              \n" +
+			" int j2 = 0;              \n" +
+			" while (i1 < 10) {        \n" +
+			"     i1++;                \n" +
+			"     j1 = 0;              \n" +
+			"     while(j1 < 10) {     \n" +
+			"         j1++;            \n" +
+			"         j2++;            \n" +
+			"     }                    \n" +
+			"     if (i1 % 2 == 0) {   \n" +
+			"         continue;        \n" +
+			"     }                    \n" +
+			"     i2++;                \n" +
+			" }                        \n" +
+			" string result = \"\";    \n" +
+			" result += \"i1=\" + i1;  \n" +
+			" result += \",i2=\" + i2; \n" +
+			" result += \",j1=\" + j1; \n" +
+			" result += \",j2=\" + j2; \n" ;
+
+		result = (String)this.engine.executeScript(scriptCode);
+		super.evaluateResult(result, "i1=10,i2=5,j1=10,j2=100", "while(...){... while(...){...} if(x%y==0){continue;} ...}", scriptCode);
+
+		scriptCode =
+			" int i1 = 0;                \n" +
+			" int i2 = 0;                \n" +
+			" int j1 = 0;                \n" +
+			" int j2 = 0;                \n" +
+			" while (i1 < 10) {          \n" +
+			"     i1++;                  \n" +
+			"     j1 = 0;                \n" +
+			"     while(j1 < 10) {       \n" +
+			"         j1++;              \n" +
+			"         if (j1 == 7) {     \n" +
+			"             continue;      \n" +
+			"         }                  \n" +
+			"         j2++;              \n" +
+			"     }                      \n" +
+			"     i2++;                  \n" +
+			" }                          \n" +
+			" string result = \"\";      \n" +
+			" result += \"i1=\" + i1;    \n" +
+			" result += \",i2=\" + i2;   \n" +
+			" result += \",j1=\" + j1;   \n" +
+			" result += \",j2=\" + j2;   \n" ;
+
+		result = (String)this.engine.executeScript(scriptCode);
+		super.evaluateResult(result, "i1=10,i2=10,j1=10,j2=90", "while(...){... while(...){... if(x==y){continue;} ...} ...}", scriptCode);
+
+		scriptCode =
+			" int i1 = 0;                   \n" +
+			" int i2 = 0;                   \n" +
+			" int j1 = 0;                   \n" +
+			" int j2 = 0;                   \n" +
+			" while (i1 < 10) {             \n" +
+			"     i1++;                     \n" +
+			"     j1 = 0;                   \n" +
+			"     while(j1 < 10) {          \n" +
+			"         j1++;                 \n" +
+			"         if (j1==3 || j1==7) { \n" +
+			"             continue;         \n" +
+			"         }                     \n" +
+			"         j2++;                 \n" +
+			"     }                         \n" +
+			"     i2++;                     \n" +
+			" }                             \n" +
+			" string result = \"\";         \n" +
+			" result += \"i1=\" + i1;       \n" +
+			" result += \",i2=\" + i2;      \n" +
+			" result += \",j1=\" + j1;      \n" +
+			" result += \",j2=\" + j2;      \n" ;
+
+		result = (String)this.engine.executeScript(scriptCode);
+		super.evaluateResult(result, "i1=10,i2=10,j1=10,j2=80", "while(...){... while(...){... if(x==y||x==z){continue;} ...} ...}", scriptCode);
+
+		scriptCode =
+			" int i1 = 0;                \n" +
+			" int i2 = 0;                \n" +
+			" int j1 = 0;                \n" +
+			" int j2 = 0;                \n" +
+			" while (i1 < 10) {          \n" +
+			"     i1++;                  \n" +
+			"     j1 = 0;                \n" +
+			"     while(j1 < 10) {       \n" +
+			"         j1++;              \n" +
+			"         if (j1 % 2 == 0) { \n" +
+			"             continue;      \n" +
+			"         }                  \n" +
+			"         j2++;              \n" +
+			"     }                      \n" +
+			"     i2++;                  \n" +
+			" }                          \n" +
+			" string result = \"\";      \n" +
+			" result += \"i1=\" + i1;    \n" +
+			" result += \",i2=\" + i2;   \n" +
+			" result += \",j1=\" + j1;   \n" +
+			" result += \",j2=\" + j2;   \n" ;
+
+		result = (String)this.engine.executeScript(scriptCode);
+		super.evaluateResult(result, "i1=10,i2=10,j1=10,j2=50", "while(...){... while(...){... if(x%y==0){continue;} ...} ...}", scriptCode);
+
+		scriptCode =
+			" int i1 = 0;                          \n" +
+			" int i2 = 0;                          \n" +
+			" int j1 = 0;                          \n" +
+			" int j2 = 0;                          \n" +
+			" int k1 = 0;                          \n" +
+			" int k2 = 0;                          \n" +
+			" int l1 = 0;                          \n" +
+			" int l2 = 0;                          \n" +
+			" int m1 = 0;                          \n" +
+			" int m2 = 0;                          \n" +
+			" int n1 = 0;                          \n" +
+			" int n2 = 0;                          \n" +
+			" while (i1 < 3) {                     \n" +
+			"     i1++;                            \n" +
+			"     if (i1 % 2 == 0) {               \n" +
+			"         continue;                    \n" +
+			"     }                                \n" +
+			"     j1 = 0;                          \n" +
+			"     j2 = 0;                          \n" +
+			"     while(j1 < 5) {                  \n" +
+			"         j1++;                        \n" +
+			"         if (j1 % 2 == 0) {           \n" +
+			"             continue;                \n" +
+			"         }                            \n" +
+			"         k1 = 0;                      \n" +
+			"         k2 = 0;                      \n" +
+			"         while (k1 < 5) {             \n" +
+			"             k1++;                    \n" +
+			"             l1 = 0;                  \n" +
+			"             l2 = 0;                  \n" +
+			"             while (l1 < 10) {        \n" +
+			"                 l1++;                \n" +
+			"                 m1 = 0;              \n" +
+			"                 m2 = 0;              \n" +
+			"                 while (m1 < 5) {     \n" +
+			"                     m1++;            \n" +
+			"                     n1 = 0;          \n" +
+			"                     n2 = 0;          \n" +
+			"                     while (n1 < 8) { \n" +
+			"                         n1++;        \n" +
+			"                         continue;    \n" +
+			"                         n2++;        \n" +
+			"                     }                \n" +
+			"                     m2++;            \n" +
+			"                 }                    \n" +
+			"                 if (l1 % 3 == 0) {   \n" +
+			"                     continue;        \n" +
+			"                 }                    \n" +
+			"                 l2++;                \n" +
+			"             }                        \n" +
+			"             k2++;                    \n" +
+			"         }                            \n" +
+			"         j2++;                        \n" +
+			"     }                                \n" +
+			"     i2++;                            \n" +
+			" }                                    \n" +
+			" string result = \"\";                \n" +
+			" result += \"i1=\" + i1;              \n" +
+			" result += \",i2=\" + i2;             \n" +
+			" result += \",j1=\" + j1;             \n" +
+			" result += \",j2=\" + j2;             \n" +
+			" result += \",k1=\" + k1;             \n" +
+			" result += \",k2=\" + k2;             \n" +
+			" result += \",l1=\" + l1;             \n" +
+			" result += \",l2=\" + l2;             \n" +
+			" result += \",m1=\" + m1;             \n" +
+			" result += \",m2=\" + m2;             \n" +
+			" result += \",n1=\" + n1;             \n" +
+			" result += \",n2=\" + n2;             \n" ;
+
+		result = (String)this.engine.executeScript(scriptCode);
+		super.evaluateResult(result, "i1=3,i2=2,j1=5,j2=3,k1=5,k2=5,l1=10,l2=7,m1=5,m2=5,n1=8,n2=0", "very complicated combinations of continue-statements and deep while-loops", scriptCode);
 
 	}
 }
