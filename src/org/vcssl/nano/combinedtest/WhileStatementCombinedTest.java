@@ -23,6 +23,7 @@ public class WhileStatementCombinedTest extends CombinedTestElement {
 			this.testWhileStatements();
 			this.testMultipleWhileStatements();
 			this.testDeepBlockDepthWhileStatements();
+			this.testBreakStatementsInWhileStatements();
 
 		} catch (VnanoException e) {
 			throw new CombinedTestException(e);
@@ -179,19 +180,19 @@ public class WhileStatementCombinedTest extends CombinedTestElement {
 			" int l = 0;                   \n" +
 			" int m = 0;                   \n" +
 			" int n = 0;                   \n" +
-			" while (i < 1) {             \n" +
+			" while (i < 1) {              \n" +
 			"   i++;                       \n" +
 			"   j = 0;                     \n" +
-			"   while (j < 2) {           \n" +
+			"   while (j < 2) {            \n" +
 			"     j++;                     \n" +
 			"     k = 0;                   \n" +
-			"     while (k < 3) {         \n" +
+			"     while (k < 3) {          \n" +
 			"       k++;                   \n" +
 			"       l = 0;                 \n" +
-			"       while (l < 4) {       \n" +
+			"       while (l < 4) {        \n" +
 			"         l++;                 \n" +
 			"         m = 0;               \n" +
-			"         while (m < 5) {     \n" +
+			"         while (m < 5) {      \n" +
 			"           m++;               \n" +
 			"           n++;               \n" +
 			"         }                    \n" +
@@ -207,10 +208,10 @@ public class WhileStatementCombinedTest extends CombinedTestElement {
 			" result += \",m=\" + m;       \n" +
 			" result += \",n=\" + n;       \n" ;
 
-
 		result = (String)this.engine.executeScript(scriptCode);
 		long n = 1 * 2 * 3 * 4 * 5;
 		super.evaluateResult(result, "i=1,j=2,k=3,l=4,m=5,n=" + n, "while(...){... while(...){... while(...){... while(...){... while(...){...}}}}}", scriptCode);
+
 
 		scriptCode =
 			" int i = 0;                   \n" +
@@ -218,11 +219,11 @@ public class WhileStatementCombinedTest extends CombinedTestElement {
 			" int k = 0;                   \n" +
 			" int l = 0;                   \n" +
 			" int m = 0;                   \n" +
-			" while ((i++) < 1) {         \n" +
-			"   while ((j++) < 2) {       \n" +
-			"     while ((k++) < 3) {     \n" +
-			"       while ((l++) < 4) {   \n" +
-			"         while ((m++) < 5) { \n" +
+			" while ((i++) < 1) {          \n" +
+			"   while ((j++) < 2) {        \n" +
+			"     while ((k++) < 3) {      \n" +
+			"       while ((l++) < 4) {    \n" +
+			"         while ((m++) < 5) {  \n" +
 			"         }                    \n" +
 			"       }                      \n" +
 			"     }                        \n" +
@@ -285,6 +286,138 @@ public class WhileStatementCombinedTest extends CombinedTestElement {
 		result = (String)this.engine.executeScript(scriptCode);
 		super.evaluateResult(result, "i=2,j=3,k=5,l=7,m=9", "while(++i<1){ while(++j<2){ while(++k<3){ while(++l<4){ while(++m<5){}}}}}", scriptCode);
 		// 上のテスト値がバグのように思えた場合は、1個前のテスト値に関する長いコメント参照。バグじゃない。
+	}
 
+
+	private void testBreakStatementsInWhileStatements() throws VnanoException {
+		String scriptCode;
+		String result;
+
+		scriptCode =
+			" int i = 0;             \n" +
+			" while (i < 10) {       \n" +
+			"     i++;               \n" +
+			"     if (i == 7) {      \n" +
+			"         break;         \n" +
+			"     }                  \n" +
+			" }                      \n" +
+			" string result = \"\";  \n" +
+			" result += \"i=\" + i;  \n" ;
+
+		result = (String)this.engine.executeScript(scriptCode);
+		super.evaluateResult(result, "i=7", "while(...){... break; ...}", scriptCode);
+
+		scriptCode =
+			" int i = 0;             \n" +
+			" int j = 0;             \n" +
+			" while (i < 10) {       \n" +
+			"     i++;               \n" +
+			"     j = 0;             \n" +
+			"     while (j < 10) {   \n" +
+			"         j++;           \n" +
+			"     }                  \n" +
+			"     if (i == 7) {      \n" +
+			"         break;         \n" +
+			"     }                  \n" +
+			" }                      \n" +
+			" string result = \"\";  \n" +
+			" result += \"i=\" + i;  \n" +
+			" result += \",j=\" + j; \n" ;
+
+		result = (String)this.engine.executeScript(scriptCode);
+		super.evaluateResult(result, "i=7,j=10", "while(...){... while(...){...} ... break; ...}", scriptCode);
+
+		scriptCode =
+			" int i = 0;             \n" +
+			" int j = 0;             \n" +
+			" while (i < 10) {       \n" +
+			"     i++;               \n" +
+			"     j = 0;             \n" +
+			"     while (j < 10) {   \n" +
+			"         j++;           \n" +
+			"         if (j == 7) {  \n" +
+			"             break;     \n" +
+			"         }              \n" +
+			"     }                  \n" +
+			" }                      \n" +
+			" string result = \"\";  \n" +
+			" result += \"i=\" + i;  \n" +
+			" result += \",j=\" + j; \n" ;
+
+		result = (String)this.engine.executeScript(scriptCode);
+		super.evaluateResult(result, "i=10,j=7", "while(...){... while(...){... break; ...}}", scriptCode);
+
+		scriptCode =
+			" int i = 0;               \n" +
+			" int j = 0;               \n" +
+			" while (i < 10) {         \n" +
+			"     i++;                 \n" +
+			"     j = 0;               \n" +
+			"     while (j < 10) {     \n" +
+			"         j++;             \n" +
+			"         if (j == 7) {    \n" +
+			"             break;       \n" +
+			"         }                \n" +
+			"     }                    \n" +
+			"     if (i == 3) {        \n" +
+			"         break;           \n" +
+			"     }                    \n" +
+			" }                        \n" +
+			" string result = \"\";    \n" +
+			" result += \"i=\" + i;    \n" +
+			" result += \",j=\" + j;   \n" ;
+
+		result = (String)this.engine.executeScript(scriptCode);
+		super.evaluateResult(result, "i=3,j=7", "while(...){... while(...){... break; ...} ... break; ...}", scriptCode);
+
+		scriptCode =
+			" int i = 0;                            \n" +
+			" int j = 0;                            \n" +
+			" int k = 0;                            \n" +
+			" int l = 0;                            \n" +
+			" int m = 0;                            \n" +
+			" int n = 0;                            \n" +
+			" while (i < 3) {                       \n" +
+			"     i++;                              \n" +
+			"     j = 0;                            \n" +
+			"     while (j < 5) {                   \n" +
+			"         j++;                          \n" +
+			"         if (j == 4) {                 \n" +
+			"             break;                    \n" +
+			"         }                             \n" +
+			"         k = 0;                        \n" +
+			"         while (k < 3) {               \n" +
+			"             k++;                      \n" +
+			"             l = 0;                    \n" +
+			"             while (l < 5) {           \n" +
+			"                 l++;                  \n" +
+			"                 m = 0;                \n" +
+			"                 while (m < 3) {       \n" +
+			"                     m++;              \n" +
+			"                     n = 0;            \n" +
+			"                     while (n < 10) {  \n" +
+			"                         n++;          \n" +
+			"                         if (n == 8) { \n" +
+			"                             break;    \n" +
+			"                         }             \n" +
+			"                     }                 \n" +
+			"                 }                     \n" +
+			"                 if (l == 2) {         \n" +
+			"                     break;            \n" +
+			"                 }                     \n" +
+			"             }                         \n" +
+			"         }                             \n" +
+			"     }                                 \n" +
+			" }                                     \n" +
+			" string result = \"\";                 \n" +
+			" result += \"i=\" + i;                 \n" +
+			" result += \",j=\" + j;                \n" +
+			" result += \",k=\" + k;                \n" +
+			" result += \",l=\" + l;                \n" +
+			" result += \",m=\" + m;                \n" +
+			" result += \",n=\" + n;                \n" ;
+
+		result = (String)this.engine.executeScript(scriptCode);
+		super.evaluateResult(result, "i=3,j=4,k=3,l=2,m=3,n=8", "break from deep block-depth while loops", scriptCode);
 	}
 }
