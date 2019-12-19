@@ -178,6 +178,12 @@ public class CodeGenerator {
 		private String lastLoopEndPointLabel = null;   // 最後に踏んだループの終点ラベル
 		private String lastFunctionLabel = null; // 最後に踏んだ関数の先頭ラベル
 
+		private String outerLoopBeginPointLabel = null; // 1階層外のループの始点ラベル
+		private String outerLoopUpdatePointLabel = null; // 1階層外のループの更新ラベル
+		private String outerLoopEndPointLabel = null; // 1階層外のループの終点ラベル
+
+		private boolean isNextBlockLoop = false;
+
 		private AstNode[] statementNodes = null;
 		private int statementLength = -1;
 		private int statementIndex = -1;
@@ -197,11 +203,17 @@ public class CodeGenerator {
 			clone.endPointLabelList = (LinkedList<String>)this.endPointLabelList.clone();
 			clone.endPointStatement = this.endPointStatement;
 
+			// （これらの状態変数は無駄が多い気がするのでそのうちリファクタリングしたい。lastLoop系を削ってouterLoop系のみに。）
 			clone.lastIfConditionRegister = this.lastIfConditionRegister;
 			clone.lastLoopBeginPointLabel = this.lastLoopBeginPointLabel;
 			clone.lastLoopUpdatePointLabel = this.lastLoopUpdatePointLabel;
 			clone.lastLoopEndPointLabel = this.lastLoopEndPointLabel;
 			clone.lastFunctionLabel = this.lastFunctionLabel;
+			clone.outerLoopBeginPointLabel = this.outerLoopBeginPointLabel;
+			clone.outerLoopUpdatePointLabel = this.outerLoopUpdatePointLabel;
+			clone.outerLoopEndPointLabel = this.outerLoopEndPointLabel;
+
+			clone.isNextBlockLoop = this.isNextBlockLoop;
 
 			clone.statementNodes = this.statementNodes;
 			clone.statementIndex = this.statementIndex;
@@ -285,11 +297,6 @@ public class CodeGenerator {
 		public void setLastIfConditionValue(String lastIfConditionValue) {
 			this.lastIfConditionRegister = lastIfConditionValue;
 		}
-		/*
-		public void clearLastIfConditionValue() {
-			this.lastIfConditionRegister = null;
-		}
-		*/
 
 		public String getLastLoopBeginPointLabel() {
 			return this.lastLoopBeginPointLabel;
@@ -319,6 +326,32 @@ public class CodeGenerator {
 			this.lastLoopEndPointLabel = lastLoopEndPointLabel;
 		}
 
+
+		public String getOuterLoopBeginPointLabel() {
+			return this.outerLoopBeginPointLabel;
+		}
+
+		public void setOuterLoopBeginPointLabel(String outerLoopBeginPointLabel) {
+			this.outerLoopBeginPointLabel = outerLoopBeginPointLabel;
+		}
+
+		public String getOuterLoopEndPointLabel() {
+			return this.outerLoopEndPointLabel;
+		}
+
+		public void setOuterLoopEndPointLabel(String outerLoopEndPointLabel) {
+			this.outerLoopEndPointLabel = outerLoopEndPointLabel;
+		}
+
+		public String getOuterLoopUpdatePointLabel() {
+			return this.outerLoopUpdatePointLabel;
+		}
+
+		public void setOuterLoopUpdatePointLabel(String outerLoopUpdatePointLabel) {
+			this.outerLoopUpdatePointLabel = outerLoopUpdatePointLabel;
+		}
+
+
 		public String getLastFunctionLabel() {
 			return this.lastFunctionLabel;
 		}
@@ -327,6 +360,14 @@ public class CodeGenerator {
 			this.lastFunctionLabel = lastFunctionLabel;
 		}
 
+
+		public void setNextBlockLoop(boolean isLoop) {
+			this.isNextBlockLoop = isLoop;
+		}
+
+		public boolean isNextBlockLoop() {
+			return this.isNextBlockLoop;
+		}
 
 
 		public AstNode[] getStatementNodes() {
@@ -604,6 +645,7 @@ public class CodeGenerator {
 
 				// ブロック文に突入する場合
 				case BLOCK : {
+
 					// 現在のコンテキスト（状態変数の集合）をスタックに退避して新規生成
 					context.setStatementIndex(statementIndex);
 					context.setStatementLength(statementLength);
@@ -611,11 +653,22 @@ public class CodeGenerator {
 					contextStack.push(context);
 					context = new StatementTrackingContext();
 
-					// break や continue のために引き継ぐ必要がある情報をコピー
+					// 外のブロックから引き継ぐ必要がある情報をコピー
+					// （これらの状態変数は無駄が多い気がするのでそのうちリファクタリングしたい）
 					context.setLastLoopBeginPointLabel(contextStack.peek().getLastLoopBeginPointLabel());
 					context.setLastLoopUpdatePointLabel(contextStack.peek().getLastLoopUpdatePointLabel());
 					context.setLastLoopEndPointLabel(contextStack.peek().getLastLoopEndPointLabel());
+					context.setOuterLoopBeginPointLabel(contextStack.peek().getOuterLoopBeginPointLabel());
+					context.setOuterLoopUpdatePointLabel(contextStack.peek().getOuterLoopUpdatePointLabel());
+					context.setOuterLoopEndPointLabel(contextStack.peek().getOuterLoopEndPointLabel());
 					context.setLastFunctionLabel(contextStack.peek().getLastFunctionLabel());
+
+					// 突入するブロックがループの場合は、最後に踏んだループを、1階層外のループとして登録
+					if (contextStack.peek().isNextBlockLoop()) {
+						context.setOuterLoopBeginPointLabel(contextStack.peek().getLastLoopBeginPointLabel());
+						context.setOuterLoopUpdatePointLabel(contextStack.peek().getLastLoopUpdatePointLabel());
+						context.setOuterLoopEndPointLabel(contextStack.peek().getLastLoopEndPointLabel());
+					}
 
 					// ブロック内の文を、読み込み対象として展開する
 					statementNodes = currentNode.getChildNodes();
@@ -754,6 +807,7 @@ public class CodeGenerator {
 				context.setEndPointStatement(
 						this.generateInstruction(OperationCode.RET.name(), DataTypeName.VOID, PLACE_HOLDER, functionLabelName)
 				);
+				context.setNextBlockLoop(false);
 				break;
 			}
 
@@ -769,6 +823,7 @@ public class CodeGenerator {
 					lastIfConditionRegisterAllocRequired = true;
 				}
 				context.setLastIfConditionValue(lastIfConditionRegister);
+				context.setNextBlockLoop(false);
 				code = this.generateIfStatementCode(node, lastIfConditionRegister, lastIfConditionRegisterAllocRequired);
 				break;
 			}
@@ -777,6 +832,7 @@ public class CodeGenerator {
 			case ELSE : {
 				code = this.generateElseStatementCode(node, context.getLastIfConditionRegister());
 				context.addEndPointLabel(node.getAttribute(AttributeKey.END_LABEL));
+				context.setNextBlockLoop(false);
 				//context.clearLastIfConditionValue(); // else if 対応後はさらに else 文が続く場合があるので消してはいけない
 				break;
 			}
@@ -789,6 +845,7 @@ public class CodeGenerator {
 				context.setLastLoopBeginPointLabel( context.getBeginPointLabel() );
 				context.setLastLoopUpdatePointLabel( context.getUpdatePointLabel() );
 				context.setLastLoopEndPointLabel( context.getEndPointLabels()[0] ); // while文の場合は endPointLabels は1要素のはず
+				context.setNextBlockLoop(true);
 				break;
 			}
 
@@ -805,22 +862,23 @@ public class CodeGenerator {
 				context.setLastLoopBeginPointLabel( context.getBeginPointLabel() );
 				context.setLastLoopUpdatePointLabel( context.getUpdatePointLabel() );
 				context.setLastLoopEndPointLabel( context.getEndPointLabels()[0] ); // for文の場合は endPointLabels は1要素のはず
+				context.setNextBlockLoop(true);
 				break;
 			}
 
-			// break 文: ループ末端へのジャンプ命令そのもの
+			// break 文: 1階層外のループ末端へのジャンプ命令そのもの
 			case BREAK : {
 				code = this.generateInstruction(
-					OperationCode.JMP.name(), DataTypeName.BOOL, PLACE_HOLDER, context.getLastLoopEndPointLabel(), IMMEDIATE_TRUE
+					OperationCode.JMP.name(), DataTypeName.BOOL, PLACE_HOLDER, context.getOuterLoopEndPointLabel(), IMMEDIATE_TRUE
 				);
 				break;
 			}
 
-			// continue 文: ループ先頭か更新式の位置へのジャンプ命令そのもの
+			// continue 文: 1階層外のループ先頭か更新式の位置へのジャンプ命令そのもの
 			case CONTINUE : {
-				String continueJumpPointLabel = context.getLastLoopBeginPointLabel(); // ループ先頭に飛ぶラベル
+				String continueJumpPointLabel = context.getOuterLoopBeginPointLabel(); // ループ先頭に飛ぶラベル
 				if (context.hasLastLoopUpdatePointLabel()) {
-					continueJumpPointLabel = context.getLastLoopUpdatePointLabel(); // for文は更新式の位置に飛ぶ
+					continueJumpPointLabel = context.getOuterLoopUpdatePointLabel(); // for文は更新式の位置に飛ぶ
 				}
 				code = this.generateInstruction(
 					OperationCode.JMP.name(), DataTypeName.BOOL, PLACE_HOLDER, continueJumpPointLabel, IMMEDIATE_TRUE
