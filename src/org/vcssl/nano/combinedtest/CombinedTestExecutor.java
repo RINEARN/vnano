@@ -23,6 +23,7 @@ public class CombinedTestExecutor {
 		testElementList.add(new ComparisonExpressionCombinedTest());
 		testElementList.add(new IfElseStatementCombinedTest());
 		testElementList.add(new WhileStatementCombinedTest());
+		testElementList.add(new ForStatementCombinedTest());
 
 		for (CombinedTestElement testElement: testElementList) {
 			System.out.println("[ " + testElement.getClass().getCanonicalName() + " ]");
