@@ -593,26 +593,37 @@ public class Parser {
 			node.addChildNode(this.parseExpression(Arrays.copyOfRange(tokens, 2, tokens.length-1)));
 			return node;
 
-		// for文の場合: for文ノードを生成し、初期化文（変数宣言文または式文）・条件式・更新式をパースしてぶら下げる
+		// for文の場合: for文ノードを生成し、初期化文（変数宣言文または式文）・条件文・更新文をパースしてぶら下げる
 		} else if(controlTypeToken.getValue().equals(ScriptWord.FOR)) {
 			AstNode node = new AstNode(AstNode.Type.FOR, lineNumber, fileName);
 
-			// 初期化式と条件式の終端トークンインデックスを取得
+			// 初期化文と条件文の終端トークンインデックスを取得
 			int initializationEnd = Token.getIndexOf(tokens, ScriptWord.END_OF_STATEMENT, 0);
 			int conditionEnd = Token.getIndexOf(tokens, ScriptWord.END_OF_STATEMENT, initializationEnd+1);
 
 			// 初期化文をパースしてfor文ノードにぶら下げる: 初期化文が変数宣言文の場合
 			if (DataTypeName.isDataTypeName(tokens[2].getValue())) {
 				node.addChildNode(this.parseVariableDeclarationStatement(Arrays.copyOfRange(tokens, 2, initializationEnd), true));
-
-			// そうでなければ式文（しか許されない）
-			} else {
+			} else if (initializationEnd == 2) { // 空文の場合
+				node.addChildNode(new AstNode(AstNode.Type.EMPTY, tokens[0].getLineNumber(), tokens[0].getFileName()));
+			} else { // それ以外の場合は式文（しか許されない）
 				node.addChildNode(this.parseExpression(Arrays.copyOfRange(tokens, 2, initializationEnd)));
 			}
 
-			// 条件式と更新式をパースしてfor文ノードにぶら下げる
-			node.addChildNode(this.parseExpression(Arrays.copyOfRange(tokens, initializationEnd+1, conditionEnd)));
-			node.addChildNode(this.parseExpression(Arrays.copyOfRange(tokens, conditionEnd+1, tokens.length-1)));
+			// 条件文をパースしてfor文ノードにぶら下げる
+			if (initializationEnd+1 == conditionEnd) { // 空文の場合
+				node.addChildNode(new AstNode(AstNode.Type.EMPTY, tokens[0].getLineNumber(), tokens[0].getFileName()));
+			} else { // 式文の場合
+				node.addChildNode(this.parseExpression(Arrays.copyOfRange(tokens, initializationEnd+1, conditionEnd)));
+			}
+
+			// 更新文をパースしてfor文ノードにぶら下げる
+			if (conditionEnd+1 == tokens.length-1) { // 空文の場合
+				node.addChildNode(new AstNode(AstNode.Type.EMPTY, tokens[0].getLineNumber(), tokens[0].getFileName()));
+			} else { // 式文の場合
+				node.addChildNode(this.parseExpression(Arrays.copyOfRange(tokens, conditionEnd+1, tokens.length-1)));
+			}
+
 			return node;
 
 		// return文の場合: return文ノードを生成し、戻り値の式をパースしてぶら下げる
