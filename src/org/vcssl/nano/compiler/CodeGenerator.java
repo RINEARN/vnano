@@ -856,8 +856,10 @@ public class CodeGenerator {
 				context.setUpdatePointLabel(node.getAttribute(AttributeKey.UPDATE_LABEL));
 				context.addEndPointLabel(node.getAttribute(AttributeKey.END_LABEL));
 
-				// 更新式（for文の丸括弧内での3つ目の式）
-				context.setUpdatePointStatement(this.generateExpressionCode(node.getChildNodes()[2]));
+				// 更新文（for文の丸括弧内での3つ目の式）
+				if (node.getChildNodes()[2].getType() == AstNode.Type.EXPRESSION) { // 式文の場合は評価コード生成
+					context.setUpdatePointStatement(this.generateExpressionCode(node.getChildNodes()[2]));
+				} // 他に空文の場合もあり得るが、その場合は何もしない
 
 				context.setLastLoopBeginPointLabel( context.getBeginPointLabel() );
 				context.setLastLoopUpdatePointLabel( context.getUpdatePointLabel() );
@@ -1236,31 +1238,47 @@ public class CodeGenerator {
 		String beginLabel = node.getAttribute(AttributeKey.BEGIN_LABEL);
 		String endLabel = node.getAttribute(AttributeKey.END_LABEL);
 
-		// 初期化文、条件式、更新式の評価コードを生成
+		// 初期化文、条件文、更新文の評価コードを生成
 		AstNode[] childNodes =  node.getChildNodes();
 
-		String initStatementCode = null;
+		String initStatementCode = null;  // 初期化文の生成コードを控える
+		String conditionStatementCode = null; // 条件分の生成コードを控える
+		String conditionValue = null; // 条件文の結果の値を格納するレジスタ、または即値を控える
+
+
+		// 初期化文のコード生成 ... 変数宣言文の場合は宣言処理（初期化処理含む）のコードを生成
 		if (childNodes[0].getType() == AstNode.Type.VARIABLE) {
 			initStatementCode = this.generateVariableDeclarationStatementCode(childNodes[0]);
-		} else {
+		// そうでなければ式文なので式の評価コードを生成
+		} else if (childNodes[0].getType() == AstNode.Type.EXPRESSION) {
 			initStatementCode = this.generateExpressionCode(childNodes[0]);
+		// 空文の場合は何もしない
+		} else if (childNodes[0].getType() == AstNode.Type.EMPTY) {
+			initStatementCode = "";
 		}
 
-		String conditionExpressionCode = this.generateExpressionCode(childNodes[1]);
+		// 条件分のコード生成 ... 式文の場合は式の評価コードを生成
+		if (childNodes[1].getType() == AstNode.Type.EXPRESSION) {
+			conditionStatementCode = this.generateExpressionCode(childNodes[1]);
+			conditionValue = childNodes[1].getAttribute(AttributeKey.ASSEMBLY_VALUE);
+		// 空文の場合は常に true と見なす
+		} else if (childNodes[1].getType() == AstNode.Type.EMPTY) {
+			conditionStatementCode = "";
+			conditionValue = IMMEDIATE_TRUE;
+		}
 
 
-		// 初期化文のコードを生成
+		// 初期化文のコードを出力
 		codeBuilder.append(initStatementCode);
 
 		// その後に、ループで戻って来る地点のラベルを配置
 		codeBuilder.append(this.generateLabelDirectiveCode(beginLabel));
 
 
-		// 条件式の評価コードを生成
-		codeBuilder.append(conditionExpressionCode);
+		// 条件文の評価コードを出力
+		codeBuilder.append(conditionStatementCode);
 
 		// 条件不成立時はループ外に脱出するコードを生成
-		String conditionValue = childNodes[1].getAttribute(AttributeKey.ASSEMBLY_VALUE);
 		codeBuilder.append(
 			this.generateInstruction(OperationCode.JMPN.name(), DataTypeName.BOOL, PLACE_HOLDER, endLabel, conditionValue)
 		);
