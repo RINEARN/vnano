@@ -43,7 +43,7 @@ public class EngineInformation {
 
 	public static final String ENGINE_NAME = "RINEARN Vnano Engine";
 
-	public static final String ENGINE_VERSION = "0.2.3";
+	public static final String ENGINE_VERSION = "0.2.4";
 
 	public static final String[] EXTENTIONS = { "vnano" };
 
