@@ -2298,13 +2298,15 @@ Implementation of these plug-ins are little complicated, but overhead costs of a
 For external variables, as we described at the top of this chapter, 
 values of them will be synchronized between the host-application-side (plug-in-side) and script-side 
 ONLY at the beginning and end of the execution of the script code, 
-so it rarely has the merit to handle data container objects directly 
-in the plug-in implementations of XVCI1 to reduce overhead costs of accessings.
+so it rarely has advantages to handle data container objects directly 
+in the plug-in implementations of XVCI1 to reduce overhead costs of accessings
+(however, there are advantages when you can't ignore overhead costs even for few times of conversions, 
+for example: when you want to connect extremely large size arrays as external variables.).
 
-外部変数については、先に述べた通り、
-スクリプト内と値が同期されるのは実行開始時/終了時の2回のみであるため、
-あまりそこのオーバーヘッドを削ってもメリットはなく、
-従って普通は、上のようにXVCI1プラグイン内で、処理系依存のデータコンテナを直接操作するメリットもほとんどありません。
+外部変数については、先に述べた通り、スクリプト内と値が同期されるのは実行開始時/終了時のたった2回のみです。
+そのため普通は、上のようにXVCI1プラグイン内で、
+処理系依存のデータコンテナを直接操作してまでオーバーヘッドを削るメリットはそれほどありません
+（非常に大きな配列データを外部変数とする場合など、数回でも軽視できないコストが発生する場合にはメリットがあります）。
 
 In the contrast, for external functions, 
 overhead costs will be burdens every time for each callings from the script code, 
@@ -2314,9 +2316,8 @@ sometimes it gives great advantage to handle data container objects directly
 in the plug-in implementations of XFCI1, as the above example code.
 
 一方で外部関数については、スクリプト内から呼び出す度に毎回オーバーヘッドが影響するため、
-呼び出し頻度によってはそのオーバーヘッドを削る事には大きなメリットがあります。
-従って、多少面倒な方法ではありますが、上記のようにXFCI1プラグイン内で処理系依存のデータコンテナを直接操作する事が、
-非常に効果的となるケースも現実的に考えられます。
+呼び出し頻度によってはそのオーバーヘッドがスクリプトの処理速度に大きく影響します。
+従って、多少面倒な方法ではありますが、上記のようにXFCI1プラグイン内で処理系依存のデータコンテナを直接操作する事は、それに見合うだけの大きなメリットを生む場面がそれなりに見込めます。
 
 
 <a id="plugin-correspondence-of-data-types"></a>
