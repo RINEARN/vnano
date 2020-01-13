@@ -22,6 +22,7 @@ public class ForStatementCombinedTest extends CombinedTestElement {
 		try {
 			this.testForStatements();
 			this.testMultipleForStatements();
+			this.testDeepBlockForLoops();
 
 		} catch (VnanoException e) {
 			throw new CombinedTestException(e);
@@ -186,6 +187,105 @@ public class ForStatementCombinedTest extends CombinedTestElement {
 			" result += \",m=\" + m; \n" ;
 
 		result = (String)this.engine.executeScript(scriptCode);
-		super.evaluateResult(result, "i=10,j=20,k=30,l=40,m=50", "for((x++)<y){...} x 5", scriptCode);
+		super.evaluateResult(result, "i=10,j=20,k=30,l=40,m=50", "for((++x)<y){...} x 5", scriptCode);
+	}
+
+
+	private void testDeepBlockForLoops() throws VnanoException {
+		String scriptCode;
+		String result;
+
+		// 注： ループ回数を増やし過ぎると Accelerator 無効時のテストに時間がかかるので注意が必要。
+		//      無効時は有効時より数十倍～数百倍遅くなる一方で、デフォルトでは有効になっているので、
+		//      標準状態で負荷に余裕があっても、Accelerator 無効時のテストでは重過ぎになり得る。
+		//      なので、ループ回数は Accelerator 無効時の負荷を基準に調整すべき。
+
+		scriptCode =
+			" int i;                         \n" +
+			" int j;                         \n" +
+			" int k;                         \n" +
+			" int l;                         \n" +
+			" int m;                         \n" +
+			" int n;                         \n" +
+			" for (i=0; i<1; i++) {          \n" +
+			"   for (j=0; j<2; j++) {        \n" +
+			"     for (k=0; k<3; k++) {      \n" +
+			"       for (l=0; l<4; l++) {    \n" +
+			"         for (m=0; m<5; m++) {  \n" +
+			"           n++;                 \n" +
+			"         }                      \n" +
+			"       }                        \n" +
+			"     }                          \n" +
+			"   }                            \n" +
+			" }                              \n" +
+			" string result = \"\";          \n" +
+			" result += \"i=\" + i;          \n" +
+			" result += \",j=\" + j;         \n" +
+			" result += \",k=\" + k;         \n" +
+			" result += \",l=\" + l;         \n" +
+			" result += \",m=\" + m;         \n" +
+			" result += \",n=\" + n;         \n" ;
+
+		result = (String)this.engine.executeScript(scriptCode);
+		long n = 1 * 2 * 3 * 4 * 5;
+		super.evaluateResult(result, "i=1,j=2,k=3,l=4,m=5,n=" + n, "for(...){ for(...){ for(...){ for(...){ for(...){ n++; }}}}}", scriptCode);
+
+		scriptCode =
+			" int i = 0;                   \n" +
+			" int j = 0;                   \n" +
+			" int k = 0;                   \n" +
+			" int l = 0;                   \n" +
+			" int m = 0;                   \n" +
+			" for (; (i++)<1; ) {          \n" +
+			"   for (; (j++)<2; ) {        \n" +
+			"     for (; (k++)<3; ) {      \n" +
+			"       for (; (l++)<4; ) {    \n" +
+			"         for (; (m++)<5; ) {  \n" +
+			"         }                    \n" +
+			"       }                      \n" +
+			"     }                        \n" +
+			"   }                          \n" +
+			" }                            \n" +
+			" string result = \"\";        \n" +
+			" result += \"i=\" + i;        \n" +
+			" result += \",j=\" + j;       \n" +
+			" result += \",k=\" + k;       \n" +
+			" result += \",l=\" + l;       \n" +
+			" result += \",m=\" + m;       \n" ;
+
+		result = (String)this.engine.executeScript(scriptCode);
+		super.evaluateResult(result, "i=2,j=3,k=5,l=7,m=9", "for(;i++<1;){ for(;j++<2;){ for(;k++<3;){ for(;l++<4;){ for(;m++<5;){ }}}}}", scriptCode);
+
+		// 注： 上の結果は一見するとバグっぽく思えるけれど、バグではない。
+		//      同パッケージ内にある WhileStatementCombinedTest クラスの
+		//      testDeepBlockDepthWhileLoops メソッド内コメント参照
+
+		scriptCode =
+			" int i = 0;                   \n" +
+			" int j = 0;                   \n" +
+			" int k = 0;                   \n" +
+			" int l = 0;                   \n" +
+			" int m = 0;                   \n" +
+			" for (; (++i)<2; ) {          \n" + // ++i < 1 にすると 1 < 1 になるのでループ内側が1回も回らない
+			"   for (; (++j)<3; ) {        \n" +
+			"     for (; (++k)<4; ) {      \n" +
+			"       for (; (++l)<5; ) {    \n" +
+			"         for (; (++m)<6; ) {  \n" +
+			"         }                    \n" +
+			"       }                      \n" +
+			"     }                        \n" +
+			"   }                          \n" +
+			" }                            \n" +
+			" string result = \"\";        \n" +
+			" result += \"i=\" + i;        \n" +
+			" result += \",j=\" + j;       \n" +
+			" result += \",k=\" + k;       \n" +
+			" result += \",l=\" + l;       \n" +
+			" result += \",m=\" + m;       \n" ;
+
+		result = (String)this.engine.executeScript(scriptCode);
+		super.evaluateResult(result, "i=2,j=3,k=5,l=7,m=9", "for(;++i<2;){ for(;++j<3;){ for(;++k<4;){ for(;++l<5;){ for(;++m<6;){ }}}}}", scriptCode);
+
+		// 上のテスト値がバグのように思えた場合は、1個前のテスト値に関するコメント参照。バグじゃない。
 	}
 }
