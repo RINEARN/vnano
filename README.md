@@ -54,6 +54,7 @@ Vnano (<a href="https://www.vcssl.org/">VCSSL</a> nano) は、Java&reg; アプ�
 - <a href="#license">License - ライセンス</a>
 - <a href="#requirements">Requirements - 必要な環境</a>
 - <a href="#example">Application Code Example - アプリケーションコード例</a>
+- <a href="#how-to-build">How to Build - ビルド方法</a>
 - <a href="#how-to-use-in-java">How to Use in Java&reg; - Java&reg;言語での使用方法</a>
 - <a href="#how-to-use-in-kotlin">How to Use in Kotlin&reg; - Kotlin&reg;での使用方法</a>
 - <a href="#how-to-use-in-command">How to Use in Command Line - コマンドラインでの使用方法</a>
@@ -325,9 +326,8 @@ We will actually execute these example code in the next section.
 
 
 
-
-<a id="how-to-use-in-java"></a>
-## How to Use in Java&reg; - Java&reg;言語での使用方法
+<a id="how-to-build"></a>
+## How to Build - ビルド方法
 
 ### 1. Build the Vnano Engine - Vnanoエンジンのビルド
 
@@ -347,6 +347,25 @@ You can use Vnano on your Java applications by appending this JAR file to the cl
 
 Vnanoエンジンのビルドが成功すると、"Vnano.jar" が上記ファイルと同じフォルダ内に生成されます。
 Vnanoを使用したいJavaアプリケーションから、このJARファイルにクラスパスを通せば、それだけでVnanoが使用できます。
+
+Before using it practically, 
+Let's check briefly that the JAR file works expectedly, by following steps.
+
+実際に使用する前に、生成されたJARファイルが正常かどかを、以下の手順で簡単に確認しておきましょう。
+
+
+<a id="how-to-use-in-java"></a>
+## How to Use in Java&reg; - Java&reg;言語での使用方法
+
+### 1. Build the Vnano Engine - Vnanoエンジンのビルド
+
+Firstly, build source code of the Vnano Engine (The script engine of the Vnano) 
+by steps of "<a href="#how-to-build">How to Build</a>" section.
+Then a JAR file "Vnano.jar" will be generated, so put it into the working folder.
+
+はじめに、「 <a href="#how-to-build">ビルド方法</a> 」の手順に従って
+Vnanoエンジン（Vnanoのスクリプトエンジン）をビルドします。
+ビルドするとJARファイル「 Vnano.jar 」が生成されるため、それを作業フォルダ内に配置してください。
 
 ### 2. Compile the Example Application - サンプルアプリケーションのコンパイル
 
@@ -449,22 +468,13 @@ Example.jar から見た相対パスで書き換えてください（例：lib/V
 
 ### 1. Build the Vnano Engine - Vnanoエンジンのビルド
 
-Firstly, build source code of Vnano Engine (The script engine of the Vnano).
-If you are using Microsoft&reg; Windows&reg;, please double-click "build.bat".
-If you are using Linux, etc., please execute "build.sh" on the bash-compatible shell.
-Alternatively, you can build the Vnano Engine by Apache Ant as:
+Firstly, build source code of the Vnano Engine (The script engine of the Vnano) 
+by steps of "<a href="#how-to-build">How to Build</a>" section.
+Then a JAR file "Vnano.jar" will be generated, so put it into the working folder.
 
-はじめに、Vnanoエンジン（Vnanoのスクリプトエンジン）をビルドします。
-Microsoft&reg; Windows&reg; をご使用の場合は、"build.bat" をダブルクリック実行してください。
-Linux 等をご使用の場合は、bash互換シェル上で "build.sh" を実行してください。もしくは以下のように、Apache Ant を用いてVnanoエンジンをビルドする事もできます：
-
-    ant -buildfile build.xml
-
-If you succeeded to build the Vnano Engine, "Vnano.jar" will be generated in the same folder in the above files.
-You can use Vnano on your Java applications by appending this JAR file to the classpath.
-
-Vnanoエンジンのビルドが成功すると、"Vnano.jar" が上記ファイルと同じフォルダ内に生成されます。
-Vnanoを使用したいJavaアプリケーションから、このJARファイルにクラスパスを通せば、それだけでVnanoが使用できます。
+はじめに、「 <a href="#how-to-build">ビルド方法</a> 」の手順に従って
+Vnanoエンジン（Vnanoのスクリプトエンジン）をビルドします。
+ビルドするとJARファイル「 Vnano.jar 」が生成されるため、それを作業フォルダ内に配置してください。
 
 <a id="how-to-use-in-kotlin-compile"></a>
 ### 2. Compile the Example Application - サンプルアプリケーションのコンパイル
@@ -535,22 +545,14 @@ Vnanoは、<a href="https://www.vcssl.org/">VCSSL</a>という言語から、ア
 
 ### 2. Build the Vnano Engine - Vnanoエンジンのビルド
 
-Firstly, build source code of Vnano Engine (The script engine of the Vnano).
-If you are using Microsoft&reg; Windows&reg;, please double-click "build.bat".
-If you are using Linux&reg;, etc., please execute "build.sh" on the bash-compatible shell.
-Alternatively, you can build the Vnano Engine by Apache Ant as:
+Firstly, build source code of the Vnano Engine (The script engine of the Vnano) 
+by steps of "<a href="#how-to-build">How to Build</a>" section.
+Then a JAR file "Vnano.jar" will be generated, so put it into the working folder.
 
-はじめに、Vnanoエンジン（Vnanoのスクリプトエンジン）をビルドします。
-Microsoft&reg; Windows&reg; をご使用の場合は、"build.bat" をダブルクリック実行してください。
-Linux&reg; 等をご使用の場合は、bash互換シェル上で "build.sh" を実行してください。もしくは以下のように、Apache Ant を用いてVnanoエンジンをビルドする事もできます：
+はじめに、「 <a href="#how-to-build">ビルド方法</a> 」の手順に従って
+Vnanoエンジン（Vnanoのスクリプトエンジン）をビルドします。
+ビルドするとJARファイル「 Vnano.jar 」が生成されるため、それを作業フォルダ内に配置してください。
 
-    ant -buildfile build.xml
-
-If you succeeded to build the Vnano Engine, "Vnano.jar" will be generated in the same folder in the above files.
-You can use Vnano on your Java applications by appending this JAR file to the classpath.
-
-Vnanoエンジンのビルドが成功すると、"Vnano.jar" が上記ファイルと同じフォルダ内に生成されます。
-Vnanoを使用したいJavaアプリケーションから、このJARファイルにクラスパスを通せば、それだけでVnanoが使用できます。
 
 ### 3. Run the Example Script Code - サンプルスクリプトコードの実行
 
