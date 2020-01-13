@@ -77,7 +77,7 @@ Vnano (<a href="https://www.vcssl.org/">VCSSL</a> nano) は、Java&reg; アプ�
   - <a href="#language-function">Functions - 関数</a>
 	- <a href="#language-function-scalar">Scalar input/output functions - スカラを引数や戻り値とする関数</a>
 	- <a href="#language-function-array">Array input/output functions - 配列を引数や戻り値とする関数</a>
-- <a href="#plugin">Plug-in Development - プラグインの開発</a>
+- <a href="#plugin">Plug-in - プラグイン</a>
   - <a href="#plugin-external-function-variable">External Functions/Variables and Plug-in - 外部関数/変数とプラグイン</a>
   - <a href="#plugin-security">Point of attention about the security - セキュリティに関する留意点</a>
   - <a href="#plugin-external-variables-synchronization">Caution about the Synchronization of Values of External Variables - 外部変数の値の同期タイミングに関する注意</a>
@@ -1657,9 +1657,9 @@ Vnano（および VCSSL）における配列は、ポインタや参照型では
 ## Plug-in - プラグイン
 
 In this section, we will explain how to use plug-ins which provide external functions/variables to the script engine of the Vnano.
-You can use <a href="https://github.com/RINEARN/vnano-plugin">officially developed/provided plug-ins</a>, and you also can develop your own plug-ins.
+You can use <a href="#plugin-official">officially developed/provided plug-ins</a>, and you also can develop your own plug-ins.
 
-このセクションでは、Vnanoのスクリプトエンジンに外部関数/変数を提供する、プラグインの使用方法について解説します。プラグインは、<a href="https://github.com/RINEARN/vnano-plugin">公式に開発/提供されているもの</a>の他にも、自分で開発する事ができます。
+このセクションでは、Vnanoのスクリプトエンジンに外部関数/変数を提供する、プラグインの使用方法について解説します。プラグインは、<a href="#plugin-official">公式に開発/提供されているもの</a>の他にも、自分で開発する事ができます。
 
 <a id="plugin-external-function-variable"></a>
 ### External Functions/Variables and Plug-in - 外部関数/変数とプラグイン
