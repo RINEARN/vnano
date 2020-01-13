@@ -55,6 +55,7 @@ public final class VnanoCommandLineApplication {
 	private static final String OPTION_NAME_DUMP = "dump";
 	private static final String OPTION_NAME_RUN = "run";
 	private static final String OPTION_NAME_LOCALE = "locale";
+	private static final String OPTION_NAME_VERSION = "version";
 	private static final String OPTION_NAME_ACCELERATOR = "accelerator";
 	private static final String OPTION_NAME_ENCODING = "encoding";
 	private static final String OPTION_NAME_PLUGIN_DIR = "pluginDir";
@@ -327,14 +328,10 @@ public final class VnanoCommandLineApplication {
 		// 引数を解釈し、オプション名をキーとしてオプション値を返すマップを取得
 		Map<String, String> optionNameValueMap = this.parseArguments(args);
 
-		// 読み込むファイルのパス（デフォルトオプションなので名称未指定の引数もこれに該当）を取得
-		if (!optionNameValueMap.containsKey(OPTION_NAME_FILE)) {
-			System.err.println("No script file is specified.");
-		}
-		String inputFilePath = optionNameValueMap.get(OPTION_NAME_FILE);
-
 		// オプションを一つずつ読み、対応する処理を実行する
+		// また、スクリプトファイルの指定が必要かどうかを確認する（helpオプション等では不要になる）
 		boolean optionProcessingSucceeded = true;
+		boolean scriptFileNecessary = false;
 		Set<Map.Entry<String, String>> optionNameValueSet = optionNameValueMap.entrySet();
 		for (Map.Entry<String, String> optionNameValuePair : optionNameValueSet) {
 			if (!optionProcessingSucceeded) {
@@ -342,8 +339,16 @@ public final class VnanoCommandLineApplication {
 			}
 			String optionName = optionNameValuePair.getKey();
 			String optionValue = optionNameValuePair.getValue();
-			optionProcessingSucceeded &= this.dispatchOptionProcessing(optionName, optionValue, inputFilePath);
+
+			// 1度でもオプション処理が失敗すると false になる (初期値 true)
+			optionProcessingSucceeded &= this.dispatchOptionProcessing(optionName, optionValue);
+
+			// 1度でもスクリプトが要求されれば true になる（初期値 false）
+			scriptFileNecessary |= this.isScriptFileNecessary(optionName);
 		}
+		// ※ 上の処理では、コマンドライン引数が1個も無い時も scriptFileNecessary が false にるが、
+		//    その際の挙動は help 表示の動作に割り当てているため、もともとスクリプト不要なので問題ない。
+		//    help 表示に割り当てない場合には、スクリプトの指定忘れのメッセージを出すべきなので要変更。
 
 		// オプションで結合テストがリクエストされていた場合は、先にテストを実行する
 		if (this.combinedTestRequired) {
@@ -355,8 +360,15 @@ public final class VnanoCommandLineApplication {
 			System.exit(1);
 		}
 
-		// スクリプトの実行が必要なら実行する
-		if (inputFilePath != null) { // --test 時など、実行ファイルを指定しない場合もある
+		// スクリプトファイルの指定が必要なケースでは取得 (--help 時など、指定が必須でない場合もある)
+		if (scriptFileNecessary && !optionNameValueMap.containsKey(OPTION_NAME_FILE)) {
+			System.err.println("No script file is specified.");
+			System.exit(1);
+		}
+		String inputFilePath = optionNameValueMap.get(OPTION_NAME_FILE); // ※ 無名引数として指定した場合もこのキーで格納されている
+
+		// スクリプトファイルが指定されていれば実行する (指定が必須でない場合にも、指定されていれば実行)
+		if (inputFilePath != null) {
 			try {
 				this.executeFile(inputFilePath);
 
@@ -375,8 +387,20 @@ public final class VnanoCommandLineApplication {
 	}
 
 
+	// スクリプトファイルの指定を前提とするオプションの場合は true を返す
+	// (--help や --version などでは不要になる)
+	private boolean isScriptFileNecessary(String optionName) {
+		switch (optionName) {
+			case OPTION_NAME_HELP: return false;
+			case OPTION_NAME_TEST: return false;
+			case OPTION_NAME_VERSION: return false;
+		}
+		return true;
+	}
+
+
 	// 戻り値は成功:true/失敗:false
-	public boolean dispatchOptionProcessing (String optionName, String optionValue, String inputFilePath) {
+	public boolean dispatchOptionProcessing (String optionName, String optionValue) {
 		if (optionName == null) {
 			System.err.println("Fatal error: option name is null.");
 			return false;
@@ -400,6 +424,12 @@ public final class VnanoCommandLineApplication {
 			// --run オプションの場合
 			case OPTION_NAME_RUN : {
 				this.optionMap.put(OptionKey.RUNNING_ENABLED, Boolean.valueOf(optionValue));
+				return true;
+			}
+
+			// --version オプションの場合
+			case OPTION_NAME_VERSION : {
+				System.out.println(EngineInformation.ENGINE_NAME + " " + EngineInformation.ENGINE_VERSION);
 				return true;
 			}
 
