@@ -23,6 +23,7 @@ public class ForStatementCombinedTest extends CombinedTestElement {
 			this.testForStatements();
 			this.testMultipleForStatements();
 			this.testDeepBlockForLoops();
+			this.testBreakStatementsInForLoops();
 
 		} catch (VnanoException e) {
 			throw new CombinedTestException(e);
@@ -287,5 +288,97 @@ public class ForStatementCombinedTest extends CombinedTestElement {
 		super.evaluateResult(result, "i=2,j=3,k=5,l=7,m=9", "for(;++i<2;){ for(;++j<3;){ for(;++k<4;){ for(;++l<5;){ for(;++m<6;){ }}}}}", scriptCode);
 
 		// 上のテスト値がバグのように思えた場合は、1個前のテスト値に関するコメント参照。バグじゃない。
+	}
+
+
+	private void testBreakStatementsInForLoops() throws VnanoException {
+		String scriptCode;
+		String result;
+
+		scriptCode =
+			" int i;                  \n" +
+			" for (i=0; i<10; i++) {  \n" +
+			"     if (i == 7) {       \n" +
+			"         break;          \n" +
+			"     }                   \n" +
+			" }                       \n" +
+			" string result = \"\";   \n" +
+			" result += \"i=\" + i;   \n" ;
+
+		result = (String)this.engine.executeScript(scriptCode);
+		super.evaluateResult(result, "i=7", "for(...){... break; ...}", scriptCode);
+
+		scriptCode =
+			" int i;                      \n" +
+			" int j;                      \n" +
+			" for (i=0; i<10; i++) {      \n" +
+			"     for (j=0; j<10; j++) {  \n" +
+			"     }                       \n" +
+			"     if (i == 7) {           \n" +
+			"         break;              \n" +
+			"     }                       \n" +
+			" }                           \n" +
+			" string result = \"\";       \n" +
+			" result += \"i=\" + i;       \n" +
+			" result += \",j=\" + j;      \n" ;
+
+		result = (String)this.engine.executeScript(scriptCode);
+		super.evaluateResult(result, "i=7,j=10", "for(...){ for(...){ } ... break; ...}", scriptCode);
+
+		scriptCode =
+			" int i;                      \n" +
+			" int j;                      \n" +
+			" for (i=0; i<10; i++) {      \n" +
+			"     for (j=0; j<10; j++) {  \n" +
+			"         if (j == 7) {       \n" +
+			"             break;          \n" +
+			"         }                   \n" +
+			"     }                       \n" +
+			" }                           \n" +
+			" string result = \"\";       \n" +
+			" result += \"i=\" + i;       \n" +
+			" result += \",j=\" + j;      \n" ;
+
+		result = (String)this.engine.executeScript(scriptCode);
+		super.evaluateResult(result, "i=10,j=7", "for(...){ for(...){... break; ...}}", scriptCode);
+
+		scriptCode =
+			" int i;                                      \n" +
+			" int j;                                      \n" +
+			" int k;                                      \n" +
+			" int l;                                      \n" +
+			" int m;                                      \n" +
+			" int n;                                      \n" +
+			" for (i=0; i<3; i++) {                       \n" +
+			"     for (j=0; j<5; j++) {                   \n" +
+			"         if (j == 4) {                       \n" +
+			"             break;                          \n" +
+			"         }                                   \n" +
+			"         for (k=0; k<3; k++) {               \n" +
+			"             for (l=0; l<5; l++) {           \n" +
+			"                 for (m=0; m<3; m++) {       \n" +
+			"                     for (n=0; n<10; n++) {  \n" +
+			"                         if (n == 8) {       \n" +
+			"                             break;          \n" +
+			"                         }                   \n" +
+			"                     }                       \n" +
+			"                 }                           \n" +
+			"                 if (l == 2) {               \n" +
+			"                     break;                  \n" +
+			"                 }                           \n" +
+			"             }                               \n" +
+			"         }                                   \n" +
+			"     }                                       \n" +
+			" }                                           \n" +
+			" string result = \"\";                       \n" +
+			" result += \"i=\" + i;                       \n" +
+			" result += \",j=\" + j;                      \n" +
+			" result += \",k=\" + k;                      \n" +
+			" result += \",l=\" + l;                      \n" +
+			" result += \",m=\" + m;                      \n" +
+			" result += \",n=\" + n;                      \n" ;
+
+		result = (String)this.engine.executeScript(scriptCode);
+		super.evaluateResult(result, "i=3,j=4,k=3,l=2,m=3,n=8", "very complicated combinations of break-statements and deep for-loops", scriptCode);
 	}
 }
