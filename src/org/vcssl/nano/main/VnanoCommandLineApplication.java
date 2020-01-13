@@ -329,9 +329,7 @@ public final class VnanoCommandLineApplication {
 		Map<String, String> optionNameValueMap = this.parseArguments(args);
 
 		// オプションを一つずつ読み、対応する処理を実行する
-		// また、スクリプトファイルの指定が必要かどうかを確認する（helpオプション等では不要になる）
 		boolean optionProcessingSucceeded = true;
-		boolean scriptFileNecessary = false;
 		Set<Map.Entry<String, String>> optionNameValueSet = optionNameValueMap.entrySet();
 		for (Map.Entry<String, String> optionNameValuePair : optionNameValueSet) {
 			if (!optionProcessingSucceeded) {
@@ -340,15 +338,12 @@ public final class VnanoCommandLineApplication {
 			String optionName = optionNameValuePair.getKey();
 			String optionValue = optionNameValuePair.getValue();
 
-			// 1度でもオプション処理が失敗すると false になる (初期値 true)
+			// 1度でもオプション処理が失敗すると false にする
 			optionProcessingSucceeded &= this.dispatchOptionProcessing(optionName, optionValue);
-
-			// 1度でもスクリプトが要求されれば true になる（初期値 false）
-			scriptFileNecessary |= this.isScriptFileNecessary(optionName);
 		}
-		// ※ 上の処理では、コマンドライン引数が1個も無い時も scriptFileNecessary が false にるが、
-		//    その際の挙動は help 表示の動作に割り当てているため、もともとスクリプト不要なので問題ない。
-		//    help 表示に割り当てない場合には、スクリプトの指定忘れのメッセージを出すべきなので要変更。
+
+		// スクリプトファイルの指定が必要かどうかを確認する（helpオプション等では不要になる）
+		boolean scriptFileNecessary = this.isScriptFileNecessary(optionNameValueMap);
 
 		// オプションで結合テストがリクエストされていた場合は、先にテストを実行する
 		if (this.combinedTestRequired) {
@@ -387,13 +382,17 @@ public final class VnanoCommandLineApplication {
 	}
 
 
-	// スクリプトファイルの指定を前提とするオプションの場合は true を返す
+	// オプション内容に基づいて、スクリプトファイルの指定を前提とする状況の場合は true を返す
 	// (--help や --version などでは不要になる)
-	private boolean isScriptFileNecessary(String optionName) {
-		switch (optionName) {
-			case OPTION_NAME_HELP: return false;
-			case OPTION_NAME_TEST: return false;
-			case OPTION_NAME_VERSION: return false;
+	private boolean isScriptFileNecessary(Map<String, String> optionNameValueMap) {
+		if (optionNameValueMap.containsKey(OPTION_NAME_HELP) ) {
+			return false;
+		}
+		if (optionNameValueMap.containsKey(OPTION_NAME_TEST) ) {
+			return false;
+		}
+		if (optionNameValueMap.containsKey(OPTION_NAME_VERSION) ) {
+			return false;
 		}
 		return true;
 	}
