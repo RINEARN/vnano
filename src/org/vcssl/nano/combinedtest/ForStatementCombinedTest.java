@@ -21,6 +21,7 @@ public class ForStatementCombinedTest extends CombinedTestElement {
 	public void executeTest() {
 		try {
 			this.testForStatements();
+			this.testMultipleForStatements();
 
 		} catch (VnanoException e) {
 			throw new CombinedTestException(e);
@@ -105,4 +106,86 @@ public class ForStatementCombinedTest extends CombinedTestElement {
 		// なので脱出時の i は10。
 	}
 
+	private void testMultipleForStatements() throws VnanoException {
+		String scriptCode;
+		String result;
+
+		scriptCode =
+			" int i;                 \n" +
+			" int j;                 \n" +
+			" int k;                 \n" +
+			" int l;                 \n" +
+			" int m;                 \n" +
+			" for (i=0; i<10; i++) { \n" +
+			" }                      \n" +
+			" for (j=0; j<20; j++) { \n" +
+			" }                      \n" +
+			" for (k=0; k<30; k++) { \n" +
+			" }                      \n" +
+			" for (l=0; l<40; l++) { \n" +
+			" }                      \n" +
+			" for (m=0; m<50; m++) { \n" +
+			" }                      \n" +
+			" string result = \"\";  \n" +
+			" result += \"i=\" + i;  \n" +
+			" result += \",j=\" + j; \n" +
+			" result += \",k=\" + k; \n" +
+			" result += \",l=\" + l; \n" +
+			" result += \",m=\" + m; \n" ;
+
+		result = (String)this.engine.executeScript(scriptCode);
+		super.evaluateResult(result, "i=10,j=20,k=30,l=40,m=50", "for(x<y){...} x 5", scriptCode);
+
+		scriptCode =
+			" int i;                 \n" +
+			" int j;                 \n" +
+			" int k;                 \n" +
+			" int l;                 \n" +
+			" int m;                 \n" +
+			" for (i=0; (i++)<10;) { \n" +
+			" }                      \n" +
+			" for (j=0; (j++)<20;) { \n" +
+			" }                      \n" +
+			" for (k=0; (k++)<30;) { \n" +
+			" }                      \n" +
+			" for (l=0; (l++)<40;) { \n" +
+			" }                      \n" +
+			" for (m=0; (m++)<50;) { \n" +
+			" }                      \n" +
+			" string result = \"\";  \n" +
+			" result += \"i=\" + i;  \n" +
+			" result += \",j=\" + j; \n" +
+			" result += \",k=\" + k; \n" +
+			" result += \",l=\" + l; \n" +
+			" result += \",m=\" + m; \n" ;
+
+		result = (String)this.engine.executeScript(scriptCode);
+		super.evaluateResult(result, "i=11,j=21,k=31,l=41,m=51", "for((x++)<y){...} x 5", scriptCode);
+
+		scriptCode =
+			" int i;                 \n" +
+			" int j;                 \n" +
+			" int k;                 \n" +
+			" int l;                 \n" +
+			" int m;                 \n" +
+			" for (i=0; (++i)<10;) { \n" +
+			" }                      \n" +
+			" for (j=0; (++j)<20;) { \n" +
+			" }                      \n" +
+			" for (k=0; (++k)<30;) { \n" +
+			" }                      \n" +
+			" for (l=0; (++l)<40;) { \n" +
+			" }                      \n" +
+			" for (m=0; (++m)<50;) { \n" +
+			" }                      \n" +
+			" string result = \"\";  \n" +
+			" result += \"i=\" + i;  \n" +
+			" result += \",j=\" + j; \n" +
+			" result += \",k=\" + k; \n" +
+			" result += \",l=\" + l; \n" +
+			" result += \",m=\" + m; \n" ;
+
+		result = (String)this.engine.executeScript(scriptCode);
+		super.evaluateResult(result, "i=10,j=20,k=30,l=40,m=50", "for((x++)<y){...} x 5", scriptCode);
+	}
 }
