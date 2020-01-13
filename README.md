@@ -86,6 +86,7 @@ Vnano (<a href="https://www.vcssl.org/">VCSSL</a> nano) は、Java&reg; アプ�
   - <a href="#plugin-interfaces">Implementation of Plug-ins of External Functions/Variables by Using Low-Overhead Plug-in Interfaces - 低オーバーヘッドのプラグイン用インターフェースを用いて外部関数/変数プラグインを実装する</a>
   - <a href="#plugin-correspondence-of-data-types">The Correspondence of the Data Type between the Vnano and the Data Container - Vnano内とデータコンテナ内でのデータ型の対応関係</a>
   - <a href="#plugin-pack">Packing of Multiple External Functions/Variables as a Plug-in - 複数の外部関数/変数プラグインを1つのプラグインにまとめる</a>
+  - <a href="#plugin-official">Use Official Plug-ins - 公式プラグインを利用する</a>
 - <a href="#about-us">About Us - 開発元について</a>
 - <a href="#references">References - 関連記事</a>
 
@@ -1653,11 +1654,12 @@ Vnano（および VCSSL）における配列は、ポインタや参照型では
 
 
 <a id="plugin"></a>
-## Plug-in Development - プラグインの開発
+## Plug-in - プラグイン
 
-In this section, we will explain how to develop and connect plug-ins which provide external functions/variables to the script engine of the Vnano.
+In this section, we will explain how to use plug-ins which provide external functions/variables to the script engine of the Vnano.
+You can use <a href="https://github.com/RINEARN/vnano-plugin">officially developed/provided plug-ins</a>, and you also can develop your own plug-ins.
 
-このセクションでは、Vnanoのスクリプトエンジンに外部関数/変数を提供する、プラグインの開発方法について解説します。
+このセクションでは、Vnanoのスクリプトエンジンに外部関数/変数を提供する、プラグインの使用方法について解説します。プラグインは、<a href="https://github.com/RINEARN/vnano-plugin">公式に開発/提供されているもの</a>の他にも、自分で開発する事ができます。
 
 <a id="plugin-external-function-variable"></a>
 ### External Functions/Variables and Plug-in - 外部関数/変数とプラグイン
@@ -2483,6 +2485,71 @@ In addition, it help you to specify briefly the plug-in in a setting file of a s
 
 上記のように、複数の外部関数/変数プラグインを1つのプラグインにまとめると、スクリプトエンジンへの接続が手軽になります。
 また、Vnanoを使用するソフトウェア（ 例えば<a href="https://github.com/RINEARN/rinearn-processor-nano">リニアンプロセッサー nano</a> など ）において、設定ファイルでプラグインを指定する際などにも、手軽に済むようになります。
+
+
+<a id="plugin-official"></a>
+### Use Official Plug-ins - 公式プラグインを利用する
+
+Some official plug-ins are being developed/provided on the following repository:
+
+以下のリポジトリで、いくつかの公式プラグインが開発/提供されています：
+
+* <a href="https://github.com/RINEARN/vnano-plugin">https://github.com/RINEARN/vnano-plugin</a>
+
+For building steps, read the README on the above repository. 
+When the building of source code of official plug-ins succeeded, "plugin" folder will be generated, 
+so put it in the working folder.
+
+ビルド方法については、上記リポジトリのREADMEをご参照ください。
+プラグインのソースコードのビルドが完了すると、「 plugin 」フォルダが生成されるので、
+それを作業フォルダに配置してください。
+
+For using above built plug-ins on the command-line mode, use "--plugin" option and "--pluginDir" option as follows:
+
+ビルドしたプラグインをコマンドラインモードで使用するには、以下の例のように --plugin オプションと --pluginDir オプションを使用して読み込みます：
+
+	java -jar Vnano.jar --pluginDir <PlugInFolder> --plugin <PlugInClass> <ScriptName>
+
+For example:
+
+例えば：
+
+	java -jar Vnano.jar --pluginDir ./plugin --plugin org.vcssl.nano.plugin.calc.xci1.ScientificCalculatorPlugin Example.vnano
+
+where "Example.vnano" is a script in which features provided by the plugin are used.
+
+ここで「 Example.vnano 」は、プラグインの機能を使用する適当なスクリプトです。
+
+
+On the other hand, if you use built plug-ins on the Vnano Engine embedded in your application, 
+create instances of plug-ins and connect it as follows in code of your application (Example.java):
+
+一方、ビルドしたプラグインを、アプリケーション内に組み込んだVnanoエンジンに接続して使用したい場合は、
+例えば「 Example.java 」内で以下のようにインスタンスを生成して接続するように記述します。
+
+	// Connect the lugin to the script engine.
+	// プラグインをスクリプトエンジンに接続
+	Object plugin = new org.vcssl.nano.plugin.calc.xci1.ScientificCalculatorPlugin();
+	engine.put("ScientificCalculatorPlugin", plugin);               // engine: ScriptEngine
+	// engine.connectPlugin("ScientificCalculatorPlugin", plugin);  // engine: VnanoEngine
+
+Then compile/execute with adding path of plugin-folder to the classpath as follows.
+If you are using Microsoft&reg; Windows&reg;:
+
+そして、以下のようにプラグインのフォルダをクラスパスに追加しつつコンパイル/実行します。
+Microsoft Windows&reg; をご使用の場合は：
+
+	javac -classpath .;Vnano.jar;./plugin Example.java
+	java -classpath .;Vnano.jar;./plugin Example
+
+If you are using Linux&reg;, etc.:
+
+Linux&reg; 等をご使用の場合は：
+
+	javac -classpath .:Vnano.jar:./plugin Example.java
+	java -classpath .:Vnano.jar:./plugin Example
+
+
 
 <a id="about-us"></a>
 ## About Us - 開発元について
