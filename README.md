@@ -353,6 +353,21 @@ Let's check briefly that the JAR file works expectedly, by following steps.
 
 実際に使用する前に、生成されたJARファイルが正常かどかを、以下の手順で簡単に確認しておきましょう。
 
+### 2. Check the Version - バージョンの確認
+
+You can check the version on the command-line terminal as follows:
+
+以下のようにコマンドラインからバージョンを確認できます。
+
+	java -jar Vnano.jar --version
+
+An example of the result is (depending on the version you use):
+
+結果の例は（実際のバージョンに依存します）：
+
+	RINEARN Vnano Engine 0.2.4
+
+
 
 <a id="how-to-use-in-java"></a>
 ## How to Use in Java&reg; - Java&reg;言語での使用方法
