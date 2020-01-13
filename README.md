@@ -367,6 +367,67 @@ An example of the result is (depending on the version you use):
 
 	RINEARN Vnano Engine 0.2.4
 
+### 3. Execute Tests - テストの実行
+
+In addition, you can execute combined-tests as follows:
+
+また、同様に以下のように結合テストを実行できます：
+
+	java -jar Vnano.jar --test
+
+An example of the result is (depending on the version you use):
+
+結果の例は（実際のバージョンに依存します）：
+
+	- Vnano Engine Combined Test -
+	----------------------------------------------------------------
+
+	[ org.vcssl.nano.combinedtest.ArithmeticExpressionCombinedTest ]
+	int + int: OK.
+	int + float: OK.
+	...
+
+	[ org.vcssl.nano.combinedtest.ComparisonExpressionCombinedTest ]
+	int == int (same values): OK.
+	int == int (different values): OK.
+	...
+
+	[ org.vcssl.nano.combinedtest.LogicalExpressionCombinedTest ]
+	true && true: OK.
+	true && false: OK.
+	...
+
+	[ org.vcssl.nano.combinedtest.IfElseStatementCombinedTest ]
+	if(true){...}: OK.
+	if(false){...}: OK.
+	...
+
+	[ org.vcssl.nano.combinedtest.WhileStatementCombinedTest ]
+	i=1; while(i<10){i++;}: OK.
+	i=1; while(i>10){i++;}: OK.
+	...
+
+	[ org.vcssl.nano.combinedtest.ForStatementCombinedTest ]
+	i=123; for(i=0;i<10;i++){}: OK.
+	i=0; for(i=0;i>10;i++){}: OK.
+	...
+	for(...){ for(...){ if(x==y||x==z){continue;} ...} ...}: OK.
+	for(...){... for(...){... if(x%y==0){continue;} ...} ...}: OK.
+	very complicated combinations of continue-statements and deep for-loops: OK.
+
+	...
+
+	----------------------------------------------------------------
+	All combined tests have been completed successfully.
+
+
+For source code on this repository, above tests are executed automatically by CI.
+However, if you use the Vnano Engine with modifications/customizations of source code, 
+you should execute above tests manually.
+
+リポジトリ上のソースコードに対しては、このテストは CI によって自動的に実行されています。
+しかしながら、ソースコードを編集/改造してVnanoエンジンを用いる場合は、
+手元で上記のようにテストを実行する必要があります。
 
 
 <a id="how-to-use-in-java"></a>
