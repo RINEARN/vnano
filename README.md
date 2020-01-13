@@ -1770,13 +1770,13 @@ instead of the external variable.
 ### Connecting a Class or an Instance as an Plug-in to Use Its All Methods/Fields as External Functions/Variables - クラスやインスタンスをプラグインとして接続し、その全メソッド/フィールドを外部関数/変数として使用する
 
 From here, we explain various ways to connect external functions/variables by taking "Example.java" in this repository as an example. 
-By the way, if you want to connect external functions/variables to the <a href="#how-to-use-in-command">command-line mode</a>, please modity the code "<a href="https://github.com/RINEARN/vnano/blob/master/src/org/vcssl/nano/main/VnanoCommandLineApplication.java">src/org/vcssl/nano/main/VnanoCommandLineApplication.java</a>", 
-and then re-build "Vnano.jar".
+By the way, if you want to connect external functions/variables to the <a href="#how-to-use-in-command">command-line mode</a>, 
+implement plug-ins as classes in independent files and comple them, 
+and then load them by using "--plugin" option (for details, read explanations in --help option).
 
 ここからは、このリポジトリ内にある Example.java のコードを例にとって、実際に外部関数/変数を接続する色々な方法について解説します。
 なお、もし<a href="#how-to-use-in-command">コマンドラインモード</a>に外部変数/外部関数を接続したい場合は、
-"<a href="https://github.com/RINEARN/vnano/blob/master/src/org/vcssl/nano/main/VnanoCommandLineApplication.java">src/org/vcssl/nano/main/VnanoCommandLineApplication.java</a>" のコードを編集し、
-Vnano.jar を再ビルドしてください。
+プラグインを独立なファイルにクラスとして実装してコンパイルした上で、--plugin オプションを使用して読み込んでください（詳細は --help オプションの説明を参照してください）。
 
 The most simple way to connect external functions/variable is to implement them as methods/fields in a class, and then connect the class or its instance to the Vnano engine as a plug-in. 
 For example, see the following part in "Example.java":
