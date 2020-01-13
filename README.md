@@ -54,6 +54,7 @@ Vnano (<a href="https://www.vcssl.org/">VCSSL</a> nano) は、Java&reg; アプ�
 - <a href="#license">License - ライセンス</a>
 - <a href="#requirements">Requirements - 必要な環境</a>
 - <a href="#example">Application Code Example - アプリケーションコード例</a>
+- <a href="#how-to-build">How to Build - ビルド方法</a>
 - <a href="#how-to-use-in-java">How to Use in Java&reg; - Java&reg;言語での使用方法</a>
 - <a href="#how-to-use-in-kotlin">How to Use in Kotlin&reg; - Kotlin&reg;での使用方法</a>
 - <a href="#how-to-use-in-command">How to Use in Command Line - コマンドラインでの使用方法</a>
@@ -76,7 +77,7 @@ Vnano (<a href="https://www.vcssl.org/">VCSSL</a> nano) は、Java&reg; アプ�
   - <a href="#language-function">Functions - 関数</a>
 	- <a href="#language-function-scalar">Scalar input/output functions - スカラを引数や戻り値とする関数</a>
 	- <a href="#language-function-array">Array input/output functions - 配列を引数や戻り値とする関数</a>
-- <a href="#plugin">Plug-in Development - プラグインの開発</a>
+- <a href="#plugin">Plug-in - プラグイン</a>
   - <a href="#plugin-external-function-variable">External Functions/Variables and Plug-in - 外部関数/変数とプラグイン</a>
   - <a href="#plugin-security">Point of attention about the security - セキュリティに関する留意点</a>
   - <a href="#plugin-external-variables-synchronization">Caution about the Synchronization of Values of External Variables - 外部変数の値の同期タイミングに関する注意</a>
@@ -85,6 +86,7 @@ Vnano (<a href="https://www.vcssl.org/">VCSSL</a> nano) は、Java&reg; アプ�
   - <a href="#plugin-interfaces">Implementation of Plug-ins of External Functions/Variables by Using Low-Overhead Plug-in Interfaces - 低オーバーヘッドのプラグイン用インターフェースを用いて外部関数/変数プラグインを実装する</a>
   - <a href="#plugin-correspondence-of-data-types">The Correspondence of the Data Type between the Vnano and the Data Container - Vnano内とデータコンテナ内でのデータ型の対応関係</a>
   - <a href="#plugin-pack">Packing of Multiple External Functions/Variables as a Plug-in - 複数の外部関数/変数プラグインを1つのプラグインにまとめる</a>
+  - <a href="#plugin-official">Use Official Plug-ins - 公式プラグインを利用する</a>
 - <a href="#about-us">About Us - 開発元について</a>
 - <a href="#references">References - 関連記事</a>
 
@@ -325,9 +327,8 @@ We will actually execute these example code in the next section.
 
 
 
-
-<a id="how-to-use-in-java"></a>
-## How to Use in Java&reg; - Java&reg;言語での使用方法
+<a id="how-to-build"></a>
+## How to Build - ビルド方法
 
 ### 1. Build the Vnano Engine - Vnanoエンジンのビルド
 
@@ -347,6 +348,101 @@ You can use Vnano on your Java applications by appending this JAR file to the cl
 
 Vnanoエンジンのビルドが成功すると、"Vnano.jar" が上記ファイルと同じフォルダ内に生成されます。
 Vnanoを使用したいJavaアプリケーションから、このJARファイルにクラスパスを通せば、それだけでVnanoが使用できます。
+
+Before using it practically, 
+Let's check briefly that the JAR file works expectedly, by following steps.
+
+実際に使用する前に、生成されたJARファイルが正常かどかを、以下の手順で簡単に確認しておきましょう。
+
+### 2. Check the Version - バージョンの確認
+
+You can check the version on the command-line terminal as follows:
+
+以下のようにコマンドラインからバージョンを確認できます。
+
+	java -jar Vnano.jar --version
+
+An example of the result is (depending on the version you use):
+
+結果の例は（実際のバージョンに依存します）：
+
+	RINEARN Vnano Engine 0.2.4
+
+### 3. Execute Tests - テストの実行
+
+In addition, you can execute combined-tests as follows:
+
+また、同様に以下のように結合テストを実行できます：
+
+	java -jar Vnano.jar --test
+
+An example of the result is (depending on the version you use):
+
+結果の例は（実際のバージョンに依存します）：
+
+	- Vnano Engine Combined Test -
+	----------------------------------------------------------------
+
+	[ org.vcssl.nano.combinedtest.ArithmeticExpressionCombinedTest ]
+	int + int: OK.
+	int + float: OK.
+	...
+
+	[ org.vcssl.nano.combinedtest.ComparisonExpressionCombinedTest ]
+	int == int (same values): OK.
+	int == int (different values): OK.
+	...
+
+	[ org.vcssl.nano.combinedtest.LogicalExpressionCombinedTest ]
+	true && true: OK.
+	true && false: OK.
+	...
+
+	[ org.vcssl.nano.combinedtest.IfElseStatementCombinedTest ]
+	if(true){...}: OK.
+	if(false){...}: OK.
+	...
+
+	[ org.vcssl.nano.combinedtest.WhileStatementCombinedTest ]
+	i=1; while(i<10){i++;}: OK.
+	i=1; while(i>10){i++;}: OK.
+	...
+
+	[ org.vcssl.nano.combinedtest.ForStatementCombinedTest ]
+	i=123; for(i=0;i<10;i++){}: OK.
+	i=0; for(i=0;i>10;i++){}: OK.
+	...
+	for(...){ for(...){ if(x==y||x==z){continue;} ...} ...}: OK.
+	for(...){... for(...){... if(x%y==0){continue;} ...} ...}: OK.
+	very complicated combinations of continue-statements and deep for-loops: OK.
+
+	...
+
+	----------------------------------------------------------------
+	All combined tests have been completed successfully.
+
+
+For source code on this repository, above tests are executed automatically by CI.
+However, if you use the Vnano Engine with modifications/customizations of source code, 
+you should execute above tests manually.
+
+リポジトリ上のソースコードに対しては、このテストは CI によって自動的に実行されています。
+しかしながら、ソースコードを編集/改造してVnanoエンジンを用いる場合は、
+手元で上記のようにテストを実行する必要があります。
+
+
+<a id="how-to-use-in-java"></a>
+## How to Use in Java&reg; - Java&reg;言語での使用方法
+
+### 1. Build the Vnano Engine - Vnanoエンジンのビルド
+
+Firstly, build source code of the Vnano Engine (The script engine of the Vnano) 
+by steps of "<a href="#how-to-build">How to Build</a>" section.
+Then a JAR file "Vnano.jar" will be generated, so put it into the working folder.
+
+はじめに、「 <a href="#how-to-build">ビルド方法</a> 」の手順に従って
+Vnanoエンジン（Vnanoのスクリプトエンジン）をビルドします。
+ビルドするとJARファイル「 Vnano.jar 」が生成されるため、それを作業フォルダ内に配置してください。
 
 ### 2. Compile the Example Application - サンプルアプリケーションのコンパイル
 
@@ -449,22 +545,13 @@ Example.jar から見た相対パスで書き換えてください（例：lib/V
 
 ### 1. Build the Vnano Engine - Vnanoエンジンのビルド
 
-Firstly, build source code of Vnano Engine (The script engine of the Vnano).
-If you are using Microsoft&reg; Windows&reg;, please double-click "build.bat".
-If you are using Linux, etc., please execute "build.sh" on the bash-compatible shell.
-Alternatively, you can build the Vnano Engine by Apache Ant as:
+Firstly, build source code of the Vnano Engine (The script engine of the Vnano) 
+by steps of "<a href="#how-to-build">How to Build</a>" section.
+Then a JAR file "Vnano.jar" will be generated, so put it into the working folder.
 
-はじめに、Vnanoエンジン（Vnanoのスクリプトエンジン）をビルドします。
-Microsoft&reg; Windows&reg; をご使用の場合は、"build.bat" をダブルクリック実行してください。
-Linux 等をご使用の場合は、bash互換シェル上で "build.sh" を実行してください。もしくは以下のように、Apache Ant を用いてVnanoエンジンをビルドする事もできます：
-
-    ant -buildfile build.xml
-
-If you succeeded to build the Vnano Engine, "Vnano.jar" will be generated in the same folder in the above files.
-You can use Vnano on your Java applications by appending this JAR file to the classpath.
-
-Vnanoエンジンのビルドが成功すると、"Vnano.jar" が上記ファイルと同じフォルダ内に生成されます。
-Vnanoを使用したいJavaアプリケーションから、このJARファイルにクラスパスを通せば、それだけでVnanoが使用できます。
+はじめに、「 <a href="#how-to-build">ビルド方法</a> 」の手順に従って
+Vnanoエンジン（Vnanoのスクリプトエンジン）をビルドします。
+ビルドするとJARファイル「 Vnano.jar 」が生成されるため、それを作業フォルダ内に配置してください。
 
 <a id="how-to-use-in-kotlin-compile"></a>
 ### 2. Compile the Example Application - サンプルアプリケーションのコンパイル
@@ -535,22 +622,14 @@ Vnanoは、<a href="https://www.vcssl.org/">VCSSL</a>という言語から、ア
 
 ### 2. Build the Vnano Engine - Vnanoエンジンのビルド
 
-Firstly, build source code of Vnano Engine (The script engine of the Vnano).
-If you are using Microsoft&reg; Windows&reg;, please double-click "build.bat".
-If you are using Linux&reg;, etc., please execute "build.sh" on the bash-compatible shell.
-Alternatively, you can build the Vnano Engine by Apache Ant as:
+Firstly, build source code of the Vnano Engine (The script engine of the Vnano) 
+by steps of "<a href="#how-to-build">How to Build</a>" section.
+Then a JAR file "Vnano.jar" will be generated, so put it into the working folder.
 
-はじめに、Vnanoエンジン（Vnanoのスクリプトエンジン）をビルドします。
-Microsoft&reg; Windows&reg; をご使用の場合は、"build.bat" をダブルクリック実行してください。
-Linux&reg; 等をご使用の場合は、bash互換シェル上で "build.sh" を実行してください。もしくは以下のように、Apache Ant を用いてVnanoエンジンをビルドする事もできます：
+はじめに、「 <a href="#how-to-build">ビルド方法</a> 」の手順に従って
+Vnanoエンジン（Vnanoのスクリプトエンジン）をビルドします。
+ビルドするとJARファイル「 Vnano.jar 」が生成されるため、それを作業フォルダ内に配置してください。
 
-    ant -buildfile build.xml
-
-If you succeeded to build the Vnano Engine, "Vnano.jar" will be generated in the same folder in the above files.
-You can use Vnano on your Java applications by appending this JAR file to the classpath.
-
-Vnanoエンジンのビルドが成功すると、"Vnano.jar" が上記ファイルと同じフォルダ内に生成されます。
-Vnanoを使用したいJavaアプリケーションから、このJARファイルにクラスパスを通せば、それだけでVnanoが使用できます。
 
 ### 3. Run the Example Script Code - サンプルスクリプトコードの実行
 
@@ -1575,11 +1654,12 @@ Vnano（および VCSSL）における配列は、ポインタや参照型では
 
 
 <a id="plugin"></a>
-## Plug-in Development - プラグインの開発
+## Plug-in - プラグイン
 
-In this section, we will explain how to develop and connect plug-ins which provide external functions/variables to the script engine of the Vnano.
+In this section, we will explain how to use plug-ins which provide external functions/variables to the script engine of the Vnano.
+You can use <a href="#plugin-official">officially developed/provided plug-ins</a>, and you also can develop your own plug-ins.
 
-このセクションでは、Vnanoのスクリプトエンジンに外部関数/変数を提供する、プラグインの開発方法について解説します。
+このセクションでは、Vnanoのスクリプトエンジンに外部関数/変数を提供する、プラグインの使用方法について解説します。プラグインは、<a href="#plugin-official">公式に開発/提供されているもの</a>の他にも、自分で開発する事ができます。
 
 <a id="plugin-external-function-variable"></a>
 ### External Functions/Variables and Plug-in - 外部関数/変数とプラグイン
@@ -1692,13 +1772,13 @@ instead of the external variable.
 ### Connecting a Class or an Instance as an Plug-in to Use Its All Methods/Fields as External Functions/Variables - クラスやインスタンスをプラグインとして接続し、その全メソッド/フィールドを外部関数/変数として使用する
 
 From here, we explain various ways to connect external functions/variables by taking "Example.java" in this repository as an example. 
-By the way, if you want to connect external functions/variables to the <a href="#how-to-use-in-command">command-line mode</a>, please modity the code "<a href="https://github.com/RINEARN/vnano/blob/master/src/org/vcssl/nano/main/VnanoCommandLineApplication.java">src/org/vcssl/nano/main/VnanoCommandLineApplication.java</a>", 
-and then re-build "Vnano.jar".
+By the way, if you want to connect external functions/variables to the <a href="#how-to-use-in-command">command-line mode</a>, 
+implement plug-ins as classes in independent files and comple them, 
+and then load them by using "--plugin" option (for details, read explanations in --help option).
 
 ここからは、このリポジトリ内にある Example.java のコードを例にとって、実際に外部関数/変数を接続する色々な方法について解説します。
 なお、もし<a href="#how-to-use-in-command">コマンドラインモード</a>に外部変数/外部関数を接続したい場合は、
-"<a href="https://github.com/RINEARN/vnano/blob/master/src/org/vcssl/nano/main/VnanoCommandLineApplication.java">src/org/vcssl/nano/main/VnanoCommandLineApplication.java</a>" のコードを編集し、
-Vnano.jar を再ビルドしてください。
+プラグインを独立なファイルにクラスとして実装してコンパイルした上で、--plugin オプションを使用して読み込んでください（詳細は --help オプションの説明を参照してください）。
 
 The most simple way to connect external functions/variable is to implement them as methods/fields in a class, and then connect the class or its instance to the Vnano engine as a plug-in. 
 For example, see the following part in "Example.java":
@@ -2220,13 +2300,15 @@ Implementation of these plug-ins are little complicated, but overhead costs of a
 For external variables, as we described at the top of this chapter, 
 values of them will be synchronized between the host-application-side (plug-in-side) and script-side 
 ONLY at the beginning and end of the execution of the script code, 
-so it rarely has the merit to handle data container objects directly 
-in the plug-in implementations of XVCI1 to reduce overhead costs of accessings.
+so it rarely has advantages to handle data container objects directly 
+in the plug-in implementations of XVCI1 to reduce overhead costs of accessings
+(however, there are advantages when you can't ignore overhead costs even for few times of conversions, 
+for example: when you want to connect extremely large size arrays as external variables.).
 
-外部変数については、先に述べた通り、
-スクリプト内と値が同期されるのは実行開始時/終了時の2回のみであるため、
-あまりそこのオーバーヘッドを削ってもメリットはなく、
-従って普通は、上のようにXVCI1プラグイン内で、処理系依存のデータコンテナを直接操作するメリットもほとんどありません。
+外部変数については、先に述べた通り、スクリプト内と値が同期されるのは実行開始時/終了時のたった2回のみです。
+そのため普通は、上のようにXVCI1プラグイン内で、
+処理系依存のデータコンテナを直接操作してまでオーバーヘッドを削るメリットはそれほどありません
+（非常に大きな配列データを外部変数とする場合など、数回でも軽視できないコストが発生する場合にはメリットがあります）。
 
 In the contrast, for external functions, 
 overhead costs will be burdens every time for each callings from the script code, 
@@ -2236,9 +2318,8 @@ sometimes it gives great advantage to handle data container objects directly
 in the plug-in implementations of XFCI1, as the above example code.
 
 一方で外部関数については、スクリプト内から呼び出す度に毎回オーバーヘッドが影響するため、
-呼び出し頻度によってはそのオーバーヘッドを削る事には大きなメリットがあります。
-従って、多少面倒な方法ではありますが、上記のようにXFCI1プラグイン内で処理系依存のデータコンテナを直接操作する事が、
-非常に効果的となるケースも現実的に考えられます。
+呼び出し頻度によってはそのオーバーヘッドがスクリプトの処理速度に大きく影響します。
+従って、多少面倒な方法ではありますが、上記のようにXFCI1プラグイン内で処理系依存のデータコンテナを直接操作する事は、それに見合うだけの大きなメリットを生む場面がそれなりに見込めます。
 
 
 <a id="plugin-correspondence-of-data-types"></a>
@@ -2404,6 +2485,71 @@ In addition, it help you to specify briefly the plug-in in a setting file of a s
 
 上記のように、複数の外部関数/変数プラグインを1つのプラグインにまとめると、スクリプトエンジンへの接続が手軽になります。
 また、Vnanoを使用するソフトウェア（ 例えば<a href="https://github.com/RINEARN/rinearn-processor-nano">リニアンプロセッサー nano</a> など ）において、設定ファイルでプラグインを指定する際などにも、手軽に済むようになります。
+
+
+<a id="plugin-official"></a>
+### Use Official Plug-ins - 公式プラグインを利用する
+
+Some official plug-ins are being developed/provided on the following repository:
+
+以下のリポジトリで、いくつかの公式プラグインが開発/提供されています：
+
+* <a href="https://github.com/RINEARN/vnano-plugin">https://github.com/RINEARN/vnano-plugin</a>
+
+For building steps, read the README on the above repository. 
+When the building of source code of official plug-ins succeeded, "plugin" folder will be generated, 
+so put it in the working folder.
+
+ビルド方法については、上記リポジトリのREADMEをご参照ください。
+プラグインのソースコードのビルドが完了すると、「 plugin 」フォルダが生成されるので、
+それを作業フォルダに配置してください。
+
+For using above built plug-ins on the command-line mode, use "--plugin" option and "--pluginDir" option as follows:
+
+ビルドしたプラグインをコマンドラインモードで使用するには、以下の例のように --plugin オプションと --pluginDir オプションを使用して読み込みます：
+
+	java -jar Vnano.jar --pluginDir <PlugInFolder> --plugin <PlugInClass> <ScriptName>
+
+For example:
+
+例えば：
+
+	java -jar Vnano.jar --pluginDir ./plugin --plugin org.vcssl.nano.plugin.calc.xci1.ScientificCalculatorPlugin Example.vnano
+
+where "Example.vnano" is a script in which features provided by the plugin are used.
+
+ここで「 Example.vnano 」は、プラグインの機能を使用する適当なスクリプトです。
+
+
+On the other hand, if you use built plug-ins on the Vnano Engine embedded in your application, 
+create instances of plug-ins and connect it as follows in code of your application (Example.java):
+
+一方、ビルドしたプラグインを、アプリケーション内に組み込んだVnanoエンジンに接続して使用したい場合は、
+例えば「 Example.java 」内で以下のようにインスタンスを生成して接続するように記述します。
+
+	// Connect the lugin to the script engine.
+	// プラグインをスクリプトエンジンに接続
+	Object plugin = new org.vcssl.nano.plugin.calc.xci1.ScientificCalculatorPlugin();
+	engine.put("ScientificCalculatorPlugin", plugin);               // engine: ScriptEngine
+	// engine.connectPlugin("ScientificCalculatorPlugin", plugin);  // engine: VnanoEngine
+
+Then compile/execute with adding path of plugin-folder to the classpath as follows.
+If you are using Microsoft&reg; Windows&reg;:
+
+そして、以下のようにプラグインのフォルダをクラスパスに追加しつつコンパイル/実行します。
+Microsoft Windows&reg; をご使用の場合は：
+
+	javac -classpath .;Vnano.jar;./plugin Example.java
+	java -classpath .;Vnano.jar;./plugin Example
+
+If you are using Linux&reg;, etc.:
+
+Linux&reg; 等をご使用の場合は：
+
+	javac -classpath .:Vnano.jar:./plugin Example.java
+	java -classpath .:Vnano.jar:./plugin Example
+
+
 
 <a id="about-us"></a>
 ## About Us - 開発元について
