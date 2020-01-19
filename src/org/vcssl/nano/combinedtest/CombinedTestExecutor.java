@@ -22,6 +22,7 @@ public class CombinedTestExecutor {
 		testElementList.add(new ArithmeticExpressionCombinedTest());
 		testElementList.add(new LogicalExpressionCombinedTest());
 		testElementList.add(new ComparisonExpressionCombinedTest());
+		testElementList.add(new CompoundAssignmentExpressionCombinedTest());
 		testElementList.add(new IfElseStatementCombinedTest());
 		testElementList.add(new WhileStatementCombinedTest());
 		testElementList.add(new ForStatementCombinedTest());
