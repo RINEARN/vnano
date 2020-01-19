@@ -10,6 +10,7 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 
 import org.vcssl.nano.VnanoException;
+import org.vcssl.nano.VnanoFatalException;
 import org.vcssl.nano.compiler.AstNode;
 import org.vcssl.nano.interconnect.AbstractFunction;
 import org.vcssl.nano.interconnect.AbstractVariable;
@@ -507,9 +508,15 @@ public class SemanticAnalyzer {
 					// 複合代入演算子の場合
 					case AttributeValue.ARITHMETIC_COMPOUND_ASSIGNMENT : {
 						AstNode[] inputNodes = currentNode.getChildNodes();
+						String leftOperandType = inputNodes[0].getDataTypeName();
+						String rightOperandType = inputNodes[1].getDataTypeName();
 						dataType = inputNodes[0].getDataTypeName();
-						operationDataType = dataType;
-						rank = inputNodes[0].getRank();
+						operationDataType = this.analyzeArithmeticCompoundAssignmentOperatorDataType(
+								leftOperandType, rightOperandType,
+								currentNode.getAttribute(AttributeKey.OPERATOR_SYMBOL),
+								currentNode.getFileName(), currentNode.getLineNumber()
+						);
+						rank = inputNodes[0].getRank(); // 複合代入演算子で左右の次元が違うものは検査で弾くべき
 						break;
 					}
 
@@ -641,6 +648,59 @@ public class SemanticAnalyzer {
 
 
 	/**
+	 * 算術復号代入演算子のオペランドのデータ型を解析し、演算実行データ型を決定して返します。
+	 *
+	 * オペランドの値は、このメソッドが返す演算実行データ型の値に型変換されてから、演算が実行されます。
+	 * ただし、演算後にキャストが行われ、最終的な演算子の値としてのデータ型は、左辺値と同じ型になります。
+	 *
+	 * このメソッドが返す演算実行データ型は、指定された複合演算子に対応する算術二項演算子における、
+	 * {@link SemanticAnalyzer#analyzeArithmeticBinaryOperatorDataType(String, String, String, String, int)}
+	 * メソッドの呼び出し結果と同様です。
+	 *
+	 * @param leftOperandType 左オペランドのデータ型の名前
+	 * @param rightOperandType 右オペランドのデータ型の名前
+	 * @param operatorSymbol 演算子の記号
+	 * @param fileName 対象処理が記述されたファイル名（例外発生時のエラー情報に使用）
+	 * @param lineNumber 対象処理が記述された行番号（例外発生時のエラー情報に使用）
+	 * @return 演算子の演算実行データ型の名前
+	 * @throws VnanoException 対象演算子に対して使用できないデータ型であった場合にスローされます。
+	 */
+	private String analyzeArithmeticCompoundAssignmentOperatorDataType(
+			String leftOperandType, String rightOperandType, String operatorSymbol,
+			String fileName, int lineNumber) throws VnanoException {
+
+		String arithmeticBinaryOperatorSymbol = null;
+		switch (operatorSymbol) {
+			case ScriptWord.ADDITION_ASSIGNMENT : {
+				arithmeticBinaryOperatorSymbol = ScriptWord.PLUS;
+				break;
+			}
+			case ScriptWord.SUBTRACTION_ASSIGNMENT : {
+				arithmeticBinaryOperatorSymbol = ScriptWord.MINUS;
+				break;
+			}
+			case ScriptWord.MULTIPLICATION_ASSIGNMENT : {
+				arithmeticBinaryOperatorSymbol = ScriptWord.MULTIPLICATION;
+				break;
+			}
+			case ScriptWord.DIVISION_ASSIGNMENT : {
+				arithmeticBinaryOperatorSymbol = ScriptWord.DIVISION;
+				break;
+			}
+			case ScriptWord.REMAINDER_ASSIGNMENT : {
+				arithmeticBinaryOperatorSymbol = ScriptWord.REMAINDER;
+				break;
+			}
+			default : {
+				throw new VnanoFatalException("Invalid arithmetic compound operator: " + operatorSymbol);
+			}
+		}
+		return this.analyzeArithmeticBinaryOperatorDataType(
+			leftOperandType, rightOperandType, arithmeticBinaryOperatorSymbol, fileName, lineNumber
+		);
+	}
+
+	/**
 	 * 算術二項演算子のオペランドのデータ型を解析し、演算実行データ型を決定して返します。
 	 *
 	 * オペランドの値は、このメソッドが返す演算実行データ型の値に型変換されてから、演算が実行されます。
@@ -658,7 +718,7 @@ public class SemanticAnalyzer {
 	 * @param rightOperandType 右オペランドのデータ型の名前
 	 * @param operatorSymbol 演算子の記号
 	 * @param fileName 対象処理が記述されたファイル名（例外発生時のエラー情報に使用）
-	 * @param fileName 対象処理が記述された行番号（例外発生時のエラー情報に使用）
+	 * @param lineNumber 対象処理が記述された行番号（例外発生時のエラー情報に使用）
 	 * @return 演算子の演算実行データ型の名前
 	 * @throws VnanoException 対象演算子に対して使用できないデータ型であった場合にスローされます。
 	 */
@@ -717,7 +777,7 @@ public class SemanticAnalyzer {
 	 * @param rightOperandType 右オペランドのデータ型の名前
 	 * @param operatorSymbol 演算子の記号
 	 * @param fileName 対象処理が記述されたファイル名（例外発生時のエラー情報に使用）
-	 * @param fileName 対象処理が記述された行番号（例外発生時のエラー情報に使用）
+	 * @param lineNumber 対象処理が記述された行番号（例外発生時のエラー情報に使用）
 	 * @return 演算子の演算実行データ型の名前
 	 * @throws VnanoException 対象演算子に対して使用できないデータ型であった場合にスローされます。
 	 */
@@ -779,7 +839,7 @@ public class SemanticAnalyzer {
 	 * @param rightOperandType 右オペランドのデータ型の名前
 	 * @param operatorSymbol 演算子の記号
 	 * @param fileName 対象処理が記述されたファイル名（例外発生時のエラー情報に使用）
-	 * @param fileName 対象処理が記述された行番号（例外発生時のエラー情報に使用）
+	 * @param lineNumber 対象処理が記述された行番号（例外発生時のエラー情報に使用）
 	 * @return 演算子の演算実行データ型の名前
 	 * @throws VnanoException 対象演算子に対して使用できないデータ型であった場合にスローされます。
 	 */
