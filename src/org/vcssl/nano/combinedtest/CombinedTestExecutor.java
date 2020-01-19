@@ -18,6 +18,7 @@ public class CombinedTestExecutor {
 
 
 		// Add test element here
+		testElementList.add(new AssignmentExpressionCombinedTest());
 		testElementList.add(new ArithmeticExpressionCombinedTest());
 		testElementList.add(new LogicalExpressionCombinedTest());
 		testElementList.add(new ComparisonExpressionCombinedTest());
