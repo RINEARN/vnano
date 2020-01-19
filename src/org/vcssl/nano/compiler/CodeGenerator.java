@@ -1465,7 +1465,7 @@ public class CodeGenerator {
 			}
 		}
 
-		return this.generateBinaryOperatorCode(operatorNode, opcode, operatorNode.getChildNodes());
+		return this.generateBinaryOperatorCode(operatorNode, opcode, false, operatorNode.getChildNodes());
 	}
 
 
@@ -1532,7 +1532,7 @@ public class CodeGenerator {
 		}
 
 
-		String binaryOperationCode = this.generateBinaryOperatorCode(operatorNode, opcode, variableNode, stepNode);
+		String binaryOperationCode = this.generateBinaryOperatorCode(operatorNode, opcode, false, variableNode, stepNode);
 		codeBuilder.append(binaryOperationCode);
 
 		String movCode;
@@ -1607,7 +1607,7 @@ public class CodeGenerator {
 			}
 
 			// 二項演算のADDやSUBで演算実行
-			return this.generateBinaryOperatorCode(operatorNode, opcode, variableNode, stepNode);
+			return this.generateBinaryOperatorCode(operatorNode, opcode, false, variableNode, stepNode);
 		}
 	}
 
@@ -1669,7 +1669,7 @@ public class CodeGenerator {
 			}
 		}
 
-		return this.generateBinaryOperatorCode(operatorNode, opcode, operatorNode.getChildNodes());
+		return this.generateBinaryOperatorCode(operatorNode, opcode, false, operatorNode.getChildNodes());
 	}
 
 
@@ -1733,7 +1733,7 @@ public class CodeGenerator {
 			}
 		}
 
-		return this.generateBinaryOperatorCode(operatorNode, opcode, operatorNode.getChildNodes());
+		return this.generateBinaryOperatorCode(operatorNode, opcode, false, operatorNode.getChildNodes());
 	}
 
 
@@ -1817,31 +1817,44 @@ public class CodeGenerator {
 
 		String operatorSymbol = operatorNode.getAttribute(AttributeKey.OPERATOR_SYMBOL);
 
-		String opcode = null;
+		// 対応する算術演算のオペコードを用意
+		String arithmeticOpcode = null;
 		switch (operatorSymbol) {
-			case ScriptWord.ADDITION_ASSIGNMENT :       opcode = OperationCode.ADD.name(); break;
-			case ScriptWord.SUBTRACTION_ASSIGNMENT :    opcode = OperationCode.SUB.name(); break;
-			case ScriptWord.MULTIPLICATION_ASSIGNMENT : opcode = OperationCode.MUL.name(); break;
-			case ScriptWord.DIVISION_ASSIGNMENT :        opcode = OperationCode.DIV.name(); break;
-			case ScriptWord.REMAINDER_ASSIGNMENT :       opcode = OperationCode.REM.name(); break;
+			case ScriptWord.ADDITION_ASSIGNMENT :       arithmeticOpcode = OperationCode.ADD.name(); break;
+			case ScriptWord.SUBTRACTION_ASSIGNMENT :    arithmeticOpcode = OperationCode.SUB.name(); break;
+			case ScriptWord.MULTIPLICATION_ASSIGNMENT : arithmeticOpcode = OperationCode.MUL.name(); break;
+			case ScriptWord.DIVISION_ASSIGNMENT :        arithmeticOpcode = OperationCode.DIV.name(); break;
+			case ScriptWord.REMAINDER_ASSIGNMENT :       arithmeticOpcode = OperationCode.REM.name(); break;
 			default : {
 				throw new VnanoFatalException("Invalid operator symbol for arithmetic compound assignment operators: " + operatorSymbol);
 			}
 		}
 
 		AstNode[] childNodes = operatorNode.getChildNodes();
-		AstNode[] operandNodes = { childNodes[0], childNodes[1] };
+		AstNode[] arithmeticOperandNodes = { childNodes[0], childNodes[1] };
 
-		return this.generateBinaryOperatorCode(operatorNode, opcode, operandNodes);
+		String executionType = operatorNode.getAttribute(AttributeKey.OPERATOR_EXECUTION_DATA_TYPE); // 算術演算の型
+		String resultType = operatorNode.getAttribute(AttributeKey.DATA_TYPE); // 演算子の値の型 = 代入先の変数の型
+		boolean castBeforeStoringNecessary = !executionType.equals(resultType);
 
-		// 型が違う場合のオペランドのキャストをどういうルールにするかは、どこかのタイミングで再検討すべきかも。
+		return this.generateBinaryOperatorCode(operatorNode, arithmeticOpcode, castBeforeStoringNecessary, arithmeticOperandNodes);
+
+		// (古いコメント)：型が違う場合のオペランドのキャストをどういうルールにするかは、どこかのタイミングで再検討すべきかも。
 		// 現状では int += float; の加算は、両オペランドを代入先の型である int に揃えてから行うようにしている。
 		// しかし単純な算術二項演算子の加算のコンパイル結果では、両オペランドを float に揃えてから行うので、
 		// 算術複合代入演算子でも、算術二項演算子と同じようにキャストして演算してから、代入先の型に再キャストして代入すべき？
 		// 仮に int += string; とかの場合は、結合文字列を整数に再変換するのか、それとも右辺を整数に変換してから加算するのかで結果が違う。
 		// それとも、型が異なる複合代入演算は解釈が紛らわしいのでコンパイラで弾くべき？
-	}
 
+		// -> (後記コメント)：数値型同士でも int *= float; 等で明らかに違いが出てくるが、算術演算との整合性を考慮すると、
+		//    演算自体は両オペランドの型に基づいて算術演算子と同様の型で行うのが妥当、というかそうじゃないとまずいと思う。
+		//    なので、演算実行時の型を算術二項演算子と同じに変更した上で、その演算結果を左辺型にキャストして代入するようにした。
+
+		//    ただそうすると、int += string 等が文字列結合後の int キャスト代入になるのは、
+		//    書き手の意図からすると恐らく混乱の元になりそうなので、string と別の型との += 演算はサポートから外して弾くべきかもしれない。
+		//    そもそもそんな演算はできても嬉しくない気がするし、読み手の事を考えても最初から書けない方が良い気がする。
+		//    後々で要検討。
+	}
 
 
 	/**
@@ -1855,10 +1868,11 @@ public class CodeGenerator {
 	 * （{@link AstNode.Type#OPERATOR OPERATOR}タイプ、
 	 *   {@link AttributeKey#OPERATOR_SYNTAX OPERATOR_SYNTAX}属性値が{@link AttributeValue#BINARY BINARY}）
 	 * @param operationCode 中間アセンブリコードにおけるオペレーションコード
+	 * @param castBeforeStoring 演算結果を格納前に一旦控えてキャストする必要がある場合に true を指定します（異なる型の間の複合代入演算子など）。
 	 * @param inputNodes オペランドとなるASTノード
 	 * @return 生成コード
 	 */
-	private String generateBinaryOperatorCode(AstNode operatorNode, String operationCode, AstNode ...inputNodes) {
+	private String generateBinaryOperatorCode(AstNode operatorNode, String operationCode, boolean castBeforeStoring, AstNode ...inputNodes) {
 
 
 		// ここは暫定的にベタ書きなため、後で色々と切り出して要リファクタリング
@@ -1921,7 +1935,7 @@ public class CodeGenerator {
 		}
 
 
-		// 入力値の型が演算結果の型と異なる場合は、型変換を行う
+		// 入力値の型が演算実行データ型と異なる場合は、型変換を行う
 		if (castNecessary) {
 
 			for (int inputIndex=0; inputIndex<inputLength; inputIndex++) {
@@ -1980,11 +1994,32 @@ public class CodeGenerator {
 			);
 		}
 
+		// 演算結果を、出力先に格納する前に控えてからキャスト代入する必要がある場合
+		if (castBeforeStoring) {
 
-		// 演算実行コード生成
-		codeBuilder.append(
-			this.generateInstruction(operationCode, executionDataType, output, input[0], input[1])
-		);
+			// 一時控え用レジスタを確保
+			String storeRegister = this.generateRegisterOperandCode();
+			codeBuilder.append(
+				this.generateRegisterAllocationCode(executionDataType, storeRegister, lengthsDeterminer, rank)
+			);
+			// 演算実行コード生成（算術複合代入演算子の場合は算術演算）
+			codeBuilder.append(
+				this.generateInstruction(operationCode, executionDataType, storeRegister, input[0], input[1])
+			);
+			// キャスト命令のコードを生成（キャスト結果の格納先が output なので、結果的に output に代入される）
+			String castTypeOperand = resultDataType + AssemblyWord.VALUE_SEPARATOR + executionDataType;
+			codeBuilder.append(
+				this.generateInstruction(OperationCode.CAST.name(), castTypeOperand, output, storeRegister)
+			);
+
+		// 演算結果と出力先との間にキャストが不要な場合： 命令がもともと3オペランドで先頭が格納先なので、単純に単一命令を生成
+		} else {
+
+			// 演算実行コード生成
+			codeBuilder.append(
+				this.generateInstruction(operationCode, executionDataType, output, input[0], input[1])
+			);
+		}
 
 		return codeBuilder.toString();
 	}

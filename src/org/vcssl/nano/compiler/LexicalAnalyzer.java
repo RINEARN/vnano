@@ -391,7 +391,8 @@ public class LexicalAnalyzer {
 			} else if (word.equals(ScriptWord.ADDITION_ASSIGNMENT)
 					|| word.equals(ScriptWord.SUBTRACTION_ASSIGNMENT)
 					|| word.equals(ScriptWord.MULTIPLICATION_ASSIGNMENT)
-					|| word.equals(ScriptWord.DIVISION_ASSIGNMENT)) {
+					|| word.equals(ScriptWord.DIVISION_ASSIGNMENT)
+					|| word.equals(ScriptWord.REMAINDER_ASSIGNMENT)) {
 
 				tokens[i].setType(Token.Type.OPERATOR);
 				tokens[i].setAttribute(AttributeKey.OPERATOR_EXECUTOR, AttributeValue.ARITHMETIC_COMPOUND_ASSIGNMENT);
