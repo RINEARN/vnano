@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2019 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2020 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -9,8 +9,10 @@ package org.vcssl.nano.vm.accelerator;
 import java.io.PrintStream;
 import java.util.Map;
 
-import org.vcssl.nano.VnanoFatalException;
+import org.vcssl.nano.VnanoException;
 import org.vcssl.nano.interconnect.Interconnect;
+import org.vcssl.nano.spec.ErrorType;
+import org.vcssl.nano.spec.MetaInformationSyntax;
 import org.vcssl.nano.spec.OptionKey;
 import org.vcssl.nano.spec.OptionValue;
 import org.vcssl.nano.vm.memory.Memory;
@@ -71,7 +73,7 @@ public class Accelerator {
 	 * 		不正な仮想メモリーアクセスが生じた場合などに発生します。
 	 */
 	public void process(Instruction[] instructions, Memory memory, Interconnect interconnect, Processor processor,
-			Map<String, Object> optionMap) {
+			Map<String, Object> optionMap) throws VnanoException {
 
 		// オプションマップから指定内容を取得
 		boolean shouldDump = (Boolean)optionMap.get(OptionKey.DUMPER_ENABLED);        // ダンプするかどうか
@@ -166,17 +168,29 @@ public class Accelerator {
 			while (nextNode != null) {
 				nextNode = nextNode.execute();
 			}
-		} catch (Exception causeException) {
+
+		// 想定内の実行時例外は、下層で既に詳細情報等が埋め込まれているので、そのまま上層に投げる
+		} catch (VnanoException vne) {
+			throw vne;
+
+		// 想定外の実行時例外は、原因箇所などの情報を補完した例外に変換し、上層に投げる
+		} catch (Exception e) {
 			AcceleratorInstruction causeInstruction = nextNode.getSourceInstruction();
+
+			// 命令のメタ情報から、スクリプト内で命令に対応する箇所のファイル名や行番号を抽出
+			int lineNumber = MetaInformationSyntax.extractLineNumber(causeInstruction, memory);
+			String fileName = MetaInformationSyntax.extractFileName(causeInstruction, memory);
+
+			// 命令内容や、再配置前後の命令アドレスなどのデバッグ情報を配列に詰める
 			int unreorderedAddress = causeInstruction.getUnreorderedAddress();
 			int reorderedAddress = causeInstruction.getReorderedAddress();
-			String errorMessage = "Accelerator crashed at:"
-					+ " originalAddress=" + unreorderedAddress
-					+ " reorderedAddress=" + reorderedAddress
-					+ " instruction=" + causeInstruction;
-			throw new VnanoFatalException(errorMessage, causeException);
-		}
+			String[] errorWords = {
+					Integer.toString(unreorderedAddress), Integer.toString(reorderedAddress), causeInstruction.toString()
+			};
 
+			// 情報を補完した例外を生成して投げる
+			throw new VnanoException(ErrorType.ACCELERATOR_CRASHED, errorWords, e, fileName, lineNumber);
+		}
 
 		// ダンプ内容に実行終了点を表す区切りを入れる
 		if (shouldDump && dumpTargetIsAll) {

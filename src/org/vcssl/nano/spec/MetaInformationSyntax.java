@@ -6,6 +6,9 @@
 package org.vcssl.nano.spec;
 
 import org.vcssl.nano.VnanoFatalException;
+import org.vcssl.nano.vm.memory.DataContainer;
+import org.vcssl.nano.vm.memory.Memory;
+import org.vcssl.nano.vm.processor.Instruction;
 
 // Documentation:  https://www.vcssl.org/en-us/dev/code/main-jimpl/api/org/vcssl/nano/spec/MetaInformationSyntax.html
 // ドキュメント:   https://www.vcssl.org/ja-jp/dev/code/main-jimpl/api/org/vcssl/nano/spec/MetaInformationSyntax.html
@@ -82,6 +85,34 @@ public class MetaInformationSyntax {
 
 
 	/**
+	 * <span class="lang-en">Extracts the line number embedded in the meta information linked to the specified instruction</span>
+	 * <span class="lang-ja">指定された命令に紐づけられた、メタ情報に埋め込まれた行番号を抽出して返します</span>
+	 * .
+	 * @param instruction
+	 *   <span class="lang-en">The instruction of which meta information contains the line number to be extracted.</span>
+	 *   <span class="lang-en">行番号が埋め込まれているメタ情報が添付された命令.</span>
+	 *
+	 * @param memory
+	 *   <span class="lang-en">The memory in which data of meta information is stored.</span>
+	 *   <span class="lang-en">メタ情報のデータが格納されているメモリ.</span>
+	 *
+	 * @return
+	 *   <span class="lang-en">The extracted line number.</span>
+	 *   <span class="lang-en">抽出された行番号.</span>
+	 */
+	public static int extractLineNumber(Instruction instruction, Memory memory) {
+
+		// 命令が持っているメタ情報アドレスでメモリを参照し、命令に対応するスクリプト名や行番号などを抽出
+		DataContainer<?> metaContainer = memory.getDataContainer(
+				instruction.getMetaPartition(), instruction.getMetaAddress()
+		);
+		@SuppressWarnings("unused") // メタ情報はアセンブラで生成され、型は必ず文字列
+		String metaInformation = ((String[])metaContainer.getData())[0];
+		return extractLineNumber(metaInformation);
+	}
+
+
+	/**
 	 * <span class="lang-en">Extracts the file name embedded in the meta information</span>
 	 * <span class="lang-ja">メタ情報に埋め込まれたファイル名を抽出して返します</span>
 	 * .
@@ -102,4 +133,33 @@ public class MetaInformationSyntax {
 		}
 		throw new VnanoFatalException("Invalid meta information: no file name found.");
 	}
+
+
+	/**
+	 * <span class="lang-en">Extracts the file name embedded in the meta information linked to the specified instruction</span>
+	 * <span class="lang-ja">指定された命令に紐づけられた、メタ情報に埋め込まれたファイル名を抽出して返します</span>
+	 * .
+	 * @param instruction
+	 *   <span class="lang-en">The instruction of which meta information contains the file name to be extracted.</span>
+	 *   <span class="lang-en">ファイル名が埋め込まれているメタ情報が添付された命令.</span>
+	 *
+	 * @param memory
+	 *   <span class="lang-en">The memory in which data of meta information is stored.</span>
+	 *   <span class="lang-en">メタ情報のデータが格納されているメモリ.</span>
+	 *
+	 * @return
+	 *   <span class="lang-en">The extracted file name.</span>
+	 *   <span class="lang-en">抽出されたファイル名.</span>
+	 */
+	public static String extractFileName(Instruction instruction, Memory memory) {
+
+		// 命令が持っているメタ情報アドレスでメモリを参照し、命令に対応するスクリプト名や行番号などを抽出
+		DataContainer<?> metaContainer = memory.getDataContainer(
+				instruction.getMetaPartition(), instruction.getMetaAddress()
+		);
+		@SuppressWarnings("unused") // メタ情報はアセンブラで生成され、型は必ず文字列
+		String metaInformation = ((String[])metaContainer.getData())[0];
+		return extractFileName(metaInformation);
+	}
+
 }

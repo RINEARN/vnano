@@ -16,7 +16,6 @@ import org.vcssl.nano.spec.MetaInformationSyntax;
 import org.vcssl.nano.spec.OperationCode;
 import org.vcssl.nano.spec.OptionKey;
 import org.vcssl.nano.spec.OptionValue;
-import org.vcssl.nano.vm.memory.DataContainer;
 import org.vcssl.nano.vm.memory.Memory;
 
 
@@ -186,14 +185,9 @@ public class Processor implements Processable {
 			// 想定外の実行時例外は、原因箇所などの情報を補完した例外に変換し、上層に投げる
 			} catch (Exception e) {
 
-				// 命令が持っているメタ情報アドレスでメモリを参照し、命令に対応するスクリプト名や行番号などを抽出
-				DataContainer<?> metaContainer = memory.getDataContainer(
-						instructions[programCounter].getMetaPartition(), instructions[programCounter].getMetaAddress()
-				);
-				@SuppressWarnings("unused") // メタ情報はアセンブラで生成され、型は必ず文字列
-				String metaInformation = ((String[])metaContainer.getData())[0];
-				int lineNumber = MetaInformationSyntax.extractLineNumber(metaInformation);
-				String fileName = MetaInformationSyntax.extractFileName(metaInformation);
+				// 命令のメタ情報から、スクリプト内で命令に対応する箇所のファイル名や行番号を抽出
+				int lineNumber = MetaInformationSyntax.extractLineNumber(instructions[programCounter], memory);
+				String fileName = MetaInformationSyntax.extractFileName(instructions[programCounter], memory);
 
 				// 抽出したスクリプト名や行番号を持つ例外を生成して投げる
 				throw new VnanoException(ErrorType.UNEXPECTED, e, fileName, lineNumber);
