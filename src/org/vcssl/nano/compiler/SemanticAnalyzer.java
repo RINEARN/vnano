@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2019 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2020 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -730,29 +730,50 @@ public class SemanticAnalyzer {
 		if (DataTypeName.isDataTypeNameOf(DataType.STRING,leftOperandType)
 				|| DataTypeName.isDataTypeNameOf(DataType.STRING,rightOperandType) ) {
 
+			// 加算だけ許可する
 			if (operatorSymbol.equals(ScriptWord.PLUS)) {
 				return DataTypeName.STRING;
 			}
 		}
+
 		// 整数同士は整数
 		if (DataTypeName.isDataTypeNameOf(DataType.INT64,leftOperandType)
 				&& DataTypeName.isDataTypeNameOf(DataType.INT64,rightOperandType) ) {
-			return DataTypeName.INT;
+			if (this.containsDataTypeInOperands(DataTypeName.LONG, leftOperandType, rightOperandType)) {
+				return DataTypeName.LONG;
+			} else {
+				return DataTypeName.INT;
+			}
 		}
+
 		// 浮動小数点数同士は浮動小数点数
 		if (DataTypeName.isDataTypeNameOf(DataType.FLOAT64,leftOperandType)
 				&& DataTypeName.isDataTypeNameOf(DataType.FLOAT64,rightOperandType) ) {
-			return DataTypeName.FLOAT;
+			if (this.containsDataTypeInOperands(DataTypeName.DOUBLE, leftOperandType, rightOperandType)) {
+				return DataTypeName.DOUBLE;
+			} else {
+				return DataTypeName.FLOAT;
+			}
 		}
+
 		// 整数と浮動小数点数の混合は浮動小数点数
 		if (DataTypeName.isDataTypeNameOf(DataType.INT64,leftOperandType)
 				&& DataTypeName.isDataTypeNameOf(DataType.FLOAT64,rightOperandType) ) {
-			return DataTypeName.FLOAT;
+			if (this.containsDataTypeInOperands(DataTypeName.DOUBLE, leftOperandType, rightOperandType)) {
+				return DataTypeName.DOUBLE;
+			} else {
+				return DataTypeName.FLOAT;
+			}
 		}
+
 		// 浮動小数点数と整数の混合は浮動小数点数
 		if (DataTypeName.isDataTypeNameOf(DataType.FLOAT64,leftOperandType)
 				&& DataTypeName.isDataTypeNameOf(DataType.INT64,rightOperandType) ) {
-			return DataTypeName.FLOAT;
+			if (this.containsDataTypeInOperands(DataTypeName.DOUBLE, leftOperandType, rightOperandType)) {
+				return DataTypeName.DOUBLE;
+			} else {
+				return DataTypeName.FLOAT;
+			}
 		}
 
 		throw new VnanoException(
@@ -760,6 +781,11 @@ public class SemanticAnalyzer {
 			new String[] {operatorSymbol, leftOperandType, rightOperandType},
 			fileName, lineNumber
 		);
+	}
+
+
+	private boolean containsDataTypeInOperands(String dataType, String leftOperandType, String rightOperandType) {
+		return leftOperandType.equals(dataType) || rightOperandType.equals(dataType);
 	}
 
 	/**
@@ -790,30 +816,51 @@ public class SemanticAnalyzer {
 				|| DataTypeName.isDataTypeNameOf(DataType.STRING,rightOperandType) ) {
 				return DataTypeName.STRING;
 		}
+
 		// 論理型同士は論理型
 		if (DataTypeName.isDataTypeNameOf(DataType.BOOL,leftOperandType)
 				&& DataTypeName.isDataTypeNameOf(DataType.BOOL,rightOperandType) ) {
 			return DataTypeName.BOOL;
 		}
+
 		// 整数同士は整数
 		if (DataTypeName.isDataTypeNameOf(DataType.INT64,leftOperandType)
 				&& DataTypeName.isDataTypeNameOf(DataType.INT64,rightOperandType) ) {
-			return DataTypeName.INT;
+			if (this.containsDataTypeInOperands(DataTypeName.LONG, leftOperandType, rightOperandType)) {
+				return DataTypeName.LONG;
+			} else {
+				return DataTypeName.INT;
+			}
 		}
+
 		// 浮動小数点数同士は浮動小数点数
 		if (DataTypeName.isDataTypeNameOf(DataType.FLOAT64,leftOperandType)
 				&& DataTypeName.isDataTypeNameOf(DataType.FLOAT64,rightOperandType) ) {
-			return DataTypeName.FLOAT;
+			if (this.containsDataTypeInOperands(DataTypeName.DOUBLE, leftOperandType, rightOperandType)) {
+				return DataTypeName.DOUBLE;
+			} else {
+				return DataTypeName.FLOAT;
+			}
 		}
+
 		// 整数と浮動小数点数の混合は浮動小数点数
 		if (DataTypeName.isDataTypeNameOf(DataType.INT64,leftOperandType)
 				&& DataTypeName.isDataTypeNameOf(DataType.FLOAT64,rightOperandType) ) {
-			return DataTypeName.FLOAT;
+			if (this.containsDataTypeInOperands(DataTypeName.DOUBLE, leftOperandType, rightOperandType)) {
+				return DataTypeName.DOUBLE;
+			} else {
+				return DataTypeName.FLOAT;
+			}
 		}
+
 		// 浮動小数点数と整数の混合は浮動小数点数
 		if (DataTypeName.isDataTypeNameOf(DataType.FLOAT64,leftOperandType)
 				&& DataTypeName.isDataTypeNameOf(DataType.INT64,rightOperandType) ) {
-			return DataTypeName.FLOAT;
+			if (this.containsDataTypeInOperands(DataTypeName.DOUBLE, leftOperandType, rightOperandType)) {
+				return DataTypeName.DOUBLE;
+			} else {
+				return DataTypeName.FLOAT;
+			}
 		}
 
 		throw new VnanoException(
