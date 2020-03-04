@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2019 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2020 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -93,6 +93,12 @@ public class VnanoException extends Exception {
 
 	public VnanoException(ErrorType errorType, Throwable cause) {
 		this(errorType, (String)null, cause);
+	}
+
+	public VnanoException(ErrorType errorType, Throwable cause, String fileName, int lineNumber) {
+		this(errorType, (String)null, cause);
+		this.fileName = fileName;
+		this.lineNumber = lineNumber;
 	}
 
 	public ErrorType getErrorType() {

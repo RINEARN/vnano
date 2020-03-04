@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2019 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2020 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -11,9 +11,12 @@ import java.util.Map;
 
 import org.vcssl.nano.VnanoException;
 import org.vcssl.nano.interconnect.Interconnect;
+import org.vcssl.nano.spec.ErrorType;
+import org.vcssl.nano.spec.MetaInformationSyntax;
 import org.vcssl.nano.spec.OperationCode;
 import org.vcssl.nano.spec.OptionKey;
 import org.vcssl.nano.spec.OptionValue;
+import org.vcssl.nano.vm.memory.DataContainer;
 import org.vcssl.nano.vm.memory.Memory;
 
 
@@ -169,10 +172,32 @@ public class Processor implements Processable {
 		// 以下、命令の逐次実行ループ
 		// (プログラムカウンタが命令列の末尾に達するまで、1個ずつ命令を演算ユニットにディスパッチして実行する)
 		while (0 <= programCounter && programCounter < instructionLength) {
+
 			// 命令を1個実行し、プログラムカウンタの値を更新
-			programCounter = dispatchUnit.dispatch(
-				instructions[programCounter], memory, interconnect, executionUnit, functionRunningFlags, programCounter
-			);
+			try {
+				programCounter = dispatchUnit.dispatch(
+					instructions[programCounter], memory, interconnect, executionUnit, functionRunningFlags, programCounter
+				);
+
+			// 想定内の実行時例外は、下層で既に詳細情報等が埋め込まれているので、そのまま上層に投げる
+			} catch (VnanoException vne) {
+				throw vne;
+
+			// 想定外の実行時例外は、原因箇所などの情報を補完した例外に変換し、上層に投げる
+			} catch (Exception e) {
+
+				// 命令が持っているメタ情報アドレスでメモリを参照し、命令に対応するスクリプト名や行番号などを抽出
+				DataContainer<?> metaContainer = memory.getDataContainer(
+						instructions[programCounter].getMetaPartition(), instructions[programCounter].getMetaAddress()
+				);
+				@SuppressWarnings("unused") // メタ情報はアセンブラで生成され、型は必ず文字列
+				String metaInformation = ((String[])metaContainer.getData())[0];
+				int lineNumber = MetaInformationSyntax.extractLineNumber(metaInformation);
+				String fileName = MetaInformationSyntax.extractFileName(metaInformation);
+
+				// 抽出したスクリプト名や行番号を持つ例外を生成して投げる
+				throw new VnanoException(ErrorType.UNEXPECTED, e, fileName, lineNumber);
+			}
 		}
 
 
