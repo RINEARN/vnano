@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2019 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2020 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -73,6 +73,14 @@ public class VnanoException extends Exception {
 		this(errorType, errorWords, (String)null, -1);
 	}
 
+	public VnanoException(ErrorType errorType, String[] errorWords, Throwable cause, String fileName, int lineNumber) {
+		super(ErrorMessage.generateErrorMessage(errorType, errorWords), cause);
+		this.errorType = errorType;
+		this.errorWords = errorWords;
+		this.fileName = fileName;
+		this.lineNumber = lineNumber;
+	}
+
 	public VnanoException(ErrorType errorType, String[] errorWords, String fileName, int lineNumber) {
 		super(ErrorMessage.generateErrorMessage(errorType, errorWords));
 		this.errorType = errorType;
@@ -82,9 +90,7 @@ public class VnanoException extends Exception {
 	}
 
 	public VnanoException(ErrorType errorType, String[] errorWords, Throwable cause) {
-		super(cause);
-		this.errorType = errorType;
-		this.errorWords = errorWords;
+		this(errorType, errorWords, cause, (String)null, -1);
 	}
 
 	public VnanoException(ErrorType errorType, String errorWord, Throwable cause) {
@@ -93,6 +99,10 @@ public class VnanoException extends Exception {
 
 	public VnanoException(ErrorType errorType, Throwable cause) {
 		this(errorType, (String)null, cause);
+	}
+
+	public VnanoException(ErrorType errorType, Throwable cause, String fileName, int lineNumber) {
+		this(errorType, (String[])null, cause);
 	}
 
 	public ErrorType getErrorType() {
@@ -139,7 +149,14 @@ public class VnanoException extends Exception {
 	public String getMessage() {
 		String message = this.getMessageWithoutLocation();
 		if (this.hasFileName() && this.hasLineNumber()) {
-			message += " (script:" + this.getFileName() + ", line:" + this.getLineNumber() + ")";
+
+			if (   ( this.locale.getLanguage()!=null && this.locale.getLanguage().equals("ja") )
+				   || ( this.locale.getCountry()!=null && this.locale.getCountry().equals("JP") )   ) {
+
+				message += " (ファイル: " + this.getFileName() + ", 行番号: " + this.getLineNumber() + ")";
+			} else {
+				message += " (file: " + this.getFileName() + ", line: " + this.getLineNumber() + ")";
+			}
 		}
 		return message;
 	}

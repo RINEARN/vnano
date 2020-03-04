@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2019 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2020 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -16,6 +16,7 @@ import org.vcssl.nano.spec.AssemblyWord;
 import org.vcssl.nano.spec.DataTypeName;
 import org.vcssl.nano.spec.IdentifierSyntax;
 import org.vcssl.nano.spec.LiteralSyntax;
+import org.vcssl.nano.spec.MetaInformationSyntax;
 import org.vcssl.nano.spec.OperationCode;
 import org.vcssl.nano.spec.OptionValue;
 import org.vcssl.nano.spec.ScriptWord;
@@ -2349,21 +2350,18 @@ public class CodeGenerator {
 	 */
 	private String generateMetaDirectiveCode(AstNode node) {
 
+		// ファイル名はオプションマップの正規化時に既にエスケープされているはずだが、念のため出力直前にもエスケープしておく
+		String escapedFileName = OptionValue.escapeScriptName(node.getFileName());
+
 		StringBuilder codeBuilder = new StringBuilder();
 
 		codeBuilder.append(AssemblyWord.META_DIRECTIVE);
 		codeBuilder.append(AssemblyWord.WORD_SEPARATOR);
-		codeBuilder.append("\"");
-		codeBuilder.append("line=");
-		codeBuilder.append(node.getLineNumber());
-		codeBuilder.append(", ");
-		codeBuilder.append("file=");
-
-		// オプションマップの正規化時に既にエスケープされているはずだが、念のため出力直前にもエスケープしておく
-		String escapedFileName = OptionValue.escapeScriptName(node.getFileName());
-		codeBuilder.append(escapedFileName);
 
 		codeBuilder.append("\"");
+		codeBuilder.append(MetaInformationSyntax.generateMetaInformation(node.getLineNumber(), escapedFileName));
+		codeBuilder.append("\"");
+
 		codeBuilder.append(AssemblyWord.INSTRUCTION_SEPARATOR);
 		codeBuilder.append(AssemblyWord.LINE_SEPARATOR);
 

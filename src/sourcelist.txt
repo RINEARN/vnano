@@ -62,6 +62,7 @@ org/vcssl/nano/spec/ErrorMessage.java
 org/vcssl/nano/spec/ErrorType.java
 org/vcssl/nano/spec/IdentifierSyntax.java
 org/vcssl/nano/spec/LiteralSyntax.java
+org/vcssl/nano/spec/MetaInformationSyntax.java
 org/vcssl/nano/spec/OperationCode.java
 org/vcssl/nano/spec/OperatorPrecedence.java
 org/vcssl/nano/spec/OptionKey.java
