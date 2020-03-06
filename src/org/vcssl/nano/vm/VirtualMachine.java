@@ -109,7 +109,7 @@ public class VirtualMachine {
 	 *   <span class="lang-en">Thrown when a runtime error is occurred.</span>
 	 *   <span class="lang-ja">実行時エラーが発生した場合にスローされます.</span>
 	 */
-	public Object eval(String assemblyCode, Interconnect interconnect, Map<String, Object> optionMap)
+	public Object executeAssemblyCode(String assemblyCode, Interconnect interconnect, Map<String, Object> optionMap)
 			throws VnanoException {
 
 		// VRIL実行用途でアプリケーションから直接呼ばれる事も考えられるため、オプション内容の正規化を再度行っておく

@@ -2,6 +2,7 @@ package org.vcssl.nano.vm.accelerator;
 
 import java.util.Arrays;
 
+import org.vcssl.nano.VnanoException;
 import org.vcssl.nano.VnanoFatalException;
 import org.vcssl.nano.interconnect.Interconnect;
 import org.vcssl.nano.spec.OperationCode;
@@ -85,7 +86,7 @@ public class BypassUnit extends AcceleratorExecutionUnit {
 		}
 
 		@Override
-		public final AcceleratorExecutionNode execute() {
+		public final AcceleratorExecutionNode execute() throws VnanoException {
 			try {
 				this.preSynchronizer.synchronizeFromCacheToMemory();
 
@@ -94,6 +95,9 @@ public class BypassUnit extends AcceleratorExecutionUnit {
 				this.postSynchronizer.synchronizeFromMemoryToCache();
 
 				return this.nextNode;
+
+			} catch (VnanoException vne) {
+				throw vne;
 
 			} catch (Exception e) {
 				throw new VnanoFatalException(e);

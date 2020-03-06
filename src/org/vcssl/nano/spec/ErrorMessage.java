@@ -91,7 +91,7 @@ public class ErrorMessage {
 			case JAGGED_ARRAY : return "長さが異なる配列をまとめた配列、いわゆるジャグ配列は、このスクリプトエンジンでは扱えません。";
 			case CAST_FAILED_DUE_TO_VALUE : return "データ「 " + words[0] + " 」の「 " + words[1] + " 」型への変換に失敗しました。";
 			case CAST_FAILED_DUE_TO_TYPE : return words[0] + "型のデータの「 " + words[1] + " 」型への変換に失敗しました。";
-			case FUNCTION_IS_DECLARED_IN_INVALID_PLASE : return "関数をここで宣言する事はできません";
+			case FUNCTION_IS_DECLARED_IN_INVALID_PLASE : return "関数をここで宣言する事はできません。";
 			case INVALID_ARGUMENT_DECLARATION : return "引数の宣言内容が正しくありません。";
 			case RECURSIVE_FUNCTION_CALL : return "関数の再帰呼び出しが検出されましたが、このスクリプトエンジンではサポートされていません。";
 			case INVALID_EXTERNAL_FUNCTION_SIGNATURE : return "外部関数の接続時の表記「 " + words[0] + " 」が正しくありません。正しい表記は「 " + words[1] + " 」か、そこから関数名のみを変更したものです。";
@@ -101,8 +101,9 @@ public class ErrorMessage {
 			case INVALID_OPTION_VALUE_TYPE : return "オプション「 " + words[0] + " 」の値は「 " + words[1] + " 」型で指定する必要があります。";
 			case INVALID_OPTION_VALUE_CONTENT : return "オプション「 " + words[0] + " 」の値「 " + words[1] + " 」が、正しい内容ではありません。";
 			case DATA_CONVERSION_OF_FUNCTION_PLUGIN_USING_OBJECT_TYPE_SHOULD_BE_DISABLED : return "外部関数「 " + words[0] + " 」のプラグインは、Object型の引数または戻り値を持つため、データ変換機能が無効に設定されていなければなりません。";
+			case INVALID_ARRAY_INDEX : return "配列のアクセス可能範囲 [ 0 から " + words[1] + " まで ] の外を指すインデックス [ " + words[0] + " ] が指定されました。";
 			case UNEXPECTED_ACCELERATOR_CRASH : return "予期しないVMエラー (命令アドレス: " + words[0] + ", 再配置後命令アドレス: " + words[1] + ")";
-			case UNEXPECTED_PROCESSOR_CRASH : return "予期しないVMエラー (命令アドレス: " + words[0] + ")";
+			case UNEXPECTED_PROCESSOR_CRASH : return "予期しないVMエラー（命令アドレス: " + words[0] + ")";
 			case UNEXPECTED : return "予期しないエラー";
 			case UNKNOWN : return "不明なエラー";
 			default : return "不明なエラー種類：" + errorType;
@@ -155,6 +156,7 @@ public class ErrorMessage {
 			case INVALID_OPTION_VALUE_TYPE : return "The type of the value of \"" + words[0] + "\" option should be \"" + words[1];
 			case INVALID_OPTION_VALUE_CONTENT : return "The value of \"" + words[0] + "\" option \"" + words[1] + "\" is invalid";
 			case DATA_CONVERSION_OF_FUNCTION_PLUGIN_USING_OBJECT_TYPE_SHOULD_BE_DISABLED : return "The data-conversion of the plugin of the external function\"" + words[0] + "\" should be disabled, because this function has Object-type parameters or the return value.";
+			case INVALID_ARRAY_INDEX : return "The array element with the index [ " + words[0] + " ] is accessed, but it is out of the available range [ from 0 to " + words[1] + " ]";
 			case UNEXPECTED_ACCELERATOR_CRASH : return "Unexpected VM Error (instruction-addr: " + words[0] + ", reordered-instruction-addr: " + words[1] + ")";
 			case UNEXPECTED_PROCESSOR_CRASH : return "Unexpected VM Error (instruction-addr: " + words[0] + ")";
 			case UNEXPECTED : return "Unexpected Error";
