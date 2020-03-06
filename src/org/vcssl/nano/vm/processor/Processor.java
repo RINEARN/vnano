@@ -178,19 +178,24 @@ public class Processor implements Processable {
 					instructions[programCounter], memory, interconnect, executionUnit, functionRunningFlags, programCounter
 				);
 
-			// 想定内の実行時例外は、下層で既に詳細情報等が埋め込まれているので、そのまま上層に投げる
-			} catch (VnanoException vne) {
-				throw vne;
-
-			// 想定外の実行時例外は、原因箇所などの情報を補完した例外に変換し、上層に投げる
 			} catch (Exception e) {
+
+				// VnanoException はそのまま、それ以外は VnanoException でラップする
+				VnanoException vne = null;
+				if (e instanceof VnanoException) {
+					vne = (VnanoException)e;
+				} else {
+					vne = new VnanoException(ErrorType.UNEXPECTED, e);
+				}
 
 				// 命令のメタ情報から、スクリプト内で命令に対応する箇所のファイル名や行番号を抽出
 				int lineNumber = MetaInformationSyntax.extractLineNumber(instructions[programCounter], memory);
 				String fileName = MetaInformationSyntax.extractFileName(instructions[programCounter], memory);
 
-				// 抽出したスクリプト名や行番号を持つ例外を生成して投げる
-				throw new VnanoException(ErrorType.UNEXPECTED, e, fileName, lineNumber);
+				// 抽出したスクリプト名や行番号を例外に持たせ、上層に投げる
+				vne.setFileName(fileName);
+				vne.setLineNumber(lineNumber);
+				throw vne;
 			}
 		}
 

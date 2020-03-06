@@ -101,7 +101,8 @@ public class ErrorMessage {
 			case INVALID_OPTION_VALUE_TYPE : return "オプション「 " + words[0] + " 」の値は「 " + words[1] + " 」型で指定する必要があります。";
 			case INVALID_OPTION_VALUE_CONTENT : return "オプション「 " + words[0] + " 」の値「 " + words[1] + " 」が、正しい内容ではありません。";
 			case DATA_CONVERSION_OF_FUNCTION_PLUGIN_USING_OBJECT_TYPE_SHOULD_BE_DISABLED : return "外部関数「 " + words[0] + " 」のプラグインは、Object型の引数または戻り値を持つため、データ変換機能が無効に設定されていなければなりません。";
-			case ACCELERATOR_CRASHED : return "Acceleratorが予期せずクラッシュしました (命令アドレス: " + words[0] + ", 再配置後命令アドレス: " + words[1] + ")";
+			case UNEXPECTED_ACCELERATOR_CRASH : return "予期しないVMエラー (命令アドレス: " + words[0] + ", 再配置後命令アドレス: " + words[1] + ")";
+			case UNEXPECTED_PROCESSOR_CRASH : return "予期しないVMエラー (命令アドレス: " + words[0] + ")";
 			case UNEXPECTED : return "予期しないエラー";
 			case UNKNOWN : return "不明なエラー";
 			default : return "不明なエラー種類：" + errorType;
@@ -154,7 +155,8 @@ public class ErrorMessage {
 			case INVALID_OPTION_VALUE_TYPE : return "The type of the value of \"" + words[0] + "\" option should be \"" + words[1];
 			case INVALID_OPTION_VALUE_CONTENT : return "The value of \"" + words[0] + "\" option \"" + words[1] + "\" is invalid";
 			case DATA_CONVERSION_OF_FUNCTION_PLUGIN_USING_OBJECT_TYPE_SHOULD_BE_DISABLED : return "The data-conversion of the plugin of the external function\"" + words[0] + "\" should be disabled, because this function has Object-type parameters or the return value.";
-			case ACCELERATOR_CRASHED : return "Accelerator has unexpectedly crashed (instruction-addr: " + words[0] + ", reordered-instruction-addr: " + words[1] + ")";
+			case UNEXPECTED_ACCELERATOR_CRASH : return "Unexpected VM Error (instruction-addr: " + words[0] + ", reordered-instruction-addr: " + words[1] + ")";
+			case UNEXPECTED_PROCESSOR_CRASH : return "Unexpected VM Error (instruction-addr: " + words[0] + ")";
 			case UNEXPECTED : return "Unexpected Error";
 			case UNKNOWN : return "Unknown Error";
 			default : return "Unknown Error Type：" + errorType;
