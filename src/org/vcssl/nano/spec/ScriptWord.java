@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2019 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2020 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -292,7 +292,7 @@ public class ScriptWord {
 	 * <span class="lang-ja">配列インデックスの始点記号「 [ 」です</span>
 	 * .
 	 */
-	public static final String INDEX_BEGIN = "[";
+	public static final String SUBSCRIPT_BEGIN = "[";
 
 
 	/**
@@ -300,7 +300,7 @@ public class ScriptWord {
 	 * <span class="lang-ja">配列インデックスの終点記号「 [ 」です</span>
 	 * .
 	 */
-	public static final String INDEX_END = "]";
+	public static final String SUBSCRIPT_END = "]";
 
 
 	/**
@@ -308,7 +308,7 @@ public class ScriptWord {
 	 * <span class="lang-ja">多次元配列インデックスの区切り記号「 ][ 」です</span>
 	 * .
 	 */
-	public static final String INDEX_SEPARATOR = "][";
+	public static final String SUBSCRIPT_SEPARATOR = "][";
 
 
 	/**
@@ -481,9 +481,9 @@ public class ScriptWord {
     	SYMBOL_SET.add(PARENTHESIS_END);
     	SYMBOL_SET.add(BLOCK_BEGIN);
     	SYMBOL_SET.add(BLOCK_END);
-    	SYMBOL_SET.add(INDEX_BEGIN);
-    	SYMBOL_SET.add(INDEX_SEPARATOR);
-    	SYMBOL_SET.add(INDEX_END);
+    	SYMBOL_SET.add(SUBSCRIPT_BEGIN);
+    	SYMBOL_SET.add(SUBSCRIPT_SEPARATOR);
+    	SYMBOL_SET.add(SUBSCRIPT_END);
 
     	SYMBOL_SET.add(END_OF_STATEMENT);
     }

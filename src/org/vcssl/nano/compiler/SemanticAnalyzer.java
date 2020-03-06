@@ -564,7 +564,7 @@ public class SemanticAnalyzer {
 					}
 
 					// 配列要素アクセス演算子の場合
-					case AttributeValue.INDEX : {
+					case AttributeValue.SUBSCRIPT : {
 						AstNode[] inputNodes = currentNode.getChildNodes();
 						dataType = inputNodes[0].getDataTypeName();
 						rank = 0;
@@ -1021,7 +1021,7 @@ public class SemanticAnalyzer {
 
 		// 配列アクセス演算子の場合は、アクセス対象の配列の検査に置き換える
 		if(node.getType() == AstNode.Type.OPERATOR
-			&& node.getAttribute(AttributeKey.OPERATOR_EXECUTOR).equals(AttributeValue.INDEX) ) {
+			&& node.getAttribute(AttributeKey.OPERATOR_EXECUTOR).equals(AttributeValue.SUBSCRIPT) ) {
 
 			node = node.getChildNodes()[0];
 		}

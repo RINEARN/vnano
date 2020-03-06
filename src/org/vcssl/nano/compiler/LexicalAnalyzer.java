@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2019 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2020 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -324,25 +324,25 @@ public class LexicalAnalyzer {
 				tokens[i].setAttribute(AttributeKey.OPERATOR_EXECUTOR, AttributeValue.CALL);
 				tokens[i].setAttribute(AttributeKey.OPERATOR_SYNTAX, AttributeValue.MULTIARY_SEPARATOR);
 
-			// インデックスの開き括弧「 [ 」
-			} else if (word.equals(ScriptWord.INDEX_BEGIN)) {
+			// 配列インデックスの開き括弧「 [ 」
+			} else if (word.equals(ScriptWord.SUBSCRIPT_BEGIN)) {
 				tokens[i].setType(Token.Type.OPERATOR);
-				tokens[i].setAttribute(AttributeKey.OPERATOR_EXECUTOR, AttributeValue.INDEX);
+				tokens[i].setAttribute(AttributeKey.OPERATOR_EXECUTOR, AttributeValue.SUBSCRIPT);
 				tokens[i].setAttribute(AttributeKey.OPERATOR_SYNTAX, AttributeValue.MULTIARY);
 
-			// 多次元インデックスの区切り「 ][ 」
+			// 配列インデックスの次元区切り「 ][ 」
 			// (この処理系では, 多次元配列は「配列の配列」ではなく, あくまでもインデックスを複数持つ1個の配列)
-			} else if (word.equals(ScriptWord.INDEX_END + ScriptWord.INDEX_BEGIN)) {
+			} else if (word.equals(ScriptWord.SUBSCRIPT_END + ScriptWord.SUBSCRIPT_BEGIN)) {
 
 				tokens[i].setType(Token.Type.OPERATOR);
-				tokens[i].setAttribute(AttributeKey.OPERATOR_EXECUTOR, AttributeValue.INDEX);
+				tokens[i].setAttribute(AttributeKey.OPERATOR_EXECUTOR, AttributeValue.SUBSCRIPT);
 				tokens[i].setAttribute(AttributeKey.OPERATOR_SYNTAX, AttributeValue.MULTIARY_SEPARATOR);
 
-			// インデックスの閉じ括弧「 ] 」
-			} else if (word.equals(ScriptWord.INDEX_END)) {
+			// 配列インデックスの閉じ括弧「 ] 」
+			} else if (word.equals(ScriptWord.SUBSCRIPT_END)) {
 
 				tokens[i].setType(Token.Type.OPERATOR);
-				tokens[i].setAttribute(AttributeKey.OPERATOR_EXECUTOR, AttributeValue.INDEX);
+				tokens[i].setAttribute(AttributeKey.OPERATOR_EXECUTOR, AttributeValue.SUBSCRIPT);
 				tokens[i].setAttribute(AttributeKey.OPERATOR_SYNTAX, AttributeValue.MULTIARY_END);
 
 			// 文末
@@ -365,7 +365,7 @@ public class LexicalAnalyzer {
 				// 前が「ワードかリテラルか識別子（WORDに分類）か閉じ括弧か配列インデックス閉じ括弧」なら算術二項演算子の加減算
 				if (lastToken!=null && (lastToken.getType()==Token.Type.LEAF
 						|| lastToken.getValue().equals(ScriptWord.PARENTHESIS_END)
-						|| lastToken.getValue().equals(ScriptWord.INDEX_END))) {
+						|| lastToken.getValue().equals(ScriptWord.SUBSCRIPT_END))) {
 
 					tokens[i].setType(Token.Type.OPERATOR);
 					tokens[i].setAttribute(AttributeKey.OPERATOR_EXECUTOR, AttributeValue.ARITHMETIC);
@@ -529,15 +529,15 @@ public class LexicalAnalyzer {
 					tokens[i].setPrecedence(OperatorPrecedence.CALL_SEPARATOR); // 引数区切りのカンマも優先度最低にする必要がある(そうしないと結合してしまう)
 					break;
 
-				case ScriptWord.INDEX_BEGIN:
+				case ScriptWord.SUBSCRIPT_BEGIN:
 					tokens[i].setPrecedence(OperatorPrecedence.INDEX_BEGIN);
 					break;
 
-				case ScriptWord.INDEX_END:
+				case ScriptWord.SUBSCRIPT_END:
 					tokens[i].setPrecedence(OperatorPrecedence.INDEX_END); // MULTIARY系演算子の終端は優先度最低にする必要がある(そうしないと結合してしまう)
 					break;
 
-				case ScriptWord.INDEX_SEPARATOR :
+				case ScriptWord.SUBSCRIPT_SEPARATOR :
 					tokens[i].setPrecedence(OperatorPrecedence.INDEX_SEPARATOR); // 次元区切りのカンマも優先度最低にする必要がある(そうしないと結合してしまう)
 					break;
 

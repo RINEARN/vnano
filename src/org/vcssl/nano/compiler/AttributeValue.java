@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2019 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2020 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -77,7 +77,7 @@ public class AttributeValue {
 	/**
 	 * {@link AttributeKey#OPERATOR_EXECUTOR OPERATOR_EXECUTIOR}属性の値であり、配列要素アクセス演算子を表します。
 	 */
-	public static final String INDEX = "index";
+	public static final String SUBSCRIPT = "subscript";
 
 	/**
 	 * {@link AttributeKey#OPERATOR_EXECUTOR OPERATOR_EXECUTIOR} 属性の値であり、キャスト演算子を表します。

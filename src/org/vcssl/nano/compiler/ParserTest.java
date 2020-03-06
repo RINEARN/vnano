@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2019 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2020 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -157,9 +157,9 @@ public class ParserTest {
 		Token[] tokens = new Token[]{
 			this.createDataTypeToken("int"),
 			this.createVariableIdentifierToken("x"),
-			this.createOperatorToken("[", OperatorPrecedence.INDEX_BEGIN, AttributeValue.LEFT, AttributeValue.MULTIARY, AttributeValue.INDEX),
+			this.createOperatorToken("[", OperatorPrecedence.INDEX_BEGIN, AttributeValue.LEFT, AttributeValue.MULTIARY, AttributeValue.SUBSCRIPT),
 			this.createLiteralToken("2"),
-			this.createOperatorToken("]", OperatorPrecedence.INDEX_END, AttributeValue.LEFT, AttributeValue.MULTIARY, AttributeValue.INDEX),
+			this.createOperatorToken("]", OperatorPrecedence.INDEX_END, AttributeValue.LEFT, AttributeValue.MULTIARY, AttributeValue.SUBSCRIPT),
 			this.createEndToken()
 		};
 
@@ -201,13 +201,13 @@ public class ParserTest {
 		Token[] tokens = new Token[]{
 			this.createDataTypeToken("int"),
 			this.createVariableIdentifierToken("x"),
-			this.createOperatorToken("[", OperatorPrecedence.INDEX_BEGIN, AttributeValue.LEFT, AttributeValue.MULTIARY, AttributeValue.INDEX),
+			this.createOperatorToken("[", OperatorPrecedence.INDEX_BEGIN, AttributeValue.LEFT, AttributeValue.MULTIARY, AttributeValue.SUBSCRIPT),
 			this.createLiteralToken("1"),
 			this.createOperatorToken("+", OperatorPrecedence.ADDITION, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.ARITHMETIC),
 			this.createLiteralToken("2"),
 			this.createOperatorToken("*", OperatorPrecedence.MULTIPLICATION, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.ARITHMETIC),
 			this.createLiteralToken("3"),
-			this.createOperatorToken("]", OperatorPrecedence.INDEX_END, AttributeValue.LEFT, AttributeValue.MULTIARY, AttributeValue.INDEX),
+			this.createOperatorToken("]", OperatorPrecedence.INDEX_END, AttributeValue.LEFT, AttributeValue.MULTIARY, AttributeValue.SUBSCRIPT),
 			this.createEndToken()
 		};
 
@@ -257,13 +257,13 @@ public class ParserTest {
 		Token[] tokens = new Token[]{
 			this.createDataTypeToken("int"),
 			this.createVariableIdentifierToken("x"),
-			this.createOperatorToken("[", OperatorPrecedence.INDEX_BEGIN, AttributeValue.LEFT, AttributeValue.MULTIARY, AttributeValue.INDEX),
+			this.createOperatorToken("[", OperatorPrecedence.INDEX_BEGIN, AttributeValue.LEFT, AttributeValue.MULTIARY, AttributeValue.SUBSCRIPT),
 			this.createLiteralToken("2"),
-			this.createOperatorToken("][", OperatorPrecedence.INDEX_SEPARATOR, AttributeValue.LEFT, AttributeValue.MULTIARY, AttributeValue.INDEX),
+			this.createOperatorToken("][", OperatorPrecedence.INDEX_SEPARATOR, AttributeValue.LEFT, AttributeValue.MULTIARY, AttributeValue.SUBSCRIPT),
 			this.createLiteralToken("3"),
-			this.createOperatorToken("][", OperatorPrecedence.INDEX_SEPARATOR, AttributeValue.LEFT, AttributeValue.MULTIARY, AttributeValue.INDEX),
+			this.createOperatorToken("][", OperatorPrecedence.INDEX_SEPARATOR, AttributeValue.LEFT, AttributeValue.MULTIARY, AttributeValue.SUBSCRIPT),
 			this.createLiteralToken("4"),
-			this.createOperatorToken("]", OperatorPrecedence.INDEX_END, AttributeValue.LEFT, AttributeValue.MULTIARY, AttributeValue.INDEX),
+			this.createOperatorToken("]", OperatorPrecedence.INDEX_END, AttributeValue.LEFT, AttributeValue.MULTIARY, AttributeValue.SUBSCRIPT),
 			this.createEndToken()
 		};
 

@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2019 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2020 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -251,7 +251,7 @@ public class Parser {
 					&& readingToken.getAttribute(AttributeKey.LEAF_TYPE).equals(AttributeValue.FUNCTION_IDENTIFIER);
 
 			boolean readingTokenIsIndex = readingToken.getType() == Token.Type.OPERATOR
-					&& readingToken.getAttribute(AttributeKey.OPERATOR_EXECUTOR) == AttributeValue.INDEX;
+					&& readingToken.getAttribute(AttributeKey.OPERATOR_EXECUTOR) == AttributeValue.SUBSCRIPT;
 
 			// 最初に見つかったのが関数識別子であれば関数宣言
 			if (readingTokenIsFunctionIdenfifier) {
@@ -335,7 +335,7 @@ public class Parser {
 
 		// 配列要素数の検出
 		AstNode arrayLengthNode = null;
-		if (readingIndex<tokens.length-1 && tokens[readingIndex].getValue().equals(ScriptWord.INDEX_BEGIN)) {
+		if (readingIndex<tokens.length-1 && tokens[readingIndex].getValue().equals(ScriptWord.SUBSCRIPT_BEGIN)) {
 			int lengthsEnd = getLengthEndIndex(tokens, readingIndex);
 			Token[] lengthsTokens = Arrays.copyOfRange(tokens, readingIndex, lengthsEnd+1);
 			arrayLengthNode = this.parseVariableDeclarationArrayLengths(lengthsTokens);
@@ -404,7 +404,7 @@ public class Parser {
 			String word = tokens[i].getValue();
 
 			// 「 [ 」記号
-			if(word.equals(ScriptWord.INDEX_BEGIN)) {
+			if(word.equals(ScriptWord.SUBSCRIPT_BEGIN)) {
 
 				// 階層が 0 なら要素数宣言の開始（それ以外は、要素数の式を構成する配列インデックス演算子のもの）
 				if (depth==0) {
@@ -413,7 +413,7 @@ public class Parser {
 				depth++;
 
 			// 「 ] 」記号か「 ][ 」記号
-			} else if(word.equals(ScriptWord.INDEX_END) || word.equals(ScriptWord.INDEX_SEPARATOR)) {
+			} else if(word.equals(ScriptWord.SUBSCRIPT_END) || word.equals(ScriptWord.SUBSCRIPT_SEPARATOR)) {
 
 				// 階層が 1 なら要素数宣言の次元区切り
 				if (depth==1) {
@@ -433,7 +433,7 @@ public class Parser {
 						lengthsNode.addChildNode( this.parseExpression(exprTokens) );
 					}
 				}
-				if (word.equals(ScriptWord.INDEX_END)) {
+				if (word.equals(ScriptWord.SUBSCRIPT_END)) {
 					depth--;
 				} else {
 					currentExprBegin = i + 1;
@@ -1209,12 +1209,12 @@ public class Parser {
 
 			// 「 [ 」記号があれば階層を上がる
 			// 階層0が要素数宣言、1以上は要素数の式中の配列要素アクセス演算子のもの
-			if(word.equals(ScriptWord.INDEX_BEGIN)) {
+			if(word.equals(ScriptWord.SUBSCRIPT_BEGIN)) {
 				depth++;
 
 			// 「 ] 」記号があれば階層を下がる
 			// （この処理系では、次元区切り「 ][ 」は別種のトークンなのでここにはヒットしない）
-			} else if(word.equals(ScriptWord.INDEX_END)) {
+			} else if(word.equals(ScriptWord.SUBSCRIPT_END)) {
 				depth--;
 
 				// 階層0の「 ] 」は配列要素数宣言の終端なので、インデックスを返す
