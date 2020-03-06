@@ -127,6 +127,9 @@ public class SemanticAnalyzer {
 		// 配列アクセス演算子のアクセス対象を検査
 		this.checkSubscriptTargetSubscriptabilities(outputAst);
 
+		// 識別子を検査
+		this.checkIdentifiers(outputAst);
+
 		return outputAst;
 	}
 
@@ -1110,6 +1113,41 @@ public class SemanticAnalyzer {
 				}
 
 			} // 配列アクセス演算子ノードの場合
+
+			currentNode = currentNode.getPostorderDftNextNode();
+		} // ASTを辿るループ
+	}
+
+
+	/**
+	 * 引数に渡されたAST（抽象構文木）の内容を解析し、その中の識別子が有効かどうかを検査します。
+	 *
+	 * @param astRootNode 検査対象のASTのルートノード
+	 * @throws VnanoException 無効な識別子が検出された場合にスローされます。
+	 */
+	private void checkIdentifiers(AstNode astRootNode) throws VnanoException {
+
+		// ASTノードを辿り、演算子ノードがあれば検査
+		AstNode currentNode = astRootNode.getPostorderDftFirstNode();
+		while(currentNode != astRootNode) {
+
+			// 変数/関数宣言ノードの場合に、宣言されている識別子を検査する
+			if(currentNode.getType() == AstNode.Type.VARIABLE || currentNode.getType() == AstNode.Type.FUNCTION) {
+
+				String fileName = currentNode.getFileName();
+				int lineNumber = currentNode.getLineNumber();
+				String identifier = currentNode.getAttribute(AttributeKey.IDENTIFIER_VALUE);
+
+				// 数字で始まったり記号を含むなど、構文上のルールに引っかかる場合はエラー
+				if (!IdentifierSyntax.isValidSyntaxIdentifier(identifier)) {
+					throw new VnanoException(ErrorType.INVALID_IDENTIFIER_SYNTAX, identifier, fileName, lineNumber);
+				}
+
+				// 予約語の場合はエラー
+				if (ScriptWord.RESERVED_WORD_SET.contains(identifier)) {
+					throw new VnanoException(ErrorType.IDENTIFIER_IS_RESERVED_WORD, identifier, fileName, lineNumber);
+				}
+			}
 
 			currentNode = currentNode.getPostorderDftNextNode();
 		} // ASTを辿るループ
