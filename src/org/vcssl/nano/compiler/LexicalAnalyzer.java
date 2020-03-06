@@ -530,15 +530,15 @@ public class LexicalAnalyzer {
 					break;
 
 				case ScriptWord.SUBSCRIPT_BEGIN:
-					tokens[i].setPrecedence(OperatorPrecedence.INDEX_BEGIN);
+					tokens[i].setPrecedence(OperatorPrecedence.SUBSCRIPT_BEGIN);
 					break;
 
 				case ScriptWord.SUBSCRIPT_END:
-					tokens[i].setPrecedence(OperatorPrecedence.INDEX_END); // MULTIARY系演算子の終端は優先度最低にする必要がある(そうしないと結合してしまう)
+					tokens[i].setPrecedence(OperatorPrecedence.SUBSCRIPT_END); // MULTIARY系演算子の終端は優先度最低にする必要がある(そうしないと結合してしまう)
 					break;
 
 				case ScriptWord.SUBSCRIPT_SEPARATOR :
-					tokens[i].setPrecedence(OperatorPrecedence.INDEX_SEPARATOR); // 次元区切りのカンマも優先度最低にする必要がある(そうしないと結合してしまう)
+					tokens[i].setPrecedence(OperatorPrecedence.SUBSCRIPT_SEPARATOR); // 次元区切りのカンマも優先度最低にする必要がある(そうしないと結合してしまう)
 					break;
 
 				case ScriptWord.INCREMENT:
