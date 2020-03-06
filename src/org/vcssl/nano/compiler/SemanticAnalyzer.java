@@ -124,6 +124,9 @@ public class SemanticAnalyzer {
 		// 代入を伴う演算の左辺（インクリメント含む）が、代入/書き換え可能なものかどうか検査
 		this.checkAssignmentTargetWritabilities(outputAst);
 
+		// 配列アクセス演算子のアクセス対象を検査
+		this.checkSubscriptTargetSubscriptabilities(outputAst);
+
 		return outputAst;
 	}
 
@@ -1028,7 +1031,6 @@ public class SemanticAnalyzer {
 
 		// リーフ以外は書き換え不可能なのでエラー
 		if (node.getType() != AstNode.Type.LEAF) {
-			System.out.println(node.dump());
 			throw new VnanoException(ErrorType.WRITING_TO_UNWRITABLE_SOMETHING, fileName, lineNumber);
 		}
 
@@ -1039,11 +1041,78 @@ public class SemanticAnalyzer {
 
 			// const をサポートした際はここで検査
 
+		// リテラルは書き換え不可能なのでエラー
+		} else if (leafType.equals(AttributeValue.LITERAL)) {
+			String[] errorWords = { node.getAttribute(AttributeKey.LITERAL_VALUE) };
+			throw new VnanoException(ErrorType.WRITING_TO_UNWRITABLE_SOMETHING, errorWords, fileName, lineNumber);
+
 		// それ以外は、現状の仕様では全て書き換え不可能なため、常にエラー
 		} else {
-			System.out.println(node.dump());
 			throw new VnanoException(ErrorType.WRITING_TO_UNWRITABLE_SOMETHING, fileName, lineNumber);
 		}
+	}
+
+
+	/**
+	 * 引数に渡されたAST（抽象構文木）の内容を解析し、その中の配列アクセス対象が、
+	 * 配列かどうか、配列の場合は次元は一致するかどうかを検査します。
+	 *
+	 * @param astRootNode 検査対象のASTのルートノード
+	 * @throws VnanoException 正しくない配列アクセス対象が検出された場合にスローされます。
+	 */
+	private void checkSubscriptTargetSubscriptabilities(AstNode astRootNode) throws VnanoException {
+
+		// ASTノードを辿り、演算子ノードがあれば検査
+		AstNode currentNode = astRootNode.getPostorderDftFirstNode();
+		while(currentNode != astRootNode) {
+
+			// 配列アクセス演算子ノードの場合
+			if(currentNode.getType() == AstNode.Type.OPERATOR
+					&& currentNode.getAttribute(AttributeKey.OPERATOR_EXECUTOR).equals(AttributeValue.SUBSCRIPT)) {
+
+				String fileName = currentNode.getFileName();
+				int lineNumber = currentNode.getLineNumber();
+
+				// アクセス対象のノードを取得して検査
+				AstNode accessingNode = currentNode.getChildNodes()[0];
+
+				// リーフノードでなければエラー
+				if (accessingNode.getType() != AstNode.Type.LEAF) {
+					throw new VnanoException(ErrorType.SUBSCRIPTING_TO_UNSUBSCRIPTABLE_SOMETHING, fileName, lineNumber);
+				}
+
+				// 変数でなければエラー
+				if (!accessingNode.getAttribute(AttributeKey.LEAF_TYPE).equals(AttributeValue.VARIABLE_IDENTIFIER)) {
+					String[] errorWords = null;
+					if (accessingNode.getAttribute(AttributeKey.LEAF_TYPE).equals(AttributeValue.LITERAL)) {
+						errorWords = new String[]{ accessingNode.getAttribute(AttributeKey.LITERAL_VALUE) };
+					}
+					throw new VnanoException(ErrorType.SUBSCRIPTING_TO_UNSUBSCRIPTABLE_SOMETHING, errorWords, fileName, lineNumber);
+				}
+
+				// スカラ変数の場合はエラー
+				if (accessingNode.getRank() == 0) {
+					String[] errorWords = { accessingNode.getAttribute(AttributeKey.IDENTIFIER_VALUE) };
+					throw new VnanoException(
+						ErrorType.SUBSCRIPTING_TO_UNSUBSCRIPTABLE_SOMETHING, errorWords, fileName, lineNumber
+					);
+				}
+
+				// 配列変数の場合は、配列の次元数と、アクセス演算子のインデックスの数が一致しなければエラー
+				int numIndices = currentNode.getChildNodes().length-1;
+				if (accessingNode.getRank() != numIndices) {
+					String[] errorWords = {
+						accessingNode.getAttribute(AttributeKey.IDENTIFIER_VALUE),
+						Integer.toString(accessingNode.getRank()),
+						Integer.toString(numIndices),
+					};
+					throw new VnanoException(ErrorType.INVALID_SUBSCRIPT_RANK, errorWords, fileName, lineNumber);
+				}
+
+			} // 配列アクセス演算子ノードの場合
+
+			currentNode = currentNode.getPostorderDftNextNode();
+		} // ASTを辿るループ
 	}
 
 }
