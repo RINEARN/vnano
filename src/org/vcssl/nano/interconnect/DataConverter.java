@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2019 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2020 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -1155,7 +1155,7 @@ public class DataConverter {
 				String internalTypeName = DataTypeName.getDataTypeNameOf(internalType);
 				String internalArrayTypeName = internalTypeName;
 				for(int dim=0; dim<this.rank; dim++) {
-					internalArrayTypeName += ScriptWord.INDEX_BEGIN + ScriptWord.INDEX_END; // "[]" を追加
+					internalArrayTypeName += ScriptWord.SUBSCRIPT_BEGIN + ScriptWord.SUBSCRIPT_END; // "[]" を追加
 				}
 
 				// それをエラーメッセージ用情報に渡して例外スロー

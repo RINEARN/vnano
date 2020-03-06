@@ -6,6 +6,7 @@
 package org.vcssl.nano.spec;
 
 import java.util.Arrays;
+import java.util.HashSet;
 
 import org.vcssl.nano.VnanoException;
 import org.vcssl.nano.compiler.AstNode;
@@ -45,6 +46,27 @@ import org.vcssl.nano.interconnect.AbstractVariable;
  */
 public class IdentifierSyntax {
 
+	public static boolean isValidSyntaxIdentifier(String identifier) {
+
+		// 数字で始まる識別子はNG
+		if (identifier.matches("^[0-9].*$")) {
+			return false;
+		}
+
+		// めぼしい半角記号文字を含む識別子はNG
+		// (各種演算子や構文的な記号は LexicalAnalyzer で分割されるため、識別子トークン内には含まれない)
+		char[] invalidChars = { '#', '$', '%', '&', '~', '@', ':', '`', '^', '.', '?', '\"', '\'', '\\' };
+		HashSet<Character> invalidCharSet = new HashSet<Character>();
+		for (char invalidChar: invalidChars) {
+			invalidCharSet.add( Character.valueOf(invalidChar) );
+		}
+		for (char identifierChar: identifier.toCharArray()) {
+			if ( invalidCharSet.contains(Character.valueOf(identifierChar)) ) {
+				return false;
+			}
+		}
+		return true;
+	}
 
 	public static String getSignatureOf(String functionName,
 			String[] parameterDataTypeNames, int[] parameterArrayRanks,

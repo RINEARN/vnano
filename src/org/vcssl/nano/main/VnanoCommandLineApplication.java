@@ -773,7 +773,7 @@ public final class VnanoCommandLineApplication {
 
 		// プロセス仮想マシンを生成し、VRILコードを渡して実行
 		VirtualMachine vm = new VirtualMachine();
-		vm.eval(assemblyCode, interconnect, this.optionMap);
+		vm.executeAssemblyCode(assemblyCode, interconnect, this.optionMap);
 	}
 
 	public void dumpException(Exception e) {

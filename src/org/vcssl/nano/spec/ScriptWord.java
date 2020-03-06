@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2019 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2020 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -292,7 +292,7 @@ public class ScriptWord {
 	 * <span class="lang-ja">配列インデックスの始点記号「 [ 」です</span>
 	 * .
 	 */
-	public static final String INDEX_BEGIN = "[";
+	public static final String SUBSCRIPT_BEGIN = "[";
 
 
 	/**
@@ -300,7 +300,7 @@ public class ScriptWord {
 	 * <span class="lang-ja">配列インデックスの終点記号「 [ 」です</span>
 	 * .
 	 */
-	public static final String INDEX_END = "]";
+	public static final String SUBSCRIPT_END = "]";
 
 
 	/**
@@ -308,7 +308,7 @@ public class ScriptWord {
 	 * <span class="lang-ja">多次元配列インデックスの区切り記号「 ][ 」です</span>
 	 * .
 	 */
-	public static final String INDEX_SEPARATOR = "][";
+	public static final String SUBSCRIPT_SEPARATOR = "][";
 
 
 	/**
@@ -407,8 +407,7 @@ public class ScriptWord {
 	public static final String BLOCK_COMMENT_END = "*/";
 
 
-	// 以下のセットに投げて予約語判定するようなメソッドが居る。意味解析で識別子を検査するため。
-
+	// LexicalAnalyzer での制御文トークンの判定に使用
 	/**
 	 * <span class="lang-en">The HashSet storing all syntax keywords</span>
 	 * <span class="lang-ja">制御文の名称（キーワード）を全て格納している HashSet です</span>
@@ -428,8 +427,8 @@ public class ScriptWord {
 
 
 	/**
-	 * <span class="lang-en">The HashSet storing all syntax symbols containing spaces and line-feed code</span>
-	 * <span class="lang-ja">や空白・改行も含めて, 構文上の意味を持つ記号列を全て格納している HashSet です</span>
+	 * <span class="lang-en">The HashSet storing all syntax symbols</span>
+	 * <span class="lang-ja">構文上の意味を持つ記号列を全て格納している HashSet です</span>
 	 * .
 	 */
 	public static final HashSet<String> SYMBOL_SET;
@@ -481,10 +480,88 @@ public class ScriptWord {
     	SYMBOL_SET.add(PARENTHESIS_END);
     	SYMBOL_SET.add(BLOCK_BEGIN);
     	SYMBOL_SET.add(BLOCK_END);
-    	SYMBOL_SET.add(INDEX_BEGIN);
-    	SYMBOL_SET.add(INDEX_SEPARATOR);
-    	SYMBOL_SET.add(INDEX_END);
+    	SYMBOL_SET.add(SUBSCRIPT_BEGIN);
+    	SYMBOL_SET.add(SUBSCRIPT_SEPARATOR);
+    	SYMBOL_SET.add(SUBSCRIPT_END);
 
     	SYMBOL_SET.add(END_OF_STATEMENT);
     }
+
+
+	// SemanticAnalyzer での識別子検査に使用
+	/**
+	 * <span class="lang-en">The HashSet storing reserved words</span>
+	 * <span class="lang-ja">予約語を格納している HashSet です</span>
+	 */
+	public static final HashSet<String> RESERVED_WORD_SET;
+	static {
+		RESERVED_WORD_SET = new HashSet<String>();
+
+		RESERVED_WORD_SET.add(DataTypeName.INT);
+		RESERVED_WORD_SET.add(DataTypeName.FLOAT);
+		RESERVED_WORD_SET.add(DataTypeName.LONG);
+		RESERVED_WORD_SET.add(DataTypeName.DOUBLE);
+		RESERVED_WORD_SET.add(DataTypeName.STRING);
+		RESERVED_WORD_SET.add(DataTypeName.BOOL);
+		RESERVED_WORD_SET.add(DataTypeName.VOID);
+
+		RESERVED_WORD_SET.add("int8");
+		RESERVED_WORD_SET.add("int16");
+		RESERVED_WORD_SET.add("int32");
+		RESERVED_WORD_SET.add("int64");
+		RESERVED_WORD_SET.add("int128");
+		RESERVED_WORD_SET.add("int256");
+		RESERVED_WORD_SET.add("int512");
+		RESERVED_WORD_SET.add("float8");
+		RESERVED_WORD_SET.add("float16");
+		RESERVED_WORD_SET.add("float32");
+		RESERVED_WORD_SET.add("float64");
+		RESERVED_WORD_SET.add("float128");
+		RESERVED_WORD_SET.add("float256");
+		RESERVED_WORD_SET.add("float512");
+
+		RESERVED_WORD_SET.add("byte");
+		RESERVED_WORD_SET.add("bit");
+
+		RESERVED_WORD_SET.add("null");
+		RESERVED_WORD_SET.add("NULL");
+
+		RESERVED_WORD_SET.add("class");
+		RESERVED_WORD_SET.add("struct");
+		RESERVED_WORD_SET.add("enum");
+
+		RESERVED_WORD_SET.add(IF);
+		RESERVED_WORD_SET.add(ELSE);
+		RESERVED_WORD_SET.add(FOR);
+		RESERVED_WORD_SET.add(WHILE);
+		RESERVED_WORD_SET.add(BREAK);
+		RESERVED_WORD_SET.add(CONTINUE);
+		RESERVED_WORD_SET.add(RETURN);
+		RESERVED_WORD_SET.add("switch");
+		RESERVED_WORD_SET.add("case");
+		RESERVED_WORD_SET.add("default");
+		RESERVED_WORD_SET.add("do");
+		RESERVED_WORD_SET.add("goto");
+		RESERVED_WORD_SET.add("try");
+		RESERVED_WORD_SET.add("catch");
+		RESERVED_WORD_SET.add("throw");
+
+		RESERVED_WORD_SET.add("alloc");
+		RESERVED_WORD_SET.add("free");
+		RESERVED_WORD_SET.add("new");
+		RESERVED_WORD_SET.add("delete");
+
+		RESERVED_WORD_SET.add("const");
+		RESERVED_WORD_SET.add("public");
+		RESERVED_WORD_SET.add("private");
+		RESERVED_WORD_SET.add("protected");
+
+		RESERVED_WORD_SET.add("include");
+		RESERVED_WORD_SET.add("import");
+		RESERVED_WORD_SET.add("extern");
+		RESERVED_WORD_SET.add("coding");
+
+		RESERVED_WORD_SET.add("this");
+		RESERVED_WORD_SET.add("super");
+	}
 }

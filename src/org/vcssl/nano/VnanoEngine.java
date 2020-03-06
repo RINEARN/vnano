@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2019 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2019-2020 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -132,7 +132,7 @@ public class VnanoEngine {
 			// Execute the VRIL code on the VM.
 			// VMでVRILコードを実行
 			VirtualMachine vm = new VirtualMachine();
-			Object evalValue = vm.eval(assemblyCode, this.interconnect, this.optionMap);
+			Object evalValue = vm.executeAssemblyCode(assemblyCode, this.interconnect, this.optionMap);
 			return evalValue;
 
 		// If any error is occurred for the content/processing of the script,

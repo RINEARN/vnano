@@ -169,27 +169,30 @@ public class Accelerator {
 				nextNode = nextNode.execute();
 			}
 
-		// 想定内の実行時例外は、下層で既に詳細情報等が埋め込まれているので、そのまま上層に投げる
-		} catch (VnanoException vne) {
-			throw vne;
-
-		// 想定外の実行時例外は、原因箇所などの情報を補完した例外に変換し、上層に投げる
 		} catch (Exception e) {
-			AcceleratorInstruction causeInstruction = nextNode.getSourceInstruction();
 
 			// 命令のメタ情報から、スクリプト内で命令に対応する箇所のファイル名や行番号を抽出
+			AcceleratorInstruction causeInstruction = nextNode.getSourceInstruction();
 			int lineNumber = MetaInformationSyntax.extractLineNumber(causeInstruction, memory);
 			String fileName = MetaInformationSyntax.extractFileName(causeInstruction, memory);
 
-			// 命令内容や、再配置前後の命令アドレスなどのデバッグ情報を配列に詰める
-			int unreorderedAddress = causeInstruction.getUnreorderedAddress();
-			int reorderedAddress = causeInstruction.getReorderedAddress();
-			String[] errorWords = {
-					Integer.toString(unreorderedAddress), Integer.toString(reorderedAddress), causeInstruction.toString()
-			};
+			// 例外が VnanoException の場合は、既に原因情報を持っているので、ファイル名と行番号を持たせて上層に投げる
+			if (e instanceof VnanoException) {
+				VnanoException vne = (VnanoException)e;
+				vne.setFileName(fileName);
+				vne.setLineNumber(lineNumber);
+				throw vne;
 
-			// 情報を補完した例外を生成して投げる
-			throw new VnanoException(ErrorType.ACCELERATOR_CRASHED, errorWords, e, fileName, lineNumber);
+			// それ以外の例外は、想定外で原因情報が不明なので、
+			// 命令アドレスなどのデバッグ情報を持たせるため、VnanoException でラップして投げる
+			} else {
+				int unreorderedAddress = causeInstruction.getUnreorderedAddress();
+				int reorderedAddress = causeInstruction.getReorderedAddress();
+				String[] errorWords = {
+						Integer.toString(unreorderedAddress), Integer.toString(reorderedAddress), causeInstruction.toString()
+				};
+				throw new VnanoException(ErrorType.UNEXPECTED_ACCELERATOR_CRASH, errorWords, e, fileName, lineNumber);
+			}
 		}
 
 		// ダンプ内容に実行終了点を表す区切りを入れる

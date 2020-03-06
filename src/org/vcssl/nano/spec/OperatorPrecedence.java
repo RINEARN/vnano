@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2019 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2020 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -124,33 +124,33 @@ public class OperatorPrecedence {
 	public static final int CALL_END = LEAST_PRIOR;
 
 	/**
-	 * <span class="lang-en">The precedence of the array index operator: "["</span>
-	 * <span class="lang-ja">配列インデックス演算子「 [ 」の優先度です</span>
+	 * <span class="lang-en">The precedence of the subscript (array index) operator: "["</span>
+	 * <span class="lang-ja">配列アクセス演算子「 [ 」の優先度です</span>
 	 * .
 	 */
-	public static final int INDEX_BEGIN = 1000;
+	public static final int SUBSCRIPT_BEGIN = 1000;
 
 	/**
-	 * <span class="lang-en">The precedence of the dimension-separator of the array index operator: "]["</span>
-	 * <span class="lang-ja">配列インデックス演算子の次元区切り「 ][ 」の優先度です</span>
+	 * <span class="lang-en">The precedence of the dimension-separator of the subscript (array index) operator: "]["</span>
+	 * <span class="lang-ja">配列アクセス演算子の次元区切り「 ][ 」の優先度です</span>
 	 * .
 	 * <span class="lang-en">
 	 * The lowest precedence is set to this symbol for the convenience in the implementation of the parser.
 	 * </span>
 	 * <span class="lang-ja">パーサの実装の都合上, この記号には最低の優先度が設定されています.</span>
 	 */
-	public static final int INDEX_SEPARATOR = LEAST_PRIOR;
+	public static final int SUBSCRIPT_SEPARATOR = LEAST_PRIOR;
 
 	/**
-	 * <span class="lang-en">The precedence of the end of the array index operator: "]"</span>
-	 * <span class="lang-ja">配列インデックス演算子の終端「 ] 」の優先度です</span>
+	 * <span class="lang-en">The precedence of the end of the subscript (array index) operator: "]"</span>
+	 * <span class="lang-ja">配列アクセス演算子の終端「 ] 」の優先度です</span>
 	 * .
 	 * <span class="lang-en">
 	 * The lowest precedence is set to this symbol for the convenience in the implementation of the parser.
 	 * </span>
 	 * <span class="lang-ja">パーサの実装の都合上, この記号には最低の優先度が設定されています.</span>
 	 */
-	public static final int INDEX_END = LEAST_PRIOR;
+	public static final int SUBSCRIPT_END = LEAST_PRIOR;
 
 	// --------------------------------------------------
 	// Postfix Operators

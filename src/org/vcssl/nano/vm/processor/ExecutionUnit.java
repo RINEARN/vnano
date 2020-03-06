@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2019 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2020 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -1344,7 +1344,8 @@ public class ExecutionUnit {
 	 *   指定データ型とオペランドの実際のデータ型が一致しない場合に発生します。
 	 */
 	@SuppressWarnings("unchecked")
-	public void elem(DataType type, DataContainer<?> dest, DataContainer<?> src, DataContainer<?> ... indices) {
+	public void elem(DataType type, DataContainer<?> dest, DataContainer<?> src, DataContainer<?> ... indices)
+			throws VnanoException {
 
 		this.checkDataType(src, type);
 
@@ -1360,6 +1361,11 @@ public class ExecutionUnit {
 
 			// indices[i] が格納しているスカラ値を取得（＝ i 番目次元の配列インデックス）
 			long index = ( (long[])(indices[i].getData()) )[ indices[i].getOffset() ];
+
+			if (arrayLength[i] <= index) {
+				String[] errorWords = {Long.toString(index), Integer.toString(arrayLength[i]-1)};
+				throw new VnanoException(ErrorType.INVALID_ARRAY_INDEX, errorWords);
+			}
 
 			// 上で取得したインデックスに、その次元での単位変化量(scale)をかけたものを、1次元化インデックスに加える
 			dataIndex += (int)index * scale;

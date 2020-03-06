@@ -1362,7 +1362,7 @@ public class CodeGenerator {
 						}
 						break;
 					}
-					case AttributeValue.INDEX : { // 配列インデックス演算子
+					case AttributeValue.SUBSCRIPT : { // 配列要素アクセス演算子
 						codeBuilder.append( this.generateIndexOperatorCode(currentNode) );
 						break;
 					}
