@@ -435,7 +435,7 @@ public class Parser {
 					if (exprTokens.length == 0) {
 						AstNode zeroExprNode = new AstNode(AstNode.Type.EXPRESSION, tokens[i].getLineNumber(), tokens[i].getFileName());
 						AstNode zeroLeafNode = this.createLeafNode(
-								"0", AttributeValue.LITERAL, tokens[i].getFileName(), tokens[i].getLineNumber()
+								"0", AttributeValue.LITERAL, DataTypeName.INT, tokens[i].getFileName(), tokens[i].getLineNumber()
 						);
 						zeroExprNode.addChildNode(zeroLeafNode);
 						lengthsNode.addChildNode(zeroExprNode);
@@ -1034,12 +1034,14 @@ public class Parser {
 	 *
 	 * @param tokenValue 識別子またはリテラルの文字列
 	 * @param leafType {@link AttributeKey#LEAF_TYPE LEAF_TYPE}属性の値
+	 * @param dataType リテラルのデータ型名
 	 * @return 生成したリーフノード
 	 */
-	private AstNode createLeafNode(String tokenValue, String leafType, String fileName, int lineNumber) {
+	private AstNode createLeafNode(String tokenValue, String leafType, String dataType, String fileName, int lineNumber) {
 		Token token = new Token(tokenValue, lineNumber, fileName);
 		token.setType(Token.Type.LEAF);
 		token.setAttribute(AttributeKey.LEAF_TYPE, leafType);
+		token.setAttribute(AttributeKey.DATA_TYPE, dataType);
 		return this.createLeafNode(token);
 	}
 
