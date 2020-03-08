@@ -1315,7 +1315,7 @@ public class CodeGenerator {
 						break;
 					}
 					case AttributeValue.ASSIGNMENT : { // 代入演算子
-						codeBuilder.append( this.generateAsignmentOperatorCode(currentNode) );
+						codeBuilder.append( this.generateAssignmentOperatorCode(currentNode) );
 						break;
 					}
 					case AttributeValue.ARITHMETIC : { // 算術演算子
@@ -1747,7 +1747,7 @@ public class CodeGenerator {
 	 *   {@link AttributeKey#OPERATOR_SYNTAX OPERATOR_SYNTAX}属性値が{@link AttributeValue#BINARY BINARY}）
 	 * @return 生成コード
 	 */
-	private String generateAsignmentOperatorCode(AstNode operatorNode) {
+	private String generateAssignmentOperatorCode(AstNode operatorNode) {
 		StringBuilder codeBuilder = new StringBuilder();
 
 		AstNode[] operandNodes = operatorNode.getChildNodes();
@@ -1782,17 +1782,35 @@ public class CodeGenerator {
 			rightHandValue = castedRegister;
 		}
 
-		// 配列の場合は要素数の同期処理が必要
-		if (operatorNode.getRank() != RANK_OF_SCALAR) {
+		// 以下、演算内容の生成
+		// (左右オペランドが配列かスカラかによって異なるため、それぞれの場合に関して分岐する)
+
+		// 「スカラ = スカラ」の場合: 単純にMOV命令で値をコピーするコードを生成
+		if (operandNodes[0].getRank()==RANK_OF_SCALAR && operandNodes[1].getRank()==RANK_OF_SCALAR) {
+			codeBuilder.append(
+				this.generateInstruction(OperationCode.MOV.name(), toType, operandValues[0], rightHandValue)
+			);
+
+		// 「配列 = 配列」の場合:  ALLOCR命令を用いて、右辺と同じ要素数で左辺のデータ領域を再確保し、その後MOVでコピー
+		} else if (operandNodes[0].getRank()!=RANK_OF_SCALAR && operandNodes[1].getRank()!=RANK_OF_SCALAR) {
 			codeBuilder.append(
 				this.generateInstruction(OperationCode.ALLOCR.name(), toType, operandValues[0], rightHandValue)
 			);
+			codeBuilder.append(
+				this.generateInstruction(OperationCode.MOV.name(), toType, operandValues[0], rightHandValue)
+			);
+
+		// 「配列 = スカラ」の場合: 左辺の全要素に、同じ値（右辺のスカラ値）を代入する演算となるため、FILL命令を生成
+		} else if (operandNodes[0].getRank()!=RANK_OF_SCALAR && operandNodes[1].getRank()==RANK_OF_SCALAR) {
+			codeBuilder.append(
+				this.generateInstruction(OperationCode.FILL.name(), toType, operandValues[0], rightHandValue)
+			);
+
+		// それ以外（「スカラ = 配列」）の場合は意味解析で弾かれているはず
+		} else {
+			throw new VnanoFatalException("Unexpected combination of operand ranks for assignment operation");
 		}
 
-		// MOV命令の発行
-		codeBuilder.append(
-			this.generateInstruction(OperationCode.MOV.name(), toType, operandValues[0], rightHandValue)
-		);
 		return codeBuilder.toString();
 	}
 

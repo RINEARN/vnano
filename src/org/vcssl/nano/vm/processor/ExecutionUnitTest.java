@@ -13,6 +13,7 @@ import org.junit.Test;
 import org.vcssl.nano.vm.memory.DataContainer;
 import org.vcssl.nano.VnanoFatalException;
 import org.vcssl.nano.spec.DataType;
+import org.vcssl.nano.spec.ErrorType;
 import org.vcssl.nano.VnanoException;
 
 public class ExecutionUnitTest {
@@ -5671,7 +5672,7 @@ public class ExecutionUnitTest {
 	// --------------------------------------------------
 
 	@Test
-	public void testElemInt64() {
+	public void testElemInt64() throws VnanoException {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<long[]> dest = new DataContainer<long[]>();  // 要素を格納するコンテナ
@@ -5740,7 +5741,7 @@ public class ExecutionUnitTest {
 	// --------------------------------------------------
 
 	@Test
-	public void testElemFloat64() {
+	public void testElemFloat64() throws VnanoException {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<double[]> dest = new DataContainer<double[]>();  // 要素を格納するコンテナ
@@ -5810,7 +5811,7 @@ public class ExecutionUnitTest {
 	// --------------------------------------------------
 
 	@Test
-	public void testElemBool() {
+	public void testElemBool() throws VnanoException {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<boolean[]> dest = new DataContainer<boolean[]>();  // 要素を格納するコンテナ
@@ -5878,7 +5879,7 @@ public class ExecutionUnitTest {
 	// --------------------------------------------------
 
 	@Test
-	public void testElemString() {
+	public void testElemString() throws VnanoException {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<String[]> dest = new DataContainer<String[]>();  // 要素を格納するコンテナ
@@ -5946,7 +5947,7 @@ public class ExecutionUnitTest {
 	// --------------------------------------------------
 
 	@Test
-	public void testElemUnoperatableData() {
+	public void testElemUnoperatableData() throws VnanoException {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<?> dest = new DataContainer<Object>();  // 要素を格納するコンテナ
@@ -5967,8 +5968,11 @@ public class ExecutionUnitTest {
 		try {
 			new ExecutionUnit().elem(DataType.VOID, dest, src, index0, index1, index2);
 			fail("Expected exception did not occured");
-		} catch (VnanoFatalException e) {
-			// 例外が発生するのが正しい挙動
+		} catch (VnanoException e) {
+			// 以下の例外が発生するのが正しい挙動
+			if(e.getErrorType() != ErrorType.INVALID_ARRAY_INDEX) {
+				fail("Expected exception did not occured");
+			}
 		}
 	}
 

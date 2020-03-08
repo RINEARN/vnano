@@ -25,12 +25,15 @@ public enum AcceleratorExecutionType {
 	I64V_TRANSFER,  // Int64VectorTransfer
 	I64S_TRANSFER,  // Int64ScalarTransfer
 	I64CS_TRANSFER, // Int64CachedScalarTransfer
+	I64VS_TRANSFER, // Int64VectorFromScalarTransfer
 	F64V_TRANSFER,  // Float64VectorTransfer
 	F64S_TRANSFER,  // Float64ScalarTransfer
 	F64CS_TRANSFER, // Float64CachedScalarTransfer
+	F64VS_TRANSFER, // Float64VectorFromScalarTransfer
 	BV_TRANSFER,    // BoolVectorTransfer
 	BS_TRANSFER,    // BoolScalarTransfer
 	BCS_TRANSFER,   // BoolCachedScalarTransfer
+	BVS_TRANSFER,   // BoolVectorFromScalarTransfer
 
 	BV_LOGICAL,  // BoolVectorLogical
 	BS_LOGICAL,  // BoolScalarLogical
