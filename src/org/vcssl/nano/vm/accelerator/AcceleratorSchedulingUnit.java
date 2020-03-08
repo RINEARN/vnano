@@ -427,6 +427,8 @@ public class AcceleratorSchedulingUnit {
 							instruction.setAccelerationType(AcceleratorExecutionType.I64V_TRANSFER);
 						} else if (isAllScalar(operandScalar) && isAllCached(operandCachingEnabled)) {
 							instruction.setAccelerationType(AcceleratorExecutionType.I64CS_TRANSFER);
+						} else if (!operandScalar[0] && operandScalar[1]) {
+							instruction.setAccelerationType(AcceleratorExecutionType.I64VS_TRANSFER);
 						} else {
 							instruction.setAccelerationType(AcceleratorExecutionType.I64S_TRANSFER);
 						}
@@ -437,6 +439,8 @@ public class AcceleratorSchedulingUnit {
 							instruction.setAccelerationType(AcceleratorExecutionType.F64V_TRANSFER);
 						} else if (isAllScalar(operandScalar) && isAllCached(operandCachingEnabled)) {
 							instruction.setAccelerationType(AcceleratorExecutionType.F64CS_TRANSFER);
+						} else if (!operandScalar[0] && operandScalar[1]) {
+							instruction.setAccelerationType(AcceleratorExecutionType.F64VS_TRANSFER);
 						} else {
 							instruction.setAccelerationType(AcceleratorExecutionType.F64S_TRANSFER);
 						}
@@ -447,6 +451,8 @@ public class AcceleratorSchedulingUnit {
 							instruction.setAccelerationType(AcceleratorExecutionType.BV_TRANSFER);
 						} else if (isAllScalar(operandScalar) && isAllCached(operandCachingEnabled)) {
 							instruction.setAccelerationType(AcceleratorExecutionType.BCS_TRANSFER);
+						} else if (!operandScalar[0] && operandScalar[1]) {
+							instruction.setAccelerationType(AcceleratorExecutionType.BVS_TRANSFER);
 						} else {
 							instruction.setAccelerationType(AcceleratorExecutionType.BS_TRANSFER);
 						}

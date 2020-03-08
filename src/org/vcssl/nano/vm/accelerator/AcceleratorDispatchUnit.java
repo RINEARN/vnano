@@ -255,6 +255,11 @@ public class AcceleratorDispatchUnit {
 					instruction, operandContainers, operandCaches, operandCachingEnabled, operandScalar, operandConstant, nextNode
 				);
 			}
+			case I64VS_TRANSFER : {
+				return new Int64VectorScalarTransferUnit().generateNode(
+					instruction, operandContainers, operandCaches, operandCachingEnabled, operandScalar, operandConstant, nextNode
+				);
+			}
 
 			case F64V_TRANSFER : {
 				return new Float64VectorTransferUnit().generateNode(
@@ -271,6 +276,11 @@ public class AcceleratorDispatchUnit {
 					instruction, operandContainers, operandCaches, operandCachingEnabled, operandScalar, operandConstant, nextNode
 				);
 			}
+			case F64VS_TRANSFER : {
+				return new Float64VectorScalarTransferUnit().generateNode(
+					instruction, operandContainers, operandCaches, operandCachingEnabled, operandScalar, operandConstant, nextNode
+				);
+			}
 
 			case BV_TRANSFER : {
 				return new BoolVectorTransferUnit().generateNode(
@@ -284,6 +294,11 @@ public class AcceleratorDispatchUnit {
 			}
 			case BCS_TRANSFER : {
 				return new BoolCachedScalarTransferUnit().generateNode(
+					instruction, operandContainers, operandCaches, operandCachingEnabled, operandScalar, operandConstant, nextNode
+				);
+			}
+			case BVS_TRANSFER : {
+				return new BoolVectorScalarTransferUnit().generateNode(
 					instruction, operandContainers, operandCaches, operandCachingEnabled, operandScalar, operandConstant, nextNode
 				);
 			}
