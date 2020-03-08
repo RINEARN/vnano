@@ -86,6 +86,7 @@ org/vcssl/nano/vm/accelerator/BoolScalarCache.java
 org/vcssl/nano/vm/accelerator/BoolScalarLogicalUnit.java
 org/vcssl/nano/vm/accelerator/BoolScalarTransferUnit.java
 org/vcssl/nano/vm/accelerator/BoolVectorLogicalUnit.java
+org/vcssl/nano/vm/accelerator/BoolVectorScalarTransferUnit.java
 org/vcssl/nano/vm/accelerator/BoolVectorTransferUnit.java
 org/vcssl/nano/vm/accelerator/Boolx1Int64x2ScalarCacheSynchronizer.java
 org/vcssl/nano/vm/accelerator/Boolx1ScalarCacheSynchronizer.java
@@ -104,8 +105,10 @@ org/vcssl/nano/vm/accelerator/Float64ScalarTransferUnit.java
 org/vcssl/nano/vm/accelerator/Float64VectorArithmeticUnit.java
 org/vcssl/nano/vm/accelerator/Float64VectorComparisonUnit.java
 org/vcssl/nano/vm/accelerator/Float64VectorDualArithmeticUnit.java
+org/vcssl/nano/vm/accelerator/Float64VectorScalarTransferUnit.java
 org/vcssl/nano/vm/accelerator/Float64VectorTransferUnit.java
 org/vcssl/nano/vm/accelerator/Float64x1Int64x1ScalarCacheSynchronizer.java
+org/vcssl/nano/vm/accelerator/Float64x1ScalarCacheSynchronizer.java
 org/vcssl/nano/vm/accelerator/Float64x2ScalarCacheSynchronizer.java
 org/vcssl/nano/vm/accelerator/Float64x3ScalarCacheSynchronizer.java
 org/vcssl/nano/vm/accelerator/GeneralScalarCacheSynchronizer.java
@@ -120,8 +123,10 @@ org/vcssl/nano/vm/accelerator/Int64ScalarTransferUnit.java
 org/vcssl/nano/vm/accelerator/Int64VectorArithmeticUnit.java
 org/vcssl/nano/vm/accelerator/Int64VectorComparisonUnit.java
 org/vcssl/nano/vm/accelerator/Int64VectorDualArithmeticUnit.java
+org/vcssl/nano/vm/accelerator/Int64VectorScalarTransferUnit.java
 org/vcssl/nano/vm/accelerator/Int64VectorTransferUnit.java
 org/vcssl/nano/vm/accelerator/Int64x1Float64x1ScalarCacheSynchronizer.java
+org/vcssl/nano/vm/accelerator/Int64x1ScalarCacheSynchronizer.java
 org/vcssl/nano/vm/accelerator/Int64x2ScalarCacheSynchronizer.java
 org/vcssl/nano/vm/accelerator/Int64x3ScalarCacheSynchronizer.java
 org/vcssl/nano/vm/accelerator/InternalFunctionControlUnit.java
