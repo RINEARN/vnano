@@ -451,7 +451,11 @@ public class SemanticAnalyzer {
 										currentNode.getFileName(), currentNode.getLineNumber()
 								);
 								operationDataType = dataType;
-								rank = Math.max(inputNodes[0].getRank(), inputNodes[1].getRank());
+								rank = analyzeArithmeticComparisonLogicalBinaryOperatorRank(
+										inputNodes[0].getRank(), inputNodes[1].getRank(),
+										currentNode.getAttribute(AttributeKey.OPERATOR_SYMBOL),
+										currentNode.getFileName(), currentNode.getLineNumber()
+								);
 								break;
 							}
 							case AttributeValue.PREFIX : {
@@ -483,7 +487,11 @@ public class SemanticAnalyzer {
 								currentNode.getAttribute(AttributeKey.OPERATOR_SYMBOL),
 								currentNode.getFileName(), currentNode.getLineNumber()
 						);
-						rank = Math.max(inputNodes[0].getRank(), inputNodes[1].getRank());
+						rank = analyzeArithmeticComparisonLogicalBinaryOperatorRank(
+								inputNodes[0].getRank(), inputNodes[1].getRank(),
+								currentNode.getAttribute(AttributeKey.OPERATOR_SYMBOL),
+								currentNode.getFileName(), currentNode.getLineNumber()
+						);
 						break;
 					}
 
@@ -500,7 +508,11 @@ public class SemanticAnalyzer {
 										currentNode.getAttribute(AttributeKey.OPERATOR_SYMBOL),
 										currentNode.getFileName(), currentNode.getLineNumber()
 								);
-								rank = Math.max(inputNodes[0].getRank(), inputNodes[1].getRank());
+								rank = analyzeArithmeticComparisonLogicalBinaryOperatorRank(
+										inputNodes[0].getRank(), inputNodes[1].getRank(),
+										currentNode.getAttribute(AttributeKey.OPERATOR_SYMBOL),
+										currentNode.getFileName(), currentNode.getLineNumber()
+								);
 								break;
 							}
 							case AttributeValue.PREFIX : {
@@ -525,7 +537,11 @@ public class SemanticAnalyzer {
 								currentNode.getAttribute(AttributeKey.OPERATOR_SYMBOL),
 								currentNode.getFileName(), currentNode.getLineNumber()
 						);
-						rank = inputNodes[0].getRank(); // 複合代入演算子で左右の次元が違うものは検査で弾くべき
+						rank = analyzeCompoundAssignmentOperatorRank(
+								inputNodes[0].getRank(), inputNodes[1].getRank(),
+								currentNode.getAttribute(AttributeKey.OPERATOR_SYMBOL),
+								currentNode.getFileName(), currentNode.getLineNumber()
+						);
 						break;
 					}
 
@@ -656,6 +672,10 @@ public class SemanticAnalyzer {
 	}
 
 
+	private boolean containsDataTypeInOperands(String dataType, String leftOperandType, String rightOperandType) {
+		return leftOperandType.equals(dataType) || rightOperandType.equals(dataType);
+	}
+
 	/**
 	 * 算術復号代入演算子のオペランドのデータ型を解析し、演算実行データ型を決定して返します。
 	 *
@@ -708,6 +728,7 @@ public class SemanticAnalyzer {
 			leftOperandType, rightOperandType, arithmeticBinaryOperatorSymbol, fileName, lineNumber
 		);
 	}
+
 
 	/**
 	 * 算術二項演算子のオペランドのデータ型を解析し、演算実行データ型を決定して返します。
@@ -792,10 +813,6 @@ public class SemanticAnalyzer {
 		);
 	}
 
-
-	private boolean containsDataTypeInOperands(String dataType, String leftOperandType, String rightOperandType) {
-		return leftOperandType.equals(dataType) || rightOperandType.equals(dataType);
-	}
 
 	/**
 	 * 比較二項演算子のオペランドのデータ型を解析し、演算実行データ型を決定して返します。
@@ -913,6 +930,113 @@ public class SemanticAnalyzer {
 			new String[] {operatorSymbol, leftOperandType, rightOperandType},
 			fileName, lineNumber
 		);
+	}
+
+
+	/**
+	 * 算術(Arithmetic)、比較(Comparison)、論理(Logical)二項演算子のオペランドの配列次元数を解析し、
+	 * 演算結果の配列次元数を決定して返します。
+	 *
+	 * 演算結果の配列次元数は、スカラ同士の演算では 0 (スカラの次元数) となります。
+	 * 配列同士の演算では、両者の次元数が等しい必要があり、結果はその配列の次元数となります
+	 * （両者の次元数が等しくない場合はエラーとなります）。
+	 * また、スカラと配列の演算では、結果は配列の次元数となります。
+	 *
+	 * @param leftOperandRank 左オペランドの配列次元数
+	 * @param rightOperandRank 右オペランドの配列次元数
+	 * @param operatorSymbol 演算子の記号
+	 * @param fileName 対象処理が記述されたファイル名（例外発生時のエラー情報に使用）
+	 * @param lineNumber 対象処理が記述された行番号（例外発生時のエラー情報に使用）
+	 * @return 演算子の演算実行データ型の名前
+	 * @throws VnanoException 両オペランドの配列次元数が、演算を行えない組み合わせであった場合にスローされます。
+	 */
+	int analyzeArithmeticComparisonLogicalBinaryOperatorRank(
+			int leftOperandRank, int rightOperandRank, String operatorSymbol,
+			String fileName, int lineNumber) throws VnanoException {
+
+		// スカラ同士の演算はスカラ(0次元)
+		if (leftOperandRank==0 && rightOperandRank==0) {
+			return 0;
+		}
+
+		// 左オペランドがスカラで右オペランドが配列の場合
+		if (leftOperandRank==0 && rightOperandRank!=0) {
+			return rightOperandRank;
+		}
+
+		// 左オペランドが配列で右オペランドがスカラの場合
+		if (leftOperandRank!=0 && rightOperandRank==0) {
+			return leftOperandRank;
+		}
+
+		// ここまで残るのは配列同士の演算
+		if (leftOperandRank == rightOperandRank) {
+			return leftOperandRank;
+
+		// 次元数が等しくない配列同士の演算はエラーとする
+		} else {
+			throw new VnanoException(
+				ErrorType.INVALID_RANKS_FOR_VECTOR_OPERATION,
+				new String[] {operatorSymbol}, fileName, lineNumber
+			);
+		}
+	}
+
+
+	/**
+	 * 複合代入演算子のオペランドの配列次元数を解析し、演算結果の配列次元数を決定して返します。
+	 *
+	 * 演算結果の配列次元数は、スカラ同士の演算では 0 となります。
+	 * 配列同士の演算では、両者の次元数が等しい必要があり、結果はその配列の次元数となります
+	 * （両者の次元数が等しくない場合はエラーとなります）。
+	 * また、左オペランドが配列で右オペランドがスカラの場合は、結果は配列の次元数となります。
+	 * 逆に、左オペランドがスカラで右オペランドが配列の場合は、
+	 * 演算結果が配列となり、スカラに再代入できないため、エラーとなります。
+	 *
+	 * @param leftOperandRank 左オペランドの配列次元数
+	 * @param rightOperandRank 右オペランドの配列次元数
+	 * @param operatorSymbol 演算子の記号
+	 * @param fileName 対象処理が記述されたファイル名（例外発生時のエラー情報に使用）
+	 * @param lineNumber 対象処理が記述された行番号（例外発生時のエラー情報に使用）
+	 * @return 演算子の演算実行データ型の名前
+	 * @throws VnanoException 両オペランドの配列次元数が、演算を行えない組み合わせであった場合にスローされます。
+	 */
+	int analyzeCompoundAssignmentOperatorRank(
+			int leftOperandRank, int rightOperandRank, String operatorSymbol,
+			String fileName, int lineNumber) throws VnanoException {
+
+		// スカラ同士の演算はスカラ(0次元)
+		if (leftOperandRank==0 && rightOperandRank==0) {
+			return 0;
+		}
+
+		// 左オペランドがスカラで右オペランドが配列の場合は、
+		// 演算時にスカラがベクトルに昇格されるためベクトル演算自体は可能だが、
+		// 左辺のスカラへの再代入を行えないため、エラーとする必要がある
+		if (leftOperandRank==0 && rightOperandRank!=0) {
+			throw new VnanoException(
+				ErrorType.INVALID_COMPOUND_ASSIGNMENT_BETWEEN_SCALAR_AND_ARRAY,
+				new String[] {operatorSymbol}, fileName, lineNumber
+			);
+		}
+
+		// 左オペランドが配列で右オペランドがスカラの場合
+		if (leftOperandRank!=0 && rightOperandRank==0) {
+			return leftOperandRank;
+		}
+
+		// ここまで残るのは配列同士の演算
+		if (leftOperandRank == rightOperandRank) {
+			return leftOperandRank;
+
+		// 次元数が等しくない配列同士の演算はエラーとする
+		//（代入以前にベクトル演算を行えないため、エラー種類はベクトル演算のエラー）
+		} else {
+			throw new VnanoException(
+				ErrorType.INVALID_RANKS_FOR_VECTOR_OPERATION,
+				new String[] {operatorSymbol}, fileName, lineNumber
+			);
+		}
 	}
 
 

@@ -65,6 +65,8 @@ public class ErrorMessage {
 			case CLOSING_PARENTHESES_IS_DEFICIENT : return "閉じ括弧「 ) 」が不足しています。";
 			case INVALID_DATA_TYPES_FOR_UNARY_OPERATOR : return "前置・後置演算子の「 " + words[0] + " 」は、" + words[1] + "型の値や変数に対しては使用できません。";
 			case INVALID_DATA_TYPES_FOR_BINARY_OPERATOR : return "二項演算子の「 " + words[0] + " 」は、" + words[1] + "型と" + words[2] + "型の値や変数の組み合わせに対しては使用できません。";
+			case INVALID_RANKS_FOR_VECTOR_OPERATION : return "配列同士の「 " + words[0] + " 」演算は、左右の配列の次元数が等しい場合にしか使用できませんが、異なる次元数が検出されました。";
+			case INVALID_COMPOUND_ASSIGNMENT_BETWEEN_SCALAR_AND_ARRAY : return "復号代入演算「 " + words[0] + " 」は、左辺が非配列、右辺が配列の場合には使用できません。";
 			case INVALID_TYPE_TOKEN_IN_EXPRESSION : return "単語「 " + words[0] + " 」は、式の中では使用できません。";
 			case STRING_LITERAL_IS_NOT_CLOSED : return "閉じていない文字列リテラル \"...\" が存在します。";
 			case INVALID_IDENTIFIER_TYPE : return "変数/関数に付けられた名前「 " + words[0] + " 」は、他に特別な意味を持つ単語や値であるため、使用できません。";
@@ -126,9 +128,11 @@ public class ErrorMessage {
 			case CLOSING_PARENTHESES_IS_DEFICIENT : return "Closing parenthesis \")\" is deficient";
 			case INVALID_DATA_TYPES_FOR_UNARY_OPERATOR : return "Prefix/postfix operator \"" + words[0] + "\" is not available for " + words[1] + "-type operands";
 			case INVALID_DATA_TYPES_FOR_BINARY_OPERATOR : return "Binary operator \"" + words[0] + "\" is not available for the combination of " + words[0] + "-type and " + words[1] + "-type data";
+			case INVALID_RANKS_FOR_VECTOR_OPERATION : return "Operation \"" + words[0] + "\" between arrays is not available when ranks (number of dimensions) of arrays are different";
+			case INVALID_COMPOUND_ASSIGNMENT_BETWEEN_SCALAR_AND_ARRAY : return "Compound assignment operator \"" + words[0] + "\" is not available when left-hand side is a scalar and right-hand side is an array";
 			case INVALID_TYPE_TOKEN_IN_EXPRESSION : return "Token \"" + words[0] + "\" is not available in expressions";
 			case STRING_LITERAL_IS_NOT_CLOSED : return "Unclosed string literal \"...\" exists in code";
-			case INVALID_IDENTIFIER_TYPE : return "A variable is declared with the name \"" + words[0] + "\", but this word has the other special role, so it can not be a variable name.";
+			case INVALID_IDENTIFIER_TYPE : return "A variable is declared with the name \"" + words[0] + "\", but this word has the other special role, so it can not be a variable name";
 			case INVALID_IDENTIFIER_SYNTAX : return "A variable is declared with the invalid name \"" + words[0] + "\" (because it starts with numbers,or contains symbols, or conflicts with other rules)";
 			case IDENTIFIER_IS_RESERVED_WORD : return "A variable is declared with the invalid name \"" + words[0] + "\" (because it is a reserved word)";
 			case NO_IDENTIFIER_IN_VARIABLE_DECLARATION : return "Variable name is required after the data type name for variable declarations";
