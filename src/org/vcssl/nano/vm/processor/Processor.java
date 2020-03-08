@@ -185,7 +185,9 @@ public class Processor implements Processable {
 				if (e instanceof VnanoException) {
 					vne = (VnanoException)e;
 				} else {
-					vne = new VnanoException(ErrorType.UNEXPECTED, e);
+					vne = new VnanoException(
+						ErrorType.UNEXPECTED_PROCESSOR_CRASH, new String[] {Integer.toString(programCounter)}, e
+					);
 				}
 
 				// 命令のメタ情報から、スクリプト内で命令に対応する箇所のファイル名や行番号を抽出
