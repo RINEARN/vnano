@@ -5,9 +5,12 @@
 
 package org.vcssl.nano.vm.accelerator;
 
+import org.vcssl.nano.VnanoException;
 import org.vcssl.nano.VnanoFatalException;
 
 import org.vcssl.nano.interconnect.Interconnect;
+import org.vcssl.nano.spec.ErrorType;
+import org.vcssl.nano.spec.MetaInformationSyntax;
 import org.vcssl.nano.spec.OperationCode;
 import org.vcssl.nano.vm.memory.DataContainer;
 import org.vcssl.nano.vm.memory.Memory;
@@ -20,7 +23,7 @@ public class AcceleratorDispatchUnit {
 	public AcceleratorExecutionNode[] dispatch (
 			Processor processor, Memory memory, Interconnect interconnect,
 			AcceleratorInstruction[] instructions, AcceleratorDataManagementUnit dataManager,
-			BypassUnit bypassUnit, InternalFunctionControlUnit functionControlUnit) {
+			BypassUnit bypassUnit, InternalFunctionControlUnit functionControlUnit) throws VnanoException {
 
 		int instructionLength = instructions.length;
 		AcceleratorExecutionNode[] nodes = new AcceleratorExecutionNode[instructionLength];
@@ -77,16 +80,17 @@ public class AcceleratorDispatchUnit {
 					nextNode
 				);
 			} catch (Exception causeException) {
-				AcceleratorInstruction causeInstruction = instruction;
+
+				// 原因命令のアドレス類、およびスクリプト内で命令に対応する箇所のファイル名や行番号を抽出
+				AcceleratorInstruction causeInstruction = nextNode.getSourceInstruction();
 				int unreorderedAddress = causeInstruction.getUnreorderedAddress();
 				int reorderedAddress = causeInstruction.getReorderedAddress();
-				throw new VnanoFatalException(
-						"Accelerator dispatch failed at:"
-						+ " address=" + unreorderedAddress
-						+ " reorderedAddressOfThisInstruction=" + reorderedAddress
-						+ " instruction=" + causeInstruction,
-						causeException
-				);
+				int lineNumber = MetaInformationSyntax.extractLineNumber(causeInstruction, memory);
+				String fileName = MetaInformationSyntax.extractFileName(causeInstruction, memory);
+				String[] errorWords = {
+						Integer.toString(unreorderedAddress), Integer.toString(reorderedAddress), causeInstruction.toString()
+				};
+				throw new VnanoException(ErrorType.UNEXPECTED_ACCELERATOR_CRASH, errorWords, fileName, lineNumber);
 			}
 
 			// エラー発生時に原因命令を辿れるように、ノードに元の命令を格納
