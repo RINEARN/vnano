@@ -1725,7 +1725,7 @@ please note that the user of the application may be different person with the au
 
 If you want to support rich functions on the scripting feature of your application, 
 it might be one compromise plan to implement the "security barrier" 
-which requesting PermissionNames to the user of the host-application, 
+which requesting permissions to the user of the host-application, 
 when the external functions which access to securitically critical resources (files, networks, etc.) are invoked.
 
 スクリプト内で豊富な機能を利用できるようにしたい場合は、
@@ -1969,7 +1969,6 @@ Let's implement them:
 	...
 	import org.vcssl.connect.ExternalFunctionConnectorInterface1;
 	import org.vcssl.connect.ExternalVariableConnectorInterface1;
-	import org.vcssl.connect.ConnectorPermission;
 	import org.vcssl.connect.ConnectorException;
 
 	public class Example {
@@ -1996,10 +1995,6 @@ Let's implement them:
 			public boolean hasVariadicParameters() { return false; }
 			@Override
 			public Class<?> getReturnClass(Class<?>[] parameterClasses) { return Void.class; }
-			@Override
-			public String[] getNecessaryPermissionNames() { return new String[]{ ConnectorPermissionName.NONE }; }
-			@Override
-			public String[] getUnnecessaryPermissionNames() { return new String[]{ ConnectorPermissionName.ALL }; }
 			@Override
 			public void initializeForConnection(Object engineConnector) { }
 			@Override
@@ -2032,10 +2027,6 @@ Let's implement them:
 			public Class<?> getDataClass() { return int.class; }
 			@Override
 			public boolean isConstant() { return false; }
-			@Override
-			public String[] getNecessaryPermissionNames() { return new String[]{ ConnectorPermissionName.NONE }; }
-			@Override
-			public String[] getUnnecessaryPermissionNames() { return new String[]{ ConnectorPermissionName.ALL }; }
 			@Override
 			public void initializeForConnection(Object engineConnector) { }
 			@Override
@@ -2128,7 +2119,6 @@ Let's implement. The following is an example code:
 	...
 	import org.vcssl.connect.ExternalFunctionConnectorInterface1;
 	import org.vcssl.connect.ExternalVariableConnectorInterface1;
-	import org.vcssl.connect.ConnectorPermission;
 	import org.vcssl.connect.ConnectorException;
 	import org.vcssl.connect.ArrayDataContainerInterface1;
 
@@ -2156,10 +2146,6 @@ Let's implement. The following is an example code:
 			public boolean hasVariadicParameters() { return false; }
 			@Override
 			public Class<?> getReturnClass(Class<?>[] parameterClasses) { return Void.class; }
-			@Override
-			public String[] getNecessaryPermissionNames() { return new String[]{ ConnectorPermissionName.NONE }; }
-			@Override
-			public String[] getUnnecessaryPermissionNames() { return new String[]{ ConnectorPermissionName.ALL }; }
 			@Override
 			public void initializeForConnection(Object engineConnector) { }
 			@Override
@@ -2211,10 +2197,6 @@ Let's implement. The following is an example code:
 			public Class<?> getDataClass() { return int.class; }
 			@Override
 			public boolean isConstant() { return false; }
-			@Override
-			public String[] getNecessaryPermissionNames() { return new String[]{ ConnectorPermissionName.NONE }; }
-			@Override
-			public String[] getUnnecessaryPermissionNames() { return new String[]{ ConnectorPermissionName.ALL }; }
 			@Override
 			public void initializeForConnection(Object engineConnector) { }
 			@Override
@@ -2386,7 +2368,6 @@ interface, you can pack multiple plug-ins of external functions/variables into o
 	import org.vcssl.connect.ExternalNamespaceConnectorInterface1;
 	import org.vcssl.connect.ExternalFunctionConnectorInterface1;
 	import org.vcssl.connect.ExternalVariableConnectorInterface1;
-	import org.vcssl.connect.ConnectorPermission;
 	import org.vcssl.connect.ConnectorException;
 
 	public class XnciExamplePlugin implements ExternalNamespaceConnectorInterface1 {
@@ -2446,10 +2427,6 @@ interface, you can pack multiple plug-ins of external functions/variables into o
 		public String getNamespaceName() {
 			return "XnciExamplePlugin";
 		}
-		@Override
-		public String[] getNecessaryPermissionNames() { return new String[]{ ConnectorPermissionName.NONE }; }
-		@Override
-		public String[] getUnnecessaryPermissionNames() { return new String[]{ ConnectorPermissionName.ALL }; }
 		@Override
 		public void initializeForConnection(Object engineConnector) { }
 		@Override
