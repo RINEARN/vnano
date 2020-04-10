@@ -4,7 +4,7 @@
  * ( for VCSSL / Vnano Plug-in Development )
  * --------------------------------------------------
  * This file is released under CC0.
- * Written in 2017-2019 by RINEARN (Fumihiro Matsui)
+ * Written in 2017-2020 by RINEARN (Fumihiro Matsui)
  * ==================================================
  */
 
@@ -41,7 +41,7 @@ package org.vcssl.connect;
  * </p>
  *
  * <ul>
- *   <li>RINEARN Vnano Engine (パーミッション関連機能には未対応)</li>
+ *   <li>RINEARN Vnano Engine</li>
  * </ul>
  *
  * <p>
@@ -112,63 +112,6 @@ public interface ExternalVariableConnectorInterface1 {
 	 * @return 自動変換が必要ならtrue
 	 */
 	public abstract boolean isDataConversionNecessary();
-
-
-	/**
-	 * パーミッション設定ベースのセキュリティレイヤーを持つ処理系において、
-	 * この変数のデータの読み書きに必要な全てのパーミッションの名称を、配列にまとめて取得します。
-	 *
-	 * パーミッションベースのセキュリティレイヤ―を持たない処理系では、
-	 * このメソッドは機能しません（呼び出されません）。
-	 *
-	 * このメソッドが返す必要パーミッション配列と、
-	 * {@link ExternalFunctionConnectorInterface1#getUnnecessaryPermissions getUnnecessaryPermissions}
-	 * メソッドが返す不要パーミッション配列において、重複している要素がある場合は、
-	 * 前者の方が優先されます（つまり、そのパーミッションは必要と判断されます）。
-	 *
-	 * なお、このメソッドの戻り値に、
-	 * {@link ConnectorPermissionName#NONE ConnectorPermissionName.NONE}
-	 * のみを格納する配列を返す事で、全てのパーミッションが不要となります。
-	 * ただし、そのような事は、
-	 * この関数が一切のシステムリソースやネットワークにアクセスしない場合など、
-	 * スクリプト内で閉じた処理と同等以上のセキュリティが確保されている場合のみ行ってください。
-	 *
-	 * @return 必要なパーミッションを格納する配列
-	 */
-	public abstract String[] getNecessaryPermissionNames();
-
-
-	/**
-	 * パーミッション設定ベースのセキュリティレイヤーを持つ処理系において、
-	 * この変数のデータの読み書きに不要な全てのパーミッションの名称を、配列にまとめて取得します。
-	 *
-	 * パーミッションベースのセキュリティレイヤ―を持たない処理系では、
-	 * このメソッドは機能しません（呼び出されません）。
-	 *
-	 * このメソッドが返す不要パーミッション配列と、
-	 * {@link ExternalFunctionConnectorInterface1#getNecessaryPermissions getNecessaryPermissions}
-	 * メソッドが返す必要パーミッション配列において、重複している要素がある場合は、
-	 * 後者の方が優先されます（つまり、そのパーミッションは必要と判断されます）。
-	 *
-	 * なお、このメソッドの戻り値に
-	 * {@link ConnectorPermissionName#ALL ConnectorPermissionName.ALL} のみを格納する配列を返す事で、
-	 * 必要パーミッション配列に含まれているものを除いた、全てのパーミッションが不要となります。
-	 * これは、将来的に新しいパーミッションが追加された場合に、
-	 * そのパーミッションによって、この関数の実行が拒否される事を回避する事ができます。
-	 *
-	 * ただし、セキュリティが重要となる用途に使用するプラグインの開発においては、
-	 * そのような事自体がそもそも好ましくない事に注意する必要があります。
-	 * そのようなセキュリティ重要度の高い用途に向けたプラグインの開発に際しては、
-	 * 開発時点で存在する個々のパーミッションについて、
-	 * 不要である事が判明しているものだけを返すようにしてください。
-	 *
-	 * そうすれば、必要・不要のどちらにも含まれない、
-	 * 開発時点で未知のパーミッションの扱いについては、
-	 * 処理系側やユーザー側の判断に委ねる事ができます。
-	 *
-	 * @return 不要なパーミッションの名称を格納する配列
-	 */
-	public abstract String[] getUnnecessaryPermissionNames();
 
 
 	/**

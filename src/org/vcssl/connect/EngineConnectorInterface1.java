@@ -3,7 +3,7 @@
  * Engine Connector Interface 1
  * --------------------------------------------------
  * This file is released under CC0.
- * Written in 2018-2019 by RINEARN (Fumihiro Matsui)
+ * Written in 2018-2020 by RINEARN (Fumihiro Matsui)
  * ==================================================
  */
 
@@ -46,4 +46,15 @@ public interface EngineConnectorInterface1 {
 	 */
 	public abstract Object getOptionValue(String optionName);
 
+
+	/**
+	 * 指定された名称のパーミッションを要求します。
+	 *
+	 * @param permissonName パーミッションの名称
+	 * @param requester パーミッションの要求元プラグイン
+	 * @param metaInformation ユーザーに通知するメッセージ内等で用いられるメタ情報
+	 * @throws 要求したパーミッションが却下された場合にスローされます。
+	 */
+	public abstract void requestPermission(String permissonName, Object requester, Object metaInformation)
+			throws ConnectorException;
 }
