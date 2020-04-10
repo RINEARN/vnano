@@ -65,8 +65,9 @@ public final class AcceleratorDataManagementUnit {
 
 	public void allocate(Instruction[] instructions, Memory memory) {
 		this.initializeFields(memory);
-		this.allocateConstantScalarCaches(memory);
-		this.allocateVariableScalarCaches(instructions, memory);
+		this.detectScalarFromMemory(memory, Memory.Partition.CONSTANT);
+		this.detectScalarFromMemory(memory, Memory.Partition.GLOBAL);
+		this.detectScalarFromInstructions(instructions, memory);
 		this.initializeCacheSynchronizers(memory);
 	}
 
@@ -120,42 +121,46 @@ public final class AcceleratorDataManagementUnit {
 		Arrays.fill(this.caches[NONE_PARTITION_ORDINAL], new NoneCache());
 	}
 
-	private void allocateConstantScalarCaches(Memory memory) {
+	// 定数領域やグローバル領域など、メモリ上にデータが確保済みのものについて、
+	// メモリを読みながらスカラ判定を行い、スカラに対してはキャッシュ確保を行う
+	// （定数値のキャッシュへの書き込みは後でSynchronizerで行う）
+	private void detectScalarFromMemory(Memory memory, Memory.Partition partition) {
+		int partitionOrdinal = partition.ordinal();
+		int partitionSize = memory.getSize(partition);
 
-		// 定数のキャッシュ生成やスカラ判定など（値の書き込みは後でSynchronizerで行う）
-		for (int constantIndex=0; constantIndex<constantSize; constantIndex++) {
+		for (int address=0; address<partitionSize; address++) {
 
 			DataContainer<?> container = null;
 			try {
-				container = memory.getDataContainer(Memory.Partition.CONSTANT, constantIndex);
+				container = memory.getDataContainer(partition, address);
 
 			// 存在するはずの定数アドレスにアクセスしているので、この例外が発生する場合は実装の異常
 			} catch (VnanoFatalException e) {
 				throw new VnanoFatalException(e);
 			}
 
-			this.scalar[CONSTANT_PARTITION_ORDINAL][constantIndex]
+			this.scalar[partitionOrdinal][address]
 					= ( (container.getRank() == DataContainer.RANK_OF_SCALAR) );
 
-			if (!this.scalar[CONSTANT_PARTITION_ORDINAL][constantIndex]) {
+			if (!this.scalar[partitionOrdinal][address]) {
 				continue;
 			}
 
 			DataType dataType = container.getDataType();
 			switch (dataType) {
 				case INT64 : {
-					this.caches[CONSTANT_PARTITION_ORDINAL][constantIndex] = new Int64ScalarCache();
-					this.cachingEnabled[CONSTANT_PARTITION_ORDINAL][constantIndex] = true;
+					this.caches[partitionOrdinal][address] = new Int64ScalarCache();
+					this.cachingEnabled[partitionOrdinal][address] = true;
 					break;
 				}
 				case FLOAT64 : {
-					this.caches[CONSTANT_PARTITION_ORDINAL][constantIndex] = new Float64ScalarCache();
-					this.cachingEnabled[CONSTANT_PARTITION_ORDINAL][constantIndex] = true;
+					this.caches[partitionOrdinal][address] = new Float64ScalarCache();
+					this.cachingEnabled[partitionOrdinal][address] = true;
 					break;
 				}
 				case BOOL : {
-					this.caches[CONSTANT_PARTITION_ORDINAL][constantIndex] = new BoolScalarCache();
-					this.cachingEnabled[CONSTANT_PARTITION_ORDINAL][constantIndex] = true;
+					this.caches[partitionOrdinal][address] = new BoolScalarCache();
+					this.cachingEnabled[partitionOrdinal][address] = true;
 					break;
 				}
 				default : {
@@ -165,23 +170,37 @@ public final class AcceleratorDataManagementUnit {
 		}
 	}
 
-	private void allocateVariableScalarCaches(Instruction[] instructions, Memory memory) {
-
-		int instructionLength = instructions.length;
+	// ローカル領域やレジスタ領域など、実行前にはメモリ上にデータが確保されていないものについて、
+	// 命令列の中の確保命令を読んでスカラ判定を行い、スカラに対してはキャッシュ確保を行う
+	private void detectScalarFromInstructions(Instruction[] instructions, Memory memory) {
 
 		// アドレスに紐づけてキャッシュを持つ(同じデータコンテナに対して同じキャッシュが一意に対応するように)
 		// 非キャッシュ演算ユニットはデータコンテナとキャッシュ要素を保持し、同期する
 
-		// キャッシュ可能かどうか等のメタ情報をスキャンする
+		int instructionLength = instructions.length;
+
+		// 注意：グローバル領域に置かれた外部変数は、
+		//       実行対象コード内でALLOCされていない場合もある（外部変数など）ため、
+		//       以下と同一の方法ではスカラかどうかの完全判定はできない。
+		//       そのため detectScalarFromMemory の方法で判定する
+
+		// 以下、命令列内でデータ確保命令を呼んでいる箇所などをスキャンし、
+		// スカラかどうか、キャッシュ可能かどうか等のメタ情報を判定して控える
 		for (int instructionIndex=0; instructionIndex<instructionLength; instructionIndex++) {
 			Instruction instruction = instructions[instructionIndex];
 			Memory.Partition[] partitions = instruction.getOperandPartitions();
 			int[] addresses = instruction.getOperandAddresses();
 			int operandLength = addresses.length;
 
+			// このメソッドが判定対象とするのはローカル領域とレジスタ領域のデータのみ
+			if (partitions[0] != Memory.Partition.LOCAL && partitions[0] != Memory.Partition.REGISTER) {
+				continue;
+			}
+
 			switch (instruction.getOperationCode()) {
 
-			case ALLOC : {
+				case ALLOC : {
+
 					// 1-オペランドのALLOC命令は、0次元なのでスカラ
 					if (operandLength == 1) {
 						this.scalar[ partitions[0].ordinal() ][ addresses[0] ] = true;
@@ -243,6 +262,11 @@ public final class AcceleratorDataManagementUnit {
 				}
 
 				case ELEM : {
+
+					// ELEM命令は、ベクトルの要素（スカラ）への参照を第0オペランドのレジスタと同期するため、
+					// 第0オペランドはスカラであるが、別の箇所で参照が共有されて書き換えられる可能性があるため、
+					// キャッシュ可能ではない
+					//（異なるアドレスのレジスタが同一データを参照を保持できるため、アドレスベースのキャッシュでは対応不可）
 					this.scalar[ partitions[0].ordinal() ][ addresses[0] ] = true;
 					break;
 				}

@@ -5,9 +5,12 @@
 
 package org.vcssl.nano.vm.accelerator;
 
+import org.vcssl.nano.VnanoException;
 import org.vcssl.nano.VnanoFatalException;
 
 import org.vcssl.nano.interconnect.Interconnect;
+import org.vcssl.nano.spec.ErrorType;
+import org.vcssl.nano.spec.MetaInformationSyntax;
 import org.vcssl.nano.spec.OperationCode;
 import org.vcssl.nano.vm.memory.DataContainer;
 import org.vcssl.nano.vm.memory.Memory;
@@ -20,7 +23,7 @@ public class AcceleratorDispatchUnit {
 	public AcceleratorExecutionNode[] dispatch (
 			Processor processor, Memory memory, Interconnect interconnect,
 			AcceleratorInstruction[] instructions, AcceleratorDataManagementUnit dataManager,
-			BypassUnit bypassUnit, InternalFunctionControlUnit functionControlUnit) {
+			BypassUnit bypassUnit, InternalFunctionControlUnit functionControlUnit) throws VnanoException {
 
 		int instructionLength = instructions.length;
 		AcceleratorExecutionNode[] nodes = new AcceleratorExecutionNode[instructionLength];
@@ -33,70 +36,68 @@ public class AcceleratorDispatchUnit {
 
 			AcceleratorInstruction instruction = instructions[instructionIndex];
 
-			// 命令からオペランドのデータアドレスを取得
-			Memory.Partition[] partitions = instructions[instructionIndex].getOperandPartitions();
-			int[] addresses = instructions[instructionIndex].getOperandAddresses();
-			int operandLength = addresses.length;
-
-			// アドレスからオペランドのデータコンテナを取得
-			DataContainer<?>[] operandContainers = new DataContainer[operandLength];
-			for (int operandIndex=0; operandIndex<operandLength; operandIndex++) {
-				try {
-					operandContainers[operandIndex] = memory.getDataContainer(partitions[operandIndex], addresses[operandIndex]);
-				} catch (VnanoFatalException e) {
-					// 命令が指しているデータアドレスにアクセスできないのはアセンブラかメモリ初期化の異常
-					throw new VnanoFatalException(e);
-				}
-			}
-
-			// オペランドの状態とキャッシュ参照などを控える配列を用意
-			boolean[] operandConstant = new boolean[operandLength];
-			boolean[] operandScalar = new boolean[operandLength];
-			boolean[] operandCachingEnabled = new boolean[operandLength];
-			ScalarCache[] operandCaches = new ScalarCache[operandLength];
-
-			// データマネージャから、オペランドのスカラ判定結果、キャッシュ有無、キャッシュ参照、定数かどうかの状態を控える
-			for (int operandIndex=0; operandIndex<operandLength; operandIndex++) {
-				operandScalar[operandIndex] = dataManager.isScalar(partitions[operandIndex], addresses[operandIndex]);
-				operandCachingEnabled[operandIndex] = dataManager.isCachingEnabled(partitions[operandIndex], addresses[operandIndex]);
-				if (operandCachingEnabled[operandIndex]) {
-					operandCaches[operandIndex] = dataManager.getCache(partitions[operandIndex], addresses[operandIndex]);
-				}
-				if (partitions[operandIndex] == Memory.Partition.CONSTANT) {
-					operandConstant[operandIndex] = true;
-				}
-			}
-
-
-			// 対象命令（1個）を演算器にディスパッチして演算ノードを取得
-			AcceleratorExecutionNode currentNode = null;
 			try {
+
+				// 命令からオペランドのデータアドレスを取得
+				Memory.Partition[] partitions = instructions[instructionIndex].getOperandPartitions();
+				int[] addresses = instructions[instructionIndex].getOperandAddresses();
+				int operandLength = addresses.length;
+
+				// アドレスからオペランドのデータコンテナを取得
+				DataContainer<?>[] operandContainers = new DataContainer[operandLength];
+				for (int operandIndex=0; operandIndex<operandLength; operandIndex++) {
+					operandContainers[operandIndex] = memory.getDataContainer(partitions[operandIndex], addresses[operandIndex]);
+				}
+
+				// オペランドの状態とキャッシュ参照などを控える配列を用意
+				boolean[] operandConstant = new boolean[operandLength];
+				boolean[] operandScalar = new boolean[operandLength];
+				boolean[] operandCachingEnabled = new boolean[operandLength];
+				ScalarCache[] operandCaches = new ScalarCache[operandLength];
+
+				// データマネージャから、オペランドのスカラ判定結果、キャッシュ有無、キャッシュ参照、定数かどうかの状態を控える
+				for (int operandIndex=0; operandIndex<operandLength; operandIndex++) {
+					operandScalar[operandIndex] = dataManager.isScalar(partitions[operandIndex], addresses[operandIndex]);
+					operandCachingEnabled[operandIndex] = dataManager.isCachingEnabled(partitions[operandIndex], addresses[operandIndex]);
+					if (operandCachingEnabled[operandIndex]) {
+						operandCaches[operandIndex] = dataManager.getCache(partitions[operandIndex], addresses[operandIndex]);
+					}
+					if (partitions[operandIndex] == Memory.Partition.CONSTANT) {
+						operandConstant[operandIndex] = true;
+					}
+				}
+
+
+				// 対象命令（1個）を演算器にディスパッチして演算ノードを取得
+				AcceleratorExecutionNode currentNode = null;
 				currentNode = this.dispatchToAcceleratorExecutionUnit(
 					instruction, operandContainers, operandCaches, operandCachingEnabled, operandScalar, operandConstant,
 					bypassUnit, functionControlUnit,
 					nextNode
 				);
+
+
+				// エラー発生時に原因命令を辿れるように、ノードに元の命令を格納
+				currentNode.setSourceInstruction(instruction);
+
+				// 生成したノードをノード列に格納
+				nodes[instructionIndex] = currentNode;
+
+				// 次ループ（命令末尾から先頭へ辿る）内で仕様するため、現在のノードを（アドレス的に）次のノードとして控える
+				nextNode = currentNode;
+
 			} catch (Exception causeException) {
-				AcceleratorInstruction causeInstruction = instruction;
-				int unreorderedAddress = causeInstruction.getUnreorderedAddress();
-				int reorderedAddress = causeInstruction.getReorderedAddress();
-				throw new VnanoFatalException(
-						"Accelerator dispatch failed at:"
-						+ " address=" + unreorderedAddress
-						+ " reorderedAddressOfThisInstruction=" + reorderedAddress
-						+ " instruction=" + causeInstruction,
-						causeException
-				);
+
+				// 原因命令のアドレス類、およびスクリプト内で命令に対応する箇所のファイル名や行番号を抽出
+				int unreorderedAddress = instruction.getUnreorderedAddress();
+				int reorderedAddress = instruction.getReorderedAddress();
+				int lineNumber = MetaInformationSyntax.extractLineNumber(instruction, memory);
+				String fileName = MetaInformationSyntax.extractFileName(instruction, memory);
+				String[] errorWords = {
+						Integer.toString(unreorderedAddress), Integer.toString(reorderedAddress), instruction.toString()
+				};
+				throw new VnanoException(ErrorType.UNEXPECTED_ACCELERATOR_CRASH, errorWords, causeException, fileName, lineNumber);
 			}
-
-			// エラー発生時に原因命令を辿れるように、ノードに元の命令を格納
-			currentNode.setSourceInstruction(instruction);
-
-			// 生成したノードをノード列に格納
-			nodes[instructionIndex] = currentNode;
-
-			// 次ループ（命令末尾から先頭へ辿る）内で仕様するため、現在のノードを（アドレス的に）次のノードとして控える
-			nextNode = currentNode;
 		}
 
 		// 別の命令アドレスに飛ぶ処理のノードに、着地先ノードの参照を持たせる
