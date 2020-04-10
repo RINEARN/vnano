@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2019 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2019-2020 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -7,6 +7,7 @@ package org.vcssl.nano;
 
 import java.util.Map;
 
+import org.vcssl.connect.ConnectorException;
 import org.vcssl.connect.EngineConnectorInterface1;
 
 //Documentation:  https://www.vcssl.org/en-us/dev/code/main-jimpl/api/org/vcssl/nano/VnanoEngineConnector.html
@@ -87,4 +88,20 @@ public final class VnanoEngineConnector implements EngineConnectorInterface1 {
 		return this.optionMap.get(optionName);
 	}
 
+
+	/**
+	 * 指定された名称のパーミッションを要求します。
+	 *
+	 * @param permissonName パーミッションの名称
+	 * @param requester パーミッションの要求元プラグイン
+	 * @param metaInformation ユーザーに通知するメッセージ内等で用いられるメタ情報
+	 * @throws 要求したパーミッションが却下された場合にスローされます。
+	 */
+	@Override
+	public void requestPermission(String permissonName, Object requester, Object metaInformation)
+			throws ConnectorException {
+
+		// 少なくとも現時点のVnanoではパーミッション制御機能は未サポート
+		// （将来性や別の処理系の事などを見据えて、インターフェース側では定義されている）
+	}
 }

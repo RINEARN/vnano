@@ -4,7 +4,7 @@
  * ( for VCSSL / Vnano Plug-in Development )
  * --------------------------------------------------
  * This file is released under CC0.
- * Written in 2017-2019 by RINEARN (Fumihiro Matsui)
+ * Written in 2017-2020 by RINEARN (Fumihiro Matsui)
  * ==================================================
  */
 
@@ -74,18 +74,6 @@ package org.vcssl.connect;
  * </p>
  *
  * <p>
- * GPCI 3 は、{@link GeneralProcessConnectorInterface2 GPCI 2} をベースに、
- * パーミッション設定ベースのセキュリティレイヤーを持つ処理系のため、
- * 必要・不要パーミッションの通知機能がサポートされています。
- * また、初期化/終了時処理も拡張されています。
- * <br>
- * ただし、この機能に対応している処理系は現時点では存在しないため、
- * 現状のVCSSL処理系などでは、
- * GPCI 3 準拠のプラグインはGPCI 2 準拠のものと認識されて接続され、
- * パーミッション通知機能は呼び出されません。
- * </p>
- *
- * <p>
  * 現時点でGPCI 3 準拠のプラグイン接続をサポートしている処理系は、以下の通りです:
  * </p>
  * <ul>
@@ -146,65 +134,6 @@ public interface GeneralProcessConnectorInterface3 {
 	 * @return 実行結果の戻り値
 	 */
 	public abstract String[] process( String functionName, String[] args );
-
-
-	/**
-	 * パーミッション設定ベースのセキュリティレイヤーを持つ処理系において、
-	 * この関数の実行に必要な全てのパーミッションの名称を、配列にまとめて取得します。
-	 *
-	 * パーミッションベースのセキュリティレイヤ―を持たない処理系では、
-	 * このメソッドは機能しません（呼び出されません）。
-	 *
-	 * このメソッドが返す必要パーミッション配列と、
-	 * {@link GeneralProcessConnectorInterface3#getUnnecessaryPermissions getUnnecessaryPermissions}
-	 * メソッドが返す不要パーミッション配列において、重複している要素がある場合は、
-	 * 前者の方が優先されます（つまり、そのパーミッションは必要と判断されます）。
-	 *
-	 * なお、このメソッドの戻り値に、
-	 * {@link ConnectorPermissionName#NONE ConnectorPermissionName.NONE}
-	 * のみを格納する配列を返す事で、全てのパーミッションが不要となります。
-	 * ただし、そのような事は、
-	 * この関数が一切のシステムリソースやネットワークにアクセスしない場合など、
-	 * スクリプト内で閉じた処理と同等以上のセキュリティが確保されている場合のみ行ってください。
-	 *
-	 * @param functionName 実行対象関数の関数名
-	 * @return 必要なパーミッションの名称を格納する配列
-	 */
-	public abstract String[] getNecessaryPermissionNames(String functionName);
-
-
-	/**
-	 * パーミッション設定ベースのセキュリティレイヤーを持つ処理系において、
-	 * この関数の実行に不要な全てのパーミッションの名称を、配列にまとめて取得します。
-	 *
-	 * パーミッションベースのセキュリティレイヤ―を持たない処理系では、
-	 * このメソッドは機能しません（呼び出されません）。
-	 *
-	 * このメソッドが返す不要パーミッション配列と、
-	 * {@link GeneralProcessConnectorInterface3#getNecessaryPermissions getNecessaryPermissions}
-	 * メソッドが返す必要パーミッション配列において、重複している要素がある場合は、
-	 * 後者の方が優先されます（つまり、そのパーミッションは必要と判断されます）。
-	 *
-	 * なお、このメソッドの戻り値に
-	 * {@link ConnectorPermissionName#ALL ConnectorPermissionName.ALL} のみを格納する配列を返す事で、
-	 * 必要パーミッション配列に含まれているものを除いた、全てのパーミッションが不要となります。
-	 * これは、将来的に新しいパーミッションが追加された場合に、
-	 * そのパーミッションによって、この関数の実行が拒否される事を回避する事ができます。
-	 *
-	 * ただし、セキュリティが重要となる用途に使用するプラグインの開発においては、
-	 * そのような事自体がそもそも好ましくない事に留意する必要があります。
-	 * そのようなセキュリティ重要度の高い用途に向けたプラグインの開発に際しては、
-	 * 開発時点で存在する個々のパーミッションについて、
-	 * 不要である事が判明しているものだけを返すようにしてください。
-	 *
-	 * そうすれば、必要・不要のどちらにも含まれない、
-	 * 開発時点で未知のパーミッションの扱いについては、
-	 * 処理系側やユーザー側の判断に委ねる事ができます。
-	 *
-	 * @param functionName 実行対象関数の関数名
-	 * @return 不要なパーミッションの名称を格納する配列
-	 */
-	public abstract String[] getUnnecessaryPermissionNames(String functionName);
 
 
 	/**
