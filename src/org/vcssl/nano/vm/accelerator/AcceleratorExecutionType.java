@@ -39,6 +39,7 @@ public enum AcceleratorExecutionType {
 	BS_LOGICAL,  // BoolScalarLogical
 	BCS_LOGICAL, // BoolCachedScalarLogical
 
+	BV_BRANCH,   // BoolVectorBranch
 	BS_BRANCH,   // BoolScalarBranch
 	BCS_BRANCH,  // BoolCachedScalarBranch
 

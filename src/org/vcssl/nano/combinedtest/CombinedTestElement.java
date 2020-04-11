@@ -1,5 +1,7 @@
 package org.vcssl.nano.combinedtest;
 
+import java.util.Arrays;
+
 import org.vcssl.nano.VnanoEngine;
 
 public class CombinedTestElement {
@@ -38,9 +40,31 @@ public class CombinedTestElement {
 
 	@SuppressWarnings("unused")
 	protected void evaluateResult(
+			int[] resultValue, int[] correctValue, String testName, String scriptCode) {
+
+		if (Arrays.equals(resultValue, correctValue)) {
+			System.out.println(testName + ": OK.");
+		} else {
+			throw new CombinedTestException(resultValue, correctValue, testName, scriptCode);
+		}
+	}
+
+	@SuppressWarnings("unused")
+	protected void evaluateResult(
 			long resultValue, long correctValue, String testName, String scriptCode) {
 
 		if (resultValue == correctValue) {
+			System.out.println(testName + ": OK.");
+		} else {
+			throw new CombinedTestException(resultValue, correctValue, testName, scriptCode);
+		}
+	}
+
+	@SuppressWarnings("unused")
+	protected void evaluateResult(
+			long[] resultValue, long[] correctValue, String testName, String scriptCode) {
+
+		if (Arrays.equals(resultValue, correctValue)) {
 			System.out.println(testName + ": OK.");
 		} else {
 			throw new CombinedTestException(resultValue, correctValue, testName, scriptCode);
@@ -60,6 +84,17 @@ public class CombinedTestElement {
 
 	@SuppressWarnings("unused")
 	protected void evaluateResult(
+			float[] resultValue, float[] correctValue, String testName, String scriptCode) {
+
+		if (Arrays.equals(resultValue, correctValue)) {
+			System.out.println(testName + ": OK.");
+		} else {
+			throw new CombinedTestException(resultValue, correctValue, testName, scriptCode);
+		}
+	}
+
+	@SuppressWarnings("unused")
+	protected void evaluateResult(
 			double resultValue, double correctValue, String testName, String scriptCode) {
 
 		if (resultValue == correctValue) {
@@ -71,9 +106,53 @@ public class CombinedTestElement {
 
 	@SuppressWarnings("unused")
 	protected void evaluateResult(
+			double[] resultValue, double[] correctValue, String testName, String scriptCode) {
+
+		if (Arrays.equals(resultValue, correctValue)) {
+			System.out.println(testName + ": OK.");
+		} else {
+			throw new CombinedTestException(resultValue, correctValue, testName, scriptCode);
+		}
+	}
+
+	@SuppressWarnings("unused")
+	protected void evaluateResult(
 			boolean resultValue, boolean correctValue, String testName, String scriptCode) {
 
 		if (resultValue == correctValue) {
+			System.out.println(testName + ": OK.");
+		} else {
+			throw new CombinedTestException(resultValue, correctValue, testName, scriptCode);
+		}
+	}
+
+	@SuppressWarnings("unused")
+	protected void evaluateResult(
+			boolean[] resultValue, boolean[] correctValue, String testName, String scriptCode) {
+
+		if (Arrays.equals(resultValue, correctValue)) {
+			System.out.println(testName + ": OK.");
+		} else {
+			throw new CombinedTestException(resultValue, correctValue, testName, scriptCode);
+		}
+	}
+
+	@SuppressWarnings("unused")
+	protected void evaluateResult(
+			String resultValue, String correctValue, String testName, String scriptCode) {
+
+		if (resultValue.equals(correctValue)) {
+			System.out.println(testName + ": OK.");
+		} else {
+			throw new CombinedTestException(resultValue, correctValue, testName, scriptCode);
+		}
+	}
+
+	@SuppressWarnings("unused")
+	protected void evaluateResult(
+			String[] resultValue, String[] correctValue, String testName, String scriptCode) {
+
+		if (Arrays.equals(resultValue, correctValue)) {
 			System.out.println(testName + ": OK.");
 		} else {
 			throw new CombinedTestException(resultValue, correctValue, testName, scriptCode);

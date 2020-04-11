@@ -239,7 +239,7 @@ public class AcceleratorDispatchUnit {
 			}
 
 
-				// データ転送
+			// データ転送
 
 			case I64V_TRANSFER : {
 				return new Int64VectorTransferUnit().generateNode(
@@ -308,6 +308,11 @@ public class AcceleratorDispatchUnit {
 
 			// 分岐
 
+			case BV_BRANCH : {
+				return new BoolVectorBranchUnit().generateNode(
+					instruction, operandContainers, operandCaches, operandCachingEnabled, operandScalar, operandConstant, nextNode
+				);
+			}
 			case BS_BRANCH : {
 				return new BoolScalarBranchUnit().generateNode(
 					instruction, operandContainers, operandCaches, operandCachingEnabled, operandScalar, operandConstant, nextNode

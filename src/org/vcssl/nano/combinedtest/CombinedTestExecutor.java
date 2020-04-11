@@ -18,11 +18,13 @@ public class CombinedTestExecutor {
 
 
 		// Add test element here
-		testElementList.add(new AssignmentExpressionCombinedTest());
-		testElementList.add(new ArithmeticExpressionCombinedTest());
-		testElementList.add(new LogicalExpressionCombinedTest());
-		testElementList.add(new ComparisonExpressionCombinedTest());
-		testElementList.add(new CompoundAssignmentExpressionCombinedTest());
+		testElementList.add(new ScalarAssignmentOperationCombinedTest());
+		testElementList.add(new ScalarArithmeticOperationCombinedTest());
+		testElementList.add(new ScalarLogicalOperationCombinedTest());
+		testElementList.add(new ScalarComparisonOperationCombinedTest());
+		testElementList.add(new ScalarCompoundAssignmentOperationCombinedTest());
+		testElementList.add(new VectorArithmeticOperationCombinedTest());
+		testElementList.add(new VectorLogicalOperationCombinedTest());
 		testElementList.add(new IfElseStatementCombinedTest());
 		testElementList.add(new WhileStatementCombinedTest());
 		testElementList.add(new ForStatementCombinedTest());
