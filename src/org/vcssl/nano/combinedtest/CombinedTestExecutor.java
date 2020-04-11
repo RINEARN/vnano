@@ -23,6 +23,7 @@ public class CombinedTestExecutor {
 		testElementList.add(new ScalarLogicalOperationCombinedTest());
 		testElementList.add(new ScalarComparisonOperationCombinedTest());
 		testElementList.add(new ScalarCompoundAssignmentOperationCombinedTest());
+		testElementList.add(new VectorArithmeticOperationCombinedTest());
 		testElementList.add(new IfElseStatementCombinedTest());
 		testElementList.add(new WhileStatementCombinedTest());
 		testElementList.add(new ForStatementCombinedTest());
