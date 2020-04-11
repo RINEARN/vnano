@@ -86,6 +86,7 @@ org/vcssl/nano/vm/accelerator/BoolScalarBranchUnit.java
 org/vcssl/nano/vm/accelerator/BoolScalarCache.java
 org/vcssl/nano/vm/accelerator/BoolScalarLogicalUnit.java
 org/vcssl/nano/vm/accelerator/BoolScalarTransferUnit.java
+org/vcssl/nano/vm/accelerator/BoolVectorBranchUnit.java
 org/vcssl/nano/vm/accelerator/BoolVectorLogicalUnit.java
 org/vcssl/nano/vm/accelerator/BoolVectorScalarTransferUnit.java
 org/vcssl/nano/vm/accelerator/BoolVectorTransferUnit.java

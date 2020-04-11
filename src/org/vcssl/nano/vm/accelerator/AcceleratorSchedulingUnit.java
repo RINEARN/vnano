@@ -500,8 +500,13 @@ public class AcceleratorSchedulingUnit {
 				{
 					if(dataTypes[0] == DataType.BOOL) {
 
-						// 大半の場合、条件はキャッシュ可能なスカラ
-						if (isAllScalar(operandScalar) && isAllCached(operandCachingEnabled)) {
+						// 条件オペランドがベクトルの場合（ベクトル論理演算での短絡評価などで使用される）
+						// ※ 命令仕様上、条件オペランド以外は常にスカラ
+						if (!operandScalar[2]) {
+							instruction.setAccelerationType(AcceleratorExecutionType.BV_BRANCH);
+
+						// 条件オペランドやその他オペランドが全てキャッシュ可能なスカラの場合（大半の場合はこれ）
+						} else if (isAllScalar(operandScalar) && isAllCached(operandCachingEnabled)) {
 							instruction.setAccelerationType(AcceleratorExecutionType.BCS_BRANCH);
 
 						// 配列の要素などが条件に指定される場合など、キャッシュ不可能なスカラも一応あり得る

@@ -257,22 +257,53 @@ public class DispatchUnit {
 				return programCounter + 1;
 			}
 
+			// 条件が true の場合に飛ぶ分岐命令
 			case JMP : {
+
 				 // 以下、0番オペランドを書き込み対象に統一した際に要変更
 				this.checkNumberOfOperands(instruction, 3); // オペランド[0]はプレースホルダなので、オペランドは3個ある
-				boolean condition = ((boolean[])operands[2].getData())[0]; // オペランド[2] に条件が入っている（[0]はプレースホルダ）
-				if (condition) {
+				boolean[] conditions = (boolean[])operands[2].getData(); // オペランド[2] が分岐条件（[0]はプレースホルダ）
+
+				// 以下、飛ぶべきかどうかの判定。オペランド[2]の値がtrueなら飛ぶ。
+				// ただしオペランド[2]はスカラに限らず、ベクトルの場合もあり、その場合は全要素がtrueなら飛ぶものと定義する。
+				// そう定義する事で、中間コードにおいて、ベクトル論理演算とスカラ論理演算の短絡評価処理を統一的かつ簡潔に表現できる。
+
+				boolean shouldJump = true; // 飛ぶべき場合にtrue、飛んではいけない場合にfalseにする
+				for (boolean condition: conditions) {
+					shouldJump &= condition; // オペランド[2]の要素に1つでもfalseがあればfalseになり、飛ばなくなる
+				}
+
+				// 飛ぶべき場合： 分岐先命令に飛ぶ
+				if (shouldJump) {
 					return (int)( (long[])operands[1].getData() )[0]; // オペランド[1]に分岐先の命令アドレスが入っている
+
+				// 飛んではいけない場合： 次の命令に進む
 				} else {
 					return programCounter + 1;
 				}
 			}
+
+			// 条件が false の場合に飛ぶ分岐命令
 			case JMPN : {
+
 				 // 以下、0番オペランドを書き込み対象に統一した際に要変更
 				this.checkNumberOfOperands(instruction, 3); // オペランド[0]はプレースホルダなので、オペランドは3個ある
-				boolean condition = ((boolean[])operands[2].getData())[0]; // オペランド[2] に条件が入っている
-				if (condition) {
+				boolean[] conditions = (boolean[])operands[2].getData(); // オペランド[2] が分岐条件（[0]はプレースホルダ）
+
+				// 以下、飛ぶべきかどうかの判定。オペランド[2]の値がfalseなら飛ぶ。
+				// ただしオペランド[2]はスカラに限らず、ベクトルの場合もあり、その場合は全要素がfalseなら飛ぶものと定義する。
+				// そう定義する事で、中間コードにおいて、ベクトル論理演算とスカラ論理演算の短絡評価処理を統一的かつ簡潔に表現できる。
+
+				boolean shouldNotJump = false; // 飛んではいけない場合にtrue、飛ぶべき場合にfalseにする
+				for (boolean condition: conditions) {
+					shouldNotJump |= condition; // オペランド[2]の要素に1つでもtrueがあればtrueになり、飛ばなくなる
+				}
+
+				// 飛んではいけない場合： 次の命令に進む
+				if (shouldNotJump) {
 					return programCounter + 1;
+
+				// 飛ぶべき場合： 分岐先命令に飛ぶ
 				} else {
 					return (int)( (long[])operands[1].getData() )[0]; // オペランド[1]に分岐先の命令アドレスが入っている
 				}

@@ -1276,13 +1276,14 @@ public enum OperationCode {
 	 *
 	 * <span class="lang-en">
 	 * When this instruction is executed,
-	 * the processing flow will be jumped to the instruction at the next of the "label",
+	 * the processing flow will jump to the instruction at the next of the "label",
 	 * if the value of "condition" is true.
+	 * (When "condition" is an array, it will jump if all elements of "condition" are true.)
 	 * The data-type of "condition" should be "bool" type.
 	 * </span>
 	 *
 	 * <span class="lang-ja">
-	 * この命令の実行により, condition に指定された値が true の場合に,
+	 * この命令の実行により, condition に指定された値（配列の場合は全要素）が true の場合に,
 	 * label に指定されたラベルの次の位置にある命令に処理が飛びます.
 	 * condition のデータ型は bool 型である必要があります.
 	 * </span>
@@ -1311,13 +1312,14 @@ public enum OperationCode {
 	 *
 	 * <span class="lang-en">
 	 * When this instruction is executed,
-	 * the processing flow will be jumped to the instruction at the next of the "label",
+	 * the processing flow will jump to the instruction at the next of the "label",
 	 * if the value of "condition" is false.
+	 * (When "condition" is an array, it will jump if all elements of "condition" are false.)
 	 * The data-type of "condition" should be "bool" type.
 	 * </span>
 	 *
 	 * <span class="lang-ja">
-	 * この命令の実行により, condition に指定された値が false の場合に,
+	 * この命令の実行により, condition に指定された値（配列の場合は全要素）が false の場合に,
 	 * label に指定されたラベルの次の位置にある命令に処理が飛びます.
 	 * condition のデータ型は bool 型である必要があります.
 	 * </span>
