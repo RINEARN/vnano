@@ -16,13 +16,13 @@ public class CombinedTestExecutor {
 
 		List<CombinedTestElement> testElementList = new LinkedList<CombinedTestElement>();
 
-
 		// Add test element here
 		testElementList.add(new ScalarAssignmentOperationCombinedTest());
 		testElementList.add(new ScalarArithmeticOperationCombinedTest());
 		testElementList.add(new ScalarLogicalOperationCombinedTest());
 		testElementList.add(new ScalarComparisonOperationCombinedTest());
 		testElementList.add(new ScalarCompoundAssignmentOperationCombinedTest());
+		testElementList.add(new VectorAssignmentOperationCombinedTest());
 		testElementList.add(new VectorArithmeticOperationCombinedTest());
 		testElementList.add(new VectorLogicalOperationCombinedTest());
 		testElementList.add(new VectorComparisonOperationCombinedTest());
