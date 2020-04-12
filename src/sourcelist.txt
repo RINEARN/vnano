@@ -28,6 +28,7 @@ org/vcssl/nano/combinedtest/ScalarLogicalOperationCombinedTest.java
 org/vcssl/nano/combinedtest/VectorArithmeticOperationCombinedTest.java
 org/vcssl/nano/combinedtest/VectorAssignmentOperationCombinedTest.java
 org/vcssl/nano/combinedtest/VectorComparisonOperationCombinedTest.java
+org/vcssl/nano/combinedtest/VectorCompoundAssignmentOperationCombinedTest.java
 org/vcssl/nano/combinedtest/VectorLogicalOperationCombinedTest.java
 org/vcssl/nano/combinedtest/WhileStatementCombinedTest.java
 org/vcssl/nano/compiler/AstNode.java
