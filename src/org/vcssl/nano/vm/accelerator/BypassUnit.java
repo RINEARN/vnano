@@ -34,19 +34,21 @@ public class BypassUnit extends AcceleratorExecutionUnit {
 		OperationCode operationCode = instruction.getOperationCode();
 		switch (operationCode) {
 
-			// ALLOC命令（メモリ確保）
-			case ALLOC : {
+			// メモリ確保系命令
+			case ALLOC :
+			case ALLOCR : {
 
-				// ALLOC命令実行前は先頭オペランドは未確保なので、キャッシュのSynchronizerは先頭の同期を無効化して用いる
+				// メモリ確保系命令の実行前は、先頭オペランドは未確保の場合があるので、
+				// キャッシュの同期には先頭オペランドを無効化したSynchronizer（preSynchronizer）を用いる
 				// （先頭オペランドはキャッシュからメモリ方向は同期されなくなるが、どうせALLOCで初期化するので問題ない）
-				boolean[] cacheSyncEnabled = new boolean[operandLength];
-				Arrays.fill(cacheSyncEnabled, true);
-				cacheSyncEnabled[0] = false;
+				boolean[] preCacheSyncEnabled = new boolean[operandLength];
+				System.arraycopy(operandCachingEnabled, 0, preCacheSyncEnabled, 0, operandLength);
+				preCacheSyncEnabled[0] = false;
 				CacheSynchronizer preSynchronizer = new GeneralScalarCacheSynchronizer(
-						operandContainers, operandCaches, cacheSyncEnabled
+						operandContainers, operandCaches, preCacheSyncEnabled
 				);
 
-				// 命令実行後は全オペランドを対象とするキャッシュSynchronizerを用いる
+				// 命令実行後は全オペランドをキャッシュ同期対象とするSynchronizer（postSynchronizer）を用いる
 				CacheSynchronizer postSynchronizer = new GeneralScalarCacheSynchronizer(operandContainers, operandCaches, operandCachingEnabled);
 
 				return new ProcessorCallNode(
@@ -54,7 +56,7 @@ public class BypassUnit extends AcceleratorExecutionUnit {
 				);
 			}
 
-			// ALLOC以外の命令
+			// メモリ確保系以外の命令
 			default : {
 				CacheSynchronizer synchronizer = new GeneralScalarCacheSynchronizer(operandContainers, operandCaches, operandCachingEnabled);
 				return new ProcessorCallNode(
