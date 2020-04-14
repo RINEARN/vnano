@@ -62,7 +62,6 @@ public class ExecutionUnit {
 		int inputAOffset = inputA.getOffset();
 		int inputBOffset = inputB.getOffset();
 		int dataLength = output.getSize();
-
 		this.checkDataType(output, type);
 		this.checkDataType(inputA, type);
 		this.checkDataType(inputB, type);
@@ -1422,9 +1421,8 @@ public class ExecutionUnit {
 			throws VnanoException {
 
 		int outputOffset = dest.getOffset();
-		int targetIndex = src.getOffset();
+		int targetOffset = src.getOffset();
 		int dataLength = dest.getSize();
-		// A,B がスカラで dataLength != 1 の場合はあふれるので、ここでエラー検出が必要
 
 		this.checkDataType(dest, destType);
 		this.checkDataType(src, srcType);
@@ -1436,14 +1434,14 @@ public class ExecutionUnit {
 					case INT64 : {
 						long[] targetData = (long[])src.getData();
 						for (int i=0; i<dataLength; i++) {
-							outputData[outputOffset+i] = targetData[targetIndex + i];
+							outputData[outputOffset+i] = targetData[targetOffset + i];
 						}
 						return;
 					}
 					case FLOAT64 : {
 						double[] targetData = (double[])src.getData();
 						for (int i=0; i<dataLength; i++) {
-							outputData[outputOffset+i] = (int)targetData[targetIndex + i];
+							outputData[outputOffset+i] = (long)targetData[targetOffset + i];
 						}
 						return;
 					}
@@ -1451,20 +1449,24 @@ public class ExecutionUnit {
 						String[] targetData = (String[])src.getData();
 						for (int i=0; i<dataLength; i++) {
 							try {
-								// 小数点がある場合は直接 parseLong はできないので、小数点以下を除去して変換
-								if (0 < targetData[targetIndex + i].indexOf(".")) {
-									outputData[outputOffset+i] = Long.parseLong(
-										targetData[targetIndex + i].split("\\.")[0]
-									);
-								} else {
-									outputData[outputOffset+i] = Long.parseLong(targetData[targetIndex + i]);
-								}
-							} catch (NumberFormatException nfe){
-								VnanoException e = new VnanoException(
+								outputData[outputOffset+i] = Long.parseLong(targetData[targetOffset + i]);
+
+							// 小数点がある場合など、数値でも直接 parseLong はできない場合もあるので、
+							// その場合は double に変換してから long に変換も試みる
+							// (VCSSLとの仕様整合のため / 将来的には warning 扱いにするか要検討)
+							} catch (NumberFormatException nfe) {
+								try {
+									double d = Double.parseDouble(targetData[targetOffset + i]);
+									outputData[outputOffset + i] = (long)d;
+
+								// それでも無理なら無理
+								} catch (NumberFormatException nfe2){
+									VnanoException e = new VnanoException(
 										ErrorType.CAST_FAILED_DUE_TO_VALUE,
-										new String[] {targetData[targetIndex + i], "int" }
-								);
-								throw e;
+										new String[] {targetData[targetOffset + i], "int" }
+									);
+									throw e;
+								}
 							}
 						}
 						return;
@@ -1484,14 +1486,14 @@ public class ExecutionUnit {
 					case INT64 : {
 						long[] targetData = (long[])src.getData();
 						for (int i=0; i<dataLength; i++) {
-							outputData[outputOffset+i] = (double)targetData[targetIndex + i];
+							outputData[outputOffset+i] = (double)targetData[targetOffset + i];
 						}
 						return;
 					}
 					case FLOAT64 : {
 						double[] targetData = (double[])src.getData();
 						for (int i=0; i<dataLength; i++) {
-							outputData[outputOffset+i] = targetData[targetIndex + i];
+							outputData[outputOffset+i] = targetData[targetOffset + i];
 						}
 						return;
 					}
@@ -1499,11 +1501,11 @@ public class ExecutionUnit {
 						String[] targetData = (String[])src.getData();
 						for (int i=0; i<dataLength; i++) {
 							try {
-								outputData[outputOffset+i] = Double.parseDouble(targetData[targetIndex + i]);
+								outputData[outputOffset+i] = Double.parseDouble(targetData[targetOffset + i]);
 							} catch (NumberFormatException nfe){
 								VnanoException e = new VnanoException(
 										ErrorType.CAST_FAILED_DUE_TO_VALUE,
-										new String[] {targetData[targetIndex + i], "float" }
+										new String[] {targetData[targetOffset + i], "float" }
 								);
 								throw e;
 							}
@@ -1525,7 +1527,7 @@ public class ExecutionUnit {
 					case BOOL : {
 						boolean[] targetData = (boolean[])src.getData();
 						for (int i=0; i<dataLength; i++) {
-							outputData[outputOffset+i] = targetData[targetIndex + i];
+							outputData[outputOffset+i] = targetData[targetOffset + i];
 						}
 						return;
 					}
@@ -1534,14 +1536,14 @@ public class ExecutionUnit {
 						final String falseString = "false";
 						String[] targetData = (String[])src.getData();
 						for (int i=0; i<dataLength; i++) {
-							if (targetData[targetIndex + i].equals(trueString)) {
+							if (targetData[targetOffset + i].equals(trueString)) {
 								outputData[outputOffset+i] = true;
-							} else if (targetData[targetIndex + i].equals(falseString)) {
+							} else if (targetData[targetOffset + i].equals(falseString)) {
 								outputData[outputOffset+i] = false;
 							} else {
 								VnanoException e = new VnanoException(
 										ErrorType.CAST_FAILED_DUE_TO_VALUE,
-										new String[] {targetData[targetIndex + i], "bool" }
+										new String[] {targetData[targetOffset + i], "bool" }
 								);
 								throw e;
 							}
@@ -1563,28 +1565,28 @@ public class ExecutionUnit {
 					case INT64 : {
 						long[] targetData = (long[])src.getData();
 						for (int i=0; i<dataLength; i++) {
-							outputData[outputOffset+i] = Long.toString(targetData[targetIndex + i]);
+							outputData[outputOffset+i] = Long.toString(targetData[targetOffset + i]);
 						}
 						return;
 					}
 					case FLOAT64 : {
 						double[] targetData = (double[])src.getData();
 						for (int i=0; i<dataLength; i++) {
-							outputData[outputOffset+i] = Double.toString(targetData[targetIndex + i]);
+							outputData[outputOffset+i] = Double.toString(targetData[targetOffset + i]);
 						}
 						return;
 					}
 					case BOOL : {
 						boolean[] targetData = (boolean[])src.getData();
 						for (int i=0; i<dataLength; i++) {
-							outputData[outputOffset+i] = Boolean.toString(targetData[targetIndex + i]);
+							outputData[outputOffset+i] = Boolean.toString(targetData[targetOffset + i]);
 						}
 						return;
 					}
 					case STRING : {
 						String[] targetData = (String[])src.getData();
 						for (int i=0; i<dataLength; i++) {
-							outputData[outputOffset+i] = targetData[targetIndex + i];
+							outputData[outputOffset+i] = targetData[targetOffset + i];
 						}
 						return;
 					}
