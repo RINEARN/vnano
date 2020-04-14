@@ -44,9 +44,9 @@ public class ExecutionUnitTest {
 		DataContainer<long[]> output = new DataContainer<long[]>();
 		DataContainer<long[]> inputA = new DataContainer<long[]>();
 		DataContainer<long[]> inputB = new DataContainer<long[]>();
-		output.setData( new long[]{ -1L } );
-		inputA.setData( new long[]{ 1L } );
-		inputB.setData( new long[]{ 2L } );
+		output.setData( new long[]{ -1L }, 0 );
+		inputA.setData( new long[]{ 1L }, 0 );
+		inputB.setData( new long[]{ 2L }, 0 );
 
 		// 演算を実行
 		try {
@@ -118,9 +118,9 @@ public class ExecutionUnitTest {
 		DataContainer<double[]> output = new DataContainer<double[]>();
 		DataContainer<double[]> inputA = new DataContainer<double[]>();
 		DataContainer<double[]> inputB = new DataContainer<double[]>();
-		output.setData( new double[]{ -1.0 } );
-		inputA.setData( new double[]{ 0.25 } );  // 2進表現で割り切れる値
-		inputB.setData( new double[]{ 0.125 } ); // 2進表現で割り切れる値
+		output.setData( new double[]{ -1.0 }, 0 );
+		inputA.setData( new double[]{ 0.25 }, 0 );  // 2進表現で割り切れる値
+		inputB.setData( new double[]{ 0.125 }, 0 ); // 2進表現で割り切れる値
 
 		// 演算を実行
 		try {
@@ -192,9 +192,9 @@ public class ExecutionUnitTest {
 		DataContainer<String[]> output = new DataContainer<String[]>();
 		DataContainer<String[]> inputA = new DataContainer<String[]>();
 		DataContainer<String[]> inputB = new DataContainer<String[]>();
-		output.setData( new String[]{ "Init" } );
-		inputA.setData( new String[]{ "Hello" } );
-		inputB.setData( new String[]{ "World" } );
+		output.setData( new String[]{ "Init" }, 0 );
+		inputA.setData( new String[]{ "Hello" }, 0 );
+		inputB.setData( new String[]{ "World" }, 0 );
 
 		// 演算を実行
 		try {
@@ -269,9 +269,9 @@ public class ExecutionUnitTest {
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
 		DataContainer<boolean[]> inputA = new DataContainer<boolean[]>();
 		DataContainer<boolean[]> inputB = new DataContainer<boolean[]>();
-		output.setData( new boolean[]{ false } );
-		inputA.setData( new boolean[]{ true } );
-		inputB.setData( new boolean[]{ false } );
+		output.setData( new boolean[]{ false }, 0 );
+		inputA.setData( new boolean[]{ true }, 0 );
+		inputB.setData( new boolean[]{ false }, 0 );
 
 		// 対応していないデータ型を指定して演算を実行
 		try {
@@ -321,9 +321,9 @@ public class ExecutionUnitTest {
 		DataContainer<long[]> output = new DataContainer<long[]>();
 		DataContainer<long[]> inputA = new DataContainer<long[]>();
 		DataContainer<long[]> inputB = new DataContainer<long[]>();
-		output.setData( new long[]{ -1L } );
-		inputA.setData( new long[]{ 5L } );
-		inputB.setData( new long[]{ 3L } );
+		output.setData( new long[]{ -1L }, 0 );
+		inputA.setData( new long[]{ 5L }, 0 );
+		inputB.setData( new long[]{ 3L }, 0 );
 
 		// 演算を実行
 		try {
@@ -394,9 +394,9 @@ public class ExecutionUnitTest {
 		DataContainer<double[]> output = new DataContainer<double[]>();
 		DataContainer<double[]> inputA = new DataContainer<double[]>();
 		DataContainer<double[]> inputB = new DataContainer<double[]>();
-		output.setData( new double[]{ -1.0 } );
-		inputA.setData( new double[]{ 0.5 } );  // 2進表現で割り切れる値
-		inputB.setData( new double[]{ 0.125 } ); // 2進表現で割り切れる値
+		output.setData( new double[]{ -1.0 }, 0 );
+		inputA.setData( new double[]{ 0.5 }, 0 );  // 2進表現で割り切れる値
+		inputB.setData( new double[]{ 0.125 }, 0 ); // 2進表現で割り切れる値
 
 		// 演算を実行
 		try {
@@ -467,9 +467,9 @@ public class ExecutionUnitTest {
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
 		DataContainer<boolean[]> inputA = new DataContainer<boolean[]>();
 		DataContainer<boolean[]> inputB = new DataContainer<boolean[]>();
-		output.setData( new boolean[]{ false } );
-		inputA.setData( new boolean[]{ true } );
-		inputB.setData( new boolean[]{ false } );
+		output.setData( new boolean[]{ false }, 0 );
+		inputA.setData( new boolean[]{ true }, 0 );
+		inputB.setData( new boolean[]{ false }, 0 );
 
 		// 対応していないデータ型を指定して演算を実行
 		try {
@@ -513,9 +513,9 @@ public class ExecutionUnitTest {
 		DataContainer<long[]> output = new DataContainer<long[]>();
 		DataContainer<long[]> inputA = new DataContainer<long[]>();
 		DataContainer<long[]> inputB = new DataContainer<long[]>();
-		output.setData( new long[]{ -1L } );
-		inputA.setData( new long[]{ 5L } );
-		inputB.setData( new long[]{ 3L } );
+		output.setData( new long[]{ -1L }, 0 );
+		inputA.setData( new long[]{ 5L }, 0 );
+		inputB.setData( new long[]{ 3L }, 0 );
 
 		// 演算を実行
 		try {
@@ -586,9 +586,9 @@ public class ExecutionUnitTest {
 		DataContainer<double[]> output = new DataContainer<double[]>();
 		DataContainer<double[]> inputA = new DataContainer<double[]>();
 		DataContainer<double[]> inputB = new DataContainer<double[]>();
-		output.setData( new double[]{ -1.0 } );
-		inputA.setData( new double[]{ 0.5 } );   // 2進表現で割り切れる値
-		inputB.setData( new double[]{ 0.125 } ); // 2進表現で割り切れる値
+		output.setData( new double[]{ -1.0 }, 0 );
+		inputA.setData( new double[]{ 0.5 }, 0 );   // 2進表現で割り切れる値
+		inputB.setData( new double[]{ 0.125 }, 0 ); // 2進表現で割り切れる値
 
 		// 演算を実行
 		try {
@@ -660,9 +660,9 @@ public class ExecutionUnitTest {
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
 		DataContainer<boolean[]> inputA = new DataContainer<boolean[]>();
 		DataContainer<boolean[]> inputB = new DataContainer<boolean[]>();
-		output.setData( new boolean[]{ false } );
-		inputA.setData( new boolean[]{ true } );
-		inputB.setData( new boolean[]{ false } );
+		output.setData( new boolean[]{ false }, 0 );
+		inputA.setData( new boolean[]{ true }, 0 );
+		inputB.setData( new boolean[]{ false }, 0 );
 
 		// 対応していないデータ型を指定して演算を実行
 		try {
@@ -706,9 +706,9 @@ public class ExecutionUnitTest {
 		DataContainer<long[]> output = new DataContainer<long[]>();
 		DataContainer<long[]> inputA = new DataContainer<long[]>();
 		DataContainer<long[]> inputB = new DataContainer<long[]>();
-		output.setData( new long[]{ -1L } );
-		inputA.setData( new long[]{ 8L } );
-		inputB.setData( new long[]{ 3L } );
+		output.setData( new long[]{ -1L }, 0 );
+		inputA.setData( new long[]{ 8L }, 0 );
+		inputB.setData( new long[]{ 3L }, 0 );
 
 		// 演算を実行
 		try {
@@ -781,9 +781,9 @@ public class ExecutionUnitTest {
 		DataContainer<double[]> output = new DataContainer<double[]>();
 		DataContainer<double[]> inputA = new DataContainer<double[]>();
 		DataContainer<double[]> inputB = new DataContainer<double[]>();
-		output.setData( new double[]{ -1.0 } );
-		inputA.setData( new double[]{ 0.5 } );   // 2進表現で割り切れる値
-		inputB.setData( new double[]{ 0.125 } ); // 2進表現で割り切れる値
+		output.setData( new double[]{ -1.0 }, 0 );
+		inputA.setData( new double[]{ 0.5 }, 0 );   // 2進表現で割り切れる値
+		inputB.setData( new double[]{ 0.125 }, 0 ); // 2進表現で割り切れる値
 
 		// 演算を実行
 		try {
@@ -855,9 +855,9 @@ public class ExecutionUnitTest {
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
 		DataContainer<boolean[]> inputA = new DataContainer<boolean[]>();
 		DataContainer<boolean[]> inputB = new DataContainer<boolean[]>();
-		output.setData( new boolean[]{ false } );
-		inputA.setData( new boolean[]{ true } );
-		inputB.setData( new boolean[]{ false } );
+		output.setData( new boolean[]{ false }, 0 );
+		inputA.setData( new boolean[]{ true }, 0 );
+		inputB.setData( new boolean[]{ false }, 0 );
 
 		// 対応していないデータ型を指定して演算を実行
 		try {
@@ -901,9 +901,9 @@ public class ExecutionUnitTest {
 		DataContainer<long[]> output = new DataContainer<long[]>();
 		DataContainer<long[]> inputA = new DataContainer<long[]>();
 		DataContainer<long[]> inputB = new DataContainer<long[]>();
-		output.setData( new long[]{ -1L } );
-		inputA.setData( new long[]{ 8L } );
-		inputB.setData( new long[]{ 3L } );
+		output.setData( new long[]{ -1L }, 0 );
+		inputA.setData( new long[]{ 8L }, 0 );
+		inputB.setData( new long[]{ 3L }, 0 );
 
 		// 演算を実行
 		try {
@@ -976,9 +976,9 @@ public class ExecutionUnitTest {
 		DataContainer<double[]> output = new DataContainer<double[]>();
 		DataContainer<double[]> inputA = new DataContainer<double[]>();
 		DataContainer<double[]> inputB = new DataContainer<double[]>();
-		output.setData( new double[]{ -1.0 } );
-		inputA.setData( new double[]{ 0.8 } );
-		inputB.setData( new double[]{ 0.3 } );
+		output.setData( new double[]{ -1.0 }, 0 );
+		inputA.setData( new double[]{ 0.8 }, 0 );
+		inputB.setData( new double[]{ 0.3 }, 0 );
 
 		// 演算を実行
 		try {
@@ -1055,9 +1055,9 @@ public class ExecutionUnitTest {
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
 		DataContainer<boolean[]> inputA = new DataContainer<boolean[]>();
 		DataContainer<boolean[]> inputB = new DataContainer<boolean[]>();
-		output.setData( new boolean[]{ false } );
-		inputA.setData( new boolean[]{ true } );
-		inputB.setData( new boolean[]{ false } );
+		output.setData( new boolean[]{ false }, 0 );
+		inputA.setData( new boolean[]{ true }, 0 );
+		inputB.setData( new boolean[]{ false }, 0 );
 
 		// 対応していないデータ型を指定して演算を実行
 		try {
@@ -1100,8 +1100,8 @@ public class ExecutionUnitTest {
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<long[]> output = new DataContainer<long[]>();
 		DataContainer<long[]> input = new DataContainer<long[]>();
-		output.setData( new long[]{ -1L } );
-		input.setData( new long[]{ 8L } );
+		output.setData( new long[]{ -1L }, 0 );
+		input.setData( new long[]{ 8L }, 0 );
 
 		// 演算を実行
 		try {
@@ -1168,8 +1168,8 @@ public class ExecutionUnitTest {
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<double[]> output = new DataContainer<double[]>();
 		DataContainer<double[]> input = new DataContainer<double[]>();
-		output.setData( new double[]{ -1.0 } );
-		input.setData( new double[]{ 0.8 } );
+		output.setData( new double[]{ -1.0 }, 0 );
+		input.setData( new double[]{ 0.8 }, 0 );
 
 		// 演算を実行
 		try {
@@ -1236,8 +1236,8 @@ public class ExecutionUnitTest {
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
 		DataContainer<boolean[]> input = new DataContainer<boolean[]>();
-		output.setData( new boolean[]{ false } );
-		input.setData( new boolean[]{ true } );
+		output.setData( new boolean[]{ false }, 0 );
+		input.setData( new boolean[]{ true }, 0 );
 
 		// 対応していないデータ型を指定して演算を実行
 		try {
@@ -1281,9 +1281,9 @@ public class ExecutionUnitTest {
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
 		DataContainer<long[]> inputA = new DataContainer<long[]>();
 		DataContainer<long[]> inputB = new DataContainer<long[]>();
-		output.setData( new boolean[]{ false } );
-		inputA.setData( new long[]{ 1L } );
-		inputB.setData( new long[]{ 2L } );
+		output.setData( new boolean[]{ false }, 0 );
+		inputA.setData( new long[]{ 1L }, 0 );
+		inputB.setData( new long[]{ 2L }, 0 );
 
 		// 演算を実行
 		try {
@@ -1377,9 +1377,9 @@ public class ExecutionUnitTest {
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
 		DataContainer<double[]> inputA = new DataContainer<double[]>();
 		DataContainer<double[]> inputB = new DataContainer<double[]>();
-		output.setData( new boolean[]{ false } );
-		inputA.setData( new double[]{ 0.125 } ); // 2進表現で割り切れる値
-		inputB.setData( new double[]{ 0.5 } );   // 2進表現で割り切れる値
+		output.setData( new boolean[]{ false }, 0 );
+		inputA.setData( new double[]{ 0.125 }, 0 ); // 2進表現で割り切れる値
+		inputB.setData( new double[]{ 0.5 }, 0 );   // 2進表現で割り切れる値
 
 		// 演算を実行
 		try {
@@ -1473,9 +1473,9 @@ public class ExecutionUnitTest {
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
 		DataContainer<String[]> inputA = new DataContainer<String[]>();
 		DataContainer<String[]> inputB = new DataContainer<String[]>();
-		output.setData( new boolean[]{ false } );
-		inputA.setData( new String[]{ "Hello" } );
-		inputB.setData( new String[]{ "World" } );
+		output.setData( new boolean[]{ false }, 0 );
+		inputA.setData( new String[]{ "Hello" }, 0 );
+		inputB.setData( new String[]{ "World" }, 0 );
 
 		// 演算を実行
 		try {
@@ -1569,9 +1569,9 @@ public class ExecutionUnitTest {
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
 		DataContainer<boolean[]> inputA = new DataContainer<boolean[]>();
 		DataContainer<boolean[]> inputB = new DataContainer<boolean[]>();
-		output.setData( new boolean[]{ false } );
-		inputA.setData( new boolean[]{ true } );
-		inputB.setData( new boolean[]{ false } );
+		output.setData( new boolean[]{ false }, 0 );
+		inputA.setData( new boolean[]{ true }, 0 );
+		inputB.setData( new boolean[]{ false }, 0 );
 
 		// 演算を実行
 		try {
@@ -1664,9 +1664,9 @@ public class ExecutionUnitTest {
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
 		DataContainer<Object[]> inputA = new DataContainer<Object[]>();
 		DataContainer<Object[]> inputB = new DataContainer<Object[]>();
-		output.setData( new boolean[]{ false } );
-		inputA.setData( new Object[]{ null } );
-		inputB.setData( new Object[]{ null } );
+		output.setData( new boolean[]{ false }, 0 );
+		inputA.setData( new Object[]{ null }, 0 );
+		inputB.setData( new Object[]{ null }, 0 );
 
 		// 対応していないデータ型を指定して演算を実行
 		try {
@@ -1696,9 +1696,9 @@ public class ExecutionUnitTest {
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
 		DataContainer<long[]> inputA = new DataContainer<long[]>();
 		DataContainer<long[]> inputB = new DataContainer<long[]>();
-		output.setData( new boolean[]{ false } );
-		inputA.setData( new long[]{ 1L } );
-		inputB.setData( new long[]{ 2L } );
+		output.setData( new boolean[]{ false }, 0 );
+		inputA.setData( new long[]{ 1L }, 0 );
+		inputB.setData( new long[]{ 2L }, 0 );
 
 		// 演算を実行
 		try {
@@ -1791,9 +1791,9 @@ public class ExecutionUnitTest {
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
 		DataContainer<double[]> inputA = new DataContainer<double[]>();
 		DataContainer<double[]> inputB = new DataContainer<double[]>();
-		output.setData( new boolean[]{ false } );
-		inputA.setData( new double[]{ 0.125 } ); // 2進表現で割り切れる値
-		inputB.setData( new double[]{ 0.5 } );   // 2進表現で割り切れる値
+		output.setData( new boolean[]{ false }, 0 );
+		inputA.setData( new double[]{ 0.125 }, 0 ); // 2進表現で割り切れる値
+		inputB.setData( new double[]{ 0.5 }, 0 );   // 2進表現で割り切れる値
 
 		// 演算を実行
 		try {
@@ -1886,9 +1886,9 @@ public class ExecutionUnitTest {
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
 		DataContainer<String[]> inputA = new DataContainer<String[]>();
 		DataContainer<String[]> inputB = new DataContainer<String[]>();
-		output.setData( new boolean[]{ false } );
-		inputA.setData( new String[]{ "Hello" } );
-		inputB.setData( new String[]{ "World" } );
+		output.setData( new boolean[]{ false }, 0 );
+		inputA.setData( new String[]{ "Hello" }, 0 );
+		inputB.setData( new String[]{ "World" }, 0 );
 
 		// 演算を実行
 		try {
@@ -1982,9 +1982,9 @@ public class ExecutionUnitTest {
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
 		DataContainer<boolean[]> inputA = new DataContainer<boolean[]>();
 		DataContainer<boolean[]> inputB = new DataContainer<boolean[]>();
-		output.setData( new boolean[]{ false } );
-		inputA.setData( new boolean[]{ true } );
-		inputB.setData( new boolean[]{ false } );
+		output.setData( new boolean[]{ false }, 0 );
+		inputA.setData( new boolean[]{ true }, 0 );
+		inputB.setData( new boolean[]{ false }, 0 );
 
 		// 演算を実行
 		try {
@@ -2077,9 +2077,9 @@ public class ExecutionUnitTest {
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
 		DataContainer<Object[]> inputA = new DataContainer<Object[]>();
 		DataContainer<Object[]> inputB = new DataContainer<Object[]>();
-		output.setData( new boolean[]{ false } );
-		inputA.setData( new Object[]{ null } );
-		inputB.setData( new Object[]{ null } );
+		output.setData( new boolean[]{ false }, 0 );
+		inputA.setData( new Object[]{ null }, 0 );
+		inputB.setData( new Object[]{ null }, 0 );
 
 		// 対応していないデータ型を指定して演算を実行
 		try {
@@ -2106,9 +2106,9 @@ public class ExecutionUnitTest {
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
 		DataContainer<long[]> inputA = new DataContainer<long[]>();
 		DataContainer<long[]> inputB = new DataContainer<long[]>();
-		output.setData( new boolean[]{ false } );
-		inputA.setData( new long[]{ 1L } );
-		inputB.setData( new long[]{ 2L } );
+		output.setData( new boolean[]{ false }, 0 );
+		inputA.setData( new long[]{ 1L }, 0 );
+		inputB.setData( new long[]{ 2L }, 0 );
 
 		// 演算を実行
 		try {
@@ -2223,9 +2223,9 @@ public class ExecutionUnitTest {
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
 		DataContainer<double[]> inputA = new DataContainer<double[]>();
 		DataContainer<double[]> inputB = new DataContainer<double[]>();
-		output.setData( new boolean[]{ false } );
-		inputA.setData( new double[]{ 0.125 } ); // 2進表現で割り切れる値
-		inputB.setData( new double[]{ 0.5 } );   // 2進表現で割り切れる値
+		output.setData( new boolean[]{ false }, 0 );
+		inputA.setData( new double[]{ 0.125 }, 0 ); // 2進表現で割り切れる値
+		inputB.setData( new double[]{ 0.5 }, 0 );   // 2進表現で割り切れる値
 
 		// 演算を実行
 		try {
@@ -2340,9 +2340,9 @@ public class ExecutionUnitTest {
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
 		DataContainer<boolean[]> inputA = new DataContainer<boolean[]>();
 		DataContainer<boolean[]> inputB = new DataContainer<boolean[]>();
-		output.setData( new boolean[]{ false } );
-		inputA.setData( new boolean[]{ true } );
-		inputB.setData( new boolean[]{ false } );
+		output.setData( new boolean[]{ false }, 0 );
+		inputA.setData( new boolean[]{ true }, 0 );
+		inputB.setData( new boolean[]{ false }, 0 );
 
 		// 対応していないデータ型を指定して演算を実行
 		try {
@@ -2384,9 +2384,9 @@ public class ExecutionUnitTest {
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
 		DataContainer<long[]> inputA = new DataContainer<long[]>();
 		DataContainer<long[]> inputB = new DataContainer<long[]>();
-		output.setData( new boolean[]{ false } );
-		inputA.setData( new long[]{ 1L } );
-		inputB.setData( new long[]{ 2L } );
+		output.setData( new boolean[]{ false }, 0 );
+		inputA.setData( new long[]{ 1L }, 0 );
+		inputB.setData( new long[]{ 2L }, 0 );
 
 		// 演算を実行
 		try {
@@ -2501,9 +2501,9 @@ public class ExecutionUnitTest {
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
 		DataContainer<double[]> inputA = new DataContainer<double[]>();
 		DataContainer<double[]> inputB = new DataContainer<double[]>();
-		output.setData( new boolean[]{ false } );
-		inputA.setData( new double[]{ 0.125 } ); // 2進表現で割り切れる値
-		inputB.setData( new double[]{ 0.5 } );   // 2進表現で割り切れる値
+		output.setData( new boolean[]{ false }, 0 );
+		inputA.setData( new double[]{ 0.125 }, 0 ); // 2進表現で割り切れる値
+		inputB.setData( new double[]{ 0.5 }, 0 );   // 2進表現で割り切れる値
 
 		// 演算を実行
 		try {
@@ -2618,9 +2618,9 @@ public class ExecutionUnitTest {
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
 		DataContainer<boolean[]> inputA = new DataContainer<boolean[]>();
 		DataContainer<boolean[]> inputB = new DataContainer<boolean[]>();
-		output.setData( new boolean[]{ false } );
-		inputA.setData( new boolean[]{ true } );
-		inputB.setData( new boolean[]{ false } );
+		output.setData( new boolean[]{ false }, 0 );
+		inputA.setData( new boolean[]{ true }, 0 );
+		inputB.setData( new boolean[]{ false }, 0 );
 
 		// 対応していないデータ型を指定して演算を実行
 		try {
@@ -2664,9 +2664,9 @@ public class ExecutionUnitTest {
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
 		DataContainer<long[]> inputA = new DataContainer<long[]>();
 		DataContainer<long[]> inputB = new DataContainer<long[]>();
-		output.setData( new boolean[]{ false } );
-		inputA.setData( new long[]{ 1L } );
-		inputB.setData( new long[]{ 2L } );
+		output.setData( new boolean[]{ false }, 0 );
+		inputA.setData( new long[]{ 1L }, 0 );
+		inputB.setData( new long[]{ 2L }, 0 );
 
 		// 演算を実行
 		try {
@@ -2781,9 +2781,9 @@ public class ExecutionUnitTest {
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
 		DataContainer<double[]> inputA = new DataContainer<double[]>();
 		DataContainer<double[]> inputB = new DataContainer<double[]>();
-		output.setData( new boolean[]{ false } );
-		inputA.setData( new double[]{ 0.125 } ); // 2進表現で割り切れる値
-		inputB.setData( new double[]{ 0.5 } );   // 2進表現で割り切れる値
+		output.setData( new boolean[]{ false }, 0 );
+		inputA.setData( new double[]{ 0.125 }, 0 ); // 2進表現で割り切れる値
+		inputB.setData( new double[]{ 0.5 }, 0 );   // 2進表現で割り切れる値
 
 		// 演算を実行
 		try {
@@ -2898,9 +2898,9 @@ public class ExecutionUnitTest {
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
 		DataContainer<boolean[]> inputA = new DataContainer<boolean[]>();
 		DataContainer<boolean[]> inputB = new DataContainer<boolean[]>();
-		output.setData( new boolean[]{ false } );
-		inputA.setData( new boolean[]{ true } );
-		inputB.setData( new boolean[]{ false } );
+		output.setData( new boolean[]{ false }, 0 );
+		inputA.setData( new boolean[]{ true }, 0 );
+		inputB.setData( new boolean[]{ false }, 0 );
 
 		// 対応していないデータ型を指定して演算を実行
 		try {
@@ -2942,9 +2942,9 @@ public class ExecutionUnitTest {
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
 		DataContainer<long[]> inputA = new DataContainer<long[]>();
 		DataContainer<long[]> inputB = new DataContainer<long[]>();
-		output.setData( new boolean[]{ false } );
-		inputA.setData( new long[]{ 1L } );
-		inputB.setData( new long[]{ 2L } );
+		output.setData( new boolean[]{ false }, 0 );
+		inputA.setData( new long[]{ 1L }, 0 );
+		inputB.setData( new long[]{ 2L }, 0 );
 
 		// 演算を実行
 		try {
@@ -3059,9 +3059,9 @@ public class ExecutionUnitTest {
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
 		DataContainer<double[]> inputA = new DataContainer<double[]>();
 		DataContainer<double[]> inputB = new DataContainer<double[]>();
-		output.setData( new boolean[]{ false } );
-		inputA.setData( new double[]{ 0.125 } ); // 2進表現で割り切れる値
-		inputB.setData( new double[]{ 0.5 } );   // 2進表現で割り切れる値
+		output.setData( new boolean[]{ false }, 0 );
+		inputA.setData( new double[]{ 0.125 }, 0 ); // 2進表現で割り切れる値
+		inputB.setData( new double[]{ 0.5 }, 0 );   // 2進表現で割り切れる値
 
 		// 演算を実行
 		try {
@@ -3176,9 +3176,9 @@ public class ExecutionUnitTest {
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
 		DataContainer<boolean[]> inputA = new DataContainer<boolean[]>();
 		DataContainer<boolean[]> inputB = new DataContainer<boolean[]>();
-		output.setData( new boolean[]{ false } );
-		inputA.setData( new boolean[]{ true } );
-		inputB.setData( new boolean[]{ false } );
+		output.setData( new boolean[]{ false }, 0 );
+		inputA.setData( new boolean[]{ true }, 0 );
+		inputB.setData( new boolean[]{ false }, 0 );
 
 		// 対応していないデータ型を指定して演算を実行
 		try {
@@ -3220,9 +3220,9 @@ public class ExecutionUnitTest {
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
 		DataContainer<boolean[]> inputA = new DataContainer<boolean[]>();
 		DataContainer<boolean[]> inputB = new DataContainer<boolean[]>();
-		output.setData( new boolean[]{ false } );
-		inputA.setData( new boolean[]{ true } );
-		inputB.setData( new boolean[]{ false } );
+		output.setData( new boolean[]{ false }, 0 );
+		inputA.setData( new boolean[]{ true }, 0 );
+		inputB.setData( new boolean[]{ false }, 0 );
 
 		// 演算を実行
 		try {
@@ -3363,9 +3363,9 @@ public class ExecutionUnitTest {
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
 		DataContainer<double[]> inputA = new DataContainer<double[]>();
 		DataContainer<double[]> inputB = new DataContainer<double[]>();
-		output.setData( new boolean[]{ false } );
-		inputA.setData( new double[]{ 0.125 } );
-		inputB.setData( new double[]{ 0.25 } );
+		output.setData( new boolean[]{ false }, 0 );
+		inputA.setData( new double[]{ 0.125 }, 0 );
+		inputB.setData( new double[]{ 0.25 }, 0 );
 
 		// 対応していないデータ型を指定して演算を実行
 		try {
@@ -3401,9 +3401,9 @@ public class ExecutionUnitTest {
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
 		DataContainer<boolean[]> inputA = new DataContainer<boolean[]>();
 		DataContainer<boolean[]> inputB = new DataContainer<boolean[]>();
-		output.setData( new boolean[]{ false } );
-		inputA.setData( new boolean[]{ true } );
-		inputB.setData( new boolean[]{ false } );
+		output.setData( new boolean[]{ false }, 0 );
+		inputA.setData( new boolean[]{ true }, 0 );
+		inputB.setData( new boolean[]{ false }, 0 );
 
 		// 演算を実行
 		try {
@@ -3544,9 +3544,9 @@ public class ExecutionUnitTest {
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
 		DataContainer<double[]> inputA = new DataContainer<double[]>();
 		DataContainer<double[]> inputB = new DataContainer<double[]>();
-		output.setData( new boolean[]{ false } );
-		inputA.setData( new double[]{ 0.125 } );
-		inputB.setData( new double[]{ 0.25 } );
+		output.setData( new boolean[]{ false }, 0 );
+		inputA.setData( new double[]{ 0.125 }, 0 );
+		inputB.setData( new double[]{ 0.25 }, 0 );
 
 		// 対応していないデータ型を指定して演算を実行
 		try {
@@ -3582,9 +3582,9 @@ public class ExecutionUnitTest {
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
 		DataContainer<boolean[]> inputA = new DataContainer<boolean[]>();
 		DataContainer<boolean[]> inputB = new DataContainer<boolean[]>();
-		output.setData( new boolean[]{ false } );
-		inputA.setData( new boolean[]{ true } );
-		inputB.setData( new boolean[]{ false } );
+		output.setData( new boolean[]{ false }, 0 );
+		inputA.setData( new boolean[]{ true }, 0 );
+		inputB.setData( new boolean[]{ false }, 0 );
 
 		// 演算を実行
 		try {
@@ -3671,8 +3671,8 @@ public class ExecutionUnitTest {
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<double[]> output = new DataContainer<double[]>();
 		DataContainer<double[]> input = new DataContainer<double[]>();
-		output.setData( new double[]{ -1.0 } );
-		input.setData( new double[]{ 0.125 } );
+		output.setData( new double[]{ -1.0 }, 0 );
+		input.setData( new double[]{ 0.125 }, 0 );
 
 		// 対応していないデータ型を指定して演算を実行
 		try {
@@ -3734,7 +3734,7 @@ public class ExecutionUnitTest {
 		// 確保用のデータコンテナを生成して値をセット
 		DataContainer<?> target = new DataContainer<Object>();
 		DataContainer<long[]> len = new DataContainer<long[]>();
-		len.setData(new long[]{ 3L });
+		len.setData(new long[]{ 3L }, 0);
 
 		// 確保処理を実行
 		try {
@@ -3757,7 +3757,7 @@ public class ExecutionUnitTest {
 		}
 
 		// 要素数を変えての再allocも検査
-		len.setData(new long[]{ 5L });
+		len.setData(new long[]{ 5L }, 0);
 		try {
 			new ExecutionUnit().allocVector(DataType.INT64, target, len);
 		} catch (VnanoFatalException e) {
@@ -3776,7 +3776,7 @@ public class ExecutionUnitTest {
 		}
 
 		// 同じ要素数での再allocも検査
-		len.setData(new long[]{ 5L });
+		len.setData(new long[]{ 5L }, 0);
 		try {
 			new ExecutionUnit().allocVector(DataType.INT64, target, len);
 		} catch (VnanoFatalException e) {
@@ -3804,9 +3804,9 @@ public class ExecutionUnitTest {
 		DataContainer<long[]> len0 = new DataContainer<long[]>();
 		DataContainer<long[]> len1 = new DataContainer<long[]>();
 		DataContainer<long[]> len2 = new DataContainer<long[]>();
-		len0.setData(new long[] { 2L });
-		len1.setData(new long[] { 3L });
-		len2.setData(new long[] { 4L });
+		len0.setData(new long[] { 2L }, 0);
+		len1.setData(new long[] { 3L }, 0);
+		len2.setData(new long[] { 4L }, 0);
 
 		// 確保処理を実行
 		try {
@@ -3831,9 +3831,9 @@ public class ExecutionUnitTest {
 		}
 
 		// 要素数を変えての再allocも検査
-		len0.setData(new long[] { 5L });
-		len1.setData(new long[] { 6L });
-		len2.setData(new long[] { 7L });
+		len0.setData(new long[] { 5L }, 0);
+		len1.setData(new long[] { 6L }, 0);
+		len2.setData(new long[] { 7L }, 0);
 		try {
 			new ExecutionUnit().allocVector(DataType.INT64, target, len0, len1, len2);
 		} catch (VnanoFatalException e) {
@@ -3854,9 +3854,9 @@ public class ExecutionUnitTest {
 		}
 
 		// 同じ要素数での再allocも検査
-		len0.setData(new long[] { 5L });
-		len1.setData(new long[] { 6L });
-		len2.setData(new long[] { 7L });
+		len0.setData(new long[] { 5L }, 0);
+		len1.setData(new long[] { 6L }, 0);
+		len2.setData(new long[] { 7L }, 0);
 		try {
 			new ExecutionUnit().allocVector(DataType.INT64, target, len0, len1, len2);
 		} catch (VnanoFatalException e) {
@@ -3913,7 +3913,7 @@ public class ExecutionUnitTest {
 		// 確保用のデータコンテナを生成して値をセット
 		DataContainer<?> target = new DataContainer<Object>();
 		DataContainer<long[]> len = new DataContainer<long[]>();
-		len.setData(new long[]{ 3L });
+		len.setData(new long[]{ 3L }, 0);
 
 		// 確保処理を実行
 		try {
@@ -3936,7 +3936,7 @@ public class ExecutionUnitTest {
 		}
 
 		// 要素数を変えての再allocも検査
-		len.setData(new long[]{ 5L });
+		len.setData(new long[]{ 5L }, 0);
 		try {
 			new ExecutionUnit().allocVector(DataType.FLOAT64, target, len);
 		} catch (VnanoFatalException e) {
@@ -3955,7 +3955,7 @@ public class ExecutionUnitTest {
 		}
 
 		// 同じ要素数での再allocも検査
-		len.setData(new long[]{ 5L });
+		len.setData(new long[]{ 5L }, 0);
 		try {
 			new ExecutionUnit().allocVector(DataType.FLOAT64, target, len);
 		} catch (VnanoFatalException e) {
@@ -3983,9 +3983,9 @@ public class ExecutionUnitTest {
 		DataContainer<long[]> len0 = new DataContainer<long[]>();
 		DataContainer<long[]> len1 = new DataContainer<long[]>();
 		DataContainer<long[]> len2 = new DataContainer<long[]>();
-		len0.setData(new long[] { 2L });
-		len1.setData(new long[] { 3L });
-		len2.setData(new long[] { 4L });
+		len0.setData(new long[] { 2L }, 0);
+		len1.setData(new long[] { 3L }, 0);
+		len2.setData(new long[] { 4L }, 0);
 
 		// 確保処理を実行
 		try {
@@ -4010,9 +4010,9 @@ public class ExecutionUnitTest {
 		}
 
 		// 要素数を変えての再allocも検査
-		len0.setData(new long[] { 5L });
-		len1.setData(new long[] { 6L });
-		len2.setData(new long[] { 7L });
+		len0.setData(new long[] { 5L }, 0);
+		len1.setData(new long[] { 6L }, 0);
+		len2.setData(new long[] { 7L }, 0);
 		try {
 			new ExecutionUnit().allocVector(DataType.FLOAT64, target, len0, len1, len2);
 		} catch (VnanoFatalException e) {
@@ -4033,9 +4033,9 @@ public class ExecutionUnitTest {
 		}
 
 		// 同じ要素数での再allocも検査
-		len0.setData(new long[] { 5L });
-		len1.setData(new long[] { 6L });
-		len2.setData(new long[] { 7L });
+		len0.setData(new long[] { 5L }, 0);
+		len1.setData(new long[] { 6L }, 0);
+		len2.setData(new long[] { 7L }, 0);
 		try {
 			new ExecutionUnit().allocVector(DataType.FLOAT64, target, len0, len1, len2);
 		} catch (VnanoFatalException e) {
@@ -4092,7 +4092,7 @@ public class ExecutionUnitTest {
 		// 確保用のデータコンテナを生成して値をセット
 		DataContainer<?> target = new DataContainer<Object>();
 		DataContainer<long[]> len = new DataContainer<long[]>();
-		len.setData(new long[]{ 3L });
+		len.setData(new long[]{ 3L }, 0);
 
 		// 確保処理を実行
 		try {
@@ -4115,7 +4115,7 @@ public class ExecutionUnitTest {
 		}
 
 		// 要素数を変えての再allocも検査
-		len.setData(new long[]{ 5L });
+		len.setData(new long[]{ 5L }, 0);
 		try {
 			new ExecutionUnit().allocVector(DataType.BOOL, target, len);
 		} catch (VnanoFatalException e) {
@@ -4134,7 +4134,7 @@ public class ExecutionUnitTest {
 		}
 
 		// 同じ要素数での再allocも検査
-		len.setData(new long[]{ 5L });
+		len.setData(new long[]{ 5L }, 0);
 		try {
 			new ExecutionUnit().allocVector(DataType.BOOL, target, len);
 		} catch (VnanoFatalException e) {
@@ -4162,9 +4162,9 @@ public class ExecutionUnitTest {
 		DataContainer<long[]> len0 = new DataContainer<long[]>();
 		DataContainer<long[]> len1 = new DataContainer<long[]>();
 		DataContainer<long[]> len2 = new DataContainer<long[]>();
-		len0.setData(new long[] { 2L });
-		len1.setData(new long[] { 3L });
-		len2.setData(new long[] { 4L });
+		len0.setData(new long[] { 2L }, 0);
+		len1.setData(new long[] { 3L }, 0);
+		len2.setData(new long[] { 4L }, 0);
 
 		// 確保処理を実行
 		try {
@@ -4189,9 +4189,9 @@ public class ExecutionUnitTest {
 		}
 
 		// 要素数を変えての再allocも検査
-		len0.setData(new long[] { 5L });
-		len1.setData(new long[] { 6L });
-		len2.setData(new long[] { 7L });
+		len0.setData(new long[] { 5L }, 0);
+		len1.setData(new long[] { 6L }, 0);
+		len2.setData(new long[] { 7L }, 0);
 		try {
 			new ExecutionUnit().allocVector(DataType.BOOL, target, len0, len1, len2);
 		} catch (VnanoFatalException e) {
@@ -4212,9 +4212,9 @@ public class ExecutionUnitTest {
 		}
 
 		// 同じ要素数での再allocも検査
-		len0.setData(new long[] { 5L });
-		len1.setData(new long[] { 6L });
-		len2.setData(new long[] { 7L });
+		len0.setData(new long[] { 5L }, 0);
+		len1.setData(new long[] { 6L }, 0);
+		len2.setData(new long[] { 7L }, 0);
 		try {
 			new ExecutionUnit().allocVector(DataType.BOOL, target, len0, len1, len2);
 		} catch (VnanoFatalException e) {
@@ -4271,7 +4271,7 @@ public class ExecutionUnitTest {
 		// 確保用のデータコンテナを生成して値をセット
 		DataContainer<?> target = new DataContainer<Object>();
 		DataContainer<long[]> len = new DataContainer<long[]>();
-		len.setData(new long[]{ 3L });
+		len.setData(new long[]{ 3L }, 0);
 
 		// 確保処理を実行
 		try {
@@ -4294,7 +4294,7 @@ public class ExecutionUnitTest {
 		}
 
 		// 要素数を変えての再allocも検査
-		len.setData(new long[]{ 5L });
+		len.setData(new long[]{ 5L }, 0);
 		try {
 			new ExecutionUnit().allocVector(DataType.STRING, target, len);
 		} catch (VnanoFatalException e) {
@@ -4313,7 +4313,7 @@ public class ExecutionUnitTest {
 		}
 
 		// 同じ要素数での再allocも検査
-		len.setData(new long[]{ 5L });
+		len.setData(new long[]{ 5L }, 0);
 		try {
 			new ExecutionUnit().allocVector(DataType.STRING, target, len);
 		} catch (VnanoFatalException e) {
@@ -4341,9 +4341,9 @@ public class ExecutionUnitTest {
 		DataContainer<long[]> len0 = new DataContainer<long[]>();
 		DataContainer<long[]> len1 = new DataContainer<long[]>();
 		DataContainer<long[]> len2 = new DataContainer<long[]>();
-		len0.setData(new long[] { 2L });
-		len1.setData(new long[] { 3L });
-		len2.setData(new long[] { 4L });
+		len0.setData(new long[] { 2L }, 0);
+		len1.setData(new long[] { 3L }, 0);
+		len2.setData(new long[] { 4L }, 0);
 
 		// 確保処理を実行
 		try {
@@ -4368,9 +4368,9 @@ public class ExecutionUnitTest {
 		}
 
 		// 要素数を変えての再allocも検査
-		len0.setData(new long[] { 5L });
-		len1.setData(new long[] { 6L });
-		len2.setData(new long[] { 7L });
+		len0.setData(new long[] { 5L }, 0);
+		len1.setData(new long[] { 6L }, 0);
+		len2.setData(new long[] { 7L }, 0);
 		try {
 			new ExecutionUnit().allocVector(DataType.STRING, target, len0, len1, len2);
 		} catch (VnanoFatalException e) {
@@ -4391,9 +4391,9 @@ public class ExecutionUnitTest {
 		}
 
 		// 同じ要素数での再allocも検査
-		len0.setData(new long[] { 5L });
-		len1.setData(new long[] { 6L });
-		len2.setData(new long[] { 7L });
+		len0.setData(new long[] { 5L }, 0);
+		len1.setData(new long[] { 6L }, 0);
+		len2.setData(new long[] { 7L }, 0);
 		try {
 			new ExecutionUnit().allocVector(DataType.STRING, target, len0, len1, len2);
 		} catch (VnanoFatalException e) {
@@ -4434,7 +4434,7 @@ public class ExecutionUnitTest {
 
 		// 配列の確保でもテスト
 		DataContainer<long[]> len = new DataContainer<long[]>();
-		len.setData(new long[]{ 3 });
+		len.setData(new long[]{ 3 }, 0);
 		try {
 			new ExecutionUnit().allocVector(DataType.VOID, target, len);
 			fail("Expected exception did not occured");
@@ -5150,8 +5150,8 @@ public class ExecutionUnitTest {
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<long[]> output = new DataContainer<long[]>();
 		DataContainer<long[]> input = new DataContainer<long[]>();
-		output.setData( new long[]{ -1L } );
-		input.setData( new long[]{ 2L } );
+		output.setData( new long[]{ -1L }, 0 );
+		input.setData( new long[]{ 2L }, 0 );
 
 		// 演算を実行
 		try {
@@ -5218,8 +5218,8 @@ public class ExecutionUnitTest {
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<double[]> output = new DataContainer<double[]>();
 		DataContainer<double[]> input = new DataContainer<double[]>();
-		output.setData( new double[]{ -1.0 } );
-		input.setData( new double[]{ 0.25 } ); // 2進表現で割り切れる値
+		output.setData( new double[]{ -1.0 }, 0 );
+		input.setData( new double[]{ 0.25 }, 0 ); // 2進表現で割り切れる値
 
 		// 演算を実行
 		try {
@@ -5286,8 +5286,8 @@ public class ExecutionUnitTest {
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
 		DataContainer<boolean[]> input = new DataContainer<boolean[]>();
-		output.setData( new boolean[]{ false } );
-		input.setData( new boolean[]{ true } );
+		output.setData( new boolean[]{ false }, 0 );
+		input.setData( new boolean[]{ true }, 0 );
 
 		// 演算を実行
 		try {
@@ -5355,8 +5355,8 @@ public class ExecutionUnitTest {
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<String[]> output = new DataContainer<String[]>();
 		DataContainer<String[]> input = new DataContainer<String[]>();
-		output.setData( new String[]{ "Init" } );
-		input.setData( new String[]{ "Hello" } );
+		output.setData( new String[]{ "Init" }, 0 );
+		input.setData( new String[]{ "Hello" }, 0 );
 
 		// 演算を実行
 		try {
@@ -5427,8 +5427,8 @@ public class ExecutionUnitTest {
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<Object> output = new DataContainer<Object>();
 		DataContainer<Object> input = new DataContainer<Object>();
-		output.setData(this); // thisは、とにかく演算できないデータを格納しておくため
-		input.setData(this);
+		output.setData(this, 0); // thisは、とにかく演算できないデータを格納しておくため
+		input.setData(this, 0);
 
 		// 対応していないデータ型を指定して演算を実行
 		try {
@@ -5484,7 +5484,7 @@ public class ExecutionUnitTest {
 		DataContainer<long[]> output = new DataContainer<long[]>();
 		DataContainer<long[]> input = new DataContainer<long[]>();
 		output.setData( new long[]{ -1L, -1L, -1L }, new int[]{3} );
-		input.setData( new long[]{ 2L } );
+		input.setData( new long[]{ 2L }, 0 );
 
 		// 演算を実行
 		try {
@@ -5500,7 +5500,7 @@ public class ExecutionUnitTest {
 		}
 
 		// inoutがオフセット設定された場合でも正常に動作するか検査
-		output.setData( new long[]{ -1L, -1L, -1L } );
+		output.setData( new long[]{ -1L, -1L, -1L }, new int[] {3} );
 		input.setData( new long[]{ 0L, 8L, 0L }, 1 );
 		try {
 			new ExecutionUnit().fill(DataType.INT64, output, input);
@@ -5525,7 +5525,7 @@ public class ExecutionUnitTest {
 		DataContainer<double[]> output = new DataContainer<double[]>();
 		DataContainer<double[]> input = new DataContainer<double[]>();
 		output.setData( new double[]{ -1.0, -1.0, -1.0 }, new int[]{3} );
-		input.setData( new double[]{ 0.25 } ); // 2進表現で割り切れる値
+		input.setData( new double[]{ 0.25 }, 0 ); // 2進表現で割り切れる値
 
 		// 演算を実行
 		try {
@@ -5541,7 +5541,7 @@ public class ExecutionUnitTest {
 		}
 
 		// inoutがオフセット設定された場合でも正常に動作するか検査
-		output.setData( new double[]{ -1.0, -1.0, -1.0 } );
+		output.setData( new double[]{ -1.0, -1.0, -1.0 }, new int[] {3} );
 		input.setData( new double[]{ 0.0, 0.125, 0.0 }, 1 );
 		try {
 			new ExecutionUnit().fill(DataType.FLOAT64, output, input);
@@ -5565,7 +5565,7 @@ public class ExecutionUnitTest {
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
 		DataContainer<boolean[]> input = new DataContainer<boolean[]>();
 		output.setData( new boolean[]{ false, false, false }, new int[]{3} );
-		input.setData( new boolean[]{ true } );
+		input.setData( new boolean[]{ true }, 0 );
 
 		// 演算を実行
 		try {
@@ -5581,7 +5581,7 @@ public class ExecutionUnitTest {
 		}
 
 		// inoutがオフセット設定された場合でも正常に動作するか検査
-		output.setData( new boolean[]{ false, false, false } );
+		output.setData( new boolean[]{ false, false, false }, new int[]{3} );
 		input.setData( new boolean[]{ false, true, false }, 1 );
 		try {
 			new ExecutionUnit().fill(DataType.BOOL, output, input);
@@ -5605,7 +5605,7 @@ public class ExecutionUnitTest {
 		DataContainer<String[]> output = new DataContainer<String[]>();
 		DataContainer<String[]> input = new DataContainer<String[]>();
 		output.setData( new String[]{ "Init0", "Init1", "Init2" }, new int[]{3} );
-		input.setData( new String[]{ "Hello" } );
+		input.setData( new String[]{ "Hello" }, 0 );
 
 		// 演算を実行
 		try {
@@ -5623,8 +5623,8 @@ public class ExecutionUnitTest {
 			fail("Incorrect output value");
 		}
 
-		// inoutがオフセット設定された場合でも正常に動作するか検査
-		output.setData( new String[]{ "Init0", "Init1", "Init2" } );
+		// inputがオフセット設定された場合でも正常に動作するか検査
+		output.setData( new String[]{ "Init0", "Init1", "Init2" }, new int[]{3} );
 		input.setData( new String[]{ "", "Hello", "" }, 1 );
 		try {
 			new ExecutionUnit().fill(DataType.STRING, output, input);
@@ -5635,7 +5635,6 @@ public class ExecutionUnitTest {
 		if (!output.getData()[0].equals("Hello")
 				|| !output.getData()[1].equals("Hello")
 				|| !output.getData()[2].equals("Hello") ) {
-
 			fail("Incorrect output value");
 		}
 	}
@@ -5698,9 +5697,9 @@ public class ExecutionUnitTest {
 		src.setData(arrayData, srcLengths);
 
 		// [1][0][2] の要素(=14)を参照する
-		index0.setData(new long[] {1});
-		index1.setData(new long[] {0});
-		index2.setData(new long[] {2});
+		index0.setData(new long[] {1}, 0);
+		index1.setData(new long[] {0}, 0);
+		index2.setData(new long[] {2}, 0);
 		try {
 			new ExecutionUnit().elem(DataType.INT64, dest, src, index0, index1, index2);
 		} catch (VnanoFatalException e) {
@@ -5714,9 +5713,9 @@ public class ExecutionUnitTest {
 		}
 
 		// [0][2][3] の要素(=11)を参照する
-		index0.setData(new long[] {0});
-		index1.setData(new long[] {2});
-		index2.setData(new long[] {3});
+		index0.setData(new long[] {0}, 0);
+		index1.setData(new long[] {2}, 0);
+		index2.setData(new long[] {3}, 0);
 		try {
 			new ExecutionUnit().elem(DataType.INT64, dest, src, index0, index1, index2);
 		} catch (VnanoFatalException e) {
@@ -5767,9 +5766,9 @@ public class ExecutionUnitTest {
 		src.setData(arrayData, srcLengths);
 
 		// [1][0][2] の要素(=14)を参照する
-		index0.setData(new long[] {1});
-		index1.setData(new long[] {0});
-		index2.setData(new long[] {2});
+		index0.setData(new long[] {1}, 0);
+		index1.setData(new long[] {0}, 0);
+		index2.setData(new long[] {2}, 0);
 		try {
 			new ExecutionUnit().elem(DataType.FLOAT64, dest, src, index0, index1, index2);
 		} catch (VnanoFatalException e) {
@@ -5783,9 +5782,9 @@ public class ExecutionUnitTest {
 		}
 
 		// [0][2][3] の要素(=11)を参照する
-		index0.setData(new long[] {0});
-		index1.setData(new long[] {2});
-		index2.setData(new long[] {3});
+		index0.setData(new long[] {0}, 0);
+		index1.setData(new long[] {2}, 0);
+		index2.setData(new long[] {3}, 0);
 		try {
 			new ExecutionUnit().elem(DataType.FLOAT64, dest, src, index0, index1, index2);
 		} catch (VnanoFatalException e) {
@@ -5836,9 +5835,9 @@ public class ExecutionUnitTest {
 		src.setData(arrayData, srcLengths);
 
 		// [1][0][2] の要素(=true)を参照する
-		index0.setData(new long[] {1});
-		index1.setData(new long[] {0});
-		index2.setData(new long[] {2});
+		index0.setData(new long[] {1}, 0);
+		index1.setData(new long[] {0}, 0);
+		index2.setData(new long[] {2}, 0);
 		try {
 			new ExecutionUnit().elem(DataType.BOOL, dest, src, index0, index1, index2);
 		} catch (VnanoFatalException e) {
@@ -5852,9 +5851,9 @@ public class ExecutionUnitTest {
 		}
 
 		// [0][2][3] の要素(=false)を参照する
-		index0.setData(new long[] {0});
-		index1.setData(new long[] {2});
-		index2.setData(new long[] {3});
+		index0.setData(new long[] {0}, 0);
+		index1.setData(new long[] {2}, 0);
+		index2.setData(new long[] {3}, 0);
 		try {
 			new ExecutionUnit().elem(DataType.BOOL, dest, src, index0, index1, index2);
 		} catch (VnanoFatalException e) {
@@ -5904,9 +5903,9 @@ public class ExecutionUnitTest {
 		src.setData(arrayData, srcLengths);
 
 		// [1][0][2] の要素(=true)を参照する
-		index0.setData(new long[] {1});
-		index1.setData(new long[] {0});
-		index2.setData(new long[] {2});
+		index0.setData(new long[] {1}, 0);
+		index1.setData(new long[] {0}, 0);
+		index2.setData(new long[] {2}, 0);
 		try {
 			new ExecutionUnit().elem(DataType.STRING, dest, src, index0, index1, index2);
 		} catch (VnanoFatalException e) {
@@ -5920,9 +5919,9 @@ public class ExecutionUnitTest {
 		}
 
 		// [0][2][3] の要素(=false)を参照する
-		index0.setData(new long[] {0});
-		index1.setData(new long[] {2});
-		index2.setData(new long[] {3});
+		index0.setData(new long[] {0}, 0);
+		index1.setData(new long[] {2}, 0);
+		index2.setData(new long[] {3}, 0);
 		try {
 			new ExecutionUnit().elem(DataType.STRING, dest, src, index0, index1, index2);
 		} catch (VnanoFatalException e) {
@@ -5960,9 +5959,9 @@ public class ExecutionUnitTest {
 		src.setData((ExecutionUnitTest[])null, new int[] { 1, 2, 3 });
 
 		// [1][0][2] の要素(=true)を参照する
-		index0.setData(new long[] {1});
-		index1.setData(new long[] {0});
-		index2.setData(new long[] {2});
+		index0.setData(new long[] {1}, 0);
+		index1.setData(new long[] {0}, 0);
+		index2.setData(new long[] {2}, 0);
 
 		// 演算を実行
 		try {
@@ -5991,8 +5990,8 @@ public class ExecutionUnitTest {
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<long[]> output = new DataContainer<long[]>();
 		DataContainer<long[]> input = new DataContainer<long[]>();
-		output.setData( new long[]{ -1L } );
-		input.setData( new long[]{ 2L } );
+		output.setData( new long[]{ -1L }, 0 );
+		input.setData( new long[]{ 2L }, 0 );
 
 		// 演算を実行
 		try {
@@ -6068,8 +6067,8 @@ public class ExecutionUnitTest {
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<double[]> output = new DataContainer<double[]>();
 		DataContainer<long[]> input = new DataContainer<long[]>();
-		output.setData( new double[]{ -1.0 } );
-		input.setData( new long[]{ 2L } );
+		output.setData( new double[]{ -1.0 }, 0 );
+		input.setData( new long[]{ 2L }, 0 );
 
 		// 演算を実行
 		try {
@@ -6145,8 +6144,8 @@ public class ExecutionUnitTest {
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<String[]> output = new DataContainer<String[]>();
 		DataContainer<long[]> input = new DataContainer<long[]>();
-		output.setData( new String[]{ "Init" } );
-		input.setData( new long[]{ 2L } );
+		output.setData( new String[]{ "Init" }, 0 );
+		input.setData( new long[]{ 2L }, 0 );
 
 		// 演算を実行
 		try {
@@ -6226,8 +6225,8 @@ public class ExecutionUnitTest {
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<double[]> output = new DataContainer<double[]>();
 		DataContainer<double[]> input = new DataContainer<double[]>();
-		output.setData( new double[]{ -1.0 } );
-		input.setData( new double[]{ 2.25 } ); // 2進表現で割り切れる値
+		output.setData( new double[]{ -1.0 }, 0 );
+		input.setData( new double[]{ 2.25 }, 0 ); // 2進表現で割り切れる値
 
 		// 演算を実行
 		try {
@@ -6303,8 +6302,8 @@ public class ExecutionUnitTest {
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<long[]> output = new DataContainer<long[]>();
 		DataContainer<double[]> input = new DataContainer<double[]>();
-		output.setData( new long[]{ -1L } );
-		input.setData( new double[]{ 2.25 } ); // 2進表現で割り切れる値
+		output.setData( new long[]{ -1L }, 0 );
+		input.setData( new double[]{ 2.25 }, 0 ); // 2進表現で割り切れる値
 
 		// 演算を実行
 		try {
@@ -6380,8 +6379,8 @@ public class ExecutionUnitTest {
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<String[]> output = new DataContainer<String[]>();
 		DataContainer<double[]> input = new DataContainer<double[]>();
-		output.setData( new String[]{ "Init" } );
-		input.setData( new double[]{ 2.25 } ); // 2進表現で割り切れる値
+		output.setData( new String[]{ "Init" }, 0 );
+		input.setData( new double[]{ 2.25 }, 0 ); // 2進表現で割り切れる値
 
 		// 演算を実行
 		try {
@@ -6460,8 +6459,8 @@ public class ExecutionUnitTest {
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
 		DataContainer<boolean[]> input = new DataContainer<boolean[]>();
-		output.setData( new boolean[]{ false } );
-		input.setData( new boolean[]{ true } );
+		output.setData( new boolean[]{ false }, 0 );
+		input.setData( new boolean[]{ true }, 0 );
 
 		// 演算を実行
 		try {
@@ -6537,8 +6536,8 @@ public class ExecutionUnitTest {
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<String[]> output = new DataContainer<String[]>();
 		DataContainer<boolean[]> input = new DataContainer<boolean[]>();
-		output.setData( new String[]{ "Init" } );
-		input.setData( new boolean[]{ true } );
+		output.setData( new String[]{ "Init" }, 0 );
+		input.setData( new boolean[]{ true }, 0 );
 
 		// 演算を実行
 		try {
@@ -6618,8 +6617,8 @@ public class ExecutionUnitTest {
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<String[]> output = new DataContainer<String[]>();
 		DataContainer<String[]> input = new DataContainer<String[]>();
-		output.setData( new String[]{ "Init" } );
-		input.setData( new String[]{ "Hello" } );
+		output.setData( new String[]{ "Init" }, 0 );
+		input.setData( new String[]{ "Hello" }, 0 );
 
 		// 演算を実行
 		try {
@@ -6698,8 +6697,8 @@ public class ExecutionUnitTest {
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<long[]> output = new DataContainer<long[]>();
 		DataContainer<String[]> input = new DataContainer<String[]>();
-		output.setData( new long[]{ -1L } );
-		input.setData( new String[]{ "2" } );
+		output.setData( new long[]{ -1L }, 0 );
+		input.setData( new String[]{ "2" }, 0 );
 
 		// 演算を実行
 		try {
@@ -6739,8 +6738,8 @@ public class ExecutionUnitTest {
 		}
 
 		// 浮動小数点として解釈できる文字列から整数への変換も検査(内部処理が異なる)
-		output.setData( new long[]{ -1L, -1L, -1L } );
-		input.setData( new String[]{ "0", "0", "8.25", "0", "0" } ); // 2進表現で割り切れる値
+		output.setData( new long[]{ -1L, -1L, -1L }, 1 );
+		input.setData( new String[]{ "0", "0", "8.25", "0", "0" }, 2 ); // 2進表現で割り切れる値
 		try {
 			new ExecutionUnit().cast(DataType.INT64, DataType.STRING, output, input);
 		} catch (VnanoFatalException e) {
@@ -6758,8 +6757,8 @@ public class ExecutionUnitTest {
 		}
 
 		// 整数に変換できない文字列からの変換も検査
-		output.setData( new long[]{ -1L, -1L, -1L } );
-		input.setData( new String[]{ "0", "0", "Hello", "0", "0" } ); // 2進表現で割り切れる値
+		output.setData( new long[]{ -1L, -1L, -1L }, 1 );
+		input.setData( new String[]{ "0", "0", "Hello", "0", "0" }, 2 ); // 2進表現で割り切れる値
 		try {
 			new ExecutionUnit().cast(DataType.INT64, DataType.STRING, output, input);
 			fail("Expected exception did not occured");
@@ -6804,8 +6803,8 @@ public class ExecutionUnitTest {
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<double[]> output = new DataContainer<double[]>();
 		DataContainer<String[]> input = new DataContainer<String[]>();
-		output.setData( new double[]{ -1.0 } );
-		input.setData( new String[]{ "2.25" } ); // 2進表現で割り切れる値
+		output.setData( new double[]{ -1.0 }, 0 );
+		input.setData( new String[]{ "2.25" }, 0 ); // 2進表現で割り切れる値
 
 		// 演算を実行
 		try {
@@ -6845,8 +6844,8 @@ public class ExecutionUnitTest {
 		}
 
 		// 浮動小数点数に変換できない文字列からの変換も検査
-		output.setData( new double[]{ -1.0, -1.0, -1.0 } );
-		input.setData( new String[]{ "0.0", "0.0", "Hello", "0.0", "0.0" } ); // 2進表現で割り切れる値
+		output.setData( new double[]{ -1.0, -1.0, -1.0 }, 1 );
+		input.setData( new String[]{ "0.0", "0.0", "Hello", "0.0", "0.0" }, 2 ); // 2進表現で割り切れる値
 		try {
 			new ExecutionUnit().cast(DataType.FLOAT64, DataType.STRING, output, input);
 			fail("Expected exception did not occured");
@@ -6891,8 +6890,8 @@ public class ExecutionUnitTest {
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
 		DataContainer<String[]> input = new DataContainer<String[]>();
-		output.setData( new boolean[]{ false } );
-		input.setData( new String[]{ "true" } ); // 2進表現で割り切れる値
+		output.setData( new boolean[]{ false }, 0 );
+		input.setData( new String[]{ "true" }, 0 ); // 2進表現で割り切れる値
 
 		// 演算を実行
 		try {
@@ -6932,8 +6931,8 @@ public class ExecutionUnitTest {
 		}
 
 		// 論理値に変換できない文字列からの変換も検査
-		output.setData( new boolean[]{ false, false, false } );
-		input.setData( new String[]{ "0.0", "0.0", "Hello", "0.0", "0.0" } ); // 2進表現で割り切れる値
+		output.setData( new boolean[]{ false, false, false }, 1 );
+		input.setData( new String[]{ "0.0", "0.0", "Hello", "0.0", "0.0" }, 2 ); // 2進表現で割り切れる値
 		try {
 			new ExecutionUnit().cast(DataType.BOOL, DataType.STRING, output, input);
 			fail("Expected exception did not occured");
@@ -6982,72 +6981,72 @@ public class ExecutionUnitTest {
 
 		// 演算を実行
 		try {
-			((DataContainer<long[]>)output).setData(new long[]{ -1L });
-			((DataContainer<boolean[]>)input).setData(new boolean[]{ false });
+			((DataContainer<long[]>)output).setData(new long[]{ -1L }, 0);
+			((DataContainer<boolean[]>)input).setData(new boolean[]{ false }, 0);
 			new ExecutionUnit().cast(DataType.INT64, DataType.BOOL, output, input);
 			fail("Expected exception did not occured");
 		} catch (VnanoException e) {
 			// 例外が発生するのが正しい挙動
 		}
 		try {
-			((DataContainer<long[]>)output).setData(new long[]{ -1L });
-			((DataContainer<Object[]>)input).setData(new Object[]{ "" });
+			((DataContainer<long[]>)output).setData(new long[]{ -1L }, 0);
+			((DataContainer<Object[]>)input).setData(new Object[]{ "" }, 0);
 			new ExecutionUnit().cast(DataType.INT64, DataType.VOID, output, input);
 			fail("Expected exception did not occured");
 		} catch (VnanoException e) {
 			// 例外が発生するのが正しい挙動
 		}
 		try {
-			((DataContainer<double[]>)output).setData(new double[]{ -1.0 });
-			((DataContainer<boolean[]>)input).setData(new boolean[]{ false });
+			((DataContainer<double[]>)output).setData(new double[]{ -1.0 }, 0);
+			((DataContainer<boolean[]>)input).setData(new boolean[]{ false }, 0);
 			new ExecutionUnit().cast(DataType.FLOAT64, DataType.BOOL, output, input);
 			fail("Expected exception did not occured");
 		} catch (VnanoException e) {
 			// 例外が発生するのが正しい挙動
 		}
 		try {
-			((DataContainer<double[]>)output).setData(new double[]{ -1.0 });
-			((DataContainer<Object[]>)input).setData(new Object[]{ "" });
+			((DataContainer<double[]>)output).setData(new double[]{ -1.0 }, 0);
+			((DataContainer<Object[]>)input).setData(new Object[]{ "" }, 0);
 			new ExecutionUnit().cast(DataType.FLOAT64, DataType.VOID, output, input);
 			fail("Expected exception did not occured");
 		} catch (VnanoException e) {
 			// 例外が発生するのが正しい挙動
 		}
 		try {
-			((DataContainer<boolean[]>)output).setData(new boolean[]{ false });
-			((DataContainer<long[]>)input).setData(new long[]{ 123L });
+			((DataContainer<boolean[]>)output).setData(new boolean[]{ false }, 0);
+			((DataContainer<long[]>)input).setData(new long[]{ 123L }, 0);
 			new ExecutionUnit().cast(DataType.BOOL, DataType.INT64, output, input);
 			fail("Expected exception did not occured");
 		} catch (VnanoException e) {
 			// 例外が発生するのが正しい挙動
 		}
 		try {
-			((DataContainer<boolean[]>)output).setData(new boolean[]{ false });
-			((DataContainer<double[]>)input).setData(new double[]{ 2.25 });
+			((DataContainer<boolean[]>)output).setData(new boolean[]{ false }, 0);
+			((DataContainer<double[]>)input).setData(new double[]{ 2.25 }, 0);
 			new ExecutionUnit().cast(DataType.BOOL, DataType.FLOAT64, output, input);
 			fail("Expected exception did not occured");
 		} catch (VnanoException e) {
 			// 例外が発生するのが正しい挙動
 		}
 		try {
-			((DataContainer<boolean[]>)output).setData(new boolean[]{ false });
-			((DataContainer<Object[]>)input).setData(new Object[]{ "" });
+			((DataContainer<boolean[]>)output).setData(new boolean[]{ false }, 0);
+			((DataContainer<Object[]>)input).setData(new Object[]{ "" }, 0);
 			new ExecutionUnit().cast(DataType.BOOL, DataType.VOID, output, input);
 			fail("Expected exception did not occured");
 		} catch (VnanoException e) {
 			// 例外が発生するのが正しい挙動
 		}
 		try {
-			((DataContainer<String[]>)output).setData(new String[]{ "Init" });
-			((DataContainer<Object[]>)input).setData(new Object[]{ "" });
+			((DataContainer<String[]>)output).setData(new String[]{ "Init" }, 0);
+			((DataContainer<Object[]>)input).setData(new Object[]{ "" }, 0);
 			new ExecutionUnit().cast(DataType.STRING, DataType.VOID, output, input);
 			fail("Expected exception did not occured");
 		} catch (VnanoException e) {
 			// 例外が発生するのが正しい挙動
 		}
 		try {
-			((DataContainer<Object[]>)output).setData(new Object[]{ "" });
-			((DataContainer<Object[]>)input).setData(new Object[]{ "" });
+			((DataContainer<Object[]>)output).setData(new Object[]{ "" }, 0);
+			((DataContainer<Object[]>)input).setData(new Object[]{ "" }, 0);
 			new ExecutionUnit().cast(DataType.VOID, DataType.VOID, output, input);
 			fail("Expected exception did not occured");
 		} catch (VnanoException e) {

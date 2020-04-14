@@ -92,7 +92,7 @@ public class DataContainerTest {
 		DataContainer<long[]> container = new DataContainer<long[]>();
 
 		long[] data = new long[]{1L, 2L, 3L};
-		container.setData(data);
+		container.setData(data, new int[] {3});
 		if (container.getData() != data) {
 			fail("Incorrect data");
 		}
@@ -141,31 +141,31 @@ public class DataContainerTest {
 		}
 
 		// long[] のデータを持たせるとINT64型になる事を検査
-		((DataContainer<long[]>)container).setData(new long[]{ 1L });
+		((DataContainer<long[]>)container).setData(new long[]{ 1L }, 0);
 		if (container.getDataType() != DataType.INT64) {
 			fail("Incorrect data type");
 		}
 
 		// double[] のデータを持たせるとFLOAT64型になる事を検査
-		((DataContainer<double[]>)container).setData(new double[]{ 1.0 });
+		((DataContainer<double[]>)container).setData(new double[]{ 1.0 }, 0);
 		if (container.getDataType() != DataType.FLOAT64) {
 			fail("Incorrect data type");
 		}
 
 		// boolean[] のデータを持たせるとBOOL型になる事を検査
-		((DataContainer<boolean[]>)container).setData(new boolean[]{ true });
+		((DataContainer<boolean[]>)container).setData(new boolean[]{ true }, 0);
 		if (container.getDataType() != DataType.BOOL) {
 			fail("Incorrect data type");
 		}
 
 		// String[] のデータを持たせるとSTRING型になる事を検査
-		((DataContainer<String[]>)container).setData(new String[]{ "Hello" });
+		((DataContainer<String[]>)container).setData(new String[]{ "Hello" }, 0);
 		if (container.getDataType() != DataType.STRING) {
 			fail("Incorrect data type");
 		}
 
 		// null を渡してデータ未格納状態に戻すとVOIDに戻る事を検査
-		((DataContainer<Object>)container).setData(null);
+		((DataContainer<Object>)container).setData(null, 0);
 		if (container.getDataType() != DataType.VOID) {
 			fail("Incorrect data type");
 		}

@@ -240,13 +240,20 @@ public class DataContainer<T> implements ArrayDataContainerInterface1<T> {
 	 * このデータコンテナにデータを格納します。
 	 *
 	 * Vnano処理系では全てのデータを配列として扱うため、引数 data は配列型である必要があります。
-	 * ただし、多次元配列やスカラのデータは 1 次元化して渡す必要があります。
+	 * ただし、多次元配列やスカラのデータは 1 次元化して格納する必要があります。
 	 * 詳細はこのクラスの説明を参照してください。
+	 *
+	 * なお、格納するデータをスカラと見なすべきか配列と見なすべきかに応じて、
+	 * {@link DataContainer#size offset} フィールドや
+	 * フィールドや {@link DataContainer#lengths lengths} をなど適切に初期化する必要があるため、
+	 * このメソッドはクラス外からはアクセスできません。
+	 * 外部からは、代わりに {@link DataContainer#setData(T data, int offset)} メソッドや
+	 * {@link DataContainer#setData(T data, int[] lengths)} メソッドを使用してください。
+	 * このメソッドはそれらの中で呼び出され、その場合は各フィールドも適切に設定されます。
 	 *
 	 * @param data 格納するデータ
 	 */
-	//public final void setData(T data) throws DataException { // ArrayDataContainer1の仕様上DataExceptionはスロー不可
-	public final void setData(T data) {
+	private final void setData(T data) {
 
 		// データの格納
 		this.data = data;
@@ -272,6 +279,7 @@ public class DataContainer<T> implements ArrayDataContainerInterface1<T> {
 	/**
 	 * このデータコンテナが格納するデータを、次元ごとの長さ情報と共に設定します。
 	 * 同時に {@link DataContainer#size size} フィールドの値も、全次元の長さの積に設定されます。
+	 * また、{@link DataContainer#size offset} フィールドの値には 0 が設定されます。
 	 *
 	 * @param data 格納するデータ
 	 * @param arrayLengths 次元ごとの長さを格納する配列
@@ -284,6 +292,7 @@ public class DataContainer<T> implements ArrayDataContainerInterface1<T> {
 			dataSize *= length;
 		}
 		this.size = dataSize;
+		this.offset = 0;
 	}
 
 
