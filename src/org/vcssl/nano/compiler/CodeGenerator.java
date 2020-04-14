@@ -1711,7 +1711,7 @@ public class CodeGenerator {
 		AstNode operandNode = operatorNode.getChildNodes()[0];
 		String operandValue = operandNode.getAttribute(AttributeKey.ASSEMBLY_VALUE);
 
-		// 演算結果を格納するレジスタを確保
+		// 演算結果を格納するレジスタ
 		String accumulatorRegister = operatorNode.getAttribute(AttributeKey.ASSEMBLY_VALUE);
 
 		// 演算結果を格納するレジスタが、この演算子のために専用予約されたものである場合、確保処理が必要
