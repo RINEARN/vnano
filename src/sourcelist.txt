@@ -28,6 +28,7 @@ org/vcssl/nano/combinedtest/ScalarLogicalOperationCombinedTest.java
 org/vcssl/nano/combinedtest/SubscriptedArithmeticOperationCombinedTest.java
 org/vcssl/nano/combinedtest/SubscriptedAssignmentOperationCombinedTest.java
 org/vcssl/nano/combinedtest/SubscriptedComparisonOperationCombinedTest.java
+org/vcssl/nano/combinedtest/SubscriptedCompoundAssignmentOperationCombinedTest.java
 org/vcssl/nano/combinedtest/SubscriptedLogicalOperationCombinedTest.java
 org/vcssl/nano/combinedtest/VectorArithmeticOperationCombinedTest.java
 org/vcssl/nano/combinedtest/VectorAssignmentOperationCombinedTest.java
