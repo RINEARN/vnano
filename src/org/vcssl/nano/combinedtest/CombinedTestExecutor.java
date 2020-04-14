@@ -35,6 +35,7 @@ public class CombinedTestExecutor {
 		testElementList.add(new IfElseStatementCombinedTest());
 		testElementList.add(new WhileStatementCombinedTest());
 		testElementList.add(new ForStatementCombinedTest());
+		testElementList.add(new FunctionCombinedTest());
 
 		for (CombinedTestElement testElement: testElementList) {
 			System.out.println("[ " + testElement.getClass().getCanonicalName() + " ]");

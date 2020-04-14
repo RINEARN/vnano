@@ -245,7 +245,7 @@ public class DataContainer<T> implements ArrayDataContainerInterface1<T> {
 	 *
 	 * なお、格納するデータをスカラと見なすべきか配列と見なすべきかに応じて、
 	 * {@link DataContainer#size offset} フィールドや
-	 * フィールドや {@link DataContainer#lengths lengths} をなど適切に初期化する必要があるため、
+	 * {@link DataContainer#lengths lengths} フィールドを適切に初期化する必要があるため、
 	 * このメソッドはクラス外からはアクセスできません。
 	 * 外部からは、代わりに {@link DataContainer#setData(T data, int offset)} メソッドや
 	 * {@link DataContainer#setData(T data, int[] lengths)} メソッドを使用してください。
