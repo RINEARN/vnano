@@ -95,6 +95,7 @@ org/vcssl/nano/vm/accelerator/BoolVectorBranchUnit.java
 org/vcssl/nano/vm/accelerator/BoolVectorLogicalUnit.java
 org/vcssl/nano/vm/accelerator/BoolVectorScalarTransferUnit.java
 org/vcssl/nano/vm/accelerator/BoolVectorTransferUnit.java
+org/vcssl/nano/vm/accelerator/Boolx1Float64x2ScalarCacheSynchronizer.java
 org/vcssl/nano/vm/accelerator/Boolx1Int64x2ScalarCacheSynchronizer.java
 org/vcssl/nano/vm/accelerator/Boolx1ScalarCacheSynchronizer.java
 org/vcssl/nano/vm/accelerator/Boolx2ScalarCacheSynchronizer.java
