@@ -1000,19 +1000,19 @@ public class ExecutionUnit {
 	public void allocScalar(DataType type, DataContainer<?> target) {
 		switch (type) {
 			case INT64 : {
-				((DataContainer<long[]>)target).setData(new long[DataContainer.SIZE_OF_SCALAR]);
+				((DataContainer<long[]>)target).setData(new long[DataContainer.SIZE_OF_SCALAR], 0);
 				return;
 			}
 			case FLOAT64 : {
-				((DataContainer<double[]>)target).setData(new double[DataContainer.SIZE_OF_SCALAR]);
+				((DataContainer<double[]>)target).setData(new double[DataContainer.SIZE_OF_SCALAR], 0);
 				return;
 			}
 			case BOOL : {
-				((DataContainer<boolean[]>)target).setData(new boolean[DataContainer.SIZE_OF_SCALAR]);
+				((DataContainer<boolean[]>)target).setData(new boolean[DataContainer.SIZE_OF_SCALAR], 0);
 				return;
 			}
 			case STRING : {
-				((DataContainer<String[]>)target).setData(new String[DataContainer.SIZE_OF_SCALAR]);
+				((DataContainer<String[]>)target).setData(new String[DataContainer.SIZE_OF_SCALAR], 0);
 				return;
 			}
 			default : {
