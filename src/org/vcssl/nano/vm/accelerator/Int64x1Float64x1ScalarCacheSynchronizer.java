@@ -29,11 +29,11 @@ public class Int64x1Float64x1ScalarCacheSynchronizer extends CacheSynchronizer {
 
 	public final void synchronizeFromCacheToMemory() {
 		if (cacheSyncEnabled0) container0.getData()[ container0.getOffset() ] = cache0.value;
-		if (cacheSyncEnabled1) container1.getData()[ container0.getOffset() ] = cache1.value;
+		if (cacheSyncEnabled1) container1.getData()[ container1.getOffset() ] = cache1.value;
 	}
 
 	public final void synchronizeFromMemoryToCache() {
 		if (cacheSyncEnabled0) cache0.value = container0.getData()[ container0.getOffset() ];
-		if (cacheSyncEnabled1) cache1.value = container1.getData()[ container0.getOffset() ];
+		if (cacheSyncEnabled1) cache1.value = container1.getData()[ container1.getOffset() ];
 	}
 }
