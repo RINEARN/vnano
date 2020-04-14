@@ -28,6 +28,7 @@ public class CombinedTestExecutor {
 		testElementList.add(new VectorComparisonOperationCombinedTest());
 		testElementList.add(new VectorCompoundAssignmentOperationCombinedTest());
 		testElementList.add(new SubscriptedArithmeticOperationCombinedTest());
+		testElementList.add(new SubscriptedLogicalOperationCombinedTest());
 		testElementList.add(new IfElseStatementCombinedTest());
 		testElementList.add(new WhileStatementCombinedTest());
 		testElementList.add(new ForStatementCombinedTest());
