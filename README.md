@@ -2189,7 +2189,6 @@ Let's implement. The following is an example code:
 		public class LoopMaxVariable implements ExternalVariableConnectorInterface1 {
 
 			private long[] data = new long[]{ 100l };
-			int[] dataLengths = new int[]{ 1 };
 		
 			@Override
 			public String getVariableName() { return "LOOP_MAX"; }
@@ -2228,10 +2227,9 @@ Let's implement. The following is an example code:
 				@SuppressWarnings("unchecked")
 				ArrayDataContainerInterface1<long[]> adci1Container = (ArrayDataContainerInterface1<long[]>)dataContainer;
 
-				// store data to return it.
-				// 戻り値用コンテナにデータを格納する
-				adci1Container.setData(this.data);
-				adci1Container.setLengths(this.dataLengths);
+				// store data to return it (0 is the array index at which the value is stored).
+				// 戻り値用コンテナにデータを格納する (0はdata配列内での値の格納インデックス)
+				adci1Container.setData(this.data, 0);
 			}
 		
 			@Override

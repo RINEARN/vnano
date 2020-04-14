@@ -1,7 +1,5 @@
 package org.vcssl.nano.vm.accelerator;
 
-import java.util.Arrays;
-
 import org.vcssl.nano.VnanoException;
 import org.vcssl.nano.VnanoFatalException;
 import org.vcssl.nano.interconnect.Interconnect;

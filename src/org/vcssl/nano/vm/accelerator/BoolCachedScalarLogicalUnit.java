@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2018 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2020 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -75,7 +75,14 @@ public class BoolCachedScalarLogicalUnit extends AcceleratorExecutionUnit {
 			super(cache0, cache1, cache2, nextNode);
 		}
 		public final AcceleratorExecutionNode execute() {
-			this.cache0.value = this.cache1.value & this.cache2.value;
+
+			// 注： 短絡評価により、左辺(container1) が false の場合には
+			//      右辺(container2) は null になっている可能性があるので、
+			//      左辺から結果が自明な場合には右辺を参照してはいけない。
+			//      (アクセスコストの面からも恐らく不利)
+			//      そのため、以下の && 演算子を & 演算子にしてはいけない。
+
+			this.cache0.value = this.cache1.value && this.cache2.value;
 			return this.nextNode;
 		}
 	}
@@ -85,7 +92,14 @@ public class BoolCachedScalarLogicalUnit extends AcceleratorExecutionUnit {
 			super(cache0, cache1, cache2, nextNode);
 		}
 		public final AcceleratorExecutionNode execute() {
-			this.cache0.value = this.cache1.value | this.cache2.value;
+
+			// 注： 短絡評価により、左辺(container1) が false の場合には
+			//      右辺(container2) は null になっている可能性があるので、
+			//      左辺から結果が自明な場合には右辺を参照してはいけない。
+			//      (アクセスコストの面からも恐らく不利)
+			//      そのため、以下の || 演算子を | 演算子にしてはいけない。
+
+			this.cache0.value = this.cache1.value || this.cache2.value;
 			return this.nextNode;
 		}
 	}

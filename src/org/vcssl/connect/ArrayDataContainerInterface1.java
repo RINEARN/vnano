@@ -4,7 +4,7 @@
  * ( for VCSSL / Vnano Plug-in Development )
  * --------------------------------------------------
  * This file is released under CC0.
- * Written in 2017-2019 by RINEARN (Fumihiro Matsui)
+ * Written in 2017-2020 by RINEARN (Fumihiro Matsui)
  * ==================================================
  */
 
@@ -76,27 +76,6 @@ public interface ArrayDataContainerInterface1<T> {
 
 	/** 動的ロード時などに処理系側から参照される、インターフェースの世代名（値は"1"）です。*/
 	public static String INTERFACE_GENERATION = "1";
-
-
-	/**
-	 * このデータコンテナが格納するデータを設定します。
-	 *
-	 * このデータコンテナの仕様は、
-	 * 内部でデータを1次元配列として保持する事を前提としているため、
-	 * 引数 data には常に1次元配列を渡す必要があります。
-	 *
-	 * 多次元配列は、右端次元の要素が連続的に並ぶように1次元化した配列を
-	 * 引数 data に渡してください。
-	 *
-	 * また、スカラ値は、要素数1の配列で包んでください。
-	 * または、より大きな配列の中にそのスカラ値を格納した上で、
-	 * このメソッドの代わりに
-	 * {@link ArrayDataContainerInterface1#setData(Object, int) setData(T, int)}
-	 * を使用して、そのインデックスを指定してください。
-	 *
-	 * @param data 格納するデータ（1次元配列）
-	 */
-	public abstract void setData(T data);
 
 
 	/**

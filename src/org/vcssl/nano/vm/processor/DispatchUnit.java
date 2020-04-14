@@ -314,7 +314,7 @@ public class DispatchUnit {
 				// 関数から戻ってくる命令アドレス（現在の命令アドレス+1）を戻り値スタックに詰む
 				int returnAddress = programCounter + 1;
 				DataContainer<long[]> returnAddressContainer = new DataContainer<long[]>();
-				returnAddressContainer.setData(new long[] { returnAddress });
+				returnAddressContainer.setData(new long[] { returnAddress }, 0);
 				memory.push(returnAddressContainer);
 
 				// 引数（オペランド[2]以降に並んでいる）を引数スタックに積む

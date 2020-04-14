@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2019 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2020 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -192,6 +192,21 @@ public enum AttributeKey {
 	 * .
 	 */
 	ASSEMBLY_VALUE,
+
+	/**
+	 * <span class="lang-en">
+	 * The key of the attribute for storing the name of a register,
+	 * when the AST node represents an operator and an new register is necessary
+	 * to store the evaluated value of that operator
+	 * </span>
+	 * <span class="lang-ja">
+	 * 演算子のASTノードにおいて,
+	 * その演算子の評価値を控えるためにレジスタを新規生成する必要がある場合に,
+	 * そのレジスタ名を保持する属性のキーです
+	 * </span>
+	 * .
+	 */
+	NEW_REGISTER,
 
 	/**
 	 * <span class="lang-en">

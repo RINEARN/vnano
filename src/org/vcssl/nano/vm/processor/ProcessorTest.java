@@ -63,7 +63,7 @@ public class ProcessorTest {
 
 		// 命令のメタ情報をメモリに配置（命令の生成に必ず必要）
 		DataContainer<String[]> metaContainer = new DataContainer<String[]>();
-		metaContainer.setData(new String[]{ "meta" });
+		metaContainer.setData(new String[]{ "meta" }, 0);
 		memory.setDataContainer(META_PART, META_ADDR, metaContainer);
 
 		// デフォルトのオプションマップを用意
@@ -104,9 +104,9 @@ public class ProcessorTest {
 
 		// レジスタにテスト値を設定
 		this.initializeRegisters();
-		((DataContainer<long[]>)this.registers[0]).setData(new long[]{ -1L });  // R0=-1
-		((DataContainer<long[]>)this.registers[1]).setData(new long[]{ 123L }); // R1=123
-		((DataContainer<long[]>)this.registers[2]).setData(new long[]{ 456L }); // R2=456
+		((DataContainer<long[]>)this.registers[0]).setData(new long[]{ -1L }, 0);  // R0=-1
+		((DataContainer<long[]>)this.registers[1]).setData(new long[]{ 123L }, 0); // R1=123
+		((DataContainer<long[]>)this.registers[2]).setData(new long[]{ 456L }, 0); // R2=456
 
 		// R0 = R1 + R2 の値を求める加算命令を生成
 		Instruction instruction = this.generateInstruction(OperationCode.ADD, DataType.INT64, 0, 1, 2); // ADD INT64 R0 R1 R2
@@ -132,13 +132,13 @@ public class ProcessorTest {
 
 		// レジスタにテスト値を設定
 		this.initializeRegisters();
-		((DataContainer<long[]>)this.registers[0]).setData(new long[]{ -1L });  // R0=-1
-		((DataContainer<long[]>)this.registers[1]).setData(new long[]{ 123L }); // R1=123
-		((DataContainer<long[]>)this.registers[2]).setData(new long[]{ 456L }); // R2=456
-		((DataContainer<long[]>)this.registers[3]).setData(new long[]{ -1L });  // R3=-1
-		((DataContainer<long[]>)this.registers[4]).setData(new long[]{ 200L }); // R4=200
-		((DataContainer<long[]>)this.registers[5]).setData(new long[]{ 100L }); // R5=100
-		((DataContainer<long[]>)this.registers[6]).setData(new long[]{ -1L });  // R6=-1
+		((DataContainer<long[]>)this.registers[0]).setData(new long[]{ -1L }, 0);  // R0=-1
+		((DataContainer<long[]>)this.registers[1]).setData(new long[]{ 123L }, 0); // R1=123
+		((DataContainer<long[]>)this.registers[2]).setData(new long[]{ 456L }, 0); // R2=456
+		((DataContainer<long[]>)this.registers[3]).setData(new long[]{ -1L }, 0);  // R3=-1
+		((DataContainer<long[]>)this.registers[4]).setData(new long[]{ 200L }, 0); // R4=200
+		((DataContainer<long[]>)this.registers[5]).setData(new long[]{ 100L }, 0); // R5=100
+		((DataContainer<long[]>)this.registers[6]).setData(new long[]{ -1L }, 0);  // R6=-1
 
 		// R0 = (R1+R2) * (R4-$5) の値を求める逐次演算の命令列を生成
 		Instruction[] instructions = new Instruction[]{
@@ -168,11 +168,11 @@ public class ProcessorTest {
 
 		// レジスタにテスト値を設定
 		this.initializeRegisters();
-		((DataContainer<long[]>)this.registers[1]).setData(new long[]{ 111L }); // R1=111
-		((DataContainer<long[]>)this.registers[2]).setData(new long[]{ 222L }); // R2=222
-		((DataContainer<long[]>)this.registers[3]).setData(new long[]{ -1L });  // R3=-1
-		((DataContainer<long[]>)this.registers[4]).setData(new long[]{ -1L });  // R4=-1
-		((DataContainer<long[]>)this.registers[10]).setData(new long[]{ 3L });  // R10=3 ... 分岐先の命令位置
+		((DataContainer<long[]>)this.registers[1]).setData(new long[]{ 111L }, 0); // R1=111
+		((DataContainer<long[]>)this.registers[2]).setData(new long[]{ 222L }, 0); // R2=222
+		((DataContainer<long[]>)this.registers[3]).setData(new long[]{ -1L }, 0);  // R3=-1
+		((DataContainer<long[]>)this.registers[4]).setData(new long[]{ -1L }, 0);  // R4=-1
+		((DataContainer<long[]>)this.registers[10]).setData(new long[]{ 3L }, 0);  // R10=3 ... 分岐先の命令位置
 
 		// R0 = (R1+R2) * (R4-$5) の値を求める逐次演算の命令列を生成
 		Instruction[] instructions = new Instruction[]{
@@ -183,7 +183,7 @@ public class ProcessorTest {
 		};
 
 		// 分岐成立の条件（R0==true）で命令列を逐次実行
-		((DataContainer<boolean[]>)this.registers[0]).setData(new boolean[]{ true });  // R0=true
+		((DataContainer<boolean[]>)this.registers[0]).setData(new boolean[]{ true }, 0);  // R0=true
 		try {
 			new Processor().process(instructions, this.memory, this.interconnect, this.optionMap);
 		} catch (VnanoException e) {
@@ -195,7 +195,7 @@ public class ProcessorTest {
 		assertEquals(111L, ((DataContainer<long[]>)this.registers[4]).getData()[0]); // R4==111 (==R1)
 
 		// 分岐不成立の条件（R0==false）で命令列を逐次実行
-		((DataContainer<boolean[]>)this.registers[0]).setData(new boolean[]{ false });  // R0=false
+		((DataContainer<boolean[]>)this.registers[0]).setData(new boolean[]{ false }, 0);  // R0=false
 		try {
 			new Processor().process(instructions, this.memory, this.interconnect, this.optionMap);
 		} catch (VnanoException e) {
@@ -208,9 +208,9 @@ public class ProcessorTest {
 
 
 		// 分岐で命令列の領域外(-1)に飛ぶと実行が終了する事を検査
-		((DataContainer<long[]>)this.registers[4]).setData(new long[]{ -1L });   // R4=-1
-		((DataContainer<long[]>)this.registers[10]).setData(new long[]{ -1L });  // R10=-1 ... 分岐先の命令位置
-		((DataContainer<boolean[]>)this.registers[0]).setData(new boolean[]{ true });  // R0=true
+		((DataContainer<long[]>)this.registers[4]).setData(new long[]{ -1L }, 0);   // R4=-1
+		((DataContainer<long[]>)this.registers[10]).setData(new long[]{ -1L }, 0);  // R10=-1 ... 分岐先の命令位置
+		((DataContainer<boolean[]>)this.registers[0]).setData(new boolean[]{ true }, 0);  // R0=true
 		try {
 			new Processor().process(instructions, this.memory, this.interconnect, this.optionMap);
 		} catch (VnanoException e) {
@@ -228,9 +228,9 @@ public class ProcessorTest {
 
 		// レジスタにテスト値を設定
 		this.initializeRegisters();
-		((DataContainer<long[]>)this.registers[0]).setData(new long[]{ -1L });  // R0=-1
-		((DataContainer<long[]>)this.registers[1]).setData(new long[]{ 123L }); // R1=123
-		((DataContainer<long[]>)this.registers[2]).setData(new long[]{ 456L }); // R2=456
+		((DataContainer<long[]>)this.registers[0]).setData(new long[]{ -1L }, 0);  // R0=-1
+		((DataContainer<long[]>)this.registers[1]).setData(new long[]{ 123L }, 0); // R1=123
+		((DataContainer<long[]>)this.registers[2]).setData(new long[]{ 456L }, 0); // R2=456
 
 		// Interconnect に接続された"methodToConnect" メソッドの関数アドレスを取得し、R10レジスタに設定
 		AbstractFunction function = this.interconnect.getExternalFunctionTable().getFunctionBySignature(
@@ -238,7 +238,7 @@ public class ProcessorTest {
 				new boolean[]{false, false}, new boolean[]{false, false}, false, false
 		);
 		int functionAddress = this.interconnect.getExternalFunctionTable().indexOf(function);
-		((DataContainer<long[]>)this.registers[10]).setData(new long[]{ (long)functionAddress });
+		((DataContainer<long[]>)this.registers[10]).setData(new long[]{ (long)functionAddress }, 0);
 
 		// メソッドを呼び出す CALLX 命令を生成
 		Instruction[] instructions = new Instruction[]{

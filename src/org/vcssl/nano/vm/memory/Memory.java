@@ -348,7 +348,7 @@ public final class Memory {
 				case INT64 : {
 					DataContainer<long[]> data = new DataContainer<long[]>();
 					try {
-						data.setData(new long[]{ Long.parseLong(valueText) });
+						data.setData(new long[]{ Long.parseLong(valueText) }, 0);
 					} catch(NumberFormatException e) {
 						VnanoException vse = new VnanoException(ErrorType.INVALID_IMMEDIATE_VALUE, new String[] { valueText});
 						throw vse;
@@ -359,7 +359,7 @@ public final class Memory {
 				case FLOAT64 : {
 					DataContainer<double[]> data = new DataContainer<double[]>();
 					try {
-						data.setData(new double[]{ Double.parseDouble(valueText) });
+						data.setData(new double[]{ Double.parseDouble(valueText) }, 0);
 					} catch(NumberFormatException e) {
 						VnanoException vse = new VnanoException(ErrorType.INVALID_IMMEDIATE_VALUE, new String[] { valueText});
 						throw vse;
@@ -370,9 +370,9 @@ public final class Memory {
 				case BOOL : {
 					DataContainer<boolean[]> data = new DataContainer<boolean[]>();
 					if (valueText.equals(LiteralSyntax.TRUE)) {
-						data.setData(new boolean[]{ true });
+						data.setData(new boolean[]{ true }, 0);
 					} else if (valueText.equals(LiteralSyntax.FALSE)) {
-						data.setData(new boolean[]{ false });
+						data.setData(new boolean[]{ false }, 0);
 					} else {
 						VnanoException vse = new VnanoException(ErrorType.INVALID_IMMEDIATE_VALUE, new String[] { valueText});
 						throw vse;
@@ -383,7 +383,7 @@ public final class Memory {
 				case STRING : {
 					DataContainer<String[]> data = new DataContainer<String[]>();
 					valueText = valueText.substring(1, valueText.length()-1); // ダブルクォーテーションの除去（後でもっとちゃんとやるべき）
-					data.setData(new String[]{ valueText });
+					data.setData(new String[]{ valueText }, 0);
 					this.constantList.add(data);
 					break;
 				}

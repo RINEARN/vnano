@@ -17,8 +17,8 @@ public class Float64ScalarComparisonUnit extends AcceleratorExecutionUnit {
 			Object[] operandCaches, boolean[] operandCachingEnabled, boolean[] operandScalar, boolean[] operandConstant,
 			AcceleratorExecutionNode nextNode) {
 
-		Boolx1Int64x2ScalarCacheSynchronizer synchronizer
-				= new Boolx1Int64x2ScalarCacheSynchronizer(operandContainers, operandCaches, operandCachingEnabled);
+		Boolx1Float64x2ScalarCacheSynchronizer synchronizer
+				= new Boolx1Float64x2ScalarCacheSynchronizer(operandContainers, operandCaches, operandCachingEnabled);
 
 		DataContainer<boolean[]> container0 = (DataContainer<boolean[]>)operandContainers[0];
 		DataContainer<double[]> container1 = (DataContainer<double[]>)operandContainers[1];
@@ -63,11 +63,11 @@ public class Float64ScalarComparisonUnit extends AcceleratorExecutionUnit {
 		protected final DataContainer<boolean[]> container0;
 		protected final DataContainer<double[]> container1;
 		protected final DataContainer<double[]> container2;
-		protected final Boolx1Int64x2ScalarCacheSynchronizer synchronizer;
+		protected final Boolx1Float64x2ScalarCacheSynchronizer synchronizer;
 
 		public Float64ScalarComparisonNode(
 				DataContainer<boolean[]> container0, DataContainer<double[]> container1, DataContainer<double[]> container2,
-				Boolx1Int64x2ScalarCacheSynchronizer synchronizer, AcceleratorExecutionNode nextNode) {
+				Boolx1Float64x2ScalarCacheSynchronizer synchronizer, AcceleratorExecutionNode nextNode) {
 
 			super(nextNode);
 			this.container0 = container0;
@@ -81,7 +81,7 @@ public class Float64ScalarComparisonUnit extends AcceleratorExecutionUnit {
 
 		public Float64ScalarLtNode(
 				DataContainer<boolean[]> container0, DataContainer<double[]> container1, DataContainer<double[]> container2,
-				Boolx1Int64x2ScalarCacheSynchronizer synchronizer, AcceleratorExecutionNode nextNode) {
+				Boolx1Float64x2ScalarCacheSynchronizer synchronizer, AcceleratorExecutionNode nextNode) {
 
 			super(container0, container1, container2, synchronizer, nextNode);
 		}
@@ -100,7 +100,7 @@ public class Float64ScalarComparisonUnit extends AcceleratorExecutionUnit {
 
 		public Float64ScalarGtNode(
 				DataContainer<boolean[]> container0, DataContainer<double[]> container1, DataContainer<double[]> container2,
-				Boolx1Int64x2ScalarCacheSynchronizer synchronizer, AcceleratorExecutionNode nextNode) {
+				Boolx1Float64x2ScalarCacheSynchronizer synchronizer, AcceleratorExecutionNode nextNode) {
 
 			super(container0, container1, container2, synchronizer, nextNode);
 		}
@@ -119,7 +119,7 @@ public class Float64ScalarComparisonUnit extends AcceleratorExecutionUnit {
 
 		public Float64ScalarLeqNode(
 				DataContainer<boolean[]> container0, DataContainer<double[]> container1, DataContainer<double[]> container2,
-				Boolx1Int64x2ScalarCacheSynchronizer synchronizer, AcceleratorExecutionNode nextNode) {
+				Boolx1Float64x2ScalarCacheSynchronizer synchronizer, AcceleratorExecutionNode nextNode) {
 
 			super(container0, container1, container2, synchronizer, nextNode);
 		}
@@ -138,7 +138,7 @@ public class Float64ScalarComparisonUnit extends AcceleratorExecutionUnit {
 
 		public Float64ScalarGeqNode(
 				DataContainer<boolean[]> container0, DataContainer<double[]> container1, DataContainer<double[]> container2,
-				Boolx1Int64x2ScalarCacheSynchronizer synchronizer, AcceleratorExecutionNode nextNode) {
+				Boolx1Float64x2ScalarCacheSynchronizer synchronizer, AcceleratorExecutionNode nextNode) {
 
 			super(container0, container1, container2, synchronizer, nextNode);
 		}
@@ -158,7 +158,7 @@ public class Float64ScalarComparisonUnit extends AcceleratorExecutionUnit {
 
 		public Float64ScalarEqNode(
 				DataContainer<boolean[]> container0, DataContainer<double[]> container1, DataContainer<double[]> container2,
-				Boolx1Int64x2ScalarCacheSynchronizer synchronizer, AcceleratorExecutionNode nextNode) {
+				Boolx1Float64x2ScalarCacheSynchronizer synchronizer, AcceleratorExecutionNode nextNode) {
 
 			super(container0, container1, container2, synchronizer, nextNode);
 		}
@@ -177,7 +177,7 @@ public class Float64ScalarComparisonUnit extends AcceleratorExecutionUnit {
 
 		public Float64ScalarNeqNode(
 				DataContainer<boolean[]> container0, DataContainer<double[]> container1, DataContainer<double[]> container2,
-				Boolx1Int64x2ScalarCacheSynchronizer synchronizer, AcceleratorExecutionNode nextNode) {
+				Boolx1Float64x2ScalarCacheSynchronizer synchronizer, AcceleratorExecutionNode nextNode) {
 
 			super(container0, container1, container2, synchronizer, nextNode);
 		}

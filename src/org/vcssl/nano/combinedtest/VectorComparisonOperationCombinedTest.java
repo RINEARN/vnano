@@ -35,7 +35,7 @@ public class VectorComparisonOperationCombinedTest extends CombinedTestElement {
 			this.testEqualOperations();
 			this.testNotEqualOperations();
 			this.testLessThanOperations();
-			this.testEqualThanOperations();
+			this.testLessEqualOperations();
 			this.testGreaterThanOperations();
 			this.testGreaterEqualOperations();
 			this.testVectorScalarMixedOperations();
@@ -162,7 +162,7 @@ public class VectorComparisonOperationCombinedTest extends CombinedTestElement {
 		super.evaluateResult(result, expected, "float[] < int[]", scriptCode);
 	}
 
-	private void testEqualThanOperations() throws VnanoException {
+	private void testLessEqualOperations() throws VnanoException {
 		String scriptCode;
 		boolean[] result;
 		boolean[] expected;

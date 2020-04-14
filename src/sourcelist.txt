@@ -25,9 +25,15 @@ org/vcssl/nano/combinedtest/ScalarAssignmentOperationCombinedTest.java
 org/vcssl/nano/combinedtest/ScalarComparisonOperationCombinedTest.java
 org/vcssl/nano/combinedtest/ScalarCompoundAssignmentOperationCombinedTest.java
 org/vcssl/nano/combinedtest/ScalarLogicalOperationCombinedTest.java
+org/vcssl/nano/combinedtest/SubscriptedArithmeticOperationCombinedTest.java
+org/vcssl/nano/combinedtest/SubscriptedAssignmentOperationCombinedTest.java
+org/vcssl/nano/combinedtest/SubscriptedComparisonOperationCombinedTest.java
+org/vcssl/nano/combinedtest/SubscriptedCompoundAssignmentOperationCombinedTest.java
+org/vcssl/nano/combinedtest/SubscriptedLogicalOperationCombinedTest.java
 org/vcssl/nano/combinedtest/VectorArithmeticOperationCombinedTest.java
 org/vcssl/nano/combinedtest/VectorAssignmentOperationCombinedTest.java
 org/vcssl/nano/combinedtest/VectorComparisonOperationCombinedTest.java
+org/vcssl/nano/combinedtest/VectorCompoundAssignmentOperationCombinedTest.java
 org/vcssl/nano/combinedtest/VectorLogicalOperationCombinedTest.java
 org/vcssl/nano/combinedtest/WhileStatementCombinedTest.java
 org/vcssl/nano/compiler/AstNode.java
@@ -93,6 +99,7 @@ org/vcssl/nano/vm/accelerator/BoolVectorBranchUnit.java
 org/vcssl/nano/vm/accelerator/BoolVectorLogicalUnit.java
 org/vcssl/nano/vm/accelerator/BoolVectorScalarTransferUnit.java
 org/vcssl/nano/vm/accelerator/BoolVectorTransferUnit.java
+org/vcssl/nano/vm/accelerator/Boolx1Float64x2ScalarCacheSynchronizer.java
 org/vcssl/nano/vm/accelerator/Boolx1Int64x2ScalarCacheSynchronizer.java
 org/vcssl/nano/vm/accelerator/Boolx1ScalarCacheSynchronizer.java
 org/vcssl/nano/vm/accelerator/Boolx2ScalarCacheSynchronizer.java
