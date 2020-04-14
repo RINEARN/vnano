@@ -525,16 +525,23 @@ public class CodeGenerator {
 				String syntaxType = currentNode.getAttribute(AttributeKey.OPERATOR_SYNTAX);
 				String operatorSymbol = currentNode.getAttribute(AttributeKey.OPERATOR_SYMBOL);
 				switch (execType) {
+
+					// 代入演算子は、左辺の子ノードが、そのまま演算子ノードの値
 					case AttributeValue.ASSIGNMENT : {
 						String value = currentNode.getChildNodes()[0].getAttribute(AttributeKey.ASSEMBLY_VALUE);
 						currentNode.setAttribute(AttributeKey.ASSEMBLY_VALUE, value);
 						break;
 					}
+
+					// 複合代入演算子も、左辺の子ノードが、そのまま演算子ノードの値
 					case AttributeValue.ARITHMETIC_COMPOUND_ASSIGNMENT : {
 						String value = currentNode.getChildNodes()[0].getAttribute(AttributeKey.ASSEMBLY_VALUE);
 						currentNode.setAttribute(AttributeKey.ASSEMBLY_VALUE, value);
 						break;
 					}
+
+					// 算術演算子は、前置インクリメント/デクリメントの場合のみ、対象変数がそのまま演算子ノードの値
+					// (それ以外の算術演算子は下の default へ)
 					case AttributeValue.ARITHMETIC : {
 						if (syntaxType.equals(AttributeValue.PREFIX)) {
 							if (operatorSymbol.equals(ScriptWord.INCREMENT) || operatorSymbol.equals(ScriptWord.DECREMENT)) {
@@ -544,9 +551,15 @@ public class CodeGenerator {
 							}
 						}
 					}
+
+					// 上記以外の場合、その演算子の値は、個別のレジスタを予約して控える
 					default : {
 						String register = AssemblyWord.OPERAND_PREFIX_REGISTER + Integer.toString(registerCounter);
 						currentNode.setAttribute(AttributeKey.ASSEMBLY_VALUE, register);
+
+						// 対象レジスタが、このノードのために専用予約したレジスタであるという事を NEW_REGISTER 属性に記載する
+						// （ASTを辿って中間コードを生成していく際、この属性値があればレジスタのメモリ確保処理を追加生成する）
+						currentNode.setAttribute(AttributeKey.NEW_REGISTER, register);
 						this.registerCounter++;
 						break;
 					}
@@ -1630,11 +1643,18 @@ public class CodeGenerator {
 		AstNode operandNode = operatorNode.getChildNodes()[0];
 		String operandValue = operandNode.getAttribute(AttributeKey.ASSEMBLY_VALUE);
 
-		// 演算結果を格納するレジスタを確保
+		// 演算結果を格納するレジスタ
 		String accumulatorRegister = operatorNode.getAttribute(AttributeKey.ASSEMBLY_VALUE);
-		codeBuilder.append(
-			this.generateRegisterAllocationCode(operatorNode.getDataTypeName(), accumulatorRegister, operandValue, operatorNode.getRank())
-		);
+
+		// 演算結果を格納するレジスタが、この演算子のために専用予約されたものである場合、確保処理が必要
+		if (operatorNode.hasAttribute(AttributeKey.NEW_REGISTER)) {
+			codeBuilder.append(
+				this.generateRegisterAllocationCode(
+					operatorNode.getDataTypeName(), operatorNode.getAttribute(AttributeKey.NEW_REGISTER),
+					operandValue, operatorNode.getRank()
+				)
+			);
+		}
 
 		// 演算
 		codeBuilder.append(
@@ -1693,9 +1713,15 @@ public class CodeGenerator {
 
 		// 演算結果を格納するレジスタを確保
 		String accumulatorRegister = operatorNode.getAttribute(AttributeKey.ASSEMBLY_VALUE);
-		codeBuilder.append(
-			this.generateRegisterAllocationCode(DataTypeName.BOOL, accumulatorRegister, operandValue, operatorNode.getRank())
-		);
+
+		// 演算結果を格納するレジスタが、この演算子のために専用予約されたものである場合、確保処理が必要
+		if (operatorNode.hasAttribute(AttributeKey.NEW_REGISTER)) {
+			codeBuilder.append(
+				this.generateRegisterAllocationCode(
+					DataTypeName.BOOL, operatorNode.getAttribute(AttributeKey.NEW_REGISTER), operandValue, operatorNode.getRank()
+				)
+			);
+		}
 
 		// 演算
 		codeBuilder.append(
@@ -1916,11 +1942,6 @@ public class CodeGenerator {
 		String output = operatorNode.getAttribute(AttributeKey.ASSEMBLY_VALUE);
 
 
-		// 出力先がレジスタかどうかを調べる
-		boolean outputIsRegister =
-			(operatorNode.getAttribute(AttributeKey.ASSEMBLY_VALUE).charAt(0) == AssemblyWord.OPERAND_PREFIX_REGISTER);
-
-
 		// ベクトルとスカラの混合演算かどうかを調べる（スカラの配列への昇格が必要になる）
 		boolean vectorScalarMixed = false;
 		if (rank != RANK_OF_SCALAR) {
@@ -2006,10 +2027,12 @@ public class CodeGenerator {
 		}
 
 
-		// 演算結果の格納先がレジスタの場合は、そのレジスタを確保
-		if (outputIsRegister) {
+		// 演算結果の格納先が、この演算子のために専用予約されたレジスタの場合は、そのレジスタの確保処理が必要
+		if (operatorNode.hasAttribute(AttributeKey.NEW_REGISTER)) {
 			codeBuilder.append(
-				this.generateRegisterAllocationCode(resultDataType, output, lengthsDeterminer, rank)
+				this.generateRegisterAllocationCode(
+					resultDataType, operatorNode.getAttribute(AttributeKey.NEW_REGISTER),
+					lengthsDeterminer, rank)
 			);
 		}
 
