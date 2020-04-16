@@ -810,18 +810,32 @@ public class CodeGenerator {
 
 			// 関数宣言文
 			case FUNCTION : {
+
 				// 関数先頭のラベルを生成 ... 先頭はラベルである事を示すプレフィックス、その後に識別子プレフィックス + 関数シグネチャ
-				String functionLabelName
-						= Character.toString(AssemblyWord.OPERAND_PREFIX_LABEL)
-						+ Character.toString(AssemblyWord.OPERAND_PREFIX_IDENTIFIER)
-						+ IdentifierSyntax.getSignatureOf(node);
+				String signature = IdentifierSyntax.getSignatureOf(node);
+				String functionLabelName = Character.toString(AssemblyWord.OPERAND_PREFIX_LABEL)
+					+ Character.toString(AssemblyWord.OPERAND_PREFIX_IDENTIFIER) + signature;
+
+				// 関数宣言コードを生成
 				code = this.generateFunctionDeclarationStatementCode(node, functionLabelName);
+
+				// 関数シグネチャを ENDFUNC 命令（すぐ下で生成）のオペランドに渡すため、文字列の即値の記法で表現したものを用意
+				String functionNameOperand =AssemblyWord.OPERAND_PREFIX_IMMEDIATE + DataTypeName.STRING + AssemblyWord.VALUE_SEPARATOR
+						+ LiteralSyntax.STRING_LITERAL_QUOTATION + signature + LiteralSyntax.STRING_LITERAL_QUOTATION;
+
+				// 関数終端の処理を生成: 通常は ENDFUN 命令のみで、return 忘れなどで処理がこの命令に達するとエラーが発生する。
+				// ただし void 型の関数では、関数終端に return 文があると見なし、ENDFUN命令の直前に RET 命令を置く。
+				String endPointStatement = this.generateInstruction(OperationCode.ENDFUN.name(), DataTypeName.STRING, functionNameOperand);
+				if (node.getDataTypeName().equals(DataTypeName.VOID)) {
+					endPointStatement = this.generateInstruction(
+						OperationCode.RET.name(), DataTypeName.VOID, PLACE_HOLDER, functionLabelName
+					) + endPointStatement;
+				}
+
+				context.setEndPointStatement(endPointStatement);
+				context.setNextBlockLoop(false);
 				context.setLastFunctionLabel(functionLabelName);
 				context.addEndPointLabel(node.getAttribute(AttributeKey.END_LABEL));
-				context.setEndPointStatement(
-						this.generateInstruction(OperationCode.RET.name(), DataTypeName.VOID, PLACE_HOLDER, functionLabelName)
-				);
-				context.setNextBlockLoop(false);
 				break;
 			}
 

@@ -88,7 +88,7 @@ public class LiteralSyntax {
 	 * <span class="lang-ja">文字列型リテラルの始点・終点記号「 " 」です</span>
 	 * .
 	 */
-	private static final char STRING_LITERAL_QUOTATION = '"';
+	public static final char STRING_LITERAL_QUOTATION = '"';
 
 
 	/**
@@ -96,7 +96,7 @@ public class LiteralSyntax {
 	 * <span class="lang-ja">文字列型リテラル内のエスケープシーケンスのプレフィックス記号「 \ 」です</span>
 	 * .
 	 */
-	private static final char STRING_LITERAL_ESCAPE = '\\';
+	public static final char STRING_LITERAL_ESCAPE = '\\';
 
 
 	/**
@@ -143,10 +143,6 @@ public class LiteralSyntax {
 
 		if (literal.matches(INT_LITERAL_REGEX)) {
 			return DataTypeName.INT;
-
-			// もし整数リテラルも浮動小数点数として認識させたい場合、
-			// 以下のコメントのようにFLOAT64 を返すよう変更して下さい。
-			//return Word.FLOAT64;
 		}
 
 		if (literal.matches(FLOAT_LITERAL_REGEX)) {
@@ -384,5 +380,4 @@ public class LiteralSyntax {
 		}
 		return index;
 	}
-
 }
