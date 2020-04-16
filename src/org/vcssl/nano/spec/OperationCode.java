@@ -1471,6 +1471,56 @@ public enum OperationCode {
 
 
 	/**
+	 * <span class="lang-en">The special instruction which is put at the end of a function</span>
+	 * <span class="lang-ja">関数終端に置かれる特別な命令です</span>
+	 * .
+	 * <span class="lang-en">
+	 * The syntax in the VRIL code is as follows:
+	 * </span>
+	 * <span class="lang-ja">
+	 * VRILコード内での構文は以下の通りです：
+	 * </span>
+	 *
+	 * <div style="border: 1px solid #000000; margin:15px; padding:5px;">
+	 * ENDFUN type functionName
+	 * </div>
+	 *
+	 * <span class="lang-ja">
+	 * functionName には, 実行対象の関数の名称を指定します (エラーメッセージ内で使用されます).
+	 * type には string を指定します.
+	 * </span>
+	 * <span class="lang-en">
+	 * Specify the identifier of the function to "functionName" (it will be used in the error message),
+	 * and specify "string" to "type".
+	 * </span>
+	 *
+	 * <span class="lang-ja">
+	 * スクリプトが正しく記述されていた場合, 実行フローはこの命令の実行に達する前に
+	 * {@link OperationCode#RET RET} 命令によって呼び出し元に戻るため, この命令が実行される事はありません.
+	 * この命令が実行されるのは, スクリプトの内容が誤っており, 戻り値を返すべき関数が,
+	 * 戻り値を返さずに終端に達した場合です.
+	 * </span>
+	 * <span class="lang-en">
+	 * If the script is described correctly, this instruction will not be executed, because
+	 * the execution flow will returns to the caller-side by {@link OperationCode#RET RET} instruction
+	 * locating before this instruction.
+	 * This instruction will be executed when the content of the script is incorrect and
+	 * the execution flow of a function which should return a value ends without returning a value
+	 * (without executing RET instructions).
+	 * </span>
+	 *
+	 * <span class="lang-ja">
+	 * 従って, この命令が実行されると, 上述の件を通知するエラーが発生し, コードの実行は終了します.
+	 * </span>
+	 * <span class="lang-en">
+	 * Therefore, when this instruction is executed, an error to notify the above cause will occur,
+	 * and the execution of code will end.
+	 * </span>
+	 */
+	ENDFUN,
+
+
+	/**
 	 * <span class="lang-en">The special instruction which is put at the end of code</span>
 	 * <span class="lang-ja">コード終端に置かれる特別な命令です</span>
 	 * .
