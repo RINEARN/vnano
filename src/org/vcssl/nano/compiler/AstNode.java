@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.vcssl.nano.VnanoFatalException;
+
 
 /**
  * <span class="lang-ja">
@@ -306,6 +308,10 @@ public class AstNode implements Cloneable {
 	@Override
 	public AstNode clone() {
 		AstNode cloneNode = new AstNode(this.type, this.lineNumber, this.fileName);
+		cloneNode.depth = this.depth;
+		cloneNode.blockDepth = this.blockDepth;
+		cloneNode.parentNode = this.parentNode;
+		cloneNode.siblingIndex = this.siblingIndex;
 		for (final AstNode childNode: this.childNodeList) {
 			AstNode cloneChildNode = childNode.clone();
 			cloneNode.addChildNode(cloneChildNode);
@@ -444,6 +450,17 @@ public class AstNode implements Cloneable {
 	 *   <span class="lang-ja">追加する子ノード.</span>
 	 */
 	public void addChildNode(AstNode node) {
+
+		// 自身が親ノードに追加される前に、子ノードを追加された場合は、
+		// 深度情報などを正しく設定できないため、エラー扱いにする
+		//（この処理系は全体に渡って無再帰処理にするのが目標の一つで、深度取得メソッドなどで再帰処理を使いたくないため）
+		if (this.type != AstNode.Type.ROOT && this.parentNode == null) {
+			throw new VnanoFatalException(
+				"An AST node has added to the node which is not connected to the parent node yet." +
+				"The AST node should be added to a parent node before having children nodes," +
+				"excepting a ROOT node."
+			);
+		}
 
 		// Add the specified node to this node as a child.
 		// このASTノードに子ノードを登録
