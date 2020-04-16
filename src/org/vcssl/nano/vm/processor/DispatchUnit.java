@@ -367,6 +367,11 @@ public class DispatchUnit {
 				return programCounter + 1;
 			}
 
+			case ENDFUN : {
+				String functionName = ( (String[])operands[0].getData() )[0];
+				throw new VnanoException(ErrorType.FUNCTION_ENDED_WITHOUT_RETURNING_VALUE, functionName);
+			}
+
 			case END : {
 				// スクリプトエンジンの eval メソッドの評価値とするデータがオペランドに指定されていれば、それをメモリに格納
 				if (operandLength == 2) {
