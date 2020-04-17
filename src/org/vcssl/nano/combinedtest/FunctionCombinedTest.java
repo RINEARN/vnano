@@ -51,8 +51,8 @@ public class FunctionCombinedTest extends CombinedTestElement {
 			" a;                     \n" ;
 
 		result = (long)this.engine.executeScript(scriptCode);
-
 		super.evaluateResult(result, 2l, "int a; int fun() { a=2; } ", scriptCode);
+
 		scriptCode =
 			" int a = 0;             \n" +
 			"                        \n" +
@@ -67,8 +67,6 @@ public class FunctionCombinedTest extends CombinedTestElement {
 		result = (long)this.engine.executeScript(scriptCode);
 		super.evaluateResult(result, 2l, "int a; int fun() { a=2; return; } ", scriptCode);
 
-
-		super.evaluateResult(result, 2l, "int a; int fun() { a=2; } ", scriptCode);
 		scriptCode =
 			" int a = 0;             \n" +
 			"                        \n" +

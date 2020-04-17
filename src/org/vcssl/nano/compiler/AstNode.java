@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2019 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2020 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -428,18 +428,11 @@ public class AstNode implements Cloneable {
 	 * <span class="lang-en">
 	 * This method also modifies fields of the added child node, for example,
 	 * the reference to the parent node, the index in siblings.
-	 * Note that the depth information in the AST will not be set in this method
-	 * (it will be set by {@link SemanticAnalyzer SemanticAnalyzer}),
-	 * because constructing of the AST might be incomplete yet at the compiling stage using this method,
-	 * and the depth information depends on the whole complete shape of the AST.
 	 * </span>
 	 * <span class="lang-ja">
 	 * このメソッドは, 指定された子ノードをこのノードに登録するだけでなく,
 	 * 子ノードの保持する情報も書き変えます. 具体的には, 子ノードが内部で保持する親ノードの参照や,
 	 * 兄弟ノード内での順序情報などが設定されます.
-	 * ただし, このメソッドを使用するような段階では, 一般にASTの全体は未完成であるため,
-	 * AST全体の形状に依存する階層深度やブロック深度などは, このメソッド内では設定されません
-	 * ({@link SemanticAnalyzer SemanticAnalyzer} で設定されます).
 	 * </span>
 	 *
 	 * <span class="lang-en">
