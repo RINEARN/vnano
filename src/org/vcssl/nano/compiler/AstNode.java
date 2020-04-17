@@ -235,14 +235,14 @@ public class AstNode implements Cloneable {
 	 * <span class="lang-ja">このノードの, AST内での絶対的な階層深度（根が深度0）を保持します</span>
 	 * .
 	 */
-	private int depth = 0;
+	private int depth = -1;
 
 	/**
 	 * <span class="lang-en">Stores where this node is in the block-hierarchy of the AST (0 for the root node)</span>
 	 * <span class="lang-ja">このノードの, AST内でのブロックの階層深度（根が深度0）を保持します</span>
 	 * .
 	 */
-	private int blockDepth = 0;
+	private int blockDepth = -1;
 
 	/**
 	 * <span class="lang-en">
@@ -427,21 +427,28 @@ public class AstNode implements Cloneable {
 	 * .
 	 * <span class="lang-en">
 	 * This method also modifies fields of the added child node, for example,
-	 * the reference to the parent node, the index in siblings, and depth in the AST.
+	 * the reference to the parent node, the index in siblings.
+	 * Note that the depth information in the AST will not be set in this method
+	 * (it will be set by {@link SemanticAnalyzer SemanticAnalyzer}),
+	 * because constructing of the AST might be incomplete yet at the compiling stage using this method,
+	 * and the depth information depends on the whole complete shape of the AST.
 	 * </span>
 	 * <span class="lang-ja">
 	 * このメソッドは, 指定された子ノードをこのノードに登録するだけでなく,
 	 * 子ノードの保持する情報も書き変えます. 具体的には, 子ノードが内部で保持する親ノードの参照や,
-	 * 兄弟ノード内での順序情報, およびAST内での階層深度などが設定されます.
+	 * 兄弟ノード内での順序情報などが設定されます.
+	 * ただし, このメソッドを使用するような段階では, 一般にASTの全体は未完成であるため,
+	 * AST全体の形状に依存する階層深度やブロック深度などは, このメソッド内では設定されません
+	 * ({@link SemanticAnalyzer SemanticAnalyzer} で設定されます).
 	 * </span>
 	 *
 	 * <span class="lang-en">
 	 * PLEASE NOTE THAT this class is implemented without considering the case that
 	 * one instance is added to multiple parent nodes as a child,
-	 * because this class has parent-related fields mentioned above.
+	 * because this class has fields representing the location in the AST as mentioned above.
 	 * </span>
 	 * <span class="lang-ja">
-	 * なお, このAstNodeクラスの実装では, 上述の通り親ノードに関する情報を保持しているため,
+	 * なお, このAstNodeクラスの実装では, 上述の通りAST内での位置に関する情報を保持しているため,
 	 * 同一の子ノードのインスタンスを, 複数の親ノードに追加する事は想定されていません.
 	 * </span>
 	 *
@@ -450,17 +457,6 @@ public class AstNode implements Cloneable {
 	 *   <span class="lang-ja">追加する子ノード.</span>
 	 */
 	public void addChildNode(AstNode node) {
-
-		// 自身が親ノードに追加される前に、子ノードを追加された場合は、
-		// 深度情報などを正しく設定できないため、エラー扱いにする
-		//（この処理系は全体に渡って無再帰処理にするのが目標の一つで、深度取得メソッドなどで再帰処理を使いたくないため）
-		if (this.type != AstNode.Type.ROOT && this.parentNode == null) {
-			throw new VnanoFatalException(
-				"An AST node has added to the node which is not connected to the parent node yet." +
-				"The AST node should be added to a parent node before having children nodes," +
-				"excepting a ROOT node."
-			);
-		}
 
 		// Add the specified node to this node as a child.
 		// このASTノードに子ノードを登録
@@ -473,15 +469,6 @@ public class AstNode implements Cloneable {
 		// Set the index in siblings of the specified child node.
 		// このASTノードから見た, 子ノードの順番を示すインデックスを, 子ノードに設定
 		node.siblingIndex = this.childNodeList.size() - 1;
-
-		// Set the AST-depth of the specified child node.
-		// 子ノードの深度情報を設定
-		node.depth = this.getDepth() + 1;
-		if (node.type == AstNode.Type.BLOCK) {
-			node.blockDepth = this.getBlockDepth() + 1;
-		} else {
-			node.blockDepth = this.getBlockDepth();
-		}
 	}
 
 
@@ -623,14 +610,69 @@ public class AstNode implements Cloneable {
 
 
 	/**
+	 * <span class="lang-en">
+	 * Sets values of a depth and a block-depth to this node and all descendant nodes,
+	 * where the depth of this node will be defined to be 0.
+	 * </span>
+	 * <span class="lang-ja">
+	 * このノードを深度 0 と見なし, このノードおよび全ての子孫ノードに対して,
+	 *  AST内での深度およびブロック深度を設定します</span>
+	 * .
+	 */
+	public void updateDepths() {
+
+		// このメソッドが呼び出されたノードの深度を 0 とする（従って通常は ROOT ノードに対して呼び出す）
+		this.depth = 0;
+		this.blockDepth = 0;
+
+		// ASTノードを、行がけ順の深さ優先走査で辿って検査していく
+		AstNode currentNode = this;
+		do {
+			currentNode = currentNode.getPreorderDftNextNode();
+
+			// 走査順序により、子ノードを辿っている時点で親ノードは既に走査済み（深度設定済み）のはずなので
+			// 親ノードの深度情報から子ノードの深度情報を求めて設定する
+			AstNode parentNode = currentNode.getParentNode();
+			currentNode.depth = parentNode.depth + 1;
+			if (currentNode.type == AstNode.Type.BLOCK) {
+				currentNode.blockDepth = parentNode.blockDepth + 1;
+			} else {
+				currentNode.blockDepth = parentNode.blockDepth;
+			}
+
+		} while (!currentNode.isPreorderDftLastNode());
+	}
+
+
+	/**
 	 * <span class="lang-en">Gets where this node is in the absolute-hierarchy of the AST (0 for the root node)</span>
 	 * <span class="lang-ja">このノードの, AST内での絶対深度（根が深度0）を取得します</span>
 	 * .
+	 * <span class="lang-en">
+	 * The value to be returned by this method should be set/updated by calling
+	 * {@link AstNode#updateDepths() updateDepths()} method.
+	 * </span>
+	 * <span class="lang-ja">
+	 * このメソッドが返す値は, 事前に {@link AstNode#updateDepths() updateDepths()}
+	 * メソッドを呼び出して設定/更新されている必要があります.
+	 * </span>
+	 *
 	 * @return
 	 *   <span class="lang-en">The absolute depth of this node in the AST.</span>
 	 *   <span class="lang-ja">AST内でのこのノードの絶対深度.</span>
 	 */
 	public int getDepth() {
+		if (this.depth < 0) {
+			throw new VnanoFatalException(
+				"The depth value is not set yet."
+				+
+				"Before getting the depth value of a node, "
+				+
+				"call updateDepths() method of the ROOT node of the AST "
+				+
+				"which initializes/updates values of depths and the block-depths of all nodes in the AST."
+			);
+		}
 		return this.depth;
 	}
 
@@ -639,11 +681,31 @@ public class AstNode implements Cloneable {
 	 * <span class="lang-en">Gets where this node is in the block-hierarchy of the AST (0 for the root node)</span>
 	 * <span class="lang-ja">このノードの, AST内でのブロック深度（根が深度0）を取得します</span>
 	 * .
+	 * <span class="lang-en">
+	 * The value to be returned by this method should be set/updated by calling
+	 * {@link AstNode#updateDepths() updateDepths()} method.
+	 * </span>
+	 * <span class="lang-ja">
+	 * このメソッドが返す値は, 事前に {@link AstNode#updateDepths() updateDepths()}
+	 * メソッドを呼び出して設定/更新されている必要があります.
+	 * </span>
+	 *
 	 * @return
 	 *   <span class="lang-en">The block depth of this node in the AST.</span>
 	 *   <span class="lang-ja">AST内でのこのノードのブロック深度.</span>
 	 */
 	public int getBlockDepth() {
+		if (this.blockDepth < 0) {
+			throw new VnanoFatalException(
+				"The block-depth value is not set yet."
+				+
+				"Before getting the block-depth value of a node, "
+				+
+				"call updateDepths() method of the ROOT node of the AST "
+				+
+				"which initializes/updates values of depths and the block-depths of all nodes in the AST."
+			);
+		}
 		return this.blockDepth;
 	}
 

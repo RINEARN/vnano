@@ -217,11 +217,15 @@ public class Parser {
 			lineNumber = tokens[0].getLineNumber();
 		}
 
-		// ルートノードを生成し、文を全てぶら下げて返す(スタックに積まれている順序に注意)
+		// ルートノードを生成し、最上階層のノードを全てぶら下げる(スタックに積まれている順序に注意)
 		AstNode rootNode = new AstNode(AstNode.Type.ROOT, lineNumber, fileName);
 		while (statementStack.size() != 0) {
 			rootNode.addChildNode(statementStack.pollLast());
 		}
+
+		// AST内の各ノードに、ルートノードを深度 0 とする深度情報を設定
+		rootNode.updateDepths();
+
 		return rootNode;
 	}
 
