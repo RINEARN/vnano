@@ -130,6 +130,9 @@ public class SemanticAnalyzer {
 		// 識別子を検査
 		this.checkIdentifiers(outputAst);
 
+		// return 文で返している戻り値の型や、return 文の位置を検査
+		this.checkReturnValueTypesAndLocations(outputAst);
+
 		return outputAst;
 	}
 
@@ -171,6 +174,7 @@ public class SemanticAnalyzer {
 		// 入れ子ブロックに入る際に、上記のローカル変数カウンタの値を退避するためのスタック
 		Deque<Integer>scopeLocalVariableCounterStack = new ArrayDeque<Integer>();
 
+		// ASTノードを、行がけ順の深さ優先走査で辿って処理していく
 		do {
 			currentNode = currentNode.getPreorderDftNextNode();
 			lastBlockDepth = currentBlockDepth;
@@ -265,6 +269,7 @@ public class SemanticAnalyzer {
 
 		AstNode currentNode = astRootNode;
 
+		// ASTノードを、行がけ順の深さ優先走査で辿って処理していく
 		do {
 			currentNode = currentNode.getPreorderDftNextNode();
 
@@ -367,6 +372,7 @@ public class SemanticAnalyzer {
 			return;
 		}
 
+		// ASTノードを、行がけ順の深さ優先走査で辿って処理していく
 		AstNode currentNode = astRootNode;
 		do {
 			currentNode = currentNode.getPreorderDftNextNode();
@@ -413,7 +419,7 @@ public class SemanticAnalyzer {
 		// !!! 重複が多いので切り出して要リファクタ
 
 
-		// 構文木の全ノードに対し、末端からボトムアップの順序で辿りながら処理する
+		// 構文木の全ノードに対し、帰りがけ順の深さ優先走査で辿り、末端から処理していく
 		AstNode currentNode = astRootNode.getPostorderDftFirstNode();
 		while(currentNode != astRootNode) {
 
@@ -658,6 +664,7 @@ public class SemanticAnalyzer {
 	 */
 	private void supplementExpressionAttributes(AstNode astRootNode) {
 
+		// ASTノードを、帰りがけ順の深さ優先走査で辿って検査していく
 		AstNode currentNode = astRootNode.getPostorderDftFirstNode();
 		while(currentNode != astRootNode) {
 
@@ -1053,7 +1060,7 @@ public class SemanticAnalyzer {
 	 */
 	private void checkFunctionAttributes(AstNode astRootNode) throws VnanoException {
 
-		// ASTノードを辿り、関数ノードがあれば検査
+		// ASTノードを、帰りがけ順の深さ優先走査で辿り、関数ノードがあれば検査
 		AstNode currentNode = astRootNode.getPostorderDftFirstNode();
 		while(currentNode != astRootNode) {
 
@@ -1097,7 +1104,7 @@ public class SemanticAnalyzer {
 	 */
 	private void checkAssignmentTargetWritabilities(AstNode astRootNode) throws VnanoException {
 
-		// ASTノードを辿り、演算子ノードがあれば検査
+		// ASTノードを、帰りがけ順の深さ優先走査で辿り、演算子ノードがあれば検査
 		AstNode currentNode = astRootNode.getPostorderDftFirstNode();
 		while(currentNode != astRootNode) {
 
@@ -1189,7 +1196,7 @@ public class SemanticAnalyzer {
 	 */
 	private void checkSubscriptTargetSubscriptabilities(AstNode astRootNode) throws VnanoException {
 
-		// ASTノードを辿り、演算子ノードがあれば検査
+		// ASTノードを、帰りがけ順の深さ優先走査で辿り、演算子ノードがあれば検査
 		AstNode currentNode = astRootNode.getPostorderDftFirstNode();
 		while(currentNode != astRootNode) {
 
@@ -1251,7 +1258,7 @@ public class SemanticAnalyzer {
 	 */
 	private void checkIdentifiers(AstNode astRootNode) throws VnanoException {
 
-		// ASTノードを辿り、演算子ノードがあれば検査
+		// ASTノードを、帰りがけ順の深さ優先走査で辿り、演算子ノードがあれば検査
 		AstNode currentNode = astRootNode.getPostorderDftFirstNode();
 		while(currentNode != astRootNode) {
 
@@ -1275,6 +1282,91 @@ public class SemanticAnalyzer {
 
 			currentNode = currentNode.getPostorderDftNextNode();
 		} // ASTを辿るループ
+	}
+
+
+	/**
+	 * 引数に渡されたAST（抽象構文木）の内容を解析し、関数内の return 文の対象が、
+	 * 関数の戻り値の型と一致しているかどうかを検査します。
+	 * また、return 文が関数外で使用されていないかどうかも検査します。
+	 *
+	 * @param astRootNode 検査対象のASTのルートノード
+	 * @throws VnanoException 正しくない return 文が検出された場合にスローされます。
+	 */
+	private void checkReturnValueTypesAndLocations(AstNode astRootNode) throws VnanoException {
+
+		// 現在検査中の関数の戻り値情報を控える
+		String currentFunctionReturType = "";
+		int currentFunctionReturnRank = -1;
+
+		// ブロック深度が非 0 から 0 になった箇所を検出するため、直前のノードのブロック深度を控える
+		int lastBlockDepth = 0;
+
+		// 関数内を辿っている最中は true にする
+		boolean inFunction = false;
+
+		// ASTノードを、行がけ順の深さ優先走査で辿って検査していく
+		AstNode currentNode = astRootNode;
+		do {
+			currentNode = currentNode.getPreorderDftNextNode();
+
+			// ブロック深度が非 0 から 0 になった場合: 関数の終端の可能性があるため、控えている関数情報をリセットする
+			// ( 関数以外のブロックの可能性もあるが、深度 0 になった時点で関数外なのは確実なので、リセットして問題ない )
+			if (lastBlockDepth != 0 && currentNode.getBlockDepth() == 0) {
+				currentFunctionReturType = "";
+				currentFunctionReturnRank = -1;
+				inFunction = false;
+			}
+
+			// 関数宣言ノードの場合: 戻り値の型を控える
+			if (currentNode.getType() == AstNode.Type.FUNCTION) {
+				currentFunctionReturType = currentNode.getDataTypeName();
+				currentFunctionReturnRank = currentNode.getRank();
+				inFunction = true;
+			}
+
+			// return 文の場合: 戻り値の型を検査
+			if (currentNode.getType() == AstNode.Type.RETURN) {
+
+				// 関数の中に無い場合はその時点でエラー
+				if (!inFunction) {
+					throw new VnanoException(ErrorType.RETURN_STATEMENT_IS_OUTSIDE_FUNCTIONS);
+				}
+
+				// return 文に戻り値が指定されている場合: 型を検査
+				if (currentNode.hasChildNodes()) {
+					AstNode returnedValueNode = currentNode.getChildNodes()[0];
+
+					// 型や次元が一致しない場合はエラー
+					if (!returnedValueNode.getDataTypeName().equals(currentFunctionReturType)
+						|| returnedValueNode.getRank() != currentFunctionReturnRank) {
+
+						// エラーメッセージに用いる型情報を用意し、それを持たせて例外を投げる
+						String returnedTypeDescription = returnedValueNode.getDataTypeName();
+						for (int dim=0; dim<returnedValueNode.getRank(); dim++) {
+							returnedTypeDescription += ScriptWord.SUBSCRIPT_BEGIN + ScriptWord.SUBSCRIPT_END;
+						}
+						String expectedTypeDescription = currentFunctionReturType;
+						for (int dim=0; dim<currentFunctionReturnRank; dim++) {
+							expectedTypeDescription += ScriptWord.SUBSCRIPT_BEGIN + ScriptWord.SUBSCRIPT_END;
+						}
+						String[] errorWords = {returnedTypeDescription, expectedTypeDescription};
+						throw new VnanoException(
+							ErrorType.INVALID_RETURNED_VALUE_DATA_TYPE, errorWords,
+							currentNode.getFileName(), currentNode.getLineNumber()
+						);
+					}
+
+				// return 文に戻り値が指定されている場合: void 型関数でなければエラーにする
+				} else if (!currentFunctionReturType.equals(DataTypeName.VOID)) {
+					throw new VnanoException(
+						ErrorType.RETURNED_VALUE_IS_MISSING, currentNode.getFileName(), currentNode.getLineNumber()
+					);
+				}
+			}
+
+			lastBlockDepth = currentNode.getBlockDepth();
+		} while (!currentNode.isPreorderDftLastNode());
 	}
 
 }
