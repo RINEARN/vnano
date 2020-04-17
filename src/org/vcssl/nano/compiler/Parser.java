@@ -645,7 +645,7 @@ public class Parser {
 		// return文の場合: return文ノードを生成し、戻り値の式をパースしてぶら下げる
 		} else if(controlTypeToken.getValue().equals(ScriptWord.RETURN)) {
 			AstNode node = new AstNode(AstNode.Type.RETURN, lineNumber, fileName);
-			if (1 <= tokens.length) {
+			if (2 <= tokens.length) {
 				node.addChildNode(this.parseExpression(Arrays.copyOfRange(tokens, 1, tokens.length)));
 			}
 			return node;
