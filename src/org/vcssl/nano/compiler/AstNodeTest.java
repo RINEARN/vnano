@@ -136,6 +136,9 @@ public class AstNodeTest {
 		childDepth2.addChildNode(childDepth3);
 		childDepth3.addChildNode(childDepth4);
 
+		// AST内の全ノードの深度情報を更新
+		root.updateDepths();
+
 		// 各ノードの階層の深さを取得して検査
 		assertEquals(0, root.getDepth());
 		assertEquals(1, childDepth1.getDepth());
