@@ -651,7 +651,7 @@ public enum OperationCode {
 	 * </span>
 	 *
 	 * <div style="border: 1px solid #000000; margin:15px; padding:5px;">
-	 * AND type output inputA inputB;
+	 * ANDM type output inputA inputB;
 	 * </div>
 	 *
 	 * <span class="lang-ja">
@@ -682,8 +682,27 @@ public enum OperationCode {
 	 * (A scalar value is handled as an array of length=1 and rank=0, in the VM).
 	 * </span>
 	 * </p>
+	 *
+	 * <span class="lang-ja">
+	 * この命令は, 「 && 」演算子の短絡評価に対応する生成コードを簡潔にするため,
+	 * inputA の値だけから結果が確定可能な場合には, inputB にアクセスしません.
+	 * そのため, そのような場合は, inputB は未初期化の状態である事が許容されます.
+	 * 具体的には, オペランドがスカラなら inputA が true の場合,
+	 * ベクトルなら inputA の全要素が true の場合に, inputB へのアクセスがスキップされます.
+	 * </span>
+	 *
+	 * <span class="lang-en">
+	 * This instruction does not access to "inputB"
+	 * when the result can be determined from only the value of "inputA",
+	 * to simplify the generated code of short-circuit evaluation of "&&" operator.
+	 * More precisely: when operands are scalars,
+	 * accessing to "inputB" will be skipped if the value of "inputA" is false.
+	 * When operands are vectors, accessing to "inputB" will be skipped
+	 * if all elements of "inputA" are false.
+	 * </span>
+	 *
 	 */
-	AND,
+	ANDM,
 
 
 	/**
@@ -700,7 +719,7 @@ public enum OperationCode {
 	 * </span>
 	 *
 	 * <div style="border: 1px solid #000000; margin:15px; padding:5px;">
-	 * OR type output inputA inputB;
+	 * ORM type output inputA inputB;
 	 * </div>
 	 *
 	 * <span class="lang-ja">
@@ -731,8 +750,27 @@ public enum OperationCode {
 	 * (A scalar value is handled as an array of length=1 and rank=0, in the VM).
 	 * </span>
 	 * </p>
+	 *
+	 * <span class="lang-ja">
+	 * この命令は, 「 || 」演算子の短絡評価に対応する生成コードを簡潔にするため,
+	 * inputA の値だけから結果が確定可能な場合には, inputB にアクセスしません.
+	 * そのため, そのような場合は, inputB は未初期化の状態である事が許容されます.
+	 * 具体的には, オペランドがスカラの場合には inputA が true の場合,
+	 * ベクトルの場合には inputA の全要素が true の場合に, inputB へのアクセスがスキップされます.
+	 * </span>
+	 *
+	 * <span class="lang-en">
+	 * This instruction does not access to "inputB"
+	 * when the result can be determined from only the value of "inputA",
+	 * to simplify the generated code of short-circuit evaluation of "||" operator.
+	 * More precisely: when operands are scalars,
+	 * accessing to "inputB" will be skipped if the value of "inputA" is true.
+	 * When operands are vectors, accessing to "inputB" will be skipped
+	 * if all elements of "inputA" are true.
+	 * </span>
+	 *
 	 */
-	OR,
+	ORM,
 
 
 	/**

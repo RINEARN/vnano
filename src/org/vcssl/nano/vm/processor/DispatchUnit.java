@@ -137,12 +137,12 @@ public class DispatchUnit {
 			}
 
 			// 論理演算
-			case AND : {
+			case ANDM : {
 				this.checkNumberOfOperands(instruction, 3);
 				executionUnit.and(dataTypes[0], operands[0], operands[1], operands[2]);
 				return programCounter + 1;
 			}
-			case OR : {
+			case ORM : {
 				this.checkNumberOfOperands(instruction, 3);
 				executionUnit.or(dataTypes[0], operands[0], operands[1], operands[2]);
 				return programCounter + 1;

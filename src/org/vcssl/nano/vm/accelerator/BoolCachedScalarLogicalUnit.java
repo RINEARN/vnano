@@ -18,7 +18,7 @@ public class BoolCachedScalarLogicalUnit extends AcceleratorExecutionUnit {
 
 		BoolCachedScalarLogicalNode node = null;
 		switch (instruction.getOperationCode()) {
-			case AND : {
+			case ANDM : {
 				node = new BoolCachedScalarAndNode(
 						(BoolScalarCache)operandCaches[0],
 						(BoolScalarCache)operandCaches[1],
@@ -26,7 +26,7 @@ public class BoolCachedScalarLogicalUnit extends AcceleratorExecutionUnit {
 						nextNode);
 				break;
 			}
-			case OR : {
+			case ORM : {
 				node = new BoolCachedScalarOrNode(
 						(BoolScalarCache)operandCaches[0],
 						(BoolScalarCache)operandCaches[1],

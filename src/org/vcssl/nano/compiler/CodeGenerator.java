@@ -1697,8 +1697,8 @@ public class CodeGenerator {
 
 		String opcode = null;
 		switch (operatorSymbol) {
-			case ScriptWord.AND :       opcode = OperationCode.AND.name(); break;
-			case ScriptWord.OR :    opcode = OperationCode.OR.name(); break;
+			case ScriptWord.AND :       opcode = OperationCode.ANDM.name(); break;
+			case ScriptWord.OR :    opcode = OperationCode.ORM.name(); break;
 			default : {
 				throw new VnanoFatalException("Invalid operator symbol for logical binary operators: " + operatorSymbol);
 			}

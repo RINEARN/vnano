@@ -46,8 +46,8 @@ public class AcceleratorSchedulingUnit {
 		movReducableOpcodeSet.add(OperationCode.GEQ);
 		movReducableOpcodeSet.add(OperationCode.LEQ);
 
-		movReducableOpcodeSet.add(OperationCode.AND);
-		movReducableOpcodeSet.add(OperationCode.OR);
+		movReducableOpcodeSet.add(OperationCode.ANDM);
+		movReducableOpcodeSet.add(OperationCode.ORM);
 		movReducableOpcodeSet.add(OperationCode.NOT);
 		movReducableOpcodeSet.add(OperationCode.CAST);
 
@@ -397,8 +397,8 @@ public class AcceleratorSchedulingUnit {
 				}
 
 				// 論理演算命令 Logical instruction opcodes
-				case AND :
-				case OR :
+				case ANDM :
+				case ORM :
 				case NOT :
 				{
 					if(dataTypes[0] == DataType.BOOL) {

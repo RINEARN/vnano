@@ -21,13 +21,13 @@ public class BoolScalarLogicalUnit extends AcceleratorExecutionUnit {
 
 		AcceleratorExecutionNode node = null;
 		switch (instruction.getOperationCode()) {
-			case AND : {
+			case ANDM : {
 				Boolx3ScalarCacheSynchronizer synchronizer = new Boolx3ScalarCacheSynchronizer(
 						operandContainers, operandCaches, operandCachingEnabled);
 				node = new BoolScalarAndNode(containers[0], containers[1], containers[2], synchronizer, nextNode);
 				break;
 			}
-			case OR : {
+			case ORM : {
 				Boolx3ScalarCacheSynchronizer synchronizer = new Boolx3ScalarCacheSynchronizer(
 						operandContainers, operandCaches, operandCachingEnabled);
 				node = new BoolScalarOrNode(containers[0], containers[1], containers[2], synchronizer, nextNode);

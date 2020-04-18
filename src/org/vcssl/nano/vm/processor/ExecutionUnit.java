@@ -795,7 +795,7 @@ public class ExecutionUnit {
 
 
 	/**
-	 * {@link org.vcssl.nano.spec.OperationCode#AND AND} 命令を実行します。
+	 * {@link org.vcssl.nano.spec.OperationCode#ANDM ANDM} 命令を実行します。
 	 *
 	 * この命令により、引数 inputA のデータと、引数 inputB との論理積が計算され、
 	 * 結果が output のデータに格納されます。
@@ -862,7 +862,7 @@ public class ExecutionUnit {
 
 
 	/**
-	 * {@link org.vcssl.nano.spec.OperationCode#OR OR} 命令を実行します。
+	 * {@link org.vcssl.nano.spec.OperationCode#ORM ORM} 命令を実行します。
 	 *
 	 * この命令により、引数 inputA のデータと、引数 inputB との論理和が計算され、
 	 * 結果が output のデータに格納されます。
