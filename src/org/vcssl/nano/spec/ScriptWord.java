@@ -240,19 +240,19 @@ public class ScriptWord {
 
 
 	/**
-	 * <span class="lang-en">The symbol of logical-and operator: "&amp;&amp;"</span>
-	 * <span class="lang-ja">論理積演算子の記号「 &amp;&amp; 」です</span>
+	 * <span class="lang-en">The symbol of logical-and operator with short-circuit evaluation: "&amp;&amp;"</span>
+	 * <span class="lang-ja">短絡評価を行う論理積演算子の記号「 &amp;&amp; 」です</span>
 	 * .
 	 */
-	public static final String AND = "&&";
+	public static final String SHORT_CIRCUIT_AND = "&&";
 
 
 	/**
-	 * <span class="lang-en">The symbol of logical-or operator: "||"</span>
-	 * <span class="lang-ja">論理和演算子の記号「 || 」です</span>
+	 * <span class="lang-en">The symbol of logical-or operator with short-curcuit evaluation: "||"</span>
+	 * <span class="lang-ja">短絡評価を行う論理和演算子の記号「 || 」です</span>
 	 * .
 	 */
-	public static final String OR = "||";
+	public static final String SHORT_CIRCUIT_OR = "||";
 
 
 	/**
@@ -469,8 +469,8 @@ public class ScriptWord {
     	SYMBOL_SET.add(EQUAL);
     	SYMBOL_SET.add(NOT_EQUAL);
 
-    	SYMBOL_SET.add(AND);
-    	SYMBOL_SET.add(OR);
+    	SYMBOL_SET.add(SHORT_CIRCUIT_AND);
+    	SYMBOL_SET.add(SHORT_CIRCUIT_OR);
     	SYMBOL_SET.add(NOT);
 
     	SYMBOL_SET.add(ARGUMENT_SEPARATOR);

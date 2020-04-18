@@ -613,7 +613,7 @@ public class CodeGenerator {
 			// 演算子ノード
 			if (currentNode.getType() == AstNode.Type.OPERATOR) {
 				String symbol = currentNode.getAttribute(AttributeKey.OPERATOR_SYMBOL);
-				if (symbol.equals(ScriptWord.AND) || symbol.equals(ScriptWord.OR)) {
+				if (symbol.equals(ScriptWord.SHORT_CIRCUIT_AND) || symbol.equals(ScriptWord.SHORT_CIRCUIT_OR)) {
 					// 短絡評価で第二オペランドの演算をスキップする場合のラベル
 					currentNode.setAttribute(AttributeKey.END_LABEL, this.generateLabelOperandCode());
 				}
@@ -1410,14 +1410,14 @@ public class CodeGenerator {
 				String parentOperatorSymbol = currentNode.getParentNode().getAttribute(AttributeKey.OPERATOR_SYMBOL);
 
 				//「&&」と「||」演算子: 短絡評価により、左オペランドの値によっては右オペランドの演算をスキップする必要がある
-				if (parentOperatorSymbol.equals(ScriptWord.AND) || parentOperatorSymbol.equals(ScriptWord.OR)) {
+				if (parentOperatorSymbol.equals(ScriptWord.SHORT_CIRCUIT_AND) || parentOperatorSymbol.equals(ScriptWord.SHORT_CIRCUIT_OR)) {
 
 					String jumpLabel = parentNode.getAttribute(AttributeKey.END_LABEL);
 					String leftOperandValue = currentNode.getAttribute(AttributeKey.ASSEMBLY_VALUE);
 
 					//スキップ用のジャンプ命令: || なら左オペランドがtrueの時に省略するのでJMP命令、&& ならその逆で JMPN 命令
 					String jumpOpcode = OperationCode.JMP.name();
-					if (parentOperatorSymbol.equals(ScriptWord.AND)) {
+					if (parentOperatorSymbol.equals(ScriptWord.SHORT_CIRCUIT_AND)) {
 						jumpOpcode = OperationCode.JMPN.name();
 					}
 
@@ -1697,8 +1697,8 @@ public class CodeGenerator {
 
 		String opcode = null;
 		switch (operatorSymbol) {
-			case ScriptWord.AND :       opcode = OperationCode.ANDM.name(); break;
-			case ScriptWord.OR :    opcode = OperationCode.ORM.name(); break;
+			case ScriptWord.SHORT_CIRCUIT_AND :       opcode = OperationCode.ANDM.name(); break;
+			case ScriptWord.SHORT_CIRCUIT_OR :    opcode = OperationCode.ORM.name(); break;
 			default : {
 				throw new VnanoFatalException("Invalid operator symbol for logical binary operators: " + operatorSymbol);
 			}
