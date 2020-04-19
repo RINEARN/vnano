@@ -1052,6 +1052,7 @@ public enum OperationCode {
 
 
 	/**
+	 * <p>
 	 * <span class="lang-en">
 	 * A variation of the {@link OperationCode#ALLOC ALLOC} instruction to allocate memory
 	 * of the same size of the other data
@@ -1100,6 +1101,7 @@ public enum OperationCode {
 
 
 	/**
+	 * <p>
 	 * <span class="lang-en">
 	 * A variation of the {@link OperationCode#ALLOC ALLOC} instruction to allocate memory
 	 * of the same size of the data which is at the top of the stack
@@ -1135,6 +1137,62 @@ public enum OperationCode {
 	 * </p>
 	 */
 	ALLOCP,
+
+
+	/**
+	 * <p>
+	 * <span class="lang-en">
+	 * A variation of the {@link OperationCode#ALLOC ALLOC} instruction
+	 * to only declare data type and array rank/lengths for readability and optimizability of code,
+	 * without allocating the actual memory
+	 * </span>
+	 * <span class="lang-ja">
+	 * コードの可読性と最適化性のため, データ型や配列次元/要素数の宣言だけを行いつつ,
+	 * 実際のメモリ領域の確保は行わない, {@link OperationCode#ALLOC ALLOC} 命令の派生命令です
+	 * </span>
+	 * .
+	 * <span class="lang-en">
+	 * The number of operands of this instruction is variable. The syntax in the VRIL code is as follows:
+	 * </span>
+	 * <span class="lang-ja">
+	 * この命令は可変長オペランドを取り、VRILコード内での構文は以下の通りです：
+	 * </span>
+	 *
+	 * <div style="border: 1px solid #000000; margin:15px; padding:5px;">
+	 * ALLOCT type target len1 len2 len3 ... lenN;
+	 * </div>
+	 *
+	 * <span class="lang-en">
+	 * Meanings of operands are same with them of {@link OperationCode#ALLOC ALLOC} instruction.
+	 * </span>
+	 * <span class="lang-en">
+	 * 各オペランドの意味は {@link OperationCode#ALLOC ALLOC} 命令と同じです.
+	 * </span>
+	 * </p>
+	 *
+	 * <p>
+	 * <span class="lang-en">
+	 * For an example of use,
+	 * this instruction is used at the point at which data will be popped from the stack.
+	 * Data passed through the stack depends on the processing flow of the code on runtime,
+	 * so it is not easy to grasp/infere type of popped data (containing the array-rank)
+	 * without executing code is not easy.
+	 * Therefore, in such cases, declaring type/rank/lengths of data by this instruction
+	 * is helpful for readers of code and optimizers.
+	 * (the compiler knows the type of data to be popped from the stack,
+	 * so it can generate this instruction at the above point.)
+	 * </span>
+	 * <span class="lang-ja">
+	 * この命令は, 例えばスタックからデータを取り出している箇所などで使用されます.
+	 * スタックを介するデータのやり取りは, 実行時の処理フローに依存する動作であるため,
+	 * その型情報（配列次元数含む）をコードから静的に読み取る/推測する事は容易ではありません.
+	 * そこで, 取り出すデータの格納先に対して, この命令で型情報を明示的に宣言しておく事で,
+	 * コードの可読性や最適化の容易さが向上します
+	 * (コード生成を行うコンパイラは型情報を知っており, 従ってそれが可能です).
+	 * </span>
+	 * </p>
+	 */
+	ALLOCT,
 
 
 	/**

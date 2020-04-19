@@ -181,6 +181,11 @@ public class DispatchUnit {
 				return programCounter + 1;
 			}
 
+			// 可読性や最適化のための型宣言命令なので何もしない（Processor は最適化を行わないので無くても動作する）
+			case ALLOCT : {
+				return programCounter + 1;
+			}
+
 			// コピー代入、同型かつ同要素数の場合のみ可能
 			case MOV : {
 				this.checkNumberOfOperands(instruction, 2);

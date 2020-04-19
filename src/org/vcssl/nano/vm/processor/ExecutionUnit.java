@@ -1179,7 +1179,7 @@ public class ExecutionUnit {
 
 	@SuppressWarnings("unchecked")
 	public void ref(DataType type, DataContainer<?> dest, DataContainer<?> src) {
-		this.checkDataType(dest, type);
+		// this.checkDataType(dest, type); // データ参照を上書きする命令なので、上書き前の dest は検査不要（未確保の場合もある）
 		this.checkDataType(src, type);
 		((DataContainer<Object>)dest).setData(src.getData(), src.getLengths());
 	}
