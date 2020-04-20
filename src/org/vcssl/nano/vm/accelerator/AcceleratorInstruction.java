@@ -28,6 +28,9 @@ public class AcceleratorInstruction extends Instruction {
 	/** 最適化による複合命令の融合において、入力オペランドの位置の識別に使用される配列です。 */
 	private int[] fusedInputOperandIndices = null;
 
+	/** 拡張命令（オペレーションコード EX）の処理内容を区別するための、拡張オペレーションコードを保持します。 */
+	private AcceleratorExtendedOperationCode extendedOperationCode = null;
+
 
 	public AcceleratorInstruction(Instruction instruction) {
 		super(
@@ -160,6 +163,14 @@ public class AcceleratorInstruction extends Instruction {
 
 	public AcceleratorExecutionType getAccelerationType() {
 		return this.acceleratorExecutionType;
+	}
+
+	public void setExtendedOperationCode(AcceleratorExtendedOperationCode extendedOperationCode) {
+		this.extendedOperationCode = extendedOperationCode;
+	}
+
+	public AcceleratorExtendedOperationCode getExtendedOperationCode() {
+		return this.extendedOperationCode;
 	}
 
 	public void setReorderedAddress(int reorderedAddress) {

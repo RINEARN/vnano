@@ -703,7 +703,7 @@ public class DispatchUnitTest {
 		this.boolOutput.setData(new boolean[]{ false, false, false }, new int[] {3});
 
 		// 上記オペランドで演算を行う命令を生成
-		Instruction instruction = this.generateBoolx3Instruction(OperationCode.AND);
+		Instruction instruction = this.generateBoolx3Instruction(OperationCode.ANDM);
 
 		// 命令を実行
 		int pc = 10; // プログラムカウンタ
@@ -727,7 +727,7 @@ public class DispatchUnitTest {
 
 		// オペランドの個数が間違っている場合の検査
 		try {
-			instruction = this.generateInt64x2Instruction(OperationCode.AND);
+			instruction = this.generateInt64x2Instruction(OperationCode.ANDM);
 			pc = this.dispatch(instruction, pc);
 			fail("Unexpected exception occurred");
 		} catch (VnanoException | VnanoFatalException e) {
@@ -743,7 +743,7 @@ public class DispatchUnitTest {
 		this.boolOutput.setData(new boolean[]{ false, false, false }, new int[] {3});
 
 		// 上記オペランドで演算を行う命令を生成
-		Instruction instruction = this.generateBoolx3Instruction(OperationCode.OR);
+		Instruction instruction = this.generateBoolx3Instruction(OperationCode.ORM);
 
 		// 命令を実行
 		int pc = 10; // プログラムカウンタ
@@ -767,7 +767,7 @@ public class DispatchUnitTest {
 
 		// オペランドの個数が間違っている場合の検査
 		try {
-			instruction = this.generateInt64x2Instruction(OperationCode.OR);
+			instruction = this.generateInt64x2Instruction(OperationCode.ORM);
 			pc = this.dispatch(instruction, pc);
 			fail("Unexpected exception occurred");
 		} catch (VnanoException | VnanoFatalException e) {

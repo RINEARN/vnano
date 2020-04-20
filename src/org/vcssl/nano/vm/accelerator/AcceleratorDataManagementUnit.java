@@ -199,11 +199,16 @@ public final class AcceleratorDataManagementUnit {
 
 			switch (instruction.getOperationCode()) {
 
-				case ALLOC : {
+				case ALLOC :
+				case ALLOCT : {
 
 					// 1-オペランドのALLOC命令は、0次元なのでスカラ
 					if (operandLength == 1) {
 						this.scalar[ partitions[0].ordinal() ][ addresses[0] ] = true;
+
+						// このALLOC命令の時点では、スカラであれば暫定的に cacheable と見なしておく。
+						// このループはコードを命令順に読んでいってるので、ALLOC後にELEMしている場合などは、
+						// 後でその ELEM を読んだ時点で uncacheable に訂正される
 
 						switch (instruction.getDataTypes()[0]) {
 							case INT64 : {
@@ -263,13 +268,26 @@ public final class AcceleratorDataManagementUnit {
 
 				case ELEM : {
 
+					// 現在の仕様では、ELEMで取り出したデータは必ずスカラ
+					this.scalar[ partitions[0].ordinal() ][ addresses[0] ] = true;
+
 					// ELEM命令は、ベクトルの要素（スカラ）への参照を第0オペランドのレジスタと同期するため、
 					// 第0オペランドはスカラであるが、別の箇所で参照が共有されて書き換えられる可能性があるため、
 					// キャッシュ可能ではない
 					//（異なるアドレスのレジスタが同一データを参照を保持できるため、アドレスベースのキャッシュでは対応不可）
-					this.scalar[ partitions[0].ordinal() ][ addresses[0] ] = true;
+					this.cachingEnabled[ partitions[0].ordinal() ][ addresses[0] ] = false;
 					break;
 				}
+
+				case REF :
+				case REFPOP : {
+
+					// ELEMと同様、REF系の対象も他の箇所のデータと参照を共有するようになるため、
+					// アドレスベースのキャッシュでは対応不可（アドレス-データが一対一対応にならない）
+					this.cachingEnabled[ partitions[0].ordinal() ][ addresses[0] ] = false;
+					break;
+				}
+
 				default : {
 					break;
 				}

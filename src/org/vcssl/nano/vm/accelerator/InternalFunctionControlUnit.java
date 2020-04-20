@@ -132,19 +132,27 @@ public class InternalFunctionControlUnit extends AcceleratorExecutionUnit {
 				return new ReturnNode(operandContainers, synchronizer, reorderdFunctionAddress, nextNode);
 			}
 			case ALLOCP : {
-				return new AllocpNode(operandContainers, synchronizer, dataType, nextNode);
+				return new AllocpNode(operandContainers, dataType, nextNode);
 			}
 			case POP : {
 				return new PopNode(nextNode);
 			}
 			case REFPOP : {
-				return new RefpopNode(operandContainers, synchronizer, nextNode);
+				return this.generateRefpopNode(instruction, operandContainers, operandScalar, synchronizer, nextNode);
 			}
 			case MOVPOP : {
 				return this.generateMovpopNode(
 					(Instruction)instruction, operandContainers,
 					(ScalarCache[])operandCaches, operandCachingEnabled, operandScalar, synchronizer, nextNode
 				);
+			}
+			case EX : {
+				AcceleratorExtendedOperationCode extendedOpcode = instruction.getExtendedOperationCode();
+				if (extendedOpcode == AcceleratorExtendedOperationCode.RETURNED) {
+					return new ReturnedNode(synchronizer, nextNode);
+				} else {
+					throw new VnanoFatalException("Unsupported extended operation code for this unit: " + extendedOpcode);
+				}
 			}
 			default : {
 				throw new VnanoFatalException("Unsupported operation code for this unit: " + opcode);
@@ -172,7 +180,7 @@ public class InternalFunctionControlUnit extends AcceleratorExecutionUnit {
 					return new BoolCachedScalarMovpopNode((BoolScalarCache)operandCaches[0], nextNode);
 				}
 				default : {
-					return new MovpopNode(operandContainers, synchronizer, nextNode);
+					return new GeneralMovpopNode(operandContainers, synchronizer, nextNode);
 				}
 			}
 
@@ -189,12 +197,23 @@ public class InternalFunctionControlUnit extends AcceleratorExecutionUnit {
 					return new BoolScalarMovpopNode(operandContainers, synchronizer, nextNode);
 				}
 				default : {
-					return new MovpopNode(operandContainers, synchronizer, nextNode);
+					return new GeneralMovpopNode(operandContainers, synchronizer, nextNode);
 				}
 			}
 
 		} else {
-			return new MovpopNode(operandContainers, synchronizer, nextNode);
+			return new GeneralMovpopNode(operandContainers, synchronizer, nextNode);
+		}
+	}
+
+	private AcceleratorExecutionNode generateRefpopNode(
+			Instruction instruction, DataContainer<?>[] operandContainers, boolean[] operandScalar,
+			CacheSynchronizer synchronizer, AcceleratorExecutionNode nextNode) {
+
+		if (operandScalar[0]) {
+			return new ScalarRefpopNode(operandContainers, synchronizer, nextNode);
+		} else {
+			return new VectorRefpopNode(operandContainers, synchronizer, nextNode);
 		}
 	}
 
@@ -305,17 +324,36 @@ public class InternalFunctionControlUnit extends AcceleratorExecutionUnit {
 		}
 	}
 
-
-	private final class AllocpNode extends AcceleratorExecutionNode {
-		private final DataContainer<?> allocTargetContainer;
+	public final class ReturnedNode extends AcceleratorExecutionNode {
 		private final CacheSynchronizer synchronizer;
-		private final DataType dataType;
 
-		public AllocpNode(DataContainer<?>[] operandContainers, CacheSynchronizer synchronizer, DataType dataType,
-				AcceleratorExecutionNode nextNode) {
+		public ReturnedNode(CacheSynchronizer synchronizer, AcceleratorExecutionNode nextNode) {
 
 			super(nextNode);
 			this.synchronizer = synchronizer;
+		}
+
+		@Override
+		public final AcceleratorExecutionNode execute() {
+			// 実引数と仮引数の仮想メモリアドレスは異なるため、
+			// 関数の引数を参照渡ししていた場合、関数内で引数の値が書き換わっても、
+			// 呼び出し側で実引数に渡したアドレスに紐づいているキャッシュはそれに気付かず更新されない。
+			// （仮想メモリ上のデータは、実引数と仮引数のアドレスのデータが参照リンクされるため更新される。）
+			// そのため、関数から戻ってきた時点で、仮想メモリの値を読んでキャッシュに反映させる必要がある。
+			this.synchronizer.synchronizeFromMemoryToCache();
+			return this.nextNode;
+		}
+
+	}
+
+
+	private final class AllocpNode extends AcceleratorExecutionNode {
+		private final DataContainer<?> allocTargetContainer;
+		private final DataType dataType;
+
+		public AllocpNode(DataContainer<?>[] operandContainers, DataType dataType, AcceleratorExecutionNode nextNode) {
+
+			super(nextNode);
 			this.allocTargetContainer = operandContainers[0];
 			this.dataType = dataType;
 		}
@@ -328,8 +366,6 @@ public class InternalFunctionControlUnit extends AcceleratorExecutionUnit {
 
 		@Override
 		public final AcceleratorExecutionNode execute() {
-			this.synchronizer.synchronizeFromCacheToMemory();
-
 			DataContainer<?> src = InternalFunctionControlUnit.this.dataStack[ InternalFunctionControlUnit.this.dataStackPointer - 1 ];
 			new ExecutionUnit().allocSameLengths(dataType, allocTargetContainer, src);
 			return this.nextNode;
@@ -355,44 +391,13 @@ public class InternalFunctionControlUnit extends AcceleratorExecutionUnit {
 	}
 
 
-	private final class RefpopNode extends AcceleratorExecutionNode {
-		private final DataContainer<long[]>[] operandContainers;
-		private final CacheSynchronizer synchronizer;
-
-		@SuppressWarnings("unchecked")
-		public RefpopNode(DataContainer<?>[] operandContainers, CacheSynchronizer synchronizer,
-				AcceleratorExecutionNode nextNode) {
-
-			super(nextNode);
-			this.synchronizer = synchronizer;
-			this.operandContainers = (DataContainer<long[]>[])operandContainers;
-		}
-
-		@Override
-		public final void setLaundingPointNodes(AcceleratorExecutionNode ... nodes) {
-		}
-
-		@SuppressWarnings("unchecked")
-		@Override
-		public final AcceleratorExecutionNode execute() {
-			--InternalFunctionControlUnit.this.dataStackPointer;
-			DataContainer<?> src = InternalFunctionControlUnit.this.dataStack[ InternalFunctionControlUnit.this.dataStackPointer ];
-			DataContainer<?> dest = this.operandContainers[0];
-			((DataContainer<Object>)dest).setData(src.getData(), src.getLengths());
-
-			// スタックの値をメモリに書き込んだので、そのメモリの値でキャッシュも更新しておく
-			synchronizer.synchronizeFromMemoryToCache();
-			return this.nextNode;
-		}
-	}
 
 
-
-	private final class MovpopNode extends AcceleratorExecutionNode {
+	private final class GeneralMovpopNode extends AcceleratorExecutionNode {
 		private final DataContainer<?>[] operandContainers;
 		private final CacheSynchronizer synchronizer;
 
-		public MovpopNode(DataContainer<?>[] operandContainers, CacheSynchronizer synchronizer,
+		public GeneralMovpopNode(DataContainer<?>[] operandContainers, CacheSynchronizer synchronizer,
 				AcceleratorExecutionNode nextNode) {
 
 			super(nextNode);
@@ -599,6 +604,71 @@ public class InternalFunctionControlUnit extends AcceleratorExecutionUnit {
 
 			this.cache.value = src.getData()[ src.getOffset() ];
 
+			return this.nextNode;
+		}
+	}
+
+
+
+
+	private final class ScalarRefpopNode extends AcceleratorExecutionNode {
+		private final DataContainer<long[]>[] operandContainers;
+		private final CacheSynchronizer synchronizer;
+
+		@SuppressWarnings("unchecked")
+		public ScalarRefpopNode(DataContainer<?>[] operandContainers, CacheSynchronizer synchronizer,
+				AcceleratorExecutionNode nextNode) {
+
+			super(nextNode);
+			this.synchronizer = synchronizer;
+			this.operandContainers = (DataContainer<long[]>[])operandContainers;
+		}
+
+		@Override
+		public final void setLaundingPointNodes(AcceleratorExecutionNode ... nodes) {
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		public final AcceleratorExecutionNode execute() {
+			--InternalFunctionControlUnit.this.dataStackPointer;
+			DataContainer<?> src = InternalFunctionControlUnit.this.dataStack[ InternalFunctionControlUnit.this.dataStackPointer ];
+			DataContainer<?> dest = this.operandContainers[0];
+			((DataContainer<Object>)dest).setData(src.getData(), src.getOffset());
+
+			// スタックの値をメモリに書き込んだので、そのメモリの値でキャッシュも更新しておく
+			synchronizer.synchronizeFromMemoryToCache();
+			return this.nextNode;
+		}
+	}
+
+	private final class VectorRefpopNode extends AcceleratorExecutionNode {
+		private final DataContainer<long[]>[] operandContainers;
+		private final CacheSynchronizer synchronizer;
+
+		@SuppressWarnings("unchecked")
+		public VectorRefpopNode(DataContainer<?>[] operandContainers, CacheSynchronizer synchronizer,
+				AcceleratorExecutionNode nextNode) {
+
+			super(nextNode);
+			this.synchronizer = synchronizer;
+			this.operandContainers = (DataContainer<long[]>[])operandContainers;
+		}
+
+		@Override
+		public final void setLaundingPointNodes(AcceleratorExecutionNode ... nodes) {
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		public final AcceleratorExecutionNode execute() {
+			--InternalFunctionControlUnit.this.dataStackPointer;
+			DataContainer<?> src = InternalFunctionControlUnit.this.dataStack[ InternalFunctionControlUnit.this.dataStackPointer ];
+			DataContainer<?> dest = this.operandContainers[0];
+			((DataContainer<Object>)dest).setData(src.getData(), src.getLengths());
+
+			// スタックの値をメモリに書き込んだので、そのメモリの値でキャッシュも更新しておく
+			synchronizer.synchronizeFromMemoryToCache();
 			return this.nextNode;
 		}
 	}

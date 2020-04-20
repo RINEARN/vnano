@@ -221,6 +221,26 @@ public enum AttributeKey {
 
 	/**
 	 * <span class="lang-en">
+	 * The key of the attribute for storing modifiers
+	 * </span>
+	 * <span class="lang-ja">
+	 * 修飾子を保持する属性のキーです
+	 * </span>
+	 * .
+	 * <span class="lang-en">
+	 * When the AST node has multiple modifiers,
+	 * they will be stored as a attribute value which delimited by AttributeValue.MODIFIER_SEPARATOR.
+	 * </span>
+	 * <span class="lang-ja">
+	 * 修飾子が複数ある場合でも, このキーに対応する属性値は 1 つで, 修飾子はその中に
+	 * {AttributeValue#MODIFIER_SEPARATOR AttributeValue.MODIFIER_SEPARATOR}
+	 * で区切って格納されます.
+	 * </span>
+	 */
+	MODIFIER,
+
+	/**
+	 * <span class="lang-en">
 	 * The key of the attribute for storing a marker of the AST node of {@link AstNode.Type#STACK_LID} type
 	 * which is used temporary in the parser
 	 * </span>

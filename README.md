@@ -77,6 +77,10 @@ Vnano (<a href="https://www.vcssl.org/">VCSSL</a> nano) は、Java&reg; アプ�
   - <a href="#language-function">Functions - 関数</a>
 	- <a href="#language-function-scalar">Scalar input/output functions - スカラを引数や戻り値とする関数</a>
 	- <a href="#language-function-array">Array input/output functions - 配列を引数や戻り値とする関数</a>
+	- <a href="#language-function-params-and-args">Formal parameters and actual arguments - 仮引数と実引数</a>
+	- <a href="#language-function-call-by-value">Call by value - 引数の値渡し</a>
+	- <a href="#language-function-call-by-reference">Call by reference - 引数の参照渡し</a>
+
 - <a href="#plugin">Plug-in - プラグイン</a>
   - <a href="#plugin-external-function-variable">External Functions/Variables and Plug-in - 外部関数/変数とプラグイン</a>
   - <a href="#plugin-security">Point of attention about the security - セキュリティに関する留意点</a>
@@ -1598,6 +1602,7 @@ The result on <a href="#how-to-use-in-command">the command-line mode</a> is:
 
 	3
 
+
 <a id="language-function-array"></a>
 #### Array input/output functions - 配列を引数や戻り値とする関数
 
@@ -1640,17 +1645,118 @@ The result is:
 
 Please note that, as we mentioned in the section of <a href="#language-data-type">Data Types</a>, 
 arrays in the Vnano (and VCSSL) behaves as value types, not reference types or pointers.
-Assignment operations of arguments and the return value behaves as the copy of all values of elements, not the copy of the reference to (address on) the memory.
+By default, assignment operations of arguments and the return value behaves as the copy of all values of elements, not the copy of the reference to (address on) the memory 
+(See also: <a href="#language-function-call-by-value">Call by value</a> and  
+ <a href="#language-function-call-by-reference">Call by reference</a>).
 In addition, the size of the array will be adjusted automatically when an array having different size will copied to it, 
 so we omitted to specify size of array declarations in several places in the above code, e.g.: "int a[]", "int b[]", and "int z[] = fun(x, y, 3)".
 
 なお、<a href="#language-data-type">データ型</a>の項目でも触れた通り、
 Vnano（および VCSSL）における配列は、ポインタや参照型ではなく、値型として振舞う事に注意してください。
-この事により、配列の引数/戻り値の受け渡しは、参照の代入ではなく、全要素値のコピー代入によって行われます。
+この事により、配列の引数/戻り値の受け渡しは、デフォルトでは参照の代入ではなく、全要素値のコピー代入によって行われます
+（<a href="#language-function-call-by-value">値渡し</a> と 
+  <a href="#language-function-call-by-reference">参照渡し</a> の項目も参照）。
 その際、要素数の異なる配列がコピーされる場合には、過不足なく全要素のコピーを行うために、コピー先（受け取り側）
 の配列のメモリー領域が自動で再確保され、コピー元と同じ要素数になるように調整されます。
 従って上記のコードでは、いくつかの場所で、配列宣言時に要素数を指定するのを省略しています（ "int a[]"、 "int b[]"、 および "int z[] = fun(x, y, 3)" の箇所 ）。
 
+
+<a id="language-function-params-and-args"></a>
+#### Formal parameters and actual arguments - 仮引数と実引数
+
+The parameter-variable declared in a function declaration like as "a" in the following example is called as "formal parameter". In contrast, the value/variable passed to a function like as "x" in the following example is called as "actual argument".
+
+以下の例の「 a 」のように、関数側で宣言されている引数の事を「仮引数」と呼びます。それに対して、以下の例の「 x 」のように、呼び出し元から関数に渡している引数の事を「実引数」と呼びます。
+
+	void fun(int a) {
+		...
+	}
+
+	...
+
+	fun(x);
+
+
+<a id="language-function-call-by-value"></a>
+#### Call by value - 引数の値渡し
+
+By default, change of values of formal parameters in functions don't affect to values of actual arguments of caller-side, For example:
+
+デフォルトでは、関数内における仮引数の値の変更は、呼び出し元の実引数の値には反映されません。例えば：
+
+	void fun(int a, int b[]) {
+		a = 2;
+		b[0] = 10;
+		b[1] = 11;
+		b[2] = 12;
+	}
+
+	int x = 0;
+	int y[3];
+	y[0] = 0;
+	y[1] = 0;
+	y[2] = 0;
+
+	fun(x, y);
+
+	output("x = " + x + "\n");
+	output("y[0] = " + y[0] + "\n");
+	output("y[1] = " + y[1] + "\n");
+	output("y[2] = " + y[2] + "\n");
+
+The result is:
+
+実行結果は：
+
+	x = 0
+	y[0] = 0
+	y[1] = 0
+	y[2] = 0
+
+As demonstrated by the above result, actual arguments of caller-side "a" and "b" have not changed although formal parameters "x" and "y" changed in the function "fun". This is because, by default, actual arguments will be simply copied once to formal parameters when the function is called. This behaviour is called as "call-by-value".
+
+上の例の通り、関数「 fun 」内で仮引数「 x 」と「 y 」の値を変更していますが、呼び出し元の実引数「 a 」と「 b 」の値は変化していない事がわかります。これは、デフォルトでの関数の引数の受け渡しが、単純な値のコピーによって、呼び出し時に一度のみに行われるからです。このような引数の渡し方を「値渡し」と呼びます。
+
+
+<a id="language-function-call-by-reference"></a>
+#### Call by reference - 引数の参照渡し
+
+If you want to affect changed values of formal parameters in functions to values of actual arguments of caller-side, describe the symbol "&" before the name of formal parameters in declarations of them. For example:
+
+関数内での仮引数の値の変更を、呼び出し元の実引数の値に反映させたい場合は、仮引数の宣言において、名前の前に「 & 」記号を付加してください。例えば：
+
+	void fun(int &a, int &b[]) {
+		a = 2;
+		b[0] = 10;
+		b[1] = 11;
+		b[2] = 12;
+	}
+
+	int x = 0;
+	int y[3];
+	y[0] = 0;
+	y[1] = 0;
+	y[2] = 0;
+
+	fun(x, y);
+
+	output("x = " + x + "\n");
+	output("y[0] = " + y[0] + "\n");
+	output("y[1] = " + y[1] + "\n");
+	output("y[2] = " + y[2] + "\n");
+
+The result is:
+
+実行結果は：
+
+	x = 2
+	y[0] = 10
+	y[1] = 11
+	y[2] = 12
+
+As demonstrated by the above result, the memory-reference to data of a formal parameter declared with "&" will be shared with reference to data of an actual argument, so after values of formal parameters "x" and "y" in the function "fun" changed, actual arguments "a" and "b" of caller-side also changed to same values with "x" and "y". This behaviour is called as "call-by-reference".
+
+上の例の通り、関数「 fun 」内で仮引数「 x 」と「 y 」の値を変更した結果、呼び出し元の実引数「 a 」と「 b 」も、同じ値に変化した事がわかります。これは、「 & 」を付けて宣言された仮引数のデータへのメモリ参照が、実引数のデータへのメモリ参照と共有されるためです。このような引数の渡し方を「参照渡し」と呼びます。
 
 
 <a id="plugin"></a>

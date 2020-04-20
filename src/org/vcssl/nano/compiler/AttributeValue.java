@@ -130,11 +130,21 @@ public class AttributeValue {
 
 	// SCOPE
 
+	//    以下のGLOBAL/LOCALの説明文、
+	//    スクリプト内で宣言されたものがローカル、スクリプト外由来のものがグローバルとされる事の補足が居るかも
+	//    名前も含めて要検討(external/internalにする可能性も含めて)
+
 	/** {@link AttributeKey#SCOPE SCOPE}属性の値であり、グローバルスコープを表します。 */
 	public static final String GLOBAL = "global";
 
 	/** {@link AttributeKey#SCOPE SCOPE}属性の値であり、ローカルスコープを表します。 */
 	public static final String LOCAL = "local";
+
+	/**
+	 * {@link AttributeKey#MODIFIER MODIFIER}属性の値の中に、複数の修飾子を格納する際の区切り文字です。
+	 * 個々の修飾子が、値として含み得ない文字である必要があります。
+	 */
+	public static final String MODIFIER_SEPARATOR = ",";
 
 	// LID_MARKER
 

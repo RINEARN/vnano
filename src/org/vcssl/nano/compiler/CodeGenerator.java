@@ -6,6 +6,7 @@
 package org.vcssl.nano.compiler;
 
 import java.util.ArrayDeque;
+import java.util.Arrays;
 import java.util.Deque;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -613,7 +614,7 @@ public class CodeGenerator {
 			// 演算子ノード
 			if (currentNode.getType() == AstNode.Type.OPERATOR) {
 				String symbol = currentNode.getAttribute(AttributeKey.OPERATOR_SYMBOL);
-				if (symbol.equals(ScriptWord.AND) || symbol.equals(ScriptWord.OR)) {
+				if (symbol.equals(ScriptWord.SHORT_CIRCUIT_AND) || symbol.equals(ScriptWord.SHORT_CIRCUIT_OR)) {
 					// 短絡評価で第二オペランドの演算をスキップする場合のラベル
 					currentNode.setAttribute(AttributeKey.END_LABEL, this.generateLabelOperandCode());
 				}
@@ -1039,6 +1040,11 @@ public class CodeGenerator {
 			String argDataType = argNode.getAttribute(AttributeKey.DATA_TYPE);
 			int argRank = argNode.getRank();
 
+			// ALLOCT 命令（生成箇所のコメント参照）に渡すオペランド: 対象データの後に次元の数だけ 0 を並べる
+			String[] alloctOperands = new String[argRank+1];
+			Arrays.fill(alloctOperands, this.generateImmediateOperandCode(DataTypeName.INT, "0") );
+			alloctOperands[0] = argIdentifier;
+
 			// 引数のローカル変数ディレクティブを生成
 			codeBuilder.append(AssemblyWord.LOCAL_VARIABLE_DIRECTIVE);
 			codeBuilder.append(AssemblyWord.WORD_SEPARATOR);
@@ -1046,23 +1052,39 @@ public class CodeGenerator {
 			codeBuilder.append(AssemblyWord.INSTRUCTION_SEPARATOR);
 			codeBuilder.append(AssemblyWord.LINE_SEPARATOR);
 
-			// スカラの場合は固定サイズなので、普通にALLOC命令を生成
-			if (argRank == RANK_OF_SCALAR) {
+			// 参照渡しの場合 ... メモリ上のデータ領域の新規確保は不要
+			if (argNode.hasAttribute(AttributeKey.MODIFIER)
+					&& argNode.getAttribute(AttributeKey.MODIFIER).contains(ScriptWord.REFERENCE) ) {
+
+				// スタックを介するデータはコード上での型情報把握が難しいので、可読性や最適化時のため ALLOCT 命令で型情報を明示
 				codeBuilder.append(
-					this.generateInstruction(OperationCode.ALLOC.name(), argDataType, argIdentifier)
+					this.generateInstruction(OperationCode.ALLOCT.name(), argDataType, alloctOperands)
 				);
 
-			// 配列の場合は、スタック上のデータが収まるサイズでメモリーを確保するために、ALLOCP命令を生成
+				// 参照渡しの場合は、スタックからの引数の値の取得に、「取り出し + 参照代入」の MOVPOP 命令を用いる
+				// （この命令はデータ領域の参照自体を変更するため、参照渡しではALLOC/ALLOCPによるデータ領域の事前確保は不要）
+				codeBuilder.append(
+					this.generateInstruction(OperationCode.REFPOP.name(), argDataType, argIdentifier)
+				);
+
+			// 値渡しの場合 ... メモリ上のデータ領域の新規確保が必要
 			} else {
+
+				// スタックを介するデータはコード上での型情報把握が難しいので、可読性や最適化時のため ALLOCT 命令で型情報を明示
+				codeBuilder.append(
+					this.generateInstruction(OperationCode.ALLOCT.name(), argDataType, alloctOperands)
+				);
+
+				// ALLOCP 命令で、スタック上の先端にあるデータと同じ型/次元/要素数のデータ領域を確保
 				codeBuilder.append(
 					this.generateInstruction(OperationCode.ALLOCP.name(), argDataType, argIdentifier)
 				);
-			}
 
-			// スタックから引数に値を取り出すMOVPOP命令のコードを生成
-			codeBuilder.append(
-				this.generateInstruction(OperationCode.MOVPOP.name(), argDataType, argIdentifier)
-			);
+				// 値渡しの場合は、スタックからの引数の値の取得に、「取り出し + コピー代入」の MOVPOP 命令を用いる
+				codeBuilder.append(
+					this.generateInstruction(OperationCode.MOVPOP.name(), argDataType, argIdentifier)
+				);
+			}
 		}
 
 		return codeBuilder.toString();
@@ -1410,14 +1432,14 @@ public class CodeGenerator {
 				String parentOperatorSymbol = currentNode.getParentNode().getAttribute(AttributeKey.OPERATOR_SYMBOL);
 
 				//「&&」と「||」演算子: 短絡評価により、左オペランドの値によっては右オペランドの演算をスキップする必要がある
-				if (parentOperatorSymbol.equals(ScriptWord.AND) || parentOperatorSymbol.equals(ScriptWord.OR)) {
+				if (parentOperatorSymbol.equals(ScriptWord.SHORT_CIRCUIT_AND) || parentOperatorSymbol.equals(ScriptWord.SHORT_CIRCUIT_OR)) {
 
 					String jumpLabel = parentNode.getAttribute(AttributeKey.END_LABEL);
 					String leftOperandValue = currentNode.getAttribute(AttributeKey.ASSEMBLY_VALUE);
 
 					//スキップ用のジャンプ命令: || なら左オペランドがtrueの時に省略するのでJMP命令、&& ならその逆で JMPN 命令
 					String jumpOpcode = OperationCode.JMP.name();
-					if (parentOperatorSymbol.equals(ScriptWord.AND)) {
+					if (parentOperatorSymbol.equals(ScriptWord.SHORT_CIRCUIT_AND)) {
 						jumpOpcode = OperationCode.JMPN.name();
 					}
 
@@ -1697,8 +1719,8 @@ public class CodeGenerator {
 
 		String opcode = null;
 		switch (operatorSymbol) {
-			case ScriptWord.AND :       opcode = OperationCode.AND.name(); break;
-			case ScriptWord.OR :    opcode = OperationCode.OR.name(); break;
+			case ScriptWord.SHORT_CIRCUIT_AND :       opcode = OperationCode.ANDM.name(); break;
+			case ScriptWord.SHORT_CIRCUIT_OR :    opcode = OperationCode.ORM.name(); break;
 			default : {
 				throw new VnanoFatalException("Invalid operator symbol for logical binary operators: " + operatorSymbol);
 			}

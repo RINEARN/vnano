@@ -17,6 +17,10 @@ public class NopUnit extends AcceleratorExecutionUnit {
 				node = new NopNode(nextNode);
 				break;
 			}
+			case ALLOCT : { // この命令もコード内での型明示と最適化情報のための命令で、動作的には何もしない
+				node = new NopNode(nextNode);
+				break;
+			}
 			default : {
 				throw new VnanoFatalException(
 					"Operation code " + instruction.getOperationCode() + " is invalid for " + this.getClass().getCanonicalName()

@@ -240,19 +240,36 @@ public class ScriptWord {
 
 
 	/**
-	 * <span class="lang-en">The symbol of logical-and operator: "&amp;&amp;"</span>
-	 * <span class="lang-ja">論理積演算子の記号「 &amp;&amp; 」です</span>
+	 * <span class="lang-en">The symbol representing the reference: "&amp;"</span>
+	 * <span class="lang-ja">参照を表す記号「 &amp; 」です</span>
 	 * .
+	 * <span class="lang-en">
+	 * In the current version,
+	 * this symbol is used only for a kind of modifier representing call-by-reference,
+	 * and it has not supported as an operator.
+	 * </span>
+	 * <span class="lang-ja">
+	 * 現状では, この記号は関数の参照渡しを表す修飾子の一種としてのみ使用され,
+	 * 演算子としてはサポートされていません
+	 * </span>
 	 */
-	public static final String AND = "&&";
+	public static final String REFERENCE = "&";
 
 
 	/**
-	 * <span class="lang-en">The symbol of logical-or operator: "||"</span>
-	 * <span class="lang-ja">論理和演算子の記号「 || 」です</span>
+	 * <span class="lang-en">The symbol of logical-and operator with short-circuit evaluation: "&amp;&amp;"</span>
+	 * <span class="lang-ja">短絡評価を行う論理積演算子の記号「 &amp;&amp; 」です</span>
 	 * .
 	 */
-	public static final String OR = "||";
+	public static final String SHORT_CIRCUIT_AND = "&&";
+
+
+	/**
+	 * <span class="lang-en">The symbol of logical-or operator with short-curcuit evaluation: "||"</span>
+	 * <span class="lang-ja">短絡評価を行う論理和演算子の記号「 || 」です</span>
+	 * .
+	 */
+	public static final String SHORT_CIRCUIT_OR = "||";
 
 
 	/**
@@ -469,12 +486,13 @@ public class ScriptWord {
     	SYMBOL_SET.add(EQUAL);
     	SYMBOL_SET.add(NOT_EQUAL);
 
-    	SYMBOL_SET.add(AND);
-    	SYMBOL_SET.add(OR);
+    	SYMBOL_SET.add(SHORT_CIRCUIT_AND);
+    	SYMBOL_SET.add(SHORT_CIRCUIT_OR);
     	SYMBOL_SET.add(NOT);
 
     	SYMBOL_SET.add(ARGUMENT_SEPARATOR);
     	SYMBOL_SET.add(ARBITRARY_COUNT);
+    	SYMBOL_SET.add(REFERENCE);
 
     	SYMBOL_SET.add(PARENTHESIS_BEGIN);
     	SYMBOL_SET.add(PARENTHESIS_END);
@@ -563,5 +581,8 @@ public class ScriptWord {
 
 		RESERVED_WORD_SET.add("this");
 		RESERVED_WORD_SET.add("super");
+
+		RESERVED_WORD_SET.add("reference");
+		RESERVED_WORD_SET.add("ref");
 	}
 }

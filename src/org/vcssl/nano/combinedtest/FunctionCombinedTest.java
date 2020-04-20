@@ -28,6 +28,7 @@ public class FunctionCombinedTest extends CombinedTestElement {
 			this.testScalarReturnFunctions();
 			this.testVectorReturnFunctions();
 			this.testMultiReturnFunctions();
+			this.testFunctionCallsByReference();
 			this.testSequentialFunctionCalls();
 			this.testNestedFunctionCalls();
 		} catch (VnanoException e) {
@@ -632,6 +633,115 @@ public class FunctionCombinedTest extends CombinedTestElement {
 			resultS, "ghi",
 			"string fun() { if(...){return ...} else if(...){return ...} else{return ...} }   (case 3) ",
 			scriptCode
+		);
+	}
+
+	private void testFunctionCallsByReference() throws VnanoException {
+		String scriptCode;
+		long resultLS;
+		long[] resultLV;
+		long[] expectedLV;
+
+		// スカラの値渡し (call by value of a scalar)
+		scriptCode =
+			" void fun(int x) {         \n" +
+			"     x = 2;                \n" +
+			" }                         \n" +
+			" int a = 0;                \n" +
+			" fun(a);                   \n" +
+			" a;                        \n" ;
+
+		resultLS = (long)this.engine.executeScript(scriptCode);
+		super.evaluateResult(resultLS, 0l, "void fun(int x) { x=2; } int a=0; fun(a);", scriptCode);
+
+		// スカラの参照渡し (call by value of a scalar)
+		scriptCode =
+			" void fun(int &x) {         \n" +
+			"     x = 2;                \n" +
+			" }                         \n" +
+			" int a = 0;                \n" +
+			" fun(a);                   \n" +
+			" a;                        \n" ;
+
+		resultLS = (long)this.engine.executeScript(scriptCode);
+		super.evaluateResult(resultLS, 2l, "void fun(int &x) { x=2; } int a=0; fun(a);", scriptCode);
+
+		// ベクトルの値渡し (call by value of a vector)
+		scriptCode =
+			" void fun(int x[]) {       \n" +
+			"     x[0] = 1;             \n" +
+			"     x[1] = 2;             \n" +
+			"     x[2] = 3;             \n" +
+			" }                         \n" +
+			"                           \n" +
+			" int a[3];                 \n" +
+			" a[0] = 0;                 \n" +
+			" a[1] = 0;                 \n" +
+			" a[2] = 0;                 \n" +
+			" fun(a);                   \n" +
+			" a;                        \n" ;
+
+		resultLV = (long[])this.engine.executeScript(scriptCode);
+		expectedLV = new long[] { 0l, 0l, 0l };
+		super.evaluateResult(
+			resultLV, expectedLV, "void fun(int x[]) { x[0]=1; x[1]=2; x[2]=3; } int a[3]; ... fun(a); ", scriptCode
+		);
+
+		// ベクトルの参照渡し (call by reference of a vector)
+		scriptCode =
+			" void fun(int &x[]) {       \n" +
+			"     x[0] = 1;             \n" +
+			"     x[1] = 2;             \n" +
+			"     x[2] = 3;             \n" +
+			" }                         \n" +
+			"                           \n" +
+			" int a[3];                 \n" +
+			" a[0] = 0;                 \n" +
+			" a[1] = 0;                 \n" +
+			" a[2] = 0;                 \n" +
+			" fun(a);                   \n" +
+			" a;                        \n" ;
+
+		resultLV = (long[])this.engine.executeScript(scriptCode);
+		expectedLV = new long[] { 1l, 2l, 3l };
+		super.evaluateResult(
+			resultLV, expectedLV, "void fun(int &x[]) { x[0]=1; x[1]=2; x[2]=3; } int a[3]; ... fun(a); ", scriptCode
+		);
+
+		// 配列要素の値渡し (call by value of an element of a vector)
+		scriptCode =
+			" void fun(int x) {         \n" +
+			"     x = 2;                \n" +
+			" }                         \n" +
+			"                           \n" +
+			" int a[3];                 \n" +
+			" a[0] = 0;                 \n" +
+			" a[1] = 0;                 \n" +
+			" a[2] = 0;                 \n" +
+			" fun(a[1]);                \n" +
+			" a[1];                     \n" ;
+
+		resultLS = (long)this.engine.executeScript(scriptCode);
+		super.evaluateResult(
+			resultLS, 0l, "void fun(int x) { x=2; } int a[3]; ... fun(a[1]); ", scriptCode
+		);
+
+		// 配列要素の参照渡し (call by reference of an element of a vector)
+		scriptCode =
+			" void fun(int &x) {        \n" +
+			"     x = 2;                \n" +
+			" }                         \n" +
+			"                           \n" +
+			" int a[3];                 \n" +
+			" a[0] = 0;                 \n" +
+			" a[1] = 0;                 \n" +
+			" a[2] = 0;                 \n" +
+			" fun(a[1]);                \n" +
+			" a[1];                     \n" ;
+
+		resultLS = (long)this.engine.executeScript(scriptCode);
+		super.evaluateResult(
+			resultLS, 2l, "void fun(int &x) { x=2; } int a[3]; ... fun(a[1]); ", scriptCode
 		);
 	}
 

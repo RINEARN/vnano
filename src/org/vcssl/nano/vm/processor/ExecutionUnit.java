@@ -26,6 +26,9 @@ import org.vcssl.nano.VnanoException;
  */
 public class ExecutionUnit {
 
+	/** スカラの次元数です。 */
+	private static final int RANK_OF_SCALAR = 0;
+
 
 	/**
 	 * このクラスは状態を保持するフィールドを持たないため、コンストラクタは何もしません。
@@ -795,7 +798,7 @@ public class ExecutionUnit {
 
 
 	/**
-	 * {@link org.vcssl.nano.spec.OperationCode#AND AND} 命令を実行します。
+	 * {@link org.vcssl.nano.spec.OperationCode#ANDM ANDM} 命令を実行します。
 	 *
 	 * この命令により、引数 inputA のデータと、引数 inputB との論理積が計算され、
 	 * 結果が output のデータに格納されます。
@@ -862,7 +865,7 @@ public class ExecutionUnit {
 
 
 	/**
-	 * {@link org.vcssl.nano.spec.OperationCode#OR OR} 命令を実行します。
+	 * {@link org.vcssl.nano.spec.OperationCode#ORM ORM} 命令を実行します。
 	 *
 	 * この命令により、引数 inputA のデータと、引数 inputB との論理和が計算され、
 	 * 結果が output のデータに格納されます。
@@ -1179,9 +1182,17 @@ public class ExecutionUnit {
 
 	@SuppressWarnings("unchecked")
 	public void ref(DataType type, DataContainer<?> dest, DataContainer<?> src) {
-		this.checkDataType(dest, type);
+		// this.checkDataType(dest, type); // データ参照を上書きする命令なので、上書き前の dest は検査不要（未確保の場合もある）
 		this.checkDataType(src, type);
-		((DataContainer<Object>)dest).setData(src.getData(), src.getLengths());
+
+		// スカラの場合
+		if (src.getRank() == RANK_OF_SCALAR) {
+			((DataContainer<Object>)dest).setData(src.getData(), src.getOffset());
+
+		// 配列の場合
+		} else {
+			((DataContainer<Object>)dest).setData(src.getData(), src.getLengths());
+		}
 	}
 
 

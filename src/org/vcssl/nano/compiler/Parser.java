@@ -297,6 +297,7 @@ public class Parser {
 			throws VnanoException {
 
 		AstNode variableNode = new AstNode(AstNode.Type.VARIABLE, tokens[0].getLineNumber(), tokens[0].getFileName());
+		List<String> modifierList = new LinkedList<String>(); // 修飾子を控える
 
 		LinkedList<Token> tokenList = new LinkedList<Token>();
 		for (Token token: tokens) {
@@ -305,8 +306,10 @@ public class Parser {
 
 		int readingIndex = 0;
 
-		// 現状では可変長引数の「 ... 」は読み飛ばす
-		if (tokens[0].getType() == Token.Type.MODIFIER && tokens[0].getValue().equals(ScriptWord.ARBITRARY_COUNT)) {
+		// 可変長引数の「 ... 」があれば修飾子扱いでリストに追加
+		if (tokens[readingIndex].getType() == Token.Type.MODIFIER
+				&& tokens[readingIndex].getValue().equals(ScriptWord.ARBITRARY_COUNT)) {
+			modifierList.add(tokens[readingIndex].getValue());
 			readingIndex++;
 		}
 
@@ -314,6 +317,13 @@ public class Parser {
 		Token typeToken = tokens[readingIndex];
 		variableNode.setAttribute(AttributeKey.DATA_TYPE, typeToken.getValue());
 		readingIndex++;
+
+		// 参照の「 & 」があれば修飾子扱いでリストに追加
+		if (readingIndex < tokens.length && tokens[readingIndex].getType() == Token.Type.MODIFIER
+				&& tokens[readingIndex].getValue().equals(ScriptWord.REFERENCE)) {
+			modifierList.add(tokens[readingIndex].getValue());
+			readingIndex++;
+		}
 
 		// 識別子トークンを抽出して控える
 		Token nameToken = null;
@@ -392,6 +402,16 @@ public class Parser {
 					ErrorType.TOO_MANY_TOKENS_FOR_VARIABLE_DECLARATION,
 					tokens[readingIndex-1].getFileName(), tokens[readingIndex-1].getLineNumber()
 			);
+		}
+
+		// 識別子をリストから取り出してノードに持たせる
+		if (modifierList.size() != 0) {
+			StringBuilder modifierBuilder = new StringBuilder();
+			modifierBuilder.append(modifierList.get(0));
+			for (int i=1; i<modifierList.size(); i++) {
+				modifierBuilder.append(AttributeValue.MODIFIER_SEPARATOR + modifierList.get(i));
+			}
+			variableNode.setAttribute(AttributeKey.MODIFIER, modifierBuilder.toString());
 		}
 
 		return variableNode;

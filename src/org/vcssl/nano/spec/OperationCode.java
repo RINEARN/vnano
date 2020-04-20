@@ -651,7 +651,7 @@ public enum OperationCode {
 	 * </span>
 	 *
 	 * <div style="border: 1px solid #000000; margin:15px; padding:5px;">
-	 * AND type output inputA inputB;
+	 * ANDM type output inputA inputB;
 	 * </div>
 	 *
 	 * <span class="lang-ja">
@@ -682,8 +682,27 @@ public enum OperationCode {
 	 * (A scalar value is handled as an array of length=1 and rank=0, in the VM).
 	 * </span>
 	 * </p>
+	 *
+	 * <span class="lang-ja">
+	 * この命令は, 「 && 」演算子の短絡評価に対応する生成コードを簡潔にするため,
+	 * inputA の値だけから結果が確定可能な場合には, inputB にアクセスしません.
+	 * そのため, そのような場合は, inputB は未初期化の状態である事が許容されます.
+	 * 具体的には, オペランドがスカラなら inputA が true の場合,
+	 * ベクトルなら inputA の全要素が true の場合に, inputB へのアクセスがスキップされます.
+	 * </span>
+	 *
+	 * <span class="lang-en">
+	 * This instruction does not access to "inputB"
+	 * when the result can be determined from only the value of "inputA",
+	 * to simplify the generated code of short-circuit evaluation of "&&" operator.
+	 * More precisely: when operands are scalars,
+	 * accessing to "inputB" will be skipped if the value of "inputA" is false.
+	 * When operands are vectors, accessing to "inputB" will be skipped
+	 * if all elements of "inputA" are false.
+	 * </span>
+	 *
 	 */
-	AND,
+	ANDM,
 
 
 	/**
@@ -700,7 +719,7 @@ public enum OperationCode {
 	 * </span>
 	 *
 	 * <div style="border: 1px solid #000000; margin:15px; padding:5px;">
-	 * OR type output inputA inputB;
+	 * ORM type output inputA inputB;
 	 * </div>
 	 *
 	 * <span class="lang-ja">
@@ -731,8 +750,27 @@ public enum OperationCode {
 	 * (A scalar value is handled as an array of length=1 and rank=0, in the VM).
 	 * </span>
 	 * </p>
+	 *
+	 * <span class="lang-ja">
+	 * この命令は, 「 || 」演算子の短絡評価に対応する生成コードを簡潔にするため,
+	 * inputA の値だけから結果が確定可能な場合には, inputB にアクセスしません.
+	 * そのため, そのような場合は, inputB は未初期化の状態である事が許容されます.
+	 * 具体的には, オペランドがスカラの場合には inputA が true の場合,
+	 * ベクトルの場合には inputA の全要素が true の場合に, inputB へのアクセスがスキップされます.
+	 * </span>
+	 *
+	 * <span class="lang-en">
+	 * This instruction does not access to "inputB"
+	 * when the result can be determined from only the value of "inputA",
+	 * to simplify the generated code of short-circuit evaluation of "||" operator.
+	 * More precisely: when operands are scalars,
+	 * accessing to "inputB" will be skipped if the value of "inputA" is true.
+	 * When operands are vectors, accessing to "inputB" will be skipped
+	 * if all elements of "inputA" are true.
+	 * </span>
+	 *
 	 */
-	OR,
+	ORM,
 
 
 	/**
@@ -1014,6 +1052,7 @@ public enum OperationCode {
 
 
 	/**
+	 * <p>
 	 * <span class="lang-en">
 	 * A variation of the {@link OperationCode#ALLOC ALLOC} instruction to allocate memory
 	 * of the same size of the other data
@@ -1062,6 +1101,7 @@ public enum OperationCode {
 
 
 	/**
+	 * <p>
 	 * <span class="lang-en">
 	 * A variation of the {@link OperationCode#ALLOC ALLOC} instruction to allocate memory
 	 * of the same size of the data which is at the top of the stack
@@ -1097,6 +1137,62 @@ public enum OperationCode {
 	 * </p>
 	 */
 	ALLOCP,
+
+
+	/**
+	 * <p>
+	 * <span class="lang-en">
+	 * A variation of the {@link OperationCode#ALLOC ALLOC} instruction
+	 * to only declare data type and array rank/lengths for readability and optimizability of code,
+	 * without allocating the actual memory
+	 * </span>
+	 * <span class="lang-ja">
+	 * コードの可読性と最適化性のため, データ型や配列次元/要素数の宣言だけを行いつつ,
+	 * 実際のメモリ領域の確保は行わない, {@link OperationCode#ALLOC ALLOC} 命令の派生命令です
+	 * </span>
+	 * .
+	 * <span class="lang-en">
+	 * The number of operands of this instruction is variable. The syntax in the VRIL code is as follows:
+	 * </span>
+	 * <span class="lang-ja">
+	 * この命令は可変長オペランドを取り、VRILコード内での構文は以下の通りです：
+	 * </span>
+	 *
+	 * <div style="border: 1px solid #000000; margin:15px; padding:5px;">
+	 * ALLOCT type target len1 len2 len3 ... lenN;
+	 * </div>
+	 *
+	 * <span class="lang-en">
+	 * Meanings of operands are same with them of {@link OperationCode#ALLOC ALLOC} instruction.
+	 * </span>
+	 * <span class="lang-en">
+	 * 各オペランドの意味は {@link OperationCode#ALLOC ALLOC} 命令と同じです.
+	 * </span>
+	 * </p>
+	 *
+	 * <p>
+	 * <span class="lang-en">
+	 * For an example of use,
+	 * this instruction is used at the point at which data will be popped from the stack.
+	 * Data passed through the stack depends on the processing flow of the code on runtime,
+	 * so it is not easy to grasp/infere type of popped data (containing the array-rank)
+	 * without executing code is not easy.
+	 * Therefore, in such cases, declaring type/rank/lengths of data by this instruction
+	 * is helpful for readers of code and optimizers.
+	 * (the compiler knows the type of data to be popped from the stack,
+	 * so it can generate this instruction at the above point.)
+	 * </span>
+	 * <span class="lang-ja">
+	 * この命令は, 例えばスタックからデータを取り出している箇所などで使用されます.
+	 * スタックを介するデータのやり取りは, 実行時の処理フローに依存する動作であるため,
+	 * その型情報（配列次元数含む）をコードから静的に読み取る/推測する事は容易ではありません.
+	 * そこで, 取り出すデータの格納先に対して, この命令で型情報を明示的に宣言しておく事で,
+	 * コードの可読性や最適化の容易さが向上します
+	 * (コード生成を行うコンパイラは型情報を知っており, 従ってそれが可能です).
+	 * </span>
+	 * </p>
+	 */
+	ALLOCT,
 
 
 	/**

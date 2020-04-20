@@ -353,6 +353,10 @@ public class LexicalAnalyzer {
 			} else if (word.equals(ScriptWord.ARBITRARY_COUNT)) {
 				tokens[i].setType(Token.Type.MODIFIER);
 
+			// 参照渡しを表す「 & 」
+			} else if (word.equals(ScriptWord.REFERENCE)) {
+				tokens[i].setType(Token.Type.MODIFIER);
+
 			// 代入演算子
 			} else if (word.equals(ScriptWord.ASSIGNMENT)) {
 				tokens[i].setType(Token.Type.OPERATOR);
@@ -411,8 +415,8 @@ public class LexicalAnalyzer {
 				tokens[i].setAttribute(AttributeKey.OPERATOR_SYNTAX, AttributeValue.BINARY);
 
 			// 	論理二項演算子
-			} else if (word.equals(ScriptWord.AND)
-					|| word.equals(ScriptWord.OR)) {
+			} else if (word.equals(ScriptWord.SHORT_CIRCUIT_AND)
+					|| word.equals(ScriptWord.SHORT_CIRCUIT_OR)) {
 
 				tokens[i].setType(Token.Type.OPERATOR);
 				tokens[i].setAttribute(AttributeKey.OPERATOR_EXECUTOR, AttributeValue.LOGICAL);
@@ -613,11 +617,11 @@ public class LexicalAnalyzer {
 					tokens[i].setPrecedence(OperatorPrecedence.NOT_EQUAL);
 					break;
 
-				case ScriptWord.AND:
+				case ScriptWord.SHORT_CIRCUIT_AND:
 					tokens[i].setPrecedence(OperatorPrecedence.AND);
 					break;
 
-				case ScriptWord.OR:
+				case ScriptWord.SHORT_CIRCUIT_OR:
 					tokens[i].setPrecedence(OperatorPrecedence.OR);
 					break;
 

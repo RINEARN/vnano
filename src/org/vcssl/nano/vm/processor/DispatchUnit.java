@@ -137,12 +137,12 @@ public class DispatchUnit {
 			}
 
 			// 論理演算
-			case AND : {
+			case ANDM : {
 				this.checkNumberOfOperands(instruction, 3);
 				executionUnit.and(dataTypes[0], operands[0], operands[1], operands[2]);
 				return programCounter + 1;
 			}
-			case OR : {
+			case ORM : {
 				this.checkNumberOfOperands(instruction, 3);
 				executionUnit.or(dataTypes[0], operands[0], operands[1], operands[2]);
 				return programCounter + 1;
@@ -178,6 +178,11 @@ public class DispatchUnit {
 			// スタック上の先端に積まれているデータと同じ配列要素数で、第1オペランドをメモリ確保
 			case ALLOCP : {
 				executionUnit.allocSameLengths(dataTypes[0], operands[0], memory.peek());
+				return programCounter + 1;
+			}
+
+			// 可読性や最適化のための型宣言命令なので何もしない（Processor は最適化を行わないので無くても動作する）
+			case ALLOCT : {
 				return programCounter + 1;
 			}
 
