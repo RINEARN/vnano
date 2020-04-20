@@ -77,7 +77,7 @@ Vnano (<a href="https://www.vcssl.org/">VCSSL</a> nano) は、Java&reg; アプ�
   - <a href="#language-function">Functions - 関数</a>
 	- <a href="#language-function-scalar">Scalar input/output functions - スカラを引数や戻り値とする関数</a>
 	- <a href="#language-function-array">Array input/output functions - 配列を引数や戻り値とする関数</a>
-	- <a href="#language-function-params-and-args">Formar parameters and actual arguments - 仮引数と実引数</a>
+	- <a href="#language-function-params-and-args">Formal parameters and actual arguments - 仮引数と実引数</a>
 	- <a href="#language-function-call-by-value">Call by value - 引数の値渡し</a>
 	- <a href="#language-function-call-by-reference">Call by reference - 引数の参照渡し</a>
 
@@ -1662,9 +1662,9 @@ Vnano（および VCSSL）における配列は、ポインタや参照型では
 
 
 <a id="language-function-params-and-args"></a>
-#### Formar parameters and actual arguments - 仮引数と実引数
+#### Formal parameters and actual arguments - 仮引数と実引数
 
-The parameter-variable declared in a function declaration like as "a" in the following example is called as "formar parameter". In contrast, the value/variable passed to a function like as "x" in the following example is called as "actual argument".
+The parameter-variable declared in a function declaration like as "a" in the following example is called as "formal parameter". In contrast, the value/variable passed to a function like as "x" in the following example is called as "actual argument".
 
 以下の例の「 a 」のように、関数側で宣言されている引数の事を「仮引数」と呼びます。それに対して、以下の例の「 x 」のように、呼び出し元から関数に渡している引数の事を「実引数」と呼びます。
 
