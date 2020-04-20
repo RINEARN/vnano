@@ -138,7 +138,7 @@ public class InternalFunctionControlUnit extends AcceleratorExecutionUnit {
 				return new PopNode(nextNode);
 			}
 			case REFPOP : {
-				return new RefpopNode(operandContainers, synchronizer, nextNode);
+				return this.generateRefpopNode(instruction, operandContainers, operandScalar, synchronizer, nextNode);
 			}
 			case MOVPOP : {
 				return this.generateMovpopNode(
@@ -180,7 +180,7 @@ public class InternalFunctionControlUnit extends AcceleratorExecutionUnit {
 					return new BoolCachedScalarMovpopNode((BoolScalarCache)operandCaches[0], nextNode);
 				}
 				default : {
-					return new MovpopNode(operandContainers, synchronizer, nextNode);
+					return new GeneralMovpopNode(operandContainers, synchronizer, nextNode);
 				}
 			}
 
@@ -197,12 +197,23 @@ public class InternalFunctionControlUnit extends AcceleratorExecutionUnit {
 					return new BoolScalarMovpopNode(operandContainers, synchronizer, nextNode);
 				}
 				default : {
-					return new MovpopNode(operandContainers, synchronizer, nextNode);
+					return new GeneralMovpopNode(operandContainers, synchronizer, nextNode);
 				}
 			}
 
 		} else {
-			return new MovpopNode(operandContainers, synchronizer, nextNode);
+			return new GeneralMovpopNode(operandContainers, synchronizer, nextNode);
+		}
+	}
+
+	private AcceleratorExecutionNode generateRefpopNode(
+			Instruction instruction, DataContainer<?>[] operandContainers, boolean[] operandScalar,
+			CacheSynchronizer synchronizer, AcceleratorExecutionNode nextNode) {
+
+		if (operandScalar[0]) {
+			return new ScalarRefpopNode(operandContainers, synchronizer, nextNode);
+		} else {
+			return new VectorRefpopNode(operandContainers, synchronizer, nextNode);
 		}
 	}
 
@@ -380,44 +391,13 @@ public class InternalFunctionControlUnit extends AcceleratorExecutionUnit {
 	}
 
 
-	private final class RefpopNode extends AcceleratorExecutionNode {
-		private final DataContainer<long[]>[] operandContainers;
-		private final CacheSynchronizer synchronizer;
-
-		@SuppressWarnings("unchecked")
-		public RefpopNode(DataContainer<?>[] operandContainers, CacheSynchronizer synchronizer,
-				AcceleratorExecutionNode nextNode) {
-
-			super(nextNode);
-			this.synchronizer = synchronizer;
-			this.operandContainers = (DataContainer<long[]>[])operandContainers;
-		}
-
-		@Override
-		public final void setLaundingPointNodes(AcceleratorExecutionNode ... nodes) {
-		}
-
-		@SuppressWarnings("unchecked")
-		@Override
-		public final AcceleratorExecutionNode execute() {
-			--InternalFunctionControlUnit.this.dataStackPointer;
-			DataContainer<?> src = InternalFunctionControlUnit.this.dataStack[ InternalFunctionControlUnit.this.dataStackPointer ];
-			DataContainer<?> dest = this.operandContainers[0];
-			((DataContainer<Object>)dest).setData(src.getData(), src.getLengths());
-
-			// スタックの値をメモリに書き込んだので、そのメモリの値でキャッシュも更新しておく
-			synchronizer.synchronizeFromMemoryToCache();
-			return this.nextNode;
-		}
-	}
 
 
-
-	private final class MovpopNode extends AcceleratorExecutionNode {
+	private final class GeneralMovpopNode extends AcceleratorExecutionNode {
 		private final DataContainer<?>[] operandContainers;
 		private final CacheSynchronizer synchronizer;
 
-		public MovpopNode(DataContainer<?>[] operandContainers, CacheSynchronizer synchronizer,
+		public GeneralMovpopNode(DataContainer<?>[] operandContainers, CacheSynchronizer synchronizer,
 				AcceleratorExecutionNode nextNode) {
 
 			super(nextNode);
@@ -624,6 +604,71 @@ public class InternalFunctionControlUnit extends AcceleratorExecutionUnit {
 
 			this.cache.value = src.getData()[ src.getOffset() ];
 
+			return this.nextNode;
+		}
+	}
+
+
+
+
+	private final class ScalarRefpopNode extends AcceleratorExecutionNode {
+		private final DataContainer<long[]>[] operandContainers;
+		private final CacheSynchronizer synchronizer;
+
+		@SuppressWarnings("unchecked")
+		public ScalarRefpopNode(DataContainer<?>[] operandContainers, CacheSynchronizer synchronizer,
+				AcceleratorExecutionNode nextNode) {
+
+			super(nextNode);
+			this.synchronizer = synchronizer;
+			this.operandContainers = (DataContainer<long[]>[])operandContainers;
+		}
+
+		@Override
+		public final void setLaundingPointNodes(AcceleratorExecutionNode ... nodes) {
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		public final AcceleratorExecutionNode execute() {
+			--InternalFunctionControlUnit.this.dataStackPointer;
+			DataContainer<?> src = InternalFunctionControlUnit.this.dataStack[ InternalFunctionControlUnit.this.dataStackPointer ];
+			DataContainer<?> dest = this.operandContainers[0];
+			((DataContainer<Object>)dest).setData(src.getData(), src.getOffset());
+
+			// スタックの値をメモリに書き込んだので、そのメモリの値でキャッシュも更新しておく
+			synchronizer.synchronizeFromMemoryToCache();
+			return this.nextNode;
+		}
+	}
+
+	private final class VectorRefpopNode extends AcceleratorExecutionNode {
+		private final DataContainer<long[]>[] operandContainers;
+		private final CacheSynchronizer synchronizer;
+
+		@SuppressWarnings("unchecked")
+		public VectorRefpopNode(DataContainer<?>[] operandContainers, CacheSynchronizer synchronizer,
+				AcceleratorExecutionNode nextNode) {
+
+			super(nextNode);
+			this.synchronizer = synchronizer;
+			this.operandContainers = (DataContainer<long[]>[])operandContainers;
+		}
+
+		@Override
+		public final void setLaundingPointNodes(AcceleratorExecutionNode ... nodes) {
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		public final AcceleratorExecutionNode execute() {
+			--InternalFunctionControlUnit.this.dataStackPointer;
+			DataContainer<?> src = InternalFunctionControlUnit.this.dataStack[ InternalFunctionControlUnit.this.dataStackPointer ];
+			DataContainer<?> dest = this.operandContainers[0];
+			((DataContainer<Object>)dest).setData(src.getData(), src.getLengths());
+
+			// スタックの値をメモリに書き込んだので、そのメモリの値でキャッシュも更新しておく
+			synchronizer.synchronizeFromMemoryToCache();
 			return this.nextNode;
 		}
 	}

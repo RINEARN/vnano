@@ -707,6 +707,42 @@ public class FunctionCombinedTest extends CombinedTestElement {
 		super.evaluateResult(
 			resultLV, expectedLV, "void fun(int &x[]) { x[0]=1; x[1]=2; x[2]=3; } int a[3]; ... fun(a); ", scriptCode
 		);
+
+		// 配列要素の値渡し (call by value of an element of a vector)
+		scriptCode =
+			" void fun(int x) {         \n" +
+			"     x = 2;                \n" +
+			" }                         \n" +
+			"                           \n" +
+			" int a[3];                 \n" +
+			" a[0] = 0;                 \n" +
+			" a[1] = 0;                 \n" +
+			" a[2] = 0;                 \n" +
+			" fun(a[1]);                \n" +
+			" a[1];                     \n" ;
+
+		resultLS = (long)this.engine.executeScript(scriptCode);
+		super.evaluateResult(
+			resultLS, 0l, "void fun(int x) { x=2; } int a[3]; ... fun(a[1]); ", scriptCode
+		);
+
+		// 配列要素の参照渡し (call by reference of an element of a vector)
+		scriptCode =
+			" void fun(int &x) {        \n" +
+			"     x = 2;                \n" +
+			" }                         \n" +
+			"                           \n" +
+			" int a[3];                 \n" +
+			" a[0] = 0;                 \n" +
+			" a[1] = 0;                 \n" +
+			" a[2] = 0;                 \n" +
+			" fun(a[1]);                \n" +
+			" a[1];                     \n" ;
+
+		resultLS = (long)this.engine.executeScript(scriptCode);
+		super.evaluateResult(
+			resultLS, 2l, "void fun(int &x) { x=2; } int a[3]; ... fun(a[1]); ", scriptCode
+		);
 	}
 
 
