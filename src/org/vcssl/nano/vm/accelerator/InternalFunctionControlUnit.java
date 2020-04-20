@@ -132,7 +132,7 @@ public class InternalFunctionControlUnit extends AcceleratorExecutionUnit {
 				return new ReturnNode(operandContainers, synchronizer, reorderdFunctionAddress, nextNode);
 			}
 			case ALLOCP : {
-				return new AllocpNode(operandContainers, synchronizer, dataType, nextNode);
+				return new AllocpNode(operandContainers, dataType, nextNode);
 			}
 			case POP : {
 				return new PopNode(nextNode);
@@ -145,6 +145,14 @@ public class InternalFunctionControlUnit extends AcceleratorExecutionUnit {
 					(Instruction)instruction, operandContainers,
 					(ScalarCache[])operandCaches, operandCachingEnabled, operandScalar, synchronizer, nextNode
 				);
+			}
+			case EX : {
+				AcceleratorExtendedOperationCode extendedOpcode = instruction.getExtendedOperationCode();
+				if (extendedOpcode == AcceleratorExtendedOperationCode.RETURNED) {
+					return new ReturnedNode(synchronizer, nextNode);
+				} else {
+					throw new VnanoFatalException("Unsupported extended operation code for this unit: " + extendedOpcode);
+				}
 			}
 			default : {
 				throw new VnanoFatalException("Unsupported operation code for this unit: " + opcode);
@@ -305,17 +313,36 @@ public class InternalFunctionControlUnit extends AcceleratorExecutionUnit {
 		}
 	}
 
-
-	private final class AllocpNode extends AcceleratorExecutionNode {
-		private final DataContainer<?> allocTargetContainer;
+	public final class ReturnedNode extends AcceleratorExecutionNode {
 		private final CacheSynchronizer synchronizer;
-		private final DataType dataType;
 
-		public AllocpNode(DataContainer<?>[] operandContainers, CacheSynchronizer synchronizer, DataType dataType,
-				AcceleratorExecutionNode nextNode) {
+		public ReturnedNode(CacheSynchronizer synchronizer, AcceleratorExecutionNode nextNode) {
 
 			super(nextNode);
 			this.synchronizer = synchronizer;
+		}
+
+		@Override
+		public final AcceleratorExecutionNode execute() {
+			// 実引数と仮引数の仮想メモリアドレスは異なるため、
+			// 関数の引数を参照渡ししていた場合、関数内で引数の値が書き換わっても、
+			// 呼び出し側で実引数に渡したアドレスに紐づいているキャッシュはそれに気付かず更新されない。
+			// （仮想メモリ上のデータは、実引数と仮引数のアドレスのデータが参照リンクされるため更新される。）
+			// そのため、関数から戻ってきた時点で、仮想メモリの値を読んでキャッシュに反映させる必要がある。
+			this.synchronizer.synchronizeFromMemoryToCache();
+			return this.nextNode;
+		}
+
+	}
+
+
+	private final class AllocpNode extends AcceleratorExecutionNode {
+		private final DataContainer<?> allocTargetContainer;
+		private final DataType dataType;
+
+		public AllocpNode(DataContainer<?>[] operandContainers, DataType dataType, AcceleratorExecutionNode nextNode) {
+
+			super(nextNode);
 			this.allocTargetContainer = operandContainers[0];
 			this.dataType = dataType;
 		}
@@ -328,8 +355,6 @@ public class InternalFunctionControlUnit extends AcceleratorExecutionUnit {
 
 		@Override
 		public final AcceleratorExecutionNode execute() {
-			this.synchronizer.synchronizeFromCacheToMemory();
-
 			DataContainer<?> src = InternalFunctionControlUnit.this.dataStack[ InternalFunctionControlUnit.this.dataStackPointer - 1 ];
 			new ExecutionUnit().allocSameLengths(dataType, allocTargetContainer, src);
 			return this.nextNode;

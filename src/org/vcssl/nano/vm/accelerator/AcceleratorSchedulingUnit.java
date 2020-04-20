@@ -61,6 +61,9 @@ public class AcceleratorSchedulingUnit {
 		// 命令列を読み込んで AcceleratorInstruction に変換し、フィールドのリストを初期化して格納
 		this.initializeeAcceleratorInstructionList(instructions, memory);
 
+		// CALL命令の直後（NOPが置かれている）の箇所に、RETURNED命令を生成して置き換える
+		this.generateReturnedInstructions();
+
 		// 全てのレジスタに対し、それぞれ書き込み・読み込み箇所の数をカウントする（最適化に使用）
 		this.createRegisterWrittenPointCount(memory);
 		this.createRegisterReadPointCount(memory);
@@ -130,11 +133,54 @@ public class AcceleratorSchedulingUnit {
 	}
 
 
+	// CALL命令の直後（ラベルのためNOPが置かれている）の箇所に、RETURNED拡張命令を生成して置き換える
+	private void generateReturnedInstructions() {
+		int instructionLength = acceleratorInstructionList.size();
+
+		for (int instructionIndex=0; instructionIndex<instructionLength; instructionIndex++) {
+			Instruction instruction = acceleratorInstructionList.get(instructionIndex);
+			if (instruction.getOperationCode() == OperationCode.CALL) {
+
+				// オペランドのパーティションとアドレスを取り出す
+				Memory.Partition[] operandPartitions = instruction.getOperandPartitions();
+				int[] operandAddresses = instruction.getOperandAddresses();
+				int functionArgN = operandAddresses.length - 2; // 先頭2個はプレースホルダと関数アドレス
+
+				// 上記から、関数に渡す引数のもののみを抜き出す
+				//（ただし命令の基本仕様により、先頭オペランドは書き込み先と決まっているので、プレースホルダを置く）
+				Memory.Partition[] functionArgPartitions = new Memory.Partition[functionArgN+1];
+				int[] functionArgAddresses = new int[functionArgN+1];
+				functionArgPartitions[0] = Memory.Partition.NONE;
+				functionArgAddresses[0] = 0;
+				for (int argIndex=0; argIndex<functionArgN; argIndex++) {
+					functionArgPartitions[argIndex+1] = operandPartitions[argIndex + 2]; // 右辺の先頭2個はプレースホルダと関数アドレス
+					functionArgAddresses[argIndex+1] = operandAddresses[argIndex + 2];
+				}
+
+				// それらをオペランドとして、RETURNED拡張命令を生成
+				AcceleratorInstruction returnedInstruction = new AcceleratorInstruction(
+					new Instruction(
+						OperationCode.EX, instruction.getDataTypes(),
+						functionArgPartitions, functionArgAddresses,
+						instruction.getMetaPartition(), instruction.getMetaAddress()
+					)
+				);
+				returnedInstruction.setExtendedOperationCode(AcceleratorExtendedOperationCode.RETURNED);
+
+				// この命令直後にあるはずのNOP命令を、生成したRETURNED拡張命令で置き換える
+				acceleratorInstructionList.set(instructionIndex+1, returnedInstruction);
+			}
+		}
+
+	}
+
+
 	// データに対して書き込みを行う命令なら true を返す（ただしレジスタの確保・解放は除外）
 	private boolean isDataWritingOperationCode(OperationCode operationCode) {
 
 		// 書き込みを「行わない」ものを以下に列挙し、それ以外なら true を返す
 		return operationCode != OperationCode.ALLOC
+		     && operationCode != OperationCode.ALLOCT
 		     && operationCode != OperationCode.ALLOCP
 		     && operationCode != OperationCode.ALLOCR
 		     && operationCode != OperationCode.FREE
@@ -143,12 +189,15 @@ public class AcceleratorSchedulingUnit {
 		     && operationCode != OperationCode.JMPN
 		     && operationCode != OperationCode.RET
 		     && operationCode != OperationCode.POP      // POP はスタックからデータを取り出すだけで何もしない
+		     && operationCode != OperationCode.NOP      // NOP は何もしないので明らかに何も読まない
+		     && operationCode != OperationCode.END
+		     && operationCode != OperationCode.ENDFUN
 		     ;
 
-		// IFCU & RET 命令について：
+		// CALL & RET 命令について：
 		//   関数の引数や戻り値はスタックに積まれるので、CALL命令やRET命令自体はオペランドには何も書き込まないが、
 		//   スタックに積まれた後のデータがどこで取り出されて読み書きされるかを静的に解析するのは複雑なので、
-		//   IFCU & RET 命令のオペランドは便宜的に、書き込み箇所カウントに含める（最適化予防のため）
+		//   CALL & RET 命令のオペランドは便宜的に、書き込み箇所カウントに含める（最適化予防のため）
 	}
 
 
@@ -187,13 +236,15 @@ public class AcceleratorSchedulingUnit {
 
 		// 読み込みを「行わない」ものを以下に列挙し、それ以外なら true を返す
 		return operationCode != OperationCode.ALLOC
+		     && operationCode != OperationCode.ALLOCT
 		     && operationCode != OperationCode.ALLOCP
 		     && operationCode != OperationCode.ALLOCR
 		     && operationCode != OperationCode.FREE
 		     && operationCode != OperationCode.POP      // POP はスタックからデータを取り出すだけで何もしない
 		     && operationCode != OperationCode.MOVPOP   // MOVPOP はスタックからデータを読むので、オペランドからは読まない（書く）
 		     && operationCode != OperationCode.REFPOP   // REFPOP はスタックからデータを読むので、オペランドからは読まない（書く）
-		     && operationCode != OperationCode.NOP   // NOP は何もしないので明らかに何も読まない
+		     && operationCode != OperationCode.NOP      // NOP は何もしないので明らかに何も読まない
+		     && operationCode != OperationCode.ENDFUN
 		     ;
 
 		// スタックとデータをやり取りする CALL & RET 命令は要注意
@@ -531,9 +582,17 @@ public class AcceleratorSchedulingUnit {
 					instruction.setAccelerationType(AcceleratorExecutionType.FUNCTION_CONTROL);
 					break;
 				}
+				case EX :
+				{
+					if (instruction.getExtendedOperationCode() == AcceleratorExtendedOperationCode.RETURNED) {
+						instruction.setAccelerationType(AcceleratorExecutionType.FUNCTION_CONTROL);
+						break;
+					}
+				}
 
 				// 何もしない命令（ジャンプ先に配置されている） Nop instruction opcode
 				case NOP :
+				case ALLOCT : // この命令もコード内での型明示と最適化情報のための命令で、動作的には何もしない
 				{
 					instruction.setAccelerationType(AcceleratorExecutionType.NOP);
 					break;

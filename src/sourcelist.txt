@@ -87,6 +87,7 @@ org/vcssl/nano/vm/accelerator/AcceleratorDispatchUnit.java
 org/vcssl/nano/vm/accelerator/AcceleratorExecutionNode.java
 org/vcssl/nano/vm/accelerator/AcceleratorExecutionType.java
 org/vcssl/nano/vm/accelerator/AcceleratorExecutionUnit.java
+org/vcssl/nano/vm/accelerator/AcceleratorExtendedOperationCode.java
 org/vcssl/nano/vm/accelerator/AcceleratorInstruction.java
 org/vcssl/nano/vm/accelerator/AcceleratorSchedulingUnit.java
 org/vcssl/nano/vm/accelerator/BoolCachedScalarBranchUnit.java
