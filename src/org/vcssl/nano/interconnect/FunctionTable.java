@@ -12,6 +12,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.vcssl.nano.VnanoException;
 import org.vcssl.nano.VnanoFatalException;
 import org.vcssl.nano.compiler.AstNode;
 import org.vcssl.nano.compiler.AttributeKey;
@@ -195,7 +196,7 @@ public class FunctionTable {
 	 * @param callerNode 関数呼び出し演算子のASTノード
 	 * @return 登録されていればtrue
 	 */
-	public boolean hasCalleeFunctionOf(AstNode callerNode) {
+	public boolean hasCalleeFunctionOf(AstNode callerNode) throws VnanoException {
 		return this.getCalleeFunctionOf(callerNode) != null;
 	}
 
@@ -205,10 +206,11 @@ public class FunctionTable {
 	 * 呼び出し対象の関数を取得します。
 	 *
 	 * @param callerNode 関数呼び出し演算子のASTノード
+	 * @param checkArgs 関数呼び出しの引数の適性（定数は参照渡しできない等）を検査するかどうか
 	 * @return 対象の関数
-	 * @throws DataException 引数などのデータ型名が非対応のものであった場合にスローされます。
+	 * @throws VnanoException checkArgsにtrueを指定した場合、関数呼び出しの引数の適性が不適切であった場合にスローされます。
 	 */
-	public AbstractFunction getCalleeFunctionOf(AstNode callerNode) {
+	public AbstractFunction getCalleeFunctionOf(AstNode callerNode) throws VnanoException {
 
 		// まずコールシグネチャと宣言シグネチャが一致するものがあるか検索（あれば最も検索が速い）
 		String signature = IdentifierSyntax.getSignatureOfCalleeFunctionOf(callerNode);

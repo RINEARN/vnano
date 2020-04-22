@@ -18,15 +18,19 @@ public final class InternalFunction extends AbstractFunction {
 	private int[] parameterRanks = null;
 	private boolean[] parameterDataTypeArbitrarinesses = null;
 	private boolean[] parameterRankArbitrarinesses = null;
+	private boolean[] parameterReferencenesses = null;
+	private boolean[] parameterConstantnesses = null;
 	private String returnDataTypeName = null;
 	private int returnRank = -1;
 
 
 	public InternalFunction (String functionName,
-			String[] parameterDataTypeNames, int[] parameterRanks,
+			String[] parameterNames, String[] parameterDataTypeNames, int[] parameterRanks,
+			boolean[] parameterReferencenesses, boolean[] parameterConstantnesses,
 			String returnDataTypeName, int returnRank) {
 
 		this.functionName = functionName;
+		this.parameterNames = parameterNames;
 		this.returnDataTypeName = returnDataTypeName;
 		this.returnRank = returnRank;
 		this.parameterDataTypeNames = parameterDataTypeNames;
@@ -35,6 +39,8 @@ public final class InternalFunction extends AbstractFunction {
 		int numParameters = parameterDataTypeNames.length;
 		this.parameterDataTypeArbitrarinesses = new boolean[numParameters];
 		this.parameterRankArbitrarinesses = new boolean[numParameters];
+		this.parameterReferencenesses = parameterReferencenesses;
+		this.parameterConstantnesses = parameterConstantnesses;
 		Arrays.fill(parameterDataTypeArbitrarinesses, false);
 		Arrays.fill(parameterRankArbitrarinesses, false);
 	}
@@ -72,12 +78,29 @@ public final class InternalFunction extends AbstractFunction {
 
 	@Override
 	public final boolean[] getParameterDataTypeArbitrarinesses() {
+		// 現在は未対応なので常に全要素falseの配列を返す
 		return this.parameterDataTypeArbitrarinesses;
 	}
 
 	@Override
 	public final boolean[] getParameterArrayRankArbitrarinesses() {
+		// 現在は未対応なので常に全要素falseの配列を返す
 		return this.parameterRankArbitrarinesses;
+	}
+
+	@Override
+	public boolean[] getParameterConstantnesses() {
+		// 現在は未対応なので常に全要素falseの配列を返す
+		return this.parameterConstantnesses;
+	}
+
+	public void setParameterReferencenesses(boolean[] parameterReferencenesses) {
+		this.parameterReferencenesses = parameterReferencenesses;
+	}
+
+	@Override
+	public boolean[] getParameterReferencenesses() {
+		return this.parameterReferencenesses;
 	}
 
 	@Override
@@ -106,5 +129,4 @@ public final class InternalFunction extends AbstractFunction {
 		// 現在は未対応
 		throw new VnanoFatalException("The invocation of the internal function from the outside has not implemented yet.");
 	}
-
 }

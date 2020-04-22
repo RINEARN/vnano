@@ -299,16 +299,26 @@ public class SemanticAnalyzer {
 				// 引数ノードの内容を検査
 				this.checkArgumentDeclarationNodes(argNodes);
 
-				// 引数のデータ型と次元を取得
+				// 引数の名前、データ型、次元、参照渡し宣言の有無、および定数宣言の有無を取得
+				String[] argNames = new String[argLength];
 				String[] argTypeNames = new String[argLength];
 				int[] argRanks = new int[argLength];
+				boolean[] argRefs = new boolean[argLength];
+				boolean[] argConsts = new boolean[argLength];
 				for (int argIndex=0; argIndex<argLength; argIndex++) {
+					argNames[argIndex] = argNodes[argIndex].getAttribute(AttributeKey.IDENTIFIER_VALUE);
 					argTypeNames[argIndex] = argNodes[argIndex].getAttribute(AttributeKey.DATA_TYPE);
 					argRanks[argIndex] = argNodes[argIndex].getRank();
+					if (argNodes[argIndex].hasAttribute(AttributeKey.MODIFIER)) {
+						argRefs[argIndex] = argNodes[argIndex].getAttribute(AttributeKey.MODIFIER).contains(ScriptWord.REFERENCE);
+					}
+					argConsts[argIndex] = false; // スクリプト内での const 修飾子は未サポート
 				}
 
 				// 関数情報を保持するインスタンスを生成してテーブルに登録
-				InternalFunction internalFunction = new InternalFunction(functionName, argTypeNames, argRanks, returnTypeName, returnRank);
+				InternalFunction internalFunction = new InternalFunction(
+					functionName, argNames, argTypeNames, argRanks, argRefs, argConsts, returnTypeName, returnRank
+				);
 				localFunctionTable.addFunction(internalFunction);
 			}
 
@@ -554,25 +564,18 @@ public class SemanticAnalyzer {
 					// 関数呼び出し演算子の場合
 					case AttributeValue.CALL : {
 
+						// 関数テーブルから、呼び出し対象の関数を検索
 						AbstractFunction function = null;
 
 						// ローカル関数
 						if (localFunctionTable.hasCalleeFunctionOf(currentNode)) {
 							currentNode.setAttribute(AttributeKey.SCOPE, AttributeValue.LOCAL);
 							function = localFunctionTable.getCalleeFunctionOf(currentNode);
-							currentNode.setAttribute(AttributeKey.CALLEE_SIGNATURE, IdentifierSyntax.getSignatureOf(function));
-							if (function.hasNameSpace()) {
-								currentNode.setAttribute(AttributeKey.NAME_SPACE, function.getNameSpace());
-							}
 
 						// グローバル関数
 						} else if (globalFunctionTable.hasCalleeFunctionOf(currentNode)) {
 							currentNode.setAttribute(AttributeKey.SCOPE, AttributeValue.GLOBAL);
 							function = globalFunctionTable.getCalleeFunctionOf(currentNode);
-							currentNode.setAttribute(AttributeKey.CALLEE_SIGNATURE, IdentifierSyntax.getSignatureOf(function));
-							if (function.hasNameSpace()) {
-								currentNode.setAttribute(AttributeKey.NAME_SPACE, function.getNameSpace());
-							}
 
 						} else {
 							throw new VnanoException(
@@ -580,6 +583,15 @@ public class SemanticAnalyzer {
 									IdentifierSyntax.getSignatureOfCalleeFunctionOf(currentNode),
 									currentNode.getFileName(), currentNode.getLineNumber()
 							);
+						}
+
+						// 検索結果の関数を、呼び出し演算子の実引数で呼べるかどうか検査
+						//（定数は参照渡しできない等の制約により、型は整合しても呼べないケースがある）
+						this.checkFunctionCallablility(function, currentNode);
+
+						currentNode.setAttribute(AttributeKey.CALLEE_SIGNATURE, IdentifierSyntax.getSignatureOf(function));
+						if (function.hasNameSpace()) {
+							currentNode.setAttribute(AttributeKey.NAME_SPACE, function.getNameSpace());
 						}
 
 						String[] argumentDataTypeNames = this.getArgumentDataTypeNames(currentNode);
@@ -643,6 +655,46 @@ public class SemanticAnalyzer {
 			arrayRanks[argumentIndex] = childNodes[argumentIndex+1].getRank();
 		}
 		return arrayRanks;
+	}
+
+	// 引数のデータ型に基づいて検索した結果の関数を、呼び出し演算子の実引数で呼べるかどうか検査する
+	//（定数は参照渡しできない等の制約により、型は整合しても呼べないケースがある）
+	private void checkFunctionCallablility(AbstractFunction function, AstNode callerNode) throws VnanoException {
+		AstNode[] argNodes = callerNode.getChildNodes(); // 注：[0]番要素は関数識別子、[1]以降が引数ノード
+		String[] parameterNames = function.getParameterNames();
+		boolean[] areParamConst = function.getParameterConstantnesses();
+		boolean[] areParamRef = function.getParameterReferencenesses();
+		int paramN = areParamRef.length;
+
+		// 参照渡しかつ非 const な引数の場合、変数か配列要素（Subsctipt演算子）しか渡せないので、渡せるかどうか検査
+		//   理由1：リテラルなどの定数値が呼び出し先で書き換えられると色々とまずい
+		//   理由2：式の評価値のレジスタを参照渡しして書き換えられると、そのレジスタに依存する処理が色々とまずい
+		for (int paramIndex=0; paramIndex<paramN; paramIndex++) {
+			if (areParamRef[paramIndex] && !areParamConst[paramIndex]) {
+
+				// 注：[0]番要素は関数識別子、[1]以降が引数ノード
+				AstNode argNode = argNodes[paramIndex+1];
+
+				// 変数かどうか
+				boolean isVariable = argNode.getType() == AstNode.Type.LEAF
+					&& argNode.getAttribute(AttributeKey.LEAF_TYPE).equals(AttributeValue.VARIABLE_IDENTIFIER);
+
+				// 配列要素かどうか
+				boolean isSubscript = argNode.getType() == AstNode.Type.OPERATOR
+					&& argNode.getAttribute(AttributeKey.OPERATOR_EXECUTOR).equals(AttributeValue.SUBSCRIPT);
+
+				// 変数でも配列要素でもなければエラー
+				if (!isVariable && !isSubscript) {
+					String[] errorWords = new String[] {
+						Integer.toString(paramIndex+1), parameterNames[paramIndex], function.getFunctionName()
+					};
+					throw new VnanoException(
+						ErrorType.NON_VARIABLE_IS_PASSED_BY_REFERENCE, errorWords,
+						callerNode.getFileName(), callerNode.getLineNumber()
+					);
+				}
+			}
+		}
 	}
 
 
