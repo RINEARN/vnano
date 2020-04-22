@@ -166,12 +166,12 @@ public class AcceleratorSchedulingUnit {
 					)
 				);
 				returnedInstruction.setExtendedOperationCode(AcceleratorExtendedOperationCode.RETURNED);
+				returnedInstruction.setUnreorderedAddress(instructionIndex);
 
 				// この命令直後にあるはずのNOP命令を、生成したRETURNED拡張命令で置き換える
 				acceleratorInstructionList.set(instructionIndex+1, returnedInstruction);
 			}
 		}
-
 	}
 
 

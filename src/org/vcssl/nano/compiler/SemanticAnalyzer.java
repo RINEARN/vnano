@@ -75,7 +75,7 @@ public class SemanticAnalyzer {
 	 * <span class="lang-ja">
 	 * ASTの意味（セマンティクス）を解析し、
 	 * 中間コード生成に必要な各種情報を補完した、新しいASTを生成して返します
-	 * <.span>
+	 * <span>
 	 * .
 	 * @param inputAst
 	 *   <span class="lang-en">The root node of the AST to be analyzed.</span>
