@@ -115,6 +115,8 @@ public class ErrorMessage {
 			case INVALID_RETURNED_VALUE_DATA_TYPE : return "return 文が返している値の型「 " + words[0] + " 」が、関数宣言における戻り値の型「 " + words[1] + " 」と異なります。";
 			case RETURNED_VALUE_IS_MISSING : return "戻り値を返すべき関数内で, 何も値を返さない return 文が検出されました。";
 			case NON_VARIABLE_IS_PASSED_BY_REFERENCE : return "関数「 " + words[2] + " 」の " + words[0] + " 番目の引数「 " + words[1] + " 」には、「 変数、配列、配列の要素 」以外を渡す事はできません（constでない参照渡し引数であるため）。";
+			case DUPLICATE_VARIABLE_IDENTIFIER : return "変数の名前「 " + words[0] + " 」は、同じ影響範囲内の別の変数で、既に使用されています。";
+			case DUPLICATE_FUNCTION_SIGNATURE : return "関数「 " + words[0] + " 」は、全く同じ名前と引数の組み合わせで、他の場所で既に宣言されています。";
 			case UNEXPECTED_ACCELERATOR_CRASH : return "予期しないVMエラー (命令アドレス: " + words[0] + ", 再配置後命令アドレス: " + words[1] + ")";
 			case UNEXPECTED_PROCESSOR_CRASH : return "予期しないVMエラー（命令アドレス: " + words[0] + ")";
 			case UNEXPECTED : return "予期しないエラー";
@@ -183,6 +185,8 @@ public class ErrorMessage {
 			case INVALID_RETURNED_VALUE_DATA_TYPE : return "The data type of the returned value \""+ words[0] + "\" does not match the data type \""+ words[1] + "\" which is expected from the function declaration";
 			case RETURNED_VALUE_IS_MISSING : return "There is a return statement returning no value in the function which should return a value.";
 			case NON_VARIABLE_IS_PASSED_BY_REFERENCE : return "Only a variable, an array, or an element of an array can be passed to the " + words[0] + "-th argument \"" + words[1] + "\" of function \"" + words[2] + "\", because it will be passed by nonconstant reference";
+			case DUPLICATE_VARIABLE_IDENTIFIER : return "The name of variable \"" + words[0] + "\" is already used by another variable, and scopes of them are conflicting";
+			case DUPLICATE_FUNCTION_SIGNATURE : return "The function \"" + words[0] + "\" is already declared with the same name and same parameters at other lines";
 			case UNEXPECTED_ACCELERATOR_CRASH : return "Unexpected VM Error (instruction-addr: " + words[0] + ", reordered-instruction-addr: " + words[1] + ")";
 			case UNEXPECTED_PROCESSOR_CRASH : return "Unexpected VM Error (instruction-addr: " + words[0] + ")";
 			case UNEXPECTED : return "Unexpected Error";
