@@ -182,10 +182,10 @@ public class SemanticAnalyzer {
 
 			// ブロック文に入った場合: 上階層のスコープ内ローカル変数カウンタの値をスタックに退避し、リセット
 			if (currentBlockDepth > lastBlockDepth) {
-				scopeLocalVariableCounterStack.add(scopeLocalVariableCounter);
+				scopeLocalVariableCounterStack.push(scopeLocalVariableCounter); // add だと別の端への追加になるので注意
 				scopeLocalVariableCounter = 0;
 
-			// ブロック文を抜ける場合: その階層のローカル変数/関数を削除し、スコープ内ローカル変数/関数リストをスタックから復元
+			// ブロック文を抜けた場合: その階層のローカル変数/関数を削除し、スコープ内ローカル変数/関数リストをスタックから復元
 			} else if (currentBlockDepth < lastBlockDepth) {
 				// ブロック内の変数は末尾に連続して詰まっているはずなので、末尾から連続で削除
 				for (int i=0; i<scopeLocalVariableCounter; i++) {
@@ -204,6 +204,7 @@ public class SemanticAnalyzer {
 				// ローカル変数の情報を保持するインスタンスを生成して変数テーブルに登録
 				InternalVariable internalVariable = new InternalVariable(variableName, dataTypeName, rank, localVariableSerialNumber);
 				localVariableTable.addVariable(internalVariable);
+				scopeLocalVariableCounter++;
 
 				// ノードに属性を付加
 				currentNode.setAttribute(AttributeKey.SCOPE, AttributeValue.LOCAL);
