@@ -27,6 +27,7 @@ import org.vcssl.nano.VnanoException;
 public class ExecutionUnit {
 
 	/** スカラの次元数です。 */
+	@SuppressWarnings("unused")
 	private static final int RANK_OF_SCALAR = 0;
 
 
@@ -1184,15 +1185,7 @@ public class ExecutionUnit {
 	public void ref(DataType type, DataContainer<?> dest, DataContainer<?> src) {
 		// this.checkDataType(dest, type); // データ参照を上書きする命令なので、上書き前の dest は検査不要（未確保の場合もある）
 		this.checkDataType(src, type);
-
-		// スカラの場合
-		if (src.getRank() == RANK_OF_SCALAR) {
-			((DataContainer<Object>)dest).setData(src.getData(), src.getOffset());
-
-		// 配列の場合
-		} else {
-			((DataContainer<Object>)dest).setData(src.getData(), src.getLengths());
-		}
+		( (DataContainer<Object>)dest ).refer( (DataContainer<Object>)src );
 	}
 
 

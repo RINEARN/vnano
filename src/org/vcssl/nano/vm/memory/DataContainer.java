@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2019 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2020 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -153,11 +153,6 @@ public class DataContainer<T> implements ArrayDataContainerInterface1<T> {
 		CLASS_DATA_TYPE_MAP.put(String[].class, DataType.STRING);
 	}
 
-	/**
-	 * このデータコンテナが格納対象とするデータの型を保持します。
-	 */
-	private DataType dataType;
-
 
 	/**
 	 * このデータコンテナが格納するデータです。
@@ -209,6 +204,13 @@ public class DataContainer<T> implements ArrayDataContainerInterface1<T> {
 
 
 	/**
+	 * このデータコンテナが、別のデータコンテナと参照を共有する場合に、
+	 * 参照ツリーのルート（根）に位置するデータコンテナを控えます。
+	 */
+	private DataContainer<T> referenceTreeRoot;
+
+
+	/**
 	 * スカラ（単一要素の0次元配列）のデータを保持するためのデフォルトの設定値で、データコンテナを生成します。
 	 *
 	 * データの保持領域が確保されるわけではないため、保持させるデータは外部で用意し、
@@ -229,10 +231,10 @@ public class DataContainer<T> implements ArrayDataContainerInterface1<T> {
 	 */
 	public void initialize() {
 		this.data = null;
+		this.referenceTreeRoot = null;
 		this.size = SIZE_OF_SCALAR;
 		this.lengths = LENGTHS_OF_SCALAR;
 		this.offset = 0;
-		this.dataType = DataType.VOID;
 	}
 
 
@@ -255,23 +257,13 @@ public class DataContainer<T> implements ArrayDataContainerInterface1<T> {
 	 */
 	private final void setData(T data) {
 
-		// データの格納
-		this.data = data;
+		// 別のコンテナを参照していない場合： このコンテナのデータが持っている更新
+		if (this.referenceTreeRoot == null) {
+			this.data = data;
 
-		// 以下、データ型の設定
-
-		// 格納するデータが無い場合はVOID型にする
-		if (this.data == null) {
-			this.dataType = DataType.VOID;
-			return;
-		}
-
-		// データのクラスからこの処理系でのデータ型へ変換して設定
-		this.dataType = CLASS_DATA_TYPE_MAP.get(this.data.getClass());
-
-		// 未知の型の場合もVOID型にする（こちらはUNKNOWNなどの別の型を追加すべきかもしれない）
-		if (this.dataType == null) {
-			this.dataType = DataType.VOID;
+		// 別のコンテナを参照している場合： 参照ツリーのルートは必ず実データを持っているはずなので、それを更新
+		} else {
+			this.referenceTreeRoot.data = data;  // ※ setData(data) を呼ぶと一階層でも再帰コールになってしまうので注意
 		}
 	}
 
@@ -286,13 +278,25 @@ public class DataContainer<T> implements ArrayDataContainerInterface1<T> {
 	 */
 	public final void setData(T data, int[] lengths) {
 		this.setData(data);
-		this.lengths = lengths;
-		int dataSize = 1;
+
+		// 各次元の長さの積（= size）の値を求める
+		int productOfLengths = 1;
 		for (int length: lengths) {
-			dataSize *= length;
+			productOfLengths *= length;
 		}
-		this.size = dataSize;
-		this.offset = 0;
+
+		// 別のコンテナを参照していない場合： このコンテナの情報を更新
+		if (this.referenceTreeRoot == null) {
+			this.offset = 0;
+			this.lengths = lengths;
+			this.size = productOfLengths;
+
+		// 別のコンテナを参照している場合： 参照ツリーのルートは必ず実データを持っているはずなので、その情報を更新
+		} else {
+			this.referenceTreeRoot.offset = 0;
+			this.referenceTreeRoot.lengths = lengths;
+			this.referenceTreeRoot.size = productOfLengths;
+		}
 	}
 
 
@@ -308,9 +312,19 @@ public class DataContainer<T> implements ArrayDataContainerInterface1<T> {
 	 */
 	public final void setData(T data, int offset) {
 		this.setData(data);
-		this.offset = offset;
-		this.lengths = LENGTHS_OF_SCALAR;
-		this.size = SIZE_OF_SCALAR;
+
+		// 別のコンテナを参照していない場合： このコンテナの情報を更新
+		if (this.referenceTreeRoot == null) {
+			this.offset = offset;
+			this.lengths = LENGTHS_OF_SCALAR;
+			this.size = SIZE_OF_SCALAR;
+
+		// 別のコンテナを参照している場合： 参照ツリーのルートは必ず実データを持っているはずなので、その情報を更新
+		} else {
+			this.referenceTreeRoot.offset = offset;
+			this.referenceTreeRoot.lengths = LENGTHS_OF_SCALAR;
+			this.referenceTreeRoot.size = SIZE_OF_SCALAR;
+		}
 	}
 
 
@@ -323,7 +337,7 @@ public class DataContainer<T> implements ArrayDataContainerInterface1<T> {
 	 * @return data 保持しているデータ
 	 */
 	public final T getData() {
-		return this.data;
+		return (this.referenceTreeRoot == null) ? this.data : this.referenceTreeRoot.data;
 	}
 
 
@@ -337,7 +351,7 @@ public class DataContainer<T> implements ArrayDataContainerInterface1<T> {
 	 * @return オフセット値
 	 */
 	public int getOffset() {
-		return this.offset;
+		return (this.referenceTreeRoot == null) ? this.offset : this.referenceTreeRoot.offset;
 	}
 
 
@@ -355,7 +369,7 @@ public class DataContainer<T> implements ArrayDataContainerInterface1<T> {
 	 * @return データの総要素数
 	 */
 	public final int getSize() {
-		return this.size;
+		return (this.referenceTreeRoot == null) ? this.size : this.referenceTreeRoot.size;
 	}
 
 
@@ -372,7 +386,7 @@ public class DataContainer<T> implements ArrayDataContainerInterface1<T> {
 	 * @return 各次元の次元長を格納する配列
 	 */
 	public final int[] getLengths() {
-		return this.lengths;
+		return (this.referenceTreeRoot == null) ? this.lengths : this.referenceTreeRoot.lengths;
 	}
 
 
@@ -384,7 +398,7 @@ public class DataContainer<T> implements ArrayDataContainerInterface1<T> {
 	 * @return 各次元の次元長を格納する配列
 	 */
 	public final int getRank() {
-		return this.lengths.length;
+		return (this.referenceTreeRoot == null) ? this.lengths.length : this.referenceTreeRoot.lengths.length;
 	}
 
 
@@ -395,7 +409,63 @@ public class DataContainer<T> implements ArrayDataContainerInterface1<T> {
 	 * @return データ型
 	 */
 	public final DataType getDataType() {
-		return this.dataType;
+
+		// 格納しているデータのクラスを、データ型との対応関係を保持するハッシュマップに投げて、型を判定する
+		T storingData = (this.referenceTreeRoot == null) ? this.data : this.referenceTreeRoot.data;
+		DataType dataType = DataType.VOID;
+		if (storingData != null) {
+			dataType = CLASS_DATA_TYPE_MAP.get(storingData.getClass());
+
+			// 未知の型の場合もVOID型にする（こちらはUNKNOWNなどの別の型を追加すべきかもしれない）
+			if (dataType == null) {
+				dataType = DataType.VOID;
+			}
+		}
+
+		return dataType;
+
+		// この方式は、あらかじめ型情報をフィールドに控えて参照する方式よりも、
+		// 毎回ハッシュテーブルを引く処理コストが多少かかるが、しかしながらこのメソッドは
+		// 主にVMの実行前処理で呼ばれるもので、実行中にはほぼ呼ばれないので問題ない。
+		// (VRILは命令自体が型情報を静的に持っているので、実行中に動的にオペランドの型情報を調べる必要はほぼ無い)
+
+		// もし型情報をこのクラスのフィールドに控えて参照するようにする場合、
+		// データの set と同時に set するのは実行時に頻繁に処理コストを食うので好ましくない（元々はそうだった）。
+		// データと独立に set する場合は、例えば ALLOC/ELEM 命令でのデータ確保/参照変更時が考えられるが、
+		// しかしALLOC/ELEM命令は実行頻度が高いので、やはり多少は実行時の処理コストを食ってしまう。
 	}
 
+
+	/**
+	 * このデータコンテナの状態が、引数に渡されたデータコンテナの状態をそのまま参照するように設定します。
+	 * ただし、引数のコンテナが多重参照状態（あるコンテナがさらに別のコンテナを参照している状態）である場合、
+	 * 設定される参照先は、参照関係のツリー構造（参照ツリー）のルートに位置するコンテナとなります。
+	 *
+	 * このメソッドによる参照設定後には、
+	 * このコンテナに対する状態取得操作は、参照先（多重参照の場合はそのルート）のコンテナの状態を返すようになります。
+	 * これにより、参照ツリーに属する全てのコンテナにおいて、状態取得操作で同じ結果を得られるようになります。
+	 * また、このコンテナに対する状態設定操作は、
+	 * 参照ツリーに属する全てのコンテナに対する状態取得結果に反映されるようになります。
+	 *
+	 * このメソッドは、複数回呼び出す事で、参照先を変更できます。
+	 * ただし、このメソッドによる参照設定時点よりも後に、参照先のコンテナが、
+	 * 別のコンテナを参照するようになった場合、その事はこのコンテナの挙動には反映されません。
+	 * 反映させるには、再度このメソッドでそのコンテナを参照先として再設定する必要があります。
+	 *
+	 * @param referencedDataContainer
+	 */
+	public void refer(DataContainer<T> referencedDataContainer) {
+		this.referenceTreeRoot = referencedDataContainer;
+		while (this.referenceTreeRoot.referenceTreeRoot != null) {
+			this.referenceTreeRoot = this.referenceTreeRoot.referenceTreeRoot;
+		}
+	}
+
+
+	/**
+	 * このデータコンテナが、別のデータコンテナの状態を参照するよう設定されている場合、その設定を解除します。
+	 */
+	public void derefer() {
+		this.referenceTreeRoot = null;
+	}
 }

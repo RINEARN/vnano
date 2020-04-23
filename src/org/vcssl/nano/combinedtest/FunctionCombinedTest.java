@@ -790,6 +790,8 @@ public class FunctionCombinedTest extends CombinedTestElement {
 		String scriptCode;
 		long[] resultLV;
 		long[] expectedLV;
+		boolean[] resultBV;
+		boolean[] expectedBV;
 
 		// ベクトルの値渡し (call by value of a vector)
 		scriptCode =
@@ -832,6 +834,89 @@ public class FunctionCombinedTest extends CombinedTestElement {
 		expectedLV = new long[] { 1l, 2l, 3l };
 		super.evaluateResult(
 			resultLV, expectedLV, "void fun(int &x[]) { x[0]=1; x[1]=2; x[2]=3; } int a[3]; ... fun(a); ", scriptCode
+		);
+
+
+		// ベクトルの参照渡し (call by reference of a vector)
+		// グローバル変数を参照渡しし、その関数の実行中に、関数内からグローバル変数を直接書き変えた場合
+		scriptCode =
+			" int a[3];                        \n" +
+			"                                  \n" +
+			" bool[] fun(int &x[]) {           \n" +
+			"     a[0] = 1;                    \n" +
+			"     a[1] = 2;                    \n" +
+			"     a[2] = 3;                    \n" +
+			"                                  \n" +
+			"     bool result[] = (a==x);      \n" +
+			"     return result;               \n" +
+			" }                                \n" +
+			"                                  \n" +
+			" a[0] = 0;                        \n" +
+			" a[1] = 0;                        \n" +
+			" a[2] = 0;                        \n" +
+			" bool r[] = fun(a);               \n" +
+			" r;                               \n" ;
+
+		resultBV = (boolean[])this.engine.executeScript(scriptCode);
+		expectedBV = new boolean[] { true, true, true };
+		super.evaluateResult(
+			resultBV, expectedBV, "int a[3]; bool[] fun(int &x[]) { x[0]=1; ... x[2]=3; bool result[] = (a==x); return result; } bool r[]=fun(a); ", scriptCode
+		);
+
+
+		// ベクトルの参照渡し (call by reference of a vector)
+		// 参照渡しされた配列に対して、データ領域が再確保される演算を行った場合
+		scriptCode =
+			" void fun(int &x[]) {             \n" +
+			"     int y[4];                    \n" +
+			"     y[0] = 1;                    \n" +
+			"     y[1] = 2;                    \n" +
+			"     y[2] = 3;                    \n" +
+			"     y[3] = 4;                    \n" +
+			"     x = y;                       \n" +  // 代入先と代入元の要素数が異なるので、左辺のデータ領域が再確保される
+			" }                                \n" +
+			"                                  \n" +
+			" int a[3];                        \n" +
+			" a[0] = 0;                        \n" +
+			" a[1] = 0;                        \n" +
+			" a[2] = 0;                        \n" +
+			" fun(a);                          \n" +  // もしも上述のデータ領域再確保で参照リンクが切れていなければ、
+			" a;                               \n" ;  // 関数内での x の変更が、ちゃんと呼び出し元の a に反映されているはず
+
+		resultLV = (long[])this.engine.executeScript(scriptCode);
+		expectedLV = new long[] { 1l, 2l, 3l, 4l };
+		super.evaluateResult(
+			resultLV, expectedLV, "void fun(int &x[]) { int y[4]; y[0]=1; ... y[3]=4; x=y; } int a[3]; a[0]=0; ... a[2]=0; fun(a); ", scriptCode
+		);
+
+		// ベクトルの参照渡し (call by reference of a vector)
+		// グローバル配列を参照渡しし、その関数の実行中に、
+		// 関数内からグローバル配列に対して、データ領域が再確保される演算を行った場合
+		scriptCode =
+			" int a[3];                        \n" +
+			"                                  \n" +
+			" bool[] fun(int &x[]) {           \n" +
+			"     int y[4];                    \n" +
+			"     y[0] = 1;                    \n" +
+			"     y[1] = 2;                    \n" +
+			"     y[2] = 3;                    \n" +
+			"     y[3] = 4;                    \n" +
+			"     a = y;                       \n" +  // 代入先と代入元の要素数が異なるので、左辺のデータ領域が再確保される
+			"                                  \n" +
+			"     bool result[] = (a == x);    \n" +  // もしも上述のデータ領域再確保で参照リンクが切れていなければ、
+			"     return result;               \n" +  // グローバルの a の変更がちゃんと x に反映されていて、比較結果は等しいはず
+			" }                                \n" +
+			"                                  \n" +
+			" a[0] = 0;                        \n" +
+			" a[1] = 0;                        \n" +
+			" a[2] = 0;                        \n" +
+			" bool r[] = fun(a);               \n" +
+			" r;                               \n" ;
+
+		resultBV = (boolean[])this.engine.executeScript(scriptCode);
+		expectedBV = new boolean[] { true, true, true, true };
+		super.evaluateResult(
+			resultLV, expectedLV, "int a[3]; bool[] fun(int &x[]) { int y[4]; y[0]=1; ... y[3]=4; a=y; bool result[]=(a==y); return result; } a[0]=0; ... a[2]=0; bool r[]=fun(a); ", scriptCode
 		);
 	}
 
