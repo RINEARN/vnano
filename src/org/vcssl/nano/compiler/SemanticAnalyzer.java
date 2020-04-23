@@ -180,19 +180,27 @@ public class SemanticAnalyzer {
 			lastBlockDepth = currentBlockDepth;
 			currentBlockDepth = currentNode.getBlockDepth();
 
-			// ブロック文に入った場合: 上階層のスコープ内ローカル変数カウンタの値をスタックに退避し、リセット
-			if (currentBlockDepth > lastBlockDepth) {
-				scopeLocalVariableCounterStack.push(scopeLocalVariableCounter); // add だと別の端への追加になるので注意
-				scopeLocalVariableCounter = 0;
+			// ブロックに入った or 出たポイントかどうかを判定して控える
+			boolean entersNewBlock = currentNode.getType() == AstNode.Type.BLOCK;
+			boolean exitsFromBlock = currentBlockDepth < lastBlockDepth     // ブロックの外の階層に降りた場合（ブロック深度減る）
+				|| (entersNewBlock && currentBlockDepth == lastBlockDepth); // 出ると同時に別ブロックに入った場合（深度変わらず）
 
-			// ブロック文を抜けた場合: その階層のローカル変数/関数を削除し、スコープ内ローカル変数/関数リストをスタックから復元
-			} else if (currentBlockDepth < lastBlockDepth) {
+			// ブロック文の終端での処理: その階層のローカル変数/関数を削除し、スコープ内ローカル変数/関数リストをスタックから復元
+			if (exitsFromBlock) {
+
 				// ブロック内の変数は末尾に連続して詰まっているはずなので、末尾から連続で削除
 				for (int i=0; i<scopeLocalVariableCounter; i++) {
 					localVariableTable.removeLastVariable();
 				}
 				// 脱出先ブロックスコープ内の変数の数をスタックから復元
 				scopeLocalVariableCounter = scopeLocalVariableCounterStack.pop();
+			}
+
+			// ブロック文に入った際の処理: 上階層のスコープ内ローカル変数カウンタの値をスタックに退避し、リセット
+			// (ブロックを抜けたノードが別ブロックに入るノードだったりもするため、順序的には上の終端処理よりも後で行う)
+			if (entersNewBlock) {
+				scopeLocalVariableCounterStack.push(scopeLocalVariableCounter); // add だと別の端への追加になるので注意
+				scopeLocalVariableCounter = 0;
 			}
 
 			// ローカル変数宣言文ノードの場合: ローカル変数マップに追加し、ノード自身にローカル変数インデックスやスコープも設定

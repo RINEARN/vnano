@@ -64,6 +64,26 @@ public class BlockStatementCombinedTest extends CombinedTestElement {
 			super.succeeded("{ int a=0; } a=123; (should be failed) ");
 		}
 
+		scriptCode =
+			" {                 \n" +
+			"     int a = 0;    \n" +
+			" }                 \n" +
+			"                   \n" +
+			" {                 \n" +
+			"     a = 123;      \n" +
+		    " }                 \n" ;
+
+		try {
+			this.engine.executeScript(scriptCode);
+
+			// 例外が投げられずにここに達するのは、期待されたエラーが検出されていないので失敗
+			super.missedExpectedError("{ int a=0; } { a=123; } (should be failed) ", scriptCode);
+		} catch (VnanoException vne) {
+
+			// 例外が投げられればエラーが検出されているので成功
+			super.succeeded("{ int a=0; } a=123; (should be failed) ");
+		}
+
 
 		// 変数にスコープ内のネストしたブロック内でアクセスしている場合
 
