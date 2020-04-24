@@ -230,6 +230,14 @@ public class SemanticAnalyzer {
 				String dataTypeName = currentNode.getDataTypeName();
 				int rank = currentNode.getRank();
 
+				// 宣言箇所からの可視範囲内に、既に同名変数が存在する場合はエラーとする（可視範囲外の変数はブロック末端で削除済み）
+				if (localVariableTable.containsVariableWithName(variableName)) {
+					throw new VnanoException(
+						ErrorType.DUPLICATE_VARIABLE_IDENTIFIER, new String[] {variableName},
+						currentNode.getFileName(), currentNode.getLineNumber()
+					);
+				}
+
 				// ローカル変数の情報を保持するインスタンスを生成して変数テーブルに登録
 				InternalVariable internalVariable = new InternalVariable(variableName, dataTypeName, rank, localVariableSerialNumber);
 				localVariableTable.addVariable(internalVariable);
