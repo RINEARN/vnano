@@ -1296,6 +1296,17 @@ public class FunctionCombinedTest extends CombinedTestElement {
 			// 例外が投げられればエラーが検出されているので成功
 			super.succeeded("void fun(int x){ } fun(0); x=123; (should be failed) ");
 		}
+
+
+		// 識別子が競合する変数宣言でも、関数の引数なら特例的に可能とする
+		scriptCode =
+			" int x;             \n" +
+			"                    \n" +
+			" void fun(int x) {  \n" +
+			" }                  \n" ;
+
+		this.engine.executeScript(scriptCode);
+		this.succeeded("int x; void fun(int x){ } "); // エラーにならず実行できた時点で成功
 	}
 
 
