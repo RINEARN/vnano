@@ -33,6 +33,7 @@ public class FunctionCombinedTest extends CombinedTestElement {
 			this.testFunctionCallsBySubscriptReferences();
 			this.testSequentialFunctionCalls();
 			this.testNestedFunctionCalls();
+			this.testArgumentScopes();
 		} catch (VnanoException e) {
 			throw new CombinedTestException(e);
 		}
@@ -1270,5 +1271,29 @@ public class FunctionCombinedTest extends CombinedTestElement {
 			"Nested functin calls (case 2) ",
 			scriptCode
 		);
+	}
+
+
+	private void testArgumentScopes() throws VnanoException {
+		String scriptCode;
+
+		// 引数 x は関数外からはアクセスできないはず
+		scriptCode =
+			" void fun(int x) {  \n" +
+			" }                  \n" +
+			"                    \n" +
+			" fun(0);            \n" + // 引数のメモリ確保処理を走らせるため
+			" x = 123;           \n" ; // (一度も走っていないと、参照できてしまっていても想定と別のエラーが起きる)
+
+		try {
+			this.engine.executeScript(scriptCode);
+
+			// 例外が投げられずにここに達するのは、期待されたエラーが検出されていないので失敗
+			super.missedExpectedError("void fun(int x){ } fun(0); x=123; (should be failed) ", scriptCode);
+		} catch (VnanoException vne) {
+
+			// 例外が投げられればエラーが検出されているので成功
+			super.succeeded("void fun(int x){ } fun(0); x=123; (should be failed) ");
+		}
 	}
 }

@@ -147,9 +147,12 @@ public class SemanticAnalyzer {
 	 * 関数識別子ノードの {@link AttributeKey#DATA_TYPE DATA_TYPE} 属性の値として設定されます。
 	 * 同様に、戻り値の配列次元数が {@link AttributeKey#RANK RANK} 属性の値として設定されます。
 	 *
+	 * 同時に、このメソッド内では、関数のスコープ検査や多重宣言検査なども行われます。
+	 *
 	 * @param astRootNode 解析・設定対象のASTのルートノード（メソッド実行後、各ノードに属性値が追加されます）
 	 * @param globalFunctionTable AST内で参照しているグローバル変数情報を持つ変数テーブル
-	 * @throws VnanoException 存在しない変数を参照している場合などにスローされます。
+	 * @throws VnanoException
+	 *     存在しない変数を参照している場合や、スコープ外での参照、変数の重複宣言などが検出された場合にスローされます。
 	 */
 	private void supplementVariableIdentifierLeafAttributes(AstNode astRootNode, VariableTable globalVariableTable)
 					throws VnanoException {
@@ -168,8 +171,13 @@ public class SemanticAnalyzer {
 		int currentBlockDepth = 0; // ブロック終端による変数削除などで使用
 		int lastBlockDepth = 0;
 
-		// ブロックスコープ内で宣言されたローカル変素の数を控えるカウンタ（ブロックスコープ脱出時に変数をテーブルから削除するため）
-		int scopeLocalVariableCounter = 0;
+		// ブロックスコープ内で宣言されたローカル変素の数を控えるカウンタ
+		//（ブロックスコープ脱出時に変数をテーブルから削除するため）
+		int currentBlockVariableCounter = 0;
+
+		// 関数の引数や、for文の初期化文での宣言変数等は、宣言文の次のブロックに属すると見なす必要がある
+		int nextBlockVariableCounter = 0;       // そのためのカウンタ
+		boolean shouldCountToNextBlock = false; // 関数や for 文を踏むと true にし、true の場合に上のカウンタを使うようにする
 
 		// 入れ子ブロックに入る際に、上記のローカル変数カウンタの値を退避するためのスタック
 		Deque<Integer>scopeLocalVariableCounterStack = new ArrayDeque<Integer>();
@@ -180,6 +188,12 @@ public class SemanticAnalyzer {
 			lastBlockDepth = currentBlockDepth;
 			currentBlockDepth = currentNode.getBlockDepth();
 
+			// 関数宣言や for 文を踏むと、それ以降、ブロック開始までの宣言変数を、次のブロックに属するとカウントするよう設定
+			if (currentNode.getType() == AstNode.Type.FUNCTION || currentNode.getType() == AstNode.Type.FOR) {
+				shouldCountToNextBlock = true;
+				nextBlockVariableCounter = 0;
+			}
+
 			// ブロックに入った or 出たポイントかどうかを判定して控える
 			boolean entersNewBlock = currentNode.getType() == AstNode.Type.BLOCK;
 			boolean exitsFromBlock = currentBlockDepth < lastBlockDepth     // ブロックの外の階層に降りた場合（ブロック深度減る）
@@ -189,18 +203,25 @@ public class SemanticAnalyzer {
 			if (exitsFromBlock) {
 
 				// ブロック内の変数は末尾に連続して詰まっているはずなので、末尾から連続で削除
-				for (int i=0; i<scopeLocalVariableCounter; i++) {
+				for (int i=0; i<currentBlockVariableCounter; i++) {
 					localVariableTable.removeLastVariable();
 				}
 				// 脱出先ブロックスコープ内の変数の数をスタックから復元
-				scopeLocalVariableCounter = scopeLocalVariableCounterStack.pop();
+				currentBlockVariableCounter = scopeLocalVariableCounterStack.pop();
 			}
 
 			// ブロック文に入った際の処理: 上階層のスコープ内ローカル変数カウンタの値をスタックに退避し、リセット
 			// (ブロックを抜けたノードが別ブロックに入るノードだったりもするため、順序的には上の終端処理よりも後で行う)
 			if (entersNewBlock) {
-				scopeLocalVariableCounterStack.push(scopeLocalVariableCounter); // add だと別の端への追加になるので注意
-				scopeLocalVariableCounter = 0;
+				scopeLocalVariableCounterStack.push(currentBlockVariableCounter); // add だと別の端への追加になるので注意
+				currentBlockVariableCounter = 0;
+
+				// 関数や for 文を踏んでいた場合、次のブロックに属するとカウントしていた変数があるので、それを加算
+				if (shouldCountToNextBlock) {
+					currentBlockVariableCounter += nextBlockVariableCounter;
+					nextBlockVariableCounter = 0;
+					shouldCountToNextBlock = false;
+				}
 			}
 
 			// ローカル変数宣言文ノードの場合: ローカル変数マップに追加し、ノード自身にローカル変数インデックスやスコープも設定
@@ -212,7 +233,11 @@ public class SemanticAnalyzer {
 				// ローカル変数の情報を保持するインスタンスを生成して変数テーブルに登録
 				InternalVariable internalVariable = new InternalVariable(variableName, dataTypeName, rank, localVariableSerialNumber);
 				localVariableTable.addVariable(internalVariable);
-				scopeLocalVariableCounter++;
+				if (shouldCountToNextBlock) {
+					nextBlockVariableCounter++;
+				} else {
+					currentBlockVariableCounter++;
+				}
 
 				// ノードに属性を付加
 				currentNode.setAttribute(AttributeKey.SCOPE, AttributeValue.LOCAL);
