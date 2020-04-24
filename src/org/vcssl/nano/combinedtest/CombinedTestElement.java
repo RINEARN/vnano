@@ -15,8 +15,17 @@ public class CombinedTestElement {
 	// Override on subclasses
 	public void executeTest() { };
 
+	protected void succeeded(String testName) {
+		System.out.println(testName + ": OK.");
+	}
 
-	@SuppressWarnings("unused")
+	protected void missedExpectedError(String testName, String scriptCode) {
+		throw new CombinedTestException(
+			"The incorrect script has finished without detecting the error to be detected",
+			testName, scriptCode
+		);
+	}
+
 	protected void evaluateResult(
 			Object resultValue, Object correctValue, String testName, String scriptCode) {
 
@@ -27,7 +36,6 @@ public class CombinedTestElement {
 		}
 	}
 
-	@SuppressWarnings("unused")
 	protected void evaluateResult(
 			int resultValue, int correctValue, String testName, String scriptCode) {
 
@@ -38,7 +46,6 @@ public class CombinedTestElement {
 		}
 	}
 
-	@SuppressWarnings("unused")
 	protected void evaluateResult(
 			int[] resultValue, int[] correctValue, String testName, String scriptCode) {
 
@@ -49,7 +56,6 @@ public class CombinedTestElement {
 		}
 	}
 
-	@SuppressWarnings("unused")
 	protected void evaluateResult(
 			long resultValue, long correctValue, String testName, String scriptCode) {
 
@@ -60,7 +66,6 @@ public class CombinedTestElement {
 		}
 	}
 
-	@SuppressWarnings("unused")
 	protected void evaluateResult(
 			long[] resultValue, long[] correctValue, String testName, String scriptCode) {
 
@@ -71,7 +76,6 @@ public class CombinedTestElement {
 		}
 	}
 
-	@SuppressWarnings("unused")
 	protected void evaluateResult(
 			float resultValue, float correctValue, String testName, String scriptCode) {
 
@@ -82,7 +86,6 @@ public class CombinedTestElement {
 		}
 	}
 
-	@SuppressWarnings("unused")
 	protected void evaluateResult(
 			float[] resultValue, float[] correctValue, String testName, String scriptCode) {
 
@@ -93,7 +96,6 @@ public class CombinedTestElement {
 		}
 	}
 
-	@SuppressWarnings("unused")
 	protected void evaluateResult(
 			double resultValue, double correctValue, String testName, String scriptCode) {
 
@@ -104,7 +106,6 @@ public class CombinedTestElement {
 		}
 	}
 
-	@SuppressWarnings("unused")
 	protected void evaluateResult(
 			double[] resultValue, double[] correctValue, String testName, String scriptCode) {
 
@@ -115,7 +116,6 @@ public class CombinedTestElement {
 		}
 	}
 
-	@SuppressWarnings("unused")
 	protected void evaluateResult(
 			boolean resultValue, boolean correctValue, String testName, String scriptCode) {
 
@@ -126,7 +126,6 @@ public class CombinedTestElement {
 		}
 	}
 
-	@SuppressWarnings("unused")
 	protected void evaluateResult(
 			boolean[] resultValue, boolean[] correctValue, String testName, String scriptCode) {
 
@@ -137,7 +136,6 @@ public class CombinedTestElement {
 		}
 	}
 
-	@SuppressWarnings("unused")
 	protected void evaluateResult(
 			String resultValue, String correctValue, String testName, String scriptCode) {
 
@@ -148,7 +146,6 @@ public class CombinedTestElement {
 		}
 	}
 
-	@SuppressWarnings("unused")
 	protected void evaluateResult(
 			String[] resultValue, String[] correctValue, String testName, String scriptCode) {
 

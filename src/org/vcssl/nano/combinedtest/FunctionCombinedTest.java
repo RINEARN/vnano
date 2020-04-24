@@ -28,9 +28,13 @@ public class FunctionCombinedTest extends CombinedTestElement {
 			this.testScalarReturnFunctions();
 			this.testVectorReturnFunctions();
 			this.testMultiReturnFunctions();
-			this.testFunctionCallsByReference();
+			this.testFunctionCallsByScalarReferences();
+			this.testFunctionCallsByVectorReferences();
+			this.testFunctionCallsBySubscriptReferences();
 			this.testSequentialFunctionCalls();
 			this.testNestedFunctionCalls();
+			this.testArgumentScopes();
+			this.testDuplicateFunctionDeclarations();
 		} catch (VnanoException e) {
 			throw new CombinedTestException(e);
 		}
@@ -636,11 +640,14 @@ public class FunctionCombinedTest extends CombinedTestElement {
 		);
 	}
 
-	private void testFunctionCallsByReference() throws VnanoException {
+	private void testFunctionCallsByScalarReferences() throws VnanoException {
 		String scriptCode;
 		long resultLS;
 		long[] resultLV;
 		long[] expectedLV;
+		boolean resultBS;
+		boolean[] resultBV;
+		boolean[] expectedBV;
 
 		// スカラの値渡し (call by value of a scalar)
 		scriptCode =
@@ -655,8 +662,9 @@ public class FunctionCombinedTest extends CombinedTestElement {
 		super.evaluateResult(resultLS, 0l, "void fun(int x) { x=2; } int a=0; fun(a);", scriptCode);
 
 		// スカラの参照渡し (call by value of a scalar)
+		// 単純な場合
 		scriptCode =
-			" void fun(int &x) {         \n" +
+			" void fun(int &x) {        \n" +
 			"     x = 2;                \n" +
 			" }                         \n" +
 			" int a = 0;                \n" +
@@ -665,6 +673,127 @@ public class FunctionCombinedTest extends CombinedTestElement {
 
 		resultLS = (long)this.engine.executeScript(scriptCode);
 		super.evaluateResult(resultLS, 2l, "void fun(int &x) { x=2; } int a=0; fun(a);", scriptCode);
+
+		// スカラの参照渡し (call by value of a scalar)
+		// 上の例の引数の個数を増やした場合
+		scriptCode =
+			" void fun(int &x, int &y, int &z) {  \n" +
+			"     x = 2;                          \n" +
+			"     y = 3;                          \n" +
+			"     z = 4;                          \n" +
+			" }                                   \n" +
+			"                                     \n" +
+			" int a = 0;                          \n" +
+			" int b = 0;                          \n" +
+			" int c = 0;                          \n" +
+			"                                     \n" +
+			" fun(a, b, c);                       \n" +
+			"                                     \n" +
+			" int result[3];                      \n" +
+			" result[0] = a;                      \n" +
+			" result[1] = b;                      \n" +
+			" result[2] = c;                        \n" +
+			"                                     \n" +
+			" result;                             \n" ;
+
+		resultLV = (long[])this.engine.executeScript(scriptCode);
+		expectedLV = new long[] { 2l, 3l, 4l };
+		super.evaluateResult(
+			resultLV, expectedLV,
+			"void fun(int &x, int &y, int &z) { x=2; y=3; z=4; } int a=0; int b=0; int c=0; fun(a,b,c);",
+			scriptCode
+		);
+
+
+		// スカラの参照渡し (call by value of a scalar)
+		// グローバル変数を参照渡しし、その関数の実行中に、関数内からグローバル変数を直接書き変えた場合
+		//（単純なProcessorレベルの動作の検証）
+		scriptCode =
+			" int a;                    \n" +
+			"                           \n" +
+			" bool fun(int &x) {        \n" +
+			"     a = 2;                \n" +
+			"     return a == x;        \n" + // a と x は等しいはず
+			" }                         \n" +
+			"                           \n" +
+			" a = 1;                    \n" +
+			" bool b = fun(a);          \n" +
+			" b;                        \n" ;
+
+		resultBS = (boolean)this.engine.executeScript(scriptCode);
+		super.evaluateResult(resultBS, true, "int a=0; bool fun(int &x) { a=2; return a==x; } bool b=fun(a);", scriptCode);
+
+		// スカラの参照渡し (call by value of a scalar)
+		// 上の例の a, x を一旦変数 as, xs に控えてから比較した場合
+		//（キャッシュ等のAcceleratorレベルの動作検証)
+		//
+		// ※ 現在の Accelerator ではアドレスベースのスカラ値キャッシュ系を採用しているので、
+		//    参照経由で複数アドレス(A1,A2)にリンクされるデータはキャッシュ不可能と判定されるべきで、
+		//    判定が誤っているとアドレスA1,A2間のキャッシュコヒーレンシが保てないはず。
+		//    以下では、誤判定している事を想定してコヒーレンシが破れる場合を検証している。
+		scriptCode =
+			" int a = 0;                \n" +
+			"                           \n" +
+			" bool fun(int &x) {        \n" +
+			"     a = 2;                \n" +
+			"     int xs = x;           \n" + // Accelerator 有効時、もし x や y がキャッシュ可能と判定されていれば、
+			"     int as = a;           \n" + // キャッシュ可能要素のみの演算になって未更新の値のまま代入されたりするはず。
+			"     return as == xs;      \n" + // ちゃんと a と x がキャッシュ不可能と判定されていれば as と xs は等しいはず。
+			" }                         \n" +
+			"                           \n" + // ※ 一つ前のテストでは、どちらか片方でもキャッシュ不可能判定されていれば
+			" bool r = fun(a);          \n" + //    演算「 a == x 」が、がキャッシュを活用しない演算ユニットで演算されるので、
+			" r;                        \n" ; //    他方がキャッシュ可能と誤判定されていてもパスしてしまう
+
+		resultBS = (boolean)this.engine.executeScript(scriptCode);
+		super.evaluateResult(resultBS, true, "int a=0; bool fun(int &x) { a=2; int xs=x; int as=a; return as==xs; } bool r=fun(a);", scriptCode);
+
+		// スカラの参照渡し (call by value of a scalar)
+		// 上の例の引数の個数を増やした場合
+		scriptCode =
+			" int a = 0;                            \n" +
+			" int b = 0;                            \n" +
+			" int c = 0;                            \n" +
+			"                                       \n" +
+			" bool[] fun(int &x, int &y, int &z) {  \n" +
+			"     a = 2;                            \n" +
+			"     b = 3;                            \n" +
+			"     c = 4;                            \n" +
+			"                                       \n" +
+			"     int xs = x;                       \n" +
+			"     int ys = y;                       \n" +
+			"     int zs = z;                       \n" +
+			"                                       \n" +
+			"     int as = a;                       \n" +
+			"     int bs = b;                       \n" +
+			"     int cs = c;                       \n" +
+			"                                       \n" +
+			"     bool result[3];                   \n" +
+			"     result[0] = (as == xs);           \n" +
+			"     result[1] = (bs == ys);           \n" +
+			"     result[2] = (cs == zs);           \n" +
+			"                                       \n" +
+			"     return result;                    \n" +
+			" }                                     \n" +
+			"                                       \n" +
+			" bool r[] = fun(a, b, c);              \n" +
+			" r;                                    \n" ;
+
+		resultBV = (boolean[])this.engine.executeScript(scriptCode);
+		expectedBV = new boolean[] {true, true, true};
+		super.evaluateResult(
+			resultBV, expectedBV,
+			"int a=0; ... int c=0; string fun(int &x, ... int &z) { a=2; ... int xs=x; ... int as=a; ... int xs=x; bool result[3]; result[0]=(as==xs); ... result[2]=(cs==zs); return result;} bool r[]=fun(a,b,c);",
+			scriptCode
+		);
+	}
+
+
+	private void testFunctionCallsByVectorReferences() throws VnanoException {
+		String scriptCode;
+		long[] resultLV;
+		long[] expectedLV;
+		boolean[] resultBV;
+		boolean[] expectedBV;
 
 		// ベクトルの値渡し (call by value of a vector)
 		scriptCode =
@@ -688,8 +817,9 @@ public class FunctionCombinedTest extends CombinedTestElement {
 		);
 
 		// ベクトルの参照渡し (call by reference of a vector)
+		// 単純な場合
 		scriptCode =
-			" void fun(int &x[]) {       \n" +
+			" void fun(int &x[]) {      \n" +
 			"     x[0] = 1;             \n" +
 			"     x[1] = 2;             \n" +
 			"     x[2] = 3;             \n" +
@@ -707,6 +837,95 @@ public class FunctionCombinedTest extends CombinedTestElement {
 		super.evaluateResult(
 			resultLV, expectedLV, "void fun(int &x[]) { x[0]=1; x[1]=2; x[2]=3; } int a[3]; ... fun(a); ", scriptCode
 		);
+
+
+		// ベクトルの参照渡し (call by reference of a vector)
+		// グローバル変数を参照渡しし、その関数の実行中に、関数内からグローバル変数を直接書き変えた場合
+		scriptCode =
+			" int a[3];                        \n" +
+			"                                  \n" +
+			" bool[] fun(int &x[]) {           \n" +
+			"     a[0] = 1;                    \n" +
+			"     a[1] = 2;                    \n" +
+			"     a[2] = 3;                    \n" +
+			"                                  \n" +
+			"     bool result[] = (a==x);      \n" +
+			"     return result;               \n" +
+			" }                                \n" +
+			"                                  \n" +
+			" a[0] = 0;                        \n" +
+			" a[1] = 0;                        \n" +
+			" a[2] = 0;                        \n" +
+			" bool r[] = fun(a);               \n" +
+			" r;                               \n" ;
+
+		resultBV = (boolean[])this.engine.executeScript(scriptCode);
+		expectedBV = new boolean[] { true, true, true };
+		super.evaluateResult(
+			resultBV, expectedBV, "int a[3]; bool[] fun(int &x[]) { x[0]=1; ... x[2]=3; bool result[] = (a==x); return result; } bool r[]=fun(a); ", scriptCode
+		);
+
+
+		// ベクトルの参照渡し (call by reference of a vector)
+		// 参照渡しされた配列に対して、データ領域が再確保される演算を行った場合
+		scriptCode =
+			" void fun(int &x[]) {             \n" +
+			"     int y[4];                    \n" +
+			"     y[0] = 1;                    \n" +
+			"     y[1] = 2;                    \n" +
+			"     y[2] = 3;                    \n" +
+			"     y[3] = 4;                    \n" +
+			"     x = y;                       \n" +  // 代入先と代入元の要素数が異なるので、左辺のデータ領域が再確保される
+			" }                                \n" +
+			"                                  \n" +
+			" int a[3];                        \n" +
+			" a[0] = 0;                        \n" +
+			" a[1] = 0;                        \n" +
+			" a[2] = 0;                        \n" +
+			" fun(a);                          \n" +  // もしも上述のデータ領域再確保で参照リンクが切れていなければ、
+			" a;                               \n" ;  // 関数内での x の変更が、ちゃんと呼び出し元の a に反映されているはず
+
+		resultLV = (long[])this.engine.executeScript(scriptCode);
+		expectedLV = new long[] { 1l, 2l, 3l, 4l };
+		super.evaluateResult(
+			resultLV, expectedLV, "void fun(int &x[]) { int y[4]; y[0]=1; ... y[3]=4; x=y; } int a[3]; a[0]=0; ... a[2]=0; fun(a); ", scriptCode
+		);
+
+		// ベクトルの参照渡し (call by reference of a vector)
+		// グローバル配列を参照渡しし、その関数の実行中に、
+		// 関数内からグローバル配列に対して、データ領域が再確保される演算を行った場合
+		scriptCode =
+			" int a[3];                        \n" +
+			"                                  \n" +
+			" bool[] fun(int &x[]) {           \n" +
+			"     int y[4];                    \n" +
+			"     y[0] = 1;                    \n" +
+			"     y[1] = 2;                    \n" +
+			"     y[2] = 3;                    \n" +
+			"     y[3] = 4;                    \n" +
+			"     a = y;                       \n" +  // 代入先と代入元の要素数が異なるので、左辺のデータ領域が再確保される
+			"                                  \n" +
+			"     bool result[] = (a == x);    \n" +  // もしも上述のデータ領域再確保で参照リンクが切れていなければ、
+			"     return result;               \n" +  // グローバルの a の変更がちゃんと x に反映されていて、比較結果は等しいはず
+			" }                                \n" +
+			"                                  \n" +
+			" a[0] = 0;                        \n" +
+			" a[1] = 0;                        \n" +
+			" a[2] = 0;                        \n" +
+			" bool r[] = fun(a);               \n" +
+			" r;                               \n" ;
+
+		resultBV = (boolean[])this.engine.executeScript(scriptCode);
+		expectedBV = new boolean[] { true, true, true, true };
+		super.evaluateResult(
+			resultLV, expectedLV, "int a[3]; bool[] fun(int &x[]) { int y[4]; y[0]=1; ... y[3]=4; a=y; bool result[]=(a==y); return result; } a[0]=0; ... a[2]=0; bool r[]=fun(a); ", scriptCode
+		);
+	}
+
+
+	private void testFunctionCallsBySubscriptReferences() throws VnanoException {
+		String scriptCode;
+		long resultLS;
 
 		// 配列要素の値渡し (call by value of an element of a vector)
 		scriptCode =
@@ -1053,5 +1272,74 @@ public class FunctionCombinedTest extends CombinedTestElement {
 			"Nested functin calls (case 2) ",
 			scriptCode
 		);
+	}
+
+
+	private void testArgumentScopes() throws VnanoException {
+		String scriptCode;
+
+		// 引数 x は関数外からはアクセスできないはず
+		scriptCode =
+			" void fun(int x) {  \n" +
+			" }                  \n" +
+			"                    \n" +
+			" fun(0);            \n" + // 引数のメモリ確保処理を走らせるため
+			" x = 123;           \n" ; // (一度も走っていないと、参照できてしまっていても想定と別のエラーが起きる)
+
+		try {
+			this.engine.executeScript(scriptCode);
+
+			// 例外が投げられずにここに達するのは、期待されたエラーが検出されていないので失敗
+			super.missedExpectedError("void fun(int x){ } fun(0); x=123; (should be failed) ", scriptCode);
+		} catch (VnanoException vne) {
+
+			// 例外が投げられればエラーが検出されているので成功
+			super.succeeded("void fun(int x){ } fun(0); x=123; (should be failed) ");
+		}
+
+
+		// 識別子が競合する変数宣言でも、関数の引数なら特例的に可能とする
+		scriptCode =
+			" int x;             \n" +
+			"                    \n" +
+			" void fun(int x) {  \n" +
+			" }                  \n" ;
+
+		this.engine.executeScript(scriptCode);
+		this.succeeded("int x; void fun(int x){ } "); // エラーにならず実行できた時点で成功
+	}
+
+
+	private void testDuplicateFunctionDeclarations() throws VnanoException {
+		String scriptCode;
+
+		// 同じコールシグネチャの関数は重複宣言できないはず
+		scriptCode =
+			" void fun(int x) {  \n" +
+			" }                  \n" +
+			" void fun(int x) {  \n" +
+			" }                  \n" ;
+
+		try {
+			this.engine.executeScript(scriptCode);
+
+			// 例外が投げられずにここに達するのは、期待されたエラーが検出されていないので失敗
+			super.missedExpectedError("void fun(int x){ } void fun(int x){ } (should be failed) ", scriptCode);
+		} catch (VnanoException vne) {
+
+			// 例外が投げられればエラーが検出されているので成功
+			super.succeeded("void fun(int x){ } void fun(int x){ } (should be failed) ");
+		}
+
+
+		// 名前が同じでも引数の仕様が異なれば、コールシグネチャが異なるので重複宣言できるはず
+		scriptCode =
+			" void fun(int x) {    \n" +
+			" }                    \n" +
+			" void fun(float x) {  \n" +
+			" }                    \n" ;
+
+		this.engine.executeScript(scriptCode);
+		this.succeeded("void fun(int x){ } void fun(float x){ } "); // エラーにならず実行できた時点で成功
 	}
 }

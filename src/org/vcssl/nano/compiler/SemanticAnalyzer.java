@@ -75,7 +75,7 @@ public class SemanticAnalyzer {
 	 * <span class="lang-ja">
 	 * ASTの意味（セマンティクス）を解析し、
 	 * 中間コード生成に必要な各種情報を補完した、新しいASTを生成して返します
-	 * <.span>
+	 * <span>
 	 * .
 	 * @param inputAst
 	 *   <span class="lang-en">The root node of the AST to be analyzed.</span>
@@ -147,9 +147,12 @@ public class SemanticAnalyzer {
 	 * 関数識別子ノードの {@link AttributeKey#DATA_TYPE DATA_TYPE} 属性の値として設定されます。
 	 * 同様に、戻り値の配列次元数が {@link AttributeKey#RANK RANK} 属性の値として設定されます。
 	 *
+	 * 同時に、このメソッド内では、関数のスコープ検査や多重宣言検査なども行われます。
+	 *
 	 * @param astRootNode 解析・設定対象のASTのルートノード（メソッド実行後、各ノードに属性値が追加されます）
 	 * @param globalFunctionTable AST内で参照しているグローバル変数情報を持つ変数テーブル
-	 * @throws VnanoException 存在しない変数を参照している場合などにスローされます。
+	 * @throws VnanoException
+	 *     存在しない変数を参照している場合や、スコープ外での参照、変数の重複宣言などが検出された場合にスローされます。
 	 */
 	private void supplementVariableIdentifierLeafAttributes(AstNode astRootNode, VariableTable globalVariableTable)
 					throws VnanoException {
@@ -168,8 +171,13 @@ public class SemanticAnalyzer {
 		int currentBlockDepth = 0; // ブロック終端による変数削除などで使用
 		int lastBlockDepth = 0;
 
-		// ブロックスコープ内で宣言されたローカル変素の数を控えるカウンタ（ブロックスコープ脱出時に変数をテーブルから削除するため）
-		int scopeLocalVariableCounter = 0;
+		// ブロックスコープ内で宣言されたローカル変素の数を控えるカウンタ
+		//（ブロックスコープ脱出時に変数をテーブルから削除するため）
+		int currentBlockVariableCounter = 0;
+
+		// 関数の引数や、for文の初期化文での宣言変数等は、宣言文の次のブロックに属すると見なす必要がある
+		int nextBlockVariableCounter = 0;       // そのためのカウンタ
+		boolean shouldCountToNextBlock = false; // 関数や for 文を踏むと true にし、true の場合に上のカウンタを使うようにする
 
 		// 入れ子ブロックに入る際に、上記のローカル変数カウンタの値を退避するためのスタック
 		Deque<Integer>scopeLocalVariableCounterStack = new ArrayDeque<Integer>();
@@ -180,19 +188,40 @@ public class SemanticAnalyzer {
 			lastBlockDepth = currentBlockDepth;
 			currentBlockDepth = currentNode.getBlockDepth();
 
-			// ブロック文に入った場合: 上階層のスコープ内ローカル変数カウンタの値をスタックに退避し、リセット
-			if (currentBlockDepth > lastBlockDepth) {
-				scopeLocalVariableCounterStack.add(scopeLocalVariableCounter);
-				scopeLocalVariableCounter = 0;
+			// 関数宣言や for 文を踏むと、それ以降、ブロック開始までの宣言変数を、次のブロックに属するとカウントするよう設定
+			if (currentNode.getType() == AstNode.Type.FUNCTION || currentNode.getType() == AstNode.Type.FOR) {
+				shouldCountToNextBlock = true;
+				nextBlockVariableCounter = 0;
+			}
 
-			// ブロック文を抜ける場合: その階層のローカル変数/関数を削除し、スコープ内ローカル変数/関数リストをスタックから復元
-			} else if (currentBlockDepth < lastBlockDepth) {
+			// ブロックに入った or 出たポイントかどうかを判定して控える
+			boolean entersNewBlock = currentNode.getType() == AstNode.Type.BLOCK;
+			boolean exitsFromBlock = currentBlockDepth < lastBlockDepth     // ブロックの外の階層に降りた場合（ブロック深度減る）
+				|| (entersNewBlock && currentBlockDepth == lastBlockDepth); // 出ると同時に別ブロックに入った場合（深度変わらず）
+
+			// ブロック文の終端での処理: その階層のローカル変数/関数を削除し、スコープ内ローカル変数/関数リストをスタックから復元
+			if (exitsFromBlock) {
+
 				// ブロック内の変数は末尾に連続して詰まっているはずなので、末尾から連続で削除
-				for (int i=0; i<scopeLocalVariableCounter; i++) {
+				for (int i=0; i<currentBlockVariableCounter; i++) {
 					localVariableTable.removeLastVariable();
 				}
 				// 脱出先ブロックスコープ内の変数の数をスタックから復元
-				scopeLocalVariableCounter = scopeLocalVariableCounterStack.pop();
+				currentBlockVariableCounter = scopeLocalVariableCounterStack.pop();
+			}
+
+			// ブロック文に入った際の処理: 上階層のスコープ内ローカル変数カウンタの値をスタックに退避し、リセット
+			// (ブロックを抜けたノードが別ブロックに入るノードだったりもするため、順序的には上の終端処理よりも後で行う)
+			if (entersNewBlock) {
+				scopeLocalVariableCounterStack.push(currentBlockVariableCounter); // add だと別の端への追加になるので注意
+				currentBlockVariableCounter = 0;
+
+				// 関数や for 文を踏んでいた場合、次のブロックに属するとカウントしていた変数があるので、それを加算
+				if (shouldCountToNextBlock) {
+					currentBlockVariableCounter += nextBlockVariableCounter;
+					nextBlockVariableCounter = 0;
+					shouldCountToNextBlock = false;
+				}
 			}
 
 			// ローカル変数宣言文ノードの場合: ローカル変数マップに追加し、ノード自身にローカル変数インデックスやスコープも設定
@@ -200,10 +229,24 @@ public class SemanticAnalyzer {
 				String variableName = currentNode.getAttribute(AttributeKey.IDENTIFIER_VALUE);
 				String dataTypeName = currentNode.getDataTypeName();
 				int rank = currentNode.getRank();
+				boolean isFunctionParam = currentNode.getParentNode().getType() == AstNode.Type.FUNCTION;
+
+				// 宣言箇所からの可視範囲内に、既に同名変数が存在する場合はエラーとする（可視範囲外の変数はブロック末端で削除済み）
+				if (localVariableTable.containsVariableWithName(variableName) && !isFunctionParam) { // ただし関数引数は特例的に許可
+					throw new VnanoException(
+						ErrorType.DUPLICATE_VARIABLE_IDENTIFIER, new String[] {variableName},
+						currentNode.getFileName(), currentNode.getLineNumber()
+					);
+				}
 
 				// ローカル変数の情報を保持するインスタンスを生成して変数テーブルに登録
 				InternalVariable internalVariable = new InternalVariable(variableName, dataTypeName, rank, localVariableSerialNumber);
 				localVariableTable.addVariable(internalVariable);
+				if (shouldCountToNextBlock) {
+					nextBlockVariableCounter++;
+				} else {
+					currentBlockVariableCounter++;
+				}
 
 				// ノードに属性を付加
 				currentNode.setAttribute(AttributeKey.SCOPE, AttributeValue.LOCAL);
@@ -299,16 +342,37 @@ public class SemanticAnalyzer {
 				// 引数ノードの内容を検査
 				this.checkArgumentDeclarationNodes(argNodes);
 
-				// 引数のデータ型と次元を取得
+				// 引数の名前、データ型、次元、参照渡し宣言の有無、および定数宣言の有無を取得
+				String[] argNames = new String[argLength];
 				String[] argTypeNames = new String[argLength];
 				int[] argRanks = new int[argLength];
+				boolean[] argRefs = new boolean[argLength];
+				boolean[] argConsts = new boolean[argLength];
 				for (int argIndex=0; argIndex<argLength; argIndex++) {
+					argNames[argIndex] = argNodes[argIndex].getAttribute(AttributeKey.IDENTIFIER_VALUE);
 					argTypeNames[argIndex] = argNodes[argIndex].getAttribute(AttributeKey.DATA_TYPE);
 					argRanks[argIndex] = argNodes[argIndex].getRank();
+					if (argNodes[argIndex].hasAttribute(AttributeKey.MODIFIER)) {
+						argRefs[argIndex] = argNodes[argIndex].getAttribute(AttributeKey.MODIFIER).contains(ScriptWord.REFERENCE);
+					}
+					argConsts[argIndex] = false; // スクリプト内での const 修飾子は未サポート
 				}
 
-				// 関数情報を保持するインスタンスを生成してテーブルに登録
-				InternalFunction internalFunction = new InternalFunction(functionName, argTypeNames, argRanks, returnTypeName, returnRank);
+				// 関数情報を保持するインスタンスを生成
+				InternalFunction internalFunction = new InternalFunction(
+					functionName, argNames, argTypeNames, argRanks, argRefs, argConsts, returnTypeName, returnRank
+				);
+
+				// シグネチャが完全に競合する関数が、既に宣言されている場合はエラーとする
+				String signature = IdentifierSyntax.getSignatureOf(internalFunction);
+				if (localFunctionTable.hasFunctionWithSignature(signature)) {
+					throw new VnanoException(
+						ErrorType.DUPLICATE_FUNCTION_SIGNATURE, new String[] {signature},
+						currentNode.getFileName(), currentNode.getLineNumber()
+					);
+				}
+
+				// テーブルに登録
 				localFunctionTable.addFunction(internalFunction);
 			}
 
@@ -554,25 +618,18 @@ public class SemanticAnalyzer {
 					// 関数呼び出し演算子の場合
 					case AttributeValue.CALL : {
 
+						// 関数テーブルから、呼び出し対象の関数を検索
 						AbstractFunction function = null;
 
 						// ローカル関数
 						if (localFunctionTable.hasCalleeFunctionOf(currentNode)) {
 							currentNode.setAttribute(AttributeKey.SCOPE, AttributeValue.LOCAL);
 							function = localFunctionTable.getCalleeFunctionOf(currentNode);
-							currentNode.setAttribute(AttributeKey.CALLEE_SIGNATURE, IdentifierSyntax.getSignatureOf(function));
-							if (function.hasNameSpace()) {
-								currentNode.setAttribute(AttributeKey.NAME_SPACE, function.getNameSpace());
-							}
 
 						// グローバル関数
 						} else if (globalFunctionTable.hasCalleeFunctionOf(currentNode)) {
 							currentNode.setAttribute(AttributeKey.SCOPE, AttributeValue.GLOBAL);
 							function = globalFunctionTable.getCalleeFunctionOf(currentNode);
-							currentNode.setAttribute(AttributeKey.CALLEE_SIGNATURE, IdentifierSyntax.getSignatureOf(function));
-							if (function.hasNameSpace()) {
-								currentNode.setAttribute(AttributeKey.NAME_SPACE, function.getNameSpace());
-							}
 
 						} else {
 							throw new VnanoException(
@@ -580,6 +637,15 @@ public class SemanticAnalyzer {
 									IdentifierSyntax.getSignatureOfCalleeFunctionOf(currentNode),
 									currentNode.getFileName(), currentNode.getLineNumber()
 							);
+						}
+
+						// 検索結果の関数を、呼び出し演算子の実引数で呼べるかどうか検査
+						//（定数は参照渡しできない等の制約により、型は整合しても呼べないケースがある）
+						this.checkFunctionCallablility(function, currentNode);
+
+						currentNode.setAttribute(AttributeKey.CALLEE_SIGNATURE, IdentifierSyntax.getSignatureOf(function));
+						if (function.hasNameSpace()) {
+							currentNode.setAttribute(AttributeKey.NAME_SPACE, function.getNameSpace());
 						}
 
 						String[] argumentDataTypeNames = this.getArgumentDataTypeNames(currentNode);
@@ -643,6 +709,46 @@ public class SemanticAnalyzer {
 			arrayRanks[argumentIndex] = childNodes[argumentIndex+1].getRank();
 		}
 		return arrayRanks;
+	}
+
+	// 引数のデータ型に基づいて検索した結果の関数を、呼び出し演算子の実引数で呼べるかどうか検査する
+	//（定数は参照渡しできない等の制約により、型は整合しても呼べないケースがある）
+	private void checkFunctionCallablility(AbstractFunction function, AstNode callerNode) throws VnanoException {
+		AstNode[] argNodes = callerNode.getChildNodes(); // 注：[0]番要素は関数識別子、[1]以降が引数ノード
+		String[] parameterNames = function.getParameterNames();
+		boolean[] areParamConst = function.getParameterConstantnesses();
+		boolean[] areParamRef = function.getParameterReferencenesses();
+		int paramN = areParamRef.length;
+
+		// 参照渡しかつ非 const な引数の場合、変数か配列要素（Subsctipt演算子）しか渡せないので、渡せるかどうか検査
+		//   理由1：リテラルなどの定数値が呼び出し先で書き換えられると色々とまずい
+		//   理由2：式の評価値のレジスタを参照渡しして書き換えられると、そのレジスタに依存する処理が色々とまずい
+		for (int paramIndex=0; paramIndex<paramN; paramIndex++) {
+			if (areParamRef[paramIndex] && !areParamConst[paramIndex]) {
+
+				// 注：[0]番要素は関数識別子、[1]以降が引数ノード
+				AstNode argNode = argNodes[paramIndex+1];
+
+				// 変数かどうか
+				boolean isVariable = argNode.getType() == AstNode.Type.LEAF
+					&& argNode.getAttribute(AttributeKey.LEAF_TYPE).equals(AttributeValue.VARIABLE_IDENTIFIER);
+
+				// 配列要素かどうか
+				boolean isSubscript = argNode.getType() == AstNode.Type.OPERATOR
+					&& argNode.getAttribute(AttributeKey.OPERATOR_EXECUTOR).equals(AttributeValue.SUBSCRIPT);
+
+				// 変数でも配列要素でもなければエラー
+				if (!isVariable && !isSubscript) {
+					String[] errorWords = new String[] {
+						Integer.toString(paramIndex+1), parameterNames[paramIndex], function.getFunctionName()
+					};
+					throw new VnanoException(
+						ErrorType.NON_VARIABLE_IS_PASSED_BY_REFERENCE, errorWords,
+						callerNode.getFileName(), callerNode.getLineNumber()
+					);
+				}
+			}
+		}
 	}
 
 

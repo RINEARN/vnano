@@ -25,6 +25,7 @@ public class ForStatementCombinedTest extends CombinedTestElement {
 			this.testDeepBlockForLoops();
 			this.testBreakStatementsInForLoops();
 			this.testContinueStatementsInForLoops();
+			this.testCounterVariableScopes();
 
 		} catch (VnanoException e) {
 			throw new CombinedTestException(e);
@@ -617,5 +618,28 @@ public class ForStatementCombinedTest extends CombinedTestElement {
 		result = (String)this.engine.executeScript(scriptCode);
 		super.evaluateResult(result, "i1=3,i2=2,j1=5,j2=3,k1=5,k2=5,l1=10,l2=7,m1=5,m2=5,n1=8,n2=0", "very complicated combinations of continue-statements and deep for-loops", scriptCode);
 
+	}
+
+
+	private void testCounterVariableScopes() throws VnanoException {
+		String scriptCode;
+
+		// カウンタ変数 i はfor文直後のブロック外からはアクセスできないはず
+		scriptCode =
+			" for (int i=0; i<10; i++) {  \n" +
+			" }                           \n" +
+			"                             \n" +
+			" i = 123;                    \n" ;
+
+		try {
+			this.engine.executeScript(scriptCode);
+
+			// 例外が投げられずにここに達するのは、期待されたエラーが検出されていないので失敗
+			super.missedExpectedError("for(int i=0; i<10; i++) { } i=123; (should be failed) ", scriptCode);
+		} catch (VnanoException vne) {
+
+			// 例外が投げられればエラーが検出されているので成功
+			super.succeeded("for(int i=0; i<10; i++) { } i=123; (should be failed) ");
+		}
 	}
 }

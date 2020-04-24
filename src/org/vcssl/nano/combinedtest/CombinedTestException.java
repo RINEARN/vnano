@@ -11,6 +11,18 @@ public class CombinedTestException extends RuntimeException {
 		super(e);
 	}
 
+	CombinedTestException(String errorMessage, String testName, String scriptCode) {
+		super(errorMessage);
+		System.err.println("");
+		System.err.println("Error occurred on the combined test of: " + testName);
+		System.err.println("(" + errorMessage + ")");
+		System.err.println("");
+		System.err.println("- Test Script Code - ");
+		System.err.println("");
+		System.err.println(scriptCode);
+		System.err.println("");
+	}
+
 	CombinedTestException(String resultValue, String correctValue, String testName, String scriptCode) {
 		super(
 				"The result value \""+ resultValue + "\" should be \"" + correctValue + "\"."

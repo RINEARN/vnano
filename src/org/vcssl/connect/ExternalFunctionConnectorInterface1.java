@@ -118,7 +118,7 @@ public interface ExternalFunctionConnectorInterface1 {
 	 * 全ての仮引数における、
 	 * データの型を表すClassインスタンスを格納する配列を取得します。
 	 *
-	 * @return 全引数のデータ型のClassインスタンスを格納する配列
+	 * @return 各仮引数のデータ型のClassインスタンスを格納する配列
 	 */
 	public abstract Class<?>[] getParameterClasses();
 
@@ -126,7 +126,7 @@ public interface ExternalFunctionConnectorInterface1 {
 	/**
 	 * 全ての仮引数において、データ型が可変であるかどうかを格納する配列を返します。
 	 *
-	 * @return 全引数のデータ型が可変であるかどうかを格納する配列
+	 * @return 各仮引数のデータ型が可変であるかどうかを格納する配列
 	 */
 	public boolean[] getParameterClassArbitrarinesses();
 
@@ -134,9 +134,52 @@ public interface ExternalFunctionConnectorInterface1 {
 	/**
 	 * 全ての仮引数において、配列次元数が可変であるかどうかを格納する配列を返します。
 	 *
-	 * @return 全引数の配列次元数が可変であるかどうかを格納する配列
+	 * @return 各仮引数の配列次元数が可変であるかどうかを格納する配列
 	 */
 	public boolean[] getParameterRankArbitrarinesses();
+
+
+	/**
+	 * 全ての仮引数において、参照渡しとみなすべきかどうかを格納する配列を返します。
+	 *
+	 * {@link ExternalFunctionConnectorInterface1#isDataConversionNecessary() isDataConversionNecessary()}
+	 * が true を返すように実装した場合、呼び出し時の引数は、処理系依存のデータコンテナとして渡されますが、
+	 * このメソッドが返す値により、その際の挙動が変化します。
+	 *
+	 * このメソッドが true を返すようにした引数については、呼び出し元の実引数のデータコンテナがそのまま渡されます。
+	 * 従ってその場合、データコンテナのデータを書き換える事で、実引数の値に変更を反映させる事ができます。
+	 * また、引数の受け渡しのオーバーヘッドコストが最小限に抑えられます。
+	 * その反面、変数（配列やその要素を含む）以外を引数に渡す事はできなくなります。
+	 *
+	 * このメソッドが false を返すようにした引数については、呼び出し元の実引数のデータコンテナが、
+	 * コピーされた上で渡されます。そのため、その値を書き変えても、実引数には反映されませんが、
+	 * 変数以外（リテラル、定数、式の評価値など）を引数に渡す事が可能になります。
+	 *
+	 * @return 各仮引数が参照渡しであるかどうかを格納する配列
+	 */
+	public abstract boolean[] getParameterReferencenesses();
+
+
+	/**
+	 * 全ての仮引数において、定数であるかどうかを格納する配列を返します。
+	 *
+	 * {@link ExternalFunctionConnectorInterface1#isDataConversionNecessary() isDataConversionNecessary()}
+	 * が true を返すように実装し、かつ
+	 * {@link ExternalFunctionConnectorInterface1#getParameterReferencenesses() getParameterReferencenesses()}
+	 * が true を返すように実装した場合、
+	 * 通常は変数（配列やその要素を含む）以外を引数に渡す事はできなくなります。
+	 *
+	 * これは、参照渡しを通じて呼び出し元の値が書き変わるような引数に、
+	 * スクリプト内で、リテラルなどの書き換え不可能な値を誤って渡そうとしている箇所を、
+	 * 実行前にエラーとして検出するための仕様です。
+	 *
+	 * そこでこのメソッドで true を返すように実装すると、「渡された引数の値を書き換えない」
+	 * と宣言した事になり、変数以外も引数として渡せるようになります。
+	 * ただしその場合は実際に、受け取った引数の値を書き換えてはいけません。
+	 *
+	 * @return 各仮引数が定数であるかどうかを格納する配列
+	 */
+	public abstract boolean[] getParameterConstantnesses();
 
 
 	/**
@@ -160,7 +203,7 @@ public interface ExternalFunctionConnectorInterface1 {
 	 * {@link invoke(Object[] arguments)} メソッドへの実引数の渡され方も異なります。
 	 * </p>
 	 *
-	 * @return 仮引数の個数が任意であるかどうか
+	 * @return 各仮引数の個数が任意であるかどうか
 	 */
 	public boolean isParameterCountArbitrary();
 

@@ -211,7 +211,7 @@ public class FunctionAliasAdapter extends AbstractFunction {
 	/**
 	 * 全ての仮引数の名称を配列として取得します。
 	 *
-	 * @return 全ての仮引数の名称を格納する配列
+	 * @return 各仮引数の名称を格納する配列
 	 */
 	@Override
 	public final String[] getParameterNames() {
@@ -223,7 +223,7 @@ public class FunctionAliasAdapter extends AbstractFunction {
 	 * 全ての仮引数のデータ型名を配列として取得します。
 	 * 返される型名の表記内に、配列部分 [][]...[] は含まれません。
 	 *
-	 * @return 仮引数のデータ型名を格納する配列
+	 * @return 各仮引数のデータ型名を格納する配列
 	 */
 	@Override
 	public final String[] getParameterDataTypeNames() {
@@ -234,7 +234,7 @@ public class FunctionAliasAdapter extends AbstractFunction {
 	/**
 	 * 全ての仮引数の配列次元数（スカラは0次元として扱う）を配列として取得します。
 	 *
-	 * @return 全ての仮引数の配列次元数を格納する配列
+	 * @return 各仮引数の配列次元数を格納する配列
 	 */
 	@Override
 	public final int[] getParameterArrayRanks() {
@@ -245,7 +245,7 @@ public class FunctionAliasAdapter extends AbstractFunction {
 	/**
 	 * 全ての仮引数において、データ型が可変であるかどうかを格納する配列を返します。
 	 *
-	 * @return 全引数のデータ型が可変であるかどうかを格納する配列
+	 * @return 各仮引数のデータ型が可変であるかどうかを格納する配列
 	 */
 	@Override
 	public final boolean[] getParameterDataTypeArbitrarinesses() {
@@ -256,11 +256,33 @@ public class FunctionAliasAdapter extends AbstractFunction {
 	/**
 	 * 全ての仮引数において、配列次元数が可変であるかどうかを格納する配列を返します。
 	 *
-	 * @return 全引数の配列次元数が可変であるかどうかを格納する配列
+	 * @return 各仮引数の配列次元数が可変であるかどうかを格納する配列
 	 */
 	@Override
 	public final boolean[] getParameterArrayRankArbitrarinesses() {
 		return this.function.getParameterArrayRankArbitrarinesses();
+	}
+
+
+	/**
+	 * 全ての仮引数において、参照渡しであるかどうかを格納する配列を返します。
+	 *
+	 * @return 各仮引数が参照渡しであるかどうかを格納する配列
+	 */
+	@Override
+	public boolean[] getParameterReferencenesses() {
+		return this.function.getParameterReferencenesses();
+	}
+
+
+	/**
+	 * 全ての仮引数において、定数であるかどうかを格納する配列を返します。
+	 *
+	 * @return 各仮引数が定数であるかどうかを格納する配列
+	 */
+	@Override
+	public boolean[] getParameterConstantnesses() {
+		return this.function.getParameterConstantnesses();
 	}
 
 
