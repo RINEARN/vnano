@@ -160,10 +160,10 @@ public class BlockStatementCombinedTest extends CombinedTestElement {
 		// 以下、スコープが重なる場所で同じ識別子の変数を宣言した場合
 
 		scriptCode =
-				" {                \n" +
-				"     int a = 1;   \n" +
-				"     int a = 2;   \n" +
-				" }                \n" ;
+			" {                \n" +
+			"     int a = 1;   \n" +
+			"     int a = 2;   \n" +
+			" }                \n" ;
 
 		try {
 			this.engine.executeScript(scriptCode);
@@ -177,12 +177,12 @@ public class BlockStatementCombinedTest extends CombinedTestElement {
 		}
 
 		scriptCode =
-				" {                   \n" +
-				"     int a = 1;      \n" +
-				"     {               \n" +
-				"         int a = 2;  \n" +  // ※ より深いブロックで、浅いブロックと同名の変数を宣言する事は、
-				"     }               \n" +  //    現状の VCSSL では許容しているけれど Vnano では厳しめにエラー扱いにする
-				" }                   \n" ;
+			" {                   \n" +
+			"     int a = 1;      \n" +
+			"     {               \n" +
+			"         int a = 2;  \n" +  // ※ より深いブロックで、浅いブロックと同名の変数を宣言する事は、
+			"     }               \n" +  //    現状の VCSSL では許容しているけれど Vnano では厳しめにエラー扱いにする
+			" }                   \n" ;
 
 		try {
 			this.engine.executeScript(scriptCode);

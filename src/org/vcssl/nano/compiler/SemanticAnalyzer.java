@@ -229,10 +229,10 @@ public class SemanticAnalyzer {
 				String variableName = currentNode.getAttribute(AttributeKey.IDENTIFIER_VALUE);
 				String dataTypeName = currentNode.getDataTypeName();
 				int rank = currentNode.getRank();
-				boolean isFunctionArg = currentNode.getParentNode().getType() == AstNode.Type.FUNCTION;
+				boolean isFunctionParam = currentNode.getParentNode().getType() == AstNode.Type.FUNCTION;
 
 				// 宣言箇所からの可視範囲内に、既に同名変数が存在する場合はエラーとする（可視範囲外の変数はブロック末端で削除済み）
-				if (localVariableTable.containsVariableWithName(variableName) && !isFunctionArg) { // ただし関数引数は特例的に許可
+				if (localVariableTable.containsVariableWithName(variableName) && !isFunctionParam) { // ただし関数引数は特例的に許可
 					throw new VnanoException(
 						ErrorType.DUPLICATE_VARIABLE_IDENTIFIER, new String[] {variableName},
 						currentNode.getFileName(), currentNode.getLineNumber()
