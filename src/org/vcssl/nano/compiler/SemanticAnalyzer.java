@@ -357,10 +357,21 @@ public class SemanticAnalyzer {
 					argConsts[argIndex] = false; // スクリプト内での const 修飾子は未サポート
 				}
 
-				// 関数情報を保持するインスタンスを生成してテーブルに登録
+				// 関数情報を保持するインスタンスを生成
 				InternalFunction internalFunction = new InternalFunction(
 					functionName, argNames, argTypeNames, argRanks, argRefs, argConsts, returnTypeName, returnRank
 				);
+
+				// シグネチャが完全に競合する関数が、既に宣言されている場合はエラーとする
+				String signature = IdentifierSyntax.getSignatureOf(internalFunction);
+				if (localFunctionTable.hasFunctionWithSignature(signature)) {
+					throw new VnanoException(
+						ErrorType.DUPLICATE_FUNCTION_SIGNATURE, new String[] {signature},
+						currentNode.getFileName(), currentNode.getLineNumber()
+					);
+				}
+
+				// テーブルに登録
 				localFunctionTable.addFunction(internalFunction);
 			}
 

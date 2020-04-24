@@ -34,6 +34,7 @@ public class FunctionCombinedTest extends CombinedTestElement {
 			this.testSequentialFunctionCalls();
 			this.testNestedFunctionCalls();
 			this.testArgumentScopes();
+			this.testDuplicateFunctionDeclarations();
 		} catch (VnanoException e) {
 			throw new CombinedTestException(e);
 		}
@@ -1295,5 +1296,39 @@ public class FunctionCombinedTest extends CombinedTestElement {
 			// 例外が投げられればエラーが検出されているので成功
 			super.succeeded("void fun(int x){ } fun(0); x=123; (should be failed) ");
 		}
+	}
+
+
+	private void testDuplicateFunctionDeclarations() throws VnanoException {
+		String scriptCode;
+
+		// 同じコールシグネチャの関数は重複宣言できないはず
+		scriptCode =
+			" void fun(int x) {  \n" +
+			" }                  \n" +
+			" void fun(int x) {  \n" +
+			" }                  \n" ;
+
+		try {
+			this.engine.executeScript(scriptCode);
+
+			// 例外が投げられずにここに達するのは、期待されたエラーが検出されていないので失敗
+			super.missedExpectedError("void fun(int x){ } void fun(int x){ } (should be failed) ", scriptCode);
+		} catch (VnanoException vne) {
+
+			// 例外が投げられればエラーが検出されているので成功
+			super.succeeded("void fun(int x){ } void fun(int x){ } (should be failed) ");
+		}
+
+
+		// 名前が同じでも引数の仕様が異なれば、コールシグネチャが異なるので重複宣言できるはず
+		scriptCode =
+			" void fun(int x) {    \n" +
+			" }                    \n" +
+			" void fun(float x) {  \n" +
+			" }                    \n" ;
+
+		this.engine.executeScript(scriptCode);
+		this.succeeded("void fun(int x){ } void fun(float x){ } "); // エラーにならず実行できた時点で成功
 	}
 }
