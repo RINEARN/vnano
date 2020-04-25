@@ -54,7 +54,7 @@ public enum AttributeKey {
 	 * <span class="lang-ja">配列要素数（多次元）を格納する属性のキーです</span>
 	 * .
 	 */
-	LWNGRHS,
+	LENGTHS,
 
 	/**
 	 * <span class="lang-en">The key of the attribute for storing an identifier</span>
