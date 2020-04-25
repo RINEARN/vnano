@@ -34,6 +34,7 @@ public class FunctionCombinedTest extends CombinedTestElement {
 			this.testSequentialFunctionCalls();
 			this.testNestedFunctionCalls();
 			this.testArgumentScopes();
+			this.testFunctionRanges();
 			this.testDuplicateFunctionDeclarations();
 		} catch (VnanoException e) {
 			throw new CombinedTestException(e);
@@ -1298,7 +1299,7 @@ public class FunctionCombinedTest extends CombinedTestElement {
 		}
 
 
-		// 識別子が競合する変数宣言でも、関数の引数なら特例的に可能とする
+		// 識別子とスコープが競合する変数があっても、関数の引数なら特例的に可能とする
 		scriptCode =
 			" int x;             \n" +
 			"                    \n" +
@@ -1307,6 +1308,62 @@ public class FunctionCombinedTest extends CombinedTestElement {
 
 		this.engine.executeScript(scriptCode);
 		this.succeeded("int x; void fun(int x){ } "); // エラーにならず実行できた時点で成功
+	}
+
+
+	// 関数領域の範囲識別の検査
+	private void testFunctionRanges() throws VnanoException {
+		String scriptCode;
+
+		// 関数外からは return できない事を利用し、
+		// return の箇所でエラーが出るかどうかで、
+		// 内外どちらと識別されているかを判断して検査する
+
+
+		// return している箇所は関数内なので通るはず
+		scriptCode =
+			" void fun() {       \n" +
+			"     return;        \n" +
+			" }                  \n" ;
+
+		this.engine.executeScript(scriptCode);
+		this.succeeded("void fun(){ return; } "); // エラーにならず実行できた時点で成功
+
+
+		// return している箇所は関数外なのでエラーになるはず
+		scriptCode =
+			" void fun() {       \n" +
+			" }                  \n" +
+			" return;            \n" ;
+
+		try {
+			this.engine.executeScript(scriptCode);
+
+			// 例外が投げられずにここに達するのは、期待されたエラーが検出されていないので失敗
+			super.missedExpectedError("void fun(){ } return; (should be failed) ", scriptCode);
+		} catch (VnanoException vne) {
+			// 例外が投げられればエラーが検出されているので成功
+			super.succeeded("void fun(){ } return; (should be failed) ");
+		}
+
+
+		// return している箇所は関数外なのでエラーになるはず
+		scriptCode =
+			" void fun() {       \n" +
+			" }                  \n" +
+			" {                  \n" +
+			"     return;        \n" +
+			" }                  \n" ;
+
+		try {
+			this.engine.executeScript(scriptCode);
+
+			// 例外が投げられずにここに達するのは、期待されたエラーが検出されていないので失敗
+			super.missedExpectedError("void fun(int x){ } { return; } (should be failed) ", scriptCode);
+		} catch (VnanoException vne) {
+			// 例外が投げられればエラーが検出されているので成功
+			super.succeeded("void fun(){ } { return; } (should be failed) ");
+		}
 	}
 
 

@@ -6,6 +6,8 @@
 package org.vcssl.nano.compiler;
 
 import java.util.ArrayList;
+import java.util.Deque;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -618,12 +620,12 @@ public class AstNode implements Cloneable {
 		this.depth = 0;
 		this.blockDepth = 0;
 
-		// ASTノードを、行がけ順の深さ優先走査で辿って検査していく
+		// ASTノードを, 行がけ順の深さ優先走査で辿って検査していく
 		AstNode currentNode = this;
 		do {
 			currentNode = currentNode.getPreorderDftNextNode();
 
-			// 走査順序により、子ノードを辿っている時点で親ノードは既に走査済み（深度設定済み）のはずなので
+			// 走査順序により, 子ノードを辿っている時点で親ノードは既に走査済み（深度設定済み）のはずなので
 			// 親ノードの深度情報から子ノードの深度情報を求めて設定する
 			AstNode parentNode = currentNode.getParentNode();
 			currentNode.depth = parentNode.depth + 1;
@@ -734,6 +736,7 @@ public class AstNode implements Cloneable {
 	}
 
 
+
 	/**
 	 * <span class="lang-en">
 	 * Gets the next node of this node in the order of the pre-order depth-first traversal (DFT)
@@ -742,50 +745,20 @@ public class AstNode implements Cloneable {
 	 * AST内のノードを, 行がけ順で深さ優先走査(DFT)する場合における, このノードの次のノードを取得します
 	 * </span>
 	 * .
+	 * <span class="lang-en">
+	 * Please note that, preorder DFS visits the parent node only BEFORE when their children nodes are traversed.
+	 * </span>
+	 * <span class="lang-ja">
+	 * なお, 行がけ順のDFTでは, 親ノードは子ノードを走査する前にのみ訪問され,
+	 * 子ノードの走査終了後には素通りされて訪問されない事に注意が必要です.
+	 * </span>
+	 *
 	 * @return
 	 *   <span class="lang-en">The next node.</span>
 	 *   <span class="lang-ja">次のノード.</span>
 	 */
 	public AstNode getPreorderDftNextNode() {
-
-		// If children exist, go to the first child node.
-		// 子ノードがある場合は先頭の子ノードに移動
-		if (this.hasChildNodes()) {
-			return this.getChildNodes()[0];
-		}
-
-		AstNode currentNode = this;
-		AstNode parent = currentNode.getParentNode();
-		AstNode[] siblings = parent.getChildNodes();
-
-		// If there are no children for this node, traverse other branches in the AST.
-		// 子ノードが無い場合は, AST内の他の枝を走査する
-		while (true) {
-
-			// If a sibling added after the current node, go to it.
-			// 現在の走査ノードよりも後に追加された兄弟ノードがあれば移動
-			if (currentNode.getSiblingIndex() < siblings.length-1) {
-				return siblings[currentNode.getSiblingIndex() + 1];
-			}
-
-			// If there is no sibling after the current node,
-			// go to the hierarchy of the parent node.
-			// 後の兄弟ノードがもう無ければ, 親ノードの階層に浮上する
-
-			// If there is no parent, the current node is the root node, so the traversal is completed.
-			// (See also: the implementation of isPreorderDftLastNode method)
-			// 親ノードが無ければ, 現在のノードがルートノードなので, 走査は完了
-			// (isPreorderDftLastNode メソッドの実装も参照)
-			if (!parent.hasParentNode()) {
-				return null;
-			}
-
-			// Go to the parent node.
-			// 親ノードに移動
-			currentNode = parent;
-			parent = currentNode.getParentNode();
-			siblings = parent.getChildNodes();
-		}
+		return this.getPreorderDftNextNode(null, null);
 	}
 
 
@@ -803,6 +776,110 @@ public class AstNode implements Cloneable {
 	 */
 	public boolean isPreorderDftLastNode() {
 		return this.getPreorderDftNextNode() == null;
+	}
+
+
+	/**
+	 * <span class="lang-en">
+	 * Gets the next node of this node in the order of the pre-order depth-first traversal (DFT)
+	 * </span>
+	 * <span class="lang-ja">
+	 * AST内のノードを, 行がけ順で深さ優先走査(DFT)する場合における, このノードの次のノードを取得します
+	 * </span>
+	 * .
+	 * <span class="lang-en">
+	 * Please note that, preorder DFS visits the parent node only BEFORE when their children nodes are traversed.
+	 * </span>
+	 * <span class="lang-ja">
+	 * なお, 行がけ順のDFTでは, 親ノードは子ノードを走査する前にのみ訪問され,
+	 * 子ノードの走査終了後には素通りされて訪問されない事に注意が必要です.
+	 * </span>
+	 *
+	 * <span class="lang-en">
+	 * However, sometimes it is necessary to do something at both of opening/closing points of some types of nodes
+	 * when traversing AST, in Semantic Analyzer, Code Generator, and so on.
+	 * The argument "detectClosedNodeType" and "closedBlockStack" is useful in such cases.
+	 * </span>
+	 * <span class="lang-ja">
+	 * しかしながら, 意味解析やコード生成のステージにおいては, しばしば特定の種類のノードの開き閉じの両方の地点において,
+	 * 何らかの処理を行いたい場合もあります. 引数 detectClosedNodeType と closedBlockStack はそのような場合に有用です.
+	 * </span>
+	 *
+	 * <span class="lang-en">
+	 * If there are "closing points" (points at which the traversing route goes outside of nodes)
+	 * of specified types of nodes (specified by the argument "detectClosedNodeType") on the route to the next node,
+	 * those nodes will be pushed to the stack passed as the argument "closedNodeStack".
+	 * </span>
+	 * <span class="lang-ja">
+	 * 次のノードへの移動経路において, detectClosedNodeType に含まれる種類のノードが閉じた(走査が脱出した)
+	 * 地点が存在する場合は, そのブロックのノードが, 引数 closedNodeStack に渡されたスタックに push されます.
+	 * </span>
+	 *
+	 * @param closedNodeStack
+	 *   <span class="lang-en">The stack for storing closed nodes on the route to the next node.</span>
+	 *   <span class="lang-ja">次のノードへの経路上に存在する, 閉じたノードを格納するスタック.</span>
+	 *
+	 * @param closedNodeDetectionTypes
+	 *   <span class="lang-en">Specify the types of closing nodes to be detected.</span>
+	 *   <span class="lang-ja">検出対象とする閉じノードの種類を指定します.</span>
+	 *
+	 * @return
+	 *   <span class="lang-en">The next node.</span>
+	 *   <span class="lang-ja">次のノード.</span>
+	 */
+	public AstNode getPreorderDftNextNode(Deque<AstNode> closedNodeStack, AstNode.Type[] closedNodeDetectionTypes) {
+
+		// If children exist, go to the first child node.
+		// 子ノードがある場合は先頭の子ノードに移動
+		if (this.hasChildNodes()) {
+			return this.getChildNodes()[0];
+		}
+
+		AstNode currentNode = this;
+		AstNode parent = currentNode.getParentNode();
+		AstNode[] siblings = parent.getChildNodes();
+
+		Set<AstNode.Type> closedNodeDetectionTypesSet = new HashSet<AstNode.Type>();
+		if (closedNodeDetectionTypes != null) {
+			for (AstNode.Type type: closedNodeDetectionTypes) {
+				closedNodeDetectionTypesSet.add(type);
+			}
+		}
+
+		// If there are no children for this node, traverse other branches in the AST.
+		// 子ノードが無い場合は, AST内の他の枝を走査する
+		while (true) {
+
+			// Before go to the next (sibling or parent) node, add the current traversing node to the closedNodeStack,
+			// because traversing of its child nodes has finished (= the current traversing node has closed).
+			// この時点で注視ノードの子ノードの走査は全て終了している（= 注視ノードがちょうど閉じた）ので,
+			// 次のノード（兄弟かさらに親）に移動する前に, 注視ノードを closedNodeStack に追加
+			if (closedNodeStack != null && closedNodeDetectionTypesSet.contains(currentNode.getType())) {
+				closedNodeStack.push(currentNode);
+			}
+
+			// If a sibling added after the current node, go to it.
+			// 現在の走査ノードよりも後に追加された兄弟ノードがあれば移動
+			if (currentNode.getSiblingIndex() < siblings.length-1) {
+				return siblings[currentNode.getSiblingIndex() + 1];
+			}
+
+			// If there is no sibling after the current node,
+			// go to the hierarchy of the parent node.
+			// 後の兄弟ノードがもう無ければ, 親ノードの階層に浮上する
+			if (parent.hasParentNode()) {
+				currentNode = parent;
+				parent = currentNode.getParentNode();
+				siblings = parent.getChildNodes();
+
+			// If there is no parent, the current node is the root node, so the traversal is completed.
+			// (See also: the implementation of isPreorderDftLastNode method)
+			// 親ノードが無ければ, 現在のノードがルートノードなので, 走査は完了
+			// (isPreorderDftLastNode メソッドの実装も参照)
+			} else {
+				return null;
+			}
+		}
 	}
 
 
@@ -841,6 +918,14 @@ public class AstNode implements Cloneable {
 	 * AST内のノードを, 帰りがけ順で深さ優先走査(DFT)する場合における, このノードの次のノードを取得します
 	 * </span>
 	 * .
+	 * <span class="lang-en">
+	 * Please note that, postorder DFS visits the parent node only AFTER when their children nodes are traversed.
+	 * </span>
+	 * <span class="lang-ja">
+	 * なお, 帰りがけ順のDFTでは, 親ノードは子ノードを走査した直後にのみ訪問され,
+	 * 子ノードの走査前には素通りされて訪問されない事に注意が必要です.
+	 * </span>
+	 *
 	 * @return
 	 *   <span class="lang-en">The next node.</span>
 	 *   <span class="lang-ja">次のノード.</span>

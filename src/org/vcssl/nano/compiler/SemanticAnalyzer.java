@@ -168,8 +168,6 @@ public class SemanticAnalyzer {
 		VariableTable localVariableTable = new VariableTable();
 
 		AstNode currentNode = astRootNode;
-		int currentBlockDepth = 0; // ブロック終端による変数削除などで使用
-		int lastBlockDepth = 0;
 
 		// ブロックスコープ内で宣言されたローカル変素の数を控えるカウンタ
 		//（ブロックスコープ脱出時に変数をテーブルから削除するため）
@@ -182,11 +180,15 @@ public class SemanticAnalyzer {
 		// 入れ子ブロックに入る際に、上記のローカル変数カウンタの値を退避するためのスタック
 		Deque<Integer>scopeLocalVariableCounterStack = new ArrayDeque<Integer>();
 
-		// ASTノードを、行がけ順の深さ優先走査で辿って処理していく
+		// 次のノードに移動するまでの経路において、閉じブロックがあったら積むスタック
+		// (AstNode#getPreorderDfsNextNode(closedBlockStack)のコメント参照)
+		Deque<AstNode> closedBlockStack = new ArrayDeque<AstNode>();
+
+
+		// ASTノードを、行がけ順の深さ優先走査(DFT)で辿って処理していく
 		do {
-			currentNode = currentNode.getPreorderDftNextNode();
-			lastBlockDepth = currentBlockDepth;
-			currentBlockDepth = currentNode.getBlockDepth();
+			// 行がけ順DFTの次のノードに移動し、その過程で閉じブロックがあれば closedBlockStack に積んでくれる
+			currentNode = currentNode.getPreorderDftNextNode(closedBlockStack, new AstNode.Type[]{ AstNode.Type.BLOCK } );
 
 			// 関数宣言や for 文を踏むと、それ以降、ブロック開始までの宣言変数を、次のブロックに属するとカウントするよう設定
 			if (currentNode.getType() == AstNode.Type.FUNCTION || currentNode.getType() == AstNode.Type.FOR) {
@@ -194,15 +196,11 @@ public class SemanticAnalyzer {
 				nextBlockVariableCounter = 0;
 			}
 
-			// ブロックに入った or 出たポイントかどうかを判定して控える
-			boolean entersNewBlock = currentNode.getType() == AstNode.Type.BLOCK;
-			boolean exitsFromBlock = currentBlockDepth < lastBlockDepth     // ブロックの外の階層に降りた場合（ブロック深度減る）
-				|| (entersNewBlock && currentBlockDepth == lastBlockDepth); // 出ると同時に別ブロックに入った場合（深度変わらず）
+			// ブロックから抜けた場合の処理: その階層のローカル変数/関数を削除し、スコープ内ローカル変数/関数リストをスタックから復元
+			while (closedBlockStack.size() != 0) { // DFSの1ステップ移動間にブロック終端は複数個あり得るので while
+				closedBlockStack.pop();
 
-			// ブロック文の終端での処理: その階層のローカル変数/関数を削除し、スコープ内ローカル変数/関数リストをスタックから復元
-			if (exitsFromBlock) {
-
-				// ブロック内の変数は末尾に連続して詰まっているはずなので、末尾から連続で削除
+				// ブロック内の変数は、変数テーブル末尾に連続して詰まっているはずなので、末尾から連続で削除
 				for (int i=0; i<currentBlockVariableCounter; i++) {
 					localVariableTable.removeLastVariable();
 				}
@@ -210,9 +208,8 @@ public class SemanticAnalyzer {
 				currentBlockVariableCounter = scopeLocalVariableCounterStack.pop();
 			}
 
-			// ブロック文に入った際の処理: 上階層のスコープ内ローカル変数カウンタの値をスタックに退避し、リセット
-			// (ブロックを抜けたノードが別ブロックに入るノードだったりもするため、順序的には上の終端処理よりも後で行う)
-			if (entersNewBlock) {
+			// ブロックに入った際の処理: 上階層のスコープ内ローカル変数カウンタの値をスタックに退避し、リセット
+			if (currentNode.getType() == AstNode.Type.BLOCK) {
 				scopeLocalVariableCounterStack.push(currentBlockVariableCounter); // add だと別の端への追加になるので注意
 				currentBlockVariableCounter = 0;
 
@@ -286,11 +283,11 @@ public class SemanticAnalyzer {
 
 				} else {
 					throw new VnanoException(
-							ErrorType.VARIABLE_IS_NOT_FOUND, variableName,
-							currentNode.getFileName(), currentNode.getLineNumber()
+						ErrorType.VARIABLE_IS_NOT_FOUND, variableName, currentNode.getFileName(), currentNode.getLineNumber()
 					);
 				}
 			}
+
 		} while (!currentNode.isPreorderDftLastNode());
 	}
 
@@ -1404,30 +1401,37 @@ public class SemanticAnalyzer {
 		// 現在検査中の関数の戻り値情報を控える
 		String currentFunctionReturType = "";
 		int currentFunctionReturnRank = -1;
-
-		// ブロック深度が非 0 から 0 になった箇所を検出するため、直前のノードのブロック深度を控える
-		int lastBlockDepth = 0;
+		AstNode currentFunctionBlock = null;
 
 		// 関数内を辿っている最中は true にする
 		boolean inFunction = false;
 
-		// ASTノードを、行がけ順の深さ優先走査で辿って検査していく
+		// 関数のブロック終端を検出するため、ASTの走査中に閉じブロックがあれば格納するスタック
+		// (AstNode#getPreorderDfsNextNode(closedBlockStack)のコメント参照)
+		Deque<AstNode> closedBlockStack = new ArrayDeque<AstNode>();
+
+
+		// ASTノードを、行がけ順の深さ優先走査(DFT)で辿って検査していく
 		AstNode currentNode = astRootNode;
 		do {
-			currentNode = currentNode.getPreorderDftNextNode();
+			// 行がけ順DFTの次のノードに移動し、その過程で閉じブロックがあれば closedBlockStack に積んでくれる
+			currentNode = currentNode.getPreorderDftNextNode(closedBlockStack, new AstNode.Type[]{ AstNode.Type.BLOCK } );
 
-			// ブロック深度が非 0 から 0 になった場合: 関数の終端の可能性があるため、控えている関数情報をリセットする
-			// ( 関数以外のブロックの可能性もあるが、深度 0 になった時点で関数外なのは確実なので、リセットして問題ない )
-			if (lastBlockDepth != 0 && currentNode.getBlockDepth() == 0) {
+			// 閉じブロックがあった場合： 控えている関数のブロックがその中にあれば、その関数の領域は終わったので関数情報をリセット
+			if (closedBlockStack.size() != 0 && closedBlockStack.contains(currentFunctionBlock)) {
+				closedBlockStack.clear();
 				currentFunctionReturType = "";
 				currentFunctionReturnRank = -1;
+				currentFunctionBlock = null;
 				inFunction = false;
 			}
 
-			// 関数宣言ノードの場合: 戻り値の型を控える
+			// 関数宣言ノードの場合: 戻り値の型と、直後のブロックノードを控える
 			if (currentNode.getType() == AstNode.Type.FUNCTION) {
 				currentFunctionReturType = currentNode.getDataTypeName();
 				currentFunctionReturnRank = currentNode.getRank();
+				AstNode[] siblingNodes = currentNode.getParentNode().getChildNodes();   // 兄弟階層のノード（currentNode含む）
+				currentFunctionBlock = siblingNodes[ currentNode.getSiblingIndex()+1 ]; // 1つ後の兄弟がブロック（存在は検査済みなはず）
 				inFunction = true;
 			}
 
@@ -1471,7 +1475,6 @@ public class SemanticAnalyzer {
 				}
 			}
 
-			lastBlockDepth = currentNode.getBlockDepth();
 		} while (!currentNode.isPreorderDftLastNode());
 	}
 
