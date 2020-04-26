@@ -33,6 +33,7 @@ public class VectorCompoundAssignmentOperationCombinedTest extends CombinedTestE
 			this.testDivAssignmentOperations();
 			this.testRemAssignmentOperations();
 			this.testVectorScalarMixedOperations();
+			this.testCompoundAssignmentOperationsToConstants();
 		} catch (VnanoException e) {
 			throw new CombinedTestException(e);
 		}
@@ -218,5 +219,60 @@ public class VectorCompoundAssignmentOperationCombinedTest extends CombinedTestE
 		resultS = (String[])this.engine.executeScript(scriptCode);
 		expectedS = new String[] { "abc"+"xyz", "def"+"xyz", "ghi"+"xyz" };
 		super.evaluateResult(resultS, expectedS, "string[] += string", scriptCode);
+	}
+
+
+	private void testCompoundAssignmentOperationsToConstants() throws VnanoException {
+
+		String scriptCode;
+
+		// const を付けて宣言された変数は書き換え不可能なはずなので検査
+
+		// ※ ただし、現状では配列初期化子をサポートしていないので、実質的に const な配列を宣言する意味はない
+		//    しかしながら、もし配列初期化子をサポートした場合は意味が出てくるので、とりあえずテストは用意しておく
+
+		scriptCode = "const int a[3]; int b[3]; a += b;";
+		try {
+			this.engine.executeScript(scriptCode);
+
+			// 例外が投げられずにここに達するのは、期待されたエラーが検出されていないので失敗
+			super.missedExpectedError("const int a[3]; int b[3]; a += b; (should be failed) ", scriptCode);
+		} catch (VnanoException vne) {
+
+			// 例外が投げられればエラーが検出されているので成功
+			super.succeeded("const int a[3]; int b[3]; a += b; (should be failed) ");
+		}
+
+		scriptCode = "const int a[3]; int b[3]; a -= b;";
+		try {
+			this.engine.executeScript(scriptCode);
+			super.missedExpectedError("const int a[3]; int b[3]; a -= b; (should be failed) ", scriptCode);
+		} catch (VnanoException vne) {
+			super.succeeded("const int a[3]; int b[3]; a -= b; (should be failed) ");
+		}
+
+		scriptCode = "const int a[3]; int b[3]; a *= b;";
+		try {
+			this.engine.executeScript(scriptCode);
+			super.missedExpectedError("const int a[3]; int b[3]; a *= b; (should be failed) ", scriptCode);
+		} catch (VnanoException vne) {
+			super.succeeded("const int a[3]; int b[3]; a *= b; (should be failed) ");
+		}
+
+		scriptCode = "const int a[3]; int b[3]=123; a /= b;"; // b が 0 だと、仮に const を弾けていなくても除算エラーになる
+		try {
+			this.engine.executeScript(scriptCode);
+			super.missedExpectedError("const int a[3]; int b[3]; a /= b; (should be failed) ", scriptCode);
+		} catch (VnanoException vne) {
+			super.succeeded("const int a[3]; int b[3]; a /= b; (should be failed) ");
+		}
+
+		scriptCode = "const int a[3]; int b[3]=123; a %= b;"; // b が 0 だと、仮に const を弾けていなくても除算エラーになる
+		try {
+			this.engine.executeScript(scriptCode);
+			super.missedExpectedError("const int a[3]; int b[3]; a %= b; (should be failed) ", scriptCode);
+		} catch (VnanoException vne) {
+			super.succeeded("const int a[3]; int b[3]; a %= b; (should be failed) ");
+		}
 	}
 }

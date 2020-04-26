@@ -167,4 +167,5 @@ public class SubscriptedArithmeticOperationCombinedTest extends CombinedTestElem
 		resultD = (double)this.engine.executeScript(scriptCode);
 		super.evaluateResult(resultD, 1.4d%12.8d, "float[i] % float[j]", scriptCode);
 	}
+
 }

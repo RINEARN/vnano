@@ -36,6 +36,7 @@ public class FunctionCombinedTest extends CombinedTestElement {
 			this.testArgumentScopes();
 			this.testFunctionRanges();
 			this.testDuplicateFunctionDeclarations();
+			this.testPassingConstants();
 		} catch (VnanoException e) {
 			throw new CombinedTestException(e);
 		}
@@ -1399,4 +1400,88 @@ public class FunctionCombinedTest extends CombinedTestElement {
 		this.engine.executeScript(scriptCode);
 		this.succeeded("void fun(int x){ } void fun(float x){ } "); // エラーにならず実行できた時点で成功
 	}
+
+
+	private void testPassingConstants() throws VnanoException {
+		String scriptCode;
+
+		// 普通の引数には定数も渡せるはず
+		scriptCode =
+			" void fun(int x) {  \n" +
+			" }                  \n" +
+			" fun(123);          \n" ;
+
+		this.engine.executeScript(scriptCode);
+		this.succeeded("void fun(int x){ } fun(123); "); // エラーにならず実行できた時点で成功
+
+
+		// 参照渡しの引数には定数は渡せないはず
+		//（参照渡しで何を受け取るかは実行時に決まるため、それが定数かどうかはコンパイル時に判定するのが難しく、
+		//  従って定数を参照渡しして書き換えられてしまうとまずいので、定数の参照渡し自体を普通はできなくしている）
+		scriptCode =
+			" void fun(int &x) {  \n" +
+			" }                   \n" +
+			" fun(123);           \n" ;
+
+		try {
+			this.engine.executeScript(scriptCode);
+
+			// 例外が投げられずにここに達するのは、期待されたエラーが検出されていないので失敗
+			super.missedExpectedError("void fun(int &x){ } fun(123); (should be failed) ", scriptCode);
+		} catch (VnanoException vne) {
+
+			// 例外が投げられればエラーが検出されているので成功
+			super.succeeded("void fun(int &x){ } fun(123); (should be failed) ");
+		}
+
+
+		// 参照渡しでも const を付けて宣言されていれば、定数を渡せるはず
+		//（コンパイル時点で、渡した先で書き換えられない事がわかるため）
+		scriptCode =
+			" void fun(const int &x) {  \n" +
+			" }                         \n" +
+			" fun(123);                 \n" ;
+
+		this.engine.executeScript(scriptCode);
+		this.succeeded("void fun(const int &x){ } fun(123); "); // エラーにならず実行できた時点で成功
+
+
+		// 渡した定数を書き変えられない事を検査 / 値渡しの場合
+		scriptCode =
+			" void fun(const int x) {  \n" +
+			"     x = 456;             \n" +
+			" }                        \n" +
+			" fun(123);                \n" ;
+
+		try {
+			this.engine.executeScript(scriptCode);
+
+			// 例外が投げられずにここに達するのは、期待されたエラーが検出されていないので失敗
+			super.missedExpectedError("void fun(const int x){ x=456; } fun(123); (should be failed) ", scriptCode);
+		} catch (VnanoException vne) {
+
+			// 例外が投げられればエラーが検出されているので成功
+			super.succeeded("void fun(const int x){ x=456; } fun(123); (should be failed) ");
+		}
+
+
+		// 渡した定数を書き変えられない事を検査 / 参照渡しの場合
+		scriptCode =
+			" void fun(const int &x) {  \n" +
+			"     x = 456;              \n" +
+			" }                         \n" +
+			" fun(123);                 \n" ;
+
+		try {
+			this.engine.executeScript(scriptCode);
+
+			// 例外が投げられずにここに達するのは、期待されたエラーが検出されていないので失敗
+			super.missedExpectedError("void fun(const int &x){ x=456; } fun(123); (should be failed) ", scriptCode);
+		} catch (VnanoException vne) {
+
+			// 例外が投げられればエラーが検出されているので成功
+			super.succeeded("void fun(const int &x){ x=456; } fun(123); (should be failed) ");
+		}
+	}
+
 }
