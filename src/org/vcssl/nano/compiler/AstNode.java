@@ -382,6 +382,9 @@ public class AstNode implements Cloneable {
 	 *   <span class="lang-ja">設定する属性の値.</span>
 	 */
 	public void setAttribute(AttributeKey attributeKey, String attributeValue) {
+		if (attributeValue == null) {
+			throw new VnanoFatalException("null can not be the value of an attribute");
+		}
 		if (this.attributeMap.containsKey(attributeKey)) {
 			this.attributeMap.remove(attributeKey);
 		}
@@ -723,7 +726,7 @@ public class AstNode implements Cloneable {
 
 
 	/**
-	 * <span class="lang-en">Gets the array rank set as {@link AttributeKey#RANK RANK} attribute</span>
+	 * <span class="lang-en">Gets the array rank which is set as {@link AttributeKey#RANK RANK} attribute</span>
 	 * <span class="lang-ja">{@link AttributeKey#RANK RANK} 属性として設定されている配列次元数を取得します</span>
 	 * .
 	 * @return
@@ -735,6 +738,45 @@ public class AstNode implements Cloneable {
 		return Integer.parseInt(rankWord);
 	}
 
+
+	/**
+	 * <span class="lang-en">
+	 * Checks whether this node has the specified modifier in the value of {@link AttributeKey#MODIFIER MODIFIER} attribute
+	 * </span>
+	 * <span class="lang-ja">
+	 * このノードが, 指定された修飾子を {@link AttributeKey#MODIFIER MODIFIER} 属性の中に持っているかどうかを判定します
+	 * </span>
+	 * .
+	 * @param modifier
+	 *   <span class="lang-en">The modifier to be checked.</span>
+	 *   <span class="lang-ja">判定対象の修飾子.</span>
+	 *
+	 * @return
+	 *   <span class="lang-en">True if this node has the spedicied modifiers, false if has'nt.</span>
+	 *   <span class="lang-ja">持っていれば true, しなければ false が返されます.</span>
+	 */
+	public boolean hasModifier(String modifier) {
+		return this.hasAttribute(AttributeKey.MODIFIER) && this.getAttribute(AttributeKey.MODIFIER).contains(modifier);
+	}
+
+
+	/**
+	 * <span class="lang-en">Append a modifier into the value of {@link AttributeKey#MODIFIER MODIFIER} attribute</span>
+	 * <span class="lang-ja">{@link AttributeKey#MODIFIER MODIFIER} 属性に, 新しい修飾子を追記します</span>
+	 * .
+	 * @param modifier
+	 *   <span class="lang-en">The modifier to be appended.</span>
+	 *   <span class="lang-ja">追加する修飾子.</span>
+	 */
+	public void addModifier(String modifier) {
+		if (this.hasAttribute(AttributeKey.MODIFIER)) {
+			String attributeValue = this.getAttribute(AttributeKey.MODIFIER);
+			attributeValue += AttributeValue.MODIFIER_SEPARATOR + modifier;
+			this.setAttribute(AttributeKey.MODIFIER, attributeValue);
+		} else {
+			this.setAttribute(AttributeKey.MODIFIER, modifier);
+		}
+	}
 
 
 	/**

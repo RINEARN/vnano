@@ -227,6 +227,7 @@ public class SemanticAnalyzer {
 				String dataTypeName = currentNode.getDataTypeName();
 				int rank = currentNode.getRank();
 				boolean isFunctionParam = currentNode.getParentNode().getType() == AstNode.Type.FUNCTION;
+				boolean isConstant = currentNode.hasModifier(ScriptWord.CONSTANT);
 
 				// 宣言箇所からの可視範囲内に、既に同名変数が存在する場合はエラーとする（可視範囲外の変数はブロック末端で削除済み）
 				if (localVariableTable.containsVariableWithName(variableName) && !isFunctionParam) { // ただし関数引数は特例的に許可
@@ -237,7 +238,9 @@ public class SemanticAnalyzer {
 				}
 
 				// ローカル変数の情報を保持するインスタンスを生成して変数テーブルに登録
-				InternalVariable internalVariable = new InternalVariable(variableName, dataTypeName, rank, localVariableSerialNumber);
+				InternalVariable internalVariable = new InternalVariable(
+					variableName, dataTypeName, rank, isConstant, localVariableSerialNumber
+				);
 				localVariableTable.addVariable(internalVariable);
 				if (shouldCountToNextBlock) {
 					nextBlockVariableCounter++;
@@ -257,34 +260,33 @@ public class SemanticAnalyzer {
 					&& currentNode.getAttribute(AttributeKey.LEAF_TYPE).equals(AttributeValue.VARIABLE_IDENTIFIER)) {
 
 				String variableName = currentNode.getAttribute(AttributeKey.IDENTIFIER_VALUE);
+				AbstractVariable variable = null;
 
 				// ローカル変数
 				if (localVariableTable.containsVariableWithName(variableName)) {
-
-					AbstractVariable variable = localVariableTable.getVariableByName(variableName);
-					currentNode.setAttribute(AttributeKey.IDENTIFIER_SERIAL_NUMBER, Integer.toString(variable.getSerialNumber()));
+					variable = localVariableTable.getVariableByName(variableName);
 					currentNode.setAttribute(AttributeKey.SCOPE, AttributeValue.LOCAL);
-					currentNode.setAttribute(AttributeKey.RANK, Integer.toString(variable.getRank()));
-					currentNode.setAttribute(AttributeKey.DATA_TYPE, variable.getDataTypeName());
-					if (variable.hasNameSpace()) {
-						currentNode.setAttribute(AttributeKey.NAME_SPACE, variable.getNameSpace());
-					}
+					currentNode.setAttribute(AttributeKey.IDENTIFIER_SERIAL_NUMBER, Integer.toString(variable.getSerialNumber()));
 
 				// グローバル変数
 				} else if (globalVariableTable.containsVariableWithName(variableName)) {
-
-					AbstractVariable variable = globalVariableTable.getVariableByName(variableName);
+					variable = globalVariableTable.getVariableByName(variableName);
 					currentNode.setAttribute(AttributeKey.SCOPE, AttributeValue.GLOBAL);
-					currentNode.setAttribute(AttributeKey.RANK, Integer.toString(variable.getRank()));
-					currentNode.setAttribute(AttributeKey.DATA_TYPE, variable.getDataTypeName());
-					if (variable.hasNameSpace()) {
-						currentNode.setAttribute(AttributeKey.NAME_SPACE, variable.getNameSpace());
-					}
 
+				// どっちとしても見つからなかった場合
 				} else {
 					throw new VnanoException(
 						ErrorType.VARIABLE_IS_NOT_FOUND, variableName, currentNode.getFileName(), currentNode.getLineNumber()
 					);
+				}
+
+				currentNode.setAttribute(AttributeKey.RANK, Integer.toString(variable.getRank()));
+				currentNode.setAttribute(AttributeKey.DATA_TYPE, variable.getDataTypeName());
+				if (variable.isConstant()) {
+					currentNode.addModifier(ScriptWord.CONSTANT);
+				}
+				if (variable.hasNameSpace()) {
+					currentNode.setAttribute(AttributeKey.NAME_SPACE, variable.getNameSpace());
 				}
 			}
 
@@ -349,10 +351,8 @@ public class SemanticAnalyzer {
 					argNames[argIndex] = argNodes[argIndex].getAttribute(AttributeKey.IDENTIFIER_VALUE);
 					argTypeNames[argIndex] = argNodes[argIndex].getAttribute(AttributeKey.DATA_TYPE);
 					argRanks[argIndex] = argNodes[argIndex].getRank();
-					if (argNodes[argIndex].hasAttribute(AttributeKey.MODIFIER)) {
-						argRefs[argIndex] = argNodes[argIndex].getAttribute(AttributeKey.MODIFIER).contains(ScriptWord.REFERENCE);
-					}
-					argConsts[argIndex] = false; // スクリプト内での const 修飾子は未サポート
+					argRefs[argIndex] = argNodes[argIndex].hasModifier(ScriptWord.REFERENCE);
+					argConsts[argIndex] = argNodes[argIndex].hasModifier(ScriptWord.CONSTANT);
 				}
 
 				// 関数情報を保持するインスタンスを生成
@@ -443,6 +443,7 @@ public class SemanticAnalyzer {
 					&& currentNode.getAttribute(AttributeKey.LEAF_TYPE).equals(AttributeValue.LITERAL)) {
 
 				currentNode.setAttribute(AttributeKey.RANK, "0"); // 現状では配列のリテラルは存在しないため、常にスカラ
+				currentNode.addModifier(ScriptWord.CONSTANT); // リテラルは const 扱い
 
 				// リテラルのデータ型はLexicalAnalyzerの時点で自明なので、その段階で既に設定されている
 				//（ EVAL_NUMBER_AS_FLOATオプションの実装上も、そうした方が都合が良い ）
@@ -1222,18 +1223,25 @@ public class SemanticAnalyzer {
 
 					// 代入演算子の場合
 					case AttributeValue.ASSIGNMENT : {
-						this.checkWritability( currentNode.getChildNodes()[0] );
+						// 初期化子かどうかを検査（const変数などは初期化子に限って代入可能）
+						boolean isInitializer = (
+							currentNode.getParentNode() != null
+							&& currentNode.getParentNode().getParentNode() != null
+							&& currentNode.getParentNode().getParentNode().getType() == AstNode.Type.VARIABLE
+						);
+
+						this.checkWritability( currentNode.getChildNodes()[0], isInitializer);
 						break;
 					}
 					// 複合代入演算子の場合
 					case AttributeValue.ARITHMETIC_COMPOUND_ASSIGNMENT : {
-						this.checkWritability( currentNode.getChildNodes()[0] );
+						this.checkWritability( currentNode.getChildNodes()[0], false );
 						break;
 					}
 					// インクリメント/デクリメント演算子の場合
 					case AttributeValue.ARITHMETIC : {
 						if (symbol.equals(ScriptWord.INCREMENT) || symbol.equals(ScriptWord.DECREMENT)) {
-							this.checkWritability( currentNode.getChildNodes()[0] );
+							this.checkWritability( currentNode.getChildNodes()[0], false );
 						}
 						break;
 					}
@@ -1253,9 +1261,10 @@ public class SemanticAnalyzer {
 	 * 引数に渡されたASTノードが、書き換え可能なものかどうか検査します。
 	 *
 	 * @param node 検査対象のASTノード
+	 * @param writtenByInitializer 初期化子による書き換え検査では true を指定します。
 	 * @throws VnanoException 検査対象が書き換え不可能であった場合にスローされます。
 	 */
-	private void checkWritability (AstNode node) throws VnanoException {
+	private void checkWritability (AstNode node, boolean writtenByInitializer) throws VnanoException {
 		String fileName = node.getFileName();
 		int lineNumber = node.getLineNumber();
 
@@ -1273,10 +1282,17 @@ public class SemanticAnalyzer {
 
 		String leafType = node.getAttribute(AttributeKey.LEAF_TYPE);
 
-		// 変数は現状では const をサポートしていないため、常に許可
+		// 変数の場合
 		if (leafType.equals(AttributeValue.VARIABLE_IDENTIFIER)) {
 
-			// const をサポートした際はここで検査
+			// const 修飾子が付加されていた場合、初期化子以外での書き換えはエラー
+			if (node.hasModifier(ScriptWord.CONSTANT) && !writtenByInitializer) {
+				throw new VnanoException(
+					ErrorType.WRITING_TO_CONST_VARIABLE,
+					new String[] { node.getAttribute(AttributeKey.IDENTIFIER_VALUE) },
+					fileName, lineNumber
+				);
+			}
 
 		// リテラルは書き換え不可能なのでエラー
 		} else if (leafType.equals(AttributeValue.LITERAL)) {

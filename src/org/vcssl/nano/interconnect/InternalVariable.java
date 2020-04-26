@@ -26,6 +26,9 @@ public class InternalVariable extends AbstractVariable {
 	/** 配列次元数（スカラは0次元として扱う）を保持します。 */
 	private int rank = -1;
 
+	/** 書き換え不可能な定数であるかどうかを保持します。 */
+	private boolean constantness = false;
+
 	/** この変数のデータを保持する、データユニットを保持します。 */
 	private DataContainer<?> dataContainer;
 
@@ -45,11 +48,13 @@ public class InternalVariable extends AbstractVariable {
 	 * @param variableName 変数名
 	 * @param dataTypeName データ型名（配列部分 [][]...[] は含まない）
 	 * @param rank 配列次元数（スカラは0次元として扱う）
+	 * @param constantness 定数かどうか
 	 */
-	public InternalVariable(String variableName, String dataTypeName, int rank) {
+	public InternalVariable(String variableName, String dataTypeName, int rank, boolean constantness) {
 		this.variableName = variableName;
 		this.dataTypeName = dataTypeName;
 		this.rank = rank;
+		this.constantness = constantness;
 	}
 
 	/**
@@ -61,12 +66,11 @@ public class InternalVariable extends AbstractVariable {
 	 * @param variableName 変数名
 	 * @param dataTypeName データ型名（配列部分 [][]...[] は含まない）
 	 * @param rank 配列次元数（スカラは0次元として扱う）
+	 * @param constantness 定数かどうか
 	 * @param int serialNumber 変数名が競合している変数を区別するためのシリアルナンバー
 	 */
-	public InternalVariable(String variableName, String dataTypeName, int rank, int serialNumber) {
-		this.variableName = variableName;
-		this.dataTypeName = dataTypeName;
-		this.rank = rank;
+	public InternalVariable(String variableName, String dataTypeName, int rank, boolean isConstant, int serialNumber) {
+		this(variableName, dataTypeName, rank, isConstant);
 		this.serialNumber = serialNumber;
 		this.hasSerialNumber = true;
 	}
@@ -171,7 +175,7 @@ public class InternalVariable extends AbstractVariable {
 	 * @return 定数ならtrue
 	 */
 	public boolean isConstant() {
-		return false;
+		return this.constantness;
 	}
 
 

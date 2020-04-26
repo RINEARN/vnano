@@ -401,6 +401,14 @@ public class ScriptWord {
 
 
 	/**
+	 * <span class="lang-en">The modifier representing being constant: "const"</span>
+	 * <span class="lang-ja">定数である事を表す修飾子「 const 」です</span>
+	 * .
+	 */
+	public static final String CONSTANT = "const";
+
+
+	/**
 	 * <span class="lang-en">The symbol of the beginning of line comments: "//"</span>
 	 * <span class="lang-ja">行コメントの始点記号「 // 」です</span>
 	 * .
@@ -504,6 +512,40 @@ public class ScriptWord {
 
     	SYMBOL_SET.add(END_OF_STATEMENT);
     }
+
+
+	public static final HashSet<String> MODIFIER_SET;
+	static {
+		MODIFIER_SET = new HashSet<String>();
+		MODIFIER_SET.add(CONSTANT);
+		MODIFIER_SET.add(ARBITRARY_COUNT);
+		MODIFIER_SET.add(REFERENCE);
+	}
+
+
+	/**
+	 * <span class="lang-en">The HashSet storing modifiers which will be put before the type name</span>
+	 * <span class="lang-ja">型名の前に置かれる修飾子を格納している HashSet です</span>
+	 * .
+	 */
+	public static final HashSet<String> PREFIX_MODIFIER_SET;
+	static{
+		PREFIX_MODIFIER_SET = new HashSet<String>();
+		PREFIX_MODIFIER_SET.add(CONSTANT);
+		PREFIX_MODIFIER_SET.add(ARBITRARY_COUNT);
+	}
+
+
+	/**
+	 * <span class="lang-en">The HashSet storing modifiers which will be put after the type name</span>
+	 * <span class="lang-ja">型名の後に置かれる修飾子を格納している HashSet です</span>
+	 * .
+	 */
+	public static final HashSet<String> POSTFIX_MODIFIER_SET;
+	static{
+		POSTFIX_MODIFIER_SET = new HashSet<String>();
+		POSTFIX_MODIFIER_SET.add(REFERENCE);
+	}
 
 
 	// SemanticAnalyzer での識別子検査に使用
