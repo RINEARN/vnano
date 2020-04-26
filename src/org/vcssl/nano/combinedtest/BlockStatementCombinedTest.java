@@ -137,6 +137,27 @@ public class BlockStatementCombinedTest extends CombinedTestElement {
 			// 例外が投げられればエラーが検出されているので成功
 			super.succeeded("{ int a=0; { int b=0; a++; } b++; } (should be failed) ");
 		}
+
+
+		scriptCode =
+			" {                   \n" +
+			"     int a = 0;      \n" +
+			"     {               \n" +
+			"         int b = 0;  \n" +
+			"     }               \n" + // 連続閉じブロックで、正しくスコープを2階層降りているかどうか
+			" }                   \n" + // (意味解析での実装上の特殊パターン)
+			" a = 123;            \n" ;
+
+		try {
+			this.engine.executeScript(scriptCode);
+
+			// 例外が投げられずにここに達するのは、期待されたエラーが検出されていないので失敗
+			super.missedExpectedError("{ int a=0; { int b=0; } } a=123; (should be failed) ", scriptCode);
+		} catch (VnanoException vne) {
+
+			// 例外が投げられればエラーが検出されているので成功
+			super.succeeded("{ int a=0; { int b=0; } } a=123; (should be failed) ");
+		}
 	}
 
 

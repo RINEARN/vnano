@@ -349,12 +349,8 @@ public class LexicalAnalyzer {
 			} else if (word.equals(ScriptWord.END_OF_STATEMENT)) {
 				tokens[i].setType(Token.Type.END_OF_STATEMENT);
 
-			// 任意個数を表す「...」
-			} else if (word.equals(ScriptWord.ARBITRARY_COUNT)) {
-				tokens[i].setType(Token.Type.MODIFIER);
-
-			// 参照渡しを表す「 & 」
-			} else if (word.equals(ScriptWord.REFERENCE)) {
+			// 修飾子（参照渡しを表す「 & 」や任意個数引数を表す「 ... 」も含む）
+			} else if (ScriptWord.MODIFIER_SET.contains(word)) {
 				tokens[i].setType(Token.Type.MODIFIER);
 
 			// 代入演算子

@@ -23,6 +23,7 @@ public class ScalarAssignmentOperationCombinedTest extends CombinedTestElement {
 			this.testAssignmentOperations();
 			this.testMultipleAssignmentOperations();
 			this.testAssignmentOperationsWithTypeConversions();
+			this.testAssignmentOperationsToConstants();
 		} catch (VnanoException e) {
 			throw new CombinedTestException(e);
 		}
@@ -141,6 +142,28 @@ public class ScalarAssignmentOperationCombinedTest extends CombinedTestElement {
 		scriptCode = " string x; string a=\"abc\"; string b=\"def\"; string c=\"ghi\"; x = a = b = c; x; ";
 		resultS = (String)this.engine.executeScript(scriptCode);
 		super.evaluateResult(resultS, "ghi", "string = string = string = string", scriptCode);
+	}
+
+	private void testAssignmentOperationsToConstants() throws VnanoException {
+		String scriptCode;
+
+		// 宣言文での代入は初期化子扱いなので可能なはず
+		scriptCode = "const int x = 123;";
+		this.engine.executeScript(scriptCode);
+		this.succeeded("const int x = 123; "); // エラーにならず実行できた時点で成功
+
+		// 宣言文以外での代入は不可能なはず
+		scriptCode = "const int x; x = 123;";
+		try {
+			this.engine.executeScript(scriptCode);
+
+			// 例外が投げられずにここに達するのは、期待されたエラーが検出されていないので失敗
+			super.missedExpectedError("const int x; x = 123; (should be failed) ", scriptCode);
+		} catch (VnanoException vne) {
+
+			// 例外が投げられればエラーが検出されているので成功
+			super.succeeded("const int x; x = 123; (should be failed) ");
+		}
 	}
 
 }

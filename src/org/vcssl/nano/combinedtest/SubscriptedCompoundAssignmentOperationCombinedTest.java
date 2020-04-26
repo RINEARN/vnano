@@ -32,6 +32,7 @@ public class SubscriptedCompoundAssignmentOperationCombinedTest extends Combined
 			this.testMulAssignmentOperations();
 			this.testDivAssignmentOperations();
 			this.testRemAssignmentOperations();
+			this.testCompoundAssignmentOperationsToConstants();
 		} catch (VnanoException e) {
 			throw new CombinedTestException(e);
 		}
@@ -150,5 +151,59 @@ public class SubscriptedCompoundAssignmentOperationCombinedTest extends Combined
 		scriptCode = DECLVEC_FLOAT_A + DECLVEC_INT_B + "a[2] %= b[2]; a[2]; ";
 		resultD = (double)this.engine.executeScript(scriptCode);
 		super.evaluateResult(resultD, 8.25d%10l, "float[i] %= int[i]", scriptCode);
+	}
+
+	private void testCompoundAssignmentOperationsToConstants() throws VnanoException {
+
+		String scriptCode;
+
+		// const を付けて宣言された変数は書き換え不可能なはずなので検査
+
+		// ※ ただし、現状では配列初期化子をサポートしていないので、実質的に const な配列を宣言する意味はない
+		//    しかしながら、もし配列初期化子をサポートした場合は意味が出てくるので、とりあえずテストは用意しておく
+
+		scriptCode = "const int a[3]; a[1] += 2;";
+		try {
+			this.engine.executeScript(scriptCode);
+
+			// 例外が投げられずにここに達するのは、期待されたエラーが検出されていないので失敗
+			super.missedExpectedError("const int a[3]; a[1] += 2; (should be failed) ", scriptCode);
+		} catch (VnanoException vne) {
+
+			// 例外が投げられればエラーが検出されているので成功
+			super.succeeded("const int a[3]; a[1] += 2; (should be failed) ");
+		}
+
+		scriptCode = "const int a[3]; a[1] -= 2;";
+		try {
+			this.engine.executeScript(scriptCode);
+			super.missedExpectedError("const int a[3]; a[1] -= 2; (should be failed) ", scriptCode);
+		} catch (VnanoException vne) {
+			super.succeeded("const int a[3]; a[1] -= 2; (should be failed) ");
+		}
+
+		scriptCode = "const int a[3]; a[1] *= 2;";
+		try {
+			this.engine.executeScript(scriptCode);
+			super.missedExpectedError("const int a[3]; a[1] *= 2; (should be failed) ", scriptCode);
+		} catch (VnanoException vne) {
+			super.succeeded("const int a[3]; a[1] *= 2; (should be failed) ");
+		}
+
+		scriptCode = "const int a[3]; a[1] /= 2;";
+		try {
+			this.engine.executeScript(scriptCode);
+			super.missedExpectedError("const int a[3]; a[1] /= 2; (should be failed) ", scriptCode);
+		} catch (VnanoException vne) {
+			super.succeeded("const int a[3]; a[1] /= 2; (should be failed) ");
+		}
+
+		scriptCode = "const int a[3]; a[1] %= 2;";
+		try {
+			this.engine.executeScript(scriptCode);
+			super.missedExpectedError("const int a[3]; a[1] %= 2; (should be failed) ", scriptCode);
+		} catch (VnanoException vne) {
+			super.succeeded("const int a[3]; a[1] %= 2; (should be failed) ");
+		}
 	}
 }

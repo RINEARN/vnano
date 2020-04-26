@@ -168,8 +168,6 @@ public class SemanticAnalyzer {
 		VariableTable localVariableTable = new VariableTable();
 
 		AstNode currentNode = astRootNode;
-		int currentBlockDepth = 0; // ブロック終端による変数削除などで使用
-		int lastBlockDepth = 0;
 
 		// ブロックスコープ内で宣言されたローカル変素の数を控えるカウンタ
 		//（ブロックスコープ脱出時に変数をテーブルから削除するため）
@@ -182,11 +180,15 @@ public class SemanticAnalyzer {
 		// 入れ子ブロックに入る際に、上記のローカル変数カウンタの値を退避するためのスタック
 		Deque<Integer>scopeLocalVariableCounterStack = new ArrayDeque<Integer>();
 
-		// ASTノードを、行がけ順の深さ優先走査で辿って処理していく
+		// 次のノードに移動するまでの経路において、閉じブロックがあったら積むスタック
+		// (AstNode#getPreorderDfsNextNode(closedBlockStack)のコメント参照)
+		Deque<AstNode> closedBlockStack = new ArrayDeque<AstNode>();
+
+
+		// ASTノードを、行がけ順の深さ優先走査(DFT)で辿って処理していく
 		do {
-			currentNode = currentNode.getPreorderDftNextNode();
-			lastBlockDepth = currentBlockDepth;
-			currentBlockDepth = currentNode.getBlockDepth();
+			// 行がけ順DFTの次のノードに移動し、その過程で閉じブロックがあれば closedBlockStack に積んでくれる
+			currentNode = currentNode.getPreorderDftNextNode(closedBlockStack, new AstNode.Type[]{ AstNode.Type.BLOCK } );
 
 			// 関数宣言や for 文を踏むと、それ以降、ブロック開始までの宣言変数を、次のブロックに属するとカウントするよう設定
 			if (currentNode.getType() == AstNode.Type.FUNCTION || currentNode.getType() == AstNode.Type.FOR) {
@@ -194,15 +196,11 @@ public class SemanticAnalyzer {
 				nextBlockVariableCounter = 0;
 			}
 
-			// ブロックに入った or 出たポイントかどうかを判定して控える
-			boolean entersNewBlock = currentNode.getType() == AstNode.Type.BLOCK;
-			boolean exitsFromBlock = currentBlockDepth < lastBlockDepth     // ブロックの外の階層に降りた場合（ブロック深度減る）
-				|| (entersNewBlock && currentBlockDepth == lastBlockDepth); // 出ると同時に別ブロックに入った場合（深度変わらず）
+			// ブロックから抜けた場合の処理: その階層のローカル変数/関数を削除し、スコープ内ローカル変数/関数リストをスタックから復元
+			while (closedBlockStack.size() != 0) { // DFSの1ステップ移動間にブロック終端は複数個あり得るので while
+				closedBlockStack.pop();
 
-			// ブロック文の終端での処理: その階層のローカル変数/関数を削除し、スコープ内ローカル変数/関数リストをスタックから復元
-			if (exitsFromBlock) {
-
-				// ブロック内の変数は末尾に連続して詰まっているはずなので、末尾から連続で削除
+				// ブロック内の変数は、変数テーブル末尾に連続して詰まっているはずなので、末尾から連続で削除
 				for (int i=0; i<currentBlockVariableCounter; i++) {
 					localVariableTable.removeLastVariable();
 				}
@@ -210,9 +208,8 @@ public class SemanticAnalyzer {
 				currentBlockVariableCounter = scopeLocalVariableCounterStack.pop();
 			}
 
-			// ブロック文に入った際の処理: 上階層のスコープ内ローカル変数カウンタの値をスタックに退避し、リセット
-			// (ブロックを抜けたノードが別ブロックに入るノードだったりもするため、順序的には上の終端処理よりも後で行う)
-			if (entersNewBlock) {
+			// ブロックに入った際の処理: 上階層のスコープ内ローカル変数カウンタの値をスタックに退避し、リセット
+			if (currentNode.getType() == AstNode.Type.BLOCK) {
 				scopeLocalVariableCounterStack.push(currentBlockVariableCounter); // add だと別の端への追加になるので注意
 				currentBlockVariableCounter = 0;
 
@@ -230,6 +227,7 @@ public class SemanticAnalyzer {
 				String dataTypeName = currentNode.getDataTypeName();
 				int rank = currentNode.getRank();
 				boolean isFunctionParam = currentNode.getParentNode().getType() == AstNode.Type.FUNCTION;
+				boolean isConstant = currentNode.hasModifier(ScriptWord.CONSTANT);
 
 				// 宣言箇所からの可視範囲内に、既に同名変数が存在する場合はエラーとする（可視範囲外の変数はブロック末端で削除済み）
 				if (localVariableTable.containsVariableWithName(variableName) && !isFunctionParam) { // ただし関数引数は特例的に許可
@@ -240,7 +238,9 @@ public class SemanticAnalyzer {
 				}
 
 				// ローカル変数の情報を保持するインスタンスを生成して変数テーブルに登録
-				InternalVariable internalVariable = new InternalVariable(variableName, dataTypeName, rank, localVariableSerialNumber);
+				InternalVariable internalVariable = new InternalVariable(
+					variableName, dataTypeName, rank, isConstant, localVariableSerialNumber
+				);
 				localVariableTable.addVariable(internalVariable);
 				if (shouldCountToNextBlock) {
 					nextBlockVariableCounter++;
@@ -260,37 +260,36 @@ public class SemanticAnalyzer {
 					&& currentNode.getAttribute(AttributeKey.LEAF_TYPE).equals(AttributeValue.VARIABLE_IDENTIFIER)) {
 
 				String variableName = currentNode.getAttribute(AttributeKey.IDENTIFIER_VALUE);
+				AbstractVariable variable = null;
 
 				// ローカル変数
 				if (localVariableTable.containsVariableWithName(variableName)) {
-
-					AbstractVariable variable = localVariableTable.getVariableByName(variableName);
-					currentNode.setAttribute(AttributeKey.IDENTIFIER_SERIAL_NUMBER, Integer.toString(variable.getSerialNumber()));
+					variable = localVariableTable.getVariableByName(variableName);
 					currentNode.setAttribute(AttributeKey.SCOPE, AttributeValue.LOCAL);
-					currentNode.setAttribute(AttributeKey.RANK, Integer.toString(variable.getRank()));
-					currentNode.setAttribute(AttributeKey.DATA_TYPE, variable.getDataTypeName());
-					if (variable.hasNameSpace()) {
-						currentNode.setAttribute(AttributeKey.NAME_SPACE, variable.getNameSpace());
-					}
+					currentNode.setAttribute(AttributeKey.IDENTIFIER_SERIAL_NUMBER, Integer.toString(variable.getSerialNumber()));
 
 				// グローバル変数
 				} else if (globalVariableTable.containsVariableWithName(variableName)) {
-
-					AbstractVariable variable = globalVariableTable.getVariableByName(variableName);
+					variable = globalVariableTable.getVariableByName(variableName);
 					currentNode.setAttribute(AttributeKey.SCOPE, AttributeValue.GLOBAL);
-					currentNode.setAttribute(AttributeKey.RANK, Integer.toString(variable.getRank()));
-					currentNode.setAttribute(AttributeKey.DATA_TYPE, variable.getDataTypeName());
-					if (variable.hasNameSpace()) {
-						currentNode.setAttribute(AttributeKey.NAME_SPACE, variable.getNameSpace());
-					}
 
+				// どっちとしても見つからなかった場合
 				} else {
 					throw new VnanoException(
-							ErrorType.VARIABLE_IS_NOT_FOUND, variableName,
-							currentNode.getFileName(), currentNode.getLineNumber()
+						ErrorType.VARIABLE_IS_NOT_FOUND, variableName, currentNode.getFileName(), currentNode.getLineNumber()
 					);
 				}
+
+				currentNode.setAttribute(AttributeKey.RANK, Integer.toString(variable.getRank()));
+				currentNode.setAttribute(AttributeKey.DATA_TYPE, variable.getDataTypeName());
+				if (variable.isConstant()) {
+					currentNode.addModifier(ScriptWord.CONSTANT);
+				}
+				if (variable.hasNameSpace()) {
+					currentNode.setAttribute(AttributeKey.NAME_SPACE, variable.getNameSpace());
+				}
 			}
+
 		} while (!currentNode.isPreorderDftLastNode());
 	}
 
@@ -352,10 +351,8 @@ public class SemanticAnalyzer {
 					argNames[argIndex] = argNodes[argIndex].getAttribute(AttributeKey.IDENTIFIER_VALUE);
 					argTypeNames[argIndex] = argNodes[argIndex].getAttribute(AttributeKey.DATA_TYPE);
 					argRanks[argIndex] = argNodes[argIndex].getRank();
-					if (argNodes[argIndex].hasAttribute(AttributeKey.MODIFIER)) {
-						argRefs[argIndex] = argNodes[argIndex].getAttribute(AttributeKey.MODIFIER).contains(ScriptWord.REFERENCE);
-					}
-					argConsts[argIndex] = false; // スクリプト内での const 修飾子は未サポート
+					argRefs[argIndex] = argNodes[argIndex].hasModifier(ScriptWord.REFERENCE);
+					argConsts[argIndex] = argNodes[argIndex].hasModifier(ScriptWord.CONSTANT);
 				}
 
 				// 関数情報を保持するインスタンスを生成
@@ -446,6 +443,7 @@ public class SemanticAnalyzer {
 					&& currentNode.getAttribute(AttributeKey.LEAF_TYPE).equals(AttributeValue.LITERAL)) {
 
 				currentNode.setAttribute(AttributeKey.RANK, "0"); // 現状では配列のリテラルは存在しないため、常にスカラ
+				currentNode.addModifier(ScriptWord.CONSTANT); // リテラルは const 扱い
 
 				// リテラルのデータ型はLexicalAnalyzerの時点で自明なので、その段階で既に設定されている
 				//（ EVAL_NUMBER_AS_FLOATオプションの実装上も、そうした方が都合が良い ）
@@ -1225,18 +1223,25 @@ public class SemanticAnalyzer {
 
 					// 代入演算子の場合
 					case AttributeValue.ASSIGNMENT : {
-						this.checkWritability( currentNode.getChildNodes()[0] );
+						// 初期化子かどうかを検査（const変数などは初期化子に限って代入可能）
+						boolean isInitializer = (
+							currentNode.getParentNode() != null
+							&& currentNode.getParentNode().getParentNode() != null
+							&& currentNode.getParentNode().getParentNode().getType() == AstNode.Type.VARIABLE
+						);
+
+						this.checkWritability( currentNode.getChildNodes()[0], isInitializer);
 						break;
 					}
 					// 複合代入演算子の場合
 					case AttributeValue.ARITHMETIC_COMPOUND_ASSIGNMENT : {
-						this.checkWritability( currentNode.getChildNodes()[0] );
+						this.checkWritability( currentNode.getChildNodes()[0], false );
 						break;
 					}
 					// インクリメント/デクリメント演算子の場合
 					case AttributeValue.ARITHMETIC : {
 						if (symbol.equals(ScriptWord.INCREMENT) || symbol.equals(ScriptWord.DECREMENT)) {
-							this.checkWritability( currentNode.getChildNodes()[0] );
+							this.checkWritability( currentNode.getChildNodes()[0], false );
 						}
 						break;
 					}
@@ -1256,9 +1261,10 @@ public class SemanticAnalyzer {
 	 * 引数に渡されたASTノードが、書き換え可能なものかどうか検査します。
 	 *
 	 * @param node 検査対象のASTノード
+	 * @param writtenByInitializer 初期化子による書き換え検査では true を指定します。
 	 * @throws VnanoException 検査対象が書き換え不可能であった場合にスローされます。
 	 */
-	private void checkWritability (AstNode node) throws VnanoException {
+	private void checkWritability (AstNode node, boolean writtenByInitializer) throws VnanoException {
 		String fileName = node.getFileName();
 		int lineNumber = node.getLineNumber();
 
@@ -1276,10 +1282,17 @@ public class SemanticAnalyzer {
 
 		String leafType = node.getAttribute(AttributeKey.LEAF_TYPE);
 
-		// 変数は現状では const をサポートしていないため、常に許可
+		// 変数の場合
 		if (leafType.equals(AttributeValue.VARIABLE_IDENTIFIER)) {
 
-			// const をサポートした際はここで検査
+			// const 修飾子が付加されていた場合、初期化子以外での書き換えはエラー
+			if (node.hasModifier(ScriptWord.CONSTANT) && !writtenByInitializer) {
+				throw new VnanoException(
+					ErrorType.WRITING_TO_CONST_VARIABLE,
+					new String[] { node.getAttribute(AttributeKey.IDENTIFIER_VALUE) },
+					fileName, lineNumber
+				);
+			}
 
 		// リテラルは書き換え不可能なのでエラー
 		} else if (leafType.equals(AttributeValue.LITERAL)) {
@@ -1404,30 +1417,37 @@ public class SemanticAnalyzer {
 		// 現在検査中の関数の戻り値情報を控える
 		String currentFunctionReturType = "";
 		int currentFunctionReturnRank = -1;
-
-		// ブロック深度が非 0 から 0 になった箇所を検出するため、直前のノードのブロック深度を控える
-		int lastBlockDepth = 0;
+		AstNode currentFunctionBlock = null;
 
 		// 関数内を辿っている最中は true にする
 		boolean inFunction = false;
 
-		// ASTノードを、行がけ順の深さ優先走査で辿って検査していく
+		// 関数のブロック終端を検出するため、ASTの走査中に閉じブロックがあれば格納するスタック
+		// (AstNode#getPreorderDfsNextNode(closedBlockStack)のコメント参照)
+		Deque<AstNode> closedBlockStack = new ArrayDeque<AstNode>();
+
+
+		// ASTノードを、行がけ順の深さ優先走査(DFT)で辿って検査していく
 		AstNode currentNode = astRootNode;
 		do {
-			currentNode = currentNode.getPreorderDftNextNode();
+			// 行がけ順DFTの次のノードに移動し、その過程で閉じブロックがあれば closedBlockStack に積んでくれる
+			currentNode = currentNode.getPreorderDftNextNode(closedBlockStack, new AstNode.Type[]{ AstNode.Type.BLOCK } );
 
-			// ブロック深度が非 0 から 0 になった場合: 関数の終端の可能性があるため、控えている関数情報をリセットする
-			// ( 関数以外のブロックの可能性もあるが、深度 0 になった時点で関数外なのは確実なので、リセットして問題ない )
-			if (lastBlockDepth != 0 && currentNode.getBlockDepth() == 0) {
+			// 閉じブロックがあった場合： 控えている関数のブロックがその中にあれば、その関数の領域は終わったので関数情報をリセット
+			if (closedBlockStack.size() != 0 && closedBlockStack.contains(currentFunctionBlock)) {
+				closedBlockStack.clear();
 				currentFunctionReturType = "";
 				currentFunctionReturnRank = -1;
+				currentFunctionBlock = null;
 				inFunction = false;
 			}
 
-			// 関数宣言ノードの場合: 戻り値の型を控える
+			// 関数宣言ノードの場合: 戻り値の型と、直後のブロックノードを控える
 			if (currentNode.getType() == AstNode.Type.FUNCTION) {
 				currentFunctionReturType = currentNode.getDataTypeName();
 				currentFunctionReturnRank = currentNode.getRank();
+				AstNode[] siblingNodes = currentNode.getParentNode().getChildNodes();   // 兄弟階層のノード（currentNode含む）
+				currentFunctionBlock = siblingNodes[ currentNode.getSiblingIndex()+1 ]; // 1つ後の兄弟がブロック（存在は検査済みなはず）
 				inFunction = true;
 			}
 
@@ -1471,7 +1491,6 @@ public class SemanticAnalyzer {
 				}
 			}
 
-			lastBlockDepth = currentNode.getBlockDepth();
 		} while (!currentNode.isPreorderDftLastNode());
 	}
 

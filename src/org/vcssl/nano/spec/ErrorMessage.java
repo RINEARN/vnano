@@ -73,6 +73,9 @@ public class ErrorMessage {
 			case INVALID_IDENTIFIER_SYNTAX : return "変数/関数に付けられた名前「 " + words[0] + " 」は、ルール上の制限により、使用できません（数字で始まったり、記号を含むなど）。";
 			case IDENTIFIER_IS_RESERVED_WORD : return "変数/関数に付けられた名前「 " + words[0] + " 」は、予約語であるため、使用できません。";
 			case NO_IDENTIFIER_IN_VARIABLE_DECLARATION : return "変数の宣言では、データ型名の後に変数名が必要です。";
+			case NO_DATA_TYPE_IN_VARIABLE_DECLARATION : return "変数の宣言では、データ型名の記述が必要です。";
+			case PREFIX_MODIFIER_AFTER_TYPE_NAME : return "「 " + words[0] + " 」は、データ型名の後ではなく、前に記述する必要があります。";
+			case POSTFIX_MODIFIER_BEFORE_TYPE_NAME : return "「 " + words[0] + " 」は、データ型名の前ではなく、後に記述する必要があります。";
 			case TOO_MANY_TOKENS_FOR_VARIABLE_DECLARATION : return "変数宣言文の後半に、余分な記述が存在します。";
 			case NO_PARTIAL_EXPRESSION : return "式の中に空の括弧 ( ) があります。";
 			case OPERAND_IS_MISSING_AT_RIGHT : return "「 " + words[0] + " 」の右側に、値や変数などが必要です。";
@@ -107,7 +110,8 @@ public class ErrorMessage {
 			case INVALID_OPTION_VALUE_CONTENT : return "オプション「 " + words[0] + " 」の値「 " + words[1] + " 」が、正しい内容ではありません。";
 			case DATA_CONVERSION_OF_FUNCTION_PLUGIN_USING_OBJECT_TYPE_SHOULD_BE_DISABLED : return "外部関数「 " + words[0] + " 」のプラグインは、Object型の引数または戻り値を持つため、データ変換機能が無効に設定されていなければなりません。";
 			case INVALID_ARRAY_INDEX : return "配列のアクセス可能範囲 [ 0 から " + words[1] + " まで ] の外を指すインデックス [ " + words[0] + " ] が指定されました。";
-			case WRITING_TO_UNWRITABLE_SOMETHING : return "書き換え不可能な値や変数" + (words==null ? "" : "「 "+words[0] + " 」") + "の書き換えが検出されました。";
+			case WRITING_TO_CONST_VARIABLE : return "変数「 " + words[0] + " 」は定数（const）として宣言されてるため、宣言後（関数の引数の場合は受け渡し後）は値を変更できません。";
+			case WRITING_TO_UNWRITABLE_SOMETHING : return "書き換え不可能な値" + (words==null ? "" : "「 "+words[0] + " 」") + "の書き換えが検出されました。";
 			case SUBSCRIPTING_TO_UNSUBSCRIPTABLE_SOMETHING : return "配列ではない値や変数"  + (words==null ? "" : "「 "+words[0] + " 」") + "に、配列インデックスを付けてアクセスしています。";
 			case INVALID_SUBSCRIPT_RANK : return words[1] + "次元の配列「 " + words[0] + " 」に、" + words[2] + "次元のインデックスでアクセスしています。";
 			case FUNCTION_ENDED_WITHOUT_RETURNING_VALUE : return "関数「 " + words[0] + " 」は戻り値を返す必要がありますが、返さずに終了しました。";
@@ -142,7 +146,10 @@ public class ErrorMessage {
 			case INVALID_IDENTIFIER_TYPE : return "A variable is declared with the name \"" + words[0] + "\", but this word has the other special role, so it can not be a variable name";
 			case INVALID_IDENTIFIER_SYNTAX : return "A variable is declared with the invalid name \"" + words[0] + "\" (because it starts with numbers,or contains symbols, or conflicts with other rules)";
 			case IDENTIFIER_IS_RESERVED_WORD : return "A variable is declared with the invalid name \"" + words[0] + "\" (because it is a reserved word)";
-			case NO_IDENTIFIER_IN_VARIABLE_DECLARATION : return "Variable name is required after the data type name for variable declarations";
+			case NO_IDENTIFIER_IN_VARIABLE_DECLARATION : return "Variable name is required after the data type name in variable declarations";
+			case NO_DATA_TYPE_IN_VARIABLE_DECLARATION : return "Data type name is required in variable declarations";
+			case PREFIX_MODIFIER_AFTER_TYPE_NAME : return "\"" + words[0] + "\" should be before the type name, not after";
+			case POSTFIX_MODIFIER_BEFORE_TYPE_NAME : return "\"" + words[0] + "\" should be after the type name, not before";
 			case TOO_MANY_TOKENS_FOR_VARIABLE_DECLARATION : return "Unexpected description exists in the latter part of the variable declaration statement";
 			case NO_PARTIAL_EXPRESSION : return "Empty parentheses ( ) exist in the expression";
 			case OPERAND_IS_MISSING_AT_RIGHT : return "A value or variable is necessary at the right of \"" + words[0] + "\"";
@@ -177,7 +184,8 @@ public class ErrorMessage {
 			case INVALID_OPTION_VALUE_CONTENT : return "The value of \"" + words[0] + "\" option \"" + words[1] + "\" is invalid";
 			case DATA_CONVERSION_OF_FUNCTION_PLUGIN_USING_OBJECT_TYPE_SHOULD_BE_DISABLED : return "The data-conversion of the plugin of the external function\"" + words[0] + "\" should be disabled, because this function has Object-type parameters or the return value";
 			case INVALID_ARRAY_INDEX : return "The array element with the index [ " + words[0] + " ] is accessed, but it is out of the available range [ from 0 to " + words[1] + " ]";
-			case WRITING_TO_UNWRITABLE_SOMETHING : return "Modification of the unwritable value/variable "  + (words==null ? "" : "\""+words[0] + "\" ") + "is detected";
+			case WRITING_TO_CONST_VARIABLE : return "The variable \"" + words[0] + "\" is declared as \"const\", so its value can not be changed after it is declared (or after it is passed, if it is a parameter of a function)";
+			case WRITING_TO_UNWRITABLE_SOMETHING : return "Modification of the unwritable value "  + (words==null ? "" : "\""+words[0] + "\" ") + "is detected";
 			case SUBSCRIPTING_TO_UNSUBSCRIPTABLE_SOMETHING : return "Subscripting to the non-array value/variable" + (words==null ? "" : "\""+words[0]+"\"");
 			case INVALID_SUBSCRIPT_RANK : return "Subscripting to " + words[1] + "-dimension array \"" + words[0] + "\" by " + words[2] + "-dimension index/indices";
 			case FUNCTION_ENDED_WITHOUT_RETURNING_VALUE : return "The function \"" + words[0] + "\" should return a value but has end without returning a value";

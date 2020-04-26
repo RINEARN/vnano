@@ -40,6 +40,9 @@ public final class Xfci1ToFunctionAdapter extends AbstractFunction {
 	/** 処理系内部側での全引数の配列次元数（スカラは0次元として扱う）を配列として保持します。 */
 	private int[] parameterArrayRanks = null;
 
+	/** 各引数を参照渡しすべきかどうかを、配列として保持します。 */
+	private boolean[] parameterReferencenesses = null;
+
 	/** 外部関数の戻り値と処理系内部の関数の戻り値とで、データの型変換を行うコンバータです。 */
 	private DataConverter returnDataConverter = null;
 
@@ -80,6 +83,7 @@ public final class Xfci1ToFunctionAdapter extends AbstractFunction {
 		this.parameterDataConverters = new DataConverter[parameterLength];
 		this.parameterDataTypes = new DataType[parameterLength];
 		this.parameterArrayRanks = new int[parameterLength];
+		this.parameterReferencenesses = xfciPlugin.getParameterReferencenesses();
 
 		for (int parameterIndex=0; parameterIndex<parameterLength; parameterIndex++) {
 
@@ -372,11 +376,26 @@ public final class Xfci1ToFunctionAdapter extends AbstractFunction {
 
 		// 自動のデータ型変換が無効な場合
 		} else {
+
+			// この場合、プラグインに渡す引数の最初の要素が、戻り値格納用コンテナになる
+			DataContainer<?>[] xfciArgContainers = new DataContainer<?>[argLength + 1];
+			xfciArgContainers[0] = returnDataContainer;
+
+			// 実引数を格納
+			for (int argIndex=0; argIndex<argLength; argIndex++) {
+
+				// 参照渡しの場合はそのまま
+				if (this.parameterReferencenesses[argIndex]) {
+					xfciArgContainers[argIndex + 1] = argumentDataContainers[argIndex];
+
+				// 値渡しの場合はコピーする
+				} else {
+					xfciArgContainers[argIndex + 1] = DataConverter.copyDataContainer(argumentDataContainers[argIndex]);
+				}
+			}
+
+			// プラグインの関数を実行
 			try {
-				// この場合、プラグインに渡す引数の最初の要素が、戻り値格納用コンテナになる
-				DataContainer<?>[] xfciArgContainers = new DataContainer<?>[argLength + 1];
-				xfciArgContainers[0] = returnDataContainer;
-				System.arraycopy(argumentDataContainers, 0, xfciArgContainers, 1, argLength);
 				this.xfciPlugin.invoke(xfciArgContainers);
 			} catch (ConnectorException e) {
 				throw new VnanoFatalException(e);

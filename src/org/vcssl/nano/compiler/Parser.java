@@ -306,32 +306,50 @@ public class Parser {
 
 		int readingIndex = 0;
 
-		// 可変長引数の「 ... 」があれば修飾子扱いでリストに追加
-		if (tokens[readingIndex].getType() == Token.Type.MODIFIER
-				&& tokens[readingIndex].getValue().equals(ScriptWord.ARBITRARY_COUNT)) {
-			modifierList.add(tokens[readingIndex].getValue());
-			readingIndex++;
+		// 型名の前に置かれる修飾子を検出して修飾子リストに追加（あとで型名後方のものとまとめて属性値に持たせる）
+		if (tokens[readingIndex].getType() == Token.Type.MODIFIER) {
+			if (ScriptWord.PREFIX_MODIFIER_SET.contains(tokens[readingIndex].getValue()) ) {
+				modifierList.add(tokens[readingIndex].getValue());
+				readingIndex++;
+			} else {
+				throw new VnanoException(
+					ErrorType.POSTFIX_MODIFIER_BEFORE_TYPE_NAME, new String[] { tokens[readingIndex].getValue() },
+					tokens[readingIndex].getFileName(), tokens[readingIndex].getLineNumber()
+				);
+			}
 		}
 
-		// 型情報を付加
-		Token typeToken = tokens[readingIndex];
-		variableNode.setAttribute(AttributeKey.DATA_TYPE, typeToken.getValue());
-		readingIndex++;
-
-		// 参照の「 & 」があれば修飾子扱いでリストに追加
-		if (readingIndex < tokens.length && tokens[readingIndex].getType() == Token.Type.MODIFIER
-				&& tokens[readingIndex].getValue().equals(ScriptWord.REFERENCE)) {
-			modifierList.add(tokens[readingIndex].getValue());
+		// 型情報を読んで付加
+		if (readingIndex < tokens.length) {
+			Token typeToken = tokens[readingIndex];
+			variableNode.setAttribute(AttributeKey.DATA_TYPE, typeToken.getValue());
 			readingIndex++;
+		} else {
+			throw new VnanoException(
+				ErrorType.NO_DATA_TYPE_IN_VARIABLE_DECLARATION,
+				tokens[readingIndex-1].getFileName(), tokens[readingIndex-1].getLineNumber()
+			);
+		}
+
+		// 型名の後に置かれる修飾子を検出して修飾子リストに追加（あとで型名前方のものとまとめて属性値に持たせる）
+		if (readingIndex < tokens.length && tokens[readingIndex].getType() == Token.Type.MODIFIER) {
+			if (ScriptWord.POSTFIX_MODIFIER_SET.contains(tokens[readingIndex].getValue()) ) {
+				modifierList.add(tokens[readingIndex].getValue());
+				readingIndex++;
+			} else {
+				throw new VnanoException(
+					ErrorType.PREFIX_MODIFIER_AFTER_TYPE_NAME, new String[] { tokens[readingIndex].getValue() },
+					tokens[readingIndex].getFileName(), tokens[readingIndex].getLineNumber()
+				);
+			}
 		}
 
 		// 識別子トークンを抽出して控える
 		Token nameToken = null;
 
 		// 次にトークンが存在しない場合は、識別子が無いので構文エラー
+		//   ただし識別子が省略可能と指定されている場合はエラーにしない（関数シグネチャ内での引数宣言など）
 		if (tokens.length <= readingIndex) {
-
-			// 識別子が省略可能と指定されている場合はエラーにしない（関数シグネチャでの引数宣言など）
 			if (requiresIdentifier) {
 				throw new VnanoException(
 					ErrorType.NO_IDENTIFIER_IN_VARIABLE_DECLARATION,
@@ -405,13 +423,8 @@ public class Parser {
 		}
 
 		// 識別子をリストから取り出してノードに持たせる
-		if (modifierList.size() != 0) {
-			StringBuilder modifierBuilder = new StringBuilder();
-			modifierBuilder.append(modifierList.get(0));
-			for (int i=1; i<modifierList.size(); i++) {
-				modifierBuilder.append(AttributeValue.MODIFIER_SEPARATOR + modifierList.get(i));
-			}
-			variableNode.setAttribute(AttributeKey.MODIFIER, modifierBuilder.toString());
+		for (String modifier: modifierList) {
+				variableNode.addModifier(modifier);
 		}
 
 		return variableNode;

@@ -42,6 +42,7 @@ public class SubscriptedAssignmentOperationCombinedTest extends CombinedTestElem
 			this.testAssignmentOperations();
 			this.testMultipleAssignmentOperations();
 			this.testAssignmentOperationsWithTypeConversions();
+			this.testAssignmentOperationsToConstants();
 		} catch (VnanoException e) {
 			throw new CombinedTestException(e);
 		}
@@ -155,4 +156,27 @@ public class SubscriptedAssignmentOperationCombinedTest extends CombinedTestElem
 		resultS = (String)this.engine.executeScript(scriptCode);
 		super.evaluateResult(resultS, "789", "string[i] = string[i] = string[i] = string[i]", scriptCode);
 	}
+
+	private void testAssignmentOperationsToConstants() throws VnanoException {
+
+		String scriptCode;
+
+		// const を付けて宣言された変数は書き換え不可能なはずなので検査
+
+		// ※ ただし、現状では配列初期化子をサポートしていないので、実質的に const な配列を宣言する意味はない
+		//    しかしながら、もし配列初期化子をサポートした場合は意味が出てくるので、とりあえずテストは用意しておく
+
+		scriptCode = "const int a[3]; a[1] = 2;";
+		try {
+			this.engine.executeScript(scriptCode);
+
+			// 例外が投げられずにここに達するのは、期待されたエラーが検出されていないので失敗
+			super.missedExpectedError("const int a[3]; a[1] = 2; (should be failed) ", scriptCode);
+		} catch (VnanoException vne) {
+
+			// 例外が投げられればエラーが検出されているので成功
+			super.succeeded("const int a[3]; a[1] = 2; (should be failed) ");
+		}
+	}
+
 }

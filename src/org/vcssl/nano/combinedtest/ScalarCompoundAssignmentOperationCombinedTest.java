@@ -25,6 +25,7 @@ public class ScalarCompoundAssignmentOperationCombinedTest extends CombinedTestE
 			this.testMulAssignmentOperations();
 			this.testDivAssignmentOperations();
 			this.testRemAssignmentOperations();
+			this.testCompoundAssignmentOperationsToConstants();
 		} catch (VnanoException e) {
 			throw new CombinedTestException(e);
 		}
@@ -143,6 +144,56 @@ public class ScalarCompoundAssignmentOperationCombinedTest extends CombinedTestE
 		scriptCode = " float x = 2.5; x %= 2; x; "; // 注：2進表現で割り切れる値が望ましい
 		resultD = (double)this.engine.executeScript(scriptCode);
 		super.evaluateResult(resultD, 2.5 % 2l, "float %= int", scriptCode);
+	}
+
+	private void testCompoundAssignmentOperationsToConstants() throws VnanoException {
+		String scriptCode;
+
+		// const を付けて宣言された変数は書き換え不可能なはずなので検査
+
+		scriptCode = "const int x; x += 123;";
+		try {
+			this.engine.executeScript(scriptCode);
+
+			// 例外が投げられずにここに達するのは、期待されたエラーが検出されていないので失敗
+			super.missedExpectedError("const int x; x += 123; (should be failed) ", scriptCode);
+		} catch (VnanoException vne) {
+
+			// 例外が投げられればエラーが検出されているので成功
+			super.succeeded("const int x; x += 123; (should be failed) ");
+		}
+
+		scriptCode = "const int x; x -= 123;";
+		try {
+			this.engine.executeScript(scriptCode);
+			super.missedExpectedError("const int x; x -= 123; (should be failed) ", scriptCode);
+		} catch (VnanoException vne) {
+			super.succeeded("const int x; x -= 123; (should be failed) ");
+		}
+
+		scriptCode = "const int x; x *= 123;";
+		try {
+			this.engine.executeScript(scriptCode);
+			super.missedExpectedError("const int x; x *= 123; (should be failed) ", scriptCode);
+		} catch (VnanoException vne) {
+			super.succeeded("const int x; x *= 123; (should be failed) ");
+		}
+
+		scriptCode = "const int x; x /= 123;";
+		try {
+			this.engine.executeScript(scriptCode);
+			super.missedExpectedError("const int x; x /= 123; (should be failed) ", scriptCode);
+		} catch (VnanoException vne) {
+			super.succeeded("const int x; x /= 123; (should be failed) ");
+		}
+
+		scriptCode = "const int x; x %= 123;";
+		try {
+			this.engine.executeScript(scriptCode);
+			super.missedExpectedError("const int x; x %= 123; (should be failed) ", scriptCode);
+		} catch (VnanoException vne) {
+			super.succeeded("const int x; x %= 123; (should be failed) ");
+		}
 	}
 
 }
