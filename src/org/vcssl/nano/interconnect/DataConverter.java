@@ -25,6 +25,9 @@ import org.vcssl.nano.VnanoException;
  */
 public class DataConverter {
 
+	/** スカラの次元数です。 */
+	private static final int RANK_OF_SCALAR = 0;
+
 
 	/**
 	 * {@link DataConverter DataConverter} 内でのデータ型変換処理のため、
@@ -393,6 +396,59 @@ public class DataConverter {
 	 */
 	public int getRank() {
 		return this.rank;
+	}
+
+
+	/**
+	 * データコンテナを、格納しているデータも含めてディープコピーします。
+	 *
+	 * @param srcDataContainer ディープコピー元のデータコンテナ
+	 * @return ディープコピーとして生成されたデータコンテナ
+	 */
+	public static DataContainer<?> copyDataContainer(DataContainer<?> srcDataContainer) {
+		DataContainer<Object> destDataContainer = new DataContainer<Object>();
+		int srcRank = srcDataContainer.getRank();
+		int[] destLengths = new int[srcRank];
+		System.arraycopy(srcDataContainer.getLengths(), 0, destLengths, 0, srcRank);
+
+		Object srcDataOject = srcDataContainer.getData();
+		Object destDataObject = null;
+
+		if (srcDataOject instanceof long[]) {
+			long[] srcData = (long[])srcDataOject;
+			long[] destData = new long[ srcData.length ];
+			System.arraycopy(srcData, 0, destData, 0, srcData.length);
+			destDataObject = destData;
+
+		} else if (srcDataOject instanceof double[]) {
+			double[] srcData = (double[])srcDataOject;
+			double[] destData = new double[ srcData.length ];
+			System.arraycopy(srcData, 0, destData, 0, srcData.length);
+			destDataObject = destData;
+
+		} else if (srcDataOject instanceof boolean[]) {
+			boolean[] srcData = (boolean[])srcDataOject;
+			boolean[] destData = new boolean[ srcData.length ];
+			System.arraycopy(srcData, 0, destData, 0, srcData.length);
+			destDataObject = destData;
+
+		} else if (srcDataOject instanceof String[]) {
+			String[] srcData = (String[])srcDataOject;
+			String[] destData = new String[ srcData.length ];
+			System.arraycopy(srcData, 0, destData, 0, srcData.length);
+			destDataObject = destData;
+
+		} else {
+			throw new VnanoFatalException("Unexpected class for data: " + srcDataOject.getClass().getCanonicalName());
+		}
+
+		if (srcRank == RANK_OF_SCALAR) {
+			destDataContainer.setData(destDataObject, srcDataContainer.getOffset());
+		} else {
+			destDataContainer.setData(destDataObject, destLengths);
+		}
+
+		return destDataContainer;
 	}
 
 
