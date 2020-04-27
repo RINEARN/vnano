@@ -760,7 +760,7 @@ public class Interconnect {
 			boolean ignoreIncompatibles) throws VnanoException {
 
 		try {
-			connector.initializeForConnection(this.engineConnector);
+			connector.preInitializeForConnection(this.engineConnector);
 		} catch (ConnectorException e) {
 			throw new VnanoException(
 				ErrorType.PLUGIN_NITIALIZATION_FAILED, connector.getClass().getCanonicalName(), e
@@ -811,6 +811,14 @@ public class Interconnect {
 					throw e;
 				}
 			}
+		}
+
+		try {
+			connector.postInitializeForConnection(this.engineConnector);
+		} catch (ConnectorException e) {
+			throw new VnanoException(
+				ErrorType.PLUGIN_NITIALIZATION_FAILED, connector.getClass().getCanonicalName(), e
+			);
 		}
 	}
 

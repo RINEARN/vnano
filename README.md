@@ -2532,13 +2532,21 @@ interface, you can pack multiple plug-ins of external functions/variables into o
 			return "XnciExamplePlugin";
 		}
 		@Override
-		public void initializeForConnection(Object engineConnector) { }
+		public void preInitializeForConnection(Object engineConnector) { }
 		@Override
-		public void finalizeForDisconnection(Object engineConnector) { }
+		public void postInitializeForConnection(Object engineConnector) { }
 		@Override
-		public void initializeForExecution(Object engineConnector) { }
+		public void preFinalizeForDisconnection(Object engineConnector) { }
 		@Override
-		public void finalizeForTermination(Object engineConnector) { }
+		public void postFinalizeForDisconnection(Object engineConnector) { }
+		@Override
+		public void preInitializeForExecution(Object engineConnector) { }
+		@Override
+		public void postInitializeForExecution(Object engineConnector) { }
+		@Override
+		public void preFinalizeForTermination(Object engineConnector) { }
+		@Override
+		public void postFinalizeForTermination(Object engineConnector) { }
 	}
 
 
