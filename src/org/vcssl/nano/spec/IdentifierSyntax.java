@@ -97,7 +97,7 @@ public class IdentifierSyntax {
 		if (parameterCountArbitrary) {
 			builder.append("...");
 			if (parameterDataTypeArbitrarinesses[0]) {
-				builder.append(DATA_TYPE_NAME.ANY);
+				builder.append(DATA_TYPE_NAME.any);
 			} else {
 				builder.append(parameterDataTypeNames[0]);
 			}
@@ -113,7 +113,7 @@ public class IdentifierSyntax {
 		for (int parameterIndex=0; parameterIndex<parameterLength; parameterIndex++) {
 
 			if (parameterDataTypeArbitrarinesses[parameterIndex]) {
-				builder.append(DATA_TYPE_NAME.ANY);
+				builder.append(DATA_TYPE_NAME.any);
 			} else {
 				builder.append(parameterDataTypeNames[parameterIndex]);
 			}
@@ -240,16 +240,16 @@ public class IdentifierSyntax {
 
 	// 後の工程での削除候補
 	public String getAssemblyIdentifierOf(String variableName) {
-		return ASSEMBLY_WORD.OPERAND_PREFIX_IDENTIFIER + variableName;
+		return ASSEMBLY_WORD.identifierOperandPrefix + variableName;
 	}
 
 	public String getAssemblyIdentifierOf(AstNode variableNode) {
 		String variableName = variableNode.getAttribute(AttributeKey.IDENTIFIER_VALUE);
 		String serialNumber = variableNode.getAttribute(AttributeKey.IDENTIFIER_SERIAL_NUMBER);
 		String assemblyIdentifier
-				= ASSEMBLY_WORD.OPERAND_PREFIX_IDENTIFIER
+				= ASSEMBLY_WORD.identifierOperandPrefix
 				+ variableName
-				+ ASSEMBLY_WORD.IDENTIFIER_SERIAL_NUMBER_SEPARATOR
+				+ ASSEMBLY_WORD.identifierSerialNumberSeparator
 				+ serialNumber;
 
 		return assemblyIdentifier;
@@ -262,7 +262,7 @@ public class IdentifierSyntax {
 
 	public String getAssemblyIdentifierOf(AbstractVariable variable, String nameSpacePrefix) {
 		String variableName = variable.getVariableName();
-		return ASSEMBLY_WORD.OPERAND_PREFIX_IDENTIFIER + nameSpacePrefix + variableName;
+		return ASSEMBLY_WORD.identifierOperandPrefix + nameSpacePrefix + variableName;
 	}
 
 }

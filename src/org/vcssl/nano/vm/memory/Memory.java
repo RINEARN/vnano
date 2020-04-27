@@ -362,7 +362,7 @@ public final class Memory {
 		for (int constantAddress=0; constantAddress<=maxConstantAddress; constantAddress++) {
 
 			String immediate = immediateValues[constantAddress];
-			int separatorIndex = immediate.indexOf(ASSEMBLY_WORD.VALUE_SEPARATOR);
+			int separatorIndex = immediate.indexOf(ASSEMBLY_WORD.valueSeparator);
 			String dataTypeName = immediate.substring(1, separatorIndex);
 			String valueText = immediate.substring(separatorIndex+1, immediate.length());
 
@@ -397,9 +397,9 @@ public final class Memory {
 				}
 				case BOOL : {
 					DataContainer<boolean[]> data = new DataContainer<boolean[]>();
-					if (valueText.equals(LITERAL_SYNTAX.TRUE)) {
+					if (valueText.equals(LITERAL_SYNTAX.trueValue)) {
 						data.setData(new boolean[]{ true }, 0);
-					} else if (valueText.equals(LITERAL_SYNTAX.FALSE)) {
+					} else if (valueText.equals(LITERAL_SYNTAX.falseValue)) {
 						data.setData(new boolean[]{ false }, 0);
 					} else {
 						VnanoException vse = new VnanoException(ErrorType.INVALID_IMMEDIATE_VALUE, new String[] { valueText});

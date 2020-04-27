@@ -1227,7 +1227,7 @@ public class DataConverter {
 				String internalTypeName = DATA_TYPE_NAME.getDataTypeNameOf(internalType);
 				String internalArrayTypeName = internalTypeName;
 				for(int dim=0; dim<this.rank; dim++) {
-					internalArrayTypeName += SCRIPT_WORD.SUBSCRIPT_BEGIN + SCRIPT_WORD.SUBSCRIPT_END; // "[]" を追加
+					internalArrayTypeName += SCRIPT_WORD.subscriptBegin + SCRIPT_WORD.subscriptEnd; // "[]" を追加
 				}
 
 				// それをエラーメッセージ用情報に渡して例外スロー

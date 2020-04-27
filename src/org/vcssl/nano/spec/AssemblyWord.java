@@ -50,64 +50,64 @@ public final class AssemblyWord {
 
 
 	// 中間アセンブリ言語の名称
-	public String ASSEMBLY_LANGUAGE_NAME = "Vector Register Intermediate Language (VRIL)";
+	public String assemblyLanguageName = "Vector Register Intermediate Language (VRIL)";
 
 	// 中間アセンブリ言語のバージョン
-	public String ASSEMBLY_LANGUAGE_VERSION = "0.0.1";
+	public String assemblyLanguageVersion = "0.0.1";
 
 
 	// 書き込み用
-	public String LINE_SEPARATOR = System.getProperty("line.separator");
-	public String INSTRUCTION_SEPARATOR = ";";
-	public String WORD_SEPARATOR = "\t";
-	public String VALUE_SEPARATOR = ":";
-	public String IDENTIFIER_SERIAL_NUMBER_SEPARATOR = "@";
-	public String INDENT = "\t";
+	public String lineSeparator = System.getProperty("line.separator");
+	public String instructionSeparator = ";";
+	public String wordSeparator = "\t";
+	public String valueSeparator = ":";
+	public String identifierSerialNumberSeparator = "@";
+	public String indent = "\t";
 
 	// 読み込み用
-	public String LINE_SEPARATOR_REGEX = "\\r\\n|\\r|\\n";
-	public String INSTRUCTION_SEPARATOR_REGEX = ";";
-	public String WORD_SEPARATOR_REGEX = "\t| ";
-	public String VALUE_SEPARATOR_REGEX = ":";
-	public String IDENTIFIER_ADDRESS_SEPARATOR_REGEX = "@";
-	public String INDENT_REGEX = "\t| ";
+	public String lineSeparatorRegex = "\\r\\n|\\r|\\n";
+	public String instructionSeparatorRegex = ";";
+	public String wordSeparatorRegex = "\t| ";
+	public String valueSeparatorRegex = ":";
+	public String identifierSerianNumberSeparatorRegex = "@";
+	public String indentRegex = "\t| ";
 
-	public char   DIRECTIVE_PREFIX = '#';
-	public String ASSEMBLY_LANGUAGE_IDENTIFIER_DIRECTIVE = "#ASSEMBLY_LANGUAGE_IDENTIFIER";
-	public String ASSEMBLY_LANGUAGE_VERSION_DIRECTIVE = "#ASSEMBLY_LANGUAGE_VERSION";
-	public String SCRIPT_LANGUAGE_IDENTIFIER_DIRECTIVE = "#SCRIPT_LANGUAGE_IDENTIFIER";
-	public String SCRIPT_LANGUAGE_VERSION_DIRECTIVE = "#SCRIPT_LANGUAGE_VERSION";
-	public String LOCAL_VARIABLE_DIRECTIVE = "#LOCAL_VARIABLE";
-	public String GLOBAL_VARIABLE_DIRECTIVE = "#GLOBAL_VARIABLE";
-	public String LOCAL_FUNCTION_DIRECTIVE = "#LOCAL_FUNCTION";
-	public String GLOBAL_FUNCTION_DIRECTIVE = "#GLOBAL_FUNCTION";
-	public String META_DIRECTIVE = "#META";
-	public String LABEL_DIRECTIVE = "#LABEL";
-	public String COMMENT_DIRECTIVE = "#COMMENT";
+	public char   directivePrefix = '#';
+	public String assemblyLanguageIdentifierDirective = "#ASSEMBLY_LANGUAGE_IDENTIFIER";
+	public String assemblyLanguageVersionDirective = "#assemblyLanguageVersion";
+	public String scriptLanguageIdentifierDirective = "#SCRIPT_LANGUAGE_IDENTIFIER";
+	public String scriptLanguageVersionDirective = "#scriptLanguageVersion";
+	public String localVariableDirective = "#LOCAL_VARIABLE";
+	public String globalVariableDirective = "#GLOBAL_VARIABLE";
+	public String localFunctionDirective = "#LOCAL_FUNCTION";
+	public String globalFunctionDirective = "#GLOBAL_FUNCTION";
+	public String metaDirective = "#META";
+	public String labelDirective = "#LABEL";
+	public String commentDirective = "#COMMENT";
 
-	public char OPERAND_PREFIX_GLOBAL = 'G';
-	public char OPERAND_PREFIX_LOCAL = 'L';
-	public char OPERAND_PREFIX_REGISTER = 'R';
-	public char OPERAND_PREFIX_CONSTANT = 'C';   // 定数のアドレスを指定
+	public char globalOperandPrefix = 'G';
+	public char localOperandPrefix = 'L';
+	public char registerOperandOprefix = 'R';
+	public char constantOperandPrefix = 'C';   // 定数のアドレスを指定
 
-	public char OPERAND_PREFIX_IDENTIFIER = '_';
-	public char OPERAND_PREFIX_IMMEDIATE = '~';  // 定数の値そのものを即値で記述( % はインラインアセンブラでレジスタに使われている
-	public char OPERAND_PREFIX_LABEL = '&';
-	public char OPERAND_PREFIX_PLACEHOLDER = '-';   // オペランド順序を統一するため、値が無いオペランド位置に便宜的に置くプレースホルダ
+	public char identifierOperandPrefix = '_';
+	public char immediateOperandPrefix = '~';  // 定数の値そのものを即値で記述( % はインラインアセンブラでレジスタに使われている
+	public char labelOperandPrefix = '&';
+	public char placeholderOperandPrefix = '-';   // オペランド順序を統一するため、値が無いオペランド位置に便宜的に置くプレースホルダ
 
 	@SuppressWarnings("serial")
-	public Map<Character, Memory.Partition> OPERAND_PREFIX_PARTITION_MAP = new HashMap<Character, Memory.Partition>() {{
-		put(Character.valueOf(OPERAND_PREFIX_GLOBAL), Memory.Partition.GLOBAL);
-		put(Character.valueOf(OPERAND_PREFIX_LOCAL), Memory.Partition.LOCAL);
-		put(Character.valueOf(OPERAND_PREFIX_REGISTER), Memory.Partition.REGISTER);
-		put(Character.valueOf(OPERAND_PREFIX_CONSTANT), Memory.Partition.CONSTANT);
+	public Map<Character, Memory.Partition> operandPrefixPartitionMap = new HashMap<Character, Memory.Partition>() {{
+		put(Character.valueOf(globalOperandPrefix), Memory.Partition.GLOBAL);
+		put(Character.valueOf(localOperandPrefix), Memory.Partition.LOCAL);
+		put(Character.valueOf(registerOperandOprefix), Memory.Partition.REGISTER);
+		put(Character.valueOf(constantOperandPrefix), Memory.Partition.CONSTANT);
 	}};
 
 	public String getImmediateValueOf(String dataTypeName, String literal) {
 		StringBuilder builder = new StringBuilder();
-		builder.append(OPERAND_PREFIX_IMMEDIATE);
+		builder.append(immediateOperandPrefix);
 		builder.append(dataTypeName);
-		builder.append(VALUE_SEPARATOR);
+		builder.append(valueSeparator);
 		builder.append(literal);
 		return builder.toString();
 	}

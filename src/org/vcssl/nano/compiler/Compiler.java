@@ -169,7 +169,7 @@ public class Compiler {
 		// EVAL_NUMBER_AS_FLOAT オプションが有効な場合、エンジンのevalに渡されたスクリプト内のintリテラルをfloat型に変更
 		if (evalNumberAsFloat) {
 			tokens[scriptLength-1] = this.replaceDataTypeOfLiteralTokens( // [scriptLength-1]番目はeval対象のスクリプト
-				tokens[scriptLength-1], LANG_SPEC.DATA_TYPE_NAME.INT, LANG_SPEC.DATA_TYPE_NAME.FLOAT
+				tokens[scriptLength-1], LANG_SPEC.DATA_TYPE_NAME.defaultInt, LANG_SPEC.DATA_TYPE_NAME.defaultFloat
 			);
 		}
 
@@ -366,9 +366,9 @@ public class Compiler {
 			Token token = tokens[tokenIndex].clone();
 			if (token.getType() == Token.Type.LEAF
 				&& token.getAttribute(AttributeKey.LEAF_TYPE).equals(AttributeValue.LITERAL)
-				&& token.getAttribute(AttributeKey.DATA_TYPE).equals(LANG_SPEC.DATA_TYPE_NAME.INT) ) {
+				&& token.getAttribute(AttributeKey.DATA_TYPE).equals(LANG_SPEC.DATA_TYPE_NAME.defaultInt) ) {
 
-				token.setAttribute(AttributeKey.DATA_TYPE, LANG_SPEC.DATA_TYPE_NAME.FLOAT);
+				token.setAttribute(AttributeKey.DATA_TYPE, LANG_SPEC.DATA_TYPE_NAME.defaultFloat);
 			}
 			replacedTokens[tokenIndex] = token;
 		}

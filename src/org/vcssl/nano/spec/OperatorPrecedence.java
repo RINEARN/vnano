@@ -57,14 +57,14 @@ public class OperatorPrecedence {
 	 * <span class="lang-ja">最低の優先度です</span>
 	 * .
 	 */
-	public int LEAST_PRIOR = 10000000; // 最低優先度
+	public int leastPrior = 10000000; // 最低優先度
 
 	/**
 	 * <span class="lang-en">The most prior precedence</span>
 	 * <span class="lang-ja">最高の優先度です</span>
 	 * .
 	 */
-	public int MOST_PRIOR = -1;        // 最高優先度
+	public int mostPrior = -1;        // 最高優先度
 
 	/**
 	 * <span class="lang-en">The precedence of open parenthesis: "("</span>
@@ -78,7 +78,7 @@ public class OperatorPrecedence {
 	 * 演算子ではありませんが, パーサの実装の都合上, この記号には最低の優先度が設定されています.
 	 * </span>
 	 */
-	public int PARENTHESIS_BEGIN = MOST_PRIOR;
+	public int parenthesisBegin = mostPrior;
 
 	/**
 	 * <span class="lang-en">The precedence of closing parenthesis: ")"</span>
@@ -92,7 +92,7 @@ public class OperatorPrecedence {
 	 * 演算子ではありませんが, パーサの実装の都合上, この記号には最低の優先度が設定されています.
 	 * </span>
 	 */
-	public int PARENTHESIS_END = LEAST_PRIOR; // MULTIARY系の演算子は先頭以外全て優先度最低
+	public int parenthesisEnd = leastPrior; // MULTIARY系の演算子は先頭以外全て優先度最低
 
 
 	// --------------------------------------------------
@@ -105,7 +105,7 @@ public class OperatorPrecedence {
 	 * <span class="lang-ja">関数呼び出し演算子「 ( 」の優先度です</span>
 	 * .
 	 */
-	public int CALL_BEGIN = 1000;
+	public int callBegin = 1000;
 
 	/**
 	 * <span class="lang-en">The precedence of the argument-separator of the function call operator: ","</span>
@@ -116,7 +116,7 @@ public class OperatorPrecedence {
 	 * </span>
 	 * <span class="lang-ja">パーサの実装の都合上, この記号には最低の優先度が設定されています.</span>
 	 */
-	public int CALL_SEPARATOR = LEAST_PRIOR;
+	public int callSeparator = leastPrior;
 
 	/**
 	 * <span class="lang-en">The precedence of the end of the function call operator: ")"</span>
@@ -127,14 +127,14 @@ public class OperatorPrecedence {
 	 * </span>
 	 * <span class="lang-ja">パーサの実装の都合上, この記号には最低の優先度が設定されています.</span>
 	 */
-	public int CALL_END = LEAST_PRIOR;
+	public int callEnd = leastPrior;
 
 	/**
 	 * <span class="lang-en">The precedence of the subscript (array index) operator: "["</span>
 	 * <span class="lang-ja">配列アクセス演算子「 [ 」の優先度です</span>
 	 * .
 	 */
-	public int SUBSCRIPT_BEGIN = 1000;
+	public int subscriptBegin = 1000;
 
 	/**
 	 * <span class="lang-en">The precedence of the dimension-separator of the subscript (array index) operator: "]["</span>
@@ -145,7 +145,7 @@ public class OperatorPrecedence {
 	 * </span>
 	 * <span class="lang-ja">パーサの実装の都合上, この記号には最低の優先度が設定されています.</span>
 	 */
-	public int SUBSCRIPT_SEPARATOR = LEAST_PRIOR;
+	public int subscriptSeparator = leastPrior;
 
 	/**
 	 * <span class="lang-en">The precedence of the end of the subscript (array index) operator: "]"</span>
@@ -156,7 +156,7 @@ public class OperatorPrecedence {
 	 * </span>
 	 * <span class="lang-ja">パーサの実装の都合上, この記号には最低の優先度が設定されています.</span>
 	 */
-	public int SUBSCRIPT_END = LEAST_PRIOR;
+	public int subscriptEnd = leastPrior;
 
 	// --------------------------------------------------
 	// Postfix Operators
@@ -168,14 +168,14 @@ public class OperatorPrecedence {
 	 * <span class="lang-ja">後置インクリメント演算子「 ++ 」の優先度です</span>
 	 * .
 	 */
-	public int POSTFIX_INCREMENT = 1000;
+	public int postfixIncrement = 1000;
 
 	/**
 	 * <span class="lang-en">The precedence of the postfix decrement operator: "--"</span>
 	 * <span class="lang-ja">後置デクリメント演算子「 -- 」の優先度です</span>
 	 * .
 	 */
-	public int POSTFIX_DECREMENT = 1000;
+	public int postfixDecrement = 1000;
 
 
 	// --------------------------------------------------
@@ -188,35 +188,35 @@ public class OperatorPrecedence {
 	 * <span class="lang-ja">前置インクリメント演算子「 ++ 」の優先度です</span>
 	 * .
 	 */
-	public int PREFIX_INCREMENT = 2000;
+	public int prefixIncrement = 2000;
 
 	/**
 	 * <span class="lang-en">The precedence of the prefix decrement operator: "--"</span>
 	 * <span class="lang-ja">前置デクリメント演算子「 -- 」の優先度です</span>
 	 * .
 	 */
-	public int PREFIX_DECREMENT = 2000;
+	public int prefixDecrement = 2000;
 
 	/**
 	 * <span class="lang-en">The precedence of the unary plus operator: "+"</span>
 	 * <span class="lang-ja">単項プラス演算子「 + 」の優先度です</span>
 	 * .
 	 */
-	public int PREFIX_PLUS = 2000;
+	public int prefixPlus = 2000;
 
 	/**
 	 * <span class="lang-en">The precedence of the unary minus operator: "-"</span>
 	 * <span class="lang-ja">単項マイナス演算子「 - 」の優先度です</span>
 	 * .
 	 */
-	public int PREFIX_MINUS = 2000;
+	public int prefixMinus = 2000;
 
 	/**
 	 * <span class="lang-en">The precedence of the logical-not operator: "!"</span>
 	 * <span class="lang-ja">論理否定演算子「 ! 」の優先度です</span>
 	 * .
 	 */
-	public int NOT = 2000;
+	public int not = 2000;
 
 
 	/**
@@ -224,7 +224,7 @@ public class OperatorPrecedence {
 	 * <span class="lang-ja">キャスト演算子「 (...) 」の優先度です</span>
 	 * .
 	 */
-	public final int CAST_BEGIN = 2000;
+	public int castBegin = 2000;
 
 	/**
 	 * <span class="lang-en">The precedence of the end of the cast operator: ")"</span>
@@ -235,7 +235,7 @@ public class OperatorPrecedence {
 	 * </span>
 	 * <span class="lang-ja">パーサの実装の都合上, この記号には最低の優先度が設定されています.</span>
 	 */
-	public int CAST_END = LEAST_PRIOR;
+	public int castEnd = leastPrior;
 
 
 	// --------------------------------------------------
@@ -248,35 +248,35 @@ public class OperatorPrecedence {
 	 * <span class="lang-ja">乗算演算子「 * 」の優先度です</span>
 	 * .
 	 */
-	public int MULTIPLICATION = 3000;
+	public int multiplication = 3000;
 
 	/**
 	 * <span class="lang-en">The precedence of the division operator: "/"</span>
 	 * <span class="lang-ja">除算演算子「 / 」の優先度です</span>
 	 * .
 	 */
-	public int DIVISION       = 3000;
+	public int division       = 3000;
 
 	/**
 	 * <span class="lang-en">The precedence of the remainder operator: "%"</span>
 	 * <span class="lang-ja">剰余演算子「 % 」の優先度です</span>
 	 * .
 	 */
-	public int REMAINDER      = 3000;
+	public int remainder      = 3000;
 
 	/**
 	 * <span class="lang-en">The precedence of the addition operator: "+"</span>
 	 * <span class="lang-ja">加算演算子「 + 」の優先度です</span>
 	 * .
 	 */
-	public int ADDITION    = 3100;
+	public int addition    = 3100;
 
 	/**
 	 * <span class="lang-en">The precedence of the subtraction operator: "-"</span>
 	 * <span class="lang-ja">減算演算子「 - 」の優先度です</span>
 	 * .
 	 */
-	public int SUBTRACTION = 3100;
+	public int subtraction = 3100;
 
 
 	// --------------------------------------------------
@@ -289,42 +289,42 @@ public class OperatorPrecedence {
 	 * <span class="lang-ja">小なり比較演算子「 &lt; 」の優先度です</span>
 	 * .
 	 */
-	public int LESS_THAN    = 4000;
+	public int lessThan    = 4000;
 
 	/**
 	 * <span class="lang-en">The precedence of the "grater-equals" comparison operator: "&lt;="</span>
 	 * <span class="lang-ja">小なり等価（以下）比較演算子「 &lt; 」の優先度です</span>
 	 * .
 	 */
-	public int LESS_EQUAL   = 4000;
+	public int lessEqual   = 4000;
 
 	/**
-	 * <span class="lang-en">The precedence of the "grater-than" comparison operator: "&gt;"</span>
+	 * <span class="lang-en">The precedence of the "greater-than" comparison operator: "&gt;"</span>
 	 * <span class="lang-ja">大なり比較演算子「 &gt; 」の優先度です</span>
 	 * .
 	 */
-	public int GRATER_THAN  = 4000;
+	public int greaterThan  = 4000;
 
 	/**
-	 * <span class="lang-en">The precedence of the "grater-equals" comparison operator: "&gt;="</span>
+	 * <span class="lang-en">The precedence of the "greater-equals" comparison operator: "&gt;="</span>
 	 * <span class="lang-ja">大なり等価（以上）比較演算子「 &gt; 」の優先度です</span>
 	 * .
 	 */
-	public int GRATER_EQUAL = 4000;
+	public int greaterEqual = 4000;
 
 	/**
 	 * <span class="lang-en">The precedence of the equality comparison operator: "=="</span>
 	 * <span class="lang-ja">等値比較演算子「 == 」の優先度です</span>
 	 * .
 	 */
-	public int EQUAL   = 4100;
+	public int equal   = 4100;
 
 	/**
 	 * <span class="lang-en">The precedence of the "non-equality" comparison operator: "&#33;="</span>
 	 * <span class="lang-ja">非等値比較演算子「 &#33;= 」の優先度です</span>
 	 * .
 	 */
-	public int NOT_EQUAL   = 4100;
+	public int notEqual   = 4100;
 
 
 	// --------------------------------------------------
@@ -337,14 +337,14 @@ public class OperatorPrecedence {
 	 * <span class="lang-ja">論理積演算子「 &amp;&amp; 」の優先度です</span>
 	 * .
 	 */
-	public int AND = 5000;
+	public int shortCircuitAnd = 5000;
 
 	/**
 	 * <span class="lang-en">The precedence of logical-or operator: "||"</span>
 	 * <span class="lang-ja">論理和演算子「 || 」の優先度です</span>
 	 * .
 	 */
-	public int OR  = 5100;
+	public int shortCircuitOr  = 5100;
 
 
 	// --------------------------------------------------
@@ -357,41 +357,41 @@ public class OperatorPrecedence {
 	 * <span class="lang-ja">代入演算子「 = 」の優先度です</span>
 	 * .
 	 */
-	public int ASSIGNMENT = 6000;
+	public int assignment = 6000;
 
 	/**
 	 * <span class="lang-en">The precedence of the compound assignment operator of the multiplication: "*="</span>
 	 * <span class="lang-ja">乗算との複合代入演算子「 *= 」の優先度です</span>
 	 * .
 	 */
-	public int MULTIPLICATION_ASSIGNMENT = 6000;
+	public int multiplicationAssignment = 6000;
 
 	/**
 	 * <span class="lang-en">The precedence of the compound assignment operator of the division: "/="</span>
 	 * <span class="lang-ja">除算との複合代入演算子「 /= 」の優先度です</span>
 	 * .
 	 */
-	public int DIVISION_ASSIGNMENT       = 6000;
+	public int divisionAssignment       = 6000;
 
 	/**
 	 * <span class="lang-en">The precedence of the compound assignment operator of the remainder: "%="</span>
 	 * <span class="lang-ja">剰余演算との複合代入演算子「 %= 」の優先度です</span>
 	 * .
 	 */
-	public int REMAINDER_ASSIGNMENT      = 6000;
+	public int remainderAssignment      = 6000;
 
 	/**
 	 * <span class="lang-en">The precedence of the compound assignment operator of the addition: "+="</span>
 	 * <span class="lang-ja">可算との複合代入演算子「 += 」の優先度です</span>
 	 * .
 	 */
-	public int ADDITION_ASSIGNMENT       = 6000;
+	public int additionAssignment       = 6000;
 
 	/**
 	 * <span class="lang-en">The precedence of the compound assignment operator of the subtraction: "-="</span>
 	 * <span class="lang-ja">減算との複合代入演算子「 -= 」の優先度です</span>
 	 * .
 	 */
-	public int SUBTRACTION_ASSIGNMENT    = 6000;
+	public int subtractionAssignment    = 6000;
 
 }

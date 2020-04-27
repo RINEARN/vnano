@@ -182,7 +182,7 @@ public class ExecutionUnitTest {
 
 
 	// --------------------------------------------------
-	// add, STRING(String)
+	// add, STRING (String)
 	// --------------------------------------------------
 
 	@Test
@@ -499,11 +499,11 @@ public class ExecutionUnitTest {
 
 
 	// ==================================================
-	// mul
+	// nul
 	// ==================================================
 
 	// --------------------------------------------------
-	// mul, INTT64 (long)
+	// nul, INT64 (long)
 	// --------------------------------------------------
 
 	@Test
@@ -576,7 +576,7 @@ public class ExecutionUnitTest {
 	}
 
 	// --------------------------------------------------
-	// mul, FLOAT64 (double)
+	// nul, FLOAT64 (double)
 	// --------------------------------------------------
 
 	@Test
@@ -650,7 +650,7 @@ public class ExecutionUnitTest {
 
 
 	// --------------------------------------------------
-	// mul, Unoperatable type (e.g. BOOL)
+	// nul, Unoperatable type (e.g. BOOL)
 	// --------------------------------------------------
 
 	@Test
@@ -696,7 +696,7 @@ public class ExecutionUnitTest {
 	// ==================================================
 
 	// --------------------------------------------------
-	// div, INTT64 (long)
+	// div, INT64 (long)
 	// --------------------------------------------------
 
 	@Test
@@ -891,7 +891,7 @@ public class ExecutionUnitTest {
 	// ==================================================
 
 	// --------------------------------------------------
-	// rem, INTT64 (long)
+	// rem, INT64 (long)
 	// --------------------------------------------------
 
 	@Test
@@ -1091,7 +1091,7 @@ public class ExecutionUnitTest {
 	// ==================================================
 
 	// --------------------------------------------------
-	// neg, INTT64 (long)
+	// neg, INT64 (long)
 	// --------------------------------------------------
 
 	@Test
@@ -1159,7 +1159,7 @@ public class ExecutionUnitTest {
 	}
 
 	// --------------------------------------------------
-	// neg, INTT64 (long)
+	// neg, INT64 (long)
 	// --------------------------------------------------
 
 	@Test
@@ -1463,7 +1463,7 @@ public class ExecutionUnitTest {
 
 
 	// --------------------------------------------------
-	// eq, STRING (String)
+	// eq, string (String)
 	// --------------------------------------------------
 
 	@Test
@@ -1559,7 +1559,7 @@ public class ExecutionUnitTest {
 
 
 	// --------------------------------------------------
-	// eq, BOOL (boolean)
+	// eq, bool (boolean)
 	// --------------------------------------------------
 
 	@Test
@@ -1876,7 +1876,7 @@ public class ExecutionUnitTest {
 	}
 
 	// --------------------------------------------------
-	// neq, STRING (String)
+	// neq, string (String)
 	// --------------------------------------------------
 
 	@Test
@@ -1972,7 +1972,7 @@ public class ExecutionUnitTest {
 
 
 	// --------------------------------------------------
-	// neq, BOOL (boolean)
+	// neq, bool (boolean)
 	// --------------------------------------------------
 
 	@Test
@@ -3210,7 +3210,7 @@ public class ExecutionUnitTest {
 	// ==================================================
 
 	// --------------------------------------------------
-	// and, BOOL (boolean)
+	// and, bool (boolean)
 	// --------------------------------------------------
 
 	@Test
@@ -3391,7 +3391,7 @@ public class ExecutionUnitTest {
 	// ==================================================
 
 	// --------------------------------------------------
-	// or, BOOL (boolean)
+	// or, bool (boolean)
 	// --------------------------------------------------
 
 	@Test
@@ -3572,7 +3572,7 @@ public class ExecutionUnitTest {
 	// ==================================================
 
 	// --------------------------------------------------
-	// not, BOOL (boolean)
+	// not, bool (boolean)
 	// --------------------------------------------------
 
 	@Test
@@ -4058,7 +4058,7 @@ public class ExecutionUnitTest {
 
 
 	// --------------------------------------------------
-	// alloc, BOOL (boolean)
+	// alloc, bool (boolean)
 	// --------------------------------------------------
 
 	@Test
@@ -4237,7 +4237,7 @@ public class ExecutionUnitTest {
 
 
 	// --------------------------------------------------
-	// alloc, STRING (String)
+	// alloc, string (String)
 	// --------------------------------------------------
 
 	@Test
@@ -4793,7 +4793,7 @@ public class ExecutionUnitTest {
 	}
 
 	// --------------------------------------------------
-	// allocr, BOOL (boolean)
+	// allocr, bool (boolean)
 	// --------------------------------------------------
 
 	@Test
@@ -5277,7 +5277,7 @@ public class ExecutionUnitTest {
 
 
 	// --------------------------------------------------
-	// mov, BOOL (boolean)
+	// mov, bool (boolean)
 	// --------------------------------------------------
 
 	@Test
@@ -5346,7 +5346,7 @@ public class ExecutionUnitTest {
 
 
 	// --------------------------------------------------
-	// mov, STRING (String)
+	// mov, string (String)
 	// --------------------------------------------------
 
 	@Test
@@ -5555,7 +5555,7 @@ public class ExecutionUnitTest {
 	}
 
 	// --------------------------------------------------
-	// fill, BOOL (boolean)
+	// fill, bool (boolean)
 	// --------------------------------------------------
 
 	@Test
@@ -5595,7 +5595,7 @@ public class ExecutionUnitTest {
 	}
 
 	// --------------------------------------------------
-	// fill, STRING (String)
+	// fill, string (String)
 	// --------------------------------------------------
 
 	@Test
@@ -5806,7 +5806,7 @@ public class ExecutionUnitTest {
 
 
 	// --------------------------------------------------
-	// elem, BOOL (boolean)
+	// elem, bool (boolean)
 	// --------------------------------------------------
 
 	@Test
@@ -5874,7 +5874,7 @@ public class ExecutionUnitTest {
 	}
 
 	// --------------------------------------------------
-	// elem, STRING (String)
+	// elem, string (String)
 	// --------------------------------------------------
 
 	@Test
@@ -6135,7 +6135,7 @@ public class ExecutionUnitTest {
 	}
 
 	// --------------------------------------------------
-	// cast, INT64 to STRING (long to String)
+	// cast, INT64 to string (long to String)
 	// --------------------------------------------------
 
 	@Test
@@ -6370,7 +6370,7 @@ public class ExecutionUnitTest {
 	}
 
 	// --------------------------------------------------
-	// cast, FLOAT64 to STRING (double to String)
+	// cast, FLOAT64 to string (double to String)
 	// --------------------------------------------------
 
 	@Test
@@ -6450,7 +6450,7 @@ public class ExecutionUnitTest {
 	}
 
 	// --------------------------------------------------
-	// cast, BOOL to BOOL (boolean to String)
+	// cast, bool to bool (boolean to String)
 	// --------------------------------------------------
 
 	@Test
@@ -6527,7 +6527,7 @@ public class ExecutionUnitTest {
 	}
 
 	// --------------------------------------------------
-	// cast, BOOL to STRING (boolean to String)
+	// cast, bool to string (boolean to String)
 	// --------------------------------------------------
 
 	@Test
@@ -6608,7 +6608,7 @@ public class ExecutionUnitTest {
 
 
 	// --------------------------------------------------
-	// cast, STRING to STRING (String to String)
+	// cast, string to string (String to String)
 	// --------------------------------------------------
 
 	@Test
@@ -6688,7 +6688,7 @@ public class ExecutionUnitTest {
 	}
 
 	// --------------------------------------------------
-	// cast, STRING to INT64 (String to long)
+	// cast, string to INT64 (String to long)
 	// --------------------------------------------------
 
 	@Test
@@ -6794,7 +6794,7 @@ public class ExecutionUnitTest {
 	}
 
 	// --------------------------------------------------
-	// cast, STRING to FLOAT64 (String to double)
+	// cast, string to FLOAT64 (String to double)
 	// --------------------------------------------------
 
 	@Test
@@ -6881,7 +6881,7 @@ public class ExecutionUnitTest {
 	}
 
 	// --------------------------------------------------
-	// cast, STRING to BOOL (String to boolean)
+	// cast, string to bool (String to boolean)
 	// --------------------------------------------------
 
 	@Test

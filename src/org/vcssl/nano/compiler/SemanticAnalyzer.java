@@ -248,7 +248,7 @@ public class SemanticAnalyzer {
 				String dataTypeName = currentNode.getDataTypeName();
 				int rank = currentNode.getRank();
 				boolean isFunctionParam = currentNode.getParentNode().getType() == AstNode.Type.FUNCTION;
-				boolean isConstant = currentNode.hasModifier(SCRIPT_WORD.CONSTANT);
+				boolean isConstant = currentNode.hasModifier(SCRIPT_WORD.constModifier);
 
 				// 宣言箇所からの可視範囲内に、既に同名変数が存在する場合はエラーとする（可視範囲外の変数はブロック末端で削除済み）
 				if (localVariableTable.containsVariableWithName(variableName) && !isFunctionParam) { // ただし関数引数は特例的に許可
@@ -304,7 +304,7 @@ public class SemanticAnalyzer {
 				currentNode.setAttribute(AttributeKey.RANK, Integer.toString(variable.getRank()));
 				currentNode.setAttribute(AttributeKey.DATA_TYPE, variable.getDataTypeName());
 				if (variable.isConstant()) {
-					currentNode.addModifier(SCRIPT_WORD.CONSTANT);
+					currentNode.addModifier(SCRIPT_WORD.constModifier);
 				}
 				if (variable.hasNameSpace()) {
 					currentNode.setAttribute(AttributeKey.NAME_SPACE, variable.getNameSpace());
@@ -372,8 +372,8 @@ public class SemanticAnalyzer {
 					argNames[argIndex] = argNodes[argIndex].getAttribute(AttributeKey.IDENTIFIER_VALUE);
 					argTypeNames[argIndex] = argNodes[argIndex].getAttribute(AttributeKey.DATA_TYPE);
 					argRanks[argIndex] = argNodes[argIndex].getRank();
-					argRefs[argIndex] = argNodes[argIndex].hasModifier(SCRIPT_WORD.REFERENCE);
-					argConsts[argIndex] = argNodes[argIndex].hasModifier(SCRIPT_WORD.CONSTANT);
+					argRefs[argIndex] = argNodes[argIndex].hasModifier(SCRIPT_WORD.refModifier);
+					argConsts[argIndex] = argNodes[argIndex].hasModifier(SCRIPT_WORD.constModifier);
 				}
 
 				// 関数情報を保持するインスタンスを生成
@@ -464,7 +464,7 @@ public class SemanticAnalyzer {
 					&& currentNode.getAttribute(AttributeKey.LEAF_TYPE).equals(AttributeValue.LITERAL)) {
 
 				currentNode.setAttribute(AttributeKey.RANK, "0"); // 現状では配列のリテラルは存在しないため、常にスカラ
-				currentNode.addModifier(SCRIPT_WORD.CONSTANT); // リテラルは const 扱い
+				currentNode.addModifier(SCRIPT_WORD.constModifier); // リテラルは const 扱い
 
 				// リテラルのデータ型はLexicalAnalyzerの時点で自明なので、その段階で既に設定されている
 				//（ EVAL_NUMBER_AS_FLOATオプションの実装上も、そうした方が都合が良い ）
@@ -570,7 +570,7 @@ public class SemanticAnalyzer {
 						AstNode[] inputNodes = currentNode.getChildNodes();
 						String leftOperandType = inputNodes[0].getDataTypeName();
 						String rightOperandType = inputNodes[1].getDataTypeName();
-						dataType = DATA_TYPE_NAME.BOOL;
+						dataType = DATA_TYPE_NAME.bool;
 						operationDataType = this.analyzeComparisonBinaryOperatorDataType(
 								leftOperandType, rightOperandType,
 								currentNode.getAttribute(AttributeKey.OPERATOR_SYMBOL),
@@ -591,7 +591,7 @@ public class SemanticAnalyzer {
 								AstNode[] inputNodes = currentNode.getChildNodes();
 								String leftOperandType = inputNodes[0].getDataTypeName();
 								String rightOperandType = inputNodes[1].getDataTypeName();
-								dataType = DATA_TYPE_NAME.BOOL;
+								dataType = DATA_TYPE_NAME.bool;
 								operationDataType = this.analyzeLogicalBinaryOperatorDataType(
 										leftOperandType, rightOperandType,
 										currentNode.getAttribute(AttributeKey.OPERATOR_SYMBOL),
@@ -606,8 +606,8 @@ public class SemanticAnalyzer {
 							}
 							case AttributeValue.PREFIX : {
 								AstNode[] inputNodes = currentNode.getChildNodes();
-								dataType = DATA_TYPE_NAME.BOOL;
-								operationDataType = DATA_TYPE_NAME.BOOL;
+								dataType = DATA_TYPE_NAME.bool;
+								operationDataType = DATA_TYPE_NAME.bool;
 								rank = inputNodes[0].getRank();
 								break;
 							}
@@ -833,20 +833,20 @@ public class SemanticAnalyzer {
 		String arithmeticBinaryOperatorSymbol = null;
 
 		// 後で if 文ではなくHashMap にすべき
-		if (operatorSymbol.equals(SCRIPT_WORD.ADDITION_ASSIGNMENT)) {
-				arithmeticBinaryOperatorSymbol = SCRIPT_WORD.PLUS;
+		if (operatorSymbol.equals(SCRIPT_WORD.additionAssignment)) {
+				arithmeticBinaryOperatorSymbol = SCRIPT_WORD.plusOrAddition;
 
-		} else if (operatorSymbol.equals(SCRIPT_WORD.SUBTRACTION_ASSIGNMENT)) {
-				arithmeticBinaryOperatorSymbol = SCRIPT_WORD.MINUS;
+		} else if (operatorSymbol.equals(SCRIPT_WORD.subtractionAssignment)) {
+				arithmeticBinaryOperatorSymbol = SCRIPT_WORD.minusOrSubtraction;
 
-		} else if (operatorSymbol.equals(SCRIPT_WORD.MULTIPLICATION_ASSIGNMENT)) {
-				arithmeticBinaryOperatorSymbol = SCRIPT_WORD.MULTIPLICATION;
+		} else if (operatorSymbol.equals(SCRIPT_WORD.multiplicationAssignment)) {
+				arithmeticBinaryOperatorSymbol = SCRIPT_WORD.multiplication;
 
-		} else if (operatorSymbol.equals(SCRIPT_WORD.DIVISION_ASSIGNMENT)) {
-				arithmeticBinaryOperatorSymbol = SCRIPT_WORD.DIVISION;
+		} else if (operatorSymbol.equals(SCRIPT_WORD.divisionAssignment)) {
+				arithmeticBinaryOperatorSymbol = SCRIPT_WORD.division;
 
-		} else if (operatorSymbol.equals(SCRIPT_WORD.REMAINDER_ASSIGNMENT)) {
-				arithmeticBinaryOperatorSymbol = SCRIPT_WORD.REMAINDER;
+		} else if (operatorSymbol.equals(SCRIPT_WORD.remainderAssignment)) {
+				arithmeticBinaryOperatorSymbol = SCRIPT_WORD.remainder;
 
 		} else {
 				throw new VnanoFatalException("Invalid arithmetic compound operator: " + operatorSymbol);
@@ -888,48 +888,48 @@ public class SemanticAnalyzer {
 				|| DATA_TYPE_NAME.isDataTypeNameOf(DataType.STRING,rightOperandType) ) {
 
 			// 加算だけ許可する
-			if (operatorSymbol.equals(SCRIPT_WORD.PLUS)) {
-				return DATA_TYPE_NAME.STRING;
+			if (operatorSymbol.equals(SCRIPT_WORD.plusOrAddition)) {
+				return DATA_TYPE_NAME.string;
 			}
 		}
 
 		// 整数同士は整数
 		if (DATA_TYPE_NAME.isDataTypeNameOf(DataType.INT64,leftOperandType)
 				&& DATA_TYPE_NAME.isDataTypeNameOf(DataType.INT64,rightOperandType) ) {
-			if (this.containsDataTypeInOperands(DATA_TYPE_NAME.LONG, leftOperandType, rightOperandType)) {
-				return DATA_TYPE_NAME.LONG;
+			if (this.containsDataTypeInOperands(DATA_TYPE_NAME.longInt, leftOperandType, rightOperandType)) {
+				return DATA_TYPE_NAME.longInt;
 			} else {
-				return DATA_TYPE_NAME.INT;
+				return DATA_TYPE_NAME.defaultInt;
 			}
 		}
 
 		// 浮動小数点数同士は浮動小数点数
 		if (DATA_TYPE_NAME.isDataTypeNameOf(DataType.FLOAT64,leftOperandType)
 				&& DATA_TYPE_NAME.isDataTypeNameOf(DataType.FLOAT64,rightOperandType) ) {
-			if (this.containsDataTypeInOperands(DATA_TYPE_NAME.DOUBLE, leftOperandType, rightOperandType)) {
-				return DATA_TYPE_NAME.DOUBLE;
+			if (this.containsDataTypeInOperands(DATA_TYPE_NAME.doubleFloat, leftOperandType, rightOperandType)) {
+				return DATA_TYPE_NAME.doubleFloat;
 			} else {
-				return DATA_TYPE_NAME.FLOAT;
+				return DATA_TYPE_NAME.defaultFloat;
 			}
 		}
 
 		// 整数と浮動小数点数の混合は浮動小数点数
 		if (DATA_TYPE_NAME.isDataTypeNameOf(DataType.INT64,leftOperandType)
 				&& DATA_TYPE_NAME.isDataTypeNameOf(DataType.FLOAT64,rightOperandType) ) {
-			if (this.containsDataTypeInOperands(DATA_TYPE_NAME.DOUBLE, leftOperandType, rightOperandType)) {
-				return DATA_TYPE_NAME.DOUBLE;
+			if (this.containsDataTypeInOperands(DATA_TYPE_NAME.doubleFloat, leftOperandType, rightOperandType)) {
+				return DATA_TYPE_NAME.doubleFloat;
 			} else {
-				return DATA_TYPE_NAME.FLOAT;
+				return DATA_TYPE_NAME.defaultFloat;
 			}
 		}
 
 		// 浮動小数点数と整数の混合は浮動小数点数
 		if (DATA_TYPE_NAME.isDataTypeNameOf(DataType.FLOAT64,leftOperandType)
 				&& DATA_TYPE_NAME.isDataTypeNameOf(DataType.INT64,rightOperandType) ) {
-			if (this.containsDataTypeInOperands(DATA_TYPE_NAME.DOUBLE, leftOperandType, rightOperandType)) {
-				return DATA_TYPE_NAME.DOUBLE;
+			if (this.containsDataTypeInOperands(DATA_TYPE_NAME.doubleFloat, leftOperandType, rightOperandType)) {
+				return DATA_TYPE_NAME.doubleFloat;
 			} else {
-				return DATA_TYPE_NAME.FLOAT;
+				return DATA_TYPE_NAME.defaultFloat;
 			}
 		}
 
@@ -967,52 +967,52 @@ public class SemanticAnalyzer {
 		// 文字列型を含む場合は文字列
 		if (DATA_TYPE_NAME.isDataTypeNameOf(DataType.STRING,leftOperandType)
 				|| DATA_TYPE_NAME.isDataTypeNameOf(DataType.STRING,rightOperandType) ) {
-				return DATA_TYPE_NAME.STRING;
+				return DATA_TYPE_NAME.string;
 		}
 
 		// 論理型同士は論理型
 		if (DATA_TYPE_NAME.isDataTypeNameOf(DataType.BOOL,leftOperandType)
 				&& DATA_TYPE_NAME.isDataTypeNameOf(DataType.BOOL,rightOperandType) ) {
-			return DATA_TYPE_NAME.BOOL;
+			return DATA_TYPE_NAME.bool;
 		}
 
 		// 整数同士は整数
 		if (DATA_TYPE_NAME.isDataTypeNameOf(DataType.INT64,leftOperandType)
 				&& DATA_TYPE_NAME.isDataTypeNameOf(DataType.INT64,rightOperandType) ) {
-			if (this.containsDataTypeInOperands(DATA_TYPE_NAME.LONG, leftOperandType, rightOperandType)) {
-				return DATA_TYPE_NAME.LONG;
+			if (this.containsDataTypeInOperands(DATA_TYPE_NAME.longInt, leftOperandType, rightOperandType)) {
+				return DATA_TYPE_NAME.longInt;
 			} else {
-				return DATA_TYPE_NAME.INT;
+				return DATA_TYPE_NAME.defaultInt;
 			}
 		}
 
 		// 浮動小数点数同士は浮動小数点数
 		if (DATA_TYPE_NAME.isDataTypeNameOf(DataType.FLOAT64,leftOperandType)
 				&& DATA_TYPE_NAME.isDataTypeNameOf(DataType.FLOAT64,rightOperandType) ) {
-			if (this.containsDataTypeInOperands(DATA_TYPE_NAME.DOUBLE, leftOperandType, rightOperandType)) {
-				return DATA_TYPE_NAME.DOUBLE;
+			if (this.containsDataTypeInOperands(DATA_TYPE_NAME.doubleFloat, leftOperandType, rightOperandType)) {
+				return DATA_TYPE_NAME.doubleFloat;
 			} else {
-				return DATA_TYPE_NAME.FLOAT;
+				return DATA_TYPE_NAME.defaultFloat;
 			}
 		}
 
 		// 整数と浮動小数点数の混合は浮動小数点数
 		if (DATA_TYPE_NAME.isDataTypeNameOf(DataType.INT64,leftOperandType)
 				&& DATA_TYPE_NAME.isDataTypeNameOf(DataType.FLOAT64,rightOperandType) ) {
-			if (this.containsDataTypeInOperands(DATA_TYPE_NAME.DOUBLE, leftOperandType, rightOperandType)) {
-				return DATA_TYPE_NAME.DOUBLE;
+			if (this.containsDataTypeInOperands(DATA_TYPE_NAME.doubleFloat, leftOperandType, rightOperandType)) {
+				return DATA_TYPE_NAME.doubleFloat;
 			} else {
-				return DATA_TYPE_NAME.FLOAT;
+				return DATA_TYPE_NAME.defaultFloat;
 			}
 		}
 
 		// 浮動小数点数と整数の混合は浮動小数点数
 		if (DATA_TYPE_NAME.isDataTypeNameOf(DataType.FLOAT64,leftOperandType)
 				&& DATA_TYPE_NAME.isDataTypeNameOf(DataType.INT64,rightOperandType) ) {
-			if (this.containsDataTypeInOperands(DATA_TYPE_NAME.DOUBLE, leftOperandType, rightOperandType)) {
-				return DATA_TYPE_NAME.DOUBLE;
+			if (this.containsDataTypeInOperands(DATA_TYPE_NAME.doubleFloat, leftOperandType, rightOperandType)) {
+				return DATA_TYPE_NAME.doubleFloat;
 			} else {
-				return DATA_TYPE_NAME.FLOAT;
+				return DATA_TYPE_NAME.defaultFloat;
 			}
 		}
 
@@ -1049,7 +1049,7 @@ public class SemanticAnalyzer {
 
 		if (DATA_TYPE_NAME.isDataTypeNameOf(DataType.BOOL,leftOperandType)
 				&& DATA_TYPE_NAME.isDataTypeNameOf(DataType.BOOL,rightOperandType) ) {
-			return DATA_TYPE_NAME.BOOL;
+			return DATA_TYPE_NAME.bool;
 		}
 
 		throw new VnanoException(
@@ -1256,7 +1256,7 @@ public class SemanticAnalyzer {
 					}
 					// インクリメント/デクリメント演算子の場合
 					case AttributeValue.ARITHMETIC : {
-						if (symbol.equals(SCRIPT_WORD.INCREMENT) || symbol.equals(SCRIPT_WORD.DECREMENT)) {
+						if (symbol.equals(SCRIPT_WORD.increment) || symbol.equals(SCRIPT_WORD.decrement)) {
 							this.checkWritability( currentNode.getChildNodes()[0], false );
 						}
 						break;
@@ -1302,7 +1302,7 @@ public class SemanticAnalyzer {
 		if (leafType.equals(AttributeValue.VARIABLE_IDENTIFIER)) {
 
 			// const 修飾子が付加されていた場合、初期化子以外での書き換えはエラー
-			if (node.hasModifier(SCRIPT_WORD.CONSTANT) && !writtenByInitializer) {
+			if (node.hasModifier(SCRIPT_WORD.constModifier) && !writtenByInitializer) {
 				throw new VnanoException(
 					ErrorType.WRITING_TO_CONST_VARIABLE,
 					new String[] { node.getAttribute(AttributeKey.IDENTIFIER_VALUE) },
@@ -1410,7 +1410,7 @@ public class SemanticAnalyzer {
 				}
 
 				// 予約語の場合はエラー
-				if (SCRIPT_WORD.RESERVED_WORD_SET.contains(identifier)) {
+				if (SCRIPT_WORD.reservedWordSet.contains(identifier)) {
 					throw new VnanoException(ErrorType.IDENTIFIER_IS_RESERVED_WORD, identifier, fileName, lineNumber);
 				}
 			}
@@ -1486,11 +1486,11 @@ public class SemanticAnalyzer {
 						// エラーメッセージに用いる型情報を用意し、それを持たせて例外を投げる
 						String returnedTypeDescription = returnedValueNode.getDataTypeName();
 						for (int dim=0; dim<returnedValueNode.getRank(); dim++) {
-							returnedTypeDescription += SCRIPT_WORD.SUBSCRIPT_BEGIN + SCRIPT_WORD.SUBSCRIPT_END;
+							returnedTypeDescription += SCRIPT_WORD.subscriptBegin + SCRIPT_WORD.subscriptEnd;
 						}
 						String expectedTypeDescription = currentFunctionReturType;
 						for (int dim=0; dim<currentFunctionReturnRank; dim++) {
-							expectedTypeDescription += SCRIPT_WORD.SUBSCRIPT_BEGIN + SCRIPT_WORD.SUBSCRIPT_END;
+							expectedTypeDescription += SCRIPT_WORD.subscriptBegin + SCRIPT_WORD.subscriptEnd;
 						}
 						String[] errorWords = {returnedTypeDescription, expectedTypeDescription};
 						throw new VnanoException(
@@ -1500,7 +1500,7 @@ public class SemanticAnalyzer {
 					}
 
 				// return 文に戻り値が指定されている場合: void 型関数でなければエラーにする
-				} else if (!currentFunctionReturType.equals(DATA_TYPE_NAME.VOID)) {
+				} else if (!currentFunctionReturType.equals(DATA_TYPE_NAME.voidPlaceholder)) {
 					throw new VnanoException(
 						ErrorType.RETURNED_VALUE_IS_MISSING, currentNode.getFileName(), currentNode.getLineNumber()
 					);

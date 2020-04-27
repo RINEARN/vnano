@@ -86,7 +86,7 @@ public class FunctionAliasAdapter extends AbstractFunction {
 
 		// コールシグネチャに仮の戻り値とブロックを付けて関数宣言のコードにする
 		String functionDeclarationCode
-			= DATA_TYPE_NAME.VOID + " " + signature + SCRIPT_WORD.BLOCK_BEGIN + SCRIPT_WORD.BLOCK_END;
+			= DATA_TYPE_NAME.voidPlaceholder + " " + signature + SCRIPT_WORD.blockBegin + SCRIPT_WORD.blockEnd;
 
 		// 字句解析でトークン列に変換
 		Token[] tokens = new LexicalAnalyzer(LANG_SPEC).analyze(functionDeclarationCode, "");
@@ -167,17 +167,17 @@ public class FunctionAliasAdapter extends AbstractFunction {
 			return true;
 		}
 
-		if (typeA.equals(DATA_TYPE_NAME.INT) && typeB.equals(DATA_TYPE_NAME.LONG)) {
+		if (typeA.equals(DATA_TYPE_NAME.defaultInt) && typeB.equals(DATA_TYPE_NAME.longInt)) {
 			return true;
 		}
-		if (typeA.equals(DATA_TYPE_NAME.LONG) && typeB.equals(DATA_TYPE_NAME.INT)) {
+		if (typeA.equals(DATA_TYPE_NAME.longInt) && typeB.equals(DATA_TYPE_NAME.defaultInt)) {
 			return true;
 		}
 
-		if (typeA.equals(DATA_TYPE_NAME.FLOAT) && typeB.equals(DATA_TYPE_NAME.DOUBLE)) {
+		if (typeA.equals(DATA_TYPE_NAME.defaultFloat) && typeB.equals(DATA_TYPE_NAME.doubleFloat)) {
 			return true;
 		}
-		if (typeA.equals(DATA_TYPE_NAME.DOUBLE) && typeB.equals(DATA_TYPE_NAME.FLOAT)) {
+		if (typeA.equals(DATA_TYPE_NAME.doubleFloat) && typeB.equals(DATA_TYPE_NAME.defaultFloat)) {
 			return true;
 		}
 

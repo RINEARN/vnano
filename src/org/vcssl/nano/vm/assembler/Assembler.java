@@ -75,25 +75,25 @@ public class Assembler {
 
 		StringBuilder codeBuilder = new StringBuilder();
 
-		String[] lines = assemblyCode.split(ASSEMBLY_WORD.INSTRUCTION_SEPARATOR_REGEX);
+		String[] lines = assemblyCode.split(ASSEMBLY_WORD.instructionSeparatorRegex);
 		int lineLength = lines.length;
 
 		for (int lineIndex=0; lineIndex<lineLength; lineIndex++) {
 
 			String line = lines[lineIndex];
 			codeBuilder.append(line);
-			codeBuilder.append(ASSEMBLY_WORD.INSTRUCTION_SEPARATOR);
+			codeBuilder.append(ASSEMBLY_WORD.instructionSeparator);
 
 			line = line.trim();
 			String nopCode
-				= ASSEMBLY_WORD.LINE_SEPARATOR
-				+ ASSEMBLY_WORD.WORD_SEPARATOR
+				= ASSEMBLY_WORD.lineSeparator
+				+ ASSEMBLY_WORD.wordSeparator
 				+ OperationCode.NOP.name()
-				+ ASSEMBLY_WORD.WORD_SEPARATOR
-				+ DATA_TYPE_NAME.VOID
-				+ ASSEMBLY_WORD.WORD_SEPARATOR
-				+ ASSEMBLY_WORD.OPERAND_PREFIX_PLACEHOLDER
-				+ ASSEMBLY_WORD.INSTRUCTION_SEPARATOR
+				+ ASSEMBLY_WORD.wordSeparator
+				+ DATA_TYPE_NAME.voidPlaceholder
+				+ ASSEMBLY_WORD.wordSeparator
+				+ ASSEMBLY_WORD.placeholderOperandPrefix
+				+ ASSEMBLY_WORD.instructionSeparator
 				;
 
 			// 空行
@@ -102,12 +102,12 @@ public class Assembler {
 			}
 
 			// ラベルディレクティブの場合はNOPを置く
-			if (line.startsWith(ASSEMBLY_WORD.LABEL_DIRECTIVE)) {
+			if (line.startsWith(ASSEMBLY_WORD.labelDirective)) {
 				codeBuilder.append(nopCode);
 				continue;
 			}
 
-			String[] words = line.split(ASSEMBLY_WORD.WORD_SEPARATOR_REGEX);
+			String[] words = line.split(ASSEMBLY_WORD.wordSeparatorRegex);
 			String operationCode = words[0];
 
 			// CALL命令の場合はNOPを置く
@@ -154,7 +154,7 @@ public class Assembler {
 
 		int constantAddress = 0;
 
-		String[] lines = assemblyCode.split(ASSEMBLY_WORD.INSTRUCTION_SEPARATOR_REGEX);
+		String[] lines = assemblyCode.split(ASSEMBLY_WORD.instructionSeparatorRegex);
 		int lineLength = lines.length;
 
 		int metaAddress = -1;
@@ -169,20 +169,20 @@ public class Assembler {
 				continue;
 			}
 
-			String[] words = line.split(ASSEMBLY_WORD.WORD_SEPARATOR_REGEX);
+			String[] words = line.split(ASSEMBLY_WORD.wordSeparatorRegex);
 			int wordLength = words.length;
 
 			// メタディレクティブ -> 内容を控える定数データを生成
-			if (line.startsWith(ASSEMBLY_WORD.META_DIRECTIVE)) {
+			if (line.startsWith(ASSEMBLY_WORD.metaDirective)) {
 
 				// 前処理で番号化された文字列リテラルから、元の文字列リテラルに戻す
 				int stringLiteralIndex = LITERAL_SYNTAX.getIndexOfNumberedStringLiteral(words[1].trim());
 				String originalStringLiteral = stringLiteralExtractResult[ stringLiteralIndex ];
 
 				String metaImmediateValue
-					= Character.toString(ASSEMBLY_WORD.OPERAND_PREFIX_IMMEDIATE)
+					= Character.toString(ASSEMBLY_WORD.immediateOperandPrefix)
 					+ DATA_TYPE_NAME.getDataTypeNameOf(DataType.STRING)
-					+ ASSEMBLY_WORD.VALUE_SEPARATOR
+					+ ASSEMBLY_WORD.valueSeparator
 					+ originalStringLiteral;
 				intermediateCode.addConstantData(metaImmediateValue, constantAddress);
 				metaAddress = constantAddress;
@@ -192,14 +192,14 @@ public class Assembler {
 
 				continue;
 
-			} else if (line.startsWith(Character.toString(ASSEMBLY_WORD.DIRECTIVE_PREFIX))) {
+			} else if (line.startsWith(Character.toString(ASSEMBLY_WORD.directivePrefix))) {
 				continue;
 			}
 
 
 			OperationCode operationCode = OperationCode.valueOf(words[0]);
 
-			String[] dataTypeNames = words[1].split(ASSEMBLY_WORD.VALUE_SEPARATOR_REGEX);
+			String[] dataTypeNames = words[1].split(ASSEMBLY_WORD.valueSeparatorRegex);
 			int dataTypeLength = dataTypeNames.length;
 			DataType[] dataTypes = new DataType[dataTypeLength];
 			for (int dataTypeIndex=0; dataTypeIndex<dataTypeLength; dataTypeIndex++) {
@@ -227,7 +227,7 @@ public class Assembler {
 				char prefix = word.charAt(0); // 先頭の文字がアドレスタイプに対応している
 
 				// switch 文は使えない
-				if (prefix == ASSEMBLY_WORD.OPERAND_PREFIX_IMMEDIATE) {
+				if (prefix == ASSEMBLY_WORD.immediateOperandPrefix) {
 						if (intermediateCode.containsConstantData(word)) {
 							operandAddresses[operandIndex] = intermediateCode.getConstantDataAddress(word);
 						} else {
@@ -247,7 +247,7 @@ public class Assembler {
 						}
 						operandAddressTypes[operandIndex] = Memory.Partition.CONSTANT;
 
-				} else if (prefix == ASSEMBLY_WORD.OPERAND_PREFIX_REGISTER) {
+				} else if (prefix == ASSEMBLY_WORD.registerOperandOprefix) {
 
 						String addressWord = word.substring(1, word.length());
 						int registerAddress = Integer.parseInt(addressWord);
@@ -260,7 +260,7 @@ public class Assembler {
 							registerMaxAddress = operandAddresses[operandIndex];
 						}
 
-				} else if (prefix == ASSEMBLY_WORD.OPERAND_PREFIX_IDENTIFIER) {
+				} else if (prefix == ASSEMBLY_WORD.identifierOperandPrefix) {
 
 						// ローカル変数の場合はローカルデータアドレスに変換(グローバルよりも優先)
 						if (intermediateCode.containsLocalVariable(word)) {
@@ -280,9 +280,9 @@ public class Assembler {
 							int functionAddress = intermediateCode.getFunctionAddress(word);
 
 							String functionAddressImmediateValue
-									= Character.toString(ASSEMBLY_WORD.OPERAND_PREFIX_IMMEDIATE)
+									= Character.toString(ASSEMBLY_WORD.immediateOperandPrefix)
 									+ DATA_TYPE_NAME.getDataTypeNameOf(DataType.INT64)
-									+ ASSEMBLY_WORD.VALUE_SEPARATOR
+									+ ASSEMBLY_WORD.valueSeparator
 									+ Integer.toString(functionAddress);
 
 							operandAddressTypes[operandIndex] = Memory.Partition.CONSTANT;
@@ -294,14 +294,14 @@ public class Assembler {
 							throw new VnanoFatalException("Undefined identifier has detected in operands: " + word);
 						}
 
-				} else if (prefix == ASSEMBLY_WORD.OPERAND_PREFIX_LABEL) {
+				} else if (prefix == ASSEMBLY_WORD.labelOperandPrefix) {
 
 						int labelAddress = intermediateCode.getLabelAddress(word);
 
 						String functionAddressImmediateValue
-								= Character.toString(ASSEMBLY_WORD.OPERAND_PREFIX_IMMEDIATE)
+								= Character.toString(ASSEMBLY_WORD.immediateOperandPrefix)
 								+ DATA_TYPE_NAME.getDataTypeNameOf(DataType.INT64)
-								+ ASSEMBLY_WORD.VALUE_SEPARATOR
+								+ ASSEMBLY_WORD.valueSeparator
 								+ Integer.toString(labelAddress);
 
 						operandAddressTypes[operandIndex] = Memory.Partition.CONSTANT;
@@ -309,7 +309,7 @@ public class Assembler {
 						intermediateCode.addConstantData(functionAddressImmediateValue, constantAddress);
 						constantAddress++;
 
-				} else if (prefix == ASSEMBLY_WORD.OPERAND_PREFIX_PLACEHOLDER) {
+				} else if (prefix == ASSEMBLY_WORD.placeholderOperandPrefix) {
 						operandAddresses[operandIndex] = 0;
 						operandAddressTypes[operandIndex] = Memory.Partition.NONE;
 				}
@@ -335,7 +335,7 @@ public class Assembler {
 	 */
 	private DataType getDataTypeOfImmediateValueLiteral(String immediateValueLiteral) throws VnanoException {
 
-		int separatorIndex = immediateValueLiteral.indexOf(ASSEMBLY_WORD.VALUE_SEPARATOR);
+		int separatorIndex = immediateValueLiteral.indexOf(ASSEMBLY_WORD.valueSeparator);
 		String dataTypeName = immediateValueLiteral.substring(1, separatorIndex);
 
 		DataType dataType = DATA_TYPE_NAME.getDataTypeOf(dataTypeName);
@@ -349,7 +349,7 @@ public class Assembler {
 	 * @return 読みとった値部分
 	 */
 	private String getValuePartOfImmediateValueLiteral(String immediateValueLiteral) {
-		int separatorIndex = immediateValueLiteral.indexOf(ASSEMBLY_WORD.VALUE_SEPARATOR);
+		int separatorIndex = immediateValueLiteral.indexOf(ASSEMBLY_WORD.valueSeparator);
 		String valuePart = immediateValueLiteral.substring(separatorIndex+1, immediateValueLiteral.length());
 		return valuePart;
 	}
@@ -362,9 +362,9 @@ public class Assembler {
 	 * @return 置き換え後の即値リテラル（データ型部は保たれます）
 	 */
 	private String replaceImmediateValue(String immediateValueLiteral, String newValue) {
-		int separatorIndex = immediateValueLiteral.indexOf(ASSEMBLY_WORD.VALUE_SEPARATOR);
+		int separatorIndex = immediateValueLiteral.indexOf(ASSEMBLY_WORD.valueSeparator);
 		String frontPart = immediateValueLiteral.substring(0, separatorIndex);
-		String newLiteral = frontPart + ASSEMBLY_WORD.VALUE_SEPARATOR + newValue;
+		String newLiteral = frontPart + ASSEMBLY_WORD.valueSeparator + newValue;
 		return newLiteral;
 	}
 
@@ -387,7 +387,7 @@ public class Assembler {
 
 		int localAddress = 0;
 
-		String[] lines = assemblyCode.split(ASSEMBLY_WORD.INSTRUCTION_SEPARATOR_REGEX);
+		String[] lines = assemblyCode.split(ASSEMBLY_WORD.instructionSeparatorRegex);
 		int lineLength = lines.length;
 
 		int instructionIndex = 0;
@@ -398,17 +398,17 @@ public class Assembler {
 			if (line.length() == 0) {
 				continue;
 			}
-			String[] words = line.split(ASSEMBLY_WORD.WORD_SEPARATOR_REGEX);
+			String[] words = line.split(ASSEMBLY_WORD.wordSeparatorRegex);
 
 			// ローカルディレクティブ
-			if (line.startsWith(ASSEMBLY_WORD.LOCAL_VARIABLE_DIRECTIVE)) {
+			if (line.startsWith(ASSEMBLY_WORD.localVariableDirective)) {
 				String identifier = words[1];
 				assembledObject.addLocalVariable(identifier, localAddress);
 				localAddress++;
 			}
 
 			// グローバルディレクティブ
-			if (line.startsWith(ASSEMBLY_WORD.GLOBAL_VARIABLE_DIRECTIVE)) {
+			if (line.startsWith(ASSEMBLY_WORD.globalVariableDirective)) {
 				String identifier = words[1];
 				AbstractVariable variable = globalVariableTable.getVariableByAssemblyIdentifier(identifier);
 				int globalAddress = globalVariableTable.indexOf(variable);
@@ -416,7 +416,7 @@ public class Assembler {
 			}
 
 			// 関数ディレクティブ
-			if (line.startsWith(ASSEMBLY_WORD.GLOBAL_FUNCTION_DIRECTIVE)) {
+			if (line.startsWith(ASSEMBLY_WORD.globalFunctionDirective)) {
 				String identifier = words[1];
 				String signature = identifier.substring(1, identifier.length()); // 先頭文字は識別子プレフィックスなので除去
 				AbstractFunction function = functionTable.getFunctionBySignature(signature);
@@ -425,12 +425,12 @@ public class Assembler {
 			}
 
 			// ラベルディレクティブ
-			if (line.startsWith(ASSEMBLY_WORD.LABEL_DIRECTIVE)) {
+			if (line.startsWith(ASSEMBLY_WORD.labelDirective)) {
 				String identifier = words[1];
 				assembledObject.addLabel(identifier, instructionIndex);
 			}
 
-			if (!line.startsWith(Character.toString(ASSEMBLY_WORD.DIRECTIVE_PREFIX))) {
+			if (!line.startsWith(Character.toString(ASSEMBLY_WORD.directivePrefix))) {
 				instructionIndex++;
 			}
 		}

@@ -238,7 +238,7 @@ public final class AcceleratorDataManagementUnit {
 								break;
 							}
 							case BOOL : {
-								//System.out.println("CACHE BOOL " + partitions[0] + " / " + addresses[0]);
+								//System.out.println("CACHE bool " + partitions[0] + " / " + addresses[0]);
 								this.caches[ partitions[0].ordinal() ][ addresses[0] ] = new BoolScalarCache();
 								this.cachingEnabled[ partitions[0].ordinal() ][ addresses[0] ] = true;
 								break;
@@ -269,7 +269,7 @@ public final class AcceleratorDataManagementUnit {
 								break;
 							}
 							case BOOL : {
-								//System.out.println("CACHE BOOL " + partitions[0] + " / " + addresses[0]);
+								//System.out.println("CACHE bool " + partitions[0] + " / " + addresses[0]);
 								this.caches[ partitions[0].ordinal() ][ addresses[0] ] = new BoolScalarCache();
 								this.cachingEnabled[ partitions[0].ordinal() ][ addresses[0] ] = true;
 								break;

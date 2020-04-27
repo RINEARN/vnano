@@ -75,7 +75,7 @@ public class VariableTable implements Cloneable {
 	public void addVariable(AbstractVariable variable) {
 		String nameSpacePrefix = "";
 		if (variable.hasNameSpace()) {
-			nameSpacePrefix = variable.getNameSpace() + SCRIPT_WORD.NAME_SPACE_SEPARATOR;
+			nameSpacePrefix = variable.getNameSpace() + SCRIPT_WORD.nameSpaceSeparator;
 		}
 		String varName = variable.getVariableName();
 		String asmName = IDENTIFIER_SYNTAX.getAssemblyIdentifierOf(variable);
@@ -99,7 +99,7 @@ public class VariableTable implements Cloneable {
 		AbstractVariable variable = this.variableList.getLast();
 		String nameSpacePrefix = "";
 		if (variable.hasNameSpace()) {
-			nameSpacePrefix = variable.getNameSpace() + SCRIPT_WORD.NAME_SPACE_SEPARATOR;
+			nameSpacePrefix = variable.getNameSpace() + SCRIPT_WORD.nameSpaceSeparator;
 		}
 		String varName = variable.getVariableName();
 		String asmName = IDENTIFIER_SYNTAX.getAssemblyIdentifierOf(variable);

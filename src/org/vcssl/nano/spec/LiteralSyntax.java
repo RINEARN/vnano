@@ -61,7 +61,7 @@ public class LiteralSyntax {
 	 * <span class="lang-ja">bool 型のリテラル値 true です</span>
 	 * .
 	 */
-	public String TRUE = "true";
+	public String trueValue = "true";
 
 
 	/**
@@ -69,7 +69,7 @@ public class LiteralSyntax {
 	 * <span class="lang-ja">bool 型のリテラル値 false です</span>
 	 * .
 	 */
-	public String FALSE = "false";
+	public String falseValue = "false";
 
 
 	/**
@@ -77,7 +77,7 @@ public class LiteralSyntax {
 	 * <span class="lang-ja">int 型リテラルの正規表現です</span>
 	 * .
 	 */
-	private String INT_LITERAL_REGEX = "^(\\+|-)?[0-9]+$";
+	private String intLiteralRegex = "^(\\+|-)?[0-9]+$";
 
 
 	/**
@@ -85,7 +85,7 @@ public class LiteralSyntax {
 	 * <span class="lang-ja">float 型リテラルの正規表現です</span>
 	 * .
 	 */
-	private String FLOAT_LITERAL_REGEX =
+	private String floatLiteralRegex =
 		"^(\\+|-)?([0-9]+(d|f|D|F))|((([0-9]+\\.[0-9]*)|([0-9]*\\.[0-9]+))(((e|E)(\\+|-)?[0-9]+)|)|([0-9]*\\.?[0-9]+)(e|E)(\\+|-)?[0-9]+)(d|f|D|F)?$";
 
 
@@ -94,7 +94,7 @@ public class LiteralSyntax {
 	 * <span class="lang-ja">bool 型リテラルの正規表現です</span>
 	 * .
 	 */
-	private String BOOL_LITERAL_REGEX = "^" + TRUE + "|" + FALSE + "$";
+	private String boolLiteralRegex = "^" + trueValue + "|" + falseValue + "$";
 
 
 	/**
@@ -102,7 +102,7 @@ public class LiteralSyntax {
 	 * <span class="lang-ja">文字列型リテラルの始点・終点記号「 " 」です</span>
 	 * .
 	 */
-	public char STRING_LITERAL_QUOTATION = '"';
+	public char stringLiteralQuot = '"';
 
 
 	/**
@@ -110,7 +110,7 @@ public class LiteralSyntax {
 	 * <span class="lang-ja">文字列型リテラル内のエスケープシーケンスのプレフィックス記号「 \ 」です</span>
 	 * .
 	 */
-	public char STRING_LITERAL_ESCAPE = '\\';
+	public char stringLiteralEscape = '\\';
 
 
 	/**
@@ -155,22 +155,22 @@ public class LiteralSyntax {
 
 		int literalLength = literal.length();
 
-		if (literal.matches(INT_LITERAL_REGEX)) {
-			return DATA_TYPE_NAME.INT;
+		if (literal.matches(intLiteralRegex)) {
+			return DATA_TYPE_NAME.defaultInt;
 		}
 
-		if (literal.matches(FLOAT_LITERAL_REGEX)) {
-			return DATA_TYPE_NAME.FLOAT;
+		if (literal.matches(floatLiteralRegex)) {
+			return DATA_TYPE_NAME.defaultFloat;
 		}
 
-		if (literal.matches(BOOL_LITERAL_REGEX)) {
-			return DATA_TYPE_NAME.BOOL;
+		if (literal.matches(boolLiteralRegex)) {
+			return DATA_TYPE_NAME.bool;
 		}
 
-		if (literal.charAt(0) == STRING_LITERAL_QUOTATION
-				&& literal.charAt(literalLength-1) == STRING_LITERAL_QUOTATION
+		if (literal.charAt(0) == stringLiteralQuot
+				&& literal.charAt(literalLength-1) == stringLiteralQuot
 				&& literal.length()>=2) {
-			return DATA_TYPE_NAME.STRING;
+			return DATA_TYPE_NAME.string;
 		}
 
 		throw new VnanoFatalException("Invalid literal: " + literal);
@@ -221,7 +221,7 @@ public class LiteralSyntax {
 			// エスケープ文字があった場合はフラグに記録し、すぐに次へ進む。
 			// ただし、エスケープ文字をエスケープしている場合もあるので、
 			// 直前がエスケープ文字であった場合はこの処理は飛ばす
-			if (chars[i] == STRING_LITERAL_ESCAPE && !previousIsEscapeChar) {
+			if (chars[i] == stringLiteralEscape && !previousIsEscapeChar) {
 				previousIsEscapeChar = true;
 				continue;
 
@@ -286,14 +286,14 @@ public class LiteralSyntax {
 		for (int i=0; i<charLength; i++) {
 
 			// 文字列リテラルの始点・終点記号の場合に行う処理（エスケープ文字直後は行わない）
-			if (chars[i] == STRING_LITERAL_QUOTATION && !previousIsEscapeChar) {
+			if (chars[i] == stringLiteralQuot && !previousIsEscapeChar) {
 
 				// 文字列リテラル終了
 				if (inLiteral) {
 					inLiteral = false;
 
 					// 読み進めていたリテラルを閉じて取り出す
-					literalBuilder.append(STRING_LITERAL_QUOTATION);
+					literalBuilder.append(stringLiteralQuot);
 					String literal = literalBuilder.toString();
 					literalBuilder = null;
 
@@ -301,9 +301,9 @@ public class LiteralSyntax {
 					literalList.add(literal);
 
 					// 抽出済みコードに番号化リテラルを追記し、番号を進める
-					resultCodeBuilder.append(STRING_LITERAL_QUOTATION);
+					resultCodeBuilder.append(stringLiteralQuot);
 					resultCodeBuilder.append(literalNumber);
-					resultCodeBuilder.append(STRING_LITERAL_QUOTATION);
+					resultCodeBuilder.append(stringLiteralQuot);
 					literalNumber++;
 
 				// 文字列リテラル開始
@@ -312,7 +312,7 @@ public class LiteralSyntax {
 
 					// バッファを生成してリテラル開始記号を追記
 					literalBuilder = new StringBuilder();
-					literalBuilder.append(STRING_LITERAL_QUOTATION);
+					literalBuilder.append(stringLiteralQuot);
 				}
 				continue;
 			}
@@ -322,8 +322,8 @@ public class LiteralSyntax {
 			// リテラルに追記し、すぐに次へ進む。
 			// ただし、エスケープ文字をエスケープしている場合もあるので、
 			// 直前がエスケープ文字であった場合はこの処理は飛ばす
-			if (inLiteral && chars[i] == STRING_LITERAL_ESCAPE && !previousIsEscapeChar) {
-				literalBuilder.append(STRING_LITERAL_ESCAPE);
+			if (inLiteral && chars[i] == stringLiteralEscape && !previousIsEscapeChar) {
+				literalBuilder.append(stringLiteralEscape);
 				previousIsEscapeChar = true;
 				continue;
 

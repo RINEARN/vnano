@@ -149,10 +149,10 @@ public class CodeGenerator {
 		this.LITERAL_SYNTAX = langSpec.LITERAL_SYNTAX;
 		this.DATA_TYPE_NAME = langSpec.DATA_TYPE_NAME;
 
-		this.IMMEDIATE_TRUE = ASSEMBLY_WORD.OPERAND_PREFIX_IMMEDIATE + DATA_TYPE_NAME.BOOL
-				+ ASSEMBLY_WORD.VALUE_SEPARATOR + LITERAL_SYNTAX.TRUE;
+		this.IMMEDIATE_TRUE = ASSEMBLY_WORD.immediateOperandPrefix + DATA_TYPE_NAME.bool
+				+ ASSEMBLY_WORD.valueSeparator + LITERAL_SYNTAX.trueValue;
 
-		this.PLACE_HOLDER = Character.toString(ASSEMBLY_WORD.OPERAND_PREFIX_PLACEHOLDER);
+		this.PLACE_HOLDER = Character.toString(ASSEMBLY_WORD.placeholderOperandPrefix);
 
 		this.registerCounter = 0;
 		this.labelCounter = 0;
@@ -525,7 +525,7 @@ public class CodeGenerator {
 				if(isLeaf && leafType == AttributeValue.FUNCTION_IDENTIFIER) {
 					AstNode callOperatorNode = currentNode.getParentNode();
 					String calleeSignature = callOperatorNode.getAttribute(AttributeKey.CALLEE_SIGNATURE);
-					String assemblyValue = ASSEMBLY_WORD.OPERAND_PREFIX_IDENTIFIER + calleeSignature;
+					String assemblyValue = ASSEMBLY_WORD.identifierOperandPrefix + calleeSignature;
 					//String assemblyValue = IdentifierSyntax.getAssemblyIdentifierOfCalleeFunctionOf(callOperatorNode);
 					currentNode.setAttribute(AttributeKey.ASSEMBLY_VALUE, assemblyValue);
 
@@ -534,7 +534,7 @@ public class CodeGenerator {
 					String identifier = currentNode.getAttribute(AttributeKey.IDENTIFIER_VALUE);
 					String assemblyValue = IDENTIFIER_SYNTAX.getAssemblyIdentifierOf(identifier);
 					if (currentNode.hasAttribute(AttributeKey.IDENTIFIER_SERIAL_NUMBER)) {
-						assemblyValue += ASSEMBLY_WORD.IDENTIFIER_SERIAL_NUMBER_SEPARATOR
+						assemblyValue += ASSEMBLY_WORD.identifierSerialNumberSeparator
 						              + currentNode.getAttribute(AttributeKey.IDENTIFIER_SERIAL_NUMBER);
 					}
 					currentNode.setAttribute(AttributeKey.ASSEMBLY_VALUE, assemblyValue);
@@ -578,7 +578,7 @@ public class CodeGenerator {
 					// (それ以外の算術演算子は下の default へ)
 					case AttributeValue.ARITHMETIC : {
 						if (syntaxType.equals(AttributeValue.PREFIX)) {
-							if (operatorSymbol.equals(SCRIPT_WORD.INCREMENT) || operatorSymbol.equals(SCRIPT_WORD.DECREMENT)) {
+							if (operatorSymbol.equals(SCRIPT_WORD.increment) || operatorSymbol.equals(SCRIPT_WORD.decrement)) {
 								String value = currentNode.getChildNodes()[0].getAttribute(AttributeKey.ASSEMBLY_VALUE);
 								currentNode.setAttribute(AttributeKey.ASSEMBLY_VALUE, value);
 								break;
@@ -588,7 +588,7 @@ public class CodeGenerator {
 
 					// 上記以外の場合、その演算子の値は、個別のレジスタを予約して控える
 					default : {
-						String register = ASSEMBLY_WORD.OPERAND_PREFIX_REGISTER + Integer.toString(registerCounter);
+						String register = ASSEMBLY_WORD.registerOperandOprefix + Integer.toString(registerCounter);
 						currentNode.setAttribute(AttributeKey.ASSEMBLY_VALUE, register);
 
 						// 対象レジスタが、このノードのために専用予約したレジスタであるという事を NEW_REGISTER 属性に記載する
@@ -647,7 +647,7 @@ public class CodeGenerator {
 			// 演算子ノード
 			if (currentNode.getType() == AstNode.Type.OPERATOR) {
 				String symbol = currentNode.getAttribute(AttributeKey.OPERATOR_SYMBOL);
-				if (symbol.equals(SCRIPT_WORD.SHORT_CIRCUIT_AND) || symbol.equals(SCRIPT_WORD.SHORT_CIRCUIT_OR)) {
+				if (symbol.equals(SCRIPT_WORD.shortCircuitAnd) || symbol.equals(SCRIPT_WORD.shortCircuitOr)) {
 					// 短絡評価で第二オペランドの演算をスキップする場合のラベル
 					currentNode.setAttribute(AttributeKey.END_LABEL, this.generateLabelOperandCode());
 				}
@@ -780,7 +780,7 @@ public class CodeGenerator {
 				// ループの先頭に戻るJMP命令など
 				if (context.hasBeginPointLabel()) {
 					String jumpCode = this.generateInstruction(
-							OperationCode.JMP.name(), DATA_TYPE_NAME.BOOL,
+							OperationCode.JMP.name(), DATA_TYPE_NAME.bool,
 							PLACE_HOLDER, context.getBeginPointLabel(), IMMEDIATE_TRUE
 					);
 					codeBuilder.append(jumpCode);
@@ -848,23 +848,23 @@ public class CodeGenerator {
 
 				// 関数先頭のラベルを生成 ... 先頭はラベルである事を示すプレフィックス、その後に識別子プレフィックス + 関数シグネチャ
 				String signature = IDENTIFIER_SYNTAX.getSignatureOf(node);
-				String functionLabelName = Character.toString(ASSEMBLY_WORD.OPERAND_PREFIX_LABEL)
-					+ Character.toString(ASSEMBLY_WORD.OPERAND_PREFIX_IDENTIFIER) + signature;
+				String functionLabelName = Character.toString(ASSEMBLY_WORD.labelOperandPrefix)
+					+ Character.toString(ASSEMBLY_WORD.identifierOperandPrefix) + signature;
 
 				// 関数宣言コードを生成
 				code = this.generateFunctionDeclarationStatementCode(node, functionLabelName);
 
 				// 関数シグネチャを ENDFUNC 命令（すぐ下で生成）のオペランドに渡すため、文字列の即値の記法で表現したものを用意
-				String functionNameOperand = ASSEMBLY_WORD.OPERAND_PREFIX_IMMEDIATE
-						+ DATA_TYPE_NAME.STRING + ASSEMBLY_WORD.VALUE_SEPARATOR
-						+ LITERAL_SYNTAX.STRING_LITERAL_QUOTATION + signature + LITERAL_SYNTAX.STRING_LITERAL_QUOTATION;
+				String functionNameOperand = ASSEMBLY_WORD.immediateOperandPrefix
+						+ DATA_TYPE_NAME.string + ASSEMBLY_WORD.valueSeparator
+						+ LITERAL_SYNTAX.stringLiteralQuot + signature + LITERAL_SYNTAX.stringLiteralQuot;
 
 				// 関数終端の処理を生成: 通常は ENDFUN 命令のみで、return 忘れなどで処理がこの命令に達するとエラーが発生する。
 				// ただし void 型の関数では、関数終端に return 文があると見なし、ENDFUN命令の直前に RET 命令を置く。
-				String endPointStatement = this.generateInstruction(OperationCode.ENDFUN.name(), DATA_TYPE_NAME.STRING, functionNameOperand);
-				if (node.getDataTypeName().equals(DATA_TYPE_NAME.VOID)) {
+				String endPointStatement = this.generateInstruction(OperationCode.ENDFUN.name(), DATA_TYPE_NAME.string, functionNameOperand);
+				if (node.getDataTypeName().equals(DATA_TYPE_NAME.voidPlaceholder)) {
 					endPointStatement = this.generateInstruction(
-						OperationCode.RET.name(), DATA_TYPE_NAME.VOID, PLACE_HOLDER, functionLabelName
+						OperationCode.RET.name(), DATA_TYPE_NAME.voidPlaceholder, PLACE_HOLDER, functionLabelName
 					) + endPointStatement;
 				}
 
@@ -935,7 +935,7 @@ public class CodeGenerator {
 			// break 文: 1階層外のループ末端へのジャンプ命令そのもの
 			case BREAK : {
 				code = this.generateInstruction(
-					OperationCode.JMP.name(), DATA_TYPE_NAME.BOOL, PLACE_HOLDER, context.getOuterLoopEndPointLabel(), IMMEDIATE_TRUE
+					OperationCode.JMP.name(), DATA_TYPE_NAME.bool, PLACE_HOLDER, context.getOuterLoopEndPointLabel(), IMMEDIATE_TRUE
 				);
 				break;
 			}
@@ -947,7 +947,7 @@ public class CodeGenerator {
 					continueJumpPointLabel = context.getOuterLoopUpdatePointLabel(); // for文は更新式の位置に飛ぶ
 				}
 				code = this.generateInstruction(
-					OperationCode.JMP.name(), DATA_TYPE_NAME.BOOL, PLACE_HOLDER, continueJumpPointLabel, IMMEDIATE_TRUE
+					OperationCode.JMP.name(), DATA_TYPE_NAME.bool, PLACE_HOLDER, continueJumpPointLabel, IMMEDIATE_TRUE
 				);
 				break;
 			}
@@ -985,15 +985,15 @@ public class CodeGenerator {
 
 		StringBuilder codeBuilder = new StringBuilder();
 		//String variableName= node.getAttribute(AttributeKey.IDENTIFIER_VALUE);
-		//String variableOperand = AssemblyWord.OPERAND_PREFIX_IDENTIFIER+variableName;
+		//String variableOperand = AssemblyWord.identifierOperandPrefix+variableName;
 		String variableOperand = node.getAttribute(AttributeKey.ASSEMBLY_VALUE);
 
 		// 識別子ディレクティブを生成
-		codeBuilder.append(ASSEMBLY_WORD.LOCAL_VARIABLE_DIRECTIVE);
-		codeBuilder.append(ASSEMBLY_WORD.WORD_SEPARATOR);
+		codeBuilder.append(ASSEMBLY_WORD.localVariableDirective);
+		codeBuilder.append(ASSEMBLY_WORD.wordSeparator);
 		codeBuilder.append(variableOperand);
-		codeBuilder.append(ASSEMBLY_WORD.INSTRUCTION_SEPARATOR);
-		codeBuilder.append(ASSEMBLY_WORD.LINE_SEPARATOR);
+		codeBuilder.append(ASSEMBLY_WORD.instructionSeparator);
+		codeBuilder.append(ASSEMBLY_WORD.lineSeparator);
 
 		// 先に子ノードを処理し、型情報や配列要素数などを取得
 		String variableType = node.getDataTypeName();
@@ -1057,7 +1057,7 @@ public class CodeGenerator {
 		// 関数の外側のコードを上から逐次実行されている時に、関数内のコードを実行せず読み飛ばすためのJMP命令を生成
 		String skipLabel = node.getAttribute(AttributeKey.END_LABEL);
 		codeBuilder.append(
-			this.generateInstruction(OperationCode.JMP.name(), DATA_TYPE_NAME.BOOL, PLACE_HOLDER, skipLabel, IMMEDIATE_TRUE)
+			this.generateInstruction(OperationCode.JMP.name(), DATA_TYPE_NAME.bool, PLACE_HOLDER, skipLabel, IMMEDIATE_TRUE)
 		);
 
 		// 関数先頭ラベルを配置
@@ -1077,19 +1077,19 @@ public class CodeGenerator {
 
 			// ALLOCT 命令（生成箇所のコメント参照）に渡すオペランド: 対象データの後に次元の数だけ 0 を並べる
 			String[] alloctOperands = new String[argRank+1];
-			Arrays.fill(alloctOperands, this.generateImmediateOperandCode(DATA_TYPE_NAME.INT, "0") );
+			Arrays.fill(alloctOperands, this.generateImmediateOperandCode(DATA_TYPE_NAME.defaultInt, "0") );
 			alloctOperands[0] = argIdentifier;
 
 			// 引数のローカル変数ディレクティブを生成
-			codeBuilder.append(ASSEMBLY_WORD.LOCAL_VARIABLE_DIRECTIVE);
-			codeBuilder.append(ASSEMBLY_WORD.WORD_SEPARATOR);
+			codeBuilder.append(ASSEMBLY_WORD.localVariableDirective);
+			codeBuilder.append(ASSEMBLY_WORD.wordSeparator);
 			codeBuilder.append(argIdentifier);
-			codeBuilder.append(ASSEMBLY_WORD.INSTRUCTION_SEPARATOR);
-			codeBuilder.append(ASSEMBLY_WORD.LINE_SEPARATOR);
+			codeBuilder.append(ASSEMBLY_WORD.instructionSeparator);
+			codeBuilder.append(ASSEMBLY_WORD.lineSeparator);
 
 			// 参照渡しの場合 ... メモリ上のデータ領域の新規確保は不要
 			if (argNode.hasAttribute(AttributeKey.MODIFIER)
-					&& argNode.getAttribute(AttributeKey.MODIFIER).contains(SCRIPT_WORD.REFERENCE) ) {
+					&& argNode.getAttribute(AttributeKey.MODIFIER).contains(SCRIPT_WORD.refModifier) ) {
 
 				// スタックを介するデータはコード上での型情報把握が難しいので、可読性や最適化時のため ALLOCT 命令で型情報を明示
 				codeBuilder.append(
@@ -1129,7 +1129,7 @@ public class CodeGenerator {
 	/**
 	 * return文の処理を実行するコードを生成して返します。
 	 *
-	 * @param node return文のASTノード（{@link AstNode.Type#RETURN RETURN}タイプ）
+	 * @param node return文のASTノード（{@link AstNode.Type#RETURN returnStatement}タイプ）
 	 * @param functionLabelName このreturn文が属する関数のラベル名
 	 * @return 生成コード
 	 */
@@ -1142,7 +1142,7 @@ public class CodeGenerator {
 		// 戻り値が無い場合
 		if (childNodes.length == 0) {
 			codeBuilder.append(
-				this.generateInstruction(OperationCode.RET.name(), DATA_TYPE_NAME.VOID, PLACE_HOLDER, functionLabelName)
+				this.generateInstruction(OperationCode.RET.name(), DATA_TYPE_NAME.voidPlaceholder, PLACE_HOLDER, functionLabelName)
 			);
 
 		// 戻り値がある場合 ... 戻り値の式を解釈し、その結果をオペランドに追加したRET命令を生成
@@ -1152,7 +1152,7 @@ public class CodeGenerator {
 			String exprCode = this.generateExpressionCode(exprNode);
 			codeBuilder.append(exprCode);
 			codeBuilder.append(
-				this.generateInstruction(OperationCode.RET.name(), DATA_TYPE_NAME.VOID, PLACE_HOLDER, functionLabelName, exprValue)
+				this.generateInstruction(OperationCode.RET.name(), DATA_TYPE_NAME.voidPlaceholder, PLACE_HOLDER, functionLabelName, exprValue)
 			);
 		}
 
@@ -1175,7 +1175,7 @@ public class CodeGenerator {
 	 * 従って、if文の実行対象範囲のコード生成が終わった後に、
 	 * 終端ラベルを配置する必要があります。
 	 *
-	 * @param node if文のASTノード（{@link AstNode.Type#IF IF}タイプ）
+	 * @param node if文のASTノード（{@link AstNode.Type#IF ifStatement}タイプ）
 	 * @param lastIfConditionRegister 文を実行していく過程で、最後（直前）のif文の条件式結果を控えておくレジスタ
 	 * @param lastIfConditionRegisterAllocRequired 条件式結果を控えておくレジスタのメモリ確保(ALLOC)処理が必要かどうか
 	 * @return 生成コード
@@ -1196,10 +1196,10 @@ public class CodeGenerator {
 
 		// 条件式の結果を lastIfConditionRegister に控える (else文のコード生成で必要)
 		if (lastIfConditionRegisteAllocRequired) {
-			codeBuilder.append( this.generateInstruction(OperationCode.ALLOC.name(), DATA_TYPE_NAME.BOOL, lastIfConditionRegister));
+			codeBuilder.append( this.generateInstruction(OperationCode.ALLOC.name(), DATA_TYPE_NAME.bool, lastIfConditionRegister));
 		}
 		String lastIfConditionMovCode = this.generateInstruction(
-				OperationCode.MOV.name(), DATA_TYPE_NAME.BOOL,
+				OperationCode.MOV.name(), DATA_TYPE_NAME.bool,
 				lastIfConditionRegister, conditionExprNode.getAttribute(AttributeKey.ASSEMBLY_VALUE)
 		);
 		codeBuilder.append(lastIfConditionMovCode);
@@ -1208,7 +1208,7 @@ public class CodeGenerator {
 		String endLabel = node.getAttribute(AttributeKey.END_LABEL);
 		String conditionExprValue = conditionExprNode.getAttribute(AttributeKey.ASSEMBLY_VALUE);
 		codeBuilder.append(
-			this.generateInstruction(OperationCode.JMPN.name(), DATA_TYPE_NAME.BOOL, PLACE_HOLDER, endLabel, conditionExprValue)
+			this.generateInstruction(OperationCode.JMPN.name(), DATA_TYPE_NAME.bool, PLACE_HOLDER, endLabel, conditionExprValue)
 		);
 
 		return codeBuilder.toString();
@@ -1242,7 +1242,7 @@ public class CodeGenerator {
 		// 条件成立の時に末端ラベルへ飛ぶコードを生成
 		//（ else は直前の if 文が不成立だった場合に実行するので、成立していた場合は逆にelse末尾まで飛ぶ ）
 		codeBuilder.append(
-			this.generateInstruction(OperationCode.JMP.name(), DATA_TYPE_NAME.BOOL, PLACE_HOLDER, endLabel, lastIfConditionValue)
+			this.generateInstruction(OperationCode.JMP.name(), DATA_TYPE_NAME.bool, PLACE_HOLDER, endLabel, lastIfConditionValue)
 		);
 
 		return codeBuilder.toString();
@@ -1263,7 +1263,7 @@ public class CodeGenerator {
 	 * ループ終端ラベルは配置せず、ジャンプ系命令の移動先に使用するだけです。
 	 * 従って、ループ対象範囲のコード生成が終わった後に、ループ終端ラベルを配置する必要があります。
 	 *
-	 * @param node while文のASTノード（{@link AstNode.Type#WHILE WHILE}タイプ）
+	 * @param node while文のASTノード（{@link AstNode.Type#WHILE whileStatement}タイプ）
 	 * @return 生成コード
 	 */
 	private String generateWhileStatementCode(AstNode node) {
@@ -1287,7 +1287,7 @@ public class CodeGenerator {
 		// 条件不成立時はループ外に脱出するコードを生成
 		String conditionExprValue = conditionExprNode.getAttribute(AttributeKey.ASSEMBLY_VALUE);
 		codeBuilder.append(
-			this.generateInstruction(OperationCode.JMPN.name(), DATA_TYPE_NAME.BOOL, PLACE_HOLDER, endLabel, conditionExprValue)
+			this.generateInstruction(OperationCode.JMPN.name(), DATA_TYPE_NAME.bool, PLACE_HOLDER, endLabel, conditionExprValue)
 		);
 
 		return codeBuilder.toString();
@@ -1314,7 +1314,7 @@ public class CodeGenerator {
 	 * {@link CodeGenerator#generateExpressionCode generateExpressionCode} メソッド
 	 * で生成して配置する必要があります。
 	 *
-	 * @param node for文のASTノード（{@link AstNode.Type#FOR FOR}タイプ）
+	 * @param node for文のASTノード（{@link AstNode.Type#FOR forStatement}タイプ）
 	 * @return 生成コード
 	 */
 	private String generateForStatementCode(AstNode node) {
@@ -1365,7 +1365,7 @@ public class CodeGenerator {
 
 		// 条件不成立時はループ外に脱出するコードを生成
 		codeBuilder.append(
-			this.generateInstruction(OperationCode.JMPN.name(), DATA_TYPE_NAME.BOOL, PLACE_HOLDER, endLabel, conditionValue)
+			this.generateInstruction(OperationCode.JMPN.name(), DATA_TYPE_NAME.bool, PLACE_HOLDER, endLabel, conditionValue)
 		);
 
 		return codeBuilder.toString();
@@ -1467,21 +1467,21 @@ public class CodeGenerator {
 				String parentOperatorSymbol = currentNode.getParentNode().getAttribute(AttributeKey.OPERATOR_SYMBOL);
 
 				//「&&」と「||」演算子: 短絡評価により、左オペランドの値によっては右オペランドの演算をスキップする必要がある
-				if (parentOperatorSymbol.equals(SCRIPT_WORD.SHORT_CIRCUIT_AND) || parentOperatorSymbol.equals(SCRIPT_WORD.SHORT_CIRCUIT_OR)) {
+				if (parentOperatorSymbol.equals(SCRIPT_WORD.shortCircuitAnd) || parentOperatorSymbol.equals(SCRIPT_WORD.shortCircuitOr)) {
 
 					String jumpLabel = parentNode.getAttribute(AttributeKey.END_LABEL);
 					String leftOperandValue = currentNode.getAttribute(AttributeKey.ASSEMBLY_VALUE);
 
 					//スキップ用のジャンプ命令: || なら左オペランドがtrueの時に省略するのでJMP命令、&& ならその逆で JMPN 命令
 					String jumpOpcode = OperationCode.JMP.name();
-					if (parentOperatorSymbol.equals(SCRIPT_WORD.SHORT_CIRCUIT_AND)) {
+					if (parentOperatorSymbol.equals(SCRIPT_WORD.shortCircuitAnd)) {
 						jumpOpcode = OperationCode.JMPN.name();
 					}
 
 					// 左オペランドの場合: スキップ用のジャンプ系命令を置く
 					if (currentNode == parentNode.getChildNodes()[0]) {
 						codeBuilder.append(
-								this.generateInstruction(jumpOpcode, DATA_TYPE_NAME.BOOL, PLACE_HOLDER, jumpLabel, leftOperandValue)
+								this.generateInstruction(jumpOpcode, DATA_TYPE_NAME.bool, PLACE_HOLDER, jumpLabel, leftOperandValue)
 						);
 
 					// 右オペランド場合: スキップ地点のラベルを置く
@@ -1541,19 +1541,19 @@ public class CodeGenerator {
 		String opcode = null;
 
 		// switch は使えない。リファクタでHashMap にすべき？
-		if (operatorSymbol.equals(SCRIPT_WORD.PLUS)) {
+		if (operatorSymbol.equals(SCRIPT_WORD.plusOrAddition)) {
 			opcode = OperationCode.ADD.name();
 
-		} else if(operatorSymbol.equals(SCRIPT_WORD.MINUS)) {
+		} else if(operatorSymbol.equals(SCRIPT_WORD.minusOrSubtraction)) {
 			opcode = OperationCode.SUB.name();
 
-		} else if(operatorSymbol.equals(SCRIPT_WORD.MULTIPLICATION)) {
+		} else if(operatorSymbol.equals(SCRIPT_WORD.multiplication)) {
 			opcode = OperationCode.MUL.name();
 
-		} else if(operatorSymbol.equals(SCRIPT_WORD.DIVISION)) {
+		} else if(operatorSymbol.equals(SCRIPT_WORD.division)) {
 			opcode = OperationCode.DIV.name();
 
-		} else if(operatorSymbol.equals(SCRIPT_WORD.REMAINDER)) {
+		} else if(operatorSymbol.equals(SCRIPT_WORD.remainder)) {
 			opcode = OperationCode.REM.name();
 
 		} else {
@@ -1598,9 +1598,9 @@ public class CodeGenerator {
 		String opcode = null;
 
 		// switch は使えない。リファクタでHashMap にすべき？
-		if (operatorSymbol.equals(SCRIPT_WORD.INCREMENT)) {
+		if (operatorSymbol.equals(SCRIPT_WORD.increment)) {
 			opcode = OperationCode.ADD.name();
-		} else if(operatorSymbol.equals(SCRIPT_WORD.DECREMENT)) {
+		} else if(operatorSymbol.equals(SCRIPT_WORD.decrement)) {
 			opcode = OperationCode.SUB.name();
 		} else {
 			throw new VnanoFatalException("Invalid operator symbol for arithmetic postfix operators: " + operatorSymbol);
@@ -1611,10 +1611,10 @@ public class CodeGenerator {
 
 		stepNode.setAttribute(AttributeKey.DATA_TYPE, executionDataType);
 		stepNode.setAttribute(AttributeKey.RANK, Integer.toString(RANK_OF_SCALAR));
-		if (executionDataType.equals(DATA_TYPE_NAME.INT)) {
+		if (executionDataType.equals(DATA_TYPE_NAME.defaultInt)) {
 			String immediateValue = this.generateImmediateOperandCode(executionDataType, "1");
 			stepNode.setAttribute(AttributeKey.ASSEMBLY_VALUE, immediateValue);
-		} else if (executionDataType.equals(DATA_TYPE_NAME.FLOAT)) {
+		} else if (executionDataType.equals(DATA_TYPE_NAME.defaultFloat)) {
 			String immediateValue = this.generateImmediateOperandCode(executionDataType, "1.0");
 			stepNode.setAttribute(AttributeKey.ASSEMBLY_VALUE, immediateValue);
 		}
@@ -1657,11 +1657,11 @@ public class CodeGenerator {
 		String operatorSymbol = operatorNode.getAttribute(AttributeKey.OPERATOR_SYMBOL);
 
 		// 単項プラスは対象変数をそのまま結果とする
-		if (operatorSymbol.equals(SCRIPT_WORD.PLUS)) {
+		if (operatorSymbol.equals(SCRIPT_WORD.plusOrAddition)) {
 			return operatorNode.getAttribute(AttributeKey.ASSEMBLY_VALUE);
 
 		// 単項マイナスは別メソッド
-		} else if (operatorSymbol.equals(SCRIPT_WORD.MINUS)) {
+		} else if (operatorSymbol.equals(SCRIPT_WORD.minusOrSubtraction)) {
 			return this.generateNegateOperatorCode(operatorNode);
 
 		// それ以外は前置インクリメントまたはデクリメント
@@ -1670,9 +1670,9 @@ public class CodeGenerator {
 			String opcode = null;
 
 			// switch は使えない。リファクタでHashMap にすべき？
-			if (operatorSymbol.equals(SCRIPT_WORD.INCREMENT)) {
+			if (operatorSymbol.equals(SCRIPT_WORD.increment)) {
 				opcode = OperationCode.ADD.name();
-			} else if (operatorSymbol.equals(SCRIPT_WORD.DECREMENT)) {
+			} else if (operatorSymbol.equals(SCRIPT_WORD.decrement)) {
 				opcode = OperationCode.SUB.name();
 			} else {
 				throw new VnanoFatalException("Invalid operator symbol for arithmetic prefix operators: " + operatorSymbol);
@@ -1686,10 +1686,10 @@ public class CodeGenerator {
 			String executionDataType = operatorNode.getAttribute(AttributeKey.OPERATOR_EXECUTION_DATA_TYPE);
 			stepNode.setAttribute(AttributeKey.DATA_TYPE, executionDataType);
 			stepNode.setAttribute(AttributeKey.RANK, Integer.toString(RANK_OF_SCALAR));
-			if (executionDataType.equals(DATA_TYPE_NAME.INT)) {
+			if (executionDataType.equals(DATA_TYPE_NAME.defaultInt)) {
 				String immediateValue = this.generateImmediateOperandCode(executionDataType, "1");
 				stepNode.setAttribute(AttributeKey.ASSEMBLY_VALUE, immediateValue);
-			} else if (executionDataType.equals(DATA_TYPE_NAME.FLOAT)) {
+			} else if (executionDataType.equals(DATA_TYPE_NAME.defaultFloat)) {
 				String immediateValue = this.generateImmediateOperandCode(executionDataType, "1.0");
 				stepNode.setAttribute(AttributeKey.ASSEMBLY_VALUE, immediateValue);
 			}
@@ -1758,9 +1758,9 @@ public class CodeGenerator {
 		String opcode = null;
 
 		// switch は使えない。リファクタでHashMap にすべき？
-		if (operatorSymbol.equals(SCRIPT_WORD.SHORT_CIRCUIT_AND)) {
+		if (operatorSymbol.equals(SCRIPT_WORD.shortCircuitAnd)) {
 			opcode = OperationCode.ANDM.name();
-		} else if (operatorSymbol.equals(SCRIPT_WORD.SHORT_CIRCUIT_OR)) {
+		} else if (operatorSymbol.equals(SCRIPT_WORD.shortCircuitOr)) {
 			opcode = OperationCode.ORM.name();
 		} else {
 			throw new VnanoFatalException("Invalid operator symbol for logical binary operators: " + operatorSymbol);
@@ -1794,14 +1794,14 @@ public class CodeGenerator {
 		if (operatorNode.hasAttribute(AttributeKey.NEW_REGISTER)) {
 			codeBuilder.append(
 				this.generateRegisterAllocationCode(
-					DATA_TYPE_NAME.BOOL, operatorNode.getAttribute(AttributeKey.NEW_REGISTER), operandValue, operatorNode.getRank()
+					DATA_TYPE_NAME.bool, operatorNode.getAttribute(AttributeKey.NEW_REGISTER), operandValue, operatorNode.getRank()
 				)
 			);
 		}
 
 		// 演算
 		codeBuilder.append(
-			this.generateInstruction(OperationCode.NOT.name(), DATA_TYPE_NAME.BOOL, accumulatorRegister, operandValue)
+			this.generateInstruction(OperationCode.NOT.name(), DATA_TYPE_NAME.bool, accumulatorRegister, operandValue)
 		);
 
 		return codeBuilder.toString();
@@ -1826,22 +1826,22 @@ public class CodeGenerator {
 		String opcode = null;
 
 		// switch は使えない。リファクタでHashMap にすべき？
-		if(operatorSymbol.equals(SCRIPT_WORD.EQUAL)) {
+		if(operatorSymbol.equals(SCRIPT_WORD.equal)) {
 			opcode = OperationCode.EQ.name();
 
-		} else if (operatorSymbol.equals(SCRIPT_WORD.NOT_EQUAL)) {
+		} else if (operatorSymbol.equals(SCRIPT_WORD.notEqual)) {
 			opcode = OperationCode.NEQ.name();
 
-		} else if (operatorSymbol.equals(SCRIPT_WORD.LESS_THAN)) {
+		} else if (operatorSymbol.equals(SCRIPT_WORD.lessThan)) {
 			opcode = OperationCode.LT.name();
 
-		} else if (operatorSymbol.equals(SCRIPT_WORD.LESS_EQUAL)) {
+		} else if (operatorSymbol.equals(SCRIPT_WORD.lessEqual)) {
 			opcode = OperationCode.LEQ.name();
 
-		} else if (operatorSymbol.equals(SCRIPT_WORD.GRATER_THAN)) {
+		} else if (operatorSymbol.equals(SCRIPT_WORD.greaterThan)) {
 			opcode = OperationCode.GT.name();
 
-		} else if (operatorSymbol.equals(SCRIPT_WORD.GRATER_EQUAL)) {
+		} else if (operatorSymbol.equals(SCRIPT_WORD.greaterEqual)) {
 			opcode = OperationCode.GEQ.name();
 
 		} else {
@@ -1857,7 +1857,7 @@ public class CodeGenerator {
 	 *
 	 * @param operatorNode 代入演算子のASTノード
 	 * （{@link AstNode.Type#OPERATOR OPERATOR}タイプ、
-	 *   {@link AttributeKey#OPERATOR_EXECUTOR OPERATOR_EXECUTOR}属性値が{@link AttributeValue#ASSIGNMENT ASSIGNMENT}、
+	 *   {@link AttributeKey#OPERATOR_EXECUTOR OPERATOR_EXECUTOR}属性値が{@link AttributeValue#ASSIGNMENT assignment}、
 	 *   {@link AttributeKey#OPERATOR_SYNTAX OPERATOR_SYNTAX}属性値が{@link AttributeValue#BINARY BINARY}）
 	 * @return 生成コード
 	 */
@@ -1885,7 +1885,7 @@ public class CodeGenerator {
 			);
 
 			// レジスタに右辺値をキャスト
-			String typeSpecification = toType + ASSEMBLY_WORD.VALUE_SEPARATOR + fromType;
+			String typeSpecification = toType + ASSEMBLY_WORD.valueSeparator + fromType;
 			codeBuilder.append(
 				this.generateInstruction(
 					OperationCode.CAST.name(), typeSpecification, castedRegister, operandValues[1]
@@ -1954,19 +1954,19 @@ public class CodeGenerator {
 		String arithmeticOpcode = null;
 
 		// switch は使えない。リファクタでHashMap にすべき？
-		if(operatorSymbol.equals(SCRIPT_WORD.ADDITION_ASSIGNMENT)) {
+		if(operatorSymbol.equals(SCRIPT_WORD.additionAssignment)) {
 			arithmeticOpcode = OperationCode.ADD.name();
 
-		} else if (operatorSymbol.equals(SCRIPT_WORD.SUBTRACTION_ASSIGNMENT)) {
+		} else if (operatorSymbol.equals(SCRIPT_WORD.subtractionAssignment)) {
 			arithmeticOpcode = OperationCode.SUB.name();
 
-		} else if (operatorSymbol.equals(SCRIPT_WORD.MULTIPLICATION_ASSIGNMENT)) {
+		} else if (operatorSymbol.equals(SCRIPT_WORD.multiplicationAssignment)) {
 			arithmeticOpcode = OperationCode.MUL.name();
 
-		} else if (operatorSymbol.equals(SCRIPT_WORD.DIVISION_ASSIGNMENT)) {
+		} else if (operatorSymbol.equals(SCRIPT_WORD.divisionAssignment)) {
 			arithmeticOpcode = OperationCode.DIV.name();
 
-		} else if (operatorSymbol.equals(SCRIPT_WORD.REMAINDER_ASSIGNMENT)) {
+		} else if (operatorSymbol.equals(SCRIPT_WORD.remainderAssignment)) {
 			arithmeticOpcode = OperationCode.REM.name();
 
 		} else {
@@ -2090,7 +2090,7 @@ public class CodeGenerator {
 					);
 
 					// CAST命令で型変換を実行
-					String typeSpecification = executionDataType + ASSEMBLY_WORD.VALUE_SEPARATOR + operandDataType;
+					String typeSpecification = executionDataType + ASSEMBLY_WORD.valueSeparator + operandDataType;
 					codeBuilder.append(
 						this.generateInstruction(OperationCode.CAST.name(), typeSpecification, castedRegister, castTarget
 						)
@@ -2147,7 +2147,7 @@ public class CodeGenerator {
 				this.generateInstruction(operationCode, executionDataType, storeRegister, input[0], input[1])
 			);
 			// キャスト命令のコードを生成（キャスト結果の格納先が output なので、結果的に output に代入される）
-			String castTypeOperand = resultDataType + ASSEMBLY_WORD.VALUE_SEPARATOR + executionDataType;
+			String castTypeOperand = resultDataType + ASSEMBLY_WORD.valueSeparator + executionDataType;
 			codeBuilder.append(
 				this.generateInstruction(OperationCode.CAST.name(), castTypeOperand, output, storeRegister)
 			);
@@ -2193,7 +2193,7 @@ public class CodeGenerator {
 
 		// 外部関数: CALLX命令を生成
 		if (scope.equals(AttributeValue.GLOBAL)) {
-			if (returnDataTypeName.equals(DATA_TYPE_NAME.VOID)) {
+			if (returnDataTypeName.equals(DATA_TYPE_NAME.voidPlaceholder)) {
 				operands[0] = PLACE_HOLDER;
 			} else {
 				operands[0] = returnRegister;
@@ -2206,10 +2206,10 @@ public class CodeGenerator {
 		} else if (scope.equals(AttributeValue.LOCAL)) {
 
 			// CALL命令は戻り値をスタックに積むので、第0オペランドには何も書き込まないため、プレースホルダを置く。
-			operands[0] = Character.toString(ASSEMBLY_WORD.OPERAND_PREFIX_PLACEHOLDER);
+			operands[0] = Character.toString(ASSEMBLY_WORD.placeholderOperandPrefix);
 
 			// CALL命令の対象関数指定オペランド値はラベルなので、ラベルのプレフィックスを付加
-			operands[1] = ASSEMBLY_WORD.OPERAND_PREFIX_LABEL + operands[1];
+			operands[1] = ASSEMBLY_WORD.labelOperandPrefix + operands[1];
 
 			// CALL命令を生成
 			codeBuilder.append(
@@ -2217,7 +2217,7 @@ public class CodeGenerator {
 			);
 
 			// 戻り値の型が void の場合は、スタック上の仮の戻り値（スタック順序維持用のために積まれている）を捨てるコードを生成
-			if (returnDataTypeName.equals(DATA_TYPE_NAME.VOID)) {
+			if (returnDataTypeName.equals(DATA_TYPE_NAME.voidPlaceholder)) {
 				codeBuilder.append(
 					this.generateInstruction(OperationCode.POP.name(), operatorNode.getDataTypeName(), PLACE_HOLDER)
 				);
@@ -2321,7 +2321,7 @@ public class CodeGenerator {
 		);
 
 		// CAST命令で型変換を実行
-		String typeSpecification = toDataType + ASSEMBLY_WORD.VALUE_SEPARATOR + fromDataType;
+		String typeSpecification = toDataType + ASSEMBLY_WORD.valueSeparator + fromDataType;
 		codeBuilder.append(
 			this.generateInstruction(OperationCode.CAST.name(), typeSpecification, castedRegister, fromValue
 			)
@@ -2340,41 +2340,41 @@ public class CodeGenerator {
 		StringBuilder codeBuilder = new StringBuilder();
 
 		// 中間言語名ディレクティブ
-		codeBuilder.append(ASSEMBLY_WORD.ASSEMBLY_LANGUAGE_IDENTIFIER_DIRECTIVE);
-		codeBuilder.append(ASSEMBLY_WORD.WORD_SEPARATOR);
+		codeBuilder.append(ASSEMBLY_WORD.assemblyLanguageIdentifierDirective);
+		codeBuilder.append(ASSEMBLY_WORD.wordSeparator);
 		codeBuilder.append("\"");
-		codeBuilder.append(ASSEMBLY_WORD.ASSEMBLY_LANGUAGE_NAME);
+		codeBuilder.append(ASSEMBLY_WORD.assemblyLanguageName);
 		codeBuilder.append("\"");
-		codeBuilder.append(ASSEMBLY_WORD.INSTRUCTION_SEPARATOR);
-		codeBuilder.append(ASSEMBLY_WORD.LINE_SEPARATOR);
+		codeBuilder.append(ASSEMBLY_WORD.instructionSeparator);
+		codeBuilder.append(ASSEMBLY_WORD.lineSeparator);
 
 		// 中間言語バージョンディレクティブ
-		codeBuilder.append(ASSEMBLY_WORD.ASSEMBLY_LANGUAGE_VERSION_DIRECTIVE);
-		codeBuilder.append(ASSEMBLY_WORD.WORD_SEPARATOR);
+		codeBuilder.append(ASSEMBLY_WORD.assemblyLanguageVersionDirective);
+		codeBuilder.append(ASSEMBLY_WORD.wordSeparator);
 		codeBuilder.append("\"");
-		codeBuilder.append(ASSEMBLY_WORD.ASSEMBLY_LANGUAGE_VERSION);
+		codeBuilder.append(ASSEMBLY_WORD.assemblyLanguageVersion);
 		codeBuilder.append("\"");
-		codeBuilder.append(ASSEMBLY_WORD.INSTRUCTION_SEPARATOR);
-		codeBuilder.append(ASSEMBLY_WORD.LINE_SEPARATOR);
+		codeBuilder.append(ASSEMBLY_WORD.instructionSeparator);
+		codeBuilder.append(ASSEMBLY_WORD.lineSeparator);
 
 
 		// スクリプト言語名ディレクティブ
-		codeBuilder.append(ASSEMBLY_WORD.SCRIPT_LANGUAGE_IDENTIFIER_DIRECTIVE);
-		codeBuilder.append(ASSEMBLY_WORD.WORD_SEPARATOR);
+		codeBuilder.append(ASSEMBLY_WORD.scriptLanguageIdentifierDirective);
+		codeBuilder.append(ASSEMBLY_WORD.wordSeparator);
 		codeBuilder.append("\"");
-		codeBuilder.append(SCRIPT_WORD.SCRIPT_LANGUAGE_NAME);
+		codeBuilder.append(SCRIPT_WORD.scriptLanguageName);
 		codeBuilder.append("\"");
-		codeBuilder.append(ASSEMBLY_WORD.INSTRUCTION_SEPARATOR);
-		codeBuilder.append(ASSEMBLY_WORD.LINE_SEPARATOR);
+		codeBuilder.append(ASSEMBLY_WORD.instructionSeparator);
+		codeBuilder.append(ASSEMBLY_WORD.lineSeparator);
 
 		// スクリプト言語バージョンディレクティブ
-		codeBuilder.append(ASSEMBLY_WORD.SCRIPT_LANGUAGE_VERSION_DIRECTIVE);
-		codeBuilder.append(ASSEMBLY_WORD.WORD_SEPARATOR);
+		codeBuilder.append(ASSEMBLY_WORD.scriptLanguageVersionDirective);
+		codeBuilder.append(ASSEMBLY_WORD.wordSeparator);
 		codeBuilder.append("\"");
-		codeBuilder.append(SCRIPT_WORD.SCRIPT_LANGUAGE_VERSION);
+		codeBuilder.append(SCRIPT_WORD.scriptLanguageVersion);
 		codeBuilder.append("\"");
-		codeBuilder.append(ASSEMBLY_WORD.INSTRUCTION_SEPARATOR);
-		codeBuilder.append(ASSEMBLY_WORD.LINE_SEPARATOR);
+		codeBuilder.append(ASSEMBLY_WORD.instructionSeparator);
+		codeBuilder.append(ASSEMBLY_WORD.lineSeparator);
 
 		return codeBuilder.toString();
 	}
@@ -2405,7 +2405,7 @@ public class CodeGenerator {
 
 				// 呼び出し対象関数のアセンブリコード用識別子を生成
 				String calleeSignature = currentNode.getAttribute(AttributeKey.CALLEE_SIGNATURE);
-				String identifier = ASSEMBLY_WORD.OPERAND_PREFIX_IDENTIFIER + calleeSignature;
+				String identifier = ASSEMBLY_WORD.identifierOperandPrefix + calleeSignature;
 				//String identifier = IdentifierSyntax.getAssemblyIdentifierOfCalleeFunctionOf(currentNode);
 
 				// 呼び出し対象関数のスコープを取得
@@ -2415,16 +2415,16 @@ public class CodeGenerator {
 				if (!generatedSet.contains(identifier)) {
 					generatedSet.add(identifier);
 					if (scope.equals(AttributeValue.GLOBAL)) {
-						codeBuilder.append(ASSEMBLY_WORD.GLOBAL_FUNCTION_DIRECTIVE);
+						codeBuilder.append(ASSEMBLY_WORD.globalFunctionDirective);
 					} else if (scope.equals(AttributeValue.LOCAL)) {
-						codeBuilder.append(ASSEMBLY_WORD.LOCAL_FUNCTION_DIRECTIVE);
+						codeBuilder.append(ASSEMBLY_WORD.localFunctionDirective);
 					} else {
 						throw new VnanoFatalException("Unknown function scope: " + currentNode.getAttribute(AttributeKey.SCOPE));
 					}
-					codeBuilder.append(ASSEMBLY_WORD.WORD_SEPARATOR);
+					codeBuilder.append(ASSEMBLY_WORD.wordSeparator);
 					codeBuilder.append(identifier);
-					codeBuilder.append(ASSEMBLY_WORD.INSTRUCTION_SEPARATOR);
-					codeBuilder.append(ASSEMBLY_WORD.LINE_SEPARATOR);
+					codeBuilder.append(ASSEMBLY_WORD.instructionSeparator);
+					codeBuilder.append(ASSEMBLY_WORD.lineSeparator);
 				}
 			}
 
@@ -2466,11 +2466,11 @@ public class CodeGenerator {
 
 				// 既に出力済みでなければ出力
 				if (!generatedSet.contains(identifier)) {
-					codeBuilder.append(ASSEMBLY_WORD.GLOBAL_VARIABLE_DIRECTIVE);
-					codeBuilder.append(ASSEMBLY_WORD.WORD_SEPARATOR);
+					codeBuilder.append(ASSEMBLY_WORD.globalVariableDirective);
+					codeBuilder.append(ASSEMBLY_WORD.wordSeparator);
 					codeBuilder.append(identifier);
-					codeBuilder.append(ASSEMBLY_WORD.INSTRUCTION_SEPARATOR);
-					codeBuilder.append(ASSEMBLY_WORD.LINE_SEPARATOR);
+					codeBuilder.append(ASSEMBLY_WORD.instructionSeparator);
+					codeBuilder.append(ASSEMBLY_WORD.lineSeparator);
 				}
 			}
 
@@ -2494,15 +2494,15 @@ public class CodeGenerator {
 
 		StringBuilder codeBuilder = new StringBuilder();
 
-		codeBuilder.append(ASSEMBLY_WORD.META_DIRECTIVE);
-		codeBuilder.append(ASSEMBLY_WORD.WORD_SEPARATOR);
+		codeBuilder.append(ASSEMBLY_WORD.metaDirective);
+		codeBuilder.append(ASSEMBLY_WORD.wordSeparator);
 
 		codeBuilder.append("\"");
 		codeBuilder.append(MetaInformationSyntax.generateMetaInformation(node.getLineNumber(), escapedFileName));
 		codeBuilder.append("\"");
 
-		codeBuilder.append(ASSEMBLY_WORD.INSTRUCTION_SEPARATOR);
-		codeBuilder.append(ASSEMBLY_WORD.LINE_SEPARATOR);
+		codeBuilder.append(ASSEMBLY_WORD.instructionSeparator);
+		codeBuilder.append(ASSEMBLY_WORD.lineSeparator);
 
 		return codeBuilder.toString();
 	}
@@ -2520,11 +2520,11 @@ public class CodeGenerator {
 	 */
 	private String generateLabelDirectiveCode(String labelName) {
 		StringBuilder labelBuilder = new StringBuilder();
-		labelBuilder.append(ASSEMBLY_WORD.LABEL_DIRECTIVE);
-		labelBuilder.append(ASSEMBLY_WORD.WORD_SEPARATOR);
+		labelBuilder.append(ASSEMBLY_WORD.labelDirective);
+		labelBuilder.append(ASSEMBLY_WORD.wordSeparator);
 		labelBuilder.append(labelName);
-		labelBuilder.append(ASSEMBLY_WORD.INSTRUCTION_SEPARATOR);
-		labelBuilder.append(ASSEMBLY_WORD.LINE_SEPARATOR);
+		labelBuilder.append(ASSEMBLY_WORD.instructionSeparator);
+		labelBuilder.append(ASSEMBLY_WORD.lineSeparator);
 		return labelBuilder.toString();
 	}
 
@@ -2536,7 +2536,7 @@ public class CodeGenerator {
 	 */
 	private String generateLabelOperandCode() {
 		StringBuilder labelBuilder = new StringBuilder();
-		labelBuilder.append(ASSEMBLY_WORD.OPERAND_PREFIX_LABEL);
+		labelBuilder.append(ASSEMBLY_WORD.labelOperandPrefix);
 		labelBuilder.append(CodeGenerator.LABEL_NAME);
 		labelBuilder.append(Integer.toString(this.labelCounter));
 		this.labelCounter++;
@@ -2552,7 +2552,7 @@ public class CodeGenerator {
 	private String generateRegisterOperandCode() {
 
 		StringBuilder returnBuilder = new StringBuilder();
-		returnBuilder.append(ASSEMBLY_WORD.OPERAND_PREFIX_REGISTER);
+		returnBuilder.append(ASSEMBLY_WORD.registerOperandOprefix);
 		returnBuilder.append(this.registerCounter);
 		this.registerCounter++;
 
@@ -2568,9 +2568,9 @@ public class CodeGenerator {
 	 */
 	private String generateImmediateOperandCode(String typeName, String literal) {
 		StringBuilder returnBuilder = new StringBuilder();
-		returnBuilder.append(ASSEMBLY_WORD.OPERAND_PREFIX_IMMEDIATE);
+		returnBuilder.append(ASSEMBLY_WORD.immediateOperandPrefix);
 		returnBuilder.append(typeName);
-		returnBuilder.append(ASSEMBLY_WORD.VALUE_SEPARATOR);
+		returnBuilder.append(ASSEMBLY_WORD.valueSeparator);
 		returnBuilder.append(literal);
 
 		return returnBuilder.toString();
@@ -2587,16 +2587,16 @@ public class CodeGenerator {
 	 */
 	private String generateInstruction(String opcode, String dataType, String... operands) {
 		StringBuilder codeBuilder = new StringBuilder();
-		codeBuilder.append(ASSEMBLY_WORD.INDENT);
+		codeBuilder.append(ASSEMBLY_WORD.indent);
 		codeBuilder.append(opcode);
-		codeBuilder.append(ASSEMBLY_WORD.WORD_SEPARATOR);
+		codeBuilder.append(ASSEMBLY_WORD.wordSeparator);
 		codeBuilder.append(dataType);
 		for (String operand: operands) {
-			codeBuilder.append(ASSEMBLY_WORD.WORD_SEPARATOR);
+			codeBuilder.append(ASSEMBLY_WORD.wordSeparator);
 			codeBuilder.append(operand);
 		}
-		codeBuilder.append(ASSEMBLY_WORD.INSTRUCTION_SEPARATOR);
-		codeBuilder.append(ASSEMBLY_WORD.LINE_SEPARATOR);
+		codeBuilder.append(ASSEMBLY_WORD.instructionSeparator);
+		codeBuilder.append(ASSEMBLY_WORD.lineSeparator);
 		return codeBuilder.toString();
 	}
 
@@ -2610,85 +2610,85 @@ public class CodeGenerator {
 	private String realign(String code) {
 		StringBuilder codeBuilder = new StringBuilder();
 
-		String[] lines = code.split(ASSEMBLY_WORD.LINE_SEPARATOR_REGEX);
+		String[] lines = code.split(ASSEMBLY_WORD.lineSeparatorRegex);
 		int lineLength = lines.length;
 
 		// 言語情報ディレクティブの抽出/配置
 		boolean languageDirectiveExist = false;
 		for (int lineIndex=0; lineIndex<lineLength; lineIndex++) {
-			if (lines[lineIndex].startsWith(ASSEMBLY_WORD.ASSEMBLY_LANGUAGE_IDENTIFIER_DIRECTIVE)
-					|| lines[lineIndex].startsWith(ASSEMBLY_WORD.ASSEMBLY_LANGUAGE_VERSION_DIRECTIVE)
-					|| lines[lineIndex].startsWith(ASSEMBLY_WORD.SCRIPT_LANGUAGE_IDENTIFIER_DIRECTIVE)
-					|| lines[lineIndex].startsWith(ASSEMBLY_WORD.SCRIPT_LANGUAGE_VERSION_DIRECTIVE)) {
+			if (lines[lineIndex].startsWith(ASSEMBLY_WORD.assemblyLanguageIdentifierDirective)
+					|| lines[lineIndex].startsWith(ASSEMBLY_WORD.assemblyLanguageVersionDirective)
+					|| lines[lineIndex].startsWith(ASSEMBLY_WORD.scriptLanguageIdentifierDirective)
+					|| lines[lineIndex].startsWith(ASSEMBLY_WORD.scriptLanguageVersionDirective)) {
 
 				languageDirectiveExist = true;
 				codeBuilder.append(lines[lineIndex]);
-				codeBuilder.append(ASSEMBLY_WORD.LINE_SEPARATOR);
+				codeBuilder.append(ASSEMBLY_WORD.lineSeparator);
 				lines[lineIndex] = "";
 			}
 		}
 
 		// ディレクティブの種類が変わる箇所で空白行を挟む
 		if (languageDirectiveExist) {
-			codeBuilder.append(ASSEMBLY_WORD.LINE_SEPARATOR);
+			codeBuilder.append(ASSEMBLY_WORD.lineSeparator);
 		}
 
 		// グローバル関数ディレクティブの抽出/配置
 		boolean globalFunctionDirectiveExist = false;
 		for (int lineIndex=0; lineIndex<lineLength; lineIndex++) {
-			if (lines[lineIndex].startsWith(ASSEMBLY_WORD.GLOBAL_FUNCTION_DIRECTIVE)) {
+			if (lines[lineIndex].startsWith(ASSEMBLY_WORD.globalFunctionDirective)) {
 				globalFunctionDirectiveExist = true;
 				codeBuilder.append(lines[lineIndex]);
-				codeBuilder.append(ASSEMBLY_WORD.LINE_SEPARATOR);
+				codeBuilder.append(ASSEMBLY_WORD.lineSeparator);
 				lines[lineIndex] = "";
 			}
 		}
 
 		// ディレクティブの種類が変わる箇所で空白行を挟む
 		if (globalFunctionDirectiveExist) {
-			codeBuilder.append(ASSEMBLY_WORD.LINE_SEPARATOR);
+			codeBuilder.append(ASSEMBLY_WORD.lineSeparator);
 		}
 
 		// ローカル関数ディレクティブの抽出/配置
 		boolean localFunctionDirectiveExist = false;
 		for (int lineIndex=0; lineIndex<lineLength; lineIndex++) {
-			if (lines[lineIndex].startsWith(ASSEMBLY_WORD.LOCAL_FUNCTION_DIRECTIVE)) {
+			if (lines[lineIndex].startsWith(ASSEMBLY_WORD.localFunctionDirective)) {
 				localFunctionDirectiveExist = true;
 				codeBuilder.append(lines[lineIndex]);
-				codeBuilder.append(ASSEMBLY_WORD.LINE_SEPARATOR);
+				codeBuilder.append(ASSEMBLY_WORD.lineSeparator);
 				lines[lineIndex] = "";
 			}
 		}
 
 		// ディレクティブの種類が変わる箇所で空白行を挟む
 		if (localFunctionDirectiveExist) {
-			codeBuilder.append(ASSEMBLY_WORD.LINE_SEPARATOR);
+			codeBuilder.append(ASSEMBLY_WORD.lineSeparator);
 		}
 
 		// グローバル変数ディレクティブの抽出/配置
 		boolean globalVariableDirectiveExist = false;
 		for (int lineIndex=0; lineIndex<lineLength; lineIndex++) {
-			if (lines[lineIndex].startsWith(ASSEMBLY_WORD.GLOBAL_VARIABLE_DIRECTIVE)) {
+			if (lines[lineIndex].startsWith(ASSEMBLY_WORD.globalVariableDirective)) {
 				globalVariableDirectiveExist = true;
 				codeBuilder.append(lines[lineIndex]);
-				codeBuilder.append(ASSEMBLY_WORD.LINE_SEPARATOR);
+				codeBuilder.append(ASSEMBLY_WORD.lineSeparator);
 				lines[lineIndex] = "";
 			}
 		}
 
 		// ディレクティブの種類が変わる箇所で空白行を挟む
 		if (globalVariableDirectiveExist) {
-			codeBuilder.append(ASSEMBLY_WORD.LINE_SEPARATOR);
+			codeBuilder.append(ASSEMBLY_WORD.lineSeparator);
 		}
 
 		// ローカル変数ディレクティブの抽出/配置
 		@SuppressWarnings("unused")
 		boolean localVariableDirectiveExist = false;
 		for (int lineIndex=0; lineIndex<lineLength; lineIndex++) {
-			if (lines[lineIndex].startsWith(ASSEMBLY_WORD.LOCAL_VARIABLE_DIRECTIVE)) {
+			if (lines[lineIndex].startsWith(ASSEMBLY_WORD.localVariableDirective)) {
 				localVariableDirectiveExist = true;
 				codeBuilder.append(lines[lineIndex]);
-				codeBuilder.append(ASSEMBLY_WORD.LINE_SEPARATOR);
+				codeBuilder.append(ASSEMBLY_WORD.lineSeparator);
 				lines[lineIndex] = "";
 			}
 		}
@@ -2697,7 +2697,7 @@ public class CodeGenerator {
 		/*
 		// ディレクティブの種類が変わる箇所で空白行を挟む
 		if (localVariableDirectiveExist) {
-			codeBuilder.append(AssemblyWord.LINE_SEPARATOR);
+			codeBuilder.append(AssemblyWord.lineSeparator);
 		}
 		*/
 
@@ -2710,12 +2710,12 @@ public class CodeGenerator {
 			}
 
 			// メタディレクティブの直前には空白行を挟む
-			if (lines[lineIndex].startsWith(ASSEMBLY_WORD.META_DIRECTIVE)) {
-				codeBuilder.append(ASSEMBLY_WORD.LINE_SEPARATOR);
+			if (lines[lineIndex].startsWith(ASSEMBLY_WORD.metaDirective)) {
+				codeBuilder.append(ASSEMBLY_WORD.lineSeparator);
 			}
 
 			codeBuilder.append(lines[lineIndex]);
-			codeBuilder.append(ASSEMBLY_WORD.LINE_SEPARATOR);
+			codeBuilder.append(ASSEMBLY_WORD.lineSeparator);
 			lines[lineIndex] = "";
 		}
 
@@ -2753,9 +2753,9 @@ public class CodeGenerator {
 		}
 
 		// 評価結果とすべき値が無いか、もしくはあってもvoid型な場合は、無指定のEND命令を生成
-		if (evalDataType == null || evalDataType.equals(DATA_TYPE_NAME.VOID)) {
+		if (evalDataType == null || evalDataType.equals(DATA_TYPE_NAME.voidPlaceholder)) {
 			codeBuilder.append(
-				this.generateInstruction(OperationCode.END.name(), DATA_TYPE_NAME.VOID, PLACE_HOLDER)
+				this.generateInstruction(OperationCode.END.name(), DATA_TYPE_NAME.voidPlaceholder, PLACE_HOLDER)
 			);
 
 		// 評価値がある場合は、それをオペランドに指定してEND命令を生成

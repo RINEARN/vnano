@@ -89,7 +89,7 @@ public class FunctionTable {
 
 		String nameSpacePrefix = "";
 		if (function.hasNameSpace()) {
-			nameSpacePrefix = function.getNameSpace() +  SCRIPT_WORD.NAME_SPACE_SEPARATOR;
+			nameSpacePrefix = function.getNameSpace() +  SCRIPT_WORD.nameSpaceSeparator;
 		}
 
 		String signature = IDENTIFIER_SYNTAX.getSignatureOf(function);

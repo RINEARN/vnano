@@ -79,7 +79,7 @@ public class VnanoEngine {
 
 	/**
 	 * <span class="lang-en">Create a Vnano Engine with the customized language specification settings</span>
-	 * <span class="lang-ja">カスタマイズされた言語仕様設定で, 標準設定のVnanoエンジンを生成します</span>
+	 * <span class="lang-ja">カスタマイズされた言語仕様設定で, Vnanoエンジンを生成します</span>
 	 * .
 	 * @param langSpec
 	 *   <span class="lang-en">language specification settings.</span>
@@ -195,7 +195,7 @@ public class VnanoEngine {
 	 *   General "Object" type instances can be connected as a plug-in,
 	 *   for accessing their methods/fields from the script code as external functions/variables.
 	 *   For accessing only static methods and fields, "Class&lt;T&gt;" type instance can also be connected.
-	 *   In addition, if you want to choose a method/field to be accessible from script code,
+	 *   In add, if you want to choose a method/field to be accessible from script code,
 	 *   a "Method"/"Field" type instance can be connected.
 	 *   ( In that case, if the method/field is static, pass an Object type array for this argument,
 	 *     and store the Method/Field type instance at [0],
