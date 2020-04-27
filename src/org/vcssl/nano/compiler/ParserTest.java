@@ -13,10 +13,15 @@ import org.junit.Test;
 import org.vcssl.nano.VnanoException;
 import org.vcssl.nano.spec.OperatorPrecedence;
 import org.vcssl.nano.spec.ScriptWord;
+import org.vcssl.nano.spec.DataTypeName;
+import org.vcssl.nano.spec.LanguageSpecContainer;
 
 public class ParserTest {
 
-
+	private final LanguageSpecContainer LANG_SPEC = new LanguageSpecContainer();
+	private final OperatorPrecedence OPERATOR_PRECEDENCE = LANG_SPEC.OPERATOR_PRECEDENCE;
+	private final ScriptWord SCRIPT_WORD = LANG_SPEC.SCRIPT_WORD;
+	private final DataTypeName DATA_TYPE_NAME = LANG_SPEC.DATA_TYPE_NAME;
 
 	@Before
 	public void setUp() throws Exception {
@@ -26,10 +31,11 @@ public class ParserTest {
 	public void tearDown() throws Exception {
 	}
 
-	private Token createLiteralToken(String word) {
+	private Token createLiteralToken(String word, String dataTypeName) {
 		Token token = new Token(word, 123, "Test.vnano");
 		token.setType(Token.Type.LEAF);
 		token.setAttribute(AttributeKey.LEAF_TYPE, AttributeValue.LITERAL);
+		token.setAttribute(AttributeKey.DATA_TYPE, dataTypeName);
 		return token;
 	}
 
@@ -60,10 +66,10 @@ public class ParserTest {
 	private Token createParenthesisToken(String word) {
 		Token token = new Token(word, 124, "Test.vnano");
 		token.setType(Token.Type.PARENTHESIS);
-		if (word.equals(ScriptWord.PARENTHESIS_BEGIN)) {
-			token.setPrecedence(OperatorPrecedence.PARENTHESIS_BEGIN);
+		if (word.equals(SCRIPT_WORD.PARENTHESIS_BEGIN)) {
+			token.setPrecedence(OPERATOR_PRECEDENCE.PARENTHESIS_BEGIN);
 		} else {
-			token.setPrecedence(OperatorPrecedence.LEAST_PRIOR);
+			token.setPrecedence(OPERATOR_PRECEDENCE.LEAST_PRIOR);
 		}
 		return token;
 	}
@@ -81,7 +87,7 @@ public class ParserTest {
 	}
 
 	private Token createEndToken() {
-		Token token = new Token(ScriptWord.END_OF_STATEMENT, 123, "Test.vnano");
+		Token token = new Token(SCRIPT_WORD.END_OF_STATEMENT, 123, "Test.vnano");
 		token.setType(Token.Type.END_OF_STATEMENT);
 		return token;
 	}
@@ -125,7 +131,7 @@ public class ParserTest {
 
 		// "int x;" のトークン配列を用意
 		Token[] tokens = new Token[]{
-			this.createDataTypeToken("int"),
+			this.createDataTypeToken(DATA_TYPE_NAME.INT),
 			this.createVariableIdentifierToken("x"),
 			this.createEndToken()
 		};
@@ -133,7 +139,7 @@ public class ParserTest {
 		// トークン配列の内容を確認
 		//this.dumpTokens(tokens);
 
-		AstNode rootNode = new Parser().parse(tokens);
+		AstNode rootNode = new Parser(LANG_SPEC).parse(tokens);
 
 		// ASTの内容を確認
 		//System.out.println(rootNode);
@@ -145,7 +151,7 @@ public class ParserTest {
 		// 変数ノードの検査
 		AstNode varNode = rootNode.getChildNodes()[0];
 		assertEquals(AstNode.Type.VARIABLE, varNode.getType());
-		assertEquals("int", varNode.getAttribute(AttributeKey.DATA_TYPE));
+		assertEquals(DATA_TYPE_NAME.INT, varNode.getAttribute(AttributeKey.DATA_TYPE));
 		assertEquals("x", varNode.getAttribute(AttributeKey.IDENTIFIER_VALUE));
 		assertEquals("0", varNode.getAttribute(AttributeKey.RANK));
 	}
@@ -155,18 +161,18 @@ public class ParserTest {
 
 		// "int x [ 2 ];" のトークン配列を用意
 		Token[] tokens = new Token[]{
-			this.createDataTypeToken("int"),
+			this.createDataTypeToken(DATA_TYPE_NAME.INT),
 			this.createVariableIdentifierToken("x"),
-			this.createOperatorToken("[", OperatorPrecedence.SUBSCRIPT_BEGIN, AttributeValue.LEFT, AttributeValue.MULTIARY, AttributeValue.SUBSCRIPT),
-			this.createLiteralToken("2"),
-			this.createOperatorToken("]", OperatorPrecedence.SUBSCRIPT_END, AttributeValue.LEFT, AttributeValue.MULTIARY, AttributeValue.SUBSCRIPT),
+			this.createOperatorToken("[", OPERATOR_PRECEDENCE.SUBSCRIPT_BEGIN, AttributeValue.LEFT, AttributeValue.MULTIARY, AttributeValue.SUBSCRIPT),
+			this.createLiteralToken("2", DATA_TYPE_NAME.INT),
+			this.createOperatorToken("]", OPERATOR_PRECEDENCE.SUBSCRIPT_END, AttributeValue.LEFT, AttributeValue.MULTIARY, AttributeValue.SUBSCRIPT),
 			this.createEndToken()
 		};
 
 		// トークン配列の内容を確認
 		//this.dumpTokens(tokens);
 
-		AstNode rootNode = new Parser().parse(tokens);
+		AstNode rootNode = new Parser(LANG_SPEC).parse(tokens);
 
 		// ASTの内容を確認
 		//System.out.println(rootNode);
@@ -178,7 +184,7 @@ public class ParserTest {
 		// 変数ノードの検査
 		AstNode varNode = rootNode.getChildNodes()[0];
 		assertEquals(AstNode.Type.VARIABLE, varNode.getType());
-		assertEquals("int", varNode.getAttribute(AttributeKey.DATA_TYPE));
+		assertEquals(DATA_TYPE_NAME.INT, varNode.getAttribute(AttributeKey.DATA_TYPE));
 		assertEquals("x", varNode.getAttribute(AttributeKey.IDENTIFIER_VALUE));
 		assertEquals("1", varNode.getAttribute(AttributeKey.RANK));
 
@@ -199,22 +205,22 @@ public class ParserTest {
 
 		// "int x [ 1 + 2 * 3 ];" のトークン配列を用意
 		Token[] tokens = new Token[]{
-			this.createDataTypeToken("int"),
+			this.createDataTypeToken(DATA_TYPE_NAME.INT),
 			this.createVariableIdentifierToken("x"),
-			this.createOperatorToken("[", OperatorPrecedence.SUBSCRIPT_BEGIN, AttributeValue.LEFT, AttributeValue.MULTIARY, AttributeValue.SUBSCRIPT),
-			this.createLiteralToken("1"),
-			this.createOperatorToken("+", OperatorPrecedence.ADDITION, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.ARITHMETIC),
-			this.createLiteralToken("2"),
-			this.createOperatorToken("*", OperatorPrecedence.MULTIPLICATION, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.ARITHMETIC),
-			this.createLiteralToken("3"),
-			this.createOperatorToken("]", OperatorPrecedence.SUBSCRIPT_END, AttributeValue.LEFT, AttributeValue.MULTIARY, AttributeValue.SUBSCRIPT),
+			this.createOperatorToken("[", OPERATOR_PRECEDENCE.SUBSCRIPT_BEGIN, AttributeValue.LEFT, AttributeValue.MULTIARY, AttributeValue.SUBSCRIPT),
+			this.createLiteralToken("1", DATA_TYPE_NAME.INT),
+			this.createOperatorToken("+", OPERATOR_PRECEDENCE.ADDITION, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.ARITHMETIC),
+			this.createLiteralToken("2", DATA_TYPE_NAME.INT),
+			this.createOperatorToken("*", OPERATOR_PRECEDENCE.MULTIPLICATION, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.ARITHMETIC),
+			this.createLiteralToken("3", DATA_TYPE_NAME.INT),
+			this.createOperatorToken("]", OPERATOR_PRECEDENCE.SUBSCRIPT_END, AttributeValue.LEFT, AttributeValue.MULTIARY, AttributeValue.SUBSCRIPT),
 			this.createEndToken()
 		};
 
 		// トークン配列の内容を確認
 		//this.dumpTokens(tokens);
 
-		AstNode rootNode = new Parser().parse(tokens);
+		AstNode rootNode = new Parser(LANG_SPEC).parse(tokens);
 
 		// ASTの内容を確認
 		//System.out.println(rootNode);
@@ -226,7 +232,7 @@ public class ParserTest {
 		// 変数ノードの検査
 		AstNode varNode = rootNode.getChildNodes()[0];
 		assertEquals(AstNode.Type.VARIABLE, varNode.getType());
-		assertEquals("int", varNode.getAttribute(AttributeKey.DATA_TYPE));
+		assertEquals(DATA_TYPE_NAME.INT, varNode.getAttribute(AttributeKey.DATA_TYPE));
 		assertEquals("x", varNode.getAttribute(AttributeKey.IDENTIFIER_VALUE));
 		assertEquals("1", varNode.getAttribute(AttributeKey.RANK));
 
@@ -241,11 +247,11 @@ public class ParserTest {
 		assertEquals(1, lengthExprNode.getChildNodes().length);
 
 		AstNode addNode = lengthExprNode.getChildNodes()[0];
-		this.checkOperatorNode(addNode, "+", OperatorPrecedence.ADDITION, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.ARITHMETIC);
+		this.checkOperatorNode(addNode, "+", OPERATOR_PRECEDENCE.ADDITION, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.ARITHMETIC);
 		this.checkLiteralNode(addNode.getChildNodes()[0], "1");
 
 		AstNode mulNode = addNode.getChildNodes()[1];
-		this.checkOperatorNode(mulNode, "*", OperatorPrecedence.MULTIPLICATION, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.ARITHMETIC);
+		this.checkOperatorNode(mulNode, "*", OPERATOR_PRECEDENCE.MULTIPLICATION, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.ARITHMETIC);
 		this.checkLiteralNode(mulNode.getChildNodes()[0], "2");
 		this.checkLiteralNode(mulNode.getChildNodes()[1], "3");
 	}
@@ -255,22 +261,22 @@ public class ParserTest {
 
 		// "int x [ 2 ][ 3 ][ 4 ];" のトークン配列を用意
 		Token[] tokens = new Token[]{
-			this.createDataTypeToken("int"),
+			this.createDataTypeToken(DATA_TYPE_NAME.INT),
 			this.createVariableIdentifierToken("x"),
-			this.createOperatorToken("[", OperatorPrecedence.SUBSCRIPT_BEGIN, AttributeValue.LEFT, AttributeValue.MULTIARY, AttributeValue.SUBSCRIPT),
-			this.createLiteralToken("2"),
-			this.createOperatorToken("][", OperatorPrecedence.SUBSCRIPT_SEPARATOR, AttributeValue.LEFT, AttributeValue.MULTIARY, AttributeValue.SUBSCRIPT),
-			this.createLiteralToken("3"),
-			this.createOperatorToken("][", OperatorPrecedence.SUBSCRIPT_SEPARATOR, AttributeValue.LEFT, AttributeValue.MULTIARY, AttributeValue.SUBSCRIPT),
-			this.createLiteralToken("4"),
-			this.createOperatorToken("]", OperatorPrecedence.SUBSCRIPT_END, AttributeValue.LEFT, AttributeValue.MULTIARY, AttributeValue.SUBSCRIPT),
+			this.createOperatorToken("[", OPERATOR_PRECEDENCE.SUBSCRIPT_BEGIN, AttributeValue.LEFT, AttributeValue.MULTIARY, AttributeValue.SUBSCRIPT),
+			this.createLiteralToken("2", DATA_TYPE_NAME.INT),
+			this.createOperatorToken("][", OPERATOR_PRECEDENCE.SUBSCRIPT_SEPARATOR, AttributeValue.LEFT, AttributeValue.MULTIARY, AttributeValue.SUBSCRIPT),
+			this.createLiteralToken("3", DATA_TYPE_NAME.INT),
+			this.createOperatorToken("][", OPERATOR_PRECEDENCE.SUBSCRIPT_SEPARATOR, AttributeValue.LEFT, AttributeValue.MULTIARY, AttributeValue.SUBSCRIPT),
+			this.createLiteralToken("4", DATA_TYPE_NAME.INT),
+			this.createOperatorToken("]", OPERATOR_PRECEDENCE.SUBSCRIPT_END, AttributeValue.LEFT, AttributeValue.MULTIARY, AttributeValue.SUBSCRIPT),
 			this.createEndToken()
 		};
 
 		// トークン配列の内容を確認
 		//this.dumpTokens(tokens);
 
-		AstNode rootNode = new Parser().parse(tokens);
+		AstNode rootNode = new Parser(LANG_SPEC).parse(tokens);
 
 		// ASTの内容を確認
 		//System.out.println(rootNode);
@@ -282,7 +288,7 @@ public class ParserTest {
 		// 変数ノードの検査
 		AstNode varNode = rootNode.getChildNodes()[0];
 		assertEquals(AstNode.Type.VARIABLE, varNode.getType());
-		assertEquals("int", varNode.getAttribute(AttributeKey.DATA_TYPE));
+		assertEquals(DATA_TYPE_NAME.INT, varNode.getAttribute(AttributeKey.DATA_TYPE));
 		assertEquals("x", varNode.getAttribute(AttributeKey.IDENTIFIER_VALUE));
 		assertEquals("3", varNode.getAttribute(AttributeKey.RANK));
 
@@ -315,21 +321,21 @@ public class ParserTest {
 
 		// "int x = 1 + 2 * 3;" のトークン配列を用意
 		Token[] tokens = new Token[]{
-			this.createDataTypeToken("int"),
+			this.createDataTypeToken(DATA_TYPE_NAME.INT),
 			this.createVariableIdentifierToken("x"),
-			this.createOperatorToken("=", OperatorPrecedence.ASSIGNMENT, AttributeValue.RIGHT, AttributeValue.BINARY, AttributeValue.ASSIGNMENT),
-			this.createLiteralToken("1"),
-			this.createOperatorToken("+", OperatorPrecedence.ADDITION, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.ARITHMETIC),
-			this.createLiteralToken("2"),
-			this.createOperatorToken("*", OperatorPrecedence.MULTIPLICATION, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.ARITHMETIC),
-			this.createLiteralToken("3"),
+			this.createOperatorToken("=", OPERATOR_PRECEDENCE.ASSIGNMENT, AttributeValue.RIGHT, AttributeValue.BINARY, AttributeValue.ASSIGNMENT),
+			this.createLiteralToken("1", DATA_TYPE_NAME.INT),
+			this.createOperatorToken("+", OPERATOR_PRECEDENCE.ADDITION, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.ARITHMETIC),
+			this.createLiteralToken("2", DATA_TYPE_NAME.INT),
+			this.createOperatorToken("*", OPERATOR_PRECEDENCE.MULTIPLICATION, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.ARITHMETIC),
+			this.createLiteralToken("3", DATA_TYPE_NAME.INT),
 			this.createEndToken()
 		};
 
 		// トークン配列の内容を確認
 		//this.dumpTokens(tokens);
 
-		AstNode rootNode = new Parser().parse(tokens);
+		AstNode rootNode = new Parser(LANG_SPEC).parse(tokens);
 
 		// ASTの内容を確認
 		//System.out.println(rootNode);
@@ -341,7 +347,7 @@ public class ParserTest {
 		// 変数ノードの検査
 		AstNode varNode = rootNode.getChildNodes()[0];
 		assertEquals(AstNode.Type.VARIABLE, varNode.getType());
-		assertEquals("int", varNode.getAttribute(AttributeKey.DATA_TYPE));
+		assertEquals(DATA_TYPE_NAME.INT, varNode.getAttribute(AttributeKey.DATA_TYPE));
 		assertEquals("x", varNode.getAttribute(AttributeKey.IDENTIFIER_VALUE));
 		assertEquals("0", varNode.getAttribute(AttributeKey.RANK));
 
@@ -351,15 +357,15 @@ public class ParserTest {
 		assertEquals(1, initExprNode.getChildNodes().length);
 
 		AstNode assignNode = initExprNode.getChildNodes()[0];
-		this.checkOperatorNode(assignNode, "=", OperatorPrecedence.ASSIGNMENT, AttributeValue.RIGHT, AttributeValue.BINARY, AttributeValue.ASSIGNMENT);
+		this.checkOperatorNode(assignNode, "=", OPERATOR_PRECEDENCE.ASSIGNMENT, AttributeValue.RIGHT, AttributeValue.BINARY, AttributeValue.ASSIGNMENT);
 		this.checkVariableIdentifierNode(assignNode.getChildNodes()[0], "x");
 
 		AstNode addNode = assignNode.getChildNodes()[1];
-		this.checkOperatorNode(addNode, "+", OperatorPrecedence.ADDITION, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.ARITHMETIC);
+		this.checkOperatorNode(addNode, "+", OPERATOR_PRECEDENCE.ADDITION, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.ARITHMETIC);
 		this.checkLiteralNode(addNode.getChildNodes()[0], "1");
 
 		AstNode mulNode = addNode.getChildNodes()[1];
-		this.checkOperatorNode(mulNode, "*", OperatorPrecedence.MULTIPLICATION, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.ARITHMETIC);
+		this.checkOperatorNode(mulNode, "*", OPERATOR_PRECEDENCE.MULTIPLICATION, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.ARITHMETIC);
 		this.checkLiteralNode(mulNode.getChildNodes()[0], "2");
 		this.checkLiteralNode(mulNode.getChildNodes()[1], "3");
 	}
@@ -376,32 +382,32 @@ public class ParserTest {
 
 		// "{ 1; 2; { 3; 4; { 5; } 6; } 7; }" のトークン配列を用意
 		Token[] tokens = new Token[]{
-				this.createBlockToken(ScriptWord.BLOCK_BEGIN),
-			this.createLiteralToken("1"),
+				this.createBlockToken(SCRIPT_WORD.BLOCK_BEGIN),
+			this.createLiteralToken("1", DATA_TYPE_NAME.INT),
 			this.createEndToken(),
-			this.createLiteralToken("2"),
+			this.createLiteralToken("2", DATA_TYPE_NAME.INT),
 			this.createEndToken(),
-			this.createBlockToken(ScriptWord.BLOCK_BEGIN),
-			this.createLiteralToken("3"),
+			this.createBlockToken(SCRIPT_WORD.BLOCK_BEGIN),
+			this.createLiteralToken("3", DATA_TYPE_NAME.INT),
 			this.createEndToken(),
-			this.createLiteralToken("4"),
+			this.createLiteralToken("4", DATA_TYPE_NAME.INT),
 			this.createEndToken(),
-			this.createBlockToken(ScriptWord.BLOCK_BEGIN),
-			this.createLiteralToken("5"),
+			this.createBlockToken(SCRIPT_WORD.BLOCK_BEGIN),
+			this.createLiteralToken("5", DATA_TYPE_NAME.INT),
 			this.createEndToken(),
-			this.createBlockToken(ScriptWord.BLOCK_END),
-			this.createLiteralToken("6"),
+			this.createBlockToken(SCRIPT_WORD.BLOCK_END),
+			this.createLiteralToken("6", DATA_TYPE_NAME.INT),
 			this.createEndToken(),
-			this.createBlockToken(ScriptWord.BLOCK_END),
-			this.createLiteralToken("7"),
+			this.createBlockToken(SCRIPT_WORD.BLOCK_END),
+			this.createLiteralToken("7", DATA_TYPE_NAME.INT),
 			this.createEndToken(),
-			this.createBlockToken(ScriptWord.BLOCK_END),
+			this.createBlockToken(SCRIPT_WORD.BLOCK_END),
 		};
 
 		// トークン配列の内容を確認
 		//this.dumpTokens(tokens);
 
-		AstNode rootNode = new Parser().parse(tokens);
+		AstNode rootNode = new Parser(LANG_SPEC).parse(tokens);
 
 		// ASTの内容を確認
 		//System.out.println(rootNode);
@@ -470,20 +476,20 @@ public class ParserTest {
 
 		// " if (x == 2) { } " のトークン配列を用意
 		Token[] tokens = new Token[]{
-			this.createControlToken(ScriptWord.IF),
-			this.createParenthesisToken(ScriptWord.PARENTHESIS_BEGIN),
+			this.createControlToken(SCRIPT_WORD.IF),
+			this.createParenthesisToken(SCRIPT_WORD.PARENTHESIS_BEGIN),
 			this.createVariableIdentifierToken("x"),
-			this.createOperatorToken(ScriptWord.EQUAL, OperatorPrecedence.EQUAL, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.COMPARISON),
-			this.createLiteralToken("2"),
-			this.createParenthesisToken(ScriptWord.PARENTHESIS_END),
-			this.createBlockToken(ScriptWord.BLOCK_BEGIN),
-			this.createBlockToken(ScriptWord.BLOCK_END),
+			this.createOperatorToken(SCRIPT_WORD.EQUAL, OPERATOR_PRECEDENCE.EQUAL, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.COMPARISON),
+			this.createLiteralToken("2", DATA_TYPE_NAME.INT),
+			this.createParenthesisToken(SCRIPT_WORD.PARENTHESIS_END),
+			this.createBlockToken(SCRIPT_WORD.BLOCK_BEGIN),
+			this.createBlockToken(SCRIPT_WORD.BLOCK_END),
 		};
 
 		// トークン配列の内容を確認
 		//this.dumpTokens(tokens);
 
-		AstNode rootNode = new Parser().parse(tokens);
+		AstNode rootNode = new Parser(LANG_SPEC).parse(tokens);
 
 		// ASTの内容を確認
 		//System.out.println(rootNode);
@@ -504,7 +510,7 @@ public class ParserTest {
 
 		// 条件式ASTの検査
 		AstNode equalNode = conditionExprNode.getChildNodes()[0];
-		this.checkOperatorNode(equalNode, ScriptWord.EQUAL, OperatorPrecedence.EQUAL, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.COMPARISON);
+		this.checkOperatorNode(equalNode, SCRIPT_WORD.EQUAL, OPERATOR_PRECEDENCE.EQUAL, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.COMPARISON);
 		assertEquals(2, equalNode.getChildNodes().length);
 		this.checkVariableIdentifierNode(equalNode.getChildNodes()[0], "x");
 		this.checkLiteralNode(equalNode.getChildNodes()[1], "2");
@@ -521,27 +527,27 @@ public class ParserTest {
 
 		// " if (x == 2) { 1; } else { 2; }" のトークン配列を用意
 		Token[] tokens = new Token[]{
-			this.createControlToken(ScriptWord.IF),
-			this.createParenthesisToken(ScriptWord.PARENTHESIS_BEGIN),
+			this.createControlToken(SCRIPT_WORD.IF),
+			this.createParenthesisToken(SCRIPT_WORD.PARENTHESIS_BEGIN),
 			this.createVariableIdentifierToken("x"),
-			this.createOperatorToken(ScriptWord.EQUAL, OperatorPrecedence.EQUAL, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.COMPARISON),
-			this.createLiteralToken("2"),
-			this.createParenthesisToken(ScriptWord.PARENTHESIS_END),
-			this.createBlockToken(ScriptWord.BLOCK_BEGIN),
-			this.createLiteralToken("1"),
+			this.createOperatorToken(SCRIPT_WORD.EQUAL, OPERATOR_PRECEDENCE.EQUAL, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.COMPARISON),
+			this.createLiteralToken("2", DATA_TYPE_NAME.INT),
+			this.createParenthesisToken(SCRIPT_WORD.PARENTHESIS_END),
+			this.createBlockToken(SCRIPT_WORD.BLOCK_BEGIN),
+			this.createLiteralToken("1", DATA_TYPE_NAME.INT),
 			this.createEndToken(),
-			this.createBlockToken(ScriptWord.BLOCK_END),
-			this.createControlToken(ScriptWord.ELSE),
-			this.createBlockToken(ScriptWord.BLOCK_BEGIN),
-			this.createLiteralToken("2"),
+			this.createBlockToken(SCRIPT_WORD.BLOCK_END),
+			this.createControlToken(SCRIPT_WORD.ELSE),
+			this.createBlockToken(SCRIPT_WORD.BLOCK_BEGIN),
+			this.createLiteralToken("2", DATA_TYPE_NAME.INT),
 			this.createEndToken(),
-			this.createBlockToken(ScriptWord.BLOCK_END),
+			this.createBlockToken(SCRIPT_WORD.BLOCK_END),
 		};
 
 		// トークン配列の内容を確認
 		//this.dumpTokens(tokens);
 
-		AstNode rootNode = new Parser().parse(tokens);
+		AstNode rootNode = new Parser(LANG_SPEC).parse(tokens);
 
 		// ASTの内容を確認
 		//System.out.println(rootNode);
@@ -562,7 +568,7 @@ public class ParserTest {
 
 		// 条件式ASTの検査
 		AstNode equalNode = conditionExprNode.getChildNodes()[0];
-		this.checkOperatorNode(equalNode, ScriptWord.EQUAL, OperatorPrecedence.EQUAL, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.COMPARISON);
+		this.checkOperatorNode(equalNode, SCRIPT_WORD.EQUAL, OPERATOR_PRECEDENCE.EQUAL, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.COMPARISON);
 		assertEquals(2, equalNode.getChildNodes().length);
 		this.checkVariableIdentifierNode(equalNode.getChildNodes()[0], "x");
 		this.checkLiteralNode(equalNode.getChildNodes()[1], "2");
@@ -593,20 +599,20 @@ public class ParserTest {
 
 		// " while (x == 2) { } " のトークン配列を用意
 		Token[] tokens = new Token[]{
-			this.createControlToken(ScriptWord.WHILE),
-			this.createParenthesisToken(ScriptWord.PARENTHESIS_BEGIN),
+			this.createControlToken(SCRIPT_WORD.WHILE),
+			this.createParenthesisToken(SCRIPT_WORD.PARENTHESIS_BEGIN),
 			this.createVariableIdentifierToken("x"),
-			this.createOperatorToken(ScriptWord.EQUAL, OperatorPrecedence.EQUAL, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.COMPARISON),
-			this.createLiteralToken("2"),
-			this.createParenthesisToken(ScriptWord.PARENTHESIS_END),
-			this.createBlockToken(ScriptWord.BLOCK_BEGIN),
-			this.createBlockToken(ScriptWord.BLOCK_END),
+			this.createOperatorToken(SCRIPT_WORD.EQUAL, OPERATOR_PRECEDENCE.EQUAL, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.COMPARISON),
+			this.createLiteralToken("2", DATA_TYPE_NAME.INT),
+			this.createParenthesisToken(SCRIPT_WORD.PARENTHESIS_END),
+			this.createBlockToken(SCRIPT_WORD.BLOCK_BEGIN),
+			this.createBlockToken(SCRIPT_WORD.BLOCK_END),
 		};
 
 		// トークン配列の内容を確認
 		//this.dumpTokens(tokens);
 
-		AstNode rootNode = new Parser().parse(tokens);
+		AstNode rootNode = new Parser(LANG_SPEC).parse(tokens);
 
 		// ASTの内容を確認
 		//System.out.println(rootNode);
@@ -627,7 +633,7 @@ public class ParserTest {
 
 		// 条件式ASTの検査
 		AstNode equalNode = conditionExprNode.getChildNodes()[0];
-		this.checkOperatorNode(equalNode, ScriptWord.EQUAL, OperatorPrecedence.EQUAL, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.COMPARISON);
+		this.checkOperatorNode(equalNode, SCRIPT_WORD.EQUAL, OPERATOR_PRECEDENCE.EQUAL, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.COMPARISON);
 		assertEquals(2, equalNode.getChildNodes().length);
 		this.checkVariableIdentifierNode(equalNode.getChildNodes()[0], "x");
 		this.checkLiteralNode(equalNode.getChildNodes()[1], "2");
@@ -644,27 +650,27 @@ public class ParserTest {
 
 		// " for (i=0; i<10; ++i) { } " のトークン配列を用意
 		Token[] tokens = new Token[]{
-			this.createControlToken(ScriptWord.FOR),
-			this.createParenthesisToken(ScriptWord.PARENTHESIS_BEGIN),
+			this.createControlToken(SCRIPT_WORD.FOR),
+			this.createParenthesisToken(SCRIPT_WORD.PARENTHESIS_BEGIN),
 			this.createVariableIdentifierToken("i"),
-			this.createOperatorToken(ScriptWord.ASSIGNMENT, OperatorPrecedence.ASSIGNMENT, AttributeValue.RIGHT, AttributeValue.BINARY, AttributeValue.ASSIGNMENT),
-			this.createLiteralToken("0"),
+			this.createOperatorToken(SCRIPT_WORD.ASSIGNMENT, OPERATOR_PRECEDENCE.ASSIGNMENT, AttributeValue.RIGHT, AttributeValue.BINARY, AttributeValue.ASSIGNMENT),
+			this.createLiteralToken("0", DATA_TYPE_NAME.INT),
 			this.createEndToken(),
 			this.createVariableIdentifierToken("i"),
-			this.createOperatorToken(ScriptWord.LESS_THAN, OperatorPrecedence.LESS_THAN, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.COMPARISON),
-			this.createLiteralToken("10"),
+			this.createOperatorToken(SCRIPT_WORD.LESS_THAN, OPERATOR_PRECEDENCE.LESS_THAN, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.COMPARISON),
+			this.createLiteralToken("10", DATA_TYPE_NAME.INT),
 			this.createEndToken(),
-			this.createOperatorToken(ScriptWord.INCREMENT, OperatorPrecedence.PREFIX_INCREMENT, AttributeValue.LEFT, AttributeValue.PREFIX, AttributeValue.ARITHMETIC),
+			this.createOperatorToken(SCRIPT_WORD.INCREMENT, OPERATOR_PRECEDENCE.PREFIX_INCREMENT, AttributeValue.LEFT, AttributeValue.PREFIX, AttributeValue.ARITHMETIC),
 			this.createVariableIdentifierToken("i"),
-			this.createParenthesisToken(ScriptWord.PARENTHESIS_END),
-			this.createBlockToken(ScriptWord.BLOCK_BEGIN),
-			this.createBlockToken(ScriptWord.BLOCK_END),
+			this.createParenthesisToken(SCRIPT_WORD.PARENTHESIS_END),
+			this.createBlockToken(SCRIPT_WORD.BLOCK_BEGIN),
+			this.createBlockToken(SCRIPT_WORD.BLOCK_END),
 		};
 
 		// トークン配列の内容を確認
 		//this.dumpTokens(tokens);
 
-		AstNode rootNode = new Parser().parse(tokens);
+		AstNode rootNode = new Parser(LANG_SPEC).parse(tokens);
 
 		// ASTの内容を確認
 		//System.out.println(rootNode);
@@ -683,7 +689,7 @@ public class ParserTest {
 		assertEquals(AstNode.Type.EXPRESSION, initExprNode.getType());
 		assertEquals(1, initExprNode.getChildNodes().length);
 		AstNode assignNode = initExprNode.getChildNodes()[0];
-		this.checkOperatorNode(assignNode, ScriptWord.ASSIGNMENT, OperatorPrecedence.ASSIGNMENT, AttributeValue.RIGHT, AttributeValue.BINARY, AttributeValue.ASSIGNMENT);
+		this.checkOperatorNode(assignNode, SCRIPT_WORD.ASSIGNMENT, OPERATOR_PRECEDENCE.ASSIGNMENT, AttributeValue.RIGHT, AttributeValue.BINARY, AttributeValue.ASSIGNMENT);
 		assertEquals(2, assignNode.getChildNodes().length);
 		this.checkVariableIdentifierNode(assignNode.getChildNodes()[0], "i");
 		this.checkLiteralNode(assignNode.getChildNodes()[1], "0");
@@ -693,7 +699,7 @@ public class ParserTest {
 		assertEquals(AstNode.Type.EXPRESSION, conditionExprNode.getType());
 		assertEquals(1, conditionExprNode.getChildNodes().length);
 		AstNode ltNode = conditionExprNode.getChildNodes()[0];
-		this.checkOperatorNode(ltNode, ScriptWord.LESS_THAN, OperatorPrecedence.LESS_THAN, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.COMPARISON);
+		this.checkOperatorNode(ltNode, SCRIPT_WORD.LESS_THAN, OPERATOR_PRECEDENCE.LESS_THAN, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.COMPARISON);
 		assertEquals(2, ltNode.getChildNodes().length);
 		this.checkVariableIdentifierNode(ltNode.getChildNodes()[0], "i");
 		this.checkLiteralNode(ltNode.getChildNodes()[1], "10");
@@ -704,7 +710,7 @@ public class ParserTest {
 		assertEquals(1, updateExprNode.getChildNodes().length);
 		assertEquals(1, updateExprNode.getChildNodes().length);
 		AstNode incrementNode = updateExprNode.getChildNodes()[0];
-		this.checkOperatorNode(incrementNode, ScriptWord.INCREMENT, OperatorPrecedence.PREFIX_INCREMENT, AttributeValue.LEFT, AttributeValue.PREFIX, AttributeValue.ARITHMETIC);
+		this.checkOperatorNode(incrementNode, SCRIPT_WORD.INCREMENT, OPERATOR_PRECEDENCE.PREFIX_INCREMENT, AttributeValue.LEFT, AttributeValue.PREFIX, AttributeValue.ARITHMETIC);
 		this.checkVariableIdentifierNode(incrementNode.getChildNodes()[0], "i");
 
 		// ブロックノードの検査
@@ -718,28 +724,28 @@ public class ParserTest {
 
 		// " for (int i=0; i<10; ++i) { } " のトークン配列を用意
 		Token[] tokens = new Token[]{
-			this.createControlToken(ScriptWord.FOR),
-			this.createParenthesisToken(ScriptWord.PARENTHESIS_BEGIN),
-			this.createDataTypeToken("int"),
+			this.createControlToken(SCRIPT_WORD.FOR),
+			this.createParenthesisToken(SCRIPT_WORD.PARENTHESIS_BEGIN),
+			this.createDataTypeToken(DATA_TYPE_NAME.INT),
 			this.createVariableIdentifierToken("i"),
-			this.createOperatorToken(ScriptWord.ASSIGNMENT, OperatorPrecedence.ASSIGNMENT, AttributeValue.RIGHT, AttributeValue.BINARY, AttributeValue.ASSIGNMENT),
-			this.createLiteralToken("0"),
+			this.createOperatorToken(SCRIPT_WORD.ASSIGNMENT, OPERATOR_PRECEDENCE.ASSIGNMENT, AttributeValue.RIGHT, AttributeValue.BINARY, AttributeValue.ASSIGNMENT),
+			this.createLiteralToken("0", DATA_TYPE_NAME.INT),
 			this.createEndToken(),
 			this.createVariableIdentifierToken("i"),
-			this.createOperatorToken(ScriptWord.LESS_THAN, OperatorPrecedence.LESS_THAN, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.COMPARISON),
-			this.createLiteralToken("10"),
+			this.createOperatorToken(SCRIPT_WORD.LESS_THAN, OPERATOR_PRECEDENCE.LESS_THAN, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.COMPARISON),
+			this.createLiteralToken("10", DATA_TYPE_NAME.INT),
 			this.createEndToken(),
-			this.createOperatorToken(ScriptWord.INCREMENT, OperatorPrecedence.PREFIX_INCREMENT, AttributeValue.LEFT, AttributeValue.PREFIX, AttributeValue.ARITHMETIC),
+			this.createOperatorToken(SCRIPT_WORD.INCREMENT, OPERATOR_PRECEDENCE.PREFIX_INCREMENT, AttributeValue.LEFT, AttributeValue.PREFIX, AttributeValue.ARITHMETIC),
 			this.createVariableIdentifierToken("i"),
-			this.createParenthesisToken(ScriptWord.PARENTHESIS_END),
-			this.createBlockToken(ScriptWord.BLOCK_BEGIN),
-			this.createBlockToken(ScriptWord.BLOCK_END),
+			this.createParenthesisToken(SCRIPT_WORD.PARENTHESIS_END),
+			this.createBlockToken(SCRIPT_WORD.BLOCK_BEGIN),
+			this.createBlockToken(SCRIPT_WORD.BLOCK_END),
 		};
 
 		// トークン配列の内容を確認
 		//this.dumpTokens(tokens);
 
-		AstNode rootNode = new Parser().parse(tokens);
+		AstNode rootNode = new Parser(LANG_SPEC).parse(tokens);
 
 		// ASTの内容を確認
 		//System.out.println(rootNode);
@@ -756,7 +762,7 @@ public class ParserTest {
 		// 変数宣言文ノードの検査
 		AstNode varNode = forNode.getChildNodes()[0];
 		assertEquals(AstNode.Type.VARIABLE, varNode.getType());
-		assertEquals("int", varNode.getAttribute(AttributeKey.DATA_TYPE));
+		assertEquals(DATA_TYPE_NAME.INT, varNode.getAttribute(AttributeKey.DATA_TYPE));
 		assertEquals("i", varNode.getAttribute(AttributeKey.IDENTIFIER_VALUE));
 		assertEquals("0", varNode.getAttribute(AttributeKey.RANK));
 		assertEquals(1, varNode.getChildNodes().length);
@@ -766,7 +772,7 @@ public class ParserTest {
 		assertEquals(AstNode.Type.EXPRESSION, initExprNode.getType());
 		assertEquals(1, initExprNode.getChildNodes().length);
 		AstNode assignNode = initExprNode.getChildNodes()[0];
-		this.checkOperatorNode(assignNode, ScriptWord.ASSIGNMENT, OperatorPrecedence.ASSIGNMENT, AttributeValue.RIGHT, AttributeValue.BINARY, AttributeValue.ASSIGNMENT);
+		this.checkOperatorNode(assignNode, SCRIPT_WORD.ASSIGNMENT, OPERATOR_PRECEDENCE.ASSIGNMENT, AttributeValue.RIGHT, AttributeValue.BINARY, AttributeValue.ASSIGNMENT);
 		assertEquals(2, assignNode.getChildNodes().length);
 		this.checkVariableIdentifierNode(assignNode.getChildNodes()[0], "i");
 		this.checkLiteralNode(assignNode.getChildNodes()[1], "0");
@@ -776,7 +782,7 @@ public class ParserTest {
 		assertEquals(AstNode.Type.EXPRESSION, conditionExprNode.getType());
 		assertEquals(1, conditionExprNode.getChildNodes().length);
 		AstNode ltNode = conditionExprNode.getChildNodes()[0];
-		this.checkOperatorNode(ltNode, ScriptWord.LESS_THAN, OperatorPrecedence.LESS_THAN, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.COMPARISON);
+		this.checkOperatorNode(ltNode, SCRIPT_WORD.LESS_THAN, OPERATOR_PRECEDENCE.LESS_THAN, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.COMPARISON);
 		assertEquals(2, ltNode.getChildNodes().length);
 		this.checkVariableIdentifierNode(ltNode.getChildNodes()[0], "i");
 		this.checkLiteralNode(ltNode.getChildNodes()[1], "10");
@@ -787,7 +793,7 @@ public class ParserTest {
 		assertEquals(1, updateExprNode.getChildNodes().length);
 		assertEquals(1, updateExprNode.getChildNodes().length);
 		AstNode incrementNode = updateExprNode.getChildNodes()[0];
-		this.checkOperatorNode(incrementNode, ScriptWord.INCREMENT, OperatorPrecedence.PREFIX_INCREMENT, AttributeValue.LEFT, AttributeValue.PREFIX, AttributeValue.ARITHMETIC);
+		this.checkOperatorNode(incrementNode, SCRIPT_WORD.INCREMENT, OPERATOR_PRECEDENCE.PREFIX_INCREMENT, AttributeValue.LEFT, AttributeValue.PREFIX, AttributeValue.ARITHMETIC);
 		this.checkVariableIdentifierNode(incrementNode.getChildNodes()[0], "i");
 
 		// ブロックノードの検査
@@ -802,20 +808,20 @@ public class ParserTest {
 
 		// "while (true) { continue; }" のトークン配列を用意
 		Token[] tokens = new Token[]{
-			this.createControlToken(ScriptWord.WHILE),
-			this.createParenthesisToken(ScriptWord.PARENTHESIS_BEGIN),
-			this.createLiteralToken("true"),
-			this.createParenthesisToken(ScriptWord.PARENTHESIS_END),
-			this.createBlockToken(ScriptWord.BLOCK_BEGIN),
-			this.createControlToken(ScriptWord.CONTINUE),
+			this.createControlToken(SCRIPT_WORD.WHILE),
+			this.createParenthesisToken(SCRIPT_WORD.PARENTHESIS_BEGIN),
+			this.createLiteralToken("true", DATA_TYPE_NAME.BOOL),
+			this.createParenthesisToken(SCRIPT_WORD.PARENTHESIS_END),
+			this.createBlockToken(SCRIPT_WORD.BLOCK_BEGIN),
+			this.createControlToken(SCRIPT_WORD.CONTINUE),
 			this.createEndToken(),
-			this.createBlockToken(ScriptWord.BLOCK_END),
+			this.createBlockToken(SCRIPT_WORD.BLOCK_END),
 		};
 
 		// トークン配列の内容を確認
 		//this.dumpTokens(tokens);
 
-		AstNode rootNode = new Parser().parse(tokens);
+		AstNode rootNode = new Parser(LANG_SPEC).parse(tokens);
 
 		// ASTの内容を確認
 		//System.out.println(rootNode);
@@ -852,20 +858,20 @@ public class ParserTest {
 
 		// "while (true) { break; }" のトークン配列を用意
 		Token[] tokens = new Token[]{
-			this.createControlToken(ScriptWord.WHILE),
-			this.createParenthesisToken(ScriptWord.PARENTHESIS_BEGIN),
-			this.createLiteralToken("true"),
-			this.createParenthesisToken(ScriptWord.PARENTHESIS_END),
-			this.createBlockToken(ScriptWord.BLOCK_BEGIN),
-			this.createControlToken(ScriptWord.BREAK),
+			this.createControlToken(SCRIPT_WORD.WHILE),
+			this.createParenthesisToken(SCRIPT_WORD.PARENTHESIS_BEGIN),
+			this.createLiteralToken("true", DATA_TYPE_NAME.BOOL),
+			this.createParenthesisToken(SCRIPT_WORD.PARENTHESIS_END),
+			this.createBlockToken(SCRIPT_WORD.BLOCK_BEGIN),
+			this.createControlToken(SCRIPT_WORD.BREAK),
 			this.createEndToken(),
-			this.createBlockToken(ScriptWord.BLOCK_END),
+			this.createBlockToken(SCRIPT_WORD.BLOCK_END),
 		};
 
 		// トークン配列の内容を確認
 		//this.dumpTokens(tokens);
 
-		AstNode rootNode = new Parser().parse(tokens);
+		AstNode rootNode = new Parser(LANG_SPEC).parse(tokens);
 
 		// ASTの内容を確認
 		//System.out.println(rootNode);
@@ -906,7 +912,7 @@ public class ParserTest {
 		// "++x" のトークン配列を用意
 		Token rightToken = this.createVariableIdentifierToken("x");
 		Token operatorToken = createOperatorToken(
-			ScriptWord.INCREMENT, OperatorPrecedence.PREFIX_INCREMENT, AttributeValue.LEFT, AttributeValue.PREFIX, AttributeValue.ARITHMETIC
+			SCRIPT_WORD.INCREMENT, OPERATOR_PRECEDENCE.PREFIX_INCREMENT, AttributeValue.LEFT, AttributeValue.PREFIX, AttributeValue.ARITHMETIC
 		);
 		Token[] tokens = new Token[]{
 			operatorToken,
@@ -917,7 +923,7 @@ public class ParserTest {
 		// トークン配列の内容を確認
 		//this.dumpTokens(tokens);
 
-		AstNode rootNode = new Parser().parse(tokens);
+		AstNode rootNode = new Parser(LANG_SPEC).parse(tokens);
 
 		// ASTの内容を確認
 		//System.out.println(rootNode);
@@ -934,7 +940,7 @@ public class ParserTest {
 		// "++" 演算子ノードの検査
 		AstNode operatorNode = expressionNode.getChildNodes()[0];
 		this.checkOperatorNode(
-				operatorNode, ScriptWord.INCREMENT, OperatorPrecedence.PREFIX_DECREMENT, AttributeValue.LEFT,
+				operatorNode, SCRIPT_WORD.INCREMENT, OPERATOR_PRECEDENCE.PREFIX_DECREMENT, AttributeValue.LEFT,
 				AttributeValue.PREFIX, AttributeValue.ARITHMETIC
 		);
 
@@ -951,7 +957,7 @@ public class ParserTest {
 		// "x++" のトークン配列を用意
 		Token leftToken = this.createVariableIdentifierToken("x");
 		Token operatorToken = createOperatorToken(
-			ScriptWord.INCREMENT, OperatorPrecedence.POSTFIX_INCREMENT, AttributeValue.LEFT, AttributeValue.POSTFIX, AttributeValue.ARITHMETIC
+			SCRIPT_WORD.INCREMENT, OPERATOR_PRECEDENCE.POSTFIX_INCREMENT, AttributeValue.LEFT, AttributeValue.POSTFIX, AttributeValue.ARITHMETIC
 		);
 		Token[] tokens = new Token[]{
 			leftToken,
@@ -962,7 +968,7 @@ public class ParserTest {
 		// トークン配列の内容を確認
 		//this.dumpTokens(tokens);
 
-		AstNode rootNode = new Parser().parse(tokens);
+		AstNode rootNode = new Parser(LANG_SPEC).parse(tokens);
 
 		// ASTの内容を確認
 		//System.out.println(rootNode);
@@ -979,7 +985,7 @@ public class ParserTest {
 		// "++" 演算子ノードの検査
 		AstNode operatorNode = expressionNode.getChildNodes()[0];
 		this.checkOperatorNode(
-			operatorNode, ScriptWord.INCREMENT, OperatorPrecedence.POSTFIX_DECREMENT, AttributeValue.LEFT,
+			operatorNode, SCRIPT_WORD.INCREMENT, OPERATOR_PRECEDENCE.POSTFIX_DECREMENT, AttributeValue.LEFT,
 			AttributeValue.POSTFIX, AttributeValue.ARITHMETIC
 		);
 
@@ -994,10 +1000,10 @@ public class ParserTest {
 	public void testParseExpressionBinaryOperator() throws VnanoException {
 
 		// "1 + x" のトークン配列を用意
-		Token leftToken = this.createLiteralToken("1");
+		Token leftToken = this.createLiteralToken("1", DATA_TYPE_NAME.INT);
 		Token rightToken = this.createVariableIdentifierToken("x");
 		Token operatorToken = createOperatorToken(
-			ScriptWord.PLUS, OperatorPrecedence.ADDITION, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.ARITHMETIC
+			SCRIPT_WORD.PLUS, OPERATOR_PRECEDENCE.ADDITION, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.ARITHMETIC
 		);
 		Token[] tokens = new Token[]{
 			leftToken,
@@ -1009,7 +1015,7 @@ public class ParserTest {
 		// トークン配列の内容を確認
 		//this.dumpTokens(tokens);
 
-		AstNode rootNode = new Parser().parse(tokens);
+		AstNode rootNode = new Parser(LANG_SPEC).parse(tokens);
 
 		// ASTの内容を確認
 		//System.out.println(rootNode);
@@ -1026,7 +1032,7 @@ public class ParserTest {
 		// "+" 演算子ノードの検査
 		AstNode operatorNode = expressionNode.getChildNodes()[0];
 		this.checkOperatorNode(
-			operatorNode, ScriptWord.PLUS, OperatorPrecedence.ADDITION, AttributeValue.LEFT,
+			operatorNode, SCRIPT_WORD.PLUS, OPERATOR_PRECEDENCE.ADDITION, AttributeValue.LEFT,
 			AttributeValue.BINARY, AttributeValue.ARITHMETIC
 		);
 
@@ -1044,15 +1050,15 @@ public class ParserTest {
 		// "func(1,x)" のトークン配列を用意
 		Token identifierToken = this.createVariableIdentifierToken("func");
 		Token operatorBeginToken = createOperatorToken( // "(" のトークン
-			ScriptWord.PARENTHESIS_BEGIN, OperatorPrecedence.CALL_BEGIN, AttributeValue.LEFT, AttributeValue.MULTIARY, AttributeValue.CALL
+			SCRIPT_WORD.PARENTHESIS_BEGIN, OPERATOR_PRECEDENCE.CALL_BEGIN, AttributeValue.LEFT, AttributeValue.MULTIARY, AttributeValue.CALL
 		);
-		Token leftOperandToken = this.createLiteralToken("1");
+		Token leftOperandToken = this.createLiteralToken("1", DATA_TYPE_NAME.INT);
 		Token operatorSeparatorToken = createOperatorToken( // "," のトークン
-			ScriptWord.ARGUMENT_SEPARATOR, OperatorPrecedence.CALL_BEGIN, AttributeValue.LEFT, AttributeValue.MULTIARY_SEPARATOR, AttributeValue.CALL
+			SCRIPT_WORD.ARGUMENT_SEPARATOR, OPERATOR_PRECEDENCE.CALL_BEGIN, AttributeValue.LEFT, AttributeValue.MULTIARY_SEPARATOR, AttributeValue.CALL
 		);
 		Token rightOperandToken = this.createVariableIdentifierToken("x");
 		Token operatorEndToken = createOperatorToken( // ")" のトークン
-			ScriptWord.PARENTHESIS_END, OperatorPrecedence.CALL_BEGIN, AttributeValue.LEFT, AttributeValue.MULTIARY_END, AttributeValue.CALL
+			SCRIPT_WORD.PARENTHESIS_END, OPERATOR_PRECEDENCE.CALL_BEGIN, AttributeValue.LEFT, AttributeValue.MULTIARY_END, AttributeValue.CALL
 		);
 		Token[] tokens = new Token[]{
 			identifierToken,
@@ -1067,7 +1073,7 @@ public class ParserTest {
 		// トークン配列の内容を確認
 		//this.dumpTokens(tokens);
 
-		AstNode rootNode = new Parser().parse(tokens);
+		AstNode rootNode = new Parser(LANG_SPEC).parse(tokens);
 
 		// ASTの内容を確認
 		//System.out.println(rootNode);
@@ -1084,7 +1090,7 @@ public class ParserTest {
 		// 関数呼び出し演算子ノードの検査
 		AstNode operatorNode = expressionNode.getChildNodes()[0];
 		this.checkOperatorNode(
-			operatorNode, ScriptWord.PARENTHESIS_BEGIN, OperatorPrecedence.CALL_BEGIN, AttributeValue.LEFT,
+			operatorNode, SCRIPT_WORD.PARENTHESIS_BEGIN, OPERATOR_PRECEDENCE.CALL_BEGIN, AttributeValue.LEFT,
 			AttributeValue.MULTIARY, AttributeValue.CALL
 		);
 
@@ -1102,24 +1108,24 @@ public class ParserTest {
 	public void testParseExpressionParenthesis1() throws VnanoException {
 
 		// "1 * (2 + 3)" のトークン配列を用意
-		Token one = this.createLiteralToken("1");
-		Token two = this.createLiteralToken("2");
-		Token three = this.createLiteralToken("3");
+		Token one = this.createLiteralToken("1", DATA_TYPE_NAME.INT);
+		Token two = this.createLiteralToken("2", DATA_TYPE_NAME.INT);
+		Token three = this.createLiteralToken("3", DATA_TYPE_NAME.INT);
 		Token add = createOperatorToken(
-			ScriptWord.PLUS, OperatorPrecedence.ADDITION, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.ARITHMETIC
+			SCRIPT_WORD.PLUS, OPERATOR_PRECEDENCE.ADDITION, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.ARITHMETIC
 		);
 		Token mul = createOperatorToken(
-			ScriptWord.MULTIPLICATION, OperatorPrecedence.MULTIPLICATION, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.ARITHMETIC
+			SCRIPT_WORD.MULTIPLICATION, OPERATOR_PRECEDENCE.MULTIPLICATION, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.ARITHMETIC
 		);
-		Token open = createParenthesisToken(ScriptWord.PARENTHESIS_BEGIN);
-		Token close = createParenthesisToken(ScriptWord.PARENTHESIS_END);
+		Token open = createParenthesisToken(SCRIPT_WORD.PARENTHESIS_BEGIN);
+		Token close = createParenthesisToken(SCRIPT_WORD.PARENTHESIS_END);
 
 		Token[] tokens = new Token[]{ one, mul, open, two, add, three, close, this.createEndToken() };
 
 		// トークン配列の内容を確認
 		//this.dumpTokens(tokens);
 
-		AstNode rootNode = new Parser().parse(tokens);
+		AstNode rootNode = new Parser(LANG_SPEC).parse(tokens);
 
 		// ASTの内容を確認
 		//System.out.println(rootNode);
@@ -1136,7 +1142,7 @@ public class ParserTest {
 		// "*" 演算子ノードの検査
 		AstNode mulNode = expressionNode.getChildNodes()[0];
 		this.checkOperatorNode(
-			mulNode, ScriptWord.MULTIPLICATION, OperatorPrecedence.MULTIPLICATION, AttributeValue.LEFT,
+			mulNode, SCRIPT_WORD.MULTIPLICATION, OPERATOR_PRECEDENCE.MULTIPLICATION, AttributeValue.LEFT,
 			AttributeValue.BINARY, AttributeValue.ARITHMETIC
 		);
 
@@ -1147,7 +1153,7 @@ public class ParserTest {
 		// "*" 演算子の右オペランド ＝ "+" 演算子ノードの検査
 		AstNode addNode = mulNode.getChildNodes()[1];
 		this.checkOperatorNode(
-			addNode, ScriptWord.PLUS, OperatorPrecedence.ADDITION, AttributeValue.LEFT,
+			addNode, SCRIPT_WORD.PLUS, OPERATOR_PRECEDENCE.ADDITION, AttributeValue.LEFT,
 			AttributeValue.BINARY, AttributeValue.ARITHMETIC
 		);
 
@@ -1162,24 +1168,24 @@ public class ParserTest {
 	public void testParseExpressionParenthesis2() throws VnanoException {
 
 		// "1 + (2 * 3)" のトークン配列を用意
-		Token one = this.createLiteralToken("1");
-		Token two = this.createLiteralToken("2");
-		Token three = this.createLiteralToken("3");
+		Token one = this.createLiteralToken("1", DATA_TYPE_NAME.INT);
+		Token two = this.createLiteralToken("2", DATA_TYPE_NAME.INT);
+		Token three = this.createLiteralToken("3", DATA_TYPE_NAME.INT);
 		Token add = createOperatorToken(
-			ScriptWord.PLUS, OperatorPrecedence.ADDITION, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.ARITHMETIC
+			SCRIPT_WORD.PLUS, OPERATOR_PRECEDENCE.ADDITION, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.ARITHMETIC
 		);
 		Token mul = createOperatorToken(
-			ScriptWord.MULTIPLICATION, OperatorPrecedence.MULTIPLICATION, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.ARITHMETIC
+			SCRIPT_WORD.MULTIPLICATION, OPERATOR_PRECEDENCE.MULTIPLICATION, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.ARITHMETIC
 		);
-		Token open = createParenthesisToken(ScriptWord.PARENTHESIS_BEGIN);
-		Token close = createParenthesisToken(ScriptWord.PARENTHESIS_END);
+		Token open = createParenthesisToken(SCRIPT_WORD.PARENTHESIS_BEGIN);
+		Token close = createParenthesisToken(SCRIPT_WORD.PARENTHESIS_END);
 
 		Token[] tokens = new Token[]{ one, add, open, two, mul, three, close, this.createEndToken() };
 
 		// トークン配列の内容を確認
 		//this.dumpTokens(tokens);
 
-		AstNode rootNode = new Parser().parse(tokens);
+		AstNode rootNode = new Parser(LANG_SPEC).parse(tokens);
 
 		// ASTの内容を確認
 		//System.out.println(rootNode);
@@ -1196,7 +1202,7 @@ public class ParserTest {
 		// "+" 演算子ノードの検査
 		AstNode addNode = expressionNode.getChildNodes()[0];
 		this.checkOperatorNode(
-			addNode, ScriptWord.PLUS, OperatorPrecedence.ADDITION, AttributeValue.LEFT,
+			addNode, SCRIPT_WORD.PLUS, OPERATOR_PRECEDENCE.ADDITION, AttributeValue.LEFT,
 			AttributeValue.BINARY, AttributeValue.ARITHMETIC
 		);
 
@@ -1207,7 +1213,7 @@ public class ParserTest {
 		// "+" 演算子の右オペランド ＝ "*" 演算子ノードの検査
 		AstNode mulNode = addNode.getChildNodes()[1];
 		this.checkOperatorNode(
-			mulNode, ScriptWord.MULTIPLICATION, OperatorPrecedence.MULTIPLICATION, AttributeValue.LEFT,
+			mulNode, SCRIPT_WORD.MULTIPLICATION, OPERATOR_PRECEDENCE.MULTIPLICATION, AttributeValue.LEFT,
 			AttributeValue.BINARY, AttributeValue.ARITHMETIC
 		);
 
@@ -1223,24 +1229,24 @@ public class ParserTest {
 	public void testParseExpressionParenthesis3() throws VnanoException {
 
 		// "(1 + 2) * 3" のトークン配列を用意
-		Token one = this.createLiteralToken("1");
-		Token two = this.createLiteralToken("2");
-		Token three = this.createLiteralToken("3");
+		Token one = this.createLiteralToken("1", DATA_TYPE_NAME.INT);
+		Token two = this.createLiteralToken("2", DATA_TYPE_NAME.INT);
+		Token three = this.createLiteralToken("3", DATA_TYPE_NAME.INT);
 		Token add = createOperatorToken(
-			ScriptWord.PLUS, OperatorPrecedence.ADDITION, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.ARITHMETIC
+			SCRIPT_WORD.PLUS, OPERATOR_PRECEDENCE.ADDITION, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.ARITHMETIC
 		);
 		Token mul = createOperatorToken(
-			ScriptWord.MULTIPLICATION, OperatorPrecedence.MULTIPLICATION, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.ARITHMETIC
+			SCRIPT_WORD.MULTIPLICATION, OPERATOR_PRECEDENCE.MULTIPLICATION, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.ARITHMETIC
 		);
-		Token open = createParenthesisToken(ScriptWord.PARENTHESIS_BEGIN);
-		Token close = createParenthesisToken(ScriptWord.PARENTHESIS_END);
+		Token open = createParenthesisToken(SCRIPT_WORD.PARENTHESIS_BEGIN);
+		Token close = createParenthesisToken(SCRIPT_WORD.PARENTHESIS_END);
 
 		Token[] tokens = new Token[]{ open, one, add, two, close, mul, three, this.createEndToken() };
 
 		// トークン配列の内容を確認
 		//this.dumpTokens(tokens);
 
-		AstNode rootNode = new Parser().parse(tokens);
+		AstNode rootNode = new Parser(LANG_SPEC).parse(tokens);
 
 		// ASTの内容を確認
 		//System.out.println(rootNode);
@@ -1257,7 +1263,7 @@ public class ParserTest {
 		// "*" 演算子ノードの検査
 		AstNode mulNode = expressionNode.getChildNodes()[0];
 		this.checkOperatorNode(
-				mulNode, ScriptWord.MULTIPLICATION, OperatorPrecedence.MULTIPLICATION, AttributeValue.LEFT,
+				mulNode, SCRIPT_WORD.MULTIPLICATION, OPERATOR_PRECEDENCE.MULTIPLICATION, AttributeValue.LEFT,
 			AttributeValue.BINARY, AttributeValue.ARITHMETIC
 		);
 
@@ -1268,7 +1274,7 @@ public class ParserTest {
 		// "*" 演算子の左オペランド ＝ "+" 演算子ノードの検査
 		AstNode addNode = mulNode.getChildNodes()[0];
 		this.checkOperatorNode(
-			addNode, ScriptWord.PLUS, OperatorPrecedence.ADDITION, AttributeValue.LEFT,
+			addNode, SCRIPT_WORD.PLUS, OPERATOR_PRECEDENCE.ADDITION, AttributeValue.LEFT,
 			AttributeValue.BINARY, AttributeValue.ARITHMETIC
 		);
 
@@ -1283,24 +1289,24 @@ public class ParserTest {
 	public void testParseExpressionParenthesis4() throws VnanoException {
 
 		// "(1 + 2) * 3" のトークン配列を用意
-		Token one = this.createLiteralToken("1");
-		Token two = this.createLiteralToken("2");
-		Token three = this.createLiteralToken("3");
+		Token one = this.createLiteralToken("1", DATA_TYPE_NAME.INT);
+		Token two = this.createLiteralToken("2", DATA_TYPE_NAME.INT);
+		Token three = this.createLiteralToken("3", DATA_TYPE_NAME.INT);
 		Token add = createOperatorToken(
-			ScriptWord.PLUS, OperatorPrecedence.ADDITION, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.ARITHMETIC
+			SCRIPT_WORD.PLUS, OPERATOR_PRECEDENCE.ADDITION, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.ARITHMETIC
 		);
 		Token mul = createOperatorToken(
-			ScriptWord.MULTIPLICATION, OperatorPrecedence.MULTIPLICATION, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.ARITHMETIC
+			SCRIPT_WORD.MULTIPLICATION, OPERATOR_PRECEDENCE.MULTIPLICATION, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.ARITHMETIC
 		);
-		Token open = createParenthesisToken(ScriptWord.PARENTHESIS_BEGIN);
-		Token close = createParenthesisToken(ScriptWord.PARENTHESIS_END);
+		Token open = createParenthesisToken(SCRIPT_WORD.PARENTHESIS_BEGIN);
+		Token close = createParenthesisToken(SCRIPT_WORD.PARENTHESIS_END);
 
 		Token[] tokens = new Token[]{ open, one, mul, two, close, add, three, this.createEndToken() };
 
 		// トークン配列の内容を確認
 		//this.dumpTokens(tokens);
 
-		AstNode rootNode = new Parser().parse(tokens);
+		AstNode rootNode = new Parser(LANG_SPEC).parse(tokens);
 
 		// ASTの内容を確認
 		//System.out.println(rootNode);
@@ -1317,7 +1323,7 @@ public class ParserTest {
 		// "+" 演算子ノードの検査
 		AstNode addNode = expressionNode.getChildNodes()[0];
 		this.checkOperatorNode(
-			addNode, ScriptWord.PLUS, OperatorPrecedence.ADDITION, AttributeValue.LEFT,
+			addNode, SCRIPT_WORD.PLUS, OPERATOR_PRECEDENCE.ADDITION, AttributeValue.LEFT,
 			AttributeValue.BINARY, AttributeValue.ARITHMETIC
 		);
 
@@ -1328,7 +1334,7 @@ public class ParserTest {
 		// "+" 演算子の左オペランド ＝ "*" 演算子ノードの検査
 		AstNode mulNode = addNode.getChildNodes()[0];
 		this.checkOperatorNode(
-			mulNode, ScriptWord.MULTIPLICATION, OperatorPrecedence.MULTIPLICATION, AttributeValue.LEFT,
+			mulNode, SCRIPT_WORD.MULTIPLICATION, OPERATOR_PRECEDENCE.MULTIPLICATION, AttributeValue.LEFT,
 			AttributeValue.BINARY, AttributeValue.ARITHMETIC
 		);
 
@@ -1345,15 +1351,15 @@ public class ParserTest {
 
 		// "1 + 2 + 3 + 4 + 5 ;" のトークン配列を用意
 		Token[] tokens = new Token[]{
-			this.createLiteralToken("1"),
-			this.createOperatorToken(ScriptWord.PLUS, OperatorPrecedence.ADDITION, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.ARITHMETIC),
-			this.createLiteralToken("2"),
-			this.createOperatorToken(ScriptWord.PLUS, OperatorPrecedence.ADDITION, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.ARITHMETIC),
-			this.createLiteralToken("3"),
-			this.createOperatorToken(ScriptWord.PLUS, OperatorPrecedence.ADDITION, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.ARITHMETIC),
-			this.createLiteralToken("4"),
-			this.createOperatorToken(ScriptWord.PLUS, OperatorPrecedence.ADDITION, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.ARITHMETIC),
-			this.createLiteralToken("5"),
+			this.createLiteralToken("1", DATA_TYPE_NAME.INT),
+			this.createOperatorToken(SCRIPT_WORD.PLUS, OPERATOR_PRECEDENCE.ADDITION, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.ARITHMETIC),
+			this.createLiteralToken("2", DATA_TYPE_NAME.INT),
+			this.createOperatorToken(SCRIPT_WORD.PLUS, OPERATOR_PRECEDENCE.ADDITION, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.ARITHMETIC),
+			this.createLiteralToken("3", DATA_TYPE_NAME.INT),
+			this.createOperatorToken(SCRIPT_WORD.PLUS, OPERATOR_PRECEDENCE.ADDITION, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.ARITHMETIC),
+			this.createLiteralToken("4", DATA_TYPE_NAME.INT),
+			this.createOperatorToken(SCRIPT_WORD.PLUS, OPERATOR_PRECEDENCE.ADDITION, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.ARITHMETIC),
+			this.createLiteralToken("5", DATA_TYPE_NAME.INT),
 			this.createEndToken()
 		};
 
@@ -1376,7 +1382,7 @@ public class ParserTest {
 		// トークン配列の内容を確認
 		//this.dumpTokens(tokens);
 
-		AstNode rootNode = new Parser().parse(tokens);
+		AstNode rootNode = new Parser(LANG_SPEC).parse(tokens);
 
 		// ASTの内容を確認
 		//System.out.println(rootNode);
@@ -1392,22 +1398,22 @@ public class ParserTest {
 
 		// 第1階層の演算子・オペランドの検査
 		AstNode operatorNode = expressionNode.getChildNodes()[0];
-		this.checkOperatorNode(operatorNode, ScriptWord.PLUS, OperatorPrecedence.ADDITION, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.ARITHMETIC);
+		this.checkOperatorNode(operatorNode, SCRIPT_WORD.PLUS, OPERATOR_PRECEDENCE.ADDITION, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.ARITHMETIC);
 		this.checkLiteralNode(operatorNode.getChildNodes()[1], "5");
 
 		// 第2階層の演算子・オペランドの検査
 		operatorNode = operatorNode.getChildNodes()[0];
-		this.checkOperatorNode(operatorNode, ScriptWord.PLUS, OperatorPrecedence.ADDITION, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.ARITHMETIC);
+		this.checkOperatorNode(operatorNode, SCRIPT_WORD.PLUS, OPERATOR_PRECEDENCE.ADDITION, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.ARITHMETIC);
 		this.checkLiteralNode(operatorNode.getChildNodes()[1], "4");
 
 		// 第3階層の演算子・オペランドの検査
 		operatorNode = operatorNode.getChildNodes()[0];
-		this.checkOperatorNode(operatorNode, ScriptWord.PLUS, OperatorPrecedence.ADDITION, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.ARITHMETIC);
+		this.checkOperatorNode(operatorNode, SCRIPT_WORD.PLUS, OPERATOR_PRECEDENCE.ADDITION, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.ARITHMETIC);
 		this.checkLiteralNode(operatorNode.getChildNodes()[1], "3");
 
 		// 第4階層の演算子・オペランドの検査
 		operatorNode = operatorNode.getChildNodes()[0];
-		this.checkOperatorNode(operatorNode, ScriptWord.PLUS, OperatorPrecedence.ADDITION, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.ARITHMETIC);
+		this.checkOperatorNode(operatorNode, SCRIPT_WORD.PLUS, OPERATOR_PRECEDENCE.ADDITION, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.ARITHMETIC);
 		this.checkLiteralNode(operatorNode.getChildNodes()[0], "1");
 		this.checkLiteralNode(operatorNode.getChildNodes()[1], "2");
 	}
@@ -1419,15 +1425,15 @@ public class ParserTest {
 
 		// "1 + 2 * 3 * 4 + 5 ;" のトークン配列を用意
 		Token[] tokens = new Token[]{
-			this.createLiteralToken("1"),
-			this.createOperatorToken(ScriptWord.PLUS, OperatorPrecedence.ADDITION, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.ARITHMETIC),
-			this.createLiteralToken("2"),
-			this.createOperatorToken(ScriptWord.MULTIPLICATION, OperatorPrecedence.MULTIPLICATION, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.ARITHMETIC),
-			this.createLiteralToken("3"),
-			this.createOperatorToken(ScriptWord.MULTIPLICATION, OperatorPrecedence.MULTIPLICATION, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.ARITHMETIC),
-			this.createLiteralToken("4"),
-			this.createOperatorToken(ScriptWord.PLUS, OperatorPrecedence.ADDITION, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.ARITHMETIC),
-			this.createLiteralToken("5"),
+			this.createLiteralToken("1", DATA_TYPE_NAME.INT),
+			this.createOperatorToken(SCRIPT_WORD.PLUS, OPERATOR_PRECEDENCE.ADDITION, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.ARITHMETIC),
+			this.createLiteralToken("2", DATA_TYPE_NAME.INT),
+			this.createOperatorToken(SCRIPT_WORD.MULTIPLICATION, OPERATOR_PRECEDENCE.MULTIPLICATION, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.ARITHMETIC),
+			this.createLiteralToken("3", DATA_TYPE_NAME.INT),
+			this.createOperatorToken(SCRIPT_WORD.MULTIPLICATION, OPERATOR_PRECEDENCE.MULTIPLICATION, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.ARITHMETIC),
+			this.createLiteralToken("4", DATA_TYPE_NAME.INT),
+			this.createOperatorToken(SCRIPT_WORD.PLUS, OPERATOR_PRECEDENCE.ADDITION, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.ARITHMETIC),
+			this.createLiteralToken("5", DATA_TYPE_NAME.INT),
 			this.createEndToken()
 		};
 
@@ -1450,7 +1456,7 @@ public class ParserTest {
 		// トークン配列の内容を確認
 		//this.dumpTokens(tokens);
 
-		AstNode rootNode = new Parser().parse(tokens);
+		AstNode rootNode = new Parser(LANG_SPEC).parse(tokens);
 
 		// ASTの内容を確認
 		//System.out.println(rootNode);
@@ -1466,22 +1472,22 @@ public class ParserTest {
 
 		// 第1階層の演算子・オペランドの検査
 		AstNode operatorNode = expressionNode.getChildNodes()[0];
-		this.checkOperatorNode(operatorNode, ScriptWord.PLUS, OperatorPrecedence.ADDITION, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.ARITHMETIC);
+		this.checkOperatorNode(operatorNode, SCRIPT_WORD.PLUS, OPERATOR_PRECEDENCE.ADDITION, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.ARITHMETIC);
 		this.checkLiteralNode(operatorNode.getChildNodes()[1], "5");
 
 		// 第2階層の演算子・オペランドの検査
 		operatorNode = operatorNode.getChildNodes()[0];
-		this.checkOperatorNode(operatorNode, ScriptWord.PLUS, OperatorPrecedence.ADDITION, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.ARITHMETIC);
+		this.checkOperatorNode(operatorNode, SCRIPT_WORD.PLUS, OPERATOR_PRECEDENCE.ADDITION, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.ARITHMETIC);
 		this.checkLiteralNode(operatorNode.getChildNodes()[0], "1");
 
 		// 第3階層の演算子・オペランドの検査
 		operatorNode = operatorNode.getChildNodes()[1];
-		this.checkOperatorNode(operatorNode, ScriptWord.MULTIPLICATION, OperatorPrecedence.MULTIPLICATION, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.ARITHMETIC);
+		this.checkOperatorNode(operatorNode, SCRIPT_WORD.MULTIPLICATION, OPERATOR_PRECEDENCE.MULTIPLICATION, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.ARITHMETIC);
 		this.checkLiteralNode(operatorNode.getChildNodes()[1], "4");
 
 		// 第4階層の演算子・オペランドの検査
 		operatorNode = operatorNode.getChildNodes()[0];
-		this.checkOperatorNode(operatorNode, ScriptWord.MULTIPLICATION, OperatorPrecedence.MULTIPLICATION, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.ARITHMETIC);
+		this.checkOperatorNode(operatorNode, SCRIPT_WORD.MULTIPLICATION, OPERATOR_PRECEDENCE.MULTIPLICATION, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.ARITHMETIC);
 		this.checkLiteralNode(operatorNode.getChildNodes()[0], "2");
 		this.checkLiteralNode(operatorNode.getChildNodes()[1], "3");
 	}
@@ -1493,15 +1499,15 @@ public class ParserTest {
 
 		// "1 * 2 + 3 + 4 * 5 ;" のトークン配列を用意
 		Token[] tokens = new Token[]{
-			this.createLiteralToken("1"),
-			this.createOperatorToken(ScriptWord.MULTIPLICATION, OperatorPrecedence.MULTIPLICATION, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.ARITHMETIC),
-			this.createLiteralToken("2"),
-			this.createOperatorToken(ScriptWord.PLUS, OperatorPrecedence.ADDITION, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.ARITHMETIC),
-			this.createLiteralToken("3"),
-			this.createOperatorToken(ScriptWord.PLUS, OperatorPrecedence.ADDITION, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.ARITHMETIC),
-			this.createLiteralToken("4"),
-			this.createOperatorToken(ScriptWord.MULTIPLICATION, OperatorPrecedence.MULTIPLICATION, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.ARITHMETIC),
-			this.createLiteralToken("5"),
+			this.createLiteralToken("1", DATA_TYPE_NAME.INT),
+			this.createOperatorToken(SCRIPT_WORD.MULTIPLICATION, OPERATOR_PRECEDENCE.MULTIPLICATION, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.ARITHMETIC),
+			this.createLiteralToken("2", DATA_TYPE_NAME.INT),
+			this.createOperatorToken(SCRIPT_WORD.PLUS, OPERATOR_PRECEDENCE.ADDITION, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.ARITHMETIC),
+			this.createLiteralToken("3", DATA_TYPE_NAME.INT),
+			this.createOperatorToken(SCRIPT_WORD.PLUS, OPERATOR_PRECEDENCE.ADDITION, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.ARITHMETIC),
+			this.createLiteralToken("4", DATA_TYPE_NAME.INT),
+			this.createOperatorToken(SCRIPT_WORD.MULTIPLICATION, OPERATOR_PRECEDENCE.MULTIPLICATION, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.ARITHMETIC),
+			this.createLiteralToken("5", DATA_TYPE_NAME.INT),
 			this.createEndToken()
 		};
 
@@ -1523,7 +1529,7 @@ public class ParserTest {
 		// トークン配列の内容を確認
 		//this.dumpTokens(tokens);
 
-		AstNode rootNode = new Parser().parse(tokens);
+		AstNode rootNode = new Parser(LANG_SPEC).parse(tokens);
 
 		// ASTの内容を確認
 		//System.out.println(rootNode);
@@ -1539,22 +1545,22 @@ public class ParserTest {
 
 		// 第1階層の演算子・オペランドの検査
 		AstNode operatorNode = expressionNode.getChildNodes()[0];
-		this.checkOperatorNode(operatorNode, ScriptWord.PLUS, OperatorPrecedence.ADDITION, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.ARITHMETIC);
+		this.checkOperatorNode(operatorNode, SCRIPT_WORD.PLUS, OPERATOR_PRECEDENCE.ADDITION, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.ARITHMETIC);
 
 		// 第2階層(左)の演算子・オペランドの検査
 		AstNode leftOperatorNode = operatorNode.getChildNodes()[0];
-		this.checkOperatorNode(leftOperatorNode, ScriptWord.PLUS, OperatorPrecedence.ADDITION, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.ARITHMETIC);
+		this.checkOperatorNode(leftOperatorNode, SCRIPT_WORD.PLUS, OPERATOR_PRECEDENCE.ADDITION, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.ARITHMETIC);
 		this.checkLiteralNode(leftOperatorNode.getChildNodes()[1], "3");
 
 		// 第2階層(右)の演算子・オペランドの検査
 		AstNode rightOperatorNode = operatorNode.getChildNodes()[1];
-		this.checkOperatorNode(rightOperatorNode, ScriptWord.MULTIPLICATION, OperatorPrecedence.MULTIPLICATION, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.ARITHMETIC);
+		this.checkOperatorNode(rightOperatorNode, SCRIPT_WORD.MULTIPLICATION, OPERATOR_PRECEDENCE.MULTIPLICATION, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.ARITHMETIC);
 		this.checkLiteralNode(rightOperatorNode.getChildNodes()[0], "4");
 		this.checkLiteralNode(rightOperatorNode.getChildNodes()[1], "5");
 
 		// 第3階層の演算子・オペランドの検査
 		operatorNode = leftOperatorNode.getChildNodes()[0];
-		this.checkOperatorNode(operatorNode, ScriptWord.MULTIPLICATION, OperatorPrecedence.MULTIPLICATION, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.ARITHMETIC);
+		this.checkOperatorNode(operatorNode, SCRIPT_WORD.MULTIPLICATION, OPERATOR_PRECEDENCE.MULTIPLICATION, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.ARITHMETIC);
 		this.checkLiteralNode(operatorNode.getChildNodes()[0], "1");
 		this.checkLiteralNode(operatorNode.getChildNodes()[1], "2");
 	}
@@ -1565,15 +1571,15 @@ public class ParserTest {
 
 		// "1 + 2 * 3 + 4 * 5 ;" のトークン配列を用意
 		Token[] tokens = new Token[]{
-			this.createLiteralToken("1"),
-			this.createOperatorToken(ScriptWord.PLUS, OperatorPrecedence.ADDITION, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.ARITHMETIC),
-			this.createLiteralToken("2"),
-			this.createOperatorToken(ScriptWord.MULTIPLICATION, OperatorPrecedence.MULTIPLICATION, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.ARITHMETIC),
-			this.createLiteralToken("3"),
-			this.createOperatorToken(ScriptWord.PLUS, OperatorPrecedence.ADDITION, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.ARITHMETIC),
-			this.createLiteralToken("4"),
-			this.createOperatorToken(ScriptWord.MULTIPLICATION, OperatorPrecedence.MULTIPLICATION, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.ARITHMETIC),
-			this.createLiteralToken("5"),
+			this.createLiteralToken("1", DATA_TYPE_NAME.INT),
+			this.createOperatorToken(SCRIPT_WORD.PLUS, OPERATOR_PRECEDENCE.ADDITION, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.ARITHMETIC),
+			this.createLiteralToken("2", DATA_TYPE_NAME.INT),
+			this.createOperatorToken(SCRIPT_WORD.MULTIPLICATION, OPERATOR_PRECEDENCE.MULTIPLICATION, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.ARITHMETIC),
+			this.createLiteralToken("3", DATA_TYPE_NAME.INT),
+			this.createOperatorToken(SCRIPT_WORD.PLUS, OPERATOR_PRECEDENCE.ADDITION, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.ARITHMETIC),
+			this.createLiteralToken("4", DATA_TYPE_NAME.INT),
+			this.createOperatorToken(SCRIPT_WORD.MULTIPLICATION, OPERATOR_PRECEDENCE.MULTIPLICATION, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.ARITHMETIC),
+			this.createLiteralToken("5", DATA_TYPE_NAME.INT),
 			this.createEndToken()
 		};
 
@@ -1595,7 +1601,7 @@ public class ParserTest {
 		// トークン配列の内容を確認
 		//this.dumpTokens(tokens);
 
-		AstNode rootNode = new Parser().parse(tokens);
+		AstNode rootNode = new Parser(LANG_SPEC).parse(tokens);
 
 		// ASTの内容を確認
 		//System.out.println(rootNode);
@@ -1611,22 +1617,22 @@ public class ParserTest {
 
 		// 第1階層の演算子・オペランドの検査
 		AstNode operatorNode = expressionNode.getChildNodes()[0];
-		this.checkOperatorNode(operatorNode, ScriptWord.PLUS, OperatorPrecedence.ADDITION, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.ARITHMETIC);
+		this.checkOperatorNode(operatorNode, SCRIPT_WORD.PLUS, OPERATOR_PRECEDENCE.ADDITION, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.ARITHMETIC);
 
 		// 第2階層(左)の演算子・オペランドの検査
 		AstNode leftOperatorNode = operatorNode.getChildNodes()[0];
-		this.checkOperatorNode(leftOperatorNode, ScriptWord.PLUS, OperatorPrecedence.ADDITION, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.ARITHMETIC);
+		this.checkOperatorNode(leftOperatorNode, SCRIPT_WORD.PLUS, OPERATOR_PRECEDENCE.ADDITION, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.ARITHMETIC);
 		this.checkLiteralNode(leftOperatorNode.getChildNodes()[0], "1");
 
 		// 第2階層(右)の演算子・オペランドの検査
 		AstNode rightOperatorNode = operatorNode.getChildNodes()[1];
-		this.checkOperatorNode(rightOperatorNode, ScriptWord.MULTIPLICATION, OperatorPrecedence.MULTIPLICATION, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.ARITHMETIC);
+		this.checkOperatorNode(rightOperatorNode, SCRIPT_WORD.MULTIPLICATION, OPERATOR_PRECEDENCE.MULTIPLICATION, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.ARITHMETIC);
 		this.checkLiteralNode(rightOperatorNode.getChildNodes()[0], "4");
 		this.checkLiteralNode(rightOperatorNode.getChildNodes()[1], "5");
 
 		// 第3階層の演算子・オペランドの検査
 		operatorNode = leftOperatorNode.getChildNodes()[1];
-		this.checkOperatorNode(operatorNode, ScriptWord.MULTIPLICATION, OperatorPrecedence.MULTIPLICATION, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.ARITHMETIC);
+		this.checkOperatorNode(operatorNode, SCRIPT_WORD.MULTIPLICATION, OPERATOR_PRECEDENCE.MULTIPLICATION, AttributeValue.LEFT, AttributeValue.BINARY, AttributeValue.ARITHMETIC);
 		this.checkLiteralNode(operatorNode.getChildNodes()[0], "2");
 		this.checkLiteralNode(operatorNode.getChildNodes()[1], "3");
 	}
@@ -1639,10 +1645,10 @@ public class ParserTest {
 		// "x = y = 1 ;" のトークン配列を用意
 		Token[] tokens = new Token[]{
 			this.createVariableIdentifierToken("x"),
-			this.createOperatorToken(ScriptWord.ASSIGNMENT, OperatorPrecedence.ASSIGNMENT, AttributeValue.RIGHT, AttributeValue.BINARY, AttributeValue.ASSIGNMENT),
+			this.createOperatorToken(SCRIPT_WORD.ASSIGNMENT, OPERATOR_PRECEDENCE.ASSIGNMENT, AttributeValue.RIGHT, AttributeValue.BINARY, AttributeValue.ASSIGNMENT),
 			this.createVariableIdentifierToken("y"),
-			this.createOperatorToken(ScriptWord.ASSIGNMENT, OperatorPrecedence.ASSIGNMENT, AttributeValue.RIGHT, AttributeValue.BINARY, AttributeValue.ASSIGNMENT),
-			this.createLiteralToken("1"),
+			this.createOperatorToken(SCRIPT_WORD.ASSIGNMENT, OPERATOR_PRECEDENCE.ASSIGNMENT, AttributeValue.RIGHT, AttributeValue.BINARY, AttributeValue.ASSIGNMENT),
+			this.createLiteralToken("1", DATA_TYPE_NAME.INT),
 			this.createEndToken()
 		};
 
@@ -1662,7 +1668,7 @@ public class ParserTest {
 		// トークン配列の内容を確認
 		//this.dumpTokens(tokens);
 
-		AstNode rootNode = new Parser().parse(tokens);
+		AstNode rootNode = new Parser(LANG_SPEC).parse(tokens);
 
 		// ASTの内容を確認
 		//System.out.println(rootNode);
@@ -1678,12 +1684,12 @@ public class ParserTest {
 
 		// 第1階層の演算子・オペランドの検査
 		AstNode operatorNode = expressionNode.getChildNodes()[0];
-		this.checkOperatorNode(operatorNode, ScriptWord.ASSIGNMENT, OperatorPrecedence.ASSIGNMENT, AttributeValue.RIGHT, AttributeValue.BINARY, AttributeValue.ASSIGNMENT);
+		this.checkOperatorNode(operatorNode, SCRIPT_WORD.ASSIGNMENT, OPERATOR_PRECEDENCE.ASSIGNMENT, AttributeValue.RIGHT, AttributeValue.BINARY, AttributeValue.ASSIGNMENT);
 		this.checkVariableIdentifierNode(operatorNode.getChildNodes()[0], "x");
 
 		// 第2階層の演算子・オペランドの検査
 		operatorNode = operatorNode.getChildNodes()[1];
-		this.checkOperatorNode(operatorNode, ScriptWord.ASSIGNMENT, OperatorPrecedence.ASSIGNMENT, AttributeValue.RIGHT, AttributeValue.BINARY, AttributeValue.ASSIGNMENT);
+		this.checkOperatorNode(operatorNode, SCRIPT_WORD.ASSIGNMENT, OPERATOR_PRECEDENCE.ASSIGNMENT, AttributeValue.RIGHT, AttributeValue.BINARY, AttributeValue.ASSIGNMENT);
 		this.checkVariableIdentifierNode(operatorNode.getChildNodes()[0], "y");
 		this.checkLiteralNode(operatorNode.getChildNodes()[1], "1");
 	}
@@ -1696,12 +1702,12 @@ public class ParserTest {
 		// "x = y = z = 1 ;" のトークン配列を用意
 		Token[] tokens = new Token[]{
 			this.createVariableIdentifierToken("x"),
-			this.createOperatorToken(ScriptWord.ASSIGNMENT, OperatorPrecedence.ASSIGNMENT, AttributeValue.RIGHT, AttributeValue.BINARY, AttributeValue.ASSIGNMENT),
+			this.createOperatorToken(SCRIPT_WORD.ASSIGNMENT, OPERATOR_PRECEDENCE.ASSIGNMENT, AttributeValue.RIGHT, AttributeValue.BINARY, AttributeValue.ASSIGNMENT),
 			this.createVariableIdentifierToken("y"),
-			this.createOperatorToken(ScriptWord.ASSIGNMENT, OperatorPrecedence.ASSIGNMENT, AttributeValue.RIGHT, AttributeValue.BINARY, AttributeValue.ASSIGNMENT),
+			this.createOperatorToken(SCRIPT_WORD.ASSIGNMENT, OPERATOR_PRECEDENCE.ASSIGNMENT, AttributeValue.RIGHT, AttributeValue.BINARY, AttributeValue.ASSIGNMENT),
 			this.createVariableIdentifierToken("z"),
-			this.createOperatorToken(ScriptWord.ASSIGNMENT, OperatorPrecedence.ASSIGNMENT, AttributeValue.RIGHT, AttributeValue.BINARY, AttributeValue.ASSIGNMENT),
-			this.createLiteralToken("1"),
+			this.createOperatorToken(SCRIPT_WORD.ASSIGNMENT, OPERATOR_PRECEDENCE.ASSIGNMENT, AttributeValue.RIGHT, AttributeValue.BINARY, AttributeValue.ASSIGNMENT),
+			this.createLiteralToken("1", DATA_TYPE_NAME.INT),
 			this.createEndToken()
 		};
 
@@ -1722,7 +1728,7 @@ public class ParserTest {
 		// トークン配列の内容を確認
 		//this.dumpTokens(tokens);
 
-		AstNode rootNode = new Parser().parse(tokens);
+		AstNode rootNode = new Parser(LANG_SPEC).parse(tokens);
 
 		// ASTの内容を確認
 		//System.out.println(rootNode);
@@ -1738,17 +1744,17 @@ public class ParserTest {
 
 		// 第1階層の演算子・オペランドの検査
 		AstNode operatorNode = expressionNode.getChildNodes()[0];
-		this.checkOperatorNode(operatorNode, ScriptWord.ASSIGNMENT, OperatorPrecedence.ASSIGNMENT, AttributeValue.RIGHT, AttributeValue.BINARY, AttributeValue.ASSIGNMENT);
+		this.checkOperatorNode(operatorNode, SCRIPT_WORD.ASSIGNMENT, OPERATOR_PRECEDENCE.ASSIGNMENT, AttributeValue.RIGHT, AttributeValue.BINARY, AttributeValue.ASSIGNMENT);
 		this.checkVariableIdentifierNode(operatorNode.getChildNodes()[0], "x");
 
 		// 第2階層の演算子・オペランドの検査
 		operatorNode = operatorNode.getChildNodes()[1];
-		this.checkOperatorNode(operatorNode, ScriptWord.ASSIGNMENT, OperatorPrecedence.ASSIGNMENT, AttributeValue.RIGHT, AttributeValue.BINARY, AttributeValue.ASSIGNMENT);
+		this.checkOperatorNode(operatorNode, SCRIPT_WORD.ASSIGNMENT, OPERATOR_PRECEDENCE.ASSIGNMENT, AttributeValue.RIGHT, AttributeValue.BINARY, AttributeValue.ASSIGNMENT);
 		this.checkVariableIdentifierNode(operatorNode.getChildNodes()[0], "y");
 
 		// 第3階層の演算子・オペランドの検査
 		operatorNode = operatorNode.getChildNodes()[1];
-		this.checkOperatorNode(operatorNode, ScriptWord.ASSIGNMENT, OperatorPrecedence.ASSIGNMENT, AttributeValue.RIGHT, AttributeValue.BINARY, AttributeValue.ASSIGNMENT);
+		this.checkOperatorNode(operatorNode, SCRIPT_WORD.ASSIGNMENT, OPERATOR_PRECEDENCE.ASSIGNMENT, AttributeValue.RIGHT, AttributeValue.BINARY, AttributeValue.ASSIGNMENT);
 		this.checkVariableIdentifierNode(operatorNode.getChildNodes()[0], "z");
 		this.checkLiteralNode(operatorNode.getChildNodes()[1], "1");
 	}
@@ -1761,14 +1767,14 @@ public class ParserTest {
 		// "x = y = z = w = 1 ;" のトークン配列を用意
 		Token[] tokens = new Token[]{
 			this.createVariableIdentifierToken("x"),
-			this.createOperatorToken(ScriptWord.ASSIGNMENT, OperatorPrecedence.ASSIGNMENT, AttributeValue.RIGHT, AttributeValue.BINARY, AttributeValue.ASSIGNMENT),
+			this.createOperatorToken(SCRIPT_WORD.ASSIGNMENT, OPERATOR_PRECEDENCE.ASSIGNMENT, AttributeValue.RIGHT, AttributeValue.BINARY, AttributeValue.ASSIGNMENT),
 			this.createVariableIdentifierToken("y"),
-			this.createOperatorToken(ScriptWord.ASSIGNMENT, OperatorPrecedence.ASSIGNMENT, AttributeValue.RIGHT, AttributeValue.BINARY, AttributeValue.ASSIGNMENT),
+			this.createOperatorToken(SCRIPT_WORD.ASSIGNMENT, OPERATOR_PRECEDENCE.ASSIGNMENT, AttributeValue.RIGHT, AttributeValue.BINARY, AttributeValue.ASSIGNMENT),
 			this.createVariableIdentifierToken("z"),
-			this.createOperatorToken(ScriptWord.ASSIGNMENT, OperatorPrecedence.ASSIGNMENT, AttributeValue.RIGHT, AttributeValue.BINARY, AttributeValue.ASSIGNMENT),
+			this.createOperatorToken(SCRIPT_WORD.ASSIGNMENT, OPERATOR_PRECEDENCE.ASSIGNMENT, AttributeValue.RIGHT, AttributeValue.BINARY, AttributeValue.ASSIGNMENT),
 			this.createVariableIdentifierToken("w"),
-			this.createOperatorToken(ScriptWord.ASSIGNMENT, OperatorPrecedence.ASSIGNMENT, AttributeValue.RIGHT, AttributeValue.BINARY, AttributeValue.ASSIGNMENT),
-			this.createLiteralToken("1"),
+			this.createOperatorToken(SCRIPT_WORD.ASSIGNMENT, OPERATOR_PRECEDENCE.ASSIGNMENT, AttributeValue.RIGHT, AttributeValue.BINARY, AttributeValue.ASSIGNMENT),
+			this.createLiteralToken("1", DATA_TYPE_NAME.INT),
 			this.createEndToken()
 		};
 
@@ -1790,7 +1796,7 @@ public class ParserTest {
 		// トークン配列の内容を確認
 		//this.dumpTokens(tokens);
 
-		AstNode rootNode = new Parser().parse(tokens);
+		AstNode rootNode = new Parser(LANG_SPEC).parse(tokens);
 
 		// ASTの内容を確認
 		//System.out.println(rootNode);
@@ -1806,22 +1812,22 @@ public class ParserTest {
 
 		// 第1階層の演算子・オペランドの検査
 		AstNode operatorNode = expressionNode.getChildNodes()[0];
-		this.checkOperatorNode(operatorNode, ScriptWord.ASSIGNMENT, OperatorPrecedence.ASSIGNMENT, AttributeValue.RIGHT, AttributeValue.BINARY, AttributeValue.ASSIGNMENT);
+		this.checkOperatorNode(operatorNode, SCRIPT_WORD.ASSIGNMENT, OPERATOR_PRECEDENCE.ASSIGNMENT, AttributeValue.RIGHT, AttributeValue.BINARY, AttributeValue.ASSIGNMENT);
 		this.checkVariableIdentifierNode(operatorNode.getChildNodes()[0], "x");
 
 		// 第2階層の演算子・オペランドの検査
 		operatorNode = operatorNode.getChildNodes()[1];
-		this.checkOperatorNode(operatorNode, ScriptWord.ASSIGNMENT, OperatorPrecedence.ASSIGNMENT, AttributeValue.RIGHT, AttributeValue.BINARY, AttributeValue.ASSIGNMENT);
+		this.checkOperatorNode(operatorNode, SCRIPT_WORD.ASSIGNMENT, OPERATOR_PRECEDENCE.ASSIGNMENT, AttributeValue.RIGHT, AttributeValue.BINARY, AttributeValue.ASSIGNMENT);
 		this.checkVariableIdentifierNode(operatorNode.getChildNodes()[0], "y");
 
 		// 第3階層の演算子・オペランドの検査
 		operatorNode = operatorNode.getChildNodes()[1];
-		this.checkOperatorNode(operatorNode, ScriptWord.ASSIGNMENT, OperatorPrecedence.ASSIGNMENT, AttributeValue.RIGHT, AttributeValue.BINARY, AttributeValue.ASSIGNMENT);
+		this.checkOperatorNode(operatorNode, SCRIPT_WORD.ASSIGNMENT, OPERATOR_PRECEDENCE.ASSIGNMENT, AttributeValue.RIGHT, AttributeValue.BINARY, AttributeValue.ASSIGNMENT);
 		this.checkVariableIdentifierNode(operatorNode.getChildNodes()[0], "z");
 
 		// 第4階層の演算子・オペランドの検査
 		operatorNode = operatorNode.getChildNodes()[1];
-		this.checkOperatorNode(operatorNode, ScriptWord.ASSIGNMENT, OperatorPrecedence.ASSIGNMENT, AttributeValue.RIGHT, AttributeValue.BINARY, AttributeValue.ASSIGNMENT);
+		this.checkOperatorNode(operatorNode, SCRIPT_WORD.ASSIGNMENT, OPERATOR_PRECEDENCE.ASSIGNMENT, AttributeValue.RIGHT, AttributeValue.BINARY, AttributeValue.ASSIGNMENT);
 		this.checkVariableIdentifierNode(operatorNode.getChildNodes()[0], "w");
 		this.checkLiteralNode(operatorNode.getChildNodes()[1], "1");
 	}
@@ -1833,8 +1839,8 @@ public class ParserTest {
 
 		// "++ -- x ;" のトークン配列を用意
 		Token[] tokens = new Token[]{
-			this.createOperatorToken(ScriptWord.INCREMENT, OperatorPrecedence.PREFIX_INCREMENT, AttributeValue.RIGHT, AttributeValue.PREFIX, AttributeValue.ARITHMETIC),
-			this.createOperatorToken(ScriptWord.DECREMENT, OperatorPrecedence.PREFIX_DECREMENT, AttributeValue.RIGHT, AttributeValue.PREFIX, AttributeValue.ARITHMETIC),
+			this.createOperatorToken(SCRIPT_WORD.INCREMENT, OPERATOR_PRECEDENCE.PREFIX_INCREMENT, AttributeValue.RIGHT, AttributeValue.PREFIX, AttributeValue.ARITHMETIC),
+			this.createOperatorToken(SCRIPT_WORD.DECREMENT, OPERATOR_PRECEDENCE.PREFIX_DECREMENT, AttributeValue.RIGHT, AttributeValue.PREFIX, AttributeValue.ARITHMETIC),
 			this.createVariableIdentifierToken("x"),
 			this.createEndToken()
 		};
@@ -1856,7 +1862,7 @@ public class ParserTest {
 		// トークン配列の内容を確認
 		//this.dumpTokens(tokens);
 
-		AstNode rootNode = new Parser().parse(tokens);
+		AstNode rootNode = new Parser(LANG_SPEC).parse(tokens);
 
 		// ASTの内容を確認
 		//System.out.println(rootNode);
@@ -1872,11 +1878,11 @@ public class ParserTest {
 
 		// 第1階層の演算子・オペランドの検査
 		AstNode operatorNode = expressionNode.getChildNodes()[0];
-		this.checkOperatorNode(operatorNode, ScriptWord.INCREMENT, OperatorPrecedence.PREFIX_INCREMENT, AttributeValue.RIGHT, AttributeValue.PREFIX, AttributeValue.ARITHMETIC);
+		this.checkOperatorNode(operatorNode, SCRIPT_WORD.INCREMENT, OPERATOR_PRECEDENCE.PREFIX_INCREMENT, AttributeValue.RIGHT, AttributeValue.PREFIX, AttributeValue.ARITHMETIC);
 
 		// 第2階層の演算子・オペランドの検査
 		operatorNode = operatorNode.getChildNodes()[0];
-		this.checkOperatorNode(operatorNode, ScriptWord.DECREMENT, OperatorPrecedence.PREFIX_INCREMENT, AttributeValue.RIGHT, AttributeValue.PREFIX, AttributeValue.ARITHMETIC);
+		this.checkOperatorNode(operatorNode, SCRIPT_WORD.DECREMENT, OPERATOR_PRECEDENCE.PREFIX_INCREMENT, AttributeValue.RIGHT, AttributeValue.PREFIX, AttributeValue.ARITHMETIC);
 		this.checkVariableIdentifierNode(operatorNode.getChildNodes()[0], "x");
 	}
 

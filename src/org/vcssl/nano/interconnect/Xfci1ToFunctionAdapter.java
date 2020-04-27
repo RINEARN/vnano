@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2019 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2020 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -12,6 +12,7 @@ import org.vcssl.nano.VnanoException;
 import org.vcssl.nano.spec.DataType;
 import org.vcssl.nano.spec.DataTypeName;
 import org.vcssl.nano.spec.ErrorType;
+import org.vcssl.nano.spec.LanguageSpecContainer;
 import org.vcssl.nano.vm.memory.DataContainer;
 
 
@@ -27,6 +28,9 @@ import org.vcssl.nano.vm.memory.DataContainer;
  * @author RINEARN (Fumihiro Matsui)
  */
 public final class Xfci1ToFunctionAdapter extends AbstractFunction {
+
+	/** データ型名が定義された設定オブジェクトを保持します。 */
+	private final DataTypeName DATA_TYPE_NAME;
 
 	/** XFCI準拠の外部変数プラグインです。 */
 	private ExternalFunctionConnectorInterface1 xfciPlugin = null;
@@ -65,18 +69,22 @@ public final class Xfci1ToFunctionAdapter extends AbstractFunction {
 	 * 処理系内部での仕様に準拠した関数へと変換するアダプタを生成します。
 	 *
 	 * @param xfciPlugin XFCI準拠の外部変数プラグイン
+	 * @param langSpec 言語仕様設定
 	 * @throws VnanoException
 	 * 		引数のデータや型が、この処理系内部では使用できない場合に発生します。
 	 */
-	public Xfci1ToFunctionAdapter(ExternalFunctionConnectorInterface1 xfciPlugin) throws VnanoException {
+	public Xfci1ToFunctionAdapter(
+			ExternalFunctionConnectorInterface1 xfciPlugin, LanguageSpecContainer langSpec)
+					throws VnanoException {
 
+		this.DATA_TYPE_NAME = langSpec.DATA_TYPE_NAME;
 		this.xfciPlugin = xfciPlugin;
 
 		Class<?>[] parameterClasses = this.xfciPlugin.getParameterClasses();
 		Class<?> returnClass = this.xfciPlugin.getReturnClass(parameterClasses);
 		int parameterLength = parameterClasses.length;
 
-		this.returnDataConverter = new DataConverter(this.xfciPlugin.getReturnClass(parameterClasses));
+		this.returnDataConverter = new DataConverter(this.xfciPlugin.getReturnClass(parameterClasses), langSpec);
 		this.returnDataType = this.returnDataConverter.getDataType();
 		this.returnArrayRank = this.returnDataConverter.getRank();
 
@@ -88,7 +96,7 @@ public final class Xfci1ToFunctionAdapter extends AbstractFunction {
 		for (int parameterIndex=0; parameterIndex<parameterLength; parameterIndex++) {
 
 			this.parameterDataConverters[parameterIndex] = new DataConverter(
-					parameterClasses[parameterIndex]
+					parameterClasses[parameterIndex], langSpec
 			);
 
 			this.parameterDataTypes[parameterIndex]
@@ -122,13 +130,15 @@ public final class Xfci1ToFunctionAdapter extends AbstractFunction {
 	 *
 	 * @param xfciPlugin XFCI準拠の外部変数プラグイン
 	 * @param nameSpace 名前空間
+	 * @param spec 言語仕様設定
 	 * @throws VnanoException
 	 * 		引数のデータや型が、この処理系内部では使用できない場合に発生します。
 	 */
-	public Xfci1ToFunctionAdapter(ExternalFunctionConnectorInterface1 xfciPlugin, String nameSpace)
-			throws VnanoException {
+	public Xfci1ToFunctionAdapter(
+			ExternalFunctionConnectorInterface1 xfciPlugin, String nameSpace, LanguageSpecContainer spec)
+					throws VnanoException {
 
-		this(xfciPlugin);
+		this(xfciPlugin, spec);
 		this.hasNameSpace = true;
 		this.nameSpace = nameSpace;
 	}
@@ -189,7 +199,7 @@ public final class Xfci1ToFunctionAdapter extends AbstractFunction {
 
 		String[] parameterDataTypeNames = new String[parameterLength];
 		for (int parameterIndex=0; parameterIndex<parameterLength; parameterIndex++) {
-			parameterDataTypeNames[parameterIndex] = DataTypeName.getDataTypeNameOf(
+			parameterDataTypeNames[parameterIndex] = DATA_TYPE_NAME.getDataTypeNameOf(
 					this.parameterDataConverters[parameterIndex].getDataType()
 			);
 		}
@@ -287,14 +297,14 @@ public final class Xfci1ToFunctionAdapter extends AbstractFunction {
 	public final String getReturnDataTypeName(String[] argumentDataTypeNames, int[] argumentArrayRanks) {
 		DataType[] argumentDataTypes;
 		try {
-			argumentDataTypes = DataTypeName.getDataTypesOf(argumentDataTypeNames);
+			argumentDataTypes = DATA_TYPE_NAME.getDataTypesOf(argumentDataTypeNames);
 		} catch (VnanoException e) {
 			throw new VnanoFatalException(e);
 		}
 		Class<?>[] argumentClasses = DataConverter.getExternalClassesOf(argumentDataTypes, argumentArrayRanks);
 		Class<?> returnValueClass = this.xfciPlugin.getReturnClass(argumentClasses);
 		DataType returnDataType = DataConverter.getDataTypeOf(returnValueClass);
-		return DataTypeName.getDataTypeNameOf(returnDataType);
+		return DATA_TYPE_NAME.getDataTypeNameOf(returnDataType);
 	}
 
 
@@ -307,7 +317,7 @@ public final class Xfci1ToFunctionAdapter extends AbstractFunction {
 	public final int getReturnArrayRank(String[] argumentDataTypeNames, int[] argumentArrayRanks) {
 		DataType[] argumentDataTypes;
 		try {
-			argumentDataTypes = DataTypeName.getDataTypesOf(argumentDataTypeNames);
+			argumentDataTypes = DATA_TYPE_NAME.getDataTypesOf(argumentDataTypeNames);
 		} catch (VnanoException e) {
 			throw new VnanoFatalException(e);
 		}

@@ -73,6 +73,7 @@ org/vcssl/nano/spec/EngineInformation.java
 org/vcssl/nano/spec/ErrorMessage.java
 org/vcssl/nano/spec/ErrorType.java
 org/vcssl/nano/spec/IdentifierSyntax.java
+org/vcssl/nano/spec/LanguageSpecContainer.java
 org/vcssl/nano/spec/LiteralSyntax.java
 org/vcssl/nano/spec/MetaInformationSyntax.java
 org/vcssl/nano/spec/OperationCode.java

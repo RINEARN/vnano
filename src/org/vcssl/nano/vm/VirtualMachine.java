@@ -13,6 +13,7 @@ import org.vcssl.nano.interconnect.DataConverter;
 import org.vcssl.nano.interconnect.Interconnect;
 import org.vcssl.nano.spec.OptionKey;
 import org.vcssl.nano.spec.OptionValue;
+import org.vcssl.nano.spec.LanguageSpecContainer;
 import org.vcssl.nano.vm.accelerator.Accelerator;
 import org.vcssl.nano.vm.assembler.Assembler;
 import org.vcssl.nano.vm.memory.DataContainer;
@@ -60,16 +61,24 @@ import org.vcssl.nano.vm.processor.Processor;
  */
 public class VirtualMachine {
 
+	/** 各種の言語仕様設定類を格納するコンテナを保持します。 */
+	private final LanguageSpecContainer LANG_SPEC;
+
+
 	/**
 	 * <span class="lang-en">
-	 * This constructor does nothing, because this class has no fields for storing state
+	 * Create a new VM with the specified language specification settings
 	 * </span>
 	 * <span class="lang-ja">
-	 * このクラスは状態を保持するフィールドを持たないため, コンストラクタは何もしません
+	 * 指定された言語仕様設定で, VMを生成します
 	 * </span>
 	 * .
+	 * @param langSpec
+	 *   <span class="lang-en">language specification settings.</span>
+	 *   <span class="lang-ja">言語仕様設定</span>
 	 */
-	public VirtualMachine() {
+	public VirtualMachine(LanguageSpecContainer langSpec) {
+		this.LANG_SPEC = langSpec;
 	}
 
 
@@ -124,7 +133,7 @@ public class VirtualMachine {
 
 
 		// アセンブラで中間アセンブリコード（VRILコード）から実行用のVMオブジェクトコードに変換
-		Assembler assembler = new Assembler();
+		Assembler assembler = new Assembler(LANG_SPEC);
 		VirtualMachineObjectCode intermediateCode = assembler.assemble(assemblyCode, interconnect);
 
 		// VMオブジェクトコードをダンプ
@@ -145,7 +154,7 @@ public class VirtualMachine {
 
 
 		// 実行用メモリー領域を確保し、外部変数のデータをロード
-		Memory memory = new Memory();
+		Memory memory = new Memory(LANG_SPEC);
 		memory.allocate(intermediateCode, interconnect.getExternalVariableTable());
 
 		// プロセッサでVMオブジェクトコードの命令列を実行
@@ -164,7 +173,9 @@ public class VirtualMachine {
 		// 処理結果（式の評価値やスクリプトの戻り値）を取り出し、外側のデータ型に変換して返す
 		if (memory.hasResultDataContainer()) {
 			DataContainer<?> resultDataContainer = memory.getResultDataContainer();
-			DataConverter converter = new DataConverter(resultDataContainer.getDataType(), resultDataContainer.getRank());
+			DataConverter converter = new DataConverter(
+				resultDataContainer.getDataType(), resultDataContainer.getRank(), LANG_SPEC
+			);
 			return converter.convertToExternalObject(resultDataContainer);
 		} else {
 			return null;

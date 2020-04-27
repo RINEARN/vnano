@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2019 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2020 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -20,6 +20,7 @@ import org.vcssl.nano.spec.DataType;
 import org.vcssl.nano.spec.DataTypeName;
 import org.vcssl.nano.spec.IdentifierSyntax;
 import org.vcssl.nano.spec.ScriptWord;
+import org.vcssl.nano.spec.LanguageSpecContainer;
 
 /**
  * <p>
@@ -29,6 +30,16 @@ import org.vcssl.nano.spec.ScriptWord;
  * @author RINEARN (Fumihiro Matsui)
  */
 public class FunctionTable {
+
+	/** スクリプト言語の語句が定義された設定オブジェクトを保持します。 */
+	private final ScriptWord SCRIPT_WORD;
+
+	/** 識別子の判定規則類が定義された設定オブジェクトを保持します。 */
+	private final IdentifierSyntax IDENTIFIER_SYNTAX;
+
+	/** データ型名が定義された設定オブジェクトを保持します。 */
+	private final DataTypeName DATA_TYPE_NAME;
+
 
 	/** 関数を保持するリストです。 */
 	List<AbstractFunction> functionList = null;
@@ -48,8 +59,14 @@ public class FunctionTable {
 
 	/**
 	 * 空の関数テーブルを生成します。
+	 *
+	 * @param langSpec 言語仕様設定。
 	 */
-	public FunctionTable() {
+	public FunctionTable(LanguageSpecContainer langSpec) {
+		this.SCRIPT_WORD = langSpec.SCRIPT_WORD;
+		this.IDENTIFIER_SYNTAX = langSpec.IDENTIFIER_SYNTAX;
+		this.DATA_TYPE_NAME = langSpec.DATA_TYPE_NAME;
+
 		this.functionList = new ArrayList<AbstractFunction>();
 
 		this.signatureFunctionMap = new LinkedHashMap<String, LinkedList<AbstractFunction>>();
@@ -70,13 +87,16 @@ public class FunctionTable {
 		// 全関数リストに追加
 		this.functionList.add(function);
 
-		String nameSpacePrefix = IdentifierSyntax.getNameSpacePrefixOf(function);
+		String nameSpacePrefix = "";
+		if (function.hasNameSpace()) {
+			nameSpacePrefix = function.getNameSpace() +  SCRIPT_WORD.NAME_SPACE_SEPARATOR;
+		}
 
-		String signature = IdentifierSyntax.getSignatureOf(function);
-		String fullSignature = IdentifierSyntax.getSignatureOf(function, nameSpacePrefix);
+		String signature = IDENTIFIER_SYNTAX.getSignatureOf(function);
+		String fullSignature = IDENTIFIER_SYNTAX.getSignatureOf(function, nameSpacePrefix);
 
 		String functionName = function.getFunctionName();
-		String fullFunctionName = nameSpacePrefix + ScriptWord.NAME_SPACE_SEPARATOR + functionName;
+		String fullFunctionName = nameSpacePrefix + functionName;
 
 		IdentifierMapManager.putToMap(this.signatureFunctionMap, signature, function);
 		IdentifierMapManager.putToMap(this.nameFunctionMap, functionName, function);
@@ -147,8 +167,8 @@ public class FunctionTable {
 			boolean[] parameterDataTypeArbitrarinesses, boolean[] parameterArrayRankArbitrarinesses,
 			boolean parameterCountArbitrary, boolean parameterVariadic) {
 
-		String[] parameterDataTypeNames = DataTypeName.getDataTypeNamesOf(parameterDataTypes);
-		String signature = IdentifierSyntax.getSignatureOf(
+		String[] parameterDataTypeNames = DATA_TYPE_NAME.getDataTypeNamesOf(parameterDataTypes);
+		String signature = IDENTIFIER_SYNTAX.getSignatureOf(
 				functionName, parameterDataTypeNames, parameterArrayRanks,
 				parameterDataTypeArbitrarinesses, parameterArrayRankArbitrarinesses,
 				parameterCountArbitrary, parameterVariadic
@@ -213,7 +233,7 @@ public class FunctionTable {
 	public AbstractFunction getCalleeFunctionOf(AstNode callerNode) throws VnanoException {
 
 		// まずコールシグネチャと宣言シグネチャが一致するものがあるか検索（あれば最も検索が速い）
-		String signature = IdentifierSyntax.getSignatureOfCalleeFunctionOf(callerNode);
+		String signature = IDENTIFIER_SYNTAX.getSignatureOfCalleeFunctionOf(callerNode);
 		if (this.hasFunctionWithSignature(signature)) {
 			return this.getFunctionBySignature(signature);
 		}

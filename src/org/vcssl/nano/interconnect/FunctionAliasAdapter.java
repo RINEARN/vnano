@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2019 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2020 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -15,6 +15,7 @@ import org.vcssl.nano.spec.DataTypeName;
 import org.vcssl.nano.spec.ErrorType;
 import org.vcssl.nano.spec.IdentifierSyntax;
 import org.vcssl.nano.spec.ScriptWord;
+import org.vcssl.nano.spec.LanguageSpecContainer;
 import org.vcssl.nano.vm.memory.DataContainer;
 
 
@@ -29,6 +30,19 @@ import org.vcssl.nano.vm.memory.DataContainer;
  */
 public class FunctionAliasAdapter extends AbstractFunction {
 
+	/** 各種の言語仕様設定類を格納するコンテナを保持します。 */
+	private final LanguageSpecContainer LANG_SPEC;
+
+	/** 上記コンテナ内の、スクリプト言語の語句が定義された設定オブジェクトを保持します。 */
+	private final ScriptWord SCRIPT_WORD;
+
+	/** 上記コンテナ内の、識別子の判定規則類が定義された設定オブジェクトを保持します。 */
+	private final IdentifierSyntax IDENTIFIER_SYNTAX;
+
+	/** 上記コンテナ内の、データ型名が定義された設定オブジェクトを保持します。 */
+	private final DataTypeName DATA_TYPE_NAME;
+
+
 	/** このアダプタで変換する関数を保持します。 */
 	private AbstractFunction function = null;
 
@@ -40,8 +54,14 @@ public class FunctionAliasAdapter extends AbstractFunction {
 	 * 指定された関数を、別名に変換するためのアダプターを生成します。
 	 *
 	 * @param function 変換対象の関数
+	 * @param langSpec 言語仕様設定
 	 */
-	public FunctionAliasAdapter(AbstractFunction function) {
+	public FunctionAliasAdapter(AbstractFunction function, LanguageSpecContainer langSpec) {
+		this.LANG_SPEC = langSpec;
+		this.SCRIPT_WORD = langSpec.SCRIPT_WORD;
+		this.IDENTIFIER_SYNTAX = langSpec.IDENTIFIER_SYNTAX;
+		this.DATA_TYPE_NAME = langSpec.DATA_TYPE_NAME;
+
 		this.function = function;
 		this.functionName = this.function.getFunctionName();
 	}
@@ -62,17 +82,17 @@ public class FunctionAliasAdapter extends AbstractFunction {
 	public final void setCallSignature(String signature) throws VnanoException {
 
 		// プラグインから素直に求めたコールシグネチャを用意（エラーメッセージで使用）
-		String expectedSignature = IdentifierSyntax.getSignatureOf(this);
+		String expectedSignature = IDENTIFIER_SYNTAX.getSignatureOf(this);
 
 		// コールシグネチャに仮の戻り値とブロックを付けて関数宣言のコードにする
 		String functionDeclarationCode
-			= DataTypeName.VOID + " " + signature + ScriptWord.BLOCK_BEGIN + ScriptWord.BLOCK_END;
+			= DATA_TYPE_NAME.VOID + " " + signature + SCRIPT_WORD.BLOCK_BEGIN + SCRIPT_WORD.BLOCK_END;
 
 		// 字句解析でトークン列に変換
-		Token[] tokens = new LexicalAnalyzer().analyze(functionDeclarationCode, "");
+		Token[] tokens = new LexicalAnalyzer(LANG_SPEC).analyze(functionDeclarationCode, "");
 
 		// 構文解析で関数宣言のASTに変換
-		AstNode rootAst = new Parser().parse(tokens);
+		AstNode rootAst = new Parser(LANG_SPEC).parse(tokens);
 		if (!rootAst.hasChildNodes()) {
 			throw new VnanoException(
 				ErrorType.INVALID_EXTERNAL_FUNCTION_SIGNATURE, new String[] { signature, expectedSignature }
@@ -147,17 +167,17 @@ public class FunctionAliasAdapter extends AbstractFunction {
 			return true;
 		}
 
-		if (typeA.equals(DataTypeName.INT) && typeB.equals(DataTypeName.LONG)) {
+		if (typeA.equals(DATA_TYPE_NAME.INT) && typeB.equals(DATA_TYPE_NAME.LONG)) {
 			return true;
 		}
-		if (typeA.equals(DataTypeName.LONG) && typeB.equals(DataTypeName.INT)) {
+		if (typeA.equals(DATA_TYPE_NAME.LONG) && typeB.equals(DATA_TYPE_NAME.INT)) {
 			return true;
 		}
 
-		if (typeA.equals(DataTypeName.FLOAT) && typeB.equals(DataTypeName.DOUBLE)) {
+		if (typeA.equals(DATA_TYPE_NAME.FLOAT) && typeB.equals(DATA_TYPE_NAME.DOUBLE)) {
 			return true;
 		}
-		if (typeA.equals(DataTypeName.DOUBLE) && typeB.equals(DataTypeName.FLOAT)) {
+		if (typeA.equals(DATA_TYPE_NAME.DOUBLE) && typeB.equals(DATA_TYPE_NAME.FLOAT)) {
 			return true;
 		}
 

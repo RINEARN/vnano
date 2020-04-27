@@ -76,10 +76,11 @@ public class TokenTest {
 	}
 
 	@Test
-	public void testSetGetOperatorPriority() {
+	public void testSetGetOperatorPrecedence() {
+		OperatorPrecedence precedence = new OperatorPrecedence();
 		Token token = new Token("Hello", 123, "Test.vnano");
-		token.setPrecedence(OperatorPrecedence.ADDITION);
-		assertEquals(OperatorPrecedence.ADDITION, token.getPrecedence());
+		token.setPrecedence(precedence.ADDITION);
+		assertEquals(precedence.ADDITION, token.getPrecedence());
 	}
 
 

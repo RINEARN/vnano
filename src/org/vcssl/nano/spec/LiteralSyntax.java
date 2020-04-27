@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2019 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2020 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -42,12 +42,26 @@ import org.vcssl.nano.VnanoException;
  */
 public class LiteralSyntax {
 
+
+	// 各フィールドは元々は static final でしたが、カスタマイズの事を考慮して、動的なフィールドに変更されました。
+	// これにより、このクラスのインスタンスを生成して値を変更（または継承してメソッド実装なども変更）し、
+	// それを LanguageSpecContainer に持たせて VnanoEngle クラスのコンストラクタに渡す事で、
+	// 処理系内のソースコードを保ったまま（再ビルド不要で）定義類を差し替える事ができます。
+
+
+	// 型名の設定内容に依存しているため、コンストラクタで渡す
+	private final DataTypeName DATA_TYPE_NAME;
+	public LiteralSyntax(DataTypeName dataTypeName) {
+		this.DATA_TYPE_NAME = dataTypeName;
+	}
+
+
 	/**
 	 * <span class="lang-en">The value of the bool type literal: "true"</span>
 	 * <span class="lang-ja">bool 型のリテラル値 true です</span>
 	 * .
 	 */
-	public static final String TRUE = "true";
+	public String TRUE = "true";
 
 
 	/**
@@ -55,7 +69,7 @@ public class LiteralSyntax {
 	 * <span class="lang-ja">bool 型のリテラル値 false です</span>
 	 * .
 	 */
-	public static final String FALSE = "false";
+	public String FALSE = "false";
 
 
 	/**
@@ -63,7 +77,7 @@ public class LiteralSyntax {
 	 * <span class="lang-ja">int 型リテラルの正規表現です</span>
 	 * .
 	 */
-	private static final String INT_LITERAL_REGEX = "^(\\+|-)?[0-9]+$";
+	private String INT_LITERAL_REGEX = "^(\\+|-)?[0-9]+$";
 
 
 	/**
@@ -71,7 +85,7 @@ public class LiteralSyntax {
 	 * <span class="lang-ja">float 型リテラルの正規表現です</span>
 	 * .
 	 */
-	private static final String FLOAT_LITERAL_REGEX =
+	private String FLOAT_LITERAL_REGEX =
 		"^(\\+|-)?([0-9]+(d|f|D|F))|((([0-9]+\\.[0-9]*)|([0-9]*\\.[0-9]+))(((e|E)(\\+|-)?[0-9]+)|)|([0-9]*\\.?[0-9]+)(e|E)(\\+|-)?[0-9]+)(d|f|D|F)?$";
 
 
@@ -80,7 +94,7 @@ public class LiteralSyntax {
 	 * <span class="lang-ja">bool 型リテラルの正規表現です</span>
 	 * .
 	 */
-	private static final String BOOL_LITERAL_REGEX = "^" + TRUE + "|" + FALSE + "$";
+	private String BOOL_LITERAL_REGEX = "^" + TRUE + "|" + FALSE + "$";
 
 
 	/**
@@ -88,7 +102,7 @@ public class LiteralSyntax {
 	 * <span class="lang-ja">文字列型リテラルの始点・終点記号「 " 」です</span>
 	 * .
 	 */
-	public static final char STRING_LITERAL_QUOTATION = '"';
+	public char STRING_LITERAL_QUOTATION = '"';
 
 
 	/**
@@ -96,7 +110,7 @@ public class LiteralSyntax {
 	 * <span class="lang-ja">文字列型リテラル内のエスケープシーケンスのプレフィックス記号「 \ 」です</span>
 	 * .
 	 */
-	public static final char STRING_LITERAL_ESCAPE = '\\';
+	public char STRING_LITERAL_ESCAPE = '\\';
 
 
 	/**
@@ -111,7 +125,7 @@ public class LiteralSyntax {
 	 *   <span class="lang-en">The check result ("true" if it can be interpreted as the literal).</span>
 	 *   <span class="lang-ja">判定結果（リテラルとみなせる場合に true ）.</span>
 	 */
-	public static boolean isValidLiteral(String token) {
+	public boolean isValidLiteral(String token) {
 		try {
 			getDataTypeNameOfLiteral(token);
 			return true;
@@ -137,26 +151,26 @@ public class LiteralSyntax {
 	 *   <span class="lang-en">Thrown when the specified literal could not be interpreted.</span>
 	 *   <span class="lang-ja">指定されたリテラルを解釈できなかった場合にスローされます.</span>
 	 */
-	public static String getDataTypeNameOfLiteral(String literal) throws VnanoFatalException {
+	public String getDataTypeNameOfLiteral(String literal) throws VnanoFatalException {
 
 		int literalLength = literal.length();
 
 		if (literal.matches(INT_LITERAL_REGEX)) {
-			return DataTypeName.INT;
+			return DATA_TYPE_NAME.INT;
 		}
 
 		if (literal.matches(FLOAT_LITERAL_REGEX)) {
-			return DataTypeName.FLOAT;
+			return DATA_TYPE_NAME.FLOAT;
 		}
 
 		if (literal.matches(BOOL_LITERAL_REGEX)) {
-			return DataTypeName.BOOL;
+			return DATA_TYPE_NAME.BOOL;
 		}
 
 		if (literal.charAt(0) == STRING_LITERAL_QUOTATION
 				&& literal.charAt(literalLength-1) == STRING_LITERAL_QUOTATION
 				&& literal.length()>=2) {
-			return DataTypeName.STRING;
+			return DATA_TYPE_NAME.STRING;
 		}
 
 		throw new VnanoFatalException("Invalid literal: " + literal);
@@ -178,7 +192,7 @@ public class LiteralSyntax {
 	 * @return
 	 *   <span class="lang-ja">エスケープシーケンスが処理済みの内容</span>
 	 */
-	public static String decodeEscapeSequences(String stringLiteral) {
+	public String decodeEscapeSequences(String stringLiteral) {
 
 		// 文字列リテラルのchar配列表現と要素数を取得
 		char[] chars = stringLiteral.toCharArray();
@@ -255,7 +269,7 @@ public class LiteralSyntax {
 	 * @throws VnanoException
 	 *   <span class="lang-ja">文字列リテラルが全て閉じていない場合にスローされます.</span>
 	 */
-	public static String[] extractStringLiterals(String code) throws VnanoException {
+	public String[] extractStringLiterals(String code) throws VnanoException {
 
 		// コードのchar配列表現と要素数を取得
 		char[] chars = code.toCharArray();
@@ -365,7 +379,7 @@ public class LiteralSyntax {
 	 *   対象リテラルが格納されている要素のインデックス
 	 *   </span>
 	 */
-	public static int getIndexOfNumberedStringLiteral(String numberedLiteral) {
+	public int getIndexOfNumberedStringLiteral(String numberedLiteral) {
 
 		// 前後の「 " 」を除去
 		numberedLiteral = numberedLiteral.substring(1, numberedLiteral.length()-1);
