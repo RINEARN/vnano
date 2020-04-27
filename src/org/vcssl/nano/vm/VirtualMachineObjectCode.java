@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2019 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2020 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.vcssl.nano.VnanoScriptEngine;
-import org.vcssl.nano.spec.AssemblyWord;
 import org.vcssl.nano.vm.memory.Memory;
 import org.vcssl.nano.vm.processor.Instruction;
 
@@ -283,7 +282,7 @@ public class VirtualMachineObjectCode implements Cloneable {
 			for (int d=0; d<dataTypeLength; d++) {
 				builder.append(instruction.getDataTypes()[d]);
 				if (d != dataTypeLength - 1) {
-					builder.append(AssemblyWord.VALUE_SEPARATOR);
+					builder.append(":");
 				}
 			}
 			if (dataTypeLength == 1) {

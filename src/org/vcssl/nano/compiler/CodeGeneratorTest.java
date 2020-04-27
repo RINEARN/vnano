@@ -12,32 +12,39 @@ import org.junit.Before;
 import org.junit.Test;
 import org.vcssl.nano.spec.AssemblyWord;
 import org.vcssl.nano.spec.DataTypeName;
+import org.vcssl.nano.spec.LanguageSpecContainer;
 import org.vcssl.nano.spec.OperationCode;
 import org.vcssl.nano.spec.OperatorPrecedence;
 import org.vcssl.nano.spec.ScriptWord;
 
 public class CodeGeneratorTest {
 
+	private final LanguageSpecContainer LANG_SPEC = new LanguageSpecContainer();
+	private final ScriptWord SCRIPT_WORD = LANG_SPEC.SCRIPT_WORD;
+	private final AssemblyWord ASSEMBLY_WORD = LANG_SPEC.ASSEMBLY_WORD;
+	private final OperatorPrecedence OPERATOR_PRECEDENCE = LANG_SPEC.OPERATOR_PRECEDENCE;
+	private final DataTypeName DATA_TYPE_NAME = LANG_SPEC.DATA_TYPE_NAME;
+
 	private static final int RANK_OF_SCALAR = 0;
 
-	private static final String EOI = AssemblyWord.INSTRUCTION_SEPARATOR + AssemblyWord.LINE_SEPARATOR; // 命令末尾記号+改行
-	private static final String WS = AssemblyWord.WORD_SEPARATOR;
-	private static final String VS = AssemblyWord.VALUE_SEPARATOR;
-	private static final String IND = AssemblyWord.INDENT;
-	private static final String IINT = AssemblyWord.OPERAND_PREFIX_IMMEDIATE + DataTypeName.INT;
-	private static final String IFLOAT = AssemblyWord.OPERAND_PREFIX_IMMEDIATE + DataTypeName.FLOAT;
+	private final String EOI = ASSEMBLY_WORD.instructionSeparator + ASSEMBLY_WORD.lineSeparator; // 命令末尾記号+改行
+	private final String WS = ASSEMBLY_WORD.wordSeparator;
+	private final String VS = ASSEMBLY_WORD.valueSeparator;
+	private final String IND = ASSEMBLY_WORD.indent;
+	private final String IINT = ASSEMBLY_WORD.immediateOperandPrefix + DATA_TYPE_NAME.defaultInt;
+	private final String IFLOAT = ASSEMBLY_WORD.immediateOperandPrefix + DATA_TYPE_NAME.defaultFloat;
 
-	private static final char R = AssemblyWord.OPERAND_PREFIX_REGISTER;
-	private static final String IVA = AssemblyWord.OPERAND_PREFIX_IDENTIFIER + "intVectorA";
-	private static final String IVB = AssemblyWord.OPERAND_PREFIX_IDENTIFIER + "intVectorB";
-	private static final String ISA = AssemblyWord.OPERAND_PREFIX_IDENTIFIER + "intScalarA";
-	private static final String ISB = AssemblyWord.OPERAND_PREFIX_IDENTIFIER + "intScalarB";
-	private static final String FVA = AssemblyWord.OPERAND_PREFIX_IDENTIFIER + "floatVectorA";
-	//private static final String FVB = AssemblyWord.OPERAND_PREFIX_IDENTIFIER + "floatVectorB";
-	//private static final String FSA = AssemblyWord.OPERAND_PREFIX_IDENTIFIER + "floatScalarA";
-	private static final String FSB = AssemblyWord.OPERAND_PREFIX_IDENTIFIER + "floatScalarB";
-	//private static final String BVA = AssemblyWord.OPERAND_PREFIX_IDENTIFIER + "boolVectorA";
-	//private static final String BVB = AssemblyWord.OPERAND_PREFIX_IDENTIFIER + "boolVectorB";
+	private final char R = ASSEMBLY_WORD.registerOperandOprefix;
+	private final String IVA = ASSEMBLY_WORD.identifierOperandPrefix + "intVectorA";
+	private final String IVB = ASSEMBLY_WORD.identifierOperandPrefix + "intVectorB";
+	private final String ISA = ASSEMBLY_WORD.identifierOperandPrefix + "intScalarA";
+	private final String ISB = ASSEMBLY_WORD.identifierOperandPrefix + "intScalarB";
+	private final String FVA = ASSEMBLY_WORD.identifierOperandPrefix + "floatVectorA";
+	//private static final String FVB = ASSEMBLY_WORD.OPERAND_PREFIX_IDENTIFIER + "floatVectorB";
+	//private static final String FSA = ASSEMBLY_WORD.OPERAND_PREFIX_IDENTIFIER + "floatScalarA";
+	private final String FSB = ASSEMBLY_WORD.identifierOperandPrefix + "floatScalarB";
+	//private static final String BVA = ASSEMBLY_WORD.OPERAND_PREFIX_IDENTIFIER + "boolVectorA";
+	//private static final String BVB = ASSEMBLY_WORD.OPERAND_PREFIX_IDENTIFIER + "boolVectorB";
 
 	private static final String GLOBAL_DIRECTIVE_IVA = "#GLOBAL_VARIABLE	_intVectorA";
 	private static final String GLOBAL_DIRECTIVE_IVB = "#GLOBAL_VARIABLE	_intVectorB";
@@ -50,32 +57,32 @@ public class CodeGeneratorTest {
 	//private static final String GLOBAL_DIRECTIVE_BVA = "#GLOBAL_VARIABLE	_boolVectorA";
 	//private static final String GLOBAL_DIRECTIVE_BVB = "#GLOBAL_VARIABLE	_boolVectorB";
 
-	private static final String END_CODE = IND + OperationCode.END + WS + DataTypeName.VOID
-	                                     + WS + AssemblyWord.OPERAND_PREFIX_PLACEHOLDER + EOI;
+	private final String END_CODE = IND + OperationCode.END + WS + DATA_TYPE_NAME.voidPlaceholder
+	                                     + WS + ASSEMBLY_WORD.placeholderOperandPrefix + EOI;
 
 	// テストコードの先頭に常に付く定型コード（バージョン情報など）
-	private static final String HEADER =
-			AssemblyWord.ASSEMBLY_LANGUAGE_IDENTIFIER_DIRECTIVE + AssemblyWord.WORD_SEPARATOR
+	private final String HEADER =
+			ASSEMBLY_WORD.assemblyLanguageIdentifierDirective + ASSEMBLY_WORD.wordSeparator
 			+
-			"\"" + AssemblyWord.ASSEMBLY_LANGUAGE_NAME + "\"" + EOI
+			"\"" + ASSEMBLY_WORD.assemblyLanguageName + "\"" + EOI
 			+
-			AssemblyWord.ASSEMBLY_LANGUAGE_VERSION_DIRECTIVE + AssemblyWord.WORD_SEPARATOR
+			ASSEMBLY_WORD.assemblyLanguageVersionDirective + ASSEMBLY_WORD.wordSeparator
 			+
-			"\"" + AssemblyWord.ASSEMBLY_LANGUAGE_VERSION + "\"" + EOI
+			"\"" + ASSEMBLY_WORD.assemblyLanguageVersion + "\"" + EOI
 			+
-			AssemblyWord.SCRIPT_LANGUAGE_IDENTIFIER_DIRECTIVE + AssemblyWord.WORD_SEPARATOR
+			ASSEMBLY_WORD.scriptLanguageIdentifierDirective + ASSEMBLY_WORD.wordSeparator
 			+
-			"\"" + ScriptWord.SCRIPT_LANGUAGE_NAME + "\"" + EOI
+			"\"" + SCRIPT_WORD.scriptLanguageName + "\"" + EOI
 			+
-			AssemblyWord.SCRIPT_LANGUAGE_VERSION_DIRECTIVE + AssemblyWord.WORD_SEPARATOR
+			ASSEMBLY_WORD.scriptLanguageVersionDirective + ASSEMBLY_WORD.wordSeparator
 			+
-			"\"" + ScriptWord.SCRIPT_LANGUAGE_VERSION + "\"" + EOI
+			"\"" + SCRIPT_WORD.scriptLanguageVersion + "\"" + EOI
 			+
-			AssemblyWord.LINE_SEPARATOR;
+			ASSEMBLY_WORD.lineSeparator;
 
 	// メタディレクティブコード
-	private static final String META = AssemblyWord.LINE_SEPARATOR
-			+ AssemblyWord.META_DIRECTIVE + AssemblyWord.WORD_SEPARATOR + "\"line=123, file=Test.vnano\"";
+	private final String META = ASSEMBLY_WORD.lineSeparator
+			+ ASSEMBLY_WORD.metaDirective + ASSEMBLY_WORD.wordSeparator + "\"line=123, file=Test.vnano\"";
 
 
 	@Before
@@ -139,14 +146,14 @@ public class CodeGeneratorTest {
 
 		//「 intVectorA = intVectorB; 」のASTを用意（symbolは引数に渡された二項算術演算子）
 		AstNode rootNode = this.createRootNode();
-		AstNode exprNode = this.createExpressionNode(DataTypeName.INT, 1);
+		AstNode exprNode = this.createExpressionNode(DATA_TYPE_NAME.defaultInt, 1);
 		AstNode operatorNode = this.createOperatorNode(
-				ScriptWord.ASSIGNMENT, OperatorPrecedence.ASSIGNMENT, AttributeValue.BINARY,
-				AttributeValue.ASSIGNMENT, DataTypeName.INT, 1
+				SCRIPT_WORD.assignment, OPERATOR_PRECEDENCE.assignment, AttributeValue.BINARY,
+				AttributeValue.ASSIGNMENT, DATA_TYPE_NAME.defaultInt, 1
 		);
 		AstNode[] operandNodes = new AstNode[] {
-			this.createVariableIdentifierNode("intVectorA", DataTypeName.INT, 1, AttributeValue.GLOBAL),
-			this.createVariableIdentifierNode("intVectorB", DataTypeName.INT, 1, AttributeValue.GLOBAL),
+			this.createVariableIdentifierNode("intVectorA", DATA_TYPE_NAME.defaultInt, 1, AttributeValue.GLOBAL),
+			this.createVariableIdentifierNode("intVectorB", DATA_TYPE_NAME.defaultInt, 1, AttributeValue.GLOBAL),
 		};
 		rootNode.addChildNode(exprNode);
 		exprNode.addChildNode(operatorNode);
@@ -156,7 +163,7 @@ public class CodeGeneratorTest {
 		//System.out.println(rootNode);
 
 		// コード生成
-		String generatedCode = new CodeGenerator().generate(rootNode);
+		String generatedCode = new CodeGenerator(LANG_SPEC).generate(rootNode);
 
 		/* 期待コードを用意（内容は下記コメントの通り、ただし空白幅は見やすいよう調整）
 
@@ -168,8 +175,8 @@ public class CodeGeneratorTest {
 		      END     void    -;
 		 */
 		String expectedCode = HEADER + GLOBAL_DIRECTIVE_IVA + EOI + GLOBAL_DIRECTIVE_IVB + EOI + META + EOI
-			+ IND + OperationCode.ALLOCR + WS + DataTypeName.INT + WS + IVA + WS + IVB + EOI
-			+ IND + OperationCode.MOV + WS + DataTypeName.INT + WS + IVA + WS + IVB + EOI
+			+ IND + OperationCode.ALLOCR + WS + DATA_TYPE_NAME.defaultInt + WS + IVA + WS + IVB + EOI
+			+ IND + OperationCode.MOV + WS + DATA_TYPE_NAME.defaultInt + WS + IVA + WS + IVB + EOI
 			+ END_CODE;
 
 		// 生成コードと期待コードの内容を確認
@@ -177,7 +184,7 @@ public class CodeGeneratorTest {
 		//System.out.println(expectedCode);
 
 		// 生成コードと期待コードを比較検査
-		assertEquals(expectedCode.replace(AssemblyWord.LINE_SEPARATOR,""), generatedCode.replace(AssemblyWord.LINE_SEPARATOR,""));
+		assertEquals(expectedCode.replace(ASSEMBLY_WORD.lineSeparator,""), generatedCode.replace(ASSEMBLY_WORD.lineSeparator,""));
 	}
 
 
@@ -186,128 +193,130 @@ public class CodeGeneratorTest {
 	public void testGenerateArithmeticBinaryOperatorCode() {
 
 		this.testGenerateArithmeticBinaryOperatorCodeScalar(
-			ScriptWord.PLUS, OperatorPrecedence.ADDITION, OperationCode.ADD
+			SCRIPT_WORD.plusOrAddition, OPERATOR_PRECEDENCE.addition, OperationCode.ADD
 		);
 		this.testGenerateArithmeticBinaryOperatorCodeScalar(
-			ScriptWord.MINUS, OperatorPrecedence.SUBTRACTION, OperationCode.SUB
+			SCRIPT_WORD.minusOrSubtraction, OPERATOR_PRECEDENCE.subtraction, OperationCode.SUB
 		);
 		this.testGenerateArithmeticBinaryOperatorCodeScalar(
-			ScriptWord.MULTIPLICATION, OperatorPrecedence.MULTIPLICATION, OperationCode.MUL
+			SCRIPT_WORD.multiplication, OPERATOR_PRECEDENCE.multiplication, OperationCode.MUL
 		);
 		this.testGenerateArithmeticBinaryOperatorCodeScalar(
-			ScriptWord.DIVISION, OperatorPrecedence.DIVISION, OperationCode.DIV
+			SCRIPT_WORD.division, OPERATOR_PRECEDENCE.division, OperationCode.DIV
 		);
 		this.testGenerateArithmeticBinaryOperatorCodeScalar(
-			ScriptWord.REMAINDER, OperatorPrecedence.REMAINDER, OperationCode.REM
+			SCRIPT_WORD.remainder, OPERATOR_PRECEDENCE.remainder, OperationCode.REM
 		);
 
 		this.testGenerateArithmeticBinaryOperatorCodeScalarCast(
-			ScriptWord.PLUS, OperatorPrecedence.ADDITION, OperationCode.ADD
+			SCRIPT_WORD.plusOrAddition, OPERATOR_PRECEDENCE.addition, OperationCode.ADD
 		);
 		this.testGenerateArithmeticBinaryOperatorCodeScalarCast(
-			ScriptWord.MINUS, OperatorPrecedence.SUBTRACTION, OperationCode.SUB
+			SCRIPT_WORD.minusOrSubtraction, OPERATOR_PRECEDENCE.subtraction, OperationCode.SUB
 		);
 		this.testGenerateArithmeticBinaryOperatorCodeScalarCast(
-			ScriptWord.MULTIPLICATION, OperatorPrecedence.MULTIPLICATION, OperationCode.MUL
+			SCRIPT_WORD.multiplication, OPERATOR_PRECEDENCE.multiplication, OperationCode.MUL
 		);
 		this.testGenerateArithmeticBinaryOperatorCodeScalarCast(
-			ScriptWord.DIVISION, OperatorPrecedence.DIVISION, OperationCode.DIV
+			SCRIPT_WORD.division, OPERATOR_PRECEDENCE.division, OperationCode.DIV
 		);
 		this.testGenerateArithmeticBinaryOperatorCodeScalarCast(
-			ScriptWord.REMAINDER, OperatorPrecedence.REMAINDER, OperationCode.REM
+			SCRIPT_WORD.remainder, OPERATOR_PRECEDENCE.remainder, OperationCode.REM
 		);
 
 		this.testGenerateArithmeticBinaryOperatorCodeVector(
-			ScriptWord.PLUS, OperatorPrecedence.ADDITION, OperationCode.ADD
+			SCRIPT_WORD.plusOrAddition, OPERATOR_PRECEDENCE.addition, OperationCode.ADD
 		);
 		this.testGenerateArithmeticBinaryOperatorCodeVector(
-			ScriptWord.MINUS, OperatorPrecedence.SUBTRACTION, OperationCode.SUB
+			SCRIPT_WORD.minusOrSubtraction, OPERATOR_PRECEDENCE.subtraction, OperationCode.SUB
 		);
 		this.testGenerateArithmeticBinaryOperatorCodeVector(
-			ScriptWord.MULTIPLICATION, OperatorPrecedence.MULTIPLICATION, OperationCode.MUL
+			SCRIPT_WORD.multiplication, OPERATOR_PRECEDENCE.multiplication, OperationCode.MUL
 		);
 		this.testGenerateArithmeticBinaryOperatorCodeVector(
-			ScriptWord.DIVISION, OperatorPrecedence.DIVISION, OperationCode.DIV
+			SCRIPT_WORD.division, OPERATOR_PRECEDENCE.division, OperationCode.DIV
 		);
 		this.testGenerateArithmeticBinaryOperatorCodeVector(
-			ScriptWord.REMAINDER, OperatorPrecedence.REMAINDER, OperationCode.REM
+			SCRIPT_WORD.remainder, OPERATOR_PRECEDENCE.remainder, OperationCode.REM
 		);
 
 		this.testGenerateArithmeticBinaryOperatorCodeVectorCast(
-			ScriptWord.PLUS, OperatorPrecedence.ADDITION, OperationCode.ADD
+			SCRIPT_WORD.plusOrAddition, OPERATOR_PRECEDENCE.addition, OperationCode.ADD
 		);
 		this.testGenerateArithmeticBinaryOperatorCodeVectorCast(
-			ScriptWord.MINUS, OperatorPrecedence.SUBTRACTION, OperationCode.SUB
+			SCRIPT_WORD.minusOrSubtraction, OPERATOR_PRECEDENCE.subtraction, OperationCode.SUB
 		);
 		this.testGenerateArithmeticBinaryOperatorCodeVectorCast(
-			ScriptWord.MULTIPLICATION, OperatorPrecedence.MULTIPLICATION, OperationCode.MUL
+			SCRIPT_WORD.multiplication, OPERATOR_PRECEDENCE.multiplication, OperationCode.MUL
 		);
 		this.testGenerateArithmeticBinaryOperatorCodeVectorCast(
-			ScriptWord.DIVISION, OperatorPrecedence.DIVISION, OperationCode.DIV
+			SCRIPT_WORD.division, OPERATOR_PRECEDENCE.division, OperationCode.DIV
 		);
 		this.testGenerateArithmeticBinaryOperatorCodeVectorCast(
-			ScriptWord.REMAINDER, OperatorPrecedence.REMAINDER, OperationCode.REM
+			SCRIPT_WORD.remainder, OPERATOR_PRECEDENCE.remainder, OperationCode.REM
 		);
 
 		this.testGenerateArithmeticBinaryOperatorCodeVectorScalarMixed(
-			ScriptWord.PLUS, OperatorPrecedence.ADDITION, OperationCode.ADD
+			SCRIPT_WORD.plusOrAddition, OPERATOR_PRECEDENCE.addition, OperationCode.ADD
 		);
 		this.testGenerateArithmeticBinaryOperatorCodeVectorScalarMixed(
-			ScriptWord.MINUS, OperatorPrecedence.SUBTRACTION, OperationCode.SUB
+			SCRIPT_WORD.minusOrSubtraction, OPERATOR_PRECEDENCE.subtraction, OperationCode.SUB
 		);
 		this.testGenerateArithmeticBinaryOperatorCodeVectorScalarMixed(
-			ScriptWord.MULTIPLICATION, OperatorPrecedence.MULTIPLICATION, OperationCode.MUL
+			SCRIPT_WORD.multiplication, OPERATOR_PRECEDENCE.multiplication, OperationCode.MUL
 		);
 		this.testGenerateArithmeticBinaryOperatorCodeVectorScalarMixed(
-			ScriptWord.DIVISION, OperatorPrecedence.DIVISION, OperationCode.DIV
+			SCRIPT_WORD.division, OPERATOR_PRECEDENCE.division, OperationCode.DIV
 		);
 		this.testGenerateArithmeticBinaryOperatorCodeVectorScalarMixed(
-			ScriptWord.REMAINDER, OperatorPrecedence.REMAINDER, OperationCode.REM
+			SCRIPT_WORD.remainder, OPERATOR_PRECEDENCE.remainder, OperationCode.REM
 		);
 
 		this.testGenerateArithmeticBinaryOperatorCodeVectorScalarMixedCastVector(
-			ScriptWord.PLUS, OperatorPrecedence.ADDITION, OperationCode.ADD
+			SCRIPT_WORD.plusOrAddition, OPERATOR_PRECEDENCE.addition, OperationCode.ADD
 		);
 		this.testGenerateArithmeticBinaryOperatorCodeVectorScalarMixedCastVector(
-			ScriptWord.MINUS, OperatorPrecedence.SUBTRACTION, OperationCode.SUB
+			SCRIPT_WORD.minusOrSubtraction, OPERATOR_PRECEDENCE.subtraction, OperationCode.SUB
 		);
 		this.testGenerateArithmeticBinaryOperatorCodeVectorScalarMixedCastVector(
-			ScriptWord.MULTIPLICATION, OperatorPrecedence.MULTIPLICATION, OperationCode.MUL
+			SCRIPT_WORD.multiplication, OPERATOR_PRECEDENCE.multiplication, OperationCode.MUL
 		);
 		this.testGenerateArithmeticBinaryOperatorCodeVectorScalarMixedCastVector(
-			ScriptWord.DIVISION, OperatorPrecedence.DIVISION, OperationCode.DIV
+			SCRIPT_WORD.division, OPERATOR_PRECEDENCE.division, OperationCode.DIV
 		);
 		this.testGenerateArithmeticBinaryOperatorCodeVectorScalarMixedCastVector(
-			ScriptWord.REMAINDER, OperatorPrecedence.REMAINDER, OperationCode.REM
+			SCRIPT_WORD.remainder, OPERATOR_PRECEDENCE.remainder, OperationCode.REM
 		);
 
 		this.testGenerateArithmeticBinaryOperatorCodeVectorScalarMixedCastScalar(
-			ScriptWord.PLUS, OperatorPrecedence.ADDITION, OperationCode.ADD
+			SCRIPT_WORD.plusOrAddition, OPERATOR_PRECEDENCE.addition, OperationCode.ADD
 		);
 		this.testGenerateArithmeticBinaryOperatorCodeVectorScalarMixedCastScalar(
-			ScriptWord.MINUS, OperatorPrecedence.SUBTRACTION, OperationCode.SUB
+			SCRIPT_WORD.minusOrSubtraction, OPERATOR_PRECEDENCE.subtraction, OperationCode.SUB
 		);
 		this.testGenerateArithmeticBinaryOperatorCodeVectorScalarMixedCastScalar(
-			ScriptWord.MULTIPLICATION, OperatorPrecedence.MULTIPLICATION, OperationCode.MUL
+			SCRIPT_WORD.multiplication, OPERATOR_PRECEDENCE.multiplication, OperationCode.MUL
 		);
 		this.testGenerateArithmeticBinaryOperatorCodeVectorScalarMixedCastScalar(
-			ScriptWord.DIVISION, OperatorPrecedence.DIVISION, OperationCode.DIV
+			SCRIPT_WORD.division, OPERATOR_PRECEDENCE.division, OperationCode.DIV
 		);
 		this.testGenerateArithmeticBinaryOperatorCodeVectorScalarMixedCastScalar(
-			ScriptWord.REMAINDER, OperatorPrecedence.REMAINDER, OperationCode.REM
+			SCRIPT_WORD.remainder, OPERATOR_PRECEDENCE.remainder, OperationCode.REM
 		);
 	}
+
+
 	public void testGenerateArithmeticBinaryOperatorCodeScalar(String symbol, int priority, OperationCode operationCode) {
 
 		//「 1 symbol 2; 」のASTを用意（symbolは引数に渡された二項算術演算子）
 		AstNode rootNode = this.createRootNode();
-		AstNode exprNode = this.createExpressionNode(DataTypeName.INT, RANK_OF_SCALAR);
+		AstNode exprNode = this.createExpressionNode(DATA_TYPE_NAME.defaultInt, RANK_OF_SCALAR);
 		AstNode operatorNode = this.createOperatorNode(
-				symbol, priority, AttributeValue.BINARY, AttributeValue.ARITHMETIC, DataTypeName.INT, RANK_OF_SCALAR
+				symbol, priority, AttributeValue.BINARY, AttributeValue.ARITHMETIC, DATA_TYPE_NAME.defaultInt, RANK_OF_SCALAR
 		);
 		AstNode[] operandNodes = new AstNode[] {
-			this.createLiteralNode("1", DataTypeName.INT, RANK_OF_SCALAR),
-			this.createLiteralNode("2", DataTypeName.INT, RANK_OF_SCALAR),
+			this.createLiteralNode("1", DATA_TYPE_NAME.defaultInt, RANK_OF_SCALAR),
+			this.createLiteralNode("2", DATA_TYPE_NAME.defaultInt, RANK_OF_SCALAR),
 		};
 		rootNode.addChildNode(exprNode);
 		exprNode.addChildNode(operatorNode);
@@ -317,7 +326,7 @@ public class CodeGeneratorTest {
 		//System.out.println(rootNode);
 
 		// コード生成
-		String generatedCode = new CodeGenerator().generate(rootNode);
+		String generatedCode = new CodeGenerator(LANG_SPEC).generate(rootNode);
 
 		/* 期待コードを用意（内容は下記コメントの通り、ただし空白幅は見やすいよう調整）
 
@@ -327,8 +336,8 @@ public class CodeGeneratorTest {
 		      END     void    -;
 		 */
 		String expectedCode = HEADER + META + EOI
-			+ IND + OperationCode.ALLOC + WS + DataTypeName.INT + WS + R + "0" + EOI
-			+ IND + operationCode + WS + DataTypeName.INT + WS + R + "0" + WS + IINT + VS + "1" + WS + IINT + VS + "2" + EOI
+			+ IND + OperationCode.ALLOC + WS + DATA_TYPE_NAME.defaultInt + WS + R + "0" + EOI
+			+ IND + operationCode + WS + DATA_TYPE_NAME.defaultInt + WS + R + "0" + WS + IINT + VS + "1" + WS + IINT + VS + "2" + EOI
 			+ END_CODE;
 
 		// 生成コードと期待コードの内容を確認
@@ -336,19 +345,19 @@ public class CodeGeneratorTest {
 		//System.out.println(expectedCode);
 
 		// 生成コードと期待コードを比較検査
-		assertEquals(expectedCode.replace(AssemblyWord.LINE_SEPARATOR,""), generatedCode.replace(AssemblyWord.LINE_SEPARATOR,""));
+		assertEquals(expectedCode.replace(ASSEMBLY_WORD.lineSeparator,""), generatedCode.replace(ASSEMBLY_WORD.lineSeparator,""));
 	}
 	public void testGenerateArithmeticBinaryOperatorCodeScalarCast(String symbol, int priority, OperationCode operationCode) {
 
 		//「 1 symbol 2; 」のASTを用意（symbolは引数に渡された二項算術演算子）
 		AstNode rootNode = this.createRootNode();
-		AstNode exprNode = this.createExpressionNode(DataTypeName.FLOAT, RANK_OF_SCALAR);
+		AstNode exprNode = this.createExpressionNode(DATA_TYPE_NAME.defaultFloat, RANK_OF_SCALAR);
 		AstNode operatorNode = this.createOperatorNode(
-				symbol, priority, AttributeValue.BINARY, AttributeValue.ARITHMETIC, DataTypeName.FLOAT, RANK_OF_SCALAR
+				symbol, priority, AttributeValue.BINARY, AttributeValue.ARITHMETIC, DATA_TYPE_NAME.defaultFloat, RANK_OF_SCALAR
 		);
 		AstNode[] operandNodes = new AstNode[] {
-			this.createLiteralNode("1", DataTypeName.FLOAT, RANK_OF_SCALAR),
-			this.createLiteralNode("2", DataTypeName.INT, RANK_OF_SCALAR),
+			this.createLiteralNode("1", DATA_TYPE_NAME.defaultFloat, RANK_OF_SCALAR),
+			this.createLiteralNode("2", DATA_TYPE_NAME.defaultInt, RANK_OF_SCALAR),
 		};
 		rootNode.addChildNode(exprNode);
 		exprNode.addChildNode(operatorNode);
@@ -358,7 +367,7 @@ public class CodeGeneratorTest {
 		//System.out.println(rootNode);
 
 		// コード生成
-		String generatedCode = new CodeGenerator().generate(rootNode);
+		String generatedCode = new CodeGenerator(LANG_SPEC).generate(rootNode);
 
 		/* 期待コードを用意（内容は下記コメントの通り、ただし空白幅は見やすいよう調整）
 
@@ -370,10 +379,10 @@ public class CodeGeneratorTest {
 		      END     void    -;
 		 */
 		String expectedCode = HEADER + META + EOI
-			+ IND + OperationCode.ALLOC + WS + DataTypeName.FLOAT + WS + R + "1" + EOI
-			+ IND + OperationCode.CAST + WS + DataTypeName.FLOAT + VS + DataTypeName.INT + WS + R + "1" + WS + IINT + VS + "2" + EOI
-			+ IND + OperationCode.ALLOC + WS + DataTypeName.FLOAT + WS + R + "0" + EOI
-			+ IND + operationCode + WS + DataTypeName.FLOAT + WS + R + "0" + WS + IFLOAT + VS + "1" + WS + R + "1" + EOI
+			+ IND + OperationCode.ALLOC + WS + DATA_TYPE_NAME.defaultFloat + WS + R + "1" + EOI
+			+ IND + OperationCode.CAST + WS + DATA_TYPE_NAME.defaultFloat + VS + DATA_TYPE_NAME.defaultInt + WS + R + "1" + WS + IINT + VS + "2" + EOI
+			+ IND + OperationCode.ALLOC + WS + DATA_TYPE_NAME.defaultFloat + WS + R + "0" + EOI
+			+ IND + operationCode + WS + DATA_TYPE_NAME.defaultFloat + WS + R + "0" + WS + IFLOAT + VS + "1" + WS + R + "1" + EOI
 			+ END_CODE;
 
 		// 生成コードと期待コードの内容を確認
@@ -381,19 +390,19 @@ public class CodeGeneratorTest {
 		//System.out.println(expectedCode);
 
 		// 生成コードと期待コードを比較検査
-		assertEquals(expectedCode.replace(AssemblyWord.LINE_SEPARATOR,""), generatedCode.replace(AssemblyWord.LINE_SEPARATOR,""));
+		assertEquals(expectedCode.replace(ASSEMBLY_WORD.lineSeparator,""), generatedCode.replace(ASSEMBLY_WORD.lineSeparator,""));
 	}
 	public void testGenerateArithmeticBinaryOperatorCodeVector(String symbol, int priority, OperationCode operationCode) {
 
 		//「 intVectorA symbol intVectorB; 」のASTを用意（symbolは引数に渡された二項算術演算子）
 		AstNode rootNode = this.createRootNode();
-		AstNode exprNode = this.createExpressionNode(DataTypeName.INT, 1);
+		AstNode exprNode = this.createExpressionNode(DATA_TYPE_NAME.defaultInt, 1);
 		AstNode operatorNode = this.createOperatorNode(
-				symbol, priority, AttributeValue.BINARY, AttributeValue.ARITHMETIC, DataTypeName.INT, 1
+				symbol, priority, AttributeValue.BINARY, AttributeValue.ARITHMETIC, DATA_TYPE_NAME.defaultInt, 1
 		);
 		AstNode[] operandNodes = new AstNode[] {
-			this.createVariableIdentifierNode("intVectorA", DataTypeName.INT, 1, AttributeValue.GLOBAL),
-			this.createVariableIdentifierNode("intVectorB", DataTypeName.INT, 1, AttributeValue.GLOBAL),
+			this.createVariableIdentifierNode("intVectorA", DATA_TYPE_NAME.defaultInt, 1, AttributeValue.GLOBAL),
+			this.createVariableIdentifierNode("intVectorB", DATA_TYPE_NAME.defaultInt, 1, AttributeValue.GLOBAL),
 		};
 		rootNode.addChildNode(exprNode);
 		exprNode.addChildNode(operatorNode);
@@ -403,7 +412,7 @@ public class CodeGeneratorTest {
 		//System.out.println(rootNode);
 
 		// コード生成
-		String generatedCode = new CodeGenerator().generate(rootNode);
+		String generatedCode = new CodeGenerator(LANG_SPEC).generate(rootNode);
 
 		/* 期待コードを用意（内容は下記コメントの通り、ただし空白幅は見やすいよう調整）
 
@@ -415,8 +424,8 @@ public class CodeGeneratorTest {
 		      END     void    -;
 		 */
 		String expectedCode = HEADER + GLOBAL_DIRECTIVE_IVA + EOI + GLOBAL_DIRECTIVE_IVB + EOI + META + EOI
-			+ IND + OperationCode.ALLOCR + WS + DataTypeName.INT + WS + R + "0" + WS + IVA + EOI
-			+ IND + operationCode + WS + DataTypeName.INT + WS + R + "0" + WS + IVA + WS + IVB + EOI
+			+ IND + OperationCode.ALLOCR + WS + DATA_TYPE_NAME.defaultInt + WS + R + "0" + WS + IVA + EOI
+			+ IND + operationCode + WS + DATA_TYPE_NAME.defaultInt + WS + R + "0" + WS + IVA + WS + IVB + EOI
 			+ END_CODE;
 
 		// 生成コードと期待コードの内容を確認
@@ -424,20 +433,20 @@ public class CodeGeneratorTest {
 		//System.out.println(expectedCode);
 
 		// 生成コードと期待コードを比較検査
-		assertEquals(expectedCode.replace(AssemblyWord.LINE_SEPARATOR,""), generatedCode.replace(AssemblyWord.LINE_SEPARATOR,""));
+		assertEquals(expectedCode.replace(ASSEMBLY_WORD.lineSeparator,""), generatedCode.replace(ASSEMBLY_WORD.lineSeparator,""));
 	}
 
 	public void testGenerateArithmeticBinaryOperatorCodeVectorCast(String symbol, int priority, OperationCode operationCode) {
 
 		//「 floatVectorA symbol intVectorB; 」のASTを用意（symbolは引数に渡された二項算術演算子）
 		AstNode rootNode = this.createRootNode();
-		AstNode exprNode = this.createExpressionNode(DataTypeName.FLOAT, RANK_OF_SCALAR);
+		AstNode exprNode = this.createExpressionNode(DATA_TYPE_NAME.defaultFloat, RANK_OF_SCALAR);
 		AstNode operatorNode = this.createOperatorNode(
-				symbol, priority, AttributeValue.BINARY, AttributeValue.ARITHMETIC, DataTypeName.FLOAT, 1
+				symbol, priority, AttributeValue.BINARY, AttributeValue.ARITHMETIC, DATA_TYPE_NAME.defaultFloat, 1
 		);
 		AstNode[] operandNodes = new AstNode[] {
-			this.createVariableIdentifierNode("floatVectorA", DataTypeName.FLOAT, 1, AttributeValue.GLOBAL),
-			this.createVariableIdentifierNode("intVectorB", DataTypeName.INT, 1, AttributeValue.GLOBAL),
+			this.createVariableIdentifierNode("floatVectorA", DATA_TYPE_NAME.defaultFloat, 1, AttributeValue.GLOBAL),
+			this.createVariableIdentifierNode("intVectorB", DATA_TYPE_NAME.defaultInt, 1, AttributeValue.GLOBAL),
 		};
 		rootNode.addChildNode(exprNode);
 		exprNode.addChildNode(operatorNode);
@@ -447,7 +456,7 @@ public class CodeGeneratorTest {
 		//System.out.println(rootNode);
 
 		// コード生成
-		String generatedCode = new CodeGenerator().generate(rootNode);
+		String generatedCode = new CodeGenerator(LANG_SPEC).generate(rootNode);
 
 		/* 期待コードを用意（内容は下記コメントの通り、ただし空白幅は見やすいよう調整）
 
@@ -461,10 +470,10 @@ public class CodeGeneratorTest {
 		      END     void    -;
 		 */
 		String expectedCode = HEADER + GLOBAL_DIRECTIVE_FVA + EOI + GLOBAL_DIRECTIVE_IVB + EOI + META + EOI
-			+ IND + OperationCode.ALLOCR + WS + DataTypeName.FLOAT + WS + R + "1" + WS + IVB + EOI
-			+ IND + OperationCode.CAST + WS + DataTypeName.FLOAT + VS + DataTypeName.INT + WS + R + "1" + WS + IVB + EOI
-			+ IND + OperationCode.ALLOCR + WS + DataTypeName.FLOAT + WS + R + "0" + WS + FVA + EOI
-			+ IND + operationCode + WS + DataTypeName.FLOAT + WS + R + "0" + WS + FVA + WS + R + "1" + EOI
+			+ IND + OperationCode.ALLOCR + WS + DATA_TYPE_NAME.defaultFloat + WS + R + "1" + WS + IVB + EOI
+			+ IND + OperationCode.CAST + WS + DATA_TYPE_NAME.defaultFloat + VS + DATA_TYPE_NAME.defaultInt + WS + R + "1" + WS + IVB + EOI
+			+ IND + OperationCode.ALLOCR + WS + DATA_TYPE_NAME.defaultFloat + WS + R + "0" + WS + FVA + EOI
+			+ IND + operationCode + WS + DATA_TYPE_NAME.defaultFloat + WS + R + "0" + WS + FVA + WS + R + "1" + EOI
 			+ END_CODE;
 
 		// 生成コードと期待コードの内容を確認
@@ -472,19 +481,19 @@ public class CodeGeneratorTest {
 		//System.out.println(expectedCode);
 
 		// 生成コードと期待コードを比較検査
-		assertEquals(expectedCode.replace(AssemblyWord.LINE_SEPARATOR,""), generatedCode.replace(AssemblyWord.LINE_SEPARATOR,""));
+		assertEquals(expectedCode.replace(ASSEMBLY_WORD.lineSeparator,""), generatedCode.replace(ASSEMBLY_WORD.lineSeparator,""));
 	}
 	public void testGenerateArithmeticBinaryOperatorCodeVectorScalarMixed(String symbol, int priority, OperationCode operationCode) {
 
 		//「 intVectorA symbol floatVectorB; 」のASTを用意（symbolは引数に渡された二項算術演算子）
 		AstNode rootNode = this.createRootNode();
-		AstNode exprNode = this.createExpressionNode(DataTypeName.INT, RANK_OF_SCALAR);
+		AstNode exprNode = this.createExpressionNode(DATA_TYPE_NAME.defaultInt, RANK_OF_SCALAR);
 		AstNode operatorNode = this.createOperatorNode(
-				symbol, priority, AttributeValue.BINARY, AttributeValue.ARITHMETIC, DataTypeName.INT, 1
+				symbol, priority, AttributeValue.BINARY, AttributeValue.ARITHMETIC, DATA_TYPE_NAME.defaultInt, 1
 		);
 		AstNode[] operandNodes = new AstNode[] {
-			this.createVariableIdentifierNode("intVectorA", DataTypeName.INT, 1, AttributeValue.GLOBAL),
-			this.createVariableIdentifierNode("intScalarB", DataTypeName.INT, RANK_OF_SCALAR, AttributeValue.GLOBAL),
+			this.createVariableIdentifierNode("intVectorA", DATA_TYPE_NAME.defaultInt, 1, AttributeValue.GLOBAL),
+			this.createVariableIdentifierNode("intScalarB", DATA_TYPE_NAME.defaultInt, RANK_OF_SCALAR, AttributeValue.GLOBAL),
 		};
 		rootNode.addChildNode(exprNode);
 		exprNode.addChildNode(operatorNode);
@@ -494,7 +503,7 @@ public class CodeGeneratorTest {
 		//System.out.println(rootNode);
 
 		// コード生成
-		String generatedCode = new CodeGenerator().generate(rootNode);
+		String generatedCode = new CodeGenerator(LANG_SPEC).generate(rootNode);
 
 		/* 期待コードを用意（内容は下記コメントの通り、ただし空白幅は見やすいよう調整）
 
@@ -508,10 +517,10 @@ public class CodeGeneratorTest {
 		      END     void    -;
 		 */
 		String expectedCode = HEADER + GLOBAL_DIRECTIVE_IVA + EOI + GLOBAL_DIRECTIVE_ISB + EOI + META + EOI
-			+ IND + OperationCode.ALLOCR + WS + DataTypeName.INT + WS + R + "1" + WS + IVA + EOI
-			+ IND + OperationCode.FILL + WS + DataTypeName.INT + WS + R + "1" + WS + ISB + EOI
-			+ IND + OperationCode.ALLOCR + WS + DataTypeName.INT + WS + R + "0" + WS + IVA + EOI
-			+ IND + operationCode + WS + DataTypeName.INT + WS + R + "0" + WS + IVA + WS + R + "1" + EOI
+			+ IND + OperationCode.ALLOCR + WS + DATA_TYPE_NAME.defaultInt + WS + R + "1" + WS + IVA + EOI
+			+ IND + OperationCode.FILL + WS + DATA_TYPE_NAME.defaultInt + WS + R + "1" + WS + ISB + EOI
+			+ IND + OperationCode.ALLOCR + WS + DATA_TYPE_NAME.defaultInt + WS + R + "0" + WS + IVA + EOI
+			+ IND + operationCode + WS + DATA_TYPE_NAME.defaultInt + WS + R + "0" + WS + IVA + WS + R + "1" + EOI
 			+ END_CODE;
 
 		// 生成コードと期待コードの内容を確認
@@ -519,19 +528,19 @@ public class CodeGeneratorTest {
 		//System.out.println(expectedCode);
 
 		// 生成コードと期待コードを比較検査
-		assertEquals(expectedCode.replace(AssemblyWord.LINE_SEPARATOR,""), generatedCode.replace(AssemblyWord.LINE_SEPARATOR,""));
+		assertEquals(expectedCode.replace(ASSEMBLY_WORD.lineSeparator,""), generatedCode.replace(ASSEMBLY_WORD.lineSeparator,""));
 	}
 	public void testGenerateArithmeticBinaryOperatorCodeVectorScalarMixedCastVector(String symbol, int priority, OperationCode operationCode) {
 
 		//「 intVectorA symbol floatScalarB; 」のASTを用意（symbolは引数に渡された二項算術演算子）
 		AstNode rootNode = this.createRootNode();
-		AstNode exprNode = this.createExpressionNode(DataTypeName.FLOAT, RANK_OF_SCALAR);
+		AstNode exprNode = this.createExpressionNode(DATA_TYPE_NAME.defaultFloat, RANK_OF_SCALAR);
 		AstNode operatorNode = this.createOperatorNode(
-				symbol, priority, AttributeValue.BINARY, AttributeValue.ARITHMETIC, DataTypeName.FLOAT, 1
+				symbol, priority, AttributeValue.BINARY, AttributeValue.ARITHMETIC, DATA_TYPE_NAME.defaultFloat, 1
 		);
 		AstNode[] operandNodes = new AstNode[] {
-			this.createVariableIdentifierNode("intVectorA", DataTypeName.INT, 1, AttributeValue.GLOBAL),
-			this.createVariableIdentifierNode("floatScalarB", DataTypeName.FLOAT, RANK_OF_SCALAR, AttributeValue.GLOBAL),
+			this.createVariableIdentifierNode("intVectorA", DATA_TYPE_NAME.defaultInt, 1, AttributeValue.GLOBAL),
+			this.createVariableIdentifierNode("floatScalarB", DATA_TYPE_NAME.defaultFloat, RANK_OF_SCALAR, AttributeValue.GLOBAL),
 		};
 		rootNode.addChildNode(exprNode);
 		exprNode.addChildNode(operatorNode);
@@ -541,7 +550,7 @@ public class CodeGeneratorTest {
 		//System.out.println(rootNode);
 
 		// コード生成
-		String generatedCode = new CodeGenerator().generate(rootNode);
+		String generatedCode = new CodeGenerator(LANG_SPEC).generate(rootNode);
 
 		/* 期待コードを用意（内容は下記コメントの通り、ただし空白幅は見やすいよう調整）
 
@@ -557,12 +566,12 @@ public class CodeGeneratorTest {
 		      END     void    -;
 		 */
 		String expectedCode = HEADER + GLOBAL_DIRECTIVE_IVA + EOI + GLOBAL_DIRECTIVE_FSB + EOI + META + EOI
-			+ IND + OperationCode.ALLOCR + WS + DataTypeName.FLOAT + WS + R + "1" + WS + IVA + EOI
-			+ IND + OperationCode.CAST + WS + DataTypeName.FLOAT + VS + DataTypeName.INT + WS + R + "1" + WS + IVA + EOI
-			+ IND + OperationCode.ALLOCR + WS + DataTypeName.FLOAT + WS + R + "2" + WS + IVA + EOI
-			+ IND + OperationCode.FILL + WS + DataTypeName.FLOAT + WS + R + "2" + WS + FSB + EOI
-			+ IND + OperationCode.ALLOCR + WS + DataTypeName.FLOAT + WS + R + "0" + WS + IVA + EOI
-			+ IND + operationCode + WS + DataTypeName.FLOAT + WS + R + "0" + WS + R + "1" + WS + R + "2" + EOI
+			+ IND + OperationCode.ALLOCR + WS + DATA_TYPE_NAME.defaultFloat + WS + R + "1" + WS + IVA + EOI
+			+ IND + OperationCode.CAST + WS + DATA_TYPE_NAME.defaultFloat + VS + DATA_TYPE_NAME.defaultInt + WS + R + "1" + WS + IVA + EOI
+			+ IND + OperationCode.ALLOCR + WS + DATA_TYPE_NAME.defaultFloat + WS + R + "2" + WS + IVA + EOI
+			+ IND + OperationCode.FILL + WS + DATA_TYPE_NAME.defaultFloat + WS + R + "2" + WS + FSB + EOI
+			+ IND + OperationCode.ALLOCR + WS + DATA_TYPE_NAME.defaultFloat + WS + R + "0" + WS + IVA + EOI
+			+ IND + operationCode + WS + DATA_TYPE_NAME.defaultFloat + WS + R + "0" + WS + R + "1" + WS + R + "2" + EOI
 			+ END_CODE;
 
 		// 生成コードと期待コードの内容を確認
@@ -570,19 +579,19 @@ public class CodeGeneratorTest {
 		//System.out.println(expectedCode);
 
 		// 生成コードと期待コードを比較検査
-		assertEquals(expectedCode.replace(AssemblyWord.LINE_SEPARATOR,""), generatedCode.replace(AssemblyWord.LINE_SEPARATOR,""));
+		assertEquals(expectedCode.replace(ASSEMBLY_WORD.lineSeparator,""), generatedCode.replace(ASSEMBLY_WORD.lineSeparator,""));
 	}
 	public void testGenerateArithmeticBinaryOperatorCodeVectorScalarMixedCastScalar(String symbol, int priority, OperationCode operationCode) {
 
 		//「 floatVectorA symbol intScalarB; 」のASTを用意（symbolは引数に渡された二項算術演算子）
 		AstNode rootNode = this.createRootNode();
-		AstNode exprNode = this.createExpressionNode(DataTypeName.FLOAT, RANK_OF_SCALAR);
+		AstNode exprNode = this.createExpressionNode(DATA_TYPE_NAME.defaultFloat, RANK_OF_SCALAR);
 		AstNode operatorNode = this.createOperatorNode(
-				symbol, priority, AttributeValue.BINARY, AttributeValue.ARITHMETIC, DataTypeName.FLOAT, 1
+				symbol, priority, AttributeValue.BINARY, AttributeValue.ARITHMETIC, DATA_TYPE_NAME.defaultFloat, 1
 		);
 		AstNode[] operandNodes = new AstNode[] {
-			this.createVariableIdentifierNode("floatVectorA", DataTypeName.FLOAT, 1, AttributeValue.GLOBAL),
-			this.createVariableIdentifierNode("intScalarB", DataTypeName.INT, RANK_OF_SCALAR, AttributeValue.GLOBAL),
+			this.createVariableIdentifierNode("floatVectorA", DATA_TYPE_NAME.defaultFloat, 1, AttributeValue.GLOBAL),
+			this.createVariableIdentifierNode("intScalarB", DATA_TYPE_NAME.defaultInt, RANK_OF_SCALAR, AttributeValue.GLOBAL),
 		};
 		rootNode.addChildNode(exprNode);
 		exprNode.addChildNode(operatorNode);
@@ -592,7 +601,7 @@ public class CodeGeneratorTest {
 		//System.out.println(rootNode);
 
 		// コード生成
-		String generatedCode = new CodeGenerator().generate(rootNode);
+		String generatedCode = new CodeGenerator(LANG_SPEC).generate(rootNode);
 
 		/* 期待コードを用意（内容は下記コメントの通り、ただし空白幅は見やすいよう調整）
 
@@ -608,12 +617,12 @@ public class CodeGeneratorTest {
 		      END     void    -;
 		 */
 		String expectedCode = HEADER + GLOBAL_DIRECTIVE_FVA + EOI + GLOBAL_DIRECTIVE_ISB + EOI + META + EOI
-			+ IND + OperationCode.ALLOC + WS + DataTypeName.FLOAT + WS + R + "1" + EOI
-			+ IND + OperationCode.CAST + WS + DataTypeName.FLOAT + VS + DataTypeName.INT + WS + R + "1" + WS + ISB + EOI
-			+ IND + OperationCode.ALLOCR + WS + DataTypeName.FLOAT + WS + R + "2" + WS + FVA + EOI
-			+ IND + OperationCode.FILL + WS + DataTypeName.FLOAT + WS + R + "2" + WS + R + "1" + EOI
-			+ IND + OperationCode.ALLOCR + WS + DataTypeName.FLOAT + WS + R + "0" + WS + FVA + EOI
-			+ IND + operationCode + WS + DataTypeName.FLOAT + WS + R + "0" + WS + FVA + WS + R + "2" + EOI
+			+ IND + OperationCode.ALLOC + WS + DATA_TYPE_NAME.defaultFloat + WS + R + "1" + EOI
+			+ IND + OperationCode.CAST + WS + DATA_TYPE_NAME.defaultFloat + VS + DATA_TYPE_NAME.defaultInt + WS + R + "1" + WS + ISB + EOI
+			+ IND + OperationCode.ALLOCR + WS + DATA_TYPE_NAME.defaultFloat + WS + R + "2" + WS + FVA + EOI
+			+ IND + OperationCode.FILL + WS + DATA_TYPE_NAME.defaultFloat + WS + R + "2" + WS + R + "1" + EOI
+			+ IND + OperationCode.ALLOCR + WS + DATA_TYPE_NAME.defaultFloat + WS + R + "0" + WS + FVA + EOI
+			+ IND + operationCode + WS + DATA_TYPE_NAME.defaultFloat + WS + R + "0" + WS + FVA + WS + R + "2" + EOI
 			+ END_CODE;
 
 		// 生成コードと期待コードの内容を確認
@@ -621,56 +630,57 @@ public class CodeGeneratorTest {
 		//System.out.println(expectedCode);
 
 		// 生成コードと期待コードを比較検査
-		assertEquals(expectedCode.replace(AssemblyWord.LINE_SEPARATOR,""), generatedCode.replace(AssemblyWord.LINE_SEPARATOR,""));
+		assertEquals(expectedCode.replace(ASSEMBLY_WORD.lineSeparator,""), generatedCode.replace(ASSEMBLY_WORD.lineSeparator,""));
 	}
+
 
 	// 算術複合代入演算子のテスト
 	@Test
 	public void testGenerateArithmeticCompoundAssignmentOperatorCode() {
 
 		this.testGenerateArithmeticCompoundAssignmentOperatorCodeScalar(
-			ScriptWord.ADDITION_ASSIGNMENT, OperatorPrecedence.ADDITION_ASSIGNMENT, OperationCode.ADD
+			SCRIPT_WORD.additionAssignment, OPERATOR_PRECEDENCE.additionAssignment, OperationCode.ADD
 		);
 		this.testGenerateArithmeticCompoundAssignmentOperatorCodeScalar(
-			ScriptWord.SUBTRACTION_ASSIGNMENT, OperatorPrecedence.SUBTRACTION_ASSIGNMENT, OperationCode.SUB
+			SCRIPT_WORD.subtractionAssignment, OPERATOR_PRECEDENCE.subtractionAssignment, OperationCode.SUB
 		);
 		this.testGenerateArithmeticCompoundAssignmentOperatorCodeScalar(
-			ScriptWord.MULTIPLICATION_ASSIGNMENT, OperatorPrecedence.MULTIPLICATION_ASSIGNMENT, OperationCode.MUL
+			SCRIPT_WORD.multiplicationAssignment, OPERATOR_PRECEDENCE.multiplicationAssignment, OperationCode.MUL
 		);
 		this.testGenerateArithmeticCompoundAssignmentOperatorCodeScalar(
-			ScriptWord.DIVISION_ASSIGNMENT, OperatorPrecedence.DIVISION_ASSIGNMENT, OperationCode.DIV
+			SCRIPT_WORD.divisionAssignment, OPERATOR_PRECEDENCE.divisionAssignment, OperationCode.DIV
 		);
 		this.testGenerateArithmeticCompoundAssignmentOperatorCodeScalar(
-			ScriptWord.REMAINDER_ASSIGNMENT, OperatorPrecedence.REMAINDER_ASSIGNMENT, OperationCode.REM
+			SCRIPT_WORD.remainderAssignment, OPERATOR_PRECEDENCE.remainderAssignment, OperationCode.REM
 		);
 
 		this.testGenerateArithmeticCompoundAssignmentOperatorCodeVector(
-			ScriptWord.ADDITION_ASSIGNMENT, OperatorPrecedence.ADDITION_ASSIGNMENT, OperationCode.ADD
+			SCRIPT_WORD.additionAssignment, OPERATOR_PRECEDENCE.additionAssignment, OperationCode.ADD
 		);
 		this.testGenerateArithmeticCompoundAssignmentOperatorCodeVector(
-			ScriptWord.SUBTRACTION_ASSIGNMENT, OperatorPrecedence.SUBTRACTION_ASSIGNMENT, OperationCode.SUB
+			SCRIPT_WORD.subtractionAssignment, OPERATOR_PRECEDENCE.subtractionAssignment, OperationCode.SUB
 		);
 		this.testGenerateArithmeticCompoundAssignmentOperatorCodeVector(
-			ScriptWord.MULTIPLICATION_ASSIGNMENT, OperatorPrecedence.MULTIPLICATION_ASSIGNMENT, OperationCode.MUL
+			SCRIPT_WORD.multiplicationAssignment, OPERATOR_PRECEDENCE.multiplicationAssignment, OperationCode.MUL
 		);
 		this.testGenerateArithmeticCompoundAssignmentOperatorCodeVector(
-			ScriptWord.DIVISION_ASSIGNMENT, OperatorPrecedence.DIVISION_ASSIGNMENT, OperationCode.DIV
+			SCRIPT_WORD.divisionAssignment, OPERATOR_PRECEDENCE.divisionAssignment, OperationCode.DIV
 		);
 		this.testGenerateArithmeticCompoundAssignmentOperatorCodeVector(
-			ScriptWord.REMAINDER_ASSIGNMENT, OperatorPrecedence.REMAINDER_ASSIGNMENT, OperationCode.REM
+			SCRIPT_WORD.remainderAssignment, OPERATOR_PRECEDENCE.remainderAssignment, OperationCode.REM
 		);
 	}
 	public void testGenerateArithmeticCompoundAssignmentOperatorCodeScalar(String symbol, int priority, OperationCode operationCode) {
 
 		//「 intScalarA symbol intScalarB; 」のASTを用意（symbolは引数に渡された二項算術演算子）
 		AstNode rootNode = this.createRootNode();
-		AstNode exprNode = this.createExpressionNode(DataTypeName.INT, RANK_OF_SCALAR);
+		AstNode exprNode = this.createExpressionNode(DATA_TYPE_NAME.defaultInt, RANK_OF_SCALAR);
 		AstNode operatorNode = this.createOperatorNode(
-				symbol, priority, AttributeValue.BINARY, AttributeValue.ARITHMETIC_COMPOUND_ASSIGNMENT, DataTypeName.INT, 0
+				symbol, priority, AttributeValue.BINARY, AttributeValue.ARITHMETIC_COMPOUND_ASSIGNMENT, DATA_TYPE_NAME.defaultInt, 0
 		);
 		AstNode[] operandNodes = new AstNode[] {
-			this.createVariableIdentifierNode("intScalarA", DataTypeName.INT, 1, AttributeValue.GLOBAL),
-			this.createVariableIdentifierNode("intScalarB", DataTypeName.INT, 1, AttributeValue.GLOBAL),
+			this.createVariableIdentifierNode("intScalarA", DATA_TYPE_NAME.defaultInt, 1, AttributeValue.GLOBAL),
+			this.createVariableIdentifierNode("intScalarB", DATA_TYPE_NAME.defaultInt, 1, AttributeValue.GLOBAL),
 		};
 		rootNode.addChildNode(exprNode);
 		exprNode.addChildNode(operatorNode);
@@ -680,7 +690,7 @@ public class CodeGeneratorTest {
 		//System.out.println(rootNode);
 
 		// コード生成
-		String generatedCode = new CodeGenerator().generate(rootNode);
+		String generatedCode = new CodeGenerator(LANG_SPEC).generate(rootNode);
 
 		/* 期待コードを用意（内容は下記コメントの通り、ただし空白幅は見やすいよう調整）
 
@@ -689,7 +699,7 @@ public class CodeGeneratorTest {
 		      END     void    -;
 		 */
 		String expectedCode = HEADER + GLOBAL_DIRECTIVE_ISA + EOI + GLOBAL_DIRECTIVE_ISB + EOI + META + EOI
-			+ IND + operationCode + WS + DataTypeName.INT + WS + ISA + WS + ISA + WS + ISB + EOI
+			+ IND + operationCode + WS + DATA_TYPE_NAME.defaultInt + WS + ISA + WS + ISA + WS + ISB + EOI
 			+ END_CODE;
 
 		// 生成コードと期待コードの内容を確認
@@ -697,19 +707,19 @@ public class CodeGeneratorTest {
 		//System.out.println(expectedCode);
 
 		// 生成コードと期待コードを比較検査
-		assertEquals(expectedCode.replace(AssemblyWord.LINE_SEPARATOR,""), generatedCode.replace(AssemblyWord.LINE_SEPARATOR,""));
+		assertEquals(expectedCode.replace(ASSEMBLY_WORD.lineSeparator,""), generatedCode.replace(ASSEMBLY_WORD.lineSeparator,""));
 	}
 	public void testGenerateArithmeticCompoundAssignmentOperatorCodeVector(String symbol, int priority, OperationCode operationCode) {
 
 		//「 intVectorA symbol intVectorB; 」のASTを用意（symbolは引数に渡された二項算術演算子）
 		AstNode rootNode = this.createRootNode();
-		AstNode exprNode = this.createExpressionNode(DataTypeName.INT, 1);
+		AstNode exprNode = this.createExpressionNode(DATA_TYPE_NAME.defaultInt, 1);
 		AstNode operatorNode = this.createOperatorNode(
-				symbol, priority, AttributeValue.BINARY, AttributeValue.ARITHMETIC_COMPOUND_ASSIGNMENT, DataTypeName.INT, 1
+				symbol, priority, AttributeValue.BINARY, AttributeValue.ARITHMETIC_COMPOUND_ASSIGNMENT, DATA_TYPE_NAME.defaultInt, 1
 		);
 		AstNode[] operandNodes = new AstNode[] {
-			this.createVariableIdentifierNode("intVectorA", DataTypeName.INT, 1, AttributeValue.GLOBAL),
-			this.createVariableIdentifierNode("intVectorB", DataTypeName.INT, 1, AttributeValue.GLOBAL),
+			this.createVariableIdentifierNode("intVectorA", DATA_TYPE_NAME.defaultInt, 1, AttributeValue.GLOBAL),
+			this.createVariableIdentifierNode("intVectorB", DATA_TYPE_NAME.defaultInt, 1, AttributeValue.GLOBAL),
 		};
 		rootNode.addChildNode(exprNode);
 		exprNode.addChildNode(operatorNode);
@@ -719,7 +729,7 @@ public class CodeGeneratorTest {
 		//System.out.println(rootNode);
 
 		// コード生成
-		String generatedCode = new CodeGenerator().generate(rootNode);
+		String generatedCode = new CodeGenerator(LANG_SPEC).generate(rootNode);
 
 		/* 期待コードを用意（内容は下記コメントの通り、ただし空白幅は見やすいよう調整）
 
@@ -730,7 +740,7 @@ public class CodeGeneratorTest {
 		      END     void    -;
 		 */
 		String expectedCode = HEADER + GLOBAL_DIRECTIVE_IVA + EOI + GLOBAL_DIRECTIVE_IVB + EOI + META + EOI
-			+ IND + operationCode + WS + DataTypeName.INT + WS + IVA + WS + IVA + WS + IVB + EOI
+			+ IND + operationCode + WS + DATA_TYPE_NAME.defaultInt + WS + IVA + WS + IVA + WS + IVB + EOI
 			+ END_CODE;
 
 		// 生成コードと期待コードの内容を確認
@@ -738,7 +748,7 @@ public class CodeGeneratorTest {
 		//System.out.println(expectedCode);
 
 		// 生成コードと期待コードを比較検査
-		assertEquals(expectedCode.replace(AssemblyWord.LINE_SEPARATOR,""), generatedCode.replace(AssemblyWord.LINE_SEPARATOR,""));
+		assertEquals(expectedCode.replace(ASSEMBLY_WORD.lineSeparator,""), generatedCode.replace(ASSEMBLY_WORD.lineSeparator,""));
 	}
 
 

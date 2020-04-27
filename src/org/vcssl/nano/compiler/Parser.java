@@ -17,6 +17,7 @@ import org.vcssl.nano.VnanoFatalException;
 import org.vcssl.nano.spec.DataTypeName;
 import org.vcssl.nano.spec.OperatorPrecedence;
 import org.vcssl.nano.spec.ScriptWord;
+import org.vcssl.nano.spec.LanguageSpecContainer;
 import org.vcssl.nano.spec.ErrorType;
 
 //Documentation:  https://www.vcssl.org/en-us/dev/code/main-jimpl/api/org/vcssl/nano/compiler/Parser.html
@@ -59,6 +60,19 @@ import org.vcssl.nano.spec.ErrorType;
  */
 public class Parser {
 
+	/** 各種の言語仕様設定類を格納するコンテナを保持します。 */
+	private final LanguageSpecContainer LANG_SPEC;
+
+	/** 上記コンテナ内の、スクリプト言語の語句が定義された設定オブジェクトを保持します。 */
+	private final ScriptWord SCRIPT_WORD;
+
+	/** 上記コンテナ内の、データ型名が定義された設定オブジェクトを保持します。 */
+	private final DataTypeName DATA_TYPE_NAME;
+
+	/** 上記コンテナ内の、演算子の優先度が定義された設定オブジェクトを保持します。 */
+	private final OperatorPrecedence OPERATOR_PRECEDENCE;
+
+
 	/**
 	 * <span class="lang-ja">スカラの配列次元数です</span>
 	 * <span class="lang-en">The array-rank of the scalar</span>
@@ -69,14 +83,21 @@ public class Parser {
 
 	/**
 	 * <span class="lang-en">
-	 * This constructor does nothing, because this class has no fields for storing state
+	 * Create a new parser with the specified language specification settings
 	 * </span>
 	 * <span class="lang-ja">
-	 * このクラスは状態を保持するフィールドを持たないため, コンストラクタは何もしません
+	 * 指定された言語仕様設定で, パーサを生成します
 	 * </span>
 	 * .
+	 * @param langSpec
+	 *   <span class="lang-en">language specification settings.</span>
+	 *   <span class="lang-ja">言語仕様設定.</span>
 	 */
-	public Parser() {
+	public Parser(LanguageSpecContainer langSpec) {
+		this.LANG_SPEC = langSpec;
+		this.SCRIPT_WORD = langSpec.SCRIPT_WORD;
+		this.DATA_TYPE_NAME = langSpec.DATA_TYPE_NAME;
+		this.OPERATOR_PRECEDENCE = langSpec.OPERATOR_PRECEDENCE;
 	}
 
 
@@ -98,6 +119,8 @@ public class Parser {
 	 */
 	public AstNode parse(Token[] tokens) throws VnanoException {
 
+		LexicalChecker lexicalChecker = new LexicalChecker(LANG_SPEC);
+
 		// パース作業用のスタックとして使用する双方向キュー
 		Deque<AstNode> statementStack = new ArrayDeque<AstNode>();
 
@@ -107,9 +130,9 @@ public class Parser {
 		while(statementBegin < tokenLength) {
 
 			// 文の終端（文末記号）と、次のブロック始点・終端のインデックスを取得
-			int statementEnd = Token.getIndexOf(tokens, ScriptWord.END_OF_STATEMENT, statementBegin);
-			int blockBegin = Token.getIndexOf(tokens, ScriptWord.BLOCK_BEGIN, statementBegin);
-			int blockEnd = Token.getIndexOf(tokens, ScriptWord.BLOCK_END, statementBegin);
+			int statementEnd = Token.getIndexOf(tokens, SCRIPT_WORD.endOfStatement, statementBegin);
+			int blockBegin = Token.getIndexOf(tokens, SCRIPT_WORD.blockBegin, statementBegin);
+			int blockEnd = Token.getIndexOf(tokens, SCRIPT_WORD.blockEnd, statementBegin);
 
 			Token beginToken = tokens[statementBegin];
 
@@ -132,7 +155,7 @@ public class Parser {
 			} else if (beginToken.getType()==Token.Type.BLOCK) {
 
 				// ブロック始点 -> スタックに目印のフタをつめる（第二引数は目印とするマーカー）
-				if (beginToken.getValue().equals(ScriptWord.BLOCK_BEGIN)) {
+				if (beginToken.getValue().equals(SCRIPT_WORD.blockBegin)) {
 					this.pushLid(statementStack);
 					statementBegin++;
 
@@ -160,20 +183,20 @@ public class Parser {
 				String word = beginToken.getValue();
 
 				// if / for / while文 (この処理系では直後にブロックが必須)
-				if (word.equals(ScriptWord.IF) || word.equals(ScriptWord.FOR) || word.equals(ScriptWord.WHILE)) {
+				if (word.equals(SCRIPT_WORD.ifStatement) || word.equals(SCRIPT_WORD.forStatement) || word.equals(SCRIPT_WORD.whileStatement)) {
 
 					// 括弧 (...) やブロック {...} が存在するか確認（この言語ではif/else/for/whileのブロックは必須）
-					LexicalChecker.checkTokensAfterControlStatement(tokens, statementBegin, word.equals(ScriptWord.FOR)); // 最後の引数は、括弧内に文末記号を許すかどうか
+					lexicalChecker.checkTokensAfterControlStatement(tokens, statementBegin, word.equals(SCRIPT_WORD.forStatement)); // 最後の引数は、括弧内に文末記号を許すかどうか
 
 					Token[] subTokens = Arrays.copyOfRange(tokens, statementBegin, blockBegin);
 					statementStack.push(this.parseControlStatement(subTokens));
 					statementBegin = blockBegin;
 
 				// else文
-				} else if (beginToken.getValue().equals(ScriptWord.ELSE)) {
+				} else if (beginToken.getValue().equals(SCRIPT_WORD.elseStatement)) {
 
 					// ブロック {...} が存在するか確認（この言語ではif/else/for/whileのブロックは必須）
-					LexicalChecker.checkTokensAfterControlStatement(tokens, statementBegin, false); // 最後の引数は、括弧内に文末記号を許すかどうか
+					lexicalChecker.checkTokensAfterControlStatement(tokens, statementBegin, false); // 最後の引数は、括弧内に文末記号を許すかどうか
 
 					Token[] subTokens = Arrays.copyOfRange(tokens, statementBegin, statementBegin+1);
 					statementStack.push(this.parseControlStatement(subTokens));
@@ -308,7 +331,7 @@ public class Parser {
 
 		// 型名の前に置かれる修飾子を検出して修飾子リストに追加（あとで型名後方のものとまとめて属性値に持たせる）
 		if (tokens[readingIndex].getType() == Token.Type.MODIFIER) {
-			if (ScriptWord.PREFIX_MODIFIER_SET.contains(tokens[readingIndex].getValue()) ) {
+			if (SCRIPT_WORD.prefixModifierSet.contains(tokens[readingIndex].getValue()) ) {
 				modifierList.add(tokens[readingIndex].getValue());
 				readingIndex++;
 			} else {
@@ -333,7 +356,7 @@ public class Parser {
 
 		// 型名の後に置かれる修飾子を検出して修飾子リストに追加（あとで型名前方のものとまとめて属性値に持たせる）
 		if (readingIndex < tokens.length && tokens[readingIndex].getType() == Token.Type.MODIFIER) {
-			if (ScriptWord.POSTFIX_MODIFIER_SET.contains(tokens[readingIndex].getValue()) ) {
+			if (SCRIPT_WORD.postfixModifierSet.contains(tokens[readingIndex].getValue()) ) {
 				modifierList.add(tokens[readingIndex].getValue());
 				readingIndex++;
 			} else {
@@ -379,7 +402,7 @@ public class Parser {
 
 		// 配列要素数の検出
 		AstNode arrayLengthNode = null;
-		if (readingIndex<tokens.length-1 && tokens[readingIndex].getValue().equals(ScriptWord.SUBSCRIPT_BEGIN)) {
+		if (readingIndex<tokens.length-1 && tokens[readingIndex].getValue().equals(SCRIPT_WORD.subscriptBegin)) {
 			int lengthsEnd = getLengthEndIndex(tokens, readingIndex);
 			Token[] lengthsTokens = Arrays.copyOfRange(tokens, readingIndex, lengthsEnd+1);
 			arrayLengthNode = this.parseVariableDeclarationArrayLengths(lengthsTokens);
@@ -403,7 +426,7 @@ public class Parser {
 		}
 
 		// 初期化式のトークン列を、parseExpressionで解釈してASTを構築して付加
-		if(readingIndex<tokens.length-1 && tokens[readingIndex].getValue().equals(ScriptWord.ASSIGNMENT)) {
+		if(readingIndex<tokens.length-1 && tokens[readingIndex].getValue().equals(SCRIPT_WORD.assignment)) {
 			int initTokenLength = tokens.length - readingIndex + 1;
 			Token[] initTokens = new Token[initTokenLength];
 			initTokens[0] = nameToken;
@@ -453,7 +476,7 @@ public class Parser {
 			String word = tokens[i].getValue();
 
 			// 「 [ 」記号
-			if(word.equals(ScriptWord.SUBSCRIPT_BEGIN)) {
+			if(word.equals(SCRIPT_WORD.subscriptBegin)) {
 
 				// 階層が 0 なら要素数宣言の開始（それ以外は、要素数の式を構成する配列インデックス演算子のもの）
 				if (depth==0) {
@@ -462,7 +485,7 @@ public class Parser {
 				depth++;
 
 			// 「 ] 」記号か「 ][ 」記号
-			} else if(word.equals(ScriptWord.SUBSCRIPT_END) || word.equals(ScriptWord.SUBSCRIPT_SEPARATOR)) {
+			} else if(word.equals(SCRIPT_WORD.subscriptEnd) || word.equals(SCRIPT_WORD.subscriptSeparator)) {
 
 				// 階層が 1 なら要素数宣言の次元区切り
 				if (depth==1) {
@@ -472,7 +495,7 @@ public class Parser {
 					if (exprTokens.length == 0) {
 						AstNode zeroExprNode = new AstNode(AstNode.Type.EXPRESSION, tokens[i].getLineNumber(), tokens[i].getFileName());
 						AstNode zeroLeafNode = this.createLeafNode(
-								"0", AttributeValue.LITERAL, DataTypeName.INT, tokens[i].getFileName(), tokens[i].getLineNumber()
+								"0", AttributeValue.LITERAL, DATA_TYPE_NAME.defaultInt, tokens[i].getFileName(), tokens[i].getLineNumber()
 						);
 						zeroExprNode.addChildNode(zeroLeafNode);
 						lengthsNode.addChildNode(zeroExprNode);
@@ -482,7 +505,7 @@ public class Parser {
 						lengthsNode.addChildNode( this.parseExpression(exprTokens) );
 					}
 				}
-				if (word.equals(ScriptWord.SUBSCRIPT_END)) {
+				if (word.equals(SCRIPT_WORD.subscriptEnd)) {
 					depth--;
 				} else {
 					currentExprBegin = i + 1;
@@ -565,8 +588,8 @@ public class Parser {
 		while (readingIndex < tokenLength) {
 
 			// 「 , 」 か 「 ) 」が出現する度に、そこまでで1つの引数宣言として一旦切って解釈
-			if (tokens[readingIndex].getValue().equals(ScriptWord.ARGUMENT_SEPARATOR) ||
-					tokens[readingIndex].getValue().equals(ScriptWord.PARENTHESIS_END)) {
+			if (tokens[readingIndex].getValue().equals(SCRIPT_WORD.argumentSeparator) ||
+					tokens[readingIndex].getValue().equals(SCRIPT_WORD.paranthesisEnd)) {
 
 				// 引数のトークンを変数宣言文として解釈してASTノードを生成（トークン数が0の場合はvoidなので無視）
 				Token[] argTokens = Arrays.copyOfRange(tokens, argumentBegin, readingIndex);
@@ -619,39 +642,39 @@ public class Parser {
 	private AstNode parseControlStatement(Token[] tokens) throws VnanoException {
 
 		// 最初に、括弧の存在や条件式・文の存在などを検査しておく（問題がある場合はここで例外発生）
-		LexicalChecker.checkControlStatementTokens(tokens);
+		new LexicalChecker(LANG_SPEC).checkControlStatementTokens(tokens);
 
 		Token controlTypeToken = tokens[0];
 		int lineNumber = controlTypeToken.getLineNumber();
 		String fileName = controlTypeToken.getFileName();
 
 		// if文の場合: if文ノードを生成し、条件式をパースしてぶら下げる
-		if(controlTypeToken.getValue().equals(ScriptWord.IF)) {
+		if(controlTypeToken.getValue().equals(SCRIPT_WORD.ifStatement)) {
 			AstNode node = new AstNode(AstNode.Type.IF, lineNumber, fileName);
 			node.addChildNode(this.parseExpression(Arrays.copyOfRange(tokens, 2, tokens.length-1)));
 			return node;
 
 		// else文の場合: else文ノードを生成するのみ
-		} else if(controlTypeToken.getValue().equals(ScriptWord.ELSE)) {
+		} else if(controlTypeToken.getValue().equals(SCRIPT_WORD.elseStatement)) {
 			AstNode node = new AstNode(AstNode.Type.ELSE, lineNumber, fileName);
 			return node;
 
 		// whilw文の場合: while文ノードを生成し、条件式をパースしてぶら下げる
-		} else if(controlTypeToken.getValue().equals(ScriptWord.WHILE)) {
+		} else if(controlTypeToken.getValue().equals(SCRIPT_WORD.whileStatement)) {
 			AstNode node = new AstNode(AstNode.Type.WHILE, lineNumber, fileName);
 			node.addChildNode(this.parseExpression(Arrays.copyOfRange(tokens, 2, tokens.length-1)));
 			return node;
 
 		// for文の場合: for文ノードを生成し、初期化文（変数宣言文または式文）・条件文・更新文をパースしてぶら下げる
-		} else if(controlTypeToken.getValue().equals(ScriptWord.FOR)) {
+		} else if(controlTypeToken.getValue().equals(SCRIPT_WORD.forStatement)) {
 			AstNode node = new AstNode(AstNode.Type.FOR, lineNumber, fileName);
 
 			// 初期化文と条件文の終端トークンインデックスを取得
-			int initializationEnd = Token.getIndexOf(tokens, ScriptWord.END_OF_STATEMENT, 0);
-			int conditionEnd = Token.getIndexOf(tokens, ScriptWord.END_OF_STATEMENT, initializationEnd+1);
+			int initializationEnd = Token.getIndexOf(tokens, SCRIPT_WORD.endOfStatement, 0);
+			int conditionEnd = Token.getIndexOf(tokens, SCRIPT_WORD.endOfStatement, initializationEnd+1);
 
 			// 初期化文をパースしてfor文ノードにぶら下げる: 初期化文が変数宣言文の場合
-			if (DataTypeName.isDataTypeName(tokens[2].getValue())) {
+			if (DATA_TYPE_NAME.isDataTypeName(tokens[2].getValue())) {
 				node.addChildNode(this.parseVariableDeclarationStatement(Arrays.copyOfRange(tokens, 2, initializationEnd), true));
 			} else if (initializationEnd == 2) { // 空文の場合
 				node.addChildNode(new AstNode(AstNode.Type.EMPTY, tokens[0].getLineNumber(), tokens[0].getFileName()));
@@ -676,7 +699,7 @@ public class Parser {
 			return node;
 
 		// return文の場合: return文ノードを生成し、戻り値の式をパースしてぶら下げる
-		} else if(controlTypeToken.getValue().equals(ScriptWord.RETURN)) {
+		} else if(controlTypeToken.getValue().equals(SCRIPT_WORD.returnStatement)) {
 			AstNode node = new AstNode(AstNode.Type.RETURN, lineNumber, fileName);
 			if (2 <= tokens.length) {
 				node.addChildNode(this.parseExpression(Arrays.copyOfRange(tokens, 1, tokens.length)));
@@ -684,12 +707,12 @@ public class Parser {
 			return node;
 
 		// break文の場合: break文ノードを生成するのみ
-		} else if(controlTypeToken.getValue().equals(ScriptWord.BREAK)) {
+		} else if(controlTypeToken.getValue().equals(SCRIPT_WORD.breakStatement)) {
 			AstNode node = new AstNode(AstNode.Type.BREAK, lineNumber, fileName);
 			return node;
 
 		// continue文の場合: continue文ノードを生成するのみ
-		} else if(controlTypeToken.getValue().equals(ScriptWord.CONTINUE)) {
+		} else if(controlTypeToken.getValue().equals(SCRIPT_WORD.continueStatement)) {
 			AstNode node = new AstNode(AstNode.Type.CONTINUE, lineNumber, fileName);
 			return node;
 
@@ -728,7 +751,7 @@ public class Parser {
 				String dataType = tokens[ readingIndex+1 ].getValue();
 				readingToken.setAttribute(AttributeKey.DATA_TYPE, dataType);
 				readingToken.setAttribute(AttributeKey.RANK, Integer.toString(RANK_OF_SCALAR)); // 現在は配列のキャストに未対応なため
-				readingToken.setValue(ScriptWord.PARENTHESIS_BEGIN + dataType + ScriptWord.PARENTHESIS_END);
+				readingToken.setValue(SCRIPT_WORD.parenthesisBegin + dataType + SCRIPT_WORD.paranthesisEnd);
 				tokenList.add(readingToken);
 				readingIndex += 3;
 
@@ -754,7 +777,7 @@ public class Parser {
 	private AstNode parseExpression(Token[] tokens) throws VnanoException {
 
 		// 最初に、トークンの種類や括弧の数などに、式の構成トークンとして問題無いか検査
-		LexicalChecker.checkTokensInExpression(tokens);
+		new LexicalChecker(LANG_SPEC).checkTokensInExpression(tokens);
 
 		// キャスト演算子は複数トークンから成る特別な前置演算子なので、先に単一トークンの前置演算子に変換する
 		tokens = preprocessCastSequentialTokens(tokens);
@@ -788,7 +811,7 @@ public class Parser {
 			} else if (readingToken.getType()==Token.Type.PARENTHESIS) {
 
 				// 開き括弧の場合、部分式の境界前後が結合しないよう、スタックに非演算子のフタをつめる（第二引数は回収時の目印）
-				if (readingToken.getValue().equals(ScriptWord.PARENTHESIS_BEGIN)) {
+				if (readingToken.getValue().equals(SCRIPT_WORD.parenthesisBegin)) {
 					this.pushLid(stack, AttributeValue.PARTIAL_EXPRESSION);
 					readingIndex++;
 					continue;
@@ -916,7 +939,7 @@ public class Parser {
 		int[] rightOperatorPriorities = new int[ length ];
 
 		// 最も右にある演算子は必ず優先になるよう、最小優先度を初期値とする
-		int rightOperatorPrecedence = OperatorPrecedence.LEAST_PRIOR;
+		int rightOperatorPrecedence = OPERATOR_PRECEDENCE.leastPrior;
 
 		// 末尾から先頭へ向かって要素を見ていく
 		for(int i = length-1; 0 <= i; i--) {
@@ -933,12 +956,12 @@ public class Parser {
 			if (tokens[i].getType() == Token.Type.PARENTHESIS) {
 
 				// 部分式内部が常に優先になるよう、開き括弧 ( では右側演算子優先度を最高値に設定する
-				if(tokens[i].getValue().equals(ScriptWord.PARENTHESIS_BEGIN)){
-					rightOperatorPrecedence = OperatorPrecedence.MOST_PRIOR;
+				if(tokens[i].getValue().equals(SCRIPT_WORD.parenthesisBegin)){
+					rightOperatorPrecedence = OPERATOR_PRECEDENCE.mostPrior;
 
 				// 閉じ括弧 ) は文末と同じ効果なので、右側演算子優先度を最低に設定する
 				} else {
-					rightOperatorPrecedence = OperatorPrecedence.LEAST_PRIOR;
+					rightOperatorPrecedence = OPERATOR_PRECEDENCE.leastPrior;
 
 				}
 			}
@@ -1096,7 +1119,7 @@ public class Parser {
 	 */
 	private void pushLid(Deque<AstNode> stack) {
 		AstNode stackLid = new AstNode(AstNode.Type.STACK_LID, 0, "");
-		stackLid.setAttribute(AttributeKey.OPERATOR_PRECEDENCE, Integer.toString(OperatorPrecedence.LEAST_PRIOR));
+		stackLid.setAttribute(AttributeKey.OPERATOR_PRECEDENCE, Integer.toString(OPERATOR_PRECEDENCE.leastPrior));
 		stack.push(stackLid);
 	}
 
@@ -1120,7 +1143,7 @@ public class Parser {
 	 */
 	private void pushLid(Deque<AstNode> stack, String marker) {
 		AstNode stackLid = new AstNode(AstNode.Type.STACK_LID, 0, "");
-		stackLid.setAttribute(AttributeKey.OPERATOR_PRECEDENCE, Integer.toString(OperatorPrecedence.LEAST_PRIOR));
+		stackLid.setAttribute(AttributeKey.OPERATOR_PRECEDENCE, Integer.toString(OPERATOR_PRECEDENCE.leastPrior));
 		stackLid.setAttribute(AttributeKey.LID_MARKER, marker);
 		stack.push(stackLid);
 	}
@@ -1254,18 +1277,18 @@ public class Parser {
 			String word = tokens[i].getValue();
 
 			// 見つからないまま初期化式に入った場合は要素数宣言無し
-			if (depth==0 && word.equals(ScriptWord.ASSIGNMENT)) {
+			if (depth==0 && word.equals(SCRIPT_WORD.assignment)) {
 				return -1;
 			}
 
 			// 「 [ 」記号があれば階層を上がる
 			// 階層0が要素数宣言、1以上は要素数の式中の配列要素アクセス演算子のもの
-			if(word.equals(ScriptWord.SUBSCRIPT_BEGIN)) {
+			if(word.equals(SCRIPT_WORD.subscriptBegin)) {
 				depth++;
 
 			// 「 ] 」記号があれば階層を下がる
 			// （この処理系では、次元区切り「 ][ 」は別種のトークンなのでここにはヒットしない）
-			} else if(word.equals(ScriptWord.SUBSCRIPT_END)) {
+			} else if(word.equals(SCRIPT_WORD.subscriptEnd)) {
 				depth--;
 
 				// 階層0の「 ] 」は配列要素数宣言の終端なので、インデックスを返す

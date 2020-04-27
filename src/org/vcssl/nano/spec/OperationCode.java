@@ -366,7 +366,7 @@ public enum OperationCode {
 	 * and then result data will be stored in the "output".
 	 * The data type of "inputA" and "inputB" operands should be the same.
 	 * Specify the name of the data type to "type".
-	 * In addition, the data type of "output" should be {@link DataType#BOOL BOOL}.
+	 * In add, the data type of "output" should be {@link DataType#BOOL BOOL}.
 	 * </span>
 	 * </p>
 	 *
@@ -416,7 +416,7 @@ public enum OperationCode {
 	 * and then result data will be stored in the "output".
 	 * The data type of "inputA" and "inputB" operands should be the same.
 	 * Specify the name of the data type to "type".
-	 * In addition, the data type of "output" should be {@link DataType#BOOL BOOL}.
+	 * In add, the data type of "output" should be {@link DataType#BOOL BOOL}.
 	 * </span>
 	 * </p>
 	 *
@@ -466,7 +466,7 @@ public enum OperationCode {
 	 * and then result data will be stored in the "output".
 	 * The data type of "inputA" and "inputB" operands should be the same.
 	 * Specify the name of the data type to "type".
-	 * In addition, the data type of "output" should be {@link DataType#BOOL BOOL}.
+	 * In add, the data type of "output" should be {@link DataType#BOOL BOOL}.
 	 * </span>
 	 * </p>
 	 *
@@ -517,7 +517,7 @@ public enum OperationCode {
 	 * and then result data will be stored in the "output".
 	 * The data type of "inputA" and "inputB" operands should be the same.
 	 * Specify the name of the data type to "type".
-	 * In addition, the data type of "output" should be {@link DataType#BOOL BOOL}.
+	 * In add, the data type of "output" should be {@link DataType#BOOL BOOL}.
 	 * </span>
 	 * </p>
 	 *
@@ -567,7 +567,7 @@ public enum OperationCode {
 	 * and then result data will be stored in the "output".
 	 * The data type of "inputA" and "inputB" operands should be the same.
 	 * Specify the name of the data type to "type".
-	 * In addition, the data type of "output" should be {@link DataType#BOOL BOOL}.
+	 * In add, the data type of "output" should be {@link DataType#BOOL BOOL}.
 	 * </span>
 	 * </p>
 	 *
@@ -617,7 +617,7 @@ public enum OperationCode {
 	 * and then result data will be stored in the "output".
 	 * The data type of "inputA" and "inputB" operands should be the same.
 	 * Specify the name of the data type to "type".
-	 * In addition, the data type of "output" should be {@link DataType#BOOL BOOL}.
+	 * In add, the data type of "output" should be {@link DataType#BOOL BOOL}.
 	 * </span>
 	 * </p>
 	 *
@@ -657,7 +657,7 @@ public enum OperationCode {
 	 * <span class="lang-ja">
 	 * この命令の実行により、「 inputA &amp;&amp; inputB 」の論理演算が行われ,
 	 * 結果が output に格納されます.
-	 * 全てのオペランドのデータ型は {@link DataType#BOOL BOOL} 型に揃っている必要があり,
+	 * 全てのオペランドのデータ型は {@link DataType#BOOL bool} 型に揃っている必要があり,
 	 * type にも "bool" を指定します.
 	 * </span>
 	 *
@@ -665,7 +665,7 @@ public enum OperationCode {
 	 * When this instruction is executed,
 	 * the logical operation of "inputA &amp;&amp; inputB" will be performed,
 	 * and then result data will be stored in the "output".
-	 * The data type of all operands should be {@link DataType#BOOL BOOL},
+	 * The data type of all operands should be {@link DataType#BOOL bool},
 	 * and "bool" should be specified to "type".
 	 * </span>
 	 * </p>
@@ -725,7 +725,7 @@ public enum OperationCode {
 	 * <span class="lang-ja">
 	 * この命令の実行により、「 inputA || inputB 」の論理演算が行われ,
 	 * 結果が output に格納されます.
-	 * 全てのオペランドのデータ型は {@link DataType#BOOL BOOL} 型に揃っている必要があり,
+	 * 全てのオペランドのデータ型は {@link DataType#BOOL bool} 型に揃っている必要があり,
 	 * type にも "bool" を指定します.
 	 * </span>
 	 *
@@ -733,7 +733,7 @@ public enum OperationCode {
 	 * When this instruction is executed,
 	 * the logical operation of "inputA || inputB" will be performed,
 	 * and then result data will be stored in the "output".
-	 * The data type of all operands should be {@link DataType#BOOL BOOL},
+	 * The data type of all operands should be {@link DataType#BOOL bool},
 	 * and "bool" should be specified to "type".
 	 * </span>
 	 * </p>
@@ -787,13 +787,13 @@ public enum OperationCode {
 	 * </span>
 	 *
 	 * <div style="border: 1px solid #000000; margin:15px; padding:5px;">
-	 * NOT type output input;
+	 * not type output input;
 	 * </div>
 	 *
 	 * <span class="lang-ja">
 	 * この命令の実行により、「 &#33; input 」の論理演算が行われ,
 	 * 結果が output に格納されます.
-	 * 全てのオペランドのデータ型は {@link DataType#BOOL BOOL} 型に揃っている必要があり,
+	 * 全てのオペランドのデータ型は {@link DataType#BOOL bool} 型に揃っている必要があり,
 	 * type にも "bool" を指定します.
 	 * </span>
 	 *
@@ -801,7 +801,7 @@ public enum OperationCode {
 	 * When this instruction is executed,
 	 * the logical operation of "&#33 input" will be performed,
 	 * and then result data will be stored in the "output".
-	 * The data type of all operands should be {@link DataType#BOOL BOOL},
+	 * The data type of all operands should be {@link DataType#BOOL bool},
 	 * and "bool" should be specified to "type".
 	 * </span>
 	 * </p>
@@ -870,7 +870,7 @@ public enum OperationCode {
 
 	/**
 	 * <p>
-	 * <span class="lang-en">The instruction to perform the reference-assignment operation</span>
+	 * <span class="lang-en">The instruction to perform the refModifier-assignment operation</span>
 	 * <span class="lang-ja">参照代入演算を行う命令です</span>
 	 * .
 	 * <span class="lang-en">
@@ -892,7 +892,7 @@ public enum OperationCode {
 	 *
 	 * <span class="lang-en">
 	 * After this instruction is executed,
-	 * the data reference of "output" will be the same with it of "input".
+	 * the data refModifier of "output" will be the same with it of "input".
 	 * The data type of all operands should be the same.
 	 * Specify the name of the data type to "type".
 	 * </span>
@@ -975,7 +975,7 @@ public enum OperationCode {
 	/**
 	 * <p>
 	 * <span class="lang-en">
-	 * The instruction to pop data from the stack and performs the reference-assignment operation
+	 * The instruction to pop data from the stack and performs the refModifier-assignment operation
 	 * </span>
 	 * <span class="lang-ja">スタックからデータを取り出して参照代入演算を行う命令です</span>
 	 * .
@@ -998,7 +998,7 @@ public enum OperationCode {
 	 *
 	 * <span class="lang-en">
 	 * When this instruction is executed,
-	 * the data reference of "output" will set to the data popped from the stack.
+	 * the data refModifier of "output" will set to the data popped from the stack.
 	 * </span>
 	 * </p>
 	 */
@@ -1239,9 +1239,9 @@ public enum OperationCode {
 	 * VRILコード内での構文は以下の通りです：
 	 * </span>
 	 *
-	 * <div style="border: 1px solid #000000; margin:15px; padding:5px;">
+	 * <division style="border: 1px solid #000000; margin:15px; padding:5px;">
 	 * CAST toType:fromType output input;
-	 * </div>
+	 * </division>
 	 *
 	 * <span class="lang-en">
 	 * When this instruction is executed,
@@ -1337,7 +1337,7 @@ public enum OperationCode {
 	 *
 	 * <span class="lang-en">
 	 * After this instruction is executed,
-	 * the reference of data of "output" points to the element with
+	 * the refModifier of data of "output" points to the element with
 	 * [index1][index2][index3]...[indexN] of the array "output".
 	 * The data type of all operands should be the same.
 	 * Specify the name of the data type to "type".
@@ -1381,7 +1381,7 @@ public enum OperationCode {
 	 * <span class="lang-ja">
 	 * この命令の実行により, condition に指定された値（配列の場合は全要素）が true の場合に,
 	 * label に指定されたラベルの次の位置にある命令に処理が飛びます.
-	 * condition のデータ型は bool 型である必要があります.
+	 * condition のデータ型は {@link DataType#BOOL BOOL} 型である必要があります.
 	 * </span>
 	 * </p>
 	 * </p>
@@ -1417,7 +1417,7 @@ public enum OperationCode {
 	 * <span class="lang-ja">
 	 * この命令の実行により, condition に指定された値（配列の場合は全要素）が false の場合に,
 	 * label に指定されたラベルの次の位置にある命令に処理が飛びます.
-	 * condition のデータ型は bool 型である必要があります.
+	 * condition のデータ型は {@link DataType#BOOL BOOL} 型である必要があります.
 	 * </span>
 	 * </p>
 	 * </p>
