@@ -6,10 +6,10 @@
 package org.vcssl.nano.compiler;
 
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Deque;
-import java.util.LinkedList;
 import java.util.List;
 
 import org.vcssl.nano.VnanoException;
@@ -320,9 +320,9 @@ public class Parser {
 			throws VnanoException {
 
 		AstNode variableNode = new AstNode(AstNode.Type.VARIABLE, tokens[0].getLineNumber(), tokens[0].getFileName());
-		List<String> modifierList = new LinkedList<String>(); // 修飾子を控える
+		List<String> modifierList = new ArrayList<String>(); // 修飾子を控える
+		List<Token> tokenList = new ArrayList<Token>();
 
-		LinkedList<Token> tokenList = new LinkedList<Token>();
 		for (Token token: tokens) {
 			tokenList.add(token);
 		}
@@ -584,7 +584,7 @@ public class Parser {
 
 		// 引数部を読み進む
 		int argumentBegin = readingIndex;
-		LinkedList<AstNode> argumentNodeList = new LinkedList<AstNode>();
+		List<AstNode> argumentNodeList = new ArrayList<AstNode>();
 		while (readingIndex < tokenLength) {
 
 			// 「 , 」 か 「 ) 」が出現する度に、そこまでで1つの引数宣言として一旦切って解釈
@@ -735,7 +735,7 @@ public class Parser {
 		int readingIndex = 0; // 注目トークンのインデックス
 
 		// 変換後のトークンを格納するリスト
-		List<Token> tokenList = new LinkedList<Token>();
+		List<Token> tokenList = new ArrayList<Token>();
 
 		while (readingIndex<tokenLength) {
 
@@ -1165,7 +1165,7 @@ public class Parser {
 	 */
 	private AstNode[] popStatementNodes(Deque<AstNode> stack) {
 
-		List<AstNode> statementNodeList = new LinkedList<AstNode>();
+		List<AstNode> statementNodeList = new ArrayList<AstNode>();
 		while(stack.size() != 0) {
 
 			// フタノードに到達したら、フタを除去して回収完了
@@ -1218,7 +1218,7 @@ public class Parser {
 	 */
 	private AstNode[] popPartialExpressionNodes(Deque<AstNode> stack, String marker) throws VnanoException {
 
-		List<AstNode> partialExprNodeList = new LinkedList<AstNode>();
+		List<AstNode> partialExprNodeList = new ArrayList<AstNode>();
 		while(stack.size() != 0) {
 
 			// 部分式の構文木ノードを1個取り出す

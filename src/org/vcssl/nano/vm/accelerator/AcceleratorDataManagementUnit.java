@@ -5,9 +5,9 @@
 
 package org.vcssl.nano.vm.accelerator;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -425,7 +425,7 @@ public final class AcceleratorDataManagementUnit {
 		// > 引数POPは関数先頭に並んでるので、こっちの方法でも関数アドレスに飛んで命令数個見るだけで済むし。
 		// 現状は保留、将来的にもし内部関数テーブルを（最適化要求以外で）コンパイラ外に出した際にこのメソッドは要再検討
 
-		List<Boolean> referencenessList = new LinkedList<Boolean>();
+		List<Boolean> referencenessList = new ArrayList<Boolean>();
 		if (numberOfArgs == 0) {
 			return referencenessList;
 		}

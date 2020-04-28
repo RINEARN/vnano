@@ -5,9 +5,8 @@
 
 package org.vcssl.nano.spec;
 
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Iterator;
+import java.util.ArrayList;
 
 import org.vcssl.nano.VnanoFatalException;
 import org.vcssl.nano.VnanoException;
@@ -277,7 +276,7 @@ public class LiteralSyntax {
 
 		StringBuilder resultCodeBuilder = new StringBuilder(charLength);
 		StringBuilder literalBuilder = null;
-		List<String> literalList = new LinkedList<String>();
+		List<String> literalList = new ArrayList<String>();
 		int literalNumber = 1;
 
 		boolean previousIsEscapeChar = false; // 直前がエスケープ文字だったかどうかのフラグ
@@ -353,9 +352,8 @@ public class LiteralSyntax {
 		result[0] = resultCodeBuilder.toString();
 
 		int resultIndex = 1;
-		Iterator<String> iterator = literalList.iterator();
-		while(iterator.hasNext()) {
-			result[resultIndex] = iterator.next();
+		for (String literal: literalList) {
+			result[resultIndex] = literal;
 			resultIndex++;
 		}
 

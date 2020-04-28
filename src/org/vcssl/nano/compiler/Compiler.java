@@ -6,7 +6,7 @@
 package org.vcssl.nano.compiler;
 
 import java.io.PrintStream;
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -175,7 +175,7 @@ public class Compiler {
 
 		// 全スクリプトのトークン配列を結合 ( 最初にスクリプトそのものを結合せず、わざわざ
 		// 字句解析後に結合している理由は、エラー情報などで使用する、行番号やファイル名情報のずれを防ぐため ）
-		List<Token> tokenList = new LinkedList<Token>();
+		List<Token> tokenList = new ArrayList<Token>();
 		for (int scriptIndex=0; scriptIndex<scriptLength; scriptIndex++) {
 			for (Token token: tokens[scriptIndex]) {
 				tokenList.add(token);

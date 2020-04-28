@@ -12,7 +12,7 @@ package org.vcssl.connect;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -79,7 +79,7 @@ public class ClassToXnci1Adapter implements ExternalNamespaceConnectorInterface1
 		Method[] methods = this.pluginClass.getDeclaredMethods();
 
 		// XFCI1形式に変換したアダプタを格納するリスト
-		List<ExternalFunctionConnectorInterface1> xfciList = new LinkedList<ExternalFunctionConnectorInterface1>();
+		List<ExternalFunctionConnectorInterface1> xfciList = new ArrayList<ExternalFunctionConnectorInterface1>();
 
 		// メソッドを1つずつXFCI1形式に変換してリストに追加していく
 		for (Method method: methods) {
@@ -121,7 +121,7 @@ public class ClassToXnci1Adapter implements ExternalNamespaceConnectorInterface1
 		Field[] fields = this.pluginClass.getDeclaredFields();
 
 		// XVCI1形式に変換したアダプタを格納するリスト
-		List<ExternalVariableConnectorInterface1> xvciList = new LinkedList<ExternalVariableConnectorInterface1>();
+		List<ExternalVariableConnectorInterface1> xvciList = new ArrayList<ExternalVariableConnectorInterface1>();
 
 		// フィールドを1つずつXVCI1形式に変換してリストに追加していく
 		for (Field field: fields) {

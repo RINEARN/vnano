@@ -15,10 +15,9 @@ import java.net.URLClassLoader;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
 
@@ -97,8 +96,8 @@ public final class VnanoCommandLineApplication {
 	}
 
 	private HashMap<String, Object> optionMap = new HashMap<String, Object>();
-	private List<String> pluginDirList = new LinkedList<String>();
-	private List<Object> pluginList = new LinkedList<Object>();
+	private List<String> pluginDirList = new ArrayList<String>();
+	private List<Object> pluginList = new ArrayList<Object>();
 	private String encoding = null;
 	private boolean combinedTestRequired = false;
 
@@ -560,7 +559,7 @@ public final class VnanoCommandLineApplication {
 	private Map<String, String> parseArguments(String[] args) {
 		int argLength = args.length;
 
-		List<String> optionNameList = new LinkedList<String>();
+		List<String> optionNameList = new ArrayList<String>();
 
 		// オプションの名前をキーとし、その指定内容を値とする紐づけるマップ
 		Map<String, String> optionNameValueMap = new LinkedHashMap<String, String>();
@@ -595,9 +594,7 @@ public final class VnanoCommandLineApplication {
 		}
 
 		// オプション名が存在したのにマップで値と紐づけられていないものは、値が省略されているので、マップにnullを値として入れておく
-		Iterator<String> optionNameIterator = optionNameList.iterator();
-		while (optionNameIterator.hasNext()) {
-			String optionName = optionNameIterator.next();
+		for (String optionName: optionNameList) {
 			if (!optionNameValueMap.containsKey(optionName)) {
 				optionNameValueMap.put(optionName, null);
 			}

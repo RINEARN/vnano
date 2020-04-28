@@ -6,10 +6,10 @@
 package org.vcssl.nano.compiler;
 
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Deque;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.Set;
 
 import org.vcssl.nano.VnanoFatalException;
@@ -204,7 +204,7 @@ public class CodeGenerator {
 		private String beginPointLabel = null; // ループ文などで、後の文の生成後の地点に先頭に戻るコードを置いてほしい場合、これに先頭地点のラベル値を入れる
 		private String updatePointLabel = null; // ループ文などで、ループ毎の更新処理の直前にラベルを置いてほしい場合、これにラベル値を入れる
 		private String updatePointStatement = null; // for文の更新式の文
-		private LinkedList<String> endPointLabelList = null; // IF文など、後の文の生成後の地点にラベルを置いてほしい場合、これにラベル値を入れる(ifの後にelseが続く場合のみ要素が2個になり得る)
+		private ArrayList<String> endPointLabelList = null; // IF文など、後の文の生成後の地点にラベルを置いてほしい場合、これにラベル値を入れる(ifの後にelseが続く場合のみ要素が2個になり得る)
 		private String endPointStatement = null; // 関数など、ブロック末尾にデフォルトの return 文などを置きたい場合、これに文を入れる
 
 		private String lastIfConditionRegister = null; // 直前の if 文の条件式結果を格納するレジスタを控えて、else 文で使う
@@ -225,18 +225,20 @@ public class CodeGenerator {
 		private String lastStatementCode = null;
 
 		public StatementTrackingContext() {
-			this.endPointLabelList = new LinkedList<String>();
+			this.endPointLabelList = new ArrayList<String>();
 		}
 
-		@SuppressWarnings("unchecked")
 		public StatementTrackingContext clone() {
 			StatementTrackingContext clone = new StatementTrackingContext();
 
 			clone.beginPointLabel = this.beginPointLabel;
 			clone.updatePointLabel = this.updatePointLabel;
 			clone.updatePointStatement = this.updatePointStatement;
-			clone.endPointLabelList = (LinkedList<String>)this.endPointLabelList.clone();
 			clone.endPointStatement = this.endPointStatement;
+			clone.endPointLabelList = new ArrayList<String>();
+			for (String endPointLabel: this.endPointLabelList) {
+				clone.endPointLabelList.add(endPointLabel);
+			}
 
 			// （これらの状態変数は無駄が多い気がするのでそのうちリファクタリングしたい。lastLoop系を削ってouterLoop系のみに。）
 			clone.lastIfConditionRegister = this.lastIfConditionRegister;

@@ -1,6 +1,6 @@
 package org.vcssl.nano.combinedtest;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.vcssl.nano.VnanoEngine;
@@ -14,7 +14,7 @@ public class CombinedTestExecutor {
 		System.out.println("----------------------------------------------------------------");
 		System.out.println("");
 
-		List<CombinedTestElement> testElementList = new LinkedList<CombinedTestElement>();
+		List<CombinedTestElement> testElementList = new ArrayList<CombinedTestElement>();
 
 		// Add test element here
 		testElementList.add(new ScalarAssignmentOperationCombinedTest());
