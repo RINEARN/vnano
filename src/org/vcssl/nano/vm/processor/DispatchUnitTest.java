@@ -12,7 +12,6 @@ import java.lang.reflect.Method;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.vcssl.nano.interconnect.AbstractFunction;
 import org.vcssl.nano.interconnect.Interconnect;
 import org.vcssl.nano.spec.DataType;
 import org.vcssl.nano.spec.OperationCode;
@@ -29,7 +28,6 @@ public class DispatchUnitTest {
 	private final LanguageSpecContainer LANG_SPEC = new LanguageSpecContainer();
 
 	private Memory memory;
-	private Interconnect interconnect;
 
 	private DataContainer<long[]> int64Output;
 	private DataContainer<long[]> int64InputA;
@@ -139,8 +137,6 @@ public class DispatchUnitTest {
 		this.memory.setDataContainer(BOOL_OUTPUT_PART, BOOL_OUTPUT_ADDR, this.boolOutput);
 		this.memory.setDataContainer(BOOL_INPUT_A_PART, BOOL_INPUT_A_ADDR, this.boolInputA);
 		this.memory.setDataContainer(BOOL_INPUT_B_PART, BOOL_INPUT_B_ADDR, this.boolInputB);
-
-		this.interconnect = new Interconnect(LANG_SPEC);
 	}
 
 	@After
@@ -210,7 +206,12 @@ public class DispatchUnitTest {
 
 	private int dispatch(Instruction instruction, int pc) throws VnanoException, VnanoFatalException {
 		return new DispatchUnit().dispatch(
-				instruction, this.memory, this.interconnect, new ExecutionUnit(), new boolean[] {false}, pc
+				instruction, this.memory, new Interconnect(LANG_SPEC), new ExecutionUnit(), new boolean[] {false}, pc
+		);
+	}
+	private int dispatch(Instruction instruction, Interconnect interconnect, int pc) throws VnanoException, VnanoFatalException {
+		return new DispatchUnit().dispatch(
+				instruction, this.memory, interconnect, new ExecutionUnit(), new boolean[] {false}, pc
 		);
 	}
 
@@ -1334,36 +1335,28 @@ public class DispatchUnitTest {
 			fail("Reflection failed");
 		}
 
-		// 処理系にメソッドを接続
+		// インターコネクトを生成してメソッドを接続
+		Interconnect interconnect = new Interconnect(LANG_SPEC);
 		try {
-			this.interconnect.connectPlugin(SpecialBindingKey.AUTO_KEY, new Object[] {method,this} );
+			interconnect.connectPlugin(SpecialBindingKey.AUTO_KEY, new Object[] {method,this} );
 		} catch (VnanoException e) {
 			fail("Connection failed");
 		}
-
-		// 接続された、処理系内部形式の関数オブジェクトを取得（関数テーブルからアドレスを引き出すのに使用）
-		AbstractFunction function = this.interconnect.getExternalFunctionTable().getFunctionBySignature(
-				"methodToConnect",
-				new DataType[]{ DataType.INT64, DataType.INT64 },
-				new int[]{ 0, 0 },
-				new boolean[] { false, false },
-				new boolean[] { false, false },
-				false, false
-		);
 
 		// 引数・戻り値・関数アドレスを格納するオペランドを用意して値を設定
 		DataContainer<long[]> argA = new DataContainer<long[]>();
 		DataContainer<long[]> argB = new DataContainer<long[]>();
 		DataContainer<long[]> ret = new DataContainer<long[]>();
-		DataContainer<long[]> functionAddress = new DataContainer<long[]>();
+		DataContainer<long[]> functionAddressContainer = new DataContainer<long[]>();
 		this.memory.setDataContainer(TMP_A_PART, TMP_A_ADDR, argA);
 		this.memory.setDataContainer(TMP_B_PART, TMP_B_ADDR, argB);
 		this.memory.setDataContainer(TMP_C_PART, TMP_C_ADDR, ret);
-		this.memory.setDataContainer(TMP_D_PART, TMP_D_ADDR, functionAddress);
+		this.memory.setDataContainer(TMP_D_PART, TMP_D_ADDR, functionAddressContainer);
 		argA.setData(new long[]{ 123L }, 0);
 		argB.setData(new long[]{ 456L }, 0);
 		ret.setData(new long[]{ -1 }, 0);
-		functionAddress.setData(new long[]{ this.interconnect.getExternalFunctionTable().indexOf(function) }, 0);
+		int functionAddress = 0; // 関数は1個しか接続していないので0番なはず
+		functionAddressContainer.setData(new long[]{ functionAddress }, 0);
 
 		// 上記オペランドでメソッドコールを行う命令を生成
 		Instruction instruction = new Instruction(
@@ -1377,7 +1370,7 @@ public class DispatchUnitTest {
 		int pc = 10; // プログラムカウンタ
 		this.connectedMethodCalled = false;
 		try {
-			pc = this.dispatch(instruction, pc);
+			pc = this.dispatch(instruction, interconnect, pc);
 		} catch (VnanoException | VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occurred");

@@ -15,7 +15,6 @@ import java.util.Map;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.vcssl.nano.interconnect.AbstractFunction;
 import org.vcssl.nano.interconnect.Interconnect;
 import org.vcssl.nano.spec.DataType;
 import org.vcssl.nano.spec.OperationCode;
@@ -50,10 +49,8 @@ public class ProcessorTest {
 	@Before
 	public void setUp() throws Exception {
 
-		// テストで関数として呼び出すメソッドを接続したインターコネクトを用意
+		// 何も接続されていない、デフォルトのインターコネクトを用意（接続する場合は各テスト内で別途生成）
 		this.interconnect = new Interconnect(LANG_SPEC);
-		Method method = this.getClass().getMethod("methodToConnect", long.class, long.class);
-		this.interconnect.connectPlugin(SpecialBindingKey.AUTO_KEY, new Object[] {method,this} );
 
 		// レジスタを生成してメモリに配置
 		this.memory = new Memory(new LanguageSpecContainer());
@@ -234,12 +231,19 @@ public class ProcessorTest {
 		((DataContainer<long[]>)this.registers[1]).setData(new long[]{ 123L }, 0); // R1=123
 		((DataContainer<long[]>)this.registers[2]).setData(new long[]{ 456L }, 0); // R2=456
 
-		// Interconnect に接続された"methodToConnect" メソッドの関数アドレスを取得し、R10レジスタに設定
-		AbstractFunction function = this.interconnect.getExternalFunctionTable().getFunctionBySignature(
-				"methodToConnect", new DataType[]{DataType.INT64, DataType.INT64}, new int[]{0, 0},
-				new boolean[]{false, false}, new boolean[]{false, false}, false, false
-		);
-		int functionAddress = this.interconnect.getExternalFunctionTable().indexOf(function);
+		// このテスト用のInterconnectを生成し、"methodToConnect" メソッドを接続
+		Interconnect interconnect = new Interconnect(LANG_SPEC);
+		Method method;
+		try {
+			method = this.getClass().getMethod("methodToConnect", long.class, long.class);
+			interconnect.connectPlugin(SpecialBindingKey.AUTO_KEY, new Object[] {method,this} );
+		} catch (NoSuchMethodException | SecurityException | VnanoException e) {
+			e.printStackTrace();
+			fail("Unexpected exception occurred");
+		}
+
+		// 接続された "methodToConnect" メソッドをR10レジスタに設定
+		int functionAddress = 0;  // 関数は1個しか接続していないので0番なはず
 		((DataContainer<long[]>)this.registers[10]).setData(new long[]{ (long)functionAddress }, 0);
 
 		// メソッドを呼び出す CALLX 命令を生成
@@ -249,7 +253,7 @@ public class ProcessorTest {
 
 		// 命令を実行
 		try {
-			new Processor().process(instructions, this.memory, this.interconnect, this.optionMap);
+			new Processor().process(instructions, this.memory, interconnect, this.optionMap);
 		} catch (VnanoException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occurred");
