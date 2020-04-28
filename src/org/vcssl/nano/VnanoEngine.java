@@ -127,6 +127,9 @@ public class VnanoEngine {
 	 */
 	public Object executeScript(String script) throws VnanoException {
 		try {
+			// 全プラグインの初期化処理などを行い、インターコネクトをスクリプト実行可能な状態に移行
+			interconnect.activate();
+
 			// Get some option items from the option map (Types of values were already checked).
 			// オプションマップからいくつかの設定値を取り出す（値の型は既に検査済み）
 			String evalScriptName = (String)this.optionMap.get(OptionKey.EVAL_SCRIPT_NAME);
@@ -151,6 +154,10 @@ public class VnanoEngine {
 			// VMでVRILコードを実行
 			VirtualMachine vm = new VirtualMachine(LANG_SPEC);
 			Object evalValue = vm.executeAssemblyCode(assemblyCode, this.interconnect, this.optionMap);
+
+			// 全プラグインの終了時処理などを行い、インターコネクトを待機状態に移行
+			interconnect.deactivate();
+
 			return evalValue;
 
 		// If any error is occurred for the content/processing of the script,
@@ -234,10 +241,24 @@ public class VnanoEngine {
 	 *   </span>
 	 */
 	public void connectPlugin(String bindingKey, Object plugin) throws VnanoException {
-
-		// Connect the plug-in to the interconnect.
-		// プラグインをインターコネクトに接続
 		this.interconnect.connectPlugin(bindingKey, plugin);
+	}
+
+
+	/**
+	 * <span class="lang-en">Disconnects all plug-ins</span>
+	 * <span class="lang-ja">全てのプラグインの接続を解除します</span>
+	 * .
+	 * @throws VnanoException
+	 *   <span class="lang-en">
+	 *   Thrown when an exception occurred on the finalization of the plug-in to be disconnected.
+	 *   </span>
+	 *   <span class="lang-ja">
+	 *   プラグインの終了時処理でエラーが発生した場合にスローされます.
+	 *   </span>
+	 */
+	public void disconnectAllPlugins() throws VnanoException {
+		this.interconnect.disconnectAllPlugins();
 	}
 
 

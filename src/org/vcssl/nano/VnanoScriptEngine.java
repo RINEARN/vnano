@@ -21,6 +21,7 @@ import javax.script.SimpleScriptContext;
 
 import org.vcssl.nano.spec.EngineInformation;
 import org.vcssl.nano.spec.SpecialBindingKey;
+import org.vcssl.nano.spec.SpecialBindingValue;
 
 //Documentation:  https://www.vcssl.org/en-us/dev/code/main-jimpl/api/org/vcssl/nano/VnanoScriptEngine.html
 //ドキュメント:   https://www.vcssl.org/ja-jp/dev/code/main-jimpl/api/org/vcssl/nano/VnanoScriptEngine.html
@@ -380,6 +381,16 @@ public class VnanoScriptEngine implements ScriptEngine {
 				throw new VnanoFatalException(
 					"The type of \"" + SpecialBindingKey.OPTION_MAP + "\" should be \"Map<String,Object>\""
 				);
+			}
+
+		// 制御コマンドの場合
+		} else if (name.equals(SpecialBindingKey.COMMAND)){
+			if (value instanceof String && value.equals(SpecialBindingValue.COMMAND_DISCONNECT)) {
+				try {
+					this.vnanoEngine.disconnectAllPlugins();
+				} catch (VnanoException e) {
+					throw new VnanoFatalException(e);
+				}
 			}
 
 		// 外部変数/関数プラグインのバインディングの場合

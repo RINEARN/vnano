@@ -122,7 +122,8 @@ public class ErrorMessage {
 			case RECURSIVE_FUNCTION_CALL : return "関数の再帰呼び出しが検出されましたが、このスクリプトエンジンではサポートされていません。";
 			case INVALID_EXTERNAL_FUNCTION_SIGNATURE : return "外部関数の接続時の表記「 " + words[0] + " 」が正しくありません。正しい表記は「 " + words[1] + " 」か、そこから関数名のみを変更したものです。";
 			case UNSUPPORTED_PLUGIN : return "この処理系では、「 " + words[0] + " 」型のオブジェクトをプラグインとして接続する事はサポートされていません。";
-			case PLUGIN_NITIALIZATION_FAILED : return "プラグイン「 " + words[0] + " 」の初期化に失敗しました。";
+			case PLUGIN_INITIALIZATION_FAILED : return "プラグイン「 " + words[0] + " 」の初期化処理に失敗しました。";
+			case PLUGIN_FINALIZATION_FAILED : return "プラグイン「 " + words[0] + " 」の終了時処理に失敗しました。";
 			case OPTION_KEY_IS_NOT_FOUND : return "オプション「 " + words[0] + " 」の値が指定されていません。";
 			case INVALID_OPTION_VALUE_TYPE : return "オプション「 " + words[0] + " 」の値は「 " + words[1] + " 」型で指定する必要があります。";
 			case INVALID_OPTION_VALUE_CONTENT : return "オプション「 " + words[0] + " 」の値「 " + words[1] + " 」が、正しい内容ではありません。";
@@ -197,7 +198,8 @@ public class ErrorMessage {
 			case RECURSIVE_FUNCTION_CALL : return "A recursive call of the function (this script engine is not support it) is detected";
 			case INVALID_EXTERNAL_FUNCTION_SIGNATURE : return "A signature \"" + words[0] + "\" of the connected external function is invalid. A valid example is \"" + words[1] + "\", and you can change the function name only";
 			case UNSUPPORTED_PLUGIN : return "For this script engine, the class \"" + words[0] + "\" is not supported as a plug-in";
-			case PLUGIN_NITIALIZATION_FAILED : return "Plug-in \"" + words[0] + "\" could not be initialized";
+			case PLUGIN_INITIALIZATION_FAILED : return "Plug-in \"" + words[0] + "\" could not be initialized";
+			case PLUGIN_FINALIZATION_FAILED : return "Plug-in \"" + words[0] + "\" could not be finalized";
 			case OPTION_KEY_IS_NOT_FOUND : return "The value of \"" + words[0] + "\" option is not found";
 			case INVALID_OPTION_VALUE_TYPE : return "The type of the value of \"" + words[0] + "\" option should be \"" + words[1];
 			case INVALID_OPTION_VALUE_CONTENT : return "The value of \"" + words[0] + "\" option \"" + words[1] + "\" is invalid";

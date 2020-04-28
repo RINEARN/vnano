@@ -83,6 +83,7 @@ org/vcssl/nano/spec/OptionValue.java
 org/vcssl/nano/spec/package-info.java
 org/vcssl/nano/spec/ScriptWord.java
 org/vcssl/nano/spec/SpecialBindingKey.java
+org/vcssl/nano/spec/SpecialBindingValue.java
 org/vcssl/nano/vm/accelerator/Accelerator.java
 org/vcssl/nano/vm/accelerator/AcceleratorDataManagementUnit.java
 org/vcssl/nano/vm/accelerator/AcceleratorDispatchUnit.java
