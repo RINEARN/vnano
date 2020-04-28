@@ -40,6 +40,9 @@ import org.vcssl.nano.vm.processor.Instruction;
  */
 public class MetaInformationSyntax {
 
+	// 命令のメタ情報は、エラー原因箇所の取得など、VMの処理上の都合で用いられるものであるため、
+	// 現状では実行時に（編集して再ビルドする事なしに）外から記法を変えられるようにはなっていません。
+
 	/**
 	 * <span class="lang-en">Generates meta information in which specified line number and file name are embedded</span>
 	 * <span class="lang-ja">指定されたスクリプトファイル名と行番号が埋め込まれた、メタ情報を生成して返します</span>

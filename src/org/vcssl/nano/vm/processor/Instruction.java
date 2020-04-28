@@ -1,11 +1,10 @@
 /*
- * Copyright(C) 2017-2019 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2020 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
 package org.vcssl.nano.vm.processor;
 
-import org.vcssl.nano.spec.AssemblyWord;
 import org.vcssl.nano.spec.DataType;
 import org.vcssl.nano.spec.OperationCode;
 import org.vcssl.nano.vm.memory.Memory;
@@ -297,7 +296,7 @@ public class Instruction implements Cloneable {
 		for (int i=0; i<dataTypeLength; i++) {
 			builder.append(this.dataTypes[i]);
 			if (i != dataTypeLength - 1) {
-				builder.append(AssemblyWord.VALUE_SEPARATOR);
+				builder.append(":");
 			}
 		}
 		builder.append("\t");

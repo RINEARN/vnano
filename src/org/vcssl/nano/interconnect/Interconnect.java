@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2019 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2020 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -18,6 +18,7 @@ import org.vcssl.connect.FieldToXvci1Adapter;
 import org.vcssl.connect.MethodToXfci1Adapter;
 import org.vcssl.nano.spec.ErrorType;
 import org.vcssl.nano.spec.IdentifierSyntax;
+import org.vcssl.nano.spec.LanguageSpecContainer;
 import org.vcssl.nano.spec.SpecialBindingKey;
 import org.vcssl.nano.vm.VirtualMachineObjectCode;
 import org.vcssl.nano.vm.memory.DataContainer;
@@ -68,6 +69,13 @@ import org.vcssl.nano.VnanoException;
  */
 public class Interconnect {
 
+	/** 各種の言語仕様設定類を格納するコンテナを保持します。 */
+	private final LanguageSpecContainer LANG_SPEC;
+
+	/** 上記コンテナ内の、識別子の判定規則類が定義された設定オブジェクトを保持します。 */
+	private final IdentifierSyntax IDENTIFIER_SYNTAX;
+
+
 	/** 外部関数の情報を保持する関数テーブルです。 */
 	private FunctionTable externalFunctionTable = null;
 
@@ -79,13 +87,23 @@ public class Interconnect {
 
 
 	/**
-	 * <span class="lang-en">Creates a blank interconnect to which nothing are connected</span>
-	 * <span class="lang-ja">何も接続されていない, 空のインターコネクトを生成します</span>
+	 * <span class="lang-en">
+	 * Creates a blank interconnect to which nothing are connected,
+	 * with the specified language specification settings
+	 * </span>
+	 * <span class="lang-ja">
+	 * 指定された言語仕様設定で, 何も接続されていない空のインターコネクトを生成します
+	 * </span>
 	 * .
+	 * @param langSpec
+	 *   <span class="lang-en">language specification settings.</span>
+	 *   <span class="lang-ja">言語仕様設定.</span>
 	 */
-	public Interconnect() {
-		this.externalFunctionTable = new FunctionTable();
-		this.externalVariableTable = new VariableTable();
+	public Interconnect(LanguageSpecContainer langSpec) {
+		this.LANG_SPEC = langSpec;
+		this.IDENTIFIER_SYNTAX = LANG_SPEC.IDENTIFIER_SYNTAX;
+		this.externalFunctionTable = new FunctionTable(LANG_SPEC);
+		this.externalVariableTable = new VariableTable(LANG_SPEC);
 	}
 
 
@@ -391,7 +409,7 @@ public class Interconnect {
 
 		// 内部関数と互換の変数オブジェクト
 		} else if (plugin instanceof AbstractFunction) {
-			return IdentifierSyntax.getSignatureOf((AbstractFunction)plugin);
+			return IDENTIFIER_SYNTAX.getSignatureOf((AbstractFunction)plugin);
 
 		// XVCI 1 形式の外部変数プラグイン
 		} else if (plugin instanceof ExternalVariableConnectorInterface1) {
@@ -399,8 +417,9 @@ public class Interconnect {
 
 		// XFCI 1 形式の外部関数プラグイン
 		} else if (plugin instanceof ExternalFunctionConnectorInterface1) {
-			AbstractFunction functionAdapter = new Xfci1ToFunctionAdapter((ExternalFunctionConnectorInterface1)plugin);
-			return IdentifierSyntax.getSignatureOf(functionAdapter);
+			AbstractFunction functionAdapter =
+					new Xfci1ToFunctionAdapter((ExternalFunctionConnectorInterface1)plugin, LANG_SPEC);
+			return IDENTIFIER_SYNTAX.getSignatureOf(functionAdapter);
 
 		// XNCI 1 形式の外部関数プラグイン
 		} else if (plugin instanceof ExternalNamespaceConnectorInterface1) {
@@ -413,8 +432,8 @@ public class Interconnect {
 		// クラスメソッドの場合
 		} else if (plugin instanceof Method) {
 			ExternalFunctionConnectorInterface1 xfci1Adapter = new MethodToXfci1Adapter((Method)plugin);
-			AbstractFunction functionAdapter = new Xfci1ToFunctionAdapter(xfci1Adapter);
-			return IdentifierSyntax.getSignatureOf(functionAdapter);
+			AbstractFunction functionAdapter = new Xfci1ToFunctionAdapter(xfci1Adapter, LANG_SPEC);
+			return IDENTIFIER_SYNTAX.getSignatureOf(functionAdapter);
 
 		// クラスの場合
 		} else if (plugin instanceof Class) {
@@ -657,7 +676,7 @@ public class Interconnect {
 				ErrorType.PLUGIN_NITIALIZATION_FAILED, plugin.getClass().getCanonicalName(), e
 			);
 		}
-		Xvci1ToVariableAdapter adapter = new Xvci1ToVariableAdapter(plugin);
+		Xvci1ToVariableAdapter adapter = new Xvci1ToVariableAdapter(plugin, LANG_SPEC);
 		this.connectVariable(adapter, aliasingRequired, aliasName);
 	}
 
@@ -702,7 +721,7 @@ public class Interconnect {
 				ErrorType.PLUGIN_NITIALIZATION_FAILED, plugin.getClass().getCanonicalName(), e
 			);
 		}
-		Xfci1ToFunctionAdapter adapter = new Xfci1ToFunctionAdapter(plugin);
+		Xfci1ToFunctionAdapter adapter = new Xfci1ToFunctionAdapter(plugin, LANG_SPEC);
 		this.connectFunction(adapter, aliasingRequired, aliasSignature);
 	}
 
@@ -741,7 +760,7 @@ public class Interconnect {
 			boolean ignoreIncompatibles) throws VnanoException {
 
 		try {
-			connector.initializeForConnection(this.engineConnector);
+			connector.preInitializeForConnection(this.engineConnector);
 		} catch (ConnectorException e) {
 			throw new VnanoException(
 				ErrorType.PLUGIN_NITIALIZATION_FAILED, connector.getClass().getCanonicalName(), e
@@ -759,7 +778,7 @@ public class Interconnect {
 		for (ExternalFunctionConnectorInterface1 xfciConnector: xfciConnectors) {
 			try {
 				xfciConnector.initializeForConnection(this.engineConnector);
-				AbstractFunction adapter = new Xfci1ToFunctionAdapter(xfciConnector, nameSpace);
+				AbstractFunction adapter = new Xfci1ToFunctionAdapter(xfciConnector, nameSpace, LANG_SPEC);
 				this.connectFunction(adapter, false, null);
 
 			} catch (ConnectorException e) {
@@ -779,7 +798,7 @@ public class Interconnect {
 		for (ExternalVariableConnectorInterface1 xvciConnector: xvciConnectors) {
 			try {
 				xvciConnector.initializeForConnection(this.engineConnector);
-				AbstractVariable adapter = new Xvci1ToVariableAdapter(xvciConnector, nameSpace);
+				AbstractVariable adapter = new Xvci1ToVariableAdapter(xvciConnector, nameSpace, LANG_SPEC);
 				this.connectVariable(adapter, false, null);
 
 			} catch (ConnectorException e) {
@@ -792,6 +811,14 @@ public class Interconnect {
 					throw e;
 				}
 			}
+		}
+
+		try {
+			connector.postInitializeForConnection(this.engineConnector);
+		} catch (ConnectorException e) {
+			throw new VnanoException(
+				ErrorType.PLUGIN_NITIALIZATION_FAILED, connector.getClass().getCanonicalName(), e
+			);
 		}
 	}
 
@@ -824,7 +851,7 @@ public class Interconnect {
 			throws VnanoException {
 
 		if (aliasingRequired) {
-			function = new FunctionAliasAdapter(function);
+			function = new FunctionAliasAdapter(function, LANG_SPEC);
 			((FunctionAliasAdapter)function).setCallSignature(aliasSignature);
 		}
 		this.externalFunctionTable.addFunction(function);

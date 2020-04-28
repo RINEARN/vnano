@@ -76,6 +76,7 @@ public interface ExternalNamespaceConnectorInterface1 {
 
 	/**
 	 * 処理系への接続時に必要な初期化処理を行います。
+	 * この処理は、この名前空間に属する全ての変数/関数の初期化処理よりも前に呼び出されます。
 	 *
 	 * 引数には、スクリプトエンジンに依存するやり取りを行うためのオブジェクトが渡されます。
 	 * このオブジェクトは、恐らく {@link EngineConnectorInterface1 EngineConnectorInterface1}
@@ -84,11 +85,26 @@ public interface ExternalNamespaceConnectorInterface1 {
 	 * @param engineConnector エンジンに依存するやり取りを行うためのオブジェクト
 	 * @throws ConnectorException 初期化処理に失敗した場合にスローされます。
 	 */
-	public abstract void initializeForConnection(Object engineConnector) throws ConnectorException;
+	public abstract void preInitializeForConnection(Object engineConnector) throws ConnectorException;
+
+
+	/**
+	 * 処理系への接続時に必要な初期化処理を行います。
+	 * この処理は、この名前空間に属する全ての変数/関数の初期化処理よりも後に呼び出されます。
+	 *
+	 * 引数には、スクリプトエンジンに依存するやり取りを行うためのオブジェクトが渡されます。
+	 * このオブジェクトは、恐らく {@link EngineConnectorInterface1 EngineConnectorInterface1}
+	 * もしくはその後継の、抽象化されたインターフェースでラップされた形で渡されます。
+	 *
+	 * @param engineConnector エンジンに依存するやり取りを行うためのオブジェクト
+	 * @throws ConnectorException 初期化処理に失敗した場合にスローされます。
+	 */
+	public abstract void postInitializeForConnection(Object engineConnector) throws ConnectorException;
 
 
 	/**
 	 * 処理系からの接続解除時に必要な終了時処理を行います。
+	 * この処理は、この名前空間に属する全ての変数/関数の終了時処理よりも前に呼び出されます。
 	 *
 	 * 引数には、スクリプトエンジンに依存するやり取りを行うためのオブジェクトが渡されます。
 	 * このオブジェクトは、恐らく {@link EngineConnectorInterface1 EngineConnectorInterface1}
@@ -97,11 +113,26 @@ public interface ExternalNamespaceConnectorInterface1 {
 	 * @param engineConnector エンジンに依存するやり取りを行うためのオブジェクト
 	 * @throws ConnectorException 終了時処理に失敗した場合にスローされます。
 	 */
-	public abstract void finalizeForDisconnection(Object engineConnector) throws ConnectorException;
+	public abstract void preFinalizeForDisconnection(Object engineConnector) throws ConnectorException;
+
+
+	/**
+	 * 処理系からの接続解除時に必要な終了時処理を行います。
+	 * この処理は、この名前空間に属する全ての変数/関数の終了時処理よりも後に呼び出されます。
+	 *
+	 * 引数には、スクリプトエンジンに依存するやり取りを行うためのオブジェクトが渡されます。
+	 * このオブジェクトは、恐らく {@link EngineConnectorInterface1 EngineConnectorInterface1}
+	 * もしくはその後継の、抽象化されたインターフェースでラップされた形で渡されます。
+	 *
+	 * @param engineConnector エンジンに依存するやり取りを行うためのオブジェクト
+	 * @throws ConnectorException 終了時処理に失敗した場合にスローされます。
+	 */
+	public abstract void postFinalizeForDisconnection(Object engineConnector) throws ConnectorException;
 
 
 	/**
 	 * スクリプト実行毎の初期化処理を行います。
+	 * この処理は、この名前空間に属する全ての変数/関数の初期化処理よりも前に呼び出されます。
 	 *
 	 * 引数には、スクリプトエンジンに依存するやり取りを行うためのオブジェクトが渡されます。
 	 * このオブジェクトは、恐らく {@link EngineConnectorInterface1 EngineConnectorInterface1}
@@ -110,11 +141,26 @@ public interface ExternalNamespaceConnectorInterface1 {
 	 * @param engineConnector エンジンに依存するやり取りを行うためのオブジェクト
 	 * @throws ConnectorException 初期化処理に失敗した場合にスローされます。
 	 */
-	public abstract void initializeForExecution(Object engineConnector) throws ConnectorException;
+	public abstract void preInitializeForExecution(Object engineConnector) throws ConnectorException;
+
+
+	/**
+	 * スクリプト実行毎の初期化処理を行います。
+	 * この処理は、この名前空間に属する全ての変数/関数の初期化処理よりも後に呼び出されます。
+	 *
+	 * 引数には、スクリプトエンジンに依存するやり取りを行うためのオブジェクトが渡されます。
+	 * このオブジェクトは、恐らく {@link EngineConnectorInterface1 EngineConnectorInterface1}
+	 * もしくはその後継の、抽象化されたインターフェースでラップされた形で渡されます。
+	 *
+	 * @param engineConnector エンジンに依存するやり取りを行うためのオブジェクト
+	 * @throws ConnectorException 初期化処理に失敗した場合にスローされます。
+	 */
+	public abstract void postInitializeForExecution(Object engineConnector) throws ConnectorException;
 
 
 	/**
 	 * スクリプト実行毎の終了時処理を行います。
+	 * この処理は、この名前空間に属する全ての変数/関数の終了時処理よりも前に呼び出されます。
 	 *
 	 * 引数には、スクリプトエンジンに依存するやり取りを行うためのオブジェクトが渡されます。
 	 * このオブジェクトは、恐らく {@link EngineConnectorInterface1 EngineConnectorInterface1}
@@ -123,6 +169,20 @@ public interface ExternalNamespaceConnectorInterface1 {
 	 * @param engineConnector エンジンに依存するやり取りを行うためのオブジェクト
 	 * @throws ConnectorException 終了時処理に失敗した場合にスローされます。
 	 */
-	public abstract void finalizeForTermination(Object engineConnector) throws ConnectorException;
+	public abstract void preFinalizeForTermination(Object engineConnector) throws ConnectorException;
+
+
+	/**
+	 * スクリプト実行毎の終了時処理を行います。
+	 * この処理は、この名前空間に属する全ての変数/関数の終了時処理よりも後に呼び出されます。
+	 *
+	 * 引数には、スクリプトエンジンに依存するやり取りを行うためのオブジェクトが渡されます。
+	 * このオブジェクトは、恐らく {@link EngineConnectorInterface1 EngineConnectorInterface1}
+	 * もしくはその後継の、抽象化されたインターフェースでラップされた形で渡されます。
+	 *
+	 * @param engineConnector エンジンに依存するやり取りを行うためのオブジェクト
+	 * @throws ConnectorException 終了時処理に失敗した場合にスローされます。
+	 */
+	public abstract void postFinalizeForTermination(Object engineConnector) throws ConnectorException;
 
 }

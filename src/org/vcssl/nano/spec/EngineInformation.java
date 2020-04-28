@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2019 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2020 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -43,7 +43,7 @@ public class EngineInformation {
 
 	public static final String ENGINE_NAME = "RINEARN Vnano Engine";
 
-	public static final String ENGINE_VERSION = "0.2.6";
+	public static final String ENGINE_VERSION = "0.2.7";
 
 	public static final String[] EXTENTIONS = { "vnano" };
 
@@ -61,9 +61,9 @@ public class EngineInformation {
 			ENGINE_NAME,
 	};
 
-	public static final String LANGUAGE_NAME = ScriptWord.SCRIPT_LANGUAGE_NAME;
+	public static final String LANGUAGE_NAME = "Vnano";
 
-	public static final String LANGUAGE_VERSION = ScriptWord.SCRIPT_LANGUAGE_VERSION;
+	public static final String LANGUAGE_VERSION = ENGINE_VERSION;
 
 
 	private static final Map<String, Object> KEY_INFORMATION_MAP = new HashMap<String, Object>();

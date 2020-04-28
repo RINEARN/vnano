@@ -8,7 +8,6 @@ package org.vcssl.nano.vm.processor;
 import org.vcssl.nano.VnanoFatalException;
 import org.vcssl.nano.interconnect.DataConverter;
 import org.vcssl.nano.spec.DataType;
-import org.vcssl.nano.spec.DataTypeName;
 import org.vcssl.nano.spec.ErrorType;
 import org.vcssl.nano.vm.accelerator.Accelerator;
 import org.vcssl.nano.vm.memory.DataContainer;
@@ -1467,7 +1466,7 @@ public class ExecutionUnit {
 								} catch (NumberFormatException nfe2){
 									VnanoException e = new VnanoException(
 										ErrorType.CAST_FAILED_DUE_TO_VALUE,
-										new String[] {targetData[targetOffset + i], "int" }
+										new String[] {targetData[targetOffset + i], destType.name() }
 									);
 									throw e;
 								}
@@ -1478,7 +1477,7 @@ public class ExecutionUnit {
 					default : {
 						VnanoException e = new VnanoException(
 								ErrorType.CAST_FAILED_DUE_TO_TYPE,
-								new String[] {DataTypeName.getDataTypeNameOf(srcType), "int" }
+								new String[] { srcType.name(), destType.name() }
 						);
 						throw e;
 					}
@@ -1509,7 +1508,7 @@ public class ExecutionUnit {
 							} catch (NumberFormatException nfe){
 								VnanoException e = new VnanoException(
 										ErrorType.CAST_FAILED_DUE_TO_VALUE,
-										new String[] {targetData[targetOffset + i], "float" }
+										new String[] {targetData[targetOffset + i], destType.name() }
 								);
 								throw e;
 							}
@@ -1519,7 +1518,7 @@ public class ExecutionUnit {
 					default : {
 						VnanoException e = new VnanoException(
 								ErrorType.CAST_FAILED_DUE_TO_TYPE,
-								new String[] {DataTypeName.getDataTypeNameOf(srcType), "float" }
+								new String[] { srcType.name(), destType.name() }
 						);
 						throw e;
 					}
@@ -1547,7 +1546,7 @@ public class ExecutionUnit {
 							} else {
 								VnanoException e = new VnanoException(
 										ErrorType.CAST_FAILED_DUE_TO_VALUE,
-										new String[] {targetData[targetOffset + i], "bool" }
+										new String[] {targetData[targetOffset + i], destType.name() }
 								);
 								throw e;
 							}
@@ -1557,7 +1556,7 @@ public class ExecutionUnit {
 					default : {
 						VnanoException e = new VnanoException(
 								ErrorType.CAST_FAILED_DUE_TO_TYPE,
-								new String[] {DataTypeName.getDataTypeNameOf(srcType), "bool" }
+								new String[] { srcType.name(), destType.name() }
 						);
 						throw e;
 					}
@@ -1597,7 +1596,7 @@ public class ExecutionUnit {
 					default : {
 						VnanoException e = new VnanoException(
 								ErrorType.CAST_FAILED_DUE_TO_TYPE,
-								new String[] {DataTypeName.getDataTypeNameOf(srcType), "to string" }
+								new String[] { srcType.name(), destType.name() }
 						);
 						throw e;
 					}
@@ -1606,7 +1605,7 @@ public class ExecutionUnit {
 			default : {
 				VnanoException e = new VnanoException(
 						ErrorType.CAST_FAILED_DUE_TO_TYPE,
-						new String[] {DataTypeName.getDataTypeNameOf(srcType), DataTypeName.getDataTypeNameOf(destType) }
+						new String[] { srcType.name(), destType.name() }
 				);
 				throw e;
 			}

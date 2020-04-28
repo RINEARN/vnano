@@ -16,6 +16,7 @@ import org.vcssl.nano.interconnect.AbstractFunction;
 import org.vcssl.nano.interconnect.Interconnect;
 import org.vcssl.nano.spec.DataType;
 import org.vcssl.nano.spec.OperationCode;
+import org.vcssl.nano.spec.LanguageSpecContainer;
 import org.vcssl.nano.spec.SpecialBindingKey;
 import org.vcssl.nano.vm.memory.DataContainer;
 import org.vcssl.nano.vm.memory.Memory;
@@ -24,6 +25,8 @@ import org.vcssl.nano.VnanoException;
 
 
 public class DispatchUnitTest {
+
+	private final LanguageSpecContainer LANG_SPEC = new LanguageSpecContainer();
 
 	private Memory memory;
 	private Interconnect interconnect;
@@ -129,7 +132,7 @@ public class DispatchUnitTest {
 		this.boolInputA.setData(new boolean[3], new int[]{ 3 });
 		this.boolInputB.setData(new boolean[3], new int[]{ 3 });
 
-		this.memory = new Memory();
+		this.memory = new Memory(new LanguageSpecContainer());
 		this.memory.setDataContainer(INT64_OUTPUT_PART, INT64_OUTPUT_ADDR, this.int64Output);
 		this.memory.setDataContainer(INT64_INPUT_A_PART, INT64_INPUT_A_ADDR, this.int64InputA);
 		this.memory.setDataContainer(INT64_INPUT_B_PART, INT64_INPUT_B_ADDR, this.int64InputB);
@@ -137,7 +140,7 @@ public class DispatchUnitTest {
 		this.memory.setDataContainer(BOOL_INPUT_A_PART, BOOL_INPUT_A_ADDR, this.boolInputA);
 		this.memory.setDataContainer(BOOL_INPUT_B_PART, BOOL_INPUT_B_ADDR, this.boolInputB);
 
-		this.interconnect = new Interconnect();
+		this.interconnect = new Interconnect(LANG_SPEC);
 	}
 
 	@After

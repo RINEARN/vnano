@@ -11,6 +11,7 @@ import java.util.Map;
 
 import org.vcssl.nano.compiler.Compiler;
 import org.vcssl.nano.interconnect.Interconnect;
+import org.vcssl.nano.spec.LanguageSpecContainer;
 import org.vcssl.nano.spec.OptionKey;
 import org.vcssl.nano.spec.OptionValue;
 import org.vcssl.nano.vm.VirtualMachine;
@@ -47,6 +48,10 @@ import org.vcssl.nano.vm.VirtualMachine;
  */
 public class VnanoEngine {
 
+	/** 各種の言語仕様設定類を格納するコンテナを保持します。 */
+	private final LanguageSpecContainer LANG_SPEC;
+
+
 	/**
 	 * <span class="lang-en">A map to store all names and values of specified options</span>
 	 * <span class="lang-ja">指定された全てのオプション名と値を保持するマップです</span>
@@ -69,6 +74,19 @@ public class VnanoEngine {
 	 * .
 	 */
 	public VnanoEngine() {
+		this(new LanguageSpecContainer());
+	}
+
+	/**
+	 * <span class="lang-en">Create a Vnano Engine with the customized language specification settings</span>
+	 * <span class="lang-ja">カスタマイズされた言語仕様設定で, Vnanoエンジンを生成します</span>
+	 * .
+	 * @param langSpec
+	 *   <span class="lang-en">language specification settings.</span>
+	 *   <span class="lang-ja">言語仕様設定.</span>
+	 */
+	public VnanoEngine(LanguageSpecContainer langSpec) {
+		this.LANG_SPEC = langSpec;
 
 		// Create an option map and set default values.
 		// オプションマップを生成し, 必須項目をデフォルト値で補完
@@ -77,7 +95,7 @@ public class VnanoEngine {
 
 		// Create a blank interconnect nothing is binded to.
 		// 何もバインディングされていない, 空のインターコネクトを生成
-		this.interconnect = new Interconnect();
+		this.interconnect = new Interconnect(LANG_SPEC);
 
 		// Create a connector to access information of the engine from plug-ins, and set it to the interconnect.
 		// プラグインからエンジン側の情報（オプション含む）にアクセスするためのコネクタを生成し, インターコネクトに設定
@@ -126,12 +144,12 @@ public class VnanoEngine {
 
 			// Translate scripts to a VRIL code (intermediate assembly code) by a compiler.
 			// コンパイラでスクリプトコードからVRILコード（中間アセンブリコード）に変換
-			Compiler compiler = new Compiler();
+			Compiler compiler = new Compiler(LANG_SPEC);
 			String assemblyCode = compiler.compile(scripts, names, this.interconnect, this.optionMap);
 
 			// Execute the VRIL code on the VM.
 			// VMでVRILコードを実行
-			VirtualMachine vm = new VirtualMachine();
+			VirtualMachine vm = new VirtualMachine(LANG_SPEC);
 			Object evalValue = vm.executeAssemblyCode(assemblyCode, this.interconnect, this.optionMap);
 			return evalValue;
 
@@ -177,7 +195,7 @@ public class VnanoEngine {
 	 *   General "Object" type instances can be connected as a plug-in,
 	 *   for accessing their methods/fields from the script code as external functions/variables.
 	 *   For accessing only static methods and fields, "Class&lt;T&gt;" type instance can also be connected.
-	 *   In addition, if you want to choose a method/field to be accessible from script code,
+	 *   In add, if you want to choose a method/field to be accessible from script code,
 	 *   a "Method"/"Field" type instance can be connected.
 	 *   ( In that case, if the method/field is static, pass an Object type array for this argument,
 	 *     and store the Method/Field type instance at [0],

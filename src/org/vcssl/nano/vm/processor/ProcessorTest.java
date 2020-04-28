@@ -20,6 +20,7 @@ import org.vcssl.nano.interconnect.Interconnect;
 import org.vcssl.nano.spec.DataType;
 import org.vcssl.nano.spec.OperationCode;
 import org.vcssl.nano.spec.OptionValue;
+import org.vcssl.nano.spec.LanguageSpecContainer;
 import org.vcssl.nano.spec.SpecialBindingKey;
 import org.vcssl.nano.vm.memory.DataContainer;
 import org.vcssl.nano.vm.memory.Memory;
@@ -27,6 +28,7 @@ import org.vcssl.nano.VnanoException;
 
 public class ProcessorTest {
 
+	private final LanguageSpecContainer LANG_SPEC = new LanguageSpecContainer();
 	private static final int REGISTER_N = 200;
 	private Interconnect interconnect;
 	private Memory memory;
@@ -49,12 +51,12 @@ public class ProcessorTest {
 	public void setUp() throws Exception {
 
 		// テストで関数として呼び出すメソッドを接続したインターコネクトを用意
-		this.interconnect = new Interconnect();
+		this.interconnect = new Interconnect(LANG_SPEC);
 		Method method = this.getClass().getMethod("methodToConnect", long.class, long.class);
 		this.interconnect.connectPlugin(SpecialBindingKey.AUTO_KEY, new Object[] {method,this} );
 
 		// レジスタを生成してメモリに配置
-		this.memory = new Memory();
+		this.memory = new Memory(new LanguageSpecContainer());
 		this.registers = new DataContainer<?>[REGISTER_N];
 		for (int addr=0; addr<REGISTER_N; addr++) {
 			registers[addr] = new DataContainer<Object>();

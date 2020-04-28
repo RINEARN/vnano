@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2018 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2018-2020 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -37,9 +37,13 @@ import org.vcssl.nano.spec.EngineInformation;
 import org.vcssl.nano.spec.ErrorMessage;
 import org.vcssl.nano.spec.OptionKey;
 import org.vcssl.nano.spec.OptionValue;
+import org.vcssl.nano.spec.LanguageSpecContainer;
 import org.vcssl.nano.vm.VirtualMachine;
 
 public final class VnanoCommandLineApplication {
+
+	/** 各種の言語仕様設定類を格納するコンテナを保持します。 */
+	private final LanguageSpecContainer LANG_SPEC = new LanguageSpecContainer(); // デフォルトの言語仕様設定を生成
 
 	/**
 	 * エラーメッセージの表示言語指定などに使用されるロケールを保持します。
@@ -124,8 +128,6 @@ public final class VnanoCommandLineApplication {
 		application.dispatch(args);
 	}
 
-	public VnanoCommandLineApplication() {
-	}
 
 	public void help() {
 		System.out.print("Vnano " + EngineInformation.ENGINE_VERSION);
@@ -653,7 +655,7 @@ public final class VnanoCommandLineApplication {
 	private Interconnect createInitializedInterconnect() {
 
 		// 何も接続されていない、空のインターコネクトを生成
-		Interconnect interconnect = new Interconnect();
+		Interconnect interconnect = new Interconnect(LANG_SPEC);
 
 		// メソッド・フィールドを外部関数・変数としてインターコネクトに接続
 		try {
@@ -772,7 +774,7 @@ public final class VnanoCommandLineApplication {
 		this.optionMap.put(OptionKey.EVAL_SCRIPT_NAME, inputFilePath);
 
 		// プロセス仮想マシンを生成し、VRILコードを渡して実行
-		VirtualMachine vm = new VirtualMachine();
+		VirtualMachine vm = new VirtualMachine(LANG_SPEC);
 		vm.executeAssemblyCode(assemblyCode, interconnect, this.optionMap);
 	}
 

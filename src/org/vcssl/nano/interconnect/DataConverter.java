@@ -11,6 +11,7 @@ import org.vcssl.nano.spec.DataType;
 import org.vcssl.nano.spec.DataTypeName;
 import org.vcssl.nano.spec.ErrorType;
 import org.vcssl.nano.spec.ScriptWord;
+import org.vcssl.nano.spec.LanguageSpecContainer;
 import org.vcssl.nano.vm.memory.DataContainer;
 import org.vcssl.nano.VnanoFatalException;
 import org.vcssl.nano.VnanoException;
@@ -27,6 +28,12 @@ public class DataConverter {
 
 	/** スカラの次元数です。 */
 	private static final int RANK_OF_SCALAR = 0;
+
+	/** スクリプト言語の語句が定義された設定オブジェクトを保持します。 */
+	private final ScriptWord SCRIPT_WORD;
+
+	/** データ型名が定義された設定オブジェクトを保持します。 */
+	private final DataTypeName DATA_TYPE_NAME;
 
 
 	/**
@@ -210,9 +217,13 @@ public class DataConverter {
 	 * そのラッパークラスを指定してください。
 	 *
 	 * @param objectClass ホスト言語側でのデータ型を表すクラス（プリミティブ型の場合はラッパークラス）
+	 * @param langSpec 言語仕様設定
 	 * @throws VnanoException 未対応のデータ型が指定された場合にスローされます。
 	 */
-	public DataConverter(Class<?> objectClass) throws VnanoException {
+	public DataConverter(Class<?> objectClass, LanguageSpecContainer langSpec) throws VnanoException {
+		this.SCRIPT_WORD = langSpec.SCRIPT_WORD;
+		this.DATA_TYPE_NAME = langSpec.DATA_TYPE_NAME;
+
 		this.rank = getRankOf(objectClass);
 		String externalDataTypeName = getExternalTypeNameOf(objectClass);
 		this.externalType = EXTERNAL_NAME_EXTERNAL_TYPE_MAP.get(externalDataTypeName);
@@ -238,9 +249,14 @@ public class DataConverter {
 	 * そのラッパークラスを指定してください。
 	 *
 	 * @param objectClass ホスト言語側でのデータ型を表すクラス（プリミティブ型の場合はラッパークラス）
+	 * @param scriptWordSetting スクリプト言語の語句が定義された設定オブジェクト
+	 * @param specContainer
 	 * @throws VnanoException 未対応のデータ型が指定された場合にスローされます。
 	 */
-	public DataConverter(DataType dataType, int rank) throws VnanoException {
+	public DataConverter(DataType dataType, int rank, LanguageSpecContainer langSpec) throws VnanoException {
+		this.SCRIPT_WORD = langSpec.SCRIPT_WORD;
+		this.DATA_TYPE_NAME = langSpec.DATA_TYPE_NAME;
+
 		this.rank = rank;
 		this.dataType = dataType;
 		this.externalType = DATA_TYPE_EXTERNAL_TYPE_MAP.get(dataType);
@@ -566,7 +582,7 @@ public class DataConverter {
 
 				VnanoException e = new VnanoException(
 						ErrorType.UNCONVERTIBLE_DATA_TYPE,
-						new String[] {DataTypeName.getDataTypeNameOf(DataType.VOID)}
+						new String[] {DATA_TYPE_NAME.getDataTypeNameOf(DataType.VOID)}
 				);
 				throw e;
 			}
@@ -1054,7 +1070,7 @@ public class DataConverter {
 					case VOID : {
 						VnanoException e = new VnanoException(
 								ErrorType.UNCONVERTIBLE_DATA_TYPE,
-								new String[] { DataTypeName.getDataTypeNameOf(DataType.VOID) }
+								new String[] { DATA_TYPE_NAME.getDataTypeNameOf(DataType.VOID) }
 						);
 						throw e;
 					}
@@ -1113,7 +1129,7 @@ public class DataConverter {
 					case VOID : {
 						VnanoException e = new VnanoException(
 								ErrorType.UNCONVERTIBLE_DATA_TYPE,
-								new String[] { DataTypeName.getDataTypeNameOf(DataType.VOID) }
+								new String[] { DATA_TYPE_NAME.getDataTypeNameOf(DataType.VOID) }
 						);
 						throw e;
 					}
@@ -1196,7 +1212,7 @@ public class DataConverter {
 					case VOID : {
 						VnanoException e = new VnanoException(
 								ErrorType.UNCONVERTIBLE_DATA_TYPE,
-								new String[] { DataTypeName.getDataTypeNameOf(DataType.VOID) }
+								new String[] { DATA_TYPE_NAME.getDataTypeNameOf(DataType.VOID) }
 						);
 						throw e;
 					}
@@ -1208,10 +1224,10 @@ public class DataConverter {
 				// 内部での配列型名の表記（ int[][][][][] など ）を求める
 				String externalTypeName = DataConverter.getExternalTypeNameOf(internalData.getClass());
 				DataType internalType = EXTERNAL_NAME_DATA_TYPE_MAP.get(externalTypeName);
-				String internalTypeName = DataTypeName.getDataTypeNameOf(internalType);
+				String internalTypeName = DATA_TYPE_NAME.getDataTypeNameOf(internalType);
 				String internalArrayTypeName = internalTypeName;
 				for(int dim=0; dim<this.rank; dim++) {
-					internalArrayTypeName += ScriptWord.SUBSCRIPT_BEGIN + ScriptWord.SUBSCRIPT_END; // "[]" を追加
+					internalArrayTypeName += SCRIPT_WORD.subscriptBegin + SCRIPT_WORD.subscriptEnd; // "[]" を追加
 				}
 
 				// それをエラーメッセージ用情報に渡して例外スロー

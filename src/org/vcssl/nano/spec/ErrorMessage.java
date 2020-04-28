@@ -47,6 +47,23 @@ public class ErrorMessage {
 
 	public static String generateErrorMessage(ErrorType errorType, String[] words, Locale locale) {
 
+		// CAST系エラーで渡されるVMのデータ型名はユーザーに分かりにくいので、スクリプト言語上でのデフォルトの型名で一致するものがあれば置き換える
+		DataTypeName dataTypeName = new DataTypeName();
+		if (errorType == ErrorType.CAST_FAILED_DUE_TO_TYPE ) {
+			try {
+				words[0] = dataTypeName.getDataTypeNameOf(DataType.valueOf(words[0]));
+				words[1] = dataTypeName.getDataTypeNameOf(DataType.valueOf(words[1]));
+			} catch (IllegalArgumentException iae) {
+			}
+		}
+		if (errorType == ErrorType.CAST_FAILED_DUE_TO_VALUE ) {
+			try {
+				words[1] = dataTypeName.getDataTypeNameOf(DataType.valueOf(words[1]));
+			} catch (IllegalArgumentException iae) {
+			}
+		}
+
+		// ロケール言語に応じたエラーメッセージを生成して返す
 		if (   ( locale.getLanguage()!=null && locale.getLanguage().equals("ja") )
 			   || ( locale.getCountry()!=null && locale.getCountry().equals("JP") )   ) {
 
@@ -57,6 +74,7 @@ public class ErrorMessage {
 	}
 
 	public static String generateErrorMessageJaJP(ErrorType errorType, String[] words) {
+
 		switch (errorType) {
 			case VARIABLE_IS_NOT_FOUND : return "宣言されていない変数「 " + words[0] + " 」を使用しています。";
 			case FUNCTION_IS_NOT_FOUND : return "存在しない関数「 " + words[0] +  " 」を呼び出しています。";
@@ -98,7 +116,7 @@ public class ErrorMessage {
 			case UNCONVERTIBLE_INTERNAL_ARRAY : return "スクリプト内の配列型「 " + words[0] + " 」は、次元数またはデータ型などの問題で、スクリプトエンジン外部のデータ型に変換できません。" ;
 			case JAGGED_ARRAY : return "長さが異なる配列をまとめた配列、いわゆるジャグ配列は、このスクリプトエンジンでは扱えません。";
 			case CAST_FAILED_DUE_TO_VALUE : return "データ「 " + words[0] + " 」の「 " + words[1] + " 」型への変換に失敗しました。";
-			case CAST_FAILED_DUE_TO_TYPE : return words[0] + "型のデータの「 " + words[1] + " 」型への変換に失敗しました。";
+			case CAST_FAILED_DUE_TO_TYPE : return "「 " + words[0] + " 」型のデータの「 " + words[1] + " 」型への変換に失敗しました。";
 			case FUNCTION_IS_DECLARED_IN_INVALID_PLASE : return "関数をここで宣言する事はできません。";
 			case INVALID_ARGUMENT_DECLARATION : return "引数の宣言内容が正しくありません。";
 			case RECURSIVE_FUNCTION_CALL : return "関数の再帰呼び出しが検出されましたが、このスクリプトエンジンではサポートされていません。";
@@ -131,6 +149,7 @@ public class ErrorMessage {
 
 
 	public static String generateErrorMessageEnUS(ErrorType errorType, String[] words) {
+
 		switch (errorType) {
 			case VARIABLE_IS_NOT_FOUND : return "Undeclared variable \"" + words[0] + "\" is used";
 			case FUNCTION_IS_NOT_FOUND : return "Unknown function \"" + words[0] + "\" is called";
