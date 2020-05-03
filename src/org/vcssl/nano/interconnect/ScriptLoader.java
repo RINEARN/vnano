@@ -374,7 +374,19 @@ public class ScriptLoader {
 			return;
 		} else {
 			this.mainScriptName = scriptFile.getName();
-			this.mainScriptContent = this.loadScriptContent(this.mainScriptPath);
+			try {
+				this.mainScriptContent = this.loadScriptContent(this.mainScriptPath);
+			} catch (IOException ioe) {
+				this.mainScriptName = null;
+				this.mainScriptContent = null;
+				this.mainScriptLastMod = -1;
+				throw new VnanoException(ErrorType.SCRIPT_FILE_IS_NOT_ACCESSIBLE, this.mainScriptPath, ioe);
+			} catch (VnanoException vne) {
+				this.mainScriptName = null;
+				this.mainScriptContent = null;
+				this.mainScriptLastMod = -1;
+				throw vne;
+			}
 		}
 
 		// 読み込みが正常に完了したら、ファイルの更新日時を控える（次回で不変なら読み込みスキップするため）
@@ -392,12 +404,20 @@ public class ScriptLoader {
 	 * .
 	 */
 	private void loadLibraryScriptContents() throws VnanoException {
+
+		// 読み込み処理に失敗したライブラリはここに追記していく（即例外を投げると後続プラグインを読み込めないため）
+		String notExistLibraries = "";
+		String loadFailedLibraries = "";
+		Throwable loadFailedCause = null;
+
+		// ライブラリを 1 個ずつ読んでいく
 		int libN = this.libraryScriptPathList.size();
 		for (int libIndex=0; libIndex<libN; libIndex++) {
 			String libPath = this.libraryScriptPathList.get(libIndex);
 			File libFile = new File(libPath);
 			if (!libFile.exists()) {
-				throw new VnanoException(ErrorType.SCRIPT_FILE_DOES_NOT_EXIST, libPath);
+				notExistLibraries += (!notExistLibraries.isEmpty() ? ", " : "") + libFile.getName();
+				//throw new VnanoException(ErrorType.SCRIPT_FILE_DOES_NOT_EXIST, libPath);
 			}
 
 			// 前回読み込み時から更新日時が変わっていなければ、内容も変わっていないと見なして読み込みスキップ
@@ -406,12 +426,46 @@ public class ScriptLoader {
 			}
 
 			// ライブラリファイルの中身を読み込み、フィールドに登録
-			String libContent = this.loadScriptContent(libPath);
+			String libContent = null;
+			try {
+				libContent = this.loadScriptContent(libPath);
+			} catch (Exception e) {
+				loadFailedLibraries += (!loadFailedLibraries.isEmpty() ? ", " : "") + libFile.getName();
+				loadFailedCause = e;
+			}
 			this.libraryScriptContentList.set(libIndex, libContent);
 			this.libraryScriptNameList.set(libIndex, libFile.getName());
 
 			// 読み込みが正常に完了したら、ファイルの更新日時を控える（次回で不変なら読み込みスキップするため）
 			this.libraryScriptLastModList.set(libIndex, libFile.lastModified());
+		}
+
+		// 読み込みに失敗したものは libraryScriptContentList の要素が null になっているので、それを目印にリストから削除する
+		if (!notExistLibraries.isEmpty() || !loadFailedLibraries.isEmpty()) {
+			List<String> succeededLibraryPathList = new ArrayList<String>();
+			List<String> succeededLibraryNameList = new ArrayList<String>();
+			List<String> succeededLibraryContentList = new ArrayList<String>();
+			List<Long> succeededLibraryLastModList = new ArrayList<Long>();
+			for (int libIndex=0; libIndex<libN; libIndex++) {
+				if (this.libraryScriptContentList.get(libIndex) != null) {
+					succeededLibraryPathList.add(this.libraryScriptPathList.get(libIndex));
+					succeededLibraryNameList.add(this.libraryScriptNameList.get(libIndex));
+					succeededLibraryContentList.add(this.libraryScriptContentList.get(libIndex));
+					succeededLibraryLastModList.add(this.libraryScriptLastModList.get(libIndex));
+				}
+			}
+			this.libraryScriptPathList = succeededLibraryPathList;
+			this.libraryScriptNameList = succeededLibraryNameList;
+			this.libraryScriptContentList = succeededLibraryContentList;
+			this.libraryScriptLastModList = succeededLibraryLastModList;
+		}
+
+		// 読み込みに失敗したものが 1 つでもあれば例外を投げる
+		if (!notExistLibraries.isEmpty()) {
+			throw new VnanoException(ErrorType.SCRIPT_FILE_DOES_NOT_EXIST, notExistLibraries);
+		}
+		if (!loadFailedLibraries.isEmpty()) {
+			throw new VnanoException(ErrorType.SCRIPT_FILE_IS_NOT_ACCESSIBLE, loadFailedLibraries, loadFailedCause);
 		}
 	}
 
@@ -432,25 +486,21 @@ public class ScriptLoader {
 	 *   <span class="lang-en">The content of the loaded script file</span>
 	 *   <span class="lang-ja">読み込まれたスクリプトファイルの内容</span>
 	 */
-	private String loadScriptContent(String scriptPath) throws VnanoException {
+	private String loadScriptContent(String scriptPath) throws IOException, VnanoException {
 		// ファイルの存在は上層で確認済みの想定
 
 		List<String> contentLines = null;
-		try {
-			// 先頭行で文字コードが宣言されていれば読む
-			Charset charset = this.getDeclaredCharset(scriptPath);
-			boolean charsetIsDeclared = (charset != null);
 
-			// 文字コードに応じてライブラリの内容を読む
-			if (charsetIsDeclared) {
-				contentLines = Files.readAllLines(Paths.get(scriptPath), charset);
-				contentLines.set(0, ""); // 文字コードが宣言されていた場合、宣言行を消しておく（スクリプトとしては解釈できない）
-			} else {
-				contentLines = Files.readAllLines(Paths.get(scriptPath), Charset.forName(DEFAULT_ENCODING));
-			}
+		// 先頭行で文字コードが宣言されていれば読む
+		Charset charset = this.getDeclaredCharset(scriptPath);
+		boolean charsetIsDeclared = (charset != null);
 
-		} catch (IOException ioe) {
-			throw new VnanoException(ErrorType.SCRIPT_FILE_IS_NOT_ACCESSIBLE, scriptPath, ioe);
+		// 文字コードに応じてライブラリの内容を読む
+		if (charsetIsDeclared) {
+			contentLines = Files.readAllLines(Paths.get(scriptPath), charset);
+			contentLines.set(0, ""); // 文字コードが宣言されていた場合、宣言行を消しておく（スクリプトとしては解釈できない）
+		} else {
+			contentLines = Files.readAllLines(Paths.get(scriptPath), Charset.forName(DEFAULT_ENCODING));
 		}
 
 		// 読み込んだ内容をフィールドに登録

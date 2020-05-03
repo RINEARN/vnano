@@ -296,13 +296,20 @@ public class PluginLoader {
 		URLClassLoader classLoader = new URLClassLoader(new URL[] { pluginDirURL });
 		ConnectorImplementationLoader loader = new ConnectorImplementationLoader(classLoader);
 
+		// 後続の読み込み処理に失敗したプラグインはここに追記していく（即例外を投げると後続プラグインを読み込めないため）
+		String notExistPlugis = "";
+		String initFailedPlugis = "";
+		Throwable initFailedCause = null;
+
 		// プラグインを一個ずつ読んでいく
 		int pluginN = this.pluginFilePathList.size();
 		for (int pluginIndex=0; pluginIndex<pluginN; pluginIndex++) {
 			String pluginPath = this.pluginFilePathList.get(pluginIndex);
 			File pluginFile = new File(pluginPath);
 			if (!pluginFile.exists()) {
-				throw new VnanoException(ErrorType.PLUGIN_FILE_DOES_NOT_EXIST, pluginPath);
+				//throw new VnanoException(ErrorType.PLUGIN_FILE_DOES_NOT_EXIST, pluginPath);
+				notExistPlugis += (!notExistPlugis.isEmpty() ? ", " : "") + pluginFile.getName();
+				continue;
 			}
 
 			// 前回読み込み時から更新日時が変わっていなければ、内容も変わっていないと見なして読み込みスキップ
@@ -316,7 +323,10 @@ public class PluginLoader {
 			try {
 				pluginContainer = loader.load(pluginClassPath);
 			} catch (ConnectorException e) {
-				throw new VnanoException(ErrorType.PLUGIN_INITIALIZATION_FAILED, pluginClassPath, e);
+				//throw new VnanoException(ErrorType.PLUGIN_INITIALIZATION_FAILED, pluginClassPath, e);
+				initFailedPlugis += (!initFailedPlugis.isEmpty() ? ", " : "") + pluginFile.getName();
+				initFailedCause = e;
+				continue;
 			}
 			Object pluginInstance = pluginContainer.getConnectorImplementation();
 			this.pluginInstanceList.set(pluginIndex, pluginInstance);
@@ -324,6 +334,37 @@ public class PluginLoader {
 
 			// 読み込みが正常に完了したら、ファイルの更新日時を控える（次回で不変なら読み込みスキップするため）
 			this.pluginLastModList.set(pluginIndex, pluginFile.lastModified());
+		}
+
+		// 読み込みに失敗したものは pluginInstanceList の要素が null になっているので、それを目印にリストから削除する
+		if (!notExistPlugis.isEmpty() || !notExistPlugis.isEmpty()) {
+			List<String> succeededPluginFilePathList = new ArrayList<String>();
+			List<String> succeededPluginClassPathList = new ArrayList<String>();
+			List<String> succeededPluginNameList = new ArrayList<String>();
+			List<Object> succeededPluginInstanceList = new ArrayList<Object>();
+			List<Long> succeededPluginLastModList = new ArrayList<Long>();
+			for (int pluginIndex=0; pluginIndex<pluginN; pluginIndex++) {
+				if (this.pluginInstanceList.get(pluginIndex) != null) {
+					succeededPluginFilePathList.add(this.pluginFilePathList.get(pluginIndex));
+					succeededPluginClassPathList.add(this.pluginClassPathList.get(pluginIndex));
+					succeededPluginNameList.add(this.pluginNameList.get(pluginIndex));
+					succeededPluginInstanceList.add(this.pluginInstanceList.get(pluginIndex));
+					succeededPluginLastModList.add(this.pluginLastModList.get(pluginIndex));
+				}
+			}
+			this.pluginFilePathList = succeededPluginFilePathList;
+			this.pluginClassPathList = succeededPluginClassPathList;
+			this.pluginNameList = succeededPluginNameList;
+			this.pluginInstanceList = succeededPluginInstanceList;
+			this.pluginLastModList = succeededPluginLastModList;
+		}
+
+		// 読み込みに失敗したものが 1 つでもあれば例外を投げる
+		if (!notExistPlugis.isEmpty()) {
+			throw new VnanoException(ErrorType.PLUGIN_FILE_DOES_NOT_EXIST, notExistPlugis);
+		}
+		if (!notExistPlugis.isEmpty()) {
+			throw new VnanoException(ErrorType.PLUGIN_INITIALIZATION_FAILED, notExistPlugis, initFailedCause);
 		}
 	}
 
