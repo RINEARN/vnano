@@ -67,7 +67,7 @@ public class ProcessorTest {
 
 		// デフォルトのオプションマップを用意
 		this.optionMap = new LinkedHashMap<String, Object>();
-		this.optionMap = OptionValue.normalizeValuesOf(this.optionMap);
+		this.optionMap = OptionValue.normalizeValuesOf(this.optionMap, LANG_SPEC);
 	}
 
 	@After

@@ -1,0 +1,22 @@
+# For loading plug-ins, write relative-paths (from this file) of them in this file.
+# Plug-ins listed in this file will be loaded automatically on the command-line mode by default.
+# If you are using VnanoScriptEngine in your application, specify the path of this list file 
+# by passing to "put" method, with the key "___VNANO_PLUGIN_LIST_FILE".
+# As following examples, describe 1-path per line.
+# Also, encoding of this file should be UTF-8.
+
+# プラグインを読み込むには、以下にこのファイルから見たプラグインの相対パスを記述してください。
+# コマンドラインモードでは標準で、このファイルに記載したプラグインが自動で読み込まれます。
+# アプリケーション内で VnanoScriptEngine を生成して利用する場合は、put メソッドに 
+# "___VNANO_PLUGIN_LIST_FILE" キーを指定して、このリストファイルのパスを設定してください。
+# このファイルには、以下の例のように、1行につき1プラグインファイルのパスを記述してください。
+# なお、このファイルの文字コードはUTF-8で保存してください。
+
+# ----------------------------------------------------------------------------------------------------
+
+# Examples are as follows. "#" is to skip reading of the line, so don't append it for actual settings.
+# 以下は記載例です。行頭の「#」は行を読み飛ばすための記号なので、実際の設定では付加しないでください。
+
+#ExamplePlugin1.class
+#ExamplePlugin2.class
+#ExamplePlugin3.class

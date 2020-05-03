@@ -65,26 +65,6 @@ public class OptionKey {
 
 
 	/**
-	 * <span class="lang-en">Code of library scripts spacified by options</span>
-	 * <span class="lang-ja">ライブラリスクリプトのコードです</span>
-	 * .
-	 * <span class="lang-en">The value of this option is "String[]" type.</span>
-	 * <span class="lang-ja">このオプションの値は "String[]" 型です.</span>
-	 */
-	public static final String LIBRARY_SCRIPTS = "LIBRARY_SCRIPTS";
-
-
-	/**
-	 * <span class="lang-en">Names of library scripts spacified by options</span>
-	 * <span class="lang-ja">ライブラリスクリプトの名前です</span>
-	 * .
-	 * <span class="lang-en">The value of this option is "String[]" type.</span>
-	 * <span class="lang-ja">このオプションの値は "String[]" 型です.</span>
-	 */
-	public static final String LIBRARY_SCRIPT_NAMES = "LIBRARY_SCRIPT_NAMES";
-
-
-	/**
 	 * <span class="lang-en">
 	 * An option to enable/disable {@link org.vcssl.nano.vm.accelerator.Accelerator Accelerator},
 	 * which is the high-speed virtual processor implementation in the VM

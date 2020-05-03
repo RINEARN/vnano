@@ -20,7 +20,6 @@ import org.vcssl.nano.spec.LanguageSpecContainer;
 import org.vcssl.nano.spec.LiteralSyntax;
 import org.vcssl.nano.spec.MetaInformationSyntax;
 import org.vcssl.nano.spec.OperationCode;
-import org.vcssl.nano.spec.OptionValue;
 import org.vcssl.nano.spec.ScriptWord;
 
 //Documentation:  https://www.vcssl.org/en-us/dev/code/main-jimpl/api/org/vcssl/nano/compiler/CodeGenerator.html
@@ -2492,7 +2491,7 @@ public class CodeGenerator {
 	private String generateMetaDirectiveCode(AstNode node) {
 
 		// ファイル名はオプションマップの正規化時に既にエスケープされているはずだが、念のため出力直前にもエスケープしておく
-		String escapedFileName = OptionValue.escapeScriptName(node.getFileName());
+		String escapedFileName = IDENTIFIER_SYNTAX.normalizeScriptIdentifier(node.getFileName());
 
 		StringBuilder codeBuilder = new StringBuilder();
 

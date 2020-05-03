@@ -11,6 +11,7 @@ import java.util.Map;
 
 import org.vcssl.nano.compiler.Compiler;
 import org.vcssl.nano.interconnect.Interconnect;
+import org.vcssl.nano.spec.ErrorType;
 import org.vcssl.nano.spec.LanguageSpecContainer;
 import org.vcssl.nano.spec.OptionKey;
 import org.vcssl.nano.spec.OptionValue;
@@ -69,6 +70,14 @@ public class VnanoEngine {
 
 
 	/**
+	 * <span class="lang-en">Stores contents of library scripts, with their names as keys</span>
+	 * <span class="lang-ja">ライブラリスクリプトの内容を, ライブラリ名をキーとして保持します</span>
+	 * .
+	 */
+	Map<String, String> libraryNameContentMap = null;
+
+
+	/**
 	 * <span class="lang-en">Create a Vnano Engine with default settings</span>
 	 * <span class="lang-ja">標準設定のVnanoエンジンを生成します</span>
 	 * .
@@ -87,11 +96,12 @@ public class VnanoEngine {
 	 */
 	public VnanoEngine(LanguageSpecContainer langSpec) {
 		this.LANG_SPEC = langSpec;
+		this.libraryNameContentMap = new LinkedHashMap<String, String>();
 
 		// Create an option map and set default values.
 		// オプションマップを生成し, 必須項目をデフォルト値で補完
 		this.optionMap = new LinkedHashMap<String, Object>();
-		optionMap = OptionValue.normalizeValuesOf(optionMap);
+		optionMap = OptionValue.normalizeValuesOf(optionMap, langSpec);
 
 		// Create a blank interconnect nothing is binded to.
 		// 何もバインディングされていない, 空のインターコネクトを生成
@@ -130,20 +140,19 @@ public class VnanoEngine {
 			// 全プラグインの初期化処理などを行い、インターコネクトをスクリプト実行可能な状態に移行
 			interconnect.activate();
 
-			// Get some option items from the option map (Types of values were already checked).
-			// オプションマップからいくつかの設定値を取り出す（値の型は既に検査済み）
-			String evalScriptName = (String)this.optionMap.get(OptionKey.EVAL_SCRIPT_NAME);
-			String[] libraryScriptNames = (String[])this.optionMap.get(OptionKey.LIBRARY_SCRIPT_NAMES);
-			String[] libraryScripts = (String[])this.optionMap.get(OptionKey.LIBRARY_SCRIPTS);
-
 			// Contain an execution-target script and library scripts into an array.
 			// 実行対象スクリプトと, ライブスクリプト（複数）を1つの配列にまとめる
-			String[] scripts = new String[libraryScripts.length  + 1];
-			String[] names   = new String[libraryScriptNames.length + 1];
-			System.arraycopy(libraryScripts,  0, scripts, 0, libraryScripts.length );
-			System.arraycopy(libraryScriptNames, 0, names,   0, libraryScriptNames.length);
-			scripts[libraryScripts.length] = script;
-			names[libraryScriptNames.length ] = evalScriptName;
+			int libN = this.libraryNameContentMap.size();
+			String[] scripts = new String[libN  + 1];
+			String[] names   = new String[libN + 1];
+			int libIndex = 0;
+			for (Map.Entry<String, String> nameContentPair: this.libraryNameContentMap.entrySet()) {
+				names[libIndex] = nameContentPair.getKey();
+				scripts[libIndex] = nameContentPair.getValue();
+				libIndex++;
+			}
+			names[libN] = (String)this.optionMap.get(OptionKey.EVAL_SCRIPT_NAME);
+			scripts[libN] = script;
 
 			// Translate scripts to a VRIL code (intermediate assembly code) by a compiler.
 			// コンパイラでスクリプトコードからVRILコード（中間アセンブリコード）に変換
@@ -245,6 +254,17 @@ public class VnanoEngine {
 	}
 
 
+	/*
+	// ファイル読み込み系の処理は最表層の VnanoScriptEngine 側で実装し、
+	// この層や下層ではファイル含む一切のシステムリソースへの新規アクセスは行わない
+	//（使用するのはインスタンスとして直接渡されたものに限る）
+	// このクラスを直接用いつつ、
+	// ファイルからライブラリを読み込みたい場合は、ScriptLoader で読み込んで setLibraryScripts へ渡す
+	public void loadPlugins(String[] paths) {
+	}
+	*/
+
+
 	/**
 	 * <span class="lang-en">Disconnects all plug-ins</span>
 	 * <span class="lang-ja">全てのプラグインの接続を解除します</span>
@@ -259,6 +279,44 @@ public class VnanoEngine {
 	 */
 	public void disconnectAllPlugins() throws VnanoException {
 		this.interconnect.disconnectAllPlugins();
+	}
+
+
+	/**
+	 * <span class="lang-en">Add a library script which will be "include"-ed at the head of a executed script</span>
+	 * <span class="lang-ja">実行対象スクリプトの先頭に "include" される, ライブラリスクリプトを追加します</span>
+	 * .
+	 * @param libraryScriptName
+	 *   <span class="lang-en">Names of the library script (displayed in error messages)</span>
+	 *   <span class="lang-ja">ライブラリスクリプトの名称 (エラーメッセージ等で使用されます)</span>
+	 *
+	 * @param libraryScriptContents
+	 *   <span class="lang-en">Contents (code) of the library script</span>
+	 *   <span class="lang-ja">ライブラリスクリプトのコード内容</span>
+	 */
+	public void includeLibraryScript(String libraryScriptName, String libraryScriptContent) throws VnanoException {
+		if (this.libraryNameContentMap.containsKey(libraryScriptName)) {
+			throw new VnanoException(ErrorType.LIBRARY_IS_ALREADY_INCLUDED, libraryScriptName);
+		}
+		this.libraryNameContentMap.put(libraryScriptName, libraryScriptContent);
+	}
+
+
+	/**
+	 * <span class="lang-en">Uninclude all library scripts</span>
+	 * <span class="lang-ja">全てのライブラリスクリプトの include 登録を解除します</span>
+	 * .
+	 * @throws VnanoException
+	 *   <span class="lang-en">
+	 *   Will not be thrown on the current implementation,
+	 *   but it requires to be "catch"-ed for keeping compatibility in future.
+	 *   </span>
+	 *   <span class="lang-ja">
+	 *   現状ではスローされませんが, 将来的な互換性維持のためのために catch する必要があります.
+	 *   </span>
+	 */
+	public void unincludeAllLibraryScripts() throws VnanoException {
+		this.libraryNameContentMap = new LinkedHashMap<String, String>();
 	}
 
 
@@ -290,7 +348,7 @@ public class VnanoEngine {
 
 		// Supplement some option items by default values, and store the map to the field of this class.
 		// 必須項目をデフォルト値で補完した上で、このクラスのフィールドに設定
-		this.optionMap = OptionValue.normalizeValuesOf(optionMap);
+		this.optionMap = OptionValue.normalizeValuesOf(optionMap, LANG_SPEC);
 
 		// Check the content of option settings.
 		// オプション設定の内容を検査

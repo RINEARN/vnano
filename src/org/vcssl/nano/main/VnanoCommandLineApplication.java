@@ -8,13 +8,9 @@ package org.vcssl.nano.main;
 import java.util.List;
 import java.util.Locale;
 import java.io.File;
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -31,6 +27,8 @@ import org.vcssl.nano.VnanoException;
 import org.vcssl.nano.combinedtest.CombinedTestException;
 import org.vcssl.nano.combinedtest.CombinedTestExecutor;
 import org.vcssl.nano.interconnect.Interconnect;
+import org.vcssl.nano.interconnect.PluginLoader;
+import org.vcssl.nano.interconnect.ScriptLoader;
 import org.vcssl.nano.spec.SpecialBindingKey;
 import org.vcssl.nano.spec.EngineInformation;
 import org.vcssl.nano.spec.ErrorMessage;
@@ -48,6 +46,12 @@ public final class VnanoCommandLineApplication {
 	 * エラーメッセージの表示言語指定などに使用されるロケールを保持します。
 	 */
 	private Locale locale = Locale.getDefault();
+	private static final String DEFAULT_ENCODING = "UTF-8";
+	private static final String DEFAULT_LIBRARY_LIST = "lib/VnanoLibraryList.txt";
+	private static final String DEFAULT_PLUGIN_LIST = "plugin/VnanoPluginList.txt";
+	@SuppressWarnings("unused")
+	private static final String DEFAULT_LIBRARY_DIR = "lib/";
+	private static final String DEFAULT_PLUGIN_DIR = "plugin/";
 
 	private static final String EXTENSION_VNANO = ".vnano";
 	private static final String EXTENSION_VRIL = ".vril";
@@ -63,6 +67,8 @@ public final class VnanoCommandLineApplication {
 	private static final String OPTION_NAME_ENCODING = "encoding";
 	private static final String OPTION_NAME_PLUGIN_DIR = "pluginDir";
 	private static final String OPTION_NAME_PLUGIN = "plugin";
+	private static final String OPTION_NAME_PLUGIN_LIST = "pluginList";
+	private static final String OPTION_NAME_LIBRARY_LIST = "libraryList";
 	private static final String OPTION_NAME_TEST = "test";
 	private static final String OPTION_NAME_DEFAULT = OPTION_NAME_FILE;
 
@@ -77,8 +83,6 @@ public final class VnanoCommandLineApplication {
 	private static final String DUMP_TARGET_ACCELERATOR_STATE = "acceleratorState";
 	private static final String DUMP_TARGET_ALL = "all";
 	private static final String DUMP_TARGET_DEFAULT = DUMP_TARGET_ALL;
-
-	private static final String DEFAULT_PLUGIN_DIR = ".";
 
 	// コマンドラインでの--dumpオプションの値を、スクリプトエンジンのオプションマップ用の値に変換するマップ
 	private static final Map<String, String> DUMP_TARGET_ARGVALUE_OPTVALUE_MAP = new HashMap<String, String>();
@@ -98,7 +102,6 @@ public final class VnanoCommandLineApplication {
 	private HashMap<String, Object> optionMap = new HashMap<String, Object>();
 	private List<String> pluginDirList = new ArrayList<String>();
 	private List<Object> pluginList = new ArrayList<Object>();
-	private String encoding = null;
 	private boolean combinedTestRequired = false;
 
 	// スクリプトからアクセスするメソッドを提供するクラス
@@ -248,15 +251,6 @@ public final class VnanoCommandLineApplication {
 		System.out.println("");
 		System.out.println("");
 
-		System.out.println("  --pluginDir <pluginDirectoryPath>");
-		System.out.println("");
-		System.out.println("      Specify the path of the directory in which plug-ins are.");
-		System.out.println("      Multiple paths can be specified by separating with \":\" or \";\"");
-		System.out.println("      (depends on the environment).");
-		System.out.println("      The default value is \".\".");
-		System.out.println("");
-		System.out.println("");
-
 		System.out.println("  --plugin <pluginPath>");
 		System.out.println("");
 		System.out.println("      Specify the path of the plug-in to be connected.");
@@ -271,7 +265,32 @@ public final class VnanoCommandLineApplication {
 		System.out.println("      java -jar Vnano.jar Example.vnano --plugin examplepackage.ExamplePlugin");
 		System.out.println("      java -jar Vnano.jar Example.vnano --plugin \"Plugin1;Plugin2;Plugin3\"");
 		System.out.println("      java -jar Vnano.jar Example.vnano --plugin \"Plugin1:Plugin2:Plugin3\"");
-		System.out.println("      java -jar Vnano.jar Example.vnano --pluginDir \"./plugin/\" --plugin \"ExamplePlugin\"");
+		System.out.println("      java -jar Vnano.jar Example.vnano --pluginDir \"./exampleDir/\" --plugin \"ExamplePlugin\"");
+		System.out.println("");
+		System.out.println("");
+
+		System.out.println("  --pluginDir <pluginDirectoryPath>");
+		System.out.println("");
+		System.out.println("      Specify the path of the directory in which plug-ins specified by --plugin option are.");
+		System.out.println("      Multiple paths can be specified by separating with \":\" or \";\"");
+		System.out.println("      (depends on the environment).");
+		System.out.println("      The default value is \"" + DEFAULT_PLUGIN_DIR + "\".");
+		System.out.println("");
+		System.out.println("");
+
+		System.out.println("  --pluginList <pluginListFilePath");
+		System.out.println("");
+		System.out.println("      Specify the path of the plugin-list file in which file paths of plug-ins ");
+		System.out.println("      to be loaded are described.");
+		System.out.println("      The default value is \""+ DEFAULT_PLUGIN_LIST + "\".");
+		System.out.println("");
+		System.out.println("");
+
+		System.out.println("  --libList <libraryListFilePath");
+		System.out.println("");
+		System.out.println("      Specify the path of the library-list file in which file paths of library-scripts ");
+		System.out.println("      to be loaded are described.");
+		System.out.println("      The default value is \""+ DEFAULT_LIBRARY_LIST + "\".");
 		System.out.println("");
 		System.out.println("");
 
@@ -365,13 +384,21 @@ public final class VnanoCommandLineApplication {
 
 		// スクリプトファイルが指定されていれば実行する (指定が必須でない場合にも、指定されていれば実行)
 		if (inputFilePath != null) {
-			try {
-				this.executeFile(inputFilePath);
 
-			// スクリプト読み込みや実行でエラーが生じた場合は、内容を表示した上でステータスコード1で実行終了
-			} catch (IOException ioe) {
-				System.err.println("File could not be opened: " + inputFilePath);
-				System.exit(1);
+			// 文字コードとライブラリ/プラグイン指定を取得
+			String encoding = optionNameValueMap.containsKey(OPTION_NAME_ENCODING)
+					? optionNameValueMap.get(OPTION_NAME_ENCODING) : DEFAULT_ENCODING;
+
+			String libraryListPath = optionNameValueMap.containsKey(OPTION_NAME_LIBRARY_LIST)
+					? optionNameValueMap.get(OPTION_NAME_LIBRARY_LIST) : DEFAULT_LIBRARY_LIST;
+
+			String pluginListPath = optionNameValueMap.containsKey(OPTION_NAME_PLUGIN_LIST)
+					? optionNameValueMap.get(OPTION_NAME_PLUGIN_LIST) : DEFAULT_PLUGIN_LIST;
+
+			// 実行
+			try {
+				this.executeFile(inputFilePath, libraryListPath, pluginListPath, encoding);
+
 			} catch (VnanoException e) {
 				this.dumpException(e);
 				if (!this.optionMap.containsKey(OptionKey.DUMPER_ENABLED)) {
@@ -462,7 +489,7 @@ public final class VnanoCommandLineApplication {
 
 			// --encoding オプションの場合
 			case OPTION_NAME_ENCODING : {
-				this.setEncoding(optionValue);
+				// スクリプト実行時に参照されるため、ここでは何もしない
 				return true;
 			}
 
@@ -603,20 +630,14 @@ public final class VnanoCommandLineApplication {
 		return optionNameValueMap;
 	}
 
-	private void setEncoding(String encoding) {
-		if (encoding == null) {
-			System.err.println("No encoding is specified.");
-		}
-		this.encoding = encoding;
-	}
 
-
-	private VnanoEngine createInitializedVnanoEngine(List<Object> pluginList) {
+	private VnanoEngine createInitializedVnanoEngine(PluginLoader pluginLoader) {
 
 		// Vnanoのスクリプトエンジンを生成
 		VnanoEngine engine = new VnanoEngine();
 
-		// メソッド・フィールドを外部関数・変数としてスクリプトエンジンに接続
+		// デフォルトプラグインを外部関数・変数としてスクリプトエンジンに接続
+		// -> ./plugin/ 以下に独立クラスとして切り出して、後述の処理で接続するように統一する？ 要検討
 		try {
 			ScriptIO ioInstance = new ScriptIO();
 			engine.connectPlugin(SpecialBindingKey.AUTO_KEY, new Object[]{ ScriptIO.class.getMethod("output",long.class    ), ioInstance } );
@@ -635,8 +656,27 @@ public final class VnanoCommandLineApplication {
 			return null;
 		}
 
+		// プラグインローダに登録されているプラグインを読み込み、エンジンに接続
+		try {
+			pluginLoader.load();
+			if (pluginLoader.hasPlugins()) {
+				String[] pluginNames = pluginLoader.getPluginNames();
+				Object[] pluginInstances = pluginLoader.getPluginInstances();
+				int pluginN = pluginNames.length;
+				for (int pluginIndex=0; pluginIndex<pluginN; pluginIndex++) {
+					engine.connectPlugin(pluginNames[pluginIndex], pluginInstances[pluginIndex]);
+				}
+			}
+		} catch (VnanoException e) {
+			System.err.println("Plug-in load failed.");
+			e.printStackTrace();
+		}
+
+
+		/*
 		// オプションで指定されたプラグイン（読み込み済み）を接続
-		for (Object plugin: pluginList) {
+		// -> リストから読み込むようにしたため、この機能は廃止
+		for (Object plugin: this.pluginList) {
 			try {
 				engine.connectPlugin(SpecialBindingKey.AUTO_KEY, plugin);
 			} catch (VnanoException e) {
@@ -645,16 +685,18 @@ public final class VnanoCommandLineApplication {
 				return null;
 			}
 		}
+		*/
 
 		return engine;
 	}
 
-	private Interconnect createInitializedInterconnect() {
+	private Interconnect createInitializedInterconnect(PluginLoader pluginLoader) {
 
 		// 何も接続されていない、空のインターコネクトを生成
 		Interconnect interconnect = new Interconnect(LANG_SPEC);
 
 		// メソッド・フィールドを外部関数・変数としてインターコネクトに接続
+		// -> ./plugin/ 以下に独立クラスとして切り出して、後述の処理で接続するように統一する？ 要検討
 		try {
 			ScriptIO ioInstance = new ScriptIO();
 			interconnect.connectPlugin("output(int)",    new Object[]{ ScriptIO.class.getMethod("output",long.class    ), ioInstance } );
@@ -671,31 +713,30 @@ public final class VnanoCommandLineApplication {
 			System.err.println("Method/field could not be connected.");
 			e.printStackTrace();
 		}
-		return interconnect;
-	}
 
-	private String loadCode(String inputFilePath) throws IOException {
-		String code = "";
-		List<String> lines;
-		if (this.encoding == null) {
-			lines = Files.readAllLines(Paths.get(inputFilePath));
-		} else {
-			lines = Files.readAllLines(Paths.get(inputFilePath), Charset.forName(this.encoding));
+		// プラグインローダに登録されているプラグインを読み込み、インターコネクトに接続
+		try {
+			pluginLoader.load();
+			if (pluginLoader.hasPlugins()) {
+				String[] pluginNames = pluginLoader.getPluginNames();
+				Object[] pluginInstances = pluginLoader.getPluginInstances();
+				int pluginN = pluginNames.length;
+				for (int pluginIndex=0; pluginIndex<pluginN; pluginIndex++) {
+					interconnect.connectPlugin(pluginNames[pluginIndex], pluginInstances[pluginIndex]);
+				}
+			}
+		} catch (VnanoException e) {
+			System.err.println("Plug-in load failed.");
+			e.printStackTrace();
 		}
-		StringBuilder codeBuilder = new StringBuilder();
-		String eol = System.getProperty("line.separator");
-		for (String line: lines) {
-			codeBuilder.append(line);
-			codeBuilder.append(eol);
-		}
-		code = codeBuilder.toString();
-		return code;
+
+		return interconnect;
 	}
 
 	private boolean executeCombinedTest() {
 
 		// メソッド接続済みのスクリプトエンジンを生成して取得
-		VnanoEngine engine = this.createInitializedVnanoEngine(this.pluginList);
+		VnanoEngine engine = this.createInitializedVnanoEngine( new PluginLoader(DEFAULT_ENCODING, LANG_SPEC) );
 
 		// オプションマップをスクリプトエンジンに設定
 		try {
@@ -724,26 +765,50 @@ public final class VnanoCommandLineApplication {
 	}
 
 
-	private void executeFile(String inputFilePath) throws VnanoException, IOException {
+	private void executeFile(
+			String inputFilePath, String libraryListFilePath, String pluginListFilePath, String defaultEncoding)
+					throws VnanoException {
+
+		// ライブラリの読み込み
+		ScriptLoader scriptLoader = new ScriptLoader(defaultEncoding, LANG_SPEC);
+		scriptLoader.setMainScriptPath(inputFilePath);
+		if (libraryListFilePath != null) {
+			scriptLoader.setLibraryScriptListPath(libraryListFilePath);
+		}
+		scriptLoader.load();
+
+		// プラグインの読み込み
+		PluginLoader pluginLoader = new PluginLoader(defaultEncoding, LANG_SPEC);
+		if (pluginListFilePath != null) {
+			pluginLoader.setPluginListPath(pluginListFilePath);
+		}
+		pluginLoader.load();
+
+		// 実行
 		if (inputFilePath.endsWith(EXTENSION_VNANO)) {
-			this.executeVnanoScriptFile(inputFilePath);
+			this.executeVnanoScriptFile(scriptLoader, pluginLoader);
 		} else if (inputFilePath.endsWith(EXTENSION_VRIL)) {
-			this.executeVrilCodeFile(inputFilePath);
+			this.executeVrilCodeFile(scriptLoader, pluginLoader);
 		} else {
 			System.err.println("Unknown file type (extension): " + inputFilePath);
 		}
 	}
 
-	public void executeVnanoScriptFile(String inputFilePath) throws VnanoException, IOException {
+	public void executeVnanoScriptFile(ScriptLoader scriptLoader, PluginLoader pluginLoader) throws VnanoException {
 
-		// ファイルからVRILコードを全部読み込む
-		String scriptCode = this.loadCode(inputFilePath);
+		// プラグイン接続済みのスクリプトエンジンを生成
+		VnanoEngine engine = this.createInitializedVnanoEngine(pluginLoader);
 
-		// メソッド接続済みのスクリプトエンジンを生成
-		VnanoEngine engine = this.createInitializedVnanoEngine(this.pluginList);
+		// スクリプトエンジンにライブラリを include 登録
+		String[] libNames = scriptLoader.getLibraryScriptNames();
+		String[] libContents = scriptLoader.getLibraryScriptContents();
+		int libN = libNames.length;
+		for (int libIndex=0; libIndex<libN; libIndex++) {
+			engine.includeLibraryScript(libNames[libIndex], libContents[libIndex]);
+		}
 
 		// オプションマップにスクリプト名を設定
-		this.optionMap.put(OptionKey.EVAL_SCRIPT_NAME, inputFilePath);
+		this.optionMap.put(OptionKey.EVAL_SCRIPT_NAME, scriptLoader.getMainScriptName());
 
 		// オプションマップをスクリプトエンジンに設定
 		try {
@@ -753,26 +818,23 @@ public final class VnanoCommandLineApplication {
 		}
 
 		// スクリプトを実行
-		engine.executeScript(scriptCode);
+		engine.executeScript(scriptLoader.getMainScriptContent());
 	}
 
-	public void executeVrilCodeFile(String inputFilePath) throws VnanoException, IOException {
+	public void executeVrilCodeFile(ScriptLoader scriptLoader, PluginLoader pluginLoader) throws VnanoException {
 
-		// ファイルから仮想アセンブリコード（VRILコード）を全部読み込む
-		String assemblyCode = this.loadCode(inputFilePath);
-
-		// メソッド接続済みのインターコネクトを生成して取得
-		Interconnect interconnect = this.createInitializedInterconnect();
+		// プラグイン接続済みのインターコネクトを生成して取得
+		Interconnect interconnect = this.createInitializedInterconnect(pluginLoader);
 		if (interconnect == null) {
 			return;
 		}
 
 		// オプションマップにスクリプト名を設定
-		this.optionMap.put(OptionKey.EVAL_SCRIPT_NAME, inputFilePath);
+		this.optionMap.put(OptionKey.EVAL_SCRIPT_NAME, scriptLoader.getMainScriptContent());
 
 		// プロセス仮想マシンを生成し、VRILコードを渡して実行
 		VirtualMachine vm = new VirtualMachine(LANG_SPEC);
-		vm.executeAssemblyCode(assemblyCode, interconnect, this.optionMap);
+		vm.executeAssemblyCode(scriptLoader.getMainScriptContent(), interconnect, this.optionMap);
 	}
 
 	public void dumpException(Exception e) {

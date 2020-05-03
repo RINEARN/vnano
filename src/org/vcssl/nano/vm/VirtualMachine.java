@@ -122,7 +122,7 @@ public class VirtualMachine {
 			throws VnanoException {
 
 		// VRIL実行用途でアプリケーションから直接呼ばれる事も考えられるため、オプション内容の正規化を再度行っておく
-		optionMap = OptionValue.normalizeValuesOf(optionMap);
+		optionMap = OptionValue.normalizeValuesOf(optionMap, LANG_SPEC);
 
 		// オプションマップから指定内容を取得
 		boolean acceleratorEnabled = (Boolean)optionMap.get(OptionKey.ACCELERATOR_ENABLED); // 高速版実装を使用するかどうか

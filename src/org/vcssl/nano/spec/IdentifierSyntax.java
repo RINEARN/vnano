@@ -265,4 +265,35 @@ public class IdentifierSyntax {
 		return ASSEMBLY_WORD.identifierOperandPrefix + nameSpacePrefix + variableName;
 	}
 
+	// スクリプト名の中で、意味のある記号などを置き換えて正規化する（中間コードのメタ情報などに記載されるため）
+	public String normalizeScriptIdentifier(String scriptName) {
+
+		String normalizedName = scriptName;
+
+		// ※ 現時点の仕様では、ドットはファイル名や名前空間に含める事が可能な記号として許可する
+
+		// エスケープする箇所をこの文字列で置き換える
+		String escapedWord = "_";
+
+		// 文字列リテラルの範囲を崩さないようにダブルクォーテーションをエスケープ
+		normalizedName = normalizedName.replaceAll("\"", escapedWord);
+
+		// メタ情報の記法「key1=value1,key2=value2,...」を崩さないように「,」と「=」をエスケープ
+		normalizedName = normalizedName.replaceAll("=", escapedWord);
+		normalizedName = normalizedName.replaceAll(",", escapedWord);
+
+		// VRILの処理単位の区切りになるセミコロンをエスケープ
+		normalizedName = normalizedName.replaceAll(";", escapedWord);
+
+		// 空白/改行は問題にならないものの、VRILコードのメタ情報が改行されたりすると読みづらいのでエスケープ
+		normalizedName = normalizedName.replaceAll(" ", escapedWord);
+		normalizedName = normalizedName.replaceAll("\t", escapedWord);
+		normalizedName = normalizedName.replaceAll("\r", escapedWord);
+		normalizedName = normalizedName.replaceAll("\n", escapedWord);
+
+		// 階層区切りのバックスラッシュはスラッシュに統一
+		normalizedName = normalizedName.replace("\\", "/");
+
+		return normalizedName;
+	}
 }

@@ -127,7 +127,7 @@ public class Compiler {
 		}
 
 		// VRIL生成用途でアプリケーションから直接呼ばれる事も考えられるため、オプション内容の正規化を再度行っておく
-		optionMap = OptionValue.normalizeValuesOf(optionMap);
+		optionMap = OptionValue.normalizeValuesOf(optionMap, LANG_SPEC);
 
 		// スクリプトコードの枚数を取得
 		int scriptLength = scripts.length;

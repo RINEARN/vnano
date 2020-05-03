@@ -34,7 +34,8 @@ package org.vcssl.nano.spec;
  * @author RINEARN (Fumihiro Matsui)
  */
 public class SpecialBindingValue {
-
-	public static final String COMMAND_DISCONNECT = "DISCONNECT";
-
+	public static final String COMMAND_REMOVE_PLUGIN = "REMOVE_PLUGIN";
+	public static final String COMMAND_REMOVE_LIBRARY = "REMOVE_LIBRARY";
+	public static final String COMMAND_RELOAD_PLUGIN = "RELOAD_PLUGIN";
+	public static final String COMMAND_RELOAD_LIBRARY = "RELOAD_LIBRARY";
 }
