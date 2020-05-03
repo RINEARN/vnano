@@ -60,6 +60,8 @@ org/vcssl/nano/interconnect/Interconnect.java
 org/vcssl/nano/interconnect/InternalFunction.java
 org/vcssl/nano/interconnect/InternalVariable.java
 org/vcssl/nano/interconnect/package-info.java
+org/vcssl/nano/interconnect/PluginLoader.java
+org/vcssl/nano/interconnect/ScriptLoader.java
 org/vcssl/nano/interconnect/VariableAliasAdapter.java
 org/vcssl/nano/interconnect/VariableTable.java
 org/vcssl/nano/interconnect/Xfci1ToFunctionAdapter.java
