@@ -9,6 +9,8 @@ import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
 
+import org.vcssl.connect.ConnectorPermissionName;
+import org.vcssl.connect.ConnectorPermissionValue;
 import org.vcssl.nano.compiler.Compiler;
 import org.vcssl.nano.interconnect.EngineConnector;
 import org.vcssl.nano.interconnect.Interconnect;
@@ -63,11 +65,27 @@ public class VnanoEngine {
 
 
 	/**
+	 * <span class="lang-en">A map to store all names and values of permission items</span>
+	 * <span class="lang-ja">全てのパーミッション項目の名称と値を保持するマップです</span>
+	 * .
+	 */
+	private Map<String, String> permissionMap = null;
+
+
+	/**
 	 * <span class="lang-en">An object to mediate information/connections between components, named as "interconnect"</span>
 	 * <span class="lang-ja">処理系内の各部で共有する情報や接続を仲介するオブジェクト（インターコネクト）です</span>
 	 * .
 	 */
 	Interconnect interconnect = null;
+
+
+	/*
+	 * <span class="lang-en">A connector to access information of the engine from plug-ins</span>
+	 * <span class="lang-ja">プラグインからエンジン側の情報（オプション含む）にアクセスするためのコネクタです</span>
+	 * .
+	 */
+	EngineConnector engineConnector = null;
 
 
 	/**
@@ -102,7 +120,12 @@ public class VnanoEngine {
 		// Create an option map and set default values.
 		// オプションマップを生成し, 必須項目をデフォルト値で補完
 		this.optionMap = new LinkedHashMap<String, Object>();
-		optionMap = OptionValue.normalizeValuesOf(optionMap, langSpec);
+		this.optionMap = OptionValue.normalizeValuesOf(optionMap, langSpec);
+
+		// Create a permission map and set default values (all values of permission items are regarded to "ASK").
+		// パーミッションマップを生成し, 全パーミッション項目の値が "ASK" と見なされるデフォルト挙動で初期化
+		this.permissionMap = new LinkedHashMap<String, String>();
+		this.permissionMap.put(ConnectorPermissionName.ALL, ConnectorPermissionValue.ASK);
 
 		// Create a blank interconnect nothing is binded to.
 		// 何もバインディングされていない, 空のインターコネクトを生成
@@ -110,8 +133,8 @@ public class VnanoEngine {
 
 		// Create a connector to access information of the engine from plug-ins, and set it to the interconnect.
 		// プラグインからエンジン側の情報（オプション含む）にアクセスするためのコネクタを生成し, インターコネクトに設定
-		EngineConnector engineConnector = new EngineConnector(this.optionMap);
-		this.interconnect.setEngineConnector(engineConnector);
+		this.engineConnector = new EngineConnector();
+		this.interconnect.setEngineConnector(this.engineConnector);
 	}
 
 
@@ -139,7 +162,10 @@ public class VnanoEngine {
 	public Object executeScript(String script) throws VnanoException {
 		try {
 			// 全プラグインの初期化処理などを行い、インターコネクトをスクリプト実行可能な状態に移行
-			interconnect.activate();
+			this.engineConnector.setOptionMap(this.optionMap);
+			this.engineConnector.setPermissionMap(this.permissionMap);
+			this.engineConnector.activate();
+			this.interconnect.activate();
 
 			// Contain an execution-target script and library scripts into an array.
 			// 実行対象スクリプトと, ライブスクリプト（複数）を1つの配列にまとめる
@@ -166,7 +192,8 @@ public class VnanoEngine {
 			Object evalValue = vm.executeAssemblyCode(assemblyCode, this.interconnect, this.optionMap);
 
 			// 全プラグインの終了時処理などを行い、インターコネクトを待機状態に移行
-			interconnect.deactivate();
+			this.interconnect.deactivate();
+			this.engineConnector.deactivate();
 
 			return evalValue;
 
@@ -322,8 +349,12 @@ public class VnanoEngine {
 
 
 	/**
-	 * <span class="lang-en">Sets options, by a Map (option map) storing names and values of options you want to set</span>
-	 * <span class="lang-ja">オプションの名前と値を格納するマップ（オプションマップ）によって, オプションを設定します</span>
+	 * <span class="lang-en">
+	 * Sets options, by a Map (option map) storing names and values of options you want to set
+	 * </span>
+	 * <span class="lang-ja">
+	 * オプションの名前と値を格納するマップ（オプションマップ）によって, オプションを設定します
+	 * </span>
 	 * .
 	 * <span class="lang-en">
 	 * Type of the option map is Map<String,Object>, and its keys represents option names.
@@ -355,10 +386,9 @@ public class VnanoEngine {
 		// オプション設定の内容を検査
 		OptionValue.checkValuesOf(this.optionMap);
 
-		// Create a connector to access information of the engine from plug-ins, and set it to the interconnect.
-		// プラグインからエンジン側の情報（オプション含む）にアクセスするためのコネクタを生成し, インターコネクトに設定
-		EngineConnector engineConnector = new EngineConnector(this.optionMap);
-		this.interconnect.setEngineConnector(engineConnector);
+		// Set options to the engine connector for accessing from plug-ins.
+		// プラグインからも参照可能なように, エンジンコネクタにも設定
+		this.engineConnector.setOptionMap(this.optionMap);
 	}
 
 
@@ -386,4 +416,63 @@ public class VnanoEngine {
 		return this.optionMap;
 	}
 
+
+	/**
+	 * <span class="lang-en">
+	 * Sets permissions, by a Map (permission map) storing names and values of permission items you want to set
+	 * </span>
+	 * <span class="lang-ja">
+	 * パーミッション項目の名前と値を格納するマップ（パーミッションマップ）によって, オプションを設定します
+	 * </span>
+	 * .
+	 * <span class="lang-en">
+	 * Type of the permission map is Map<String,String>, and its keys represents names of permission items.
+	 * For details of names and values of permission items,
+	 * see {@link org.vcssl.connect.ConnectorPermissionName} and {@link org.vcssl.connect.ConnectorPermissionValue}.
+	 * </span>
+	 *
+	 * <span class="lang-ja">
+	 * パーミッションマップは Map<String,String> 型で, そのキーはパーミッション項目の名称に対応します.
+	 * パーミッション項目の名称と値の詳細については,
+	 * {@link org.vcssl.connect.ConnectorPermissionName} と {@link org.vcssl.connect.ConnectorPermissionValue}
+	 * の説明をご参照ください.
+	 * </span>
+	 *
+	 * @param permissionMap
+	 *   <span class="lang-en">A Map (permission map) storing names and values of permission items</span>
+	 *   <span class="lang-ja">パーミッション項目の名前と値を格納するマップ（パーミッションマップ）</span>
+	 *
+	 * @throws VnanoException
+	 *   <span class="lang-en">Thrown if invalid permission settings is detected.</span>
+	 *   <span class="lang-ja">パーミッションの指定内容が正しくなかった場合にスローされます.</span>
+	 */
+	public void setPermissionMap(Map<String, String> permissionMap) throws VnanoException {
+		this.permissionMap = permissionMap;
+	}
+
+
+	/**
+	 * <span class="lang-en">Gets the Map (permission map) storing names and values of permission items</span>
+	 * <span class="lang-ja">パーミッション項目の名前と値を格納するマップ（パーミッションマップ）を取得します</span>
+	 * .
+	 * <span class="lang-en">
+	 * Type of the permission map is Map<String,String>, and its keys represents names of permission items.
+	 * For details of names and values of permission items,
+	 * see {@link org.vcssl.connect.ConnectorPermissionName} and {@link org.vcssl.connect.ConnectorPermissionValue}.
+	 * </span>
+	 *
+	 * <span class="lang-ja">
+	 * パーミッションマップは Map<String,String> 型で, そのキーはパーミッション項目の名称に対応します.
+	 * パーミッション項目の名称と値の詳細については,
+	 * {@link org.vcssl.connect.ConnectorPermissionName} と {@link org.vcssl.connect.ConnectorPermissionValue}
+	 * の説明をご参照ください.
+	 * </span>
+	 *
+	 * @return
+	 *   <span class="lang-en">A Map (permission map) storing names and values of permission items</span>
+	 *   <span class="lang-ja">パーミッション項目の名前と値を格納するマップ（パーミッションマップ）</span>
+	 */
+	public Map<String, String> getPermissionMap() {
+		return this.permissionMap;
+	}
 }

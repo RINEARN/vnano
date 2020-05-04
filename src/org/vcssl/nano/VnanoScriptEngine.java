@@ -365,11 +365,11 @@ public class VnanoScriptEngine implements ScriptEngine {
 
 	/**
 	 * <span class="lang-en">
-	 * This method is used for connecting an external function/variable, or setting options,
+	 * This method is used for connecting an external function/variable, or setting options/permission,
 	 * or taking some special operations, and so on
 	 * </span>
 	 * <span class="lang-ja">
-	 * このメソッドは, 外部関数や変数を接続したり, オプションを設定したり,
+	 * このメソッドは, 外部関数や変数を接続したり, オプション/パーミッションを設定したり,
 	 * またはいくつかの特別な操作を行ったりするのに使用します</span>
 	 * </span>
 	 * .
@@ -377,18 +377,61 @@ public class VnanoScriptEngine implements ScriptEngine {
 	 * If the value of the argument "name" is "___VNANO_OPTION_MAP",
 	 * this method behaves as a wrapper of {@link VnanoEngine#setOptionMap(Map) VnanoEngine.setOptionMap(Map)}
 	 * method, which is to set options.
-	 * The other cases, this method behaves as a wrapper of
+	 * <br>
+	 * If the value of the argument "name" is "___VNANO_PERMISSION_MAP",
+	 * this method behaves as a wrapper of {@link VnanoEngine#setPermissionMap(Map) VnanoEngine.setPermissionMap(Map)}
+	 * method, which is to set permissions.
+	 * <br>
+	 * If the value of the argument "name" is "___VNANO_LIBRARY_LIST_FILE",
+	 * this method loads library scripts of which paths are described in the specified list file,
+	 * and register them  to be "include"-ed in the execution script by the engine.
+	 * <br>
+	 * If the value of the argument "name" is "___VNANO_PLUGIN_LIST_FILE",
+	 * this method loads plug-ins of which paths are described in the specified list file,
+	 * and connect them to the engine.
+	 * <br>
+	 * If the value of the argument "name" is "___VNANO_COMMAND", this method invokes special commands of the engine.
+	 * Available commands are defined in {@link org.vcssl.nano.spec.SpecialBindingValue}.
+	 * <br>
+	 * Other than the above, this method behaves as a wrapper of
 	 * {@link VnanoEngine#connectPlugin(String,Object) VnanoEngine.connectPlugin(String, Object)}
-	 * method, which is to connect plug-ins provides external functions and variables.
+	 * method, which is to connect instances of plug-ins.
+	 * In this case, the argument "name" will be the identifier for accessing it from the script,
+	 * so it should be described in the valid syntax.
+	 * If you want to generate a valid identifier automatically, specify "___VNANO_AUTO_KEY" as the argument "name".
 	 * </span>
 	 *
 	 * <span class="lang-ja">
 	 * 引数 "name" の値に "___VNANO_OPTION_MAP" が指定されている場合, このメソッドは, オプション設定を行う
 	 * {@link VnanoEngine#setOptionMap(Map) setOptionMap(Map)} メソッドのラッパーとして振舞います.
-	 * それ以外の場合には, このメソッドは, 外部関数や変数を提供するプラグインを接続する
+	 * <br>
+	 * 引数 "name" の値に "___VNANO_PERMISSION_MAP" が指定されている場合, このメソッドは, オプション設定を行う
+	 * {@link VnanoEngine#setPermissionMap(Map) setPermissionMap(Map)} メソッドのラッパーとして振舞います.
+	 * <br>
+	 * 引数 "name" の値に "___VNANO_LIBRARY_LIST_FILE" が指定されている場合, このメソッドは,
+	 * 指定されたリストファイルにパスが記載されたライブラリスクリプトを読み込み,
+	 * それらが実行時に実行対象スクリプトに "include" されるよう, エンジンに登録します.
+	 * <br>
+	 * 引数 "name" の値に "___VNANO_PLUGIN_LIST_FILE" が指定されている場合, このメソッドは,
+	 * 指定されたリストファイルにパスが記載されたプラグインを読み込み, それらをエンジンに接続します.
+	 * <br>
+	 * 引数 "name" の値に "___VNANO_COMMAND" が指定されている場合, このメソッドはエンジンの特別なコマンドを実行します.
+	 * 利用可能な値は {@link org.vcssl.nano.spec.SpecialBindingValue} に定義されています.
+	 * <br>
+	 * 上記の全てに該当しない場合には, このメソッドは, プラグインのインスタンスを接続する
 	 * {@link VnanoEngine#connectPlugin(String,Object) VnanoEngine.connectPlugin(String, Object)}
 	 * メソッドのラッパーとして振舞います.
+	 * この場合, 引数 "name" はスクリプト内からアクセスする際の識別子として機能するため, 正しい構文で記述されている必要があります.
+	 * 面倒な場合は, "___VNANO_AUTO_KEY" を引数 "name" に指定すると, 構文的に適切な識別子が自動生成されます.
 	 * </span>
+	 *
+	 * @param name
+	 *   <span class="lang-en">See the above description</span>
+	 *   <span class="lang-ja">上記説明を参照してください</span>
+	 *
+	 * @param value
+	 *   <span class="lang-en">See the above description</span>
+	 *   <span class="lang-ja">上記説明を参照してください</span>
 	 */
 	@Override
 	public void put(String name, Object value) {
@@ -408,6 +451,24 @@ public class VnanoScriptEngine implements ScriptEngine {
 			} else {
 				throw new VnanoFatalException(
 					"The type of \"" + SpecialBindingKey.OPTION_MAP + "\" should be \"Map<String,Object>\""
+				);
+			}
+
+		// パーミッションマップの場合
+		} else if (name.equals(SpecialBindingKey.PERMISSION_MAP)) {
+			if (value instanceof Map) {
+
+				@SuppressWarnings("unchecked")
+				Map<String, String> castedMap = (Map<String, String>)value;
+				try {
+					this.vnanoEngine.setPermissionMap(castedMap);
+				} catch (VnanoException e) {
+					throw new VnanoFatalException(e);
+				}
+
+			} else {
+				throw new VnanoFatalException(
+					"The type of \"" + SpecialBindingKey.PERMISSION_MAP + "\" should be \"Map<String,String>\""
 				);
 			}
 

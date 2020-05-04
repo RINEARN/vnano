@@ -71,6 +71,8 @@ org/vcssl/nano/interconnect/Xvci1ToVariableAdapter.java
 org/vcssl/nano/main/VnanoCommandLineApplication.java
 org/vcssl/nano/package-info.java
 org/vcssl/nano/spec/AssemblyWord.java
+org/vcssl/nano/spec/ConfirmationMessage.java
+org/vcssl/nano/spec/ConfirmationType.java
 org/vcssl/nano/spec/DataType.java
 org/vcssl/nano/spec/DataTypeName.java
 org/vcssl/nano/spec/EngineInformation.java
