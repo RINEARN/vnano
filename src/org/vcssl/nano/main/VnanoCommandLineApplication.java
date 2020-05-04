@@ -664,7 +664,8 @@ public final class VnanoCommandLineApplication {
 				Object[] pluginInstances = pluginLoader.getPluginInstances();
 				int pluginN = pluginNames.length;
 				for (int pluginIndex=0; pluginIndex<pluginN; pluginIndex++) {
-					engine.connectPlugin(pluginNames[pluginIndex], pluginInstances[pluginIndex]);
+					//engine.connectPlugin(pluginNames[pluginIndex], pluginInstances[pluginIndex]);
+					engine.connectPlugin("___VNANO_AUTO_KEY", pluginInstances[pluginIndex]); // キーは文法規則があるので自動生成
 				}
 			}
 		} catch (VnanoException e) {
