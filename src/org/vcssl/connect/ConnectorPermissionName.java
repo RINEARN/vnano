@@ -54,6 +54,21 @@ public class ConnectorPermissionName {
 	/** システム経由における外部プログラムやコマンドの実行（execの相当操作に対するパーミッションです。 */
 	public static final String SYSTEM_PROCESS = "SYSTEM_PROCESS";
 
+	/** ディレクトリの新規作成に対するパーミッションです。 */
+	public static final String DIRECTORY_CREATE = "DIRECTORY_CREATE";
+
+	/** ディレクトリの削除に対するパーミッションです。 */
+	public static final String DIRECTORY_DELETE = "DIRECTORY_DELETE";
+
+	/** ディレクトリの新規作成に対するパーミッションです。 */
+	public static final String DIRECTORY_LIST = "DIRECTORY_LIST";
+
+	/** ファイルの新規作成に対するパーミッションです。 */
+	public static final String FILE_CREATE = "FILE_CREATE";
+
+	/** ファイルの削除に対するパーミッションです。 */
+	public static final String FILE_DELETE = "FILE_DELETE";
+
 	/** ファイルの書き込みに対するパーミッションです。 */
 	public static final String FILE_WRITE = "FILE_WRITE";
 
@@ -65,7 +80,4 @@ public class ConnectorPermissionName {
 
 	/** ファイルの情報変更に対するパーミッションです。 */
 	public static final String FILE_INFORMATION_CHANGE = "FILE_INFORMATION_CHANGE";
-
-	/** ファイルの削除に対するパーミッションです。 */
-	public static final String FILE_DELETE = "FILE_DELETE";
 }

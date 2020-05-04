@@ -4,6 +4,7 @@ org/vcssl/connect/ConnectorException.java
 org/vcssl/connect/ConnectorImplementationContainer.java
 org/vcssl/connect/ConnectorImplementationLoader.java
 org/vcssl/connect/ConnectorPermissionName.java
+org/vcssl/connect/ConnectorPermissionValue.java
 org/vcssl/connect/EngineConnectorInterface1.java
 org/vcssl/connect/ExternalFunctionConnectorInterface1.java
 org/vcssl/connect/ExternalNamespaceConnectorInterface1.java
