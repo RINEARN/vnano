@@ -3,15 +3,15 @@
  * This software is released under the MIT License.
  */
 
-package org.vcssl.nano;
+package org.vcssl.nano.interconnect;
 
 import java.util.Map;
 
 import org.vcssl.connect.ConnectorException;
 import org.vcssl.connect.EngineConnectorInterface1;
 
-//Documentation:  https://www.vcssl.org/en-us/dev/code/main-jimpl/api/org/vcssl/nano/VnanoEngineConnector.html
-//ドキュメント:   https://www.vcssl.org/ja-jp/dev/code/main-jimpl/api/org/vcssl/nano/VnanoEngineConnector.html
+//Documentation:  https://www.vcssl.org/en-us/dev/code/main-jimpl/api/org/vcssl/nano/EngineConnector.html
+//ドキュメント:   https://www.vcssl.org/ja-jp/dev/code/main-jimpl/api/org/vcssl/nano/EngineConnector.html
 
 /**
  * <span class="lang-en">
@@ -23,23 +23,23 @@ import org.vcssl.connect.EngineConnectorInterface1;
  * .
  *
  * <p>
- * &raquo; <a href="../../../../src/org/vcssl/nano/VnanoEngineConnector.java">Source code</a>
+ * &raquo; <a href="../../../../src/org/vcssl/nano/interconnect/EngineConnector.java">Source code</a>
  * </p>
  *
  * <hr>
  *
  * <p>
- * | <a href="../../../../api/org/vcssl/nano/VnanoEngineConnector.html">Public Only</a>
- * | <a href="../../../../api-all/org/vcssl/nano/VnanoEngineConnector.html">All</a> |
+ * | <a href="../../../../api/org/vcssl/nano/interconnect/EngineConnector.html">Public Only</a>
+ * | <a href="../../../../api-all/org/vcssl/nano/interconnect/EngineConnector.html">All</a> |
  * </p>
  *
  * @author RINEARN (Fumihiro Matsui)
  */
-public final class VnanoEngineConnector implements EngineConnectorInterface1 {
+public final class EngineConnector implements EngineConnectorInterface1 {
 
 	Map<String,Object> optionMap = null;
 
-	public VnanoEngineConnector(Map<String,Object> optionMap) {
+	public EngineConnector(Map<String,Object> optionMap) {
 		this.optionMap = optionMap;
 	}
 

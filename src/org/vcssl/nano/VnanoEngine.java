@@ -10,6 +10,7 @@ import java.util.Locale;
 import java.util.Map;
 
 import org.vcssl.nano.compiler.Compiler;
+import org.vcssl.nano.interconnect.EngineConnector;
 import org.vcssl.nano.interconnect.Interconnect;
 import org.vcssl.nano.spec.ErrorType;
 import org.vcssl.nano.spec.LanguageSpecContainer;
@@ -109,7 +110,7 @@ public class VnanoEngine {
 
 		// Create a connector to access information of the engine from plug-ins, and set it to the interconnect.
 		// プラグインからエンジン側の情報（オプション含む）にアクセスするためのコネクタを生成し, インターコネクトに設定
-		VnanoEngineConnector engineConnector = new VnanoEngineConnector(this.optionMap);
+		EngineConnector engineConnector = new EngineConnector(this.optionMap);
 		this.interconnect.setEngineConnector(engineConnector);
 	}
 
@@ -356,7 +357,7 @@ public class VnanoEngine {
 
 		// Create a connector to access information of the engine from plug-ins, and set it to the interconnect.
 		// プラグインからエンジン側の情報（オプション含む）にアクセスするためのコネクタを生成し, インターコネクトに設定
-		VnanoEngineConnector engineConnector = new VnanoEngineConnector(this.optionMap);
+		EngineConnector engineConnector = new EngineConnector(this.optionMap);
 		this.interconnect.setEngineConnector(engineConnector);
 	}
 
