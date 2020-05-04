@@ -16,6 +16,7 @@ import java.nio.charset.UnsupportedCharsetException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import org.vcssl.nano.VnanoException;
 import org.vcssl.nano.spec.ErrorType;
@@ -405,19 +406,24 @@ public class ScriptLoader {
 	 */
 	private void loadLibraryScriptContents() throws VnanoException {
 
+		int libN = this.libraryScriptPathList.size();
+
 		// 読み込み処理に失敗したライブラリはここに追記していく（即例外を投げると後続プラグインを読み込めないため）
 		String notExistLibraries = "";
-		String loadFailedLibraries = "";
-		Throwable loadFailedCause = null;
+		String loadingFailedLibraries = "";
+		Throwable loadingFailedCause = null;
+		boolean[] isLaodingFailed = new boolean[libN];
+		Arrays.fill(isLaodingFailed, false);
 
 		// ライブラリを 1 個ずつ読んでいく
-		int libN = this.libraryScriptPathList.size();
 		for (int libIndex=0; libIndex<libN; libIndex++) {
 			String libPath = this.libraryScriptPathList.get(libIndex);
 			File libFile = new File(libPath);
 			if (!libFile.exists()) {
 				notExistLibraries += (!notExistLibraries.isEmpty() ? ", " : "") + libFile.getName();
 				//throw new VnanoException(ErrorType.SCRIPT_FILE_DOES_NOT_EXIST, libPath);
+				isLaodingFailed[libIndex] = true;
+				continue;
 			}
 
 			// 前回読み込み時から更新日時が変わっていなければ、内容も変わっていないと見なして読み込みスキップ
@@ -430,8 +436,10 @@ public class ScriptLoader {
 			try {
 				libContent = this.loadScriptContent(libPath);
 			} catch (Exception e) {
-				loadFailedLibraries += (!loadFailedLibraries.isEmpty() ? ", " : "") + libFile.getName();
-				loadFailedCause = e;
+				loadingFailedLibraries += (!loadingFailedLibraries.isEmpty() ? ", " : "") + libFile.getName();
+				loadingFailedCause = e;
+				isLaodingFailed[libIndex] = true;
+				continue;
 			}
 			this.libraryScriptContentList.set(libIndex, libContent);
 			this.libraryScriptNameList.set(libIndex, libFile.getName());
@@ -440,14 +448,14 @@ public class ScriptLoader {
 			this.libraryScriptLastModList.set(libIndex, libFile.lastModified());
 		}
 
-		// 読み込みに失敗したものは libraryScriptContentList の要素が null になっているので、それを目印にリストから削除する
-		if (!notExistLibraries.isEmpty() || !loadFailedLibraries.isEmpty()) {
+		// 読み込みに失敗したものはリストから削除する
+		if (!notExistLibraries.isEmpty() || !loadingFailedLibraries.isEmpty()) {
 			List<String> succeededLibraryPathList = new ArrayList<String>();
 			List<String> succeededLibraryNameList = new ArrayList<String>();
 			List<String> succeededLibraryContentList = new ArrayList<String>();
 			List<Long> succeededLibraryLastModList = new ArrayList<Long>();
 			for (int libIndex=0; libIndex<libN; libIndex++) {
-				if (this.libraryScriptContentList.get(libIndex) != null) {
+				if (isLaodingFailed[libIndex]) {
 					succeededLibraryPathList.add(this.libraryScriptPathList.get(libIndex));
 					succeededLibraryNameList.add(this.libraryScriptNameList.get(libIndex));
 					succeededLibraryContentList.add(this.libraryScriptContentList.get(libIndex));
@@ -464,8 +472,8 @@ public class ScriptLoader {
 		if (!notExistLibraries.isEmpty()) {
 			throw new VnanoException(ErrorType.SCRIPT_FILE_DOES_NOT_EXIST, notExistLibraries);
 		}
-		if (!loadFailedLibraries.isEmpty()) {
-			throw new VnanoException(ErrorType.SCRIPT_FILE_IS_NOT_ACCESSIBLE, loadFailedLibraries, loadFailedCause);
+		if (!loadingFailedLibraries.isEmpty()) {
+			throw new VnanoException(ErrorType.SCRIPT_FILE_IS_NOT_ACCESSIBLE, loadingFailedLibraries, loadingFailedCause);
 		}
 	}
 

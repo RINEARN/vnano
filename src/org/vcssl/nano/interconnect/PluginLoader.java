@@ -14,6 +14,7 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.vcssl.connect.ConnectorException;
@@ -284,6 +285,8 @@ public class PluginLoader {
 	 */
 	private void loadPlugins() throws VnanoException {
 
+		int pluginN = this.pluginFilePathList.size();
+
 		// プラグインのクラスローダ周りを生成
 		URL pluginDirURL;
 		try {
@@ -300,15 +303,17 @@ public class PluginLoader {
 		String notExistPlugis = "";
 		String initFailedPlugis = "";
 		Throwable initFailedCause = null;
+		boolean[] isLoadingFailed = new boolean[pluginN];
+		Arrays.fill(isLoadingFailed, false);
 
 		// プラグインを一個ずつ読んでいく
-		int pluginN = this.pluginFilePathList.size();
 		for (int pluginIndex=0; pluginIndex<pluginN; pluginIndex++) {
 			String pluginPath = this.pluginFilePathList.get(pluginIndex);
 			File pluginFile = new File(pluginPath);
 			if (!pluginFile.exists()) {
 				//throw new VnanoException(ErrorType.PLUGIN_FILE_DOES_NOT_EXIST, pluginPath);
 				notExistPlugis += (!notExistPlugis.isEmpty() ? ", " : "") + pluginFile.getName();
+				isLoadingFailed[pluginIndex] = true;
 				continue;
 			}
 
@@ -326,6 +331,7 @@ public class PluginLoader {
 				//throw new VnanoException(ErrorType.PLUGIN_INITIALIZATION_FAILED, pluginClassPath, e);
 				initFailedPlugis += (!initFailedPlugis.isEmpty() ? ", " : "") + pluginFile.getName();
 				initFailedCause = e;
+				isLoadingFailed[pluginIndex] = true;
 				continue;
 			}
 			Object pluginInstance = pluginContainer.getConnectorImplementation();
@@ -344,7 +350,7 @@ public class PluginLoader {
 			List<Object> succeededPluginInstanceList = new ArrayList<Object>();
 			List<Long> succeededPluginLastModList = new ArrayList<Long>();
 			for (int pluginIndex=0; pluginIndex<pluginN; pluginIndex++) {
-				if (this.pluginInstanceList.get(pluginIndex) != null) {
+				if (isLoadingFailed[pluginIndex]) {
 					succeededPluginFilePathList.add(this.pluginFilePathList.get(pluginIndex));
 					succeededPluginClassPathList.add(this.pluginClassPathList.get(pluginIndex));
 					succeededPluginNameList.add(this.pluginNameList.get(pluginIndex));
