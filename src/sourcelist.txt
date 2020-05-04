@@ -53,6 +53,7 @@ org/vcssl/nano/compiler/Token.java
 org/vcssl/nano/interconnect/AbstractFunction.java
 org/vcssl/nano/interconnect/AbstractVariable.java
 org/vcssl/nano/interconnect/DataConverter.java
+org/vcssl/nano/interconnect/EngineConnector.java
 org/vcssl/nano/interconnect/FunctionAliasAdapter.java
 org/vcssl/nano/interconnect/FunctionTable.java
 org/vcssl/nano/interconnect/IdentifierMapManager.java
@@ -168,7 +169,6 @@ org/vcssl/nano/vm/processor/Processor.java
 org/vcssl/nano/vm/VirtualMachine.java
 org/vcssl/nano/vm/VirtualMachineObjectCode.java
 org/vcssl/nano/VnanoEngine.java
-org/vcssl/nano/VnanoEngineConnector.java
 org/vcssl/nano/VnanoException.java
 org/vcssl/nano/VnanoFatalException.java
 org/vcssl/nano/VnanoScriptEngine.java
