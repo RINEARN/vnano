@@ -60,7 +60,7 @@ public class ConnectorPermissionName {
 	/** ディレクトリの削除に対するパーミッションです。 */
 	public static final String DIRECTORY_DELETE = "DIRECTORY_DELETE";
 
-	/** ディレクトリの新規作成に対するパーミッションです。 */
+	/** ディレクトリ内のファイル一覧取得に対するパーミッションです。 */
 	public static final String DIRECTORY_LIST = "DIRECTORY_LIST";
 
 	/** ファイルの新規作成に対するパーミッションです。 */

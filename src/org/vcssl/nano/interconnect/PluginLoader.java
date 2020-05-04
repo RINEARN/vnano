@@ -342,7 +342,7 @@ public class PluginLoader {
 			this.pluginLastModList.set(pluginIndex, pluginFile.lastModified());
 		}
 
-		// 読み込みに失敗したものは pluginInstanceList の要素が null になっているので、それを目印にリストから削除する
+		// 読み込みに失敗したものはリストから削除する
 		if (!notExistPlugis.isEmpty() || !notExistPlugis.isEmpty()) {
 			List<String> succeededPluginFilePathList = new ArrayList<String>();
 			List<String> succeededPluginClassPathList = new ArrayList<String>();

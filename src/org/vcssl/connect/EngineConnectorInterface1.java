@@ -50,11 +50,11 @@ public interface EngineConnectorInterface1 {
 	/**
 	 * 指定された名称のパーミッションを要求します。
 	 *
-	 * @param permissonName パーミッションの名称
+	 * @param permissionName パーミッションの名称
 	 * @param requester パーミッションの要求元プラグイン
 	 * @param metaInformation ユーザーに通知するメッセージ内等で用いられるメタ情報
 	 * @throws 要求したパーミッションが却下された場合にスローされます。
 	 */
-	public abstract void requestPermission(String permissonName, Object requester, Object metaInformation)
+	public abstract void requestPermission(String permissionName, Object requester, Object metaInformation)
 			throws ConnectorException;
 }
