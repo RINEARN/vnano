@@ -5,6 +5,7 @@
 
 package org.vcssl.nano.interconnect;
 
+import org.vcssl.nano.VnanoException;
 import org.vcssl.nano.vm.memory.DataContainer;
 
 
@@ -60,19 +61,6 @@ public abstract class AbstractVariable {
 	public abstract String getNameSpace();
 
 
-	// -> これ、String の型名にしたほうがいいかも。抽象性からして。あとInvalidDataTypeException出まくる
-	// -> いや、外部公開インターフェースじゃないから別にいい
-	/**
-	 * データ型を取得します。
-	 *
-	 * @return この変数のデータ型
-	 * @throws VnanoException
-	 * 		このインスタンスが保持するデータ型名から、
-	 * 		この処理系でサポートされているデータ型に変換できなかった場合にスローされます。
-	 */
-	//public abstract DataType getDataType() throws VnanoException;
-
-
 	/**
 	 * データ型の名称を取得します。
 	 * 返される型名の表記内に、配列部分 [][]...[] は含まれません。
@@ -82,22 +70,20 @@ public abstract class AbstractVariable {
 	public abstract String getDataTypeName();
 
 
-	// これ例外を色々と投げる必要がある。XvciFunctionConector#getData参照
 	/**
 	 * この変数のデータを保持するデータコンテナを取得します。
 	 *
 	 * @return この変数のデータコンテナ
 	 */
-	public abstract DataContainer<?> getDataContainer();
+	public abstract DataContainer<?> getDataContainer() throws VnanoException;
 
 
-	// このメソッドは例外を投げる必要あり。XvciFunctionConector#setData参照
 	/**
 	 * この変数のデータを保持するデータコンテナを設定します。
 	 *
 	 * @param dataContainer この変数のデータコンテナ
 	 */
-	public abstract void setDataContainer(DataContainer<?> dataContainer);
+	public abstract void setDataContainer(DataContainer<?> dataContainer) throws VnanoException;
 
 
 	/**

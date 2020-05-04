@@ -358,7 +358,7 @@ public class FunctionAliasAdapter extends AbstractFunction {
 	 * @param returnDataUnit 戻り値のデータを格納するデータユニット
 	 */
 	@Override
-	public final void invoke(DataContainer<?>[] argumentDataUnits, DataContainer<?> returnDataUnit) {
+	public final void invoke(DataContainer<?>[] argumentDataUnits, DataContainer<?> returnDataUnit) throws VnanoException {
 		this.function.invoke(argumentDataUnits, returnDataUnit);
 	}
 }

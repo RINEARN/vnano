@@ -10,6 +10,7 @@ import org.vcssl.connect.ExternalVariableConnectorInterface1;
 import org.vcssl.nano.VnanoFatalException;
 import org.vcssl.nano.VnanoException;
 import org.vcssl.nano.spec.DataTypeName;
+import org.vcssl.nano.spec.ErrorType;
 import org.vcssl.nano.spec.LanguageSpecContainer;
 import org.vcssl.nano.vm.memory.DataContainer;
 
@@ -157,7 +158,7 @@ public class Xvci1ToVariableAdapter extends AbstractVariable {
 	 * @return 変数のデータコンテナ
 	 */
 	@Override
-	public DataContainer<?> getDataContainer() {
+	public DataContainer<?> getDataContainer() throws VnanoException {
 
 		// 自動のデータ型変換が有効な場合
 		if (this.xvciPlugin.isDataConversionNecessary()) {
@@ -182,7 +183,9 @@ public class Xvci1ToVariableAdapter extends AbstractVariable {
 				this.xvciPlugin.getData(dataContainer);
 				return dataContainer;
 			} catch (ConnectorException e) {
-				throw new VnanoFatalException(e);
+				throw new VnanoException(
+					ErrorType.EXTERNAL_VARIABLE_PLUGIN_CRASHED, this.xvciPlugin.getVariableName(), e
+				);
 			}
 		}
 	}
@@ -194,7 +197,7 @@ public class Xvci1ToVariableAdapter extends AbstractVariable {
 	 * @param dataContainer 変数のデータコンテナ
 	 */
 	@Override
-	public void setDataContainer(DataContainer<?> dataContainer) {
+	public void setDataContainer(DataContainer<?> dataContainer) throws VnanoException {
 
 		// 自動のデータ型変換が有効な場合
 		if (this.xvciPlugin.isDataConversionNecessary()) {
@@ -203,13 +206,17 @@ public class Xvci1ToVariableAdapter extends AbstractVariable {
 			try {
 				data = this.dataConverter.convertToExternalObject(dataContainer);
 			} catch (VnanoException e) {
-				throw new VnanoFatalException(e);
+				throw new VnanoException(
+					ErrorType.EXTERNAL_VARIABLE_PLUGIN_CRASHED, this.xvciPlugin.getVariableName(), e
+				);
 			}
 
 			try {
 				this.xvciPlugin.setData(data);
 			} catch (ConnectorException e) {
-				throw new VnanoFatalException(e);
+				throw new VnanoException(
+					ErrorType.EXTERNAL_VARIABLE_PLUGIN_CRASHED, this.xvciPlugin.getVariableName(), e
+				);
 			}
 
 		// 自動のデータ型変換が無効な場合
@@ -217,7 +224,9 @@ public class Xvci1ToVariableAdapter extends AbstractVariable {
 			try {
 				this.xvciPlugin.setData(dataContainer);
 			} catch (ConnectorException e) {
-				throw new VnanoFatalException(e);
+				throw new VnanoException(
+					ErrorType.EXTERNAL_VARIABLE_PLUGIN_CRASHED, this.xvciPlugin.getVariableName(), e
+				);
 			}
 		}
 	}

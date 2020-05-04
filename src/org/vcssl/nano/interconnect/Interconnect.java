@@ -226,7 +226,9 @@ public class Interconnect {
 	 *   <span class="lang-en">Data container storing returned value from the callee function.</span>
 	 *   <span class="lang-ja">呼び出した関数からの戻り値を格納するデータユニット.</span>
 	 */
-	public void callExternalFunction(int functionIndex, DataContainer<?>[] arguments, DataContainer<?> returnData) {
+	public void callExternalFunction(int functionIndex, DataContainer<?>[] arguments, DataContainer<?> returnData)
+			throws VnanoException {
+
 		this.externalFunctionTable.getFunctionByIndex(functionIndex).invoke(arguments, returnData);
 	}
 
@@ -251,7 +253,8 @@ public class Interconnect {
 	 *   <span class="lang-en">The virtual memory which was used for execution of the script.</span>
 	 *   <span class="lang-ja">スクリプトの実行に使用した仮想メモリー.</span>
 	 */
-	public void writebackExternalVariables(Memory memory, VirtualMachineObjectCode intermediateCode) {
+	public void writebackExternalVariables(Memory memory, VirtualMachineObjectCode intermediateCode)
+			throws VnanoException {
 
 		// グローバル変数の書き戻し
 		int maxGlobalAddress = intermediateCode.getMaximumGlobalAddress();

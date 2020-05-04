@@ -151,6 +151,8 @@ public class ErrorMessage {
 			case PLUGIN_FILE_DOES_NOT_EXIST : return "読み込み対象プラグインのファイル「 " + words[0] + " 」が見つかりません。";
 			case PLUGIN_INSTANTIATION_FAILED : return "プラグイン「 " + words[0] + " 」の読み込み/インスタンス化に失敗しました";
 			case DECLARED_ENCODING_IS_UNSUPPORTED : return "スクリプトファイル「 " + words[1] + " 」で宣言されている文字コード「 " + words[0] + " 」は、この環境では使用できません。";
+			case EXTERNAL_FUNCTION_PLUGIN_CRASHED : return "外部関数「 " + words[0] + " 」の処理でエラーが発生しました。";
+			case EXTERNAL_VARIABLE_PLUGIN_CRASHED : return "外部変数「 " + words[0] + " 」へのアクセスでエラーが発生しました。";
 			case UNSUPPORTED_PERMISSION_NAME : return "パーミッション「 " + words[0] + " 」が要求されましたが、このパーミッションは現在の設定では使用できないか、この処理系ではサポートされていません。";
 			case UNSUPPORTED_PERMISSION_VALUE : return "パーミッション「 " + words[0] + " 」が要求されましたが、このパーミッションの現在の設定値「 " + words[1] + " 」は、この処理系ではサポートされていません。";
 			case PERMISSION_DENIED : return "パーミッション「 " + words[0] + " 」が要求されましたが、設定またはユーザーの選択によって拒否されました。";
@@ -241,6 +243,8 @@ public class ErrorMessage {
 			case PLUGIN_FILE_DOES_NOT_EXIST : return "The loading plug-in file \"" + words[0] + "\" does not exist";
 			case PLUGIN_INSTANTIATION_FAILED : return "The loading or instantiation of the plugin \"" + words[0] + "\" has failed";
 			case DECLARED_ENCODING_IS_UNSUPPORTED : return "The encoding \"" + words[0] + "\" declared in \"" + words[1] + "\" is unsupported in this environment";
+			case EXTERNAL_FUNCTION_PLUGIN_CRASHED : return "An error occurred on the processing of the external function \"" + words[0] + "\"";
+			case EXTERNAL_VARIABLE_PLUGIN_CRASHED : return "An error occurred on the accessing to the external variable \"" + words[0] + "\"";
 			case UNSUPPORTED_PERMISSION_NAME : return "The permission for \"" + words[0] + "\" has been requested, but it is not available on the current settings, or it is unsupported on this script engine";
 			case UNSUPPORTED_PERMISSION_VALUE : return "The permission for \"" + words[0] + "\" has been requested, but its value \"" + words[1] + "\" on the current settings is unsupported on this script engine";
 			case PERMISSION_DENIED : return "The permission for \"" + words[0] + "\" has been requested, but it has been denied by settings or the user's decision";

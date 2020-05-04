@@ -5,6 +5,7 @@
 
 package org.vcssl.nano.interconnect;
 
+import org.vcssl.nano.VnanoException;
 import org.vcssl.nano.vm.memory.DataContainer;
 
 
@@ -165,13 +166,12 @@ public abstract class AbstractFunction {
 	public abstract int getReturnArrayRank(String[] argumentDataTypeNames, int[] argumentArrayRanks);
 
 
-	// このメソッドは例外を投げる必要あり。XfciFunctionConector#invoke参照
 	/**
 	 * 関数を実行します。
 	 *
 	 * @param argumentDataUnits 実引数のデータを保持するデータユニットの配列（各要素が個々の実引数に対応）
 	 * @param returnDataUnit 戻り値のデータを格納するデータユニット
 	 */
-	public abstract void invoke(DataContainer<?>[] argumentDataUnits, DataContainer<?> returnDataUnit);
+	public abstract void invoke(DataContainer<?>[] argumentDataUnits, DataContainer<?> returnDataUnit) throws VnanoException;
 
 }

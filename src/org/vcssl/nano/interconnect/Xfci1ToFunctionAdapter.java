@@ -334,7 +334,8 @@ public final class Xfci1ToFunctionAdapter extends AbstractFunction {
 	 * @param returnDataContainer 戻り値のデータを格納するデータコンテナ
 	 */
 	@Override
-	public final void invoke(DataContainer<?>[] argumentDataContainers, DataContainer<?> returnDataContainer) {
+	public final void invoke(DataContainer<?>[] argumentDataContainers, DataContainer<?> returnDataContainer)
+			throws VnanoException {
 
 		int argLength = argumentDataContainers.length;
 		Object[] convertedArgs = new Object[argLength];
@@ -408,7 +409,7 @@ public final class Xfci1ToFunctionAdapter extends AbstractFunction {
 			try {
 				this.xfciPlugin.invoke(xfciArgContainers);
 			} catch (ConnectorException e) {
-				throw new VnanoFatalException(e);
+				throw new VnanoException(ErrorType.EXTERNAL_FUNCTION_PLUGIN_CRASHED, this.xfciPlugin.getFunctionName(), e);
 			}
 		}
 

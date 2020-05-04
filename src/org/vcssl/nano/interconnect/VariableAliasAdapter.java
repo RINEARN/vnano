@@ -5,6 +5,7 @@
 
 package org.vcssl.nano.interconnect;
 
+import org.vcssl.nano.VnanoException;
 import org.vcssl.nano.vm.memory.DataContainer;
 
 
@@ -93,7 +94,7 @@ public class VariableAliasAdapter extends AbstractVariable {
 	 *
 	 * @return この変数のデータコンテナ
 	 */
-	public DataContainer<?> getDataContainer() {
+	public DataContainer<?> getDataContainer() throws VnanoException {
 		return this.variable.getDataContainer();
 	}
 
@@ -103,7 +104,7 @@ public class VariableAliasAdapter extends AbstractVariable {
 	 *
 	 * @param dataContainer この変数のデータコンテナ
 	 */
-	public void setDataContainer(DataContainer<?> dataContainer) {
+	public void setDataContainer(DataContainer<?> dataContainer) throws VnanoException {
 		this.variable.setDataContainer(dataContainer);
 	}
 
