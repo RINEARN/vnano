@@ -2096,6 +2096,10 @@ Let's implement them:
 			@Override
 			public boolean[] getParameterRankArbitrarinesses() { return new boolean[]{ false }; }
 			@Override
+			public boolean[] getParameterConstantnesses() { return new boolean[]{ false }; }
+			@Override
+			public boolean[] getParameterReferencenesses() { return new boolean[]{ false }; }
+			@Override
 			public boolean isParameterCountArbitrary() { return false; }
 			@Override
 			public boolean hasVariadicParameters() { return false; }
@@ -2246,6 +2250,10 @@ Let's implement. The following is an example code:
 			public boolean[] getParameterClassArbitrarinesses() { return new boolean[]{ false }; }
 			@Override
 			public boolean[] getParameterRankArbitrarinesses() { return new boolean[]{ false }; }
+			@Override
+			public boolean[] getParameterConstantnesses() { return new boolean[]{ false }; }
+			@Override
+			public boolean[] getParameterReferencenesses() { return new boolean[]{ false }; }
 			@Override
 			public boolean isParameterCountArbitrary() { return false; }
 			@Override
