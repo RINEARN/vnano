@@ -67,42 +67,7 @@ public class Example {
 
 		// Or, if connect only static fields/methods of a class:
 		// もしクラスのstaticなフィールド/メソッドのみを接続する場合は：
-		/*
-		engine.put("ExamplePlugin", ExamplePlugin.class);
-		*/
-
-
-		// Or, if you want to connect each fields/methods to the engine individually:
-		// もしくは、フィールド/メソッドを個別にスクリプトエンジンに接続したい場合は：
-		/*
-		try {
-			Field loopMaxField  = ExamplePlugin.class.getField("LOOP_MAX");
-			Method outputMethod = ExamplePlugin.class.getMethod("output",int.class);
-			ExamplePlugin examplePlugin = new Example().new ExamplePlugin();
-
-			engine.put("LOOP_MAX",    new Object[]{ loopMaxField, examplePlugin } );
-			engine.put("output(int)", new Object[]{ outputMethod, examplePlugin } );
-
-		} catch (NoSuchFieldException | NoSuchMethodException e){
-			System.err.println("Method/field not found.");
-			e.printStackTrace();
-			return;
-		}
-		*/
-
-		// For static fields/methods:
-		// staticなフィールド/メソッドの場合は：
-		/*
-		try {
-			engine.put("LOOP_MAX",    ExamplePlugin.class.getField("LOOP_MAX") );
-			engine.put("output(int)", ExamplePlugin.class.getMethod("output",int.class) );
-
-		} catch (NoSuchFieldException | NoSuchMethodException e){
-			System.err.println("Method/field not found.");
-			e.printStackTrace();
-			return;
-		}
-		*/
+		// engine.put("ExamplePlugin", ExamplePlugin.class);
 
 
 		// Create a script code (calculates the value of summation from 1 to 100).
@@ -114,15 +79,6 @@ public class Example {
 				"      sum += i;               " +
 				"  }                           " +
 				"  output(sum);                " ;
-
-		// Note: You can also access to the external variable "LOOP_MAX" as "ExamplePlugin.LOOP_MAX",
-		//       and can also call the external function "output(sum)" as "ExamplePlugin.output(sum)",
-		//       where "ExamplePlugin" is the strings specified to the "put" method of the script engine.
-		//       It might be useful when multiple classes/instances are connected to the script engine.
-		// 備考: 外部変数「 LOOP_MAX 」へのアクセスを「 ExamplePlugin.LOOP_MAX 」と書いたり、
-		//       外部関数「 output(sum) 」の呼び出しを「 ExamplePlugin.output(sum) 」と書く事もできます。
-		//       ここで「 ExamplePlugin 」は、スクリプトエンジンの put メソッドに指定した文字列です。
-		//       この書き方は、複数のクラス/インスタンスをスクリプトエンジンに接続している場合に便利です。
 
 
 		// Run the script code by the script engine of Vnano.
