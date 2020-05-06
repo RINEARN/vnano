@@ -1,3 +1,4 @@
+coding UTF-8;
 /*
  * A simple example of a Vnano script code to run directly on the command-line.
  * コマンドラインから直接実行する際のVnano のスクリプトコードの簡単な例
@@ -29,7 +30,7 @@
  * 
  * --------------------------------------------------------------------------------
  * ###  The followings are for development and debugging of the script engine.  ###
- * ###  以下はスクリプトエンジンの開発・デバッグ用の手順です。                       ###
+ * ###  以下はスクリプトエンジンの開発・デバッグ用の手順です。                  ###
  * --------------------------------------------------------------------------------
  * 
  * How to dump compiling/assembling contents - コンパイル・アセンブル内容の表示
