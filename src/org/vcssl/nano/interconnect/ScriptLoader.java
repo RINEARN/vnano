@@ -21,6 +21,7 @@ import java.util.Arrays;
 import org.vcssl.nano.VnanoException;
 import org.vcssl.nano.spec.ErrorType;
 import org.vcssl.nano.spec.LanguageSpecContainer;
+import org.vcssl.nano.spec.ScriptWord;
 
 public class ScriptLoader {
 
@@ -500,29 +501,30 @@ public class ScriptLoader {
 		List<String> contentLines = null;
 
 		// 先頭行で文字コードが宣言されていれば読む
-		Charset charset = this.getDeclaredCharset(scriptPath);
+		Charset charset = this.determinCharsetFromEncodingDeclaration(scriptPath);
 		boolean charsetIsDeclared = (charset != null);
 
 		// 文字コードに応じてライブラリの内容を読む
 		if (charsetIsDeclared) {
 			contentLines = Files.readAllLines(Paths.get(scriptPath), charset);
-			contentLines.set(0, ""); // 文字コードが宣言されていた場合、宣言行を消しておく（スクリプトとしては解釈できない）
 		} else {
 			contentLines = Files.readAllLines(Paths.get(scriptPath), Charset.forName(DEFAULT_ENCODING));
 		}
-
-		// 読み込んだ内容をフィールドに登録
 		String content = String.join(EOL, contentLines.toArray(new String[0]));
+
+		// 文字コード宣言があった場合は削除（スクリプトとしては機能を持たず、解釈もできないため）
+		content = this.removeEncodingDeclaration(new File(scriptPath).getName(), content);
+
 		return content;
 	}
 
 
 	/**
 	 * <span class="lang-en">
-	 * Gets the declared charset in the specified script file, if it is declared
+	 * Determins/returns the appropriate Charset from the encoding-declaration in the specified script file, if it is declared
 	 * </span>
 	 * <span class="lang-ja">
-	 * 指定されたスクリプトファイル内に, 文字コードが宣言されていた場合, その文字コードを抽出して返します
+	 * 指定されたスクリプトファイル内に, 文字コードが宣言されていた場合, その宣言に基づいて適切な Charset を生成して返します
 	 * </span>
 	 * .
 	 * @param scriptPath
@@ -530,10 +532,10 @@ public class ScriptLoader {
 	 *   <span class="lang-ja">読み込むスクリプトファイルのパス</span>
 	 *
 	 * @return
-	 *   <span class="lang-en">The declared charset (or, null if it is not declared)</span>
-	 *   <span class="lang-ja">宣言されている文字コード (宣言されていない場合は null)</span>
+	 *   <span class="lang-en">The appropreate Charset (or, null if there is no encoding-declaration in the script)</span>
+	 *   <span class="lang-ja">適切な Charset (文字コード宣言が無かった場合は null)</span>
 	 */
-	private Charset getDeclaredCharset(String scriptPath) throws IOException, VnanoException {
+	private Charset determinCharsetFromEncodingDeclaration(String scriptPath) throws IOException, VnanoException {
 
 		// 先頭行に文字コード宣言があるかもしれないので、先頭行を読む
 		FileReader fileReader = new FileReader(new File(scriptPath));
@@ -550,11 +552,15 @@ public class ScriptLoader {
 		// 文字コード宣言があれば解釈して文字コード名を抽出
 		firstLine = firstLine.replaceAll("\\s", "");
 		firstLine = firstLine.replaceAll("\\t", "");
-		firstLine = firstLine.replaceAll(";", "");
+		int declEnd = firstLine.indexOf(LANG_SPEC.SCRIPT_WORD.endOfStatement); // 有効な文字コード宣言は先頭行で完結している必要があるので、その行内にセミコロンがあるべき
 		String encodingName = null;
 		for (String declLineHead: ENCODING_DECLARATION_LINE_HEAD) {
 			if (firstLine.startsWith(declLineHead)) {
-				encodingName = firstLine.substring(declLineHead.length(), firstLine.length());
+				if (declEnd != -1) {
+					encodingName = firstLine.substring(declLineHead.length(), declEnd);
+				} else {
+					throw new VnanoException(ErrorType.NO_ENCODING_DECLARATION_END, scriptPath);
+				}
 			}
 		}
 
@@ -573,5 +579,69 @@ public class ScriptLoader {
 			);
 		}
 		return charset;
+	}
+
+	/**
+	 * <span class="lang-en">
+	 * Removes the encoding-declaration from the content of the specified script
+	 * </span>
+	 * <span class="lang-ja">
+	 * 指定されたスクリプトコード内のプリプロセッサ宣言を削除します
+	 * </span>
+	 * .
+	 * @param scriptName
+	 *   <span class="lang-en">The script name to be processed</span>
+	 *   <span class="lang-ja">対象のスクリプト名</span>
+	 *
+	 * @param scriptContent
+	 *   <span class="lang-en">The conent of the script to be processed</span>
+	 *   <span class="lang-ja">対象のスクリプトスクリプトコード内容</span>
+	 *
+	 * @return
+	 *   <span class="lang-en">The script code from which the encoding-declaration is removed</span>
+	 *   <span class="lang-ja">文字コード宣言が削除されたスクリプトコード</span>
+	 */
+	public String removeEncodingDeclaration(String scriptName, String scriptContent) throws VnanoException {
+	// ※ VnanoScriptEngine.eval(Reader) からも呼ぶので public
+
+		// 空白を詰めたコードを用意
+		String filledContent = scriptContent;
+		filledContent = filledContent.replaceAll("\\s", "");
+		filledContent = filledContent.replaceAll("\\t", "");
+
+		// 先頭行が文字コード宣言か判定
+		boolean containsEncodingDecl = false;
+		for (String declLineHead: ENCODING_DECLARATION_LINE_HEAD) {
+			if (filledContent.startsWith(declLineHead)) {
+				containsEncodingDecl = true;
+				break;
+			}
+		}
+
+		// 文字コード宣言が無ければ、その時点でもう何もする必要はない
+		if (!containsEncodingDecl) {
+			return scriptContent;
+		}
+
+		// 文字コード宣言があった場合は、最初の「 ; 」までが文字コード宣言なので、その範囲を抽出
+		int encodingDeclEnd = scriptContent.indexOf(LANG_SPEC.SCRIPT_WORD.endOfStatement);
+		String encodingDecl = scriptContent.substring(0, encodingDeclEnd);
+
+		// 文字コード宣言内にコメントや文字列リテラルを使用できると、
+		// ファイル読み込みの最初の一歩の段階で、かなり複雑な解析が必要になってしてしまう。
+		// そのため、文字コード宣言内では上記のようなものは使えないものとし、実際に使っていない事を検査しておく。
+		// （処理系の解釈の仕方によって挙動が変わるのを避けるため）
+		String[] invalidSymbols = new String[] { "//", "/*", "*/", "\"", "\'" };
+		for (String invalidSymbol: invalidSymbols) {
+			if (encodingDecl.contains(invalidSymbol)) {
+				throw new VnanoException(
+					ErrorType.ENCODING_DECLARATION_CONTAINS_INVALID_SYMBOL, new String[] { invalidSymbol, scriptName }
+				);
+			}
+		}
+
+		// 検査を通過したら、文字コード宣言よりも後の部分を抽出して返す
+		String declRemovedScriptContent = scriptContent.substring(encodingDeclEnd+1, scriptContent.length());
+		return declRemovedScriptContent;
 	}
 }
