@@ -172,14 +172,18 @@ public class VnanoEngine {
 			int libN = this.libraryNameContentMap.size();
 			String[] scripts = new String[libN  + 1];
 			String[] names   = new String[libN + 1];
+			names[libN] = (String)this.optionMap.get(OptionKey.EVAL_SCRIPT_NAME);
+			scripts[libN] = script;
 			int libIndex = 0;
 			for (Map.Entry<String, String> nameContentPair: this.libraryNameContentMap.entrySet()) {
 				names[libIndex] = nameContentPair.getKey();
 				scripts[libIndex] = nameContentPair.getValue();
+				// ライブラリ名と実行対象スクリプト名との重複は不可能（内部で実行対象スクリプト範囲を抽出しやすくするための実装上の都合）
+				if (names[libIndex].equals(names[libN])) {
+					throw new VnanoException(ErrorType.LIBRARY_SCRIPT_NAME_IS_CONFLICTING_WITH_MAIN_SCRIPT_NAME, names[libIndex]);
+				}
 				libIndex++;
 			}
-			names[libN] = (String)this.optionMap.get(OptionKey.EVAL_SCRIPT_NAME);
-			scripts[libN] = script;
 
 			// Translate scripts to a VRIL code (intermediate assembly code) by a compiler.
 			// コンパイラでスクリプトコードからVRILコード（中間アセンブリコード）に変換

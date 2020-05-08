@@ -145,6 +145,7 @@ public class ErrorMessage {
 			case LIBRARY_LIST_FILE_DOES_NOT_EXIST : return "ライブラリの読み込みリストファイル「 " + words[0] + " 」が見つかりません。";
 			case LIBRARY_LIST_FILE_IS_NOT_ACCESSIBLE : return "ライブラリの読み込みリストファイル「 " + words[0] + " 」の読み込みに失敗しました。文字コードが想定と異なる可能性があります。文字コードを変更してみてください。";
 			case LIBRARY_IS_ALREADY_INCLUDED : return "ライブラリ「 " + words[0] + " 」は既に読み込み登録（ include 登録）されています （多重 include は禁止されています）。";
+			case LIBRARY_SCRIPT_NAME_IS_CONFLICTING_WITH_MAIN_SCRIPT_NAME : return "ライブラリ「 " + words[0] + " 」の名前は、実行対象のメインスクリプトの名前と重複しているため、使用できません。";
 			case PLUGIN_LIST_FILE_DOES_NOT_EXIST : return "プラグインの読み込みリストファイル「 " + words[0] + " 」が見つかりません。";
 			case PLUGIN_LIST_FILE_IS_NOT_ACCESSIBLE : return "プラグインの読み込みリストファイル「 " + words[0] + " 」の読み込みに失敗しました。文字コードが想定と異なる可能性があります。文字コードを変更してみてください。";
 			case PLUGIN_DIRECTORY_IS_NOT_ACCESSIBLE : return "プラグインのフォルダ「 " + words[0] + " 」にアクセスできません。フォルダの指定内容や存在を確認してみてください。";
@@ -241,6 +242,7 @@ public class ErrorMessage {
 			case LIBRARY_LIST_FILE_DOES_NOT_EXIST : return "The loading list file of libraries \"" + words[0] + "\" does not exist";
 			case LIBRARY_LIST_FILE_IS_NOT_ACCESSIBLE : return "The loading list file of libraries \"" + words[0] + "\" could not be loaded. The encoding might be incorrect. Try again with changing the encoding";
 			case LIBRARY_IS_ALREADY_INCLUDED : return "The library script \"" + words[0] + "\" is already registered to be loaded (\"include\"-ed). This script engine disallows duplicate \"include\"";
+			case LIBRARY_SCRIPT_NAME_IS_CONFLICTING_WITH_MAIN_SCRIPT_NAME : return "The name of the library script \"" + words[0] + "\" is not available, because it is conflicting with the name of the main script";
 			case PLUGIN_LIST_FILE_DOES_NOT_EXIST : return "The loading list file of plug-ins \"" + words[0] + "\" does not exist";
 			case PLUGIN_LIST_FILE_IS_NOT_ACCESSIBLE : return "The loading list file of plug-ins \"" + words[0] + "\" could not be loaded. The encoding might be incorrect. Try again with changing the encoding";
 			case PLUGIN_DIRECTORY_IS_NOT_ACCESSIBLE : return "The plug-in directory \"" + words[0] + "\" is not accessible. Check the content of the directory path, and check the directory exists";
