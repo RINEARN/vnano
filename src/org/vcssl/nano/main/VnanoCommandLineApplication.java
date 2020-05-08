@@ -673,21 +673,6 @@ public final class VnanoCommandLineApplication {
 			e.printStackTrace();
 		}
 
-
-		/*
-		// オプションで指定されたプラグイン（読み込み済み）を接続
-		// -> リストから読み込むようにしたため、この機能は廃止
-		for (Object plugin: this.pluginList) {
-			try {
-				engine.connectPlugin(SpecialBindingKey.AUTO_KEY, plugin);
-			} catch (VnanoException e) {
-				System.err.println("Plug-in connection failed.");
-				e.printStackTrace();
-				return null;
-			}
-		}
-		*/
-
 		return engine;
 	}
 

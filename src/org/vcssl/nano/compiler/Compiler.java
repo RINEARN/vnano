@@ -200,7 +200,7 @@ public class Compiler {
 
 
 		// 意味解析でASTの情報を補間
-		AstNode analyzedAstRootNode = new SemanticAnalyzer(LANG_SPEC).analyze(parsedAstRootNode, interconnect);
+		AstNode analyzedAstRootNode = new SemanticAnalyzer(LANG_SPEC).analyze(parsedAstRootNode, interconnect, optionMap);
 
 		// 意味解析後のASTをダンプ
 		if (shouldDump && (dumpTargetIsAll || dumpTarget.equals(OptionValue.DUMPER_TARGET_ANALYZED_AST)) ) {

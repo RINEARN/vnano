@@ -8,6 +8,9 @@ package org.vcssl.nano.compiler;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 import org.vcssl.nano.VnanoException;
 import org.vcssl.nano.VnanoFatalException;
@@ -25,6 +28,7 @@ import org.vcssl.nano.spec.ErrorType;
 import org.vcssl.nano.spec.IdentifierSyntax;
 import org.vcssl.nano.spec.ScriptWord;
 import org.vcssl.nano.spec.LanguageSpecContainer;
+import org.vcssl.nano.spec.OptionKey;
 
 //Documentation:  https://www.vcssl.org/en-us/dev/code/main-jimpl/api/org/vcssl/nano/compiler/SemanticAnalyzer.html
 //ドキュメント:   https://www.vcssl.org/ja-jp/dev/code/main-jimpl/api/org/vcssl/nano/compiler/SemanticAnalyzer.html
@@ -110,11 +114,15 @@ public class SemanticAnalyzer {
 	 *   <span class="lang-en">The semantic-analyzed/information-supplemented AST.</span>
 	 *   <span class="lang-ja">意味解析/情報補間済みのAST.</span>
 	 *
+	 * @param optionMap
+	 *   <span class="lang-en">The Map (option map) storing names and values of options.</span>
+	 *   <span class="lang-ja">オプションの名前と値を格納するマップ（オプションマップ）.</span>
+	 *
 	 * @throws VnanoException
 	 *   <span class="lang-en">Thrown when any semantic error has detected.</span>
 	 *   <span class="lang-ja">セマンティクスにエラーが検出された場合にスローされます.</span>
 	 */
-	public AstNode analyze(AstNode inputAst, Interconnect interconnect)
+	public AstNode analyze(AstNode inputAst, Interconnect interconnect, Map<String, Object> optionMap)
 			throws VnanoException {
 
 		// インターコネクトから外部変数・外部関数のテーブルを取得
@@ -153,6 +161,13 @@ public class SemanticAnalyzer {
 
 		// return 文で返している戻り値の型や、return 文の位置を検査
 		this.checkReturnValueTypesAndLocations(outputAst);
+
+		// EVAL_ONLY_EXPRESSION オプションが指定されている場合は、eval対象スクリプト内に式文以外が含まれていないか検査
+		if (optionMap.containsKey(OptionKey.EVAL_ONLY_EXPRESSION)
+				&& optionMap.get(OptionKey.EVAL_ONLY_EXPRESSION).equals(Boolean.TRUE)) {
+
+			this.checkConsistsOfExpressions(outputAst, (String)optionMap.get(OptionKey.EVAL_SCRIPT_NAME));
+		}
 
 		return outputAst;
 	}
@@ -1505,6 +1520,39 @@ public class SemanticAnalyzer {
 						ErrorType.RETURNED_VALUE_IS_MISSING, currentNode.getFileName(), currentNode.getLineNumber()
 					);
 				}
+			}
+
+		} while (!currentNode.isPreorderDftLastNode());
+	}
+
+
+	/**
+	 * 引数に渡されたAST（抽象構文木）の中で、指定されたスクリプト名に属する部分が、
+	 * 式文のみで構成されているかどうかを検査します。
+	 *
+	 * @param astRootNode 検査対象のASTのルートノード
+	 * @param targetScriptName 検査対象部分が属するスクリプトの名称
+	 * @throws 検査対象部分において、式文以外の文が検出された場合にスローされます。
+	 */
+	private void checkConsistsOfExpressions(AstNode astRootNode, String targetScriptName) throws VnanoException {
+
+		// 許容されるASTノードタイプのみを含むHashSet
+		Set<AstNode.Type> targetNodeTypeSet = new HashSet<AstNode.Type>();
+		targetNodeTypeSet.add(AstNode.Type.EXPRESSION);
+		targetNodeTypeSet.add(AstNode.Type.OPERATOR);
+		targetNodeTypeSet.add(AstNode.Type.LEAF);
+		targetNodeTypeSet.add(AstNode.Type.PARENTHESIS);
+		targetNodeTypeSet.add(AstNode.Type.ROOT);
+
+		// ASTノードを、行がけ順の深さ優先走査(DFT)で辿って処理していく
+		AstNode currentNode = astRootNode;
+		do {
+			currentNode = currentNode.getPreorderDftNextNode();
+
+			String fileName = currentNode.getFileName();
+			int lineNumber = currentNode.getLineNumber();
+			if (fileName.equals(targetScriptName) && !targetNodeTypeSet.contains(currentNode.getType())) {
+				throw new VnanoException(ErrorType.NON_EXPRESSION_STATEMENTS_ARE_RESTRICTED, fileName, lineNumber);
 			}
 
 		} while (!currentNode.isPreorderDftLastNode());

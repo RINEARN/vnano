@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2019 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2019-2020 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -62,6 +62,21 @@ public class OptionKey {
 	 * <span class="lang-ja">このオプションの値は "boolean" 型です. 有効にするには "Boolean.TRUE" を指定してください.</span>
 	 */
 	public static final String EVAL_NUMBER_AS_FLOAT = "EVAL_NUMBER_AS_FLOAT";
+
+
+	/**
+	 * <span class="lang-en">
+	 * An option to restrict types of available statements
+	 * in the execution/evaluation target (not library) script to only "expression"
+	 * </span>
+	 * <span class="lang-ja">
+	 * 実行/評価対象のスクリプト（ライブラリ以外）内で使用可能な文を, 式文のみに制限するオプションです
+	 * </span>
+	 * .
+	 * <span class="lang-en">The value of this option is "Boolean" type. Specify "Boolean.TRUE" to enable this option.</span>
+	 * <span class="lang-ja">このオプションの値は "boolean" 型です. 有効にするには "Boolean.TRUE" を指定してください.</span>
+	 */
+	public static final String EVAL_ONLY_EXPRESSION = "EVAL_ONLY_EXPRESSION";
 
 
 	/**
