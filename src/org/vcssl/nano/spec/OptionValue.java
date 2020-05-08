@@ -219,13 +219,15 @@ public class OptionValue {
 	private static final Map<String, Object> DEFAULT_VALUE_MAP = new LinkedHashMap<String, Object>();
 	static {
 		DEFAULT_VALUE_MAP.put(OptionKey.EVAL_SCRIPT_NAME, "EVAL_SCRIPT");
-		DEFAULT_VALUE_MAP.put(OptionKey.EVAL_NUMBER_AS_FLOAT, Boolean.valueOf(false));
+		DEFAULT_VALUE_MAP.put(OptionKey.EVAL_NUMBER_AS_FLOAT, Boolean.FALSE);
+		DEFAULT_VALUE_MAP.put(OptionKey.EVAL_ONLY_FLOAT, Boolean.FALSE);
+		DEFAULT_VALUE_MAP.put(OptionKey.EVAL_ONLY_EXPRESSION, Boolean.FALSE);
 		DEFAULT_VALUE_MAP.put(OptionKey.LOCALE, Locale.getDefault());
-		DEFAULT_VALUE_MAP.put(OptionKey.ACCELERATOR_ENABLED, Boolean.valueOf(true));
-		DEFAULT_VALUE_MAP.put(OptionKey.DUMPER_ENABLED, false);
+		DEFAULT_VALUE_MAP.put(OptionKey.ACCELERATOR_ENABLED, Boolean.TRUE);
+		DEFAULT_VALUE_MAP.put(OptionKey.DUMPER_ENABLED, Boolean.FALSE);
 		DEFAULT_VALUE_MAP.put(OptionKey.DUMPER_TARGET, DUMPER_TARGET_ALL);
 		DEFAULT_VALUE_MAP.put(OptionKey.DUMPER_STREAM, System.out);
-		DEFAULT_VALUE_MAP.put(OptionKey.RUNNING_ENABLED, Boolean.valueOf(true));
+		DEFAULT_VALUE_MAP.put(OptionKey.RUNNING_ENABLED, Boolean.TRUE);
 		DEFAULT_VALUE_MAP.put(OptionKey.EVAL_SCRIPT_NAME, DEFAULT_EVAL_SCRIPT_NAME);
 	}
 
@@ -309,6 +311,8 @@ public class OptionValue {
 	public static void checkValuesOf(Map<String, Object> optionMap) throws VnanoException {
 		checkValueOf(OptionKey.EVAL_SCRIPT_NAME, optionMap, String.class);
 		checkValueOf(OptionKey.EVAL_NUMBER_AS_FLOAT, optionMap, Boolean.class);
+		checkValueOf(OptionKey.EVAL_ONLY_FLOAT, optionMap, Boolean.class);
+		checkValueOf(OptionKey.EVAL_ONLY_EXPRESSION, optionMap, Boolean.class);
 		checkValueOf(OptionKey.LOCALE, optionMap, Locale.class);
 		checkValueOf(OptionKey.ACCELERATOR_ENABLED, optionMap, Boolean.class);
 		checkValueOf(OptionKey.DUMPER_ENABLED, optionMap, Boolean.class);
