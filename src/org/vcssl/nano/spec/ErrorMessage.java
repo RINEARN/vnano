@@ -137,7 +137,7 @@ public class ErrorMessage {
 			case RETURN_STATEMENT_IS_OUTSIDE_FUNCTIONS : return "return 文が関数外で使用されていますが、関数内でしか使用できません。";
 			case INVALID_RETURNED_VALUE_DATA_TYPE : return "return 文が返している値の型「 " + words[0] + " 」が、関数宣言における戻り値の型「 " + words[1] + " 」と異なります。";
 			case RETURNED_VALUE_IS_MISSING : return "戻り値を返すべき関数内で, 何も値を返さない return 文が検出されました。";
-			case NON_VARIABLE_IS_PASSED_BY_REFERENCE : return "関数「 " + words[2] + " 」の " + words[0] + " 番目の引数「 " + words[1] + " 」には、「 変数、配列、配列の要素 」以外を渡す事はできません（constでない参照渡し引数であるため）。";
+			case NON_VARIABLE_IS_PASSED_BY_REFERENCE : return "関数「 " + words[2] + " 」の " + words[0] + " 番目の引数「 " + words[1] + " 」は、constでない参照渡し引数であるため、「 変数 / 配列 / 配列の要素 」以外を渡す事はできません。";
 			case DUPLICATE_VARIABLE_IDENTIFIER : return "変数の名前「 " + words[0] + " 」は、同じ影響範囲内の別の変数で、既に使用されています。";
 			case DUPLICATE_FUNCTION_SIGNATURE : return "関数「 " + words[0] + " 」は、全く同じ名前と引数の組み合わせで、他の場所で既に宣言されています。";
 			case SCRIPT_FILE_DOES_NOT_EXIST : return "スクリプトファイル「 " + words[0] + " 」が見つかりません。";
@@ -158,7 +158,8 @@ public class ErrorMessage {
 			case UNSUPPORTED_PERMISSION_NAME : return "パーミッション「 " + words[0] + " 」が要求されましたが、このパーミッションは現在の設定では使用できないか、この処理系ではサポートされていません。";
 			case UNSUPPORTED_PERMISSION_VALUE : return "パーミッション「 " + words[0] + " 」が要求されましたが、このパーミッションの現在の設定値「 " + words[1] + " 」は、この処理系ではサポートされていません。";
 			case PERMISSION_DENIED : return "パーミッション「 " + words[0] + " 」が要求されましたが、設定またはユーザーの選択によって拒否されました。";
-			case NON_EXPRESSION_STATEMENTS_ARE_RESTRICTED : return "現在の設定では、ライブラリスクリプト内を除き、「式」の計算以外を行えないよう制限されています。";
+			case NON_EXPRESSION_STATEMENTS_ARE_RESTRICTED : return "現在の設定では、ライブラリスクリプト内を除き、式の計算以外を行えないよう制限されています。";
+			case NON_FLOAT_DATA_TYPES_ARE_RESTRICTED : return "現在の設定では、ライブラリスクリプト内を除き、float 型以外の値 / 変数 / 関数（戻り値）を使用できないよう制限されています。";
 			case UNEXPECTED_ACCELERATOR_CRASH : return "予期しないVMエラー (命令アドレス: " + words[0] + ", 再配置後命令アドレス: " + words[1] + ")";
 			case UNEXPECTED_PROCESSOR_CRASH : return "予期しないVMエラー（命令アドレス: " + words[0] + ")";
 			case UNEXPECTED : return "予期しないエラー";
@@ -254,6 +255,7 @@ public class ErrorMessage {
 			case UNSUPPORTED_PERMISSION_VALUE : return "The permission for \"" + words[0] + "\" has been requested, but its value \"" + words[1] + "\" on the current settings is unsupported on this script engine";
 			case PERMISSION_DENIED : return "The permission for \"" + words[0] + "\" has been requested, but it has been denied by settings or the user's decision";
 			case NON_EXPRESSION_STATEMENTS_ARE_RESTRICTED : return "On the current settings, you can describe only expressions as inputs, except in library scripts";
+			case NON_FLOAT_DATA_TYPES_ARE_RESTRICTED : return "On the current settings, you can use only float-type values / variables / functions (returned values), except in library scripts";
 			case UNEXPECTED_ACCELERATOR_CRASH : return "Unexpected VM Error (instruction-addr: " + words[0] + ", reordered-instruction-addr: " + words[1] + ")";
 			case UNEXPECTED_PROCESSOR_CRASH : return "Unexpected VM Error (instruction-addr: " + words[0] + ")";
 			case UNEXPECTED : return "Unexpected Error";

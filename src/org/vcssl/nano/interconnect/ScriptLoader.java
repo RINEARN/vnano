@@ -21,7 +21,6 @@ import java.util.Arrays;
 import org.vcssl.nano.VnanoException;
 import org.vcssl.nano.spec.ErrorType;
 import org.vcssl.nano.spec.LanguageSpecContainer;
-import org.vcssl.nano.spec.ScriptWord;
 
 public class ScriptLoader {
 

@@ -79,6 +79,10 @@ public class OptionKey {
 	public static final String EVAL_ONLY_EXPRESSION = "EVAL_ONLY_EXPRESSION";
 
 
+
+	public static final String EVAL_ONLY_FLOAT = "EVAL_ONLY_FLOAT";
+
+
 	/**
 	 * <span class="lang-en">
 	 * An option to enable/disable {@link org.vcssl.nano.vm.accelerator.Accelerator Accelerator},

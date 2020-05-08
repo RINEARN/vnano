@@ -144,6 +144,9 @@ public class SemanticAnalyzer {
 		// 演算子ノードの属性値を設定
 		this.supplementOperatorAttributes(outputAst, globalFunctionTable, localFunctionTable);
 
+		// 関数識別子タイプのリーフノードの属性値を、関数演算子の属性値に基づいて設定
+		this.supplementFunctionIdentifierLeafAttributes(outputAst);
+
 		// 式ノードの属性値を設定
 		this.supplementExpressionAttributes(outputAst);
 
@@ -165,8 +168,13 @@ public class SemanticAnalyzer {
 		// EVAL_ONLY_EXPRESSION オプションが指定されている場合は、eval対象スクリプト内に式文以外が含まれていないか検査
 		if (optionMap.containsKey(OptionKey.EVAL_ONLY_EXPRESSION)
 				&& optionMap.get(OptionKey.EVAL_ONLY_EXPRESSION).equals(Boolean.TRUE)) {
-
 			this.checkConsistsOfExpressions(outputAst, (String)optionMap.get(OptionKey.EVAL_SCRIPT_NAME));
+		}
+
+		// EVAL_ONLY_FLOAT オプションが指定されている場合は、eval対象スクリプト内の式の中で、float型以外の要素が含まれていないか検査
+		if (optionMap.containsKey(OptionKey.EVAL_ONLY_FLOAT)
+				&& optionMap.get(OptionKey.EVAL_ONLY_FLOAT).equals(Boolean.TRUE)) {
+			this.checkConsistsOfFloats(outputAst, (String)optionMap.get(OptionKey.EVAL_SCRIPT_NAME));
 		}
 
 		return outputAst;
@@ -782,6 +790,41 @@ public class SemanticAnalyzer {
 					);
 				}
 			}
+		}
+	}
+
+
+	/**
+	 * 引数に渡されたAST（抽象構文木）の内容を解析し、その中の関数識別子ノードの属性値を、
+	 * 関数呼び出し演算子の属性値に基づいて追加設定します
+	 * （従って、このメソッドは破壊的メソッドです）。
+	 *
+	 * このメソッドを使用するよりも先に、
+	 * {@link SemanticAnalyzer#supplementOperatorAttributes supplementOperatorAttributes} メソッドを使用して、
+	 * 演算子ノードの属性値の設定を済ませておく必要があります。
+	 *
+	 * @param astRootNode 解析・設定対象のASTのルートノード（メソッド実行後、各ノードに属性値が追加されます）
+	 */
+	private void supplementFunctionIdentifierLeafAttributes(AstNode astRootNode) {
+
+		// 構文木の全ノードに対し、帰りがけ順の深さ優先走査で辿り、末端から処理していく
+		AstNode currentNode = astRootNode.getPostorderDftFirstNode();
+		while(currentNode != astRootNode) {
+
+			// 関数識別子ノードの場合
+			if(currentNode.getType() == AstNode.Type.LEAF &&
+					currentNode.getAttribute(AttributeKey.LEAF_TYPE).equals(AttributeValue.FUNCTION_IDENTIFIER)) {
+
+				// 親ノード = 関数呼び出し演算子ノードを取得（関数識別子ノードは関数呼び出し演算子ノードにぶら下がっている）
+				AstNode callOperatorNode = currentNode.getParentNode();
+
+				// 関数呼び出し演算子の属性値に基づいて、関数識別子ノードの属性値を設定
+				//（現時点の仕様範囲では、型情報などを単にほぼそのままコピーするだけ）
+				currentNode.setAttribute(AttributeKey.DATA_TYPE, callOperatorNode.getAttribute(AttributeKey.DATA_TYPE));
+				currentNode.setAttribute(AttributeKey.RANK, callOperatorNode.getAttribute(AttributeKey.RANK));
+			}
+
+			currentNode = currentNode.getPostorderDftNextNode();
 		}
 	}
 
@@ -1548,11 +1591,48 @@ public class SemanticAnalyzer {
 		AstNode currentNode = astRootNode;
 		do {
 			currentNode = currentNode.getPreorderDftNextNode();
-
 			String fileName = currentNode.getFileName();
 			int lineNumber = currentNode.getLineNumber();
+
+			// 検査対象のスクリプトに属するノードの場合、許容されるASTノードタイプに含まれているか調べて、なければエラー
 			if (fileName.equals(targetScriptName) && !targetNodeTypeSet.contains(currentNode.getType())) {
 				throw new VnanoException(ErrorType.NON_EXPRESSION_STATEMENTS_ARE_RESTRICTED, fileName, lineNumber);
+			}
+
+		} while (!currentNode.isPreorderDftLastNode());
+	}
+
+
+	/**
+	 * 引数に渡されたAST（抽象構文木）の中で、指定されたスクリプト名に属する部分内にある式の構成要素が、
+	 * float 型の値を持つもののみで構成されているかどうかを検査します。
+	 *
+	 * @param astRootNode 検査対象のASTのルートノード
+	 * @param targetScriptName 検査対象部分が属するスクリプトの名称
+	 * @throws 検査対象部分内にある式において、float 型以外の要素が検出された場合にスローされます。
+	 */
+	private void checkConsistsOfFloats(AstNode astRootNode, String targetScriptName) throws VnanoException {
+
+		// 検査対象となるASTノードタイプのみを含むHashSet
+		Set<AstNode.Type> targetNodeTypeSet = new HashSet<AstNode.Type>();
+		targetNodeTypeSet.add(AstNode.Type.LEAF);
+		targetNodeTypeSet.add(AstNode.Type.OPERATOR);
+
+		// ASTノードを、行がけ順の深さ優先走査(DFT)で辿って処理していく
+		AstNode currentNode = astRootNode;
+		do {
+			currentNode = currentNode.getPreorderDftNextNode();
+			String fileName = currentNode.getFileName();
+			int lineNumber = currentNode.getLineNumber();
+
+			// 検査対象のスクリプトに属する、検査対象のASTノードの場合
+			if (fileName.equals(targetScriptName) && targetNodeTypeSet.contains(currentNode.getType())) {
+
+				// 値が float 型かどうかを調べて、そうでなければエラー
+				if (!currentNode.getAttribute(AttributeKey.DATA_TYPE).equals(DATA_TYPE_NAME.defaultFloat)) {
+					throw new VnanoException(ErrorType.NON_FLOAT_DATA_TYPES_ARE_RESTRICTED, fileName, lineNumber);
+				}
+
 			}
 
 		} while (!currentNode.isPreorderDftLastNode());
