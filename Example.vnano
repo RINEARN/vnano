@@ -1,3 +1,4 @@
+coding UTF-8;
 /*
  * A simple example of a Vnano script code to run directly on the command-line.
  * コマンドラインから直接実行する際のVnano のスクリプトコードの簡単な例

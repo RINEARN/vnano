@@ -61,7 +61,7 @@ public class DataTypeName {
 	 * </span>
 	 * .
 	 */
-	public String defaultInt = "int";
+	public String defaultInt = "int"; // フィールド名、単純な「 int 」は予約語なので使用できない
 
 
 	/**
@@ -82,7 +82,7 @@ public class DataTypeName {
 	 * </span>
 	 * .
 	 */
-	public String defaultFloat = "float";
+	public String defaultFloat = "float"; // フィールド名、単純な「 float 」は予約語なので使用できない
 
 
 	/**
@@ -121,7 +121,7 @@ public class DataTypeName {
 	 * <span class="lang-ja">void（プレースホルダ）型の名称 "void" です</span>
 	 * .
 	 */
-	public String voidPlaceholder = "void"; // 変数名が voidPlaceholder なのは void が予約語なので使えないため
+	public String voidPlaceholder = "void"; // フィールド名、単純な「 void 」は予約語なので使用できない
 
 
 	/** データ型の名称を全て含むハッシュセットです。*/

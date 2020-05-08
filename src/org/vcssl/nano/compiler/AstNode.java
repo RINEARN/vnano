@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.Deque;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -511,7 +510,7 @@ public class AstNode implements Cloneable {
 	 *   <span class="lang-ja">指定されたタイプの全ての子ノードを格納する配列.</span>
 	 */
 	public AstNode[] getChildNodes(Type type) {
-		LinkedList<AstNode> resultList = new LinkedList<AstNode>();
+		List<AstNode> resultList = new ArrayList<AstNode>();
 		AstNode[] allChildNodes = this.getChildNodes();
 		for (AstNode child : allChildNodes) {
 			if (child.getType() == type) {

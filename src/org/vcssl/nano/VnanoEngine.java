@@ -9,8 +9,12 @@ import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
 
+import org.vcssl.connect.ConnectorPermissionName;
+import org.vcssl.connect.ConnectorPermissionValue;
 import org.vcssl.nano.compiler.Compiler;
+import org.vcssl.nano.interconnect.EngineConnector;
 import org.vcssl.nano.interconnect.Interconnect;
+import org.vcssl.nano.spec.ErrorType;
 import org.vcssl.nano.spec.LanguageSpecContainer;
 import org.vcssl.nano.spec.OptionKey;
 import org.vcssl.nano.spec.OptionValue;
@@ -61,11 +65,35 @@ public class VnanoEngine {
 
 
 	/**
+	 * <span class="lang-en">A map to store all names and values of permission items</span>
+	 * <span class="lang-ja">全てのパーミッション項目の名称と値を保持するマップです</span>
+	 * .
+	 */
+	private Map<String, String> permissionMap = null;
+
+
+	/**
 	 * <span class="lang-en">An object to mediate information/connections between components, named as "interconnect"</span>
 	 * <span class="lang-ja">処理系内の各部で共有する情報や接続を仲介するオブジェクト（インターコネクト）です</span>
 	 * .
 	 */
 	Interconnect interconnect = null;
+
+
+	/*
+	 * <span class="lang-en">A connector to access information of the engine from plug-ins</span>
+	 * <span class="lang-ja">プラグインからエンジン側の情報（オプション含む）にアクセスするためのコネクタです</span>
+	 * .
+	 */
+	EngineConnector engineConnector = null;
+
+
+	/**
+	 * <span class="lang-en">Stores contents of library scripts, with their names as keys</span>
+	 * <span class="lang-ja">ライブラリスクリプトの内容を, ライブラリ名をキーとして保持します</span>
+	 * .
+	 */
+	Map<String, String> libraryNameContentMap = null;
 
 
 	/**
@@ -87,11 +115,17 @@ public class VnanoEngine {
 	 */
 	public VnanoEngine(LanguageSpecContainer langSpec) {
 		this.LANG_SPEC = langSpec;
+		this.libraryNameContentMap = new LinkedHashMap<String, String>();
 
 		// Create an option map and set default values.
 		// オプションマップを生成し, 必須項目をデフォルト値で補完
 		this.optionMap = new LinkedHashMap<String, Object>();
-		optionMap = OptionValue.normalizeValuesOf(optionMap);
+		this.optionMap = OptionValue.normalizeValuesOf(optionMap, langSpec);
+
+		// Create a permission map and set default values (all values of permission items are regarded to "ASK").
+		// パーミッションマップを生成し, 全パーミッション項目の値が "ASK" と見なされるデフォルト挙動で初期化
+		this.permissionMap = new LinkedHashMap<String, String>();
+		this.permissionMap.put(ConnectorPermissionName.ALL, ConnectorPermissionValue.ASK);
 
 		// Create a blank interconnect nothing is binded to.
 		// 何もバインディングされていない, 空のインターコネクトを生成
@@ -99,8 +133,8 @@ public class VnanoEngine {
 
 		// Create a connector to access information of the engine from plug-ins, and set it to the interconnect.
 		// プラグインからエンジン側の情報（オプション含む）にアクセスするためのコネクタを生成し, インターコネクトに設定
-		VnanoEngineConnector engineConnector = new VnanoEngineConnector(this.optionMap);
-		this.interconnect.setEngineConnector(engineConnector);
+		this.engineConnector = new EngineConnector();
+		this.interconnect.setEngineConnector(this.engineConnector);
 	}
 
 
@@ -127,20 +161,29 @@ public class VnanoEngine {
 	 */
 	public Object executeScript(String script) throws VnanoException {
 		try {
-			// Get some option items from the option map (Types of values were already checked).
-			// オプションマップからいくつかの設定値を取り出す（値の型は既に検査済み）
-			String evalScriptName = (String)this.optionMap.get(OptionKey.EVAL_SCRIPT_NAME);
-			String[] libraryScriptNames = (String[])this.optionMap.get(OptionKey.LIBRARY_SCRIPT_NAMES);
-			String[] libraryScripts = (String[])this.optionMap.get(OptionKey.LIBRARY_SCRIPTS);
+			// 全プラグインの初期化処理などを行い、インターコネクトをスクリプト実行可能な状態に移行
+			this.engineConnector.setOptionMap(this.optionMap);
+			this.engineConnector.setPermissionMap(this.permissionMap);
+			this.engineConnector.activate();
+			this.interconnect.activate();
 
 			// Contain an execution-target script and library scripts into an array.
 			// 実行対象スクリプトと, ライブスクリプト（複数）を1つの配列にまとめる
-			String[] scripts = new String[libraryScripts.length  + 1];
-			String[] names   = new String[libraryScriptNames.length + 1];
-			System.arraycopy(libraryScripts,  0, scripts, 0, libraryScripts.length );
-			System.arraycopy(libraryScriptNames, 0, names,   0, libraryScriptNames.length);
-			scripts[libraryScripts.length] = script;
-			names[libraryScriptNames.length ] = evalScriptName;
+			int libN = this.libraryNameContentMap.size();
+			String[] scripts = new String[libN  + 1];
+			String[] names   = new String[libN + 1];
+			names[libN] = (String)this.optionMap.get(OptionKey.EVAL_SCRIPT_NAME);
+			scripts[libN] = script;
+			int libIndex = 0;
+			for (Map.Entry<String, String> nameContentPair: this.libraryNameContentMap.entrySet()) {
+				names[libIndex] = nameContentPair.getKey();
+				scripts[libIndex] = nameContentPair.getValue();
+				// ライブラリ名と実行対象スクリプト名との重複は不可能（内部で実行対象スクリプト範囲を抽出しやすくするための実装上の都合）
+				if (names[libIndex].equals(names[libN])) {
+					throw new VnanoException(ErrorType.LIBRARY_SCRIPT_NAME_IS_CONFLICTING_WITH_MAIN_SCRIPT_NAME, names[libIndex]);
+				}
+				libIndex++;
+			}
 
 			// Translate scripts to a VRIL code (intermediate assembly code) by a compiler.
 			// コンパイラでスクリプトコードからVRILコード（中間アセンブリコード）に変換
@@ -151,6 +194,11 @@ public class VnanoEngine {
 			// VMでVRILコードを実行
 			VirtualMachine vm = new VirtualMachine(LANG_SPEC);
 			Object evalValue = vm.executeAssemblyCode(assemblyCode, this.interconnect, this.optionMap);
+
+			// 全プラグインの終了時処理などを行い、インターコネクトを待機状態に移行
+			this.interconnect.deactivate();
+			this.engineConnector.deactivate();
+
 			return evalValue;
 
 		// If any error is occurred for the content/processing of the script,
@@ -234,16 +282,83 @@ public class VnanoEngine {
 	 *   </span>
 	 */
 	public void connectPlugin(String bindingKey, Object plugin) throws VnanoException {
-
-		// Connect the plug-in to the interconnect.
-		// プラグインをインターコネクトに接続
 		this.interconnect.connectPlugin(bindingKey, plugin);
 	}
 
 
+	/*
+	// ファイル読み込み系の処理は最表層の VnanoScriptEngine 側で実装し、
+	// この層や下層ではファイル含む一切のシステムリソースへの新規アクセスは行わない
+	//（使用するのはインスタンスとして直接渡されたものに限る）
+	// このクラスを直接用いつつ、
+	// ファイルからライブラリを読み込みたい場合は、ScriptLoader で読み込んで setLibraryScripts へ渡す
+	public void loadPlugins(String[] paths) {
+	}
+	*/
+
+
 	/**
-	 * <span class="lang-en">Sets options, by a Map (option map) storing names and values of options you want to set</span>
-	 * <span class="lang-ja">オプションの名前と値を格納するマップ（オプションマップ）によって, オプションを設定します</span>
+	 * <span class="lang-en">Disconnects all plug-ins</span>
+	 * <span class="lang-ja">全てのプラグインの接続を解除します</span>
+	 * .
+	 * @throws VnanoException
+	 *   <span class="lang-en">
+	 *   Thrown when an exception occurred on the finalization of the plug-in to be disconnected.
+	 *   </span>
+	 *   <span class="lang-ja">
+	 *   プラグインの終了時処理でエラーが発生した場合にスローされます.
+	 *   </span>
+	 */
+	public void disconnectAllPlugins() throws VnanoException {
+		this.interconnect.disconnectAllPlugins();
+	}
+
+
+	/**
+	 * <span class="lang-en">Add a library script which will be "include"-ed at the head of a executed script</span>
+	 * <span class="lang-ja">実行対象スクリプトの先頭に "include" される, ライブラリスクリプトを追加します</span>
+	 * .
+	 * @param libraryScriptName
+	 *   <span class="lang-en">Names of the library script (displayed in error messages)</span>
+	 *   <span class="lang-ja">ライブラリスクリプトの名称 (エラーメッセージ等で使用されます)</span>
+	 *
+	 * @param libraryScriptContents
+	 *   <span class="lang-en">Contents (code) of the library script</span>
+	 *   <span class="lang-ja">ライブラリスクリプトのコード内容</span>
+	 */
+	public void includeLibraryScript(String libraryScriptName, String libraryScriptContent) throws VnanoException {
+		if (this.libraryNameContentMap.containsKey(libraryScriptName)) {
+			throw new VnanoException(ErrorType.LIBRARY_IS_ALREADY_INCLUDED, libraryScriptName);
+		}
+		this.libraryNameContentMap.put(libraryScriptName, libraryScriptContent);
+	}
+
+
+	/**
+	 * <span class="lang-en">Uninclude all library scripts</span>
+	 * <span class="lang-ja">全てのライブラリスクリプトの include 登録を解除します</span>
+	 * .
+	 * @throws VnanoException
+	 *   <span class="lang-en">
+	 *   Will not be thrown on the current implementation,
+	 *   but it requires to be "catch"-ed for keeping compatibility in future.
+	 *   </span>
+	 *   <span class="lang-ja">
+	 *   現状ではスローされませんが, 将来的な互換性維持のためのために catch する必要があります.
+	 *   </span>
+	 */
+	public void unincludeAllLibraryScripts() throws VnanoException {
+		this.libraryNameContentMap = new LinkedHashMap<String, String>();
+	}
+
+
+	/**
+	 * <span class="lang-en">
+	 * Sets options, by a Map (option map) storing names and values of options you want to set
+	 * </span>
+	 * <span class="lang-ja">
+	 * オプションの名前と値を格納するマップ（オプションマップ）によって, オプションを設定します
+	 * </span>
 	 * .
 	 * <span class="lang-en">
 	 * Type of the option map is Map<String,Object>, and its keys represents option names.
@@ -269,16 +384,15 @@ public class VnanoEngine {
 
 		// Supplement some option items by default values, and store the map to the field of this class.
 		// 必須項目をデフォルト値で補完した上で、このクラスのフィールドに設定
-		this.optionMap = OptionValue.normalizeValuesOf(optionMap);
+		this.optionMap = OptionValue.normalizeValuesOf(optionMap, LANG_SPEC);
 
 		// Check the content of option settings.
 		// オプション設定の内容を検査
 		OptionValue.checkValuesOf(this.optionMap);
 
-		// Create a connector to access information of the engine from plug-ins, and set it to the interconnect.
-		// プラグインからエンジン側の情報（オプション含む）にアクセスするためのコネクタを生成し, インターコネクトに設定
-		VnanoEngineConnector engineConnector = new VnanoEngineConnector(this.optionMap);
-		this.interconnect.setEngineConnector(engineConnector);
+		// Set options to the engine connector for accessing from plug-ins.
+		// プラグインからも参照可能なように, エンジンコネクタにも設定
+		this.engineConnector.setOptionMap(this.optionMap);
 	}
 
 
@@ -306,4 +420,63 @@ public class VnanoEngine {
 		return this.optionMap;
 	}
 
+
+	/**
+	 * <span class="lang-en">
+	 * Sets permissions, by a Map (permission map) storing names and values of permission items you want to set
+	 * </span>
+	 * <span class="lang-ja">
+	 * パーミッション項目の名前と値を格納するマップ（パーミッションマップ）によって, オプションを設定します
+	 * </span>
+	 * .
+	 * <span class="lang-en">
+	 * Type of the permission map is Map<String,String>, and its keys represents names of permission items.
+	 * For details of names and values of permission items,
+	 * see {@link org.vcssl.connect.ConnectorPermissionName} and {@link org.vcssl.connect.ConnectorPermissionValue}.
+	 * </span>
+	 *
+	 * <span class="lang-ja">
+	 * パーミッションマップは Map<String,String> 型で, そのキーはパーミッション項目の名称に対応します.
+	 * パーミッション項目の名称と値の詳細については,
+	 * {@link org.vcssl.connect.ConnectorPermissionName} と {@link org.vcssl.connect.ConnectorPermissionValue}
+	 * の説明をご参照ください.
+	 * </span>
+	 *
+	 * @param permissionMap
+	 *   <span class="lang-en">A Map (permission map) storing names and values of permission items</span>
+	 *   <span class="lang-ja">パーミッション項目の名前と値を格納するマップ（パーミッションマップ）</span>
+	 *
+	 * @throws VnanoException
+	 *   <span class="lang-en">Thrown if invalid permission settings is detected.</span>
+	 *   <span class="lang-ja">パーミッションの指定内容が正しくなかった場合にスローされます.</span>
+	 */
+	public void setPermissionMap(Map<String, String> permissionMap) throws VnanoException {
+		this.permissionMap = permissionMap;
+	}
+
+
+	/**
+	 * <span class="lang-en">Gets the Map (permission map) storing names and values of permission items</span>
+	 * <span class="lang-ja">パーミッション項目の名前と値を格納するマップ（パーミッションマップ）を取得します</span>
+	 * .
+	 * <span class="lang-en">
+	 * Type of the permission map is Map<String,String>, and its keys represents names of permission items.
+	 * For details of names and values of permission items,
+	 * see {@link org.vcssl.connect.ConnectorPermissionName} and {@link org.vcssl.connect.ConnectorPermissionValue}.
+	 * </span>
+	 *
+	 * <span class="lang-ja">
+	 * パーミッションマップは Map<String,String> 型で, そのキーはパーミッション項目の名称に対応します.
+	 * パーミッション項目の名称と値の詳細については,
+	 * {@link org.vcssl.connect.ConnectorPermissionName} と {@link org.vcssl.connect.ConnectorPermissionValue}
+	 * の説明をご参照ください.
+	 * </span>
+	 *
+	 * @return
+	 *   <span class="lang-en">A Map (permission map) storing names and values of permission items</span>
+	 *   <span class="lang-ja">パーミッション項目の名前と値を格納するマップ（パーミッションマップ）</span>
+	 */
+	public Map<String, String> getPermissionMap() {
+		return this.permissionMap;
+	}
 }

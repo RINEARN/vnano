@@ -1,3 +1,4 @@
+coding UTF-8;
 /*
  * A benchmarking program for measuring the peak performance of 
  * 64-bit floating-point vector operations of Vnano Engine.

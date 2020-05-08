@@ -212,16 +212,6 @@ public class OptionValue {
 
 
 	/**
-	 * <span class="lang-en">Used for auto-generation of the value of {@link OptionKey#EVAL_SCRIPT_NAME EVAL_SCRIPT_NAME} option</span>
-	 * <span class="lang-ja">{@link OptionKey#EVAL_SCRIPT_NAME EVAL_SCRIPT_NAME} オプションの値の自動生成に使用されます</span>
-	 * .
-	 * <span class="lang-en">The value is "LIBRARY_SCRIPT".</span>
-	 * <span class="lang-ja">値は "LIBRARY_SCRIPT" です.</span>
-	 */
-	private static final String DEFAULT_LIBRARY_SCRIPT_NAME = "LIBRARY_SCRIPT";
-
-
-	/**
 	 * <span class="lang-en">A map contains default values of the option map</span>
 	 * <span class="lang-ja">オプションマップのデフォルト値を保持するマップです</span>
 	 * .
@@ -229,15 +219,15 @@ public class OptionValue {
 	private static final Map<String, Object> DEFAULT_VALUE_MAP = new LinkedHashMap<String, Object>();
 	static {
 		DEFAULT_VALUE_MAP.put(OptionKey.EVAL_SCRIPT_NAME, "EVAL_SCRIPT");
-		DEFAULT_VALUE_MAP.put(OptionKey.EVAL_NUMBER_AS_FLOAT, Boolean.valueOf(false));
-		DEFAULT_VALUE_MAP.put(OptionKey.LIBRARY_SCRIPTS, new String[0]);
-		DEFAULT_VALUE_MAP.put(OptionKey.LIBRARY_SCRIPT_NAMES, new String[0]);
+		DEFAULT_VALUE_MAP.put(OptionKey.EVAL_NUMBER_AS_FLOAT, Boolean.FALSE);
+		DEFAULT_VALUE_MAP.put(OptionKey.EVAL_ONLY_FLOAT, Boolean.FALSE);
+		DEFAULT_VALUE_MAP.put(OptionKey.EVAL_ONLY_EXPRESSION, Boolean.FALSE);
 		DEFAULT_VALUE_MAP.put(OptionKey.LOCALE, Locale.getDefault());
-		DEFAULT_VALUE_MAP.put(OptionKey.ACCELERATOR_ENABLED, Boolean.valueOf(true));
-		DEFAULT_VALUE_MAP.put(OptionKey.DUMPER_ENABLED, false);
+		DEFAULT_VALUE_MAP.put(OptionKey.ACCELERATOR_ENABLED, Boolean.TRUE);
+		DEFAULT_VALUE_MAP.put(OptionKey.DUMPER_ENABLED, Boolean.FALSE);
 		DEFAULT_VALUE_MAP.put(OptionKey.DUMPER_TARGET, DUMPER_TARGET_ALL);
 		DEFAULT_VALUE_MAP.put(OptionKey.DUMPER_STREAM, System.out);
-		DEFAULT_VALUE_MAP.put(OptionKey.RUNNING_ENABLED, Boolean.valueOf(true));
+		DEFAULT_VALUE_MAP.put(OptionKey.RUNNING_ENABLED, Boolean.TRUE);
 		DEFAULT_VALUE_MAP.put(OptionKey.EVAL_SCRIPT_NAME, DEFAULT_EVAL_SCRIPT_NAME);
 	}
 
@@ -268,7 +258,8 @@ public class OptionValue {
 	 *   <span class="lang-en">The normalized option map</span>
 	 *   <span class="lang-ja">正規化されたオプションマップ</span>
 	 */
-	public static Map<String, Object> normalizeValuesOf(Map<String, Object> optionMap) {
+	public static Map<String, Object> normalizeValuesOf(
+			Map<String, Object> optionMap, LanguageSpecContainer langSpec) {
 
 		// 補完結果として返すマップを生成
 		Map<String, Object> returnMap = new LinkedHashMap<String, Object>();
@@ -287,99 +278,16 @@ public class OptionValue {
 			}
 		}
 
-		// もしライブラリスクリプトコードが指定されているにもかかわらず、
-		// ライブラリスクリプト名が未設定なら、自動生成する
-		// （値が配列で要素数が動的なので、DEFAULT_VALUE_MAP では対応できない）
-		if (!returnMap.containsKey(OptionKey.LIBRARY_SCRIPT_NAMES)
-				&& returnMap.containsKey(OptionKey.LIBRARY_SCRIPTS)) {
-
-			Object libraryScripts = returnMap.get(OptionKey.LIBRARY_SCRIPTS);
-			if (libraryScripts instanceof String[]) {
-				int n = ((String[])libraryScripts).length;
-				String[] libraryScriptNames = new String[n];
-				for (int i=0; i<n; i++) {
-					libraryScriptNames[i] = DEFAULT_LIBRARY_SCRIPT_NAME + "[" + i + "]";
-				}
-				returnMap.put(OptionKey.LIBRARY_SCRIPT_NAMES, libraryScriptNames);
-			}
-		}
-
 		// スクリプト名の中の特殊文字をエスケープ（VRILコード内にメタ情報として記載されるため）
 		if (returnMap.get(OptionKey.EVAL_SCRIPT_NAME) instanceof String) {
 			String evalScriptName = (String)returnMap.get(OptionKey.EVAL_SCRIPT_NAME);
-			returnMap.put(OptionKey.EVAL_SCRIPT_NAME, escapeScriptName(evalScriptName));
-		}
-
-		// 同様にライブラリスクリプト名の中の特殊文字もエスケープ
-		if (returnMap.get(OptionKey.LIBRARY_SCRIPT_NAMES) instanceof String[]) {
-			String[] libraryScriptNames = (String[])returnMap.get(OptionKey.LIBRARY_SCRIPT_NAMES);
-			int libraryLength = libraryScriptNames.length;
-
-			String[] escapedLibraryScriptNames = new String[libraryLength];
-			for (int i=0; i<libraryLength; i++) {
-				escapedLibraryScriptNames[i] = libraryScriptNames[i];
-			}
-			returnMap.put(OptionKey.LIBRARY_SCRIPT_NAMES, escapedLibraryScriptNames);
+			returnMap.put(
+				OptionKey.EVAL_SCRIPT_NAME,
+				langSpec.IDENTIFIER_SYNTAX.normalizeScriptIdentifier(evalScriptName)
+			);
 		}
 
 		return returnMap;
-	}
-
-
-	/**
-	 * <span class="lang-en">
-	 * Escapes special characters in a script name
-	 * </span>
-	 * <span class="lang-ja">
-	 * スクリプト名の中にある特殊文字を、エスケープしたものを返します
-	 * </span>
-	 * .
-	 *
-	 * <span class="lang-en">
-	 * Script names specified in an option map will be noted in meta information in VRIL code as string literals,
-	 * so it is necessary to escape them to not brake format of meta information and string literals.
-	 * </span>
-	 *
-	 * <span class="lang-ja">
-	 * オプションマップで指定されたスクリプト名は, VRILコード内で, メタ情報として文字列リテラル内に記載されます.
-	 * そのため, メタ情報の書式や文字列リテラルの範囲を崩さない内容にエスケープする必要があります.
-	 * </span>
-	 *
-	 * @param optionMap
-	 *   <span class="lang-en">The script name you to be escaped</span>
-	 *   <span class="lang-ja">エスケープしたいスクリプト名</span>
-	 *
-	 * @return
-	 *   <span class="lang-en">The escaped script name</span>
-	 *   <span class="lang-ja">エスケープされたスクリプト名</span>
-	 */
-	public static String escapeScriptName(String scriptName) {
-
-		String escapedName = scriptName;
-
-		// エスケープする箇所をこの文字列で置き換える
-		String escapedWord = "_";
-
-		// 文字列リテラルの範囲を崩さないようにダブルクォーテーションをエスケープ
-		escapedName = escapedName.replaceAll("\"", escapedWord);
-
-		// メタ情報の記法「key1=value1,key2=value2,...」を崩さないように「,」と「=」をエスケープ
-		escapedName = escapedName.replaceAll("=", escapedWord);
-		escapedName = escapedName.replaceAll(",", escapedWord);
-
-		// VRILの処理単位の区切りになるセミコロンをエスケープ
-		escapedName = escapedName.replaceAll(";", escapedWord);
-
-		// 空白/改行は問題にならないものの、VRILコードのメタ情報が改行されたりすると読みづらいのでエスケープ
-		escapedName = escapedName.replaceAll(" ", escapedWord);
-		escapedName = escapedName.replaceAll("\t", escapedWord);
-		escapedName = escapedName.replaceAll("\r", escapedWord);
-		escapedName = escapedName.replaceAll("\n", escapedWord);
-
-		// 階層区切りのバックスラッシュはスラッシュに統一
-		escapedName = escapedName.replace("\\", "/");
-
-		return escapedName;
 	}
 
 
@@ -403,8 +311,8 @@ public class OptionValue {
 	public static void checkValuesOf(Map<String, Object> optionMap) throws VnanoException {
 		checkValueOf(OptionKey.EVAL_SCRIPT_NAME, optionMap, String.class);
 		checkValueOf(OptionKey.EVAL_NUMBER_AS_FLOAT, optionMap, Boolean.class);
-		checkValueOf(OptionKey.LIBRARY_SCRIPTS, optionMap, String[].class);
-		checkValueOf(OptionKey.LIBRARY_SCRIPT_NAMES, optionMap, String[].class);
+		checkValueOf(OptionKey.EVAL_ONLY_FLOAT, optionMap, Boolean.class);
+		checkValueOf(OptionKey.EVAL_ONLY_EXPRESSION, optionMap, Boolean.class);
 		checkValueOf(OptionKey.LOCALE, optionMap, Locale.class);
 		checkValueOf(OptionKey.ACCELERATOR_ENABLED, optionMap, Boolean.class);
 		checkValueOf(OptionKey.DUMPER_ENABLED, optionMap, Boolean.class);

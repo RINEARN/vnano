@@ -350,7 +350,7 @@ public final class Memory {
 		}
 
 		// グローバルデータ領域の確保
-		int globalSize = globalVariableTable.size();
+		int globalSize = globalVariableTable.getSize();
 		for (int globalIndex=0; globalIndex<globalSize; globalIndex++) {
 			AbstractVariable variable = globalVariableTable.getVariableByIndex(globalIndex);
 			this.globalList.add(variable.getDataContainer());

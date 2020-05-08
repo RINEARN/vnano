@@ -1,3 +1,4 @@
+coding UTF-8;
 /*
  * A Vnano script code calculating PI as a little complicated example and a test.
  * 円周率の値を計算する、少し複雑なサンプル & 簡易テスト用のVnano のスクリプトコード

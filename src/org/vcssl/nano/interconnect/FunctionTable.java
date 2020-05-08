@@ -56,6 +56,18 @@ public class FunctionTable {
 	/** 名前空間付きの関数名と、関数とを対応付けるマップです。同じキーの要素を複数格納するため、値をリスト化して保持します。 */
 	Map<String, LinkedList<AbstractFunction>> fullNameFunctionMap = null;
 
+	/** 関数テーブル内でのインデックスと、関数とを対応付けるマップです。 */
+	Map<Integer, AbstractFunction> indexFunctionMap = null; // functionList は LinkedList なので、要素を辿るコストを避けるため
+
+	/** 関数シグネチャと、関数テーブル内でのインデックスとを対応付けるマップです。同じキーの要素を複数格納するため、値をリスト化して保持します。 */
+	Map<String, LinkedList<Integer>> signatureIndexMap = null;
+
+	/** 名前空間付きの関数シグネチャと、関数テーブル内でのインデックスとを対応付けるマップです。同じキーの要素を複数格納するため、値をリスト化して保持します。 */
+	Map<String, LinkedList<Integer>> fullSignatureIndexMap = null;
+
+	/** 登録されている関数の個数を保持します。 */
+	int size;
+
 
 	/**
 	 * 空の関数テーブルを生成します。
@@ -74,6 +86,12 @@ public class FunctionTable {
 
 		this.fullSignatureFunctionMap = new LinkedHashMap<String, LinkedList<AbstractFunction>>();
 		this.fullNameFunctionMap = new LinkedHashMap<String, LinkedList<AbstractFunction>>();
+
+		this.indexFunctionMap = new LinkedHashMap<Integer, AbstractFunction>();
+		this.signatureIndexMap = new LinkedHashMap<String, LinkedList<Integer>>();
+		this.fullSignatureIndexMap = new LinkedHashMap<String, LinkedList<Integer>>();
+
+		this.size = 0;
 	}
 
 
@@ -83,26 +101,27 @@ public class FunctionTable {
 	 * @param function 対象の関数
 	 */
 	public void addFunction(AbstractFunction function) {
+		int functionIndex = this.size;
+		this.size++;
 
-		// 全関数リストに追加
-		this.functionList.add(function);
-
-		String nameSpacePrefix = "";
-		if (function.hasNameSpace()) {
-			nameSpacePrefix = function.getNameSpace() +  SCRIPT_WORD.nameSpaceSeparator;
-		}
-
+		// 単純識別子から、名前空間を加味した識別子やシグネチャなどを求める
+		String nameSpacePrefix = function.hasNameSpace() ? "" : function.getNameSpace() +  SCRIPT_WORD.nameSpaceSeparator;
+		String functionName = function.getFunctionName();
+		String fullFunctionName = nameSpacePrefix + functionName;
 		String signature = IDENTIFIER_SYNTAX.getSignatureOf(function);
 		String fullSignature = IDENTIFIER_SYNTAX.getSignatureOf(function, nameSpacePrefix);
 
-		String functionName = function.getFunctionName();
-		String fullFunctionName = nameSpacePrefix + functionName;
-
+		// リストとマップに関数を追加
+		this.functionList.add(function);
 		IdentifierMapManager.putToMap(this.signatureFunctionMap, signature, function);
 		IdentifierMapManager.putToMap(this.nameFunctionMap, functionName, function);
-
 		IdentifierMapManager.putToMap(this.fullSignatureFunctionMap, fullSignature, function);
 		IdentifierMapManager.putToMap(this.fullNameFunctionMap, fullFunctionName, function);
+
+		// インデックスと関数とを関連付けるマップに登録（インデックスでの参照時にLinkedListを辿るコストを避けるため）
+		this.indexFunctionMap.put(functionIndex, function);
+		IdentifierMapManager.putToMap(this.signatureIndexMap, signature, functionIndex);
+		IdentifierMapManager.putToMap(this.fullSignatureIndexMap, fullSignature, functionIndex);
 	}
 
 
@@ -135,8 +154,26 @@ public class FunctionTable {
 	 * @param function 対象の関数
 	 * @return インデックス
 	 */
-	public int indexOf(AbstractFunction function) {
-		return this.functionList.indexOf(function);
+	public int getIndexOf(AbstractFunction function) {
+		// ※ このメソッドはアセンブラ内で変数ごとに呼ばれるので、トータルでは N 倍のコストがかかる
+
+
+		// これだと要素を辿っての検索になるので、登録されている変数が多い場合に、重くなってボトルネックになり得る
+		// return this.functionList.indexOf(function); // 以前の処理
+
+
+		// コストを定数オーダーにするため、まずシグネチャを求めて、
+		// それとインデックスとの対応を保持しているマップに投げて値を取得する
+		String nameSpacePrefix = function.hasNameSpace() ? "" : function.getNameSpace() +  SCRIPT_WORD.nameSpaceSeparator;
+		String signature = IDENTIFIER_SYNTAX.getSignatureOf(function);
+		String fullSignature = IDENTIFIER_SYNTAX.getSignatureOf(function, nameSpacePrefix);
+		if (signatureIndexMap.containsKey(signature)) {
+			return IdentifierMapManager.getLastFromMap(this.signatureIndexMap, signature);
+		}
+		if (fullSignatureIndexMap.containsKey(fullSignature)) {
+			return IdentifierMapManager.getLastFromMap(this.fullSignatureIndexMap, fullSignature);
+		}
+		throw new VnanoFatalException("Function index not found: " + fullSignature);
 	}
 
 

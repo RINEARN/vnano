@@ -7,6 +7,8 @@ package org.vcssl.nano.interconnect;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.vcssl.connect.ClassToXnci1Adapter;
 import org.vcssl.connect.ConnectorException;
@@ -86,6 +88,16 @@ public class Interconnect {
 	private EngineConnectorInterface1 engineConnector = null;
 
 
+	/** 初期化/終了時処理のため、接続されているXNCI形式のプラグインを一括で保持するリストです。 */
+	private List<ExternalNamespaceConnectorInterface1> xnci1PluginList = null;
+
+	/** 初期化/終了時処理のため、接続されているXFCI形式のプラグインを一括で保持するリストです。 */
+	private List<ExternalFunctionConnectorInterface1> xfci1PluginList = null;
+
+	/** 初期化/終了時処理のため、接続されているXVCI形式のプラグインを一括で保持するリストです。 */
+	private List<ExternalVariableConnectorInterface1> xvci1PluginList = null;
+
+
 	/**
 	 * <span class="lang-en">
 	 * Creates a blank interconnect to which nothing are connected,
@@ -104,6 +116,41 @@ public class Interconnect {
 		this.IDENTIFIER_SYNTAX = LANG_SPEC.IDENTIFIER_SYNTAX;
 		this.externalFunctionTable = new FunctionTable(LANG_SPEC);
 		this.externalVariableTable = new VariableTable(LANG_SPEC);
+		this.xnci1PluginList = new ArrayList<ExternalNamespaceConnectorInterface1>();
+		this.xfci1PluginList = new ArrayList<ExternalFunctionConnectorInterface1>();
+		this.xvci1PluginList = new ArrayList<ExternalVariableConnectorInterface1>();
+	}
+
+
+	/**
+	 * <span class="lang-en">
+	 * Turns to the active state on which scripts are executable, with initializing all connected plug-ins
+	 * </span>
+	 * <span class="lang-ja">
+	 * 接続されている全てのプラグインの初期化処理を行い, スクリプトを実行可能な待機状態に遷移します
+	 * </span>
+	 * .
+	 */
+	public void activate() throws VnanoException {
+
+		// 接続されている全プラグインの、スクリプト実行毎の初期化処理を実行
+		this.initializeAllPluginsForExecution();
+	}
+
+
+	/**
+	 * <span class="lang-en">
+	 * Turns to the idle state (on which scripts are not executable), with finalizing all connected plug-ins
+	 * </span>
+	 * <span class="lang-ja">
+	 * 接続されている全てのプラグインの終了時処理を行い, 待機状態（スクリプトは実行不可能）に遷移します.
+	 * </span>
+	 * .
+	 */
+	public void deactivate() throws VnanoException {
+
+		// 接続されている全プラグインの、スクリプト実行毎の終了時処理を実行
+		this.finalizeAllPluginsForTermination();
 	}
 
 
@@ -179,7 +226,9 @@ public class Interconnect {
 	 *   <span class="lang-en">Data container storing returned value from the callee function.</span>
 	 *   <span class="lang-ja">呼び出した関数からの戻り値を格納するデータユニット.</span>
 	 */
-	public void callExternalFunction(int functionIndex, DataContainer<?>[] arguments, DataContainer<?> returnData) {
+	public void callExternalFunction(int functionIndex, DataContainer<?>[] arguments, DataContainer<?> returnData)
+			throws VnanoException {
+
 		this.externalFunctionTable.getFunctionByIndex(functionIndex).invoke(arguments, returnData);
 	}
 
@@ -204,7 +253,8 @@ public class Interconnect {
 	 *   <span class="lang-en">The virtual memory which was used for execution of the script.</span>
 	 *   <span class="lang-ja">スクリプトの実行に使用した仮想メモリー.</span>
 	 */
-	public void writebackExternalVariables(Memory memory, VirtualMachineObjectCode intermediateCode) {
+	public void writebackExternalVariables(Memory memory, VirtualMachineObjectCode intermediateCode)
+			throws VnanoException {
 
 		// グローバル変数の書き戻し
 		int maxGlobalAddress = intermediateCode.getMaximumGlobalAddress();
@@ -300,10 +350,13 @@ public class Interconnect {
 	 */
 	public void connectPlugin(String bindingKey, Object plugin) throws VnanoException {
 
+		// 初期化が必要なプラグインの場合は、全てのアクセスよりも前にここで初期化する
+		this.initializePluginForConnection(plugin);
+
 		// Replace the binding key with auto-generated one if, it it is requested.
 		// キーを自動生成するよう設定されている場合は、キーを置き換え
 		if (bindingKey.equals(SpecialBindingKey.AUTO_KEY)) {
-			bindingKey = this.generateBindingKeyOf(plugin);
+			bindingKey = this.generateBindingKeyOf(plugin);     // これ、ここでシグネチャ求める前にプラグインを init する必要がる？
 		}
 
 		// XVCI 1 形式の外部変数プラグイン
@@ -364,6 +417,37 @@ public class Interconnect {
 			this.connectClassAsPlugin( pluginClass, plugin, true, bindingKey );
 		}
 	}
+
+
+	/**
+	 * <span class="lang-en">Disconnects all plug-ins</span>
+	 * <span class="lang-ja">全てのプラグインの接続を解除します</span>
+	 * .
+	 * <span class="lang-en">
+	 * If the finalization (for disconnection) method is implemented on the plug-in,
+	 * it will be called when the plug-in will be disconnected by this method.
+	 * </span>
+	 * <span class="lang-ja">
+	 * その際, 接続解除用の終了時処理が実装されているプラグインに対しては, その終了時処理が実行されます.
+	 * </span>
+	 *
+	 * @throws VnanoException
+	 *   <span class="lang-en">
+	 *   Thrown when an exception occurred on the finalization of the plug-in to be disconnected.
+	 *   </span>
+	 *   <span class="lang-ja">
+	 *   プラグインの終了時処理でエラーが発生した場合にスローされます.
+	 *   </span>
+	 */
+	public void disconnectAllPlugins() throws VnanoException {
+		this.finalizeAllPluginsForDisconnection();
+		this.externalFunctionTable = new FunctionTable(LANG_SPEC);
+		this.externalVariableTable = new VariableTable(LANG_SPEC);
+		this.xnci1PluginList = new ArrayList<ExternalNamespaceConnectorInterface1>();
+		this.xfci1PluginList = new ArrayList<ExternalFunctionConnectorInterface1>();
+		this.xvci1PluginList = new ArrayList<ExternalVariableConnectorInterface1>();
+	}
+
 
 	/**
 	 * <span class="lang-en">
@@ -668,14 +752,7 @@ public class Interconnect {
 	 */
 	private void connectXvci1Plugin(ExternalVariableConnectorInterface1 plugin, boolean aliasingRequired, String aliasName)
 			throws VnanoException {
-
-		try {
-			plugin.initializeForConnection(this.engineConnector);
-		} catch (ConnectorException e) {
-			throw new VnanoException(
-				ErrorType.PLUGIN_NITIALIZATION_FAILED, plugin.getClass().getCanonicalName(), e
-			);
-		}
+		this.xvci1PluginList.add(plugin);
 		Xvci1ToVariableAdapter adapter = new Xvci1ToVariableAdapter(plugin, LANG_SPEC);
 		this.connectVariable(adapter, aliasingRequired, aliasName);
 	}
@@ -713,14 +790,7 @@ public class Interconnect {
 	 */
 	private void connectXfci1Plugin(ExternalFunctionConnectorInterface1 plugin, boolean aliasingRequired, String aliasSignature)
 			throws VnanoException {
-
-		try {
-			plugin.initializeForConnection(this.engineConnector);
-		} catch (ConnectorException e) {
-			throw new VnanoException(
-				ErrorType.PLUGIN_NITIALIZATION_FAILED, plugin.getClass().getCanonicalName(), e
-			);
-		}
+		this.xfci1PluginList.add(plugin);
 		Xfci1ToFunctionAdapter adapter = new Xfci1ToFunctionAdapter(plugin, LANG_SPEC);
 		this.connectFunction(adapter, aliasingRequired, aliasSignature);
 	}
@@ -756,35 +826,21 @@ public class Interconnect {
 	 *   データ型の互換性などの原因により, プラグインの接続に失敗した場合にスローされます.
 	 *   </span>
 	 */
-	private void connectXnci1Plugin(ExternalNamespaceConnectorInterface1 connector, boolean aliasingRequired, String aliasName,
+	private void connectXnci1Plugin(ExternalNamespaceConnectorInterface1 plugin, boolean aliasingRequired, String aliasName,
 			boolean ignoreIncompatibles) throws VnanoException {
 
-		try {
-			connector.preInitializeForConnection(this.engineConnector);
-		} catch (ConnectorException e) {
-			throw new VnanoException(
-				ErrorType.PLUGIN_NITIALIZATION_FAILED, connector.getClass().getCanonicalName(), e
-			);
-		}
-
 		// 名前空間（の名前）を取得し、エイリアスが指定されている場合はその名前で置き換える
-		String nameSpace = connector.getNamespaceName();
+		String nameSpace = plugin.getNamespaceName();
 		if (aliasingRequired) {
 			nameSpace = aliasName;
 		}
 
 		// 関数をアダプタで変換して接続
-		ExternalFunctionConnectorInterface1[] xfciConnectors = connector.getFunctions();
+		ExternalFunctionConnectorInterface1[] xfciConnectors = plugin.getFunctions();
 		for (ExternalFunctionConnectorInterface1 xfciConnector: xfciConnectors) {
 			try {
-				xfciConnector.initializeForConnection(this.engineConnector);
 				AbstractFunction adapter = new Xfci1ToFunctionAdapter(xfciConnector, nameSpace, LANG_SPEC);
 				this.connectFunction(adapter, false, null);
-
-			} catch (ConnectorException e) {
-				throw new VnanoException(
-					ErrorType.PLUGIN_NITIALIZATION_FAILED, connector.getClass().getCanonicalName(), e
-				);
 
 			} catch (VnanoException e) {
 				if (!ignoreIncompatibles) {
@@ -794,17 +850,11 @@ public class Interconnect {
 		}
 
 		// 変数をアダプタで変換して接続
-		ExternalVariableConnectorInterface1[] xvciConnectors = connector.getVariables();
+		ExternalVariableConnectorInterface1[] xvciConnectors = plugin.getVariables();
 		for (ExternalVariableConnectorInterface1 xvciConnector: xvciConnectors) {
 			try {
-				xvciConnector.initializeForConnection(this.engineConnector);
 				AbstractVariable adapter = new Xvci1ToVariableAdapter(xvciConnector, nameSpace, LANG_SPEC);
 				this.connectVariable(adapter, false, null);
-
-			} catch (ConnectorException e) {
-				throw new VnanoException(
-					ErrorType.PLUGIN_NITIALIZATION_FAILED, connector.getClass().getCanonicalName(), e
-				);
 
 			} catch (VnanoException e) {
 				if (!ignoreIncompatibles) {
@@ -813,13 +863,8 @@ public class Interconnect {
 			}
 		}
 
-		try {
-			connector.postInitializeForConnection(this.engineConnector);
-		} catch (ConnectorException e) {
-			throw new VnanoException(
-				ErrorType.PLUGIN_NITIALIZATION_FAILED, connector.getClass().getCanonicalName(), e
-			);
-		}
+		// 先のほうの初期化だけでなく、後のほうの初期化も正常に完了した段階でリストに登録する
+		this.xnci1PluginList.add(plugin);
 	}
 
 
@@ -857,4 +902,136 @@ public class Interconnect {
 		this.externalFunctionTable.addFunction(function);
 	}
 
+
+	private void initializePluginForConnection(Object plugin) throws VnanoException {
+		Object initializingPlugin = null; // 例外発生時のため、初期化中のプラグインを控えておく
+		try {
+
+			// XNCI1の場合
+			if (plugin instanceof ExternalNamespaceConnectorInterface1) {
+				ExternalNamespaceConnectorInterface1 xnci1Plugin = (ExternalNamespaceConnectorInterface1)plugin;
+
+				// 本体の preInit
+				initializingPlugin = xnci1Plugin;
+				((ExternalNamespaceConnectorInterface1)plugin).preInitializeForConnection(this.engineConnector);
+
+				// 所属関数の init
+				for (ExternalFunctionConnectorInterface1 function: xnci1Plugin.getFunctions()) {
+					initializingPlugin = function;
+					function.initializeForConnection(this.engineConnector);
+				}
+
+				// 所属変数の init
+				for (ExternalVariableConnectorInterface1 variable: xnci1Plugin.getVariables()) {
+					initializingPlugin = variable;
+					variable.initializeForConnection(this.engineConnector);
+				}
+
+				// 本体の postInit
+				initializingPlugin = xnci1Plugin;
+				((ExternalNamespaceConnectorInterface1)plugin).postInitializeForConnection(this.engineConnector);
+
+			// XFCI1の場合
+			} else if (plugin instanceof ExternalFunctionConnectorInterface1) {
+				initializingPlugin = plugin;
+				((ExternalFunctionConnectorInterface1)plugin).initializeForConnection(this.engineConnector);
+
+			// XVCI1の場合
+			} else if (plugin instanceof ExternalVariableConnectorInterface1) {
+				initializingPlugin = plugin;
+				((ExternalVariableConnectorInterface1)plugin).initializeForConnection(this.engineConnector);
+			}
+
+		} catch (ConnectorException e) {
+			throw new VnanoException(
+				ErrorType.PLUGIN_INITIALIZATION_FAILED, initializingPlugin.getClass().getCanonicalName(), e
+			);
+		}
+
+		// 初期化が必要ないオブジェクトの場合は何もしない
+	}
+
+
+	private void finalizeAllPluginsForDisconnection() throws VnanoException {
+		Object finalizingPlugin = null; // 例外発生時のため、終了時処理中のプラグインを控えておく
+		try {
+			// モジュールの preInit -> 関数/変数の init -> モジュールの postInit の順で初期化
+			for (ExternalNamespaceConnectorInterface1 plugin: xnci1PluginList) {
+				finalizingPlugin = plugin;
+				plugin.preFinalizeForDisconnection(plugin);
+			}
+			for (ExternalFunctionConnectorInterface1 plugin: xfci1PluginList) {
+				finalizingPlugin = plugin;
+				plugin.finalizeForDisconnection(plugin);
+			}
+			for (ExternalVariableConnectorInterface1 plugin: xvci1PluginList) {
+				finalizingPlugin = plugin;
+				plugin.finalizeForDisconnection(plugin);
+			}
+			for (ExternalNamespaceConnectorInterface1 plugin: xnci1PluginList) {
+				finalizingPlugin = plugin;
+				plugin.postFinalizeForDisconnection(plugin);
+			}
+		} catch (ConnectorException e) {
+			throw new VnanoException(
+				ErrorType.PLUGIN_FINALIZATION_FAILED, finalizingPlugin.getClass().getCanonicalName(), e
+			);
+		}
+	}
+
+
+	private void initializeAllPluginsForExecution() throws VnanoException {
+		Object initializingPlugin = null; // 例外発生時のため、初期化中のプラグインを控えておく
+		try {
+			// モジュールの preInit -> 関数/変数の init -> モジュールの postInit の順で初期化
+			for (ExternalNamespaceConnectorInterface1 plugin: xnci1PluginList) {
+				initializingPlugin = plugin;
+				plugin.preInitializeForExecution(plugin);
+			}
+			for (ExternalFunctionConnectorInterface1 plugin: xfci1PluginList) {
+				initializingPlugin = plugin;
+				plugin.initializeForExecution(plugin);
+			}
+			for (ExternalVariableConnectorInterface1 plugin: xvci1PluginList) {
+				initializingPlugin = plugin;
+				plugin.initializeForExecution(plugin);
+			}
+			for (ExternalNamespaceConnectorInterface1 plugin: xnci1PluginList) {
+				initializingPlugin = plugin;
+				plugin.postInitializeForExecution(plugin);
+			}
+		} catch (ConnectorException e) {
+			throw new VnanoException(
+				ErrorType.PLUGIN_INITIALIZATION_FAILED, initializingPlugin.getClass().getCanonicalName(), e
+			);
+		}
+	}
+
+
+	private void finalizeAllPluginsForTermination() throws VnanoException {
+		Object finalizingPlugin = null; // 例外発生時のため、終了時処理中のプラグインを控えておく
+		try {
+			// モジュールの preInit -> 関数/変数の init -> モジュールの postInit の順で初期化
+			for (ExternalNamespaceConnectorInterface1 plugin: xnci1PluginList) {
+				finalizingPlugin = plugin;
+				plugin.preFinalizeForTermination(plugin);
+			}
+			for (ExternalFunctionConnectorInterface1 plugin: xfci1PluginList) {
+				finalizingPlugin = plugin;
+				plugin.finalizeForTermination(plugin);
+			}
+			for (ExternalVariableConnectorInterface1 plugin: xvci1PluginList) {
+				finalizingPlugin = plugin;
+				plugin.finalizeForTermination(plugin);
+			}
+			for (ExternalNamespaceConnectorInterface1 plugin: xnci1PluginList) {
+				finalizingPlugin = plugin;
+				plugin.postFinalizeForTermination(plugin);
+			}
+		} catch (ConnectorException e) {
+			throw new VnanoException(
+				ErrorType.PLUGIN_FINALIZATION_FAILED, finalizingPlugin.getClass().getCanonicalName(), e
+			);
+		}
+	}
 }

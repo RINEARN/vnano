@@ -49,6 +49,18 @@ public class VariableTable implements Cloneable {
 	/** 名前空間付きの中間アセンブリコード識別子と、変数とを対応付けるマップです。同じキーの要素を複数格納するため、値をリスト化して保持します。 */
 	Map<String, LinkedList<AbstractVariable>> fullAssemblyIdentifierVariableMap = null;
 
+	/** 変数テーブル内でのインデックスと、変数とを対応付けるマップです。 */
+	Map<Integer, AbstractVariable> indexVariableMap = null; // variableList は LinkedList なので、要素を辿るコストを避けるため
+
+	/** 中間アセンブリコード識別子と、変数テーブル内でのインデックスとを対応付けるマップです。同じキーの要素を複数格納するため、値をリスト化して保持します。 */
+	Map<String, LinkedList<Integer>> assemblyIdentifierIndexMap = null;
+
+	/** 名前空間付きの中間アセンブリコード識別子と、変数テーブル内でのインデックスとを対応付けるマップです。同じキーの要素を複数格納するため、値をリスト化して保持します。 */
+	Map<String, LinkedList<Integer>> fullAssemblyIdentifierIndexMap = null;
+
+	/** 登録されている変数の個数を保持します。 */
+	int size;
+
 
 	/**
 	 * 空の変数テーブルを生成します。
@@ -64,6 +76,12 @@ public class VariableTable implements Cloneable {
 		this.fullNameVariableMap = new LinkedHashMap<String, LinkedList<AbstractVariable>>();
 		this.assemblyIdentifierVariableMap = new LinkedHashMap<String, LinkedList<AbstractVariable>>();
 		this.fullAssemblyIdentifierVariableMap = new LinkedHashMap<String, LinkedList<AbstractVariable>>();
+
+		this.indexVariableMap = new LinkedHashMap<Integer, AbstractVariable>();
+		this.assemblyIdentifierIndexMap = new LinkedHashMap<String, LinkedList<Integer>>();
+		this.fullAssemblyIdentifierIndexMap = new LinkedHashMap<String, LinkedList<Integer>>();
+
+		this.size = 0;
 	}
 
 
@@ -73,10 +91,11 @@ public class VariableTable implements Cloneable {
 	 * @param variable 対象の変数
 	 */
 	public void addVariable(AbstractVariable variable) {
-		String nameSpacePrefix = "";
-		if (variable.hasNameSpace()) {
-			nameSpacePrefix = variable.getNameSpace() + SCRIPT_WORD.nameSpaceSeparator;
-		}
+		int variableIndex = this.size;
+		this.size++;
+
+		// 単純識別子から、名前空間を加味した識別子や、アセンブリ識別子などを求める
+		String nameSpacePrefix = variable.hasNameSpace() ? "" : variable.getNameSpace() + SCRIPT_WORD.nameSpaceSeparator;
 		String varName = variable.getVariableName();
 		String asmName = IDENTIFIER_SYNTAX.getAssemblyIdentifierOf(variable);
 		String fullAsmName = IDENTIFIER_SYNTAX.getAssemblyIdentifierOf(variable, nameSpacePrefix);
@@ -87,6 +106,11 @@ public class VariableTable implements Cloneable {
 		IdentifierMapManager.putToMap(this.fullNameVariableMap, nameSpacePrefix + varName, variable);
 		IdentifierMapManager.putToMap(this.assemblyIdentifierVariableMap, asmName, variable);
 		IdentifierMapManager.putToMap(this.fullAssemblyIdentifierVariableMap, fullAsmName, variable);
+
+		// インデックスと変数とを関連付けるマップに登録（インデックスでの参照時にLinkedListを辿るコストを避けるため）
+		this.indexVariableMap.put(variableIndex, variable);
+		IdentifierMapManager.putToMap(this.assemblyIdentifierIndexMap, asmName, variableIndex);
+		IdentifierMapManager.putToMap(this.fullAssemblyIdentifierIndexMap, fullAsmName, variableIndex);
 	}
 
 
@@ -96,11 +120,12 @@ public class VariableTable implements Cloneable {
 	 * @param variableName 削除する変数名
 	 */
 	public void removeLastVariable() {
+		this.size--;
+		int variableIndex = this.size;
+
+		// 単純識別子から、名前空間を加味した識別子や、アセンブリ識別子などを求める（削除する際のキーに使う）
 		AbstractVariable variable = this.variableList.getLast();
-		String nameSpacePrefix = "";
-		if (variable.hasNameSpace()) {
-			nameSpacePrefix = variable.getNameSpace() + SCRIPT_WORD.nameSpaceSeparator;
-		}
+		String nameSpacePrefix = variable.hasNameSpace() ? "" : variable.getNameSpace() + SCRIPT_WORD.nameSpaceSeparator;
 		String varName = variable.getVariableName();
 		String asmName = IDENTIFIER_SYNTAX.getAssemblyIdentifierOf(variable);
 		String fullAsmName = IDENTIFIER_SYNTAX.getAssemblyIdentifierOf(variable, nameSpacePrefix);
@@ -111,6 +136,9 @@ public class VariableTable implements Cloneable {
 		IdentifierMapManager.removeLastFromMap(this.fullNameVariableMap, nameSpacePrefix + varName);
 		IdentifierMapManager.removeLastFromMap(this.assemblyIdentifierVariableMap, asmName);
 		IdentifierMapManager.removeLastFromMap(this.fullAssemblyIdentifierVariableMap, fullAsmName);
+
+		// インデックスと変数とを関連付けるマップから削除
+		this.indexVariableMap.remove(variableIndex, variable);
 	}
 
 
@@ -199,8 +227,9 @@ public class VariableTable implements Cloneable {
 	 * @param index インデックス
 	 * @return 対象の変数
 	 */
+
 	public AbstractVariable getVariableByIndex(int index) {
-		return this.variableList.get(index);
+		return this.indexVariableMap.get(index);
 	}
 
 
@@ -211,9 +240,28 @@ public class VariableTable implements Cloneable {
 	 * @param variable 対象の変数
 	 * @return インデックス
 	 */
-	public int indexOf(AbstractVariable variable) {
-		return this.variableList.indexOf(variable);
+	public int getIndexOf(AbstractVariable variable) {
+		// ※ このメソッドはアセンブラ内で変数ごとに呼ばれるので、トータルでは N 倍のコストがかかる
+
+
+		// これだと要素を辿っての検索になるので、登録されている変数が多い場合に、重くなってボトルネックになり得る
+		// return this.variableList.indexOf(variable); // 以前の処理
+
+
+		// コストを定数オーダーにするため、まずアセンブリ識別子を求めて、
+		// それとインデックスとの対応を保持しているマップに投げて値を取得する
+		String nameSpacePrefix = variable.hasNameSpace() ? "" : variable.getNameSpace() + SCRIPT_WORD.nameSpaceSeparator;
+		String asmName = IDENTIFIER_SYNTAX.getAssemblyIdentifierOf(variable);
+		String fullAsmName = IDENTIFIER_SYNTAX.getAssemblyIdentifierOf(variable, nameSpacePrefix);
+		if (assemblyIdentifierIndexMap.containsKey(asmName)) {
+			return IdentifierMapManager.getLastFromMap(this.assemblyIdentifierIndexMap, asmName);
+		}
+		if (fullAssemblyIdentifierIndexMap.containsKey(fullAsmName)) {
+			return IdentifierMapManager.getLastFromMap(this.fullAssemblyIdentifierIndexMap, fullAsmName);
+		}
+		throw new VnanoFatalException("Variable index not found: " + fullAsmName);
 	}
+
 
 
 	/**
@@ -221,7 +269,7 @@ public class VariableTable implements Cloneable {
 	 *
 	 * @return 登録されている変数の数
 	 */
-	public int size() {
-		return this.variableList.size();
+	public int getSize() {
+		return this.size;
 	}
 }

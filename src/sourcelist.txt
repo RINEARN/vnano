@@ -4,6 +4,7 @@ org/vcssl/connect/ConnectorException.java
 org/vcssl/connect/ConnectorImplementationContainer.java
 org/vcssl/connect/ConnectorImplementationLoader.java
 org/vcssl/connect/ConnectorPermissionName.java
+org/vcssl/connect/ConnectorPermissionValue.java
 org/vcssl/connect/EngineConnectorInterface1.java
 org/vcssl/connect/ExternalFunctionConnectorInterface1.java
 org/vcssl/connect/ExternalNamespaceConnectorInterface1.java
@@ -53,6 +54,7 @@ org/vcssl/nano/compiler/Token.java
 org/vcssl/nano/interconnect/AbstractFunction.java
 org/vcssl/nano/interconnect/AbstractVariable.java
 org/vcssl/nano/interconnect/DataConverter.java
+org/vcssl/nano/interconnect/EngineConnector.java
 org/vcssl/nano/interconnect/FunctionAliasAdapter.java
 org/vcssl/nano/interconnect/FunctionTable.java
 org/vcssl/nano/interconnect/IdentifierMapManager.java
@@ -60,6 +62,8 @@ org/vcssl/nano/interconnect/Interconnect.java
 org/vcssl/nano/interconnect/InternalFunction.java
 org/vcssl/nano/interconnect/InternalVariable.java
 org/vcssl/nano/interconnect/package-info.java
+org/vcssl/nano/interconnect/PluginLoader.java
+org/vcssl/nano/interconnect/ScriptLoader.java
 org/vcssl/nano/interconnect/VariableAliasAdapter.java
 org/vcssl/nano/interconnect/VariableTable.java
 org/vcssl/nano/interconnect/Xfci1ToFunctionAdapter.java
@@ -67,6 +71,8 @@ org/vcssl/nano/interconnect/Xvci1ToVariableAdapter.java
 org/vcssl/nano/main/VnanoCommandLineApplication.java
 org/vcssl/nano/package-info.java
 org/vcssl/nano/spec/AssemblyWord.java
+org/vcssl/nano/spec/ConfirmationMessage.java
+org/vcssl/nano/spec/ConfirmationType.java
 org/vcssl/nano/spec/DataType.java
 org/vcssl/nano/spec/DataTypeName.java
 org/vcssl/nano/spec/EngineInformation.java
@@ -83,6 +89,7 @@ org/vcssl/nano/spec/OptionValue.java
 org/vcssl/nano/spec/package-info.java
 org/vcssl/nano/spec/ScriptWord.java
 org/vcssl/nano/spec/SpecialBindingKey.java
+org/vcssl/nano/spec/SpecialBindingValue.java
 org/vcssl/nano/vm/accelerator/Accelerator.java
 org/vcssl/nano/vm/accelerator/AcceleratorDataManagementUnit.java
 org/vcssl/nano/vm/accelerator/AcceleratorDispatchUnit.java
@@ -165,7 +172,6 @@ org/vcssl/nano/vm/processor/Processor.java
 org/vcssl/nano/vm/VirtualMachine.java
 org/vcssl/nano/vm/VirtualMachineObjectCode.java
 org/vcssl/nano/VnanoEngine.java
-org/vcssl/nano/VnanoEngineConnector.java
 org/vcssl/nano/VnanoException.java
 org/vcssl/nano/VnanoFatalException.java
 org/vcssl/nano/VnanoScriptEngine.java

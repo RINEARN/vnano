@@ -411,7 +411,7 @@ public class Assembler {
 			if (line.startsWith(ASSEMBLY_WORD.globalVariableDirective)) {
 				String identifier = words[1];
 				AbstractVariable variable = globalVariableTable.getVariableByAssemblyIdentifier(identifier);
-				int globalAddress = globalVariableTable.indexOf(variable);
+				int globalAddress = globalVariableTable.getIndexOf(variable);
 				assembledObject.addGlobalVariable(identifier, globalAddress);
 			}
 
@@ -420,7 +420,7 @@ public class Assembler {
 				String identifier = words[1];
 				String signature = identifier.substring(1, identifier.length()); // 先頭文字は識別子プレフィックスなので除去
 				AbstractFunction function = functionTable.getFunctionBySignature(signature);
-				int functionAddress = functionTable.indexOf(function);
+				int functionAddress = functionTable.getIndexOf(function);
 				assembledObject.addFunction(identifier, functionAddress);
 			}
 

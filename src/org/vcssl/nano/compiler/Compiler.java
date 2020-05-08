@@ -6,7 +6,7 @@
 package org.vcssl.nano.compiler;
 
 import java.io.PrintStream;
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -127,7 +127,7 @@ public class Compiler {
 		}
 
 		// VRIL生成用途でアプリケーションから直接呼ばれる事も考えられるため、オプション内容の正規化を再度行っておく
-		optionMap = OptionValue.normalizeValuesOf(optionMap);
+		optionMap = OptionValue.normalizeValuesOf(optionMap, LANG_SPEC);
 
 		// スクリプトコードの枚数を取得
 		int scriptLength = scripts.length;
@@ -175,7 +175,7 @@ public class Compiler {
 
 		// 全スクリプトのトークン配列を結合 ( 最初にスクリプトそのものを結合せず、わざわざ
 		// 字句解析後に結合している理由は、エラー情報などで使用する、行番号やファイル名情報のずれを防ぐため ）
-		List<Token> tokenList = new LinkedList<Token>();
+		List<Token> tokenList = new ArrayList<Token>();
 		for (int scriptIndex=0; scriptIndex<scriptLength; scriptIndex++) {
 			for (Token token: tokens[scriptIndex]) {
 				tokenList.add(token);
@@ -200,7 +200,7 @@ public class Compiler {
 
 
 		// 意味解析でASTの情報を補間
-		AstNode analyzedAstRootNode = new SemanticAnalyzer(LANG_SPEC).analyze(parsedAstRootNode, interconnect);
+		AstNode analyzedAstRootNode = new SemanticAnalyzer(LANG_SPEC).analyze(parsedAstRootNode, interconnect, optionMap);
 
 		// 意味解析後のASTをダンプ
 		if (shouldDump && (dumpTargetIsAll || dumpTarget.equals(OptionValue.DUMPER_TARGET_ANALYZED_AST)) ) {
