@@ -18,6 +18,7 @@ import javax.script.ScriptEngineFactory;
 import javax.script.ScriptException;
 import javax.script.SimpleBindings;
 
+import org.vcssl.nano.interconnect.MetaQualifiedFileLoader;
 import org.vcssl.nano.interconnect.PluginLoader;
 import org.vcssl.nano.interconnect.ScriptLoader;
 import org.vcssl.nano.spec.EngineInformation;
@@ -270,10 +271,9 @@ public class VnanoScriptEngine implements ScriptEngine {
 			}
 			String script = builder.toString();
 
-			// 文字コード宣言があれば削除
-			ScriptLoader loader = new ScriptLoader(DEFAULT_ENCODING, LANG_SPEC); // ※ここで使う機能では文字コードに何を指定しても影響しない
+			// 処理系内で読み込んだライブラリファイル等と同様の後処理を実行（文字コード宣言削除や、環境依存内容の正規化など）
 			try {
-				script = loader.removeEncodingDeclaration(null, script); // 第一引数はエラーメッセージで用いるファイル名で、ある場合のみ指定する
+				script = MetaQualifiedFileLoader.postprocess(null, script, LANG_SPEC); // 第一引数はエラーメッセージで用いるファイル名（ある場合のみ）
 			} catch (VnanoException vne) {
 				String message = vne.getMessageWithoutLocation();
 				throw new ScriptException(message);

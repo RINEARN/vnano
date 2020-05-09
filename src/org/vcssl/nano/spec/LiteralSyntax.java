@@ -97,7 +97,15 @@ public class LiteralSyntax {
 
 
 	/**
-	 * <span class="lang-en">The beginning/end character of string literals: "</span>
+	 * <span class="lang-en">The prefix character of escape sequences in string literals: \</span>
+	 * <span class="lang-ja">文字列型リテラル内のエスケープシーケンスのプレフィックス記号「 \ 」です</span>
+	 * .
+	 */
+	private char stringLiteralEscape = '\\';
+
+
+	/**
+	 * <span class="lang-en">The beginning/end character of string-literals: "</span>
 	 * <span class="lang-ja">文字列型リテラルの始点・終点記号「 " 」です</span>
 	 * .
 	 */
@@ -105,11 +113,11 @@ public class LiteralSyntax {
 
 
 	/**
-	 * <span class="lang-en">The prefix character of escape sequences in string literals: \</span>
-	 * <span class="lang-ja">文字列型リテラル内のエスケープシーケンスのプレフィックス記号「 \ 」です</span>
+	 * <span class="lang-en">The beginning/end character of char-literals (unsupported): '</span>
+	 * <span class="lang-ja">文字型リテラル（非サポート）の始点・終点記号「 ' 」です</span>
 	 * .
 	 */
-	public char stringLiteralEscape = '\\';
+	public char charLiteralQuot = '\'';
 
 
 	/**

@@ -6,13 +6,9 @@
 package org.vcssl.nano.interconnect;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -218,12 +214,8 @@ public class PluginLoader {
 		this.pluginDirectory = listFile.getParentFile();
 
 		// リストファイルから、プラグインのクラスパス一覧を再読み込み（または初回読み込み）
-		List<String> pluginPaths = null;
-		try {
-			pluginPaths = Files.readAllLines(Paths.get(this.pluginListPath), Charset.forName(DEFAULT_ENCODING));
-		} catch (IOException ioe) {
-			throw new VnanoException(ErrorType.PLUGIN_LIST_FILE_IS_NOT_ACCESSIBLE, this.pluginListPath, ioe);
-		}
+		String listFileContent = MetaQualifiedFileLoader.load(this.pluginListPath, DEFAULT_ENCODING, LANG_SPEC);
+		String[] pluginPaths = listFileContent.split("\\n"); // 上記の load で読んだ内容は、改行コードがLF (\n) に正規化済み
 
 		// 読み込んだクラスパスの一覧をフィールドに反映
 		for (String pluginPath: pluginPaths) {
