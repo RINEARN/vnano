@@ -32,6 +32,7 @@ public class CombinedTestExecutor {
 		testElementList.add(new SubscriptedLogicalOperationCombinedTest());
 		testElementList.add(new SubscriptedComparisonOperationCombinedTest());
 		testElementList.add(new SubscriptedCompoundAssignmentOperationCombinedTest());
+		testElementList.add(new EmptyStatementCombinedTest());
 		testElementList.add(new BlockStatementCombinedTest());
 		testElementList.add(new IfElseStatementCombinedTest());
 		testElementList.add(new WhileStatementCombinedTest());
