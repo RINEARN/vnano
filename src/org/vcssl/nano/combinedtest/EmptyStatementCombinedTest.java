@@ -36,6 +36,16 @@ public class EmptyStatementCombinedTest extends CombinedTestElement {
 		this.engine.executeScript(scriptCode);
 		this.succeeded("an empty scrpt"); // 何も起こらなければOK
 
+		// 改行ありの空のスクリプト
+		scriptCode = "\n" ;
+		this.engine.executeScript(scriptCode);
+		this.succeeded("an empty scrpt"); // 何も起こらなければOK
+
+		// 複数の改行ありの空のスクリプト
+		scriptCode = "\n\n" ;
+		this.engine.executeScript(scriptCode);
+		this.succeeded("an empty scrpt"); // 何も起こらなければOK
+
 		// 空文
 		scriptCode = ";" ;
 		this.engine.executeScript(scriptCode);

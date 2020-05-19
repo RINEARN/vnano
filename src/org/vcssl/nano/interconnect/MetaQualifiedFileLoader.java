@@ -327,7 +327,7 @@ public class MetaQualifiedFileLoader {
 		fileContent = normalize(fileContent);
 
 		// 文字コード宣言がある場合、その位置は先頭行に限られるので、先頭行を抽出する
-		String firstLine = fileContent.split("\n")[0];  // 上で内容が無い場合を弾いているので、[0] が領域外になる事はあり得ない
+		String firstLine = fileContent.split("\n", -1)[0];  // 上で内容が無い場合を弾いているので、[0] が領域外になる事はあり得ない
 
 		// 先頭行の中にある空白の類を詰める
 		firstLine = firstLine.replaceAll("\\s", "").replaceAll("\\t", "");
