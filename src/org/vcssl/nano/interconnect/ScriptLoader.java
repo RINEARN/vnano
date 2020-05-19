@@ -14,6 +14,49 @@ import org.vcssl.nano.VnanoException;
 import org.vcssl.nano.spec.ErrorType;
 import org.vcssl.nano.spec.LanguageSpecContainer;
 
+
+/**
+ * <span class="lang-en">
+ * The class to perform loading of scripts from text files
+ * </span>
+ * <span class="lang-ja">
+ * テキストファイルからスクリプトコードを読み込むためのローダです
+ * </span>
+ * .
+ * <span class="lang-en">
+ * How to register scripts to this loader depends on whether it is a "main script" or "library scripts".
+ * The path of the main script file is simply specified by
+ * {@link ScriptLoader#setMainScriptPath(String) setMainScriptPath(String) } method.
+ * On the other hand, paths of library script files are specified by describing them in a text file,
+ * which is referred as "library list file".
+ * The path of the library list file is specified by
+ * {@link ScriptLoader#setLibraryListPath(String) setLibraryListPath(String) } method.
+ * In the library list file, describe a path of a library script file for each line.
+ * Lines starts with "#" will be regarded as comment lines. Empty lines are also ignored.
+ * </span>
+ *
+ * <span class="lang-ja">
+ * このローダへのスクリプトの読み込み指定方法は, 処理系内での利便性のため,
+ * 「メインスクリプトファイル」と「ライブラリスクリプトファイル」とで異なります.
+ * 前者は単一のファイル, 後者は複数のファイルです.
+ * メインスクリプトファイルは,
+ * 単純にそのパスを {@link ScriptLoader#setMainScriptPath(String) setMainScriptPath(String) }
+ * メソッドによって指定します.
+ * それに対して, ライブラリスクリプトファイルは, 一覧をテキストファイルに記述し, そのパスを
+ * {@link ScriptLoader#setLibraryListPath(String) setLibraryListPath(String) } メソッドで指定します.
+ * このテキストファイルの事を「ライブラリリストファイル」と呼びます.
+ * ライブラリリストファイル内には, 1行につき1個のライブラリスクリプトファイルのパスを記述してください.
+ * 「 # 」で始まる行はコメント行として読み飛ばされます. 空白行も読み飛ばされます.
+ * </span>
+ *
+ * <span class="lang-en">
+ * After registering scripts to be loaded, they will be loaded by {@link ScriptLoader#load() } method.
+ * </span>
+ *
+ * <span class="lang-en">
+ * スクリプトを指定した後は, それらの読み込みは {@link ScriptLoader#load() } メソッドによって行います.
+ * </span>
+ */
 public class ScriptLoader {
 
 	/**

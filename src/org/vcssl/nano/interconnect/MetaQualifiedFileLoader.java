@@ -1,3 +1,8 @@
+/*
+ * Copyright(C) 2020 RINEARN (Fumihiro Matsui)
+ * This software is released under the MIT License.
+ */
+
 package org.vcssl.nano.interconnect;
 
 import java.io.BufferedReader;
@@ -16,6 +21,49 @@ import org.vcssl.nano.VnanoException;
 import org.vcssl.nano.spec.ErrorType;
 import org.vcssl.nano.spec.LanguageSpecContainer;
 
+
+/**
+ * <span class="lang-en">
+ * The class to perform loading of text file which is qualified with meta information for loadings,
+ * such as encoding-declaration
+ * </span>
+ * <span class="lang-ja">
+ * 文字コード宣言などのメタ情報が付加されたテキストファイルを読み込むローダです
+ * </span>
+ * .
+ * <span class="lang-en">
+ * If the content of the file starts with "coding", the first line of the file will be regarded as "encoding-declaration".
+ * The syntax of encoding declarations is: "coding encodingName;".
+ * Also, "#" can be appended at the head of encoding declarations.
+ * In addition, "encode" or "encoding" can be used instead of "coding",
+ * for keeping compatibility with the old VCSSL code, although they are not recommended.
+ * As the specification to make it easy to detect/parse a encoding-declaration,
+ * it should be described as the single line at the top of the file,
+ * and no comments allowed before the end of the encoding-declaration.
+ * </span>
+ *
+ * <span class="lang-ja">
+ * このローダがファイルを読み込む際, ファイルの先頭が文字列「 coding 」で始まっている場合には,
+ * そのファイルの先頭行は文字コード宣言であると見なされます。文字コード宣言の記法は「 coding 文字コード名; 」です.
+ * 文字コード宣言の先頭には「 # 」を付加する事もでき,
+ * また, VCSSLでの歴史的経緯との関係で, 「 coding 」の代わりに「 encode 」「 encoding 」を使用する事も可能です (推奨はされません).
+ * 検出を容易にするため, 文字コード宣言は必ず先頭行内で完結している必要があり,
+ * また, 文字コード宣言の終端よりも前にコメントを含む事はできません.
+ * </span>
+ *
+ * <span class="lang-en">
+ * If the encoding-declaration exists in the file, it will be used for decoding the content of the file.
+ * Otherwise, the specified default encoding will be used.
+ * Also, the normalization of environment-dependency and encoding-dependency will be performed
+ * to the loaded content, so all line-feed codes in the content will be replaces to LF (\n).
+ * </span>
+ * <span class="lang-ja">
+ * ファイル内に文字コード宣言がある場合, このローダはその文字コードを使用してファイル内容を読み込みます.
+ * 文字コード宣言が無い場合には, デフォルトの文字コードが使用されます.
+ * なお, 読み込まれたファイルの内容は, 環境依存やエンコーディング/デコーディング依存による内容の揺れが正規化され,
+ * 従って改行コードは必ず LF (\n) に統一されます.
+ * </span>
+ */
 public class MetaQualifiedFileLoader {
 
 	/**
@@ -29,7 +77,7 @@ public class MetaQualifiedFileLoader {
 	 */
 	private static final String[] ENCODING_DECLARATION_LINE_HEAD = {
 		"coding",
-		"#coding",
+		"#coding", // スペースは詰めた状態で判定されるので挟まなくてもいい
 		"encoding",
 		"#encoding",
 		"encode",
