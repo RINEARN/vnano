@@ -271,14 +271,6 @@ public class VnanoScriptEngine implements ScriptEngine {
 			}
 			String script = builder.toString();
 
-			// 処理系内で読み込んだライブラリファイル等と同様の後処理を実行（文字コード宣言削除や、環境依存内容の正規化など）
-			try {
-				script = MetaQualifiedFileLoader.postprocess(null, script, LANG_SPEC); // 第一引数はエラーメッセージで用いるファイル名（ある場合のみ）
-			} catch (VnanoException vne) {
-				String message = vne.getMessageWithoutLocation();
-				throw new ScriptException(message);
-			}
-
 			return this.eval(script);
 
 		} catch (IOException ioe) {
