@@ -9,11 +9,14 @@ import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
 
+import javax.script.ScriptException;
+
 import org.vcssl.connect.ConnectorPermissionName;
 import org.vcssl.connect.ConnectorPermissionValue;
 import org.vcssl.nano.compiler.Compiler;
 import org.vcssl.nano.interconnect.EngineConnector;
 import org.vcssl.nano.interconnect.Interconnect;
+import org.vcssl.nano.interconnect.MetaQualifiedFileLoader;
 import org.vcssl.nano.spec.ErrorType;
 import org.vcssl.nano.spec.LanguageSpecContainer;
 import org.vcssl.nano.spec.OptionKey;
@@ -161,6 +164,15 @@ public class VnanoEngine {
 	 */
 	public Object executeScript(String script) throws VnanoException {
 		try {
+
+			// スクリプトに対し、処理系内で読み込んだライブラリファイル等と同様の後処理を実行（文字コード宣言削除や、環境依存内容の正規化など）
+			try {
+				script = MetaQualifiedFileLoader.postprocess(null, script, LANG_SPEC); // 第一引数はエラーメッセージで用いるファイル名（ある場合のみ）
+			} catch (VnanoException vne) {
+				String message = vne.getMessageWithoutLocation();
+				throw new ScriptException(message);
+			}
+
 			// 全プラグインの初期化処理などを行い、インターコネクトをスクリプト実行可能な状態に移行
 			this.engineConnector.setOptionMap(this.optionMap);
 			this.engineConnector.setPermissionMap(this.permissionMap);

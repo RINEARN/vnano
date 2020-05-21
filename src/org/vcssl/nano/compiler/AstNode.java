@@ -622,6 +622,11 @@ public class AstNode implements Cloneable {
 		this.depth = 0;
 		this.blockDepth = 0;
 
+		// 子ノードが無ければ上記の設定のみで完了
+		if (!this.hasChildNodes()) {
+			return;
+		}
+
 		// ASTノードを, 行がけ順の深さ優先走査で辿って検査していく
 		AstNode currentNode = this;
 		do {

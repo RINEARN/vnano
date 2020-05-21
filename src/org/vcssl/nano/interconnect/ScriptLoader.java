@@ -6,15 +6,7 @@
 package org.vcssl.nano.interconnect;
 
 import java.util.List;
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.nio.charset.Charset;
-import java.nio.charset.IllegalCharsetNameException;
-import java.nio.charset.UnsupportedCharsetException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -22,6 +14,49 @@ import org.vcssl.nano.VnanoException;
 import org.vcssl.nano.spec.ErrorType;
 import org.vcssl.nano.spec.LanguageSpecContainer;
 
+
+/**
+ * <span class="lang-en">
+ * The class to perform loading of scripts from text files
+ * </span>
+ * <span class="lang-ja">
+ * テキストファイルからスクリプトコードを読み込むためのローダです
+ * </span>
+ * .
+ * <span class="lang-en">
+ * How to register scripts to this loader depends on whether it is a "main script" or "library scripts".
+ * The path of the main script file is simply specified by
+ * {@link ScriptLoader#setMainScriptPath(String) setMainScriptPath(String) } method.
+ * On the other hand, paths of library script files are specified by describing them in a text file,
+ * which is referred as "library list file".
+ * The path of the library list file is specified by
+ * {@link ScriptLoader#setLibraryListPath(String) setLibraryListPath(String) } method.
+ * In the library list file, describe a path of a library script file for each line.
+ * Lines starts with "#" will be regarded as comment lines. Empty lines are also ignored.
+ * </span>
+ *
+ * <span class="lang-ja">
+ * このローダへのスクリプトの読み込み指定方法は, 処理系内での利便性のため,
+ * 「メインスクリプトファイル」と「ライブラリスクリプトファイル」とで異なります.
+ * 前者は単一のファイル, 後者は複数のファイルです.
+ * メインスクリプトファイルは,
+ * 単純にそのパスを {@link ScriptLoader#setMainScriptPath(String) setMainScriptPath(String) }
+ * メソッドによって指定します.
+ * それに対して, ライブラリスクリプトファイルは, 一覧をテキストファイルに記述し, そのパスを
+ * {@link ScriptLoader#setLibraryListPath(String) setLibraryListPath(String) } メソッドで指定します.
+ * このテキストファイルの事を「ライブラリリストファイル」と呼びます.
+ * ライブラリリストファイル内には, 1行につき1個のライブラリスクリプトファイルのパスを記述してください.
+ * 「 # 」で始まる行はコメント行として読み飛ばされます. 空白行も読み飛ばされます.
+ * </span>
+ *
+ * <span class="lang-en">
+ * After registering scripts to be loaded, they will be loaded by {@link ScriptLoader#load() } method.
+ * </span>
+ *
+ * <span class="lang-en">
+ * スクリプトを指定した後は, それらの読み込みは {@link ScriptLoader#load() } メソッドによって行います.
+ * </span>
+ */
 public class ScriptLoader {
 
 	/**
@@ -45,35 +80,6 @@ public class ScriptLoader {
 	 * .
 	 */
 	private static final String LIST_FILE_COMMENT_LINE_HEAD = "#";
-
-	/**
-	 * <span class="lang-en">
-	 * The prefix of the encoding-declaration line in script files
-	 * </span>
-	 * <span class="lang-ja">
-	 * スクリプトファイル内の文字コード宣言行のプレフィックスです
-	 * </span>
-	 * .
-	 */
-	private static final String[] ENCODING_DECLARATION_LINE_HEAD = {
-		"coding",
-		"#coding",
-		"encoding",
-		"#encoding",
-		"encode",
-		"#encode",
-	};
-
-	/**
-	 * <span class="lang-en">
-	 * Stores the end-of-line code for concatenating lines of loaded scripts
-	 * </span>
-	 * <span class="lang-ja">
-	 * スクリプトから読み込んだ行を結合するための改行コードを保持します
-	 * </span>
-	 * .
-	 */
-	private final String EOL;
 
 	/**
 	 * <span class="lang-en">
@@ -122,7 +128,6 @@ public class ScriptLoader {
 	public ScriptLoader(String defaultEncoding, LanguageSpecContainer langSpec) {
 		this.LANG_SPEC = langSpec;
 		this.DEFAULT_ENCODING = defaultEncoding;
-		this.EOL = System.getProperty("line.separator");
 	}
 
 
@@ -298,6 +303,7 @@ public class ScriptLoader {
 	 * .
 	 */
 	private void loadLibraryScriptPaths() throws VnanoException {
+
 		File listFile = new File(this.libraryScriptListPath);
 		if (!listFile.exists()) {
 			throw new VnanoException(ErrorType.LIBRARY_LIST_FILE_DOES_NOT_EXIST, this.libraryScriptListPath);
@@ -318,12 +324,8 @@ public class ScriptLoader {
 		File libDirectory = listFile.getParentFile();
 
 		// リストファイルから、ライブラリのパス一覧を再読み込み（または初回読み込み）
-		List<String> libPaths = null;
-		try {
-			libPaths = Files.readAllLines(Paths.get(this.libraryScriptListPath), Charset.forName(DEFAULT_ENCODING));
-		} catch (IOException ioe) {
-			throw new VnanoException(ErrorType.LIBRARY_LIST_FILE_IS_NOT_ACCESSIBLE, this.libraryScriptListPath, ioe);
-		}
+		String listFileContent = MetaQualifiedFileLoader.load(this.libraryScriptListPath, DEFAULT_ENCODING, LANG_SPEC);
+		String[] libPaths = listFileContent.split("\\n"); // 上記の load で読んだ内容は、改行コードがLF (\n) に正規化済み
 
 		// 読み込んだライブラリパスの一覧をフィールドに反映
 		for (String libPath: libPaths) {
@@ -376,12 +378,7 @@ public class ScriptLoader {
 		} else {
 			this.mainScriptName = scriptFile.getName();
 			try {
-				this.mainScriptContent = this.loadScriptContent(this.mainScriptPath);
-			} catch (IOException ioe) {
-				this.mainScriptName = null;
-				this.mainScriptContent = null;
-				this.mainScriptLastMod = -1;
-				throw new VnanoException(ErrorType.SCRIPT_FILE_IS_NOT_ACCESSIBLE, this.mainScriptPath, ioe);
+				this.mainScriptContent = MetaQualifiedFileLoader.load(this.mainScriptPath, DEFAULT_ENCODING, LANG_SPEC);
 			} catch (VnanoException vne) {
 				this.mainScriptName = null;
 				this.mainScriptContent = null;
@@ -434,7 +431,7 @@ public class ScriptLoader {
 			// ライブラリファイルの中身を読み込み、フィールドに登録
 			String libContent = null;
 			try {
-				libContent = this.loadScriptContent(libPath);
+				libContent = MetaQualifiedFileLoader.load(libPath, DEFAULT_ENCODING, LANG_SPEC);
 			} catch (Exception e) {
 				loadingFailedLibraries += (!loadingFailedLibraries.isEmpty() ? ", " : "") + libFile.getName();
 				loadingFailedCause = e;
@@ -475,172 +472,5 @@ public class ScriptLoader {
 		if (!loadingFailedLibraries.isEmpty()) {
 			throw new VnanoException(ErrorType.SCRIPT_FILE_IS_NOT_ACCESSIBLE, loadingFailedLibraries, loadingFailedCause);
 		}
-	}
-
-
-	/**
-	 * <span class="lang-en">
-	 * Loads content of a script file
-	 * </span>
-	 * <span class="lang-ja">
-	 * スクリプトファイルの内容を読み込みます
-	 * </span>
-	 * .
-	 * @param scriptPath
-	 *   <span class="lang-en">The path of the script file to be loaded</span>
-	 *   <span class="lang-ja">読み込むスクリプトファイルのパス</span>
-	 *
-	 * @return
-	 *   <span class="lang-en">The content of the loaded script file</span>
-	 *   <span class="lang-ja">読み込まれたスクリプトファイルの内容</span>
-	 */
-	private String loadScriptContent(String scriptPath) throws IOException, VnanoException {
-		// ファイルの存在は上層で確認済みの想定
-
-		List<String> contentLines = null;
-
-		// 先頭行で文字コードが宣言されていれば読む
-		Charset charset = this.determinCharsetFromEncodingDeclaration(scriptPath);
-		boolean charsetIsDeclared = (charset != null);
-
-		// 文字コードに応じてライブラリの内容を読む
-		if (charsetIsDeclared) {
-			contentLines = Files.readAllLines(Paths.get(scriptPath), charset);
-		} else {
-			contentLines = Files.readAllLines(Paths.get(scriptPath), Charset.forName(DEFAULT_ENCODING));
-		}
-		String content = String.join(EOL, contentLines.toArray(new String[0]));
-
-		// 文字コード宣言があった場合は削除（スクリプトとしては機能を持たず、解釈もできないため）
-		content = this.removeEncodingDeclaration(new File(scriptPath).getName(), content);
-
-		return content;
-	}
-
-
-	/**
-	 * <span class="lang-en">
-	 * Determins/returns the appropriate Charset from the encoding-declaration in the specified script file, if it is declared
-	 * </span>
-	 * <span class="lang-ja">
-	 * 指定されたスクリプトファイル内に, 文字コードが宣言されていた場合, その宣言に基づいて適切な Charset を生成して返します
-	 * </span>
-	 * .
-	 * @param scriptPath
-	 *   <span class="lang-en">The path of the script file to be loaded</span>
-	 *   <span class="lang-ja">読み込むスクリプトファイルのパス</span>
-	 *
-	 * @return
-	 *   <span class="lang-en">The appropreate Charset (or, null if there is no encoding-declaration in the script)</span>
-	 *   <span class="lang-ja">適切な Charset (文字コード宣言が無かった場合は null)</span>
-	 */
-	private Charset determinCharsetFromEncodingDeclaration(String scriptPath) throws IOException, VnanoException {
-
-		// 先頭行に文字コード宣言があるかもしれないので、先頭行を読む
-		FileReader fileReader = new FileReader(new File(scriptPath));
-		BufferedReader bufferedReader = new BufferedReader(fileReader);
-		String firstLine = bufferedReader.readLine();
-		bufferedReader.close();
-		fileReader.close();
-
-		// 先頭行が無ければ明らかに何も宣言されていないので null を返す
-		if (firstLine == null) {
-			return null;
-		}
-
-		// 文字コード宣言があれば解釈して文字コード名を抽出
-		firstLine = firstLine.replaceAll("\\s", "");
-		firstLine = firstLine.replaceAll("\\t", "");
-		int declEnd = firstLine.indexOf(LANG_SPEC.SCRIPT_WORD.endOfStatement); // 有効な文字コード宣言は先頭行で完結している必要があるので、その行内にセミコロンがあるべき
-		String encodingName = null;
-		for (String declLineHead: ENCODING_DECLARATION_LINE_HEAD) {
-			if (firstLine.startsWith(declLineHead)) {
-				if (declEnd != -1) {
-					encodingName = firstLine.substring(declLineHead.length(), declEnd);
-				} else {
-					throw new VnanoException(ErrorType.NO_ENCODING_DECLARATION_END, scriptPath);
-				}
-			}
-		}
-
-		// 文字コードが宣言されていなければ null を返す
-		if (encodingName == null) {
-			return null;
-		}
-
-		// 文字コード名を Charset に変換して返す
-		Charset charset = null;
-		try {
-			charset = Charset.forName(encodingName);
-		} catch (IllegalCharsetNameException | UnsupportedCharsetException ce) {
-			throw new VnanoException(
-				ErrorType.DECLARED_ENCODING_IS_UNSUPPORTED, new String[] { encodingName, scriptPath }, ce
-			);
-		}
-		return charset;
-	}
-
-	/**
-	 * <span class="lang-en">
-	 * Removes the encoding-declaration from the content of the specified script
-	 * </span>
-	 * <span class="lang-ja">
-	 * 指定されたスクリプトコード内のプリプロセッサ宣言を削除します
-	 * </span>
-	 * .
-	 * @param scriptName
-	 *   <span class="lang-en">The script name to be processed</span>
-	 *   <span class="lang-ja">対象のスクリプト名</span>
-	 *
-	 * @param scriptContent
-	 *   <span class="lang-en">The conent of the script to be processed</span>
-	 *   <span class="lang-ja">対象のスクリプトスクリプトコード内容</span>
-	 *
-	 * @return
-	 *   <span class="lang-en">The script code from which the encoding-declaration is removed</span>
-	 *   <span class="lang-ja">文字コード宣言が削除されたスクリプトコード</span>
-	 */
-	public String removeEncodingDeclaration(String scriptName, String scriptContent) throws VnanoException {
-	// ※ VnanoScriptEngine.eval(Reader) からも呼ぶので public
-
-		// 空白を詰めたコードを用意
-		String filledContent = scriptContent;
-		filledContent = filledContent.replaceAll("\\s", "");
-		filledContent = filledContent.replaceAll("\\t", "");
-
-		// 先頭行が文字コード宣言か判定
-		boolean containsEncodingDecl = false;
-		for (String declLineHead: ENCODING_DECLARATION_LINE_HEAD) {
-			if (filledContent.startsWith(declLineHead)) {
-				containsEncodingDecl = true;
-				break;
-			}
-		}
-
-		// 文字コード宣言が無ければ、その時点でもう何もする必要はない
-		if (!containsEncodingDecl) {
-			return scriptContent;
-		}
-
-		// 文字コード宣言があった場合は、最初の「 ; 」までが文字コード宣言なので、その範囲を抽出
-		int encodingDeclEnd = scriptContent.indexOf(LANG_SPEC.SCRIPT_WORD.endOfStatement);
-		String encodingDecl = scriptContent.substring(0, encodingDeclEnd);
-
-		// 文字コード宣言内にコメントや文字列リテラルを使用できると、
-		// ファイル読み込みの最初の一歩の段階で、かなり複雑な解析が必要になってしてしまう。
-		// そのため、文字コード宣言内では上記のようなものは使えないものとし、実際に使っていない事を検査しておく。
-		// （処理系の解釈の仕方によって挙動が変わるのを避けるため）
-		String[] invalidSymbols = new String[] { "//", "/*", "*/", "\"", "\'" };
-		for (String invalidSymbol: invalidSymbols) {
-			if (encodingDecl.contains(invalidSymbol)) {
-				throw new VnanoException(
-					ErrorType.ENCODING_DECLARATION_CONTAINS_INVALID_SYMBOL, new String[] { invalidSymbol, scriptName }
-				);
-			}
-		}
-
-		// 検査を通過したら、文字コード宣言よりも後の部分を抽出して返す
-		String declRemovedScriptContent = scriptContent.substring(encodingDeclEnd+1, scriptContent.length());
-		return declRemovedScriptContent;
 	}
 }

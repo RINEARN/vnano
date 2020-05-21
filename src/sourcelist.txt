@@ -19,6 +19,7 @@ org/vcssl/nano/combinedtest/BlockStatementCombinedTest.java
 org/vcssl/nano/combinedtest/CombinedTestElement.java
 org/vcssl/nano/combinedtest/CombinedTestException.java
 org/vcssl/nano/combinedtest/CombinedTestExecutor.java
+org/vcssl/nano/combinedtest/EmptyStatementCombinedTest.java
 org/vcssl/nano/combinedtest/ForStatementCombinedTest.java
 org/vcssl/nano/combinedtest/FunctionCombinedTest.java
 org/vcssl/nano/combinedtest/IfElseStatementCombinedTest.java
@@ -61,6 +62,7 @@ org/vcssl/nano/interconnect/IdentifierMapManager.java
 org/vcssl/nano/interconnect/Interconnect.java
 org/vcssl/nano/interconnect/InternalFunction.java
 org/vcssl/nano/interconnect/InternalVariable.java
+org/vcssl/nano/interconnect/MetaQualifiedFileLoader.java
 org/vcssl/nano/interconnect/package-info.java
 org/vcssl/nano/interconnect/PluginLoader.java
 org/vcssl/nano/interconnect/ScriptLoader.java

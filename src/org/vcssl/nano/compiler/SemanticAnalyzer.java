@@ -125,12 +125,18 @@ public class SemanticAnalyzer {
 	public AstNode analyze(AstNode inputAst, Interconnect interconnect, Map<String, Object> optionMap)
 			throws VnanoException {
 
+		// ASTを入力ASTをクローンして出力ASTを生成
+		AstNode outputAst = inputAst.clone();
+
+		// ルートノード下に子ノードが無い場合は明らかに何もする必要が無いため、ここで終了
+		// (このケースはASTを辿る処理の特殊ケースになっていて、毎回確認して対処するのは冗長なため、大元で検査して省く)
+		if (!inputAst.hasChildNodes()) {
+			return outputAst;
+		}
+
 		// インターコネクトから外部変数・外部関数のテーブルを取得
 		VariableTable globalVariableTable = interconnect.getExternalVariableTable();
 		FunctionTable globalFunctionTable = interconnect.getExternalFunctionTable();
-
-		// ASTを入力ASTをクローンして出力ASTを生成
-		AstNode outputAst = inputAst.clone();
 
 		// リテラルタイプのリーフノードの属性値を設定（シグネチャ確定のため、関数識別子リーフノードの解析よりも前に済ませる必要がある）
 		this.supplementLiteralLeafAttributes(outputAst);

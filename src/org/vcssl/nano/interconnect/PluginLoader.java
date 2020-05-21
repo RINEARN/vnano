@@ -6,13 +6,9 @@
 package org.vcssl.nano.interconnect;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -24,6 +20,42 @@ import org.vcssl.nano.VnanoException;
 import org.vcssl.nano.spec.ErrorType;
 import org.vcssl.nano.spec.LanguageSpecContainer;
 
+
+/**
+ * <span class="lang-en">
+ * The class to perform loading of plug-ins from class files
+ * </span>
+ * <span class="lang-ja">
+ * クラスファイルからプラグインを読み込むためのローダです
+ * </span>
+ * .
+ * <span class="lang-en">
+ * Paths of class files to be loaded can be specified by a text file: "plugin list file".
+ * In the plugin list file, describe a path of a class file for each line.
+ * Lines starts with "#" will be regarded as comment lines. Empty lines are also ignored.
+ * </span>
+ *
+ * <span class="lang-ja">
+ * 読み込むクラスファイルは, 一覧をテキストファイルに記述して指定します.
+ * そのテキストファイルの事を「プラグインリストファイル」と呼びます.
+ * プラグインリストファイル内には, 1行につき1個のクラスファイルのパスを記述してください.
+ * 「 # 」で始まる行はコメント行として読み飛ばされます. 空白行も読み飛ばされます.
+ * </span>
+ *
+ * <span class="lang-en">
+ * The plugin list file is specified by
+ * {@link PluginLoader#setPluginListPath(String) setPluginListPath(String) } method,
+ * and plugin class files will be loaded by
+ * {@link PluginLoader#load() } method.
+ * </span>
+ *
+ * <span class="lang-en">
+ * プラグインリストファイルの指定は
+ * {@link PluginLoader#setPluginListPath(String) setPluginListPath(String) } メソッドによって行い,
+ * その後のプラグインクラスファイルの読み込みは
+ * {@link PluginLoader#load() } メソッドによって行います.
+ * </span>
+ */
 public class PluginLoader {
 
 	/**
@@ -218,12 +250,8 @@ public class PluginLoader {
 		this.pluginDirectory = listFile.getParentFile();
 
 		// リストファイルから、プラグインのクラスパス一覧を再読み込み（または初回読み込み）
-		List<String> pluginPaths = null;
-		try {
-			pluginPaths = Files.readAllLines(Paths.get(this.pluginListPath), Charset.forName(DEFAULT_ENCODING));
-		} catch (IOException ioe) {
-			throw new VnanoException(ErrorType.PLUGIN_LIST_FILE_IS_NOT_ACCESSIBLE, this.pluginListPath, ioe);
-		}
+		String listFileContent = MetaQualifiedFileLoader.load(this.pluginListPath, DEFAULT_ENCODING, LANG_SPEC);
+		String[] pluginPaths = listFileContent.split("\\n"); // 上記の load で読んだ内容は、改行コードがLF (\n) に正規化済み
 
 		// 読み込んだクラスパスの一覧をフィールドに反映
 		for (String pluginPath: pluginPaths) {

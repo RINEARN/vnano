@@ -140,6 +140,8 @@ public class ErrorMessage {
 			case NON_VARIABLE_IS_PASSED_BY_REFERENCE : return "関数「 " + words[2] + " 」の " + words[0] + " 番目の引数「 " + words[1] + " 」は、constでない参照渡し引数であるため、「 変数 / 配列 / 配列の要素 」以外を渡す事はできません。";
 			case DUPLICATE_VARIABLE_IDENTIFIER : return "変数の名前「 " + words[0] + " 」は、同じ影響範囲内の別の変数で、既に使用されています。";
 			case DUPLICATE_FUNCTION_SIGNATURE : return "関数「 " + words[0] + " 」は、全く同じ名前と引数の組み合わせで、他の場所で既に宣言されています。";
+			case GENERAL_FILE_DOES_NOT_EXIST : return "ファイル「 " + words[0] + " 」が見つかりません。";
+			case GENERAL_FILE_IS_NOT_ACCESSIBLE : return "ファイル「 " + words[0] + " 」の読み込みに失敗しました。";
 			case SCRIPT_FILE_DOES_NOT_EXIST : return "スクリプトファイル「 " + words[0] + " 」が見つかりません。";
 			case SCRIPT_FILE_IS_NOT_ACCESSIBLE : return "スクリプトファイル「 " + words[0] + " 」の読み込みに失敗しました。文字コードが想定と異なる可能性があります。文字コードを変更するか、先頭行で文字コード宣言を行ってみてください（記法: coding 文字コード名; ）。";
 			case LIBRARY_LIST_FILE_DOES_NOT_EXIST : return "ライブラリの読み込みリストファイル「 " + words[0] + " 」が見つかりません。";
@@ -152,7 +154,7 @@ public class ErrorMessage {
 			case PLUGIN_FILE_DOES_NOT_EXIST : return "読み込み対象プラグインのファイル「 " + words[0] + " 」が見つかりません。";
 			case PLUGIN_INSTANTIATION_FAILED : return "プラグイン「 " + words[0] + " 」の読み込み/インスタンス化に失敗しました";
 			case DECLARED_ENCODING_IS_UNSUPPORTED : return "スクリプトファイル「 " + words[1] + " 」の先頭行で宣言されている文字コード「 " + words[0] + " 」は、この環境では使用できません。";
-			case NO_ENCODING_DECLARATION_END : return "スクリプトファイル「 " + words[0] + " 」の先頭行の文字コード宣言において、末尾に「 ; 」が必要です。";
+			case NO_ENCODING_DECLARATION_END : return (words[0]==null ? "" : "スクリプトファイル「 " + words[0] + " 」の") + "先頭行の文字コード宣言において、末尾に「 ; 」が必要です。";
 			case ENCODING_DECLARATION_CONTAINS_INVALID_SYMBOL : return (words[1]==null ? "" : "スクリプトファイル「 " + words[1] + " 」の先頭行の文字コード宣言において、") + "使用できない記号「 " + words[0] + " 」が含まれています。";
 			case EXTERNAL_FUNCTION_PLUGIN_CRASHED : return "外部関数「 " + words[0] + " 」の処理でエラーが発生しました。";
 			case EXTERNAL_VARIABLE_PLUGIN_CRASHED : return "外部変数「 " + words[0] + " 」へのアクセスでエラーが発生しました。";
@@ -237,6 +239,8 @@ public class ErrorMessage {
 			case NON_VARIABLE_IS_PASSED_BY_REFERENCE : return "Only variable or array (containing element) can be passed to the " + words[0] + "-th argument \"" + words[1] + "\" of function \"" + words[2] + "\", because it will be passed by nonconstant reference";
 			case DUPLICATE_VARIABLE_IDENTIFIER : return "The name of variable \"" + words[0] + "\" is already used by another variable, and scopes of them are conflicting";
 			case DUPLICATE_FUNCTION_SIGNATURE : return "The function \"" + words[0] + "\" is already declared with the same name and same parameters at other lines";
+			case GENERAL_FILE_DOES_NOT_EXIST : return "The loading file \"" + words[0] + "\" does not exist";
+			case GENERAL_FILE_IS_NOT_ACCESSIBLE : return "The loading script file \"" + words[0] + "\" could not be loaded. The encoding might be incorrect. Try again with changing the encoding, or declare the encoding at the top line of the file";
 			case SCRIPT_FILE_DOES_NOT_EXIST : return "The loading script file \"" + words[0] + "\" does not exist";
 			case SCRIPT_FILE_IS_NOT_ACCESSIBLE : return "The loading script file \"" + words[0] + "\" could not be loaded. The encoding might be incorrect. Try again with changing the encoding, or declare the encoding at the top line of the script";
 			case LIBRARY_LIST_FILE_DOES_NOT_EXIST : return "The loading list file of libraries \"" + words[0] + "\" does not exist";
@@ -249,7 +253,7 @@ public class ErrorMessage {
 			case PLUGIN_FILE_DOES_NOT_EXIST : return "The loading plug-in file \"" + words[0] + "\" does not exist";
 			case PLUGIN_INSTANTIATION_FAILED : return "The loading or instantiation of the plugin \"" + words[0] + "\" has failed";
 			case DECLARED_ENCODING_IS_UNSUPPORTED : return "The encoding \"" + words[0] + "\" declared in the first line of \"" + words[1] + "\" is unsupported in this environment";
-			case NO_ENCODING_DECLARATION_END : return "\";\" is required at the end of the encoding-decraration, at the first line of \"" + words[0] + "\"";
+			case NO_ENCODING_DECLARATION_END : return "\";\" is required at the end of the encoding-decraration" + (words[0]==null ? "" : ", at the first line of \"" + words[0] + "\"");
 			case ENCODING_DECLARATION_CONTAINS_INVALID_SYMBOL : return "Invalid symbol \"" + words[0] + "\" is contained in the encoding-declaration" + (words[1]==null ? "" : ", at the first line of \"" + words[1] + "\"");
 			case EXTERNAL_FUNCTION_PLUGIN_CRASHED : return "An error occurred on the processing of the external function \"" + words[0] + "\"";
 			case EXTERNAL_VARIABLE_PLUGIN_CRASHED : return "An error occurred on the accessing to the external variable \"" + words[0] + "\"";
