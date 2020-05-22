@@ -350,71 +350,78 @@ public class Interconnect {
 	 */
 	public void connectPlugin(String bindingKey, Object plugin) throws VnanoException {
 
-		// 初期化が必要なプラグインの場合は、全てのアクセスよりも前にここで初期化する
-		this.initializePluginForConnection(plugin);
+		try {
+			// 初期化が必要なプラグインの場合は、全てのアクセスよりも前にここで初期化する
+			this.initializePluginForConnection(plugin);
 
-		// Replace the binding key with auto-generated one if, it it is requested.
-		// キーを自動生成するよう設定されている場合は、キーを置き換え
-		if (bindingKey.equals(SpecialBindingKey.AUTO_KEY)) {
-			bindingKey = this.generateBindingKeyOf(plugin);     // これ、ここでシグネチャ求める前にプラグインを init する必要がる？
-		}
-
-		// XVCI 1 形式の外部変数プラグイン
-		if (plugin instanceof ExternalVariableConnectorInterface1) {
-			this.connectXvci1Plugin( (ExternalVariableConnectorInterface1)plugin, true, bindingKey );
-
-		// XFCI 1 形式の外部関数プラグイン
-		} else if (plugin instanceof ExternalFunctionConnectorInterface1) {
-			this.connectXfci1Plugin( (ExternalFunctionConnectorInterface1)plugin, true, bindingKey );
-
-		// XNCI 1 形式の外部関数プラグイン
-		} else if (plugin instanceof ExternalNamespaceConnectorInterface1) {
-			this.connectXnci1Plugin( (ExternalNamespaceConnectorInterface1)plugin, true, bindingKey, false );
-
-		// クラスフィールドの場合
-		} else if (plugin instanceof Field) {
-			this.connectFieldAsPlugin( (Field)plugin, null, true, bindingKey );
-
-		// クラスメソッドの場合
-		} else if (plugin instanceof Method) {
-			this.connectMethodAsPlugin( (Method)plugin, null, true, bindingKey );
-
-		// クラスの場合
-		} else if (plugin instanceof Class) {
-			this.connectClassAsPlugin( (Class<?>)plugin, null, true, bindingKey );
-
-		// インスタンスフィールドやインスタンスメソッド等は、所属インスタンスも格納する配列で渡される
-		} else if (plugin instanceof Object[]) {
-
-			Object[] objects = (Object[])plugin;
-
-			// インスタンスフィールドの場合 >> 引数からFieldとインスタンスを取り出し、外部変数として接続
-			if (objects.length == 2 && objects[0] instanceof Field) {
-				Field field = (Field)objects[0]; // [0] はフィールドのリフレクション
-				Object instance = objects[1];    // [1] はフィールドの所属インスタンス
-				this.connectFieldAsPlugin( field, instance, true, bindingKey );
-
-			// インスタンスメソッドの場合 >> 引数からMethodとインスタンスを取り出し、外部関数として接続
-			} else if (objects.length == 2 && objects[0] instanceof Method) {
-				Method method = (Method)objects[0]; // [0] はメソッドのリフレクション
-				Object instance = objects[1];       // [1] はメソッドの所属インスタンス
-				this.connectMethodAsPlugin( method, instance, true, bindingKey );
-
-			// クラスの場合 >> 引数からClassとインスタンスを取り出し、外部ライブラリとして接続
-			} else if (objects.length == 2 && objects[0] instanceof Class) {
-				Class<?> pluginClass = (Class<?>)objects[0];
-				Object instance = objects[1];
-				this.connectClassAsPlugin( pluginClass, instance, true, bindingKey );
-			} else {
-				throw new VnanoException(
-					ErrorType.UNSUPPORTED_PLUGIN, new String[] {objects[0].getClass().getCanonicalName()}
-				);
+			// Replace the binding key with auto-generated one if, it it is requested.
+			// キーを自動生成するよう設定されている場合は、キーを置き換え
+			if (bindingKey.equals(SpecialBindingKey.AUTO_KEY)) {
+				bindingKey = this.generateBindingKeyOf(plugin);     // これ、ここでシグネチャ求める前にプラグインを init する必要がる？
 			}
 
-		// その他のオブジェクトは、Classを取得して外部ライブラリとして接続
-		} else {
-			Class<?> pluginClass = plugin.getClass();
-			this.connectClassAsPlugin( pluginClass, plugin, true, bindingKey );
+			// XVCI 1 形式の外部変数プラグイン
+			if (plugin instanceof ExternalVariableConnectorInterface1) {
+				this.connectXvci1Plugin( (ExternalVariableConnectorInterface1)plugin, true, bindingKey );
+
+			// XFCI 1 形式の外部関数プラグイン
+			} else if (plugin instanceof ExternalFunctionConnectorInterface1) {
+				this.connectXfci1Plugin( (ExternalFunctionConnectorInterface1)plugin, true, bindingKey );
+
+			// XNCI 1 形式の外部関数プラグイン
+			} else if (plugin instanceof ExternalNamespaceConnectorInterface1) {
+				this.connectXnci1Plugin( (ExternalNamespaceConnectorInterface1)plugin, true, bindingKey, false );
+
+			// クラスフィールドの場合
+			} else if (plugin instanceof Field) {
+				this.connectFieldAsPlugin( (Field)plugin, null, true, bindingKey );
+
+			// クラスメソッドの場合
+			} else if (plugin instanceof Method) {
+				this.connectMethodAsPlugin( (Method)plugin, null, true, bindingKey );
+
+			// クラスの場合
+			} else if (plugin instanceof Class) {
+				this.connectClassAsPlugin( (Class<?>)plugin, null, true, bindingKey );
+
+			// インスタンスフィールドやインスタンスメソッド等は、所属インスタンスも格納する配列で渡される
+			} else if (plugin instanceof Object[]) {
+
+				Object[] objects = (Object[])plugin;
+
+				// インスタンスフィールドの場合 >> 引数からFieldとインスタンスを取り出し、外部変数として接続
+				if (objects.length == 2 && objects[0] instanceof Field) {
+					Field field = (Field)objects[0]; // [0] はフィールドのリフレクション
+					Object instance = objects[1];    // [1] はフィールドの所属インスタンス
+					this.connectFieldAsPlugin( field, instance, true, bindingKey );
+
+				// インスタンスメソッドの場合 >> 引数からMethodとインスタンスを取り出し、外部関数として接続
+				} else if (objects.length == 2 && objects[0] instanceof Method) {
+					Method method = (Method)objects[0]; // [0] はメソッドのリフレクション
+					Object instance = objects[1];       // [1] はメソッドの所属インスタンス
+					this.connectMethodAsPlugin( method, instance, true, bindingKey );
+
+				// クラスの場合 >> 引数からClassとインスタンスを取り出し、外部ライブラリとして接続
+				} else if (objects.length == 2 && objects[0] instanceof Class) {
+					Class<?> pluginClass = (Class<?>)objects[0];
+					Object instance = objects[1];
+					this.connectClassAsPlugin( pluginClass, instance, true, bindingKey );
+
+				} else {
+					throw new VnanoException(
+						ErrorType.UNSUPPORTED_PLUGIN, new String[] {objects[0].getClass().getCanonicalName()}
+					);
+				}
+
+			// その他のオブジェクトは、Classを取得して外部ライブラリとして接続
+			} else {
+				Class<?> pluginClass = plugin.getClass();
+				this.connectClassAsPlugin( pluginClass, plugin, true, bindingKey );
+			}
+
+		// 内部で VnanoException が発生した場合は、原因プラグインを特定できるメッセージを持たせた VnanoException でラップして投げる
+		} catch (VnanoException vne) {
+			throw new VnanoException(ErrorType.PLUGIN_CONNECTION_FAILED, bindingKey, vne);
 		}
 	}
 

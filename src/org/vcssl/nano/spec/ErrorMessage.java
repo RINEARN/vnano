@@ -153,6 +153,7 @@ public class ErrorMessage {
 			case PLUGIN_DIRECTORY_IS_NOT_ACCESSIBLE : return "プラグインのフォルダ「 " + words[0] + " 」にアクセスできません。フォルダの指定内容や存在を確認してみてください。";
 			case PLUGIN_FILE_DOES_NOT_EXIST : return "読み込み対象プラグインのファイル「 " + words[0] + " 」が見つかりません。";
 			case PLUGIN_INSTANTIATION_FAILED : return "プラグイン「 " + words[0] + " 」の読み込み/インスタンス化に失敗しました";
+			case PLUGIN_CONNECTION_FAILED : return "プラグイン「 " + words[0] + " 」の接続に失敗しました";
 			case DECLARED_ENCODING_IS_UNSUPPORTED : return "スクリプトファイル「 " + words[1] + " 」の先頭行で宣言されている文字コード「 " + words[0] + " 」は、この環境では使用できません。";
 			case NO_ENCODING_DECLARATION_END : return (words[0]==null ? "" : "スクリプトファイル「 " + words[0] + " 」の") + "先頭行の文字コード宣言において、末尾に「 ; 」が必要です。";
 			case ENCODING_DECLARATION_CONTAINS_INVALID_SYMBOL : return (words[1]==null ? "" : "スクリプトファイル「 " + words[1] + " 」の先頭行の文字コード宣言において、") + "使用できない記号「 " + words[0] + " 」が含まれています。";
@@ -252,6 +253,7 @@ public class ErrorMessage {
 			case PLUGIN_DIRECTORY_IS_NOT_ACCESSIBLE : return "The plug-in directory \"" + words[0] + "\" is not accessible. Check the content of the directory path, and check the directory exists";
 			case PLUGIN_FILE_DOES_NOT_EXIST : return "The loading plug-in file \"" + words[0] + "\" does not exist";
 			case PLUGIN_INSTANTIATION_FAILED : return "The loading or instantiation of the plugin \"" + words[0] + "\" has failed";
+			case PLUGIN_CONNECTION_FAILED : return "The connection of the plugin \"" + words[0] + "\" has failed";
 			case DECLARED_ENCODING_IS_UNSUPPORTED : return "The encoding \"" + words[0] + "\" declared in the first line of \"" + words[1] + "\" is unsupported in this environment";
 			case NO_ENCODING_DECLARATION_END : return "\";\" is required at the end of the encoding-decraration" + (words[0]==null ? "" : ", at the first line of \"" + words[0] + "\"");
 			case ENCODING_DECLARATION_CONTAINS_INVALID_SYMBOL : return "Invalid symbol \"" + words[0] + "\" is contained in the encoding-declaration" + (words[1]==null ? "" : ", at the first line of \"" + words[1] + "\"");
