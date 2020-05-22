@@ -109,16 +109,16 @@ public final class VnanoCommandLineApplication {
 		private long launchedTime = System.nanoTime() / 1000000l;
 
 		public void output(long value) {
-			System.out.print(value);
+			System.out.println(value);
 		}
 		public void output(double value) {
-			System.out.print(value);
+			System.out.println(value);
 		}
 		public void output(boolean value) {
-			System.out.print(value);
+			System.out.println(value);
 		}
 		public void output(String value) {
-			System.out.print(value);
+			System.out.println(value);
 		}
 		public long time() {
 			return System.nanoTime() / 1000000l - launchedTime;
