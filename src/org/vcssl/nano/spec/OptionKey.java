@@ -197,6 +197,19 @@ public class OptionKey {
 
 
 	/**
+	 * <span class="lang-en">Specify the name of the default line-feed code for writing to / reading files in scripts</span>
+	 * <span class="lang-ja">スクリプト内でのファイルの読み書きに用いるデフォルトの改行コードを指定します</span>
+	 * .
+	 * <span class="lang-en">The value of this option is "String" type.</span>
+	 * <span class="lang-ja">このオプションの値は "String" 型です.</span>
+	 *
+	 * <span class="lang-en">This option is referred by I/O plug-ins if they are connected.</span>
+	 * <span class="lang-ja">このオプションは, 入出力系のプラグインが接続されている場合に, それらによって参照されます.</span>
+	 */
+	public static final String FILE_IO_EOL = "FILE_IO_EOL";
+
+
+	/**
 	 * <span class="lang-en">Specify the type of UI for inputting/outputting values</span>
 	 * <span class="lang-ja">値の入出力に用いるユーザーインターフェースの形式を指定します</span>
 	 * .
@@ -207,6 +220,19 @@ public class OptionKey {
 	 * <span class="lang-ja">このオプションは, 入出力系のプラグインが接続されている場合に, それらによって参照されます.</span>
 	 */
 	public static final String TERMINAL_IO_UI = "TERMINAL_IO_UI";
+
+
+	/**
+	 * <span class="lang-en">Specify the default line-feed code for inputting/outputting values</span>
+	 * <span class="lang-ja">値の入出力に用いるデフォルトの改行コードを指定します</span>
+	 * .
+	 * <span class="lang-en">The value of this option is "String" type.</span>
+	 * <span class="lang-ja">このオプションの値は "String" 型です.</span>
+	 *
+	 * <span class="lang-en">This option is referred by I/O plug-ins if they are connected.</span>
+	 * <span class="lang-ja">このオプションは, 入出力系のプラグインが接続されている場合に, それらによって参照されます.</span>
+	 */
+	public static final String TERMINAL_IO_EOL = "TERMINAL_IO_EOL";
 
 
 	// 以下は将来的に追加するオプション項目の暫定案（未サポート）

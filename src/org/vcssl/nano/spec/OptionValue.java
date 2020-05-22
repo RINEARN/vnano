@@ -224,7 +224,7 @@ public class OptionValue {
 	 * <span class="lang-ja">オプションマップのデフォルト値を保持するマップです</span>
 	 * .
 	 */
-	private static final Map<String, Object> DEFAULT_VALUE_MAP = new LinkedHashMap<String, Object>();
+	private static Map<String, Object> DEFAULT_VALUE_MAP = new LinkedHashMap<String, Object>(); // 環境依存の内容を含むので final にはしない
 	static {
 		DEFAULT_VALUE_MAP.put(OptionKey.EVAL_NUMBER_AS_FLOAT, Boolean.FALSE);
 		DEFAULT_VALUE_MAP.put(OptionKey.EVAL_ONLY_FLOAT, Boolean.FALSE);
@@ -238,7 +238,9 @@ public class OptionValue {
 		DEFAULT_VALUE_MAP.put(OptionKey.MAIN_SCRIPT_NAME, DEFAULT_MAIN_SCRIPT_NAME);
 		DEFAULT_VALUE_MAP.put(OptionKey.MAIN_DIRECTORY_PATH, DEFAULT_MAIN_DIRECTORY_PATH);
 		DEFAULT_VALUE_MAP.put(OptionKey.FILE_IO_ENCODING, "UTF-8");
+		DEFAULT_VALUE_MAP.put(OptionKey.FILE_IO_EOL, System.getProperty("line.separator"));
 		DEFAULT_VALUE_MAP.put(OptionKey.TERMINAL_IO_UI, "GUI");
+		DEFAULT_VALUE_MAP.put(OptionKey.TERMINAL_IO_EOL, System.getProperty("line.separator"));
 	}
 
 
@@ -330,6 +332,10 @@ public class OptionValue {
 		checkValueOf(OptionKey.RUNNING_ENABLED, optionMap, Boolean.class);
 		checkValueOf(OptionKey.MAIN_SCRIPT_NAME, optionMap, String.class);
 		checkValueOf(OptionKey.MAIN_DIRECTORY_PATH, optionMap, String.class);
+		checkValueOf(OptionKey.FILE_IO_ENCODING, optionMap, String.class);
+		checkValueOf(OptionKey.FILE_IO_EOL, optionMap, String.class);
+		checkValueOf(OptionKey.TERMINAL_IO_UI, optionMap, String.class);
+		checkValueOf(OptionKey.TERMINAL_IO_EOL, optionMap, String.class);
 	}
 
 
