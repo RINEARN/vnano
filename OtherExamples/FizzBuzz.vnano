@@ -76,15 +76,15 @@ int max = 100;
 for(int i=1; i<=max; i++) {
 	
 	if(i%3 == 0 && i%5 == 0) {
-		output("FizzBuzz, \n");
+		output("FizzBuzz,");
 		
 	} else if(i%3 == 0) {
-		output("Fizz, \n");
+		output("Fizz,");
 		
 	} else if(i%5 == 0) {
-		output("Buzz, \n");
+		output("Buzz,");
 		
 	} else {
-		output(i + ", \n");
+		output(i + ",");
 	}
 }

@@ -68,11 +68,9 @@ int endTime = time();
 double requiredTime = (endTime - beginTime) / 1000.0;
 double flops = TOTAL_FLOP / requiredTime;
 
-output("OPERATING_SPEED = " +  flops/(1000.0*1000.0*1000.0) + " [GFLOPS]\n");
-output("REQUIRED_TIME = "+ requiredTime + " [SEC]\n");
-output("TOTAL_OPERATIONS = " + TOTAL_FLOP + " [xFLOAT64_ADD]\n");
-output("VECTOR_SIZE = " + VECTOR_SIZE + " [x64BIT]\n");
-output("OPERATED_VALUES = { ");
-output(x[0] + ", " + x[1] + ", " + x[2] + ", ... " + x[VECTOR_SIZE-2] + ", " + x[VECTOR_SIZE-1]);
-output(" }\n");
+output("OPERATING_SPEED = " +  flops/(1000.0*1000.0*1000.0) + " [GFLOPS]");
+output("REQUIRED_TIME = "+ requiredTime + " [SEC]");
+output("TOTAL_OPERATIONS = " + TOTAL_FLOP + " [xFLOAT64_ADD]");
+output("VECTOR_SIZE = " + VECTOR_SIZE + " [x64BIT]");
+output("OPERATED_VALUES = { " + x[0] + ", " + x[1] + ", " + x[2] + ", ... " + x[VECTOR_SIZE-2] + ", " + x[VECTOR_SIZE-1] + " }");
 

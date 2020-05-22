@@ -195,7 +195,7 @@
 	ALLOC	string	R11;
 	ADD	string	R11	~string:"VM_DRIVE_SPEED = "	R26;
 	ALLOC	string	R12;
-	ADD	string	R12	R11	~string:" [MHz(IPS)]\n";
+	ADD	string	R12	R11	~string:" [MHz(IPS)]";
 	CALLX	void	-	_output(string)	R12;
 
 	ALLOC	string	R27;
@@ -203,7 +203,7 @@
 	ALLOC	string	R14;
 	ADD	string	R14	~string:"REQUIRED_TIME = "	R27;
 	ALLOC	string	R15;
-	ADD	string	R15	R14	~string:" [SEC]\n";
+	ADD	string	R15	R14	~string:" [SEC]";
 	CALLX	void	-	_output(string)	R15;
 
 	ALLOC	string	R28;
@@ -211,6 +211,6 @@
 	ALLOC	string	R17;
 	ADD	string	R17	~string:"TOTAL_INSTRUCTIONS = "	R28;
 	ALLOC	string	R18;
-	ADD	string	R18	R17	~string:" [NOP]\n";
+	ADD	string	R18	R17	~string:" [NOP]";
 	CALLX	void	-	_output(string)	R18;
 	END	void	-;
