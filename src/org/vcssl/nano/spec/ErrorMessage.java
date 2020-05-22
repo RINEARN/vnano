@@ -133,6 +133,7 @@ public class ErrorMessage {
 			case WRITING_TO_UNWRITABLE_SOMETHING : return "書き換え不可能な値" + (words==null ? "" : "「 "+words[0] + " 」") + "の書き換えが検出されました。";
 			case SUBSCRIPTING_TO_UNSUBSCRIPTABLE_SOMETHING : return "配列ではない値や変数"  + (words==null ? "" : "「 "+words[0] + " 」") + "に、配列インデックスを付けてアクセスしています。";
 			case INVALID_SUBSCRIPT_RANK : return words[1] + "次元の配列「 " + words[0] + " 」に、" + words[2] + "次元のインデックスでアクセスしています。";
+			case INVALID_ARBITRARY_RANK_SYNTAX : return "任意次元を表す表記は [...] ですが、誤った表記 " + words[0] + " が検出されました。";
 			case FUNCTION_ENDED_WITHOUT_RETURNING_VALUE : return "関数「 " + words[0] + " 」は戻り値を返す必要がありますが、返さずに終了しました。";
 			case RETURN_STATEMENT_IS_OUTSIDE_FUNCTIONS : return "return 文が関数外で使用されていますが、関数内でしか使用できません。";
 			case INVALID_RETURNED_VALUE_DATA_TYPE : return "return 文が返している値の型「 " + words[0] + " 」が、関数宣言における戻り値の型「 " + words[1] + " 」と異なります。";
@@ -233,6 +234,7 @@ public class ErrorMessage {
 			case WRITING_TO_UNWRITABLE_SOMETHING : return "Modification of the unwritable value "  + (words==null ? "" : "\""+words[0] + "\" ") + "is detected";
 			case SUBSCRIPTING_TO_UNSUBSCRIPTABLE_SOMETHING : return "Subscripting to the non-array value/variable" + (words==null ? "" : "\""+words[0]+"\"");
 			case INVALID_SUBSCRIPT_RANK : return "Subscripting to " + words[1] + "-dimension array \"" + words[0] + "\" by " + words[2] + "-dimension index/indices";
+			case INVALID_ARBITRARY_RANK_SYNTAX : return "The valid syntax of \"arbitrary rank\" is \"[...]\", but incorrect description \"" + words[0] + "\" is detected";
 			case FUNCTION_ENDED_WITHOUT_RETURNING_VALUE : return "The function \"" + words[0] + "\" should return a value but has end without returning a value";
 			case RETURN_STATEMENT_IS_OUTSIDE_FUNCTIONS : return "A return statement being outside functions is detected";
 			case INVALID_RETURNED_VALUE_DATA_TYPE : return "The data type of the returned value \""+ words[0] + "\" does not match the data type \""+ words[1] + "\", which is expected from the function declaration";

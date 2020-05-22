@@ -400,22 +400,25 @@ public class Parser {
 			readingIndex++;
 		}
 
-		// 配列要素数の検出
+		// 配列次元数と要素数の検出
+		int arrayRank = RANK_OF_SCALAR;
 		AstNode arrayLengthNode = null;
 		if (readingIndex<tokens.length-1 && tokens[readingIndex].getValue().equals(SCRIPT_WORD.subscriptBegin)) {
 			int lengthsEnd = getLengthEndIndex(tokens, readingIndex);
 			Token[] lengthsTokens = Arrays.copyOfRange(tokens, readingIndex, lengthsEnd+1);
-			arrayLengthNode = this.parseVariableDeclarationArrayLengths(lengthsTokens);
+			arrayRank = this.parseVariableDeclarationArrayRank(lengthsTokens);
+			if (RANK_OF_SCALAR < arrayRank) {
+				arrayLengthNode = this.parseVariableDeclarationArrayLengths(lengthsTokens);
+			}
 			readingIndex = lengthsEnd + 1;
 		}
 
 		// 配列情報を付加
-		int arrayRank = 0;
+		variableNode.setAttribute(AttributeKey.RANK, Integer.toString(arrayRank));
 		if (arrayLengthNode != null) {
 			arrayRank = arrayLengthNode.getChildNodes(AstNode.Type.EXPRESSION).length;
 			variableNode.addChildNode(arrayLengthNode);
 		}
-		variableNode.setAttribute(AttributeKey.RANK, Integer.toString(arrayRank));
 
 		// ここ以降は初期化式であるが、識別子が省略されているのに初期化式がある場合はエラー
 		if (!requiresIdentifier && readingIndex < tokens.length) {
@@ -456,7 +459,80 @@ public class Parser {
 
 	/**
 	 * 変数宣言文の内で、配列の要素数の宣言部を構成するトークン配列に対して構文解析を行い、
-	 * AST（抽象構文木）を構築して返します。
+	 * 配列次元数を返します。
+	 *
+	 * @param tokens 要素数宣言部のトークン配列
+	 * @return 配列次元数（任意次元として宣言されていた場合は -1）
+	 * @throws VnanoException 文の構文に異常があった場合にスローされます。
+	 */
+	private int parseVariableDeclarationArrayRank(Token[] tokens) throws VnanoException {
+		int tokenLength = tokens.length;
+
+		// 任意次元宣言は表記が「 [...] 」に限られるので、まずそれかどうか検査（その方が後で考慮パターンを減らせる）
+		boolean isArbitraryRank = false;
+		for(int i=0; i<tokenLength; i++) {
+			if (tokens[i].getValue().equals(LANG_SPEC.SCRIPT_WORD.arbitraryCountModifier)) {
+				isArbitraryRank = true;
+			}
+		}
+		if (isArbitraryRank) {
+
+			// 構文的に正しい任意次元宣言の場合
+			if (tokenLength == 3
+					&& tokens[0].getValue().equals(LANG_SPEC.SCRIPT_WORD.subscriptBegin)
+					&& tokens[1].getValue().equals(LANG_SPEC.SCRIPT_WORD.arbitraryCountModifier)
+					&& tokens[2].getValue().equals(LANG_SPEC.SCRIPT_WORD.subscriptEnd)) {
+
+				return -1; // 任意次元の場合は -1 を返す仕様
+
+			// 構文的に正しくない任意次元宣言の場合
+			} else {
+				String errorWord = "";
+				for(int i=0; i<tokenLength; i++) {
+					errorWord += tokens[i].getValue();
+				}
+				throw new VnanoException(
+					ErrorType.INVALID_ARBITRARY_RANK_SYNTAX, errorWord, tokens[0].getFileName(), tokens[0].getLineNumber()
+				);
+			}
+		}
+
+		// 任意次元ではない、一般の場合の次元数カウント
+		int rank = 0;
+		int depth = 0;
+		for(int i=0; i<tokenLength; i++) {
+			String word = tokens[i].getValue();
+
+			// 「 [ 」記号
+			if(word.equals(SCRIPT_WORD.subscriptBegin)) {
+
+				// 階層が 0 なら要素数宣言の開始なので次元数を加算（それ以外は、要素数の式を構成する配列インデックス演算子のもの）
+				if (depth==0) {
+					rank++;
+				}
+				depth++;
+
+			// 「 ][ 」記号
+			} else if(word.equals(SCRIPT_WORD.subscriptSeparator)) {
+
+				// 階層が 1 なら次の要素数宣言の次元区切りなので次元数を加算（それ以外は上記コメントの説明と同様）
+				if (depth==1) {
+					rank++;
+				}
+
+			// 「 ] 」記号
+			} else if (word.equals(SCRIPT_WORD.subscriptEnd)) {
+				// 開き点と閉じ点で両方カウントすると重複カウントになるので、この場合はカウントせず階層を降りるだけ
+				depth--;
+			}
+		}
+		return rank;
+	}
+
+
+	/**
+	 * 変数宣言文の内で、配列の要素数の宣言部を構成するトークン配列に対して構文解析を行い、
+	 * 配列要素数情報の AST（抽象構文木）を構築して返します。
 	 *
 	 * このメソッドが返すASTのルートは、{@link AstNode.Type#LENGTHS LENGTHS} タイプのノードとなります。
 	 * その下には、各次元の要素数の計算式に対応する {@link AstNode.Type#EXPRESSION EXPRESSION}
