@@ -254,6 +254,16 @@ public class LexicalAnalyzer {
 				continue;
 			}
 		}
+
+		// 最後のトークンの後に、「 ; 」や区切り文字などが一切無いままコードが終わっていたりすると、
+		// そのトークン内容は区切られるタイミングが無かったため、ワードトークンバッファに溜まったまま残っている。
+		// Vnano の文法ではそのようなトークンの存在は正しくないが、トークナイズの段階では無視するべきではないので取り出す。
+		if (wordTokenBuilder.length() != 0) {
+			tokenList.add(new Token(
+				new String(wordTokenBuilder.toString()), lineNumber, fileName
+			));
+		}
+
 		Token[] tokens = (Token[])tokenList.toArray(new Token[tokenList.size()]);
 		return tokens;
 	}
