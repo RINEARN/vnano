@@ -337,11 +337,13 @@ public final class AcceleratorDataManagementUnit {
 					int argN = partitions.length - 2; // 戻り値と関数アドレスを除いた（-2）オペランド数が引数の個数
 					boolean[] areParamRefs = null;
 					boolean[] areParamConsts = null;
+					boolean isParamCountArbitrary = false;
 
 					// 内部関数コール ... コード内で引数をスタックから MOVPOP or REFPOP する箇所を読んで参照の有無を判断する
 					if (opcode == OperationCode.CALL) {
 						areParamRefs = this.internalFunctionAddrParamRefsMap.get(functionAddr);
 						areParamConsts = new boolean[argN];
+						isParamCountArbitrary = false; // Vnanoのスクリプト内関数では、任意個数の引数は未サポート
 						Arrays.fill(areParamConsts, false); // 内部関数は先述のコメント参照な理由により const かどうかは見ない
 
 					// 外部関数コール ... Interconnect から関数情報を取得して、参照渡し宣言されてるか、また定数かどうか調べる
@@ -349,15 +351,23 @@ public final class AcceleratorDataManagementUnit {
 						AbstractFunction function = interconnect.getExternalFunctionTable().getFunctionByIndex(functionAddr);
 						areParamRefs = function.getParameterReferencenesses();
 						areParamConsts = function.getParameterConstantnesses();
+						isParamCountArbitrary = function.isParameterCountArbitrary();
 
 					} else {
 						// 上の switch-case からして、ここで上記以外の命令はあり得ない
 						throw new VnanoFatalException("Unexpected operaton code: " + opcode);
 					}
 
-					// 参照渡ししてる const でない実引数をキャッシュ不可能とマークする
+					// const でない参照渡しを行っている実引数をキャッシュ不可能とマークする
 					for (int argIndex=0; argIndex<argN; argIndex++) {
-						if (areParamRefs[argIndex] && !areParamConsts[argIndex]) {
+
+						// 引数が任意個数に設定されている場合は、宣言上の仮引数は1個のみなので [0] 番引数の情報を取得し、
+						// そうでなければ普通に [argIndex] 番引数の情報を取得
+						boolean isParamRef = isParamCountArbitrary ? areParamRefs[0] : areParamRefs[argIndex];
+						boolean isParamConst = isParamCountArbitrary ? areParamConsts[0] : areParamConsts[argIndex];
+
+						// const でない参照渡しの場合
+						if (isParamRef && !isParamConst) {
 							int operandIndex = argIndex + 2;
 							this.caches[ partitions[operandIndex].ordinal() ][ addresses[operandIndex] ] = null;
 							this.cachingEnabled[ partitions[operandIndex].ordinal() ][ addresses[operandIndex] ] = false;
