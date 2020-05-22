@@ -292,11 +292,26 @@ public class OptionValue {
 
 		// スクリプト名の中の特殊文字をエスケープ（VRILコード内にメタ情報として記載されるため）
 		if (returnMap.get(OptionKey.MAIN_SCRIPT_NAME) instanceof String) {
-			String evalScriptName = (String)returnMap.get(OptionKey.MAIN_SCRIPT_NAME);
-			returnMap.put(
-				OptionKey.MAIN_SCRIPT_NAME,
-				langSpec.IDENTIFIER_SYNTAX.normalizeScriptIdentifier(evalScriptName)
-			);
+			String mainScriptName = (String)returnMap.get(OptionKey.MAIN_SCRIPT_NAME);
+
+			if (mainScriptName.equals(DEFAULT_MAIN_SCRIPT_NAME)) {
+
+				// デフォルトスクリプト名「 main script 」の場合は、以下の理由によりエスケープしない。
+				// ・デフォルトスクリプト名は、スクリプトをファイルから読み込まなかった場合にエラーメッセージなどで使われる便宜的な名称で、
+				//   スペースが「 _ 」にエスケープされるとエラーメッセージ内で不自然になってしまう。
+				// ・スペースは現時点ではVRILコード内に埋め込まれても問題にならない。
+				// ・Vnanoでは現時点でファイル名を名前空間とするような機能は無いため、VCSSLのように名前空間としてどうかという点は問題にならない。
+				// ・また、そもそもエスケープされた「 main_script 」もデフォルトの名前空間の名前としては微妙なので、
+				//   仮に将来的にファイル名を名前空間とする機能を実装したとしても、
+				//   その時にまた「ファイルから読み込まれていないメインスクリプトの名前空間」を指すキーワードを独立に定める
+				//   （または指せないようにする）べきで、ここでのデフォルトスクリプト名をそのまま使う事は無いはず。
+
+			} else {
+				returnMap.put(
+					OptionKey.MAIN_SCRIPT_NAME,
+					langSpec.IDENTIFIER_SYNTAX.normalizeScriptIdentifier(mainScriptName)
+				);
+			}
 		}
 
 		return returnMap;
