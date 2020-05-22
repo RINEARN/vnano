@@ -1287,13 +1287,9 @@ The following is an example code of declaration statements of scalar variables (
 	string s = "Hello, World !";
 
 	output(i);
-	output("\n");
 	output(f);
-	output("\n");
 	output(b);
-	output("\n");
 	output(s);
-	output("\n");
 
 The result on <a href="#how-to-use-in-command">the command-line mode</a> is: 
 
@@ -1387,7 +1383,7 @@ The folloing is an example code of for statement:
 以下は for 文の使用例です：
 
 	for (int i=1; i<=5; i++) {
-		output("i=" + i + "\n");
+		output("i=" + i);
 	}
 
 
@@ -1411,7 +1407,7 @@ The folloing is an example code of while statement:
 
 	int a = 500;
 	while (0 <= a) {
-		output("a=" + a + "\n");
+		output("a=" + a);
 		a -= 123;
 	}
 
@@ -1434,7 +1430,7 @@ The folloing is an example code of break statement:
 以下は break 文の使用例です：
 
 	for (int i=1; i<=10; i++) {
-		output("i=" + i + "\n");
+		output("i=" + i);
 		if (i == 3) {
 			break;
 		}
@@ -1459,7 +1455,7 @@ The folloing is an example code of continue statement:
 		if (i % 3 == 0) {
 			continue;
 		}
-		output("i=" + i + "\n");
+		output("i=" + i);
 	}
 
 The result is:

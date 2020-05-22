@@ -18,7 +18,6 @@ import javax.script.ScriptEngineFactory;
 import javax.script.ScriptException;
 import javax.script.SimpleBindings;
 
-import org.vcssl.nano.interconnect.MetaQualifiedFileLoader;
 import org.vcssl.nano.interconnect.PluginLoader;
 import org.vcssl.nano.interconnect.ScriptLoader;
 import org.vcssl.nano.spec.EngineInformation;
@@ -270,7 +269,6 @@ public class VnanoScriptEngine implements ScriptEngine {
 				builder.append((char)charcode);
 			}
 			String script = builder.toString();
-
 			return this.eval(script);
 
 		} catch (IOException ioe) {

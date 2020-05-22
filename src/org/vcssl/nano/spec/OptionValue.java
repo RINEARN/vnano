@@ -204,11 +204,19 @@ public class OptionValue {
 
 
 	/**
-	 * <span class="lang-en">The default value of {@link OptionKey#EVAL_SCRIPT_NAME EVAL_SCRIPT_NAME} option</span>
-	 * <span class="lang-ja">{@link OptionKey#EVAL_SCRIPT_NAME EVAL_SCRIPT_NAME} オプションのデフォルト値です</span>
+	 * <span class="lang-en">The default value of {@link OptionKey#MAIN_SCRIPT_NAME MAIN_SCRIPT_NAME} option</span>
+	 * <span class="lang-ja">{@link OptionKey#MAIN_SCRIPT_NAME MAIN_SCRIPT_NAME} オプションのデフォルト値です</span>
 	 * .
 	 */
-	private static final String DEFAULT_EVAL_SCRIPT_NAME = "EVAL_SCRIPT";
+	private static final String DEFAULT_MAIN_SCRIPT_NAME = "main script";
+
+
+	/**
+	 * <span class="lang-en">The default value of {@link OptionKey#MAIN_DIRECTORY_PATH MAIN_DIRECTORY_PATH} option</span>
+	 * <span class="lang-ja">{@link OptionKey#MAIN_DIRECTORY_PATH MAIN_DIRECTORY_PATH} オプションのデフォルト値です</span>
+	 * .
+	 */
+	private static final String DEFAULT_MAIN_DIRECTORY_PATH = ".";
 
 
 	/**
@@ -216,9 +224,8 @@ public class OptionValue {
 	 * <span class="lang-ja">オプションマップのデフォルト値を保持するマップです</span>
 	 * .
 	 */
-	private static final Map<String, Object> DEFAULT_VALUE_MAP = new LinkedHashMap<String, Object>();
+	private static Map<String, Object> DEFAULT_VALUE_MAP = new LinkedHashMap<String, Object>(); // 環境依存の内容を含むので final にはしない
 	static {
-		DEFAULT_VALUE_MAP.put(OptionKey.EVAL_SCRIPT_NAME, "EVAL_SCRIPT");
 		DEFAULT_VALUE_MAP.put(OptionKey.EVAL_NUMBER_AS_FLOAT, Boolean.FALSE);
 		DEFAULT_VALUE_MAP.put(OptionKey.EVAL_ONLY_FLOAT, Boolean.FALSE);
 		DEFAULT_VALUE_MAP.put(OptionKey.EVAL_ONLY_EXPRESSION, Boolean.FALSE);
@@ -228,7 +235,12 @@ public class OptionValue {
 		DEFAULT_VALUE_MAP.put(OptionKey.DUMPER_TARGET, DUMPER_TARGET_ALL);
 		DEFAULT_VALUE_MAP.put(OptionKey.DUMPER_STREAM, System.out);
 		DEFAULT_VALUE_MAP.put(OptionKey.RUNNING_ENABLED, Boolean.TRUE);
-		DEFAULT_VALUE_MAP.put(OptionKey.EVAL_SCRIPT_NAME, DEFAULT_EVAL_SCRIPT_NAME);
+		DEFAULT_VALUE_MAP.put(OptionKey.MAIN_SCRIPT_NAME, DEFAULT_MAIN_SCRIPT_NAME);
+		DEFAULT_VALUE_MAP.put(OptionKey.MAIN_DIRECTORY_PATH, DEFAULT_MAIN_DIRECTORY_PATH);
+		DEFAULT_VALUE_MAP.put(OptionKey.FILE_IO_ENCODING, "UTF-8");
+		DEFAULT_VALUE_MAP.put(OptionKey.FILE_IO_EOL, System.getProperty("line.separator"));
+		DEFAULT_VALUE_MAP.put(OptionKey.TERMINAL_IO_UI, "GUI");
+		DEFAULT_VALUE_MAP.put(OptionKey.TERMINAL_IO_EOL, System.getProperty("line.separator"));
 	}
 
 
@@ -279,12 +291,27 @@ public class OptionValue {
 		}
 
 		// スクリプト名の中の特殊文字をエスケープ（VRILコード内にメタ情報として記載されるため）
-		if (returnMap.get(OptionKey.EVAL_SCRIPT_NAME) instanceof String) {
-			String evalScriptName = (String)returnMap.get(OptionKey.EVAL_SCRIPT_NAME);
-			returnMap.put(
-				OptionKey.EVAL_SCRIPT_NAME,
-				langSpec.IDENTIFIER_SYNTAX.normalizeScriptIdentifier(evalScriptName)
-			);
+		if (returnMap.get(OptionKey.MAIN_SCRIPT_NAME) instanceof String) {
+			String mainScriptName = (String)returnMap.get(OptionKey.MAIN_SCRIPT_NAME);
+
+			if (mainScriptName.equals(DEFAULT_MAIN_SCRIPT_NAME)) {
+
+				// デフォルトスクリプト名「 main script 」の場合は、以下の理由によりエスケープしない。
+				// ・デフォルトスクリプト名は、スクリプトをファイルから読み込まなかった場合にエラーメッセージなどで使われる便宜的な名称で、
+				//   スペースが「 _ 」にエスケープされるとエラーメッセージ内で不自然になってしまう。
+				// ・スペースは現時点ではVRILコード内に埋め込まれても問題にならない。
+				// ・Vnanoでは現時点でファイル名を名前空間とするような機能は無いため、VCSSLのように名前空間としてどうかという点は問題にならない。
+				// ・また、そもそもエスケープされた「 main_script 」もデフォルトの名前空間の名前としては微妙なので、
+				//   仮に将来的にファイル名を名前空間とする機能を実装したとしても、
+				//   その時にまた「ファイルから読み込まれていないメインスクリプトの名前空間」を指すキーワードを独立に定める
+				//   （または指せないようにする）べきで、ここでのデフォルトスクリプト名をそのまま使う事は無いはず。
+
+			} else {
+				returnMap.put(
+					OptionKey.MAIN_SCRIPT_NAME,
+					langSpec.IDENTIFIER_SYNTAX.normalizeScriptIdentifier(mainScriptName)
+				);
+			}
 		}
 
 		return returnMap;
@@ -309,7 +336,6 @@ public class OptionValue {
 	 *   <span class="lang-ja">無効な内容が検出された場合にスローされます.</span>
 	 */
 	public static void checkValuesOf(Map<String, Object> optionMap) throws VnanoException {
-		checkValueOf(OptionKey.EVAL_SCRIPT_NAME, optionMap, String.class);
 		checkValueOf(OptionKey.EVAL_NUMBER_AS_FLOAT, optionMap, Boolean.class);
 		checkValueOf(OptionKey.EVAL_ONLY_FLOAT, optionMap, Boolean.class);
 		checkValueOf(OptionKey.EVAL_ONLY_EXPRESSION, optionMap, Boolean.class);
@@ -319,6 +345,12 @@ public class OptionValue {
 		checkValueOf(OptionKey.DUMPER_TARGET, optionMap, String.class);
 		checkValueOf(OptionKey.DUMPER_STREAM, optionMap, PrintStream.class);
 		checkValueOf(OptionKey.RUNNING_ENABLED, optionMap, Boolean.class);
+		checkValueOf(OptionKey.MAIN_SCRIPT_NAME, optionMap, String.class);
+		checkValueOf(OptionKey.MAIN_DIRECTORY_PATH, optionMap, String.class);
+		checkValueOf(OptionKey.FILE_IO_ENCODING, optionMap, String.class);
+		checkValueOf(OptionKey.FILE_IO_EOL, optionMap, String.class);
+		checkValueOf(OptionKey.TERMINAL_IO_UI, optionMap, String.class);
+		checkValueOf(OptionKey.TERMINAL_IO_EOL, optionMap, String.class);
 	}
 
 

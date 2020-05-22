@@ -109,16 +109,16 @@ public final class VnanoCommandLineApplication {
 		private long launchedTime = System.nanoTime() / 1000000l;
 
 		public void output(long value) {
-			System.out.print(value);
+			System.out.println(value);
 		}
 		public void output(double value) {
-			System.out.print(value);
+			System.out.println(value);
 		}
 		public void output(boolean value) {
-			System.out.print(value);
+			System.out.println(value);
 		}
 		public void output(String value) {
-			System.out.print(value);
+			System.out.println(value);
 		}
 		public long time() {
 			return System.nanoTime() / 1000000l - launchedTime;
@@ -793,8 +793,9 @@ public final class VnanoCommandLineApplication {
 			engine.includeLibraryScript(libNames[libIndex], libContents[libIndex]);
 		}
 
-		// オプションマップにスクリプト名を設定
-		this.optionMap.put(OptionKey.EVAL_SCRIPT_NAME, scriptLoader.getMainScriptName());
+		// オプションマップにスクリプト名を設定し、I/O形式をCUIに設定
+		this.optionMap.put(OptionKey.MAIN_SCRIPT_NAME, scriptLoader.getMainScriptName());
+		this.optionMap.put(OptionKey.TERMINAL_IO_UI, "CUI");
 
 		// オプションマップをスクリプトエンジンに設定
 		try {
@@ -815,8 +816,9 @@ public final class VnanoCommandLineApplication {
 			return;
 		}
 
-		// オプションマップにスクリプト名を設定
-		this.optionMap.put(OptionKey.EVAL_SCRIPT_NAME, scriptLoader.getMainScriptContent());
+		// オプションマップにスクリプト名を設定し、I/O形式をCUIに設定
+		this.optionMap.put(OptionKey.MAIN_SCRIPT_NAME, scriptLoader.getMainScriptName());
+		this.optionMap.put(OptionKey.TERMINAL_IO_UI, "CUI");
 
 		// プロセス仮想マシンを生成し、VRILコードを渡して実行
 		VirtualMachine vm = new VirtualMachine(LANG_SPEC);

@@ -62,7 +62,7 @@ int endTime = time();
 double requiredTime = (endTime - beginTime) / 1000.0;
 double flops = TOTAL_FLOP / requiredTime;
 
-output("OPERATING_SPEED = " +  flops/(1000.0*1000.0) + " [MFLOPS]\n");
-output("REQUIRED_TIME = "+ requiredTime + " [SEC]\n");
-output("TOTAL_OPERATIONS = " + TOTAL_FLOP + " [xFLOAT64_ADD]\n");
-output("OPERATED_VALUE = " + x + "\n");
+output("OPERATING_SPEED = " +  flops/(1000.0*1000.0) + " [MFLOPS]");
+output("REQUIRED_TIME = "+ requiredTime + " [SEC]");
+output("TOTAL_OPERATIONS = " + TOTAL_FLOP + " [xFLOAT64_ADD]");
+output("OPERATED_VALUE = " + x);
