@@ -184,7 +184,7 @@ public class VnanoEngine {
 			int libN = this.libraryNameContentMap.size();
 			String[] scripts = new String[libN  + 1];
 			String[] names   = new String[libN + 1];
-			names[libN] = (String)this.optionMap.get(OptionKey.EVAL_SCRIPT_NAME);
+			names[libN] = (String)this.optionMap.get(OptionKey.MAIN_SCRIPT_NAME);
 			scripts[libN] = script;
 			int libIndex = 0;
 			for (Map.Entry<String, String> nameContentPair: this.libraryNameContentMap.entrySet()) {

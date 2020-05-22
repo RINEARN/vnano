@@ -41,21 +41,33 @@ public class OptionKey {
 
 
 	/**
-	 * <span class="lang-en">The default/specified name of evaluated script</span>
+	 * <span class="lang-en">The default/specified name of the execution target script</span>
 	 * <span class="lang-ja">デフォルトまたは指定された、実行対象スクリプトの名前です</span>
 	 * .
 	 * <span class="lang-en">The value of this option is "String" type.</span>
 	 * <span class="lang-ja">このオプションの値は "String" 型です.</span>
 	 */
-	public static final String EVAL_SCRIPT_NAME = "EVAL_SCRIPT_NAME";
+	public static final String MAIN_SCRIPT_NAME = "MAIN_SCRIPT_NAME";
+	//public static final String EVAL_SCRIPT_NAME = "EVAL_SCRIPT_NAME";
+
+
+	/**
+	 * <span class="lang-en">The path of the directory in which the execution target script is locating</span>
+	 * <span class="lang-ja">実行対象スクリプトがあるディレクトリのパスです</span>
+	 * .
+	 * <span class="lang-en">The value of this option is "String" type.</span>
+	 * <span class="lang-ja">このオプションの値は "String" 型です.</span>
+	 */
+	public static final String MAIN_DIRECTORY_PATH = "MAIN_DIRECTORY_PATH";
 
 
 	/**
 	 * <span class="lang-en">
-	 * An option to regard integer literals as float type in the execution/evaluation target (not library) script
+	 * An option to regard integer literals as float type
+	 * in the execution/evaluation target expressions and scripts (excepting library scripts)
 	 * </span>
 	 * <span class="lang-ja">
-	 * 実行/評価対象のスクリプト（ライブラリ以外）内に出現する整数リテラルを, float型と見なして扱うオプションです
+	 * 実行/評価対象の式やスクリプト（ライブラリ以外）内に出現する整数リテラルを, float型と見なして扱うオプションです
 	 * </span>
 	 * .
 	 * <span class="lang-en">The value of this option is "Boolean" type. Specify "Boolean.TRUE" to enable this option.</span>
@@ -67,10 +79,10 @@ public class OptionKey {
 	/**
 	 * <span class="lang-en">
 	 * An option to restrict types of available statements
-	 * in the execution/evaluation target (not library) script to only "expression"
+	 * in the execution target scripts (excepting library scripts) to only "expression"
 	 * </span>
 	 * <span class="lang-ja">
-	 * 実行/評価対象のスクリプト（ライブラリ以外）内で使用可能な文を, 式文のみに制限するオプションです
+	 * 実行対象のスクリプト（ライブラリ以外）内で使用可能な文を, 式文のみに制限するオプションです
 	 * </span>
 	 * .
 	 * <span class="lang-en">The value of this option is "Boolean" type. Specify "Boolean.TRUE" to enable this option.</span>
@@ -79,7 +91,18 @@ public class OptionKey {
 	public static final String EVAL_ONLY_EXPRESSION = "EVAL_ONLY_EXPRESSION";
 
 
-
+	/**
+	 * <span class="lang-en">
+	 * An option to restrict available data types of operators/operands in
+	 * in the execution target scripts (excepting library scripts) to only "float"
+	 * </span>
+	 * <span class="lang-ja">
+	 * 実行対象のスクリプト（ライブラリ以外）内で使用可能な演算子やオペランドの型を, float 型のみに制限するオプションです
+	 * </span>
+	 * .
+	 * <span class="lang-en">The value of this option is "Boolean" type. Specify "Boolean.TRUE" to enable this option.</span>
+	 * <span class="lang-ja">このオプションの値は "boolean" 型です. 有効にするには "Boolean.TRUE" を指定してください.</span>
+	 */
 	public static final String EVAL_ONLY_FLOAT = "EVAL_ONLY_FLOAT";
 
 
@@ -148,6 +171,42 @@ public class OptionKey {
 	 * </span>
 	 */
 	public static final String RUNNING_ENABLED = "RUNNING_ENABLED";
+
+
+	/**
+	 * <span class="lang-en">Specify the name of the default encoding for reading reading script files</span>
+	 * <span class="lang-ja">スクリプトファイルの読み込みに用いるデフォルトの文字コード名を指定します</span>
+	 * .
+	 * <span class="lang-en">The value of this option is "String" type.</span>
+	 * <span class="lang-ja">このオプションの値は "String" 型です.</span>
+	 */
+	//public static final String SCRIPT_FILE_ENCODING = "SCRIPT_FILE_ENCODING"; // 文字コード宣言を既にサポートしているので重要度が低いため保留、将来的にサポート検討
+
+
+	/**
+	 * <span class="lang-en">Specify the name of the default encoding for writing to / reading files in scripts</span>
+	 * <span class="lang-ja">スクリプト内でのファイルの読み書きに用いるデフォルトの文字コード名を指定します</span>
+	 * .
+	 * <span class="lang-en">The value of this option is "String" type.</span>
+	 * <span class="lang-ja">このオプションの値は "String" 型です.</span>
+	 *
+	 * <span class="lang-en">This option is referred by I/O plug-ins if they are connected.</span>
+	 * <span class="lang-ja">このオプションは, 入出力系のプラグインが接続されている場合に, それらによって参照されます.</span>
+	 */
+	public static final String FILE_IO_ENCODING = "FILE_IO_ENCODING";
+
+
+	/**
+	 * <span class="lang-en">Specify the type of UI for inputting/outputting values</span>
+	 * <span class="lang-ja">値の入出力に用いるユーザーインターフェースの形式を指定します</span>
+	 * .
+	 * <span class="lang-en">The value of this option is "String" type. Specify "GUI" or "CUI".</span>
+	 * <span class="lang-ja">このオプションの値は "String" 型です. "GUI" か "CUI" を選択してください.</span>
+	 *
+	 * <span class="lang-en">This option is referred by I/O plug-ins if they are connected.</span>
+	 * <span class="lang-ja">このオプションは, 入出力系のプラグインが接続されている場合に, それらによって参照されます.</span>
+	 */
+	public static final String TERMINAL_IO_UI = "TERMINAL_IO_UI";
 
 
 	// 以下は将来的に追加するオプション項目の暫定案（未サポート）

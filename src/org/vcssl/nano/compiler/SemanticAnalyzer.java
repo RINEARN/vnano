@@ -174,13 +174,13 @@ public class SemanticAnalyzer {
 		// EVAL_ONLY_EXPRESSION オプションが指定されている場合は、eval対象スクリプト内に式文以外が含まれていないか検査
 		if (optionMap.containsKey(OptionKey.EVAL_ONLY_EXPRESSION)
 				&& optionMap.get(OptionKey.EVAL_ONLY_EXPRESSION).equals(Boolean.TRUE)) {
-			this.checkConsistsOfExpressions(outputAst, (String)optionMap.get(OptionKey.EVAL_SCRIPT_NAME));
+			this.checkConsistsOfExpressions(outputAst, (String)optionMap.get(OptionKey.MAIN_SCRIPT_NAME));
 		}
 
 		// EVAL_ONLY_FLOAT オプションが指定されている場合は、eval対象スクリプト内の式の中で、float型以外の要素が含まれていないか検査
 		if (optionMap.containsKey(OptionKey.EVAL_ONLY_FLOAT)
 				&& optionMap.get(OptionKey.EVAL_ONLY_FLOAT).equals(Boolean.TRUE)) {
-			this.checkConsistsOfFloats(outputAst, (String)optionMap.get(OptionKey.EVAL_SCRIPT_NAME));
+			this.checkConsistsOfFloats(outputAst, (String)optionMap.get(OptionKey.MAIN_SCRIPT_NAME));
 		}
 
 		return outputAst;
