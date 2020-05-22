@@ -395,11 +395,16 @@ public final class Xfci1ToFunctionAdapter extends AbstractFunction {
 			// 実引数を格納
 			for (int argIndex=0; argIndex<argLength; argIndex++) {
 
-				// 参照渡しの場合はそのまま
-				if (this.parameterReferencenesses[argIndex]) {
+				// 引数が参照渡しかどうかを取得
+				boolean isParamRef = this.xfciPlugin.isParameterCountArbitrary()
+					? this.parameterReferencenesses[0] // 引数が任意個数に設定されている場合は、宣言上の仮引数は1個のみなので、その情報を取得
+					: this.parameterReferencenesses[argIndex]; // それ以外の普通の場合は個々の引数の情報を取得
+
+				// 参照渡しの場合はそのまま渡す
+				if (isParamRef) {
 					xfciArgContainers[argIndex + 1] = argumentDataContainers[argIndex];
 
-				// 値渡しの場合はコピーする
+				// 値渡しの場合はコピーして渡す
 				} else {
 					xfciArgContainers[argIndex + 1] = DataConverter.copyDataContainer(argumentDataContainers[argIndex]);
 				}
