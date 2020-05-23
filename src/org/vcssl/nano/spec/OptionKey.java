@@ -213,8 +213,14 @@ public class OptionKey {
 	 * <span class="lang-en">Specify the type of UI for inputting/outputting values</span>
 	 * <span class="lang-ja">値の入出力に用いるユーザーインターフェースの形式を指定します</span>
 	 * .
-	 * <span class="lang-en">The value of this option is "String" type. Specify "GUI" or "CUI".</span>
-	 * <span class="lang-ja">このオプションの値は "String" 型です. "GUI" か "CUI" を選択してください.</span>
+	 * <span class="lang-en">
+	 * The value of this option is "String" type. Specify "GUI" or "CUI".
+	 * The default value is "GUI", but it will be set to "CUI" automatically when you execute the Vnano engine in the command-line mode.
+	 * </span>
+	 * <span class="lang-ja">
+	 * このオプションの値は "String" 型です. "GUI" か "CUI" を選択してください.
+	 * デフォルト値は "GUI" ですが, コマンドラインモードでVnanoエンジンを起動した場合は自動的に "CUI" に設定されます.
+	 * </span>
 	 *
 	 * <span class="lang-en">This option is referred by I/O plug-ins if they are connected.</span>
 	 * <span class="lang-ja">このオプションは, 入出力系のプラグインが接続されている場合に, それらによって参照されます.</span>
@@ -233,6 +239,57 @@ public class OptionKey {
 	 * <span class="lang-ja">このオプションは, 入出力系のプラグインが接続されている場合に, それらによって参照されます.</span>
 	 */
 	public static final String TERMINAL_IO_EOL = "TERMINAL_IO_EOL";
+
+
+	/**
+	 * <span class="lang-en">
+	 * Specify the stream for standard input used when {@link OptionKey#TERMINAL_IO_UI TERMINAL_IO_UI} is set to "CUI"
+	 * </span>
+	 * <span class="lang-ja">
+	 * {@link OptionKey#TERMINAL_IO_UI TERMINAL_IO_UI} が "CUI" に設定されている際に、標準入力に用いるストリームを指定します
+	 * </span>
+	 * .
+	 * <span class="lang-en">The value of this option is "InputStream" type.</span>
+	 * <span class="lang-ja">このオプションの値は "InputStream" 型です.</span>
+	 *
+	 * <span class="lang-en">This option is referred by I/O plug-ins if they are connected.</span>
+	 * <span class="lang-ja">このオプションは, 入出力系のプラグインが接続されている場合に, それらによって参照されます.</span>
+	 */
+	public static final String STDIN_STREAM = "STDIN_STREAM";
+
+
+	/**
+	 * <span class="lang-en">
+	 * Specify the stream for standard output used when {@link OptionKey#TERMINAL_IO_UI TERMINAL_IO_UI} is set to "CUI"
+	 * </span>
+	 * <span class="lang-ja">
+	 * {@link OptionKey#TERMINAL_IO_UI TERMINAL_IO_UI} が "CUI" に設定されている際に、標準出力に用いるストリームを指定します
+	 * </span>
+	 * .
+	 * <span class="lang-en">The value of this option is "PrintStream" type.</span>
+	 * <span class="lang-ja">このオプションの値は "PrintStream" 型です.</span>
+	 *
+	 * <span class="lang-en">This option is referred by I/O plug-ins if they are connected.</span>
+	 * <span class="lang-ja">このオプションは, 入出力系のプラグインが接続されている場合に, それらによって参照されます.</span>
+	 */
+	public static final String STDOUT_STREAM = "STDOUT_STREAM";
+
+
+	/**
+	 * <span class="lang-en">
+	 * Specify the stream for standard error output when {@link OptionKey#TERMINAL_IO_UI TERMINAL_IO_UI} is set to "CUI"
+	 * </span>
+	 * <span class="lang-ja">
+	 * {@link OptionKey#TERMINAL_IO_UI TERMINAL_IO_UI} が "CUI" に設定されている際に、標準エラー出力に用いるストリームを指定します
+	 * </span>
+	 * .
+	 * <span class="lang-en">The value of this option is "PrintStream" type.</span>
+	 * <span class="lang-ja">このオプションの値は "PrintStream" 型です.</span>
+	 *
+	 * <span class="lang-en">This option is referred by I/O plug-ins if they are connected.</span>
+	 * <span class="lang-ja">このオプションは, 入出力系のプラグインが接続されている場合に, それらによって参照されます.</span>
+	 */
+	public static final String STDERR_STREAM = "STDERR_STREAM";
 
 
 	// 以下は将来的に追加するオプション項目の暫定案（未サポート）
