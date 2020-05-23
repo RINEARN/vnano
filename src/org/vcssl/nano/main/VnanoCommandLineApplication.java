@@ -813,7 +813,7 @@ public final class VnanoCommandLineApplication {
 		// スクリプトを実行
 		engine.executeScript(scriptLoader.getMainScriptContent());
 
-		// プラグインの接続を解除（プラグイン側でも終了時処理が実行される）
+		// プラグインの接続を解除（プラグイン側でも接続解除用の終了時処理が実行される）
 		engine.disconnectAllPlugins();
 	}
 
@@ -830,11 +830,17 @@ public final class VnanoCommandLineApplication {
 			return;
 		}
 
+		// プラグインのスクリプト実行前の初期化処理などを実行
+		interconnect.activate();
+
 		// プロセス仮想マシンを生成し、VRILコードを渡して実行
 		VirtualMachine vm = new VirtualMachine(LANG_SPEC);
 		vm.executeAssemblyCode(scriptLoader.getMainScriptContent(), interconnect, this.optionMap);
 
-		// プラグインの接続を解除（プラグイン側でも終了時処理が実行される）
+		// プラグインのスクリプト実行後の終了時処理などを実行
+		interconnect.deactivate();
+
+		// プラグインの接続を解除（プラグイン側でも接続解除用の終了時処理が実行される）
 		interconnect.disconnectAllPlugins();
 	}
 
