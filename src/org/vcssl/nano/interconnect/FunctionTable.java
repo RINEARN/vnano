@@ -324,7 +324,7 @@ public class FunctionTable {
 				Arrays.fill(parameterRanks, parameterRanks[0]);
 				Arrays.fill(parameterDataTypeNames, parameterDataTypeNames[0]);
 				Arrays.fill(parameterDataTypeArbitrarinesses, parameterDataTypeArbitrarinesses[0]);
-				Arrays.fill(parameterDataTypeArbitrarinesses, parameterArrayRankArbitrarinesses[0]);
+				Arrays.fill(parameterArrayRankArbitrarinesses, parameterArrayRankArbitrarinesses[0]);
 			}
 
 			// 仮引数と実引数の個数が違えばスキップ
@@ -350,27 +350,27 @@ public class FunctionTable {
 				// この引数に互換性があれば continue して次の引数の比較へ移行、
 				// 互換性が無ければその時点で呼び出し不可と判断して break する。
 
-				// データ型と次元数の両方が完全に一致している場合は、その時点でOK
+				// データ型と次元数の両方が完全に一致している場合は、その時点でOK: 次の引数へ進む
 				if (isDataTypeSame && isRankSame) {
 					continue;
 				}
 
-				// 仮引数が任意型かつ任意次元の場合は、実引数が何であっても互換性があるのでOK
+				// 仮引数が任意型かつ任意次元の場合は、実引数が何であっても互換性があるのでOK: 次の引数へ進む
 				if (isParamAnyType && isParamAnyRank) {
 					continue;
 				}
 
-				// 仮引数が任意型であり、かつ任意次元ではない場合は、次元数が一致していればOK
+				// 仮引数が任意型であり、かつ任意次元ではない場合は、次元数が一致していればOK: 次の引数へ進む
 				if (isParamAnyType && !isParamAnyRank && isRankSame) {
 					continue;
 				}
 
-				// 仮引数が任意次元であり、かつ任意型ではない場合は、データ型数が一致していればOK
+				// 仮引数が任意次元であり、かつ任意型ではない場合は、データ型数が一致していればOK: 次の引数へ進む
 				if (isParamAnyRank && !isParamAnyType && isDataTypeSame) {
 					continue;
 				}
 
-				// ここまででOKでなければ、引数に互換性が無いので、この関数は呼び出し可能ではない
+				// ここまででOKでなければ、この引数に互換性は無いので、この関数は呼び出し可能ではない
 				isCallable = false;
 				break;
 			}

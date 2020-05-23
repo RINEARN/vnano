@@ -473,6 +473,11 @@ public class MetaQualifiedFileLoader {
 	 */
 	private static final String normalize(String content) {
 
+		// ファイル内に内容も改行が無いまま EOF で閉じられていた場合は読み込み結果が null になっているが、その場合は空文字にする
+		if (content == null) {
+			return "";
+		}
+
 		// 改行コードは環境に依存して CRLF (\r\n), CR (\r), LF (\n) があるが、LF (\n) のみに統一する。
 		content = content.replaceAll("\\r\\n", "\n");
 		content = content.replaceAll("\\r", "\n");

@@ -1,5 +1,6 @@
 package org.vcssl.nano.spec;
 
+import java.io.InputStream;
 import java.io.PrintStream;
 import java.util.LinkedHashMap;
 import java.util.Locale;
@@ -241,6 +242,9 @@ public class OptionValue {
 		DEFAULT_VALUE_MAP.put(OptionKey.FILE_IO_EOL, System.getProperty("line.separator"));
 		DEFAULT_VALUE_MAP.put(OptionKey.TERMINAL_IO_UI, "GUI");
 		DEFAULT_VALUE_MAP.put(OptionKey.TERMINAL_IO_EOL, System.getProperty("line.separator"));
+		DEFAULT_VALUE_MAP.put(OptionKey.STDIN_STREAM, System.in);
+		DEFAULT_VALUE_MAP.put(OptionKey.STDOUT_STREAM, System.out);
+		DEFAULT_VALUE_MAP.put(OptionKey.STDERR_STREAM, System.err);
 	}
 
 
@@ -351,6 +355,9 @@ public class OptionValue {
 		checkValueOf(OptionKey.FILE_IO_EOL, optionMap, String.class);
 		checkValueOf(OptionKey.TERMINAL_IO_UI, optionMap, String.class);
 		checkValueOf(OptionKey.TERMINAL_IO_EOL, optionMap, String.class);
+		checkValueOf(OptionKey.STDIN_STREAM, optionMap, InputStream.class);
+		checkValueOf(OptionKey.STDOUT_STREAM, optionMap, PrintStream.class);
+		checkValueOf(OptionKey.STDERR_STREAM, optionMap, PrintStream.class);
 	}
 
 

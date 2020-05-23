@@ -133,6 +133,7 @@ public class ErrorMessage {
 			case WRITING_TO_UNWRITABLE_SOMETHING : return "書き換え不可能な値" + (words==null ? "" : "「 "+words[0] + " 」") + "の書き換えが検出されました。";
 			case SUBSCRIPTING_TO_UNSUBSCRIPTABLE_SOMETHING : return "配列ではない値や変数"  + (words==null ? "" : "「 "+words[0] + " 」") + "に、配列インデックスを付けてアクセスしています。";
 			case INVALID_SUBSCRIPT_RANK : return words[1] + "次元の配列「 " + words[0] + " 」に、" + words[2] + "次元のインデックスでアクセスしています。";
+			case INVALID_ARBITRARY_RANK_SYNTAX : return "任意次元を表す表記は [...] ですが、誤った表記 " + words[0] + " が検出されました。";
 			case FUNCTION_ENDED_WITHOUT_RETURNING_VALUE : return "関数「 " + words[0] + " 」は戻り値を返す必要がありますが、返さずに終了しました。";
 			case RETURN_STATEMENT_IS_OUTSIDE_FUNCTIONS : return "return 文が関数外で使用されていますが、関数内でしか使用できません。";
 			case INVALID_RETURNED_VALUE_DATA_TYPE : return "return 文が返している値の型「 " + words[0] + " 」が、関数宣言における戻り値の型「 " + words[1] + " 」と異なります。";
@@ -153,6 +154,7 @@ public class ErrorMessage {
 			case PLUGIN_DIRECTORY_IS_NOT_ACCESSIBLE : return "プラグインのフォルダ「 " + words[0] + " 」にアクセスできません。フォルダの指定内容や存在を確認してみてください。";
 			case PLUGIN_FILE_DOES_NOT_EXIST : return "読み込み対象プラグインのファイル「 " + words[0] + " 」が見つかりません。";
 			case PLUGIN_INSTANTIATION_FAILED : return "プラグイン「 " + words[0] + " 」の読み込み/インスタンス化に失敗しました";
+			case PLUGIN_CONNECTION_FAILED : return "プラグイン「 " + words[0] + " 」の接続に失敗しました";
 			case DECLARED_ENCODING_IS_UNSUPPORTED : return "スクリプトファイル「 " + words[1] + " 」の先頭行で宣言されている文字コード「 " + words[0] + " 」は、この環境では使用できません。";
 			case NO_ENCODING_DECLARATION_END : return (words[0]==null ? "" : "スクリプトファイル「 " + words[0] + " 」の") + "先頭行の文字コード宣言において、末尾に「 ; 」が必要です。";
 			case ENCODING_DECLARATION_CONTAINS_INVALID_SYMBOL : return (words[1]==null ? "" : "スクリプトファイル「 " + words[1] + " 」の先頭行の文字コード宣言において、") + "使用できない記号「 " + words[0] + " 」が含まれています。";
@@ -232,6 +234,7 @@ public class ErrorMessage {
 			case WRITING_TO_UNWRITABLE_SOMETHING : return "Modification of the unwritable value "  + (words==null ? "" : "\""+words[0] + "\" ") + "is detected";
 			case SUBSCRIPTING_TO_UNSUBSCRIPTABLE_SOMETHING : return "Subscripting to the non-array value/variable" + (words==null ? "" : "\""+words[0]+"\"");
 			case INVALID_SUBSCRIPT_RANK : return "Subscripting to " + words[1] + "-dimension array \"" + words[0] + "\" by " + words[2] + "-dimension index/indices";
+			case INVALID_ARBITRARY_RANK_SYNTAX : return "The valid syntax of \"arbitrary rank\" is \"[...]\", but incorrect description \"" + words[0] + "\" is detected";
 			case FUNCTION_ENDED_WITHOUT_RETURNING_VALUE : return "The function \"" + words[0] + "\" should return a value but has end without returning a value";
 			case RETURN_STATEMENT_IS_OUTSIDE_FUNCTIONS : return "A return statement being outside functions is detected";
 			case INVALID_RETURNED_VALUE_DATA_TYPE : return "The data type of the returned value \""+ words[0] + "\" does not match the data type \""+ words[1] + "\", which is expected from the function declaration";
@@ -252,6 +255,7 @@ public class ErrorMessage {
 			case PLUGIN_DIRECTORY_IS_NOT_ACCESSIBLE : return "The plug-in directory \"" + words[0] + "\" is not accessible. Check the content of the directory path, and check the directory exists";
 			case PLUGIN_FILE_DOES_NOT_EXIST : return "The loading plug-in file \"" + words[0] + "\" does not exist";
 			case PLUGIN_INSTANTIATION_FAILED : return "The loading or instantiation of the plugin \"" + words[0] + "\" has failed";
+			case PLUGIN_CONNECTION_FAILED : return "The connection of the plugin \"" + words[0] + "\" has failed";
 			case DECLARED_ENCODING_IS_UNSUPPORTED : return "The encoding \"" + words[0] + "\" declared in the first line of \"" + words[1] + "\" is unsupported in this environment";
 			case NO_ENCODING_DECLARATION_END : return "\";\" is required at the end of the encoding-decraration" + (words[0]==null ? "" : ", at the first line of \"" + words[0] + "\"");
 			case ENCODING_DECLARATION_CONTAINS_INVALID_SYMBOL : return "Invalid symbol \"" + words[0] + "\" is contained in the encoding-declaration" + (words[1]==null ? "" : ", at the first line of \"" + words[1] + "\"");

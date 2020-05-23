@@ -137,10 +137,10 @@ public class FunctionAliasAdapter extends AbstractFunction {
 
 			// 引数の配列次元数の検査
 			if (function.isParameterCountArbitrary()) {
-				// 引数が任意個に設定されている場合は、「 ... type unnamed[...] 」表記なので構文上は1次元
-				errorDetected |= ( paramNode.getRank() != 1 );
+				// 任意次元の次元数は -1 次元と表現される
+				errorDetected |= ( paramNode.getRank() != -1 );
 			} else {
-				// 通常の引数の場合は、違っていればエラー
+				// 通常の引数の場合は、次元数が違っていればエラー
 				errorDetected |= ( paramNode.getRank() != parameterArrayRanks[paramIndex] );
 			}
 		}
