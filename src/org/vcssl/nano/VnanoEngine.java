@@ -176,7 +176,6 @@ public class VnanoEngine {
 			// 全プラグインの初期化処理などを行い、インターコネクトをスクリプト実行可能な状態に移行
 			this.engineConnector.setOptionMap(this.optionMap);
 			this.engineConnector.setPermissionMap(this.permissionMap);
-			this.engineConnector.activate();
 			this.interconnect.activate();
 
 			// Contain an execution-target script and library scripts into an array.
@@ -209,7 +208,6 @@ public class VnanoEngine {
 
 			// 全プラグインの終了時処理などを行い、インターコネクトを待機状態に移行
 			this.interconnect.deactivate();
-			this.engineConnector.deactivate();
 
 			return evalValue;
 

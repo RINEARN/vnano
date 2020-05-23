@@ -12,7 +12,6 @@ import java.util.List;
 
 import org.vcssl.connect.ClassToXnci1Adapter;
 import org.vcssl.connect.ConnectorException;
-import org.vcssl.connect.EngineConnectorInterface1;
 import org.vcssl.connect.ExternalFunctionConnectorInterface1;
 import org.vcssl.connect.ExternalNamespaceConnectorInterface1;
 import org.vcssl.connect.ExternalVariableConnectorInterface1;
@@ -85,7 +84,7 @@ public class Interconnect {
 	private VariableTable externalVariableTable = null;
 
 	/** プラグインからスクリプトエンジンにアクセスする際に使用するコネクタです。 */
-	private EngineConnectorInterface1 engineConnector = null;
+	private EngineConnector engineConnector = null;
 
 
 	/** 初期化/終了時処理のため、接続されているXNCI形式のプラグインを一括で保持するリストです。 */
@@ -133,6 +132,11 @@ public class Interconnect {
 	 */
 	public void activate() throws VnanoException {
 
+		// 実行時用パーミッションマップのデフォルト初期化処理などを実行
+		if (this.engineConnector != null) {
+			this.engineConnector.activate();
+		}
+
 		// 接続されている全プラグインの、スクリプト実行毎の初期化処理を実行
 		this.initializeAllPluginsForExecution();
 	}
@@ -151,6 +155,11 @@ public class Interconnect {
 
 		// 接続されている全プラグインの、スクリプト実行毎の終了時処理を実行
 		this.finalizeAllPluginsForTermination();
+
+		// 実行時用パーミッションマップのクリアなどを実行
+		if (this.engineConnector != null) {
+			this.engineConnector.deactivate();
+		}
 	}
 
 
@@ -166,7 +175,7 @@ public class Interconnect {
 	 *   <span class="lang-en">The engine connector to be passed to plug-ins</span>
 	 *   <span class="lang-ja">プラグインに渡すエンジンコネクタ</span>
 	 */
-	public void setEngineConnector(EngineConnectorInterface1 engineConnector) {
+	public void setEngineConnector(EngineConnector engineConnector) {
 		this.engineConnector = engineConnector;
 	}
 
@@ -846,8 +855,9 @@ public class Interconnect {
 		ExternalFunctionConnectorInterface1[] xfciConnectors = plugin.getFunctions();
 		for (ExternalFunctionConnectorInterface1 xfciConnector: xfciConnectors) {
 			try {
+				this.xfci1PluginList.add(xfciConnector); // 初期化/終了時処理で呼ぶ用の登録
 				AbstractFunction adapter = new Xfci1ToFunctionAdapter(xfciConnector, nameSpace, LANG_SPEC);
-				this.connectFunction(adapter, false, null);
+				this.connectFunction(adapter, false, null); // スクリプトから呼ぶ用の接続
 
 			} catch (VnanoException e) {
 				if (!ignoreIncompatibles) {
@@ -860,8 +870,9 @@ public class Interconnect {
 		ExternalVariableConnectorInterface1[] xvciConnectors = plugin.getVariables();
 		for (ExternalVariableConnectorInterface1 xvciConnector: xvciConnectors) {
 			try {
+				this.xvci1PluginList.add(xvciConnector); // 初期化/終了時処理で呼ぶ用の登録
 				AbstractVariable adapter = new Xvci1ToVariableAdapter(xvciConnector, nameSpace, LANG_SPEC);
-				this.connectVariable(adapter, false, null);
+				this.connectVariable(adapter, false, null); // スクリプトから呼ぶ用の接続
 
 			} catch (VnanoException e) {
 				if (!ignoreIncompatibles) {
