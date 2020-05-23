@@ -806,6 +806,9 @@ public final class VnanoCommandLineApplication {
 
 		// スクリプトを実行
 		engine.executeScript(scriptLoader.getMainScriptContent());
+
+		// プラグインの接続を解除（プラグイン側でも終了時処理が実行される）
+		engine.disconnectAllPlugins();
 	}
 
 	public void executeVrilCodeFile(ScriptLoader scriptLoader, PluginLoader pluginLoader) throws VnanoException {
@@ -823,6 +826,9 @@ public final class VnanoCommandLineApplication {
 		// プロセス仮想マシンを生成し、VRILコードを渡して実行
 		VirtualMachine vm = new VirtualMachine(LANG_SPEC);
 		vm.executeAssemblyCode(scriptLoader.getMainScriptContent(), interconnect, this.optionMap);
+
+		// プラグインの接続を解除（プラグイン側でも終了時処理が実行される）
+		interconnect.disconnectAllPlugins();
 	}
 
 	public void dumpException(Exception e) {
