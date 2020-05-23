@@ -965,19 +965,19 @@ public class Interconnect {
 			// モジュールの preInit -> 関数/変数の init -> モジュールの postInit の順で初期化
 			for (ExternalNamespaceConnectorInterface1 plugin: xnci1PluginList) {
 				finalizingPlugin = plugin;
-				plugin.preFinalizeForDisconnection(plugin);
+				plugin.preFinalizeForDisconnection(this.engineConnector);
 			}
 			for (ExternalFunctionConnectorInterface1 plugin: xfci1PluginList) {
 				finalizingPlugin = plugin;
-				plugin.finalizeForDisconnection(plugin);
+				plugin.finalizeForDisconnection(this.engineConnector);
 			}
 			for (ExternalVariableConnectorInterface1 plugin: xvci1PluginList) {
 				finalizingPlugin = plugin;
-				plugin.finalizeForDisconnection(plugin);
+				plugin.finalizeForDisconnection(this.engineConnector);
 			}
 			for (ExternalNamespaceConnectorInterface1 plugin: xnci1PluginList) {
 				finalizingPlugin = plugin;
-				plugin.postFinalizeForDisconnection(plugin);
+				plugin.postFinalizeForDisconnection(this.engineConnector);
 			}
 		} catch (ConnectorException e) {
 			throw new VnanoException(
@@ -993,19 +993,19 @@ public class Interconnect {
 			// モジュールの preInit -> 関数/変数の init -> モジュールの postInit の順で初期化
 			for (ExternalNamespaceConnectorInterface1 plugin: xnci1PluginList) {
 				initializingPlugin = plugin;
-				plugin.preInitializeForExecution(plugin);
+				plugin.preInitializeForExecution(this.engineConnector);
 			}
 			for (ExternalFunctionConnectorInterface1 plugin: xfci1PluginList) {
 				initializingPlugin = plugin;
-				plugin.initializeForExecution(plugin);
+				plugin.initializeForExecution(this.engineConnector);
 			}
 			for (ExternalVariableConnectorInterface1 plugin: xvci1PluginList) {
 				initializingPlugin = plugin;
-				plugin.initializeForExecution(plugin);
+				plugin.initializeForExecution(this.engineConnector);
 			}
 			for (ExternalNamespaceConnectorInterface1 plugin: xnci1PluginList) {
 				initializingPlugin = plugin;
-				plugin.postInitializeForExecution(plugin);
+				plugin.postInitializeForExecution(this.engineConnector);
 			}
 		} catch (ConnectorException e) {
 			throw new VnanoException(
@@ -1021,19 +1021,19 @@ public class Interconnect {
 			// モジュールの preInit -> 関数/変数の init -> モジュールの postInit の順で初期化
 			for (ExternalNamespaceConnectorInterface1 plugin: xnci1PluginList) {
 				finalizingPlugin = plugin;
-				plugin.preFinalizeForTermination(plugin);
+				plugin.preFinalizeForTermination(this.engineConnector);
 			}
 			for (ExternalFunctionConnectorInterface1 plugin: xfci1PluginList) {
 				finalizingPlugin = plugin;
-				plugin.finalizeForTermination(plugin);
+				plugin.finalizeForTermination(this.engineConnector);
 			}
 			for (ExternalVariableConnectorInterface1 plugin: xvci1PluginList) {
 				finalizingPlugin = plugin;
-				plugin.finalizeForTermination(plugin);
+				plugin.finalizeForTermination(this.engineConnector);
 			}
 			for (ExternalNamespaceConnectorInterface1 plugin: xnci1PluginList) {
 				finalizingPlugin = plugin;
-				plugin.postFinalizeForTermination(plugin);
+				plugin.postFinalizeForTermination(this.engineConnector);
 			}
 		} catch (ConnectorException e) {
 			throw new VnanoException(
