@@ -26,6 +26,7 @@ import org.vcssl.nano.VnanoEngine;
 import org.vcssl.nano.VnanoException;
 import org.vcssl.nano.combinedtest.CombinedTestException;
 import org.vcssl.nano.combinedtest.CombinedTestExecutor;
+import org.vcssl.nano.interconnect.EngineConnector;
 import org.vcssl.nano.interconnect.Interconnect;
 import org.vcssl.nano.interconnect.PluginLoader;
 import org.vcssl.nano.interconnect.ScriptLoader;
@@ -631,10 +632,20 @@ public final class VnanoCommandLineApplication {
 	}
 
 
-	private VnanoEngine createInitializedVnanoEngine(PluginLoader pluginLoader) {
+	// オプション設定やプラグイン接続の済んだスクリプトエンジンを生成して返す
+	private VnanoEngine createInitializedVnanoEngine(Map<String, Object> optionMap, PluginLoader pluginLoader) {
 
 		// Vnanoのスクリプトエンジンを生成
 		VnanoEngine engine = new VnanoEngine();
+
+		// プラグインが接続/初期化時にオプション値を参照する場合があるので、接続前にオプション設定を済ませる
+		try {
+			engine.setOptionMap(optionMap);
+		} catch (VnanoException e) {
+			System.err.println("Option setting failed.");
+			e.printStackTrace();
+			return null;
+		}
 
 		// デフォルトプラグインを外部関数・変数としてスクリプトエンジンに接続
 		// -> ./plugin/ 以下に独立クラスとして切り出して、後述の処理で接続するように統一する？ 要検討
@@ -676,10 +687,17 @@ public final class VnanoCommandLineApplication {
 		return engine;
 	}
 
-	private Interconnect createInitializedInterconnect(PluginLoader pluginLoader) {
+
+	// オプション設定やプラグイン接続の済んだインターコネクトを生成して返す（VMコードを直接実行する場合に使用）
+	private Interconnect createInitializedInterconnect(Map<String, Object> optionMap, PluginLoader pluginLoader) {
 
 		// 何も接続されていない、空のインターコネクトを生成
 		Interconnect interconnect = new Interconnect(LANG_SPEC);
+
+		// プラグインが接続/初期化時にオプション値を参照する場合があるので、接続前にオプション設定を済ませる
+		EngineConnector engineConnector = new EngineConnector();
+		engineConnector.setOptionMap(optionMap);
+		interconnect.setEngineConnector(engineConnector);
 
 		// メソッド・フィールドを外部関数・変数としてインターコネクトに接続
 		// -> ./plugin/ 以下に独立クラスとして切り出して、後述の処理で接続するように統一する？ 要検討
@@ -719,19 +737,13 @@ public final class VnanoCommandLineApplication {
 		return interconnect;
 	}
 
+
 	private boolean executeCombinedTest() {
 
 		// メソッド接続済みのスクリプトエンジンを生成して取得
-		VnanoEngine engine = this.createInitializedVnanoEngine( new PluginLoader(DEFAULT_ENCODING, LANG_SPEC) );
-
-		// オプションマップをスクリプトエンジンに設定
-		try {
-			engine.setOptionMap(this.optionMap);
-		} catch (VnanoException e) {
-			System.err.println("Option setting failed.");
-			e.printStackTrace();
-			return false;
-		}
+		VnanoEngine engine = this.createInitializedVnanoEngine(
+			this.optionMap, new PluginLoader(DEFAULT_ENCODING, LANG_SPEC)
+		);
 
 		try {
 			CombinedTestExecutor testExecutor = new CombinedTestExecutor();
@@ -782,8 +794,13 @@ public final class VnanoCommandLineApplication {
 
 	public void executeVnanoScriptFile(ScriptLoader scriptLoader, PluginLoader pluginLoader) throws VnanoException {
 
-		// プラグイン接続済みのスクリプトエンジンを生成
-		VnanoEngine engine = this.createInitializedVnanoEngine(pluginLoader);
+		// オプションマップにスクリプト名を設定し、I/O形式をCUIに設定
+		//（プラグインが接続/初期化時にオプション値を参照する場合があるので、接続前に設定を済ませる）
+		this.optionMap.put(OptionKey.MAIN_SCRIPT_NAME, scriptLoader.getMainScriptName());
+		this.optionMap.put(OptionKey.TERMINAL_IO_UI, "CUI");
+
+		// オプション設定済み＆プラグイン接続済みのスクリプトエンジンを生成
+		VnanoEngine engine = this.createInitializedVnanoEngine(this.optionMap, pluginLoader);
 
 		// スクリプトエンジンにライブラリを include 登録
 		String[] libNames = scriptLoader.getLibraryScriptNames();
@@ -791,17 +808,6 @@ public final class VnanoCommandLineApplication {
 		int libN = libNames.length;
 		for (int libIndex=0; libIndex<libN; libIndex++) {
 			engine.includeLibraryScript(libNames[libIndex], libContents[libIndex]);
-		}
-
-		// オプションマップにスクリプト名を設定し、I/O形式をCUIに設定
-		this.optionMap.put(OptionKey.MAIN_SCRIPT_NAME, scriptLoader.getMainScriptName());
-		this.optionMap.put(OptionKey.TERMINAL_IO_UI, "CUI");
-
-		// オプションマップをスクリプトエンジンに設定
-		try {
-			engine.setOptionMap(this.optionMap);
-		} catch (VnanoException e) {
-			System.err.println("Option setting failed.");
 		}
 
 		// スクリプトを実行
@@ -813,15 +819,16 @@ public final class VnanoCommandLineApplication {
 
 	public void executeVrilCodeFile(ScriptLoader scriptLoader, PluginLoader pluginLoader) throws VnanoException {
 
-		// プラグイン接続済みのインターコネクトを生成して取得
-		Interconnect interconnect = this.createInitializedInterconnect(pluginLoader);
+		// オプションマップにスクリプト名を設定し、I/O形式をCUIに設定
+		//（プラグインが接続/初期化時にオプション値を参照する場合があるので、接続前に設定を済ませる）
+		this.optionMap.put(OptionKey.MAIN_SCRIPT_NAME, scriptLoader.getMainScriptName());
+		this.optionMap.put(OptionKey.TERMINAL_IO_UI, "CUI");
+
+		// オプション設定済み＆プラグイン接続済みのインターコネクトを生成して取得
+		Interconnect interconnect = this.createInitializedInterconnect(this.optionMap, pluginLoader);
 		if (interconnect == null) {
 			return;
 		}
-
-		// オプションマップにスクリプト名を設定し、I/O形式をCUIに設定
-		this.optionMap.put(OptionKey.MAIN_SCRIPT_NAME, scriptLoader.getMainScriptName());
-		this.optionMap.put(OptionKey.TERMINAL_IO_UI, "CUI");
 
 		// プロセス仮想マシンを生成し、VRILコードを渡して実行
 		VirtualMachine vm = new VirtualMachine(LANG_SPEC);
