@@ -635,6 +635,7 @@ Vnanoエンジン（Vnanoのスクリプトエンジン）をビルドしてく�
 するとJARファイル「 Vnano.jar 」が生成されます。
 
 
+<a id="how-to-use-in-command-standard-plugin"></a>
 ### 3. Download and Compile Standard Plug-ins - 標準プラグインの入手とコンパイル
 
 For command-line usage, build-in functions performing command-line I/O are necessary.
@@ -1346,19 +1347,13 @@ The following is an example code of declaration statements of scalar variables (
 	bool   b = true;
 	string s = "Hello, World !";
 
-	output(i);
-	output(f);
-	output(b);
-	output(s);
+	print(i, f, b, s);
 
-The result on <a href="#how-to-use-in-command">the command-line mode</a> is: 
+The result on <a href="#how-to-use-in-command">the command-line mode</a> (<a href="#how-to-use-in-command-standard-plugin">standard plug-ins are required</a>) is: 
 
-このコードを<a href="#how-to-use-in-command">コマンドラインモード</a>で実行すると、実行結果は：
+このコードを<a href="#how-to-use-in-command">コマンドラインモード</a>で実行すると（<a href="#how-to-use-in-command-standard-plugin">標準プラグインが必要</a>）、実行結果は：
 
-	1
-	2.3
-	true
-	Hello, World !
+	1    2.3    true    Hello, World !
 
 However, you can NOT declare multiple variable in 1 statement in the Vnano:
 
@@ -1379,7 +1374,7 @@ You can declare and use arrays as follows:
 
 	int a[8];
 	a[2] = 123;
-	output(a[2]);
+	print(a[2]);
 
 The result on <a href="#how-to-use-in-command">the command-line mode</a> is: 
 
@@ -1412,9 +1407,9 @@ The folloing is an example code of if and else statements:
 
 	int x = 1;
 	if (x == 1) {
-		output("x is 1.");
+		print("x is 1.");
 	} else {
-		output("x is not 1.");
+		print("x is not 1.");
 	}
 
 The result is:
@@ -1432,7 +1427,7 @@ Therefore, you can NOT write single statement which is not enclosed by braces { 
 	(!!! This code does not work - このコードは動作しません !!!)
 
 	int x = 1;
-	if (x == 1) output("x is 1.");
+	if (x == 1) print("x is 1.");
 
 
 <a id="language-control-for"></a>
@@ -1443,7 +1438,7 @@ The folloing is an example code of for statement:
 以下は for 文の使用例です：
 
 	for (int i=1; i<=5; i++) {
-		output("i=" + i);
+		println("i=" + i);
 	}
 
 
@@ -1467,7 +1462,7 @@ The folloing is an example code of while statement:
 
 	int a = 500;
 	while (0 <= a) {
-		output("a=" + a);
+		println("a=" + a);
 		a -= 123;
 	}
 
@@ -1490,7 +1485,7 @@ The folloing is an example code of break statement:
 以下は break 文の使用例です：
 
 	for (int i=1; i<=10; i++) {
-		output("i=" + i);
+		println("i=" + i);
 		if (i == 3) {
 			break;
 		}
@@ -1515,7 +1510,7 @@ The folloing is an example code of continue statement:
 		if (i % 3 == 0) {
 			continue;
 		}
-		output("i=" + i);
+		println("i=" + i);
 	}
 
 The result is:
@@ -1650,7 +1645,7 @@ The following is an example code of the function of which arguments and the retu
 	}
 
 	int v = fun(1, 2);
-	output(v);
+	print(v);
 
 The result on <a href="#how-to-use-in-command">the command-line mode</a> is: 
 
@@ -1686,9 +1681,9 @@ If you want to return an array, or get arrays as arguments, the following code i
 
 	int z[] = fun(x, y, 3);
 
-	output("z[0]=" + z[0] + "\n");
-	output("z[1]=" + z[1] + "\n");
-	output("z[2]=" + z[2] + "\n");
+	println("z[0]=" + z[0]);
+	println("z[1]=" + z[1]);
+	println("z[2]=" + z[2]);
 
 The result is:
 
@@ -1755,10 +1750,10 @@ By default, change of values of formal parameters in functions don't affect to v
 
 	fun(x, y);
 
-	output("x = " + x + "\n");
-	output("y[0] = " + y[0] + "\n");
-	output("y[1] = " + y[1] + "\n");
-	output("y[2] = " + y[2] + "\n");
+	println("x = " + x);
+	println("y[0] = " + y[0]);
+	println("y[1] = " + y[1]);
+	println("y[2] = " + y[2]);
 
 The result is:
 
@@ -1796,10 +1791,10 @@ If you want to affect changed values of formal parameters in functions to values
 
 	fun(x, y);
 
-	output("x = " + x + "\n");
-	output("y[0] = " + y[0] + "\n");
-	output("y[1] = " + y[1] + "\n");
-	output("y[2] = " + y[2] + "\n");
+	println("x = " + x);
+	println("y[0] = " + y[0]);
+	println("y[1] = " + y[1]);
+	println("y[2] = " + y[2]);
 
 The result is:
 
