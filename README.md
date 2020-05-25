@@ -1564,7 +1564,7 @@ The following is the list of operators supported in the Vnano:
 
 Vnano でサポートされている演算子は、以下の一覧の通りです：
 
-| Operators<br>演算子 | Priority<br>優先度 | Syntax<br>構文 | Associativity<br>結合性の左右 | Type of Operands<br>オペランドの型 | Type of Operated Value<br>演算結果の値の型 |
+| Operator<br>演算子 | Precedence<br>優先度 | Syntax<br>構文 | Associativity<br>結合性の左右 | Type of Operands<br>オペランドの型 | Type of Operated Value<br>演算結果の値の型 |
 | --- | --- | --- | --- | --- | --- |
 | ( ... , ... , ... ) as call | 1000 | multiary | left | any | any |
 | [ ... ][ ... ] ... as index | 1000 | multiary | left | int | any |
@@ -1575,6 +1575,7 @@ Vnano でサポートされている演算子は、以下の一覧の通りで�
 | + | 2000 | prefix | right | int | int |
 | - | 2000 | prefix | right | int | int |
 | ! | 2000 | prefix | right | bool | bool |
+| (...) as cast | 2000 | prefix | right | any | any |
 | * | 3000 | binary | left | int, float | int, float |
 | / | 3000 | binary | left | int, float | int, float |
 | % | 3000 | binary | left | int, float | int, float |
