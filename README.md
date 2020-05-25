@@ -680,7 +680,7 @@ For example:
 
 Plug-ins specified in the above list file will be loaded automatically on the command-line mode.
 
-上記リストファイルないで指定したプラグインが、コマンドラインモードでは自動で読み込まれます。
+上記リストファイル内で指定したプラグインが、コマンドラインモードでは自動で読み込まれます。
 
 Please note that, the above list file will NOT be loaded automatically when the Vnano engine is embedded in applications, so it is necessary to load explicitly as follows:
 
@@ -953,7 +953,7 @@ Vnanoのコマンドラインモードのその他の機能については、以
 
 The command-line mode we have described in this section may be useful 
 when you are developing plug-ins/libraries, 
-when you are analyzing the cause of errors deeply, 
+when you are analyzing causes of errors deeply, 
 and when you are customizing the script engine to your applications. Good luck!
 
 ここまでで説明したVnanoのコマンドラインモードは、
@@ -1543,13 +1543,10 @@ For example:
 
 In the above expression, + and * are operators, x and 2 and 3 are operands, 
 ( ) are parentheses.
-Please note that parentheses ( ) as syntax elements are 
-different with the function-call operator ( ... , ... , ... ).
 In the Vnano, as the same with the C programming language, 
 the symbol of the assignment "=" is an operator, so the following is also expression:
 
 上の式において、 + と * は演算子、x と 2 と 3 はオペランド、そして ( ) は括弧です。
-なお、構文要素としての括弧 ( ) は、関数呼び出し演算子 ( ... , ... , ... ) とは別のものである事に注意が必要です。
 VnanoではC言語と同様、代入の記号「=」も演算子なので、以下の内容も式になります：
 
 	y = (x + 2) * 3;
