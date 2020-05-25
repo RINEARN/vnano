@@ -628,18 +628,75 @@ Vnanoは、<a href="https://www.vcssl.org/">VCSSL</a>という言語から、ア
 
 Firstly, build source code of the Vnano Engine (The script engine of the Vnano) 
 by steps of "<a href="#how-to-build">How to Build</a>" section.
-Then a JAR file "Vnano.jar" will be generated, so put it into the working folder.
+Then a JAR file "Vnano.jar" will be generated.
 
 はじめに、「 <a href="#how-to-build">ビルド方法</a> 」の手順に従って
-Vnanoエンジン（Vnanoのスクリプトエンジン）をビルドします。
-ビルドするとJARファイル「 Vnano.jar 」が生成されるため、それを作業フォルダ内に配置してください。
+Vnanoエンジン（Vnanoのスクリプトエンジン）をビルドしてください。
+するとJARファイル「 Vnano.jar 」が生成されます。
 
 
-### 3. Run the Example Script Code - サンプルスクリプトコードの実行
+### 3. Download and Compile Standard Plug-ins - 標準プラグインの入手とコンパイル
 
-An example Vnano script code "Example.vnano" is contained in the repository.
+For command-line usage, build-in functions performing command-line I/O are necessary.
+You can implement built-in functions as plug-ins by yourself (
+see <a href="#plugin">Plug-in</a> section
+), but some fundamental plug-ins are officially provided as "standard plug-ins".
 
-このリポジトリ内には、Vnanoのサンプルスクリプトコードも含まれています。
+コマンドラインでの使用においては、コマンドライン入出力のための組み込み関数などが必要になります。
+そういった組み込み関数は、プラグインとして自作する事もできますが（
+<a href="#plugin">プラグイン</a> の項目参照
+）、基礎的なものは「標準プラグイン」として公式に提供されています。
+
+
+Standard plug-ins are maintained/provided on a repository which is independent of the repository of the Vnano Engine.
+Let's download and compile them:
+
+標準プラグインは、Vnanoエンジンの本体とは独立なリポジトリで管理/提供されています。
+従って、まずそれらをダウンロードしてコンパイルします：
+
+	cd <working-directory>
+	git clone https://github.com/RINEARN/vnano-standard-plugin.git
+	cd vnano-standard-plugin
+	cd plugin
+	javac -encoding UTF-8 @org/vcssl/connect/sourcelist.txt
+	javac -encoding UTF-8 @org/vcssl/nano/plugin/sourcelist.txt
+
+After when the above compilation has successfully completed, copy all contents of the above "plugin" folder, into the "plugin" folder at the same place with "Vnano.jar".
+Then, open "VnanoPluginList.txt" in the "plugin" folder, and describe file-paths of plug-ins you want to use.
+File-paths of all standard plug-ins are described in "VnanoPluginList_AllStandards.txt", so copy&paste a part (or whole) of them into "VnanoPluginList.txt".
+For example:
+
+コンパイルが成功したら、上記で cd した「 plugin 」フォルダの中身を全て、Vnano.jar と同じ場所にある「 plugin 」フォルダ内にコピーしてください。
+そして、そのフォルダ内にあるテキストファイル「 VnanoPluginList.txt 」内で、使いたいプラグインのファイルパスを記述します。全標準プラグインの一覧は「 VnanoPluginList_AllStandards.txt 」内に書かれていますので、その中から必要なものを（または全て）コピー＆ペーストしてください。例えば：
+
+	(plugin/VnanoPluginList.txt)
+	...
+
+	# Provides terminal-I/O functions - 端末への入出力関数を提供します
+	org/vcssl/nano/plugin/system/SystemTerminalIOXnci1Plugin.class
+
+	...
+
+Plug-ins specified in the above list file will be loaded automatically on the command-line mode.
+
+上記リストファイルないで指定したプラグインが、コマンドラインモードでは自動で読み込まれます。
+
+Please note that, the above list file will NOT be loaded automatically when the Vnano engine is embedded in applications, so it is necessary to load explicitly as follows:
+
+なお、Vnanoエンジンをアプリケーション内に組み込んで用いる際には、上記リストファイルは自動では読み込まれないため、アプリケーション内で以下のように明示的に読み込ませる必要があります：
+
+	engine.put("___VNANO_PLUGIN_LIST_FILE", "plugin/VnanoPluginList.txt");
+
+Or, instantiate plug-ins and "put" directly to the engine.
+
+または、各プラグインのインスタンスを生成して直接エンジンに put してください。
+
+
+### 4. Run the Example Script Code - サンプルスクリプトコードの実行
+
+We are ready. Let's execute a script code on the command-line mode. An example of Vnano script code "Example.vnano" is bundled in this repository:
+
+以上で準備はOKです。それでは、コマンドラインモードでスクリプトを実行してみましょう。このリポジトリ内には、Vnanoのサンプルスクリプトコードも含まれています：
 
     (Example.vnano)
 
@@ -676,7 +733,7 @@ The default text-encoding of this command-line mode is UTF-8.
 コマンドラインモードでのデフォルトの文字コードは UTF-8 です。
 
 
-### 4. Dump the AST, Intermediate Code (VRIL), etc. - 抽象構文木(AST)や中間コード(VRIL)などのダンプ
+### 5. Dump the AST, Intermediate Code (VRIL), etc. - 抽象構文木(AST)や中間コード(VRIL)などのダンプ
 
 If you want to dump the Abstract Syntax Tree (AST), Intermediate Code (VRIL Code) for VM, etc. 
 for the analyzation or the debugging, 
@@ -893,12 +950,15 @@ Vnanoのコマンドラインモードのその他の機能については、以
 
     java -jar Vnano.jar --help
 
-The command-line mode we described in this section may assist you 
-to customize the script engine of the Vnano to your applications. Good luck!
+The command-line mode we have described in this section may be useful 
+when you are developing plug-ins/libraries, 
+when you are analyzing the cause of errors deeply, 
+and when you are customizing the script engine to your applications. Good luck!
 
 ここまでで説明したVnanoのコマンドラインモードは、
-Vnanoのスクリプトエンジンを搭載アプリケーション等に合わせて改造する際に役立つかもしれません。
-改造したくなったら、ぜひ活用して試してみてください。
+プラグイン/ライブラリを開発する際や、エラーの原因を深く解析する際、
+またはスクリプトエンジンを搭載アプリケーションに合わせてカスタマイズする際などに役立つかもしれません。
+ぜひ活用してみてください。
 
 
 
