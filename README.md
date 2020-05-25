@@ -628,18 +628,76 @@ Vnanoは、<a href="https://www.vcssl.org/">VCSSL</a>という言語から、ア
 
 Firstly, build source code of the Vnano Engine (The script engine of the Vnano) 
 by steps of "<a href="#how-to-build">How to Build</a>" section.
-Then a JAR file "Vnano.jar" will be generated, so put it into the working folder.
+Then a JAR file "Vnano.jar" will be generated.
 
 はじめに、「 <a href="#how-to-build">ビルド方法</a> 」の手順に従って
-Vnanoエンジン（Vnanoのスクリプトエンジン）をビルドします。
-ビルドするとJARファイル「 Vnano.jar 」が生成されるため、それを作業フォルダ内に配置してください。
+Vnanoエンジン（Vnanoのスクリプトエンジン）をビルドしてください。
+するとJARファイル「 Vnano.jar 」が生成されます。
 
 
-### 3. Run the Example Script Code - サンプルスクリプトコードの実行
+<a id="how-to-use-in-command-standard-plugin"></a>
+### 3. Download and Compile Standard Plug-ins - 標準プラグインの入手とコンパイル
 
-An example Vnano script code "Example.vnano" is contained in the repository.
+For command-line usage, build-in functions performing command-line I/O are necessary.
+You can implement built-in functions as plug-ins by yourself (
+see <a href="#plugin">Plug-in</a> section
+), but some fundamental plug-ins are officially provided as "standard plug-ins".
 
-このリポジトリ内には、Vnanoのサンプルスクリプトコードも含まれています。
+コマンドラインでの使用においては、コマンドライン入出力のための組み込み関数などが必要になります。
+そういった組み込み関数は、プラグインとして自作する事もできますが（
+<a href="#plugin">プラグイン</a> の項目参照
+）、基礎的なものは「標準プラグイン」として公式に提供されています。
+
+
+Standard plug-ins are maintained/provided on a repository which is independent of the repository of the Vnano Engine.
+Let's download and compile them:
+
+標準プラグインは、Vnanoエンジンの本体とは独立なリポジトリで管理/提供されています。
+従って、まずそれらをダウンロードしてコンパイルします：
+
+	cd <working-directory>
+	git clone https://github.com/RINEARN/vnano-standard-plugin.git
+	cd vnano-standard-plugin
+	cd plugin
+	javac -encoding UTF-8 @org/vcssl/connect/sourcelist.txt
+	javac -encoding UTF-8 @org/vcssl/nano/plugin/sourcelist.txt
+
+After when the above compilation has successfully completed, copy all contents of the above "plugin" folder, into the "plugin" folder at the same place with "Vnano.jar".
+Then, open "VnanoPluginList.txt" in the "plugin" folder, and describe file-paths of plug-ins you want to use.
+File-paths of all standard plug-ins are described in "VnanoPluginList_AllStandards.txt", so copy&paste a part (or whole) of them into "VnanoPluginList.txt".
+For example:
+
+コンパイルが成功したら、上記で cd した「 plugin 」フォルダの中身を全て、Vnano.jar と同じ場所にある「 plugin 」フォルダ内にコピーしてください。
+そして、そのフォルダ内にあるテキストファイル「 VnanoPluginList.txt 」内で、使いたいプラグインのファイルパスを記述します。全標準プラグインの一覧は「 VnanoPluginList_AllStandards.txt 」内に書かれていますので、その中から必要なものを（または全て）コピー＆ペーストしてください。例えば：
+
+	(plugin/VnanoPluginList.txt)
+	...
+
+	# Provides terminal-I/O functions - 端末への入出力関数を提供します
+	org/vcssl/nano/plugin/system/SystemTerminalIOXnci1Plugin.class
+
+	...
+
+Plug-ins specified in the above list file will be loaded automatically on the command-line mode.
+
+上記リストファイル内で指定したプラグインが、コマンドラインモードでは自動で読み込まれます。
+
+Please note that, the above list file will NOT be loaded automatically when the Vnano engine is embedded in applications, so it is necessary to load explicitly as follows:
+
+なお、Vnanoエンジンをアプリケーション内に組み込んで用いる際には、上記リストファイルは自動では読み込まれないため、アプリケーション内で以下のように明示的に読み込ませる必要があります：
+
+	engine.put("___VNANO_PLUGIN_LIST_FILE", "plugin/VnanoPluginList.txt");
+
+Or, instantiate plug-ins and "put" directly to the engine.
+
+または、各プラグインのインスタンスを生成して直接エンジンに put してください。
+
+
+### 4. Run the Example Script Code - サンプルスクリプトコードの実行
+
+We are ready. Let's execute a script code on the command-line mode. An example of Vnano script code "Example.vnano" is bundled in this repository:
+
+以上で準備はOKです。それでは、コマンドラインモードでスクリプトを実行してみましょう。このリポジトリ内には、Vnanoのサンプルスクリプトコードも含まれています：
 
     (Example.vnano)
 
@@ -676,7 +734,7 @@ The default text-encoding of this command-line mode is UTF-8.
 コマンドラインモードでのデフォルトの文字コードは UTF-8 です。
 
 
-### 4. Dump the AST, Intermediate Code (VRIL), etc. - 抽象構文木(AST)や中間コード(VRIL)などのダンプ
+### 5. Dump the AST, Intermediate Code (VRIL), etc. - 抽象構文木(AST)や中間コード(VRIL)などのダンプ
 
 If you want to dump the Abstract Syntax Tree (AST), Intermediate Code (VRIL Code) for VM, etc. 
 for the analyzation or the debugging, 
@@ -893,12 +951,15 @@ Vnanoのコマンドラインモードのその他の機能については、以
 
     java -jar Vnano.jar --help
 
-The command-line mode we described in this section may assist you 
-to customize the script engine of the Vnano to your applications. Good luck!
+The command-line mode we have described in this section may be useful 
+when you are developing plug-ins/libraries, 
+when you are analyzing causes of errors deeply, 
+and when you are customizing the script engine to your applications. Good luck!
 
 ここまでで説明したVnanoのコマンドラインモードは、
-Vnanoのスクリプトエンジンを搭載アプリケーション等に合わせて改造する際に役立つかもしれません。
-改造したくなったら、ぜひ活用して試してみてください。
+プラグイン/ライブラリを開発する際や、エラーの原因を深く解析する際、
+またはスクリプトエンジンを搭載アプリケーションに合わせてカスタマイズする際などに役立つかもしれません。
+ぜひ活用してみてください。
 
 
 
@@ -1286,19 +1347,13 @@ The following is an example code of declaration statements of scalar variables (
 	bool   b = true;
 	string s = "Hello, World !";
 
-	output(i);
-	output(f);
-	output(b);
-	output(s);
+	print(i, f, b, s);
 
-The result on <a href="#how-to-use-in-command">the command-line mode</a> is: 
+The result on <a href="#how-to-use-in-command">the command-line mode</a> (<a href="#how-to-use-in-command-standard-plugin">standard plug-ins are required</a>) is: 
 
-このコードを<a href="#how-to-use-in-command">コマンドラインモード</a>で実行すると、実行結果は：
+このコードを<a href="#how-to-use-in-command">コマンドラインモード</a>で実行すると（<a href="#how-to-use-in-command-standard-plugin">標準プラグインが必要</a>）、実行結果は：
 
-	1
-	2.3
-	true
-	Hello, World !
+	1    2.3    true    Hello, World !
 
 However, you can NOT declare multiple variable in 1 statement in the Vnano:
 
@@ -1319,7 +1374,7 @@ You can declare and use arrays as follows:
 
 	int a[8];
 	a[2] = 123;
-	output(a[2]);
+	print(a[2]);
 
 The result on <a href="#how-to-use-in-command">the command-line mode</a> is: 
 
@@ -1352,9 +1407,9 @@ The folloing is an example code of if and else statements:
 
 	int x = 1;
 	if (x == 1) {
-		output("x is 1.");
+		print("x is 1.");
 	} else {
-		output("x is not 1.");
+		print("x is not 1.");
 	}
 
 The result is:
@@ -1372,7 +1427,7 @@ Therefore, you can NOT write single statement which is not enclosed by braces { 
 	(!!! This code does not work - このコードは動作しません !!!)
 
 	int x = 1;
-	if (x == 1) output("x is 1.");
+	if (x == 1) print("x is 1.");
 
 
 <a id="language-control-for"></a>
@@ -1383,7 +1438,7 @@ The folloing is an example code of for statement:
 以下は for 文の使用例です：
 
 	for (int i=1; i<=5; i++) {
-		output("i=" + i);
+		println("i=" + i);
 	}
 
 
@@ -1407,7 +1462,7 @@ The folloing is an example code of while statement:
 
 	int a = 500;
 	while (0 <= a) {
-		output("a=" + a);
+		println("a=" + a);
 		a -= 123;
 	}
 
@@ -1430,7 +1485,7 @@ The folloing is an example code of break statement:
 以下は break 文の使用例です：
 
 	for (int i=1; i<=10; i++) {
-		output("i=" + i);
+		println("i=" + i);
 		if (i == 3) {
 			break;
 		}
@@ -1455,7 +1510,7 @@ The folloing is an example code of continue statement:
 		if (i % 3 == 0) {
 			continue;
 		}
-		output("i=" + i);
+		println("i=" + i);
 	}
 
 The result is:
@@ -1488,13 +1543,10 @@ For example:
 
 In the above expression, + and * are operators, x and 2 and 3 are operands, 
 ( ) are parentheses.
-Please note that parentheses ( ) as syntax elements are 
-different with the function-call operator ( ... , ... , ... ).
 In the Vnano, as the same with the C programming language, 
 the symbol of the assignment "=" is an operator, so the following is also expression:
 
 上の式において、 + と * は演算子、x と 2 と 3 はオペランド、そして ( ) は括弧です。
-なお、構文要素としての括弧 ( ) は、関数呼び出し演算子 ( ... , ... , ... ) とは別のものである事に注意が必要です。
 VnanoではC言語と同様、代入の記号「=」も演算子なので、以下の内容も式になります：
 
 	y = (x + 2) * 3;
@@ -1512,7 +1564,7 @@ The following is the list of operators supported in the Vnano:
 
 Vnano でサポートされている演算子は、以下の一覧の通りです：
 
-| Operators<br>演算子 | Priority<br>優先度 | Syntax<br>構文 | Associativity<br>結合性の左右 | Type of Operands<br>オペランドの型 | Type of Operated Value<br>演算結果の値の型 |
+| Operator<br>演算子 | Precedence<br>優先度 | Syntax<br>構文 | Associativity<br>結合性の左右 | Type of Operands<br>オペランドの型 | Type of Operated Value<br>演算結果の値の型 |
 | --- | --- | --- | --- | --- | --- |
 | ( ... , ... , ... ) as call | 1000 | multiary | left | any | any |
 | [ ... ][ ... ] ... as index | 1000 | multiary | left | int | any |
@@ -1523,6 +1575,7 @@ Vnano でサポートされている演算子は、以下の一覧の通りで�
 | + | 2000 | prefix | right | int | int |
 | - | 2000 | prefix | right | int | int |
 | ! | 2000 | prefix | right | bool | bool |
+| (...) as cast | 2000 | prefix | right | any | any |
 | * | 3000 | binary | left | int, float | int, float |
 | / | 3000 | binary | left | int, float | int, float |
 | % | 3000 | binary | left | int, float | int, float |
@@ -1590,7 +1643,7 @@ The following is an example code of the function of which arguments and the retu
 	}
 
 	int v = fun(1, 2);
-	output(v);
+	print(v);
 
 The result on <a href="#how-to-use-in-command">the command-line mode</a> is: 
 
@@ -1626,9 +1679,9 @@ If you want to return an array, or get arrays as arguments, the following code i
 
 	int z[] = fun(x, y, 3);
 
-	output("z[0]=" + z[0] + "\n");
-	output("z[1]=" + z[1] + "\n");
-	output("z[2]=" + z[2] + "\n");
+	println("z[0]=" + z[0]);
+	println("z[1]=" + z[1]);
+	println("z[2]=" + z[2]);
 
 The result is:
 
@@ -1695,10 +1748,10 @@ By default, change of values of formal parameters in functions don't affect to v
 
 	fun(x, y);
 
-	output("x = " + x + "\n");
-	output("y[0] = " + y[0] + "\n");
-	output("y[1] = " + y[1] + "\n");
-	output("y[2] = " + y[2] + "\n");
+	println("x = " + x);
+	println("y[0] = " + y[0]);
+	println("y[1] = " + y[1]);
+	println("y[2] = " + y[2]);
 
 The result is:
 
@@ -1736,10 +1789,10 @@ If you want to affect changed values of formal parameters in functions to values
 
 	fun(x, y);
 
-	output("x = " + x + "\n");
-	output("y[0] = " + y[0] + "\n");
-	output("y[1] = " + y[1] + "\n");
-	output("y[2] = " + y[2] + "\n");
+	println("x = " + x);
+	println("y[0] = " + y[0]);
+	println("y[1] = " + y[1]);
+	println("y[2] = " + y[2]);
 
 The result is:
 
