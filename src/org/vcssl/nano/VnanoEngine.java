@@ -11,6 +11,7 @@ import java.util.Map;
 
 import javax.script.ScriptException;
 
+import org.vcssl.connect.ConnectorException;
 import org.vcssl.connect.ConnectorPermissionName;
 import org.vcssl.connect.ConnectorPermissionValue;
 import org.vcssl.nano.compiler.Compiler;
@@ -215,6 +216,14 @@ public class VnanoEngine {
 		// set the locale to switch the language of error messages, and re-throw the exception to upper layers.
 		// スクリプト内容による例外は, エラーメッセージに使用する言語ロケールを設定してから上に投げる
 		} catch (VnanoException e) {
+
+			// VnanoException が、外部関数が投げる ConnectorException をラップしている場合で、
+			// それが特別な対処を要するものの場合（メッセージが「 ___ 」で始まる）は、別に対処
+			if (e.getCause() instanceof ConnectorException && ((ConnectorException)e.getCause()).getMessage().startsWith("___")) {
+				this.handleConnectorException((ConnectorException)e.getCause());
+				return null;
+			}
+
 			Locale locale = (Locale)this.optionMap.get(OptionKey.LOCALE); // Type was already checked.
 			e.setLocale(locale);
 			throw e;
@@ -224,6 +233,24 @@ public class VnanoEngine {
 		// 実装の不備等による予期しない例外も, ホストアプリケーションを落とさないようにVnanoExceptionでラップする
 		} catch (Exception unexpectedException) {
 			throw new VnanoException(unexpectedException);
+		}
+	}
+
+
+	/**
+	 * <span class="lang-en">Handles a ConnectorException thrown in scripting, if it requires special handling</span>
+	 * <span class="lang-ja">スクリプト実行中にスローされた、特別な対処を要する ConnectorException に対処を行います</span>
+	 * .
+	 * @param exception
+	 *   <span class="lang-en">ConnectorException thrown in scripting.</span>
+	 *   <span class="lang-ja">スクリプト実行中にスローされた ConnectorException.</span>
+	 */
+	private void handleConnectorException(ConnectorException exception) {
+		String message = exception.getMessage();
+
+		// exit 関数が投げてくる例外は、ユーザーに伝えるべきエラーではないので、何もしない
+		if (message.startsWith("___EXIT")) {
+			return;
 		}
 	}
 
