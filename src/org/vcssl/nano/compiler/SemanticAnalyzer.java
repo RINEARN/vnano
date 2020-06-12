@@ -763,10 +763,11 @@ public class SemanticAnalyzer {
 	//（定数は参照渡しできない等の制約により、型は整合しても呼べないケースがある）
 	private void checkFunctionCallablility(AbstractFunction function, AstNode callerNode) throws VnanoException {
 		AstNode[] argNodes = callerNode.getChildNodes(); // 注：[0]番要素は関数識別子、[1]以降が引数ノード
+		String[] parameterTypes = function.getParameterDataTypeNames();
 		String[] parameterNames = function.getParameterNames();
 		boolean[] areParamConst = function.getParameterConstantnesses();
 		boolean[] areParamRef = function.getParameterReferencenesses();
-		int paramN = areParamRef.length;
+		int paramN = parameterTypes.length; // parameterNames は外部関数では省略されている可能性があるため、省略不可能な型名から数える
 
 		for (int paramIndex=0; paramIndex<paramN; paramIndex++) {
 
