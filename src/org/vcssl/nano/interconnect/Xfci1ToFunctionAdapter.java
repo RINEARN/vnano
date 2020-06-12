@@ -337,6 +337,10 @@ public final class Xfci1ToFunctionAdapter extends AbstractFunction {
 	public final void invoke(DataContainer<?>[] argumentDataContainers, DataContainer<?> returnDataContainer)
 			throws VnanoException {
 
+
+		// ！！！ 重複があるのできりのいい時に要リファクタ検討   あと長い
+
+
 		int argLength = argumentDataContainers.length;
 		Object[] convertedArgs = new Object[argLength];
 
@@ -372,8 +376,23 @@ public final class Xfci1ToFunctionAdapter extends AbstractFunction {
 			Object returnObject = null;
 			try {
 				returnObject = this.xfciPlugin.invoke(convertedArgs);
-			} catch (ConnectorException e) {
-				throw new VnanoFatalException(e);
+
+			// プラグイン側でデータアクセス時に発生した例外は VnanoException でラップする。
+			// 検査例外の ConnectorException 以外にも、プラグイン実装側の想定外の例外も発生し得るので、全種の Exception をラップする。
+			// ただし Throwable 全体までの範囲はカバーしない。
+			// これは、Throwable 全体の範囲には、対処困難な（通常の用途ならもう停止するのが自然な）エラーも含まれるためで、
+			// それを catch するかどうかの判断はアプリケーション側に委ねるため。
+			} catch (Exception e) {
+
+				// VnanoException のメッセージ内で用いる情報を用意
+				String[] errorWords = { this.xfciPlugin.getFunctionName(), null };
+
+				// ConnectorException のメッセージは、ユーザーに向けたメッセージなので、VnanoException のメッセージ内にも表示する
+				if (e instanceof ConnectorException) {
+					errorWords[1] = e.getMessage();
+				}
+
+				throw new VnanoException(ErrorType.EXTERNAL_FUNCTION_PLUGIN_CRASHED, errorWords, e);
 			}
 
 			// 戻り値のデータ型を変換
@@ -413,8 +432,23 @@ public final class Xfci1ToFunctionAdapter extends AbstractFunction {
 			// プラグインの関数を実行
 			try {
 				this.xfciPlugin.invoke(xfciArgContainers);
-			} catch (ConnectorException e) {
-				throw new VnanoException(ErrorType.EXTERNAL_FUNCTION_PLUGIN_CRASHED, this.xfciPlugin.getFunctionName(), e);
+
+			// プラグイン側でデータアクセス時に発生した例外は VnanoException でラップする。
+			// 検査例外の ConnectorException 以外にも、プラグイン実装側の想定外の例外も発生し得るので、全種の Exception をラップする。
+			// ただし Throwable 全体までの範囲はカバーしない。
+			// これは、Throwable 全体の範囲には、対処困難な（通常の用途ならもう停止するのが自然な）エラーも含まれるためで、
+			// それを catch するかどうかの判断はアプリケーション側に委ねるため。
+			} catch (Exception e) {
+
+				// VnanoException のメッセージ内で用いる情報を用意
+				String[] errorWords = { this.xfciPlugin.getFunctionName(), null };
+
+				// ConnectorException のメッセージは、ユーザーに向けたメッセージなので、VnanoException のメッセージ内にも表示する
+				if (e instanceof ConnectorException) {
+					errorWords[1] = e.getMessage();
+				}
+
+				throw new VnanoException(ErrorType.EXTERNAL_FUNCTION_PLUGIN_CRASHED, errorWords, e);
 			}
 		}
 

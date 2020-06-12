@@ -159,8 +159,8 @@ public class ErrorMessage {
 			case DECLARED_ENCODING_IS_UNSUPPORTED : return "スクリプトファイル「 " + words[1] + " 」の先頭行で宣言されている文字コード「 " + words[0] + " 」は、この環境では使用できません。";
 			case NO_ENCODING_DECLARATION_END : return (words[0]==null ? "" : "スクリプトファイル「 " + words[0] + " 」の") + "先頭行の文字コード宣言において、末尾に「 ; 」が必要です。";
 			case ENCODING_DECLARATION_CONTAINS_INVALID_SYMBOL : return (words[1]==null ? "" : "スクリプトファイル「 " + words[1] + " 」の先頭行の文字コード宣言において、") + "使用できない記号「 " + words[0] + " 」が含まれています。";
-			case EXTERNAL_FUNCTION_PLUGIN_CRASHED : return "外部関数「 " + words[0] + " 」の処理でエラーが発生しました。";
-			case EXTERNAL_VARIABLE_PLUGIN_CRASHED : return "外部変数「 " + words[0] + " 」へのアクセスでエラーが発生しました。";
+			case EXTERNAL_FUNCTION_PLUGIN_CRASHED : return "外部関数「 " + words[0] + " 」の処理でエラーが発生しました" + (words[1]==null ? "。" : "： " + words[1]);
+			case EXTERNAL_VARIABLE_PLUGIN_CRASHED : return "外部変数「 " + words[0] + " 」へのアクセスでエラーが発生しました"  + (words[1]==null ? "。" : "： " + words[1]);
 			case UNSUPPORTED_PERMISSION_NAME : return "パーミッション「 " + words[0] + " 」が要求されましたが、このパーミッションは現在の設定では使用できないか、この処理系ではサポートされていません。";
 			case UNSUPPORTED_PERMISSION_VALUE : return "パーミッション「 " + words[0] + " 」が要求されましたが、このパーミッションの現在の設定値「 " + words[1] + " 」は、この処理系ではサポートされていません。";
 			case PERMISSION_DENIED : return "パーミッション「 " + words[0] + " 」が要求されましたが、設定またはユーザーの選択によって拒否されました。";
@@ -261,8 +261,8 @@ public class ErrorMessage {
 			case DECLARED_ENCODING_IS_UNSUPPORTED : return "The encoding \"" + words[0] + "\" declared in the first line of \"" + words[1] + "\" is unsupported in this environment";
 			case NO_ENCODING_DECLARATION_END : return "\";\" is required at the end of the encoding-decraration" + (words[0]==null ? "" : ", at the first line of \"" + words[0] + "\"");
 			case ENCODING_DECLARATION_CONTAINS_INVALID_SYMBOL : return "Invalid symbol \"" + words[0] + "\" is contained in the encoding-declaration" + (words[1]==null ? "" : ", at the first line of \"" + words[1] + "\"");
-			case EXTERNAL_FUNCTION_PLUGIN_CRASHED : return "An error occurred on the processing of the external function \"" + words[0] + "\"";
-			case EXTERNAL_VARIABLE_PLUGIN_CRASHED : return "An error occurred on the accessing to the external variable \"" + words[0] + "\"";
+			case EXTERNAL_FUNCTION_PLUGIN_CRASHED : return "An error occurred on the processing of the external function \"" + words[0] + "\"" + (words[1]==null ? "" : ": " + words[1]);
+			case EXTERNAL_VARIABLE_PLUGIN_CRASHED : return "An error occurred on the accessing to the external variable \"" + words[0] + "\"" + (words[1]==null ? "" : ": " + words[1]);
 			case UNSUPPORTED_PERMISSION_NAME : return "The permission for \"" + words[0] + "\" has been requested, but it is not available on the current settings, or it is unsupported on this script engine";
 			case UNSUPPORTED_PERMISSION_VALUE : return "The permission for \"" + words[0] + "\" has been requested, but its value \"" + words[1] + "\" on the current settings is unsupported on this script engine";
 			case PERMISSION_DENIED : return "The permission for \"" + words[0] + "\" has been requested, but it has been denied by settings or the user's decision";
