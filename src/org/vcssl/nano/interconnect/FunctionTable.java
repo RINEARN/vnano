@@ -263,11 +263,9 @@ public class FunctionTable {
 	 * 呼び出し対象の関数を取得します。
 	 *
 	 * @param callerNode 関数呼び出し演算子のASTノード
-	 * @param checkArgs 関数呼び出しの引数の適性（定数は参照渡しできない等）を検査するかどうか
 	 * @return 対象の関数
-	 * @throws VnanoException checkArgsにtrueを指定した場合、関数呼び出しの引数の適性が不適切であった場合にスローされます。
 	 */
-	public AbstractFunction getCalleeFunctionOf(AstNode callerNode) throws VnanoException {
+	public AbstractFunction getCalleeFunctionOf(AstNode callerNode) {
 
 		// まずコールシグネチャと宣言シグネチャが一致するものがあるか検索（あれば最も検索が速い）
 		String signature = IDENTIFIER_SYNTAX.getSignatureOfCalleeFunctionOf(callerNode);
