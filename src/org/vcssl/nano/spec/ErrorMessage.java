@@ -142,10 +142,10 @@ public class ErrorMessage {
 			case VOID_RETURN_VALUE_PASSED_AS_ARGUMENT : return "void 型の"  + (words[0]==null ? "" : "関数「 " + words[0] + " 」の戻り") +  "値を、関数の引数に渡す事はできません。";
 			case DUPLICATE_VARIABLE_IDENTIFIER : return "変数の名前「 " + words[0] + " 」は、同じ影響範囲内の別の変数で、既に使用されています。";
 			case DUPLICATE_FUNCTION_SIGNATURE : return "関数「 " + words[0] + " 」は、全く同じ名前と引数の組み合わせで、他の場所で既に宣言されています。";
-			case GENERAL_FILE_DOES_NOT_EXIST : return "ファイル「 " + words[0] + " 」が見つかりません。";
-			case GENERAL_FILE_IS_NOT_ACCESSIBLE : return "ファイル「 " + words[0] + " 」の読み込みに失敗しました。";
+			case META_QUALIFIED_FILE_DOES_NOT_EXIST : return "ファイル「 " + words[0] + " 」が見つかりません。";
+			case META_QUALIFIED_FILE_IS_NOT_ACCESSIBLE : return "ファイル「 " + words[0] + " 」の読み込みに失敗しました。文字コードが想定と異なる可能性があります。文字コードを変更するか、先頭行で文字コード宣言（ coding 文字コード名; ）を記述してみてください。";
 			case SCRIPT_FILE_DOES_NOT_EXIST : return "スクリプトファイル「 " + words[0] + " 」が見つかりません。";
-			case SCRIPT_FILE_IS_NOT_ACCESSIBLE : return "スクリプトファイル「 " + words[0] + " 」の読み込みに失敗しました。文字コードが想定と異なる可能性があります。文字コードを変更するか、先頭行で文字コード宣言を行ってみてください（記法: coding 文字コード名; ）。";
+			case SCRIPT_FILE_IS_NOT_ACCESSIBLE : return "スクリプトファイル「 " + words[0] + " 」の読み込みに失敗しました。文字コードが想定と異なる可能性があります。文字コードを変更するか、先頭行で文字コード宣言（ coding 文字コード名; ）を記述してみてください。";
 			case LIBRARY_LIST_FILE_DOES_NOT_EXIST : return "ライブラリの読み込みリストファイル「 " + words[0] + " 」が見つかりません。";
 			case LIBRARY_LIST_FILE_IS_NOT_ACCESSIBLE : return "ライブラリの読み込みリストファイル「 " + words[0] + " 」の読み込みに失敗しました。文字コードが想定と異なる可能性があります。文字コードを変更してみてください。";
 			case LIBRARY_IS_ALREADY_INCLUDED : return "ライブラリ「 " + words[0] + " 」は既に読み込み登録（ include 登録）されています （多重 include は禁止されています）。";
@@ -200,8 +200,8 @@ public class ErrorMessage {
 			case NO_PARTIAL_EXPRESSION : return "Empty parentheses ( ) exist in the expression";
 			case OPERAND_IS_MISSING_AT_RIGHT : return "A value or variable is necessary at the right of \"" + words[0] + "\"";
 			case OPERAND_IS_MISSING_AT_LEFT : return "A value or variable is necessary at the left of \"" + words[0] + "\"";
-			case OPERATOR_IS_MISSING_AT_RIGHT : return "An operator (e.g.: \"+\") is required between \"" + words[0] + "\" and \"" + words[1] + "\"";
-			case OPERATOR_IS_MISSING_AT_LEFT : return "An operator (e.g.: \"+\") is required between \"" + words[0] + "\" and \"" + words[1] + "\"";
+			case OPERATOR_IS_MISSING_AT_RIGHT : return "An operator (e.g. \"+\") is required between \"" + words[0] + "\" and \"" + words[1] + "\"";
+			case OPERATOR_IS_MISSING_AT_LEFT : return "An operator (e.g. \"+\") is required between \"" + words[0] + "\" and \"" + words[1] + "\"";
 			case DATA_TYPE_IS_MISSING_AT_RIGHT : return "A data type is necessary at the right of \"" + words[0] + "\"";
 			case CLOSE_PARENTHESIS_IS_MISSING_AT_RIGHT : return "A close parenthesis \")\" is necessary at the right of \"" + words[0] + "\"";
 			case NO_OPEN_PARENTHESIS_OF_CONTROL_STATEMENT : return "Parentheses (...) are required after \"" + words[0] + "\"";
@@ -244,10 +244,10 @@ public class ErrorMessage {
 			case VOID_RETURN_VALUE_PASSED_AS_ARGUMENT : return (words[0]==null ? "A void-type value " : "A return value of a void-type function \"" + words[0] + "\" ") + "can not be passed as an argument of a function";
 			case DUPLICATE_VARIABLE_IDENTIFIER : return "The name of variable \"" + words[0] + "\" is already used by another variable, and scopes of them are conflicting";
 			case DUPLICATE_FUNCTION_SIGNATURE : return "The function \"" + words[0] + "\" is already declared with the same name and same parameters at other lines";
-			case GENERAL_FILE_DOES_NOT_EXIST : return "The loading file \"" + words[0] + "\" does not exist";
-			case GENERAL_FILE_IS_NOT_ACCESSIBLE : return "The loading script file \"" + words[0] + "\" could not be loaded. The encoding might be incorrect. Try again with changing the encoding, or declare the encoding at the top line of the file";
+			case META_QUALIFIED_FILE_DOES_NOT_EXIST : return "The loading file \"" + words[0] + "\" does not exist";
+			case META_QUALIFIED_FILE_IS_NOT_ACCESSIBLE : return "The loading file \"" + words[0] + "\" could not be loaded. The encoding might be incorrect. Try again with changing the encoding, or describe the encoding declaration \"coding encodingName;\" at the top line of the file";
 			case SCRIPT_FILE_DOES_NOT_EXIST : return "The loading script file \"" + words[0] + "\" does not exist";
-			case SCRIPT_FILE_IS_NOT_ACCESSIBLE : return "The loading script file \"" + words[0] + "\" could not be loaded. The encoding might be incorrect. Try again with changing the encoding, or declare the encoding at the top line of the script";
+			case SCRIPT_FILE_IS_NOT_ACCESSIBLE : return "The loading script file \"" + words[0] + "\" could not be loaded. The encoding might be incorrect. Try again with changing the encoding, or describe the encoding declaration \"coding encodingName;\" at the top line of the script file";
 			case LIBRARY_LIST_FILE_DOES_NOT_EXIST : return "The loading list file of libraries \"" + words[0] + "\" does not exist";
 			case LIBRARY_LIST_FILE_IS_NOT_ACCESSIBLE : return "The loading list file of libraries \"" + words[0] + "\" could not be loaded. The encoding might be incorrect. Try again with changing the encoding";
 			case LIBRARY_IS_ALREADY_INCLUDED : return "The library script \"" + words[0] + "\" is already registered to be loaded (\"include\"-ed). This script engine disallows duplicate \"include\"";
@@ -272,7 +272,7 @@ public class ErrorMessage {
 			case UNEXPECTED_PROCESSOR_CRASH : return "Unexpected VM Error (instruction-addr: " + words[0] + ")";
 			case UNEXPECTED : return "Unexpected Error";
 			case UNKNOWN : return "Unknown Error";
-			default : return "Unknown Error Type：" + errorType;
+			default : return "Unknown Error Type: " + errorType;
 		}
 	}
 }
