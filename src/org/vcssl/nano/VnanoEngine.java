@@ -216,17 +216,17 @@ public class VnanoEngine {
 		// set the locale to switch the language of error messages, and re-throw the exception to upper layers.
 		// スクリプト内容による例外は, エラーメッセージに使用する言語ロケールを設定してから上に投げる
 		} catch (VnanoException e) {
-
-			// VnanoException が、外部関数が投げる ConnectorException をラップしている場合で、
-			// それが特別な対処を要するものの場合（メッセージが「 ___ 」で始まる）は、別に対処
-			if (e.getCause() instanceof ConnectorException && ((ConnectorException)e.getCause()).getMessage().startsWith("___")) {
-				this.handleConnectorException((ConnectorException)e.getCause());
-				return null;
-			}
-
 			Locale locale = (Locale)this.optionMap.get(OptionKey.LOCALE); // Type was already checked.
 			e.setLocale(locale);
-			throw e;
+
+			// もしも VnanoException が、外部関数が投げる ConnectorException をラップしている場合で、
+			// それが特別な対処を要するものの場合（メッセージが「 ___ 」で始まる）は、特別な対処を行う
+			if (e.getCause() instanceof ConnectorException && ((ConnectorException)e.getCause()).getMessage().startsWith("___")) {
+				this.handleSpecialConnectorException((ConnectorException)e.getCause(), e);
+				return null; // 上の行で VnanoException が再スローされなかった場合は何もしない（ exit 関数での終了など ）
+			} else {
+				throw e;
+			}
 
 		// If unexpected exception is occurred, wrap it by the VnanoException and re-throw,
 		// to prevent the stall of the host-application.
@@ -239,18 +239,35 @@ public class VnanoEngine {
 
 	/**
 	 * <span class="lang-en">Handles a ConnectorException thrown in scripting, if it requires special handling</span>
-	 * <span class="lang-ja">スクリプト実行中にスローされた、特別な対処を要する ConnectorException に対処を行います</span>
+	 * <span class="lang-ja">スクリプト実行中にスローされた, 特別な対処を要する ConnectorException に対処を行います</span>
 	 * .
 	 * @param exception
 	 *   <span class="lang-en">ConnectorException thrown in scripting.</span>
 	 *   <span class="lang-ja">スクリプト実行中にスローされた ConnectorException.</span>
+	 *
+	 * @param callerScriptName
+	 *   <span class="lang-en">The VnanoException wrapping the thrown ConnectorException (provides line-number in the script and so on).</span>
+	 *   <span class="lang-ja">スローされた ConnectorException をラップしている VnanoException (スクリプト内での行番号などを保持).</span>
 	 */
-	private void handleConnectorException(ConnectorException exception) {
+	private void handleSpecialConnectorException(ConnectorException exception, VnanoException wrapperVnanoException)
+			throws VnanoException {
+
 		String message = exception.getMessage();
 
 		// exit 関数が投げてくる例外は、ユーザーに伝えるべきエラーではないので、何もしない
 		if (message.startsWith("___EXIT")) {
 			return;
+		}
+
+		// error 関数が投げてくる例外は、スクリプトの記述者が書いたエラーメッセージを ConnectorException でラップしたもので、
+		// 「 外部関数『 error 』でエラーが発生しました：(...エラーメッセージ...) 」等と表示するのは冗長なので、
+		// エラーメッセージ部分のみを抜き出し、VnanoException のメッセージに再設定して投げる
+		if (message.startsWith("___ERROR")) {
+			String passedErrorMessage = message.split(":")[1]; // error 関数の引数に渡されたエラーメッセージ内容
+			VnanoException vne = wrapperVnanoException.clone();
+			vne.setErrorType(ErrorType.UNMODIFIED);
+			vne.setErrorWords( new String[] { passedErrorMessage } );
+			throw vne;
 		}
 	}
 

@@ -169,6 +169,7 @@ public class ErrorMessage {
 			case UNEXPECTED_ACCELERATOR_CRASH : return "予期しないVMエラー (命令アドレス: " + words[0] + ", 再配置後命令アドレス: " + words[1] + ")";
 			case UNEXPECTED_PROCESSOR_CRASH : return "予期しないVMエラー（命令アドレス: " + words[0] + ")";
 			case UNEXPECTED : return "予期しないエラー";
+			case UNMODIFIED : return words[0];
 			case UNKNOWN : return "不明なエラー";
 			default : return "不明なエラー種類：" + errorType;
 		}
@@ -271,6 +272,7 @@ public class ErrorMessage {
 			case UNEXPECTED_ACCELERATOR_CRASH : return "Unexpected VM Error (instruction-addr: " + words[0] + ", reordered-instruction-addr: " + words[1] + ")";
 			case UNEXPECTED_PROCESSOR_CRASH : return "Unexpected VM Error (instruction-addr: " + words[0] + ")";
 			case UNEXPECTED : return "Unexpected Error";
+			case UNMODIFIED : return words[0];
 			case UNKNOWN : return "Unknown Error";
 			default : return "Unknown Error Type: " + errorType;
 		}
