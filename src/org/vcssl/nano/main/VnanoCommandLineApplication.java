@@ -797,7 +797,7 @@ public final class VnanoCommandLineApplication {
 		// オプションマップにスクリプト名を設定し、I/O形式をCUIに設定
 		//（プラグインが接続/初期化時にオプション値を参照する場合があるので、接続前に設定を済ませる）
 		this.optionMap.put(OptionKey.MAIN_SCRIPT_NAME, scriptLoader.getMainScriptName());
-		this.optionMap.put(OptionKey.TERMINAL_IO_UI, "CUI");
+		this.optionMap.put(OptionKey.UI_MODE, "CUI");
 
 		// オプション設定済み＆プラグイン接続済みのスクリプトエンジンを生成
 		VnanoEngine engine = this.createInitializedVnanoEngine(this.optionMap, pluginLoader);
@@ -822,7 +822,7 @@ public final class VnanoCommandLineApplication {
 		// オプションマップにスクリプト名を設定し、I/O形式をCUIに設定
 		//（プラグインが接続/初期化時にオプション値を参照する場合があるので、接続前に設定を済ませる）
 		this.optionMap.put(OptionKey.MAIN_SCRIPT_NAME, scriptLoader.getMainScriptName());
-		this.optionMap.put(OptionKey.TERMINAL_IO_UI, "CUI");
+		this.optionMap.put(OptionKey.UI_MODE, "CUI");
 
 		// オプション設定済み＆プラグイン接続済みのインターコネクトを生成して取得
 		Interconnect interconnect = this.createInitializedInterconnect(this.optionMap, pluginLoader);

@@ -36,7 +36,7 @@ import org.vcssl.nano.spec.ErrorType;
  * @author RINEARN (Fumihiro Matsui)
  */
 @SuppressWarnings("serial")
-public class VnanoException extends Exception {
+public class VnanoException extends Exception implements Cloneable {
 
 	private static final int LINE_NUMBER_DEFAULT_VALUE = -1;
 
@@ -45,8 +45,24 @@ public class VnanoException extends Exception {
 	private int lineNumber = LINE_NUMBER_DEFAULT_VALUE;
 	private String[] errorWords = null;
 	private String errorMessage = null;
-
 	private Locale locale = Locale.getDefault();
+
+	public VnanoException clone() {
+		VnanoException clonedVnanoException = new VnanoException(this.getMessage(), this.getCause());
+		clonedVnanoException.errorType = this.errorType;
+		clonedVnanoException.fileName = this.fileName;
+		clonedVnanoException.lineNumber = this.lineNumber;
+		clonedVnanoException.errorMessage = this.errorMessage;
+		clonedVnanoException.errorWords = new String[ this.errorWords.length ];
+		System.arraycopy(this.errorWords, 0, clonedVnanoException.errorWords, 0, this.errorWords.length);
+		clonedVnanoException.locale = this.locale;
+		return clonedVnanoException;
+	}
+
+	// clone() 内で使用する用で、そこで各フィールドの値をコピーして設定する必要がある
+	private VnanoException(String message, Throwable errorCauseThrowable) {
+		super(message, errorCauseThrowable);
+	}
 
 	public VnanoException(Throwable errorCauseThrowable) {
 		super(errorCauseThrowable);
@@ -109,8 +125,16 @@ public class VnanoException extends Exception {
 		return this.errorType;
 	}
 
+	public void setErrorType(ErrorType errorType) {
+		this.errorType = errorType;
+	}
+
 	public String[] getErrorWords() {
 		return this.errorWords;
+	}
+
+	public void setErrorWords(String[] errorWords) {
+		this.errorWords = errorWords;
 	}
 
 	public boolean hasFileName() {

@@ -7,7 +7,6 @@ package org.vcssl.nano.interconnect;
 
 import org.vcssl.connect.ConnectorException;
 import org.vcssl.connect.ExternalVariableConnectorInterface1;
-import org.vcssl.nano.VnanoFatalException;
 import org.vcssl.nano.VnanoException;
 import org.vcssl.nano.spec.DataTypeName;
 import org.vcssl.nano.spec.ErrorType;
@@ -159,34 +158,40 @@ public class Xvci1ToVariableAdapter extends AbstractVariable {
 	 */
 	@Override
 	public DataContainer<?> getDataContainer() throws VnanoException {
+		try {
 
-		// 自動のデータ型変換が有効な場合
-		if (this.xvciPlugin.isDataConversionNecessary()) {
+			// 自動のデータ型変換が有効な場合
+			if (this.xvciPlugin.isDataConversionNecessary()) {
 
-			Object data = null;
-			try {
+				Object data = null;
 				data = this.xvciPlugin.getData();
-			} catch (ConnectorException e) {
-				throw new VnanoFatalException(e);
-			}
-
-			try {
 				return this.dataConverter.convertToDataContainer(data);
-			} catch (VnanoException e) {
-				throw new VnanoFatalException(e);
-			}
 
-		// 自動のデータ型変換が無効な場合
-		} else {
-			DataContainer<?> dataContainer = new DataContainer<>();
-			try {
+			// 自動のデータ型変換が無効な場合
+			} else {
+				DataContainer<?> dataContainer = new DataContainer<>();
 				this.xvciPlugin.getData(dataContainer);
 				return dataContainer;
-			} catch (ConnectorException e) {
-				throw new VnanoException(
-					ErrorType.EXTERNAL_VARIABLE_PLUGIN_CRASHED, this.xvciPlugin.getVariableName(), e
-				);
 			}
+
+		// プラグイン側でデータアクセス時に発生した例外は VnanoException でラップする。
+		// 検査例外の ConnectorException 以外にも、プラグイン実装側の想定外の例外も発生し得るので、全種の Exception をラップする。
+		// ただし Throwable 全体までの範囲はカバーしない。
+		// これは、Throwable 全体の範囲には、対処困難な（通常の用途ならもう停止するのが自然な）エラーも含まれるためで、
+		// それを catch するかどうかの判断はアプリケーション側に委ねるため。
+		} catch (Exception e) {
+
+			// VnanoException のメッセージ内で用いる情報を用意
+			String[] errorWords = { this.xvciPlugin.getVariableName(), null };
+
+			// ConnectorException のメッセージは、ユーザーに向けたメッセージなので、VnanoException のメッセージ内にも表示する
+			if (e instanceof ConnectorException) {
+				errorWords[1] = e.getMessage();
+			}
+
+			throw new VnanoException(
+				ErrorType.EXTERNAL_VARIABLE_PLUGIN_CRASHED, errorWords, e
+			);
 		}
 	}
 

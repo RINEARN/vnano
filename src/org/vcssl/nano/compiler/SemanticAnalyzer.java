@@ -763,19 +763,38 @@ public class SemanticAnalyzer {
 	//（定数は参照渡しできない等の制約により、型は整合しても呼べないケースがある）
 	private void checkFunctionCallablility(AbstractFunction function, AstNode callerNode) throws VnanoException {
 		AstNode[] argNodes = callerNode.getChildNodes(); // 注：[0]番要素は関数識別子、[1]以降が引数ノード
+		String[] parameterTypes = function.getParameterDataTypeNames();
 		String[] parameterNames = function.getParameterNames();
 		boolean[] areParamConst = function.getParameterConstantnesses();
 		boolean[] areParamRef = function.getParameterReferencenesses();
-		int paramN = areParamRef.length;
+		int paramN = parameterTypes.length; // parameterNames は外部関数では省略されている可能性があるため、省略不可能な型名から数える
 
-		// 参照渡しかつ非 const な引数の場合、変数か配列要素（Subsctipt演算子）しか渡せないので、渡せるかどうか検査
-		//   理由1：リテラルなどの定数値が呼び出し先で書き換えられると色々とまずい
-		//   理由2：式の評価値のレジスタを参照渡しして書き換えられると、そのレジスタに依存する処理が色々とまずい
 		for (int paramIndex=0; paramIndex<paramN; paramIndex++) {
-			if (areParamRef[paramIndex] && !areParamConst[paramIndex]) {
 
-				// 注：[0]番要素は関数識別子、[1]以降が引数ノード
-				AstNode argNode = argNodes[paramIndex+1];
+			// 注：[0]番要素は関数識別子、[1]以降が引数ノード
+			AstNode argNode = argNodes[paramIndex+1];
+
+			// void 型の値（関数戻り値など）は引数に渡せないので、検査して弾く
+			// （例えば任意型引数の関数などは、全ての型の引数を許容するので、voidを渡す事も構文上は整合するが、
+			//   実行時に未初期化データを渡す事になってVM側で落ちるので、ここで弾く）
+			if (argNode.getAttribute(AttributeKey.DATA_TYPE).equals(LANG_SPEC.DATA_TYPE_NAME.voidPlaceholder)) {
+				// エラーメッセージのために、引数に（戻り値を）渡している関数の名前を取得
+				String argFunctionName = null; // null の場合はエラーメッセージ内で記載されない
+				if (argNode.getType() == AstNode.Type.OPERATOR
+						&& argNode.getAttribute(AttributeKey.OPERATOR_EXECUTOR).equals(AttributeValue.CALL)) {
+					AstNode argFunctionIdentifierNode = argNode.getChildNodes()[0];
+					argFunctionName = argFunctionIdentifierNode.getAttribute(AttributeKey.IDENTIFIER_VALUE);
+				}
+				throw new VnanoException(
+					ErrorType.VOID_RETURN_VALUE_PASSED_AS_ARGUMENT, argFunctionName,
+					callerNode.getFileName(), callerNode.getLineNumber()
+				);
+			}
+
+			// 参照渡しかつ非 const な引数の場合、変数か配列要素（Subsctipt演算子）しか渡せないので、渡せるかどうか検査
+			//   理由1：リテラルなどの定数値が呼び出し先で書き換えられると色々とまずい
+			//   理由2：式の評価値のレジスタを参照渡しして書き換えられると、そのレジスタに依存する処理が色々とまずい
+			if (areParamRef[paramIndex] && !areParamConst[paramIndex]) {
 
 				// 変数かどうか
 				boolean isVariable = argNode.getType() == AstNode.Type.LEAF

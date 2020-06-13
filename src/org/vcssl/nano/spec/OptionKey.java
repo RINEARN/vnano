@@ -174,6 +174,64 @@ public class OptionKey {
 
 
 	/**
+	 * <span class="lang-en">Specify the mode of UI for inputting/outputting values and so on</span>
+	 * <span class="lang-ja">値の入出力などに用いるユーザーインターフェースの形式を指定します</span>
+	 * .
+	 * <span class="lang-en">
+	 * The value of this option is "String" type. Specify "GUI" or "CUI".
+	 * The default value is "GUI", but it will be set to "CUI" automatically when you execute the Vnano engine in the command-line mode.
+	 * </span>
+	 * <span class="lang-ja">
+	 * このオプションの値は "String" 型です. "GUI" か "CUI" を選択してください.
+	 * デフォルト値は "GUI" ですが, コマンドラインモードでVnanoエンジンを起動した場合は自動的に "CUI" に設定されます.
+	 * </span>
+	 *
+	 * <span class="lang-en">This option is referred by I/O plug-ins if they are connected.</span>
+	 * <span class="lang-ja">このオプションは, 入出力系のプラグインが接続されている場合に, それらによって参照されます.</span>
+	 */
+	public static final String UI_MODE = "UI_MODE";
+
+
+	/**
+	 * <span class="lang-en">Specify the default line-feed code on the environment</span>
+	 * <span class="lang-ja">環境における, デフォルトの改行コードを指定します</span>
+	 * .
+	 * <span class="lang-en">The value of this option is "String" type.</span>
+	 * <span class="lang-ja">このオプションの値は "String" 型です.</span>
+	 *
+	 * <span class="lang-en">This option is referred by plug-ins providing environment-dependent values, if they are connected.</span>
+	 * <span class="lang-ja">このオプションは, 環境依存の値を提供するプラグインが接続されている場合に, それらによって参照されます.</span>
+	 */
+	public static final String ENVIRONMENT_EOL = "ENVIRONMENT_EOL";
+
+
+	/**
+	 * <span class="lang-en">Specify the default line-feed code for file I/O</span>
+	 * <span class="lang-ja">ファイルの入出力に用いる, デフォルトの改行コードを指定します</span>
+	 * .
+	 * <span class="lang-en">The value of this option is "String" type.</span>
+	 * <span class="lang-ja">このオプションの値は "String" 型です.</span>
+	 *
+	 * <span class="lang-en">This option is referred by I/O plug-ins if they are connected.</span>
+	 * <span class="lang-ja">このオプションは, 入出力系のプラグインが接続されている場合に, それらによって参照されます.</span>
+	 */
+	public static final String FILE_IO_EOL = "FILE_IO_EOL";
+
+
+	/**
+	 * <span class="lang-en">Specify the default line-feed code for terminal I/O</span>
+	 * <span class="lang-ja">端末との入出力に用いる, デフォルトの改行コードを指定します</span>
+	 * .
+	 * <span class="lang-en">The value of this option is "String" type.</span>
+	 * <span class="lang-ja">このオプションの値は "String" 型です.</span>
+	 *
+	 * <span class="lang-en">This option is referred by I/O plug-ins if they are connected.</span>
+	 * <span class="lang-ja">このオプションは, 入出力系のプラグインが接続されている場合に, それらによって参照されます.</span>
+	 */
+	public static final String TERMINAL_IO_EOL = "TERMINAL_IO_EOL";
+
+
+	/**
 	 * <span class="lang-en">Specify the name of the default encoding for reading reading script files</span>
 	 * <span class="lang-ja">スクリプトファイルの読み込みに用いるデフォルトの文字コード名を指定します</span>
 	 * .
@@ -194,51 +252,6 @@ public class OptionKey {
 	 * <span class="lang-ja">このオプションは, 入出力系のプラグインが接続されている場合に, それらによって参照されます.</span>
 	 */
 	public static final String FILE_IO_ENCODING = "FILE_IO_ENCODING";
-
-
-	/**
-	 * <span class="lang-en">Specify the name of the default line-feed code for writing to / reading files in scripts</span>
-	 * <span class="lang-ja">スクリプト内でのファイルの読み書きに用いるデフォルトの改行コードを指定します</span>
-	 * .
-	 * <span class="lang-en">The value of this option is "String" type.</span>
-	 * <span class="lang-ja">このオプションの値は "String" 型です.</span>
-	 *
-	 * <span class="lang-en">This option is referred by I/O plug-ins if they are connected.</span>
-	 * <span class="lang-ja">このオプションは, 入出力系のプラグインが接続されている場合に, それらによって参照されます.</span>
-	 */
-	public static final String FILE_IO_EOL = "FILE_IO_EOL";
-
-
-	/**
-	 * <span class="lang-en">Specify the type of UI for inputting/outputting values</span>
-	 * <span class="lang-ja">値の入出力に用いるユーザーインターフェースの形式を指定します</span>
-	 * .
-	 * <span class="lang-en">
-	 * The value of this option is "String" type. Specify "GUI" or "CUI".
-	 * The default value is "GUI", but it will be set to "CUI" automatically when you execute the Vnano engine in the command-line mode.
-	 * </span>
-	 * <span class="lang-ja">
-	 * このオプションの値は "String" 型です. "GUI" か "CUI" を選択してください.
-	 * デフォルト値は "GUI" ですが, コマンドラインモードでVnanoエンジンを起動した場合は自動的に "CUI" に設定されます.
-	 * </span>
-	 *
-	 * <span class="lang-en">This option is referred by I/O plug-ins if they are connected.</span>
-	 * <span class="lang-ja">このオプションは, 入出力系のプラグインが接続されている場合に, それらによって参照されます.</span>
-	 */
-	public static final String TERMINAL_IO_UI = "TERMINAL_IO_UI";
-
-
-	/**
-	 * <span class="lang-en">Specify the default line-feed code for inputting/outputting values</span>
-	 * <span class="lang-ja">値の入出力に用いるデフォルトの改行コードを指定します</span>
-	 * .
-	 * <span class="lang-en">The value of this option is "String" type.</span>
-	 * <span class="lang-ja">このオプションの値は "String" 型です.</span>
-	 *
-	 * <span class="lang-en">This option is referred by I/O plug-ins if they are connected.</span>
-	 * <span class="lang-ja">このオプションは, 入出力系のプラグインが接続されている場合に, それらによって参照されます.</span>
-	 */
-	public static final String TERMINAL_IO_EOL = "TERMINAL_IO_EOL";
 
 
 	/**

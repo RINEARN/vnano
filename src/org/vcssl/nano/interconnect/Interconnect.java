@@ -360,9 +360,6 @@ public class Interconnect {
 	public void connectPlugin(String bindingKey, Object plugin) throws VnanoException {
 
 		try {
-			// 初期化が必要なプラグインの場合は、全てのアクセスよりも前にここで初期化する
-			this.initializePluginForConnection(plugin);
-
 			// Replace the binding key with auto-generated one if, it it is requested.
 			// キーを自動生成するよう設定されている場合は、キーを置き換え
 			if (bindingKey.equals(SpecialBindingKey.AUTO_KEY)) {
@@ -371,11 +368,11 @@ public class Interconnect {
 
 			// XVCI 1 形式の外部変数プラグイン
 			if (plugin instanceof ExternalVariableConnectorInterface1) {
-				this.connectXvci1Plugin( (ExternalVariableConnectorInterface1)plugin, true, bindingKey );
+				this.connectXvci1Plugin( (ExternalVariableConnectorInterface1)plugin, true, bindingKey, false, null );
 
 			// XFCI 1 形式の外部関数プラグイン
 			} else if (plugin instanceof ExternalFunctionConnectorInterface1) {
-				this.connectXfci1Plugin( (ExternalFunctionConnectorInterface1)plugin, true, bindingKey );
+				this.connectXfci1Plugin( (ExternalFunctionConnectorInterface1)plugin, true, bindingKey, false, null);
 
 			// XNCI 1 形式の外部関数プラグイン
 			} else if (plugin instanceof ExternalNamespaceConnectorInterface1) {
@@ -622,7 +619,7 @@ public class Interconnect {
 			throws VnanoException {
 
 		FieldToXvci1Adapter adapter = new FieldToXvci1Adapter(field, instance);
-		this.connectXvci1Plugin(adapter, aliasingRequired, aliasName);
+		this.connectXvci1Plugin(adapter, aliasingRequired, aliasName, false, null);
 	}
 
 
@@ -676,7 +673,7 @@ public class Interconnect {
 			throws VnanoException {
 
 		MethodToXfci1Adapter adapter = new MethodToXfci1Adapter(method,instance);
-		this.connectXfci1Plugin(adapter, aliasingRequired, aliasSignature);
+		this.connectXfci1Plugin(adapter, aliasingRequired, aliasSignature, false, null);
 	}
 
 
@@ -758,6 +755,14 @@ public class Interconnect {
 	 *   <span class="lang-en">The alias for accessing from scripts.</span>
 	 *   <span class="lang-ja">スクリプト内からのアクセスに使用する別名.</span>
 	 *
+	 * @param belongsToNameSpace
+	 *   <span class="lang-en">Whether the variable provided by the plug-in belongs to any name space.</span>
+	 *   <span class="lang-ja">プラグインが提供する変数が属する名前空間が, 名前空間に属するかどうか（する場合に true）.</span>
+	 *
+	 * @param nameSpace
+	 *   <span class="lang-en">The name space to which the variable provided by the plug-in belongs.</span>
+	 *   <span class="lang-ja">プラグインが提供する変数が属する名前空間.</span>
+	 *
 	 * @throws VnanoException
 	 *   <span class="lang-en">
 	 *   Thrown if the plug-in could not be connected, caused by incompatibility of data types, and so on.
@@ -766,10 +771,21 @@ public class Interconnect {
 	 *   データ型の互換性などの原因により, プラグインの接続に失敗した場合にスローされます.
 	 *   </span>
 	 */
-	private void connectXvci1Plugin(ExternalVariableConnectorInterface1 plugin, boolean aliasingRequired, String aliasName)
-			throws VnanoException {
+	private void connectXvci1Plugin(ExternalVariableConnectorInterface1 plugin,
+			boolean aliasingRequired, String aliasName, boolean belongsToNameSpace, String nameSpace) throws VnanoException {
+		try {
+			plugin.initializeForConnection(this.engineConnector);
+		} catch (ConnectorException e) {
+			throw new VnanoException(
+				ErrorType.PLUGIN_INITIALIZATION_FAILED, plugin.getClass().getCanonicalName(), e
+			);
+		}
+
 		this.xvci1PluginList.add(plugin);
-		Xvci1ToVariableAdapter adapter = new Xvci1ToVariableAdapter(plugin, LANG_SPEC);
+
+		Xvci1ToVariableAdapter adapter = belongsToNameSpace
+			? new Xvci1ToVariableAdapter(plugin, nameSpace, LANG_SPEC)
+			: new Xvci1ToVariableAdapter(plugin, LANG_SPEC);
 		this.connectVariable(adapter, aliasingRequired, aliasName);
 	}
 
@@ -796,6 +812,14 @@ public class Interconnect {
 	 *   <span class="lang-en">The alias for accessing from scripts.</span>
 	 *   <span class="lang-ja">スクリプト内からのアクセスに使用する別名.</span>
 	 *
+	 * @param belongsToNameSpace
+	 *   <span class="lang-en">Whether the function provided by the plug-in belongs to any name space.</span>
+	 *   <span class="lang-ja">プラグインが提供する関数が属する名前空間が, 名前空間に属するかどうか（する場合に true）.</span>
+	 *
+	 * @param nameSpace
+	 *   <span class="lang-en">The name space to which the function provided by the plug-in belongs.</span>
+	 *   <span class="lang-ja">プラグインが提供する関数が属する名前空間.</span>
+	 *
 	 * @throws VnanoException
 	 *   <span class="lang-en">
 	 *   Thrown if the plug-in could not be connected, caused by incompatibility of data types, and so on.
@@ -804,10 +828,21 @@ public class Interconnect {
 	 *   データ型の互換性などの原因により, プラグインの接続に失敗した場合にスローされます.
 	 *   </span>
 	 */
-	private void connectXfci1Plugin(ExternalFunctionConnectorInterface1 plugin, boolean aliasingRequired, String aliasSignature)
-			throws VnanoException {
+	private void connectXfci1Plugin(ExternalFunctionConnectorInterface1 plugin,
+			boolean aliasingRequired, String aliasSignature, boolean belongsToNameSpace, String nameSpace) throws VnanoException {
+		try {
+			plugin.initializeForConnection(this.engineConnector);
+		} catch (ConnectorException e) {
+			throw new VnanoException(
+				ErrorType.PLUGIN_INITIALIZATION_FAILED, plugin.getClass().getCanonicalName(), e
+			);
+		}
+
 		this.xfci1PluginList.add(plugin);
-		Xfci1ToFunctionAdapter adapter = new Xfci1ToFunctionAdapter(plugin, LANG_SPEC);
+
+		Xfci1ToFunctionAdapter adapter = belongsToNameSpace
+			? new Xfci1ToFunctionAdapter(plugin, nameSpace, LANG_SPEC)
+			: new Xfci1ToFunctionAdapter(plugin, LANG_SPEC);
 		this.connectFunction(adapter, aliasingRequired, aliasSignature);
 	}
 
@@ -842,8 +877,18 @@ public class Interconnect {
 	 *   データ型の互換性などの原因により, プラグインの接続に失敗した場合にスローされます.
 	 *   </span>
 	 */
-	private void connectXnci1Plugin(ExternalNamespaceConnectorInterface1 plugin, boolean aliasingRequired, String aliasName,
-			boolean ignoreIncompatibles) throws VnanoException {
+	private void connectXnci1Plugin(
+			ExternalNamespaceConnectorInterface1 plugin, boolean aliasingRequired, String aliasName,
+				boolean ignoreIncompatibles) throws VnanoException {
+
+		// 本体の pre connect 初期化処理
+		try {
+			plugin.preInitializeForConnection(this.engineConnector);
+		} catch (ConnectorException e) {
+			throw new VnanoException(
+				ErrorType.PLUGIN_INITIALIZATION_FAILED, plugin.getClass().getCanonicalName(), e
+			);
+		}
 
 		// 名前空間（の名前）を取得し、エイリアスが指定されている場合はその名前で置き換える
 		String nameSpace = plugin.getNamespaceName();
@@ -851,14 +896,11 @@ public class Interconnect {
 			nameSpace = aliasName;
 		}
 
-		// 関数をアダプタで変換して接続
-		ExternalFunctionConnectorInterface1[] xfciConnectors = plugin.getFunctions();
-		for (ExternalFunctionConnectorInterface1 xfciConnector: xfciConnectors) {
+		// 所属関数プラグインを接続（この中で関数の connect 初期化処理が行われる）
+		ExternalFunctionConnectorInterface1[] xfciPlugins = plugin.getFunctions();
+		for (ExternalFunctionConnectorInterface1 xfciPlugin: xfciPlugins) {
 			try {
-				this.xfci1PluginList.add(xfciConnector); // 初期化/終了時処理で呼ぶ用の登録
-				AbstractFunction adapter = new Xfci1ToFunctionAdapter(xfciConnector, nameSpace, LANG_SPEC);
-				this.connectFunction(adapter, false, null); // スクリプトから呼ぶ用の接続
-
+				this.connectXfci1Plugin(xfciPlugin, false, null, true, nameSpace);
 			} catch (VnanoException e) {
 				if (!ignoreIncompatibles) {
 					throw e;
@@ -866,19 +908,25 @@ public class Interconnect {
 			}
 		}
 
-		// 変数をアダプタで変換して接続
-		ExternalVariableConnectorInterface1[] xvciConnectors = plugin.getVariables();
-		for (ExternalVariableConnectorInterface1 xvciConnector: xvciConnectors) {
+		// 所属変数プラグインを接続（この中で変数の connect 初期化処理が行われる）
+		ExternalVariableConnectorInterface1[] xvciPlugins = plugin.getVariables();
+		for (ExternalVariableConnectorInterface1 xvciPlugin: xvciPlugins) {
 			try {
-				this.xvci1PluginList.add(xvciConnector); // 初期化/終了時処理で呼ぶ用の登録
-				AbstractVariable adapter = new Xvci1ToVariableAdapter(xvciConnector, nameSpace, LANG_SPEC);
-				this.connectVariable(adapter, false, null); // スクリプトから呼ぶ用の接続
-
+				this.connectXvci1Plugin(xvciPlugin, false, null, true, nameSpace);
 			} catch (VnanoException e) {
 				if (!ignoreIncompatibles) {
 					throw e;
 				}
 			}
+		}
+
+		// 本体の post connect 初期化処理
+		try {
+			plugin.preInitializeForConnection(this.engineConnector);
+		} catch (ConnectorException e) {
+			throw new VnanoException(
+				ErrorType.PLUGIN_INITIALIZATION_FAILED, plugin.getClass().getCanonicalName(), e
+			);
 		}
 
 		// 先のほうの初期化だけでなく、後のほうの初期化も正常に完了した段階でリストに登録する
@@ -918,55 +966,6 @@ public class Interconnect {
 			((FunctionAliasAdapter)function).setCallSignature(aliasSignature);
 		}
 		this.externalFunctionTable.addFunction(function);
-	}
-
-
-	private void initializePluginForConnection(Object plugin) throws VnanoException {
-		Object initializingPlugin = null; // 例外発生時のため、初期化中のプラグインを控えておく
-		try {
-
-			// XNCI1の場合
-			if (plugin instanceof ExternalNamespaceConnectorInterface1) {
-				ExternalNamespaceConnectorInterface1 xnci1Plugin = (ExternalNamespaceConnectorInterface1)plugin;
-
-				// 本体の preInit
-				initializingPlugin = xnci1Plugin;
-				((ExternalNamespaceConnectorInterface1)plugin).preInitializeForConnection(this.engineConnector);
-
-				// 所属関数の init
-				for (ExternalFunctionConnectorInterface1 function: xnci1Plugin.getFunctions()) {
-					initializingPlugin = function;
-					function.initializeForConnection(this.engineConnector);
-				}
-
-				// 所属変数の init
-				for (ExternalVariableConnectorInterface1 variable: xnci1Plugin.getVariables()) {
-					initializingPlugin = variable;
-					variable.initializeForConnection(this.engineConnector);
-				}
-
-				// 本体の postInit
-				initializingPlugin = xnci1Plugin;
-				((ExternalNamespaceConnectorInterface1)plugin).postInitializeForConnection(this.engineConnector);
-
-			// XFCI1の場合
-			} else if (plugin instanceof ExternalFunctionConnectorInterface1) {
-				initializingPlugin = plugin;
-				((ExternalFunctionConnectorInterface1)plugin).initializeForConnection(this.engineConnector);
-
-			// XVCI1の場合
-			} else if (plugin instanceof ExternalVariableConnectorInterface1) {
-				initializingPlugin = plugin;
-				((ExternalVariableConnectorInterface1)plugin).initializeForConnection(this.engineConnector);
-			}
-
-		} catch (ConnectorException e) {
-			throw new VnanoException(
-				ErrorType.PLUGIN_INITIALIZATION_FAILED, initializingPlugin.getClass().getCanonicalName(), e
-			);
-		}
-
-		// 初期化が必要ないオブジェクトの場合は何もしない
 	}
 
 

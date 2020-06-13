@@ -131,7 +131,7 @@ public class MetaQualifiedFileLoader {
 			throws VnanoException {
 
 		if (!new File(filePath).exists()) {
-			throw new VnanoException(ErrorType.GENERAL_FILE_DOES_NOT_EXIST, filePath);
+			throw new VnanoException(ErrorType.META_QUALIFIED_FILE_DOES_NOT_EXIST, filePath);
 		}
 
 		// ファイル内に文字コード宣言があればその文字コード、無ければデフォルトの文字コードから Charset を生成
@@ -142,7 +142,7 @@ public class MetaQualifiedFileLoader {
 		try {
 			lineList = Files.readAllLines(Paths.get(filePath), charset);
 		} catch (IOException ioe) {
-			throw new VnanoException(ErrorType.GENERAL_FILE_IS_NOT_ACCESSIBLE, filePath, ioe);
+			throw new VnanoException(ErrorType.META_QUALIFIED_FILE_IS_NOT_ACCESSIBLE, filePath, ioe);
 		}
 
 		// 改行コード LF (\n) で結合（それ以外の改行コードを用いても、後の normalize で LF に統一される）
@@ -282,7 +282,7 @@ public class MetaQualifiedFileLoader {
 		try (BufferedReader bufferedReader = new BufferedReader( new InputStreamReader( new FileInputStream(filePath), charset) ) ) {
 			firstLine = bufferedReader.readLine();
 		} catch (IOException ioe) {
-			throw new VnanoException(ErrorType.GENERAL_FILE_IS_NOT_ACCESSIBLE, filePath, ioe);
+			throw new VnanoException(ErrorType.META_QUALIFIED_FILE_IS_NOT_ACCESSIBLE, filePath, ioe);
 		}
 		firstLine = normalize(firstLine);
 

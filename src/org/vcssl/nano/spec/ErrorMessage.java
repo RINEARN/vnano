@@ -139,12 +139,13 @@ public class ErrorMessage {
 			case INVALID_RETURNED_VALUE_DATA_TYPE : return "return 文が返している値の型「 " + words[0] + " 」が、関数宣言における戻り値の型「 " + words[1] + " 」と異なります。";
 			case RETURNED_VALUE_IS_MISSING : return "戻り値を返すべき関数内で, 何も値を返さない return 文が検出されました。";
 			case NON_VARIABLE_IS_PASSED_BY_REFERENCE : return "関数「 " + words[2] + " 」の " + words[0] + " 番目の引数「 " + words[1] + " 」は、constでない参照渡し引数であるため、「 変数 / 配列 / 配列の要素 」以外を渡す事はできません。";
+			case VOID_RETURN_VALUE_PASSED_AS_ARGUMENT : return "void 型の"  + (words[0]==null ? "" : "関数「 " + words[0] + " 」の戻り") +  "値を、関数の引数に渡す事はできません。";
 			case DUPLICATE_VARIABLE_IDENTIFIER : return "変数の名前「 " + words[0] + " 」は、同じ影響範囲内の別の変数で、既に使用されています。";
 			case DUPLICATE_FUNCTION_SIGNATURE : return "関数「 " + words[0] + " 」は、全く同じ名前と引数の組み合わせで、他の場所で既に宣言されています。";
-			case GENERAL_FILE_DOES_NOT_EXIST : return "ファイル「 " + words[0] + " 」が見つかりません。";
-			case GENERAL_FILE_IS_NOT_ACCESSIBLE : return "ファイル「 " + words[0] + " 」の読み込みに失敗しました。";
+			case META_QUALIFIED_FILE_DOES_NOT_EXIST : return "ファイル「 " + words[0] + " 」が見つかりません。";
+			case META_QUALIFIED_FILE_IS_NOT_ACCESSIBLE : return "ファイル「 " + words[0] + " 」の読み込みに失敗しました。文字コードが想定と異なる可能性があります。文字コードを変更するか、先頭行で文字コード宣言（ coding 文字コード名; ）を記述してみてください。";
 			case SCRIPT_FILE_DOES_NOT_EXIST : return "スクリプトファイル「 " + words[0] + " 」が見つかりません。";
-			case SCRIPT_FILE_IS_NOT_ACCESSIBLE : return "スクリプトファイル「 " + words[0] + " 」の読み込みに失敗しました。文字コードが想定と異なる可能性があります。文字コードを変更するか、先頭行で文字コード宣言を行ってみてください（記法: coding 文字コード名; ）。";
+			case SCRIPT_FILE_IS_NOT_ACCESSIBLE : return "スクリプトファイル「 " + words[0] + " 」の読み込みに失敗しました。文字コードが想定と異なる可能性があります。文字コードを変更するか、先頭行で文字コード宣言（ coding 文字コード名; ）を記述してみてください。";
 			case LIBRARY_LIST_FILE_DOES_NOT_EXIST : return "ライブラリの読み込みリストファイル「 " + words[0] + " 」が見つかりません。";
 			case LIBRARY_LIST_FILE_IS_NOT_ACCESSIBLE : return "ライブラリの読み込みリストファイル「 " + words[0] + " 」の読み込みに失敗しました。文字コードが想定と異なる可能性があります。文字コードを変更してみてください。";
 			case LIBRARY_IS_ALREADY_INCLUDED : return "ライブラリ「 " + words[0] + " 」は既に読み込み登録（ include 登録）されています （多重 include は禁止されています）。";
@@ -158,8 +159,8 @@ public class ErrorMessage {
 			case DECLARED_ENCODING_IS_UNSUPPORTED : return "スクリプトファイル「 " + words[1] + " 」の先頭行で宣言されている文字コード「 " + words[0] + " 」は、この環境では使用できません。";
 			case NO_ENCODING_DECLARATION_END : return (words[0]==null ? "" : "スクリプトファイル「 " + words[0] + " 」の") + "先頭行の文字コード宣言において、末尾に「 ; 」が必要です。";
 			case ENCODING_DECLARATION_CONTAINS_INVALID_SYMBOL : return (words[1]==null ? "" : "スクリプトファイル「 " + words[1] + " 」の先頭行の文字コード宣言において、") + "使用できない記号「 " + words[0] + " 」が含まれています。";
-			case EXTERNAL_FUNCTION_PLUGIN_CRASHED : return "外部関数「 " + words[0] + " 」の処理でエラーが発生しました。";
-			case EXTERNAL_VARIABLE_PLUGIN_CRASHED : return "外部変数「 " + words[0] + " 」へのアクセスでエラーが発生しました。";
+			case EXTERNAL_FUNCTION_PLUGIN_CRASHED : return "外部関数「 " + words[0] + " 」の処理でエラーが発生しました" + (words[1]==null ? "。" : "： " + words[1]);
+			case EXTERNAL_VARIABLE_PLUGIN_CRASHED : return "外部変数「 " + words[0] + " 」へのアクセスでエラーが発生しました"  + (words[1]==null ? "。" : "： " + words[1]);
 			case UNSUPPORTED_PERMISSION_NAME : return "パーミッション「 " + words[0] + " 」が要求されましたが、このパーミッションは現在の設定では使用できないか、この処理系ではサポートされていません。";
 			case UNSUPPORTED_PERMISSION_VALUE : return "パーミッション「 " + words[0] + " 」が要求されましたが、このパーミッションの現在の設定値「 " + words[1] + " 」は、この処理系ではサポートされていません。";
 			case PERMISSION_DENIED : return "パーミッション「 " + words[0] + " 」が要求されましたが、設定またはユーザーの選択によって拒否されました。";
@@ -168,6 +169,7 @@ public class ErrorMessage {
 			case UNEXPECTED_ACCELERATOR_CRASH : return "予期しないVMエラー (命令アドレス: " + words[0] + ", 再配置後命令アドレス: " + words[1] + ")";
 			case UNEXPECTED_PROCESSOR_CRASH : return "予期しないVMエラー（命令アドレス: " + words[0] + ")";
 			case UNEXPECTED : return "予期しないエラー";
+			case UNMODIFIED : return words[0];
 			case UNKNOWN : return "不明なエラー";
 			default : return "不明なエラー種類：" + errorType;
 		}
@@ -199,8 +201,8 @@ public class ErrorMessage {
 			case NO_PARTIAL_EXPRESSION : return "Empty parentheses ( ) exist in the expression";
 			case OPERAND_IS_MISSING_AT_RIGHT : return "A value or variable is necessary at the right of \"" + words[0] + "\"";
 			case OPERAND_IS_MISSING_AT_LEFT : return "A value or variable is necessary at the left of \"" + words[0] + "\"";
-			case OPERATOR_IS_MISSING_AT_RIGHT : return "An operator (e.g.: \"+\") is required between \"" + words[0] + "\" and \"" + words[1] + "\"";
-			case OPERATOR_IS_MISSING_AT_LEFT : return "An operator (e.g.: \"+\") is required between \"" + words[0] + "\" and \"" + words[1] + "\"";
+			case OPERATOR_IS_MISSING_AT_RIGHT : return "An operator (e.g. \"+\") is required between \"" + words[0] + "\" and \"" + words[1] + "\"";
+			case OPERATOR_IS_MISSING_AT_LEFT : return "An operator (e.g. \"+\") is required between \"" + words[0] + "\" and \"" + words[1] + "\"";
 			case DATA_TYPE_IS_MISSING_AT_RIGHT : return "A data type is necessary at the right of \"" + words[0] + "\"";
 			case CLOSE_PARENTHESIS_IS_MISSING_AT_RIGHT : return "A close parenthesis \")\" is necessary at the right of \"" + words[0] + "\"";
 			case NO_OPEN_PARENTHESIS_OF_CONTROL_STATEMENT : return "Parentheses (...) are required after \"" + words[0] + "\"";
@@ -240,12 +242,13 @@ public class ErrorMessage {
 			case INVALID_RETURNED_VALUE_DATA_TYPE : return "The data type of the returned value \""+ words[0] + "\" does not match the data type \""+ words[1] + "\", which is expected from the function declaration";
 			case RETURNED_VALUE_IS_MISSING : return "There is a return statement returning no value in the function which should return a value";
 			case NON_VARIABLE_IS_PASSED_BY_REFERENCE : return "Only variable or array (containing element) can be passed to the " + words[0] + "-th argument \"" + words[1] + "\" of function \"" + words[2] + "\", because it will be passed by nonconstant reference";
+			case VOID_RETURN_VALUE_PASSED_AS_ARGUMENT : return (words[0]==null ? "A void-type value " : "A return value of a void-type function \"" + words[0] + "\" ") + "can not be passed as an argument of a function";
 			case DUPLICATE_VARIABLE_IDENTIFIER : return "The name of variable \"" + words[0] + "\" is already used by another variable, and scopes of them are conflicting";
 			case DUPLICATE_FUNCTION_SIGNATURE : return "The function \"" + words[0] + "\" is already declared with the same name and same parameters at other lines";
-			case GENERAL_FILE_DOES_NOT_EXIST : return "The loading file \"" + words[0] + "\" does not exist";
-			case GENERAL_FILE_IS_NOT_ACCESSIBLE : return "The loading script file \"" + words[0] + "\" could not be loaded. The encoding might be incorrect. Try again with changing the encoding, or declare the encoding at the top line of the file";
+			case META_QUALIFIED_FILE_DOES_NOT_EXIST : return "The loading file \"" + words[0] + "\" does not exist";
+			case META_QUALIFIED_FILE_IS_NOT_ACCESSIBLE : return "The loading file \"" + words[0] + "\" could not be loaded. The encoding might be incorrect. Try again with changing the encoding, or describe the encoding declaration \"coding encodingName;\" at the top line of the file";
 			case SCRIPT_FILE_DOES_NOT_EXIST : return "The loading script file \"" + words[0] + "\" does not exist";
-			case SCRIPT_FILE_IS_NOT_ACCESSIBLE : return "The loading script file \"" + words[0] + "\" could not be loaded. The encoding might be incorrect. Try again with changing the encoding, or declare the encoding at the top line of the script";
+			case SCRIPT_FILE_IS_NOT_ACCESSIBLE : return "The loading script file \"" + words[0] + "\" could not be loaded. The encoding might be incorrect. Try again with changing the encoding, or describe the encoding declaration \"coding encodingName;\" at the top line of the script file";
 			case LIBRARY_LIST_FILE_DOES_NOT_EXIST : return "The loading list file of libraries \"" + words[0] + "\" does not exist";
 			case LIBRARY_LIST_FILE_IS_NOT_ACCESSIBLE : return "The loading list file of libraries \"" + words[0] + "\" could not be loaded. The encoding might be incorrect. Try again with changing the encoding";
 			case LIBRARY_IS_ALREADY_INCLUDED : return "The library script \"" + words[0] + "\" is already registered to be loaded (\"include\"-ed). This script engine disallows duplicate \"include\"";
@@ -259,8 +262,8 @@ public class ErrorMessage {
 			case DECLARED_ENCODING_IS_UNSUPPORTED : return "The encoding \"" + words[0] + "\" declared in the first line of \"" + words[1] + "\" is unsupported in this environment";
 			case NO_ENCODING_DECLARATION_END : return "\";\" is required at the end of the encoding-decraration" + (words[0]==null ? "" : ", at the first line of \"" + words[0] + "\"");
 			case ENCODING_DECLARATION_CONTAINS_INVALID_SYMBOL : return "Invalid symbol \"" + words[0] + "\" is contained in the encoding-declaration" + (words[1]==null ? "" : ", at the first line of \"" + words[1] + "\"");
-			case EXTERNAL_FUNCTION_PLUGIN_CRASHED : return "An error occurred on the processing of the external function \"" + words[0] + "\"";
-			case EXTERNAL_VARIABLE_PLUGIN_CRASHED : return "An error occurred on the accessing to the external variable \"" + words[0] + "\"";
+			case EXTERNAL_FUNCTION_PLUGIN_CRASHED : return "An error occurred on the processing of the external function \"" + words[0] + "\"" + (words[1]==null ? "" : ": " + words[1]);
+			case EXTERNAL_VARIABLE_PLUGIN_CRASHED : return "An error occurred on the accessing to the external variable \"" + words[0] + "\"" + (words[1]==null ? "" : ": " + words[1]);
 			case UNSUPPORTED_PERMISSION_NAME : return "The permission for \"" + words[0] + "\" has been requested, but it is not available on the current settings, or it is unsupported on this script engine";
 			case UNSUPPORTED_PERMISSION_VALUE : return "The permission for \"" + words[0] + "\" has been requested, but its value \"" + words[1] + "\" on the current settings is unsupported on this script engine";
 			case PERMISSION_DENIED : return "The permission for \"" + words[0] + "\" has been requested, but it has been denied by settings or the user's decision";
@@ -269,8 +272,9 @@ public class ErrorMessage {
 			case UNEXPECTED_ACCELERATOR_CRASH : return "Unexpected VM Error (instruction-addr: " + words[0] + ", reordered-instruction-addr: " + words[1] + ")";
 			case UNEXPECTED_PROCESSOR_CRASH : return "Unexpected VM Error (instruction-addr: " + words[0] + ")";
 			case UNEXPECTED : return "Unexpected Error";
+			case UNMODIFIED : return words[0];
 			case UNKNOWN : return "Unknown Error";
-			default : return "Unknown Error Type：" + errorType;
+			default : return "Unknown Error Type: " + errorType;
 		}
 	}
 }

@@ -178,6 +178,7 @@ public class DataConverter {
 		EXTERNAL_TYPE_DATA_TYPE_MAP.put(ExternalType.BOOL, DataType.BOOL);
 		EXTERNAL_TYPE_DATA_TYPE_MAP.put(ExternalType.STRING, DataType.STRING);
 		EXTERNAL_TYPE_DATA_TYPE_MAP.put(ExternalType.ANY, DataType.ANY);
+		EXTERNAL_TYPE_DATA_TYPE_MAP.put(ExternalType.VOID, DataType.VOID);
 	}
 
 
@@ -194,6 +195,7 @@ public class DataConverter {
 		DATA_TYPE_EXTERNAL_TYPE_MAP.put(DataType.BOOL, ExternalType.BOOL);
 		DATA_TYPE_EXTERNAL_TYPE_MAP.put(DataType.STRING, ExternalType.STRING);
 		DATA_TYPE_EXTERNAL_TYPE_MAP.put(DataType.ANY, ExternalType.ANY);
+		DATA_TYPE_EXTERNAL_TYPE_MAP.put(DataType.VOID, ExternalType.VOID);
 	}
 
 
