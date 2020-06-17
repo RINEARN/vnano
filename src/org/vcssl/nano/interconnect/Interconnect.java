@@ -922,7 +922,7 @@ public class Interconnect {
 
 		// 本体の post connect 初期化処理
 		try {
-			plugin.preInitializeForConnection(this.engineConnector);
+			plugin.postInitializeForConnection(this.engineConnector);
 		} catch (ConnectorException e) {
 			throw new VnanoException(
 				ErrorType.PLUGIN_INITIALIZATION_FAILED, plugin.getClass().getCanonicalName(), e
@@ -972,7 +972,7 @@ public class Interconnect {
 	private void finalizeAllPluginsForDisconnection() throws VnanoException {
 		Object finalizingPlugin = null; // 例外発生時のため、終了時処理中のプラグインを控えておく
 		try {
-			// モジュールの preInit -> 関数/変数の init -> モジュールの postInit の順で初期化
+			// モジュールの preFinalize -> 関数/変数の init -> モジュールの postFinalize の順で初期化
 			for (ExternalNamespaceConnectorInterface1 plugin: xnci1PluginList) {
 				finalizingPlugin = plugin;
 				plugin.preFinalizeForDisconnection(this.engineConnector);
