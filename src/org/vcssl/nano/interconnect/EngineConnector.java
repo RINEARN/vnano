@@ -48,36 +48,23 @@ import org.vcssl.nano.spec.OptionKey;
  */
 public final class EngineConnector implements EngineConnectorInterface1 {
 
-	Map<String, Object> optionMap = null;
-	Map<String, String> originalPermissionMap = null;
-	Map<String, String> modifiedPermissionMap = null;
+	private final Map<String, Object> optionMap;
+	private final Map<String, String> originalPermissionMap;
+	private Map<String, String> modifiedPermissionMap = null;
 
-	public EngineConnector() {
-
-		// 何も持っていないデフォルトオプションマップ/パーミッションマップを生成
-		this.optionMap = new HashMap<String, Object>();
-		this.originalPermissionMap = new HashMap<String, String>();
-	}
-
-	public void setOptionMap(Map<String, Object> optionMap) {
+	public EngineConnector(Map<String, Object> optionMap, Map<String, String> permissionMap) {
 		this.optionMap = optionMap;
-	}
-
-	public void setPermissionMap(Map<String, String> permissionMap) {
 		this.originalPermissionMap = permissionMap;
 	}
 
 	public void activate() {
-		// 実行時用パーミッションマップを、デフォルトパーミッション内容で初期化
-		this.modifiedPermissionMap = new HashMap<String, String>();
-		for (Map.Entry<String, String> permissionEntry: this.originalPermissionMap.entrySet()) {
-			this.modifiedPermissionMap.put(permissionEntry.getKey(), permissionEntry.getValue());
-		}
+		// 実行時用パーミッションマップを、実行時前のパーミッション内容で初期化
+		this.modifiedPermissionMap = new HashMap<String, String>(this.originalPermissionMap);
 	}
 
 	public void deactivate() {
-		// 実行時用パーミッションマップをクリア
-		this.modifiedPermissionMap = new HashMap<String, String>();
+		// 実行時用パーミッションマップを、実行時前のパーミッション内容で初期化
+		this.modifiedPermissionMap = new HashMap<String, String>(this.originalPermissionMap);
 	}
 
 

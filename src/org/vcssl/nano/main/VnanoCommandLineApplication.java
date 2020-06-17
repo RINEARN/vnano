@@ -22,6 +22,8 @@ import javax.script.ScriptException;
 import org.vcssl.connect.ConnectorException;
 import org.vcssl.connect.ConnectorImplementationContainer;
 import org.vcssl.connect.ConnectorImplementationLoader;
+import org.vcssl.connect.ConnectorPermissionName;
+import org.vcssl.connect.ConnectorPermissionValue;
 import org.vcssl.nano.VnanoEngine;
 import org.vcssl.nano.VnanoException;
 import org.vcssl.nano.combinedtest.CombinedTestException;
@@ -694,9 +696,12 @@ public final class VnanoCommandLineApplication {
 		// 何も接続されていない、空のインターコネクトを生成
 		Interconnect interconnect = new Interconnect(LANG_SPEC);
 
+		// パーミッションマップを生成し, 全パーミッション項目の値が "ASK" と見なされるデフォルト挙動で初期化
+		Map<String, String> permissionMap = new LinkedHashMap<String, String>();
+		permissionMap.put(ConnectorPermissionName.ALL, ConnectorPermissionValue.ASK);
+
 		// プラグインが接続/初期化時にオプション値を参照する場合があるので、接続前にオプション設定を済ませる
-		EngineConnector engineConnector = new EngineConnector();
-		engineConnector.setOptionMap(optionMap);
+		EngineConnector engineConnector = new EngineConnector(optionMap, permissionMap);
 		interconnect.setEngineConnector(engineConnector);
 
 		// メソッド・フィールドを外部関数・変数としてインターコネクトに接続

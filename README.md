@@ -674,7 +674,7 @@ For example:
 	...
 
 	# Provides terminal-I/O functions - 端末への入出力関数を提供します
-	org/vcssl/nano/plugin/system/SystemTerminalIOXnci1Plugin.class
+	org/vcssl/nano/plugin/system/xnci1/SystemTerminalIOXnci1Plugin.class
 
 	...
 
