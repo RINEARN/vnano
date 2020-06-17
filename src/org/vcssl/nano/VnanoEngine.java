@@ -137,8 +137,8 @@ public class VnanoEngine {
 
 		// Create a connector to access information of the engine from plug-ins, and set it to the interconnect.
 		// プラグインからエンジン側の情報（オプション含む）にアクセスするためのコネクタを生成し, インターコネクトに設定
-		this.engineConnector = new EngineConnector();
-		this.interconnect.setEngineConnector(this.engineConnector);
+		EngineConnector engineConnector = new EngineConnector(this.optionMap, this.permissionMap);
+		this.interconnect.setEngineConnector(engineConnector);
 	}
 
 
@@ -175,8 +175,8 @@ public class VnanoEngine {
 			}
 
 			// 全プラグインの初期化処理などを行い、インターコネクトをスクリプト実行可能な状態に移行
-			this.engineConnector.setOptionMap(this.optionMap);
-			this.engineConnector.setPermissionMap(this.permissionMap);
+			EngineConnector engineConnector = new EngineConnector(this.optionMap, this.permissionMap);
+			this.interconnect.setEngineConnector(engineConnector);
 			this.interconnect.activate();
 
 			// Contain an execution-target script and library scripts into an array.
@@ -445,8 +445,9 @@ public class VnanoEngine {
 		OptionValue.checkValuesOf(this.optionMap);
 
 		// Set options to the engine connector for accessing from plug-ins.
-		// プラグインからも参照可能なように, エンジンコネクタにも設定
-		this.engineConnector.setOptionMap(this.optionMap);
+		// プラグインからも参照可能なように, インターコネクトにも再設定
+		EngineConnector engineConnector = new EngineConnector(this.optionMap, this.permissionMap);
+		this.interconnect.setEngineConnector(engineConnector);
 	}
 
 
@@ -506,6 +507,11 @@ public class VnanoEngine {
 	 */
 	public void setPermissionMap(Map<String, String> permissionMap) throws VnanoException {
 		this.permissionMap = permissionMap;
+
+		// Set options to the engine connector for accessing from plug-ins.
+		// プラグインからも参照可能なように, インターコネクトにも再設定
+		EngineConnector engineConnector = new EngineConnector(this.optionMap, this.permissionMap);
+		this.interconnect.setEngineConnector(engineConnector);
 	}
 
 
