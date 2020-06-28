@@ -696,9 +696,9 @@ public final class VnanoCommandLineApplication {
 		// 何も接続されていない、空のインターコネクトを生成
 		Interconnect interconnect = new Interconnect(LANG_SPEC);
 
-		// パーミッションマップを生成し, 全パーミッション項目の値が "ASK" と見なされるデフォルト挙動で初期化
+		// パーミッションマップを生成し, 全パーミッション項目の値が "DENY" と見なされるデフォルト挙動で初期化
 		Map<String, String> permissionMap = new LinkedHashMap<String, String>();
-		permissionMap.put(ConnectorPermissionName.ALL, ConnectorPermissionValue.ASK);
+		permissionMap.put(ConnectorPermissionName.ALL, ConnectorPermissionValue.DENY);
 
 		// プラグインが接続/初期化時にオプション値を参照する場合があるので、接続前にオプション設定を済ませる
 		EngineConnector engineConnector = new EngineConnector(optionMap, permissionMap);

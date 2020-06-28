@@ -126,10 +126,10 @@ public class VnanoEngine {
 		this.optionMap = new LinkedHashMap<String, Object>();
 		this.optionMap = OptionValue.normalizeValuesOf(optionMap, langSpec);
 
-		// Create a permission map and set default values (all values of permission items are regarded to "ASK").
-		// パーミッションマップを生成し, 全パーミッション項目の値が "ASK" と見なされるデフォルト挙動で初期化
+		// Create a permission map and set default values (all values of permission items are regarded to "DENY").
+		// パーミッションマップを生成し, 全パーミッション項目の値が "DENY" と見なされるデフォルト挙動で初期化
 		this.permissionMap = new LinkedHashMap<String, String>();
-		this.permissionMap.put(ConnectorPermissionName.ALL, ConnectorPermissionValue.ASK);
+		this.permissionMap.put(ConnectorPermissionName.ALL, ConnectorPermissionValue.DENY);
 
 		// Create a blank interconnect nothing is binded to.
 		// 何もバインディングされていない, 空のインターコネクトを生成
