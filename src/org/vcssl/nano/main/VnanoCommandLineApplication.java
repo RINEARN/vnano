@@ -50,8 +50,8 @@ public final class VnanoCommandLineApplication {
 	 */
 	private Locale locale = Locale.getDefault();
 	private static final String DEFAULT_ENCODING = "UTF-8";
-	private static final String DEFAULT_LIBRARY_LIST = "lib/VnanoLibraryList.txt";
-	private static final String DEFAULT_PLUGIN_LIST = "plugin/VnanoPluginList.txt";
+	private static final String DEFAULT_LIBRARY_LIST_FILE_PATH = "lib/VnanoLibraryList.txt";
+	private static final String DEFAULT_PLUGIN_LIST_FILE_PATH = "plugin/VnanoPluginList.txt";
 	@SuppressWarnings("unused")
 	private static final String DEFAULT_LIBRARY_DIR = "lib/";
 	private static final String DEFAULT_PLUGIN_DIR = "plugin/";
@@ -71,7 +71,7 @@ public final class VnanoCommandLineApplication {
 	private static final String OPTION_NAME_PLUGIN_DIR = "pluginDir";
 	private static final String OPTION_NAME_PLUGIN = "plugin";
 	private static final String OPTION_NAME_PLUGIN_LIST = "pluginList";
-	private static final String OPTION_NAME_LIBRARY_LIST = "libraryList";
+	private static final String OPTION_NAME_LIBRARY_LIST = "libList";
 	private static final String OPTION_NAME_TEST = "test";
 	private static final String OPTION_NAME_DEFAULT = OPTION_NAME_FILE;
 
@@ -105,6 +105,8 @@ public final class VnanoCommandLineApplication {
 	private HashMap<String, Object> optionMap = new HashMap<String, Object>();
 	private List<String> pluginDirList = new ArrayList<String>();
 	private List<Object> pluginList = new ArrayList<Object>();
+	private String optPluginListFilePath = null;
+	private String optLibraryListFilePath = null;
 	private boolean combinedTestRequired = false;
 
 	// スクリプトからアクセスするメソッドを提供するクラス
@@ -281,19 +283,19 @@ public final class VnanoCommandLineApplication {
 		System.out.println("");
 		System.out.println("");
 
-		System.out.println("  --pluginList <pluginListFilePath");
+		System.out.println("  --pluginList <pluginListFilePath>");
 		System.out.println("");
 		System.out.println("      Specify the path of the plugin-list file in which file paths of plug-ins ");
 		System.out.println("      to be loaded are described.");
-		System.out.println("      The default value is \""+ DEFAULT_PLUGIN_LIST + "\".");
+		System.out.println("      The default value is \""+ DEFAULT_PLUGIN_LIST_FILE_PATH + "\".");
 		System.out.println("");
 		System.out.println("");
 
-		System.out.println("  --libList <libraryListFilePath");
+		System.out.println("  --libList <libraryListFilePath>");
 		System.out.println("");
 		System.out.println("      Specify the path of the library-list file in which file paths of library-scripts ");
 		System.out.println("      to be loaded are described.");
-		System.out.println("      The default value is \""+ DEFAULT_LIBRARY_LIST + "\".");
+		System.out.println("      The default value is \""+ DEFAULT_LIBRARY_LIST_FILE_PATH + "\".");
 		System.out.println("");
 		System.out.println("");
 
@@ -397,18 +399,18 @@ public final class VnanoCommandLineApplication {
 			// * そうでなければ、デフォルトのパスにファイルが存在すればそれを採用（後で読み込みに失敗すればエラーになる）
 			// * 指定もされず、デフォルトのパスにファイルも無い場合は、単純に何もしない（読み込みエラーも発生しない）
 			String libraryListPath = null;   // null のままの場合は何も読み込まれない
-			if (optionNameValueMap.containsKey(OPTION_NAME_LIBRARY_LIST)) {
-				libraryListPath = optionNameValueMap.get(OPTION_NAME_LIBRARY_LIST);
-			} else if (new File(DEFAULT_LIBRARY_LIST).exists()) {
-				libraryListPath = DEFAULT_LIBRARY_LIST;
+			if (optLibraryListFilePath != null) {
+				libraryListPath = optLibraryListFilePath;
+			} else if (new File(DEFAULT_LIBRARY_LIST_FILE_PATH).exists()) {
+				libraryListPath = DEFAULT_LIBRARY_LIST_FILE_PATH;
 			}
 
 			// プラグインリストファイルのパスを取得（手順は上のライブラリリストファイルの場合と同様）
 			String pluginListPath = null;   // null のままの場合は何も読み込まれない
-			if (optionNameValueMap.containsKey(OPTION_NAME_PLUGIN_LIST)) {
-				pluginListPath = optionNameValueMap.get(OPTION_NAME_PLUGIN_LIST);
-			} else if (new File(DEFAULT_PLUGIN_LIST).exists()) {
-				pluginListPath = DEFAULT_PLUGIN_LIST;
+			if (optPluginListFilePath != null) {
+				pluginListPath = optPluginListFilePath;
+			} else if (new File(DEFAULT_PLUGIN_LIST_FILE_PATH).exists()) {
+				pluginListPath = DEFAULT_PLUGIN_LIST_FILE_PATH;
 			}
 
 			// 実行
@@ -581,6 +583,18 @@ public final class VnanoCommandLineApplication {
 					}
 				}
 
+				return true;
+			}
+
+			// --pluginList オプションの場合
+			case OPTION_NAME_PLUGIN_LIST : {
+				this.optPluginListFilePath = optionValue;
+				return true;
+			}
+
+			// --libList オプションの場合
+			case OPTION_NAME_LIBRARY_LIST : {
+				this.optLibraryListFilePath = optionValue;
 				return true;
 			}
 
