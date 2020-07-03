@@ -388,15 +388,28 @@ public final class VnanoCommandLineApplication {
 		// スクリプトファイルが指定されていれば実行する (指定が必須でない場合にも、指定されていれば実行)
 		if (inputFilePath != null) {
 
-			// 文字コードとライブラリ/プラグイン指定を取得
+			// 文字コード設定を取得
 			String encoding = optionNameValueMap.containsKey(OPTION_NAME_ENCODING)
 					? optionNameValueMap.get(OPTION_NAME_ENCODING) : DEFAULT_ENCODING;
 
-			String libraryListPath = optionNameValueMap.containsKey(OPTION_NAME_LIBRARY_LIST)
-					? optionNameValueMap.get(OPTION_NAME_LIBRARY_LIST) : DEFAULT_LIBRARY_LIST;
+			// ライブラリリストファイルのパスを取得（手順は以下の通り）
+			// * オプションで明示指定されていればそれを採用（後で読み込みに失敗すればエラーになる）
+			// * そうでなければ、デフォルトのパスにファイルが存在すればそれを採用（後で読み込みに失敗すればエラーになる）
+			// * 指定もされず、デフォルトのパスにファイルも無い場合は、単純に何もしない（読み込みエラーも発生しない）
+			String libraryListPath = null;   // null のままの場合は何も読み込まれない
+			if (optionNameValueMap.containsKey(OPTION_NAME_LIBRARY_LIST)) {
+				libraryListPath = optionNameValueMap.get(OPTION_NAME_LIBRARY_LIST);
+			} else if (new File(DEFAULT_LIBRARY_LIST).exists()) {
+				libraryListPath = DEFAULT_LIBRARY_LIST;
+			}
 
-			String pluginListPath = optionNameValueMap.containsKey(OPTION_NAME_PLUGIN_LIST)
-					? optionNameValueMap.get(OPTION_NAME_PLUGIN_LIST) : DEFAULT_PLUGIN_LIST;
+			// プラグインリストファイルのパスを取得（手順は上のライブラリリストファイルの場合と同様）
+			String pluginListPath = null;   // null のままの場合は何も読み込まれない
+			if (optionNameValueMap.containsKey(OPTION_NAME_PLUGIN_LIST)) {
+				pluginListPath = optionNameValueMap.get(OPTION_NAME_PLUGIN_LIST);
+			} else if (new File(DEFAULT_PLUGIN_LIST).exists()) {
+				pluginListPath = DEFAULT_PLUGIN_LIST;
+			}
 
 			// 実行
 			try {
@@ -808,11 +821,13 @@ public final class VnanoCommandLineApplication {
 		VnanoEngine engine = this.createInitializedVnanoEngine(this.optionMap, pluginLoader);
 
 		// スクリプトエンジンにライブラリを include 登録
-		String[] libNames = scriptLoader.getLibraryScriptNames();
-		String[] libContents = scriptLoader.getLibraryScriptContents();
-		int libN = libNames.length;
-		for (int libIndex=0; libIndex<libN; libIndex++) {
-			engine.includeLibraryScript(libNames[libIndex], libContents[libIndex]);
+		if (scriptLoader.hasLibraryScripts()) {
+			String[] libNames = scriptLoader.getLibraryScriptNames();
+			String[] libContents = scriptLoader.getLibraryScriptContents();
+			int libN = libNames.length;
+			for (int libIndex=0; libIndex<libN; libIndex++) {
+				engine.includeLibraryScript(libNames[libIndex], libContents[libIndex]);
+			}
 		}
 
 		// スクリプトを実行
