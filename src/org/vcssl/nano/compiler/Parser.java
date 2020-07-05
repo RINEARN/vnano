@@ -253,49 +253,293 @@ public class Parser {
 	}
 
 
-	/**
-	 * トークン配列内の指定位置から読み進み、それが関数宣言文で始まっているかを判定します。
-	 *
-	 * @param tokens トークン配列
-	 * @param begin 読み進む視点
-	 * @return 判定結果（関数宣言文で始まっていれば true ）
-	 */
-	private boolean startsWithFunctionDeclarationTokens(Token[] tokens, int begin) {
-		int tokenLength = tokens.length;
 
-		// 最初がデータ型でなければ明らかに関数宣言ではない
-		if (tokens[begin].getType() != Token.Type.DATA_TYPE) {
+
+
+	// ====================================================================================================
+	// Parsing of Expressions
+	// 式の構文解析関連
+	// ====================================================================================================
+
+
+	/**
+	 * 式のトークン配列を解析し、AST（抽象構文木）を構築して返します。
+	 *
+	 * @param tokens 式のトークン配列
+	 * @return 構築したAST（抽象構文木）のルートノード
+	 * @throws VnanoException 式の構文に異常があった場合にスローされます。
+	 */
+	private AstNode parseExpression(Token[] tokens) throws VnanoException {
+
+		// 最初に、トークンの種類や括弧の数などに、式の構成トークンとして問題無いか検査
+		new LexicalChecker(LANG_SPEC).checkTokensInExpression(tokens);
+
+		// キャスト演算子は複数トークンから成る特別な前置演算子なので、先に単一トークンの前置演算子に変換する
+		tokens = preprocessCastSequentialTokens(tokens);
+
+		int tokenLength = tokens.length; // トークン数
+		int readingIndex = 0; // 注目トークンのインデックス
+
+		// パース作業用のスタックとして使用する双方向キューを用意
+		Deque<AstNode> stack = new ArrayDeque<AstNode>();
+
+		// トークン配列をスキャンし、個々のトークンの次（右側の最も近く）にある演算子の優先度を配列に格納（結合の判断で使用）
+		int[] nextOperatorPriorities = this.getNextOperatorPrecedence(tokens);
+
+		// トークンを左から順に末尾まで読み進むループ
+		do {
+			AstNode operatorNode = null; // 生成した演算子ノードを控える
+
+			Token readingToken = tokens[readingIndex];                 // このループでの読み込み対象トークン
+			int readingOpPrecedence = readingToken.getPrecedence();        // 読み込み対象トークンの演算子優先度
+			int nextOpPrecedence = nextOperatorPriorities[readingIndex]; // 読み込み対象トークンの後方（右側）で最初にある演算子の優先度
+			String readingOpAssociativity = readingToken.getAttribute(AttributeKey.OPERATOR_ASSOCIATIVITY); // 演算子の結合性（右/左）
+
+			// 識別子やリテラルなどのリーフ（末端オペランド）ノードの場合 -> スタックにプッシュ
+			if (readingToken.getType() == Token.Type.LEAF) {
+
+				stack.push(this.createLeafNode(readingToken));
+				readingIndex++;
+				continue;
+
+			// 括弧の場合
+			} else if (readingToken.getType()==Token.Type.PARENTHESIS) {
+
+				// 開き括弧の場合、部分式の境界前後が結合しないよう、スタックに非演算子のフタをつめる（第二引数は回収時の目印）
+				if (readingToken.getValue().equals(SCRIPT_WORD.parenthesisBegin)) {
+					this.pushLid(stack, AttributeValue.PARTIAL_EXPRESSION);
+					readingIndex++;
+					continue;
+
+				// 閉じ括弧の場合、スタックから構築済みの部分式構文木ノード（括弧の場合は1個しか無いはず）を取り出し、フタも除去
+				} else {
+					operatorNode = this.popPartialExpressionNodes(stack, AttributeValue.PARTIAL_EXPRESSION)[0];
+				}
+
+			// 演算子ノードの場合
+			} else if (readingToken.getType() == Token.Type.OPERATOR) {
+
+				// 演算子ノードを生成し、演算子の（構文的な）種類ごとに分岐
+				operatorNode = this.createOperatorNode(readingToken);
+				switch (readingToken.getAttribute(AttributeKey.OPERATOR_SYNTAX)) {
+
+					// 後置演算子
+					case AttributeValue.POSTFIX : {
+
+						// スタックに左オペランドノードが積まれているので取り出してぶら下げる
+						// ※ 後置演算子はトークンの並び的に左結合しかありえない上に、必ず直前のものに結合するので、単純に処理
+						operatorNode.addChildNode(stack.pop());
+						break;
+					}
+
+					// 前置演算子
+					case AttributeValue.PREFIX : {
+
+						// 優先度が次の演算子よりも強い場合、右トークンを先読みし、リーフノードとして演算子ノードにぶら下げる
+						if (this.shouldAddRightOperand(readingOpAssociativity, readingOpPrecedence, nextOpPrecedence)) {
+							operatorNode.addChildNode( this.createLeafNode(tokens[readingIndex+1]) );
+							readingIndex++; // 次のトークンは先読みして処理を終えたので1つ余分に進める
+						}
+						break;
+					}
+
+					// 二項演算子
+					case AttributeValue.BINARY : {
+
+						// スタックに左オペランドノードが積まれているので取り出してぶら下げる
+						operatorNode.addChildNode(stack.pop());
+
+						// 優先度が次の演算子よりも強い場合、右トークンを先読みし、リーフノードとして演算子ノードにぶら下げる
+						if (this.shouldAddRightOperand(readingOpAssociativity, readingOpPrecedence, nextOpPrecedence)) {
+							operatorNode.addChildNode( this.createLeafNode(tokens[readingIndex+1]) );
+							readingIndex++; // 次のトークンは先読みして処理を終えたので1つ余分に進める
+						}
+						break;
+					}
+
+					// マルチオペランド演算子の始点（関数呼び出しの「 ( 」や配列参照の「 [ 」）
+					case AttributeValue.MULTIARY : {
+
+						// スタックに識別子ノードが積まれているので、取り出して演算子ノードにぶら下げ、それをプッシュする
+						operatorNode.addChildNode(stack.pop());
+						stack.push(operatorNode);
+
+						// 引数部分式の境界前後が結合しないよう、スタックに非演算子のフタをつめる（第二引数は回収時の目印）
+						this.pushLid(stack, readingToken.getAttribute(AttributeKey.OPERATOR_EXECUTOR));
+						readingIndex++;
+						continue;
+					}
+
+					// マルチオペランド演算子のセパレータ（関数呼び出しの「 , 」や多次元配列参照の「 ][ 」）
+					case AttributeValue.MULTIARY_SEPARATOR : {
+
+						// 引数部分式の境界前後が結合しないよう、スタックに非演算子のフタをつめる
+						this.pushLid(stack);
+						readingIndex++;
+						continue;
+					}
+
+					// マルチオペランド演算子の終点（関数呼び出しの「 ) 」や配列参照の「 ] 」）
+					case AttributeValue.MULTIARY_END : {
+
+						// スタックからの引数ノードを全て回収する（フタ区切りで独立構文木として形成されている）
+						AstNode[] argumentNodes = this.popPartialExpressionNodes(
+								stack, readingToken.getAttribute(AttributeKey.OPERATOR_EXECUTOR)
+						);
+
+						// スタックから呼び出し演算子ノードを取り出し、引数ノードをぶら下げる
+						operatorNode = stack.pop();
+						operatorNode.addChildNodes(argumentNodes);
+						break;
+					}
+
+					// ここに到達するのはLexicalAnalyzerの異常（不明な種類の演算子構文種類）
+					default : {
+						throw new VnanoFatalException("Unknown operator syntax");
+					}
+				}
+
+			// ここに到達するのはLexicalAnalyzerの異常（不明な種類のトークン）
+			} else {
+				throw new VnanoFatalException("Unknown token type");
+			}
+
+			// 次に出現する演算子よりも、スタック上の演算子の方が高優先度の場合、スタック上の演算子において必要な子ノード連結を全て済ませる
+			while (this.shouldAddRightOperandToStackedOperator(stack, nextOperatorPriorities[readingIndex])) {
+				stack.peek().addChildNode(operatorNode);
+				operatorNode = stack.pop();
+			}
+
+			stack.push(operatorNode);
+			readingIndex++;
+
+		// トークンを左から順に末尾まで読み進むループ
+		} while (readingIndex < tokenLength);
+
+		// スタックの一番奥（双方向キューの先頭）が構文木のルートノードなので、それを式ノードにぶら下げて返す
+		AstNode expressionNode = new AstNode(AstNode.Type.EXPRESSION, tokens[0].getLineNumber(), tokens[0].getFileName());
+		expressionNode.addChildNode(stack.peekFirst());
+		return expressionNode;
+	}
+
+
+	/**
+	 * {@link Parser#parseExpression parseExpression} メソッド内で、
+	 * 演算子の右オペランドをすぐにぶら下げるか、それとも後方のトークン列の構文解析が終わった後にすべきかを、
+	 * 演算子の優先度や結合性を考慮して判定します。
+	 *
+	 * トークン列を構文解析しながらASTノードを生成・連結していく際、
+	 * 演算子と別の演算子の間に存在するオペランド（リーフ、または演算子もあり得ます）が、
+	 * どちらの演算子ノードの子要素としてぶら下がるべきかは、優先度や結合性などによって異なります。
+	 *
+	 * このメソッドでは、注目している演算子と次の演算子の情報に基づいて、
+	 * その間にあるオペランドがどちらにぶら下がるべきかを判定します。
+	 * 注目している演算子にぶら下がるべき場合に true が返されます。
+	 *
+	 * @param targetOperatorAssociativity 注目演算子の結合性（右結合や左結合）
+	 * @param targetOperatorPrecedence 注目演算子の優先度（数字が小さい方が高優先度）
+	 * @param nextOperatorPrecedence 次の演算子の優先度（数字が小さい方が高優先度）
+	 * @return 注目演算子にぶら下げるべきなら true
+	 */
+	private boolean shouldAddRightOperand(
+			String targetOperatorAssociativity, int targetOperatorPrecedence, int nextOperatorPrecedence) {
+
+		// 注目演算子の優先度が、次の演算子よりも強い場合に true
+		boolean targetOpPrecedenceIsStrong = targetOperatorPrecedence < nextOperatorPrecedence; // ※数字が小さい方が高優先度
+
+		// 注目演算子の優先度が、次の演算子と等しい場合に true
+		boolean targetOpPrecedenceIsEqual = targetOperatorPrecedence == nextOperatorPrecedence; // ※数字が小さい方が高優先度
+
+		// 注目演算子が左結合なら true、右結合なら false
+		boolean targetOpAssociativityIsLeft = targetOperatorAssociativity.equals(AttributeValue.LEFT);
+
+		// 結果を以下の通りに返す。
+		// ・注目演算子の方が次の演算子よりも強い場合は true、弱い場合は false。
+		// ・優先度がちょうど等しい場合、注目演算子が左結合であれば true、右結合なら false。
+		return targetOpPrecedenceIsStrong || (targetOpPrecedenceIsEqual && targetOpAssociativityIsLeft);
+	}
+
+
+	/**
+	 * {@link Parser#parseExpression parseExpression} メソッド内において、
+	 * 注目演算子ノードを、現在作業用スタック上の先頭にある演算子ノードの下にぶら下げるべきかどうかを、
+	 * 演算子の優先度や結合性を考慮して判定します。
+	 *
+	 * @param stack 構文解析の作業用スタックとして使用している双方向キュー
+	 * @param nextOperatorPrecedence 注目演算子の次（右側の最も近く）にある演算子の優先度
+	 * @return ぶら下げるべきなら true
+	 */
+	private boolean shouldAddRightOperandToStackedOperator(Deque<AstNode> stack, int nextOperatorPrecedence) {
+
+		// スタック上にノードが無い場合や、あっても演算子ではない場合は、その時点でfalse
+		if (stack.size() == 0) {
+			return false;
+		}
+		if (stack.peek().getType() != AstNode.Type.OPERATOR) {
 			return false;
 		}
 
-		// 識別子が来るまで読み進める
-		int readingIndex = begin + 1;
-		while (readingIndex < tokenLength) {
+		// スタック上の演算子の優先度（※数字が小さい方が優先度が高い）
+		int stackedOperatorPrecedence = Integer.parseInt(stack.peek().getAttribute(AttributeKey.OPERATOR_PRECEDENCE));
 
-			Token readingToken = tokens[readingIndex];
+		// スタック上の演算子の結合性（右/左）
+		String stackedOperatorAssociativity = stack.peek().getAttribute(AttributeKey.OPERATOR_ASSOCIATIVITY);
 
-			boolean readingTokenIsFunctionIdenfifier = readingToken.getType() == Token.Type.LEAF
-					&& readingToken.getAttribute(AttributeKey.LEAF_TYPE).equals(AttributeValue.FUNCTION_IDENTIFIER);
-
-			boolean readingTokenIsIndex = readingToken.getType() == Token.Type.OPERATOR
-					&& readingToken.getAttribute(AttributeKey.OPERATOR_EXECUTOR) == AttributeValue.SUBSCRIPT;
-
-			// 最初に見つかったのが関数識別子であれば関数宣言
-			if (readingTokenIsFunctionIdenfifier) {
-				return true;
-
-			// 識別子の前に、データ型の後に付いて配列である事を示す [ ] が付いている事は有り得る。
-			// しかし、それ以外のトークンがそこに存在する事はあり得ないので、その場合は関数宣言ではない。
-			} else if (!readingTokenIsIndex) {
-				return false;
-			}
-			readingIndex++;
-		}
-
-		// ここに到達するのは、データ型の後に [ ] のみが続いてトークン末尾に達した場合なので、関数宣言文ではない
-		return false;
+		// 次の演算子の優先度などを考慮した上で判断した結果を返す
+		return this.shouldAddRightOperand(stackedOperatorAssociativity, stackedOperatorPrecedence, nextOperatorPrecedence);
 	}
 
+
+	/**
+	 * トークン配列を解析し、各要素に、次（右）の演算子要素の優先度を設定します。
+	 *
+	 * @param tokens 解析・設定対象のトークン配列
+	 */
+	private int[] getNextOperatorPrecedence(Token[] tokens) {
+
+		int length = tokens.length;
+		int[] rightOpPrecedences = new int[ length ];
+
+		// 最も右にある演算子は必ず優先になるよう、最小優先度を初期値とする
+		int rightOpPrecedence = OPERATOR_PRECEDENCE.leastPrior;
+
+		// 末尾から先頭へ向かって要素を見ていく
+		for(int i = length-1; 0 <= i; i--) {
+
+			// i 番の要素に、右の演算子の優先度を設定
+			rightOpPrecedences[i] = rightOpPrecedence;
+
+			// i 番の要素が演算子なら、その優先度を新たな右演算子優先度に設定
+			if (tokens[i].getType() == Token.Type.OPERATOR) {
+				rightOpPrecedence = tokens[i].getPrecedence();
+			}
+
+			// 括弧の内部の部分式は外側よりも常に高優先度となるよう、括弧の境界部で調整する
+			if (tokens[i].getType() == Token.Type.PARENTHESIS) {
+
+				// 部分式内部が常に優先になるよう、開き括弧 ( では右側演算子優先度を最高値に設定する
+				if(tokens[i].getValue().equals(SCRIPT_WORD.parenthesisBegin)){
+					rightOpPrecedence = OPERATOR_PRECEDENCE.mostPrior;
+
+				// 閉じ括弧 ) は文末と同じ効果なので、右側演算子優先度を最低に設定する
+				} else {
+					rightOpPrecedence = OPERATOR_PRECEDENCE.leastPrior;
+
+				}
+			}
+		}
+
+		return rightOpPrecedences;
+	}
+
+
+
+
+
+	// ====================================================================================================
+	// Parsing of Variable Declarations
+	// 変数宣言の構文解析関連
+	// ====================================================================================================
 
 
 	/**
@@ -593,6 +837,15 @@ public class Parser {
 	}
 
 
+
+
+
+	// ====================================================================================================
+	// Parsing of Function Declarations
+	// 関数宣言の構文解析関連
+	// ====================================================================================================
+
+
 	/**
 	 * 関数宣言文を構成するトークン配列に対して構文解析を行い、AST（抽象構文木）を構築して返します。
 	 *
@@ -690,6 +943,59 @@ public class Parser {
 		}
 		return node;
 	}
+
+
+	/**
+	 * トークン配列内の指定位置から読み進み、それが関数宣言文で始まっているかを判定します。
+	 *
+	 * @param tokens トークン配列
+	 * @param begin 読み進む視点
+	 * @return 判定結果（関数宣言文で始まっていれば true ）
+	 */
+	private boolean startsWithFunctionDeclarationTokens(Token[] tokens, int begin) {
+		int tokenLength = tokens.length;
+
+		// 最初がデータ型でなければ明らかに関数宣言ではない
+		if (tokens[begin].getType() != Token.Type.DATA_TYPE) {
+			return false;
+		}
+
+		// 識別子が来るまで読み進める
+		int readingIndex = begin + 1;
+		while (readingIndex < tokenLength) {
+
+			Token readingToken = tokens[readingIndex];
+
+			boolean readingTokenIsFunctionIdenfifier = readingToken.getType() == Token.Type.LEAF
+					&& readingToken.getAttribute(AttributeKey.LEAF_TYPE).equals(AttributeValue.FUNCTION_IDENTIFIER);
+
+			boolean readingTokenIsIndex = readingToken.getType() == Token.Type.OPERATOR
+					&& readingToken.getAttribute(AttributeKey.OPERATOR_EXECUTOR) == AttributeValue.SUBSCRIPT;
+
+			// 最初に見つかったのが関数識別子であれば関数宣言
+			if (readingTokenIsFunctionIdenfifier) {
+				return true;
+
+			// 識別子の前に、データ型の後に付いて配列である事を示す [ ] が付いている事は有り得る。
+			// しかし、それ以外のトークンがそこに存在する事はあり得ないので、その場合は関数宣言ではない。
+			} else if (!readingTokenIsIndex) {
+				return false;
+			}
+			readingIndex++;
+		}
+
+		// ここに到達するのは、データ型の後に [ ] のみが続いてトークン末尾に達した場合なので、関数宣言文ではない
+		return false;
+	}
+
+
+
+
+
+	// ====================================================================================================
+	// Parsing of Control Statements
+	// 制御文の構文解析関連
+	// ====================================================================================================
 
 
 	/**
@@ -799,318 +1105,13 @@ public class Parser {
 	}
 
 
-	/**
-	 * トークン配列の中に含まれる、全キャスト演算子の「 始点, データ型, 終端 」と並ぶトークン列をまとめ、
-	 * それぞれ単一のトークンに変換したもので置き換えて返します。
-	 *
-	 * @param 変換対象のトークン配列
-	 */
-	private Token[] preprocessCastSequentialTokens(Token[] tokens) {
 
-		int tokenLength = tokens.length; // トークン数
-		int readingIndex = 0; // 注目トークンのインデックス
 
-		// 変換後のトークンを格納するリスト
-		List<Token> tokenList = new ArrayList<Token>();
 
-		while (readingIndex<tokenLength) {
-
-			Token readingToken = tokens[readingIndex];
-
-			boolean isCastBeginToken = readingIndex < tokenLength-2
-				&& readingToken.getType() == Token.Type.OPERATOR
-				&& readingToken.getAttribute(AttributeKey.OPERATOR_EXECUTOR).equals(AttributeValue.CAST);
-
-			// キャスト始点トークンの場合は、次がデータ型トークン、
-			// その後が終端トークン（配列キャストは未サポート）なので、情報を1つにまとめてリストに格納
-			if (isCastBeginToken) {
-				String dataType = tokens[ readingIndex+1 ].getValue();
-				readingToken.setAttribute(AttributeKey.DATA_TYPE, dataType);
-				readingToken.setAttribute(AttributeKey.RANK, Integer.toString(RANK_OF_SCALAR)); // 現在は配列のキャストに未対応なため
-				readingToken.setValue(SCRIPT_WORD.parenthesisBegin + dataType + SCRIPT_WORD.paranthesisEnd);
-				tokenList.add(readingToken);
-				readingIndex += 3;
-
-			// その他のトークンの場合はそのまま変換後リストに格納
-			} else {
-				tokenList.add(readingToken);
-				readingIndex++;
-			}
-		}
-
-		Token[] resultTokens = tokenList.toArray(new Token[0]);
-		return resultTokens;
-	}
-
-
-	/**
-	 * 式のトークン配列を解析し、AST（抽象構文木）を構築して返します。
-	 *
-	 * @param tokens 式のトークン配列
-	 * @return 構築したAST（抽象構文木）のルートノード
-	 * @throws VnanoException 式の構文に異常があった場合にスローされます。
-	 */
-	private AstNode parseExpression(Token[] tokens) throws VnanoException {
-
-		// 最初に、トークンの種類や括弧の数などに、式の構成トークンとして問題無いか検査
-		new LexicalChecker(LANG_SPEC).checkTokensInExpression(tokens);
-
-		// キャスト演算子は複数トークンから成る特別な前置演算子なので、先に単一トークンの前置演算子に変換する
-		tokens = preprocessCastSequentialTokens(tokens);
-
-		int tokenLength = tokens.length; // トークン数
-		int readingIndex = 0; // 注目トークンのインデックス
-
-		// パース作業用のスタックとして使用する双方向キューを用意
-		Deque<AstNode> stack = new ArrayDeque<AstNode>();
-
-		// トークン配列をスキャンし、個々のトークンの次（右側の最も近く）にある演算子の優先度を配列に格納（結合の判断で使用）
-		int[] nextOperatorPriorities = this.getNextOperatorPrecedence(tokens);
-
-		// トークンを左から順に末尾まで読み進むループ
-		do {
-			AstNode operatorNode = null; // 生成した演算子ノードを控える
-
-			Token readingToken = tokens[readingIndex];                 // このループでの読み込み対象トークン
-			int readingOpPrecedence = readingToken.getPrecedence();        // 読み込み対象トークンの演算子優先度
-			int nextOpPrecedence = nextOperatorPriorities[readingIndex]; // 読み込み対象トークンの後方（右側）で最初にある演算子の優先度
-			String readingOpAssociativity = readingToken.getAttribute(AttributeKey.OPERATOR_ASSOCIATIVITY); // 演算子の結合性（右/左）
-
-			// 識別子やリテラルなどのリーフ（末端オペランド）ノードの場合 -> スタックにプッシュ
-			if (readingToken.getType() == Token.Type.LEAF) {
-
-				stack.push(this.createLeafNode(readingToken));
-				readingIndex++;
-				continue;
-
-			// 括弧の場合
-			} else if (readingToken.getType()==Token.Type.PARENTHESIS) {
-
-				// 開き括弧の場合、部分式の境界前後が結合しないよう、スタックに非演算子のフタをつめる（第二引数は回収時の目印）
-				if (readingToken.getValue().equals(SCRIPT_WORD.parenthesisBegin)) {
-					this.pushLid(stack, AttributeValue.PARTIAL_EXPRESSION);
-					readingIndex++;
-					continue;
-
-				// 閉じ括弧の場合、スタックから構築済みの部分式構文木ノード（括弧の場合は1個しか無いはず）を取り出し、フタも除去
-				} else {
-					operatorNode = this.popPartialExpressionNodes(stack, AttributeValue.PARTIAL_EXPRESSION)[0];
-				}
-
-			// 演算子ノードの場合
-			} else if (readingToken.getType() == Token.Type.OPERATOR) {
-
-				// 演算子ノードを生成し、演算子の（構文的な）種類ごとに分岐
-				operatorNode = this.createOperatorNode(readingToken);
-				switch (readingToken.getAttribute(AttributeKey.OPERATOR_SYNTAX)) {
-
-					// 後置演算子
-					case AttributeValue.POSTFIX : {
-
-						// スタックに左オペランドノードが積まれているので取り出してぶら下げる
-						// ※ 後置演算子はトークンの並び的に左結合しかありえない上に、必ず直前のものに結合するので、単純に処理
-						operatorNode.addChildNode(stack.pop());
-						break;
-					}
-
-					// 前置演算子
-					case AttributeValue.PREFIX : {
-
-						// 優先度が次の演算子よりも強い場合、右トークンを先読みし、リーフノードとして演算子ノードにぶら下げる
-						if (this.shouldAddRightOperand(readingOpAssociativity, readingOpPrecedence, nextOpPrecedence)) {
-							operatorNode.addChildNode( this.createLeafNode(tokens[readingIndex+1]) );
-							readingIndex++; // 次のトークンは先読みして処理を終えたので1つ余分に進める
-						}
-						break;
-					}
-
-					// 二項演算子
-					case AttributeValue.BINARY : {
-
-						// スタックに左オペランドノードが積まれているので取り出してぶら下げる
-						operatorNode.addChildNode(stack.pop());
-
-						// 優先度が次の演算子よりも強い場合、右トークンを先読みし、リーフノードとして演算子ノードにぶら下げる
-						if (this.shouldAddRightOperand(readingOpAssociativity, readingOpPrecedence, nextOpPrecedence)) {
-							operatorNode.addChildNode( this.createLeafNode(tokens[readingIndex+1]) );
-							readingIndex++; // 次のトークンは先読みして処理を終えたので1つ余分に進める
-						}
-						break;
-					}
-
-					// マルチオペランド演算子の始点（関数呼び出しの「 ( 」や配列参照の「 [ 」）
-					case AttributeValue.MULTIARY : {
-
-						// スタックに識別子ノードが積まれているので、取り出して演算子ノードにぶら下げ、それをプッシュする
-						operatorNode.addChildNode(stack.pop());
-						stack.push(operatorNode);
-
-						// 引数部分式の境界前後が結合しないよう、スタックに非演算子のフタをつめる（第二引数は回収時の目印）
-						this.pushLid(stack, readingToken.getAttribute(AttributeKey.OPERATOR_EXECUTOR));
-						readingIndex++;
-						continue;
-					}
-
-					// マルチオペランド演算子のセパレータ（関数呼び出しの「 , 」や多次元配列参照の「 ][ 」）
-					case AttributeValue.MULTIARY_SEPARATOR : {
-
-						// 引数部分式の境界前後が結合しないよう、スタックに非演算子のフタをつめる
-						this.pushLid(stack);
-						readingIndex++;
-						continue;
-					}
-
-					// マルチオペランド演算子の終点（関数呼び出しの「 ) 」や配列参照の「 ] 」）
-					case AttributeValue.MULTIARY_END : {
-
-						// スタックからの引数ノードを全て回収する（フタ区切りで独立構文木として形成されている）
-						AstNode[] argumentNodes = this.popPartialExpressionNodes(
-								stack, readingToken.getAttribute(AttributeKey.OPERATOR_EXECUTOR)
-						);
-
-						// スタックから呼び出し演算子ノードを取り出し、引数ノードをぶら下げる
-						operatorNode = stack.pop();
-						operatorNode.addChildNodes(argumentNodes);
-						break;
-					}
-
-					// ここに到達するのはLexicalAnalyzerの異常（不明な種類の演算子構文種類）
-					default : {
-						throw new VnanoFatalException("Unknown operator syntax");
-					}
-				}
-
-			// ここに到達するのはLexicalAnalyzerの異常（不明な種類のトークン）
-			} else {
-				throw new VnanoFatalException("Unknown token type");
-			}
-
-			// 次に出現する演算子よりも、スタック上の演算子の方が高優先度の場合、スタック上の演算子において必要な子ノード連結を全て済ませる
-			while (this.shouldAddRightOperandToStackedOperator(stack, nextOperatorPriorities[readingIndex])) {
-				stack.peek().addChildNode(operatorNode);
-				operatorNode = stack.pop();
-			}
-
-			stack.push(operatorNode);
-			readingIndex++;
-
-		// トークンを左から順に末尾まで読み進むループ
-		} while (readingIndex < tokenLength);
-
-		// スタックの一番奥（双方向キューの先頭）が構文木のルートノードなので、それを式ノードにぶら下げて返す
-		AstNode expressionNode = new AstNode(AstNode.Type.EXPRESSION, tokens[0].getLineNumber(), tokens[0].getFileName());
-		expressionNode.addChildNode(stack.peekFirst());
-		return expressionNode;
-	}
-
-
-	/**
-	 * トークン配列を解析し、各要素に、次（右）の演算子要素の優先度を設定します。
-	 *
-	 * @param tokens 解析・設定対象のトークン配列
-	 */
-	private int[] getNextOperatorPrecedence(Token[] tokens) {
-
-		int length = tokens.length;
-		int[] rightOperatorPriorities = new int[ length ];
-
-		// 最も右にある演算子は必ず優先になるよう、最小優先度を初期値とする
-		int rightOperatorPrecedence = OPERATOR_PRECEDENCE.leastPrior;
-
-		// 末尾から先頭へ向かって要素を見ていく
-		for(int i = length-1; 0 <= i; i--) {
-
-			// i 番の要素に、右の演算子の優先度を設定
-			rightOperatorPriorities[i] = rightOperatorPrecedence;
-
-			// i 番の要素が演算子なら、その優先度を新たな右演算子優先度に設定
-			if (tokens[i].getType() == Token.Type.OPERATOR) {
-				rightOperatorPrecedence = tokens[i].getPrecedence();
-			}
-
-			// 括弧の内部の部分式は外側よりも常に高優先度となるよう、括弧の境界部で調整する
-			if (tokens[i].getType() == Token.Type.PARENTHESIS) {
-
-				// 部分式内部が常に優先になるよう、開き括弧 ( では右側演算子優先度を最高値に設定する
-				if(tokens[i].getValue().equals(SCRIPT_WORD.parenthesisBegin)){
-					rightOperatorPrecedence = OPERATOR_PRECEDENCE.mostPrior;
-
-				// 閉じ括弧 ) は文末と同じ効果なので、右側演算子優先度を最低に設定する
-				} else {
-					rightOperatorPrecedence = OPERATOR_PRECEDENCE.leastPrior;
-
-				}
-			}
-		}
-
-		return rightOperatorPriorities;
-	}
-
-
-	/**
-	 * {@link Parser#parseExpression parseExpression} メソッド内などで、
-	 * 演算子の右オペランドをすぐにぶら下げるか、それとも、
-	 * より右にあるトークン列の構文解析が終わった後にすべきかを判定する条件メソッドです。
-	 *
-	 * トークン列を構文解析しながらASTノードを生成・連結していく際、
-	 * 演算子と別の演算子の間に存在するオペランド（リーフ、または演算子もあり得ます）が、
-	 * どちらの演算子ノードの子要素としてぶら下がるべきかは、優先度や結合性などによって異なります。
-	 *
-	 * このメソッドでは、注目している演算子と次の演算子の情報に基づいて、
-	 * その間にあるオペランドがどちらにぶら下がるべきかを判定します。
-	 * 注目している演算子にぶら下がるべき場合に true が返されます。
-	 *
-	 * @param targetOperatorAssociativity 注目演算子の結合性（右結合や左結合）
-	 * @param targetOperatorPrecedence 注目演算子の優先度（数字が小さい方が高優先度）
-	 * @param nextOperatorPrecedence 次の演算子の優先度（数字が小さい方が高優先度）
-	 * @return 注目演算子にぶら下げるべきなら true
-	 */
-	private boolean shouldAddRightOperand(
-			String targetOperatorAssociativity, int targetOperatorPrecedence, int nextOperatorPrecedence) {
-
-		// 注目演算子の優先度が、次の演算子よりも強い場合に true
-		boolean targetOpPrecedenceIsStrong = targetOperatorPrecedence < nextOperatorPrecedence; // ※数字が小さい方が高優先度
-
-		// 注目演算子の優先度が、次の演算子と等しい場合に true
-		boolean targetOpPrecedenceIsEqual = targetOperatorPrecedence == nextOperatorPrecedence; // ※数字が小さい方が高優先度
-
-		// 注目演算子が左結合なら true、右結合なら false
-		boolean targetOpAssociativityIsLeft = targetOperatorAssociativity.equals(AttributeValue.LEFT);
-
-		// 結果を以下の通りに返す。
-		// ・注目演算子の方が次の演算子よりも強い場合は true、弱い場合は false。
-		// ・優先度がちょうど等しい場合、注目演算子が左結合であれば true、右結合なら false。
-		return targetOpPrecedenceIsStrong || (targetOpPrecedenceIsEqual && targetOpAssociativityIsLeft);
-	}
-
-
-	/**
-	 * 演算子の優先度や結合性を考慮した上で、注目演算子ノードを、
-	 * 現在作業用スタック上の先頭にある演算子ノードに、子ノードとしてぶら下げるべきかどうかを判定します。
-	 *
-	 * @param stack 構文解析の作業用スタックとして使用している双方向キュー
-	 * @param nextOperatorPrecedence 注目演算子の次（右側の最も近く）にある演算子の優先度
-	 * @return ぶら下げるべきなら true
-	 */
-	private boolean shouldAddRightOperandToStackedOperator(Deque<AstNode> stack, int nextOperatorPrecedence) {
-
-		// スタック上にノードが無い場合や、あっても演算子ではない場合は、その時点でfalse
-		if (stack.size() == 0) {
-			return false;
-		}
-		if (stack.peek().getType() != AstNode.Type.OPERATOR) {
-			return false;
-		}
-
-		// スタック上の演算子の優先度（※数字が小さい方が優先度が高い）
-		int stackedOperatorPrecedence = Integer.parseInt(stack.peek().getAttribute(AttributeKey.OPERATOR_PRECEDENCE));
-
-		// スタック上の演算子の結合性（右/左）
-		String stackedOperatorAssociativity = stack.peek().getAttribute(AttributeKey.OPERATOR_ASSOCIATIVITY);
-
-		// 次の演算子の優先度などを考慮した上で判断した結果を返す
-		return this.shouldAddRightOperand(stackedOperatorAssociativity, stackedOperatorPrecedence, nextOperatorPrecedence);
-	}
+	// ====================================================================================================
+	// Others (Utilities, etc.)
+	// その他の部品的な処理など
+	// ====================================================================================================
 
 
 	/**
@@ -1325,6 +1326,50 @@ public class Parser {
 		Collections.reverse(partialExprNodeList);
 
 		return partialExprNodeList.toArray(new AstNode[0]);
+	}
+
+
+	/**
+	 * トークン配列の中に含まれる、全キャスト演算子の「 始点, データ型, 終端 」と並ぶトークン列をまとめ、
+	 * それぞれ単一のトークンに変換したもので置き換えて返します。
+	 *
+	 * @param 変換対象のトークン配列
+	 */
+	private Token[] preprocessCastSequentialTokens(Token[] tokens) {
+
+		int tokenLength = tokens.length; // トークン数
+		int readingIndex = 0; // 注目トークンのインデックス
+
+		// 変換後のトークンを格納するリスト
+		List<Token> tokenList = new ArrayList<Token>();
+
+		while (readingIndex<tokenLength) {
+
+			Token readingToken = tokens[readingIndex];
+
+			boolean isCastBeginToken = readingIndex < tokenLength-2
+				&& readingToken.getType() == Token.Type.OPERATOR
+				&& readingToken.getAttribute(AttributeKey.OPERATOR_EXECUTOR).equals(AttributeValue.CAST);
+
+			// キャスト始点トークンの場合は、次がデータ型トークン、
+			// その後が終端トークン（配列キャストは未サポート）なので、情報を1つにまとめてリストに格納
+			if (isCastBeginToken) {
+				String dataType = tokens[ readingIndex+1 ].getValue();
+				readingToken.setAttribute(AttributeKey.DATA_TYPE, dataType);
+				readingToken.setAttribute(AttributeKey.RANK, Integer.toString(RANK_OF_SCALAR)); // 現在は配列のキャストに未対応なため
+				readingToken.setValue(SCRIPT_WORD.parenthesisBegin + dataType + SCRIPT_WORD.paranthesisEnd);
+				tokenList.add(readingToken);
+				readingIndex += 3;
+
+			// その他のトークンの場合はそのまま変換後リストに格納
+			} else {
+				tokenList.add(readingToken);
+				readingIndex++;
+			}
+		}
+
+		Token[] resultTokens = tokenList.toArray(new Token[0]);
+		return resultTokens;
 	}
 
 
