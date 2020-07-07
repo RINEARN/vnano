@@ -72,11 +72,35 @@ public class LiteralSyntax {
 
 
 	/**
+	 * <span class="lang-en">The prefix of hexadecimal int literals</span>
+	 * <span class="lang-ja">16 進数の int 型リテラルのプレフィックスです</span>
+	 * .
+	 */
+	public String intLiteralHexPrefix = "0x";
+
+
+	/**
+	 * <span class="lang-en">The prefix of octal int literals</span>
+	 * <span class="lang-ja">8 進数の int 型リテラルのプレフィックスです</span>
+	 * .
+	 */
+	public String intLiteralOctPrefix = "0o";
+
+
+	/**
+	 * <span class="lang-en">The prefix of binary int literals</span>
+	 * <span class="lang-ja">2 進数の int 型リテラルのプレフィックスです</span>
+	 * .
+	 */
+	public String intLiteralBinPrefix = "0b";
+
+
+	/**
 	 * <span class="lang-en">The regular expression of "int" type literals</span>
 	 * <span class="lang-ja">int 型リテラルの正規表現です</span>
 	 * .
 	 */
-	private String intLiteralRegex = "^(\\+|-)?[0-9]+$";
+	private String intLiteralRegex = "^(\\+|-)?(0x|0o|0b)?[0-9]+$";
 
 
 	/**
