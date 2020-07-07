@@ -272,6 +272,7 @@ public class Parser {
 	private AstNode parseExpression(Token[] tokens) throws VnanoException {
 
 		// 最初に、トークンの種類や括弧の数などに、式の構成トークンとして問題無いか検査
+		//（細かい原因情報を持たせた例外の生成もそちらで行う。そこで拾いきれなかったもののみ、後続処理でやや大枠の INVALID_EXPRESSION_SYNTAX エラーを投げる)
 		new LexicalChecker(LANG_SPEC).checkTokensInExpression(tokens);
 
 		// キャスト演算子は複数トークンから成る特別な前置演算子なので、先に単一トークンの前置演算子に変換する
@@ -279,12 +280,14 @@ public class Parser {
 
 		int tokenLength = tokens.length; // トークン数
 		int readingIndex = 0; // 注目トークンのインデックス
+		int lineNumber = tokens[0].getLineNumber(); // エラーメッセージで使用
+		String fileName = tokens[0].getFileName(); // エラーメッセージで使用
 
 		// パース作業用のスタックとして使用する双方向キューを用意
 		Deque<AstNode> stack = new ArrayDeque<AstNode>();
 
 		// トークン配列をスキャンし、個々のトークンの次（右側の最も近く）にある演算子の優先度を配列に格納（結合の判断で使用）
-		int[] nextOperatorPriorities = this.getNextOperatorPrecedence(tokens);
+		int[] nextOperatorPrecedence = this.getNextOperatorPrecedence(tokens);
 
 		// トークンを左から順に末尾まで読み進むループ
 		do {
@@ -292,7 +295,7 @@ public class Parser {
 
 			Token readingToken = tokens[readingIndex];                 // このループでの読み込み対象トークン
 			int readingOpPrecedence = readingToken.getPrecedence();        // 読み込み対象トークンの演算子優先度
-			int nextOpPrecedence = nextOperatorPriorities[readingIndex]; // 読み込み対象トークンの後方（右側）で最初にある演算子の優先度
+			int nextOpPrecedence = nextOperatorPrecedence[readingIndex]; // 読み込み対象トークンの後方（右側）で最初にある演算子の優先度
 			String readingOpAssociativity = readingToken.getAttribute(AttributeKey.OPERATOR_ASSOCIATIVITY); // 演算子の結合性（右/左）
 
 			// 識別子やリテラルなどのリーフ（末端オペランド）ノードの場合 -> スタックにプッシュ
@@ -313,7 +316,7 @@ public class Parser {
 
 				// 閉じ括弧の場合、スタックから構築済みの部分式構文木ノード（括弧の場合は1個しか無いはず）を取り出し、フタも除去
 				} else {
-					operatorNode = this.popPartialExpressionNodes(stack, AttributeValue.PARTIAL_EXPRESSION)[0];
+					operatorNode = this.popPartialExpressionNodes(stack, AttributeValue.PARTIAL_EXPRESSION, fileName, lineNumber)[0];
 				}
 
 			// 演算子ノードの場合
@@ -326,9 +329,9 @@ public class Parser {
 					// 後置演算子
 					case AttributeValue.POSTFIX : {
 
-						// スタックに左オペランドノードが積まれているので取り出してぶら下げる
+						// スタックに左オペランドノード（リーフまたは演算子）が積まれているので、取り出してぶら下げる
 						// ※ 後置演算子はトークンの並び的に左結合しかありえない上に、必ず直前のものに結合するので、単純に処理
-						operatorNode.addChildNode(stack.pop());
+						operatorNode.addChildNode( this.popNode(stack, fileName, lineNumber, AstNode.Type.LEAF, AstNode.Type.OPERATOR) );
 						break;
 					}
 
@@ -337,7 +340,7 @@ public class Parser {
 
 						// 優先度が次の演算子よりも強い場合、右トークンを先読みし、リーフノードとして演算子ノードにぶら下げる
 						if (this.shouldAddRightOperand(readingOpAssociativity, readingOpPrecedence, nextOpPrecedence)) {
-							operatorNode.addChildNode( this.createLeafNode(tokens[readingIndex+1]) );
+							operatorNode.addChildNode( this.createLeafNode(tokens[readingIndex+1]) ); // 存在は LexicalChecker で検査済みのはず
 							readingIndex++; // 次のトークンは先読みして処理を終えたので1つ余分に進める
 						}
 						break;
@@ -351,7 +354,7 @@ public class Parser {
 
 						// 優先度が次の演算子よりも強い場合、右トークンを先読みし、リーフノードとして演算子ノードにぶら下げる
 						if (this.shouldAddRightOperand(readingOpAssociativity, readingOpPrecedence, nextOpPrecedence)) {
-							operatorNode.addChildNode( this.createLeafNode(tokens[readingIndex+1]) );
+							operatorNode.addChildNode( this.createLeafNode(tokens[readingIndex+1]) ); // 存在は LexicalChecker で検査済みのはず
 							readingIndex++; // 次のトークンは先読みして処理を終えたので1つ余分に進める
 						}
 						break;
@@ -360,8 +363,8 @@ public class Parser {
 					// マルチオペランド演算子の始点（関数呼び出しの「 ( 」や配列参照の「 [ 」）
 					case AttributeValue.MULTIARY : {
 
-						// スタックに識別子ノードが積まれているので、取り出して演算子ノードにぶら下げ、それをプッシュする
-						operatorNode.addChildNode(stack.pop());
+						// スタックに識別子のリーフノードが積まれているので、取り出して演算子ノードにぶら下げ、それをプッシュする
+						operatorNode.addChildNode( this.popNode(stack, fileName, lineNumber, AstNode.Type.LEAF) );
 						stack.push(operatorNode);
 
 						// 引数部分式の境界前後が結合しないよう、スタックに非演算子のフタをつめる（第二引数は回収時の目印）
@@ -384,11 +387,11 @@ public class Parser {
 
 						// スタックからの引数ノードを全て回収する（フタ区切りで独立構文木として形成されている）
 						AstNode[] argumentNodes = this.popPartialExpressionNodes(
-								stack, readingToken.getAttribute(AttributeKey.OPERATOR_EXECUTOR)
+								stack, readingToken.getAttribute(AttributeKey.OPERATOR_EXECUTOR), fileName, lineNumber
 						);
 
-						// スタックから呼び出し演算子ノードを取り出し、引数ノードをぶら下げる
-						operatorNode = stack.pop();
+						// スタックから関数呼び出し演算子ノードを取り出し、引数ノードをぶら下げる
+						operatorNode = this.popNode(stack, fileName, lineNumber, AstNode.Type.OPERATOR);
 						operatorNode.addChildNodes(argumentNodes);
 						break;
 					}
@@ -405,9 +408,10 @@ public class Parser {
 			}
 
 			// 次に出現する演算子よりも、スタック上の演算子の方が高優先度の場合、スタック上の演算子において必要な子ノード連結を全て済ませる
-			while (this.shouldAddRightOperandToStackedOperator(stack, nextOperatorPriorities[readingIndex])) {
-				stack.peek().addChildNode(operatorNode);
-				operatorNode = stack.pop();
+			while (this.shouldAddRightOperandToStackedOperator(stack, nextOperatorPrecedence[readingIndex])) {
+				AstNode oldOperatorNode = operatorNode;
+				operatorNode = this.popNode(stack, fileName, lineNumber, AstNode.Type.OPERATOR);
+				operatorNode.addChildNode(oldOperatorNode);
 			}
 
 			stack.push(operatorNode);
@@ -416,9 +420,16 @@ public class Parser {
 		// トークンを左から順に末尾まで読み進むループ
 		} while (readingIndex < tokenLength);
 
-		// スタックの一番奥（双方向キューの先頭）が構文木のルートノードなので、それを式ノードにぶら下げて返す
-		AstNode expressionNode = new AstNode(AstNode.Type.EXPRESSION, tokens[0].getLineNumber(), tokens[0].getFileName());
-		expressionNode.addChildNode(stack.peekFirst());
+
+		// 構文解析が正常に完了していれば、式の構文木の頂点ノードのみがスタック上にあるはずなので、スタック上の残りノード数が 1 以外ならエラー
+		if (stack.size() != 1) {
+			throw new VnanoException(ErrorType.INVALID_EXPRESSION_SYNTAX, fileName, lineNumber);
+		}
+
+		// 式の構文木の頂点ノードを、種類を検査（リーフか演算子）しつつ取り出し、それを EXPRESSION タイプのノードにぶら下げて返す
+		AstNode exprRootNode = this.popNode(stack, fileName, lineNumber, AstNode.Type.LEAF, AstNode.Type.OPERATOR);
+		AstNode expressionNode = new AstNode(AstNode.Type.EXPRESSION, lineNumber, fileName);
+		expressionNode.addChildNode(exprRootNode);
 		return expressionNode;
 	}
 
@@ -1227,6 +1238,67 @@ public class Parser {
 
 
 	/**
+	 * 構文解析の作業用スタック上の先頭にあるノードが、指定された種類かどうか検査した上で、回収せずに参照します。
+	 * ただし、種類を何も指定しなかった場合は、検査は行われません。
+	 *
+	 * @param stack 構文解析の作業用スタックとして使用している双方向キュー
+	 * @param fileName 解析対象の式が属するファイル名（エラーメッセージで使用）
+	 * @param lineNumber 解析対象の式の行番号（エラーメッセージで使用）
+	 * @param expectedTypes 期待されるノードの種類
+	 * @return スタック上の先頭にあるノード
+	 * @throws VnanoException
+	 * 		スタック上の先頭にあるノードの種類が、expectedTypes に指定したもの以外だった場合にスローされます。
+	 */
+	private AstNode peekNode(Deque<AstNode> stack, String fileName, int lineNumber, AstNode.Type ...expectedTypes)
+			throws VnanoException {
+
+		// 初期状態でスタックが空なら明らかにおかしい
+		//（ オペランドが既に他ノードにぶら下がって回収されてしまっているなど ）
+		if (stack.size() == 0) {
+			throw new VnanoException(ErrorType.INVALID_EXPRESSION_SYNTAX, fileName, lineNumber);
+		}
+
+		// スタック上のノードの種類が、expectedTypes に指定された種類のいずれかと一致するか検査
+		if (expectedTypes.length != 0) {
+			boolean matched = false;
+			AstNode.Type type = stack.peek().getType();
+			for (AstNode.Type expectedType: expectedTypes) {
+				if (type == expectedType) {
+					matched = true;
+					break;
+				}
+			}
+			if (!matched) {
+				throw new VnanoException(ErrorType.INVALID_EXPRESSION_SYNTAX, fileName, lineNumber);
+			}
+		}
+
+		return stack.peek();
+	}
+
+
+	/**
+	 * 構文解析の作業用スタック上の先頭にあるノードが、指定された種類かどうか検査した上で、回収して返します。
+	 * ただし、種類を何も指定しなかった場合は、検査は行われません。
+	 *
+	 * @param stack 構文解析の作業用スタックとして使用している双方向キュー
+	 * @param fileName 解析対象の式が属するファイル名（エラーメッセージで使用）
+	 * @param lineNumber 解析対象の式の行番号（エラーメッセージで使用）
+	 * @param expectedTypes 期待されるノードの種類
+	 * @return スタック上の先頭から回収したノード
+	 * @throws VnanoException スタック上の先頭にあるノードが、演算子ノードではなかった場合にスローされます。
+	 */
+	private AstNode popNode(Deque<AstNode> stack, String fileName, int lineNumber, AstNode.Type ...expectedTypes)
+			throws VnanoException {
+
+		// スタック上の先頭要素を検査し、例外が発生しなければ先頭要素を回収して返す
+		this.peekNode(stack, fileName, lineNumber, expectedTypes);
+		return stack.pop();
+	}
+
+
+
+	/**
 	 * 構文解析の作業用スタック上に構築されている、文のAST（抽象構文木）ノードの内、
 	 * フタノード（{@link AstNode.Type#STACK_LID STACK_LID} タイプのノード）以降にあるものを全て回収します。
 	 *
@@ -1290,30 +1362,39 @@ public class Parser {
 	 *
 	 * @param stack 構文解析の作業用スタックとして使用している双方向キュー
 	 * @param marker 回収の最深部に配置してあるフタノードのマーカー値
+	 * @param fileName 解析対象の式が属するファイル名（エラーメッセージで使用）
+	 * @param lineNumber 解析対象の式の行番号（エラーメッセージで使用）
 	 * @return 回収した部分式のASTのルートノードを格納する配列（スタック上で深い側にあるものが先頭）
-	 * @throws VnanoException 部分式が空の場合にスローされます。
+	 * @throws VnanoException スタックに積まれた部分式が無い場合にスローされます。
 	 */
-	private AstNode[] popPartialExpressionNodes(Deque<AstNode> stack, String marker) throws VnanoException {
+	private AstNode[] popPartialExpressionNodes(Deque<AstNode> stack, String marker, String fileName, int lineNumber)
+			throws VnanoException {
+
+		// 初期状態でスタックが空なら明らかにおかしい
+		//（ 例えば括弧の対応がおかしくて、部分式が既にスタックから回収されてしまっているなど ）
+		if (stack.size() == 0) {
+			throw new VnanoException(ErrorType.INVALID_EXPRESSION_SYNTAX, fileName, lineNumber);
+		}
 
 		List<AstNode> partialExprNodeList = new ArrayList<AstNode>();
 		while(stack.size() != 0) {
 
-			// 部分式の構文木ノードを1個取り出す
+			// 部分式があって正常に解析完了していれば、その構文木の頂点ノードがスタック上にあるはずなので、それを取り出す
 			// （引数が無い関数の呼び出し fun() の場合など、部分式の中身が無い場合もある事に注意）
-			if (stack.peek().getType() != AstNode.Type.STACK_LID) { // 中身が無い場合は直前にフタがあるだけ
+			if (stack.peek().getType() != AstNode.Type.STACK_LID) { // 部分式が無い場合はフタがあるだけ
 				partialExprNodeList.add(stack.pop());
 			}
 
-			// ここでフタが残って無ければ処理が異常
+			// 式の内容と解析が正しければ、スタック上の次の位置にはフタが置いてあるはずなので、無ければエラー
 			if (stack.size() == 0) {
-				throw new VnanoFatalException("State of the working-stack of the parser is inconsistent");
+				throw new VnanoException(ErrorType.INVALID_EXPRESSION_SYNTAX, fileName, lineNumber);
 			}
 
 			// フタを除去
 			if (stack.peek().getType() == AstNode.Type.STACK_LID) {
 				AstNode stackLid = stack.pop();
 
-				// フタに記載されたマーカーが指定値なら、部分式の回収は完了
+				// フタに記載されたマーカーが指定値なら、全ての部分式の回収は完了
 				if (stackLid.hasAttribute(AttributeKey.LID_MARKER)
 						&& stackLid.getAttribute(AttributeKey.LID_MARKER).equals(marker)) {
 

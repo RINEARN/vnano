@@ -199,23 +199,33 @@ public class LexicalChecker {
 
 	/**
 	 * 式のトークン配列内における、開き括弧「 ( 」と閉じ括弧「 ) 」の個数が合っているかどうかを検査します。
+	 * なお、構文要素の括弧だけでなく、関数呼び出し演算子やキャスト演算子の括弧も含めて検査されます。
 	 * 検査の結果、個数が合っていた場合には何もせず、合っていなかった場合には例外をスローします。
 	 *
 	 * @param tokens 検査対象のトークン配列
 	 * @throws VnanoException 開き括弧と閉じ括弧の個数が合っていなかった場合にスローされます。
 	 */
-	protected void checkNumberOfParenthesesInExpression(Token[] tokens) throws VnanoException {
+	protected void checkParenthesisOpeningClosings(Token[] tokens) throws VnanoException {
 		int tokenLength = tokens.length;
 		int hierarchy = 0; // 開き括弧で上がり、閉じ括弧で下がる階層カウンタ
+
 		for (int tokenIndex=0; tokenIndex<tokenLength; tokenIndex++) {
 			Token token = tokens[tokenIndex];
-			if (token.getType() == Token.Type.PARENTHESIS) {
+
+			boolean isParen = token.getType() == Token.Type.PARENTHESIS;
+			boolean isCallOp = token.getType() == Token.Type.OPERATOR
+					&& token.getAttribute(AttributeKey.OPERATOR_EXECUTOR).equals(AttributeValue.CALL);
+			boolean isCastOp = token.getType() == Token.Type.OPERATOR
+					&& token.getAttribute(AttributeKey.OPERATOR_EXECUTOR).equals(AttributeValue.CAST);
+
+			if (isParen || isCallOp || isCastOp) {
 				if (token.getValue().equals(SCRIPT_WORD.parenthesisBegin)) {
 					hierarchy++;
 				} else if (token.getValue().equals(SCRIPT_WORD.paranthesisEnd)) {
 					hierarchy--;
 				}
 			}
+
 			// 階層が負になった場合は、その時点で明らかに開き括弧が足りない
 			if (hierarchy < 0) {
 				throw new VnanoException(
@@ -228,6 +238,49 @@ public class LexicalChecker {
 		if (hierarchy > 0) {
 			throw new VnanoException(
 				ErrorType.CLOSING_PARENTHESES_IS_DEFICIENT,
+				tokens[0].getFileName(), tokens[0].getLineNumber()
+			);
+		}
+	}
+
+
+	/**
+	 * 式のトークン配列内における、配列インデックスの開き「 [ 」と閉じ「 ] 」の個数が合っているかどうかを検査します。
+	 * 検査の結果、個数が合っていた場合には何もせず、合っていなかった場合には例外をスローします。
+	 *
+	 * @param tokens 検査対象のトークン配列
+	 * @throws VnanoException 開き括弧と閉じ括弧の個数が合っていなかった場合にスローされます。
+	 */
+	protected void checkSubscriptOpeningClosings(Token[] tokens) throws VnanoException {
+		int tokenLength = tokens.length;
+		int hierarchy = 0; // 開き括弧で上がり、閉じ括弧で下がる階層カウンタ
+
+		for (int tokenIndex=0; tokenIndex<tokenLength; tokenIndex++) {
+			Token token = tokens[tokenIndex];
+
+			boolean isSubscript = token.getType() == Token.Type.OPERATOR
+					&& token.getAttribute(AttributeKey.OPERATOR_EXECUTOR).equals(AttributeValue.SUBSCRIPT);
+
+			if (isSubscript) {
+				if (token.getValue().equals(SCRIPT_WORD.subscriptBegin)) {
+					hierarchy++;
+				} else if (token.getValue().equals(SCRIPT_WORD.subscriptEnd)) {
+					hierarchy--;
+				}
+			}
+
+			// 階層が負になった場合は、その時点で明らかに [ が足りない
+			if (hierarchy < 0) {
+				throw new VnanoException(
+					ErrorType.OPENING_SUBSCRIPT_OPERATOR_IS_DEFICIENT,
+					tokens[0].getFileName(), tokens[0].getLineNumber() // 階層が0でない時点でトークンは1個以上あるので[0]で参照可能
+				);
+			}
+		}
+		// 式のトークンを全て読み終えた時点で階層が1以上残っているなら、] が足りない
+		if (hierarchy > 0) {
+			throw new VnanoException(
+				ErrorType.CLOSING_SUBSCRIPT_OPERATOR_IS_DEFICIENT,
 				tokens[0].getFileName(), tokens[0].getLineNumber()
 			);
 		}
@@ -278,7 +331,9 @@ public class LexicalChecker {
 
 	/**
 	 * 式のトークン配列内における、開き括弧「 ( 」と閉じ括弧「 ) 」に囲まれた部分式の中身が、
-	 * 空になっている箇所が無いか検査します。ただし、関数呼び出し演算子の ( ) は検査対象に含まれません。
+	 * 空になっている箇所が無いか検査します。
+	 * ただし、関数呼び出し演算子の ( ) は、中身が空でも有効であるため、検査対象に含まれません。
+	 * キャスト演算子に関しても、そもそも中身が空の場合はキャスト演算子と解釈されないはずであるため、検査されません。
 	 * 検査の結果、問題が無かった場合には何もせず、問題が見つかった場合には例外をスローします。
 	 *
 	 * @param tokens 検査対象のトークン配列
@@ -458,7 +513,10 @@ public class LexicalChecker {
 	protected void checkTokensInExpression(Token[] tokens) throws VnanoException {
 
 		// トークン列内の開き括弧と閉じ括弧の対応を確認（合っていなければここで例外発生）
-		checkNumberOfParenthesesInExpression(tokens);
+		checkParenthesisOpeningClosings(tokens);
+
+		// トークン列内の配列インデックスの [ と ] の対応を確認（合っていなければここで例外発生）
+		checkSubscriptOpeningClosings(tokens);
 
 		// 式の構成要素になり得ない種類のトークンが存在しないか確認（存在すればここで例外発生）
 		checkTypeOfTokensInExpression(tokens);

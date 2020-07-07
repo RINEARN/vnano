@@ -79,8 +79,11 @@ public class ErrorMessage {
 			case VARIABLE_IS_NOT_FOUND : return "宣言されていない変数「 " + words[0] + " 」を使用しています。";
 			case FUNCTION_IS_NOT_FOUND : return "存在しない関数「 " + words[0] +  " 」を呼び出しています。";
 			case STATEMENT_END_IS_NOT_FOUND : return "文の終端がありません（「 ; 」が必要です）。";
+			case INVALID_EXPRESSION_SYNTAX : return "式の内容を正しく解釈できませんでした。式のどこかに必要な要素が欠けているか、( ) や [ ] の対応がずれている可能性などが考えられます。";
 			case OPENING_PARENTHESES_IS_DEFICIENT : return "開き括弧「 ( 」が不足しています。";
 			case CLOSING_PARENTHESES_IS_DEFICIENT : return "閉じ括弧「 ) 」が不足しています。";
+			case OPENING_SUBSCRIPT_OPERATOR_IS_DEFICIENT : return "配列インデックスの始点「 [ 」が不足しています。";
+			case CLOSING_SUBSCRIPT_OPERATOR_IS_DEFICIENT : return "配列インデックスの終端「 ] 」が不足しています。";
 			case INVALID_DATA_TYPES_FOR_UNARY_OPERATOR : return "前置・後置演算子の「 " + words[0] + " 」は、" + words[1] + "型の値や変数に対しては使用できません。";
 			case INVALID_DATA_TYPES_FOR_BINARY_OPERATOR : return "二項演算子の「 " + words[0] + " 」は、" + words[1] + "型と" + words[2] + "型の値や変数の組み合わせに対しては使用できません。";
 			case INVALID_RANKS_FOR_VECTOR_OPERATION : return "配列同士の「 " + words[0] + " 」演算は、左右の配列の次元数が等しい場合にしか使用できませんが、異なる次元数が検出されました。";
@@ -182,8 +185,11 @@ public class ErrorMessage {
 			case VARIABLE_IS_NOT_FOUND : return "Undeclared variable \"" + words[0] + "\" is used";
 			case FUNCTION_IS_NOT_FOUND : return "Unknown function \"" + words[0] + "\" is called";
 			case STATEMENT_END_IS_NOT_FOUND : return "End-point of the statement is not found (\";\" is required)";
+			case INVALID_EXPRESSION_SYNTAX : return "An expression could not be parsed correctly. Somethings are missing, or correspondence between \"(\" and \")\" or \"[\" and \"]\" might be incorrect.";
 			case OPENING_PARENTHESES_IS_DEFICIENT : return "Opening parenthesis \"(\" is deficient";
 			case CLOSING_PARENTHESES_IS_DEFICIENT : return "Closing parenthesis \")\" is deficient";
+			case OPENING_SUBSCRIPT_OPERATOR_IS_DEFICIENT : return "Beginning of array indices \"[\" is deficient";
+			case CLOSING_SUBSCRIPT_OPERATOR_IS_DEFICIENT : return "Ending of array indices \"[\" is deficient";
 			case INVALID_DATA_TYPES_FOR_UNARY_OPERATOR : return "Prefix/postfix operator \"" + words[0] + "\" is not available for " + words[1] + "-type operands";
 			case INVALID_DATA_TYPES_FOR_BINARY_OPERATOR : return "Binary operator \"" + words[0] + "\" is not available for the combination of " + words[0] + "-type and " + words[1] + "-type data";
 			case INVALID_RANKS_FOR_VECTOR_OPERATION : return "Operation \"" + words[0] + "\" between arrays is not available, when ranks (number of dimensions) of arrays are different";
@@ -217,7 +223,7 @@ public class ErrorMessage {
 			case UNCONVERTIBLE_DATA_TYPE : return "External data type \"" + words[0] + "\" is not convertible to supported data types in this script engine" ;
 			case UNCONVERTIBLE_ARRAY : return "External array type \"" + words[0] + "\" is not convertible to supported array in this script engine, due to the number of dimensions or the type-convertibility" ;
 			case UNCONVERTIBLE_INTERNAL_ARRAY : return "Internal array type \"" + words[0] + "\" is not convertible to external array types, due to the number of dimensions or the type-convertibility" ;
-			case JAGGED_ARRAY : return "Jagged array  is not available for this script engine, where \"jagged array\" is the array having arrays as elements, and their lengths are not same";
+			case JAGGED_ARRAY : return "Jagged array is not available for this script engine, where \"jagged array\" is the array having arrays as elements, and their lengths are not same";
 			case CAST_FAILED_DUE_TO_VALUE : return "Cast operation of the data \"" + words[0] + "\" to \"" + words[1] + "\" type has failed";
 			case CAST_FAILED_DUE_TO_TYPE : return "Cast operation from \"" + words[0] + "\" type to \"" + words[1] + "\" type has failed";
 			case FUNCTION_IS_DECLARED_IN_INVALID_PLASE : return "A function is declared in the invalid place";
