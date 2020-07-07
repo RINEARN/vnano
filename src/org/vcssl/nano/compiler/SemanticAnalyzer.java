@@ -168,6 +168,9 @@ public class SemanticAnalyzer {
 		// 識別子を検査
 		this.checkIdentifiers(outputAst);
 
+		// リテラルを検査
+		this.checkLiterals(outputAst);
+
 		// return 文で返している戻り値の型や、return 文の位置を検査
 		this.checkReturnValueTypesAndLocations(outputAst);
 
@@ -1495,6 +1498,47 @@ public class SemanticAnalyzer {
 				// 予約語の場合はエラー
 				if (SCRIPT_WORD.reservedWordSet.contains(identifier)) {
 					throw new VnanoException(ErrorType.IDENTIFIER_IS_RESERVED_WORD, identifier, fileName, lineNumber);
+				}
+			}
+
+			currentNode = currentNode.getPostorderDftNextNode();
+		} // ASTを辿るループ
+	}
+
+
+	/**
+	 * 引数に渡されたAST（抽象構文木）の内容を解析し、その中のリテラルが有効かどうかを検査します。
+	 *
+	 * @param astRootNode 検査対象のASTのルートノード
+	 * @throws VnanoException 無効なリテラルが検出された場合にスローされます。
+	 */
+	private void checkLiterals(AstNode astRootNode) throws VnanoException {
+
+		// ASTノードを、帰りがけ順の深さ優先走査で辿り、演算子ノードがあれば検査
+		AstNode currentNode = astRootNode.getPostorderDftFirstNode();
+		while(currentNode != astRootNode) {
+
+			// 変数/関数宣言ノードの場合に、宣言されている識別子を検査する
+			if(currentNode.getType() == AstNode.Type.LEAF
+					&& currentNode.getAttribute(AttributeKey.LEAF_TYPE).equals(AttributeValue.LITERAL)) {
+
+				String fileName = currentNode.getFileName();
+				int lineNumber = currentNode.getLineNumber();
+				String dataType = currentNode.getAttribute(AttributeKey.DATA_TYPE);
+				String literal = currentNode.getAttribute(AttributeKey.LITERAL_VALUE);
+
+				// 0x/0o/0b 以外の 0 で始まる整数リテラル（ただし 0 そのものは除く）は、
+				// 8進数と10進数のどちらと解釈しても、場面によっては誤用の元になりそうなので、誤用の予防を優先してエラー扱いとする
+				//（8進数リテラルでは、代わりにプレフィックス 0o をサポートしているため、そちらを使用するようエラーメッセージで通知する）
+				if (dataType.equals(LANG_SPEC.DATA_TYPE_NAME.defaultInt) || dataType.equals(LANG_SPEC.DATA_TYPE_NAME.longInt)) {
+
+					if (literal.startsWith("0") && !literal.equals("0")  // 0 で始まり、0 そのものではない
+						&& !literal.startsWith(LANG_SPEC.LITERAL_SYNTAX.intLiteralHexPrefix)  // 0x で始まらない
+						&& !literal.startsWith(LANG_SPEC.LITERAL_SYNTAX.intLiteralOctPrefix)  // 0o で始まらない
+						&& !literal.startsWith(LANG_SPEC.LITERAL_SYNTAX.intLiteralBinPrefix)  // 0b で始まらない
+					) {
+						throw new VnanoException(ErrorType.INT_LITERAL_STARTS_WITH_ZERO, fileName, lineNumber);
+					}
 				}
 			}
 

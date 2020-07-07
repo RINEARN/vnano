@@ -42,39 +42,42 @@ import org.vcssl.nano.vm.VirtualMachine;
 
 public final class VnanoCommandLineApplication {
 
-	/** 各種の言語仕様設定類を格納するコンテナを保持します。 */
+	// 各種の言語仕様設定類を格納するコンテナを保持する
 	private final LanguageSpecContainer LANG_SPEC = new LanguageSpecContainer(); // デフォルトの言語仕様設定を生成
 
-	/**
-	 * エラーメッセージの表示言語指定などに使用されるロケールを保持します。
-	 */
+	// エラーメッセージの表示言語指定などに使用されるロケールを保持する
 	private Locale locale = Locale.getDefault();
+
+	// デフォルトの文字コードやファイル類の読み込み場所などの定義
 	private static final String DEFAULT_ENCODING = "UTF-8";
-	private static final String DEFAULT_LIBRARY_LIST = "lib/VnanoLibraryList.txt";
-	private static final String DEFAULT_PLUGIN_LIST = "plugin/VnanoPluginList.txt";
+	private static final String DEFAULT_LIBRARY_LIST_FILE_PATH = "lib/VnanoLibraryList.txt";
+	private static final String DEFAULT_PLUGIN_LIST_FILE_PATH = "plugin/VnanoPluginList.txt";
 	@SuppressWarnings("unused")
 	private static final String DEFAULT_LIBRARY_DIR = "lib/";
 	private static final String DEFAULT_PLUGIN_DIR = "plugin/";
 
+	// 実行可能ファイルの拡張子の定義
 	private static final String EXTENSION_VNANO = ".vnano";
 	private static final String EXTENSION_VRIL = ".vril";
 
-	private static final String OPTION_NAME_PREFIX = "--";
-	private static final String OPTION_NAME_FILE = "file";
-	private static final String OPTION_NAME_HELP = "help";
-	private static final String OPTION_NAME_DUMP = "dump";
-	private static final String OPTION_NAME_RUN = "run";
-	private static final String OPTION_NAME_LOCALE = "locale";
-	private static final String OPTION_NAME_VERSION = "version";
-	private static final String OPTION_NAME_ACCELERATOR = "accelerator";
-	private static final String OPTION_NAME_ENCODING = "encoding";
-	private static final String OPTION_NAME_PLUGIN_DIR = "pluginDir";
-	private static final String OPTION_NAME_PLUGIN = "plugin";
-	private static final String OPTION_NAME_PLUGIN_LIST = "pluginList";
-	private static final String OPTION_NAME_LIBRARY_LIST = "libraryList";
-	private static final String OPTION_NAME_TEST = "test";
-	private static final String OPTION_NAME_DEFAULT = OPTION_NAME_FILE;
+	// コマンドラインオプション名の定義
+	private static final String COMMAND_OPTNAME_PREFIX = "--";
+	private static final String COMMAND_OPTNAME_FILE = "file";
+	private static final String COMMAND_OPTNAME_HELP = "help";
+	private static final String COMMAND_OPTNAME_DUMP = "dump";
+	private static final String COMMAND_OPTNAME_RUN = "run";
+	private static final String COMMAND_OPTNAME_LOCALE = "locale";
+	private static final String COMMAND_OPTNAME_VERSION = "version";
+	private static final String COMMAND_OPTNAME_ACCELERATOR = "accelerator";
+	private static final String COMMAND_OPTNAME_ENCODING = "encoding";
+	private static final String COMMAND_OPTNAME_PLUGIN_DIR = "pluginDir";
+	private static final String COMMAND_OPTNAME_PLUGIN = "plugin";
+	private static final String COMMAND_OPTNAME_PLUGIN_LIST = "pluginList";
+	private static final String COMMAND_OPTNAME_LIBRARY_LIST = "libList";
+	private static final String COMMAND_OPTNAME_TEST = "test";
+	private static final String COMMAND_OPTNAME_DEFAULT = COMMAND_OPTNAME_FILE;
 
+	// --dump オプションで指定する値の定義
 	private static final String DUMP_TARGET_INPUTTED_CODE = "inputtedCode";
 	private static final String DUMP_TARGET_PREPROCESSED_CODE = "preprocessedCode";
 	private static final String DUMP_TARGET_TOKEN = "token";
@@ -88,24 +91,37 @@ public final class VnanoCommandLineApplication {
 	private static final String DUMP_TARGET_DEFAULT = DUMP_TARGET_ALL;
 
 	// コマンドラインでの--dumpオプションの値を、スクリプトエンジンのオプションマップ用の値に変換するマップ
-	private static final Map<String, String> DUMP_TARGET_ARGVALUE_OPTVALUE_MAP = new HashMap<String, String>();
+	private static final Map<String, String> DUMP_TARGET_COMMANDOPT_ENGINEOPT_MAP = new HashMap<String, String>();
 	static {
-		DUMP_TARGET_ARGVALUE_OPTVALUE_MAP.put(DUMP_TARGET_INPUTTED_CODE, OptionValue.DUMPER_TARGET_INPUTTED_CODE);
-		DUMP_TARGET_ARGVALUE_OPTVALUE_MAP.put(DUMP_TARGET_PREPROCESSED_CODE, OptionValue.DUMPER_TARGET_PREPROCESSED_CODE);
-		DUMP_TARGET_ARGVALUE_OPTVALUE_MAP.put(DUMP_TARGET_TOKEN, OptionValue.DUMPER_TARGET_TOKEN);
-		DUMP_TARGET_ARGVALUE_OPTVALUE_MAP.put(DUMP_TARGET_PARSED_AST, OptionValue.DUMPER_TARGET_PARSED_AST);
-		DUMP_TARGET_ARGVALUE_OPTVALUE_MAP.put(DUMP_TARGET_ANALYZED_AST, OptionValue.DUMPER_TARGET_ANALYZED_AST);
-		DUMP_TARGET_ARGVALUE_OPTVALUE_MAP.put(DUMP_TARGET_ASSEMBLY_CODE, OptionValue.DUMPER_TARGET_ASSEMBLY_CODE);
-		DUMP_TARGET_ARGVALUE_OPTVALUE_MAP.put(DUMP_TARGET_OBJECT_CODE, OptionValue.DUMPER_TARGET_OBJECT_CODE);
-		DUMP_TARGET_ARGVALUE_OPTVALUE_MAP.put(DUMP_TARGET_ACCELERATOR_CODE, OptionValue.DUMPER_TARGET_ACCELERATOR_CODE);
-		DUMP_TARGET_ARGVALUE_OPTVALUE_MAP.put(DUMP_TARGET_ACCELERATOR_STATE, OptionValue.DUMPER_TARGET_ACCELERATOR_STATE);
-		DUMP_TARGET_ARGVALUE_OPTVALUE_MAP.put(DUMP_TARGET_ALL, OptionValue.DUMPER_TARGET_ALL);
+		DUMP_TARGET_COMMANDOPT_ENGINEOPT_MAP.put(DUMP_TARGET_INPUTTED_CODE, OptionValue.DUMPER_TARGET_INPUTTED_CODE);
+		DUMP_TARGET_COMMANDOPT_ENGINEOPT_MAP.put(DUMP_TARGET_PREPROCESSED_CODE, OptionValue.DUMPER_TARGET_PREPROCESSED_CODE);
+		DUMP_TARGET_COMMANDOPT_ENGINEOPT_MAP.put(DUMP_TARGET_TOKEN, OptionValue.DUMPER_TARGET_TOKEN);
+		DUMP_TARGET_COMMANDOPT_ENGINEOPT_MAP.put(DUMP_TARGET_PARSED_AST, OptionValue.DUMPER_TARGET_PARSED_AST);
+		DUMP_TARGET_COMMANDOPT_ENGINEOPT_MAP.put(DUMP_TARGET_ANALYZED_AST, OptionValue.DUMPER_TARGET_ANALYZED_AST);
+		DUMP_TARGET_COMMANDOPT_ENGINEOPT_MAP.put(DUMP_TARGET_ASSEMBLY_CODE, OptionValue.DUMPER_TARGET_ASSEMBLY_CODE);
+		DUMP_TARGET_COMMANDOPT_ENGINEOPT_MAP.put(DUMP_TARGET_OBJECT_CODE, OptionValue.DUMPER_TARGET_OBJECT_CODE);
+		DUMP_TARGET_COMMANDOPT_ENGINEOPT_MAP.put(DUMP_TARGET_ACCELERATOR_CODE, OptionValue.DUMPER_TARGET_ACCELERATOR_CODE);
+		DUMP_TARGET_COMMANDOPT_ENGINEOPT_MAP.put(DUMP_TARGET_ACCELERATOR_STATE, OptionValue.DUMPER_TARGET_ACCELERATOR_STATE);
+		DUMP_TARGET_COMMANDOPT_ENGINEOPT_MAP.put(DUMP_TARGET_ALL, OptionValue.DUMPER_TARGET_ALL);
 	}
 
-	private HashMap<String, Object> optionMap = new HashMap<String, Object>();
-	private List<String> pluginDirList = new ArrayList<String>();
-	private List<Object> pluginList = new ArrayList<Object>();
-	private boolean combinedTestRequired = false;
+	// エンジンに渡すオプションを格納するマップ
+	private HashMap<String, Object> engineOptionMap = new HashMap<String, Object>();
+
+	// コマンドラインオプション --pluginDir の値を控える
+	private List<String> optPluginDirList = new ArrayList<String>();
+
+	// コマンドラインオプション --plugin の値を控える
+	private List<Object> optPluginList = new ArrayList<Object>();
+
+	// コマンドラインオプション --pluginList の値を控える
+	private String optPluginListFilePath = null;
+
+	// コマンドラインオプション --libList の値を控える
+	private String optLibraryListFilePath = null;
+
+	// コマンドラインオプション --test の値を控える
+	private boolean optCombinedTestRequired = false;
 
 	// スクリプトからアクセスするメソッドを提供するクラス
 	public class ScriptIO {
@@ -281,19 +297,19 @@ public final class VnanoCommandLineApplication {
 		System.out.println("");
 		System.out.println("");
 
-		System.out.println("  --pluginList <pluginListFilePath");
+		System.out.println("  --pluginList <pluginListFilePath>");
 		System.out.println("");
 		System.out.println("      Specify the path of the plugin-list file in which file paths of plug-ins ");
 		System.out.println("      to be loaded are described.");
-		System.out.println("      The default value is \""+ DEFAULT_PLUGIN_LIST + "\".");
+		System.out.println("      The default value is \""+ DEFAULT_PLUGIN_LIST_FILE_PATH + "\".");
 		System.out.println("");
 		System.out.println("");
 
-		System.out.println("  --libList <libraryListFilePath");
+		System.out.println("  --libList <libraryListFilePath>");
 		System.out.println("");
 		System.out.println("      Specify the path of the library-list file in which file paths of library-scripts ");
 		System.out.println("      to be loaded are described.");
-		System.out.println("      The default value is \""+ DEFAULT_LIBRARY_LIST + "\".");
+		System.out.println("      The default value is \""+ DEFAULT_LIBRARY_LIST_FILE_PATH + "\".");
 		System.out.println("");
 		System.out.println("");
 
@@ -343,7 +359,7 @@ public final class VnanoCommandLineApplication {
 		}
 
 		// 引数が--helpの場合もヘルプを表示して終了
-		if (argLength == 1 && args[0].equals(OPTION_NAME_PREFIX + OPTION_NAME_HELP)) {
+		if (argLength == 1 && args[0].equals(COMMAND_OPTNAME_PREFIX + COMMAND_OPTNAME_HELP)) {
 			this.help();
 			return;
 		}
@@ -369,7 +385,7 @@ public final class VnanoCommandLineApplication {
 		boolean scriptFileNecessary = this.isScriptFileNecessary(optionNameValueMap);
 
 		// オプションで結合テストがリクエストされていた場合は、先にテストを実行する
-		if (this.combinedTestRequired) {
+		if (this.optCombinedTestRequired) {
 			optionProcessingSucceeded &= this.executeCombinedTest();
 		}
 
@@ -379,24 +395,37 @@ public final class VnanoCommandLineApplication {
 		}
 
 		// スクリプトファイルの指定が必要なケースでは取得 (--help 時など、指定が必須でない場合もある)
-		if (scriptFileNecessary && !optionNameValueMap.containsKey(OPTION_NAME_FILE)) {
+		if (scriptFileNecessary && !optionNameValueMap.containsKey(COMMAND_OPTNAME_FILE)) {
 			System.err.println("No script file is specified.");
 			System.exit(1);
 		}
-		String inputFilePath = optionNameValueMap.get(OPTION_NAME_FILE); // ※ 無名引数として指定した場合もこのキーで格納されている
+		String inputFilePath = optionNameValueMap.get(COMMAND_OPTNAME_FILE); // ※ 無名引数として指定した場合もこのキーで格納されている
 
 		// スクリプトファイルが指定されていれば実行する (指定が必須でない場合にも、指定されていれば実行)
 		if (inputFilePath != null) {
 
-			// 文字コードとライブラリ/プラグイン指定を取得
-			String encoding = optionNameValueMap.containsKey(OPTION_NAME_ENCODING)
-					? optionNameValueMap.get(OPTION_NAME_ENCODING) : DEFAULT_ENCODING;
+			// 文字コード設定を取得
+			String encoding = optionNameValueMap.containsKey(COMMAND_OPTNAME_ENCODING)
+					? optionNameValueMap.get(COMMAND_OPTNAME_ENCODING) : DEFAULT_ENCODING;
 
-			String libraryListPath = optionNameValueMap.containsKey(OPTION_NAME_LIBRARY_LIST)
-					? optionNameValueMap.get(OPTION_NAME_LIBRARY_LIST) : DEFAULT_LIBRARY_LIST;
+			// ライブラリリストファイルのパスを取得（手順は以下の通り）
+			// * オプションで明示指定されていればそれを採用（後で読み込みに失敗すればエラーになる）
+			// * そうでなければ、デフォルトのパスにファイルが存在すればそれを採用（後で読み込みに失敗すればエラーになる）
+			// * 指定もされず、デフォルトのパスにファイルも無い場合は、単純に何もしない（読み込みエラーも発生しない）
+			String libraryListPath = null;   // null のままの場合は何も読み込まれない
+			if (optLibraryListFilePath != null) {
+				libraryListPath = optLibraryListFilePath;
+			} else if (new File(DEFAULT_LIBRARY_LIST_FILE_PATH).exists()) {
+				libraryListPath = DEFAULT_LIBRARY_LIST_FILE_PATH;
+			}
 
-			String pluginListPath = optionNameValueMap.containsKey(OPTION_NAME_PLUGIN_LIST)
-					? optionNameValueMap.get(OPTION_NAME_PLUGIN_LIST) : DEFAULT_PLUGIN_LIST;
+			// プラグインリストファイルのパスを取得（手順は上のライブラリリストファイルの場合と同様）
+			String pluginListPath = null;   // null のままの場合は何も読み込まれない
+			if (optPluginListFilePath != null) {
+				pluginListPath = optPluginListFilePath;
+			} else if (new File(DEFAULT_PLUGIN_LIST_FILE_PATH).exists()) {
+				pluginListPath = DEFAULT_PLUGIN_LIST_FILE_PATH;
+			}
 
 			// 実行
 			try {
@@ -404,7 +433,7 @@ public final class VnanoCommandLineApplication {
 
 			} catch (VnanoException e) {
 				this.dumpException(e);
-				if (!this.optionMap.containsKey(OptionKey.DUMPER_ENABLED)) {
+				if (!this.engineOptionMap.containsKey(OptionKey.DUMPER_ENABLED)) {
 					System.err.println("For more debug information, re-execute the script with \"--dump\" option.");
 				}
 				System.exit(1);
@@ -416,13 +445,13 @@ public final class VnanoCommandLineApplication {
 	// オプション内容に基づいて、スクリプトファイルの指定を前提とする状況の場合は true を返す
 	// (--help や --version などでは不要になる)
 	private boolean isScriptFileNecessary(Map<String, String> optionNameValueMap) {
-		if (optionNameValueMap.containsKey(OPTION_NAME_HELP) ) {
+		if (optionNameValueMap.containsKey(COMMAND_OPTNAME_HELP) ) {
 			return false;
 		}
-		if (optionNameValueMap.containsKey(OPTION_NAME_TEST) ) {
+		if (optionNameValueMap.containsKey(COMMAND_OPTNAME_TEST) ) {
 			return false;
 		}
-		if (optionNameValueMap.containsKey(OPTION_NAME_VERSION) ) {
+		if (optionNameValueMap.containsKey(COMMAND_OPTNAME_VERSION) ) {
 			return false;
 		}
 		return true;
@@ -438,7 +467,7 @@ public final class VnanoCommandLineApplication {
 		switch (optionName) {
 
 			// --file または無名（デフォルト）オプションの場合
-			case OPTION_NAME_FILE : {
+			case COMMAND_OPTNAME_FILE : {
 				// このオプションの値は、事前に dispatch 側で取得され、
 				// スクリプトの実行が必要な場合もそちら側で行うため、
 				// ここでは何もしない
@@ -446,30 +475,30 @@ public final class VnanoCommandLineApplication {
 			}
 
 			// --help オプションの場合
-			case OPTION_NAME_HELP : {
+			case COMMAND_OPTNAME_HELP : {
 				this.help();
 				return true;
 			}
 
 			// --run オプションの場合
-			case OPTION_NAME_RUN : {
-				this.optionMap.put(OptionKey.RUNNING_ENABLED, Boolean.valueOf(optionValue));
+			case COMMAND_OPTNAME_RUN : {
+				this.engineOptionMap.put(OptionKey.RUNNING_ENABLED, Boolean.valueOf(optionValue));
 				return true;
 			}
 
 			// --version オプションの場合
-			case OPTION_NAME_VERSION : {
+			case COMMAND_OPTNAME_VERSION : {
 				System.out.println(EngineInformation.ENGINE_NAME + " " + EngineInformation.ENGINE_VERSION);
 				return true;
 			}
 
 			// --accelerator オプションの場合
-			case OPTION_NAME_ACCELERATOR : {
+			case COMMAND_OPTNAME_ACCELERATOR : {
 				if (optionValue.equals("true") || optionValue.equals("false")) {
-					this.optionMap.put(OptionKey.ACCELERATOR_ENABLED, Boolean.valueOf(optionValue));
+					this.engineOptionMap.put(OptionKey.ACCELERATOR_ENABLED, Boolean.valueOf(optionValue));
 				} else {
 					System.err.println(
-							"Invalid value for " + OPTION_NAME_PREFIX + OPTION_NAME_ACCELERATOR + "option: " + optionValue
+							"Invalid value for " + COMMAND_OPTNAME_PREFIX + COMMAND_OPTNAME_ACCELERATOR + "option: " + optionValue
 					);
 					return false;
 				}
@@ -477,44 +506,44 @@ public final class VnanoCommandLineApplication {
 			}
 
 			// --locale オプションの場合
-			case OPTION_NAME_LOCALE : {
+			case COMMAND_OPTNAME_LOCALE : {
 				// 先頭と末尾以外に「 - 」がある場合は、言語コードと国コードの区切りなので、分割して解釈
 				if (0 < optionValue.indexOf("-") && optionValue.indexOf("-") < optionValue.length()-1) {
 					String[] localeStrings = optionValue.split("-");
-					this.optionMap.put(OptionKey.LOCALE, new Locale(localeStrings[0], localeStrings[1]));
+					this.engineOptionMap.put(OptionKey.LOCALE, new Locale(localeStrings[0], localeStrings[1]));
 
 				// それ以外は言語コードとして解釈
 				} else {
-					this.optionMap.put(OptionKey.LOCALE, new Locale(optionValue));
+					this.engineOptionMap.put(OptionKey.LOCALE, new Locale(optionValue));
 				}
 				return true;
 			}
 
 			// --encoding オプションの場合
-			case OPTION_NAME_ENCODING : {
+			case COMMAND_OPTNAME_ENCODING : {
 				// スクリプト実行時に参照されるため、ここでは何もしない
 				return true;
 			}
 
 			// --dump オプションの場合
-			case OPTION_NAME_DUMP : {
+			case COMMAND_OPTNAME_DUMP : {
 				if (optionValue == null) {
 					optionValue = DUMP_TARGET_DEFAULT;
 				}
 				String convertedOptionValue = null;
-				if (DUMP_TARGET_ARGVALUE_OPTVALUE_MAP.containsKey(optionValue)) {
-					convertedOptionValue = DUMP_TARGET_ARGVALUE_OPTVALUE_MAP.get(optionValue);
+				if (DUMP_TARGET_COMMANDOPT_ENGINEOPT_MAP.containsKey(optionValue)) {
+					convertedOptionValue = DUMP_TARGET_COMMANDOPT_ENGINEOPT_MAP.get(optionValue);
 				} else {
-					System.err.println("Invalid value for " + OPTION_NAME_PREFIX + OPTION_NAME_DUMP + " option: " + optionValue);
+					System.err.println("Invalid value for " + COMMAND_OPTNAME_PREFIX + COMMAND_OPTNAME_DUMP + " option: " + optionValue);
 					return false;
 				}
-				this.optionMap.put(OptionKey.DUMPER_TARGET, convertedOptionValue);
-				this.optionMap.put(OptionKey.DUMPER_ENABLED, Boolean.valueOf(true));
+				this.engineOptionMap.put(OptionKey.DUMPER_TARGET, convertedOptionValue);
+				this.engineOptionMap.put(OptionKey.DUMPER_ENABLED, Boolean.valueOf(true));
 				return true;
 			}
 
 			// --pluginDir オプションの場合
-			case OPTION_NAME_PLUGIN_DIR : {
+			case COMMAND_OPTNAME_PLUGIN_DIR : {
 
 				// プラグインディレクトリを分割してリストに格納
 				String[] pluginDirs = new String[0];
@@ -522,13 +551,13 @@ public final class VnanoCommandLineApplication {
 					pluginDirs = optionValue.split(System.getProperty("path.separator"));
 				}
 				for (String pluginDir: pluginDirs) {
-					this.pluginDirList.add(pluginDir);
+					this.optPluginDirList.add(pluginDir);
 				}
 				return true;
 			}
 
 			// --plugin オプションの場合
-			case OPTION_NAME_PLUGIN : {
+			case COMMAND_OPTNAME_PLUGIN : {
 
 				// プラグインパスを分割
 				String[] pluginPaths = new String[0];
@@ -538,8 +567,8 @@ public final class VnanoCommandLineApplication {
 
 				// --pluginDir で指定されてリストに格納されている、プラグインディレクトリ（複数）をURLに変換
 				String[] pluginDirs = new String[] { DEFAULT_PLUGIN_DIR };
-				if (0 < this.pluginDirList.size()) {
-					pluginDirs = this.pluginDirList.toArray(new String[0]);
+				if (0 < this.optPluginDirList.size()) {
+					pluginDirs = this.optPluginDirList.toArray(new String[0]);
 				}
 				int pluginDirLength = pluginDirs.length;
 				URL[] pluginDirURLs = new URL[pluginDirLength];
@@ -561,7 +590,7 @@ public final class VnanoCommandLineApplication {
 					try {
 						ConnectorImplementationContainer pluginContainer = pluginLoader.load(pluginPath);
 						Object plugin = pluginContainer.getConnectorImplementation();
-						this.pluginList.add(plugin);
+						this.optPluginList.add(plugin);
 					} catch (ConnectorException e) {
 						System.err.println("Plug-in connection failed: " + pluginPath);
 						e.printStackTrace();
@@ -571,10 +600,22 @@ public final class VnanoCommandLineApplication {
 				return true;
 			}
 
+			// --pluginList オプションの場合
+			case COMMAND_OPTNAME_PLUGIN_LIST : {
+				this.optPluginListFilePath = optionValue;
+				return true;
+			}
+
+			// --libList オプションの場合
+			case COMMAND_OPTNAME_LIBRARY_LIST : {
+				this.optLibraryListFilePath = optionValue;
+				return true;
+			}
+
 			// --test オプションの場合
-			case OPTION_NAME_TEST : {
+			case COMMAND_OPTNAME_TEST : {
 				// 後で結合テストを実行する（全オプション指定を反映した条件下でテストするため、ここではまだ実行しない）
-				this.combinedTestRequired = true;
+				this.optCombinedTestRequired = true;
 				return true;
 			}
 
@@ -602,9 +643,9 @@ public final class VnanoCommandLineApplication {
 		for (int argIndex=0; argIndex<argLength; argIndex++) {
 
 			// オプションプレフィックス(--)で始まる場合は、オプション名の指定と見なし、次引数の解釈のために保持
-			if (args[argIndex].startsWith(OPTION_NAME_PREFIX)) {
+			if (args[argIndex].startsWith(COMMAND_OPTNAME_PREFIX)) {
 				currentArgIsOption = true;
-				currentOptionName = args[argIndex].substring(OPTION_NAME_PREFIX.length(), args[argIndex].length());
+				currentOptionName = args[argIndex].substring(COMMAND_OPTNAME_PREFIX.length(), args[argIndex].length());
 				optionNameList.add(currentOptionName);
 
 			} else {
@@ -614,7 +655,7 @@ public final class VnanoCommandLineApplication {
 
 				// 事前にオプション名が無指定だった場合は、デフォルトオプション名をキーとし、引数値をマップに追加
 				} else {
-					optionNameValueMap.put(OPTION_NAME_DEFAULT, args[argIndex]);
+					optionNameValueMap.put(COMMAND_OPTNAME_DEFAULT, args[argIndex]);
 				}
 
 				// オプション名指定をリセット
@@ -696,9 +737,9 @@ public final class VnanoCommandLineApplication {
 		// 何も接続されていない、空のインターコネクトを生成
 		Interconnect interconnect = new Interconnect(LANG_SPEC);
 
-		// パーミッションマップを生成し, 全パーミッション項目の値が "ASK" と見なされるデフォルト挙動で初期化
+		// パーミッションマップを生成し, 全パーミッション項目の値が "DENY" と見なされるデフォルト挙動で初期化
 		Map<String, String> permissionMap = new LinkedHashMap<String, String>();
-		permissionMap.put(ConnectorPermissionName.ALL, ConnectorPermissionValue.ASK);
+		permissionMap.put(ConnectorPermissionName.ALL, ConnectorPermissionValue.DENY);
 
 		// プラグインが接続/初期化時にオプション値を参照する場合があるので、接続前にオプション設定を済ませる
 		EngineConnector engineConnector = new EngineConnector(optionMap, permissionMap);
@@ -747,7 +788,7 @@ public final class VnanoCommandLineApplication {
 
 		// メソッド接続済みのスクリプトエンジンを生成して取得
 		VnanoEngine engine = this.createInitializedVnanoEngine(
-			this.optionMap, new PluginLoader(DEFAULT_ENCODING, LANG_SPEC)
+			this.engineOptionMap, new PluginLoader(DEFAULT_ENCODING, LANG_SPEC)
 		);
 
 		try {
@@ -760,7 +801,7 @@ public final class VnanoCommandLineApplication {
 			System.err.println("[ Stack Trace ]");
 			e.printStackTrace();
 			System.err.println("");
-			if (!this.optionMap.containsKey(OptionKey.DUMPER_ENABLED)) {
+			if (!this.engineOptionMap.containsKey(OptionKey.DUMPER_ENABLED)) {
 				System.err.println("For more debug information, re-execute combined tests with \"--dump\" option.");
 			}
 			return false;
@@ -801,18 +842,20 @@ public final class VnanoCommandLineApplication {
 
 		// オプションマップにスクリプト名を設定し、I/O形式をCUIに設定
 		//（プラグインが接続/初期化時にオプション値を参照する場合があるので、接続前に設定を済ませる）
-		this.optionMap.put(OptionKey.MAIN_SCRIPT_NAME, scriptLoader.getMainScriptName());
-		this.optionMap.put(OptionKey.UI_MODE, "CUI");
+		this.engineOptionMap.put(OptionKey.MAIN_SCRIPT_NAME, scriptLoader.getMainScriptName());
+		this.engineOptionMap.put(OptionKey.UI_MODE, "CUI");
 
 		// オプション設定済み＆プラグイン接続済みのスクリプトエンジンを生成
-		VnanoEngine engine = this.createInitializedVnanoEngine(this.optionMap, pluginLoader);
+		VnanoEngine engine = this.createInitializedVnanoEngine(this.engineOptionMap, pluginLoader);
 
 		// スクリプトエンジンにライブラリを include 登録
-		String[] libNames = scriptLoader.getLibraryScriptNames();
-		String[] libContents = scriptLoader.getLibraryScriptContents();
-		int libN = libNames.length;
-		for (int libIndex=0; libIndex<libN; libIndex++) {
-			engine.includeLibraryScript(libNames[libIndex], libContents[libIndex]);
+		if (scriptLoader.hasLibraryScripts()) {
+			String[] libNames = scriptLoader.getLibraryScriptNames();
+			String[] libContents = scriptLoader.getLibraryScriptContents();
+			int libN = libNames.length;
+			for (int libIndex=0; libIndex<libN; libIndex++) {
+				engine.includeLibraryScript(libNames[libIndex], libContents[libIndex]);
+			}
 		}
 
 		// スクリプトを実行
@@ -826,11 +869,11 @@ public final class VnanoCommandLineApplication {
 
 		// オプションマップにスクリプト名を設定し、I/O形式をCUIに設定
 		//（プラグインが接続/初期化時にオプション値を参照する場合があるので、接続前に設定を済ませる）
-		this.optionMap.put(OptionKey.MAIN_SCRIPT_NAME, scriptLoader.getMainScriptName());
-		this.optionMap.put(OptionKey.UI_MODE, "CUI");
+		this.engineOptionMap.put(OptionKey.MAIN_SCRIPT_NAME, scriptLoader.getMainScriptName());
+		this.engineOptionMap.put(OptionKey.UI_MODE, "CUI");
 
 		// オプション設定済み＆プラグイン接続済みのインターコネクトを生成して取得
-		Interconnect interconnect = this.createInitializedInterconnect(this.optionMap, pluginLoader);
+		Interconnect interconnect = this.createInitializedInterconnect(this.engineOptionMap, pluginLoader);
 		if (interconnect == null) {
 			return;
 		}
@@ -840,7 +883,7 @@ public final class VnanoCommandLineApplication {
 
 		// プロセス仮想マシンを生成し、VRILコードを渡して実行
 		VirtualMachine vm = new VirtualMachine(LANG_SPEC);
-		vm.executeAssemblyCode(scriptLoader.getMainScriptContent(), interconnect, this.optionMap);
+		vm.executeAssemblyCode(scriptLoader.getMainScriptContent(), interconnect, this.engineOptionMap);
 
 		// プラグインのスクリプト実行後の終了時処理などを実行
 		interconnect.deactivate();

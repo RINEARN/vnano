@@ -17,6 +17,7 @@ public class CombinedTestExecutor {
 		List<CombinedTestElement> testElementList = new ArrayList<CombinedTestElement>();
 
 		// Add test element here
+		testElementList.add(new LiteralCombinedTest());
 		testElementList.add(new ScalarAssignmentOperationCombinedTest());
 		testElementList.add(new ScalarArithmeticOperationCombinedTest());
 		testElementList.add(new ScalarLogicalOperationCombinedTest());

@@ -23,6 +23,7 @@ org/vcssl/nano/combinedtest/EmptyStatementCombinedTest.java
 org/vcssl/nano/combinedtest/ForStatementCombinedTest.java
 org/vcssl/nano/combinedtest/FunctionCombinedTest.java
 org/vcssl/nano/combinedtest/IfElseStatementCombinedTest.java
+org/vcssl/nano/combinedtest/LiteralCombinedTest.java
 org/vcssl/nano/combinedtest/package-info.java
 org/vcssl/nano/combinedtest/ScalarArithmeticOperationCombinedTest.java
 org/vcssl/nano/combinedtest/ScalarAssignmentOperationCombinedTest.java

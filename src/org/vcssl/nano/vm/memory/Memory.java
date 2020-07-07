@@ -376,7 +376,25 @@ public final class Memory {
 				case INT64 : {
 					DataContainer<long[]> data = new DataContainer<long[]>();
 					try {
-						data.setData(new long[]{ Long.parseLong(valueText) }, 0);
+						// 16進数リテラルの場合
+						if (valueText.startsWith(LITERAL_SYNTAX.intLiteralHexPrefix)) {
+							valueText = valueText.substring(LITERAL_SYNTAX.intLiteralHexPrefix.length());
+							data.setData(new long[]{ Long.parseLong(valueText, 16) }, 0);
+
+						// 8進数リテラルの場合
+						} else if (valueText.startsWith(LITERAL_SYNTAX.intLiteralOctPrefix)) {
+							valueText = valueText.substring(LITERAL_SYNTAX.intLiteralOctPrefix.length());
+							data.setData(new long[]{ Long.parseLong(valueText, 8) }, 0);
+
+						// 2進数リテラルの場合
+						} else if (valueText.startsWith(LITERAL_SYNTAX.intLiteralBinPrefix)) {
+							valueText = valueText.substring(LITERAL_SYNTAX.intLiteralBinPrefix.length());
+							data.setData(new long[]{ Long.parseLong(valueText, 2) }, 0);
+
+						// それ以外は10進数リテラル
+						} else {
+							data.setData(new long[]{ Long.parseLong(valueText) }, 0);
+						}
 					} catch(NumberFormatException e) {
 						VnanoException vse = new VnanoException(ErrorType.INVALID_IMMEDIATE_VALUE, new String[] { valueText});
 						throw vse;
