@@ -22,6 +22,17 @@ import org.vcssl.nano.VnanoException;
  * ホスト言語側におけるデータを相互変換するクラスです。
  * </p>
  *
+ * <p>
+ * &raquo <a href="../../../../../src/org/vcssl/nano/interconnect/DataConverter.java">Source code</a>
+ * </p>
+ *
+ * <hr>
+ *
+ * <p>
+ * | <a href="../../../../../api/org/vcssl/nano/interconnect/DataConverter.html">Public Only</a>
+ * | <a href="../../../../../api-all/org/vcssl/nano/interconnect/DataConverter.html">All</a> |
+ * </p>
+ *
  * @author RINEARN (Fumihiro Matsui)
  */
 public class DataConverter {

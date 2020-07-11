@@ -66,6 +66,13 @@ import org.vcssl.nano.VnanoException;
  * &raquo <a href="../../../../../src/org/vcssl/nano/interconnect/Interconnect.java">Source code</a>
  * </p>
  *
+ * <hr>
+ *
+ * <p>
+ * | <a href="../../../../../api/org/vcssl/nano/interconnect/Interconnect.html">Public Only</a>
+ * | <a href="../../../../../api-all/org/vcssl/nano/interconnect/Interconnect.html">All</a> |
+ * </p>
+ *
  * @author RINEARN (Fumihiro Matsui)
  */
 public class Interconnect {
