@@ -1379,7 +1379,7 @@ public class SemanticAnalyzer {
 
 		// リーフ以外は書き換え不可能なのでエラー
 		if (node.getType() != AstNode.Type.LEAF) {
-			throw new VnanoException(ErrorType.WRITING_TO_UNWRITABLE_SOMETHING, fileName, lineNumber);
+			throw new VnanoException(ErrorType.WRITING_TO_NON_LVALUE, fileName, lineNumber);
 		}
 
 		String leafType = node.getAttribute(AttributeKey.LEAF_TYPE);
@@ -1399,11 +1399,11 @@ public class SemanticAnalyzer {
 		// リテラルは書き換え不可能なのでエラー
 		} else if (leafType.equals(AttributeValue.LITERAL)) {
 			String[] errorWords = { node.getAttribute(AttributeKey.LITERAL_VALUE) };
-			throw new VnanoException(ErrorType.WRITING_TO_UNWRITABLE_SOMETHING, errorWords, fileName, lineNumber);
+			throw new VnanoException(ErrorType.WRITING_TO_LITERAL, errorWords, fileName, lineNumber);
 
 		// それ以外は、現状の仕様では全て書き換え不可能なため、常にエラー
 		} else {
-			throw new VnanoException(ErrorType.WRITING_TO_UNWRITABLE_SOMETHING, fileName, lineNumber);
+			throw new VnanoException(ErrorType.WRITING_TO_NON_LVALUE, fileName, lineNumber);
 		}
 	}
 
