@@ -138,6 +138,9 @@ public class SemanticAnalyzer {
 		VariableTable globalVariableTable = interconnect.getExternalVariableTable();
 		FunctionTable globalFunctionTable = interconnect.getExternalFunctionTable();
 
+		// 型の別名（floatに対するdouble, intに対するlong）を標準の名称（float,int）に置き換える
+		this.replaceAliasDataTypeNames(outputAst);
+
 		// リテラルタイプのリーフノードの属性値を設定（シグネチャ確定のため、関数識別子リーフノードの解析よりも前に済ませる必要がある）
 		this.supplementLiteralLeafAttributes(outputAst);
 
@@ -187,6 +190,46 @@ public class SemanticAnalyzer {
 		}
 
 		return outputAst;
+	}
+
+	/**
+	 * 引数に渡されたAST（抽象構文木）の内の各ノードに対して、{@link AttributeKey#DATA_TYPE DATA_TYPE} 属性値を読み、
+	 * それが型の別名（float に 対する double、int に対する long）であった場合には、標準名（float, int）に置き換えます。
+	 * （従って、このメソッドは破壊的メソッドです）。
+	 *
+	 * @param astRootNode 処理対象のASTのルートノード（メソッド実行後、各ノードのDATA_TYPE属性値が置換されます）
+	 */
+	private void replaceAliasDataTypeNames(AstNode astRootNode) {
+
+		if (!astRootNode.hasChildNodes()) {
+			return;
+		}
+
+		AstNode currentNode = astRootNode;
+
+		// ASTノードを、行がけ順の深さ優先走査で辿って処理していく
+		do {
+			currentNode = currentNode.getPreorderDftNextNode();
+
+			// 属性値に型名を持っていなければスキップし、持っていれば取得する
+			if (!currentNode.hasAttribute(AttributeKey.DATA_TYPE)) {
+				continue;
+			}
+			String dataTypeName = currentNode.getAttribute(AttributeKey.DATA_TYPE);
+
+			// 型名が double の場合は float に置き換え
+			if (dataTypeName.equals(LANG_SPEC.DATA_TYPE_NAME.doubleFloat)) {
+				currentNode.setAttribute(AttributeKey.DATA_TYPE, LANG_SPEC.DATA_TYPE_NAME.defaultFloat);
+				continue;
+			}
+
+			// 型名が long の場合は int に置き換え
+			if (dataTypeName.equals(LANG_SPEC.DATA_TYPE_NAME.longInt)) {
+				currentNode.setAttribute(AttributeKey.DATA_TYPE, LANG_SPEC.DATA_TYPE_NAME.defaultInt);
+				continue;
+			}
+
+		} while (!currentNode.isPreorderDftLastNode());
 	}
 
 
