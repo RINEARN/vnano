@@ -119,16 +119,16 @@ public class DispatchUnitTest {
 		this.int64Output = new DataContainer<long[]>();
 		this.int64InputA = new DataContainer<long[]>();
 		this.int64InputB = new DataContainer<long[]>();
-		this.int64Output.setData(new long[3], new int[]{ 3 });
-		this.int64InputA.setData(new long[3], new int[]{ 3 });
-		this.int64InputB.setData(new long[3], new int[]{ 3 });
+		this.int64Output.setData(new long[3], 0, new int[]{ 3 });
+		this.int64InputA.setData(new long[3], 0, new int[]{ 3 });
+		this.int64InputB.setData(new long[3], 0, new int[]{ 3 });
 
 		this.boolOutput = new DataContainer<boolean[]>();
 		this.boolInputA = new DataContainer<boolean[]>();
 		this.boolInputB = new DataContainer<boolean[]>();
-		this.boolOutput.setData(new boolean[3], new int[]{ 3 });
-		this.boolInputA.setData(new boolean[3], new int[]{ 3 });
-		this.boolInputB.setData(new boolean[3], new int[]{ 3 });
+		this.boolOutput.setData(new boolean[3], 0, new int[]{ 3 });
+		this.boolInputA.setData(new boolean[3], 0, new int[]{ 3 });
+		this.boolInputB.setData(new boolean[3], 0, new int[]{ 3 });
 
 		this.memory = new Memory(new LanguageSpecContainer());
 		this.memory.setDataContainer(INT64_OUTPUT_PART, INT64_OUTPUT_ADDR, this.int64Output);
@@ -218,9 +218,9 @@ public class DispatchUnitTest {
 	private void testDispatchAdd() {
 
 		// 入出力オペランドに値を設定
-		this.int64InputA.setData(new long[]{ 1L, 2L, 3L }, new int[] {3});
-		this.int64InputB.setData(new long[]{ 4L, 5L, 6L }, new int[] {3});
-		this.int64Output.setData(new long[]{ -1L, -1L, -1L }, new int[] {3});
+		this.int64InputA.setData(new long[]{ 1L, 2L, 3L }, 0, new int[] {3});
+		this.int64InputB.setData(new long[]{ 4L, 5L, 6L }, 0, new int[] {3});
+		this.int64Output.setData(new long[]{ -1L, -1L, -1L }, 0, new int[] {3});
 
 		// 上記オペランドで演算を行う命令を生成
 		Instruction instruction = this.generateInt64x3Instruction(OperationCode.ADD);
@@ -258,9 +258,9 @@ public class DispatchUnitTest {
 	private void testDispatchSub() {
 
 		// 入出力オペランドに値を設定
-		this.int64InputA.setData(new long[]{ 10L, 5L, 3L }, new int[] {3});
-		this.int64InputB.setData(new long[]{ 2L, 5L, 7L }, new int[] {3});
-		this.int64Output.setData(new long[]{ -1L, -1L, -1L }, new int[] {3});
+		this.int64InputA.setData(new long[]{ 10L, 5L, 3L }, 0, new int[] {3});
+		this.int64InputB.setData(new long[]{ 2L, 5L, 7L }, 0, new int[] {3});
+		this.int64Output.setData(new long[]{ -1L, -1L, -1L }, 0, new int[] {3});
 
 		// 上記オペランドで演算を行う命令を生成
 		Instruction instruction = this.generateInt64x3Instruction(OperationCode.SUB);
@@ -298,9 +298,9 @@ public class DispatchUnitTest {
 	private void testDispatchMul() {
 
 		// 入出力オペランドに値を設定
-		this.int64InputA.setData(new long[]{ 1L, 2L, 3L }, new int[] {3});
-		this.int64InputB.setData(new long[]{ 4L, 5L, 6L }, new int[] {3});
-		this.int64Output.setData(new long[]{ -1L, -1L, -1L }, new int[] {3});
+		this.int64InputA.setData(new long[]{ 1L, 2L, 3L }, 0, new int[] {3});
+		this.int64InputB.setData(new long[]{ 4L, 5L, 6L }, 0, new int[] {3});
+		this.int64Output.setData(new long[]{ -1L, -1L, -1L }, 0, new int[] {3});
 
 		// 上記オペランドで演算を行う命令を生成
 		Instruction instruction = this.generateInt64x3Instruction(OperationCode.MUL);
@@ -338,9 +338,9 @@ public class DispatchUnitTest {
 	private void testDispatchDiv() {
 
 		// 入出力オペランドに値を設定
-		this.int64InputA.setData(new long[]{ 10L, 11L, 100L }, new int[] {3});
-		this.int64InputB.setData(new long[]{ 5L, 3L, 20L }, new int[] {3});
-		this.int64Output.setData(new long[]{ -1L, -1L, -1L }, new int[] {3});
+		this.int64InputA.setData(new long[]{ 10L, 11L, 100L }, 0, new int[] {3});
+		this.int64InputB.setData(new long[]{ 5L, 3L, 20L }, 0, new int[] {3});
+		this.int64Output.setData(new long[]{ -1L, -1L, -1L }, 0, new int[] {3});
 
 		// 上記オペランドで演算を行う命令を生成
 		Instruction instruction = this.generateInt64x3Instruction(OperationCode.DIV);
@@ -378,9 +378,9 @@ public class DispatchUnitTest {
 	private void testDispatchRem() {
 
 		// 入出力オペランドに値を設定
-		this.int64InputA.setData(new long[]{ 10L, 11L, 100L }, new int[] {3});
-		this.int64InputB.setData(new long[]{ 5L, 3L, 20L }, new int[] {3});
-		this.int64Output.setData(new long[]{ -1L, -1L, -1L }, new int[] {3});
+		this.int64InputA.setData(new long[]{ 10L, 11L, 100L }, 0, new int[] {3});
+		this.int64InputB.setData(new long[]{ 5L, 3L, 20L }, 0, new int[] {3});
+		this.int64Output.setData(new long[]{ -1L, -1L, -1L }, 0, new int[] {3});
 
 		// 上記オペランドで演算を行う命令を生成
 		Instruction instruction = this.generateInt64x3Instruction(OperationCode.REM);
@@ -418,8 +418,8 @@ public class DispatchUnitTest {
 	private void testDispatchNeg() {
 
 		// 入出力オペランドに値を設定
-		this.int64InputA.setData(new long[]{ 1L, -2L, 3L }, new int[] {3});
-		this.int64Output.setData(new long[]{ -1L, -1L, -1L }, new int[] {3});
+		this.int64InputA.setData(new long[]{ 1L, -2L, 3L }, 0, new int[] {3});
+		this.int64Output.setData(new long[]{ -1L, -1L, -1L }, 0, new int[] {3});
 
 		// 上記オペランドで演算を行う命令を生成
 		Instruction instruction = this.generateInt64x2Instruction(OperationCode.NEG);
@@ -457,9 +457,9 @@ public class DispatchUnitTest {
 	private void testDispatchEq() {
 
 		// 入出力オペランドに値を設定
-		this.int64InputA.setData(new long[]{ 200L, 500L, 700L }, new int[] {3});
-		this.int64InputB.setData(new long[]{ 100L, 500L, 800L }, new int[] {3});
-		this.boolOutput.setData(new boolean[]{ false, false, false }, new int[] {3});
+		this.int64InputA.setData(new long[]{ 200L, 500L, 700L }, 0, new int[] {3});
+		this.int64InputB.setData(new long[]{ 100L, 500L, 800L }, 0, new int[] {3});
+		this.boolOutput.setData(new boolean[]{ false, false, false }, 0, new int[] {3});
 
 		// 上記オペランドで演算を行う命令を生成
 		Instruction instruction = this.generateBoolx1Int64x2Instruction(OperationCode.EQ);
@@ -497,9 +497,9 @@ public class DispatchUnitTest {
 	private void testDispatchNeq() {
 
 		// 入出力オペランドに値を設定
-		this.int64InputA.setData(new long[]{ 200L, 500L, 700L }, new int[] {3});
-		this.int64InputB.setData(new long[]{ 100L, 500L, 800L }, new int[] {3});
-		this.boolOutput.setData(new boolean[]{ false, false, false }, new int[] {3});
+		this.int64InputA.setData(new long[]{ 200L, 500L, 700L }, 0, new int[] {3});
+		this.int64InputB.setData(new long[]{ 100L, 500L, 800L }, 0, new int[] {3});
+		this.boolOutput.setData(new boolean[]{ false, false, false }, 0, new int[] {3});
 
 		// 上記オペランドで演算を行う命令を生成
 		Instruction instruction = this.generateBoolx1Int64x2Instruction(OperationCode.NEQ);
@@ -538,9 +538,9 @@ public class DispatchUnitTest {
 	private void testDispatchGeq() {
 
 		// 入出力オペランドに値を設定
-		this.int64InputA.setData(new long[]{ 200L, 500L, 700L }, new int[] {3});
-		this.int64InputB.setData(new long[]{ 100L, 500L, 800L }, new int[] {3});
-		this.boolOutput.setData(new boolean[]{ false, false, false }, new int[] {3});
+		this.int64InputA.setData(new long[]{ 200L, 500L, 700L }, 0, new int[] {3});
+		this.int64InputB.setData(new long[]{ 100L, 500L, 800L }, 0, new int[] {3});
+		this.boolOutput.setData(new boolean[]{ false, false, false }, 0, new int[] {3});
 
 		// 上記オペランドで演算を行う命令を生成
 		Instruction instruction = this.generateBoolx1Int64x2Instruction(OperationCode.GEQ);
@@ -579,9 +579,9 @@ public class DispatchUnitTest {
 	private void testDispatchLeq() {
 
 		// 入出力オペランドに値を設定
-		this.int64InputA.setData(new long[]{ 200L, 500L, 700L }, new int[] {3});
-		this.int64InputB.setData(new long[]{ 100L, 500L, 800L }, new int[] {3});
-		this.boolOutput.setData(new boolean[]{ false, false, false }, new int[] {3});
+		this.int64InputA.setData(new long[]{ 200L, 500L, 700L }, 0, new int[] {3});
+		this.int64InputB.setData(new long[]{ 100L, 500L, 800L }, 0, new int[] {3});
+		this.boolOutput.setData(new boolean[]{ false, false, false }, 0, new int[] {3});
 
 		// 上記オペランドで演算を行う命令を生成
 		Instruction instruction = this.generateBoolx1Int64x2Instruction(OperationCode.LEQ);
@@ -620,9 +620,9 @@ public class DispatchUnitTest {
 	private void testDispatchGt() {
 
 		// 入出力オペランドに値を設定
-		this.int64InputA.setData(new long[]{ 200L, 500L, 700L }, new int[] {3});
-		this.int64InputB.setData(new long[]{ 100L, 500L, 800L }, new int[] {3});
-		this.boolOutput.setData(new boolean[]{ false, false, false }, new int[] {3});
+		this.int64InputA.setData(new long[]{ 200L, 500L, 700L }, 0, new int[] {3});
+		this.int64InputB.setData(new long[]{ 100L, 500L, 800L }, 0, new int[] {3});
+		this.boolOutput.setData(new boolean[]{ false, false, false }, 0, new int[] {3});
 
 		// 上記オペランドで演算を行う命令を生成
 		Instruction instruction = this.generateBoolx1Int64x2Instruction(OperationCode.GT);
@@ -661,9 +661,9 @@ public class DispatchUnitTest {
 	private void testDispatchLt() {
 
 		// 入出力オペランドに値を設定
-		this.int64InputA.setData(new long[]{ 200L, 500L, 700L }, new int[] {3});
-		this.int64InputB.setData(new long[]{ 100L, 500L, 800L }, new int[] {3});
-		this.boolOutput.setData(new boolean[]{ false, false, false }, new int[] {3});
+		this.int64InputA.setData(new long[]{ 200L, 500L, 700L }, 0, new int[] {3});
+		this.int64InputB.setData(new long[]{ 100L, 500L, 800L }, 0, new int[] {3});
+		this.boolOutput.setData(new boolean[]{ false, false, false }, 0, new int[] {3});
 
 		// 上記オペランドで演算を行う命令を生成
 		Instruction instruction = this.generateBoolx1Int64x2Instruction(OperationCode.LT);
@@ -702,9 +702,9 @@ public class DispatchUnitTest {
 	private void testDispatchAnd() {
 
 		// 入出力オペランドに値を設定
-		this.boolInputA.setData(new boolean[]{ false, true,  true }, new int[] {3});
-		this.boolInputB.setData(new boolean[]{ false, false, true }, new int[] {3});
-		this.boolOutput.setData(new boolean[]{ false, false, false }, new int[] {3});
+		this.boolInputA.setData(new boolean[]{ false, true,  true }, 0, new int[] {3});
+		this.boolInputB.setData(new boolean[]{ false, false, true }, 0, new int[] {3});
+		this.boolOutput.setData(new boolean[]{ false, false, false }, 0, new int[] {3});
 
 		// 上記オペランドで演算を行う命令を生成
 		Instruction instruction = this.generateBoolx3Instruction(OperationCode.ANDM);
@@ -742,9 +742,9 @@ public class DispatchUnitTest {
 	private void testDispatchOr() {
 
 		// 入出力オペランドに値を設定
-		this.boolInputA.setData(new boolean[]{ false, true,  true }, new int[] {3});
-		this.boolInputB.setData(new boolean[]{ false, false, true }, new int[] {3});
-		this.boolOutput.setData(new boolean[]{ false, false, false }, new int[] {3});
+		this.boolInputA.setData(new boolean[]{ false, true,  true }, 0, new int[] {3});
+		this.boolInputB.setData(new boolean[]{ false, false, true }, 0, new int[] {3});
+		this.boolOutput.setData(new boolean[]{ false, false, false }, 0, new int[] {3});
 
 		// 上記オペランドで演算を行う命令を生成
 		Instruction instruction = this.generateBoolx3Instruction(OperationCode.ORM);
@@ -782,8 +782,8 @@ public class DispatchUnitTest {
 	private void testDispatchNot() {
 
 		// 入出力オペランドに値を設定
-		this.boolInputA.setData(new boolean[]{ false, true,  false }, new int[] {3});
-		this.boolOutput.setData(new boolean[]{ false, false, false }, new int[] {3});
+		this.boolInputA.setData(new boolean[]{ false, true,  false }, 0, new int[] {3});
+		this.boolOutput.setData(new boolean[]{ false, false, false }, 0, new int[] {3});
 
 		// 上記オペランドで演算を行う命令を生成
 		Instruction instruction = this.generateBoolx2Instruction(OperationCode.NOT);
@@ -866,8 +866,8 @@ public class DispatchUnitTest {
 	private void testDispatchMov() {
 
 		// 入出力オペランドに値を設定
-		this.int64InputA.setData(new long[]{ 11L, 22L, 33L }, new int[] {3});
-		this.int64Output.setData(new long[]{ -1L, -1L, -1L }, new int[] {3});
+		this.int64InputA.setData(new long[]{ 11L, 22L, 33L }, 0, new int[] {3});
+		this.int64Output.setData(new long[]{ -1L, -1L, -1L }, 0, new int[] {3});
 
 		// 上記オペランドで演算を行う命令を生成
 		Instruction instruction = this.generateInt64x2Instruction(OperationCode.MOV);
@@ -909,8 +909,8 @@ public class DispatchUnitTest {
 		this.memory.setDataContainer(TMP_A_PART, TMP_A_ADDR, float64Input);
 
 		// 入出力オペランドに値を設定
-		float64Input.setData(new double[]{ 1.25, 2.25, 3.5 }, new int[] {3}); // 2進表現で割り切れる値
-		this.int64Output.setData(new long[]{ -1L, -1L, -1L }, new int[] {3});
+		float64Input.setData(new double[]{ 1.25, 2.25, 3.5 }, 0, new int[] {3}); // 2進表現で割り切れる値
+		this.int64Output.setData(new long[]{ -1L, -1L, -1L }, 0, new int[] {3});
 
 		// 上記オペランドで演算を行う命令を生成
 		Instruction instruction = new Instruction(
@@ -949,8 +949,8 @@ public class DispatchUnitTest {
 		this.memory.setDataContainer(TMP_A_PART, TMP_A_ADDR, scalar);
 
 		// 入出力オペランドに値を設定
-		this.int64Output.setData(new long[]{ -1L, -1L, -1L }, new int[] {3});
-		scalar.setData(new long[]{ 123L }, new int[] {3});
+		this.int64Output.setData(new long[]{ -1L, -1L, -1L }, 0, new int[] {3});
+		scalar.setData(new long[]{ 123L }, 0, new int[] {3});
 
 		// 上記オペランドで演算を行う命令を生成
 		Instruction instruction = new Instruction(
@@ -990,9 +990,9 @@ public class DispatchUnitTest {
 		this.memory.setDataContainer(TMP_B_PART, TMP_B_ADDR, index);
 
 		// 入出力オペランドに値を設定
-		this.int64InputA.setData(new long[]{ 11L, 22L, 33L }, new int[] {3}); // 要素を参照する配列
-		index.setData(new long[]{ 1L }, 0);
-		element.setData(new long[]{ -1L }, 0);
+		this.int64InputA.setData(new long[]{ 11L, 22L, 33L }, 0, new int[] {3}); // 要素を参照する配列
+		index.setData(new long[]{ 1L }, 0, DataContainer.LENGTHS_OF_SCALAR);
+		element.setData(new long[]{ -1L }, 0, DataContainer.LENGTHS_OF_SCALAR);
 
 		// 上記オペランドで演算を行う命令を生成
 		Instruction instruction = new Instruction(
@@ -1076,7 +1076,7 @@ public class DispatchUnitTest {
 
 		// データを格納
 		long[] data = new long[]{ 1L, 2L, 3L, 4L, 5L };
-		target.setData(data, targetLengths);
+		target.setData(data, 0, targetLengths);
 
 		// 上記オペランドで演算を行う命令を生成
 		Instruction instruction = new Instruction(
@@ -1129,8 +1129,8 @@ public class DispatchUnitTest {
 		this.memory.setDataContainer(TMP_B_PART, TMP_B_ADDR, condition);
 
 		// 入出力オペランドに値を設定
-		condition.setData(new boolean[]{ true }, new int[] {3});
-		jumpAddress.setData(new long[]{ 256L }, new int[] {3});
+		condition.setData(new boolean[]{ true }, 0, new int[] {3});
+		jumpAddress.setData(new long[]{ 256L }, 0, new int[] {3});
 
 		// 上記オペランドで演算を行う命令を生成
 		Instruction instruction = new Instruction(
@@ -1155,7 +1155,7 @@ public class DispatchUnitTest {
 		}
 
 		// 分岐条件を変更して再実行
-		condition.setData(new boolean[]{ false }, new int[] {3});
+		condition.setData(new boolean[]{ false }, 0, new int[] {3});
 		pc = 10; // プログラムカウンタ
 		try {
 			pc = this.dispatch(instruction, pc);
@@ -1180,8 +1180,8 @@ public class DispatchUnitTest {
 		this.memory.setDataContainer(TMP_B_PART, TMP_B_ADDR, condition);
 
 		// 入出力オペランドに値を設定
-		condition.setData(new boolean[]{ true }, new int[] {3});
-		jumpAddress.setData(new long[]{ 256L }, new int[] {3});
+		condition.setData(new boolean[]{ true }, 0, new int[] {3});
+		jumpAddress.setData(new long[]{ 256L }, 0, new int[] {3});
 
 		// 上記オペランドで演算を行う命令を生成
 		Instruction instruction = new Instruction(
@@ -1206,7 +1206,7 @@ public class DispatchUnitTest {
 		}
 
 		// 分岐条件を変更して再実行
-		condition.setData(new boolean[]{ false }, new int[] {3});
+		condition.setData(new boolean[]{ false }, 0, new int[] {3});
 		pc = 10; // プログラムカウンタ
 		try {
 			pc = this.dispatch(instruction, pc);
@@ -1283,9 +1283,9 @@ public class DispatchUnitTest {
 		this.memory.setDataContainer(TMP_D_PART, TMP_D_ADDR, len2);
 
 		// 要素数指定値を設定（ [2][3][4] ）
-		len0.setData(new long[] { 2L }, 0);
-		len1.setData(new long[] { 3L }, 0);
-		len2.setData(new long[] { 4L }, 0);
+		len0.setData(new long[] { 2L }, 0, DataContainer.LENGTHS_OF_SCALAR);
+		len1.setData(new long[] { 3L }, 0, DataContainer.LENGTHS_OF_SCALAR);
+		len2.setData(new long[] { 4L }, 0, DataContainer.LENGTHS_OF_SCALAR);
 
 		// ALLOC命令（スカラ確保）を生成
 		Instruction instruction = new Instruction(
@@ -1352,11 +1352,11 @@ public class DispatchUnitTest {
 		this.memory.setDataContainer(TMP_B_PART, TMP_B_ADDR, argB);
 		this.memory.setDataContainer(TMP_C_PART, TMP_C_ADDR, ret);
 		this.memory.setDataContainer(TMP_D_PART, TMP_D_ADDR, functionAddressContainer);
-		argA.setData(new long[]{ 123L }, 0);
-		argB.setData(new long[]{ 456L }, 0);
-		ret.setData(new long[]{ -1 }, 0);
+		argA.setData(new long[]{ 123L }, 0, DataContainer.LENGTHS_OF_SCALAR);
+		argB.setData(new long[]{ 456L }, 0, DataContainer.LENGTHS_OF_SCALAR);
+		ret.setData(new long[]{ -1 }, 0, DataContainer.LENGTHS_OF_SCALAR);
 		int functionAddress = 0; // 関数は1個しか接続していないので0番なはず
-		functionAddressContainer.setData(new long[]{ functionAddress }, 0);
+		functionAddressContainer.setData(new long[]{ functionAddress }, 0, DataContainer.LENGTHS_OF_SCALAR);
 
 		// 上記オペランドでメソッドコールを行う命令を生成
 		Instruction instruction = new Instruction(

@@ -67,7 +67,7 @@ public class DataContainerTest {
 
 		// 状態をデフォルトから変える
 		int lengths[] = new int[] { 5 };
-		container.setData(new long[4], lengths);
+		container.setData(new long[4], 0, lengths);
 
 		// 初期化
 		container.initialize();
@@ -78,7 +78,7 @@ public class DataContainerTest {
 		// オフセット値を変える場合も試す
 		container = new DataContainer<long[]>();
 		int offset = 1;
-		container.setData(new long[4], offset);
+		container.setData(new long[4], offset, DataContainer.LENGTHS_OF_SCALAR);
 
 		// 初期化
 		container.initialize();
@@ -92,7 +92,7 @@ public class DataContainerTest {
 		DataContainer<long[]> container = new DataContainer<long[]>();
 
 		long[] data = new long[]{1L, 2L, 3L};
-		container.setData(data, new int[] {3});
+		container.setData(data, 0, new int[] {3});
 		if (container.getData() != data) {
 			fail("Incorrect data");
 		}
@@ -103,7 +103,7 @@ public class DataContainerTest {
 	private void testGetOffset() {
 		DataContainer<long[]> container = new DataContainer<long[]>();
 		int offset = 3;
-		container.setData(new long[5], offset);
+		container.setData(new long[5], offset, DataContainer.LENGTHS_OF_SCALAR);
 		if (container.getOffset() != 3) {
 			fail("Incorrect value");
 		}
@@ -112,7 +112,7 @@ public class DataContainerTest {
 	private void testGetLengths() {
 		int[] lengths = new int[]{1, 2, 3};
 		DataContainer<long[]> container = new DataContainer<long[]>();
-		container.setData(new long[] {1l, 2l, 3l, 4l, 5l, 6l}, lengths);
+		container.setData(new long[] {1l, 2l, 3l, 4l, 5l, 6l}, 0, lengths);
 		if (container.getLengths().length != 3
 				|| container.getLengths()[0] != 1
 				|| container.getLengths()[1] != 2
@@ -125,7 +125,7 @@ public class DataContainerTest {
 	private void testGetRank() {
 		int[] lengths = new int[]{1, 2, 3};
 		DataContainer<long[]> container = new DataContainer<long[]>();
-		container.setData(new long[] {1l, 2l, 3l, 4l, 5l, 6l}, lengths);
+		container.setData(new long[] {1l, 2l, 3l, 4l, 5l, 6l}, 0, lengths);
 		if (container.getRank() != 3) {
 			fail("Incorrect value");
 		}
@@ -141,31 +141,31 @@ public class DataContainerTest {
 		}
 
 		// long[] のデータを持たせるとINT64型になる事を検査
-		((DataContainer<long[]>)container).setData(new long[]{ 1L }, 0);
+		((DataContainer<long[]>)container).setData(new long[]{ 1L }, 0, DataContainer.LENGTHS_OF_SCALAR);
 		if (container.getDataType() != DataType.INT64) {
 			fail("Incorrect data type");
 		}
 
 		// double[] のデータを持たせるとFLOAT64型になる事を検査
-		((DataContainer<double[]>)container).setData(new double[]{ 1.0 }, 0);
+		((DataContainer<double[]>)container).setData(new double[]{ 1.0 }, 0, DataContainer.LENGTHS_OF_SCALAR);
 		if (container.getDataType() != DataType.FLOAT64) {
 			fail("Incorrect data type");
 		}
 
 		// boolean[] のデータを持たせるとBOOL型になる事を検査
-		((DataContainer<boolean[]>)container).setData(new boolean[]{ true }, 0);
+		((DataContainer<boolean[]>)container).setData(new boolean[]{ true }, 0, DataContainer.LENGTHS_OF_SCALAR);
 		if (container.getDataType() != DataType.BOOL) {
 			fail("Incorrect data type");
 		}
 
 		// String[] のデータを持たせるとSTRING型になる事を検査
-		((DataContainer<String[]>)container).setData(new String[]{ "Hello" }, 0);
+		((DataContainer<String[]>)container).setData(new String[]{ "Hello" }, 0, DataContainer.LENGTHS_OF_SCALAR);
 		if (container.getDataType() != DataType.STRING) {
 			fail("Incorrect data type");
 		}
 
 		// null を渡してデータ未格納状態に戻すとVOIDに戻る事を検査
-		((DataContainer<Object>)container).setData(null, 0);
+		((DataContainer<Object>)container).setData(null, 0, DataContainer.LENGTHS_OF_SCALAR);
 		if (container.getDataType() != DataType.VOID) {
 			fail("Incorrect data type");
 		}

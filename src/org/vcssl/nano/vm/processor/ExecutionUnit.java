@@ -1003,19 +1003,27 @@ public class ExecutionUnit {
 	public void allocScalar(DataType type, DataContainer<?> target) {
 		switch (type) {
 			case INT64 : {
-				((DataContainer<long[]>)target).setData(new long[DataContainer.SIZE_OF_SCALAR], 0);
+				((DataContainer<long[]>)target).setData(
+					new long[DataContainer.SIZE_OF_SCALAR], 0, DataContainer.LENGTHS_OF_SCALAR
+				);
 				return;
 			}
 			case FLOAT64 : {
-				((DataContainer<double[]>)target).setData(new double[DataContainer.SIZE_OF_SCALAR], 0);
+				((DataContainer<double[]>)target).setData(
+					new double[DataContainer.SIZE_OF_SCALAR], 0, DataContainer.LENGTHS_OF_SCALAR
+				);
 				return;
 			}
 			case BOOL : {
-				((DataContainer<boolean[]>)target).setData(new boolean[DataContainer.SIZE_OF_SCALAR], 0);
+				((DataContainer<boolean[]>)target).setData(
+					new boolean[DataContainer.SIZE_OF_SCALAR], 0, DataContainer.LENGTHS_OF_SCALAR
+				);
 				return;
 			}
 			case STRING : {
-				((DataContainer<String[]>)target).setData(new String[DataContainer.SIZE_OF_SCALAR], 0);
+				((DataContainer<String[]>)target).setData(
+					new String[DataContainer.SIZE_OF_SCALAR], 0, DataContainer.LENGTHS_OF_SCALAR
+				);
 				return;
 			}
 			default : {
@@ -1114,25 +1122,25 @@ public class ExecutionUnit {
 		switch (type) {
 			case INT64 : {
 				if (!(currentData instanceof long[]) || currentSize != dataLength) {
-					((DataContainer<long[]>)target).setData(new long[dataLength], arrayLengths);
+					((DataContainer<long[]>)target).setData(new long[dataLength], 0, arrayLengths);
 				}
 				return;
 			}
 			case FLOAT64 : {
 				if (!(currentData instanceof double[]) || currentSize != dataLength) {
-					((DataContainer<double[]>)target).setData(new double[dataLength], arrayLengths);
+					((DataContainer<double[]>)target).setData(new double[dataLength], 0, arrayLengths);
 				}
 				return;
 			}
 			case BOOL : {
 				if (!(currentData instanceof boolean[]) || currentSize != dataLength) {
-					((DataContainer<boolean[]>)target).setData(new boolean[dataLength], arrayLengths);
+					((DataContainer<boolean[]>)target).setData(new boolean[dataLength], 0, arrayLengths);
 				}
 				return;
 			}
 			case STRING : {
 				if (!(currentData instanceof String[]) || currentSize != dataLength) {
-					((DataContainer<String[]>)target).setData(new String[dataLength], arrayLengths);
+					((DataContainer<String[]>)target).setData(new String[dataLength], 0, arrayLengths);
 				}
 				return;
 			}
@@ -1379,19 +1387,27 @@ public class ExecutionUnit {
 		// 1次元化されたインデックスに基づいて、dest が src 内のその配列要素を参照するよう設定
 		switch (type) {
 			case INT64 : {
-				((DataContainer<long[]>)dest).setData(((DataContainer<long[]>)src).getData(), dataIndex);
+				((DataContainer<long[]>)dest).setData(
+					((DataContainer<long[]>)src).getData(), dataIndex, DataContainer.LENGTHS_OF_SCALAR
+				);
 				break;
 			}
 			case FLOAT64 : {
-				((DataContainer<double[]>)dest).setData(((DataContainer<double[]>)src).getData(), dataIndex);
+				((DataContainer<double[]>)dest).setData(
+					((DataContainer<double[]>)src).getData(), dataIndex, DataContainer.LENGTHS_OF_SCALAR
+				);
 				break;
 			}
 			case BOOL : {
-				((DataContainer<boolean[]>)dest).setData(((DataContainer<boolean[]>)src).getData(), dataIndex);
+				((DataContainer<boolean[]>)dest).setData(
+					((DataContainer<boolean[]>)src).getData(), dataIndex, DataContainer.LENGTHS_OF_SCALAR
+				);
 				break;
 			}
 			case STRING : {
-				((DataContainer<String[]>)dest).setData(((DataContainer<String[]>)src).getData(), dataIndex);
+				((DataContainer<String[]>)dest).setData(
+					((DataContainer<String[]>)src).getData(), dataIndex, DataContainer.LENGTHS_OF_SCALAR
+				);
 				break;
 			}
 			default : {

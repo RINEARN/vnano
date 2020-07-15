@@ -269,14 +269,15 @@ public class DataContainer<T> implements ArrayDataContainerInterface1<T> {
 
 
 	/**
-	 * このデータコンテナが格納するデータを、次元ごとの長さ情報と共に設定します。
+	 * このデータコンテナが格納するデータを、そのデータに関する必須情報と共に設定します。
 	 * 同時に {@link DataContainer#size size} フィールドの値も、全次元の長さの積に設定されます。
 	 * また、{@link DataContainer#size offset} フィールドの値には 0 が設定されます。
 	 *
-	 * @param data 格納するデータ
-	 * @param arrayLengths 次元ごとの長さを格納する配列
+	 * @param data 格納するデータ（1次元配列）
+	 * @param offset オフセット値（データ内で値が格納されている要素のインデックスで、スカラ以外を格納する場合は常に 0 を指定します）
+	 * @param arrayLengths 次元ごとの長さを格納する配列（スカラを格納する場合は、長さ 0 の配列を指定します）
 	 */
-	public final void setData(T data, int[] lengths) {
+	public final void setData(T data, int offset, int[] lengths) {
 		this.setData(data);
 
 		// 各次元の長さの積（= size）の値を求める
@@ -287,7 +288,7 @@ public class DataContainer<T> implements ArrayDataContainerInterface1<T> {
 
 		// 別のコンテナを参照していない場合： このコンテナの情報を更新
 		if (this.referenceTreeRoot == null) {
-			this.offset = 0;
+			this.offset = offset;
 			this.lengths = lengths;
 			this.size = productOfLengths;
 
@@ -296,34 +297,6 @@ public class DataContainer<T> implements ArrayDataContainerInterface1<T> {
 			this.referenceTreeRoot.offset = 0;
 			this.referenceTreeRoot.lengths = lengths;
 			this.referenceTreeRoot.size = productOfLengths;
-		}
-	}
-
-
-	/**
-	 * このデータコンテナが格納するデータをスカラ値と見なしたい場合において、
-	 * そのスカラ値を中に含んでいる配列データと、
-	 * その中でスカラ値が保持されているオフセット値を指定します。
-	 * 同時に {@link DataContainer#size size} フィールドや {@link DataContainer#lengths lengths}
-	 * フィールドも、スカラ値用の値に設定されます。
-	 *
-	 * @param data 格納するデータ
-	 * @param offset オフセット値（データ内でスカラ値が存在する配列インデックス）
-	 */
-	public final void setData(T data, int offset) {
-		this.setData(data);
-
-		// 別のコンテナを参照していない場合： このコンテナの情報を更新
-		if (this.referenceTreeRoot == null) {
-			this.offset = offset;
-			this.lengths = LENGTHS_OF_SCALAR;
-			this.size = SIZE_OF_SCALAR;
-
-		// 別のコンテナを参照している場合： 参照ツリーのルートは必ず実データを持っているはずなので、その情報を更新
-		} else {
-			this.referenceTreeRoot.offset = offset;
-			this.referenceTreeRoot.lengths = LENGTHS_OF_SCALAR;
-			this.referenceTreeRoot.size = SIZE_OF_SCALAR;
 		}
 	}
 
