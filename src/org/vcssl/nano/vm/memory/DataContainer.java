@@ -239,46 +239,17 @@ public class DataContainer<T> implements ArrayDataContainerInterface1<T> {
 
 
 	/**
-	 * このデータコンテナにデータを格納します。
+	 * このデータコンテナが格納するデータを、そのデータに関する必須情報（オフセット値、各次元の長さ）と共に設定します。
 	 *
 	 * Vnano処理系では全てのデータを配列として扱うため、引数 data は配列型である必要があります。
-	 * ただし、多次元配列やスカラのデータは 1 次元化して格納する必要があります。
+	 * 多次元配列やスカラのデータも、1 次元配列として格納する必要があります。
 	 * 詳細はこのクラスの説明を参照してください。
-	 *
-	 * なお、格納するデータをスカラと見なすべきか配列と見なすべきかに応じて、
-	 * {@link DataContainer#size offset} フィールドや
-	 * {@link DataContainer#lengths lengths} フィールドを適切に初期化する必要があるため、
-	 * このメソッドはクラス外からはアクセスできません。
-	 * 外部からは、代わりに {@link DataContainer#setData(T data, int offset)} メソッドや
-	 * {@link DataContainer#setData(T data, int[] lengths)} メソッドを使用してください。
-	 * このメソッドはそれらの中で呼び出され、その場合は各フィールドも適切に設定されます。
-	 *
-	 * @param data 格納するデータ
-	 */
-	private final void setData(T data) {
-
-		// 別のコンテナを参照していない場合： このコンテナのデータが持っている更新
-		if (this.referenceTreeRoot == null) {
-			this.data = data;
-
-		// 別のコンテナを参照している場合： 参照ツリーのルートは必ず実データを持っているはずなので、それを更新
-		} else {
-			this.referenceTreeRoot.data = data;  // ※ setData(data) を呼ぶと一階層でも再帰コールになってしまうので注意
-		}
-	}
-
-
-	/**
-	 * このデータコンテナが格納するデータを、そのデータに関する必須情報と共に設定します。
-	 * 同時に {@link DataContainer#size size} フィールドの値も、全次元の長さの積に設定されます。
-	 * また、{@link DataContainer#size offset} フィールドの値には 0 が設定されます。
 	 *
 	 * @param data 格納するデータ（1次元配列）
 	 * @param offset オフセット値（データ内で値が格納されている要素のインデックスで、スカラ以外を格納する場合は常に 0 を指定します）
-	 * @param arrayLengths 次元ごとの長さを格納する配列（スカラを格納する場合は、長さ 0 の配列を指定します）
+	 * @param arrayLengths 各次元ごとの長さを格納する配列（スカラを格納する場合は、長さ 0 の配列を指定します）
 	 */
 	public final void setData(T data, int offset, int[] lengths) {
-		this.setData(data);
 
 		// 各次元の長さの積（= size）の値を求める
 		int productOfLengths = 1;
@@ -288,12 +259,15 @@ public class DataContainer<T> implements ArrayDataContainerInterface1<T> {
 
 		// 別のコンテナを参照していない場合： このコンテナの情報を更新
 		if (this.referenceTreeRoot == null) {
+			this.data = data;
 			this.offset = offset;
 			this.lengths = lengths;
 			this.size = productOfLengths;
 
 		// 別のコンテナを参照している場合： 参照ツリーのルートは必ず実データを持っているはずなので、その情報を更新
 		} else {
+			// ※ ここで referenceTreeRoot.setData(...) を呼ぶと一階層でも再帰コールになってしまうので注意
+			this.referenceTreeRoot.data = data;
 			this.referenceTreeRoot.offset = 0;
 			this.referenceTreeRoot.lengths = lengths;
 			this.referenceTreeRoot.size = productOfLengths;
