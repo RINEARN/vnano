@@ -27,7 +27,6 @@ public class DataContainerTest {
 		this.testDefaultState(new DataContainer<long[]>());
 		this.testInitialize();
 		this.testSetGetData();
-		this.testSetGetData();
 		this.testGetOffset();
 		this.testGetLengths();
 		this.testGetRank();
@@ -88,24 +87,35 @@ public class DataContainerTest {
 	}
 
 	private void testSetGetData() {
-
 		DataContainer<long[]> container = new DataContainer<long[]>();
-
 		long[] data = new long[]{1L, 2L, 3L};
 		container.setData(data, 0, new int[] {3});
 		if (container.getData() != data) {
 			fail("Incorrect data");
 		}
-
-		// ここで未対応のデータを設定してエラーが出る事を確認すべき？
 	}
 
 	private void testGetOffset() {
 		DataContainer<long[]> container = new DataContainer<long[]>();
-		int offset = 3;
-		container.setData(new long[5], offset, DataContainer.LENGTHS_OF_SCALAR);
+		container.setData(new long[5], 3, DataContainer.LENGTHS_OF_SCALAR);
 		if (container.getOffset() != 3) {
 			fail("Incorrect value");
+		}
+
+		// 参照リンク経由での読み込みテスト
+		DataContainer<long[]> refContainer = new DataContainer<long[]>();
+		refContainer.refer(container);
+		if (refContainer.getOffset() != 3) {
+			fail("Incorrect data");
+		}
+
+		// 参照リンク経由での書き込みテスト
+		refContainer.setData(new long[5], 4, DataContainer.LENGTHS_OF_SCALAR);
+		if (refContainer.getOffset() != 4) {
+			fail("Incorrect data");
+		}
+		if (container.getOffset() != 4) {
+			fail("Incorrect data");
 		}
 	}
 

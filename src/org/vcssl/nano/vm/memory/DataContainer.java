@@ -268,7 +268,7 @@ public class DataContainer<T> implements ArrayDataContainerInterface1<T> {
 		} else {
 			// ※ ここで referenceTreeRoot.setData(...) を呼ぶと一階層でも再帰コールになってしまうので注意
 			this.referenceTreeRoot.data = data;
-			this.referenceTreeRoot.offset = 0;
+			this.referenceTreeRoot.offset = offset;
 			this.referenceTreeRoot.lengths = lengths;
 			this.referenceTreeRoot.size = productOfLengths;
 		}
