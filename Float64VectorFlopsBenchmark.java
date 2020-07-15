@@ -95,13 +95,15 @@ public class Float64VectorFlopsBenchmark {
 		// スクリプトコードを用意
 		String scriptCode =
 
+			// Note: The precision of "float" type in the Vnano is 64-bit, same with "double".
+			// 備考: Vnano での float 型は、double 型と同様の64bit精度です。
 			"  int VECTOR_SIZE = 2048;                                                 " + 
 			"  int LOOP_N = 1000*1000;                                                 " + 
 			"  int FLOP_PER_LOOP = VECTOR_SIZE * 100;                                  " + 
 			"  int TOTAL_FLOP = FLOP_PER_LOOP * LOOP_N;                                " + 
 			"                                                                          " + 
-			"  double x[VECTOR_SIZE];                                                  " + 
-			"  double y[VECTOR_SIZE];                                                  " + 
+			"  float x[VECTOR_SIZE];                                                   " + 
+			"  float y[VECTOR_SIZE];                                                   " + 
 			"  for (int i=0; i<VECTOR_SIZE; i++) {                                     " + 
 			"    x[i] = 0.0;                                                           " + 
 			"    y[i] = i + 1.0;                                                       " + 
@@ -125,8 +127,8 @@ public class Float64VectorFlopsBenchmark {
 			"  }                                                                       " + 
 			"                                                                          " + 
 			"  int endTime = time();                                                   " + 
-			"  double requiredTime = (endTime - beginTime) / 1000.0;                   " + 
-			"  double flops = TOTAL_FLOP / requiredTime;                               " + 
+			"  float requiredTime = (endTime - beginTime) / 1000.0;                    " + 
+			"  float flops = TOTAL_FLOP / requiredTime;                                " + 
 			"                                                                          " + 
 			"  output(\"OPERATING_SPEED\", flops/(1000.0*1000.0*1000.0), \"GFLOPS\");  " + 
 			"  output(\"REQUIRED_TIME\", requiredTime, \"SEC\");                       " + 

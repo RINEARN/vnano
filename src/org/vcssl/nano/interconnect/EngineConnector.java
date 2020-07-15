@@ -34,14 +34,14 @@ import org.vcssl.nano.spec.OptionKey;
  * .
  *
  * <p>
- * &raquo; <a href="../../../../src/org/vcssl/nano/interconnect/EngineConnector.java">Source code</a>
+ * &raquo; <a href="../../../../../src/org/vcssl/nano/interconnect/EngineConnector.java">Source code</a>
  * </p>
  *
  * <hr>
  *
  * <p>
- * | <a href="../../../../api/org/vcssl/nano/interconnect/EngineConnector.html">Public Only</a>
- * | <a href="../../../../api-all/org/vcssl/nano/interconnect/EngineConnector.html">All</a> |
+ * | <a href="../../../../../api/org/vcssl/nano/interconnect/EngineConnector.html">Public Only</a>
+ * | <a href="../../../../../api-all/org/vcssl/nano/interconnect/EngineConnector.html">All</a> |
  * </p>
  *
  * @author RINEARN (Fumihiro Matsui)

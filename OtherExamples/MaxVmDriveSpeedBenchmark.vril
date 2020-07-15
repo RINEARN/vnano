@@ -162,32 +162,32 @@
 	CALLX	int	R5	_time();
 	MOV	int	_endTime@5	R5;
 
-	ALLOC	double	_requiredTime@6;
+	ALLOC	float	_requiredTime@6;
 	ALLOC	int	R6;
 	SUB	int	R6	_endTime@5	_beginTime@3;
 	ALLOC	float	R20;
 	CAST	float:int	R20	R6;
 	ALLOC	float	R7;
 	DIV	float	R7	R20	~float:1000.0;
-	ALLOC	double	R21;
-	CAST	double:float	R21	R7;
-	MOV	double	_requiredTime@6	R21;
+	ALLOC	float	R21;
+	MOV	float	R21	R7;
+	MOV	float	_requiredTime@6	R21;
 
-	ALLOC	double	_ips@7;
+	ALLOC	float	_ips@7;
 	ALLOC	float	R22;
 	CAST	float:int	R22	_TOTAL_INSTRUCTIONS@2;
 	ALLOC	float	R23;
-	CAST	float:double	R23	_requiredTime@6;
+	MOV	float	R23	_requiredTime@6;
 	ALLOC	float	R8;
 	DIV	float	R8	R22	R23;
-	ALLOC	double	R24;
-	CAST	double:float	R24	R8;
-	MOV	double	_ips@7	R24;
+	ALLOC	float	R24;
+	MOV	float	R24	R8;
+	MOV	float	_ips@7	R24;
 
 	ALLOC	float	R9;
 	MUL	float	R9	~float:1000.0	~float:1000.0;
 	ALLOC	float	R25;
-	CAST	float:double	R25	_ips@7;
+	MOV	float	R25	_ips@7;
 	ALLOC	float	R10;
 	DIV	float	R10	R25	R9;
 	ALLOC	string	R26;
@@ -199,7 +199,7 @@
 	CALLX	void	-	_output(string)	R12;
 
 	ALLOC	string	R27;
-	CAST	string:double	R27	_requiredTime@6;
+	CAST	string:float	R27	_requiredTime@6;
 	ALLOC	string	R14;
 	ADD	string	R14	~string:"REQUIRED_TIME = "	R27;
 	ALLOC	string	R15;

@@ -986,14 +986,17 @@ operations of 64-bit floating-point scalar data. The scripting part in this prog
 64-bit（倍精度）浮動小数点数のスカラ演算におけるピーク性能を計測するためのベンチマークプログラムです。
 このプログラム内での、スクリプト記述部分は以下の通りです：
 
+	// Note: The precision of "float" type in the Vnano is 64-bit, same with "double".
+	// 備考: Vnano での float 型は、double 型と同様の64bit精度です。
+
 	String scriptCode =
 
 	"  int LOOP_N = 100*1000*1000;                                      " + 
 	"  int FLOP_PER_LOOP = 100;                                         " + 
 	"  int TOTAL_FLOP = FLOP_PER_LOOP * LOOP_N;                         " + 
 	"                                                                   " + 
-	"  double x = 0.0;                                                  " + 
-	"  double y = 1.0;                                                  " + 
+	"  float x = 0.0;                                                   " + 
+	"  float y = 1.0;                                                   " + 
 	"                                                                   " + 
 	"  int beginTime = time();                                          " + 
 	"                                                                   " + 
@@ -1011,8 +1014,8 @@ operations of 64-bit floating-point scalar data. The scripting part in this prog
 	"  }                                                                " + 
 	"                                                                   " + 
 	"  int endTime = time();                                            " + 
-	"  double requiredTime = (endTime - beginTime) / 1000.0;            " + 
-	"  double flops = TOTAL_FLOP / requiredTime;                        " + 
+	"  float requiredTime = (endTime - beginTime) / 1000.0;             " + 
+	"  float flops = TOTAL_FLOP / requiredTime;                         " + 
 	"                                                                   " + 
 	"  output(\"OPERATING_SPEED\", flops/(1000.0*1000.0), \"MFLOPS\");  " + 
 	"  output(\"REQUIRED_TIME\", requiredTime, \"SEC\");                " + 
@@ -1053,6 +1056,9 @@ operations of 64-bit floating-point vector (array) data. The scripting part in t
 64-bit（倍精度）浮動小数点数のベクトル（配列）演算におけるピーク性能を計測するためのベンチマークプログラムです。
 このプログラム内での、スクリプト記述部分は以下の通りです：
 
+	// Note: The precision of "float" type in the Vnano is 64-bit, same with "double".
+	// 備考: Vnano での float 型は、double 型と同様の64bit精度です。
+
 	String scriptCode =
 
 	"  int VECTOR_SIZE = 2048;                                                 " + 
@@ -1060,8 +1066,8 @@ operations of 64-bit floating-point vector (array) data. The scripting part in t
 	"  int FLOP_PER_LOOP = VECTOR_SIZE * 100;                                  " + 
 	"  int TOTAL_FLOP = FLOP_PER_LOOP * LOOP_N;                                " + 
 	"                                                                          " + 
-	"  double x[VECTOR_SIZE];                                                  " + 
-	"  double y[VECTOR_SIZE];                                                  " + 
+	"  float x[VECTOR_SIZE];                                                   " + 
+	"  float y[VECTOR_SIZE];                                                   " + 
 	"  for (int i=0; i<VECTOR_SIZE; i++) {                                     " + 
 	"    x[i] = 0.0;                                                           " + 
 	"    y[i] = i + 1.0;                                                       " + 
@@ -1083,8 +1089,8 @@ operations of 64-bit floating-point vector (array) data. The scripting part in t
 	"  }                                                                       " + 
 	"                                                                          " + 
 	"  int endTime = time();                                                   " + 
-	"  double requiredTime = (endTime - beginTime) / 1000.0;                   " + 
-	"  double flops = TOTAL_FLOP / requiredTime;                               " + 
+	"  float requiredTime = (endTime - beginTime) / 1000.0;                    " + 
+	"  float flops = TOTAL_FLOP / requiredTime;                                " + 
 	"                                                                          " + 
 	"  output(\"OPERATING_SPEED\", flops/(1000.0*1000.0*1000.0), \"GFLOPS\");  " + 
 	"  output(\"REQUIRED_TIME\", requiredTime, \"SEC\");                       " + 

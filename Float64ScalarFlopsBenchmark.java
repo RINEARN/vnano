@@ -89,13 +89,15 @@ public class Float64ScalarFlopsBenchmark {
 		// Create a script code.
 		// スクリプトコードを用意
 		String scriptCode =
-
+			
+			// Note: The precision of "float" type in the Vnano is 64-bit, same with "double".
+			// 備考: Vnano での float 型は、double 型と同様の64bit精度です。
 			"  int LOOP_N = 100*1000*1000;                                             " + 
 			"  int FLOP_PER_LOOP = 100;                                                " + 
 			"  int TOTAL_FLOP = FLOP_PER_LOOP * LOOP_N;                                " + 
 			"                                                                          " + 
-			"  double x = 0.0;                                                         " + 
-			"  double y = 1.0;                                                         " + 
+			"  float x = 0.0;                                                          " + 
+			"  float y = 1.0;                                                          " + 
 			"                                                                          " + 
 			"  int beginTime = time();                                                 " + 
 			"                                                                          " + 
@@ -115,8 +117,8 @@ public class Float64ScalarFlopsBenchmark {
 			"  }                                                                       " + 
 			"                                                                          " + 
 			"  int endTime = time();                                                   " + 
-			"  double requiredTime = (endTime - beginTime) / 1000.0;                   " + 
-			"  double flops = TOTAL_FLOP / requiredTime;                               " + 
+			"  float requiredTime = (endTime - beginTime) / 1000.0;                    " + 
+			"  float flops = TOTAL_FLOP / requiredTime;                                " + 
 			"                                                                          " + 
 			"  output(\"OPERATING_SPEED\", flops/(1000.0*1000.0), \"MFLOPS\");         " + 
 			"  output(\"REQUIRED_TIME\", requiredTime, \"SEC\");                       " + 

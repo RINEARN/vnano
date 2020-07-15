@@ -138,6 +138,9 @@ public class SemanticAnalyzer {
 		VariableTable globalVariableTable = interconnect.getExternalVariableTable();
 		FunctionTable globalFunctionTable = interconnect.getExternalFunctionTable();
 
+		// 型の別名（floatに対するdouble, intに対するlong）を標準の名称（float,int）に置き換える
+		this.replaceAliasDataTypeNames(outputAst);
+
 		// リテラルタイプのリーフノードの属性値を設定（シグネチャ確定のため、関数識別子リーフノードの解析よりも前に済ませる必要がある）
 		this.supplementLiteralLeafAttributes(outputAst);
 
@@ -187,6 +190,46 @@ public class SemanticAnalyzer {
 		}
 
 		return outputAst;
+	}
+
+	/**
+	 * 引数に渡されたAST（抽象構文木）の内の各ノードに対して、{@link AttributeKey#DATA_TYPE DATA_TYPE} 属性値を読み、
+	 * それが型の別名（float に 対する double、int に対する long）であった場合には、標準名（float, int）に置き換えます。
+	 * （従って、このメソッドは破壊的メソッドです）。
+	 *
+	 * @param astRootNode 処理対象のASTのルートノード（メソッド実行後、各ノードのDATA_TYPE属性値が置換されます）
+	 */
+	private void replaceAliasDataTypeNames(AstNode astRootNode) {
+
+		if (!astRootNode.hasChildNodes()) {
+			return;
+		}
+
+		AstNode currentNode = astRootNode;
+
+		// ASTノードを、行がけ順の深さ優先走査で辿って処理していく
+		do {
+			currentNode = currentNode.getPreorderDftNextNode();
+
+			// 属性値に型名を持っていなければスキップし、持っていれば取得する
+			if (!currentNode.hasAttribute(AttributeKey.DATA_TYPE)) {
+				continue;
+			}
+			String dataTypeName = currentNode.getAttribute(AttributeKey.DATA_TYPE);
+
+			// 型名が double の場合は float に置き換え
+			if (dataTypeName.equals(LANG_SPEC.DATA_TYPE_NAME.doubleFloat)) {
+				currentNode.setAttribute(AttributeKey.DATA_TYPE, LANG_SPEC.DATA_TYPE_NAME.defaultFloat);
+				continue;
+			}
+
+			// 型名が long の場合は int に置き換え
+			if (dataTypeName.equals(LANG_SPEC.DATA_TYPE_NAME.longInt)) {
+				currentNode.setAttribute(AttributeKey.DATA_TYPE, LANG_SPEC.DATA_TYPE_NAME.defaultInt);
+				continue;
+			}
+
+		} while (!currentNode.isPreorderDftLastNode());
 	}
 
 
@@ -890,10 +933,6 @@ public class SemanticAnalyzer {
 	}
 
 
-	private boolean containsDataTypeInOperands(String dataType, String leftOperandType, String rightOperandType) {
-		return leftOperandType.equals(dataType) || rightOperandType.equals(dataType);
-	}
-
 	/**
 	 * 算術復号代入演算子のオペランドのデータ型を解析し、演算実行データ型を決定して返します。
 	 *
@@ -966,13 +1005,14 @@ public class SemanticAnalyzer {
 	 * @throws VnanoException 対象演算子に対して使用できないデータ型であった場合にスローされます。
 	 */
 	private String analyzeArithmeticBinaryOperatorDataType(
-			String leftOperandType, String rightOperandType, String operatorSymbol,
+			String leftOperandTypeName, String rightOperandTypeName, String operatorSymbol,
 			String fileName, int lineNumber) throws VnanoException {
 
-		// 文字列型を含む場合は文字列
-		if (DATA_TYPE_NAME.isDataTypeNameOf(DataType.STRING,leftOperandType)
-				|| DATA_TYPE_NAME.isDataTypeNameOf(DataType.STRING,rightOperandType) ) {
+		DataType leftType = DATA_TYPE_NAME.getDataTypeOf(leftOperandTypeName);
+		DataType rightType = DATA_TYPE_NAME.getDataTypeOf(rightOperandTypeName);
 
+		// 文字列型を「含む」場合は文字列
+		if (leftType == DataType.STRING || rightType == DataType.STRING) { // && ではなく || である事に注意
 			// 加算だけ許可する
 			if (operatorSymbol.equals(SCRIPT_WORD.plusOrAddition)) {
 				return DATA_TYPE_NAME.string;
@@ -980,48 +1020,28 @@ public class SemanticAnalyzer {
 		}
 
 		// 整数同士は整数
-		if (DATA_TYPE_NAME.isDataTypeNameOf(DataType.INT64,leftOperandType)
-				&& DATA_TYPE_NAME.isDataTypeNameOf(DataType.INT64,rightOperandType) ) {
-			if (this.containsDataTypeInOperands(DATA_TYPE_NAME.longInt, leftOperandType, rightOperandType)) {
-				return DATA_TYPE_NAME.longInt;
-			} else {
-				return DATA_TYPE_NAME.defaultInt;
-			}
+		if (leftType == DataType.INT64 && rightType == DataType.INT64) {
+			return DATA_TYPE_NAME.defaultInt;
 		}
 
 		// 浮動小数点数同士は浮動小数点数
-		if (DATA_TYPE_NAME.isDataTypeNameOf(DataType.FLOAT64,leftOperandType)
-				&& DATA_TYPE_NAME.isDataTypeNameOf(DataType.FLOAT64,rightOperandType) ) {
-			if (this.containsDataTypeInOperands(DATA_TYPE_NAME.doubleFloat, leftOperandType, rightOperandType)) {
-				return DATA_TYPE_NAME.doubleFloat;
-			} else {
-				return DATA_TYPE_NAME.defaultFloat;
-			}
+		if (leftType == DataType.FLOAT64 && rightType == DataType.FLOAT64) {
+			return DATA_TYPE_NAME.defaultFloat;
 		}
 
 		// 整数と浮動小数点数の混合は浮動小数点数
-		if (DATA_TYPE_NAME.isDataTypeNameOf(DataType.INT64,leftOperandType)
-				&& DATA_TYPE_NAME.isDataTypeNameOf(DataType.FLOAT64,rightOperandType) ) {
-			if (this.containsDataTypeInOperands(DATA_TYPE_NAME.doubleFloat, leftOperandType, rightOperandType)) {
-				return DATA_TYPE_NAME.doubleFloat;
-			} else {
-				return DATA_TYPE_NAME.defaultFloat;
-			}
+		if (leftType == DataType.INT64 && rightType == DataType.FLOAT64) {
+			return DATA_TYPE_NAME.defaultFloat;
 		}
 
 		// 浮動小数点数と整数の混合は浮動小数点数
-		if (DATA_TYPE_NAME.isDataTypeNameOf(DataType.FLOAT64,leftOperandType)
-				&& DATA_TYPE_NAME.isDataTypeNameOf(DataType.INT64,rightOperandType) ) {
-			if (this.containsDataTypeInOperands(DATA_TYPE_NAME.doubleFloat, leftOperandType, rightOperandType)) {
-				return DATA_TYPE_NAME.doubleFloat;
-			} else {
-				return DATA_TYPE_NAME.defaultFloat;
-			}
+		if (leftType == DataType.FLOAT64 && rightType == DataType.INT64) {
+			return DATA_TYPE_NAME.defaultFloat;
 		}
 
 		throw new VnanoException(
 			ErrorType.INVALID_DATA_TYPES_FOR_BINARY_OPERATOR,
-			new String[] {operatorSymbol, leftOperandType, rightOperandType},
+			new String[] {operatorSymbol, leftOperandTypeName, rightOperandTypeName},
 			fileName, lineNumber
 		);
 	}
@@ -1047,67 +1067,49 @@ public class SemanticAnalyzer {
 	 * @throws VnanoException 対象演算子に対して使用できないデータ型であった場合にスローされます。
 	 */
 	private String analyzeComparisonBinaryOperatorDataType(
-			String leftOperandType, String rightOperandType, String operatorSymbol,
+			String leftOperandTypeName, String rightOperandTypeName, String operatorSymbol,
 			String fileName, int lineNumber) throws VnanoException {
 
-		// 文字列型を含む場合は文字列
-		if (DATA_TYPE_NAME.isDataTypeNameOf(DataType.STRING,leftOperandType)
-				|| DATA_TYPE_NAME.isDataTypeNameOf(DataType.STRING,rightOperandType) ) {
-				return DATA_TYPE_NAME.string;
+		DataType leftType = DATA_TYPE_NAME.getDataTypeOf(leftOperandTypeName);
+		DataType rightType = DATA_TYPE_NAME.getDataTypeOf(rightOperandTypeName);
+
+		// 文字列型を「含む」場合は文字列
+		if (leftType == DataType.STRING || rightType == DataType.STRING) { // && ではなく || である事に注意
+			return DATA_TYPE_NAME.string;
 		}
 
 		// 論理型同士は論理型
-		if (DATA_TYPE_NAME.isDataTypeNameOf(DataType.BOOL,leftOperandType)
-				&& DATA_TYPE_NAME.isDataTypeNameOf(DataType.BOOL,rightOperandType) ) {
+		if (leftType == DataType.BOOL && rightType == DataType.BOOL) {
 			return DATA_TYPE_NAME.bool;
 		}
 
 		// 整数同士は整数
-		if (DATA_TYPE_NAME.isDataTypeNameOf(DataType.INT64,leftOperandType)
-				&& DATA_TYPE_NAME.isDataTypeNameOf(DataType.INT64,rightOperandType) ) {
-			if (this.containsDataTypeInOperands(DATA_TYPE_NAME.longInt, leftOperandType, rightOperandType)) {
-				return DATA_TYPE_NAME.longInt;
-			} else {
-				return DATA_TYPE_NAME.defaultInt;
-			}
+		if (leftType == DataType.INT64 && rightType == DataType.INT64) {
+			return DATA_TYPE_NAME.defaultInt;
 		}
 
 		// 浮動小数点数同士は浮動小数点数
-		if (DATA_TYPE_NAME.isDataTypeNameOf(DataType.FLOAT64,leftOperandType)
-				&& DATA_TYPE_NAME.isDataTypeNameOf(DataType.FLOAT64,rightOperandType) ) {
-			if (this.containsDataTypeInOperands(DATA_TYPE_NAME.doubleFloat, leftOperandType, rightOperandType)) {
-				return DATA_TYPE_NAME.doubleFloat;
-			} else {
-				return DATA_TYPE_NAME.defaultFloat;
-			}
+		if (leftType == DataType.FLOAT64 && rightType == DataType.FLOAT64) {
+			return DATA_TYPE_NAME.defaultFloat;
 		}
 
 		// 整数と浮動小数点数の混合は浮動小数点数
-		if (DATA_TYPE_NAME.isDataTypeNameOf(DataType.INT64,leftOperandType)
-				&& DATA_TYPE_NAME.isDataTypeNameOf(DataType.FLOAT64,rightOperandType) ) {
-			if (this.containsDataTypeInOperands(DATA_TYPE_NAME.doubleFloat, leftOperandType, rightOperandType)) {
-				return DATA_TYPE_NAME.doubleFloat;
-			} else {
-				return DATA_TYPE_NAME.defaultFloat;
-			}
+		if (leftType == DataType.INT64 && rightType == DataType.FLOAT64) {
+			return DATA_TYPE_NAME.defaultFloat;
 		}
 
 		// 浮動小数点数と整数の混合は浮動小数点数
-		if (DATA_TYPE_NAME.isDataTypeNameOf(DataType.FLOAT64,leftOperandType)
-				&& DATA_TYPE_NAME.isDataTypeNameOf(DataType.INT64,rightOperandType) ) {
-			if (this.containsDataTypeInOperands(DATA_TYPE_NAME.doubleFloat, leftOperandType, rightOperandType)) {
-				return DATA_TYPE_NAME.doubleFloat;
-			} else {
-				return DATA_TYPE_NAME.defaultFloat;
-			}
+		if (leftType == DataType.FLOAT64 && rightType == DataType.INT64) {
+			return DATA_TYPE_NAME.defaultFloat;
 		}
 
 		throw new VnanoException(
 			ErrorType.INVALID_DATA_TYPES_FOR_BINARY_OPERATOR,
-			new String[] {operatorSymbol, leftOperandType, rightOperandType},
+			new String[] {operatorSymbol, leftOperandTypeName, rightOperandTypeName},
 			fileName, lineNumber
 		);
 	}
+
 
 	/**
 	 * 論理二項演算子のオペランドのデータ型を解析し、演算実行データ型を決定して返します。
@@ -1130,17 +1132,20 @@ public class SemanticAnalyzer {
 	 * @throws VnanoException 対象演算子に対して使用できないデータ型であった場合にスローされます。
 	 */
 	private String analyzeLogicalBinaryOperatorDataType(
-			String leftOperandType, String rightOperandType, String operatorSymbol,
+			String leftOperandTypeName, String rightOperandTypeName, String operatorSymbol,
 			String fileName, int lineNumber) throws VnanoException {
 
-		if (DATA_TYPE_NAME.isDataTypeNameOf(DataType.BOOL,leftOperandType)
-				&& DATA_TYPE_NAME.isDataTypeNameOf(DataType.BOOL,rightOperandType) ) {
+		DataType leftType = DATA_TYPE_NAME.getDataTypeOf(leftOperandTypeName);
+		DataType rightType = DATA_TYPE_NAME.getDataTypeOf(rightOperandTypeName);
+
+		// サポートするのは論理型同士の場合のみで、結果も論理型
+		if (leftType == DataType.BOOL && rightType == DataType.BOOL) {
 			return DATA_TYPE_NAME.bool;
 		}
 
 		throw new VnanoException(
 			ErrorType.INVALID_DATA_TYPES_FOR_BINARY_OPERATOR,
-			new String[] {operatorSymbol, leftOperandType, rightOperandType},
+			new String[] {operatorSymbol, leftOperandTypeName, rightOperandTypeName},
 			fileName, lineNumber
 		);
 	}
@@ -1379,7 +1384,7 @@ public class SemanticAnalyzer {
 
 		// リーフ以外は書き換え不可能なのでエラー
 		if (node.getType() != AstNode.Type.LEAF) {
-			throw new VnanoException(ErrorType.WRITING_TO_UNWRITABLE_SOMETHING, fileName, lineNumber);
+			throw new VnanoException(ErrorType.WRITING_TO_NON_LVALUE, fileName, lineNumber);
 		}
 
 		String leafType = node.getAttribute(AttributeKey.LEAF_TYPE);
@@ -1399,11 +1404,11 @@ public class SemanticAnalyzer {
 		// リテラルは書き換え不可能なのでエラー
 		} else if (leafType.equals(AttributeValue.LITERAL)) {
 			String[] errorWords = { node.getAttribute(AttributeKey.LITERAL_VALUE) };
-			throw new VnanoException(ErrorType.WRITING_TO_UNWRITABLE_SOMETHING, errorWords, fileName, lineNumber);
+			throw new VnanoException(ErrorType.WRITING_TO_LITERAL, errorWords, fileName, lineNumber);
 
 		// それ以外は、現状の仕様では全て書き換え不可能なため、常にエラー
 		} else {
-			throw new VnanoException(ErrorType.WRITING_TO_UNWRITABLE_SOMETHING, fileName, lineNumber);
+			throw new VnanoException(ErrorType.WRITING_TO_NON_LVALUE, fileName, lineNumber);
 		}
 	}
 

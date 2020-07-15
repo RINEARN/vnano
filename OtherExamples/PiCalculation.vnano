@@ -49,15 +49,18 @@ coding UTF-8;
  * --------------------------------------------------------------------------------
  */
 
-double a = 1.0;
-double b;
-double c = 0.25;
-double d = 1.0;
-double aStock;
-double bStock;
-double sqrtValue = 1.0;
-double sqrtValueStock = -1.0;
-double sqrtArg = 0.5;
+// Note: The precision of "float" type in the Vnano is 64-bit, same with "double".
+// 備考: Vnano での「 float 」型は、いわゆる「 double 」型と同様の64bit精度です。
+
+float a = 1.0;
+float b;
+float c = 0.25;
+float d = 1.0;
+float aStock;
+float bStock;
+float sqrtValue = 1.0;
+float sqrtValueStock = -1.0;
+float sqrtArg = 0.5;
 
 while (sqrtValue != sqrtValueStock) {
 	sqrtValueStock = sqrtValue;
@@ -84,6 +87,6 @@ while (a != aStock && b != bStock) {
 	d = 2.0 * d;
 }
 
-double pi = (a + b) * (a + b) / (4.0 * c);
+float pi = (a + b) * (a + b) / (4.0 * c);
 
 output(pi);
