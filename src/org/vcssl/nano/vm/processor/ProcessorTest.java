@@ -62,7 +62,7 @@ public class ProcessorTest {
 
 		// 命令のメタ情報をメモリに配置（命令の生成に必ず必要）
 		DataContainer<String[]> metaContainer = new DataContainer<String[]>();
-		metaContainer.setData(new String[]{ "meta" }, 0, DataContainer.LENGTHS_OF_SCALAR);
+		metaContainer.setData(new String[]{ "meta" }, 0, DataContainer.SCALAR_LENGTHS);
 		memory.setDataContainer(META_PART, META_ADDR, metaContainer);
 
 		// デフォルトのオプションマップを用意
@@ -103,9 +103,9 @@ public class ProcessorTest {
 
 		// レジスタにテスト値を設定
 		this.initializeRegisters();
-		((DataContainer<long[]>)this.registers[0]).setData(new long[]{ -1L }, 0, DataContainer.LENGTHS_OF_SCALAR);  // R0=-1
-		((DataContainer<long[]>)this.registers[1]).setData(new long[]{ 123L }, 0, DataContainer.LENGTHS_OF_SCALAR); // R1=123
-		((DataContainer<long[]>)this.registers[2]).setData(new long[]{ 456L }, 0, DataContainer.LENGTHS_OF_SCALAR); // R2=456
+		((DataContainer<long[]>)this.registers[0]).setData(new long[]{ -1L }, 0, DataContainer.SCALAR_LENGTHS);  // R0=-1
+		((DataContainer<long[]>)this.registers[1]).setData(new long[]{ 123L }, 0, DataContainer.SCALAR_LENGTHS); // R1=123
+		((DataContainer<long[]>)this.registers[2]).setData(new long[]{ 456L }, 0, DataContainer.SCALAR_LENGTHS); // R2=456
 
 		// R0 = R1 + R2 の値を求める加算命令を生成
 		Instruction instruction = this.generateInstruction(OperationCode.ADD, DataType.INT64, 0, 1, 2); // ADD INT64 R0 R1 R2
@@ -131,13 +131,13 @@ public class ProcessorTest {
 
 		// レジスタにテスト値を設定
 		this.initializeRegisters();
-		((DataContainer<long[]>)this.registers[0]).setData(new long[]{ -1L }, 0, DataContainer.LENGTHS_OF_SCALAR);  // R0=-1
-		((DataContainer<long[]>)this.registers[1]).setData(new long[]{ 123L }, 0, DataContainer.LENGTHS_OF_SCALAR); // R1=123
-		((DataContainer<long[]>)this.registers[2]).setData(new long[]{ 456L }, 0, DataContainer.LENGTHS_OF_SCALAR); // R2=456
-		((DataContainer<long[]>)this.registers[3]).setData(new long[]{ -1L }, 0, DataContainer.LENGTHS_OF_SCALAR);  // R3=-1
-		((DataContainer<long[]>)this.registers[4]).setData(new long[]{ 200L }, 0, DataContainer.LENGTHS_OF_SCALAR); // R4=200
-		((DataContainer<long[]>)this.registers[5]).setData(new long[]{ 100L }, 0, DataContainer.LENGTHS_OF_SCALAR); // R5=100
-		((DataContainer<long[]>)this.registers[6]).setData(new long[]{ -1L }, 0, DataContainer.LENGTHS_OF_SCALAR);  // R6=-1
+		((DataContainer<long[]>)this.registers[0]).setData(new long[]{ -1L }, 0, DataContainer.SCALAR_LENGTHS);  // R0=-1
+		((DataContainer<long[]>)this.registers[1]).setData(new long[]{ 123L }, 0, DataContainer.SCALAR_LENGTHS); // R1=123
+		((DataContainer<long[]>)this.registers[2]).setData(new long[]{ 456L }, 0, DataContainer.SCALAR_LENGTHS); // R2=456
+		((DataContainer<long[]>)this.registers[3]).setData(new long[]{ -1L }, 0, DataContainer.SCALAR_LENGTHS);  // R3=-1
+		((DataContainer<long[]>)this.registers[4]).setData(new long[]{ 200L }, 0, DataContainer.SCALAR_LENGTHS); // R4=200
+		((DataContainer<long[]>)this.registers[5]).setData(new long[]{ 100L }, 0, DataContainer.SCALAR_LENGTHS); // R5=100
+		((DataContainer<long[]>)this.registers[6]).setData(new long[]{ -1L }, 0, DataContainer.SCALAR_LENGTHS);  // R6=-1
 
 		// R0 = (R1+R2) * (R4-$5) の値を求める逐次演算の命令列を生成
 		Instruction[] instructions = new Instruction[]{
@@ -167,11 +167,11 @@ public class ProcessorTest {
 
 		// レジスタにテスト値を設定
 		this.initializeRegisters();
-		((DataContainer<long[]>)this.registers[1]).setData(new long[]{ 111L }, 0, DataContainer.LENGTHS_OF_SCALAR); // R1=111
-		((DataContainer<long[]>)this.registers[2]).setData(new long[]{ 222L }, 0, DataContainer.LENGTHS_OF_SCALAR); // R2=222
-		((DataContainer<long[]>)this.registers[3]).setData(new long[]{ -1L }, 0, DataContainer.LENGTHS_OF_SCALAR);  // R3=-1
-		((DataContainer<long[]>)this.registers[4]).setData(new long[]{ -1L }, 0, DataContainer.LENGTHS_OF_SCALAR);  // R4=-1
-		((DataContainer<long[]>)this.registers[10]).setData(new long[]{ 3L }, 0, DataContainer.LENGTHS_OF_SCALAR);  // R10=3 ... 分岐先の命令位置
+		((DataContainer<long[]>)this.registers[1]).setData(new long[]{ 111L }, 0, DataContainer.SCALAR_LENGTHS); // R1=111
+		((DataContainer<long[]>)this.registers[2]).setData(new long[]{ 222L }, 0, DataContainer.SCALAR_LENGTHS); // R2=222
+		((DataContainer<long[]>)this.registers[3]).setData(new long[]{ -1L }, 0, DataContainer.SCALAR_LENGTHS);  // R3=-1
+		((DataContainer<long[]>)this.registers[4]).setData(new long[]{ -1L }, 0, DataContainer.SCALAR_LENGTHS);  // R4=-1
+		((DataContainer<long[]>)this.registers[10]).setData(new long[]{ 3L }, 0, DataContainer.SCALAR_LENGTHS);  // R10=3 ... 分岐先の命令位置
 
 		// R0 = (R1+R2) * (R4-$5) の値を求める逐次演算の命令列を生成
 		Instruction[] instructions = new Instruction[]{
@@ -182,7 +182,7 @@ public class ProcessorTest {
 		};
 
 		// 分岐成立の条件（R0==true）で命令列を逐次実行
-		((DataContainer<boolean[]>)this.registers[0]).setData(new boolean[]{ true }, 0, DataContainer.LENGTHS_OF_SCALAR);  // R0=true
+		((DataContainer<boolean[]>)this.registers[0]).setData(new boolean[]{ true }, 0, DataContainer.SCALAR_LENGTHS);  // R0=true
 		try {
 			new Processor().process(instructions, this.memory, this.interconnect, this.optionMap);
 		} catch (VnanoException e) {
@@ -194,7 +194,7 @@ public class ProcessorTest {
 		assertEquals(111L, ((DataContainer<long[]>)this.registers[4]).getData()[0]); // R4==111 (==R1)
 
 		// 分岐不成立の条件（R0==false）で命令列を逐次実行
-		((DataContainer<boolean[]>)this.registers[0]).setData(new boolean[]{ false }, 0, DataContainer.LENGTHS_OF_SCALAR);  // R0=false
+		((DataContainer<boolean[]>)this.registers[0]).setData(new boolean[]{ false }, 0, DataContainer.SCALAR_LENGTHS);  // R0=false
 		try {
 			new Processor().process(instructions, this.memory, this.interconnect, this.optionMap);
 		} catch (VnanoException e) {
@@ -207,9 +207,9 @@ public class ProcessorTest {
 
 
 		// 分岐で命令列の領域外(-1)に飛ぶと実行が終了する事を検査
-		((DataContainer<long[]>)this.registers[4]).setData(new long[]{ -1L }, 0, DataContainer.LENGTHS_OF_SCALAR);   // R4=-1
-		((DataContainer<long[]>)this.registers[10]).setData(new long[]{ -1L }, 0, DataContainer.LENGTHS_OF_SCALAR);  // R10=-1 ... 分岐先の命令位置
-		((DataContainer<boolean[]>)this.registers[0]).setData(new boolean[]{ true }, 0, DataContainer.LENGTHS_OF_SCALAR);  // R0=true
+		((DataContainer<long[]>)this.registers[4]).setData(new long[]{ -1L }, 0, DataContainer.SCALAR_LENGTHS);   // R4=-1
+		((DataContainer<long[]>)this.registers[10]).setData(new long[]{ -1L }, 0, DataContainer.SCALAR_LENGTHS);  // R10=-1 ... 分岐先の命令位置
+		((DataContainer<boolean[]>)this.registers[0]).setData(new boolean[]{ true }, 0, DataContainer.SCALAR_LENGTHS);  // R0=true
 		try {
 			new Processor().process(instructions, this.memory, this.interconnect, this.optionMap);
 		} catch (VnanoException e) {
@@ -227,9 +227,9 @@ public class ProcessorTest {
 
 		// レジスタにテスト値を設定
 		this.initializeRegisters();
-		((DataContainer<long[]>)this.registers[0]).setData(new long[]{ -1L }, 0, DataContainer.LENGTHS_OF_SCALAR);  // R0=-1
-		((DataContainer<long[]>)this.registers[1]).setData(new long[]{ 123L }, 0, DataContainer.LENGTHS_OF_SCALAR); // R1=123
-		((DataContainer<long[]>)this.registers[2]).setData(new long[]{ 456L }, 0, DataContainer.LENGTHS_OF_SCALAR); // R2=456
+		((DataContainer<long[]>)this.registers[0]).setData(new long[]{ -1L }, 0, DataContainer.SCALAR_LENGTHS);  // R0=-1
+		((DataContainer<long[]>)this.registers[1]).setData(new long[]{ 123L }, 0, DataContainer.SCALAR_LENGTHS); // R1=123
+		((DataContainer<long[]>)this.registers[2]).setData(new long[]{ 456L }, 0, DataContainer.SCALAR_LENGTHS); // R2=456
 
 		// このテスト用のInterconnectを生成し、"methodToConnect" メソッドを接続
 		Interconnect interconnect = new Interconnect(LANG_SPEC);
@@ -244,7 +244,7 @@ public class ProcessorTest {
 
 		// 接続された "methodToConnect" メソッドをR10レジスタに設定
 		int functionAddress = 0;  // 関数は1個しか接続していないので0番なはず
-		((DataContainer<long[]>)this.registers[10]).setData(new long[]{ (long)functionAddress }, 0, DataContainer.LENGTHS_OF_SCALAR);
+		((DataContainer<long[]>)this.registers[10]).setData(new long[]{ (long)functionAddress }, 0, DataContainer.SCALAR_LENGTHS);
 
 		// メソッドを呼び出す CALLX 命令を生成
 		Instruction[] instructions = new Instruction[]{

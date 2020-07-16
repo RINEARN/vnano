@@ -136,13 +136,14 @@ import org.vcssl.nano.spec.DataType;
 public class DataContainer<T> implements ArrayDataContainerInterface1<T> {
 
 	/** スカラデータを格納する場合における、多次元配列としての次元数（値は0）です。*/
-	public static final int   RANK_OF_SCALAR = 0;
+	public static final int   SCALAR_RANK = 0;
 
 	/** スカラデータを格納する場合における、多次元配列としての各次元の長さを表す配列（値は要素無しの int[0]）です。*/
-	public static final int[] LENGTHS_OF_SCALAR = new int[0];
+	public static final int[] SCALAR_LENGTHS = { };
 
 	/** スカラデータを格納する場合における、データの総要素数（値は1）です。 */
-	public static final int   SIZE_OF_SCALAR = 1;
+	public static final int   SCALAR_SIZE = 1;
+
 
 	/** 引数 data に格納するデータのクラスと、{@link org.vcssl.nano.spec.DataType DataType} 列挙子の要素との対応関係を表すマップです。 */
 	private static final HashMap<Class<?>, DataType> CLASS_DATA_TYPE_MAP = new HashMap<Class<?>, DataType>();
@@ -232,8 +233,8 @@ public class DataContainer<T> implements ArrayDataContainerInterface1<T> {
 	public void initialize() {
 		this.data = null;
 		this.referenceTreeRoot = null;
-		this.size = SIZE_OF_SCALAR;
-		this.lengths = LENGTHS_OF_SCALAR;
+		this.size = SCALAR_SIZE;
+		this.lengths = SCALAR_LENGTHS;
 		this.offset = 0;
 	}
 

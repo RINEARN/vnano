@@ -402,7 +402,7 @@ public class DataConverter {
 			arrayRank = className.split(EXTERNAL_ARRAY_BRACKET_REGEX, -1).length - 1;
 		} else {
 			// 非配列なら 0 次元とする
-			arrayRank = DataContainer.RANK_OF_SCALAR;
+			arrayRank = DataContainer.SCALAR_RANK;
 		}
 		return arrayRank;
 	}
@@ -472,7 +472,7 @@ public class DataConverter {
 		}
 
 		if (srcRank == RANK_OF_SCALAR) {
-			destDataContainer.setData(destDataObject, srcDataContainer.getOffset(), DataContainer.LENGTHS_OF_SCALAR);
+			destDataContainer.setData(destDataObject, srcDataContainer.getOffset(), DataContainer.SCALAR_LENGTHS);
 		} else {
 			destDataContainer.setData(destDataObject, 0, destLengths);
 		}
@@ -555,7 +555,7 @@ public class DataConverter {
 	private void convertToDataContainer0D(Object object, DataContainer<?> resultDataContainer)
 			throws VnanoException {
 
-		int[] arrayLength = DataContainer.LENGTHS_OF_SCALAR;
+		int[] arrayLength = DataContainer.SCALAR_LENGTHS;
 		switch (this.externalType) {
 			case INT32 : {
 				long[] data = new long[]{ ((Integer)object).longValue() };
@@ -1053,7 +1053,7 @@ public class DataConverter {
 
 		switch (this.rank) {
 
-			case DataContainer.RANK_OF_SCALAR : {
+			case DataContainer.SCALAR_RANK : {
 				int dataIndex = dataContainer.getOffset();
 
 				switch (this.externalType) {

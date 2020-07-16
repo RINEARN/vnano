@@ -991,8 +991,8 @@ public class DispatchUnitTest {
 
 		// 入出力オペランドに値を設定
 		this.int64InputA.setData(new long[]{ 11L, 22L, 33L }, 0, new int[] {3}); // 要素を参照する配列
-		index.setData(new long[]{ 1L }, 0, DataContainer.LENGTHS_OF_SCALAR);
-		element.setData(new long[]{ -1L }, 0, DataContainer.LENGTHS_OF_SCALAR);
+		index.setData(new long[]{ 1L }, 0, DataContainer.SCALAR_LENGTHS);
+		element.setData(new long[]{ -1L }, 0, DataContainer.SCALAR_LENGTHS);
 
 		// 上記オペランドで演算を行う命令を生成
 		Instruction instruction = new Instruction(
@@ -1283,9 +1283,9 @@ public class DispatchUnitTest {
 		this.memory.setDataContainer(TMP_D_PART, TMP_D_ADDR, len2);
 
 		// 要素数指定値を設定（ [2][3][4] ）
-		len0.setData(new long[] { 2L }, 0, DataContainer.LENGTHS_OF_SCALAR);
-		len1.setData(new long[] { 3L }, 0, DataContainer.LENGTHS_OF_SCALAR);
-		len2.setData(new long[] { 4L }, 0, DataContainer.LENGTHS_OF_SCALAR);
+		len0.setData(new long[] { 2L }, 0, DataContainer.SCALAR_LENGTHS);
+		len1.setData(new long[] { 3L }, 0, DataContainer.SCALAR_LENGTHS);
+		len2.setData(new long[] { 4L }, 0, DataContainer.SCALAR_LENGTHS);
 
 		// ALLOC命令（スカラ確保）を生成
 		Instruction instruction = new Instruction(
@@ -1352,11 +1352,11 @@ public class DispatchUnitTest {
 		this.memory.setDataContainer(TMP_B_PART, TMP_B_ADDR, argB);
 		this.memory.setDataContainer(TMP_C_PART, TMP_C_ADDR, ret);
 		this.memory.setDataContainer(TMP_D_PART, TMP_D_ADDR, functionAddressContainer);
-		argA.setData(new long[]{ 123L }, 0, DataContainer.LENGTHS_OF_SCALAR);
-		argB.setData(new long[]{ 456L }, 0, DataContainer.LENGTHS_OF_SCALAR);
-		ret.setData(new long[]{ -1 }, 0, DataContainer.LENGTHS_OF_SCALAR);
+		argA.setData(new long[]{ 123L }, 0, DataContainer.SCALAR_LENGTHS);
+		argB.setData(new long[]{ 456L }, 0, DataContainer.SCALAR_LENGTHS);
+		ret.setData(new long[]{ -1 }, 0, DataContainer.SCALAR_LENGTHS);
 		int functionAddress = 0; // 関数は1個しか接続していないので0番なはず
-		functionAddressContainer.setData(new long[]{ functionAddress }, 0, DataContainer.LENGTHS_OF_SCALAR);
+		functionAddressContainer.setData(new long[]{ functionAddress }, 0, DataContainer.SCALAR_LENGTHS);
 
 		// 上記オペランドでメソッドコールを行う命令を生成
 		Instruction instruction = new Instruction(

@@ -1004,25 +1004,25 @@ public class ExecutionUnit {
 		switch (type) {
 			case INT64 : {
 				((DataContainer<long[]>)target).setData(
-					new long[DataContainer.SIZE_OF_SCALAR], 0, DataContainer.LENGTHS_OF_SCALAR
+					new long[DataContainer.SCALAR_SIZE], 0, DataContainer.SCALAR_LENGTHS
 				);
 				return;
 			}
 			case FLOAT64 : {
 				((DataContainer<double[]>)target).setData(
-					new double[DataContainer.SIZE_OF_SCALAR], 0, DataContainer.LENGTHS_OF_SCALAR
+					new double[DataContainer.SCALAR_SIZE], 0, DataContainer.SCALAR_LENGTHS
 				);
 				return;
 			}
 			case BOOL : {
 				((DataContainer<boolean[]>)target).setData(
-					new boolean[DataContainer.SIZE_OF_SCALAR], 0, DataContainer.LENGTHS_OF_SCALAR
+					new boolean[DataContainer.SCALAR_SIZE], 0, DataContainer.SCALAR_LENGTHS
 				);
 				return;
 			}
 			case STRING : {
 				((DataContainer<String[]>)target).setData(
-					new String[DataContainer.SIZE_OF_SCALAR], 0, DataContainer.LENGTHS_OF_SCALAR
+					new String[DataContainer.SCALAR_SIZE], 0, DataContainer.SCALAR_LENGTHS
 				);
 				return;
 			}
@@ -1388,25 +1388,25 @@ public class ExecutionUnit {
 		switch (type) {
 			case INT64 : {
 				((DataContainer<long[]>)dest).setData(
-					((DataContainer<long[]>)src).getData(), dataIndex, DataContainer.LENGTHS_OF_SCALAR
+					((DataContainer<long[]>)src).getData(), dataIndex, DataContainer.SCALAR_LENGTHS
 				);
 				break;
 			}
 			case FLOAT64 : {
 				((DataContainer<double[]>)dest).setData(
-					((DataContainer<double[]>)src).getData(), dataIndex, DataContainer.LENGTHS_OF_SCALAR
+					((DataContainer<double[]>)src).getData(), dataIndex, DataContainer.SCALAR_LENGTHS
 				);
 				break;
 			}
 			case BOOL : {
 				((DataContainer<boolean[]>)dest).setData(
-					((DataContainer<boolean[]>)src).getData(), dataIndex, DataContainer.LENGTHS_OF_SCALAR
+					((DataContainer<boolean[]>)src).getData(), dataIndex, DataContainer.SCALAR_LENGTHS
 				);
 				break;
 			}
 			case STRING : {
 				((DataContainer<String[]>)dest).setData(
-					((DataContainer<String[]>)src).getData(), dataIndex, DataContainer.LENGTHS_OF_SCALAR
+					((DataContainer<String[]>)src).getData(), dataIndex, DataContainer.SCALAR_LENGTHS
 				);
 				break;
 			}

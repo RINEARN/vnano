@@ -44,9 +44,9 @@ public class ExecutionUnitTest {
 		DataContainer<long[]> output = new DataContainer<long[]>();
 		DataContainer<long[]> inputA = new DataContainer<long[]>();
 		DataContainer<long[]> inputB = new DataContainer<long[]>();
-		output.setData( new long[]{ -1L }, 0, DataContainer.LENGTHS_OF_SCALAR );
-		inputA.setData( new long[]{ 1L }, 0, DataContainer.LENGTHS_OF_SCALAR );
-		inputB.setData( new long[]{ 2L }, 0, DataContainer.LENGTHS_OF_SCALAR );
+		output.setData( new long[]{ -1L }, 0, DataContainer.SCALAR_LENGTHS );
+		inputA.setData( new long[]{ 1L }, 0, DataContainer.SCALAR_LENGTHS );
+		inputB.setData( new long[]{ 2L }, 0, DataContainer.SCALAR_LENGTHS );
 
 		// 演算を実行
 		try {
@@ -62,9 +62,9 @@ public class ExecutionUnitTest {
 		}
 
 		// オフセット設定された条件下でも正しく機能するか検査
-		output.setData( new long[]{ -1L, -1L, -1L }, 1, DataContainer.LENGTHS_OF_SCALAR );
-		inputA.setData( new long[]{ 0L, 1L, 0L }, 1, DataContainer.LENGTHS_OF_SCALAR );
-		inputB.setData( new long[]{ 0L, 2L, 0L }, 1, DataContainer.LENGTHS_OF_SCALAR );
+		output.setData( new long[]{ -1L, -1L, -1L }, 1, DataContainer.SCALAR_LENGTHS );
+		inputA.setData( new long[]{ 0L, 1L, 0L }, 1, DataContainer.SCALAR_LENGTHS );
+		inputB.setData( new long[]{ 0L, 2L, 0L }, 1, DataContainer.SCALAR_LENGTHS );
 		try {
 			new ExecutionUnit().add(DataType.INT64, output, inputA, inputB);
 		} catch (VnanoFatalException e) {
@@ -118,9 +118,9 @@ public class ExecutionUnitTest {
 		DataContainer<double[]> output = new DataContainer<double[]>();
 		DataContainer<double[]> inputA = new DataContainer<double[]>();
 		DataContainer<double[]> inputB = new DataContainer<double[]>();
-		output.setData( new double[]{ -1.0 }, 0, DataContainer.LENGTHS_OF_SCALAR );
-		inputA.setData( new double[]{ 0.25 }, 0, DataContainer.LENGTHS_OF_SCALAR );  // 2進表現で割り切れる値
-		inputB.setData( new double[]{ 0.125 }, 0, DataContainer.LENGTHS_OF_SCALAR ); // 2進表現で割り切れる値
+		output.setData( new double[]{ -1.0 }, 0, DataContainer.SCALAR_LENGTHS );
+		inputA.setData( new double[]{ 0.25 }, 0, DataContainer.SCALAR_LENGTHS );  // 2進表現で割り切れる値
+		inputB.setData( new double[]{ 0.125 }, 0, DataContainer.SCALAR_LENGTHS ); // 2進表現で割り切れる値
 
 		// 演算を実行
 		try {
@@ -136,9 +136,9 @@ public class ExecutionUnitTest {
 		}
 
 		// オフセット設定された条件下でも正しく機能するか検査
-		output.setData( new double[]{ -1.0, -1.0, -1.0 }, 1, DataContainer.LENGTHS_OF_SCALAR );
-		inputA.setData( new double[]{ 0.0, 0.25,  0.0 }, 1, DataContainer.LENGTHS_OF_SCALAR ); // 2進表現で割り切れる値
-		inputB.setData( new double[]{ 0.0, 0.125, 0.0 }, 1, DataContainer.LENGTHS_OF_SCALAR ); // 2進表現で割り切れる値
+		output.setData( new double[]{ -1.0, -1.0, -1.0 }, 1, DataContainer.SCALAR_LENGTHS );
+		inputA.setData( new double[]{ 0.0, 0.25,  0.0 }, 1, DataContainer.SCALAR_LENGTHS ); // 2進表現で割り切れる値
+		inputB.setData( new double[]{ 0.0, 0.125, 0.0 }, 1, DataContainer.SCALAR_LENGTHS ); // 2進表現で割り切れる値
 		try {
 			new ExecutionUnit().add(DataType.FLOAT64, output, inputA, inputB);
 		} catch (VnanoFatalException e) {
@@ -192,9 +192,9 @@ public class ExecutionUnitTest {
 		DataContainer<String[]> output = new DataContainer<String[]>();
 		DataContainer<String[]> inputA = new DataContainer<String[]>();
 		DataContainer<String[]> inputB = new DataContainer<String[]>();
-		output.setData( new String[]{ "Init" }, 0, DataContainer.LENGTHS_OF_SCALAR );
-		inputA.setData( new String[]{ "Hello" }, 0, DataContainer.LENGTHS_OF_SCALAR );
-		inputB.setData( new String[]{ "World" }, 0, DataContainer.LENGTHS_OF_SCALAR );
+		output.setData( new String[]{ "Init" }, 0, DataContainer.SCALAR_LENGTHS );
+		inputA.setData( new String[]{ "Hello" }, 0, DataContainer.SCALAR_LENGTHS );
+		inputB.setData( new String[]{ "World" }, 0, DataContainer.SCALAR_LENGTHS );
 
 		// 演算を実行
 		try {
@@ -210,9 +210,9 @@ public class ExecutionUnitTest {
 		}
 
 		// オフセット設定された条件下でも正しく機能するか検査
-		output.setData( new String[]{ "Init0", "Init1", "Init2" }, 1, DataContainer.LENGTHS_OF_SCALAR );
-		inputA.setData( new String[]{ "", "Hello", "" }, 1, DataContainer.LENGTHS_OF_SCALAR );
-		inputB.setData( new String[]{ "", "World", "" }, 1, DataContainer.LENGTHS_OF_SCALAR );
+		output.setData( new String[]{ "Init0", "Init1", "Init2" }, 1, DataContainer.SCALAR_LENGTHS );
+		inputA.setData( new String[]{ "", "Hello", "" }, 1, DataContainer.SCALAR_LENGTHS );
+		inputB.setData( new String[]{ "", "World", "" }, 1, DataContainer.SCALAR_LENGTHS );
 		try {
 			new ExecutionUnit().add(DataType.STRING, output, inputA, inputB);
 		} catch (VnanoFatalException e) {
@@ -269,9 +269,9 @@ public class ExecutionUnitTest {
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
 		DataContainer<boolean[]> inputA = new DataContainer<boolean[]>();
 		DataContainer<boolean[]> inputB = new DataContainer<boolean[]>();
-		output.setData( new boolean[]{ false }, 0, DataContainer.LENGTHS_OF_SCALAR );
-		inputA.setData( new boolean[]{ true }, 0, DataContainer.LENGTHS_OF_SCALAR );
-		inputB.setData( new boolean[]{ false }, 0, DataContainer.LENGTHS_OF_SCALAR );
+		output.setData( new boolean[]{ false }, 0, DataContainer.SCALAR_LENGTHS );
+		inputA.setData( new boolean[]{ true }, 0, DataContainer.SCALAR_LENGTHS );
+		inputB.setData( new boolean[]{ false }, 0, DataContainer.SCALAR_LENGTHS );
 
 		// 対応していないデータ型を指定して演算を実行
 		try {
@@ -321,9 +321,9 @@ public class ExecutionUnitTest {
 		DataContainer<long[]> output = new DataContainer<long[]>();
 		DataContainer<long[]> inputA = new DataContainer<long[]>();
 		DataContainer<long[]> inputB = new DataContainer<long[]>();
-		output.setData( new long[]{ -1L }, 0, DataContainer.LENGTHS_OF_SCALAR );
-		inputA.setData( new long[]{ 5L }, 0, DataContainer.LENGTHS_OF_SCALAR );
-		inputB.setData( new long[]{ 3L }, 0, DataContainer.LENGTHS_OF_SCALAR );
+		output.setData( new long[]{ -1L }, 0, DataContainer.SCALAR_LENGTHS );
+		inputA.setData( new long[]{ 5L }, 0, DataContainer.SCALAR_LENGTHS );
+		inputB.setData( new long[]{ 3L }, 0, DataContainer.SCALAR_LENGTHS );
 
 		// 演算を実行
 		try {
@@ -339,9 +339,9 @@ public class ExecutionUnitTest {
 		}
 
 		// オフセット設定された条件下でも正しく機能するか検査
-		output.setData( new long[]{ -1L, -1L, -1L }, 1, DataContainer.LENGTHS_OF_SCALAR );
-		inputA.setData( new long[]{ 0L, 5L, 0L }, 1, DataContainer.LENGTHS_OF_SCALAR );
-		inputB.setData( new long[]{ 0L, 3L, 0L }, 1, DataContainer.LENGTHS_OF_SCALAR );
+		output.setData( new long[]{ -1L, -1L, -1L }, 1, DataContainer.SCALAR_LENGTHS );
+		inputA.setData( new long[]{ 0L, 5L, 0L }, 1, DataContainer.SCALAR_LENGTHS );
+		inputB.setData( new long[]{ 0L, 3L, 0L }, 1, DataContainer.SCALAR_LENGTHS );
 		try {
 			new ExecutionUnit().sub(DataType.INT64, output, inputA, inputB);
 		} catch (VnanoFatalException e) {
@@ -394,9 +394,9 @@ public class ExecutionUnitTest {
 		DataContainer<double[]> output = new DataContainer<double[]>();
 		DataContainer<double[]> inputA = new DataContainer<double[]>();
 		DataContainer<double[]> inputB = new DataContainer<double[]>();
-		output.setData( new double[]{ -1.0 }, 0, DataContainer.LENGTHS_OF_SCALAR );
-		inputA.setData( new double[]{ 0.5 }, 0, DataContainer.LENGTHS_OF_SCALAR );  // 2進表現で割り切れる値
-		inputB.setData( new double[]{ 0.125 }, 0, DataContainer.LENGTHS_OF_SCALAR ); // 2進表現で割り切れる値
+		output.setData( new double[]{ -1.0 }, 0, DataContainer.SCALAR_LENGTHS );
+		inputA.setData( new double[]{ 0.5 }, 0, DataContainer.SCALAR_LENGTHS );  // 2進表現で割り切れる値
+		inputB.setData( new double[]{ 0.125 }, 0, DataContainer.SCALAR_LENGTHS ); // 2進表現で割り切れる値
 
 		// 演算を実行
 		try {
@@ -412,9 +412,9 @@ public class ExecutionUnitTest {
 		}
 
 		// オフセット設定された条件下でも正しく機能するか検査
-		output.setData( new double[]{ -1.0, -1.0, -1.0 }, 1, DataContainer.LENGTHS_OF_SCALAR );
-		inputA.setData( new double[]{ 0.0, 0.5,  0.0 }, 1, DataContainer.LENGTHS_OF_SCALAR ); // 2進表現で割り切れる値
-		inputB.setData( new double[]{ 0.0, 0.125, 0.0 }, 1, DataContainer.LENGTHS_OF_SCALAR ); // 2進表現で割り切れる値
+		output.setData( new double[]{ -1.0, -1.0, -1.0 }, 1, DataContainer.SCALAR_LENGTHS );
+		inputA.setData( new double[]{ 0.0, 0.5,  0.0 }, 1, DataContainer.SCALAR_LENGTHS ); // 2進表現で割り切れる値
+		inputB.setData( new double[]{ 0.0, 0.125, 0.0 }, 1, DataContainer.SCALAR_LENGTHS ); // 2進表現で割り切れる値
 		try {
 			new ExecutionUnit().sub(DataType.FLOAT64, output, inputA, inputB);
 		} catch (VnanoFatalException e) {
@@ -467,9 +467,9 @@ public class ExecutionUnitTest {
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
 		DataContainer<boolean[]> inputA = new DataContainer<boolean[]>();
 		DataContainer<boolean[]> inputB = new DataContainer<boolean[]>();
-		output.setData( new boolean[]{ false }, 0, DataContainer.LENGTHS_OF_SCALAR );
-		inputA.setData( new boolean[]{ true }, 0, DataContainer.LENGTHS_OF_SCALAR );
-		inputB.setData( new boolean[]{ false }, 0, DataContainer.LENGTHS_OF_SCALAR );
+		output.setData( new boolean[]{ false }, 0, DataContainer.SCALAR_LENGTHS );
+		inputA.setData( new boolean[]{ true }, 0, DataContainer.SCALAR_LENGTHS );
+		inputB.setData( new boolean[]{ false }, 0, DataContainer.SCALAR_LENGTHS );
 
 		// 対応していないデータ型を指定して演算を実行
 		try {
@@ -513,9 +513,9 @@ public class ExecutionUnitTest {
 		DataContainer<long[]> output = new DataContainer<long[]>();
 		DataContainer<long[]> inputA = new DataContainer<long[]>();
 		DataContainer<long[]> inputB = new DataContainer<long[]>();
-		output.setData( new long[]{ -1L }, 0, DataContainer.LENGTHS_OF_SCALAR );
-		inputA.setData( new long[]{ 5L }, 0, DataContainer.LENGTHS_OF_SCALAR );
-		inputB.setData( new long[]{ 3L }, 0, DataContainer.LENGTHS_OF_SCALAR );
+		output.setData( new long[]{ -1L }, 0, DataContainer.SCALAR_LENGTHS );
+		inputA.setData( new long[]{ 5L }, 0, DataContainer.SCALAR_LENGTHS );
+		inputB.setData( new long[]{ 3L }, 0, DataContainer.SCALAR_LENGTHS );
 
 		// 演算を実行
 		try {
@@ -531,9 +531,9 @@ public class ExecutionUnitTest {
 		}
 
 		// オフセット設定された条件下でも正しく機能するか検査
-		output.setData( new long[]{ -1L, -1L, -1L }, 1, DataContainer.LENGTHS_OF_SCALAR );
-		inputA.setData( new long[]{ 0L, 5L, 0L }, 1, DataContainer.LENGTHS_OF_SCALAR );
-		inputB.setData( new long[]{ 0L, 3L, 0L }, 1, DataContainer.LENGTHS_OF_SCALAR );
+		output.setData( new long[]{ -1L, -1L, -1L }, 1, DataContainer.SCALAR_LENGTHS );
+		inputA.setData( new long[]{ 0L, 5L, 0L }, 1, DataContainer.SCALAR_LENGTHS );
+		inputB.setData( new long[]{ 0L, 3L, 0L }, 1, DataContainer.SCALAR_LENGTHS );
 		try {
 			new ExecutionUnit().mul(DataType.INT64, output, inputA, inputB);
 		} catch (VnanoFatalException e) {
@@ -586,9 +586,9 @@ public class ExecutionUnitTest {
 		DataContainer<double[]> output = new DataContainer<double[]>();
 		DataContainer<double[]> inputA = new DataContainer<double[]>();
 		DataContainer<double[]> inputB = new DataContainer<double[]>();
-		output.setData( new double[]{ -1.0 }, 0, DataContainer.LENGTHS_OF_SCALAR );
-		inputA.setData( new double[]{ 0.5 }, 0, DataContainer.LENGTHS_OF_SCALAR );   // 2進表現で割り切れる値
-		inputB.setData( new double[]{ 0.125 }, 0, DataContainer.LENGTHS_OF_SCALAR ); // 2進表現で割り切れる値
+		output.setData( new double[]{ -1.0 }, 0, DataContainer.SCALAR_LENGTHS );
+		inputA.setData( new double[]{ 0.5 }, 0, DataContainer.SCALAR_LENGTHS );   // 2進表現で割り切れる値
+		inputB.setData( new double[]{ 0.125 }, 0, DataContainer.SCALAR_LENGTHS ); // 2進表現で割り切れる値
 
 		// 演算を実行
 		try {
@@ -604,9 +604,9 @@ public class ExecutionUnitTest {
 		}
 
 		// オフセット設定された条件下でも正しく機能するか検査
-		output.setData( new double[]{ -1.0, -1.0, -1.0 }, 1, DataContainer.LENGTHS_OF_SCALAR );
-		inputA.setData( new double[]{ 0.0, 0.5,  0.0 }, 1, DataContainer.LENGTHS_OF_SCALAR );  // 2進表現で割り切れる値
-		inputB.setData( new double[]{ 0.0, 0.125, 0.0 }, 1, DataContainer.LENGTHS_OF_SCALAR ); // 2進表現で割り切れる値
+		output.setData( new double[]{ -1.0, -1.0, -1.0 }, 1, DataContainer.SCALAR_LENGTHS );
+		inputA.setData( new double[]{ 0.0, 0.5,  0.0 }, 1, DataContainer.SCALAR_LENGTHS );  // 2進表現で割り切れる値
+		inputB.setData( new double[]{ 0.0, 0.125, 0.0 }, 1, DataContainer.SCALAR_LENGTHS ); // 2進表現で割り切れる値
 		try {
 			new ExecutionUnit().mul(DataType.FLOAT64, output, inputA, inputB);
 		} catch (VnanoFatalException e) {
@@ -660,9 +660,9 @@ public class ExecutionUnitTest {
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
 		DataContainer<boolean[]> inputA = new DataContainer<boolean[]>();
 		DataContainer<boolean[]> inputB = new DataContainer<boolean[]>();
-		output.setData( new boolean[]{ false }, 0, DataContainer.LENGTHS_OF_SCALAR );
-		inputA.setData( new boolean[]{ true }, 0, DataContainer.LENGTHS_OF_SCALAR );
-		inputB.setData( new boolean[]{ false }, 0, DataContainer.LENGTHS_OF_SCALAR );
+		output.setData( new boolean[]{ false }, 0, DataContainer.SCALAR_LENGTHS );
+		inputA.setData( new boolean[]{ true }, 0, DataContainer.SCALAR_LENGTHS );
+		inputB.setData( new boolean[]{ false }, 0, DataContainer.SCALAR_LENGTHS );
 
 		// 対応していないデータ型を指定して演算を実行
 		try {
@@ -706,9 +706,9 @@ public class ExecutionUnitTest {
 		DataContainer<long[]> output = new DataContainer<long[]>();
 		DataContainer<long[]> inputA = new DataContainer<long[]>();
 		DataContainer<long[]> inputB = new DataContainer<long[]>();
-		output.setData( new long[]{ -1L }, 0, DataContainer.LENGTHS_OF_SCALAR );
-		inputA.setData( new long[]{ 8L }, 0, DataContainer.LENGTHS_OF_SCALAR );
-		inputB.setData( new long[]{ 3L }, 0, DataContainer.LENGTHS_OF_SCALAR );
+		output.setData( new long[]{ -1L }, 0, DataContainer.SCALAR_LENGTHS );
+		inputA.setData( new long[]{ 8L }, 0, DataContainer.SCALAR_LENGTHS );
+		inputB.setData( new long[]{ 3L }, 0, DataContainer.SCALAR_LENGTHS );
 
 		// 演算を実行
 		try {
@@ -724,9 +724,9 @@ public class ExecutionUnitTest {
 		}
 
 		// オフセット設定された条件下でも正しく機能するか検査
-		output.setData( new long[]{ -1L, -1L, -1L }, 1, DataContainer.LENGTHS_OF_SCALAR );
-		inputA.setData( new long[]{ 0L, 8L, 0L }, 1, DataContainer.LENGTHS_OF_SCALAR );
-		inputB.setData( new long[]{ 0L, 3L, 0L }, 1, DataContainer.LENGTHS_OF_SCALAR );
+		output.setData( new long[]{ -1L, -1L, -1L }, 1, DataContainer.SCALAR_LENGTHS );
+		inputA.setData( new long[]{ 0L, 8L, 0L }, 1, DataContainer.SCALAR_LENGTHS );
+		inputB.setData( new long[]{ 0L, 3L, 0L }, 1, DataContainer.SCALAR_LENGTHS );
 		try {
 			new ExecutionUnit().div(DataType.INT64, output, inputA, inputB);
 		} catch (VnanoFatalException e) {
@@ -781,9 +781,9 @@ public class ExecutionUnitTest {
 		DataContainer<double[]> output = new DataContainer<double[]>();
 		DataContainer<double[]> inputA = new DataContainer<double[]>();
 		DataContainer<double[]> inputB = new DataContainer<double[]>();
-		output.setData( new double[]{ -1.0 }, 0, DataContainer.LENGTHS_OF_SCALAR );
-		inputA.setData( new double[]{ 0.5 }, 0, DataContainer.LENGTHS_OF_SCALAR );   // 2進表現で割り切れる値
-		inputB.setData( new double[]{ 0.125 }, 0, DataContainer.LENGTHS_OF_SCALAR ); // 2進表現で割り切れる値
+		output.setData( new double[]{ -1.0 }, 0, DataContainer.SCALAR_LENGTHS );
+		inputA.setData( new double[]{ 0.5 }, 0, DataContainer.SCALAR_LENGTHS );   // 2進表現で割り切れる値
+		inputB.setData( new double[]{ 0.125 }, 0, DataContainer.SCALAR_LENGTHS ); // 2進表現で割り切れる値
 
 		// 演算を実行
 		try {
@@ -799,9 +799,9 @@ public class ExecutionUnitTest {
 		}
 
 		// オフセット設定された条件下でも正しく機能するか検査
-		output.setData( new double[]{ -1.0, -1.0, -1.0 }, 1, DataContainer.LENGTHS_OF_SCALAR );
-		inputA.setData( new double[]{ 0.0, 0.5,  0.0 }, 1, DataContainer.LENGTHS_OF_SCALAR );  // 2進表現で割り切れる値
-		inputB.setData( new double[]{ 0.0, 0.125, 0.0 }, 1, DataContainer.LENGTHS_OF_SCALAR ); // 2進表現で割り切れる値
+		output.setData( new double[]{ -1.0, -1.0, -1.0 }, 1, DataContainer.SCALAR_LENGTHS );
+		inputA.setData( new double[]{ 0.0, 0.5,  0.0 }, 1, DataContainer.SCALAR_LENGTHS );  // 2進表現で割り切れる値
+		inputB.setData( new double[]{ 0.0, 0.125, 0.0 }, 1, DataContainer.SCALAR_LENGTHS ); // 2進表現で割り切れる値
 		try {
 			new ExecutionUnit().div(DataType.FLOAT64, output, inputA, inputB);
 		} catch (VnanoFatalException e) {
@@ -855,9 +855,9 @@ public class ExecutionUnitTest {
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
 		DataContainer<boolean[]> inputA = new DataContainer<boolean[]>();
 		DataContainer<boolean[]> inputB = new DataContainer<boolean[]>();
-		output.setData( new boolean[]{ false }, 0, DataContainer.LENGTHS_OF_SCALAR );
-		inputA.setData( new boolean[]{ true }, 0, DataContainer.LENGTHS_OF_SCALAR );
-		inputB.setData( new boolean[]{ false }, 0, DataContainer.LENGTHS_OF_SCALAR );
+		output.setData( new boolean[]{ false }, 0, DataContainer.SCALAR_LENGTHS );
+		inputA.setData( new boolean[]{ true }, 0, DataContainer.SCALAR_LENGTHS );
+		inputB.setData( new boolean[]{ false }, 0, DataContainer.SCALAR_LENGTHS );
 
 		// 対応していないデータ型を指定して演算を実行
 		try {
@@ -901,9 +901,9 @@ public class ExecutionUnitTest {
 		DataContainer<long[]> output = new DataContainer<long[]>();
 		DataContainer<long[]> inputA = new DataContainer<long[]>();
 		DataContainer<long[]> inputB = new DataContainer<long[]>();
-		output.setData( new long[]{ -1L }, 0, DataContainer.LENGTHS_OF_SCALAR );
-		inputA.setData( new long[]{ 8L }, 0, DataContainer.LENGTHS_OF_SCALAR );
-		inputB.setData( new long[]{ 3L }, 0, DataContainer.LENGTHS_OF_SCALAR );
+		output.setData( new long[]{ -1L }, 0, DataContainer.SCALAR_LENGTHS );
+		inputA.setData( new long[]{ 8L }, 0, DataContainer.SCALAR_LENGTHS );
+		inputB.setData( new long[]{ 3L }, 0, DataContainer.SCALAR_LENGTHS );
 
 		// 演算を実行
 		try {
@@ -919,9 +919,9 @@ public class ExecutionUnitTest {
 		}
 
 		// オフセット設定された条件下でも正しく機能するか検査
-		output.setData( new long[]{ -1L, -1L, -1L }, 1, DataContainer.LENGTHS_OF_SCALAR );
-		inputA.setData( new long[]{ 0L, 8L, 0L }, 1, DataContainer.LENGTHS_OF_SCALAR );
-		inputB.setData( new long[]{ 0L, 3L, 0L }, 1, DataContainer.LENGTHS_OF_SCALAR );
+		output.setData( new long[]{ -1L, -1L, -1L }, 1, DataContainer.SCALAR_LENGTHS );
+		inputA.setData( new long[]{ 0L, 8L, 0L }, 1, DataContainer.SCALAR_LENGTHS );
+		inputB.setData( new long[]{ 0L, 3L, 0L }, 1, DataContainer.SCALAR_LENGTHS );
 		try {
 			new ExecutionUnit().rem(DataType.INT64, output, inputA, inputB);
 		} catch (VnanoFatalException e) {
@@ -976,9 +976,9 @@ public class ExecutionUnitTest {
 		DataContainer<double[]> output = new DataContainer<double[]>();
 		DataContainer<double[]> inputA = new DataContainer<double[]>();
 		DataContainer<double[]> inputB = new DataContainer<double[]>();
-		output.setData( new double[]{ -1.0 }, 0, DataContainer.LENGTHS_OF_SCALAR );
-		inputA.setData( new double[]{ 0.8 }, 0, DataContainer.LENGTHS_OF_SCALAR );
-		inputB.setData( new double[]{ 0.3 }, 0, DataContainer.LENGTHS_OF_SCALAR );
+		output.setData( new double[]{ -1.0 }, 0, DataContainer.SCALAR_LENGTHS );
+		inputA.setData( new double[]{ 0.8 }, 0, DataContainer.SCALAR_LENGTHS );
+		inputB.setData( new double[]{ 0.3 }, 0, DataContainer.SCALAR_LENGTHS );
 
 		// 演算を実行
 		try {
@@ -994,9 +994,9 @@ public class ExecutionUnitTest {
 		}
 
 		// オフセット設定された条件下でも正しく機能するか検査
-		output.setData( new double[]{ -1.0, -1.0, -1.0 }, 1, DataContainer.LENGTHS_OF_SCALAR );
-		inputA.setData( new double[]{ 0.0, 0.8,  0.0 }, 1, DataContainer.LENGTHS_OF_SCALAR );
-		inputB.setData( new double[]{ 0.0, 0.3, 0.0 }, 1, DataContainer.LENGTHS_OF_SCALAR );
+		output.setData( new double[]{ -1.0, -1.0, -1.0 }, 1, DataContainer.SCALAR_LENGTHS );
+		inputA.setData( new double[]{ 0.0, 0.8,  0.0 }, 1, DataContainer.SCALAR_LENGTHS );
+		inputB.setData( new double[]{ 0.0, 0.3, 0.0 }, 1, DataContainer.SCALAR_LENGTHS );
 		try {
 			new ExecutionUnit().rem(DataType.FLOAT64, output, inputA, inputB);
 		} catch (VnanoFatalException e) {
@@ -1055,9 +1055,9 @@ public class ExecutionUnitTest {
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
 		DataContainer<boolean[]> inputA = new DataContainer<boolean[]>();
 		DataContainer<boolean[]> inputB = new DataContainer<boolean[]>();
-		output.setData( new boolean[]{ false }, 0, DataContainer.LENGTHS_OF_SCALAR );
-		inputA.setData( new boolean[]{ true }, 0, DataContainer.LENGTHS_OF_SCALAR );
-		inputB.setData( new boolean[]{ false }, 0, DataContainer.LENGTHS_OF_SCALAR );
+		output.setData( new boolean[]{ false }, 0, DataContainer.SCALAR_LENGTHS );
+		inputA.setData( new boolean[]{ true }, 0, DataContainer.SCALAR_LENGTHS );
+		inputB.setData( new boolean[]{ false }, 0, DataContainer.SCALAR_LENGTHS );
 
 		// 対応していないデータ型を指定して演算を実行
 		try {
@@ -1100,8 +1100,8 @@ public class ExecutionUnitTest {
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<long[]> output = new DataContainer<long[]>();
 		DataContainer<long[]> input = new DataContainer<long[]>();
-		output.setData( new long[]{ -1L }, 0, DataContainer.LENGTHS_OF_SCALAR );
-		input.setData( new long[]{ 8L }, 0, DataContainer.LENGTHS_OF_SCALAR );
+		output.setData( new long[]{ -1L }, 0, DataContainer.SCALAR_LENGTHS );
+		input.setData( new long[]{ 8L }, 0, DataContainer.SCALAR_LENGTHS );
 
 		// 演算を実行
 		try {
@@ -1117,8 +1117,8 @@ public class ExecutionUnitTest {
 		}
 
 		// オフセット設定された条件下でも正しく機能するか検査
-		output.setData( new long[]{ -1L, -1L, -1L }, 1, DataContainer.LENGTHS_OF_SCALAR );
-		input.setData( new long[]{ 0L, 8L, 0L }, 1, DataContainer.LENGTHS_OF_SCALAR );
+		output.setData( new long[]{ -1L, -1L, -1L }, 1, DataContainer.SCALAR_LENGTHS );
+		input.setData( new long[]{ 0L, 8L, 0L }, 1, DataContainer.SCALAR_LENGTHS );
 		try {
 			new ExecutionUnit().neg(DataType.INT64, output, input);
 		} catch (VnanoFatalException e) {
@@ -1168,8 +1168,8 @@ public class ExecutionUnitTest {
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<double[]> output = new DataContainer<double[]>();
 		DataContainer<double[]> input = new DataContainer<double[]>();
-		output.setData( new double[]{ -1.0 }, 0, DataContainer.LENGTHS_OF_SCALAR );
-		input.setData( new double[]{ 0.8 }, 0, DataContainer.LENGTHS_OF_SCALAR );
+		output.setData( new double[]{ -1.0 }, 0, DataContainer.SCALAR_LENGTHS );
+		input.setData( new double[]{ 0.8 }, 0, DataContainer.SCALAR_LENGTHS );
 
 		// 演算を実行
 		try {
@@ -1185,8 +1185,8 @@ public class ExecutionUnitTest {
 		}
 
 		// オフセット設定された条件下でも正しく機能するか検査
-		output.setData( new double[]{ -1.0, -1.0, -1.0 }, 1, DataContainer.LENGTHS_OF_SCALAR );
-		input.setData( new double[]{ 0, 0.8, 0 }, 1, DataContainer.LENGTHS_OF_SCALAR );
+		output.setData( new double[]{ -1.0, -1.0, -1.0 }, 1, DataContainer.SCALAR_LENGTHS );
+		input.setData( new double[]{ 0, 0.8, 0 }, 1, DataContainer.SCALAR_LENGTHS );
 		try {
 			new ExecutionUnit().neg(DataType.FLOAT64, output, input);
 		} catch (VnanoFatalException e) {
@@ -1236,8 +1236,8 @@ public class ExecutionUnitTest {
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
 		DataContainer<boolean[]> input = new DataContainer<boolean[]>();
-		output.setData( new boolean[]{ false }, 0, DataContainer.LENGTHS_OF_SCALAR );
-		input.setData( new boolean[]{ true }, 0, DataContainer.LENGTHS_OF_SCALAR );
+		output.setData( new boolean[]{ false }, 0, DataContainer.SCALAR_LENGTHS );
+		input.setData( new boolean[]{ true }, 0, DataContainer.SCALAR_LENGTHS );
 
 		// 対応していないデータ型を指定して演算を実行
 		try {
@@ -1281,9 +1281,9 @@ public class ExecutionUnitTest {
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
 		DataContainer<long[]> inputA = new DataContainer<long[]>();
 		DataContainer<long[]> inputB = new DataContainer<long[]>();
-		output.setData( new boolean[]{ false }, 0, DataContainer.LENGTHS_OF_SCALAR );
-		inputA.setData( new long[]{ 1L }, 0, DataContainer.LENGTHS_OF_SCALAR );
-		inputB.setData( new long[]{ 2L }, 0, DataContainer.LENGTHS_OF_SCALAR );
+		output.setData( new boolean[]{ false }, 0, DataContainer.SCALAR_LENGTHS );
+		inputA.setData( new long[]{ 1L }, 0, DataContainer.SCALAR_LENGTHS );
+		inputB.setData( new long[]{ 2L }, 0, DataContainer.SCALAR_LENGTHS );
 
 		// 演算を実行
 		try {
@@ -1312,9 +1312,9 @@ public class ExecutionUnitTest {
 		}
 
 		// オフセット設定された条件下でも正しく機能するか検査
-		output.setData( new boolean[]{ false, false, false }, 1, DataContainer.LENGTHS_OF_SCALAR );
-		inputA.setData( new long[]{ 0L, 1L, 0L }, 1, DataContainer.LENGTHS_OF_SCALAR );
-		inputB.setData( new long[]{ 0L, 2L, 0L }, 1, DataContainer.LENGTHS_OF_SCALAR );
+		output.setData( new boolean[]{ false, false, false }, 1, DataContainer.SCALAR_LENGTHS );
+		inputA.setData( new long[]{ 0L, 1L, 0L }, 1, DataContainer.SCALAR_LENGTHS );
+		inputB.setData( new long[]{ 0L, 2L, 0L }, 1, DataContainer.SCALAR_LENGTHS );
 		try {
 			new ExecutionUnit().eq(DataType.INT64, output, inputA, inputB);
 		} catch (VnanoFatalException e) {
@@ -1377,9 +1377,9 @@ public class ExecutionUnitTest {
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
 		DataContainer<double[]> inputA = new DataContainer<double[]>();
 		DataContainer<double[]> inputB = new DataContainer<double[]>();
-		output.setData( new boolean[]{ false }, 0, DataContainer.LENGTHS_OF_SCALAR );
-		inputA.setData( new double[]{ 0.125 }, 0, DataContainer.LENGTHS_OF_SCALAR ); // 2進表現で割り切れる値
-		inputB.setData( new double[]{ 0.5 }, 0, DataContainer.LENGTHS_OF_SCALAR );   // 2進表現で割り切れる値
+		output.setData( new boolean[]{ false }, 0, DataContainer.SCALAR_LENGTHS );
+		inputA.setData( new double[]{ 0.125 }, 0, DataContainer.SCALAR_LENGTHS ); // 2進表現で割り切れる値
+		inputB.setData( new double[]{ 0.5 }, 0, DataContainer.SCALAR_LENGTHS );   // 2進表現で割り切れる値
 
 		// 演算を実行
 		try {
@@ -1408,9 +1408,9 @@ public class ExecutionUnitTest {
 		}
 
 		// オフセット設定された条件下でも正しく機能するか検査
-		output.setData( new boolean[]{ false, false, false }, 1, DataContainer.LENGTHS_OF_SCALAR );
-		inputA.setData( new double[]{ -1.0, 0.125, -1.0 }, 1, DataContainer.LENGTHS_OF_SCALAR ); // 2進表現で割り切れる値
-		inputB.setData( new double[]{ -1.0, 0.5, -1.0 }, 1, DataContainer.LENGTHS_OF_SCALAR );   // 2進表現で割り切れる値
+		output.setData( new boolean[]{ false, false, false }, 1, DataContainer.SCALAR_LENGTHS );
+		inputA.setData( new double[]{ -1.0, 0.125, -1.0 }, 1, DataContainer.SCALAR_LENGTHS ); // 2進表現で割り切れる値
+		inputB.setData( new double[]{ -1.0, 0.5, -1.0 }, 1, DataContainer.SCALAR_LENGTHS );   // 2進表現で割り切れる値
 		try {
 			new ExecutionUnit().eq(DataType.FLOAT64, output, inputA, inputB);
 		} catch (VnanoFatalException e) {
@@ -1473,9 +1473,9 @@ public class ExecutionUnitTest {
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
 		DataContainer<String[]> inputA = new DataContainer<String[]>();
 		DataContainer<String[]> inputB = new DataContainer<String[]>();
-		output.setData( new boolean[]{ false }, 0, DataContainer.LENGTHS_OF_SCALAR );
-		inputA.setData( new String[]{ "Hello" }, 0, DataContainer.LENGTHS_OF_SCALAR );
-		inputB.setData( new String[]{ "World" }, 0, DataContainer.LENGTHS_OF_SCALAR );
+		output.setData( new boolean[]{ false }, 0, DataContainer.SCALAR_LENGTHS );
+		inputA.setData( new String[]{ "Hello" }, 0, DataContainer.SCALAR_LENGTHS );
+		inputB.setData( new String[]{ "World" }, 0, DataContainer.SCALAR_LENGTHS );
 
 		// 演算を実行
 		try {
@@ -1504,9 +1504,9 @@ public class ExecutionUnitTest {
 		}
 
 		// オフセット設定された条件下でも正しく機能するか検査
-		output.setData( new boolean[]{ false, false, false }, 1, DataContainer.LENGTHS_OF_SCALAR );
-		inputA.setData( new String[]{ "", "Hello", "" }, 1, DataContainer.LENGTHS_OF_SCALAR );
-		inputB.setData( new String[]{ "", "World", "" }, 1, DataContainer.LENGTHS_OF_SCALAR );
+		output.setData( new boolean[]{ false, false, false }, 1, DataContainer.SCALAR_LENGTHS );
+		inputA.setData( new String[]{ "", "Hello", "" }, 1, DataContainer.SCALAR_LENGTHS );
+		inputB.setData( new String[]{ "", "World", "" }, 1, DataContainer.SCALAR_LENGTHS );
 		try {
 			new ExecutionUnit().eq(DataType.STRING, output, inputA, inputB);
 		} catch (VnanoFatalException e) {
@@ -1569,9 +1569,9 @@ public class ExecutionUnitTest {
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
 		DataContainer<boolean[]> inputA = new DataContainer<boolean[]>();
 		DataContainer<boolean[]> inputB = new DataContainer<boolean[]>();
-		output.setData( new boolean[]{ false }, 0, DataContainer.LENGTHS_OF_SCALAR );
-		inputA.setData( new boolean[]{ true }, 0, DataContainer.LENGTHS_OF_SCALAR );
-		inputB.setData( new boolean[]{ false }, 0, DataContainer.LENGTHS_OF_SCALAR );
+		output.setData( new boolean[]{ false }, 0, DataContainer.SCALAR_LENGTHS );
+		inputA.setData( new boolean[]{ true }, 0, DataContainer.SCALAR_LENGTHS );
+		inputB.setData( new boolean[]{ false }, 0, DataContainer.SCALAR_LENGTHS );
 
 		// 演算を実行
 		try {
@@ -1600,9 +1600,9 @@ public class ExecutionUnitTest {
 		}
 
 		// オフセット設定された条件下でも正しく機能するか検査
-		output.setData( new boolean[]{ false, false, false }, 1, DataContainer.LENGTHS_OF_SCALAR );
-		inputA.setData( new boolean[]{ false, true, false }, 1, DataContainer.LENGTHS_OF_SCALAR );
-		inputB.setData( new boolean[]{ false, false, false }, 1, DataContainer.LENGTHS_OF_SCALAR );
+		output.setData( new boolean[]{ false, false, false }, 1, DataContainer.SCALAR_LENGTHS );
+		inputA.setData( new boolean[]{ false, true, false }, 1, DataContainer.SCALAR_LENGTHS );
+		inputB.setData( new boolean[]{ false, false, false }, 1, DataContainer.SCALAR_LENGTHS );
 		try {
 			new ExecutionUnit().eq(DataType.BOOL, output, inputA, inputB);
 		} catch (VnanoFatalException e) {
@@ -1664,9 +1664,9 @@ public class ExecutionUnitTest {
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
 		DataContainer<Object[]> inputA = new DataContainer<Object[]>();
 		DataContainer<Object[]> inputB = new DataContainer<Object[]>();
-		output.setData( new boolean[]{ false }, 0, DataContainer.LENGTHS_OF_SCALAR );
-		inputA.setData( new Object[]{ null }, 0, DataContainer.LENGTHS_OF_SCALAR );
-		inputB.setData( new Object[]{ null }, 0, DataContainer.LENGTHS_OF_SCALAR );
+		output.setData( new boolean[]{ false }, 0, DataContainer.SCALAR_LENGTHS );
+		inputA.setData( new Object[]{ null }, 0, DataContainer.SCALAR_LENGTHS );
+		inputB.setData( new Object[]{ null }, 0, DataContainer.SCALAR_LENGTHS );
 
 		// 対応していないデータ型を指定して演算を実行
 		try {
@@ -1696,9 +1696,9 @@ public class ExecutionUnitTest {
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
 		DataContainer<long[]> inputA = new DataContainer<long[]>();
 		DataContainer<long[]> inputB = new DataContainer<long[]>();
-		output.setData( new boolean[]{ false }, 0, DataContainer.LENGTHS_OF_SCALAR );
-		inputA.setData( new long[]{ 1L }, 0, DataContainer.LENGTHS_OF_SCALAR );
-		inputB.setData( new long[]{ 2L }, 0, DataContainer.LENGTHS_OF_SCALAR );
+		output.setData( new boolean[]{ false }, 0, DataContainer.SCALAR_LENGTHS );
+		inputA.setData( new long[]{ 1L }, 0, DataContainer.SCALAR_LENGTHS );
+		inputB.setData( new long[]{ 2L }, 0, DataContainer.SCALAR_LENGTHS );
 
 		// 演算を実行
 		try {
@@ -1727,9 +1727,9 @@ public class ExecutionUnitTest {
 		}
 
 		// オフセット設定された条件下でも正しく機能するか検査
-		output.setData( new boolean[]{ false, false, false }, 1, DataContainer.LENGTHS_OF_SCALAR );
-		inputA.setData( new long[]{ 0L, 1L, 0L }, 1, DataContainer.LENGTHS_OF_SCALAR );
-		inputB.setData( new long[]{ 0L, 2L, 0L }, 1, DataContainer.LENGTHS_OF_SCALAR );
+		output.setData( new boolean[]{ false, false, false }, 1, DataContainer.SCALAR_LENGTHS );
+		inputA.setData( new long[]{ 0L, 1L, 0L }, 1, DataContainer.SCALAR_LENGTHS );
+		inputB.setData( new long[]{ 0L, 2L, 0L }, 1, DataContainer.SCALAR_LENGTHS );
 		try {
 			new ExecutionUnit().neq(DataType.INT64, output, inputA, inputB);
 		} catch (VnanoFatalException e) {
@@ -1791,9 +1791,9 @@ public class ExecutionUnitTest {
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
 		DataContainer<double[]> inputA = new DataContainer<double[]>();
 		DataContainer<double[]> inputB = new DataContainer<double[]>();
-		output.setData( new boolean[]{ false }, 0, DataContainer.LENGTHS_OF_SCALAR );
-		inputA.setData( new double[]{ 0.125 }, 0, DataContainer.LENGTHS_OF_SCALAR ); // 2進表現で割り切れる値
-		inputB.setData( new double[]{ 0.5 }, 0, DataContainer.LENGTHS_OF_SCALAR );   // 2進表現で割り切れる値
+		output.setData( new boolean[]{ false }, 0, DataContainer.SCALAR_LENGTHS );
+		inputA.setData( new double[]{ 0.125 }, 0, DataContainer.SCALAR_LENGTHS ); // 2進表現で割り切れる値
+		inputB.setData( new double[]{ 0.5 }, 0, DataContainer.SCALAR_LENGTHS );   // 2進表現で割り切れる値
 
 		// 演算を実行
 		try {
@@ -1822,9 +1822,9 @@ public class ExecutionUnitTest {
 		}
 
 		// オフセット設定された条件下でも正しく機能するか検査
-		output.setData( new boolean[]{ false, false, false }, 1, DataContainer.LENGTHS_OF_SCALAR );
-		inputA.setData( new double[]{ -1.0, 0.125, -1.0 }, 1, DataContainer.LENGTHS_OF_SCALAR ); // 2進表現で割り切れる値
-		inputB.setData( new double[]{ -1.0, 0.5, -1.0 }, 1, DataContainer.LENGTHS_OF_SCALAR );   // 2進表現で割り切れる値
+		output.setData( new boolean[]{ false, false, false }, 1, DataContainer.SCALAR_LENGTHS );
+		inputA.setData( new double[]{ -1.0, 0.125, -1.0 }, 1, DataContainer.SCALAR_LENGTHS ); // 2進表現で割り切れる値
+		inputB.setData( new double[]{ -1.0, 0.5, -1.0 }, 1, DataContainer.SCALAR_LENGTHS );   // 2進表現で割り切れる値
 		try {
 			new ExecutionUnit().neq(DataType.FLOAT64, output, inputA, inputB);
 		} catch (VnanoFatalException e) {
@@ -1886,9 +1886,9 @@ public class ExecutionUnitTest {
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
 		DataContainer<String[]> inputA = new DataContainer<String[]>();
 		DataContainer<String[]> inputB = new DataContainer<String[]>();
-		output.setData( new boolean[]{ false }, 0, DataContainer.LENGTHS_OF_SCALAR );
-		inputA.setData( new String[]{ "Hello" }, 0, DataContainer.LENGTHS_OF_SCALAR );
-		inputB.setData( new String[]{ "World" }, 0, DataContainer.LENGTHS_OF_SCALAR );
+		output.setData( new boolean[]{ false }, 0, DataContainer.SCALAR_LENGTHS );
+		inputA.setData( new String[]{ "Hello" }, 0, DataContainer.SCALAR_LENGTHS );
+		inputB.setData( new String[]{ "World" }, 0, DataContainer.SCALAR_LENGTHS );
 
 		// 演算を実行
 		try {
@@ -1917,9 +1917,9 @@ public class ExecutionUnitTest {
 		}
 
 		// オフセット設定された条件下でも正しく機能するか検査
-		output.setData( new boolean[]{ false, false, false }, 1, DataContainer.LENGTHS_OF_SCALAR );
-		inputA.setData( new String[]{ "", "Hello", "" }, 1, DataContainer.LENGTHS_OF_SCALAR );
-		inputB.setData( new String[]{ "", "World", "" }, 1, DataContainer.LENGTHS_OF_SCALAR );
+		output.setData( new boolean[]{ false, false, false }, 1, DataContainer.SCALAR_LENGTHS );
+		inputA.setData( new String[]{ "", "Hello", "" }, 1, DataContainer.SCALAR_LENGTHS );
+		inputB.setData( new String[]{ "", "World", "" }, 1, DataContainer.SCALAR_LENGTHS );
 		try {
 			new ExecutionUnit().neq(DataType.STRING, output, inputA, inputB);
 		} catch (VnanoFatalException e) {
@@ -1982,9 +1982,9 @@ public class ExecutionUnitTest {
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
 		DataContainer<boolean[]> inputA = new DataContainer<boolean[]>();
 		DataContainer<boolean[]> inputB = new DataContainer<boolean[]>();
-		output.setData( new boolean[]{ false }, 0, DataContainer.LENGTHS_OF_SCALAR );
-		inputA.setData( new boolean[]{ true }, 0, DataContainer.LENGTHS_OF_SCALAR );
-		inputB.setData( new boolean[]{ false }, 0, DataContainer.LENGTHS_OF_SCALAR );
+		output.setData( new boolean[]{ false }, 0, DataContainer.SCALAR_LENGTHS );
+		inputA.setData( new boolean[]{ true }, 0, DataContainer.SCALAR_LENGTHS );
+		inputB.setData( new boolean[]{ false }, 0, DataContainer.SCALAR_LENGTHS );
 
 		// 演算を実行
 		try {
@@ -2013,9 +2013,9 @@ public class ExecutionUnitTest {
 		}
 
 		// オフセット設定された条件下でも正しく機能するか検査
-		output.setData( new boolean[]{ false, false, false }, 1, DataContainer.LENGTHS_OF_SCALAR );
-		inputA.setData( new boolean[]{ false, true, false }, 1, DataContainer.LENGTHS_OF_SCALAR );
-		inputB.setData( new boolean[]{ false, false, false }, 1, DataContainer.LENGTHS_OF_SCALAR );
+		output.setData( new boolean[]{ false, false, false }, 1, DataContainer.SCALAR_LENGTHS );
+		inputA.setData( new boolean[]{ false, true, false }, 1, DataContainer.SCALAR_LENGTHS );
+		inputB.setData( new boolean[]{ false, false, false }, 1, DataContainer.SCALAR_LENGTHS );
 		try {
 			new ExecutionUnit().neq(DataType.BOOL, output, inputA, inputB);
 		} catch (VnanoFatalException e) {
@@ -2077,9 +2077,9 @@ public class ExecutionUnitTest {
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
 		DataContainer<Object[]> inputA = new DataContainer<Object[]>();
 		DataContainer<Object[]> inputB = new DataContainer<Object[]>();
-		output.setData( new boolean[]{ false }, 0, DataContainer.LENGTHS_OF_SCALAR );
-		inputA.setData( new Object[]{ null }, 0, DataContainer.LENGTHS_OF_SCALAR );
-		inputB.setData( new Object[]{ null }, 0, DataContainer.LENGTHS_OF_SCALAR );
+		output.setData( new boolean[]{ false }, 0, DataContainer.SCALAR_LENGTHS );
+		inputA.setData( new Object[]{ null }, 0, DataContainer.SCALAR_LENGTHS );
+		inputB.setData( new Object[]{ null }, 0, DataContainer.SCALAR_LENGTHS );
 
 		// 対応していないデータ型を指定して演算を実行
 		try {
@@ -2106,9 +2106,9 @@ public class ExecutionUnitTest {
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
 		DataContainer<long[]> inputA = new DataContainer<long[]>();
 		DataContainer<long[]> inputB = new DataContainer<long[]>();
-		output.setData( new boolean[]{ false }, 0, DataContainer.LENGTHS_OF_SCALAR );
-		inputA.setData( new long[]{ 1L }, 0, DataContainer.LENGTHS_OF_SCALAR );
-		inputB.setData( new long[]{ 2L }, 0, DataContainer.LENGTHS_OF_SCALAR );
+		output.setData( new boolean[]{ false }, 0, DataContainer.SCALAR_LENGTHS );
+		inputA.setData( new long[]{ 1L }, 0, DataContainer.SCALAR_LENGTHS );
+		inputB.setData( new long[]{ 2L }, 0, DataContainer.SCALAR_LENGTHS );
 
 		// 演算を実行
 		try {
@@ -2150,9 +2150,9 @@ public class ExecutionUnitTest {
 		}
 
 		// オフセット設定された条件下でも正しく機能するか検査
-		output.setData( new boolean[]{ false, false, false }, 1, DataContainer.LENGTHS_OF_SCALAR );
-		inputA.setData( new long[]{ 0L, 1L, 0L }, 1, DataContainer.LENGTHS_OF_SCALAR );
-		inputB.setData( new long[]{ 0L, 2L, 0L }, 1, DataContainer.LENGTHS_OF_SCALAR );
+		output.setData( new boolean[]{ false, false, false }, 1, DataContainer.SCALAR_LENGTHS );
+		inputA.setData( new long[]{ 0L, 1L, 0L }, 1, DataContainer.SCALAR_LENGTHS );
+		inputB.setData( new long[]{ 0L, 2L, 0L }, 1, DataContainer.SCALAR_LENGTHS );
 		try {
 			new ExecutionUnit().geq(DataType.INT64, output, inputA, inputB);
 		} catch (VnanoFatalException e) {
@@ -2223,9 +2223,9 @@ public class ExecutionUnitTest {
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
 		DataContainer<double[]> inputA = new DataContainer<double[]>();
 		DataContainer<double[]> inputB = new DataContainer<double[]>();
-		output.setData( new boolean[]{ false }, 0, DataContainer.LENGTHS_OF_SCALAR );
-		inputA.setData( new double[]{ 0.125 }, 0, DataContainer.LENGTHS_OF_SCALAR ); // 2進表現で割り切れる値
-		inputB.setData( new double[]{ 0.5 }, 0, DataContainer.LENGTHS_OF_SCALAR );   // 2進表現で割り切れる値
+		output.setData( new boolean[]{ false }, 0, DataContainer.SCALAR_LENGTHS );
+		inputA.setData( new double[]{ 0.125 }, 0, DataContainer.SCALAR_LENGTHS ); // 2進表現で割り切れる値
+		inputB.setData( new double[]{ 0.5 }, 0, DataContainer.SCALAR_LENGTHS );   // 2進表現で割り切れる値
 
 		// 演算を実行
 		try {
@@ -2267,9 +2267,9 @@ public class ExecutionUnitTest {
 		}
 
 		// オフセット設定された条件下でも正しく機能するか検査
-		output.setData( new boolean[]{ false, false, false }, 1, DataContainer.LENGTHS_OF_SCALAR );
-		inputA.setData( new double[]{ 0.0, 0.125, 0.0 }, 1, DataContainer.LENGTHS_OF_SCALAR ); // 2進表現で割り切れる値
-		inputB.setData( new double[]{ 0.0, 0.5,   0.0 }, 1, DataContainer.LENGTHS_OF_SCALAR ); // 2進表現で割り切れる値
+		output.setData( new boolean[]{ false, false, false }, 1, DataContainer.SCALAR_LENGTHS );
+		inputA.setData( new double[]{ 0.0, 0.125, 0.0 }, 1, DataContainer.SCALAR_LENGTHS ); // 2進表現で割り切れる値
+		inputB.setData( new double[]{ 0.0, 0.5,   0.0 }, 1, DataContainer.SCALAR_LENGTHS ); // 2進表現で割り切れる値
 		try {
 			new ExecutionUnit().geq(DataType.FLOAT64, output, inputA, inputB);
 		} catch (VnanoFatalException e) {
@@ -2340,9 +2340,9 @@ public class ExecutionUnitTest {
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
 		DataContainer<boolean[]> inputA = new DataContainer<boolean[]>();
 		DataContainer<boolean[]> inputB = new DataContainer<boolean[]>();
-		output.setData( new boolean[]{ false }, 0, DataContainer.LENGTHS_OF_SCALAR );
-		inputA.setData( new boolean[]{ true }, 0, DataContainer.LENGTHS_OF_SCALAR );
-		inputB.setData( new boolean[]{ false }, 0, DataContainer.LENGTHS_OF_SCALAR );
+		output.setData( new boolean[]{ false }, 0, DataContainer.SCALAR_LENGTHS );
+		inputA.setData( new boolean[]{ true }, 0, DataContainer.SCALAR_LENGTHS );
+		inputB.setData( new boolean[]{ false }, 0, DataContainer.SCALAR_LENGTHS );
 
 		// 対応していないデータ型を指定して演算を実行
 		try {
@@ -2384,9 +2384,9 @@ public class ExecutionUnitTest {
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
 		DataContainer<long[]> inputA = new DataContainer<long[]>();
 		DataContainer<long[]> inputB = new DataContainer<long[]>();
-		output.setData( new boolean[]{ false }, 0, DataContainer.LENGTHS_OF_SCALAR );
-		inputA.setData( new long[]{ 1L }, 0, DataContainer.LENGTHS_OF_SCALAR );
-		inputB.setData( new long[]{ 2L }, 0, DataContainer.LENGTHS_OF_SCALAR );
+		output.setData( new boolean[]{ false }, 0, DataContainer.SCALAR_LENGTHS );
+		inputA.setData( new long[]{ 1L }, 0, DataContainer.SCALAR_LENGTHS );
+		inputB.setData( new long[]{ 2L }, 0, DataContainer.SCALAR_LENGTHS );
 
 		// 演算を実行
 		try {
@@ -2428,9 +2428,9 @@ public class ExecutionUnitTest {
 		}
 
 		// オフセット設定された条件下でも正しく機能するか検査
-		output.setData( new boolean[]{ false, false, false }, 1, DataContainer.LENGTHS_OF_SCALAR );
-		inputA.setData( new long[]{ 0L, 1L, 0L }, 1, DataContainer.LENGTHS_OF_SCALAR );
-		inputB.setData( new long[]{ 0L, 2L, 0L }, 1, DataContainer.LENGTHS_OF_SCALAR );
+		output.setData( new boolean[]{ false, false, false }, 1, DataContainer.SCALAR_LENGTHS );
+		inputA.setData( new long[]{ 0L, 1L, 0L }, 1, DataContainer.SCALAR_LENGTHS );
+		inputB.setData( new long[]{ 0L, 2L, 0L }, 1, DataContainer.SCALAR_LENGTHS );
 		try {
 			new ExecutionUnit().leq(DataType.INT64, output, inputA, inputB);
 		} catch (VnanoFatalException e) {
@@ -2501,9 +2501,9 @@ public class ExecutionUnitTest {
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
 		DataContainer<double[]> inputA = new DataContainer<double[]>();
 		DataContainer<double[]> inputB = new DataContainer<double[]>();
-		output.setData( new boolean[]{ false }, 0, DataContainer.LENGTHS_OF_SCALAR );
-		inputA.setData( new double[]{ 0.125 }, 0, DataContainer.LENGTHS_OF_SCALAR ); // 2進表現で割り切れる値
-		inputB.setData( new double[]{ 0.5 }, 0, DataContainer.LENGTHS_OF_SCALAR );   // 2進表現で割り切れる値
+		output.setData( new boolean[]{ false }, 0, DataContainer.SCALAR_LENGTHS );
+		inputA.setData( new double[]{ 0.125 }, 0, DataContainer.SCALAR_LENGTHS ); // 2進表現で割り切れる値
+		inputB.setData( new double[]{ 0.5 }, 0, DataContainer.SCALAR_LENGTHS );   // 2進表現で割り切れる値
 
 		// 演算を実行
 		try {
@@ -2545,9 +2545,9 @@ public class ExecutionUnitTest {
 		}
 
 		// オフセット設定された条件下でも正しく機能するか検査
-		output.setData( new boolean[]{ false, false, false }, 1, DataContainer.LENGTHS_OF_SCALAR );
-		inputA.setData( new double[]{ 0.0, 0.125, 0.0 }, 1, DataContainer.LENGTHS_OF_SCALAR ); // 2進表現で割り切れる値
-		inputB.setData( new double[]{ 0.0, 0.5,   0.0 }, 1, DataContainer.LENGTHS_OF_SCALAR ); // 2進表現で割り切れる値
+		output.setData( new boolean[]{ false, false, false }, 1, DataContainer.SCALAR_LENGTHS );
+		inputA.setData( new double[]{ 0.0, 0.125, 0.0 }, 1, DataContainer.SCALAR_LENGTHS ); // 2進表現で割り切れる値
+		inputB.setData( new double[]{ 0.0, 0.5,   0.0 }, 1, DataContainer.SCALAR_LENGTHS ); // 2進表現で割り切れる値
 		try {
 			new ExecutionUnit().leq(DataType.FLOAT64, output, inputA, inputB);
 		} catch (VnanoFatalException e) {
@@ -2618,9 +2618,9 @@ public class ExecutionUnitTest {
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
 		DataContainer<boolean[]> inputA = new DataContainer<boolean[]>();
 		DataContainer<boolean[]> inputB = new DataContainer<boolean[]>();
-		output.setData( new boolean[]{ false }, 0, DataContainer.LENGTHS_OF_SCALAR );
-		inputA.setData( new boolean[]{ true }, 0, DataContainer.LENGTHS_OF_SCALAR );
-		inputB.setData( new boolean[]{ false }, 0, DataContainer.LENGTHS_OF_SCALAR );
+		output.setData( new boolean[]{ false }, 0, DataContainer.SCALAR_LENGTHS );
+		inputA.setData( new boolean[]{ true }, 0, DataContainer.SCALAR_LENGTHS );
+		inputB.setData( new boolean[]{ false }, 0, DataContainer.SCALAR_LENGTHS );
 
 		// 対応していないデータ型を指定して演算を実行
 		try {
@@ -2664,9 +2664,9 @@ public class ExecutionUnitTest {
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
 		DataContainer<long[]> inputA = new DataContainer<long[]>();
 		DataContainer<long[]> inputB = new DataContainer<long[]>();
-		output.setData( new boolean[]{ false }, 0, DataContainer.LENGTHS_OF_SCALAR );
-		inputA.setData( new long[]{ 1L }, 0, DataContainer.LENGTHS_OF_SCALAR );
-		inputB.setData( new long[]{ 2L }, 0, DataContainer.LENGTHS_OF_SCALAR );
+		output.setData( new boolean[]{ false }, 0, DataContainer.SCALAR_LENGTHS );
+		inputA.setData( new long[]{ 1L }, 0, DataContainer.SCALAR_LENGTHS );
+		inputB.setData( new long[]{ 2L }, 0, DataContainer.SCALAR_LENGTHS );
 
 		// 演算を実行
 		try {
@@ -2708,9 +2708,9 @@ public class ExecutionUnitTest {
 		}
 
 		// オフセット設定された条件下でも正しく機能するか検査
-		output.setData( new boolean[]{ false, false, false }, 1, DataContainer.LENGTHS_OF_SCALAR );
-		inputA.setData( new long[]{ 0L, 1L, 0L }, 1, DataContainer.LENGTHS_OF_SCALAR );
-		inputB.setData( new long[]{ 0L, 2L, 0L }, 1, DataContainer.LENGTHS_OF_SCALAR );
+		output.setData( new boolean[]{ false, false, false }, 1, DataContainer.SCALAR_LENGTHS );
+		inputA.setData( new long[]{ 0L, 1L, 0L }, 1, DataContainer.SCALAR_LENGTHS );
+		inputB.setData( new long[]{ 0L, 2L, 0L }, 1, DataContainer.SCALAR_LENGTHS );
 		try {
 			new ExecutionUnit().gt(DataType.INT64, output, inputA, inputB);
 		} catch (VnanoFatalException e) {
@@ -2781,9 +2781,9 @@ public class ExecutionUnitTest {
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
 		DataContainer<double[]> inputA = new DataContainer<double[]>();
 		DataContainer<double[]> inputB = new DataContainer<double[]>();
-		output.setData( new boolean[]{ false }, 0, DataContainer.LENGTHS_OF_SCALAR );
-		inputA.setData( new double[]{ 0.125 }, 0, DataContainer.LENGTHS_OF_SCALAR ); // 2進表現で割り切れる値
-		inputB.setData( new double[]{ 0.5 }, 0, DataContainer.LENGTHS_OF_SCALAR );   // 2進表現で割り切れる値
+		output.setData( new boolean[]{ false }, 0, DataContainer.SCALAR_LENGTHS );
+		inputA.setData( new double[]{ 0.125 }, 0, DataContainer.SCALAR_LENGTHS ); // 2進表現で割り切れる値
+		inputB.setData( new double[]{ 0.5 }, 0, DataContainer.SCALAR_LENGTHS );   // 2進表現で割り切れる値
 
 		// 演算を実行
 		try {
@@ -2825,9 +2825,9 @@ public class ExecutionUnitTest {
 		}
 
 		// オフセット設定された条件下でも正しく機能するか検査
-		output.setData( new boolean[]{ false, false, false }, 1, DataContainer.LENGTHS_OF_SCALAR );
-		inputA.setData( new double[]{ 0.0, 0.125, 0.0 }, 1, DataContainer.LENGTHS_OF_SCALAR ); // 2進表現で割り切れる値
-		inputB.setData( new double[]{ 0.0, 0.5,   0.0 }, 1, DataContainer.LENGTHS_OF_SCALAR ); // 2進表現で割り切れる値
+		output.setData( new boolean[]{ false, false, false }, 1, DataContainer.SCALAR_LENGTHS );
+		inputA.setData( new double[]{ 0.0, 0.125, 0.0 }, 1, DataContainer.SCALAR_LENGTHS ); // 2進表現で割り切れる値
+		inputB.setData( new double[]{ 0.0, 0.5,   0.0 }, 1, DataContainer.SCALAR_LENGTHS ); // 2進表現で割り切れる値
 		try {
 			new ExecutionUnit().gt(DataType.FLOAT64, output, inputA, inputB);
 		} catch (VnanoFatalException e) {
@@ -2898,9 +2898,9 @@ public class ExecutionUnitTest {
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
 		DataContainer<boolean[]> inputA = new DataContainer<boolean[]>();
 		DataContainer<boolean[]> inputB = new DataContainer<boolean[]>();
-		output.setData( new boolean[]{ false }, 0, DataContainer.LENGTHS_OF_SCALAR );
-		inputA.setData( new boolean[]{ true }, 0, DataContainer.LENGTHS_OF_SCALAR );
-		inputB.setData( new boolean[]{ false }, 0, DataContainer.LENGTHS_OF_SCALAR );
+		output.setData( new boolean[]{ false }, 0, DataContainer.SCALAR_LENGTHS );
+		inputA.setData( new boolean[]{ true }, 0, DataContainer.SCALAR_LENGTHS );
+		inputB.setData( new boolean[]{ false }, 0, DataContainer.SCALAR_LENGTHS );
 
 		// 対応していないデータ型を指定して演算を実行
 		try {
@@ -2942,9 +2942,9 @@ public class ExecutionUnitTest {
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
 		DataContainer<long[]> inputA = new DataContainer<long[]>();
 		DataContainer<long[]> inputB = new DataContainer<long[]>();
-		output.setData( new boolean[]{ false }, 0, DataContainer.LENGTHS_OF_SCALAR );
-		inputA.setData( new long[]{ 1L }, 0, DataContainer.LENGTHS_OF_SCALAR );
-		inputB.setData( new long[]{ 2L }, 0, DataContainer.LENGTHS_OF_SCALAR );
+		output.setData( new boolean[]{ false }, 0, DataContainer.SCALAR_LENGTHS );
+		inputA.setData( new long[]{ 1L }, 0, DataContainer.SCALAR_LENGTHS );
+		inputB.setData( new long[]{ 2L }, 0, DataContainer.SCALAR_LENGTHS );
 
 		// 演算を実行
 		try {
@@ -2986,9 +2986,9 @@ public class ExecutionUnitTest {
 		}
 
 		// オフセット設定された条件下でも正しく機能するか検査
-		output.setData( new boolean[]{ false, false, false }, 1, DataContainer.LENGTHS_OF_SCALAR );
-		inputA.setData( new long[]{ 0L, 1L, 0L }, 1, DataContainer.LENGTHS_OF_SCALAR );
-		inputB.setData( new long[]{ 0L, 2L, 0L }, 1, DataContainer.LENGTHS_OF_SCALAR );
+		output.setData( new boolean[]{ false, false, false }, 1, DataContainer.SCALAR_LENGTHS );
+		inputA.setData( new long[]{ 0L, 1L, 0L }, 1, DataContainer.SCALAR_LENGTHS );
+		inputB.setData( new long[]{ 0L, 2L, 0L }, 1, DataContainer.SCALAR_LENGTHS );
 		try {
 			new ExecutionUnit().lt(DataType.INT64, output, inputA, inputB);
 		} catch (VnanoFatalException e) {
@@ -3059,9 +3059,9 @@ public class ExecutionUnitTest {
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
 		DataContainer<double[]> inputA = new DataContainer<double[]>();
 		DataContainer<double[]> inputB = new DataContainer<double[]>();
-		output.setData( new boolean[]{ false }, 0, DataContainer.LENGTHS_OF_SCALAR );
-		inputA.setData( new double[]{ 0.125 }, 0, DataContainer.LENGTHS_OF_SCALAR ); // 2進表現で割り切れる値
-		inputB.setData( new double[]{ 0.5 }, 0, DataContainer.LENGTHS_OF_SCALAR );   // 2進表現で割り切れる値
+		output.setData( new boolean[]{ false }, 0, DataContainer.SCALAR_LENGTHS );
+		inputA.setData( new double[]{ 0.125 }, 0, DataContainer.SCALAR_LENGTHS ); // 2進表現で割り切れる値
+		inputB.setData( new double[]{ 0.5 }, 0, DataContainer.SCALAR_LENGTHS );   // 2進表現で割り切れる値
 
 		// 演算を実行
 		try {
@@ -3103,9 +3103,9 @@ public class ExecutionUnitTest {
 		}
 
 		// オフセット設定された条件下でも正しく機能するか検査
-		output.setData( new boolean[]{ false, false, false }, 1, DataContainer.LENGTHS_OF_SCALAR );
-		inputA.setData( new double[]{ 0.0, 0.125, 0.0 }, 1, DataContainer.LENGTHS_OF_SCALAR ); // 2進表現で割り切れる値
-		inputB.setData( new double[]{ 0.0, 0.5,   0.0 }, 1, DataContainer.LENGTHS_OF_SCALAR ); // 2進表現で割り切れる値
+		output.setData( new boolean[]{ false, false, false }, 1, DataContainer.SCALAR_LENGTHS );
+		inputA.setData( new double[]{ 0.0, 0.125, 0.0 }, 1, DataContainer.SCALAR_LENGTHS ); // 2進表現で割り切れる値
+		inputB.setData( new double[]{ 0.0, 0.5,   0.0 }, 1, DataContainer.SCALAR_LENGTHS ); // 2進表現で割り切れる値
 		try {
 			new ExecutionUnit().lt(DataType.FLOAT64, output, inputA, inputB);
 		} catch (VnanoFatalException e) {
@@ -3176,9 +3176,9 @@ public class ExecutionUnitTest {
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
 		DataContainer<boolean[]> inputA = new DataContainer<boolean[]>();
 		DataContainer<boolean[]> inputB = new DataContainer<boolean[]>();
-		output.setData( new boolean[]{ false }, 0, DataContainer.LENGTHS_OF_SCALAR );
-		inputA.setData( new boolean[]{ true }, 0, DataContainer.LENGTHS_OF_SCALAR );
-		inputB.setData( new boolean[]{ false }, 0, DataContainer.LENGTHS_OF_SCALAR );
+		output.setData( new boolean[]{ false }, 0, DataContainer.SCALAR_LENGTHS );
+		inputA.setData( new boolean[]{ true }, 0, DataContainer.SCALAR_LENGTHS );
+		inputB.setData( new boolean[]{ false }, 0, DataContainer.SCALAR_LENGTHS );
 
 		// 対応していないデータ型を指定して演算を実行
 		try {
@@ -3220,9 +3220,9 @@ public class ExecutionUnitTest {
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
 		DataContainer<boolean[]> inputA = new DataContainer<boolean[]>();
 		DataContainer<boolean[]> inputB = new DataContainer<boolean[]>();
-		output.setData( new boolean[]{ false }, 0, DataContainer.LENGTHS_OF_SCALAR );
-		inputA.setData( new boolean[]{ true }, 0, DataContainer.LENGTHS_OF_SCALAR );
-		inputB.setData( new boolean[]{ false }, 0, DataContainer.LENGTHS_OF_SCALAR );
+		output.setData( new boolean[]{ false }, 0, DataContainer.SCALAR_LENGTHS );
+		inputA.setData( new boolean[]{ true }, 0, DataContainer.SCALAR_LENGTHS );
+		inputB.setData( new boolean[]{ false }, 0, DataContainer.SCALAR_LENGTHS );
 
 		// 演算を実行
 		try {
@@ -3277,9 +3277,9 @@ public class ExecutionUnitTest {
 		}
 
 		// オフセット設定された条件下でも正しく機能するか検査
-		output.setData( new boolean[]{ false, false, false }, 1, DataContainer.LENGTHS_OF_SCALAR );
-		inputA.setData( new boolean[]{ false, true, false }, 1, DataContainer.LENGTHS_OF_SCALAR );
-		inputB.setData( new boolean[]{ false, false, false }, 1, DataContainer.LENGTHS_OF_SCALAR );
+		output.setData( new boolean[]{ false, false, false }, 1, DataContainer.SCALAR_LENGTHS );
+		inputA.setData( new boolean[]{ false, true, false }, 1, DataContainer.SCALAR_LENGTHS );
+		inputB.setData( new boolean[]{ false, false, false }, 1, DataContainer.SCALAR_LENGTHS );
 		try {
 			new ExecutionUnit().and(DataType.BOOL, output, inputA, inputB);
 		} catch (VnanoFatalException e) {
@@ -3363,9 +3363,9 @@ public class ExecutionUnitTest {
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
 		DataContainer<double[]> inputA = new DataContainer<double[]>();
 		DataContainer<double[]> inputB = new DataContainer<double[]>();
-		output.setData( new boolean[]{ false }, 0, DataContainer.LENGTHS_OF_SCALAR );
-		inputA.setData( new double[]{ 0.125 }, 0, DataContainer.LENGTHS_OF_SCALAR );
-		inputB.setData( new double[]{ 0.25 }, 0, DataContainer.LENGTHS_OF_SCALAR );
+		output.setData( new boolean[]{ false }, 0, DataContainer.SCALAR_LENGTHS );
+		inputA.setData( new double[]{ 0.125 }, 0, DataContainer.SCALAR_LENGTHS );
+		inputB.setData( new double[]{ 0.25 }, 0, DataContainer.SCALAR_LENGTHS );
 
 		// 対応していないデータ型を指定して演算を実行
 		try {
@@ -3401,9 +3401,9 @@ public class ExecutionUnitTest {
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
 		DataContainer<boolean[]> inputA = new DataContainer<boolean[]>();
 		DataContainer<boolean[]> inputB = new DataContainer<boolean[]>();
-		output.setData( new boolean[]{ false }, 0, DataContainer.LENGTHS_OF_SCALAR );
-		inputA.setData( new boolean[]{ true }, 0, DataContainer.LENGTHS_OF_SCALAR );
-		inputB.setData( new boolean[]{ false }, 0, DataContainer.LENGTHS_OF_SCALAR );
+		output.setData( new boolean[]{ false }, 0, DataContainer.SCALAR_LENGTHS );
+		inputA.setData( new boolean[]{ true }, 0, DataContainer.SCALAR_LENGTHS );
+		inputB.setData( new boolean[]{ false }, 0, DataContainer.SCALAR_LENGTHS );
 
 		// 演算を実行
 		try {
@@ -3458,9 +3458,9 @@ public class ExecutionUnitTest {
 		}
 
 		// オフセット設定された条件下でも正しく機能するか検査
-		output.setData( new boolean[]{ false, false, false }, 1, DataContainer.LENGTHS_OF_SCALAR );
-		inputA.setData( new boolean[]{ false, true, false }, 1, DataContainer.LENGTHS_OF_SCALAR );
-		inputB.setData( new boolean[]{ false, false, false }, 1, DataContainer.LENGTHS_OF_SCALAR );
+		output.setData( new boolean[]{ false, false, false }, 1, DataContainer.SCALAR_LENGTHS );
+		inputA.setData( new boolean[]{ false, true, false }, 1, DataContainer.SCALAR_LENGTHS );
+		inputB.setData( new boolean[]{ false, false, false }, 1, DataContainer.SCALAR_LENGTHS );
 		try {
 			new ExecutionUnit().or(DataType.BOOL, output, inputA, inputB);
 		} catch (VnanoFatalException e) {
@@ -3544,9 +3544,9 @@ public class ExecutionUnitTest {
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
 		DataContainer<double[]> inputA = new DataContainer<double[]>();
 		DataContainer<double[]> inputB = new DataContainer<double[]>();
-		output.setData( new boolean[]{ false }, 0, DataContainer.LENGTHS_OF_SCALAR );
-		inputA.setData( new double[]{ 0.125 }, 0, DataContainer.LENGTHS_OF_SCALAR );
-		inputB.setData( new double[]{ 0.25 }, 0, DataContainer.LENGTHS_OF_SCALAR );
+		output.setData( new boolean[]{ false }, 0, DataContainer.SCALAR_LENGTHS );
+		inputA.setData( new double[]{ 0.125 }, 0, DataContainer.SCALAR_LENGTHS );
+		inputB.setData( new double[]{ 0.25 }, 0, DataContainer.SCALAR_LENGTHS );
 
 		// 対応していないデータ型を指定して演算を実行
 		try {
@@ -3582,9 +3582,9 @@ public class ExecutionUnitTest {
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
 		DataContainer<boolean[]> inputA = new DataContainer<boolean[]>();
 		DataContainer<boolean[]> inputB = new DataContainer<boolean[]>();
-		output.setData( new boolean[]{ false }, 0, DataContainer.LENGTHS_OF_SCALAR );
-		inputA.setData( new boolean[]{ true }, 0, DataContainer.LENGTHS_OF_SCALAR );
-		inputB.setData( new boolean[]{ false }, 0, DataContainer.LENGTHS_OF_SCALAR );
+		output.setData( new boolean[]{ false }, 0, DataContainer.SCALAR_LENGTHS );
+		inputA.setData( new boolean[]{ true }, 0, DataContainer.SCALAR_LENGTHS );
+		inputB.setData( new boolean[]{ false }, 0, DataContainer.SCALAR_LENGTHS );
 
 		// 演算を実行
 		try {
@@ -3613,9 +3613,9 @@ public class ExecutionUnitTest {
 		}
 
 		// オフセット設定された条件下でも正しく機能するか検査
-		output.setData( new boolean[]{ false, false, false }, 1, DataContainer.LENGTHS_OF_SCALAR );
-		inputA.setData( new boolean[]{ false, true, false }, 1, DataContainer.LENGTHS_OF_SCALAR );
-		inputB.setData( new boolean[]{ false, false, false }, 1, DataContainer.LENGTHS_OF_SCALAR );
+		output.setData( new boolean[]{ false, false, false }, 1, DataContainer.SCALAR_LENGTHS );
+		inputA.setData( new boolean[]{ false, true, false }, 1, DataContainer.SCALAR_LENGTHS );
+		inputB.setData( new boolean[]{ false, false, false }, 1, DataContainer.SCALAR_LENGTHS );
 		try {
 			new ExecutionUnit().not(DataType.BOOL, output, inputA);
 		} catch (VnanoFatalException e) {
@@ -3671,8 +3671,8 @@ public class ExecutionUnitTest {
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<double[]> output = new DataContainer<double[]>();
 		DataContainer<double[]> input = new DataContainer<double[]>();
-		output.setData( new double[]{ -1.0 }, 0, DataContainer.LENGTHS_OF_SCALAR );
-		input.setData( new double[]{ 0.125 }, 0, DataContainer.LENGTHS_OF_SCALAR );
+		output.setData( new double[]{ -1.0 }, 0, DataContainer.SCALAR_LENGTHS );
+		input.setData( new double[]{ 0.125 }, 0, DataContainer.SCALAR_LENGTHS );
 
 		// 対応していないデータ型を指定して演算を実行
 		try {
@@ -3734,7 +3734,7 @@ public class ExecutionUnitTest {
 		// 確保用のデータコンテナを生成して値をセット
 		DataContainer<?> target = new DataContainer<Object>();
 		DataContainer<long[]> len = new DataContainer<long[]>();
-		len.setData(new long[]{ 3L }, 0, DataContainer.LENGTHS_OF_SCALAR);
+		len.setData(new long[]{ 3L }, 0, DataContainer.SCALAR_LENGTHS);
 
 		// 確保処理を実行
 		try {
@@ -3757,7 +3757,7 @@ public class ExecutionUnitTest {
 		}
 
 		// 要素数を変えての再allocも検査
-		len.setData(new long[]{ 5L }, 0, DataContainer.LENGTHS_OF_SCALAR);
+		len.setData(new long[]{ 5L }, 0, DataContainer.SCALAR_LENGTHS);
 		try {
 			new ExecutionUnit().allocVector(DataType.INT64, target, len);
 		} catch (VnanoFatalException e) {
@@ -3776,7 +3776,7 @@ public class ExecutionUnitTest {
 		}
 
 		// 同じ要素数での再allocも検査
-		len.setData(new long[]{ 5L }, 0, DataContainer.LENGTHS_OF_SCALAR);
+		len.setData(new long[]{ 5L }, 0, DataContainer.SCALAR_LENGTHS);
 		try {
 			new ExecutionUnit().allocVector(DataType.INT64, target, len);
 		} catch (VnanoFatalException e) {
@@ -3804,9 +3804,9 @@ public class ExecutionUnitTest {
 		DataContainer<long[]> len0 = new DataContainer<long[]>();
 		DataContainer<long[]> len1 = new DataContainer<long[]>();
 		DataContainer<long[]> len2 = new DataContainer<long[]>();
-		len0.setData(new long[] { 2L }, 0, DataContainer.LENGTHS_OF_SCALAR);
-		len1.setData(new long[] { 3L }, 0, DataContainer.LENGTHS_OF_SCALAR);
-		len2.setData(new long[] { 4L }, 0, DataContainer.LENGTHS_OF_SCALAR);
+		len0.setData(new long[] { 2L }, 0, DataContainer.SCALAR_LENGTHS);
+		len1.setData(new long[] { 3L }, 0, DataContainer.SCALAR_LENGTHS);
+		len2.setData(new long[] { 4L }, 0, DataContainer.SCALAR_LENGTHS);
 
 		// 確保処理を実行
 		try {
@@ -3831,9 +3831,9 @@ public class ExecutionUnitTest {
 		}
 
 		// 要素数を変えての再allocも検査
-		len0.setData(new long[] { 5L }, 0, DataContainer.LENGTHS_OF_SCALAR);
-		len1.setData(new long[] { 6L }, 0, DataContainer.LENGTHS_OF_SCALAR);
-		len2.setData(new long[] { 7L }, 0, DataContainer.LENGTHS_OF_SCALAR);
+		len0.setData(new long[] { 5L }, 0, DataContainer.SCALAR_LENGTHS);
+		len1.setData(new long[] { 6L }, 0, DataContainer.SCALAR_LENGTHS);
+		len2.setData(new long[] { 7L }, 0, DataContainer.SCALAR_LENGTHS);
 		try {
 			new ExecutionUnit().allocVector(DataType.INT64, target, len0, len1, len2);
 		} catch (VnanoFatalException e) {
@@ -3854,9 +3854,9 @@ public class ExecutionUnitTest {
 		}
 
 		// 同じ要素数での再allocも検査
-		len0.setData(new long[] { 5L }, 0, DataContainer.LENGTHS_OF_SCALAR);
-		len1.setData(new long[] { 6L }, 0, DataContainer.LENGTHS_OF_SCALAR);
-		len2.setData(new long[] { 7L }, 0, DataContainer.LENGTHS_OF_SCALAR);
+		len0.setData(new long[] { 5L }, 0, DataContainer.SCALAR_LENGTHS);
+		len1.setData(new long[] { 6L }, 0, DataContainer.SCALAR_LENGTHS);
+		len2.setData(new long[] { 7L }, 0, DataContainer.SCALAR_LENGTHS);
 		try {
 			new ExecutionUnit().allocVector(DataType.INT64, target, len0, len1, len2);
 		} catch (VnanoFatalException e) {
@@ -3913,7 +3913,7 @@ public class ExecutionUnitTest {
 		// 確保用のデータコンテナを生成して値をセット
 		DataContainer<?> target = new DataContainer<Object>();
 		DataContainer<long[]> len = new DataContainer<long[]>();
-		len.setData(new long[]{ 3L }, 0, DataContainer.LENGTHS_OF_SCALAR);
+		len.setData(new long[]{ 3L }, 0, DataContainer.SCALAR_LENGTHS);
 
 		// 確保処理を実行
 		try {
@@ -3936,7 +3936,7 @@ public class ExecutionUnitTest {
 		}
 
 		// 要素数を変えての再allocも検査
-		len.setData(new long[]{ 5L }, 0, DataContainer.LENGTHS_OF_SCALAR);
+		len.setData(new long[]{ 5L }, 0, DataContainer.SCALAR_LENGTHS);
 		try {
 			new ExecutionUnit().allocVector(DataType.FLOAT64, target, len);
 		} catch (VnanoFatalException e) {
@@ -3955,7 +3955,7 @@ public class ExecutionUnitTest {
 		}
 
 		// 同じ要素数での再allocも検査
-		len.setData(new long[]{ 5L }, 0, DataContainer.LENGTHS_OF_SCALAR);
+		len.setData(new long[]{ 5L }, 0, DataContainer.SCALAR_LENGTHS);
 		try {
 			new ExecutionUnit().allocVector(DataType.FLOAT64, target, len);
 		} catch (VnanoFatalException e) {
@@ -3983,9 +3983,9 @@ public class ExecutionUnitTest {
 		DataContainer<long[]> len0 = new DataContainer<long[]>();
 		DataContainer<long[]> len1 = new DataContainer<long[]>();
 		DataContainer<long[]> len2 = new DataContainer<long[]>();
-		len0.setData(new long[] { 2L }, 0, DataContainer.LENGTHS_OF_SCALAR);
-		len1.setData(new long[] { 3L }, 0, DataContainer.LENGTHS_OF_SCALAR);
-		len2.setData(new long[] { 4L }, 0, DataContainer.LENGTHS_OF_SCALAR);
+		len0.setData(new long[] { 2L }, 0, DataContainer.SCALAR_LENGTHS);
+		len1.setData(new long[] { 3L }, 0, DataContainer.SCALAR_LENGTHS);
+		len2.setData(new long[] { 4L }, 0, DataContainer.SCALAR_LENGTHS);
 
 		// 確保処理を実行
 		try {
@@ -4010,9 +4010,9 @@ public class ExecutionUnitTest {
 		}
 
 		// 要素数を変えての再allocも検査
-		len0.setData(new long[] { 5L }, 0, DataContainer.LENGTHS_OF_SCALAR);
-		len1.setData(new long[] { 6L }, 0, DataContainer.LENGTHS_OF_SCALAR);
-		len2.setData(new long[] { 7L }, 0, DataContainer.LENGTHS_OF_SCALAR);
+		len0.setData(new long[] { 5L }, 0, DataContainer.SCALAR_LENGTHS);
+		len1.setData(new long[] { 6L }, 0, DataContainer.SCALAR_LENGTHS);
+		len2.setData(new long[] { 7L }, 0, DataContainer.SCALAR_LENGTHS);
 		try {
 			new ExecutionUnit().allocVector(DataType.FLOAT64, target, len0, len1, len2);
 		} catch (VnanoFatalException e) {
@@ -4033,9 +4033,9 @@ public class ExecutionUnitTest {
 		}
 
 		// 同じ要素数での再allocも検査
-		len0.setData(new long[] { 5L }, 0, DataContainer.LENGTHS_OF_SCALAR);
-		len1.setData(new long[] { 6L }, 0, DataContainer.LENGTHS_OF_SCALAR);
-		len2.setData(new long[] { 7L }, 0, DataContainer.LENGTHS_OF_SCALAR);
+		len0.setData(new long[] { 5L }, 0, DataContainer.SCALAR_LENGTHS);
+		len1.setData(new long[] { 6L }, 0, DataContainer.SCALAR_LENGTHS);
+		len2.setData(new long[] { 7L }, 0, DataContainer.SCALAR_LENGTHS);
 		try {
 			new ExecutionUnit().allocVector(DataType.FLOAT64, target, len0, len1, len2);
 		} catch (VnanoFatalException e) {
@@ -4092,7 +4092,7 @@ public class ExecutionUnitTest {
 		// 確保用のデータコンテナを生成して値をセット
 		DataContainer<?> target = new DataContainer<Object>();
 		DataContainer<long[]> len = new DataContainer<long[]>();
-		len.setData(new long[]{ 3L }, 0, DataContainer.LENGTHS_OF_SCALAR);
+		len.setData(new long[]{ 3L }, 0, DataContainer.SCALAR_LENGTHS);
 
 		// 確保処理を実行
 		try {
@@ -4115,7 +4115,7 @@ public class ExecutionUnitTest {
 		}
 
 		// 要素数を変えての再allocも検査
-		len.setData(new long[]{ 5L }, 0, DataContainer.LENGTHS_OF_SCALAR);
+		len.setData(new long[]{ 5L }, 0, DataContainer.SCALAR_LENGTHS);
 		try {
 			new ExecutionUnit().allocVector(DataType.BOOL, target, len);
 		} catch (VnanoFatalException e) {
@@ -4134,7 +4134,7 @@ public class ExecutionUnitTest {
 		}
 
 		// 同じ要素数での再allocも検査
-		len.setData(new long[]{ 5L }, 0, DataContainer.LENGTHS_OF_SCALAR);
+		len.setData(new long[]{ 5L }, 0, DataContainer.SCALAR_LENGTHS);
 		try {
 			new ExecutionUnit().allocVector(DataType.BOOL, target, len);
 		} catch (VnanoFatalException e) {
@@ -4162,9 +4162,9 @@ public class ExecutionUnitTest {
 		DataContainer<long[]> len0 = new DataContainer<long[]>();
 		DataContainer<long[]> len1 = new DataContainer<long[]>();
 		DataContainer<long[]> len2 = new DataContainer<long[]>();
-		len0.setData(new long[] { 2L }, 0, DataContainer.LENGTHS_OF_SCALAR);
-		len1.setData(new long[] { 3L }, 0, DataContainer.LENGTHS_OF_SCALAR);
-		len2.setData(new long[] { 4L }, 0, DataContainer.LENGTHS_OF_SCALAR);
+		len0.setData(new long[] { 2L }, 0, DataContainer.SCALAR_LENGTHS);
+		len1.setData(new long[] { 3L }, 0, DataContainer.SCALAR_LENGTHS);
+		len2.setData(new long[] { 4L }, 0, DataContainer.SCALAR_LENGTHS);
 
 		// 確保処理を実行
 		try {
@@ -4189,9 +4189,9 @@ public class ExecutionUnitTest {
 		}
 
 		// 要素数を変えての再allocも検査
-		len0.setData(new long[] { 5L }, 0, DataContainer.LENGTHS_OF_SCALAR);
-		len1.setData(new long[] { 6L }, 0, DataContainer.LENGTHS_OF_SCALAR);
-		len2.setData(new long[] { 7L }, 0, DataContainer.LENGTHS_OF_SCALAR);
+		len0.setData(new long[] { 5L }, 0, DataContainer.SCALAR_LENGTHS);
+		len1.setData(new long[] { 6L }, 0, DataContainer.SCALAR_LENGTHS);
+		len2.setData(new long[] { 7L }, 0, DataContainer.SCALAR_LENGTHS);
 		try {
 			new ExecutionUnit().allocVector(DataType.BOOL, target, len0, len1, len2);
 		} catch (VnanoFatalException e) {
@@ -4212,9 +4212,9 @@ public class ExecutionUnitTest {
 		}
 
 		// 同じ要素数での再allocも検査
-		len0.setData(new long[] { 5L }, 0, DataContainer.LENGTHS_OF_SCALAR);
-		len1.setData(new long[] { 6L }, 0, DataContainer.LENGTHS_OF_SCALAR);
-		len2.setData(new long[] { 7L }, 0, DataContainer.LENGTHS_OF_SCALAR);
+		len0.setData(new long[] { 5L }, 0, DataContainer.SCALAR_LENGTHS);
+		len1.setData(new long[] { 6L }, 0, DataContainer.SCALAR_LENGTHS);
+		len2.setData(new long[] { 7L }, 0, DataContainer.SCALAR_LENGTHS);
 		try {
 			new ExecutionUnit().allocVector(DataType.BOOL, target, len0, len1, len2);
 		} catch (VnanoFatalException e) {
@@ -4271,7 +4271,7 @@ public class ExecutionUnitTest {
 		// 確保用のデータコンテナを生成して値をセット
 		DataContainer<?> target = new DataContainer<Object>();
 		DataContainer<long[]> len = new DataContainer<long[]>();
-		len.setData(new long[]{ 3L }, 0, DataContainer.LENGTHS_OF_SCALAR);
+		len.setData(new long[]{ 3L }, 0, DataContainer.SCALAR_LENGTHS);
 
 		// 確保処理を実行
 		try {
@@ -4294,7 +4294,7 @@ public class ExecutionUnitTest {
 		}
 
 		// 要素数を変えての再allocも検査
-		len.setData(new long[]{ 5L }, 0, DataContainer.LENGTHS_OF_SCALAR);
+		len.setData(new long[]{ 5L }, 0, DataContainer.SCALAR_LENGTHS);
 		try {
 			new ExecutionUnit().allocVector(DataType.STRING, target, len);
 		} catch (VnanoFatalException e) {
@@ -4313,7 +4313,7 @@ public class ExecutionUnitTest {
 		}
 
 		// 同じ要素数での再allocも検査
-		len.setData(new long[]{ 5L }, 0, DataContainer.LENGTHS_OF_SCALAR);
+		len.setData(new long[]{ 5L }, 0, DataContainer.SCALAR_LENGTHS);
 		try {
 			new ExecutionUnit().allocVector(DataType.STRING, target, len);
 		} catch (VnanoFatalException e) {
@@ -4341,9 +4341,9 @@ public class ExecutionUnitTest {
 		DataContainer<long[]> len0 = new DataContainer<long[]>();
 		DataContainer<long[]> len1 = new DataContainer<long[]>();
 		DataContainer<long[]> len2 = new DataContainer<long[]>();
-		len0.setData(new long[] { 2L }, 0, DataContainer.LENGTHS_OF_SCALAR);
-		len1.setData(new long[] { 3L }, 0, DataContainer.LENGTHS_OF_SCALAR);
-		len2.setData(new long[] { 4L }, 0, DataContainer.LENGTHS_OF_SCALAR);
+		len0.setData(new long[] { 2L }, 0, DataContainer.SCALAR_LENGTHS);
+		len1.setData(new long[] { 3L }, 0, DataContainer.SCALAR_LENGTHS);
+		len2.setData(new long[] { 4L }, 0, DataContainer.SCALAR_LENGTHS);
 
 		// 確保処理を実行
 		try {
@@ -4368,9 +4368,9 @@ public class ExecutionUnitTest {
 		}
 
 		// 要素数を変えての再allocも検査
-		len0.setData(new long[] { 5L }, 0, DataContainer.LENGTHS_OF_SCALAR);
-		len1.setData(new long[] { 6L }, 0, DataContainer.LENGTHS_OF_SCALAR);
-		len2.setData(new long[] { 7L }, 0, DataContainer.LENGTHS_OF_SCALAR);
+		len0.setData(new long[] { 5L }, 0, DataContainer.SCALAR_LENGTHS);
+		len1.setData(new long[] { 6L }, 0, DataContainer.SCALAR_LENGTHS);
+		len2.setData(new long[] { 7L }, 0, DataContainer.SCALAR_LENGTHS);
 		try {
 			new ExecutionUnit().allocVector(DataType.STRING, target, len0, len1, len2);
 		} catch (VnanoFatalException e) {
@@ -4391,9 +4391,9 @@ public class ExecutionUnitTest {
 		}
 
 		// 同じ要素数での再allocも検査
-		len0.setData(new long[] { 5L }, 0, DataContainer.LENGTHS_OF_SCALAR);
-		len1.setData(new long[] { 6L }, 0, DataContainer.LENGTHS_OF_SCALAR);
-		len2.setData(new long[] { 7L }, 0, DataContainer.LENGTHS_OF_SCALAR);
+		len0.setData(new long[] { 5L }, 0, DataContainer.SCALAR_LENGTHS);
+		len1.setData(new long[] { 6L }, 0, DataContainer.SCALAR_LENGTHS);
+		len2.setData(new long[] { 7L }, 0, DataContainer.SCALAR_LENGTHS);
 		try {
 			new ExecutionUnit().allocVector(DataType.STRING, target, len0, len1, len2);
 		} catch (VnanoFatalException e) {
@@ -4434,7 +4434,7 @@ public class ExecutionUnitTest {
 
 		// 配列の確保でもテスト
 		DataContainer<long[]> len = new DataContainer<long[]>();
-		len.setData(new long[]{ 3 }, 0, DataContainer.LENGTHS_OF_SCALAR);
+		len.setData(new long[]{ 3 }, 0, DataContainer.SCALAR_LENGTHS);
 		try {
 			new ExecutionUnit().allocVector(DataType.VOID, target, len);
 			fail("Expected exception did not occured");
@@ -5150,8 +5150,8 @@ public class ExecutionUnitTest {
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<long[]> output = new DataContainer<long[]>();
 		DataContainer<long[]> input = new DataContainer<long[]>();
-		output.setData( new long[]{ -1L }, 0, DataContainer.LENGTHS_OF_SCALAR );
-		input.setData( new long[]{ 2L }, 0, DataContainer.LENGTHS_OF_SCALAR );
+		output.setData( new long[]{ -1L }, 0, DataContainer.SCALAR_LENGTHS );
+		input.setData( new long[]{ 2L }, 0, DataContainer.SCALAR_LENGTHS );
 
 		// 演算を実行
 		try {
@@ -5167,8 +5167,8 @@ public class ExecutionUnitTest {
 		}
 
 		// オフセット設定された条件下でも正しく機能するか検査
-		output.setData( new long[]{ -1L, -1L, -1L }, 1, DataContainer.LENGTHS_OF_SCALAR );
-		input.setData( new long[]{ 0L, 2L, 0L }, 1, DataContainer.LENGTHS_OF_SCALAR );
+		output.setData( new long[]{ -1L, -1L, -1L }, 1, DataContainer.SCALAR_LENGTHS );
+		input.setData( new long[]{ 0L, 2L, 0L }, 1, DataContainer.SCALAR_LENGTHS );
 		try {
 			new ExecutionUnit().mov(DataType.INT64, output, input);
 		} catch (VnanoFatalException e) {
@@ -5218,8 +5218,8 @@ public class ExecutionUnitTest {
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<double[]> output = new DataContainer<double[]>();
 		DataContainer<double[]> input = new DataContainer<double[]>();
-		output.setData( new double[]{ -1.0 }, 0, DataContainer.LENGTHS_OF_SCALAR );
-		input.setData( new double[]{ 0.25 }, 0, DataContainer.LENGTHS_OF_SCALAR ); // 2進表現で割り切れる値
+		output.setData( new double[]{ -1.0 }, 0, DataContainer.SCALAR_LENGTHS );
+		input.setData( new double[]{ 0.25 }, 0, DataContainer.SCALAR_LENGTHS ); // 2進表現で割り切れる値
 
 		// 演算を実行
 		try {
@@ -5235,8 +5235,8 @@ public class ExecutionUnitTest {
 		}
 
 		// オフセット設定された条件下でも正しく機能するか検査
-		output.setData( new double[]{ -1.0, -1.0, -1.0 }, 1, DataContainer.LENGTHS_OF_SCALAR );
-		input.setData( new double[]{ 0.0, 0.25, 0.0 }, 1, DataContainer.LENGTHS_OF_SCALAR ); // 2進表現で割り切れる値
+		output.setData( new double[]{ -1.0, -1.0, -1.0 }, 1, DataContainer.SCALAR_LENGTHS );
+		input.setData( new double[]{ 0.0, 0.25, 0.0 }, 1, DataContainer.SCALAR_LENGTHS ); // 2進表現で割り切れる値
 		try {
 			new ExecutionUnit().mov(DataType.FLOAT64, output, input);
 		} catch (VnanoFatalException e) {
@@ -5286,8 +5286,8 @@ public class ExecutionUnitTest {
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
 		DataContainer<boolean[]> input = new DataContainer<boolean[]>();
-		output.setData( new boolean[]{ false }, 0, DataContainer.LENGTHS_OF_SCALAR );
-		input.setData( new boolean[]{ true }, 0, DataContainer.LENGTHS_OF_SCALAR );
+		output.setData( new boolean[]{ false }, 0, DataContainer.SCALAR_LENGTHS );
+		input.setData( new boolean[]{ true }, 0, DataContainer.SCALAR_LENGTHS );
 
 		// 演算を実行
 		try {
@@ -5303,8 +5303,8 @@ public class ExecutionUnitTest {
 		}
 
 		// オフセット設定された条件下でも正しく機能するか検査
-		output.setData( new boolean[]{ false, false, false }, 1, DataContainer.LENGTHS_OF_SCALAR );
-		input.setData( new boolean[]{ false, true, false }, 1, DataContainer.LENGTHS_OF_SCALAR );
+		output.setData( new boolean[]{ false, false, false }, 1, DataContainer.SCALAR_LENGTHS );
+		input.setData( new boolean[]{ false, true, false }, 1, DataContainer.SCALAR_LENGTHS );
 		try {
 			new ExecutionUnit().mov(DataType.BOOL, output, input);
 		} catch (VnanoFatalException e) {
@@ -5355,8 +5355,8 @@ public class ExecutionUnitTest {
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<String[]> output = new DataContainer<String[]>();
 		DataContainer<String[]> input = new DataContainer<String[]>();
-		output.setData( new String[]{ "Init" }, 0, DataContainer.LENGTHS_OF_SCALAR );
-		input.setData( new String[]{ "Hello" }, 0, DataContainer.LENGTHS_OF_SCALAR );
+		output.setData( new String[]{ "Init" }, 0, DataContainer.SCALAR_LENGTHS );
+		input.setData( new String[]{ "Hello" }, 0, DataContainer.SCALAR_LENGTHS );
 
 		// 演算を実行
 		try {
@@ -5372,8 +5372,8 @@ public class ExecutionUnitTest {
 		}
 
 		// オフセット設定された条件下でも正しく機能するか検査
-		output.setData( new String[]{ "Init0", "Init1", "Init2" }, 1, DataContainer.LENGTHS_OF_SCALAR );
-		input.setData( new String[]{ "", "Hello", "" }, 1, DataContainer.LENGTHS_OF_SCALAR );
+		output.setData( new String[]{ "Init0", "Init1", "Init2" }, 1, DataContainer.SCALAR_LENGTHS );
+		input.setData( new String[]{ "", "Hello", "" }, 1, DataContainer.SCALAR_LENGTHS );
 		try {
 			new ExecutionUnit().mov(DataType.STRING, output, input);
 		} catch (VnanoFatalException e) {
@@ -5427,8 +5427,8 @@ public class ExecutionUnitTest {
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<Object> output = new DataContainer<Object>();
 		DataContainer<Object> input = new DataContainer<Object>();
-		output.setData(this, 0, DataContainer.LENGTHS_OF_SCALAR); // thisは、とにかく演算できないデータを格納しておくため
-		input.setData(this, 0, DataContainer.LENGTHS_OF_SCALAR);
+		output.setData(this, 0, DataContainer.SCALAR_LENGTHS); // thisは、とにかく演算できないデータを格納しておくため
+		input.setData(this, 0, DataContainer.SCALAR_LENGTHS);
 
 		// 対応していないデータ型を指定して演算を実行
 		try {
@@ -5484,7 +5484,7 @@ public class ExecutionUnitTest {
 		DataContainer<long[]> output = new DataContainer<long[]>();
 		DataContainer<long[]> input = new DataContainer<long[]>();
 		output.setData( new long[]{ -1L, -1L, -1L }, 0, new int[]{3} );
-		input.setData( new long[]{ 2L }, 0, DataContainer.LENGTHS_OF_SCALAR );
+		input.setData( new long[]{ 2L }, 0, DataContainer.SCALAR_LENGTHS );
 
 		// 演算を実行
 		try {
@@ -5501,7 +5501,7 @@ public class ExecutionUnitTest {
 
 		// inoutがオフセット設定された場合でも正常に動作するか検査
 		output.setData( new long[]{ -1L, -1L, -1L }, 0, new int[] {3} );
-		input.setData( new long[]{ 0L, 8L, 0L }, 1, DataContainer.LENGTHS_OF_SCALAR );
+		input.setData( new long[]{ 0L, 8L, 0L }, 1, DataContainer.SCALAR_LENGTHS );
 		try {
 			new ExecutionUnit().fill(DataType.INT64, output, input);
 		} catch (VnanoFatalException e) {
@@ -5525,7 +5525,7 @@ public class ExecutionUnitTest {
 		DataContainer<double[]> output = new DataContainer<double[]>();
 		DataContainer<double[]> input = new DataContainer<double[]>();
 		output.setData( new double[]{ -1.0, -1.0, -1.0 }, 0, new int[]{3} );
-		input.setData( new double[]{ 0.25 }, 0, DataContainer.LENGTHS_OF_SCALAR ); // 2進表現で割り切れる値
+		input.setData( new double[]{ 0.25 }, 0, DataContainer.SCALAR_LENGTHS ); // 2進表現で割り切れる値
 
 		// 演算を実行
 		try {
@@ -5542,7 +5542,7 @@ public class ExecutionUnitTest {
 
 		// inoutがオフセット設定された場合でも正常に動作するか検査
 		output.setData( new double[]{ -1.0, -1.0, -1.0 }, 0, new int[] {3} );
-		input.setData( new double[]{ 0.0, 0.125, 0.0 }, 1, DataContainer.LENGTHS_OF_SCALAR );
+		input.setData( new double[]{ 0.0, 0.125, 0.0 }, 1, DataContainer.SCALAR_LENGTHS );
 		try {
 			new ExecutionUnit().fill(DataType.FLOAT64, output, input);
 		} catch (VnanoFatalException e) {
@@ -5565,7 +5565,7 @@ public class ExecutionUnitTest {
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
 		DataContainer<boolean[]> input = new DataContainer<boolean[]>();
 		output.setData( new boolean[]{ false, false, false }, 0, new int[]{3} );
-		input.setData( new boolean[]{ true }, 0, DataContainer.LENGTHS_OF_SCALAR );
+		input.setData( new boolean[]{ true }, 0, DataContainer.SCALAR_LENGTHS );
 
 		// 演算を実行
 		try {
@@ -5582,7 +5582,7 @@ public class ExecutionUnitTest {
 
 		// inoutがオフセット設定された場合でも正常に動作するか検査
 		output.setData( new boolean[]{ false, false, false }, 0, new int[]{3} );
-		input.setData( new boolean[]{ false, true, false }, 1, DataContainer.LENGTHS_OF_SCALAR );
+		input.setData( new boolean[]{ false, true, false }, 1, DataContainer.SCALAR_LENGTHS );
 		try {
 			new ExecutionUnit().fill(DataType.BOOL, output, input);
 		} catch (VnanoFatalException e) {
@@ -5605,7 +5605,7 @@ public class ExecutionUnitTest {
 		DataContainer<String[]> output = new DataContainer<String[]>();
 		DataContainer<String[]> input = new DataContainer<String[]>();
 		output.setData( new String[]{ "Init0", "Init1", "Init2" }, 0, new int[]{3} );
-		input.setData( new String[]{ "Hello" }, 0, DataContainer.LENGTHS_OF_SCALAR );
+		input.setData( new String[]{ "Hello" }, 0, DataContainer.SCALAR_LENGTHS );
 
 		// 演算を実行
 		try {
@@ -5625,7 +5625,7 @@ public class ExecutionUnitTest {
 
 		// inputがオフセット設定された場合でも正常に動作するか検査
 		output.setData( new String[]{ "Init0", "Init1", "Init2" }, 0, new int[]{3} );
-		input.setData( new String[]{ "", "Hello", "" }, 1, DataContainer.LENGTHS_OF_SCALAR );
+		input.setData( new String[]{ "", "Hello", "" }, 1, DataContainer.SCALAR_LENGTHS );
 		try {
 			new ExecutionUnit().fill(DataType.STRING, output, input);
 		} catch (VnanoFatalException e) {
@@ -5697,9 +5697,9 @@ public class ExecutionUnitTest {
 		src.setData(arrayData, 0, srcLengths);
 
 		// [1][0][2] の要素(=14)を参照する
-		index0.setData(new long[] {1}, 0, DataContainer.LENGTHS_OF_SCALAR);
-		index1.setData(new long[] {0}, 0, DataContainer.LENGTHS_OF_SCALAR);
-		index2.setData(new long[] {2}, 0, DataContainer.LENGTHS_OF_SCALAR);
+		index0.setData(new long[] {1}, 0, DataContainer.SCALAR_LENGTHS);
+		index1.setData(new long[] {0}, 0, DataContainer.SCALAR_LENGTHS);
+		index2.setData(new long[] {2}, 0, DataContainer.SCALAR_LENGTHS);
 		try {
 			new ExecutionUnit().elem(DataType.INT64, dest, src, index0, index1, index2);
 		} catch (VnanoFatalException e) {
@@ -5713,9 +5713,9 @@ public class ExecutionUnitTest {
 		}
 
 		// [0][2][3] の要素(=11)を参照する
-		index0.setData(new long[] {0}, 0, DataContainer.LENGTHS_OF_SCALAR);
-		index1.setData(new long[] {2}, 0, DataContainer.LENGTHS_OF_SCALAR);
-		index2.setData(new long[] {3}, 0, DataContainer.LENGTHS_OF_SCALAR);
+		index0.setData(new long[] {0}, 0, DataContainer.SCALAR_LENGTHS);
+		index1.setData(new long[] {2}, 0, DataContainer.SCALAR_LENGTHS);
+		index2.setData(new long[] {3}, 0, DataContainer.SCALAR_LENGTHS);
 		try {
 			new ExecutionUnit().elem(DataType.INT64, dest, src, index0, index1, index2);
 		} catch (VnanoFatalException e) {
@@ -5766,9 +5766,9 @@ public class ExecutionUnitTest {
 		src.setData(arrayData, 0, srcLengths);
 
 		// [1][0][2] の要素(=14)を参照する
-		index0.setData(new long[] {1}, 0, DataContainer.LENGTHS_OF_SCALAR);
-		index1.setData(new long[] {0}, 0, DataContainer.LENGTHS_OF_SCALAR);
-		index2.setData(new long[] {2}, 0, DataContainer.LENGTHS_OF_SCALAR);
+		index0.setData(new long[] {1}, 0, DataContainer.SCALAR_LENGTHS);
+		index1.setData(new long[] {0}, 0, DataContainer.SCALAR_LENGTHS);
+		index2.setData(new long[] {2}, 0, DataContainer.SCALAR_LENGTHS);
 		try {
 			new ExecutionUnit().elem(DataType.FLOAT64, dest, src, index0, index1, index2);
 		} catch (VnanoFatalException e) {
@@ -5782,9 +5782,9 @@ public class ExecutionUnitTest {
 		}
 
 		// [0][2][3] の要素(=11)を参照する
-		index0.setData(new long[] {0}, 0, DataContainer.LENGTHS_OF_SCALAR);
-		index1.setData(new long[] {2}, 0, DataContainer.LENGTHS_OF_SCALAR);
-		index2.setData(new long[] {3}, 0, DataContainer.LENGTHS_OF_SCALAR);
+		index0.setData(new long[] {0}, 0, DataContainer.SCALAR_LENGTHS);
+		index1.setData(new long[] {2}, 0, DataContainer.SCALAR_LENGTHS);
+		index2.setData(new long[] {3}, 0, DataContainer.SCALAR_LENGTHS);
 		try {
 			new ExecutionUnit().elem(DataType.FLOAT64, dest, src, index0, index1, index2);
 		} catch (VnanoFatalException e) {
@@ -5835,9 +5835,9 @@ public class ExecutionUnitTest {
 		src.setData(arrayData, 0, srcLengths);
 
 		// [1][0][2] の要素(=true)を参照する
-		index0.setData(new long[] {1}, 0, DataContainer.LENGTHS_OF_SCALAR);
-		index1.setData(new long[] {0}, 0, DataContainer.LENGTHS_OF_SCALAR);
-		index2.setData(new long[] {2}, 0, DataContainer.LENGTHS_OF_SCALAR);
+		index0.setData(new long[] {1}, 0, DataContainer.SCALAR_LENGTHS);
+		index1.setData(new long[] {0}, 0, DataContainer.SCALAR_LENGTHS);
+		index2.setData(new long[] {2}, 0, DataContainer.SCALAR_LENGTHS);
 		try {
 			new ExecutionUnit().elem(DataType.BOOL, dest, src, index0, index1, index2);
 		} catch (VnanoFatalException e) {
@@ -5851,9 +5851,9 @@ public class ExecutionUnitTest {
 		}
 
 		// [0][2][3] の要素(=false)を参照する
-		index0.setData(new long[] {0}, 0, DataContainer.LENGTHS_OF_SCALAR);
-		index1.setData(new long[] {2}, 0, DataContainer.LENGTHS_OF_SCALAR);
-		index2.setData(new long[] {3}, 0, DataContainer.LENGTHS_OF_SCALAR);
+		index0.setData(new long[] {0}, 0, DataContainer.SCALAR_LENGTHS);
+		index1.setData(new long[] {2}, 0, DataContainer.SCALAR_LENGTHS);
+		index2.setData(new long[] {3}, 0, DataContainer.SCALAR_LENGTHS);
 		try {
 			new ExecutionUnit().elem(DataType.BOOL, dest, src, index0, index1, index2);
 		} catch (VnanoFatalException e) {
@@ -5903,9 +5903,9 @@ public class ExecutionUnitTest {
 		src.setData(arrayData, 0, srcLengths);
 
 		// [1][0][2] の要素(=true)を参照する
-		index0.setData(new long[] {1}, 0, DataContainer.LENGTHS_OF_SCALAR);
-		index1.setData(new long[] {0}, 0, DataContainer.LENGTHS_OF_SCALAR);
-		index2.setData(new long[] {2}, 0, DataContainer.LENGTHS_OF_SCALAR);
+		index0.setData(new long[] {1}, 0, DataContainer.SCALAR_LENGTHS);
+		index1.setData(new long[] {0}, 0, DataContainer.SCALAR_LENGTHS);
+		index2.setData(new long[] {2}, 0, DataContainer.SCALAR_LENGTHS);
 		try {
 			new ExecutionUnit().elem(DataType.STRING, dest, src, index0, index1, index2);
 		} catch (VnanoFatalException e) {
@@ -5919,9 +5919,9 @@ public class ExecutionUnitTest {
 		}
 
 		// [0][2][3] の要素(=false)を参照する
-		index0.setData(new long[] {0}, 0, DataContainer.LENGTHS_OF_SCALAR);
-		index1.setData(new long[] {2}, 0, DataContainer.LENGTHS_OF_SCALAR);
-		index2.setData(new long[] {3}, 0, DataContainer.LENGTHS_OF_SCALAR);
+		index0.setData(new long[] {0}, 0, DataContainer.SCALAR_LENGTHS);
+		index1.setData(new long[] {2}, 0, DataContainer.SCALAR_LENGTHS);
+		index2.setData(new long[] {3}, 0, DataContainer.SCALAR_LENGTHS);
 		try {
 			new ExecutionUnit().elem(DataType.STRING, dest, src, index0, index1, index2);
 		} catch (VnanoFatalException e) {
@@ -5959,9 +5959,9 @@ public class ExecutionUnitTest {
 		src.setData((ExecutionUnitTest[])null, 0, new int[] { 1, 2, 3 });
 
 		// [1][0][2] の要素(=true)を参照する
-		index0.setData(new long[] {1}, 0, DataContainer.LENGTHS_OF_SCALAR);
-		index1.setData(new long[] {0}, 0, DataContainer.LENGTHS_OF_SCALAR);
-		index2.setData(new long[] {2}, 0, DataContainer.LENGTHS_OF_SCALAR);
+		index0.setData(new long[] {1}, 0, DataContainer.SCALAR_LENGTHS);
+		index1.setData(new long[] {0}, 0, DataContainer.SCALAR_LENGTHS);
+		index2.setData(new long[] {2}, 0, DataContainer.SCALAR_LENGTHS);
 
 		// 演算を実行
 		try {
@@ -5990,8 +5990,8 @@ public class ExecutionUnitTest {
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<long[]> output = new DataContainer<long[]>();
 		DataContainer<long[]> input = new DataContainer<long[]>();
-		output.setData( new long[]{ -1L }, 0, DataContainer.LENGTHS_OF_SCALAR );
-		input.setData( new long[]{ 2L }, 0, DataContainer.LENGTHS_OF_SCALAR );
+		output.setData( new long[]{ -1L }, 0, DataContainer.SCALAR_LENGTHS );
+		input.setData( new long[]{ 2L }, 0, DataContainer.SCALAR_LENGTHS );
 
 		// 演算を実行
 		try {
@@ -6010,8 +6010,8 @@ public class ExecutionUnitTest {
 		}
 
 		// オフセット設定された条件下でも正しく機能するか検査
-		output.setData( new long[]{ -1L, -1L, -1L }, 1, DataContainer.LENGTHS_OF_SCALAR );
-		input.setData( new long[]{ 0L, 0L, 2L, 0L, 0L }, 2, DataContainer.LENGTHS_OF_SCALAR );
+		output.setData( new long[]{ -1L, -1L, -1L }, 1, DataContainer.SCALAR_LENGTHS );
+		input.setData( new long[]{ 0L, 0L, 2L, 0L, 0L }, 2, DataContainer.SCALAR_LENGTHS );
 		try {
 			new ExecutionUnit().cast(DataType.INT64, DataType.INT64, output, input);
 		} catch (VnanoFatalException e) {
@@ -6067,8 +6067,8 @@ public class ExecutionUnitTest {
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<double[]> output = new DataContainer<double[]>();
 		DataContainer<long[]> input = new DataContainer<long[]>();
-		output.setData( new double[]{ -1.0 }, 0, DataContainer.LENGTHS_OF_SCALAR );
-		input.setData( new long[]{ 2L }, 0, DataContainer.LENGTHS_OF_SCALAR );
+		output.setData( new double[]{ -1.0 }, 0, DataContainer.SCALAR_LENGTHS );
+		input.setData( new long[]{ 2L }, 0, DataContainer.SCALAR_LENGTHS );
 
 		// 演算を実行
 		try {
@@ -6087,8 +6087,8 @@ public class ExecutionUnitTest {
 		}
 
 		// オフセット設定された条件下でも正しく機能するか検査
-		output.setData( new double[]{ -1.0, -1.0, -1.0 }, 1, DataContainer.LENGTHS_OF_SCALAR );
-		input.setData( new long[]{ 0L, 0L, 2L, 0L, 0L }, 2, DataContainer.LENGTHS_OF_SCALAR );
+		output.setData( new double[]{ -1.0, -1.0, -1.0 }, 1, DataContainer.SCALAR_LENGTHS );
+		input.setData( new long[]{ 0L, 0L, 2L, 0L, 0L }, 2, DataContainer.SCALAR_LENGTHS );
 		try {
 			new ExecutionUnit().cast(DataType.FLOAT64, DataType.INT64, output, input);
 		} catch (VnanoFatalException e) {
@@ -6144,8 +6144,8 @@ public class ExecutionUnitTest {
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<String[]> output = new DataContainer<String[]>();
 		DataContainer<long[]> input = new DataContainer<long[]>();
-		output.setData( new String[]{ "Init" }, 0, DataContainer.LENGTHS_OF_SCALAR );
-		input.setData( new long[]{ 2L }, 0, DataContainer.LENGTHS_OF_SCALAR );
+		output.setData( new String[]{ "Init" }, 0, DataContainer.SCALAR_LENGTHS );
+		input.setData( new long[]{ 2L }, 0, DataContainer.SCALAR_LENGTHS );
 
 		// 演算を実行
 		try {
@@ -6164,8 +6164,8 @@ public class ExecutionUnitTest {
 		}
 
 		// オフセット設定された条件下でも正しく機能するか検査
-		output.setData( new String[]{ "Init0", "Init1", "Init2" }, 1, DataContainer.LENGTHS_OF_SCALAR );
-		input.setData( new long[]{ 0L, 0L, 2L, 0L, 0L }, 2, DataContainer.LENGTHS_OF_SCALAR );
+		output.setData( new String[]{ "Init0", "Init1", "Init2" }, 1, DataContainer.SCALAR_LENGTHS );
+		input.setData( new long[]{ 0L, 0L, 2L, 0L, 0L }, 2, DataContainer.SCALAR_LENGTHS );
 		try {
 			new ExecutionUnit().cast(DataType.STRING, DataType.INT64, output, input);
 		} catch (VnanoFatalException e) {
@@ -6225,8 +6225,8 @@ public class ExecutionUnitTest {
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<double[]> output = new DataContainer<double[]>();
 		DataContainer<double[]> input = new DataContainer<double[]>();
-		output.setData( new double[]{ -1.0 }, 0, DataContainer.LENGTHS_OF_SCALAR );
-		input.setData( new double[]{ 2.25 }, 0, DataContainer.LENGTHS_OF_SCALAR ); // 2進表現で割り切れる値
+		output.setData( new double[]{ -1.0 }, 0, DataContainer.SCALAR_LENGTHS );
+		input.setData( new double[]{ 2.25 }, 0, DataContainer.SCALAR_LENGTHS ); // 2進表現で割り切れる値
 
 		// 演算を実行
 		try {
@@ -6245,8 +6245,8 @@ public class ExecutionUnitTest {
 		}
 
 		// オフセット設定された条件下でも正しく機能するか検査
-		output.setData( new double[]{ -1.0, -1.0, -1.0 }, 1, DataContainer.LENGTHS_OF_SCALAR );
-		input.setData( new double[]{ 0.0, 0.0, 2.25, 0.0, 0.0 }, 2, DataContainer.LENGTHS_OF_SCALAR );
+		output.setData( new double[]{ -1.0, -1.0, -1.0 }, 1, DataContainer.SCALAR_LENGTHS );
+		input.setData( new double[]{ 0.0, 0.0, 2.25, 0.0, 0.0 }, 2, DataContainer.SCALAR_LENGTHS );
 		try {
 			new ExecutionUnit().cast(DataType.FLOAT64, DataType.FLOAT64, output, input);
 		} catch (VnanoFatalException e) {
@@ -6302,8 +6302,8 @@ public class ExecutionUnitTest {
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<long[]> output = new DataContainer<long[]>();
 		DataContainer<double[]> input = new DataContainer<double[]>();
-		output.setData( new long[]{ -1L }, 0, DataContainer.LENGTHS_OF_SCALAR );
-		input.setData( new double[]{ 2.25 }, 0, DataContainer.LENGTHS_OF_SCALAR ); // 2進表現で割り切れる値
+		output.setData( new long[]{ -1L }, 0, DataContainer.SCALAR_LENGTHS );
+		input.setData( new double[]{ 2.25 }, 0, DataContainer.SCALAR_LENGTHS ); // 2進表現で割り切れる値
 
 		// 演算を実行
 		try {
@@ -6322,8 +6322,8 @@ public class ExecutionUnitTest {
 		}
 
 		// オフセット設定された条件下でも正しく機能するか検査
-		output.setData( new long[]{ -1L, -1L, -1L }, 1, DataContainer.LENGTHS_OF_SCALAR );
-		input.setData( new double[]{ 0.0, 0.0, 2.25, 0.0, 0.0 }, 2, DataContainer.LENGTHS_OF_SCALAR );
+		output.setData( new long[]{ -1L, -1L, -1L }, 1, DataContainer.SCALAR_LENGTHS );
+		input.setData( new double[]{ 0.0, 0.0, 2.25, 0.0, 0.0 }, 2, DataContainer.SCALAR_LENGTHS );
 		try {
 			new ExecutionUnit().cast(DataType.INT64, DataType.FLOAT64, output, input);
 		} catch (VnanoFatalException e) {
@@ -6379,8 +6379,8 @@ public class ExecutionUnitTest {
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<String[]> output = new DataContainer<String[]>();
 		DataContainer<double[]> input = new DataContainer<double[]>();
-		output.setData( new String[]{ "Init" }, 0, DataContainer.LENGTHS_OF_SCALAR );
-		input.setData( new double[]{ 2.25 }, 0, DataContainer.LENGTHS_OF_SCALAR ); // 2進表現で割り切れる値
+		output.setData( new String[]{ "Init" }, 0, DataContainer.SCALAR_LENGTHS );
+		input.setData( new double[]{ 2.25 }, 0, DataContainer.SCALAR_LENGTHS ); // 2進表現で割り切れる値
 
 		// 演算を実行
 		try {
@@ -6399,8 +6399,8 @@ public class ExecutionUnitTest {
 		}
 
 		// オフセット設定された条件下でも正しく機能するか検査
-		output.setData( new String[]{ "Init0", "Init1", "Init2" }, 1, DataContainer.LENGTHS_OF_SCALAR );
-		input.setData( new double[]{ 0.0, 0.0, 2.25, 0.0, 0.0 }, 2, DataContainer.LENGTHS_OF_SCALAR );
+		output.setData( new String[]{ "Init0", "Init1", "Init2" }, 1, DataContainer.SCALAR_LENGTHS );
+		input.setData( new double[]{ 0.0, 0.0, 2.25, 0.0, 0.0 }, 2, DataContainer.SCALAR_LENGTHS );
 		try {
 			new ExecutionUnit().cast(DataType.STRING, DataType.FLOAT64, output, input);
 		} catch (VnanoFatalException e) {
@@ -6459,8 +6459,8 @@ public class ExecutionUnitTest {
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
 		DataContainer<boolean[]> input = new DataContainer<boolean[]>();
-		output.setData( new boolean[]{ false }, 0, DataContainer.LENGTHS_OF_SCALAR );
-		input.setData( new boolean[]{ true }, 0, DataContainer.LENGTHS_OF_SCALAR );
+		output.setData( new boolean[]{ false }, 0, DataContainer.SCALAR_LENGTHS );
+		input.setData( new boolean[]{ true }, 0, DataContainer.SCALAR_LENGTHS );
 
 		// 演算を実行
 		try {
@@ -6479,8 +6479,8 @@ public class ExecutionUnitTest {
 		}
 
 		// オフセット設定された条件下でも正しく機能するか検査
-		output.setData( new boolean[]{ false, false, false }, 1, DataContainer.LENGTHS_OF_SCALAR );
-		input.setData( new boolean[]{ false, false, true, false, false }, 2, DataContainer.LENGTHS_OF_SCALAR );
+		output.setData( new boolean[]{ false, false, false }, 1, DataContainer.SCALAR_LENGTHS );
+		input.setData( new boolean[]{ false, false, true, false, false }, 2, DataContainer.SCALAR_LENGTHS );
 		try {
 			new ExecutionUnit().cast(DataType.BOOL, DataType.BOOL, output, input);
 		} catch (VnanoFatalException e) {
@@ -6536,8 +6536,8 @@ public class ExecutionUnitTest {
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<String[]> output = new DataContainer<String[]>();
 		DataContainer<boolean[]> input = new DataContainer<boolean[]>();
-		output.setData( new String[]{ "Init" }, 0, DataContainer.LENGTHS_OF_SCALAR );
-		input.setData( new boolean[]{ true }, 0, DataContainer.LENGTHS_OF_SCALAR );
+		output.setData( new String[]{ "Init" }, 0, DataContainer.SCALAR_LENGTHS );
+		input.setData( new boolean[]{ true }, 0, DataContainer.SCALAR_LENGTHS );
 
 		// 演算を実行
 		try {
@@ -6556,8 +6556,8 @@ public class ExecutionUnitTest {
 		}
 
 		// オフセット設定された条件下でも正しく機能するか検査
-		output.setData( new String[]{ "Init0", "Init1", "Init2" }, 1, DataContainer.LENGTHS_OF_SCALAR );
-		input.setData( new boolean[]{ false, false, true, false, false }, 2, DataContainer.LENGTHS_OF_SCALAR );
+		output.setData( new String[]{ "Init0", "Init1", "Init2" }, 1, DataContainer.SCALAR_LENGTHS );
+		input.setData( new boolean[]{ false, false, true, false, false }, 2, DataContainer.SCALAR_LENGTHS );
 		try {
 			new ExecutionUnit().cast(DataType.STRING, DataType.BOOL, output, input);
 		} catch (VnanoFatalException e) {
@@ -6617,8 +6617,8 @@ public class ExecutionUnitTest {
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<String[]> output = new DataContainer<String[]>();
 		DataContainer<String[]> input = new DataContainer<String[]>();
-		output.setData( new String[]{ "Init" }, 0, DataContainer.LENGTHS_OF_SCALAR );
-		input.setData( new String[]{ "Hello" }, 0, DataContainer.LENGTHS_OF_SCALAR );
+		output.setData( new String[]{ "Init" }, 0, DataContainer.SCALAR_LENGTHS );
+		input.setData( new String[]{ "Hello" }, 0, DataContainer.SCALAR_LENGTHS );
 
 		// 演算を実行
 		try {
@@ -6637,8 +6637,8 @@ public class ExecutionUnitTest {
 		}
 
 		// オフセット設定された条件下でも正しく機能するか検査
-		output.setData( new String[]{ "Init0", "Init1", "Init2" }, 1, DataContainer.LENGTHS_OF_SCALAR );
-		input.setData( new String[]{ "", "", "Hello", "", "" }, 2, DataContainer.LENGTHS_OF_SCALAR );
+		output.setData( new String[]{ "Init0", "Init1", "Init2" }, 1, DataContainer.SCALAR_LENGTHS );
+		input.setData( new String[]{ "", "", "Hello", "", "" }, 2, DataContainer.SCALAR_LENGTHS );
 		try {
 			new ExecutionUnit().cast(DataType.STRING, DataType.STRING, output, input);
 		} catch (VnanoFatalException e) {
@@ -6697,8 +6697,8 @@ public class ExecutionUnitTest {
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<long[]> output = new DataContainer<long[]>();
 		DataContainer<String[]> input = new DataContainer<String[]>();
-		output.setData( new long[]{ -1L }, 0, DataContainer.LENGTHS_OF_SCALAR );
-		input.setData( new String[]{ "2" }, 0, DataContainer.LENGTHS_OF_SCALAR );
+		output.setData( new long[]{ -1L }, 0, DataContainer.SCALAR_LENGTHS );
+		input.setData( new String[]{ "2" }, 0, DataContainer.SCALAR_LENGTHS );
 
 		// 演算を実行
 		try {
@@ -6717,8 +6717,8 @@ public class ExecutionUnitTest {
 		}
 
 		// オフセット設定された条件下でも正しく機能するか検査
-		output.setData( new long[]{ -1L, -1L, -1L }, 1, DataContainer.LENGTHS_OF_SCALAR );
-		input.setData( new String[]{ "0", "0", "2", "0", "0" }, 2, DataContainer.LENGTHS_OF_SCALAR );
+		output.setData( new long[]{ -1L, -1L, -1L }, 1, DataContainer.SCALAR_LENGTHS );
+		input.setData( new String[]{ "0", "0", "2", "0", "0" }, 2, DataContainer.SCALAR_LENGTHS );
 		try {
 			new ExecutionUnit().cast(DataType.INT64, DataType.STRING, output, input);
 		} catch (VnanoFatalException e) {
@@ -6738,8 +6738,8 @@ public class ExecutionUnitTest {
 		}
 
 		// 浮動小数点として解釈できる文字列から整数への変換も検査(内部処理が異なる)
-		output.setData( new long[]{ -1L, -1L, -1L }, 1, DataContainer.LENGTHS_OF_SCALAR );
-		input.setData( new String[]{ "0", "0", "8.25", "0", "0" }, 2, DataContainer.LENGTHS_OF_SCALAR ); // 2進表現で割り切れる値
+		output.setData( new long[]{ -1L, -1L, -1L }, 1, DataContainer.SCALAR_LENGTHS );
+		input.setData( new String[]{ "0", "0", "8.25", "0", "0" }, 2, DataContainer.SCALAR_LENGTHS ); // 2進表現で割り切れる値
 		try {
 			new ExecutionUnit().cast(DataType.INT64, DataType.STRING, output, input);
 		} catch (VnanoFatalException e) {
@@ -6757,8 +6757,8 @@ public class ExecutionUnitTest {
 		}
 
 		// 整数に変換できない文字列からの変換も検査
-		output.setData( new long[]{ -1L, -1L, -1L }, 1, DataContainer.LENGTHS_OF_SCALAR );
-		input.setData( new String[]{ "0", "0", "Hello", "0", "0" }, 2, DataContainer.LENGTHS_OF_SCALAR ); // 2進表現で割り切れる値
+		output.setData( new long[]{ -1L, -1L, -1L }, 1, DataContainer.SCALAR_LENGTHS );
+		input.setData( new String[]{ "0", "0", "Hello", "0", "0" }, 2, DataContainer.SCALAR_LENGTHS ); // 2進表現で割り切れる値
 		try {
 			new ExecutionUnit().cast(DataType.INT64, DataType.STRING, output, input);
 			fail("Expected exception did not occured");
@@ -6803,8 +6803,8 @@ public class ExecutionUnitTest {
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<double[]> output = new DataContainer<double[]>();
 		DataContainer<String[]> input = new DataContainer<String[]>();
-		output.setData( new double[]{ -1.0 }, 0, DataContainer.LENGTHS_OF_SCALAR );
-		input.setData( new String[]{ "2.25" }, 0, DataContainer.LENGTHS_OF_SCALAR ); // 2進表現で割り切れる値
+		output.setData( new double[]{ -1.0 }, 0, DataContainer.SCALAR_LENGTHS );
+		input.setData( new String[]{ "2.25" }, 0, DataContainer.SCALAR_LENGTHS ); // 2進表現で割り切れる値
 
 		// 演算を実行
 		try {
@@ -6823,8 +6823,8 @@ public class ExecutionUnitTest {
 		}
 
 		// オフセット設定された条件下でも正しく機能するか検査
-		output.setData( new double[]{ -1.0, -1.0, -1.0 }, 1, DataContainer.LENGTHS_OF_SCALAR );
-		input.setData( new String[]{ "0.0", "0.0", "2.25", "0.0", "0.0" }, 2, DataContainer.LENGTHS_OF_SCALAR );
+		output.setData( new double[]{ -1.0, -1.0, -1.0 }, 1, DataContainer.SCALAR_LENGTHS );
+		input.setData( new String[]{ "0.0", "0.0", "2.25", "0.0", "0.0" }, 2, DataContainer.SCALAR_LENGTHS );
 		try {
 			new ExecutionUnit().cast(DataType.FLOAT64, DataType.STRING, output, input);
 		} catch (VnanoFatalException e) {
@@ -6844,8 +6844,8 @@ public class ExecutionUnitTest {
 		}
 
 		// 浮動小数点数に変換できない文字列からの変換も検査
-		output.setData( new double[]{ -1.0, -1.0, -1.0 }, 1, DataContainer.LENGTHS_OF_SCALAR );
-		input.setData( new String[]{ "0.0", "0.0", "Hello", "0.0", "0.0" }, 2, DataContainer.LENGTHS_OF_SCALAR ); // 2進表現で割り切れる値
+		output.setData( new double[]{ -1.0, -1.0, -1.0 }, 1, DataContainer.SCALAR_LENGTHS );
+		input.setData( new String[]{ "0.0", "0.0", "Hello", "0.0", "0.0" }, 2, DataContainer.SCALAR_LENGTHS ); // 2進表現で割り切れる値
 		try {
 			new ExecutionUnit().cast(DataType.FLOAT64, DataType.STRING, output, input);
 			fail("Expected exception did not occured");
@@ -6890,8 +6890,8 @@ public class ExecutionUnitTest {
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<boolean[]> output = new DataContainer<boolean[]>();
 		DataContainer<String[]> input = new DataContainer<String[]>();
-		output.setData( new boolean[]{ false }, 0, DataContainer.LENGTHS_OF_SCALAR );
-		input.setData( new String[]{ "true" }, 0, DataContainer.LENGTHS_OF_SCALAR ); // 2進表現で割り切れる値
+		output.setData( new boolean[]{ false }, 0, DataContainer.SCALAR_LENGTHS );
+		input.setData( new String[]{ "true" }, 0, DataContainer.SCALAR_LENGTHS ); // 2進表現で割り切れる値
 
 		// 演算を実行
 		try {
@@ -6910,8 +6910,8 @@ public class ExecutionUnitTest {
 		}
 
 		// オフセット設定された条件下でも正しく機能するか検査
-		output.setData( new boolean[]{ false, false, false }, 1, DataContainer.LENGTHS_OF_SCALAR );
-		input.setData( new String[]{ "false", "false", "true", "false", "false" }, 2, DataContainer.LENGTHS_OF_SCALAR );
+		output.setData( new boolean[]{ false, false, false }, 1, DataContainer.SCALAR_LENGTHS );
+		input.setData( new String[]{ "false", "false", "true", "false", "false" }, 2, DataContainer.SCALAR_LENGTHS );
 		try {
 			new ExecutionUnit().cast(DataType.BOOL, DataType.STRING, output, input);
 		} catch (VnanoFatalException e) {
@@ -6931,8 +6931,8 @@ public class ExecutionUnitTest {
 		}
 
 		// 論理値に変換できない文字列からの変換も検査
-		output.setData( new boolean[]{ false, false, false }, 1, DataContainer.LENGTHS_OF_SCALAR );
-		input.setData( new String[]{ "0.0", "0.0", "Hello", "0.0", "0.0" }, 2, DataContainer.LENGTHS_OF_SCALAR ); // 2進表現で割り切れる値
+		output.setData( new boolean[]{ false, false, false }, 1, DataContainer.SCALAR_LENGTHS );
+		input.setData( new String[]{ "0.0", "0.0", "Hello", "0.0", "0.0" }, 2, DataContainer.SCALAR_LENGTHS ); // 2進表現で割り切れる値
 		try {
 			new ExecutionUnit().cast(DataType.BOOL, DataType.STRING, output, input);
 			fail("Expected exception did not occured");
@@ -6981,72 +6981,72 @@ public class ExecutionUnitTest {
 
 		// 演算を実行
 		try {
-			((DataContainer<long[]>)output).setData(new long[]{ -1L }, 0, DataContainer.LENGTHS_OF_SCALAR);
-			((DataContainer<boolean[]>)input).setData(new boolean[]{ false }, 0, DataContainer.LENGTHS_OF_SCALAR);
+			((DataContainer<long[]>)output).setData(new long[]{ -1L }, 0, DataContainer.SCALAR_LENGTHS);
+			((DataContainer<boolean[]>)input).setData(new boolean[]{ false }, 0, DataContainer.SCALAR_LENGTHS);
 			new ExecutionUnit().cast(DataType.INT64, DataType.BOOL, output, input);
 			fail("Expected exception did not occured");
 		} catch (VnanoException e) {
 			// 例外が発生するのが正しい挙動
 		}
 		try {
-			((DataContainer<long[]>)output).setData(new long[]{ -1L }, 0, DataContainer.LENGTHS_OF_SCALAR);
-			((DataContainer<Object[]>)input).setData(new Object[]{ "" }, 0, DataContainer.LENGTHS_OF_SCALAR);
+			((DataContainer<long[]>)output).setData(new long[]{ -1L }, 0, DataContainer.SCALAR_LENGTHS);
+			((DataContainer<Object[]>)input).setData(new Object[]{ "" }, 0, DataContainer.SCALAR_LENGTHS);
 			new ExecutionUnit().cast(DataType.INT64, DataType.VOID, output, input);
 			fail("Expected exception did not occured");
 		} catch (VnanoException e) {
 			// 例外が発生するのが正しい挙動
 		}
 		try {
-			((DataContainer<double[]>)output).setData(new double[]{ -1.0 }, 0, DataContainer.LENGTHS_OF_SCALAR);
-			((DataContainer<boolean[]>)input).setData(new boolean[]{ false }, 0, DataContainer.LENGTHS_OF_SCALAR);
+			((DataContainer<double[]>)output).setData(new double[]{ -1.0 }, 0, DataContainer.SCALAR_LENGTHS);
+			((DataContainer<boolean[]>)input).setData(new boolean[]{ false }, 0, DataContainer.SCALAR_LENGTHS);
 			new ExecutionUnit().cast(DataType.FLOAT64, DataType.BOOL, output, input);
 			fail("Expected exception did not occured");
 		} catch (VnanoException e) {
 			// 例外が発生するのが正しい挙動
 		}
 		try {
-			((DataContainer<double[]>)output).setData(new double[]{ -1.0 }, 0, DataContainer.LENGTHS_OF_SCALAR);
-			((DataContainer<Object[]>)input).setData(new Object[]{ "" }, 0, DataContainer.LENGTHS_OF_SCALAR);
+			((DataContainer<double[]>)output).setData(new double[]{ -1.0 }, 0, DataContainer.SCALAR_LENGTHS);
+			((DataContainer<Object[]>)input).setData(new Object[]{ "" }, 0, DataContainer.SCALAR_LENGTHS);
 			new ExecutionUnit().cast(DataType.FLOAT64, DataType.VOID, output, input);
 			fail("Expected exception did not occured");
 		} catch (VnanoException e) {
 			// 例外が発生するのが正しい挙動
 		}
 		try {
-			((DataContainer<boolean[]>)output).setData(new boolean[]{ false }, 0, DataContainer.LENGTHS_OF_SCALAR);
-			((DataContainer<long[]>)input).setData(new long[]{ 123L }, 0, DataContainer.LENGTHS_OF_SCALAR);
+			((DataContainer<boolean[]>)output).setData(new boolean[]{ false }, 0, DataContainer.SCALAR_LENGTHS);
+			((DataContainer<long[]>)input).setData(new long[]{ 123L }, 0, DataContainer.SCALAR_LENGTHS);
 			new ExecutionUnit().cast(DataType.BOOL, DataType.INT64, output, input);
 			fail("Expected exception did not occured");
 		} catch (VnanoException e) {
 			// 例外が発生するのが正しい挙動
 		}
 		try {
-			((DataContainer<boolean[]>)output).setData(new boolean[]{ false }, 0, DataContainer.LENGTHS_OF_SCALAR);
-			((DataContainer<double[]>)input).setData(new double[]{ 2.25 }, 0, DataContainer.LENGTHS_OF_SCALAR);
+			((DataContainer<boolean[]>)output).setData(new boolean[]{ false }, 0, DataContainer.SCALAR_LENGTHS);
+			((DataContainer<double[]>)input).setData(new double[]{ 2.25 }, 0, DataContainer.SCALAR_LENGTHS);
 			new ExecutionUnit().cast(DataType.BOOL, DataType.FLOAT64, output, input);
 			fail("Expected exception did not occured");
 		} catch (VnanoException e) {
 			// 例外が発生するのが正しい挙動
 		}
 		try {
-			((DataContainer<boolean[]>)output).setData(new boolean[]{ false }, 0, DataContainer.LENGTHS_OF_SCALAR);
-			((DataContainer<Object[]>)input).setData(new Object[]{ "" }, 0, DataContainer.LENGTHS_OF_SCALAR);
+			((DataContainer<boolean[]>)output).setData(new boolean[]{ false }, 0, DataContainer.SCALAR_LENGTHS);
+			((DataContainer<Object[]>)input).setData(new Object[]{ "" }, 0, DataContainer.SCALAR_LENGTHS);
 			new ExecutionUnit().cast(DataType.BOOL, DataType.VOID, output, input);
 			fail("Expected exception did not occured");
 		} catch (VnanoException e) {
 			// 例外が発生するのが正しい挙動
 		}
 		try {
-			((DataContainer<String[]>)output).setData(new String[]{ "Init" }, 0, DataContainer.LENGTHS_OF_SCALAR);
-			((DataContainer<Object[]>)input).setData(new Object[]{ "" }, 0, DataContainer.LENGTHS_OF_SCALAR);
+			((DataContainer<String[]>)output).setData(new String[]{ "Init" }, 0, DataContainer.SCALAR_LENGTHS);
+			((DataContainer<Object[]>)input).setData(new Object[]{ "" }, 0, DataContainer.SCALAR_LENGTHS);
 			new ExecutionUnit().cast(DataType.STRING, DataType.VOID, output, input);
 			fail("Expected exception did not occured");
 		} catch (VnanoException e) {
 			// 例外が発生するのが正しい挙動
 		}
 		try {
-			((DataContainer<Object[]>)output).setData(new Object[]{ "" }, 0, DataContainer.LENGTHS_OF_SCALAR);
-			((DataContainer<Object[]>)input).setData(new Object[]{ "" }, 0, DataContainer.LENGTHS_OF_SCALAR);
+			((DataContainer<Object[]>)output).setData(new Object[]{ "" }, 0, DataContainer.SCALAR_LENGTHS);
+			((DataContainer<Object[]>)input).setData(new Object[]{ "" }, 0, DataContainer.SCALAR_LENGTHS);
 			new ExecutionUnit().cast(DataType.VOID, DataType.VOID, output, input);
 			fail("Expected exception did not occured");
 		} catch (VnanoException e) {

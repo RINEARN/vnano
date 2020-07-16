@@ -379,21 +379,21 @@ public final class Memory {
 						// 16進数リテラルの場合
 						if (valueText.startsWith(LITERAL_SYNTAX.intLiteralHexPrefix)) {
 							valueText = valueText.substring(LITERAL_SYNTAX.intLiteralHexPrefix.length());
-							data.setData(new long[]{ Long.parseLong(valueText, 16) }, 0, DataContainer.LENGTHS_OF_SCALAR);
+							data.setData(new long[]{ Long.parseLong(valueText, 16) }, 0, DataContainer.SCALAR_LENGTHS);
 
 						// 8進数リテラルの場合
 						} else if (valueText.startsWith(LITERAL_SYNTAX.intLiteralOctPrefix)) {
 							valueText = valueText.substring(LITERAL_SYNTAX.intLiteralOctPrefix.length());
-							data.setData(new long[]{ Long.parseLong(valueText, 8) }, 0, DataContainer.LENGTHS_OF_SCALAR);
+							data.setData(new long[]{ Long.parseLong(valueText, 8) }, 0, DataContainer.SCALAR_LENGTHS);
 
 						// 2進数リテラルの場合
 						} else if (valueText.startsWith(LITERAL_SYNTAX.intLiteralBinPrefix)) {
 							valueText = valueText.substring(LITERAL_SYNTAX.intLiteralBinPrefix.length());
-							data.setData(new long[]{ Long.parseLong(valueText, 2) }, 0, DataContainer.LENGTHS_OF_SCALAR);
+							data.setData(new long[]{ Long.parseLong(valueText, 2) }, 0, DataContainer.SCALAR_LENGTHS);
 
 						// それ以外は10進数リテラル
 						} else {
-							data.setData(new long[]{ Long.parseLong(valueText) }, 0, DataContainer.LENGTHS_OF_SCALAR);
+							data.setData(new long[]{ Long.parseLong(valueText) }, 0, DataContainer.SCALAR_LENGTHS);
 						}
 					} catch(NumberFormatException e) {
 						VnanoException vse = new VnanoException(ErrorType.INVALID_IMMEDIATE_VALUE, new String[] { valueText});
@@ -405,7 +405,7 @@ public final class Memory {
 				case FLOAT64 : {
 					DataContainer<double[]> data = new DataContainer<double[]>();
 					try {
-						data.setData(new double[]{ Double.parseDouble(valueText) }, 0, DataContainer.LENGTHS_OF_SCALAR);
+						data.setData(new double[]{ Double.parseDouble(valueText) }, 0, DataContainer.SCALAR_LENGTHS);
 					} catch(NumberFormatException e) {
 						VnanoException vse = new VnanoException(ErrorType.INVALID_IMMEDIATE_VALUE, new String[] { valueText});
 						throw vse;
@@ -416,9 +416,9 @@ public final class Memory {
 				case BOOL : {
 					DataContainer<boolean[]> data = new DataContainer<boolean[]>();
 					if (valueText.equals(LITERAL_SYNTAX.trueValue)) {
-						data.setData(new boolean[]{ true }, 0, DataContainer.LENGTHS_OF_SCALAR);
+						data.setData(new boolean[]{ true }, 0, DataContainer.SCALAR_LENGTHS);
 					} else if (valueText.equals(LITERAL_SYNTAX.falseValue)) {
-						data.setData(new boolean[]{ false }, 0, DataContainer.LENGTHS_OF_SCALAR);
+						data.setData(new boolean[]{ false }, 0, DataContainer.SCALAR_LENGTHS);
 					} else {
 						VnanoException vse = new VnanoException(ErrorType.INVALID_IMMEDIATE_VALUE, new String[] { valueText});
 						throw vse;
@@ -429,7 +429,7 @@ public final class Memory {
 				case STRING : {
 					DataContainer<String[]> data = new DataContainer<String[]>();
 					valueText = valueText.substring(1, valueText.length()-1); // ダブルクォーテーションの除去（後でもっとちゃんとやるべき）
-					data.setData(new String[]{ valueText }, 0, DataContainer.LENGTHS_OF_SCALAR);
+					data.setData(new String[]{ valueText }, 0, DataContainer.SCALAR_LENGTHS);
 					this.constantList.add(data);
 					break;
 				}
