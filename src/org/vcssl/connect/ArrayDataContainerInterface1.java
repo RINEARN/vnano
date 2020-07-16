@@ -72,10 +72,20 @@ public interface ArrayDataContainerInterface1<T> {
 
 
 	/** 動的ロード時などに処理系側から参照される、インターフェースの形式名（値は"ADCI"）です。*/
-	public static String INTERFACE_TYPE = "ADCI";
+	public static final String INTERFACE_TYPE = "ADCI";
 
 	/** 動的ロード時などに処理系側から参照される、インターフェースの世代名（値は"1"）です。*/
-	public static String INTERFACE_GENERATION = "1";
+	public static final String INTERFACE_GENERATION = "1";
+
+
+	/** スカラ値を格納している場合におけるサイズ（値は 1 ）です。 */
+	public static final int SCALAR_SIZE = 1;
+
+	/** スカラ値を格納している場合における次元数（値は 0 ）です。 */
+	public static final int SCALAR_RANK = 0;
+
+	/** スカラ値を格納している場合における次元長配列（値は長さ 0 の int[] ）です。 */
+	public static final int[] SCALAR_LENGTHS = { };
 
 
 	/**
@@ -153,14 +163,14 @@ public interface ArrayDataContainerInterface1<T> {
 
 
 	/**
-	 * 多次元配列の次元ごとの長さを取得します。
+	 * 多次元配列の、各次元ごとの長さを格納する配列（次元長配列）を取得します。
 	 *
 	 * なお、データコンテナが保持する設定値の組み合わせが、瞬間的にでも不整合な状態になる事を防ぐため、
 	 * 次元ごとの長さのみを設定するメソッドは提供されません。
 	 * 設定したい場合は {@link ArrayDataContainerInterface1#setData(Object, int, int[]) setData(T, int, int[]) }
 	 * メソッドを使用して、データと共に設定してください。
 	 *
-	 * @return 次元ごとの長さを格納する配列
+	 * @return 各次元ごとの長さを格納する配列（次元長配列）
 	 */
 	public abstract int[] getLengths();
 

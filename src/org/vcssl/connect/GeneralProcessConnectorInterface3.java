@@ -93,10 +93,10 @@ public interface GeneralProcessConnectorInterface3 {
 
 
 	/** 動的ロード時などに処理系側から参照される、インターフェースの形式名（値は"GPCI"）です。 */
-	public static String INTERFACE_TYPE = "GPCI";
+	public static final String INTERFACE_TYPE = "GPCI";
 
 	/** 動的ロード時などに処理系側から参照される、インターフェースの世代名（値は"3"）です。*/
-	public static String INTERFACE_GENERATION = "3";
+	public static final String INTERFACE_GENERATION = "3";
 
 
 	/**

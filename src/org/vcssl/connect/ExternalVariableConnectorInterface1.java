@@ -58,10 +58,10 @@ public interface ExternalVariableConnectorInterface1 {
 
 
 	/** 動的ロード時などに処理系側から参照される、インターフェースの形式名（値は"XVCI"）です。 */
-	public static String INTERFACE_TYPE = "XVCI";
+	public static final String INTERFACE_TYPE = "XVCI";
 
 	/** 動的ロード時などに処理系側から参照される、インターフェースの世代名（値は"1"）です。*/
-	public static String INTERFACE_GENERATION = "1";
+	public static final String INTERFACE_GENERATION = "1";
 
 
 	/**
