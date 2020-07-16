@@ -209,7 +209,7 @@ public class OptionValue {
 	 * <span class="lang-ja">{@link OptionKey#MAIN_SCRIPT_NAME MAIN_SCRIPT_NAME} オプションのデフォルト値です</span>
 	 * .
 	 */
-	private static final String DEFAULT_MAIN_SCRIPT_NAME = "main script";
+	public static final String DEFAULT_MAIN_SCRIPT_NAME = "main script";
 
 
 	/**

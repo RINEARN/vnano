@@ -259,7 +259,7 @@ public class Compiler {
 
 		for (int scriptIndex=0; scriptIndex<scriptLength; scriptIndex++) {
 			if (2 <= scriptLength) {
-				dumpStream.println("( " + scriptNames[scriptIndex] + ")");
+				dumpStream.println("(" + scriptNames[scriptIndex] + ")");
 			}
 			dumpStream.println(preprocessedCode[scriptIndex]);
 		}

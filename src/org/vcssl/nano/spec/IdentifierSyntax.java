@@ -285,11 +285,16 @@ public class IdentifierSyntax {
 		// VRILの処理単位の区切りになるセミコロンをエスケープ
 		normalizedName = normalizedName.replaceAll(";", escapedWord);
 
-		// 空白/改行は問題にならないものの、VRILコードのメタ情報が改行されたりすると読みづらいのでエスケープ
-		normalizedName = normalizedName.replaceAll(" ", escapedWord);
-		normalizedName = normalizedName.replaceAll("\t", escapedWord);
-		normalizedName = normalizedName.replaceAll("\r", escapedWord);
-		normalizedName = normalizedName.replaceAll("\n", escapedWord);
+		// 空白/改行はVRILの動作上は問題にはならないものの、メタ情報が改行されたりすると読みづらいのでエスケープする。
+		// ただし、eval にコードを直接渡した場合の仮のメインスクリプト名は、
+		// ファイルから読み込んだスクリプト名と競合しないように空白を含ませたりしているが、
+		// それをエスケープすると競合し得るようになるため、その場合にはエスケープしない。
+		if (!scriptName.equals(OptionValue.DEFAULT_MAIN_SCRIPT_NAME)) {
+			normalizedName = normalizedName.replaceAll(" ", escapedWord);
+			normalizedName = normalizedName.replaceAll("\t", escapedWord);
+			normalizedName = normalizedName.replaceAll("\r", escapedWord);
+			normalizedName = normalizedName.replaceAll("\n", escapedWord);
+		}
 
 		// 階層区切りのバックスラッシュはスラッシュに統一
 		normalizedName = normalizedName.replace("\\", "/");
