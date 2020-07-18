@@ -26,8 +26,14 @@ public class LiteralSyntaxTest {
 		assertTrue("0b1010".matches(literalSyntax.intLiteralRegex)); // 2進リテラルのプレフィックスが付いている場合
 		assertTrue("0o123".matches(literalSyntax.intLiteralRegex));  // 8進リテラルのプレフィックスが付いている場合
 		assertTrue("0x123".matches(literalSyntax.intLiteralRegex));  // 16進リテラルのプレフィックスが付いている場合
+		assertTrue("0xabc".matches(literalSyntax.intLiteralRegex));  // 16進リテラルの場合は a ~ f までのアルファベットは使用可能
+		assertTrue("0xABC".matches(literalSyntax.intLiteralRegex));  // 16進リテラルの場合は A ~ F までのアルファベットは使用可能
 		assertTrue("0123".matches(literalSyntax.intLiteralRegex));   // 0のみで始まる8進リテラルも正規表現上は通す（言語的には非サポートなので SemanticAnalyzer で却下する。ここで除外するとエラーメッセージが分かりづらくなるため。）
-		assertFalse("abc".matches(literalSyntax.intLiteralRegex));   // 数字じゃない場合はNG
+		assertFalse("abc".matches(literalSyntax.intLiteralRegex));   // 数字じゃない場合はNG（16進リテラルは除く）
+		assertFalse("ABC".matches(literalSyntax.intLiteralRegex));   // 数字じゃない場合はNG（16進リテラルは除く）
+		assertFalse("0b222".matches(literalSyntax.intLiteralRegex)); // 2進リテラルの各桁が 0 ～ 1 の範囲外の場合はNG
+		assertFalse("0o888".matches(literalSyntax.intLiteralRegex)); // 8進リテラルの各桁が 0 ～ 7 の範囲外の場合はNG
+		assertFalse("0xXYZ".matches(literalSyntax.intLiteralRegex)); // 16進リテラルの各桁が 0 ～ F の範囲外の場合はNG
 		assertFalse("".matches(literalSyntax.intLiteralRegex));      // 空文字の場合は場合はNG
 		assertFalse(" ".matches(literalSyntax.intLiteralRegex));     // 空白の場合も場合はNG
 	}
