@@ -227,7 +227,7 @@ public class OptionValue {
 	 */
 	private static Map<String, Object> DEFAULT_VALUE_MAP = new LinkedHashMap<String, Object>(); // 環境依存の内容を含むので final にはしない
 	static {
-		DEFAULT_VALUE_MAP.put(OptionKey.EVAL_NUMBER_AS_FLOAT, Boolean.FALSE);
+		DEFAULT_VALUE_MAP.put(OptionKey.EVAL_INT_LITERAL_AS_FLOAT, Boolean.FALSE);
 		DEFAULT_VALUE_MAP.put(OptionKey.EVAL_ONLY_FLOAT, Boolean.FALSE);
 		DEFAULT_VALUE_MAP.put(OptionKey.EVAL_ONLY_EXPRESSION, Boolean.FALSE);
 		DEFAULT_VALUE_MAP.put(OptionKey.LOCALE, Locale.getDefault());
@@ -325,10 +325,10 @@ public class OptionValue {
 
 	/**
 	 * <span class="lang-en">
-	 * Checks contents of all items of an option map
+	 * Checks values of items stored in an option map
 	 * </span>
 	 * <span class="lang-ja">
-	 * オプションマップの全ての項目の内容を検査します
+	 * オプションマップに格納された項目の値を検査します
 	 * </span>
 	 * .
 	 *
@@ -337,11 +337,11 @@ public class OptionValue {
 	 *   <span class="lang-ja">検査したいオプションマップ</span>
 	 *
 	 * @throws VnanoException
-	 *   <span class="lang-en">Thrown if invalid contents are detected.</span>
-	 *   <span class="lang-ja">無効な内容が検出された場合にスローされます.</span>
+	 *   <span class="lang-en">Thrown if invalid values are detected.</span>
+	 *   <span class="lang-ja">無効な値が検出された場合にスローされます.</span>
 	 */
 	public static void checkValuesOf(Map<String, Object> optionMap) throws VnanoException {
-		checkValueOf(OptionKey.EVAL_NUMBER_AS_FLOAT, optionMap, Boolean.class);
+		checkValueOf(OptionKey.EVAL_INT_LITERAL_AS_FLOAT, optionMap, Boolean.class);
 		checkValueOf(OptionKey.EVAL_ONLY_FLOAT, optionMap, Boolean.class);
 		checkValueOf(OptionKey.EVAL_ONLY_EXPRESSION, optionMap, Boolean.class);
 		checkValueOf(OptionKey.LOCALE, optionMap, Locale.class);

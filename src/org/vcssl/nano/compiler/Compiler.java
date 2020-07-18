@@ -133,7 +133,7 @@ public class Compiler {
 		int scriptLength = scripts.length;
 
 		// EVAL_NUMBER_AS_FLOAT オプションの値を取得
-		boolean evalNumberAsFloat = (Boolean)optionMap.get(OptionKey.EVAL_NUMBER_AS_FLOAT);
+		boolean evalNumberAsFloat = (Boolean)optionMap.get(OptionKey.EVAL_INT_LITERAL_AS_FLOAT);
 
 		// ダンプ関連のオプション指定内容を取得
 		boolean shouldDump = (Boolean)optionMap.get(OptionKey.DUMPER_ENABLED);        // ダンプするかどうか

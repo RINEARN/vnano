@@ -72,7 +72,7 @@ public class OptionKey {
 	 * <span class="lang-en">The value of this option is "Boolean" type. Specify "Boolean.TRUE" to enable this option.</span>
 	 * <span class="lang-ja">このオプションの値は "boolean" 型です. 有効にするには "Boolean.TRUE" を指定してください.</span>
 	 */
-	public static final String EVAL_NUMBER_AS_FLOAT = "EVAL_NUMBER_AS_FLOAT";
+	public static final String EVAL_INT_LITERAL_AS_FLOAT = "EVAL_INT_LITERAL_AS_FLOAT";
 
 
 	/**
