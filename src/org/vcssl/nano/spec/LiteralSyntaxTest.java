@@ -17,6 +17,22 @@ public class LiteralSyntaxTest {
 	}
 
 	@Test
+	public void testIntLiteralRegex() {
+		LiteralSyntax literalSyntax = new LiteralSyntax(new DataTypeName());
+		assertTrue("1".matches(literalSyntax.intLiteralRegex));      // 1個以上の数字列のみ（1個）
+		assertTrue("123".matches(literalSyntax.intLiteralRegex));    // 1個以上の数字列のみ（複数個）
+		assertTrue("123l".matches(literalSyntax.intLiteralRegex));   // long型サフィックス付き（Vnano の long は int のエイリアスなので int リテラル）
+		assertTrue("123L".matches(literalSyntax.intLiteralRegex));   // long型サフィックス付き（Vnano の long は int のエイリアスなので int リテラル）
+		assertTrue("0b1010".matches(literalSyntax.intLiteralRegex)); // 2進リテラルのプレフィックスが付いている場合
+		assertTrue("0o123".matches(literalSyntax.intLiteralRegex));  // 8進リテラルのプレフィックスが付いている場合
+		assertTrue("0x123".matches(literalSyntax.intLiteralRegex));  // 16進リテラルのプレフィックスが付いている場合
+		assertTrue("0123".matches(literalSyntax.intLiteralRegex));   // 0のみで始まる8進リテラルも正規表現上は通す（言語的には非サポートなので SemanticAnalyzer で却下する。ここで除外するとエラーメッセージが分かりづらくなるため。）
+		assertFalse("abc".matches(literalSyntax.intLiteralRegex));   // 数字じゃない場合はNG
+		assertFalse("".matches(literalSyntax.intLiteralRegex));      // 空文字の場合は場合はNG
+		assertFalse(" ".matches(literalSyntax.intLiteralRegex));     // 空白の場合も場合はNG
+	}
+
+	@Test
 	public void testFloatLiteralRegex() {
 		LiteralSyntax literalSyntax = new LiteralSyntax(new DataTypeName());
 

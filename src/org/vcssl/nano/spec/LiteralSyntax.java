@@ -100,7 +100,7 @@ public class LiteralSyntax {
 	 * <span class="lang-ja">int 型リテラルの正規表現です</span>
 	 * .
 	 */
-	private String intLiteralRegex =
+	protected String intLiteralRegex =
 			// 始点
 			"^"
 			// 注: 符号は単項マイナス/プラス演算子と解釈するため、リテラルには含まない
