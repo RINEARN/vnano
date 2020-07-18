@@ -325,6 +325,62 @@ public class OptionValue {
 
 	/**
 	 * <span class="lang-en">
+	 * Checks contents (keys and values) of items stored in an option map
+	 * </span>
+	 * <span class="lang-ja">
+	 * オプションマップに格納された項目の内容（キーと値）を検査します
+	 * </span>
+	 * .
+	 *
+	 * @param optionMap
+	 *   <span class="lang-en">The option map to be checked</span>
+	 *   <span class="lang-ja">検査したいオプションマップ</span>
+	 *
+	 * @throws VnanoException
+	 *   <span class="lang-en">Thrown if invalid contents are detected.</span>
+	 *   <span class="lang-ja">無効な内容が検出された場合にスローされます.</span>
+	 */
+	public static void checkContentsOf(Map<String, Object> optionMap) throws VnanoException {
+		checkKeysOf(optionMap);
+		checkValuesOf(optionMap);
+	}
+
+
+	/**
+	 * <span class="lang-en">
+	 * Checks keys (option names) of items stored in an option map
+	 * </span>
+	 * <span class="lang-ja">
+	 * オプションマップに格納された項目のキー（オプション名）を検査します
+	 * </span>
+	 * .
+	 *
+	 * @param optionMap
+	 *   <span class="lang-en">The option map to be checked</span>
+	 *   <span class="lang-ja">検査したいオプションマップ</span>
+	 *
+	 * @throws VnanoException
+	 *   <span class="lang-en">Thrown if invalid names are detected.</span>
+	 *   <span class="lang-ja">無効な名称が検出された場合にスローされます.</span>
+	 */
+	public static void checkKeysOf(Map<String, Object> optionMap) throws VnanoException {
+
+		// オプション名が古い場合の検査
+		if(optionMap.containsKey("EVAL_NUMBER_AS_FLOAT")) {
+			throw new VnanoException(
+				ErrorType.OPTION_KEY_HAD_CHANGED,  new String[] { "EVAL_NUMBER_AS_FLOAT", OptionKey.EVAL_INT_LITERAL_AS_FLOAT }
+			);
+		}
+		if(optionMap.containsKey("MAIN_DIRECTORY_PATH")) {
+			throw new VnanoException(
+				ErrorType.OPTION_KEY_HAD_CHANGED, new String[] { "MAIN_DIRECTORY_PATH", OptionKey.MAIN_SCRIPT_DIRECTORY }
+			);
+		}
+	}
+
+
+	/**
+	 * <span class="lang-en">
 	 * Checks values of items stored in an option map
 	 * </span>
 	 * <span class="lang-ja">
@@ -340,7 +396,7 @@ public class OptionValue {
 	 *   <span class="lang-en">Thrown if invalid values are detected.</span>
 	 *   <span class="lang-ja">無効な値が検出された場合にスローされます.</span>
 	 */
-	public static void checkValuesOf(Map<String, Object> optionMap) throws VnanoException {
+	private static void checkValuesOf(Map<String, Object> optionMap) throws VnanoException {
 		checkValueOf(OptionKey.EVAL_INT_LITERAL_AS_FLOAT, optionMap, Boolean.class);
 		checkValueOf(OptionKey.EVAL_ONLY_FLOAT, optionMap, Boolean.class);
 		checkValueOf(OptionKey.EVAL_ONLY_EXPRESSION, optionMap, Boolean.class);
