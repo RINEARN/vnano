@@ -172,7 +172,7 @@ public class LiteralSyntax {
 	 * <span class="lang-ja">bool 型リテラルの正規表現です</span>
 	 * .
 	 */
-	private String boolLiteralRegex = "^" + trueValue + "|" + falseValue + "$";
+	protected String boolLiteralRegex = "^" + trueValue + "|" + falseValue + "$";
 
 
 	/**

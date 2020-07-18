@@ -87,4 +87,21 @@ public class LiteralSyntaxTest {
 		assertFalse("".matches(literalSyntax.floatLiteralRegex));       // 空文字の場合はNG
 		assertFalse(" ".matches(literalSyntax.floatLiteralRegex));      // 空白の場合もNG
 	}
+
+	@Test
+	public void testBoolLiteralRegex() {
+		LiteralSyntax literalSyntax = new LiteralSyntax(new DataTypeName());
+
+		// true と false のみが OK
+		assertTrue("true".matches(literalSyntax.boolLiteralRegex));
+		assertTrue("false".matches(literalSyntax.boolLiteralRegex));
+
+		// 他は NG
+		assertFalse("TRUE".matches(literalSyntax.boolLiteralRegex));
+		assertFalse("FALSE".matches(literalSyntax.boolLiteralRegex));
+		assertFalse("abc".matches(literalSyntax.boolLiteralRegex));
+		assertFalse("123".matches(literalSyntax.boolLiteralRegex));
+		assertFalse("".matches(literalSyntax.boolLiteralRegex));
+		assertFalse(" ".matches(literalSyntax.boolLiteralRegex));
+	}
 }
