@@ -213,8 +213,8 @@ public class OptionValue {
 
 
 	/**
-	 * <span class="lang-en">The default value of {@link OptionKey#MAIN_DIRECTORY_PATH MAIN_DIRECTORY_PATH} option</span>
-	 * <span class="lang-ja">{@link OptionKey#MAIN_DIRECTORY_PATH MAIN_DIRECTORY_PATH} オプションのデフォルト値です</span>
+	 * <span class="lang-en">The default value of {@link OptionKey#MAIN_SCRIPT_DIRECTORY MAIN_DIRECTORY_PATH} option</span>
+	 * <span class="lang-ja">{@link OptionKey#MAIN_SCRIPT_DIRECTORY MAIN_DIRECTORY_PATH} オプションのデフォルト値です</span>
 	 * .
 	 */
 	private static final String DEFAULT_MAIN_DIRECTORY_PATH = ".";
@@ -237,7 +237,7 @@ public class OptionValue {
 		DEFAULT_VALUE_MAP.put(OptionKey.DUMPER_STREAM, System.out);
 		DEFAULT_VALUE_MAP.put(OptionKey.RUNNING_ENABLED, Boolean.TRUE);
 		DEFAULT_VALUE_MAP.put(OptionKey.MAIN_SCRIPT_NAME, DEFAULT_MAIN_SCRIPT_NAME);
-		DEFAULT_VALUE_MAP.put(OptionKey.MAIN_DIRECTORY_PATH, DEFAULT_MAIN_DIRECTORY_PATH);
+		DEFAULT_VALUE_MAP.put(OptionKey.MAIN_SCRIPT_DIRECTORY, DEFAULT_MAIN_DIRECTORY_PATH);
 		DEFAULT_VALUE_MAP.put(OptionKey.FILE_IO_ENCODING, "UTF-8");
 		DEFAULT_VALUE_MAP.put(OptionKey.FILE_IO_EOL, System.getProperty("line.separator"));
 		DEFAULT_VALUE_MAP.put(OptionKey.UI_MODE, "GUI");
@@ -351,7 +351,7 @@ public class OptionValue {
 		checkValueOf(OptionKey.DUMPER_STREAM, optionMap, PrintStream.class);
 		checkValueOf(OptionKey.RUNNING_ENABLED, optionMap, Boolean.class);
 		checkValueOf(OptionKey.MAIN_SCRIPT_NAME, optionMap, String.class);
-		checkValueOf(OptionKey.MAIN_DIRECTORY_PATH, optionMap, String.class);
+		checkValueOf(OptionKey.MAIN_SCRIPT_DIRECTORY, optionMap, String.class);
 		checkValueOf(OptionKey.FILE_IO_ENCODING, optionMap, String.class);
 		checkValueOf(OptionKey.FILE_IO_EOL, optionMap, String.class);
 		checkValueOf(OptionKey.UI_MODE, optionMap, String.class);

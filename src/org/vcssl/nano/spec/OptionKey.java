@@ -48,7 +48,6 @@ public class OptionKey {
 	 * <span class="lang-ja">このオプションの値は "String" 型です.</span>
 	 */
 	public static final String MAIN_SCRIPT_NAME = "MAIN_SCRIPT_NAME";
-	//public static final String EVAL_SCRIPT_NAME = "EVAL_SCRIPT_NAME";
 
 
 	/**
@@ -58,7 +57,7 @@ public class OptionKey {
 	 * <span class="lang-en">The value of this option is "String" type.</span>
 	 * <span class="lang-ja">このオプションの値は "String" 型です.</span>
 	 */
-	public static final String MAIN_DIRECTORY_PATH = "MAIN_DIRECTORY_PATH";
+	public static final String MAIN_SCRIPT_DIRECTORY = "MAIN_SCRIPT_DIRECTORY";
 
 
 	/**
