@@ -96,11 +96,49 @@ public class LiteralSyntax {
 
 
 	/**
+	 * <span class="lang-en">The regular expression of the prefix of an exponent part of "float" type literals</span>
+	 * <span class="lang-ja">float 型リテラルにおける指数部のプレフィックスの正規表現です</span>
+	 * .
+	 */
+	public String floatLiteralExponentPrefixRegex = "e|E";
+
+
+	/**
 	 * <span class="lang-en">The regular expression of "int" type literals</span>
 	 * <span class="lang-ja">int 型リテラルの正規表現です</span>
 	 * .
 	 */
-	private String intLiteralRegex = "^(\\+|-)?(0x|0o|0b)?[0-9]+$";
+	protected String intLiteralRegex =
+			// 始点
+			"^"
+			// 注: 符号は単項マイナス/プラス演算子と解釈するため、リテラルには含まない
+			+
+			// 16進リテラルの場合： 16進数プレフィックス 0x の後に1個以上の「0～9までの数字またはA～Fまでのアルファベット」の列
+			"(0x[0-9a-zA-F]+)"
+			+
+			// または
+			"|"
+			+
+			// 8進数リテラルの場合： 8進数プレフィックス 0o の後に1個以上の「0～7までの数字」の列
+			"(0o[0-7]+)"
+			+
+			// または
+			"|"
+			+
+			// 2進数リテラルの場合： 2進数プレフィックス 0b の後に1個以上の「0～1までの数字」の列
+			"(0b[0-1]+)"
+			+
+			// または
+			"|"
+			+
+			// 10進数リテラルの場合(一般的な場合)： プレフィックス無しで「0～9までの数字」の列
+			"([0-9]+)"
+			+
+			// 最後に long 型のサフィックス（有無は任意）
+			"(l|L)?"
+			+
+			// 終端
+			"$";
 
 
 	/**
@@ -108,8 +146,33 @@ public class LiteralSyntax {
 	 * <span class="lang-ja">float 型リテラルの正規表現です</span>
 	 * .
 	 */
-	private String floatLiteralRegex =
-		"^(\\+|-)?([0-9]+(d|f|D|F))|((([0-9]+\\.[0-9]*)|([0-9]*\\.[0-9]+))(((e|E)(\\+|-)?[0-9]+)|)|([0-9]*\\.?[0-9]+)(e|E)(\\+|-)?[0-9]+)(d|f|D|F)?$";
+	protected String floatLiteralRegex =
+			// 始点
+			"^"
+			// 注: 符号は単項マイナス/プラス演算子と解釈するため、リテラルには含まない
+			+
+			// 数字列のみの後に float/double 型のサフィックスが付く場合（この場合サフィックスは、無いとintリテラルになってしまうので必須）
+			"([0-9]+(d|f|D|F))"
+			+
+			// または
+			"|"
+			+
+			// それ以外の一般的な場合
+			"("
+				+
+				//「 1個以上の数字列 . 0個以上の数字列 」または「 0個以上の数字列 . 1個以上の数字列 」
+				"(([0-9]+\\.[0-9]*)|([0-9]*\\.[0-9]+))"
+				+
+				// その後に指数部（あっても無くてもいい）
+				"((e|E)(\\+|-)?[0-9]+)?"
+				+
+				// その後に float/double 型のサフィックス（この場合サフィックスの有無は任意）
+				"(d|f|D|F)?"
+				+
+			")"
+			+
+			// 終端
+			"$";
 
 
 	/**
@@ -117,7 +180,7 @@ public class LiteralSyntax {
 	 * <span class="lang-ja">bool 型リテラルの正規表現です</span>
 	 * .
 	 */
-	private String boolLiteralRegex = "^" + trueValue + "|" + falseValue + "$";
+	protected String boolLiteralRegex = "^" + trueValue + "|" + falseValue + "$";
 
 
 	/**

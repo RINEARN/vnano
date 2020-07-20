@@ -402,7 +402,7 @@ public class DataConverter {
 			arrayRank = className.split(EXTERNAL_ARRAY_BRACKET_REGEX, -1).length - 1;
 		} else {
 			// 非配列なら 0 次元とする
-			arrayRank = DataContainer.RANK_OF_SCALAR;
+			arrayRank = DataContainer.SCALAR_RANK;
 		}
 		return arrayRank;
 	}
@@ -472,9 +472,9 @@ public class DataConverter {
 		}
 
 		if (srcRank == RANK_OF_SCALAR) {
-			destDataContainer.setData(destDataObject, srcDataContainer.getOffset());
+			destDataContainer.setData(destDataObject, srcDataContainer.getOffset(), DataContainer.SCALAR_LENGTHS);
 		} else {
-			destDataContainer.setData(destDataObject, destLengths);
+			destDataContainer.setData(destDataObject, 0, destLengths);
 		}
 
 		return destDataContainer;
@@ -555,36 +555,36 @@ public class DataConverter {
 	private void convertToDataContainer0D(Object object, DataContainer<?> resultDataContainer)
 			throws VnanoException {
 
-		int[] arrayLength = DataContainer.LENGTHS_OF_SCALAR;
+		int[] arrayLength = DataContainer.SCALAR_LENGTHS;
 		switch (this.externalType) {
 			case INT32 : {
 				long[] data = new long[]{ ((Integer)object).longValue() };
-				((DataContainer<long[]>)resultDataContainer).setData(data, arrayLength);
+				((DataContainer<long[]>)resultDataContainer).setData(data, 0, arrayLength);
 				return;
 			}
 			case INT64 : {
 				long[] data = new long[]{ ((Long)object).longValue() };
-				((DataContainer<long[]>)resultDataContainer).setData(data, arrayLength);
+				((DataContainer<long[]>)resultDataContainer).setData(data, 0, arrayLength);
 				return;
 			}
 			case FLOAT32 : {
 				double[] data = new double[]{ ((Float)object).doubleValue() };
-				((DataContainer<double[]>)resultDataContainer).setData(data, arrayLength);
+				((DataContainer<double[]>)resultDataContainer).setData(data, 0, arrayLength);
 				return;
 			}
 			case FLOAT64 : {
 				double[] data = new double[]{ ((Double)object).doubleValue() };
-				((DataContainer<double[]>)resultDataContainer).setData(data, arrayLength);
+				((DataContainer<double[]>)resultDataContainer).setData(data, 0, arrayLength);
 				return;
 			}
 			case BOOL : {
 				boolean[] data = new boolean[]{ ((Boolean)object).booleanValue() };
-				((DataContainer<boolean[]>)resultDataContainer).setData(data, arrayLength);
+				((DataContainer<boolean[]>)resultDataContainer).setData(data, 0, arrayLength);
 				return;
 			}
 			case STRING : {
 				String[] data = new String[]{ (String)object };
-				((DataContainer<String[]>)resultDataContainer).setData(data, arrayLength);
+				((DataContainer<String[]>)resultDataContainer).setData(data, 0, arrayLength);
 				return;
 			}
 			case ANY : {
@@ -624,7 +624,7 @@ public class DataConverter {
 				for (int dataIndex=0; dataIndex<dataLength; dataIndex++) {
 					((long[])data)[dataIndex] = ((int[])object)[dataIndex];
 				}
-				((DataContainer<long[]>)resultDataContainer).setData(data, arrayLength);
+				((DataContainer<long[]>)resultDataContainer).setData(data, 0, arrayLength);
 				break;
 			}
 			case INT64 : {
@@ -634,7 +634,7 @@ public class DataConverter {
 				for (int dataIndex=0; dataIndex<dataLength; dataIndex++) {
 					((long[])data)[dataIndex] = ((long[])object)[dataIndex];
 				}
-				((DataContainer<long[]>)resultDataContainer).setData(data, arrayLength);
+				((DataContainer<long[]>)resultDataContainer).setData(data, 0, arrayLength);
 				break;
 			}
 			case FLOAT32 : {
@@ -644,7 +644,7 @@ public class DataConverter {
 				for (int dataIndex=0; dataIndex<dataLength; dataIndex++) {
 					((double[])data)[dataIndex] = ((float[])object)[dataIndex];
 				}
-				((DataContainer<double[]>)resultDataContainer).setData(data, arrayLength);
+				((DataContainer<double[]>)resultDataContainer).setData(data, 0, arrayLength);
 				break;
 			}
 			case FLOAT64 : {
@@ -654,7 +654,7 @@ public class DataConverter {
 				for (int dataIndex=0; dataIndex<dataLength; dataIndex++) {
 					((double[])data)[dataIndex] = ((double[])object)[dataIndex];
 				}
-				((DataContainer<double[]>)resultDataContainer).setData(data, arrayLength);
+				((DataContainer<double[]>)resultDataContainer).setData(data, 0, arrayLength);
 				break;
 			}
 			case BOOL : {
@@ -664,7 +664,7 @@ public class DataConverter {
 				for (int dataIndex=0; dataIndex<dataLength; dataIndex++) {
 					((boolean[])data)[dataIndex] = ((boolean[])object)[dataIndex];
 				}
-				((DataContainer<boolean[]>)resultDataContainer).setData(data, arrayLength);
+				((DataContainer<boolean[]>)resultDataContainer).setData(data, 0, arrayLength);
 				break;
 			}
 			case STRING : {
@@ -674,7 +674,7 @@ public class DataConverter {
 				for (int dataIndex=0; dataIndex<dataLength; dataIndex++) {
 					((String[])data)[dataIndex] = ((String[])object)[dataIndex];
 				}
-				((DataContainer<String[]>)resultDataContainer).setData(data, arrayLength);
+				((DataContainer<String[]>)resultDataContainer).setData(data, 0, arrayLength);
 				break;
 			}
 			case ANY : {
@@ -723,7 +723,7 @@ public class DataConverter {
 						dataIndex++;
 					}
 				}
-				((DataContainer<long[]>)resultDataContainer).setData(data, arrayLength);
+				((DataContainer<long[]>)resultDataContainer).setData(data, 0, arrayLength);
 				break;
 			}
 			case INT64 : {
@@ -743,7 +743,7 @@ public class DataConverter {
 						dataIndex++;
 					}
 				}
-				((DataContainer<long[]>)resultDataContainer).setData(data, arrayLength);
+				((DataContainer<long[]>)resultDataContainer).setData(data, 0, arrayLength);
 				break;
 			}
 			case FLOAT32 : {
@@ -763,7 +763,7 @@ public class DataConverter {
 						dataIndex++;
 					}
 				}
-				((DataContainer<double[]>)resultDataContainer).setData(data, arrayLength);
+				((DataContainer<double[]>)resultDataContainer).setData(data, 0, arrayLength);
 				break;
 			}
 			case FLOAT64 : {
@@ -783,7 +783,7 @@ public class DataConverter {
 						dataIndex++;
 					}
 				}
-				((DataContainer<double[]>)resultDataContainer).setData(data, arrayLength);
+				((DataContainer<double[]>)resultDataContainer).setData(data, 0, arrayLength);
 				break;
 			}
 			case BOOL : {
@@ -803,7 +803,7 @@ public class DataConverter {
 						dataIndex++;
 					}
 				}
-				((DataContainer<boolean[]>)resultDataContainer).setData(data, arrayLength);
+				((DataContainer<boolean[]>)resultDataContainer).setData(data, 0, arrayLength);
 				break;
 			}
 			case STRING : {
@@ -823,7 +823,7 @@ public class DataConverter {
 						dataIndex++;
 					}
 				}
-				((DataContainer<String[]>)resultDataContainer).setData(data, arrayLength);
+				((DataContainer<String[]>)resultDataContainer).setData(data, 0, arrayLength);
 				break;
 			}
 			case ANY : {
@@ -880,7 +880,7 @@ public class DataConverter {
 						}
 					}
 				}
-				((DataContainer<long[]>)resultDataContainer).setData(data, arrayLength);
+				((DataContainer<long[]>)resultDataContainer).setData(data, 0, arrayLength);
 				break;
 			}
 			case INT64 : {
@@ -907,7 +907,7 @@ public class DataConverter {
 						}
 					}
 				}
-				((DataContainer<long[]>)resultDataContainer).setData(data, arrayLength);
+				((DataContainer<long[]>)resultDataContainer).setData(data, 0, arrayLength);
 				break;
 			}
 			case FLOAT32 : {
@@ -934,7 +934,7 @@ public class DataConverter {
 						}
 					}
 				}
-				((DataContainer<double[]>)resultDataContainer).setData(data, arrayLength);
+				((DataContainer<double[]>)resultDataContainer).setData(data, 0, arrayLength);
 				break;
 			}
 			case FLOAT64 : {
@@ -961,7 +961,7 @@ public class DataConverter {
 						}
 					}
 				}
-				((DataContainer<double[]>)resultDataContainer).setData(data, arrayLength);
+				((DataContainer<double[]>)resultDataContainer).setData(data, 0, arrayLength);
 				break;
 			}
 			case BOOL : {
@@ -988,7 +988,7 @@ public class DataConverter {
 						}
 					}
 				}
-				((DataContainer<boolean[]>)resultDataContainer).setData(data, arrayLength);
+				((DataContainer<boolean[]>)resultDataContainer).setData(data, 0, arrayLength);
 				break;
 			}
 			case STRING : {
@@ -1015,7 +1015,7 @@ public class DataConverter {
 						}
 					}
 				}
-				((DataContainer<String[]>)resultDataContainer).setData(data, arrayLength);
+				((DataContainer<String[]>)resultDataContainer).setData(data, 0, arrayLength);
 				break;
 			}
 			case ANY : {
@@ -1053,7 +1053,7 @@ public class DataConverter {
 
 		switch (this.rank) {
 
-			case DataContainer.RANK_OF_SCALAR : {
+			case DataContainer.SCALAR_RANK : {
 				int dataIndex = dataContainer.getOffset();
 
 				switch (this.externalType) {

@@ -82,10 +82,10 @@ public interface ExternalFunctionConnectorInterface1 {
 
 
 	/** 動的ロード時などに処理系側から参照される、インターフェースの形式名（値は"XFCI"）です。 */
-	public static String INTERFACE_TYPE = "XFCI";
+	public static final String INTERFACE_TYPE = "XFCI";
 
 	/** 動的ロード時などに処理系側から参照される、インターフェースの世代名（値は"1"）です。*/
-	public static String INTERFACE_GENERATION = "1";
+	public static final String INTERFACE_GENERATION = "1";
 
 
 	/**

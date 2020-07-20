@@ -442,7 +442,7 @@ public class VnanoEngine {
 
 		// Check the content of option settings.
 		// オプション設定の内容を検査
-		OptionValue.checkValuesOf(this.optionMap);
+		OptionValue.checkContentsOf(this.optionMap);
 
 		// Set options to the engine connector for accessing from plug-ins.
 		// プラグインからも参照可能なように, インターコネクトにも再設定

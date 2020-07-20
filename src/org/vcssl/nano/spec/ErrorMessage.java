@@ -129,6 +129,7 @@ public class ErrorMessage {
 			case PLUGIN_INITIALIZATION_FAILED : return "プラグイン「 " + words[0] + " 」の初期化処理に失敗しました。";
 			case PLUGIN_FINALIZATION_FAILED : return "プラグイン「 " + words[0] + " 」の終了時処理に失敗しました。";
 			case OPTION_KEY_IS_NOT_FOUND : return "オプション「 " + words[0] + " 」の値が指定されていません。";
+			case OPTION_KEY_HAD_CHANGED : return "オプション「 " + words[0] + " 」は、「 " + words[1] + " 」に名称変更されました。";
 			case INVALID_OPTION_VALUE_TYPE : return "オプション「 " + words[0] + " 」の値は「 " + words[1] + " 」型で指定する必要があります。";
 			case INVALID_OPTION_VALUE_CONTENT : return "オプション「 " + words[0] + " 」の値「 " + words[1] + " 」が、正しい内容ではありません。";
 			case DATA_CONVERSION_OF_FUNCTION_PLUGIN_USING_OBJECT_TYPE_SHOULD_BE_DISABLED : return "外部関数「 " + words[0] + " 」のプラグインは、Object型の引数または戻り値を持つため、データ変換機能が無効に設定されていなければなりません。";
@@ -237,6 +238,7 @@ public class ErrorMessage {
 			case PLUGIN_INITIALIZATION_FAILED : return "Plug-in \"" + words[0] + "\" could not be initialized";
 			case PLUGIN_FINALIZATION_FAILED : return "Plug-in \"" + words[0] + "\" could not be finalized";
 			case OPTION_KEY_IS_NOT_FOUND : return "The value of \"" + words[0] + "\" option is not found";
+			case OPTION_KEY_HAD_CHANGED : return "The name (key) of the option \"" + words[0] + "\" had been changed to \"" + words[1] + "\"";
 			case INVALID_OPTION_VALUE_TYPE : return "The type of the value of \"" + words[0] + "\" option should be \"" + words[1];
 			case INVALID_OPTION_VALUE_CONTENT : return "The value of \"" + words[0] + "\" option \"" + words[1] + "\" is invalid";
 			case DATA_CONVERSION_OF_FUNCTION_PLUGIN_USING_OBJECT_TYPE_SHOULD_BE_DISABLED : return "The data-conversion of the plugin of the external function\"" + words[0] + "\" should be disabled, because this function has Object-type parameters or the return value";

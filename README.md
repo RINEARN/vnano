@@ -2398,7 +2398,7 @@ Let's implement. The following is an example code:
 
 				// store data to return it (0 is the array index at which the value is stored).
 				// 戻り値用コンテナにデータを格納する (0はdata配列内での値の格納インデックス)
-				adci1Container.setData(this.data, 0);
+				adci1Container.setData(this.data, 0, ArrayDataContainerInterface1.SCALAR_LENGTHS);
 			}
 		
 			@Override

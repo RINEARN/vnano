@@ -152,7 +152,7 @@ public final class AcceleratorDataManagementUnit {
 			}
 
 			this.scalar[partitionOrdinal][address]
-					= ( (container.getRank() == DataContainer.RANK_OF_SCALAR) );
+					= ( (container.getRank() == DataContainer.SCALAR_RANK) );
 
 			if (!this.scalar[partitionOrdinal][address]) {
 				continue;

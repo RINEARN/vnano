@@ -136,13 +136,14 @@ import org.vcssl.nano.spec.DataType;
 public class DataContainer<T> implements ArrayDataContainerInterface1<T> {
 
 	/** スカラデータを格納する場合における、多次元配列としての次元数（値は0）です。*/
-	public static final int   RANK_OF_SCALAR = 0;
+	public static final int   SCALAR_RANK = 0;
 
 	/** スカラデータを格納する場合における、多次元配列としての各次元の長さを表す配列（値は要素無しの int[0]）です。*/
-	public static final int[] LENGTHS_OF_SCALAR = new int[0];
+	public static final int[] SCALAR_LENGTHS = { };
 
 	/** スカラデータを格納する場合における、データの総要素数（値は1）です。 */
-	public static final int   SIZE_OF_SCALAR = 1;
+	public static final int   SCALAR_SIZE = 1;
+
 
 	/** 引数 data に格納するデータのクラスと、{@link org.vcssl.nano.spec.DataType DataType} 列挙子の要素との対応関係を表すマップです。 */
 	private static final HashMap<Class<?>, DataType> CLASS_DATA_TYPE_MAP = new HashMap<Class<?>, DataType>();
@@ -232,52 +233,24 @@ public class DataContainer<T> implements ArrayDataContainerInterface1<T> {
 	public void initialize() {
 		this.data = null;
 		this.referenceTreeRoot = null;
-		this.size = SIZE_OF_SCALAR;
-		this.lengths = LENGTHS_OF_SCALAR;
+		this.size = SCALAR_SIZE;
+		this.lengths = SCALAR_LENGTHS;
 		this.offset = 0;
 	}
 
 
 	/**
-	 * このデータコンテナにデータを格納します。
+	 * このデータコンテナが格納するデータを、そのデータに関する必須情報（オフセット値、各次元の長さ）と共に設定します。
 	 *
 	 * Vnano処理系では全てのデータを配列として扱うため、引数 data は配列型である必要があります。
-	 * ただし、多次元配列やスカラのデータは 1 次元化して格納する必要があります。
+	 * 多次元配列やスカラのデータも、1 次元配列として格納する必要があります。
 	 * 詳細はこのクラスの説明を参照してください。
 	 *
-	 * なお、格納するデータをスカラと見なすべきか配列と見なすべきかに応じて、
-	 * {@link DataContainer#size offset} フィールドや
-	 * {@link DataContainer#lengths lengths} フィールドを適切に初期化する必要があるため、
-	 * このメソッドはクラス外からはアクセスできません。
-	 * 外部からは、代わりに {@link DataContainer#setData(T data, int offset)} メソッドや
-	 * {@link DataContainer#setData(T data, int[] lengths)} メソッドを使用してください。
-	 * このメソッドはそれらの中で呼び出され、その場合は各フィールドも適切に設定されます。
-	 *
-	 * @param data 格納するデータ
+	 * @param data 格納するデータ（1次元配列）
+	 * @param offset オフセット値（データ内で値が格納されている要素のインデックスで、スカラ以外を格納する場合は常に 0 を指定します）
+	 * @param arrayLengths 各次元ごとの長さを格納する配列（スカラを格納する場合は、長さ 0 の配列を指定します）
 	 */
-	private final void setData(T data) {
-
-		// 別のコンテナを参照していない場合： このコンテナのデータが持っている更新
-		if (this.referenceTreeRoot == null) {
-			this.data = data;
-
-		// 別のコンテナを参照している場合： 参照ツリーのルートは必ず実データを持っているはずなので、それを更新
-		} else {
-			this.referenceTreeRoot.data = data;  // ※ setData(data) を呼ぶと一階層でも再帰コールになってしまうので注意
-		}
-	}
-
-
-	/**
-	 * このデータコンテナが格納するデータを、次元ごとの長さ情報と共に設定します。
-	 * 同時に {@link DataContainer#size size} フィールドの値も、全次元の長さの積に設定されます。
-	 * また、{@link DataContainer#size offset} フィールドの値には 0 が設定されます。
-	 *
-	 * @param data 格納するデータ
-	 * @param arrayLengths 次元ごとの長さを格納する配列
-	 */
-	public final void setData(T data, int[] lengths) {
-		this.setData(data);
+	public final void setData(T data, int offset, int[] lengths) {
 
 		// 各次元の長さの積（= size）の値を求める
 		int productOfLengths = 1;
@@ -287,43 +260,18 @@ public class DataContainer<T> implements ArrayDataContainerInterface1<T> {
 
 		// 別のコンテナを参照していない場合： このコンテナの情報を更新
 		if (this.referenceTreeRoot == null) {
-			this.offset = 0;
+			this.data = data;
+			this.offset = offset;
 			this.lengths = lengths;
 			this.size = productOfLengths;
 
 		// 別のコンテナを参照している場合： 参照ツリーのルートは必ず実データを持っているはずなので、その情報を更新
 		} else {
-			this.referenceTreeRoot.offset = 0;
+			// ※ ここで referenceTreeRoot.setData(...) を呼ぶと一階層でも再帰コールになってしまうので注意
+			this.referenceTreeRoot.data = data;
+			this.referenceTreeRoot.offset = offset;
 			this.referenceTreeRoot.lengths = lengths;
 			this.referenceTreeRoot.size = productOfLengths;
-		}
-	}
-
-
-	/**
-	 * このデータコンテナが格納するデータをスカラ値と見なしたい場合において、
-	 * そのスカラ値を中に含んでいる配列データと、
-	 * その中でスカラ値が保持されているオフセット値を指定します。
-	 * 同時に {@link DataContainer#size size} フィールドや {@link DataContainer#lengths lengths}
-	 * フィールドも、スカラ値用の値に設定されます。
-	 *
-	 * @param data 格納するデータ
-	 * @param offset オフセット値（データ内でスカラ値が存在する配列インデックス）
-	 */
-	public final void setData(T data, int offset) {
-		this.setData(data);
-
-		// 別のコンテナを参照していない場合： このコンテナの情報を更新
-		if (this.referenceTreeRoot == null) {
-			this.offset = offset;
-			this.lengths = LENGTHS_OF_SCALAR;
-			this.size = SIZE_OF_SCALAR;
-
-		// 別のコンテナを参照している場合： 参照ツリーのルートは必ず実データを持っているはずなので、その情報を更新
-		} else {
-			this.referenceTreeRoot.offset = offset;
-			this.referenceTreeRoot.lengths = LENGTHS_OF_SCALAR;
-			this.referenceTreeRoot.size = SIZE_OF_SCALAR;
 		}
 	}
 

@@ -48,7 +48,6 @@ public class OptionKey {
 	 * <span class="lang-ja">このオプションの値は "String" 型です.</span>
 	 */
 	public static final String MAIN_SCRIPT_NAME = "MAIN_SCRIPT_NAME";
-	//public static final String EVAL_SCRIPT_NAME = "EVAL_SCRIPT_NAME";
 
 
 	/**
@@ -58,7 +57,7 @@ public class OptionKey {
 	 * <span class="lang-en">The value of this option is "String" type.</span>
 	 * <span class="lang-ja">このオプションの値は "String" 型です.</span>
 	 */
-	public static final String MAIN_DIRECTORY_PATH = "MAIN_DIRECTORY_PATH";
+	public static final String MAIN_SCRIPT_DIRECTORY = "MAIN_SCRIPT_DIRECTORY";
 
 
 	/**
@@ -73,7 +72,7 @@ public class OptionKey {
 	 * <span class="lang-en">The value of this option is "Boolean" type. Specify "Boolean.TRUE" to enable this option.</span>
 	 * <span class="lang-ja">このオプションの値は "boolean" 型です. 有効にするには "Boolean.TRUE" を指定してください.</span>
 	 */
-	public static final String EVAL_NUMBER_AS_FLOAT = "EVAL_NUMBER_AS_FLOAT";
+	public static final String EVAL_INT_LITERAL_AS_FLOAT = "EVAL_INT_LITERAL_AS_FLOAT";
 
 
 	/**

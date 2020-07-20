@@ -50,6 +50,13 @@ package org.vcssl.connect;
 public interface ExternalNamespaceConnectorInterface1 {
 
 
+	/** 動的ロード時などに処理系側から参照される、インターフェースの形式名（値は"XNCI"）です。 */
+	public static final String INTERFACE_TYPE = "XNCI";
+
+	/** 動的ロード時などに処理系側から参照される、インターフェースの世代名（値は"1"）です。*/
+	public static final String INTERFACE_GENERATION = "1";
+
+
 	/**
 	 * 名前空間の名称を取得します。
 	 *
