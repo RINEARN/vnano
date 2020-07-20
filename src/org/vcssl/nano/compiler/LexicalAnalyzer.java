@@ -184,6 +184,7 @@ public class LexicalAnalyzer {
 		String singleCharSymbol = null;
 		String doubleCharSymbol = null;
 		String tripleCharSymbol = null;
+		boolean isReadingNumericLiteral = false;
 
 		while(pointer < length) {
 
@@ -204,6 +205,14 @@ public class LexicalAnalyzer {
 				tripleCharSymbol = null;
 			}
 
+			// 数値リテラルの指数部に登場する「 + 」や「 - 」については、1文字記号トークンの「 + 」や「 - 」としては扱わない
+			//（それをトークナイズすると数値リテラルが途中で切れるため）
+			if (0<pointer && isReadingNumericLiteral) {
+				if (Character.toString(chars[pointer-1]).matches(LITERAL_SYNTAX.floatLiteralExponentPrefixRegex)) {
+					singleCharSymbol = null;
+				}
+			}
+
 			// トークン区切り文字または記号トークンが出現した時点で、
 			// これまでワードトークンバッファに控えられている内容を確定させて生成/追加
 			if (Character.toString(chars[pointer]).matches(SCRIPT_WORD.tokenSeparatorRegex)
@@ -217,6 +226,7 @@ public class LexicalAnalyzer {
 					));
 					wordTokenBuilder = new StringBuilder();
 					wordTokenBuilder.delete(0, wordTokenBuilder.length());
+					isReadingNumericLiteral = false;
 				}
 			}
 
@@ -249,6 +259,11 @@ public class LexicalAnalyzer {
 
 			// それ以外はワードトークンの軸内容の文字なので、バッファに溜める
 			} else {
+				// ワードトークンの先頭文字を読む場合で、それが数字の場合、そのワードトークンは数値リテラルと見なす
+				//（数値リテラルは指数部に符号等を含む事が可能なので、その「 + 」や「 - 」を区切らないよう特別扱いが必要）
+				if (wordTokenBuilder.length() == 0 && Character.toString(chars[pointer]).matches("^[0-9]$")) {
+					isReadingNumericLiteral = true;
+				}
 				wordTokenBuilder.append(chars[pointer]);
 				pointer++;
 				continue;

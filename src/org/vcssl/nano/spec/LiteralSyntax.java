@@ -96,6 +96,14 @@ public class LiteralSyntax {
 
 
 	/**
+	 * <span class="lang-en">The regular expression of the prefix of an exponent part of "float" type literals</span>
+	 * <span class="lang-ja">float 型リテラルにおける指数部のプレフィックスの正規表現です</span>
+	 * .
+	 */
+	public String floatLiteralExponentPrefixRegex = "e|E";
+
+
+	/**
 	 * <span class="lang-en">The regular expression of "int" type literals</span>
 	 * <span class="lang-ja">int 型リテラルの正規表現です</span>
 	 * .

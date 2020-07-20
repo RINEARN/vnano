@@ -21,9 +21,22 @@ public class LiteralCombinedTest extends CombinedTestElement {
 	public void executeTest() {
 		try {
 			this.testIntLiterals();
+			this.testFloatLiterals();
 		} catch (VnanoException e) {
 			throw new CombinedTestException(e);
 		}
+	}
+
+
+	private void testFloatLiterals() throws VnanoException {
+		String scriptCode;
+		double resultD;
+
+		// 符号付き指数部のテスト
+		scriptCode = "1.23E-45;";
+		resultD = (double)this.engine.executeScript(scriptCode);
+		super.evaluateResult(resultD, 1.23E-45, "float literal (1.23E-45)", scriptCode);
+
 	}
 
 
