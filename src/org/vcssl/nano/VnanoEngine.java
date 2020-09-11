@@ -481,7 +481,7 @@ public class VnanoEngine {
 	 * Sets permissions, by a Map (permission map) storing names and values of permission items you want to set
 	 * </span>
 	 * <span class="lang-ja">
-	 * パーミッション項目の名前と値を格納するマップ（パーミッションマップ）によって, オプションを設定します
+	 * パーミッション項目の名前と値を格納するマップ（パーミッションマップ）によって, 各パーミッションの値を設定します
 	 * </span>
 	 * .
 	 * <span class="lang-en">
