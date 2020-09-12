@@ -15,6 +15,7 @@ org/vcssl/connect/GeneralProcessConnectorInterface2.java
 org/vcssl/connect/GeneralProcessConnectorInterface3.java
 org/vcssl/connect/MethodToXfci1Adapter.java
 org/vcssl/connect/package-info.java
+org/vcssl/connect/PermissionAuthorizerConnectorInterface1.java
 org/vcssl/nano/combinedtest/BlockStatementCombinedTest.java
 org/vcssl/nano/combinedtest/CombinedTestElement.java
 org/vcssl/nano/combinedtest/CombinedTestException.java
