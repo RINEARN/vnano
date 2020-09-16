@@ -21,6 +21,7 @@ import org.vcssl.connect.ExternalNamespaceConnectorInterface1;
 import org.vcssl.connect.ExternalVariableConnectorInterface1;
 import org.vcssl.connect.FieldToXvci1Adapter;
 import org.vcssl.connect.MethodToXfci1Adapter;
+import org.vcssl.connect.PermissionAuthorizerConnectorInterface1;
 import org.vcssl.nano.spec.ErrorType;
 import org.vcssl.nano.spec.IdentifierSyntax;
 import org.vcssl.nano.spec.LanguageSpecContainer;
@@ -30,6 +31,7 @@ import org.vcssl.nano.vm.VirtualMachineObjectCode;
 import org.vcssl.nano.vm.memory.DataContainer;
 import org.vcssl.nano.vm.memory.Memory;
 import org.vcssl.nano.VnanoException;
+import org.vcssl.nano.VnanoFatalException;
 
 /**
  * <p>
@@ -98,6 +100,9 @@ public class Interconnect {
 	/** プラグインからスクリプトエンジンにアクセスする際に使用するコネクタです。 */
 	private EngineConnector engineConnector = null;
 
+	/** プラグインのパーミッションを管理する、PACI1形式のセキュリティプラグイン（複数同時登録は不可）です。 */
+	private PermissionAuthorizerConnectorInterface1 permissionAuthorizer = null;
+
 
 	/** 初期化/終了時処理のため、接続されているXNCI形式のプラグインを一括で保持するリストです。 */
 	private List<ExternalNamespaceConnectorInterface1> xnci1PluginList = null;
@@ -141,23 +146,30 @@ public class Interconnect {
 	public Interconnect(LanguageSpecContainer langSpec) {
 		this.LANG_SPEC = langSpec;
 		this.IDENTIFIER_SYNTAX = LANG_SPEC.IDENTIFIER_SYNTAX;
+		this.engineConnector = new EngineConnector();
 		this.externalFunctionTable = new FunctionTable(LANG_SPEC);
 		this.externalVariableTable = new VariableTable(LANG_SPEC);
 		this.xnci1PluginList = new ArrayList<ExternalNamespaceConnectorInterface1>();
 		this.xfci1PluginList = new ArrayList<ExternalFunctionConnectorInterface1>();
 		this.xvci1PluginList = new ArrayList<ExternalVariableConnectorInterface1>();
 
-		// Create an option map and set default values.
-		// オプションマップを生成し, 必須項目をデフォルト値で補完
+		// Create an option map and set default values, and reflect to the engine connector.
+		// オプションマップを生成し, 必須項目をデフォルト値で補完した上で、エンジンコネクタに反映
 		this.optionMap = new LinkedHashMap<String, Object>();
 		this.optionMap = OptionValue.normalizeValuesOf(optionMap, langSpec);
+		this.engineConnector = this.engineConnector.createOptionMapUpdatedInstance(this.optionMap);
 
-		// Create an permission map and set default values(DENY).
-		// パーミッションマップを生成し, 内容項目をデフォルト値(DENY)で補完
+		// Create an permission map and set default values(DENY), and reflect to the engine connector.
+		// パーミッションマップを生成し, 内容項目をデフォルト値(DENY)で補完した上で、エンジンコネクタに反映
 		this.permissionMap = new LinkedHashMap<String, String>();
 		this.permissionMap.put(ConnectorPermissionName.ALL, ConnectorPermissionValue.DENY);
-
-		this.engineConnector = new EngineConnector(this.optionMap, this.permissionMap);
+		try {
+			this.engineConnector = this.engineConnector.createPermissionMapUpdatedInstance(this.permissionMap);
+		} catch (VnanoException vne) {
+			// この時点ではパーミッション認可プラグイン(permission authorizer)が未ロードなため、
+			// 上記はパーミッションマップの参照を控えるのみで、例外が発生するはずはないので、発生した場合は実装の異常
+			throw new VnanoFatalException("Unexpected exception occurred", vne);
+		}
 	}
 
 
@@ -171,11 +183,6 @@ public class Interconnect {
 	 * .
 	 */
 	public void activate() throws VnanoException {
-
-		// 実行時用パーミッションマップのデフォルト初期化処理などを実行
-		if (this.engineConnector != null) {
-			this.engineConnector.activate();
-		}
 
 		// 接続されている全プラグインの、スクリプト実行毎の初期化処理を実行
 		this.initializeAllPluginsForExecution();
@@ -195,11 +202,6 @@ public class Interconnect {
 
 		// 接続されている全プラグインの、スクリプト実行毎の終了時処理を実行
 		this.finalizeAllPluginsForTermination();
-
-		// 実行時用パーミッションマップのクリアなどを実行
-		if (this.engineConnector != null) {
-			this.engineConnector.deactivate();
-		}
 	}
 
 
@@ -241,9 +243,9 @@ public class Interconnect {
 		// オプション設定の内容を検査
 		OptionValue.checkContentsOf(this.optionMap);
 
-		// Reflect to the engine connector for accessing from plug-ins.
-		// プラグインからも参照可能なように, エンジンコネクタにも反映させる
-		this.engineConnector = new EngineConnector(this.optionMap, this.permissionMap);
+		// Reflect to the engine connector, because option values may be referred from plug-ins.
+		// オプションはプラグインからも参照されるので, エンジンコネクタにも反映させる
+		this.engineConnector = this.engineConnector.createOptionMapUpdatedInstance(this.optionMap);
 	}
 
 
@@ -304,13 +306,9 @@ public class Interconnect {
 	public void setPermissionMap(Map<String, String> permissionMap) throws VnanoException {
 		this.permissionMap = permissionMap;
 
-		// 後でここで permissionMap の内容検査を行う？ (org.vcssl.connect.ConnectorPermissionName/Value内などに実装？)
-		// ただし処理のタイミング的には permission authorizer に渡す時にまとめて行うのが自然かもしれない
-		// (使用の可否が permission authorizer の実装に依存する項目も出てくるかもしれないし)
-
-		// Reflect to the engine connector for accessing from plug-ins.
-		// プラグインからも参照可能なように, エンジンコネクタにも反映させる
-		this.engineConnector = new EngineConnector(this.optionMap, this.permissionMap);
+		// Reflect to the engine connector, because permission values may be referred from plug-ins.
+		// パーミッションはプラグインからも参照されるので, エンジンコネクタにも反映させる
+		this.engineConnector = this.engineConnector.createPermissionMapUpdatedInstance(permissionMap);
 	}
 
 
@@ -489,6 +487,9 @@ public class Interconnect {
 	 *   {@link org.vcssl.connect.ExternalVariableConnectorInterface1 XVCI1} /
 	 *   {@link org.vcssl.connect.ExternalNamespaceConnectorInterface1 XNCI1}
 	 *   type less-overhead plug-in interface can be connected.
+	 *   Also, this method is used for connecting
+	 *   {@link org.vcssl.connect.PermissionAuthorizerConnectorInterface1 PACI1}
+	 *   type plug-ins which is used for managing permissions (permission authorizer).
 	 *   </span>
 	 *   <span class="lang-ja">
 	 *   接続したいプラグイン.
@@ -505,6 +506,9 @@ public class Interconnect {
 	 *   {@link org.vcssl.connect.ExternalVariableConnectorInterface1 XVCI1} /
 	 *   {@link org.vcssl.connect.ExternalNamespaceConnectorInterface1 XNCI1}
 	 *   形式の, 低オーバーヘッドなプラグインインターフェースを実装したクラスのインスタンスも接続できます.
+	 *   また、パーミッションの管理を行う,
+	 *   {@link org.vcssl.connect.PermissionAuthorizerConnectorInterface1 PACI1}
+	 *   形式のプラグイン（パーミッション許可プラグイン, permission authorizer）の接続にも、このメソッドを用います.
 	 *   </span>
 	 *
 	 * @throws VnanoException
@@ -526,8 +530,12 @@ public class Interconnect {
 				bindingKey = this.generateBindingKeyOf(plugin);     // これ、ここでシグネチャ求める前にプラグインを init する必要がる？
 			}
 
+			// PACI 1 形式のセキュリティプラグイン
+			if (plugin instanceof PermissionAuthorizerConnectorInterface1) {
+				this.connectPaci1Plugin( (PermissionAuthorizerConnectorInterface1)plugin ); //このプラグインは役割的にバインディング情報は不要
+
 			// XVCI 1 形式の外部変数プラグイン
-			if (plugin instanceof ExternalVariableConnectorInterface1) {
+			} else if (plugin instanceof ExternalVariableConnectorInterface1) {
 				this.connectXvci1Plugin( (ExternalVariableConnectorInterface1)plugin, true, bindingKey, false, null );
 
 			// XFCI 1 形式の外部関数プラグイン
@@ -619,6 +627,7 @@ public class Interconnect {
 		this.xnci1PluginList = new ArrayList<ExternalNamespaceConnectorInterface1>();
 		this.xfci1PluginList = new ArrayList<ExternalFunctionConnectorInterface1>();
 		this.xvci1PluginList = new ArrayList<ExternalVariableConnectorInterface1>();
+		this.permissionAuthorizer = null;
 	}
 
 
@@ -895,6 +904,57 @@ public class Interconnect {
 
 	/**
 	 * <span class="lang-ja">
+	 * パーミッションの認可機能を提供する, {@link org.vcssl.connect.PermissionAuthorizerConnectorInterface1 PACI1}
+	 * 形式のプラグインを接続します
+	 * </span>
+	 * <span class="lang-en">
+	 * Connects the plug-in of {@link org.vcssl.connect.PermissionAuthorizerConnectorInterface1 PACI1} format,
+	 * for authorization of permissions
+	 * </span>
+	 * .
+	 * @param plugin
+	 *   <span class="lang-en">The plug-in to be connected.</span>
+	 *   <span class="lang-ja">接続するプラグイン.</span>
+	 *
+	 * @throws VnanoException
+	 *   <span class="lang-en">
+	 *   Thrown if the plug-in could not be connected, caused by initialization errors and so on.
+	 *   </span>
+	 *   <span class="lang-ja">
+	 *   初期化処理の異常などにより, プラグインの接続に失敗した場合にスローされます.
+	 *   </span>
+	 */
+	private void connectPaci1Plugin(PermissionAuthorizerConnectorInterface1 plugin) throws VnanoException {
+
+		// パーミッション許可プラグインは1個しか同時接続できないため、既に接続されている場合はエラー
+		if (this.permissionAuthorizer != null) {
+			throw new VnanoException(
+				ErrorType.MULTIPLE_PERMISSION_AUTHORIZERS_ARE_CONNECTED,
+				new String[]{ plugin.getClass().getCanonicalName(), this.permissionAuthorizer.getClass().getCanonicalName() }
+			);
+		}
+
+		// 接続時の初期化処理に成功すれば接続する
+		try {
+			plugin.initializeForConnection(this.engineConnector);
+		} catch (ConnectorException e) {
+			throw new VnanoException(
+				ErrorType.PLUGIN_INITIALIZATION_FAILED, plugin.getClass().getCanonicalName(), e
+			);
+		}
+		this.permissionAuthorizer = (PermissionAuthorizerConnectorInterface1) plugin;
+
+		// Reflect to the engine connector, because permissions may be requested from other plug-ins.
+		// パーミッションは他のプラグインからも要求されるので, エンジンコネクタにも反映させる
+		// (パーミッション認可プラグインの参照を差し替えたインスタンスを生成)
+		this.engineConnector = this.engineConnector.createPermissionAuthorizerUpdatedInstance(
+			this.permissionAuthorizer
+		);
+	}
+
+
+	/**
+	 * <span class="lang-ja">
 	 * 外部変数を提供する, {@link org.vcssl.connect.ExternalVariableConnectorInterface1 XVCI1}
 	 * 形式のプラグインを接続します
 	 * </span>
@@ -1132,7 +1192,7 @@ public class Interconnect {
 	private void finalizeAllPluginsForDisconnection() throws VnanoException {
 		Object finalizingPlugin = null; // 例外発生時のため、終了時処理中のプラグインを控えておく
 		try {
-			// モジュールの preFinalize -> 関数/変数の init -> モジュールの postFinalize の順で初期化
+			// 関数/変数系は、モジュールの preFinalize -> 関数/変数の init -> モジュールの postFinalize の順で破棄
 			for (ExternalNamespaceConnectorInterface1 plugin: xnci1PluginList) {
 				finalizingPlugin = plugin;
 				plugin.preFinalizeForDisconnection(this.engineConnector);
@@ -1149,6 +1209,13 @@ public class Interconnect {
 				finalizingPlugin = plugin;
 				plugin.postFinalizeForDisconnection(this.engineConnector);
 			}
+
+			// セキュリティ系プラグインは最後に破棄
+			//（EngineConnector経由で、他プラグインの接続解除処理内で呼ばれる可能性があるため）
+			if (this.permissionAuthorizer != null) {
+				this.permissionAuthorizer.finalizeForDisconnection(this.engineConnector);
+			}
+
 		} catch (ConnectorException e) {
 			throw new VnanoException(
 				ErrorType.PLUGIN_FINALIZATION_FAILED, finalizingPlugin.getClass().getCanonicalName(), e
@@ -1160,7 +1227,13 @@ public class Interconnect {
 	private void initializeAllPluginsForExecution() throws VnanoException {
 		Object initializingPlugin = null; // 例外発生時のため、初期化中のプラグインを控えておく
 		try {
-			// モジュールの preInit -> 関数/変数の init -> モジュールの postInit の順で初期化
+			// セキュリティ系プラグインは最初に初期化
+			//（EngineConnector経由で、他プラグインの初期化処理内で呼ばれる可能性があるため）
+			if (this.permissionAuthorizer != null) {
+				this.permissionAuthorizer.initializeForExecution(this.engineConnector);
+			}
+
+			// 関数/変数系は、モジュールの preInit -> 関数/変数の init -> モジュールの postInit の順で初期化
 			for (ExternalNamespaceConnectorInterface1 plugin: xnci1PluginList) {
 				initializingPlugin = plugin;
 				plugin.preInitializeForExecution(this.engineConnector);
@@ -1188,7 +1261,7 @@ public class Interconnect {
 	private void finalizeAllPluginsForTermination() throws VnanoException {
 		Object finalizingPlugin = null; // 例外発生時のため、終了時処理中のプラグインを控えておく
 		try {
-			// モジュールの preInit -> 関数/変数の init -> モジュールの postInit の順で初期化
+			// 関数/変数系は、モジュールの preFinalize -> 関数/変数の init -> モジュールの postFinalize の順で破棄
 			for (ExternalNamespaceConnectorInterface1 plugin: xnci1PluginList) {
 				finalizingPlugin = plugin;
 				plugin.preFinalizeForTermination(this.engineConnector);
@@ -1205,6 +1278,13 @@ public class Interconnect {
 				finalizingPlugin = plugin;
 				plugin.postFinalizeForTermination(this.engineConnector);
 			}
+
+			// セキュリティ系プラグインは最後に破棄
+			//（EngineConnector経由で、他プラグインの終了時処理内で呼ばれる可能性があるため）
+			if (this.permissionAuthorizer != null) {
+				this.permissionAuthorizer.finalizeForTermination(this.engineConnector);
+			}
+
 		} catch (ConnectorException e) {
 			throw new VnanoException(
 				ErrorType.PLUGIN_FINALIZATION_FAILED, finalizingPlugin.getClass().getCanonicalName(), e

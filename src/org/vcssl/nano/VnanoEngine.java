@@ -278,6 +278,9 @@ public class VnanoEngine {
 	 *   {@link org.vcssl.connect.ExternalVariableConnectorInterface1 XVCI1} /
 	 *   {@link org.vcssl.connect.ExternalNamespaceConnectorInterface1 XNCI1}
 	 *   形式の, 低オーバーヘッドなプラグインインターフェースを実装したクラスのインスタンスも接続できます.
+	 *   また、パーミッションの管理を行う,
+	 *   {@link org.vcssl.connect.PermissionAuthorizerConnectorInterface1 PACI1}
+	 *   形式のプラグインの接続にも、このメソッドを用います.
 	 *   </span>
 	 *
 	 * @throws VnanoException

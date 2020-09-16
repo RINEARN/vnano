@@ -5,18 +5,13 @@
 
 package org.vcssl.nano.interconnect;
 
-import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
-import javax.swing.JOptionPane;
-
 import org.vcssl.connect.ConnectorException;
-import org.vcssl.connect.ConnectorPermissionName;
-import org.vcssl.connect.ConnectorPermissionValue;
 import org.vcssl.connect.EngineConnectorInterface1;
-import org.vcssl.nano.spec.ConfirmationMessage;
-import org.vcssl.nano.spec.ConfirmationType;
+import org.vcssl.connect.PermissionAuthorizerConnectorInterface1;
+import org.vcssl.nano.VnanoException;
 import org.vcssl.nano.spec.ErrorMessage;
 import org.vcssl.nano.spec.ErrorType;
 import org.vcssl.nano.spec.OptionKey;
@@ -48,24 +43,75 @@ import org.vcssl.nano.spec.OptionKey;
  */
 public final class EngineConnector implements EngineConnectorInterface1 {
 
+	// プラグイン側からフィールドを差し替えられると、想定外の問題の原因になったりデバッグの難しい挙動を招き得るので、
+	// フィールドの setter は設けず、差し替えたい場合は create～Instance 系メソッドに渡して別インスタンスを再生成する方針
+	// (リフレクション経由での変更可能性については、必要に応じてホストアプリケーション側で実行環境設定等で対応)
+
 	private final Map<String, Object> optionMap;
-	private final Map<String, String> originalPermissionMap;
-	private Map<String, String> modifiedPermissionMap = null;
+	private final Map<String, String> permissionMap;
+	private final PermissionAuthorizerConnectorInterface1 permissionAuthorizer;
 
-	public EngineConnector(Map<String, Object> optionMap, Map<String, String> permissionMap) {
+
+	public EngineConnector() {
+		this.optionMap = null;
+		this.permissionMap = null;
+		this.permissionAuthorizer = null;
+	}
+
+	// このコンストラクタは参照を控えるのみで、
+	// それらの間の関連性の更新などは行わない（例外を投げる場合があるため）ので、
+	// 別途 reflectPermissionSettings() 等を呼ぶ必要がある。
+	// create～Instance 系メソッドはそのような必要な処理も済ませたインスタンスを返す。
+	private EngineConnector(
+			Map<String, Object> optionMap, Map<String, String> permissionMap,
+			PermissionAuthorizerConnectorInterface1 permissionAuthorizer) {
+
 		this.optionMap = optionMap;
-		this.originalPermissionMap = permissionMap;
+		this.permissionMap = permissionMap;
+		this.permissionAuthorizer = permissionAuthorizer;
 	}
 
-	public void activate() {
-		// 実行時用パーミッションマップを、実行時前のパーミッション内容で初期化
-		this.modifiedPermissionMap = new HashMap<String, String>(this.originalPermissionMap);
+	// permissionMap の設定内容を permissionAuthorizer に反映させる
+	// (例外を投げる可能性があるので、コンストラクタから別メソッドに切り分けている / コンストラクタの説明参照)
+	private final void reflectPermissionSettings() throws VnanoException {
+		if (this.permissionAuthorizer != null) {
+			try {
+				this.permissionAuthorizer.setPermissionMap(permissionMap);
+			} catch (ConnectorException e) {
+				throw new VnanoException(
+					ErrorType.PERMISSION_AUTHORIZER_PLUGIN_CRASHED,
+					new String[] { this.permissionAuthorizer.getClass().getCanonicalName(), e.getMessage() }, e
+				);
+			}
+		}
 	}
 
-	public void deactivate() {
-		// 実行時用パーミッションマップを、実行時前のパーミッション内容で初期化
-		this.modifiedPermissionMap = new HashMap<String, String>(this.originalPermissionMap);
+
+	// オプションマップを差し替えたインスタンスを生成して返す
+	public final EngineConnector createOptionMapUpdatedInstance(Map<String, Object> updatedOptionMap) {
+		return new EngineConnector(updatedOptionMap, this.permissionMap, this.permissionAuthorizer);
 	}
+
+
+	// パーミッションマップを差し替えたインスタンスを生成して返す
+	public final EngineConnector createPermissionMapUpdatedInstance(Map<String, String> updatedPermissionMap)
+			throws VnanoException {
+
+		EngineConnector updatedEngineConnector = new EngineConnector(this.optionMap, updatedPermissionMap, this.permissionAuthorizer);
+		updatedEngineConnector.reflectPermissionSettings();
+		return updatedEngineConnector;
+	}
+
+
+	// パーミッション認可プラグイン(permission authorizer)を差し替えたインスタンスを生成して返す
+	public final EngineConnector createPermissionAuthorizerUpdatedInstance(PermissionAuthorizerConnectorInterface1 updatedPermissionAuthorizer)
+			throws VnanoException {
+
+		EngineConnector updatedEngineConnector = new EngineConnector(this.optionMap, this.permissionMap, updatedPermissionAuthorizer);
+		updatedEngineConnector.reflectPermissionSettings();
+		return updatedEngineConnector;
+	}
+
 
 
 	/**
@@ -86,7 +132,7 @@ public final class EngineConnector implements EngineConnectorInterface1 {
 	 *   <span class="lang-ja">判定結果（保持していれば true）.</span>
 	 */
 	@Override
-	public boolean hasOptionValue(String optionKey) {
+	public final boolean hasOptionValue(String optionKey) {
 		return this.optionMap.containsKey(optionKey);
 	}
 
@@ -109,7 +155,7 @@ public final class EngineConnector implements EngineConnectorInterface1 {
 	 *   <span class="lang-ja">オプションの値.</span>
 	 */
 	@Override
-	public Object getOptionValue(String optionName) {
+	public final Object getOptionValue(String optionName) {
 		return this.optionMap.get(optionName);
 	}
 
@@ -123,88 +169,19 @@ public final class EngineConnector implements EngineConnectorInterface1 {
 	 * @throws 要求したパーミッションが却下された場合にスローされます。
 	 */
 	@Override
-	public void requestPermission(String permissionName, Object requester, Object metaInformation)
+	public final void requestPermission(String permissionName, Object requester, Object metaInformation)
 			throws ConnectorException {
 
-		// メッセージのロケール設定を取得
-		Locale locale = this.optionMap.containsKey(OptionKey.LOCALE)
-				? (Locale)this.optionMap.get(OptionKey.LOCALE) : Locale.getDefault();
+		// 接続されているパーミッション許可プラグインに要求を投げる
+		if (this.permissionAuthorizer != null) {
 
-		// 以下、指定されたパーミッション名に対応した、パーミッション設定値を取得
+			// (許可されれば何も起こらず、拒否されれば ConnectorException が発生する)
+			this.permissionAuthorizer.requestPermission(permissionName, requester, metaInformation);
 
-		String permissionValue = null;
-
-		// 指定されたパーミッション名がマップに登録されている場合は、その設定値を用いる
-		if (this.modifiedPermissionMap.containsKey(permissionName)) {
-			permissionValue = this.modifiedPermissionMap.get(permissionName);
-
-		// 上記以外で、メタパーミッション名 "ALL" がマップに登録されている場合は、その設定値を用いる
-		// （分岐順序に注意: 上の分岐のように、指定パーミッション名が明示的に登録されている場合は、そちらを優先すべき）
-		} else if (this.modifiedPermissionMap.containsKey(ConnectorPermissionName.ALL)) {
-			permissionValue = this.modifiedPermissionMap.get(ConnectorPermissionName.ALL);
-
-		// 指定パーミッション名も "ALL" もどちらも登録されていない場合はエラー
+		// パーミッション許可プラグインが接続されていない場合はエラー
 		} else {
 			String errorMessage = ErrorMessage.generateErrorMessage(
-				ErrorType.UNSUPPORTED_PERMISSION_NAME, new String[] { permissionName }, locale
-			);
-			throw new ConnectorException(errorMessage);
-		}
-
-
-		// 以下、パーミッション設定値に応じて許可するか拒否するかを判断する
-
-		// "ALLOW" の場合は常に許可
-		if (permissionValue.equals(ConnectorPermissionValue.ALLOW)) {
-			return;
-
-		// "DENY" の場合は常に拒否
-		} else if (permissionValue.equals(ConnectorPermissionValue.DENY)) {
-			String errorMessage = ErrorMessage.generateErrorMessage(
-				ErrorType.PERMISSION_DENIED, new String[] { permissionName }, locale
-			);
-			throw new ConnectorException(errorMessage);
-
-		// "ASK" の場合はユーザーに尋ねる
-		} else if (permissionValue.equals(ConnectorPermissionValue.ASK)) {
-
-			// 尋ねるメッセージを用意
-			String requesterName = requester.getClass().getCanonicalName();
-			String[] confirmMessageWords = metaInformation instanceof String
-					? new String[] { permissionName, requesterName, (String)metaInformation }
-					: new String[] { permissionName, requesterName };
-
-			String confirmMessage = ConfirmationMessage.generateConfirmationMessage(
-				ConfirmationType.PERMISSION_REQUESTED, confirmMessageWords, locale
-			);
-
-			// ユーザーに尋ねて結果を取得
-			int userDecision = JOptionPane.showConfirmDialog(null, confirmMessage, "!", JOptionPane.YES_NO_OPTION);
-
-			// 許可された場合は、同種の処理をスクリプト完了までの間自動的に許可したいか聞いて控えた上で return する
-			if (userDecision == JOptionPane.YES_OPTION) {
-				confirmMessage = ConfirmationMessage.generateConfirmationMessage(
-					ConfirmationType.ALLOW_SAME_PERMISSION_AUTOMATICALLY, new String[] { permissionName }, locale
-				);
-				userDecision = JOptionPane.showConfirmDialog(null, confirmMessage, "!", JOptionPane.YES_NO_OPTION);
-				if (userDecision == JOptionPane.YES_OPTION) {
-					// 自動許可がOKされた場合は、実行時用パーミッションマップの値を ALLOW に変更（実行毎にリセットされる）
-					this.modifiedPermissionMap.put(permissionName, ConnectorPermissionValue.ALLOW);
-				}
-				return;
-
-			// 拒否された場合はエラー
-			} else {
-				String errorMessage = ErrorMessage.generateErrorMessage(
-					ErrorType.PERMISSION_DENIED, new String[] { permissionName }, locale
-				);
-				throw new ConnectorException(errorMessage);
-			}
-
-		// それ以外はこの処理系ではサポートしていないハンドリング
-		} else {
-			String errorMessage = ErrorMessage.generateErrorMessage(
-				ErrorType.UNSUPPORTED_PERMISSION_VALUE, new String[] { permissionName, permissionValue }, locale
+				ErrorType.NO_PERMISSION_AUTHORIZER_IS_CONNECTED, (Locale)this.optionMap.get(OptionKey.LOCALE)
 			);
 			throw new ConnectorException(errorMessage);
 		}
