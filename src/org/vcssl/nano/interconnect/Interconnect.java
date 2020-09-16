@@ -8,10 +8,14 @@ package org.vcssl.nano.interconnect;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.vcssl.connect.ClassToXnci1Adapter;
 import org.vcssl.connect.ConnectorException;
+import org.vcssl.connect.ConnectorPermissionName;
+import org.vcssl.connect.ConnectorPermissionValue;
 import org.vcssl.connect.ExternalFunctionConnectorInterface1;
 import org.vcssl.connect.ExternalNamespaceConnectorInterface1;
 import org.vcssl.connect.ExternalVariableConnectorInterface1;
@@ -20,6 +24,7 @@ import org.vcssl.connect.MethodToXfci1Adapter;
 import org.vcssl.nano.spec.ErrorType;
 import org.vcssl.nano.spec.IdentifierSyntax;
 import org.vcssl.nano.spec.LanguageSpecContainer;
+import org.vcssl.nano.spec.OptionValue;
 import org.vcssl.nano.spec.SpecialBindingKey;
 import org.vcssl.nano.vm.VirtualMachineObjectCode;
 import org.vcssl.nano.vm.memory.DataContainer;
@@ -105,6 +110,22 @@ public class Interconnect {
 
 
 	/**
+	 * <span class="lang-en">A map to store all names and values of option items</span>
+	 * <span class="lang-ja">全てのオプション項目の名称と値を保持するマップです</span>
+	 * .
+	 */
+	private Map<String, Object> optionMap = null;
+
+
+	/**
+	 * <span class="lang-en">A map to store all names and values of permission items</span>
+	 * <span class="lang-ja">全てのパーミッション項目の名称と値を保持するマップです</span>
+	 * .
+	 */
+	private Map<String, String> permissionMap = null;
+
+
+	/**
 	 * <span class="lang-en">
 	 * Creates a blank interconnect to which nothing are connected,
 	 * with the specified language specification settings
@@ -125,6 +146,18 @@ public class Interconnect {
 		this.xnci1PluginList = new ArrayList<ExternalNamespaceConnectorInterface1>();
 		this.xfci1PluginList = new ArrayList<ExternalFunctionConnectorInterface1>();
 		this.xvci1PluginList = new ArrayList<ExternalVariableConnectorInterface1>();
+
+		// Create an option map and set default values.
+		// オプションマップを生成し, 必須項目をデフォルト値で補完
+		this.optionMap = new LinkedHashMap<String, Object>();
+		this.optionMap = OptionValue.normalizeValuesOf(optionMap, langSpec);
+
+		// Create an permission map and set default values(DENY).
+		// パーミッションマップを生成し, 内容項目をデフォルト値(DENY)で補完
+		this.permissionMap = new LinkedHashMap<String, String>();
+		this.permissionMap.put(ConnectorPermissionName.ALL, ConnectorPermissionValue.DENY);
+
+		this.engineConnector = new EngineConnector(this.optionMap, this.permissionMap);
 	}
 
 
@@ -172,18 +205,138 @@ public class Interconnect {
 
 	/**
 	 * <span class="lang-en">
-	 * Sets the connector to access the engine from plug-ins (engine connector)
+	 * Sets options, by a Map (option map) storing names and values of options you want to set
 	 * </span>
 	 * <span class="lang-ja">
-	 * プラグインからスクリプトエンジンにアクセスするための, エンジンコネクタを指定します
+	 * オプションの名前と値を格納するマップ（オプションマップ）によって, オプションを設定します
 	 * </span>
 	 * .
-	 * @param engineConnector
-	 *   <span class="lang-en">The engine connector to be passed to plug-ins</span>
-	 *   <span class="lang-ja">プラグインに渡すエンジンコネクタ</span>
+	 * <span class="lang-en">
+	 * Type of the option map is Map<String,Object>, and its keys represents option names.
+	 * For details of option names and values,
+	 * see {@link org.vcssl.nano.spec.OptionKey} and {@link org.vcssl.nano.spec.OptionValue}.
+	 * </span>
+	 *
+	 * <span class="lang-ja">
+	 * オプションマップは Map<String,Object> 型で, そのキーはオプション名に対応します.
+	 * オプション名と値の詳細については,
+	 * {@link org.vcssl.nano.spec.OptionKey} と {@link org.vcssl.nano.spec.OptioValue} の説明をご参照ください.
+	 * </span>
+	 *
+	 * @param optionMap
+	 *   <span class="lang-en">A Map (option map) storing names and values of options</span>
+	 *   <span class="lang-ja">オプションの名前と値を格納するマップ（オプションマップ）</span>
+	 *
+	 * @throws VnanoException
+	 *   <span class="lang-en">Thrown if invalid option settings is detected.</span>
+	 *   <span class="lang-ja">オプションの指定内容が正しくなかった場合にスローされます.</span>
 	 */
-	public void setEngineConnector(EngineConnector engineConnector) {
-		this.engineConnector = engineConnector;
+	public void setOptionMap(Map<String, Object> optionMap) throws VnanoException {
+
+		// Supplement some option items by default values, and store the map to the field of this class.
+		// 必須項目をデフォルト値で補完した上で、このクラスのフィールドに設定
+		this.optionMap = OptionValue.normalizeValuesOf(optionMap, LANG_SPEC);
+
+		// Check the content of option settings.
+		// オプション設定の内容を検査
+		OptionValue.checkContentsOf(this.optionMap);
+
+		// Reflect to the engine connector for accessing from plug-ins.
+		// プラグインからも参照可能なように, エンジンコネクタにも反映させる
+		this.engineConnector = new EngineConnector(this.optionMap, this.permissionMap);
+	}
+
+
+	/**
+	 * <span class="lang-en">Gets the Map (option map) storing names and values of options</span>
+	 * <span class="lang-ja">オプションの名前と値を格納するマップ（オプションマップ）を取得します</span>
+	 * .
+	 * <span class="lang-en">
+	 * Type of the option map is Map<String,Object>, and its keys represents option names.
+	 * For details of option names and values,
+	 * see {@link org.vcssl.nano.spec.OptionKey} and {@link org.vcssl.nano.spec.OptionValue}.
+	 * </span>
+	 *
+	 * <span class="lang-ja">
+	 * オプションマップは Map<String,Object> 型で, そのキーはオプション名に対応します.
+	 * オプション名と値の詳細については,
+	 * {@link org.vcssl.nano.spec.OptionKey} と {@link org.vcssl.nano.spec.OptioValue} の説明をご参照ください.
+	 * </span>
+	 *
+	 * @return
+	 *   <span class="lang-en">A Map (option map) storing names and values of options</span>
+	 *   <span class="lang-ja">オプションの名前と値を格納するマップ（オプションマップ）</span>
+	 */
+	public Map<String, Object> getOptionMap() {
+		return this.optionMap;
+	}
+
+
+	/**
+	 * <span class="lang-en">
+	 * Sets permissions, by a Map (permission map) storing names and values of permission items you want to set
+	 * </span>
+	 * <span class="lang-ja">
+	 * パーミッション項目の名前と値を格納するマップ（パーミッションマップ）によって, 各パーミッションの値を設定します
+	 * </span>
+	 * .
+	 * <span class="lang-en">
+	 * Type of the permission map is Map<String,String>, and its keys represents names of permission items.
+	 * For details of names and values of permission items,
+	 * see {@link org.vcssl.connect.ConnectorPermissionName} and {@link org.vcssl.connect.ConnectorPermissionValue}.
+	 * </span>
+	 *
+	 * <span class="lang-ja">
+	 * パーミッションマップは Map<String,String> 型で, そのキーはパーミッション項目の名称に対応します.
+	 * パーミッション項目の名称と値の詳細については,
+	 * {@link org.vcssl.connect.ConnectorPermissionName} と {@link org.vcssl.connect.ConnectorPermissionValue}
+	 * の説明をご参照ください.
+	 * </span>
+	 *
+	 * @param permissionMap
+	 *   <span class="lang-en">A Map (permission map) storing names and values of permission items</span>
+	 *   <span class="lang-ja">パーミッション項目の名前と値を格納するマップ（パーミッションマップ）</span>
+	 *
+	 * @throws VnanoException
+	 *   <span class="lang-en">Thrown if invalid permission settings is detected.</span>
+	 *   <span class="lang-ja">パーミッションの指定内容が正しくなかった場合にスローされます.</span>
+	 */
+	public void setPermissionMap(Map<String, String> permissionMap) throws VnanoException {
+		this.permissionMap = permissionMap;
+
+		// 後でここで permissionMap の内容検査を行う？ (org.vcssl.connect.ConnectorPermissionName/Value内などに実装？)
+		// ただし処理のタイミング的には permission authorizer に渡す時にまとめて行うのが自然かもしれない
+		// (使用の可否が permission authorizer の実装に依存する項目も出てくるかもしれないし)
+
+		// Reflect to the engine connector for accessing from plug-ins.
+		// プラグインからも参照可能なように, エンジンコネクタにも反映させる
+		this.engineConnector = new EngineConnector(this.optionMap, this.permissionMap);
+	}
+
+
+	/**
+	 * <span class="lang-en">Gets the Map (permission map) storing names and values of permission items</span>
+	 * <span class="lang-ja">パーミッション項目の名前と値を格納するマップ（パーミッションマップ）を取得します</span>
+	 * .
+	 * <span class="lang-en">
+	 * Type of the permission map is Map<String,String>, and its keys represents names of permission items.
+	 * For details of names and values of permission items,
+	 * see {@link org.vcssl.connect.ConnectorPermissionName} and {@link org.vcssl.connect.ConnectorPermissionValue}.
+	 * </span>
+	 *
+	 * <span class="lang-ja">
+	 * パーミッションマップは Map<String,String> 型で, そのキーはパーミッション項目の名称に対応します.
+	 * パーミッション項目の名称と値の詳細については,
+	 * {@link org.vcssl.connect.ConnectorPermissionName} と {@link org.vcssl.connect.ConnectorPermissionValue}
+	 * の説明をご参照ください.
+	 * </span>
+	 *
+	 * @return
+	 *   <span class="lang-en">A Map (permission map) storing names and values of permission items</span>
+	 *   <span class="lang-ja">パーミッション項目の名前と値を格納するマップ（パーミッションマップ）</span>
+	 */
+	public Map<String, String> getPermissionMap() {
+		return this.permissionMap;
 	}
 
 
