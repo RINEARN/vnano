@@ -159,10 +159,10 @@ public class Interconnect {
 		this.optionMap = OptionValue.normalizeValuesOf(optionMap, langSpec);
 		this.engineConnector = this.engineConnector.createOptionMapUpdatedInstance(this.optionMap);
 
-		// Create an permission map and set default values(DENY), and reflect to the engine connector.
-		// パーミッションマップを生成し, 内容項目をデフォルト値(DENY)で補完した上で、エンジンコネクタに反映
+		// Create an empty permission map and set "DENY" to the default value, and reflect to the engine connector.
+		// パーミッションマップを生成し, デフォルト値を「DENY」に設定した上で、エンジンコネクタに反映
 		this.permissionMap = new LinkedHashMap<String, String>();
-		this.permissionMap.put(ConnectorPermissionName.ALL, ConnectorPermissionValue.DENY);
+		this.permissionMap.put(ConnectorPermissionName.DEFAULT, ConnectorPermissionValue.DENY);
 		try {
 			this.engineConnector = this.engineConnector.createPermissionMapUpdatedInstance(this.permissionMap);
 		} catch (VnanoException vne) {
