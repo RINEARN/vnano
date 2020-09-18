@@ -4,7 +4,7 @@
  * ( for VCSSL / Vnano Plug-in Development )
  * --------------------------------------------------
  * This file is released under CC0.
- * Written in 2017-2019 by RINEARN (Fumihiro Matsui)
+ * Written in 2017-2020 by RINEARN (Fumihiro Matsui)
  * ==================================================
  */
 
