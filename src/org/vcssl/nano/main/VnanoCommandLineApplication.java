@@ -880,7 +880,7 @@ public final class VnanoCommandLineApplication {
 
 		// プロセス仮想マシンを生成し、VRILコードを渡して実行
 		VirtualMachine vm = new VirtualMachine(LANG_SPEC);
-		vm.executeAssemblyCode(scriptLoader.getMainScriptContent(), interconnect, this.engineOptionMap);
+		vm.executeAssemblyCode(scriptLoader.getMainScriptContent(), interconnect);
 
 		// プラグインのスクリプト実行後の終了時処理などを実行
 		interconnect.deactivate();

@@ -132,7 +132,7 @@ public class VnanoEngine {
 			this.interconnect.activate();
 
 			// Contain an execution-target script and library scripts into an array.
-			// 実行対象スクリプトと, ライブスクリプト（複数）を1つの配列にまとめる
+			// 実行対象スクリプトと, ライブラリスクリプト（複数）を1つの配列にまとめる
 			int libN = this.libraryNameContentMap.size();
 			String[] scripts = new String[libN  + 1];
 			String[] names   = new String[libN + 1];
@@ -152,12 +152,12 @@ public class VnanoEngine {
 			// Translate scripts to a VRIL code (intermediate assembly code) by a compiler.
 			// コンパイラでスクリプトコードからVRILコード（中間アセンブリコード）に変換
 			Compiler compiler = new Compiler(LANG_SPEC);
-			String assemblyCode = compiler.compile(scripts, names, this.interconnect, this.interconnect.getOptionMap());
+			String assemblyCode = compiler.compile(scripts, names, this.interconnect);
 
 			// Execute the VRIL code on the VM.
 			// VMでVRILコードを実行
 			VirtualMachine vm = new VirtualMachine(LANG_SPEC);
-			Object evalValue = vm.executeAssemblyCode(assemblyCode, this.interconnect, this.interconnect.getOptionMap());
+			Object evalValue = vm.executeAssemblyCode(assemblyCode, this.interconnect);
 
 			// 全プラグインの終了時処理などを行い、インターコネクトを待機状態に移行
 			this.interconnect.deactivate();
