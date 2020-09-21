@@ -114,15 +114,11 @@ public class SemanticAnalyzer {
 	 *   <span class="lang-en">The semantic-analyzed/information-supplemented AST.</span>
 	 *   <span class="lang-ja">意味解析/情報補間済みのAST.</span>
 	 *
-	 * @param optionMap
-	 *   <span class="lang-en">The Map (option map) storing names and values of options.</span>
-	 *   <span class="lang-ja">オプションの名前と値を格納するマップ（オプションマップ）.</span>
-	 *
 	 * @throws VnanoException
 	 *   <span class="lang-en">Thrown when any semantic error has detected.</span>
 	 *   <span class="lang-ja">セマンティクスにエラーが検出された場合にスローされます.</span>
 	 */
-	public AstNode analyze(AstNode inputAst, Interconnect interconnect, Map<String, Object> optionMap)
+	public AstNode analyze(AstNode inputAst, Interconnect interconnect)
 			throws VnanoException {
 
 		// ASTを入力ASTをクローンして出力ASTを生成
@@ -133,6 +129,9 @@ public class SemanticAnalyzer {
 		if (!inputAst.hasChildNodes()) {
 			return outputAst;
 		}
+
+		// オプションの名前と値を格納するマップ（オプションマップ）を取得
+		Map<String, Object> optionMap = interconnect.getOptionMap();
 
 		// インターコネクトから外部変数・外部関数のテーブルを取得
 		VariableTable globalVariableTable = interconnect.getExternalVariableTable();

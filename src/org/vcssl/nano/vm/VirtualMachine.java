@@ -95,14 +95,9 @@ public class VirtualMachine {
 	 *   <span class="lang-en">Virtual assembly code written in VRIL (VRIL code) to be executed.</span>
 	 *   <span class="lang-ja">実行対象の, VRILで記述された仮想アセンブリコード（VRILコード）.</span>
 	 *
-
 	 * @param interconnect
 	 *   <span class="lang-en">The interconnect to which external functions/variables are connected.</span>
 	 *   <span class="lang-ja">外部変数/関数が接続されているインターコネクト.</span>
-	 *
-	 * @param optionMap
-	 *   <span class="lang-en">The Map (option map) storing names and values of options.</span>
-	 *   <span class="lang-ja">オプションの名前と値を格納するマップ（オプションマップ）.</span>
 	 *
 	 * @return
 	 *   <span class="lang-en">
@@ -118,11 +113,11 @@ public class VirtualMachine {
 	 *   <span class="lang-en">Thrown when a runtime error is occurred.</span>
 	 *   <span class="lang-ja">実行時エラーが発生した場合にスローされます.</span>
 	 */
-	public Object executeAssemblyCode(String assemblyCode, Interconnect interconnect, Map<String, Object> optionMap)
+	public Object executeAssemblyCode(String assemblyCode, Interconnect interconnect)
 			throws VnanoException {
 
-		// VRIL実行用途でアプリケーションから直接呼ばれる事も考えられるため、オプション内容の正規化を再度行っておく
-		optionMap = OptionValue.normalizeValuesOf(optionMap, LANG_SPEC);
+		// オプションの名前と値を格納するマップ（オプションマップ）を取得
+		Map<String, Object> optionMap = interconnect.getOptionMap();  // 正規化は Interconnect 側で実施済み
 
 		// オプションマップから指定内容を取得
 		boolean acceleratorEnabled = (Boolean)optionMap.get(OptionKey.ACCELERATOR_ENABLED); // 高速版実装を使用するかどうか
@@ -162,9 +157,9 @@ public class VirtualMachine {
 		Processor processor = new Processor();
 		if (acceleratorEnabled) {
 			Accelerator accelerator = new Accelerator();
-			accelerator.process(instructions, memory, interconnect, processor, optionMap);
+			accelerator.process(instructions, memory, interconnect, processor);
 		} else {
-			processor.process(instructions, memory, interconnect, optionMap);
+			processor.process(instructions, memory, interconnect);
 		}
 
 		// メモリーのデータをinterconnect経由で外部変数に書き戻す（このタイミングでBindings側が更新される）

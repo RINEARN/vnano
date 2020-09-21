@@ -90,7 +90,7 @@ public class VnanoException extends Exception implements Cloneable {
 	}
 
 	public VnanoException(ErrorType errorType, String[] errorWords, Throwable cause, String fileName, int lineNumber) {
-		super(ErrorMessage.generateErrorMessage(errorType, errorWords), cause);
+		super(ErrorMessage.generateErrorMessage(errorType, errorWords, Locale.getDefault()), cause); // このLocaleは本来どうにかして設定から引っ張ってきたいけど…後々で要検討
 		this.errorType = errorType;
 		this.errorWords = errorWords;
 		this.fileName = fileName;
@@ -98,7 +98,7 @@ public class VnanoException extends Exception implements Cloneable {
 	}
 
 	public VnanoException(ErrorType errorType, String[] errorWords, String fileName, int lineNumber) {
-		super(ErrorMessage.generateErrorMessage(errorType, errorWords));
+		super(ErrorMessage.generateErrorMessage(errorType, errorWords, Locale.getDefault())); // このLocaleは本来どうにかして設定から引っ張ってきたいけど…後々で要検討
 		this.errorType = errorType;
 		this.errorWords = errorWords;
 		this.fileName = fileName;

@@ -5,8 +5,6 @@
 
 package org.vcssl.nano.vm.processor;
 
-import java.util.Map;
-
 import org.vcssl.nano.VnanoException;
 import org.vcssl.nano.interconnect.Interconnect;
 import org.vcssl.nano.vm.memory.Memory;
@@ -14,7 +12,7 @@ import org.vcssl.nano.vm.memory.Memory;
 public interface Processable {
 
 	public void process(
-		Instruction[] instructions, Memory memory, Interconnect interconnect, Map<String, Object> optionMap
+		Instruction[] instructions, Memory memory, Interconnect interconnect
 	) throws VnanoException;
 
 	public int process(

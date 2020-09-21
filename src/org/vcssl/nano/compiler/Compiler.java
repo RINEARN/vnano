@@ -106,10 +106,6 @@ public class Compiler {
 	 *   <span class="lang-en">The interconnect to which external functions/variables are connected.</span>
 	 *   <span class="lang-ja">外部変数/関数が接続されているインターコネクト.</span>
 	 *
-	 * @param optionMap
-	 *   <span class="lang-en">The Map (option map) storing names and values of options.</span>
-	 *   <span class="lang-ja">オプションの名前と値を格納するマップ（オプションマップ）.</span>
-	 *
 	 * @return
 	 *   <span class="lang-en">The compiled VRIL code.</span>
 	 *   <span class="lang-ja">コンパイルされたVRILコード.</span>
@@ -118,7 +114,7 @@ public class Compiler {
 	 *   <span class="lang-en">Thrown when a syntax error will be detected for the content of the script.</span>
 	 *   <span class="lang-ja">スクリプトの内容に構文エラーが検出された場合にスローされます.</span>
 	 */
-	public String compile(String[] scripts, String[] names, Interconnect interconnect, Map<String, Object> optionMap)
+	public String compile(String[] scripts, String[] names, Interconnect interconnect)
 					throws VnanoException {
 
 		// スクリプトコードの枚数とスクリプト名の個数が違う場合はエラー
@@ -126,8 +122,8 @@ public class Compiler {
 			throw new VnanoFatalException("Array-lengths of \"scripts\" and \"names\" arguments are mismatching.");
 		}
 
-		// VRIL生成用途でアプリケーションから直接呼ばれる事も考えられるため、オプション内容の正規化を再度行っておく
-		optionMap = OptionValue.normalizeValuesOf(optionMap, LANG_SPEC);
+		// 全オプションの名前と値を格納するマップを（オプションマップ）取得
+		Map<String, Object> optionMap = interconnect.getOptionMap();  // 正規化は Interconnect 側で実施済み
 
 		// スクリプトコードの枚数を取得
 		int scriptLength = scripts.length;
@@ -140,6 +136,7 @@ public class Compiler {
 		String dumpTarget = (String)optionMap.get(OptionKey.DUMPER_TARGET);           // ダンプ対象
 		boolean dumpTargetIsAll = dumpTarget.equals(OptionValue.DUMPER_TARGET_ALL);   // ダンプ対象が全てかどうか
 		PrintStream dumpStream = (PrintStream)optionMap.get(OptionKey.DUMPER_STREAM); // ダンプ先ストリーム
+
 
 		// 入力スクリプトコードをダンプ
 		if (shouldDump && (dumpTargetIsAll || dumpTarget.equals(OptionValue.DUMPER_TARGET_INPUTTED_CODE)) ) {
@@ -200,7 +197,7 @@ public class Compiler {
 
 
 		// 意味解析でASTの情報を補間
-		AstNode analyzedAstRootNode = new SemanticAnalyzer(LANG_SPEC).analyze(parsedAstRootNode, interconnect, optionMap);
+		AstNode analyzedAstRootNode = new SemanticAnalyzer(LANG_SPEC).analyze(parsedAstRootNode, interconnect);
 
 		// 意味解析後のASTをダンプ
 		if (shouldDump && (dumpTargetIsAll || dumpTarget.equals(OptionValue.DUMPER_TARGET_ANALYZED_AST)) ) {

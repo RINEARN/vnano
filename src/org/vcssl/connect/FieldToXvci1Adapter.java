@@ -3,7 +3,7 @@
  * Field to XVCI Plug-in Adapter
  * --------------------------------------------------
  * This file is released under CC0.
- * Written in 2017-2019 by RINEARN (Fumihiro Matsui)
+ * Written in 2017-2020 by RINEARN (Fumihiro Matsui)
  * ==================================================
  */
 
@@ -11,7 +11,6 @@ package org.vcssl.connect;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.util.Arrays;
 
 
 /**
@@ -23,14 +22,6 @@ import java.util.Arrays;
  * @author RINEARN (Fumihiro Matsui)
  */
 public class FieldToXvci1Adapter implements ExternalVariableConnectorInterface1 {
-
-
-	/** デフォルトの必要パーミッション配列（値は { {@link ConnectorPermissionName#NONE ConnectorPermissionName.NONE} } ）です。 */
-	private static final String[] DEFAULT_NECESSARY_PERMISSIONS = { ConnectorPermissionName.NONE };
-
-	/** デフォルトの不要パーミッション配列（値は { {@link ConnectorPermissionName#ALL ConnectorPermissionName.ALL} } ）です。 */
-	private static final String[] DEFAULT_UNNECESSARY_PERMISSIONS = { ConnectorPermissionName.ALL };
-
 
 	/** ホスト言語側のフィールドへの、リフレクションによるアクセスを提供するFieldインスタンスです。 */
 	private Field field = null;
@@ -55,13 +46,6 @@ public class FieldToXvci1Adapter implements ExternalVariableConnectorInterface1 
 	public FieldToXvci1Adapter (Field field, Object objectInstance) {
 		this.field = field;
 		this.objectInstance = objectInstance;
-
-		this.necessaryPermissionNames = Arrays.copyOf(
-				DEFAULT_NECESSARY_PERMISSIONS, DEFAULT_NECESSARY_PERMISSIONS.length
-		);
-		this.unnecessaryPermissionNames = Arrays.copyOf(
-				DEFAULT_UNNECESSARY_PERMISSIONS, DEFAULT_UNNECESSARY_PERMISSIONS.length
-		);
 	}
 
 
@@ -74,13 +58,6 @@ public class FieldToXvci1Adapter implements ExternalVariableConnectorInterface1 
 	public FieldToXvci1Adapter (Field field) {
 		this.field = field;
 		this.objectInstance = null;
-
-		this.necessaryPermissionNames = Arrays.copyOf(
-				DEFAULT_NECESSARY_PERMISSIONS, DEFAULT_NECESSARY_PERMISSIONS.length
-		);
-		this.unnecessaryPermissionNames = Arrays.copyOf(
-				DEFAULT_UNNECESSARY_PERMISSIONS, DEFAULT_UNNECESSARY_PERMISSIONS.length
-		);
 	}
 
 

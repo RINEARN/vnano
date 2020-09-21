@@ -35,7 +35,6 @@ public class ProcessorTest {
 
 	private static final int META_ADDR = 888;
 	private static final Memory.Partition META_PART = Memory.Partition.CONSTANT;
-	private Map<String, Object> optionMap = null;
 
 	// 処理系から関数が呼ばれた事を確認する
 	private boolean connectedMethodCalled = false;
@@ -65,9 +64,10 @@ public class ProcessorTest {
 		metaContainer.setData(new String[]{ "meta" }, 0, DataContainer.SCALAR_LENGTHS);
 		memory.setDataContainer(META_PART, META_ADDR, metaContainer);
 
-		// デフォルトのオプションマップを用意
-		this.optionMap = new LinkedHashMap<String, Object>();
-		this.optionMap = OptionValue.normalizeValuesOf(this.optionMap, LANG_SPEC);
+		// デフォルトのオプションマップを用意し、インターコネクトに設定
+		Map<String, Object> optionMap = new LinkedHashMap<String, Object>();
+		optionMap = OptionValue.normalizeValuesOf(optionMap, LANG_SPEC);
+		this.interconnect.setOptionMap(optionMap);
 	}
 
 	@After
@@ -150,7 +150,7 @@ public class ProcessorTest {
 
 		// 命令列を逐次実行
 		try {
-			new Processor().process(instructions, this.memory, this.interconnect, this.optionMap);
+			new Processor().process(instructions, this.memory, this.interconnect);
 		} catch (VnanoException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occurred");
@@ -184,7 +184,7 @@ public class ProcessorTest {
 		// 分岐成立の条件（R0==true）で命令列を逐次実行
 		((DataContainer<boolean[]>)this.registers[0]).setData(new boolean[]{ true }, 0, DataContainer.SCALAR_LENGTHS);  // R0=true
 		try {
-			new Processor().process(instructions, this.memory, this.interconnect, this.optionMap);
+			new Processor().process(instructions, this.memory, this.interconnect);
 		} catch (VnanoException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occurred");
@@ -196,7 +196,7 @@ public class ProcessorTest {
 		// 分岐不成立の条件（R0==false）で命令列を逐次実行
 		((DataContainer<boolean[]>)this.registers[0]).setData(new boolean[]{ false }, 0, DataContainer.SCALAR_LENGTHS);  // R0=false
 		try {
-			new Processor().process(instructions, this.memory, this.interconnect, this.optionMap);
+			new Processor().process(instructions, this.memory, this.interconnect);
 		} catch (VnanoException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occurred");
@@ -211,7 +211,7 @@ public class ProcessorTest {
 		((DataContainer<long[]>)this.registers[10]).setData(new long[]{ -1L }, 0, DataContainer.SCALAR_LENGTHS);  // R10=-1 ... 分岐先の命令位置
 		((DataContainer<boolean[]>)this.registers[0]).setData(new boolean[]{ true }, 0, DataContainer.SCALAR_LENGTHS);  // R0=true
 		try {
-			new Processor().process(instructions, this.memory, this.interconnect, this.optionMap);
+			new Processor().process(instructions, this.memory, this.interconnect);
 		} catch (VnanoException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occurred");
@@ -253,7 +253,7 @@ public class ProcessorTest {
 
 		// 命令を実行
 		try {
-			new Processor().process(instructions, this.memory, interconnect, this.optionMap);
+			new Processor().process(instructions, this.memory, interconnect);
 		} catch (VnanoException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occurred");

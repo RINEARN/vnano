@@ -4,7 +4,7 @@
  * ( for VCSSL / Vnano Plug-in Development )
  * --------------------------------------------------
  * This file is released under CC0.
- * Written in 2017-2019 by RINEARN (Fumihiro Matsui)
+ * Written in 2017-2020 by RINEARN (Fumihiro Matsui)
  * ==================================================
  */
 
@@ -41,6 +41,9 @@ public class ConnectorPermissionName {
 
 	/** どのパーミッションも含まない事を表します。 */
 	public static final String NONE = "NONE";
+
+	/** 全パーミッション項目における、未設定時のデフォルト値を設定/取得する際に用います。 */
+	public static final String DEFAULT = "DEFAULT";
 
 	/** 実行対象スクリプトの終了を要求する事に対するパーミッションです。 */
 	public static final String PROGRAM_EXIT = "PROGRAM_EXIT";

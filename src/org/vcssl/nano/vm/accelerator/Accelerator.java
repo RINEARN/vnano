@@ -64,7 +64,6 @@ public class Accelerator {
 	 * @param memory データの入出力に用いる仮想メモリー
 	 * @param interconnect 外部関数プラグインが接続されているインターコネクト（呼び出しに使用）
 	 * @param processor 高速実行の対象外の命令を処理する仮想プロセッサ
-	 * @param optionMap オプション内容を保持するマップ
 	 * @throws InvalidInstructionException
 	 * 		このコントロールユニットが対応していない命令が実行要求された場合や、
 	 * 		オペランドの数が期待値と異なる場合など、命令内容が不正である場合に発生します。
@@ -72,10 +71,11 @@ public class Accelerator {
 	 * 		命令のオペランドに指定された仮想メモリーアドレスが使用領域外であった場合など、
 	 * 		不正な仮想メモリーアクセスが生じた場合などに発生します。
 	 */
-	public void process(Instruction[] instructions, Memory memory, Interconnect interconnect, Processor processor,
-			Map<String, Object> optionMap) throws VnanoException {
+	public void process(Instruction[] instructions, Memory memory, Interconnect interconnect, Processor processor)
+			throws VnanoException {
 
-		// オプションマップから指定内容を取得
+		// オプション内容を取得
+		Map<String, Object> optionMap = interconnect.getOptionMap();  // オプションの名前と値を格納するマップ
 		boolean shouldDump = (Boolean)optionMap.get(OptionKey.DUMPER_ENABLED);        // ダンプするかどうか
 		String dumpTarget = (String)optionMap.get(OptionKey.DUMPER_TARGET);           // ダンプ対象
 		boolean dumpTargetIsAll = dumpTarget.equals(OptionValue.DUMPER_TARGET_ALL);   // ダンプ対象が全てかどうか

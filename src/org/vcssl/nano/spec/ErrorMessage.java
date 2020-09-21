@@ -37,12 +37,8 @@ import java.util.Locale;
  */
 public class ErrorMessage {
 
-	public static String generateErrorMessage(ErrorType errorType) {
-		return generateErrorMessage(errorType, null, Locale.getDefault());
-	}
-
-	public static String generateErrorMessage(ErrorType errorType, String[] words) {
-		return generateErrorMessage(errorType, words, Locale.getDefault());
+	public static String generateErrorMessage(ErrorType errorType, Locale locale) {
+		return generateErrorMessage(errorType, new String[0], locale);
 	}
 
 	public static String generateErrorMessage(ErrorType errorType, String[] words, Locale locale) {
@@ -160,16 +156,19 @@ public class ErrorMessage {
 			case PLUGIN_LIST_FILE_IS_NOT_ACCESSIBLE : return "プラグインの読み込みリストファイル「 " + words[0] + " 」の読み込みに失敗しました。文字コードが想定と異なる可能性があります。文字コードを変更してみてください。";
 			case PLUGIN_DIRECTORY_IS_NOT_ACCESSIBLE : return "プラグインのフォルダ「 " + words[0] + " 」にアクセスできません。フォルダの指定内容や存在を確認してみてください。";
 			case PLUGIN_FILE_DOES_NOT_EXIST : return "読み込み対象プラグインのファイル「 " + words[0] + " 」が見つかりません。";
-			case PLUGIN_INSTANTIATION_FAILED : return "プラグイン「 " + words[0] + " 」の読み込み/インスタンス化に失敗しました";
-			case PLUGIN_CONNECTION_FAILED : return "プラグイン「 " + words[0] + " 」の接続に失敗しました";
+			case PLUGIN_INSTANTIATION_FAILED : return "プラグイン「 " + words[0] + " 」の読み込み/インスタンス化に失敗しました。";
+			case PLUGIN_CONNECTION_FAILED : return "プラグイン「 " + words[0] + " 」の接続に失敗しました。";
 			case DECLARED_ENCODING_IS_UNSUPPORTED : return "スクリプトファイル「 " + words[1] + " 」の先頭行で宣言されている文字コード「 " + words[0] + " 」は、この環境では使用できません。";
 			case NO_ENCODING_DECLARATION_END : return (words[0]==null ? "" : "スクリプトファイル「 " + words[0] + " 」の") + "先頭行の文字コード宣言において、末尾に「 ; 」が必要です。";
 			case ENCODING_DECLARATION_CONTAINS_INVALID_SYMBOL : return (words[1]==null ? "" : "スクリプトファイル「 " + words[1] + " 」の先頭行の文字コード宣言において、") + "使用できない記号「 " + words[0] + " 」が含まれています。";
 			case EXTERNAL_FUNCTION_PLUGIN_CRASHED : return "外部関数「 " + words[0] + " 」の処理でエラーが発生しました" + (words[1]==null ? "。" : "： " + words[1]);
 			case EXTERNAL_VARIABLE_PLUGIN_CRASHED : return "外部変数「 " + words[0] + " 」へのアクセスでエラーが発生しました"  + (words[1]==null ? "。" : "： " + words[1]);
-			case UNSUPPORTED_PERMISSION_NAME : return "パーミッション「 " + words[0] + " 」が要求されましたが、このパーミッションは現在の設定では使用できないか、この処理系ではサポートされていません。";
-			case UNSUPPORTED_PERMISSION_VALUE : return "パーミッション「 " + words[0] + " 」が要求されましたが、このパーミッションの現在の設定値「 " + words[1] + " 」は、この処理系ではサポートされていません。";
-			case PERMISSION_DENIED : return "パーミッション「 " + words[0] + " 」が要求されましたが、設定またはユーザーの選択によって拒否されました。";
+			//case UNSUPPORTED_PERMISSION_NAME : return "パーミッション「 " + words[0] + " 」が要求されましたが、このパーミッションは現在の設定では使用できないか、この処理系ではサポートされていません。";
+			//case UNSUPPORTED_PERMISSION_VALUE : return "パーミッション「 " + words[0] + " 」が要求されましたが、このパーミッションの現在の設定値「 " + words[1] + " 」は、この処理系ではサポートされていません。";
+			//case PERMISSION_DENIED : return "パーミッション「 " + words[0] + " 」が要求されましたが、設定またはユーザーの選択によって拒否されました。";
+			case PERMISSION_AUTHORIZER_PLUGIN_CRASHED : return "パーミッション認可プラグイン「 " + words[0] + " 」の処理でエラーが発生しました： " + words[1];
+			case NO_PERMISSION_AUTHORIZER_IS_CONNECTED : return "パーミッションが要求/変更/参照されようとしましたが、パーミッションの認可を担うプラグイン（permission authorizer）が接続されていないため、処理を行えませんでした。";
+			case MULTIPLE_PERMISSION_AUTHORIZERS_ARE_CONNECTED : return "パーミッション認可プラグイン（permission authorizer）は1個しか接続できませんが、既に「 " + words[1] + " 」接続されている状態で、追加で「 " + words[0] + " 」の接続が要求されました。";
 			case NON_EXPRESSION_STATEMENTS_ARE_RESTRICTED : return "現在の設定では、ライブラリスクリプト内を除き、式の計算以外を行えないよう制限されています。";
 			case NON_FLOAT_DATA_TYPES_ARE_RESTRICTED : return "現在の設定では、ライブラリスクリプト内を除き、float 型以外の値 / 変数 / 関数（戻り値）を使用できないよう制限されています。";
 			case UNEXPECTED_ACCELERATOR_CRASH : return "予期しないVMエラー (命令アドレス: " + words[0] + ", 再配置後命令アドレス: " + words[1] + ")";
@@ -276,9 +275,12 @@ public class ErrorMessage {
 			case ENCODING_DECLARATION_CONTAINS_INVALID_SYMBOL : return "Invalid symbol \"" + words[0] + "\" is contained in the encoding-declaration" + (words[1]==null ? "" : ", at the first line of \"" + words[1] + "\"");
 			case EXTERNAL_FUNCTION_PLUGIN_CRASHED : return "An error occurred on the processing of the external function \"" + words[0] + "\"" + (words[1]==null ? "" : ": " + words[1]);
 			case EXTERNAL_VARIABLE_PLUGIN_CRASHED : return "An error occurred on the accessing to the external variable \"" + words[0] + "\"" + (words[1]==null ? "" : ": " + words[1]);
-			case UNSUPPORTED_PERMISSION_NAME : return "The permission for \"" + words[0] + "\" has been requested, but it is not available on the current settings, or it is unsupported on this script engine";
-			case UNSUPPORTED_PERMISSION_VALUE : return "The permission for \"" + words[0] + "\" has been requested, but its value \"" + words[1] + "\" on the current settings is unsupported on this script engine";
-			case PERMISSION_DENIED : return "The permission for \"" + words[0] + "\" has been requested, but it has been denied by settings or the user's decision";
+			//case UNSUPPORTED_PERMISSION_NAME : return "The permission for \"" + words[0] + "\" has been requested, but it is not available on the current settings, or it is unsupported on this script engine";
+			//case UNSUPPORTED_PERMISSION_VALUE : return "The permission for \"" + words[0] + "\" has been requested, but its value \"" + words[1] + "\" on the current settings is unsupported on this script engine";
+			//case PERMISSION_DENIED : return "The permission for \"" + words[0] + "\" has been requested, but it has been denied by settings or the user's decision";
+			case PERMISSION_AUTHORIZER_PLUGIN_CRASHED : return "An error occurred on the permission authorizer plug-in \"" + words[0] + "\": " + words[1];
+			case NO_PERMISSION_AUTHORIZER_IS_CONNECTED : return "A permission has been requested/modified/referred, but it has failed because no plug-in for managing permissions (permission authorizer) is connected";
+			case MULTIPLE_PERMISSION_AUTHORIZERS_ARE_CONNECTED : return "The permission authorizer plug-in \"" + words[0] + "\" is requested to be connected, but the other permission authorizer \"" + words[1] + "\" is already connected (only 1 permission authorizer can be connected)";
 			case NON_EXPRESSION_STATEMENTS_ARE_RESTRICTED : return "On the current settings, you can describe only expressions as inputs, except in library scripts";
 			case NON_FLOAT_DATA_TYPES_ARE_RESTRICTED : return "On the current settings, you can use only float-type values / variables / functions (returned values), except in library scripts";
 			case UNEXPECTED_ACCELERATOR_CRASH : return "Unexpected VM Error (instruction-addr: " + words[0] + ", reordered-instruction-addr: " + words[1] + ")";
