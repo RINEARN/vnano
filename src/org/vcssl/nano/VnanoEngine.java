@@ -50,7 +50,7 @@ import org.vcssl.nano.vm.VirtualMachine;
  *
  * @author RINEARN (Fumihiro Matsui)
  */
-public class VnanoEngine {
+public final class VnanoEngine {
 
 	/** 各種の言語仕様設定類を格納するコンテナを保持します。 */
 	private final LanguageSpecContainer LANG_SPEC;
@@ -90,6 +90,9 @@ public class VnanoEngine {
 	 *   <span class="lang-ja">言語仕様設定.</span>
 	 */
 	public VnanoEngine(LanguageSpecContainer langSpec) {
+		if (langSpec == null) {
+			throw new NullPointerException();
+		}
 		this.LANG_SPEC = langSpec;
 		this.libraryNameContentMap = new LinkedHashMap<String, String>();
 		this.interconnect = new Interconnect(LANG_SPEC);
@@ -118,6 +121,10 @@ public class VnanoEngine {
 	 *   <span class="lang-ja">スクリプトの内容または実行過程にエラーが検出された場合にスローされます.</span>
 	 */
 	public Object executeScript(String script) throws VnanoException {
+		if (script == null) {
+			throw new NullPointerException();
+		}
+
 		try {
 
 			// スクリプトに対し、処理系内で読み込んだライブラリファイル等と同様の後処理を実行（文字コード宣言削除や、環境依存内容の正規化など）
@@ -297,6 +304,9 @@ public class VnanoEngine {
 	 *   </span>
 	 */
 	public void connectPlugin(String bindingKey, Object plugin) throws VnanoException {
+		if (bindingKey == null || plugin == null) {
+			throw new NullPointerException();
+		}
 		this.interconnect.connectPlugin(bindingKey, plugin);
 	}
 
@@ -342,6 +352,9 @@ public class VnanoEngine {
 	 *   <span class="lang-ja">ライブラリスクリプトのコード内容</span>
 	 */
 	public void includeLibraryScript(String libraryScriptName, String libraryScriptContent) throws VnanoException {
+		if (libraryScriptName == null || libraryScriptContent == null) {
+			throw new NullPointerException();
+		}
 		if (this.libraryNameContentMap.containsKey(libraryScriptName)) {
 			throw new VnanoException(ErrorType.LIBRARY_IS_ALREADY_INCLUDED, libraryScriptName);
 		}
@@ -396,6 +409,9 @@ public class VnanoEngine {
 	 *   <span class="lang-ja">オプションの指定内容が正しくなかった場合にスローされます.</span>
 	 */
 	public void setOptionMap(Map<String,Object> optionMap) throws VnanoException {
+		if (optionMap == null) {
+			throw new NullPointerException();
+		}
 		this.interconnect.setOptionMap(optionMap);
 	}
 
@@ -455,6 +471,9 @@ public class VnanoEngine {
 	 *   <span class="lang-ja">パーミッションの指定内容が正しくなかった場合にスローされます.</span>
 	 */
 	public void setPermissionMap(Map<String, String> permissionMap) throws VnanoException {
+		if (permissionMap == null) {
+			throw new NullPointerException();
+		}
 		this.interconnect.setPermissionMap(permissionMap);
 	}
 

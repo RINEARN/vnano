@@ -52,7 +52,7 @@ import org.vcssl.nano.spec.SpecialBindingValue;
  *
  * @author RINEARN (Fumihiro Matsui)
  */
-public class VnanoScriptEngine implements ScriptEngine {
+public final class VnanoScriptEngine implements ScriptEngine {
 
 	private final LanguageSpecContainer LANG_SPEC;
 	private static final String DEFAULT_ENCODING = "UTF-8";
@@ -191,6 +191,10 @@ public class VnanoScriptEngine implements ScriptEngine {
 	 */
 	@Override
 	public Object eval(String scriptCode) throws ScriptException {
+		if (scriptCode == null) {
+			throw new NullPointerException();
+		}
+
 		try {
 
 			// ライブラリとプラグインをエンジンに登録
@@ -262,6 +266,10 @@ public class VnanoScriptEngine implements ScriptEngine {
 	 */
 	@Override
 	public Object eval(Reader reader) throws ScriptException {
+		if (reader == null) {
+			throw new NullPointerException();
+		}
+
 		try {
 			StringBuilder builder = new StringBuilder();
 			int charcode = -1;
@@ -435,6 +443,9 @@ public class VnanoScriptEngine implements ScriptEngine {
 	 */
 	@Override
 	public void put(String name, Object value) {
+		if (name == null || value == null) {
+			throw new NullPointerException();
+		}
 
 		// オプションマップの場合
 		if (name.equals(SpecialBindingKey.OPTION_MAP)) {
@@ -540,6 +551,10 @@ public class VnanoScriptEngine implements ScriptEngine {
 	 */
 	@Override
 	public Object get(String name) {
+		if (name == null) {
+			throw new NullPointerException();
+		}
+
 		if (name.equals(ScriptEngine.NAME)) {
 			return EngineInformation.LANGUAGE_NAME;
 		}
@@ -609,7 +624,7 @@ public class VnanoScriptEngine implements ScriptEngine {
 	 */
 	@Override
 	public Bindings getBindings(int scope) {
-		//Scripting API側での読み込み/初期化時に落とさないため、例外は投げない
+		//Scripting API側での読み込み/初期化時に落とさないため、VnanoFatalException は投げない
 		//throw new VnanoFatalException("This feature is unsupported");
 		return null;
 	}
@@ -622,7 +637,11 @@ public class VnanoScriptEngine implements ScriptEngine {
 	 */
 	@Override
 	public void setBindings(Bindings bind, int scope) {
-		//Scripting API側での読み込み/初期化時に落とさないため、例外は投げない
+		if (bind == null) {
+			throw new NullPointerException();
+		}
+
+		//Scripting API側での読み込み/初期化時に落とさないため、VnanoFatalException は投げない
 		//throw new VnanoFatalException("This feature is unsupported");
 	}
 
@@ -634,7 +653,7 @@ public class VnanoScriptEngine implements ScriptEngine {
 	 */
 	@Override
 	public Bindings createBindings() {
-		//Scripting API側での読み込み/初期化時に落とさないため、例外は投げない
+		//Scripting API側での読み込み/初期化時に落とさないため、VnanoFatalException は投げない
 		//throw new VnanoFatalException("This feature is unsupported");
 		return null;
 	}
@@ -647,7 +666,7 @@ public class VnanoScriptEngine implements ScriptEngine {
 	 */
 	@Override
 	public ScriptContext getContext() {
-		//Scripting API側での読み込み/初期化時に落とさないため、例外は投げない
+		//Scripting API側での読み込み/初期化時に落とさないため、VnanoFatalException は投げない
 		//throw new VnanoFatalException("This feature is unsupported");
 		return null;
 	}
@@ -660,7 +679,7 @@ public class VnanoScriptEngine implements ScriptEngine {
 	 */
 	@Override
 	public void setContext(ScriptContext context) {
-		//Scripting API側での読み込み/初期化時に落とさないため、例外は投げない
+		//Scripting API側での読み込み/初期化時に落とさないため、VnanoFatalException は投げない
 		//throw new VnanoFatalException("This feature is unsupported");
 	}
 
