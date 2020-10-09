@@ -105,7 +105,7 @@ public class FunctionTable {
 		this.size++;
 
 		// 単純識別子から、名前空間を加味した識別子やシグネチャなどを求める
-		String namespacePrefix = function.hasNamespaceName() ? "" : function.getNamespaceName() +  SCRIPT_WORD.namespaceSeparator;
+		String namespacePrefix = function.hasNamespaceName() ? function.getNamespaceName() +  SCRIPT_WORD.namespaceSeparator : "";
 		String functionName = function.getFunctionName();
 		String fullFunctionName = namespacePrefix + functionName;
 		String signature = IDENTIFIER_SYNTAX.getSignatureOf(function);
@@ -164,7 +164,7 @@ public class FunctionTable {
 
 		// コストを定数オーダーにするため、まずシグネチャを求めて、
 		// それとインデックスとの対応を保持しているマップに投げて値を取得する
-		String namespacePrefix = function.hasNamespaceName() ? "" : function.getNamespaceName() +  SCRIPT_WORD.namespaceSeparator;
+		String namespacePrefix = function.hasNamespaceName() ? function.getNamespaceName() +  SCRIPT_WORD.namespaceSeparator : "";
 		String signature = IDENTIFIER_SYNTAX.getSignatureOf(function);
 		String fullSignature = IDENTIFIER_SYNTAX.getSignatureOf(function, namespacePrefix);
 		if (signatureIndexMap.containsKey(signature)) {
