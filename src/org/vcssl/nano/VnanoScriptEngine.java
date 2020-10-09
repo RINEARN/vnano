@@ -396,7 +396,7 @@ public class VnanoScriptEngine implements ScriptEngine {
 	 * Other than the above, this method behaves as a wrapper of
 	 * {@link VnanoEngine#connectPlugin(String,Object) VnanoEngine.connectPlugin(String, Object)}
 	 * method, which is to connect instances of plug-ins.
-	 * In this case, the argument "name" will be the identifier for accessing it from the script,
+	 * In this case, the argument "name" will be the name (alias) for accessing it from the script,
 	 * so it should be described in the valid syntax.
 	 * If you want to generate a valid identifier automatically, specify "___VNANO_AUTO_KEY" as the argument "name".
 	 * </span>
@@ -421,7 +421,7 @@ public class VnanoScriptEngine implements ScriptEngine {
 	 * 上記の全てに該当しない場合には, このメソッドは, プラグインのインスタンスを接続する
 	 * {@link VnanoEngine#connectPlugin(String,Object) VnanoEngine.connectPlugin(String, Object)}
 	 * メソッドのラッパーとして振舞います.
-	 * この場合, 引数 "name" はスクリプト内からアクセスする際の識別子として機能するため, 正しい構文で記述されている必要があります.
+	 * この場合, 引数 "name" はスクリプト内からアクセスする際の名称として機能します.
 	 * 面倒な場合は, "___VNANO_AUTO_KEY" を引数 "name" に指定すると, 構文的に適切な識別子が自動生成されます.
 	 * </span>
 	 *

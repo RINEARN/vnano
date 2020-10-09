@@ -32,6 +32,9 @@ public class Xvci1ToVariableAdapter extends AbstractVariable {
 	/** XVCI準拠の外部変数プラグインです。 */
 	private ExternalVariableConnectorInterface1 xvciPlugin = null;
 
+	/** 変数名を保持します。 */
+	private String variableName = null;
+
 	/** 外部変数と処理系内部の変数とで、データの型変換を行うコンバータです。 */
 	private DataConverter dataConverter = null;
 
@@ -58,6 +61,7 @@ public class Xvci1ToVariableAdapter extends AbstractVariable {
 
 		this.DATA_TYPE_NAME = langSpec.DATA_TYPE_NAME;
 		this.xvciPlugin = xvciPlugin;
+		this.variableName = xvciPlugin.getVariableName();
 		this.dataConverter = new DataConverter(this.xvciPlugin.getDataClass(), langSpec);
 	}
 
@@ -89,7 +93,20 @@ public class Xvci1ToVariableAdapter extends AbstractVariable {
 	 */
 	@Override
 	public String getVariableName() {
-		return this.xvciPlugin.getVariableName();
+		return this.variableName;
+	}
+
+
+	/**
+	 * 変数名を設定（変更）します。
+	 *
+	 * この機能は、外部変数に、エイリアス（別名）を指定しつつ接続する際に使用されます。
+	 *
+	 * variableName 変数名
+	 */
+	@Override
+	public void setVariableName(String variableName) {
+		this.variableName = variableName;
 	}
 
 

@@ -232,15 +232,18 @@ public class VnanoEngine {
 	 * @param bindingKey
 	 *   <span class="lang-en">
 	 *   An unique key to identify the plug-in.
-	 *   It also works as an identifier of a connected external variable/functuion/namespace,
-	 *   where identifiers of functions should be described as the format of prototypes, e.g.: "foo(int,float)".
-	 *   Also, you can specify "___VNANO_AUTO_KEY" for generate key automatically.
+	 *   It also works as an name (alias) of a connected external variable/functuion/namespace.
+	 *   For a function, you can specify a signature containing parameter-declarations (e.g.: "foo(int,float)" )
+	 *   instead of a name, if you want to avoid duplication of a key when you put overloaded functions
+	 *   (note that, syntax, data-types, and so on for parameters will not be checked).
+	 *   Also, you can specify "___VNANO_AUTO_KEY" for generate a valid key automatically.
 	 *   </span>
 	 *   <span class="lang-ja">
 	 *   プラグインを一意に識別するためのキー.
-	 *   キーの内容は, 接続される外部関数/変数/名前空間にスクリプト内からアクセスするための識別子としても機能します.
-	 *   そのためには, 関数についてはプロトタイプの書式（ 例えば "foo(int,float)" 等 ）で記述される必要があります.
-	 *   なお, "___VNANO_AUTO_KEY" を指定する事で, キーを自動生成する事もできます.
+	 *   キーの内容は, 接続される外部関数/変数/名前空間にスクリプト内からアクセスするための名称としても機能します.
+	 *   関数に対しては、関数名のみの代わりに、引数部を含むシグネチャ（ 例えば "foo(int,float)" 等 ）を指定する事も可能です
+	 *   （ただし、これは単にキーの重複を避けたい場合のためにサポートされており、引数部に対する構文や整合性の検査などは行われません）。
+	 *   なお, "___VNANO_AUTO_KEY" を指定する事で, 有効なキーを自動生成する事もできます.
 	 *   </span>
 	 *
 	 * @param plugin

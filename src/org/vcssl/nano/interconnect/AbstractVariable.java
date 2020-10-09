@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2019 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2020 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -35,6 +35,21 @@ public abstract class AbstractVariable {
 	 * 空のコンストラクタです。
 	 */
 	protected AbstractVariable(){}
+
+
+	/**
+	 * 変数名を設定（変更）します。
+	 *
+	 * この機能は、外部変数などの接続時に、エイリアスを指定するために使用されます。
+	 * 内部変数など、変数名を変更できない変数も存在し、その場合はこのメソッドは使用できません。
+	 * そのような対象にこのメソッドが使用された場合、それはスクリプトの内容依存ではなく処理系実装上の問題であるため、
+	 * VnanoFatalException が発生します。
+	 *
+	 * @param variableName 変数名
+	 * @throws VnanoFatalException
+	 * 		名称を変更できない変数（内部変数など）に対して使用された場合にスローされます。
+	 */
+	public abstract void setVariableName(String variableName);
 
 
 	/**

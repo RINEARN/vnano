@@ -1,10 +1,11 @@
 /*
- * Copyright(C) 2017-2018 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2020 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
 package org.vcssl.nano.interconnect;
 
+import org.vcssl.nano.VnanoFatalException;
 import org.vcssl.nano.vm.memory.DataContainer;
 
 /**
@@ -84,6 +85,22 @@ public class InternalVariable extends AbstractVariable {
 	@Override
 	public String getVariableName() {
 		return this.variableName;
+	}
+
+
+	/**
+	 * このメソッドは使用できません。
+	 *
+	 * このメソッドは、外部変数などの接続時に、エイリアスを指定するための機能として AbstractVariable に宣言されています。
+	 * 一方、現在のVnanoでは、内部変数にエイリアスを付ける言語機能はサポートしていないため、
+	 * もしも内部変数に対してこのメソッドが呼ばれた場合、それは実装上のミスによるものと考えられます。
+	 * 従って、このメソッドは呼ばれると VnanoFatalException を発生させます。
+	 *
+	 * @param variableName 変数名
+	 */
+	@Override
+	public void setVariableName(String variableName) {
+		throw new VnanoFatalException("Names of internal variables should not be changed.");
 	}
 
 

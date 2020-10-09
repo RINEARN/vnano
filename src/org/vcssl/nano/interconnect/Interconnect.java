@@ -460,15 +460,18 @@ public class Interconnect {
 	 * @param bindingKey
 	 *   <span class="lang-en">
 	 *   An unique key to identify the plug-in.
-	 *   It also works as an identifier of a connected external variable/functuion/namespace,
-	 *   where identifiers of functions should be described as the format of prototypes, e.g.: "foo(int,float)".
-	 *   Also, you can specify "___VNANO_AUTO_KEY" for generate key automatically.
+	 *   It also works as an name (alias) of a connected external variable/functuion/namespace.
+	 *   For a function, you can specify a signature containing parameter-declarations (e.g.: "foo(int,float)" )
+	 *   instead of a name, if you want to avoid duplication of a key when you put overloaded functions
+	 *   (note that, syntax, data-types, and so on for parameters will not be checked).
+	 *   Also, you can specify "___VNANO_AUTO_KEY" for generate a valid key automatically.
 	 *   </span>
 	 *   <span class="lang-ja">
 	 *   プラグインを一意に識別するためのキー.
-	 *   キーの内容は, 接続される外部関数/変数/名前空間にスクリプト内からアクセスするための識別子としても機能します.
-	 *   そのためには, 関数についてはプロトタイプの書式（ 例えば "foo(int,float)" 等 ）で記述される必要があります.
-	 *   なお, "___VNANO_AUTO_KEY" を指定する事で, キーを自動生成する事もできます.
+	 *   キーの内容は, 接続される外部関数/変数/名前空間にスクリプト内からアクセスするための名称としても機能します.
+	 *   関数に対しては、関数名のみの代わりに、引数部を含むシグネチャ（ 例えば "foo(int,float)" 等 ）を指定する事も可能です
+	 *   （ただし、これは単にキーの重複を避けたい場合のためにサポートされており、引数部に対する構文や整合性の検査などは行われません）。
+	 *   なお, "___VNANO_AUTO_KEY" を指定する事で, 有効なキーを自動生成する事もできます.
 	 *   </span>
 	 *
 	 * @param plugin
@@ -1003,10 +1006,18 @@ public class Interconnect {
 
 		this.xvci1PluginList.add(plugin);
 
+		// これ後でどうにかしたい。生成後に nameSpace を set すれば済むし、そもそもなんでコンストラクタ分けた ???
+		// -> たぶん当初は書き換え不可能で済む限りは書き換え不可能にしておきたかったような気がする。
+		//    それで下のエイリアス周りも今までは setter 無くてわざわざ AliasAdapter 作ってラップとかする流れになってしまってた気が。
 		Xvci1ToVariableAdapter adapter = belongsToNameSpace
 			? new Xvci1ToVariableAdapter(plugin, nameSpace, LANG_SPEC)
 			: new Xvci1ToVariableAdapter(plugin, LANG_SPEC);
-		this.connectVariable(adapter, aliasingRequired, aliasName);
+
+		// エイリアス（別名）を付ける場合
+		if (aliasingRequired) {
+			adapter.setVariableName(aliasName);
+		}
+		this.connectVariable(adapter);
 	}
 
 
@@ -1060,10 +1071,33 @@ public class Interconnect {
 
 		this.xfci1PluginList.add(plugin);
 
+		// これ後でどうにかしたい。connectXvci1Plugin 内のコメント参照
 		Xfci1ToFunctionAdapter adapter = belongsToNameSpace
 			? new Xfci1ToFunctionAdapter(plugin, nameSpace, LANG_SPEC)
 			: new Xfci1ToFunctionAdapter(plugin, LANG_SPEC);
-		this.connectFunction(adapter, aliasingRequired, aliasSignature);
+
+		// エイリアス（別名）を付ける場合
+		if (aliasingRequired) {
+
+			// 外部関数のエイリアス（＝接続時のキー）には、関数の名前またはシグネチャを指定できる。
+			// ただし、シグネチャを指定可能にしているのは、単に引数が異なる同名関数を区別したい用途のためで（put 後に get で取り出したい際など）、
+			// 従ってシグネチャの構文や引数整合性などの検査は行わない（そうじゃないとここで構文解析を行う必要が出てくる）。
+			// 単純に、シグネチャ先頭からの「 ( 」の位置までを抜き出して、それを関数名のエイリアスとして用いる。
+
+			// 関数名のみを指定した場合を想定して、まずはそのまま aliasSignature を aliasName と見なす
+			String aliasName = aliasSignature;
+
+			// もし aliasSignature が「 ( 」を含んでいれば、先頭からそこまでを抽出して aliasName と見なす
+			if (aliasSignature.contains(LANG_SPEC.SCRIPT_WORD.parenthesisBegin)) {
+				int parenBeginIndex = aliasSignature.indexOf(LANG_SPEC.SCRIPT_WORD.parenthesisBegin);
+				aliasName = aliasSignature.substring(0, parenBeginIndex);
+			}
+
+			// 抽出した aliasName を関数名として設定
+			adapter.setFunctionName(aliasName);
+		}
+
+		this.connectFunction(adapter);
 	}
 
 
@@ -1156,16 +1190,9 @@ public class Interconnect {
 
 	/**
 	 * Vnano処理系内部の変数形式に準拠した変数オブジェクトを接続します。
-	 * @param aliasingRequired スクリプト内から別名でアクセスするかどうか（する場合にtrue）
-	 * @param aliasName スクリプト内での別名（aliasingRequiredがtrueの場合のみ参照されます）
-	 *
 	 * @param variable 変数オブジェクト
 	 */
-	private void connectVariable(AbstractVariable variable, boolean aliasingRequired, String aliasName) {
-		if (aliasingRequired) {
-			variable = new VariableAliasAdapter(variable);
-			((VariableAliasAdapter)variable).setVariableName(aliasName);
-		}
+	private void connectVariable(AbstractVariable variable) {
 		this.externalVariableTable.addVariable(variable);
 	}
 
@@ -1174,17 +1201,8 @@ public class Interconnect {
 	 * Vnano処理系内部の関数形式に準拠した関数オブジェクトを接続します。
 	 *
 	 * @param function 関数オブジェクト
-	 * @param aliasingRequired スクリプト内から別名でアクセスするかどうか（する場合にtrue）
-	 * @param aliasSignature 別名アクセスのためのコールシグネチャ（aliasingRequiredがtrueの場合のみ参照されます）
-	 * @throws VnanoException 引数に指定されたコールシグネチャが正しくない場合にスローされます。
 	 */
-	private void connectFunction(AbstractFunction function, boolean aliasingRequired, String aliasSignature)
-			throws VnanoException {
-
-		if (aliasingRequired) {
-			function = new FunctionAliasAdapter(function, LANG_SPEC);
-			((FunctionAliasAdapter)function).setCallSignature(aliasSignature);
-		}
+	private void connectFunction(AbstractFunction function) {
 		this.externalFunctionTable.addFunction(function);
 	}
 

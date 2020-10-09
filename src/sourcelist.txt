@@ -58,7 +58,6 @@ org/vcssl/nano/interconnect/AbstractFunction.java
 org/vcssl/nano/interconnect/AbstractVariable.java
 org/vcssl/nano/interconnect/DataConverter.java
 org/vcssl/nano/interconnect/EngineConnector.java
-org/vcssl/nano/interconnect/FunctionAliasAdapter.java
 org/vcssl/nano/interconnect/FunctionTable.java
 org/vcssl/nano/interconnect/IdentifierMapManager.java
 org/vcssl/nano/interconnect/Interconnect.java
@@ -68,7 +67,6 @@ org/vcssl/nano/interconnect/MetaQualifiedFileLoader.java
 org/vcssl/nano/interconnect/package-info.java
 org/vcssl/nano/interconnect/PluginLoader.java
 org/vcssl/nano/interconnect/ScriptLoader.java
-org/vcssl/nano/interconnect/VariableAliasAdapter.java
 org/vcssl/nano/interconnect/VariableTable.java
 org/vcssl/nano/interconnect/Xfci1ToFunctionAdapter.java
 org/vcssl/nano/interconnect/Xvci1ToVariableAdapter.java

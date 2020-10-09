@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2019 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2019-2020 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -49,6 +49,21 @@ public final class InternalFunction extends AbstractFunction {
 	@Override
 	public final String getFunctionName() {
 		return this.functionName;
+	}
+
+	/**
+	 * このメソッドは使用できません。
+	 *
+	 * このメソッドは、外部関数などの接続時に、エイリアスを指定するための機能として AbstractVariable に宣言されています。
+	 * 一方、現在のVnanoでは、内部関数にエイリアスを付ける言語機能はサポートしていないため、
+	 * もしも内部関数に対してこのメソッドが呼ばれた場合、それは実装上のミスによるものと考えられます。
+	 * 従って、このメソッドは呼ばれると VnanoFatalException を発生させます。
+	 *
+	 * @param functionName 関数名
+	 */
+	@Override
+	public void setFunctionName(String functionName) {
+		throw new VnanoFatalException("Names of internal functions should not be changed.");
 	}
 
 	@Override

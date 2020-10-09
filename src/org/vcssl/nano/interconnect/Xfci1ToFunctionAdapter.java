@@ -35,6 +35,9 @@ public final class Xfci1ToFunctionAdapter extends AbstractFunction {
 	/** XFCI準拠の外部変数プラグインです。 */
 	private ExternalFunctionConnectorInterface1 xfciPlugin = null;
 
+	/** 関数名を保持します。 */
+	private String functionName = null;
+
 	/** 外部関数の引数と処理系内部の関数の引数とで、データの型変換を行うコンバータです。 */
 	private DataConverter[] parameterDataConverters = null;
 
@@ -79,6 +82,7 @@ public final class Xfci1ToFunctionAdapter extends AbstractFunction {
 
 		this.DATA_TYPE_NAME = langSpec.DATA_TYPE_NAME;
 		this.xfciPlugin = xfciPlugin;
+		this.functionName = xfciPlugin.getFunctionName();
 
 		Class<?>[] parameterClasses = this.xfciPlugin.getParameterClasses();
 		Class<?> returnClass = this.xfciPlugin.getReturnClass(parameterClasses);
@@ -151,7 +155,20 @@ public final class Xfci1ToFunctionAdapter extends AbstractFunction {
 	 */
 	@Override
 	public final String getFunctionName() {
-		return this.xfciPlugin.getFunctionName();
+		return this.functionName;
+	}
+
+
+	/**
+	 * 関数名を設定（変更）します。
+	 *
+	 * この機能は、外部関数に、エイリアス（別名）を指定しつつ接続する際に使用されます。
+	 *
+	 * functionName 関数名
+	 */
+	@Override
+	public void setFunctionName(String functionName) {
+		this.functionName = functionName;
 	}
 
 
