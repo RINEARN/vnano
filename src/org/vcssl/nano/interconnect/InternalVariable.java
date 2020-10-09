@@ -110,19 +110,18 @@ public class InternalVariable extends AbstractVariable {
 	 * @return 名前空間に所属していれば true
 	 */
 	@Override
-	public boolean hasNameSpace() {
+	public boolean hasNamespaceName() {
 		return false; // スクリプト内での名前空間定義はサポートされていない
 	}
 
-
-	/**
-	 * 所属している名前空間を返します。
-	 *
-	 * @return 名前空間
-	 */
 	@Override
-	public String getNameSpace() {
-		return null; // スクリプト内での名前空間定義はサポートされていない
+	public final String getNamespaceName() {
+		throw new VnanoFatalException("Internal variables can not belongs to any namespaces.");
+	}
+
+	@Override
+	public final void setNamespaceName(String namespaceName) {
+		throw new VnanoFatalException("Internal variables can not belongs to any namespaces.");
 	}
 
 

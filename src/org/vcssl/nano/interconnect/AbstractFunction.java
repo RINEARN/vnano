@@ -65,15 +65,23 @@ public abstract class AbstractFunction {
 	 *
 	 * @return 名前空間に所属していれば true
 	 */
-	public abstract boolean hasNameSpace();
+	public abstract boolean hasNamespaceName();
 
 
 	/**
-	 * 所属している名前空間を返します。
+	 * 所属している名前空間の名称を返します。
 	 *
-	 * @return 名前空間
+	 * @return 名前空間の名称
 	 */
-	public abstract String getNameSpace();
+	public abstract String getNamespaceName();
+
+
+	/**
+	 * 所属している名前空間の名称を設定します。
+	 *
+	 * @namespaceName 名前空間の名称
+	 */
+	public abstract void setNamespaceName(String namespaceName);
 
 
 	/**

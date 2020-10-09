@@ -67,13 +67,18 @@ public final class InternalFunction extends AbstractFunction {
 	}
 
 	@Override
-	public final boolean hasNameSpace() {
+	public final boolean hasNamespaceName() {
 		return false; // スクリプト内での名前空間定義はサポートされていない
 	}
 
 	@Override
-	public final String getNameSpace() {
-		return null; // スクリプト内での名前空間定義はサポートされていない
+	public final String getNamespaceName() {
+		throw new VnanoFatalException("Internal functions can not belongs to any namespaces.");
+	}
+
+	@Override
+	public final void setNamespaceName(String namespaceName) {
+		throw new VnanoFatalException("Internal functions can not belongs to any namespaces.");
 	}
 
 	@Override

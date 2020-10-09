@@ -72,11 +72,11 @@ public class ScriptWord {
 
 
 	/**
-	 * <span class="lang-en">The separator of name spaces</span>
+	 * <span class="lang-en">The separator of namespaces</span>
 	 * <span class="lang-ja">名前空間の区切りです</span>
 	 * .
 	 */
-	public String nameSpaceSeparator = ".";
+	public String namespaceSeparator = ".";
 
 
 	/**

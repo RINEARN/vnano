@@ -978,13 +978,13 @@ public class Interconnect {
 	 *   <span class="lang-en">The alias for accessing from scripts.</span>
 	 *   <span class="lang-ja">スクリプト内からのアクセスに使用する別名.</span>
 	 *
-	 * @param belongsToNameSpace
-	 *   <span class="lang-en">Whether the variable provided by the plug-in belongs to any name space.</span>
+	 * @param belongsToNamespace
+	 *   <span class="lang-en">Whether the variable provided by the plug-in belongs to any namespaces.</span>
 	 *   <span class="lang-ja">プラグインが提供する変数が属する名前空間が, 名前空間に属するかどうか（する場合に true）.</span>
 	 *
-	 * @param nameSpace
-	 *   <span class="lang-en">The name space to which the variable provided by the plug-in belongs.</span>
-	 *   <span class="lang-ja">プラグインが提供する変数が属する名前空間.</span>
+	 * @param namespaceName
+	 *   <span class="lang-en">The name of the namespace to which the variable provided by the plug-in belongs.</span>
+	 *   <span class="lang-ja">プラグインが提供する変数が属する名前空間の名称.</span>
 	 *
 	 * @throws VnanoException
 	 *   <span class="lang-en">
@@ -995,7 +995,9 @@ public class Interconnect {
 	 *   </span>
 	 */
 	private void connectXvci1Plugin(ExternalVariableConnectorInterface1 plugin,
-			boolean aliasingRequired, String aliasName, boolean belongsToNameSpace, String nameSpace) throws VnanoException {
+			boolean aliasingRequired, String aliasName, boolean belongsToNamespace, String namespaceName) throws VnanoException {
+
+		// 接続時の初期化処理を実行
 		try {
 			plugin.initializeForConnection(this.engineConnector);
 		} catch (ConnectorException e) {
@@ -1004,19 +1006,22 @@ public class Interconnect {
 			);
 		}
 
+		// その他の初期化/終了時処理などの時に呼ぶため、XVCI1形式のままのインスタンスもフィールドのリストに登録
 		this.xvci1PluginList.add(plugin);
 
-		// これ後でどうにかしたい。生成後に nameSpace を set すれば済むし、そもそもなんでコンストラクタ分けた ???
-		// -> たぶん当初は書き換え不可能で済む限りは書き換え不可能にしておきたかったような気がする。
-		//    それで下のエイリアス周りも今までは setter 無くてわざわざ AliasAdapter 作ってラップとかする流れになってしまってた気が。
-		Xvci1ToVariableAdapter adapter = belongsToNameSpace
-			? new Xvci1ToVariableAdapter(plugin, nameSpace, LANG_SPEC)
-			: new Xvci1ToVariableAdapter(plugin, LANG_SPEC);
+		// コンパイラやVMでは各種変数は AbstractVariable に抽象化した形で扱うので、
+		// XVCI1 から AbstractVariable へ変換するアダプタ（AbstractVariableを継承している）を生成
+		AbstractVariable adapter = new Xvci1ToVariableAdapter(plugin, LANG_SPEC);
 
-		// エイリアス（別名）を付ける場合
+		// 所属名前空間やエイリアス（別名）などが必要なら設定
+		if (belongsToNamespace) {
+			adapter.setNamespaceName(namespaceName);
+		}
 		if (aliasingRequired) {
 			adapter.setVariableName(aliasName);
 		}
+
+		// 設定を終えた AbstractVariable 継承アダプタを接続
 		this.connectVariable(adapter);
 	}
 
@@ -1043,12 +1048,12 @@ public class Interconnect {
 	 *   <span class="lang-en">The alias for accessing from scripts.</span>
 	 *   <span class="lang-ja">スクリプト内からのアクセスに使用する別名.</span>
 	 *
-	 * @param belongsToNameSpace
-	 *   <span class="lang-en">Whether the function provided by the plug-in belongs to any name space.</span>
+	 * @param belongsToNamespace
+	 *   <span class="lang-en">Whether the function provided by the plug-in belongs to any namespaces.</span>
 	 *   <span class="lang-ja">プラグインが提供する関数が属する名前空間が, 名前空間に属するかどうか（する場合に true）.</span>
 	 *
-	 * @param nameSpace
-	 *   <span class="lang-en">The name space to which the function provided by the plug-in belongs.</span>
+	 * @param namespaceName
+	 *   <span class="lang-en">The name of the namespace to which the function provided by the plug-in belongs.</span>
 	 *   <span class="lang-ja">プラグインが提供する関数が属する名前空間.</span>
 	 *
 	 * @throws VnanoException
@@ -1060,7 +1065,9 @@ public class Interconnect {
 	 *   </span>
 	 */
 	private void connectXfci1Plugin(ExternalFunctionConnectorInterface1 plugin,
-			boolean aliasingRequired, String aliasSignature, boolean belongsToNameSpace, String nameSpace) throws VnanoException {
+			boolean aliasingRequired, String aliasSignature, boolean belongsToNamespace, String namespaceName) throws VnanoException {
+
+		// 接続時の初期化処理を実行
 		try {
 			plugin.initializeForConnection(this.engineConnector);
 		} catch (ConnectorException e) {
@@ -1069,14 +1076,17 @@ public class Interconnect {
 			);
 		}
 
+		// その他の初期化/終了時処理などの時に呼ぶため、XFCI1形式のままのインスタンスもフィールドのリストに登録
 		this.xfci1PluginList.add(plugin);
 
-		// これ後でどうにかしたい。connectXvci1Plugin 内のコメント参照
-		Xfci1ToFunctionAdapter adapter = belongsToNameSpace
-			? new Xfci1ToFunctionAdapter(plugin, nameSpace, LANG_SPEC)
-			: new Xfci1ToFunctionAdapter(plugin, LANG_SPEC);
+		// コンパイラやVMでは各種関数は AbstractFunction に抽象化した形で扱うので、
+		// XFCI1 から AbstractFunction へ変換するアダプタ（AbstractFunctionを継承している）を生成
+		AbstractFunction adapter = new Xfci1ToFunctionAdapter(plugin, LANG_SPEC);
 
-		// エイリアス（別名）を付ける場合
+		// 所属名前空間やエイリアス（別名）などが必要なら設定
+		if (belongsToNamespace) {
+			adapter.setNamespaceName(namespaceName);
+		}
 		if (aliasingRequired) {
 
 			// 外部関数のエイリアス（＝接続時のキー）には、関数の名前またはシグネチャを指定できる。
@@ -1097,6 +1107,7 @@ public class Interconnect {
 			adapter.setFunctionName(aliasName);
 		}
 
+		// 設定を終えた AbstractFunction 継承アダプタを接続
 		this.connectFunction(adapter);
 	}
 
@@ -1144,17 +1155,17 @@ public class Interconnect {
 			);
 		}
 
-		// 名前空間（の名前）を取得し、エイリアスが指定されている場合はその名前で置き換える
-		String nameSpace = plugin.getNamespaceName();
+		// 名前空間の名称を取得、ただしエイリアスが指定されている場合はそちらを用いる
+		String nameapaceName = plugin.getNamespaceName();
 		if (aliasingRequired) {
-			nameSpace = aliasName;
+			nameapaceName = aliasName;
 		}
 
 		// 所属関数プラグインを接続（この中で関数の connect 初期化処理が行われる）
 		ExternalFunctionConnectorInterface1[] xfciPlugins = plugin.getFunctions();
 		for (ExternalFunctionConnectorInterface1 xfciPlugin: xfciPlugins) {
 			try {
-				this.connectXfci1Plugin(xfciPlugin, false, null, true, nameSpace);
+				this.connectXfci1Plugin(xfciPlugin, false, null, true, nameapaceName);
 			} catch (VnanoException e) {
 				if (!ignoreIncompatibles) {
 					throw e;
@@ -1166,7 +1177,7 @@ public class Interconnect {
 		ExternalVariableConnectorInterface1[] xvciPlugins = plugin.getVariables();
 		for (ExternalVariableConnectorInterface1 xvciPlugin: xvciPlugins) {
 			try {
-				this.connectXvci1Plugin(xvciPlugin, false, null, true, nameSpace);
+				this.connectXvci1Plugin(xvciPlugin, false, null, true, nameapaceName);
 			} catch (VnanoException e) {
 				if (!ignoreIncompatibles) {
 					throw e;

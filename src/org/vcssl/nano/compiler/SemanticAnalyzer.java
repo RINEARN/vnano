@@ -380,8 +380,8 @@ public class SemanticAnalyzer {
 				if (variable.isConstant()) {
 					currentNode.addModifier(SCRIPT_WORD.constModifier);
 				}
-				if (variable.hasNameSpace()) {
-					currentNode.setAttribute(AttributeKey.NAME_SPACE, variable.getNameSpace());
+				if (variable.hasNamespaceName()) {
+					currentNode.setAttribute(AttributeKey.NAME_SPACE, variable.getNamespaceName());
 				}
 			}
 
@@ -737,8 +737,8 @@ public class SemanticAnalyzer {
 						this.checkFunctionCallablility(function, currentNode);
 
 						currentNode.setAttribute(AttributeKey.CALLEE_SIGNATURE, IDENTIFIER_SYNTAX.getSignatureOf(function));
-						if (function.hasNameSpace()) {
-							currentNode.setAttribute(AttributeKey.NAME_SPACE, function.getNameSpace());
+						if (function.hasNamespaceName()) {
+							currentNode.setAttribute(AttributeKey.NAME_SPACE, function.getNamespaceName());
 						}
 
 						String[] argumentDataTypeNames = this.getArgumentDataTypeNames(currentNode);
