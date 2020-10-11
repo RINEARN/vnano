@@ -64,6 +64,12 @@ public class VirtualMachine {
 	/** 各種の言語仕様設定類を格納するコンテナを保持します。 */
 	private final LanguageSpecContainer LANG_SPEC;
 
+	/** 命令を実行するプロセッサの標準実装を保持します。 */
+	private Processor processor = null;
+
+	/** 命令を実行するプロセッサの高速実装を保持します。 */
+	private Accelerator accelerator = null;
+
 
 	/**
 	 * <span class="lang-en">
@@ -79,6 +85,31 @@ public class VirtualMachine {
 	 */
 	public VirtualMachine(LanguageSpecContainer langSpec) {
 		this.LANG_SPEC = langSpec;
+	}
+
+
+	/**
+	 * <span class="lang-en">Terminates the currently running script</span>
+	 * <span class="lang-ja">現在実行中のスクリプトを終了させます</span>
+	 * .
+	 * @throws VnanoException
+	 *   <span class="lang-en">
+	 *   Thrown when the option {@link org.vcssl.spec.OptionKey#TERMINATOR_ENABLED TERMINATOR_ENABLED} is disabled.
+	 *   </span>
+	 *   <span class="lang-ja">
+	 *   {@link org.vcssl.nano.spec.OptionKey#TERMINATOR_ENABLED TERMINATOR_ENABLED}
+	 *   オプションが無効化されていた場合にスローされます.
+	 *   </span>
+	 */
+	public void terminate() throws VnanoException {
+		if (this.accelerator != null) {
+			this.accelerator.terminate();
+			this.accelerator = null;
+		}
+		if (this.processor != null) {
+			this.processor.terminate();
+			this.processor = null;
+		}
 	}
 
 
@@ -154,12 +185,14 @@ public class VirtualMachine {
 
 		// プロセッサでVMオブジェクトコードの命令列を実行
 		Instruction[] instructions = intermediateCode.getInstructions();
-		Processor processor = new Processor();
+		this.processor = new Processor();
 		if (acceleratorEnabled) {
-			Accelerator accelerator = new Accelerator();
-			accelerator.process(instructions, memory, interconnect, processor);
+			this.accelerator = new Accelerator();
+			this.accelerator.process(instructions, memory, interconnect, this.processor);
+			this.accelerator = null;
 		} else {
-			processor.process(instructions, memory, interconnect);
+			this.processor.process(instructions, memory, interconnect);
+			this.processor = null;
 		}
 
 		// メモリーのデータをinterconnect経由で外部変数に書き戻す（このタイミングでBindings側が更新される）

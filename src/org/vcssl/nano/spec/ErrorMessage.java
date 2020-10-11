@@ -171,6 +171,7 @@ public class ErrorMessage {
 			case MULTIPLE_PERMISSION_AUTHORIZERS_ARE_CONNECTED : return "パーミッション認可プラグイン（permission authorizer）は1個しか接続できませんが、既に「 " + words[1] + " 」接続されている状態で、追加で「 " + words[0] + " 」の接続が要求されました。";
 			case NON_EXPRESSION_STATEMENTS_ARE_RESTRICTED : return "現在の設定では、ライブラリスクリプト内を除き、式の計算以外を行えないよう制限されています。";
 			case NON_FLOAT_DATA_TYPES_ARE_RESTRICTED : return "現在の設定では、ライブラリスクリプト内を除き、float 型以外の値 / 変数 / 関数（戻り値）を使用できないよう制限されています。";
+			case TERMINATOR_IS_DISABLED : return "実行中のスクリプトの終了がリクエストされましたが、「 " + OptionKey.TERMINATOR_ENABLED + " 」オプションが無効化(false指定)されているため、終了できませんでした。";
 			case UNEXPECTED_ACCELERATOR_CRASH : return "予期しないVMエラー (命令アドレス: " + words[0] + ", 再配置後命令アドレス: " + words[1] + ")";
 			case UNEXPECTED_PROCESSOR_CRASH : return "予期しないVMエラー（命令アドレス: " + words[0] + ")";
 			case UNEXPECTED : return "予期しないエラー";
@@ -283,6 +284,7 @@ public class ErrorMessage {
 			case MULTIPLE_PERMISSION_AUTHORIZERS_ARE_CONNECTED : return "The permission authorizer plug-in \"" + words[0] + "\" is requested to be connected, but the other permission authorizer \"" + words[1] + "\" is already connected (only 1 permission authorizer can be connected)";
 			case NON_EXPRESSION_STATEMENTS_ARE_RESTRICTED : return "On the current settings, you can describe only expressions as inputs, except in library scripts";
 			case NON_FLOAT_DATA_TYPES_ARE_RESTRICTED : return "On the current settings, you can use only float-type values / variables / functions (returned values), except in library scripts";
+			case TERMINATOR_IS_DISABLED : return "The termination of the currently running script has been requested, but it can not be terminated because the option \"" + OptionKey.TERMINATOR_ENABLED + "\" is disabled (false)";
 			case UNEXPECTED_ACCELERATOR_CRASH : return "Unexpected VM Error (instruction-addr: " + words[0] + ", reordered-instruction-addr: " + words[1] + ")";
 			case UNEXPECTED_PROCESSOR_CRASH : return "Unexpected VM Error (instruction-addr: " + words[0] + ")";
 			case UNEXPECTED : return "Unexpected Error";

@@ -100,11 +100,39 @@ import org.vcssl.nano.vm.memory.Memory;
  */
 public class Processor implements Processable {
 
+	/** 処理を継続可能かどうかを表すフラグです（外部から処理を終了可能にするため）。 */
+	private volatile boolean continuable;
+
+	/** 処理を終了可能かどうかを表すフラグです。 */
+	private volatile boolean terminatable;
+
 
 	/**
-	 * このクラスは状態を保持するフィールドを持たないため、コンストラクタは何もしません。
+	 * 新しい仮想プロセッサを生成します。
 	 */
 	public Processor() {
+		this.continuable = true;
+		this.terminatable = true;
+	}
+
+
+	/**
+	 * 現在実行中の命令列の実行を終了させます。
+	 *
+	 * @throws VnanoException
+	 *   {@link org.vcssl.nano.spec.OptionKey#TERMINATOR_ENABLED TERMINATOR_ENABLED}
+	 *   オプションが無効化されていた場合にスローされます。
+	 */
+	public void terminate() throws VnanoException {
+
+		// TERMINATOR_ENABLED オプションが無効の場合：
+		// この場合、このメソッドの呼び出し元スレッドに例外を返し、命令列の実行は継続されるのが正しい挙動
+		if (!this.terminatable) {
+			throw new VnanoException(ErrorType.TERMINATOR_IS_DISABLED);
+		}
+
+		// このフラグを false にすると、現在の命令が終わった時点で、次の命令は読まれず終わる
+		this.continuable = false;  // 次回の実行開始時に process メソッド内でまた true に設定される
 	}
 
 
@@ -135,6 +163,7 @@ public class Processor implements Processable {
 		boolean dumpTargetIsAll = dumpTarget.equals(OptionValue.DUMPER_TARGET_ALL);   // ダンプ対象が全てかどうか
 		PrintStream dumpStream = (PrintStream)optionMap.get(OptionKey.DUMPER_STREAM); // ダンプ先ストリーム
 		boolean shouldRun = (Boolean)optionMap.get(OptionKey.RUNNING_ENABLED);        // コードを実行するかどうか
+		this.terminatable = (Boolean)optionMap.get(OptionKey.TERMINATOR_ENABLED);     // 処理を途中で終了可能にするかどうか
 
 
 		// 加減算やその他様々な演算処理を行う演算ユニット
@@ -169,7 +198,8 @@ public class Processor implements Processable {
 
 		// 以下、命令の逐次実行ループ
 		// (プログラムカウンタが命令列の末尾に達するまで、1個ずつ命令を演算ユニットにディスパッチして実行する)
-		while (0 <= programCounter && programCounter < instructionLength) {
+		this.continuable = true;
+		while (0 <= programCounter && programCounter < instructionLength && this.continuable) {
 
 			// 命令を1個実行し、プログラムカウンタの値を更新
 			try {

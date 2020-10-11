@@ -38,4 +38,5 @@ public class SpecialBindingValue {
 	public static final String COMMAND_REMOVE_LIBRARY = "REMOVE_LIBRARY";
 	public static final String COMMAND_RELOAD_PLUGIN = "RELOAD_PLUGIN";
 	public static final String COMMAND_RELOAD_LIBRARY = "RELOAD_LIBRARY";
+	public static final String COMMAND_TERMINATE_SCRIPT = "TERMINATE_SCRIPT";
 }

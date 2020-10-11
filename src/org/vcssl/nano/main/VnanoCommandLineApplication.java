@@ -66,6 +66,7 @@ public final class VnanoCommandLineApplication {
 	private static final String COMMAND_OPTNAME_LOCALE = "locale";
 	private static final String COMMAND_OPTNAME_VERSION = "version";
 	private static final String COMMAND_OPTNAME_ACCELERATOR = "accelerator";
+	private static final String COMMAND_OPTNAME_TERMINATOR = "terminator";
 	private static final String COMMAND_OPTNAME_ENCODING = "encoding";
 	private static final String COMMAND_OPTNAME_PLUGIN_DIR = "pluginDir";
 	private static final String COMMAND_OPTNAME_PLUGIN = "plugin";
@@ -264,6 +265,22 @@ public final class VnanoCommandLineApplication {
 		System.out.println("");
 		System.out.println("      java -jar Vnano.jar Example.vnano --accelerator true");
 		System.out.println("      java -jar Vnano.jar Example.vnano --accelerator false");
+		System.out.println("");
+		System.out.println("");
+
+		System.out.println("  --terminator <enableOrDisable>");
+		System.out.println("");
+		System.out.println("      Specify whether you want to enable the terminator.");
+		System.out.println("      This option is specified by default, and the default value is false.");
+		System.out.println("      You can choose and specify the value of <enableOrDisable> from the followings:");
+		System.out.println("");
+		System.out.println("        true            : Enable the terminator.");
+		System.out.println("        false (default) : Disable the terminator.");
+		System.out.println("");
+		System.out.println("    e.g.");
+		System.out.println("");
+		System.out.println("      java -jar Vnano.jar Example.vnano --terminator true");
+		System.out.println("      java -jar Vnano.jar Example.vnano --terminator false");
 		System.out.println("");
 		System.out.println("");
 
@@ -496,6 +513,19 @@ public final class VnanoCommandLineApplication {
 				} else {
 					System.err.println(
 							"Invalid value for " + COMMAND_OPTNAME_PREFIX + COMMAND_OPTNAME_ACCELERATOR + "option: " + optionValue
+					);
+					return false;
+				}
+				return true;
+			}
+
+			// --terminator オプションの場合
+			case COMMAND_OPTNAME_TERMINATOR : {
+				if (optionValue.equals("true") || optionValue.equals("false")) {
+					this.engineOptionMap.put(OptionKey.TERMINATOR_ENABLED, Boolean.valueOf(optionValue));
+				} else {
+					System.err.println(
+							"Invalid value for " + COMMAND_OPTNAME_PREFIX + COMMAND_OPTNAME_TERMINATOR + "option: " + optionValue
 					);
 					return false;
 				}

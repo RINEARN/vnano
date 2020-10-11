@@ -46,10 +46,39 @@ import org.vcssl.nano.vm.processor.Processor;
  */
 public class Accelerator {
 
+	/** 処理を継続可能かどうかを表すフラグです（外部から処理を終了可能にするため）。 */
+	private volatile boolean continuable;
+
+	/** 処理を終了可能かどうかを表すフラグです。 */
+	private volatile boolean terminatable;
+
+
 	/**
-	 * このクラスは定数以外のフィールドを持たないため、コンストラクタは何もしません。
+	 * 新しいアクセラレータを生成します。
 	 */
 	public Accelerator() {
+		this.continuable = true;
+		this.terminatable = true;
+	}
+
+
+	/**
+	 * 現在実行中の命令列の実行を終了させます。
+	 *
+	 * @throws VnanoException
+	 *   {@link org.vcssl.nano.spec.OptionKey#TERMINATOR_ENABLED TERMINATOR_ENABLED}
+	 *   オプションが無効化されていた場合にスローされます。
+	 */
+	public void terminate() throws VnanoException {
+
+		// TERMINATOR_ENABLED オプションが無効の場合：
+		// この場合、このメソッドの呼び出し元スレッドに例外を返し、命令列の実行は継続されるのが正しい挙動
+		if (!this.terminatable) {
+			throw new VnanoException(ErrorType.TERMINATOR_IS_DISABLED);
+		}
+
+		// このフラグを false にすると、現在の命令が終わった時点で、次の命令は読まれず終わる
+		this.continuable = false;  // 次回の実行開始時に process メソッド内でまた true に設定される
 	}
 
 
@@ -81,6 +110,7 @@ public class Accelerator {
 		boolean dumpTargetIsAll = dumpTarget.equals(OptionValue.DUMPER_TARGET_ALL);   // ダンプ対象が全てかどうか
 		PrintStream dumpStream = (PrintStream)optionMap.get(OptionKey.DUMPER_STREAM); // ダンプ先ストリーム
 		boolean shouldRun = (Boolean)optionMap.get(OptionKey.RUNNING_ENABLED);        // コードを実行するかどうか
+		this.terminatable = (Boolean)optionMap.get(OptionKey.TERMINATOR_ENABLED);     // 処理を途中で終了可能にするかどうか
 
 
 		// スカラ判定やキャッシュ確保などの高速化用データ解析を実行
@@ -160,13 +190,21 @@ public class Accelerator {
 
 
 		// 以下、命令の逐次実行ループ
-		AcceleratorExecutionNode nextNode = null;
-		if (nodes.length != 0) {
-			nextNode = nodes[0];
-		}
+		this.continuable = true;
+		AcceleratorExecutionNode nextNode = (nodes.length == 0) ? null : nodes[0];
 		try {
-			while (nextNode != null) {
-				nextNode = nextNode.execute();
+
+			// 途中で終了可能にする場合の実行ループ
+			if(terminatable) {
+				while (nextNode != null && this.continuable) {
+					nextNode = nextNode.execute();
+				}
+
+			// 途中での終了を考慮しなくてもいい場合はこちら（ループ条件を削れるので僅かに有利な可能性がある）
+			} else {
+				while (nextNode != null) {
+					nextNode = nextNode.execute();
+				}
 			}
 
 		} catch (Exception e) {

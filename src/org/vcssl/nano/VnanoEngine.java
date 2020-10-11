@@ -57,11 +57,19 @@ public final class VnanoEngine {
 
 
 	/**
-	 * <span class="lang-en">An object to mediate information/connections between components, named as "interconnect"</span>
-	 * <span class="lang-ja">処理系内の各部で共有する情報や接続を仲介するオブジェクト（インターコネクト）です</span>
+	 * <span class="lang-en">Stores a process virtual machine executing the currently running intermediate code</a>
+	 * <span class="lang-ja">現在実行中の中間コードを実行しているプロセス仮想マシン（VM）を保持します</a>
 	 * .
 	 */
-	Interconnect interconnect = null;
+	private VirtualMachine virtualMachine = null;
+
+
+	/**
+	 * <span class="lang-en">Stores an object to mediate information/connections between components ("interconnect")</span>
+	 * <span class="lang-ja">処理系内の各部で共有する情報や接続を仲介するオブジェクト（インターコネクト）を保持します</span>
+	 * .
+	 */
+	private Interconnect interconnect = null;
 
 
 	/**
@@ -69,7 +77,7 @@ public final class VnanoEngine {
 	 * <span class="lang-ja">ライブラリスクリプトの内容を, ライブラリ名をキーとして保持します</span>
 	 * .
 	 */
-	Map<String, String> libraryNameContentMap = null;
+	private Map<String, String> libraryNameContentMap = null;
 
 
 	/**
@@ -161,10 +169,11 @@ public final class VnanoEngine {
 			Compiler compiler = new Compiler(LANG_SPEC);
 			String assemblyCode = compiler.compile(scripts, names, this.interconnect);
 
-			// Execute the VRIL code on the VM.
+			// Execute the VRIL code on a VM.
 			// VMでVRILコードを実行
-			VirtualMachine vm = new VirtualMachine(LANG_SPEC);
-			Object evalValue = vm.executeAssemblyCode(assemblyCode, this.interconnect);
+			this.virtualMachine = new VirtualMachine(LANG_SPEC);
+			Object evalValue = this.virtualMachine.executeAssemblyCode(assemblyCode, this.interconnect);
+			this.virtualMachine = null;
 
 			// 全プラグインの終了時処理などを行い、インターコネクトを待機状態に移行
 			this.interconnect.deactivate();
@@ -227,6 +236,27 @@ public final class VnanoEngine {
 			vne.setErrorType(ErrorType.UNMODIFIED);
 			vne.setErrorWords( new String[] { passedErrorMessage } );
 			throw vne;
+		}
+	}
+
+
+	/**
+	 * <span class="lang-en">Terminates the currently running script</span>
+	 * <span class="lang-ja">現在実行中のスクリプトを終了させます</span>
+	 * .
+	 * @throws VnanoException
+	 *   <span class="lang-en">
+	 *   Thrown when the option {@link org.vcssl.spec.OptionKey#TERMINATOR_ENABLED TERMINATOR_ENABLED} is disabled.
+	 *   </span>
+	 *   <span class="lang-ja">
+	 *   {@link org.vcssl.nano.spec.OptionKey#TERMINATOR_ENABLED TERMINATOR_ENABLED}
+	 *   オプションが無効化されていた場合にスローされます.
+	 *   </span>
+	 */
+	public void terminateScript() throws VnanoException {
+		if (this.virtualMachine != null) {
+			this.virtualMachine.terminate();
+			this.virtualMachine = null;
 		}
 	}
 

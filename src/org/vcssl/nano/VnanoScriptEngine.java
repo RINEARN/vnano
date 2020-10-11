@@ -485,30 +485,10 @@ public final class VnanoScriptEngine implements ScriptEngine {
 
 		// 制御コマンドの場合
 		} else if (name.equals(SpecialBindingKey.COMMAND)){
-
-			// プラグインの接続解除コマンドの場合
-			if (value instanceof String && value.equals(SpecialBindingValue.COMMAND_REMOVE_PLUGIN)) {
-				try {
-					this.vnanoEngine.disconnectAllPlugins();
-				} catch (VnanoException e) {
-					throw new VnanoFatalException(e);
-				}
-				this.pluginLoader = new PluginLoader(DEFAULT_ENCODING, LANG_SPEC);
-				this.loadedPluginUpdated = true;
-
-			// ライブラリの登録解除コマンドの場合
-			} if (value instanceof String && value.equals(SpecialBindingValue.COMMAND_REMOVE_LIBRARY)) {
-				this.libraryScriptLoader = new ScriptLoader(DEFAULT_ENCODING, LANG_SPEC);
-				this.loadedLibraryUpdated = true;
-
-			// ライブラリの再読み込みコマンドの場合
-			} else if (value instanceof String && value.equals(SpecialBindingValue.COMMAND_RELOAD_LIBRARY)) {
-				this.loadLibraries();
-
-			// プラグインの再読み込みコマンドの場合
-			} else if (value instanceof String && value.equals(SpecialBindingValue.COMMAND_RELOAD_PLUGIN)) {
-				this.loadPlugins();
+			if (!(value instanceof String)) {
+				throw new VnanoFatalException("Invalid command (should be a String)");
 			}
+			this.handleCommands((String)value);
 
 		// ライブラリの読み込みリストファイル指定の場合
 		} else if (name.equals(SpecialBindingKey.LIBRARY_LIST_FILE)) {
@@ -526,6 +506,7 @@ public final class VnanoScriptEngine implements ScriptEngine {
 			this.putPluginBindingsUpdated = true;
 		}
 	}
+
 	private void loadPlugins() {
 		try {
 			this.pluginLoader.load();
@@ -534,6 +515,7 @@ public final class VnanoScriptEngine implements ScriptEngine {
 			throw new VnanoFatalException("Plugin loading failed", e);
 		}
 	}
+
 	private void loadLibraries() {
 		try {
 			this.libraryScriptLoader.load();
@@ -543,6 +525,57 @@ public final class VnanoScriptEngine implements ScriptEngine {
 		}
 	}
 
+	private void handleCommands(String commandName) {
+		switch (commandName) {
+
+			// プラグインの登録解除コマンドの場合
+			case SpecialBindingValue.COMMAND_REMOVE_PLUGIN : {
+				try {
+					this.vnanoEngine.disconnectAllPlugins();
+				} catch (VnanoException e) {
+					throw new VnanoFatalException(e);
+				}
+				this.pluginLoader = new PluginLoader(DEFAULT_ENCODING, LANG_SPEC);
+				this.loadedPluginUpdated = true;
+				break;
+			}
+
+			// ライブラリの登録解除コマンドの場合
+			case SpecialBindingValue.COMMAND_REMOVE_LIBRARY : {
+				this.libraryScriptLoader = new ScriptLoader(DEFAULT_ENCODING, LANG_SPEC);
+				this.loadedLibraryUpdated = true;
+				break;
+			}
+
+			// プラグインの再読み込みコマンドの場合
+			case SpecialBindingValue.COMMAND_RELOAD_PLUGIN : {
+				this.loadPlugins();
+				break;
+			}
+
+			// ライブラリの再読み込みコマンドの場合
+			case SpecialBindingValue.COMMAND_RELOAD_LIBRARY : {
+				this.loadLibraries();
+				break;
+			}
+
+			// スクリプトの実行終了リクエストコマンドの場合
+			case SpecialBindingValue.COMMAND_TERMINATE_SCRIPT : {
+				try {
+					this.vnanoEngine.terminateScript();
+
+				// TERMINATOR_ENABLED オプションが無効に設定されていた場合は例外が発生する
+				} catch (VnanoException vne) {
+					throw new VnanoFatalException(vne.getMessage());
+				}
+				break;
+			}
+
+			default : {
+				throw new VnanoFatalException("Unknown command: " + commandName);
+			}
+		}
+	}
 
 	/**
 	 * <span class="lang-en">Gets the value setted by {@link VnanoScriptEngine#put put} method</span>

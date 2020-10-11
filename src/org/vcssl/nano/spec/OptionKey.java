@@ -122,6 +122,37 @@ public class OptionKey {
 
 
 	/**
+	 * <span class="lang-en">
+	 * An option to enable/disable the feature for terminating a running script
+	 * </span>
+	 * <span class="lang-ja">
+	 * 実行中のスクリプトを終了させる機能の, 有効/無効を切り替えるためのオプションです
+	 * </span>
+	 * .
+	 * <span class="lang-en">
+	 * If you enable this option, you become to able to terminate a running script BY OPERATION OF THE SCRIPT ENGINE,
+	 * but the maximum numerical operating speed (and so on) may decreases slightly.
+	 * Probably, for most cases, users hardly can recognize the decreasing of the operating speed caused by this option.
+	 * However, for highly optimized numerical computation scripts, the operating speed may decrease about 10% or more.
+	 * Note that, the script will be terminated when all procedures in the script completed,
+	 * or when any errors occurred in the script, or when exit() function is called in the script,
+	 * regardless whether this option is enabled or disabled.
+	 * </span>
+	 * <span class="lang-ja">
+	 * このオプションを有効化すると, スクリプトを「 実行途中でエンジン操作によって 」終了させる事が可能になる代わりに,
+	 * 処理速度が若干低下してしまう可能性があります. 多くの場合は, 恐らくほぼ気付かない程度の速度差しか生じませんが,
+	 * 高度に最適化された数値演算系スクリプトなどでは 10% 程度, 場合によってはそれ以上の速度低下が見込まれます.
+	 * なお, このオプションの有効/無効に関わらず, スクリプトの処理が全て終わった際や, スクリプト内でエラーが発生した際,
+	 * またはスクリプト内で exit() 関数が呼ばれた際などには, スクリプト実行は(必然的に)終了する事にご注意ください.
+	 * </span>
+	 *
+	 * <span class="lang-en">The value of this option is "Boolean" type. Specify "Boolean.TRUE" to enable this option.</span>
+	 * <span class="lang-ja">このオプションの値は "Boolean" 型です. 有効にするには "Boolean.TRUE" を指定してください.</span>
+	 */
+	public static final String TERMINATOR_ENABLED = "TERMINATOR_ENABLED";
+
+
+	/**
 	 * <span class="lang-en">An option to dump states and intermediate representations in the compiler, VM, etc</span>
 	 * <span class="lang-ja">コンパイラやVM内などでの状態や中間表現をダンプするためのオプションです</span>
 	 * .
