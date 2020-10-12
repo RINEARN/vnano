@@ -457,21 +457,30 @@ public class Interconnect {
 	 * <span class="lang-en">Connects various types of plug-ins which provides external functions/variables</span>
 	 * <span class="lang-ja">外部関数/変数を提供する, 各種のプラグインを接続します</span>
 	 * .
-	 * @param bindingKey
+	 * @param bindingName
 	 *   <span class="lang-en">
-	 *   An unique key to identify the plug-in.
-	 *   It also works as an name (alias) of a connected external variable/functuion/namespace.
-	 *   For a function, you can specify a signature containing parameter-declarations (e.g.: "foo(int,float)" )
-	 *   instead of a name, if you want to avoid duplication of a key when you put overloaded functions
-	 *   (note that, syntax, data-types, and so on for parameters will not be checked).
-	 *   Also, you can specify "___VNANO_AUTO_KEY" for generate a valid key automatically.
+	 *   A name in scripts of the variable/function/namespace provided by the connected plug-in.
+	 *   If the passed argument contains a white space or a character "(", the content after it will be ignored.
+	 *   By the above specification, for a function plug-in,
+	 *   you can specify a signature containing parameter-declarations like "foo(int,float)"
+	 *   (note that, syntax or correctness of parameter-declarations will not be checked).
+	 *   In addition, for plug-ins providing elements belonging to the same namespace "Bar",
+	 *   you can specify "Bar 1", "Bar 2", and so on.
+	 *   This is helpful to avoid the duplication of keys when you use
+	 *   {@link org.vcssl.nano.VnanoScriptEngine#put(String, Object) VnanoScriptEngine.put(String, Object) }
+	 *   method which wraps this method.
+	 *   Also, you can specify "___VNANO_AUTO_KEY" for using a valid value generated automatically.
 	 *   </span>
 	 *   <span class="lang-ja">
-	 *   プラグインを一意に識別するためのキー.
-	 *   キーの内容は, 接続される外部関数/変数/名前空間にスクリプト内からアクセスするための名称としても機能します.
-	 *   関数に対しては、関数名のみの代わりに、引数部を含むシグネチャ（ 例えば "foo(int,float)" 等 ）を指定する事も可能です
-	 *   （ただし、これは単にキーの重複を避けたい場合のためにサポートされており、引数部に対する構文や整合性の検査などは行われません）。
-	 *   なお, "___VNANO_AUTO_KEY" を指定する事で, 有効なキーを自動生成する事もできます.
+	 *   接続されるプラグインが提供する変数/関数/名前空間の, スクリプト内での名前.
+	 *   内容に空白または「 ( 」が含まれている場合、それ以降は名前としては無視されます.
+	 *   これにより, 例えば関数 "foo" に対して引数部を含めて "foo(int,float)" 等と指定したり
+	 *   (引数部の構文や整合性検査などは行われません）,
+	 *   同じ名前空間 "Bar" の要素を提供するプラグイン群に対して "Bar 1", "Bar 2", ... のように指定する事ができます.
+	 *   これは, このメソッドをラップしている
+	 *   {@link org.vcssl.nano.VnanoScriptEngine#put(String, Object) VnanoScriptEngine.put(String, Object) }
+	 *   メソッドにおいて, キーの重複を避けたい場合に有効です.
+	 *   なお, "___VNANO_AUTO_KEY" を指定する事で, 有効な値の指定を自動で行う事もできます.
 	 *   </span>
 	 *
 	 * @param plugin
@@ -524,14 +533,19 @@ public class Interconnect {
 	 *   プラグインの接続に失敗した場合にスローされます.
 	 *   </span>
 	 */
-	public void connectPlugin(String bindingKey, Object plugin) throws VnanoException {
+	public void connectPlugin(String bindingName, Object plugin) throws VnanoException {
 
 		try {
 			// Replace the binding key with auto-generated one if, it it is requested.
 			// キーを自動生成するよう設定されている場合は、キーを置き換え
-			if (bindingKey.equals(SpecialBindingKey.AUTO_KEY)) {
-				bindingKey = this.generateBindingKeyOf(plugin);     // これ、ここでシグネチャ求める前にプラグインを init する必要がる？
+			if (bindingName.equals(SpecialBindingKey.AUTO_KEY)) {
+				bindingName = this.generateBindingNameOf(plugin);
+				// これ、ここでシグネチャ求める前にプラグインを init する必要がある？ (XNCI1など)
+				// -> init するまで名前やシグネチャが定まらない実装は XFCI1 的にはNGでいいのでは。init タイミングを早めてもいいけど、それはそれで制約が緩すぎて後でエンジン側でネックになる仕様になりそう(GPCIみたいな)。
 			}
+
+			// bindingName 内の空白や「 ( 」以降は無視する仕様なので、含まれていればカットする
+			bindingName = bindingName.split("\\s|\\(")[0];
 
 			// PACI 1 形式のセキュリティプラグイン
 			if (plugin instanceof PermissionAuthorizerConnectorInterface1) {
@@ -539,27 +553,27 @@ public class Interconnect {
 
 			// XVCI 1 形式の外部変数プラグイン
 			} else if (plugin instanceof ExternalVariableConnectorInterface1) {
-				this.connectXvci1Plugin( (ExternalVariableConnectorInterface1)plugin, true, bindingKey, false, null );
+				this.connectXvci1Plugin( (ExternalVariableConnectorInterface1)plugin, true, bindingName, false, null );
 
 			// XFCI 1 形式の外部関数プラグイン
 			} else if (plugin instanceof ExternalFunctionConnectorInterface1) {
-				this.connectXfci1Plugin( (ExternalFunctionConnectorInterface1)plugin, true, bindingKey, false, null);
+				this.connectXfci1Plugin( (ExternalFunctionConnectorInterface1)plugin, true, bindingName, false, null);
 
 			// XNCI 1 形式の外部関数プラグイン
 			} else if (plugin instanceof ExternalNamespaceConnectorInterface1) {
-				this.connectXnci1Plugin( (ExternalNamespaceConnectorInterface1)plugin, true, bindingKey, false );
+				this.connectXnci1Plugin( (ExternalNamespaceConnectorInterface1)plugin, true, bindingName, false );
 
 			// クラスフィールドの場合
 			} else if (plugin instanceof Field) {
-				this.connectFieldAsPlugin( (Field)plugin, null, true, bindingKey );
+				this.connectFieldAsPlugin( (Field)plugin, null, true, bindingName );
 
 			// クラスメソッドの場合
 			} else if (plugin instanceof Method) {
-				this.connectMethodAsPlugin( (Method)plugin, null, true, bindingKey );
+				this.connectMethodAsPlugin( (Method)plugin, null, true, bindingName );
 
 			// クラスの場合
 			} else if (plugin instanceof Class) {
-				this.connectClassAsPlugin( (Class<?>)plugin, null, true, bindingKey );
+				this.connectClassAsPlugin( (Class<?>)plugin, null, true, bindingName );
 
 			// インスタンスフィールドやインスタンスメソッド等は、所属インスタンスも格納する配列で渡される
 			} else if (plugin instanceof Object[]) {
@@ -570,19 +584,19 @@ public class Interconnect {
 				if (objects.length == 2 && objects[0] instanceof Field) {
 					Field field = (Field)objects[0]; // [0] はフィールドのリフレクション
 					Object instance = objects[1];    // [1] はフィールドの所属インスタンス
-					this.connectFieldAsPlugin( field, instance, true, bindingKey );
+					this.connectFieldAsPlugin( field, instance, true, bindingName );
 
 				// インスタンスメソッドの場合 >> 引数からMethodとインスタンスを取り出し、外部関数として接続
 				} else if (objects.length == 2 && objects[0] instanceof Method) {
 					Method method = (Method)objects[0]; // [0] はメソッドのリフレクション
 					Object instance = objects[1];       // [1] はメソッドの所属インスタンス
-					this.connectMethodAsPlugin( method, instance, true, bindingKey );
+					this.connectMethodAsPlugin( method, instance, true, bindingName );
 
 				// クラスの場合 >> 引数からClassとインスタンスを取り出し、外部ライブラリとして接続
 				} else if (objects.length == 2 && objects[0] instanceof Class) {
 					Class<?> pluginClass = (Class<?>)objects[0];
 					Object instance = objects[1];
-					this.connectClassAsPlugin( pluginClass, instance, true, bindingKey );
+					this.connectClassAsPlugin( pluginClass, instance, true, bindingName );
 
 				} else {
 					throw new VnanoException(
@@ -593,12 +607,12 @@ public class Interconnect {
 			// その他のオブジェクトは、Classを取得して外部ライブラリとして接続
 			} else {
 				Class<?> pluginClass = plugin.getClass();
-				this.connectClassAsPlugin( pluginClass, plugin, true, bindingKey );
+				this.connectClassAsPlugin( pluginClass, plugin, true, bindingName );
 			}
 
 		// 内部で VnanoException が発生した場合は、原因プラグインを特定できるメッセージを持たせた VnanoException でラップして投げる
 		} catch (VnanoException vne) {
-			throw new VnanoException(ErrorType.PLUGIN_CONNECTION_FAILED, bindingKey, vne);
+			throw new VnanoException(ErrorType.PLUGIN_CONNECTION_FAILED, bindingName, vne);
 		}
 	}
 
@@ -636,13 +650,13 @@ public class Interconnect {
 
 	/**
 	 * <span class="lang-en">
-	 * Generate the value of the argument "bindingKey" of
+	 * Generate the value of the argument "bindingName" of
 	 * {@link Interconnect#connectPlugin connectPlugin(String bindingKey, Object plugin)}
 	 * method automatically
 	 * </span>
 	 * <span class="lang-ja">
 	 * {@link Interconnect#connectPlugin connectPlugin(String bindingKey, Object plugin)}
-	 * メソッドの引数 bindingKey の値を自動生成します
+	 * メソッドの引数 bindingName の値を自動生成します
 	 * </span>
 	 * .
 	 * @param plugin
@@ -670,7 +684,7 @@ public class Interconnect {
 	 *   プラグインの解析に失敗した場合にスローされます.
 	 *   </span>
 	 */
-	private String generateBindingKeyOf(Object plugin) throws VnanoException {
+	private String generateBindingNameOf(Object plugin) throws VnanoException {
 
 		// 内部変数と互換の変数オブジェクト
 		if (plugin instanceof AbstractVariable) {
@@ -716,17 +730,17 @@ public class Interconnect {
 			// インスタンスフィールドの場合
 			if (objects.length == 2 && objects[0] instanceof Field) {
 				Field field = (Field)objects[0]; // [0] はフィールドのリフレクション
-				return generateBindingKeyOf(field);
+				return generateBindingNameOf(field);
 
 			// インスタンスメソッドの場合
 			} else if (objects.length == 2 && objects[0] instanceof Method) {
 				Method method = (Method)objects[0]; // [0] はメソッドのリフレクション
-				return generateBindingKeyOf(method);
+				return generateBindingNameOf(method);
 
 			// クラスの場合 >> 引数からClassとインスタンスを取り出し、外部ライブラリとして接続
 			} else if (objects.length == 2 && objects[0] instanceof Class) {
 				Class<?> pluginClass = (Class<?>)objects[0];
-				return generateBindingKeyOf(pluginClass);
+				return generateBindingNameOf(pluginClass);
 			} else {
 				throw new VnanoException(
 					ErrorType.UNSUPPORTED_PLUGIN, new String[] {objects[0].getClass().getCanonicalName()}
@@ -736,7 +750,7 @@ public class Interconnect {
 		// その他のオブジェクトは、Classを取得して外部ライブラリとして接続
 		} else {
 			Class<?> pluginClass = plugin.getClass();
-			return generateBindingKeyOf(pluginClass);
+			return generateBindingNameOf(pluginClass);
 		}
 	}
 
@@ -1065,7 +1079,7 @@ public class Interconnect {
 	 *   </span>
 	 */
 	private void connectXfci1Plugin(ExternalFunctionConnectorInterface1 plugin,
-			boolean aliasingRequired, String aliasSignature, boolean belongsToNamespace, String namespaceName) throws VnanoException {
+			boolean aliasingRequired, String aliasName, boolean belongsToNamespace, String namespaceName) throws VnanoException {
 
 		// 接続時の初期化処理を実行
 		try {
@@ -1088,22 +1102,6 @@ public class Interconnect {
 			adapter.setNamespaceName(namespaceName);
 		}
 		if (aliasingRequired) {
-
-			// 外部関数のエイリアス（＝接続時のキー）には、関数の名前またはシグネチャを指定できる。
-			// ただし、シグネチャを指定可能にしているのは、単に引数が異なる同名関数を区別したい用途のためで（put 後に get で取り出したい際など）、
-			// 従ってシグネチャの構文や引数整合性などの検査は行わない（そうじゃないとここで構文解析を行う必要が出てくる）。
-			// 単純に、シグネチャ先頭からの「 ( 」の位置までを抜き出して、それを関数名のエイリアスとして用いる。
-
-			// 関数名のみを指定した場合を想定して、まずはそのまま aliasSignature を aliasName と見なす
-			String aliasName = aliasSignature;
-
-			// もし aliasSignature が「 ( 」を含んでいれば、先頭からそこまでを抽出して aliasName と見なす
-			if (aliasSignature.contains(LANG_SPEC.SCRIPT_WORD.parenthesisBegin)) {
-				int parenBeginIndex = aliasSignature.indexOf(LANG_SPEC.SCRIPT_WORD.parenthesisBegin);
-				aliasName = aliasSignature.substring(0, parenBeginIndex);
-			}
-
-			// 抽出した aliasName を関数名として設定
 			adapter.setFunctionName(aliasName);
 		}
 

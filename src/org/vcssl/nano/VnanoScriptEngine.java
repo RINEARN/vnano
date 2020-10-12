@@ -404,9 +404,18 @@ public final class VnanoScriptEngine implements ScriptEngine {
 	 * Other than the above, this method behaves as a wrapper of
 	 * {@link VnanoEngine#connectPlugin(String,Object) VnanoEngine.connectPlugin(String, Object)}
 	 * method, which is to connect instances of plug-ins.
-	 * In this case, the argument "name" will be the name (alias) for accessing it from the script,
-	 * so it should be described in the valid syntax.
-	 * If you want to generate a valid identifier automatically, specify "___VNANO_AUTO_KEY" as the argument "name".
+	 * In this case, the argument "name" will be a name in scripts of
+	 * the variable/function/namespace provided by the connected plug-in.
+	 * If the argument "name" contains a white space or a character "(", the content after it will be ignored.
+	 * By the above specification, for a function plug-in,
+	 * you can specify a signature containing parameter-declarations like "foo(int,float)"
+	 * (note that, syntax or correctness of parameter-declarations will not be checked).
+	 * In addition, for plug-ins providing elements belonging to the same namespace "Bar",
+	 * you can specify "Bar 1", "Bar 2", and so on.
+	 * This is helpful to avoid the duplication of keys when you use
+	 * {@link org.vcssl.nano.VnanoScriptEngine#put(String, Object) VnanoScriptEngine.put(String, Object) }
+	 * method which wraps this method.
+	 * Also, you can specify "___VNANO_AUTO_KEY" for using a valid value generated automatically.
 	 * </span>
 	 *
 	 * <span class="lang-ja">
@@ -429,8 +438,15 @@ public final class VnanoScriptEngine implements ScriptEngine {
 	 * 上記の全てに該当しない場合には, このメソッドは, プラグインのインスタンスを接続する
 	 * {@link VnanoEngine#connectPlugin(String,Object) VnanoEngine.connectPlugin(String, Object)}
 	 * メソッドのラッパーとして振舞います.
-	 * この場合, 引数 "name" はスクリプト内からアクセスする際の名称として機能します.
-	 * 面倒な場合は, "___VNANO_AUTO_KEY" を引数 "name" に指定すると, 構文的に適切な識別子が自動生成されます.
+	 * この場合, 引数 "name" は, 接続されるプラグインが提供する変数/関数/名前空間の, スクリプト内での名前として機能します.
+	 * 引数 "name" の内容に空白または「 ( 」が含まれている場合、それ以降は名前としては無視されます.
+	 * これにより, 例えば関数 "foo" に対して引数部を含めて "foo(int,float)" 等と指定したり
+	 * (引数部の構文や整合性検査などは行われません）,
+	 * 同じ名前空間 "Bar" の要素を提供するプラグイン群に対して "Bar 1", "Bar 2", ... のように指定する事ができます.
+	 * これは, このメソッドをラップしている
+	 * {@link org.vcssl.nano.VnanoScriptEngine#put(String, Object) VnanoScriptEngine.put(String, Object) }
+	 * メソッドにおいて, キーの重複を避けたい場合に有効です.
+	 * なお, "___VNANO_AUTO_KEY" を指定する事で, 有効な値の指定を自動で行う事もできます.
 	 * </span>
 	 *
 	 * @param name
