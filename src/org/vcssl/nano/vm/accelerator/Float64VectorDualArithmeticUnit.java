@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2018 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2020 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -393,7 +393,7 @@ public class Float64VectorDualArithmeticUnit extends AcceleratorExecutionUnit {
 		public Float64VectorDualArithmeticNode(DataContainer<double[]>[] containers,
 				Float64x3ScalarCacheSynchronizer synchronizer, AcceleratorExecutionNode nextNode) {
 
-			super(nextNode);
+			super(nextNode, 2);
 			//this.container00 = containers[0];
 			this.container01 = containers[1];
 			this.container02 = containers[2];

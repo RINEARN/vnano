@@ -56,14 +56,14 @@ public class BoolCachedScalarLogicalUnit extends AcceleratorExecutionUnit {
 		protected final BoolScalarCache cache2;
 
 		public BoolCachedScalarLogicalNode(BoolScalarCache cache0, BoolScalarCache cache1, BoolScalarCache cache2, AcceleratorExecutionNode nextNode) {
-			super(nextNode);
+			super(nextNode, 1);
 			this.cache0 = cache0;
 			this.cache1 = cache1;
 			this.cache2 = cache2;
 		}
 
 		public BoolCachedScalarLogicalNode(BoolScalarCache cache0, BoolScalarCache cache1, AcceleratorExecutionNode nextNode) {
-			super(nextNode);
+			super(nextNode, 1);
 			this.cache0 = cache0;
 			this.cache1 = cache1;
 			this.cache2 = null;

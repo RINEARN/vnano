@@ -18,6 +18,7 @@ import org.vcssl.nano.interconnect.MetaQualifiedFileLoader;
 import org.vcssl.nano.spec.ErrorType;
 import org.vcssl.nano.spec.LanguageSpecContainer;
 import org.vcssl.nano.spec.OptionKey;
+import org.vcssl.nano.spec.PerformanceKey;
 import org.vcssl.nano.vm.VirtualMachine;
 
 //Documentation:  https://www.vcssl.org/en-us/dev/code/main-jimpl/api/org/vcssl/nano/VnanoEngine.html
@@ -52,6 +53,12 @@ import org.vcssl.nano.vm.VirtualMachine;
  */
 public final class VnanoEngine {
 
+	// 実装メモ：
+	// ・複数スレッドから同一インスタンスの executeScript を同時に呼べるようにするための対処等はこのクラス内には実装しない。
+	//   将来的にそういう使い方に対応したくなった場合は、ParallelVnanoEngine 等の別クラスを作成してそちらでサポートするようにする。
+	//   (現実的な必要性があまり無さそうなのと、そのためにエンジン最表層のこのクラス内で無駄にトリッキーな記述をしたくないため)
+
+
 	/** 各種の言語仕様設定類を格納するコンテナを保持します。 */
 	private final LanguageSpecContainer LANG_SPEC;
 
@@ -77,7 +84,23 @@ public final class VnanoEngine {
 	 * <span class="lang-ja">ライブラリスクリプトの内容を, ライブラリ名をキーとして保持します</span>
 	 * .
 	 */
+	// ライブラリ周りもインターコネクト内で持つようにすべき?
+	// なんで他にも数多くのあれこれが存在する中でこれだけがエンジン直下フィールドとして居るのっていう違和感が。たとえ private でも。
+	// > 以前はオプションマップとか他のものも結構エンジン直下にあった気がする。
+	//   それが次第にインターコネクト内に移っていって、これがまだ残っているだけ ?
+	//   > これをインターコネクトに移すなら併せて LanguageSpecContainer も移したい。
+	//     むしろそっちの方があちこちでコンストラクタに渡してフィールドに持ってるのでなんとかしたい。
+	// また今度要検討
 	private Map<String, String> libraryNameContentMap = null;
+
+
+	/**
+	 * <span class="lang-en">An object for using as a lock of synchronized blocks in an instance of this class</span>
+	 * <span class="lang-ja">このクラスの個々のインスタンスにおける synchronized ブロックのロック用オブジェクトです</span>
+	 * .
+	 */
+	// ※ 主にスレッドキャッシュ剥がし用に使うのでこのロック自体にあまり深い意味は無い
+	private final Object lock;
 
 
 	/**
@@ -104,6 +127,8 @@ public final class VnanoEngine {
 		this.LANG_SPEC = langSpec;
 		this.libraryNameContentMap = new LinkedHashMap<String, String>();
 		this.interconnect = new Interconnect(LANG_SPEC);
+		this.virtualMachine = new VirtualMachine(LANG_SPEC);
+		this.lock = new Object();
 	}
 
 
@@ -111,6 +136,18 @@ public final class VnanoEngine {
 	 * <span class="lang-en">Executes an expression or script code specified as an argument</span>
 	 * <span class="lang-ja">引数に指定された式またはスクリプトコードを実行します</span>
 	 * .
+	 * <span class="lang-en">
+	 * Please note that,
+	 * you must not call this method of the same instance at the same time from multiple threads,
+	 * for processing multiple scripts in parallel.
+	 * For such parallel executions, create an independent instance of the engine for each thread and use them.
+	 * </span>
+	 * <span class="lang-ja">
+	 * なお, 同一インスタンスにおけるこのメソッドを複数のスレッドから呼び出し,
+	 * 複数のスクリプトを同時に（並行して）実行する事には対応していません.
+	 * そのような並列処理を行いたい場合には, スレッドごとに独立なエンジンのインスタンスを生成して使用してください.
+	 * </span>
+	 *
 	 * @param script
 	 *   <span class="lang-en">An expression or script code to be executed.</span>
 	 *   <span class="lang-ja">実行対象の式またはスクリプトコード.</span>
@@ -148,6 +185,7 @@ public final class VnanoEngine {
 
 			// Contain an execution-target script and library scripts into an array.
 			// 実行対象スクリプトと, ライブラリスクリプト（複数）を1つの配列にまとめる
+			// > インターコネクト側でやったほうがいい気がする。プラグインに対してはそっちでエイリアスとか名前空間の対処とかもやってるし。
 			int libN = this.libraryNameContentMap.size();
 			String[] scripts = new String[libN  + 1];
 			String[] names   = new String[libN + 1];
@@ -166,14 +204,11 @@ public final class VnanoEngine {
 
 			// Translate scripts to a VRIL code (intermediate assembly code) by a compiler.
 			// コンパイラでスクリプトコードからVRILコード（中間アセンブリコード）に変換
-			Compiler compiler = new Compiler(LANG_SPEC);
-			String assemblyCode = compiler.compile(scripts, names, this.interconnect);
+			String assemblyCode = new Compiler(LANG_SPEC).compile(scripts, names, this.interconnect);
 
 			// Execute the VRIL code on a VM.
 			// VMでVRILコードを実行
-			this.virtualMachine = new VirtualMachine(LANG_SPEC);
 			Object evalValue = this.virtualMachine.executeAssemblyCode(assemblyCode, this.interconnect);
-			this.virtualMachine = null;
 
 			// 全プラグインの終了時処理などを行い、インターコネクトを待機状態に移行
 			this.interconnect.deactivate();
@@ -241,9 +276,49 @@ public final class VnanoEngine {
 
 
 	/**
-	 * <span class="lang-en">Terminates the currently running script</span>
-	 * <span class="lang-ja">現在実行中のスクリプトを終了させます</span>
+	 * <span class="lang-en">
+	 * Terminates the currently running script as soon as possible
+	 * </span>
+	 * <span class="lang-ja">
+	 * 現在実行中のスクリプトの処理を, 可能な限り早期に放棄して終了させます
+	 * </saam>
 	 * .
+	 * <span class="lang-en">
+	 * To be precise, the {@link org.vcssl.nano.vm.VirtualMachine VirtualMachine}
+	 * (which is processing instructions compiled from the script) in the engine
+	 * will be terminated after when the processing of a currently executed instruction has been completed,
+	 * without processing remained instructions.
+	 * </span>
+	 * <span class="lang-ja">
+	 * より正確には, スクリプトからコンパイルされた命令列を処理している,
+	 * エンジン内の {@link org.vcssl.nano.vm.VirtualMachine VirtualMachine} が,
+	 * 現在実行中の命令(1個)の処理が完了した時点で, 残りの命令列の実行を放棄して終了します.
+	 * </saam>
+	 *
+	 * <span class="lang-en">
+	 * Also, if you used this method, call {@link VnanoEngine#resetTerminator() resetTerminator()}
+	 * method before the next execution of a new script,
+	 * otherwise the next execution will end immediately without processing any instructions.
+	 * </span>
+	 * <span class="lang-ja">
+	 * なお、このメソッドを呼び出して実行を終了させた後に、再び(新規に)スクリプトを実行する際には、事前に
+	 * {@link VnanoEngine#resetTerminator() resetTerminator()} メソッドを呼び出す必要があります.
+	 * 前者の呼び出しから後者の呼び出しまでの間, 実行が要求されたスクリプトはすぐに終了します.
+	 * </span>
+	 *
+	 * <span class="lang-en">
+	 * By the above behavior, even if a termination request by this method and
+	 * an execution request by another thread are conflict, the execution will be terminated certainly
+	 * (unless {@link VnanoEngine#resetTerminator() resetTerminator()} will be called before
+	 * when the execution will have been terminated).
+	 * </span>
+	 * <span class="lang-ja">
+	 * 上記の仕様により, このメソッドの呼び出しと新規実行リクエストが,
+	 * 別スレッドからシビアに競合したタイミングで行われた場合においても,
+	 * (終了前に {@link VnanoEngine#resetTerminator() resetTerminator()} が呼ばれない限り)
+	 * スクリプトは確実に終了します.
+	 * </span>
+	 *
 	 * @throws VnanoException
 	 *   <span class="lang-en">
 	 *   Thrown when the option {@link org.vcssl.spec.OptionKey#TERMINATOR_ENABLED TERMINATOR_ENABLED} is disabled.
@@ -254,10 +329,38 @@ public final class VnanoEngine {
 	 *   </span>
 	 */
 	public void terminateScript() throws VnanoException {
-		if (this.virtualMachine != null) {
-			this.virtualMachine.terminate();
-			this.virtualMachine = null;
+		if (! (boolean)this.interconnect.getOptionMap().get(OptionKey.TERMINATOR_ENABLED) ) {
+			throw new VnanoException(ErrorType.TERMINATOR_IS_DISABLED);
 		}
+		this.virtualMachine.terminate();
+	}
+
+
+	/**
+	 * <span class="lang-en">
+	 * Resets the engine which had terminated by {@link VnanoEngine#terminate() terminate()}
+	 * method, for processing new scripts
+	 * </span>
+	 * <span class="lang-ja">
+	 * {@link VnanoEngine#terminate() terminate()} メソッドによって終了させたエンジンを,
+	 * 再び(新規)スクリプト実行可能な状態に戻します
+	 * </span>
+	 * .
+	 * <span class="lang-en">
+	 * Please note that, if an execution of code is requested by another thread
+	 * when this method is being processed, the execution request might be missed.
+	 * </span>
+	 * <span class="lang-ja">
+	 * なお, このメソッドの呼び出しと新規実行リクエストが, 別スレッドからシビアに競合したタイミングで行われた場合には,
+	 * スクリプトは実行されない可能性がある事に留意してください.
+	 * </span>
+	 */
+	// 名前、disableTerminator だと TERMINATOR_ENABLED オプションを false にする的な挙動と勘違いを招くので、あくまで reset
+	public void resetTerminator() throws VnanoException {
+		if (! (boolean)this.interconnect.getOptionMap().get(OptionKey.TERMINATOR_ENABLED) ) {
+			throw new VnanoException(ErrorType.TERMINATOR_IS_DISABLED);
+		}
+		this.virtualMachine.resetTerminator();
 	}
 
 
@@ -540,5 +643,56 @@ public final class VnanoEngine {
 	 */
 	public Map<String, String> getPermissionMap() throws VnanoException {
 		return this.interconnect.getPermissionMap();
+	}
+
+
+	/**
+	 * <span class="lang-en">Gets the Map (performance map) storing names and values of performance monitoring items</span>
+	 * <span class="lang-ja">パフォーマンスモニタの計測項目名と値を格納するマップ（パフォーマンスマップ）を取得します</span>
+	 * .
+	 * <span class="lang-en">
+	 * Note that, when some measured values for some monitoring items don't exist
+	 * (e.g.: when any scripts are not running, or running but their performance values are not measualable yet),
+	 * the returned performance map does not contain values for such monitoring items,
+	 * so sometimes the returned performance map is incomplete (missing values for some items) or empty.
+	 * Please be careful of the above point when you "get" measured performance values from the returned performance map.
+	 * </span>
+	 * <span class="lang-ja">
+	 * なお, スクリプトを実行していない時や, 実行開始後でも性能を有効に計測可能な段階にまだ達していない時など,
+	 * 一部の計測値が存在しないタイミングでは, それらの値は戻り値のパフォーマンスマップ内には格納されません.
+	 * そのような「欠けた」または「空の」パフォーマンスマップが有り得る事には, 計測値を取り出す際に留意する必要があります.
+	 * </span>
+	 *
+	 * @return
+	 *   <span class="lang-en">A Map (performance map) storing names and values of performance monitoring items</span>
+	 *   <span class="lang-ja">パフォーマンスモニタの計測項目名と値を格納するマップ（パフォーマンスマップ）</span>
+	 *
+	 * @throws VnanoException
+	 *   <span class="lang-en">
+	 *   Thrown when the option
+	 *   {@link org.vcssl.nano.spec.OptionKey#PERFORMANCE_MONITOR_ENABLED MONITOR_ENABLED} is disabled.
+	 *   </span>
+	 *   <span class="lang-ja">
+	 *   {@link org.vcssl.nano.spec.OptionKey#PERFORMANCE_MONITOR_ENABLED MONITOR_ENABLED}
+	 *   オプションが無効化されていた場合にスローされます.
+	 *   </span>
+	 */
+	public Map<String, Object> getPerformanceMap() throws VnanoException {
+		synchronized (this.lock) {
+			if (! (boolean)this.interconnect.getOptionMap().get(OptionKey.PERFORMANCE_MONITOR_ENABLED) ) {
+				throw new VnanoException(ErrorType.PERFORMANCE_MONITOR_IS_DISABLED);
+			}
+
+			Map<String, Object> performanceMap = new LinkedHashMap<String, Object>();
+
+			// VMのインスタンス生成が済んでいれば累積処理命令数を取得して格納
+			if (this.virtualMachine != null) {
+				performanceMap.put(
+					PerformanceKey.PROCESSED_INSTRUCTION_COUNT_INT_VALUE,
+					this.virtualMachine.getProcessedInstructionCountIntValue()
+				);
+			}
+			return performanceMap;
+		}
 	}
 }

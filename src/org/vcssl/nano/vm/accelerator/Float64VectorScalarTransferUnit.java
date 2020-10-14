@@ -49,7 +49,7 @@ public class Float64VectorScalarTransferUnit extends AcceleratorExecutionUnit {
 				DataContainer<double[]> container0, DataContainer<double[]> container1,
 				Float64x1ScalarCacheSynchronizer synchronizer, AcceleratorExecutionNode nextNode) {
 
-			super(nextNode);
+			super(nextNode, 1);
 			this.container0 = container0;
 			this.container1 = container1;
 			this.synchronizer = synchronizer;

@@ -576,9 +576,23 @@ public final class VnanoScriptEngine implements ScriptEngine {
 			}
 
 			// スクリプトの実行終了リクエストコマンドの場合
+			// (VnanoEngine.terminate() および VnanoEngine.resetTerminator() の説明参照)
 			case SpecialBindingValue.COMMAND_TERMINATE_SCRIPT : {
 				try {
 					this.vnanoEngine.terminateScript();
+
+				// TERMINATOR_ENABLED オプションが無効に設定されていた場合は例外が発生する
+				} catch (VnanoException vne) {
+					throw new VnanoFatalException(vne.getMessage());
+				}
+				break;
+			}
+
+			// スクリプトの実行終了フラグをリセットするコマンドの場合
+			// (VnanoEngine.terminate() および VnanoEngine.resetTerminator() の説明参照)
+			case SpecialBindingValue.COMMAND_SESET_TERMINATOR : {
+				try {
+					this.vnanoEngine.resetTerminator();
 
 				// TERMINATOR_ENABLED オプションが無効に設定されていた場合は例外が発生する
 				} catch (VnanoException vne) {
@@ -593,15 +607,28 @@ public final class VnanoScriptEngine implements ScriptEngine {
 		}
 	}
 
+
 	/**
-	 * <span class="lang-en">Gets the value setted by {@link VnanoScriptEngine#put put} method</span>
-	 * <span class="lang-ja">{@link VnanoScriptEngine#put put} メソッドで設定した値を取得します</span>
+	 * <span class="lang-en">
+	 * Gets information values of the engine/language (e.g.: version), performance monitoring values,
+	 * or the value which is put by {@link VnanoScriptEngine#put put} method.
+	 * </span>
+	 * <span class="lang-ja">
+	 * エンジン情報や言語情報（バージョンなど）の値や, パフォーマンス計測値,
+	 * または {@link VnanoScriptEngine#put put} メソッドで設定した値を取得します</span>
 	 * .
 	 */
 	@Override
 	public Object get(String name) {
 		if (name == null) {
 			throw new NullPointerException();
+		}
+		if (name.equals(SpecialBindingKey.PERFORMANCE_MAP)) {
+			try {
+				return this.vnanoEngine.getPerformanceMap();
+			} catch (VnanoException vne) {
+				throw new VnanoFatalException(vne.getMessage(), vne);
+			}
 		}
 
 		if (name.equals(ScriptEngine.NAME)) {

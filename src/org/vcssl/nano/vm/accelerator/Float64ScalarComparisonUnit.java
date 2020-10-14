@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2018 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2020 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -69,7 +69,7 @@ public class Float64ScalarComparisonUnit extends AcceleratorExecutionUnit {
 				DataContainer<boolean[]> container0, DataContainer<double[]> container1, DataContainer<double[]> container2,
 				Boolx1Float64x2ScalarCacheSynchronizer synchronizer, AcceleratorExecutionNode nextNode) {
 
-			super(nextNode);
+			super(nextNode, 1);
 			this.container0 = container0;
 			this.container1 = container1;
 			this.container2 = container2;

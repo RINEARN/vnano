@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2019 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2020 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -71,7 +71,7 @@ public class BoolVectorTransferUnit extends AcceleratorExecutionUnit {
 				DataContainer<boolean[]> container0, DataContainer<boolean[]> container1,
 				Boolx2ScalarCacheSynchronizer synchronizer, AcceleratorExecutionNode nextNode) {
 
-			super(nextNode);
+			super(nextNode, 1);
 			this.container0 = container0;
 			this.container1 = container1;
 			this.synchronizer = synchronizer;
@@ -99,7 +99,7 @@ public class BoolVectorTransferUnit extends AcceleratorExecutionUnit {
 				DataContainer<boolean[]> container0, DataContainer<boolean[]> container1,
 				Boolx2ScalarCacheSynchronizer synchronizer, AcceleratorExecutionNode nextNode) {
 
-			super(nextNode);
+			super(nextNode, 1);
 			this.container0 = container0;
 			this.container1 = container1;
 			this.synchronizer = synchronizer;

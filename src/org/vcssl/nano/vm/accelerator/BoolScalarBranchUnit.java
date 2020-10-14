@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2018 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2020 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -49,7 +49,7 @@ public class BoolScalarBranchUnit extends AcceleratorExecutionUnit {
 		public ScalarJmpNode(DataContainer<boolean[]> conditionContainer, Boolx1ScalarCacheSynchronizer synchronizer,
 				AcceleratorExecutionNode nextNode) {
 
-			super(nextNode);
+			super(nextNode, 1);
 			this.conditionContainer = conditionContainer;
 			this.synchronizer = synchronizer;
 		}
@@ -77,7 +77,7 @@ public class BoolScalarBranchUnit extends AcceleratorExecutionUnit {
 		public ScalarJmpnNode(DataContainer<boolean[]> conditionContainer, Boolx1ScalarCacheSynchronizer synchronizer,
 				AcceleratorExecutionNode nextNode) {
 
-			super(nextNode);
+			super(nextNode, 1);
 			this.conditionContainer = conditionContainer;
 			this.synchronizer = synchronizer;
 		}

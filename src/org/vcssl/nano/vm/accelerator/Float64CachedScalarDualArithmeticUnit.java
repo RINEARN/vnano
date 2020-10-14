@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2018 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2020 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -391,7 +391,7 @@ public class Float64CachedScalarDualArithmeticUnit extends AcceleratorExecutionU
 
 		public Float64CachedScalarDualNode(Float64ScalarCache[] caches, AcceleratorExecutionNode nextNode) {
 
-			super(nextNode);
+			super(nextNode, 2);
 			this.cache00 = caches[0];
 			this.cache01 = caches[1];
 			this.cache02 = caches[2];

@@ -70,6 +70,7 @@ org/vcssl/nano/interconnect/ScriptLoader.java
 org/vcssl/nano/interconnect/VariableTable.java
 org/vcssl/nano/interconnect/Xfci1ToFunctionAdapter.java
 org/vcssl/nano/interconnect/Xvci1ToVariableAdapter.java
+org/vcssl/nano/main/PerformanceValuePrinter.java
 org/vcssl/nano/main/VnanoCommandLineApplication.java
 org/vcssl/nano/package-info.java
 org/vcssl/nano/spec/AssemblyWord.java
@@ -89,6 +90,7 @@ org/vcssl/nano/spec/OperatorPrecedence.java
 org/vcssl/nano/spec/OptionKey.java
 org/vcssl/nano/spec/OptionValue.java
 org/vcssl/nano/spec/package-info.java
+org/vcssl/nano/spec/PerformanceKey.java
 org/vcssl/nano/spec/ScriptWord.java
 org/vcssl/nano/spec/SpecialBindingKey.java
 org/vcssl/nano/spec/SpecialBindingValue.java

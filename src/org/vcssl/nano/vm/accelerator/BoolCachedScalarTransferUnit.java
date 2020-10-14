@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2019 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2020 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -51,7 +51,7 @@ public class BoolCachedScalarTransferUnit extends AcceleratorExecutionUnit {
 		protected final BoolScalarCache cache1;
 
 		public BoolCachedScalarMovNode(BoolScalarCache cache0, BoolScalarCache cache1, AcceleratorExecutionNode nextNode) {
-			super(nextNode);
+			super(nextNode, 1);
 			this.cache0 = cache0;
 			this.cache1 = cache1;
 		}

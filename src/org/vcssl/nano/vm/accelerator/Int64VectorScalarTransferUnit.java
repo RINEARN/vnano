@@ -49,7 +49,7 @@ public class Int64VectorScalarTransferUnit extends AcceleratorExecutionUnit {
 				DataContainer<long[]> container0, DataContainer<long[]> container1,
 				Int64x1ScalarCacheSynchronizer synchronizer, AcceleratorExecutionNode nextNode) {
 
-			super(nextNode);
+			super(nextNode, 1);
 			this.container0 = container0;
 			this.container1 = container1;
 			this.synchronizer = synchronizer;

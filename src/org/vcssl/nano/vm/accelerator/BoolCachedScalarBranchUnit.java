@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2018 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2020 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -65,7 +65,7 @@ public class BoolCachedScalarBranchUnit extends AcceleratorExecutionUnit {
 		private AcceleratorExecutionNode branchedNode = null;
 
 		public CachedScalarJmpNode(BoolScalarCache conditionCache, AcceleratorExecutionNode nextNode) {
-			super(nextNode);
+			super(nextNode, 1);
 			this.conditionCache = conditionCache;
 		}
 
@@ -91,7 +91,7 @@ public class BoolCachedScalarBranchUnit extends AcceleratorExecutionUnit {
 		private AcceleratorExecutionNode branchedNode = null;
 
 		public CachedScalarJmpnNode(BoolScalarCache conditionCache, AcceleratorExecutionNode nextNode) {
-			super(nextNode);
+			super(nextNode, 1);
 
 			this.conditionCache = conditionCache;
 		}
@@ -116,7 +116,7 @@ public class BoolCachedScalarBranchUnit extends AcceleratorExecutionUnit {
 		private AcceleratorExecutionNode branchedNode = null;
 
 		public CachedScalarUnconditionalJmpNode(AcceleratorExecutionNode nextNode) {
-			super(nextNode);
+			super(nextNode, 1);
 		}
 
 		@Override
@@ -133,7 +133,7 @@ public class BoolCachedScalarBranchUnit extends AcceleratorExecutionUnit {
 	private final class CachedScalarUnconditionalNeverJmpNode extends AcceleratorExecutionNode {
 
 		public CachedScalarUnconditionalNeverJmpNode(AcceleratorExecutionNode nextNode) {
-			super(nextNode);
+			super(nextNode, 1);
 		}
 
 		@Override

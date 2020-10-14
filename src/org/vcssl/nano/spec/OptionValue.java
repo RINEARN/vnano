@@ -233,6 +233,7 @@ public class OptionValue {
 		DEFAULT_VALUE_MAP.put(OptionKey.LOCALE, Locale.getDefault());
 		DEFAULT_VALUE_MAP.put(OptionKey.ACCELERATOR_ENABLED, Boolean.TRUE);
 		DEFAULT_VALUE_MAP.put(OptionKey.TERMINATOR_ENABLED, Boolean.FALSE);
+		DEFAULT_VALUE_MAP.put(OptionKey.PERFORMANCE_MONITOR_ENABLED, Boolean.FALSE);
 		DEFAULT_VALUE_MAP.put(OptionKey.DUMPER_ENABLED, Boolean.FALSE);
 		DEFAULT_VALUE_MAP.put(OptionKey.DUMPER_TARGET, DUMPER_TARGET_ALL);
 		DEFAULT_VALUE_MAP.put(OptionKey.DUMPER_STREAM, System.out);
@@ -404,6 +405,7 @@ public class OptionValue {
 		checkValueOf(OptionKey.LOCALE, optionMap, Locale.class);
 		checkValueOf(OptionKey.ACCELERATOR_ENABLED, optionMap, Boolean.class);
 		checkValueOf(OptionKey.TERMINATOR_ENABLED, optionMap, Boolean.class);
+		checkValueOf(OptionKey.PERFORMANCE_MONITOR_ENABLED, optionMap, Boolean.class);
 		checkValueOf(OptionKey.DUMPER_ENABLED, optionMap, Boolean.class);
 		checkValueOf(OptionKey.DUMPER_TARGET, optionMap, String.class);
 		checkValueOf(OptionKey.DUMPER_STREAM, optionMap, PrintStream.class);

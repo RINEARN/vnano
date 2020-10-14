@@ -34,9 +34,34 @@ package org.vcssl.nano.spec;
  * @author RINEARN (Fumihiro Matsui)
  */
 public class SpecialBindingValue {
+
 	public static final String COMMAND_REMOVE_PLUGIN = "REMOVE_PLUGIN";
 	public static final String COMMAND_REMOVE_LIBRARY = "REMOVE_LIBRARY";
 	public static final String COMMAND_RELOAD_PLUGIN = "RELOAD_PLUGIN";
 	public static final String COMMAND_RELOAD_LIBRARY = "RELOAD_LIBRARY";
+
+
+	// 各要素のコメント、具体的な内容を書くべきか、ラップしているメソッドを参照すべきか...
+	// このクラスのコメントをちゃんと整備するタイミングで要検討。以下はとりあえず参照だけしている
+
+	/**
+	 * <span class="lang-en">
+	 * When specified with "___VNANO_COMMAND" key, calls {@link org.vcssl.nano.VnanoEngine#terminateScript() } method
+	 * </span>
+	 * <span class="lang-ja">
+	 * キー "___VNANO_COMMAND" への値に指定すると, {@link org.vcssl.nano.VnanoEngine#terminateScript() } を実行します
+	 * </span>
+	 */
 	public static final String COMMAND_TERMINATE_SCRIPT = "TERMINATE_SCRIPT";
+
+
+	/**
+	 * <span class="lang-en">
+	 * When specified with "___VNANO_COMMAND" key, calls {@link org.vcssl.nano.VnanoEngine#resetTerminator() } method
+	 * </span>
+	 * <span class="lang-ja">
+	 * キー "___VNANO_COMMAND" への値に指定すると, {@link org.vcssl.nano.VnanoEngine#resetTerminator() } を実行します
+	 * </span>
+	 */
+	public static final String COMMAND_SESET_TERMINATOR = "RESET_TERMINATOR";
 }

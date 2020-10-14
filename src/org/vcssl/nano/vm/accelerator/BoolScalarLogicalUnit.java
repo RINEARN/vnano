@@ -58,7 +58,7 @@ public class BoolScalarLogicalUnit extends AcceleratorExecutionUnit {
 				DataContainer<boolean[]> container0, DataContainer<boolean[]> container1, DataContainer<boolean[]> container2,
 				Boolx3ScalarCacheSynchronizer synchronizer, AcceleratorExecutionNode nextNode) {
 
-			super(nextNode);
+			super(nextNode, 1);
 			this.container0 = container0;
 			this.container1 = container1;
 			this.container2 = container2;
@@ -69,7 +69,7 @@ public class BoolScalarLogicalUnit extends AcceleratorExecutionUnit {
 				DataContainer<boolean[]> container0, DataContainer<boolean[]> container1,
 				Boolx2ScalarCacheSynchronizer synchronizer, AcceleratorExecutionNode nextNode) {
 
-			super(nextNode);
+			super(nextNode, 1);
 			this.container0 = container0;
 			this.container1 = container1;
 			this.container2 = null;

@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2018 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2020 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -63,7 +63,7 @@ public class Int64CachedScalarComparisonUnit extends AcceleratorExecutionUnit {
 		public Int64CachedScalarComparisonNode(BoolScalarCache cache0, Int64ScalarCache cache1, Int64ScalarCache cache2,
 				AcceleratorExecutionNode nextNode) {
 
-			super(nextNode);
+			super(nextNode, 1);
 			this.cache0 = cache0;
 			this.cache1 = cache1;
 			this.cache2 = cache2;

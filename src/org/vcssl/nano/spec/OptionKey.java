@@ -153,6 +153,32 @@ public class OptionKey {
 
 
 	/**
+	 * <span class="lang-en">
+	 * An option to enable/disable the performance monitor
+	 * </span>
+	 * <span class="lang-ja">
+	 * 実測性能計測に用いるパフォーマンスモニタの有効/無効を切り替えるためのオプションです
+	 * </span>
+	 * .
+	 * <span class="lang-en">
+	 * If you enable this option, you become to get performance monitoring values of the engine,
+	 * but the maximum numerical operating speed (and so on) may decreases slightly.
+	 * Probably, for most cases, users hardly can recognize the decreasing of the operating speed caused by this option.
+	 * However, for highly optimized numerical computation scripts, the operating speed may decrease about 10% or more.
+	 * </span>
+	 * <span class="lang-ja">
+	 * このオプションを有効化すると, エンジンの実測性能値を取得可能になる代わりに,
+	 * 処理速度が若干低下してしまう可能性があります. 多くの場合は, 恐らくほぼ気付かない程度の速度差しか生じませんが,
+	 * 高度に最適化された数値演算系スクリプトなどでは 10% 程度, 場合によってはそれ以上の速度低下が見込まれます.
+	 * </span>
+	 *
+	 * <span class="lang-en">The value of this option is "Boolean" type. Specify "Boolean.TRUE" to enable this option.</span>
+	 * <span class="lang-ja">このオプションの値は "Boolean" 型です. 有効にするには "Boolean.TRUE" を指定してください.</span>
+	 */
+	public static final String PERFORMANCE_MONITOR_ENABLED = "PERFORMANCE_MONITOR_ENABLED";
+
+
+	/**
 	 * <span class="lang-en">An option to dump states and intermediate representations in the compiler, VM, etc</span>
 	 * <span class="lang-ja">コンパイラやVM内などでの状態や中間表現をダンプするためのオプションです</span>
 	 * .

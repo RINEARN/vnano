@@ -49,7 +49,7 @@ public class BoolVectorScalarTransferUnit extends AcceleratorExecutionUnit {
 				DataContainer<boolean[]> container0, DataContainer<boolean[]> container1,
 				Boolx1ScalarCacheSynchronizer synchronizer, AcceleratorExecutionNode nextNode) {
 
-			super(nextNode);
+			super(nextNode, 1);
 			this.container0 = container0;
 			this.container1 = container1;
 			this.synchronizer = synchronizer;

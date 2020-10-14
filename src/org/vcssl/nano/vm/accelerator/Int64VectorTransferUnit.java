@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2019 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2020 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -77,7 +77,7 @@ public class Int64VectorTransferUnit extends AcceleratorExecutionUnit {
 				DataContainer<long[]> container0, DataContainer<long[]> container1,
 				Int64x2ScalarCacheSynchronizer synchronizer, AcceleratorExecutionNode nextNode) {
 
-			super(nextNode);
+			super(nextNode, 1);
 			this.container0 = container0;
 			this.container1 = container1;
 			this.synchronizer = synchronizer;
@@ -105,7 +105,7 @@ public class Int64VectorTransferUnit extends AcceleratorExecutionUnit {
 				DataContainer<long[]> container0, DataContainer<double[]> container1,
 				Int64x1Float64x1ScalarCacheSynchronizer synchronizer, AcceleratorExecutionNode nextNode) {
 
-			super(nextNode);
+			super(nextNode, 1);
 			this.container0 = container0;
 			this.container1 = container1;
 			this.synchronizer = synchronizer;
@@ -135,7 +135,7 @@ public class Int64VectorTransferUnit extends AcceleratorExecutionUnit {
 				DataContainer<long[]> container0, DataContainer<long[]> container1,
 				Int64x2ScalarCacheSynchronizer synchronizer, AcceleratorExecutionNode nextNode) {
 
-			super(nextNode);
+			super(nextNode, 1);
 			this.container0 = container0;
 			this.container1 = container1;
 			this.synchronizer = synchronizer;

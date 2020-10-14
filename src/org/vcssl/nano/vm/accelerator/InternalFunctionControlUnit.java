@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2019 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2020 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -223,7 +223,7 @@ public class InternalFunctionControlUnit extends AcceleratorExecutionUnit {
 		public CallNode(DataContainer<?>[] operandContainers, CacheSynchronizer synchronizer,
 				int reorderedAddressOfThisInstruction, int functionAddress, AcceleratorExecutionNode nextNode) {
 
-			super(nextNode);
+			super(nextNode, 1);
 			this.synchronizer = synchronizer;
 			this.operandContainers = operandContainers;
 			this.returnAddress = reorderedAddressOfThisInstruction + 1;
@@ -276,7 +276,7 @@ public class InternalFunctionControlUnit extends AcceleratorExecutionUnit {
 		public ReturnNode(DataContainer<?>[] operandContainers, CacheSynchronizer synchronizer,
 				int reorderedAddressOfFunction, AcceleratorExecutionNode nextNode) {
 
-			super(nextNode);
+			super(nextNode, 1);
 			this.synchronizer = synchronizer;
 
 			// 戻り値のデータコンテナをこのインスタンスに保持しておく
@@ -325,7 +325,7 @@ public class InternalFunctionControlUnit extends AcceleratorExecutionUnit {
 
 		public ReturnedNode(CacheSynchronizer synchronizer, AcceleratorExecutionNode nextNode) {
 
-			super(nextNode);
+			super(nextNode, 1);
 			this.synchronizer = synchronizer;
 		}
 
@@ -349,7 +349,7 @@ public class InternalFunctionControlUnit extends AcceleratorExecutionUnit {
 
 		public AllocpNode(DataContainer<?>[] operandContainers, DataType dataType, AcceleratorExecutionNode nextNode) {
 
-			super(nextNode);
+			super(nextNode, 1);
 			this.allocTargetContainer = operandContainers[0];
 			this.dataType = dataType;
 		}
@@ -372,7 +372,7 @@ public class InternalFunctionControlUnit extends AcceleratorExecutionUnit {
 	private final class PopNode extends AcceleratorExecutionNode {
 
 		public PopNode(AcceleratorExecutionNode nextNode) {
-			super(nextNode);
+			super(nextNode, 1);
 		}
 
 		@Override
@@ -396,7 +396,7 @@ public class InternalFunctionControlUnit extends AcceleratorExecutionUnit {
 		public GeneralMovpopNode(DataContainer<?>[] operandContainers, CacheSynchronizer synchronizer,
 				AcceleratorExecutionNode nextNode) {
 
-			super(nextNode);
+			super(nextNode, 1);
 			this.synchronizer = synchronizer;
 			this.operandContainers = operandContainers;
 		}
@@ -426,7 +426,7 @@ public class InternalFunctionControlUnit extends AcceleratorExecutionUnit {
 		public Int64ScalarMovpopNode(DataContainer<?>[] operandContainers, CacheSynchronizer synchronizer,
 				AcceleratorExecutionNode nextNode) {
 
-			super(nextNode);
+			super(nextNode, 1);
 			this.synchronizer = synchronizer;
 			this.operandContainers = operandContainers;
 		}
@@ -461,7 +461,7 @@ public class InternalFunctionControlUnit extends AcceleratorExecutionUnit {
 		public Float64ScalarMovpopNode(DataContainer<?>[] operandContainers, CacheSynchronizer synchronizer,
 				AcceleratorExecutionNode nextNode) {
 
-			super(nextNode);
+			super(nextNode, 1);
 			this.synchronizer = synchronizer;
 			this.operandContainers = operandContainers;
 		}
@@ -496,7 +496,7 @@ public class InternalFunctionControlUnit extends AcceleratorExecutionUnit {
 		public BoolScalarMovpopNode(DataContainer<?>[] operandContainers, CacheSynchronizer synchronizer,
 				AcceleratorExecutionNode nextNode) {
 
-			super(nextNode);
+			super(nextNode, 1);
 			this.synchronizer = synchronizer;
 			this.operandContainers = operandContainers;
 		}
@@ -528,7 +528,7 @@ public class InternalFunctionControlUnit extends AcceleratorExecutionUnit {
 		private final Int64ScalarCache cache;
 
 		public Int64CachedScalarMovpopNode(Int64ScalarCache cache, AcceleratorExecutionNode nextNode) {
-			super(nextNode);
+			super(nextNode, 1);
 			this.cache = cache;
 		}
 
@@ -555,7 +555,7 @@ public class InternalFunctionControlUnit extends AcceleratorExecutionUnit {
 		private final Float64ScalarCache cache;
 
 		public Float64CachedScalarMovpopNode(Float64ScalarCache cache, AcceleratorExecutionNode nextNode) {
-			super(nextNode);
+			super(nextNode, 1);
 			this.cache = cache;
 		}
 
@@ -582,7 +582,7 @@ public class InternalFunctionControlUnit extends AcceleratorExecutionUnit {
 		private final BoolScalarCache cache;
 
 		public BoolCachedScalarMovpopNode(BoolScalarCache cache, AcceleratorExecutionNode nextNode) {
-			super(nextNode);
+			super(nextNode, 1);
 			this.cache = cache;
 		}
 
@@ -615,7 +615,7 @@ public class InternalFunctionControlUnit extends AcceleratorExecutionUnit {
 		public RefpopNode(DataContainer<?>[] operandContainers, CacheSynchronizer synchronizer,
 				AcceleratorExecutionNode nextNode) {
 
-			super(nextNode);
+			super(nextNode, 1);
 			this.synchronizer = synchronizer;
 			this.operandContainers = (DataContainer<long[]>[])operandContainers;
 		}
