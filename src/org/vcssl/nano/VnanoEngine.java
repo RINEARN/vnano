@@ -17,6 +17,7 @@ import org.vcssl.nano.interconnect.Interconnect;
 import org.vcssl.nano.interconnect.MetaQualifiedFileLoader;
 import org.vcssl.nano.spec.ErrorType;
 import org.vcssl.nano.spec.LanguageSpecContainer;
+import org.vcssl.nano.spec.OperationCode;
 import org.vcssl.nano.spec.OptionKey;
 import org.vcssl.nano.spec.PerformanceKey;
 import org.vcssl.nano.vm.VirtualMachine;
@@ -685,13 +686,25 @@ public final class VnanoEngine {
 
 			Map<String, Object> performanceMap = new LinkedHashMap<String, Object>();
 
-			// VMのインスタンス生成が済んでいれば累積処理命令数を取得して格納
+			// VMのインスタンス生成が済んでいれば、VM関連の計測値を取得して格納
 			if (this.virtualMachine != null) {
-				performanceMap.put(
-					PerformanceKey.PROCESSED_INSTRUCTION_COUNT_INT_VALUE,
-					this.virtualMachine.getProcessedInstructionCountIntValue()
-				);
+
+				// インスタンス生成時点から処理された命令数の累積値を取得して格納
+				int instructionCount = this.virtualMachine.getProcessedInstructionCountIntValue();
+				performanceMap.put(PerformanceKey.PROCESSED_INSTRUCTION_COUNT_INT_VALUE, instructionCount);
+
+				// 実行中の命令のオペコードを取得し、列挙型から文字列表現に変換して格納
+				//（アイドリング時は空配列が返るので、その場合は「値無し」扱いでマップに詰めない）
+				OperationCode[] currentOpcodes = this.virtualMachine.getCurrentlyExecutedOperationCodes();
+				if (currentOpcodes.length != 0) {
+					String[] opcodeStrings = new String[ currentOpcodes.length ];
+					for (int i=0; i<currentOpcodes.length; i++) {
+						opcodeStrings[i] = currentOpcodes[i].toString();
+					}
+					performanceMap.put(PerformanceKey.CURRENTLY_EXECUTED_OPERATION_CODE, opcodeStrings);
+				}
 			}
+
 			return performanceMap;
 		}
 	}

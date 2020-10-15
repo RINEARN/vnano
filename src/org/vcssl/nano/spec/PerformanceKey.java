@@ -49,7 +49,7 @@ public class PerformanceKey {
 	 * it will not be reset to 0, and it will be the negative maximum value (minimum value on the number line)
 	 * of the int-type, and will continue to be incremented from that value.
 	 * For the above reason, it is recommended to get this value frequently enough
-	 * (for example, --perf option of the command-line mode of the Vnano gets this value some ten times per second or more),
+	 * (for example, --perf option of the command-line mode of the Vnano gets this value about 100 times per second),
 	 * and use differences between them, not a raw value.
 	 * </span>
 	 * <span class="ja">
@@ -59,11 +59,34 @@ public class PerformanceKey {
 	 * その後は負の端(int型で表現可能な数直線上の最小値)に至り,
 	 * そこからまた加算され続ける事にも留意が必要です.
 	 * そのため, 取得値をそのまま使うのではなく, 取得を十分な頻度
-	 * （目安として, Vnano のコマンドラインモードの --perf オプションの処理では, この値の取得を毎秒数十回以上行っています）
+	 * （目安として, Vnano のコマンドラインモードの --perf オプションの処理では, この値の取得を毎秒 100 回程度行っています）
 	 * で行って, 前回からの差分を求めて使用する事などが推奨されます.
 	 * </span>
 	 */
 	// 名前が冗長なのは、将来的に値を long 型で取得可能なキーをサポートするかもしれないためなのと、
 	// 名前でそういう可能性をにおわせる事で、値の範囲が int で結構すぐ一周するという事に毎回気付けるようにするため
 	public static final String PROCESSED_INSTRUCTION_COUNT_INT_VALUE = "PROCESSED_INSTRUCTION_COUNT_INT_VALUE";
+
+
+	/**
+	 * <span class="lang-en">
+	 * Operation code(s) of currently executed instruction(s) on the VM in the monitoring target engine
+	 * </span>
+	 * <span class="lang-ja">
+	 * 計測対象エンジン内のVMにおいて, 現在処理されている命令のオペレーションコードを表します
+	 * </span>
+	 * .
+	 * <span class="lang-en">
+	 * The measured value of this monitoring item is "String[]" type.
+	 * The value of this item is an array, because generary a VM may execute multiple instructions in 1 cycle.
+	 * Also, when no instructins are being executed, the value of this item is an empty array.
+	 * </span>
+	 * <span class="lang-ja">
+	 * この項目の計測値は "String[]" 型です.
+	 * 計測値が配列なのは, VM上で複数の命令が一括で同時に処理される場合があり得るためです.
+	 * なお、何の命令も実行されていない場合には, 空の配列が返されます.
+	 * </span>
+	 */
+	public static final String CURRENTLY_EXECUTED_OPERATION_CODE = "CURRENTLY_EXECUTED_OPERATION_CODE";
+
 }

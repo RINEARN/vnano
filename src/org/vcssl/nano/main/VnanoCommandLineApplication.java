@@ -108,6 +108,7 @@ public final class VnanoCommandLineApplication {
 	// --perf オプションで指定する値の定義
 	private static final String PERF_TARGET_SPEED = "speed";
 	private static final String PERF_TARGET_RAM = "ram";
+	private static final String PERF_TARGET_INSTRUCTION_FREQ = "instructionFreq";
 	private static final String PERF_TARGET_ALL = "all";
 	private static final String PERF_TARGET_DEFAULT = PERF_TARGET_ALL; // --perf 自体はデフォルトでは未指定だけど、指定しつつターゲット未指定だった場合のデフォルトターゲット値
 	// 有効な perf ターゲット名のセット
@@ -115,6 +116,7 @@ public final class VnanoCommandLineApplication {
 	static {
 		PERF_TARGET_SET.add(PERF_TARGET_SPEED);
 		PERF_TARGET_SET.add(PERF_TARGET_RAM);
+		PERF_TARGET_SET.add(PERF_TARGET_INSTRUCTION_FREQ);
 		PERF_TARGET_SET.add(PERF_TARGET_ALL);
 	}
 	// perfターゲットの指定/未指定やターゲット値を控える
@@ -309,6 +311,7 @@ public final class VnanoCommandLineApplication {
 		System.out.println("");
 		System.out.println("        speed            : VM drive speed.");
 		System.out.println("        ram              : RAM usage.");
+		System.out.println("        instructionFreq  : Frequencies of that each instruction is being executed at periodic sampling moments.");
 		System.out.println("        all (default)    : All of the above performance monitoring targets.");
 		System.out.println("");
 		System.out.println("    e.g.");
@@ -946,7 +949,10 @@ public final class VnanoCommandLineApplication {
 		if (this.perfEnabled) {
 			boolean printsVmSpeed = this.perfTarget.equals(PERF_TARGET_ALL) || this.perfTarget.equals(PERF_TARGET_SPEED);
 			boolean printsRamUsage = this.perfTarget.equals(PERF_TARGET_ALL) || this.perfTarget.equals(PERF_TARGET_RAM);
-			perfValuePrinter = new PerformanceValuePrinter(engine, printsVmSpeed, printsRamUsage);
+			boolean printsInstructionFreq = this.perfTarget.equals(PERF_TARGET_ALL) || this.perfTarget.equals(PERF_TARGET_INSTRUCTION_FREQ);
+			perfValuePrinter = new PerformanceValuePrinter(
+				engine, printsVmSpeed, printsRamUsage, printsInstructionFreq // そろそろ setter にしたほうが
+			);
 			Thread perfValuePrintThread = new Thread(perfValuePrinter);
 			perfValuePrintThread.start();
 		}
@@ -990,7 +996,8 @@ public final class VnanoCommandLineApplication {
 		if (this.perfEnabled) {
 			boolean printsVmSpeed = this.perfTarget.equals(PERF_TARGET_ALL) || this.perfTarget.equals(PERF_TARGET_SPEED);
 			boolean printsRamUsage = this.perfTarget.equals(PERF_TARGET_ALL) || this.perfTarget.equals(PERF_TARGET_RAM);
-			perfValuePrinter = new PerformanceValuePrinter(vm, printsVmSpeed, printsRamUsage);
+			boolean printsInstructionFreq = this.perfTarget.equals(PERF_TARGET_ALL) || this.perfTarget.equals(PERF_TARGET_INSTRUCTION_FREQ);
+			perfValuePrinter = new PerformanceValuePrinter(vm, printsVmSpeed, printsRamUsage, printsInstructionFreq);
 			Thread perfValuePrintThread = new Thread(perfValuePrinter);
 			perfValuePrintThread.start();
 		}

@@ -13,6 +13,7 @@ import org.vcssl.nano.VnanoException;
 import org.vcssl.nano.interconnect.Interconnect;
 import org.vcssl.nano.spec.ErrorType;
 import org.vcssl.nano.spec.MetaInformationSyntax;
+import org.vcssl.nano.spec.OperationCode;
 import org.vcssl.nano.spec.OptionKey;
 import org.vcssl.nano.spec.OptionValue;
 import org.vcssl.nano.vm.memory.Memory;
@@ -60,7 +61,12 @@ public class Accelerator {
 	//   スレッドキャッシュによるラグはカウンタの精度仕様で許容する（getterの説明参照）。
 	private int processedInstructionCount;
 
-	/** synchronized ブロック用のロック対象オブジェクトです。（主にスレッドキャッシュ剥がしに使うのでこのロック自体にあまり意味は無い） */
+	/** 現在処理中の演算ノードを保持します。 */
+	// パフォーマンスモニタでオペレーションコードごとの命令実行頻度をなどを解析するため
+	private AcceleratorExecutionNode currentExecutedNode;
+
+	/** synchronized ブロック用のロック対象オブジェクトです。 */
+	// （主にスレッドキャッシュ剥がしに使うのでこのロック自体にあまり意味は無い）
 	private final Object lock;
 
 
@@ -70,6 +76,7 @@ public class Accelerator {
 	public Accelerator() {
 		this.continuable = true;
 		this.processedInstructionCount = 0;
+		this.currentExecutedNode = null;
 		this.lock = new Object();
 	}
 
@@ -191,10 +198,10 @@ public class Accelerator {
 
 		// 以下、命令の逐次実行ループ
 		AcceleratorExecutionNode nextNode = (nodes.length == 0) ? null : nodes[0];
+		this.currentExecutedNode = nextNode;
 		try {
 
-			// 途中終了を可能にしつつ、性能計測も必要な場合のループ
-			// (最も重く、後続の分岐の場合を考慮するとかなり大幅な速度低下かと思いきや、意外と片方のみ有効な時とそこまで大差ない)
+			// 途中終了を可能にしつつ、性能計測も必要な場合のループ(最も重い)
 			if (terminatable && monitorable) {
 				while (nextNode != null && this.continuable) {  // この continuable は volatile
 					// 注: 以下の processedInstructionCount の更新、この値は別スレッドから参照される可能性があり、
@@ -202,17 +209,21 @@ public class Accelerator {
 					// (読んで足して書き戻す間のラグやキャッシュのラグによる誤差は、カウンタの精度仕様で許容する。getterコメント参照)
 					// long 化する場合は素直に synchronized すると遅いので、数百回に一回 int 差分を synchronized 可算する等を要検討。
 					this.processedInstructionCount += nextNode.INSTRUCTIONS_PER_NODE;
+					this.currentExecutedNode = nextNode;  // 順序に注意。間違うとプロファイラで隣の命令の頻度にカウントされてしまう
 					nextNode = nextNode.execute();
 				}
+				this.currentExecutedNode = null;
 
 			// 途中終了は不要で、性能計測が必要な場合のループ
-			// (計測値を加算する処理が追加されるため、スカラ演算の最大速度が 1～2 割ほど低下する模様)
+			// (計測値を加算する処理などが追加されるため、スカラ演算の最大速度が 2～2.5 割ほど低下する模様)
 			} else if(monitorable) {
 				while (nextNode != null) {
 					// 注: 以下の processedInstructionCount の更新、すぐ上の else if 内のコメント参照
 					this.processedInstructionCount += nextNode.INSTRUCTIONS_PER_NODE;
+					this.currentExecutedNode = nextNode;
 					nextNode = nextNode.execute();
 				}
+				this.currentExecutedNode = null;
 
 			// 途中終了は可能にしつつ、性能計測は不要な場合のループ
 			//（while文に条件が追加されるため、スカラ演算の最大速度が 1～2 割ほど低下する模様）
@@ -305,7 +316,7 @@ public class Accelerator {
 	 * 加えて、値が int 型の上限に達してもリセットはされず、その後は負の端
 	 * (int型で表現可能な数直線上の最小値)に至り、そこからまた加算され続ける事にも留意が必要です。
 	 * そのため、取得値をそのまま使うのではなく、取得を十分な頻度
-	 * （目安として、Vnano のコマンドラインモードの --perf オプションの処理では、この値の取得を毎秒数十回以上行っています）
+	 * （目安として、Vnano のコマンドラインモードの --perf オプションの処理では、この値の取得を毎秒 100 回程度行っています）
 	 * で行って、前回からの差分を求めて使用する事などが推奨されます。
 	 *
 	 * なお、実行対象処理の中で、実行開始時に Interconnect 経由で指定されたオプションにおいて、
@@ -321,6 +332,54 @@ public class Accelerator {
 	public int getProcessedInstructionCountIntValue() {
 		synchronized (this.lock) {
 			return this.processedInstructionCount;
+		}
+	}
+
+
+	/**
+	 * このアクセラレータ上において、現在実行中の命令のオペレーションコードを返します。
+	 * アクセラレータは複数の命令を一括で同時に実行する場合があるため、結果は配列として返されます。
+	 * 何の命令も実行されていない時には、空の配列が返されます。
+	 *
+	 * なお、複数のスレッドにおいて、このアクセラレータの同一インスタンスを用いて、
+	 * 並列に実行を行った場合でも、このメソッドが返すオペレーションコードの数は増えません。
+	 * このメソッドは、単に命令実行ループ毎にフィールドに控えられたオペレーションコード
+	 * （厳密にはそれを含むオブジェクト）の最新値を返すだけであるため、そのような場合には、
+	 * どれかのスレッド（常に同一とは限りません）が書き換えた値が返されます。
+	 *
+	 * @return このアクセラレータ上において、現在実行中の命令のオペレーションコード (複数あり得るため配列)
+	 */
+	public OperationCode[] getCurrentlyExecutedOperationCodes() {
+		synchronized (this.lock) {
+
+			// this.currentExecutedNode の参照はこのメソッドの処理中にも高速で切り替わるので、最初にローカルに控えてから使う
+			AcceleratorExecutionNode currentNodeStock = this.currentExecutedNode;
+
+			// 何の命令も実行されていない時
+			if (currentNodeStock == null) {
+				return new OperationCode[0];
+			}
+
+			// 現在実行中の演算ノードから、実行対象の命令（※）を取得
+			// (この命令は、VRIL命令を extends した、演算ノードと一対一で対応するアクセラレータ拡張命令)
+			AcceleratorInstruction currentAccelInstruction = currentNodeStock.getSourceInstruction();
+
+			// 単一のVRIL命令を実行する演算ノードの場合は、そのオペコードを要素数1の配列に格納して返す
+			if (currentNodeStock.INSTRUCTIONS_PER_NODE == 1) {
+				return new OperationCode[] { currentAccelInstruction.getOperationCode() };
+
+			// 複数のVRIL命令を一括実行する演算ノードの場合
+			//（例えば Float64CachedScalarDualArithmeticUnit の所属ノードとかは2個の算術演算VRIL命令を1ターンで一括実行する）
+			} else {
+
+				// この場合はアクセラレータ拡張命令に、由来のVRILオペコードを配列で返す getter があるので結果をコピーして返す
+				int operationCodeN = currentNodeStock.INSTRUCTIONS_PER_NODE;
+				OperationCode[] returnOperationCodes = new OperationCode[ operationCodeN ];
+				System.arraycopy(
+					currentAccelInstruction.getFusedOperationCodes(), 0, returnOperationCodes, 0, operationCodeN
+				);
+				return returnOperationCodes;
+			}
 		}
 	}
 

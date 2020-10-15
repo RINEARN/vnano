@@ -14,6 +14,7 @@ import org.vcssl.nano.interconnect.Interconnect;
 import org.vcssl.nano.spec.OptionKey;
 import org.vcssl.nano.spec.OptionValue;
 import org.vcssl.nano.spec.LanguageSpecContainer;
+import org.vcssl.nano.spec.OperationCode;
 import org.vcssl.nano.vm.accelerator.Accelerator;
 import org.vcssl.nano.vm.assembler.Assembler;
 import org.vcssl.nano.vm.memory.DataContainer;
@@ -313,7 +314,7 @@ public class VirtualMachine {
 	 * it will not be reset to 0, and it will be the negative maximum value (minimum value on the number line)
 	 * of the int-type, and will continue to be incremented from that value.
 	 * For the above reason, it is recommended to get the value frequently enough
-	 * (for example, --perf option of the command-line mode of the Vnano gets this value some ten times per second or more),
+	 * (for example, --perf option of the command-line mode of the Vnano gets this value about 100 times per second),
 	 * and use differences between them, not a raw value returned by this method.
 	 * </span>
 	 * <span class="ja">
@@ -324,7 +325,7 @@ public class VirtualMachine {
 	 * その後は負の端(int型で表現可能な数直線上の最小値)に至り,
 	 * そこからまた加算され続ける事にも留意が必要です.
 	 * そのため, 取得値をそのまま使うのではなく, 取得を十分な頻度
-	 * （目安として, Vnano のコマンドラインモードの --perf オプションの処理では, この値の取得を毎秒数十回以上行っています）
+	 * （目安として, Vnano のコマンドラインモードの --perf オプションの処理では, この値の取得を毎秒 100 回程度行っています）
 	 * で行って, 前回からの差分を求めて使用する事などが推奨されます.
 	 * </span>
 	 *
@@ -358,4 +359,60 @@ public class VirtualMachine {
 		}
 	}
 
+
+	/**
+	 * <span class="lang-en">
+	 * Returns operation code(s) of currently executed instruction(s) on this instance of the VM
+	 * </span>
+	 * <span class="lang-ja">
+	 * このVMのインスタンス上において, 現在処理されている命令のオペレーションコードを返します
+	 * </span>
+	 * .
+	 * <span class="lang-en">
+	 * This method returns an array, because generary this VM may execute multiple instructions in 1 cycle.
+	 * Also, when no instructins are being executed, an empty array will be returned.
+	 * </span>
+	 *
+	 * <span class="lang-ja">
+	 * 複数の命令が一括で同時に処理される場合があるため, 結果は配列として返されます.
+	 * なお、何の命令も実行されていない場合には, 空の配列が返されます.
+	 * </span>
+	 *
+	 * @return
+	 *   <span class="lang-en">The opecode(s) of currently executed instruction(s) on this VM</span>
+	 *   <span class="lang-ja">このVMにおいて現在処理されている命令のオペレーションコード (複数あり得るため配列)</span>
+	 */
+	public OperationCode[] getCurrentlyExecutedOperationCodes() {
+		synchronized (this) {
+
+			// 以下の processor と accelerator のインスタンスはこのクラスのコンストラクタで初期化されるが、
+			// そのどちらかでも未初期化という事は、まだこのVMインスタンスの生成途中 ＝ 実行中の命令は無いという事なので、
+			// (現実的に呼ばれるかどうかはともかくとして) 一応は仕様から素直に空配列を返しておく
+			if (this.processor == null || this.accelerator == null) {
+				return new OperationCode[0];
+			}
+
+			// Accelerator と Processor のそれぞれの最新オペコードの値を取得（有効な値が無い時は空配列が返る）
+			OperationCode[] acceleratorOperationCodes = this.accelerator.getCurrentlyExecutedOperationCodes();
+			OperationCode[] prpcessorOperationCodes = this.processor.getCurrentlyExecutedOperationCodes();
+
+			// Accelerator 側に値がある場合は、処理は基本的に Accelerator で実行されていて、
+			// Processor はその未対応命令を投げて処理してもらう用で、そのオペコードも既に含まれているので、
+			// Accelerator 側の値をそのまま返す
+			if (acceleratorOperationCodes.length != 0) {
+				return acceleratorOperationCodes;
+
+			// Accelerator 側に値が無く、Processor 側に値があった場合は、
+			// オプションで Accelerator が無効化されているパターンで、処理は Processor のみで実行されているので、
+			// Processor 側の値を返す
+			} else if (prpcessorOperationCodes.length != 0) {
+				return prpcessorOperationCodes;
+
+			// Accelerator と Processor のどちらも値を持っていない場合は、両者とも何も実行していないという事になり、
+			// つまるところVM全体として何も実行中ではないという事になるので、仕様に基づいて空配列を返す
+			} else {
+				return new OperationCode[0];
+			}
+		}
+	}
 }

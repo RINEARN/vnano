@@ -114,6 +114,10 @@ public class Processor implements Processable {
 	//   スレッドキャッシュによるラグはカウンタの精度仕様で許容する（getterの説明参照）。
 	private int processedInstructionCount;
 
+	/** 現在処理中の命令のオペレーションコードを保持します。 */
+	// パフォーマンスモニタでオペレーションコードごとの命令実行頻度をなどを解析するため
+	private OperationCode currentOperationCode;
+
 	/** synchronized ブロック用のロック対象オブジェクトです。（主にスレッドキャッシュ剥がしに使うのでこのロック自体にあまり意味は無い） */
 	private final Object lock;
 
@@ -124,6 +128,7 @@ public class Processor implements Processable {
 	public Processor() {
 		this.continuable = true;
 		this.processedInstructionCount = 0;
+		this.currentOperationCode = null;
 		this.lock = new Object();
 	}
 
@@ -203,6 +208,9 @@ public class Processor implements Processable {
 				break;
 			}
 
+			// パフォーマンスモニタリング用に、最新の実行対象命令のオペレーションコードをフィールドに控える
+			this.currentOperationCode = instructions[programCounter].getOperationCode();
+
 			// 命令を1個実行し、プログラムカウンタの値を更新
 			try {
 				programCounter = dispatchUnit.dispatch(
@@ -240,6 +248,7 @@ public class Processor implements Processable {
 				throw vne;
 			}
 		}
+		this.currentOperationCode = null;
 
 
 		// ダンプ内容に実行終了点を表す区切りを入れる
@@ -321,7 +330,7 @@ public class Processor implements Processable {
 	 * 加えて、値が int 型の上限に達してもリセットはされず、その後は負の端
 	 * (int型で表現可能な数直線上の最小値)に至り、そこからまた加算され続ける事にも留意が必要です。
 	 * そのため、取得値をそのまま使うのではなく、取得を十分な頻度
-	 * （目安として、Vnano のコマンドラインモードの --perf オプションの処理では、この値の取得を毎秒数十回以上行っています）
+	 * （目安として、Vnano のコマンドラインモードの --perf オプションの処理では、この値の取得を毎秒 100 回程度行っています）
 	 * で行って、前回からの差分を求めて使用する事などが推奨されます。
 	 *
 	 * なお、実行対象処理の中で、実行開始時に Interconnect 経由で指定されたオプションにおいて、
@@ -337,6 +346,30 @@ public class Processor implements Processable {
 	public int getProcessedInstructionCountIntValue() {
 		synchronized (this.lock) {
 			return this.processedInstructionCount;
+		}
+	}
+
+
+	/**
+	 * この仮想プロセッサにおいて、現在実行されている命令のオペレーションコードを返します。
+	 *
+	 * 結果は配列として返されますが、この仮想プロセッサの実装においては、
+	 * 複数の命令が 1 サイクルで一括実行される事は無いため、通常は要素数が 1 の配列が返されます。
+	 * ただし、何の命令も実行されていない時には、空の配列が返されます。
+	 *
+	 * なお、複数のスレッドにおいて、この仮想プロセッサの同一インスタンスを用いて、
+	 * 並列に実行を行った場合でも、このメソッドが返すオペレーションコードの数は増えません。
+	 * このメソッドは、単に命令実行ループ毎にフィールドに控えられたオペレーションコードの最新値を返すだけであるため、
+	 * そのような場合には、どれかのスレッド（常に同一とは限りません）が書き換えた値が返されます。
+	 *
+	 * @return この仮想プロセッサにおいて、現在実行されている命令のオペレーションコード
+	 */
+	public OperationCode[] getCurrentlyExecutedOperationCodes() {
+		synchronized (this.lock) {
+			if (this.currentOperationCode == null) {
+				return new OperationCode[0];
+			}
+			return new OperationCode[] { this.currentOperationCode };
 		}
 	}
 
