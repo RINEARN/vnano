@@ -112,7 +112,7 @@ public class Processor implements Processable {
 	//   値化け予防に synchronized 書き込み（と参照）が必要になるが、それは非常に遅いので int で我慢する。
 	// ・同様に速度への影響を抑えるため volatile 修飾は行わず、
 	//   スレッドキャッシュによるラグはカウンタの精度仕様で許容する（getterの説明参照）。
-	private int processedInstructionCount;
+	private int executedInstructionCount;
 
 	/** 現在処理中の命令のオペレーションコードを保持します。 */
 	// パフォーマンスモニタでオペレーションコードごとの命令実行頻度をなどを解析するため
@@ -127,7 +127,7 @@ public class Processor implements Processable {
 	 */
 	public Processor() {
 		this.continuable = true;
-		this.processedInstructionCount = 0;
+		this.executedInstructionCount = 0;
 		this.currentOperationCode = null;
 		this.lock = new Object();
 	}
@@ -219,11 +219,11 @@ public class Processor implements Processable {
 
 				// 性能計測関連の処理（現状は累積処理命令数のカウントのみ）
 				if (monitorable) {
-					// 注: 以下 processedInstructionCount の更新、
+					// 注: 以下 executedInstructionCount の更新、
 					// long だと 32bit x 2 書き込みになる場合の値化け予防のため synchronized で囲う必要があるが、int なので不要
 					// (読んでから足して書き戻すまでの間のラグ誤差は、カウンタの精度仕様的に許容される。getterのコメント参照)
 					// long 化する場合は素直に synchronized すると遅いので、数百回に一回 int 差分を synchronized 可算する等を要検討
-					this.processedInstructionCount++;
+					this.executedInstructionCount++;
 				}
 
 			} catch (Exception e) {
@@ -343,9 +343,9 @@ public class Processor implements Processable {
 	 */
 	// 名前が冗長なのは、将来的に値を long 型で取得可能なメソッドをサポートするかもしれないためなのと（その可能性自体は低い）、
 	// メソッド名でそういう可能性をにおわせる事で、値の範囲が int で結構すぐ一周するという事に毎回気付けるようにするため
-	public int getProcessedInstructionCountIntValue() {
+	public int getExecutedInstructionCountIntValue() {
 		synchronized (this.lock) {
-			return this.processedInstructionCount;
+			return this.executedInstructionCount;
 		}
 	}
 

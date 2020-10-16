@@ -690,8 +690,8 @@ public final class VnanoEngine {
 			if (this.virtualMachine != null) {
 
 				// インスタンス生成時点から処理された命令数の累積値を取得して格納
-				int instructionCount = this.virtualMachine.getProcessedInstructionCountIntValue();
-				performanceMap.put(PerformanceKey.PROCESSED_INSTRUCTION_COUNT_INT_VALUE, instructionCount);
+				int instructionCount = this.virtualMachine.getExecutedInstructionCountIntValue();
+				performanceMap.put(PerformanceKey.EXECUTED_INSTRUCTION_COUNT_INT_VALUE, instructionCount);
 
 				// 実行中の命令のオペコードを取得し、列挙型から文字列表現に変換して格納
 				//（アイドリング時は空配列が返るので、その場合は「値無し」扱いでマップに詰めない）

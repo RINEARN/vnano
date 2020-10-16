@@ -59,7 +59,7 @@ public class Accelerator {
 	//   値化け予防に synchronized 書き込み（と参照）が必要になるが、それは非常に遅いので int で我慢する。
 	// ・同様に速度への影響を抑えるため volatile 修飾は行わず、
 	//   スレッドキャッシュによるラグはカウンタの精度仕様で許容する（getterの説明参照）。
-	private int processedInstructionCount;
+	private int executedInstructionCount;
 
 	/** 現在処理中の演算ノードを保持します。 */
 	// パフォーマンスモニタでオペレーションコードごとの命令実行頻度をなどを解析するため
@@ -75,7 +75,7 @@ public class Accelerator {
 	 */
 	public Accelerator() {
 		this.continuable = true;
-		this.processedInstructionCount = 0;
+		this.executedInstructionCount = 0;
 		this.currentExecutedNode = null;
 		this.lock = new Object();
 	}
@@ -204,11 +204,11 @@ public class Accelerator {
 			// 途中終了を可能にしつつ、性能計測も必要な場合のループ(最も重い)
 			if (terminatable && monitorable) {
 				while (nextNode != null && this.continuable) {  // この continuable は volatile
-					// 注: 以下の processedInstructionCount の更新、この値は別スレッドから参照される可能性があり、
+					// 注: 以下の executedInstructionCount の更新、この値は別スレッドから参照される可能性があり、
 					// long だと 32bit x 2 書き込みになる場合の値化け予防で synchronized で囲う必要があるが、現状は int なので不要。
 					// (読んで足して書き戻す間のラグやキャッシュのラグによる誤差は、カウンタの精度仕様で許容する。getterコメント参照)
 					// long 化する場合は素直に synchronized すると遅いので、数百回に一回 int 差分を synchronized 可算する等を要検討。
-					this.processedInstructionCount += nextNode.INSTRUCTIONS_PER_NODE;
+					this.executedInstructionCount += nextNode.INSTRUCTIONS_PER_NODE;
 					this.currentExecutedNode = nextNode;  // 順序に注意。間違うとプロファイラで隣の命令の頻度にカウントされてしまう
 					nextNode = nextNode.execute();
 				}
@@ -218,8 +218,8 @@ public class Accelerator {
 			// (計測値を加算する処理などが追加されるため、スカラ演算の最大速度が 2～2.5 割ほど低下する模様)
 			} else if(monitorable) {
 				while (nextNode != null) {
-					// 注: 以下の processedInstructionCount の更新、すぐ上の else if 内のコメント参照
-					this.processedInstructionCount += nextNode.INSTRUCTIONS_PER_NODE;
+					// 注: 以下の executedInstructionCount の更新、すぐ上の else if 内のコメント参照
+					this.executedInstructionCount += nextNode.INSTRUCTIONS_PER_NODE;
 					this.currentExecutedNode = nextNode;
 					nextNode = nextNode.execute();
 				}
@@ -329,9 +329,9 @@ public class Accelerator {
 	 */
 	// 名前が冗長なのは、将来的に値を long 型で取得可能なメソッドをサポートするかもしれないためなのと（その可能性自体は低い）、
 	// メソッド名でそういう可能性をにおわせる事で、値の範囲が int で結構すぐ一周するという事に毎回気付けるようにするため
-	public int getProcessedInstructionCountIntValue() {
+	public int getExecutedInstructionCountIntValue() {
 		synchronized (this.lock) {
-			return this.processedInstructionCount;
+			return this.executedInstructionCount;
 		}
 	}
 

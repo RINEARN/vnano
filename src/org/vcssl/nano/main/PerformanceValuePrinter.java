@@ -98,8 +98,8 @@ public class PerformanceValuePrinter implements Runnable {
 					Map<String, Object> performanceMap = this.vnanoEngine.getPerformanceMap();
 
 					// 実行開始後、計測可能なタイミングにまだ達していない時には、値が格納されていない(仕様)ので検査してから参照
-					if (performanceMap.containsKey(PerformanceKey.PROCESSED_INSTRUCTION_COUNT_INT_VALUE)) {
-						currentProcCount = (int)performanceMap.get(PerformanceKey.PROCESSED_INSTRUCTION_COUNT_INT_VALUE);
+					if (performanceMap.containsKey(PerformanceKey.EXECUTED_INSTRUCTION_COUNT_INT_VALUE)) {
+						currentProcCount = (int)performanceMap.get(PerformanceKey.EXECUTED_INSTRUCTION_COUNT_INT_VALUE);
 					}
 					if (performanceMap.containsKey(PerformanceKey.CURRENTLY_EXECUTED_OPERATION_CODE)) {
 						currentOpcodeNames = (String[])performanceMap.get(PerformanceKey.CURRENTLY_EXECUTED_OPERATION_CODE);
@@ -113,7 +113,7 @@ public class PerformanceValuePrinter implements Runnable {
 					//「無い値は詰めない」という対処はされておらず、常に何らかの値を返す。
 					// 従って中身で判断する必要がある。型も汎用的な型ではなくエンジン内部の実装用クラスのままだったりするので変換する。
 
-					currentProcCount = this.virtualMachine.getProcessedInstructionCountIntValue(); // まだ何も実行していない場合は 0
+					currentProcCount = this.virtualMachine.getExecutedInstructionCountIntValue(); // まだ何も実行していない場合は 0
 					OperationCode[] currentOpcodes = this.virtualMachine.getCurrentlyExecutedOperationCodes(); // まだ値が無い場合は空配列
 					currentOpcodeNames = new String[ currentOpcodes.length ];
 					for (int i=0; i<currentOpcodes.length; i++) {

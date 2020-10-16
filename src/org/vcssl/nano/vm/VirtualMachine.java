@@ -335,21 +335,21 @@ public class VirtualMachine {
 	 */
 	// 名前が冗長なのは、将来的に値を long 型で取得可能なメソッドをサポートするかもしれないためなのと（その可能性自体は低い）、
 	// メソッド名でそういう可能性をにおわせる事で、値の範囲が int で結構すぐ一周するという事に毎回気付けるようにするため
-	public int getProcessedInstructionCountIntValue() {
+	public int getExecutedInstructionCountIntValue() {
 
 		// この処理要求は恐らくコード実行スレッドとは別スレッドから投げられるのでスレッドキャッシュが影響する可能性がある
 		synchronized (this.lock) {
 
 			// Processor での前回参照時からの命令処理数（増分）をVMの累積命令数カウンタに加算
 			if (this.processor != null) {
-				int processorCurrentProcCount = this.processor.getProcessedInstructionCountIntValue();
+				int processorCurrentProcCount = this.processor.getExecutedInstructionCountIntValue();
 				this.vmProcessedInstructionCount += processorCurrentProcCount - this.processorLastProcCount;
 				this.processorLastProcCount = processorCurrentProcCount;
 			}
 
 			// Accelerator での前回参照時からの命令処理数（増分）をVMの累積命令数カウンタに加算
 			if (this.accelerator != null) {
-				int acceleratorCurrentProcCount = this.accelerator.getProcessedInstructionCountIntValue();
+				int acceleratorCurrentProcCount = this.accelerator.getExecutedInstructionCountIntValue();
 				this.vmProcessedInstructionCount += acceleratorCurrentProcCount - this.acceleratorLastProcCount;
 				this.acceleratorLastProcCount = acceleratorCurrentProcCount;
 			}

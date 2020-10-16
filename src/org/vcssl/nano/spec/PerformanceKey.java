@@ -65,7 +65,7 @@ public class PerformanceKey {
 	 */
 	// 名前が冗長なのは、将来的に値を long 型で取得可能なキーをサポートするかもしれないためなのと、
 	// 名前でそういう可能性をにおわせる事で、値の範囲が int で結構すぐ一周するという事に毎回気付けるようにするため
-	public static final String PROCESSED_INSTRUCTION_COUNT_INT_VALUE = "PROCESSED_INSTRUCTION_COUNT_INT_VALUE";
+	public static final String EXECUTED_INSTRUCTION_COUNT_INT_VALUE = "EXECUTED_INSTRUCTION_COUNT_INT_VALUE";
 
 
 	/**
