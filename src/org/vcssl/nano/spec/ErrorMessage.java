@@ -98,8 +98,8 @@ public class ErrorMessage {
 			case NO_PARTIAL_EXPRESSION : return "式の中に空の括弧 ( ) があります。";
 			case OPERAND_IS_MISSING_AT_RIGHT : return "「 " + words[0] + " 」の右側に、値や変数などが必要です。";
 			case OPERAND_IS_MISSING_AT_LEFT : return "「 " + words[0] + " 」の左側に、値や変数などが必要です。";
-			case OPERATOR_IS_MISSING_AT_RIGHT : return "「 " + words[0] + " 」と「 " + words[1] + " 」の間に演算子（「 + 」などの記号）が必要です。";
-			case OPERATOR_IS_MISSING_AT_LEFT : return "「 " + words[0] + " 」と「 " + words[1] + " 」の間に演算子（「 + 」などの記号）が必要です。";
+			case OPERATOR_IS_MISSING_AT_RIGHT : return "「 " + words[0] + " 」と「 " + words[1] + " 」の間に演算子（「 + 」などの記号）や文の区切り「 ; 」が必要です。";
+			case OPERATOR_IS_MISSING_AT_LEFT : return "「 " + words[0] + " 」と「 " + words[1] + " 」の間に演算子（「 + 」などの記号）や文の区切り「 ; 」が必要です。";
 			case DATA_TYPE_IS_MISSING_AT_RIGHT : return "「 " + words[0] + " 」の右側に、データ型が必要です。";
 			case CLOSE_PARENTHESIS_IS_MISSING_AT_RIGHT : return "「 " + words[0] + " 」の右側に、閉じ括弧「 ) 」が必要です。";
 			case NO_OPEN_PARENTHESIS_OF_CONTROL_STATEMENT : return "「 " + words[0] + " 」の後には括弧 (...) が必要です。";
@@ -212,8 +212,8 @@ public class ErrorMessage {
 			case NO_PARTIAL_EXPRESSION : return "Empty parentheses ( ) exist in the expression";
 			case OPERAND_IS_MISSING_AT_RIGHT : return "A value or variable is necessary at the right of \"" + words[0] + "\"";
 			case OPERAND_IS_MISSING_AT_LEFT : return "A value or variable is necessary at the left of \"" + words[0] + "\"";
-			case OPERATOR_IS_MISSING_AT_RIGHT : return "An operator (e.g. \"+\") is required between \"" + words[0] + "\" and \"" + words[1] + "\"";
-			case OPERATOR_IS_MISSING_AT_LEFT : return "An operator (e.g. \"+\") is required between \"" + words[0] + "\" and \"" + words[1] + "\"";
+			case OPERATOR_IS_MISSING_AT_RIGHT : return "An operator (e.g. \"+\") or an end-of-statement \";\" is required between \"" + words[0] + "\" and \"" + words[1] + "\"";
+			case OPERATOR_IS_MISSING_AT_LEFT : return "An operator (e.g. \"+\") or an end-of-statement \";\" is required between \"" + words[0] + "\" and \"" + words[1] + "\"";
 			case DATA_TYPE_IS_MISSING_AT_RIGHT : return "A data type is necessary at the right of \"" + words[0] + "\"";
 			case CLOSE_PARENTHESIS_IS_MISSING_AT_RIGHT : return "A close parenthesis \")\" is necessary at the right of \"" + words[0] + "\"";
 			case NO_OPEN_PARENTHESIS_OF_CONTROL_STATEMENT : return "Parentheses (...) are required after \"" + words[0] + "\"";
