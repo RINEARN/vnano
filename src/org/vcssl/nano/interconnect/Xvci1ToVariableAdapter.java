@@ -217,7 +217,8 @@ public class Xvci1ToVariableAdapter extends AbstractVariable {
 				data = this.dataConverter.convertToExternalObject(dataContainer);
 			} catch (VnanoException e) {
 				throw new VnanoException(
-					ErrorType.EXTERNAL_VARIABLE_PLUGIN_CRASHED, this.xvciPlugin.getVariableName(), e
+					ErrorType.EXTERNAL_VARIABLE_PLUGIN_CRASHED,
+					new String[] { this.xvciPlugin.getVariableName(), e.getMessage() }, e
 				);
 			}
 
@@ -225,7 +226,8 @@ public class Xvci1ToVariableAdapter extends AbstractVariable {
 				this.xvciPlugin.setData(data);
 			} catch (ConnectorException e) {
 				throw new VnanoException(
-					ErrorType.EXTERNAL_VARIABLE_PLUGIN_CRASHED, this.xvciPlugin.getVariableName(), e
+					ErrorType.EXTERNAL_VARIABLE_PLUGIN_CRASHED,
+					new String[] { this.xvciPlugin.getVariableName(), e.getMessage() }, e
 				);
 			}
 
@@ -235,7 +237,8 @@ public class Xvci1ToVariableAdapter extends AbstractVariable {
 				this.xvciPlugin.setData(dataContainer);
 			} catch (ConnectorException e) {
 				throw new VnanoException(
-					ErrorType.EXTERNAL_VARIABLE_PLUGIN_CRASHED, this.xvciPlugin.getVariableName(), e
+					ErrorType.EXTERNAL_VARIABLE_PLUGIN_CRASHED,
+					new String[] { this.xvciPlugin.getVariableName(), e.getMessage() }, e
 				);
 			}
 		}
