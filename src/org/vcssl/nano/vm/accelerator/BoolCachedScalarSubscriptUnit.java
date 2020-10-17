@@ -10,9 +10,9 @@ import org.vcssl.nano.vm.memory.DataContainer;
 
 public class BoolCachedScalarSubscriptUnit extends AcceleratorExecutionUnit {
 
-	// このユニットで処理できる、ELEM命令対象配列の最大次元数
+	// このユニットで処理できる、REFELEM命令対象配列の最大次元数
 	//（処理できない場合、Processorが任意次元対応なので、スケジューラ側でそちらへバイパス割り当てが必要）
-	public static final int ELEM_MAX_AVAILABLE_RANK = 1;
+	public static final int REFELEM_MAX_AVAILABLE_RANK = 1;
 
 	// ※ このユニットはまだVM内最適化 or コンパイラ側が対応するまでスケジューリング条件が満たされずに呼ばれないので、
 	//    暫定的に1次元のみに対応
@@ -26,17 +26,17 @@ public class BoolCachedScalarSubscriptUnit extends AcceleratorExecutionUnit {
 
 		AcceleratorExecutionNode node = null;
 		switch (instruction.getOperationCode()) {
-			case ELEM : {
+			case REFELEM : {
 				// 要素を参照したい配列の次元数（＝indicesオペランド数なので全オペランド数-2）
 				int targetArrayRank = operandContainers.length - 2;
 				if (targetArrayRank == 1) {
-				node = new BoolCachedScalarElem1DNode(
+				node = new BoolCachedScalarRefElem1DNode(
 					(BoolScalarCache)operandCaches[0], (DataContainer<boolean[]>)operandContainers[1],
 					(Int64ScalarCache)operandCaches[2], nextNode
 				);
 				} else {
 					throw new VnanoFatalException(
-						"Operands of a ELEM instructions are too many for this unit (max: " + (targetArrayRank+2) + ")"
+						"Operands of a REFELEM instructions are too many for this unit (max: " + (targetArrayRank+2) + ")"
 					);
 				}
 				break;
@@ -51,13 +51,13 @@ public class BoolCachedScalarSubscriptUnit extends AcceleratorExecutionUnit {
 		return node;
 	}
 
-	private final class BoolCachedScalarElem1DNode extends AcceleratorExecutionNode {
+	private final class BoolCachedScalarRefElem1DNode extends AcceleratorExecutionNode {
 
 		protected final BoolScalarCache cache0; // dest
 		protected final DataContainer<boolean[]> container1; // src
 		protected final Int64ScalarCache cache2;   // indices[0]
 
-		public BoolCachedScalarElem1DNode(
+		public BoolCachedScalarRefElem1DNode(
 				BoolScalarCache cache0, DataContainer<boolean[]> container1, Int64ScalarCache chache2,
 				AcceleratorExecutionNode nextNode) {
 

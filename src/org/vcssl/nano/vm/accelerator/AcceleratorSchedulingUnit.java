@@ -515,7 +515,7 @@ public class AcceleratorSchedulingUnit {
 				}
 
 				// 配列要素参照命令 Array subscript opcodes
-				case ELEM : {
+				case REFELEM : {
 
 					int indicesLength = operandLength - 2; // インデックス数: オペランド[2]以降がインデックス部なので -2
 					boolean isDestCached = operandCachingEnabled[0]; // 結果の格納先がキャッシュ可能かどうか
@@ -532,13 +532,14 @@ public class AcceleratorSchedulingUnit {
 					//    コンパイラ側で使い分けるコードを出力する必要がある（参照リンクが無ければキャッシュ可能な場面が簡単に分かる）。
 					//
 					// どちらがいいか要検討、そのうち要実装（配列要素アクセスの高速化はメリットが大きいので）
+					// > 後者を採用する準備として ELEM を REFELEM に名称変更した。また後々で参照リンクを伴わない MOVELEM を追加
 
 					if(dataTypes[0] == DataType.INT64) {
 						if (isDestCached && isAllIndicesCached
-								&& indicesLength <= Int64CachedScalarSubscriptUnit.ELEM_MAX_AVAILABLE_RANK) {
+								&& indicesLength <= Int64CachedScalarSubscriptUnit.REFELEM_MAX_AVAILABLE_RANK) {
 							instruction.setAccelerationType(AcceleratorExecutionType.I64CS_SUBSCRIPT);
-						} else if (indicesLength <= Int64ScalarSubscriptUnit.ELEM_MAX_AVAILABLE_RANK
-								&& indicesLength <= Int64CachedScalarSubscriptUnit.ELEM_MAX_AVAILABLE_RANK) {
+						} else if (indicesLength <= Int64ScalarSubscriptUnit.REFELEM_MAX_AVAILABLE_RANK
+								&& indicesLength <= Int64CachedScalarSubscriptUnit.REFELEM_MAX_AVAILABLE_RANK) {
 							instruction.setAccelerationType(AcceleratorExecutionType.I64S_SUBSCRIPT);
 						} else {
 							// Accelerator では任意次元ELEMには未対応なので Processor へ投げる（対応した際は上の if の3番目の条件を削る）
@@ -547,10 +548,10 @@ public class AcceleratorSchedulingUnit {
 
 					} else if (dataTypes[0] == DataType.FLOAT64) {
 						if (isDestCached && isAllIndicesCached
-								&& indicesLength <= Float64CachedScalarSubscriptUnit.ELEM_MAX_AVAILABLE_RANK) {
+								&& indicesLength <= Float64CachedScalarSubscriptUnit.REFELEM_MAX_AVAILABLE_RANK) {
 							instruction.setAccelerationType(AcceleratorExecutionType.F64CS_SUBSCRIPT);
-						} else if (indicesLength <= Float64ScalarSubscriptUnit.ELEM_MAX_AVAILABLE_RANK
-								&& indicesLength <= Int64CachedScalarSubscriptUnit.ELEM_MAX_AVAILABLE_RANK) {
+						} else if (indicesLength <= Float64ScalarSubscriptUnit.REFELEM_MAX_AVAILABLE_RANK
+								&& indicesLength <= Int64CachedScalarSubscriptUnit.REFELEM_MAX_AVAILABLE_RANK) {
 							instruction.setAccelerationType(AcceleratorExecutionType.F64S_SUBSCRIPT);
 						} else {
 							// Accelerator では任意次元ELEMには未対応なので Processor へ投げる（対応した際は上の if の3番目の条件を削る）
@@ -559,10 +560,10 @@ public class AcceleratorSchedulingUnit {
 
 					} else if (dataTypes[0] == DataType.BOOL) {
 						if (isDestCached && isAllIndicesCached
-								&& indicesLength <= BoolCachedScalarSubscriptUnit.ELEM_MAX_AVAILABLE_RANK) {
+								&& indicesLength <= BoolCachedScalarSubscriptUnit.REFELEM_MAX_AVAILABLE_RANK) {
 							instruction.setAccelerationType(AcceleratorExecutionType.BCS_SUBSCRIPT);
-						} else if (indicesLength <= BoolScalarSubscriptUnit.ELEM_MAX_AVAILABLE_RANK
-								&& indicesLength <= Int64CachedScalarSubscriptUnit.ELEM_MAX_AVAILABLE_RANK) {
+						} else if (indicesLength <= BoolScalarSubscriptUnit.REFELEM_MAX_AVAILABLE_RANK
+								&& indicesLength <= Int64CachedScalarSubscriptUnit.REFELEM_MAX_AVAILABLE_RANK) {
 							instruction.setAccelerationType(AcceleratorExecutionType.BS_SUBSCRIPT);
 						} else {
 							// Accelerator では任意次元ELEMには未対応なので Processor へ投げる（対応した際は上の if の3番目の条件を削る）

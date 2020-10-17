@@ -2279,14 +2279,14 @@ public class CodeGenerator {
 		// 結果を格納するレジスタを用意
 		String accumulator = operatorNode.getAttribute(AttributeKey.ASSEMBLY_VALUE);
 
-		// INDEX命令を発行
+		// REFELEM命令を発行
 		String[] allOperands = new String[indexOperands.length + 2];
 		allOperands[0] = accumulator;
 		allOperands[1] = targetOperand;
 		System.arraycopy(indexOperands, 0, allOperands, 2, indexOperands.length);
 		codeBuilder.append(
 			this.generateInstruction(
-					OperationCode.ELEM.name(), inputNodes[0].getDataTypeName(), allOperands
+					OperationCode.REFELEM.name(), inputNodes[0].getDataTypeName(), allOperands
 			)
 		);
 

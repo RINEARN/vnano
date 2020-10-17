@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2018-2019 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2018-2020 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -280,12 +280,12 @@ public final class AcceleratorDataManagementUnit {
 					break;
 				}
 
-				case ELEM : {
+				case REFELEM : {
 
-					// 現在の仕様では、ELEMで取り出したデータは必ずスカラ
+					// 現在の仕様では、REFELEMで取り出したデータは必ずスカラ
 					this.scalar[ partitions[0].ordinal() ][ addresses[0] ] = true;
 
-					// ELEM命令は、ベクトルの要素（スカラ）への参照を第0オペランドのレジスタと同期するため、
+					// REFELEM命令は、ベクトルの要素（スカラ）への参照を第0オペランドのレジスタと同期するため、
 					// 第0オペランドはスカラであるが、別の箇所で参照が共有されて書き換えられる可能性があるため、
 					// キャッシュ可能ではない
 					//（異なるアドレスのレジスタが同一データを参照を保持できるため、アドレスベースのキャッシュでは対応不可）

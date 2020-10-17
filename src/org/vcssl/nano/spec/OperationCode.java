@@ -1332,7 +1332,7 @@ public enum OperationCode {
 	 * </span>
 	 *
 	 * <div style="border: 1px solid #000000; margin:15px; padding:5px;">
-	 * ELEM type output input index1 index2 index3 ... indexN ;
+	 * REFELEM type output input index1 index2 index3 ... indexN ;
 	 * </div>
 	 *
 	 * <span class="lang-en">
@@ -1350,7 +1350,7 @@ public enum OperationCode {
 	 * </span>
 	 * </p>
 	 */
-	ELEM,
+	REFELEM,
 
 
 	/**
