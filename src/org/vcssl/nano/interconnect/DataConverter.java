@@ -618,9 +618,9 @@ public class DataConverter {
 		int dataLength = -1;
 		switch (this.externalType) {
 			case INT32 : {
-				dataLength = ((int[])object).length;
+				dataLength = ((int[])object).length; // ここはホスト言語側の型
 				arrayLength[0] = dataLength;
-				long[] data = new long[dataLength];
+				long[] data = new long[dataLength]; // ここはVnano側の内部表現の型
 				for (int dataIndex=0; dataIndex<dataLength; dataIndex++) {
 					((long[])data)[dataIndex] = ((int[])object)[dataIndex];
 				}
@@ -628,9 +628,9 @@ public class DataConverter {
 				break;
 			}
 			case INT64 : {
-				dataLength = ((long[])object).length;
+				dataLength = ((long[])object).length; // ここはホスト言語側の型
 				arrayLength[0] = dataLength;
-				long[] data = new long[dataLength];
+				long[] data = new long[dataLength]; // ここはVnano側の内部表現の型
 				for (int dataIndex=0; dataIndex<dataLength; dataIndex++) {
 					((long[])data)[dataIndex] = ((long[])object)[dataIndex];
 				}
@@ -638,9 +638,9 @@ public class DataConverter {
 				break;
 			}
 			case FLOAT32 : {
-				dataLength = ((float[])object).length;
+				dataLength = ((float[])object).length; // ここはホスト言語側の型
 				arrayLength[0] = dataLength;
-				double[] data = new double[dataLength];
+				double[] data = new double[dataLength]; // ここはVnano側の内部表現の型
 				for (int dataIndex=0; dataIndex<dataLength; dataIndex++) {
 					((double[])data)[dataIndex] = ((float[])object)[dataIndex];
 				}
@@ -648,9 +648,9 @@ public class DataConverter {
 				break;
 			}
 			case FLOAT64 : {
-				dataLength = ((double[])object).length;
+				dataLength = ((double[])object).length; // ここはホスト言語側の型
 				arrayLength[0] = dataLength;
-				double[] data = new double[dataLength];
+				double[] data = new double[dataLength]; // ここはVnano側の内部表現の型
 				for (int dataIndex=0; dataIndex<dataLength; dataIndex++) {
 					((double[])data)[dataIndex] = ((double[])object)[dataIndex];
 				}
@@ -658,9 +658,9 @@ public class DataConverter {
 				break;
 			}
 			case BOOL : {
-				dataLength = ((boolean[])object).length;
+				dataLength = ((boolean[])object).length; // ここはホスト言語側の型
 				arrayLength[0] = dataLength;
-				boolean[] data = new boolean[dataLength];
+				boolean[] data = new boolean[dataLength]; // ここはVnano側の内部表現の型
 				for (int dataIndex=0; dataIndex<dataLength; dataIndex++) {
 					((boolean[])data)[dataIndex] = ((boolean[])object)[dataIndex];
 				}
@@ -668,9 +668,9 @@ public class DataConverter {
 				break;
 			}
 			case STRING : {
-				dataLength = ((String[])object).length;
+				dataLength = ((String[])object).length; // ここはホスト言語側の型
 				arrayLength[0] = dataLength;
-				String[] data = new String[dataLength];
+				String[] data = new String[dataLength]; // ここはVnano側の内部表現の型
 				for (int dataIndex=0; dataIndex<dataLength; dataIndex++) {
 					((String[])data)[dataIndex] = ((String[])object)[dataIndex];
 				}
@@ -707,13 +707,13 @@ public class DataConverter {
 		int dataLength = -1;
 		switch (this.externalType) {
 			case INT32 : {
-				arrayLength[0] = ((int[][])object).length;
-				arrayLength[1] = ((int[][])object)[0].length;
+				arrayLength[0] = ((int[][])object).length; // ここはホスト言語側の型
+				arrayLength[1] = ((int[][])object)[0].length; // ここはホスト言語側の型
 				dataLength = arrayLength[0] * arrayLength[1];
-				long[] data = new long[ dataLength ];
+				long[] data = new long[ dataLength ]; // ここはVnano側の内部表現の型
 				int dataIndex = 0;
 				for (int arrayIndex0=0; arrayIndex0<arrayLength[0]; arrayIndex0++) {
-					// ジャグ配列検査
+					// ジャグ配列検査(ここはホスト言語側の型)
 					if ( ((int[][])object)[arrayIndex0].length != arrayLength[1] ) {
 						throw new VnanoException(ErrorType.JAGGED_ARRAY);
 					}
@@ -727,13 +727,13 @@ public class DataConverter {
 				break;
 			}
 			case INT64 : {
-				arrayLength[0] = ((long[][])object).length;
-				arrayLength[1] = ((long[][])object)[0].length;
+				arrayLength[0] = ((long[][])object).length; // ここはホスト言語側の型
+				arrayLength[1] = ((long[][])object)[0].length; // ここはホスト言語側の型
 				dataLength = arrayLength[0] * arrayLength[1];
-				long[] data = new long[ dataLength ];
+				long[] data = new long[ dataLength ]; // ここはVnano側の内部表現の型
 				int dataIndex = 0;
 				for (int arrayIndex0=0; arrayIndex0<arrayLength[0]; arrayIndex0++) {
-					// ジャグ配列検査
+					// ジャグ配列検査(ここはホスト言語側の型)
 					if ( ((long[][])object)[arrayIndex0].length != arrayLength[1] ) {
 						throw new VnanoException(ErrorType.JAGGED_ARRAY);
 					}
@@ -747,10 +747,10 @@ public class DataConverter {
 				break;
 			}
 			case FLOAT32 : {
-				arrayLength[0] = ((float[][])object).length;
-				arrayLength[1] = ((float[][])object)[0].length;
+				arrayLength[0] = ((float[][])object).length; // ここはホスト言語側の型
+				arrayLength[1] = ((float[][])object)[0].length; // ここはホスト言語側の型
 				dataLength = arrayLength[0] * arrayLength[1];
-				double[] data = new double[ dataLength ];
+				double[] data = new double[ dataLength ]; // ここはVnano側の内部表現の型
 				int dataIndex = 0;
 				for (int arrayIndex0=0; arrayIndex0<arrayLength[0]; arrayIndex0++) {
 					// ジャグ配列検査(ここはホスト言語側の型)
@@ -767,13 +767,13 @@ public class DataConverter {
 				break;
 			}
 			case FLOAT64 : {
-				arrayLength[0] = ((double[][])object).length;
-				arrayLength[1] = ((double[][])object)[0].length;
+				arrayLength[0] = ((double[][])object).length; // ここはホスト言語側の型
+				arrayLength[1] = ((double[][])object)[0].length; // ここはホスト言語側の型
 				dataLength = arrayLength[0] * arrayLength[1];
-				double[] data = new double[ dataLength ];
+				double[] data = new double[ dataLength ]; // ここはVnano側の内部表現の型
 				int dataIndex = 0;
 				for (int arrayIndex0=0; arrayIndex0<arrayLength[0]; arrayIndex0++) {
-					// ジャグ配列検査
+					// ジャグ配列検査(ここはホスト言語側の型)
 					if ( ((double[][])object)[arrayIndex0].length != arrayLength[1] ) {
 						throw new VnanoException(ErrorType.JAGGED_ARRAY);
 					}
@@ -787,13 +787,13 @@ public class DataConverter {
 				break;
 			}
 			case BOOL : {
-				arrayLength[0] = ((boolean[][])object).length;
-				arrayLength[1] = ((boolean[][])object)[0].length;
+				arrayLength[0] = ((boolean[][])object).length; // ここはホスト言語側の型
+				arrayLength[1] = ((boolean[][])object)[0].length; // ここはホスト言語側の型
 				dataLength = arrayLength[0] * arrayLength[1];
-				boolean[] data = new boolean[ dataLength ];
+				boolean[] data = new boolean[ dataLength ]; // ここはVnano側の内部表現の型
 				int dataIndex = 0;
 				for (int arrayIndex0=0; arrayIndex0<arrayLength[0]; arrayIndex0++) {
-					// ジャグ配列検査
+					// ジャグ配列検査(ここはホスト言語側の型)
 					if ( ((boolean[][])object)[arrayIndex0].length != arrayLength[1] ) {
 						throw new VnanoException(ErrorType.JAGGED_ARRAY);
 					}
@@ -807,8 +807,8 @@ public class DataConverter {
 				break;
 			}
 			case STRING : {
-				arrayLength[0] = ((String[][])object).length;
-				arrayLength[1] = ((String[][])object)[0].length;
+				arrayLength[0] = ((String[][])object).length; // ここはホスト言語側の型
+				arrayLength[1] = ((String[][])object)[0].length; // ここはホスト言語側の型
 				dataLength = arrayLength[0] * arrayLength[1];
 				String[] data = new String[ dataLength ]; // ここはVnano側の内部表現の型
 				int dataIndex = 0;
@@ -857,19 +857,19 @@ public class DataConverter {
 		int dataLength = -1;
 		switch (this.externalType) {
 			case INT32 : {
-				arrayLength[0] = ((int[][][])object).length;
-				arrayLength[1] = ((int[][][])object)[0].length;
-				arrayLength[2] = ((int[][][])object)[0][0].length;
+				arrayLength[0] = ((int[][][])object).length; // ここはホスト言語側の型
+				arrayLength[1] = ((int[][][])object)[0].length; // ここはホスト言語側の型
+				arrayLength[2] = ((int[][][])object)[0][0].length; // ここはホスト言語側の型
 				dataLength = arrayLength[0] * arrayLength[1] * arrayLength[2];
-				long[] data = new long[ dataLength ];
+				long[] data = new long[ dataLength ]; // ここはVnano側の内部表現の型
 				int dataIndex = 0;
 				for (int arrayIndex0=0; arrayIndex0<arrayLength[0]; arrayIndex0++) {
-					// ジャグ配列検査
+					// ジャグ配列検査(ここはホスト言語側の型)
 					if ( ((int[][])object)[arrayIndex0].length != arrayLength[1] ) {
 						throw new VnanoException(ErrorType.JAGGED_ARRAY);
 					}
 					for (int arrayIndex1=0; arrayIndex1<arrayLength[1]; arrayIndex1++) {
-						// ジャグ配列検査
+						// ジャグ配列検査(ここはホスト言語側の型)
 						if ( ((int[][][])object)[arrayIndex0][arrayIndex1].length != arrayLength[2] ) {
 							throw new VnanoException(ErrorType.JAGGED_ARRAY);
 						}
@@ -884,19 +884,19 @@ public class DataConverter {
 				break;
 			}
 			case INT64 : {
-				arrayLength[0] = ((long[][][])object).length;
-				arrayLength[1] = ((long[][][])object)[0].length;
-				arrayLength[2] = ((long[][][])object)[0][0].length;
+				arrayLength[0] = ((long[][][])object).length; // ここはホスト言語側の型
+				arrayLength[1] = ((long[][][])object)[0].length; // ここはホスト言語側の型
+				arrayLength[2] = ((long[][][])object)[0][0].length; // ここはホスト言語側の型
 				dataLength = arrayLength[0] * arrayLength[1] * arrayLength[2];
-				long[] data = new long[ dataLength ];
+				long[] data = new long[ dataLength ]; // ここはVnano側の内部表現の型
 				int dataIndex = 0;
 				for (int arrayIndex0=0; arrayIndex0<arrayLength[0]; arrayIndex0++) {
-					// ジャグ配列検査
+					// ジャグ配列検査(ここはホスト言語側の型)
 					if ( ((long[][])object)[arrayIndex0].length != arrayLength[1] ) {
 						throw new VnanoException(ErrorType.JAGGED_ARRAY);
 					}
 					for (int arrayIndex1=0; arrayIndex1<arrayLength[1]; arrayIndex1++) {
-						// ジャグ配列検査
+						// ジャグ配列検査(ここはホスト言語側の型)
 						if ( ((long[][][])object)[arrayIndex0][arrayIndex1].length != arrayLength[2] ) {
 							throw new VnanoException(ErrorType.JAGGED_ARRAY);
 						}
@@ -911,19 +911,19 @@ public class DataConverter {
 				break;
 			}
 			case FLOAT32 : {
-				arrayLength[0] = ((float[][][])object).length;
-				arrayLength[1] = ((float[][][])object)[0].length;
-				arrayLength[2] = ((float[][][])object)[0][0].length;
+				arrayLength[0] = ((float[][][])object).length; // ここはホスト言語側の型
+				arrayLength[1] = ((float[][][])object)[0].length; // ここはホスト言語側の型
+				arrayLength[2] = ((float[][][])object)[0][0].length; // ここはホスト言語側の型
 				dataLength = arrayLength[0] * arrayLength[1] * arrayLength[2];
-				double[] data = new double[ dataLength ];
+				double[] data = new double[ dataLength ]; // ここはVnano側の内部表現の型
 				int dataIndex = 0;
 				for (int arrayIndex0=0; arrayIndex0<arrayLength[0]; arrayIndex0++) {
-					// ジャグ配列検査
+					// ジャグ配列検査(ここはホスト言語側の型)
 					if ( ((float[][])object)[arrayIndex0].length != arrayLength[1] ) {
 						throw new VnanoException(ErrorType.JAGGED_ARRAY);
 					}
 					for (int arrayIndex1=0; arrayIndex1<arrayLength[1]; arrayIndex1++) {
-						// ジャグ配列検査
+						// ジャグ配列検査(ここはホスト言語側の型)
 						if ( ((float[][][])object)[arrayIndex0][arrayIndex1].length != arrayLength[2] ) {
 							throw new VnanoException(ErrorType.JAGGED_ARRAY);
 						}
@@ -938,19 +938,19 @@ public class DataConverter {
 				break;
 			}
 			case FLOAT64 : {
-				arrayLength[0] = ((double[][][])object).length;
-				arrayLength[1] = ((double[][][])object)[0].length;
-				arrayLength[2] = ((double[][][])object)[0][0].length;
+				arrayLength[0] = ((double[][][])object).length; // ここはホスト言語側の型
+				arrayLength[1] = ((double[][][])object)[0].length; // ここはホスト言語側の型
+				arrayLength[2] = ((double[][][])object)[0][0].length; // ここはホスト言語側の型
 				dataLength = arrayLength[0] * arrayLength[1] * arrayLength[2];
-				double[] data = new double[ dataLength ];
+				double[] data = new double[ dataLength ]; // ここはVnano側の内部表現の型
 				int dataIndex = 0;
 				for (int arrayIndex0=0; arrayIndex0<arrayLength[0]; arrayIndex0++) {
-					// ジャグ配列検査
+					// ジャグ配列検査(ここはホスト言語側の型)
 					if ( ((float[][])object)[arrayIndex0].length != arrayLength[1] ) {
 						throw new VnanoException(ErrorType.JAGGED_ARRAY);
 					}
 					for (int arrayIndex1=0; arrayIndex1<arrayLength[1]; arrayIndex1++) {
-						// ジャグ配列検査
+						// ジャグ配列検査(ここはホスト言語側の型)
 						if ( ((double[][][])object)[arrayIndex0][arrayIndex1].length != arrayLength[2] ) {
 							throw new VnanoException(ErrorType.JAGGED_ARRAY);
 						}
@@ -965,19 +965,19 @@ public class DataConverter {
 				break;
 			}
 			case BOOL : {
-				arrayLength[0] = ((boolean[][][])object).length;
-				arrayLength[1] = ((boolean[][][])object)[0].length;
-				arrayLength[2] = ((boolean[][][])object)[0][0].length;
+				arrayLength[0] = ((boolean[][][])object).length; // ここはホスト言語側の型
+				arrayLength[1] = ((boolean[][][])object)[0].length; // ここはホスト言語側の型
+				arrayLength[2] = ((boolean[][][])object)[0][0].length; // ここはホスト言語側の型
 				dataLength = arrayLength[0] * arrayLength[1] * arrayLength[2];
-				boolean[] data = new boolean[ dataLength ];
+				boolean[] data = new boolean[ dataLength ]; // ここはVnano側の内部表現の型
 				int dataIndex = 0;
 				for (int arrayIndex0=0; arrayIndex0<arrayLength[0]; arrayIndex0++) {
-					// ジャグ配列検査
+					// ジャグ配列検査(ここはホスト言語側の型)
 					if ( ((boolean[][])object)[arrayIndex0].length != arrayLength[1] ) {
 						throw new VnanoException(ErrorType.JAGGED_ARRAY);
 					}
 					for (int arrayIndex1=0; arrayIndex1<arrayLength[1]; arrayIndex1++) {
-						// ジャグ配列検査
+						// ジャグ配列検査(ここはホスト言語側の型)
 						if ( ((boolean[][][])object)[arrayIndex0][arrayIndex1].length != arrayLength[2] ) {
 							throw new VnanoException(ErrorType.JAGGED_ARRAY);
 						}
@@ -992,19 +992,19 @@ public class DataConverter {
 				break;
 			}
 			case STRING : {
-				arrayLength[0] = ((String[][][])object).length;
-				arrayLength[1] = ((String[][][])object)[0].length;
-				arrayLength[2] = ((String[][][])object)[0][0].length;
+				arrayLength[0] = ((String[][][])object).length; // ここはホスト言語側の型
+				arrayLength[1] = ((String[][][])object)[0].length; // ここはホスト言語側の型
+				arrayLength[2] = ((String[][][])object)[0][0].length; // ここはホスト言語側の型
 				dataLength = arrayLength[0] * arrayLength[1] * arrayLength[2];
-				String[] data = new String[ dataLength ];
+				String[] data = new String[ dataLength ]; // ここはVnano側の内部表現の型
 				int dataIndex = 0;
 				for (int arrayIndex0=0; arrayIndex0<arrayLength[0]; arrayIndex0++) {
-					// ジャグ配列検査
+					// ジャグ配列検査(ここはホスト言語側の型)
 					if ( ((String[][])object)[arrayIndex0].length != arrayLength[1] ) {
 						throw new VnanoException(ErrorType.JAGGED_ARRAY);
 					}
 					for (int arrayIndex1=0; arrayIndex1<arrayLength[1]; arrayIndex1++) {
-						// ジャグ配列検査
+						// ジャグ配列検査(ここはホスト言語側の型)
 						if ( ((String[][][])object)[arrayIndex0][arrayIndex1].length != arrayLength[2] ) {
 							throw new VnanoException(ErrorType.JAGGED_ARRAY);
 						}
