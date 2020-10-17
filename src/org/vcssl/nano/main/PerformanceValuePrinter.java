@@ -35,7 +35,7 @@ public class PerformanceValuePrinter implements Runnable {
 
 	// サンプリングしたオペコードの名前をキーとして、
 	// 重み付き検出回数（複数命令が同時に検出された時に 1/N 回とカウント）を格納するマップ
-	private Map<String, Double> operationCodeCountMap;
+	private HashMap<String, Double> operationCodeCountMap; // clone するので抽象的な Map ではなく HashMap
 
 	VnanoEngine vnanoEngine = null;
 	VirtualMachine virtualMachine = null;
@@ -227,29 +227,45 @@ public class PerformanceValuePrinter implements Runnable {
 	}
 
 	// 命令のオペコードの検出回数マップを、頻度分布として表示用のいい感じの形に調整する
-	private String formatInstructionFrequency(Map<String, Double> operationCodeCountMap) {
+	private String formatInstructionFrequency(HashMap<String, Double> operationCodeCountMap) {
 		StringBuilder builder = new StringBuilder();
 		String eol = System.getProperty("line.separator");
 
+		// 値の加工用にマップを clone し、その キーと値のセット（加工用）を取得
+		@SuppressWarnings("unchecked")
+		HashMap<String, Double> modifiedMap = (HashMap<String, Double>)operationCodeCountMap.clone();
+		Set<Map.Entry<String, Double>> modifiedEntrySet = modifiedMap.entrySet();
+
 		// 各要素（オペコードと検出回数をまとめたEntry）を検出回数基準で降順ソート
-		Set<Map.Entry<String, Double>> countEntrySet = operationCodeCountMap.entrySet();
-		List<Map.Entry<String, Double>> countEntryList = new ArrayList<>(countEntrySet);
-		Collections.sort(countEntryList, new CountEntryComparator());
+		List<Map.Entry<String, Double>> modifiedEntryList = new ArrayList<>(modifiedEntrySet);
+		Collections.sort(modifiedEntryList, new CountEntryComparator());
 
 		// 検出回数を総和で割って 0 ～ 1 の頻度値に規格化する（パーセンテージ変換は後で丸めと一緒に行う）
 		double total = 0.0;
-		for (Map.Entry<String, Double> countEntry: countEntryList) {
-			total += countEntry.getValue().doubleValue();
+		for (Map.Entry<String, Double> modifiedEntry: modifiedEntryList) {
+			total += modifiedEntry.getValue().doubleValue();
 		}
-		for (Map.Entry<String, Double> countEntry: countEntryList) {
-			countEntry.setValue( Double.valueOf(countEntry.getValue().doubleValue() / total) );
+		for (Map.Entry<String, Double> modifiedEntry: modifiedEntryList) {
+			modifiedEntry.setValue( Double.valueOf(modifiedEntry.getValue().doubleValue() / total) );
 		}
 
 		// 頻度値をパーセンテージに変換しながら、丸めて文字列化し、バッファに書き込んでいく
-		DecimalFormat formatter = new DecimalFormat("0.00");
-		for (Map.Entry<String, Double> countEntry: countEntryList) {
-			String valueForPrint = formatter.format( countEntry.getValue().doubleValue() * 100.0 ) + " %";
-			builder.append("    - " + countEntry.getKey().toString() + " : " + valueForPrint + eol);
+		DecimalFormat percentageFormatter = new DecimalFormat("0.00");
+		DecimalFormat countFormatter = new DecimalFormat("0.#"); // 複数同時検出の際に 1/N する重み付きカウントなので、小数部が付く場合もある
+		for (Map.Entry<String, Double> modifiedEntry: modifiedEntryList) {
+
+			// 表示用のオペレーションコード名を、空白で同じ長さに揃える (REFELEMが最長で7文字なので、7文字に揃える)
+			String opcode = String.format("%7s", modifiedEntry.getKey().toString());
+
+			// 加工済み頻度値（パーセンテージ）
+			String percentage = percentageFormatter.format( modifiedEntry.getValue().doubleValue() * 100.0 ); // double の桁数を丸める
+			percentage = String.format("%6s", percentage); // 文字列の長さを揃える
+
+			// 未加工の頻度値（カウント数）
+			String count = countFormatter.format( operationCodeCountMap.get(modifiedEntry.getKey()) );
+
+			// 表示（バッファ書き込み）
+			builder.append("    - " + opcode + " : " + percentage + " %   (" + count + " count)" + eol);
 		}
 		return builder.toString();
 	}
