@@ -753,8 +753,8 @@ public class DataConverter {
 				double[] data = new double[ dataLength ];
 				int dataIndex = 0;
 				for (int arrayIndex0=0; arrayIndex0<arrayLength[0]; arrayIndex0++) {
-					// ジャグ配列検査
-					if ( ((double[][])object)[arrayIndex0].length != arrayLength[1] ) {
+					// ジャグ配列検査(ここはホスト言語側の型)
+					if ( ((float[][])object)[arrayIndex0].length != arrayLength[1] ) {
 						throw new VnanoException(ErrorType.JAGGED_ARRAY);
 					}
 					// 変換
@@ -774,7 +774,7 @@ public class DataConverter {
 				int dataIndex = 0;
 				for (int arrayIndex0=0; arrayIndex0<arrayLength[0]; arrayIndex0++) {
 					// ジャグ配列検査
-					if ( ((float[][])object)[arrayIndex0].length != arrayLength[1] ) {
+					if ( ((double[][])object)[arrayIndex0].length != arrayLength[1] ) {
 						throw new VnanoException(ErrorType.JAGGED_ARRAY);
 					}
 					// 変換
@@ -810,10 +810,10 @@ public class DataConverter {
 				arrayLength[0] = ((String[][])object).length;
 				arrayLength[1] = ((String[][])object)[0].length;
 				dataLength = arrayLength[0] * arrayLength[1];
-				String[] data = new String[ dataLength ];
+				String[] data = new String[ dataLength ]; // ここはVnano側の内部表現の型
 				int dataIndex = 0;
 				for (int arrayIndex0=0; arrayIndex0<arrayLength[0]; arrayIndex0++) {
-					// ジャグ配列検査
+					// ジャグ配列検査(ここはホスト言語側の型)
 					if ( ((String[][])object)[arrayIndex0].length != arrayLength[1] ) {
 						throw new VnanoException(ErrorType.JAGGED_ARRAY);
 					}
