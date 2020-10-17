@@ -538,8 +538,7 @@ public class AcceleratorSchedulingUnit {
 						if (isDestCached && isAllIndicesCached
 								&& indicesLength <= Int64CachedScalarSubscriptUnit.REFELEM_MAX_AVAILABLE_RANK) {
 							instruction.setAccelerationType(AcceleratorExecutionType.I64CS_SUBSCRIPT);
-						} else if (indicesLength <= Int64ScalarSubscriptUnit.REFELEM_MAX_AVAILABLE_RANK
-								&& indicesLength <= Int64CachedScalarSubscriptUnit.REFELEM_MAX_AVAILABLE_RANK) {
+						} else if (indicesLength <= Int64ScalarSubscriptUnit.REFELEM_MAX_AVAILABLE_RANK) {
 							instruction.setAccelerationType(AcceleratorExecutionType.I64S_SUBSCRIPT);
 						} else {
 							// Accelerator では任意次元ELEMには未対応なので Processor へ投げる（対応した際は上の if の3番目の条件を削る）
@@ -550,8 +549,7 @@ public class AcceleratorSchedulingUnit {
 						if (isDestCached && isAllIndicesCached
 								&& indicesLength <= Float64CachedScalarSubscriptUnit.REFELEM_MAX_AVAILABLE_RANK) {
 							instruction.setAccelerationType(AcceleratorExecutionType.F64CS_SUBSCRIPT);
-						} else if (indicesLength <= Float64ScalarSubscriptUnit.REFELEM_MAX_AVAILABLE_RANK
-								&& indicesLength <= Int64CachedScalarSubscriptUnit.REFELEM_MAX_AVAILABLE_RANK) {
+						} else if (indicesLength <= Float64ScalarSubscriptUnit.REFELEM_MAX_AVAILABLE_RANK) {
 							instruction.setAccelerationType(AcceleratorExecutionType.F64S_SUBSCRIPT);
 						} else {
 							// Accelerator では任意次元ELEMには未対応なので Processor へ投げる（対応した際は上の if の3番目の条件を削る）
@@ -562,8 +560,7 @@ public class AcceleratorSchedulingUnit {
 						if (isDestCached && isAllIndicesCached
 								&& indicesLength <= BoolCachedScalarSubscriptUnit.REFELEM_MAX_AVAILABLE_RANK) {
 							instruction.setAccelerationType(AcceleratorExecutionType.BCS_SUBSCRIPT);
-						} else if (indicesLength <= BoolScalarSubscriptUnit.REFELEM_MAX_AVAILABLE_RANK
-								&& indicesLength <= Int64CachedScalarSubscriptUnit.REFELEM_MAX_AVAILABLE_RANK) {
+						} else if (indicesLength <= BoolScalarSubscriptUnit.REFELEM_MAX_AVAILABLE_RANK) {
 							instruction.setAccelerationType(AcceleratorExecutionType.BS_SUBSCRIPT);
 						} else {
 							// Accelerator では任意次元ELEMには未対応なので Processor へ投げる（対応した際は上の if の3番目の条件を削る）
