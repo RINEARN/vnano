@@ -892,7 +892,7 @@ public class DataConverter {
 				int dataIndex = 0;
 				for (int arrayIndex0=0; arrayIndex0<arrayLength[0]; arrayIndex0++) {
 					// ジャグ配列検査(ここはホスト言語側の型)
-					if ( ((long[][])object)[arrayIndex0].length != arrayLength[1] ) {
+					if ( ((long[][][])object)[arrayIndex0].length != arrayLength[1] ) {
 						throw new VnanoException(ErrorType.JAGGED_ARRAY);
 					}
 					for (int arrayIndex1=0; arrayIndex1<arrayLength[1]; arrayIndex1++) {
@@ -919,7 +919,7 @@ public class DataConverter {
 				int dataIndex = 0;
 				for (int arrayIndex0=0; arrayIndex0<arrayLength[0]; arrayIndex0++) {
 					// ジャグ配列検査(ここはホスト言語側の型)
-					if ( ((float[][])object)[arrayIndex0].length != arrayLength[1] ) {
+					if ( ((float[][][])object)[arrayIndex0].length != arrayLength[1] ) {
 						throw new VnanoException(ErrorType.JAGGED_ARRAY);
 					}
 					for (int arrayIndex1=0; arrayIndex1<arrayLength[1]; arrayIndex1++) {
@@ -946,7 +946,7 @@ public class DataConverter {
 				int dataIndex = 0;
 				for (int arrayIndex0=0; arrayIndex0<arrayLength[0]; arrayIndex0++) {
 					// ジャグ配列検査(ここはホスト言語側の型)
-					if ( ((double[][])object)[arrayIndex0].length != arrayLength[1] ) {
+					if ( ((double[][][])object)[arrayIndex0].length != arrayLength[1] ) {
 						throw new VnanoException(ErrorType.JAGGED_ARRAY);
 					}
 					for (int arrayIndex1=0; arrayIndex1<arrayLength[1]; arrayIndex1++) {
@@ -973,7 +973,7 @@ public class DataConverter {
 				int dataIndex = 0;
 				for (int arrayIndex0=0; arrayIndex0<arrayLength[0]; arrayIndex0++) {
 					// ジャグ配列検査(ここはホスト言語側の型)
-					if ( ((boolean[][])object)[arrayIndex0].length != arrayLength[1] ) {
+					if ( ((boolean[][][])object)[arrayIndex0].length != arrayLength[1] ) {
 						throw new VnanoException(ErrorType.JAGGED_ARRAY);
 					}
 					for (int arrayIndex1=0; arrayIndex1<arrayLength[1]; arrayIndex1++) {
@@ -1000,7 +1000,7 @@ public class DataConverter {
 				int dataIndex = 0;
 				for (int arrayIndex0=0; arrayIndex0<arrayLength[0]; arrayIndex0++) {
 					// ジャグ配列検査(ここはホスト言語側の型)
-					if ( ((String[][])object)[arrayIndex0].length != arrayLength[1] ) {
+					if ( ((String[][][])object)[arrayIndex0].length != arrayLength[1] ) {
 						throw new VnanoException(ErrorType.JAGGED_ARRAY);
 					}
 					for (int arrayIndex1=0; arrayIndex1<arrayLength[1]; arrayIndex1++) {
@@ -1214,6 +1214,100 @@ public class DataConverter {
 							for (int arrayIndex1=0; arrayIndex1<arrayLength[1]; arrayIndex1++) {
 								externalData[arrayIndex0][arrayIndex1] = ((String[])internalData)[dataIndex];
 								dataIndex++;
+							}
+						}
+						return externalData;
+					}
+					case ANY : {
+						// この型は、外部関数においてデータ変換を無効化した場合にしか試用できないため、ここが実行される事は無い
+						throw new VnanoFatalException("Unexpected conversion executed.");
+					}
+					case VOID : {
+						VnanoException e = new VnanoException(
+								ErrorType.UNCONVERTIBLE_DATA_TYPE,
+								new String[] { DATA_TYPE_NAME.getDataTypeNameOf(DataType.VOID) }
+						);
+						throw e;
+					}
+				}
+			}
+
+			case 3 : {
+				switch (this.externalType) {
+					case INT32 : {
+						int[][][] externalData = new int[ arrayLength[0] ][ arrayLength[1] ][ arrayLength[2] ];
+						int dataIndex = 0;
+						for (int arrayIndex0=0; arrayIndex0<arrayLength[0]; arrayIndex0++) {
+							for (int arrayIndex1=0; arrayIndex1<arrayLength[1]; arrayIndex1++) {
+								for (int arrayIndex2=0; arrayIndex2<arrayLength[2]; arrayIndex2++) {
+									externalData[arrayIndex0][arrayIndex1][arrayIndex2] = (int)( ((long[])internalData)[dataIndex] );
+									dataIndex++;
+								}
+							}
+						}
+						return externalData;
+					}
+					case INT64 : {
+						long[][][] externalData = new long[ arrayLength[0] ][ arrayLength[1] ][ arrayLength[2] ];
+						int dataIndex = 0;
+						for (int arrayIndex0=0; arrayIndex0<arrayLength[0]; arrayIndex0++) {
+							for (int arrayIndex1=0; arrayIndex1<arrayLength[1]; arrayIndex1++) {
+								for (int arrayIndex2=0; arrayIndex2<arrayLength[2]; arrayIndex2++) {
+									externalData[arrayIndex0][arrayIndex1][arrayIndex2] = ((long[])internalData)[dataIndex];
+									dataIndex++;
+								}
+							}
+						}
+						return externalData;
+					}
+					case FLOAT32 : {
+						float[][][] externalData = new float[ arrayLength[0] ][ arrayLength[1] ][ arrayLength[2] ];
+						int dataIndex = 0;
+						for (int arrayIndex0=0; arrayIndex0<arrayLength[0]; arrayIndex0++) {
+							for (int arrayIndex1=0; arrayIndex1<arrayLength[1]; arrayIndex1++) {
+								for (int arrayIndex2=0; arrayIndex2<arrayLength[2]; arrayIndex2++) {
+									externalData[arrayIndex0][arrayIndex1][arrayIndex2] = (float)( ((double[])internalData)[dataIndex] );
+									dataIndex++;
+								}
+							}
+						}
+						return externalData;
+					}
+					case FLOAT64 : {
+						double[][][] externalData = new double[ arrayLength[0] ][ arrayLength[1] ][ arrayLength[2] ];
+						int dataIndex = 0;
+						for (int arrayIndex0=0; arrayIndex0<arrayLength[0]; arrayIndex0++) {
+							for (int arrayIndex1=0; arrayIndex1<arrayLength[1]; arrayIndex1++) {
+								for (int arrayIndex2=0; arrayIndex2<arrayLength[2]; arrayIndex2++) {
+									externalData[arrayIndex0][arrayIndex1][arrayIndex2] = ((double[])internalData)[dataIndex];
+									dataIndex++;
+								}
+							}
+						}
+						return externalData;
+					}
+					case BOOL : {
+						boolean[][][] externalData = new boolean[ arrayLength[0] ][ arrayLength[1] ][ arrayLength[2] ];
+						int dataIndex = 0;
+						for (int arrayIndex0=0; arrayIndex0<arrayLength[0]; arrayIndex0++) {
+							for (int arrayIndex1=0; arrayIndex1<arrayLength[1]; arrayIndex1++) {
+								for (int arrayIndex2=0; arrayIndex2<arrayLength[2]; arrayIndex2++) {
+									externalData[arrayIndex0][arrayIndex1][arrayIndex2] = ((boolean[])internalData)[dataIndex];
+									dataIndex++;
+								}
+							}
+						}
+						return externalData;
+					}
+					case STRING : {
+						String[][][] externalData = new String[ arrayLength[0] ][ arrayLength[1] ][ arrayLength[2] ];
+						int dataIndex = 0;
+						for (int arrayIndex0=0; arrayIndex0<arrayLength[0]; arrayIndex0++) {
+							for (int arrayIndex1=0; arrayIndex1<arrayLength[1]; arrayIndex1++) {
+								for (int arrayIndex2=0; arrayIndex2<arrayLength[2]; arrayIndex2++) {
+									externalData[arrayIndex0][arrayIndex1][arrayIndex2] = ((String[])internalData)[dataIndex];
+									dataIndex++;
+								}
 							}
 						}
 						return externalData;
