@@ -946,7 +946,7 @@ public class DataConverter {
 				int dataIndex = 0;
 				for (int arrayIndex0=0; arrayIndex0<arrayLength[0]; arrayIndex0++) {
 					// ジャグ配列検査(ここはホスト言語側の型)
-					if ( ((float[][])object)[arrayIndex0].length != arrayLength[1] ) {
+					if ( ((double[][])object)[arrayIndex0].length != arrayLength[1] ) {
 						throw new VnanoException(ErrorType.JAGGED_ARRAY);
 					}
 					for (int arrayIndex1=0; arrayIndex1<arrayLength[1]; arrayIndex1++) {
