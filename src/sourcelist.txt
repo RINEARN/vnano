@@ -36,6 +36,7 @@ org/vcssl/nano/combinedtest/SubscriptedAssignmentOperationCombinedTest.java
 org/vcssl/nano/combinedtest/SubscriptedComparisonOperationCombinedTest.java
 org/vcssl/nano/combinedtest/SubscriptedCompoundAssignmentOperationCombinedTest.java
 org/vcssl/nano/combinedtest/SubscriptedLogicalOperationCombinedTest.java
+org/vcssl/nano/combinedtest/SubscriptOperationCombinedTest.java
 org/vcssl/nano/combinedtest/VectorArithmeticOperationCombinedTest.java
 org/vcssl/nano/combinedtest/VectorAssignmentOperationCombinedTest.java
 org/vcssl/nano/combinedtest/VectorComparisonOperationCombinedTest.java
@@ -105,10 +106,12 @@ org/vcssl/nano/vm/accelerator/AcceleratorInstruction.java
 org/vcssl/nano/vm/accelerator/AcceleratorSchedulingUnit.java
 org/vcssl/nano/vm/accelerator/BoolCachedScalarBranchUnit.java
 org/vcssl/nano/vm/accelerator/BoolCachedScalarLogicalUnit.java
+org/vcssl/nano/vm/accelerator/BoolCachedScalarSubscriptUnit.java
 org/vcssl/nano/vm/accelerator/BoolCachedScalarTransferUnit.java
 org/vcssl/nano/vm/accelerator/BoolScalarBranchUnit.java
 org/vcssl/nano/vm/accelerator/BoolScalarCache.java
 org/vcssl/nano/vm/accelerator/BoolScalarLogicalUnit.java
+org/vcssl/nano/vm/accelerator/BoolScalarSubscriptUnit.java
 org/vcssl/nano/vm/accelerator/BoolScalarTransferUnit.java
 org/vcssl/nano/vm/accelerator/BoolVectorBranchUnit.java
 org/vcssl/nano/vm/accelerator/BoolVectorLogicalUnit.java
@@ -124,10 +127,12 @@ org/vcssl/nano/vm/accelerator/CacheSynchronizer.java
 org/vcssl/nano/vm/accelerator/Float64CachedScalarArithmeticUnit.java
 org/vcssl/nano/vm/accelerator/Float64CachedScalarComparisonUnit.java
 org/vcssl/nano/vm/accelerator/Float64CachedScalarDualArithmeticUnit.java
+org/vcssl/nano/vm/accelerator/Float64CachedScalarSubscriptUnit.java
 org/vcssl/nano/vm/accelerator/Float64CachedScalarTransferUnit.java
 org/vcssl/nano/vm/accelerator/Float64ScalarArithmeticUnit.java
 org/vcssl/nano/vm/accelerator/Float64ScalarCache.java
 org/vcssl/nano/vm/accelerator/Float64ScalarComparisonUnit.java
+org/vcssl/nano/vm/accelerator/Float64ScalarSubscriptUnit.java
 org/vcssl/nano/vm/accelerator/Float64ScalarTransferUnit.java
 org/vcssl/nano/vm/accelerator/Float64VectorArithmeticUnit.java
 org/vcssl/nano/vm/accelerator/Float64VectorComparisonUnit.java
@@ -142,10 +147,12 @@ org/vcssl/nano/vm/accelerator/GeneralScalarCacheSynchronizer.java
 org/vcssl/nano/vm/accelerator/Int64CachedScalarArithmeticUnit.java
 org/vcssl/nano/vm/accelerator/Int64CachedScalarComparisonUnit.java
 org/vcssl/nano/vm/accelerator/Int64CachedScalarDualArithmeticUnit.java
+org/vcssl/nano/vm/accelerator/Int64CachedScalarSubscriptUnit.java
 org/vcssl/nano/vm/accelerator/Int64CachedScalarTransferUnit.java
 org/vcssl/nano/vm/accelerator/Int64ScalarArithmeticUnit.java
 org/vcssl/nano/vm/accelerator/Int64ScalarCache.java
 org/vcssl/nano/vm/accelerator/Int64ScalarComparisonUnit.java
+org/vcssl/nano/vm/accelerator/Int64ScalarSubscriptUnit.java
 org/vcssl/nano/vm/accelerator/Int64ScalarTransferUnit.java
 org/vcssl/nano/vm/accelerator/Int64VectorArithmeticUnit.java
 org/vcssl/nano/vm/accelerator/Int64VectorComparisonUnit.java

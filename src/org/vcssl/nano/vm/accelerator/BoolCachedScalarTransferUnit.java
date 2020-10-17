@@ -27,6 +27,7 @@ public class BoolCachedScalarTransferUnit extends AcceleratorExecutionUnit {
 			}
 			case CAST : {
 				if (instruction.getDataTypes()[1] == DataType.BOOL) {
+					// このユニットでは bool 以外の型を含む演算は対応しないので、bool 同士のキャストしか有り得ず、従って単に mov する
 					node = new BoolCachedScalarMovNode(
 							(BoolScalarCache)operandCaches[0], (BoolScalarCache)operandCaches[1], nextNode);
 					break;

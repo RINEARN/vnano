@@ -239,7 +239,7 @@ public class AcceleratorDispatchUnit {
 			}
 
 
-			// データ転送
+			// データ転送（配列要素アクセス以外）
 
 			case I64V_TRANSFER : {
 				return new Int64VectorTransferUnit().generateNode(
@@ -304,6 +304,39 @@ public class AcceleratorDispatchUnit {
 				);
 			}
 
+
+			// 配列要素アクセス
+
+			case I64S_SUBSCRIPT : {
+				return new Int64ScalarSubscriptUnit().generateNode(
+					instruction, operandContainers, operandCaches, operandCachingEnabled, operandScalar, operandConstant, nextNode
+				);
+			}
+			case I64CS_SUBSCRIPT : {
+				return new Int64CachedScalarSubscriptUnit().generateNode(
+					instruction, operandContainers, operandCaches, operandCachingEnabled, operandScalar, operandConstant, nextNode
+				);
+			}
+			case F64S_SUBSCRIPT : {
+				return new Float64ScalarSubscriptUnit().generateNode(
+					instruction, operandContainers, operandCaches, operandCachingEnabled, operandScalar, operandConstant, nextNode
+				);
+			}
+			case F64CS_SUBSCRIPT : {
+				return new Float64CachedScalarSubscriptUnit().generateNode(
+					instruction, operandContainers, operandCaches, operandCachingEnabled, operandScalar, operandConstant, nextNode
+				);
+			}
+			case BS_SUBSCRIPT : {
+				return new BoolScalarSubscriptUnit().generateNode(
+					instruction, operandContainers, operandCaches, operandCachingEnabled, operandScalar, operandConstant, nextNode
+				);
+			}
+			case BCS_SUBSCRIPT : {
+				return new BoolCachedScalarSubscriptUnit().generateNode(
+					instruction, operandContainers, operandCaches, operandCachingEnabled, operandScalar, operandConstant, nextNode
+				);
+			}
 
 
 			// 分岐

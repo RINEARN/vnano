@@ -11,6 +11,17 @@ public class CombinedTestException extends RuntimeException {
 		super(e);
 	}
 
+	CombinedTestException(String errorMessage, Throwable cause) {
+		super(errorMessage);
+		System.err.println("");
+		System.err.println("Error occurred on the combined test:");
+		System.err.println("(" + errorMessage + ")");
+		System.err.println("");
+		System.err.println("- Cause - ");
+		System.err.println("");
+		cause.printStackTrace();
+	}
+
 	CombinedTestException(String errorMessage, String testName, String scriptCode) {
 		super(errorMessage);
 		System.err.println("");

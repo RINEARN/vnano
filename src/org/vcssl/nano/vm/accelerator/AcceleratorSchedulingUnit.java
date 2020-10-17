@@ -514,6 +514,67 @@ public class AcceleratorSchedulingUnit {
 					break;
 				}
 
+				// 配列要素参照命令 Array subscript opcodes
+				case ELEM : {
+
+					int indicesLength = operandLength - 2; // インデックス数: オペランド[2]以降がインデックス部なので -2
+					boolean isDestCached = operandCachingEnabled[0]; // 結果の格納先がキャッシュ可能かどうか
+					boolean isAllIndicesCached = true; // インデックスオペランドが全てキャッシュ可能かどうか
+					for (int i=0; i<indicesLength; i++) {
+						isAllIndicesCached &= operandCachingEnabled[i + 2]; // 右辺が1度でもfalseになるとその後左辺がfalseになる
+					}
+
+					// ※ 現状では、ELEMの dest はREFの dest と同様の扱いのため、上の isDestCached が true になる事は無く、
+					//    従って以下の分岐の中で、一番速い CachedScalar 系のユニットに実際に割り当てられる事は無い。
+					//    CachedScalar 系のユニットを使えるようにするには、
+					//    Accelerator 内のスケジューラで dest のキャッシュ可能性を判断する精度を上げるか、
+					//    またはELEM命令自体を参照リンクの有無で2種類の命令に分割して、
+					//    コンパイラ側で使い分けるコードを出力する必要がある（参照リンクが無ければキャッシュ可能な場面が簡単に分かる）。
+					//
+					// どちらがいいか要検討、そのうち要実装（配列要素アクセスの高速化はメリットが大きいので）
+
+					if(dataTypes[0] == DataType.INT64) {
+						if (isDestCached && isAllIndicesCached
+								&& indicesLength <= Int64CachedScalarSubscriptUnit.ELEM_MAX_AVAILABLE_RANK) {
+							instruction.setAccelerationType(AcceleratorExecutionType.I64CS_SUBSCRIPT);
+						} else if (indicesLength <= Int64ScalarSubscriptUnit.ELEM_MAX_AVAILABLE_RANK
+								&& indicesLength <= Int64CachedScalarSubscriptUnit.ELEM_MAX_AVAILABLE_RANK) {
+							instruction.setAccelerationType(AcceleratorExecutionType.I64S_SUBSCRIPT);
+						} else {
+							// Accelerator では任意次元ELEMには未対応なので Processor へ投げる（対応した際は上の if の3番目の条件を削る）
+							instruction.setAccelerationType(AcceleratorExecutionType.BYPASS);
+						}
+
+					} else if (dataTypes[0] == DataType.FLOAT64) {
+						if (isDestCached && isAllIndicesCached
+								&& indicesLength <= Float64CachedScalarSubscriptUnit.ELEM_MAX_AVAILABLE_RANK) {
+							instruction.setAccelerationType(AcceleratorExecutionType.F64CS_SUBSCRIPT);
+						} else if (indicesLength <= Float64ScalarSubscriptUnit.ELEM_MAX_AVAILABLE_RANK
+								&& indicesLength <= Int64CachedScalarSubscriptUnit.ELEM_MAX_AVAILABLE_RANK) {
+							instruction.setAccelerationType(AcceleratorExecutionType.F64S_SUBSCRIPT);
+						} else {
+							// Accelerator では任意次元ELEMには未対応なので Processor へ投げる（対応した際は上の if の3番目の条件を削る）
+							instruction.setAccelerationType(AcceleratorExecutionType.BYPASS);
+						}
+
+					} else if (dataTypes[0] == DataType.BOOL) {
+						if (isDestCached && isAllIndicesCached
+								&& indicesLength <= BoolCachedScalarSubscriptUnit.ELEM_MAX_AVAILABLE_RANK) {
+							instruction.setAccelerationType(AcceleratorExecutionType.BCS_SUBSCRIPT);
+						} else if (indicesLength <= BoolScalarSubscriptUnit.ELEM_MAX_AVAILABLE_RANK
+								&& indicesLength <= Int64CachedScalarSubscriptUnit.ELEM_MAX_AVAILABLE_RANK) {
+							instruction.setAccelerationType(AcceleratorExecutionType.BS_SUBSCRIPT);
+						} else {
+							// Accelerator では任意次元ELEMには未対応なので Processor へ投げる（対応した際は上の if の3番目の条件を削る）
+							instruction.setAccelerationType(AcceleratorExecutionType.BYPASS);
+						}
+
+					} else {
+						instruction.setAccelerationType(AcceleratorExecutionType.BYPASS);
+					}
+					break;
+				}
+
 				// 型変換命令 Cast instruction opcodes
 				case CAST :
 				{
