@@ -1340,7 +1340,7 @@ public class ExecutionUnit {
 
 
 	/**
-	 * {@link org.vcssl.nano.spec.OperationCode#ELEM ELEM} 命令を実行します。
+	 * {@link org.vcssl.nano.spec.OperationCode#REFELM REFELM} 命令を実行します。
 	 *
 	 * この命令の実行により、引数 dest が、引数 src のデータの配列要素を参照するようになります。
 	 *
@@ -1351,7 +1351,8 @@ public class ExecutionUnit {
 	 * @param indicesBegin 上記の operands 内において、アクセス対象要素のインデックスオペランド(多次元の場合は複数)が始まる位置
 	 * @throws VnanoFatalException
 	 *   この命令が対応していないデータ型が指定された場合や、
-	 *   指定データ型とオペランドの実際のデータ型が一致しない場合に発生します。
+	 *   指定データ型とオペランドの実際のデータ型が一致しない場合、
+	 *   およびインデックスが配列の範囲を超えていた場合に発生します。
 	 */
 	@SuppressWarnings("unchecked")
 	public void refelm(DataType type, DataContainer<?> dest, DataContainer<?> src, DataContainer<?>[] operands, int indicesBegin)
@@ -1359,18 +1360,128 @@ public class ExecutionUnit {
 
 		this.checkDataType(src, type);
 
-		int[] arrayLength = src.getLengths();
+		int rank = operands.length - indicesBegin; // 配列次元数 = インデックスオペランド数
+		int[] arrayLength = src.getLengths();      // 各次元の要素数
 
-		// 以下、1 次元化されたインデックスに変換する
+		// 多次元インデックスを 1 次元化されたインデックスに変換
+		int dataIndex = this.compute1DIndexFromIndicesOperands(operands, indicesBegin, arrayLength, rank);
+
+		// 1次元化されたインデックスに基づいて、dest が src 内のその配列要素を参照するよう設定
+		switch (type) {
+			case INT64 : {
+				((DataContainer<long[]>)dest).setData(
+					((DataContainer<long[]>)src).getData(),
+					dataIndex + src.getOffset(), DataContainer.SCALAR_LENGTHS // getOffset() を足しているのは、現在は subarray 等をサポートしていないので不要（配列全体側は常に0）なものの、将来的な拡張に備えて
+				);
+				break;
+			}
+			case FLOAT64 : {
+				((DataContainer<double[]>)dest).setData(
+					((DataContainer<double[]>)src).getData(),
+					dataIndex + src.getOffset(), DataContainer.SCALAR_LENGTHS
+				);
+				break;
+			}
+			case BOOL : {
+				((DataContainer<boolean[]>)dest).setData(
+					((DataContainer<boolean[]>)src).getData(),
+					dataIndex + src.getOffset(), DataContainer.SCALAR_LENGTHS
+				);
+				break;
+			}
+			case STRING : {
+				((DataContainer<String[]>)dest).setData(
+					((DataContainer<String[]>)src).getData(),
+					dataIndex + src.getOffset(), DataContainer.SCALAR_LENGTHS
+				);
+				break;
+			}
+			default : {
+				throw new VnanoFatalException("Unknown data type: " + type);
+			}
+		}
+	}
+
+
+	/**
+	 * {@link org.vcssl.nano.spec.OperationCode#MOVELM MOVELM} 命令を実行します。
+	 *
+	 * この命令の実行により、引数 src の配列要素値のデータが、引数 dest にコピーされます。
+	 *
+	 * @param type オペランドのデータ型
+	 * @param dest コピー先データ
+	 * @param src コピー元の要素を格納する配列データ
+	 * @param operands 全オペランドを格納する配列
+	 * @param indicesBegin 上記の operands 内において、コピー対象要素のインデックスオペランド(多次元の場合は複数)が始まる位置
+	 * @throws VnanoFatalException
+	 *   この命令が対応していないデータ型が指定された場合や、
+	 *   指定データ型とオペランドの実際のデータ型が一致しない場合に発生します。
+	 */
+	public void movelm(DataType type, DataContainer<?> dest, DataContainer<?> src, DataContainer<?>[] operands, int indicesBegin)
+			throws VnanoException {
+
+		this.checkDataType(src, type);
 
 		int rank = operands.length - indicesBegin; // 配列次元数 = インデックスオペランド数
+		int[] arrayLength = src.getLengths();      // 各次元の要素数
+
+		// 多次元インデックスを 1 次元化されたインデックスに変換
+		int dataIndex = this.compute1DIndexFromIndicesOperands(operands, indicesBegin, arrayLength, rank);
+
+		// 1次元化されたインデックスに基づいて、src の要素値を dest にコピー
+		switch (type) {
+			case INT64 : {
+				long[] outputData = (long[])dest.getData();
+				long[] inputData = (long[])src.getData();
+				outputData[ dest.getOffset() ] = inputData[ dataIndex + src.getOffset() ]; // 右辺で getOffset() を足しているのは、現在は subarray 等をサポートしていないので不要（配列全体側は常に0）なものの、将来的な拡張に備えて
+				break;
+			}
+			case FLOAT64 : {
+				double[] outputData = (double[])dest.getData();
+				double[] inputData = (double[])src.getData();
+				outputData[ dest.getOffset() ] = inputData[ dataIndex + src.getOffset() ];
+				break;
+			}
+			case BOOL : {
+				boolean[] outputData = (boolean[])dest.getData();
+				boolean[] inputData = (boolean[])src.getData();
+				outputData[ dest.getOffset() ] = inputData[ dataIndex + src.getOffset() ];
+				break;
+			}
+			case STRING : {
+				String[] outputData = (String[])dest.getData();
+				String[] inputData = (String[])src.getData();
+				outputData[ dest.getOffset() ] = inputData[ dataIndex + src.getOffset() ];
+				break;
+			}
+			default : {
+				throw new VnanoFatalException("Unknown data type: " + type);
+			}
+		}
+	}
+
+
+	/**
+	 * 多次元インデックスのオペランド値から、1次元化されたインデックスを求めて返します。
+	 * このメソッドは、MOVELM命令やREFELM命令のオペランド解釈に使用されます。
+	 *
+	 * @param operands 全オペランドを格納する配列
+	 * @param indicesOperandsBegin 上記の operands 内において、アクセス対象要素のインデックスオペランド(多次元の場合は複数)が始まる位置
+	 * @param arrayLength 配列の各次元の要素数を格納する配列
+	 * @param rank 配列の次元数
+	 * @throws VnanoFatalException
+	 *   インデックスが配列の範囲を超えていた場合にスローされます。
+	 */
+	private int compute1DIndexFromIndicesOperands(
+			DataContainer<?>[] operands, int indicesOperandsBegin, int[] arrayLength, int rank) throws VnanoException {
+
 		int dataIndex = 0;
 		int scale = 1;
 
 		for (int i=rank-1; 0 <= i; i--) {
 
 			// indices[i] が格納しているスカラ値を取得（＝ i 番目次元の配列インデックス）
-			DataContainer<?> indexOperand = operands[i+indicesBegin];
+			DataContainer<?> indexOperand = operands[i+indicesOperandsBegin];
 			long index = ( (long[])(indexOperand.getData()) )[ indexOperand.getOffset() ];
 
 			if (arrayLength[i] <= index) {
@@ -1384,37 +1495,7 @@ public class ExecutionUnit {
 			// 次の次元の単位変化量は、今の単位変化量に、今の次元の長さをかけたものとして求まる
 			scale *= arrayLength[i];
 		}
-
-		// 1次元化されたインデックスに基づいて、dest が src 内のその配列要素を参照するよう設定
-		switch (type) {
-			case INT64 : {
-				((DataContainer<long[]>)dest).setData(
-					((DataContainer<long[]>)src).getData(), dataIndex, DataContainer.SCALAR_LENGTHS
-				);
-				break;
-			}
-			case FLOAT64 : {
-				((DataContainer<double[]>)dest).setData(
-					((DataContainer<double[]>)src).getData(), dataIndex, DataContainer.SCALAR_LENGTHS
-				);
-				break;
-			}
-			case BOOL : {
-				((DataContainer<boolean[]>)dest).setData(
-					((DataContainer<boolean[]>)src).getData(), dataIndex, DataContainer.SCALAR_LENGTHS
-				);
-				break;
-			}
-			case STRING : {
-				((DataContainer<String[]>)dest).setData(
-					((DataContainer<String[]>)src).getData(), dataIndex, DataContainer.SCALAR_LENGTHS
-				);
-				break;
-			}
-			default : {
-				throw new VnanoFatalException("Unknown data type: " + type);
-			}
-		}
+		return dataIndex;
 	}
 
 

@@ -164,6 +164,7 @@ public class DispatchUnitTest {
 		this.testDispatchMov();
 		this.testDispatchCast();
 		this.testDispatchFill();
+		this.testDispatchMovelm();
 		this.testDispatchRefelm();
 		//this.testDispatchLen();
 		this.testDispatchFree();
@@ -977,6 +978,47 @@ public class DispatchUnitTest {
 		// 命令実行結果の値を検査
 		long[] output = this.int64Output.getData();
 		if (output[0] != 123L || output[1] != 123L || output[2] != 123L) {
+			fail("Incorrect output");
+		}
+	}
+
+	private void testDispatchMovelm() {
+
+		// 参照要素やインデックスを格納するコンテナを雑用アドレスに用意
+		DataContainer<long[]> element = new DataContainer<long[]>();
+		DataContainer<long[]> index = new DataContainer<long[]>();
+		this.memory.setDataContainer(TMP_A_PART, TMP_A_ADDR, element);
+		this.memory.setDataContainer(TMP_B_PART, TMP_B_ADDR, index);
+
+		// 入出力オペランドに値を設定
+		this.int64InputA.setData(new long[]{ 11L, 22L, 33L }, 0, new int[] {3}); // 要素を参照する配列
+		index.setData(new long[]{ 1L }, 0, DataContainer.SCALAR_LENGTHS);
+		element.setData(new long[]{ -1L }, 0, DataContainer.SCALAR_LENGTHS);
+
+		// 上記オペランドで演算を行う命令を生成
+		Instruction instruction = new Instruction(
+				OperationCode.MOVELM, INT64_TYPE,
+				new Memory.Partition[]{ TMP_A_PART, INT64_INPUT_A_PART, TMP_B_PART },
+				new int[]{ TMP_A_ADDR, INT64_INPUT_A_ADDR, TMP_B_ADDR },
+				META_PART, META_ADDR
+		);
+
+		// 命令を実行
+		int pc = 10; // プログラムカウンタ
+		try {
+			pc = this.dispatch(instruction, pc);
+		} catch (VnanoException | VnanoFatalException e) {
+			e.printStackTrace();
+			fail("Unexpected exception occurred");
+		}
+
+		// プログラムカウンタの更新値を検査
+		if (pc != 11) {
+			fail("Incorrect program counter");
+		}
+
+		// 命令実行結果の値を検査
+		if (element.getData()[ element.getOffset() ] != 22L) {
 			fail("Incorrect output");
 		}
 	}

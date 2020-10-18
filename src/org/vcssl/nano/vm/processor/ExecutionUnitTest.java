@@ -5663,15 +5663,15 @@ public class ExecutionUnitTest {
 
 
 	// ==================================================
-	// elem
+	// refelm
 	// ==================================================
 
 	// --------------------------------------------------
-	// elem, INT64 (long)
+	// refelm, INT64 (long)
 	// --------------------------------------------------
 
 	@Test
-	public void testElemInt64() throws VnanoException {
+	public void testRefelmInt64() throws VnanoException {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<long[]> dest = new DataContainer<long[]>();  // 要素を格納するコンテナ
@@ -5700,8 +5700,11 @@ public class ExecutionUnitTest {
 		index0.setData(new long[] {1}, 0, DataContainer.SCALAR_LENGTHS);
 		index1.setData(new long[] {0}, 0, DataContainer.SCALAR_LENGTHS);
 		index2.setData(new long[] {2}, 0, DataContainer.SCALAR_LENGTHS);
+		DataContainer<?>[] operands = new DataContainer<?>[] {
+			dest, src, index0, index1, index2
+		};
 		try {
-			new ExecutionUnit().refelm(DataType.INT64, dest, src, index0, index1, index2);
+			new ExecutionUnit().refelm(DataType.INT64, dest, src, operands, 2);
 		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
@@ -5717,7 +5720,7 @@ public class ExecutionUnitTest {
 		index1.setData(new long[] {2}, 0, DataContainer.SCALAR_LENGTHS);
 		index2.setData(new long[] {3}, 0, DataContainer.SCALAR_LENGTHS);
 		try {
-			new ExecutionUnit().refelm(DataType.INT64, dest, src, index0, index1, index2);
+			new ExecutionUnit().refelm(DataType.INT64, dest, src, operands, 2);
 		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
@@ -5736,11 +5739,11 @@ public class ExecutionUnitTest {
 	}
 
 	// --------------------------------------------------
-	// elem, FLOAT64 (double)
+	// refelm, FLOAT64 (double)
 	// --------------------------------------------------
 
 	@Test
-	public void testElemFloat64() throws VnanoException {
+	public void testRefelmFloat64() throws VnanoException {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<double[]> dest = new DataContainer<double[]>();  // 要素を格納するコンテナ
@@ -5769,8 +5772,11 @@ public class ExecutionUnitTest {
 		index0.setData(new long[] {1}, 0, DataContainer.SCALAR_LENGTHS);
 		index1.setData(new long[] {0}, 0, DataContainer.SCALAR_LENGTHS);
 		index2.setData(new long[] {2}, 0, DataContainer.SCALAR_LENGTHS);
+		DataContainer<?>[] operands = new DataContainer<?>[] {
+			dest, src, index0, index1, index2
+		};
 		try {
-			new ExecutionUnit().refelm(DataType.FLOAT64, dest, src, index0, index1, index2);
+			new ExecutionUnit().refelm(DataType.FLOAT64, dest, src, operands, 2);
 		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
@@ -5786,7 +5792,7 @@ public class ExecutionUnitTest {
 		index1.setData(new long[] {2}, 0, DataContainer.SCALAR_LENGTHS);
 		index2.setData(new long[] {3}, 0, DataContainer.SCALAR_LENGTHS);
 		try {
-			new ExecutionUnit().refelm(DataType.FLOAT64, dest, src, index0, index1, index2);
+			new ExecutionUnit().refelm(DataType.FLOAT64, dest, src, operands, 2);
 		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
@@ -5806,11 +5812,11 @@ public class ExecutionUnitTest {
 
 
 	// --------------------------------------------------
-	// elem, bool (boolean)
+	// refelm, bool (boolean)
 	// --------------------------------------------------
 
 	@Test
-	public void testElemBool() throws VnanoException {
+	public void testRefelmBool() throws VnanoException {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<boolean[]> dest = new DataContainer<boolean[]>();  // 要素を格納するコンテナ
@@ -5838,8 +5844,11 @@ public class ExecutionUnitTest {
 		index0.setData(new long[] {1}, 0, DataContainer.SCALAR_LENGTHS);
 		index1.setData(new long[] {0}, 0, DataContainer.SCALAR_LENGTHS);
 		index2.setData(new long[] {2}, 0, DataContainer.SCALAR_LENGTHS);
+		DataContainer<?>[] operands = new DataContainer<?>[] {
+			dest, src, index0, index1, index2
+		};
 		try {
-			new ExecutionUnit().refelm(DataType.BOOL, dest, src, index0, index1, index2);
+			new ExecutionUnit().refelm(DataType.BOOL, dest, src, operands, 2);
 		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
@@ -5855,7 +5864,7 @@ public class ExecutionUnitTest {
 		index1.setData(new long[] {2}, 0, DataContainer.SCALAR_LENGTHS);
 		index2.setData(new long[] {3}, 0, DataContainer.SCALAR_LENGTHS);
 		try {
-			new ExecutionUnit().refelm(DataType.BOOL, dest, src, index0, index1, index2);
+			new ExecutionUnit().refelm(DataType.BOOL, dest, src, operands, 2);
 		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
@@ -5874,11 +5883,11 @@ public class ExecutionUnitTest {
 	}
 
 	// --------------------------------------------------
-	// elem, string (String)
+	// refelm, string (String)
 	// --------------------------------------------------
 
 	@Test
-	public void testElemString() throws VnanoException {
+	public void testRefelmString() throws VnanoException {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<String[]> dest = new DataContainer<String[]>();  // 要素を格納するコンテナ
@@ -5906,8 +5915,11 @@ public class ExecutionUnitTest {
 		index0.setData(new long[] {1}, 0, DataContainer.SCALAR_LENGTHS);
 		index1.setData(new long[] {0}, 0, DataContainer.SCALAR_LENGTHS);
 		index2.setData(new long[] {2}, 0, DataContainer.SCALAR_LENGTHS);
+		DataContainer<?>[] operands = new DataContainer<?>[] {
+			dest, src, index0, index1, index2
+		};
 		try {
-			new ExecutionUnit().refelm(DataType.STRING, dest, src, index0, index1, index2);
+			new ExecutionUnit().refelm(DataType.STRING, dest, src, operands, 2);
 		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
@@ -5923,7 +5935,7 @@ public class ExecutionUnitTest {
 		index1.setData(new long[] {2}, 0, DataContainer.SCALAR_LENGTHS);
 		index2.setData(new long[] {3}, 0, DataContainer.SCALAR_LENGTHS);
 		try {
-			new ExecutionUnit().refelm(DataType.STRING, dest, src, index0, index1, index2);
+			new ExecutionUnit().refelm(DataType.STRING, dest, src, operands, 2);
 		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
@@ -5942,11 +5954,11 @@ public class ExecutionUnitTest {
 	}
 
 	// --------------------------------------------------
-	// elem, Unoperatable type (e.g. VOID)
+	// refelm, Unoperatable type (e.g. VOID)
 	// --------------------------------------------------
 
 	@Test
-	public void testElemUnoperatableData() throws VnanoException {
+	public void testRefelmUnoperatableData() throws VnanoException {
 
 		// 入力・出力用のデータコンテナを生成して値をセット
 		DataContainer<?> dest = new DataContainer<Object>();  // 要素を格納するコンテナ
@@ -5962,10 +5974,13 @@ public class ExecutionUnitTest {
 		index0.setData(new long[] {1}, 0, DataContainer.SCALAR_LENGTHS);
 		index1.setData(new long[] {0}, 0, DataContainer.SCALAR_LENGTHS);
 		index2.setData(new long[] {2}, 0, DataContainer.SCALAR_LENGTHS);
+		DataContainer<?>[] operands = new DataContainer<?>[] {
+			dest, src, index0, index1, index2
+		};
 
 		// 演算を実行
 		try {
-			new ExecutionUnit().refelm(DataType.VOID, dest, src, index0, index1, index2);
+			new ExecutionUnit().refelm(DataType.VOID, dest, src, operands, 2);
 			fail("Expected exception did not occured");
 		} catch (VnanoException e) {
 			// 以下の例外が発生するのが正しい挙動
@@ -5974,6 +5989,341 @@ public class ExecutionUnitTest {
 			}
 		}
 	}
+
+
+
+	// ==================================================
+	// movelm
+	// ==================================================
+
+	// --------------------------------------------------
+	// movelm, INT64 (long)
+	// --------------------------------------------------
+
+	@Test
+	public void testMovelmInt64() throws VnanoException {
+
+		// 入力・出力用のデータコンテナを生成して値をセット
+		DataContainer<long[]> dest = new DataContainer<long[]>();  // 要素を格納するコンテナ
+		DataContainer<long[]> src = new DataContainer<long[]>();   // 参照する配列のコンテナ
+
+		DataContainer<long[]> index0 = new DataContainer<long[]>();
+		DataContainer<long[]> index1 = new DataContainer<long[]>();
+		DataContainer<long[]> index2 = new DataContainer<long[]>();
+
+		int[] srcLengths = new int[]{2, 3, 4}; // 参照する配列の要素数は [2][3][4]
+
+		// テスト用の配列データを src に設定
+		// { {{0,1,2,3}, {4,5,6,7}, {8,9,10,11}}, {{12,13,14,15}, {16,17,18,19}, {20,21,22,23}} }
+		long[] arrayData = new long[]{
+				0L, 1L, 2L, 3L,
+				4L, 5L, 6L, 7L,
+				8L, 9L, 10L, 11L,
+
+				12L, 13L, 14L, 15L,
+				16L, 17L, 18L, 19L,
+				20L, 21L, 22L, 23L,
+		};
+		src.setData(arrayData, 0, srcLengths);
+		dest.setData(new long[] { 0L }, 0, DataContainer.SCALAR_LENGTHS);
+
+		// [1][0][2] の要素(=14)を参照する
+		index0.setData(new long[] {1}, 0, DataContainer.SCALAR_LENGTHS);
+		index1.setData(new long[] {0}, 0, DataContainer.SCALAR_LENGTHS);
+		index2.setData(new long[] {2}, 0, DataContainer.SCALAR_LENGTHS);
+		DataContainer<?>[] operands = new DataContainer<?>[] {
+			dest, src, index0, index1, index2
+		};
+		try {
+			new ExecutionUnit().movelm(DataType.INT64, dest, src, operands, 2);
+		} catch (VnanoFatalException e) {
+			e.printStackTrace();
+			fail("Unexpected exception occured");
+		}
+
+		// 正しい結果が格納されているか検査
+		if (dest.getData()[ dest.getOffset() ] != 14L) {
+			fail("Incorrect output value");
+		}
+
+		// [0][2][3] の要素(=11)を参照する
+		index0.setData(new long[] {0}, 0, DataContainer.SCALAR_LENGTHS);
+		index1.setData(new long[] {2}, 0, DataContainer.SCALAR_LENGTHS);
+		index2.setData(new long[] {3}, 0, DataContainer.SCALAR_LENGTHS);
+		try {
+			new ExecutionUnit().movelm(DataType.INT64, dest, src, operands, 2);
+		} catch (VnanoFatalException e) {
+			e.printStackTrace();
+			fail("Unexpected exception occured");
+		}
+
+		// 正しい結果が格納されているか検査
+		if (dest.getData()[ dest.getOffset() ] != 11L) {
+			fail("Incorrect output value");
+		}
+
+		// 参照中の [0][2][3] の値を書き換えて、元の配列データの要素値が変わらない（参照ではなくコピーである）事を検査
+		dest.getData()[ dest.getOffset() ] = 123L;
+		if (arrayData[11] != 11L) {  // [0][2][3]は元の配列データでは[11]番目
+			fail("Incorrect output value");
+		}
+	}
+
+	// --------------------------------------------------
+	// refelm, FLOAT64 (double)
+	// --------------------------------------------------
+
+	@Test
+	public void testMovelmFloat64() throws VnanoException {
+
+		// 入力・出力用のデータコンテナを生成して値をセット
+		DataContainer<double[]> dest = new DataContainer<double[]>();  // 要素を格納するコンテナ
+		DataContainer<double[]> src = new DataContainer<double[]>();   // 参照する配列のコンテナ
+
+		DataContainer<long[]> index0 = new DataContainer<long[]>();
+		DataContainer<long[]> index1 = new DataContainer<long[]>();
+		DataContainer<long[]> index2 = new DataContainer<long[]>();
+
+		int[] srcLengths = new int[]{2, 3, 4}; // 参照する配列の要素数は [2][3][4]
+
+		// テスト用の配列データを src に設定
+		// { {{0,1,2,3}, {4,5,6,7}, {8,9,10,11}}, {{12,13,14,15}, {16,17,18,19}, {20,21,22,23}} }
+		double[] arrayData = new double[]{
+				0.0, 1.0, 2.0, 3.0,
+				4.0, 5.0, 6.0, 7.0,
+				8.0, 9.0, 10.0, 11.0,
+
+				12.0, 13.0, 14.0, 15.0,
+				16.0, 17.0, 18.0, 19.0,
+				20.0, 21.0, 22.0, 23.0,
+		};
+		src.setData(arrayData, 0, srcLengths);
+		dest.setData(new double[] { 0.0 }, 0, DataContainer.SCALAR_LENGTHS);
+
+		// [1][0][2] の要素(=14)を参照する
+		index0.setData(new long[] {1}, 0, DataContainer.SCALAR_LENGTHS);
+		index1.setData(new long[] {0}, 0, DataContainer.SCALAR_LENGTHS);
+		index2.setData(new long[] {2}, 0, DataContainer.SCALAR_LENGTHS);
+		DataContainer<?>[] operands = new DataContainer<?>[] {
+			dest, src, index0, index1, index2
+		};
+		try {
+			new ExecutionUnit().movelm(DataType.FLOAT64, dest, src, operands, 2);
+		} catch (VnanoFatalException e) {
+			e.printStackTrace();
+			fail("Unexpected exception occured");
+		}
+
+		// 正しい結果が格納されているか検査
+		if (dest.getData()[ dest.getOffset() ] != 14.0) {
+			fail("Incorrect output value");
+		}
+
+		// [0][2][3] の要素(=11)を参照する
+		index0.setData(new long[] {0}, 0, DataContainer.SCALAR_LENGTHS);
+		index1.setData(new long[] {2}, 0, DataContainer.SCALAR_LENGTHS);
+		index2.setData(new long[] {3}, 0, DataContainer.SCALAR_LENGTHS);
+		try {
+			new ExecutionUnit().movelm(DataType.FLOAT64, dest, src, operands, 2);
+		} catch (VnanoFatalException e) {
+			e.printStackTrace();
+			fail("Unexpected exception occured");
+		}
+
+		// 正しい結果が格納されているか検査
+		if (dest.getData()[ dest.getOffset() ] != 11.0) {
+			fail("Incorrect output value");
+		}
+
+		// 参照中の [0][2][3] の値を書き換えて、元の配列データの要素値が変わらない（参照ではなくコピーである）事を検査
+		dest.getData()[ dest.getOffset() ] = 123.0;
+		if (arrayData[11] != 11.0) {  // [0][2][3]は元の配列データでは[11]番目
+			fail("Incorrect output value");
+		}
+	}
+
+
+	// --------------------------------------------------
+	// refelm, bool (boolean)
+	// --------------------------------------------------
+
+	@Test
+	public void testMovelmBool() throws VnanoException {
+
+		// 入力・出力用のデータコンテナを生成して値をセット
+		DataContainer<boolean[]> dest = new DataContainer<boolean[]>();  // 要素を格納するコンテナ
+		DataContainer<boolean[]> src = new DataContainer<boolean[]>();   // 参照する配列のコンテナ
+
+		DataContainer<long[]> index0 = new DataContainer<long[]>();
+		DataContainer<long[]> index1 = new DataContainer<long[]>();
+		DataContainer<long[]> index2 = new DataContainer<long[]>();
+
+		int[] srcLengths = new int[]{2, 3, 4}; // 参照する配列の要素数は [2][3][4]
+
+		// テスト用の配列データを src に設定
+		boolean[] arrayData = new boolean[]{
+				false, false, false, false,
+				false, false, false, false,
+				false, false, false, false,
+
+				false, false, true,  false,
+				false, false, false, false,
+				false, false, false, false,
+		};
+		src.setData(arrayData, 0, srcLengths);
+		dest.setData(new boolean[] { false }, 0, DataContainer.SCALAR_LENGTHS);
+
+		// [1][0][2] の要素(=true)を参照する
+		index0.setData(new long[] {1}, 0, DataContainer.SCALAR_LENGTHS);
+		index1.setData(new long[] {0}, 0, DataContainer.SCALAR_LENGTHS);
+		index2.setData(new long[] {2}, 0, DataContainer.SCALAR_LENGTHS);
+		DataContainer<?>[] operands = new DataContainer<?>[] {
+			dest, src, index0, index1, index2
+		};
+		try {
+			new ExecutionUnit().movelm(DataType.BOOL, dest, src, operands, 2);
+		} catch (VnanoFatalException e) {
+			e.printStackTrace();
+			fail("Unexpected exception occured");
+		}
+
+		// 正しい結果が格納されているか検査
+		if (dest.getData()[ dest.getOffset() ] != true) { // 期待値はtrue
+			fail("Incorrect output value");
+		}
+
+		// [0][2][3] の要素(=false)を参照する
+		index0.setData(new long[] {0}, 0, DataContainer.SCALAR_LENGTHS);
+		index1.setData(new long[] {2}, 0, DataContainer.SCALAR_LENGTHS);
+		index2.setData(new long[] {3}, 0, DataContainer.SCALAR_LENGTHS);
+		try {
+			new ExecutionUnit().movelm(DataType.BOOL, dest, src, operands, 2);
+		} catch (VnanoFatalException e) {
+			e.printStackTrace();
+			fail("Unexpected exception occured");
+		}
+
+		// 正しい結果が格納されているか検査
+		if (dest.getData()[ dest.getOffset() ] != false) { // 期待値はfalse
+			fail("Incorrect output value");
+		}
+
+		// 参照中の [0][2][3] の値を書き換えて、元の配列データの要素値が変わらない（参照ではなくコピーである）事を検査
+		dest.getData()[ dest.getOffset() ] = true;
+		if (arrayData[11] != false) {  // [0][2][3]は元の配列データでは[11]番目
+			fail("Incorrect output value");
+		}
+	}
+
+	// --------------------------------------------------
+	// refelm, string (String)
+	// --------------------------------------------------
+
+	@Test
+	public void testMovelmString() throws VnanoException {
+
+		// 入力・出力用のデータコンテナを生成して値をセット
+		DataContainer<String[]> dest = new DataContainer<String[]>();  // 要素を格納するコンテナ
+		DataContainer<String[]> src = new DataContainer<String[]>();   // 参照する配列のコンテナ
+
+		DataContainer<long[]> index0 = new DataContainer<long[]>();
+		DataContainer<long[]> index1 = new DataContainer<long[]>();
+		DataContainer<long[]> index2 = new DataContainer<long[]>();
+
+		int[] srcLengths = new int[]{2, 3, 4}; // 参照する配列の要素数は [2][3][4]
+
+		// テスト用の配列データを src に設定
+		String[] arrayData = new String[]{
+				"000", "001", "002", "003",
+				"010", "011", "012", "013",
+				"020", "021", "022", "023",
+
+				"100", "101", "102", "103",
+				"110", "111", "112", "113",
+				"120", "121", "122", "123",
+		};
+		src.setData(arrayData, 0, srcLengths);
+		dest.setData(new String[] { "" }, 0, DataContainer.SCALAR_LENGTHS);
+
+		// [1][0][2] の要素(=true)を参照する
+		index0.setData(new long[] {1}, 0, DataContainer.SCALAR_LENGTHS);
+		index1.setData(new long[] {0}, 0, DataContainer.SCALAR_LENGTHS);
+		index2.setData(new long[] {2}, 0, DataContainer.SCALAR_LENGTHS);
+		DataContainer<?>[] operands = new DataContainer<?>[] {
+			dest, src, index0, index1, index2
+		};
+		try {
+			new ExecutionUnit().movelm(DataType.STRING, dest, src, operands, 2);
+		} catch (VnanoFatalException e) {
+			e.printStackTrace();
+			fail("Unexpected exception occured");
+		}
+
+		// 正しい結果が格納されているか検査
+		if (!dest.getData()[ dest.getOffset() ].equals("102")) {
+			fail("Incorrect output value");
+		}
+
+		// [0][2][3] の要素(=false)を参照する
+		index0.setData(new long[] {0}, 0, DataContainer.SCALAR_LENGTHS);
+		index1.setData(new long[] {2}, 0, DataContainer.SCALAR_LENGTHS);
+		index2.setData(new long[] {3}, 0, DataContainer.SCALAR_LENGTHS);
+		try {
+			new ExecutionUnit().movelm(DataType.STRING, dest, src, operands, 2);
+		} catch (VnanoFatalException e) {
+			e.printStackTrace();
+			fail("Unexpected exception occured");
+		}
+
+		// 正しい結果が格納されているか検査
+		if (!dest.getData()[ dest.getOffset() ].equals("023")) {
+			fail("Incorrect output value");
+		}
+
+		// 参照中の [0][1][3] の値を書き換えて、元の配列データの要素値が変わらない（参照ではなくコピーである）事を検査
+		dest.getData()[ dest.getOffset() ] = "888";
+		if (!arrayData[11].equals("023")) { // [0][2][3]は元の配列データでは[11]番目
+			fail("Incorrect output value");
+		}
+	}
+
+	// --------------------------------------------------
+	// movelm, Unoperatable type (e.g. VOID)
+	// --------------------------------------------------
+
+	@Test
+	public void testMovelmUnoperatableData() throws VnanoException {
+
+		// 入力・出力用のデータコンテナを生成して値をセット
+		DataContainer<?> dest = new DataContainer<Object>();  // 要素を格納するコンテナ
+		DataContainer<ExecutionUnitTest[]> src = new DataContainer<ExecutionUnitTest[]>();   // 参照する配列のコンテナ(演算不能な型の例として便宜的にExecutionUnitTest[]を使用)
+
+		DataContainer<long[]> index0 = new DataContainer<long[]>();
+		DataContainer<long[]> index1 = new DataContainer<long[]>();
+		DataContainer<long[]> index2 = new DataContainer<long[]>();
+
+		src.setData((ExecutionUnitTest[])null, 0, new int[] { 1, 2, 3 });
+
+		// [1][0][2] の要素(=true)を参照する
+		index0.setData(new long[] {1}, 0, DataContainer.SCALAR_LENGTHS);
+		index1.setData(new long[] {0}, 0, DataContainer.SCALAR_LENGTHS);
+		index2.setData(new long[] {2}, 0, DataContainer.SCALAR_LENGTHS);
+		DataContainer<?>[] operands = new DataContainer<?>[] {
+			dest, src, index0, index1, index2
+		};
+
+		// 演算を実行
+		try {
+			new ExecutionUnit().movelm(DataType.VOID, dest, src, operands, 2);
+			fail("Expected exception did not occured");
+		} catch (VnanoException e) {
+			// 以下の例外が発生するのが正しい挙動
+			if(e.getErrorType() != ErrorType.INVALID_ARRAY_INDEX) {
+				fail("Expected exception did not occured");
+			}
+		}
+	}
+
 
 
 	// ==================================================

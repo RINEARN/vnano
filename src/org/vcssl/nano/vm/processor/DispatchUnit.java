@@ -247,6 +247,12 @@ public class DispatchUnit {
 				return programCounter + 1;
 			}
 
+			// 配列要素コピー
+			case MOVELM : {
+				executionUnit.refelm(dataTypes[0], operands[0], operands[1], operands, 2);
+				return programCounter + 1;
+			}
+
 			// 配列要素参照
 			case REFELM : {
 				executionUnit.refelm(dataTypes[0], operands[0], operands[1], operands, 2);
