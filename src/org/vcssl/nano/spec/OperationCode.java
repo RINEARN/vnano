@@ -870,7 +870,7 @@ public enum OperationCode {
 
 	/**
 	 * <p>
-	 * <span class="lang-en">The instruction to perform the refModifier-assignment operation</span>
+	 * <span class="lang-en">The instruction to perform the reference-assignment operation</span>
 	 * <span class="lang-ja">参照代入演算を行う命令です</span>
 	 * .
 	 * <span class="lang-en">
@@ -891,8 +891,8 @@ public enum OperationCode {
 	 * </span>
 	 *
 	 * <span class="lang-en">
-	 * After this instruction is executed,
-	 * the data refModifier of "output" will be the same with it of "input".
+	 * When this instruction is executed,
+	 * the data reference of "output" will be the same with it of "input".
 	 * The data type of all operands should be the same.
 	 * Specify the name of the data type to "type".
 	 * </span>
@@ -975,7 +975,7 @@ public enum OperationCode {
 	/**
 	 * <p>
 	 * <span class="lang-en">
-	 * The instruction to pop data from the stack and performs the refModifier-assignment operation
+	 * The instruction to pop data from the stack and performs the reference-assignment operation
 	 * </span>
 	 * <span class="lang-ja">スタックからデータを取り出して参照代入演算を行う命令です</span>
 	 * .
@@ -998,7 +998,7 @@ public enum OperationCode {
 	 *
 	 * <span class="lang-en">
 	 * When this instruction is executed,
-	 * the data refModifier of "output" will set to the data popped from the stack.
+	 * the data reference of "output" will set to the data popped from the stack.
 	 * </span>
 	 * </p>
 	 */
@@ -1355,7 +1355,7 @@ public enum OperationCode {
 
 	/**
 	 * <p>
-	 * <span class="lang-en">The instruction to refer to an element of the array.</span>
+	 * <span class="lang-en">The instruction to refer to an element of an array.</span>
 	 * <span class="lang-ja">配列要素を参照する命令です</span>
 	 * .
 	 * <span class="lang-en">
@@ -1367,12 +1367,12 @@ public enum OperationCode {
 	 * </span>
 	 *
 	 * <div style="border: 1px solid #000000; margin:15px; padding:5px;">
-	 * REFELEM type output input index1 index2 index3 ... indexN ;
+	 * REFELM type output input index1 index2 index3 ... indexN ;
 	 * </div>
 	 *
 	 * <span class="lang-en">
-	 * After this instruction is executed,
-	 * the refModifier of data of "output" points to the element with
+	 * When this instruction is executed,
+	 * the reference of data of "output" points to the element with
 	 * [index1][index2][index3]...[indexN] of the array "output".
 	 * The data type of all operands should be the same.
 	 * Specify the name of the data type to "type".
