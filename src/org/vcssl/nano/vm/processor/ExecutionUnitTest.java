@@ -5701,7 +5701,7 @@ public class ExecutionUnitTest {
 		index1.setData(new long[] {0}, 0, DataContainer.SCALAR_LENGTHS);
 		index2.setData(new long[] {2}, 0, DataContainer.SCALAR_LENGTHS);
 		try {
-			new ExecutionUnit().elem(DataType.INT64, dest, src, index0, index1, index2);
+			new ExecutionUnit().refelm(DataType.INT64, dest, src, index0, index1, index2);
 		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
@@ -5717,7 +5717,7 @@ public class ExecutionUnitTest {
 		index1.setData(new long[] {2}, 0, DataContainer.SCALAR_LENGTHS);
 		index2.setData(new long[] {3}, 0, DataContainer.SCALAR_LENGTHS);
 		try {
-			new ExecutionUnit().elem(DataType.INT64, dest, src, index0, index1, index2);
+			new ExecutionUnit().refelm(DataType.INT64, dest, src, index0, index1, index2);
 		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
@@ -5770,7 +5770,7 @@ public class ExecutionUnitTest {
 		index1.setData(new long[] {0}, 0, DataContainer.SCALAR_LENGTHS);
 		index2.setData(new long[] {2}, 0, DataContainer.SCALAR_LENGTHS);
 		try {
-			new ExecutionUnit().elem(DataType.FLOAT64, dest, src, index0, index1, index2);
+			new ExecutionUnit().refelm(DataType.FLOAT64, dest, src, index0, index1, index2);
 		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
@@ -5786,7 +5786,7 @@ public class ExecutionUnitTest {
 		index1.setData(new long[] {2}, 0, DataContainer.SCALAR_LENGTHS);
 		index2.setData(new long[] {3}, 0, DataContainer.SCALAR_LENGTHS);
 		try {
-			new ExecutionUnit().elem(DataType.FLOAT64, dest, src, index0, index1, index2);
+			new ExecutionUnit().refelm(DataType.FLOAT64, dest, src, index0, index1, index2);
 		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
@@ -5839,7 +5839,7 @@ public class ExecutionUnitTest {
 		index1.setData(new long[] {0}, 0, DataContainer.SCALAR_LENGTHS);
 		index2.setData(new long[] {2}, 0, DataContainer.SCALAR_LENGTHS);
 		try {
-			new ExecutionUnit().elem(DataType.BOOL, dest, src, index0, index1, index2);
+			new ExecutionUnit().refelm(DataType.BOOL, dest, src, index0, index1, index2);
 		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
@@ -5855,7 +5855,7 @@ public class ExecutionUnitTest {
 		index1.setData(new long[] {2}, 0, DataContainer.SCALAR_LENGTHS);
 		index2.setData(new long[] {3}, 0, DataContainer.SCALAR_LENGTHS);
 		try {
-			new ExecutionUnit().elem(DataType.BOOL, dest, src, index0, index1, index2);
+			new ExecutionUnit().refelm(DataType.BOOL, dest, src, index0, index1, index2);
 		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
@@ -5907,7 +5907,7 @@ public class ExecutionUnitTest {
 		index1.setData(new long[] {0}, 0, DataContainer.SCALAR_LENGTHS);
 		index2.setData(new long[] {2}, 0, DataContainer.SCALAR_LENGTHS);
 		try {
-			new ExecutionUnit().elem(DataType.STRING, dest, src, index0, index1, index2);
+			new ExecutionUnit().refelm(DataType.STRING, dest, src, index0, index1, index2);
 		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
@@ -5923,7 +5923,7 @@ public class ExecutionUnitTest {
 		index1.setData(new long[] {2}, 0, DataContainer.SCALAR_LENGTHS);
 		index2.setData(new long[] {3}, 0, DataContainer.SCALAR_LENGTHS);
 		try {
-			new ExecutionUnit().elem(DataType.STRING, dest, src, index0, index1, index2);
+			new ExecutionUnit().refelm(DataType.STRING, dest, src, index0, index1, index2);
 		} catch (VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
@@ -5965,7 +5965,7 @@ public class ExecutionUnitTest {
 
 		// 演算を実行
 		try {
-			new ExecutionUnit().elem(DataType.VOID, dest, src, index0, index1, index2);
+			new ExecutionUnit().refelm(DataType.VOID, dest, src, index0, index1, index2);
 			fail("Expected exception did not occured");
 		} catch (VnanoException e) {
 			// 以下の例外が発生するのが正しい挙動

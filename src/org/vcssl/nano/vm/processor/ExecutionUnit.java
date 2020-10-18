@@ -1339,7 +1339,6 @@ public class ExecutionUnit {
 	}
 
 
-	// これ可変長引数にするべきかも。多次元配列要素アクセスでVEC命令と交互に呼ぶのはコストが大きすぎる
 	/**
 	 * {@link org.vcssl.nano.spec.OperationCode#ELEM ELEM} 命令を実行します。
 	 *
@@ -1348,13 +1347,14 @@ public class ExecutionUnit {
 	 * @param type オペランドのデータ型
 	 * @param dest 配列要素とするデータ
 	 * @param src 配列のデータ
-	 * @param indices 要素を参照する、次元ごとのインデックスをまとめた配列
+	 * @param operands 全オペランドを格納する配列
+	 * @param indicesBegin 上記の operands 内において、アクセス対象要素のインデックスオペランド(多次元の場合は複数)が始まる位置
 	 * @throws VnanoFatalException
 	 *   この命令が対応していないデータ型が指定された場合や、
 	 *   指定データ型とオペランドの実際のデータ型が一致しない場合に発生します。
 	 */
 	@SuppressWarnings("unchecked")
-	public void elem(DataType type, DataContainer<?> dest, DataContainer<?> src, DataContainer<?> ... indices)
+	public void refelm(DataType type, DataContainer<?> dest, DataContainer<?> src, DataContainer<?>[] operands, int indicesBegin)
 			throws VnanoException {
 
 		this.checkDataType(src, type);
@@ -1363,14 +1363,15 @@ public class ExecutionUnit {
 
 		// 以下、1 次元化されたインデックスに変換する
 
-		int rank = indices.length;
+		int rank = operands.length - indicesBegin; // 配列次元数 = インデックスオペランド数
 		int dataIndex = 0;
 		int scale = 1;
 
 		for (int i=rank-1; 0 <= i; i--) {
 
 			// indices[i] が格納しているスカラ値を取得（＝ i 番目次元の配列インデックス）
-			long index = ( (long[])(indices[i].getData()) )[ indices[i].getOffset() ];
+			DataContainer<?> indexOperand = operands[i+indicesBegin];
+			long index = ( (long[])(indexOperand.getData()) )[ indexOperand.getOffset() ];
 
 			if (arrayLength[i] <= index) {
 				String[] errorWords = {Long.toString(index), Integer.toString(arrayLength[i]-1)};
