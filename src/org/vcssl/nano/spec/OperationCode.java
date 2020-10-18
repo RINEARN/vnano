@@ -1320,6 +1320,41 @@ public enum OperationCode {
 
 	/**
 	 * <p>
+	 * <span class="lang-en">The instruction to copy the value of an element of an array.</span>
+	 * <span class="lang-ja">配列要素をコピーする命令です</span>
+	 * .
+	 * <span class="lang-en">
+	 * The number of operands of this instruction is variable. The syntax in the VRIL code is as follows:
+	 * </span>
+	 *
+	 * <span class="lang-ja">
+	 * この命令は可変長オペランドを取り、VRILコード内での構文は以下の通りです：
+	 * </span>
+	 *
+	 * <div style="border: 1px solid #000000; margin:15px; padding:5px;">
+	 * MOVELM type output input index1 index2 index3 ... indexN ;
+	 * </div>
+	 *
+	 * <span class="lang-en">
+	 * When this instruction is executed,
+	 * the value of an element at [index1][index2][index3]...[indexN] of the array "input"
+	 * will be copied and stored in the "output".
+	 * The data type of all operands should be the same.
+	 * Specify the name of the data type to "type".
+	 * </span>
+	 *
+	 * <span class="lang-ja">
+	 * この命令の実行により, 配列 input の要素
+	 * [index1][index2][index3]...[indexN] がコピーされ, output に格納されます.
+	 * 全オペランドのデータ型は揃っている必要があり, そのデータ型の名称を type に指定します.
+	 * </span>
+	 * </p>
+	 */
+	MOVELM,
+
+
+	/**
+	 * <p>
 	 * <span class="lang-en">The instruction to refer to an element of the array.</span>
 	 * <span class="lang-ja">配列要素を参照する命令です</span>
 	 * .
