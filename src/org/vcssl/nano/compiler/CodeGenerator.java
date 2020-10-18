@@ -2286,7 +2286,7 @@ public class CodeGenerator {
 		System.arraycopy(indexOperands, 0, allOperands, 2, indexOperands.length);
 		codeBuilder.append(
 			this.generateInstruction(
-					OperationCode.REFELEM.name(), inputNodes[0].getDataTypeName(), allOperands
+					OperationCode.REFELM.name(), inputNodes[0].getDataTypeName(), allOperands
 			)
 		);
 

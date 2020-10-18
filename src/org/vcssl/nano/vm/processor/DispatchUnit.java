@@ -248,13 +248,13 @@ public class DispatchUnit {
 			}
 
 			// 配列要素参照
-			case REFELEM : {
+			case REFELM : {
 
-				// REFELEMは可変長オペランドで dest, src, index0, index1, ... と並ぶので、index 部のみを詰めた DataContainer 配列を用意
+				// REFELMは可変長オペランドで dest, src, index0, index1, ... と並ぶので、index 部のみを詰めた DataContainer 配列を用意
 				// > コピーコストが無駄なので、ExecutionUnit 側で indices は [2] 以降を読むようにして operands 渡した方ががいいのでは?
 				//   > しかしExecutionUnit側の引数仕様が若干ややこしくなるし、そういうのを許容しての高速化は Accelerator のみに留めるべきかも
-				//   > そもそも REFELEM で index... 部を、配列データを格納する単引数で渡すのは?
-				//     > そうすると REFELEM を呼ぶ前に全次元のインデックス(スカラ)値を配列にパックする命令が必要になって、結局遅いと思う
+				//   > そもそも REFELM で index... 部を、配列データを格納する単引数で渡すのは?
+				//     > そうすると REFELM を呼ぶ前に全次元のインデックス(スカラ)値を配列にパックする命令が必要になって、結局遅いと思う
 				//     > 加えて Accelerator 側で各インデックスに対してスカラキャッシュが効かなくなって、仮想メモリアクセス数が下限よりだいぶ増える
 				//     なのでこの案は無い。ExecutionUnit 側で operands[2] 以降を読む案は単純に Processor 内での効率化なのでまだ現実的かも。
 				// またキリのいいタイミングで要検討

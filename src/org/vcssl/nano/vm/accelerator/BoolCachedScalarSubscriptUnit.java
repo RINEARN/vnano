@@ -26,17 +26,17 @@ public class BoolCachedScalarSubscriptUnit extends AcceleratorExecutionUnit {
 
 		AcceleratorExecutionNode node = null;
 		switch (instruction.getOperationCode()) {
-			case REFELEM : {
+			case REFELM : {
 				// 要素を参照したい配列の次元数（＝indicesオペランド数なので全オペランド数-2）
 				int targetArrayRank = operandContainers.length - 2;
 				if (targetArrayRank == 1) {
-				node = new BoolCachedScalarRefElem1DNode(
+				node = new BoolCachedScalarRefelm1DNode(
 					(BoolScalarCache)operandCaches[0], (DataContainer<boolean[]>)operandContainers[1],
 					(Int64ScalarCache)operandCaches[2], nextNode
 				);
 				} else {
 					throw new VnanoFatalException(
-						"Operands of a REFELEM instructions are too many for this unit (max: " + (targetArrayRank+2) + ")"
+						"Operands of a REFELM instructions are too many for this unit (max: " + (targetArrayRank+2) + ")"
 					);
 				}
 				break;
@@ -51,13 +51,13 @@ public class BoolCachedScalarSubscriptUnit extends AcceleratorExecutionUnit {
 		return node;
 	}
 
-	private final class BoolCachedScalarRefElem1DNode extends AcceleratorExecutionNode {
+	private final class BoolCachedScalarRefelm1DNode extends AcceleratorExecutionNode {
 
 		protected final BoolScalarCache cache0; // dest
 		protected final DataContainer<boolean[]> container1; // src
 		protected final Int64ScalarCache cache2;   // indices[0]
 
-		public BoolCachedScalarRefElem1DNode(
+		public BoolCachedScalarRefelm1DNode(
 				BoolScalarCache cache0, DataContainer<boolean[]> container1, Int64ScalarCache chache2,
 				AcceleratorExecutionNode nextNode) {
 

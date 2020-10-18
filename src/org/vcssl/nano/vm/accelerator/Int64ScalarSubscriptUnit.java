@@ -23,7 +23,7 @@ public class Int64ScalarSubscriptUnit extends AcceleratorExecutionUnit {
 
 		AcceleratorExecutionNode node = null;
 		switch (instruction.getOperationCode()) {
-			case REFELEM : {
+			case REFELM : {
 				// 要素を参照したい配列の次元数（＝indicesオペランド数なので全オペランド数-2）
 				int targetArrayRank = operandContainers.length - 2;
 
@@ -34,7 +34,7 @@ public class Int64ScalarSubscriptUnit extends AcceleratorExecutionUnit {
 						new Object[] { operandCaches[2] },
 						new boolean[] { operandCachingEnabled[2] }
 					);
-					node = new Int64ScalarRefElem1DNode(
+					node = new Int64ScalarRefelm1DNode(
 						(DataContainer<long[]>)operandContainers[0], (DataContainer<long[]>)operandContainers[1],
 						(DataContainer<long[]>)operandContainers[2], synchronizer, nextNode
 					);
@@ -46,7 +46,7 @@ public class Int64ScalarSubscriptUnit extends AcceleratorExecutionUnit {
 						new Object[] { operandCaches[2], operandCaches[3] },
 						new boolean[] { operandCachingEnabled[2], operandCachingEnabled[3] }
 					);
-					node = new Int64ScalarRefElem2DNode(
+					node = new Int64ScalarRefelm2DNode(
 						(DataContainer<long[]>)operandContainers[0], (DataContainer<long[]>)operandContainers[1],
 						(DataContainer<long[]>)operandContainers[2], (DataContainer<long[]>)operandContainers[3],
 						synchronizer, nextNode
@@ -59,7 +59,7 @@ public class Int64ScalarSubscriptUnit extends AcceleratorExecutionUnit {
 						new Object[] { operandCaches[2], operandCaches[3], operandCaches[4] },
 						new boolean[] { operandCachingEnabled[2], operandCachingEnabled[3], operandCachingEnabled[4] }
 					);
-					node = new Int64ScalarRefElem3DNode(
+					node = new Int64ScalarRefelm3DNode(
 						(DataContainer<long[]>)operandContainers[0], (DataContainer<long[]>)operandContainers[1],
 						(DataContainer<long[]>)operandContainers[2], (DataContainer<long[]>)operandContainers[3],
 						(DataContainer<long[]>)operandContainers[4], synchronizer, nextNode
@@ -67,7 +67,7 @@ public class Int64ScalarSubscriptUnit extends AcceleratorExecutionUnit {
 
 				} else {
 					throw new VnanoFatalException(
-						"Operands of a REFELEM instructions are too many for this unit (max: " + (targetArrayRank+2) + ")"
+						"Operands of a REFELM instructions are too many for this unit (max: " + (targetArrayRank+2) + ")"
 					);
 				}
 				break;
@@ -82,14 +82,14 @@ public class Int64ScalarSubscriptUnit extends AcceleratorExecutionUnit {
 		return node;
 	}
 
-	private final class Int64ScalarRefElem1DNode extends AcceleratorExecutionNode {
+	private final class Int64ScalarRefelm1DNode extends AcceleratorExecutionNode {
 
 		protected final DataContainer<long[]> container0; // dest
 		protected final DataContainer<long[]> container1; // src
 		protected final DataContainer<long[]> container2; // indices[0]
 		protected final Int64x1ScalarCacheSynchronizer synchronizer; // index部のみ対象 (この命令のdestはuncacheable, srcは配列なので)
 
-		public Int64ScalarRefElem1DNode(
+		public Int64ScalarRefelm1DNode(
 				DataContainer<long[]> container0, DataContainer<long[]> container1, DataContainer<long[]> container2,
 				Int64x1ScalarCacheSynchronizer synchronizer, AcceleratorExecutionNode nextNode) {
 
@@ -109,7 +109,7 @@ public class Int64ScalarSubscriptUnit extends AcceleratorExecutionUnit {
 		}
 	}
 
-	private final class Int64ScalarRefElem2DNode extends AcceleratorExecutionNode {
+	private final class Int64ScalarRefelm2DNode extends AcceleratorExecutionNode {
 
 		protected final DataContainer<long[]> container0; // dest
 		protected final DataContainer<long[]> container1; // src
@@ -117,7 +117,7 @@ public class Int64ScalarSubscriptUnit extends AcceleratorExecutionUnit {
 		protected final DataContainer<long[]> container3; // indices[1]
 		protected final Int64x2ScalarCacheSynchronizer synchronizer; // index部のみ対象 (この命令のdestはuncacheable, srcは配列なので)
 
-		public Int64ScalarRefElem2DNode(
+		public Int64ScalarRefelm2DNode(
 				DataContainer<long[]> container0, DataContainer<long[]> container1,
 				DataContainer<long[]> container2, DataContainer<long[]> container3,
 				Int64x2ScalarCacheSynchronizer synchronizer, AcceleratorExecutionNode nextNode) {
@@ -146,7 +146,7 @@ public class Int64ScalarSubscriptUnit extends AcceleratorExecutionUnit {
 		}
 	}
 
-	private final class Int64ScalarRefElem3DNode extends AcceleratorExecutionNode {
+	private final class Int64ScalarRefelm3DNode extends AcceleratorExecutionNode {
 
 		protected final DataContainer<long[]> container0; // dest
 		protected final DataContainer<long[]> container1; // src
@@ -155,7 +155,7 @@ public class Int64ScalarSubscriptUnit extends AcceleratorExecutionUnit {
 		protected final DataContainer<long[]> container4; // indices[2]
 		protected final Int64x3ScalarCacheSynchronizer synchronizer; // index部のみ対象 (この命令のdestはuncacheable, srcは配列なので)
 
-		public Int64ScalarRefElem3DNode(
+		public Int64ScalarRefelm3DNode(
 				DataContainer<long[]> container0, DataContainer<long[]> container1,
 				DataContainer<long[]> container2, DataContainer<long[]> container3, DataContainer<long[]> container4,
 				Int64x3ScalarCacheSynchronizer synchronizer, AcceleratorExecutionNode nextNode) {

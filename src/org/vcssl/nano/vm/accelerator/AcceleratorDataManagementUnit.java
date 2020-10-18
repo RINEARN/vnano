@@ -280,12 +280,12 @@ public final class AcceleratorDataManagementUnit {
 					break;
 				}
 
-				case REFELEM : {
+				case REFELM : {
 
-					// 現在の仕様では、REFELEMで取り出したデータは必ずスカラ
+					// 現在の仕様では、REFELMで取り出したデータは必ずスカラ
 					this.scalar[ partitions[0].ordinal() ][ addresses[0] ] = true;
 
-					// REFELEM命令は、ベクトルの要素（スカラ）への参照を第0オペランドのレジスタと同期するため、
+					// REFELM命令は、ベクトルの要素（スカラ）への参照を第0オペランドのレジスタと同期するため、
 					// 第0オペランドはスカラであるが、別の箇所で参照が共有されて書き換えられる可能性があるため、
 					// キャッシュ可能ではない
 					//（異なるアドレスのレジスタが同一データを参照を保持できるため、アドレスベースのキャッシュでは対応不可）

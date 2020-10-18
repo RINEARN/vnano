@@ -23,7 +23,7 @@ public class BoolScalarSubscriptUnit extends AcceleratorExecutionUnit {
 
 		AcceleratorExecutionNode node = null;
 		switch (instruction.getOperationCode()) {
-			case REFELEM : {
+			case REFELM : {
 				// 要素を参照したい配列の次元数（＝indicesオペランド数なので全オペランド数-2）
 				int targetArrayRank = operandContainers.length - 2;
 				if (targetArrayRank == 1) {
@@ -32,7 +32,7 @@ public class BoolScalarSubscriptUnit extends AcceleratorExecutionUnit {
 						new Object[] { operandCaches[0] },
 						new boolean[] { operandCachingEnabled[0] }
 					);
-					node = new BoolScalarRefElem1DNode(
+					node = new BoolScalarRefelm1DNode(
 						(DataContainer<boolean[]>)operandContainers[0], (DataContainer<boolean[]>)operandContainers[1],
 						(DataContainer<long[]>)operandContainers[2], synchronizer, nextNode
 					);
@@ -44,7 +44,7 @@ public class BoolScalarSubscriptUnit extends AcceleratorExecutionUnit {
 						new Object[] { operandCaches[2], operandCaches[3] },
 						new boolean[] { operandCachingEnabled[2], operandCachingEnabled[3] }
 					);
-					node = new BoolScalarRefElem2DNode(
+					node = new BoolScalarRefelm2DNode(
 						(DataContainer<boolean[]>)operandContainers[0], (DataContainer<boolean[]>)operandContainers[1],
 						(DataContainer<long[]>)operandContainers[2], (DataContainer<long[]>)operandContainers[3],
 						synchronizer, nextNode
@@ -57,7 +57,7 @@ public class BoolScalarSubscriptUnit extends AcceleratorExecutionUnit {
 						new Object[] { operandCaches[2], operandCaches[3], operandCaches[4] },
 						new boolean[] { operandCachingEnabled[2], operandCachingEnabled[3], operandCachingEnabled[4] }
 					);
-					node = new BoolScalarRefElem3DNode(
+					node = new BoolScalarRefelm3DNode(
 						(DataContainer<boolean[]>)operandContainers[0], (DataContainer<boolean[]>)operandContainers[1],
 						(DataContainer<long[]>)operandContainers[2], (DataContainer<long[]>)operandContainers[3],
 						(DataContainer<long[]>)operandContainers[4], synchronizer, nextNode
@@ -65,7 +65,7 @@ public class BoolScalarSubscriptUnit extends AcceleratorExecutionUnit {
 
 				} else {
 					throw new VnanoFatalException(
-						"Operands of a REFELEM instructions are too many for this unit (max: " + (targetArrayRank+2) + ")"
+						"Operands of a REFELM instructions are too many for this unit (max: " + (targetArrayRank+2) + ")"
 					);
 				}
 				break;
@@ -80,14 +80,14 @@ public class BoolScalarSubscriptUnit extends AcceleratorExecutionUnit {
 		return node;
 	}
 
-	private final class BoolScalarRefElem1DNode extends AcceleratorExecutionNode {
+	private final class BoolScalarRefelm1DNode extends AcceleratorExecutionNode {
 
 		protected final DataContainer<boolean[]> container0; // dest
 		protected final DataContainer<boolean[]> container1; // src
 		protected final DataContainer<long[]> container2;   // indices[0]
 		protected final Int64x1ScalarCacheSynchronizer synchronizer; // index部のみ対象 (この命令のdestはuncacheable, srcは配列なので)
 
-		public BoolScalarRefElem1DNode(
+		public BoolScalarRefelm1DNode(
 				DataContainer<boolean[]> container0, DataContainer<boolean[]> container1, DataContainer<long[]> container2,
 				Int64x1ScalarCacheSynchronizer synchronizer, AcceleratorExecutionNode nextNode) {
 
@@ -107,7 +107,7 @@ public class BoolScalarSubscriptUnit extends AcceleratorExecutionUnit {
 		}
 	}
 
-	private final class BoolScalarRefElem2DNode extends AcceleratorExecutionNode {
+	private final class BoolScalarRefelm2DNode extends AcceleratorExecutionNode {
 
 		protected final DataContainer<boolean[]> container0; // dest
 		protected final DataContainer<boolean[]> container1; // src
@@ -115,7 +115,7 @@ public class BoolScalarSubscriptUnit extends AcceleratorExecutionUnit {
 		protected final DataContainer<long[]> container3; // indices[1]
 		protected final Int64x2ScalarCacheSynchronizer synchronizer; // index部のみ対象 (この命令のdestはuncacheable, srcは配列なので)
 
-		public BoolScalarRefElem2DNode(
+		public BoolScalarRefelm2DNode(
 				DataContainer<boolean[]> container0, DataContainer<boolean[]> container1,
 				DataContainer<long[]> container2, DataContainer<long[]> container3,
 				Int64x2ScalarCacheSynchronizer synchronizer, AcceleratorExecutionNode nextNode) {
@@ -144,7 +144,7 @@ public class BoolScalarSubscriptUnit extends AcceleratorExecutionUnit {
 		}
 	}
 
-	private final class BoolScalarRefElem3DNode extends AcceleratorExecutionNode {
+	private final class BoolScalarRefelm3DNode extends AcceleratorExecutionNode {
 
 		protected final DataContainer<boolean[]> container0; // dest
 		protected final DataContainer<boolean[]> container1; // src
@@ -153,7 +153,7 @@ public class BoolScalarSubscriptUnit extends AcceleratorExecutionUnit {
 		protected final DataContainer<long[]> container4; // indices[2]
 		protected final Int64x3ScalarCacheSynchronizer synchronizer; // index部のみ対象 (この命令のdestはuncacheable, srcは配列なので)
 
-		public BoolScalarRefElem3DNode(
+		public BoolScalarRefelm3DNode(
 				DataContainer<boolean[]> container0, DataContainer<boolean[]> container1,
 				DataContainer<long[]> container2, DataContainer<long[]> container3, DataContainer<long[]> container4,
 				Int64x3ScalarCacheSynchronizer synchronizer, AcceleratorExecutionNode nextNode) {

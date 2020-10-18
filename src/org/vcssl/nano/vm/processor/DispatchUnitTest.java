@@ -164,7 +164,7 @@ public class DispatchUnitTest {
 		this.testDispatchMov();
 		this.testDispatchCast();
 		this.testDispatchFill();
-		this.testDispatchRefElem();
+		this.testDispatchRefelm();
 		//this.testDispatchLen();
 		this.testDispatchFree();
 		this.testDispatchJmp();
@@ -981,7 +981,7 @@ public class DispatchUnitTest {
 		}
 	}
 
-	private void testDispatchRefElem() {
+	private void testDispatchRefelm() {
 
 		// 参照要素やインデックスを格納するコンテナを雑用アドレスに用意
 		DataContainer<long[]> element = new DataContainer<long[]>();
@@ -996,7 +996,7 @@ public class DispatchUnitTest {
 
 		// 上記オペランドで演算を行う命令を生成
 		Instruction instruction = new Instruction(
-				OperationCode.REFELEM, INT64_TYPE,
+				OperationCode.REFELM, INT64_TYPE,
 				new Memory.Partition[]{ TMP_A_PART, INT64_INPUT_A_PART, TMP_B_PART },
 				new int[]{ TMP_A_ADDR, INT64_INPUT_A_ADDR, TMP_B_ADDR },
 				META_PART, META_ADDR
