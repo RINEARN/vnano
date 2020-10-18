@@ -7,7 +7,7 @@ package org.vcssl.nano.vm.accelerator;
 
 import org.vcssl.nano.vm.memory.DataContainer;
 
-public class Boolx1Int64x2ScalarCacheSynchronizer extends CacheSynchronizer {
+public class Boolx1Int64x3ScalarCacheSynchronizer extends CacheSynchronizer {
 	private final DataContainer<boolean[]> container0;
 	private final DataContainer<long[]> container1;
 	private final DataContainer<long[]> container2;
@@ -19,7 +19,7 @@ public class Boolx1Int64x2ScalarCacheSynchronizer extends CacheSynchronizer {
 	private final boolean cacheSyncEnabled2;
 
 	@SuppressWarnings("unchecked" )
-	public Boolx1Int64x2ScalarCacheSynchronizer(DataContainer<?>[] containers, Object[] caches,
+	public Boolx1Int64x3ScalarCacheSynchronizer(DataContainer<?>[] containers, Object[] caches,
 			boolean[] cacheSyncEnabled) {
 
 		container0 = (DataContainer<boolean[]>)containers[0];

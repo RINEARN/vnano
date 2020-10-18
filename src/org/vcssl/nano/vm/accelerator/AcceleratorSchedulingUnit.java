@@ -51,7 +51,8 @@ public class AcceleratorSchedulingUnit {
 		movReducableOpcodeSet.add(OperationCode.NOT);
 		movReducableOpcodeSet.add(OperationCode.CAST);
 
-		movReducableOpcodeSet.add(OperationCode.MOVPOP); // MOVPOPでスタックから取って直後にMOVするだけのは削っても安全（REFPOPは無理）
+		movReducableOpcodeSet.add(OperationCode.MOVPOP); // MOVPOPでスタックから取って直後にコピーするだけのは削っても安全（REFPOPは無理）
+		movReducableOpcodeSet.add(OperationCode.MOVELM); // MOVELMは要素の単純コピーなのでその直後にMOVするのは削っても安全（REFELMは無理）
 	}
 
 
@@ -514,11 +515,12 @@ public class AcceleratorSchedulingUnit {
 					break;
 				}
 
-				// 配列要素参照命令 Array subscript opcodes
+				// 配列要素アクセス命令 Array subscript opcodes
+				case MOVELM :
 				case REFELM : {
 
 					int indicesLength = operandLength - 2; // インデックス数: オペランド[2]以降がインデックス部なので -2
-					boolean isDestCached = operandCachingEnabled[0]; // 結果の格納先がキャッシュ可能かどうか
+					//boolean isDestCached = operandCachingEnabled[0]; // 結果の格納先がキャッシュ可能かどうか
 					boolean isAllIndicesCached = true; // インデックスオペランドが全てキャッシュ可能かどうか
 					for (int i=0; i<indicesLength; i++) {
 						isAllIndicesCached &= operandCachingEnabled[i + 2]; // 右辺が1度でもfalseになるとその後左辺がfalseになる
@@ -535,10 +537,10 @@ public class AcceleratorSchedulingUnit {
 					// > 後者を採用する準備として ELEM を REFELM に名称変更した。また後々で参照リンクを伴わない MOVELM を追加
 
 					if(dataTypes[0] == DataType.INT64) {
-						if (isDestCached && isAllIndicesCached
-								&& indicesLength <= Int64CachedScalarSubscriptUnit.REFELEM_MAX_AVAILABLE_RANK) {
+						if (isAllIndicesCached // この命令に対しては dest の cacheability の分岐はユニット内で行うので、インデックス部のみで判断
+								&& indicesLength <= Int64CachedScalarSubscriptUnit.MAX_AVAILABLE_RANK) {
 							instruction.setAccelerationType(AcceleratorExecutionType.I64CS_SUBSCRIPT);
-						} else if (indicesLength <= Int64ScalarSubscriptUnit.REFELEM_MAX_AVAILABLE_RANK) {
+						} else if (indicesLength <= Int64ScalarSubscriptUnit.MAX_AVAILABLE_RANK) {
 							instruction.setAccelerationType(AcceleratorExecutionType.I64S_SUBSCRIPT);
 						} else {
 							// Accelerator では任意次元ELEMには未対応なので Processor へ投げる（対応した際は上の if の3番目の条件を削る）
@@ -546,10 +548,10 @@ public class AcceleratorSchedulingUnit {
 						}
 
 					} else if (dataTypes[0] == DataType.FLOAT64) {
-						if (isDestCached && isAllIndicesCached
-								&& indicesLength <= Float64CachedScalarSubscriptUnit.REFELEM_MAX_AVAILABLE_RANK) {
+						if (isAllIndicesCached // この命令に対しては dest の cacheability の分岐はユニット内で行うので、インデックス部のみで判断
+								&& indicesLength <= Float64CachedScalarSubscriptUnit.MAX_AVAILABLE_RANK) {
 							instruction.setAccelerationType(AcceleratorExecutionType.F64CS_SUBSCRIPT);
-						} else if (indicesLength <= Float64ScalarSubscriptUnit.REFELEM_MAX_AVAILABLE_RANK) {
+						} else if (indicesLength <= Float64ScalarSubscriptUnit.MAX_AVAILABLE_RANK) {
 							instruction.setAccelerationType(AcceleratorExecutionType.F64S_SUBSCRIPT);
 						} else {
 							// Accelerator では任意次元ELEMには未対応なので Processor へ投げる（対応した際は上の if の3番目の条件を削る）
@@ -557,10 +559,10 @@ public class AcceleratorSchedulingUnit {
 						}
 
 					} else if (dataTypes[0] == DataType.BOOL) {
-						if (isDestCached && isAllIndicesCached
-								&& indicesLength <= BoolCachedScalarSubscriptUnit.REFELEM_MAX_AVAILABLE_RANK) {
+						if (isAllIndicesCached // この命令に対しては dest の cacheability の分岐はユニット内で行うので、インデックス部のみで判断
+								&& indicesLength <= BoolCachedScalarSubscriptUnit.MAX_AVAILABLE_RANK) {
 							instruction.setAccelerationType(AcceleratorExecutionType.BCS_SUBSCRIPT);
-						} else if (indicesLength <= BoolScalarSubscriptUnit.REFELEM_MAX_AVAILABLE_RANK) {
+						} else if (indicesLength <= BoolScalarSubscriptUnit.MAX_AVAILABLE_RANK) {
 							instruction.setAccelerationType(AcceleratorExecutionType.BS_SUBSCRIPT);
 						} else {
 							// Accelerator では任意次元ELEMには未対応なので Processor へ投げる（対応した際は上の if の3番目の条件を削る）
@@ -863,7 +865,7 @@ public class AcceleratorSchedulingUnit {
 				continue;
 			}
 
-			// 対象命令の書き込み先（0番オペランド）がジスタでない場合はスキップ
+			// 対象命令の書き込み先（0番オペランド）がレジスタでない場合はスキップ
 			if (currentInstruction.getOperandPartitions()[0] != Memory.Partition.REGISTER) {
 				continue;
 			}
@@ -897,6 +899,9 @@ public class AcceleratorSchedulingUnit {
 			}
 
 			// 書き込み先とMOVコピー「先」が、スカラであるかやキャッシュ可能か等の特性が一致していない場合はスキップ
+			// (例えば参照リンクされているなどのキャッシュ不可能なもの（=他の箇所への影響解析の難度が高い）に出力していた箇所を、
+			//  直後のMOVの出力先で置き換えてしまうと、元の出力先に他の地点から別アドレス経由でアクセスしていた場合などにまずい。
+			//  MOV削り条件では対象アドレスへの読み書き箇所を追ってはいるが、別アドレスと参照リンクされているものは追えないため。)
 			Memory.Partition movOutputPartition = nextInstruction.getOperandPartitions()[0];
 			int movOutputAddress = nextInstruction.getOperandAddresses()[0];
 			if (dataManager.isScalar(Memory.Partition.REGISTER, writingRegisterAddress)
@@ -907,6 +912,50 @@ public class AcceleratorSchedulingUnit {
 					!= dataManager.isCachingEnabled(movOutputPartition, movOutputAddress)) {
 				continue;
 			}
+
+			// (以下最適化案、全部のCached系演算周りの実装規模を倍増させてもいいくらいの気力がある時に要検討）
+			//
+			// 上記の if 文、この条件の影響で、例えば
+			//
+			//   REFELM  R0(dest) L0(src) C0(index);  // L0[C0] の参照をR0にリンク
+			//   MOVELM  R1(dest) L1(src) C1(index);  // L1[C1] の値をR1に単純コピー
+			//   MOV     R0(dest) R1(src)             // R1の値をR0に単純コピー (リンクされているL0[C0]も書き換わる)
+			//
+			// の場合に、R1 への他からの直接（そのアドレスで）アクセスさえ無ければ、
+			//
+			//   REFELM  R0(dest) L0(src) C0(index);  // L0[C0] の参照をR0にリンク
+			//   MOVELM  R0(dest) R1(src) C1(index);  // L1[C1] の値をR0に単純コピー (リンクされているL0[C0]も書き換わる)
+			//
+			// に削る事は可能なはず。
+			// しかし REFELM の dest は参照リンク対象のため常に uncacheable と判定されるので、
+			// 上の if 文の条件では movOutputAddress が uncachable となり、現状のままではMOV削りが行われない。
+			// なので現状の除外条件はもう少し絞り込めるはずで、可能性の検出があまり大がかりにならなければ絞り込みたい。
+			//
+			//   > MOV直前命令が uncacheable な dest（参照リンクされたレジスタとか）に書き込んでいる場合は置き換えて dest 削るとまずいけど、
+			//     MOV直前命令が cacheable な dest（非リンクなスカラレジスタとか / 上の例でのR1）に書き込んでいて、
+			//     それを直後に uncachable な別のもの dest2 (上の例での R0) へと MOV している場合は、
+			//     MOV直前命令の dest を dest2 にして元の dest 削っても大丈夫だと思う(他のMOV削り条件を満たしていれば)。
+			//     cacheable 判定されているという事は、本来の dest 先を別アドレス経由で読もうとする事はされていないはずなので。
+			//     とすると上のif文は、cacheability に関してはやはり writingRegister... の条件のみ必要で、movOutput... に対しては不要だと思う。
+			//     > ただそれによって、MOV直前命令が非Cached系のユニットで処理されるようになるので、それが果たして総合的に特になるかどうか ?
+			//       MOV直前命令をCached系ユニットで処理して、直後に非CachedなMOVでコピーする方が総合的には速いかもしれない。
+			//       MOV直前命令の処理は恐らくMOVよりは複雑な実装なので、それがCachedから非Cachedになるオーバーヘッド増が、
+			//       果たして非Cached MOVを1個削れる分を上回るかどうか? 全種の命令において。微妙な所かもしれない。
+			//       > MOVELM/REFELM は dest が uncacheable でも index が cacheable ならCached系ユニットで処理される。
+			//         その場合は dest アクセスのみ仮想メモリに直書きされるだけなので、非Cached MOVを削った分以上に処理コストが増える事はないはず。
+			//         > 上の例だけではなく一般に他の命令との組み合わせも有り得るので、命令とそのユニットの実装によっては遅くなる場合もあるはず。
+			//           例えばADDの非Cached演算は全オペランドをキャッシュ介さず仮想メモリから読むので、Cached演算よりだいぶオーバーヘッド食う。
+			//           > それなら全Cached系ユニットで、dest のみ uncacheable な場合を(最小コスト増で済む実装で)サポートすればデメリット無くMOV削り可能?
+			//             例えばa[i] = b + c みたいなパターンだとa[i]部のみが(REFELMで参照した) uncacheable なレジスタになるけど、
+			//             b と c は cacheable な普通のスカラである場合、CachedScalarArithmeticUnit 内で Float64CachedScalarAddNode の
+			//             代入左辺のみ仮想メモリアクセスに直書きするような Float64SemiCached...Node みたいなのを作って、それを割り当てるなど。
+			//             > 今思いつく限りではそうすればオーバーヘッド関連の懸念は解決しそうだけれど、全Cached系ユニットの実装規模がほぼ倍増する…
+			//               普通にキャッシュ内で閉じた演算して直後に非Cached MOVで同期 兼 書き込みするのと比べて、それやるだけのメリットがあるかどうか…
+			//               > でも右辺で単純な算術演算やって左辺の配列要素に格納するという場合は結構たくさんあると思うので、効く頻度は高そうな気がする。
+			//                 パターンが累乗で増える Dual/TrippleArithmetic とかと比べれば2倍で済んで効果期待できそうなら意外とありかも。
+			//                 (ただ他の優先度高い最適化案が一通り済んだ後に)
+			//
+			// またそのうち要検討
 
 			// 次に続くMOV命令を削るとまずい命令ならスキップ（ELEM命令など）
 			if(!movReducableOpcodeSet.contains(currentInstruction.getOperationCode())) {

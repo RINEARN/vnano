@@ -10,9 +10,9 @@ import org.vcssl.nano.vm.memory.DataContainer;
 
 public class Float64ScalarSubscriptUnit extends AcceleratorExecutionUnit {
 
-	// このユニットで処理できる、REFELEM命令対象配列の最大次元数
+	// このユニットで処理できる、MOVELM / REFELM 命令対象配列の最大次元数
 	//（処理できない場合、Processorが任意次元対応なので、スケジューラ側でそちらへバイパス割り当てが必要）
-	public static final int REFELEM_MAX_AVAILABLE_RANK = 3;
+	public static final int MAX_AVAILABLE_RANK = 3;
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -22,15 +22,66 @@ public class Float64ScalarSubscriptUnit extends AcceleratorExecutionUnit {
 			AcceleratorExecutionNode nextNode) {
 
 		AcceleratorExecutionNode node = null;
+
+		// 要素を参照したい配列の次元数（＝indicesオペランド数なので全オペランド数-2）
+		int targetArrayRank = operandContainers.length - 2;
+
 		switch (instruction.getOperationCode()) {
+
+			case MOVELM : {
+
+				// 1次元配列の場合
+				if (targetArrayRank == 1) {
+					Float64x1Int64x1ScalarCacheSynchronizer synchronizer = new Float64x1Int64x1ScalarCacheSynchronizer(
+						new DataContainer<?>[] { operandContainers[0], operandContainers[2] }, // dest と index部のみ対象 (srcは配列なので)
+						new Object[] { operandCaches[0] },
+						new boolean[] { operandCachingEnabled[0] }
+					);
+					node = new Float64ScalarMovelm1DNode(
+						(DataContainer<double[]>)operandContainers[0], (DataContainer<double[]>)operandContainers[1],
+						(DataContainer<long[]>)operandContainers[2], synchronizer, nextNode
+					);
+
+				// 2次元配列の場合
+				} else if (targetArrayRank == 2) {
+					Float64x1Int64x2ScalarCacheSynchronizer synchronizer = new Float64x1Int64x2ScalarCacheSynchronizer(
+						new DataContainer<?>[] { operandContainers[0], operandContainers[2], operandContainers[3] }, // 上述参照
+						new Object[] { operandCaches[2], operandCaches[3] },
+						new boolean[] { operandCachingEnabled[2], operandCachingEnabled[3] }
+					);
+					node = new Float64ScalarMovelm2DNode(
+						(DataContainer<double[]>)operandContainers[0], (DataContainer<double[]>)operandContainers[1],
+						(DataContainer<long[]>)operandContainers[2], (DataContainer<long[]>)operandContainers[3],
+						synchronizer, nextNode
+					);
+
+				// 3次元配列の場合
+				} else if (targetArrayRank == 3) {
+					Float64x1Int64x3ScalarCacheSynchronizer synchronizer = new Float64x1Int64x3ScalarCacheSynchronizer(
+						new DataContainer<?>[] { operandContainers[0], operandContainers[2], operandContainers[3], operandContainers[4] }, // 上述参照
+						new Object[] { operandCaches[2], operandCaches[3], operandCaches[4] },
+						new boolean[] { operandCachingEnabled[2], operandCachingEnabled[3], operandCachingEnabled[4] }
+					);
+					node = new Float64ScalarMovelm3DNode(
+						(DataContainer<double[]>)operandContainers[0], (DataContainer<double[]>)operandContainers[1],
+						(DataContainer<long[]>)operandContainers[2], (DataContainer<long[]>)operandContainers[3],
+						(DataContainer<long[]>)operandContainers[4], synchronizer, nextNode
+					);
+
+				} else {
+					throw new VnanoFatalException(
+						"Operands of a MOVELM instructions are too many for this unit (max: " + MAX_AVAILABLE_RANK + ")"
+					);
+				}
+				break;
+			}
+
 			case REFELM : {
-				// 要素を参照したい配列の次元数（＝indicesオペランド数なので全オペランド数-2）
-				int targetArrayRank = operandContainers.length - 2;
 
 				// 1次元配列の場合
 				if (targetArrayRank == 1) {
 					Int64x1ScalarCacheSynchronizer synchronizer = new Int64x1ScalarCacheSynchronizer(
-						new DataContainer<?>[] { operandContainers[0], },  // index部のみ対象 (この命令のdestはuncacheable, srcは配列なので)
+						new DataContainer<?>[] { operandContainers[2] }, // index部のみ対象 (この命令のdestはuncachable, srcは配列なので)
 						new Object[] { operandCaches[0] },
 						new boolean[] { operandCachingEnabled[0] }
 					);
@@ -39,7 +90,7 @@ public class Float64ScalarSubscriptUnit extends AcceleratorExecutionUnit {
 						(DataContainer<long[]>)operandContainers[2], synchronizer, nextNode
 					);
 
-				// 2次元配列場合
+				// 2次元配列の場合
 				} else if (targetArrayRank == 2) {
 					Int64x2ScalarCacheSynchronizer synchronizer = new Int64x2ScalarCacheSynchronizer(
 						new DataContainer<?>[] { operandContainers[2], operandContainers[3] }, // 上述参照
@@ -52,7 +103,7 @@ public class Float64ScalarSubscriptUnit extends AcceleratorExecutionUnit {
 						synchronizer, nextNode
 					);
 
-				// 3次元配列場合
+				// 3次元配列の場合
 				} else if (targetArrayRank == 3) {
 					Int64x3ScalarCacheSynchronizer synchronizer = new Int64x3ScalarCacheSynchronizer(
 						new DataContainer<?>[] { operandContainers[2], operandContainers[3], operandContainers[4] }, // 上述参照
@@ -67,7 +118,7 @@ public class Float64ScalarSubscriptUnit extends AcceleratorExecutionUnit {
 
 				} else {
 					throw new VnanoFatalException(
-						"Operands of a REFELM instructions are too many for this unit (max: " + (targetArrayRank+2) + ")"
+						"Operands of a REFELM instructions are too many for this unit (max: " + MAX_AVAILABLE_RANK + ")"
 					);
 				}
 				break;
@@ -82,28 +133,162 @@ public class Float64ScalarSubscriptUnit extends AcceleratorExecutionUnit {
 		return node;
 	}
 
-	private final class Float64ScalarRefelm1DNode extends AcceleratorExecutionNode {
+	// --------------------------------------------------------------------------------
+	// MOVELM
+	// --------------------------------------------------------------------------------
 
-		protected final DataContainer<double[]> container0; // dest
-		protected final DataContainer<double[]> container1; // src
-		protected final DataContainer<long[]> container2;   // indices[0]
-		protected final Int64x1ScalarCacheSynchronizer synchronizer; // index部のみ対象 (この命令のdestはuncacheable, srcは配列なので)
+	private final class Float64ScalarMovelm1DNode extends AcceleratorExecutionNode {
 
-		public Float64ScalarRefelm1DNode(
-				DataContainer<double[]> container0, DataContainer<double[]> container1, DataContainer<long[]> container2,
-				Int64x1ScalarCacheSynchronizer synchronizer, AcceleratorExecutionNode nextNode) {
+		protected final DataContainer<double[]> dest;
+		protected final DataContainer<double[]> src;
+		protected final DataContainer<long[]> index0;
+		protected final Float64x1Int64x1ScalarCacheSynchronizer synchronizer; // destとindex部のみ対象 (srcは配列なので)
+
+		public Float64ScalarMovelm1DNode(
+				DataContainer<double[]> dest, DataContainer<double[]> src, DataContainer<long[]> index0,
+				Float64x1Int64x1ScalarCacheSynchronizer synchronizer, AcceleratorExecutionNode nextNode) {
 
 			super(nextNode, 1);
-			this.container0 = container0;
-			this.container1 = container1;
-			this.container2 = container2;
+			this.dest = dest;
+			this.src = src;
+			this.index0 = index0;
 			this.synchronizer = synchronizer;
 		}
 
 		public final AcceleratorExecutionNode execute() {
-			this.synchronizer.synchronizeFromCacheToMemory(); // この演算ユニットは CachedScalar 系ではないので sync する（要/不要はスケジューラ側で判断）
-			int index = (int)this.container2.getData()[ this.container2.getOffset() ];
-			this.container0.setData( this.container1.getData(), index, DataContainer.SCALAR_LENGTHS ); // 注: この命令はデータ参照を同期する
+			// このユニットは非Cached系なのでメモリ値ベースで処理するため、先にCached系による変更をライトバックする
+			this.synchronizer.synchronizeFromCacheToMemory();
+
+			// 要素のコピー処理
+			int index = (int)this.index0.getData()[ this.index0.getOffset() ];
+			this.dest.getData()[ this.dest.getOffset() ] = this.src.getData()[ index ];
+
+			// 後でCached系が処理で使うためにキャッシュを更新しておく
+			this.synchronizer.synchronizeFromMemoryToCache();
+			return this.nextNode;
+		}
+	}
+
+	private final class Float64ScalarMovelm2DNode extends AcceleratorExecutionNode {
+
+		protected final DataContainer<double[]> dest;
+		protected final DataContainer<double[]> src;
+		protected final DataContainer<long[]> index0;
+		protected final DataContainer<long[]> index1;
+		protected final Float64x1Int64x2ScalarCacheSynchronizer synchronizer; // destとindex部のみ対象 (srcは配列なので)
+
+		public Float64ScalarMovelm2DNode(
+				DataContainer<double[]> dest, DataContainer<double[]> src,
+				DataContainer<long[]> index0, DataContainer<long[]> index1,
+				Float64x1Int64x2ScalarCacheSynchronizer synchronizer, AcceleratorExecutionNode nextNode) {
+
+			super(nextNode, 1);
+			this.dest = dest;
+			this.src = src;
+			this.index0 = index0;
+			this.index1 = index1;
+			this.synchronizer = synchronizer;
+		}
+
+		public final AcceleratorExecutionNode execute() {
+
+			// このユニットは非Cached系なのでメモリ値ベースで処理するため、先にCached系による変更をライトバックする
+			this.synchronizer.synchronizeFromCacheToMemory();
+
+			// 2次元インデックスから1次元インデックスへの変換
+			// (次元は左から 0, 1, 2, ... で、注目インデックスより右にある次元の要素数の積が、そのインデックスの1増加による移動単位)
+			int[] lengths = this.src.getLengths(); // 各次元の要素数を格納する配列
+			int indexValue0 = (int)this.index0.getData()[ this.index0.getOffset() ];
+			int indexValue1 = (int)this.index1.getData()[ this.index1.getOffset() ];
+			int index = lengths[1]*indexValue0 + indexValue1;
+
+			// 要素のコピー処理
+			this.dest.getData()[ this.dest.getOffset() ] = this.src.getData()[ index ];
+
+			// 後でCached系が処理で使うためにキャッシュを更新しておく
+			this.synchronizer.synchronizeFromMemoryToCache();
+			return this.nextNode;
+		}
+	}
+
+	private final class Float64ScalarMovelm3DNode extends AcceleratorExecutionNode {
+
+		protected final DataContainer<double[]> dest;
+		protected final DataContainer<double[]> src;
+		protected final DataContainer<long[]> index0;
+		protected final DataContainer<long[]> index1;
+		protected final DataContainer<long[]> index2;
+		protected final Float64x1Int64x3ScalarCacheSynchronizer synchronizer; // destとindex部のみ対象 (srcは配列なので)
+
+		public Float64ScalarMovelm3DNode(
+				DataContainer<double[]> dest, DataContainer<double[]> src,
+				DataContainer<long[]> index0, DataContainer<long[]> index1, DataContainer<long[]> index2,
+				Float64x1Int64x3ScalarCacheSynchronizer synchronizer, AcceleratorExecutionNode nextNode) {
+
+			super(nextNode, 1);
+			this.dest = dest;
+			this.src = src;
+			this.index0 = index0;
+			this.index1 = index1;
+			this.index2 = index2;
+			this.synchronizer = synchronizer;
+		}
+
+		public final AcceleratorExecutionNode execute() {
+
+			// このユニットは非Cached系なのでメモリ値ベースで処理するため、先にCached系による変更をライトバックする
+			this.synchronizer.synchronizeFromCacheToMemory();
+
+			// 3次元インデックスから1次元インデックスへの変換
+			// (次元は左から 0, 1, 2, ... で、注目インデックスより右にある次元の要素数の積が、そのインデックスの1増加による移動単位)
+			int[] lengths = this.src.getLengths(); // 各次元の要素数を格納する配列
+			int indexValue0 = (int)this.index0.getData()[ this.index0.getOffset() ];
+			int indexValue1 = (int)this.index1.getData()[ this.index1.getOffset() ];
+			int indexValue2 = (int)this.index2.getData()[ this.index2.getOffset() ];
+			int index = lengths[1]*lengths[2]*indexValue0 + lengths[2]*indexValue1 + indexValue2;
+
+			// 要素のコピー処理
+			this.dest.getData()[ this.dest.getOffset() ] = this.src.getData()[ index ];
+
+			// 後でCached系が処理で使うためにキャッシュを更新しておく
+			this.synchronizer.synchronizeFromMemoryToCache();
+			return this.nextNode;
+		}
+	}
+
+
+	// --------------------------------------------------------------------------------
+	// REFELM
+	// --------------------------------------------------------------------------------
+
+	private final class Float64ScalarRefelm1DNode extends AcceleratorExecutionNode {
+
+		protected final DataContainer<double[]> dest;
+		protected final DataContainer<double[]> src;
+		protected final DataContainer<long[]> index0;
+		protected final Int64x1ScalarCacheSynchronizer synchronizer; // index部のみ対象 (この命令のdestはuncacheable, srcは配列なので)
+
+		public Float64ScalarRefelm1DNode(
+				DataContainer<double[]> dest, DataContainer<double[]> src, DataContainer<long[]> index0,
+				Int64x1ScalarCacheSynchronizer synchronizer, AcceleratorExecutionNode nextNode) {
+
+			super(nextNode, 1);
+			this.dest = dest;
+			this.src = src;
+			this.index0 = index0;
+			this.synchronizer = synchronizer;
+		}
+
+		public final AcceleratorExecutionNode execute() {
+
+			// このユニットは非Cached系なのでメモリ値ベースで処理するため、先にCached系による変更をライトバックする
+			this.synchronizer.synchronizeFromCacheToMemory();
+
+			// 要素の参照代入処理（この命令は dest のデータ参照を src のものとリンクし、dest の offset 値として index の値を設定する）
+			int index = (int)this.index0.getData()[ this.index0.getOffset() ];
+			this.dest.setData( this.src.getData(), index, DataContainer.SCALAR_LENGTHS );
+
+			// 後でCached系が処理で使うためにキャッシュを更新しておく
 			this.synchronizer.synchronizeFromMemoryToCache();
 			return this.nextNode;
 		}
@@ -111,36 +296,41 @@ public class Float64ScalarSubscriptUnit extends AcceleratorExecutionUnit {
 
 	private final class Float64ScalarRefelm2DNode extends AcceleratorExecutionNode {
 
-		protected final DataContainer<double[]> container0; // dest
-		protected final DataContainer<double[]> container1; // src
-		protected final DataContainer<long[]> container2; // indices[0]
-		protected final DataContainer<long[]> container3; // indices[1]
+		protected final DataContainer<double[]> dest;
+		protected final DataContainer<double[]> src;
+		protected final DataContainer<long[]> index0;
+		protected final DataContainer<long[]> index1;
 		protected final Int64x2ScalarCacheSynchronizer synchronizer; // index部のみ対象 (この命令のdestはuncacheable, srcは配列なので)
 
 		public Float64ScalarRefelm2DNode(
-				DataContainer<double[]> container0, DataContainer<double[]> container1,
-				DataContainer<long[]> container2, DataContainer<long[]> container3,
+				DataContainer<double[]> dest, DataContainer<double[]> src,
+				DataContainer<long[]> index0, DataContainer<long[]> index1,
 				Int64x2ScalarCacheSynchronizer synchronizer, AcceleratorExecutionNode nextNode) {
 
 			super(nextNode, 1);
-			this.container0 = container0;
-			this.container1 = container1;
-			this.container2 = container2;
-			this.container3 = container3;
+			this.dest = dest;
+			this.src = src;
+			this.index0 = index0;
+			this.index1 = index1;
 			this.synchronizer = synchronizer;
 		}
 
 		public final AcceleratorExecutionNode execute() {
-			this.synchronizer.synchronizeFromCacheToMemory(); // この演算ユニットは CachedScalar 系ではないので sync する（要/不要はスケジューラ側で判断）
-			int[] lengths = this.container1.getLengths();
-			int index0 = (int)this.container2.getData()[ this.container2.getOffset() ];
-			int index1 = (int)this.container3.getData()[ this.container3.getOffset() ];
+
+			// このユニットは非Cached系なのでメモリ値ベースで処理するため、先にCached系による変更をライトバックする
+			this.synchronizer.synchronizeFromCacheToMemory();
 
 			// 2次元インデックスから1次元インデックスへの変換
 			// (次元は左から 0, 1, 2, ... で、注目インデックスより右にある次元の要素数の積が、そのインデックスの1増加による移動単位)
-			int index = lengths[1]*index0 + index1;
+			int[] lengths = this.src.getLengths();
+			int indexValue0 = (int)this.index0.getData()[ this.index0.getOffset() ];
+			int indexValue1 = (int)this.index1.getData()[ this.index1.getOffset() ];
+			int index = lengths[1]*indexValue0 + indexValue1;
 
-			this.container0.setData( this.container1.getData(), index, DataContainer.SCALAR_LENGTHS ); // 注: この命令はデータ参照を同期する
+			// 要素の参照代入処理（この命令は dest のデータ参照を src のものとリンクし、dest の offset 値として index の値を設定する）
+			this.dest.setData( this.src.getData(), index, DataContainer.SCALAR_LENGTHS );
+
+			// 後でCached系が処理で使うためにキャッシュを更新しておく
 			this.synchronizer.synchronizeFromMemoryToCache();
 			return this.nextNode;
 		}
@@ -148,39 +338,43 @@ public class Float64ScalarSubscriptUnit extends AcceleratorExecutionUnit {
 
 	private final class Float64ScalarRefelm3DNode extends AcceleratorExecutionNode {
 
-		protected final DataContainer<double[]> container0; // dest
-		protected final DataContainer<double[]> container1; // src
-		protected final DataContainer<long[]> container2; // indices[0]
-		protected final DataContainer<long[]> container3; // indices[1]
-		protected final DataContainer<long[]> container4; // indices[2]
+		protected final DataContainer<double[]> dest;
+		protected final DataContainer<double[]> src;
+		protected final DataContainer<long[]> index0;
+		protected final DataContainer<long[]> index1;
+		protected final DataContainer<long[]> index2;
 		protected final Int64x3ScalarCacheSynchronizer synchronizer; // index部のみ対象 (この命令のdestはuncacheable, srcは配列なので)
 
 		public Float64ScalarRefelm3DNode(
-				DataContainer<double[]> container0, DataContainer<double[]> container1,
-				DataContainer<long[]> container2, DataContainer<long[]> container3, DataContainer<long[]> container4,
+				DataContainer<double[]> dest, DataContainer<double[]> src,
+				DataContainer<long[]> index0, DataContainer<long[]> index1, DataContainer<long[]> index2,
 				Int64x3ScalarCacheSynchronizer synchronizer, AcceleratorExecutionNode nextNode) {
 
 			super(nextNode, 1);
-			this.container0 = container0;
-			this.container1 = container1;
-			this.container2 = container2;
-			this.container3 = container3;
-			this.container4 = container4;
+			this.dest = dest;
+			this.src = src;
+			this.index0 = index0;
+			this.index1 = index1;
+			this.index2 = index2;
 			this.synchronizer = synchronizer;
 		}
 
 		public final AcceleratorExecutionNode execute() {
-			this.synchronizer.synchronizeFromCacheToMemory(); // この演算ユニットは CachedScalar 系ではないので sync する（要/不要はスケジューラ側で判断）
-			int[] lengths = this.container1.getLengths();
-			int index0 = (int)this.container2.getData()[ this.container2.getOffset() ];
-			int index1 = (int)this.container3.getData()[ this.container3.getOffset() ];
-			int index2 = (int)this.container4.getData()[ this.container4.getOffset() ];
+			this.synchronizer.synchronizeFromCacheToMemory();
+
 
 			// 3次元インデックスから1次元インデックスへの変換
 			// (次元は左から 0, 1, 2, ... で、注目インデックスより右にある次元の要素数の積が、そのインデックスの1増加による移動単位)
-			int index = lengths[1]*lengths[2]*index0 + lengths[2]*index1 + index2;
+			int[] lengths = this.src.getLengths();
+			int indexValue0 = (int)this.index0.getData()[ this.index0.getOffset() ];
+			int indexValue1 = (int)this.index1.getData()[ this.index1.getOffset() ];
+			int indexValue2 = (int)this.index2.getData()[ this.index2.getOffset() ];
+			int index = lengths[1]*lengths[2]*indexValue0 + lengths[2]*indexValue1 + indexValue2;
 
-			this.container0.setData( this.container1.getData(), index, DataContainer.SCALAR_LENGTHS ); // 注: この命令はデータ参照を同期する
+			// 要素の参照代入処理（この命令は dest のデータ参照を src のものとリンクし、dest の offset 値として index の値を設定する）
+			this.dest.setData( this.src.getData(), index, DataContainer.SCALAR_LENGTHS );
+
+			// 後でCached系が処理で使うためにキャッシュを更新しておく
 			this.synchronizer.synchronizeFromMemoryToCache();
 			return this.nextNode;
 		}

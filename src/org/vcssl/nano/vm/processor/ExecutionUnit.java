@@ -1049,12 +1049,15 @@ public class ExecutionUnit {
 	public void allocVector(DataType type, DataContainer<?> target, DataContainer<?> ... lengthsContainers) {
 		int size = 1;
 		int rank = lengthsContainers.length;
+
+		// 注意: alloc で要素数配列の内容を変える時は、そのまま代入せずに new で参照を切る事 (同要素数の複数コンテナで共用されている場合がある)
 		int[] lengths = new int[rank];
 		for (int dim=0; dim<rank; dim++) {
 			long[] lengthContainerData = ( (DataContainer<long[]>)lengthsContainers[dim] ).getData();
 			lengths[dim] = (int)( lengthContainerData[ lengthsContainers[dim].getOffset() ] );
 			size *= lengths[dim];
 		}
+
 		this.alloc(type, target, size, lengths);
 	}
 
