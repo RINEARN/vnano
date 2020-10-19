@@ -249,7 +249,7 @@ public class DispatchUnit {
 
 			// 配列要素コピー
 			case MOVELM : {
-				executionUnit.refelm(dataTypes[0], operands[0], operands[1], operands, 2);
+				executionUnit.movelm(dataTypes[0], operands[0], operands[1], operands, 2);
 				return programCounter + 1;
 			}
 
