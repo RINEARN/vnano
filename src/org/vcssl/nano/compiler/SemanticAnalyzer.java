@@ -621,6 +621,7 @@ public class SemanticAnalyzer {
 								);
 								break;
 							}
+							// 符号演算子（インクリメント/デクリメントはここではなく ARITHMETIC_COMPOUND_ASSIGNMENT）
 							case AttributeValue.PREFIX : {
 								AstNode[] inputNodes = currentNode.getChildNodes();
 								dataType = inputNodes[0].getDataTypeName();
@@ -628,12 +629,9 @@ public class SemanticAnalyzer {
 								rank = inputNodes[0].getRank();
 								break;
 							}
+							// 現状で算術演算に後置パターンは無いはず
 							case AttributeValue.POSTFIX : {
-								AstNode[] inputNodes = currentNode.getChildNodes();
-								dataType = inputNodes[0].getDataTypeName();
-								operationDataType = dataType;
-								rank = inputNodes[0].getRank();
-								break;
+								throw new VnanoFatalException("Unexpected position of an arithmetic operator detected");
 							}
 						}
 						break;
@@ -691,20 +689,41 @@ public class SemanticAnalyzer {
 
 					// 複合代入演算子の場合
 					case AttributeValue.ARITHMETIC_COMPOUND_ASSIGNMENT : {
-						AstNode[] inputNodes = currentNode.getChildNodes();
-						String leftOperandType = inputNodes[0].getDataTypeName();
-						String rightOperandType = inputNodes[1].getDataTypeName();
-						dataType = inputNodes[0].getDataTypeName();
-						operationDataType = this.analyzeArithmeticCompoundAssignmentOperatorDataType(
-								leftOperandType, rightOperandType,
-								currentNode.getAttribute(AttributeKey.OPERATOR_SYMBOL),
-								currentNode.getFileName(), currentNode.getLineNumber()
-						);
-						rank = analyzeCompoundAssignmentOperatorRank(
-								inputNodes[0].getRank(), inputNodes[1].getRank(),
-								currentNode.getAttribute(AttributeKey.OPERATOR_SYMBOL),
-								currentNode.getFileName(), currentNode.getLineNumber()
-						);
+						switch (syntaxType) {
+							case AttributeValue.BINARY : {
+								AstNode[] inputNodes = currentNode.getChildNodes();
+								String leftOperandType = inputNodes[0].getDataTypeName();
+								String rightOperandType = inputNodes[1].getDataTypeName();
+								dataType = inputNodes[0].getDataTypeName();
+								operationDataType = this.analyzeArithmeticCompoundAssignmentOperatorDataType(
+										leftOperandType, rightOperandType,
+										currentNode.getAttribute(AttributeKey.OPERATOR_SYMBOL),
+										currentNode.getFileName(), currentNode.getLineNumber()
+								);
+								rank = analyzeCompoundAssignmentOperatorRank(
+										inputNodes[0].getRank(), inputNodes[1].getRank(),
+										currentNode.getAttribute(AttributeKey.OPERATOR_SYMBOL),
+										currentNode.getFileName(), currentNode.getLineNumber()
+								);
+								break;
+							}
+							// 前置インクリメント/デクリメント
+							case AttributeValue.PREFIX : {
+								AstNode[] inputNodes = currentNode.getChildNodes();
+								dataType = inputNodes[0].getDataTypeName();
+								operationDataType = dataType;
+								rank = inputNodes[0].getRank();
+								break;
+							}
+							// 後置インクリメント/デクリメント
+							case AttributeValue.POSTFIX : {
+								AstNode[] inputNodes = currentNode.getChildNodes();
+								dataType = inputNodes[0].getDataTypeName();
+								operationDataType = dataType;
+								rank = inputNodes[0].getRank();
+								break;
+							}
+						}
 						break;
 					}
 
