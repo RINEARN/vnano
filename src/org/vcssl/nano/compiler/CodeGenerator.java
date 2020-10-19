@@ -2316,17 +2316,62 @@ public class CodeGenerator {
 		// 結果を格納するレジスタを用意
 		String accumulator = operatorNode.getAttribute(AttributeKey.ASSEMBLY_VALUE);
 
-		// REFELEM命令を発行
+		// 生成する REFELM / MOVELM 命令に渡すオペランドを用意（両命令のオペランド仕様は共通）
 		String[] allOperands = new String[indexOperands.length + 2];
 		allOperands[0] = accumulator;
 		allOperands[1] = targetOperand;
 		System.arraycopy(indexOperands, 0, allOperands, 2, indexOperands.length);
-		codeBuilder.append(
-			this.generateInstruction(
-					OperationCode.REFELM.name(), inputNodes[0].getDataTypeName(), allOperands
-			)
+
+		// このノードがぶら下がっている親ノードが、代入を伴う演算子（代入演算子か、インクリメント含む複合代入演算子）かどうかを確認する
+		AstNode parentNode = operatorNode.getParentNode();
+		boolean isParentAssignment = parentNode.getType() == AstNode.Type.OPERATOR && (
+				parentNode.getAttribute(AttributeKey.OPERATOR_EXECUTOR).equals(AttributeValue.ASSIGNMENT)
+				||
+				parentNode.getAttribute(AttributeKey.OPERATOR_EXECUTOR).equals(AttributeValue.ARITHMETIC_COMPOUND_ASSIGNMENT
+		));
+
+		// 同様に親ノードが、関数呼び出し演算子である場合、参照渡し先で代入される可能性があるので、すぐ後の判定条件に使うために控える
+		boolean isParentCall = parentNode.getType() == AstNode.Type.OPERATOR && (
+				parentNode.getAttribute(AttributeKey.OPERATOR_EXECUTOR).equals(AttributeValue.CALL)
 		);
 
+		// このノードの対象である配列要素が、上記で検査したパターンに当てはまる等、後で値を代入される可能性があるかどうかを確認する
+		boolean mayBeModified =
+			(isParentAssignment && operatorNode.getSiblingIndex() == 0) // 代入の左辺かどうか
+			||
+			isParentCall; // 関数の引数かどうか
+
+		// ※ 参照渡しかどうかを判断して上の条件に追加すれば、より狭い範囲に絞り込めるが、複雑になるので今ここではしない
+		//    > ここではそのままにして REFELM を生成しておいて、
+		//      VM側で「 REFELM の dest 値を直後に MOV / MOVPOP していて、前者のdest先アドレスに他でアクセスしていない場合を MOVELM に置き換える 」
+		//      最適化をした方がいいような気がする。
+		//      とりあえずVRILでの基本的な値渡し/参照渡しの仕組みは、関数側でMOVPOPするかREFPOPするかの違いなので、
+		//      呼び出し側で複雑な使い分けをすると、VRILコードの最適化で他の最適化手段の妨げになって結局後で戻す可能性がある。
+		//      なので関数引数の場合の分岐については今の上の条件のままとりあえず保留でいいと思う。REFELMを生成すれば動作機能上は確実なので。
+
+		// 後で値を代入される可能性がある場合、結果レジスタを配列要素と参照リンクする REFELM 命令を発行
+		if (mayBeModified) {
+			// REFELM はデータ参照を共有するので、データ領域確保のための ALLOC 命令は不要で、REFELMのみを生成すればいい
+			codeBuilder.append(
+				this.generateInstruction(
+					OperationCode.REFELM.name(), inputNodes[0].getDataTypeName(), allOperands
+				)
+			);
+
+		// そうでなければ、式の右辺などでその時点の配列要素値を読んでいるだけなので、
+		// 結果レジスタに配列要素値を単純コピーする MOVELM 命令を発行
+		} else {
+			// この場合は、データ格納先の領域を確保する ALLOC 命令が必要で、その後にそこに MOVELM で値をコピーする
+			// (subarray はサポートしていないので、コピーする配列要素値 = 確保する領域は必ずスカラ)
+			codeBuilder.append(
+				this.generateInstruction(OperationCode.ALLOC.name(), operatorNode.getDataTypeName(), accumulator)
+			);
+			codeBuilder.append(
+				this.generateInstruction(
+					OperationCode.MOVELM.name(), inputNodes[0].getDataTypeName(), allOperands
+				)
+			);
+		}
 		return codeBuilder.toString();
 	}
 
