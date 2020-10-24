@@ -7,10 +7,13 @@ package org.vcssl.nano.vm.accelerator;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.vcssl.nano.VnanoFatalException;
 import org.vcssl.nano.spec.DataType;
@@ -55,12 +58,115 @@ public class AcceleratorSchedulingUnit {
 		movReducableOpcodeSet.add(OperationCode.MOVELM); // MOVELMは要素の単純コピーなのでその直後にMOVするのは削っても安全（REFELMは無理）
 	}
 
+	private class InternalFunctionInfo {
+		private int functionAddress; // 関数の先頭アドレス
+		private int functionBodyAddress; // 引数取り出し部を除いた、関数内部処理の先頭アドレス
+		List<DataType> parameterDataTypeList;
+		List<Memory.Partition> parameterPartitionList; // 仮引数変数の仮想メモリパーティション
+		List<Integer> parameterAddressList; // 仮引数変数の仮想メモリアドレス
+		List<Boolean> parameterReferencenessList; // 参照渡しかどうか
+		List<Boolean> parameterScalarityList; // スカラかどうか
+		List<Integer> parameterRankList; // 配列次元数
+
+		public InternalFunctionInfo(int functionAddress) {
+			this.functionAddress = functionAddress;
+			this.functionBodyAddress = -1;
+			this.parameterDataTypeList = new ArrayList<DataType>();
+			this.parameterPartitionList = new ArrayList<Memory.Partition>();
+			this.parameterAddressList = new ArrayList<Integer>();
+			this.parameterReferencenessList = new ArrayList<Boolean>();
+			this.parameterScalarityList = new ArrayList<Boolean>();
+			this.parameterRankList = new ArrayList<Integer>();
+		}
+
+		public void setFunctionBodyAddress(int functionBodyAddress) {
+			this.functionBodyAddress = functionBodyAddress;
+		}
+
+		public int getFunctionBodyAddress() {
+			return this.functionBodyAddress;
+		}
+
+		public void addParameter(DataType dataType, Memory.Partition partition, int address,
+				boolean referenceness, boolean scalarity, int rank) {
+			this.parameterDataTypeList.add(dataType);
+			this.parameterPartitionList.add(partition);
+			this.parameterAddressList.add(address);
+			this.parameterReferencenessList.add(referenceness);
+			this.parameterScalarityList.add(scalarity);
+			this.parameterRankList.add(rank);
+		}
+
+		// 引数は詰む順とは逆順でスタックから取り出されるので、
+		// スタックからの取り出し部の命令列を読みながらaddParameterで追加していった場合、
+		// 全引数の追加後にこのメソッドで順序を逆転させる必要がある
+		public void reverseParameterOrder() {
+			Collections.reverse(this.parameterDataTypeList);
+			Collections.reverse(this.parameterPartitionList);
+			Collections.reverse(this.parameterAddressList);
+			Collections.reverse(this.parameterReferencenessList);
+			Collections.reverse(this.parameterScalarityList);
+			Collections.reverse(this.parameterRankList);
+		}
+
+		public DataType getParameterDataType(int parameterIndex) {
+			return this.parameterDataTypeList.get(parameterIndex);
+		}
+
+		public Memory.Partition getParameterPertition(int parameterIndex) {
+			return this.parameterPartitionList.get(parameterIndex);
+		}
+
+		public int getParameterAddress(int parameterIndex) {
+			return this.parameterAddressList.get(parameterIndex);
+		}
+
+		public boolean isParameterReference(int parameterIndex) {
+			return this.parameterReferencenessList.get(parameterIndex);
+		}
+
+		public boolean isParameterScalar(int parameterIndex) {
+			return this.parameterScalarityList.get(parameterIndex);
+		}
+
+		public int getParameterRank(int parameterIndex) {
+			return this.parameterRankList.get(parameterIndex);
+		}
+
+		@Override
+		public String toString() {
+			int parameterLength = this.parameterAddressList.size();
+			StringBuilder builder = new StringBuilder();
+			builder.append("[ InternalFunctionInfo address=");
+			builder.append(functionAddress);
+			builder.append(" bodyAddress=");
+			builder.append(functionBodyAddress);
+			builder.append(" param={ ");
+			for (int i=0; i<parameterLength; i++) {
+				if (this.parameterReferencenessList.get(i)) {
+					builder.append('&');
+				}
+				builder.append(this.parameterPartitionList.get(i).toString().charAt(0));
+				builder.append(this.parameterAddressList.get(i));
+				builder.append(' ');
+			}
+			builder.append("} ]");
+			return builder.toString();
+		}
+	}
+
 
 	public AcceleratorInstruction[] schedule(
 			Instruction[] instructions, Memory memory, AcceleratorDataManagementUnit dataManager) {
 
 		// 命令列を読み込んで AcceleratorInstruction に変換し、フィールドのリストを初期化して格納
 		this.initializeeAcceleratorInstructionList(instructions, memory);
+
+		// 内部関数の引数情報などを抽出する（実際にCALLされているもののみ）
+		Map<Integer, InternalFunctionInfo> functionInfoMap = this.extractInternalFunctionInfo(memory);
+
+		// 内部関数呼び出しでの、スタックを介する引数の受け渡しを、呼び出し前に実引数から仮引数に直接代入するようにする
+		this.modifyCodeToTransferArgumentsDirectly(memory, functionInfoMap);
 
 		// CALL命令の直後（NOPが置かれている）の箇所に、RETURNED命令を生成して置き換える
 		this.generateReturnedInstructions();
@@ -134,12 +240,274 @@ public class AcceleratorSchedulingUnit {
 	}
 
 
+	// コード内での内部関数（実際に呼ばれているもののみ）をスキャンし、
+	// 仮引数のアドレスや参照かどうか等を調べ、関数アドレスをキーとするマップにまとめて返す
+	private Map<Integer, InternalFunctionInfo> extractInternalFunctionInfo(Memory memory) {
+
+		int instructionLength = this.acceleratorInstructionList.size();
+
+		Map<Integer, InternalFunctionInfo> functionInfoMap = new LinkedHashMap<Integer, InternalFunctionInfo>();
+		List<Integer> functionAddressList = new ArrayList<Integer>();
+
+		// アセンブリコードの段階ではラベルで関数の先頭行を判別できるが、アセンブル後はラベルはただのNOPになってしまう。
+		// そこで、まずコード内のCALL命令の箇所をスキャンし、そのオペランドから、関数先頭の命令アドレスのリストを作る。
+		// -> 関数先頭に、それが関数先頭とわかる（目印用の）命令を置けば、こういった事前スキャンは不要になるけど…
+		//    -> しかしこの方法も、どこからも呼んでいない関数の情報解析は自然と省略できるので、これはこれで逆にいいかも
+		// 別の最適化などで、やはり全関数の命令アドレスや引数情報が要る、となった際は要再検討
+		for (int instructionIndex=0; instructionIndex<instructionLength; instructionIndex++) {
+
+			AcceleratorInstruction instruction = this.acceleratorInstructionList.get(instructionIndex);
+			if (instruction.getOperationCode() == OperationCode.CALL) {
+				// 関数アドレスは、CALL命令のオペランド[1]のアドレスを参照した先に、整数値として格納されている
+				DataContainer<?> functionAddrContainer = memory.getDataContainer(
+					instruction.getOperandPartitions()[1], instruction.getOperandAddresses()[1]
+				);
+				if (!(functionAddrContainer.getData() instanceof long[])) {
+					throw new VnanoFatalException("Unexpected data type of the function address detected.");
+				}
+				int calleeFunctionAddress = (int)( (long[])(functionAddrContainer.getData()) )[0];
+				functionAddressList.add(calleeFunctionAddress);
+			}
+		}
+
+		// 上で検出した各関数に対して、先頭部分をそれぞれスキャンし、引数などの情報を調べてマップに格納する
+		int functionLength = functionAddressList.size();
+		for (int functionIndex=0; functionIndex<functionLength; functionIndex++) { // ここでの functionIndex は、上のリスト内でのインデックス
+			int functionAddress = functionAddressList.get(functionIndex);      // ここでの functionAddress は、命令列の中でのインデックス
+
+			// 既に解析済みの関数ならスキップ
+			if (functionInfoMap.containsKey(functionAddress)) {
+				continue;
+			}
+
+			// 解析した関数情報を控える InternalFunctionInfo インスタンスを用意
+			InternalFunctionInfo functionInfo = new InternalFunctionInfo(functionAddress);
+
+			// ALLOCT命令が出現した時点で、次の引数がスカラかどうかや、次元数を調べてて以下の変数に控える
+			boolean isNextOperandScalar = false;
+			int nextOperandRank = -1;
+
+			// 関数先頭から命令を辿り、引数情報を解析する
+			for (int instructionIndex=functionAddress; true; instructionIndex++) {
+
+				AcceleratorInstruction instruction = this.acceleratorInstructionList.get(instructionIndex);
+				OperationCode opcode = instruction.getOperationCode();
+
+				// 引数を取り出す命令の場合
+				if (opcode == OperationCode.MOVPOP || opcode == OperationCode.REFPOP) {
+
+					// MOVPOP/REFPOP命令は、スタックに積まれた実引数を、仮引数に受け取る命令なので、
+					// そのオペランド[0]に仮引数が指定されている。従ってそのオペランドの情報を抽出する。
+					DataType dataType = instruction.getDataTypes()[0];
+					Memory.Partition paramPartition = instruction.getOperandPartitions()[0];
+					int paramAddress = instruction.getOperandAddresses()[0];
+					boolean paramReferenceness = (opcode == OperationCode.REFPOP); // REFPOPで受け取るなら参照渡し、MOVPOPなら値渡し
+					boolean paramScalarity = isNextOperandScalar;
+					int paramRank = nextOperandRank;
+					isNextOperandScalar = false;
+					nextOperandRank = -1;
+
+					// 関数情報に登録する
+					functionInfo.addParameter(dataType, paramPartition, paramAddress, paramReferenceness, paramScalarity, paramRank);
+
+					// 関数本体の先頭アドレスは、最後の引数取り出しの直後なので、一応この引数取り出しの直後(最後かどうかはまだ不明)に設定
+					functionInfo.setFunctionBodyAddress(instructionIndex + 1);
+
+					// 次の引数の解析へ
+					continue;
+
+				// 引数の取り出し先の型情報を宣言する命令（最適化補助用の命令）
+				} else if (opcode == OperationCode.ALLOCT) {
+
+					// ALLOCTのオペランドが1個なら、次に取り出される引数はスカラで、そうでないなら配列
+					isNextOperandScalar = instruction.getOperandLength() == 1;
+
+					// ALLOCTのオペランド数 - 1 が配列次元数 ([0] はALLOC対象)
+					nextOperandRank = instruction.getOperandLength() - 1;
+
+					// 次の引数の解析へ
+					continue;
+
+				// 引数の取り出し先の確保に使う命令の場合 (現状では何も拾いたい情報は無いので何もしない)
+				} else if (opcode == OperationCode.ALLOC || opcode == OperationCode.ALLOCP || opcode == OperationCode.ALLOCR) {
+					continue;
+
+				// アセンブリコードで関数ラベルだった地点には、アセンブリ後はNOPがあるが、何も拾う情報は無いので何もしない
+				//（関数アドレス +1 の命令からスキャンを始めてもいいが、後の最適化でNOPを削った時にややこしいので、一応ある事を想定する）
+				} else if (opcode == OperationCode.NOP) {
+					continue;
+
+				// それ以外の命令が来た時点で、引数の受け取り処理は既に終わっていて、もう知りたい情報は無いので、この関数の解析は終了
+				} else {
+					break;
+				}
+			}
+
+			// 引数は詰む順とは逆順でスタックから取り出されるので、
+			// スタックからの取り出し部の命令列を読みながらaddParameterで追加していった場合(今の場合はそう)、
+			// 全引数の追加後にこのメソッドで順序を逆転させる必要がある
+			functionInfo.reverseParameterOrder();
+
+			// 関数情報をマップに登録
+			functionInfoMap.put(functionAddress, functionInfo);
+		}
+
+		return functionInfoMap;
+	}
+
+
+	// 内部関数呼び出しにおける、(本来スタックを介する)引数の受け渡しを、呼び出し前に実引数から仮引数に直接MOV/REFするようにする
+	void modifyCodeToTransferArgumentsDirectly(Memory memory, Map<Integer, InternalFunctionInfo> functionInfoMap) {
+		int instructionLength = this.acceleratorInstructionList.size();
+
+		// CALL命令1個だったのが複数命令に変化する箇所が、関数呼び出し地点ごとに発生するので、全体の命令列のリストを再構成する
+		// （元のリストに add(index,element) で詰めていくのを繰り返すよりも、先頭から読みながらこの新しいリストに置いていった方が効率的）
+		List<AcceleratorInstruction> modifiedInstructionList = new ArrayList<AcceleratorInstruction>();
+
+		// コードをスキャンして内部関数呼び出し部を探す
+		for (int instructionIndex=0; instructionIndex<instructionLength; instructionIndex++) {
+			AcceleratorInstruction instruction = this.acceleratorInstructionList.get(instructionIndex);
+
+			// 内部関数呼び出し部
+			if (instruction.getOperationCode() == OperationCode.CALL) {
+
+				Memory.Partition[] opParts = instruction.getOperandPartitions();
+				int[] opAddrs = instruction.getOperandAddresses();
+				int operandLength = instruction.getOperandLength();
+
+				int argLength = operandLength - 2; // 引数の数 / オペランド [0] はプレースホルダ、[1] は関数アドレス なので -2
+
+				// 関数アドレスは、CALL命令のオペランド[1]のアドレスを参照した先に、整数値として格納されている
+				DataContainer<?> functionAddrContainer = memory.getDataContainer(
+					instruction.getOperandPartitions()[1], instruction.getOperandAddresses()[1]
+				);
+				if (!(functionAddrContainer.getData() instanceof long[])) {
+					throw new VnanoFatalException("Unexpected data type of the function address detected.");
+				}
+				int calleeFunctionAddress = (int)( (long[])(functionAddrContainer.getData()) )[0];
+
+				// 解析済みの関数情報を取得
+				InternalFunctionInfo functionInfo = functionInfoMap.get(calleeFunctionAddress);
+
+				// 実引数を仮引数に直接転送する命令列を生成して積んでいく
+				// (実引数は arg～、仮引数は param～ のように名前を付け分けている)
+				for (int paramIndex=0; paramIndex<argLength; paramIndex++) {
+					int argOpIndex = paramIndex + 2; // 実引数のオペランドインデックス (+2しているのは引数以外のオペランドの分)
+
+					// 参照渡しの場合や、値渡しでも配列の場合は、後の最適化で仮引数の次元数情報が有用なので、それを解析できるように ALLOCT 命令を置いてておく
+					//（ALLOCTはそういうメタ情報をコード内で表して最適化を補助するための命令で、本来はスタックから引数をMOVPOP/REFPOPする箇所にコンパイラが吐いている）
+					if (functionInfo.isParameterReference(paramIndex) || !functionInfo.isParameterScalar(paramIndex)) {
+						int rank = functionInfo.getParameterRank(paramIndex);
+						Memory.Partition[] alloctOpParts = new Memory.Partition[rank + 1];
+						int[] alloctOpAddrs = new int[rank + 1];
+						Arrays.fill(alloctOpParts, Memory.Partition.NONE); // ALLOCTのオペランドは[0]以外はプレースホルダで、その個数のみが次元数としての意味を持つ
+						Arrays.fill(alloctOpAddrs, 0);
+						alloctOpParts[0] = functionInfo.getParameterPertition(paramIndex);
+						alloctOpAddrs[0] = functionInfo.getParameterAddress(paramIndex);
+						Instruction alloctInstruction = new Instruction(
+							OperationCode.ALLOCT, new DataType[] { functionInfo.getParameterDataType(paramIndex) },
+							alloctOpParts, alloctOpAddrs, instruction.getMetaPartition(), instruction.getMetaAddress()
+						);
+						AcceleratorInstruction accelAlloctInstruction = new AcceleratorInstruction(alloctInstruction);
+						accelAlloctInstruction.setUnreorderedAddress(instructionIndex);
+						modifiedInstructionList.add(accelAlloctInstruction);
+					}
+
+					// 転送命令のオペランドを用意 / [0]:dest, [1]:src
+					Memory.Partition[] transParts = new Memory.Partition[] { functionInfo.getParameterPertition(paramIndex), opParts[argOpIndex] };
+					int[] transAddrs = new int[] { functionInfo.getParameterAddress(paramIndex), opAddrs[argOpIndex] };
+					DataType[] transDataTypes = new DataType[] { functionInfo.getParameterDataType(paramIndex) }; // 転送命令はデータ型は1種のみ指定
+
+					// 参照渡しならREF命令を生成
+					if (functionInfo.isParameterReference(paramIndex)) {
+						Instruction refInstruction = new Instruction(
+							OperationCode.REF, transDataTypes,
+							transParts, transAddrs, instruction.getMetaPartition(), instruction.getMetaAddress()
+						);
+						AcceleratorInstruction accelRefInstruction = new AcceleratorInstruction(refInstruction);
+						accelRefInstruction.setUnreorderedAddress(instructionIndex);
+						modifiedInstructionList.add(accelRefInstruction);
+
+					// そうでなければ値渡しなのでMOV命令を生成
+					// この場合は併せて、ALLOC/ALLOCR命令でコピー先領域確保も必要
+					} else {
+
+						// 最適化が効の効き方を考慮して、スカラでは 1 オペランドのALLOCを用い、配列ではsrcと同サイズでdestを確保するALLOCRを使用
+						Instruction allocInstruction = null;
+						if (functionInfo.isParameterScalar(paramIndex)) {
+							allocInstruction = new Instruction(
+								OperationCode.ALLOC, transDataTypes,
+								new Memory.Partition[] { transParts[0] }, new int[] { transAddrs[0] }, // MOV の dest 先を確保する
+								instruction.getMetaPartition(), instruction.getMetaAddress()
+							);
+						} else {
+							allocInstruction = new Instruction(
+								OperationCode.ALLOCR, transDataTypes,
+								transParts, transAddrs, // この場合のオペランドは dest, src なのでMOVのオペランドと全く同じ
+								instruction.getMetaPartition(), instruction.getMetaAddress()
+							);
+						}
+						AcceleratorInstruction accelAllocInstruction = new AcceleratorInstruction(allocInstruction);
+						accelAllocInstruction.setUnreorderedAddress(instructionIndex);
+						modifiedInstructionList.add(accelAllocInstruction);
+
+						// 続いてMOV命令を生成
+						Instruction movInstruction = new Instruction(
+							OperationCode.MOV, transDataTypes,
+							transParts, transAddrs, instruction.getMetaPartition(), instruction.getMetaAddress()
+						);
+						AcceleratorInstruction accelMovInstruction = new AcceleratorInstruction(movInstruction);
+						accelMovInstruction.setUnreorderedAddress(instructionIndex);
+						modifiedInstructionList.add(accelMovInstruction);
+					}
+
+				} // 引数転送ループ
+
+				// 上記の実引数>仮引数転送によって、引数をスタックに積む必要は無くなるため、引数オペランドを除去したCALL命令を生成
+				// (CALLのオペランドは [0] がプレースホルダ、[1] が関数アドレス)
+				Instruction callInstruction = new Instruction(
+					OperationCode.CALL, instruction.getDataTypes(),
+					new Memory.Partition[] { opParts[0], opParts[1] }, new int[] { opAddrs[0], opAddrs[1] },
+					instruction.getMetaPartition(), instruction.getMetaAddress()
+				);
+				AcceleratorInstruction accelCallInstruction = new AcceleratorInstruction(callInstruction);
+				accelCallInstruction.setUnreorderedAddress(instructionIndex);
+				modifiedInstructionList.add(accelCallInstruction);
+
+			// それ以外の命令はそのまま元の順で置いていく
+			} else {
+				modifiedInstructionList.add(instruction);
+			}
+		}
+
+		// 元の関数定義部において、引数をスタックから取りだすコードはもう不要（というよりも実行してはいけない）ので除去する
+		// (まず削る場所に null を詰めて、その後に null を無視しながら別のリストに移し替える)
+		Set<Map.Entry<Integer, InternalFunctionInfo>> functionInfoEntrySet = functionInfoMap.entrySet();
+		for (Map.Entry<Integer, InternalFunctionInfo> functionInfoEntry: functionInfoEntrySet) {
+			InternalFunctionInfo functionInfo = functionInfoEntry.getValue();
+			int functionAddress = functionInfoEntry.getKey();
+			int functionBodyAddress = functionInfo.getFunctionBodyAddress();
+			for (int i=functionAddress+1; i<functionBodyAddress; i++) { // 始点が +1 なのは、元の着地点そのものを消すと他の最適化でのリオーダリング後の飛び先解決時に困るから
+				modifiedInstructionList.set(i, null);
+			}
+		}
+		this.acceleratorInstructionList = new ArrayList<AcceleratorInstruction>();
+		int modifiedLength = modifiedInstructionList.size();
+		for (int i=0; i<modifiedLength; i++) {
+			AcceleratorInstruction instruction = modifiedInstructionList.get(i);
+			if (instruction != null) {
+				this.acceleratorInstructionList.add(instruction);
+			}
+		}
+	}
+
+
 	// CALL命令の直後（ラベルのためNOPが置かれている）の箇所に、RETURNED拡張命令を生成して置き換える
 	private void generateReturnedInstructions() {
 		int instructionLength = acceleratorInstructionList.size();
 
 		for (int instructionIndex=0; instructionIndex<instructionLength; instructionIndex++) {
-			Instruction instruction = acceleratorInstructionList.get(instructionIndex);
+			AcceleratorInstruction instruction = acceleratorInstructionList.get(instructionIndex);
 			if (instruction.getOperationCode() == OperationCode.CALL) {
 
 				// オペランドのパーティションとアドレスを取り出す
@@ -167,7 +535,7 @@ public class AcceleratorSchedulingUnit {
 					)
 				);
 				returnedInstruction.setExtendedOperationCode(AcceleratorExtendedOperationCode.RETURNED);
-				returnedInstruction.setUnreorderedAddress(instructionIndex);
+				returnedInstruction.setUnreorderedAddress(instruction.getUnreorderedAddress() + 1);
 
 				// この命令直後にあるはずのNOP命令を、生成したRETURNED拡張命令で置き換える
 				acceleratorInstructionList.set(instructionIndex+1, returnedInstruction);
@@ -682,8 +1050,19 @@ public class AcceleratorSchedulingUnit {
 
 	// 全命令アドレスの再配置前→再配置後の対応を格納したアドレス変換マップを生成
 	private void generateAddressReorderingMap() {
-		this.addressReorderingMap = new HashMap<Integer,Integer>();
 
+		// 注:
+		//
+		// 最適化で命令1個だった所が複数命令になっている箇所がある場合 (CALLの引数直接MOV化とか) など、
+		// 複数命令が同じ unreorderedAddress を持っていると、このマップはそれらの最後の命令の reorderedAddress を返す。
+		//
+		// このマップは現状ではJMP/JMPN/CALLの着地点ラベル（由来のNOP命令）の位置を補正するために使用されるが、
+		// ラベル由来NOPにはそういった複数命令への分裂は起こらないため、その目的においては問題は生じない。
+		//
+		// ただし、別の目的でこのマップを参照する際は、影響の有無について要注意。
+		// 場合によってはもっと手の込んだ仕組みを用意する必要が出てくるが、現状では単純で済むマップを使っている。
+
+		this.addressReorderingMap = new HashMap<Integer,Integer>();
 		int instructionLength = acceleratorInstructionList.size();
 		for (int instructionIndex=0; instructionIndex<instructionLength; instructionIndex++) {
 			AcceleratorInstruction instruction = this.acceleratorInstructionList.get(instructionIndex);
@@ -709,7 +1088,7 @@ public class AcceleratorSchedulingUnit {
 						instruction.getOperandAddresses()[1]
 				);
 
-				// データコンテナからラベルの命令アドレスの値を読む
+				// データコンテナから飛び先ラベル（アセンブル後はNOPになっている）の命令アドレスの値を読む
 				int labelAddress = -1;
 				Object addressData = addressContiner.getData();
 				if (addressData instanceof long[]) {
@@ -718,7 +1097,7 @@ public class AcceleratorSchedulingUnit {
 					throw new VnanoFatalException("Non-integer instruction address (label) operand detected.");
 				}
 
-				// ラベル命令アドレスの、命令再配置前における位置に対応する、再配置後のラベル命令アドレスを取得
+				// ラベル（由来のNOP命令）アドレスの、命令再配置前における位置に対応する、再配置後の位置の命令アドレスを取得
 				int reorderedLabelAddress = this.addressReorderingMap.get(labelAddress);
 
 				// 再配置後のラベル命令アドレス情報を命令に持たせる
