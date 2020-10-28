@@ -1448,19 +1448,19 @@ public class AcceleratorSchedulingUnit {
 			}
 
 			// DualArithmetic系演算ユニットでサポートしていないオペランドの場合はスキップ (例えば符号反転など)
-			if (fromAccelerationType == AcceleratorExecutionType.F64CS_ARITHMETIC
-				&& Float64CachedScalarDualArithmeticUnit.AVAILABLE_OPERAND_SET.contains(currentInstruction.getOperationCode())
-				&& Float64CachedScalarDualArithmeticUnit.AVAILABLE_OPERAND_SET.contains(nextInstruction.getOperationCode()) ) {
-				// この場合は Float64CachedScalarDualArithmeticUnit でサポートされている
-			} else {
-				continue;
+			if (fromAccelerationType == AcceleratorExecutionType.F64CS_ARITHMETIC) {
+				if( !Float64CachedScalarDualArithmeticUnit.AVAILABLE_OPERAND_SET.contains(currentInstruction.getOperationCode())
+				    ||
+				    !Float64CachedScalarDualArithmeticUnit.AVAILABLE_OPERAND_SET.contains(nextInstruction.getOperationCode()) ) {
+					continue;
+				}
 			}
-			if (fromAccelerationType == AcceleratorExecutionType.I64CS_ARITHMETIC
-				&& Int64CachedScalarDualArithmeticUnit.AVAILABLE_OPERAND_SET.contains(currentInstruction.getOperationCode())
-				&& Int64CachedScalarDualArithmeticUnit.AVAILABLE_OPERAND_SET.contains(nextInstruction.getOperationCode()) ) {
-				// この場合は Int64CachedScalarDualArithmeticUnit でサポートされている
-			} else {
-				continue;
+			if (fromAccelerationType == AcceleratorExecutionType.I64CS_ARITHMETIC) {
+				if( !Int64CachedScalarDualArithmeticUnit.AVAILABLE_OPERAND_SET.contains(currentInstruction.getOperationCode())
+				    ||
+				    !Int64CachedScalarDualArithmeticUnit.AVAILABLE_OPERAND_SET.contains(nextInstruction.getOperationCode()) ) {
+					continue;
+				}
 			}
 
 			// 対象命令のオペランドを全て取得
