@@ -16,11 +16,11 @@ public class Int64CachedScalarArithmeticUnit extends AcceleratorExecutionUnit {
 			Object[] operandCaches, boolean[] operandCachingEnabled, boolean[] operandScalar, boolean[] operandConstant,
 			AcceleratorExecutionNode nextNode) {
 
-		Int64ScalarCache[] caches = new Int64ScalarCache[]{
-				(Int64ScalarCache)operandCaches[0],
-				(Int64ScalarCache)operandCaches[1],
-				(Int64ScalarCache)operandCaches[2]
-		};
+		int cacheLength = operandCaches.length;
+		Int64ScalarCache[] caches = new Int64ScalarCache[cacheLength];
+		for (int i=0; i<cacheLength; i++) {
+			caches[i] = (Int64ScalarCache)operandCaches[i];
+		}
 
 		Int64CachedScalarArithmeticNode node = null;
 		switch (instruction.getOperationCode()) {
@@ -77,6 +77,10 @@ public class Int64CachedScalarArithmeticUnit extends AcceleratorExecutionUnit {
 				node = new Int64CachedScalarRemUnit(caches[0], caches[1], caches[2], nextNode);
 				break;
 			}
+			case NEG : {
+				node = new Int64CachedScalarNegUnit(caches[0], caches[1], nextNode);
+				break;
+			}
 			default : {
 				throw new VnanoFatalException(
 						"Operation code " + instruction.getOperationCode() + " is invalid for " + this.getClass().getCanonicalName()
@@ -98,6 +102,14 @@ public class Int64CachedScalarArithmeticUnit extends AcceleratorExecutionUnit {
 			this.cache0 = cache0;
 			this.cache1 = cache1;
 			this.cache2 = cache2;
+		}
+		public Int64CachedScalarArithmeticNode(Int64ScalarCache cache0, Int64ScalarCache cache1,
+				AcceleratorExecutionNode nextNode) {
+
+			super(nextNode, 1);
+			this.cache0 = cache0;
+			this.cache1 = cache1;
+			this.cache2 = null;
 		}
 		public Int64CachedScalarArithmeticNode(Int64ScalarCache cache0,
 				AcceleratorExecutionNode nextNode) {
@@ -160,6 +172,17 @@ public class Int64CachedScalarArithmeticUnit extends AcceleratorExecutionUnit {
 		}
 		public final AcceleratorExecutionNode execute() {
 			this.cache0.value = this.cache1.value % this.cache2.value;
+			return this.nextNode;
+		}
+	}
+
+	private final class Int64CachedScalarNegUnit extends Int64CachedScalarArithmeticNode {
+		public Int64CachedScalarNegUnit(Int64ScalarCache cache0, Int64ScalarCache cache1,
+				AcceleratorExecutionNode nextNode) {
+			super(cache0, cache1, nextNode);
+		}
+		public final AcceleratorExecutionNode execute() {
+			this.cache0.value = - this.cache1.value;
 			return this.nextNode;
 		}
 	}

@@ -16,11 +16,11 @@ public class Float64CachedScalarArithmeticUnit extends AcceleratorExecutionUnit 
 			Object[] operandCaches, boolean[] operandCachingEnabled, boolean[] operandScalar, boolean[] operandConstant,
 			AcceleratorExecutionNode nextNode) {
 
-		Float64ScalarCache[] caches = new Float64ScalarCache[]{
-				(Float64ScalarCache)operandCaches[0],
-				(Float64ScalarCache)operandCaches[1],
-				(Float64ScalarCache)operandCaches[2]
-		};
+		int cacheLength = operandCaches.length;
+		Float64ScalarCache[] caches = new Float64ScalarCache[cacheLength];
+		for (int i=0; i<cacheLength; i++) {
+			caches[i] = (Float64ScalarCache)operandCaches[i];
+		}
 
 		Float64CachedScalarArithmeticNode node = null;
 		switch (instruction.getOperationCode()) {
@@ -42,6 +42,10 @@ public class Float64CachedScalarArithmeticUnit extends AcceleratorExecutionUnit 
 			}
 			case REM : {
 				node = new Float64CachedScalarRemNode(caches[0], caches[1], caches[2], nextNode);
+				break;
+			}
+			case NEG : {
+				node = new Float64CachedScalarNegNode(caches[0], caches[1], nextNode);
 				break;
 			}
 			default : {
@@ -66,7 +70,17 @@ public class Float64CachedScalarArithmeticUnit extends AcceleratorExecutionUnit 
 			this.cache1 = cache1;
 			this.cache2 = cache2;
 		}
+
+		public Float64CachedScalarArithmeticNode(Float64ScalarCache cache0, Float64ScalarCache cache1,
+				AcceleratorExecutionNode nextNode) {
+
+			super(nextNode, 1);
+			this.cache0 = cache0;
+			this.cache1 = cache1;
+			this.cache2 = null;
+		}
 	}
+
 
 	private final class Float64CachedScalarAddNode extends Float64CachedScalarArithmeticNode {
 		public Float64CachedScalarAddNode(Float64ScalarCache cache0, Float64ScalarCache cache1, Float64ScalarCache cache2,
@@ -120,6 +134,17 @@ public class Float64CachedScalarArithmeticUnit extends AcceleratorExecutionUnit 
 		}
 		public final AcceleratorExecutionNode execute() {
 			this.cache0.value = this.cache1.value % this.cache2.value;
+			return this.nextNode;
+		}
+	}
+
+	private final class Float64CachedScalarNegNode extends Float64CachedScalarArithmeticNode {
+		public Float64CachedScalarNegNode(Float64ScalarCache cache0, Float64ScalarCache cache1,
+				AcceleratorExecutionNode nextNode) {
+			super(cache0, cache1, nextNode);
+		}
+		public final AcceleratorExecutionNode execute() {
+			this.cache0.value = - this.cache1.value;
 			return this.nextNode;
 		}
 	}

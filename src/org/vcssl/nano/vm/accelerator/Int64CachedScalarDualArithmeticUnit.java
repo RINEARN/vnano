@@ -5,11 +5,23 @@
 
 package org.vcssl.nano.vm.accelerator;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.vcssl.nano.VnanoFatalException;
 import org.vcssl.nano.spec.OperationCode;
 import org.vcssl.nano.vm.memory.DataContainer;
 
 public class Int64CachedScalarDualArithmeticUnit extends AcceleratorExecutionUnit {
+
+	public static final Set<OperationCode> AVAILABLE_OPERAND_SET = new HashSet<OperationCode>();
+	static {
+		AVAILABLE_OPERAND_SET.add(OperationCode.ADD);
+		AVAILABLE_OPERAND_SET.add(OperationCode.SUB);
+		AVAILABLE_OPERAND_SET.add(OperationCode.MUL);
+		AVAILABLE_OPERAND_SET.add(OperationCode.DIV);
+		AVAILABLE_OPERAND_SET.add(OperationCode.REM);
+	}
 
 	@Override
 	public AcceleratorExecutionNode generateNode(
