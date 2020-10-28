@@ -30,6 +30,9 @@ public class InternalFunctionControlUnit extends AcceleratorExecutionUnit {
 	/** 命令アドレススタックの先頭位置です。 */
 	private int addressStackPointer = 0;
 
+	/** 命令アドレススタックの、直近のプッシュ要求値を控えるキャッシュです。 */
+	private int addressStackCache = -1;
+
 	/** 関数からRET命令で戻る際に、戻り値を控えます。 */
 	private DataContainer<?> returnValueStorage = null;
 
@@ -201,6 +204,13 @@ public class InternalFunctionControlUnit extends AcceleratorExecutionUnit {
 			this.operandContainers = operandContainers;
 			this.returnAddress = reorderedAddressOfThisInstruction + 1;
 			this.functionAddress = functionAddress;
+
+			// 現在の最適化の流れでは、引数はCALL前に直接 MOV/REF で転送されるようになったため、CALLのオペランドで渡す機能はもうサポートしない
+			// (そういう前提にした方が、データスタックへの積み下ろしが戻り値のみになり、戻り値は積んだ直後に取り出されるので、
+			//  データスタックの代わりに普通の変数に控えればよくなって、オーバーヘッドを削るのに有利なため )
+			if (2 < this.operandContainers.length) { // [0]はプレースホルダ、[1]は飛び先ラベルアドレス、なので[2]からが引数
+				throw new VnanoFatalException("CALL instructions with argument operands are no longer supported by the Accelerator.");
+			}
 		}
 
 		@Override
@@ -218,20 +228,18 @@ public class InternalFunctionControlUnit extends AcceleratorExecutionUnit {
 			}
 			InternalFunctionControlUnit.this.functionRunningFlags[this.functionAddress] = true;
 
-			// 戻り先地点の命令アドレスを、アドレススタックに積む
-			if (InternalFunctionControlUnit.this.addressStackLength <= InternalFunctionControlUnit.this.addressStackPointer) {
-				InternalFunctionControlUnit.this.expandAddressStack();
+			// アドレススタックキャッシュが空でなければ、その値をアドレススタックに積む
+			if (InternalFunctionControlUnit.this.addressStackCache != -1) {
+				if (InternalFunctionControlUnit.this.addressStackLength <= InternalFunctionControlUnit.this.addressStackPointer) {
+					InternalFunctionControlUnit.this.expandAddressStack();
+				}
+				InternalFunctionControlUnit.this.addressStack[ InternalFunctionControlUnit.this.addressStackPointer ]
+						= InternalFunctionControlUnit.this.addressStackCache;
+				InternalFunctionControlUnit.this.addressStackPointer++;
 			}
-			InternalFunctionControlUnit.this.addressStack[ InternalFunctionControlUnit.this.addressStackPointer ] = this.returnAddress;
-			InternalFunctionControlUnit.this.addressStackPointer++;
 
-			// 現在の最適化の流れでは、引数はCALL前に直接 MOV/REF で転送されるようになったため、CALLのオペランドで渡す機能はもうサポートしない
-			// (そういう前提にした方が、データスタックへの積み下ろしが戻り値のみになり、戻り値は積んだ直後に取り出されるので、
-			//  データスタックの代わりに普通の変数に控えればよくなって、オーバーヘッドを削るのに有利なため )
-			int operandLength = this.operandContainers.length;
-			if (2 < operandLength) { // [0]はプレースホルダ、[1]は飛び先ラベルアドレス、なので[2]からが引数
-				throw new VnanoFatalException("CALL instructions with argument operands are no longer supported by the Accelerator.");
-			}
+			// アドレススタックキャッシュに、戻り先地点のアドレスを控える
+			InternalFunctionControlUnit.this.addressStackCache = this.returnAddress;
 
 			// 関数の先頭の命令に飛ぶ
 			return this.functionHeadNode;
@@ -272,9 +280,17 @@ public class InternalFunctionControlUnit extends AcceleratorExecutionUnit {
 		public final AcceleratorExecutionNode execute() {
 			this.synchronizer.synchronizeFromCacheToMemory();
 
-			// 戻り先地点の命令アドレスを、アドレススタックから取り出す
-			--InternalFunctionControlUnit.this.addressStackPointer;
-			int returnedPointAddress = InternalFunctionControlUnit.this.addressStack[ InternalFunctionControlUnit.this.addressStackPointer ];
+			// 戻り先地点の命令アドレスを、まずアドレススタックキャッシュから読む
+			int returnedPointAddress = InternalFunctionControlUnit.this.addressStackCache;
+
+			// 読んだ値が -1 なら、アドレススタックキャッシュが空という事なので、アドレススタックから取り出して読む
+			if (returnedPointAddress == -1) {
+				--InternalFunctionControlUnit.this.addressStackPointer;
+				returnedPointAddress = InternalFunctionControlUnit.this.addressStack[ InternalFunctionControlUnit.this.addressStackPointer ];
+			}
+
+			// この時点では、上記の分岐結果によらずアドレススタックキャッシュの値は参照済みなので、空にしておく
+			InternalFunctionControlUnit.this.addressStackCache = -1;
 
 			// 戻り値を caller に渡すために控える
 			// ( Acceleratorでは引数付きCALL命令は非対応になったので、データスタック上に存在し得るのは戻り値のみになり、
@@ -418,7 +434,7 @@ public class InternalFunctionControlUnit extends AcceleratorExecutionUnit {
 			@SuppressWarnings("unchecked")
 			DataContainer<long[]> src = (DataContainer<long[]>)InternalFunctionControlUnit.this.returnValueStorage;
 			// DataContainer<long[]> src = (DataContainer<long[]>)InternalFunctionControlUnit.this.dataStack[
-	        // 		InternalFunctionControlUnit.this.dataStackPointer
+			// 		InternalFunctionControlUnit.this.dataStackPointer
 			// ];
 			InternalFunctionControlUnit.this.returnValueStorage = null;
 
@@ -457,7 +473,7 @@ public class InternalFunctionControlUnit extends AcceleratorExecutionUnit {
 			@SuppressWarnings("unchecked")
 			DataContainer<double[]> src = (DataContainer<double[]>)InternalFunctionControlUnit.this.returnValueStorage;
 			// DataContainer<double[]> src = (DataContainer<double[]>)InternalFunctionControlUnit.this.dataStack[
-	        // 		InternalFunctionControlUnit.this.dataStackPointer
+			// 		InternalFunctionControlUnit.this.dataStackPointer
 			// ];
 			InternalFunctionControlUnit.this.returnValueStorage = null;
 
@@ -496,7 +512,7 @@ public class InternalFunctionControlUnit extends AcceleratorExecutionUnit {
 			@SuppressWarnings("unchecked")
 			DataContainer<boolean[]> src = (DataContainer<boolean[]>)InternalFunctionControlUnit.this.returnValueStorage;
 			// DataContainer<boolean[]> src = (DataContainer<boolean[]>)InternalFunctionControlUnit.this.dataStack[
-	        // 		InternalFunctionControlUnit.this.dataStackPointer
+			// 		InternalFunctionControlUnit.this.dataStackPointer
 			// ];
 			InternalFunctionControlUnit.this.returnValueStorage = null;
 
@@ -531,7 +547,7 @@ public class InternalFunctionControlUnit extends AcceleratorExecutionUnit {
 			@SuppressWarnings("unchecked")
 			DataContainer<long[]> src = (DataContainer<long[]>)InternalFunctionControlUnit.this.returnValueStorage;
 			// DataContainer<long[]> src = (DataContainer<long[]>)InternalFunctionControlUnit.this.dataStack[
-	        // 		InternalFunctionControlUnit.this.dataStackPointer
+			// 		InternalFunctionControlUnit.this.dataStackPointer
 			// ];
 			InternalFunctionControlUnit.this.returnValueStorage = null;
 
@@ -562,7 +578,7 @@ public class InternalFunctionControlUnit extends AcceleratorExecutionUnit {
 			@SuppressWarnings("unchecked")
 			DataContainer<double[]> src = (DataContainer<double[]>)InternalFunctionControlUnit.this.returnValueStorage;
 			// DataContainer<double[]> src = (DataContainer<double[]>)InternalFunctionControlUnit.this.dataStack[
-	        // 		InternalFunctionControlUnit.this.dataStackPointer
+			// 		InternalFunctionControlUnit.this.dataStackPointer
 			// ];
 			InternalFunctionControlUnit.this.returnValueStorage = null;
 
@@ -593,7 +609,7 @@ public class InternalFunctionControlUnit extends AcceleratorExecutionUnit {
 			@SuppressWarnings("unchecked")
 			DataContainer<boolean[]> src = (DataContainer<boolean[]>)InternalFunctionControlUnit.this.returnValueStorage;
 			// DataContainer<boolean[]> src = (DataContainer<boolean[]>)InternalFunctionControlUnit.this.dataStack[
-	        // 		InternalFunctionControlUnit.this.dataStackPointer
+			// 		InternalFunctionControlUnit.this.dataStackPointer
 			// ];
 			InternalFunctionControlUnit.this.returnValueStorage = null;
 
@@ -631,7 +647,7 @@ public class InternalFunctionControlUnit extends AcceleratorExecutionUnit {
 			// Acceleratorでは引数付きCALL命令は非対応になったので、スタック上に積まれるのは戻り値1個のみで、普通の変数 returnValueStorage になった
 			DataContainer<?> src = (DataContainer<?>)InternalFunctionControlUnit.this.returnValueStorage;
 			// DataContainer<?> src = (DataContainer<?>)InternalFunctionControlUnit.this.dataStack[
-	        // 		InternalFunctionControlUnit.this.dataStackPointer
+			// 		InternalFunctionControlUnit.this.dataStackPointer
 			// ];
 			InternalFunctionControlUnit.this.returnValueStorage = null;
 
