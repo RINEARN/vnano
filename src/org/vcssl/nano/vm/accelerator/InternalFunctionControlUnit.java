@@ -21,26 +21,17 @@ public class InternalFunctionControlUnit extends AcceleratorExecutionUnit {
 	/* 関数の戻り先地点の命令アドレスを詰む、命令アドレススタックのデフォルトの要素数です。 */
 	private static final int DEFAULT_ADDRESS_STACK_LENGTH = 1024;
 
-	/* 関数の引数や戻り値などのデータを積む、データスタックのデフォルトの要素数です。 */
-	private static final int DEFAULT_DATA_STACK_LENGTH = 1024;
-
 	/* 関数の戻り先地点の命令アドレスを詰む、命令アドレススタックです。 */
 	private int[] addressStack = null;
-
-	/* 関数の引数や戻り値などのデータを積む、データスタックです。 */
-	private DataContainer<?>[] dataStack = null;
 
 	/** 命令アドレススタックの要素数です。 */
 	private int addressStackLength = DEFAULT_ADDRESS_STACK_LENGTH;
 
-	/** データスタックの要素数です。 */
-	private int dataStackLength = DEFAULT_DATA_STACK_LENGTH;
-
 	/** 命令アドレススタックの先頭位置です。 */
 	private int addressStackPointer = 0;
 
-	/** データスタックの先頭位置です。 */
-	private int dataStackPointer = 0;
+	/** 関数からRET命令で戻る際に、戻り値を控えます。 */
+	private DataContainer<?> returnValueStorage = null;
 
 	/** 全命令（順序は最適化による再配置済み）に対応するノードを格納する配列です。関数からのリターン時に参照します。 */
 	private AcceleratorExecutionNode[] allNodes;
@@ -54,7 +45,6 @@ public class InternalFunctionControlUnit extends AcceleratorExecutionUnit {
 	 */
 	public InternalFunctionControlUnit () {
 		this.addressStack = new int[ this.addressStackLength ];
-		this.dataStack = new DataContainer<?>[ this.dataStackLength ];
 	}
 
 
@@ -91,23 +81,6 @@ public class InternalFunctionControlUnit extends AcceleratorExecutionUnit {
 		System.arraycopy(stock, 0, this.addressStack, 0, stock.length);
 	}
 
-
-	/**
-	 * データスタックの要素数を2倍に拡張します。
-	 */
-	private void expandDataStack() {
-
-		// 現在のスタックの中身を仮の配列に退避
-		int[] stock = new int[ this.dataStackLength ];
-		System.arraycopy(this.dataStack, 0, stock, 0, this.dataStackLength);
-
-		// スタックの要素数を倍に拡張
-		this.dataStackLength *= 2;
-		this.dataStack = new DataContainer<?>[ this.dataStackLength ];
-
-		// 仮の配列から現在のスタックの中身を復元
-		System.arraycopy(stock, 0, this.dataStack, 0, stock.length);
-	}
 
 	@Override
 	public AcceleratorExecutionNode generateNode(
@@ -252,14 +225,12 @@ public class InternalFunctionControlUnit extends AcceleratorExecutionUnit {
 			InternalFunctionControlUnit.this.addressStack[ InternalFunctionControlUnit.this.addressStackPointer ] = this.returnAddress;
 			InternalFunctionControlUnit.this.addressStackPointer++;
 
-			// 引数をデータスタックに積む
+			// 現在の最適化の流れでは、引数はCALL前に直接 MOV/REF で転送されるようになったため、CALLのオペランドで渡す機能はもうサポートしない
+			// (そういう前提にした方が、データスタックへの積み下ろしが戻り値のみになり、戻り値は積んだ直後に取り出されるので、
+			//  データスタックの代わりに普通の変数に控えればよくなって、オーバーヘッドを削るのに有利なため )
 			int operandLength = this.operandContainers.length;
-			while (InternalFunctionControlUnit.this.dataStackLength <= InternalFunctionControlUnit.this.dataStackPointer + operandLength) {
-				InternalFunctionControlUnit.this.expandDataStack();
-			}
-			for (int i=2; i<operandLength; i++) { // [0]はプレースホルダ、[1]は飛び先ラベルアドレス、なので[2]からが引数
-				InternalFunctionControlUnit.this.dataStack[ InternalFunctionControlUnit.this.dataStackPointer ] = this.operandContainers[i];
-				InternalFunctionControlUnit.this.dataStackPointer++;
+			if (2 < operandLength) { // [0]はプレースホルダ、[1]は飛び先ラベルアドレス、なので[2]からが引数
+				throw new VnanoFatalException("CALL instructions with argument operands are no longer supported by the Accelerator.");
 			}
 
 			// 関数の先頭の命令に飛ぶ
@@ -305,12 +276,10 @@ public class InternalFunctionControlUnit extends AcceleratorExecutionUnit {
 			--InternalFunctionControlUnit.this.addressStackPointer;
 			int returnedPointAddress = InternalFunctionControlUnit.this.addressStack[ InternalFunctionControlUnit.this.addressStackPointer ];
 
-			// 戻り値をデータスタックに積む
-			if (InternalFunctionControlUnit.this.dataStackLength <= InternalFunctionControlUnit.this.dataStackPointer) {
-				InternalFunctionControlUnit.this.expandDataStack();
-			}
-			InternalFunctionControlUnit.this.dataStack[ InternalFunctionControlUnit.this.dataStackPointer ] = this.returnValueContainer;
-			InternalFunctionControlUnit.this.dataStackPointer++;
+			// 戻り値を caller に渡すために控える
+			// ( Acceleratorでは引数付きCALL命令は非対応になったので、データスタック上に存在し得るのは戻り値のみになり、
+			//   戻り値は積んで戻った直後に取り出されるので積まれても高々1個で、従ってスタックではなく普通の変数 returnValueStorage になった ）
+			InternalFunctionControlUnit.this.returnValueStorage = this.returnValueContainer;
 
 			// 再帰呼び出し検出用のマークを解除する
 			InternalFunctionControlUnit.this.functionRunningFlags[this.functionAddress] = false;
@@ -332,7 +301,7 @@ public class InternalFunctionControlUnit extends AcceleratorExecutionUnit {
 		@Override
 		public final AcceleratorExecutionNode execute() {
 			// 実引数と仮引数の仮想メモリアドレスは異なるため、
-			// 関数の引数を参照渡ししていた場合、関数内で引数の値が書き換わっても、
+			// 関数の引数を参照渡し (REF命令で転送) していた場合、関数内で引数の値が書き換わっても、
 			// 呼び出し側で実引数に渡したアドレスに紐づいているキャッシュはそれに気付かず更新されない。
 			// （仮想メモリ上のデータは、実引数と仮引数のアドレスのデータが参照リンクされるため更新される。）
 			// そのため、関数から戻ってきた時点で、仮想メモリの値を読んでキャッシュに反映させる必要がある。
@@ -362,7 +331,8 @@ public class InternalFunctionControlUnit extends AcceleratorExecutionUnit {
 
 		@Override
 		public final AcceleratorExecutionNode execute() {
-			DataContainer<?> src = InternalFunctionControlUnit.this.dataStack[ InternalFunctionControlUnit.this.dataStackPointer - 1 ];
+			// Acceleratorでは引数付きCALL命令は非対応になったので、スタック上にあるのは戻り値1個のみで、普通の変数 returnValueStorage になった
+			DataContainer<?> src = InternalFunctionControlUnit.this.returnValueStorage;
 			new ExecutionUnit().allocSameLengths(dataType, allocTargetContainer, src);
 			return this.nextNode;
 		}
@@ -381,7 +351,8 @@ public class InternalFunctionControlUnit extends AcceleratorExecutionUnit {
 
 		@Override
 		public final AcceleratorExecutionNode execute() {
-			--InternalFunctionControlUnit.this.dataStackPointer;
+			// Acceleratorでは引数付きCALL命令は非対応になったので、スタック上にあるのは戻り値1個のみで、普通の変数 returnValueStorage になった
+			InternalFunctionControlUnit.this.returnValueStorage = null;
 			return this.nextNode;
 		}
 	}
@@ -407,12 +378,17 @@ public class InternalFunctionControlUnit extends AcceleratorExecutionUnit {
 
 		@Override
 		public final AcceleratorExecutionNode execute() {
-			--InternalFunctionControlUnit.this.dataStackPointer;
-			DataContainer<?> src = InternalFunctionControlUnit.this.dataStack[ InternalFunctionControlUnit.this.dataStackPointer ];
+
+			// Acceleratorでは引数付きCALL命令は非対応になったので、スタック上にあるのは戻り値1個のみで、普通の変数 returnValueStorage になった
+			DataContainer<?> src = InternalFunctionControlUnit.this.returnValueStorage;
+			//DataContainer<?> src = InternalFunctionControlUnit.this.dataStack[ InternalFunctionControlUnit.this.dataStackPointer ];
+			InternalFunctionControlUnit.this.returnValueStorage = null;
+
+			// 取り出した値を dest へコピー
 			DataContainer<?> dest = this.operandContainers[0];
 			System.arraycopy(src.getData(), src.getOffset(), dest.getData(), dest.getOffset(), dest.getSize());
 
-			// スタックの値をメモリに書き込んだので、そのメモリの値でキャッシュも更新しておく
+			// 値をメモリに書き込んだので、そのメモリの値でキャッシュも更新しておく
 			synchronizer.synchronizeFromMemoryToCache();
 			return this.nextNode;
 		}
@@ -437,17 +413,21 @@ public class InternalFunctionControlUnit extends AcceleratorExecutionUnit {
 
 		@Override
 		public final AcceleratorExecutionNode execute() {
-			--InternalFunctionControlUnit.this.dataStackPointer;
+
+			// Acceleratorでは引数付きCALL命令は非対応になったので、スタック上にあるのは戻り値1個のみで、普通の変数 returnValueStorage になった
 			@SuppressWarnings("unchecked")
-			DataContainer<long[]> src = (DataContainer<long[]>)InternalFunctionControlUnit.this.dataStack[
-			        InternalFunctionControlUnit.this.dataStackPointer
-			];
+			DataContainer<long[]> src = (DataContainer<long[]>)InternalFunctionControlUnit.this.returnValueStorage;
+			// DataContainer<long[]> src = (DataContainer<long[]>)InternalFunctionControlUnit.this.dataStack[
+	        // 		InternalFunctionControlUnit.this.dataStackPointer
+			// ];
+			InternalFunctionControlUnit.this.returnValueStorage = null;
+
+			// 取り出した値を dest へコピー
 			@SuppressWarnings("unchecked")
 			DataContainer<long[]> dest = (DataContainer<long[]>)this.operandContainers[0];
-
 			dest.getData()[ dest.getOffset() ] = src.getData()[ src.getOffset() ];
 
-			// スタックの値をメモリに書き込んだので、そのメモリの値でキャッシュも更新しておく
+			// 値をメモリに書き込んだので、そのメモリの値でキャッシュも更新しておく
 			synchronizer.synchronizeFromMemoryToCache();
 			return this.nextNode;
 		}
@@ -472,17 +452,21 @@ public class InternalFunctionControlUnit extends AcceleratorExecutionUnit {
 
 		@Override
 		public final AcceleratorExecutionNode execute() {
-			--InternalFunctionControlUnit.this.dataStackPointer;
+
+			// Acceleratorでは引数付きCALL命令は非対応になったので、スタック上にあるのは戻り値1個のみで、普通の変数 returnValueStorage になった
 			@SuppressWarnings("unchecked")
-			DataContainer<double[]> src = (DataContainer<double[]>)InternalFunctionControlUnit.this.dataStack[
-			        InternalFunctionControlUnit.this.dataStackPointer
-			];
+			DataContainer<double[]> src = (DataContainer<double[]>)InternalFunctionControlUnit.this.returnValueStorage;
+			// DataContainer<double[]> src = (DataContainer<double[]>)InternalFunctionControlUnit.this.dataStack[
+	        // 		InternalFunctionControlUnit.this.dataStackPointer
+			// ];
+			InternalFunctionControlUnit.this.returnValueStorage = null;
+
+			// 取り出した値を dest へコピー
 			@SuppressWarnings("unchecked")
 			DataContainer<double[]> dest = (DataContainer<double[]>)this.operandContainers[0];
-
 			dest.getData()[ dest.getOffset() ] = src.getData()[ src.getOffset() ];
 
-			// スタックの値をメモリに書き込んだので、そのメモリの値でキャッシュも更新しておく
+			// 値をメモリに書き込んだので、そのメモリの値でキャッシュも更新しておく
 			synchronizer.synchronizeFromMemoryToCache();
 			return this.nextNode;
 		}
@@ -507,17 +491,21 @@ public class InternalFunctionControlUnit extends AcceleratorExecutionUnit {
 
 		@Override
 		public final AcceleratorExecutionNode execute() {
-			--InternalFunctionControlUnit.this.dataStackPointer;
+
+			// Acceleratorでは引数付きCALL命令は非対応になったので、スタック上にあるのは戻り値1個のみで、普通の変数 returnValueStorage になった
 			@SuppressWarnings("unchecked")
-			DataContainer<boolean[]> src = (DataContainer<boolean[]>)InternalFunctionControlUnit.this.dataStack[
-			        InternalFunctionControlUnit.this.dataStackPointer
-			];
+			DataContainer<boolean[]> src = (DataContainer<boolean[]>)InternalFunctionControlUnit.this.returnValueStorage;
+			// DataContainer<boolean[]> src = (DataContainer<boolean[]>)InternalFunctionControlUnit.this.dataStack[
+	        // 		InternalFunctionControlUnit.this.dataStackPointer
+			// ];
+			InternalFunctionControlUnit.this.returnValueStorage = null;
+
+			// 取り出した値を dest へコピー
 			@SuppressWarnings("unchecked")
 			DataContainer<boolean[]> dest = (DataContainer<boolean[]>)this.operandContainers[0];
-
 			dest.getData()[ dest.getOffset() ] = src.getData()[ src.getOffset() ];
 
-			// スタックの値をメモリに書き込んだので、そのメモリの値でキャッシュも更新しておく
+			// 値をメモリに書き込んだので、そのメモリの値でキャッシュも更新しておく
 			synchronizer.synchronizeFromMemoryToCache();
 			return this.nextNode;
 		}
@@ -538,12 +526,16 @@ public class InternalFunctionControlUnit extends AcceleratorExecutionUnit {
 
 		@Override
 		public final AcceleratorExecutionNode execute() {
-			--InternalFunctionControlUnit.this.dataStackPointer;
-			@SuppressWarnings("unchecked")
-			DataContainer<long[]> src = (DataContainer<long[]>)InternalFunctionControlUnit.this.dataStack[
-			        InternalFunctionControlUnit.this.dataStackPointer
-			];
 
+			// Acceleratorでは引数付きCALL命令は非対応になったので、スタック上にあるのは戻り値1個のみで、普通の変数 returnValueStorage になった
+			@SuppressWarnings("unchecked")
+			DataContainer<long[]> src = (DataContainer<long[]>)InternalFunctionControlUnit.this.returnValueStorage;
+			// DataContainer<long[]> src = (DataContainer<long[]>)InternalFunctionControlUnit.this.dataStack[
+	        // 		InternalFunctionControlUnit.this.dataStackPointer
+			// ];
+			InternalFunctionControlUnit.this.returnValueStorage = null;
+
+			// 取り出した値を dest へコピー
 			this.cache.value = src.getData()[ src.getOffset() ];
 
 			return this.nextNode;
@@ -565,12 +557,16 @@ public class InternalFunctionControlUnit extends AcceleratorExecutionUnit {
 
 		@Override
 		public final AcceleratorExecutionNode execute() {
-			--InternalFunctionControlUnit.this.dataStackPointer;
-			@SuppressWarnings("unchecked")
-			DataContainer<double[]> src = (DataContainer<double[]>)InternalFunctionControlUnit.this.dataStack[
-			        InternalFunctionControlUnit.this.dataStackPointer
-			];
 
+			// Acceleratorでは引数付きCALL命令は非対応になったので、スタック上にあるのは戻り値1個のみで、普通の変数 returnValueStorage になった
+			@SuppressWarnings("unchecked")
+			DataContainer<double[]> src = (DataContainer<double[]>)InternalFunctionControlUnit.this.returnValueStorage;
+			// DataContainer<double[]> src = (DataContainer<double[]>)InternalFunctionControlUnit.this.dataStack[
+	        // 		InternalFunctionControlUnit.this.dataStackPointer
+			// ];
+			InternalFunctionControlUnit.this.returnValueStorage = null;
+
+			// 取り出した値を dest へコピー
 			this.cache.value = src.getData()[ src.getOffset() ];
 
 			return this.nextNode;
@@ -592,12 +588,16 @@ public class InternalFunctionControlUnit extends AcceleratorExecutionUnit {
 
 		@Override
 		public final AcceleratorExecutionNode execute() {
-			--InternalFunctionControlUnit.this.dataStackPointer;
-			@SuppressWarnings("unchecked")
-			DataContainer<boolean[]> src = (DataContainer<boolean[]>)InternalFunctionControlUnit.this.dataStack[
-			        InternalFunctionControlUnit.this.dataStackPointer
-			];
 
+			// Acceleratorでは引数付きCALL命令は非対応になったので、スタック上にあるのは戻り値1個のみで、普通の変数 returnValueStorage になった
+			@SuppressWarnings("unchecked")
+			DataContainer<boolean[]> src = (DataContainer<boolean[]>)InternalFunctionControlUnit.this.returnValueStorage;
+			// DataContainer<boolean[]> src = (DataContainer<boolean[]>)InternalFunctionControlUnit.this.dataStack[
+	        // 		InternalFunctionControlUnit.this.dataStackPointer
+			// ];
+			InternalFunctionControlUnit.this.returnValueStorage = null;
+
+			// 取り出した値を dest へコピー
 			this.cache.value = src.getData()[ src.getOffset() ];
 
 			return this.nextNode;
@@ -627,10 +627,16 @@ public class InternalFunctionControlUnit extends AcceleratorExecutionUnit {
 		@SuppressWarnings("unchecked")
 		@Override
 		public final AcceleratorExecutionNode execute() {
-			--InternalFunctionControlUnit.this.dataStackPointer;
-			DataContainer<?> src = InternalFunctionControlUnit.this.dataStack[ InternalFunctionControlUnit.this.dataStackPointer ];
+
+			// Acceleratorでは引数付きCALL命令は非対応になったので、スタック上に積まれるのは戻り値1個のみで、普通の変数 returnValueStorage になった
+			DataContainer<?> src = (DataContainer<?>)InternalFunctionControlUnit.this.returnValueStorage;
+			// DataContainer<?> src = (DataContainer<?>)InternalFunctionControlUnit.this.dataStack[
+	        // 		InternalFunctionControlUnit.this.dataStackPointer
+			// ];
+			InternalFunctionControlUnit.this.returnValueStorage = null;
+
+			// 取り出した値を dest へコピー
 			DataContainer<?> dest = this.operandContainers[0];
-			//((DataContainer<Object>)dest).setData(src.getData(), src.getOffset());
 			( (DataContainer<Object>)dest ).refer( (DataContainer<Object>)src );
 
 			// スタックの値をメモリに書き込んだので、そのメモリの値でキャッシュも更新しておく
