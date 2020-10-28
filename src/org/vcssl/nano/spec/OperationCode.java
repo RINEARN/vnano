@@ -1652,6 +1652,46 @@ public enum OperationCode {
 
 
 	/**
+	 * <span class="lang-en">
+	 * The special instruction which is put at the end of the transfer part
+	 * between arguments and parameters in a function
+	 * </span>
+	 * <span class="lang-ja">関数における実引数-仮引数間の転送部の終端に置かれる特別な命令です</span>
+	 * .
+	 * <span class="lang-en">
+	 * The syntax in the VRIL code is as follows:
+	 * </span>
+	 * <span class="lang-ja">
+	 * VRILコード内での構文は以下の通りです：
+	 * </span>
+	 *
+	 * <div style="border: 1px solid #000000; margin:15px; padding:5px;">
+	 * ENDPRM type functionName
+	 * </div>
+	 *
+	 * <span class="lang-ja">
+	 * functionName には, 実行対象の関数の名称を指定します.
+	 * type には string を指定します.
+	 * </span>
+	 * <span class="lang-en">
+	 * Specify the identifier of the function to "functionName",
+	 * and specify "string" to "type".
+	 * </span>
+	 *
+	 * <span class="lang-ja">
+	 * この命令は, 実行されても何も起こりませんが, 最適化を補助する情報として有用です.
+	 * また, VRILコードの可読性の向上にも若干貢献します.
+	 * </span>
+	 * <span class="lang-en">
+	 * When this instruction is executed, nothing will occur,
+	 * but this instruction is useful as meta information for optimizations in the VM.
+	 * Also, this instruction improves readability of the VRIL code a little.
+	 * </span>
+	 */
+	ENDPRM,
+
+
+	/**
 	 * <span class="lang-en">The special instruction which is put at the end of code</span>
 	 * <span class="lang-ja">コード終端に置かれる特別な命令です</span>
 	 * .
