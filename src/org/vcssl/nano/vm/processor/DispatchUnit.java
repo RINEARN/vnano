@@ -394,7 +394,8 @@ public class DispatchUnit {
 				return -1; // この命令でコード実行は終了するので、プログラムカウンタを命令列の領域外に飛ばす（すると終了する）
 			}
 
-			case NOP : {
+			case NOP :
+			case ENDPRM : {
 				this.checkNumberOfOperands(instruction, 1);
 				return programCounter + 1;
 			}
