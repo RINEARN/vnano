@@ -1128,6 +1128,16 @@ public class CodeGenerator {
 			}
 		}
 
+		// 関数シグネチャを ENDPRM 命令（すぐ下で生成）のオペランドに渡すため、文字列の即値の記法で表現したものを用意
+		String functionNameOperand = ASSEMBLY_WORD.immediateOperandPrefix
+				+ DATA_TYPE_NAME.string + ASSEMBLY_WORD.valueSeparator
+				+ LITERAL_SYNTAX.stringLiteralQuot + IDENTIFIER_SYNTAX.getSignatureOf(node) + LITERAL_SYNTAX.stringLiteralQuot;
+
+		// 引数の取り出しが終わった箇所に ENDPRM 命令を置いておく（最適化補助と可読性に貢献するメタ情報命令）
+		codeBuilder.append(
+			this.generateInstruction(OperationCode.ENDPRM.name(), DATA_TYPE_NAME.string, functionNameOperand)
+		);
+
 		return codeBuilder.toString();
 	}
 
