@@ -4,7 +4,7 @@ import org.vcssl.nano.spec.OperationCode;
 import org.vcssl.nano.vm.memory.Memory;
 import org.vcssl.nano.vm.processor.Instruction;
 
-public class AcceleratorInstruction extends Instruction {
+public class AcceleratorInstruction extends Instruction implements Cloneable {
 
 	/** この命令を処理する {AcceleratorExecutionUnit AcceleratorExecutionUnit} を区別するために割りふられる分類タイプです。 */
 	private AcceleratorExecutionType acceleratorExecutionType = null;
@@ -30,6 +30,34 @@ public class AcceleratorInstruction extends Instruction {
 	/** 拡張命令（オペレーションコード EX）の処理内容を区別するための、拡張オペレーションコードを保持します。 */
 	private AcceleratorExtendedOperationCode extendedOperationCode = null;
 
+	@Override
+	public AcceleratorInstruction clone() {
+
+		// まず Instruction 型の範囲内でフィールドをディープコピーしたインスタンスを生成
+		Instruction clonedInstruction = super.clone();
+
+		// 上記を元に、このクラスのインスタンスを生成（この時点では、このクラスで拡張されたフィールド値は未コピー）
+		AcceleratorInstruction clonedAccelInstruction = new AcceleratorInstruction( clonedInstruction );
+
+		// このクラスで拡張されたフィールド値をコピー（配列はディープコピー）
+		clonedAccelInstruction.acceleratorExecutionType = this.acceleratorExecutionType;
+		clonedAccelInstruction.reorderedAddress = this.reorderedAddress;
+		clonedAccelInstruction.unreorderedAddress = this.unreorderedAddress;
+		clonedAccelInstruction.reorderedLabelAddress = this.reorderedLabelAddress;
+		clonedAccelInstruction.labelAddressReordered = this.labelAddressReordered;
+		clonedAccelInstruction.extendedOperationCode = this.extendedOperationCode;
+		if (this.fusedOperationCodes != null) {
+			int length = this.fusedOperationCodes.length;
+			clonedAccelInstruction.fusedOperationCodes = new OperationCode[ length ];
+			System.arraycopy(this.fusedOperationCodes, 0, clonedAccelInstruction.fusedOperationCodes, 0, length);
+		}
+		if (this.fusedInputOperandIndices != null) {
+			int length = this.fusedInputOperandIndices.length;
+			clonedAccelInstruction.fusedInputOperandIndices = new int[ length ];
+			System.arraycopy(this.fusedInputOperandIndices, 0, clonedAccelInstruction.fusedInputOperandIndices, 0, length);
+		}
+		return clonedAccelInstruction;
+	}
 
 	public AcceleratorInstruction(Instruction instruction) {
 		super(
@@ -37,6 +65,11 @@ public class AcceleratorInstruction extends Instruction {
 				instruction.getOperandPartitions(), instruction.getOperandAddresses(),
 				instruction.getMetaPartition(), instruction.getMetaAddress()
 		);
+	}
+
+	public AcceleratorInstruction(Instruction instruction, int unreorderedAddress) {
+		this(instruction);
+		this.unreorderedAddress = unreorderedAddress;
 	}
 
 

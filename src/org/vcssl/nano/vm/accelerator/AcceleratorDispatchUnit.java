@@ -18,7 +18,6 @@ import org.vcssl.nano.vm.processor.Processor;
 
 public class AcceleratorDispatchUnit {
 
-
 	// 命令列の内容を全て演算器に割り当て、演算を実行するための演算ノード（演算器内部に実装）の列を返す
 	public AcceleratorExecutionNode[] dispatch (
 			Processor processor, Memory memory, Interconnect interconnect,

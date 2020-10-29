@@ -7,6 +7,8 @@ package org.vcssl.nano.vm.accelerator;
 
 
 import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import org.vcssl.nano.VnanoException;
@@ -120,13 +122,28 @@ public class Accelerator {
 			monitorable = (Boolean)optionMap.get(OptionKey.PERFORMANCE_MONITOR_ENABLED); // 性能計測を行うかどうか
 		}
 
-		// スカラ判定やキャッシュ確保などの高速化用データ解析を実行
+		// スカラ判定やキャッシュ可能性判断などの高速化用データ解析を実行
+		// (命令列に操作を加える前に、最初に済ませる必要がある)
 		AcceleratorDataManagementUnit dataManager = new AcceleratorDataManagementUnit();
 		dataManager.allocate(instructions, memory, interconnect);
 
-		// 命令スケジューラで命令列を高速化用に再配置・変換
+		// 命令列を、Accelerator用に継承された型の命令列に変換
+		List<AcceleratorInstruction> acceleratorInstructionList = new ArrayList<AcceleratorInstruction>();
+		for (int instructionIndex=0; instructionIndex<instructions.length; instructionIndex++) {
+			acceleratorInstructionList.add( new AcceleratorInstruction(instructions[instructionIndex], instructionIndex) );
+		}
+		AcceleratorInstruction[] acceleratorInstructions = acceleratorInstructionList.toArray(new AcceleratorInstruction[0]);
+
+		// 命令の並び替えや削除、インライン展開などを行って、命令列を最適化する
+		// (複数命令の一括処理化は、最適化というよりも演算ユニット割り当てによる効率化なので、ここではなく後のスケジューラが行う)
+		AcceleratorOptimizationUnit optimizer = new AcceleratorOptimizationUnit();
+		acceleratorInstructions = optimizer.optimize(acceleratorInstructions, memory, dataManager);
+
+		// 命令スケジューラで、演算ユニットへの割り当て判断を行い、結果を各命令に設定したものを取得
+		// (この処理に伴い、連続する複数命令を1ユニットで一括処理できると判断された箇所は、単一の拡張命令に置き換えられる)
 		AcceleratorSchedulingUnit scheduler = new AcceleratorSchedulingUnit();
-		AcceleratorInstruction[] acceleratorInstructions = scheduler.schedule(instructions, memory, dataManager);
+		acceleratorInstructions = scheduler.schedule(acceleratorInstructions, memory, dataManager);
+
 
 		// 変換後の命令列をダンプ
 		if (shouldDump && (dumpTargetIsAll || dumpTarget.equals(OptionValue.DUMPER_TARGET_ACCELERATOR_CODE)) ) {
