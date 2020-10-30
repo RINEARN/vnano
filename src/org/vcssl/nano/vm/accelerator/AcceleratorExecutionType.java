@@ -35,6 +35,10 @@ public enum AcceleratorExecutionType {
 	BCS_TRANSFER,   // BoolCachedScalarTransfer
 	BVS_TRANSFER,   // BoolVectorFromScalarTransfer
 
+	F64CS_MULTIPLE_TRANSFER, // Float64CachedScalarMultipleTransfer
+	I64CS_MULTIPLE_TRANSFER, // Int64CachedScalarMultipleTransfer
+	BCS_MULTIPLE_TRANSFER,   // BoolCachedScalarMultipleTransfer
+
 	I64S_SUBSCRIPT,  // Int64ScalarSubscript
 	I64CS_SUBSCRIPT, // Int64CachedScalarSubscript
 	F64S_SUBSCRIPT,  // Float64ScalarSubscript

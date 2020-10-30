@@ -260,6 +260,11 @@ public class AcceleratorDispatchUnit {
 					instruction, operandContainers, operandCaches, operandCachingEnabled, operandScalar, operandConstant, nextNode
 				);
 			}
+			case I64CS_MULTIPLE_TRANSFER : {
+				return new Int64CachedScalarMultipleTransferUnit().generateNode(
+					instruction, operandContainers, operandCaches, operandCachingEnabled, operandScalar, operandConstant, nextNode
+				);
+			}
 
 			case F64V_TRANSFER : {
 				return new Float64VectorTransferUnit().generateNode(
@@ -281,6 +286,12 @@ public class AcceleratorDispatchUnit {
 					instruction, operandContainers, operandCaches, operandCachingEnabled, operandScalar, operandConstant, nextNode
 				);
 			}
+			case F64CS_MULTIPLE_TRANSFER : {
+				return new Float64CachedScalarMultipleTransferUnit().generateNode(
+					instruction, operandContainers, operandCaches, operandCachingEnabled, operandScalar, operandConstant, nextNode
+				);
+			}
+
 
 			case BV_TRANSFER : {
 				return new BoolVectorTransferUnit().generateNode(
@@ -302,6 +313,12 @@ public class AcceleratorDispatchUnit {
 					instruction, operandContainers, operandCaches, operandCachingEnabled, operandScalar, operandConstant, nextNode
 				);
 			}
+			case BCS_MULTIPLE_TRANSFER : {
+				return new BoolCachedScalarMultipleTransferUnit().generateNode(
+					instruction, operandContainers, operandCaches, operandCachingEnabled, operandScalar, operandConstant, nextNode
+				);
+			}
+
 
 
 			// 配列要素アクセス

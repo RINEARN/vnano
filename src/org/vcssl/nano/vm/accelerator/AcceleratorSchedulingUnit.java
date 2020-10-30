@@ -10,12 +10,14 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.vcssl.nano.VnanoFatalException;
 import org.vcssl.nano.spec.DataType;
 import org.vcssl.nano.spec.OperationCode;
 import org.vcssl.nano.vm.memory.DataContainer;
 import org.vcssl.nano.vm.memory.Memory;
+import org.vcssl.nano.vm.processor.Instruction;
 
 public class AcceleratorSchedulingUnit {
 
@@ -51,6 +53,9 @@ public class AcceleratorSchedulingUnit {
 		this.fuseArithmeticInstructions( // Int64 Cached-Scalar Arithmetic
 				AcceleratorExecutionType.I64CS_ARITHMETIC, AcceleratorExecutionType.I64CS_DUAL_ARITHMETIC
 		);
+
+		// 連続する転送命令を融合させて1個の拡張命令に置き換える
+		this.fuseTransferInstructions();
 
 		// 最新の（再配列後の）命令アドレスを設定し、新旧の対応を保持するマップを更新
 		// -> このあたりの処理は AcceleratorOptimizationUnit と重複しているので、きりのいい時になんとかしたい
@@ -519,7 +524,7 @@ public class AcceleratorSchedulingUnit {
 			AcceleratorExecutionType fromAccelerationType, AcceleratorExecutionType toAccelerationType) {
 
 		int instructionLength = this.acceleratorInstructionList.size();
-		for (int instructionIndex=0; instructionIndex<instructionLength-1; instructionIndex++) { // 後でイテレータ使うループにする
+		for (int instructionIndex=0; instructionIndex<instructionLength-1; instructionIndex++) {
 
 			AcceleratorInstruction currentInstruction = this.acceleratorInstructionList.get(instructionIndex);
 			AcceleratorInstruction nextInstruction = this.acceleratorInstructionList.get(instructionIndex+1);
@@ -599,5 +604,134 @@ public class AcceleratorSchedulingUnit {
 
 		// リスト内で空いた要素（上でnullを置いている）を削除して詰める
 		this.acceleratorInstructionList.removeAll(LIST_OF_NULL);
+	}
+
+
+	// 連続する転送命令を融合させて1つの拡張命令にする
+	private void fuseTransferInstructions() {
+
+		// 元の命令列 ( this.acceleratorInstructionList ) を読みながら、必要に応じて拡張命令への置き換えを行いつつ、
+		// このリストに積んでいき、最後に this.acceleratorInstructionList をこれで置き換える
+		List<AcceleratorInstruction> resultInstructionList = new ArrayList<AcceleratorInstruction>();
+
+		// 元の命令列 ( this.acceleratorInstructionList ) を読みながら、融合対象になり得る転送命令を一時的に溜めておくバッファ
+		// (コード内の連続転送領域の終わりや、溜めている数が一括転送のMAX個数になったタイミングで、一括転送する拡張命令を生成する)
+		List<AcceleratorInstruction> transferInstructionBuffer = new ArrayList<AcceleratorInstruction>();
+
+		// データ型の異なるデータ転送は融合できないので、最後にバッファに詰めた転送データ型をこれに控えて、変化点の検出などに使う
+		DataType lastTransferDataType = null;
+
+		// 一括転送ユニットで対応しているオペランドセット、および一括演算可能な最大命令数を取得
+		Set<OperationCode> float64FusibleOpcodeSet = Float64CachedScalarMultipleTransferUnit.AVAILABLE_OPERAND_SET;
+		Set<OperationCode> int64FusibleOpcodeSet = Int64CachedScalarMultipleTransferUnit.AVAILABLE_OPERAND_SET;
+		Set<OperationCode> boolFusibleOpcodeSet = BoolCachedScalarMultipleTransferUnit.AVAILABLE_OPERAND_SET;
+		int float64MaxFusibleCount = Float64CachedScalarMultipleTransferUnit.MAX_AVAILABLE_TRANSFER_COUNT;
+		int int64MaxFusibleCount = Int64CachedScalarMultipleTransferUnit.MAX_AVAILABLE_TRANSFER_COUNT;
+		int boolMaxFusibleCount = BoolCachedScalarMultipleTransferUnit.MAX_AVAILABLE_TRANSFER_COUNT;
+
+		for (AcceleratorInstruction instruction: this.acceleratorInstructionList) {
+			AcceleratorExecutionType accelType = instruction.getAccelerationType();
+			OperationCode opcode = instruction.getOperationCode();
+
+			// 融合可能な命令かどうか（一括処理できる演算ユニットがあるかどうか）を判断
+			boolean isFloat64Fusible = (accelType == AcceleratorExecutionType.F64CS_TRANSFER) && float64FusibleOpcodeSet.contains(opcode);
+			boolean isInt64Fusible = (accelType == AcceleratorExecutionType.I64CS_TRANSFER) && int64FusibleOpcodeSet.contains(opcode);
+			boolean isBoolFusible = (accelType == AcceleratorExecutionType.BCS_TRANSFER) && boolFusibleOpcodeSet.contains(opcode);
+			boolean isFusible = isFloat64Fusible || isInt64Fusible || isBoolFusible;
+
+			// バッファしている命令数が、一括演算可能な上限数に達しているかを判断
+			int bufferedCount = transferInstructionBuffer.size();
+			boolean isFloat64FusibleCapacifyFull = lastTransferDataType == DataType.FLOAT64 && bufferedCount == float64MaxFusibleCount;
+			boolean isInt64FusibleCapacifyFull = lastTransferDataType == DataType.INT64 && (bufferedCount == int64MaxFusibleCount);
+			boolean isBoolFusibleCapacityFull = lastTransferDataType == DataType.BOOL && (bufferedCount == boolMaxFusibleCount);
+			boolean isFusibleCapacityFull = isFloat64FusibleCapacifyFull || isInt64FusibleCapacifyFull || isBoolFusibleCapacityFull;
+
+			// 以下の条件が満たされた瞬間に、まずバッファ内の転送命令列を融合＆拡張命令に変換して出力し、一旦バッファを空にしておく
+			// ・一括転送対象ではない命令が来た場合
+			// ・一括転送対象の命令が来た場合でも、バッファ内の命令とデータ型が異なる場合
+			// ・バッファ内の命令数が、一括処理可能な上限数に達した場合
+			if (!isFusible || instruction.getDataTypes()[0] != lastTransferDataType || isFusibleCapacityFull) {
+				if (transferInstructionBuffer.size() != 0) {
+					resultInstructionList.add( this.toFusedTransferInstruction(transferInstructionBuffer) );
+					transferInstructionBuffer.clear();
+				}
+			}
+
+			// 一括転送対象にできる命令なら、変換結果の命令列には積まずにバッファに溜める
+			if (isFusible) {
+				transferInstructionBuffer.add(instruction);
+				lastTransferDataType = instruction.getDataTypes()[0];
+
+			// それ以外の命令はそのまま変換結果の命令列に積む
+			} else {
+				resultInstructionList.add(instruction);
+			}
+		}
+
+		// バッファ内に最後まで溜まったまま出力タイミングが来なかった転送命令列を、拡張命令に変換して出力
+		if (transferInstructionBuffer.size() != 0) {
+			resultInstructionList.add( this.toFusedTransferInstruction(transferInstructionBuffer) );
+			transferInstructionBuffer.clear();
+		}
+
+		this.acceleratorInstructionList = resultInstructionList;
+	}
+
+	// 複数の転送命令を融合した単一の拡張命令にして返す
+	//（処理可能な演算ユニットが存在する事や、データ型が揃っている事などは、呼び出し側で確認済みである事を前提とする）
+	private AcceleratorInstruction toFusedTransferInstruction(List<AcceleratorInstruction> transferInstructionList) {
+		int transferCount = transferInstructionList.size(); // 連続する転送命令の個数
+
+		// 0個の場合は呼び出し側がおかしい
+		if (transferCount == 0) {
+			throw new VnanoFatalException( "The passed transfer instruction list for fusing is empty." );
+		}
+
+		// 1個だけの場合はそのまま返す
+		if (transferCount == 1) {
+			return transferInstructionList.get(0);
+		}
+
+		// 以下、複数の転送命令を融合させた拡張命令を生成する
+		// -> このあたりは AcceleratorInstruction の fuse メソッドを拡張してそちらを使うようにした方がいいかもしれない。後々で要検討
+
+		// 元の転送命令の dest と src を交互に並べた、拡張命令用のオペランド配列を用意
+		Memory.Partition[] fusedOperandParts = new Memory.Partition[ transferCount * 2 ]; // dest & src のペアが transferCount 個あるので *2
+		int[] fusedOperandAddrs = new int[ transferCount * 2 ];
+		int fusedOperandPointer = 0;
+		for (AcceleratorInstruction instruction: transferInstructionList) {
+			System.arraycopy(instruction.getOperandPartitions(), 0, fusedOperandParts, fusedOperandPointer, 2);
+			System.arraycopy(instruction.getOperandAddresses(),  0, fusedOperandAddrs, fusedOperandPointer, 2);
+			fusedOperandPointer += 2;
+		}
+
+		// 融合する命令のオペレーションコードを配列にまとめる（拡張命令に情報として持たせる必要がある）
+		OperationCode[] fusedOpcodes = new OperationCode[transferCount];
+		for (int instructionIndex=0; instructionIndex<transferCount; instructionIndex++) {
+			fusedOpcodes[instructionIndex] = transferInstructionList.get(instructionIndex).getOperationCode();
+		}
+
+		// 先頭の転送命令から、データ型やメタ情報などを流用する
+		AcceleratorInstruction firstTransferInstruction = transferInstructionList.get(0);
+
+		// 拡張命令を生成し、それを Accelerator 用の継承型に変換
+		Instruction fusedInstruction = new Instruction(
+			OperationCode.EX, firstTransferInstruction.getDataTypes(),
+			fusedOperandParts, fusedOperandAddrs,
+			firstTransferInstruction.getMetaPartition(), firstTransferInstruction.getMetaAddress()
+		);
+
+		// 必要な情報を登録
+		AcceleratorInstruction fusedAccelInstruction = new AcceleratorInstruction(fusedInstruction);
+		fusedAccelInstruction.setUnreorderedAddress(firstTransferInstruction.getUnreorderedAddress());
+		fusedAccelInstruction.setFusedOperationCodes(fusedOpcodes);
+		switch(firstTransferInstruction.getDataTypes()[0]) {
+			case INT64:   fusedAccelInstruction.setAccelerationType(AcceleratorExecutionType.I64CS_MULTIPLE_TRANSFER); break;
+			case FLOAT64: fusedAccelInstruction.setAccelerationType(AcceleratorExecutionType.F64CS_MULTIPLE_TRANSFER); break;
+			case BOOL:    fusedAccelInstruction.setAccelerationType(AcceleratorExecutionType.BCS_MULTIPLE_TRANSFER); break;
+			default: throw new VnanoFatalException("Infusible data type detected: " + firstTransferInstruction.getDataTypes()[0]);
+		}
+
+		return fusedAccelInstruction;
 	}
 }
