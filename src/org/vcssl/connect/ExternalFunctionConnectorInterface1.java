@@ -124,6 +124,20 @@ public interface ExternalFunctionConnectorInterface1 {
 
 
 	/**
+	 * データの自動変換を無効化している場合
+	 * ({@link ExternalFunctionConnectorInterface1#isDataConversionNecessary()} が false を返す場合)
+	 * において、各仮引数のデータのやり取りに使用するデータコンテナの型を表す、Class配列を取得します。
+	 *
+	 * ただし、どのようなデータコンテナが使用可能かは、処理系の種類や世代に依存します。
+	 * サポートされていないデータコンテナの型を返した場合は、接続時や実行開始時、
+	 * または関数処理の呼び出し時（処理系依存）にエラーとして検出され、例外が発生します。
+	 *
+	 * @return 各仮引数のデータのやり取りに使用するデータコンテナの型を表すClass配列
+	 */
+	public abstract Class<?>[] getParameterUnconvertedClasses();
+
+
+	/**
 	 * 全ての仮引数において、データ型が可変であるかどうかを格納する配列を返します。
 	 *
 	 * @return 各仮引数のデータ型が可変であるかどうかを格納する配列
@@ -237,6 +251,25 @@ public interface ExternalFunctionConnectorInterface1 {
 	 * @return 戻り値のデータ型のClassインスタンス
 	 */
 	public abstract Class<?> getReturnClass(Class<?>[] parameterClasses);
+
+
+	/**
+	 * データの自動変換を無効化している場合
+	 * ({@link ExternalFunctionConnectorInterface1#isDataConversionNecessary()} が false を返す場合)
+	 * において、戻り値のやり取りに使用するデータコンテナの型を表すClassインスタンスを取得します。
+	 *
+	 * ただし、どのようなデータコンテナが使用可能かは、処理系の種類や世代に依存します。
+	 * サポートされていないデータコンテナの型を返した場合は、接続時や実行開始時、
+	 * または関数処理の呼び出し時（処理系依存）にエラーとして検出され、例外が発生します。
+	 *
+	 * parameterClasses には、スクリプト内での呼び出しにおける、引数のデータ型情報が渡されます。
+	 * これにより、引数の型によって戻り値の型が異なるだけの、
+	 * 複数の関数に相当する処理を、まとめて提供する事ができます。
+	 *
+	 * @param parameterClasses 全引数のデータ型のClassインスタンスを格納する配列
+	 * @return 戻り値のやり取りに使用するデータコンテナの型を表すClassインスタンス
+	 */
+	public abstract Class<?> getReturnUnconvertedClass(Class<?>[] parameterClasses);
 
 
 	/**

@@ -81,11 +81,61 @@ public interface ExternalVariableConnectorInterface1 {
 
 
 	/**
+	 * データの自動変換を無効化している場合
+	 * ({@link ExternalFunctionConnectorInterface1#isDataConversionNecessary()} が false を返す場合)
+	 * において、データのやり取りに使用するデータコンテナの型を表すClassインスタンスを取得します。
+	 *
+	 * ただし、どのようなデータコンテナが使用可能かは、処理系の種類や世代に依存します。
+	 * サポートされていないデータコンテナの型を返した場合は、接続時や実行開始時、
+	 * または値へのアクセス時（処理系依存）にエラーとして検出され、例外が発生します。
+	 *
+	 * @return データのやり取りに使用するデータコンテナの型を表すClassインスタンス
+	 */
+	public abstract Class<?> getDataUnconvertedClass();
+
+
+	/**
 	 * 書き換え不可能な定数であるかどうかを判定します。
 	 *
 	 * @return 定数であればtrue
 	 */
 	public abstract boolean isConstant();
+
+
+	/**
+	 * この変数が、別の変数の参照であるかどうかを返します。
+	 *
+	 * 現在の処理系では、この機能は言語仕様においてサポートされていませんが、
+	 * 将来的な拡張の可能性を考慮して、予約的に宣言されています。
+	 * サポートされた際の互換問題を避けるため、現状では常に false を返すよう実装する事が推奨されます。
+	 *
+	 * @return 参照であれば true
+	 */
+	public abstract boolean isReference();
+
+
+	/**
+	 * データ型が可変であるかどうかを返します。
+	 *
+	 * 現在の処理系では、この機能は言語仕様においてサポートされていませんが、
+	 * 将来的な拡張の可能性を考慮して、予約的に宣言されています。
+	 * サポートされた際の互換問題を避けるため、現状では常に false を返すよう実装する事が推奨されます。
+	 *
+	 * @return データ型が可変であれば true
+	 */
+	public abstract boolean isDataClassArbitrary();
+
+
+	/**
+	 * 配列次元数が可変であるかどうかを返します。
+	 *
+	 * 現在の処理系では、この機能は言語仕様においてサポートされていませんが、
+	 * 将来的な拡張の可能性を考慮して、予約的に宣言されています。
+	 * サポートされた際の互換問題を避けるため、現状では常に false を返すよう実装する事が推奨されます。
+	 *
+	 * @return 配列次元数が可変であれば true
+	 */
+	public abstract boolean isDataRankArbitrary();
 
 
 	/**
