@@ -1,6 +1,6 @@
 /*
  * ==================================================
- * Array Data Container Interface 1 (ADCI 1)
+ * Array Data Accessor Interface 1 (ADAI 1)
  * ( for VCSSL / Vnano Plug-in Development )
  * --------------------------------------------------
  * This file is released under CC0.
@@ -12,7 +12,8 @@ package org.vcssl.connect;
 
 /**
  * <p>
- * ADCI 1 (Array Data Container Interface 1) 形式のデータコンテナ・インターフェースです。
+ * 主に処理系のデータコンテナが実装してサポートする、
+ * ADAI 1 (Array Data Accessor Interface 1) 形式のデータ入出力インターフェースです。
  * </p>
  *
  * <p>
@@ -68,11 +69,11 @@ package org.vcssl.connect;
  * @param <T> 保持するデータの型
  * @author RINEARN (Fumihiro Matsui)
  */
-public interface ArrayDataContainerInterface1<T> {
+public interface ArrayDataAccessorInterface1<T> {
 
 
-	/** 動的ロード時などに処理系側から参照される、インターフェースの形式名（値は"ADCI"）です。*/
-	public static final String INTERFACE_TYPE = "ADCI";
+	/** 動的ロード時などに処理系側から参照される、インターフェースの形式名（値は"ADAI"）です。*/
+	public static final String INTERFACE_TYPE = "ADAI";
 
 	/** 動的ロード時などに処理系側から参照される、インターフェースの世代名（値は"1"）です。*/
 	public static final String INTERFACE_GENERATION = "1";
@@ -130,7 +131,7 @@ public interface ArrayDataContainerInterface1<T> {
 	 * 多次元配列は、右端次元の要素が連続的に並ぶように1次元化されます。
 	 * スカラは、要素数1の配列として返されるか、
 	 * またはより大きな配列のどこかに格納した上で返され、後者の場合は
-	 * {@link ArrayDataContainerInterface1#getOffset getOffset}
+	 * {@link ArrayDataAccessorInterface1#getOffset getOffset}
 	 * メソッドでそのインデックスを取得できます。
 	 *
 	 * @return 格納されているデータ（1次元配列）
@@ -154,7 +155,7 @@ public interface ArrayDataContainerInterface1<T> {
 	 *
 	 * なお、データコンテナが保持する設定値の組み合わせが、瞬間的にでも不整合な状態になる事を防ぐため、
 	 * オフセット値のみを設定するメソッドは提供されません。
-	 * 設定したい場合は {@link ArrayDataContainerInterface1#setData(Object, int, int[]) setData(T, int, int[]) }
+	 * 設定したい場合は {@link ArrayDataAccessorInterface1#setData(Object, int, int[]) setData(T, int, int[]) }
 	 * メソッドを使用して、データと共に設定してください。
 	 *
 	 * @return スカラデータの配列内位置を示すオフセット値
@@ -167,7 +168,7 @@ public interface ArrayDataContainerInterface1<T> {
 	 *
 	 * なお、データコンテナが保持する設定値の組み合わせが、瞬間的にでも不整合な状態になる事を防ぐため、
 	 * 次元ごとの長さのみを設定するメソッドは提供されません。
-	 * 設定したい場合は {@link ArrayDataContainerInterface1#setData(Object, int, int[]) setData(T, int, int[]) }
+	 * 設定したい場合は {@link ArrayDataAccessorInterface1#setData(Object, int, int[]) setData(T, int, int[]) }
 	 * メソッドを使用して、データと共に設定してください。
 	 *
 	 * @return 各次元ごとの長さを格納する配列（次元長配列）
@@ -180,11 +181,11 @@ public interface ArrayDataContainerInterface1<T> {
 	 *
 	 * ここでのサイズとは、多次元配列における総要素数の事です。
 	 * 具体的には、データがスカラではない場合には、サイズは
-	 * {@link ArrayDataContainerInterface1#getLengths getLengths}
+	 * {@link ArrayDataAccessorInterface1#getLengths getLengths}
 	 * メソッドで取得できる次元長配列の、全要素の積に一致します。
 	 *
 	 * データがスカラである場合には、サイズは常に 1 となります。
-	 * 仮に {@link ArrayDataContainerInterface1#getData getData}
+	 * 仮に {@link ArrayDataAccessorInterface1#getData getData}
 	 * メソッドで取得したデータの配列の要素数が 1 よりも大きく
 	 * その配列内に要素として（オフセット値で指定される位置に）
 	 * スカラ値が格納されている場合でも、
@@ -192,7 +193,7 @@ public interface ArrayDataContainerInterface1<T> {
 	 *
 	 * サイズとデータの要素数を独立に設定する事はできないため、
 	 * サイズの setter はありません。
-	 * 設定したい場合は {@link ArrayDataContainerInterface1#setData(Object, int, int[]) setData(T, int, int[]) }
+	 * 設定したい場合は {@link ArrayDataAccessorInterface1#setData(Object, int, int[]) setData(T, int, int[]) }
 	 * メソッドなどを使用して、データおよび次元ごとの長さ情報と共に設定してください。
 	 *
 	 * @return サイズ
@@ -203,12 +204,12 @@ public interface ArrayDataContainerInterface1<T> {
 	/**
 	 * 多次元配列の次元数（次元の総数）を取得します。
 	 *
-	 * 具体的には、{@link ArrayDataContainerInterface1#getLengths getLengths}
+	 * 具体的には、{@link ArrayDataAccessorInterface1#getLengths getLengths}
 	 * メソッドで取得できる次元長配列の、要素数に一致します。
 	 *
 	 * 次元数と、次元ごとの長さを独立に設定する事はできないため、
 	 * 次元数の setter はありません。
-	 * 設定したい場合は {@link ArrayDataContainerInterface1#setData(Object, int, int[]) setData(T, int, int[]) }
+	 * 設定したい場合は {@link ArrayDataAccessorInterface1#setData(Object, int, int[]) setData(T, int, int[]) }
 	 * メソッドなどを使用して、データおよび次元ごとの長さ情報と共に設定してください。
 	 *
 	 * @return 次元数

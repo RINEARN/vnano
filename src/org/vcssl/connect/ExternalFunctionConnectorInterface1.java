@@ -48,7 +48,7 @@ package org.vcssl.connect;
  * 関数呼び出しのオーバーヘッドを軽減する機能などもサポートされています
  * (詳細は {@link ExternalFunctionConnectorInterface1#isDataConversionNecessary isDataConversionNecessary}
  * メソッドおよび
- * {@link ArrayDataContainerInterface1 ArrayDataContainerInterface1} クラスを参照してください)。
+ * {@link ArrayDataAccessorInterface1 ArrayDataAccessorInterface1} クラスを参照してください)。
  * </p>
  *
  * <p>
@@ -284,7 +284,7 @@ public interface ExternalFunctionConnectorInterface1 {
 	 * 逆に、メソッドがfalseを返すようにプラグインを実装すると、
 	 * 処理系側ではデータの変換は行われず、上述のような場面においては、
 	 * 処理系依存のデータコンテナ
-	 * （{@link ArrayDataContainerInterface1 ArrayDataContainerInterface1} 参照）
+	 * （{@link ArrayDataAccessorInterface1 ArrayDataAccessorInterface1} 参照）
 	 * を直接やり取りするようになります。
 	 *
 	 * データの自動変換を利用すると、プラグインの実装が容易になりますが、

@@ -7,7 +7,7 @@ package org.vcssl.nano.vm.memory;
 
 import java.util.HashMap;
 
-import org.vcssl.connect.ArrayDataContainerInterface1;
+import org.vcssl.connect.ArrayDataAccessorInterface1;
 import org.vcssl.nano.spec.DataType;
 
 
@@ -119,21 +119,21 @@ import org.vcssl.nano.spec.DataType;
  * <p>
  * このデータコンテナは、外部変数・外部関数プラグインとVnano処理系内との間で、
  * オーバーヘッドの無いデータの受け渡しをサポートするため、
- * {@link org.vcssl.connect.ArrayDataContainerInterface1 ADCI 1}
+ * {@link org.vcssl.connect.ArrayDataAccessorInterface1 ADAI 1}
  * 形式のデータコンテナ・インターフェースを実装しています。
  * {@link org.vcssl.connect.ExternalVariableConnectorInterface1 XVCI 1} 形式や
  * {@link org.vcssl.connect.ExternalFunctionConnectorInterface1 XFCI 1} 形式のプラグインにおいて、
  * 自動データ変換機能を無効化した上でVnano処理系に接続した場合、
  * このデータコンテナが無変換で直接受け渡しされるようになります。
  * プラグイン側において、処理系の実装への依存度を抑えたい場合、
- * {@link org.vcssl.connect.ArrayDataContainerInterface1 ADCI 1}
+ * {@link org.vcssl.connect.ArrayDataAccessorInterface1 ADAI 1}
  * のインターフェースに定義されたメソッドを通してアクセスする事ができます。
  * </p>
  *
  * @param <T> 保持するデータの型
  * @author RINEARN (Fumihiro Matsui)
  */
-public class DataContainer<T> implements ArrayDataContainerInterface1<T> {
+public class DataContainer<T> implements ArrayDataAccessorInterface1<T> {
 
 	/** スカラデータを格納する場合における、多次元配列としての次元数（値は0）です。*/
 	public static final int   SCALAR_RANK = 0;

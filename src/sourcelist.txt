@@ -1,4 +1,4 @@
-org/vcssl/connect/ArrayDataContainerInterface1.java
+org/vcssl/connect/ArrayDataAccessorInterface1.java
 org/vcssl/connect/ClassToXnci1Adapter.java
 org/vcssl/connect/ConnectorException.java
 org/vcssl/connect/ConnectorImplementationContainer.java

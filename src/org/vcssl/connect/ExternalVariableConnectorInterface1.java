@@ -151,7 +151,7 @@ public interface ExternalVariableConnectorInterface1 {
 	 * 逆に、メソッドがfalseを返すようにプラグインを実装すると、
 	 * 処理系側ではデータの変換は行われず、上述のような場面においては、
 	 * 処理系依存のデータコンテナ
-	 * （{@link org.vcssl.connect.ArrayDataContainerInterface1 ArrayDataContainerInterface1} 参照）
+	 * （{@link org.vcssl.connect.ArrayDataAccessorInterface1 ArrayDataAccessorInterface1} 参照）
 	 * を直接やり取りするようになります。
 	 *
 	 * データの自動変換を利用すると、プラグインの実装が容易になりますが、
