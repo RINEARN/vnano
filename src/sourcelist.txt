@@ -1,4 +1,5 @@
 org/vcssl/connect/ArrayDataAccessorInterface1.java
+org/vcssl/connect/BoolScalarDataAccessorInterface1.java
 org/vcssl/connect/ClassToXnci1Adapter.java
 org/vcssl/connect/ConnectorException.java
 org/vcssl/connect/ConnectorImplementationContainer.java
@@ -10,12 +11,15 @@ org/vcssl/connect/ExternalFunctionConnectorInterface1.java
 org/vcssl/connect/ExternalNamespaceConnectorInterface1.java
 org/vcssl/connect/ExternalVariableConnectorInterface1.java
 org/vcssl/connect/FieldToXvci1Adapter.java
+org/vcssl/connect/Float64ScalarDataAccessorInterface1.java
 org/vcssl/connect/GeneralProcessConnectorInterface1.java
 org/vcssl/connect/GeneralProcessConnectorInterface2.java
 org/vcssl/connect/GeneralProcessConnectorInterface3.java
+org/vcssl/connect/Int64ScalarDataAccessorInterface1.java
 org/vcssl/connect/MethodToXfci1Adapter.java
 org/vcssl/connect/package-info.java
 org/vcssl/connect/PermissionAuthorizerConnectorInterface1.java
+org/vcssl/connect/StringScalarDataAccessorInterface1.java
 org/vcssl/nano/combinedtest/BlockStatementCombinedTest.java
 org/vcssl/nano/combinedtest/CombinedTestElement.java
 org/vcssl/nano/combinedtest/CombinedTestException.java
