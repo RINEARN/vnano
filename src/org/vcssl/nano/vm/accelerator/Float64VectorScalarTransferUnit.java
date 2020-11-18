@@ -57,10 +57,10 @@ public class Float64VectorScalarTransferUnit extends AcceleratorExecutionUnit {
 
 		public final AcceleratorExecutionNode execute() {
 			this.synchronizer.synchronizeFromCacheToMemory();
-			double value = this.container1.getData()[ this.container1.getOffset() ];
-			int from = container0.getOffset();
-			int to = from + container0.getSize(); // to-1 まで書き込まれ、to の要素には書き込まれない
-			Arrays.fill(this.container0.getData(), from, to, value);
+			double value = this.container1.getArrayData()[ this.container1.getArrayOffset() ];
+			int from = container0.getArrayOffset();
+			int to = from + container0.getArraySize(); // to-1 まで書き込まれ、to の要素には書き込まれない
+			Arrays.fill(this.container0.getArrayData(), from, to, value);
 			this.synchronizer.synchronizeFromMemoryToCache();
 			return this.nextNode;
 		}

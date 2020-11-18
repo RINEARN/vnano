@@ -32,9 +32,9 @@ import org.vcssl.nano.spec.DataType;
  * ただし内部では、多次元配列データは右端次元の要素が連続的に並ぶ形式で1次元化した上で
  * {@link DataContainer#data data} フィールドに保持されます。
  * オーバーヘッドを避けるため、このデータコンテナ側において次元変換などは一切行われないため、
- * 格納データを設定する {@link DataContainer#setData setData}
+ * 格納データを設定する {@link DataContainer#setArrayData(Object, int, int[]) setArrayData(Object,int,int[])}
  * メソッドには、上記のように1次元化した配列を設定する必要があります。
- * 格納データを取得する {@link DataContainer#getData getData} メソッドも、
+ * 格納データを取得する {@link DataContainer#getArrayData getArrayData()} メソッドも、
  * 1次元化された配列を返します。
  * これらの getter / setter は、{@link DataContainer#data data} フィールドをそのまま設定・取得します。
  * コピーやアライメント調整などは行われません。
@@ -44,13 +44,13 @@ import org.vcssl.nano.spec.DataType;
  * 1次元化されたデータが、多次元配列のどの要素に対応するかを計算で求めるためには、
  * 多次元配列の各次元ごとの長さ（次元長）が必要ですが、
  * それは {@link DataContainer#lengths lengths} フィールドに保持され、
- * {@link DataContainer#getLengths getLengths} メソッドによって取得できます
+ * {@link DataContainer#getArrayLengths getArrayLengths()} メソッドによって取得できます
  * （左端次元の長さが [0] 番要素となります）。
  * 配列次元数は、この次元長配列 lengths の要素数、
- * 即ち {@link DataContainer#getLengths getLengths()}.length によって求められますが、
- * 可読性のために {@link DataContainer#getRank getRank} メソッドによって得る事もできます。
+ * 即ち {@link DataContainer#getArrayLengths getArrayLengths()}.length によって求められますが、
+ * 可読性のために {@link DataContainer#getArrayRank getArrayRank()} メソッドによって得る事もできます。
  * 多次元配列の総要素数は {@link DataContainer#size size} フィールドに保持され、
- * {@link DataContainer#getSize getSize()} メソッドによって取得できます。
+ * {@link DataContainer#getArraySize getArraySize()} メソッドによって取得できます。
  * </p>
  *
  * <p>
@@ -87,11 +87,11 @@ import org.vcssl.nano.spec.DataType;
  * 基底におけるテンソルの配列表現と見なした場合に、
  * 数学的にはスカラは0階のテンソルである事と対応しています。
  * 従って、スカラデータを格納している場合、
- * {@link DataContainer#getRank getRank} メソッドは 0 を返し、
- * {@link DataContainer#getLengths getLengths()} メソッドは要素数0の配列を返します。
+ * {@link DataContainer#getArrayRank getArrayRank()} メソッドは 0 を返し、
+ * {@link DataContainer#getArrayLengths getArrayLengths()} メソッドは要素数0の配列を返します。
  * ただし、スカラは0次元であっても値を1個持っているため、
  * データの総要素数を表す {@link DataContainer#size size} フィールドの値は 1 となり、
- * {@link DataContainer#getSize getSize()} メソッドも 1 を返します。
+ * {@link DataContainer#getArraySize getArraySize()} メソッドも 1 を返します。
  * </p>
  *
  * <p>
@@ -101,7 +101,7 @@ import org.vcssl.nano.spec.DataType;
  * より長い配列のどこかに格納される場合もあります。
  * その格納位置のインデックスは、
  * {@link DataContainer#offset offset} フィールドによって保持され、
- * {@link DataContainer#getOffset getOffset()} メソッドによって取得できます。
+ * {@link DataContainer#getArrayOffset getArrayOffset()} メソッドによって取得できます。
  * この仕組みは、スクリプトコード側において、
  * 配列変数の要素を配列アクセス演算子（ [ ] ）によって参照する事に対応する処理を、
  * 仮想マシン側で効率的に行うためのものです。
@@ -136,13 +136,13 @@ import org.vcssl.nano.spec.DataType;
 public class DataContainer<T> implements ArrayDataAccessorInterface1<T> {
 
 	/** スカラデータを格納する場合における、多次元配列としての次元数（値は0）です。*/
-	public static final int   SCALAR_RANK = 0;
+	public static final int   ARRAY_RANK_OF_SCALAR = 0;
 
 	/** スカラデータを格納する場合における、多次元配列としての各次元の長さを表す配列（値は要素無しの int[0]）です。*/
-	public static final int[] SCALAR_LENGTHS = { };
+	public static final int[] ARRAY_LENGTHS_OF_SCALAR = { };
 
 	/** スカラデータを格納する場合における、データの総要素数（値は1）です。 */
-	public static final int   SCALAR_SIZE = 1;
+	public static final int   ARRAY_SIZE_OF_SCALAR = 1;
 
 
 	/** 引数 data に格納するデータのクラスと、{@link org.vcssl.nano.spec.DataType DataType} 列挙子の要素との対応関係を表すマップです。 */
@@ -216,7 +216,7 @@ public class DataContainer<T> implements ArrayDataAccessorInterface1<T> {
 	 * スカラ（単一要素の0次元配列）のデータを保持するためのデフォルトの設定値で、データコンテナを生成します。
 	 *
 	 * データの保持領域が確保されるわけではないため、保持させるデータは外部で用意し、
-	 * {@link DataContainer#setData(Object) set} メソッドを使用して渡す必要があります。
+	 * {@link DataContainer#setArrayData(Object, int, int[]) setArrayData(Object,int,int[])} メソッドを使用して渡す必要があります。
 	 *
 	 * なお、スカラではない（1次元以上の）多次元配列データを保持させる場合は、追加で
 	 * {@link DataContainer#setSize(int) setSize} および {@link DataContainer#setLengths(int[]) setLengths}
@@ -234,8 +234,8 @@ public class DataContainer<T> implements ArrayDataAccessorInterface1<T> {
 	public void initialize() {
 		this.data = null;
 		this.referenceTreeRoot = null;
-		this.size = SCALAR_SIZE;
-		this.lengths = SCALAR_LENGTHS;
+		this.size = ARRAY_SIZE_OF_SCALAR;
+		this.lengths = ARRAY_LENGTHS_OF_SCALAR;
 		this.offset = 0;
 	}
 
@@ -247,7 +247,7 @@ public class DataContainer<T> implements ArrayDataAccessorInterface1<T> {
 	 * 多次元配列やスカラのデータも、1 次元配列として格納する必要があります。
 	 * 詳細はこのクラスの説明を参照してください。
 	 *
-	 * なお、引数 lengths に関しては、別のデータコンテナに対して {@link DataContainer#getLengths() getLengths()}
+	 * なお、引数 lengths に関しては、別のデータコンテナに対して {@link DataContainer#getArrayLengths() getLengths()}
 	 * メソッドで取得した要素数配列をそのまま（使い回して）渡した方が、手短で高効率な場面がしばしばあります。
 	 * しかしこれは、「 取得した要素数配列の格納値を変更しなくても済む場合 」のみ可能です。
 	 * なぜなら、そのようにして複数のデータコンテナが要素数配列の参照を共有している状態で、
@@ -258,7 +258,8 @@ public class DataContainer<T> implements ArrayDataAccessorInterface1<T> {
 	 * @param offset オフセット値（データ内で値が格納されている要素のインデックスで、スカラ以外を格納する場合は常に 0 を指定します）
 	 * @param arrayLengths 各次元ごとの長さを格納する配列（スカラを格納する場合は、長さ 0 の配列を指定します）
 	 */
-	public final void setData(T data, int offset, int[] lengths) {
+	@Override
+	public final void setArrayData(T data, int offset, int[] lengths) {
 
 		// 各次元の長さの積（= size）の値を求める
 		int productOfLengths = 1;
@@ -275,7 +276,7 @@ public class DataContainer<T> implements ArrayDataAccessorInterface1<T> {
 
 		// 別のコンテナを参照している場合： 参照ツリーのルートは必ず実データを持っているはずなので、その情報を更新
 		} else {
-			// ※ ここで referenceTreeRoot.setData(...) を呼ぶと一階層でも再帰コールになってしまうので注意
+			// ※ ここで referenceTreeRoot.setArrayData(...) を呼ぶと一階層でも再帰コールになってしまうので注意
 			this.referenceTreeRoot.data = data;
 			this.referenceTreeRoot.offset = offset;
 			this.referenceTreeRoot.lengths = lengths;
@@ -292,7 +293,8 @@ public class DataContainer<T> implements ArrayDataAccessorInterface1<T> {
 	 *
 	 * @return data 保持しているデータ
 	 */
-	public final T getData() {
+	@Override
+	public final T getArrayData() {
 		return (this.referenceTreeRoot == null) ? this.data : this.referenceTreeRoot.data;
 	}
 
@@ -306,7 +308,8 @@ public class DataContainer<T> implements ArrayDataAccessorInterface1<T> {
 	 *
 	 * @return オフセット値
 	 */
-	public int getOffset() {
+	@Override
+	public int getArrayOffset() {
 		return (this.referenceTreeRoot == null) ? this.offset : this.referenceTreeRoot.offset;
 	}
 
@@ -324,7 +327,8 @@ public class DataContainer<T> implements ArrayDataAccessorInterface1<T> {
 	 *
 	 * @return データの総要素数
 	 */
-	public final int getSize() {
+	@Override
+	public final int getArraySize() {
 		return (this.referenceTreeRoot == null) ? this.size : this.referenceTreeRoot.size;
 	}
 
@@ -339,12 +343,13 @@ public class DataContainer<T> implements ArrayDataAccessorInterface1<T> {
 	 *
 	 * なお、このメソッドで取得した要素数配列の格納値は、変更しないでください。
 	 * 要素数情報を変更したい場合は、
-	 * {@link DataContainer#setData(Object, int, int[]) setData(Object data, int offset, int[] lengths)}
+	 * {@link DataContainer#setArrayData(Object, int, int[]) setArrayData(Object data, int offset, int[] lengths)}
 	 * メソッドを使用して、データと共に再設定してください。
 	 *
 	 * @return 各次元の次元長を格納する配列
 	 */
-	public final int[] getLengths() {
+	@Override
+	public final int[] getArrayLengths() {
 		return (this.referenceTreeRoot == null) ? this.lengths : this.referenceTreeRoot.lengths;
 	}
 
@@ -356,7 +361,8 @@ public class DataContainer<T> implements ArrayDataAccessorInterface1<T> {
 	 *
 	 * @return 各次元の次元長を格納する配列
 	 */
-	public final int getRank() {
+	@Override
+	public final int getArrayRank() {
 		return (this.referenceTreeRoot == null) ? this.lengths.length : this.referenceTreeRoot.lengths.length;
 	}
 

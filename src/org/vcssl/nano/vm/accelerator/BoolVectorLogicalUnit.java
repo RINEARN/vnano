@@ -87,10 +87,10 @@ public class BoolVectorLogicalUnit extends AcceleratorExecutionUnit {
 
 		public final AcceleratorExecutionNode execute() {
 			this.synchronizer.synchronizeFromCacheToMemory();
-			boolean[] data0 = this.container0.getData();
-			boolean[] data1 = this.container1.getData();
-			boolean[] data2 = this.container2.getData();
-			int size = this.container0.getSize();
+			boolean[] data0 = this.container0.getArrayData();
+			boolean[] data1 = this.container1.getArrayData();
+			boolean[] data2 = this.container2.getArrayData();
+			int size = this.container0.getArraySize();
 
 			// 短絡評価により「 && 」演算子の右オペランドが評価されなかった場合、レジスタが確保されずに null が入っている
 			if (data2 == null) {
@@ -124,10 +124,10 @@ public class BoolVectorLogicalUnit extends AcceleratorExecutionUnit {
 
 		public final AcceleratorExecutionNode execute() {
 			this.synchronizer.synchronizeFromCacheToMemory();
-			boolean[] data0 = this.container0.getData();
-			boolean[] data1 = this.container1.getData();
-			boolean[] data2 = this.container2.getData();
-			int size = this.container0.getSize();
+			boolean[] data0 = this.container0.getArrayData();
+			boolean[] data1 = this.container1.getArrayData();
+			boolean[] data2 = this.container2.getArrayData();
+			int size = this.container0.getArraySize();
 
 			// 短絡評価により「 || 」演算子の右オペランドが評価されなかった場合、レジスタが確保されずに null が入っている
 			if (data2 == null) {
@@ -161,9 +161,9 @@ public class BoolVectorLogicalUnit extends AcceleratorExecutionUnit {
 
 		public final AcceleratorExecutionNode execute() {
 			this.synchronizer.synchronizeFromCacheToMemory();
-			boolean[] data0 = this.container0.getData();
-			boolean[] data1 = this.container1.getData();
-			int size = this.container0.getSize();
+			boolean[] data0 = this.container0.getArrayData();
+			boolean[] data1 = this.container1.getArrayData();
+			int size = this.container0.getArraySize();
 
 			for (int i=0; i<size; i++) {
 				data0[i] = !data1[i];

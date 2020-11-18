@@ -160,8 +160,8 @@ public class Int64ScalarSubscriptUnit extends AcceleratorExecutionUnit {
 			this.synchronizer.synchronizeFromCacheToMemory();
 
 			// 要素のコピー処理
-			int index = (int)this.index0.getData()[ this.index0.getOffset() ];
-			this.dest.getData()[ this.dest.getOffset() ] = this.src.getData()[ index ];
+			int index = (int)this.index0.getArrayData()[ this.index0.getArrayOffset() ];
+			this.dest.getArrayData()[ this.dest.getArrayOffset() ] = this.src.getArrayData()[ index ];
 
 			// 後でCached系が処理で使うためにキャッシュを更新しておく
 			this.synchronizer.synchronizeFromMemoryToCache();
@@ -197,13 +197,13 @@ public class Int64ScalarSubscriptUnit extends AcceleratorExecutionUnit {
 
 			// 2次元インデックスから1次元インデックスへの変換
 			// (次元は左から 0, 1, 2, ... で、注目インデックスより右にある次元の要素数の積が、そのインデックスの1増加による移動単位)
-			int[] lengths = this.src.getLengths(); // 各次元の要素数を格納する配列
-			int indexValue0 = (int)this.index0.getData()[ this.index0.getOffset() ];
-			int indexValue1 = (int)this.index1.getData()[ this.index1.getOffset() ];
+			int[] lengths = this.src.getArrayLengths(); // 各次元の要素数を格納する配列
+			int indexValue0 = (int)this.index0.getArrayData()[ this.index0.getArrayOffset() ];
+			int indexValue1 = (int)this.index1.getArrayData()[ this.index1.getArrayOffset() ];
 			int index = lengths[1]*indexValue0 + indexValue1;
 
 			// 要素のコピー処理
-			this.dest.getData()[ this.dest.getOffset() ] = this.src.getData()[ index ];
+			this.dest.getArrayData()[ this.dest.getArrayOffset() ] = this.src.getArrayData()[ index ];
 
 			// 後でCached系が処理で使うためにキャッシュを更新しておく
 			this.synchronizer.synchronizeFromMemoryToCache();
@@ -241,14 +241,14 @@ public class Int64ScalarSubscriptUnit extends AcceleratorExecutionUnit {
 
 			// 3次元インデックスから1次元インデックスへの変換
 			// (次元は左から 0, 1, 2, ... で、注目インデックスより右にある次元の要素数の積が、そのインデックスの1増加による移動単位)
-			int[] lengths = this.src.getLengths(); // 各次元の要素数を格納する配列
-			int indexValue0 = (int)this.index0.getData()[ this.index0.getOffset() ];
-			int indexValue1 = (int)this.index1.getData()[ this.index1.getOffset() ];
-			int indexValue2 = (int)this.index2.getData()[ this.index2.getOffset() ];
+			int[] lengths = this.src.getArrayLengths(); // 各次元の要素数を格納する配列
+			int indexValue0 = (int)this.index0.getArrayData()[ this.index0.getArrayOffset() ];
+			int indexValue1 = (int)this.index1.getArrayData()[ this.index1.getArrayOffset() ];
+			int indexValue2 = (int)this.index2.getArrayData()[ this.index2.getArrayOffset() ];
 			int index = lengths[1]*lengths[2]*indexValue0 + lengths[2]*indexValue1 + indexValue2;
 
 			// 要素のコピー処理
-			this.dest.getData()[ this.dest.getOffset() ] = this.src.getData()[ index ];
+			this.dest.getArrayData()[ this.dest.getArrayOffset() ] = this.src.getArrayData()[ index ];
 
 			// 後でCached系が処理で使うためにキャッシュを更新しておく
 			this.synchronizer.synchronizeFromMemoryToCache();
@@ -285,8 +285,8 @@ public class Int64ScalarSubscriptUnit extends AcceleratorExecutionUnit {
 			this.synchronizer.synchronizeFromCacheToMemory();
 
 			// 要素の参照代入処理（この命令は dest のデータ参照を src のものとリンクし、dest の offset 値として index の値を設定する）
-			int index = (int)this.index0.getData()[ this.index0.getOffset() ];
-			this.dest.setData( this.src.getData(), index, DataContainer.SCALAR_LENGTHS );
+			int index = (int)this.index0.getArrayData()[ this.index0.getArrayOffset() ];
+			this.dest.setArrayData( this.src.getArrayData(), index, DataContainer.ARRAY_LENGTHS_OF_SCALAR );
 
 			// 後でCached系が処理で使うためにキャッシュを更新しておく
 			this.synchronizer.synchronizeFromMemoryToCache();
@@ -322,13 +322,13 @@ public class Int64ScalarSubscriptUnit extends AcceleratorExecutionUnit {
 
 			// 2次元インデックスから1次元インデックスへの変換
 			// (次元は左から 0, 1, 2, ... で、注目インデックスより右にある次元の要素数の積が、そのインデックスの1増加による移動単位)
-			int[] lengths = this.src.getLengths();
-			int indexValue0 = (int)this.index0.getData()[ this.index0.getOffset() ];
-			int indexValue1 = (int)this.index1.getData()[ this.index1.getOffset() ];
+			int[] lengths = this.src.getArrayLengths();
+			int indexValue0 = (int)this.index0.getArrayData()[ this.index0.getArrayOffset() ];
+			int indexValue1 = (int)this.index1.getArrayData()[ this.index1.getArrayOffset() ];
 			int index = lengths[1]*indexValue0 + indexValue1;
 
 			// 要素の参照代入処理（この命令は dest のデータ参照を src のものとリンクし、dest の offset 値として index の値を設定する）
-			this.dest.setData( this.src.getData(), index, DataContainer.SCALAR_LENGTHS );
+			this.dest.setArrayData( this.src.getArrayData(), index, DataContainer.ARRAY_LENGTHS_OF_SCALAR );
 
 			// 後でCached系が処理で使うためにキャッシュを更新しておく
 			this.synchronizer.synchronizeFromMemoryToCache();
@@ -365,14 +365,14 @@ public class Int64ScalarSubscriptUnit extends AcceleratorExecutionUnit {
 
 			// 3次元インデックスから1次元インデックスへの変換
 			// (次元は左から 0, 1, 2, ... で、注目インデックスより右にある次元の要素数の積が、そのインデックスの1増加による移動単位)
-			int[] lengths = this.src.getLengths();
-			int indexValue0 = (int)this.index0.getData()[ this.index0.getOffset() ];
-			int indexValue1 = (int)this.index1.getData()[ this.index1.getOffset() ];
-			int indexValue2 = (int)this.index2.getData()[ this.index2.getOffset() ];
+			int[] lengths = this.src.getArrayLengths();
+			int indexValue0 = (int)this.index0.getArrayData()[ this.index0.getArrayOffset() ];
+			int indexValue1 = (int)this.index1.getArrayData()[ this.index1.getArrayOffset() ];
+			int indexValue2 = (int)this.index2.getArrayData()[ this.index2.getArrayOffset() ];
 			int index = lengths[1]*lengths[2]*indexValue0 + lengths[2]*indexValue1 + indexValue2;
 
 			// 要素の参照代入処理（この命令は dest のデータ参照を src のものとリンクし、dest の offset 値として index の値を設定する）
-			this.dest.setData( this.src.getData(), index, DataContainer.SCALAR_LENGTHS );
+			this.dest.setArrayData( this.src.getArrayData(), index, DataContainer.ARRAY_LENGTHS_OF_SCALAR );
 
 			// 後でCached系が処理で使うためにキャッシュを更新しておく
 			this.synchronizer.synchronizeFromMemoryToCache();

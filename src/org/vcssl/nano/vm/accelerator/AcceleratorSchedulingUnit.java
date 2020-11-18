@@ -501,7 +501,7 @@ public class AcceleratorSchedulingUnit {
 
 				// データコンテナから飛び先ラベル（アセンブル後はNOPになっている）の命令アドレスの値を読む
 				int labelAddress = -1;
-				Object addressData = addressContiner.getData();
+				Object addressData = addressContiner.getArrayData();
 				if (addressData instanceof long[]) {
 					labelAddress = (int)( ((long[])addressData)[0] );
 				} else {

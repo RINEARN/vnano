@@ -78,8 +78,8 @@ public class Int64ScalarTransferUnit extends AcceleratorExecutionUnit {
 
 		public final AcceleratorExecutionNode execute() {
 			this.synchronizer.synchronizeFromCacheToMemory();
-			this.container0.getData()[ this.container0.getOffset() ] =
-			this.container1.getData()[ this.container1.getOffset() ];
+			this.container0.getArrayData()[ this.container0.getArrayOffset() ] =
+			this.container1.getArrayData()[ this.container1.getArrayOffset() ];
 			this.synchronizer.synchronizeFromMemoryToCache();
 			return this.nextNode;
 		}
@@ -103,8 +103,8 @@ public class Int64ScalarTransferUnit extends AcceleratorExecutionUnit {
 
 		public final AcceleratorExecutionNode execute() {
 			this.synchronizer.synchronizeFromCacheToMemory();
-			this.container0.getData()[ this.container0.getOffset() ] =
-			(long)this.container1.getData()[ this.container1.getOffset() ];
+			this.container0.getArrayData()[ this.container0.getArrayOffset() ] =
+			(long)this.container1.getArrayData()[ this.container1.getArrayOffset() ];
 			this.synchronizer.synchronizeFromMemoryToCache();
 			return this.nextNode;
 		}

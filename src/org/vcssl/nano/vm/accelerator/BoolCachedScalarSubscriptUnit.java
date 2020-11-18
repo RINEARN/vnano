@@ -157,7 +157,7 @@ public class BoolCachedScalarSubscriptUnit extends AcceleratorExecutionUnit {
 		}
 
 		public final AcceleratorExecutionNode execute() {
-			this.dest.value = this.src.getData()[ (int)this.index0.value ];
+			this.dest.value = this.src.getArrayData()[ (int)this.index0.value ];
 			return this.nextNode;
 		}
 	}
@@ -182,13 +182,13 @@ public class BoolCachedScalarSubscriptUnit extends AcceleratorExecutionUnit {
 		}
 
 		public final AcceleratorExecutionNode execute() {
-			int[] lengths = this.src.getLengths(); // 各次元の要素数を格納する配列
+			int[] lengths = this.src.getArrayLengths(); // 各次元の要素数を格納する配列
 
 			// 2次元インデックスから1次元インデックスへの変換
 			// (次元は左から 0, 1, 2, ... で、注目インデックスより右にある次元の要素数の積が、そのインデックスの1増加による移動単位)
 			int index = lengths[1]*(int)index0.value + (int)index1.value;
 
-			this.dest.value = this.src.getData()[ index ];
+			this.dest.value = this.src.getArrayData()[ index ];
 			return this.nextNode;
 		}
 	}
@@ -215,13 +215,13 @@ public class BoolCachedScalarSubscriptUnit extends AcceleratorExecutionUnit {
 		}
 
 		public final AcceleratorExecutionNode execute() {
-			int[] lengths = this.src.getLengths(); // 各次元の要素数を格納する配列
+			int[] lengths = this.src.getArrayLengths(); // 各次元の要素数を格納する配列
 
 			// 3次元インデックスから1次元インデックスへの変換
 			// (次元は左から 0, 1, 2, ... で、注目インデックスより右にある次元の要素数の積が、そのインデックスの1増加による移動単位)
 			int index = lengths[1]*lengths[2]*(int)index0.value + lengths[2]*(int)index1.value + (int)index2.value;
 
-			this.dest.value = this.src.getData()[ index ];
+			this.dest.value = this.src.getArrayData()[ index ];
 			return this.nextNode;
 		}
 	}
@@ -252,7 +252,7 @@ public class BoolCachedScalarSubscriptUnit extends AcceleratorExecutionUnit {
 		}
 
 		public final AcceleratorExecutionNode execute() {
-			this.dest.getData()[ this.dest.getOffset() ] = this.src.getData()[ (int)this.index0.value ];
+			this.dest.getArrayData()[ this.dest.getArrayOffset() ] = this.src.getArrayData()[ (int)this.index0.value ];
 			return this.nextNode;
 		}
 	}
@@ -281,13 +281,13 @@ public class BoolCachedScalarSubscriptUnit extends AcceleratorExecutionUnit {
 		}
 
 		public final AcceleratorExecutionNode execute() {
-			int[] lengths = this.src.getLengths(); // 各次元の要素数を格納する配列
+			int[] lengths = this.src.getArrayLengths(); // 各次元の要素数を格納する配列
 
 			// 2次元インデックスから1次元インデックスへの変換
 			// (次元は左から 0, 1, 2, ... で、注目インデックスより右にある次元の要素数の積が、そのインデックスの1増加による移動単位)
 			int index = lengths[1]*(int)index0.value + (int)index1.value;
 
-			this.dest.getData()[ this.dest.getOffset() ] = this.src.getData()[ index ];
+			this.dest.getArrayData()[ this.dest.getArrayOffset() ] = this.src.getArrayData()[ index ];
 			return this.nextNode;
 		}
 	}
@@ -318,13 +318,13 @@ public class BoolCachedScalarSubscriptUnit extends AcceleratorExecutionUnit {
 		}
 
 		public final AcceleratorExecutionNode execute() {
-			int[] lengths = this.src.getLengths(); // 各次元の要素数を格納する配列
+			int[] lengths = this.src.getArrayLengths(); // 各次元の要素数を格納する配列
 
 			// 3次元インデックスから1次元インデックスへの変換
 			// (次元は左から 0, 1, 2, ... で、注目インデックスより右にある次元の要素数の積が、そのインデックスの1増加による移動単位)
 			int index = lengths[1]*lengths[2]*(int)index0.value + lengths[2]*(int)index1.value + (int)index2.value;
 
-			this.dest.getData()[ this.dest.getOffset() ] = this.src.getData()[ index ];
+			this.dest.getArrayData()[ this.dest.getArrayOffset() ] = this.src.getArrayData()[ index ];
 			return this.nextNode;
 		}
 	}
@@ -355,7 +355,7 @@ public class BoolCachedScalarSubscriptUnit extends AcceleratorExecutionUnit {
 		}
 
 		public final AcceleratorExecutionNode execute() {
-			this.dest.setData(this.src.getData(), (int)this.index0.value, DataContainer.SCALAR_LENGTHS);
+			this.dest.setArrayData(this.src.getArrayData(), (int)this.index0.value, DataContainer.ARRAY_LENGTHS_OF_SCALAR);
 			return this.nextNode;
 		}
 	}
@@ -384,13 +384,13 @@ public class BoolCachedScalarSubscriptUnit extends AcceleratorExecutionUnit {
 		}
 
 		public final AcceleratorExecutionNode execute() {
-			int[] lengths = this.src.getLengths(); // 各次元の要素数を格納する配列
+			int[] lengths = this.src.getArrayLengths(); // 各次元の要素数を格納する配列
 
 			// 2次元インデックスから1次元インデックスへの変換
 			// (次元は左から 0, 1, 2, ... で、注目インデックスより右にある次元の要素数の積が、そのインデックスの1増加による移動単位)
 			int index = lengths[1]*(int)index0.value + (int)index1.value;
 
-			this.dest.setData(this.src.getData(), index, DataContainer.SCALAR_LENGTHS);
+			this.dest.setArrayData(this.src.getArrayData(), index, DataContainer.ARRAY_LENGTHS_OF_SCALAR);
 			return this.nextNode;
 		}
 	}
@@ -421,13 +421,13 @@ public class BoolCachedScalarSubscriptUnit extends AcceleratorExecutionUnit {
 		}
 
 		public final AcceleratorExecutionNode execute() {
-			int[] lengths = this.src.getLengths(); // 各次元の要素数を格納する配列
+			int[] lengths = this.src.getArrayLengths(); // 各次元の要素数を格納する配列
 
 			// 3次元インデックスから1次元インデックスへの変換
 			// (次元は左から 0, 1, 2, ... で、注目インデックスより右にある次元の要素数の積が、そのインデックスの1増加による移動単位)
 			int index = lengths[1]*lengths[2]*(int)index0.value + lengths[2]*(int)index1.value + (int)index2.value;
 
-			this.dest.setData(this.src.getData(), index, DataContainer.SCALAR_LENGTHS);
+			this.dest.setArrayData(this.src.getArrayData(), index, DataContainer.ARRAY_LENGTHS_OF_SCALAR);
 			return this.nextNode;
 		}
 	}

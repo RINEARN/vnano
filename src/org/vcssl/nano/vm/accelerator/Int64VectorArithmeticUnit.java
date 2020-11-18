@@ -107,10 +107,10 @@ public class Int64VectorArithmeticUnit extends AcceleratorExecutionUnit {
 
 		public final AcceleratorExecutionNode execute() {
 			this.synchronizerI64x3.synchronizeFromCacheToMemory();
-			long[] data0 = this.container0.getData();
-			long[] data1 = this.container1.getData();
-			long[] data2 = this.container2.getData();
-			int size = this.container0.getSize();
+			long[] data0 = this.container0.getArrayData();
+			long[] data1 = this.container1.getArrayData();
+			long[] data2 = this.container2.getArrayData();
+			int size = this.container0.getArraySize();
 
 			for (int i=0; i<size; i++) {
 				data0[i] = data1[i] + data2[i];
@@ -132,10 +132,10 @@ public class Int64VectorArithmeticUnit extends AcceleratorExecutionUnit {
 
 		public final AcceleratorExecutionNode execute() {
 			this.synchronizerI64x3.synchronizeFromCacheToMemory();
-			long[] data0 = this.container0.getData();
-			long[] data1 = this.container1.getData();
-			long[] data2 = this.container2.getData();
-			int size = this.container0.getSize();
+			long[] data0 = this.container0.getArrayData();
+			long[] data1 = this.container1.getArrayData();
+			long[] data2 = this.container2.getArrayData();
+			int size = this.container0.getArraySize();
 
 			for (int i=0; i<size; i++) {
 				data0[i] = data1[i] - data2[i];
@@ -157,10 +157,10 @@ public class Int64VectorArithmeticUnit extends AcceleratorExecutionUnit {
 
 		public final AcceleratorExecutionNode execute() {
 			this.synchronizerI64x3.synchronizeFromCacheToMemory();
-			long[] data0 = this.container0.getData();
-			long[] data1 = this.container1.getData();
-			long[] data2 = this.container2.getData();
-			int size = this.container0.getSize();
+			long[] data0 = this.container0.getArrayData();
+			long[] data1 = this.container1.getArrayData();
+			long[] data2 = this.container2.getArrayData();
+			int size = this.container0.getArraySize();
 
 			for (int i=0; i<size; i++) {
 				data0[i] = data1[i] * data2[i];
@@ -182,10 +182,10 @@ public class Int64VectorArithmeticUnit extends AcceleratorExecutionUnit {
 
 		public final AcceleratorExecutionNode execute() {
 			this.synchronizerI64x3.synchronizeFromCacheToMemory();
-			long[] data0 = this.container0.getData();
-			long[] data1 = this.container1.getData();
-			long[] data2 = this.container2.getData();
-			int size = this.container0.getSize();
+			long[] data0 = this.container0.getArrayData();
+			long[] data1 = this.container1.getArrayData();
+			long[] data2 = this.container2.getArrayData();
+			int size = this.container0.getArraySize();
 
 			for (int i=0; i<size; i++) {
 				data0[i] = data1[i] / data2[i];
@@ -207,10 +207,10 @@ public class Int64VectorArithmeticUnit extends AcceleratorExecutionUnit {
 
 		public final AcceleratorExecutionNode execute() {
 			this.synchronizerI64x3.synchronizeFromCacheToMemory();
-			long[] data0 = this.container0.getData();
-			long[] data1 = this.container1.getData();
-			long[] data2 = this.container2.getData();
-			int size = this.container0.getSize();
+			long[] data0 = this.container0.getArrayData();
+			long[] data1 = this.container1.getArrayData();
+			long[] data2 = this.container2.getArrayData();
+			int size = this.container0.getArraySize();
 
 			for (int i=0; i<size; i++) {
 				data0[i] = data1[i] % data2[i];
@@ -232,9 +232,9 @@ public class Int64VectorArithmeticUnit extends AcceleratorExecutionUnit {
 
 		public final AcceleratorExecutionNode execute() {
 			this.synchronizerI64x2.synchronizeFromCacheToMemory();
-			long[] data0 = this.container0.getData();
-			long[] data1 = this.container1.getData();
-			int size = this.container0.getSize();
+			long[] data0 = this.container0.getArrayData();
+			long[] data1 = this.container1.getArrayData();
+			int size = this.container0.getArraySize();
 
 			for (int i=0; i<size; i++) {
 				data0[i] = - data1[i];

@@ -152,7 +152,7 @@ public final class AcceleratorDataManagementUnit {
 			}
 
 			this.scalar[partitionOrdinal][address]
-					= ( (container.getRank() == DataContainer.SCALAR_RANK) );
+					= ( (container.getArrayRank() == DataContainer.ARRAY_RANK_OF_SCALAR) );
 
 			if (!this.scalar[partitionOrdinal][address]) {
 				continue;
@@ -333,7 +333,7 @@ public final class AcceleratorDataManagementUnit {
 					// (内部関数はconst未対応だし、将来的には宣言によらず、書き換えてなければ可能にするかもだし保留)
 
 					DataContainer<?> functionAddrContainer = memory.getDataContainer(partitions[1], addresses[1]);
-					int functionAddr = (int)( (long[])functionAddrContainer.getData() )[0];
+					int functionAddr = (int)( (long[])functionAddrContainer.getArrayData() )[0];
 					int argN = partitions.length - 2; // 戻り値と関数アドレスを除いた（-2）オペランド数が引数の個数
 					boolean[] areParamRefs = null;
 					boolean[] areParamConsts = null;
@@ -399,7 +399,7 @@ public final class AcceleratorDataManagementUnit {
 				case CALL : {
 
 					DataContainer<?> functionAddrContainer = memory.getDataContainer(partitions[1], addresses[1]);
-					int functionAddr = (int)( (long[])functionAddrContainer.getData() )[0]; // 内部関数の命令アドレス
+					int functionAddr = (int)( (long[])functionAddrContainer.getArrayData() )[0]; // 内部関数の命令アドレス
 					int numberOfArgs = partitions.length - 2; // 戻り値と関数アドレスを除いた（-2）オペランド数が引数の個数
 
 					// 既に解析済みでなければ解析

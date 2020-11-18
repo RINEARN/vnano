@@ -62,7 +62,7 @@ public class BoolScalarBranchUnit extends AcceleratorExecutionUnit {
 		@Override
 		public final AcceleratorExecutionNode execute() {
 			this.synchronizer.synchronizeFromCacheToMemory();
-			if (this.conditionContainer.getData()[ this.conditionContainer.getOffset() ]) {
+			if (this.conditionContainer.getArrayData()[ this.conditionContainer.getArrayOffset() ]) {
 				return this.branchedNode;
 			} else {
 				return this.nextNode;
@@ -90,7 +90,7 @@ public class BoolScalarBranchUnit extends AcceleratorExecutionUnit {
 		@Override
 		public final AcceleratorExecutionNode execute() {
 			this.synchronizer.synchronizeFromCacheToMemory();
-			if (this.conditionContainer.getData()[ this.conditionContainer.getOffset() ]) {
+			if (this.conditionContainer.getArrayData()[ this.conditionContainer.getArrayOffset() ]) {
 				return this.nextNode;
 			} else {
 				return this.branchedNode;

@@ -34,14 +34,14 @@ public class Float64x1Int64x2ScalarCacheSynchronizer extends CacheSynchronizer {
 	}
 
 	public final void synchronizeFromCacheToMemory() {
-		if (cacheSyncEnabled0) container0.getData()[ container0.getOffset() ] = cache0.value;
-		if (cacheSyncEnabled1) container1.getData()[ container1.getOffset() ] = cache1.value;
-		if (cacheSyncEnabled2) container2.getData()[ container2.getOffset() ] = cache2.value;
+		if (cacheSyncEnabled0) container0.getArrayData()[ container0.getArrayOffset() ] = cache0.value;
+		if (cacheSyncEnabled1) container1.getArrayData()[ container1.getArrayOffset() ] = cache1.value;
+		if (cacheSyncEnabled2) container2.getArrayData()[ container2.getArrayOffset() ] = cache2.value;
 	}
 
 	public final void synchronizeFromMemoryToCache() {
-		if (cacheSyncEnabled0) cache0.value = container0.getData()[ container0.getOffset() ];
-		if (cacheSyncEnabled1) cache1.value = container1.getData()[ container1.getOffset() ];
-		if (cacheSyncEnabled2) cache2.value = container2.getData()[ container2.getOffset() ];
+		if (cacheSyncEnabled0) cache0.value = container0.getArrayData()[ container0.getArrayOffset() ];
+		if (cacheSyncEnabled1) cache1.value = container1.getArrayData()[ container1.getArrayOffset() ];
+		if (cacheSyncEnabled2) cache2.value = container2.getArrayData()[ container2.getArrayOffset() ];
 	}
 }

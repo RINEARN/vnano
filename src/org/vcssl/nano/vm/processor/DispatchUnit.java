@@ -271,7 +271,7 @@ public class DispatchUnit {
 
 				 // 以下、0番オペランドを書き込み対象に統一した際に要変更
 				this.checkNumberOfOperands(instruction, 3); // オペランド[0]はプレースホルダなので、オペランドは3個ある
-				boolean[] conditions = (boolean[])operands[2].getData(); // オペランド[2] が分岐条件（[0]はプレースホルダ）
+				boolean[] conditions = (boolean[])operands[2].getArrayData(); // オペランド[2] が分岐条件（[0]はプレースホルダ）
 
 				// 以下、飛ぶべきかどうかの判定。オペランド[2]の値がtrueなら飛ぶ。
 				// ただしオペランド[2]はスカラに限らず、ベクトルの場合もあり、その場合は全要素がtrueなら飛ぶものと定義する。
@@ -284,7 +284,7 @@ public class DispatchUnit {
 
 				// 飛ぶべき場合： 分岐先命令に飛ぶ
 				if (shouldJump) {
-					return (int)( (long[])operands[1].getData() )[0]; // オペランド[1]に分岐先の命令アドレスが入っている
+					return (int)( (long[])operands[1].getArrayData() )[0]; // オペランド[1]に分岐先の命令アドレスが入っている
 
 				// 飛んではいけない場合： 次の命令に進む
 				} else {
@@ -297,7 +297,7 @@ public class DispatchUnit {
 
 				 // 以下、0番オペランドを書き込み対象に統一した際に要変更
 				this.checkNumberOfOperands(instruction, 3); // オペランド[0]はプレースホルダなので、オペランドは3個ある
-				boolean[] conditions = (boolean[])operands[2].getData(); // オペランド[2] が分岐条件（[0]はプレースホルダ）
+				boolean[] conditions = (boolean[])operands[2].getArrayData(); // オペランド[2] が分岐条件（[0]はプレースホルダ）
 
 				// 以下、飛ぶべきかどうかの判定。オペランド[2]の値がfalseなら飛ぶ。
 				// ただしオペランド[2]はスカラに限らず、ベクトルの場合もあり、その場合は全要素がfalseなら飛ぶものと定義する。
@@ -314,7 +314,7 @@ public class DispatchUnit {
 
 				// 飛ぶべき場合： 分岐先命令に飛ぶ
 				} else {
-					return (int)( (long[])operands[1].getData() )[0]; // オペランド[1]に分岐先の命令アドレスが入っている
+					return (int)( (long[])operands[1].getArrayData() )[0]; // オペランド[1]に分岐先の命令アドレスが入っている
 				}
 			}
 
@@ -323,7 +323,7 @@ public class DispatchUnit {
 				// 関数から戻ってくる命令アドレス（現在の命令アドレス+1）を戻り値スタックに詰む
 				int returnAddress = programCounter + 1;
 				DataContainer<long[]> returnAddressContainer = new DataContainer<long[]>();
-				returnAddressContainer.setData(new long[] { returnAddress }, 0, DataContainer.SCALAR_LENGTHS);
+				returnAddressContainer.setArrayData(new long[] { returnAddress }, 0, DataContainer.ARRAY_LENGTHS_OF_SCALAR);
 				memory.push(returnAddressContainer);
 
 				// 引数（オペランド[2]以降に並んでいる）を引数スタックに積む
@@ -332,7 +332,7 @@ public class DispatchUnit {
 				}
 
 				// オペランドから関数の先頭の命令アドレスを取得
-				int functionAddress = (int)( (long[])operands[1].getData() )[0];
+				int functionAddress = (int)( (long[])operands[1].getArrayData() )[0];
 
 				// この処理系では関数の再帰/多重呼び出しをサポートしていないため、呼び出し対象の関数が既に実行中であればエラーとする
 				if(functionRunningFlags[functionAddress]) {
@@ -348,7 +348,7 @@ public class DispatchUnit {
 				// スタックから戻り先の命令アドレスを取り出す
 				//（関数先頭で引数を正しい個数取り出していれば、スタック末尾には、CALL命令で引数より前に積んだ戻り先アドレスが積まれている）
 				DataContainer<?> returnAddressContainer = memory.pop();
-				int returnAddress = (int)( (long[])returnAddressContainer.getData() )[0];
+				int returnAddress = (int)( (long[])returnAddressContainer.getArrayData() )[0];
 
 				// 戻り値が無い場合は、戻り値がある場合とスタック上の順序を合わせるため、空のデータコンテナを積む
 				if (operands.length <= 2) { // 先頭オペランドはプレースホルダ、その次は関数アドレスなので、戻り値が無くてもオペランドは2個ある
@@ -360,7 +360,7 @@ public class DispatchUnit {
 				}
 
 				// 再帰呼び出し判定用のテーブルから、対象関数の値を解除する
-				int functionAddress = (int)( (long[])operands[1].getData() )[0];
+				int functionAddress = (int)( (long[])operands[1].getArrayData() )[0];
 				functionRunningFlags[functionAddress] = false;
 
 				// 戻り先の命令アドレスに飛ぶ
@@ -368,7 +368,7 @@ public class DispatchUnit {
 			}
 
 			case CALLX : {
-				int externalFunctionIndex = (int)( (long[])operands[1].getData() )[0];
+				int externalFunctionIndex = (int)( (long[])operands[1].getArrayData() )[0];
 				int argumentLength = operands.length - 2;
 				DataContainer<?>[] arguments = new DataContainer[argumentLength];
 				System.arraycopy(operands, 2, arguments, 0, argumentLength);
@@ -377,7 +377,7 @@ public class DispatchUnit {
 			}
 
 			case ENDFUN : {
-				String functionName = ( (String[])operands[0].getData() )[0];
+				String functionName = ( (String[])operands[0].getArrayData() )[0];
 				throw new VnanoException(ErrorType.FUNCTION_ENDED_WITHOUT_RETURNING_VALUE, functionName);
 			}
 

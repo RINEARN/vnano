@@ -87,9 +87,9 @@ public class Int64ScalarComparisonUnit extends AcceleratorExecutionUnit {
 
 		public final AcceleratorExecutionNode execute() {
 			this.synchronizer.synchronizeFromCacheToMemory();
-			this.container0.getData()[ this.container0.getOffset() ] =
-			this.container1.getData()[ this.container1.getOffset() ] <
-			this.container2.getData()[ this.container2.getOffset() ] ;
+			this.container0.getArrayData()[ this.container0.getArrayOffset() ] =
+			this.container1.getArrayData()[ this.container1.getArrayOffset() ] <
+			this.container2.getArrayData()[ this.container2.getArrayOffset() ] ;
 			this.synchronizer.synchronizeFromMemoryToCache();
 			return this.nextNode;
 		}
@@ -106,9 +106,9 @@ public class Int64ScalarComparisonUnit extends AcceleratorExecutionUnit {
 
 		public final AcceleratorExecutionNode execute() {
 			this.synchronizer.synchronizeFromCacheToMemory();
-			this.container0.getData()[ this.container0.getOffset() ] =
-			this.container1.getData()[ this.container1.getOffset() ] >
-			this.container2.getData()[ this.container2.getOffset() ] ;
+			this.container0.getArrayData()[ this.container0.getArrayOffset() ] =
+			this.container1.getArrayData()[ this.container1.getArrayOffset() ] >
+			this.container2.getArrayData()[ this.container2.getArrayOffset() ] ;
 			this.synchronizer.synchronizeFromMemoryToCache();
 			return this.nextNode;
 		}
@@ -125,9 +125,9 @@ public class Int64ScalarComparisonUnit extends AcceleratorExecutionUnit {
 
 		public final AcceleratorExecutionNode execute() {
 			this.synchronizer.synchronizeFromCacheToMemory();
-			this.container0.getData()[ this.container0.getOffset() ] =
-			this.container1.getData()[ this.container1.getOffset() ] <=
-			this.container2.getData()[ this.container2.getOffset() ] ;
+			this.container0.getArrayData()[ this.container0.getArrayOffset() ] =
+			this.container1.getArrayData()[ this.container1.getArrayOffset() ] <=
+			this.container2.getArrayData()[ this.container2.getArrayOffset() ] ;
 			this.synchronizer.synchronizeFromMemoryToCache();
 			return this.nextNode;
 		}
@@ -144,9 +144,9 @@ public class Int64ScalarComparisonUnit extends AcceleratorExecutionUnit {
 
 		public final AcceleratorExecutionNode execute() {
 			this.synchronizer.synchronizeFromCacheToMemory();
-			this.container0.getData()[ this.container0.getOffset() ] =
-			this.container1.getData()[ this.container1.getOffset() ] >=
-			this.container2.getData()[ this.container2.getOffset() ] ;
+			this.container0.getArrayData()[ this.container0.getArrayOffset() ] =
+			this.container1.getArrayData()[ this.container1.getArrayOffset() ] >=
+			this.container2.getArrayData()[ this.container2.getArrayOffset() ] ;
 			this.synchronizer.synchronizeFromMemoryToCache();
 			return this.nextNode;
 		}
@@ -164,9 +164,9 @@ public class Int64ScalarComparisonUnit extends AcceleratorExecutionUnit {
 
 		public final AcceleratorExecutionNode execute() {
 			this.synchronizer.synchronizeFromCacheToMemory();
-			this.container0.getData()[ this.container0.getOffset() ] =
-			this.container1.getData()[ this.container1.getOffset() ] ==
-			this.container2.getData()[ this.container2.getOffset() ] ;
+			this.container0.getArrayData()[ this.container0.getArrayOffset() ] =
+			this.container1.getArrayData()[ this.container1.getArrayOffset() ] ==
+			this.container2.getArrayData()[ this.container2.getArrayOffset() ] ;
 			this.synchronizer.synchronizeFromMemoryToCache();
 			return this.nextNode;
 		}
@@ -183,9 +183,9 @@ public class Int64ScalarComparisonUnit extends AcceleratorExecutionUnit {
 
 		public final AcceleratorExecutionNode execute() {
 			this.synchronizer.synchronizeFromCacheToMemory();
-			this.container0.getData()[ this.container0.getOffset() ] =
-			this.container1.getData()[ this.container1.getOffset() ] !=
-			this.container2.getData()[ this.container2.getOffset() ] ;
+			this.container0.getArrayData()[ this.container0.getArrayOffset() ] =
+			this.container1.getArrayData()[ this.container1.getArrayOffset() ] !=
+			this.container2.getArrayData()[ this.container2.getArrayOffset() ] ;
 			this.synchronizer.synchronizeFromMemoryToCache();
 			return this.nextNode;
 		}

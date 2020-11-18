@@ -204,7 +204,7 @@ public class VirtualMachine {
 		if (memory.hasResultDataContainer()) {
 			DataContainer<?> resultDataContainer = memory.getResultDataContainer();
 			DataConverter converter = new DataConverter(
-				resultDataContainer.getDataType(), resultDataContainer.getRank(), LANG_SPEC
+				resultDataContainer.getDataType(), resultDataContainer.getArrayRank(), LANG_SPEC
 			);
 			return converter.convertToExternalObject(resultDataContainer);
 		} else {

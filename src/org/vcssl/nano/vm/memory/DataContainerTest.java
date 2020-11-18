@@ -36,23 +36,23 @@ public class DataContainerTest {
 	private void testDefaultState(DataContainer<?> container) {
 
 		// デフォルトではデータを保持していない
-		if (container.getData() != null) {
+		if (container.getArrayData() != null) {
 			fail("Incorrect data");
 		}
 
 		// デフォルトではスカラなのでサイズ1
-		if (container.getSize() != 1) {
+		if (container.getArraySize() != 1) {
 			fail("Incorrect size");
 		}
 
 		// デフォルトではスカラなので0次元
-		if (container.getRank() != 0
-				|| container.getLengths().length != 0) {
+		if (container.getArrayRank() != 0
+				|| container.getArrayLengths().length != 0) {
 
 			fail("Incorrect rank");
 		}
 		// オフセットは配列の要素参照でしか使用しないのでデフォルトは0
-		if (container.getOffset() != 0) {
+		if (container.getArrayOffset() != 0) {
 			fail("Incorrect offset");
 		}
 		// データ未格納の時点での型はVOID
@@ -66,7 +66,7 @@ public class DataContainerTest {
 
 		// 状態をデフォルトから変える
 		int lengths[] = new int[] { 5 };
-		container.setData(new long[4], 0, lengths);
+		container.setArrayData(new long[4], 0, lengths);
 
 		// 初期化
 		container.initialize();
@@ -77,7 +77,7 @@ public class DataContainerTest {
 		// オフセット値を変える場合も試す
 		container = new DataContainer<long[]>();
 		int offset = 1;
-		container.setData(new long[4], offset, DataContainer.SCALAR_LENGTHS);
+		container.setArrayData(new long[4], offset, DataContainer.ARRAY_LENGTHS_OF_SCALAR);
 
 		// 初期化
 		container.initialize();
@@ -89,25 +89,25 @@ public class DataContainerTest {
 	private void testSetGetData() {
 		DataContainer<long[]> container = new DataContainer<long[]>();
 		long[] data = new long[]{1L, 2L, 3L};
-		container.setData(data, 0, new int[] {3});
-		if (container.getData() != data) {
+		container.setArrayData(data, 0, new int[] {3});
+		if (container.getArrayData() != data) {
 			fail("Incorrect data");
 		}
 
 		// 参照リンク経由での読み込みテスト
 		DataContainer<long[]> refContainer = new DataContainer<long[]>();
 		refContainer.refer(container);
-		if (refContainer.getData() != data) {
+		if (refContainer.getArrayData() != data) {
 			fail("Incorrect data");
 		}
 
 		// 参照リンク経由での書き込みテスト
 		long[] newData = new long[]{4L, 5L, 6L};
-		refContainer.setData(newData, 0, new int[] {3});
-		if (refContainer.getData() != newData) {
+		refContainer.setArrayData(newData, 0, new int[] {3});
+		if (refContainer.getArrayData() != newData) {
 			fail("Incorrect data");
 		}
-		if (container.getData() != newData) {
+		if (container.getArrayData() != newData) {
 			fail("Incorrect data");
 		}
 	}
@@ -115,25 +115,25 @@ public class DataContainerTest {
 	private void testGetOffset() {
 		DataContainer<long[]> container = new DataContainer<long[]>();
 		int offset = 3;
-		container.setData(new long[5], offset, DataContainer.SCALAR_LENGTHS);
-		if (container.getOffset() != offset) {
+		container.setArrayData(new long[5], offset, DataContainer.ARRAY_LENGTHS_OF_SCALAR);
+		if (container.getArrayOffset() != offset) {
 			fail("Incorrect offset");
 		}
 
 		// 参照リンク経由での読み込みテスト
 		DataContainer<long[]> refContainer = new DataContainer<long[]>();
 		refContainer.refer(container);
-		if (refContainer.getOffset() != offset) {
+		if (refContainer.getArrayOffset() != offset) {
 			fail("Incorrect offset");
 		}
 
 		// 参照リンク経由での書き込みテスト
-		refContainer.setData(new long[5], 4, DataContainer.SCALAR_LENGTHS);
+		refContainer.setArrayData(new long[5], 4, DataContainer.ARRAY_LENGTHS_OF_SCALAR);
 		int newOffset = 4;
-		if (refContainer.getOffset() != newOffset) {
+		if (refContainer.getArrayOffset() != newOffset) {
 			fail("Incorrect offset");
 		}
-		if (container.getOffset() != newOffset) {
+		if (container.getArrayOffset() != newOffset) {
 			fail("Incorrect offset");
 		}
 	}
@@ -141,11 +141,11 @@ public class DataContainerTest {
 	private void testGetLengths() {
 		int[] lengths = new int[] {1, 2, 3};
 		DataContainer<long[]> container = new DataContainer<long[]>();
-		container.setData(new long[] {1l, 2l, 3l, 4l, 5l, 6l}, 0, lengths);
-		if (container.getLengths().length != 3
-				|| container.getLengths()[0] != 1
-				|| container.getLengths()[1] != 2
-				|| container.getLengths()[2] != 3 ) {
+		container.setArrayData(new long[] {1l, 2l, 3l, 4l, 5l, 6l}, 0, lengths);
+		if (container.getArrayLengths().length != 3
+				|| container.getArrayLengths()[0] != 1
+				|| container.getArrayLengths()[1] != 2
+				|| container.getArrayLengths()[2] != 3 ) {
 
 			fail("Incorrect lengths");
 		}
@@ -153,17 +153,17 @@ public class DataContainerTest {
 		// 参照リンク経由での読み込みテスト
 		DataContainer<long[]> refContainer = new DataContainer<long[]>();
 		refContainer.refer(container);
-		if (refContainer.getLengths() != lengths) {
+		if (refContainer.getArrayLengths() != lengths) {
 			fail("Incorrect lengths");
 		}
 
 		// 参照リンク経由での書き込みテスト
 		int[] newLengths = new int[] {3, 2, 1};
-		refContainer.setData(new long[] {1l, 2l, 3l, 4l, 5l, 6l}, 0, newLengths);
-		if (refContainer.getLengths() != newLengths) {
+		refContainer.setArrayData(new long[] {1l, 2l, 3l, 4l, 5l, 6l}, 0, newLengths);
+		if (refContainer.getArrayLengths() != newLengths) {
 			fail("Incorrect lengths");
 		}
-		if (container.getLengths() != newLengths) {
+		if (container.getArrayLengths() != newLengths) {
 			fail("Incorrect lengths");
 		}
 	}
@@ -172,26 +172,26 @@ public class DataContainerTest {
 		int[] lengths = new int[]{1, 2, 3};
 		int rank = lengths.length;
 		DataContainer<long[]> container = new DataContainer<long[]>();
-		container.setData(new long[] {1l, 2l, 3l, 4l, 5l, 6l}, 0, lengths);
-		if (container.getRank() != rank) {
+		container.setArrayData(new long[] {1l, 2l, 3l, 4l, 5l, 6l}, 0, lengths);
+		if (container.getArrayRank() != rank) {
 			fail("Incorrect rank");
 		}
 
 		// 参照リンク経由での読み込みテスト
 		DataContainer<long[]> refContainer = new DataContainer<long[]>();
 		refContainer.refer(container);
-		if (refContainer.getRank() != rank) {
+		if (refContainer.getArrayRank() != rank) {
 			fail("Incorrect rank");
 		}
 
 		// 参照リンク経由での書き込みテスト
 		int[] newLengths = new int[] {1, 2, 3, 1};
 		int newRank = newLengths.length;
-		refContainer.setData(new long[] {1l, 2l, 3l, 4l, 5l, 6l}, 0, newLengths);
-		if (refContainer.getRank() != newRank) {
+		refContainer.setArrayData(new long[] {1l, 2l, 3l, 4l, 5l, 6l}, 0, newLengths);
+		if (refContainer.getArrayRank() != newRank) {
 			fail("Incorrect rank");
 		}
-		if (container.getRank() != newRank) {
+		if (container.getArrayRank() != newRank) {
 			fail("Incorrect rank");
 		}
 	}
@@ -211,7 +211,7 @@ public class DataContainerTest {
 		}
 
 		// long[] のデータを持たせるとINT64型になる事を検査
-		((DataContainer<long[]>)container).setData(new long[]{ 1L }, 0, DataContainer.SCALAR_LENGTHS);
+		((DataContainer<long[]>)container).setArrayData(new long[]{ 1L }, 0, DataContainer.ARRAY_LENGTHS_OF_SCALAR);
 		if (container.getDataType() != DataType.INT64) {
 			fail("Incorrect data type");
 		}
@@ -221,7 +221,7 @@ public class DataContainerTest {
 		}
 
 		// double[] のデータを持たせるとFLOAT64型になる事を検査
-		((DataContainer<double[]>)container).setData(new double[]{ 1.0 }, 0, DataContainer.SCALAR_LENGTHS);
+		((DataContainer<double[]>)container).setArrayData(new double[]{ 1.0 }, 0, DataContainer.ARRAY_LENGTHS_OF_SCALAR);
 		if (container.getDataType() != DataType.FLOAT64) {
 			fail("Incorrect data type");
 		}
@@ -231,7 +231,7 @@ public class DataContainerTest {
 		}
 
 		// boolean[] のデータを持たせるとBOOL型になる事を検査
-		((DataContainer<boolean[]>)container).setData(new boolean[]{ true }, 0, DataContainer.SCALAR_LENGTHS);
+		((DataContainer<boolean[]>)container).setArrayData(new boolean[]{ true }, 0, DataContainer.ARRAY_LENGTHS_OF_SCALAR);
 		if (container.getDataType() != DataType.BOOL) {
 			fail("Incorrect data type");
 		}
@@ -241,7 +241,7 @@ public class DataContainerTest {
 		}
 
 		// String[] のデータを持たせるとSTRING型になる事を検査
-		((DataContainer<String[]>)container).setData(new String[]{ "Hello" }, 0, DataContainer.SCALAR_LENGTHS);
+		((DataContainer<String[]>)container).setArrayData(new String[]{ "Hello" }, 0, DataContainer.ARRAY_LENGTHS_OF_SCALAR);
 		if (container.getDataType() != DataType.STRING) {
 			fail("Incorrect data type");
 		}
@@ -251,7 +251,7 @@ public class DataContainerTest {
 		}
 
 		// null を渡してデータ未格納状態に戻すとVOIDに戻る事を検査
-		((DataContainer<Object>)container).setData(null, 0, DataContainer.SCALAR_LENGTHS);
+		((DataContainer<Object>)container).setArrayData(null, 0, DataContainer.ARRAY_LENGTHS_OF_SCALAR);
 		if (container.getDataType() != DataType.VOID) {
 			fail("Incorrect data type");
 		}

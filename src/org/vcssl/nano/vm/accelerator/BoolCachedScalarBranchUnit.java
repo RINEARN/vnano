@@ -23,7 +23,7 @@ public class BoolCachedScalarBranchUnit extends AcceleratorExecutionUnit {
 			case JMP : {
 				// 条件値が定数の場合は、常に成功か失敗のどちらか（固定）に飛ぶノードを生成
 				if (operandConstant[2]) {
-					boolean condition = ( (boolean[])operandContainers[2].getData() )[0]; // 条件の低数値
+					boolean condition = ( (boolean[])operandContainers[2].getArrayData() )[0]; // 条件の低数値
 					if (condition) {
 						node = new CachedScalarUnconditionalJmpNode(nextNode);
 					} else {
@@ -38,7 +38,7 @@ public class BoolCachedScalarBranchUnit extends AcceleratorExecutionUnit {
 			case JMPN : {
 				// 条件値が定数の場合は、常に成功か失敗のどちらか（固定）に飛ぶノードを生成
 				if (operandConstant[2]) {
-					boolean condition = ( (boolean[])operandContainers[2].getData() )[0]; // 条件の低数値
+					boolean condition = ( (boolean[])operandContainers[2].getArrayData() )[0]; // 条件の低数値
 					if (condition) {
 						node = new CachedScalarUnconditionalNeverJmpNode(nextNode);
 					} else {

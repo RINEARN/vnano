@@ -410,7 +410,7 @@ public class InternalFunctionControlUnit extends AcceleratorExecutionUnit {
 			--InternalFunctionControlUnit.this.dataStackPointer;
 			DataContainer<?> src = InternalFunctionControlUnit.this.dataStack[ InternalFunctionControlUnit.this.dataStackPointer ];
 			DataContainer<?> dest = this.operandContainers[0];
-			System.arraycopy(src.getData(), src.getOffset(), dest.getData(), dest.getOffset(), dest.getSize());
+			System.arraycopy(src.getArrayData(), src.getArrayOffset(), dest.getArrayData(), dest.getArrayOffset(), dest.getArraySize());
 
 			// スタックの値をメモリに書き込んだので、そのメモリの値でキャッシュも更新しておく
 			synchronizer.synchronizeFromMemoryToCache();
@@ -445,7 +445,7 @@ public class InternalFunctionControlUnit extends AcceleratorExecutionUnit {
 			@SuppressWarnings("unchecked")
 			DataContainer<long[]> dest = (DataContainer<long[]>)this.operandContainers[0];
 
-			dest.getData()[ dest.getOffset() ] = src.getData()[ src.getOffset() ];
+			dest.getArrayData()[ dest.getArrayOffset() ] = src.getArrayData()[ src.getArrayOffset() ];
 
 			// スタックの値をメモリに書き込んだので、そのメモリの値でキャッシュも更新しておく
 			synchronizer.synchronizeFromMemoryToCache();
@@ -480,7 +480,7 @@ public class InternalFunctionControlUnit extends AcceleratorExecutionUnit {
 			@SuppressWarnings("unchecked")
 			DataContainer<double[]> dest = (DataContainer<double[]>)this.operandContainers[0];
 
-			dest.getData()[ dest.getOffset() ] = src.getData()[ src.getOffset() ];
+			dest.getArrayData()[ dest.getArrayOffset() ] = src.getArrayData()[ src.getArrayOffset() ];
 
 			// スタックの値をメモリに書き込んだので、そのメモリの値でキャッシュも更新しておく
 			synchronizer.synchronizeFromMemoryToCache();
@@ -515,7 +515,7 @@ public class InternalFunctionControlUnit extends AcceleratorExecutionUnit {
 			@SuppressWarnings("unchecked")
 			DataContainer<boolean[]> dest = (DataContainer<boolean[]>)this.operandContainers[0];
 
-			dest.getData()[ dest.getOffset() ] = src.getData()[ src.getOffset() ];
+			dest.getArrayData()[ dest.getArrayOffset() ] = src.getArrayData()[ src.getArrayOffset() ];
 
 			// スタックの値をメモリに書き込んだので、そのメモリの値でキャッシュも更新しておく
 			synchronizer.synchronizeFromMemoryToCache();
@@ -544,7 +544,7 @@ public class InternalFunctionControlUnit extends AcceleratorExecutionUnit {
 			        InternalFunctionControlUnit.this.dataStackPointer
 			];
 
-			this.cache.value = src.getData()[ src.getOffset() ];
+			this.cache.value = src.getArrayData()[ src.getArrayOffset() ];
 
 			return this.nextNode;
 		}
@@ -571,7 +571,7 @@ public class InternalFunctionControlUnit extends AcceleratorExecutionUnit {
 			        InternalFunctionControlUnit.this.dataStackPointer
 			];
 
-			this.cache.value = src.getData()[ src.getOffset() ];
+			this.cache.value = src.getArrayData()[ src.getArrayOffset() ];
 
 			return this.nextNode;
 		}
@@ -598,7 +598,7 @@ public class InternalFunctionControlUnit extends AcceleratorExecutionUnit {
 			        InternalFunctionControlUnit.this.dataStackPointer
 			];
 
-			this.cache.value = src.getData()[ src.getOffset() ];
+			this.cache.value = src.getArrayData()[ src.getArrayOffset() ];
 
 			return this.nextNode;
 		}

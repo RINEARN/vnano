@@ -28,7 +28,7 @@ public class Int64CachedScalarArithmeticUnit extends AcceleratorExecutionUnit {
 
 				// 破壊代入で定数を加算する場合（ループカウンタの処理で頻出）
 				if (operandContainers[0] == operandContainers[1] && operandConstant[2]) {
-					long diff = ((long[])operandContainers[2].getData())[ operandContainers[2].getOffset() ];
+					long diff = ((long[])operandContainers[2].getArrayData())[ operandContainers[2].getArrayOffset() ];
 
 					// インクリメント
 					if (diff == 1) {
@@ -48,7 +48,7 @@ public class Int64CachedScalarArithmeticUnit extends AcceleratorExecutionUnit {
 			case SUB : {
 				// 破壊代入で定数を減算する場合（ループカウンタの処理で頻出）
 				if (operandContainers[0] == operandContainers[1] && operandConstant[2]) {
-					long diff = ((long[])operandContainers[2].getData())[ operandContainers[2].getOffset() ];
+					long diff = ((long[])operandContainers[2].getArrayData())[ operandContainers[2].getArrayOffset() ];
 
 					// デクリメント
 					if (diff == 1) {

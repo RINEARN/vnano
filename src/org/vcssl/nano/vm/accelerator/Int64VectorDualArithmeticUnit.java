@@ -417,12 +417,12 @@ public class Int64VectorDualArithmeticUnit extends AcceleratorExecutionUnit {
 		public final AcceleratorExecutionNode execute() {
 
 			//double[] data00 = this.container00.getData();
-			double[] data01 = this.container01.getData();
-			double[] data02 = this.container02.getData();
-			double[] data10 = this.container10.getData();
+			double[] data01 = this.container01.getArrayData();
+			double[] data02 = this.container02.getArrayData();
+			double[] data10 = this.container10.getArrayData();
 			//double[] data11 = this.container11.getData();
-			double[] data12 = this.container12.getData();
-			final int size = this.container10.getSize();
+			double[] data12 = this.container12.getArrayData();
+			final int size = this.container10.getArraySize();
 
 			for (int i=0; i<size; ++i) {
 				data10[i] = (data01[i] + data02[i]) + data12[i];
@@ -443,12 +443,12 @@ public class Int64VectorDualArithmeticUnit extends AcceleratorExecutionUnit {
 		public final AcceleratorExecutionNode execute() {
 
 			//double[] data00 = this.container00.getData();
-			double[] data01 = this.container01.getData();
-			double[] data02 = this.container02.getData();
-			double[] data10 = this.container10.getData();
-			double[] data11 = this.container11.getData();
+			double[] data01 = this.container01.getArrayData();
+			double[] data02 = this.container02.getArrayData();
+			double[] data10 = this.container10.getArrayData();
+			double[] data11 = this.container11.getArrayData();
 			//double[] data12 = this.container12.getData();
-			final int size = this.container10.getSize();
+			final int size = this.container10.getArraySize();
 
 			for (int i=0; i<size; ++i) {
 				data10[i] = data11[i] + (data01[i] + data02[i]);
@@ -471,12 +471,12 @@ public class Int64VectorDualArithmeticUnit extends AcceleratorExecutionUnit {
 		public final AcceleratorExecutionNode execute() {
 
 			//double[] data00 = this.container00.getData();
-			double[] data01 = this.container01.getData();
-			double[] data02 = this.container02.getData();
-			double[] data10 = this.container10.getData();
+			double[] data01 = this.container01.getArrayData();
+			double[] data02 = this.container02.getArrayData();
+			double[] data10 = this.container10.getArrayData();
 			//double[] data11 = this.container11.getData();
-			double[] data12 = this.container12.getData();
-			final int size = this.container10.getSize();
+			double[] data12 = this.container12.getArrayData();
+			final int size = this.container10.getArraySize();
 
 			for (int i=0; i<size; ++i) {
 				data10[i] = (data01[i] + data02[i]) - data12[i];
@@ -497,12 +497,12 @@ public class Int64VectorDualArithmeticUnit extends AcceleratorExecutionUnit {
 		public final AcceleratorExecutionNode execute() {
 
 			//double[] data00 = this.container00.getData();
-			double[] data01 = this.container01.getData();
-			double[] data02 = this.container02.getData();
-			double[] data10 = this.container10.getData();
-			double[] data11 = this.container11.getData();
+			double[] data01 = this.container01.getArrayData();
+			double[] data02 = this.container02.getArrayData();
+			double[] data10 = this.container10.getArrayData();
+			double[] data11 = this.container11.getArrayData();
 			//double[] data12 = this.container12.getData();
-			final int size = this.container10.getSize();
+			final int size = this.container10.getArraySize();
 
 			for (int i=0; i<size; ++i) {
 				data10[i] = data11[i] - (data01[i] + data02[i]);
@@ -525,12 +525,12 @@ public class Int64VectorDualArithmeticUnit extends AcceleratorExecutionUnit {
 		public final AcceleratorExecutionNode execute() {
 
 			//double[] data00 = this.container00.getData();
-			double[] data01 = this.container01.getData();
-			double[] data02 = this.container02.getData();
-			double[] data10 = this.container10.getData();
+			double[] data01 = this.container01.getArrayData();
+			double[] data02 = this.container02.getArrayData();
+			double[] data10 = this.container10.getArrayData();
 			//double[] data11 = this.container11.getData();
-			double[] data12 = this.container12.getData();
-			final int size = this.container10.getSize();
+			double[] data12 = this.container12.getArrayData();
+			final int size = this.container10.getArraySize();
 
 			for (int i=0; i<size; ++i) {
 				data10[i] = (data01[i] + data02[i]) * data12[i];
@@ -551,12 +551,12 @@ public class Int64VectorDualArithmeticUnit extends AcceleratorExecutionUnit {
 		public final AcceleratorExecutionNode execute() {
 
 			//double[] data00 = this.container00.getData();
-			double[] data01 = this.container01.getData();
-			double[] data02 = this.container02.getData();
-			double[] data10 = this.container10.getData();
-			double[] data11 = this.container11.getData();
+			double[] data01 = this.container01.getArrayData();
+			double[] data02 = this.container02.getArrayData();
+			double[] data10 = this.container10.getArrayData();
+			double[] data11 = this.container11.getArrayData();
 			//double[] data12 = this.container12.getData();
-			final int size = this.container10.getSize();
+			final int size = this.container10.getArraySize();
 
 			for (int i=0; i<size; ++i) {
 				data10[i] = data11[i] * (data01[i] + data02[i]);
@@ -579,12 +579,12 @@ public class Int64VectorDualArithmeticUnit extends AcceleratorExecutionUnit {
 		public final AcceleratorExecutionNode execute() {
 
 			//double[] data00 = this.container00.getData();
-			double[] data01 = this.container01.getData();
-			double[] data02 = this.container02.getData();
-			double[] data10 = this.container10.getData();
+			double[] data01 = this.container01.getArrayData();
+			double[] data02 = this.container02.getArrayData();
+			double[] data10 = this.container10.getArrayData();
 			//double[] data11 = this.container11.getData();
-			double[] data12 = this.container12.getData();
-			final int size = this.container10.getSize();
+			double[] data12 = this.container12.getArrayData();
+			final int size = this.container10.getArraySize();
 
 			for (int i=0; i<size; ++i) {
 				data10[i] = (data01[i] + data02[i]) / data12[i];
@@ -605,12 +605,12 @@ public class Int64VectorDualArithmeticUnit extends AcceleratorExecutionUnit {
 		public final AcceleratorExecutionNode execute() {
 
 			//double[] data00 = this.container00.getData();
-			double[] data01 = this.container01.getData();
-			double[] data02 = this.container02.getData();
-			double[] data10 = this.container10.getData();
-			double[] data11 = this.container11.getData();
+			double[] data01 = this.container01.getArrayData();
+			double[] data02 = this.container02.getArrayData();
+			double[] data10 = this.container10.getArrayData();
+			double[] data11 = this.container11.getArrayData();
 			//double[] data12 = this.container12.getData();
-			final int size = this.container10.getSize();
+			final int size = this.container10.getArraySize();
 
 			for (int i=0; i<size; ++i) {
 				data10[i] = data11[i] / (data01[i] + data02[i]);
@@ -633,12 +633,12 @@ public class Int64VectorDualArithmeticUnit extends AcceleratorExecutionUnit {
 		public final AcceleratorExecutionNode execute() {
 
 			//double[] data00 = this.container00.getData();
-			double[] data01 = this.container01.getData();
-			double[] data02 = this.container02.getData();
-			double[] data10 = this.container10.getData();
+			double[] data01 = this.container01.getArrayData();
+			double[] data02 = this.container02.getArrayData();
+			double[] data10 = this.container10.getArrayData();
 			//double[] data11 = this.container11.getData();
-			double[] data12 = this.container12.getData();
-			final int size = this.container10.getSize();
+			double[] data12 = this.container12.getArrayData();
+			final int size = this.container10.getArraySize();
 
 			for (int i=0; i<size; ++i) {
 				data10[i] = (data01[i] + data02[i]) % data12[i];
@@ -659,12 +659,12 @@ public class Int64VectorDualArithmeticUnit extends AcceleratorExecutionUnit {
 		public final AcceleratorExecutionNode execute() {
 
 			//double[] data00 = this.container00.getData();
-			double[] data01 = this.container01.getData();
-			double[] data02 = this.container02.getData();
-			double[] data10 = this.container10.getData();
-			double[] data11 = this.container11.getData();
+			double[] data01 = this.container01.getArrayData();
+			double[] data02 = this.container02.getArrayData();
+			double[] data10 = this.container10.getArrayData();
+			double[] data11 = this.container11.getArrayData();
 			//double[] data12 = this.container12.getData();
-			final int size = this.container10.getSize();
+			final int size = this.container10.getArraySize();
 
 			for (int i=0; i<size; ++i) {
 				data10[i] = data11[i] % (data01[i] + data02[i]);
@@ -691,12 +691,12 @@ public class Int64VectorDualArithmeticUnit extends AcceleratorExecutionUnit {
 		public final AcceleratorExecutionNode execute() {
 
 			//double[] data00 = this.container00.getData();
-			double[] data01 = this.container01.getData();
-			double[] data02 = this.container02.getData();
-			double[] data10 = this.container10.getData();
+			double[] data01 = this.container01.getArrayData();
+			double[] data02 = this.container02.getArrayData();
+			double[] data10 = this.container10.getArrayData();
 			//double[] data11 = this.container11.getData();
-			double[] data12 = this.container12.getData();
-			final int size = this.container10.getSize();
+			double[] data12 = this.container12.getArrayData();
+			final int size = this.container10.getArraySize();
 
 			for (int i=0; i<size; ++i) {
 				data10[i] = (data01[i] - data02[i]) + data12[i];
@@ -717,12 +717,12 @@ public class Int64VectorDualArithmeticUnit extends AcceleratorExecutionUnit {
 		public final AcceleratorExecutionNode execute() {
 
 			//double[] data00 = this.container00.getData();
-			double[] data01 = this.container01.getData();
-			double[] data02 = this.container02.getData();
-			double[] data10 = this.container10.getData();
-			double[] data11 = this.container11.getData();
+			double[] data01 = this.container01.getArrayData();
+			double[] data02 = this.container02.getArrayData();
+			double[] data10 = this.container10.getArrayData();
+			double[] data11 = this.container11.getArrayData();
 			//double[] data12 = this.container12.getData();
-			final int size = this.container10.getSize();
+			final int size = this.container10.getArraySize();
 
 			for (int i=0; i<size; ++i) {
 				data10[i] = data11[i] + (data01[i] - data02[i]);
@@ -745,12 +745,12 @@ public class Int64VectorDualArithmeticUnit extends AcceleratorExecutionUnit {
 		public final AcceleratorExecutionNode execute() {
 
 			//double[] data00 = this.container00.getData();
-			double[] data01 = this.container01.getData();
-			double[] data02 = this.container02.getData();
-			double[] data10 = this.container10.getData();
+			double[] data01 = this.container01.getArrayData();
+			double[] data02 = this.container02.getArrayData();
+			double[] data10 = this.container10.getArrayData();
 			//double[] data11 = this.container11.getData();
-			double[] data12 = this.container12.getData();
-			final int size = this.container10.getSize();
+			double[] data12 = this.container12.getArrayData();
+			final int size = this.container10.getArraySize();
 
 			for (int i=0; i<size; ++i) {
 				data10[i] = (data01[i] - data02[i]) - data12[i];
@@ -771,12 +771,12 @@ public class Int64VectorDualArithmeticUnit extends AcceleratorExecutionUnit {
 		public final AcceleratorExecutionNode execute() {
 
 			//double[] data00 = this.container00.getData();
-			double[] data01 = this.container01.getData();
-			double[] data02 = this.container02.getData();
-			double[] data10 = this.container10.getData();
-			double[] data11 = this.container11.getData();
+			double[] data01 = this.container01.getArrayData();
+			double[] data02 = this.container02.getArrayData();
+			double[] data10 = this.container10.getArrayData();
+			double[] data11 = this.container11.getArrayData();
 			//double[] data12 = this.container12.getData();
-			final int size = this.container10.getSize();
+			final int size = this.container10.getArraySize();
 
 			for (int i=0; i<size; ++i) {
 				data10[i] = data11[i] - (data01[i] - data02[i]);
@@ -799,12 +799,12 @@ public class Int64VectorDualArithmeticUnit extends AcceleratorExecutionUnit {
 		public final AcceleratorExecutionNode execute() {
 
 			//double[] data00 = this.container00.getData();
-			double[] data01 = this.container01.getData();
-			double[] data02 = this.container02.getData();
-			double[] data10 = this.container10.getData();
+			double[] data01 = this.container01.getArrayData();
+			double[] data02 = this.container02.getArrayData();
+			double[] data10 = this.container10.getArrayData();
 			//double[] data11 = this.container11.getData();
-			double[] data12 = this.container12.getData();
-			final int size = this.container10.getSize();
+			double[] data12 = this.container12.getArrayData();
+			final int size = this.container10.getArraySize();
 
 			for (int i=0; i<size; ++i) {
 				data10[i] = (data01[i] - data02[i]) * data12[i];
@@ -825,12 +825,12 @@ public class Int64VectorDualArithmeticUnit extends AcceleratorExecutionUnit {
 		public final AcceleratorExecutionNode execute() {
 
 			//double[] data00 = this.container00.getData();
-			double[] data01 = this.container01.getData();
-			double[] data02 = this.container02.getData();
-			double[] data10 = this.container10.getData();
-			double[] data11 = this.container11.getData();
+			double[] data01 = this.container01.getArrayData();
+			double[] data02 = this.container02.getArrayData();
+			double[] data10 = this.container10.getArrayData();
+			double[] data11 = this.container11.getArrayData();
 			//double[] data12 = this.container12.getData();
-			final int size = this.container10.getSize();
+			final int size = this.container10.getArraySize();
 
 			for (int i=0; i<size; ++i) {
 				data10[i] = data11[i] * (data01[i] - data02[i]);
@@ -853,12 +853,12 @@ public class Int64VectorDualArithmeticUnit extends AcceleratorExecutionUnit {
 		public final AcceleratorExecutionNode execute() {
 
 			//double[] data00 = this.container00.getData();
-			double[] data01 = this.container01.getData();
-			double[] data02 = this.container02.getData();
-			double[] data10 = this.container10.getData();
+			double[] data01 = this.container01.getArrayData();
+			double[] data02 = this.container02.getArrayData();
+			double[] data10 = this.container10.getArrayData();
 			//double[] data11 = this.container11.getData();
-			double[] data12 = this.container12.getData();
-			final int size = this.container10.getSize();
+			double[] data12 = this.container12.getArrayData();
+			final int size = this.container10.getArraySize();
 
 			for (int i=0; i<size; ++i) {
 				data10[i] = (data01[i] - data02[i]) / data12[i];
@@ -879,12 +879,12 @@ public class Int64VectorDualArithmeticUnit extends AcceleratorExecutionUnit {
 		public final AcceleratorExecutionNode execute() {
 
 			//double[] data00 = this.container00.getData();
-			double[] data01 = this.container01.getData();
-			double[] data02 = this.container02.getData();
-			double[] data10 = this.container10.getData();
-			double[] data11 = this.container11.getData();
+			double[] data01 = this.container01.getArrayData();
+			double[] data02 = this.container02.getArrayData();
+			double[] data10 = this.container10.getArrayData();
+			double[] data11 = this.container11.getArrayData();
 			//double[] data12 = this.container12.getData();
-			final int size = this.container10.getSize();
+			final int size = this.container10.getArraySize();
 
 			for (int i=0; i<size; ++i) {
 				data10[i] = data11[i] / (data01[i] - data02[i]);
@@ -907,12 +907,12 @@ public class Int64VectorDualArithmeticUnit extends AcceleratorExecutionUnit {
 		public final AcceleratorExecutionNode execute() {
 
 			//double[] data00 = this.container00.getData();
-			double[] data01 = this.container01.getData();
-			double[] data02 = this.container02.getData();
-			double[] data10 = this.container10.getData();
+			double[] data01 = this.container01.getArrayData();
+			double[] data02 = this.container02.getArrayData();
+			double[] data10 = this.container10.getArrayData();
 			//double[] data11 = this.container11.getData();
-			double[] data12 = this.container12.getData();
-			final int size = this.container10.getSize();
+			double[] data12 = this.container12.getArrayData();
+			final int size = this.container10.getArraySize();
 
 			for (int i=0; i<size; ++i) {
 				data10[i] = (data01[i] - data02[i]) % data12[i];
@@ -933,12 +933,12 @@ public class Int64VectorDualArithmeticUnit extends AcceleratorExecutionUnit {
 		public final AcceleratorExecutionNode execute() {
 
 			//double[] data00 = this.container00.getData();
-			double[] data01 = this.container01.getData();
-			double[] data02 = this.container02.getData();
-			double[] data10 = this.container10.getData();
-			double[] data11 = this.container11.getData();
+			double[] data01 = this.container01.getArrayData();
+			double[] data02 = this.container02.getArrayData();
+			double[] data10 = this.container10.getArrayData();
+			double[] data11 = this.container11.getArrayData();
 			//double[] data12 = this.container12.getData();
-			final int size = this.container10.getSize();
+			final int size = this.container10.getArraySize();
 
 			for (int i=0; i<size; ++i) {
 				data10[i] = data11[i] % (data01[i] - data02[i]);
@@ -965,12 +965,12 @@ public class Int64VectorDualArithmeticUnit extends AcceleratorExecutionUnit {
 		public final AcceleratorExecutionNode execute() {
 
 			//double[] data00 = this.container00.getData();
-			double[] data01 = this.container01.getData();
-			double[] data02 = this.container02.getData();
-			double[] data10 = this.container10.getData();
+			double[] data01 = this.container01.getArrayData();
+			double[] data02 = this.container02.getArrayData();
+			double[] data10 = this.container10.getArrayData();
 			//double[] data11 = this.container11.getData();
-			double[] data12 = this.container12.getData();
-			final int size = this.container10.getSize();
+			double[] data12 = this.container12.getArrayData();
+			final int size = this.container10.getArraySize();
 
 			for (int i=0; i<size; ++i) {
 				data10[i] = (data01[i] * data02[i]) + data12[i];
@@ -991,12 +991,12 @@ public class Int64VectorDualArithmeticUnit extends AcceleratorExecutionUnit {
 		public final AcceleratorExecutionNode execute() {
 
 			//double[] data00 = this.container00.getData();
-			double[] data01 = this.container01.getData();
-			double[] data02 = this.container02.getData();
-			double[] data10 = this.container10.getData();
-			double[] data11 = this.container11.getData();
+			double[] data01 = this.container01.getArrayData();
+			double[] data02 = this.container02.getArrayData();
+			double[] data10 = this.container10.getArrayData();
+			double[] data11 = this.container11.getArrayData();
 			//double[] data12 = this.container12.getData();
-			final int size = this.container10.getSize();
+			final int size = this.container10.getArraySize();
 
 			for (int i=0; i<size; ++i) {
 				data10[i] = data11[i] + (data01[i] * data02[i]);
@@ -1019,12 +1019,12 @@ public class Int64VectorDualArithmeticUnit extends AcceleratorExecutionUnit {
 		public final AcceleratorExecutionNode execute() {
 
 			//double[] data00 = this.container00.getData();
-			double[] data01 = this.container01.getData();
-			double[] data02 = this.container02.getData();
-			double[] data10 = this.container10.getData();
+			double[] data01 = this.container01.getArrayData();
+			double[] data02 = this.container02.getArrayData();
+			double[] data10 = this.container10.getArrayData();
 			//double[] data11 = this.container11.getData();
-			double[] data12 = this.container12.getData();
-			final int size = this.container10.getSize();
+			double[] data12 = this.container12.getArrayData();
+			final int size = this.container10.getArraySize();
 
 			for (int i=0; i<size; ++i) {
 				data10[i] = (data01[i] * data02[i]) - data12[i];
@@ -1045,12 +1045,12 @@ public class Int64VectorDualArithmeticUnit extends AcceleratorExecutionUnit {
 		public final AcceleratorExecutionNode execute() {
 
 			//double[] data00 = this.container00.getData();
-			double[] data01 = this.container01.getData();
-			double[] data02 = this.container02.getData();
-			double[] data10 = this.container10.getData();
-			double[] data11 = this.container11.getData();
+			double[] data01 = this.container01.getArrayData();
+			double[] data02 = this.container02.getArrayData();
+			double[] data10 = this.container10.getArrayData();
+			double[] data11 = this.container11.getArrayData();
 			//double[] data12 = this.container12.getData();
-			final int size = this.container10.getSize();
+			final int size = this.container10.getArraySize();
 
 			for (int i=0; i<size; ++i) {
 				data10[i] = data11[i] - (data01[i] * data02[i]);
@@ -1073,12 +1073,12 @@ public class Int64VectorDualArithmeticUnit extends AcceleratorExecutionUnit {
 		public final AcceleratorExecutionNode execute() {
 
 			//double[] data00 = this.container00.getData();
-			double[] data01 = this.container01.getData();
-			double[] data02 = this.container02.getData();
-			double[] data10 = this.container10.getData();
+			double[] data01 = this.container01.getArrayData();
+			double[] data02 = this.container02.getArrayData();
+			double[] data10 = this.container10.getArrayData();
 			//double[] data11 = this.container11.getData();
-			double[] data12 = this.container12.getData();
-			final int size = this.container10.getSize();
+			double[] data12 = this.container12.getArrayData();
+			final int size = this.container10.getArraySize();
 
 			for (int i=0; i<size; ++i) {
 				data10[i] = (data01[i] * data02[i]) * data12[i];
@@ -1099,12 +1099,12 @@ public class Int64VectorDualArithmeticUnit extends AcceleratorExecutionUnit {
 		public final AcceleratorExecutionNode execute() {
 
 			//double[] data00 = this.container00.getData();
-			double[] data01 = this.container01.getData();
-			double[] data02 = this.container02.getData();
-			double[] data10 = this.container10.getData();
-			double[] data11 = this.container11.getData();
+			double[] data01 = this.container01.getArrayData();
+			double[] data02 = this.container02.getArrayData();
+			double[] data10 = this.container10.getArrayData();
+			double[] data11 = this.container11.getArrayData();
 			//double[] data12 = this.container12.getData();
-			final int size = this.container10.getSize();
+			final int size = this.container10.getArraySize();
 
 			for (int i=0; i<size; ++i) {
 				data10[i] = data11[i] * (data01[i] * data02[i]);
@@ -1127,12 +1127,12 @@ public class Int64VectorDualArithmeticUnit extends AcceleratorExecutionUnit {
 		public final AcceleratorExecutionNode execute() {
 
 			//double[] data00 = this.container00.getData();
-			double[] data01 = this.container01.getData();
-			double[] data02 = this.container02.getData();
-			double[] data10 = this.container10.getData();
+			double[] data01 = this.container01.getArrayData();
+			double[] data02 = this.container02.getArrayData();
+			double[] data10 = this.container10.getArrayData();
 			//double[] data11 = this.container11.getData();
-			double[] data12 = this.container12.getData();
-			final int size = this.container10.getSize();
+			double[] data12 = this.container12.getArrayData();
+			final int size = this.container10.getArraySize();
 
 			for (int i=0; i<size; ++i) {
 				data10[i] = (data01[i] * data02[i]) / data12[i];
@@ -1153,12 +1153,12 @@ public class Int64VectorDualArithmeticUnit extends AcceleratorExecutionUnit {
 		public final AcceleratorExecutionNode execute() {
 
 			//double[] data00 = this.container00.getData();
-			double[] data01 = this.container01.getData();
-			double[] data02 = this.container02.getData();
-			double[] data10 = this.container10.getData();
-			double[] data11 = this.container11.getData();
+			double[] data01 = this.container01.getArrayData();
+			double[] data02 = this.container02.getArrayData();
+			double[] data10 = this.container10.getArrayData();
+			double[] data11 = this.container11.getArrayData();
 			//double[] data12 = this.container12.getData();
-			final int size = this.container10.getSize();
+			final int size = this.container10.getArraySize();
 
 			for (int i=0; i<size; ++i) {
 				data10[i] = data11[i] / (data01[i] * data02[i]);
@@ -1181,12 +1181,12 @@ public class Int64VectorDualArithmeticUnit extends AcceleratorExecutionUnit {
 		public final AcceleratorExecutionNode execute() {
 
 			//double[] data00 = this.container00.getData();
-			double[] data01 = this.container01.getData();
-			double[] data02 = this.container02.getData();
-			double[] data10 = this.container10.getData();
+			double[] data01 = this.container01.getArrayData();
+			double[] data02 = this.container02.getArrayData();
+			double[] data10 = this.container10.getArrayData();
 			//double[] data11 = this.container11.getData();
-			double[] data12 = this.container12.getData();
-			final int size = this.container10.getSize();
+			double[] data12 = this.container12.getArrayData();
+			final int size = this.container10.getArraySize();
 
 			for (int i=0; i<size; ++i) {
 				data10[i] = (data01[i] * data02[i]) % data12[i];
@@ -1207,12 +1207,12 @@ public class Int64VectorDualArithmeticUnit extends AcceleratorExecutionUnit {
 		public final AcceleratorExecutionNode execute() {
 
 			//double[] data00 = this.container00.getData();
-			double[] data01 = this.container01.getData();
-			double[] data02 = this.container02.getData();
-			double[] data10 = this.container10.getData();
-			double[] data11 = this.container11.getData();
+			double[] data01 = this.container01.getArrayData();
+			double[] data02 = this.container02.getArrayData();
+			double[] data10 = this.container10.getArrayData();
+			double[] data11 = this.container11.getArrayData();
 			//double[] data12 = this.container12.getData();
-			final int size = this.container10.getSize();
+			final int size = this.container10.getArraySize();
 
 			for (int i=0; i<size; ++i) {
 				data10[i] = data11[i] % (data01[i] * data02[i]);
@@ -1235,12 +1235,12 @@ public class Int64VectorDualArithmeticUnit extends AcceleratorExecutionUnit {
 		public final AcceleratorExecutionNode execute() {
 
 			//double[] data00 = this.container00.getData();
-			double[] data01 = this.container01.getData();
-			double[] data02 = this.container02.getData();
-			double[] data10 = this.container10.getData();
+			double[] data01 = this.container01.getArrayData();
+			double[] data02 = this.container02.getArrayData();
+			double[] data10 = this.container10.getArrayData();
 			//double[] data11 = this.container11.getData();
-			double[] data12 = this.container12.getData();
-			final int size = this.container10.getSize();
+			double[] data12 = this.container12.getArrayData();
+			final int size = this.container10.getArraySize();
 
 			for (int i=0; i<size; ++i) {
 				data10[i] = (data01[i] / data02[i]) + data12[i];
@@ -1261,12 +1261,12 @@ public class Int64VectorDualArithmeticUnit extends AcceleratorExecutionUnit {
 		public final AcceleratorExecutionNode execute() {
 
 			//double[] data00 = this.container00.getData();
-			double[] data01 = this.container01.getData();
-			double[] data02 = this.container02.getData();
-			double[] data10 = this.container10.getData();
-			double[] data11 = this.container11.getData();
+			double[] data01 = this.container01.getArrayData();
+			double[] data02 = this.container02.getArrayData();
+			double[] data10 = this.container10.getArrayData();
+			double[] data11 = this.container11.getArrayData();
 			//double[] data12 = this.container12.getData();
-			final int size = this.container10.getSize();
+			final int size = this.container10.getArraySize();
 
 			for (int i=0; i<size; ++i) {
 				data10[i] = data11[i] + (data01[i] / data02[i]);
@@ -1289,12 +1289,12 @@ public class Int64VectorDualArithmeticUnit extends AcceleratorExecutionUnit {
 		public final AcceleratorExecutionNode execute() {
 
 			//double[] data00 = this.container00.getData();
-			double[] data01 = this.container01.getData();
-			double[] data02 = this.container02.getData();
-			double[] data10 = this.container10.getData();
+			double[] data01 = this.container01.getArrayData();
+			double[] data02 = this.container02.getArrayData();
+			double[] data10 = this.container10.getArrayData();
 			//double[] data11 = this.container11.getData();
-			double[] data12 = this.container12.getData();
-			final int size = this.container10.getSize();
+			double[] data12 = this.container12.getArrayData();
+			final int size = this.container10.getArraySize();
 
 			for (int i=0; i<size; ++i) {
 				data10[i] = (data01[i] / data02[i]) - data12[i];
@@ -1315,12 +1315,12 @@ public class Int64VectorDualArithmeticUnit extends AcceleratorExecutionUnit {
 		public final AcceleratorExecutionNode execute() {
 
 			//double[] data00 = this.container00.getData();
-			double[] data01 = this.container01.getData();
-			double[] data02 = this.container02.getData();
-			double[] data10 = this.container10.getData();
-			double[] data11 = this.container11.getData();
+			double[] data01 = this.container01.getArrayData();
+			double[] data02 = this.container02.getArrayData();
+			double[] data10 = this.container10.getArrayData();
+			double[] data11 = this.container11.getArrayData();
 			//double[] data12 = this.container12.getData();
-			final int size = this.container10.getSize();
+			final int size = this.container10.getArraySize();
 
 			for (int i=0; i<size; ++i) {
 				data10[i] = data11[i] - (data01[i] / data02[i]);
@@ -1343,12 +1343,12 @@ public class Int64VectorDualArithmeticUnit extends AcceleratorExecutionUnit {
 		public final AcceleratorExecutionNode execute() {
 
 			//double[] data00 = this.container00.getData();
-			double[] data01 = this.container01.getData();
-			double[] data02 = this.container02.getData();
-			double[] data10 = this.container10.getData();
+			double[] data01 = this.container01.getArrayData();
+			double[] data02 = this.container02.getArrayData();
+			double[] data10 = this.container10.getArrayData();
 			//double[] data11 = this.container11.getData();
-			double[] data12 = this.container12.getData();
-			final int size = this.container10.getSize();
+			double[] data12 = this.container12.getArrayData();
+			final int size = this.container10.getArraySize();
 
 			for (int i=0; i<size; ++i) {
 				data10[i] = (data01[i] / data02[i]) * data12[i];
@@ -1369,12 +1369,12 @@ public class Int64VectorDualArithmeticUnit extends AcceleratorExecutionUnit {
 		public final AcceleratorExecutionNode execute() {
 
 			//double[] data00 = this.container00.getData();
-			double[] data01 = this.container01.getData();
-			double[] data02 = this.container02.getData();
-			double[] data10 = this.container10.getData();
-			double[] data11 = this.container11.getData();
+			double[] data01 = this.container01.getArrayData();
+			double[] data02 = this.container02.getArrayData();
+			double[] data10 = this.container10.getArrayData();
+			double[] data11 = this.container11.getArrayData();
 			//double[] data12 = this.container12.getData();
-			final int size = this.container10.getSize();
+			final int size = this.container10.getArraySize();
 
 			for (int i=0; i<size; ++i) {
 				data10[i] = data11[i] * (data01[i] / data02[i]);
@@ -1397,12 +1397,12 @@ public class Int64VectorDualArithmeticUnit extends AcceleratorExecutionUnit {
 		public final AcceleratorExecutionNode execute() {
 
 			//double[] data00 = this.container00.getData();
-			double[] data01 = this.container01.getData();
-			double[] data02 = this.container02.getData();
-			double[] data10 = this.container10.getData();
+			double[] data01 = this.container01.getArrayData();
+			double[] data02 = this.container02.getArrayData();
+			double[] data10 = this.container10.getArrayData();
 			//double[] data11 = this.container11.getData();
-			double[] data12 = this.container12.getData();
-			final int size = this.container10.getSize();
+			double[] data12 = this.container12.getArrayData();
+			final int size = this.container10.getArraySize();
 
 			for (int i=0; i<size; ++i) {
 				data10[i] = (data01[i] / data02[i]) / data12[i];
@@ -1423,12 +1423,12 @@ public class Int64VectorDualArithmeticUnit extends AcceleratorExecutionUnit {
 		public final AcceleratorExecutionNode execute() {
 
 			//double[] data00 = this.container00.getData();
-			double[] data01 = this.container01.getData();
-			double[] data02 = this.container02.getData();
-			double[] data10 = this.container10.getData();
-			double[] data11 = this.container11.getData();
+			double[] data01 = this.container01.getArrayData();
+			double[] data02 = this.container02.getArrayData();
+			double[] data10 = this.container10.getArrayData();
+			double[] data11 = this.container11.getArrayData();
 			//double[] data12 = this.container12.getData();
-			final int size = this.container10.getSize();
+			final int size = this.container10.getArraySize();
 
 			for (int i=0; i<size; ++i) {
 				data10[i] = data11[i] / (data01[i] / data02[i]);
@@ -1451,12 +1451,12 @@ public class Int64VectorDualArithmeticUnit extends AcceleratorExecutionUnit {
 		public final AcceleratorExecutionNode execute() {
 
 			//double[] data00 = this.container00.getData();
-			double[] data01 = this.container01.getData();
-			double[] data02 = this.container02.getData();
-			double[] data10 = this.container10.getData();
+			double[] data01 = this.container01.getArrayData();
+			double[] data02 = this.container02.getArrayData();
+			double[] data10 = this.container10.getArrayData();
 			//double[] data11 = this.container11.getData();
-			double[] data12 = this.container12.getData();
-			final int size = this.container10.getSize();
+			double[] data12 = this.container12.getArrayData();
+			final int size = this.container10.getArraySize();
 
 			for (int i=0; i<size; ++i) {
 				data10[i] = (data01[i] / data02[i]) % data12[i];
@@ -1477,12 +1477,12 @@ public class Int64VectorDualArithmeticUnit extends AcceleratorExecutionUnit {
 		public final AcceleratorExecutionNode execute() {
 
 			//double[] data00 = this.container00.getData();
-			double[] data01 = this.container01.getData();
-			double[] data02 = this.container02.getData();
-			double[] data10 = this.container10.getData();
-			double[] data11 = this.container11.getData();
+			double[] data01 = this.container01.getArrayData();
+			double[] data02 = this.container02.getArrayData();
+			double[] data10 = this.container10.getArrayData();
+			double[] data11 = this.container11.getArrayData();
 			//double[] data12 = this.container12.getData();
-			final int size = this.container10.getSize();
+			final int size = this.container10.getArraySize();
 
 			for (int i=0; i<size; ++i) {
 				data10[i] = data11[i] % (data01[i] / data02[i]);
@@ -1509,12 +1509,12 @@ public class Int64VectorDualArithmeticUnit extends AcceleratorExecutionUnit {
 		public final AcceleratorExecutionNode execute() {
 
 			//double[] data00 = this.container00.getData();
-			double[] data01 = this.container01.getData();
-			double[] data02 = this.container02.getData();
-			double[] data10 = this.container10.getData();
+			double[] data01 = this.container01.getArrayData();
+			double[] data02 = this.container02.getArrayData();
+			double[] data10 = this.container10.getArrayData();
 			//double[] data11 = this.container11.getData();
-			double[] data12 = this.container12.getData();
-			final int size = this.container10.getSize();
+			double[] data12 = this.container12.getArrayData();
+			final int size = this.container10.getArraySize();
 
 			for (int i=0; i<size; ++i) {
 				data10[i] = (data01[i] % data02[i]) + data12[i];
@@ -1535,12 +1535,12 @@ public class Int64VectorDualArithmeticUnit extends AcceleratorExecutionUnit {
 		public final AcceleratorExecutionNode execute() {
 
 			//double[] data00 = this.container00.getData();
-			double[] data01 = this.container01.getData();
-			double[] data02 = this.container02.getData();
-			double[] data10 = this.container10.getData();
-			double[] data11 = this.container11.getData();
+			double[] data01 = this.container01.getArrayData();
+			double[] data02 = this.container02.getArrayData();
+			double[] data10 = this.container10.getArrayData();
+			double[] data11 = this.container11.getArrayData();
 			//double[] data12 = this.container12.getData();
-			final int size = this.container10.getSize();
+			final int size = this.container10.getArraySize();
 
 			for (int i=0; i<size; ++i) {
 				data10[i] = data11[i] + (data01[i] % data02[i]);
@@ -1563,12 +1563,12 @@ public class Int64VectorDualArithmeticUnit extends AcceleratorExecutionUnit {
 		public final AcceleratorExecutionNode execute() {
 
 			//double[] data00 = this.container00.getData();
-			double[] data01 = this.container01.getData();
-			double[] data02 = this.container02.getData();
-			double[] data10 = this.container10.getData();
+			double[] data01 = this.container01.getArrayData();
+			double[] data02 = this.container02.getArrayData();
+			double[] data10 = this.container10.getArrayData();
 			//double[] data11 = this.container11.getData();
-			double[] data12 = this.container12.getData();
-			final int size = this.container10.getSize();
+			double[] data12 = this.container12.getArrayData();
+			final int size = this.container10.getArraySize();
 
 			for (int i=0; i<size; ++i) {
 				data10[i] = (data01[i] % data02[i]) - data12[i];
@@ -1589,12 +1589,12 @@ public class Int64VectorDualArithmeticUnit extends AcceleratorExecutionUnit {
 		public final AcceleratorExecutionNode execute() {
 
 			//double[] data00 = this.container00.getData();
-			double[] data01 = this.container01.getData();
-			double[] data02 = this.container02.getData();
-			double[] data10 = this.container10.getData();
-			double[] data11 = this.container11.getData();
+			double[] data01 = this.container01.getArrayData();
+			double[] data02 = this.container02.getArrayData();
+			double[] data10 = this.container10.getArrayData();
+			double[] data11 = this.container11.getArrayData();
 			//double[] data12 = this.container12.getData();
-			final int size = this.container10.getSize();
+			final int size = this.container10.getArraySize();
 
 			for (int i=0; i<size; ++i) {
 				data10[i] = data11[i] - (data01[i] % data02[i]);
@@ -1617,12 +1617,12 @@ public class Int64VectorDualArithmeticUnit extends AcceleratorExecutionUnit {
 		public final AcceleratorExecutionNode execute() {
 
 			//double[] data00 = this.container00.getData();
-			double[] data01 = this.container01.getData();
-			double[] data02 = this.container02.getData();
-			double[] data10 = this.container10.getData();
+			double[] data01 = this.container01.getArrayData();
+			double[] data02 = this.container02.getArrayData();
+			double[] data10 = this.container10.getArrayData();
 			//double[] data11 = this.container11.getData();
-			double[] data12 = this.container12.getData();
-			final int size = this.container10.getSize();
+			double[] data12 = this.container12.getArrayData();
+			final int size = this.container10.getArraySize();
 
 			for (int i=0; i<size; ++i) {
 				data10[i] = (data01[i] % data02[i]) * data12[i];
@@ -1643,12 +1643,12 @@ public class Int64VectorDualArithmeticUnit extends AcceleratorExecutionUnit {
 		public final AcceleratorExecutionNode execute() {
 
 			//double[] data00 = this.container00.getData();
-			double[] data01 = this.container01.getData();
-			double[] data02 = this.container02.getData();
-			double[] data10 = this.container10.getData();
-			double[] data11 = this.container11.getData();
+			double[] data01 = this.container01.getArrayData();
+			double[] data02 = this.container02.getArrayData();
+			double[] data10 = this.container10.getArrayData();
+			double[] data11 = this.container11.getArrayData();
 			//double[] data12 = this.container12.getData();
-			final int size = this.container10.getSize();
+			final int size = this.container10.getArraySize();
 
 			for (int i=0; i<size; ++i) {
 				data10[i] = data11[i] * (data01[i] % data02[i]);
@@ -1671,12 +1671,12 @@ public class Int64VectorDualArithmeticUnit extends AcceleratorExecutionUnit {
 		public final AcceleratorExecutionNode execute() {
 
 			//double[] data00 = this.container00.getData();
-			double[] data01 = this.container01.getData();
-			double[] data02 = this.container02.getData();
-			double[] data10 = this.container10.getData();
+			double[] data01 = this.container01.getArrayData();
+			double[] data02 = this.container02.getArrayData();
+			double[] data10 = this.container10.getArrayData();
 			//double[] data11 = this.container11.getData();
-			double[] data12 = this.container12.getData();
-			final int size = this.container10.getSize();
+			double[] data12 = this.container12.getArrayData();
+			final int size = this.container10.getArraySize();
 
 			for (int i=0; i<size; ++i) {
 				data10[i] = (data01[i] % data02[i]) / data12[i];
@@ -1697,12 +1697,12 @@ public class Int64VectorDualArithmeticUnit extends AcceleratorExecutionUnit {
 		public final AcceleratorExecutionNode execute() {
 
 			//double[] data00 = this.container00.getData();
-			double[] data01 = this.container01.getData();
-			double[] data02 = this.container02.getData();
-			double[] data10 = this.container10.getData();
-			double[] data11 = this.container11.getData();
+			double[] data01 = this.container01.getArrayData();
+			double[] data02 = this.container02.getArrayData();
+			double[] data10 = this.container10.getArrayData();
+			double[] data11 = this.container11.getArrayData();
 			//double[] data12 = this.container12.getData();
-			final int size = this.container10.getSize();
+			final int size = this.container10.getArraySize();
 
 			for (int i=0; i<size; ++i) {
 				data10[i] = data11[i] / (data01[i] % data02[i]);
@@ -1725,12 +1725,12 @@ public class Int64VectorDualArithmeticUnit extends AcceleratorExecutionUnit {
 		public final AcceleratorExecutionNode execute() {
 
 			//double[] data00 = this.container00.getData();
-			double[] data01 = this.container01.getData();
-			double[] data02 = this.container02.getData();
-			double[] data10 = this.container10.getData();
+			double[] data01 = this.container01.getArrayData();
+			double[] data02 = this.container02.getArrayData();
+			double[] data10 = this.container10.getArrayData();
 			//double[] data11 = this.container11.getData();
-			double[] data12 = this.container12.getData();
-			final int size = this.container10.getSize();
+			double[] data12 = this.container12.getArrayData();
+			final int size = this.container10.getArraySize();
 
 			for (int i=0; i<size; ++i) {
 				data10[i] = (data01[i] % data02[i]) % data12[i];
@@ -1751,12 +1751,12 @@ public class Int64VectorDualArithmeticUnit extends AcceleratorExecutionUnit {
 		public final AcceleratorExecutionNode execute() {
 
 			//double[] data00 = this.container00.getData();
-			double[] data01 = this.container01.getData();
-			double[] data02 = this.container02.getData();
-			double[] data10 = this.container10.getData();
-			double[] data11 = this.container11.getData();
+			double[] data01 = this.container01.getArrayData();
+			double[] data02 = this.container02.getArrayData();
+			double[] data10 = this.container10.getArrayData();
+			double[] data11 = this.container11.getArrayData();
 			//double[] data12 = this.container12.getData();
-			final int size = this.container10.getSize();
+			final int size = this.container10.getArraySize();
 
 			for (int i=0; i<size; ++i) {
 				data10[i] = data11[i] % (data01[i] % data02[i]);

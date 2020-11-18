@@ -301,10 +301,10 @@ public class AcceleratorOptimizationUnit {
 				DataContainer<?> functionAddrContainer = memory.getDataContainer(
 					instruction.getOperandPartitions()[1], instruction.getOperandAddresses()[1]
 				);
-				if (!(functionAddrContainer.getData() instanceof long[])) {
+				if (!(functionAddrContainer.getArrayData() instanceof long[])) {
 					throw new VnanoFatalException("Unexpected data type of the function address detected.");
 				}
-				int calleeFunctionAddress = (int)( (long[])(functionAddrContainer.getData()) )[0];
+				int calleeFunctionAddress = (int)( (long[])(functionAddrContainer.getArrayData()) )[0];
 				functionAddressList.add(calleeFunctionAddress);
 			}
 		}
@@ -465,10 +465,10 @@ public class AcceleratorOptimizationUnit {
 				DataContainer<?> functionAddrContainer = memory.getDataContainer(
 					instruction.getOperandPartitions()[1], instruction.getOperandAddresses()[1]
 				);
-				if (!(functionAddrContainer.getData() instanceof long[])) {
+				if (!(functionAddrContainer.getArrayData() instanceof long[])) {
 					throw new VnanoFatalException("Unexpected data type of the function address detected.");
 				}
-				int calleeFunctionAddress = (int)( (long[])(functionAddrContainer.getData()) )[0];
+				int calleeFunctionAddress = (int)( (long[])(functionAddrContainer.getArrayData()) )[0];
 
 				// 解析済みの関数情報を取得
 				InternalFunctionInfo functionInfo = this.functionInfoMap.get(calleeFunctionAddress);
@@ -608,10 +608,10 @@ public class AcceleratorOptimizationUnit {
 			DataContainer<?> functionAddrContainer = memory.getDataContainer(
 				instruction.getOperandPartitions()[1], instruction.getOperandAddresses()[1]
 			);
-			if (!(functionAddrContainer.getData() instanceof long[])) {
+			if (!(functionAddrContainer.getArrayData() instanceof long[])) {
 				throw new VnanoFatalException("Unexpected data type of the function address detected.");
 			}
-			int calleeFunctionAddress = (int)( (long[])(functionAddrContainer.getData()) )[0];
+			int calleeFunctionAddress = (int)( (long[])(functionAddrContainer.getArrayData()) )[0];
 
 			// 解析済みの関数情報を取得する
 			InternalFunctionInfo functionInfo = this.functionInfoMap.get(calleeFunctionAddress);
@@ -947,7 +947,7 @@ public class AcceleratorOptimizationUnit {
 
 				// データコンテナから飛び先ラベル（アセンブル後はNOPになっている）の命令アドレスの値を読む
 				int labelAddress = -1;
-				Object addressData = addressContiner.getData();
+				Object addressData = addressContiner.getArrayData();
 				if (addressData instanceof long[]) {
 					labelAddress = (int)( ((long[])addressData)[0] );
 				} else {

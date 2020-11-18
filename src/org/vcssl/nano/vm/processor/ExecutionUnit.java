@@ -61,37 +61,37 @@ public class ExecutionUnit {
 	 */
 	public void add(DataType type, DataContainer<?> output, DataContainer<?> inputA, DataContainer<?> inputB) {
 
-		int outputOffset = output.getOffset();
-		int inputAOffset = inputA.getOffset();
-		int inputBOffset = inputB.getOffset();
-		int dataLength = output.getSize();
+		int outputOffset = output.getArrayOffset();
+		int inputAOffset = inputA.getArrayOffset();
+		int inputBOffset = inputB.getArrayOffset();
+		int dataLength = output.getArraySize();
 		this.checkDataType(output, type);
 		this.checkDataType(inputA, type);
 		this.checkDataType(inputB, type);
 
 		switch(type) {
 			case INT64 : {
-				long[] inputDataA = (long[])inputA.getData();
-				long[] inputDataB = (long[])inputB.getData();
-				long[] outputData = (long[])output.getData();
+				long[] inputDataA = (long[])inputA.getArrayData();
+				long[] inputDataB = (long[])inputB.getArrayData();
+				long[] outputData = (long[])output.getArrayData();
 				for (int i=0; i<dataLength; i++) {
 					outputData[outputOffset+i] = inputDataA[inputAOffset+i] + inputDataB[inputBOffset+i];
 				}
 				return;
 			}
 			case FLOAT64 : {
-				double[] inputDataA = (double[])inputA.getData();
-				double[] inputDataB = (double[])inputB.getData();
-				double[] outputData = (double[])output.getData();
+				double[] inputDataA = (double[])inputA.getArrayData();
+				double[] inputDataB = (double[])inputB.getArrayData();
+				double[] outputData = (double[])output.getArrayData();
 				for (int i=0; i<dataLength; i++) {
 					outputData[outputOffset+i] = inputDataA[inputAOffset+i] + inputDataB[inputBOffset+i];
 				}
 				return;
 			}
 			case STRING : {
-				String[] inputDataA = (String[])inputA.getData();
-				String[] inputDataB = (String[])inputB.getData();
-				String[] outputData = (String[])output.getData();
+				String[] inputDataA = (String[])inputA.getArrayData();
+				String[] inputDataB = (String[])inputB.getArrayData();
+				String[] outputData = (String[])output.getArrayData();
 				for (int i=0; i<dataLength; i++) {
 					outputData[outputOffset+i] = inputDataA[inputAOffset+i] + inputDataB[inputBOffset+i];
 				}
@@ -128,10 +128,10 @@ public class ExecutionUnit {
 	 */
 	public void sub(DataType type, DataContainer<?> output, DataContainer<?> inputA, DataContainer<?> inputB) {
 
-		int outputOffset = output.getOffset();
-		int inputAOffset = inputA.getOffset();
-		int inputBOffset = inputB.getOffset();
-		int dataLength = output.getSize();
+		int outputOffset = output.getArrayOffset();
+		int inputAOffset = inputA.getArrayOffset();
+		int inputBOffset = inputB.getArrayOffset();
+		int dataLength = output.getArraySize();
 
 		this.checkDataType(output, type);
 		this.checkDataType(inputA, type);
@@ -139,18 +139,18 @@ public class ExecutionUnit {
 
 		switch(type) {
 			case INT64 : {
-				long[] inputDataA = (long[])inputA.getData();
-				long[] inputDataB = (long[])inputB.getData();
-				long[] outputData = (long[])output.getData();
+				long[] inputDataA = (long[])inputA.getArrayData();
+				long[] inputDataB = (long[])inputB.getArrayData();
+				long[] outputData = (long[])output.getArrayData();
 				for (int i=0; i<dataLength; i++) {
 					outputData[outputOffset+i] = inputDataA[inputAOffset+i] - inputDataB[inputBOffset+i];
 				}
 				return;
 			}
 			case FLOAT64 : {
-				double[] inputDataA = (double[])inputA.getData();
-				double[] inputDataB = (double[])inputB.getData();
-				double[] outputData = (double[])output.getData();
+				double[] inputDataA = (double[])inputA.getArrayData();
+				double[] inputDataB = (double[])inputB.getArrayData();
+				double[] outputData = (double[])output.getArrayData();
 				for (int i=0; i<dataLength; i++) {
 					outputData[outputOffset+i] = inputDataA[inputAOffset+i] - inputDataB[inputBOffset+i];
 				}
@@ -187,10 +187,10 @@ public class ExecutionUnit {
 	 */
 	public void mul(DataType type, DataContainer<?> output, DataContainer<?> inputA, DataContainer<?> inputB) {
 
-		int outputOffset = output.getOffset();
-		int inputAOffset = inputA.getOffset();
-		int inputBOffset = inputB.getOffset();
-		int dataLength = output.getSize();
+		int outputOffset = output.getArrayOffset();
+		int inputAOffset = inputA.getArrayOffset();
+		int inputBOffset = inputB.getArrayOffset();
+		int dataLength = output.getArraySize();
 
 		this.checkDataType(output, type);
 		this.checkDataType(inputA, type);
@@ -198,18 +198,18 @@ public class ExecutionUnit {
 
 		switch(type) {
 			case INT64 : {
-				long[] inputDataA = (long[])inputA.getData();
-				long[] inputDataB = (long[])inputB.getData();
-				long[] outputData = (long[])output.getData();
+				long[] inputDataA = (long[])inputA.getArrayData();
+				long[] inputDataB = (long[])inputB.getArrayData();
+				long[] outputData = (long[])output.getArrayData();
 				for (int i=0; i<dataLength; i++) {
 					outputData[outputOffset+i] = inputDataA[inputAOffset+i] * inputDataB[inputBOffset+i];
 				}
 				return;
 			}
 			case FLOAT64 : {
-				double[] inputDataA = (double[])inputA.getData();
-				double[] inputDataB = (double[])inputB.getData();
-				double[] outputData = (double[])output.getData();
+				double[] inputDataA = (double[])inputA.getArrayData();
+				double[] inputDataB = (double[])inputB.getArrayData();
+				double[] outputData = (double[])output.getArrayData();
 				for (int i=0; i<dataLength; i++) {
 					outputData[outputOffset+i] = inputDataA[inputAOffset+i] * inputDataB[inputBOffset+i];
 				}
@@ -246,10 +246,10 @@ public class ExecutionUnit {
 	 */
 	public void div(DataType type, DataContainer<?> output, DataContainer<?> inputA, DataContainer<?> inputB) {
 
-		int outputOffset = output.getOffset();
-		int inputAOffset = inputA.getOffset();
-		int inputBOffset = inputB.getOffset();
-		int dataLength = output.getSize();
+		int outputOffset = output.getArrayOffset();
+		int inputAOffset = inputA.getArrayOffset();
+		int inputBOffset = inputB.getArrayOffset();
+		int dataLength = output.getArraySize();
 
 		this.checkDataType(output, type);
 		this.checkDataType(inputA, type);
@@ -257,18 +257,18 @@ public class ExecutionUnit {
 
 		switch(type) {
 			case INT64 : {
-				long[] inputDataA = (long[])inputA.getData();
-				long[] inputDataB = (long[])inputB.getData();
-				long[] outputData = (long[])output.getData();
+				long[] inputDataA = (long[])inputA.getArrayData();
+				long[] inputDataB = (long[])inputB.getArrayData();
+				long[] outputData = (long[])output.getArrayData();
 				for (int i=0; i<dataLength; i++) {
 					outputData[outputOffset+i] = inputDataA[inputAOffset+i] / inputDataB[inputBOffset+i];
 				}
 				return;
 			}
 			case FLOAT64 : {
-				double[] inputDataA = (double[])inputA.getData();
-				double[] inputDataB = (double[])inputB.getData();
-				double[] outputData = (double[])output.getData();
+				double[] inputDataA = (double[])inputA.getArrayData();
+				double[] inputDataB = (double[])inputB.getArrayData();
+				double[] outputData = (double[])output.getArrayData();
 				for (int i=0; i<dataLength; i++) {
 					outputData[outputOffset+i] = inputDataA[inputAOffset+i] / inputDataB[inputBOffset+i];
 				}
@@ -305,10 +305,10 @@ public class ExecutionUnit {
 	 */
 	public void rem(DataType type, DataContainer<?> output, DataContainer<?> inputA, DataContainer<?> inputB) {
 
-		int outputOffset = output.getOffset();
-		int inputAOffset = inputA.getOffset();
-		int inputBOffset = inputB.getOffset();
-		int dataLength = output.getSize();
+		int outputOffset = output.getArrayOffset();
+		int inputAOffset = inputA.getArrayOffset();
+		int inputBOffset = inputB.getArrayOffset();
+		int dataLength = output.getArraySize();
 
 		this.checkDataType(output, type);
 		this.checkDataType(inputA, type);
@@ -316,18 +316,18 @@ public class ExecutionUnit {
 
 		switch(type) {
 			case INT64 : {
-				long[] inputDataA = (long[])inputA.getData();
-				long[] inputDataB = (long[])inputB.getData();
-				long[] outputData = (long[])output.getData();
+				long[] inputDataA = (long[])inputA.getArrayData();
+				long[] inputDataB = (long[])inputB.getArrayData();
+				long[] outputData = (long[])output.getArrayData();
 				for (int i=0; i<dataLength; i++) {
 					outputData[outputOffset+i] = inputDataA[inputAOffset+i] % inputDataB[inputBOffset+i];
 				}
 				return;
 			}
 			case FLOAT64 : {
-				double[] inputDataA = (double[])inputA.getData();
-				double[] inputDataB = (double[])inputB.getData();
-				double[] outputData = (double[])output.getData();
+				double[] inputDataA = (double[])inputA.getArrayData();
+				double[] inputDataB = (double[])inputB.getArrayData();
+				double[] outputData = (double[])output.getArrayData();
 				for (int i=0; i<dataLength; i++) {
 					outputData[outputOffset+i] = inputDataA[inputAOffset+i] % inputDataB[inputBOffset+i];
 				}
@@ -364,25 +364,25 @@ public class ExecutionUnit {
 	 */
 	public void neg(DataType type, DataContainer<?> output, DataContainer<?> input) {
 
-		int outputOffset = output.getOffset();
-		int inputOffset = input.getOffset();
-		int dataLength = output.getSize();
+		int outputOffset = output.getArrayOffset();
+		int inputOffset = input.getArrayOffset();
+		int dataLength = output.getArraySize();
 
 		this.checkDataType(output, type);
 		this.checkDataType(input, type);
 
 		switch(type) {
 			case INT64 : {
-				long[] inputData = (long[])input.getData();
-				long[] outputData = (long[])output.getData();
+				long[] inputData = (long[])input.getArrayData();
+				long[] outputData = (long[])output.getArrayData();
 				for (int i=0; i<dataLength; i++) {
 					outputData[outputOffset+i] = -inputData[inputOffset+i];
 				}
 				return;
 			}
 			case FLOAT64 : {
-				double[] inputData = (double[])input.getData();
-				double[] outputData = (double[])output.getData();
+				double[] inputData = (double[])input.getArrayData();
+				double[] outputData = (double[])output.getArrayData();
 				for (int i=0; i<dataLength; i++) {
 					outputData[outputOffset+i] = -inputData[inputOffset+i];
 				}
@@ -420,10 +420,10 @@ public class ExecutionUnit {
 	 */
 	public void eq(DataType type, DataContainer<?> output, DataContainer<?> inputA, DataContainer<?> inputB) {
 
-		int outputOffset = output.getOffset();
-		int inputAOffset = inputA.getOffset();
-		int inputBOffset = inputB.getOffset();
-		int dataLength = output.getSize();
+		int outputOffset = output.getArrayOffset();
+		int inputAOffset = inputA.getArrayOffset();
+		int inputBOffset = inputB.getArrayOffset();
+		int dataLength = output.getArraySize();
 
 		this.checkDataType(output, DataType.BOOL);
 		this.checkDataType(inputA, type);
@@ -431,36 +431,36 @@ public class ExecutionUnit {
 
 		switch(type) {
 			case INT64 : {
-				long[] inputDataA = (long[])inputA.getData();
-				long[] inputDataB = (long[])inputB.getData();
-				boolean[] outputData = (boolean[])output.getData();
+				long[] inputDataA = (long[])inputA.getArrayData();
+				long[] inputDataB = (long[])inputB.getArrayData();
+				boolean[] outputData = (boolean[])output.getArrayData();
 				for (int i=0; i<dataLength; i++) {
 					outputData[outputOffset+i] = inputDataA[inputAOffset+i] == inputDataB[inputBOffset+i];
 				}
 				return;
 			}
 			case FLOAT64 : {
-				double[] inputDataA = (double[])inputA.getData();
-				double[] inputDataB = (double[])inputB.getData();
-				boolean[] outputData = (boolean[])output.getData();
+				double[] inputDataA = (double[])inputA.getArrayData();
+				double[] inputDataB = (double[])inputB.getArrayData();
+				boolean[] outputData = (boolean[])output.getArrayData();
 				for (int i=0; i<dataLength; i++) {
 					outputData[outputOffset+i] = inputDataA[inputAOffset+i] == inputDataB[inputBOffset+i];
 				}
 				return;
 			}
 			case BOOL : {
-				boolean[] inputDataA = (boolean[])inputA.getData();
-				boolean[] inputDataB = (boolean[])inputB.getData();
-				boolean[] outputData = (boolean[])output.getData();
+				boolean[] inputDataA = (boolean[])inputA.getArrayData();
+				boolean[] inputDataB = (boolean[])inputB.getArrayData();
+				boolean[] outputData = (boolean[])output.getArrayData();
 				for (int i=0; i<dataLength; i++) {
 					outputData[outputOffset+i] = inputDataA[inputAOffset+i] == inputDataB[inputBOffset+i];
 				}
 				return;
 			}
 			case STRING : {
-				String[] inputDataA = (String[])inputA.getData();
-				String[] inputDataB = (String[])inputB.getData();
-				boolean[] outputData = (boolean[])output.getData();
+				String[] inputDataA = (String[])inputA.getArrayData();
+				String[] inputDataB = (String[])inputB.getArrayData();
+				boolean[] outputData = (boolean[])output.getArrayData();
 				for (int i=0; i<dataLength; i++) {
 					outputData[outputOffset+i] = inputDataA[inputAOffset+i].equals(inputDataB[inputBOffset+i]);
 				}
@@ -498,10 +498,10 @@ public class ExecutionUnit {
 	 */
 	public void neq(DataType type, DataContainer<?> output, DataContainer<?> inputA, DataContainer<?> inputB) {
 
-		int outputOffset = output.getOffset();
-		int inputAOffset = inputA.getOffset();
-		int inputBOffset = inputB.getOffset();
-		int dataLength = output.getSize();
+		int outputOffset = output.getArrayOffset();
+		int inputAOffset = inputA.getArrayOffset();
+		int inputBOffset = inputB.getArrayOffset();
+		int dataLength = output.getArraySize();
 
 		this.checkDataType(output, DataType.BOOL);
 		this.checkDataType(inputA, type);
@@ -509,36 +509,36 @@ public class ExecutionUnit {
 
 		switch(type) {
 			case INT64 : {
-				long[] inputDataA = (long[])inputA.getData();
-				long[] inputDataB = (long[])inputB.getData();
-				boolean[] outputData = (boolean[])output.getData();
+				long[] inputDataA = (long[])inputA.getArrayData();
+				long[] inputDataB = (long[])inputB.getArrayData();
+				boolean[] outputData = (boolean[])output.getArrayData();
 				for (int i=0; i<dataLength; i++) {
 					outputData[outputOffset+i] = inputDataA[inputAOffset+i] != inputDataB[inputBOffset+i];
 				}
 				return;
 			}
 			case FLOAT64 : {
-				double[] inputDataA = (double[])inputA.getData();
-				double[] inputDataB = (double[])inputB.getData();
-				boolean[] outputData = (boolean[])output.getData();
+				double[] inputDataA = (double[])inputA.getArrayData();
+				double[] inputDataB = (double[])inputB.getArrayData();
+				boolean[] outputData = (boolean[])output.getArrayData();
 				for (int i=0; i<dataLength; i++) {
 					outputData[outputOffset+i] = inputDataA[inputAOffset+i] != inputDataB[inputBOffset+i];
 				}
 				return;
 			}
 			case BOOL : {
-				boolean[] inputDataA = (boolean[])inputA.getData();
-				boolean[] inputDataB = (boolean[])inputB.getData();
-				boolean[] outputData = (boolean[])output.getData();
+				boolean[] inputDataA = (boolean[])inputA.getArrayData();
+				boolean[] inputDataB = (boolean[])inputB.getArrayData();
+				boolean[] outputData = (boolean[])output.getArrayData();
 				for (int i=0; i<dataLength; i++) {
 					outputData[outputOffset+i] = inputDataA[inputAOffset+i] != inputDataB[inputBOffset+i];
 				}
 				return;
 			}
 			case STRING : {
-				String[] inputDataA = (String[])inputA.getData();
-				String[] inputDataB = (String[])inputB.getData();
-				boolean[] outputData = (boolean[])output.getData();
+				String[] inputDataA = (String[])inputA.getArrayData();
+				String[] inputDataB = (String[])inputB.getArrayData();
+				boolean[] outputData = (boolean[])output.getArrayData();
 				for (int i=0; i<dataLength; i++) {
 					outputData[outputOffset+i] = !(inputDataA[inputAOffset+i].equals(inputDataB[inputBOffset+i]));
 				}
@@ -578,10 +578,10 @@ public class ExecutionUnit {
 	 */
 	public void geq(DataType type, DataContainer<?> output, DataContainer<?> inputA, DataContainer<?> inputB) {
 
-		int outputOffset = output.getOffset();
-		int inputAOffset = inputA.getOffset();
-		int inputBOffset = inputB.getOffset();
-		int dataLength = output.getSize();
+		int outputOffset = output.getArrayOffset();
+		int inputAOffset = inputA.getArrayOffset();
+		int inputBOffset = inputB.getArrayOffset();
+		int dataLength = output.getArraySize();
 
 		this.checkDataType(output, DataType.BOOL);
 		this.checkDataType(inputA, type);
@@ -589,18 +589,18 @@ public class ExecutionUnit {
 
 		switch(type) {
 			case INT64 : {
-				long[] inputDataA = (long[])inputA.getData();
-				long[] inputDataB = (long[])inputB.getData();
-				boolean[] outputData = (boolean[])output.getData();
+				long[] inputDataA = (long[])inputA.getArrayData();
+				long[] inputDataB = (long[])inputB.getArrayData();
+				boolean[] outputData = (boolean[])output.getArrayData();
 				for (int i=0; i<dataLength; i++) {
 					outputData[outputOffset+i] = inputDataA[inputAOffset+i] >= inputDataB[inputBOffset+i];
 				}
 				return;
 			}
 			case FLOAT64 : {
-				double[] inputDataA = (double[])inputA.getData();
-				double[] inputDataB = (double[])inputB.getData();
-				boolean[] outputData = (boolean[])output.getData();
+				double[] inputDataA = (double[])inputA.getArrayData();
+				double[] inputDataB = (double[])inputB.getArrayData();
+				boolean[] outputData = (boolean[])output.getArrayData();
 				for (int i=0; i<dataLength; i++) {
 					outputData[outputOffset+i] = inputDataA[inputAOffset+i] >= inputDataB[inputBOffset+i];
 				}
@@ -639,10 +639,10 @@ public class ExecutionUnit {
 	 */
 	public void leq(DataType type, DataContainer<?> output, DataContainer<?> inputA, DataContainer<?> inputB) {
 
-		int outputOffset = output.getOffset();
-		int inputAOffset = inputA.getOffset();
-		int inputBOffset = inputB.getOffset();
-		int dataLength = output.getSize();
+		int outputOffset = output.getArrayOffset();
+		int inputAOffset = inputA.getArrayOffset();
+		int inputBOffset = inputB.getArrayOffset();
+		int dataLength = output.getArraySize();
 
 		this.checkDataType(output, DataType.BOOL);
 		this.checkDataType(inputA, type);
@@ -650,18 +650,18 @@ public class ExecutionUnit {
 
 		switch(type) {
 			case INT64 : {
-				long[] inputDataA = (long[])inputA.getData();
-				long[] inputDataB = (long[])inputB.getData();
-				boolean[] outputData = (boolean[])output.getData();
+				long[] inputDataA = (long[])inputA.getArrayData();
+				long[] inputDataB = (long[])inputB.getArrayData();
+				boolean[] outputData = (boolean[])output.getArrayData();
 				for (int i=0; i<dataLength; i++) {
 					outputData[outputOffset+i] = inputDataA[inputAOffset+i] <= inputDataB[inputBOffset+i];
 				}
 				return;
 			}
 			case FLOAT64 : {
-				double[] inputDataA = (double[])inputA.getData();
-				double[] inputDataB = (double[])inputB.getData();
-				boolean[] outputData = (boolean[])output.getData();
+				double[] inputDataA = (double[])inputA.getArrayData();
+				double[] inputDataB = (double[])inputB.getArrayData();
+				boolean[] outputData = (boolean[])output.getArrayData();
 				for (int i=0; i<dataLength; i++) {
 					outputData[outputOffset+i] = inputDataA[inputAOffset+i] <= inputDataB[inputBOffset+i];
 				}
@@ -700,10 +700,10 @@ public class ExecutionUnit {
 	 */
 	public void gt(DataType type, DataContainer<?> output, DataContainer<?> inputA, DataContainer<?> inputB) {
 
-		int outputOffset = output.getOffset();
-		int inputAOffset = inputA.getOffset();
-		int inputBOffset = inputB.getOffset();
-		int dataLength = output.getSize();
+		int outputOffset = output.getArrayOffset();
+		int inputAOffset = inputA.getArrayOffset();
+		int inputBOffset = inputB.getArrayOffset();
+		int dataLength = output.getArraySize();
 
 		this.checkDataType(output, DataType.BOOL);
 		this.checkDataType(inputA, type);
@@ -711,18 +711,18 @@ public class ExecutionUnit {
 
 		switch(type) {
 			case INT64 : {
-				long[] inputDataA = (long[])inputA.getData();
-				long[] inputDataB = (long[])inputB.getData();
-				boolean[] outputData = (boolean[])output.getData();
+				long[] inputDataA = (long[])inputA.getArrayData();
+				long[] inputDataB = (long[])inputB.getArrayData();
+				boolean[] outputData = (boolean[])output.getArrayData();
 				for (int i=0; i<dataLength; i++) {
 					outputData[outputOffset+i] = inputDataA[inputAOffset+i] > inputDataB[inputBOffset+i];
 				}
 				return;
 			}
 			case FLOAT64 : {
-				double[] inputDataA = (double[])inputA.getData();
-				double[] inputDataB = (double[])inputB.getData();
-				boolean[] outputData = (boolean[])output.getData();
+				double[] inputDataA = (double[])inputA.getArrayData();
+				double[] inputDataB = (double[])inputB.getArrayData();
+				boolean[] outputData = (boolean[])output.getArrayData();
 				for (int i=0; i<dataLength; i++) {
 					outputData[outputOffset+i] = inputDataA[inputAOffset+i] > inputDataB[inputBOffset+i];
 				}
@@ -761,10 +761,10 @@ public class ExecutionUnit {
 	 */
 	public void lt(DataType type, DataContainer<?> output, DataContainer<?> inputA, DataContainer<?> inputB) {
 
-		int outputOffset = output.getOffset();
-		int inputAOffset = inputA.getOffset();
-		int inputBOffset = inputB.getOffset();
-		int dataLength = output.getSize();
+		int outputOffset = output.getArrayOffset();
+		int inputAOffset = inputA.getArrayOffset();
+		int inputBOffset = inputB.getArrayOffset();
+		int dataLength = output.getArraySize();
 
 		this.checkDataType(output, DataType.BOOL);
 		this.checkDataType(inputA, type);
@@ -772,18 +772,18 @@ public class ExecutionUnit {
 
 		switch(type) {
 			case INT64 : {
-				long[] inputDataA = (long[])inputA.getData();
-				long[] inputDataB = (long[])inputB.getData();
-				boolean[] outputData = (boolean[])output.getData();
+				long[] inputDataA = (long[])inputA.getArrayData();
+				long[] inputDataB = (long[])inputB.getArrayData();
+				boolean[] outputData = (boolean[])output.getArrayData();
 				for (int i=0; i<dataLength; i++) {
 					outputData[outputOffset+i] = inputDataA[inputAOffset+i] < inputDataB[inputBOffset+i];
 				}
 				return;
 			}
 			case FLOAT64 : {
-				double[] inputDataA = (double[])inputA.getData();
-				double[] inputDataB = (double[])inputB.getData();
-				boolean[] outputData = (boolean[])output.getData();
+				double[] inputDataA = (double[])inputA.getArrayData();
+				double[] inputDataB = (double[])inputB.getArrayData();
+				boolean[] outputData = (boolean[])output.getArrayData();
 				for (int i=0; i<dataLength; i++) {
 					outputData[outputOffset+i] = inputDataA[inputAOffset+i] < inputDataB[inputBOffset+i];
 				}
@@ -833,18 +833,18 @@ public class ExecutionUnit {
 			throw new VnanoFatalException("Unoperatable data type: " + type);
 		}
 
-		int outputOffset = output.getOffset();
-		int inputAOffset = inputA.getOffset();
-		int inputBOffset = inputB.getOffset();
-		int dataLength = output.getSize();
+		int outputOffset = output.getArrayOffset();
+		int inputAOffset = inputA.getArrayOffset();
+		int inputBOffset = inputB.getArrayOffset();
+		int dataLength = output.getArraySize();
 
 		this.checkDataType(output, type);
 		this.checkDataType(inputA, type);
 
 		boolean allLeftValuesAreFalse = true; // 短絡評価の判定用
 
-		boolean[] inputDataA = (boolean[])inputA.getData();
-		boolean[] outputData = (boolean[])output.getData();
+		boolean[] inputDataA = (boolean[])inputA.getArrayData();
+		boolean[] outputData = (boolean[])output.getArrayData();
 		for (int i=0; i<dataLength; i++) {
 			outputData[outputOffset+i] = inputDataA[inputAOffset+i];
 
@@ -856,7 +856,7 @@ public class ExecutionUnit {
 			return;
 		}
 
-		boolean[] inputDataB = (boolean[])inputB.getData();
+		boolean[] inputDataB = (boolean[])inputB.getArrayData();
 		this.checkDataType(inputB, type);
 		for (int i=0; i<dataLength; i++) {
 			outputData[outputOffset+i] = outputData[outputOffset+i] && inputDataB[inputBOffset+i];
@@ -901,18 +901,18 @@ public class ExecutionUnit {
 			throw new VnanoFatalException("Unoperatable data type: " + type);
 		}
 
-		int outputOffset = output.getOffset();
-		int inputAOffset = inputA.getOffset();
-		int inputBOffset = inputB.getOffset();
-		int dataLength = output.getSize();
+		int outputOffset = output.getArrayOffset();
+		int inputAOffset = inputA.getArrayOffset();
+		int inputBOffset = inputB.getArrayOffset();
+		int dataLength = output.getArraySize();
 
 		this.checkDataType(output, type);
 		this.checkDataType(inputA, type);
 
 		boolean allLeftValuesAreTrue = true; // 短絡評価の判定用
 
-		boolean[] inputDataA = (boolean[])inputA.getData();
-		boolean[] outputData = (boolean[])output.getData();
+		boolean[] inputDataA = (boolean[])inputA.getArrayData();
+		boolean[] outputData = (boolean[])output.getArrayData();
 		for (int i=0; i<dataLength; i++) {
 			outputData[outputOffset+i] = inputDataA[inputAOffset+i];
 
@@ -924,7 +924,7 @@ public class ExecutionUnit {
 			return;
 		}
 
-		boolean[] inputDataB = (boolean[])inputB.getData();
+		boolean[] inputDataB = (boolean[])inputB.getArrayData();
 		this.checkDataType(inputB, type);
 		for (int i=0; i<dataLength; i++) {
 			outputData[outputOffset+i] = outputData[outputOffset+i] || inputDataB[inputBOffset+i];
@@ -962,17 +962,17 @@ public class ExecutionUnit {
 	 */
 	public void not(DataType type, DataContainer<?> output, DataContainer<?> input) {
 
-		int outputOffset = output.getOffset();
-		int inputOffset = input.getOffset();
-		int dataLength = output.getSize();
+		int outputOffset = output.getArrayOffset();
+		int inputOffset = input.getArrayOffset();
+		int dataLength = output.getArraySize();
 
 		this.checkDataType(output, type);
 		this.checkDataType(input, type);
 
 		switch(type) {
 			case BOOL : {
-				boolean[] inputData = (boolean[])input.getData();
-				boolean[] outputData = (boolean[])output.getData();
+				boolean[] inputData = (boolean[])input.getArrayData();
+				boolean[] outputData = (boolean[])output.getArrayData();
 				for (int i=0; i<dataLength; i++) {
 					outputData[outputOffset+i] = !inputData[inputOffset+i];
 				}
@@ -1003,26 +1003,26 @@ public class ExecutionUnit {
 	public void allocScalar(DataType type, DataContainer<?> target) {
 		switch (type) {
 			case INT64 : {
-				((DataContainer<long[]>)target).setData(
-					new long[DataContainer.SCALAR_SIZE], 0, DataContainer.SCALAR_LENGTHS
+				((DataContainer<long[]>)target).setArrayData(
+					new long[DataContainer.ARRAY_SIZE_OF_SCALAR], 0, DataContainer.ARRAY_LENGTHS_OF_SCALAR
 				);
 				return;
 			}
 			case FLOAT64 : {
-				((DataContainer<double[]>)target).setData(
-					new double[DataContainer.SCALAR_SIZE], 0, DataContainer.SCALAR_LENGTHS
+				((DataContainer<double[]>)target).setArrayData(
+					new double[DataContainer.ARRAY_SIZE_OF_SCALAR], 0, DataContainer.ARRAY_LENGTHS_OF_SCALAR
 				);
 				return;
 			}
 			case BOOL : {
-				((DataContainer<boolean[]>)target).setData(
-					new boolean[DataContainer.SCALAR_SIZE], 0, DataContainer.SCALAR_LENGTHS
+				((DataContainer<boolean[]>)target).setArrayData(
+					new boolean[DataContainer.ARRAY_SIZE_OF_SCALAR], 0, DataContainer.ARRAY_LENGTHS_OF_SCALAR
 				);
 				return;
 			}
 			case STRING : {
-				((DataContainer<String[]>)target).setData(
-					new String[DataContainer.SCALAR_SIZE], 0, DataContainer.SCALAR_LENGTHS
+				((DataContainer<String[]>)target).setArrayData(
+					new String[DataContainer.ARRAY_SIZE_OF_SCALAR], 0, DataContainer.ARRAY_LENGTHS_OF_SCALAR
 				);
 				return;
 			}
@@ -1053,8 +1053,8 @@ public class ExecutionUnit {
 		// 注意: alloc で要素数配列の内容を変える時は、そのまま代入せずに new で参照を切る事 (同要素数の複数コンテナで共用されている場合がある)
 		int[] lengths = new int[rank];
 		for (int dim=0; dim<rank; dim++) {
-			long[] lengthContainerData = ( (DataContainer<long[]>)lengthsContainers[dim] ).getData();
-			lengths[dim] = (int)( lengthContainerData[ lengthsContainers[dim].getOffset() ] );
+			long[] lengthContainerData = ( (DataContainer<long[]>)lengthsContainers[dim] ).getArrayData();
+			lengths[dim] = (int)( lengthContainerData[ lengthsContainers[dim].getArrayOffset() ] );
 			size *= lengths[dim];
 		}
 
@@ -1077,10 +1077,10 @@ public class ExecutionUnit {
 	 */
 	public void allocSameLengths(DataType type, DataContainer<?> target, DataContainer<?> sameLengthsContainer) {
 
-		int size = sameLengthsContainer.getSize();
-		int rank = sameLengthsContainer.getRank();
+		int size = sameLengthsContainer.getArraySize();
+		int rank = sameLengthsContainer.getArrayRank();
 
-		int[] lengths = sameLengthsContainer.getLengths();
+		int[] lengths = sameLengthsContainer.getArrayLengths();
 		int[] copiedLengths = new int[rank];
 
 		if (0 < rank) {
@@ -1120,30 +1120,30 @@ public class ExecutionUnit {
 	@SuppressWarnings("unchecked")
 	public void alloc(DataType type, DataContainer<?> target, int dataLength, int[] arrayLengths) {
 
-		Object currentData = target.getData();
-		int currentSize = target.getSize();
+		Object currentData = target.getArrayData();
+		int currentSize = target.getArraySize();
 		switch (type) {
 			case INT64 : {
 				if (!(currentData instanceof long[]) || currentSize != dataLength) {
-					((DataContainer<long[]>)target).setData(new long[dataLength], 0, arrayLengths);
+					((DataContainer<long[]>)target).setArrayData(new long[dataLength], 0, arrayLengths);
 				}
 				return;
 			}
 			case FLOAT64 : {
 				if (!(currentData instanceof double[]) || currentSize != dataLength) {
-					((DataContainer<double[]>)target).setData(new double[dataLength], 0, arrayLengths);
+					((DataContainer<double[]>)target).setArrayData(new double[dataLength], 0, arrayLengths);
 				}
 				return;
 			}
 			case BOOL : {
 				if (!(currentData instanceof boolean[]) || currentSize != dataLength) {
-					((DataContainer<boolean[]>)target).setData(new boolean[dataLength], 0, arrayLengths);
+					((DataContainer<boolean[]>)target).setArrayData(new boolean[dataLength], 0, arrayLengths);
 				}
 				return;
 			}
 			case STRING : {
 				if (!(currentData instanceof String[]) || currentSize != dataLength) {
-					((DataContainer<String[]>)target).setData(new String[dataLength], 0, arrayLengths);
+					((DataContainer<String[]>)target).setArrayData(new String[dataLength], 0, arrayLengths);
 				}
 				return;
 			}
@@ -1184,7 +1184,7 @@ public class ExecutionUnit {
 		this.checkDataType(dest, type);
 		this.checkDataType(src, type);
 		try {
-			System.arraycopy(src.getData(), src.getOffset(), dest.getData(), dest.getOffset(), dest.getSize());
+			System.arraycopy(src.getArrayData(), src.getArrayOffset(), dest.getArrayData(), dest.getArrayOffset(), dest.getArraySize());
 		} catch (ArrayStoreException e) {
 			throw new VnanoFatalException(e);
 		}
@@ -1295,41 +1295,41 @@ public class ExecutionUnit {
 	 */
 	public void fill(DataType type, DataContainer<?> dest, DataContainer<?> src) {
 
-		int destOffset = dest.getOffset();
-		int fillerOffset = src.getOffset();
-		int destSize = dest.getSize();
+		int destOffset = dest.getArrayOffset();
+		int fillerOffset = src.getArrayOffset();
+		int destSize = dest.getArraySize();
 
 		this.checkDataType(dest, type);
 		this.checkDataType(src, type);
 
 		switch(type) {
 			case INT64 : {
-				long fillerValue = ( (long[])src.getData() )[fillerOffset];
-				long[] outputData = (long[])dest.getData();
+				long fillerValue = ( (long[])src.getArrayData() )[fillerOffset];
+				long[] outputData = (long[])dest.getArrayData();
 				for (int i=0; i<destSize; i++) {
 					outputData[destOffset + i] = fillerValue;
 				}
 				return;
 			}
 			case FLOAT64 : {
-				double fillerValue = ( (double[])src.getData() )[fillerOffset];
-				double[] outputData = (double[])dest.getData();
+				double fillerValue = ( (double[])src.getArrayData() )[fillerOffset];
+				double[] outputData = (double[])dest.getArrayData();
 				for (int i=0; i<destSize; i++) {
 					outputData[destOffset + i] = fillerValue;
 				}
 				return;
 			}
 			case BOOL : {
-				boolean fillerValue = ( (boolean[])src.getData() )[fillerOffset];
-				boolean[] outputData = (boolean[])dest.getData();
+				boolean fillerValue = ( (boolean[])src.getArrayData() )[fillerOffset];
+				boolean[] outputData = (boolean[])dest.getArrayData();
 				for (int i=0; i<destSize; i++) {
 					outputData[destOffset + i] = fillerValue;
 				}
 				return;
 			}
 			case STRING : {
-				String fillerValue = ( (String[])src.getData() )[fillerOffset];
-				String[] outputData = (String[])dest.getData();
+				String fillerValue = ( (String[])src.getArrayData() )[fillerOffset];
+				String[] outputData = (String[])dest.getArrayData();
 				for (int i=0; i<destSize; i++) {
 					outputData[destOffset + i] = fillerValue;
 				}
@@ -1364,7 +1364,7 @@ public class ExecutionUnit {
 		this.checkDataType(src, type);
 
 		int rank = operands.length - indicesBegin; // 配列次元数 = インデックスオペランド数
-		int[] arrayLength = src.getLengths();      // 各次元の要素数
+		int[] arrayLength = src.getArrayLengths();      // 各次元の要素数
 
 		// 多次元インデックスを 1 次元化されたインデックスに変換
 		int dataIndex = this.compute1DIndexFromIndicesOperands(operands, indicesBegin, arrayLength, rank);
@@ -1372,30 +1372,30 @@ public class ExecutionUnit {
 		// 1次元化されたインデックスに基づいて、dest が src 内のその配列要素を参照するよう設定
 		switch (type) {
 			case INT64 : {
-				((DataContainer<long[]>)dest).setData(
-					((DataContainer<long[]>)src).getData(),
-					dataIndex + src.getOffset(), DataContainer.SCALAR_LENGTHS // getOffset() を足しているのは、現在は subarray 等をサポートしていないので不要（配列全体側は常に0）なものの、将来的な拡張に備えて
+				((DataContainer<long[]>)dest).setArrayData(
+					((DataContainer<long[]>)src).getArrayData(),
+					dataIndex + src.getArrayOffset(), DataContainer.ARRAY_LENGTHS_OF_SCALAR // getArrayOffset() を足しているのは、現在は subarray 等をサポートしていないので不要（配列全体側は常に0）なものの、将来的な拡張に備えて
 				);
 				break;
 			}
 			case FLOAT64 : {
-				((DataContainer<double[]>)dest).setData(
-					((DataContainer<double[]>)src).getData(),
-					dataIndex + src.getOffset(), DataContainer.SCALAR_LENGTHS
+				((DataContainer<double[]>)dest).setArrayData(
+					((DataContainer<double[]>)src).getArrayData(),
+					dataIndex + src.getArrayOffset(), DataContainer.ARRAY_LENGTHS_OF_SCALAR
 				);
 				break;
 			}
 			case BOOL : {
-				((DataContainer<boolean[]>)dest).setData(
-					((DataContainer<boolean[]>)src).getData(),
-					dataIndex + src.getOffset(), DataContainer.SCALAR_LENGTHS
+				((DataContainer<boolean[]>)dest).setArrayData(
+					((DataContainer<boolean[]>)src).getArrayData(),
+					dataIndex + src.getArrayOffset(), DataContainer.ARRAY_LENGTHS_OF_SCALAR
 				);
 				break;
 			}
 			case STRING : {
-				((DataContainer<String[]>)dest).setData(
-					((DataContainer<String[]>)src).getData(),
-					dataIndex + src.getOffset(), DataContainer.SCALAR_LENGTHS
+				((DataContainer<String[]>)dest).setArrayData(
+					((DataContainer<String[]>)src).getArrayData(),
+					dataIndex + src.getArrayOffset(), DataContainer.ARRAY_LENGTHS_OF_SCALAR
 				);
 				break;
 			}
@@ -1426,7 +1426,7 @@ public class ExecutionUnit {
 		this.checkDataType(src, type);
 
 		int rank = operands.length - indicesBegin; // 配列次元数 = インデックスオペランド数
-		int[] arrayLength = src.getLengths();      // 各次元の要素数
+		int[] arrayLength = src.getArrayLengths();      // 各次元の要素数
 
 		// 多次元インデックスを 1 次元化されたインデックスに変換
 		int dataIndex = this.compute1DIndexFromIndicesOperands(operands, indicesBegin, arrayLength, rank);
@@ -1434,27 +1434,27 @@ public class ExecutionUnit {
 		// 1次元化されたインデックスに基づいて、src の要素値を dest にコピー
 		switch (type) {
 			case INT64 : {
-				long[] outputData = (long[])dest.getData();
-				long[] inputData = (long[])src.getData();
-				outputData[ dest.getOffset() ] = inputData[ dataIndex + src.getOffset() ]; // 右辺で getOffset() を足しているのは、現在は subarray 等をサポートしていないので不要（配列全体側は常に0）なものの、将来的な拡張に備えて
+				long[] outputData = (long[])dest.getArrayData();
+				long[] inputData = (long[])src.getArrayData();
+				outputData[ dest.getArrayOffset() ] = inputData[ dataIndex + src.getArrayOffset() ]; // 右辺で getArrayOffset() を足しているのは、現在は subarray 等をサポートしていないので不要（配列全体側は常に0）なものの、将来的な拡張に備えて
 				break;
 			}
 			case FLOAT64 : {
-				double[] outputData = (double[])dest.getData();
-				double[] inputData = (double[])src.getData();
-				outputData[ dest.getOffset() ] = inputData[ dataIndex + src.getOffset() ];
+				double[] outputData = (double[])dest.getArrayData();
+				double[] inputData = (double[])src.getArrayData();
+				outputData[ dest.getArrayOffset() ] = inputData[ dataIndex + src.getArrayOffset() ];
 				break;
 			}
 			case BOOL : {
-				boolean[] outputData = (boolean[])dest.getData();
-				boolean[] inputData = (boolean[])src.getData();
-				outputData[ dest.getOffset() ] = inputData[ dataIndex + src.getOffset() ];
+				boolean[] outputData = (boolean[])dest.getArrayData();
+				boolean[] inputData = (boolean[])src.getArrayData();
+				outputData[ dest.getArrayOffset() ] = inputData[ dataIndex + src.getArrayOffset() ];
 				break;
 			}
 			case STRING : {
-				String[] outputData = (String[])dest.getData();
-				String[] inputData = (String[])src.getData();
-				outputData[ dest.getOffset() ] = inputData[ dataIndex + src.getOffset() ];
+				String[] outputData = (String[])dest.getArrayData();
+				String[] inputData = (String[])src.getArrayData();
+				outputData[ dest.getArrayOffset() ] = inputData[ dataIndex + src.getArrayOffset() ];
 				break;
 			}
 			default : {
@@ -1485,7 +1485,7 @@ public class ExecutionUnit {
 
 			// indices[i] が格納しているスカラ値を取得（＝ i 番目次元の配列インデックス）
 			DataContainer<?> indexOperand = operands[i+indicesOperandsBegin];
-			long index = ( (long[])(indexOperand.getData()) )[ indexOperand.getOffset() ];
+			long index = ( (long[])(indexOperand.getArrayData()) )[ indexOperand.getArrayOffset() ];
 
 			if (arrayLength[i] <= index) {
 				String[] errorWords = {Long.toString(index), Integer.toString(arrayLength[i]-1)};
@@ -1524,33 +1524,33 @@ public class ExecutionUnit {
 	public void cast(DataType destType, DataType srcType, DataContainer<?> dest, DataContainer<?> src)
 			throws VnanoException {
 
-		int outputOffset = dest.getOffset();
-		int targetOffset = src.getOffset();
-		int dataLength = dest.getSize();
+		int outputOffset = dest.getArrayOffset();
+		int targetOffset = src.getArrayOffset();
+		int dataLength = dest.getArraySize();
 
 		this.checkDataType(dest, destType);
 		this.checkDataType(src, srcType);
 
 		switch(destType) {
 			case INT64 : {
-				long[] outputData = (long[])dest.getData();
+				long[] outputData = (long[])dest.getArrayData();
 				switch(srcType) {
 					case INT64 : {
-						long[] targetData = (long[])src.getData();
+						long[] targetData = (long[])src.getArrayData();
 						for (int i=0; i<dataLength; i++) {
 							outputData[outputOffset+i] = targetData[targetOffset + i];
 						}
 						return;
 					}
 					case FLOAT64 : {
-						double[] targetData = (double[])src.getData();
+						double[] targetData = (double[])src.getArrayData();
 						for (int i=0; i<dataLength; i++) {
 							outputData[outputOffset+i] = (long)targetData[targetOffset + i];
 						}
 						return;
 					}
 					case STRING : {
-						String[] targetData = (String[])src.getData();
+						String[] targetData = (String[])src.getArrayData();
 						for (int i=0; i<dataLength; i++) {
 							try {
 								outputData[outputOffset+i] = Long.parseLong(targetData[targetOffset + i]);
@@ -1585,24 +1585,24 @@ public class ExecutionUnit {
 				}
 			}
 			case FLOAT64 : {
-				double[] outputData = (double[])dest.getData();
+				double[] outputData = (double[])dest.getArrayData();
 				switch(srcType) {
 					case INT64 : {
-						long[] targetData = (long[])src.getData();
+						long[] targetData = (long[])src.getArrayData();
 						for (int i=0; i<dataLength; i++) {
 							outputData[outputOffset+i] = (double)targetData[targetOffset + i];
 						}
 						return;
 					}
 					case FLOAT64 : {
-						double[] targetData = (double[])src.getData();
+						double[] targetData = (double[])src.getArrayData();
 						for (int i=0; i<dataLength; i++) {
 							outputData[outputOffset+i] = targetData[targetOffset + i];
 						}
 						return;
 					}
 					case STRING : {
-						String[] targetData = (String[])src.getData();
+						String[] targetData = (String[])src.getArrayData();
 						for (int i=0; i<dataLength; i++) {
 							try {
 								outputData[outputOffset+i] = Double.parseDouble(targetData[targetOffset + i]);
@@ -1626,10 +1626,10 @@ public class ExecutionUnit {
 				}
 			}
 			case BOOL : {
-				boolean[] outputData = (boolean[])dest.getData();
+				boolean[] outputData = (boolean[])dest.getArrayData();
 				switch(srcType) {
 					case BOOL : {
-						boolean[] targetData = (boolean[])src.getData();
+						boolean[] targetData = (boolean[])src.getArrayData();
 						for (int i=0; i<dataLength; i++) {
 							outputData[outputOffset+i] = targetData[targetOffset + i];
 						}
@@ -1638,7 +1638,7 @@ public class ExecutionUnit {
 					case STRING : {
 						final String trueString = "true";
 						final String falseString = "false";
-						String[] targetData = (String[])src.getData();
+						String[] targetData = (String[])src.getArrayData();
 						for (int i=0; i<dataLength; i++) {
 							if (targetData[targetOffset + i].equals(trueString)) {
 								outputData[outputOffset+i] = true;
@@ -1664,31 +1664,31 @@ public class ExecutionUnit {
 				}
 			}
 			case STRING : {
-				String[] outputData = (String[])dest.getData();
+				String[] outputData = (String[])dest.getArrayData();
 				switch(srcType) {
 					case INT64 : {
-						long[] targetData = (long[])src.getData();
+						long[] targetData = (long[])src.getArrayData();
 						for (int i=0; i<dataLength; i++) {
 							outputData[outputOffset+i] = Long.toString(targetData[targetOffset + i]);
 						}
 						return;
 					}
 					case FLOAT64 : {
-						double[] targetData = (double[])src.getData();
+						double[] targetData = (double[])src.getArrayData();
 						for (int i=0; i<dataLength; i++) {
 							outputData[outputOffset+i] = Double.toString(targetData[targetOffset + i]);
 						}
 						return;
 					}
 					case BOOL : {
-						boolean[] targetData = (boolean[])src.getData();
+						boolean[] targetData = (boolean[])src.getArrayData();
 						for (int i=0; i<dataLength; i++) {
 							outputData[outputOffset+i] = Boolean.toString(targetData[targetOffset + i]);
 						}
 						return;
 					}
 					case STRING : {
-						String[] targetData = (String[])src.getData();
+						String[] targetData = (String[])src.getArrayData();
 						for (int i=0; i<dataLength; i++) {
 							outputData[outputOffset+i] = targetData[targetOffset + i];
 						}
@@ -1730,24 +1730,24 @@ public class ExecutionUnit {
 
 		switch(type) {
 			case INT64 : {
-				if (data.getData() instanceof long[]) {
+				if (data.getArrayData() instanceof long[]) {
 					return;
 				}
 			}
 			case FLOAT64 : {
-				if (data.getData() instanceof double[]) {
+				if (data.getArrayData() instanceof double[]) {
 					return;
 				}
 				break;
 			}
 			case BOOL : {
-				if (data.getData() instanceof boolean[]) {
+				if (data.getArrayData() instanceof boolean[]) {
 					return;
 				}
 				break;
 			}
 			case STRING : {
-				if (data.getData() instanceof String[]) {
+				if (data.getArrayData() instanceof String[]) {
 					return;
 				}
 				break;
@@ -1762,13 +1762,13 @@ public class ExecutionUnit {
 			}
 		}
 
-		if (data.getData() == null) {
+		if (data.getArrayData() == null) {
 			throw new VnanoFatalException(
 				"Data of the operand is null."
 			);
 		} else {
 			throw new VnanoFatalException(
-				"Data of the operand is unexpected type: " + DataConverter.getDataTypeOf(data.getData().getClass()) + " (expected: "+ type + ")"
+				"Data of the operand is unexpected type: " + DataConverter.getDataTypeOf(data.getArrayData().getClass()) + " (expected: "+ type + ")"
 			);
 		}
 	}

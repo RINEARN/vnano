@@ -80,13 +80,13 @@ public interface ArrayDataAccessorInterface1<T> {
 
 
 	/** スカラ値を格納している場合におけるサイズ（値は 1 ）です。 */
-	public static final int SCALAR_SIZE = 1;
+	public static final int ARRAY_SIZE_OF_SCALAR = 1;
 
 	/** スカラ値を格納している場合における次元数（値は 0 ）です。 */
-	public static final int SCALAR_RANK = 0;
+	public static final int ARRAY_RANK_OF_SCALAR = 0;
 
 	/** スカラ値を格納している場合における次元長配列（値は長さ 0 の int[] ）です。 */
-	public static final int[] SCALAR_LENGTHS = { };
+	public static final int[] ARRAY_LENGTHS_OF_SCALAR = { };
 
 
 	/**
@@ -118,7 +118,7 @@ public interface ArrayDataAccessorInterface1<T> {
 	 * @param offset オフセット値（データ内で値が格納されている要素のインデックスで、スカラ以外を格納する場合は常に 0 を指定します）
 	 * @param lengths 次元ごとの長さを格納する配列（スカラを格納する場合は、長さ 0 の配列を指定します）
 	 */
-	public abstract void setData(T data, int offset, int[] lengths);
+	public abstract void setArrayData(T data, int offset, int[] lengths);
 
 
 	/**
@@ -131,12 +131,12 @@ public interface ArrayDataAccessorInterface1<T> {
 	 * 多次元配列は、右端次元の要素が連続的に並ぶように1次元化されます。
 	 * スカラは、要素数1の配列として返されるか、
 	 * またはより大きな配列のどこかに格納した上で返され、後者の場合は
-	 * {@link ArrayDataAccessorInterface1#getOffset getOffset}
+	 * {@link ArrayDataAccessorInterface1#getArrayOffset getArrayOffset()}
 	 * メソッドでそのインデックスを取得できます。
 	 *
 	 * @return 格納されているデータ（1次元配列）
 	 */
-	public abstract T getData();
+	public abstract T getArrayData();
 
 
 	/**
@@ -155,12 +155,12 @@ public interface ArrayDataAccessorInterface1<T> {
 	 *
 	 * なお、データコンテナが保持する設定値の組み合わせが、瞬間的にでも不整合な状態になる事を防ぐため、
 	 * オフセット値のみを設定するメソッドは提供されません。
-	 * 設定したい場合は {@link ArrayDataAccessorInterface1#setData(Object, int, int[]) setData(T, int, int[]) }
+	 * 設定したい場合は {@link ArrayDataAccessorInterface1#setArrayData(Object, int, int[]) setArrayData(T, int, int[]) }
 	 * メソッドを使用して、データと共に設定してください。
 	 *
 	 * @return スカラデータの配列内位置を示すオフセット値
 	 */
-	public abstract int getOffset();
+	public abstract int getArrayOffset();
 
 
 	/**
@@ -168,12 +168,12 @@ public interface ArrayDataAccessorInterface1<T> {
 	 *
 	 * なお、データコンテナが保持する設定値の組み合わせが、瞬間的にでも不整合な状態になる事を防ぐため、
 	 * 次元ごとの長さのみを設定するメソッドは提供されません。
-	 * 設定したい場合は {@link ArrayDataAccessorInterface1#setData(Object, int, int[]) setData(T, int, int[]) }
+	 * 設定したい場合は {@link ArrayDataAccessorInterface1#setArrayData(Object, int, int[]) setArrayData(T, int, int[]) }
 	 * メソッドを使用して、データと共に設定してください。
 	 *
 	 * @return 各次元ごとの長さを格納する配列（次元長配列）
 	 */
-	public abstract int[] getLengths();
+	public abstract int[] getArrayLengths();
 
 
 	/**
@@ -181,11 +181,11 @@ public interface ArrayDataAccessorInterface1<T> {
 	 *
 	 * ここでのサイズとは、多次元配列における総要素数の事です。
 	 * 具体的には、データがスカラではない場合には、サイズは
-	 * {@link ArrayDataAccessorInterface1#getLengths getLengths}
+	 * {@link ArrayDataAccessorInterface1#getArrayLengths getArrayLengths()}
 	 * メソッドで取得できる次元長配列の、全要素の積に一致します。
 	 *
 	 * データがスカラである場合には、サイズは常に 1 となります。
-	 * 仮に {@link ArrayDataAccessorInterface1#getData getData}
+	 * 仮に {@link ArrayDataAccessorInterface1#getArrayData getArrayData()}
 	 * メソッドで取得したデータの配列の要素数が 1 よりも大きく
 	 * その配列内に要素として（オフセット値で指定される位置に）
 	 * スカラ値が格納されている場合でも、
@@ -193,27 +193,27 @@ public interface ArrayDataAccessorInterface1<T> {
 	 *
 	 * サイズとデータの要素数を独立に設定する事はできないため、
 	 * サイズの setter はありません。
-	 * 設定したい場合は {@link ArrayDataAccessorInterface1#setData(Object, int, int[]) setData(T, int, int[]) }
+	 * 設定したい場合は {@link ArrayDataAccessorInterface1#setArrayData(Object, int, int[]) setArrayData(T, int, int[]) }
 	 * メソッドなどを使用して、データおよび次元ごとの長さ情報と共に設定してください。
 	 *
 	 * @return サイズ
 	 */
-	public abstract int getSize();
+	public abstract int getArraySize();
 
 
 	/**
 	 * 多次元配列の次元数（次元の総数）を取得します。
 	 *
-	 * 具体的には、{@link ArrayDataAccessorInterface1#getLengths getLengths}
+	 * 具体的には、{@link ArrayDataAccessorInterface1#getArrayLengths getArrayLengths()}
 	 * メソッドで取得できる次元長配列の、要素数に一致します。
 	 *
 	 * 次元数と、次元ごとの長さを独立に設定する事はできないため、
 	 * 次元数の setter はありません。
-	 * 設定したい場合は {@link ArrayDataAccessorInterface1#setData(Object, int, int[]) setData(T, int, int[]) }
+	 * 設定したい場合は {@link ArrayDataAccessorInterface1#setArrayData(Object, int, int[]) setArrayData(T, int, int[]) }
 	 * メソッドなどを使用して、データおよび次元ごとの長さ情報と共に設定してください。
 	 *
 	 * @return 次元数
 	 */
-	public abstract int getRank();
+	public abstract int getArrayRank();
 
 }

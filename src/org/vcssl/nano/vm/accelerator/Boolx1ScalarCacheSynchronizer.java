@@ -28,10 +28,10 @@ public class Boolx1ScalarCacheSynchronizer extends CacheSynchronizer {
 	}
 
 	public final void synchronizeFromCacheToMemory() {
-		if (cacheSyncEnabled) container.getData()[ container.getOffset() ] = cache.value;
+		if (cacheSyncEnabled) container.getArrayData()[ container.getArrayOffset() ] = cache.value;
 	}
 
 	public final void synchronizeFromMemoryToCache() {
-		if (cacheSyncEnabled) cache.value = container.getData()[ container.getOffset() ];
+		if (cacheSyncEnabled) cache.value = container.getArrayData()[ container.getArrayOffset() ];
 	}
 }

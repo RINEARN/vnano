@@ -83,9 +83,9 @@ public class Float64VectorTransferUnit extends AcceleratorExecutionUnit {
 
 		public final AcceleratorExecutionNode execute() {
 			this.synchronizer.synchronizeFromCacheToMemory();
-			double[] data0 = this.container0.getData();
-			double[] data1 = this.container1.getData();
-			int size = this.container0.getSize();
+			double[] data0 = this.container0.getArrayData();
+			double[] data1 = this.container1.getArrayData();
+			int size = this.container0.getArraySize();
 
 			System.arraycopy(data1, 0, data0, 0, size);
 
@@ -111,9 +111,9 @@ public class Float64VectorTransferUnit extends AcceleratorExecutionUnit {
 
 		public final AcceleratorExecutionNode execute() {
 			this.synchronizer.synchronizeFromCacheToMemory();
-			double[] data0 = this.container0.getData();
-			long[] data1 = this.container1.getData();
-			int size = this.container0.getSize();
+			double[] data0 = this.container0.getArrayData();
+			long[] data1 = this.container1.getArrayData();
+			int size = this.container0.getArraySize();
 
 			for (int i=0; i<size; i++) {
 				data0[i] = data1[i];
@@ -141,8 +141,8 @@ public class Float64VectorTransferUnit extends AcceleratorExecutionUnit {
 
 		public final AcceleratorExecutionNode execute() {
 			this.synchronizer.synchronizeFromCacheToMemory();
-			double[] data0 = this.container0.getData();
-			double fillValue = this.container1.getData()[ this.container1.getOffset() ];
+			double[] data0 = this.container0.getArrayData();
+			double fillValue = this.container1.getArrayData()[ this.container1.getArrayOffset() ];
 
 			Arrays.fill(data0, fillValue);
 

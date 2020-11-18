@@ -119,16 +119,16 @@ public class DispatchUnitTest {
 		this.int64Output = new DataContainer<long[]>();
 		this.int64InputA = new DataContainer<long[]>();
 		this.int64InputB = new DataContainer<long[]>();
-		this.int64Output.setData(new long[3], 0, new int[]{ 3 });
-		this.int64InputA.setData(new long[3], 0, new int[]{ 3 });
-		this.int64InputB.setData(new long[3], 0, new int[]{ 3 });
+		this.int64Output.setArrayData(new long[3], 0, new int[]{ 3 });
+		this.int64InputA.setArrayData(new long[3], 0, new int[]{ 3 });
+		this.int64InputB.setArrayData(new long[3], 0, new int[]{ 3 });
 
 		this.boolOutput = new DataContainer<boolean[]>();
 		this.boolInputA = new DataContainer<boolean[]>();
 		this.boolInputB = new DataContainer<boolean[]>();
-		this.boolOutput.setData(new boolean[3], 0, new int[]{ 3 });
-		this.boolInputA.setData(new boolean[3], 0, new int[]{ 3 });
-		this.boolInputB.setData(new boolean[3], 0, new int[]{ 3 });
+		this.boolOutput.setArrayData(new boolean[3], 0, new int[]{ 3 });
+		this.boolInputA.setArrayData(new boolean[3], 0, new int[]{ 3 });
+		this.boolInputB.setArrayData(new boolean[3], 0, new int[]{ 3 });
 
 		this.memory = new Memory(new LanguageSpecContainer());
 		this.memory.setDataContainer(INT64_OUTPUT_PART, INT64_OUTPUT_ADDR, this.int64Output);
@@ -219,9 +219,9 @@ public class DispatchUnitTest {
 	private void testDispatchAdd() {
 
 		// 入出力オペランドに値を設定
-		this.int64InputA.setData(new long[]{ 1L, 2L, 3L }, 0, new int[] {3});
-		this.int64InputB.setData(new long[]{ 4L, 5L, 6L }, 0, new int[] {3});
-		this.int64Output.setData(new long[]{ -1L, -1L, -1L }, 0, new int[] {3});
+		this.int64InputA.setArrayData(new long[]{ 1L, 2L, 3L }, 0, new int[] {3});
+		this.int64InputB.setArrayData(new long[]{ 4L, 5L, 6L }, 0, new int[] {3});
+		this.int64Output.setArrayData(new long[]{ -1L, -1L, -1L }, 0, new int[] {3});
 
 		// 上記オペランドで演算を行う命令を生成
 		Instruction instruction = this.generateInt64x3Instruction(OperationCode.ADD);
@@ -241,7 +241,7 @@ public class DispatchUnitTest {
 		}
 
 		// 命令実行結果の値を検査
-		long[] output = this.int64Output.getData();
+		long[] output = this.int64Output.getArrayData();
 		if (output[0] != 5L || output[1] != 7L || output[2] != 9L) {
 			fail("Incorrect output");
 		}
@@ -259,9 +259,9 @@ public class DispatchUnitTest {
 	private void testDispatchSub() {
 
 		// 入出力オペランドに値を設定
-		this.int64InputA.setData(new long[]{ 10L, 5L, 3L }, 0, new int[] {3});
-		this.int64InputB.setData(new long[]{ 2L, 5L, 7L }, 0, new int[] {3});
-		this.int64Output.setData(new long[]{ -1L, -1L, -1L }, 0, new int[] {3});
+		this.int64InputA.setArrayData(new long[]{ 10L, 5L, 3L }, 0, new int[] {3});
+		this.int64InputB.setArrayData(new long[]{ 2L, 5L, 7L }, 0, new int[] {3});
+		this.int64Output.setArrayData(new long[]{ -1L, -1L, -1L }, 0, new int[] {3});
 
 		// 上記オペランドで演算を行う命令を生成
 		Instruction instruction = this.generateInt64x3Instruction(OperationCode.SUB);
@@ -281,7 +281,7 @@ public class DispatchUnitTest {
 		}
 
 		// 命令実行結果の値を検査
-		long[] output = this.int64Output.getData();
+		long[] output = this.int64Output.getArrayData();
 		if (output[0] != 8L || output[1] != 0L || output[2] != -4L) {
 			fail("Incorrect output");
 		}
@@ -299,9 +299,9 @@ public class DispatchUnitTest {
 	private void testDispatchMul() {
 
 		// 入出力オペランドに値を設定
-		this.int64InputA.setData(new long[]{ 1L, 2L, 3L }, 0, new int[] {3});
-		this.int64InputB.setData(new long[]{ 4L, 5L, 6L }, 0, new int[] {3});
-		this.int64Output.setData(new long[]{ -1L, -1L, -1L }, 0, new int[] {3});
+		this.int64InputA.setArrayData(new long[]{ 1L, 2L, 3L }, 0, new int[] {3});
+		this.int64InputB.setArrayData(new long[]{ 4L, 5L, 6L }, 0, new int[] {3});
+		this.int64Output.setArrayData(new long[]{ -1L, -1L, -1L }, 0, new int[] {3});
 
 		// 上記オペランドで演算を行う命令を生成
 		Instruction instruction = this.generateInt64x3Instruction(OperationCode.MUL);
@@ -321,7 +321,7 @@ public class DispatchUnitTest {
 		}
 
 		// 命令実行結果の値を検査
-		long[] output = this.int64Output.getData();
+		long[] output = this.int64Output.getArrayData();
 		if (output[0] != 4L || output[1] != 10L || output[2] != 18L) {
 			fail("Incorrect output");
 		}
@@ -339,9 +339,9 @@ public class DispatchUnitTest {
 	private void testDispatchDiv() {
 
 		// 入出力オペランドに値を設定
-		this.int64InputA.setData(new long[]{ 10L, 11L, 100L }, 0, new int[] {3});
-		this.int64InputB.setData(new long[]{ 5L, 3L, 20L }, 0, new int[] {3});
-		this.int64Output.setData(new long[]{ -1L, -1L, -1L }, 0, new int[] {3});
+		this.int64InputA.setArrayData(new long[]{ 10L, 11L, 100L }, 0, new int[] {3});
+		this.int64InputB.setArrayData(new long[]{ 5L, 3L, 20L }, 0, new int[] {3});
+		this.int64Output.setArrayData(new long[]{ -1L, -1L, -1L }, 0, new int[] {3});
 
 		// 上記オペランドで演算を行う命令を生成
 		Instruction instruction = this.generateInt64x3Instruction(OperationCode.DIV);
@@ -361,7 +361,7 @@ public class DispatchUnitTest {
 		}
 
 		// 命令実行結果の値を検査
-		long[] output = this.int64Output.getData();
+		long[] output = this.int64Output.getArrayData();
 		if (output[0] != 2L || output[1] != 3L || output[2] != 5L) {
 			fail("Incorrect output");
 		}
@@ -379,9 +379,9 @@ public class DispatchUnitTest {
 	private void testDispatchRem() {
 
 		// 入出力オペランドに値を設定
-		this.int64InputA.setData(new long[]{ 10L, 11L, 100L }, 0, new int[] {3});
-		this.int64InputB.setData(new long[]{ 5L, 3L, 20L }, 0, new int[] {3});
-		this.int64Output.setData(new long[]{ -1L, -1L, -1L }, 0, new int[] {3});
+		this.int64InputA.setArrayData(new long[]{ 10L, 11L, 100L }, 0, new int[] {3});
+		this.int64InputB.setArrayData(new long[]{ 5L, 3L, 20L }, 0, new int[] {3});
+		this.int64Output.setArrayData(new long[]{ -1L, -1L, -1L }, 0, new int[] {3});
 
 		// 上記オペランドで演算を行う命令を生成
 		Instruction instruction = this.generateInt64x3Instruction(OperationCode.REM);
@@ -401,7 +401,7 @@ public class DispatchUnitTest {
 		}
 
 		// 命令実行結果の値を検査
-		long[] output = this.int64Output.getData();
+		long[] output = this.int64Output.getArrayData();
 		if (output[0] != 0L || output[1] != 2L || output[2] != 0L) {
 			fail("Incorrect output");
 		}
@@ -419,8 +419,8 @@ public class DispatchUnitTest {
 	private void testDispatchNeg() {
 
 		// 入出力オペランドに値を設定
-		this.int64InputA.setData(new long[]{ 1L, -2L, 3L }, 0, new int[] {3});
-		this.int64Output.setData(new long[]{ -1L, -1L, -1L }, 0, new int[] {3});
+		this.int64InputA.setArrayData(new long[]{ 1L, -2L, 3L }, 0, new int[] {3});
+		this.int64Output.setArrayData(new long[]{ -1L, -1L, -1L }, 0, new int[] {3});
 
 		// 上記オペランドで演算を行う命令を生成
 		Instruction instruction = this.generateInt64x2Instruction(OperationCode.NEG);
@@ -440,7 +440,7 @@ public class DispatchUnitTest {
 		}
 
 		// 命令実行結果の値を検査
-		long[] output = this.int64Output.getData();
+		long[] output = this.int64Output.getArrayData();
 		if (output[0] != -1L || output[1] != 2L || output[2] != -3L) {
 			fail("Incorrect output");
 		}
@@ -458,9 +458,9 @@ public class DispatchUnitTest {
 	private void testDispatchEq() {
 
 		// 入出力オペランドに値を設定
-		this.int64InputA.setData(new long[]{ 200L, 500L, 700L }, 0, new int[] {3});
-		this.int64InputB.setData(new long[]{ 100L, 500L, 800L }, 0, new int[] {3});
-		this.boolOutput.setData(new boolean[]{ false, false, false }, 0, new int[] {3});
+		this.int64InputA.setArrayData(new long[]{ 200L, 500L, 700L }, 0, new int[] {3});
+		this.int64InputB.setArrayData(new long[]{ 100L, 500L, 800L }, 0, new int[] {3});
+		this.boolOutput.setArrayData(new boolean[]{ false, false, false }, 0, new int[] {3});
 
 		// 上記オペランドで演算を行う命令を生成
 		Instruction instruction = this.generateBoolx1Int64x2Instruction(OperationCode.EQ);
@@ -480,7 +480,7 @@ public class DispatchUnitTest {
 		}
 
 		// 命令実行結果の値を検査
-		boolean[] output = this.boolOutput.getData();
+		boolean[] output = this.boolOutput.getArrayData();
 		if (output[0] != false || output[1] != true || output[2] != false) {
 			fail("Incorrect output");
 		}
@@ -498,9 +498,9 @@ public class DispatchUnitTest {
 	private void testDispatchNeq() {
 
 		// 入出力オペランドに値を設定
-		this.int64InputA.setData(new long[]{ 200L, 500L, 700L }, 0, new int[] {3});
-		this.int64InputB.setData(new long[]{ 100L, 500L, 800L }, 0, new int[] {3});
-		this.boolOutput.setData(new boolean[]{ false, false, false }, 0, new int[] {3});
+		this.int64InputA.setArrayData(new long[]{ 200L, 500L, 700L }, 0, new int[] {3});
+		this.int64InputB.setArrayData(new long[]{ 100L, 500L, 800L }, 0, new int[] {3});
+		this.boolOutput.setArrayData(new boolean[]{ false, false, false }, 0, new int[] {3});
 
 		// 上記オペランドで演算を行う命令を生成
 		Instruction instruction = this.generateBoolx1Int64x2Instruction(OperationCode.NEQ);
@@ -520,7 +520,7 @@ public class DispatchUnitTest {
 		}
 
 		// 命令実行結果の値を検査
-		boolean[] output = this.boolOutput.getData();
+		boolean[] output = this.boolOutput.getArrayData();
 		if (output[0] != true || output[1] != false || output[2] != true) {
 			fail("Incorrect output");
 		}
@@ -539,9 +539,9 @@ public class DispatchUnitTest {
 	private void testDispatchGeq() {
 
 		// 入出力オペランドに値を設定
-		this.int64InputA.setData(new long[]{ 200L, 500L, 700L }, 0, new int[] {3});
-		this.int64InputB.setData(new long[]{ 100L, 500L, 800L }, 0, new int[] {3});
-		this.boolOutput.setData(new boolean[]{ false, false, false }, 0, new int[] {3});
+		this.int64InputA.setArrayData(new long[]{ 200L, 500L, 700L }, 0, new int[] {3});
+		this.int64InputB.setArrayData(new long[]{ 100L, 500L, 800L }, 0, new int[] {3});
+		this.boolOutput.setArrayData(new boolean[]{ false, false, false }, 0, new int[] {3});
 
 		// 上記オペランドで演算を行う命令を生成
 		Instruction instruction = this.generateBoolx1Int64x2Instruction(OperationCode.GEQ);
@@ -561,7 +561,7 @@ public class DispatchUnitTest {
 		}
 
 		// 命令実行結果の値を検査
-		boolean[] output = this.boolOutput.getData();
+		boolean[] output = this.boolOutput.getArrayData();
 		if (output[0] != true || output[1] != true || output[2] != false) {
 			fail("Incorrect output");
 		}
@@ -580,9 +580,9 @@ public class DispatchUnitTest {
 	private void testDispatchLeq() {
 
 		// 入出力オペランドに値を設定
-		this.int64InputA.setData(new long[]{ 200L, 500L, 700L }, 0, new int[] {3});
-		this.int64InputB.setData(new long[]{ 100L, 500L, 800L }, 0, new int[] {3});
-		this.boolOutput.setData(new boolean[]{ false, false, false }, 0, new int[] {3});
+		this.int64InputA.setArrayData(new long[]{ 200L, 500L, 700L }, 0, new int[] {3});
+		this.int64InputB.setArrayData(new long[]{ 100L, 500L, 800L }, 0, new int[] {3});
+		this.boolOutput.setArrayData(new boolean[]{ false, false, false }, 0, new int[] {3});
 
 		// 上記オペランドで演算を行う命令を生成
 		Instruction instruction = this.generateBoolx1Int64x2Instruction(OperationCode.LEQ);
@@ -602,7 +602,7 @@ public class DispatchUnitTest {
 		}
 
 		// 命令実行結果の値を検査
-		boolean[] output = this.boolOutput.getData();
+		boolean[] output = this.boolOutput.getArrayData();
 		if (output[0] != false || output[1] != true || output[2] != true) {
 			fail("Incorrect output");
 		}
@@ -621,9 +621,9 @@ public class DispatchUnitTest {
 	private void testDispatchGt() {
 
 		// 入出力オペランドに値を設定
-		this.int64InputA.setData(new long[]{ 200L, 500L, 700L }, 0, new int[] {3});
-		this.int64InputB.setData(new long[]{ 100L, 500L, 800L }, 0, new int[] {3});
-		this.boolOutput.setData(new boolean[]{ false, false, false }, 0, new int[] {3});
+		this.int64InputA.setArrayData(new long[]{ 200L, 500L, 700L }, 0, new int[] {3});
+		this.int64InputB.setArrayData(new long[]{ 100L, 500L, 800L }, 0, new int[] {3});
+		this.boolOutput.setArrayData(new boolean[]{ false, false, false }, 0, new int[] {3});
 
 		// 上記オペランドで演算を行う命令を生成
 		Instruction instruction = this.generateBoolx1Int64x2Instruction(OperationCode.GT);
@@ -643,7 +643,7 @@ public class DispatchUnitTest {
 		}
 
 		// 命令実行結果の値を検査
-		boolean[] output = this.boolOutput.getData();
+		boolean[] output = this.boolOutput.getArrayData();
 		if (output[0] != true || output[1] != false || output[2] != false) {
 			fail("Incorrect output");
 		}
@@ -662,9 +662,9 @@ public class DispatchUnitTest {
 	private void testDispatchLt() {
 
 		// 入出力オペランドに値を設定
-		this.int64InputA.setData(new long[]{ 200L, 500L, 700L }, 0, new int[] {3});
-		this.int64InputB.setData(new long[]{ 100L, 500L, 800L }, 0, new int[] {3});
-		this.boolOutput.setData(new boolean[]{ false, false, false }, 0, new int[] {3});
+		this.int64InputA.setArrayData(new long[]{ 200L, 500L, 700L }, 0, new int[] {3});
+		this.int64InputB.setArrayData(new long[]{ 100L, 500L, 800L }, 0, new int[] {3});
+		this.boolOutput.setArrayData(new boolean[]{ false, false, false }, 0, new int[] {3});
 
 		// 上記オペランドで演算を行う命令を生成
 		Instruction instruction = this.generateBoolx1Int64x2Instruction(OperationCode.LT);
@@ -684,7 +684,7 @@ public class DispatchUnitTest {
 		}
 
 		// 命令実行結果の値を検査
-		boolean[] output = this.boolOutput.getData();
+		boolean[] output = this.boolOutput.getArrayData();
 		if (output[0] != false || output[1] != false || output[2] != true) {
 			fail("Incorrect output");
 		}
@@ -703,9 +703,9 @@ public class DispatchUnitTest {
 	private void testDispatchAnd() {
 
 		// 入出力オペランドに値を設定
-		this.boolInputA.setData(new boolean[]{ false, true,  true }, 0, new int[] {3});
-		this.boolInputB.setData(new boolean[]{ false, false, true }, 0, new int[] {3});
-		this.boolOutput.setData(new boolean[]{ false, false, false }, 0, new int[] {3});
+		this.boolInputA.setArrayData(new boolean[]{ false, true,  true }, 0, new int[] {3});
+		this.boolInputB.setArrayData(new boolean[]{ false, false, true }, 0, new int[] {3});
+		this.boolOutput.setArrayData(new boolean[]{ false, false, false }, 0, new int[] {3});
 
 		// 上記オペランドで演算を行う命令を生成
 		Instruction instruction = this.generateBoolx3Instruction(OperationCode.ANDM);
@@ -725,7 +725,7 @@ public class DispatchUnitTest {
 		}
 
 		// 命令実行結果の値を検査
-		boolean[] output = this.boolOutput.getData();
+		boolean[] output = this.boolOutput.getArrayData();
 		if (output[0] != false || output[1] != false || output[2] != true) {
 			fail("Incorrect output");
 		}
@@ -743,9 +743,9 @@ public class DispatchUnitTest {
 	private void testDispatchOr() {
 
 		// 入出力オペランドに値を設定
-		this.boolInputA.setData(new boolean[]{ false, true,  true }, 0, new int[] {3});
-		this.boolInputB.setData(new boolean[]{ false, false, true }, 0, new int[] {3});
-		this.boolOutput.setData(new boolean[]{ false, false, false }, 0, new int[] {3});
+		this.boolInputA.setArrayData(new boolean[]{ false, true,  true }, 0, new int[] {3});
+		this.boolInputB.setArrayData(new boolean[]{ false, false, true }, 0, new int[] {3});
+		this.boolOutput.setArrayData(new boolean[]{ false, false, false }, 0, new int[] {3});
 
 		// 上記オペランドで演算を行う命令を生成
 		Instruction instruction = this.generateBoolx3Instruction(OperationCode.ORM);
@@ -765,7 +765,7 @@ public class DispatchUnitTest {
 		}
 
 		// 命令実行結果の値を検査
-		boolean[] output = this.boolOutput.getData();
+		boolean[] output = this.boolOutput.getArrayData();
 		if (output[0] != false || output[1] != true || output[2] != true) {
 			fail("Incorrect output");
 		}
@@ -783,8 +783,8 @@ public class DispatchUnitTest {
 	private void testDispatchNot() {
 
 		// 入出力オペランドに値を設定
-		this.boolInputA.setData(new boolean[]{ false, true,  false }, 0, new int[] {3});
-		this.boolOutput.setData(new boolean[]{ false, false, false }, 0, new int[] {3});
+		this.boolInputA.setArrayData(new boolean[]{ false, true,  false }, 0, new int[] {3});
+		this.boolOutput.setArrayData(new boolean[]{ false, false, false }, 0, new int[] {3});
 
 		// 上記オペランドで演算を行う命令を生成
 		Instruction instruction = this.generateBoolx2Instruction(OperationCode.NOT);
@@ -804,7 +804,7 @@ public class DispatchUnitTest {
 		}
 
 		// 命令実行結果の値を検査
-		boolean[] output = this.boolOutput.getData();
+		boolean[] output = this.boolOutput.getArrayData();
 		if (output[0] != true || output[1] != false || output[2] != true) {
 			fail("Incorrect output");
 		}
@@ -867,8 +867,8 @@ public class DispatchUnitTest {
 	private void testDispatchMov() {
 
 		// 入出力オペランドに値を設定
-		this.int64InputA.setData(new long[]{ 11L, 22L, 33L }, 0, new int[] {3});
-		this.int64Output.setData(new long[]{ -1L, -1L, -1L }, 0, new int[] {3});
+		this.int64InputA.setArrayData(new long[]{ 11L, 22L, 33L }, 0, new int[] {3});
+		this.int64Output.setArrayData(new long[]{ -1L, -1L, -1L }, 0, new int[] {3});
 
 		// 上記オペランドで演算を行う命令を生成
 		Instruction instruction = this.generateInt64x2Instruction(OperationCode.MOV);
@@ -888,7 +888,7 @@ public class DispatchUnitTest {
 		}
 
 		// 命令実行結果の値を検査
-		long[] output = this.int64Output.getData();
+		long[] output = this.int64Output.getArrayData();
 		if (output[0] != 11L || output[1] != 22L || output[2] != 33L) {
 			fail("Incorrect output");
 		}
@@ -910,8 +910,8 @@ public class DispatchUnitTest {
 		this.memory.setDataContainer(TMP_A_PART, TMP_A_ADDR, float64Input);
 
 		// 入出力オペランドに値を設定
-		float64Input.setData(new double[]{ 1.25, 2.25, 3.5 }, 0, new int[] {3}); // 2進表現で割り切れる値
-		this.int64Output.setData(new long[]{ -1L, -1L, -1L }, 0, new int[] {3});
+		float64Input.setArrayData(new double[]{ 1.25, 2.25, 3.5 }, 0, new int[] {3}); // 2進表現で割り切れる値
+		this.int64Output.setArrayData(new long[]{ -1L, -1L, -1L }, 0, new int[] {3});
 
 		// 上記オペランドで演算を行う命令を生成
 		Instruction instruction = new Instruction(
@@ -937,7 +937,7 @@ public class DispatchUnitTest {
 		}
 
 		// 命令実行結果の値を検査
-		long[] output = this.int64Output.getData();
+		long[] output = this.int64Output.getArrayData();
 		if (output[0] != 1L || output[1] != 2L || output[2] != 3L) {
 			fail("Incorrect output");
 		}
@@ -950,8 +950,8 @@ public class DispatchUnitTest {
 		this.memory.setDataContainer(TMP_A_PART, TMP_A_ADDR, scalar);
 
 		// 入出力オペランドに値を設定
-		this.int64Output.setData(new long[]{ -1L, -1L, -1L }, 0, new int[] {3});
-		scalar.setData(new long[]{ 123L }, 0, new int[] {3});
+		this.int64Output.setArrayData(new long[]{ -1L, -1L, -1L }, 0, new int[] {3});
+		scalar.setArrayData(new long[]{ 123L }, 0, new int[] {3});
 
 		// 上記オペランドで演算を行う命令を生成
 		Instruction instruction = new Instruction(
@@ -976,7 +976,7 @@ public class DispatchUnitTest {
 		}
 
 		// 命令実行結果の値を検査
-		long[] output = this.int64Output.getData();
+		long[] output = this.int64Output.getArrayData();
 		if (output[0] != 123L || output[1] != 123L || output[2] != 123L) {
 			fail("Incorrect output");
 		}
@@ -991,9 +991,9 @@ public class DispatchUnitTest {
 		this.memory.setDataContainer(TMP_B_PART, TMP_B_ADDR, index);
 
 		// 入出力オペランドに値を設定
-		this.int64InputA.setData(new long[]{ 11L, 22L, 33L }, 0, new int[] {3}); // 要素を参照する配列
-		index.setData(new long[]{ 1L }, 0, DataContainer.SCALAR_LENGTHS);
-		element.setData(new long[]{ -1L }, 0, DataContainer.SCALAR_LENGTHS);
+		this.int64InputA.setArrayData(new long[]{ 11L, 22L, 33L }, 0, new int[] {3}); // 要素を参照する配列
+		index.setArrayData(new long[]{ 1L }, 0, DataContainer.ARRAY_LENGTHS_OF_SCALAR);
+		element.setArrayData(new long[]{ -1L }, 0, DataContainer.ARRAY_LENGTHS_OF_SCALAR);
 
 		// 上記オペランドで演算を行う命令を生成
 		Instruction instruction = new Instruction(
@@ -1018,7 +1018,7 @@ public class DispatchUnitTest {
 		}
 
 		// 命令実行結果の値を検査
-		if (element.getData()[ element.getOffset() ] != 22L) {
+		if (element.getArrayData()[ element.getArrayOffset() ] != 22L) {
 			fail("Incorrect output");
 		}
 	}
@@ -1032,9 +1032,9 @@ public class DispatchUnitTest {
 		this.memory.setDataContainer(TMP_B_PART, TMP_B_ADDR, index);
 
 		// 入出力オペランドに値を設定
-		this.int64InputA.setData(new long[]{ 11L, 22L, 33L }, 0, new int[] {3}); // 要素を参照する配列
-		index.setData(new long[]{ 1L }, 0, DataContainer.SCALAR_LENGTHS);
-		element.setData(new long[]{ -1L }, 0, DataContainer.SCALAR_LENGTHS);
+		this.int64InputA.setArrayData(new long[]{ 11L, 22L, 33L }, 0, new int[] {3}); // 要素を参照する配列
+		index.setArrayData(new long[]{ 1L }, 0, DataContainer.ARRAY_LENGTHS_OF_SCALAR);
+		element.setArrayData(new long[]{ -1L }, 0, DataContainer.ARRAY_LENGTHS_OF_SCALAR);
 
 		// 上記オペランドで演算を行う命令を生成
 		Instruction instruction = new Instruction(
@@ -1059,7 +1059,7 @@ public class DispatchUnitTest {
 		}
 
 		// 命令実行結果の値を検査
-		if (element.getData()[ element.getOffset() ] != 22L) {
+		if (element.getArrayData()[ element.getArrayOffset() ] != 22L) {
 			fail("Incorrect output");
 		}
 	}
@@ -1118,7 +1118,7 @@ public class DispatchUnitTest {
 
 		// データを格納
 		long[] data = new long[]{ 1L, 2L, 3L, 4L, 5L };
-		target.setData(data, 0, targetLengths);
+		target.setArrayData(data, 0, targetLengths);
 
 		// 上記オペランドで演算を行う命令を生成
 		Instruction instruction = new Instruction(
@@ -1129,10 +1129,10 @@ public class DispatchUnitTest {
 		);
 
 		// データ解放前の状態を念のため検査
-		if (target.getData() != data
-				|| target.getOffset() != 0
-				|| target.getSize() != 4
-				|| target.getLengths()[0] != 4) {
+		if (target.getArrayData() != data
+				|| target.getArrayOffset() != 0
+				|| target.getArraySize() != 4
+				|| target.getArrayLengths()[0] != 4) {
 
 			fail("Incorrect output");
 		}
@@ -1152,10 +1152,10 @@ public class DispatchUnitTest {
 		}
 
 		// データが解放されてコンテナが初期状態になっている事を検査
-		if (target.getData() != null
-				|| target.getSize() != 1
-				|| target.getLengths().length != 0
-				|| target.getOffset() != 0) {
+		if (target.getArrayData() != null
+				|| target.getArraySize() != 1
+				|| target.getArrayLengths().length != 0
+				|| target.getArrayOffset() != 0) {
 
 			fail("Incorrect output");
 		}
@@ -1171,8 +1171,8 @@ public class DispatchUnitTest {
 		this.memory.setDataContainer(TMP_B_PART, TMP_B_ADDR, condition);
 
 		// 入出力オペランドに値を設定
-		condition.setData(new boolean[]{ true }, 0, new int[] {3});
-		jumpAddress.setData(new long[]{ 256L }, 0, new int[] {3});
+		condition.setArrayData(new boolean[]{ true }, 0, new int[] {3});
+		jumpAddress.setArrayData(new long[]{ 256L }, 0, new int[] {3});
 
 		// 上記オペランドで演算を行う命令を生成
 		Instruction instruction = new Instruction(
@@ -1197,7 +1197,7 @@ public class DispatchUnitTest {
 		}
 
 		// 分岐条件を変更して再実行
-		condition.setData(new boolean[]{ false }, 0, new int[] {3});
+		condition.setArrayData(new boolean[]{ false }, 0, new int[] {3});
 		pc = 10; // プログラムカウンタ
 		try {
 			pc = this.dispatch(instruction, pc);
@@ -1222,8 +1222,8 @@ public class DispatchUnitTest {
 		this.memory.setDataContainer(TMP_B_PART, TMP_B_ADDR, condition);
 
 		// 入出力オペランドに値を設定
-		condition.setData(new boolean[]{ true }, 0, new int[] {3});
-		jumpAddress.setData(new long[]{ 256L }, 0, new int[] {3});
+		condition.setArrayData(new boolean[]{ true }, 0, new int[] {3});
+		jumpAddress.setArrayData(new long[]{ 256L }, 0, new int[] {3});
 
 		// 上記オペランドで演算を行う命令を生成
 		Instruction instruction = new Instruction(
@@ -1248,7 +1248,7 @@ public class DispatchUnitTest {
 		}
 
 		// 分岐条件を変更して再実行
-		condition.setData(new boolean[]{ false }, 0, new int[] {3});
+		condition.setArrayData(new boolean[]{ false }, 0, new int[] {3});
 		pc = 10; // プログラムカウンタ
 		try {
 			pc = this.dispatch(instruction, pc);
@@ -1294,20 +1294,20 @@ public class DispatchUnitTest {
 		}
 
 		// 確保されている事を検査
-		if (!(target.getData() instanceof long[])) {
+		if (!(target.getArrayData() instanceof long[])) {
 			fail("Incorrect type of data");
 		}
-		if (target.getSize() != 1) {
+		if (target.getArraySize() != 1) {
 			fail("Incorrect size");
 		}
-		if (target.getRank() != 0) {
+		if (target.getArrayRank() != 0) {
 			fail("Incorrect rank");
 		}
-		if (target.getLengths().length != 0) {
+		if (target.getArrayLengths().length != 0) {
 			fail("Incorrect lengths");
 		}
-		long[] targetData = target.getData();
-		if (!(0 < targetData.length) || !(target.getSize()+target.getOffset() <= targetData.length)) {
+		long[] targetData = target.getArrayData();
+		if (!(0 < targetData.length) || !(target.getArraySize()+target.getArrayOffset() <= targetData.length)) {
 			fail("Incorrect length of data");
 		}
 	}
@@ -1325,9 +1325,9 @@ public class DispatchUnitTest {
 		this.memory.setDataContainer(TMP_D_PART, TMP_D_ADDR, len2);
 
 		// 要素数指定値を設定（ [2][3][4] ）
-		len0.setData(new long[] { 2L }, 0, DataContainer.SCALAR_LENGTHS);
-		len1.setData(new long[] { 3L }, 0, DataContainer.SCALAR_LENGTHS);
-		len2.setData(new long[] { 4L }, 0, DataContainer.SCALAR_LENGTHS);
+		len0.setArrayData(new long[] { 2L }, 0, DataContainer.ARRAY_LENGTHS_OF_SCALAR);
+		len1.setArrayData(new long[] { 3L }, 0, DataContainer.ARRAY_LENGTHS_OF_SCALAR);
+		len2.setArrayData(new long[] { 4L }, 0, DataContainer.ARRAY_LENGTHS_OF_SCALAR);
 
 		// ALLOC命令（スカラ確保）を生成
 		Instruction instruction = new Instruction(
@@ -1348,20 +1348,20 @@ public class DispatchUnitTest {
 		}
 
 		// 確保されている事を検査
-		if (!(target.getData() instanceof long[])) {
+		if (!(target.getArrayData() instanceof long[])) {
 			fail("Incorrect type of instance");
 		}
-		if (target.getSize() != 24) {
+		if (target.getArraySize() != 24) {
 			fail("Incorrect size");
 		}
-		if (target.getRank() != 3) {
+		if (target.getArrayRank() != 3) {
 			fail("Incorrect rank");
 		}
-		if (target.getLengths()[0] != 2 || target.getLengths()[1] != 3L || target.getLengths()[2] != 4L) {
+		if (target.getArrayLengths()[0] != 2 || target.getArrayLengths()[1] != 3L || target.getArrayLengths()[2] != 4L) {
 			fail("Incorrect lengths");
 		}
-		long[] targetData = target.getData();
-		if (!(0 < targetData.length) || !(target.getSize()+target.getOffset() <= targetData.length)) {
+		long[] targetData = target.getArrayData();
+		if (!(0 < targetData.length) || !(target.getArraySize()+target.getArrayOffset() <= targetData.length)) {
 			fail("Incorrect actual length of data");
 		}
 	}
@@ -1394,11 +1394,11 @@ public class DispatchUnitTest {
 		this.memory.setDataContainer(TMP_B_PART, TMP_B_ADDR, argB);
 		this.memory.setDataContainer(TMP_C_PART, TMP_C_ADDR, ret);
 		this.memory.setDataContainer(TMP_D_PART, TMP_D_ADDR, functionAddressContainer);
-		argA.setData(new long[]{ 123L }, 0, DataContainer.SCALAR_LENGTHS);
-		argB.setData(new long[]{ 456L }, 0, DataContainer.SCALAR_LENGTHS);
-		ret.setData(new long[]{ -1 }, 0, DataContainer.SCALAR_LENGTHS);
+		argA.setArrayData(new long[]{ 123L }, 0, DataContainer.ARRAY_LENGTHS_OF_SCALAR);
+		argB.setArrayData(new long[]{ 456L }, 0, DataContainer.ARRAY_LENGTHS_OF_SCALAR);
+		ret.setArrayData(new long[]{ -1 }, 0, DataContainer.ARRAY_LENGTHS_OF_SCALAR);
 		int functionAddress = 0; // 関数は1個しか接続していないので0番なはず
-		functionAddressContainer.setData(new long[]{ functionAddress }, 0, DataContainer.SCALAR_LENGTHS);
+		functionAddressContainer.setArrayData(new long[]{ functionAddress }, 0, DataContainer.ARRAY_LENGTHS_OF_SCALAR);
 
 		// 上記オペランドでメソッドコールを行う命令を生成
 		Instruction instruction = new Instruction(
@@ -1424,7 +1424,7 @@ public class DispatchUnitTest {
 		}
 
 		// 戻り値の値を検査（コールしたメソッドは2つの引数の和、つまり 123 + 456 を返す）
-		if(ret.getData()[0] != 579) {
+		if(ret.getArrayData()[0] != 579) {
 			fail("Incorrect returned value");
 		}
 	}

@@ -62,7 +62,7 @@ public class BoolVectorBranchUnit extends AcceleratorExecutionUnit {
 		@Override
 		public final AcceleratorExecutionNode execute() {
 			this.synchronizer.synchronizeFromCacheToMemory();
-			boolean[] conditions = this.conditionContainer.getData();
+			boolean[] conditions = this.conditionContainer.getArrayData();
 
 			// ベクトルJMP命令は、条件オペランドベクトルの全要素がtrueなら飛ぶものと定義する。
 			// そう定義する事で、中間コードにおいて、
@@ -106,7 +106,7 @@ public class BoolVectorBranchUnit extends AcceleratorExecutionUnit {
 		@Override
 		public final AcceleratorExecutionNode execute() {
 			this.synchronizer.synchronizeFromCacheToMemory();
-			boolean[] conditions = this.conditionContainer.getData();
+			boolean[] conditions = this.conditionContainer.getArrayData();
 
 			// ベクトルJMPN命令は、条件オペランドベクトルの全要素がfalseなら飛ぶものと定義する。
 			// そう定義する事で、中間コードにおいて、
