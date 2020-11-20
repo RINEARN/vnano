@@ -28,10 +28,10 @@ public class Int64x1ScalarCacheSynchronizer extends CacheSynchronizer {
 	}
 
 	public final void synchronizeFromCacheToMemory() {
-		if (cacheSyncEnabled) container.getArrayData()[ container.getArrayOffset() ] = cache.value;
+		if (cacheSyncEnabled) container.getArrayData()[ container.getArrayOffset() ] = cache.data;
 	}
 
 	public final void synchronizeFromMemoryToCache() {
-		if (cacheSyncEnabled) cache.value = container.getArrayData()[ container.getArrayOffset() ];
+		if (cacheSyncEnabled) cache.data = container.getArrayData()[ container.getArrayOffset() ];
 	}
 }

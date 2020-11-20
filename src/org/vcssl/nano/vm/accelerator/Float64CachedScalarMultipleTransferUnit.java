@@ -185,8 +185,8 @@ public class Float64CachedScalarMultipleTransferUnit extends AcceleratorExecutio
 		}
 
 		public final AcceleratorExecutionNode execute() {
-			this.dest0.value = this.src0.value;
-			this.dest1.value = this.src1.value;
+			this.dest0.data = this.src0.data;
+			this.dest1.data = this.src1.data;
 			return this.nextNode;
 		}
 	}
@@ -215,9 +215,9 @@ public class Float64CachedScalarMultipleTransferUnit extends AcceleratorExecutio
 		}
 
 		public final AcceleratorExecutionNode execute() {
-			this.dest0.value = this.src0.value;
-			this.dest1.value = this.src1.value;
-			this.dest2.value = this.src2.value;
+			this.dest0.data = this.src0.data;
+			this.dest1.data = this.src1.data;
+			this.dest2.data = this.src2.data;
 			return this.nextNode;
 		}
 	}
@@ -251,10 +251,10 @@ public class Float64CachedScalarMultipleTransferUnit extends AcceleratorExecutio
 		}
 
 		public final AcceleratorExecutionNode execute() {
-			this.dest0.value = this.src0.value;
-			this.dest1.value = this.src1.value;
-			this.dest2.value = this.src2.value;
-			this.dest3.value = this.src3.value;
+			this.dest0.data = this.src0.data;
+			this.dest1.data = this.src1.data;
+			this.dest2.data = this.src2.data;
+			this.dest3.data = this.src3.data;
 			return this.nextNode;
 		}
 	}
@@ -293,11 +293,11 @@ public class Float64CachedScalarMultipleTransferUnit extends AcceleratorExecutio
 		}
 
 		public final AcceleratorExecutionNode execute() {
-			this.dest0.value = this.src0.value;
-			this.dest1.value = this.src1.value;
-			this.dest2.value = this.src2.value;
-			this.dest3.value = this.src3.value;
-			this.dest4.value = this.src4.value;
+			this.dest0.data = this.src0.data;
+			this.dest1.data = this.src1.data;
+			this.dest2.data = this.src2.data;
+			this.dest3.data = this.src3.data;
+			this.dest4.data = this.src4.data;
 			return this.nextNode;
 		}
 	}
@@ -341,12 +341,12 @@ public class Float64CachedScalarMultipleTransferUnit extends AcceleratorExecutio
 		}
 
 		public final AcceleratorExecutionNode execute() {
-			this.dest0.value = this.src0.value;
-			this.dest1.value = this.src1.value;
-			this.dest2.value = this.src2.value;
-			this.dest3.value = this.src3.value;
-			this.dest4.value = this.src4.value;
-			this.dest5.value = this.src5.value;
+			this.dest0.data = this.src0.data;
+			this.dest1.data = this.src1.data;
+			this.dest2.data = this.src2.data;
+			this.dest3.data = this.src3.data;
+			this.dest4.data = this.src4.data;
+			this.dest5.data = this.src5.data;
 			return this.nextNode;
 		}
 	}
@@ -395,13 +395,13 @@ public class Float64CachedScalarMultipleTransferUnit extends AcceleratorExecutio
 		}
 
 		public final AcceleratorExecutionNode execute() {
-			this.dest0.value = this.src0.value;
-			this.dest1.value = this.src1.value;
-			this.dest2.value = this.src2.value;
-			this.dest3.value = this.src3.value;
-			this.dest4.value = this.src4.value;
-			this.dest5.value = this.src5.value;
-			this.dest6.value = this.src6.value;
+			this.dest0.data = this.src0.data;
+			this.dest1.data = this.src1.data;
+			this.dest2.data = this.src2.data;
+			this.dest3.data = this.src3.data;
+			this.dest4.data = this.src4.data;
+			this.dest5.data = this.src5.data;
+			this.dest6.data = this.src6.data;
 			return this.nextNode;
 		}
 	}
@@ -455,14 +455,14 @@ public class Float64CachedScalarMultipleTransferUnit extends AcceleratorExecutio
 		}
 
 		public final AcceleratorExecutionNode execute() {
-			this.dest0.value = this.src0.value;
-			this.dest1.value = this.src1.value;
-			this.dest2.value = this.src2.value;
-			this.dest3.value = this.src3.value;
-			this.dest4.value = this.src4.value;
-			this.dest5.value = this.src5.value;
-			this.dest6.value = this.src6.value;
-			this.dest7.value = this.src7.value;
+			this.dest0.data = this.src0.data;
+			this.dest1.data = this.src1.data;
+			this.dest2.data = this.src2.data;
+			this.dest3.data = this.src3.data;
+			this.dest4.data = this.src4.data;
+			this.dest5.data = this.src5.data;
+			this.dest6.data = this.src6.data;
+			this.dest7.data = this.src7.data;
 			return this.nextNode;
 		}
 	}
@@ -521,15 +521,15 @@ public class Float64CachedScalarMultipleTransferUnit extends AcceleratorExecutio
 		}
 
 		public final AcceleratorExecutionNode execute() {
-			this.dest0.value = this.src0.value;
-			this.dest1.value = this.src1.value;
-			this.dest2.value = this.src2.value;
-			this.dest3.value = this.src3.value;
-			this.dest4.value = this.src4.value;
-			this.dest5.value = this.src5.value;
-			this.dest6.value = this.src6.value;
-			this.dest7.value = this.src7.value;
-			this.dest8.value = this.src8.value;
+			this.dest0.data = this.src0.data;
+			this.dest1.data = this.src1.data;
+			this.dest2.data = this.src2.data;
+			this.dest3.data = this.src3.data;
+			this.dest4.data = this.src4.data;
+			this.dest5.data = this.src5.data;
+			this.dest6.data = this.src6.data;
+			this.dest7.data = this.src7.data;
+			this.dest8.data = this.src8.data;
 			return this.nextNode;
 		}
 	}
@@ -593,16 +593,16 @@ public class Float64CachedScalarMultipleTransferUnit extends AcceleratorExecutio
 		}
 
 		public final AcceleratorExecutionNode execute() {
-			this.dest0.value = this.src0.value;
-			this.dest1.value = this.src1.value;
-			this.dest2.value = this.src2.value;
-			this.dest3.value = this.src3.value;
-			this.dest4.value = this.src4.value;
-			this.dest5.value = this.src5.value;
-			this.dest6.value = this.src6.value;
-			this.dest7.value = this.src7.value;
-			this.dest8.value = this.src8.value;
-			this.dest9.value = this.src9.value;
+			this.dest0.data = this.src0.data;
+			this.dest1.data = this.src1.data;
+			this.dest2.data = this.src2.data;
+			this.dest3.data = this.src3.data;
+			this.dest4.data = this.src4.data;
+			this.dest5.data = this.src5.data;
+			this.dest6.data = this.src6.data;
+			this.dest7.data = this.src7.data;
+			this.dest8.data = this.src8.data;
+			this.dest9.data = this.src9.data;
 			return this.nextNode;
 		}
 	}

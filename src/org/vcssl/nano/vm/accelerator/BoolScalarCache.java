@@ -7,5 +7,5 @@ package org.vcssl.nano.vm.accelerator;
 
 public class BoolScalarCache implements ScalarCache {
 	public BoolScalarCache(){}
-	public boolean value;
+	public boolean data;
 }

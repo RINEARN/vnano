@@ -88,7 +88,7 @@ public class Float64CachedScalarArithmeticUnit extends AcceleratorExecutionUnit 
 			super(cache0, cache1, cache2, nextNode);
 		}
 		public final AcceleratorExecutionNode execute() {
-			this.cache0.value = this.cache1.value + this.cache2.value;
+			this.cache0.data = this.cache1.data + this.cache2.data;
 			return this.nextNode;
 		}
 	}
@@ -100,7 +100,7 @@ public class Float64CachedScalarArithmeticUnit extends AcceleratorExecutionUnit 
 			super(cache0, cache1, cache2, nextNode);
 		}
 		public final AcceleratorExecutionNode execute() {
-			this.cache0.value = this.cache1.value - this.cache2.value;
+			this.cache0.data = this.cache1.data - this.cache2.data;
 			return this.nextNode;
 		}
 	}
@@ -111,7 +111,7 @@ public class Float64CachedScalarArithmeticUnit extends AcceleratorExecutionUnit 
 			super(cache0, cache1, cache2, nextNode);
 		}
 		public final AcceleratorExecutionNode execute() {
-			this.cache0.value = this.cache1.value * this.cache2.value;
+			this.cache0.data = this.cache1.data * this.cache2.data;
 			return this.nextNode;
 		}
 	}
@@ -122,7 +122,7 @@ public class Float64CachedScalarArithmeticUnit extends AcceleratorExecutionUnit 
 			super(cache0, cache1, cache2, nextNode);
 		}
 		public final AcceleratorExecutionNode execute() {
-			this.cache0.value = this.cache1.value / this.cache2.value;
+			this.cache0.data = this.cache1.data / this.cache2.data;
 			return this.nextNode;
 		}
 	}
@@ -133,7 +133,7 @@ public class Float64CachedScalarArithmeticUnit extends AcceleratorExecutionUnit 
 			super(cache0, cache1, cache2, nextNode);
 		}
 		public final AcceleratorExecutionNode execute() {
-			this.cache0.value = this.cache1.value % this.cache2.value;
+			this.cache0.data = this.cache1.data % this.cache2.data;
 			return this.nextNode;
 		}
 	}
@@ -144,7 +144,7 @@ public class Float64CachedScalarArithmeticUnit extends AcceleratorExecutionUnit 
 			super(cache0, cache1, nextNode);
 		}
 		public final AcceleratorExecutionNode execute() {
-			this.cache0.value = - this.cache1.value;
+			this.cache0.data = - this.cache1.data;
 			return this.nextNode;
 		}
 	}

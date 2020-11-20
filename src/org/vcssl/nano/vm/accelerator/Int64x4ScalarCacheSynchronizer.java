@@ -40,16 +40,16 @@ public class Int64x4ScalarCacheSynchronizer extends CacheSynchronizer {
 	}
 
 	public final void synchronizeFromCacheToMemory() {
-		if (cacheSyncEnabled0) container0.getArrayData()[ container0.getArrayOffset() ] = cache0.value;
-		if (cacheSyncEnabled1) container1.getArrayData()[ container1.getArrayOffset() ] = cache1.value;
-		if (cacheSyncEnabled2) container2.getArrayData()[ container2.getArrayOffset() ] = cache2.value;
-		if (cacheSyncEnabled3) container3.getArrayData()[ container3.getArrayOffset() ] = cache3.value;
+		if (cacheSyncEnabled0) container0.getArrayData()[ container0.getArrayOffset() ] = cache0.data;
+		if (cacheSyncEnabled1) container1.getArrayData()[ container1.getArrayOffset() ] = cache1.data;
+		if (cacheSyncEnabled2) container2.getArrayData()[ container2.getArrayOffset() ] = cache2.data;
+		if (cacheSyncEnabled3) container3.getArrayData()[ container3.getArrayOffset() ] = cache3.data;
 	}
 
 	public final void synchronizeFromMemoryToCache() {
-		if (cacheSyncEnabled0) cache0.value = container0.getArrayData()[ container0.getArrayOffset() ];
-		if (cacheSyncEnabled1) cache1.value = container1.getArrayData()[ container1.getArrayOffset() ];
-		if (cacheSyncEnabled2) cache2.value = container2.getArrayData()[ container2.getArrayOffset() ];
-		if (cacheSyncEnabled3) cache3.value = container3.getArrayData()[ container3.getArrayOffset() ];
+		if (cacheSyncEnabled0) cache0.data = container0.getArrayData()[ container0.getArrayOffset() ];
+		if (cacheSyncEnabled1) cache1.data = container1.getArrayData()[ container1.getArrayOffset() ];
+		if (cacheSyncEnabled2) cache2.data = container2.getArrayData()[ container2.getArrayOffset() ];
+		if (cacheSyncEnabled3) cache3.data = container3.getArrayData()[ container3.getArrayOffset() ];
 	}
 }

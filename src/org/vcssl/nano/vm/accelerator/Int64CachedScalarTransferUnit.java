@@ -65,7 +65,7 @@ public class Int64CachedScalarTransferUnit extends AcceleratorExecutionUnit {
 		}
 
 		public final AcceleratorExecutionNode execute() {
-			this.cache0.value = this.cache1.value;
+			this.cache0.data = this.cache1.data;
 			return this.nextNode;
 		}
 	}
@@ -83,7 +83,7 @@ public class Int64CachedScalarTransferUnit extends AcceleratorExecutionUnit {
 		}
 
 		public final AcceleratorExecutionNode execute() {
-			this.cache0.value = (long)this.cache1.value;
+			this.cache0.data = (long)this.cache1.data;
 			return this.nextNode;
 		}
 	}

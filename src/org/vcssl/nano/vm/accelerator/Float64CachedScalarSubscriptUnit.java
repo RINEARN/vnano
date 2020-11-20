@@ -157,7 +157,7 @@ public class Float64CachedScalarSubscriptUnit extends AcceleratorExecutionUnit {
 		}
 
 		public final AcceleratorExecutionNode execute() {
-			this.dest.value = this.src.getArrayData()[ (int)this.index0.value ];
+			this.dest.data = this.src.getArrayData()[ (int)this.index0.data ];
 			return this.nextNode;
 		}
 	}
@@ -186,9 +186,9 @@ public class Float64CachedScalarSubscriptUnit extends AcceleratorExecutionUnit {
 
 			// 2次元インデックスから1次元インデックスへの変換
 			// (次元は左から 0, 1, 2, ... で、注目インデックスより右にある次元の要素数の積が、そのインデックスの1増加による移動単位)
-			int index = lengths[1]*(int)index0.value + (int)index1.value;
+			int index = lengths[1]*(int)index0.data + (int)index1.data;
 
-			this.dest.value = this.src.getArrayData()[ index ];
+			this.dest.data = this.src.getArrayData()[ index ];
 			return this.nextNode;
 		}
 	}
@@ -219,9 +219,9 @@ public class Float64CachedScalarSubscriptUnit extends AcceleratorExecutionUnit {
 
 			// 3次元インデックスから1次元インデックスへの変換
 			// (次元は左から 0, 1, 2, ... で、注目インデックスより右にある次元の要素数の積が、そのインデックスの1増加による移動単位)
-			int index = lengths[1]*lengths[2]*(int)index0.value + lengths[2]*(int)index1.value + (int)index2.value;
+			int index = lengths[1]*lengths[2]*(int)index0.data + lengths[2]*(int)index1.data + (int)index2.data;
 
-			this.dest.value = this.src.getArrayData()[ index ];
+			this.dest.data = this.src.getArrayData()[ index ];
 			return this.nextNode;
 		}
 	}
@@ -252,7 +252,7 @@ public class Float64CachedScalarSubscriptUnit extends AcceleratorExecutionUnit {
 		}
 
 		public final AcceleratorExecutionNode execute() {
-			this.dest.getArrayData()[ this.dest.getArrayOffset() ] = this.src.getArrayData()[ (int)this.index0.value ];
+			this.dest.getArrayData()[ this.dest.getArrayOffset() ] = this.src.getArrayData()[ (int)this.index0.data ];
 			return this.nextNode;
 		}
 	}
@@ -285,7 +285,7 @@ public class Float64CachedScalarSubscriptUnit extends AcceleratorExecutionUnit {
 
 			// 2次元インデックスから1次元インデックスへの変換
 			// (次元は左から 0, 1, 2, ... で、注目インデックスより右にある次元の要素数の積が、そのインデックスの1増加による移動単位)
-			int index = lengths[1]*(int)index0.value + (int)index1.value;
+			int index = lengths[1]*(int)index0.data + (int)index1.data;
 
 			this.dest.getArrayData()[ this.dest.getArrayOffset() ] = this.src.getArrayData()[ index ];
 			return this.nextNode;
@@ -322,7 +322,7 @@ public class Float64CachedScalarSubscriptUnit extends AcceleratorExecutionUnit {
 
 			// 3次元インデックスから1次元インデックスへの変換
 			// (次元は左から 0, 1, 2, ... で、注目インデックスより右にある次元の要素数の積が、そのインデックスの1増加による移動単位)
-			int index = lengths[1]*lengths[2]*(int)index0.value + lengths[2]*(int)index1.value + (int)index2.value;
+			int index = lengths[1]*lengths[2]*(int)index0.data + lengths[2]*(int)index1.data + (int)index2.data;
 
 			this.dest.getArrayData()[ this.dest.getArrayOffset() ] = this.src.getArrayData()[ index ];
 			return this.nextNode;
@@ -355,7 +355,7 @@ public class Float64CachedScalarSubscriptUnit extends AcceleratorExecutionUnit {
 		}
 
 		public final AcceleratorExecutionNode execute() {
-			this.dest.setArrayData(this.src.getArrayData(), (int)this.index0.value, DataContainer.ARRAY_LENGTHS_OF_SCALAR);
+			this.dest.setArrayData(this.src.getArrayData(), (int)this.index0.data, DataContainer.ARRAY_LENGTHS_OF_SCALAR);
 			return this.nextNode;
 		}
 	}
@@ -388,7 +388,7 @@ public class Float64CachedScalarSubscriptUnit extends AcceleratorExecutionUnit {
 
 			// 2次元インデックスから1次元インデックスへの変換
 			// (次元は左から 0, 1, 2, ... で、注目インデックスより右にある次元の要素数の積が、そのインデックスの1増加による移動単位)
-			int index = lengths[1]*(int)index0.value + (int)index1.value;
+			int index = lengths[1]*(int)index0.data + (int)index1.data;
 
 			this.dest.setArrayData(this.src.getArrayData(), index, DataContainer.ARRAY_LENGTHS_OF_SCALAR);
 			return this.nextNode;
@@ -425,7 +425,7 @@ public class Float64CachedScalarSubscriptUnit extends AcceleratorExecutionUnit {
 
 			// 3次元インデックスから1次元インデックスへの変換
 			// (次元は左から 0, 1, 2, ... で、注目インデックスより右にある次元の要素数の積が、そのインデックスの1増加による移動単位)
-			int index = lengths[1]*lengths[2]*(int)index0.value + lengths[2]*(int)index1.value + (int)index2.value;
+			int index = lengths[1]*lengths[2]*(int)index0.data + lengths[2]*(int)index1.data + (int)index2.data;
 
 			this.dest.setArrayData(this.src.getArrayData(), index, DataContainer.ARRAY_LENGTHS_OF_SCALAR);
 			return this.nextNode;

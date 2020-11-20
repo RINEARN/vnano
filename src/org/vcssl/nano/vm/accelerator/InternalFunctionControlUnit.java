@@ -544,7 +544,7 @@ public class InternalFunctionControlUnit extends AcceleratorExecutionUnit {
 			        InternalFunctionControlUnit.this.dataStackPointer
 			];
 
-			this.cache.value = src.getArrayData()[ src.getArrayOffset() ];
+			this.cache.data = src.getArrayData()[ src.getArrayOffset() ];
 
 			return this.nextNode;
 		}
@@ -571,7 +571,7 @@ public class InternalFunctionControlUnit extends AcceleratorExecutionUnit {
 			        InternalFunctionControlUnit.this.dataStackPointer
 			];
 
-			this.cache.value = src.getArrayData()[ src.getArrayOffset() ];
+			this.cache.data = src.getArrayData()[ src.getArrayOffset() ];
 
 			return this.nextNode;
 		}
@@ -598,7 +598,7 @@ public class InternalFunctionControlUnit extends AcceleratorExecutionUnit {
 			        InternalFunctionControlUnit.this.dataStackPointer
 			];
 
-			this.cache.value = src.getArrayData()[ src.getArrayOffset() ];
+			this.cache.data = src.getArrayData()[ src.getArrayOffset() ];
 
 			return this.nextNode;
 		}

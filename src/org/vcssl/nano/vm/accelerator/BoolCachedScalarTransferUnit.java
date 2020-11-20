@@ -58,7 +58,7 @@ public class BoolCachedScalarTransferUnit extends AcceleratorExecutionUnit {
 		}
 
 		public final AcceleratorExecutionNode execute() {
-			this.cache0.value = this.cache1.value;
+			this.cache0.data = this.cache1.data;
 			return this.nextNode;
 		}
 	}

@@ -76,7 +76,7 @@ public class BoolCachedScalarBranchUnit extends AcceleratorExecutionUnit {
 
 		@Override
 		public final AcceleratorExecutionNode execute() {
-			if (this.conditionCache.value) {
+			if (this.conditionCache.data) {
 				return this.branchedNode;
 			} else {
 				return this.nextNode;
@@ -103,7 +103,7 @@ public class BoolCachedScalarBranchUnit extends AcceleratorExecutionUnit {
 
 		@Override
 		public final AcceleratorExecutionNode execute() {
-			if (this.conditionCache.value) {
+			if (this.conditionCache.data) {
 				return this.nextNode;
 			} else {
 				return this.branchedNode;

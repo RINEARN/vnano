@@ -7,5 +7,5 @@ package org.vcssl.nano.vm.accelerator;
 
 public class Int64ScalarCache implements ScalarCache {
 	public Int64ScalarCache(){}
-	public long value;
+	public long data;
 }
