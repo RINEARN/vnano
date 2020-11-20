@@ -5,7 +5,19 @@
 
 package org.vcssl.nano.vm.accelerator;
 
-public class BoolScalarCache implements ScalarCache {
+import org.vcssl.connect.BoolScalarDataAccessorInterface1;
+
+public class BoolScalarCache implements ScalarCache, BoolScalarDataAccessorInterface1 {
 	public BoolScalarCache(){}
 	public boolean data;
+
+	@Override
+	public void setBoolScalarData(boolean data) {
+		this.data = data;
+	}
+
+	@Override
+	public boolean getBoolScalarData() {
+		return this.data;
+	}
 }
