@@ -8,6 +8,11 @@ package org.vcssl.nano.vm.memory;
 import java.util.HashMap;
 
 import org.vcssl.connect.ArrayDataAccessorInterface1;
+import org.vcssl.connect.BoolScalarDataAccessorInterface1;
+import org.vcssl.connect.Float64ScalarDataAccessorInterface1;
+import org.vcssl.connect.Int64ScalarDataAccessorInterface1;
+import org.vcssl.connect.StringScalarDataAccessorInterface1;
+import org.vcssl.nano.VnanoFatalException;
 import org.vcssl.nano.spec.DataType;
 
 
@@ -133,7 +138,9 @@ import org.vcssl.nano.spec.DataType;
  * @param <T> 保持するデータの型
  * @author RINEARN (Fumihiro Matsui)
  */
-public class DataContainer<T> implements ArrayDataAccessorInterface1<T> {
+public class DataContainer<T> implements ArrayDataAccessorInterface1<T>,
+		Float64ScalarDataAccessorInterface1, Int64ScalarDataAccessorInterface1,
+		BoolScalarDataAccessorInterface1, StringScalarDataAccessorInterface1 {
 
 	/** スカラデータを格納する場合における、多次元配列としての次元数（値は0）です。*/
 	public static final int   ARRAY_RANK_OF_SCALAR = 0;
@@ -433,4 +440,201 @@ public class DataContainer<T> implements ArrayDataAccessorInterface1<T> {
 	public void derefer() {
 		this.referenceTreeRoot = null;
 	}
+
+
+	/**
+	 * double ({@link org.vcssl.nano.spec.DataType#FLOAT64 FLOAT64}) 型のスカラ値を格納します。
+	 *
+	 * ただし、このデータコンテナのデータ ({@link DataContainer#data data} フィールド) が、
+	 * あらかじめ double 型配列として初期化されているか、または null である必要があります。
+	 * 別の型で初期化されている場合には例外が発生します。
+	 *
+	 * @param data 格納する値
+	 * @throws VnanoFatalException
+	 *		別の型のデータが格納されている場合にスローされます。
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public void setFloat64ScalarData(double data) {
+		if (this.data instanceof double[]) {
+			( (double[])this.data )[ this.offset ] = data;
+		} else if (this.data == null) {
+			try {
+				this.data = (T)( new double[]{ data } );
+				this.lengths = ARRAY_LENGTHS_OF_SCALAR;
+				this.offset = 0;
+			} catch (ClassCastException cce) {
+				throw new VnanoFatalException("Data type is incorrect");
+			}
+		} else {
+			throw new VnanoFatalException("Data type is incorrect");
+		}
+	}
+
+
+	/**
+	 * 格納されている、double ({@link org.vcssl.nano.spec.DataType#FLOAT64 FLOAT64}) 型のスカラ値を取得します。
+	 *
+	 * @return 取得値
+	 * @throws VnanoFatalException
+	 *		別の型のデータが格納されているか、何も格納されていない場合にスローされます。
+	 */
+	@Override
+	public double getFloat64ScalarData() {
+		if (this.data instanceof double[]) {
+			return ( (double[])this.data )[ this.offset ];
+		} else if (this.data == null) {
+			throw new VnanoFatalException("No data is stored");
+		} else {
+			throw new VnanoFatalException("Data type is incorrect");
+		}
+	}
+
+
+	/**
+	 * long ({@link org.vcssl.nano.spec.DataType#INT64 INT64}) 型のスカラ値を格納します。
+	 *
+	 * ただし、このデータコンテナのデータ ({@link DataContainer#data data} フィールド) が、
+	 * あらかじめ long 型配列として初期化されているか、または null である必要があります。
+	 * 別の型で初期化されている場合には例外が発生します。
+	 *
+	 * @param data 格納する値
+	 * @throws VnanoFatalException
+	 *		別の型のデータが格納されている場合にスローされます。
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public void setInt64ScalarData(long data) {
+		if (this.data instanceof long[]) {
+			( (long[])this.data )[ this.offset ] = data;
+		} else if (this.data == null) {
+			try {
+				this.data = (T)( new long[]{ data } );
+				this.lengths = ARRAY_LENGTHS_OF_SCALAR;
+				this.offset = 0;
+			} catch (ClassCastException cce) {
+				throw new VnanoFatalException("Data type is incorrect");
+			}
+		} else {
+			throw new VnanoFatalException("Data type is incorrect");
+		}
+
+	}
+
+
+	/**
+	 * 格納されている、long ({@link org.vcssl.nano.spec.DataType#INT64 INT64}) 型のスカラ値を取得します。
+	 *
+	 * @return 取得値
+	 * @throws VnanoFatalException
+	 *		別の型のデータが格納されているか、何も格納されていない場合にスローされます。
+	 */
+	@Override
+	public long getInt64ScalarData() {
+		if (this.data instanceof long[]) {
+			return ( (long[])this.data )[ this.offset ];
+		} else if (this.data == null) {
+			throw new VnanoFatalException("No data is stored");
+		} else {
+			throw new VnanoFatalException("Data type is incorrect");
+		}
+	}
+
+
+	/**
+	 * boolean ({@link org.vcssl.nano.spec.DataType#BOOL BOOL}) 型のスカラ値を格納します。
+	 * ただし、このデータコンテナのデータ ({@link DataContainer#data data} フィールド) が、
+	 * あらかじめ boolean 型配列として初期化されているか、または null である必要があります。
+	 * 別の型で初期化されている場合には例外が発生します。
+	 *
+	 * @param data 格納する値
+	 * @throws VnanoFatalException
+	 *		別の型のデータが格納されている場合にスローされます。
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public void setBoolScalarData(boolean data) {
+		if (this.data instanceof boolean[]) {
+			( (boolean[])this.data )[ this.offset ] = data;
+		} else if (this.data == null) {
+			try {
+				this.data = (T)( new boolean[]{ data } );
+				this.lengths = ARRAY_LENGTHS_OF_SCALAR;
+				this.offset = 0;
+			} catch (ClassCastException cce) {
+				throw new VnanoFatalException("Data type is incorrect");
+			}
+		} else {
+			throw new VnanoFatalException("Data type is incorrect");
+		}
+
+	}
+
+
+	/**
+	 * 格納されている、boolean ({@link org.vcssl.nano.spec.DataType#BOOL BOOL}) 型のスカラ値を取得します。
+	 *
+	 * @return 取得値
+	 * @throws VnanoFatalException
+	 *		別の型のデータが格納されているか、何も格納されていない場合にスローされます。
+	 */
+	@Override
+	public boolean getBoolScalarData() {
+		if (this.data instanceof boolean[]) {
+			return ( (boolean[])this.data )[ this.offset ];
+		} else if (this.data == null) {
+			throw new VnanoFatalException("No data is stored");
+		} else {
+			throw new VnanoFatalException("Data type is incorrect");
+		}
+	}
+
+
+	/**
+	 * String ({@link org.vcssl.nano.spec.DataType#STRING STRING}) 型のスカラ値を格納します。
+	 * ただし、このデータコンテナのデータ ({@link DataContainer#data data} フィールド) が、
+	 * あらかじめ String 型配列として初期化されているか、または null である必要があります。
+	 * 別の型で初期化されている場合には例外が発生します。
+	 *
+	 * @param data 格納する値
+	 * @throws VnanoFatalException
+	 *		別の型のデータが格納されている場合にスローされます。
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public void setStringScalarData(String data) {
+		if (this.data instanceof String[]) {
+			( (String[])this.data )[ this.offset ] = data;
+		} else if (this.data == null) {
+			try {
+				this.data = (T)( new String[]{ data } );
+				this.lengths = ARRAY_LENGTHS_OF_SCALAR;
+				this.offset = 0;
+			} catch (ClassCastException cce) {
+				throw new VnanoFatalException("Data type is incorrect");
+			}
+		} else {
+			throw new VnanoFatalException("Data type is incorrect");
+		}
+	}
+
+
+	/**
+	 * 格納されている、String ({@link org.vcssl.nano.spec.DataType#STRING STRING}) 型のスカラ値を取得します。
+	 *
+	 * @return 取得値
+	 * @throws VnanoFatalException
+	 *		別の型のデータが格納されているか、何も格納されていない場合にスローされます。
+	 */
+	@Override
+	public String getStringScalarData() {
+		if (this.data instanceof String[]) {
+			return ( (String[])this.data )[ this.offset ];
+		} else if (this.data == null) {
+			throw new VnanoFatalException("No data is stored");
+		} else {
+			throw new VnanoFatalException("Data type is incorrect");
+		}
+	}
+
 }

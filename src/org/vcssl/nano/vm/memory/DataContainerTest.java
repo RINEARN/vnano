@@ -7,9 +7,12 @@ package org.vcssl.nano.vm.memory;
 
 import static org.junit.Assert.*;
 
+import java.util.Arrays;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.vcssl.nano.VnanoFatalException;
 import org.vcssl.nano.spec.DataType;
 
 public class DataContainerTest {
@@ -26,10 +29,14 @@ public class DataContainerTest {
 	public void test() {
 		this.testDefaultState(new DataContainer<long[]>());
 		this.testInitialize();
-		this.testSetGetData();
-		this.testGetOffset();
-		this.testGetLengths();
-		this.testGetRank();
+		this.testSetGetArrayData();
+		this.testGetArrayOffset();
+		this.testGetArrayLengths();
+		this.testGetArrayRank();
+		this.testSetGetFloat64ScalarData();
+		this.testSetGetInt64ScalarData();
+		this.testSetGetBoolScalarData();
+		this.testSetGetStringScalarData();
 		this.testGetDataType();
 	}
 
@@ -86,7 +93,7 @@ public class DataContainerTest {
 		this.testDefaultState(container);
 	}
 
-	private void testSetGetData() {
+	private void testSetGetArrayData() {
 		DataContainer<long[]> container = new DataContainer<long[]>();
 		long[] data = new long[]{1L, 2L, 3L};
 		container.setArrayData(data, 0, new int[] {3});
@@ -112,7 +119,7 @@ public class DataContainerTest {
 		}
 	}
 
-	private void testGetOffset() {
+	private void testGetArrayOffset() {
 		DataContainer<long[]> container = new DataContainer<long[]>();
 		int offset = 3;
 		container.setArrayData(new long[5], offset, DataContainer.ARRAY_LENGTHS_OF_SCALAR);
@@ -138,7 +145,7 @@ public class DataContainerTest {
 		}
 	}
 
-	private void testGetLengths() {
+	private void testGetArrayLengths() {
 		int[] lengths = new int[] {1, 2, 3};
 		DataContainer<long[]> container = new DataContainer<long[]>();
 		container.setArrayData(new long[] {1l, 2l, 3l, 4l, 5l, 6l}, 0, lengths);
@@ -168,7 +175,7 @@ public class DataContainerTest {
 		}
 	}
 
-	private void testGetRank() {
+	private void testGetArrayRank() {
 		int[] lengths = new int[]{1, 2, 3};
 		int rank = lengths.length;
 		DataContainer<long[]> container = new DataContainer<long[]>();
@@ -193,6 +200,138 @@ public class DataContainerTest {
 		}
 		if (container.getArrayRank() != newRank) {
 			fail("Incorrect rank");
+		}
+	}
+
+	private void testSetGetFloat64ScalarData() {
+		DataContainer<double[]> container = new DataContainer<double[]>();
+
+		// 何も格納していない状態で値を取り出すテスト
+		try {
+			container.getFloat64ScalarData();
+			fail("Expected exception did not occurred");
+		} catch (VnanoFatalException e) {
+			// 例外が発生するのが正しい挙動
+		}
+
+		// 値を設定して取り出すテスト
+		container.setFloat64ScalarData(1.25);
+		assertTrue(1.25 == container.getFloat64ScalarData()); // 2進表現で割り切れる値なので一致するはず (assertEquals では警告が出るがむやみに suppress したくない)
+		container.setFloat64ScalarData(2.5);
+		assertTrue(2.5 == container.getFloat64ScalarData()); // 上記コメント参照
+
+		// 次元や要素数などを確認
+		assertEquals(DataContainer.ARRAY_RANK_OF_SCALAR, container.getArrayRank());
+		assertTrue(Arrays.equals(DataContainer.ARRAY_LENGTHS_OF_SCALAR, container.getArrayLengths()));
+		assertEquals(0, container.getArrayOffset());
+
+		// 別の型で初期化してから値を設定するテスト
+		DataContainer<long[]> container2 = new DataContainer<long[]>();
+		container2.setInt64ScalarData(123);
+		try {
+			container2.setFloat64ScalarData(1.25);
+			fail("Expected exception did not occurred");
+		} catch (VnanoFatalException e) {
+			// 例外が発生するのが正しい挙動
+		}
+	}
+
+	private void testSetGetInt64ScalarData() {
+		DataContainer<long[]> container = new DataContainer<long[]>();
+
+		// 何も格納していない状態で値を取り出すテスト
+		try {
+			container.getFloat64ScalarData();
+			fail("Expected exception did not occurred");
+		} catch (VnanoFatalException e) {
+			// 例外が発生するのが正しい挙動
+		}
+
+		// 値を設定して取り出すテスト
+		container.setInt64ScalarData(123);
+		assertEquals(123, container.getInt64ScalarData());
+		container.setInt64ScalarData(456);
+		assertEquals(456, container.getInt64ScalarData());
+
+		// 次元や要素数などを確認
+		assertEquals(DataContainer.ARRAY_RANK_OF_SCALAR, container.getArrayRank());
+		assertTrue(Arrays.equals(DataContainer.ARRAY_LENGTHS_OF_SCALAR, container.getArrayLengths()));
+		assertEquals(0, container.getArrayOffset());
+
+		// 別の型で初期化してから値を設定するテスト
+		DataContainer<double[]> container2 = new DataContainer<double[]>();
+		container2.setFloat64ScalarData(1.25);
+		try {
+			container2.setInt64ScalarData(123);
+			fail("Expected exception did not occurred");
+		} catch (VnanoFatalException e) {
+			// 例外が発生するのが正しい挙動
+		}
+	}
+
+	private void testSetGetBoolScalarData() {
+		DataContainer<boolean[]> container = new DataContainer<boolean[]>();
+
+		// 何も格納していない状態で値を取り出すテスト
+		try {
+			container.getFloat64ScalarData();
+			fail("Expected exception did not occurred");
+		} catch (VnanoFatalException e) {
+			// 例外が発生するのが正しい挙動
+		}
+
+		// 値を設定して取り出すテスト
+		container.setBoolScalarData(true);
+		assertTrue(container.getBoolScalarData());
+		container.setBoolScalarData(false);
+		assertFalse(container.getBoolScalarData());
+
+		// 次元や要素数などを確認
+		assertEquals(DataContainer.ARRAY_RANK_OF_SCALAR, container.getArrayRank());
+		assertTrue(Arrays.equals(DataContainer.ARRAY_LENGTHS_OF_SCALAR, container.getArrayLengths()));
+		assertEquals(0, container.getArrayOffset());
+
+		// 別の型で初期化してから値を設定するテスト
+		DataContainer<long[]> container2 = new DataContainer<long[]>();
+		container2.setFloat64ScalarData(123);
+		try {
+			container2.setBoolScalarData(true);
+			fail("Expected exception did not occurred");
+		} catch (VnanoFatalException e) {
+			// 例外が発生するのが正しい挙動
+		}
+	}
+
+	private void testSetGetStringScalarData() {
+		DataContainer<String[]> container = new DataContainer<String[]>();
+
+		// 何も格納していない状態で値を取り出すテスト
+		try {
+			container.getStringScalarData();
+			fail("Expected exception did not occurred");
+		} catch (VnanoFatalException e) {
+			// 例外が発生するのが正しい挙動
+		}
+
+		// 値を設定して取り出すテスト
+		container.setStringScalarData("aiueo");
+		assertEquals("aiueo", container.getStringScalarData());
+		container.setStringScalarData("kakikukeko");
+		assertEquals("kakikukeko", container.getStringScalarData());
+
+		// 次元や要素数などを確認
+		assertEquals(DataContainer.ARRAY_RANK_OF_SCALAR, container.getArrayRank());
+		assertTrue(Arrays.equals(DataContainer.ARRAY_LENGTHS_OF_SCALAR, container.getArrayLengths()));
+		assertEquals(0, container.getArrayOffset());
+
+		// 別の型で初期化してから値を設定するテスト
+		DataContainer<long[]> container2 = new DataContainer<long[]>();
+		container2.setFloat64ScalarData(123);
+		try {
+			container2.setStringScalarData("aiueo");
+			fail("Expected exception did not occurred");
+		} catch (VnanoFatalException e) {
+			// 例外が発生するのが正しい挙動
 		}
 	}
 
