@@ -766,6 +766,11 @@ public class SemanticAnalyzer {
 						operationDataType = dataType;
 						rank = function.getReturnArrayRank(argumentDataTypeNames, argumentArrayRanks);
 						//rank = function.getReturnArrayRank();
+
+						// 渡す引数の型が定まった時点で行える検査を実施
+						// (外部関数に対する、引数/戻り値のデータ入出力インターフェースの互換性検査など)
+						function.checkInvokability(argumentDataTypeNames, argumentArrayRanks);
+
 						break;
 					}
 

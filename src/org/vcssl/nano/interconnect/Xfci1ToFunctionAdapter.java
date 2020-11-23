@@ -333,6 +333,65 @@ public final class Xfci1ToFunctionAdapter extends AbstractFunction {
 
 
 	/**
+	 * 指定された引数で関数を実行する際に発生し得る、事前に検査可能な問題などを検査し、
+	 * 問題があった場合には例外を発生させます。
+	 *
+	 * 例えば、外部関数プラグインが想定しているデータ入出力インターフェースと、
+	 * この処理系のデータコンテナが実装しているデータ入出力インターフェースが異なる場合、
+	 * そのままでは実行時にエラーが発生してしまいますが、それらは事前に検査可能です。
+	 *
+	 * なお、問題が検出されなかった場合には、このメソッドはただ処理を返すだけで、何も起こりません。
+	 *
+	 * @param argumentDataTypeNames 呼び出し時の全引数の型名を格納する配列
+	 * @param argumentArrayRanks 呼び出し時の全引数の配列次元数を格納する配列
+	 * @throws VnanoException
+	 * 		上記の説明を参照してください。
+	 */
+	public void checkInvokability(String[] argumentDataTypeNames, int[] argumentArrayRanks)
+			throws VnanoException {
+
+		// 以下、引数のデータ入出力インターフェースの互換性検査（自動データ型変換が無効化されている時のみ）
+		if (!this.xfciPlugin.isDataConversionNecessary()) {
+			Class<?>[] paramDataAccessorInterfaces = this.xfciPlugin.getParameterUnconvertedClasses();
+			for (Class<?> paramDataAccessorInterface: paramDataAccessorInterfaces) {
+
+				// paramDataAccessorInterface を、この処理系のデータコンテナが実装していなければエラー
+				if (!paramDataAccessorInterface.isAssignableFrom(DataContainer.class)) {
+					String errorWords[] = new String[] {
+						paramDataAccessorInterface.getCanonicalName(), this.xfciPlugin.getClass().getCanonicalName()
+					};
+					throw new VnanoException(ErrorType.INCOMPATIBLE_DATA_ACCESSOR_INTERFACE, errorWords);
+				}
+			}
+		}
+
+		// 以下、戻り値のデータ入出力インターフェースの互換性検査（自動データ型変換が無効化されている時のみ）
+		if (!this.xfciPlugin.isDataConversionNecessary()) {
+
+			// 戻り値の仕様は一般に引数の型に依存し得るため、まず引数の型クラスを取得
+			DataType[] argumentDataTypes;
+			try {
+				argumentDataTypes = DATA_TYPE_NAME.getDataTypesOf(argumentDataTypeNames);
+			} catch (VnanoException e) {
+				throw new VnanoFatalException(e);
+			}
+			Class<?>[] argumentClasses = DataConverter.getExternalClassesOf(argumentDataTypes, argumentArrayRanks);
+
+			// 引数の型クラスを指定して、戻り値のデータ入出力インターフェースを取得
+			Class<?> returnDataAccessorInterface = this.xfciPlugin.getReturnUnconvertedClass(argumentClasses);
+
+			// returnDataAccessorInterface を、この処理系のデータコンテナが実装していなければエラー
+			if (!returnDataAccessorInterface.isAssignableFrom(DataContainer.class)) {
+				String errorWords[] = new String[] {
+					returnDataAccessorInterface.getCanonicalName(), this.xfciPlugin.getClass().getCanonicalName()
+				};
+				throw new VnanoException(ErrorType.INCOMPATIBLE_DATA_ACCESSOR_INTERFACE, errorWords);
+			}
+		}
+	}
+
+
+	/**
 	 * 関数を実行します。
 	 *
 	 * @param argumentDataContainers 実引数のデータを保持するデータコンテナの配列（各要素が個々の実引数に対応）

@@ -190,6 +190,24 @@ public abstract class AbstractFunction {
 
 
 	/**
+	 * 指定された引数で関数を実行する際に発生し得る、事前に検査可能な問題などを検査し、
+	 * 問題があった場合には例外を発生させます。
+	 *
+	 * 例えば、外部関数プラグインが想定しているデータ入出力インターフェースと、
+	 * この処理系のデータコンテナが実装しているデータ入出力インターフェースが異なる場合、
+	 * そのままでは実行時にエラーが発生してしまいますが、それらは事前に検査可能です。
+	 *
+	 * なお、問題が検出されなかった場合には、このメソッドはただ処理を返すだけで、何も起こりません。
+	 *
+	 * @param argumentDataTypeNames 呼び出し時の全引数の型名を格納する配列
+	 * @param argumentArrayRanks 呼び出し時の全引数の配列次元数を格納する配列
+	 * @throws VnanoException
+	 * 		上記の説明を参照してください。
+	 */
+	public abstract void checkInvokability(String[] argumentDataTypeNames, int[] argumentArrayRanks) throws VnanoException;
+
+
+	/**
 	 * 関数を実行します。
 	 *
 	 * @param argumentDataUnits 実引数のデータを保持するデータユニットの配列（各要素が個々の実引数に対応）
