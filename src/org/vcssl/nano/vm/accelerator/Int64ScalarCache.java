@@ -5,7 +5,19 @@
 
 package org.vcssl.nano.vm.accelerator;
 
-public class Int64ScalarCache implements ScalarCache {
+import org.vcssl.connect.Int64ScalarDataAccessorInterface1;
+
+public class Int64ScalarCache implements ScalarCache, Int64ScalarDataAccessorInterface1 {
 	public Int64ScalarCache(){}
-	public long value;
+	public long data;
+
+	@Override
+	public void setInt64ScalarData(long data) {
+		this.data = data;
+	}
+
+	@Override
+	public long getInt64ScalarData() {
+		return this.data;
+	}
 }

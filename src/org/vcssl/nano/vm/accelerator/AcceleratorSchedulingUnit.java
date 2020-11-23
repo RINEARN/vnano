@@ -8,9 +8,9 @@ package org.vcssl.nano.vm.accelerator;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.vcssl.nano.VnanoFatalException;
 import org.vcssl.nano.spec.DataType;
@@ -21,62 +21,30 @@ import org.vcssl.nano.vm.processor.Instruction;
 
 public class AcceleratorSchedulingUnit {
 
+	// List 内の null 要素を removeAll する際に渡す (removeAllの引数は Collection インスタンスであるべきなので素の null は渡せない)
+	private static final List<Object> LIST_OF_NULL = Arrays.asList((Object)null);
 
 	private List<AcceleratorInstruction> acceleratorInstructionList;
-	private AcceleratorInstruction[] buffer;
 	private Map<Integer,Integer> addressReorderingMap;
-	private int registerWrittenPointCount[];
-	private int registerReadPointCount[];
-
-	// 演算結果格納レジスタからのMOV命令でのコピーを削る最適化を、適用してもよい命令の集合
-	// (算術演算命令などは可能、ELEM命令などのメモリー関連命令では不可能)
-	private static final HashSet<OperationCode> movReducableOpcodeSet = new HashSet<OperationCode>();
-	static {
-		movReducableOpcodeSet.add(OperationCode.ADD);
-		movReducableOpcodeSet.add(OperationCode.SUB);
-		movReducableOpcodeSet.add(OperationCode.MUL);
-		movReducableOpcodeSet.add(OperationCode.DIV);
-		movReducableOpcodeSet.add(OperationCode.REM);
-		movReducableOpcodeSet.add(OperationCode.NEG);
-
-		movReducableOpcodeSet.add(OperationCode.EQ);
-		movReducableOpcodeSet.add(OperationCode.NEQ);
-		movReducableOpcodeSet.add(OperationCode.GT);
-		movReducableOpcodeSet.add(OperationCode.LT);
-		movReducableOpcodeSet.add(OperationCode.GEQ);
-		movReducableOpcodeSet.add(OperationCode.LEQ);
-
-		movReducableOpcodeSet.add(OperationCode.ANDM);
-		movReducableOpcodeSet.add(OperationCode.ORM);
-		movReducableOpcodeSet.add(OperationCode.NOT);
-		movReducableOpcodeSet.add(OperationCode.CAST);
-
-		movReducableOpcodeSet.add(OperationCode.MOVPOP); // MOVPOPでスタックから取って直後にMOVするだけのは削っても安全（REFPOPは無理）
-	}
-
 
 	public AcceleratorInstruction[] schedule(
-			Instruction[] instructions, Memory memory, AcceleratorDataManagementUnit dataManager) {
+			AcceleratorInstruction[] instructions, Memory memory, AcceleratorDataManagementUnit dataManager) {
 
-		// 命令列を読み込んで AcceleratorInstruction に変換し、フィールドのリストを初期化して格納
-		this.initializeeAcceleratorInstructionList(instructions, memory);
+		this.acceleratorInstructionList = new ArrayList<AcceleratorInstruction>();
+		for (AcceleratorInstruction instruction: instructions) {
+			this.acceleratorInstructionList.add( instruction.clone() );
+		}
 
-		// CALL命令の直後（NOPが置かれている）の箇所に、RETURNED命令を生成して置き換える
-		this.generateReturnedInstructions();
 
-		// 全てのレジスタに対し、それぞれ書き込み・読み込み箇所の数をカウントする（最適化に使用）
-		this.createRegisterWrittenPointCount(memory);
-		this.createRegisterReadPointCount(memory);
+		// 要検討： AcceleratorExecutionType の名前を変えたい。
+		//          割り当て先の演算ユニットを一意に指しているものと分かりやすい名前に。
+		//          そして下で処理を行っているメソッドの名前もそれにあわせて変えたい。
+		//          割り当て先の演算ユニットを判断する的な名前に。
+		//          ( ただし "dispatch～" は AcceleratorDispatchUnit で
+		//            演算ユニットに紐づけて演算ノードを生成する処理をそう呼んでいるので使えない ）
 
 		// 各命令の AcceleratorExecutionType を判定して設定
 		this.detectAccelerationTypes(memory, dataManager);
-
-		// スカラのALLOC命令をコード先頭に並べ替える（メモリコストが低いので、ループ内に混ざるよりも利点が多い）
-		this.reorderAllocAndAllocrInstructions(dataManager);
-
-		// オペランドを並び替え、不要になったMOV命令を削る
-		this.reduceMovInstructions(dataManager);
-
 
 		// 連続する算術スカラ演算命令2個を融合させて1個の拡張命令に置き換える
 		this.fuseArithmeticInstructions( // Float64 Cached-Scalar Arithmetic
@@ -86,212 +54,23 @@ public class AcceleratorSchedulingUnit {
 				AcceleratorExecutionType.I64CS_ARITHMETIC, AcceleratorExecutionType.I64CS_DUAL_ARITHMETIC
 		);
 
-		// 連続する算術ベクトル演算命令2個を融合させて1個の拡張命令に置き換える
-		// >> 実行環境バージョンやPCの状態等により性能が上下どちらにも大きく振れるので、少なくとも現時点では無効化
-		/*
-		this.fuseArithmeticInstructions( // Float64 Vector Arithmetic
-				AcceleratorExecutionType.F64V_ARITHMETIC, AcceleratorExecutionType.F64V_DUAL_ARITHMETIC
-		);
-		this.fuseArithmeticInstructions( // Int64 Vector Arithmetic
-				AcceleratorExecutionType.I64V_ARITHMETIC, AcceleratorExecutionType.I64V_DUAL_ARITHMETIC
-		);
-		*/
+		// 連続する転送命令を融合させて1個の拡張命令に置き換える
+		this.fuseTransferInstructions();
 
-
-		// 再配列後の命令アドレスを設定
+		// 最新の（再配列後の）命令アドレスを設定し、新旧の対応を保持するマップを更新
+		// -> このあたりの処理は AcceleratorOptimizationUnit と重複しているので、きりのいい時になんとかしたい
 		this.updateReorderedAddresses();
-
-		// 再配列前と再配列後の命令アドレスの対応を保持するマップを生成
 		this.generateAddressReorderingMap();
 
 		// ジャンプ命令の飛び先アドレスを補正したものを求めて設定
+		// -> ここも AcceleratorOptimizationUnit と重複しているので、きりのいい時になんとかしたい
 		this.resolveReorderedLabelAddress(memory);
 
 		return this.acceleratorInstructionList.toArray(new AcceleratorInstruction[0]);
 	}
 
 
-	// フィールドの命令リストを生成して初期化
-	private void initializeeAcceleratorInstructionList(Instruction[] instructions, Memory memory) {
 
-		int instructionLength = instructions.length;
-		this.acceleratorInstructionList = new ArrayList<AcceleratorInstruction>();
-		this.buffer = new AcceleratorInstruction[instructionLength];
-
-		for (int instructionIndex=0; instructionIndex<instructionLength; instructionIndex++) {
-
-			// InstructionをAcceleratorInstruction（Instructionのサブクラス）に変換
-			Instruction instruction = instructions[instructionIndex];
-			AcceleratorInstruction acceleratorInstruction = new AcceleratorInstruction(instruction);
-
-			// 再配置前の命令アドレスを書き込む
-			acceleratorInstruction.setUnreorderedAddress(instructionIndex);
-
-			// リストに追加
-			this.acceleratorInstructionList.add(acceleratorInstruction);
-		}
-	}
-
-
-	// CALL命令の直後（ラベルのためNOPが置かれている）の箇所に、RETURNED拡張命令を生成して置き換える
-	private void generateReturnedInstructions() {
-		int instructionLength = acceleratorInstructionList.size();
-
-		for (int instructionIndex=0; instructionIndex<instructionLength; instructionIndex++) {
-			Instruction instruction = acceleratorInstructionList.get(instructionIndex);
-			if (instruction.getOperationCode() == OperationCode.CALL) {
-
-				// オペランドのパーティションとアドレスを取り出す
-				Memory.Partition[] operandPartitions = instruction.getOperandPartitions();
-				int[] operandAddresses = instruction.getOperandAddresses();
-				int functionArgN = operandAddresses.length - 2; // 先頭2個はプレースホルダと関数アドレス
-
-				// 上記から、関数に渡す引数のもののみを抜き出す
-				//（ただし命令の基本仕様により、先頭オペランドは書き込み先と決まっているので、プレースホルダを置く）
-				Memory.Partition[] functionArgPartitions = new Memory.Partition[functionArgN+1];
-				int[] functionArgAddresses = new int[functionArgN+1];
-				functionArgPartitions[0] = Memory.Partition.NONE;
-				functionArgAddresses[0] = 0;
-				for (int argIndex=0; argIndex<functionArgN; argIndex++) {
-					functionArgPartitions[argIndex+1] = operandPartitions[argIndex + 2]; // 右辺の先頭2個はプレースホルダと関数アドレス
-					functionArgAddresses[argIndex+1] = operandAddresses[argIndex + 2];
-				}
-
-				// それらをオペランドとして、RETURNED拡張命令を生成
-				AcceleratorInstruction returnedInstruction = new AcceleratorInstruction(
-					new Instruction(
-						OperationCode.EX, instruction.getDataTypes(),
-						functionArgPartitions, functionArgAddresses,
-						instruction.getMetaPartition(), instruction.getMetaAddress()
-					)
-				);
-				returnedInstruction.setExtendedOperationCode(AcceleratorExtendedOperationCode.RETURNED);
-				returnedInstruction.setUnreorderedAddress(instructionIndex);
-
-				// この命令直後にあるはずのNOP命令を、生成したRETURNED拡張命令で置き換える
-				acceleratorInstructionList.set(instructionIndex+1, returnedInstruction);
-			}
-		}
-	}
-
-
-	// データに対して書き込みを行う命令なら true を返す（ただしレジスタの確保・解放は除外）
-	private boolean isDataWritingOperationCode(OperationCode operationCode) {
-
-		// 書き込みを「行わない」ものを以下に列挙し、それ以外なら true を返す
-		return operationCode != OperationCode.ALLOC
-		     && operationCode != OperationCode.ALLOCT
-		     && operationCode != OperationCode.ALLOCP
-		     && operationCode != OperationCode.ALLOCR
-		     && operationCode != OperationCode.FREE
-		     && operationCode != OperationCode.NOP
-		     && operationCode != OperationCode.JMP
-		     && operationCode != OperationCode.JMPN
-		     && operationCode != OperationCode.RET
-		     && operationCode != OperationCode.POP      // POP はスタックからデータを取り出すだけで何もしない
-		     && operationCode != OperationCode.NOP      // NOP は何もしないので明らかに何も読まない
-		     && operationCode != OperationCode.END
-		     && operationCode != OperationCode.ENDFUN
-		     ;
-
-		// CALL & RET 命令について：
-		//   関数の引数や戻り値はスタックに積まれるので、CALL命令やRET命令自体はオペランドには何も書き込まないが、
-		//   スタックに積まれた後のデータがどこで取り出されて読み書きされるかを静的に解析するのは複雑なので、
-		//   CALL & RET 命令のオペランドは便宜的に、書き込み箇所カウントに含める（最適化予防のため）
-	}
-
-
-	// レジスタ書き込み箇所カウンタ配列を生成して初期化
-	private void createRegisterWrittenPointCount(Memory memory) {
-		int registerLength = memory.getSize(Memory.Partition.REGISTER);
-		this.registerWrittenPointCount = new int[registerLength];
-		Arrays.fill(this.registerWrittenPointCount, 0);
-
-		int instructionLength = acceleratorInstructionList.size();
-		for (int instructionIndex=0; instructionIndex<instructionLength; instructionIndex++) {
-			AcceleratorInstruction instruction = acceleratorInstructionList.get(instructionIndex);
-
-			// 値が変更されている可能性を調べるために使うので、非書き換え命令や確保・解放はカウントから除外
-			if (!this.isDataWritingOperationCode(instruction.getOperationCode())) {
-				continue;
-			}
-
-			// 値の書き込み用である第0オペランドがレジスタではない場合も、この時点で除外
-			Memory.Partition writingPartition = instruction.getOperandPartitions()[0];
-			if (writingPartition != Memory.Partition.REGISTER) {
-				continue;
-			}
-
-			// ここまで残るのはレジスタに書き込んでいる場合なので、レジスタ書き込み箇所カウンタを加算
-			int writingRegisterAddress = instruction.getOperandAddresses()[0];
-			this.registerWrittenPointCount[writingRegisterAddress]++;
-		}
-	}
-
-
-
-	// オペランドからデータの読み込みを行う命令なら true を返す
-	//（ただしメモリの確保・解放やなどは除外）
-	private boolean isDataReadingOperationCode(OperationCode operationCode) {
-
-		// 読み込みを「行わない」ものを以下に列挙し、それ以外なら true を返す
-		return operationCode != OperationCode.ALLOC
-		     && operationCode != OperationCode.ALLOCT
-		     && operationCode != OperationCode.ALLOCP
-		     && operationCode != OperationCode.ALLOCR
-		     && operationCode != OperationCode.FREE
-		     && operationCode != OperationCode.POP      // POP はスタックからデータを取り出すだけで何もしない
-		     && operationCode != OperationCode.MOVPOP   // MOVPOP はスタックからデータを読むので、オペランドからは読まない（書く）
-		     && operationCode != OperationCode.REFPOP   // REFPOP はスタックからデータを読むので、オペランドからは読まない（書く）
-		     && operationCode != OperationCode.NOP      // NOP は何もしないので明らかに何も読まない
-		     && operationCode != OperationCode.ENDFUN
-		     ;
-
-		// スタックとデータをやり取りする CALL & RET 命令は要注意
-		// ( isDataWritingOperationCode のコメント参照 )
-	}
-
-
-	// レジスタ読み込み箇所カウンタ配列を生成して初期化
-	private void createRegisterReadPointCount(Memory memory) {
-		int registerLength = memory.getSize(Memory.Partition.REGISTER);
-		this.registerReadPointCount = new int[registerLength];
-		Arrays.fill(this.registerReadPointCount, 0);
-
-		int instructionLength = acceleratorInstructionList.size();
-		for (int instructionIndex=0; instructionIndex<instructionLength; instructionIndex++) {
-			AcceleratorInstruction instruction = acceleratorInstructionList.get(instructionIndex);
-			OperationCode opcode = instruction.getOperationCode();
-
-			// 値が変更されている可能性を調べるために使うので、非書き換え命令や確保・解放はカウントから除外
-			if (!this.isDataReadingOperationCode(opcode)) {
-				continue;
-			}
-
-			// オペランドの個数
-			int operandLength = instruction.getOperandLength();
-
-			// 入力オペランドが始まるインデックス ... 命令の仕様上、先頭は必ず書き込みオペランドで、入力はその次（1番）から始まる
-			int inputOperandsBeginIndex = 1;
-
-			// 入力オペランドは個数可変や省略可能な命令もあるため、オペランド数が2未満の場合＝入力オペランドが無い場合はスキップする
-			if (operandLength < 2) {
-				continue;
-			}
-
-			// オペランドのメモリパーティションとアドレスを取得
-			Memory.Partition[] operandPartitions = instruction.getOperandPartitions();
-			int[] operandAddresses = instruction.getOperandAddresses();
-
-			// 2個目以降（インデックス1以上）のオペランドがレジスタなら、レジスタ読み込み箇所カウンタを加算
-			for (int operandIndex=inputOperandsBeginIndex; operandIndex<operandLength; operandIndex++) {
-				if (operandPartitions[operandIndex] == Memory.Partition.REGISTER) {
-					int readingRegisterAddress = operandAddresses[operandIndex];
-					this.registerReadPointCount[readingRegisterAddress]++;
-				}
-			}
-		}
-	}
 
 
 
@@ -381,6 +160,7 @@ public class AcceleratorSchedulingUnit {
 				case MUL :
 				case DIV :
 				case REM :
+				case NEG :
 				{
 					if(dataTypes[0] == DataType.INT64) {
 
@@ -514,6 +294,66 @@ public class AcceleratorSchedulingUnit {
 					break;
 				}
 
+				// 配列要素アクセス命令 Array subscript opcodes
+				case MOVELM :
+				case REFELM : {
+
+					int indicesLength = operandLength - 2; // インデックス数: オペランド[2]以降がインデックス部なので -2
+					//boolean isDestCached = operandCachingEnabled[0]; // 結果の格納先がキャッシュ可能かどうか
+					boolean isAllIndicesCached = true; // インデックスオペランドが全てキャッシュ可能かどうか
+					for (int i=0; i<indicesLength; i++) {
+						isAllIndicesCached &= operandCachingEnabled[i + 2]; // 右辺が1度でもfalseになるとその後左辺がfalseになる
+					}
+
+					// ※ 現状では、ELEMの dest はREFの dest と同様の扱いのため、上の isDestCached が true になる事は無く、
+					//    従って以下の分岐の中で、一番速い CachedScalar 系のユニットに実際に割り当てられる事は無い。
+					//    CachedScalar 系のユニットを使えるようにするには、
+					//    Accelerator 内のスケジューラで dest のキャッシュ可能性を判断する精度を上げるか、
+					//    またはELEM命令自体を参照リンクの有無で2種類の命令に分割して、
+					//    コンパイラ側で使い分けるコードを出力する必要がある（参照リンクが無ければキャッシュ可能な場面が簡単に分かる）。
+					//
+					// どちらがいいか要検討、そのうち要実装（配列要素アクセスの高速化はメリットが大きいので）
+					// > 後者を採用する準備として ELEM を REFELM に名称変更した。また後々で参照リンクを伴わない MOVELM を追加
+
+					if(dataTypes[0] == DataType.INT64) {
+						if (isAllIndicesCached // この命令に対しては dest の cacheability の分岐はユニット内で行うので、インデックス部のみで判断
+								&& indicesLength <= Int64CachedScalarSubscriptUnit.MAX_AVAILABLE_RANK) {
+							instruction.setAccelerationType(AcceleratorExecutionType.I64CS_SUBSCRIPT);
+						} else if (indicesLength <= Int64ScalarSubscriptUnit.MAX_AVAILABLE_RANK) {
+							instruction.setAccelerationType(AcceleratorExecutionType.I64S_SUBSCRIPT);
+						} else {
+							// Accelerator では任意次元ELEMには未対応なので Processor へ投げる（対応した際は上の if の3番目の条件を削る）
+							instruction.setAccelerationType(AcceleratorExecutionType.BYPASS);
+						}
+
+					} else if (dataTypes[0] == DataType.FLOAT64) {
+						if (isAllIndicesCached // この命令に対しては dest の cacheability の分岐はユニット内で行うので、インデックス部のみで判断
+								&& indicesLength <= Float64CachedScalarSubscriptUnit.MAX_AVAILABLE_RANK) {
+							instruction.setAccelerationType(AcceleratorExecutionType.F64CS_SUBSCRIPT);
+						} else if (indicesLength <= Float64ScalarSubscriptUnit.MAX_AVAILABLE_RANK) {
+							instruction.setAccelerationType(AcceleratorExecutionType.F64S_SUBSCRIPT);
+						} else {
+							// Accelerator では任意次元ELEMには未対応なので Processor へ投げる（対応した際は上の if の3番目の条件を削る）
+							instruction.setAccelerationType(AcceleratorExecutionType.BYPASS);
+						}
+
+					} else if (dataTypes[0] == DataType.BOOL) {
+						if (isAllIndicesCached // この命令に対しては dest の cacheability の分岐はユニット内で行うので、インデックス部のみで判断
+								&& indicesLength <= BoolCachedScalarSubscriptUnit.MAX_AVAILABLE_RANK) {
+							instruction.setAccelerationType(AcceleratorExecutionType.BCS_SUBSCRIPT);
+						} else if (indicesLength <= BoolScalarSubscriptUnit.MAX_AVAILABLE_RANK) {
+							instruction.setAccelerationType(AcceleratorExecutionType.BS_SUBSCRIPT);
+						} else {
+							// Accelerator では任意次元ELEMには未対応なので Processor へ投げる（対応した際は上の if の3番目の条件を削る）
+							instruction.setAccelerationType(AcceleratorExecutionType.BYPASS);
+						}
+
+					} else {
+						instruction.setAccelerationType(AcceleratorExecutionType.BYPASS);
+					}
+					break;
+				}
+
 				// 型変換命令 Cast instruction opcodes
 				case CAST :
 				{
@@ -621,8 +461,19 @@ public class AcceleratorSchedulingUnit {
 
 	// 全命令アドレスの再配置前→再配置後の対応を格納したアドレス変換マップを生成
 	private void generateAddressReorderingMap() {
-		this.addressReorderingMap = new HashMap<Integer,Integer>();
 
+		// 注:
+		//
+		// 最適化で命令1個だった所が複数命令になっている箇所がある場合 (CALLの引数直接MOV化とか) など、
+		// 複数命令が同じ unreorderedAddress を持っていると、このマップはそれらの最後の命令の reorderedAddress を返す。
+		//
+		// このマップは現状ではJMP/JMPN/CALLの着地点ラベル（由来のNOP命令）の位置を補正するために使用されるが、
+		// ラベル由来NOPにはそういった複数命令への分裂は起こらないため、その目的においては問題は生じない。
+		//
+		// ただし、別の目的でこのマップを参照する際は、影響の有無について要注意。
+		// 場合によってはもっと手の込んだ仕組みを用意する必要が出てくるが、現状では単純で済むマップを使っている。
+
+		this.addressReorderingMap = new HashMap<Integer,Integer>();
 		int instructionLength = acceleratorInstructionList.size();
 		for (int instructionIndex=0; instructionIndex<instructionLength; instructionIndex++) {
 			AcceleratorInstruction instruction = this.acceleratorInstructionList.get(instructionIndex);
@@ -648,16 +499,16 @@ public class AcceleratorSchedulingUnit {
 						instruction.getOperandAddresses()[1]
 				);
 
-				// データコンテナからラベルの命令アドレスの値を読む
+				// データコンテナから飛び先ラベル（アセンブル後はNOPになっている）の命令アドレスの値を読む
 				int labelAddress = -1;
-				Object addressData = addressContiner.getData();
+				Object addressData = addressContiner.getArrayData();
 				if (addressData instanceof long[]) {
 					labelAddress = (int)( ((long[])addressData)[0] );
 				} else {
 					throw new VnanoFatalException("Non-integer instruction address (label) operand detected.");
 				}
 
-				// ラベル命令アドレスの、命令再配置前における位置に対応する、再配置後のラベル命令アドレスを取得
+				// ラベル（由来のNOP命令）アドレスの、命令再配置前における位置に対応する、再配置後の位置の命令アドレスを取得
 				int reorderedLabelAddress = this.addressReorderingMap.get(labelAddress);
 
 				// 再配置後のラベル命令アドレス情報を命令に持たせる
@@ -667,64 +518,13 @@ public class AcceleratorSchedulingUnit {
 	}
 
 
-	// スカラのALLOC/ALLOCR命令をコード先頭に移す
-	private void reorderAllocAndAllocrInstructions(AcceleratorDataManagementUnit dataManager) {
-
-		int instructionLength = this.acceleratorInstructionList.size();
-
-		// 再配置済みの命令列を格納する配列（最後にacceleratorInstructionList移す）
-		if (this.buffer.length < instructionLength) {
-			this.buffer = new AcceleratorInstruction[instructionLength]; // 足りなければ再確保（余っていればそのまま使う）
-		} else {
-			Arrays.fill(this.buffer, null);
-		}
-
-		// 元の命令列 instructions の要素の内、再配置された要素のインデックスをマークする配列
-		boolean[] reordered = new boolean[instructionLength];
-		Arrays.fill(reordered, false);
-
-		int reorderedInstructionIndex = 0;
-
-		// acceleratorInstructionList を先頭から末尾まで辿り、スカラALLOC/ALLOCR命令を reorderedInstruction に移す
-		for (int instructionIndex=0; instructionIndex<instructionLength; instructionIndex++) {
-
-			AcceleratorInstruction instruction = acceleratorInstructionList.get(instructionIndex);
-			OperationCode opcode = instruction.getOperationCode();
-
-			if ( (opcode == OperationCode.ALLOC || opcode == OperationCode.ALLOCR)
-					&& dataManager.isScalar(instruction.getOperandPartitions()[0], instruction.getOperandAddresses()[0])) {
-
-				// reorderedInstruction に積む
-				this.buffer[reorderedInstructionIndex] = instruction;
-				reorderedInstructionIndex++;
-
-				// このインデックスの命令は再配列済みである事をマークする
-				reordered[instructionIndex] = true;
-			}
-		}
-
-		// 再び acceleratorInstructionList を辿り、再配置されていない（スカラALLOC以外の）命令を移す
-		for (int instructionIndex=0; instructionIndex<instructionLength; instructionIndex++) {
-			if (!reordered[instructionIndex]) {
-				AcceleratorInstruction instruction = acceleratorInstructionList.get(instructionIndex);
-				this.buffer[reorderedInstructionIndex] = instruction;
-				reorderedInstructionIndex++;
-			}
-		}
-
-		// バッファの中の完成した結果をacceleratorInstructionList移す
-		for (int instructionIndex=0; instructionIndex<instructionLength; instructionIndex++) {
-			this.acceleratorInstructionList.set(instructionIndex, this.buffer[instructionIndex]);
-		}
-	}
-
 
 	// 連続する2つの演算命令を融合させて1つの拡張命令にする
 	private void fuseArithmeticInstructions(
 			AcceleratorExecutionType fromAccelerationType, AcceleratorExecutionType toAccelerationType) {
 
 		int instructionLength = this.acceleratorInstructionList.size();
-		for (int instructionIndex=0; instructionIndex<instructionLength-1; instructionIndex++) { // 後でイテレータ使うループにする
+		for (int instructionIndex=0; instructionIndex<instructionLength-1; instructionIndex++) {
 
 			AcceleratorInstruction currentInstruction = this.acceleratorInstructionList.get(instructionIndex);
 			AcceleratorInstruction nextInstruction = this.acceleratorInstructionList.get(instructionIndex+1);
@@ -736,6 +536,22 @@ public class AcceleratorSchedulingUnit {
 					|| nextAccelType != fromAccelerationType) {
 
 				continue;
+			}
+
+			// DualArithmetic系演算ユニットでサポートしていないオペランドの場合はスキップ (例えば符号反転など)
+			if (fromAccelerationType == AcceleratorExecutionType.F64CS_ARITHMETIC) {
+				if( !Float64CachedScalarDualArithmeticUnit.AVAILABLE_OPERAND_SET.contains(currentInstruction.getOperationCode())
+				    ||
+				    !Float64CachedScalarDualArithmeticUnit.AVAILABLE_OPERAND_SET.contains(nextInstruction.getOperationCode()) ) {
+					continue;
+				}
+			}
+			if (fromAccelerationType == AcceleratorExecutionType.I64CS_ARITHMETIC) {
+				if( !Int64CachedScalarDualArithmeticUnit.AVAILABLE_OPERAND_SET.contains(currentInstruction.getOperationCode())
+				    ||
+				    !Int64CachedScalarDualArithmeticUnit.AVAILABLE_OPERAND_SET.contains(nextInstruction.getOperationCode()) ) {
+					continue;
+				}
 			}
 
 			// 対象命令のオペランドを全て取得
@@ -787,145 +603,135 @@ public class AcceleratorSchedulingUnit {
 		}
 
 		// リスト内で空いた要素（上でnullを置いている）を削除して詰める
-		this.removeNullInstructions();
+		this.acceleratorInstructionList.removeAll(LIST_OF_NULL);
 	}
 
 
-	// レジスタへの無駄なMOV命令を削減し、算術演算の出力オペランド等で直接レジスタに代入するようにする
-	private void reduceMovInstructions(AcceleratorDataManagementUnit dataManager) {
+	// 連続する転送命令を融合させて1つの拡張命令にする
+	private void fuseTransferInstructions() {
 
-		int instructionLength = this.acceleratorInstructionList.size();
-		for (int instructionIndex=0; instructionIndex<instructionLength-1; instructionIndex++) { // 後でイテレータ使うループにする
-			AcceleratorInstruction currentInstruction = this.acceleratorInstructionList.get(instructionIndex);
-			AcceleratorInstruction nextInstruction = this.acceleratorInstructionList.get(instructionIndex+1);
+		// 元の命令列 ( this.acceleratorInstructionList ) を読みながら、必要に応じて拡張命令への置き換えを行いつつ、
+		// このリストに積んでいき、最後に this.acceleratorInstructionList をこれで置き換える
+		List<AcceleratorInstruction> resultInstructionList = new ArrayList<AcceleratorInstruction>();
 
-			// 対象命令がデータ書き込みをしない場合は命令はスキップ
-			if (!this.isDataWritingOperationCode(currentInstruction.getOperationCode())) {
-				continue;
+		// 元の命令列 ( this.acceleratorInstructionList ) を読みながら、融合対象になり得る転送命令を一時的に溜めておくバッファ
+		// (コード内の連続転送領域の終わりや、溜めている数が一括転送のMAX個数になったタイミングで、一括転送する拡張命令を生成する)
+		List<AcceleratorInstruction> transferInstructionBuffer = new ArrayList<AcceleratorInstruction>();
+
+		// データ型の異なるデータ転送は融合できないので、最後にバッファに詰めた転送データ型をこれに控えて、変化点の検出などに使う
+		DataType lastTransferDataType = null;
+
+		// 一括転送ユニットで対応しているオペランドセット、および一括演算可能な最大命令数を取得
+		Set<OperationCode> float64FusibleOpcodeSet = Float64CachedScalarMultipleTransferUnit.AVAILABLE_OPERAND_SET;
+		Set<OperationCode> int64FusibleOpcodeSet = Int64CachedScalarMultipleTransferUnit.AVAILABLE_OPERAND_SET;
+		Set<OperationCode> boolFusibleOpcodeSet = BoolCachedScalarMultipleTransferUnit.AVAILABLE_OPERAND_SET;
+		int float64MaxFusibleCount = Float64CachedScalarMultipleTransferUnit.MAX_AVAILABLE_TRANSFER_COUNT;
+		int int64MaxFusibleCount = Int64CachedScalarMultipleTransferUnit.MAX_AVAILABLE_TRANSFER_COUNT;
+		int boolMaxFusibleCount = BoolCachedScalarMultipleTransferUnit.MAX_AVAILABLE_TRANSFER_COUNT;
+
+		for (AcceleratorInstruction instruction: this.acceleratorInstructionList) {
+			AcceleratorExecutionType accelType = instruction.getAccelerationType();
+			OperationCode opcode = instruction.getOperationCode();
+
+			// 融合可能な命令かどうか（一括処理できる演算ユニットがあるかどうか）を判断
+			boolean isFloat64Fusible = (accelType == AcceleratorExecutionType.F64CS_TRANSFER) && float64FusibleOpcodeSet.contains(opcode);
+			boolean isInt64Fusible = (accelType == AcceleratorExecutionType.I64CS_TRANSFER) && int64FusibleOpcodeSet.contains(opcode);
+			boolean isBoolFusible = (accelType == AcceleratorExecutionType.BCS_TRANSFER) && boolFusibleOpcodeSet.contains(opcode);
+			boolean isFusible = isFloat64Fusible || isInt64Fusible || isBoolFusible;
+
+			// バッファしている命令数が、一括演算可能な上限数に達しているかを判断
+			int bufferedCount = transferInstructionBuffer.size();
+			boolean isFloat64FusibleCapacifyFull = lastTransferDataType == DataType.FLOAT64 && bufferedCount == float64MaxFusibleCount;
+			boolean isInt64FusibleCapacifyFull = lastTransferDataType == DataType.INT64 && (bufferedCount == int64MaxFusibleCount);
+			boolean isBoolFusibleCapacityFull = lastTransferDataType == DataType.BOOL && (bufferedCount == boolMaxFusibleCount);
+			boolean isFusibleCapacityFull = isFloat64FusibleCapacifyFull || isInt64FusibleCapacifyFull || isBoolFusibleCapacityFull;
+
+			// 以下の条件が満たされた瞬間に、まずバッファ内の転送命令列を融合＆拡張命令に変換して出力し、一旦バッファを空にしておく
+			// ・一括転送対象ではない命令が来た場合
+			// ・一括転送対象の命令が来た場合でも、バッファ内の命令とデータ型が異なる場合
+			// ・バッファ内の命令数が、一括処理可能な上限数に達した場合
+			if (!isFusible || instruction.getDataTypes()[0] != lastTransferDataType || isFusibleCapacityFull) {
+				if (transferInstructionBuffer.size() != 0) {
+					resultInstructionList.add( this.toFusedTransferInstruction(transferInstructionBuffer) );
+					transferInstructionBuffer.clear();
+				}
 			}
 
-			// 対象命令の書き込み先（0番オペランド）がジスタでない場合はスキップ
-			if (currentInstruction.getOperandPartitions()[0] != Memory.Partition.REGISTER) {
-				continue;
+			// 一括転送対象にできる命令なら、変換結果の命令列には積まずにバッファに溜める
+			if (isFusible) {
+				transferInstructionBuffer.add(instruction);
+				lastTransferDataType = instruction.getDataTypes()[0];
+
+			// それ以外の命令はそのまま変換結果の命令列に積む
+			} else {
+				resultInstructionList.add(instruction);
 			}
-
-			// 次にMOV命令が続いていなければスキップ
-			if (nextInstruction.getOperationCode() != OperationCode.MOV) {
-				continue;
-			}
-
-			// そのMOV命令のコピー元（1番オペランド）がレジスタではない場合はスキップ
-			if (nextInstruction.getOperandPartitions()[1] != Memory.Partition.REGISTER) {
-				continue;
-			}
-
-			// 対象命令で書き込んでいるレジスタ（ = 0番オペランド）のアドレスを取得
-			int writingRegisterAddress = currentInstruction.getOperandAddresses()[0];
-
-			// 次のMOV命令でのコピー元レジスタを取得
-			int movingInputRegisterAddress = nextInstruction.getOperandAddresses()[1];
-
-			// 書き込み先レジスタと次命令でのMOVコピー「元」レジスタが異なる場合はスキップ
-			if (writingRegisterAddress != movingInputRegisterAddress) {
-				continue;
-			}
-
-			// そのレジスタに書き込む/読み込む箇所がそこだけでない（書き込みが複数、または読み込みが複数ある）場合はスキップ
-			if (this.registerWrittenPointCount[writingRegisterAddress] != 1
-					|| this.registerReadPointCount[writingRegisterAddress] != 1) {
-
-				continue;
-			}
-
-			// 書き込み先とMOVコピー「先」が、スカラであるかやキャッシュ可能か等の特性が一致していない場合はスキップ
-			Memory.Partition movOutputPartition = nextInstruction.getOperandPartitions()[0];
-			int movOutputAddress = nextInstruction.getOperandAddresses()[0];
-			if (dataManager.isScalar(Memory.Partition.REGISTER, writingRegisterAddress)
-					!= dataManager.isScalar(movOutputPartition, movOutputAddress)) {
-				continue;
-			}
-			if (dataManager.isCachingEnabled(Memory.Partition.REGISTER, writingRegisterAddress)
-					!= dataManager.isCachingEnabled(movOutputPartition, movOutputAddress)) {
-				continue;
-			}
-
-			// 次に続くMOV命令を削るとまずい命令ならスキップ（ELEM命令など）
-			if(!movReducableOpcodeSet.contains(currentInstruction.getOperationCode())) {
-				continue;
-			}
-
-
-			// --------------------------------------------------------------------------------
-			// ここまで到達するのは：
-			//
-			// ・演算結果をレジスタに格納し、
-			// ・次で別の領域にMOVしていて、
-			// ・そのレジスタを他のどこでも使用しておらず、
-			// ・命令の演算結果を、MOV先に直接格納するように改変しても問題ない場合
-			//
-			// なので、オペランドを入れ替えて冗長なMOV命令を削る
-			// --------------------------------------------------------------------------------
-
-
-			// 対象演算命令のオペランド部を複製
-			int modifiedOperandLength = currentInstruction.getOperandLength();
-			Memory.Partition[] modifiedOperandPartitions = new Memory.Partition[modifiedOperandLength];
-			System.arraycopy(currentInstruction.getOperandPartitions(), 0, modifiedOperandPartitions, 0, modifiedOperandLength);
-			int[] modifiedOperandAddresses = new int[modifiedOperandLength];
-			System.arraycopy(currentInstruction.getOperandAddresses(), 0, modifiedOperandAddresses, 0, modifiedOperandLength);
-
-			// 複製したオペランド部の出力オペランドに、MOVコピー「先」オペランドを写す
-			modifiedOperandPartitions[0] = movOutputPartition;
-			modifiedOperandAddresses[0] = movOutputAddress;
-
-			// それをオペランド部として持つ、対象演算命令のコピーを生成し、元の対象演算命令を置き換える
-			AcceleratorInstruction modifiedInstruction = new AcceleratorInstruction(
-				currentInstruction, modifiedOperandPartitions, modifiedOperandAddresses
-			);
-			this.acceleratorInstructionList.set(instructionIndex, modifiedInstruction);
-
-			// MOV命令を null で置き換える（すぐ後で削除する）
-			this.acceleratorInstructionList.set(instructionIndex+1, null);
-
-			// 次の命令（= MOV）はもう削除したので、カウンタを1つ余計に進める
-			instructionIndex++;
-
 		}
 
-		this.removeNullInstructions();
-		// MOV命令を削除した位置の null を詰める
+		// バッファ内に最後まで溜まったまま出力タイミングが来なかった転送命令列を、拡張命令に変換して出力
+		if (transferInstructionBuffer.size() != 0) {
+			resultInstructionList.add( this.toFusedTransferInstruction(transferInstructionBuffer) );
+			transferInstructionBuffer.clear();
+		}
+
+		this.acceleratorInstructionList = resultInstructionList;
 	}
 
+	// 複数の転送命令を融合した単一の拡張命令にして返す
+	//（処理可能な演算ユニットが存在する事や、データ型が揃っている事などは、呼び出し側で確認済みである事を前提とする）
+	private AcceleratorInstruction toFusedTransferInstruction(List<AcceleratorInstruction> transferInstructionList) {
+		int transferCount = transferInstructionList.size(); // 連続する転送命令の個数
 
-	// 命令列内の null 要素を削除して詰める（removeを何度も行う処理を効率化するため、nullを置いて後でこのメソッドで一括で詰める）
-	private void removeNullInstructions() {
-
-		int instructionLength = this.acceleratorInstructionList.size();
-
-		// 再配置済みの命令列を格納する配列（最後にacceleratorInstructionList移す）
-		if (this.buffer.length < instructionLength) {
-			this.buffer = new AcceleratorInstruction[instructionLength]; // 足りなければ再確保（余っていればそのまま使う）
-		} else {
-			Arrays.fill(this.buffer, null);
+		// 0個の場合は呼び出し側がおかしい
+		if (transferCount == 0) {
+			throw new VnanoFatalException( "The passed transfer instruction list for fusing is empty." );
 		}
 
-		// acceleratorInstructionList 内の非null要素を詰めながらbufferに移す
-		int bufferIndex = 0;
-		for (int instructionIndex=0; instructionIndex<instructionLength; instructionIndex++) {
-			AcceleratorInstruction instruction = this.acceleratorInstructionList.get(instructionIndex);
-			if (instruction != null) {
-				this.buffer[bufferIndex] = instruction;
-				bufferIndex++;
-			}
+		// 1個だけの場合はそのまま返す
+		if (transferCount == 1) {
+			return transferInstructionList.get(0);
 		}
 
-		instructionLength = bufferIndex;
-		this.acceleratorInstructionList = new ArrayList<AcceleratorInstruction>(instructionLength);
+		// 以下、複数の転送命令を融合させた拡張命令を生成する
+		// -> このあたりは AcceleratorInstruction の fuse メソッドを拡張してそちらを使うようにした方がいいかもしれない。後々で要検討
 
-		// bufferからacceleratorInstructionListに戻す
-		for (int instructionIndex=0; instructionIndex<instructionLength; instructionIndex++) {
-			this.acceleratorInstructionList.add(buffer[instructionIndex]);
+		// 元の転送命令の dest と src を交互に並べた、拡張命令用のオペランド配列を用意
+		Memory.Partition[] fusedOperandParts = new Memory.Partition[ transferCount * 2 ]; // dest & src のペアが transferCount 個あるので *2
+		int[] fusedOperandAddrs = new int[ transferCount * 2 ];
+		int fusedOperandPointer = 0;
+		for (AcceleratorInstruction instruction: transferInstructionList) {
+			System.arraycopy(instruction.getOperandPartitions(), 0, fusedOperandParts, fusedOperandPointer, 2);
+			System.arraycopy(instruction.getOperandAddresses(),  0, fusedOperandAddrs, fusedOperandPointer, 2);
+			fusedOperandPointer += 2;
 		}
+
+		// 融合する命令のオペレーションコードを配列にまとめる（拡張命令に情報として持たせる必要がある）
+		OperationCode[] fusedOpcodes = new OperationCode[transferCount];
+		for (int instructionIndex=0; instructionIndex<transferCount; instructionIndex++) {
+			fusedOpcodes[instructionIndex] = transferInstructionList.get(instructionIndex).getOperationCode();
+		}
+
+		// 先頭の転送命令から、データ型やメタ情報などを流用する
+		AcceleratorInstruction firstTransferInstruction = transferInstructionList.get(0);
+
+		// 拡張命令を生成し、それを Accelerator 用の継承型に変換
+		Instruction fusedInstruction = new Instruction(
+			OperationCode.EX, firstTransferInstruction.getDataTypes(),
+			fusedOperandParts, fusedOperandAddrs,
+			firstTransferInstruction.getMetaPartition(), firstTransferInstruction.getMetaAddress()
+		);
+
+		// 必要な情報を登録
+		AcceleratorInstruction fusedAccelInstruction = new AcceleratorInstruction(fusedInstruction);
+		fusedAccelInstruction.setUnreorderedAddress(firstTransferInstruction.getUnreorderedAddress());
+		fusedAccelInstruction.setFusedOperationCodes(fusedOpcodes);
+		switch(firstTransferInstruction.getDataTypes()[0]) {
+			case INT64:   fusedAccelInstruction.setAccelerationType(AcceleratorExecutionType.I64CS_MULTIPLE_TRANSFER); break;
+			case FLOAT64: fusedAccelInstruction.setAccelerationType(AcceleratorExecutionType.F64CS_MULTIPLE_TRANSFER); break;
+			case BOOL:    fusedAccelInstruction.setAccelerationType(AcceleratorExecutionType.BCS_MULTIPLE_TRANSFER); break;
+			default: throw new VnanoFatalException("Infusible data type detected: " + firstTransferInstruction.getDataTypes()[0]);
+		}
+
+		return fusedAccelInstruction;
 	}
-
 }

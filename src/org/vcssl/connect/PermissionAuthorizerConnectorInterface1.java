@@ -55,15 +55,6 @@ public interface PermissionAuthorizerConnectorInterface1 {
 
 
 	/**
-	 * パーミッション項目の名前と値を格納するマップ（パーミッションマップ）の形で, 各パーミッションの値を取得します。
-	 *
-	 * @return permissionMap パーミッション項目の名前と値を格納するマップ（パーミッションマップ）
-	 */
-	public abstract Map<String, String> getPermissionMap()
-			throws ConnectorException;
-
-
-	/**
 	 * 指定された名称のパーミッションを要求します。
 	 *
 	 * @param permissionName パーミッションの名称

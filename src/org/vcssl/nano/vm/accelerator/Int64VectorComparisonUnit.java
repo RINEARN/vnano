@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2018 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2020 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -68,7 +68,7 @@ public class Int64VectorComparisonUnit extends AcceleratorExecutionUnit {
 				DataContainer<boolean[]> container0, DataContainer<long[]> container1, DataContainer<long[]> container2,
 				Int64x3ScalarCacheSynchronizer synchronizer, AcceleratorExecutionNode nextNode) {
 
-			super(nextNode);
+			super(nextNode, 1);
 			this.container0 = container0;
 			this.container1 = container1;
 			this.container2 = container2;
@@ -87,10 +87,10 @@ public class Int64VectorComparisonUnit extends AcceleratorExecutionUnit {
 
 		public final AcceleratorExecutionNode execute() {
 			this.synchronizer.synchronizeFromCacheToMemory();
-			boolean[] data0 = this.container0.getData();
-			long[] data1 = this.container1.getData();
-			long[] data2 = this.container2.getData();
-			int size = this.container0.getSize();
+			boolean[] data0 = this.container0.getArrayData();
+			long[] data1 = this.container1.getArrayData();
+			long[] data2 = this.container2.getArrayData();
+			int size = this.container0.getArraySize();
 
 			for (int i=0; i<size; i++) {
 				data0[i] = data1[i] < data2[i];
@@ -112,10 +112,10 @@ public class Int64VectorComparisonUnit extends AcceleratorExecutionUnit {
 
 		public final AcceleratorExecutionNode execute() {
 			this.synchronizer.synchronizeFromCacheToMemory();
-			boolean[] data0 = this.container0.getData();
-			long[] data1 = this.container1.getData();
-			long[] data2 = this.container2.getData();
-			int size = this.container0.getSize();
+			boolean[] data0 = this.container0.getArrayData();
+			long[] data1 = this.container1.getArrayData();
+			long[] data2 = this.container2.getArrayData();
+			int size = this.container0.getArraySize();
 
 			for (int i=0; i<size; i++) {
 				data0[i] = data1[i] > data2[i];
@@ -137,10 +137,10 @@ public class Int64VectorComparisonUnit extends AcceleratorExecutionUnit {
 
 		public final AcceleratorExecutionNode execute() {
 			this.synchronizer.synchronizeFromCacheToMemory();
-			boolean[] data0 = this.container0.getData();
-			long[] data1 = this.container1.getData();
-			long[] data2 = this.container2.getData();
-			int size = this.container0.getSize();
+			boolean[] data0 = this.container0.getArrayData();
+			long[] data1 = this.container1.getArrayData();
+			long[] data2 = this.container2.getArrayData();
+			int size = this.container0.getArraySize();
 
 			for (int i=0; i<size; i++) {
 				data0[i] = data1[i] <= data2[i];
@@ -162,10 +162,10 @@ public class Int64VectorComparisonUnit extends AcceleratorExecutionUnit {
 
 		public final AcceleratorExecutionNode execute() {
 			this.synchronizer.synchronizeFromCacheToMemory();
-			boolean[] data0 = this.container0.getData();
-			long[] data1 = this.container1.getData();
-			long[] data2 = this.container2.getData();
-			int size = this.container0.getSize();
+			boolean[] data0 = this.container0.getArrayData();
+			long[] data1 = this.container1.getArrayData();
+			long[] data2 = this.container2.getArrayData();
+			int size = this.container0.getArraySize();
 
 			for (int i=0; i<size; i++) {
 				data0[i] = data1[i] >= data2[i];
@@ -187,10 +187,10 @@ public class Int64VectorComparisonUnit extends AcceleratorExecutionUnit {
 
 		public final AcceleratorExecutionNode execute() {
 			this.synchronizer.synchronizeFromCacheToMemory();
-			boolean[] data0 = this.container0.getData();
-			long[] data1 = this.container1.getData();
-			long[] data2 = this.container2.getData();
-			int size = this.container0.getSize();
+			boolean[] data0 = this.container0.getArrayData();
+			long[] data1 = this.container1.getArrayData();
+			long[] data2 = this.container2.getArrayData();
+			int size = this.container0.getArraySize();
 
 			for (int i=0; i<size; i++) {
 				data0[i] = data1[i] == data2[i];
@@ -212,10 +212,10 @@ public class Int64VectorComparisonUnit extends AcceleratorExecutionUnit {
 
 		public final AcceleratorExecutionNode execute() {
 			this.synchronizer.synchronizeFromCacheToMemory();
-			boolean[] data0 = this.container0.getData();
-			long[] data1 = this.container1.getData();
-			long[] data2 = this.container2.getData();
-			int size = this.container0.getSize();
+			boolean[] data0 = this.container0.getArrayData();
+			long[] data1 = this.container1.getArrayData();
+			long[] data2 = this.container2.getArrayData();
+			int size = this.container0.getArraySize();
 
 			for (int i=0; i<size; i++) {
 				data0[i] = data1[i] != data2[i];

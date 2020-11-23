@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2018 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2020 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -16,11 +16,11 @@ public class Float64CachedScalarArithmeticUnit extends AcceleratorExecutionUnit 
 			Object[] operandCaches, boolean[] operandCachingEnabled, boolean[] operandScalar, boolean[] operandConstant,
 			AcceleratorExecutionNode nextNode) {
 
-		Float64ScalarCache[] caches = new Float64ScalarCache[]{
-				(Float64ScalarCache)operandCaches[0],
-				(Float64ScalarCache)operandCaches[1],
-				(Float64ScalarCache)operandCaches[2]
-		};
+		int cacheLength = operandCaches.length;
+		Float64ScalarCache[] caches = new Float64ScalarCache[cacheLength];
+		for (int i=0; i<cacheLength; i++) {
+			caches[i] = (Float64ScalarCache)operandCaches[i];
+		}
 
 		Float64CachedScalarArithmeticNode node = null;
 		switch (instruction.getOperationCode()) {
@@ -44,6 +44,10 @@ public class Float64CachedScalarArithmeticUnit extends AcceleratorExecutionUnit 
 				node = new Float64CachedScalarRemNode(caches[0], caches[1], caches[2], nextNode);
 				break;
 			}
+			case NEG : {
+				node = new Float64CachedScalarNegNode(caches[0], caches[1], nextNode);
+				break;
+			}
 			default : {
 				throw new VnanoFatalException(
 						"Operation code " + instruction.getOperationCode() + " is invalid for " + this.getClass().getCanonicalName()
@@ -61,12 +65,22 @@ public class Float64CachedScalarArithmeticUnit extends AcceleratorExecutionUnit 
 		public Float64CachedScalarArithmeticNode(Float64ScalarCache cache0, Float64ScalarCache cache1, Float64ScalarCache cache2,
 				AcceleratorExecutionNode nextNode) {
 
-			super(nextNode);
+			super(nextNode, 1);
 			this.cache0 = cache0;
 			this.cache1 = cache1;
 			this.cache2 = cache2;
 		}
+
+		public Float64CachedScalarArithmeticNode(Float64ScalarCache cache0, Float64ScalarCache cache1,
+				AcceleratorExecutionNode nextNode) {
+
+			super(nextNode, 1);
+			this.cache0 = cache0;
+			this.cache1 = cache1;
+			this.cache2 = null;
+		}
 	}
+
 
 	private final class Float64CachedScalarAddNode extends Float64CachedScalarArithmeticNode {
 		public Float64CachedScalarAddNode(Float64ScalarCache cache0, Float64ScalarCache cache1, Float64ScalarCache cache2,
@@ -74,7 +88,7 @@ public class Float64CachedScalarArithmeticUnit extends AcceleratorExecutionUnit 
 			super(cache0, cache1, cache2, nextNode);
 		}
 		public final AcceleratorExecutionNode execute() {
-			this.cache0.value = this.cache1.value + this.cache2.value;
+			this.cache0.data = this.cache1.data + this.cache2.data;
 			return this.nextNode;
 		}
 	}
@@ -86,7 +100,7 @@ public class Float64CachedScalarArithmeticUnit extends AcceleratorExecutionUnit 
 			super(cache0, cache1, cache2, nextNode);
 		}
 		public final AcceleratorExecutionNode execute() {
-			this.cache0.value = this.cache1.value - this.cache2.value;
+			this.cache0.data = this.cache1.data - this.cache2.data;
 			return this.nextNode;
 		}
 	}
@@ -97,7 +111,7 @@ public class Float64CachedScalarArithmeticUnit extends AcceleratorExecutionUnit 
 			super(cache0, cache1, cache2, nextNode);
 		}
 		public final AcceleratorExecutionNode execute() {
-			this.cache0.value = this.cache1.value * this.cache2.value;
+			this.cache0.data = this.cache1.data * this.cache2.data;
 			return this.nextNode;
 		}
 	}
@@ -108,7 +122,7 @@ public class Float64CachedScalarArithmeticUnit extends AcceleratorExecutionUnit 
 			super(cache0, cache1, cache2, nextNode);
 		}
 		public final AcceleratorExecutionNode execute() {
-			this.cache0.value = this.cache1.value / this.cache2.value;
+			this.cache0.data = this.cache1.data / this.cache2.data;
 			return this.nextNode;
 		}
 	}
@@ -119,7 +133,18 @@ public class Float64CachedScalarArithmeticUnit extends AcceleratorExecutionUnit 
 			super(cache0, cache1, cache2, nextNode);
 		}
 		public final AcceleratorExecutionNode execute() {
-			this.cache0.value = this.cache1.value % this.cache2.value;
+			this.cache0.data = this.cache1.data % this.cache2.data;
+			return this.nextNode;
+		}
+	}
+
+	private final class Float64CachedScalarNegNode extends Float64CachedScalarArithmeticNode {
+		public Float64CachedScalarNegNode(Float64ScalarCache cache0, Float64ScalarCache cache1,
+				AcceleratorExecutionNode nextNode) {
+			super(cache0, cache1, nextNode);
+		}
+		public final AcceleratorExecutionNode execute() {
+			this.cache0.data = - this.cache1.data;
 			return this.nextNode;
 		}
 	}

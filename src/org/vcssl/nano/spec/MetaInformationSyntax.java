@@ -110,7 +110,7 @@ public class MetaInformationSyntax {
 				instruction.getMetaPartition(), instruction.getMetaAddress()
 		);
 		@SuppressWarnings("unused") // メタ情報はアセンブラで生成され、型は必ず文字列
-		String metaInformation = ((String[])metaContainer.getData())[0];
+		String metaInformation = ((String[])metaContainer.getArrayData())[0];
 		return extractLineNumber(metaInformation);
 	}
 
@@ -161,7 +161,7 @@ public class MetaInformationSyntax {
 				instruction.getMetaPartition(), instruction.getMetaAddress()
 		);
 		@SuppressWarnings("unused") // メタ情報はアセンブラで生成され、型は必ず文字列
-		String metaInformation = ((String[])metaContainer.getData())[0];
+		String metaInformation = ((String[])metaContainer.getArrayData())[0];
 		return extractFileName(metaInformation);
 	}
 

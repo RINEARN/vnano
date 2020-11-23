@@ -95,15 +95,15 @@ public class VariableTable implements Cloneable {
 		this.size++;
 
 		// 単純識別子から、名前空間を加味した識別子や、アセンブリ識別子などを求める
-		String nameSpacePrefix = variable.hasNameSpace() ? "" : variable.getNameSpace() + SCRIPT_WORD.nameSpaceSeparator;
+		String namespacePrefix = variable.hasNamespaceName() ? variable.getNamespaceName() + SCRIPT_WORD.namespaceSeparator : "";
 		String varName = variable.getVariableName();
 		String asmName = IDENTIFIER_SYNTAX.getAssemblyIdentifierOf(variable);
-		String fullAsmName = IDENTIFIER_SYNTAX.getAssemblyIdentifierOf(variable, nameSpacePrefix);
+		String fullAsmName = IDENTIFIER_SYNTAX.getAssemblyIdentifierOf(variable, namespacePrefix);
 
 		// リストとマップに変数を追加
 		this.variableList.add(variable);
 		IdentifierMapManager.putToMap(this.nameVariableMap, varName, variable); // 重複キーに対応するためのマップ操作メソッド
-		IdentifierMapManager.putToMap(this.fullNameVariableMap, nameSpacePrefix + varName, variable);
+		IdentifierMapManager.putToMap(this.fullNameVariableMap, namespacePrefix + varName, variable);
 		IdentifierMapManager.putToMap(this.assemblyIdentifierVariableMap, asmName, variable);
 		IdentifierMapManager.putToMap(this.fullAssemblyIdentifierVariableMap, fullAsmName, variable);
 
@@ -125,15 +125,15 @@ public class VariableTable implements Cloneable {
 
 		// 単純識別子から、名前空間を加味した識別子や、アセンブリ識別子などを求める（削除する際のキーに使う）
 		AbstractVariable variable = this.variableList.getLast();
-		String nameSpacePrefix = variable.hasNameSpace() ? "" : variable.getNameSpace() + SCRIPT_WORD.nameSpaceSeparator;
+		String namespacePrefix = variable.hasNamespaceName() ? variable.getNamespaceName() + SCRIPT_WORD.namespaceSeparator : "";
 		String varName = variable.getVariableName();
 		String asmName = IDENTIFIER_SYNTAX.getAssemblyIdentifierOf(variable);
-		String fullAsmName = IDENTIFIER_SYNTAX.getAssemblyIdentifierOf(variable, nameSpacePrefix);
+		String fullAsmName = IDENTIFIER_SYNTAX.getAssemblyIdentifierOf(variable, namespacePrefix);
 
 		// リストとマップから変数を削除
 		this.variableList.removeLast();
 		IdentifierMapManager.removeLastFromMap(this.nameVariableMap, varName); // 重複キーに対応するためのマップ操作メソッド
-		IdentifierMapManager.removeLastFromMap(this.fullNameVariableMap, nameSpacePrefix + varName);
+		IdentifierMapManager.removeLastFromMap(this.fullNameVariableMap, namespacePrefix + varName);
 		IdentifierMapManager.removeLastFromMap(this.assemblyIdentifierVariableMap, asmName);
 		IdentifierMapManager.removeLastFromMap(this.fullAssemblyIdentifierVariableMap, fullAsmName);
 
@@ -250,9 +250,9 @@ public class VariableTable implements Cloneable {
 
 		// コストを定数オーダーにするため、まずアセンブリ識別子を求めて、
 		// それとインデックスとの対応を保持しているマップに投げて値を取得する
-		String nameSpacePrefix = variable.hasNameSpace() ? "" : variable.getNameSpace() + SCRIPT_WORD.nameSpaceSeparator;
+		String namespacePrefix = variable.hasNamespaceName() ? variable.getNamespaceName() + SCRIPT_WORD.namespaceSeparator : "";
 		String asmName = IDENTIFIER_SYNTAX.getAssemblyIdentifierOf(variable);
-		String fullAsmName = IDENTIFIER_SYNTAX.getAssemblyIdentifierOf(variable, nameSpacePrefix);
+		String fullAsmName = IDENTIFIER_SYNTAX.getAssemblyIdentifierOf(variable, namespacePrefix);
 		if (assemblyIdentifierIndexMap.containsKey(asmName)) {
 			return IdentifierMapManager.getLastFromMap(this.assemblyIdentifierIndexMap, asmName);
 		}

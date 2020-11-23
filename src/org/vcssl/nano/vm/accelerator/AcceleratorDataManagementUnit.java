@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2018-2019 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2018-2020 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -152,7 +152,7 @@ public final class AcceleratorDataManagementUnit {
 			}
 
 			this.scalar[partitionOrdinal][address]
-					= ( (container.getRank() == DataContainer.SCALAR_RANK) );
+					= ( (container.getArrayRank() == DataContainer.ARRAY_RANK_OF_SCALAR) );
 
 			if (!this.scalar[partitionOrdinal][address]) {
 				continue;
@@ -280,12 +280,12 @@ public final class AcceleratorDataManagementUnit {
 					break;
 				}
 
-				case ELEM : {
+				case REFELM : {
 
-					// 現在の仕様では、ELEMで取り出したデータは必ずスカラ
+					// 現在の仕様では、REFELMで取り出したデータは必ずスカラ
 					this.scalar[ partitions[0].ordinal() ][ addresses[0] ] = true;
 
-					// ELEM命令は、ベクトルの要素（スカラ）への参照を第0オペランドのレジスタと同期するため、
+					// REFELM命令は、ベクトルの要素（スカラ）への参照を第0オペランドのレジスタと同期するため、
 					// 第0オペランドはスカラであるが、別の箇所で参照が共有されて書き換えられる可能性があるため、
 					// キャッシュ可能ではない
 					//（異なるアドレスのレジスタが同一データを参照を保持できるため、アドレスベースのキャッシュでは対応不可）
@@ -333,7 +333,7 @@ public final class AcceleratorDataManagementUnit {
 					// (内部関数はconst未対応だし、将来的には宣言によらず、書き換えてなければ可能にするかもだし保留)
 
 					DataContainer<?> functionAddrContainer = memory.getDataContainer(partitions[1], addresses[1]);
-					int functionAddr = (int)( (long[])functionAddrContainer.getData() )[0];
+					int functionAddr = (int)( (long[])functionAddrContainer.getArrayData() )[0];
 					int argN = partitions.length - 2; // 戻り値と関数アドレスを除いた（-2）オペランド数が引数の個数
 					boolean[] areParamRefs = null;
 					boolean[] areParamConsts = null;
@@ -399,7 +399,7 @@ public final class AcceleratorDataManagementUnit {
 				case CALL : {
 
 					DataContainer<?> functionAddrContainer = memory.getDataContainer(partitions[1], addresses[1]);
-					int functionAddr = (int)( (long[])functionAddrContainer.getData() )[0]; // 内部関数の命令アドレス
+					int functionAddr = (int)( (long[])functionAddrContainer.getArrayData() )[0]; // 内部関数の命令アドレス
 					int numberOfArgs = partitions.length - 2; // 戻り値と関数アドレスを除いた（-2）オペランド数が引数の個数
 
 					// 既に解析済みでなければ解析

@@ -568,34 +568,39 @@ public class CodeGenerator {
 						break;
 					}
 
-					// 複合代入演算子も、左辺の子ノードが、そのまま演算子ノードの値
+					// 複合代入演算子
 					case AttributeValue.ARITHMETIC_COMPOUND_ASSIGNMENT : {
-						String value = currentNode.getChildNodes()[0].getAttribute(AttributeKey.ASSEMBLY_VALUE);
-						currentNode.setAttribute(AttributeKey.ASSEMBLY_VALUE, value);
-						break;
-					}
+						if (operatorSymbol.equals(SCRIPT_WORD.increment) || operatorSymbol.equals(SCRIPT_WORD.decrement)) {
 
-					// 算術演算子は、前置インクリメント/デクリメントの場合のみ、対象変数がそのまま演算子ノードの値
-					// (それ以外の算術演算子は下の default へ)
-					case AttributeValue.ARITHMETIC : {
-						if (syntaxType.equals(AttributeValue.PREFIX)) {
-							if (operatorSymbol.equals(SCRIPT_WORD.increment) || operatorSymbol.equals(SCRIPT_WORD.decrement)) {
+							// 前置インクリメント: 対象変数がそのまま演算子ノードの値
+							if(syntaxType.equals(AttributeValue.PREFIX)) {
 								String value = currentNode.getChildNodes()[0].getAttribute(AttributeKey.ASSEMBLY_VALUE);
 								currentNode.setAttribute(AttributeKey.ASSEMBLY_VALUE, value);
 								break;
+
+							// 後置インクリメント: 個別のレジスタを生成予約してそれに演算結果を格納すべき
+							} else {
+								String register = ASSEMBLY_WORD.registerOperandOprefix + Integer.toString(registerCounter);
+								this.registerCounter++;
+								currentNode.setAttribute(AttributeKey.ASSEMBLY_VALUE, register);
+								currentNode.setAttribute(AttributeKey.NEW_REGISTER, register); // このノードのために新規生成するレジスタなので、CodeGenerator がASTを辿っている際にこのノードの地点でメモリ確保が必要という事を知らせる
+								break;
 							}
+
+						// それ以外(普通の複合代入演算子): 代入演算子と全く同様に、左辺の子ノードがそのまま演算子ノードの値
+						} else {
+							String value = currentNode.getChildNodes()[0].getAttribute(AttributeKey.ASSEMBLY_VALUE);
+							currentNode.setAttribute(AttributeKey.ASSEMBLY_VALUE, value);
+							break;
 						}
 					}
 
-					// 上記以外の場合、その演算子の値は、個別のレジスタを予約して控える
+					// 上記以外の場合、その演算子の値は、個別のレジスタを生成予約して控える
 					default : {
 						String register = ASSEMBLY_WORD.registerOperandOprefix + Integer.toString(registerCounter);
-						currentNode.setAttribute(AttributeKey.ASSEMBLY_VALUE, register);
-
-						// 対象レジスタが、このノードのために専用予約したレジスタであるという事を NEW_REGISTER 属性に記載する
-						// （ASTを辿って中間コードを生成していく際、この属性値があればレジスタのメモリ確保処理を追加生成する）
-						currentNode.setAttribute(AttributeKey.NEW_REGISTER, register);
 						this.registerCounter++;
+						currentNode.setAttribute(AttributeKey.ASSEMBLY_VALUE, register);
+						currentNode.setAttribute(AttributeKey.NEW_REGISTER, register); // このノードのために新規生成するレジスタなので、CodeGenerator がASTを辿っている際にこのノードの地点でメモリ確保が必要という事を知らせる
 						break;
 					}
 				}
@@ -1123,6 +1128,16 @@ public class CodeGenerator {
 			}
 		}
 
+		// 関数シグネチャを ENDPRM 命令（すぐ下で生成）のオペランドに渡すため、文字列の即値の記法で表現したものを用意
+		String functionNameOperand = ASSEMBLY_WORD.immediateOperandPrefix
+				+ DATA_TYPE_NAME.string + ASSEMBLY_WORD.valueSeparator
+				+ LITERAL_SYNTAX.stringLiteralQuot + IDENTIFIER_SYNTAX.getSignatureOf(node) + LITERAL_SYNTAX.stringLiteralQuot;
+
+		// 引数の取り出しが終わった箇所に ENDPRM 命令を置いておく（最適化補助と可読性に貢献するメタ情報命令）
+		codeBuilder.append(
+			this.generateInstruction(OperationCode.ENDPRM.name(), DATA_TYPE_NAME.string, functionNameOperand)
+		);
+
 		return codeBuilder.toString();
 	}
 
@@ -1413,10 +1428,7 @@ public class CodeGenerator {
 								codeBuilder.append( this.generateArithmeticPrefixOperatorCode(currentNode) );
 								break;
 							}
-							case AttributeValue.POSTFIX : { // 後置
-								codeBuilder.append( this.generateArithmeticPostfixOperatorCode(currentNode) );
-								break;
-							}
+							// 算術演算子の後置パターンは現状では無いはず
 							default : {
 								throw new VnanoFatalException("Invalid operator syntax for arithmetic operators: " + operatorSyntax);
 							}
@@ -1424,7 +1436,24 @@ public class CodeGenerator {
 						break;
 					}
 					case AttributeValue.ARITHMETIC_COMPOUND_ASSIGNMENT : { // 複合代入演算子
-						codeBuilder.append( this.generateArithmeticCompoundAssignmentOperatorCode(currentNode) );
+
+						switch (operatorSyntax) {
+							case AttributeValue.BINARY : { // 二項
+								codeBuilder.append( this.generateArithmeticCompoundAssignmentBinaryOperatorCode(currentNode) );
+								break;
+							}
+							case AttributeValue.PREFIX : { // 前置
+								codeBuilder.append( this.generateArithmeticCompoundPrefixOperatorCode(currentNode) );
+								break;
+							}
+							case AttributeValue.POSTFIX : { // 後置
+								codeBuilder.append( this.generateArithmeticCompoundPostfixOperatorCode(currentNode) );
+								break;
+							}
+							default : {
+								throw new VnanoFatalException("Invalid operator syntax for arithmetic compound operators: " + operatorSyntax);
+							}
+						}
 						break;
 					}
 					case AttributeValue.COMPARISON : { // 比較演算子
@@ -1566,83 +1595,9 @@ public class CodeGenerator {
 
 
 	/**
-	 * 算術後置演算子の演算を実行するコードを生成して返します。
-	 *
-	 * 具体的な演算子としては、後置インクメントと後置デクリメントが該当します。
-	 *
-	 * @param operatorNode 算術後置演算子のASTノード
-	 * （{@link AstNode.Type#OPERATOR OPERATOR}タイプ、
-	 *   {@link AttributeKey#OPERATOR_EXECUTOR OPERATOR_EXECUTOR}属性値が{@link AttributeValue#ARITHMETIC ARITHMETIC}、
-	 *   {@link AttributeKey#OPERATOR_SYNTAX OPERATOR_SYNTAX}属性値が{@link AttributeValue#POSTFIX POSTFIX}）
-	 * @return 生成コード
-	 */
-	private String generateArithmeticPostfixOperatorCode(AstNode operatorNode) {
-		StringBuilder codeBuilder = new StringBuilder();
-
-		String operatorSymbol = operatorNode.getAttribute(AttributeKey.OPERATOR_SYMBOL);
-		String executionDataType = operatorNode.getAttribute(AttributeKey.OPERATOR_EXECUTION_DATA_TYPE);
-
-		// インクリメント/デクリメントの対象変数
-		AstNode variableNode = operatorNode.getChildNodes()[0];
-		String variableValue = variableNode.getAttribute(AttributeKey.ASSEMBLY_VALUE);
-		String resultValue = operatorNode.getAttribute(AttributeKey.ASSEMBLY_VALUE);
-
-		// レジスタを確保し、演算前の値をそこに控える
-		String storageRegister = this.generateRegisterOperandCode();
-		codeBuilder.append(
-			this.generateRegisterAllocationCode(executionDataType, storageRegister, variableValue, operatorNode.getRank())
-		);
-		codeBuilder.append(
-			this.generateInstruction(OperationCode.MOV.name(), executionDataType, storageRegister, variableValue)
-		);
-
-		String opcode = null;
-
-		// switch は使えない。リファクタでHashMap にすべき？
-		if (operatorSymbol.equals(SCRIPT_WORD.increment)) {
-			opcode = OperationCode.ADD.name();
-		} else if(operatorSymbol.equals(SCRIPT_WORD.decrement)) {
-			opcode = OperationCode.SUB.name();
-		} else {
-			throw new VnanoFatalException("Invalid operator symbol for arithmetic postfix operators: " + operatorSymbol);
-		}
-
-		// インクリメント/デクリメントの変化幅
-		AstNode stepNode = new AstNode(AstNode.Type.LEAF, variableNode.getLineNumber(), variableNode.getFileName());
-
-		stepNode.setAttribute(AttributeKey.DATA_TYPE, executionDataType);
-		stepNode.setAttribute(AttributeKey.RANK, Integer.toString(RANK_OF_SCALAR));
-		if (executionDataType.equals(DATA_TYPE_NAME.defaultInt)) {
-			String immediateValue = this.generateImmediateOperandCode(executionDataType, "1");
-			stepNode.setAttribute(AttributeKey.ASSEMBLY_VALUE, immediateValue);
-		} else if (executionDataType.equals(DATA_TYPE_NAME.defaultFloat)) {
-			String immediateValue = this.generateImmediateOperandCode(executionDataType, "1.0");
-			stepNode.setAttribute(AttributeKey.ASSEMBLY_VALUE, immediateValue);
-		}
-
-
-		String binaryOperationCode = this.generateBinaryOperatorCode(operatorNode, opcode, false, variableNode, stepNode);
-		codeBuilder.append(binaryOperationCode);
-
-		String movCode;
-
-		// 変数に演算結果レジスタの値をMOVする
-		movCode = this.generateInstruction(OperationCode.MOV.name(), executionDataType, variableValue, resultValue);
-		codeBuilder.append(movCode);
-
-		// 演算結果レジスタに演算前の値をMOVする
-		//（後置インクリメント/デクリメントは、式の中での参照値は演算前の値となるため）
-		movCode = this.generateInstruction(OperationCode.MOV.name(), executionDataType, resultValue, storageRegister);
-		codeBuilder.append(movCode);
-
-		return codeBuilder.toString();
-	}
-
-
-	/**
 	 * 算術前置演算子の演算を実行するコードを生成して返します。
 	 *
-	 * 具体的な演算子としては、前置インクメント、前置デクリメント、単項プラス、単項マイナスが該当します。
+	 * 具体的な演算子としては、単項プラスと単項マイナスが該当します。
 	 * ただし、単項マイナスのコード生成には、内部で
 	 * {@link CodeGenerator#generateNegateOperatorCode generateNegateOperatorCode}
 	 * メソッドがそのまま使用されます。
@@ -1667,36 +1622,7 @@ public class CodeGenerator {
 
 		// それ以外は前置インクリメントまたはデクリメント
 		} else {
-
-			String opcode = null;
-
-			// switch は使えない。リファクタでHashMap にすべき？
-			if (operatorSymbol.equals(SCRIPT_WORD.increment)) {
-				opcode = OperationCode.ADD.name();
-			} else if (operatorSymbol.equals(SCRIPT_WORD.decrement)) {
-				opcode = OperationCode.SUB.name();
-			} else {
-				throw new VnanoFatalException("Invalid operator symbol for arithmetic prefix operators: " + operatorSymbol);
-			}
-
-			AstNode variableNode = operatorNode.getChildNodes()[0];
-
-			// インクリメント/デクリメントの変化幅
-			AstNode stepNode = new AstNode(AstNode.Type.LEAF, variableNode.getLineNumber(), variableNode.getFileName());
-
-			String executionDataType = operatorNode.getAttribute(AttributeKey.OPERATOR_EXECUTION_DATA_TYPE);
-			stepNode.setAttribute(AttributeKey.DATA_TYPE, executionDataType);
-			stepNode.setAttribute(AttributeKey.RANK, Integer.toString(RANK_OF_SCALAR));
-			if (executionDataType.equals(DATA_TYPE_NAME.defaultInt)) {
-				String immediateValue = this.generateImmediateOperandCode(executionDataType, "1");
-				stepNode.setAttribute(AttributeKey.ASSEMBLY_VALUE, immediateValue);
-			} else if (executionDataType.equals(DATA_TYPE_NAME.defaultFloat)) {
-				String immediateValue = this.generateImmediateOperandCode(executionDataType, "1.0");
-				stepNode.setAttribute(AttributeKey.ASSEMBLY_VALUE, immediateValue);
-			}
-
-			// 二項演算のADDやSUBで演算実行
-			return this.generateBinaryOperatorCode(operatorNode, opcode, false, variableNode, stepNode);
+			throw new VnanoFatalException("Unexpected arithmetic prefix operator detected.");
 		}
 	}
 
@@ -1942,7 +1868,7 @@ public class CodeGenerator {
 	 *   {@link AttributeKey#OPERATOR_SYNTAX OPERATOR_SYNTAX}属性値が{@link AttributeValue#BINARY BINARY}）
 	 * @return 生成コード
 	 */
-	private String generateArithmeticCompoundAssignmentOperatorCode(AstNode operatorNode) {
+	private String generateArithmeticCompoundAssignmentBinaryOperatorCode(AstNode operatorNode) {
 
 		// 複合代入演算は、右辺と左辺で配列要素数が揃っている事を前提とする。
 		// 自動で配列要素数の同期などを行うようにしても、拡張された部分には単純に 0 などの初期値が詰まっているし、
@@ -1998,6 +1924,127 @@ public class CodeGenerator {
 		//    書き手の意図からすると恐らく混乱の元になりそうなので、string と別の型との += 演算はサポートから外して弾くべきかもしれない。
 		//    そもそもそんな演算はできても嬉しくない気がするし、読み手の事を考えても最初から書けない方が良い気がする。
 		//    後々で要検討。
+	}
+
+
+
+	/**
+	 * 算術後置演算子の演算を実行するコードを生成して返します。
+	 *
+	 * 具体的な演算子としては、後置インクメントと後置デクリメントが該当します。
+	 *
+	 * @param operatorNode 算術後置演算子のASTノード
+	 * （{@link AstNode.Type#OPERATOR OPERATOR}タイプ、
+	 *   {@link AttributeKey#OPERATOR_EXECUTOR OPERATOR_EXECUTOR}属性値が{@link AttributeValue#ARITHMETIC ARITHMETIC}、
+	 *   {@link AttributeKey#OPERATOR_SYNTAX OPERATOR_SYNTAX}属性値が{@link AttributeValue#POSTFIX POSTFIX}）
+	 * @return 生成コード
+	 */
+	private String generateArithmeticCompoundPostfixOperatorCode(AstNode operatorNode) {
+		StringBuilder codeBuilder = new StringBuilder();
+
+		String operatorSymbol = operatorNode.getAttribute(AttributeKey.OPERATOR_SYMBOL);
+		String executionDataType = operatorNode.getAttribute(AttributeKey.OPERATOR_EXECUTION_DATA_TYPE);
+
+		String opcode = null;
+		if (operatorSymbol.equals(SCRIPT_WORD.increment)) {
+			opcode = OperationCode.ADD.name();
+		} else if (operatorSymbol.equals(SCRIPT_WORD.decrement)) {
+			opcode = OperationCode.SUB.name();
+		} else {
+			throw new VnanoFatalException("Invalid operator symbol for arithmetic compound prefix operators: " + operatorSymbol);
+		}
+
+		// インクリメント/デクリメントの対象変数
+		AstNode variableNode = operatorNode.getChildNodes()[0];
+		String variableValue = variableNode.getAttribute(AttributeKey.ASSEMBLY_VALUE);
+		String resultValue = operatorNode.getAttribute(AttributeKey.ASSEMBLY_VALUE);
+
+		// レジスタを確保し、演算前の値をそこに控える
+		String storageRegister = this.generateRegisterOperandCode();
+		codeBuilder.append(
+			this.generateRegisterAllocationCode(executionDataType, storageRegister, variableValue, operatorNode.getRank())
+		);
+		codeBuilder.append(
+			this.generateInstruction(OperationCode.MOV.name(), executionDataType, storageRegister, variableValue)
+		);
+
+		// インクリメント/デクリメントの変化幅
+		AstNode stepNode = new AstNode(AstNode.Type.LEAF, variableNode.getLineNumber(), variableNode.getFileName());
+
+		stepNode.setAttribute(AttributeKey.DATA_TYPE, executionDataType);
+		stepNode.setAttribute(AttributeKey.RANK, Integer.toString(RANK_OF_SCALAR));
+		if (executionDataType.equals(DATA_TYPE_NAME.defaultInt)) {
+			String immediateValue = this.generateImmediateOperandCode(executionDataType, "1");
+			stepNode.setAttribute(AttributeKey.ASSEMBLY_VALUE, immediateValue);
+		} else if (executionDataType.equals(DATA_TYPE_NAME.defaultFloat)) {
+			String immediateValue = this.generateImmediateOperandCode(executionDataType, "1.0");
+			stepNode.setAttribute(AttributeKey.ASSEMBLY_VALUE, immediateValue);
+		}
+
+
+		String binaryOperationCode = this.generateBinaryOperatorCode(operatorNode, opcode, false, variableNode, stepNode);
+		codeBuilder.append(binaryOperationCode);
+
+		String movCode;
+
+		// 変数に演算結果レジスタの値をMOVする
+		movCode = this.generateInstruction(OperationCode.MOV.name(), executionDataType, variableValue, resultValue);
+		codeBuilder.append(movCode);
+
+		// 演算結果レジスタに演算前の値をMOVする
+		//（後置インクリメント/デクリメントは、式の中での参照値は演算前の値となるため）
+		movCode = this.generateInstruction(OperationCode.MOV.name(), executionDataType, resultValue, storageRegister);
+		codeBuilder.append(movCode);
+
+		return codeBuilder.toString();
+	}
+
+
+	/**
+	 * 算術前置演算子の演算を実行するコードを生成して返します。
+	 *
+	 * 具体的な演算子としては、前置インクメント、前置デクリメント、単項プラス、単項マイナスが該当します。
+	 * ただし、単項マイナスのコード生成には、内部で
+	 * {@link CodeGenerator#generateNegateOperatorCode generateNegateOperatorCode}
+	 * メソッドがそのまま使用されます。
+	 *
+	 * @param operatorNode 算術前置演算子のASTノード
+	 * （{@link AstNode.Type#OPERATOR OPERATOR}タイプ、
+	 *   {@link AttributeKey#OPERATOR_EXECUTOR OPERATOR_EXECUTOR}属性値が{@link AttributeValue#ARITHMETIC ARITHMETIC}、
+	 *   {@link AttributeKey#OPERATOR_SYNTAX OPERATOR_SYNTAX}属性値が{@link AttributeValue#POSTFIX PREFIX}）
+	 * @return 生成コード
+	 */
+	private String generateArithmeticCompoundPrefixOperatorCode(AstNode operatorNode) {
+
+		String operatorSymbol = operatorNode.getAttribute(AttributeKey.OPERATOR_SYMBOL);
+
+		String opcode = null;
+		if (operatorSymbol.equals(SCRIPT_WORD.increment)) {
+			opcode = OperationCode.ADD.name();
+		} else if (operatorSymbol.equals(SCRIPT_WORD.decrement)) {
+			opcode = OperationCode.SUB.name();
+		} else {
+			throw new VnanoFatalException("Invalid operator symbol for arithmetic compound prefix operators: " + operatorSymbol);
+		}
+
+		AstNode variableNode = operatorNode.getChildNodes()[0];
+
+		// インクリメント/デクリメントの変化幅
+		AstNode stepNode = new AstNode(AstNode.Type.LEAF, variableNode.getLineNumber(), variableNode.getFileName());
+
+		String executionDataType = operatorNode.getAttribute(AttributeKey.OPERATOR_EXECUTION_DATA_TYPE);
+		stepNode.setAttribute(AttributeKey.DATA_TYPE, executionDataType);
+		stepNode.setAttribute(AttributeKey.RANK, Integer.toString(RANK_OF_SCALAR));
+		if (executionDataType.equals(DATA_TYPE_NAME.defaultInt)) {
+			String immediateValue = this.generateImmediateOperandCode(executionDataType, "1");
+			stepNode.setAttribute(AttributeKey.ASSEMBLY_VALUE, immediateValue);
+		} else if (executionDataType.equals(DATA_TYPE_NAME.defaultFloat)) {
+			String immediateValue = this.generateImmediateOperandCode(executionDataType, "1.0");
+			stepNode.setAttribute(AttributeKey.ASSEMBLY_VALUE, immediateValue);
+		}
+
+		// 二項演算のADDやSUBで演算実行
+		return this.generateBinaryOperatorCode(operatorNode, opcode, false, variableNode, stepNode);
 	}
 
 
@@ -2279,17 +2326,62 @@ public class CodeGenerator {
 		// 結果を格納するレジスタを用意
 		String accumulator = operatorNode.getAttribute(AttributeKey.ASSEMBLY_VALUE);
 
-		// INDEX命令を発行
+		// 生成する REFELM / MOVELM 命令に渡すオペランドを用意（両命令のオペランド仕様は共通）
 		String[] allOperands = new String[indexOperands.length + 2];
 		allOperands[0] = accumulator;
 		allOperands[1] = targetOperand;
 		System.arraycopy(indexOperands, 0, allOperands, 2, indexOperands.length);
-		codeBuilder.append(
-			this.generateInstruction(
-					OperationCode.ELEM.name(), inputNodes[0].getDataTypeName(), allOperands
-			)
+
+		// このノードがぶら下がっている親ノードが、代入を伴う演算子（代入演算子か、インクリメント含む複合代入演算子）かどうかを確認する
+		AstNode parentNode = operatorNode.getParentNode();
+		boolean isParentAssignment = parentNode.getType() == AstNode.Type.OPERATOR && (
+				parentNode.getAttribute(AttributeKey.OPERATOR_EXECUTOR).equals(AttributeValue.ASSIGNMENT)
+				||
+				parentNode.getAttribute(AttributeKey.OPERATOR_EXECUTOR).equals(AttributeValue.ARITHMETIC_COMPOUND_ASSIGNMENT
+		));
+
+		// 同様に親ノードが、関数呼び出し演算子である場合、参照渡し先で代入される可能性があるので、すぐ後の判定条件に使うために控える
+		boolean isParentCall = parentNode.getType() == AstNode.Type.OPERATOR && (
+				parentNode.getAttribute(AttributeKey.OPERATOR_EXECUTOR).equals(AttributeValue.CALL)
 		);
 
+		// このノードの対象である配列要素が、上記で検査したパターンに当てはまる等、後で値を代入される可能性があるかどうかを確認する
+		boolean mayBeModified =
+			(isParentAssignment && operatorNode.getSiblingIndex() == 0) // 代入の左辺かどうか
+			||
+			isParentCall; // 関数の引数かどうか
+
+		// ※ 参照渡しかどうかを判断して上の条件に追加すれば、より狭い範囲に絞り込めるが、複雑になるので今ここではしない
+		//    > ここではそのままにして REFELM を生成しておいて、
+		//      VM側で「 REFELM の dest 値を直後に MOV / MOVPOP していて、前者のdest先アドレスに他でアクセスしていない場合を MOVELM に置き換える 」
+		//      最適化をした方がいいような気がする。
+		//      とりあえずVRILでの基本的な値渡し/参照渡しの仕組みは、関数側でMOVPOPするかREFPOPするかの違いなので、
+		//      呼び出し側で複雑な使い分けをすると、VRILコードの最適化で他の最適化手段の妨げになって結局後で戻す可能性がある。
+		//      なので関数引数の場合の分岐については今の上の条件のままとりあえず保留でいいと思う。REFELMを生成すれば動作機能上は確実なので。
+
+		// 後で値を代入される可能性がある場合、結果レジスタを配列要素と参照リンクする REFELM 命令を発行
+		if (mayBeModified) {
+			// REFELM はデータ参照を共有するので、データ領域確保のための ALLOC 命令は不要で、REFELMのみを生成すればいい
+			codeBuilder.append(
+				this.generateInstruction(
+					OperationCode.REFELM.name(), inputNodes[0].getDataTypeName(), allOperands
+				)
+			);
+
+		// そうでなければ、式の右辺などでその時点の配列要素値を読んでいるだけなので、
+		// 結果レジスタに配列要素値を単純コピーする MOVELM 命令を発行
+		} else {
+			// この場合は、データ格納先の領域を確保する ALLOC 命令が必要で、その後にそこに MOVELM で値をコピーする
+			// (subarray はサポートしていないので、コピーする配列要素値 = 確保する領域は必ずスカラ)
+			codeBuilder.append(
+				this.generateInstruction(OperationCode.ALLOC.name(), operatorNode.getDataTypeName(), accumulator)
+			);
+			codeBuilder.append(
+				this.generateInstruction(
+					OperationCode.MOVELM.name(), inputNodes[0].getDataTypeName(), allOperands
+				)
+			);
+		}
 		return codeBuilder.toString();
 	}
 

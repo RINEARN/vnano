@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2018 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2020 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -16,11 +16,11 @@ public class Int64CachedScalarArithmeticUnit extends AcceleratorExecutionUnit {
 			Object[] operandCaches, boolean[] operandCachingEnabled, boolean[] operandScalar, boolean[] operandConstant,
 			AcceleratorExecutionNode nextNode) {
 
-		Int64ScalarCache[] caches = new Int64ScalarCache[]{
-				(Int64ScalarCache)operandCaches[0],
-				(Int64ScalarCache)operandCaches[1],
-				(Int64ScalarCache)operandCaches[2]
-		};
+		int cacheLength = operandCaches.length;
+		Int64ScalarCache[] caches = new Int64ScalarCache[cacheLength];
+		for (int i=0; i<cacheLength; i++) {
+			caches[i] = (Int64ScalarCache)operandCaches[i];
+		}
 
 		Int64CachedScalarArithmeticNode node = null;
 		switch (instruction.getOperationCode()) {
@@ -28,7 +28,7 @@ public class Int64CachedScalarArithmeticUnit extends AcceleratorExecutionUnit {
 
 				// 破壊代入で定数を加算する場合（ループカウンタの処理で頻出）
 				if (operandContainers[0] == operandContainers[1] && operandConstant[2]) {
-					long diff = ((long[])operandContainers[2].getData())[ operandContainers[2].getOffset() ];
+					long diff = ((long[])operandContainers[2].getArrayData())[ operandContainers[2].getArrayOffset() ];
 
 					// インクリメント
 					if (diff == 1) {
@@ -48,7 +48,7 @@ public class Int64CachedScalarArithmeticUnit extends AcceleratorExecutionUnit {
 			case SUB : {
 				// 破壊代入で定数を減算する場合（ループカウンタの処理で頻出）
 				if (operandContainers[0] == operandContainers[1] && operandConstant[2]) {
-					long diff = ((long[])operandContainers[2].getData())[ operandContainers[2].getOffset() ];
+					long diff = ((long[])operandContainers[2].getArrayData())[ operandContainers[2].getArrayOffset() ];
 
 					// デクリメント
 					if (diff == 1) {
@@ -77,6 +77,10 @@ public class Int64CachedScalarArithmeticUnit extends AcceleratorExecutionUnit {
 				node = new Int64CachedScalarRemUnit(caches[0], caches[1], caches[2], nextNode);
 				break;
 			}
+			case NEG : {
+				node = new Int64CachedScalarNegUnit(caches[0], caches[1], nextNode);
+				break;
+			}
 			default : {
 				throw new VnanoFatalException(
 						"Operation code " + instruction.getOperationCode() + " is invalid for " + this.getClass().getCanonicalName()
@@ -94,15 +98,23 @@ public class Int64CachedScalarArithmeticUnit extends AcceleratorExecutionUnit {
 		public Int64CachedScalarArithmeticNode(Int64ScalarCache cache0, Int64ScalarCache cache1, Int64ScalarCache cache2,
 				AcceleratorExecutionNode nextNode) {
 
-			super(nextNode);
+			super(nextNode, 1);
 			this.cache0 = cache0;
 			this.cache1 = cache1;
 			this.cache2 = cache2;
 		}
+		public Int64CachedScalarArithmeticNode(Int64ScalarCache cache0, Int64ScalarCache cache1,
+				AcceleratorExecutionNode nextNode) {
+
+			super(nextNode, 1);
+			this.cache0 = cache0;
+			this.cache1 = cache1;
+			this.cache2 = null;
+		}
 		public Int64CachedScalarArithmeticNode(Int64ScalarCache cache0,
 				AcceleratorExecutionNode nextNode) {
 
-			super(nextNode);
+			super(nextNode, 1);
 			this.cache0 = cache0;
 			this.cache1 = null;
 			this.cache2 = null;
@@ -115,7 +127,7 @@ public class Int64CachedScalarArithmeticUnit extends AcceleratorExecutionUnit {
 			super(cache0, cache1, cache2, nextNode);
 		}
 		public final AcceleratorExecutionNode execute() {
-			this.cache0.value = this.cache1.value + this.cache2.value;
+			this.cache0.data = this.cache1.data + this.cache2.data;
 			return this.nextNode;
 		}
 	}
@@ -126,7 +138,7 @@ public class Int64CachedScalarArithmeticUnit extends AcceleratorExecutionUnit {
 			super(cache0, cache1, cache2, nextNode);
 		}
 		public final AcceleratorExecutionNode execute() {
-			this.cache0.value = this.cache1.value - this.cache2.value;
+			this.cache0.data = this.cache1.data - this.cache2.data;
 			return this.nextNode;
 		}
 	}
@@ -137,7 +149,7 @@ public class Int64CachedScalarArithmeticUnit extends AcceleratorExecutionUnit {
 			super(cache0, cache1, cache2, nextNode);
 		}
 		public final AcceleratorExecutionNode execute() {
-			this.cache0.value = this.cache1.value * this.cache2.value;
+			this.cache0.data = this.cache1.data * this.cache2.data;
 			return this.nextNode;
 		}
 	}
@@ -148,7 +160,7 @@ public class Int64CachedScalarArithmeticUnit extends AcceleratorExecutionUnit {
 			super(cache0, cache1, cache2, nextNode);
 		}
 		public final AcceleratorExecutionNode execute() {
-			this.cache0.value = this.cache1.value / this.cache2.value;
+			this.cache0.data = this.cache1.data / this.cache2.data;
 			return this.nextNode;
 		}
 	}
@@ -159,7 +171,18 @@ public class Int64CachedScalarArithmeticUnit extends AcceleratorExecutionUnit {
 			super(cache0, cache1, cache2, nextNode);
 		}
 		public final AcceleratorExecutionNode execute() {
-			this.cache0.value = this.cache1.value % this.cache2.value;
+			this.cache0.data = this.cache1.data % this.cache2.data;
+			return this.nextNode;
+		}
+	}
+
+	private final class Int64CachedScalarNegUnit extends Int64CachedScalarArithmeticNode {
+		public Int64CachedScalarNegUnit(Int64ScalarCache cache0, Int64ScalarCache cache1,
+				AcceleratorExecutionNode nextNode) {
+			super(cache0, cache1, nextNode);
+		}
+		public final AcceleratorExecutionNode execute() {
+			this.cache0.data = - this.cache1.data;
 			return this.nextNode;
 		}
 	}
@@ -169,7 +192,7 @@ public class Int64CachedScalarArithmeticUnit extends AcceleratorExecutionUnit {
 			super(cache0, nextNode);
 		}
 		public final AcceleratorExecutionNode execute() {
-			++this.cache0.value;
+			++this.cache0.data;
 			return this.nextNode;
 		}
 	}
@@ -179,7 +202,7 @@ public class Int64CachedScalarArithmeticUnit extends AcceleratorExecutionUnit {
 			super(cache0, nextNode);
 		}
 		public final AcceleratorExecutionNode execute() {
-			--this.cache0.value;
+			--this.cache0.data;
 			return this.nextNode;
 		}
 	}
@@ -191,7 +214,7 @@ public class Int64CachedScalarArithmeticUnit extends AcceleratorExecutionUnit {
 			this.diff = diff;
 		}
 		public final AcceleratorExecutionNode execute() {
-			this.cache0.value += diff;
+			this.cache0.data += diff;
 			return this.nextNode;
 		}
 	}
@@ -203,7 +226,7 @@ public class Int64CachedScalarArithmeticUnit extends AcceleratorExecutionUnit {
 			this.diff = diff;
 		}
 		public final AcceleratorExecutionNode execute() {
-			this.cache0.value -= diff;
+			this.cache0.data -= diff;
 			return this.nextNode;
 		}
 	}

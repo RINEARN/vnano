@@ -52,7 +52,7 @@ import org.vcssl.nano.spec.SpecialBindingValue;
  *
  * @author RINEARN (Fumihiro Matsui)
  */
-public class VnanoScriptEngine implements ScriptEngine {
+public final class VnanoScriptEngine implements ScriptEngine {
 
 	private final LanguageSpecContainer LANG_SPEC;
 	private static final String DEFAULT_ENCODING = "UTF-8";
@@ -191,6 +191,10 @@ public class VnanoScriptEngine implements ScriptEngine {
 	 */
 	@Override
 	public Object eval(String scriptCode) throws ScriptException {
+		if (scriptCode == null) {
+			throw new NullPointerException();
+		}
+
 		try {
 
 			// ライブラリとプラグインをエンジンに登録
@@ -262,6 +266,10 @@ public class VnanoScriptEngine implements ScriptEngine {
 	 */
 	@Override
 	public Object eval(Reader reader) throws ScriptException {
+		if (reader == null) {
+			throw new NullPointerException();
+		}
+
 		try {
 			StringBuilder builder = new StringBuilder();
 			int charcode = -1;
@@ -396,9 +404,18 @@ public class VnanoScriptEngine implements ScriptEngine {
 	 * Other than the above, this method behaves as a wrapper of
 	 * {@link VnanoEngine#connectPlugin(String,Object) VnanoEngine.connectPlugin(String, Object)}
 	 * method, which is to connect instances of plug-ins.
-	 * In this case, the argument "name" will be the identifier for accessing it from the script,
-	 * so it should be described in the valid syntax.
-	 * If you want to generate a valid identifier automatically, specify "___VNANO_AUTO_KEY" as the argument "name".
+	 * In this case, the argument "name" will be a name in scripts of
+	 * the variable/function/namespace provided by the connected plug-in.
+	 * If the argument "name" contains a white space or a character "(", the content after it will be ignored.
+	 * By the above specification, for a function plug-in,
+	 * you can specify a signature containing parameter-declarations like "foo(int,float)"
+	 * (note that, syntax or correctness of parameter-declarations will not be checked).
+	 * In addition, for plug-ins providing elements belonging to the same namespace "Bar",
+	 * you can specify "Bar 1", "Bar 2", and so on.
+	 * This is helpful to avoid the duplication of keys when you use
+	 * {@link org.vcssl.nano.VnanoScriptEngine#put(String, Object) VnanoScriptEngine.put(String, Object) }
+	 * method which wraps this method.
+	 * Also, you can specify "___VNANO_AUTO_KEY" for using a valid value generated automatically.
 	 * </span>
 	 *
 	 * <span class="lang-ja">
@@ -421,8 +438,15 @@ public class VnanoScriptEngine implements ScriptEngine {
 	 * 上記の全てに該当しない場合には, このメソッドは, プラグインのインスタンスを接続する
 	 * {@link VnanoEngine#connectPlugin(String,Object) VnanoEngine.connectPlugin(String, Object)}
 	 * メソッドのラッパーとして振舞います.
-	 * この場合, 引数 "name" はスクリプト内からアクセスする際の識別子として機能するため, 正しい構文で記述されている必要があります.
-	 * 面倒な場合は, "___VNANO_AUTO_KEY" を引数 "name" に指定すると, 構文的に適切な識別子が自動生成されます.
+	 * この場合, 引数 "name" は, 接続されるプラグインが提供する変数/関数/名前空間の, スクリプト内での名前として機能します.
+	 * 引数 "name" の内容に空白または「 ( 」が含まれている場合、それ以降は名前としては無視されます.
+	 * これにより, 例えば関数 "foo" に対して引数部を含めて "foo(int,float)" 等と指定したり
+	 * (引数部の構文や整合性検査などは行われません）,
+	 * 同じ名前空間 "Bar" の要素を提供するプラグイン群に対して "Bar 1", "Bar 2", ... のように指定する事ができます.
+	 * これは, このメソッドをラップしている
+	 * {@link org.vcssl.nano.VnanoScriptEngine#put(String, Object) VnanoScriptEngine.put(String, Object) }
+	 * メソッドにおいて, キーの重複を避けたい場合に有効です.
+	 * なお, "___VNANO_AUTO_KEY" を指定する事で, 有効な値の指定を自動で行う事もできます.
 	 * </span>
 	 *
 	 * @param name
@@ -435,6 +459,9 @@ public class VnanoScriptEngine implements ScriptEngine {
 	 */
 	@Override
 	public void put(String name, Object value) {
+		if (name == null || value == null) {
+			throw new NullPointerException();
+		}
 
 		// オプションマップの場合
 		if (name.equals(SpecialBindingKey.OPTION_MAP)) {
@@ -474,30 +501,10 @@ public class VnanoScriptEngine implements ScriptEngine {
 
 		// 制御コマンドの場合
 		} else if (name.equals(SpecialBindingKey.COMMAND)){
-
-			// プラグインの接続解除コマンドの場合
-			if (value instanceof String && value.equals(SpecialBindingValue.COMMAND_REMOVE_PLUGIN)) {
-				try {
-					this.vnanoEngine.disconnectAllPlugins();
-				} catch (VnanoException e) {
-					throw new VnanoFatalException(e);
-				}
-				this.pluginLoader = new PluginLoader(DEFAULT_ENCODING, LANG_SPEC);
-				this.loadedPluginUpdated = true;
-
-			// ライブラリの登録解除コマンドの場合
-			} if (value instanceof String && value.equals(SpecialBindingValue.COMMAND_REMOVE_LIBRARY)) {
-				this.libraryScriptLoader = new ScriptLoader(DEFAULT_ENCODING, LANG_SPEC);
-				this.loadedLibraryUpdated = true;
-
-			// ライブラリの再読み込みコマンドの場合
-			} else if (value instanceof String && value.equals(SpecialBindingValue.COMMAND_RELOAD_LIBRARY)) {
-				this.loadLibraries();
-
-			// プラグインの再読み込みコマンドの場合
-			} else if (value instanceof String && value.equals(SpecialBindingValue.COMMAND_RELOAD_PLUGIN)) {
-				this.loadPlugins();
+			if (!(value instanceof String)) {
+				throw new VnanoFatalException("Invalid command (should be a String)");
 			}
+			this.handleCommands((String)value);
 
 		// ライブラリの読み込みリストファイル指定の場合
 		} else if (name.equals(SpecialBindingKey.LIBRARY_LIST_FILE)) {
@@ -515,6 +522,7 @@ public class VnanoScriptEngine implements ScriptEngine {
 			this.putPluginBindingsUpdated = true;
 		}
 	}
+
 	private void loadPlugins() {
 		try {
 			this.pluginLoader.load();
@@ -523,6 +531,7 @@ public class VnanoScriptEngine implements ScriptEngine {
 			throw new VnanoFatalException("Plugin loading failed", e);
 		}
 	}
+
 	private void loadLibraries() {
 		try {
 			this.libraryScriptLoader.load();
@@ -532,14 +541,96 @@ public class VnanoScriptEngine implements ScriptEngine {
 		}
 	}
 
+	private void handleCommands(String commandName) {
+		switch (commandName) {
+
+			// プラグインの登録解除コマンドの場合
+			case SpecialBindingValue.COMMAND_REMOVE_PLUGIN : {
+				try {
+					this.vnanoEngine.disconnectAllPlugins();
+				} catch (VnanoException e) {
+					throw new VnanoFatalException(e);
+				}
+				this.pluginLoader = new PluginLoader(DEFAULT_ENCODING, LANG_SPEC);
+				this.loadedPluginUpdated = true;
+				break;
+			}
+
+			// ライブラリの登録解除コマンドの場合
+			case SpecialBindingValue.COMMAND_REMOVE_LIBRARY : {
+				this.libraryScriptLoader = new ScriptLoader(DEFAULT_ENCODING, LANG_SPEC);
+				this.loadedLibraryUpdated = true;
+				break;
+			}
+
+			// プラグインの再読み込みコマンドの場合
+			case SpecialBindingValue.COMMAND_RELOAD_PLUGIN : {
+				this.loadPlugins();
+				break;
+			}
+
+			// ライブラリの再読み込みコマンドの場合
+			case SpecialBindingValue.COMMAND_RELOAD_LIBRARY : {
+				this.loadLibraries();
+				break;
+			}
+
+			// スクリプトの実行終了リクエストコマンドの場合
+			// (VnanoEngine.terminate() および VnanoEngine.resetTerminator() の説明参照)
+			case SpecialBindingValue.COMMAND_TERMINATE_SCRIPT : {
+				try {
+					this.vnanoEngine.terminateScript();
+
+				// TERMINATOR_ENABLED オプションが無効に設定されていた場合は例外が発生する
+				} catch (VnanoException vne) {
+					throw new VnanoFatalException(vne.getMessage());
+				}
+				break;
+			}
+
+			// スクリプトの実行終了フラグをリセットするコマンドの場合
+			// (VnanoEngine.terminate() および VnanoEngine.resetTerminator() の説明参照)
+			case SpecialBindingValue.COMMAND_SESET_TERMINATOR : {
+				try {
+					this.vnanoEngine.resetTerminator();
+
+				// TERMINATOR_ENABLED オプションが無効に設定されていた場合は例外が発生する
+				} catch (VnanoException vne) {
+					throw new VnanoFatalException(vne.getMessage());
+				}
+				break;
+			}
+
+			default : {
+				throw new VnanoFatalException("Unknown command: " + commandName);
+			}
+		}
+	}
+
 
 	/**
-	 * <span class="lang-en">Gets the value setted by {@link VnanoScriptEngine#put put} method</span>
-	 * <span class="lang-ja">{@link VnanoScriptEngine#put put} メソッドで設定した値を取得します</span>
+	 * <span class="lang-en">
+	 * Gets information values of the engine/language (e.g.: version), performance monitoring values,
+	 * or the value which is put by {@link VnanoScriptEngine#put put} method.
+	 * </span>
+	 * <span class="lang-ja">
+	 * エンジン情報や言語情報（バージョンなど）の値や, パフォーマンス計測値,
+	 * または {@link VnanoScriptEngine#put put} メソッドで設定した値を取得します</span>
 	 * .
 	 */
 	@Override
 	public Object get(String name) {
+		if (name == null) {
+			throw new NullPointerException();
+		}
+		if (name.equals(SpecialBindingKey.PERFORMANCE_MAP)) {
+			try {
+				return this.vnanoEngine.getPerformanceMap();
+			} catch (VnanoException vne) {
+				throw new VnanoFatalException(vne.getMessage(), vne);
+			}
+		}
+
 		if (name.equals(ScriptEngine.NAME)) {
 			return EngineInformation.LANGUAGE_NAME;
 		}
@@ -609,7 +700,7 @@ public class VnanoScriptEngine implements ScriptEngine {
 	 */
 	@Override
 	public Bindings getBindings(int scope) {
-		//Scripting API側での読み込み/初期化時に落とさないため、例外は投げない
+		//Scripting API側での読み込み/初期化時に落とさないため、VnanoFatalException は投げない
 		//throw new VnanoFatalException("This feature is unsupported");
 		return null;
 	}
@@ -622,7 +713,11 @@ public class VnanoScriptEngine implements ScriptEngine {
 	 */
 	@Override
 	public void setBindings(Bindings bind, int scope) {
-		//Scripting API側での読み込み/初期化時に落とさないため、例外は投げない
+		if (bind == null) {
+			throw new NullPointerException();
+		}
+
+		//Scripting API側での読み込み/初期化時に落とさないため、VnanoFatalException は投げない
 		//throw new VnanoFatalException("This feature is unsupported");
 	}
 
@@ -634,7 +729,7 @@ public class VnanoScriptEngine implements ScriptEngine {
 	 */
 	@Override
 	public Bindings createBindings() {
-		//Scripting API側での読み込み/初期化時に落とさないため、例外は投げない
+		//Scripting API側での読み込み/初期化時に落とさないため、VnanoFatalException は投げない
 		//throw new VnanoFatalException("This feature is unsupported");
 		return null;
 	}
@@ -647,7 +742,7 @@ public class VnanoScriptEngine implements ScriptEngine {
 	 */
 	@Override
 	public ScriptContext getContext() {
-		//Scripting API側での読み込み/初期化時に落とさないため、例外は投げない
+		//Scripting API側での読み込み/初期化時に落とさないため、VnanoFatalException は投げない
 		//throw new VnanoFatalException("This feature is unsupported");
 		return null;
 	}
@@ -660,7 +755,7 @@ public class VnanoScriptEngine implements ScriptEngine {
 	 */
 	@Override
 	public void setContext(ScriptContext context) {
-		//Scripting API側での読み込み/初期化時に落とさないため、例外は投げない
+		//Scripting API側での読み込み/初期化時に落とさないため、VnanoFatalException は投げない
 		//throw new VnanoFatalException("This feature is unsupported");
 	}
 

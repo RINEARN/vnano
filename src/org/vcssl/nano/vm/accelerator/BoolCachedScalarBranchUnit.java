@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2018 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2020 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -23,7 +23,7 @@ public class BoolCachedScalarBranchUnit extends AcceleratorExecutionUnit {
 			case JMP : {
 				// 条件値が定数の場合は、常に成功か失敗のどちらか（固定）に飛ぶノードを生成
 				if (operandConstant[2]) {
-					boolean condition = ( (boolean[])operandContainers[2].getData() )[0]; // 条件の低数値
+					boolean condition = ( (boolean[])operandContainers[2].getArrayData() )[0]; // 条件の低数値
 					if (condition) {
 						node = new CachedScalarUnconditionalJmpNode(nextNode);
 					} else {
@@ -38,7 +38,7 @@ public class BoolCachedScalarBranchUnit extends AcceleratorExecutionUnit {
 			case JMPN : {
 				// 条件値が定数の場合は、常に成功か失敗のどちらか（固定）に飛ぶノードを生成
 				if (operandConstant[2]) {
-					boolean condition = ( (boolean[])operandContainers[2].getData() )[0]; // 条件の低数値
+					boolean condition = ( (boolean[])operandContainers[2].getArrayData() )[0]; // 条件の低数値
 					if (condition) {
 						node = new CachedScalarUnconditionalNeverJmpNode(nextNode);
 					} else {
@@ -65,7 +65,7 @@ public class BoolCachedScalarBranchUnit extends AcceleratorExecutionUnit {
 		private AcceleratorExecutionNode branchedNode = null;
 
 		public CachedScalarJmpNode(BoolScalarCache conditionCache, AcceleratorExecutionNode nextNode) {
-			super(nextNode);
+			super(nextNode, 1);
 			this.conditionCache = conditionCache;
 		}
 
@@ -76,7 +76,7 @@ public class BoolCachedScalarBranchUnit extends AcceleratorExecutionUnit {
 
 		@Override
 		public final AcceleratorExecutionNode execute() {
-			if (this.conditionCache.value) {
+			if (this.conditionCache.data) {
 				return this.branchedNode;
 			} else {
 				return this.nextNode;
@@ -91,7 +91,7 @@ public class BoolCachedScalarBranchUnit extends AcceleratorExecutionUnit {
 		private AcceleratorExecutionNode branchedNode = null;
 
 		public CachedScalarJmpnNode(BoolScalarCache conditionCache, AcceleratorExecutionNode nextNode) {
-			super(nextNode);
+			super(nextNode, 1);
 
 			this.conditionCache = conditionCache;
 		}
@@ -103,7 +103,7 @@ public class BoolCachedScalarBranchUnit extends AcceleratorExecutionUnit {
 
 		@Override
 		public final AcceleratorExecutionNode execute() {
-			if (this.conditionCache.value) {
+			if (this.conditionCache.data) {
 				return this.nextNode;
 			} else {
 				return this.branchedNode;
@@ -116,7 +116,7 @@ public class BoolCachedScalarBranchUnit extends AcceleratorExecutionUnit {
 		private AcceleratorExecutionNode branchedNode = null;
 
 		public CachedScalarUnconditionalJmpNode(AcceleratorExecutionNode nextNode) {
-			super(nextNode);
+			super(nextNode, 1);
 		}
 
 		@Override
@@ -133,7 +133,7 @@ public class BoolCachedScalarBranchUnit extends AcceleratorExecutionUnit {
 	private final class CachedScalarUnconditionalNeverJmpNode extends AcceleratorExecutionNode {
 
 		public CachedScalarUnconditionalNeverJmpNode(AcceleratorExecutionNode nextNode) {
-			super(nextNode);
+			super(nextNode, 1);
 		}
 
 		@Override

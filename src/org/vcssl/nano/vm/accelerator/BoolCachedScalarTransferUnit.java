@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2019 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2020 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -27,6 +27,7 @@ public class BoolCachedScalarTransferUnit extends AcceleratorExecutionUnit {
 			}
 			case CAST : {
 				if (instruction.getDataTypes()[1] == DataType.BOOL) {
+					// このユニットでは bool 以外の型を含む演算は対応しないので、bool 同士のキャストしか有り得ず、従って単に mov する
 					node = new BoolCachedScalarMovNode(
 							(BoolScalarCache)operandCaches[0], (BoolScalarCache)operandCaches[1], nextNode);
 					break;
@@ -51,13 +52,13 @@ public class BoolCachedScalarTransferUnit extends AcceleratorExecutionUnit {
 		protected final BoolScalarCache cache1;
 
 		public BoolCachedScalarMovNode(BoolScalarCache cache0, BoolScalarCache cache1, AcceleratorExecutionNode nextNode) {
-			super(nextNode);
+			super(nextNode, 1);
 			this.cache0 = cache0;
 			this.cache1 = cache1;
 		}
 
 		public final AcceleratorExecutionNode execute() {
-			this.cache0.value = this.cache1.value;
+			this.cache0.data = this.cache1.data;
 			return this.nextNode;
 		}
 	}

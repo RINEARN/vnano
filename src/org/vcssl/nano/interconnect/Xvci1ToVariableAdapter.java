@@ -32,14 +32,14 @@ public class Xvci1ToVariableAdapter extends AbstractVariable {
 	/** XVCI準拠の外部変数プラグインです。 */
 	private ExternalVariableConnectorInterface1 xvciPlugin = null;
 
+	/** 変数名を保持します。 */
+	private String variableName = null;
+
 	/** 外部変数と処理系内部の変数とで、データの型変換を行うコンバータです。 */
 	private DataConverter dataConverter = null;
 
-	/** 所属している名前空間があるかどうかを保持します。 */
-	private boolean hasNameSpace = false;
-
-	/** 所属している名前空間を保持します。 */
-	private String nameSpace = null;
+	/** 所属している名前空間の名称を保持します。 */
+	private String namespaceName = null;
 
 
 	/**
@@ -58,27 +58,8 @@ public class Xvci1ToVariableAdapter extends AbstractVariable {
 
 		this.DATA_TYPE_NAME = langSpec.DATA_TYPE_NAME;
 		this.xvciPlugin = xvciPlugin;
+		this.variableName = xvciPlugin.getVariableName();
 		this.dataConverter = new DataConverter(this.xvciPlugin.getDataClass(), langSpec);
-	}
-
-
-	/**
-	 * 指定されたXVCI準拠の外部変数プラグインを、名前空間に所属させつつ、
-	 * 処理系内部での仕様に準拠した関数へと変換するアダプタを生成します。
-	 *
-	 * @param xvciPlugin XVCI準拠の外部変数プラグイン
-	 * @param nameSpace 名前空間
-	 * @param spec 言語仕様設定
-	 * @throws VnanoException
-	 * 		外部変数のデータや型が、この処理系内部では変数として使用できない場合に発生します。
-	 */
-	public Xvci1ToVariableAdapter(
-			ExternalVariableConnectorInterface1 xvciPlugin, String nameSpace, LanguageSpecContainer spec)
-					throws VnanoException {
-
-		this(xvciPlugin, spec);
-		this.hasNameSpace = true;
-		this.nameSpace = nameSpace;
 	}
 
 
@@ -89,7 +70,20 @@ public class Xvci1ToVariableAdapter extends AbstractVariable {
 	 */
 	@Override
 	public String getVariableName() {
-		return this.xvciPlugin.getVariableName();
+		return this.variableName;
+	}
+
+
+	/**
+	 * 変数名を設定（変更）します。
+	 *
+	 * この機能は、外部変数に、エイリアス（別名）を指定しつつ接続する際に使用されます。
+	 *
+	 * variableName 変数名
+	 */
+	@Override
+	public void setVariableName(String variableName) {
+		this.variableName = variableName;
 	}
 
 
@@ -99,19 +93,30 @@ public class Xvci1ToVariableAdapter extends AbstractVariable {
 	 * @return 名前空間に所属していれば true
 	 */
 	@Override
-	public boolean hasNameSpace() {
-		return this.hasNameSpace;
+	public boolean hasNamespaceName() {
+		return this.namespaceName != null;
 	}
 
 
 	/**
-	 * 所属している名前空間を返します。
+	 * 所属している名前空間の名称を返します。
 	 *
-	 * @return 名前空間
+	 * @return 名前空間の名称
 	 */
 	@Override
-	public String getNameSpace() {
-		return this.nameSpace;
+	public String getNamespaceName() {
+		return this.namespaceName;
+	}
+
+
+	/**
+	 * 所属している名前空間の名称を設定します。
+	 *
+	 * @namespaceName 名前空間の名称
+	 */
+	@Override
+	public void setNamespaceName(String namespaceName) {
+		this.namespaceName = namespaceName;
 	}
 
 
@@ -212,7 +217,8 @@ public class Xvci1ToVariableAdapter extends AbstractVariable {
 				data = this.dataConverter.convertToExternalObject(dataContainer);
 			} catch (VnanoException e) {
 				throw new VnanoException(
-					ErrorType.EXTERNAL_VARIABLE_PLUGIN_CRASHED, this.xvciPlugin.getVariableName(), e
+					ErrorType.EXTERNAL_VARIABLE_PLUGIN_CRASHED,
+					new String[] { this.xvciPlugin.getVariableName(), e.getMessage() }, e
 				);
 			}
 
@@ -220,7 +226,8 @@ public class Xvci1ToVariableAdapter extends AbstractVariable {
 				this.xvciPlugin.setData(data);
 			} catch (ConnectorException e) {
 				throw new VnanoException(
-					ErrorType.EXTERNAL_VARIABLE_PLUGIN_CRASHED, this.xvciPlugin.getVariableName(), e
+					ErrorType.EXTERNAL_VARIABLE_PLUGIN_CRASHED,
+					new String[] { this.xvciPlugin.getVariableName(), e.getMessage() }, e
 				);
 			}
 
@@ -230,7 +237,8 @@ public class Xvci1ToVariableAdapter extends AbstractVariable {
 				this.xvciPlugin.setData(dataContainer);
 			} catch (ConnectorException e) {
 				throw new VnanoException(
-					ErrorType.EXTERNAL_VARIABLE_PLUGIN_CRASHED, this.xvciPlugin.getVariableName(), e
+					ErrorType.EXTERNAL_VARIABLE_PLUGIN_CRASHED,
+					new String[] { this.xvciPlugin.getVariableName(), e.getMessage() }, e
 				);
 			}
 		}

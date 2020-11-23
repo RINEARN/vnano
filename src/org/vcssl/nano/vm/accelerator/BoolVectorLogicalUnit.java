@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2018 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2020 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -58,7 +58,7 @@ public class BoolVectorLogicalUnit extends AcceleratorExecutionUnit {
 				DataContainer<boolean[]> container0, DataContainer<boolean[]> container1, DataContainer<boolean[]> container2,
 				Boolx3ScalarCacheSynchronizer synchronizer, AcceleratorExecutionNode nextNode) {
 
-			super(nextNode);
+			super(nextNode, 1);
 			this.container0 = container0;
 			this.container1 = container1;
 			this.container2 = container2;
@@ -68,7 +68,7 @@ public class BoolVectorLogicalUnit extends AcceleratorExecutionUnit {
 				DataContainer<boolean[]> container0, DataContainer<boolean[]> container1,
 				Boolx2ScalarCacheSynchronizer synchronizer, AcceleratorExecutionNode nextNode) {
 
-			super(nextNode);
+			super(nextNode, 1);
 			this.container0 = container0;
 			this.container1 = container1;
 			this.container2 = null;
@@ -87,10 +87,10 @@ public class BoolVectorLogicalUnit extends AcceleratorExecutionUnit {
 
 		public final AcceleratorExecutionNode execute() {
 			this.synchronizer.synchronizeFromCacheToMemory();
-			boolean[] data0 = this.container0.getData();
-			boolean[] data1 = this.container1.getData();
-			boolean[] data2 = this.container2.getData();
-			int size = this.container0.getSize();
+			boolean[] data0 = this.container0.getArrayData();
+			boolean[] data1 = this.container1.getArrayData();
+			boolean[] data2 = this.container2.getArrayData();
+			int size = this.container0.getArraySize();
 
 			// 短絡評価により「 && 」演算子の右オペランドが評価されなかった場合、レジスタが確保されずに null が入っている
 			if (data2 == null) {
@@ -124,10 +124,10 @@ public class BoolVectorLogicalUnit extends AcceleratorExecutionUnit {
 
 		public final AcceleratorExecutionNode execute() {
 			this.synchronizer.synchronizeFromCacheToMemory();
-			boolean[] data0 = this.container0.getData();
-			boolean[] data1 = this.container1.getData();
-			boolean[] data2 = this.container2.getData();
-			int size = this.container0.getSize();
+			boolean[] data0 = this.container0.getArrayData();
+			boolean[] data1 = this.container1.getArrayData();
+			boolean[] data2 = this.container2.getArrayData();
+			int size = this.container0.getArraySize();
 
 			// 短絡評価により「 || 」演算子の右オペランドが評価されなかった場合、レジスタが確保されずに null が入っている
 			if (data2 == null) {
@@ -161,9 +161,9 @@ public class BoolVectorLogicalUnit extends AcceleratorExecutionUnit {
 
 		public final AcceleratorExecutionNode execute() {
 			this.synchronizer.synchronizeFromCacheToMemory();
-			boolean[] data0 = this.container0.getData();
-			boolean[] data1 = this.container1.getData();
-			int size = this.container0.getSize();
+			boolean[] data0 = this.container0.getArrayData();
+			boolean[] data1 = this.container1.getArrayData();
+			int size = this.container0.getArraySize();
 
 			for (int i=0; i<size; i++) {
 				data0[i] = !data1[i];

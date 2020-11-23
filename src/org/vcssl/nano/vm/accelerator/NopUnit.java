@@ -33,7 +33,7 @@ public class NopUnit extends AcceleratorExecutionUnit {
 	private final class NopNode extends AcceleratorExecutionNode {
 
 		public NopNode(AcceleratorExecutionNode nextNode) {
-			super(nextNode);
+			super(nextNode, 1);
 		}
 
 		public final AcceleratorExecutionNode execute() {

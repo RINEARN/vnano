@@ -49,7 +49,7 @@ public class Int64VectorScalarTransferUnit extends AcceleratorExecutionUnit {
 				DataContainer<long[]> container0, DataContainer<long[]> container1,
 				Int64x1ScalarCacheSynchronizer synchronizer, AcceleratorExecutionNode nextNode) {
 
-			super(nextNode);
+			super(nextNode, 1);
 			this.container0 = container0;
 			this.container1 = container1;
 			this.synchronizer = synchronizer;
@@ -57,10 +57,10 @@ public class Int64VectorScalarTransferUnit extends AcceleratorExecutionUnit {
 
 		public final AcceleratorExecutionNode execute() {
 			this.synchronizer.synchronizeFromCacheToMemory();
-			long value = this.container1.getData()[ this.container1.getOffset() ];
-			int from = container0.getOffset();
-			int to = from + container0.getSize(); // to-1 まで書き込まれ、to の要素には書き込まれない
-			Arrays.fill(this.container0.getData(), from, to, value);
+			long value = this.container1.getArrayData()[ this.container1.getArrayOffset() ];
+			int from = container0.getArrayOffset();
+			int to = from + container0.getArraySize(); // to-1 まで書き込まれ、to の要素には書き込まれない
+			Arrays.fill(this.container0.getArrayData(), from, to, value);
 			this.synchronizer.synchronizeFromMemoryToCache();
 			return this.nextNode;
 		}

@@ -23,7 +23,7 @@
 	MOV	int	_LOOP_N@0	R1;
 
 	ALLOC	int	_INSTRUCTION_PER_LOOP@1;
-	MOV	int	_INSTRUCTION_PER_LOOP@1	~int:100;
+	MOV	int	_INSTRUCTION_PER_LOOP@1	~int:107;
 
 	ALLOC	int	_TOTAL_INSTRUCTIONS@2;
 	ALLOC	int	R2;
@@ -211,6 +211,6 @@
 	ALLOC	string	R17;
 	ADD	string	R17	~string:"TOTAL_INSTRUCTIONS = "	R28;
 	ALLOC	string	R18;
-	ADD	string	R18	R17	~string:" [NOP]";
+	ADD	string	R18	R17	~string:" [OPS]";
 	CALLX	void	-	_output(string)	R18;
 	END	void	-;

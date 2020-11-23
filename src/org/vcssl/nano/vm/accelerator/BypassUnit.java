@@ -76,7 +76,7 @@ public class BypassUnit extends AcceleratorExecutionUnit {
 		public ProcessorCallNode(Instruction instruction, Memory memory, Interconnect interconnect, Processor processor,
 				CacheSynchronizer preSynchronizer, CacheSynchronizer postSynchronizer, AcceleratorExecutionNode nextNode) {
 
-			super(nextNode);
+			super(nextNode, 1);
 			this.instruction = instruction;
 			this.interconnect = interconnect;
 			this.processor = processor;

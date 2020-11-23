@@ -393,6 +393,17 @@ public class Interconnect {
 	 *   <span class="lang-en">Data container storing returned value from the callee function.</span>
 	 *   <span class="lang-ja">呼び出した関数からの戻り値を格納するデータユニット.</span>
 	 */
+	// 実装メモ:
+	// 現状Accelerator上においてもCALLX命令はProcessorへバイパスされて最終的にこのメソッドで実行されてるけど、
+	// Processorへのバイパスはそれ自体で仮想メモリとAccelerator内スカラキャッシュの同期等を要してオーバーヘッドが大きいので、
+	// Acceleratorでこれの invoke 対象関数の参照をノード内に持って直接 invoke できるようにしたい。
+	// そうすれば引数がプリミティブ型スカラの外部関数はAccelerator内スカラキャッシュ値をそのまま渡せて結構削れそうな気がする。
+	// (ただ現状の外部関数インターフェースだと単純スカラ引数でも最低限プリミティブラッパー変換の必要はあって一定の処理は食うし、
+	//  その影響の程度によってはプリミティブスカラの受け渡ししかしない単純な関数インターフェースを新規で追加する余地もあるかも。
+	//  > それよりはスカラキャッシュのインターフェース定義してXFCI1のデータ変換無効化オプション使って直接アクセスの方がいいかも。
+	//    同オプション有効時に getAvailableDataContainerClasses とかで対応データコンテナの型をプラグイン側に明示してもらって、
+	//    キャッシュ投げられそうなら投げるとか。それができれば普通のスカラ命令実行を少しラップした程度のオーバーヘッドにはできそう。)
+	// また今度都合のいいタイミングで実装/要検討
 	public void callExternalFunction(int functionIndex, DataContainer<?>[] arguments, DataContainer<?> returnData)
 			throws VnanoException {
 
@@ -457,18 +468,30 @@ public class Interconnect {
 	 * <span class="lang-en">Connects various types of plug-ins which provides external functions/variables</span>
 	 * <span class="lang-ja">外部関数/変数を提供する, 各種のプラグインを接続します</span>
 	 * .
-	 * @param bindingKey
+	 * @param bindingName
 	 *   <span class="lang-en">
-	 *   An unique key to identify the plug-in.
-	 *   It also works as an identifier of a connected external variable/functuion/namespace,
-	 *   where identifiers of functions should be described as the format of prototypes, e.g.: "foo(int,float)".
-	 *   Also, you can specify "___VNANO_AUTO_KEY" for generate key automatically.
+	 *   A name in scripts of the variable/function/namespace provided by the connected plug-in.
+	 *   If the passed argument contains a white space or a character "(", the content after it will be ignored.
+	 *   By the above specification, for a function plug-in,
+	 *   you can specify a signature containing parameter-declarations like "foo(int,float)"
+	 *   (note that, syntax or correctness of parameter-declarations will not be checked).
+	 *   In addition, for plug-ins providing elements belonging to the same namespace "Bar",
+	 *   you can specify "Bar 1", "Bar 2", and so on.
+	 *   This is helpful to avoid the duplication of keys when you use
+	 *   {@link org.vcssl.nano.VnanoScriptEngine#put(String, Object) VnanoScriptEngine.put(String, Object) }
+	 *   method which wraps this method.
+	 *   Also, you can specify "___VNANO_AUTO_KEY" for using a valid value generated automatically.
 	 *   </span>
 	 *   <span class="lang-ja">
-	 *   プラグインを一意に識別するためのキー.
-	 *   キーの内容は, 接続される外部関数/変数/名前空間にスクリプト内からアクセスするための識別子としても機能します.
-	 *   そのためには, 関数についてはプロトタイプの書式（ 例えば "foo(int,float)" 等 ）で記述される必要があります.
-	 *   なお, "___VNANO_AUTO_KEY" を指定する事で, キーを自動生成する事もできます.
+	 *   接続されるプラグインが提供する変数/関数/名前空間の, スクリプト内での名前.
+	 *   内容に空白または「 ( 」が含まれている場合、それ以降は名前としては無視されます.
+	 *   これにより, 例えば関数 "foo" に対して引数部を含めて "foo(int,float)" 等と指定したり
+	 *   (引数部の構文や整合性検査などは行われません）,
+	 *   同じ名前空間 "Bar" の要素を提供するプラグイン群に対して "Bar 1", "Bar 2", ... のように指定する事ができます.
+	 *   これは, このメソッドをラップしている
+	 *   {@link org.vcssl.nano.VnanoScriptEngine#put(String, Object) VnanoScriptEngine.put(String, Object) }
+	 *   メソッドにおいて, キーの重複を避けたい場合に有効です.
+	 *   なお, "___VNANO_AUTO_KEY" を指定する事で, 有効な値の指定を自動で行う事もできます.
 	 *   </span>
 	 *
 	 * @param plugin
@@ -521,14 +544,19 @@ public class Interconnect {
 	 *   プラグインの接続に失敗した場合にスローされます.
 	 *   </span>
 	 */
-	public void connectPlugin(String bindingKey, Object plugin) throws VnanoException {
+	public void connectPlugin(String bindingName, Object plugin) throws VnanoException {
 
 		try {
 			// Replace the binding key with auto-generated one if, it it is requested.
 			// キーを自動生成するよう設定されている場合は、キーを置き換え
-			if (bindingKey.equals(SpecialBindingKey.AUTO_KEY)) {
-				bindingKey = this.generateBindingKeyOf(plugin);     // これ、ここでシグネチャ求める前にプラグインを init する必要がる？
+			if (bindingName.equals(SpecialBindingKey.AUTO_KEY)) {
+				bindingName = this.generateBindingNameOf(plugin);
+				// これ、ここでシグネチャ求める前にプラグインを init する必要がある？ (XNCI1など)
+				// -> init するまで名前やシグネチャが定まらない実装は XFCI1 的にはNGでいいのでは。init タイミングを早めてもいいけど、それはそれで制約が緩すぎて後でエンジン側でネックになる仕様になりそう(GPCIみたいな)。
 			}
+
+			// bindingName 内の空白や「 ( 」以降は無視する仕様なので、含まれていればカットする
+			bindingName = bindingName.split("\\s|\\(")[0];
 
 			// PACI 1 形式のセキュリティプラグイン
 			if (plugin instanceof PermissionAuthorizerConnectorInterface1) {
@@ -536,27 +564,27 @@ public class Interconnect {
 
 			// XVCI 1 形式の外部変数プラグイン
 			} else if (plugin instanceof ExternalVariableConnectorInterface1) {
-				this.connectXvci1Plugin( (ExternalVariableConnectorInterface1)plugin, true, bindingKey, false, null );
+				this.connectXvci1Plugin( (ExternalVariableConnectorInterface1)plugin, true, bindingName, false, null );
 
 			// XFCI 1 形式の外部関数プラグイン
 			} else if (plugin instanceof ExternalFunctionConnectorInterface1) {
-				this.connectXfci1Plugin( (ExternalFunctionConnectorInterface1)plugin, true, bindingKey, false, null);
+				this.connectXfci1Plugin( (ExternalFunctionConnectorInterface1)plugin, true, bindingName, false, null);
 
 			// XNCI 1 形式の外部関数プラグイン
 			} else if (plugin instanceof ExternalNamespaceConnectorInterface1) {
-				this.connectXnci1Plugin( (ExternalNamespaceConnectorInterface1)plugin, true, bindingKey, false );
+				this.connectXnci1Plugin( (ExternalNamespaceConnectorInterface1)plugin, true, bindingName, false );
 
 			// クラスフィールドの場合
 			} else if (plugin instanceof Field) {
-				this.connectFieldAsPlugin( (Field)plugin, null, true, bindingKey );
+				this.connectFieldAsPlugin( (Field)plugin, null, true, bindingName );
 
 			// クラスメソッドの場合
 			} else if (plugin instanceof Method) {
-				this.connectMethodAsPlugin( (Method)plugin, null, true, bindingKey );
+				this.connectMethodAsPlugin( (Method)plugin, null, true, bindingName );
 
 			// クラスの場合
 			} else if (plugin instanceof Class) {
-				this.connectClassAsPlugin( (Class<?>)plugin, null, true, bindingKey );
+				this.connectClassAsPlugin( (Class<?>)plugin, null, true, bindingName );
 
 			// インスタンスフィールドやインスタンスメソッド等は、所属インスタンスも格納する配列で渡される
 			} else if (plugin instanceof Object[]) {
@@ -567,19 +595,19 @@ public class Interconnect {
 				if (objects.length == 2 && objects[0] instanceof Field) {
 					Field field = (Field)objects[0]; // [0] はフィールドのリフレクション
 					Object instance = objects[1];    // [1] はフィールドの所属インスタンス
-					this.connectFieldAsPlugin( field, instance, true, bindingKey );
+					this.connectFieldAsPlugin( field, instance, true, bindingName );
 
 				// インスタンスメソッドの場合 >> 引数からMethodとインスタンスを取り出し、外部関数として接続
 				} else if (objects.length == 2 && objects[0] instanceof Method) {
 					Method method = (Method)objects[0]; // [0] はメソッドのリフレクション
 					Object instance = objects[1];       // [1] はメソッドの所属インスタンス
-					this.connectMethodAsPlugin( method, instance, true, bindingKey );
+					this.connectMethodAsPlugin( method, instance, true, bindingName );
 
 				// クラスの場合 >> 引数からClassとインスタンスを取り出し、外部ライブラリとして接続
 				} else if (objects.length == 2 && objects[0] instanceof Class) {
 					Class<?> pluginClass = (Class<?>)objects[0];
 					Object instance = objects[1];
-					this.connectClassAsPlugin( pluginClass, instance, true, bindingKey );
+					this.connectClassAsPlugin( pluginClass, instance, true, bindingName );
 
 				} else {
 					throw new VnanoException(
@@ -590,12 +618,12 @@ public class Interconnect {
 			// その他のオブジェクトは、Classを取得して外部ライブラリとして接続
 			} else {
 				Class<?> pluginClass = plugin.getClass();
-				this.connectClassAsPlugin( pluginClass, plugin, true, bindingKey );
+				this.connectClassAsPlugin( pluginClass, plugin, true, bindingName );
 			}
 
 		// 内部で VnanoException が発生した場合は、原因プラグインを特定できるメッセージを持たせた VnanoException でラップして投げる
 		} catch (VnanoException vne) {
-			throw new VnanoException(ErrorType.PLUGIN_CONNECTION_FAILED, bindingKey, vne);
+			throw new VnanoException(ErrorType.PLUGIN_CONNECTION_FAILED, bindingName, vne);
 		}
 	}
 
@@ -633,13 +661,13 @@ public class Interconnect {
 
 	/**
 	 * <span class="lang-en">
-	 * Generate the value of the argument "bindingKey" of
+	 * Generate the value of the argument "bindingName" of
 	 * {@link Interconnect#connectPlugin connectPlugin(String bindingKey, Object plugin)}
 	 * method automatically
 	 * </span>
 	 * <span class="lang-ja">
 	 * {@link Interconnect#connectPlugin connectPlugin(String bindingKey, Object plugin)}
-	 * メソッドの引数 bindingKey の値を自動生成します
+	 * メソッドの引数 bindingName の値を自動生成します
 	 * </span>
 	 * .
 	 * @param plugin
@@ -667,7 +695,7 @@ public class Interconnect {
 	 *   プラグインの解析に失敗した場合にスローされます.
 	 *   </span>
 	 */
-	private String generateBindingKeyOf(Object plugin) throws VnanoException {
+	private String generateBindingNameOf(Object plugin) throws VnanoException {
 
 		// 内部変数と互換の変数オブジェクト
 		if (plugin instanceof AbstractVariable) {
@@ -713,17 +741,17 @@ public class Interconnect {
 			// インスタンスフィールドの場合
 			if (objects.length == 2 && objects[0] instanceof Field) {
 				Field field = (Field)objects[0]; // [0] はフィールドのリフレクション
-				return generateBindingKeyOf(field);
+				return generateBindingNameOf(field);
 
 			// インスタンスメソッドの場合
 			} else if (objects.length == 2 && objects[0] instanceof Method) {
 				Method method = (Method)objects[0]; // [0] はメソッドのリフレクション
-				return generateBindingKeyOf(method);
+				return generateBindingNameOf(method);
 
 			// クラスの場合 >> 引数からClassとインスタンスを取り出し、外部ライブラリとして接続
 			} else if (objects.length == 2 && objects[0] instanceof Class) {
 				Class<?> pluginClass = (Class<?>)objects[0];
-				return generateBindingKeyOf(pluginClass);
+				return generateBindingNameOf(pluginClass);
 			} else {
 				throw new VnanoException(
 					ErrorType.UNSUPPORTED_PLUGIN, new String[] {objects[0].getClass().getCanonicalName()}
@@ -733,7 +761,7 @@ public class Interconnect {
 		// その他のオブジェクトは、Classを取得して外部ライブラリとして接続
 		} else {
 			Class<?> pluginClass = plugin.getClass();
-			return generateBindingKeyOf(pluginClass);
+			return generateBindingNameOf(pluginClass);
 		}
 	}
 
@@ -975,13 +1003,13 @@ public class Interconnect {
 	 *   <span class="lang-en">The alias for accessing from scripts.</span>
 	 *   <span class="lang-ja">スクリプト内からのアクセスに使用する別名.</span>
 	 *
-	 * @param belongsToNameSpace
-	 *   <span class="lang-en">Whether the variable provided by the plug-in belongs to any name space.</span>
+	 * @param belongsToNamespace
+	 *   <span class="lang-en">Whether the variable provided by the plug-in belongs to any namespaces.</span>
 	 *   <span class="lang-ja">プラグインが提供する変数が属する名前空間が, 名前空間に属するかどうか（する場合に true）.</span>
 	 *
-	 * @param nameSpace
-	 *   <span class="lang-en">The name space to which the variable provided by the plug-in belongs.</span>
-	 *   <span class="lang-ja">プラグインが提供する変数が属する名前空間.</span>
+	 * @param namespaceName
+	 *   <span class="lang-en">The name of the namespace to which the variable provided by the plug-in belongs.</span>
+	 *   <span class="lang-ja">プラグインが提供する変数が属する名前空間の名称.</span>
 	 *
 	 * @throws VnanoException
 	 *   <span class="lang-en">
@@ -992,7 +1020,9 @@ public class Interconnect {
 	 *   </span>
 	 */
 	private void connectXvci1Plugin(ExternalVariableConnectorInterface1 plugin,
-			boolean aliasingRequired, String aliasName, boolean belongsToNameSpace, String nameSpace) throws VnanoException {
+			boolean aliasingRequired, String aliasName, boolean belongsToNamespace, String namespaceName) throws VnanoException {
+
+		// 接続時の初期化処理を実行
 		try {
 			plugin.initializeForConnection(this.engineConnector);
 		} catch (ConnectorException e) {
@@ -1001,12 +1031,23 @@ public class Interconnect {
 			);
 		}
 
+		// その他の初期化/終了時処理などの時に呼ぶため、XVCI1形式のままのインスタンスもフィールドのリストに登録
 		this.xvci1PluginList.add(plugin);
 
-		Xvci1ToVariableAdapter adapter = belongsToNameSpace
-			? new Xvci1ToVariableAdapter(plugin, nameSpace, LANG_SPEC)
-			: new Xvci1ToVariableAdapter(plugin, LANG_SPEC);
-		this.connectVariable(adapter, aliasingRequired, aliasName);
+		// コンパイラやVMでは各種変数は AbstractVariable に抽象化した形で扱うので、
+		// XVCI1 から AbstractVariable へ変換するアダプタ（AbstractVariableを継承している）を生成
+		AbstractVariable adapter = new Xvci1ToVariableAdapter(plugin, LANG_SPEC);
+
+		// 所属名前空間やエイリアス（別名）などが必要なら設定
+		if (belongsToNamespace) {
+			adapter.setNamespaceName(namespaceName);
+		}
+		if (aliasingRequired) {
+			adapter.setVariableName(aliasName);
+		}
+
+		// 設定を終えた AbstractVariable 継承アダプタを接続
+		this.connectVariable(adapter);
 	}
 
 
@@ -1032,12 +1073,12 @@ public class Interconnect {
 	 *   <span class="lang-en">The alias for accessing from scripts.</span>
 	 *   <span class="lang-ja">スクリプト内からのアクセスに使用する別名.</span>
 	 *
-	 * @param belongsToNameSpace
-	 *   <span class="lang-en">Whether the function provided by the plug-in belongs to any name space.</span>
+	 * @param belongsToNamespace
+	 *   <span class="lang-en">Whether the function provided by the plug-in belongs to any namespaces.</span>
 	 *   <span class="lang-ja">プラグインが提供する関数が属する名前空間が, 名前空間に属するかどうか（する場合に true）.</span>
 	 *
-	 * @param nameSpace
-	 *   <span class="lang-en">The name space to which the function provided by the plug-in belongs.</span>
+	 * @param namespaceName
+	 *   <span class="lang-en">The name of the namespace to which the function provided by the plug-in belongs.</span>
 	 *   <span class="lang-ja">プラグインが提供する関数が属する名前空間.</span>
 	 *
 	 * @throws VnanoException
@@ -1049,7 +1090,9 @@ public class Interconnect {
 	 *   </span>
 	 */
 	private void connectXfci1Plugin(ExternalFunctionConnectorInterface1 plugin,
-			boolean aliasingRequired, String aliasSignature, boolean belongsToNameSpace, String nameSpace) throws VnanoException {
+			boolean aliasingRequired, String aliasName, boolean belongsToNamespace, String namespaceName) throws VnanoException {
+
+		// 接続時の初期化処理を実行
 		try {
 			plugin.initializeForConnection(this.engineConnector);
 		} catch (ConnectorException e) {
@@ -1058,12 +1101,23 @@ public class Interconnect {
 			);
 		}
 
+		// その他の初期化/終了時処理などの時に呼ぶため、XFCI1形式のままのインスタンスもフィールドのリストに登録
 		this.xfci1PluginList.add(plugin);
 
-		Xfci1ToFunctionAdapter adapter = belongsToNameSpace
-			? new Xfci1ToFunctionAdapter(plugin, nameSpace, LANG_SPEC)
-			: new Xfci1ToFunctionAdapter(plugin, LANG_SPEC);
-		this.connectFunction(adapter, aliasingRequired, aliasSignature);
+		// コンパイラやVMでは各種関数は AbstractFunction に抽象化した形で扱うので、
+		// XFCI1 から AbstractFunction へ変換するアダプタ（AbstractFunctionを継承している）を生成
+		AbstractFunction adapter = new Xfci1ToFunctionAdapter(plugin, LANG_SPEC);
+
+		// 所属名前空間やエイリアス（別名）などが必要なら設定
+		if (belongsToNamespace) {
+			adapter.setNamespaceName(namespaceName);
+		}
+		if (aliasingRequired) {
+			adapter.setFunctionName(aliasName);
+		}
+
+		// 設定を終えた AbstractFunction 継承アダプタを接続
+		this.connectFunction(adapter);
 	}
 
 
@@ -1110,17 +1164,17 @@ public class Interconnect {
 			);
 		}
 
-		// 名前空間（の名前）を取得し、エイリアスが指定されている場合はその名前で置き換える
-		String nameSpace = plugin.getNamespaceName();
+		// 名前空間の名称を取得、ただしエイリアスが指定されている場合はそちらを用いる
+		String nameapaceName = plugin.getNamespaceName();
 		if (aliasingRequired) {
-			nameSpace = aliasName;
+			nameapaceName = aliasName;
 		}
 
 		// 所属関数プラグインを接続（この中で関数の connect 初期化処理が行われる）
 		ExternalFunctionConnectorInterface1[] xfciPlugins = plugin.getFunctions();
 		for (ExternalFunctionConnectorInterface1 xfciPlugin: xfciPlugins) {
 			try {
-				this.connectXfci1Plugin(xfciPlugin, false, null, true, nameSpace);
+				this.connectXfci1Plugin(xfciPlugin, false, null, true, nameapaceName);
 			} catch (VnanoException e) {
 				if (!ignoreIncompatibles) {
 					throw e;
@@ -1132,7 +1186,7 @@ public class Interconnect {
 		ExternalVariableConnectorInterface1[] xvciPlugins = plugin.getVariables();
 		for (ExternalVariableConnectorInterface1 xvciPlugin: xvciPlugins) {
 			try {
-				this.connectXvci1Plugin(xvciPlugin, false, null, true, nameSpace);
+				this.connectXvci1Plugin(xvciPlugin, false, null, true, nameapaceName);
 			} catch (VnanoException e) {
 				if (!ignoreIncompatibles) {
 					throw e;
@@ -1156,16 +1210,9 @@ public class Interconnect {
 
 	/**
 	 * Vnano処理系内部の変数形式に準拠した変数オブジェクトを接続します。
-	 * @param aliasingRequired スクリプト内から別名でアクセスするかどうか（する場合にtrue）
-	 * @param aliasName スクリプト内での別名（aliasingRequiredがtrueの場合のみ参照されます）
-	 *
 	 * @param variable 変数オブジェクト
 	 */
-	private void connectVariable(AbstractVariable variable, boolean aliasingRequired, String aliasName) {
-		if (aliasingRequired) {
-			variable = new VariableAliasAdapter(variable);
-			((VariableAliasAdapter)variable).setVariableName(aliasName);
-		}
+	private void connectVariable(AbstractVariable variable) {
 		this.externalVariableTable.addVariable(variable);
 	}
 
@@ -1174,17 +1221,8 @@ public class Interconnect {
 	 * Vnano処理系内部の関数形式に準拠した関数オブジェクトを接続します。
 	 *
 	 * @param function 関数オブジェクト
-	 * @param aliasingRequired スクリプト内から別名でアクセスするかどうか（する場合にtrue）
-	 * @param aliasSignature 別名アクセスのためのコールシグネチャ（aliasingRequiredがtrueの場合のみ参照されます）
-	 * @throws VnanoException 引数に指定されたコールシグネチャが正しくない場合にスローされます。
 	 */
-	private void connectFunction(AbstractFunction function, boolean aliasingRequired, String aliasSignature)
-			throws VnanoException {
-
-		if (aliasingRequired) {
-			function = new FunctionAliasAdapter(function, LANG_SPEC);
-			((FunctionAliasAdapter)function).setCallSignature(aliasSignature);
-		}
+	private void connectFunction(AbstractFunction function) {
 		this.externalFunctionTable.addFunction(function);
 	}
 

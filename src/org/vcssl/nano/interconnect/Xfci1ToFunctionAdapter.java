@@ -35,6 +35,9 @@ public final class Xfci1ToFunctionAdapter extends AbstractFunction {
 	/** XFCI準拠の外部変数プラグインです。 */
 	private ExternalFunctionConnectorInterface1 xfciPlugin = null;
 
+	/** 関数名を保持します。 */
+	private String functionName = null;
+
 	/** 外部関数の引数と処理系内部の関数の引数とで、データの型変換を行うコンバータです。 */
 	private DataConverter[] parameterDataConverters = null;
 
@@ -57,11 +60,8 @@ public final class Xfci1ToFunctionAdapter extends AbstractFunction {
 	@SuppressWarnings("unused")
 	private int returnArrayRank = -1;
 
-	/** 所属している名前空間があるかどうかを保持します。 */
-	private boolean hasNameSpace = false;
-
-	/** 所属している名前空間を保持します。 */
-	private String nameSpace = null;
+	/** 所属している名前空間の名称を保持します。 */
+	private String namespaceName = null;
 
 
 	/**
@@ -79,6 +79,7 @@ public final class Xfci1ToFunctionAdapter extends AbstractFunction {
 
 		this.DATA_TYPE_NAME = langSpec.DATA_TYPE_NAME;
 		this.xfciPlugin = xfciPlugin;
+		this.functionName = xfciPlugin.getFunctionName();
 
 		Class<?>[] parameterClasses = this.xfciPlugin.getParameterClasses();
 		Class<?> returnClass = this.xfciPlugin.getReturnClass(parameterClasses);
@@ -125,33 +126,26 @@ public final class Xfci1ToFunctionAdapter extends AbstractFunction {
 
 
 	/**
-	 * 指定されたXFCI準拠の外部変数プラグインを、名前空間に所属させつつ、
-	 * 処理系内部での仕様に準拠した関数へと変換するアダプタを生成します。
-	 *
-	 * @param xfciPlugin XFCI準拠の外部変数プラグイン
-	 * @param nameSpace 名前空間
-	 * @param spec 言語仕様設定
-	 * @throws VnanoException
-	 * 		引数のデータや型が、この処理系内部では使用できない場合に発生します。
-	 */
-	public Xfci1ToFunctionAdapter(
-			ExternalFunctionConnectorInterface1 xfciPlugin, String nameSpace, LanguageSpecContainer spec)
-					throws VnanoException {
-
-		this(xfciPlugin, spec);
-		this.hasNameSpace = true;
-		this.nameSpace = nameSpace;
-	}
-
-
-	/**
 	 * 関数名を取得します。
 	 *
 	 * @return 関数名
 	 */
 	@Override
 	public final String getFunctionName() {
-		return this.xfciPlugin.getFunctionName();
+		return this.functionName;
+	}
+
+
+	/**
+	 * 関数名を設定（変更）します。
+	 *
+	 * この機能は、外部関数に、エイリアス（別名）を指定しつつ接続する際に使用されます。
+	 *
+	 * functionName 関数名
+	 */
+	@Override
+	public void setFunctionName(String functionName) {
+		this.functionName = functionName;
 	}
 
 
@@ -161,19 +155,30 @@ public final class Xfci1ToFunctionAdapter extends AbstractFunction {
 	 * @return 名前空間に所属していれば true
 	 */
 	@Override
-	public final boolean hasNameSpace() {
-		return this.hasNameSpace;
+	public final boolean hasNamespaceName() {
+		return this.namespaceName != null;
 	}
 
 
 	/**
-	 * 所属している名前空間を返します。
+	 * 所属している名前空間の名称を返します。
 	 *
-	 * @return 名前空間
+	 * @return 名前空間の名称
 	 */
 	@Override
-	public final String getNameSpace() {
-		return this.nameSpace;
+	public final String getNamespaceName() {
+		return this.namespaceName;
+	}
+
+
+	/**
+	 * 所属している名前空間の名称を設定します。
+	 *
+	 * @namespaceName 名前空間の名称
+	 */
+	@Override
+	public void setNamespaceName(String namespaceName) {
+		this.namespaceName = namespaceName;
 	}
 
 

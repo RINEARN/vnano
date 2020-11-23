@@ -98,8 +98,8 @@ public class ErrorMessage {
 			case NO_PARTIAL_EXPRESSION : return "式の中に空の括弧 ( ) があります。";
 			case OPERAND_IS_MISSING_AT_RIGHT : return "「 " + words[0] + " 」の右側に、値や変数などが必要です。";
 			case OPERAND_IS_MISSING_AT_LEFT : return "「 " + words[0] + " 」の左側に、値や変数などが必要です。";
-			case OPERATOR_IS_MISSING_AT_RIGHT : return "「 " + words[0] + " 」と「 " + words[1] + " 」の間に演算子（「 + 」などの記号）が必要です。";
-			case OPERATOR_IS_MISSING_AT_LEFT : return "「 " + words[0] + " 」と「 " + words[1] + " 」の間に演算子（「 + 」などの記号）が必要です。";
+			case OPERATOR_IS_MISSING_AT_RIGHT : return "「 " + words[0] + " 」と「 " + words[1] + " 」の間に演算子（「 + 」などの記号）や文の区切り「 ; 」が必要です。";
+			case OPERATOR_IS_MISSING_AT_LEFT : return "「 " + words[0] + " 」と「 " + words[1] + " 」の間に演算子（「 + 」などの記号）や文の区切り「 ; 」が必要です。";
 			case DATA_TYPE_IS_MISSING_AT_RIGHT : return "「 " + words[0] + " 」の右側に、データ型が必要です。";
 			case CLOSE_PARENTHESIS_IS_MISSING_AT_RIGHT : return "「 " + words[0] + " 」の右側に、閉じ括弧「 ) 」が必要です。";
 			case NO_OPEN_PARENTHESIS_OF_CONTROL_STATEMENT : return "「 " + words[0] + " 」の後には括弧 (...) が必要です。";
@@ -171,6 +171,8 @@ public class ErrorMessage {
 			case MULTIPLE_PERMISSION_AUTHORIZERS_ARE_CONNECTED : return "パーミッション認可プラグイン（permission authorizer）は1個しか接続できませんが、既に「 " + words[1] + " 」接続されている状態で、追加で「 " + words[0] + " 」の接続が要求されました。";
 			case NON_EXPRESSION_STATEMENTS_ARE_RESTRICTED : return "現在の設定では、ライブラリスクリプト内を除き、式の計算以外を行えないよう制限されています。";
 			case NON_FLOAT_DATA_TYPES_ARE_RESTRICTED : return "現在の設定では、ライブラリスクリプト内を除き、float 型以外の値 / 変数 / 関数（戻り値）を使用できないよう制限されています。";
+			case TERMINATOR_IS_DISABLED : return "実行中のスクリプトの終了がリクエストされましたが、「 " + OptionKey.TERMINATOR_ENABLED + " 」オプションが無効化(false指定)されているため、終了できませんでした。";
+			case PERFORMANCE_MONITOR_IS_DISABLED : return "エンジン関連の計測データがリクエストされましたが、「 " + OptionKey.PERFORMANCE_MONITOR_ENABLED + " 」オプションが無効化(false指定)されているため、取得できませんでした。";
 			case UNEXPECTED_ACCELERATOR_CRASH : return "予期しないVMエラー (命令アドレス: " + words[0] + ", 再配置後命令アドレス: " + words[1] + ")";
 			case UNEXPECTED_PROCESSOR_CRASH : return "予期しないVMエラー（命令アドレス: " + words[0] + ")";
 			case UNEXPECTED : return "予期しないエラー";
@@ -210,8 +212,8 @@ public class ErrorMessage {
 			case NO_PARTIAL_EXPRESSION : return "Empty parentheses ( ) exist in the expression";
 			case OPERAND_IS_MISSING_AT_RIGHT : return "A value or variable is necessary at the right of \"" + words[0] + "\"";
 			case OPERAND_IS_MISSING_AT_LEFT : return "A value or variable is necessary at the left of \"" + words[0] + "\"";
-			case OPERATOR_IS_MISSING_AT_RIGHT : return "An operator (e.g. \"+\") is required between \"" + words[0] + "\" and \"" + words[1] + "\"";
-			case OPERATOR_IS_MISSING_AT_LEFT : return "An operator (e.g. \"+\") is required between \"" + words[0] + "\" and \"" + words[1] + "\"";
+			case OPERATOR_IS_MISSING_AT_RIGHT : return "An operator (e.g. \"+\") or an end-of-statement \";\" is required between \"" + words[0] + "\" and \"" + words[1] + "\"";
+			case OPERATOR_IS_MISSING_AT_LEFT : return "An operator (e.g. \"+\") or an end-of-statement \";\" is required between \"" + words[0] + "\" and \"" + words[1] + "\"";
 			case DATA_TYPE_IS_MISSING_AT_RIGHT : return "A data type is necessary at the right of \"" + words[0] + "\"";
 			case CLOSE_PARENTHESIS_IS_MISSING_AT_RIGHT : return "A close parenthesis \")\" is necessary at the right of \"" + words[0] + "\"";
 			case NO_OPEN_PARENTHESIS_OF_CONTROL_STATEMENT : return "Parentheses (...) are required after \"" + words[0] + "\"";
@@ -283,6 +285,8 @@ public class ErrorMessage {
 			case MULTIPLE_PERMISSION_AUTHORIZERS_ARE_CONNECTED : return "The permission authorizer plug-in \"" + words[0] + "\" is requested to be connected, but the other permission authorizer \"" + words[1] + "\" is already connected (only 1 permission authorizer can be connected)";
 			case NON_EXPRESSION_STATEMENTS_ARE_RESTRICTED : return "On the current settings, you can describe only expressions as inputs, except in library scripts";
 			case NON_FLOAT_DATA_TYPES_ARE_RESTRICTED : return "On the current settings, you can use only float-type values / variables / functions (returned values), except in library scripts";
+			case TERMINATOR_IS_DISABLED : return "The termination of the currently running script has been requested, but it can not be terminated because the option \"" + OptionKey.TERMINATOR_ENABLED + "\" is disabled (false)";
+			case PERFORMANCE_MONITOR_IS_DISABLED : return "Monitoring data of the engine has been requested, but it is not available because the option \"" + OptionKey.PERFORMANCE_MONITOR_ENABLED + "\" is disabled (false)";
 			case UNEXPECTED_ACCELERATOR_CRASH : return "Unexpected VM Error (instruction-addr: " + words[0] + ", reordered-instruction-addr: " + words[1] + ")";
 			case UNEXPECTED_PROCESSOR_CRASH : return "Unexpected VM Error (instruction-addr: " + words[0] + ")";
 			case UNEXPECTED : return "Unexpected Error";

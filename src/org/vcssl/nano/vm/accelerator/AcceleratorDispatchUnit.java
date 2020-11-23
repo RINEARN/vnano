@@ -18,7 +18,6 @@ import org.vcssl.nano.vm.processor.Processor;
 
 public class AcceleratorDispatchUnit {
 
-
 	// 命令列の内容を全て演算器に割り当て、演算を実行するための演算ノード（演算器内部に実装）の列を返す
 	public AcceleratorExecutionNode[] dispatch (
 			Processor processor, Memory memory, Interconnect interconnect,
@@ -239,7 +238,7 @@ public class AcceleratorDispatchUnit {
 			}
 
 
-			// データ転送
+			// データ転送（配列要素アクセス以外）
 
 			case I64V_TRANSFER : {
 				return new Int64VectorTransferUnit().generateNode(
@@ -258,6 +257,11 @@ public class AcceleratorDispatchUnit {
 			}
 			case I64VS_TRANSFER : {
 				return new Int64VectorScalarTransferUnit().generateNode(
+					instruction, operandContainers, operandCaches, operandCachingEnabled, operandScalar, operandConstant, nextNode
+				);
+			}
+			case I64CS_MULTIPLE_TRANSFER : {
+				return new Int64CachedScalarMultipleTransferUnit().generateNode(
 					instruction, operandContainers, operandCaches, operandCachingEnabled, operandScalar, operandConstant, nextNode
 				);
 			}
@@ -282,6 +286,12 @@ public class AcceleratorDispatchUnit {
 					instruction, operandContainers, operandCaches, operandCachingEnabled, operandScalar, operandConstant, nextNode
 				);
 			}
+			case F64CS_MULTIPLE_TRANSFER : {
+				return new Float64CachedScalarMultipleTransferUnit().generateNode(
+					instruction, operandContainers, operandCaches, operandCachingEnabled, operandScalar, operandConstant, nextNode
+				);
+			}
+
 
 			case BV_TRANSFER : {
 				return new BoolVectorTransferUnit().generateNode(
@@ -303,7 +313,46 @@ public class AcceleratorDispatchUnit {
 					instruction, operandContainers, operandCaches, operandCachingEnabled, operandScalar, operandConstant, nextNode
 				);
 			}
+			case BCS_MULTIPLE_TRANSFER : {
+				return new BoolCachedScalarMultipleTransferUnit().generateNode(
+					instruction, operandContainers, operandCaches, operandCachingEnabled, operandScalar, operandConstant, nextNode
+				);
+			}
 
+
+
+			// 配列要素アクセス
+
+			case I64S_SUBSCRIPT : {
+				return new Int64ScalarSubscriptUnit().generateNode(
+					instruction, operandContainers, operandCaches, operandCachingEnabled, operandScalar, operandConstant, nextNode
+				);
+			}
+			case I64CS_SUBSCRIPT : {
+				return new Int64CachedScalarSubscriptUnit().generateNode(
+					instruction, operandContainers, operandCaches, operandCachingEnabled, operandScalar, operandConstant, nextNode
+				);
+			}
+			case F64S_SUBSCRIPT : {
+				return new Float64ScalarSubscriptUnit().generateNode(
+					instruction, operandContainers, operandCaches, operandCachingEnabled, operandScalar, operandConstant, nextNode
+				);
+			}
+			case F64CS_SUBSCRIPT : {
+				return new Float64CachedScalarSubscriptUnit().generateNode(
+					instruction, operandContainers, operandCaches, operandCachingEnabled, operandScalar, operandConstant, nextNode
+				);
+			}
+			case BS_SUBSCRIPT : {
+				return new BoolScalarSubscriptUnit().generateNode(
+					instruction, operandContainers, operandCaches, operandCachingEnabled, operandScalar, operandConstant, nextNode
+				);
+			}
+			case BCS_SUBSCRIPT : {
+				return new BoolCachedScalarSubscriptUnit().generateNode(
+					instruction, operandContainers, operandCaches, operandCachingEnabled, operandScalar, operandConstant, nextNode
+				);
+			}
 
 
 			// 分岐

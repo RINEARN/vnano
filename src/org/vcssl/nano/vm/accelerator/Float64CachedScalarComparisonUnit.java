@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2018 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2020 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -63,7 +63,7 @@ public class Float64CachedScalarComparisonUnit extends AcceleratorExecutionUnit 
 		public Float64CachedScalarComparisonNode(BoolScalarCache cache0, Float64ScalarCache cache1, Float64ScalarCache cache2,
 				AcceleratorExecutionNode nextNode) {
 
-			super(nextNode);
+			super(nextNode, 1);
 			this.cache0 = cache0;
 			this.cache1 = cache1;
 			this.cache2 = cache2;
@@ -76,7 +76,7 @@ public class Float64CachedScalarComparisonUnit extends AcceleratorExecutionUnit 
 			super(cache0, cache1, cache2, nextNode);
 		}
 		public final AcceleratorExecutionNode execute() {
-			this.cache0.value = this.cache1.value < this.cache2.value;
+			this.cache0.data = this.cache1.data < this.cache2.data;
 			return this.nextNode;
 		}
 	}
@@ -87,7 +87,7 @@ public class Float64CachedScalarComparisonUnit extends AcceleratorExecutionUnit 
 			super(cache0, cache1, cache2, nextNode);
 		}
 		public final AcceleratorExecutionNode execute() {
-			this.cache0.value = this.cache1.value > this.cache2.value;
+			this.cache0.data = this.cache1.data > this.cache2.data;
 			return this.nextNode;
 		}
 	}
@@ -98,7 +98,7 @@ public class Float64CachedScalarComparisonUnit extends AcceleratorExecutionUnit 
 			super(cache0, cache1, cache2, nextNode);
 		}
 		public final AcceleratorExecutionNode execute() {
-			this.cache0.value = this.cache1.value <= this.cache2.value;
+			this.cache0.data = this.cache1.data <= this.cache2.data;
 			return this.nextNode;
 		}
 	}
@@ -109,7 +109,7 @@ public class Float64CachedScalarComparisonUnit extends AcceleratorExecutionUnit 
 			super(cache0, cache1, cache2, nextNode);
 		}
 		public final AcceleratorExecutionNode execute() {
-			this.cache0.value = this.cache1.value >= this.cache2.value;
+			this.cache0.data = this.cache1.data >= this.cache2.data;
 			return this.nextNode;
 		}
 	}
@@ -120,7 +120,7 @@ public class Float64CachedScalarComparisonUnit extends AcceleratorExecutionUnit 
 			super(cache0, cache1, cache2, nextNode);
 		}
 		public final AcceleratorExecutionNode execute() {
-			this.cache0.value = this.cache1.value == this.cache2.value;
+			this.cache0.data = this.cache1.data == this.cache2.data;
 			return this.nextNode;
 		}
 	}
@@ -131,7 +131,7 @@ public class Float64CachedScalarComparisonUnit extends AcceleratorExecutionUnit 
 			super(cache0, cache1, cache2, nextNode);
 		}
 		public final AcceleratorExecutionNode execute() {
-			this.cache0.value = this.cache1.value != this.cache2.value;
+			this.cache0.data = this.cache1.data != this.cache2.data;
 			return this.nextNode;
 		}
 	}

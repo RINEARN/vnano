@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2019 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2020 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -70,7 +70,7 @@ public class Float64ScalarTransferUnit extends AcceleratorExecutionUnit {
 				DataContainer<double[]> container0, DataContainer<double[]> container1,
 				Float64x2ScalarCacheSynchronizer synchronizer, AcceleratorExecutionNode nextNode) {
 
-			super(nextNode);
+			super(nextNode, 1);
 			this.container0 = container0;
 			this.container1 = container1;
 			this.synchronizer = synchronizer;
@@ -78,8 +78,8 @@ public class Float64ScalarTransferUnit extends AcceleratorExecutionUnit {
 
 		public final AcceleratorExecutionNode execute() {
 			this.synchronizer.synchronizeFromCacheToMemory();
-			this.container0.getData()[ this.container0.getOffset() ] =
-			this.container1.getData()[ this.container1.getOffset() ];
+			this.container0.getArrayData()[ this.container0.getArrayOffset() ] =
+			this.container1.getArrayData()[ this.container1.getArrayOffset() ];
 			this.synchronizer.synchronizeFromMemoryToCache();
 			return this.nextNode;
 		}
@@ -95,7 +95,7 @@ public class Float64ScalarTransferUnit extends AcceleratorExecutionUnit {
 				DataContainer<double[]> container0, DataContainer<long[]> container1,
 				Float64x1Int64x1ScalarCacheSynchronizer synchronizer, AcceleratorExecutionNode nextNode) {
 
-			super(nextNode);
+			super(nextNode, 1);
 			this.container0 = container0;
 			this.container1 = container1;
 			this.synchronizer = synchronizer;
@@ -103,8 +103,8 @@ public class Float64ScalarTransferUnit extends AcceleratorExecutionUnit {
 
 		public final AcceleratorExecutionNode execute() {
 			this.synchronizer.synchronizeFromCacheToMemory();
-			this.container0.getData()[ this.container0.getOffset() ] =
-			this.container1.getData()[ this.container1.getOffset() ];
+			this.container0.getArrayData()[ this.container0.getArrayOffset() ] =
+			this.container1.getArrayData()[ this.container1.getArrayOffset() ];
 			this.synchronizer.synchronizeFromMemoryToCache();
 			return this.nextNode;
 		}

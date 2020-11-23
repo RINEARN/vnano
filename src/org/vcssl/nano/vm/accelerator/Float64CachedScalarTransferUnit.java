@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2019 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2020 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -56,13 +56,13 @@ public class Float64CachedScalarTransferUnit extends AcceleratorExecutionUnit {
 		public Float64CachedScalarMovNode(Float64ScalarCache cache0, Float64ScalarCache cache1,
 				AcceleratorExecutionNode nextNode) {
 
-			super(nextNode);
+			super(nextNode, 1);
 			this.cache0 = cache0;
 			this.cache1 = cache1;
 		}
 
 		public final AcceleratorExecutionNode execute() {
-			this.cache0.value = this.cache1.value;
+			this.cache0.data = this.cache1.data;
 			return this.nextNode;
 		}
 	}
@@ -74,13 +74,13 @@ public class Float64CachedScalarTransferUnit extends AcceleratorExecutionUnit {
 		public Float64FromInt64CachedScalarCastNode(Float64ScalarCache cache0, Int64ScalarCache cache1,
 				AcceleratorExecutionNode nextNode) {
 
-			super(nextNode);
+			super(nextNode, 1);
 			this.cache0 = cache0;
 			this.cache1 = cache1;
 		}
 
 		public final AcceleratorExecutionNode execute() {
-			this.cache0.value = this.cache1.value;
+			this.cache0.data = this.cache1.data;
 			return this.nextNode;
 		}
 	}

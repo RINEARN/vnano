@@ -58,7 +58,7 @@ public class BoolScalarLogicalUnit extends AcceleratorExecutionUnit {
 				DataContainer<boolean[]> container0, DataContainer<boolean[]> container1, DataContainer<boolean[]> container2,
 				Boolx3ScalarCacheSynchronizer synchronizer, AcceleratorExecutionNode nextNode) {
 
-			super(nextNode);
+			super(nextNode, 1);
 			this.container0 = container0;
 			this.container1 = container1;
 			this.container2 = container2;
@@ -69,7 +69,7 @@ public class BoolScalarLogicalUnit extends AcceleratorExecutionUnit {
 				DataContainer<boolean[]> container0, DataContainer<boolean[]> container1,
 				Boolx2ScalarCacheSynchronizer synchronizer, AcceleratorExecutionNode nextNode) {
 
-			super(nextNode);
+			super(nextNode, 1);
 			this.container0 = container0;
 			this.container1 = container1;
 			this.container2 = null;
@@ -94,9 +94,9 @@ public class BoolScalarLogicalUnit extends AcceleratorExecutionUnit {
 			//      そのため、以下の && 演算子を & 演算子にしてはいけない。
 
 			this.synchronizer.synchronizeFromCacheToMemory();
-			this.container0.getData()[ this.container0.getOffset() ] =
-			this.container1.getData()[ this.container1.getOffset() ] &&
-			this.container2.getData()[ this.container2.getOffset() ] ;
+			this.container0.getArrayData()[ this.container0.getArrayOffset() ] =
+			this.container1.getArrayData()[ this.container1.getArrayOffset() ] &&
+			this.container2.getArrayData()[ this.container2.getArrayOffset() ] ;
 			this.synchronizer.synchronizeFromMemoryToCache();
 			return this.nextNode;
 		}
@@ -120,9 +120,9 @@ public class BoolScalarLogicalUnit extends AcceleratorExecutionUnit {
 			//      そのため、以下の || 演算子を | 演算子にしてはいけない。
 
 			this.synchronizer.synchronizeFromCacheToMemory();
-			this.container0.getData()[ this.container0.getOffset() ] =
-			this.container1.getData()[ this.container1.getOffset() ] ||
-			this.container2.getData()[ this.container2.getOffset() ] ;
+			this.container0.getArrayData()[ this.container0.getArrayOffset() ] =
+			this.container1.getArrayData()[ this.container1.getArrayOffset() ] ||
+			this.container2.getArrayData()[ this.container2.getArrayOffset() ] ;
 			this.synchronizer.synchronizeFromMemoryToCache();
 			return this.nextNode;
 		}
@@ -139,8 +139,8 @@ public class BoolScalarLogicalUnit extends AcceleratorExecutionUnit {
 
 		public final AcceleratorExecutionNode execute() {
 			this.synchronizer.synchronizeFromCacheToMemory();
-			this.container0.getData()[ this.container0.getOffset() ] =
-			!this.container1.getData()[ this.container1.getOffset() ];
+			this.container0.getArrayData()[ this.container0.getArrayOffset() ] =
+			!this.container1.getArrayData()[ this.container1.getArrayOffset() ];
 			this.synchronizer.synchronizeFromMemoryToCache();
 			return this.nextNode;
 		}

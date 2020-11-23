@@ -48,7 +48,7 @@ package org.vcssl.connect;
  * 関数呼び出しのオーバーヘッドを軽減する機能などもサポートされています
  * (詳細は {@link ExternalFunctionConnectorInterface1#isDataConversionNecessary isDataConversionNecessary}
  * メソッドおよび
- * {@link ArrayDataContainerInterface1 ArrayDataContainerInterface1} クラスを参照してください)。
+ * {@link ArrayDataAccessorInterface1 ArrayDataAccessorInterface1} クラスを参照してください)。
  * </p>
  *
  * <p>
@@ -121,6 +121,20 @@ public interface ExternalFunctionConnectorInterface1 {
 	 * @return 各仮引数のデータ型のClassインスタンスを格納する配列
 	 */
 	public abstract Class<?>[] getParameterClasses();
+
+
+	/**
+	 * データの自動変換を無効化している場合
+	 * ({@link ExternalFunctionConnectorInterface1#isDataConversionNecessary()} が false を返す場合)
+	 * において、各仮引数のデータのやり取りに使用するデータコンテナの型を表す、Class配列を取得します。
+	 *
+	 * ただし、どのようなデータコンテナが使用可能かは、処理系の種類や世代に依存します。
+	 * サポートされていないデータコンテナの型を返した場合は、接続時や実行開始時、
+	 * または関数処理の呼び出し時（処理系依存）にエラーとして検出され、例外が発生します。
+	 *
+	 * @return 各仮引数のデータのやり取りに使用するデータコンテナの型を表すClass配列
+	 */
+	public abstract Class<?>[] getParameterUnconvertedClasses();
 
 
 	/**
@@ -240,6 +254,25 @@ public interface ExternalFunctionConnectorInterface1 {
 
 
 	/**
+	 * データの自動変換を無効化している場合
+	 * ({@link ExternalFunctionConnectorInterface1#isDataConversionNecessary()} が false を返す場合)
+	 * において、戻り値のやり取りに使用するデータコンテナの型を表すClassインスタンスを取得します。
+	 *
+	 * ただし、どのようなデータコンテナが使用可能かは、処理系の種類や世代に依存します。
+	 * サポートされていないデータコンテナの型を返した場合は、接続時や実行開始時、
+	 * または関数処理の呼び出し時（処理系依存）にエラーとして検出され、例外が発生します。
+	 *
+	 * parameterClasses には、スクリプト内での呼び出しにおける、引数のデータ型情報が渡されます。
+	 * これにより、引数の型によって戻り値の型が異なるだけの、
+	 * 複数の関数に相当する処理を、まとめて提供する事ができます。
+	 *
+	 * @param parameterClasses 全引数のデータ型のClassインスタンスを格納する配列
+	 * @return 戻り値のやり取りに使用するデータコンテナの型を表すClassインスタンス
+	 */
+	public abstract Class<?> getReturnUnconvertedClass(Class<?>[] parameterClasses);
+
+
+	/**
 	 * データの自動変換が必要かどうかを返します。
 	 *
 	 * このメソッドがtrueを返すようにプラグインを実装すると、
@@ -251,7 +284,7 @@ public interface ExternalFunctionConnectorInterface1 {
 	 * 逆に、メソッドがfalseを返すようにプラグインを実装すると、
 	 * 処理系側ではデータの変換は行われず、上述のような場面においては、
 	 * 処理系依存のデータコンテナ
-	 * （{@link ArrayDataContainerInterface1 ArrayDataContainerInterface1} 参照）
+	 * （{@link ArrayDataAccessorInterface1 ArrayDataAccessorInterface1} 参照）
 	 * を直接やり取りするようになります。
 	 *
 	 * データの自動変換を利用すると、プラグインの実装が容易になりますが、

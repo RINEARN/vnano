@@ -3,7 +3,7 @@
  * Method to XFCI Plug-in Adapter
  * --------------------------------------------------
  * This file is released under CC0.
- * Written in 2017-2019 by RINEARN (Fumihiro Matsui)
+ * Written in 2017-2020 by RINEARN (Fumihiro Matsui)
  * ==================================================
  */
 
@@ -75,6 +75,7 @@ public class MethodToXfci1Adapter implements ExternalFunctionConnectorInterface1
 	 *
 	 * @return 各仮引数の名称を取得可能かどうか
 	 */
+	@Override
 	public boolean hasParameterNames() {
 		return false;
 	}
@@ -103,6 +104,21 @@ public class MethodToXfci1Adapter implements ExternalFunctionConnectorInterface1
 	@Override
 	public Class<?>[] getParameterClasses() {
 		return this.method.getParameterTypes();
+	}
+
+
+	/**
+	 * データの自動変換を無効化している場合
+	 * ({@link ExternalFunctionConnectorInterface1#isDataConversionNecessary()} が false を返す場合)
+	 * において、各仮引数のデータのやり取りに使用するデータコンテナの型を表す、Class配列を取得します。
+	 *
+	 * ただし、この実装では上記メソッドは true を返すため、このメソッドの戻り値は参照されません。
+	 *
+	 * @return 各仮引数のデータのやり取りに使用するデータコンテナの型を表すClass配列
+	 */
+	@Override
+	public Class<?>[] getParameterUnconvertedClasses() {
+		return null;
 	}
 
 
@@ -197,11 +213,28 @@ public class MethodToXfci1Adapter implements ExternalFunctionConnectorInterface1
 
 
 	/**
+	 * データの自動変換を無効化している場合
+	 * ({@link ExternalFunctionConnectorInterface1#isDataConversionNecessary()} が false を返す場合)
+	 * において、戻り値のやり取りに使用するデータコンテナの型を表すClassインスタンスを取得します。
+	 *
+	 * ただし、この実装では上記メソッドは true を返すため、このメソッドの戻り値は参照されません。
+	 *
+	 * @param parameterClasses 全引数のデータ型のClassインスタンスを格納する配列
+	 * @return 戻り値のやり取りに使用するデータコンテナの型を表すClassインスタンス
+	 */
+	@Override
+	public Class<?> getReturnUnconvertedClass(Class<?>[] parameterClasses) {
+		return null;
+	}
+
+
+	/**
 	 * データの自動変換が必要かどうかを返します。
 	 * このアダプタではデータ変換が必須であるため、常にtrueを返します。
 	 *
 	 * @return 常にtrue
 	 */
+	@Override
 	public boolean isDataConversionNecessary() {
 		return true;
 	}
@@ -250,6 +283,7 @@ public class MethodToXfci1Adapter implements ExternalFunctionConnectorInterface1
 	 * @param engineConnector エンジンに依存するやり取りを行うためのオブジェクト
 	 * @throws ConnectorException 初期化処理に失敗した場合にスローされます。
 	 */
+	@Override
 	public void initializeForConnection(Object engineConnector) throws ConnectorException {
 	}
 
@@ -264,6 +298,7 @@ public class MethodToXfci1Adapter implements ExternalFunctionConnectorInterface1
 	 * @param engineConnector エンジンに依存するやり取りを行うためのオブジェクト
 	 * @throws ConnectorException 終了時処理に失敗した場合にスローされます。
 	 */
+	@Override
 	public void finalizeForDisconnection(Object engineConnector) throws ConnectorException {
 	}
 
@@ -278,6 +313,7 @@ public class MethodToXfci1Adapter implements ExternalFunctionConnectorInterface1
 	 * @param engineConnector エンジンに依存するやり取りを行うためのオブジェクト
 	 * @throws ConnectorException 初期化処理に失敗した場合にスローされます。
 	 */
+	@Override
 	public void initializeForExecution(Object engineConnector) throws ConnectorException {
 	}
 
@@ -292,6 +328,7 @@ public class MethodToXfci1Adapter implements ExternalFunctionConnectorInterface1
 	 * @param engineConnector エンジンに依存するやり取りを行うためのオブジェクト
 	 * @throws ConnectorException 終了時処理に失敗した場合にスローされます。
 	 */
+	@Override
 	public void finalizeForTermination(Object engineConnector) throws ConnectorException {
 	}
 }

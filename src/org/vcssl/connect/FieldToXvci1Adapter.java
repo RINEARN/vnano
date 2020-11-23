@@ -29,12 +29,6 @@ public class FieldToXvci1Adapter implements ExternalVariableConnectorInterface1 
 	/** ホスト言語のフィールドが属するオブジェクトのインスタンスです。 */
 	private Object objectInstance = null;
 
-	/** 必要パーミッション配列です。 */
-	private String[] necessaryPermissionNames = null;
-
-	/** 不要パーミッション配列です。 */
-	private String[] unnecessaryPermissionNames = null;
-
 
 	/**
 	 * 指定されたホスト言語側のインスタンスフィールドを、
@@ -66,6 +60,7 @@ public class FieldToXvci1Adapter implements ExternalVariableConnectorInterface1 
 	 *
 	 * @return 変数名
 	 */
+	@Override
 	public String getVariableName() {
 		return this.field.getName();
 	}
@@ -76,8 +71,24 @@ public class FieldToXvci1Adapter implements ExternalVariableConnectorInterface1 
 	 *
 	 * @return データ型のClassインスタンス
 	 */
+	@Override
 	public Class<?> getDataClass() {
 		return this.field.getType();
+	}
+
+
+	/**
+	 * データの自動変換を無効化している場合
+	 * ({@link ExternalFunctionConnectorInterface1#isDataConversionNecessary()} が false を返す場合)
+	 * において、データのやり取りに使用するデータコンテナの型を表すClassインスタンスを取得します。
+	 *
+	 * ただし、この実装では上記メソッドは true を返すため、このメソッドの戻り値は参照されません。
+	 *
+	 * @return データのやり取りに使用するデータコンテナの型を表すClassインスタンス
+	 */
+	@Override
+	public Class<?> getDataUnconvertedClass() {
+		return null;
 	}
 
 
@@ -86,8 +97,51 @@ public class FieldToXvci1Adapter implements ExternalVariableConnectorInterface1 
 	 *
 	 * @return 定数であればtrue
 	 */
+	@Override
 	public boolean isConstant() {
 		return Modifier.isFinal(field.getModifiers());
+	}
+
+
+	/**
+	 * この変数が、別の変数の参照であるかどうかを返します。
+	 *
+	 * 現在の処理系では、この機能は言語仕様においてサポートされていませんが、
+	 * 将来的な拡張の可能性を考慮して、予約的に定義されています。
+	 * そのため、現状では常に false を返します。
+	 *
+	 * @return 参照であれば true
+	 */
+	public boolean isReference() {
+		return false;
+	}
+
+
+	/**
+	 * データ型が可変であるかどうかを返します。
+	 *
+	 * 現在の処理系では、この機能は言語仕様においてサポートされていませんが、
+	 * 将来的な拡張の可能性を考慮して、予約的に定義されています。
+	 * そのため、現状では常に false を返します。
+	 *
+	 * @return データ型が可変であれば true
+	 */
+	public boolean isDataClassArbitrary() {
+		return false;
+	}
+
+
+	/**
+	 * 配列次元数が可変であるかどうかを返します。
+	 *
+	 * 現在の処理系では、この機能は言語仕様においてサポートされていませんが、
+	 * 将来的な拡張の可能性を考慮して、予約的に定義されています。
+	 * そのため、現状では常に false を返します。
+	 *
+	 * @return 配列次元数が可変であれば true
+	 */
+	public boolean isDataRankArbitrary() {
+		return false;
 	}
 
 
@@ -97,95 +151,16 @@ public class FieldToXvci1Adapter implements ExternalVariableConnectorInterface1 
 	 *
 	 * @return 常にtrue
 	 */
+	@Override
 	public boolean isDataConversionNecessary() {
 		return true;
 	}
 
 
 	/**
-	 * この変数のデータの読み書きに必要な全てのパーミッションの名称を、配列にまとめて設定します。
-	 *
-	 * このメソッドで設定される必要パーミッション配列と、
-	 * {@link FieldToXvci1Adapter#setUnnecessaryPermissions setUnnecessaryPermissions}
-	 * メソッドで設定される不要パーミッション配列において、重複している要素がある場合は、
-	 * 前者の方が優先されます（つまり、そのパーミッションは必要と判断されます）。
-	 *
-	 * なお、このメソッドの引数に、
-	 * {@link ConnectorPermissionName#ALL ConnectorPermissionName.NONE}
-	 * のみを格納する配列を渡す事で、全てのパーミッションが不要となります。
-	 * ただし、そのような事は、
-	 * この関数が一切のシステムリソースやネットワークにアクセスしない場合など、
-	 * スクリプト内で閉じた処理と同等以上のセキュリティが確保されている場合のみ行ってください。
-	 *
-	 * @param necessaryPermissionNames 必要なパーミッションの名称を格納する配列
-	 */
-	public void setNecessaryPermissionNames(String[] necessaryPermissionNames) {
-		this.necessaryPermissionNames = necessaryPermissionNames;
-	}
-
-
-	/**
-	 * この変数のデータの読み書きに必要な全てのパーミッションの名称を、配列にまとめて返します。
-	 *
-	 * デフォルトでは、パーミッションが不要である事を意味する
-	 * { {@link ConnectorPermissionName#NONE ConnectorPermissionName.NONE}
-	 * が返されます。
-	 *
-	 * @return 必要なパーミッションの名称を格納する配列
-	 */
-	public String[] getNecessaryPermissionNames() {
-		return this.necessaryPermissionNames;
-	}
-
-
-	/**
-	 * この変数のデータの読み書きに不要な全てのパーミッションの名称を、配列にまとめて設定します。
-	 *
-	 * このメソッドで設定される不要パーミッション配列と、
-	 * {@link FieldToXvci1Adapter#getNecessaryPermissions getNecessaryPermissions}
-	 * メソッドで設定される必要パーミッション配列において、重複している要素がある場合は、
-	 * 後者の方が優先されます（つまり、そのパーミッションは必要と判断されます）。
-	 *
-	 * なお、このメソッドの引数に
-	 * {@link ConnectorPermissionName#ALL ConnectorPermissionName.ALL} のみを格納する配列を返す事で、
-	 * 必要パーミッション配列に含まれているものを除いた、全てのパーミッションが不要となります。
-	 * これは、将来的に新しいパーミッションが追加された場合に、
-	 * そのパーミッションによって、この関数の実行が拒否される事を回避する事ができます。
-	 *
-	 * ただし、セキュリティが重要となる用途に使用するプラグインの開発においては、
-	 * そのような事自体がそもそも好ましくない事に注意する必要があります。
-	 * そのようなセキュリティ重要度の高い用途に向けたプラグインの開発に際しては、
-	 * 開発時点で存在する個々のパーミッションについて、
-	 * 不要である事が判明しているものだけを設定するようにしてください。
-	 *
-	 * そうすれば、必要・不要のどちらにも含まれない、
-	 * 開発時点で未知のパーミッションの扱いについては、
-	 * 処理系側やユーザー側の判断に委ねる事ができます。
-	 *
-	 * @param unnecessaryPermissionNames 不要なパーミッションの名称を格納する配列
-	 */
-	public void setUnnecessaryPermissionNames(String[] unnecessaryPermissionNames) {
-		this.unnecessaryPermissionNames = unnecessaryPermissionNames;
-	}
-
-
-	/**
-	 * この変数のデータの読み書きに不要な全てのパーミッションの名称を、配列にまとめて取得します。
-	 *
-	 * デフォルトでは、パーミッションが不要である事を意味する
-	 * { {@link ConnectorPermissionName#NONE ConnectorPermissionName.NONE}
-	 * が返されます。
-	 *
-	 * @return 不要なパーミッションの名称を格納する配列
-	 */
-	public String[] getUnnecessaryPermissionNames() {
-		return this.unnecessaryPermissionNames;
-	}
-
-
-	/**
 	 * 変数のデータを取得します。
 	 */
+	@Override
 	public Object getData() throws ConnectorException {
 		try {
 			return this.field.get(this.objectInstance);
@@ -212,6 +187,7 @@ public class FieldToXvci1Adapter implements ExternalVariableConnectorInterface1 
 	 * データの自動変換が無効化されている場合において、変数のデータを取得します。
 	 * このアダプタでは、この機能は使用されません。
 	 */
+	@Override
 	public void getData(Object dataContainer) throws ConnectorException {
 	}
 
@@ -221,6 +197,7 @@ public class FieldToXvci1Adapter implements ExternalVariableConnectorInterface1 
 	 *
 	 * @param data 変数のデータ
 	 */
+	@Override
 	public void setData(Object data) throws ConnectorException {
 		try {
 			this.field.set(this.objectInstance, data);
@@ -253,6 +230,7 @@ public class FieldToXvci1Adapter implements ExternalVariableConnectorInterface1 
 	 * @param engineConnector エンジンに依存するやり取りを行うためのオブジェクト
 	 * @throws ConnectorException 初期化処理に失敗した場合にスローされます。
 	 */
+	@Override
 	public void initializeForConnection(Object engineConnector) throws ConnectorException {
 	}
 
@@ -267,6 +245,7 @@ public class FieldToXvci1Adapter implements ExternalVariableConnectorInterface1 
 	 * @param engineConnector エンジンに依存するやり取りを行うためのオブジェクト
 	 * @throws ConnectorException 終了時処理に失敗した場合にスローされます。
 	 */
+	@Override
 	public void finalizeForDisconnection(Object engineConnector) throws ConnectorException {
 	}
 
@@ -281,6 +260,7 @@ public class FieldToXvci1Adapter implements ExternalVariableConnectorInterface1 
 	 * @param engineConnector エンジンに依存するやり取りを行うためのオブジェクト
 	 * @throws ConnectorException 初期化処理に失敗した場合にスローされます。
 	 */
+	@Override
 	public void initializeForExecution(Object engineConnector) throws ConnectorException {
 	}
 
@@ -295,6 +275,7 @@ public class FieldToXvci1Adapter implements ExternalVariableConnectorInterface1 
 	 * @param engineConnector エンジンに依存するやり取りを行うためのオブジェクト
 	 * @throws ConnectorException 終了時処理に失敗した場合にスローされます。
 	 */
+	@Override
 	public void finalizeForTermination(Object engineConnector) throws ConnectorException {
 	}
 

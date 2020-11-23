@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2019 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2020 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -75,7 +75,7 @@ public class Float64VectorTransferUnit extends AcceleratorExecutionUnit {
 				DataContainer<double[]> container0, DataContainer<double[]> container1,
 				Float64x2ScalarCacheSynchronizer synchronizer, AcceleratorExecutionNode nextNode) {
 
-			super(nextNode);
+			super(nextNode, 1);
 			this.container0 = container0;
 			this.container1 = container1;
 			this.synchronizer = synchronizer;
@@ -83,9 +83,9 @@ public class Float64VectorTransferUnit extends AcceleratorExecutionUnit {
 
 		public final AcceleratorExecutionNode execute() {
 			this.synchronizer.synchronizeFromCacheToMemory();
-			double[] data0 = this.container0.getData();
-			double[] data1 = this.container1.getData();
-			int size = this.container0.getSize();
+			double[] data0 = this.container0.getArrayData();
+			double[] data1 = this.container1.getArrayData();
+			int size = this.container0.getArraySize();
 
 			System.arraycopy(data1, 0, data0, 0, size);
 
@@ -103,7 +103,7 @@ public class Float64VectorTransferUnit extends AcceleratorExecutionUnit {
 				DataContainer<double[]> container0, DataContainer<long[]> container1,
 				Float64x1Int64x1ScalarCacheSynchronizer synchronizer, AcceleratorExecutionNode nextNode) {
 
-			super(nextNode);
+			super(nextNode, 1);
 			this.container0 = container0;
 			this.container1 = container1;
 			this.synchronizer = synchronizer;
@@ -111,9 +111,9 @@ public class Float64VectorTransferUnit extends AcceleratorExecutionUnit {
 
 		public final AcceleratorExecutionNode execute() {
 			this.synchronizer.synchronizeFromCacheToMemory();
-			double[] data0 = this.container0.getData();
-			long[] data1 = this.container1.getData();
-			int size = this.container0.getSize();
+			double[] data0 = this.container0.getArrayData();
+			long[] data1 = this.container1.getArrayData();
+			int size = this.container0.getArraySize();
 
 			for (int i=0; i<size; i++) {
 				data0[i] = data1[i];
@@ -133,7 +133,7 @@ public class Float64VectorTransferUnit extends AcceleratorExecutionUnit {
 				DataContainer<double[]> container0, DataContainer<double[]> container1,
 				Float64x2ScalarCacheSynchronizer synchronizer, AcceleratorExecutionNode nextNode) {
 
-			super(nextNode);
+			super(nextNode, 1);
 			this.container0 = container0;
 			this.container1 = container1;
 			this.synchronizer = synchronizer;
@@ -141,8 +141,8 @@ public class Float64VectorTransferUnit extends AcceleratorExecutionUnit {
 
 		public final AcceleratorExecutionNode execute() {
 			this.synchronizer.synchronizeFromCacheToMemory();
-			double[] data0 = this.container0.getData();
-			double fillValue = this.container1.getData()[ this.container1.getOffset() ];
+			double[] data0 = this.container0.getArrayData();
+			double fillValue = this.container1.getArrayData()[ this.container1.getArrayOffset() ];
 
 			Arrays.fill(data0, fillValue);
 

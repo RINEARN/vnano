@@ -870,7 +870,7 @@ public enum OperationCode {
 
 	/**
 	 * <p>
-	 * <span class="lang-en">The instruction to perform the refModifier-assignment operation</span>
+	 * <span class="lang-en">The instruction to perform the reference-assignment operation</span>
 	 * <span class="lang-ja">参照代入演算を行う命令です</span>
 	 * .
 	 * <span class="lang-en">
@@ -891,8 +891,8 @@ public enum OperationCode {
 	 * </span>
 	 *
 	 * <span class="lang-en">
-	 * After this instruction is executed,
-	 * the data refModifier of "output" will be the same with it of "input".
+	 * When this instruction is executed,
+	 * the data reference of "output" will be the same with it of "input".
 	 * The data type of all operands should be the same.
 	 * Specify the name of the data type to "type".
 	 * </span>
@@ -975,7 +975,7 @@ public enum OperationCode {
 	/**
 	 * <p>
 	 * <span class="lang-en">
-	 * The instruction to pop data from the stack and performs the refModifier-assignment operation
+	 * The instruction to pop data from the stack and performs the reference-assignment operation
 	 * </span>
 	 * <span class="lang-ja">スタックからデータを取り出して参照代入演算を行う命令です</span>
 	 * .
@@ -998,7 +998,7 @@ public enum OperationCode {
 	 *
 	 * <span class="lang-en">
 	 * When this instruction is executed,
-	 * the data refModifier of "output" will set to the data popped from the stack.
+	 * the data reference of "output" will set to the data popped from the stack.
 	 * </span>
 	 * </p>
 	 */
@@ -1320,7 +1320,42 @@ public enum OperationCode {
 
 	/**
 	 * <p>
-	 * <span class="lang-en">The instruction to refer to an element of the array.</span>
+	 * <span class="lang-en">The instruction to copy the value of an element of an array.</span>
+	 * <span class="lang-ja">配列要素をコピーする命令です</span>
+	 * .
+	 * <span class="lang-en">
+	 * The number of operands of this instruction is variable. The syntax in the VRIL code is as follows:
+	 * </span>
+	 *
+	 * <span class="lang-ja">
+	 * この命令は可変長オペランドを取り、VRILコード内での構文は以下の通りです：
+	 * </span>
+	 *
+	 * <div style="border: 1px solid #000000; margin:15px; padding:5px;">
+	 * MOVELM type output input index1 index2 index3 ... indexN ;
+	 * </div>
+	 *
+	 * <span class="lang-en">
+	 * When this instruction is executed,
+	 * the value of an element at [index1][index2][index3]...[indexN] of the array "input"
+	 * will be copied and stored in the "output".
+	 * The data type of all operands should be the same.
+	 * Specify the name of the data type to "type".
+	 * </span>
+	 *
+	 * <span class="lang-ja">
+	 * この命令の実行により, 配列 input の要素
+	 * [index1][index2][index3]...[indexN] がコピーされ, output に格納されます.
+	 * 全オペランドのデータ型は揃っている必要があり, そのデータ型の名称を type に指定します.
+	 * </span>
+	 * </p>
+	 */
+	MOVELM,
+
+
+	/**
+	 * <p>
+	 * <span class="lang-en">The instruction to refer to an element of an array.</span>
 	 * <span class="lang-ja">配列要素を参照する命令です</span>
 	 * .
 	 * <span class="lang-en">
@@ -1332,12 +1367,12 @@ public enum OperationCode {
 	 * </span>
 	 *
 	 * <div style="border: 1px solid #000000; margin:15px; padding:5px;">
-	 * ELEM type output input index1 index2 index3 ... indexN ;
+	 * REFELM type output input index1 index2 index3 ... indexN ;
 	 * </div>
 	 *
 	 * <span class="lang-en">
-	 * After this instruction is executed,
-	 * the refModifier of data of "output" points to the element with
+	 * When this instruction is executed,
+	 * the reference of data of "output" points to the element with
 	 * [index1][index2][index3]...[indexN] of the array "output".
 	 * The data type of all operands should be the same.
 	 * Specify the name of the data type to "type".
@@ -1350,7 +1385,7 @@ public enum OperationCode {
 	 * </span>
 	 * </p>
 	 */
-	ELEM,
+	REFELM,
 
 
 	/**
@@ -1614,6 +1649,46 @@ public enum OperationCode {
 	 * </span>
 	 */
 	ENDFUN,
+
+
+	/**
+	 * <span class="lang-en">
+	 * The special instruction which is put at the end of the transfer part
+	 * between arguments and parameters in a function
+	 * </span>
+	 * <span class="lang-ja">関数における実引数-仮引数間の転送部の終端に置かれる特別な命令です</span>
+	 * .
+	 * <span class="lang-en">
+	 * The syntax in the VRIL code is as follows:
+	 * </span>
+	 * <span class="lang-ja">
+	 * VRILコード内での構文は以下の通りです：
+	 * </span>
+	 *
+	 * <div style="border: 1px solid #000000; margin:15px; padding:5px;">
+	 * ENDPRM type functionName
+	 * </div>
+	 *
+	 * <span class="lang-ja">
+	 * functionName には, 実行対象の関数の名称を指定します.
+	 * type には string を指定します.
+	 * </span>
+	 * <span class="lang-en">
+	 * Specify the identifier of the function to "functionName",
+	 * and specify "string" to "type".
+	 * </span>
+	 *
+	 * <span class="lang-ja">
+	 * この命令は, 実行されても何も起こりませんが, 最適化を補助する情報として有用です.
+	 * また, VRILコードの可読性の向上にも若干貢献します.
+	 * </span>
+	 * <span class="lang-en">
+	 * When this instruction is executed, nothing will occur,
+	 * but this instruction is useful as meta information for optimizations in the VM.
+	 * Also, this instruction improves readability of the VRIL code a little.
+	 * </span>
+	 */
+	ENDPRM,
 
 
 	/**

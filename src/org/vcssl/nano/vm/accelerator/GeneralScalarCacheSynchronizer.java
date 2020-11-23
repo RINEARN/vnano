@@ -29,13 +29,13 @@ public class GeneralScalarCacheSynchronizer extends CacheSynchronizer {
 
 			// 将来的に containers[i].getDataType() に変更？
 			if (caches[i] instanceof Int64ScalarCache) {
-				((long[])(containers[i].getData()))[ containers[i].getOffset() ] = ((Int64ScalarCache)caches[i]).value;
+				((long[])(containers[i].getArrayData()))[ containers[i].getArrayOffset() ] = ((Int64ScalarCache)caches[i]).data;
 
 			} else if (caches[i] instanceof Float64ScalarCache) {
-				((double[])(containers[i].getData()))[ containers[i].getOffset() ] = ((Float64ScalarCache)caches[i]).value;
+				((double[])(containers[i].getArrayData()))[ containers[i].getArrayOffset() ] = ((Float64ScalarCache)caches[i]).data;
 
 			} else if (caches[i] instanceof BoolScalarCache) {
-				((boolean[])(containers[i].getData()))[ containers[i].getOffset() ] = ((BoolScalarCache)caches[i]).value;
+				((boolean[])(containers[i].getArrayData()))[ containers[i].getArrayOffset() ] = ((BoolScalarCache)caches[i]).data;
 
 			} else if (caches[i] instanceof NoneCache) {
 				// プレースホルダの空オペランドなので、何もしない
@@ -56,13 +56,13 @@ public class GeneralScalarCacheSynchronizer extends CacheSynchronizer {
 
 			// 将来的に containers[i].getDataType() に変更？
 			if (caches[i] instanceof Int64ScalarCache) {
-				((Int64ScalarCache)caches[i]).value = ((long[])(containers[i].getData()))[ containers[i].getOffset() ];
+				((Int64ScalarCache)caches[i]).data = ((long[])(containers[i].getArrayData()))[ containers[i].getArrayOffset() ];
 
 			} else if (caches[i] instanceof Float64ScalarCache) {
-				((Float64ScalarCache)caches[i]).value = ((double[])(containers[i].getData()))[ containers[i].getOffset() ];
+				((Float64ScalarCache)caches[i]).data = ((double[])(containers[i].getArrayData()))[ containers[i].getArrayOffset() ];
 
 			} else if (caches[i] instanceof BoolScalarCache) {
-				((BoolScalarCache)caches[i]).value = ((boolean[])(containers[i].getData()))[ containers[i].getOffset() ];
+				((BoolScalarCache)caches[i]).data = ((boolean[])(containers[i].getArrayData()))[ containers[i].getArrayOffset() ];
 
 			} else if (caches[i] instanceof NoneCache) {
 				// プレースホルダの空オペランドなので、何もしない

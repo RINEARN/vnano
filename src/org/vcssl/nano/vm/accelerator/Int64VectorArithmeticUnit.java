@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2018 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2020 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -18,29 +18,41 @@ public class Int64VectorArithmeticUnit extends AcceleratorExecutionUnit {
 			AcceleratorExecutionNode nextNode) {
 
 		DataContainer<long[]>[] containers = (DataContainer<long[]>[])operandContainers;
-		Int64x3ScalarCacheSynchronizer synchronizer
-				= new Int64x3ScalarCacheSynchronizer(operandContainers, operandCaches, operandCachingEnabled);
+
+		Int64x2ScalarCacheSynchronizer synchronizerI64x2 = null;
+		Int64x3ScalarCacheSynchronizer synchronizerI64x3 = null;
+		if (operandContainers.length == 2) {
+			synchronizerI64x2 = new Int64x2ScalarCacheSynchronizer(operandContainers, operandCaches, operandCachingEnabled);
+		} else if (operandContainers.length == 3) {
+			synchronizerI64x3 = new Int64x3ScalarCacheSynchronizer(operandContainers, operandCaches, operandCachingEnabled);
+		} else {
+			throw new VnanoFatalException("Unexpected number of operands detected.");
+		}
 
 		Int64VectorArithmeticNode node = null;
 		switch (instruction.getOperationCode()) {
 			case ADD : {
-				node = new Int64VectorAddNode(containers[0], containers[1], containers[2], synchronizer, nextNode);
+				node = new Int64VectorAddNode(containers[0], containers[1], containers[2], synchronizerI64x3, nextNode);
 				break;
 			}
 			case SUB : {
-				node = new Int64VectorSubNode(containers[0], containers[1], containers[2], synchronizer, nextNode);
+				node = new Int64VectorSubNode(containers[0], containers[1], containers[2], synchronizerI64x3, nextNode);
 				break;
 			}
 			case MUL : {
-				node = new Int64VectorMulNode(containers[0], containers[1], containers[2], synchronizer, nextNode);
+				node = new Int64VectorMulNode(containers[0], containers[1], containers[2], synchronizerI64x3, nextNode);
 				break;
 			}
 			case DIV : {
-				node = new Int64VectorDivNode(containers[0], containers[1], containers[2], synchronizer, nextNode);
+				node = new Int64VectorDivNode(containers[0], containers[1], containers[2], synchronizerI64x3, nextNode);
 				break;
 			}
 			case REM : {
-				node = new Int64VectorRemNode(containers[0], containers[1], containers[2], synchronizer, nextNode);
+				node = new Int64VectorRemNode(containers[0], containers[1], containers[2], synchronizerI64x3, nextNode);
+				break;
+			}
+			case NEG : {
+				node = new Int64VectorNegNode(containers[0], containers[1], synchronizerI64x2, nextNode);
 				break;
 			}
 			default : {
@@ -56,17 +68,31 @@ public class Int64VectorArithmeticUnit extends AcceleratorExecutionUnit {
 		protected final DataContainer<long[]> container0;
 		protected final DataContainer<long[]> container1;
 		protected final DataContainer<long[]> container2;
-		protected final Int64x3ScalarCacheSynchronizer synchronizer;
+		protected final Int64x3ScalarCacheSynchronizer synchronizerI64x3;
+		protected final Int64x2ScalarCacheSynchronizer synchronizerI64x2;
 
 		public Int64VectorArithmeticNode(
 				DataContainer<long[]> container0, DataContainer<long[]> container1, DataContainer<long[]> container2,
 				Int64x3ScalarCacheSynchronizer synchronizer, AcceleratorExecutionNode nextNode) {
 
-			super(nextNode);
+			super(nextNode, 1);
 			this.container0 = container0;
 			this.container1 = container1;
 			this.container2 = container2;
-			this.synchronizer = synchronizer;
+			this.synchronizerI64x2 = null;
+			this.synchronizerI64x3 = synchronizer;
+		}
+
+		public Int64VectorArithmeticNode(
+				DataContainer<long[]> container0, DataContainer<long[]> container1,
+				Int64x2ScalarCacheSynchronizer synchronizer, AcceleratorExecutionNode nextNode) {
+
+			super(nextNode, 1);
+			this.container0 = container0;
+			this.container1 = container1;
+			this.container2 = null;
+			this.synchronizerI64x2 = synchronizer;
+			this.synchronizerI64x3 = null;
 		}
 	}
 
@@ -80,17 +106,17 @@ public class Int64VectorArithmeticUnit extends AcceleratorExecutionUnit {
 		}
 
 		public final AcceleratorExecutionNode execute() {
-			this.synchronizer.synchronizeFromCacheToMemory();
-			long[] data0 = this.container0.getData();
-			long[] data1 = this.container1.getData();
-			long[] data2 = this.container2.getData();
-			int size = this.container0.getSize();
+			this.synchronizerI64x3.synchronizeFromCacheToMemory();
+			long[] data0 = this.container0.getArrayData();
+			long[] data1 = this.container1.getArrayData();
+			long[] data2 = this.container2.getArrayData();
+			int size = this.container0.getArraySize();
 
 			for (int i=0; i<size; i++) {
 				data0[i] = data1[i] + data2[i];
 			}
 
-			this.synchronizer.synchronizeFromMemoryToCache();
+			this.synchronizerI64x3.synchronizeFromMemoryToCache();
 			return this.nextNode;
 		}
 	}
@@ -105,17 +131,17 @@ public class Int64VectorArithmeticUnit extends AcceleratorExecutionUnit {
 		}
 
 		public final AcceleratorExecutionNode execute() {
-			this.synchronizer.synchronizeFromCacheToMemory();
-			long[] data0 = this.container0.getData();
-			long[] data1 = this.container1.getData();
-			long[] data2 = this.container2.getData();
-			int size = this.container0.getSize();
+			this.synchronizerI64x3.synchronizeFromCacheToMemory();
+			long[] data0 = this.container0.getArrayData();
+			long[] data1 = this.container1.getArrayData();
+			long[] data2 = this.container2.getArrayData();
+			int size = this.container0.getArraySize();
 
 			for (int i=0; i<size; i++) {
 				data0[i] = data1[i] - data2[i];
 			}
 
-			this.synchronizer.synchronizeFromMemoryToCache();
+			this.synchronizerI64x3.synchronizeFromMemoryToCache();
 			return this.nextNode;
 		}
 	}
@@ -130,17 +156,17 @@ public class Int64VectorArithmeticUnit extends AcceleratorExecutionUnit {
 		}
 
 		public final AcceleratorExecutionNode execute() {
-			this.synchronizer.synchronizeFromCacheToMemory();
-			long[] data0 = this.container0.getData();
-			long[] data1 = this.container1.getData();
-			long[] data2 = this.container2.getData();
-			int size = this.container0.getSize();
+			this.synchronizerI64x3.synchronizeFromCacheToMemory();
+			long[] data0 = this.container0.getArrayData();
+			long[] data1 = this.container1.getArrayData();
+			long[] data2 = this.container2.getArrayData();
+			int size = this.container0.getArraySize();
 
 			for (int i=0; i<size; i++) {
 				data0[i] = data1[i] * data2[i];
 			}
 
-			this.synchronizer.synchronizeFromMemoryToCache();
+			this.synchronizerI64x3.synchronizeFromMemoryToCache();
 			return this.nextNode;
 		}
 	}
@@ -155,17 +181,17 @@ public class Int64VectorArithmeticUnit extends AcceleratorExecutionUnit {
 		}
 
 		public final AcceleratorExecutionNode execute() {
-			this.synchronizer.synchronizeFromCacheToMemory();
-			long[] data0 = this.container0.getData();
-			long[] data1 = this.container1.getData();
-			long[] data2 = this.container2.getData();
-			int size = this.container0.getSize();
+			this.synchronizerI64x3.synchronizeFromCacheToMemory();
+			long[] data0 = this.container0.getArrayData();
+			long[] data1 = this.container1.getArrayData();
+			long[] data2 = this.container2.getArrayData();
+			int size = this.container0.getArraySize();
 
 			for (int i=0; i<size; i++) {
 				data0[i] = data1[i] / data2[i];
 			}
 
-			this.synchronizer.synchronizeFromMemoryToCache();
+			this.synchronizerI64x3.synchronizeFromMemoryToCache();
 			return this.nextNode;
 		}
 	}
@@ -180,17 +206,41 @@ public class Int64VectorArithmeticUnit extends AcceleratorExecutionUnit {
 		}
 
 		public final AcceleratorExecutionNode execute() {
-			this.synchronizer.synchronizeFromCacheToMemory();
-			long[] data0 = this.container0.getData();
-			long[] data1 = this.container1.getData();
-			long[] data2 = this.container2.getData();
-			int size = this.container0.getSize();
+			this.synchronizerI64x3.synchronizeFromCacheToMemory();
+			long[] data0 = this.container0.getArrayData();
+			long[] data1 = this.container1.getArrayData();
+			long[] data2 = this.container2.getArrayData();
+			int size = this.container0.getArraySize();
 
 			for (int i=0; i<size; i++) {
 				data0[i] = data1[i] % data2[i];
 			}
 
-			this.synchronizer.synchronizeFromMemoryToCache();
+			this.synchronizerI64x3.synchronizeFromMemoryToCache();
+			return this.nextNode;
+		}
+	}
+
+	private final class Int64VectorNegNode extends Int64VectorArithmeticNode {
+
+		public Int64VectorNegNode(
+				DataContainer<long[]> container0, DataContainer<long[]> container1,
+				Int64x2ScalarCacheSynchronizer synchronizer, AcceleratorExecutionNode nextNode) {
+
+			super(container0, container1, synchronizer, nextNode);
+		}
+
+		public final AcceleratorExecutionNode execute() {
+			this.synchronizerI64x2.synchronizeFromCacheToMemory();
+			long[] data0 = this.container0.getArrayData();
+			long[] data1 = this.container1.getArrayData();
+			int size = this.container0.getArraySize();
+
+			for (int i=0; i<size; i++) {
+				data0[i] = - data1[i];
+			}
+
+			this.synchronizerI64x2.synchronizeFromMemoryToCache();
 			return this.nextNode;
 		}
 	}

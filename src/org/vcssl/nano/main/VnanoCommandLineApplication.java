@@ -13,6 +13,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
@@ -66,6 +67,8 @@ public final class VnanoCommandLineApplication {
 	private static final String COMMAND_OPTNAME_LOCALE = "locale";
 	private static final String COMMAND_OPTNAME_VERSION = "version";
 	private static final String COMMAND_OPTNAME_ACCELERATOR = "accelerator";
+	private static final String COMMAND_OPTNAME_TERMINATOR = "terminator";
+	private static final String COMMAND_OPTNAME_PERF = "perf";
 	private static final String COMMAND_OPTNAME_ENCODING = "encoding";
 	private static final String COMMAND_OPTNAME_PLUGIN_DIR = "pluginDir";
 	private static final String COMMAND_OPTNAME_PLUGIN = "plugin";
@@ -85,7 +88,7 @@ public final class VnanoCommandLineApplication {
 	private static final String DUMP_TARGET_ACCELERATOR_CODE = "acceleratorCode";
 	private static final String DUMP_TARGET_ACCELERATOR_STATE = "acceleratorState";
 	private static final String DUMP_TARGET_ALL = "all";
-	private static final String DUMP_TARGET_DEFAULT = DUMP_TARGET_ALL;
+	private static final String DUMP_TARGET_DEFAULT = DUMP_TARGET_ALL; // --dump 自体はデフォルトでは未指定だけど、指定しつつターゲット未指定だった場合のデフォルトターゲット値
 
 	// コマンドラインでの--dumpオプションの値を、スクリプトエンジンのオプションマップ用の値に変換するマップ
 	private static final Map<String, String> DUMP_TARGET_COMMANDOPT_ENGINEOPT_MAP = new HashMap<String, String>();
@@ -102,8 +105,26 @@ public final class VnanoCommandLineApplication {
 		DUMP_TARGET_COMMANDOPT_ENGINEOPT_MAP.put(DUMP_TARGET_ALL, OptionValue.DUMPER_TARGET_ALL);
 	}
 
+	// --perf オプションで指定する値の定義
+	private static final String PERF_TARGET_SPEED = "speed";
+	private static final String PERF_TARGET_RAM = "ram";
+	private static final String PERF_TARGET_INSTRUCTION_FREQ = "instructionFreq";
+	private static final String PERF_TARGET_ALL = "all";
+	private static final String PERF_TARGET_DEFAULT = PERF_TARGET_ALL; // --perf 自体はデフォルトでは未指定だけど、指定しつつターゲット未指定だった場合のデフォルトターゲット値
+	// 有効な perf ターゲット名のセット
+	private static final Set<String> PERF_TARGET_SET = new HashSet<String>();
+	static {
+		PERF_TARGET_SET.add(PERF_TARGET_SPEED);
+		PERF_TARGET_SET.add(PERF_TARGET_RAM);
+		PERF_TARGET_SET.add(PERF_TARGET_INSTRUCTION_FREQ);
+		PERF_TARGET_SET.add(PERF_TARGET_ALL);
+	}
+	// perfターゲットの指定/未指定やターゲット値を控える
+	private String perfTarget = null;
+	private boolean perfEnabled = false;
+
 	// エンジンに渡すオプションを格納するマップ
-	private HashMap<String, Object> engineOptionMap = new HashMap<String, Object>();
+	private Map<String, Object> engineOptionMap = new HashMap<String, Object>();
 
 	// コマンドラインオプション --pluginDir の値を控える
 	private List<String> optPluginDirList = new ArrayList<String>();
@@ -264,6 +285,40 @@ public final class VnanoCommandLineApplication {
 		System.out.println("");
 		System.out.println("      java -jar Vnano.jar Example.vnano --accelerator true");
 		System.out.println("      java -jar Vnano.jar Example.vnano --accelerator false");
+		System.out.println("");
+		System.out.println("");
+
+		System.out.println("  --terminator <enableOrDisable>");
+		System.out.println("");
+		System.out.println("      Specify whether you want to enable the terminator.");
+		System.out.println("      This option is specified by default, and the default value is false.");
+		System.out.println("      You can choose and specify the value of <enableOrDisable> from the followings:");
+		System.out.println("");
+		System.out.println("        true            : Enable the terminator.");
+		System.out.println("        false (default) : Disable the terminator.");
+		System.out.println("");
+		System.out.println("    e.g.");
+		System.out.println("");
+		System.out.println("      java -jar Vnano.jar Example.vnano --terminator true");
+		System.out.println("      java -jar Vnano.jar Example.vnano --terminator false");
+		System.out.println("");
+		System.out.println("");
+
+		System.out.println("  --perf <perfTarget>");
+		System.out.println("");
+		System.out.println("      Enable the performance monitor.");
+		System.out.println("      You can choose and specify the <perfTarget> from the following list:");
+		System.out.println("");
+		System.out.println("        speed            : VM drive speed.");
+		System.out.println("        ram              : RAM usage.");
+		System.out.println("        instructionFreq  : Frequencies of that each instruction is being executed at periodic sampling moments.");
+		System.out.println("        all (default)    : All of the above performance monitoring targets.");
+		System.out.println("");
+		System.out.println("    e.g.");
+		System.out.println("");
+		System.out.println("      java -jar Vnano.jar Example.vnano --perf");
+		System.out.println("      java -jar Vnano.jar Example.vnano --perf all");
+		System.out.println("      java -jar Vnano.jar Example.vnano --perf speed");
 		System.out.println("");
 		System.out.println("");
 
@@ -502,6 +557,19 @@ public final class VnanoCommandLineApplication {
 				return true;
 			}
 
+			// --terminator オプションの場合
+			case COMMAND_OPTNAME_TERMINATOR : {
+				if (optionValue.equals("true") || optionValue.equals("false")) {
+					this.engineOptionMap.put(OptionKey.TERMINATOR_ENABLED, Boolean.valueOf(optionValue));
+				} else {
+					System.err.println(
+							"Invalid value for " + COMMAND_OPTNAME_PREFIX + COMMAND_OPTNAME_TERMINATOR + "option: " + optionValue
+					);
+					return false;
+				}
+				return true;
+			}
+
 			// --locale オプションの場合
 			case COMMAND_OPTNAME_LOCALE : {
 				// 先頭と末尾以外に「 - 」がある場合は、言語コードと国コードの区切りなので、分割して解釈
@@ -535,7 +603,25 @@ public final class VnanoCommandLineApplication {
 					return false;
 				}
 				this.engineOptionMap.put(OptionKey.DUMPER_TARGET, convertedOptionValue);
-				this.engineOptionMap.put(OptionKey.DUMPER_ENABLED, Boolean.valueOf(true));
+				this.engineOptionMap.put(OptionKey.DUMPER_ENABLED, Boolean.TRUE);
+				return true;
+			}
+
+			// --perf オプションの場合
+			case COMMAND_OPTNAME_PERF : {
+				this.perfEnabled = true;
+				if (optionValue == null) {
+					optionValue = PERF_TARGET_DEFAULT;
+				}
+				if (PERF_TARGET_SET.contains(optionValue)) {
+					this.perfTarget = optionValue;
+				} else {
+					System.err.println(
+						"Invalid value for " + COMMAND_OPTNAME_PREFIX + COMMAND_OPTNAME_PERF + "option: " + optionValue
+					);
+					return false;
+				}
+				this.engineOptionMap.put(OptionKey.PERFORMANCE_MONITOR_ENABLED, Boolean.TRUE);
 				return true;
 			}
 
@@ -842,6 +928,9 @@ public final class VnanoCommandLineApplication {
 		this.engineOptionMap.put(OptionKey.MAIN_SCRIPT_NAME, scriptLoader.getMainScriptName());
 		this.engineOptionMap.put(OptionKey.UI_MODE, "CUI");
 
+		// オプション内容を正規化（必須項目の補完など）
+		this.engineOptionMap = OptionValue.normalizeValuesOf(this.engineOptionMap, this.LANG_SPEC);
+
 		// オプション設定済み＆プラグイン接続済みのスクリプトエンジンを生成
 		VnanoEngine engine = this.createInitializedVnanoEngine(this.engineOptionMap, pluginLoader);
 
@@ -855,8 +944,26 @@ public final class VnanoCommandLineApplication {
 			}
 		}
 
+		// 実測パフォーマンス値を表示するスレッドを生成
+		PerformanceValuePrinter perfValuePrinter = null;
+		if (this.perfEnabled) {
+			boolean printsVmSpeed = this.perfTarget.equals(PERF_TARGET_ALL) || this.perfTarget.equals(PERF_TARGET_SPEED);
+			boolean printsRamUsage = this.perfTarget.equals(PERF_TARGET_ALL) || this.perfTarget.equals(PERF_TARGET_RAM);
+			boolean printsInstructionFreq = this.perfTarget.equals(PERF_TARGET_ALL) || this.perfTarget.equals(PERF_TARGET_INSTRUCTION_FREQ);
+			perfValuePrinter = new PerformanceValuePrinter(
+				engine, printsVmSpeed, printsRamUsage, printsInstructionFreq // そろそろ setter にしたほうが
+			);
+			Thread perfValuePrintThread = new Thread(perfValuePrinter);
+			perfValuePrintThread.start();
+		}
+
 		// スクリプトを実行
 		engine.executeScript(scriptLoader.getMainScriptContent());
+
+		// 実行が終了したら、実測パフォーマンス値の表示も終了
+		if (this.perfEnabled) {
+			perfValuePrinter.terminate();
+		}
 
 		// プラグインの接続を解除（プラグイン側でも接続解除用の終了時処理が実行される）
 		engine.disconnectAllPlugins();
@@ -869,6 +976,9 @@ public final class VnanoCommandLineApplication {
 		this.engineOptionMap.put(OptionKey.MAIN_SCRIPT_NAME, scriptLoader.getMainScriptName());
 		this.engineOptionMap.put(OptionKey.UI_MODE, "CUI");
 
+		// オプション内容を正規化（必須項目の補完など）
+		this.engineOptionMap = OptionValue.normalizeValuesOf(this.engineOptionMap, this.LANG_SPEC);
+
 		// オプション設定済み＆プラグイン接続済みのインターコネクトを生成して取得
 		Interconnect interconnect = this.createInitializedInterconnect(this.engineOptionMap, pluginLoader);
 		if (interconnect == null) {
@@ -878,9 +988,27 @@ public final class VnanoCommandLineApplication {
 		// プラグインのスクリプト実行前の初期化処理などを実行
 		interconnect.activate();
 
-		// プロセス仮想マシンを生成し、VRILコードを渡して実行
+		// VRILコードを実行するプロセス仮想マシン（VM）を生成
 		VirtualMachine vm = new VirtualMachine(LANG_SPEC);
+
+		// 実測パフォーマンス値を表示するスレッドが必要なら生成
+		PerformanceValuePrinter perfValuePrinter = null;
+		if (this.perfEnabled) {
+			boolean printsVmSpeed = this.perfTarget.equals(PERF_TARGET_ALL) || this.perfTarget.equals(PERF_TARGET_SPEED);
+			boolean printsRamUsage = this.perfTarget.equals(PERF_TARGET_ALL) || this.perfTarget.equals(PERF_TARGET_RAM);
+			boolean printsInstructionFreq = this.perfTarget.equals(PERF_TARGET_ALL) || this.perfTarget.equals(PERF_TARGET_INSTRUCTION_FREQ);
+			perfValuePrinter = new PerformanceValuePrinter(vm, printsVmSpeed, printsRamUsage, printsInstructionFreq);
+			Thread perfValuePrintThread = new Thread(perfValuePrinter);
+			perfValuePrintThread.start();
+		}
+
+		// VMにVRILコードを渡して実行
 		vm.executeAssemblyCode(scriptLoader.getMainScriptContent(), interconnect);
+
+		// 実行が終了したら、実測パフォーマンス値の表示も終了
+		if (this.perfEnabled) {
+			perfValuePrinter.terminate();
+		}
 
 		// プラグインのスクリプト実行後の終了時処理などを実行
 		interconnect.deactivate();

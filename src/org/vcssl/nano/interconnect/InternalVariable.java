@@ -1,10 +1,11 @@
 /*
- * Copyright(C) 2017-2018 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2020 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
 package org.vcssl.nano.interconnect;
 
+import org.vcssl.nano.VnanoFatalException;
 import org.vcssl.nano.vm.memory.DataContainer;
 
 /**
@@ -88,24 +89,39 @@ public class InternalVariable extends AbstractVariable {
 
 
 	/**
+	 * このメソッドは使用できません。
+	 *
+	 * このメソッドは、外部変数などの接続時に、エイリアスを指定するための機能として AbstractVariable に宣言されています。
+	 * 一方、現在のVnanoでは、内部変数にエイリアスを付ける言語機能はサポートしていないため、
+	 * もしも内部変数に対してこのメソッドが呼ばれた場合、それは実装上のミスによるものと考えられます。
+	 * 従って、このメソッドは呼ばれると VnanoFatalException を発生させます。
+	 *
+	 * @param variableName 変数名
+	 */
+	@Override
+	public void setVariableName(String variableName) {
+		throw new VnanoFatalException("Names of internal variables should not be changed.");
+	}
+
+
+	/**
 	 * 所属している名前空間があるかどうかを判定します。
 	 *
 	 * @return 名前空間に所属していれば true
 	 */
 	@Override
-	public boolean hasNameSpace() {
+	public boolean hasNamespaceName() {
 		return false; // スクリプト内での名前空間定義はサポートされていない
 	}
 
-
-	/**
-	 * 所属している名前空間を返します。
-	 *
-	 * @return 名前空間
-	 */
 	@Override
-	public String getNameSpace() {
-		return null; // スクリプト内での名前空間定義はサポートされていない
+	public final String getNamespaceName() {
+		throw new VnanoFatalException("Internal variables can not belongs to any namespaces.");
+	}
+
+	@Override
+	public final void setNamespaceName(String namespaceName) {
+		throw new VnanoFatalException("Internal variables can not belongs to any namespaces.");
 	}
 
 

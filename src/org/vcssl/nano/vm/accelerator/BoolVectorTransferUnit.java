@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2019 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2020 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -71,7 +71,7 @@ public class BoolVectorTransferUnit extends AcceleratorExecutionUnit {
 				DataContainer<boolean[]> container0, DataContainer<boolean[]> container1,
 				Boolx2ScalarCacheSynchronizer synchronizer, AcceleratorExecutionNode nextNode) {
 
-			super(nextNode);
+			super(nextNode, 1);
 			this.container0 = container0;
 			this.container1 = container1;
 			this.synchronizer = synchronizer;
@@ -79,9 +79,9 @@ public class BoolVectorTransferUnit extends AcceleratorExecutionUnit {
 
 		public final AcceleratorExecutionNode execute() {
 			this.synchronizer.synchronizeFromCacheToMemory();
-			boolean[] data0 = this.container0.getData();
-			boolean[] data1 = this.container1.getData();
-			int size = this.container0.getSize();
+			boolean[] data0 = this.container0.getArrayData();
+			boolean[] data1 = this.container1.getArrayData();
+			int size = this.container0.getArraySize();
 
 			System.arraycopy(data1, 0, data0, 0, size);
 
@@ -99,7 +99,7 @@ public class BoolVectorTransferUnit extends AcceleratorExecutionUnit {
 				DataContainer<boolean[]> container0, DataContainer<boolean[]> container1,
 				Boolx2ScalarCacheSynchronizer synchronizer, AcceleratorExecutionNode nextNode) {
 
-			super(nextNode);
+			super(nextNode, 1);
 			this.container0 = container0;
 			this.container1 = container1;
 			this.synchronizer = synchronizer;
@@ -107,8 +107,8 @@ public class BoolVectorTransferUnit extends AcceleratorExecutionUnit {
 
 		public final AcceleratorExecutionNode execute() {
 			this.synchronizer.synchronizeFromCacheToMemory();
-			boolean[] data0 = this.container0.getData();
-			boolean fillValue = this.container1.getData()[ this.container1.getOffset() ];
+			boolean[] data0 = this.container0.getArrayData();
+			boolean fillValue = this.container1.getArrayData()[ this.container1.getArrayOffset() ];
 
 			Arrays.fill(data0, fillValue);
 

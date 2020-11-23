@@ -1,15 +1,27 @@
 /*
- * Copyright(C) 2017-2018 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2020 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
 package org.vcssl.nano.vm.accelerator;
+
+import java.util.HashSet;
+import java.util.Set;
 
 import org.vcssl.nano.VnanoFatalException;
 import org.vcssl.nano.spec.OperationCode;
 import org.vcssl.nano.vm.memory.DataContainer;
 
 public class Int64CachedScalarDualArithmeticUnit extends AcceleratorExecutionUnit {
+
+	public static final Set<OperationCode> AVAILABLE_OPERAND_SET = new HashSet<OperationCode>();
+	static {
+		AVAILABLE_OPERAND_SET.add(OperationCode.ADD);
+		AVAILABLE_OPERAND_SET.add(OperationCode.SUB);
+		AVAILABLE_OPERAND_SET.add(OperationCode.MUL);
+		AVAILABLE_OPERAND_SET.add(OperationCode.DIV);
+		AVAILABLE_OPERAND_SET.add(OperationCode.REM);
+	}
 
 	@Override
 	public AcceleratorExecutionNode generateNode(
@@ -391,7 +403,7 @@ public class Int64CachedScalarDualArithmeticUnit extends AcceleratorExecutionUni
 
 		public Int64CachedScalarDualArithmeticNode(Int64ScalarCache[] caches, AcceleratorExecutionNode nextNode) {
 
-			super(nextNode);
+			super(nextNode, 2);
 			this.cache00 = caches[0];
 			this.cache01 = caches[1];
 			this.cache02 = caches[2];
@@ -409,7 +421,7 @@ public class Int64CachedScalarDualArithmeticUnit extends AcceleratorExecutionUni
 			super(caches, nextNode);
 		}
 		public final AcceleratorExecutionNode execute() {
-			this.cache10.value = (this.cache00.value = this.cache01.value + this.cache02.value) + this.cache12.value;
+			this.cache10.data = (this.cache00.data = this.cache01.data + this.cache02.data) + this.cache12.data;
 			return this.nextNode;
 		}
 	}
@@ -419,7 +431,7 @@ public class Int64CachedScalarDualArithmeticUnit extends AcceleratorExecutionUni
 			super(caches, nextNode);
 		}
 		public final AcceleratorExecutionNode execute() {
-			this.cache10.value = this.cache11.value + (this.cache00.value = this.cache01.value + this.cache02.value);
+			this.cache10.data = this.cache11.data + (this.cache00.data = this.cache01.data + this.cache02.data);
 			return this.nextNode;
 		}
 	}
@@ -431,7 +443,7 @@ public class Int64CachedScalarDualArithmeticUnit extends AcceleratorExecutionUni
 			super(caches, nextNode);
 		}
 		public final AcceleratorExecutionNode execute() {
-			this.cache10.value = (this.cache00.value = this.cache01.value + this.cache02.value) - this.cache12.value;
+			this.cache10.data = (this.cache00.data = this.cache01.data + this.cache02.data) - this.cache12.data;
 			return this.nextNode;
 		}
 	}
@@ -441,7 +453,7 @@ public class Int64CachedScalarDualArithmeticUnit extends AcceleratorExecutionUni
 			super(caches, nextNode);
 		}
 		public final AcceleratorExecutionNode execute() {
-			this.cache10.value = this.cache11.value - (this.cache00.value = this.cache01.value + this.cache02.value);
+			this.cache10.data = this.cache11.data - (this.cache00.data = this.cache01.data + this.cache02.data);
 			return this.nextNode;
 		}
 	}
@@ -453,7 +465,7 @@ public class Int64CachedScalarDualArithmeticUnit extends AcceleratorExecutionUni
 			super(caches, nextNode);
 		}
 		public final AcceleratorExecutionNode execute() {
-			this.cache10.value = (this.cache00.value = this.cache01.value + this.cache02.value) * this.cache12.value;
+			this.cache10.data = (this.cache00.data = this.cache01.data + this.cache02.data) * this.cache12.data;
 			return this.nextNode;
 		}
 	}
@@ -463,7 +475,7 @@ public class Int64CachedScalarDualArithmeticUnit extends AcceleratorExecutionUni
 			super(caches, nextNode);
 		}
 		public final AcceleratorExecutionNode execute() {
-			this.cache10.value = this.cache11.value * (this.cache00.value = this.cache01.value + this.cache02.value);
+			this.cache10.data = this.cache11.data * (this.cache00.data = this.cache01.data + this.cache02.data);
 			return this.nextNode;
 		}
 	}
@@ -475,7 +487,7 @@ public class Int64CachedScalarDualArithmeticUnit extends AcceleratorExecutionUni
 			super(caches, nextNode);
 		}
 		public final AcceleratorExecutionNode execute() {
-			this.cache10.value = (this.cache00.value = this.cache01.value + this.cache02.value) / this.cache12.value;
+			this.cache10.data = (this.cache00.data = this.cache01.data + this.cache02.data) / this.cache12.data;
 			return this.nextNode;
 		}
 	}
@@ -485,7 +497,7 @@ public class Int64CachedScalarDualArithmeticUnit extends AcceleratorExecutionUni
 			super(caches, nextNode);
 		}
 		public final AcceleratorExecutionNode execute() {
-			this.cache10.value = this.cache11.value / (this.cache00.value = this.cache01.value + this.cache02.value);
+			this.cache10.data = this.cache11.data / (this.cache00.data = this.cache01.data + this.cache02.data);
 			return this.nextNode;
 		}
 	}
@@ -497,7 +509,7 @@ public class Int64CachedScalarDualArithmeticUnit extends AcceleratorExecutionUni
 			super(caches, nextNode);
 		}
 		public final AcceleratorExecutionNode execute() {
-			this.cache10.value = (this.cache00.value = this.cache01.value + this.cache02.value) % this.cache12.value;
+			this.cache10.data = (this.cache00.data = this.cache01.data + this.cache02.data) % this.cache12.data;
 			return this.nextNode;
 		}
 	}
@@ -507,7 +519,7 @@ public class Int64CachedScalarDualArithmeticUnit extends AcceleratorExecutionUni
 			super(caches, nextNode);
 		}
 		public final AcceleratorExecutionNode execute() {
-			this.cache10.value = this.cache11.value % (this.cache00.value = this.cache01.value + this.cache02.value);
+			this.cache10.data = this.cache11.data % (this.cache00.data = this.cache01.data + this.cache02.data);
 			return this.nextNode;
 		}
 	}
@@ -522,7 +534,7 @@ public class Int64CachedScalarDualArithmeticUnit extends AcceleratorExecutionUni
 			super(caches, nextNode);
 		}
 		public final AcceleratorExecutionNode execute() {
-			this.cache10.value = (this.cache00.value = this.cache01.value - this.cache02.value) + this.cache12.value;
+			this.cache10.data = (this.cache00.data = this.cache01.data - this.cache02.data) + this.cache12.data;
 			return this.nextNode;
 		}
 	}
@@ -532,7 +544,7 @@ public class Int64CachedScalarDualArithmeticUnit extends AcceleratorExecutionUni
 			super(caches, nextNode);
 		}
 		public final AcceleratorExecutionNode execute() {
-			this.cache10.value = this.cache11.value + (this.cache00.value = this.cache01.value - this.cache02.value);
+			this.cache10.data = this.cache11.data + (this.cache00.data = this.cache01.data - this.cache02.data);
 			return this.nextNode;
 		}
 	}
@@ -544,7 +556,7 @@ public class Int64CachedScalarDualArithmeticUnit extends AcceleratorExecutionUni
 			super(caches, nextNode);
 		}
 		public final AcceleratorExecutionNode execute() {
-			this.cache10.value = (this.cache00.value = this.cache01.value - this.cache02.value) - this.cache12.value;
+			this.cache10.data = (this.cache00.data = this.cache01.data - this.cache02.data) - this.cache12.data;
 			return this.nextNode;
 		}
 	}
@@ -554,7 +566,7 @@ public class Int64CachedScalarDualArithmeticUnit extends AcceleratorExecutionUni
 			super(caches, nextNode);
 		}
 		public final AcceleratorExecutionNode execute() {
-			this.cache10.value = this.cache11.value - (this.cache00.value = this.cache01.value - this.cache02.value);
+			this.cache10.data = this.cache11.data - (this.cache00.data = this.cache01.data - this.cache02.data);
 			return this.nextNode;
 		}
 	}
@@ -566,7 +578,7 @@ public class Int64CachedScalarDualArithmeticUnit extends AcceleratorExecutionUni
 			super(caches, nextNode);
 		}
 		public final AcceleratorExecutionNode execute() {
-			this.cache10.value = (this.cache00.value = this.cache01.value - this.cache02.value) * this.cache12.value;
+			this.cache10.data = (this.cache00.data = this.cache01.data - this.cache02.data) * this.cache12.data;
 			return this.nextNode;
 		}
 	}
@@ -576,7 +588,7 @@ public class Int64CachedScalarDualArithmeticUnit extends AcceleratorExecutionUni
 			super(caches, nextNode);
 		}
 		public final AcceleratorExecutionNode execute() {
-			this.cache10.value = this.cache11.value * (this.cache00.value = this.cache01.value - this.cache02.value);
+			this.cache10.data = this.cache11.data * (this.cache00.data = this.cache01.data - this.cache02.data);
 			return this.nextNode;
 		}
 	}
@@ -588,7 +600,7 @@ public class Int64CachedScalarDualArithmeticUnit extends AcceleratorExecutionUni
 			super(caches, nextNode);
 		}
 		public final AcceleratorExecutionNode execute() {
-			this.cache10.value = (this.cache00.value = this.cache01.value - this.cache02.value) / this.cache12.value;
+			this.cache10.data = (this.cache00.data = this.cache01.data - this.cache02.data) / this.cache12.data;
 			return this.nextNode;
 		}
 	}
@@ -598,7 +610,7 @@ public class Int64CachedScalarDualArithmeticUnit extends AcceleratorExecutionUni
 			super(caches, nextNode);
 		}
 		public final AcceleratorExecutionNode execute() {
-			this.cache10.value = this.cache11.value / (this.cache00.value = this.cache01.value - this.cache02.value);
+			this.cache10.data = this.cache11.data / (this.cache00.data = this.cache01.data - this.cache02.data);
 			return this.nextNode;
 		}
 	}
@@ -610,7 +622,7 @@ public class Int64CachedScalarDualArithmeticUnit extends AcceleratorExecutionUni
 			super(caches, nextNode);
 		}
 		public final AcceleratorExecutionNode execute() {
-			this.cache10.value = (this.cache00.value = this.cache01.value - this.cache02.value) % this.cache12.value;
+			this.cache10.data = (this.cache00.data = this.cache01.data - this.cache02.data) % this.cache12.data;
 			return this.nextNode;
 		}
 	}
@@ -620,7 +632,7 @@ public class Int64CachedScalarDualArithmeticUnit extends AcceleratorExecutionUni
 			super(caches, nextNode);
 		}
 		public final AcceleratorExecutionNode execute() {
-			this.cache10.value = this.cache11.value % (this.cache00.value = this.cache01.value - this.cache02.value);
+			this.cache10.data = this.cache11.data % (this.cache00.data = this.cache01.data - this.cache02.data);
 			return this.nextNode;
 		}
 	}
@@ -636,7 +648,7 @@ public class Int64CachedScalarDualArithmeticUnit extends AcceleratorExecutionUni
 			super(caches, nextNode);
 		}
 		public final AcceleratorExecutionNode execute() {
-			this.cache10.value = (this.cache00.value = this.cache01.value * this.cache02.value) + this.cache12.value;
+			this.cache10.data = (this.cache00.data = this.cache01.data * this.cache02.data) + this.cache12.data;
 			return this.nextNode;
 		}
 	}
@@ -646,7 +658,7 @@ public class Int64CachedScalarDualArithmeticUnit extends AcceleratorExecutionUni
 			super(caches, nextNode);
 		}
 		public final AcceleratorExecutionNode execute() {
-			this.cache10.value = this.cache11.value + (this.cache00.value = this.cache01.value * this.cache02.value);
+			this.cache10.data = this.cache11.data + (this.cache00.data = this.cache01.data * this.cache02.data);
 			return this.nextNode;
 		}
 	}
@@ -658,7 +670,7 @@ public class Int64CachedScalarDualArithmeticUnit extends AcceleratorExecutionUni
 			super(caches, nextNode);
 		}
 		public final AcceleratorExecutionNode execute() {
-			this.cache10.value = (this.cache00.value = this.cache01.value * this.cache02.value) - this.cache12.value;
+			this.cache10.data = (this.cache00.data = this.cache01.data * this.cache02.data) - this.cache12.data;
 			return this.nextNode;
 		}
 	}
@@ -668,7 +680,7 @@ public class Int64CachedScalarDualArithmeticUnit extends AcceleratorExecutionUni
 			super(caches, nextNode);
 		}
 		public final AcceleratorExecutionNode execute() {
-			this.cache10.value = this.cache11.value - (this.cache00.value = this.cache01.value * this.cache02.value);
+			this.cache10.data = this.cache11.data - (this.cache00.data = this.cache01.data * this.cache02.data);
 			return this.nextNode;
 		}
 	}
@@ -680,7 +692,7 @@ public class Int64CachedScalarDualArithmeticUnit extends AcceleratorExecutionUni
 			super(caches, nextNode);
 		}
 		public final AcceleratorExecutionNode execute() {
-			this.cache10.value = (this.cache00.value = this.cache01.value * this.cache02.value) * this.cache12.value;
+			this.cache10.data = (this.cache00.data = this.cache01.data * this.cache02.data) * this.cache12.data;
 			return this.nextNode;
 		}
 	}
@@ -690,7 +702,7 @@ public class Int64CachedScalarDualArithmeticUnit extends AcceleratorExecutionUni
 			super(caches, nextNode);
 		}
 		public final AcceleratorExecutionNode execute() {
-			this.cache10.value = this.cache11.value * (this.cache00.value = this.cache01.value * this.cache02.value);
+			this.cache10.data = this.cache11.data * (this.cache00.data = this.cache01.data * this.cache02.data);
 			return this.nextNode;
 		}
 	}
@@ -702,7 +714,7 @@ public class Int64CachedScalarDualArithmeticUnit extends AcceleratorExecutionUni
 			super(caches, nextNode);
 		}
 		public final AcceleratorExecutionNode execute() {
-			this.cache10.value = (this.cache00.value = this.cache01.value * this.cache02.value) / this.cache12.value;
+			this.cache10.data = (this.cache00.data = this.cache01.data * this.cache02.data) / this.cache12.data;
 			return this.nextNode;
 		}
 	}
@@ -712,7 +724,7 @@ public class Int64CachedScalarDualArithmeticUnit extends AcceleratorExecutionUni
 			super(caches, nextNode);
 		}
 		public final AcceleratorExecutionNode execute() {
-			this.cache10.value = this.cache11.value / (this.cache00.value = this.cache01.value * this.cache02.value);
+			this.cache10.data = this.cache11.data / (this.cache00.data = this.cache01.data * this.cache02.data);
 			return this.nextNode;
 		}
 	}
@@ -724,7 +736,7 @@ public class Int64CachedScalarDualArithmeticUnit extends AcceleratorExecutionUni
 			super(caches, nextNode);
 		}
 		public final AcceleratorExecutionNode execute() {
-			this.cache10.value = (this.cache00.value = this.cache01.value * this.cache02.value) % this.cache12.value;
+			this.cache10.data = (this.cache00.data = this.cache01.data * this.cache02.data) % this.cache12.data;
 			return this.nextNode;
 		}
 	}
@@ -734,7 +746,7 @@ public class Int64CachedScalarDualArithmeticUnit extends AcceleratorExecutionUni
 			super(caches, nextNode);
 		}
 		public final AcceleratorExecutionNode execute() {
-			this.cache10.value = this.cache11.value % (this.cache00.value = this.cache01.value * this.cache02.value);
+			this.cache10.data = this.cache11.data % (this.cache00.data = this.cache01.data * this.cache02.data);
 			return this.nextNode;
 		}
 	}
@@ -750,7 +762,7 @@ public class Int64CachedScalarDualArithmeticUnit extends AcceleratorExecutionUni
 			super(caches, nextNode);
 		}
 		public final AcceleratorExecutionNode execute() {
-			this.cache10.value = (this.cache00.value = this.cache01.value / this.cache02.value) + this.cache12.value;
+			this.cache10.data = (this.cache00.data = this.cache01.data / this.cache02.data) + this.cache12.data;
 			return this.nextNode;
 		}
 	}
@@ -760,7 +772,7 @@ public class Int64CachedScalarDualArithmeticUnit extends AcceleratorExecutionUni
 			super(caches, nextNode);
 		}
 		public final AcceleratorExecutionNode execute() {
-			this.cache10.value = this.cache11.value + (this.cache00.value = this.cache01.value / this.cache02.value);
+			this.cache10.data = this.cache11.data + (this.cache00.data = this.cache01.data / this.cache02.data);
 			return this.nextNode;
 		}
 	}
@@ -772,7 +784,7 @@ public class Int64CachedScalarDualArithmeticUnit extends AcceleratorExecutionUni
 			super(caches, nextNode);
 		}
 		public final AcceleratorExecutionNode execute() {
-			this.cache10.value = (this.cache00.value = this.cache01.value / this.cache02.value) - this.cache12.value;
+			this.cache10.data = (this.cache00.data = this.cache01.data / this.cache02.data) - this.cache12.data;
 			return this.nextNode;
 		}
 	}
@@ -782,7 +794,7 @@ public class Int64CachedScalarDualArithmeticUnit extends AcceleratorExecutionUni
 			super(caches, nextNode);
 		}
 		public final AcceleratorExecutionNode execute() {
-			this.cache10.value = this.cache11.value - (this.cache00.value = this.cache01.value / this.cache02.value);
+			this.cache10.data = this.cache11.data - (this.cache00.data = this.cache01.data / this.cache02.data);
 			return this.nextNode;
 		}
 	}
@@ -794,7 +806,7 @@ public class Int64CachedScalarDualArithmeticUnit extends AcceleratorExecutionUni
 			super(caches, nextNode);
 		}
 		public final AcceleratorExecutionNode execute() {
-			this.cache10.value = (this.cache00.value = this.cache01.value / this.cache02.value) * this.cache12.value;
+			this.cache10.data = (this.cache00.data = this.cache01.data / this.cache02.data) * this.cache12.data;
 			return this.nextNode;
 		}
 	}
@@ -804,7 +816,7 @@ public class Int64CachedScalarDualArithmeticUnit extends AcceleratorExecutionUni
 			super(caches, nextNode);
 		}
 		public final AcceleratorExecutionNode execute() {
-			this.cache10.value = this.cache11.value * (this.cache00.value = this.cache01.value / this.cache02.value);
+			this.cache10.data = this.cache11.data * (this.cache00.data = this.cache01.data / this.cache02.data);
 			return this.nextNode;
 		}
 	}
@@ -816,7 +828,7 @@ public class Int64CachedScalarDualArithmeticUnit extends AcceleratorExecutionUni
 			super(caches, nextNode);
 		}
 		public final AcceleratorExecutionNode execute() {
-			this.cache10.value = (this.cache00.value = this.cache01.value / this.cache02.value) / this.cache12.value;
+			this.cache10.data = (this.cache00.data = this.cache01.data / this.cache02.data) / this.cache12.data;
 			return this.nextNode;
 		}
 	}
@@ -826,7 +838,7 @@ public class Int64CachedScalarDualArithmeticUnit extends AcceleratorExecutionUni
 			super(caches, nextNode);
 		}
 		public final AcceleratorExecutionNode execute() {
-			this.cache10.value = this.cache11.value / (this.cache00.value = this.cache01.value / this.cache02.value);
+			this.cache10.data = this.cache11.data / (this.cache00.data = this.cache01.data / this.cache02.data);
 			return this.nextNode;
 		}
 	}
@@ -838,7 +850,7 @@ public class Int64CachedScalarDualArithmeticUnit extends AcceleratorExecutionUni
 			super(caches, nextNode);
 		}
 		public final AcceleratorExecutionNode execute() {
-			this.cache10.value = (this.cache00.value = this.cache01.value / this.cache02.value) % this.cache12.value;
+			this.cache10.data = (this.cache00.data = this.cache01.data / this.cache02.data) % this.cache12.data;
 			return this.nextNode;
 		}
 	}
@@ -848,7 +860,7 @@ public class Int64CachedScalarDualArithmeticUnit extends AcceleratorExecutionUni
 			super(caches, nextNode);
 		}
 		public final AcceleratorExecutionNode execute() {
-			this.cache10.value = this.cache11.value % (this.cache00.value = this.cache01.value / this.cache02.value);
+			this.cache10.data = this.cache11.data % (this.cache00.data = this.cache01.data / this.cache02.data);
 			return this.nextNode;
 		}
 	}
@@ -864,7 +876,7 @@ public class Int64CachedScalarDualArithmeticUnit extends AcceleratorExecutionUni
 			super(caches, nextNode);
 		}
 		public final AcceleratorExecutionNode execute() {
-			this.cache10.value = (this.cache00.value = this.cache01.value % this.cache02.value) + this.cache12.value;
+			this.cache10.data = (this.cache00.data = this.cache01.data % this.cache02.data) + this.cache12.data;
 			return this.nextNode;
 		}
 	}
@@ -874,7 +886,7 @@ public class Int64CachedScalarDualArithmeticUnit extends AcceleratorExecutionUni
 			super(caches, nextNode);
 		}
 		public final AcceleratorExecutionNode execute() {
-			this.cache10.value = this.cache11.value + (this.cache00.value = this.cache01.value % this.cache02.value);
+			this.cache10.data = this.cache11.data + (this.cache00.data = this.cache01.data % this.cache02.data);
 			return this.nextNode;
 		}
 	}
@@ -886,7 +898,7 @@ public class Int64CachedScalarDualArithmeticUnit extends AcceleratorExecutionUni
 			super(caches, nextNode);
 		}
 		public final AcceleratorExecutionNode execute() {
-			this.cache10.value = (this.cache00.value = this.cache01.value % this.cache02.value) - this.cache12.value;
+			this.cache10.data = (this.cache00.data = this.cache01.data % this.cache02.data) - this.cache12.data;
 			return this.nextNode;
 		}
 	}
@@ -896,7 +908,7 @@ public class Int64CachedScalarDualArithmeticUnit extends AcceleratorExecutionUni
 			super(caches, nextNode);
 		}
 		public final AcceleratorExecutionNode execute() {
-			this.cache10.value = this.cache11.value - (this.cache00.value = this.cache01.value % this.cache02.value);
+			this.cache10.data = this.cache11.data - (this.cache00.data = this.cache01.data % this.cache02.data);
 			return this.nextNode;
 		}
 	}
@@ -908,7 +920,7 @@ public class Int64CachedScalarDualArithmeticUnit extends AcceleratorExecutionUni
 			super(caches, nextNode);
 		}
 		public final AcceleratorExecutionNode execute() {
-			this.cache10.value = (this.cache00.value = this.cache01.value % this.cache02.value) * this.cache12.value;
+			this.cache10.data = (this.cache00.data = this.cache01.data % this.cache02.data) * this.cache12.data;
 			return this.nextNode;
 		}
 	}
@@ -918,7 +930,7 @@ public class Int64CachedScalarDualArithmeticUnit extends AcceleratorExecutionUni
 			super(caches, nextNode);
 		}
 		public final AcceleratorExecutionNode execute() {
-			this.cache10.value = this.cache11.value * (this.cache00.value = this.cache01.value % this.cache02.value);
+			this.cache10.data = this.cache11.data * (this.cache00.data = this.cache01.data % this.cache02.data);
 			return this.nextNode;
 		}
 	}
@@ -930,7 +942,7 @@ public class Int64CachedScalarDualArithmeticUnit extends AcceleratorExecutionUni
 			super(caches, nextNode);
 		}
 		public final AcceleratorExecutionNode execute() {
-			this.cache10.value = (this.cache00.value = this.cache01.value % this.cache02.value) / this.cache12.value;
+			this.cache10.data = (this.cache00.data = this.cache01.data % this.cache02.data) / this.cache12.data;
 			return this.nextNode;
 		}
 	}
@@ -940,7 +952,7 @@ public class Int64CachedScalarDualArithmeticUnit extends AcceleratorExecutionUni
 			super(caches, nextNode);
 		}
 		public final AcceleratorExecutionNode execute() {
-			this.cache10.value = this.cache11.value / (this.cache00.value = this.cache01.value % this.cache02.value);
+			this.cache10.data = this.cache11.data / (this.cache00.data = this.cache01.data % this.cache02.data);
 			return this.nextNode;
 		}
 	}
@@ -952,7 +964,7 @@ public class Int64CachedScalarDualArithmeticUnit extends AcceleratorExecutionUni
 			super(caches, nextNode);
 		}
 		public final AcceleratorExecutionNode execute() {
-			this.cache10.value = (this.cache00.value = this.cache01.value % this.cache02.value) % this.cache12.value;
+			this.cache10.data = (this.cache00.data = this.cache01.data % this.cache02.data) % this.cache12.data;
 			return this.nextNode;
 		}
 	}
@@ -962,7 +974,7 @@ public class Int64CachedScalarDualArithmeticUnit extends AcceleratorExecutionUni
 			super(caches, nextNode);
 		}
 		public final AcceleratorExecutionNode execute() {
-			this.cache10.value = this.cache11.value % (this.cache00.value = this.cache01.value % this.cache02.value);
+			this.cache10.data = this.cache11.data % (this.cache00.data = this.cache01.data % this.cache02.data);
 			return this.nextNode;
 		}
 	}
