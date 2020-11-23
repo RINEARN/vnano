@@ -1817,6 +1817,12 @@ As demonstrated by the above result, the memory-reference to data of a formal pa
 <a id="plugin"></a>
 ## Plug-in - プラグイン
 
+
+**!!! Contents of this section are little old so it may contain some descriptions inconsistent with specifications of latest versions of plug-in interfaces. In the near future, contents of this section will be moved to <a href="https://github.com/RINEARN/vcssl-plugin-interface/">README of the repository of plugin-interfaces</a>.**
+
+**!!! この章には、最新版のプラグインインターフェースの仕様を反映しきれていない、少し古い記述が含まれている可能性があります。今後、この章の内容の大半は、内容を更新した上で、<a href="https://github.com/RINEARN/vcssl-plugin-interface/">プラグインインターフェースのリポジトリのREADME</a>へ移行する予定です。あらかじめご了承ください。**
+
+
 In this section, we will explain how to use plug-ins which provide external functions/variables to the script engine of the Vnano.
 You can use <a href="#plugin-official">officially developed/provided plug-ins</a>, and you also can develop your own plug-ins.
 
