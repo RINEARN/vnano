@@ -26,6 +26,7 @@ public class AcceleratorSchedulingUnit {
 
 	private List<AcceleratorInstruction> acceleratorInstructionList;
 	private Map<Integer,Integer> addressReorderingMap;
+	private Map<Integer,Integer> expandedAddressReorderingMap;
 
 	public AcceleratorInstruction[] schedule(
 			AcceleratorInstruction[] instructions, Memory memory, AcceleratorDataManagementUnit dataManager) {
@@ -462,22 +463,31 @@ public class AcceleratorSchedulingUnit {
 	// 全命令アドレスの再配置前→再配置後の対応を格納したアドレス変換マップを生成
 	private void generateAddressReorderingMap() {
 
-		// 注:
-		//
+		// addressReorderingMap は、再配置前のアドレス unreorderedAddress をキーとして、
+		// 再配置後のアドレス reorderedAddress を返すマップで、
+		// JMP/JMPN/CALLの着地点ラベル（由来のNOP命令）の位置を補正するために使用される。
 		// 最適化で命令1個だった所が複数命令になっている箇所がある場合 (CALLの引数直接MOV化とか) など、
-		// 複数命令が同じ unreorderedAddress を持っていると、このマップはそれらの最後の命令の reorderedAddress を返す。
+		// 複数命令が同じ unreorderedAddress を持っていると、addressReorderingMap はそれらの最後の命令の reorderedAddress を返す。
 		//
-		// このマップは現状ではJMP/JMPN/CALLの着地点ラベル（由来のNOP命令）の位置を補正するために使用されるが、
-		// ラベル由来NOPにはそういった複数命令への分裂は起こらないため、その目的においては問題は生じない。
+		// なお、インライン展開された関数内の命令も、複数箇所で同じ unreorderedAddress を持っているため、
+		// そのまま素直に addressReorderingMap でアドレス変換すると、展開後の関数コード内の分岐命令の飛び先が同一地点に収束してしまう。
+		// そのためインライン展開されたコードに対しては、展開後のアドレス（こちらは重複しないはず）をキーとする
+		// expandedAddressReorderingMap を用意し、アドレス変換時にそちらを用いるようにする。
 		//
-		// ただし、別の目的でこのマップを参照する際は、影響の有無について要注意。
-		// 場合によってはもっと手の込んだ仕組みを用意する必要が出てくるが、現状では単純で済むマップを使っている。
+		// > もっとキーやタイミングを上手い形に整理すればマップは1個で済ませられるはずなので、きりのいい時に要検討
+		//   > というか再配置周りはマップ類を直接使うよりもそういう役割のクラスに包んでその中で管理した方がいいかも
+		//     今後の別の最適化とか次第では単純な形では対応し切れない場合もありそうだし
 
 		this.addressReorderingMap = new HashMap<Integer,Integer>();
+		this.expandedAddressReorderingMap = new HashMap<Integer,Integer>();
 		int instructionLength = acceleratorInstructionList.size();
 		for (int instructionIndex=0; instructionIndex<instructionLength; instructionIndex++) {
 			AcceleratorInstruction instruction = this.acceleratorInstructionList.get(instructionIndex);
-			addressReorderingMap.put(instruction.getUnreorderedAddress(), instruction.getReorderedAddress());
+			if (instruction.isExpanded()) {
+				this.expandedAddressReorderingMap.put(instruction.getExpandedAddress(), instruction.getReorderedAddress());
+			} else {
+				this.addressReorderingMap.put(instruction.getUnreorderedAddress(), instruction.getReorderedAddress());
+			}
 		}
 	}
 
@@ -492,27 +502,37 @@ public class AcceleratorSchedulingUnit {
 			// JMP & JMPN & CALL はオペランドアドレスに飛ぶ。RETはスタックから取ったアドレスに飛ぶが、オペランドに所属関数ラベルを持っている
 			if (opcode == OperationCode.JMP || opcode == OperationCode.JMPN || opcode == OperationCode.CALL || opcode == OperationCode.RET) {
 
-				// ラベルの命令アドレスの値を格納するオペランドのデータコンテナをメモリから取得（必ずオペランド[1]にあるよう統一されている）
-				DataContainer<?> addressContiner = null;
-				addressContiner = memory.getDataContainer(
+				// 分岐先が、インライン展開で生成された命令列の中にある場合
+				// (unreorderedLabelAddress は複数展開時に重複が生じてキーに使えないため、展開直後の一意なラベルアドレスをキーとするマップで変換)
+				if (instruction.isLabelAddressExpanded()) {
+					int expandedLabelAddress = instruction.getExpandedLabelAddress();
+					int reorderedLabelAddress = this.expandedAddressReorderingMap.get(expandedLabelAddress);
+					instruction.setReorderedLabelAddress(reorderedLabelAddress);
+
+				// それ以外の通常の場合
+				// (unreordered address をキーとするマップで変換する)
+				} else {
+
+					// ラベルの命令アドレスの値を格納するオペランドのデータコンテナをメモリから取得（必ずオペランド[1]にあるよう統一されている）
+					DataContainer<?> addressContiner = null;
+					addressContiner = memory.getDataContainer(
 						instruction.getOperandPartitions()[1],
 						instruction.getOperandAddresses()[1]
-				);
+					);
 
-				// データコンテナから飛び先ラベル（アセンブル後はNOPになっている）の命令アドレスの値を読む
-				int labelAddress = -1;
-				Object addressData = addressContiner.getArrayData();
-				if (addressData instanceof long[]) {
-					labelAddress = (int)( ((long[])addressData)[0] );
-				} else {
-					throw new VnanoFatalException("Non-integer instruction address (label) operand detected.");
+					// データコンテナから飛び先ラベル（アセンブル後はNOPになっている）の命令アドレスの値を読む
+					int labelAddress = -1;
+					Object addressData = addressContiner.getArrayData();
+					if (addressData instanceof long[]) {
+						labelAddress = (int)( ((long[])addressData)[0] );
+					} else {
+						throw new VnanoFatalException("Non-integer instruction address (label) operand detected.");
+					}
+
+					// 上で読んだラベル（由来のNOP命令）アドレスの、再配置後の位置の命令アドレスを取得し、命令に持たせる
+					int reorderedLabelAddress = this.addressReorderingMap.get(labelAddress);
+					instruction.setReorderedLabelAddress(reorderedLabelAddress);
 				}
-
-				// ラベル（由来のNOP命令）アドレスの、命令再配置前における位置に対応する、再配置後の位置の命令アドレスを取得
-				int reorderedLabelAddress = this.addressReorderingMap.get(labelAddress);
-
-				// 再配置後のラベル命令アドレス情報を命令に持たせる
-				instruction.setReorderedLabelAddress(reorderedLabelAddress);
 			}
 		}
 	}

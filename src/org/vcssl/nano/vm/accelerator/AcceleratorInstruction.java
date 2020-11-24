@@ -15,11 +15,14 @@ public class AcceleratorInstruction extends Instruction implements Cloneable {
 	/** 最適化による再配置前における、この命令の命令アドレスです。 */
 	private int unreorderedAddress = -1;
 
-	/** 最適化による再配置後における、ラベルオペランドの命令アドレスです。 */
+	/** 最適化による再配置後における、分岐先ラベルの命令アドレスです。インライン展開された分岐命令でも、実行時の分岐先はこの値が参照されます。 */
 	private int reorderedLabelAddress = -1;
 
-	/** ラベルオペランドの命令アドレスが、再配置済みかどうかを保持します。 */
-	private boolean labelAddressReordered = false;
+	/** この命令がインライン展開によって生成された場合における、展開「直後」における命令アドレスです。 */
+	private int expandedAddress = -1;
+
+	/** この命令がインライン展開によって生成された場合における、展開「直後」における分岐先ラベルの命令アドレスです。 */
+	private int expandedLabelAddress = -1;
 
 	/** 最適化による複数命令の融合において、元の命令（複数）のオペレーションコードをまとめる配列です。 */
 	private OperationCode[] fusedOperationCodes = null;
@@ -43,8 +46,9 @@ public class AcceleratorInstruction extends Instruction implements Cloneable {
 		clonedAccelInstruction.acceleratorExecutionType = this.acceleratorExecutionType;
 		clonedAccelInstruction.reorderedAddress = this.reorderedAddress;
 		clonedAccelInstruction.unreorderedAddress = this.unreorderedAddress;
+		clonedAccelInstruction.expandedAddress = this.expandedAddress;
 		clonedAccelInstruction.reorderedLabelAddress = this.reorderedLabelAddress;
-		clonedAccelInstruction.labelAddressReordered = this.labelAddressReordered;
+		clonedAccelInstruction.expandedLabelAddress = this.expandedLabelAddress;
 		clonedAccelInstruction.extendedOperationCode = this.extendedOperationCode;
 		if (this.fusedOperationCodes != null) {
 			int length = this.fusedOperationCodes.length;
@@ -86,8 +90,9 @@ public class AcceleratorInstruction extends Instruction implements Cloneable {
 		this.fusedOperationCodes = instruction.fusedOperationCodes;
 		this.reorderedAddress = instruction.reorderedAddress;
 		this.unreorderedAddress = instruction.unreorderedAddress;
+		this.expandedAddress = instruction.expandedAddress;
 		this.reorderedLabelAddress = instruction.reorderedLabelAddress;
-		this.labelAddressReordered = instruction.labelAddressReordered;
+		this.expandedLabelAddress = instruction.expandedLabelAddress;
 	}
 
 	// AcceleratorInstruction をコピーし、オペランド部だけを置き換えたものを生成
@@ -103,8 +108,9 @@ public class AcceleratorInstruction extends Instruction implements Cloneable {
 		this.fusedOperationCodes = instruction.fusedOperationCodes;
 		this.reorderedAddress = instruction.reorderedAddress;
 		this.unreorderedAddress = instruction.unreorderedAddress;
+		this.expandedAddress = instruction.expandedAddress;
 		this.reorderedLabelAddress = instruction.reorderedLabelAddress;
-		this.labelAddressReordered = instruction.labelAddressReordered;
+		this.expandedLabelAddress = instruction.expandedLabelAddress;
 	}
 
 
@@ -221,9 +227,20 @@ public class AcceleratorInstruction extends Instruction implements Cloneable {
 		return this.unreorderedAddress;
 	}
 
+	public void setExpandedAddress(int expandedAddress) {
+		this.expandedAddress = expandedAddress;
+	}
+
+	public int getExpandedAddress() {
+		return this.expandedAddress;
+	}
+
+	public boolean isExpanded() {
+		return expandedAddress != -1;
+	}
+
 	public void setReorderedLabelAddress(int reorderedLabelAddress) {
 		this.reorderedLabelAddress = reorderedLabelAddress;
-		this.labelAddressReordered = true;
 	}
 
 	public int getReorderedLabelAddress() {
@@ -231,7 +248,19 @@ public class AcceleratorInstruction extends Instruction implements Cloneable {
 	}
 
 	public boolean isLabelAddressReordered() {
-		return this.labelAddressReordered;
+		return reorderedLabelAddress != -1;
+	}
+
+	public void setExpandedLabelAddress(int expandedLabelAddress) {
+		this.expandedLabelAddress = expandedLabelAddress;
+	}
+
+	public int getExpandedLabelAddress() {
+		return this.expandedLabelAddress;
+	}
+
+	public boolean isLabelAddressExpanded() {
+		return expandedLabelAddress != -1;
 	}
 
 	public String toString() {
@@ -270,6 +299,10 @@ public class AcceleratorInstruction extends Instruction implements Cloneable {
 				}
 				builder.append(")");
 			}
+		}
+
+		if (this.getOperationCode() == OperationCode.JMP || this.getOperationCode() == OperationCode.JMPN) {
+			builder.append(" (reorderedLabelAddress=" + this.reorderedLabelAddress + ")");
 		}
 
 		builder.append(" ]");
