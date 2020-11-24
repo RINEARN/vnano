@@ -412,7 +412,7 @@ public class AcceleratorSchedulingUnit {
 					break;
 				}
 
-				// 内部関数関連命令 Internal function related opcode
+				// 内部関数関連命令 Internal function related opcodes
 				case CALL :
 				case RET :
 				case POP :
@@ -420,15 +420,23 @@ public class AcceleratorSchedulingUnit {
 				case REFPOP :
 				case ALLOCP :
 				{
-					instruction.setAccelerationType(AcceleratorExecutionType.FUNCTION_CONTROL);
+					instruction.setAccelerationType(AcceleratorExecutionType.INTERNAL_FUNCTION_CONTROL);
 					break;
 				}
 				case EX :
 				{
 					if (instruction.getExtendedOperationCode() == AcceleratorExtendedOperationCode.RETURNED) {
-						instruction.setAccelerationType(AcceleratorExecutionType.FUNCTION_CONTROL);
+						instruction.setAccelerationType(AcceleratorExecutionType.INTERNAL_FUNCTION_CONTROL);
 						break;
 					}
+					// 上記以外の拡張命令は default case で BYPASS 割り当て
+				}
+
+				// 外部関数コール命令 External function call opcode
+				case CALLX :
+				{
+					instruction.setAccelerationType(AcceleratorExecutionType.EXTERNAL_FUNCTION_CONTROL);
+					break;
 				}
 
 				// 何もしない命令（ジャンプ先に配置されている） Nop instruction opcode

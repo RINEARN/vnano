@@ -167,13 +167,17 @@ public class Accelerator {
 		// アクセラレータで対応していない命令を、そのまま下層の仮想プロセッサに投げる、バイパス演算ユニットを生成
 		BypassUnit bypassUnit = new BypassUnit(processor, memory, interconnect);
 
-		// コールスタックやアドレスなどを統合的に管理しつつ、内部関数関連の命令を実行する、内部関数演算ユニットを生成
-		InternalFunctionControlUnit functionControlUnit = new InternalFunctionControlUnit();
+		// コールスタックやアドレスなどを統合的に管理しつつ、内部関数関連の命令を実行する、内部関数制御ユニットを生成
+		InternalFunctionControlUnit internalFunctionControlUnit = new InternalFunctionControlUnit();
+
+		// 外部関数の呼び出しを低オーバーヘッドで行う、外部関数制御ユニットを生成
+		ExternalFunctionControlUnit externalFunctionControlUnit = new ExternalFunctionControlUnit(interconnect);
 
 		// 命令列をアクセラレータ内の演算器に割り当てて演算実行ノード列を生成
 		AcceleratorDispatchUnit dispatcher = new AcceleratorDispatchUnit();
 		AcceleratorExecutionNode[] nodes = dispatcher.dispatch(
-			processor, memory, interconnect, acceleratorInstructions, dataManager, bypassUnit, functionControlUnit
+			processor, memory, interconnect, acceleratorInstructions, dataManager, bypassUnit,
+			internalFunctionControlUnit, externalFunctionControlUnit
 		);
 
 		// 演算実行ノード列をダンプ
@@ -194,7 +198,7 @@ public class Accelerator {
 
 
 		// 内部関数のリターンは、スタック上に動的に積まれた命令アドレスに飛ぶため、全命令のノードを保持する必要がある
-		functionControlUnit.setNodes(nodes);
+		internalFunctionControlUnit.setNodes(nodes);
 
 		// キャッシュにメモリのデータを書き込む
 		dataManager.getCacheSynchronizers(Memory.Partition.CONSTANT).synchronizeFromMemoryToCache();

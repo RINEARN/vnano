@@ -76,6 +76,18 @@ public class Xvci1ToVariableAdapter extends AbstractVariable {
 
 
 	/**
+	 * このアダプタのインスタンスが内部でラップしている、
+	 * {@link org.vcssl.connect.ExternalVariableConnectorInterface1 XVCI 1}
+	 * 形式の外部変数プラグインを取得します。
+	 *
+	 * @return このインスタンスがラップしているXVCI1プラグイン
+	 */
+	public ExternalVariableConnectorInterface1 getXvci1Plugin() {
+		return this.xvciPlugin;
+	}
+
+
+	/**
 	 * 変数名を取得します。
 	 *
 	 * @return 変数名

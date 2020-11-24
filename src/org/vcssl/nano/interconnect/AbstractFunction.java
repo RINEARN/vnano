@@ -263,6 +263,8 @@ public abstract class AbstractFunction {
 	 * @param argumentDataUnits 実引数のデータを保持するデータユニットの配列（各要素が個々の実引数に対応）
 	 * @param returnDataUnit 戻り値のデータを格納するデータユニット
 	 */
+	// これ、argumentDataUnits と returnDataUnit の順序を逆にした方がいいかもしれない
+	// シグネチャでもVRILでも戻り値が先だし、一瞬ちょっと混乱する
 	public abstract void invoke(DataContainer<?>[] argumentDataUnits, DataContainer<?> returnDataUnit) throws VnanoException;
 
 }

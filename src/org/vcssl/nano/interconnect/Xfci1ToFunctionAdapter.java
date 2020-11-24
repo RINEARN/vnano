@@ -126,6 +126,18 @@ public final class Xfci1ToFunctionAdapter extends AbstractFunction {
 
 
 	/**
+	 * このアダプタのインスタンスが内部でラップしている、
+	 * {@link org.vcssl.connect.ExternalFunctionConnectorInterface1 XFCI 1}
+	 * 形式の外部関数プラグインを取得します。
+	 *
+	 * @return このインスタンスがラップしているXFCI1プラグイン
+	 */
+	public ExternalFunctionConnectorInterface1 getXfci1Plugin() {
+		return this.xfciPlugin;
+	}
+
+
+	/**
 	 * 関数名を取得します。
 	 *
 	 * @return 関数名

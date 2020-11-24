@@ -22,6 +22,29 @@ import org.vcssl.nano.vm.processor.Instruction;
 
 public final class AcceleratorDataManagementUnit {
 
+	// 実装メモ：
+	//   ここでスカラかどうかを検出して演算時の最適化に使ってるけれど、
+	//   そもそもVRILの命令に演算次元数情報を含めるようにしたほうがいいかもしれない。
+	//
+	//   >  各演算を最適化しているというよりは、各アドレスのI/Oそのものを最適化したくて、
+	//      その結果として各演算処理もスカラかどうかで分派しているという感じなので、
+	//      命令から演算がスカラかどうか分かったとしてもそれだけでは不十分だと思うし、
+	//      ( 演算オペランドがスカラという事だけ分かっても、例えば配列要素と独立変数のスカラではI/O最適化の幅が全然違うし、
+	//        関数引数なら参照渡しか値渡しかでも全然違う )
+	//      結局はここでやっているように、命令列をある程度読んで
+	//      各アドレスのI/Oの最適化可能性の度合いを判断する必要は残ると思う。
+	//
+	//   >  命令レベルで制約を加えるのは、慎重にしないと別の派生言語を載せる際に動的さを制限するデメリットになり得るかも。
+	//      > 既にデータ型情報は命令内に持ってしまっているので、次元数情報が加わってもそこからマイナスにはならないような。
+	//        影響するのは「データ型が静的で次元数が動的」みたいなな中途半端な演算子を作れるかどうか位で、そんなん作る事は無い気がする。
+	//        なので、次元情報を実際使うかどうかはともかく、あるのは別にあっていいような。
+	//
+	//   >  というか、コンパイラ側のコードジェネレータは各アドレスの由来を知っているので、
+	//      むしろ命令列とは別に、アドレスと（最適化に有用な）性質を対応させるテーブルを別途吐いたほうがいいかもしれない。
+	//      > ただ最適化周りのコードは極力 accelerator パッケージ内のみに抑えられたほうがうれしいので、そういう点では微妙かもしれない。
+	//
+	// 一旦塩漬けして要検討
+
 	private static final int REGISTER_PARTITION_ORDINAL = Memory.Partition.REGISTER.ordinal();
 	private static final int LOCAL_PARTITION_ORDINAL = Memory.Partition.LOCAL.ordinal();
 	private static final int GLOBAL_PARTITION_ORDINAL = Memory.Partition.GLOBAL.ordinal();
@@ -134,7 +157,7 @@ public final class AcceleratorDataManagementUnit {
 	}
 
 	// 定数領域やグローバル領域など、メモリ上にデータが確保済みのものについて、
-	// メモリを読みながらスカラ判定を行い、スカラに対してはキャッシュ確保を行う
+	// メモリを読みながらスカラかどうか等の性質判定を行い、スカラに対してはキャッシュ確保を行う。
 	// （定数値のキャッシュへの書き込みは後でSynchronizerで行う）
 	private void detectScalarFromMemory(Memory memory, Memory.Partition partition) {
 		int partitionOrdinal = partition.ordinal();
@@ -151,15 +174,13 @@ public final class AcceleratorDataManagementUnit {
 				throw new VnanoFatalException(e);
 			}
 
-			this.scalar[partitionOrdinal][address]
-					= ( (container.getArrayRank() == DataContainer.ARRAY_RANK_OF_SCALAR) );
+			this.scalar[partitionOrdinal][address] = (container.getArrayRank() == DataContainer.ARRAY_RANK_OF_SCALAR);
 
 			if (!this.scalar[partitionOrdinal][address]) {
 				continue;
 			}
 
-			DataType dataType = container.getDataType();
-			switch (dataType) {
+			switch (container.getDataType()) {
 				case INT64 : {
 					this.caches[partitionOrdinal][address] = new Int64ScalarCache();
 					this.cachingEnabled[partitionOrdinal][address] = true;
@@ -182,8 +203,31 @@ public final class AcceleratorDataManagementUnit {
 		}
 	}
 
+
+	private boolean isCacheableDatatype(DataType dataType) {
+		return dataType == DataType.INT64 || dataType == DataType.FLOAT64 || dataType == DataType.BOOL;
+	}
+
+	private ScalarCache generateScalarCache(DataType dataType) {
+		switch (dataType) {
+			case INT64 : {
+				return new Int64ScalarCache();
+			}
+			case FLOAT64 : {
+				return new Float64ScalarCache();
+			}
+			case BOOL : {
+				return new BoolScalarCache();
+			}
+			default : {
+				throw new VnanoFatalException("Uncacheable data type: " + dataType);
+			}
+		}
+	}
+
+
 	// ローカル領域やレジスタ領域など、実行前にはメモリ上にデータが確保されていないものについて、
-	// 命令列の中の確保命令を読んでスカラ判定やキャッシュ可能性判定を行う
+	// 命令列の中の確保命令を読んでスカラかどうか等の性質判定を行う
 	private void detectScalarFromInstructions(Instruction[] instructions, Memory memory, Interconnect interconnect) {
 
 
@@ -203,107 +247,128 @@ public final class AcceleratorDataManagementUnit {
 		// 以下、命令列内でデータ確保命令を呼んでいる箇所などをスキャンし、
 		// スカラかどうか、キャッシュ可能かどうか等のメタ情報を判定して控える。
 
-		// まずは下ループでスカラである可能性が高いものを抽出してキャッシュ可能性判断＆結果をマークし、後のループで無効化する
+
+		// まずは下ループでスカラである可能性が高いものを抽出してキャッシュ可能性判断＆結果をマークし、後のループで無効化する。
+		// (VRILコードの処理フロー次第では、一回のループでは有効な情報を拾えない場合もあるため、何度かループする)
+
+		// 最初に、ALLOC命令とALLOCT命令のオペランドを解析
 		for (Instruction instruction: instructions) {
 			Memory.Partition[] partitions = instruction.getOperandPartitions();
 			int[] addresses = instruction.getOperandAddresses();
 			if (partitions[0] != Memory.Partition.LOCAL && partitions[0] != Memory.Partition.REGISTER) {
 				continue; // このメソッドが判定対象とするのはローカル領域とレジスタ領域のデータのみ
 			}
+			if (instruction.getOperationCode() != OperationCode.ALLOC && instruction.getOperationCode() != OperationCode.ALLOCT) {
+				continue; // ALLOCとALLOCT以外は解析対象外
+			}
 
-			switch (instruction.getOperationCode()) {
+			// 1-オペランドのALLOC命令は、0次元なのでスカラ
+			if (addresses.length == 1) {
 
-				case ALLOC :
-				case ALLOCT : {
+				// このALLOC命令の時点では、スカラであれば暫定的に cacheable と見なしておく。
+				// このループはコードを命令順に読んでいってるので、ALLOC後に REFELM している場合などは、
+				// 後でその REFELM を読んだ時点で uncacheable に訂正される
 
-					// 1-オペランドのALLOC命令は、0次元なのでスカラ
-					if (addresses.length == 1) {
-						this.scalar[ partitions[0].ordinal() ][ addresses[0] ] = true;
-
-						// このALLOC命令の時点では、スカラであれば暫定的に cacheable と見なしておく。
-						// このループはコードを命令順に読んでいってるので、ALLOC後にELEMしている場合などは、
-						// 後でその ELEM を読んだ時点で uncacheable に訂正される
-
-						switch (instruction.getDataTypes()[0]) {
-							case INT64 : {
-								//System.out.println("CACHE INT64 " + partitions[0] + " / " + addresses[0]);
-								this.caches[ partitions[0].ordinal() ][ addresses[0] ] = new Int64ScalarCache();
-								this.cachingEnabled[ partitions[0].ordinal() ][ addresses[0] ] = true;
-								break;
-							}
-							case FLOAT64 : {
-								//System.out.println("CACHE FLOAT64 " + partitions[0] + " / " + addresses[0]);
-								this.caches[ partitions[0].ordinal() ][ addresses[0] ] = new Float64ScalarCache();
-								this.cachingEnabled[ partitions[0].ordinal() ][ addresses[0] ] = true;
-								break;
-							}
-							case BOOL : {
-								//System.out.println("CACHE bool " + partitions[0] + " / " + addresses[0]);
-								this.caches[ partitions[0].ordinal() ][ addresses[0] ] = new BoolScalarCache();
-								this.cachingEnabled[ partitions[0].ordinal() ][ addresses[0] ] = true;
-								break;
-							}
-							default : break;
-						}
-					}
-					break;
-				}
-
-				case ALLOCR : {
-
-					// ALLOCR命令の場合はオペランド [1] と同次元・同要素数でメモリ確保するので、それがスカラであればスカラ
-					if (this.scalar[ partitions[1].ordinal() ][ addresses[1] ]) {
-						this.scalar[ partitions[0].ordinal() ][ addresses[0] ] = true;
-
-						switch (instruction.getDataTypes()[0]) {
-							case INT64 : {
-								//System.out.println("CACHE INT64 " + partitions[0] + " / " + addresses[0]);
-								this.caches[ partitions[0].ordinal() ][ addresses[0] ] = new Int64ScalarCache();
-								this.cachingEnabled[ partitions[0].ordinal() ][ addresses[0] ] = true;
-								break;
-							}
-							case FLOAT64 : {
-								//System.out.println("CACHE FLOAT64 " + partitions[0] + " / " + addresses[0]);
-								this.caches[ partitions[0].ordinal() ][ addresses[0] ] = new Float64ScalarCache();
-								this.cachingEnabled[ partitions[0].ordinal() ][ addresses[0] ] = true;
-								break;
-							}
-							case BOOL : {
-								//System.out.println("CACHE bool " + partitions[0] + " / " + addresses[0]);
-								this.caches[ partitions[0].ordinal() ][ addresses[0] ] = new BoolScalarCache();
-								this.cachingEnabled[ partitions[0].ordinal() ][ addresses[0] ] = true;
-								break;
-							}
-							default : break;
-						}
-					}
-					break;
-				}
-
-				case REFELM : {
-
-					// 現在の仕様では、REFELMで取り出したデータは必ずスカラ
-					this.scalar[ partitions[0].ordinal() ][ addresses[0] ] = true;
-
-					// REFELM命令は、ベクトルの要素（スカラ）への参照を第0オペランドのレジスタと同期するため、
-					// 第0オペランドはスカラであるが、別の箇所で参照が共有されて書き換えられる可能性があるため、
-					// キャッシュ可能ではない
-					//（異なるアドレスのレジスタが同一データを参照を保持できるため、アドレスベースのキャッシュでは対応不可）
-					this.cachingEnabled[ partitions[0].ordinal() ][ addresses[0] ] = false;
-					break;
-				}
-
-				default: {
-					break;
+				this.scalar[ partitions[0].ordinal() ][ addresses[0] ] = true;
+				if (this.isCacheableDatatype(instruction.getDataTypes()[0])) {
+					this.cachingEnabled[ partitions[0].ordinal() ][ addresses[0] ] = true;
+					this.caches[ partitions[0].ordinal() ][ addresses[0] ] = this.generateScalarCache(instruction.getDataTypes()[0]);
 				}
 			}
 		}
 
-		// ここでメソッド終わってない、もう一回ループ入る
+		// 次にALLOCR命令のオペランドを解析
+		// ( フローによっては、コードを上から読んでいった際にはオペランド[1]の確保処理が未登場で、
+		//   でもそれを使ってオペランド[0]にALLOCRしている場合があり得るはずなので、
+		//   上のALLOC/ALLOCTループと同じループ内では判定できない。)
+		for (Instruction instruction: instructions) {
+			Memory.Partition[] partitions = instruction.getOperandPartitions();
+			int[] addresses = instruction.getOperandAddresses();
+			if (partitions[0] != Memory.Partition.LOCAL && partitions[0] != Memory.Partition.REGISTER) {
+				continue; // このメソッドが判定対象とするのはローカル領域とレジスタ領域のデータのみ
+			}
+			if (instruction.getOperationCode() != OperationCode.ALLOCR) {
+				continue; // ALLOCR以外は解析対象外
+			}
 
-		// !!!!!!!!!!!!!!!!!!!!!!!!!
-		// !!!!! 要リファクタ  !!!!!
-		// !!!!!!!!!!!!!!!!!!!!!!!!!
+			// スカラの場合
+			if (this.scalar[ partitions[1].ordinal() ][ addresses[1] ]) {
+				this.scalar[ partitions[0].ordinal() ][ addresses[0] ] = true;
+				if (this.isCacheableDatatype(instruction.getDataTypes()[0])) {
+					this.cachingEnabled[ partitions[0].ordinal() ][ addresses[0] ] = true;
+					this.caches[ partitions[0].ordinal() ][ addresses[0] ] = this.generateScalarCache(instruction.getDataTypes()[0]);
+				}
+			}
+		}
+
+		// 次にMOVELM/REFELM命令のオペランドを解析
+		for (Instruction instruction: instructions) {
+			Memory.Partition[] partitions = instruction.getOperandPartitions();
+			int[] addresses = instruction.getOperandAddresses();
+			if (partitions[0] != Memory.Partition.LOCAL && partitions[0] != Memory.Partition.REGISTER) {
+				continue; // このメソッドが判定対象とするのはローカル領域とレジスタ領域のデータのみ
+			}
+			if (instruction.getOperationCode() != OperationCode.MOVELM && instruction.getOperationCode() != OperationCode.REFELM) {
+				continue; // MOVELMとREFELM以外は解析対象外
+			}
+
+			// 現在の仕様では、MOVELM/REFELMで取り出したデータは必ずスカラ
+			this.scalar[ partitions[0].ordinal() ][ addresses[0] ] = true;
+
+			// REFELM命令は、ベクトルの要素（スカラ）への参照を第0オペランドのレジスタと同期するため、
+			// 第0オペランドはスカラであるが、別の箇所で参照が共有されて書き換えられる可能性があるため、
+			// キャッシュ可能ではない
+			//（異なるアドレスのレジスタが同一データを参照を保持できるため、アドレスベースのキャッシュでは対応不可）
+			if (instruction.getOperationCode() == OperationCode.REFELM) {
+				this.cachingEnabled[ partitions[0].ordinal() ][ addresses[0] ] = false;
+
+			// それ以外の場合は MOVELM 命令だが、こちらはキャッシュ可能
+			} else {
+				if (this.isCacheableDatatype(instruction.getDataTypes()[0])) {
+					this.cachingEnabled[ partitions[0].ordinal() ][ addresses[0] ] = true;
+					this.caches[ partitions[0].ordinal() ][ addresses[0] ] = this.generateScalarCache(instruction.getDataTypes()[0]);
+				}
+			}
+		}
+
+		// 次にCALLX命令のオペランドを解析
+		for (Instruction instruction: instructions) {
+			Memory.Partition[] partitions = instruction.getOperandPartitions();
+			int[] addresses = instruction.getOperandAddresses();
+			if (partitions[0] != Memory.Partition.LOCAL && partitions[0] != Memory.Partition.REGISTER) {
+				continue; // このメソッドが判定対象とするのはローカル領域とレジスタ領域のデータのみ
+			}
+			if (instruction.getOperationCode() != OperationCode.CALLX) {
+				continue; // CALLX以外は解析対象外
+			}
+
+			// CALLX のオペランド[0]は戻り値格納用で、戻り値の配列サイズは呼び出し側からは分からないため
+			// VRILコード内ではALLOCされず、外部関数側で必要に応じてメモリ確保される。
+			// そのため、戻り値オペランドがスカラかどうかは、ALLOC箇所を探しても見つからず、関数の宣言情報を調べる必要がある。
+
+			// まずオペランド[1]を読んで外部関数アドレスを取得し、それを元にインターコネクトに問い合わせて外部関数を取得
+			DataContainer<?> functionAddrContainer = memory.getDataContainer(partitions[1], addresses[1]);
+			int functionAddr = (int)( (long[])functionAddrContainer.getArrayData() )[0];
+			AbstractFunction calleeFunction = interconnect.getExternalFunctionTable().getFunctionByIndex(functionAddr);
+
+			// 関数の宣言情報から、戻り値がスカラであるとすぐに分かる場合は、戻り値のアドレスをスカラと判定
+			//（isReturnArrayRankArbitrary() が true なら、戻り値の型は実引数の型に依存して変わるけれど、
+			//  そういう場合はそもそも最適化があまり効かないので調べず、isReturnArrayRankArbitrary() が false の場合のみ調べる）
+			if (!calleeFunction.isReturnArrayRankArbitrary()
+					&& calleeFunction.getReturnArrayRank(new String[0], new int[0]) == DataContainer.ARRAY_RANK_OF_SCALAR) {
+
+				this.scalar[ partitions[0].ordinal() ][ addresses[0] ] = true;
+				if (this.isCacheableDatatype(instruction.getDataTypes()[0])) {
+					this.cachingEnabled[ partitions[0].ordinal() ][ addresses[0] ] = true;
+					this.caches[ partitions[0].ordinal() ][ addresses[0] ] = this.generateScalarCache(instruction.getDataTypes()[0]);
+				}
+				// ※ 戻り値は、常に専用に確保されたレジスタで受け取るので、引数の参照渡しとは異なり、キャッシュしても問題ないはず
+				//    (ただし最適化後は戻り値を変数で直接受け取るように再配置されたりするため、最適化前に調べる事が前提)
+				//    -> 将来的なコード生成の変化に対して安定にするには、レジスタ書き込み数カウントとかを先に行ってここで確認した方がいいと思う。
+				//       また後々で要実装
+			}
+		}
+
 
 
 		// キャッシュ可能スカラと判定されたものについて、やっぱり不可能と判断できるものを抽出して無効化していく
@@ -330,7 +395,8 @@ public final class AcceleratorDataManagementUnit {
 
 					// 参照渡しの引数に渡している実引数も、REF/REFPOPと同様の理由によりキャッシュ対応不可能
 					// ただし外部関数に渡してるものについては、const 宣言されてる引数ならキャッシュ可能とする
-					// (内部関数はconst未対応だし、将来的には宣言によらず、書き換えてなければ可能にするかもだし保留)
+					// (内部関数はconstかどうかの情報がVRIL上では落ちてしまってるし、将来的には宣言によらず、書き換えてなければ可能にするかもだし保留)
+					// -> 外部関数の参照渡し引数につては const でなくてもキャッシュして問題ない気もするけれど後々で要検討
 
 					DataContainer<?> functionAddrContainer = memory.getDataContainer(partitions[1], addresses[1]);
 					int functionAddr = (int)( (long[])functionAddrContainer.getArrayData() )[0];
@@ -340,6 +406,7 @@ public final class AcceleratorDataManagementUnit {
 					boolean isParamCountArbitrary = false;
 
 					// 内部関数コール ... コード内で引数をスタックから MOVPOP or REFPOP する箇所を読んで参照の有無を判断する
+					// -> どうにかして関数アドレスからAbstractFunctionを引っ張ってこられればもっと簡単に分かるし、const かも分かるので、後々で要検討
 					if (opcode == OperationCode.CALL) {
 						areParamRefs = this.internalFunctionAddrParamRefsMap.get(functionAddr);
 						areParamConsts = new boolean[argN];

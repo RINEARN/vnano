@@ -7,9 +7,16 @@ package org.vcssl.nano.vm.accelerator;
 
 import org.vcssl.connect.BoolScalarDataAccessorInterface1;
 
-public class BoolScalarCache implements ScalarCache, BoolScalarDataAccessorInterface1 {
+public class BoolScalarCache extends ScalarCache implements BoolScalarDataAccessorInterface1 {
 	public BoolScalarCache(){}
 	public boolean data;
+
+	@Override
+	public BoolScalarCache clone() {
+		BoolScalarCache clonedInstance = new BoolScalarCache();
+		clonedInstance.data = this.data;
+		return clonedInstance;
+	}
 
 	@Override
 	public void setBoolScalarData(boolean data) {
