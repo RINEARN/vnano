@@ -231,7 +231,7 @@ public final class Xfci1ToFunctionAdapter extends AbstractFunction {
 	 */
 	@Override
 	public final boolean[] getParameterDataTypeArbitrarinesses() {
-		return this.xfciPlugin.getParameterClassArbitrarinesses();
+		return this.xfciPlugin.getParameterDataTypeArbitrarinesses();
 	}
 
 
@@ -242,7 +242,7 @@ public final class Xfci1ToFunctionAdapter extends AbstractFunction {
 	 */
 	@Override
 	public final boolean[] getParameterArrayRankArbitrarinesses() {
-		return this.xfciPlugin.getParameterRankArbitrarinesses();
+		return this.xfciPlugin.getParameterArrayRankArbitrarinesses();
 	}
 
 

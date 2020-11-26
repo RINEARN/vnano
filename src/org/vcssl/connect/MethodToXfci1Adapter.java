@@ -96,10 +96,10 @@ public class MethodToXfci1Adapter implements ExternalFunctionConnectorInterface1
 
 
 	/**
-	 * 全ての仮引数における、
-	 * データの型を表すClassインスタンスを格納する配列を取得します。
+	 * 引数のデータ型と配列次元数をまとめて表すClassインスタンスを、
+	 * 各仮引数ごとに各要素値として格納する配列を取得します。
 	 *
-	 * @return 各仮引数のデータ型のClassインスタンスを格納する配列
+	 * @return 各仮引数の型/次元を表すClassインスタンスを格納する配列
 	 */
 	@Override
 	public Class<?>[] getParameterClasses() {
@@ -128,7 +128,7 @@ public class MethodToXfci1Adapter implements ExternalFunctionConnectorInterface1
 	 * @return 各仮引数のデータ型が可変であるかどうかを格納する配列
 	 */
 	@Override
-	public boolean[] getParameterClassArbitrarinesses() {
+	public boolean[] getParameterDataTypeArbitrarinesses() {
 		int numParameters = this.method.getParameterCount();
 		boolean[] result = new boolean[numParameters];
 		Arrays.fill(result, false);
@@ -142,7 +142,7 @@ public class MethodToXfci1Adapter implements ExternalFunctionConnectorInterface1
 	 * @return 各仮引数の配列次元数が可変であるかどうかを格納する配列
 	 */
 	@Override
-	public boolean[] getParameterRankArbitrarinesses() {
+	public boolean[] getParameterArrayRankArbitrarinesses() {
 		int numParameters = this.method.getParameterCount();
 		boolean[] result = new boolean[numParameters];
 		Arrays.fill(result, false);
@@ -201,7 +201,7 @@ public class MethodToXfci1Adapter implements ExternalFunctionConnectorInterface1
 
 
 	/**
-	 * 戻り値のデータの型を表すClassインスタンスを取得します。
+	 * 戻り値のデータ型と配列次元数をまとめて表すClassインスタンスを取得します。
 	 *
 	 * @param parameterClasses 全引数のデータ型のClassインスタンスを格納する配列
 	 * @return データ型のClassインスタンス
@@ -225,6 +225,28 @@ public class MethodToXfci1Adapter implements ExternalFunctionConnectorInterface1
 	@Override
 	public Class<?> getReturnUnconvertedClass(Class<?>[] parameterClasses) {
 		return null;
+	}
+
+
+	/**
+	 * 戻り値のデータ型が可変（プラグイン接続時点で確定していない）であるかどうかを取得します。
+	 *
+	 * @return 戻り値のデータ型が任意（プラグイン接続時点で確定していない）であれば true
+	 */
+	@Override
+	public boolean isReturnDataTypeArbitrary() {
+		return false;
+	}
+
+
+	/**
+	 * 戻り値の配列次元数が可変（プラグイン接続時点で確定していない）であるかどうかを取得します。
+	 *
+	 * @return 戻り値の配列次元数が任意（プラグイン接続時点で確定していない）であれば true
+	 */
+	@Override
+	public boolean isReturnArrayRankArbitrary() {
+		return false;
 	}
 
 

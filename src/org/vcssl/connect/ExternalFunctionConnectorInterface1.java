@@ -115,10 +115,10 @@ public interface ExternalFunctionConnectorInterface1 {
 
 
 	/**
-	 * 全ての仮引数における、
-	 * データの型を表すClassインスタンスを格納する配列を取得します。
+	 * 引数のデータ型と配列次元数をまとめて表すClassインスタンスを、
+	 * 各仮引数ごとに各要素値として格納する配列を取得します。
 	 *
-	 * @return 各仮引数のデータ型のClassインスタンスを格納する配列
+	 * @return 各仮引数の型/次元を表すClassインスタンスを格納する配列
 	 */
 	public abstract Class<?>[] getParameterClasses();
 
@@ -139,18 +139,29 @@ public interface ExternalFunctionConnectorInterface1 {
 
 	/**
 	 * 全ての仮引数において、データ型が可変であるかどうかを格納する配列を返します。
+	 * このメソッドの戻り値が true を返すようにした仮引数については、
+	 * 関数呼び出し時の実引数として、任意のデータ型の値を受け取れるようになります。
+	 *
+	 * ただし、それだけでは、配列次元数が異なる値を受け取る事はできません。
+	 * 配列次元数が異なる値も受け取るためには、
+	 * {@link ExternalFunctionConnectorInterface1#getParameterArrayRankArbitrarinesses() getParameterArrayRankArbitrarinesses()}
+	 * メソッドが true を返すようにしてください。
 	 *
 	 * @return 各仮引数のデータ型が可変であるかどうかを格納する配列
 	 */
-	public boolean[] getParameterClassArbitrarinesses();
+	public boolean[] getParameterDataTypeArbitrarinesses();
 
 
 	/**
 	 * 全ての仮引数において、配列次元数が可変であるかどうかを格納する配列を返します。
+	 * このメソッドの戻り値が true を返すようにした仮引数については、
+	 * {@link ExternalFunctionConnectorInterface1#getParameterClasses() getParameterClasses()}
+	 * メソッドの戻り値内において、スカラのデータ型のClassインスタンスを返すようにしてください。
+	 * そうすると、それと同じデータ型の、任意次元の配列を、関数呼び出し時の実引数として受け取れるようになります。
 	 *
 	 * @return 各仮引数の配列次元数が可変であるかどうかを格納する配列
 	 */
-	public boolean[] getParameterRankArbitrarinesses();
+	public boolean[] getParameterArrayRankArbitrarinesses();
 
 
 	/**
@@ -241,14 +252,28 @@ public interface ExternalFunctionConnectorInterface1 {
 
 
 	/**
-	 * 戻り値のデータの型を表すClassインスタンスを取得します。
+	 * 戻り値のデータ型と配列次元数をまとめて表すClassインスタンスを取得します。
 	 *
-	 * parameterClasses には、スクリプト内での呼び出しにおける、引数のデータ型情報が渡されます。
+	 * {@link ExternalFunctionConnectorInterface1#isReturnDataTypeArbitrary() isReturnDataTypeArbitrary()}
+	 * メソッドまたは
+	 * {@link ExternalFunctionConnectorInterface1#isReturnArrayRankArbitrary() isReturnArrayRankArbitrary()}
+	 * メソッドが true を返すように実装した場合、
+	 * このメソッドの parameterClasses には、スクリプト内での呼び出しにおける、
+	 * 実引数のデータ型情報が渡されます。
 	 * これにより、引数の型によって戻り値の型が異なるだけの、
 	 * 複数の関数に相当する処理を、まとめて提供する事ができます。
 	 *
-	 * @param parameterClasses 全引数のデータ型のClassインスタンスを格納する配列
-	 * @return 戻り値のデータ型のClassインスタンス
+	 * 逆に、
+	 * {@link ExternalFunctionConnectorInterface1#isReturnDataTypeArbitrary() isReturnDataTypeArbitrary()}
+	 * メソッドおよび
+	 * {@link ExternalFunctionConnectorInterface1#isReturnArrayRankArbitrary() isReturnArrayRankArbitrary()}
+	 * メソッドの両方が false を返すように実装した場合、
+	 * このメソッドの戻り値のClassインスタンスは、parameterClasses によらず静的に確定している必要があります。
+	 * 従ってその場合には、parameterClasses の情報は不要であるため、有効な内容が渡される事は保証されず、
+	 * 参照してはいけません。
+	 *
+	 * @param parameterClasses 各実引数の型/次元を表すClassインスタンスを格納する配列（上記説明参照）
+	 * @return 戻り値の型/次元を表すClassインスタンス
 	 */
 	public abstract Class<?> getReturnClass(Class<?>[] parameterClasses);
 
@@ -266,10 +291,37 @@ public interface ExternalFunctionConnectorInterface1 {
 	 * これにより、引数の型によって戻り値の型が異なるだけの、
 	 * 複数の関数に相当する処理を、まとめて提供する事ができます。
 	 *
-	 * @param parameterClasses 全引数のデータ型のClassインスタンスを格納する配列
+	 * @param parameterClasses 各実引数の型/次元を表すClassインスタンスを格納する配列
 	 * @return 戻り値のやり取りに使用するデータコンテナの型を表すClassインスタンス
 	 */
 	public abstract Class<?> getReturnUnconvertedClass(Class<?>[] parameterClasses);
+
+
+	/**
+	 * 戻り値のデータ型が可変（プラグイン接続時点で確定していない）であるかどうかを取得します。
+	 *
+	 * ただし、このメソッドが true を返す場合でも、
+	 * 渡される実引数のデータ型が確定すると、それに応じて戻り値の型も確定する必要があります。
+	 * 詳細は {@link ExternalFunctionConnectorInterface1#getReturnClass(Class[])) getReturnClass(Class[])}
+	 * メソッドの説明を参照してください。
+	 *
+	 * なお、配列次元数も変わり得る場合は、併せて
+	 * {@link ExternalFunctionConnectorInterface1#isReturnArrayRankArbitrary() isReturnArrayRankArbitrary()}
+	 * メソッドも true を返すようにしてください。
+	 * そちらが false を返し、かつこのメソッドが true を返す場合は、
+	 * 配列次元数は固定で、データ型のみが可変であると見なされます。
+	 *
+	 * @return 戻り値のデータ型が任意（プラグイン接続時点で確定していない）であれば true
+	 */
+	public abstract boolean isReturnDataTypeArbitrary();
+
+
+	/**
+	 * 戻り値の配列次元数が可変（プラグイン接続時点で確定していない）であるかどうかを取得します。
+	 *
+	 * @return 戻り値の配列次元数が任意（プラグイン接続時点で確定していない）であれば true
+	 */
+	public abstract boolean isReturnArrayRankArbitrary();
 
 
 	/**
