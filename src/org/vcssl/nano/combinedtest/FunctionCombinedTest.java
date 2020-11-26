@@ -37,6 +37,7 @@ public class FunctionCombinedTest extends CombinedTestElement {
 			this.testFunctionRanges();
 			this.testDuplicateFunctionDeclarations();
 			this.testPassingConstants();
+			this.testMultipleCallsOfFunctionsHavingBranchings();
 		} catch (VnanoException e) {
 			throw new CombinedTestException(e);
 		}
@@ -1482,6 +1483,188 @@ public class FunctionCombinedTest extends CombinedTestElement {
 			// 例外が投げられればエラーが検出されているので成功
 			super.succeeded("void fun(const int &x){ x=456; } fun(123); (should be failed) ");
 		}
+	}
+
+	// 内部で分岐のある関数を複数回呼び出すテスト
+	// (インライン展開において分岐先ラベルの補正を正しく行えていないと失敗する)
+	private void testMultipleCallsOfFunctionsHavingBranchings() throws VnanoException {
+		String scriptCode;
+		String resultS;
+
+		// 最初に念のため、1 回のみの呼び出しをテストしておく（そもそもこれが正しく動いていないと後続のテストも無意味なため）
+		scriptCode =
+			" void fun() {       \n" +
+			"     int x = 0;     \n" +
+			"     if (true) {    \n" +
+			"         x = 1;     \n" +
+			"     } else {       \n" +
+			"         x = 2;     \n" +
+			"     }              \n" +
+			" }                  \n" +
+			"                    \n" +
+			" string s = \"\";   \n" +
+			" s += \"0\";        \n" +
+			" s += \"1\";        \n" +
+			" s += \"2\";        \n" +
+			" s += \"3\";        \n" +
+			" s += \"4\";        \n" +
+			" fun();             \n" +
+			" s += \"5\";        \n" +
+			" s += \"6\";        \n" +
+			" s += \"7\";        \n" +
+			" s += \"8\";        \n" +
+			" s += \"9\";        \n" +
+			" s;                 \n" ;
+
+		resultS = (String)this.engine.executeScript(scriptCode);
+		super.evaluateResult(
+			resultS, "0123456789",
+			"Multiple calls of functions having branchings (case 1) ",
+			scriptCode
+		);
+
+
+		// 2回呼び出しのテスト
+		scriptCode =
+			" void fun() {       \n" +
+			"     int x = 0;     \n" +
+			"     if (true) {    \n" +
+			"         x = 1;     \n" +
+			"     } else {       \n" +
+			"         x = 2;     \n" +
+			"     }              \n" +
+			" }                  \n" +
+			"                    \n" +
+			" string s = \"\";   \n" +
+			" s += \"0\";        \n" +
+			" s += \"1\";        \n" +
+			" s += \"2\";        \n" +
+			" fun();             \n" +
+			" s += \"3\";        \n" +
+			" s += \"4\";        \n" +
+			" s += \"5\";        \n" +
+			" fun();             \n" +
+			" s += \"6\";        \n" +
+			" s += \"7\";        \n" +
+			" s += \"8\";        \n" +
+			" s += \"9\";        \n" +
+			" s;                 \n" ;
+
+		resultS = (String)this.engine.executeScript(scriptCode);
+		super.evaluateResult(
+			resultS, "0123456789",
+			"Multiple calls of functions having branchings (case 2) ",
+			scriptCode
+		);
+
+
+		// 3回呼び出しのテスト
+		scriptCode =
+			" void fun() {       \n" +
+			"     int x = 0;     \n" +
+			"     if (true) {    \n" +
+			"         x = 1;     \n" +
+			"     } else {       \n" +
+			"         x = 2;     \n" +
+			"     }              \n" +
+			" }                  \n" +
+			"                    \n" +
+			" string s = \"\";   \n" +
+			" s += \"0\";        \n" +
+			" s += \"1\";        \n" +
+			" s += \"2\";        \n" +
+			" fun();             \n" +
+			" s += \"3\";        \n" +
+			" s += \"4\";        \n" +
+			" fun();             \n" +
+			" s += \"5\";        \n" +
+			" s += \"6\";        \n" +
+			" s += \"7\";        \n" +
+			" fun();             \n" +
+			" s += \"8\";        \n" +
+			" s += \"9\";        \n" +
+			" s;                 \n" ;
+
+		resultS = (String)this.engine.executeScript(scriptCode);
+		super.evaluateResult(
+			resultS, "0123456789",
+			"Multiple calls of functions having branchings (case 3) ",
+			scriptCode
+		);
+
+
+		// 4回呼び出しのテスト
+		scriptCode =
+			" void fun() {       \n" +
+			"     int x = 0;     \n" +
+			"     if (true) {    \n" +
+			"         x = 1;     \n" +
+			"     } else {       \n" +
+			"         x = 2;     \n" +
+			"     }              \n" +
+			" }                  \n" +
+			"                    \n" +
+			" string s = \"\";   \n" +
+			" s += \"0\";        \n" +
+			" s += \"1\";        \n" +
+			" fun();             \n" +
+			" s += \"2\";        \n" +
+			" s += \"3\";        \n" +
+			" fun();             \n" +
+			" s += \"4\";        \n" +
+			" s += \"5\";        \n" +
+			" fun();             \n" +
+			" s += \"6\";        \n" +
+			" s += \"7\";        \n" +
+			" fun();             \n" +
+			" s += \"8\";        \n" +
+			" s += \"9\";        \n" +
+			" s;                 \n" ;
+
+		resultS = (String)this.engine.executeScript(scriptCode);
+		super.evaluateResult(
+			resultS, "0123456789",
+			"Multiple calls of functions having branchings (case 4) ",
+			scriptCode
+		);
+
+
+		// 5回呼び出しのテスト
+		scriptCode =
+			" void fun() {       \n" +
+			"     int x = 0;     \n" +
+			"     if (true) {    \n" +
+			"         x = 1;     \n" +
+			"     } else {       \n" +
+			"         x = 2;     \n" +
+			"     }              \n" +
+			" }                  \n" +
+			"                    \n" +
+			" string s = \"\";   \n" +
+			" s += \"0\";        \n" +
+			" s += \"1\";        \n" +
+			" fun();             \n" +
+			" s += \"2\";        \n" +
+			" fun();             \n" +
+			" s += \"3\";        \n" +
+			" s += \"4\";        \n" +
+			" fun();             \n" +
+			" s += \"5\";        \n" +
+			" fun();             \n" +
+			" s += \"6\";        \n" +
+			" s += \"7\";        \n" +
+			" fun();             \n" +
+			" s += \"8\";        \n" +
+			" s += \"9\";        \n" +
+			" s;                 \n" ;
+
+		resultS = (String)this.engine.executeScript(scriptCode);
+		super.evaluateResult(
+			resultS, "0123456789",
+			"Multiple calls of functions having branchings (case 5) ",
+			scriptCode
+		);
+
 	}
 
 }

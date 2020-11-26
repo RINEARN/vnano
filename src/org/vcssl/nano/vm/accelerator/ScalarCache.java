@@ -1,5 +1,6 @@
 package org.vcssl.nano.vm.accelerator;
 
-public interface ScalarCache {
-
+public abstract class ScalarCache implements Cloneable {
+	@Override
+	public abstract ScalarCache clone();
 }

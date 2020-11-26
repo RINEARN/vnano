@@ -132,6 +132,7 @@ org/vcssl/nano/vm/accelerator/Boolx2ScalarCacheSynchronizer.java
 org/vcssl/nano/vm/accelerator/Boolx3ScalarCacheSynchronizer.java
 org/vcssl/nano/vm/accelerator/BypassUnit.java
 org/vcssl/nano/vm/accelerator/CacheSynchronizer.java
+org/vcssl/nano/vm/accelerator/ExternalFunctionControlUnit.java
 org/vcssl/nano/vm/accelerator/Float64CachedScalarArithmeticUnit.java
 org/vcssl/nano/vm/accelerator/Float64CachedScalarComparisonUnit.java
 org/vcssl/nano/vm/accelerator/Float64CachedScalarDualArithmeticUnit.java

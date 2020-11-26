@@ -57,7 +57,8 @@ public enum AcceleratorExecutionType {
 	// スカラのALLOC命令は、スケジューリングでコード先頭に移動させて最初に行うようにしたため、複数回実行のための高速化はもう不要？
 	//SCALAR_ALLOC, // ScalarAlloc
 
-	FUNCTION_CONTROL,  // FunctionControl
+	INTERNAL_FUNCTION_CONTROL,  // InternalFunctionControl
+	EXTERNAL_FUNCTION_CONTROL,  // ExternalFunctionControl
 	NOP, // Nop
 
 	BYPASS,

@@ -393,17 +393,6 @@ public class Interconnect {
 	 *   <span class="lang-en">Data container storing returned value from the callee function.</span>
 	 *   <span class="lang-ja">呼び出した関数からの戻り値を格納するデータユニット.</span>
 	 */
-	// 実装メモ:
-	// 現状Accelerator上においてもCALLX命令はProcessorへバイパスされて最終的にこのメソッドで実行されてるけど、
-	// Processorへのバイパスはそれ自体で仮想メモリとAccelerator内スカラキャッシュの同期等を要してオーバーヘッドが大きいので、
-	// Acceleratorでこれの invoke 対象関数の参照をノード内に持って直接 invoke できるようにしたい。
-	// そうすれば引数がプリミティブ型スカラの外部関数はAccelerator内スカラキャッシュ値をそのまま渡せて結構削れそうな気がする。
-	// (ただ現状の外部関数インターフェースだと単純スカラ引数でも最低限プリミティブラッパー変換の必要はあって一定の処理は食うし、
-	//  その影響の程度によってはプリミティブスカラの受け渡ししかしない単純な関数インターフェースを新規で追加する余地もあるかも。
-	//  > それよりはスカラキャッシュのインターフェース定義してXFCI1のデータ変換無効化オプション使って直接アクセスの方がいいかも。
-	//    同オプション有効時に getAvailableDataContainerClasses とかで対応データコンテナの型をプラグイン側に明示してもらって、
-	//    キャッシュ投げられそうなら投げるとか。それができれば普通のスカラ命令実行を少しラップした程度のオーバーヘッドにはできそう。)
-	// また今度都合のいいタイミングで実装/要検討
 	public void callExternalFunction(int functionIndex, DataContainer<?>[] arguments, DataContainer<?> returnData)
 			throws VnanoException {
 

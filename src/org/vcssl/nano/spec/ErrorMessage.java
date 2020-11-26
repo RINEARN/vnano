@@ -114,6 +114,7 @@ public class ErrorMessage {
 			case UNCONVERTIBLE_DATA_TYPE : return "外部のデータ型「 " + words[0] + " 」は、このスクリプトエンジンがサポートしているデータ型に変換できません。" ;
 			case UNCONVERTIBLE_ARRAY : return "外部の配列型「 " + words[0] + " 」は、次元数またはデータ型などの問題で、このスクリプトエンジンでは扱えません。" ;
 			case UNCONVERTIBLE_INTERNAL_ARRAY : return "スクリプト内の配列型「 " + words[0] + " 」は、次元数またはデータ型などの問題で、スクリプトエンジン外部のデータ型に変換できません。" ;
+			case INCOMPATIBLE_DATA_ACCESSOR_INTERFACE : return "プラグイン「 " + words[1] + " 」が使用しているデータ入出力インターフェース「 " + words[0] + " 」は、この処理系ではサポートされていません。";
 			case JAGGED_ARRAY : return "長さが異なる配列をまとめた配列、いわゆるジャグ配列は、このスクリプトエンジンでは扱えません。";
 			case CAST_FAILED_DUE_TO_VALUE : return "データ「 " + words[0] + " 」の「 " + words[1] + " 」型への変換に失敗しました。";
 			case CAST_FAILED_DUE_TO_TYPE : return "「 " + words[0] + " 」型のデータの「 " + words[1] + " 」型への変換に失敗しました。";
@@ -228,6 +229,7 @@ public class ErrorMessage {
 			case UNCONVERTIBLE_DATA_TYPE : return "External data type \"" + words[0] + "\" is not convertible to supported data types in this script engine" ;
 			case UNCONVERTIBLE_ARRAY : return "External array type \"" + words[0] + "\" is not convertible to supported array in this script engine, due to the number of dimensions or the type-convertibility" ;
 			case UNCONVERTIBLE_INTERNAL_ARRAY : return "Internal array type \"" + words[0] + "\" is not convertible to external array types, due to the number of dimensions or the type-convertibility" ;
+			case INCOMPATIBLE_DATA_ACCESSOR_INTERFACE : return "The data accessor interface \"" + words[0] + "\" used in the plug-in \"" + words[1] + "\" is not available on this script engine";
 			case JAGGED_ARRAY : return "Jagged array is not available for this script engine, where \"jagged array\" is the array having arrays as elements, and their lengths are not same";
 			case CAST_FAILED_DUE_TO_VALUE : return "Cast operation of the data \"" + words[0] + "\" to \"" + words[1] + "\" type has failed";
 			case CAST_FAILED_DUE_TO_TYPE : return "Cast operation from \"" + words[0] + "\" type to \"" + words[1] + "\" type has failed";

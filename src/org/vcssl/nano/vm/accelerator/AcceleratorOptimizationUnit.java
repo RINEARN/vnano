@@ -36,6 +36,7 @@ public class AcceleratorOptimizationUnit {
 
 	private List<AcceleratorInstruction> acceleratorInstructionList;
 	private Map<Integer,Integer> addressReorderingMap;
+	private Map<Integer,Integer> expandedAddressReorderingMap;
 	private int registerWrittenPointCount[];
 	private int registerReadPointCount[];
 	private Map<Integer, InternalFunctionInfo> functionInfoMap;
@@ -656,13 +657,42 @@ public class AcceleratorOptimizationUnit {
 
 			// 以下、インライン展開を行う
 
-			int functionBegin = functionInfo.getBodyBeginAddress(); // 関数本体の始点命令インデックス（引数取り出し部は除く）
-			int functionEnd = functionInfo.getBodyEndAddress();     // 関数本体の終端命令インデックス（ENDFUN命令は除く）
+			int functionBegin = functionInfo.getBodyBeginAddress(); // 関数本体の始点命令アドレス（引数取り出し部は除く）
+			int functionEnd = functionInfo.getBodyEndAddress();     // 関数本体の終端命令アドレス（ENDFUN命令は除く）
 
 			// CALL命令があった場所に、最後のRET命令を除いて、関数本体の命令列をそのままコピーする
 			// (引数の受け渡しは、先の最適化で既に MOV/REF コード化されていて、CALL命令より前に済んでいるはず)
 			for (int functionInstructionIndex=functionBegin; functionInstructionIndex<functionEnd; functionInstructionIndex++) { // 条件が < なので末端のRETはコピーされない
-				modifiedInstructionList.add( this.acceleratorInstructionList.get(functionInstructionIndex) );
+
+				// 関数内の命令をコピーして展開用命令を生成し、展開直後のアドレスを命令に設定
+				AcceleratorInstruction expandedInstruction = this.acceleratorInstructionList.get(functionInstructionIndex).clone();
+				expandedInstruction.setExpandedAddress(modifiedInstructionList.size());
+
+				// 分岐命令の場合は、飛び先ラベル（アセンブル後はNOP）位置の命令アドレスを、展開後のアドレスに補正する必要がある
+				OperationCode opcode = expandedInstruction.getOperationCode();
+				if (opcode == OperationCode.JMP || opcode == OperationCode.JMPN) { // CALLも分岐的な挙動をするが、内部にCALLを含む関数は展開対象外なのでここには存在しないはず
+
+					// オペランド [1] に格納されている、展開前の飛び先ラベル位置の命令アドレスを取得
+					Memory.Partition[] operandParts = expandedInstruction.getOperandPartitions();
+					int[] operandAddrs = expandedInstruction.getOperandAddresses();
+					DataContainer<?> labelAddrContainer = memory.getDataContainer(operandParts[1], operandAddrs[1]);
+					int labelAddr = (int)( (long[])labelAddrContainer.getArrayData() )[0];
+
+					// 飛び先ラベルの位置は、他の最適化によって既に移動している可能性があるため、まずそれを補正する
+					labelAddr = this.addressReorderingMap.get(labelAddr);
+
+					// 分岐命令から見た、飛び先ラベルのオフセットアドレスを求める
+					int labedAddrOffset = labelAddr - functionInstructionIndex;
+
+					// 上記オフセット量を、インライン展開後の分岐命令のアドレスに足して、展開後の飛び先ラベル位置の命令アドレスを求める
+					int expandedLabelAddr = expandedInstruction.getExpandedAddress() + labedAddrOffset;
+
+					// 展開直後の飛び先ラベル位置を命令に設定（リオーダリング後のアドレス補正処理等で参照）
+					expandedInstruction.setExpandedLabelAddress(expandedLabelAddr);
+				}
+
+				// 命令リストに追加
+				modifiedInstructionList.add(expandedInstruction);
 			}
 
 			// RET命令で戻り値が指定されなかった場合（void関数）は、展開後は何もする必要が無いので、次の CALL 命令へ
@@ -682,7 +712,7 @@ public class AcceleratorOptimizationUnit {
 			// CALL命令の直後には、参照渡し先で書き換えられたデータとキャッシュ値を同期するRETURNED拡張命令が置かれている。
 			// 参照渡しの場合はそれをコピーし、値渡しの場合は何もせず読み飛ばす
 			if (functionInfo.hasReferenceParameters()) {
-				modifiedInstructionList.add( this.acceleratorInstructionList.get(instructionIndex) );
+				modifiedInstructionList.add( this.acceleratorInstructionList.get(instructionIndex).clone() );
 			}
 			instructionIndex++;
 
@@ -908,22 +938,31 @@ public class AcceleratorOptimizationUnit {
 	// 全命令アドレスの再配置前→再配置後の対応を格納したアドレス変換マップを生成
 	private void generateAddressReorderingMap() {
 
-		// 注:
-		//
+		// addressReorderingMap は、再配置前のアドレス unreorderedAddress をキーとして、
+		// 再配置後のアドレス reorderedAddress を返すマップで、
+		// JMP/JMPN/CALLの着地点ラベル（由来のNOP命令）の位置を補正するために使用される。
 		// 最適化で命令1個だった所が複数命令になっている箇所がある場合 (CALLの引数直接MOV化とか) など、
-		// 複数命令が同じ unreorderedAddress を持っていると、このマップはそれらの最後の命令の reorderedAddress を返す。
+		// 複数命令が同じ unreorderedAddress を持っていると、addressReorderingMap はそれらの最後の命令の reorderedAddress を返す。
 		//
-		// このマップは現状ではJMP/JMPN/CALLの着地点ラベル（由来のNOP命令）の位置を補正するために使用されるが、
-		// ラベル由来NOPにはそういった複数命令への分裂は起こらないため、その目的においては問題は生じない。
+		// なお、インライン展開された関数内の命令も、複数箇所で同じ unreorderedAddress を持っているため、
+		// そのまま素直に addressReorderingMap でアドレス変換すると、展開後の関数コード内の分岐命令の飛び先が同一地点に収束してしまう。
+		// そのためインライン展開されたコードに対しては、展開後のアドレス（こちらは重複しないはず）をキーとする
+		// expandedAddressReorderingMap を用意し、アドレス変換時にそちらを用いるようにする。
 		//
-		// ただし、別の目的でこのマップを参照する際は、影響の有無について要注意。
-		// 場合によってはもっと手の込んだ仕組みを用意する必要が出てくるが、現状では単純で済むマップを使っている。
+		// > もっとキーやタイミングを上手い形に整理すればマップは1個で済ませられるはずなので、きりのいい時に要検討
+		//   > というか再配置周りはマップ類を直接使うよりもそういう役割のクラスに包んでその中で管理した方がいいかも
+		//     今後の別の最適化とか次第では単純な形では対応し切れない場合もありそうだし
 
 		this.addressReorderingMap = new HashMap<Integer,Integer>();
+		this.expandedAddressReorderingMap = new HashMap<Integer,Integer>();
 		int instructionLength = acceleratorInstructionList.size();
 		for (int instructionIndex=0; instructionIndex<instructionLength; instructionIndex++) {
 			AcceleratorInstruction instruction = this.acceleratorInstructionList.get(instructionIndex);
-			addressReorderingMap.put(instruction.getUnreorderedAddress(), instruction.getReorderedAddress());
+			if (instruction.isExpanded()) {
+				this.expandedAddressReorderingMap.put(instruction.getExpandedAddress(), instruction.getReorderedAddress());
+			} else {
+				this.addressReorderingMap.put(instruction.getUnreorderedAddress(), instruction.getReorderedAddress());
+			}
 		}
 	}
 
@@ -938,27 +977,37 @@ public class AcceleratorOptimizationUnit {
 			// JMP & JMPN & CALL はオペランドアドレスに飛ぶ。RETはスタックから取ったアドレスに飛ぶが、オペランドに所属関数ラベルを持っている
 			if (opcode == OperationCode.JMP || opcode == OperationCode.JMPN || opcode == OperationCode.CALL || opcode == OperationCode.RET) {
 
-				// ラベルの命令アドレスの値を格納するオペランドのデータコンテナをメモリから取得（必ずオペランド[1]にあるよう統一されている）
-				DataContainer<?> addressContiner = null;
-				addressContiner = memory.getDataContainer(
+				// 分岐先が、インライン展開で生成された命令列の中にある場合
+				// (unreorderedLabelAddress は複数展開時に重複が生じてキーに使えないため、展開直後の一意なラベルアドレスをキーとするマップで変換)
+				if (instruction.isLabelAddressExpanded()) {
+					int expandedLabelAddress = instruction.getExpandedLabelAddress();
+					int reorderedLabelAddress = this.expandedAddressReorderingMap.get(expandedLabelAddress);
+					instruction.setReorderedLabelAddress(reorderedLabelAddress);
+
+				// それ以外の通常の場合
+				// (unreordered address をキーとするマップで変換する)
+				} else {
+
+					// ラベルの命令アドレスの値を格納するオペランドのデータコンテナをメモリから取得（必ずオペランド[1]にあるよう統一されている）
+					DataContainer<?> addressContiner = null;
+					addressContiner = memory.getDataContainer(
 						instruction.getOperandPartitions()[1],
 						instruction.getOperandAddresses()[1]
-				);
+					);
 
-				// データコンテナから飛び先ラベル（アセンブル後はNOPになっている）の命令アドレスの値を読む
-				int labelAddress = -1;
-				Object addressData = addressContiner.getArrayData();
-				if (addressData instanceof long[]) {
-					labelAddress = (int)( ((long[])addressData)[0] );
-				} else {
-					throw new VnanoFatalException("Non-integer instruction address (label) operand detected.");
+					// データコンテナから飛び先ラベル（アセンブル後はNOPになっている）の命令アドレスの値を読む
+					int labelAddress = -1;
+					Object addressData = addressContiner.getArrayData();
+					if (addressData instanceof long[]) {
+						labelAddress = (int)( ((long[])addressData)[0] );
+					} else {
+						throw new VnanoFatalException("Non-integer instruction address (label) operand detected.");
+					}
+
+					// 上で読んだラベル（由来のNOP命令）アドレスの、再配置後の位置の命令アドレスを取得し、命令に持たせる
+					int reorderedLabelAddress = this.addressReorderingMap.get(labelAddress);
+					instruction.setReorderedLabelAddress(reorderedLabelAddress);
 				}
-
-				// ラベル（由来のNOP命令）アドレスの、命令再配置前における位置に対応する、再配置後の位置の命令アドレスを取得
-				int reorderedLabelAddress = this.addressReorderingMap.get(labelAddress);
-
-				// 再配置後のラベル命令アドレス情報を命令に持たせる
-				instruction.setReorderedLabelAddress(reorderedLabelAddress);
 			}
 		}
 	}

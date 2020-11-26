@@ -22,7 +22,8 @@ public class AcceleratorDispatchUnit {
 	public AcceleratorExecutionNode[] dispatch (
 			Processor processor, Memory memory, Interconnect interconnect,
 			AcceleratorInstruction[] instructions, AcceleratorDataManagementUnit dataManager,
-			BypassUnit bypassUnit, InternalFunctionControlUnit functionControlUnit) throws VnanoException {
+			BypassUnit bypassUnit, InternalFunctionControlUnit internalFunctionControlUnit,
+			ExternalFunctionControlUnit externalFunctionControlUnit) throws VnanoException {
 
 		int instructionLength = instructions.length;
 		AcceleratorExecutionNode[] nodes = new AcceleratorExecutionNode[instructionLength];
@@ -71,7 +72,7 @@ public class AcceleratorDispatchUnit {
 				AcceleratorExecutionNode currentNode = null;
 				currentNode = this.dispatchToAcceleratorExecutionUnit(
 					instruction, operandContainers, operandCaches, operandCachingEnabled, operandScalar, operandConstant,
-					bypassUnit, functionControlUnit,
+					bypassUnit, internalFunctionControlUnit, externalFunctionControlUnit,
 					nextNode
 				);
 
@@ -122,8 +123,8 @@ public class AcceleratorDispatchUnit {
 	private AcceleratorExecutionNode dispatchToAcceleratorExecutionUnit (
 			AcceleratorInstruction instruction, DataContainer<?>[] operandContainers,
 			ScalarCache[] operandCaches, boolean[] operandCachingEnabled, boolean[] operandScalar, boolean[] operandConstant,
-			BypassUnit bypassUnit, InternalFunctionControlUnit functionControlUnit,
-			AcceleratorExecutionNode nextNode) {
+			BypassUnit bypassUnit, InternalFunctionControlUnit internalFunctionControlUnit,
+			ExternalFunctionControlUnit externalFunctionControlUnit, AcceleratorExecutionNode nextNode) {
 
 		// 演算器タイプを取得
 		AcceleratorExecutionType accelType = instruction.getAccelerationType();
@@ -383,8 +384,16 @@ public class AcceleratorDispatchUnit {
 
 			// 内部関数関連の命令
 
-			case FUNCTION_CONTROL : {
-				return functionControlUnit.generateNode(
+			case INTERNAL_FUNCTION_CONTROL : {
+				return internalFunctionControlUnit.generateNode(
+					instruction, operandContainers, operandCaches, operandCachingEnabled, operandScalar, operandConstant, nextNode
+				);
+			}
+
+			// 外部関数関連の命令
+
+			case EXTERNAL_FUNCTION_CONTROL : {
+				return externalFunctionControlUnit.generateNode(
 					instruction, operandContainers, operandCaches, operandCachingEnabled, operandScalar, operandConstant, nextNode
 				);
 			}

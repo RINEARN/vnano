@@ -7,9 +7,16 @@ package org.vcssl.nano.vm.accelerator;
 
 import org.vcssl.connect.Float64ScalarDataAccessorInterface1;
 
-public class Float64ScalarCache implements ScalarCache, Float64ScalarDataAccessorInterface1 {
+public class Float64ScalarCache extends ScalarCache implements Float64ScalarDataAccessorInterface1 {
 	public Float64ScalarCache(){}
 	public double data;
+
+	@Override
+	public Float64ScalarCache clone() {
+		Float64ScalarCache clonedInstance = new Float64ScalarCache();
+		clonedInstance.data = this.data;
+		return clonedInstance;
+	}
 
 	@Override
 	public void setFloat64ScalarData(double data) {

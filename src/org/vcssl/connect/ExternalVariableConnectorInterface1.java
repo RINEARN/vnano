@@ -73,9 +73,9 @@ public interface ExternalVariableConnectorInterface1 {
 
 
 	/**
-	 * 変数のデータの型を表すClassインスタンスを取得します。
+	 * 変数のデータ型と配列次元数をまとめて表すClassインスタンスを取得します。
 	 *
-	 * @return データ型のClassインスタンス
+	 * @return 変数の型/次元を表すClassインスタンス
 	 */
 	public abstract Class<?> getDataClass();
 
@@ -123,7 +123,7 @@ public interface ExternalVariableConnectorInterface1 {
 	 *
 	 * @return データ型が可変であれば true
 	 */
-	public abstract boolean isDataClassArbitrary();
+	public abstract boolean isDataTypeArbitrary();
 
 
 	/**
@@ -135,7 +135,7 @@ public interface ExternalVariableConnectorInterface1 {
 	 *
 	 * @return 配列次元数が可変であれば true
 	 */
-	public abstract boolean isDataRankArbitrary();
+	public abstract boolean isArrayRankArbitrary();
 
 
 	/**

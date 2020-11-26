@@ -145,6 +145,23 @@ public final class InternalFunction extends AbstractFunction {
 	}
 
 	@Override
+	public final boolean isReturnDataTypeArbitrary() {
+		return false;
+	}
+
+	@Override
+	public final boolean isReturnArrayRankArbitrary() {
+		return false;
+	}
+
+	@Override
+	public final void checkInvokability(String[] argumentDataTypeNames, int[] argumentArrayRanks) {
+		// 内部関数ではインターフェースの互換問題などは生じないため、
+		// この関数が callee として紐づけられている ＝ 意味解析で引数の型が整合している時点で、
+		// 常に実行可能であるはず（そうでなければ意味解析側の異常）
+	}
+
+	@Override
 	public final void invoke(DataContainer<?>[] argumentDataUnits, DataContainer<?> returnDataUnit) {
 		// 現在は未対応
 		throw new VnanoFatalException("The invocation of the internal function from the outside has not implemented yet.");

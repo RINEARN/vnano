@@ -67,9 +67,9 @@ public class FieldToXvci1Adapter implements ExternalVariableConnectorInterface1 
 
 
 	/**
-	 * 変数のデータの型を表すClassインスタンスを取得します。
+	 * 変数のデータ型と配列次元数をまとめて表すClassインスタンスを取得します。
 	 *
-	 * @return データ型のClassインスタンス
+	 * @return 変数の型/次元を表すClassインスタンス
 	 */
 	@Override
 	public Class<?> getDataClass() {
@@ -126,7 +126,7 @@ public class FieldToXvci1Adapter implements ExternalVariableConnectorInterface1 
 	 *
 	 * @return データ型が可変であれば true
 	 */
-	public boolean isDataClassArbitrary() {
+	public boolean isDataTypeArbitrary() {
 		return false;
 	}
 
@@ -140,7 +140,7 @@ public class FieldToXvci1Adapter implements ExternalVariableConnectorInterface1 
 	 *
 	 * @return 配列次元数が可変であれば true
 	 */
-	public boolean isDataRankArbitrary() {
+	public boolean isArrayRankArbitrary() {
 		return false;
 	}
 

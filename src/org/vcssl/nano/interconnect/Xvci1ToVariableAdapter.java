@@ -60,6 +60,30 @@ public class Xvci1ToVariableAdapter extends AbstractVariable {
 		this.xvciPlugin = xvciPlugin;
 		this.variableName = xvciPlugin.getVariableName();
 		this.dataConverter = new DataConverter(this.xvciPlugin.getDataClass(), langSpec);
+
+		// 自動データ型変換が無効化されている場合は、やり取りするデータ入出力インターフェースの互換性を検査する
+		// ( XVCI1 の getDataUnconvertedClass() が返すインターフェースを、この処理系のデータコンテナが実装していなければエラー ）
+		if (!this.xvciPlugin.isDataConversionNecessary()) {
+			Class<?> dataAccessorInterface = this.xvciPlugin.getDataUnconvertedClass();
+			if (!dataAccessorInterface.isAssignableFrom(DataContainer.class)) {
+				String errorWords[] = new String[] {
+					dataAccessorInterface.getCanonicalName(), this.xvciPlugin.getClass().getCanonicalName()
+				};
+				throw new VnanoException(ErrorType.INCOMPATIBLE_DATA_ACCESSOR_INTERFACE, errorWords);
+			}
+		}
+	}
+
+
+	/**
+	 * このアダプタのインスタンスが内部でラップしている、
+	 * {@link org.vcssl.connect.ExternalVariableConnectorInterface1 XVCI 1}
+	 * 形式の外部変数プラグインを取得します。
+	 *
+	 * @return このインスタンスがラップしているXVCI1プラグイン
+	 */
+	public ExternalVariableConnectorInterface1 getXvci1Plugin() {
+		return this.xvciPlugin;
 	}
 
 
