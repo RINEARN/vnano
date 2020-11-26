@@ -145,6 +145,16 @@ public final class InternalFunction extends AbstractFunction {
 	}
 
 	@Override
+	public final boolean isReturnDataTypeArbitrary() {
+		return false;
+	}
+
+	@Override
+	public final boolean isReturnArrayRankArbitrary() {
+		return false;
+	}
+
+	@Override
 	public final void checkInvokability(String[] argumentDataTypeNames, int[] argumentArrayRanks) {
 		// 内部関数ではインターフェースの互換問題などは生じないため、
 		// この関数が callee として紐づけられている ＝ 意味解析で引数の型が整合している時点で、

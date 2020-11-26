@@ -333,6 +333,24 @@ public final class Xfci1ToFunctionAdapter extends AbstractFunction {
 
 
 	/**
+	 * 戻り値のデータ型が可変であるかどうかを取得します。
+	 */
+	@Override
+	public final boolean isReturnDataTypeArbitrary() {
+		return this.xfciPlugin.isReturnDataTypeArbitrary();
+	}
+
+
+	/**
+	 * 戻り値の配列次元数が可変であるかどうかを取得します。
+	 */
+	@Override
+	public final boolean isReturnArrayRankArbitrary() {
+		return this.xfciPlugin.isReturnArrayRankArbitrary();
+	}
+
+
+	/**
 	 * 指定された引数で関数を実行する際に発生し得る、事前に検査可能な問題などを検査し、
 	 * 問題があった場合には例外を発生させます。
 	 *

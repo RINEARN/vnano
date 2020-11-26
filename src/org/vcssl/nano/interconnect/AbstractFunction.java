@@ -172,6 +172,19 @@ public abstract class AbstractFunction {
 	 * 戻り値のデータ型名を取得します。
 	 * 返される型名の表記内に、配列部分 [][]...[] は含まれません。
 	 *
+	 * {@link AbstractFunction#isReturnDataTypeArbitrary() isReturnDataTypeArbitrary()}
+	 * メソッドが true を返す場合、
+	 * このメソッドの argumentDataTypeNames および argumentArrayRanks には、
+	 * スクリプト内での呼び出しにおける、実引数の型/次元情報が渡されます。
+	 *
+	 * 逆に、
+	 * {@link AbstractFunction#isReturnDataTypeArbitrary() isReturnDataTypeArbitrary()}
+	 * メソッドが false を返す場合、
+	 * このメソッドの戻り値は、argumentDataTypeNames や argumentArrayRanks
+	 * の内容によらず確定している必要があります。
+	 * 従ってその場合には、それらの情報は不要であるため、有効な内容が渡される事は保証されず、
+	 * 参照してはいけません。
+	 *
 	 * @param argumentDataTypeNames 呼び出し時の全引数の型名を格納する配列
 	 * @param argumentArrayRanks 呼び出し時の全引数の配列次元数を格納する配列
 	 * @return 戻り値のデータ型名
@@ -182,11 +195,48 @@ public abstract class AbstractFunction {
 	/**
 	 * 戻り値の配列次元数を取得します。
 	 *
+	 * {@link AbstractFunction#isReturnArrayRankArbitrary() isReturnArrayRankArbitrary()}
+	 * メソッドが true を返す場合、
+	 * このメソッドの argumentDataTypeNames および argumentArrayRanks には、
+	 * スクリプト内での呼び出しにおける、実引数の型/次元情報が渡されます。
+	 *
+	 * 逆に、
+	 * {@link AbstractFunction#isReturnArrayRankArbitrary() isReturnArrayRankArbitrary()}
+	 * メソッドが false を返す場合、
+	 * このメソッドの戻り値は、argumentDataTypeNames や argumentArrayRanks
+	 * の内容によらず確定している必要があります。
+	 * 従ってその場合には、それらの情報は不要であるため、有効な内容が渡される事は保証されず、
+	 * 参照してはいけません。
+	 *
 	 * @param argumentDataTypeNames 呼び出し時の全引数の型名を格納する配列
 	 * @param argumentArrayRanks 呼び出し時の全引数の配列次元数を格納する配列
 	 * @return 戻り値の配列次元数
 	 */
 	public abstract int getReturnArrayRank(String[] argumentDataTypeNames, int[] argumentArrayRanks);
+
+
+	/**
+	 * 戻り値のデータ型が可変であるかどうかを取得します。
+	 *
+	 * ただし、このメソッドが true を返す場合でも、
+	 * 渡される実引数のデータ型や次元数が確定すると、それに応じて戻り値の型も確定する必要があります。
+	 * 詳細は
+	 * {@link AbstractFunction#getReturnDataTypeName(String[],int[]) getReturnDataTypeName(String[],int[])}
+	 * メソッドの説明を参照してください。
+	 */
+	public abstract boolean isReturnDataTypeArbitrary();
+
+
+	/**
+	 * 戻り値の配列次元数が可変であるかどうかを取得します。
+	 *
+	 * ただし、このメソッドが true を返す場合でも、
+	 * 渡される実引数のデータ型や次元数が確定すると、それに応じて戻り値の次元数も確定する必要があります。
+	 * 詳細は
+	 * {@link AbstractFunction#getReturnArrayRank(String[],int[]) getReturnArrayRank(String[],int[])}
+	 * メソッドの説明を参照してください。
+	 */
+	public abstract boolean isReturnArrayRankArbitrary();
 
 
 	/**
