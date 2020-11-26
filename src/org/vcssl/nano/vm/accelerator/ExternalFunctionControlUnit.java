@@ -185,7 +185,8 @@ public class ExternalFunctionControlUnit extends AcceleratorExecutionUnit {
 			}
 
 			// 戻り値格納用のデータコンテナは、外部関数側でメモリ確保される前提で、VRILコード上では alloc されない場合が普通にある。
-			// そのため、その場合はここでスカラを格納できる形にメモリ確保を行っておく。
+			// しかしこのノードではデータコンテナの代わりにキャッシュオブジェクトが外部関数に渡されるので、
+			// そこでもデータコンテナはメモリ確保されない。そのため、ここでスカラを格納できる形に確保しておく。
 			// それを行わないと、accelerator 内のどこかで、戻り値格納アドレスに対してキャッシュ同期しようとした際に失敗する。
 			if (isReturnValueCachedScalar && returnValueDataType != DataType.VOID) {
 				new ExecutionUnit().alloc(
@@ -237,7 +238,8 @@ public class ExternalFunctionControlUnit extends AcceleratorExecutionUnit {
 			}
 
 			// 戻り値格納用のデータコンテナは、外部関数側でメモリ確保される前提で、VRILコード上では alloc されない場合が普通にある。
-			// そのため、その場合はここでスカラを格納できる形にメモリ確保を行っておく。
+			// しかしこのノードではデータコンテナの代わりにキャッシュオブジェクトが外部関数に渡されるので、
+			// そこでもデータコンテナはメモリ確保されない。そのため、ここでスカラを格納できる形に確保しておく。
 			// それを行わないと、accelerator 内のどこかで、戻り値格納アドレスに対してキャッシュ同期しようとした際に失敗する。
 			if (isReturnValueCachedScalar && returnValueDataType != DataType.VOID) {
 				new ExecutionUnit().alloc(
@@ -293,9 +295,10 @@ public class ExternalFunctionControlUnit extends AcceleratorExecutionUnit {
 			System.arraycopy(operandContainers, 2, this.argumentContainers, 0, operandContainers.length - 2);
 
 			// オペランド[0] は戻り値格納用なので、外部関数側でメモリ確保される前提で、VRILコード上では alloc されない場合が普通にある。
-			// そのため、その場合はここでスカラを格納できる形にメモリ確保を行っておく。
-			// それを行わないと、まず下の synchronizeFromCacheToMemory で書き込み先が null のため失敗するし、
-			// それ以外でも accelerator 内のどこかで、戻り値格納アドレスに対してキャッシュ同期しようとした際に失敗する。
+			// そのような場合で、さらに戻り値がキャッシュ可能スカラの場合は、
+			// 以下の execute() 内の最初に走る synchronizeFromCacheToMemory() で書き込み先が null のため失敗する。
+			// 従って、ここでスカラを格納できる形に確保しておく。
+			// ( AcceleratorではなくProcessorで処理する際にこの点が問題にならないのは、Processorにはそもそもキャッシュの仕組み無いため。 )
 			if (isReturnValueCachedScalar && returnValueDataType != DataType.VOID) {
 				new ExecutionUnit().alloc(
 					returnValueDataType, operandContainers[0], DataContainer.ARRAY_SIZE_OF_SCALAR, DataContainer.ARRAY_LENGTHS_OF_SCALAR
