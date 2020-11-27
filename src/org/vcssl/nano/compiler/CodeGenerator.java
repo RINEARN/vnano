@@ -1957,10 +1957,9 @@ public class CodeGenerator {
 		// インクリメント/デクリメントの対象変数
 		AstNode variableNode = operatorNode.getChildNodes()[0];
 		String variableValue = variableNode.getAttribute(AttributeKey.ASSEMBLY_VALUE);
-		String resultValue = operatorNode.getAttribute(AttributeKey.ASSEMBLY_VALUE);
 
-		// レジスタを確保し、演算前の値をそこに控える
-		String storageRegister = this.generateRegisterOperandCode();
+		// 式内での評価値として、演算前の値を控える
+		String storageRegister = operatorNode.getAttribute(AttributeKey.ASSEMBLY_VALUE);
 		codeBuilder.append(
 			this.generateRegisterAllocationCode(executionDataType, storageRegister, variableValue, operatorNode.getRank())
 		);
@@ -1968,9 +1967,8 @@ public class CodeGenerator {
 			this.generateInstruction(OperationCode.MOV.name(), executionDataType, storageRegister, variableValue)
 		);
 
-		// インクリメント/デクリメントの変化幅
+		// インクリメント/デクリメントの変化幅を即値として保持するノードを用意
 		AstNode stepNode = new AstNode(AstNode.Type.LEAF, variableNode.getLineNumber(), variableNode.getFileName());
-
 		stepNode.setAttribute(AttributeKey.DATA_TYPE, executionDataType);
 		stepNode.setAttribute(AttributeKey.RANK, Integer.toString(RANK_OF_SCALAR));
 		if (executionDataType.equals(DATA_TYPE_NAME.defaultInt)) {
@@ -1981,20 +1979,14 @@ public class CodeGenerator {
 			stepNode.setAttribute(AttributeKey.ASSEMBLY_VALUE, immediateValue);
 		}
 
+		// インクリメントの加減算のコード生成に渡すために、生成命令の dest に使われる情報を差し替えたノードを用意
+		AstNode destModifiedNode = operatorNode.clone();
+		destModifiedNode.setAttribute(AttributeKey.ASSEMBLY_VALUE, variableValue);
+		destModifiedNode.removeAttribute(AttributeKey.NEW_REGISTER);
 
-		String binaryOperationCode = this.generateBinaryOperatorCode(operatorNode, opcode, false, variableNode, stepNode);
+		// 加減算のコードを生成
+		String binaryOperationCode = this.generateBinaryOperatorCode(destModifiedNode, opcode, false, variableNode, stepNode);
 		codeBuilder.append(binaryOperationCode);
-
-		String movCode;
-
-		// 変数に演算結果レジスタの値をMOVする
-		movCode = this.generateInstruction(OperationCode.MOV.name(), executionDataType, variableValue, resultValue);
-		codeBuilder.append(movCode);
-
-		// 演算結果レジスタに演算前の値をMOVする
-		//（後置インクリメント/デクリメントは、式の中での参照値は演算前の値となるため）
-		movCode = this.generateInstruction(OperationCode.MOV.name(), executionDataType, resultValue, storageRegister);
-		codeBuilder.append(movCode);
 
 		return codeBuilder.toString();
 	}

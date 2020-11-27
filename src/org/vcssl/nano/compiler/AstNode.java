@@ -409,6 +409,19 @@ public class AstNode implements Cloneable {
 
 
 	/**
+	 * <span class="lang-en">Remove the specified attribute</span>
+	 * <span class="lang-ja">指定された属性を削除します</span>
+	 *
+	 * @param attributeKey
+	 *   <span class="lang-en">The key of the attribute to be removed.</span>
+	 *   <span class="lang-ja">削除する属性のキー.</span>
+	 */
+	public void removeAttribute(AttributeKey attributeKey) {
+		this.attributeMap.remove(attributeKey);
+	}
+
+
+	/**
 	 * <span class="lang-en">Checks whether this node has the specified attribute or not</span>
 	 * <span class="lang-ja">このノードが, 指定された属性キーに対応する値を保持しているかどうかを確認します</span>
 	 * .
