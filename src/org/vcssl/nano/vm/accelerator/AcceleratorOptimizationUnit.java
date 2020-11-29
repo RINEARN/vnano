@@ -39,6 +39,7 @@ public class AcceleratorOptimizationUnit {
 	private Map<Integer,Integer> expandedAddressReorderingMap;
 	private int registerWrittenPointCount[];
 	private int registerReadPointCount[];
+	private boolean registerReferenceMaybeLinked[];
 	private Map<Integer, InternalFunctionInfo> functionInfoMap;
 
 	// 演算結果格納レジスタからのMOV命令でのコピーを削る最適化を、適用してもよい命令の集合
@@ -258,14 +259,18 @@ public class AcceleratorOptimizationUnit {
 		this.expandFunctionCodeInline(memory);
 
 		// 全てのレジスタに対し、それぞれ書き込み・読み込み箇所の数をカウントする（最適化に使用）
-		this.createRegisterWrittenPointCount(memory);
-		this.createRegisterReadPointCount(memory);
+		this.countRegisterWrittenPoints(memory);
+		this.countRegisterReadPoints(memory);
+		this.detectRegisterReferenceLinks(memory);
 
 		// スカラのALLOC命令をコード先頭に並べ替える（メモリコストが低いので、ループ内に混ざるよりも利点が多い）
 		this.reorderAllocAndAllocrInstructions(dataManager);
 
-		// オペランドを並び替え、不要になったMOV命令を削る
-		this.reduceMovInstructions(dataManager);
+		// どこからも読んでいないレジスタに対するMOV命令を削る（後置インクリメント/デクリメントなどで発生）
+		this.reduceMovInstructionsToUnreadRegisters(dataManager);
+
+		// 演算命令の結果を直後にMOVしている箇所のオペランドを並び替え、不要になったMOV命令を削る
+		this.reduceMovInstructionsCopyingOperationResults(dataManager);
 
 		// 最新の（再配列後の）命令アドレスを設定し、新旧の対応を保持するマップを更新
 		// -> このあたりの処理は AcceleratorSchedulingUnit と重複しているので、きりのいい時になんとかしたい
@@ -833,8 +838,8 @@ public class AcceleratorOptimizationUnit {
 	}
 
 
-	// レジスタ書き込み箇所カウンタ配列を生成して初期化
-	private void createRegisterWrittenPointCount(Memory memory) {
+	// 各レジスタについて、書き込んでいる箇所を検出して数える
+	private void countRegisterWrittenPoints(Memory memory) {
 		int registerLength = memory.getSize(Memory.Partition.REGISTER);
 		this.registerWrittenPointCount = new int[registerLength];
 		Arrays.fill(this.registerWrittenPointCount, 0);
@@ -884,8 +889,8 @@ public class AcceleratorOptimizationUnit {
 	}
 
 
-	// レジスタ読み込み箇所カウンタ配列を生成して初期化
-	private void createRegisterReadPointCount(Memory memory) {
+	// 各レジスタについて、読み込んでいる箇所を検出して数える
+	private void countRegisterReadPoints(Memory memory) {
 		int registerLength = memory.getSize(Memory.Partition.REGISTER);
 		this.registerReadPointCount = new int[registerLength];
 		Arrays.fill(this.registerReadPointCount, 0);
@@ -921,6 +926,75 @@ public class AcceleratorOptimizationUnit {
 					int readingRegisterAddress = operandAddresses[operandIndex];
 					this.registerReadPointCount[readingRegisterAddress]++;
 				}
+			}
+		}
+	}
+
+
+	// 各レジスタについて、参照リンクされている可能性があるかどうかを検出する
+	private void detectRegisterReferenceLinks(Memory memory) {
+		int registerLength = memory.getSize(Memory.Partition.REGISTER);
+
+		// レジスタ番号をインデックスとして、参照リンクされている可能性があるレジスタに対してはこの配列の値を true にする
+		this.registerReferenceMaybeLinked = new boolean[registerLength];
+		Arrays.fill(this.registerReferenceMaybeLinked, false);
+
+		int instructionLength = acceleratorInstructionList.size();
+		for (int instructionIndex=0; instructionIndex<instructionLength; instructionIndex++) {
+			AcceleratorInstruction instruction = acceleratorInstructionList.get(instructionIndex);
+			OperationCode opcode = instruction.getOperationCode();
+			Memory.Partition[] parts = instruction.getOperandPartitions();
+			int[] addrs = instruction.getOperandAddresses();
+
+			// REF命令はオペランド [0] と [1] を参照リンクするので、それぞれレジスタなら true とマーク
+			if (opcode == OperationCode.REF) {
+				if (parts[0] == Memory.Partition.REGISTER) {
+					this.registerReferenceMaybeLinked[addrs[0]] = true;
+				}
+				if (parts[1] == Memory.Partition.REGISTER) {
+					this.registerReferenceMaybeLinked[addrs[1]] = true;
+				}
+
+			// REFELM 命令はオペランド[1]の配列要素をオペランド[0]に参照リンクするので、それぞれレジスタなら true とマーク
+			// (オペランド[1]は普通は配列変数だが、関数の戻り値や配列演算結果などに直接 [i] を付けて要素参照する場合など、レジスタもあり得る)
+			} else if (opcode == OperationCode.REFELM) {
+				if (parts[0] == Memory.Partition.REGISTER) {
+					this.registerReferenceMaybeLinked[addrs[0]] = true;
+				}
+				if (parts[1] == Memory.Partition.REGISTER) {
+					this.registerReferenceMaybeLinked[addrs[1]] = true;
+				}
+
+			// REFPOP 命令はスタックのデータをオペランド[0]に参照リンクするので、それがレジスタなら true とマーク
+			} else if (opcode == OperationCode.REFPOP) {
+				if (parts[0] == Memory.Partition.REGISTER) {
+					this.registerReferenceMaybeLinked[addrs[0]] = true;
+				}
+
+			// 内部関数に渡している実引数は、スタック経由で REFPOP で取り出される可能性があるため、レジスタなら true とマーク
+			// > VRILアセンブリコード内の変数宣言ディレクティブで #VARIABLE _arg CONST REF みたいに識別子後に修飾子が付くようにして、
+			//   その情報も考慮に入れて判定するとかした方が総合的にはいいかもしれない。実際には参照リンクされない引数も多いので。
+			//   また後々で要検討
+			} else if (opcode == OperationCode.CALL) {
+				for (int i=2; i<addrs.length; i++) { // [0]はプレースホルダ、[1]は関数アドレス、[2]以降が実引数なので2からループ
+					if (parts[i] == Memory.Partition.REGISTER) {
+						this.registerReferenceMaybeLinked[addrs[i]] = true;
+					}
+				}
+
+			// 内部関数の戻り値については、VRIL上は引数同様にREFPOPで受け取られる可能性があるが、
+			// 現状のVnanoの文法では参照で受け取る方法が存在しないので、検出せずスキップ
+			} else if (opcode == OperationCode.RET) {
+				continue;
+
+			// 外部関数は引数の参照が渡される場合があるが、
+			// それをスクリプト内の別のアドレスに参照「リンク」される事は無い（仕様上してはいけない）のでスキップ
+			} else if (opcode == OperationCode.CALLX) {
+				continue;
+
+			// それ以外の命令では、スクリプト内で別アドレスに参照リンク経由でされる事は無いのでスキップ
+			} else {
+				continue;
 			}
 		}
 	}
@@ -1056,8 +1130,56 @@ public class AcceleratorOptimizationUnit {
 	}
 
 
-	// レジスタへの無駄なMOV命令を削減し、算術演算の出力オペランド等で直接レジスタに代入するようにする
-	private void reduceMovInstructions(AcceleratorDataManagementUnit dataManager) {
+	// どこからも値を読まれていないレジスタへのMOV命令を削る
+	// (コードジェネレータの実装簡易化のために、値が実際に使われるかどうかに関わらず、とりあえずレジスタに置いておくようなケースがある。
+	//  典型例としては後置インクリメント/デクリメント演算子で、それらは式中での値が加減算前のものであるべきなので、
+	//  加減算前の値をレジスタに控えておく処理が発生するが、実際にそれらの演算子を式中で複雑に組み合わせて使う場面は多くないため、
+	//  大半が無駄なMOVになる。特に for 文のカウンタ更新などの箇所ではパフォーマンス的に結構もったいない事になる。従って削る。)
+	private void reduceMovInstructionsToUnreadRegisters(AcceleratorDataManagementUnit dataManager) {
+		int instructionLength = this.acceleratorInstructionList.size();
+		for (int instructionIndex=0; instructionIndex<instructionLength-1; instructionIndex++) {
+			AcceleratorInstruction instruction = this.acceleratorInstructionList.get(instructionIndex);
+
+			// MOV命令以外はスキップ
+			if (instruction.getOperationCode() != OperationCode.MOV) {
+				continue;
+			}
+
+			// MOV命令の書き込み先（0番オペランド）がレジスタでない場合はスキップ
+			if (instruction.getOperandPartitions()[0] != Memory.Partition.REGISTER) {
+				continue;
+			}
+
+			// MOV命令で書き込んでいるレジスタ（ = 0番オペランド）の値を読んでいる箇所がある場合や、
+			// ここ以外に書き込んでいる箇所がある場合はスキップ
+			//（注: 参照リンクされているものは正確には数えられないので、すぐ後で除外する）
+			int writingRegisterAddress = instruction.getOperandAddresses()[0];
+			if (this.registerReadPointCount[writingRegisterAddress] != 0
+					|| this.registerWrittenPointCount[writingRegisterAddress] != 1) {
+					// 上の後者の条件はMOV削りのためには不要だが、後でレジスタそのものを削除するには必要
+				continue;
+			}
+
+			// 参照リンクされている可能性があるレジスタは、読み書きポイント数を正確に数えるのが難しいのでスキップ
+			if (this.registerReferenceMaybeLinked[writingRegisterAddress]) {
+				continue;
+			}
+
+			// ここまで到達するのは、どこからも読んでいないレジスタにMOVしている箇所なので、削る
+			// (ここでは命令列リスト内の該当位置を null に置き換えておいて、後で一括で削る)
+			this.acceleratorInstructionList.set(instructionIndex, null);
+		}
+
+		// MOV命令を削除した位置の null を詰める
+		this.acceleratorInstructionList.removeAll(LIST_OF_NULL);
+	}
+
+
+
+	// 演算結果のレジスタ値をコピーしているMOV命令を、オペランドを並び替える事によって削る
+	// (例えば加算結果を一旦レジスタに置いて、直後にそれを変数アドレスにMOVするような処理があった場合、
+	//  加算結果を変数アドレスに直接出力するようにオペランドを並べ替えて、不要になったレジスタへのMOVを削る。)
+	private void reduceMovInstructionsCopyingOperationResults(AcceleratorDataManagementUnit dataManager) {
 
 		int instructionLength = this.acceleratorInstructionList.size();
 		for (int instructionIndex=0; instructionIndex<instructionLength-1; instructionIndex++) { // 後でイテレータ使うループにする
@@ -1095,10 +1217,18 @@ public class AcceleratorOptimizationUnit {
 				continue;
 			}
 
-			// そのレジスタに書き込む/読み込む箇所がそこだけでない（書き込みが複数、または読み込みが複数ある）場合はスキップ
+			// そのレジスタに読み書きする箇所がそこだけでない（書き込みが複数、または読み込みが複数ある）場合はスキップ
+			//（注: 参照リンクされているものは正確には数えられないので、すぐ後で除外する）
 			if (this.registerWrittenPointCount[writingRegisterAddress] != 1
 					|| this.registerReadPointCount[writingRegisterAddress] != 1) {
 
+				continue;
+			}
+
+			// 参照リンクされている可能性があるレジスタは、上記の読み書きポイント数を正確に数えるのが難しいのでスキップ
+			// (その場合はすぐ後のキャッシュ可能性の検査でも弾かれるはずだが、逆に言えばここでこの条件を加えても
+			//  パフォーマンス的にマイナスにはならず、コード上では慎重な方向にできるので、将来の改修時の事を考慮して条件に加えている。)
+			if (this.registerReferenceMaybeLinked[writingRegisterAddress]) {
 				continue;
 			}
 
