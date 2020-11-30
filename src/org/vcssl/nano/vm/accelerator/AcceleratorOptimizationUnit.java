@@ -41,6 +41,7 @@ public class AcceleratorOptimizationUnit {
 	private int registerReadPointCount[];
 	private boolean registerReferenceMaybeLinked[];
 	private Map<Integer, InternalFunctionInfo> functionInfoMap;
+	private Set<Integer> unnecessaryRegisterSet;
 
 	// 演算結果格納レジスタからのMOV命令でのコピーを削る最適化を、適用してもよい命令の集合
 	// (算術演算命令などは可能、ELEM命令などのメモリー関連命令では不可能)
@@ -226,16 +227,19 @@ public class AcceleratorOptimizationUnit {
 	public AcceleratorInstruction[] optimize(
 			AcceleratorInstruction[] instructions, Memory memory, AcceleratorDataManagementUnit dataManager) {
 
-		this.acceleratorInstructionList = new ArrayList<AcceleratorInstruction>();
-		for (AcceleratorInstruction instruction: instructions) {
-			this.acceleratorInstructionList.add( instruction.clone() );
-		}
-
 		// ※ 注意：
 		//    現在の Accelerator の実装では、データの cacheability を変えるような最適化を行ってはならない。
 		//    例えば、関数の仮引数を、インライン展開の際に実引数のアドレスで直接置き換えてしまう最適化は、
 		//    単純に動作上の課題としては可能なケースが有り得るが、
 		//    しかしそれは仮引数が uncacheabe で実引数が cacheable だった場合に、後者の cacheability を変えてしまう事に注意。
+		//    ただし、レジスタへの冗長なMOV命令を削って、そのレジスタを他のどこからも使わなくなるような場合は問題は生じない
+		//    (その場合は念のためそのレジスタのALLOCも削って、そのレジスタ自体がコードに登場しなくなるようにした方がいい)。
+
+		this.acceleratorInstructionList = new ArrayList<AcceleratorInstruction>();
+		for (AcceleratorInstruction instruction: instructions) {
+			this.acceleratorInstructionList.add( instruction.clone() );
+		}
+		this.unnecessaryRegisterSet = new HashSet<Integer>();
 
 		// 内部関数の最適化情報を抽出する（実際にCALLされているもののみ）
 		this.extractInternalFunctionInfo(memory);
@@ -267,10 +271,16 @@ public class AcceleratorOptimizationUnit {
 		this.reorderAllocAndAllocrInstructions(dataManager);
 
 		// どこからも読んでいないレジスタに対するMOV命令を削る（後置インクリメント/デクリメントなどで発生）
-		this.reduceMovInstructionsToUnreadRegisters(dataManager);
+		this.removeMovInstructionsToUnreadRegisters(dataManager);
 
 		// 演算命令の結果を直後にMOVしている箇所のオペランドを並び替え、不要になったMOV命令を削る
 		this.reduceMovInstructionsCopyingOperationResults(dataManager);
+
+		// 上記のMOV削りによって使用されなくなったレジスタの確保処理を削る（そのレジスタはもうコード上で登場しなくなるはず）
+		this.removeAllocInstructionsToUnusedRegisters();
+
+		// 念のため上で削除したレジスタにアクセスしている箇所を探し、もし見つかればエラーにする（見つからなければ何もしない）
+		this.checkRemovedRegistersAreUnused();
 
 		// 最新の（再配列後の）命令アドレスを設定し、新旧の対応を保持するマップを更新
 		// -> このあたりの処理は AcceleratorSchedulingUnit と重複しているので、きりのいい時になんとかしたい
@@ -1135,7 +1145,7 @@ public class AcceleratorOptimizationUnit {
 	//  典型例としては後置インクリメント/デクリメント演算子で、それらは式中での値が加減算前のものであるべきなので、
 	//  加減算前の値をレジスタに控えておく処理が発生するが、実際にそれらの演算子を式中で複雑に組み合わせて使う場面は多くないため、
 	//  大半が無駄なMOVになる。特に for 文のカウンタ更新などの箇所ではパフォーマンス的に結構もったいない事になる。従って削る。)
-	private void reduceMovInstructionsToUnreadRegisters(AcceleratorDataManagementUnit dataManager) {
+	private void removeMovInstructionsToUnreadRegisters(AcceleratorDataManagementUnit dataManager) {
 		int instructionLength = this.acceleratorInstructionList.size();
 		for (int instructionIndex=0; instructionIndex<instructionLength-1; instructionIndex++) {
 			AcceleratorInstruction instruction = this.acceleratorInstructionList.get(instructionIndex);
@@ -1168,6 +1178,9 @@ public class AcceleratorOptimizationUnit {
 			// ここまで到達するのは、どこからも読んでいないレジスタにMOVしている箇所なので、削る
 			// (ここでは命令列リスト内の該当位置を null に置き換えておいて、後で一括で削る)
 			this.acceleratorInstructionList.set(instructionIndex, null);
+
+			// MOVを削った後、書き込み先レジスタはもうどこからも読み書きしていないはずなので、削除登録しておく（後で別の最適化で削る）
+			this.unnecessaryRegisterSet.add(writingRegisterAddress);
 		}
 
 		// MOV命令を削除した位置の null を詰める
@@ -1329,6 +1342,9 @@ public class AcceleratorOptimizationUnit {
 			// MOV命令を null で置き換える（すぐ後で削除する）
 			this.acceleratorInstructionList.set(instructionIndex+1, null);
 
+			// 対象命令が元々書き込んでいたレジスタはもうどこからも読み書きしていないはずなので、削除登録しておく（後で別の最適化で削る）
+			this.unnecessaryRegisterSet.add(writingRegisterAddress);
+
 			// 次の命令（= MOV）はもう削除したので、カウンタを1つ余計に進める
 			instructionIndex++;
 
@@ -1336,6 +1352,63 @@ public class AcceleratorOptimizationUnit {
 
 		// MOV命令を削除した位置の null を詰める
 		this.acceleratorInstructionList.removeAll(LIST_OF_NULL);
+	}
+
+
+	// 上のMOV削りによって使用されなくなったレジスタの確保処理（ALLOC命令）を削る
+	//（これにより、そのレジスタはもうコード上で登場しなくなるはず）
+	private void removeAllocInstructionsToUnusedRegisters() {
+		int instructionLength = this.acceleratorInstructionList.size();
+		for (int instructionIndex=0; instructionIndex<instructionLength-1; instructionIndex++) {
+			AcceleratorInstruction instruction = this.acceleratorInstructionList.get(instructionIndex);
+
+			// ALLOC系命令以外はスキップ
+			if (instruction.getOperationCode() != OperationCode.ALLOC
+					&& instruction.getOperationCode() != OperationCode.ALLOCR
+					&& instruction.getOperationCode() != OperationCode.ALLOCP
+					&& instruction.getOperationCode() != OperationCode.ALLOCT) {
+				continue;
+			}
+
+			// メモリ確保対象（0番オペランド）がレジスタでない場合はスキップ
+			if (instruction.getOperandPartitions()[0] != Memory.Partition.REGISTER) {
+				continue;
+			}
+
+			// メモリ確保対象レジスタが削除リストに登録されていない場合はスキップ
+			int allocRegisterAddress = instruction.getOperandAddresses()[0];
+			if (!this.unnecessaryRegisterSet.contains(allocRegisterAddress)) {
+				continue;
+			}
+
+			// ここまで到達するのは、使っていないレジスタをALLOCしている箇所なので、削る
+			// (ここでは命令列リスト内の該当位置を null に置き換えておいて、後で一括で削る)
+			this.acceleratorInstructionList.set(instructionIndex, null);
+		}
+
+		// MOV命令を削除した位置の null を詰める
+		this.acceleratorInstructionList.removeAll(LIST_OF_NULL);
+	}
+
+
+	// 念のため上でALLOCを削ったレジスタにアクセスしている箇所を探し、もし見つかればエラーにする（見つからなければ何もしない）
+	private void checkRemovedRegistersAreUnused() {
+		int instructionLength = this.acceleratorInstructionList.size();
+		for (int instructionIndex=0; instructionIndex<instructionLength-1; instructionIndex++) {
+			AcceleratorInstruction instruction = this.acceleratorInstructionList.get(instructionIndex);
+			Memory.Partition[] parts = instruction.getOperandPartitions();
+			int[] addrs = instruction.getOperandAddresses();
+			int operandLength = instruction.getOperandLength();
+
+			for (int i=0; i<operandLength; i++) {
+
+				// オペランドがレジスタで、かつ unnecessaryRegisterSet に登録されていれば、
+				// 既に削除済みの（もう確保されない）レジスタのはずなのでエラー
+				if (parts[i] == Memory.Partition.REGISTER && this.unnecessaryRegisterSet.contains(addrs[i])) {
+					throw new VnanoFatalException("Optimization error (removed register \"R" +addrs[i] + "\" is accessed)");
+				}
+			}
+		}
 	}
 
 }
