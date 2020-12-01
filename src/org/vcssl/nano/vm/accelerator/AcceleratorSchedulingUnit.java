@@ -63,9 +63,16 @@ public class AcceleratorSchedulingUnit {
 		this.updateReorderedAddresses();
 		this.generateAddressReorderingMap();
 
-		// ジャンプ命令の飛び先アドレスを補正したものを求めて設定
+		// 分岐系命令の飛び先アドレスを補正したものを求めて設定
 		// -> ここも AcceleratorOptimizationUnit と重複しているので、きりのいい時になんとかしたい
 		this.resolveReorderedLabelAddress(memory);
+
+		// 分岐系命令の飛び先にあるLABEL命令（何もしない）は、実際には演算ユニットに割り当てなくても問題ないので、削除して命令列を詰める
+		// (それらのLABELは、他の命令並べ替えや融合/削除において、分岐の着地点が移動してしまわないように置かれているものなので、
+		//  上記のような作業が全て終わる前に削除してはならない。削除は本当に最後の最後、実行命令列を確定させる直前に。
+		//  なお、分岐系命令の飛び先アドレスは下記メソッド内で再補正されるので、別途補正は必要ない。)
+		this.removeLabelInstructions();
+		this.updateReorderedAddresses();
 
 		return this.acceleratorInstructionList.toArray(new AcceleratorInstruction[0]);
 	}
@@ -553,7 +560,7 @@ public class AcceleratorSchedulingUnit {
 			AcceleratorExecutionType fromAccelerationType, AcceleratorExecutionType toAccelerationType) {
 
 		int instructionLength = this.acceleratorInstructionList.size();
-		for (int instructionIndex=0; instructionIndex<instructionLength-1; instructionIndex++) {
+		for (int instructionIndex=0; instructionIndex<instructionLength-1; instructionIndex++) { // 同時に2個読む可能性があるので -1 まで
 
 			AcceleratorInstruction currentInstruction = this.acceleratorInstructionList.get(instructionIndex);
 			AcceleratorInstruction nextInstruction = this.acceleratorInstructionList.get(instructionIndex+1);
@@ -762,5 +769,55 @@ public class AcceleratorSchedulingUnit {
 		}
 
 		return fusedAccelInstruction;
+	}
+
+
+	// 分岐の着地点等に置かれているLABEL命令（何もしない）は、実際には演算ユニットに割り当てなくても問題ないので、削除して命令列を詰める。
+	// その際、分岐系命令の着地点の補正も行うが、事前に resolveReorderedLabelAddress() で他の影響の補正を済ませておく必要がある。
+	// なお、NOP命令もLABEL命令同様に何もしないが、そちらは最適化で削除されないという仕様になっているので削除してはならない。
+	// (NOPは意図的にVMを特定サイクル空回しさせたいような場合に用いられる。)
+	private void removeLabelInstructions() {
+		int instructionLength = this.acceleratorInstructionList.size();
+
+		// LABEL命令を削除し、そのアドレスと、LABEL削除後の着地先アドレスとの対応付けを行うマップを作製
+		// (更新用命令リスト updatedInstructionList に this.acceleratorInstructionList 内の命令を詰めていき、
+		//  併せて brancDestAddrUpdateMap に、削除したNOPの命令アドレスと、そこへ飛ぶ分岐命令の新しい飛び先アドレスを格納していく)
+		List<AcceleratorInstruction> updatedInstructionList = new ArrayList<AcceleratorInstruction>();
+		Map<Integer, Integer> brancDestAddrUpdateMap = new HashMap<Integer, Integer>();
+		for (int instructionAddr=0; instructionAddr<instructionLength; instructionAddr++) {
+			AcceleratorInstruction instruction = this.acceleratorInstructionList.get(instructionAddr);
+
+			// LABEL命令の場合、着地点のアドレス補正情報を登録し、更新用命令列には積まない
+			if(instruction.getOperationCode() == OperationCode.LABEL) {
+
+				// このLABELがあった場所への分岐は、LABEL削除済み命令列において、LABELの次の命令に着地するようにマップに登録
+				int updatedDestAddr = updatedInstructionList.size(); // size は次に add される命令のインデックスに一致する
+				brancDestAddrUpdateMap.put(instructionAddr, updatedDestAddr);
+
+				// ※ 命令列終端には必ずEND命令つまりLABELではない命令があるので、updatedDestAddr が命令列範囲内からあふれる事は無い
+
+			// それ以外の命令は、削除せずそのまま更新用命令列に積む
+			} else {
+				updatedInstructionList.add(instruction);
+			}
+		}
+
+		// 削除したLABELに着地していた分岐命令の飛び先アドレスを更新
+		for (AcceleratorInstruction instruction: this.acceleratorInstructionList) {
+			OperationCode opcode = instruction.getOperationCode();
+
+			// JMP & JMPN & CALL は静的に設定されたラベルに飛ぶ。
+			// RET は動的にスタックから取ったアドレスに飛ぶが、IFCU制御用に所属関数のアドレスも持ってる（普通にオペランド[1]がそう）
+			if (opcode == OperationCode.JMP || opcode == OperationCode.JMPN || opcode == OperationCode.CALL || opcode == OperationCode.RET){
+				int destAddr = instruction.getReorderedLabelAddress();
+				if (brancDestAddrUpdateMap.containsKey(destAddr)) {
+					int updatedDestAddr = brancDestAddrUpdateMap.get(destAddr);
+					instruction.setReorderedLabelAddress(updatedDestAddr);
+				}
+			}
+		}
+
+		// 命令列をLABEL削除済みのものに差し替え
+		this.acceleratorInstructionList = updatedInstructionList;
 	}
 }
