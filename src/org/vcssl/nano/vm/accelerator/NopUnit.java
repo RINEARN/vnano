@@ -13,11 +13,9 @@ public class NopUnit extends AcceleratorExecutionUnit {
 
 		AcceleratorExecutionNode node = null;
 		switch (instruction.getOperationCode()) {
-			case NOP : {
-				node = new NopNode(nextNode);
-				break;
-			}
-			case ALLOCT : { // この命令もコード内での型明示と最適化情報のための命令で、動作的には何もしない
+			case NOP :
+			case LABEL :
+			case ALLOCT : {
 				node = new NopNode(nextNode);
 				break;
 			}

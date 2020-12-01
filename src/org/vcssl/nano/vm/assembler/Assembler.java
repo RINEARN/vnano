@@ -64,14 +64,14 @@ public class Assembler {
 
 	/**
 	 * ラベルや{@link OperationCode#CALL CALL}命令の直後など、
-	 * 別の命令から飛ぶ着地点になり得る場所に、{@link OperationCode#NOP NOP}命令を配置したコードを返します。
+	 * 別の命令から飛ぶ着地点になり得る場所に、{@link OperationCode#LABEL LABEL}命令を配置したコードを返します。
 	 * これは、各命令において、本来の演算の役割と、ジャンプの着地点としての役割を分離させる事で、
 	 * 最適化を用意にするための処理です。
 	 *
 	 * @param assemblyCode 元の仮想アセンブリコード
-	 * @return 着地点にNOP命令を配置した仮想アセンブリコード
+	 * @return 着地点にLABEL命令を配置した仮想アセンブリコード
 	 */
-	private String appendNopInstructions(String assemblyCode) {
+	private String appendLabelInstructions(String assemblyCode) {
 
 		StringBuilder codeBuilder = new StringBuilder();
 
@@ -85,10 +85,10 @@ public class Assembler {
 			codeBuilder.append(ASSEMBLY_WORD.instructionSeparator);
 
 			line = line.trim();
-			String nopCode
+			String labelCode
 				= ASSEMBLY_WORD.lineSeparator
 				+ ASSEMBLY_WORD.wordSeparator
-				+ OperationCode.NOP.name()
+				+ OperationCode.LABEL.name()
 				+ ASSEMBLY_WORD.wordSeparator
 				+ DATA_TYPE_NAME.voidPlaceholder
 				+ ASSEMBLY_WORD.wordSeparator
@@ -101,18 +101,18 @@ public class Assembler {
 				continue;
 			}
 
-			// ラベルディレクティブの場合はNOPを置く
+			// ラベルディレクティブの場合はLABEL命令を置く
 			if (line.startsWith(ASSEMBLY_WORD.labelDirective)) {
-				codeBuilder.append(nopCode);
+				codeBuilder.append(labelCode);
 				continue;
 			}
 
 			String[] words = line.split(ASSEMBLY_WORD.wordSeparatorRegex);
 			String operationCode = words[0];
 
-			// CALL命令の場合はNOPを置く
+			// CALL命令の直後にLABEL命令を置く（戻り先の着地点になるため）
 			if (operationCode.equals(OperationCode.CALL.name())) {
-				codeBuilder.append(nopCode);
+				codeBuilder.append(labelCode);
 			}
 		}
 		//System.out.println(codeBuilder.toString());
@@ -141,8 +141,8 @@ public class Assembler {
 		String[] stringLiteralExtractResult = LITERAL_SYNTAX.extractStringLiterals(assemblyCode);
 		assemblyCode = stringLiteralExtractResult[0]; // [0] 番に置き換え済みコードが格納されている（1番以降はリテラル内容）
 
-		// ラベルやCALL命令の着地点の位置にNOP命令を配置（最適化しやすくするため）
-		assemblyCode = this.appendNopInstructions(assemblyCode);
+		// ラベルやCALL命令の着地点の位置にLABEL命令を配置（最適化しやすくするため）
+		assemblyCode = this.appendLabelInstructions(assemblyCode);
 
 
 		// インターコネクトから外部変数・外部関数のテーブルを取得

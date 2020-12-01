@@ -374,7 +374,7 @@ public class AcceleratorDispatchUnit {
 				);
 			}
 
-			// NOP（分岐先の着地点に存在）
+			// 何もしない命令（分岐先の着地点などに存在）
 
 			case NOP : {
 				return new NopUnit().generateNode(

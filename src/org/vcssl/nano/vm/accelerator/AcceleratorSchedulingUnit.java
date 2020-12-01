@@ -439,8 +439,9 @@ public class AcceleratorSchedulingUnit {
 					break;
 				}
 
-				// 何もしない命令（ジャンプ先に配置されている） Nop instruction opcode
-				case NOP :
+				// 何もしない命令 Instructions perform nothing
+				case NOP :    // 最適化で削除してはいけない用途に使う、何もしない命令
+				case LABEL :  // 分岐系命令の着地点などに配置されている、何もしない命令
 				case ALLOCT : // この命令もコード内での型明示と最適化情報のための命令で、動作的には何もしない
 				{
 					instruction.setAccelerationType(AcceleratorExecutionType.NOP);
@@ -473,7 +474,7 @@ public class AcceleratorSchedulingUnit {
 
 		// addressReorderingMap は、再配置前のアドレス unreorderedAddress をキーとして、
 		// 再配置後のアドレス reorderedAddress を返すマップで、
-		// JMP/JMPN/CALLの着地点ラベル（由来のNOP命令）の位置を補正するために使用される。
+		// JMP/JMPN/CALLの着地点ラベル（由来のLABEL命令）の位置を補正するために使用される。
 		// 最適化で命令1個だった所が複数命令になっている箇所がある場合 (CALLの引数直接MOV化とか) など、
 		// 複数命令が同じ unreorderedAddress を持っていると、addressReorderingMap はそれらの最後の命令の reorderedAddress を返す。
 		//
@@ -528,7 +529,7 @@ public class AcceleratorSchedulingUnit {
 						instruction.getOperandAddresses()[1]
 					);
 
-					// データコンテナから飛び先ラベル（アセンブル後はNOPになっている）の命令アドレスの値を読む
+					// データコンテナから飛び先ラベル（アセンブル後はLABEL命令になっている）の命令アドレスの値を読む
 					int labelAddress = -1;
 					Object addressData = addressContiner.getArrayData();
 					if (addressData instanceof long[]) {
@@ -537,7 +538,7 @@ public class AcceleratorSchedulingUnit {
 						throw new VnanoFatalException("Non-integer instruction address (label) operand detected.");
 					}
 
-					// 上で読んだラベル（由来のNOP命令）アドレスの、再配置後の位置の命令アドレスを取得し、命令に持たせる
+					// 上で読んだラベル（由来のLABEL命令）アドレスの、再配置後の位置の命令アドレスを取得し、命令に持たせる
 					int reorderedLabelAddress = this.addressReorderingMap.get(labelAddress);
 					instruction.setReorderedLabelAddress(reorderedLabelAddress);
 				}

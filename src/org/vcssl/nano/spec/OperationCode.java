@@ -1742,8 +1742,8 @@ public enum OperationCode {
 
 
 	/**
-	 * <span class="lang-en">The instruction to perform nothing</span>
-	 * <span class="lang-ja">何も行わない命令です</span>
+	 * <span class="lang-en">The instruction to perform nothing, but it isn't removed by optimizations</span>
+	 * <span class="lang-ja">最適化によって削除されない, 何も行わない命令です</span>
 	 * .
 	 * <span class="lang-en">
 	 * The syntax in the VRIL code is as follows:
@@ -1757,5 +1757,32 @@ public enum OperationCode {
 	 * </div>
 	 */
 	NOP,
+
+
+	/**
+	 * <span class="lang-en">Same as {@link OperationCode#NOP}, performs nothing, but may be removed by optimizations</span>
+	 * <span class="lang-ja">{@link OperationCode#NOP} と同様に何もしない命令ですが, 最適化によって削除される場合があります</span>
+	 * .
+	 * <span class="lang-en">
+	 * The syntax in the VRIL code is as follows:
+	 * </span>
+	 * <span class="lang-ja">
+	 * VRILコード内での構文は以下の通りです：
+	 * </span>
+	 *
+	 * <div style="border: 1px solid #000000; margin:15px; padding:5px;">
+	 * LABEL -
+	 * </div>
+	 *
+	 * <span class="lang-ja">
+	 * この命令は, 主に分岐系命令の着地点に使用されます.
+	 * VRILコード内での分岐先ラベルは, この命令に変換されます.
+	 * </span>
+	 * <span class="lang-en">
+	 * This operation code is mainly used for instructions at branch destinations.
+	 * Branch destination labels in VRIL code will be translated to this instruction.
+	 * </span>
+	 */
+	LABEL,
 
 }

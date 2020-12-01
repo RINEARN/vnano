@@ -248,7 +248,7 @@ public class AcceleratorOptimizationUnit {
 		// (命令アドレスがずれるため、this.functionInfoMap のbodyBegin/bodyEnd値も書き換わる)
 		this.modifyCodeToTransferArgumentsDirectly(memory);
 
-		// CALL命令の直後（NOPが置かれている）の箇所に、RETURNED命令(※)を生成して置き換える
+		// CALL命令の直後（アセンブル後はLABEL命令が置かれている）の箇所に、RETURNED命令(※)を生成して置き換える
 		//（※ 参照渡し経由で関数処理で書き替えた値のキャッシュ同期などを行うAccelerator拡張命令）
 		this.generateReturnedInstructions();
 
@@ -304,7 +304,7 @@ public class AcceleratorOptimizationUnit {
 		this.functionInfoMap = new LinkedHashMap<Integer, InternalFunctionInfo>();
 		List<Integer> functionAddressList = new ArrayList<Integer>();
 
-		// アセンブリコードの段階ではラベルで関数の先頭行を判別できるが、アセンブル後はラベルはただのNOPになってしまう。
+		// アセンブリコードの段階ではラベルで関数の先頭行を判別できるが、アセンブル後はラベルは無情報のLABEL命令になってしまう。
 		// そこで、まずコード内のCALL命令の箇所をスキャンし、そのオペランドから、関数先頭の命令アドレスのリストを作る。
 		// -> 関数先頭に、それが関数先頭とわかる（目印用の）命令を置けば、こういった事前スキャンは不要になるけど…
 		//    -> しかしこの方法も、どこからも呼んでいない関数の情報解析は自然と省略できるので、これはこれで逆にいいかも
@@ -383,9 +383,9 @@ public class AcceleratorOptimizationUnit {
 				} else if (opcode == OperationCode.ALLOC || opcode == OperationCode.ALLOCP || opcode == OperationCode.ALLOCR) {
 					continue;
 
-				// アセンブリコードで関数ラベルだった地点には、アセンブリ後はNOPがあるが、何も拾う情報は無いので何もしない
-				//（関数アドレス +1 の命令からスキャンを始めてもいいが、後の最適化でNOPを削った時にややこしいので、一応ある事を想定する）
-				} else if (opcode == OperationCode.NOP) {
+				// アセンブリコードで関数ラベルだった地点には、アセンブル後はLABEL命令があるが、何も拾う情報は無いので何もしない
+				//（関数アドレス +1 の命令からスキャンを始めてもいいが、後の最適化でLABEL命令を削った時にややこしいので、一応ある事を想定する）
+				} else if (opcode == OperationCode.LABEL) {
 					continue;
 
 				// ENDPRM命令が来た時点で、引数の受け取り処理は終わったので解析終了
@@ -683,7 +683,7 @@ public class AcceleratorOptimizationUnit {
 				AcceleratorInstruction expandedInstruction = this.acceleratorInstructionList.get(functionInstructionIndex).clone();
 				expandedInstruction.setExpandedAddress(modifiedInstructionList.size());
 
-				// 分岐命令の場合は、飛び先ラベル（アセンブル後はNOP）位置の命令アドレスを、展開後のアドレスに補正する必要がある
+				// 分岐命令の場合は、飛び先ラベル（アセンブル後はLABEL命令）位置の命令アドレスを、展開後のアドレスに補正する必要がある
 				OperationCode opcode = expandedInstruction.getOperationCode();
 				if (opcode == OperationCode.JMP || opcode == OperationCode.JMPN) { // CALLも分岐的な挙動をするが、内部にCALLを含む関数は展開対象外なのでここには存在しないはず
 
@@ -780,7 +780,7 @@ public class AcceleratorOptimizationUnit {
 	}
 
 
-	// CALL命令の直後（ラベルのためNOPが置かれている）の箇所に、RETURNED拡張命令を生成して置き換える
+	// CALL命令の直後（アセンブル後はLABEL命令が置かれている）の箇所に、RETURNED拡張命令を生成して置き換える
 	private void generateReturnedInstructions() {
 		int instructionLength = acceleratorInstructionList.size();
 
@@ -815,7 +815,7 @@ public class AcceleratorOptimizationUnit {
 				returnedInstruction.setExtendedOperationCode(AcceleratorExtendedOperationCode.RETURNED);
 				returnedInstruction.setUnreorderedAddress(instruction.getUnreorderedAddress() + 1);
 
-				// この命令直後にあるはずのNOP命令を、生成したRETURNED拡張命令で置き換える
+				// この命令直後にあるはずのLABEL命令を、生成したRETURNED拡張命令で置き換える
 				acceleratorInstructionList.set(instructionIndex+1, returnedInstruction);
 			}
 		}
@@ -831,12 +831,12 @@ public class AcceleratorOptimizationUnit {
 		     && operationCode != OperationCode.ALLOCP
 		     && operationCode != OperationCode.ALLOCR
 		     && operationCode != OperationCode.FREE
-		     && operationCode != OperationCode.NOP
 		     && operationCode != OperationCode.JMP
 		     && operationCode != OperationCode.JMPN
 		     && operationCode != OperationCode.RET
 		     && operationCode != OperationCode.POP      // POP はスタックからデータを取り出すだけで何もしない
 		     && operationCode != OperationCode.NOP      // NOP は何もしないので明らかに何も読まない
+		     && operationCode != OperationCode.LABEL    // NOP 同様
 		     && operationCode != OperationCode.END
 		     && operationCode != OperationCode.ENDFUN
 		     ;
@@ -891,6 +891,7 @@ public class AcceleratorOptimizationUnit {
 		     && operationCode != OperationCode.MOVPOP   // MOVPOP はスタックからデータを読むので、オペランドからは読まない（書く）
 		     && operationCode != OperationCode.REFPOP   // REFPOP はスタックからデータを読むので、オペランドからは読まない（書く）
 		     && operationCode != OperationCode.NOP      // NOP は何もしないので明らかに何も読まない
+		     && operationCode != OperationCode.LABEL    // NOP 同様
 		     && operationCode != OperationCode.ENDFUN
 		     ;
 
@@ -1024,7 +1025,7 @@ public class AcceleratorOptimizationUnit {
 
 		// addressReorderingMap は、再配置前のアドレス unreorderedAddress をキーとして、
 		// 再配置後のアドレス reorderedAddress を返すマップで、
-		// JMP/JMPN/CALLの着地点ラベル（由来のNOP命令）の位置を補正するために使用される。
+		// JMP/JMPN/CALLの着地点ラベル（由来のLABEL命令）の位置を補正するために使用される。
 		// 最適化で命令1個だった所が複数命令になっている箇所がある場合 (CALLの引数直接MOV化とか) など、
 		// 複数命令が同じ unreorderedAddress を持っていると、addressReorderingMap はそれらの最後の命令の reorderedAddress を返す。
 		//
@@ -1079,7 +1080,7 @@ public class AcceleratorOptimizationUnit {
 						instruction.getOperandAddresses()[1]
 					);
 
-					// データコンテナから飛び先ラベル（アセンブル後はNOPになっている）の命令アドレスの値を読む
+					// データコンテナから飛び先ラベル（アセンブル後はLABEL命令になっている）の命令アドレスの値を読む
 					int labelAddress = -1;
 					Object addressData = addressContiner.getArrayData();
 					if (addressData instanceof long[]) {
@@ -1088,7 +1089,7 @@ public class AcceleratorOptimizationUnit {
 						throw new VnanoFatalException("Non-integer instruction address (label) operand detected.");
 					}
 
-					// 上で読んだラベル（由来のNOP命令）アドレスの、再配置後の位置の命令アドレスを取得し、命令に持たせる
+					// 上で読んだラベル（由来のLABEL命令）アドレスの、再配置後の位置の命令アドレスを取得し、命令に持たせる
 					int reorderedLabelAddress = this.addressReorderingMap.get(labelAddress);
 					instruction.setReorderedLabelAddress(reorderedLabelAddress);
 				}
