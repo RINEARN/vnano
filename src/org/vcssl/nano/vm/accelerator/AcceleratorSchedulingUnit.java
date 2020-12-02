@@ -790,8 +790,9 @@ public class AcceleratorSchedulingUnit {
 			// LABEL命令の場合、着地点のアドレス補正情報を登録し、更新用命令列には積まない
 			if(instruction.getOperationCode() == OperationCode.LABEL) {
 
-				// このLABELがあった場所への分岐は、LABEL削除済み命令列において、LABELの次の命令に着地するようにマップに登録
-				int updatedDestAddr = updatedInstructionList.size(); // size は次に add される命令のインデックスに一致する
+				// このLABELがあった場所への分岐は、LABEL削除済み命令列において、
+				// 削除したLABELの後に最初に出現する非LABEL命令に着地するようにマップに登録
+				int updatedDestAddr = updatedInstructionList.size(); // size は次に add される非LABEL命令のインデックスに一致する
 				brancDestAddrUpdateMap.put(instructionAddr, updatedDestAddr);
 
 				// ※ 命令列終端には必ずEND命令つまりLABELではない命令があるので、updatedDestAddr が命令列範囲内からあふれる事は無い
@@ -813,6 +814,12 @@ public class AcceleratorSchedulingUnit {
 				if (brancDestAddrUpdateMap.containsKey(destAddr)) {
 					int updatedDestAddr = brancDestAddrUpdateMap.get(destAddr);
 					instruction.setReorderedLabelAddress(updatedDestAddr);
+
+					// ラベルが連続していた場合など、一見すると補正済みアドレスの再補正が必要な場合がありそうに思えるが、
+					// 上でマップを作っている際の updatedDestAddr の値は「 次に出現する『 非LABEL命令 』の（補正済み）アドレス 」
+					// なので、連続ラベル領域はマップ作製時点で補正に反映されているし、補正先が別のLABEL由来アドレスになる事もない。
+					// 従って変換マップは一回通せば十分で、逆に複数回通すとまずいので、「念のため」とかで行ってはいけない。
+					// (変換マップのキーと値は、それぞれLABEL削除前と後の命令列におけるアドレスなので、土台がずれていて複数回通せない。)
 				}
 			}
 		}
