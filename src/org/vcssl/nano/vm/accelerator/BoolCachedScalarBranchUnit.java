@@ -75,6 +75,11 @@ public class BoolCachedScalarBranchUnit extends AcceleratorExecutionUnit {
 		}
 
 		@Override
+		public AcceleratorExecutionNode[] getLaundingPointNodes() {
+			return new AcceleratorExecutionNode[] { this.branchedNode };
+		}
+
+		@Override
 		public final AcceleratorExecutionNode execute() {
 			if (this.conditionCache.data) {
 				return this.branchedNode;
@@ -102,6 +107,11 @@ public class BoolCachedScalarBranchUnit extends AcceleratorExecutionUnit {
 		}
 
 		@Override
+		public AcceleratorExecutionNode[] getLaundingPointNodes() {
+			return new AcceleratorExecutionNode[] { this.branchedNode };
+		}
+
+		@Override
 		public final AcceleratorExecutionNode execute() {
 			if (this.conditionCache.data) {
 				return this.nextNode;
@@ -125,15 +135,31 @@ public class BoolCachedScalarBranchUnit extends AcceleratorExecutionUnit {
 		}
 
 		@Override
+		public AcceleratorExecutionNode[] getLaundingPointNodes() {
+			return new AcceleratorExecutionNode[] { this.branchedNode };
+		}
+
+		@Override
 		public final AcceleratorExecutionNode execute() {
 			return this.branchedNode;
 		}
 	}
 
 	private final class CachedScalarUnconditionalNeverJmpNode extends AcceleratorExecutionNode {
+		private AcceleratorExecutionNode branchedNode = null; // 実行時は使わないけれども setter/getter の挙動のために使う
 
 		public CachedScalarUnconditionalNeverJmpNode(AcceleratorExecutionNode nextNode) {
 			super(nextNode, 1);
+		}
+
+		@Override
+		public void setLaundingPointNodes(AcceleratorExecutionNode ... branchedNode) {
+			this.branchedNode = branchedNode[0];
+		}
+
+		@Override
+		public AcceleratorExecutionNode[] getLaundingPointNodes() {
+			return new AcceleratorExecutionNode[] { this.branchedNode };
 		}
 
 		@Override

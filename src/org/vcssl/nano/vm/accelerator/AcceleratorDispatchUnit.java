@@ -25,6 +25,10 @@ public class AcceleratorDispatchUnit {
 			BypassUnit bypassUnit, InternalFunctionControlUnit internalFunctionControlUnit,
 			ExternalFunctionControlUnit externalFunctionControlUnit) throws VnanoException {
 
+		// !!!!!
+		// 長すぎ  きりのいい時に要リファクタ
+		// !!!!!
+
 		int instructionLength = instructions.length;
 		AcceleratorExecutionNode[] nodes = new AcceleratorExecutionNode[instructionLength];
 
@@ -101,7 +105,7 @@ public class AcceleratorDispatchUnit {
 		}
 
 		// 別の命令アドレスに飛ぶ処理のノードに、着地先ノードの参照を持たせる
-		for (int instructionIndex = instructionLength-1; 0<=instructionIndex; instructionIndex--) {
+		for (int instructionIndex = 0; instructionIndex<instructionLength; instructionIndex++) {
 			OperationCode opcode = instructions[instructionIndex].getOperationCode();
 
 			// 分岐命令と内部関数コール命令: 飛び先の命令アドレスは静的に確定しているので、着地先ノードを求めて持たせる
@@ -116,8 +120,81 @@ public class AcceleratorDispatchUnit {
 			// 実行時に飛び先ノードを特定する。
 		}
 
+		// 無条件分岐のノードは、その直前のノードの nextNode を書き変えて、そこから直接飛ぶようにする
+		// (VMの命令実行を1サイクル削れて、特にループのオーバーヘッド削減で結構効く)
+		for (int instructionIndex = 0; instructionIndex<instructionLength; instructionIndex++) {
+			OperationCode opcode = instructions[instructionIndex].getOperationCode();
+
+			// 分岐命令以外はスキップ
+			if (opcode != OperationCode.JMP && opcode != OperationCode.JMPN) {
+				continue;
+			}
+
+			// 命令列の最初が分岐の場合はそのまま実行するしかなく、最後に分岐が来るのはEND命令的にあり得ないので、
+			// 両者の場合は何もせずスキップ（しないと後で listBeforeNode と listNextNode を参照する場合に対処が必要になる）
+			if (instructionIndex == 0 || instructionIndex == instructionLength-1) {
+				continue;
+			}
+
+			// 分岐条件が定数でなければスキップ
+			if (instructions[instructionIndex].getOperandPartitions()[2] != Memory.Partition.CONSTANT) {
+				continue;
+			}
+
+			// 分岐条件の値を取得
+			DataContainer<?> branchConditionContainer = memory.getDataContainer(
+				instructions[instructionIndex].getOperandPartitions()[2],
+				instructions[instructionIndex].getOperandAddresses()[2]
+			);
+			boolean branchCondition = ( (boolean[])branchConditionContainer.getArrayData() )[ branchConditionContainer.getArrayOffset() ];
+
+			AcceleratorExecutionNode listBeforeNode = nodes[instructionIndex - 1];     // 命令列内での順序的に、分岐命令の直前にあるノード
+			AcceleratorExecutionNode listNextNode   = nodes[instructionIndex + 1];     // 命令列内での順序的に、分岐命令の直後にあるノード
+			AcceleratorExecutionNode branchInstructionNode = nodes[instructionIndex];  // 注目対象の無条件分岐命令ノード
+			AcceleratorExecutionNode branchDestinationNode = branchInstructionNode.getLaundingPointNodes()[0]; // 分岐先（飛び先）ノード
+
+			// JMP 命令で常に飛ぶ場合: 直前の命令から、分岐先のノードに直接飛ぶようにする
+			if (opcode == OperationCode.JMP && branchCondition == true) {
+				listBeforeNode.setNextNode(branchDestinationNode);
+
+			// JMP 命令で常に飛ばない場合: 直前の命令から、分岐命令の下のノードにバイパスするようにする
+			} else if (opcode == OperationCode.JMP && branchCondition == false) {
+				listBeforeNode.setNextNode(listNextNode);
+
+			// JMPN 命令で常に飛ぶ場合: 直前の命令から、分岐先のノードに直接飛ぶようにする
+			} else if (opcode == OperationCode.JMPN && branchCondition == false) {
+				listBeforeNode.setNextNode(branchDestinationNode);
+
+			// JMPN 命令で常に飛ばない場合: 直前の命令から、分岐命令の下のノードにバイパスするようにする
+			} else if (opcode == OperationCode.JMPN && branchCondition == true) {
+				listBeforeNode.setNextNode(listNextNode);
+
+			// 上で何か間違いが無ければここに達する事は無いはず
+			} else {
+				throw new VnanoFatalException("Unexpected case detected.");
+			}
+
+			// ※ 上のコードは、上から下へ流れるフローにおいて branchInstructionNode の実行を省略できるようにしているだけで、
+			//    さらに別の場所にある分岐から branchInstructionNode へ飛んでくる場合を全く考えていない雰囲気を醸し出しているが、
+			//    以下の理由により、そういう場合への特別な対処は必要ない：
+			//
+			// ・ 上記コードでは、branchInstructionNode を飛び先とする分岐命令から、branchInstructionNode への参照を削除してはいないので、
+			//    そのような分岐命令が実行されると普通に branchInstructionNode に着地し、その作用で正しい場所に飛ぶ。ので動作的に問題ない。
+			//    （ただしそういう場合は当然 branchInstructionNode を踏むオーバーヘッドは食う）
+			//
+			// ・ beforeInListNode が分岐系以外の命令の場合、仮にそれが実行されれば次に branchInstructionNode を踏むのは確実で、
+			//    実際のフローが「 beforeInListNode を踏まずに別の所から branchInstructionNode に直接飛んでくる 」ものかどうかに関わらず、
+			//    beforeInListNode に上記コードのように次ノードを設定する事自体は正しい（踏んだ後に起こる作用的に等価）なはず。
+			//
+			// ・ beforeInListNode が分岐系命令の場合、その実行後に branchInstructionNode を踏まずに、どこかに飛んでいく可能性があるが、
+			//    そういう命令のノードでも、setNextNode で設定している nextNode は分岐「不成立」時のノードを指すという仕様になっていて、
+			//    その結果として全種のノードの nextNode は単純に命令順序的に次にあるノードを指すように統一できているので問題にはならない。
+			//    つまり beforeInListNode の分岐「成立」時の飛び先ノードを壊してしまっている事にはならない。
+		}
+
 		return nodes;
 	}
+
 
 	// 命令を1つ演算器にディスパッチし、それを実行する演算ノードを返す
 	private AcceleratorExecutionNode dispatchToAcceleratorExecutionUnit (

@@ -60,6 +60,11 @@ public class BoolScalarBranchUnit extends AcceleratorExecutionUnit {
 		}
 
 		@Override
+		public AcceleratorExecutionNode[] getLaundingPointNodes() {
+			return new AcceleratorExecutionNode[] { this.branchedNode };
+		}
+
+		@Override
 		public final AcceleratorExecutionNode execute() {
 			this.synchronizer.synchronizeFromCacheToMemory();
 			if (this.conditionContainer.getArrayData()[ this.conditionContainer.getArrayOffset() ]) {
@@ -85,6 +90,11 @@ public class BoolScalarBranchUnit extends AcceleratorExecutionUnit {
 		@Override
 		public void setLaundingPointNodes(AcceleratorExecutionNode ... branchedNode) {
 			this.branchedNode = branchedNode[0];
+		}
+
+		@Override
+		public AcceleratorExecutionNode[] getLaundingPointNodes() {
+			return new AcceleratorExecutionNode[] { this.branchedNode };
 		}
 
 		@Override
