@@ -1053,14 +1053,28 @@ public class AcceleratorOptimizationUnit {
 
 
 	// JMP命令など、ラベルオペランドを持つ命令は、ラベルの命令アドレスが命令再配置によって変わるため、再配置後のアドレス情報を追加
+	// (以下は暫定的に AcceleratorSchedulingUnit からそのままコピーしているもので、この段階では存在し得ない EX 命令などへの対応を
+	//  含んでいるが、そこを削ると、後々で一つの処理に統一する際にこちらが残ってしまうとまずいので、あえてそのままにしている。)
+	// !!!!! よくない状態なのでなるべく早期にきりのいいタイミングで処理をまとめて整理すべき !!!!!
 	private void resolveReorderedLabelAddress(Memory memory) {
 		int instructionLength = this.acceleratorInstructionList.size();
 		for (int instructionIndex=0; instructionIndex<instructionLength; instructionIndex++) {
 			AcceleratorInstruction instruction = this.acceleratorInstructionList.get(instructionIndex);
 			OperationCode opcode = instruction.getOperationCode();
+			OperationCode[] fusedOpcodes = instruction.isFused() ? instruction.getFusedOperationCodes() : null;
 
-			// JMP & JMPN & CALL はオペランドアドレスに飛ぶ。RETはスタックから取ったアドレスに飛ぶが、オペランドに所属関数ラベルを持っている
-			if (opcode == OperationCode.JMP || opcode == OperationCode.JMPN || opcode == OperationCode.CALL || opcode == OperationCode.RET) {
+			// 分岐系命令かどうかを確認して控える。
+			// JMP & JMPN & CALL は静的に設定されたラベルに飛ぶ。
+			// RET は動的にスタックから取ったアドレスに飛ぶが、IFCU制御用に所属関数のアドレスも持ってる。
+			boolean isBranchOperation = opcode == OperationCode.JMP || opcode == OperationCode.JMPN
+					|| opcode == OperationCode.CALL || opcode == OperationCode.RET;
+
+			// 比較演算などと融合された分岐系命令かどうかを確認して控える（融合対象になり得るのは JMP と JMPN のみ）。
+			boolean isFusedBranchOperation = instruction.isFused()
+					&& (fusedOpcodes[1] == OperationCode.JMP || fusedOpcodes[1] == OperationCode.JMPN);
+
+			// 分岐系命令の場合（融合されている場合を含む）
+			if (isBranchOperation || isFusedBranchOperation) {
 
 				// 分岐先が、インライン展開で生成された命令列の中にある場合
 				// (unreorderedLabelAddress は複数展開時に重複が生じてキーに使えないため、展開直後の一意なラベルアドレスをキーとするマップで変換)
@@ -1073,18 +1087,28 @@ public class AcceleratorOptimizationUnit {
 				// (unreordered address をキーとするマップで変換する)
 				} else {
 
-					// ラベルの命令アドレスの値を格納するオペランドのデータコンテナをメモリから取得（必ずオペランド[1]にあるよう統一されている）
+					// ラベルの命令アドレスの値を格納するオペランドのデータコンテナをメモリから取得し、以下の変数に控える
 					DataContainer<?> addressContiner = null;
-					addressContiner = memory.getDataContainer(
-						instruction.getOperandPartitions()[1],
-						instruction.getOperandAddresses()[1]
-					);
+
+					// 普通の命令では必ずオペランド[1]にあるよう統一されている
+					if (opcode != OperationCode.EX) {
+						addressContiner = memory.getDataContainer(
+							instruction.getOperandPartitions()[1], instruction.getOperandAddresses()[1]
+						);
+
+					// 融合された命令のオペランド列は、各命令のオペランド列を単純に並べたものなので、
+					// [3]以降が分岐命令のオペランドであり、従って[4]がラベルの命令アドレス
+					} else {
+						addressContiner = memory.getDataContainer(
+							instruction.getOperandPartitions()[4], instruction.getOperandAddresses()[4]
+						);
+					}
 
 					// データコンテナから飛び先ラベル（アセンブル後はLABEL命令になっている）の命令アドレスの値を読む
 					int labelAddress = -1;
 					Object addressData = addressContiner.getArrayData();
 					if (addressData instanceof long[]) {
-						labelAddress = (int)( ((long[])addressData)[0] );
+						labelAddress = (int)( ((long[])addressData)[ addressContiner.getArrayOffset()] );
 					} else {
 						throw new VnanoFatalException("Non-integer instruction address (label) operand detected.");
 					}

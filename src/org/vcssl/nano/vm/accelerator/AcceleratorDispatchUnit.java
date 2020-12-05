@@ -106,11 +106,23 @@ public class AcceleratorDispatchUnit {
 
 		// 別の命令アドレスに飛ぶ処理のノードに、着地先ノードの参照を持たせる
 		for (int instructionIndex = 0; instructionIndex<instructionLength; instructionIndex++) {
-			OperationCode opcode = instructions[instructionIndex].getOperationCode();
+			AcceleratorInstruction instruction = instructions[instructionIndex];
+			OperationCode opcode = instruction.getOperationCode();
+			OperationCode[] fusedOpcodes = instruction.isFused() ? instruction.getFusedOperationCodes() : null;
 
-			// 分岐命令と内部関数コール命令: 飛び先の命令アドレスは静的に確定しているので、着地先ノードを求めて持たせる
-			if (opcode == OperationCode.JMP || opcode == OperationCode.JMPN || opcode == OperationCode.CALL) {
-				int branchedAddress = instructions[instructionIndex].getReorderedLabelAddress(); // 注：命令再配置で飛び先アドレスは変わる
+			// 分岐系命令（内部関数コード含む）かどうかを確認して控える。
+			// JMP & JMPN & CALL は静的に設定されたラベルに飛ぶ。
+			// RET は動的にスタックから取ったアドレスに飛ぶが、IFCU制御用に所属関数のアドレスも持ってる。
+			boolean isBranchOperation = opcode == OperationCode.JMP || opcode == OperationCode.JMPN
+					|| opcode == OperationCode.CALL || opcode == OperationCode.RET;
+
+			// 比較演算などと融合された分岐系命令かどうかを確認して控える（融合対象になり得るのは JMP と JMPN のみ）
+			boolean isFusedBranchOperation = instruction.isFused()
+					&& (fusedOpcodes[1] == OperationCode.JMP || fusedOpcodes[1] == OperationCode.JMPN);
+
+			// 上記で検出した命令の場合は飛び先の命令アドレスは静的に確定しているので、着地先ノードを求めて持たせる
+			if (isBranchOperation || isFusedBranchOperation) {
+				int branchedAddress = instruction.getReorderedLabelAddress(); // 注：命令再配置で飛び先アドレスは変わる
 				nodes[instructionIndex].setLaundingPointNodes(nodes[branchedAddress]);
 			}
 
@@ -123,7 +135,8 @@ public class AcceleratorDispatchUnit {
 		// 無条件分岐のノードは、その直前のノードの nextNode を書き変えて、そこから直接飛ぶようにする
 		// (VMの命令実行を1サイクル削れて、特にループのオーバーヘッド削減で結構効く)
 		for (int instructionIndex = 0; instructionIndex<instructionLength; instructionIndex++) {
-			OperationCode opcode = instructions[instructionIndex].getOperationCode();
+			AcceleratorInstruction instruction = instructions[instructionIndex];
+			OperationCode opcode = instruction.getOperationCode();
 
 			// 分岐命令以外はスキップ
 			if (opcode != OperationCode.JMP && opcode != OperationCode.JMPN) {
@@ -137,14 +150,13 @@ public class AcceleratorDispatchUnit {
 			}
 
 			// 分岐条件が定数でなければスキップ
-			if (instructions[instructionIndex].getOperandPartitions()[2] != Memory.Partition.CONSTANT) {
+			if (instruction.getOperandPartitions()[2] != Memory.Partition.CONSTANT) {
 				continue;
 			}
 
 			// 分岐条件の値を取得
 			DataContainer<?> branchConditionContainer = memory.getDataContainer(
-				instructions[instructionIndex].getOperandPartitions()[2],
-				instructions[instructionIndex].getOperandAddresses()[2]
+				instruction.getOperandPartitions()[2], instruction.getOperandAddresses()[2]
 			);
 			boolean branchCondition = ( (boolean[])branchConditionContainer.getArrayData() )[ branchConditionContainer.getArrayOffset() ];
 
