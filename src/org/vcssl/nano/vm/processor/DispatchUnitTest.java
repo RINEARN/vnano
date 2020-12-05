@@ -174,6 +174,7 @@ public class DispatchUnitTest {
 		this.testDispatchAllocVector();
 		this.testCall();
 		this.testDispatchNop();
+		this.testDispatchLabel();
 	}
 
 	private Instruction generateInt64x2Instruction(OperationCode operationCode) {
@@ -1431,10 +1432,7 @@ public class DispatchUnitTest {
 
 	private void testDispatchNop() {
 
-		// 上記オペランドで演算を行う命令を生成
-		//Instruction instruction = this.generateInt64x3Instruction(OperationCode.ADD);
-
-		// 上記オペランドで演算を行う命令を生成
+		// NOP命令を生成
 		Instruction instruction = new Instruction(
 				OperationCode.NOP, VOID_TYPE,
 				new Memory.Partition[] {Memory.Partition.NONE}, new int[] {0},
@@ -1466,6 +1464,40 @@ public class DispatchUnitTest {
 		}
 	}
 
+
+	private void testDispatchLabel() {
+
+		// LABEL命令を生成
+		Instruction instruction = new Instruction(
+				OperationCode.LABEL, VOID_TYPE,
+				new Memory.Partition[] {Memory.Partition.NONE}, new int[] {0},
+				META_PART, META_ADDR
+		);
+
+
+		// 命令を実行
+		int pc = 10; // プログラムカウンタ
+		try {
+			pc = this.dispatch(instruction, pc);
+		} catch (VnanoException | VnanoFatalException e) {
+			e.printStackTrace();
+			fail("Unexpected exception occurred");
+		}
+
+		// プログラムカウンタの更新値を検査
+		if (pc != 11) {
+			fail("Incorrect program counter");
+		}
+
+		// オペランドの個数が間違っている場合の検査
+		try {
+			instruction = this.generateInt64x3Instruction(OperationCode.LABEL);
+			pc = this.dispatch(instruction, pc);
+			fail("Unexpected exception occurred");
+		} catch (VnanoException | VnanoFatalException e) {
+			// 例外が発生するのが正しい挙動
+		}
+	}
 
 
 

@@ -39,7 +39,9 @@ public class AcceleratorOptimizationUnit {
 	private Map<Integer,Integer> expandedAddressReorderingMap;
 	private int registerWrittenPointCount[];
 	private int registerReadPointCount[];
+	private boolean registerReferenceMaybeLinked[];
 	private Map<Integer, InternalFunctionInfo> functionInfoMap;
+	private Set<Integer> unnecessaryRegisterSet;
 
 	// 演算結果格納レジスタからのMOV命令でのコピーを削る最適化を、適用してもよい命令の集合
 	// (算術演算命令などは可能、ELEM命令などのメモリー関連命令では不可能)
@@ -225,16 +227,19 @@ public class AcceleratorOptimizationUnit {
 	public AcceleratorInstruction[] optimize(
 			AcceleratorInstruction[] instructions, Memory memory, AcceleratorDataManagementUnit dataManager) {
 
-		this.acceleratorInstructionList = new ArrayList<AcceleratorInstruction>();
-		for (AcceleratorInstruction instruction: instructions) {
-			this.acceleratorInstructionList.add( instruction.clone() );
-		}
-
 		// ※ 注意：
 		//    現在の Accelerator の実装では、データの cacheability を変えるような最適化を行ってはならない。
 		//    例えば、関数の仮引数を、インライン展開の際に実引数のアドレスで直接置き換えてしまう最適化は、
 		//    単純に動作上の課題としては可能なケースが有り得るが、
 		//    しかしそれは仮引数が uncacheabe で実引数が cacheable だった場合に、後者の cacheability を変えてしまう事に注意。
+		//    ただし、レジスタへの冗長なMOV命令を削って、そのレジスタを他のどこからも使わなくなるような場合は問題は生じない
+		//    (その場合は念のためそのレジスタのALLOCも削って、そのレジスタ自体がコードに登場しなくなるようにした方がいい)。
+
+		this.acceleratorInstructionList = new ArrayList<AcceleratorInstruction>();
+		for (AcceleratorInstruction instruction: instructions) {
+			this.acceleratorInstructionList.add( instruction.clone() );
+		}
+		this.unnecessaryRegisterSet = new HashSet<Integer>();
 
 		// 内部関数の最適化情報を抽出する（実際にCALLされているもののみ）
 		this.extractInternalFunctionInfo(memory);
@@ -243,7 +248,7 @@ public class AcceleratorOptimizationUnit {
 		// (命令アドレスがずれるため、this.functionInfoMap のbodyBegin/bodyEnd値も書き換わる)
 		this.modifyCodeToTransferArgumentsDirectly(memory);
 
-		// CALL命令の直後（NOPが置かれている）の箇所に、RETURNED命令(※)を生成して置き換える
+		// CALL命令の直後（アセンブル後はLABEL命令が置かれている）の箇所に、RETURNED命令(※)を生成して置き換える
 		//（※ 参照渡し経由で関数処理で書き替えた値のキャッシュ同期などを行うAccelerator拡張命令）
 		this.generateReturnedInstructions();
 
@@ -258,14 +263,24 @@ public class AcceleratorOptimizationUnit {
 		this.expandFunctionCodeInline(memory);
 
 		// 全てのレジスタに対し、それぞれ書き込み・読み込み箇所の数をカウントする（最適化に使用）
-		this.createRegisterWrittenPointCount(memory);
-		this.createRegisterReadPointCount(memory);
+		this.countRegisterWrittenPoints(memory);
+		this.countRegisterReadPoints(memory);
+		this.detectRegisterReferenceLinks(memory);
 
 		// スカラのALLOC命令をコード先頭に並べ替える（メモリコストが低いので、ループ内に混ざるよりも利点が多い）
 		this.reorderAllocAndAllocrInstructions(dataManager);
 
-		// オペランドを並び替え、不要になったMOV命令を削る
-		this.reduceMovInstructions(dataManager);
+		// どこからも読んでいないレジスタに対するMOV命令を削る（後置インクリメント/デクリメントなどで発生）
+		this.removeMovInstructionsToUnreadRegisters(dataManager);
+
+		// 演算命令の結果を直後にMOVしている箇所のオペランドを並び替え、不要になったMOV命令を削る
+		this.reduceMovInstructionsCopyingOperationResults(dataManager);
+
+		// 上記のMOV削りによって使用されなくなったレジスタの確保処理を削る（そのレジスタはもうコード上で登場しなくなるはず）
+		this.removeAllocInstructionsToUnusedRegisters();
+
+		// 念のため上で削除したレジスタにアクセスしている箇所を探し、もし見つかればエラーにする（見つからなければ何もしない）
+		this.checkRemovedRegistersAreUnused();
 
 		// 最新の（再配列後の）命令アドレスを設定し、新旧の対応を保持するマップを更新
 		// -> このあたりの処理は AcceleratorSchedulingUnit と重複しているので、きりのいい時になんとかしたい
@@ -289,7 +304,7 @@ public class AcceleratorOptimizationUnit {
 		this.functionInfoMap = new LinkedHashMap<Integer, InternalFunctionInfo>();
 		List<Integer> functionAddressList = new ArrayList<Integer>();
 
-		// アセンブリコードの段階ではラベルで関数の先頭行を判別できるが、アセンブル後はラベルはただのNOPになってしまう。
+		// アセンブリコードの段階ではラベルで関数の先頭行を判別できるが、アセンブル後はラベルは無情報のLABEL命令になってしまう。
 		// そこで、まずコード内のCALL命令の箇所をスキャンし、そのオペランドから、関数先頭の命令アドレスのリストを作る。
 		// -> 関数先頭に、それが関数先頭とわかる（目印用の）命令を置けば、こういった事前スキャンは不要になるけど…
 		//    -> しかしこの方法も、どこからも呼んでいない関数の情報解析は自然と省略できるので、これはこれで逆にいいかも
@@ -368,9 +383,9 @@ public class AcceleratorOptimizationUnit {
 				} else if (opcode == OperationCode.ALLOC || opcode == OperationCode.ALLOCP || opcode == OperationCode.ALLOCR) {
 					continue;
 
-				// アセンブリコードで関数ラベルだった地点には、アセンブリ後はNOPがあるが、何も拾う情報は無いので何もしない
-				//（関数アドレス +1 の命令からスキャンを始めてもいいが、後の最適化でNOPを削った時にややこしいので、一応ある事を想定する）
-				} else if (opcode == OperationCode.NOP) {
+				// アセンブリコードで関数ラベルだった地点には、アセンブル後はLABEL命令があるが、何も拾う情報は無いので何もしない
+				//（関数アドレス +1 の命令からスキャンを始めてもいいが、後の最適化でLABEL命令を削った時にややこしいので、一応ある事を想定する）
+				} else if (opcode == OperationCode.LABEL) {
 					continue;
 
 				// ENDPRM命令が来た時点で、引数の受け取り処理は終わったので解析終了
@@ -668,7 +683,7 @@ public class AcceleratorOptimizationUnit {
 				AcceleratorInstruction expandedInstruction = this.acceleratorInstructionList.get(functionInstructionIndex).clone();
 				expandedInstruction.setExpandedAddress(modifiedInstructionList.size());
 
-				// 分岐命令の場合は、飛び先ラベル（アセンブル後はNOP）位置の命令アドレスを、展開後のアドレスに補正する必要がある
+				// 分岐命令の場合は、飛び先ラベル（アセンブル後はLABEL命令）位置の命令アドレスを、展開後のアドレスに補正する必要がある
 				OperationCode opcode = expandedInstruction.getOperationCode();
 				if (opcode == OperationCode.JMP || opcode == OperationCode.JMPN) { // CALLも分岐的な挙動をするが、内部にCALLを含む関数は展開対象外なのでここには存在しないはず
 
@@ -765,7 +780,7 @@ public class AcceleratorOptimizationUnit {
 	}
 
 
-	// CALL命令の直後（ラベルのためNOPが置かれている）の箇所に、RETURNED拡張命令を生成して置き換える
+	// CALL命令の直後（アセンブル後はLABEL命令が置かれている）の箇所に、RETURNED拡張命令を生成して置き換える
 	private void generateReturnedInstructions() {
 		int instructionLength = acceleratorInstructionList.size();
 
@@ -800,7 +815,7 @@ public class AcceleratorOptimizationUnit {
 				returnedInstruction.setExtendedOperationCode(AcceleratorExtendedOperationCode.RETURNED);
 				returnedInstruction.setUnreorderedAddress(instruction.getUnreorderedAddress() + 1);
 
-				// この命令直後にあるはずのNOP命令を、生成したRETURNED拡張命令で置き換える
+				// この命令直後にあるはずのLABEL命令を、生成したRETURNED拡張命令で置き換える
 				acceleratorInstructionList.set(instructionIndex+1, returnedInstruction);
 			}
 		}
@@ -816,12 +831,12 @@ public class AcceleratorOptimizationUnit {
 		     && operationCode != OperationCode.ALLOCP
 		     && operationCode != OperationCode.ALLOCR
 		     && operationCode != OperationCode.FREE
-		     && operationCode != OperationCode.NOP
 		     && operationCode != OperationCode.JMP
 		     && operationCode != OperationCode.JMPN
 		     && operationCode != OperationCode.RET
 		     && operationCode != OperationCode.POP      // POP はスタックからデータを取り出すだけで何もしない
 		     && operationCode != OperationCode.NOP      // NOP は何もしないので明らかに何も読まない
+		     && operationCode != OperationCode.LABEL    // NOP 同様
 		     && operationCode != OperationCode.END
 		     && operationCode != OperationCode.ENDFUN
 		     ;
@@ -833,8 +848,8 @@ public class AcceleratorOptimizationUnit {
 	}
 
 
-	// レジスタ書き込み箇所カウンタ配列を生成して初期化
-	private void createRegisterWrittenPointCount(Memory memory) {
+	// 各レジスタについて、書き込んでいる箇所を検出して数える
+	private void countRegisterWrittenPoints(Memory memory) {
 		int registerLength = memory.getSize(Memory.Partition.REGISTER);
 		this.registerWrittenPointCount = new int[registerLength];
 		Arrays.fill(this.registerWrittenPointCount, 0);
@@ -876,6 +891,7 @@ public class AcceleratorOptimizationUnit {
 		     && operationCode != OperationCode.MOVPOP   // MOVPOP はスタックからデータを読むので、オペランドからは読まない（書く）
 		     && operationCode != OperationCode.REFPOP   // REFPOP はスタックからデータを読むので、オペランドからは読まない（書く）
 		     && operationCode != OperationCode.NOP      // NOP は何もしないので明らかに何も読まない
+		     && operationCode != OperationCode.LABEL    // NOP 同様
 		     && operationCode != OperationCode.ENDFUN
 		     ;
 
@@ -884,8 +900,8 @@ public class AcceleratorOptimizationUnit {
 	}
 
 
-	// レジスタ読み込み箇所カウンタ配列を生成して初期化
-	private void createRegisterReadPointCount(Memory memory) {
+	// 各レジスタについて、読み込んでいる箇所を検出して数える
+	private void countRegisterReadPoints(Memory memory) {
 		int registerLength = memory.getSize(Memory.Partition.REGISTER);
 		this.registerReadPointCount = new int[registerLength];
 		Arrays.fill(this.registerReadPointCount, 0);
@@ -926,6 +942,75 @@ public class AcceleratorOptimizationUnit {
 	}
 
 
+	// 各レジスタについて、参照リンクされている可能性があるかどうかを検出する
+	private void detectRegisterReferenceLinks(Memory memory) {
+		int registerLength = memory.getSize(Memory.Partition.REGISTER);
+
+		// レジスタ番号をインデックスとして、参照リンクされている可能性があるレジスタに対してはこの配列の値を true にする
+		this.registerReferenceMaybeLinked = new boolean[registerLength];
+		Arrays.fill(this.registerReferenceMaybeLinked, false);
+
+		int instructionLength = acceleratorInstructionList.size();
+		for (int instructionIndex=0; instructionIndex<instructionLength; instructionIndex++) {
+			AcceleratorInstruction instruction = acceleratorInstructionList.get(instructionIndex);
+			OperationCode opcode = instruction.getOperationCode();
+			Memory.Partition[] parts = instruction.getOperandPartitions();
+			int[] addrs = instruction.getOperandAddresses();
+
+			// REF命令はオペランド [0] と [1] を参照リンクするので、それぞれレジスタなら true とマーク
+			if (opcode == OperationCode.REF) {
+				if (parts[0] == Memory.Partition.REGISTER) {
+					this.registerReferenceMaybeLinked[addrs[0]] = true;
+				}
+				if (parts[1] == Memory.Partition.REGISTER) {
+					this.registerReferenceMaybeLinked[addrs[1]] = true;
+				}
+
+			// REFELM 命令はオペランド[1]の配列要素をオペランド[0]に参照リンクするので、それぞれレジスタなら true とマーク
+			// (オペランド[1]は普通は配列変数だが、関数の戻り値や配列演算結果などに直接 [i] を付けて要素参照する場合など、レジスタもあり得る)
+			} else if (opcode == OperationCode.REFELM) {
+				if (parts[0] == Memory.Partition.REGISTER) {
+					this.registerReferenceMaybeLinked[addrs[0]] = true;
+				}
+				if (parts[1] == Memory.Partition.REGISTER) {
+					this.registerReferenceMaybeLinked[addrs[1]] = true;
+				}
+
+			// REFPOP 命令はスタックのデータをオペランド[0]に参照リンクするので、それがレジスタなら true とマーク
+			} else if (opcode == OperationCode.REFPOP) {
+				if (parts[0] == Memory.Partition.REGISTER) {
+					this.registerReferenceMaybeLinked[addrs[0]] = true;
+				}
+
+			// 内部関数に渡している実引数は、スタック経由で REFPOP で取り出される可能性があるため、レジスタなら true とマーク
+			// > VRILアセンブリコード内の変数宣言ディレクティブで #VARIABLE _arg CONST REF みたいに識別子後に修飾子が付くようにして、
+			//   その情報も考慮に入れて判定するとかした方が総合的にはいいかもしれない。実際には参照リンクされない引数も多いので。
+			//   また後々で要検討
+			} else if (opcode == OperationCode.CALL) {
+				for (int i=2; i<addrs.length; i++) { // [0]はプレースホルダ、[1]は関数アドレス、[2]以降が実引数なので2からループ
+					if (parts[i] == Memory.Partition.REGISTER) {
+						this.registerReferenceMaybeLinked[addrs[i]] = true;
+					}
+				}
+
+			// 内部関数の戻り値については、VRIL上は引数同様にREFPOPで受け取られる可能性があるが、
+			// 現状のVnanoの文法では参照で受け取る方法が存在しないので、検出せずスキップ
+			} else if (opcode == OperationCode.RET) {
+				continue;
+
+			// 外部関数は引数の参照が渡される場合があるが、
+			// それをスクリプト内の別のアドレスに参照「リンク」される事は無い（仕様上してはいけない）のでスキップ
+			} else if (opcode == OperationCode.CALLX) {
+				continue;
+
+			// それ以外の命令では、スクリプト内で別アドレスに参照リンク経由でされる事は無いのでスキップ
+			} else {
+				continue;
+			}
+		}
+	}
+
+
 	// 全命令に対して再配置済み命令アドレスを書き込む
 	private void updateReorderedAddresses() {
 		int instructionLength = acceleratorInstructionList.size();
@@ -940,7 +1025,7 @@ public class AcceleratorOptimizationUnit {
 
 		// addressReorderingMap は、再配置前のアドレス unreorderedAddress をキーとして、
 		// 再配置後のアドレス reorderedAddress を返すマップで、
-		// JMP/JMPN/CALLの着地点ラベル（由来のNOP命令）の位置を補正するために使用される。
+		// JMP/JMPN/CALLの着地点ラベル（由来のLABEL命令）の位置を補正するために使用される。
 		// 最適化で命令1個だった所が複数命令になっている箇所がある場合 (CALLの引数直接MOV化とか) など、
 		// 複数命令が同じ unreorderedAddress を持っていると、addressReorderingMap はそれらの最後の命令の reorderedAddress を返す。
 		//
@@ -968,14 +1053,28 @@ public class AcceleratorOptimizationUnit {
 
 
 	// JMP命令など、ラベルオペランドを持つ命令は、ラベルの命令アドレスが命令再配置によって変わるため、再配置後のアドレス情報を追加
+	// (以下は暫定的に AcceleratorSchedulingUnit からそのままコピーしているもので、この段階では存在し得ない EX 命令などへの対応を
+	//  含んでいるが、そこを削ると、後々で一つの処理に統一する際にこちらが残ってしまうとまずいので、あえてそのままにしている。)
+	// !!!!! よくない状態なのでなるべく早期にきりのいいタイミングで処理をまとめて整理すべき !!!!!
 	private void resolveReorderedLabelAddress(Memory memory) {
 		int instructionLength = this.acceleratorInstructionList.size();
 		for (int instructionIndex=0; instructionIndex<instructionLength; instructionIndex++) {
 			AcceleratorInstruction instruction = this.acceleratorInstructionList.get(instructionIndex);
 			OperationCode opcode = instruction.getOperationCode();
+			OperationCode[] fusedOpcodes = instruction.isFused() ? instruction.getFusedOperationCodes() : null;
 
-			// JMP & JMPN & CALL はオペランドアドレスに飛ぶ。RETはスタックから取ったアドレスに飛ぶが、オペランドに所属関数ラベルを持っている
-			if (opcode == OperationCode.JMP || opcode == OperationCode.JMPN || opcode == OperationCode.CALL || opcode == OperationCode.RET) {
+			// 分岐系命令かどうかを確認して控える。
+			// JMP & JMPN & CALL は静的に設定されたラベルに飛ぶ。
+			// RET は動的にスタックから取ったアドレスに飛ぶが、IFCU制御用に所属関数のアドレスも持ってる。
+			boolean isBranchOperation = opcode == OperationCode.JMP || opcode == OperationCode.JMPN
+					|| opcode == OperationCode.CALL || opcode == OperationCode.RET;
+
+			// 比較演算などと融合された分岐系命令かどうかを確認して控える（融合対象になり得るのは JMP と JMPN のみ）。
+			boolean isFusedBranchOperation = instruction.isFused()
+					&& (fusedOpcodes[1] == OperationCode.JMP || fusedOpcodes[1] == OperationCode.JMPN);
+
+			// 分岐系命令の場合（融合されている場合を含む）
+			if (isBranchOperation || isFusedBranchOperation) {
 
 				// 分岐先が、インライン展開で生成された命令列の中にある場合
 				// (unreorderedLabelAddress は複数展開時に重複が生じてキーに使えないため、展開直後の一意なラベルアドレスをキーとするマップで変換)
@@ -988,23 +1087,33 @@ public class AcceleratorOptimizationUnit {
 				// (unreordered address をキーとするマップで変換する)
 				} else {
 
-					// ラベルの命令アドレスの値を格納するオペランドのデータコンテナをメモリから取得（必ずオペランド[1]にあるよう統一されている）
+					// ラベルの命令アドレスの値を格納するオペランドのデータコンテナをメモリから取得し、以下の変数に控える
 					DataContainer<?> addressContiner = null;
-					addressContiner = memory.getDataContainer(
-						instruction.getOperandPartitions()[1],
-						instruction.getOperandAddresses()[1]
-					);
 
-					// データコンテナから飛び先ラベル（アセンブル後はNOPになっている）の命令アドレスの値を読む
+					// 普通の命令では必ずオペランド[1]にあるよう統一されている
+					if (opcode != OperationCode.EX) {
+						addressContiner = memory.getDataContainer(
+							instruction.getOperandPartitions()[1], instruction.getOperandAddresses()[1]
+						);
+
+					// 融合された命令のオペランド列は、各命令のオペランド列を単純に並べたものなので、
+					// [3]以降が分岐命令のオペランドであり、従って[4]がラベルの命令アドレス
+					} else {
+						addressContiner = memory.getDataContainer(
+							instruction.getOperandPartitions()[4], instruction.getOperandAddresses()[4]
+						);
+					}
+
+					// データコンテナから飛び先ラベル（アセンブル後はLABEL命令になっている）の命令アドレスの値を読む
 					int labelAddress = -1;
 					Object addressData = addressContiner.getArrayData();
 					if (addressData instanceof long[]) {
-						labelAddress = (int)( ((long[])addressData)[0] );
+						labelAddress = (int)( ((long[])addressData)[ addressContiner.getArrayOffset()] );
 					} else {
 						throw new VnanoFatalException("Non-integer instruction address (label) operand detected.");
 					}
 
-					// 上で読んだラベル（由来のNOP命令）アドレスの、再配置後の位置の命令アドレスを取得し、命令に持たせる
+					// 上で読んだラベル（由来のLABEL命令）アドレスの、再配置後の位置の命令アドレスを取得し、命令に持たせる
 					int reorderedLabelAddress = this.addressReorderingMap.get(labelAddress);
 					instruction.setReorderedLabelAddress(reorderedLabelAddress);
 				}
@@ -1056,8 +1165,59 @@ public class AcceleratorOptimizationUnit {
 	}
 
 
-	// レジスタへの無駄なMOV命令を削減し、算術演算の出力オペランド等で直接レジスタに代入するようにする
-	private void reduceMovInstructions(AcceleratorDataManagementUnit dataManager) {
+	// どこからも値を読まれていないレジスタへのMOV命令を削る
+	// (コードジェネレータの実装簡易化のために、値が実際に使われるかどうかに関わらず、とりあえずレジスタに置いておくようなケースがある。
+	//  典型例としては後置インクリメント/デクリメント演算子で、それらは式中での値が加減算前のものであるべきなので、
+	//  加減算前の値をレジスタに控えておく処理が発生するが、実際にそれらの演算子を式中で複雑に組み合わせて使う場面は多くないため、
+	//  大半が無駄なMOVになる。特に for 文のカウンタ更新などの箇所ではパフォーマンス的に結構もったいない事になる。従って削る。)
+	private void removeMovInstructionsToUnreadRegisters(AcceleratorDataManagementUnit dataManager) {
+		int instructionLength = this.acceleratorInstructionList.size();
+		for (int instructionIndex=0; instructionIndex<instructionLength-1; instructionIndex++) {
+			AcceleratorInstruction instruction = this.acceleratorInstructionList.get(instructionIndex);
+
+			// MOV命令以外はスキップ
+			if (instruction.getOperationCode() != OperationCode.MOV) {
+				continue;
+			}
+
+			// MOV命令の書き込み先（0番オペランド）がレジスタでない場合はスキップ
+			if (instruction.getOperandPartitions()[0] != Memory.Partition.REGISTER) {
+				continue;
+			}
+
+			// MOV命令で書き込んでいるレジスタ（ = 0番オペランド）の値を読んでいる箇所がある場合や、
+			// ここ以外に書き込んでいる箇所がある場合はスキップ
+			//（注: 参照リンクされているものは正確には数えられないので、すぐ後で除外する）
+			int writingRegisterAddress = instruction.getOperandAddresses()[0];
+			if (this.registerReadPointCount[writingRegisterAddress] != 0
+					|| this.registerWrittenPointCount[writingRegisterAddress] != 1) {
+					// 上の後者の条件はMOV削りのためには不要だが、後でレジスタそのものを削除するには必要
+				continue;
+			}
+
+			// 参照リンクされている可能性があるレジスタは、読み書きポイント数を正確に数えるのが難しいのでスキップ
+			if (this.registerReferenceMaybeLinked[writingRegisterAddress]) {
+				continue;
+			}
+
+			// ここまで到達するのは、どこからも読んでいないレジスタにMOVしている箇所なので、削る
+			// (ここでは命令列リスト内の該当位置を null に置き換えておいて、後で一括で削る)
+			this.acceleratorInstructionList.set(instructionIndex, null);
+
+			// MOVを削った後、書き込み先レジスタはもうどこからも読み書きしていないはずなので、削除登録しておく（後で別の最適化で削る）
+			this.unnecessaryRegisterSet.add(writingRegisterAddress);
+		}
+
+		// MOV命令を削除した位置の null を詰める
+		this.acceleratorInstructionList.removeAll(LIST_OF_NULL);
+	}
+
+
+
+	// 演算結果のレジスタ値をコピーしているMOV命令を、オペランドを並び替える事によって削る
+	// (例えば加算結果を一旦レジスタに置いて、直後にそれを変数アドレスにMOVするような処理があった場合、
+	//  加算結果を変数アドレスに直接出力するようにオペランドを並べ替えて、不要になったレジスタへのMOVを削る。)
+	private void reduceMovInstructionsCopyingOperationResults(AcceleratorDataManagementUnit dataManager) {
 
 		int instructionLength = this.acceleratorInstructionList.size();
 		for (int instructionIndex=0; instructionIndex<instructionLength-1; instructionIndex++) { // 後でイテレータ使うループにする
@@ -1095,10 +1255,18 @@ public class AcceleratorOptimizationUnit {
 				continue;
 			}
 
-			// そのレジスタに書き込む/読み込む箇所がそこだけでない（書き込みが複数、または読み込みが複数ある）場合はスキップ
+			// そのレジスタに読み書きする箇所がそこだけでない（書き込みが複数、または読み込みが複数ある）場合はスキップ
+			//（注: 参照リンクされているものは正確には数えられないので、すぐ後で除外する）
 			if (this.registerWrittenPointCount[writingRegisterAddress] != 1
 					|| this.registerReadPointCount[writingRegisterAddress] != 1) {
 
+				continue;
+			}
+
+			// 参照リンクされている可能性があるレジスタは、上記の読み書きポイント数を正確に数えるのが難しいのでスキップ
+			// (その場合はすぐ後のキャッシュ可能性の検査でも弾かれるはずだが、逆に言えばここでこの条件を加えても
+			//  パフォーマンス的にマイナスにはならず、コード上では慎重な方向にできるので、将来の改修時の事を考慮して条件に加えている。)
+			if (this.registerReferenceMaybeLinked[writingRegisterAddress]) {
 				continue;
 			}
 
@@ -1199,6 +1367,9 @@ public class AcceleratorOptimizationUnit {
 			// MOV命令を null で置き換える（すぐ後で削除する）
 			this.acceleratorInstructionList.set(instructionIndex+1, null);
 
+			// 対象命令が元々書き込んでいたレジスタはもうどこからも読み書きしていないはずなので、削除登録しておく（後で別の最適化で削る）
+			this.unnecessaryRegisterSet.add(writingRegisterAddress);
+
 			// 次の命令（= MOV）はもう削除したので、カウンタを1つ余計に進める
 			instructionIndex++;
 
@@ -1206,6 +1377,63 @@ public class AcceleratorOptimizationUnit {
 
 		// MOV命令を削除した位置の null を詰める
 		this.acceleratorInstructionList.removeAll(LIST_OF_NULL);
+	}
+
+
+	// 上のMOV削りによって使用されなくなったレジスタの確保処理（ALLOC命令）を削る
+	//（これにより、そのレジスタはもうコード上で登場しなくなるはず）
+	private void removeAllocInstructionsToUnusedRegisters() {
+		int instructionLength = this.acceleratorInstructionList.size();
+		for (int instructionIndex=0; instructionIndex<instructionLength-1; instructionIndex++) {
+			AcceleratorInstruction instruction = this.acceleratorInstructionList.get(instructionIndex);
+
+			// ALLOC系命令以外はスキップ
+			if (instruction.getOperationCode() != OperationCode.ALLOC
+					&& instruction.getOperationCode() != OperationCode.ALLOCR
+					&& instruction.getOperationCode() != OperationCode.ALLOCP
+					&& instruction.getOperationCode() != OperationCode.ALLOCT) {
+				continue;
+			}
+
+			// メモリ確保対象（0番オペランド）がレジスタでない場合はスキップ
+			if (instruction.getOperandPartitions()[0] != Memory.Partition.REGISTER) {
+				continue;
+			}
+
+			// メモリ確保対象レジスタが削除リストに登録されていない場合はスキップ
+			int allocRegisterAddress = instruction.getOperandAddresses()[0];
+			if (!this.unnecessaryRegisterSet.contains(allocRegisterAddress)) {
+				continue;
+			}
+
+			// ここまで到達するのは、使っていないレジスタをALLOCしている箇所なので、削る
+			// (ここでは命令列リスト内の該当位置を null に置き換えておいて、後で一括で削る)
+			this.acceleratorInstructionList.set(instructionIndex, null);
+		}
+
+		// MOV命令を削除した位置の null を詰める
+		this.acceleratorInstructionList.removeAll(LIST_OF_NULL);
+	}
+
+
+	// 念のため上でALLOCを削ったレジスタにアクセスしている箇所を探し、もし見つかればエラーにする（見つからなければ何もしない）
+	private void checkRemovedRegistersAreUnused() {
+		int instructionLength = this.acceleratorInstructionList.size();
+		for (int instructionIndex=0; instructionIndex<instructionLength-1; instructionIndex++) {
+			AcceleratorInstruction instruction = this.acceleratorInstructionList.get(instructionIndex);
+			Memory.Partition[] parts = instruction.getOperandPartitions();
+			int[] addrs = instruction.getOperandAddresses();
+			int operandLength = instruction.getOperandLength();
+
+			for (int i=0; i<operandLength; i++) {
+
+				// オペランドがレジスタで、かつ unnecessaryRegisterSet に登録されていれば、
+				// 既に削除済みの（もう確保されない）レジスタのはずなのでエラー
+				if (parts[i] == Memory.Partition.REGISTER && this.unnecessaryRegisterSet.contains(addrs[i])) {
+					throw new VnanoFatalException("Optimization error (removed register \"R" +addrs[i] + "\" is accessed)");
+				}
+			}
+		}
 	}
 
 }

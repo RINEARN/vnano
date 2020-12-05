@@ -236,6 +236,11 @@ public class InternalFunctionControlUnit extends AcceleratorExecutionUnit {
 		}
 
 		@Override
+		public AcceleratorExecutionNode[] getLaundingPointNodes() {
+			return new AcceleratorExecutionNode[] { this.functionHeadNode };
+		}
+
+		@Override
 		public final AcceleratorExecutionNode execute() throws VnanoException {
 			this.synchronizer.synchronizeFromCacheToMemory();
 
@@ -354,12 +359,6 @@ public class InternalFunctionControlUnit extends AcceleratorExecutionUnit {
 			this.dataType = dataType;
 		}
 
-
-		@Override
-		public final void setLaundingPointNodes(AcceleratorExecutionNode ... nodes) {
-		}
-
-
 		@Override
 		public final AcceleratorExecutionNode execute() {
 			DataContainer<?> src = InternalFunctionControlUnit.this.dataStack[ InternalFunctionControlUnit.this.dataStackPointer - 1 ];
@@ -373,10 +372,6 @@ public class InternalFunctionControlUnit extends AcceleratorExecutionUnit {
 
 		public PopNode(AcceleratorExecutionNode nextNode) {
 			super(nextNode, 1);
-		}
-
-		@Override
-		public final void setLaundingPointNodes(AcceleratorExecutionNode ... nodes) {
 		}
 
 		@Override
@@ -399,10 +394,6 @@ public class InternalFunctionControlUnit extends AcceleratorExecutionUnit {
 			super(nextNode, 1);
 			this.synchronizer = synchronizer;
 			this.operandContainers = operandContainers;
-		}
-
-		@Override
-		public final void setLaundingPointNodes(AcceleratorExecutionNode ... nodes) {
 		}
 
 		@Override
@@ -429,10 +420,6 @@ public class InternalFunctionControlUnit extends AcceleratorExecutionUnit {
 			super(nextNode, 1);
 			this.synchronizer = synchronizer;
 			this.operandContainers = operandContainers;
-		}
-
-		@Override
-		public final void setLaundingPointNodes(AcceleratorExecutionNode ... nodes) {
 		}
 
 		@Override
@@ -467,10 +454,6 @@ public class InternalFunctionControlUnit extends AcceleratorExecutionUnit {
 		}
 
 		@Override
-		public final void setLaundingPointNodes(AcceleratorExecutionNode ... nodes) {
-		}
-
-		@Override
 		public final AcceleratorExecutionNode execute() {
 			--InternalFunctionControlUnit.this.dataStackPointer;
 			@SuppressWarnings("unchecked")
@@ -502,10 +485,6 @@ public class InternalFunctionControlUnit extends AcceleratorExecutionUnit {
 		}
 
 		@Override
-		public final void setLaundingPointNodes(AcceleratorExecutionNode ... nodes) {
-		}
-
-		@Override
 		public final AcceleratorExecutionNode execute() {
 			--InternalFunctionControlUnit.this.dataStackPointer;
 			@SuppressWarnings("unchecked")
@@ -533,10 +512,6 @@ public class InternalFunctionControlUnit extends AcceleratorExecutionUnit {
 		}
 
 		@Override
-		public final void setLaundingPointNodes(AcceleratorExecutionNode ... nodes) {
-		}
-
-		@Override
 		public final AcceleratorExecutionNode execute() {
 			--InternalFunctionControlUnit.this.dataStackPointer;
 			@SuppressWarnings("unchecked")
@@ -560,10 +535,6 @@ public class InternalFunctionControlUnit extends AcceleratorExecutionUnit {
 		}
 
 		@Override
-		public final void setLaundingPointNodes(AcceleratorExecutionNode ... nodes) {
-		}
-
-		@Override
 		public final AcceleratorExecutionNode execute() {
 			--InternalFunctionControlUnit.this.dataStackPointer;
 			@SuppressWarnings("unchecked")
@@ -584,10 +555,6 @@ public class InternalFunctionControlUnit extends AcceleratorExecutionUnit {
 		public BoolCachedScalarMovpopNode(BoolScalarCache cache, AcceleratorExecutionNode nextNode) {
 			super(nextNode, 1);
 			this.cache = cache;
-		}
-
-		@Override
-		public final void setLaundingPointNodes(AcceleratorExecutionNode ... nodes) {
 		}
 
 		@Override
@@ -618,10 +585,6 @@ public class InternalFunctionControlUnit extends AcceleratorExecutionUnit {
 			super(nextNode, 1);
 			this.synchronizer = synchronizer;
 			this.operandContainers = (DataContainer<long[]>[])operandContainers;
-		}
-
-		@Override
-		public final void setLaundingPointNodes(AcceleratorExecutionNode ... nodes) {
 		}
 
 		@SuppressWarnings("unchecked")

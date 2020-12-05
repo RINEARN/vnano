@@ -395,6 +395,7 @@ public class DispatchUnit {
 			}
 
 			case NOP :
+			case LABEL :
 			case ENDPRM : {
 				this.checkNumberOfOperands(instruction, 1);
 				return programCounter + 1;

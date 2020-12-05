@@ -165,11 +165,19 @@ public class AcceleratorInstruction extends Instruction implements Cloneable {
 		fusedInstruction.setFusedOperationCodes(newFusedOperationCodes);
 		fusedInstruction.setAccelerationType(fusedAccelerationType);
 
+		// リオーダリング用の情報を、融合の前側にある命令からコピー
+		// (後側の命令の値を持たせたい場合は別途 set する)
+		fusedInstruction.reorderedAddress = this.reorderedAddress;
+		fusedInstruction.unreorderedAddress = this.unreorderedAddress;
+		fusedInstruction.reorderedLabelAddress = this.reorderedLabelAddress;
+		fusedInstruction.expandedAddress = this.reorderedLabelAddress;
+		fusedInstruction.expandedLabelAddress = this.expandedLabelAddress;
+
 		return fusedInstruction;
 	}
 
 
-	public boolean hasFusedOperationCodes() {
+	public boolean isFused() {
 		return this.fusedOperationCodes != null;
 	}
 
@@ -289,7 +297,7 @@ public class AcceleratorInstruction extends Instruction implements Cloneable {
 		if (this.acceleratorExecutionType != null) {
 			builder.append("\t");
 			builder.append(this.getAccelerationType());
-			if (this.hasFusedOperationCodes()) {
+			if (this.isFused()) {
 				builder.append("(");
 				for (int j=0; j<this.fusedOperationCodes.length; j++) {
 					builder.append(this.fusedOperationCodes[j]);
@@ -301,7 +309,11 @@ public class AcceleratorInstruction extends Instruction implements Cloneable {
 			}
 		}
 
-		if (this.getOperationCode() == OperationCode.JMP || this.getOperationCode() == OperationCode.JMPN) {
+		boolean isBranchOperation = this.getOperationCode() == OperationCode.JMP || this.getOperationCode() == OperationCode.JMPN;
+		boolean isFusedBranchOperation = this.isFused()
+				&& (this.fusedOperationCodes[1] == OperationCode.JMP || this.fusedOperationCodes[1] == OperationCode.JMPN);
+
+		if (isBranchOperation || isFusedBranchOperation) {
 			builder.append(" (reorderedLabelAddress=" + this.reorderedLabelAddress + ")");
 		}
 
