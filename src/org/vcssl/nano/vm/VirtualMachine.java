@@ -259,11 +259,9 @@ public class VirtualMachine {
 
 			if (this.accelerator != null) {
 				this.accelerator.terminate();
-				this.accelerator = null;
 			}
 			if (this.processor != null) {
 				this.processor.terminate();
-				this.processor = null;
 			}
 		}
 	}
@@ -290,11 +288,9 @@ public class VirtualMachine {
 		synchronized (this.lock) {
 			if (this.accelerator != null) {
 				this.accelerator.resetTerminator();
-				this.accelerator = null;
 			}
 			if (this.processor != null) {
 				this.processor.resetTerminator();
-				this.processor = null;
 			}
 		}
 	}
