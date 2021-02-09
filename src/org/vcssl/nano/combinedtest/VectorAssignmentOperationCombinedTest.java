@@ -41,6 +41,7 @@ public class VectorAssignmentOperationCombinedTest extends CombinedTestElement {
 			this.testAssignmentOperationsWithTypeConversions();
 			this.testVectorScalarMixedOperations();
 			this.testAssignmentOperationsToConstants();
+			this.testAssignmentOperationsToScalarsFromArrays();
 		} catch (VnanoException e) {
 			throw new CombinedTestException(e);
 		}
@@ -258,6 +259,89 @@ public class VectorAssignmentOperationCombinedTest extends CombinedTestElement {
 
 			// 例外が投げられればエラーが検出されているので成功
 			super.succeeded("const int a[3]; int b[3]; a = b; (should be failed) ");
+		}
+	}
+
+	private void testAssignmentOperationsToScalarsFromArrays() throws VnanoException {
+		String scriptCode;
+
+		// 配列からスカラへの代入は、配列の要素数が 1　の場合のみ可能で、そのテスト
+
+		long resultL;
+		double resultD;
+		boolean resultB;
+		String resultS;
+
+		// 以下、右辺の要素数が 1 の場合: 成功するはず
+
+		scriptCode = "int a[1]; a[0]=123; int s=0; s=a; s;";
+		resultL = (long)this.engine.executeScript(scriptCode);
+		super.evaluateResult(resultL, 123L, "int = int[] (size is 1) ", scriptCode);
+
+		scriptCode = "float a[1]; a[0]=1234.5; float s=0; s=a; s;";
+		resultD = (double)this.engine.executeScript(scriptCode);
+		super.evaluateResult(resultD, 1234.5, "float = float[] (size is 1) ", scriptCode);
+
+		scriptCode = "bool a[1]; a[0]=true; bool s=false; s=a; s;";
+		resultB = (boolean)this.engine.executeScript(scriptCode);
+		super.evaluateResult(resultB, true, "bool = bool[] (size is 1) ", scriptCode);
+
+		scriptCode = "string a[1]; a[0]=\"abc\"; string s=\"\"; s=a; s;";
+		resultS = (String)this.engine.executeScript(scriptCode);
+		super.evaluateResult(resultS, "abc", "string = string[] (size is 1) ", scriptCode);
+
+		// 以下、右辺の要素数が 3 の場合: 失敗するはず
+
+		scriptCode = "int a[3]; a[1]=123; int s=0; s=a; s;";
+		try {
+			resultL = (long)this.engine.executeScript(scriptCode);
+
+			// 例外が投げられずにここに達するのは、期待されたエラーが検出されていないので失敗
+			super.missedExpectedError("int = int[] (size is 3, should be failed) ", scriptCode);
+
+		} catch (VnanoException vne) {
+
+			// 例外が投げられればエラーが検出されているので成功
+			super.succeeded("int = int[] (size is 3, should be failed) ");
+		}
+
+		scriptCode = "float a[3]; a[1]=1234.5; float s=0; s=a; s;";
+		try {
+			resultD = (double)this.engine.executeScript(scriptCode);
+
+			// 例外が投げられずにここに達するのは、期待されたエラーが検出されていないので失敗
+			super.missedExpectedError("float = float[] (size is 3, should be failed) ", scriptCode);
+
+		} catch (VnanoException vne) {
+
+			// 例外が投げられればエラーが検出されているので成功
+			super.succeeded("float = float[] (size is 3, should be failed) ");
+		}
+
+		scriptCode = "bool a[3]; a[1]=true; bool s=false; s=a; s;";
+		try {
+			resultB = (boolean)this.engine.executeScript(scriptCode);
+
+			// 例外が投げられずにここに達するのは、期待されたエラーが検出されていないので失敗
+			super.missedExpectedError("bool = bool[] (size is 3, should be failed) ", scriptCode);
+
+		} catch (VnanoException vne) {
+
+			// 例外が投げられればエラーが検出されているので成功
+			super.succeeded("bool = bool[] (size is 3, should be failed) ");
+		}
+
+		scriptCode = "string a[3]; a[1]=\"abc\"; string s=\"\"; s=a; s;";
+		try {
+			resultS = (String)this.engine.executeScript(scriptCode);
+
+			// 例外が投げられずにここに達するのは、期待されたエラーが検出されていないので失敗
+			super.missedExpectedError("string = string[] (size is 3, should be failed) ", scriptCode);
+
+		} catch (VnanoException vne) {
+
+			// 例外が投げられればエラーが検出されているので成功
+			super.succeeded("string = string[] (size is 3, should be failed) ");
 		}
 	}
 

@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2020 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2021 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -1180,9 +1180,18 @@ public class ExecutionUnit {
 	 * @throws VnanoFatalException
 	 *   指定データ型とオペランドの実際のデータ型が一致しない場合に発生します。
 	 */
-	public void mov(DataType type, DataContainer<?> dest, DataContainer<?> src) {
+	public void mov(DataType type, DataContainer<?> dest, DataContainer<?> src) throws VnanoException {
 		this.checkDataType(dest, type);
 		this.checkDataType(src, type);
+
+		if (dest.getArraySize() != src.getArraySize()) {
+			if (dest.getArrayRank() == DataContainer.ARRAY_RANK_OF_SCALAR && src.getArraySize() != 1) {
+				throw new VnanoException(ErrorType.ARRAY_SIZE_IS_TOO_LARGE_TO_BE_ASSIGNED_TO_SCALAR_VARIABLE);
+			} else {
+				throw new VnanoFatalException("Array sizes of operands of the MOV instruction should be the same");
+			}
+		}
+
 		try {
 			System.arraycopy(src.getArrayData(), src.getArrayOffset(), dest.getArrayData(), dest.getArrayOffset(), dest.getArraySize());
 		} catch (ArrayStoreException e) {
