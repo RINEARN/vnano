@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2020 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2021 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -12,8 +12,10 @@ import java.util.Deque;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.vcssl.nano.VnanoException;
 import org.vcssl.nano.VnanoFatalException;
 import org.vcssl.nano.spec.AssemblyWord;
+import org.vcssl.nano.spec.DataType;
 import org.vcssl.nano.spec.DataTypeName;
 import org.vcssl.nano.spec.IdentifierSyntax;
 import org.vcssl.nano.spec.LanguageSpecContainer;
@@ -1039,10 +1041,27 @@ public class CodeGenerator {
 			);
 		}
 
-		// 初期化式があればコード生成
+		// 初期化式があれば、そのコードを生成
 		AstNode[] initExprNodes = node.getChildNodes(AstNode.Type.EXPRESSION);
 		if (initExprNodes.length == 1) {
 			codeBuilder.append( this.generateExpressionCode(initExprNodes[0]) );
+
+		// 初期化式が無い場合は、デフォルト値で初期化するコードを生成
+		} else {
+			String defaultValueOperand = this.generateDefaultValueImmediateOperandCode(variableType);
+
+			// スカラなら単純にMOV命令で値を代入
+			if (rank == RANK_OF_SCALAR) {
+				codeBuilder.append(
+					this.generateInstruction(OperationCode.MOV.name(), variableType, variableOperand, defaultValueOperand)
+				);
+
+			// 配列ならFILL命令で全要素を一括代入
+			} else {
+				codeBuilder.append(
+					this.generateInstruction(OperationCode.FILL.name(), variableType, variableOperand, defaultValueOperand)
+				);
+			}
 		}
 
 		return codeBuilder.toString();
@@ -2659,6 +2678,53 @@ public class CodeGenerator {
 		returnBuilder.append(typeName);
 		returnBuilder.append(ASSEMBLY_WORD.valueSeparator);
 		returnBuilder.append(literal);
+
+		return returnBuilder.toString();
+	}
+
+
+	/**
+	 * 型に応じたデフォルト値を、中間アセンブリコードの書式に準拠する即値の形で返します。
+	 *
+	 * @return 変換された即値
+	 */
+	private String generateDefaultValueImmediateOperandCode(String typeName) {
+		StringBuilder returnBuilder = new StringBuilder();
+		returnBuilder.append(ASSEMBLY_WORD.immediateOperandPrefix);
+		returnBuilder.append(typeName);
+		returnBuilder.append(ASSEMBLY_WORD.valueSeparator);
+
+		DataType dataType = null;
+		try {
+			dataType = DATA_TYPE_NAME.getDataTypeOf(typeName);
+		} catch (VnanoException vne) {
+			// ここで想定外の型名が検出される場合は、上層の意味解析での検査不足なので、FatalException 扱いで投げる
+			throw new VnanoFatalException("Unexpected data type: " + typeName);
+		}
+
+		String defaultValueLiteral = "";
+		switch (dataType) {
+			case INT64 : {
+				defaultValueLiteral = "0";
+				break;
+			}
+			case FLOAT64 : {
+				defaultValueLiteral = "0.0";
+				break;
+			}
+			case BOOL : {
+				defaultValueLiteral = "false";
+				break;
+			}
+			case STRING : {
+				String quot = Character.toString(LITERAL_SYNTAX.stringLiteralQuot);
+				defaultValueLiteral = quot + quot; // ""
+				break;
+			}
+			default : { throw new VnanoFatalException("Unexpected data type: " + typeName); }
+		}
+
+		returnBuilder.append(defaultValueLiteral);
 
 		return returnBuilder.toString();
 	}
