@@ -32,13 +32,13 @@ Vnano (<a href="https://www.vcssl.org/">VCSSL</a> nano) は、Java&reg; アプ�
 
 &nbsp;&nbsp;- master branch -
 <br />
-&nbsp;&nbsp;&nbsp;&nbsp;<img src="https://github.com/RINEARN/vnano/workflows/Standard%20Build%2FTest%20CI/badge.svg?branch=master" alt="Standard CI Result" /> on JDK 14
+&nbsp;&nbsp;&nbsp;&nbsp;<img src="https://github.com/RINEARN/vnano/workflows/Standard%20Build%2FTest%20CI/badge.svg?branch=master" alt="Standard CI Result" /> on JDK 15
 &nbsp;&nbsp;&nbsp;&nbsp;<img src="https://github.com/RINEARN/vnano/workflows/Old-Env%20Build%2FTest%20CI/badge.svg?branch=master" alt="Old-Env CI Result" /> on JDK 8
 &nbsp;&nbsp;
 <br />
 &nbsp;&nbsp;- develop branch -
 <br />
-&nbsp;&nbsp;&nbsp;&nbsp;<img src="https://github.com/RINEARN/vnano/workflows/Standard%20Build%2FTest%20CI/badge.svg?branch=develop" alt="Standard CI Result" /> on JDK 14
+&nbsp;&nbsp;&nbsp;&nbsp;<img src="https://github.com/RINEARN/vnano/workflows/Standard%20Build%2FTest%20CI/badge.svg?branch=develop" alt="Standard CI Result" /> on JDK 15
 &nbsp;&nbsp;&nbsp;&nbsp;<img src="https://github.com/RINEARN/vnano/workflows/Old-Env%20Build%2FTest%20CI/badge.svg?branch=develop" alt="Old-Env CI Result" /> on JDK 8
 &nbsp;&nbsp;
 <br />
