@@ -3,7 +3,7 @@
  * Permission Authorizer Connector Interface 1
  * --------------------------------------------------
  * This file is released under CC0.
- * Written in 2020 by RINEARN (Fumihiro Matsui)
+ * Written in 2020-2021 by RINEARN (Fumihiro Matsui)
  * ==================================================
  */
 
@@ -47,22 +47,116 @@ public interface PermissionAuthorizerConnectorInterface1 {
 
 	/**
 	 * パーミッション項目の名前と値を格納するマップ（パーミッションマップ）によって, 各パーミッションの値を設定します。
+	 * この操作は、常にエンジン側から直接呼び出され、スクリプトの処理から呼ばれる事はありません。
 	 *
 	 * @param permissionMap パーミッション項目の名前と値を格納するマップ（パーミッションマップ）
+	 * @param setsToPermanent パーマネント値を設定したい場合は true、一時的な値を設定したい場合は false
 	 */
-	public abstract void setPermissionMap(Map<String, String> permissionMap)
+	public abstract void setPermissionMap(Map<String, String> permissionMap, boolean setsToPermanent)
 			throws ConnectorException;
 
 
 	/**
-	 * 指定された名称のパーミッションを要求します。
+	 * 最新の状態を表す、パーミッション項目の名前と値を格納するマップ（パーミッションマップ）を返します。
+	 * この操作は、常にエンジン側から直接呼び出され、スクリプトの処理から呼ばれる事はありません。
+	 *
+	 * @param getsFromPermanent パーマネント値を取得したい場合は true、一時的な値を取得したい場合は false
+	 * @return permissionMap パーミッション項目の名前と値を格納するマップ（パーミッションマップ）
+	 */
+	public abstract Map<String, String> getPermissionMap(boolean getsFromPermanent)
+			throws ConnectorException;
+
+
+	/**
+	 * 指定された名称のパーミッションを要求し、許可されれば何もせず、却下されれば例外を発生させます。
+	 * この操作は、スクリプトが呼び出した外部関数のプラグインから呼ばれます。
 	 *
 	 * @param permissionName パーミッションの名称
-	 * @param requester パーミッションの要求元プラグイン
+	 * @param requester パーミッションの要求元オブジェクト（要求元プラグイン）
 	 * @param metaInformation ユーザーに通知するメッセージ内等で用いられるメタ情報
-	 * @throws 要求したパーミッションが却下された場合にスローされます。
+	 * @throws ConnectorException 要求したパーミッションが却下された場合にスローされます。
 	 */
 	public abstract void requestPermission(String permissionName, Object requester, Object metaInformation)
+			throws ConnectorException;
+
+
+	/**
+	 * 指定された名称のパーミッションの状態値を設定します。
+	 *
+	 * この操作は、エンジンから直接呼ばれる場合と、
+	 * スクリプトの処理から（操作用の関数を提供するプラグインを通して）呼ばれる場合の両方が想定されます。
+	 *
+	 * 後者の場合は、併せて事前に
+	 * {@link PermissionAuthorizerConnectorInterface1#requestPermission(String,Object,Object) requestPermission(...)}
+	 * メソッドによって、この操作に必要なパーミッションが検査/取得される事を前提とします。
+	 * （処理系側において、このメソッドをラップして別プラグインに提供するエンジンコネクタが、そのように実装されます。）
+	 * 従ってこのメソッド内では、そのような検査/取得処理は行いません。
+	 *
+	 * @param permissionName パーミッションの名称
+	 * @param value パーミッションの状態値
+	 * @param setsToPermanent パーマネント値を設定したい場合は true、一時的な値を設定したい場合は false
+	 * @throws ConnectorException この機能がサポートされていない場合にスローされます。
+	 */
+	public abstract void setPermissionValue(String permissionName, String value, boolean setsToPermanent)
+			throws ConnectorException;
+
+
+	/**
+	 * 指定された名称のパーミッションの状態値を取得します。
+	 *
+	 * この操作は、エンジンから直接呼ばれる場合と、
+	 * スクリプトの処理から（操作用の関数を提供するプラグインを通して）呼ばれる場合の両方が想定されます。
+	 *
+	 * 後者の場合は、併せて事前に
+	 * {@link PermissionAuthorizerConnectorInterface1#requestPermission(String,Object,Object) requestPermission(...)}
+	 * メソッドによって、この操作に必要なパーミッションが検査/取得される事を前提とします。
+	 * （処理系側において、このメソッドをラップして別プラグインに提供するエンジンコネクタが、そのように実装されます。）
+	 * 従ってこのメソッド内では、そのような検査/取得処理は行いません。
+	 *
+	 * @param permissionName パーミッションの名称
+	 * @return パーミッションの状態値
+	 * @param getsFromPermanent パーマネント値を取得したい場合は true、一時的な値を取得したい場合は false
+	 * @throws ConnectorException この機能がサポートされていない場合にスローされます。
+	 */
+	public abstract String getPermissionValue(String permissionName, boolean getsFromPermanent)
+			throws ConnectorException;
+
+
+	/**
+	 * 実行中における一時的なパーミッション状態を保存します。
+	 *
+	 * この操作は、エンジンから直接呼ばれる場合と、
+	 * スクリプトの処理から（操作用の関数を提供するプラグインを通して）呼ばれる場合の両方が想定されます。
+	 *
+	 * 後者の場合は、併せて事前に
+	 * {@link PermissionAuthorizerConnectorInterface1#requestPermission(String,Object,Object) requestPermission(...)}
+	 * メソッドによって、この操作に必要なパーミッションが検査/取得される事を前提とします。
+	 * （処理系側において、このメソッドをラップして別プラグインに提供するエンジンコネクタが、そのように実装されます。）
+	 * 従ってこのメソッド内では、そのような検査/取得処理は行いません。
+	 *
+	 * @param storesToPermanent パーマネント値として保存する場合に true、一時的に保存する場合は false
+	 * @throws ConnectorException この機能がサポートされていない場合にスローされます。
+	 */
+	public abstract void storeTemporaryPermissionValues(boolean storesToPermanent)
+			throws ConnectorException;
+
+
+	/**
+	 * 実行中における一時的なパーミッション状態を復元します。
+	 *
+	 * この操作は、エンジンから直接呼ばれる場合と、
+	 * スクリプトの処理から（操作用の関数を提供するプラグインを通して）呼ばれる場合の両方が想定されます。
+	 *
+	 * 後者の場合は、併せて事前に
+	 * {@link PermissionAuthorizerConnectorInterface1#requestPermission(String,Object,Object) requestPermission(...)}
+	 * メソッドによって、この操作に必要なパーミッションが検査/取得される事を前提とします。
+	 * （処理系側において、このメソッドをラップして別プラグインに提供するエンジンコネクタが、そのように実装されます。）
+	 * 従ってこのメソッド内では、そのような検査/取得処理は行いません。
+	 *
+	 * @param restoresFromPermanent パーマネント値から復元する場合に true、一時的に store した値からの場合は false
+	 * @throws ConnectorException この機能がサポートされていない場合にスローされます。
+	 */
+	public abstract void restoreTemporaryPermissionValues(boolean restoresFromPermanent)
 			throws ConnectorException;
 
 

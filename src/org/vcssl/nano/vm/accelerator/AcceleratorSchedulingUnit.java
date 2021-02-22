@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2020 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2021 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -271,6 +271,8 @@ public class AcceleratorSchedulingUnit {
 							instruction.setAccelerationType(AcceleratorExecutionType.I64CS_TRANSFER);
 						} else if (!operandScalar[0] && operandScalar[1]) {
 							instruction.setAccelerationType(AcceleratorExecutionType.I64VS_TRANSFER);
+						} else if (operandScalar[0] && !operandScalar[1]) {
+							instruction.setAccelerationType(AcceleratorExecutionType.I64SV_TRANSFER);
 						} else {
 							instruction.setAccelerationType(AcceleratorExecutionType.I64S_TRANSFER);
 						}
@@ -283,6 +285,8 @@ public class AcceleratorSchedulingUnit {
 							instruction.setAccelerationType(AcceleratorExecutionType.F64CS_TRANSFER);
 						} else if (!operandScalar[0] && operandScalar[1]) {
 							instruction.setAccelerationType(AcceleratorExecutionType.F64VS_TRANSFER);
+						} else if (operandScalar[0] && !operandScalar[1]) {
+							instruction.setAccelerationType(AcceleratorExecutionType.F64SV_TRANSFER);
 						} else {
 							instruction.setAccelerationType(AcceleratorExecutionType.F64S_TRANSFER);
 						}
@@ -295,6 +299,8 @@ public class AcceleratorSchedulingUnit {
 							instruction.setAccelerationType(AcceleratorExecutionType.BCS_TRANSFER);
 						} else if (!operandScalar[0] && operandScalar[1]) {
 							instruction.setAccelerationType(AcceleratorExecutionType.BVS_TRANSFER);
+						} else if (operandScalar[0] && !operandScalar[1]) {
+							instruction.setAccelerationType(AcceleratorExecutionType.BSV_TRANSFER);
 						} else {
 							instruction.setAccelerationType(AcceleratorExecutionType.BS_TRANSFER);
 						}

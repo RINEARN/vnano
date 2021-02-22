@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2020 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2021 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -116,6 +116,7 @@ public class ErrorMessage {
 			case UNCONVERTIBLE_INTERNAL_ARRAY : return "スクリプト内の配列型「 " + words[0] + " 」は、次元数またはデータ型などの問題で、スクリプトエンジン外部のデータ型に変換できません。" ;
 			case INCOMPATIBLE_DATA_ACCESSOR_INTERFACE : return "プラグイン「 " + words[1] + " 」が使用しているデータ入出力インターフェース「 " + words[0] + " 」は、この処理系ではサポートされていません。";
 			case JAGGED_ARRAY : return "長さが異なる配列をまとめた配列、いわゆるジャグ配列は、このスクリプトエンジンでは扱えません。";
+			case ARRAY_SIZE_IS_TOO_LARGE_TO_BE_ASSIGNED_TO_SCALAR_VARIABLE : return "要素数が 1 ではない配列の値を、配列ではない変数に代入する事はできません。";
 			case CAST_FAILED_DUE_TO_VALUE : return "データ「 " + words[0] + " 」の「 " + words[1] + " 」型への変換に失敗しました。";
 			case CAST_FAILED_DUE_TO_TYPE : return "「 " + words[0] + " 」型のデータの「 " + words[1] + " 」型への変換に失敗しました。";
 			case FUNCTION_IS_DECLARED_IN_INVALID_PLASE : return "関数をここで宣言する事はできません。";
@@ -231,6 +232,7 @@ public class ErrorMessage {
 			case UNCONVERTIBLE_INTERNAL_ARRAY : return "Internal array type \"" + words[0] + "\" is not convertible to external array types, due to the number of dimensions or the type-convertibility" ;
 			case INCOMPATIBLE_DATA_ACCESSOR_INTERFACE : return "The data accessor interface \"" + words[0] + "\" used in the plug-in \"" + words[1] + "\" is not available on this script engine";
 			case JAGGED_ARRAY : return "Jagged array is not available for this script engine, where \"jagged array\" is the array having arrays as elements, and their lengths are not same";
+			case ARRAY_SIZE_IS_TOO_LARGE_TO_BE_ASSIGNED_TO_SCALAR_VARIABLE : return "Array data can not be assigned to a scalar variable, except when the size of array is 1.";
 			case CAST_FAILED_DUE_TO_VALUE : return "Cast operation of the data \"" + words[0] + "\" to \"" + words[1] + "\" type has failed";
 			case CAST_FAILED_DUE_TO_TYPE : return "Cast operation from \"" + words[0] + "\" type to \"" + words[1] + "\" type has failed";
 			case FUNCTION_IS_DECLARED_IN_INVALID_PLASE : return "A function is declared in the invalid place";

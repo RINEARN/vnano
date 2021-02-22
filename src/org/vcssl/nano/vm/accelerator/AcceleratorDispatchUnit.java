@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2020 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2021 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -350,6 +350,11 @@ public class AcceleratorDispatchUnit {
 					instruction, operandContainers, operandCaches, operandCachingEnabled, operandScalar, operandConstant, nextNode
 				);
 			}
+			case I64SV_TRANSFER : {
+				return new Int64ScalarVectorTransferUnit().generateNode(
+					instruction, operandContainers, operandCaches, operandCachingEnabled, operandScalar, operandConstant, nextNode
+				);
+			}
 			case I64CS_MULTIPLE_TRANSFER : {
 				return new Int64CachedScalarMultipleTransferUnit().generateNode(
 					instruction, operandContainers, operandCaches, operandCachingEnabled, operandScalar, operandConstant, nextNode
@@ -373,6 +378,11 @@ public class AcceleratorDispatchUnit {
 			}
 			case F64VS_TRANSFER : {
 				return new Float64VectorScalarTransferUnit().generateNode(
+					instruction, operandContainers, operandCaches, operandCachingEnabled, operandScalar, operandConstant, nextNode
+				);
+			}
+			case F64SV_TRANSFER : {
+				return new Float64ScalarVectorTransferUnit().generateNode(
 					instruction, operandContainers, operandCaches, operandCachingEnabled, operandScalar, operandConstant, nextNode
 				);
 			}
@@ -400,6 +410,11 @@ public class AcceleratorDispatchUnit {
 			}
 			case BVS_TRANSFER : {
 				return new BoolVectorScalarTransferUnit().generateNode(
+					instruction, operandContainers, operandCaches, operandCachingEnabled, operandScalar, operandConstant, nextNode
+				);
+			}
+			case BSV_TRANSFER : {
+				return new BoolScalarVectorTransferUnit().generateNode(
 					instruction, operandContainers, operandCaches, operandCachingEnabled, operandScalar, operandConstant, nextNode
 				);
 			}

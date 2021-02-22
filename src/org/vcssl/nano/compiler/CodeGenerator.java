@@ -1847,9 +1847,11 @@ public class CodeGenerator {
 				this.generateInstruction(OperationCode.FILL.name(), toType, operandValues[0], rightHandValue)
 			);
 
-		// それ以外（「スカラ = 配列」）の場合は意味解析で弾かれているはず
+		// 「スカラ = 配列」の場合: 右辺の配列要素数が 1 なら代入可能なため、単純にMOV命令を生成し、実行時に検査する
 		} else {
-			throw new VnanoFatalException("Unexpected combination of operand ranks for assignment operation");
+			codeBuilder.append(
+				this.generateInstruction(OperationCode.MOV.name(), toType, operandValues[0], rightHandValue)
+			);
 		}
 
 		return codeBuilder.toString();

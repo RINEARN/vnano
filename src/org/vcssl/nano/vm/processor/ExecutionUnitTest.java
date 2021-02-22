@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2020 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2021 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -5156,7 +5156,7 @@ public class ExecutionUnitTest {
 		// 演算を実行
 		try {
 			new ExecutionUnit().mov(DataType.INT64, output, input);
-		} catch (VnanoFatalException e) {
+		} catch (VnanoFatalException | VnanoException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -5171,7 +5171,7 @@ public class ExecutionUnitTest {
 		input.setArrayData( new long[]{ 0L, 2L, 0L }, 1, DataContainer.ARRAY_LENGTHS_OF_SCALAR );
 		try {
 			new ExecutionUnit().mov(DataType.INT64, output, input);
-		} catch (VnanoFatalException e) {
+		} catch (VnanoFatalException | VnanoException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -5196,7 +5196,7 @@ public class ExecutionUnitTest {
 		// 演算を実行
 		try {
 			new ExecutionUnit().mov(DataType.INT64, output, input);
-		} catch (VnanoFatalException e) {
+		} catch (VnanoFatalException | VnanoException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -5224,7 +5224,7 @@ public class ExecutionUnitTest {
 		// 演算を実行
 		try {
 			new ExecutionUnit().mov(DataType.FLOAT64, output, input);
-		} catch (VnanoFatalException e) {
+		} catch (VnanoFatalException | VnanoException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -5239,7 +5239,7 @@ public class ExecutionUnitTest {
 		input.setArrayData( new double[]{ 0.0, 0.25, 0.0 }, 1, DataContainer.ARRAY_LENGTHS_OF_SCALAR ); // 2進表現で割り切れる値
 		try {
 			new ExecutionUnit().mov(DataType.FLOAT64, output, input);
-		} catch (VnanoFatalException e) {
+		} catch (VnanoFatalException | VnanoException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -5264,7 +5264,7 @@ public class ExecutionUnitTest {
 		// 演算を実行
 		try {
 			new ExecutionUnit().mov(DataType.FLOAT64, output, input);
-		} catch (VnanoFatalException e) {
+		} catch (VnanoFatalException | VnanoException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -5292,7 +5292,7 @@ public class ExecutionUnitTest {
 		// 演算を実行
 		try {
 			new ExecutionUnit().mov(DataType.BOOL, output, input);
-		} catch (VnanoFatalException e) {
+		} catch (VnanoFatalException | VnanoException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -5307,7 +5307,7 @@ public class ExecutionUnitTest {
 		input.setArrayData( new boolean[]{ false, true, false }, 1, DataContainer.ARRAY_LENGTHS_OF_SCALAR );
 		try {
 			new ExecutionUnit().mov(DataType.BOOL, output, input);
-		} catch (VnanoFatalException e) {
+		} catch (VnanoFatalException | VnanoException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -5333,7 +5333,7 @@ public class ExecutionUnitTest {
 		// 演算を実行
 		try {
 			new ExecutionUnit().mov(DataType.BOOL, output, input);
-		} catch (VnanoFatalException e) {
+		} catch (VnanoFatalException | VnanoException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -5361,7 +5361,7 @@ public class ExecutionUnitTest {
 		// 演算を実行
 		try {
 			new ExecutionUnit().mov(DataType.STRING, output, input);
-		} catch (VnanoFatalException e) {
+		} catch (VnanoFatalException | VnanoException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -5376,7 +5376,7 @@ public class ExecutionUnitTest {
 		input.setArrayData( new String[]{ "", "Hello", "" }, 1, DataContainer.ARRAY_LENGTHS_OF_SCALAR );
 		try {
 			new ExecutionUnit().mov(DataType.STRING, output, input);
-		} catch (VnanoFatalException e) {
+		} catch (VnanoFatalException | VnanoException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -5402,7 +5402,7 @@ public class ExecutionUnitTest {
 		// 演算を実行
 		try {
 			new ExecutionUnit().mov(DataType.STRING, output, input);
-		} catch (VnanoFatalException e) {
+		} catch (VnanoFatalException | VnanoException e) {
 			e.printStackTrace();
 			fail("Unexpected exception occured");
 		}
@@ -5434,7 +5434,7 @@ public class ExecutionUnitTest {
 		try {
 			new ExecutionUnit().mov(DataType.VOID, output, input);
 			fail("Expected exception did not occured");
-		} catch (VnanoFatalException e) {
+		} catch (VnanoFatalException | VnanoException e) {
 			// 例外が発生するのが正しい挙動
 		}
 
@@ -5442,25 +5442,25 @@ public class ExecutionUnitTest {
 		try {
 			new ExecutionUnit().mov(DataType.INT64, output, input);
 			fail("Expected exception did not occured");
-		} catch (VnanoFatalException e) {
+		} catch (VnanoFatalException | VnanoException e) {
 			// 例外が発生するのが正しい挙動
 		}
 		try {
 			new ExecutionUnit().mov(DataType.FLOAT64, output, input);
 			fail("Expected exception did not occured");
-		} catch (VnanoFatalException e) {
+		} catch (VnanoFatalException | VnanoException e) {
 			// 例外が発生するのが正しい挙動
 		}
 		try {
 			new ExecutionUnit().mov(DataType.BOOL, output, input);
 			fail("Expected exception did not occured");
-		} catch (VnanoFatalException e) {
+		} catch (VnanoFatalException | VnanoException e) {
 			// 例外が発生するのが正しい挙動
 		}
 		try {
 			new ExecutionUnit().mov(DataType.STRING, output, input);
 			fail("Expected exception did not occured");
-		} catch (VnanoFatalException e) {
+		} catch (VnanoFatalException | VnanoException e) {
 			// 例外が発生するのが正しい挙動
 		}
 	}

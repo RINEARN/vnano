@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2020 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2021 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -14,7 +14,6 @@ import java.util.Set;
 
 import org.vcssl.nano.VnanoException;
 import org.vcssl.nano.VnanoFatalException;
-import org.vcssl.nano.compiler.AstNode;
 import org.vcssl.nano.interconnect.AbstractFunction;
 import org.vcssl.nano.interconnect.AbstractVariable;
 import org.vcssl.nano.interconnect.InternalFunction;
