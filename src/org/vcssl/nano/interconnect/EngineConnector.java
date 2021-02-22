@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2019-2020 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2019-2021 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -76,7 +76,7 @@ public final class EngineConnector implements EngineConnectorInterface1 {
 	private final void reflectPermissionSettings() throws VnanoException {
 		if (this.permissionAuthorizer != null) {
 			try {
-				this.permissionAuthorizer.setPermissionMap(permissionMap);
+				this.permissionAuthorizer.setPermissionMap(permissionMap, true);
 			} catch (ConnectorException e) {
 				throw new VnanoException(
 					ErrorType.PERMISSION_AUTHORIZER_PLUGIN_CRASHED,

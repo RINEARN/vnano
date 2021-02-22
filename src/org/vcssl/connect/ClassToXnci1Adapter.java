@@ -3,7 +3,7 @@
  * Class to XLCI Plug-in Adapter
  * --------------------------------------------------
  * This file is released under CC0.
- * Written in 2019-2020 by RINEARN (Fumihiro Matsui)
+ * Written in 2019-2021 by RINEARN (Fumihiro Matsui)
  * ==================================================
  */
 
@@ -68,18 +68,18 @@ public class ClassToXnci1Adapter implements ExternalNamespaceConnectorInterface1
 
 
 	/**
-	 * スクリプト内で、この名前空間に属する関数/変数に対して、名前空間を省略してアクセスできるかどうかを返します。
+	 * スクリプト内で、この名前空間に属する関数/変数にアクセスする際に、名前空間の指定が必須かどうかを返します。
 	 *
-	 * なお、このメソッドによる省略可能性の選択機能は、処理系によってはサポートされません。
-	 * サポートされていない処理系では、恐らく名前空間は常に省略可能（つまりこのメソッドの値が true であるのと同等）となります。
-	 * そのため現状では、特に必要性がなければ、このメソッドは true を返すように実装する事が推奨されます。
+	 * なお、このメソッドに対応する機能は、処理系によってはサポートされません。
+	 * サポートされていない処理系では、恐らく名前空間は常に省略可能（つまりこのメソッドの値が false であるのと同等）となります。
+	 * そのため現状では、特に必要性がなければ、このメソッドは false を返すように実装する事が推奨されます。
 	 * このメソッドは将来的には有用になる可能性があるため、予約的に定義されています。
 	 *
-	 * @return 名前空間を省略可能な場合は true、常に完全名でアクセスする必要がある場合は false
+	 * @return 名前空間の明示指定が必須である場合は true、省略可能な場合は false
 	 */
 	@Override
-	public boolean isAbbreviatable() {
-		return true;
+	public boolean isMandatoryToAccessMembers() {
+		return false;
 	}
 
 
@@ -164,6 +164,16 @@ public class ClassToXnci1Adapter implements ExternalNamespaceConnectorInterface1
 
 		// リスト内容を配列にまとめて返す
 		return xvciList.toArray(new ExternalVariableConnectorInterface1[0]);
+	}
+
+
+	/**
+	 * この名前空間に属する全ての構造体を、配列にまとめて返します。
+	 *
+	 * @return この名前空間に属する構造体をまとめた配列
+	 */
+	public ExternalStructConnectorInterface1[] getStructs() {
+		return new ExternalStructConnectorInterface1[0];
 	}
 
 
