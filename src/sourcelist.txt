@@ -9,6 +9,7 @@ org/vcssl/connect/ConnectorPermissionValue.java
 org/vcssl/connect/EngineConnectorInterface1.java
 org/vcssl/connect/ExternalFunctionConnectorInterface1.java
 org/vcssl/connect/ExternalNamespaceConnectorInterface1.java
+org/vcssl/connect/ExternalStructConnectorInterface1.java
 org/vcssl/connect/ExternalVariableConnectorInterface1.java
 org/vcssl/connect/FieldToXvci1Adapter.java
 org/vcssl/connect/Float64ScalarDataAccessorInterface1.java
@@ -41,6 +42,7 @@ org/vcssl/nano/combinedtest/SubscriptedComparisonOperationCombinedTest.java
 org/vcssl/nano/combinedtest/SubscriptedCompoundAssignmentOperationCombinedTest.java
 org/vcssl/nano/combinedtest/SubscriptedLogicalOperationCombinedTest.java
 org/vcssl/nano/combinedtest/SubscriptOperationCombinedTest.java
+org/vcssl/nano/combinedtest/VariableDeclarationStatementCombinedTest.java
 org/vcssl/nano/combinedtest/VectorArithmeticOperationCombinedTest.java
 org/vcssl/nano/combinedtest/VectorAssignmentOperationCombinedTest.java
 org/vcssl/nano/combinedtest/VectorComparisonOperationCombinedTest.java
