@@ -307,6 +307,27 @@ public class DataContainer<T> implements ArrayDataAccessorInterface1<T>,
 
 
 	/**
+	 * このデータコンテナが、配列データを格納しているかどうかを返します。
+	 *
+	 * なお、このデータコンテナは、スカラも0次元かつ要素数1の配列データと見なして扱うため、
+	 * 格納しているデータがスカラであっても true が返されます。
+	 * このメソッドが true を返す場合に、格納しているデータがスカラかどうかを確認するには、
+	 * 併せて {@link DataContainer#getArrayRank() getArrayRank()} を呼び出し、
+	 * そのメソッドの戻り値が 0 かどうかによって確認してください。
+	 *
+	 * @return 格納していれば true
+	 */
+	@Override
+	public final boolean hasArrayData() {
+		if (this.referenceTreeRoot == null) {
+			return this.data != null;
+		} else {
+			return this.referenceTreeRoot.data != null;
+		}
+	}
+
+
+	/**
 	 * スカラ値を保持している場合のオフセット値を取得します。
 	 *
 	 * オフセット値とは、このデータコンテナの格納対象データが、
@@ -492,6 +513,27 @@ public class DataContainer<T> implements ArrayDataAccessorInterface1<T>,
 
 
 	/**
+	 * このデータコンテナが、double ({@link org.vcssl.nano.spec.DataType#FLOAT64 FLOAT64})
+	 * 型のスカラ値を格納しているかどうかを返します。
+	 *
+	 * @return 格納していれば true
+	 */
+	@Override
+	public boolean hasFloat64ScalarData() {
+		if (this.getArrayData() == null) {
+			return false;
+		}
+		if (!(this.getArrayData() instanceof double[])) {
+			return false;
+		}
+		if (this.getArrayRank() == ARRAY_RANK_OF_SCALAR) {
+			return false;
+		}
+		return true;
+	}
+
+
+	/**
 	 * long ({@link org.vcssl.nano.spec.DataType#INT64 INT64}) 型のスカラ値を格納します。
 	 *
 	 * ただし、このデータコンテナのデータ ({@link DataContainer#data data} フィールド) が、
@@ -538,6 +580,27 @@ public class DataContainer<T> implements ArrayDataAccessorInterface1<T>,
 		} else {
 			throw new VnanoFatalException("Data type is incorrect");
 		}
+	}
+
+
+	/**
+	 * このデータコンテナが、long ({@link org.vcssl.nano.spec.DataType#INT64 INT64})
+	 * 型のスカラ値を格納しているかどうかを返します。
+	 *
+	 * @return 格納していれば true
+	 */
+	@Override
+	public boolean hasInt64ScalarData() {
+		if (this.getArrayData() == null) {
+			return false;
+		}
+		if (!(this.getArrayData() instanceof long[])) {
+			return false;
+		}
+		if (this.getArrayRank() == ARRAY_RANK_OF_SCALAR) {
+			return false;
+		}
+		return true;
 	}
 
 
@@ -591,6 +654,27 @@ public class DataContainer<T> implements ArrayDataAccessorInterface1<T>,
 
 
 	/**
+	 * このデータコンテナが、boolean ({@link org.vcssl.nano.spec.DataType#BOOL BOOL})
+	 * 型のスカラ値を格納しているかどうかを返します。
+	 *
+	 * @return 格納していれば true
+	 */
+	@Override
+	public boolean hasBoolScalarData() {
+		if (this.getArrayData() == null) {
+			return false;
+		}
+		if (!(this.getArrayData() instanceof boolean[])) {
+			return false;
+		}
+		if (this.getArrayRank() == ARRAY_RANK_OF_SCALAR) {
+			return false;
+		}
+		return true;
+	}
+
+
+	/**
 	 * String ({@link org.vcssl.nano.spec.DataType#STRING STRING}) 型のスカラ値を格納します。
 	 * ただし、このデータコンテナのデータ ({@link DataContainer#data data} フィールド) が、
 	 * あらかじめ String 型配列として初期化されているか、または null である必要があります。
@@ -635,6 +719,27 @@ public class DataContainer<T> implements ArrayDataAccessorInterface1<T>,
 		} else {
 			throw new VnanoFatalException("Data type is incorrect");
 		}
+	}
+
+
+	/**
+	 * このデータコンテナが、String ({@link org.vcssl.nano.spec.DataType#STRING STRING})
+	 * 型のスカラ値を格納しているかどうかを返します。
+	 *
+	 * @return 格納していれば true
+	 */
+	@Override
+	public boolean hasStringScalarData() {
+		if (this.getArrayData() == null) {
+			return false;
+		}
+		if (!(this.getArrayData() instanceof String[])) {
+			return false;
+		}
+		if (this.getArrayRank() == ARRAY_RANK_OF_SCALAR) {
+			return false;
+		}
+		return true;
 	}
 
 }

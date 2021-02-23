@@ -4,7 +4,7 @@
  * ( for VCSSL / Vnano Plug-in Development )
  * ----------------------------------------------------------------
  * This file is released under CC0.
- * Written in 2020 by RINEARN (Fumihiro Matsui)
+ * Written in 2020-2021 by RINEARN (Fumihiro Matsui)
  * ================================================================
  */
 
@@ -39,4 +39,12 @@ public interface Float64ScalarDataAccessorInterface1 {
 	 * @return 取得値
 	 */
 	public abstract double getFloat64ScalarData();
+
+
+	/**
+	 * 値を保持しているかどうかを返します。
+	 *
+	 * @return 保持していれば true
+	 */
+	public abstract boolean hasFloat64ScalarData();
 }
