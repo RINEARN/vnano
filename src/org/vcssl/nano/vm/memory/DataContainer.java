@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2020 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2021 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -238,7 +238,7 @@ public class DataContainer<T> implements ArrayDataAccessorInterface1<T>,
 	 * 生成直後のデフォルトの状態に初期化します。
 	 * 初期化直後は、スカラ（単一要素の0次元配列）のデータを保持する設定がされた状態となります。
 	 */
-	public void initialize() {
+	public final void initialize() {
 		this.data = null;
 		this.referenceTreeRoot = null;
 		this.size = ARRAY_SIZE_OF_SCALAR;
@@ -337,7 +337,7 @@ public class DataContainer<T> implements ArrayDataAccessorInterface1<T>,
 	 * @return オフセット値
 	 */
 	@Override
-	public int getArrayOffset() {
+	public final int getArrayOffset() {
 		return (this.referenceTreeRoot == null) ? this.offset : this.referenceTreeRoot.offset;
 	}
 
@@ -447,7 +447,7 @@ public class DataContainer<T> implements ArrayDataAccessorInterface1<T>,
 	 *
 	 * @param referencedDataContainer
 	 */
-	public void refer(DataContainer<T> referencedDataContainer) {
+	public final void refer(DataContainer<T> referencedDataContainer) {
 		this.referenceTreeRoot = referencedDataContainer;
 		while (this.referenceTreeRoot.referenceTreeRoot != null) {
 			this.referenceTreeRoot = this.referenceTreeRoot.referenceTreeRoot;
@@ -458,7 +458,7 @@ public class DataContainer<T> implements ArrayDataAccessorInterface1<T>,
 	/**
 	 * このデータコンテナが、別のデータコンテナの状態を参照するよう設定されている場合、その設定を解除します。
 	 */
-	public void derefer() {
+	public final void derefer() {
 		this.referenceTreeRoot = null;
 	}
 
@@ -476,7 +476,7 @@ public class DataContainer<T> implements ArrayDataAccessorInterface1<T>,
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public void setFloat64ScalarData(double data) {
+	public final void setFloat64ScalarData(double data) {
 
 		// このコンテナのデータ格納用配列を取得
 		// 注: 別のコンテナを参照している場合もあるため、
@@ -512,7 +512,7 @@ public class DataContainer<T> implements ArrayDataAccessorInterface1<T>,
 	 *		別の型のデータが格納されているか、何も格納されていない場合にスローされます。
 	 */
 	@Override
-	public double getFloat64ScalarData() {
+	public final double getFloat64ScalarData() {
 
 		// このコンテナのデータ格納用配列を取得
 		// 注: 別のコンテナを参照している場合もあるため、
@@ -536,7 +536,7 @@ public class DataContainer<T> implements ArrayDataAccessorInterface1<T>,
 	 * @return 格納していれば true
 	 */
 	@Override
-	public boolean hasFloat64ScalarData() {
+	public final boolean hasFloat64ScalarData() {
 		if (this.getArrayData() == null) {
 			return false;
 		}
@@ -563,7 +563,7 @@ public class DataContainer<T> implements ArrayDataAccessorInterface1<T>,
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public void setInt64ScalarData(long data) {
+	public final void setInt64ScalarData(long data) {
 
 		// このコンテナのデータ格納用配列を取得
 		// 注: 別のコンテナを参照している場合もあるため、
@@ -599,7 +599,7 @@ public class DataContainer<T> implements ArrayDataAccessorInterface1<T>,
 	 *		別の型のデータが格納されているか、何も格納されていない場合にスローされます。
 	 */
 	@Override
-	public long getInt64ScalarData() {
+	public final long getInt64ScalarData() {
 
 		// このコンテナのデータ格納用配列を取得
 		// 注: 別のコンテナを参照している場合もあるため、
@@ -623,7 +623,7 @@ public class DataContainer<T> implements ArrayDataAccessorInterface1<T>,
 	 * @return 格納していれば true
 	 */
 	@Override
-	public boolean hasInt64ScalarData() {
+	public final boolean hasInt64ScalarData() {
 		if (this.getArrayData() == null) {
 			return false;
 		}
@@ -649,7 +649,7 @@ public class DataContainer<T> implements ArrayDataAccessorInterface1<T>,
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public void setBoolScalarData(boolean data) {
+	public final void setBoolScalarData(boolean data) {
 
 		// このコンテナのデータ格納用配列を取得
 		// 注: 別のコンテナを参照している場合もあるため、
@@ -685,7 +685,7 @@ public class DataContainer<T> implements ArrayDataAccessorInterface1<T>,
 	 *		別の型のデータが格納されているか、何も格納されていない場合にスローされます。
 	 */
 	@Override
-	public boolean getBoolScalarData() {
+	public final boolean getBoolScalarData() {
 
 		// このコンテナのデータ格納用配列を取得
 		// 注: 別のコンテナを参照している場合もあるため、
@@ -709,7 +709,7 @@ public class DataContainer<T> implements ArrayDataAccessorInterface1<T>,
 	 * @return 格納していれば true
 	 */
 	@Override
-	public boolean hasBoolScalarData() {
+	public final boolean hasBoolScalarData() {
 		if (this.getArrayData() == null) {
 			return false;
 		}
@@ -735,7 +735,7 @@ public class DataContainer<T> implements ArrayDataAccessorInterface1<T>,
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public void setStringScalarData(String data) {
+	public final void setStringScalarData(String data) {
 
 		// このコンテナのデータ格納用配列を取得
 		// 注: 別のコンテナを参照している場合もあるため、
@@ -771,7 +771,7 @@ public class DataContainer<T> implements ArrayDataAccessorInterface1<T>,
 	 *		別の型のデータが格納されているか、何も格納されていない場合にスローされます。
 	 */
 	@Override
-	public String getStringScalarData() {
+	public final String getStringScalarData() {
 
 		// このコンテナのデータ格納用配列を取得
 		// 注: 別のコンテナを参照している場合もあるため、
@@ -795,7 +795,7 @@ public class DataContainer<T> implements ArrayDataAccessorInterface1<T>,
 	 * @return 格納していれば true
 	 */
 	@Override
-	public boolean hasStringScalarData() {
+	public final boolean hasStringScalarData() {
 		if (this.getArrayData() == null) {
 			return false;
 		}
