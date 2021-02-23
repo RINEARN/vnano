@@ -4,7 +4,7 @@
  * ( for VCSSL / Vnano Plug-in Development )
  * --------------------------------------------------
  * This file is released under CC0.
- * Written in 2017-2020 by RINEARN (Fumihiro Matsui)
+ * Written in 2017-2021 by RINEARN (Fumihiro Matsui)
  * ==================================================
  */
 
@@ -137,6 +137,14 @@ public interface ArrayDataAccessorInterface1<T> {
 	 * @return 格納されているデータ（1次元配列）
 	 */
 	public abstract T getArrayData();
+
+
+	/**
+	 * このデータコンテナが、配列データを保持しているかどうかを返します。
+	 *
+	 * @return 配列データを保持していれば true
+	 */
+	public abstract boolean hasArrayData();
 
 
 	/**

@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2020 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2021 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -26,5 +26,10 @@ public class BoolScalarCache extends ScalarCache implements BoolScalarDataAccess
 	@Override
 	public boolean getBoolScalarData() {
 		return this.data;
+	}
+
+	@Override
+	public boolean hasBoolScalarData() {
+		return true;
 	}
 }

@@ -50,11 +50,17 @@ public class CombinedTestException extends RuntimeException {
 	CombinedTestException(String[] resultValue, String[] correctValue, String testName, String scriptCode) {
 		this(Arrays.toString(resultValue), Arrays.toString(correctValue), testName, scriptCode);
 	}
+	CombinedTestException(String[][] resultValue, String[][] correctValue, String testName, String scriptCode) {
+		this(Arrays.deepToString(resultValue), Arrays.deepToString(correctValue), testName, scriptCode);
+	}
 	CombinedTestException(int resultValue, int correctValue, String testName, String scriptCode) {
 		this(Integer.toString(resultValue), Integer.toString(correctValue), testName, scriptCode);
 	}
 	CombinedTestException(int[] resultValue, int[] correctValue, String testName, String scriptCode) {
 		this(Arrays.toString(resultValue), Arrays.toString(correctValue), testName, scriptCode);
+	}
+	CombinedTestException(int[][] resultValue, int[][] correctValue, String testName, String scriptCode) {
+		this(Arrays.deepToString(resultValue), Arrays.deepToString(correctValue), testName, scriptCode);
 	}
 	CombinedTestException(long resultValue, long correctValue, String testName, String scriptCode) {
 		this(Long.toString(resultValue), Long.toString(correctValue), testName, scriptCode);
@@ -62,11 +68,17 @@ public class CombinedTestException extends RuntimeException {
 	CombinedTestException(long[] resultValue, long[] correctValue, String testName, String scriptCode) {
 		this(Arrays.toString(resultValue), Arrays.toString(correctValue), testName, scriptCode);
 	}
+	CombinedTestException(long[][] resultValue, long[][] correctValue, String testName, String scriptCode) {
+		this(Arrays.deepToString(resultValue), Arrays.deepToString(correctValue), testName, scriptCode);
+	}
 	CombinedTestException(float resultValue, float correctValue, String testName, String scriptCode) {
 		this(Float.toString(resultValue), Float.toString(correctValue), testName, scriptCode);
 	}
 	CombinedTestException(float[] resultValue, float[] correctValue, String testName, String scriptCode) {
 		this(Arrays.toString(resultValue), Arrays.toString(correctValue), testName, scriptCode);
+	}
+	CombinedTestException(float[][] resultValue, float[][] correctValue, String testName, String scriptCode) {
+		this(Arrays.deepToString(resultValue), Arrays.deepToString(correctValue), testName, scriptCode);
 	}
 	CombinedTestException(double resultValue, double correctValue, String testName, String scriptCode) {
 		this(Double.toString(resultValue), Double.toString(correctValue), testName, scriptCode);
@@ -74,11 +86,17 @@ public class CombinedTestException extends RuntimeException {
 	CombinedTestException(double[] resultValue, double[] correctValue, String testName, String scriptCode) {
 		this(Arrays.toString(resultValue), Arrays.toString(correctValue), testName, scriptCode);
 	}
+	CombinedTestException(double[][] resultValue, double[][] correctValue, String testName, String scriptCode) {
+		this(Arrays.deepToString(resultValue), Arrays.deepToString(correctValue), testName, scriptCode);
+	}
 	CombinedTestException(boolean resultValue, boolean correctValue, String testName, String scriptCode) {
 		this(Boolean.toString(resultValue), Boolean.toString(correctValue), testName, scriptCode);
 	}
 	CombinedTestException(boolean[] resultValue, boolean[] correctValue, String testName, String scriptCode) {
 		this(Arrays.toString(resultValue), Arrays.toString(correctValue), testName, scriptCode);
+	}
+	CombinedTestException(boolean[][] resultValue, boolean[][] correctValue, String testName, String scriptCode) {
+		this(Arrays.deepToString(resultValue), Arrays.deepToString(correctValue), testName, scriptCode);
 	}
 	CombinedTestException(Object resultValue, Object correctValue, String testName, String scriptCode) {
 		this(resultValue.toString(), correctValue.toString(), testName, scriptCode);

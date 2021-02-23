@@ -57,6 +57,16 @@ public class CombinedTestElement {
 	}
 
 	protected void evaluateResult(
+			int[][] resultValue, int[][] correctValue, String testName, String scriptCode) {
+
+		if (Arrays.deepEquals(resultValue, correctValue)) {
+			System.out.println(testName + ": OK.");
+		} else {
+			throw new CombinedTestException(resultValue, correctValue, testName, scriptCode);
+		}
+	}
+
+	protected void evaluateResult(
 			long resultValue, long correctValue, String testName, String scriptCode) {
 
 		if (resultValue == correctValue) {
@@ -70,6 +80,16 @@ public class CombinedTestElement {
 			long[] resultValue, long[] correctValue, String testName, String scriptCode) {
 
 		if (Arrays.equals(resultValue, correctValue)) {
+			System.out.println(testName + ": OK.");
+		} else {
+			throw new CombinedTestException(resultValue, correctValue, testName, scriptCode);
+		}
+	}
+
+	protected void evaluateResult(
+			long[][] resultValue, long[][] correctValue, String testName, String scriptCode) {
+
+		if (Arrays.deepEquals(resultValue, correctValue)) {
 			System.out.println(testName + ": OK.");
 		} else {
 			throw new CombinedTestException(resultValue, correctValue, testName, scriptCode);
@@ -97,6 +117,16 @@ public class CombinedTestElement {
 	}
 
 	protected void evaluateResult(
+			float[][] resultValue, float[][] correctValue, String testName, String scriptCode) {
+
+		if (Arrays.deepEquals(resultValue, correctValue)) {
+			System.out.println(testName + ": OK.");
+		} else {
+			throw new CombinedTestException(resultValue, correctValue, testName, scriptCode);
+		}
+	}
+
+	protected void evaluateResult(
 			double resultValue, double correctValue, String testName, String scriptCode) {
 
 		if (resultValue == correctValue) {
@@ -110,6 +140,16 @@ public class CombinedTestElement {
 			double[] resultValue, double[] correctValue, String testName, String scriptCode) {
 
 		if (Arrays.equals(resultValue, correctValue)) {
+			System.out.println(testName + ": OK.");
+		} else {
+			throw new CombinedTestException(resultValue, correctValue, testName, scriptCode);
+		}
+	}
+
+	protected void evaluateResult(
+			double[][] resultValue, double[][] correctValue, String testName, String scriptCode) {
+
+		if (Arrays.deepEquals(resultValue, correctValue)) {
 			System.out.println(testName + ": OK.");
 		} else {
 			throw new CombinedTestException(resultValue, correctValue, testName, scriptCode);
@@ -137,6 +177,16 @@ public class CombinedTestElement {
 	}
 
 	protected void evaluateResult(
+			boolean[][] resultValue, boolean[][] correctValue, String testName, String scriptCode) {
+
+		if (Arrays.deepEquals(resultValue, correctValue)) {
+			System.out.println(testName + ": OK.");
+		} else {
+			throw new CombinedTestException(resultValue, correctValue, testName, scriptCode);
+		}
+	}
+
+	protected void evaluateResult(
 			String resultValue, String correctValue, String testName, String scriptCode) {
 
 		if (resultValue.equals(correctValue)) {
@@ -150,6 +200,16 @@ public class CombinedTestElement {
 			String[] resultValue, String[] correctValue, String testName, String scriptCode) {
 
 		if (Arrays.equals(resultValue, correctValue)) {
+			System.out.println(testName + ": OK.");
+		} else {
+			throw new CombinedTestException(resultValue, correctValue, testName, scriptCode);
+		}
+	}
+
+	protected void evaluateResult(
+			String[][] resultValue, String[][] correctValue, String testName, String scriptCode) {
+
+		if (Arrays.deepEquals(resultValue, correctValue)) {
 			System.out.println(testName + ": OK.");
 		} else {
 			throw new CombinedTestException(resultValue, correctValue, testName, scriptCode);

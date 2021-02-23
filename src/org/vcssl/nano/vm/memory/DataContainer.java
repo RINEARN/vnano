@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2020 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2021 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -238,7 +238,7 @@ public class DataContainer<T> implements ArrayDataAccessorInterface1<T>,
 	 * 生成直後のデフォルトの状態に初期化します。
 	 * 初期化直後は、スカラ（単一要素の0次元配列）のデータを保持する設定がされた状態となります。
 	 */
-	public void initialize() {
+	public final void initialize() {
 		this.data = null;
 		this.referenceTreeRoot = null;
 		this.size = ARRAY_SIZE_OF_SCALAR;
@@ -307,6 +307,27 @@ public class DataContainer<T> implements ArrayDataAccessorInterface1<T>,
 
 
 	/**
+	 * このデータコンテナが、配列データを格納しているかどうかを返します。
+	 *
+	 * なお、このデータコンテナは、スカラも0次元かつ要素数1の配列データと見なして扱うため、
+	 * 格納しているデータがスカラであっても true が返されます。
+	 * このメソッドが true を返す場合に、格納しているデータがスカラかどうかを確認するには、
+	 * 併せて {@link DataContainer#getArrayRank() getArrayRank()} を呼び出し、
+	 * そのメソッドの戻り値が 0 かどうかによって確認してください。
+	 *
+	 * @return 格納していれば true
+	 */
+	@Override
+	public final boolean hasArrayData() {
+		if (this.referenceTreeRoot == null) {
+			return this.data != null;
+		} else {
+			return this.referenceTreeRoot.data != null;
+		}
+	}
+
+
+	/**
 	 * スカラ値を保持している場合のオフセット値を取得します。
 	 *
 	 * オフセット値とは、このデータコンテナの格納対象データが、
@@ -316,7 +337,7 @@ public class DataContainer<T> implements ArrayDataAccessorInterface1<T>,
 	 * @return オフセット値
 	 */
 	@Override
-	public int getArrayOffset() {
+	public final int getArrayOffset() {
 		return (this.referenceTreeRoot == null) ? this.offset : this.referenceTreeRoot.offset;
 	}
 
@@ -426,7 +447,7 @@ public class DataContainer<T> implements ArrayDataAccessorInterface1<T>,
 	 *
 	 * @param referencedDataContainer
 	 */
-	public void refer(DataContainer<T> referencedDataContainer) {
+	public final void refer(DataContainer<T> referencedDataContainer) {
 		this.referenceTreeRoot = referencedDataContainer;
 		while (this.referenceTreeRoot.referenceTreeRoot != null) {
 			this.referenceTreeRoot = this.referenceTreeRoot.referenceTreeRoot;
@@ -437,7 +458,7 @@ public class DataContainer<T> implements ArrayDataAccessorInterface1<T>,
 	/**
 	 * このデータコンテナが、別のデータコンテナの状態を参照するよう設定されている場合、その設定を解除します。
 	 */
-	public void derefer() {
+	public final void derefer() {
 		this.referenceTreeRoot = null;
 	}
 
@@ -455,17 +476,28 @@ public class DataContainer<T> implements ArrayDataAccessorInterface1<T>,
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public void setFloat64ScalarData(double data) {
-		if (this.data instanceof double[]) {
-			( (double[])this.data )[ this.offset ] = data;
-		} else if (this.data == null) {
+	public final void setFloat64ScalarData(double data) {
+
+		// このコンテナのデータ格納用配列を取得
+		// 注: 別のコンテナを参照している場合もあるため、
+		//     this.data に直接アクセスするのでは不十分で、getter/setterを通す
+		Object arrayData = this.getArrayData();
+
+		// データ格納用配列が既に確保されている場合は、そのままセットする
+		if (arrayData instanceof double[]) {
+			( (double[])arrayData )[ this.getArrayOffset() ] = data;
+
+		// 未確保の場合は、スカラを格納できるだけの配列を確保してセットする
+		} else if (arrayData == null) {
 			try {
-				this.data = (T)( new double[]{ data } );
-				this.lengths = ARRAY_LENGTHS_OF_SCALAR;
-				this.offset = 0;
+				T newArrayData = (T)( new double[]{ data } );
+				this.setArrayData(newArrayData, 0, ARRAY_LENGTHS_OF_SCALAR);
 			} catch (ClassCastException cce) {
 				throw new VnanoFatalException("Data type is incorrect");
 			}
+
+		// それ以外の場合は、型が違うため格納できない
+		// (そういう場合は setArrayData でデータ格納用配列そのものを差し替えないとだめ)
 		} else {
 			throw new VnanoFatalException("Data type is incorrect");
 		}
@@ -480,14 +512,41 @@ public class DataContainer<T> implements ArrayDataAccessorInterface1<T>,
 	 *		別の型のデータが格納されているか、何も格納されていない場合にスローされます。
 	 */
 	@Override
-	public double getFloat64ScalarData() {
-		if (this.data instanceof double[]) {
-			return ( (double[])this.data )[ this.offset ];
-		} else if (this.data == null) {
+	public final double getFloat64ScalarData() {
+
+		// このコンテナのデータ格納用配列を取得
+		// 注: 別のコンテナを参照している場合もあるため、
+		//     this.data に直接アクセスするのでは不十分で、getter/setterを通す
+		Object arrayData = this.getArrayData();
+
+		if (arrayData instanceof double[]) {
+			return ( (double[])arrayData )[ this.getArrayOffset() ];
+		} else if (arrayData == null) {
 			throw new VnanoFatalException("No data is stored");
 		} else {
 			throw new VnanoFatalException("Data type is incorrect");
 		}
+	}
+
+
+	/**
+	 * このデータコンテナが、double ({@link org.vcssl.nano.spec.DataType#FLOAT64 FLOAT64})
+	 * 型のスカラ値を格納しているかどうかを返します。
+	 *
+	 * @return 格納していれば true
+	 */
+	@Override
+	public final boolean hasFloat64ScalarData() {
+		if (this.getArrayData() == null) {
+			return false;
+		}
+		if (!(this.getArrayData() instanceof double[])) {
+			return false;
+		}
+		if (this.getArrayRank() == ARRAY_RANK_OF_SCALAR) {
+			return false;
+		}
+		return true;
 	}
 
 
@@ -504,21 +563,31 @@ public class DataContainer<T> implements ArrayDataAccessorInterface1<T>,
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public void setInt64ScalarData(long data) {
-		if (this.data instanceof long[]) {
-			( (long[])this.data )[ this.offset ] = data;
-		} else if (this.data == null) {
+	public final void setInt64ScalarData(long data) {
+
+		// このコンテナのデータ格納用配列を取得
+		// 注: 別のコンテナを参照している場合もあるため、
+		//     this.data に直接アクセスするのでは不十分で、getter/setterを通す
+		Object arrayData = this.getArrayData();
+
+		// データ格納用配列が既に確保されている場合は、そのままセットする
+		if (arrayData instanceof long[]) {
+			( (long[])arrayData )[ this.getArrayOffset() ] = data;
+
+		// 未確保の場合は、スカラを格納できるだけの配列を確保してセットする
+		} else if (arrayData == null) {
 			try {
-				this.data = (T)( new long[]{ data } );
-				this.lengths = ARRAY_LENGTHS_OF_SCALAR;
-				this.offset = 0;
+				T newArrayData = (T)( new long[]{ data } );
+				this.setArrayData(newArrayData, 0, ARRAY_LENGTHS_OF_SCALAR);
 			} catch (ClassCastException cce) {
 				throw new VnanoFatalException("Data type is incorrect");
 			}
+
+		// それ以外の場合は、型が違うため格納できない
+		// (そういう場合は setArrayData でデータ格納用配列そのものを差し替えないとだめ)
 		} else {
 			throw new VnanoFatalException("Data type is incorrect");
 		}
-
 	}
 
 
@@ -530,14 +599,41 @@ public class DataContainer<T> implements ArrayDataAccessorInterface1<T>,
 	 *		別の型のデータが格納されているか、何も格納されていない場合にスローされます。
 	 */
 	@Override
-	public long getInt64ScalarData() {
-		if (this.data instanceof long[]) {
-			return ( (long[])this.data )[ this.offset ];
-		} else if (this.data == null) {
+	public final long getInt64ScalarData() {
+
+		// このコンテナのデータ格納用配列を取得
+		// 注: 別のコンテナを参照している場合もあるため、
+		//     this.data に直接アクセスするのでは不十分で、getter/setterを通す
+		Object arrayData = this.getArrayData();
+
+		if (arrayData instanceof long[]) {
+			return ( (long[])arrayData )[ this.getArrayOffset() ];
+		} else if (arrayData == null) {
 			throw new VnanoFatalException("No data is stored");
 		} else {
 			throw new VnanoFatalException("Data type is incorrect");
 		}
+	}
+
+
+	/**
+	 * このデータコンテナが、long ({@link org.vcssl.nano.spec.DataType#INT64 INT64})
+	 * 型のスカラ値を格納しているかどうかを返します。
+	 *
+	 * @return 格納していれば true
+	 */
+	@Override
+	public final boolean hasInt64ScalarData() {
+		if (this.getArrayData() == null) {
+			return false;
+		}
+		if (!(this.getArrayData() instanceof long[])) {
+			return false;
+		}
+		if (this.getArrayRank() == ARRAY_RANK_OF_SCALAR) {
+			return false;
+		}
+		return true;
 	}
 
 
@@ -553,21 +649,31 @@ public class DataContainer<T> implements ArrayDataAccessorInterface1<T>,
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public void setBoolScalarData(boolean data) {
-		if (this.data instanceof boolean[]) {
-			( (boolean[])this.data )[ this.offset ] = data;
-		} else if (this.data == null) {
+	public final void setBoolScalarData(boolean data) {
+
+		// このコンテナのデータ格納用配列を取得
+		// 注: 別のコンテナを参照している場合もあるため、
+		//     this.data に直接アクセスするのでは不十分で、getter/setterを通す
+		Object arrayData = this.getArrayData();
+
+		// データ格納用配列が既に確保されている場合は、そのままセットする
+		if (arrayData instanceof boolean[]) {
+			( (boolean[])arrayData )[ this.getArrayOffset() ] = data;
+
+		// 未確保の場合は、スカラを格納できるだけの配列を確保してセットする
+		} else if (arrayData == null) {
 			try {
-				this.data = (T)( new boolean[]{ data } );
-				this.lengths = ARRAY_LENGTHS_OF_SCALAR;
-				this.offset = 0;
+				T newArrayData = (T)( new boolean[]{ data } );
+				this.setArrayData(newArrayData, 0, ARRAY_LENGTHS_OF_SCALAR);
 			} catch (ClassCastException cce) {
 				throw new VnanoFatalException("Data type is incorrect");
 			}
+
+		// それ以外の場合は、型が違うため格納できない
+		// (そういう場合は setArrayData でデータ格納用配列そのものを差し替えないとだめ)
 		} else {
 			throw new VnanoFatalException("Data type is incorrect");
 		}
-
 	}
 
 
@@ -579,14 +685,41 @@ public class DataContainer<T> implements ArrayDataAccessorInterface1<T>,
 	 *		別の型のデータが格納されているか、何も格納されていない場合にスローされます。
 	 */
 	@Override
-	public boolean getBoolScalarData() {
-		if (this.data instanceof boolean[]) {
-			return ( (boolean[])this.data )[ this.offset ];
-		} else if (this.data == null) {
+	public final boolean getBoolScalarData() {
+
+		// このコンテナのデータ格納用配列を取得
+		// 注: 別のコンテナを参照している場合もあるため、
+		//     this.data に直接アクセスするのでは不十分で、getter/setterを通す
+		Object arrayData = this.getArrayData();
+
+		if (arrayData instanceof boolean[]) {
+			return ( (boolean[])arrayData )[ this.getArrayOffset() ];
+		} else if (arrayData == null) {
 			throw new VnanoFatalException("No data is stored");
 		} else {
 			throw new VnanoFatalException("Data type is incorrect");
 		}
+	}
+
+
+	/**
+	 * このデータコンテナが、boolean ({@link org.vcssl.nano.spec.DataType#BOOL BOOL})
+	 * 型のスカラ値を格納しているかどうかを返します。
+	 *
+	 * @return 格納していれば true
+	 */
+	@Override
+	public final boolean hasBoolScalarData() {
+		if (this.getArrayData() == null) {
+			return false;
+		}
+		if (!(this.getArrayData() instanceof boolean[])) {
+			return false;
+		}
+		if (this.getArrayRank() == ARRAY_RANK_OF_SCALAR) {
+			return false;
+		}
+		return true;
 	}
 
 
@@ -602,17 +735,28 @@ public class DataContainer<T> implements ArrayDataAccessorInterface1<T>,
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public void setStringScalarData(String data) {
-		if (this.data instanceof String[]) {
-			( (String[])this.data )[ this.offset ] = data;
-		} else if (this.data == null) {
+	public final void setStringScalarData(String data) {
+
+		// このコンテナのデータ格納用配列を取得
+		// 注: 別のコンテナを参照している場合もあるため、
+		//     this.data に直接アクセスするのでは不十分で、getter/setterを通す
+		Object arrayData = this.getArrayData();
+
+		// データ格納用配列が既に確保されている場合は、そのままセットする
+		if (arrayData instanceof String[]) {
+			( (String[])arrayData )[ this.getArrayOffset() ] = data;
+
+		// 未確保の場合は、スカラを格納できるだけの配列を確保してセットする
+		} else if (arrayData == null) {
 			try {
-				this.data = (T)( new String[]{ data } );
-				this.lengths = ARRAY_LENGTHS_OF_SCALAR;
-				this.offset = 0;
+				T newArrayData = (T)( new String[]{ data } );
+				this.setArrayData(newArrayData, 0, ARRAY_LENGTHS_OF_SCALAR);
 			} catch (ClassCastException cce) {
 				throw new VnanoFatalException("Data type is incorrect");
 			}
+
+		// それ以外の場合は、型が違うため格納できない
+		// (そういう場合は setArrayData でデータ格納用配列そのものを差し替えないとだめ)
 		} else {
 			throw new VnanoFatalException("Data type is incorrect");
 		}
@@ -627,14 +771,41 @@ public class DataContainer<T> implements ArrayDataAccessorInterface1<T>,
 	 *		別の型のデータが格納されているか、何も格納されていない場合にスローされます。
 	 */
 	@Override
-	public String getStringScalarData() {
-		if (this.data instanceof String[]) {
-			return ( (String[])this.data )[ this.offset ];
-		} else if (this.data == null) {
+	public final String getStringScalarData() {
+
+		// このコンテナのデータ格納用配列を取得
+		// 注: 別のコンテナを参照している場合もあるため、
+		//     this.data に直接アクセスするのでは不十分で、getter/setterを通す
+		Object arrayData = this.getArrayData();
+
+		if (arrayData instanceof String[]) {
+			return ( (String[])arrayData )[ this.getArrayOffset() ];
+		} else if (arrayData == null) {
 			throw new VnanoFatalException("No data is stored");
 		} else {
 			throw new VnanoFatalException("Data type is incorrect");
 		}
+	}
+
+
+	/**
+	 * このデータコンテナが、String ({@link org.vcssl.nano.spec.DataType#STRING STRING})
+	 * 型のスカラ値を格納しているかどうかを返します。
+	 *
+	 * @return 格納していれば true
+	 */
+	@Override
+	public final boolean hasStringScalarData() {
+		if (this.getArrayData() == null) {
+			return false;
+		}
+		if (!(this.getArrayData() instanceof String[])) {
+			return false;
+		}
+		if (this.getArrayRank() == ARRAY_RANK_OF_SCALAR) {
+			return false;
+		}
+		return true;
 	}
 
 }
