@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2020 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2021 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -134,16 +134,23 @@ public class Accelerator {
 		}
 		AcceleratorInstruction[] acceleratorInstructions = acceleratorInstructionList.toArray(new AcceleratorInstruction[0]);
 
+		// 各命令をどの演算ユニットへ割り当てるべきかを解析し、各命令の情報に設定
+		//（その情報は最適化のステージ内でも参照されるので、最適化前に一度済ませておく必要がある）
+		AcceleratorDispatchUnit dispatcher = new AcceleratorDispatchUnit();
+		acceleratorInstructions = dispatcher.preDispatch(acceleratorInstructions, memory, dataManager);
+
 		// 命令の並び替えや削除、インライン展開などを行って、命令列を最適化する
 		// (複数命令の一括処理化は、最適化というよりも演算ユニット割り当てによる効率化なので、ここではなく後のスケジューラが行う)
 		AcceleratorOptimizationUnit optimizer = new AcceleratorOptimizationUnit();
 		acceleratorInstructions = optimizer.optimize(acceleratorInstructions, memory, dataManager);
 
+		// 最適化で生成された命令等があるため、もう一度演算ユニット割り当てを解析
+		acceleratorInstructions = dispatcher.preDispatch(acceleratorInstructions, memory, dataManager);
+
 		// 命令スケジューラで、演算ユニットへの割り当て判断を行い、結果を各命令に設定したものを取得
 		// (この処理に伴い、連続する複数命令を1ユニットで一括処理できると判断された箇所は、単一の拡張命令に置き換えられる)
 		AcceleratorSchedulingUnit scheduler = new AcceleratorSchedulingUnit();
 		acceleratorInstructions = scheduler.schedule(acceleratorInstructions, memory, dataManager);
-
 
 		// 変換後の命令列をダンプ
 		if (shouldDump && (dumpTargetIsAll || dumpTarget.equals(OptionValue.DUMPER_TARGET_ACCELERATOR_CODE)) ) {
@@ -174,7 +181,6 @@ public class Accelerator {
 		ExternalFunctionControlUnit externalFunctionControlUnit = new ExternalFunctionControlUnit(interconnect);
 
 		// 命令列をアクセラレータ内の演算器に割り当てて演算実行ノード列を生成
-		AcceleratorDispatchUnit dispatcher = new AcceleratorDispatchUnit();
 		AcceleratorExecutionNode[] nodes = dispatcher.dispatch(
 			processor, memory, interconnect, acceleratorInstructions, dataManager, bypassUnit,
 			internalFunctionControlUnit, externalFunctionControlUnit

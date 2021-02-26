@@ -5,10 +5,14 @@
 
 package org.vcssl.nano.vm.accelerator;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.vcssl.nano.VnanoException;
 import org.vcssl.nano.VnanoFatalException;
 
 import org.vcssl.nano.interconnect.Interconnect;
+import org.vcssl.nano.spec.DataType;
 import org.vcssl.nano.spec.ErrorType;
 import org.vcssl.nano.spec.MetaInformationSyntax;
 import org.vcssl.nano.spec.OperationCode;
@@ -521,4 +525,409 @@ public class AcceleratorDispatchUnit {
 
 
 
+	private boolean isAllCached(boolean[] operandCached) {
+		for (boolean cached: operandCached) {
+			if (!cached) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	private boolean isAllScalar(boolean[] operandScalar) {
+		for (boolean scalar: operandScalar) {
+			if (!scalar) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	private boolean isAllVector(boolean[] operandScalar) {
+		for (boolean scalar: operandScalar) {
+			if (scalar) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+
+	// 各命令がどの演算ユニットに割り当てられるべきかを判定し、それを各命令に情報として持たせる
+	//（従って引数の命令列は状態変更される）
+	public AcceleratorInstruction[] preDispatch(AcceleratorInstruction[] instructions, Memory memory,
+			AcceleratorDataManagementUnit dataManager) {
+
+		// 要検討： AcceleratorExecutionType の名前を変えたい。
+		//          割り当て先の演算ユニットを一意に指しているものと分かりやすい名前に。
+		//          そして下で処理を行っているメソッドの名前もそれにあわせて変えたい。
+		//          割り当て先の演算ユニットを判断する的な名前に。
+		//          ( ただし "dispatch～" は AcceleratorDispatchUnit で
+		//            演算ユニットに紐づけて演算ノードを生成する処理をそう呼んでいるので使えない ）
+
+		List<AcceleratorInstruction> instructionList = new ArrayList<AcceleratorInstruction>();
+
+		for (AcceleratorInstruction instruction: instructions) {
+			instruction = instruction.clone();
+			instructionList.add(instruction);
+
+			DataType[] dataTypes = instruction.getDataTypes();
+			OperationCode opcode = instruction.getOperationCode();
+
+
+			// 命令からデータアドレスを取得
+			Memory.Partition[] partitions = instruction.getOperandPartitions();
+			int[] addresses = instruction.getOperandAddresses();
+			int operandLength = instruction.getOperandLength();
+
+			DataContainer<?>[] containers = new DataContainer[operandLength];
+			for (int operandIndex=0; operandIndex<operandLength; operandIndex++) {
+				containers[operandIndex] = memory.getDataContainer(partitions[operandIndex], addresses[operandIndex]);
+			}
+
+
+			// オペランドの状態とキャッシュ参照などを控える配列を用意
+			boolean[] operandConstant = new boolean[operandLength];
+			boolean[] operandScalar = new boolean[operandLength];
+			boolean[] operandCachingEnabled = new boolean[operandLength];
+			ScalarCache[] operandCaches = new ScalarCache[operandLength];
+
+
+			// データマネージャから、オペランドのスカラ判定結果とキャッシュ有無およびキャッシュ参照を取得し、
+			// 定数かどうかも控える
+			for (int operandIndex=0; operandIndex<operandLength; operandIndex++) {
+				operandScalar[operandIndex] = dataManager.isScalar(partitions[operandIndex], addresses[operandIndex]);
+				operandCachingEnabled[operandIndex] = dataManager.isCachingEnabled(partitions[operandIndex], addresses[operandIndex]);
+				if (operandCachingEnabled[operandIndex]) {
+					operandCaches[operandIndex] = dataManager.getCache(partitions[operandIndex], addresses[operandIndex]);
+				}
+				if (partitions[operandIndex] == Memory.Partition.CONSTANT) {
+					operandConstant[operandIndex] = true;
+				}
+			}
+
+
+			switch (opcode) {
+
+				// メモリ確保命令 Memory allocation opcodes
+				case ALLOC :
+				case ALLOCR :
+				{
+					instruction.setAccelerationType(AcceleratorExecutionType.BYPASS);
+					break;
+				}
+
+				// 算術演算命令 Arithmetic instruction opcodes
+				case ADD :
+				case SUB :
+				case MUL :
+				case DIV :
+				case REM :
+				case NEG :
+				{
+					if(dataTypes[0] == DataType.INT64) {
+
+						// 全部ベクトルの場合の演算
+						if (isAllVector(operandScalar)) {
+							instruction.setAccelerationType(AcceleratorExecutionType.I64V_ARITHMETIC);
+						// 全部キャッシュ可能なスカラの場合の演算
+						} else if (isAllScalar(operandScalar) && isAllCached(operandCachingEnabled)) {
+							instruction.setAccelerationType(AcceleratorExecutionType.I64CS_ARITHMETIC);
+						// キャッシュ不可能なスカラ演算の場合（インデックス参照がある場合や、長さ1のベクトルとの混合演算など）
+						} else {
+							instruction.setAccelerationType(AcceleratorExecutionType.I64S_ARITHMETIC);
+						// ベクトル・スカラ混合演算で、スカラをベクトルに昇格する場合は？
+						// →それはスクリプト側の仕様で、中間コードレベルではサポートしていない
+						}
+
+					} else if (dataTypes[0] == DataType.FLOAT64) {
+
+						if (isAllVector(operandScalar)) {
+							instruction.setAccelerationType(AcceleratorExecutionType.F64V_ARITHMETIC);
+						} else if (isAllScalar(operandScalar) && isAllCached(operandCachingEnabled)) {
+							instruction.setAccelerationType(AcceleratorExecutionType.F64CS_ARITHMETIC);
+						} else {
+							instruction.setAccelerationType(AcceleratorExecutionType.F64S_ARITHMETIC);
+						}
+
+					} else {
+						instruction.setAccelerationType(AcceleratorExecutionType.BYPASS);
+					}
+					break;
+				}
+
+				// 比較演算命令 Comparison instruction opcodes
+				case LT :
+				case GT :
+				case LEQ :
+				case GEQ :
+				case EQ :
+				case NEQ :
+				{
+					if(dataTypes[0] == DataType.INT64) {
+
+						if (isAllVector(operandScalar)) {
+							instruction.setAccelerationType(AcceleratorExecutionType.I64V_COMPARISON);
+						} else if (isAllScalar(operandScalar) && isAllCached(operandCachingEnabled)) {
+							instruction.setAccelerationType(AcceleratorExecutionType.I64CS_COMPARISON);
+						} else {
+							instruction.setAccelerationType(AcceleratorExecutionType.I64S_COMPARISON);
+						}
+
+					} else if (dataTypes[0] == DataType.FLOAT64) {
+
+						if (isAllVector(operandScalar)) {
+							instruction.setAccelerationType(AcceleratorExecutionType.F64V_COMPARISON);
+						} else if (isAllScalar(operandScalar) && isAllCached(operandCachingEnabled)) {
+							instruction.setAccelerationType(AcceleratorExecutionType.F64CS_COMPARISON);
+						} else {
+							instruction.setAccelerationType(AcceleratorExecutionType.F64S_COMPARISON);
+						}
+
+					} else {
+						instruction.setAccelerationType(AcceleratorExecutionType.BYPASS);
+					}
+					break;
+				}
+
+				// 論理演算命令 Logical instruction opcodes
+				case ANDM :
+				case ORM :
+				case NOT :
+				{
+					if(dataTypes[0] == DataType.BOOL) {
+
+						if (isAllVector(operandScalar)) {
+							instruction.setAccelerationType(AcceleratorExecutionType.BV_LOGICAL);
+						} else if (isAllScalar(operandScalar) && isAllCached(operandCachingEnabled)) {
+							instruction.setAccelerationType(AcceleratorExecutionType.BCS_LOGICAL);
+						} else {
+							instruction.setAccelerationType(AcceleratorExecutionType.BS_LOGICAL);
+						}
+
+					} else {
+						instruction.setAccelerationType(AcceleratorExecutionType.BYPASS);
+					}
+					break;
+				}
+
+				// 転送命令 Trsndfer instruction opcodes
+				case MOV :
+				case FILL :
+				{
+					if(dataTypes[0] == DataType.INT64) {
+
+						if (isAllVector(operandScalar)) {
+							instruction.setAccelerationType(AcceleratorExecutionType.I64V_TRANSFER);
+						} else if (isAllScalar(operandScalar) && isAllCached(operandCachingEnabled)) {
+							instruction.setAccelerationType(AcceleratorExecutionType.I64CS_TRANSFER);
+						} else if (!operandScalar[0] && operandScalar[1]) {
+							instruction.setAccelerationType(AcceleratorExecutionType.I64VS_TRANSFER);
+						} else if (operandScalar[0] && !operandScalar[1]) {
+							instruction.setAccelerationType(AcceleratorExecutionType.I64SV_TRANSFER);
+						} else {
+							instruction.setAccelerationType(AcceleratorExecutionType.I64S_TRANSFER);
+						}
+
+					} else if (dataTypes[0] == DataType.FLOAT64) {
+
+						if (isAllVector(operandScalar)) {
+							instruction.setAccelerationType(AcceleratorExecutionType.F64V_TRANSFER);
+						} else if (isAllScalar(operandScalar) && isAllCached(operandCachingEnabled)) {
+							instruction.setAccelerationType(AcceleratorExecutionType.F64CS_TRANSFER);
+						} else if (!operandScalar[0] && operandScalar[1]) {
+							instruction.setAccelerationType(AcceleratorExecutionType.F64VS_TRANSFER);
+						} else if (operandScalar[0] && !operandScalar[1]) {
+							instruction.setAccelerationType(AcceleratorExecutionType.F64SV_TRANSFER);
+						} else {
+							instruction.setAccelerationType(AcceleratorExecutionType.F64S_TRANSFER);
+						}
+
+					} else if (dataTypes[0] == DataType.BOOL) {
+
+						if (isAllVector(operandScalar)) {
+							instruction.setAccelerationType(AcceleratorExecutionType.BV_TRANSFER);
+						} else if (isAllScalar(operandScalar) && isAllCached(operandCachingEnabled)) {
+							instruction.setAccelerationType(AcceleratorExecutionType.BCS_TRANSFER);
+						} else if (!operandScalar[0] && operandScalar[1]) {
+							instruction.setAccelerationType(AcceleratorExecutionType.BVS_TRANSFER);
+						} else if (operandScalar[0] && !operandScalar[1]) {
+							instruction.setAccelerationType(AcceleratorExecutionType.BSV_TRANSFER);
+						} else {
+							instruction.setAccelerationType(AcceleratorExecutionType.BS_TRANSFER);
+						}
+
+					} else {
+						instruction.setAccelerationType(AcceleratorExecutionType.BYPASS);
+					}
+					break;
+				}
+
+				// 配列要素アクセス命令 Array subscript opcodes
+				case MOVELM :
+				case REFELM : {
+
+					int indicesLength = operandLength - 2; // インデックス数: オペランド[2]以降がインデックス部なので -2
+					//boolean isDestCached = operandCachingEnabled[0]; // 結果の格納先がキャッシュ可能かどうか
+					boolean isAllIndicesCached = true; // インデックスオペランドが全てキャッシュ可能かどうか
+					for (int i=0; i<indicesLength; i++) {
+						isAllIndicesCached &= operandCachingEnabled[i + 2]; // 右辺が1度でもfalseになるとその後左辺がfalseになる
+					}
+
+					// ※ 現状では、ELEMの dest はREFの dest と同様の扱いのため、上の isDestCached が true になる事は無く、
+					//    従って以下の分岐の中で、一番速い CachedScalar 系のユニットに実際に割り当てられる事は無い。
+					//    CachedScalar 系のユニットを使えるようにするには、
+					//    Accelerator 内のスケジューラで dest のキャッシュ可能性を判断する精度を上げるか、
+					//    またはELEM命令自体を参照リンクの有無で2種類の命令に分割して、
+					//    コンパイラ側で使い分けるコードを出力する必要がある（参照リンクが無ければキャッシュ可能な場面が簡単に分かる）。
+					//
+					// どちらがいいか要検討、そのうち要実装（配列要素アクセスの高速化はメリットが大きいので）
+					// > 後者を採用する準備として ELEM を REFELM に名称変更した。また後々で参照リンクを伴わない MOVELM を追加
+
+					if(dataTypes[0] == DataType.INT64) {
+						if (isAllIndicesCached // この命令に対しては dest の cacheability の分岐はユニット内で行うので、インデックス部のみで判断
+								&& indicesLength <= Int64CachedScalarSubscriptUnit.MAX_AVAILABLE_RANK) {
+							instruction.setAccelerationType(AcceleratorExecutionType.I64CS_SUBSCRIPT);
+						} else if (indicesLength <= Int64ScalarSubscriptUnit.MAX_AVAILABLE_RANK) {
+							instruction.setAccelerationType(AcceleratorExecutionType.I64S_SUBSCRIPT);
+						} else {
+							// Accelerator では任意次元ELEMには未対応なので Processor へ投げる（対応した際は上の if の3番目の条件を削る）
+							instruction.setAccelerationType(AcceleratorExecutionType.BYPASS);
+						}
+
+					} else if (dataTypes[0] == DataType.FLOAT64) {
+						if (isAllIndicesCached // この命令に対しては dest の cacheability の分岐はユニット内で行うので、インデックス部のみで判断
+								&& indicesLength <= Float64CachedScalarSubscriptUnit.MAX_AVAILABLE_RANK) {
+							instruction.setAccelerationType(AcceleratorExecutionType.F64CS_SUBSCRIPT);
+						} else if (indicesLength <= Float64ScalarSubscriptUnit.MAX_AVAILABLE_RANK) {
+							instruction.setAccelerationType(AcceleratorExecutionType.F64S_SUBSCRIPT);
+						} else {
+							// Accelerator では任意次元ELEMには未対応なので Processor へ投げる（対応した際は上の if の3番目の条件を削る）
+							instruction.setAccelerationType(AcceleratorExecutionType.BYPASS);
+						}
+
+					} else if (dataTypes[0] == DataType.BOOL) {
+						if (isAllIndicesCached // この命令に対しては dest の cacheability の分岐はユニット内で行うので、インデックス部のみで判断
+								&& indicesLength <= BoolCachedScalarSubscriptUnit.MAX_AVAILABLE_RANK) {
+							instruction.setAccelerationType(AcceleratorExecutionType.BCS_SUBSCRIPT);
+						} else if (indicesLength <= BoolScalarSubscriptUnit.MAX_AVAILABLE_RANK) {
+							instruction.setAccelerationType(AcceleratorExecutionType.BS_SUBSCRIPT);
+						} else {
+							// Accelerator では任意次元ELEMには未対応なので Processor へ投げる（対応した際は上の if の3番目の条件を削る）
+							instruction.setAccelerationType(AcceleratorExecutionType.BYPASS);
+						}
+
+					} else {
+						instruction.setAccelerationType(AcceleratorExecutionType.BYPASS);
+					}
+					break;
+				}
+
+				// 型変換命令 Cast instruction opcodes
+				case CAST :
+				{
+					if(dataTypes[0] == DataType.INT64
+							&& (dataTypes[1] == DataType.INT64 || dataTypes[1] == DataType.FLOAT64)) {
+
+						if (isAllVector(operandScalar)) {
+							instruction.setAccelerationType(AcceleratorExecutionType.I64V_TRANSFER);
+						} else if (isAllScalar(operandScalar) && isAllCached(operandCachingEnabled)) {
+							instruction.setAccelerationType(AcceleratorExecutionType.I64CS_TRANSFER);
+						} else {
+							instruction.setAccelerationType(AcceleratorExecutionType.I64S_TRANSFER);
+						}
+
+					} else if (dataTypes[0] == DataType.FLOAT64
+							&& (dataTypes[1] == DataType.INT64 || dataTypes[1] == DataType.FLOAT64)) {
+
+						if (isAllVector(operandScalar)) {
+							instruction.setAccelerationType(AcceleratorExecutionType.F64V_TRANSFER);
+						} else if (isAllScalar(operandScalar) && isAllCached(operandCachingEnabled)) {
+							instruction.setAccelerationType(AcceleratorExecutionType.F64CS_TRANSFER);
+						} else {
+							instruction.setAccelerationType(AcceleratorExecutionType.F64S_TRANSFER);
+						}
+
+					} else {
+						instruction.setAccelerationType(AcceleratorExecutionType.BYPASS);
+					}
+					break;
+				}
+
+				// 分岐命令 Branch instruction opcodes
+				case JMP :
+				case JMPN :
+				{
+					if(dataTypes[0] == DataType.BOOL) {
+
+						// 条件オペランドがベクトルの場合（ベクトル論理演算での短絡評価などで使用される）
+						// ※ 命令仕様上、条件オペランド以外は常にスカラ
+						if (!operandScalar[2]) {
+							instruction.setAccelerationType(AcceleratorExecutionType.BV_BRANCH);
+
+						// 条件オペランドやその他オペランドが全てキャッシュ可能なスカラの場合（大半の場合はこれ）
+						} else if (isAllScalar(operandScalar) && isAllCached(operandCachingEnabled)) {
+							instruction.setAccelerationType(AcceleratorExecutionType.BCS_BRANCH);
+
+						// 配列の要素などが条件に指定される場合など、キャッシュ不可能なスカラも一応あり得る
+						} else {
+							instruction.setAccelerationType(AcceleratorExecutionType.BS_BRANCH);
+						}
+
+					} else {
+						instruction.setAccelerationType(AcceleratorExecutionType.BYPASS);
+					}
+					break;
+				}
+
+				// 内部関数関連命令 Internal function related opcodes
+				case CALL :
+				case RET :
+				case POP :
+				case MOVPOP :
+				case REFPOP :
+				case ALLOCP :
+				{
+					instruction.setAccelerationType(AcceleratorExecutionType.INTERNAL_FUNCTION_CONTROL);
+					break;
+				}
+				case EX :
+				{
+					// 既に設定済みの場合は何もしない (最適化で生成された、Accelerator内で処理する拡張命令など)
+					if (instruction.getAccelerationType() != null) {
+						break;
+					}
+					// これも生成時に設定するようにすべき? また後々で要検討
+					if (instruction.getExtendedOperationCode() == AcceleratorExtendedOperationCode.RETURNED) {
+						instruction.setAccelerationType(AcceleratorExecutionType.INTERNAL_FUNCTION_CONTROL);
+						break;
+					}
+					// 上記以外の拡張命令は default case で BYPASS 割り当て
+				}
+
+				// 外部関数コール命令 External function call opcode
+				case CALLX :
+				{
+					instruction.setAccelerationType(AcceleratorExecutionType.EXTERNAL_FUNCTION_CONTROL);
+					break;
+				}
+
+				// 何もしない命令 Instructions perform nothing
+				case NOP :    // 最適化で削除してはいけない用途に使う、何もしない命令
+				case LABEL :  // 分岐系命令の着地点などに配置されている、何もしない命令
+				case ALLOCT : // この命令もコード内での型明示と最適化情報のための命令で、動作的には何もしない
+				{
+					instruction.setAccelerationType(AcceleratorExecutionType.NOP);
+					break;
+
+				}
+
+				// その他の命令は全て現時点で未対応
+				default : {
+					instruction.setAccelerationType(AcceleratorExecutionType.BYPASS);
+				}
+			}
+		}
+		return instructionList.toArray(new AcceleratorInstruction[0]);
+	}
 }
