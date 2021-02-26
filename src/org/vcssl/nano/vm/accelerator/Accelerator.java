@@ -134,7 +134,7 @@ public class Accelerator {
 		}
 		AcceleratorInstruction[] acceleratorInstructions = acceleratorInstructionList.toArray(new AcceleratorInstruction[0]);
 
-		// 各命令をどの演算ユニットへ割り当てるべきかを解析し、各命令の情報に設定
+		// 各命令がどの演算ユニットへ割り当てるべきかを解析し、結果を各命令に設定したものを取得
 		//（その情報は最適化のステージ内でも参照されるので、最適化前に一度済ませておく必要がある）
 		AcceleratorDispatchUnit dispatcher = new AcceleratorDispatchUnit();
 		acceleratorInstructions = dispatcher.preDispatch(acceleratorInstructions, memory, dataManager);
@@ -146,11 +146,6 @@ public class Accelerator {
 
 		// 最適化で生成された命令等があるため、もう一度演算ユニット割り当てを解析
 		acceleratorInstructions = dispatcher.preDispatch(acceleratorInstructions, memory, dataManager);
-
-		// 命令スケジューラで、演算ユニットへの割り当て判断を行い、結果を各命令に設定したものを取得
-		// (この処理に伴い、連続する複数命令を1ユニットで一括処理できると判断された箇所は、単一の拡張命令に置き換えられる)
-		AcceleratorSchedulingUnit scheduler = new AcceleratorSchedulingUnit();
-		acceleratorInstructions = scheduler.schedule(acceleratorInstructions, memory, dataManager);
 
 		// 変換後の命令列をダンプ
 		if (shouldDump && (dumpTargetIsAll || dumpTarget.equals(OptionValue.DUMPER_TARGET_ACCELERATOR_CODE)) ) {
