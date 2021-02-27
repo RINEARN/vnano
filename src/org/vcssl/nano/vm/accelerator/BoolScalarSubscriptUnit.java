@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2020 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2020-2021 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -34,8 +34,8 @@ public class BoolScalarSubscriptUnit extends AcceleratorExecutionUnit {
 				if (targetArrayRank == 1) {
 					Boolx1Int64x1ScalarCacheSynchronizer synchronizer = new Boolx1Int64x1ScalarCacheSynchronizer(
 						new DataContainer<?>[] { operandContainers[0], operandContainers[2] }, // dest と index部のみ対象 (srcは配列なので)
-						new Object[] { operandCaches[0] },
-						new boolean[] { operandCachingEnabled[0] }
+						new Object[] { operandCaches[0], operandCaches[2] },
+						new boolean[] { operandCachingEnabled[0], operandCachingEnabled[2] }
 					);
 					node = new BoolScalarMovelm1DNode(
 						(DataContainer<boolean[]>)operandContainers[0], (DataContainer<boolean[]>)operandContainers[1],
@@ -46,8 +46,8 @@ public class BoolScalarSubscriptUnit extends AcceleratorExecutionUnit {
 				} else if (targetArrayRank == 2) {
 					Boolx1Int64x2ScalarCacheSynchronizer synchronizer = new Boolx1Int64x2ScalarCacheSynchronizer(
 						new DataContainer<?>[] { operandContainers[0], operandContainers[2], operandContainers[3] }, // 上述参照
-						new Object[] { operandCaches[2], operandCaches[3] },
-						new boolean[] { operandCachingEnabled[2], operandCachingEnabled[3] }
+						new Object[] { operandCaches[0], operandCaches[2], operandCaches[3] },
+						new boolean[] { operandCachingEnabled[0], operandCachingEnabled[2], operandCachingEnabled[3] }
 					);
 					node = new BoolScalarMovelm2DNode(
 						(DataContainer<boolean[]>)operandContainers[0], (DataContainer<boolean[]>)operandContainers[1],
@@ -59,8 +59,8 @@ public class BoolScalarSubscriptUnit extends AcceleratorExecutionUnit {
 				} else if (targetArrayRank == 3) {
 					Boolx1Int64x3ScalarCacheSynchronizer synchronizer = new Boolx1Int64x3ScalarCacheSynchronizer(
 						new DataContainer<?>[] { operandContainers[0], operandContainers[2], operandContainers[3], operandContainers[4] }, // 上述参照
-						new Object[] { operandCaches[2], operandCaches[3], operandCaches[4] },
-						new boolean[] { operandCachingEnabled[2], operandCachingEnabled[3], operandCachingEnabled[4] }
+						new Object[] { operandCaches[0], operandCaches[2], operandCaches[3], operandCaches[4] },
+						new boolean[] { operandCachingEnabled[0], operandCachingEnabled[2], operandCachingEnabled[3], operandCachingEnabled[4] }
 					);
 					node = new BoolScalarMovelm3DNode(
 						(DataContainer<boolean[]>)operandContainers[0], (DataContainer<boolean[]>)operandContainers[1],
@@ -82,8 +82,8 @@ public class BoolScalarSubscriptUnit extends AcceleratorExecutionUnit {
 				if (targetArrayRank == 1) {
 					Int64x1ScalarCacheSynchronizer synchronizer = new Int64x1ScalarCacheSynchronizer(
 						new DataContainer<?>[] { operandContainers[2] }, // index部のみ対象 (この命令のdestはuncachable, srcは配列なので)
-						new Object[] { operandCaches[0] },
-						new boolean[] { operandCachingEnabled[0] }
+						new Object[] { operandCaches[2] },
+						new boolean[] { operandCachingEnabled[2] }
 					);
 					node = new BoolScalarRefelm1DNode(
 						(DataContainer<boolean[]>)operandContainers[0], (DataContainer<boolean[]>)operandContainers[1],
