@@ -19,7 +19,7 @@ coding UTF-8;
  *     Set the current directory to the location of "Vnano.jar" by cd command, then:
  *     VCSSL.jar と同じ場所に cd コマンドで移動し、以下のように実行します：
  * 
- *         java -jar Vnano.jar OtherExamples/Float64VectorFlopsBenchmark.vnano --encoding UTF-8 --accelerator true
+ *         java -jar Vnano.jar OtherExamples/Float64VectorFlopsBenchmark.vnano --accelerator true --optLevel 3
  * 
  * Expected result - 正常な実行結果 :
  * 

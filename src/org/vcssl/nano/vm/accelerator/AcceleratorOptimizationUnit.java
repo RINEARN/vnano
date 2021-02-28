@@ -18,11 +18,29 @@ import java.util.Set;
 import org.vcssl.nano.VnanoFatalException;
 import org.vcssl.nano.spec.DataType;
 import org.vcssl.nano.spec.OperationCode;
+import org.vcssl.nano.spec.OptionValue;
 import org.vcssl.nano.vm.memory.DataContainer;
 import org.vcssl.nano.vm.memory.Memory;
 import org.vcssl.nano.vm.processor.Instruction;
 
 public class AcceleratorOptimizationUnit {
+
+	// スカラキャッシュの機構を使用しない最適化レベル： レベル0。
+	// データは毎回DataContainerにアクセスして、非キャッシュ系のScalar/Vector演算ユニットで素直に処理する。
+	// (キャッシュの有効化/無効化は AcceleratorDataManagementUnit の管轄なので、そちらで分岐）
+	protected static final int OPT_LEVEL_CACHE_DISABLED = OptionValue.ACCELERATOR_OPTIMIZATION_LEVEL_0;
+
+	// スカラキャッシュの機構を有効化し、一部スカラ演算を Cached 系のスカラ演算ユニットで処理する最適化レベル： レベル1。
+	// (キャッシュの有効化/無効化は AcceleratorDataManagementUnit の管轄なので、そちらで分岐）
+	protected static final int OPT_LEVEL_CACHE_ENABLED = OptionValue.ACCELERATOR_OPTIMIZATION_LEVEL_1;
+
+	// 命令/オペランドの単純な並び替えによる不要命令削除や拡張命令化、ループ外への移動などによって、
+	// 各種オーバーヘッドの削減を試みる最適化レベル： レベル2。
+	protected static final int OPT_LEVEL_ORVERHEAD_TUNED = OptionValue.ACCELERATOR_OPTIMIZATION_LEVEL_2;
+
+	// 関数のインライン展開など、コードの基本構造そのものの改変を伴う最適化レベル： レベル3。
+	protected static final int OPT_LEVEL_STRUCTURE_TUNED = OptionValue.ACCELERATOR_OPTIMIZATION_LEVEL_3;
+
 
 	// List 内の null 要素を removeAll する際に渡す (removeAllの引数は Collection インスタンスであるべきなので素の null は渡せない)
 	private static final List<Object> LIST_OF_NULL = Arrays.asList((Object)null);
@@ -224,8 +242,11 @@ public class AcceleratorOptimizationUnit {
 		}
 	}
 
+
+
 	public AcceleratorInstruction[] optimize(
-			AcceleratorInstruction[] instructions, Memory memory, AcceleratorDataManagementUnit dataManager) {
+			AcceleratorInstruction[] instructions, Memory memory, AcceleratorDataManagementUnit dataManager,
+			int optimizationLevel) {
 
 		// ※ 注意：
 		//    現在の Accelerator の実装では、データの cacheability を変えるような最適化を行ってはならない。
@@ -244,79 +265,120 @@ public class AcceleratorOptimizationUnit {
 		// 内部関数の最適化情報を抽出する（実際にCALLされているもののみ）
 		this.extractInternalFunctionInfo(memory);
 
-		// 内部関数呼び出しでの、スタックを介する引数の受け渡しを、呼び出し前に実引数から仮引数に直接代入するようにする
-		// (命令アドレスがずれるため、this.functionInfoMap のbodyBegin/bodyEnd値も書き換わる)
-		this.modifyCodeToTransferArgumentsDirectly(memory);
-
-		// CALL命令の直後（アセンブル後はLABEL命令が置かれている）の箇所に、RETURNED命令(※)を生成して置き換える
-		//（※ 参照渡し経由で関数処理で書き替えた値のキャッシュ同期などを行うAccelerator拡張命令）
-		this.generateReturnedInstructions();
-
-		// ここまでで命令のアドレスがずれた分の補正に使うため、最新の（再配列後の）命令アドレスを設定し、新旧の対応を保持するマップを生成
+		// 命令のアドレスのずれの補正に必要な、再配列後の命令アドレス値を初期化し、新旧を対応付けるマップを生成（命令再配列の度に更新）
 		this.updateReorderedAddresses();
 		this.generateAddressReorderingMap();
+		this.resolveReorderedLabelAddress(memory);
 
-		// 内部関数の最適化情報のアドレス類を更新（関数アドレスは実質的な識別子の意味を持つため変えず、bodyBegin と bodyEnd を変える）
-		this.updateInternalFunctionInfo();
 
-		// 条件を満たす関数のインライン展開を行う (先に modifyCodeToTransferArgumentsDirectly で引数転送の MOV/REF 化が必要)
-		this.expandFunctionCodeInline(memory);
+		// オーバーヘッド最適化のうち、コードの大幅な構造変更を伴う最適化よりも前に行う必要があるもの
+		// (後でできるものは後で行った方が、構造変更後のコードに対してより最適な効果が得られるため、可能なものは後に回す)
+		if (OPT_LEVEL_ORVERHEAD_TUNED <= optimizationLevel) {
 
-		// 全てのレジスタに対し、それぞれ書き込み・読み込み箇所の数をカウントする（最適化に使用）
+			// 内部関数呼び出しでの、スタックを介する引数の受け渡しを、呼び出し前に実引数から仮引数に直接代入するようにする
+			// (命令アドレスがずれるため、this.functionInfoMap のbodyBegin/bodyEnd値も書き換わる)
+			this.modifyCodeToTransferArgumentsDirectly(memory);
+
+			// CALL命令の直後（アセンブル後はLABEL命令が置かれている）の箇所に、RETURNED命令(※)を生成して置き換える
+			//（※ 参照渡し経由で関数処理で書き替えた値のキャッシュ同期などを行うAccelerator拡張命令）
+			this.generateReturnedInstructions();
+
+			// 上の最適化で命令のアドレスがずれた分を補正できるよう再配置後アドレスと新旧対応マップを更新
+			this.updateReorderedAddresses();
+			this.generateAddressReorderingMap();
+			this.resolveReorderedLabelAddress(memory);
+
+			// 内部関数の最適化情報のアドレス類を更新（関数アドレスは実質的な識別子の意味を持つため変えず、bodyBegin と bodyEnd を変える）
+			this.updateInternalFunctionInfo();
+		}
+
+
+		// コードの大幅な構造変更を伴う最適化（関数のインライン展開など）
+		if (OPT_LEVEL_STRUCTURE_TUNED <= optimizationLevel) {
+
+			// インライン展開のためには、先に modifyCodeToTransferArgumentsDirectly で引数転送のMOV/REF化が必要なため、行っていないとエラー
+			if (optimizationLevel < OPT_LEVEL_ORVERHEAD_TUNED) {
+				throw new VnanoFatalException("For inline expansion of functions, some overhead tunings are required as preprocessing.");
+			}
+			// 条件を満たす関数のインライン展開を行う
+			this.expandFunctionCodeInline(memory);
+
+			// 上の最適化で命令のアドレスがずれた分を補正できるよう再配置後アドレスと新旧対応マップを更新
+			this.updateReorderedAddresses();
+			this.generateAddressReorderingMap();
+			this.resolveReorderedLabelAddress(memory);
+		}
+
+
+		// 全てのレジスタに対し、それぞれ書き込み・読み込み箇所の数をカウントする（これ以降の最適化に使用）
+		// (ここよりも前で行うと、インライン展開等における書き込み/読み込み数の変化を反映できないので注意)
 		this.countRegisterWrittenPoints(memory);
 		this.countRegisterReadPoints(memory);
 		this.detectRegisterReferenceLinks(memory);
 
-		// スカラのALLOC命令をコード先頭に並べ替える（メモリコストが低いので、ループ内に混ざるよりも利点が多い）
-		this.reorderAllocAndAllocrInstructions(dataManager);
 
-		// どこからも読んでいないレジスタに対するMOV命令を削る（後置インクリメント/デクリメントなどで発生）
-		this.removeMovInstructionsToUnreadRegisters(dataManager);
+		// オーバーヘッド最適化のうち、コードの大幅な構造変更を伴う最適化よりも後に行うもの
+		if (OPT_LEVEL_ORVERHEAD_TUNED <= optimizationLevel) {
 
-		// 演算命令の結果を直後にMOVしている箇所のオペランドを並び替え、不要になったMOV命令を削る
-		this.reduceMovInstructionsCopyingOperationResults(dataManager);
+			// スカラのALLOC命令をコード先頭に並べ替える（メモリコストが低いので、ループ内に混ざるよりも利点が多い）
+			this.reorderAllocAndAllocrInstructions(dataManager);
 
-		// 上記のMOV削りによって使用されなくなったレジスタの確保処理を削る（そのレジスタはもうコード上で登場しなくなるはず）
-		this.removeAllocInstructionsToUnusedRegisters();
+			// どこからも読んでいないレジスタに対するMOV命令を削る（後置インクリメント/デクリメントなどで発生）
+			this.removeMovInstructionsToUnreadRegisters(dataManager);
 
-		// 念のため上で削除したレジスタにアクセスしている箇所を探し、もし見つかればエラーにする（見つからなければ何もしない）
-		this.checkRemovedRegistersAreUnused();
+			// 演算命令の結果を直後にMOVしている箇所のオペランドを並び替え、不要になったMOV命令を削る
+			this.reduceMovInstructionsCopyingOperationResults(dataManager);
 
-		// 最新の（再配列後の）命令アドレスを設定し、新旧の対応を保持するマップを更新
-		this.updateReorderedAddresses();
-		this.generateAddressReorderingMap();
+			// 上記のMOV削りによって使用されなくなったレジスタの確保処理を削る（そのレジスタはもうコード上で登場しなくなるはず）
+			this.removeAllocInstructionsToUnusedRegisters();
 
-		// ジャンプ命令の飛び先アドレスを補正したものを求めて設定
-		this.resolveReorderedLabelAddress(memory);
+			// 念のため上で削除したレジスタにアクセスしている箇所を探し、もし見つかればエラーにする（見つからなければ何もしない）
+			this.checkRemovedRegistersAreUnused();
 
+			// ここで一旦、最適化で命令のアドレスがずれた分を補正できるよう再配置後アドレスと新旧対応マップを更新
+			// (後に分岐関連の最適化があるため)
+			this.updateReorderedAddresses();
+			this.generateAddressReorderingMap();
+			this.resolveReorderedLabelAddress(memory);
 
-		// 連続する算術スカラ演算命令2個を融合させて1個の拡張命令に置き換える
-		this.fuseArithmeticInstructions( // Float64 Cached-Scalar Arithmetic
+			// 連続する算術スカラ演算命令2個を融合させて1個の拡張命令に置き換える
+			this.fuseArithmeticInstructions( // Float64 Cached-Scalar Arithmetic
 				AcceleratorExecutionType.F64CS_ARITHMETIC, AcceleratorExecutionType.F64CS_DUAL_ARITHMETIC
-		);
-		this.fuseArithmeticInstructions( // Int64 Cached-Scalar Arithmetic
+			);
+			this.fuseArithmeticInstructions( // Int64 Cached-Scalar Arithmetic
 				AcceleratorExecutionType.I64CS_ARITHMETIC, AcceleratorExecutionType.I64CS_DUAL_ARITHMETIC
-		);
+			);
 
-		// 連続する転送命令を融合させて1個の拡張命令に置き換える
-		this.fuseTransferInstructions();
+			// 連続する転送命令を融合させて1個の拡張命令に置き換える
+			this.fuseTransferInstructions();
 
-		// 連続する比較命令と分岐命令を融合させて1個の拡張命令に置き換える（for文のループ継続判定処理で存在）
-		this.fuseComparisonAndBranchInstructions();
+			// 連続する比較命令と分岐命令を融合させて1個の拡張命令に置き換える（for文のループ継続判定処理で存在）
+			this.fuseComparisonAndBranchInstructions();
 
-		// 最新の（再配列後の）命令アドレスを設定し、新旧の対応を保持するマップを更新
-		this.updateReorderedAddresses();
-		this.generateAddressReorderingMap();
+			// 再度、最適化で命令のアドレスがずれた分を補正できるよう再配置後アドレスと新旧対応マップを更新
+			// (後に分岐関連の最適化があるため)
+			this.updateReorderedAddresses();
+			this.generateAddressReorderingMap();
+			this.resolveReorderedLabelAddress(memory);
+		}
 
-		// 分岐系命令の飛び先アドレスを補正したものを求めて設定
-		this.resolveReorderedLabelAddress(memory);
 
-		// 分岐系命令の飛び先にあるLABEL命令（何もしない）は、実際には演算ユニットに割り当てなくても問題ないので、削除して命令列を詰める
-		// (それらのLABELは、他の命令並べ替えや融合/削除において、分岐の着地点が移動してしまわないように置かれているものなので、
-		//  上記のような作業が全て終わる前に削除してはならない。削除は本当に最後の最後、実行命令列を確定させる直前に。
-		//  なお、分岐系命令の飛び先アドレスは下記メソッド内で再補正されるので、別途補正は必要ない。)
-		this.removeLabelInstructions();
-		this.updateReorderedAddresses();
+		// オーバーヘッド最適化のうち、他の最適化が全て済んだ最後の段階で行うもの（それより前に行うべきではないもの）
+		if (OPT_LEVEL_ORVERHEAD_TUNED <= optimizationLevel) {
+
+			// 分岐系命令の飛び先にあるLABEL命令（何もしない）は、実際には演算ユニットに割り当てなくても問題ないので、削除して命令列を詰める
+			// (それらのLABELは、他の命令並べ替えや融合/削除において、分岐の着地点が移動してしまわないように置かれているものなので、
+			//  上記のような作業が全て終わる前に削除してはならない。削除は本当に最後の最後、実行命令列を確定させる直前に。
+			//  なお、LABEL命令削除後は resolveReorderedLabelAddress は使えなくなるが、
+			//  分岐系命令の飛び先アドレスは下記メソッド内で再補正されるので、別途補正は必要ない。)
+			this.removeLabelInstructions();
+
+			// 最後に、最適化で命令のアドレスがずれた分を補正できるよう再配置後アドレスと新旧対応マップを更新
+			this.updateReorderedAddresses();
+			this.generateAddressReorderingMap();
+			// LABEL命令削除後は、以下を行うのは不要かつNG。代わりに removeLabelInstructions 内で飛び先補正処理が済まされている。
+			// this.resolveReorderedLabelAddress(memory);
+		}
 
 		return this.acceleratorInstructionList.toArray(new AcceleratorInstruction[0]);
 	}

@@ -221,6 +221,101 @@ public class OptionValue {
 
 
 	/**
+	 * <span class="lang-en">
+	 * (A value of {@link OptionKey#ACCELERATOR_OPTIMIZATION_LEVEL ACCELERATOR_OPTIMIZATION_LEVEL} option)
+	 * The optimization level to execute code in the most naive way on the Accelerator
+	 * </span>
+	 * <span class="lang-ja">
+	 * ({@link OptionKey#ACCELERATOR_OPTIMIZATION_LEVEL ACCELERATOR_OPTIMIZATION_LEVEL} オプションの値)
+	 * Accelerator の実装の範囲内で、可能な限り何も工夫せず、素直にコードを実行する最適化レベルです
+	 * </span>
+	 * .
+	 * <span class="lang-en">The value is 0.</span>
+	 * <span class="lang-ja">値は 0 です.</span>
+	 */
+	public static final int ACCELERATOR_OPTIMIZATION_LEVEL_0 = 0;
+
+
+	/**
+	 * <span class="lang-en">
+	 * (A value of {@link OptionKey#ACCELERATOR_OPTIMIZATION_LEVEL ACCELERATOR_OPTIMIZATION_LEVEL} option)
+	 * The optimization level to optimize only I/O of data, without enabling any optimizations of code
+	 * </span>
+	 * <span class="lang-ja">
+	 * ({@link OptionKey#ACCELERATOR_OPTIMIZATION_LEVEL ACCELERATOR_OPTIMIZATION_LEVEL} オプションの値)
+	 * コードは最適化せず, 値のキャッシュなどによって, データアクセスの最適化のみを行う最適化レベルです
+	 * </span>
+	 * .
+	 * <span class="lang-en">The value is 1.</span>
+	 * <span class="lang-ja">値は 1 です.</span>
+	 */
+	public static final int ACCELERATOR_OPTIMIZATION_LEVEL_1 = 1;
+
+
+	/**
+	 * <span class="lang-en">
+	 * (A value of {@link OptionKey#ACCELERATOR_OPTIMIZATION_LEVEL ACCELERATOR_OPTIMIZATION_LEVEL} option)
+	 * The optimization level to reduce overhead processing costs by replacing operands/instructions in code,
+	 * by removing unnecessary instructions, and by fusing multiple instructions into a instruction
+	 * </span>
+	 * <span class="lang-ja">
+	 * ({@link OptionKey#ACCELERATOR_OPTIMIZATION_LEVEL ACCELERATOR_OPTIMIZATION_LEVEL} オプションの値)
+	 * コード内の命令/オペランドの単純な並び替えによる不要命令削除, 複数命令をまとめた単一命令化,
+	 * および命令のループ外への移動などによって, 各種オーバーヘッドの削減を試みる最適化レベルです
+	 * </span>
+	 * .
+	 * <span class="lang-en">The value is 2.</span>
+	 * <span class="lang-ja">値は 2 です.</span>
+	 */
+	public static final int ACCELERATOR_OPTIMIZATION_LEVEL_2 = 2;
+
+
+	/**
+	 * <span class="lang-en">
+	 * (A value of {@link OptionKey#ACCELERATOR_OPTIMIZATION_LEVEL ACCELERATOR_OPTIMIZATION_LEVEL} option)
+	 * The optimization level to enable optimizations with modifications of code structures,
+	 * such as inline expansions of functions, and so on
+	 * </span>
+	 * <span class="lang-ja">
+	 * ({@link OptionKey#ACCELERATOR_OPTIMIZATION_LEVEL ACCELERATOR_OPTIMIZATION_LEVEL} オプションの値)
+	 * 関数のインライン展開など, コードの基本構造そのものの改変を伴う最適化レベルです
+	 * </span>
+	 * .
+	 * <span class="lang-en">The value is 3.</span>
+	 * <span class="lang-ja">値は 3 です.</span>
+	 */
+	public static final int ACCELERATOR_OPTIMIZATION_LEVEL_3 = 3;
+
+
+	/**
+	 * <span class="lang-en">
+	 * (A value of {@link OptionKey#ACCELERATOR_OPTIMIZATION_LEVEL ACCELERATOR_OPTIMIZATION_LEVEL} option)
+	 * The maximum optimization level currently supported.
+	 * </span>
+	 * <span class="lang-ja">
+	 * ({@link OptionKey#ACCELERATOR_OPTIMIZATION_LEVEL ACCELERATOR_OPTIMIZATION_LEVEL} オプションの値)
+	 * 現時点で最大の最適化レベルです
+	 * </span>
+	 * .
+	 */
+	public static final int ACCELERATOR_OPTIMIZATION_LEVEL_MAX = ACCELERATOR_OPTIMIZATION_LEVEL_3;
+
+
+	/**
+	 * <span class="lang-en">
+	 * (A value of {@link OptionKey#ACCELERATOR_OPTIMIZATION_LEVEL ACCELERATOR_OPTIMIZATION_LEVEL} option)
+	 * The default optimization level.
+	 * </span>
+	 * <span class="lang-ja">
+	 * ({@link OptionKey#ACCELERATOR_OPTIMIZATION_LEVEL ACCELERATOR_OPTIMIZATION_LEVEL} オプションの値)
+	 * デフォルトの最適化レベルです
+	 * </span>
+	 * .
+	 */
+	public static final int ACCELERATOR_OPTIMIZATION_LEVEL_DEFAULT = ACCELERATOR_OPTIMIZATION_LEVEL_3;
+
+
+	/**
 	 * <span class="lang-en">A map contains default values of the option map</span>
 	 * <span class="lang-ja">オプションマップのデフォルト値を保持するマップです</span>
 	 * .
@@ -232,6 +327,7 @@ public class OptionValue {
 		DEFAULT_VALUE_MAP.put(OptionKey.EVAL_ONLY_EXPRESSION, Boolean.FALSE);
 		DEFAULT_VALUE_MAP.put(OptionKey.LOCALE, Locale.getDefault());
 		DEFAULT_VALUE_MAP.put(OptionKey.ACCELERATOR_ENABLED, Boolean.TRUE);
+		DEFAULT_VALUE_MAP.put(OptionKey.ACCELERATOR_OPTIMIZATION_LEVEL, ACCELERATOR_OPTIMIZATION_LEVEL_DEFAULT);
 		DEFAULT_VALUE_MAP.put(OptionKey.TERMINATOR_ENABLED, Boolean.FALSE);
 		DEFAULT_VALUE_MAP.put(OptionKey.PERFORMANCE_MONITOR_ENABLED, Boolean.FALSE);
 		DEFAULT_VALUE_MAP.put(OptionKey.DUMPER_ENABLED, Boolean.FALSE);

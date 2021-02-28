@@ -111,6 +111,7 @@ public class Accelerator {
 		boolean terminatable, monitorable, shouldDump, dumpTargetIsAll, shouldRun;
 		String dumpTarget;
 		PrintStream dumpStream = null;
+		int optimizationLevel = -1;
 		synchronized (this.lock) {
 			Map<String, Object> optionMap = interconnect.getOptionMap();                 // オプション値を持っているマップ
 			shouldDump = (Boolean)optionMap.get(OptionKey.DUMPER_ENABLED);               // ダンプするかどうか
@@ -120,12 +121,13 @@ public class Accelerator {
 			shouldRun = (Boolean)optionMap.get(OptionKey.RUNNING_ENABLED);               // コードを実行するかどうか
 			terminatable = (Boolean)optionMap.get(OptionKey.TERMINATOR_ENABLED);         // 処理中に終了可能にするかどうか
 			monitorable = (Boolean)optionMap.get(OptionKey.PERFORMANCE_MONITOR_ENABLED); // 性能計測を行うかどうか
+			optimizationLevel = (Integer)optionMap.get(OptionKey.ACCELERATOR_OPTIMIZATION_LEVEL); // 最適化レベル
 		}
 
 		// スカラ判定やキャッシュ可能性判断などの高速化用データ解析を実行
 		// (命令列に操作を加える前に、最初に済ませる必要がある)
 		AcceleratorDataManagementUnit dataManager = new AcceleratorDataManagementUnit();
-		dataManager.allocate(instructions, memory, interconnect);
+		dataManager.allocate(instructions, memory, interconnect, optimizationLevel);
 
 		// 命令列を、Accelerator用に継承された型の命令列に変換
 		List<AcceleratorInstruction> acceleratorInstructionList = new ArrayList<AcceleratorInstruction>();
@@ -142,7 +144,7 @@ public class Accelerator {
 		// 命令の並び替えや削除、インライン展開などを行って、命令列を最適化する
 		// (複数命令の一括処理化は、最適化というよりも演算ユニット割り当てによる効率化なので、ここではなく後のスケジューラが行う)
 		AcceleratorOptimizationUnit optimizer = new AcceleratorOptimizationUnit();
-		acceleratorInstructions = optimizer.optimize(acceleratorInstructions, memory, dataManager);
+		acceleratorInstructions = optimizer.optimize(acceleratorInstructions, memory, dataManager, optimizationLevel);
 
 		// 最適化で生成された命令等があるため、もう一度演算ユニット割り当てを解析
 		acceleratorInstructions = dispatcher.preDispatch(acceleratorInstructions, memory, dataManager);

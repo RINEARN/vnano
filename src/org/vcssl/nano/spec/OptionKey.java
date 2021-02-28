@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2019-2020 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2019-2021 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -119,6 +119,28 @@ public class OptionKey {
 	 * <span class="lang-ja">このオプションの値は "Boolean" 型です. 無効にするには "Boolean.FALSE" を指定してください.</span>
 	 */
 	public static final String ACCELERATOR_ENABLED = "ACCELERATOR_ENABLED";
+
+
+	/**
+	 * <span class="lang-en">
+	 * An option to control the optimization level of processing in
+	 * {@link org.vcssl.nano.vm.accelerator.Accelerator Accelerator},
+	 * which is the high-speed virtual processor implementation in the VM
+	 * </span>
+	 * <span class="lang-ja">
+	 * VM内の高速な仮想プロセッサ実装である {@link org.vcssl.nano.vm.accelerator.Accelerator Accelerator}
+	 * 内での、処理の最適化レベルを指定するためのオプションです
+	 * </span>
+	 * .
+	 * <span class="lang-en">
+	 * The value of this option is "Integer" type.
+	 * For details about the value, see the document of {@link org.vcssl.nano.spec.OptionValue OptionValue}.
+	 * </span>
+	 * <span class="lang-ja">このオプションの値は "Integer" 型です.</span>
+	 * 値の詳細については, {@link org.vcssl.nano.spec.OptionValue OptionValue}
+	 * クラスのドキュメントを参照してください.
+	 */
+	public static final String ACCELERATOR_OPTIMIZATION_LEVEL = "ACCELERATOR_OPTIMIZATION_LEVEL";
 
 
 	/**
