@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2020 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2021 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -289,7 +289,7 @@ public class IdentifierSyntax {
 		// ただし、eval にコードを直接渡した場合の仮のメインスクリプト名は、
 		// ファイルから読み込んだスクリプト名と競合しないように空白を含ませたりしているが、
 		// それをエスケープすると競合し得るようになるため、その場合にはエスケープしない。
-		if (!scriptName.equals(OptionValue.DEFAULT_MAIN_SCRIPT_NAME)) {
+		if (!scriptName.equals(OptionValue.MAIN_SCRIPT_NAME_DEFAULT)) {
 			normalizedName = normalizedName.replaceAll(" ", escapedWord);
 			normalizedName = normalizedName.replaceAll("\t", escapedWord);
 			normalizedName = normalizedName.replaceAll("\r", escapedWord);

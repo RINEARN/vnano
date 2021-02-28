@@ -209,7 +209,7 @@ public class OptionValue {
 	 * <span class="lang-ja">{@link OptionKey#MAIN_SCRIPT_NAME MAIN_SCRIPT_NAME} オプションのデフォルト値です</span>
 	 * .
 	 */
-	public static final String DEFAULT_MAIN_SCRIPT_NAME = "main script";
+	public static final String MAIN_SCRIPT_NAME_DEFAULT = "main script";
 
 
 	/**
@@ -217,7 +217,7 @@ public class OptionValue {
 	 * <span class="lang-ja">{@link OptionKey#MAIN_SCRIPT_DIRECTORY MAIN_DIRECTORY_PATH} オプションのデフォルト値です</span>
 	 * .
 	 */
-	private static final String DEFAULT_MAIN_DIRECTORY_PATH = ".";
+	private static final String MAIN_DIRECTORY_PATH_DEFAULT = ".";
 
 
 	/**
@@ -334,8 +334,8 @@ public class OptionValue {
 		DEFAULT_VALUE_MAP.put(OptionKey.DUMPER_TARGET, DUMPER_TARGET_ALL);
 		DEFAULT_VALUE_MAP.put(OptionKey.DUMPER_STREAM, System.out);
 		DEFAULT_VALUE_MAP.put(OptionKey.RUNNING_ENABLED, Boolean.TRUE);
-		DEFAULT_VALUE_MAP.put(OptionKey.MAIN_SCRIPT_NAME, DEFAULT_MAIN_SCRIPT_NAME);
-		DEFAULT_VALUE_MAP.put(OptionKey.MAIN_SCRIPT_DIRECTORY, DEFAULT_MAIN_DIRECTORY_PATH);
+		DEFAULT_VALUE_MAP.put(OptionKey.MAIN_SCRIPT_NAME, MAIN_SCRIPT_NAME_DEFAULT);
+		DEFAULT_VALUE_MAP.put(OptionKey.MAIN_SCRIPT_DIRECTORY, MAIN_DIRECTORY_PATH_DEFAULT);
 		DEFAULT_VALUE_MAP.put(OptionKey.FILE_IO_ENCODING, "UTF-8");
 		DEFAULT_VALUE_MAP.put(OptionKey.FILE_IO_EOL, System.getProperty("line.separator"));
 		DEFAULT_VALUE_MAP.put(OptionKey.UI_MODE, "GUI");
@@ -397,7 +397,7 @@ public class OptionValue {
 		if (returnMap.get(OptionKey.MAIN_SCRIPT_NAME) instanceof String) {
 			String mainScriptName = (String)returnMap.get(OptionKey.MAIN_SCRIPT_NAME);
 
-			if (mainScriptName.equals(DEFAULT_MAIN_SCRIPT_NAME)) {
+			if (mainScriptName.equals(MAIN_SCRIPT_NAME_DEFAULT)) {
 
 				// デフォルトスクリプト名「 main script 」の場合は、以下の理由によりエスケープしない。
 				// ・デフォルトスクリプト名は、スクリプトをファイルから読み込まなかった場合にエラーメッセージなどで使われる便宜的な名称で、
