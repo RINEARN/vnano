@@ -153,8 +153,8 @@ public class Accelerator {
 		if (shouldDump && (dumpTargetIsAll || dumpTarget.equals(OptionValue.DUMPER_TARGET_ACCELERATOR_CODE)) ) {
 			if (dumpTargetIsAll) {
 				dumpStream.println("================================================================================");
-				dumpStream.println("= Accelerator Code");
-				dumpStream.println("= - Output of: org.vcssl.nano.vm.accelerator.AcceleratorSchedulingUnit");
+				dumpStream.println("= Accelerator Code (Optimized)");
+				dumpStream.println("= - Output of: org.vcssl.nano.vm.accelerator.AcceleratorOptimizationUnit");
 				dumpStream.println("= - Input  of: org.vcssl.nano.vm.accelerator.AcceleratorDispatchUnit");
 				dumpStream.println("================================================================================");
 			}
