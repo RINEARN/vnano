@@ -223,6 +223,24 @@ public class AcceleratorDispatchUnit {
 		AcceleratorExecutionType accelType = instruction.getAccelerationType();
 		switch (accelType) {
 
+			// メモリ確保
+			case I64_ALLOC : {
+				return new Int64MemoryAllocationUnit().generateNode(
+					instruction, operandContainers, operandCaches, operandCachingEnabled, operandScalar, operandConstant, nextNode
+				);
+			}
+			case F64_ALLOC : {
+				return new Float64MemoryAllocationUnit().generateNode(
+					instruction, operandContainers, operandCaches, operandCachingEnabled, operandScalar, operandConstant, nextNode
+				);
+			}
+			case B_ALLOC : {
+				return new BoolMemoryAllocationUnit().generateNode(
+					instruction, operandContainers, operandCaches, operandCachingEnabled, operandScalar, operandConstant, nextNode
+				);
+			}
+
+
 			// 算術演算
 
 			case I64V_ARITHMETIC : {
@@ -612,8 +630,17 @@ public class AcceleratorDispatchUnit {
 				// メモリ確保命令 Memory allocation opcodes
 				case ALLOC :
 				case ALLOCR :
+				// ALLOCP は InternalFunctionControlUnit が担うので含まない
 				{
-					instruction.setAccelerationType(AcceleratorExecutionType.BYPASS);
+					if(dataTypes[0] == DataType.INT64) {
+						instruction.setAccelerationType(AcceleratorExecutionType.I64_ALLOC);
+					} else if(dataTypes[0] == DataType.FLOAT64) {
+						instruction.setAccelerationType(AcceleratorExecutionType.F64_ALLOC);
+					} else if(dataTypes[0] == DataType.BOOL) {
+						instruction.setAccelerationType(AcceleratorExecutionType.B_ALLOC);
+					} else {
+						instruction.setAccelerationType(AcceleratorExecutionType.BYPASS);
+					}
 					break;
 				}
 

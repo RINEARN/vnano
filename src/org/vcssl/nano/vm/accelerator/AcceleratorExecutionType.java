@@ -1,6 +1,9 @@
 package org.vcssl.nano.vm.accelerator;
 
 public enum AcceleratorExecutionType {
+	I64_ALLOC, // Int64MemoryAllocation
+	F64_ALLOC, // Int64MemoryAllocation
+	B_ALLOC,   // BoolMemoryAllocation
 
 	I64V_ARITHMETIC,    // Int64VectorArithmetic
 	I64S_ARITHMETIC,    // Int64ScalarArithmetic
