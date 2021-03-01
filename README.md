@@ -50,7 +50,7 @@ Vnano (<a href="https://www.vcssl.org/">VCSSL</a> nano) は、Java&reg; アプ�
 
 
 ## Vnano README<br />- Index - 目次 -
-- <a href="#caution">Caution - 注意</a>
+- <a href="#version-note">Note - 留意事項</a>
 - <a href="#license">License - ライセンス</a>
 - <a href="#requirements">Requirements - 必要な環境</a>
 - <a href="#example">Application Code Example - アプリケーションコード例</a>
@@ -97,12 +97,13 @@ Vnano (<a href="https://www.vcssl.org/">VCSSL</a> nano) は、Java&reg; アプ�
 
 
 
-<a id="caution"></a>
-## Caution - 注意
+<a id="version-note"></a>
+## Note - 留意事項
 
-Vnano is under development, so it has not practical quality yet.
+The Vnano has not officially released yet. 
+The current version is a &quot;open beta&quot;.
 
-Vnanoは開発の途中であり、現時点でまだ実用的な品質ではありません。
+Vnano はまだ正式リリース前であり、現在はいわゆる「 オープンベータ版 」として公開しています。
 
 
 <a id="license"></a>

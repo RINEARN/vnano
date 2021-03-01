@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2018-2020 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2018-2021 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -69,6 +69,7 @@ public final class VnanoCommandLineApplication {
 	private static final String COMMAND_OPTNAME_ACCELERATOR = "accelerator";
 	private static final String COMMAND_OPTNAME_TERMINATOR = "terminator";
 	private static final String COMMAND_OPTNAME_PERF = "perf";
+	private static final String COMMAND_OPTNAME_OPTLEVEL = "optLevel";
 	private static final String COMMAND_OPTNAME_ENCODING = "encoding";
 	private static final String COMMAND_OPTNAME_PLUGIN_DIR = "pluginDir";
 	private static final String COMMAND_OPTNAME_PLUGIN = "plugin";
@@ -140,6 +141,7 @@ public final class VnanoCommandLineApplication {
 
 	// コマンドラインオプション --test の値を控える
 	private boolean optCombinedTestRequired = false;
+
 
 	// スクリプトからアクセスするメソッドを提供するクラス
 	public class ScriptIO {
@@ -285,6 +287,22 @@ public final class VnanoCommandLineApplication {
 		System.out.println("");
 		System.out.println("      java -jar Vnano.jar Example.vnano --accelerator true");
 		System.out.println("      java -jar Vnano.jar Example.vnano --accelerator false");
+		System.out.println("");
+		System.out.println("");
+
+		System.out.println("  --optLevel <optimizationLevel>");
+		System.out.println("");
+		System.out.println("      Specify the value of the optimization level.");
+		System.out.println("      This option is specified by default, and the default value is "
+										+ OptionValue.ACCELERATOR_OPTIMIZATION_LEVEL_DEFAULT + ".");
+		System.out.println("      The value of <optimizationLevel> is an integer grater than or equals to 0,");
+		System.out.println("      and the maximum level currently supported is "
+										+ OptionValue.ACCELERATOR_OPTIMIZATION_LEVEL_MAX + ".");
+		System.out.println("");
+		System.out.println("    e.g.");
+		System.out.println("");
+		System.out.println("      java -jar Vnano.jar Example.vnano --optLevel 0");
+		System.out.println("      java -jar Vnano.jar Example.vnano --optLevel 3");
 		System.out.println("");
 		System.out.println("");
 
@@ -554,6 +572,21 @@ public final class VnanoCommandLineApplication {
 					);
 					return false;
 				}
+				return true;
+			}
+
+			// --optLevel オプションの場合
+			case COMMAND_OPTNAME_OPTLEVEL : {
+				int optimizationLevel = -1;
+				try {
+					optimizationLevel = Integer.parseInt(optionValue);
+				} catch (NumberFormatException nfe) {
+					System.err.println(
+						"The value for " + COMMAND_OPTNAME_PREFIX + COMMAND_OPTNAME_ACCELERATOR + " should be an integer: " + optionValue
+					);
+					return false;
+				}
+				this.engineOptionMap.put(OptionKey.ACCELERATOR_OPTIMIZATION_LEVEL, Integer.valueOf(optimizationLevel));
 				return true;
 			}
 

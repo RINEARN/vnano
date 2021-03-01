@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2018-2020 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2018-2021 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -95,12 +95,21 @@ public final class AcceleratorDataManagementUnit {
 		return this.synchronizers[partition.ordinal()];
 	}
 
-	public void allocate(Instruction[] instructions, Memory memory, Interconnect interconnect) {
+	public void allocate(
+			Instruction[] instructions, Memory memory, Interconnect interconnect,
+			int optimizationLevel) {
+
 		this.initializeFields(memory);
 		this.analyzeInternalFunctionInformation(instructions, memory);
 		this.detectScalarFromMemory(memory, Memory.Partition.CONSTANT);
 		this.detectScalarFromMemory(memory, Memory.Partition.GLOBAL);
 		this.detectScalarFromInstructions(instructions, memory, interconnect);
+
+		// 最適化レベルが特定値以下)なら、キャッシュを使わないように無効化する
+		if (optimizationLevel <= AcceleratorOptimizationUnit.OPT_LEVEL_CACHE_DISABLED) {
+			this.disableAllCaches();
+		}
+
 		this.initializeCacheSynchronizers(memory);
 	}
 
@@ -155,6 +164,17 @@ public final class AcceleratorDataManagementUnit {
 		Arrays.fill(this.cachingEnabled[NONE_PARTITION_ORDINAL], true);
 		Arrays.fill(this.caches[NONE_PARTITION_ORDINAL], new NoneCache());
 	}
+
+
+	// 全アドレスに対するキャッシュを無効化する
+	// (キャッシュを使わない最適化レベルが指定された場合用)
+	private void disableAllCaches() {
+		for (int partitionIndex=0; partitionIndex<PARTITION_LENGTH; partitionIndex++) {
+			Arrays.fill(this.cachingEnabled[partitionIndex], false);
+			Arrays.fill(this.caches[partitionIndex], null);
+		}
+	}
+
 
 	// 定数領域やグローバル領域など、メモリ上にデータが確保済みのものについて、
 	// メモリを読みながらスカラかどうか等の性質判定を行い、スカラに対してはキャッシュ確保を行う。

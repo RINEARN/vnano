@@ -34,6 +34,12 @@ jobs:
       run: cp builtfile/Vnano.jar Vnano.jar
     - name: Execute tests (Accelerator disabled)
       run: java -jar Vnano.jar --test --accelerator false
-    - name: Execute tests (Accelerator enabled)
-      run: java -jar Vnano.jar --test --accelerator true
+    - name: Execute tests (Accelerator enabled, optimization level 0)
+      run: java -jar Vnano.jar --test --accelerator true --optLevel 0
+    - name: Execute tests (Accelerator enabled, optimization level 1)
+      run: java -jar Vnano.jar --test --accelerator true --optLevel 1
+    - name: Execute tests (Accelerator enabled, optimization level 2)
+      run: java -jar Vnano.jar --test --accelerator true --optLevel 2
+    - name: Execute tests (Accelerator enabled, optimization level 3)
+      run: java -jar Vnano.jar --test --accelerator true --optLevel 3
 

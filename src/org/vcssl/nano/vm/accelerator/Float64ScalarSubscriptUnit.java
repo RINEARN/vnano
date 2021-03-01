@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2020 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2020-2021 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -34,8 +34,8 @@ public class Float64ScalarSubscriptUnit extends AcceleratorExecutionUnit {
 				if (targetArrayRank == 1) {
 					Float64x1Int64x1ScalarCacheSynchronizer synchronizer = new Float64x1Int64x1ScalarCacheSynchronizer(
 						new DataContainer<?>[] { operandContainers[0], operandContainers[2] }, // dest と index部のみ対象 (srcは配列なので)
-						new Object[] { operandCaches[0] },
-						new boolean[] { operandCachingEnabled[0] }
+						new Object[] { operandCaches[0], operandCaches[2] },
+						new boolean[] { operandCachingEnabled[0], operandCachingEnabled[2] }
 					);
 					node = new Float64ScalarMovelm1DNode(
 						(DataContainer<double[]>)operandContainers[0], (DataContainer<double[]>)operandContainers[1],
@@ -46,8 +46,8 @@ public class Float64ScalarSubscriptUnit extends AcceleratorExecutionUnit {
 				} else if (targetArrayRank == 2) {
 					Float64x1Int64x2ScalarCacheSynchronizer synchronizer = new Float64x1Int64x2ScalarCacheSynchronizer(
 						new DataContainer<?>[] { operandContainers[0], operandContainers[2], operandContainers[3] }, // 上述参照
-						new Object[] { operandCaches[2], operandCaches[3] },
-						new boolean[] { operandCachingEnabled[2], operandCachingEnabled[3] }
+						new Object[] { operandCaches[0], operandCaches[2], operandCaches[3] },
+						new boolean[] { operandCachingEnabled[0], operandCachingEnabled[2], operandCachingEnabled[3] }
 					);
 					node = new Float64ScalarMovelm2DNode(
 						(DataContainer<double[]>)operandContainers[0], (DataContainer<double[]>)operandContainers[1],
@@ -59,8 +59,8 @@ public class Float64ScalarSubscriptUnit extends AcceleratorExecutionUnit {
 				} else if (targetArrayRank == 3) {
 					Float64x1Int64x3ScalarCacheSynchronizer synchronizer = new Float64x1Int64x3ScalarCacheSynchronizer(
 						new DataContainer<?>[] { operandContainers[0], operandContainers[2], operandContainers[3], operandContainers[4] }, // 上述参照
-						new Object[] { operandCaches[2], operandCaches[3], operandCaches[4] },
-						new boolean[] { operandCachingEnabled[2], operandCachingEnabled[3], operandCachingEnabled[4] }
+						new Object[] { operandCaches[0], operandCaches[2], operandCaches[3], operandCaches[4] },
+						new boolean[] { operandCachingEnabled[0], operandCachingEnabled[2], operandCachingEnabled[3], operandCachingEnabled[4] }
 					);
 					node = new Float64ScalarMovelm3DNode(
 						(DataContainer<double[]>)operandContainers[0], (DataContainer<double[]>)operandContainers[1],
@@ -82,8 +82,8 @@ public class Float64ScalarSubscriptUnit extends AcceleratorExecutionUnit {
 				if (targetArrayRank == 1) {
 					Int64x1ScalarCacheSynchronizer synchronizer = new Int64x1ScalarCacheSynchronizer(
 						new DataContainer<?>[] { operandContainers[2] }, // index部のみ対象 (この命令のdestはuncachable, srcは配列なので)
-						new Object[] { operandCaches[0] },
-						new boolean[] { operandCachingEnabled[0] }
+						new Object[] { operandCaches[2] },
+						new boolean[] { operandCachingEnabled[2] }
 					);
 					node = new Float64ScalarRefelm1DNode(
 						(DataContainer<double[]>)operandContainers[0], (DataContainer<double[]>)operandContainers[1],
