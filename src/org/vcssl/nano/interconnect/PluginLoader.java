@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2020 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2020-2021 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -18,7 +18,7 @@ import org.vcssl.connect.ConnectorImplementationContainer;
 import org.vcssl.connect.ConnectorImplementationLoader;
 import org.vcssl.nano.VnanoException;
 import org.vcssl.nano.spec.ErrorType;
-import org.vcssl.nano.spec.LanguageSpecContainer;
+import org.vcssl.nano.spec.IdentifierSyntax;
 
 
 /**
@@ -57,17 +57,6 @@ import org.vcssl.nano.spec.LanguageSpecContainer;
  * </span>
  */
 public class PluginLoader {
-
-	/**
-	 * <span class="lang-en">
-	 * Stores language-specification settings
-	 * </span>
-	 * <span class="lang-ja">
-	 * 各種の言語仕様設定類を格納するコンテナを保持します
-	 * </span>
-	 * .
-	 */
-	private final LanguageSpecContainer LANG_SPEC;
 
 	/**
 	 * <span class="lang-en">
@@ -117,14 +106,9 @@ public class PluginLoader {
 	 * @param encoding
 	 *   <span class="lang-en">The encoding of the list file (e.g.: "UTF-8")</span>
 	 *   <span class="lang-ja">リストファイルの読み込みに用いる文字コード (例: "UTF-8")</span>
-	 *
-	 * @param langSpec
-	 *   <span class="lang-en">language specification settings.</span>
-	 *   <span class="lang-ja">言語仕様設定.</span>
 	 */
-	public PluginLoader(String encoding, LanguageSpecContainer langSpec) {
+	public PluginLoader(String encoding) {
 		this.DEFAULT_ENCODING = encoding;
-		this.LANG_SPEC = langSpec;
 	}
 
 
@@ -250,7 +234,7 @@ public class PluginLoader {
 		this.pluginDirectory = listFile.getParentFile();
 
 		// リストファイルから、プラグインのクラスパス一覧を再読み込み（または初回読み込み）
-		String listFileContent = MetaQualifiedFileLoader.load(this.pluginListPath, DEFAULT_ENCODING, LANG_SPEC);
+		String listFileContent = MetaQualifiedFileLoader.load(this.pluginListPath, DEFAULT_ENCODING);
 		String[] pluginPaths = listFileContent.split("\\n"); // 上記の load で読んだ内容は、改行コードがLF (\n) に正規化済み
 
 		// 読み込んだクラスパスの一覧をフィールドに反映
@@ -286,7 +270,7 @@ public class PluginLoader {
 			}
 
 			// プラグイン名の中で使用できない記号等を、スクリプト名と同じ名前で正規化する
-			pluginName = LANG_SPEC.IDENTIFIER_SYNTAX.normalizeScriptIdentifier(pluginName);
+			pluginName = IdentifierSyntax.normalizeScriptIdentifier(pluginName);
 
 			// フィールドにライブラリファイルの情報を登録
 			this.pluginFilePathList.add(pluginFilePath);

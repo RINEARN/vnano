@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2020 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2021 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -13,7 +13,7 @@ import java.util.Map;
 import org.vcssl.nano.VnanoException;
 import org.vcssl.nano.VnanoFatalException;
 import org.vcssl.nano.interconnect.Interconnect;
-import org.vcssl.nano.spec.LanguageSpecContainer;
+import org.vcssl.nano.spec.DataTypeName;
 import org.vcssl.nano.spec.OptionKey;
 import org.vcssl.nano.spec.OptionValue;
 
@@ -64,24 +64,16 @@ import org.vcssl.nano.spec.OptionValue;
  */
 public class Compiler {
 
-	/** 各種の言語仕様設定類を格納するコンテナを保持します。 */
-	private final LanguageSpecContainer LANG_SPEC;
-
-
 	/**
 	 * <span class="lang-en">
-	 * Create a new compiler with the specified language specification settings
+	 * Create a new compiler
 	 * </span>
 	 * <span class="lang-ja">
-	 * 指定された言語仕様設定で, コンパイラを生成します
+	 * コンパイラを生成します
 	 * </span>
 	 * .
-	 * @param langSpec
-	 *   <span class="lang-en">language specification settings.</span>
-	 *   <span class="lang-ja">言語仕様設定.</span>
 	 */
-	public Compiler(LanguageSpecContainer langSpec) {
-		this.LANG_SPEC = langSpec;
+	public Compiler() {
 	}
 
 
@@ -147,7 +139,7 @@ public class Compiler {
 		// プリプロセッサでコメントを削除し、改行コードを LF (0x0A) に統一
 		String[] preprocessedScripts = new String[scriptLength];
 		for (int scriptIndex=0; scriptIndex<scriptLength; scriptIndex++) {
-			preprocessedScripts[scriptIndex] = new Preprocessor(LANG_SPEC).preprocess(scripts[scriptIndex]);
+			preprocessedScripts[scriptIndex] = new Preprocessor().preprocess(scripts[scriptIndex]);
 		}
 
 		// プリプロセッサ処理後のコードをダンプ
@@ -157,7 +149,7 @@ public class Compiler {
 
 
 		// 字句解析でトークン配列を生成
-		LexicalAnalyzer lexer = new LexicalAnalyzer(LANG_SPEC);
+		LexicalAnalyzer lexer = new LexicalAnalyzer();
 		Token[][] tokens = new Token[scriptLength][]; // [ スクリプトのインデックス ][ トークンのインデックス ]
 		for (int scriptIndex=0; scriptIndex<scriptLength; scriptIndex++) {
 			tokens[scriptIndex] = lexer.analyze(preprocessedScripts[scriptIndex], names[scriptIndex]);
@@ -166,7 +158,7 @@ public class Compiler {
 		// EVAL_NUMBER_AS_FLOAT オプションが有効な場合、エンジンのevalに渡されたスクリプト内のintリテラルをfloat型に変更
 		if (evalNumberAsFloat) {
 			tokens[scriptLength-1] = this.replaceDataTypeOfLiteralTokens( // [scriptLength-1]番目はeval対象のスクリプト
-				tokens[scriptLength-1], LANG_SPEC.DATA_TYPE_NAME.defaultInt, LANG_SPEC.DATA_TYPE_NAME.defaultFloat
+				tokens[scriptLength-1], DataTypeName.DEFAULT_INT, DataTypeName.DEFAULT_FLOAT
 			);
 		}
 
@@ -188,7 +180,7 @@ public class Compiler {
 
 
 		// 構文解析でAST（抽象構文木）を生成
-		AstNode parsedAstRootNode = new Parser(LANG_SPEC).parse(unifiedTokens);
+		AstNode parsedAstRootNode = new Parser().parse(unifiedTokens);
 
 		// 構文解析後のASTをダンプ
 		if (shouldDump && (dumpTargetIsAll || dumpTarget.equals(OptionValue.DUMPER_TARGET_PARSED_AST)) ) {
@@ -197,7 +189,7 @@ public class Compiler {
 
 
 		// 意味解析でASTの情報を補間
-		AstNode analyzedAstRootNode = new SemanticAnalyzer(LANG_SPEC).analyze(parsedAstRootNode, interconnect);
+		AstNode analyzedAstRootNode = new SemanticAnalyzer().analyze(parsedAstRootNode, interconnect);
 
 		// 意味解析後のASTをダンプ
 		if (shouldDump && (dumpTargetIsAll || dumpTarget.equals(OptionValue.DUMPER_TARGET_ANALYZED_AST)) ) {
@@ -206,7 +198,7 @@ public class Compiler {
 
 
 		// 中間アセンブリコードを生成
-		String assemblyCode = new CodeGenerator(LANG_SPEC).generate(analyzedAstRootNode);
+		String assemblyCode = new CodeGenerator().generate(analyzedAstRootNode);
 
 		// 中間アセンブリコードをダンプ
 		if (shouldDump && (dumpTargetIsAll || dumpTarget.equals(OptionValue.DUMPER_TARGET_ASSEMBLY_CODE)) ) {
@@ -363,9 +355,9 @@ public class Compiler {
 			Token token = tokens[tokenIndex].clone();
 			if (token.getType() == Token.Type.LEAF
 				&& token.getAttribute(AttributeKey.LEAF_TYPE).equals(AttributeValue.LITERAL)
-				&& token.getAttribute(AttributeKey.DATA_TYPE).equals(LANG_SPEC.DATA_TYPE_NAME.defaultInt) ) {
+				&& token.getAttribute(AttributeKey.DATA_TYPE).equals(DataTypeName.DEFAULT_INT) ) {
 
-				token.setAttribute(AttributeKey.DATA_TYPE, LANG_SPEC.DATA_TYPE_NAME.defaultFloat);
+				token.setAttribute(AttributeKey.DATA_TYPE, DataTypeName.DEFAULT_FLOAT);
 			}
 			replacedTokens[tokenIndex] = token;
 		}

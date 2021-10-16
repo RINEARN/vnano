@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2020 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2021 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -10,7 +10,6 @@ import org.vcssl.connect.ExternalVariableConnectorInterface1;
 import org.vcssl.nano.VnanoException;
 import org.vcssl.nano.spec.DataTypeName;
 import org.vcssl.nano.spec.ErrorType;
-import org.vcssl.nano.spec.LanguageSpecContainer;
 import org.vcssl.nano.vm.memory.DataContainer;
 
 /**
@@ -25,9 +24,6 @@ import org.vcssl.nano.vm.memory.DataContainer;
  * @author RINEARN (Fumihiro Matsui)
  */
 public class Xvci1ToVariableAdapter extends AbstractVariable {
-
-	/** データ型名が定義された設定オブジェクトを保持します。 */
-	private final DataTypeName DATA_TYPE_NAME;
 
 	/** XVCI準拠の外部変数プラグインです。 */
 	private ExternalVariableConnectorInterface1 xvciPlugin = null;
@@ -48,18 +44,14 @@ public class Xvci1ToVariableAdapter extends AbstractVariable {
 	 *
 	 * @param xvciPlugin XVCI準拠の外部変数プラグイン
 	 * @param scriptWordSetting スクリプト言語の語句が定義された設定オブジェクト
-	 * @param langSpec 言語仕様設定
 	 * @throws VnanoException
 	 * 		外部変数のデータや型が、この処理系内部では変数として使用できない場合に発生します。
 	 */
-	public Xvci1ToVariableAdapter(
-			ExternalVariableConnectorInterface1 xvciPlugin, LanguageSpecContainer langSpec)
-					throws VnanoException {
+	public Xvci1ToVariableAdapter(ExternalVariableConnectorInterface1 xvciPlugin) throws VnanoException {
 
-		this.DATA_TYPE_NAME = langSpec.DATA_TYPE_NAME;
 		this.xvciPlugin = xvciPlugin;
 		this.variableName = xvciPlugin.getVariableName();
-		this.dataConverter = new DataConverter(this.xvciPlugin.getDataClass(), langSpec);
+		this.dataConverter = new DataConverter(this.xvciPlugin.getDataClass());
 
 		// 自動データ型変換が無効化されている場合は、やり取りするデータ入出力インターフェースの互換性を検査する
 		// ( XVCI1 の getDataUnconvertedClass() が返すインターフェースを、この処理系のデータコンテナが実装していなければエラー ）
@@ -165,7 +157,7 @@ public class Xvci1ToVariableAdapter extends AbstractVariable {
 	 */
 	@Override
 	public String getDataTypeName() {
-		return DATA_TYPE_NAME.getDataTypeNameOf(this.dataConverter.getDataType());
+		return DataTypeName.getDataTypeNameOf(this.dataConverter.getDataType());
 	}
 
 

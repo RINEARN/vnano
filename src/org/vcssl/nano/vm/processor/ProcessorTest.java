@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2019 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2021 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -19,7 +19,6 @@ import org.vcssl.nano.interconnect.Interconnect;
 import org.vcssl.nano.spec.DataType;
 import org.vcssl.nano.spec.OperationCode;
 import org.vcssl.nano.spec.OptionValue;
-import org.vcssl.nano.spec.LanguageSpecContainer;
 import org.vcssl.nano.spec.SpecialBindingKey;
 import org.vcssl.nano.vm.memory.DataContainer;
 import org.vcssl.nano.vm.memory.Memory;
@@ -27,7 +26,6 @@ import org.vcssl.nano.VnanoException;
 
 public class ProcessorTest {
 
-	private final LanguageSpecContainer LANG_SPEC = new LanguageSpecContainer();
 	private static final int REGISTER_N = 200;
 	private Interconnect interconnect;
 	private Memory memory;
@@ -49,10 +47,10 @@ public class ProcessorTest {
 	public void setUp() throws Exception {
 
 		// 何も接続されていない、デフォルトのインターコネクトを用意（接続する場合は各テスト内で別途生成）
-		this.interconnect = new Interconnect(LANG_SPEC);
+		this.interconnect = new Interconnect();
 
 		// レジスタを生成してメモリに配置
-		this.memory = new Memory(new LanguageSpecContainer());
+		this.memory = new Memory();
 		this.registers = new DataContainer<?>[REGISTER_N];
 		for (int addr=0; addr<REGISTER_N; addr++) {
 			registers[addr] = new DataContainer<Object>();
@@ -66,7 +64,7 @@ public class ProcessorTest {
 
 		// デフォルトのオプションマップを用意し、インターコネクトに設定
 		Map<String, Object> optionMap = new LinkedHashMap<String, Object>();
-		optionMap = OptionValue.normalizeValuesOf(optionMap, LANG_SPEC);
+		optionMap = OptionValue.normalizeValuesOf(optionMap);
 		this.interconnect.setOptionMap(optionMap);
 	}
 
@@ -232,7 +230,7 @@ public class ProcessorTest {
 		((DataContainer<long[]>)this.registers[2]).setArrayData(new long[]{ 456L }, 0, DataContainer.ARRAY_LENGTHS_OF_SCALAR); // R2=456
 
 		// このテスト用のInterconnectを生成し、"methodToConnect" メソッドを接続
-		Interconnect interconnect = new Interconnect(LANG_SPEC);
+		Interconnect interconnect = new Interconnect();
 		Method method;
 		try {
 			method = this.getClass().getMethod("methodToConnect", long.class, long.class);

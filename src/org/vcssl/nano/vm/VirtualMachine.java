@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2018-2020 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2018-2021 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -13,7 +13,6 @@ import org.vcssl.nano.interconnect.DataConverter;
 import org.vcssl.nano.interconnect.Interconnect;
 import org.vcssl.nano.spec.OptionKey;
 import org.vcssl.nano.spec.OptionValue;
-import org.vcssl.nano.spec.LanguageSpecContainer;
 import org.vcssl.nano.spec.OperationCode;
 import org.vcssl.nano.vm.accelerator.Accelerator;
 import org.vcssl.nano.vm.assembler.Assembler;
@@ -62,9 +61,6 @@ import org.vcssl.nano.vm.processor.Processor;
  */
 public class VirtualMachine {
 
-	/** 各種の言語仕様設定類を格納するコンテナを保持します。 */
-	private final LanguageSpecContainer LANG_SPEC;
-
 	/** 命令を実行する仮想プロセッサを保持します。 */
 	// （終了リクエストや実測性能値の取得のためにフィールドに参照を保持）
 	private Processor processor = null;
@@ -91,19 +87,14 @@ public class VirtualMachine {
 
 	/**
 	 * <span class="lang-en">
-	 * Create a new VM with the specified language specification settings
+	 * Create a new VM
 	 * </span>
 	 * <span class="lang-ja">
-	 * 指定された言語仕様設定で, VMを生成します
+	 * VMを生成します
 	 * </span>
 	 * .
-	 * @param langSpec
-	 *   <span class="lang-en">language specification settings.</span>
-	 *   <span class="lang-ja">言語仕様設定</span>
 	 */
-	// langSpec はコンストラクタ経由でフィールドに持たなくても、実行時に参照渡すインターコネクト内に持たせれば済むような。実行メソッド内でしか参照しないし。後々で要検討
-	public VirtualMachine(LanguageSpecContainer langSpec) {
-		this.LANG_SPEC = langSpec;
+	public VirtualMachine() {
 		this.processor = new Processor();
 		this.accelerator = new Accelerator();
 		this.vmProcessedInstructionCount = 0;
@@ -165,7 +156,7 @@ public class VirtualMachine {
 
 
 		// アセンブラで中間アセンブリコード（VRILコード）から実行用のVMオブジェクトコードに変換
-		Assembler assembler = new Assembler(LANG_SPEC);
+		Assembler assembler = new Assembler();
 		VirtualMachineObjectCode intermediateCode = assembler.assemble(assemblyCode, interconnect);
 
 		// VMオブジェクトコードをダンプ
@@ -186,7 +177,7 @@ public class VirtualMachine {
 
 
 		// 実行用メモリー領域を確保し、外部変数のデータをロード
-		Memory memory = new Memory(LANG_SPEC);
+		Memory memory = new Memory();
 		memory.allocate(intermediateCode, interconnect.getExternalVariableTable());
 
 		// プロセッサでVMオブジェクトコードの命令列を実行
@@ -204,7 +195,7 @@ public class VirtualMachine {
 		if (memory.hasResultDataContainer()) {
 			DataContainer<?> resultDataContainer = memory.getResultDataContainer();
 			DataConverter converter = new DataConverter(
-				resultDataContainer.getDataType(), resultDataContainer.getArrayRank(), LANG_SPEC
+				resultDataContainer.getDataType(), resultDataContainer.getArrayRank()
 			);
 			return converter.convertToExternalObject(resultDataContainer);
 		} else {

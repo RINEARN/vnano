@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2020 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2021 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -16,7 +16,6 @@ import java.util.Set;
 import org.vcssl.nano.VnanoFatalException;
 import org.vcssl.nano.spec.IdentifierSyntax;
 import org.vcssl.nano.spec.ScriptWord;
-import org.vcssl.nano.spec.LanguageSpecContainer;
 
 /**
  * <p>
@@ -26,13 +25,6 @@ import org.vcssl.nano.spec.LanguageSpecContainer;
  * @author RINEARN (Fumihiro Matsui)
  */
 public class VariableTable implements Cloneable {
-
-	/** スクリプト言語の語句が定義された設定オブジェクトを保持します。 */
-	private final ScriptWord SCRIPT_WORD;
-
-	/** 識別子の判定規則類が定義された設定オブジェクトを保持します。 */
-	private final IdentifierSyntax IDENTIFIER_SYNTAX;
-
 
 	/** 変数を保持するリストです。 */
 	LinkedList<AbstractVariable> variableList = null;
@@ -64,13 +56,8 @@ public class VariableTable implements Cloneable {
 
 	/**
 	 * 空の変数テーブルを生成します。
-	 *
-	 * @param langSpec 言語仕様設定
 	 */
-	public VariableTable(LanguageSpecContainer langSpec) {
-		this.SCRIPT_WORD = langSpec.SCRIPT_WORD;
-		this.IDENTIFIER_SYNTAX = langSpec.IDENTIFIER_SYNTAX;
-
+	public VariableTable() {
 		this.variableList = new LinkedList<AbstractVariable>();
 		this.nameVariableMap = new LinkedHashMap<String, LinkedList<AbstractVariable>>();
 		this.fullNameVariableMap = new LinkedHashMap<String, LinkedList<AbstractVariable>>();
@@ -95,10 +82,10 @@ public class VariableTable implements Cloneable {
 		this.size++;
 
 		// 単純識別子から、名前空間を加味した識別子や、アセンブリ識別子などを求める
-		String namespacePrefix = variable.hasNamespaceName() ? variable.getNamespaceName() + SCRIPT_WORD.namespaceSeparator : "";
+		String namespacePrefix = variable.hasNamespaceName() ? variable.getNamespaceName() + ScriptWord.NAMESPACE_SEPARATOR : "";
 		String varName = variable.getVariableName();
-		String asmName = IDENTIFIER_SYNTAX.getAssemblyIdentifierOf(variable);
-		String fullAsmName = IDENTIFIER_SYNTAX.getAssemblyIdentifierOf(variable, namespacePrefix);
+		String asmName = IdentifierSyntax.getAssemblyIdentifierOf(variable);
+		String fullAsmName = IdentifierSyntax.getAssemblyIdentifierOf(variable, namespacePrefix);
 
 		// リストとマップに変数を追加
 		this.variableList.add(variable);
@@ -125,10 +112,10 @@ public class VariableTable implements Cloneable {
 
 		// 単純識別子から、名前空間を加味した識別子や、アセンブリ識別子などを求める（削除する際のキーに使う）
 		AbstractVariable variable = this.variableList.getLast();
-		String namespacePrefix = variable.hasNamespaceName() ? variable.getNamespaceName() + SCRIPT_WORD.namespaceSeparator : "";
+		String namespacePrefix = variable.hasNamespaceName() ? variable.getNamespaceName() + ScriptWord.NAMESPACE_SEPARATOR : "";
 		String varName = variable.getVariableName();
-		String asmName = IDENTIFIER_SYNTAX.getAssemblyIdentifierOf(variable);
-		String fullAsmName = IDENTIFIER_SYNTAX.getAssemblyIdentifierOf(variable, namespacePrefix);
+		String asmName = IdentifierSyntax.getAssemblyIdentifierOf(variable);
+		String fullAsmName = IdentifierSyntax.getAssemblyIdentifierOf(variable, namespacePrefix);
 
 		// リストとマップから変数を削除
 		this.variableList.removeLast();
@@ -250,9 +237,9 @@ public class VariableTable implements Cloneable {
 
 		// コストを定数オーダーにするため、まずアセンブリ識別子を求めて、
 		// それとインデックスとの対応を保持しているマップに投げて値を取得する
-		String namespacePrefix = variable.hasNamespaceName() ? variable.getNamespaceName() + SCRIPT_WORD.namespaceSeparator : "";
-		String asmName = IDENTIFIER_SYNTAX.getAssemblyIdentifierOf(variable);
-		String fullAsmName = IDENTIFIER_SYNTAX.getAssemblyIdentifierOf(variable, namespacePrefix);
+		String namespacePrefix = variable.hasNamespaceName() ? variable.getNamespaceName() + ScriptWord.NAMESPACE_SEPARATOR : "";
+		String asmName = IdentifierSyntax.getAssemblyIdentifierOf(variable);
+		String fullAsmName = IdentifierSyntax.getAssemblyIdentifierOf(variable, namespacePrefix);
 		if (assemblyIdentifierIndexMap.containsKey(asmName)) {
 			return IdentifierMapManager.getLastFromMap(this.assemblyIdentifierIndexMap, asmName);
 		}

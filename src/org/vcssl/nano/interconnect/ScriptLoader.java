@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2020 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2020-2021 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -12,7 +12,7 @@ import java.util.Arrays;
 
 import org.vcssl.nano.VnanoException;
 import org.vcssl.nano.spec.ErrorType;
-import org.vcssl.nano.spec.LanguageSpecContainer;
+import org.vcssl.nano.spec.IdentifierSyntax;
 
 
 /**
@@ -58,17 +58,6 @@ import org.vcssl.nano.spec.LanguageSpecContainer;
  * </span>
  */
 public class ScriptLoader {
-
-	/**
-	 * <span class="lang-en">
-	 * Stores language-specification settings
-	 * </span>
-	 * <span class="lang-ja">
-	 * 各種の言語仕様設定類を格納するコンテナを保持します
-	 * </span>
-	 * .
-	 */
-	private final LanguageSpecContainer LANG_SPEC;
 
 	/**
 	 * <span class="lang-en">
@@ -120,13 +109,8 @@ public class ScriptLoader {
 	 * @param defaultEncoding
 	 *   <span class="lang-en">The default encoding (e.g.: "UTF-8")</span>
 	 *   <span class="lang-ja">デフォルトの文字コード (例: "UTF-8")</span>
-	 *
-	 * @param langSpec
-	 *   <span class="lang-en">language specification settings.</span>
-	 *   <span class="lang-ja">言語仕様設定.</span>
 	 */
-	public ScriptLoader(String defaultEncoding, LanguageSpecContainer langSpec) {
-		this.LANG_SPEC = langSpec;
+	public ScriptLoader(String defaultEncoding) {
 		this.DEFAULT_ENCODING = defaultEncoding;
 	}
 
@@ -324,7 +308,7 @@ public class ScriptLoader {
 		File libDirectory = listFile.getParentFile();
 
 		// リストファイルから、ライブラリのパス一覧を再読み込み（または初回読み込み）
-		String listFileContent = MetaQualifiedFileLoader.load(this.libraryScriptListPath, DEFAULT_ENCODING, LANG_SPEC);
+		String listFileContent = MetaQualifiedFileLoader.load(this.libraryScriptListPath, DEFAULT_ENCODING);
 		String[] libPaths = listFileContent.split("\\n"); // 上記の load で読んだ内容は、改行コードがLF (\n) に正規化済み
 
 		// 読み込んだライブラリパスの一覧をフィールドに反映
@@ -342,7 +326,7 @@ public class ScriptLoader {
 			}
 
 			// スクリプト名の中で使用できない記号等を置き換えて正規化する
-			String libraryName = LANG_SPEC.IDENTIFIER_SYNTAX.normalizeScriptIdentifier( libFile.getName() );
+			String libraryName = IdentifierSyntax.normalizeScriptIdentifier( libFile.getName() );
 
 			// フィールドにライブラリファイルの情報を登録
 			this.libraryScriptPathList.add(libFile.getPath());
@@ -378,7 +362,7 @@ public class ScriptLoader {
 		} else {
 			this.mainScriptName = scriptFile.getName();
 			try {
-				this.mainScriptContent = MetaQualifiedFileLoader.load(this.mainScriptPath, DEFAULT_ENCODING, LANG_SPEC);
+				this.mainScriptContent = MetaQualifiedFileLoader.load(this.mainScriptPath, DEFAULT_ENCODING);
 			} catch (VnanoException vne) {
 				this.mainScriptName = null;
 				this.mainScriptContent = null;
@@ -431,7 +415,7 @@ public class ScriptLoader {
 			// ライブラリファイルの中身を読み込み、フィールドに登録
 			String libContent = null;
 			try {
-				libContent = MetaQualifiedFileLoader.load(libPath, DEFAULT_ENCODING, LANG_SPEC);
+				libContent = MetaQualifiedFileLoader.load(libPath, DEFAULT_ENCODING);
 			} catch (Exception e) {
 				loadingFailedLibraries += (!loadingFailedLibraries.isEmpty() ? ", " : "") + libFile.getName();
 				loadingFailedCause = e;

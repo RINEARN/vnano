@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2020 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2021 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -16,7 +16,6 @@ import org.vcssl.nano.spec.AssemblyWord;
 import org.vcssl.nano.spec.DataType;
 import org.vcssl.nano.spec.DataTypeName;
 import org.vcssl.nano.spec.ErrorType;
-import org.vcssl.nano.spec.LanguageSpecContainer;
 import org.vcssl.nano.spec.LiteralSyntax;
 import org.vcssl.nano.vm.VirtualMachineObjectCode;
 import org.vcssl.nano.VnanoFatalException;
@@ -82,24 +81,10 @@ import org.vcssl.nano.VnanoException;
  */
 public final class Memory {
 
-	// 以下の3つは定数初期化処理で使用しているが、
-	// このオブジェクトがこれらに依存するのは直感的に明らかにおかしいので、
-	// やはり初期化関連の処理は別のオブジェクトに移すべき
-
-	/** リテラルの判定規則類が定義された設定オブジェクトを保持します。 */
-	private final LiteralSyntax LITERAL_SYNTAX;
-
-	/** データ型名が定義された設定オブジェクトを保持します。 */
-	private final DataTypeName DATA_TYPE_NAME;
-
-	/** アセンブリ言語の語句が定義された設定オブジェクトを保持します。 */
-	private final AssemblyWord ASSEMBLY_WORD;
-
+	// メモ： やはり定数類の初期化処理は別のオブジェクトに移すべき
 
 	/**
 	 * {@link Memory Memory} 内を、用途に応じた領域（パーティション）に分類して使用するための列挙子です。
-	 *
-	 * @author RINEARN (Fumihiro Matsui)
 	 */
 	public static enum Partition {
 
@@ -149,21 +134,14 @@ public final class Memory {
 
 	/**
 	 * <span class="lang-en">
-	 * Create a new virtual memory instance with the specified language specification settings
+	 * Create a new virtual memory instance
 	 * </span>
 	 * <span class="lang-ja">
-	 * 指定された言語仕様設定で, 空の仮想メモリーインスタンスを生成します
+	 * 空の仮想メモリーインスタンスを生成します
 	 * </span>
 	 * .
-	 * @param langSpec
-	 *   <span class="lang-en">language specification settings.</span>
-	 *   <span class="lang-ja">言語仕様設定.</span>
 	 */
-	public Memory(LanguageSpecContainer langSpec) {
-		this.DATA_TYPE_NAME = langSpec.DATA_TYPE_NAME;
-		this.LITERAL_SYNTAX = langSpec.LITERAL_SYNTAX;
-		this.ASSEMBLY_WORD = langSpec.ASSEMBLY_WORD;
-
+	public Memory() {
 		this.registerList = new ArrayList<DataContainer<?>>();
 		this.localList = new ArrayList<DataContainer<?>>();
 		this.globalList = new ArrayList<DataContainer<?>>();
@@ -362,11 +340,11 @@ public final class Memory {
 		for (int constantAddress=0; constantAddress<=maxConstantAddress; constantAddress++) {
 
 			String immediate = immediateValues[constantAddress];
-			int separatorIndex = immediate.indexOf(ASSEMBLY_WORD.valueSeparator);
+			int separatorIndex = immediate.indexOf(AssemblyWord.VALUE_SEPARATOR);
 			String dataTypeName = immediate.substring(1, separatorIndex);
 			String valueText = immediate.substring(separatorIndex+1, immediate.length());
 
-			DataType dataType = DATA_TYPE_NAME.getDataTypeOf(dataTypeName);
+			DataType dataType = DataTypeName.getDataTypeOf(dataTypeName);
 
 
 			// ! ここのパースは後々でアセンブラ側に移し、
@@ -377,18 +355,18 @@ public final class Memory {
 					DataContainer<long[]> data = new DataContainer<long[]>();
 					try {
 						// 16進数リテラルの場合
-						if (valueText.startsWith(LITERAL_SYNTAX.intLiteralHexPrefix)) {
-							valueText = valueText.substring(LITERAL_SYNTAX.intLiteralHexPrefix.length());
+						if (valueText.startsWith(LiteralSyntax.INT_LITERAL_HEX_PREFIX)) {
+							valueText = valueText.substring(LiteralSyntax.INT_LITERAL_HEX_PREFIX.length());
 							data.setArrayData(new long[]{ Long.parseLong(valueText, 16) }, 0, DataContainer.ARRAY_LENGTHS_OF_SCALAR);
 
 						// 8進数リテラルの場合
-						} else if (valueText.startsWith(LITERAL_SYNTAX.intLiteralOctPrefix)) {
-							valueText = valueText.substring(LITERAL_SYNTAX.intLiteralOctPrefix.length());
+						} else if (valueText.startsWith(LiteralSyntax.INT_LITERAL_OCT_PREFIX)) {
+							valueText = valueText.substring(LiteralSyntax.INT_LITERAL_OCT_PREFIX.length());
 							data.setArrayData(new long[]{ Long.parseLong(valueText, 8) }, 0, DataContainer.ARRAY_LENGTHS_OF_SCALAR);
 
 						// 2進数リテラルの場合
-						} else if (valueText.startsWith(LITERAL_SYNTAX.intLiteralBinPrefix)) {
-							valueText = valueText.substring(LITERAL_SYNTAX.intLiteralBinPrefix.length());
+						} else if (valueText.startsWith(LiteralSyntax.INT_LITERAL_BIN_PREFIX)) {
+							valueText = valueText.substring(LiteralSyntax.INT_LITERAL_BIN_PREFIX.length());
 							data.setArrayData(new long[]{ Long.parseLong(valueText, 2) }, 0, DataContainer.ARRAY_LENGTHS_OF_SCALAR);
 
 						// それ以外は10進数リテラル
@@ -415,9 +393,9 @@ public final class Memory {
 				}
 				case BOOL : {
 					DataContainer<boolean[]> data = new DataContainer<boolean[]>();
-					if (valueText.equals(LITERAL_SYNTAX.trueValue)) {
+					if (valueText.equals(LiteralSyntax.TRUE)) {
 						data.setArrayData(new boolean[]{ true }, 0, DataContainer.ARRAY_LENGTHS_OF_SCALAR);
-					} else if (valueText.equals(LITERAL_SYNTAX.falseValue)) {
+					} else if (valueText.equals(LiteralSyntax.FALSE)) {
 						data.setArrayData(new boolean[]{ false }, 0, DataContainer.ARRAY_LENGTHS_OF_SCALAR);
 					} else {
 						VnanoException vse = new VnanoException(ErrorType.INVALID_IMMEDIATE_VALUE, new String[] { valueText});

@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2019-2020 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2019-2021 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -16,7 +16,7 @@ import org.vcssl.nano.compiler.Compiler;
 import org.vcssl.nano.interconnect.Interconnect;
 import org.vcssl.nano.interconnect.MetaQualifiedFileLoader;
 import org.vcssl.nano.spec.ErrorType;
-import org.vcssl.nano.spec.LanguageSpecContainer;
+import org.vcssl.nano.spec.IdentifierSyntax;
 import org.vcssl.nano.spec.OperationCode;
 import org.vcssl.nano.spec.OptionKey;
 import org.vcssl.nano.spec.PerformanceKey;
@@ -58,10 +58,6 @@ public final class VnanoEngine {
 	// ・複数スレッドから同一インスタンスの executeScript を同時に呼べるようにするための対処等はこのクラス内には実装しない。
 	//   将来的にそういう使い方に対応したくなった場合は、ParallelVnanoEngine 等の別クラスを作成してそちらでサポートするようにする。
 	//   (現実的な必要性があまり無さそうなのと、そのためにエンジン最表層のこのクラス内で無駄にトリッキーな記述をしたくないため)
-
-
-	/** 各種の言語仕様設定類を格納するコンテナを保持します。 */
-	private final LanguageSpecContainer LANG_SPEC;
 
 
 	/**
@@ -110,25 +106,9 @@ public final class VnanoEngine {
 	 * .
 	 */
 	public VnanoEngine() {
-		this(new LanguageSpecContainer());
-	}
-
-	/**
-	 * <span class="lang-en">Create a Vnano Engine with the customized language specification settings</span>
-	 * <span class="lang-ja">カスタマイズされた言語仕様設定で, Vnanoエンジンを生成します</span>
-	 * .
-	 * @param langSpec
-	 *   <span class="lang-en">language specification settings.</span>
-	 *   <span class="lang-ja">言語仕様設定.</span>
-	 */
-	public VnanoEngine(LanguageSpecContainer langSpec) {
-		if (langSpec == null) {
-			throw new NullPointerException();
-		}
-		this.LANG_SPEC = langSpec;
 		this.libraryNameContentMap = new LinkedHashMap<String, String>();
-		this.interconnect = new Interconnect(LANG_SPEC);
-		this.virtualMachine = new VirtualMachine(LANG_SPEC);
+		this.interconnect = new Interconnect();
+		this.virtualMachine = new VirtualMachine();
 		this.lock = new Object();
 	}
 
@@ -175,7 +155,7 @@ public final class VnanoEngine {
 
 			// スクリプトに対し、処理系内で読み込んだライブラリファイル等と同様の後処理を実行（文字コード宣言削除や、環境依存内容の正規化など）
 			try {
-				script = MetaQualifiedFileLoader.postprocess(null, script, LANG_SPEC); // 第一引数はエラーメッセージで用いるファイル名（ある場合のみ）
+				script = MetaQualifiedFileLoader.postprocess(null, script); // 第一引数はエラーメッセージで用いるファイル名（ある場合のみ）
 			} catch (VnanoException vne) {
 				String message = vne.getMessageWithoutLocation();
 				throw new ScriptException(message);
@@ -194,7 +174,7 @@ public final class VnanoEngine {
 			scripts[libN] = script;
 			int libIndex = 0;
 			for (Map.Entry<String, String> nameContentPair: this.libraryNameContentMap.entrySet()) {
-				names[libIndex] = LANG_SPEC.IDENTIFIER_SYNTAX.normalizeScriptIdentifier( nameContentPair.getKey() ); // 未正規化状態なので正規化する
+				names[libIndex] = IdentifierSyntax.normalizeScriptIdentifier( nameContentPair.getKey() ); // 未正規化状態なので正規化する
 				scripts[libIndex] = nameContentPair.getValue();
 				// ライブラリ名と実行対象スクリプト名との重複は不可能（内部で実行対象スクリプト範囲を抽出しやすくするための実装上の都合）
 				if (names[libIndex].equals(names[libN])) {
@@ -205,7 +185,7 @@ public final class VnanoEngine {
 
 			// Translate scripts to a VRIL code (intermediate assembly code) by a compiler.
 			// コンパイラでスクリプトコードからVRILコード（中間アセンブリコード）に変換
-			String assemblyCode = new Compiler(LANG_SPEC).compile(scripts, names, this.interconnect);
+			String assemblyCode = new Compiler().compile(scripts, names, this.interconnect);
 
 			// Execute the VRIL code on a VM.
 			// VMでVRILコードを実行

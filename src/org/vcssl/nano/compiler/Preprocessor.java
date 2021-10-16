@@ -1,12 +1,11 @@
 /*
- * Copyright(C) 2018-2020 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2018-2021 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
 package org.vcssl.nano.compiler;
 
 import org.vcssl.nano.spec.ScriptWord;
-import org.vcssl.nano.spec.LanguageSpecContainer;
 
 //Documentation:  https://www.vcssl.org/en-us/dev/code/main-jimpl/api/org/vcssl/nano/compiler/Preprocessor.html
 //ドキュメント:   https://www.vcssl.org/ja-jp/dev/code/main-jimpl/api/org/vcssl/nano/compiler/Preprocessor.html
@@ -46,24 +45,16 @@ import org.vcssl.nano.spec.LanguageSpecContainer;
  */
 public class Preprocessor {
 
-	/** スクリプト言語の語句が定義された設定オブジェクトを保持します。 */
-	private final ScriptWord SCRIPT_WORD;
-
-
 	/**
 	 * <span class="lang-en">
-	 * Create a new preprocessor with the specified language specification settings
+	 * Create a new preprocessor
 	 * </span>
 	 * <span class="lang-ja">
-	 * 指定された言語仕様設定で, プリプロセッサを生成します
+	 * プリプロセッサを生成します
 	 * </span>
 	 * .
-	 * @param langSpec
-	 *   <span class="lang-en">language specification settings.</span>
-	 *   <span class="lang-ja">言語仕様設定.</span>
 	 */
-	public Preprocessor(LanguageSpecContainer langSpec) {
-		this.SCRIPT_WORD = langSpec.SCRIPT_WORD;
+	public Preprocessor() {
 	}
 
 
@@ -146,7 +137,7 @@ public class Preprocessor {
 
 		// Remove line-comments by using the replacement by the regular expression.
 		// まず行コメントを正規表現で削除
-		script = script.replaceAll( SCRIPT_WORD.lineCommentPrefix + ".*", "");
+		script = script.replaceAll(ScriptWord.LINE_COMMENT_PREFIX + ".*", "");
 
 		// Caution: To prevent indicating wrong line numbers in error messages,
 		// the position of each line should be kept in the processing of this method.
@@ -161,7 +152,7 @@ public class Preprocessor {
 
 		// Find the beginning of the first block comment.
 		// 最初のブロックコメントの開始位置を取得
-		int commentBegin = codeBuilder.indexOf(SCRIPT_WORD.blockCommentBegin);
+		int commentBegin = codeBuilder.indexOf(ScriptWord.BLOCK_COMMENT_BEGIN);
 
 		// Repeat removing a block comment by replacing each line in the block comment with a blank line.
 		// ブロックコメントが残っている間、ブロックコメント内の各行を空行で置き換える処理をくり返す
@@ -170,11 +161,11 @@ public class Preprocessor {
 			// Find the end of the current block comment.
 			// ブロックコメントの終了位置を取得
 			int commentEnd = codeBuilder.indexOf(
-					SCRIPT_WORD.blockCommentEnd, commentBegin + SCRIPT_WORD.blockCommentBegin.length()
+					ScriptWord.BLOCK_COMMENT_END, commentBegin + ScriptWord.BLOCK_COMMENT_BEGIN.length()
 			);
 			// Offset to contain the block-comment-end token into the removing-range.
 			// 上で取得できるのはブロックコメント終端トークンが出現する先頭位置なので、終端トークンの長さ分を補正
-			commentEnd += SCRIPT_WORD.blockCommentEnd.length();
+			commentEnd += ScriptWord.BLOCK_COMMENT_END.length();
 
 			// Extract the code in the block-comment (containing the beginning/end token of the block comment).
 			// ブロックコメントで挟まれた中身を抜き出す（ブロックコメントの開始・終了文字列を含む）
@@ -190,7 +181,7 @@ public class Preprocessor {
 
 			// Go to the next block-comment.
 			// 処理対象を次のブロックコメントに更新
-			commentBegin = codeBuilder.indexOf(SCRIPT_WORD.blockCommentBegin);
+			commentBegin = codeBuilder.indexOf(ScriptWord.BLOCK_COMMENT_BEGIN);
 		}
 
 		script = codeBuilder.toString();

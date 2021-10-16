@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2018 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2021 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -11,11 +11,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.vcssl.nano.VnanoFatalException;
-import org.vcssl.nano.spec.LanguageSpecContainer;
 
 public class MemoryTest {
-
-	private final LanguageSpecContainer LANG_SPEC = new LanguageSpecContainer();
 
 	@Before
 	public void setUp() throws Exception {
@@ -45,7 +42,7 @@ public class MemoryTest {
 
 
 	private void testGetSize(Memory.Partition partition) {
-		Memory memory = new Memory(LANG_SPEC);
+		Memory memory = new Memory();
 
 		// 何も保持していない時点でのサイズを検査
 		if (memory.getSize(partition) != 0) {
@@ -73,7 +70,7 @@ public class MemoryTest {
 
 	private void testSetGetDataContainer(Memory.Partition partition) {
 
-		Memory memory = new Memory(LANG_SPEC);
+		Memory memory = new Memory();
 		DataContainer<long[]> containerA = new DataContainer<long[]>();
 		DataContainer<long[]> containerB = new DataContainer<long[]>();
 		DataContainer<long[]> containerC = new DataContainer<long[]>();
@@ -155,7 +152,7 @@ public class MemoryTest {
 		beforeContainers[3] = new DataContainer<long[]>();
 		beforeContainers[4] = new DataContainer<long[]>();
 
-		Memory memory = new Memory(LANG_SPEC);
+		Memory memory = new Memory();
 		memory.setDataContainers(partition, beforeContainers);
 
 		DataContainer<?>[] afterContainers = memory.getDataContainers(partition);

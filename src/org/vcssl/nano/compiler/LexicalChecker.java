@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2018-2020 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2018-2021 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -9,28 +9,19 @@ import org.vcssl.nano.VnanoException;
 import org.vcssl.nano.VnanoFatalException;
 import org.vcssl.nano.spec.ErrorType;
 import org.vcssl.nano.spec.ScriptWord;
-import org.vcssl.nano.spec.LanguageSpecContainer;
 
 public class LexicalChecker {
 
-	/** スクリプト言語の語句が定義された設定オブジェクトを保持します。 */
-	private final ScriptWord SCRIPT_WORD;
-
-
 	/**
 	 * <span class="lang-en">
-	 * Create a new lexical checker with the specified language specification settings
+	 * Create a new lexical checker
 	 * </span>
 	 * <span class="lang-ja">
-	 * 指定された言語仕様設定で, レキシカルチェッカーを生成します
+	 * レキシカルチェッカーを生成します
 	 * </span>
 	 * .
-	 * @param langSpec
-	 *   <span class="lang-en">language specification settings.</span>
-	 *   <span class="lang-ja">言語仕様設定.</span>
 	 */
-	public LexicalChecker(LanguageSpecContainer langSpec) {
-		this.SCRIPT_WORD = langSpec.SCRIPT_WORD;
+	public LexicalChecker() {
 	}
 
 
@@ -54,13 +45,13 @@ public class LexicalChecker {
 		int readingIndex = controlStatementBegin + 1; // 読んでいるトークン位置
 
 		// 括弧 (...) が必要な場合は検査
-		if ( controlWord.equals(SCRIPT_WORD.ifStatement)
-				|| controlWord.equals(SCRIPT_WORD.whileStatement)
-				|| controlWord.equals(SCRIPT_WORD.forStatement) ) {
+		if ( controlWord.equals(ScriptWord.IF)
+				|| controlWord.equals(ScriptWord.WHILE)
+				|| controlWord.equals(ScriptWord.FOR) ) {
 
 			// 次のトークンが無いか、開き括弧「 ( 」でなければ構文エラー
 			if (tokens.length <= controlStatementBegin+1
-					|| !tokens[controlStatementBegin+1].getValue().equals(SCRIPT_WORD.parenthesisBegin)) {
+					|| !tokens[controlStatementBegin+1].getValue().equals(ScriptWord.PARENTHESIS_BEGIN)) {
 
 				throw new VnanoException(
 					ErrorType.NO_OPEN_PARENTHESIS_OF_CONTROL_STATEMENT, controlToken.getValue(),
@@ -72,10 +63,10 @@ public class LexicalChecker {
 			int hierarchy = 0; // 開き括弧で上がり、閉じ括弧で下がる階層カウンタ
 			while (true) {
 				Token readingToken = tokens[readingIndex];
-				if (readingToken.getValue().equals(SCRIPT_WORD.parenthesisBegin)) {
+				if (readingToken.getValue().equals(ScriptWord.PARENTHESIS_BEGIN)) {
 					hierarchy++;
 				}
-				if (readingToken.getValue().equals(SCRIPT_WORD.paranthesisEnd)) {
+				if (readingToken.getValue().equals(ScriptWord.PARENTHESIS_END)) {
 					hierarchy--;
 				}
 
@@ -86,9 +77,9 @@ public class LexicalChecker {
 
 				// 開き括弧に対応している対応している閉じ括弧が見つからないまま文末に達した場合は構文エラー
 				if (readingIndex == tokens.length-1
-						|| readingToken.getValue().equals(SCRIPT_WORD.blockBegin)
-						|| readingToken.getValue().equals(SCRIPT_WORD.blockEnd)
-						|| (!arrowStatementsInParentheses&&readingToken.getValue().equals(SCRIPT_WORD.endOfStatement)) ) {
+						|| readingToken.getValue().equals(ScriptWord.BLOCK_BEGIN)
+						|| readingToken.getValue().equals(ScriptWord.BLOCK_END)
+						|| (!arrowStatementsInParentheses&&readingToken.getValue().equals(ScriptWord.END_OF_STATEMENT)) ) {
 
 					throw new VnanoException(
 						ErrorType.NO_CLOSING_PARENTHESIS_OF_CONTROL_STATEMENT, controlToken.getValue(),
@@ -106,19 +97,19 @@ public class LexicalChecker {
 		// else 文については「 else 」トークンの次を指している
 
 		// else の後に if が続く場合は、else 直後に特例的にブロック始点が無くても許可する
-		if ( controlWord.equals(SCRIPT_WORD.elseStatement) && tokens[readingIndex].getValue().equals(SCRIPT_WORD.ifStatement) ) {
+		if ( controlWord.equals(ScriptWord.ELSE) && tokens[readingIndex].getValue().equals(ScriptWord.IF) ) {
 			return;
 		}
 
 		// それ以外の if / else / for / while 文は、直後にブロック始点「 { 」が必要（この言語では仕様で必須化されている）
-		if ( controlWord.equals(SCRIPT_WORD.ifStatement)
-				|| controlWord.equals(SCRIPT_WORD.elseStatement)
-				|| controlWord.equals(SCRIPT_WORD.forStatement)
-				|| controlWord.equals(SCRIPT_WORD.whileStatement) ) {
+		if ( controlWord.equals(ScriptWord.IF)
+				|| controlWord.equals(ScriptWord.ELSE)
+				|| controlWord.equals(ScriptWord.FOR)
+				|| controlWord.equals(ScriptWord.WHILE) ) {
 
 			// 直後に「 { 」が続いていなければ構文エラーとする
 			if (readingIndex == tokens.length-1
-					|| !tokens[readingIndex].getValue().equals(SCRIPT_WORD.blockBegin)) {
+					|| !tokens[readingIndex].getValue().equals(ScriptWord.BLOCK_BEGIN)) {
 
 				throw new VnanoException(
 					ErrorType.NO_BLOCK_AFTER_CONTROL_STATEMENT, controlToken.getValue(),
@@ -144,7 +135,7 @@ public class LexicalChecker {
 		String fileName = controlTypeToken.getFileName();
 
 		// if文の場合
-		if(controlTypeToken.getValue().equals(SCRIPT_WORD.ifStatement)) {
+		if(controlTypeToken.getValue().equals(ScriptWord.IF)) {
 
 			// 条件式が空の場合は構文エラー
 			if (tokens.length == 3) {
@@ -152,7 +143,7 @@ public class LexicalChecker {
 			}
 
 		// while文の場合
-		} else if(controlTypeToken.getValue().equals(SCRIPT_WORD.whileStatement)) {
+		} else if(controlTypeToken.getValue().equals(ScriptWord.WHILE)) {
 
 			// 条件式が空の場合は構文エラー
 			if (tokens.length == 3) {
@@ -160,11 +151,11 @@ public class LexicalChecker {
 			}
 
 		// for文の場合
-		} else if(controlTypeToken.getValue().equals(SCRIPT_WORD.forStatement)) {
+		} else if(controlTypeToken.getValue().equals(ScriptWord.FOR)) {
 
 			// 初期化式と条件式の終端トークンインデックスを取得
-			int initializationEnd = Token.getIndexOf(tokens, SCRIPT_WORD.endOfStatement, 0);
-			int conditionEnd = Token.getIndexOf(tokens, SCRIPT_WORD.endOfStatement, initializationEnd+1);
+			int initializationEnd = Token.getIndexOf(tokens, ScriptWord.END_OF_STATEMENT, 0);
+			int conditionEnd = Token.getIndexOf(tokens, ScriptWord.END_OF_STATEMENT, initializationEnd+1);
 
 			// 括弧 (...;...;...) 内の区切りが無いか足りない場合は構文エラー
 			if (initializationEnd < 0 || conditionEnd < 0) {
@@ -173,14 +164,14 @@ public class LexicalChecker {
 				);
 			}
 
-		} else if (controlTypeToken.getValue().equals(SCRIPT_WORD.returnStatement)) {
+		} else if (controlTypeToken.getValue().equals(ScriptWord.RETURN)) {
 
 			// 後に任意の式が続き、省略も可能なので、トークン列の段階では特に制約しない
 
 		// else / break / continue 文の場合
-		} else if(controlTypeToken.getValue().equals(SCRIPT_WORD.elseStatement)
-				|| controlTypeToken.getValue().equals(SCRIPT_WORD.breakStatement)
-				|| controlTypeToken.getValue().equals(SCRIPT_WORD.continueStatement) ) {
+		} else if(controlTypeToken.getValue().equals(ScriptWord.ELSE)
+				|| controlTypeToken.getValue().equals(ScriptWord.BREAK)
+				|| controlTypeToken.getValue().equals(ScriptWord.CONTINUE) ) {
 
 			// 余計な記述が付いている
 			if (tokens.length > 1) {
@@ -219,9 +210,9 @@ public class LexicalChecker {
 					&& token.getAttribute(AttributeKey.OPERATOR_EXECUTOR).equals(AttributeValue.CAST);
 
 			if (isParen || isCallOp || isCastOp) {
-				if (token.getValue().equals(SCRIPT_WORD.parenthesisBegin)) {
+				if (token.getValue().equals(ScriptWord.PARENTHESIS_BEGIN)) {
 					hierarchy++;
-				} else if (token.getValue().equals(SCRIPT_WORD.paranthesisEnd)) {
+				} else if (token.getValue().equals(ScriptWord.PARENTHESIS_END)) {
 					hierarchy--;
 				}
 			}
@@ -262,9 +253,9 @@ public class LexicalChecker {
 					&& token.getAttribute(AttributeKey.OPERATOR_EXECUTOR).equals(AttributeValue.SUBSCRIPT);
 
 			if (isSubscript) {
-				if (token.getValue().equals(SCRIPT_WORD.subscriptBegin)) {
+				if (token.getValue().equals(ScriptWord.SUBSCRIPT_BEGIN)) {
 					hierarchy++;
-				} else if (token.getValue().equals(SCRIPT_WORD.subscriptEnd)) {
+				} else if (token.getValue().equals(ScriptWord.SUBSCRIPT_END)) {
 					hierarchy--;
 				}
 			}
@@ -345,9 +336,9 @@ public class LexicalChecker {
 		for (int tokenIndex=0; tokenIndex<tokenLength; tokenIndex++) {
 			Token token = tokens[tokenIndex];
 			if (token.getType() == Token.Type.PARENTHESIS) {
-				if (token.getValue().equals(SCRIPT_WORD.parenthesisBegin)) {
+				if (token.getValue().equals(ScriptWord.PARENTHESIS_BEGIN)) {
 					contentCounter = 0;
-				} else if (token.getValue().equals(SCRIPT_WORD.paranthesisEnd)) {
+				} else if (token.getValue().equals(ScriptWord.PARENTHESIS_END)) {
 					if (contentCounter == 0) {
 						throw new VnanoException(
 								ErrorType.NO_PARTIAL_EXPRESSION,
@@ -381,11 +372,11 @@ public class LexicalChecker {
 
 			boolean nextIsOpenParenthesis = tokenIndex < tokenLength-1
 					&& tokens[tokenIndex+1].getType() == Token.Type.PARENTHESIS
-					&& tokens[tokenIndex+1].getValue().equals(SCRIPT_WORD.parenthesisBegin);
+					&& tokens[tokenIndex+1].getValue().equals(ScriptWord.PARENTHESIS_BEGIN);
 
 			boolean prevIsCloseParenthesis = tokenIndex != 0
 					&& tokens[tokenIndex-1].getType() == Token.Type.PARENTHESIS
-					&& tokens[tokenIndex-1].getValue().equals(SCRIPT_WORD.paranthesisEnd);
+					&& tokens[tokenIndex-1].getValue().equals(ScriptWord.PARENTHESIS_END);
 
 			boolean nextIsMultialyBegin = tokenIndex < tokenLength-1
 					&& tokens[tokenIndex+1].getType() == Token.Type.OPERATOR
@@ -409,7 +400,7 @@ public class LexicalChecker {
 			boolean nextNextIsCastEnd = tokenIndex < tokenLength-2
 					&& tokens[tokenIndex+2].getType()==Token.Type.OPERATOR
 					&& tokens[tokenIndex+2].getAttribute(AttributeKey.OPERATOR_EXECUTOR).equals(AttributeValue.CAST)
-					&& tokens[tokenIndex+2].getValue().equals(SCRIPT_WORD.paranthesisEnd);
+					&& tokens[tokenIndex+2].getValue().equals(ScriptWord.PARENTHESIS_END);
 
 			// 演算子の場合
 			if (token.getType() == Token.Type.OPERATOR) {
@@ -420,7 +411,7 @@ public class LexicalChecker {
 				if (operatorSyntax.equals(AttributeValue.PREFIX)) {
 
 					// キャスト演算子の始点の場合は、右がデータ型があり、かつその直後が閉じ括弧でないとエラー
-					if (operatorExecutor.equals(AttributeValue.CAST) && token.getValue().equals(SCRIPT_WORD.parenthesisBegin)) {
+					if (operatorExecutor.equals(AttributeValue.CAST) && token.getValue().equals(ScriptWord.PARENTHESIS_BEGIN)) {
 						if (!nextIsDataType) {
 							throw new VnanoException(
 								ErrorType.DATA_TYPE_IS_MISSING_AT_RIGHT,

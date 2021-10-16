@@ -44,17 +44,16 @@ public class ErrorMessage {
 	public static String generateErrorMessage(ErrorType errorType, String[] words, Locale locale) {
 
 		// CAST系エラーで渡されるVMのデータ型名はユーザーに分かりにくいので、スクリプト言語上でのデフォルトの型名で一致するものがあれば置き換える
-		DataTypeName dataTypeName = new DataTypeName();
 		if (errorType == ErrorType.CAST_FAILED_DUE_TO_TYPE ) {
 			try {
-				words[0] = dataTypeName.getDataTypeNameOf(DataType.valueOf(words[0]));
-				words[1] = dataTypeName.getDataTypeNameOf(DataType.valueOf(words[1]));
+				words[0] = DataTypeName.getDataTypeNameOf(DataType.valueOf(words[0]));
+				words[1] = DataTypeName.getDataTypeNameOf(DataType.valueOf(words[1]));
 			} catch (IllegalArgumentException iae) {
 			}
 		}
 		if (errorType == ErrorType.CAST_FAILED_DUE_TO_VALUE ) {
 			try {
-				words[1] = dataTypeName.getDataTypeNameOf(DataType.valueOf(words[1]));
+				words[1] = DataTypeName.getDataTypeNameOf(DataType.valueOf(words[1]));
 			} catch (IllegalArgumentException iae) {
 			}
 		}

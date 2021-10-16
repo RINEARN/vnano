@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2020 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2021 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -40,19 +40,12 @@ import java.util.Set;
  */
 public class ScriptWord {
 
-
-	// 各フィールドは元々は static final でしたが、カスタマイズの事を考慮して、動的なフィールドに変更されました。
-	// これにより、このクラスのインスタンスを生成して値を変更し、
-	// それを LanguageSpecContainer に持たせて VnanoEngle クラスのコンストラクタに渡す事で、
-	// 処理系内のソースコードを保ったまま（再ビルド不要で）定義類を差し替える事ができます。
-
-
 	/**
 	 * <span class="lang-en">The name of the script language: "Vnano"</span>
 	 * <span class="lang-ja">スクリプト言語の名称（ Vnano ）です</span>
 	 * .
 	 */
-	public String scriptLanguageName = "Vnano";
+	public static final String SCRIPT_LANGUAGE_NAME = "Vnano";
 
 
 	/**
@@ -60,7 +53,7 @@ public class ScriptWord {
 	 * <span class="lang-ja">スクリプト言語のバージョンです</span>
 	 * .
 	 */
-	public String scriptLanguageVersion = EngineInformation.ENGINE_VERSION;
+	public static final String SCRIPT_LANGUAGE_VERSION = EngineInformation.ENGINE_VERSION;
 
 
 	/**
@@ -68,7 +61,7 @@ public class ScriptWord {
 	 * <span class="lang-ja">空白や改行など、トークンの区切りとなる文字の正規表現です</span>
 	 * .
 	 */
-	public String tokenSeparatorRegex = "( |　|\t|\n|\r|\r\n|\n\r)";
+	public static final String TOKEN_SEPARATOR_REGEX = "( |　|\t|\n|\r|\r\n|\n\r)";
 
 
 	/**
@@ -76,7 +69,7 @@ public class ScriptWord {
 	 * <span class="lang-ja">名前空間の区切りです</span>
 	 * .
 	 */
-	public String namespaceSeparator = ".";
+	public static final String NAMESPACE_SEPARATOR = ".";
 
 
 	/**
@@ -84,7 +77,7 @@ public class ScriptWord {
 	 * <span class="lang-ja">文末記号「 ; 」です</span>
 	 * .
 	 */
-	public String endOfStatement = ";";
+	public static final String END_OF_STATEMENT = ";";
 
 
 	/**
@@ -92,7 +85,7 @@ public class ScriptWord {
 	 * <span class="lang-ja">代入演算子の記号「 = 」です</span>
 	 * .
 	 */
-	public String assignment = "=";
+	public static final String ASSIGNMENT = "=";
 
 
 	/**
@@ -100,7 +93,7 @@ public class ScriptWord {
 	 * <span class="lang-ja">単項プラス演算子および加算演算子の記号「 + 」です</span>
 	 * .
 	 */
-	public String plusOrAddition = "+";
+	public static final String PLUS_OR_ADDITION = "+";
 
 
 	/**
@@ -108,7 +101,7 @@ public class ScriptWord {
 	 * <span class="lang-ja">単項マイナス演算子および加算演算子の記号「 - 」です</span>
 	 * .
 	 */
-	public String minusOrSubtraction = "-";
+	public static final String MINUS_OR_SUBTRACTION = "-";
 
 
 	/**
@@ -116,7 +109,7 @@ public class ScriptWord {
 	 * <span class="lang-ja">乗算演算子の記号「 * 」です</span>
 	 * .
 	 */
-	public String multiplication = "*";
+	public static final String MULTIPLICATION = "*";
 
 
 	/**
@@ -124,7 +117,7 @@ public class ScriptWord {
 	 * <span class="lang-ja">除算演算子の記号「 / 」です</span>
 	 * .
 	 */
-	public String division = "/";
+	public static final String DIVISION = "/";
 
 
 	/**
@@ -132,7 +125,7 @@ public class ScriptWord {
 	 * <span class="lang-ja">剰余演算子の記号「 % 」です</span>
 	 * .
 	 */
-	public String remainder = "%";
+	public static final String REMAINDER = "%";
 
 
 	/**
@@ -140,7 +133,7 @@ public class ScriptWord {
 	 * <span class="lang-ja">可算との複合代入演算子の記号「 += 」です</span>
 	 * .
 	 */
-	public String additionAssignment = "+=";
+	public static final String ADDITION_ASSIGNMENT = "+=";
 
 
 	/**
@@ -148,7 +141,7 @@ public class ScriptWord {
 	 * <span class="lang-ja">減算との複合代入演算子の記号「 -= 」です</span>
 	 * .
 	 */
-	public String subtractionAssignment = "-=";
+	public static final String SUBTRACTION_ASSIGNMENT = "-=";
 
 
 	/**
@@ -156,7 +149,7 @@ public class ScriptWord {
 	 * <span class="lang-ja">乗算との複合代入演算子の記号「 *= 」です</span>
 	 * .
 	 */
-	public String multiplicationAssignment = "*=";
+	public static final String MULTIPLICATION_ASSIGNMENT = "*=";
 
 
 	/**
@@ -164,7 +157,7 @@ public class ScriptWord {
 	 * <span class="lang-ja">除算との複合代入演算子の記号「 /= 」です</span>
 	 * .
 	 */
-	public String divisionAssignment = "/=";
+	public static final String DIVISION_ASSIGNMENT = "/=";
 
 
 	/**
@@ -172,7 +165,7 @@ public class ScriptWord {
 	 * <span class="lang-ja">剰余演算との複合代入演算子の記号「 %= 」です</span>
 	 * .
 	 */
-	public String remainderAssignment = "%=";
+	public static final String REMAINDER_ASSIGNMENT = "%=";
 
 
 	/**
@@ -180,7 +173,7 @@ public class ScriptWord {
 	 * <span class="lang-ja">前置/後置インクリメント演算子の記号「 ++ 」です</span>
 	 * .
 	 */
-	public String increment = "++";
+	public static final String INCREMENT = "++";
 
 
 	/**
@@ -188,7 +181,7 @@ public class ScriptWord {
 	 * <span class="lang-ja">前置/後置デクリメント演算子の記号「 -- 」です</span>
 	 * .
 	 */
-	public String decrement = "--";
+	public static final String DECREMENT = "--";
 
 
 	/**
@@ -196,7 +189,7 @@ public class ScriptWord {
 	 * <span class="lang-ja">等値比較演算子の記号「 == 」です</span>
 	 * .
 	 */
-	public String equal = "==";
+	public static final String EQUAL = "==";
 
 
 	/**
@@ -204,7 +197,7 @@ public class ScriptWord {
 	 * <span class="lang-ja">非等値比較演算子の記号「 &#33;= 」です</span>
 	 * .
 	 */
-	public String notEqual = "!=";
+	public static final String NOT_EQUAL = "!=";
 
 
 	/**
@@ -212,7 +205,7 @@ public class ScriptWord {
 	 * <span class="lang-ja">大なり比較演算子の記号「 &gt; 」です</span>
 	 * .
 	 */
-	public String greaterThan = ">";
+	public static final String GREATER_THAN = ">";
 
 
 	/**
@@ -220,7 +213,7 @@ public class ScriptWord {
 	 * <span class="lang-ja">大なり等値（以上）比較演算子の記号「 &gt;= 」です</span>
 	 * .
 	 */
-	public String greaterEqual = ">=";
+	public static final String GREATER_EQUAL = ">=";
 
 
 	/**
@@ -228,7 +221,7 @@ public class ScriptWord {
 	 * <span class="lang-ja">小なり比較演算子の記号「 &lt; 」です</span>
 	 * .
 	 */
-	public String lessThan = "<";
+	public static final String LESS_THAN = "<";
 
 
 	/**
@@ -236,7 +229,7 @@ public class ScriptWord {
 	 * <span class="lang-ja">小なり等値（以下）比較演算子の記号「 &lt;= 」です</span>
 	 * .
 	 */
-	public String lessEqual = "<=";
+	public static final String LESS_EQUAL = "<=";
 
 
 	/**
@@ -244,7 +237,7 @@ public class ScriptWord {
 	 * <span class="lang-ja">短絡評価を行う論理積演算子の記号「 &amp;&amp; 」です</span>
 	 * .
 	 */
-	public String shortCircuitAnd = "&&";
+	public static final String SHORT_CIRCUIT_AND = "&&";
 
 
 	/**
@@ -252,7 +245,7 @@ public class ScriptWord {
 	 * <span class="lang-ja">短絡評価を行う論理和演算子の記号「 || 」です</span>
 	 * .
 	 */
-	public String shortCircuitOr = "||";
+	public static final String SHORT_CIRCUIT_OR = "||";
 
 
 	/**
@@ -260,7 +253,7 @@ public class ScriptWord {
 	 * <span class="lang-ja">論理否定演算子の記号「 &#33; 」です</span>
 	 * .
 	 */
-	public String not = "!";
+	public static final String NOT = "!";
 
 
 	/**
@@ -268,7 +261,7 @@ public class ScriptWord {
 	 * <span class="lang-ja">括弧の始点記号「 ( 」です</span>
 	 * .
 	 */
-	public String parenthesisBegin = "(";
+	public static final String PARENTHESIS_BEGIN = "(";
 
 
 	/**
@@ -276,7 +269,7 @@ public class ScriptWord {
 	 * <span class="lang-ja">括弧の終点記号「 ) 」です</span>
 	 * .
 	 */
-	public String paranthesisEnd = ")";
+	public static final String PARENTHESIS_END = ")";
 
 
 	/**
@@ -284,7 +277,7 @@ public class ScriptWord {
 	 * <span class="lang-ja">引数の区切り記号「 , 」です</span>
 	 * .
 	 */
-	public String argumentSeparator = ",";
+	public static final String ARGUMENT_SEPARATOR = ",";
 
 
 	/**
@@ -292,7 +285,7 @@ public class ScriptWord {
 	 * <span class="lang-ja">配列インデックスの始点記号「 [ 」です</span>
 	 * .
 	 */
-	public String subscriptBegin = "[";
+	public static final String SUBSCRIPT_BEGIN = "[";
 
 
 	/**
@@ -300,7 +293,7 @@ public class ScriptWord {
 	 * <span class="lang-ja">配列インデックスの終点記号「 [ 」です</span>
 	 * .
 	 */
-	public String subscriptEnd = "]";
+	public static final String SUBSCRIPT_END = "]";
 
 
 	/**
@@ -308,7 +301,7 @@ public class ScriptWord {
 	 * <span class="lang-ja">多次元配列インデックスの区切り記号「 ][ 」です</span>
 	 * .
 	 */
-	public String subscriptSeparator = "][";
+	public static final String SUBSCRIPT_SEPARATOR = "][";
 
 
 	/**
@@ -316,7 +309,7 @@ public class ScriptWord {
 	 * <span class="lang-ja">ブロックの始点記号「 { 」です</span>
 	 * .
 	 */
-	public String blockBegin = "{";
+	public static final String BLOCK_BEGIN = "{";
 
 
 	/**
@@ -324,7 +317,7 @@ public class ScriptWord {
 	 * <span class="lang-ja">ブロックの終点記号「 } 」です</span>
 	 * .
 	 */
-	public String blockEnd = "}";
+	public static final String BLOCK_END = "}";
 
 
 	/**
@@ -332,7 +325,7 @@ public class ScriptWord {
 	 * <span class="lang-ja">if 文の始点キーワード「 if 」です</span>
 	 * .
 	 */
-	public String ifStatement = "if"; // 変数名、if だけとかは予約語なので無理
+	public static final String IF = "if";
 
 
 	/**
@@ -340,7 +333,7 @@ public class ScriptWord {
 	 * <span class="lang-ja">else 文の始点キーワード「 else 」です</span>
 	 * .
 	 */
-	public String elseStatement = "else";
+	public static final String ELSE = "else";
 
 
 	/**
@@ -348,7 +341,7 @@ public class ScriptWord {
 	 * <span class="lang-ja">for 文の始点キーワード「 for 」です</span>
 	 * .
 	 */
-	public String forStatement = "for";
+	public static final String FOR = "for";
 
 
 	/**
@@ -356,7 +349,7 @@ public class ScriptWord {
 	 * <span class="lang-ja">while 文の始点キーワード「 while 」です</span>
 	 * .
 	 */
-	public String whileStatement = "while";
+	public static final String WHILE = "while";
 
 
 	/**
@@ -364,7 +357,7 @@ public class ScriptWord {
 	 * <span class="lang-ja">break 文のキーワード「 break 」です</span>
 	 * .
 	 */
-	public String breakStatement = "break";
+	public static final String BREAK = "break";
 
 
 	/**
@@ -372,7 +365,7 @@ public class ScriptWord {
 	 * <span class="lang-ja">continue 文のキーワード「 continue 」です</span>
 	 * .
 	 */
-	public String continueStatement = "continue";
+	public static final String CONTINUE = "continue";
 
 
 	/**
@@ -380,7 +373,7 @@ public class ScriptWord {
 	 * <span class="lang-ja">return 文の始点キーワード「 return 」です</span>
 	 * .
 	 */
-	public String returnStatement = "return";
+	public static final String RETURN = "return";
 
 
 	/**
@@ -388,8 +381,7 @@ public class ScriptWord {
 	 * <span class="lang-ja">任意の個数を表す記号「 ... 」です。</span>
 	 * .
 	 */
-	public String arbitraryCountModifier = "...";
-
+	public static final String ARBITRARY_COUNT_MODIFIER = "...";
 
 	/**
 	 * <span class="lang-en">The symbol representing the reference: "&amp;"</span>
@@ -405,7 +397,7 @@ public class ScriptWord {
 	 * 演算子としてはサポートされていません
 	 * </span>
 	 */
-	public String refModifier = "&";
+	public static final String REF_MODIFIER = "&";
 
 
 	/**
@@ -413,7 +405,7 @@ public class ScriptWord {
 	 * <span class="lang-ja">定数である事を表す修飾子「 const 」です</span>
 	 * .
 	 */
-	public String constModifier = "const";
+	public static final String CONST_MODIFIER = "const";
 
 
 	/**
@@ -421,7 +413,7 @@ public class ScriptWord {
 	 * <span class="lang-ja">行コメントの始点記号「 // 」です</span>
 	 * .
 	 */
-	public String lineCommentPrefix = "//";
+	public static final String LINE_COMMENT_PREFIX = "//";
 
 
 	/**
@@ -429,7 +421,7 @@ public class ScriptWord {
 	 * <span class="lang-ja">ブロックコメントの始点記号「 /&#42; 」です</span>
 	 * .
 	 */
-	public String blockCommentBegin = "/*";
+	public static final String BLOCK_COMMENT_BEGIN = "/*";
 
 
 	/**
@@ -437,7 +429,7 @@ public class ScriptWord {
 	 * <span class="lang-ja">ブロックコメントの始点記号「 &#42;/ 」です</span>
 	 * .
 	 */
-	public String blockCommentEnd = "*/";
+	public static final String BLOCK_COMMENT_END = "*/";
 
 
 	// LexicalAnalyzer での制御文トークンの判定に使用
@@ -447,14 +439,14 @@ public class ScriptWord {
 	 * .
 	 */
 	@SuppressWarnings("serial")
-	public Set<String> statementNameSet = new HashSet<String>() {{
-		add(ifStatement);
-		add(elseStatement);
-		add(forStatement);
-		add(whileStatement);
-		add(breakStatement);
-		add(continueStatement);
-		add(returnStatement);
+	public static final Set<String> STATEMENT_NAME_SET = new HashSet<String>() {{
+		add(IF);
+		add(ELSE);
+		add(FOR);
+		add(WHILE);
+		add(BREAK);
+		add(CONTINUE);
+		add(RETURN);
 	}};
 
 
@@ -464,7 +456,7 @@ public class ScriptWord {
 	 * .
 	 */
 	@SuppressWarnings("serial")
-	public Set<String> symbolSet = new HashSet<String>() {{
+	public static final Set<String> SYMBOL_SET = new HashSet<String>() {{
 
     	// 現状のLexicalAnalyzerの仕様では、2文字記号系演算子は、必ず1文字目も単体で演算子としてヒットする必要がある。
     	// ただし if などのワード系シンボルは、逆に1文字目が単体でヒットしてはいけない。
@@ -474,56 +466,56 @@ public class ScriptWord {
     	// 現状のLexicalAnalyzerの実装のまま、もしも2文字トークンの1文字目を言語としてサポートしたくない場合は、
     	// 便宜的にその1文字のシンボルを定義した上でINVALIDを指定する事で実現可能。
 
-    	add(assignment);
-    	add(plusOrAddition);
-    	add(minusOrSubtraction);
-    	add(multiplication);
-    	add(division);
-    	add(remainder);
+    	add(ASSIGNMENT);
+    	add(PLUS_OR_ADDITION);
+    	add(MINUS_OR_SUBTRACTION);
+    	add(MULTIPLICATION);
+    	add(DIVISION);
+    	add(REMAINDER);
 
-    	add(additionAssignment);
-    	add(subtractionAssignment);
-    	add(multiplicationAssignment);
-    	add(divisionAssignment);
-    	add(remainderAssignment);
+    	add(ADDITION_ASSIGNMENT);
+    	add(SUBTRACTION_ASSIGNMENT);
+    	add(MULTIPLICATION_ASSIGNMENT);
+    	add(DIVISION_ASSIGNMENT);
+    	add(REMAINDER_ASSIGNMENT);
 
-    	add(increment);
-    	add(decrement);
+    	add(INCREMENT);
+    	add(DECREMENT);
 
-    	add(greaterThan);
-    	add(greaterEqual);
+    	add(GREATER_THAN);
+    	add(GREATER_EQUAL);
 
-    	add(lessThan);
-    	add(lessEqual);
+    	add(LESS_THAN);
+    	add(LESS_EQUAL);
 
-    	add(equal);
-    	add(notEqual);
+    	add(EQUAL);
+    	add(NOT_EQUAL);
 
-    	add(shortCircuitAnd);
-    	add(shortCircuitOr);
-    	add(not);
+    	add(SHORT_CIRCUIT_AND);
+    	add(SHORT_CIRCUIT_OR);
+    	add(NOT);
 
-    	add(argumentSeparator);
-    	add(arbitraryCountModifier);
-    	add(refModifier);
+    	add(ARGUMENT_SEPARATOR);
+    	add(ARBITRARY_COUNT_MODIFIER);
+    	add(REF_MODIFIER);
 
-    	add(parenthesisBegin);
-    	add(paranthesisEnd);
-    	add(blockBegin);
-    	add(blockEnd);
-    	add(subscriptBegin);
-    	add(subscriptSeparator);
-    	add(subscriptEnd);
+    	add(PARENTHESIS_BEGIN);
+    	add(PARENTHESIS_END);
+    	add(BLOCK_BEGIN);
+    	add(BLOCK_END);
+    	add(SUBSCRIPT_BEGIN);
+    	add(SUBSCRIPT_SEPARATOR);
+    	add(SUBSCRIPT_END);
 
-    	add(endOfStatement);
+    	add(END_OF_STATEMENT);
     }};
 
 
 	@SuppressWarnings("serial")
-	public Set<String> modifierSet = new HashSet<String>() {{
-		add(constModifier);
-		add(arbitraryCountModifier);
-		add(refModifier);
+	public static final Set<String> MODIFIER_SET = new HashSet<String>() {{
+		add(CONST_MODIFIER);
+		add(ARBITRARY_COUNT_MODIFIER);
+		add(REF_MODIFIER);
 	}};
 
 
@@ -533,9 +525,9 @@ public class ScriptWord {
 	 * .
 	 */
 	@SuppressWarnings("serial")
-	public Set<String> prefixModifierSet = new HashSet<String>() {{
-		add(constModifier);
-		add(arbitraryCountModifier);
+	public static final Set<String> PREFIX_MODIFIER_SET = new HashSet<String>() {{
+		add(CONST_MODIFIER);
+		add(ARBITRARY_COUNT_MODIFIER);
 	}};
 
 
@@ -545,8 +537,8 @@ public class ScriptWord {
 	 * .
 	 */
 	@SuppressWarnings("serial")
-	public Set<String> postfixModifierSet = new HashSet<String>() {{
-		add(refModifier);
+	public static final Set<String> POSTFIX_MODIFIER_SET = new HashSet<String>() {{
+		add(REF_MODIFIER);
 	}};
 
 
@@ -556,7 +548,7 @@ public class ScriptWord {
 	 * <span class="lang-ja">予約語を格納している HashSet です</span>
 	 */
 	@SuppressWarnings("serial")
-	public Set<String> reservedWordSet = new HashSet<String>() {{
+	public static final Set<String> RESERVED_WORD_SET = new HashSet<String>() {{
 
 		add("int");
 		add("float");
@@ -591,13 +583,13 @@ public class ScriptWord {
 		add("struct");
 		add("enum");
 
-		add(ifStatement);
-		add(elseStatement);
-		add(forStatement);
-		add(whileStatement);
-		add(breakStatement);
-		add(continueStatement);
-		add(returnStatement);
+		add(IF);
+		add(ELSE);
+		add(FOR);
+		add(WHILE);
+		add(BREAK);
+		add(CONTINUE);
+		add(RETURN);
 		add("switch");
 		add("case");
 		add("default");
