@@ -12,11 +12,6 @@ import java.util.Deque;
 import java.util.HashMap;
 import java.util.List;
 
-import org.vcssl.nano.spec.AssemblyWord;
-import org.vcssl.nano.spec.DataType;
-import org.vcssl.nano.spec.DataTypeName;
-import org.vcssl.nano.spec.ErrorType;
-import org.vcssl.nano.spec.LiteralSyntax;
 import org.vcssl.nano.vm.VirtualMachineObjectCode;
 import org.vcssl.nano.VnanoFatalException;
 import org.vcssl.nano.interconnect.AbstractVariable;
@@ -80,8 +75,6 @@ import org.vcssl.nano.VnanoException;
  * @author RINEARN (Fumihiro Matsui)
  */
 public final class Memory {
-
-	// メモ： やはり定数類の初期化処理は別のオブジェクトに移すべき
 
 	/**
 	 * {@link Memory Memory} 内を、用途に応じた領域（パーティション）に分類して使用するための列挙子です。
@@ -336,85 +329,9 @@ public final class Memory {
 
 		// 定数データ領域の確保
 		int maxConstantAddress = intermediateCode.getMaximumConstantAddress();
-		String[] immediateValues = intermediateCode.getConstantImmediateValues();
+		DataContainer<?>[] constantDataContainers = intermediateCode.getConstantDataContainers();
 		for (int constantAddress=0; constantAddress<=maxConstantAddress; constantAddress++) {
-
-			String immediate = immediateValues[constantAddress];
-			int separatorIndex = immediate.indexOf(AssemblyWord.VALUE_SEPARATOR);
-			String dataTypeName = immediate.substring(1, separatorIndex);
-			String valueText = immediate.substring(separatorIndex+1, immediate.length());
-
-			DataType dataType = DataTypeName.getDataTypeOf(dataTypeName);
-
-
-			// ! ここのパースは後々でアセンブラ側に移し、
-			//   VertualMachineObjectCode 内に Object 配列として値を保持しておくようにすべき
-
-			switch (dataType) {
-				case INT64 : {
-					DataContainer<long[]> data = new DataContainer<long[]>();
-					try {
-						// 16進数リテラルの場合
-						if (valueText.startsWith(LiteralSyntax.INT_LITERAL_HEX_PREFIX)) {
-							valueText = valueText.substring(LiteralSyntax.INT_LITERAL_HEX_PREFIX.length());
-							data.setArrayData(new long[]{ Long.parseLong(valueText, 16) }, 0, DataContainer.ARRAY_LENGTHS_OF_SCALAR);
-
-						// 8進数リテラルの場合
-						} else if (valueText.startsWith(LiteralSyntax.INT_LITERAL_OCT_PREFIX)) {
-							valueText = valueText.substring(LiteralSyntax.INT_LITERAL_OCT_PREFIX.length());
-							data.setArrayData(new long[]{ Long.parseLong(valueText, 8) }, 0, DataContainer.ARRAY_LENGTHS_OF_SCALAR);
-
-						// 2進数リテラルの場合
-						} else if (valueText.startsWith(LiteralSyntax.INT_LITERAL_BIN_PREFIX)) {
-							valueText = valueText.substring(LiteralSyntax.INT_LITERAL_BIN_PREFIX.length());
-							data.setArrayData(new long[]{ Long.parseLong(valueText, 2) }, 0, DataContainer.ARRAY_LENGTHS_OF_SCALAR);
-
-						// それ以外は10進数リテラル
-						} else {
-							data.setArrayData(new long[]{ Long.parseLong(valueText) }, 0, DataContainer.ARRAY_LENGTHS_OF_SCALAR);
-						}
-					} catch(NumberFormatException e) {
-						VnanoException vse = new VnanoException(ErrorType.INVALID_IMMEDIATE_VALUE, new String[] { valueText});
-						throw vse;
-					}
-					this.constantList.add(data);
-					break;
-				}
-				case FLOAT64 : {
-					DataContainer<double[]> data = new DataContainer<double[]>();
-					try {
-						data.setArrayData(new double[]{ Double.parseDouble(valueText) }, 0, DataContainer.ARRAY_LENGTHS_OF_SCALAR);
-					} catch(NumberFormatException e) {
-						VnanoException vse = new VnanoException(ErrorType.INVALID_IMMEDIATE_VALUE, new String[] { valueText});
-						throw vse;
-					}
-					this.constantList.add(data);
-					break;
-				}
-				case BOOL : {
-					DataContainer<boolean[]> data = new DataContainer<boolean[]>();
-					if (valueText.equals(LiteralSyntax.TRUE)) {
-						data.setArrayData(new boolean[]{ true }, 0, DataContainer.ARRAY_LENGTHS_OF_SCALAR);
-					} else if (valueText.equals(LiteralSyntax.FALSE)) {
-						data.setArrayData(new boolean[]{ false }, 0, DataContainer.ARRAY_LENGTHS_OF_SCALAR);
-					} else {
-						VnanoException vse = new VnanoException(ErrorType.INVALID_IMMEDIATE_VALUE, new String[] { valueText});
-						throw vse;
-					}
-					this.constantList.add(data);
-					break;
-				}
-				case STRING : {
-					DataContainer<String[]> data = new DataContainer<String[]>();
-					valueText = valueText.substring(1, valueText.length()-1); // ダブルクォーテーションの除去（後でもっとちゃんとやるべき）
-					data.setArrayData(new String[]{ valueText }, 0, DataContainer.ARRAY_LENGTHS_OF_SCALAR);
-					this.constantList.add(data);
-					break;
-				}
-				default: {
-					throw new VnanoFatalException("Unknown literal data type: " + dataType);
-				}
-			}
+			this.constantList.add(constantDataContainers[constantAddress]);
 		}
 	}
 

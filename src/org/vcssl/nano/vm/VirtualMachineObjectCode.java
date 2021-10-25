@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2020 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2021 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -12,6 +12,7 @@ import java.util.Map;
 
 import org.vcssl.nano.VnanoScriptEngine;
 import org.vcssl.nano.vm.memory.Memory;
+import org.vcssl.nano.vm.memory.DataContainer;
 import org.vcssl.nano.vm.processor.Instruction;
 
 
@@ -43,13 +44,15 @@ public class VirtualMachineObjectCode implements Cloneable {
 	private List<Integer> functionAddressList = null;
 	private List<Integer> labelAddressList = null;
 
-	private List<String> constantDataValueList = null;
+	private List<String> constantDataImmediateValueList = null;
+	private List<DataContainer<?>> constantDataContainerList = null;
 	private List<String> localVariableIdentifierList = null;
 	private List<String> globalVariableIdentifierList = null;
 	private List<String> functionIdentifierList = null;
 	private List<String> labelIdentifierList = null;
 
-	private Map<Integer, String> constantDataAddressValueMap = null;
+	private Map<Integer, String> constantDataAddressImmediateValueMap = null;
+	private Map<Integer, DataContainer<?>> constantDataAddressContainerMap = null;
 	private Map<Integer, String> localVariableAddressIdentifierMap = null;
 	private Map<Integer, String> globalVariableAddressIdentifierMap = null;
 	private Map<Integer, String> functionAddressIdentifierMap = null;
@@ -69,13 +72,15 @@ public class VirtualMachineObjectCode implements Cloneable {
 		this.functionAddressList = new ArrayList<Integer>();
 		this.labelAddressList = new ArrayList<Integer>();
 
-		this.constantDataValueList = new ArrayList<String>();
+		this.constantDataImmediateValueList = new ArrayList<String>();
+		this.constantDataContainerList = new ArrayList<DataContainer<?>>();
 		this.localVariableIdentifierList = new ArrayList<String>();
 		this.globalVariableIdentifierList = new ArrayList<String>();
 		this.functionIdentifierList = new ArrayList<String>();
 		this.labelIdentifierList = new ArrayList<String>();
 
-		this.constantDataAddressValueMap = new HashMap<Integer, String>();
+		this.constantDataAddressImmediateValueMap = new HashMap<Integer, String>();
+		this.constantDataAddressContainerMap = new HashMap<Integer, DataContainer<?>>();
 		this.localVariableAddressIdentifierMap = new HashMap<Integer, String>();
 		this.globalVariableAddressIdentifierMap = new HashMap<Integer, String>();
 		this.functionAddressIdentifierMap = new HashMap<Integer, String>();
@@ -122,7 +127,11 @@ public class VirtualMachineObjectCode implements Cloneable {
 	}
 
 	public String[] getConstantImmediateValues() {
-		return this.constantDataValueList.toArray(new String[0]);
+		return this.constantDataImmediateValueList.toArray(new String[0]);
+	}
+
+	public DataContainer<?>[] getConstantDataContainers() {
+		return this.constantDataContainerList.toArray(new DataContainer<?>[0]);
 	}
 
 	public String[] getGlobalAssemblyIdentifiers() {
@@ -137,10 +146,12 @@ public class VirtualMachineObjectCode implements Cloneable {
 	public void addRegister(int address) {
 		this.registerAddressList.add(address);
 	}
-	public void addConstantData(String immediateValue, int address) {
-		this.constantDataValueList.add(immediateValue);
+	public void addConstantData(String immediateValue, DataContainer<?> container, int address) {
+		this.constantDataImmediateValueList.add(immediateValue);
+		this.constantDataContainerList.add(container);
 		this.constantDataAddressList.add(address);
-		this.constantDataAddressValueMap.put(address, immediateValue);
+		this.constantDataAddressImmediateValueMap.put(address, immediateValue);
+		this.constantDataAddressContainerMap.put(address, container);
 	}
 	public void addLocalVariable(String uniqueIdentifier, int address) {
 		this.localVariableIdentifierList.add(uniqueIdentifier);
@@ -176,7 +187,7 @@ public class VirtualMachineObjectCode implements Cloneable {
 		return this.globalVariableAddressList.get(index);
 	}
 	public int getConstantDataAddress(String immediateValue) {
-		int index = this.constantDataValueList.indexOf(immediateValue);
+		int index = this.constantDataImmediateValueList.indexOf(immediateValue);
 		return this.constantDataAddressList.get(index);
 	}
 	public int getLabelAddress(String uniqueIdentifier) {
@@ -195,7 +206,7 @@ public class VirtualMachineObjectCode implements Cloneable {
 		return this.globalVariableAddressIdentifierMap.get(address);
 	}
 	public String getConstantDataImmediateValue(int address) {
-		return this.constantDataAddressValueMap.get(address);
+		return this.constantDataAddressImmediateValueMap.get(address);
 	}
 	public String getFunctionUniqueIdentifier(int address) {
 		return this.functionAddressIdentifierMap.get(address);
@@ -205,7 +216,7 @@ public class VirtualMachineObjectCode implements Cloneable {
 		return this.registerAddressList.contains(address);
 	}
 	public boolean containsConstantData(String immediateValue) {
-		return this.constantDataValueList.contains(immediateValue);
+		return this.constantDataImmediateValueList.contains(immediateValue);
 	}
 	public boolean containsGlobalVariable(String uniqueIdentifier) {
 		return this.globalVariableIdentifierList.contains(uniqueIdentifier);
@@ -331,9 +342,9 @@ public class VirtualMachineObjectCode implements Cloneable {
 		builder.append(eol);
 
 		builder.append("#CONSTANT_DATA" + eol);
-		for(int i=0; i<this.constantDataValueList.size(); i++) {
+		for(int i=0; i<this.constantDataImmediateValueList.size(); i++) {
 			int address = this.constantDataAddressList.get(i);
-			String constantValue = this.constantDataValueList.get(i);
+			String constantValue = this.constantDataImmediateValueList.get(i);
 			builder.append("\t" + Memory.Partition.CONSTANT.toString().charAt(0) + address + "\t" + constantValue + eol);
 		}
 		builder.append(eol);

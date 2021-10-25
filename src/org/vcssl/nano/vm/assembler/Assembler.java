@@ -15,10 +15,12 @@ import org.vcssl.nano.interconnect.VariableTable;
 import org.vcssl.nano.spec.AssemblyWord;
 import org.vcssl.nano.spec.DataType;
 import org.vcssl.nano.spec.DataTypeName;
+import org.vcssl.nano.spec.ErrorType;
 import org.vcssl.nano.spec.LiteralSyntax;
 import org.vcssl.nano.spec.OperationCode;
 import org.vcssl.nano.vm.VirtualMachineObjectCode;
 import org.vcssl.nano.vm.memory.Memory;
+import org.vcssl.nano.vm.memory.DataContainer;
 import org.vcssl.nano.vm.processor.Instruction;
 
 
@@ -106,6 +108,84 @@ public class Assembler {
 
 
 	/**
+	 * 即値を解釈し、値を格納するデータコンテナを生成して返します。
+	 *
+	 * @param immediateValue 解釈する即値
+	 * @return 解釈された値を格納するデータコンテナ
+	 * @throws VnanoException 正常に解釈できない即値が検出された際にスローされます。
+	 */
+	private DataContainer<?> decodeImmediateValue(String immediateValue) throws VnanoException {
+
+		int separatorIndex = immediateValue.indexOf(AssemblyWord.VALUE_SEPARATOR);
+		String dataTypeName = immediateValue.substring(1, separatorIndex);
+		String valueText = immediateValue.substring(separatorIndex+1, immediateValue.length());
+		DataType dataType = DataTypeName.getDataTypeOf(dataTypeName);
+
+		switch (dataType) {
+			case INT64 : {
+				DataContainer<long[]> data = new DataContainer<long[]>();
+				try {
+					// 16進数リテラルの場合
+					if (valueText.startsWith(LiteralSyntax.INT_LITERAL_HEX_PREFIX)) {
+						valueText = valueText.substring(LiteralSyntax.INT_LITERAL_HEX_PREFIX.length());
+						data.setInt64ScalarData(Long.parseLong(valueText, 16));
+
+					// 8進数リテラルの場合
+					} else if (valueText.startsWith(LiteralSyntax.INT_LITERAL_OCT_PREFIX)) {
+						valueText = valueText.substring(LiteralSyntax.INT_LITERAL_OCT_PREFIX.length());
+						data.setInt64ScalarData(Long.parseLong(valueText, 8));
+
+					// 2進数リテラルの場合
+					} else if (valueText.startsWith(LiteralSyntax.INT_LITERAL_BIN_PREFIX)) {
+						valueText = valueText.substring(LiteralSyntax.INT_LITERAL_BIN_PREFIX.length());
+						data.setInt64ScalarData(Long.parseLong(valueText, 2));
+
+					// それ以外は10進数リテラル
+					} else {
+						data.setInt64ScalarData(Long.parseLong(valueText));
+					}
+				} catch(NumberFormatException e) {
+					VnanoException vse = new VnanoException(ErrorType.INVALID_IMMEDIATE_VALUE, new String[] { valueText});
+					throw vse;
+				}
+				return data;
+			}
+			case FLOAT64 : {
+				DataContainer<double[]> data = new DataContainer<double[]>();
+				try {
+					data.setFloat64ScalarData(Double.parseDouble(valueText));
+				} catch(NumberFormatException e) {
+					VnanoException vse = new VnanoException(ErrorType.INVALID_IMMEDIATE_VALUE, new String[] { valueText});
+					throw vse;
+				}
+				return data;
+			}
+			case BOOL : {
+				DataContainer<boolean[]> data = new DataContainer<boolean[]>();
+				if (valueText.equals(LiteralSyntax.TRUE)) {
+					data.setBoolScalarData(true);
+				} else if (valueText.equals(LiteralSyntax.FALSE)) {
+					data.setBoolScalarData(false);
+				} else {
+					VnanoException vse = new VnanoException(ErrorType.INVALID_IMMEDIATE_VALUE, new String[] { valueText});
+					throw vse;
+				}
+				return data;
+			}
+			case STRING : {
+				DataContainer<String[]> data = new DataContainer<String[]>();
+				valueText = valueText.substring(1, valueText.length()-1); // ダブルクォーテーションの除去（後でもっとちゃんとやるべき）
+				data.setStringScalarData(valueText);
+				return data;
+			}
+			default: {
+				throw new VnanoFatalException("Unknown literal data type: " + dataType);
+			}
+		}
+	}
+
+
+	/**
 	 * 仮想アセンブリコードを解釈し、より実行に適した中間コードである、
 	 * {@link org.vcssl.nano.vm.VirtualMachineObjectCode}
 	 * オブジェクトに変換して返します。
@@ -169,7 +249,8 @@ public class Assembler {
 					+ DataTypeName.getDataTypeNameOf(DataType.STRING)
 					+ AssemblyWord.VALUE_SEPARATOR
 					+ originalStringLiteral;
-				intermediateCode.addConstantData(metaImmediateValue, constantAddress);
+				DataContainer<?> dataContainer = this.decodeImmediateValue(metaImmediateValue);
+				intermediateCode.addConstantData(metaImmediateValue, dataContainer, constantAddress);
 				metaAddress = constantAddress;
 				constantAddress++;
 
@@ -227,7 +308,8 @@ public class Assembler {
 							}
 
 							operandAddresses[operandIndex] = constantAddress;
-							intermediateCode.addConstantData(word, constantAddress);
+							DataContainer<?> dataContainer = this.decodeImmediateValue(word);
+							intermediateCode.addConstantData(word, dataContainer, constantAddress);
 							constantAddress++;
 						}
 						operandAddressTypes[operandIndex] = Memory.Partition.CONSTANT;
@@ -272,7 +354,8 @@ public class Assembler {
 
 							operandAddressTypes[operandIndex] = Memory.Partition.CONSTANT;
 							operandAddresses[operandIndex] = constantAddress;
-							intermediateCode.addConstantData(functionAddressImmediateValue, constantAddress);
+							DataContainer<?> dataContainer = this.decodeImmediateValue(functionAddressImmediateValue);
+							intermediateCode.addConstantData(functionAddressImmediateValue, dataContainer, constantAddress);
 							constantAddress++;
 
 						} else {
@@ -291,7 +374,8 @@ public class Assembler {
 
 						operandAddressTypes[operandIndex] = Memory.Partition.CONSTANT;
 						operandAddresses[operandIndex] = constantAddress;
-						intermediateCode.addConstantData(functionAddressImmediateValue, constantAddress);
+						DataContainer<?> dataContainer = this.decodeImmediateValue(functionAddressImmediateValue);
+						intermediateCode.addConstantData(functionAddressImmediateValue, dataContainer, constantAddress);
 						constantAddress++;
 
 				} else if (prefix == AssemblyWord.PLACEHOLDER_OPERAND_PREFIX) {
