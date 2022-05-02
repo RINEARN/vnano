@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2019-2021 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2019-2022 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -9,6 +9,7 @@ import java.util.Locale;
 import java.util.Map;
 
 import org.vcssl.connect.ConnectorException;
+import org.vcssl.connect.ConnectorPermissionValue;
 import org.vcssl.connect.EngineConnectorInterface1;
 import org.vcssl.connect.PermissionAuthorizerConnectorInterface1;
 import org.vcssl.nano.VnanoException;
@@ -161,12 +162,30 @@ public final class EngineConnector implements EngineConnectorInterface1 {
 
 
 	/**
-	 * 指定された名称のパーミッションを要求します。
+	 * <span class="lang-en">Request the specified permission</span>
+	 * <span class="lang-ja">指定されたパーミッションを要求します</span>
+	 * .
+	 * @param permissionName
+	 *     <span class="lang-en">The name of the permission item to request</span>
+	 *     <span class="lang-ja">要求するパーミッション項目の名称</span>
 	 *
-	 * @param permissionName パーミッションの名称
-	 * @param requester パーミッションの要求元プラグイン
-	 * @param metaInformation ユーザーに通知するメッセージ内等で用いられるメタ情報
-	 * @throws 要求したパーミッションが却下された場合にスローされます。
+	 * @param requester
+	 *     <span class="lang-en">The plug-in requesting the permission</span>
+	 *     <span class="lang-ja">パーミッションを要求しているプラグイン</span>
+	 *
+	 * @param metaInformation
+	 *     <span class="lang-en">
+	 *         The information to be notified to the user
+	 *         (especially when the current value of the permission is set to {@link ConnectorPermissionValue#ASK ASK})
+	 *     </span>
+	 *     <span class="lang-ja">
+	 *         必要に応じてユーザーに通知されるメタ情報
+	 *         （特に, パーミッション値が {@link ConnectorPermissionValue#ASK ASK} に設定されている際などに表示されます）
+	 *     </span>
+	 *
+	 * @throws ConnectorException
+	 *     <span class="lang-en">Thrown when the requested permission has been denied</span>
+	 *     <span class="lang-ja">要求したパーミッションが拒否された場合にスローされます</span>
 	 */
 	@Override
 	public final void requestPermission(String permissionName, Object requester, Object metaInformation)
@@ -184,6 +203,47 @@ public final class EngineConnector implements EngineConnectorInterface1 {
 				ErrorType.NO_PERMISSION_AUTHORIZER_IS_CONNECTED, (Locale)this.optionMap.get(OptionKey.LOCALE)
 			);
 			throw new ConnectorException(errorMessage);
+		}
+	}
+
+
+	/**
+	 * <span class="lang-en">Returns whether the other type of engine connector is available or not</span>
+	 * <span class="lang-en">他種のエンジンコネクターが利用可能かどうかを返します</span>
+	 * .
+	 * @param engineConnectorClass
+	 *     <span class="lang-en">The class of the engine connector you want to use</span>
+	 *     <span class="lang-ja">使用したいエンジンコネクターのクラス</span>
+	 *
+	 * @return
+	 *     <span class="lang-en">Returns "true" if the specified engine connector is available</span>
+	 *     <span class="lang-ja">指定されたエンジンコネクターが利用可能な場合に true が返されます</span>
+	 */
+	@Override
+	public boolean isOtherEngineConnectorAvailable(Class<?> engineConnectorClass) {
+		return engineConnectorClass == this.getClass()
+				|| engineConnectorClass == EngineConnectorInterface1.class;
+	}
+
+
+	/**
+	 * <span class="lang-en">Returns the other type of engine connector</span>
+	 * <span class="lang-en">他種のエンジンコネクターを返します</span>
+	 * .
+	 * @param engineConnectorClass
+	 *     <span class="lang-en">The class of the engine connector you want to use</span>
+	 *     <span class="lang-ja">使用したいエンジンコネクターのクラス</span>
+	 *
+	 * @return
+	 *     <span class="lang-en">The specified type of engine connector</span>
+	 *     <span class="lang-ja">指定された種類のエンジンコネクター</span>
+	 */
+	@Override
+	public <T> T getOtherEngineConnector(Class<T> engineConnectorClass) {
+		if (this.isOtherEngineConnectorAvailable(engineConnectorClass)) {
+			return engineConnectorClass.cast(this);
+		} else {
+			return null;
 		}
 	}
 }
