@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2020 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2021 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -14,7 +14,6 @@ import org.vcssl.nano.spec.DataTypeName;
 import org.vcssl.nano.spec.LiteralSyntax;
 import org.vcssl.nano.spec.OperatorPrecedence;
 import org.vcssl.nano.spec.ScriptWord;
-import org.vcssl.nano.spec.LanguageSpecContainer;
 
 //Documentation:  https://www.vcssl.org/en-us/dev/code/main-jimpl/api/org/vcssl/nano/compiler/LexicalAnalyzer.html
 //ドキュメント:   https://www.vcssl.org/ja-jp/dev/code/main-jimpl/api/org/vcssl/nano/compiler/LexicalAnalyzer.html
@@ -69,36 +68,16 @@ import org.vcssl.nano.spec.LanguageSpecContainer;
  */
 public class LexicalAnalyzer {
 
-	/** スクリプト言語の語句が定義された設定オブジェクトを保持します。 */
-	private final ScriptWord SCRIPT_WORD;
-
-	/** リテラルの判定規則類が定義された設定オブジェクトを保持します。 */
-	private final LiteralSyntax LITERAL_SYNTAX;
-
-	/** 演算子の優先度が定義された設定オブジェクトを保持します。 */
-	private final OperatorPrecedence OPERATOR_PRECEDENCE;
-
-	/** データ型名が定義された設定オブジェクトを保持します。 */
-	private final DataTypeName DATA_TYPE_NAME;
-
-
 	/**
 	 * <span class="lang-en">
-	 * Create a new lexical analyzer with the specified language specification settings
+	 * Create a new lexical analyzer
 	 * </span>
 	 * <span class="lang-ja">
-	 * 指定された言語仕様設定で, レキシカルアナライザを生成します
+	 * レキシカルアナライザを生成します
 	 * </span>
 	 * .
-	 * @param langSpec
-	 *   <span class="lang-en">language specification settings.</span>
-	 *   <span class="lang-ja">言語仕様設定.</span>
 	 */
-	public LexicalAnalyzer(LanguageSpecContainer langSpec) {
-		this.SCRIPT_WORD = langSpec.SCRIPT_WORD;
-		this.LITERAL_SYNTAX = langSpec.LITERAL_SYNTAX;
-		this.OPERATOR_PRECEDENCE = langSpec.OPERATOR_PRECEDENCE;
-		this.DATA_TYPE_NAME = langSpec.DATA_TYPE_NAME;
+	public LexicalAnalyzer() {
 	}
 
 
@@ -129,7 +108,7 @@ public class LexicalAnalyzer {
 	public Token[] analyze(String script, String fileName) throws VnanoException {
 
 		// 最初に, コード内の文字列リテラルを全て "1", "2", ... などのように番号化リテラルで置き換える
-		String[] stringLiteralExtractResult = LITERAL_SYNTAX.extractStringLiterals(script);
+		String[] stringLiteralExtractResult = LiteralSyntax.extractStringLiterals(script);
 
 		// 戻り値の [0] に置き換え済みコードが, [1] 以降に番号に対応する文字列リテラルが格納されている
 		String stringLiteralReplacedCode = stringLiteralExtractResult[0];
@@ -208,17 +187,17 @@ public class LexicalAnalyzer {
 			// 数値リテラルの指数部に登場する「 + 」や「 - 」については、1文字記号トークンの「 + 」や「 - 」としては扱わない
 			//（それをトークナイズすると数値リテラルが途中で切れるため）
 			if (0<pointer && isReadingNumericLiteral) {
-				if (Character.toString(chars[pointer-1]).matches(LITERAL_SYNTAX.floatLiteralExponentPrefixRegex)) {
+				if (Character.toString(chars[pointer-1]).matches(LiteralSyntax.FLOAT_LITERAL_EXPONENT_PREFIX)) {
 					singleCharSymbol = null;
 				}
 			}
 
 			// トークン区切り文字または記号トークンが出現した時点で、
 			// これまでワードトークンバッファに控えられている内容を確定させて生成/追加
-			if (Character.toString(chars[pointer]).matches(SCRIPT_WORD.tokenSeparatorRegex)
-					|| SCRIPT_WORD.symbolSet.contains(singleCharSymbol)
-					|| SCRIPT_WORD.symbolSet.contains(doubleCharSymbol)
-					|| SCRIPT_WORD.symbolSet.contains(tripleCharSymbol) ) {
+			if (Character.toString(chars[pointer]).matches(ScriptWord.TOKEN_SEPARATOR_REGEX)
+					|| ScriptWord.SYMBOL_SET.contains(singleCharSymbol)
+					|| ScriptWord.SYMBOL_SET.contains(doubleCharSymbol)
+					|| ScriptWord.SYMBOL_SET.contains(tripleCharSymbol) ) {
 
 				if (wordTokenBuilder.length() != 0) {
 					tokenList.add(new Token(
@@ -231,19 +210,19 @@ public class LexicalAnalyzer {
 			}
 
 			// 次が3文字記号トークンが来る場合 ... 記号トークンを生成/追加
-			if (SCRIPT_WORD.symbolSet.contains(tripleCharSymbol)) {
+			if (ScriptWord.SYMBOL_SET.contains(tripleCharSymbol)) {
 				tokenList.add(new Token(tripleCharSymbol, lineNumber, fileName));
 				pointer += 3;	//2文字先読みしたので3つ加算
 				continue;
 
 			// 次が2文字記号トークンが来る場合 ... 記号トークンを生成/追加
-			} else if (SCRIPT_WORD.symbolSet.contains(doubleCharSymbol)) {
+			} else if (ScriptWord.SYMBOL_SET.contains(doubleCharSymbol)) {
 				tokenList.add(new Token(doubleCharSymbol, lineNumber, fileName));
 				pointer += 2;	//1文字先読みしたので3つ加算
 				continue;
 
 			// 次に2文字記号トークンが来る場合 ... 記号トークンを生成/追加
-			} else if (SCRIPT_WORD.symbolSet.contains(singleCharSymbol)) {
+			} else if (ScriptWord.SYMBOL_SET.contains(singleCharSymbol)) {
 				tokenList.add(new Token(singleCharSymbol, lineNumber, fileName));
 				pointer += 1;	//1文字先読みしたので3つ加算
 				continue;
@@ -311,15 +290,15 @@ public class LexicalAnalyzer {
 			String word = tokens[i].getValue();
 
 			// ブロック
-			if (word.equals(SCRIPT_WORD.blockBegin) || word.equals(SCRIPT_WORD.blockEnd)) {
+			if (word.equals(ScriptWord.BLOCK_BEGIN) || word.equals(ScriptWord.BLOCK_END)) {
 				tokens[i].setType(Token.Type.BLOCK);
 
 			// 開き括弧
-			} else if (word.equals(SCRIPT_WORD.parenthesisBegin)) {
+			} else if (word.equals(ScriptWord.PARENTHESIS_BEGIN)) {
 				parenthesisStage++;
 
 				// キャスト演算子の括弧
-				if (i<tokenLength-1 && DATA_TYPE_NAME.isDataTypeName(tokens[i+1].getValue())) {
+				if (i<tokenLength-1 && DataTypeName.isDataTypeName(tokens[i+1].getValue())) {
 					tokens[i].setType(Token.Type.OPERATOR);
 					tokens[i].setAttribute(AttributeKey.OPERATOR_EXECUTOR, AttributeValue.CAST);
 					tokens[i].setAttribute(AttributeKey.OPERATOR_SYNTAX, AttributeValue.PREFIX);
@@ -328,7 +307,7 @@ public class LexicalAnalyzer {
 				// 関数呼び出し演算子の括弧
 				} else if (lastToken!=null && lastToken.getType()==Token.Type.LEAF
 						&& lastToken.getAttribute(AttributeKey.LEAF_TYPE).equals(AttributeValue.FUNCTION_IDENTIFIER)
-						&& !SCRIPT_WORD.statementNameSet.contains(lastWord)) {
+						&& !ScriptWord.STATEMENT_NAME_SET.contains(lastWord)) {
 
 					callParenthesisStages.add(parenthesisStage);
 					tokens[i].setType(Token.Type.OPERATOR);
@@ -341,7 +320,7 @@ public class LexicalAnalyzer {
 				}
 
 			// 閉じ括弧
-			} else if (word.equals(SCRIPT_WORD.paranthesisEnd)) {
+			} else if (word.equals(ScriptWord.PARENTHESIS_END)) {
 
 				// キャスト演算子の括弧
 				if (inCastParenthesis) {
@@ -365,53 +344,53 @@ public class LexicalAnalyzer {
 				parenthesisStage--;
 
 			// 関数呼び出し演算子内の引数区切りのカンマ（独立したカンマ演算子は非サポート）
-			} else if (word.equals(SCRIPT_WORD.argumentSeparator)) {
+			} else if (word.equals(ScriptWord.ARGUMENT_SEPARATOR)) {
 				tokens[i].setType(Token.Type.OPERATOR);
 				tokens[i].setAttribute(AttributeKey.OPERATOR_EXECUTOR, AttributeValue.CALL);
 				tokens[i].setAttribute(AttributeKey.OPERATOR_SYNTAX, AttributeValue.MULTIARY_SEPARATOR);
 
 			// 配列インデックスの開き括弧「 [ 」
-			} else if (word.equals(SCRIPT_WORD.subscriptBegin)) {
+			} else if (word.equals(ScriptWord.SUBSCRIPT_BEGIN)) {
 				tokens[i].setType(Token.Type.OPERATOR);
 				tokens[i].setAttribute(AttributeKey.OPERATOR_EXECUTOR, AttributeValue.SUBSCRIPT);
 				tokens[i].setAttribute(AttributeKey.OPERATOR_SYNTAX, AttributeValue.MULTIARY);
 
 			// 配列インデックスの次元区切り「 ][ 」
 			// (この処理系では, 多次元配列は「配列の配列」ではなく, あくまでもインデックスを複数持つ1個の配列)
-			} else if (word.equals(SCRIPT_WORD.subscriptEnd + SCRIPT_WORD.subscriptBegin)) {
+			} else if (word.equals(ScriptWord.SUBSCRIPT_END + ScriptWord.SUBSCRIPT_BEGIN)) {
 
 				tokens[i].setType(Token.Type.OPERATOR);
 				tokens[i].setAttribute(AttributeKey.OPERATOR_EXECUTOR, AttributeValue.SUBSCRIPT);
 				tokens[i].setAttribute(AttributeKey.OPERATOR_SYNTAX, AttributeValue.MULTIARY_SEPARATOR);
 
 			// 配列インデックスの閉じ括弧「 ] 」
-			} else if (word.equals(SCRIPT_WORD.subscriptEnd)) {
+			} else if (word.equals(ScriptWord.SUBSCRIPT_END)) {
 
 				tokens[i].setType(Token.Type.OPERATOR);
 				tokens[i].setAttribute(AttributeKey.OPERATOR_EXECUTOR, AttributeValue.SUBSCRIPT);
 				tokens[i].setAttribute(AttributeKey.OPERATOR_SYNTAX, AttributeValue.MULTIARY_END);
 
 			// 文末
-			} else if (word.equals(SCRIPT_WORD.endOfStatement)) {
+			} else if (word.equals(ScriptWord.END_OF_STATEMENT)) {
 				tokens[i].setType(Token.Type.END_OF_STATEMENT);
 
 			// 修飾子（参照渡しを表す「 & 」や任意個数引数を表す「 ... 」も含む）
-			} else if (SCRIPT_WORD.modifierSet.contains(word)) {
+			} else if (ScriptWord.MODIFIER_SET.contains(word)) {
 				tokens[i].setType(Token.Type.MODIFIER);
 
 			// 代入演算子
-			} else if (word.equals(SCRIPT_WORD.assignment)) {
+			} else if (word.equals(ScriptWord.ASSIGNMENT)) {
 				tokens[i].setType(Token.Type.OPERATOR);
 				tokens[i].setAttribute(AttributeKey.OPERATOR_EXECUTOR, AttributeValue.ASSIGNMENT);
 				tokens[i].setAttribute(AttributeKey.OPERATOR_SYNTAX, AttributeValue.BINARY);
 
 			// 加減算もしくは符号
-			} else if (word.equals(SCRIPT_WORD.plusOrAddition) || word.equals(SCRIPT_WORD.minusOrSubtraction)) {
+			} else if (word.equals(ScriptWord.PLUS_OR_ADDITION) || word.equals(ScriptWord.MINUS_OR_SUBTRACTION)) {
 
 				// 前が「ワードかリテラルか識別子（WORDに分類）か閉じ括弧か配列インデックス閉じ括弧」なら算術二項演算子の加減算
 				if (lastToken!=null && (lastToken.getType()==Token.Type.LEAF
-						|| lastToken.getValue().equals(SCRIPT_WORD.paranthesisEnd)
-						|| lastToken.getValue().equals(SCRIPT_WORD.subscriptEnd))) {
+						|| lastToken.getValue().equals(ScriptWord.PARENTHESIS_END)
+						|| lastToken.getValue().equals(ScriptWord.SUBSCRIPT_END))) {
 
 					tokens[i].setType(Token.Type.OPERATOR);
 					tokens[i].setAttribute(AttributeKey.OPERATOR_EXECUTOR, AttributeValue.ARITHMETIC);
@@ -425,53 +404,53 @@ public class LexicalAnalyzer {
 				}
 
 			// 	上記の加減算以外の算術二項演算子
-			} else if (word.equals(SCRIPT_WORD.multiplication)
-					|| word.equals(SCRIPT_WORD.division)
-					|| word.equals(SCRIPT_WORD.remainder)) {
+			} else if (word.equals(ScriptWord.MULTIPLICATION)
+					|| word.equals(ScriptWord.DIVISION)
+					|| word.equals(ScriptWord.REMAINDER)) {
 
 				tokens[i].setType(Token.Type.OPERATOR);
 				tokens[i].setAttribute(AttributeKey.OPERATOR_EXECUTOR, AttributeValue.ARITHMETIC);
 				tokens[i].setAttribute(AttributeKey.OPERATOR_SYNTAX, AttributeValue.BINARY);
 
 			// 	算術系の複合代入演算子
-			} else if (word.equals(SCRIPT_WORD.additionAssignment)
-					|| word.equals(SCRIPT_WORD.subtractionAssignment)
-					|| word.equals(SCRIPT_WORD.multiplicationAssignment)
-					|| word.equals(SCRIPT_WORD.divisionAssignment)
-					|| word.equals(SCRIPT_WORD.remainderAssignment)) {
+			} else if (word.equals(ScriptWord.ADDITION_ASSIGNMENT)
+					|| word.equals(ScriptWord.SUBTRACTION_ASSIGNMENT)
+					|| word.equals(ScriptWord.MULTIPLICATION_ASSIGNMENT)
+					|| word.equals(ScriptWord.DIVISION_ASSIGNMENT)
+					|| word.equals(ScriptWord.REMAINDER_ASSIGNMENT)) {
 
 				tokens[i].setType(Token.Type.OPERATOR);
 				tokens[i].setAttribute(AttributeKey.OPERATOR_EXECUTOR, AttributeValue.ARITHMETIC_COMPOUND_ASSIGNMENT);
 				tokens[i].setAttribute(AttributeKey.OPERATOR_SYNTAX, AttributeValue.BINARY);
 
 			// 	比較二項演算子
-			} else if (word.equals(SCRIPT_WORD.equal)
-					|| word.equals(SCRIPT_WORD.notEqual)
-					|| word.equals(SCRIPT_WORD.greaterThan)
-					|| word.equals(SCRIPT_WORD.greaterEqual)
-					|| word.equals(SCRIPT_WORD.lessThan)
-					|| word.equals(SCRIPT_WORD.lessEqual)) {
+			} else if (word.equals(ScriptWord.EQUAL)
+					|| word.equals(ScriptWord.NOT_EQUAL)
+					|| word.equals(ScriptWord.GREATER_THAN)
+					|| word.equals(ScriptWord.GREATER_EQUAL)
+					|| word.equals(ScriptWord.LESS_THAN)
+					|| word.equals(ScriptWord.LESS_EQUAL)) {
 
 				tokens[i].setType(Token.Type.OPERATOR);
 				tokens[i].setAttribute(AttributeKey.OPERATOR_EXECUTOR, AttributeValue.COMPARISON);
 				tokens[i].setAttribute(AttributeKey.OPERATOR_SYNTAX, AttributeValue.BINARY);
 
 			// 	論理二項演算子
-			} else if (word.equals(SCRIPT_WORD.shortCircuitAnd)
-					|| word.equals(SCRIPT_WORD.shortCircuitOr)) {
+			} else if (word.equals(ScriptWord.SHORT_CIRCUIT_AND)
+					|| word.equals(ScriptWord.SHORT_CIRCUIT_OR)) {
 
 				tokens[i].setType(Token.Type.OPERATOR);
 				tokens[i].setAttribute(AttributeKey.OPERATOR_EXECUTOR, AttributeValue.LOGICAL);
 				tokens[i].setAttribute(AttributeKey.OPERATOR_SYNTAX, AttributeValue.BINARY);
 
 			// 論理前置演算子
-			} else if (word.equals(SCRIPT_WORD.not)) {
+			} else if (word.equals(ScriptWord.NOT)) {
 				tokens[i].setType(Token.Type.OPERATOR);
 				tokens[i].setAttribute(AttributeKey.OPERATOR_EXECUTOR, AttributeValue.LOGICAL);
 				tokens[i].setAttribute(AttributeKey.OPERATOR_SYNTAX, AttributeValue.PREFIX);
 
 			// インクリメントとデクリメント
-			} else if (word.equals(SCRIPT_WORD.increment) || word.equals(SCRIPT_WORD.decrement)) {
+			} else if (word.equals(ScriptWord.INCREMENT) || word.equals(ScriptWord.DECREMENT)) {
 
 				// 前が識別子(WORDに分類)かリテラルか後置演算子(INDEXなど)なら後置インクリメント/デクリメント, そうでなければ前置インクリメント/デクリメント
 				if (lastToken!=null && ( lastToken.getType() == Token.Type.LEAF
@@ -487,18 +466,18 @@ public class LexicalAnalyzer {
 					tokens[i].setAttribute(AttributeKey.OPERATOR_SYNTAX, AttributeValue.PREFIX);
 				}
 
-			} else if (word.equals(SCRIPT_WORD.ifStatement)
-					|| word.equals(SCRIPT_WORD.elseStatement)
-					|| word.equals(SCRIPT_WORD.forStatement)
-					|| word.equals(SCRIPT_WORD.whileStatement)
-					|| word.equals(SCRIPT_WORD.returnStatement)
-					|| word.equals(SCRIPT_WORD.breakStatement)
-					|| word.equals(SCRIPT_WORD.continueStatement)) {
+			} else if (word.equals(ScriptWord.IF)
+					|| word.equals(ScriptWord.ELSE)
+					|| word.equals(ScriptWord.FOR)
+					|| word.equals(ScriptWord.WHILE)
+					|| word.equals(ScriptWord.RETURN)
+					|| word.equals(ScriptWord.BREAK)
+					|| word.equals(ScriptWord.CONTINUE)) {
 
 				tokens[i].setType(Token.Type.CONTROL);
 
 			// データ型名
-			} else if (DATA_TYPE_NAME.isDataTypeName(word)) {
+			} else if (DataTypeName.isDataTypeName(word)) {
 				tokens[i].setType(Token.Type.DATA_TYPE);
 
 			// リテラルか識別子などのリーフ要素
@@ -506,10 +485,10 @@ public class LexicalAnalyzer {
 				tokens[i].setType(Token.Type.LEAF);
 
 				// リテラルとして有効な内容 -> リテラル
-				if (LITERAL_SYNTAX.isValidLiteral(word)) {
+				if (LiteralSyntax.isValidLiteral(word)) {
 					tokens[i].setAttribute(AttributeKey.LEAF_TYPE, AttributeValue.LITERAL);
 				// 次のトークンが「 ( 」記号 -> 関数識別子
-				} else if (i<tokenLength-1 && tokens[i+1].getValue().equals(SCRIPT_WORD.parenthesisBegin)) {
+				} else if (i<tokenLength-1 && tokens[i+1].getValue().equals(ScriptWord.PARENTHESIS_BEGIN)) {
 					tokens[i].setAttribute(AttributeKey.LEAF_TYPE, AttributeValue.FUNCTION_IDENTIFIER);
 				// それ以外は変数識別子
 				} else {
@@ -540,131 +519,131 @@ public class LexicalAnalyzer {
 			// 多少冗長でも if - else で分岐する
 			// (処理コスト的には HashMap で飛ばすべきかもしれないが、現状そこまで時間は食っていないので保留）
 
-			if (symbol.equals(SCRIPT_WORD.parenthesisBegin)) {
+			if (symbol.equals(ScriptWord.PARENTHESIS_BEGIN)) {
 
 					// 演算子の場合
 					if (tokens[i].getType() == Token.Type.OPERATOR) {
 						String executor = tokens[i].getAttribute(AttributeKey.OPERATOR_EXECUTOR);
 						if (executor.equals(AttributeValue.CAST)) { // キャスト演算子の場合
-							tokens[i].setPrecedence(OPERATOR_PRECEDENCE.castBegin);
+							tokens[i].setPrecedence(OperatorPrecedence.CAST_BEGIN);
 						} else if (executor.equals(AttributeValue.CALL)) { // 関数コールの場合
-							tokens[i].setPrecedence(OPERATOR_PRECEDENCE.callBegin);
+							tokens[i].setPrecedence(OperatorPrecedence.CALL_BEGIN);
 						}
 
 					// 構文上の括弧の場合
 					} else {
-						tokens[i].setPrecedence(OPERATOR_PRECEDENCE.parenthesisBegin);
+						tokens[i].setPrecedence(OperatorPrecedence.PARENTHESIS_BEGIN);
 					}
 
-			} else if (symbol.equals(SCRIPT_WORD.paranthesisEnd)) {
+			} else if (symbol.equals(ScriptWord.PARENTHESIS_END)) {
 
 					// 演算子の場合
 					if (tokens[i].getType() == Token.Type.OPERATOR) {
 						String executor = tokens[i].getAttribute(AttributeKey.OPERATOR_EXECUTOR);
 						if (executor.equals(AttributeValue.CAST)) { // キャスト演算子の場合
-							tokens[i].setPrecedence(OPERATOR_PRECEDENCE.castEnd);
+							tokens[i].setPrecedence(OperatorPrecedence.CAST_END);
 						} else if (executor.equals(AttributeValue.CALL)) { // 関数コールの場合
-							tokens[i].setPrecedence(OPERATOR_PRECEDENCE.callEnd);
+							tokens[i].setPrecedence(OperatorPrecedence.CALL_END);
 						}
 
 					// 構文上の括弧の場合
 					} else {
-						tokens[i].setPrecedence(OPERATOR_PRECEDENCE.parenthesisEnd);
+						tokens[i].setPrecedence(OperatorPrecedence.PARENTHESIS_END);
 					}
 
-			} else if (symbol.equals(SCRIPT_WORD.argumentSeparator)) {
-					tokens[i].setPrecedence(OPERATOR_PRECEDENCE.callSeparator); // 引数区切りのカンマも優先度最低にする必要がある(そうしないと結合してしまう)
+			} else if (symbol.equals(ScriptWord.ARGUMENT_SEPARATOR)) {
+					tokens[i].setPrecedence(OperatorPrecedence.CALL_SEPARATOR); // 引数区切りのカンマも優先度最低にする必要がある(そうしないと結合してしまう)
 
-			} else if (symbol.equals(SCRIPT_WORD.subscriptBegin)) {
-					tokens[i].setPrecedence(OPERATOR_PRECEDENCE.subscriptBegin);
+			} else if (symbol.equals(ScriptWord.SUBSCRIPT_BEGIN)) {
+					tokens[i].setPrecedence(OperatorPrecedence.SUBSCRIPT_BEGIN);
 
-			} else if (symbol.equals(SCRIPT_WORD.subscriptEnd)) {
-					tokens[i].setPrecedence(OPERATOR_PRECEDENCE.subscriptEnd); // MULTIARY系演算子の終端は優先度最低にする必要がある(そうしないと結合してしまう)
+			} else if (symbol.equals(ScriptWord.SUBSCRIPT_END)) {
+					tokens[i].setPrecedence(OperatorPrecedence.SUBSCRIPT_END); // MULTIARY系演算子の終端は優先度最低にする必要がある(そうしないと結合してしまう)
 
-			} else if (symbol.equals(SCRIPT_WORD.subscriptSeparator)) {
-					tokens[i].setPrecedence(OPERATOR_PRECEDENCE.subscriptSeparator); // 次元区切りのカンマも優先度最低にする必要がある(そうしないと結合してしまう)
+			} else if (symbol.equals(ScriptWord.SUBSCRIPT_SEPARATOR)) {
+					tokens[i].setPrecedence(OperatorPrecedence.SUBSCRIPT_SEPARATOR); // 次元区切りのカンマも優先度最低にする必要がある(そうしないと結合してしまう)
 
-			} else if (symbol.equals(SCRIPT_WORD.increment)) {
+			} else if (symbol.equals(ScriptWord.INCREMENT)) {
 					if (tokens[i].getAttribute(AttributeKey.OPERATOR_SYNTAX).equals(AttributeValue.PREFIX)) {
-						tokens[i].setPrecedence(OPERATOR_PRECEDENCE.prefixIncrement); //前置インクリメント
+						tokens[i].setPrecedence(OperatorPrecedence.PREFIX_INCREMENT); //前置インクリメント
 					} else {
-						tokens[i].setPrecedence(OPERATOR_PRECEDENCE.postfixIncrement); //後置インクリメント
+						tokens[i].setPrecedence(OperatorPrecedence.POSTFIX_INCREMENT); //後置インクリメント
 					}
 
-			} else if (symbol.equals(SCRIPT_WORD.decrement)) {
+			} else if (symbol.equals(ScriptWord.DECREMENT)) {
 					if (tokens[i].getAttribute(AttributeKey.OPERATOR_SYNTAX).equals(AttributeValue.PREFIX)) {
-						tokens[i].setPrecedence(OPERATOR_PRECEDENCE.prefixDecrement); //前置デクリメント
+						tokens[i].setPrecedence(OperatorPrecedence.PREFIX_DECREMENT); //前置デクリメント
 					} else {
-						tokens[i].setPrecedence(OPERATOR_PRECEDENCE.postfixDecrement); //後置デクリメント
+						tokens[i].setPrecedence(OperatorPrecedence.POSTFIX_DECREMENT); //後置デクリメント
 					}
 
-			} else if (symbol.equals(SCRIPT_WORD.not)) {
-					tokens[i].setPrecedence(OPERATOR_PRECEDENCE.not);
+			} else if (symbol.equals(ScriptWord.NOT)) {
+					tokens[i].setPrecedence(OperatorPrecedence.NOT);
 
-			} else if (symbol.equals(SCRIPT_WORD.plusOrAddition)) {
+			} else if (symbol.equals(ScriptWord.PLUS_OR_ADDITION)) {
 					if (tokens[i].getAttribute(AttributeKey.OPERATOR_SYNTAX).equals(AttributeValue.PREFIX)) {
-						tokens[i].setPrecedence(OPERATOR_PRECEDENCE.prefixPlus); //単項プラス
+						tokens[i].setPrecedence(OperatorPrecedence.PREFIX_PLUS); //単項プラス
 					} else {
-						tokens[i].setPrecedence(OPERATOR_PRECEDENCE.addition); //加算
+						tokens[i].setPrecedence(OperatorPrecedence.ADDITION); //加算
 					}
 
-			} else if (symbol.equals(SCRIPT_WORD.minusOrSubtraction)) {
+			} else if (symbol.equals(ScriptWord.MINUS_OR_SUBTRACTION)) {
 					if (tokens[i].getAttribute(AttributeKey.OPERATOR_SYNTAX).equals(AttributeValue.PREFIX)) {
-						tokens[i].setPrecedence(OPERATOR_PRECEDENCE.prefixMinus); //単項マイナス
+						tokens[i].setPrecedence(OperatorPrecedence.PREFIX_MINUS); //単項マイナス
 					} else {
-						tokens[i].setPrecedence(OPERATOR_PRECEDENCE.subtraction); //減算
+						tokens[i].setPrecedence(OperatorPrecedence.SUBTRACTION); //減算
 					}
 
-			} else if (symbol.equals(SCRIPT_WORD.multiplication)) {
-					tokens[i].setPrecedence(OPERATOR_PRECEDENCE.multiplication);
+			} else if (symbol.equals(ScriptWord.MULTIPLICATION)) {
+					tokens[i].setPrecedence(OperatorPrecedence.MULTIPLICATION);
 
-			} else if (symbol.equals(SCRIPT_WORD.division)) {
-					tokens[i].setPrecedence(OPERATOR_PRECEDENCE.division);
+			} else if (symbol.equals(ScriptWord.DIVISION)) {
+					tokens[i].setPrecedence(OperatorPrecedence.DIVISION);
 
-			} else if (symbol.equals(SCRIPT_WORD.remainder)) {
-					tokens[i].setPrecedence(OPERATOR_PRECEDENCE.remainder);
+			} else if (symbol.equals(ScriptWord.REMAINDER)) {
+					tokens[i].setPrecedence(OperatorPrecedence.REMAINDER);
 
-			} else if (symbol.equals(SCRIPT_WORD.lessThan)) {
-					tokens[i].setPrecedence(OPERATOR_PRECEDENCE.lessThan);
+			} else if (symbol.equals(ScriptWord.LESS_THAN)) {
+					tokens[i].setPrecedence(OperatorPrecedence.LESS_THAN);
 
-			} else if (symbol.equals(SCRIPT_WORD.lessEqual)) {
-					tokens[i].setPrecedence(OPERATOR_PRECEDENCE.lessEqual);
+			} else if (symbol.equals(ScriptWord.LESS_EQUAL)) {
+					tokens[i].setPrecedence(OperatorPrecedence.LESS_EQUAL);
 
-			} else if (symbol.equals(SCRIPT_WORD.greaterThan)) {
-					tokens[i].setPrecedence(OPERATOR_PRECEDENCE.greaterThan);
+			} else if (symbol.equals(ScriptWord.GREATER_THAN)) {
+					tokens[i].setPrecedence(OperatorPrecedence.GREATER_THAN);
 
-			} else if (symbol.equals(SCRIPT_WORD.greaterEqual)) {
-					tokens[i].setPrecedence(OPERATOR_PRECEDENCE.greaterEqual);
+			} else if (symbol.equals(ScriptWord.GREATER_EQUAL)) {
+					tokens[i].setPrecedence(OperatorPrecedence.GREATER_EQUAL);
 
-			} else if (symbol.equals(SCRIPT_WORD.equal)) {
-					tokens[i].setPrecedence(OPERATOR_PRECEDENCE.equal);
+			} else if (symbol.equals(ScriptWord.EQUAL)) {
+					tokens[i].setPrecedence(OperatorPrecedence.EQUAL);
 
-			} else if (symbol.equals(SCRIPT_WORD.notEqual)) {
-					tokens[i].setPrecedence(OPERATOR_PRECEDENCE.notEqual);
+			} else if (symbol.equals(ScriptWord.NOT_EQUAL)) {
+					tokens[i].setPrecedence(OperatorPrecedence.NOT_EQUAL);
 
-			} else if (symbol.equals(SCRIPT_WORD.shortCircuitAnd)) {
-					tokens[i].setPrecedence(OPERATOR_PRECEDENCE.shortCircuitAnd);
+			} else if (symbol.equals(ScriptWord.SHORT_CIRCUIT_AND)) {
+					tokens[i].setPrecedence(OperatorPrecedence.SHORT_CIRCUIT_AND);
 
-			} else if (symbol.equals(SCRIPT_WORD.shortCircuitOr)) {
-					tokens[i].setPrecedence(OPERATOR_PRECEDENCE.shortCircuitOr);
+			} else if (symbol.equals(ScriptWord.SHORT_CIRCUIT_OR)) {
+					tokens[i].setPrecedence(OperatorPrecedence.SHORT_CIRCUIT_OR);
 
-			} else if (symbol.equals(SCRIPT_WORD.assignment)) {
-					tokens[i].setPrecedence(OPERATOR_PRECEDENCE.assignment);
+			} else if (symbol.equals(ScriptWord.ASSIGNMENT)) {
+					tokens[i].setPrecedence(OperatorPrecedence.ASSIGNMENT);
 
-			} else if (symbol.equals(SCRIPT_WORD.additionAssignment)) {
-					tokens[i].setPrecedence(OPERATOR_PRECEDENCE.additionAssignment);
+			} else if (symbol.equals(ScriptWord.ADDITION_ASSIGNMENT)) {
+					tokens[i].setPrecedence(OperatorPrecedence.ADDITION_ASSIGNMENT);
 
-			} else if (symbol.equals(SCRIPT_WORD.subtractionAssignment)) {
-					tokens[i].setPrecedence(OPERATOR_PRECEDENCE.subtractionAssignment);
+			} else if (symbol.equals(ScriptWord.SUBTRACTION_ASSIGNMENT)) {
+					tokens[i].setPrecedence(OperatorPrecedence.SUBTRACTION_ASSIGNMENT);
 
-			} else if (symbol.equals(SCRIPT_WORD.multiplicationAssignment)) {
-					tokens[i].setPrecedence(OPERATOR_PRECEDENCE.multiplicationAssignment);
+			} else if (symbol.equals(ScriptWord.MULTIPLICATION_ASSIGNMENT)) {
+					tokens[i].setPrecedence(OperatorPrecedence.MULTIPLICATION_ASSIGNMENT);
 
-			} else if (symbol.equals(SCRIPT_WORD.divisionAssignment)) {
-					tokens[i].setPrecedence(OPERATOR_PRECEDENCE.divisionAssignment);
+			} else if (symbol.equals(ScriptWord.DIVISION_ASSIGNMENT)) {
+					tokens[i].setPrecedence(OperatorPrecedence.DIVISION_ASSIGNMENT);
 
-			} else if (symbol.equals(SCRIPT_WORD.remainderAssignment)) {
-					tokens[i].setPrecedence(OPERATOR_PRECEDENCE.remainderAssignment);
+			} else if (symbol.equals(ScriptWord.REMAINDER_ASSIGNMENT)) {
+					tokens[i].setPrecedence(OperatorPrecedence.REMAINDER_ASSIGNMENT);
 			}
 		}
 	}
@@ -697,67 +676,67 @@ public class LexicalAnalyzer {
 			// (処理コスト的には HashMap で飛ばすべきかもしれないが、現状そこまで時間は食っていないので保留）
 
 			// 開き括弧（キャスト演算子の場合に右結合）
-			if (symbol.equals(SCRIPT_WORD.parenthesisBegin)) {
+			if (symbol.equals(ScriptWord.PARENTHESIS_BEGIN)) {
 					if (tokens[i].getAttribute(AttributeKey.OPERATOR_EXECUTOR).equals(AttributeValue.CAST)) {
 						associativity = AttributeValue.RIGHT;
 					}
 
 			// 閉じ括弧（キャスト演算子の場合に右結合）
-			} else if (symbol.equals(SCRIPT_WORD.paranthesisEnd)) {
+			} else if (symbol.equals(ScriptWord.PARENTHESIS_END)) {
 					if (tokens[i].getAttribute(AttributeKey.OPERATOR_EXECUTOR).equals(AttributeValue.CAST)) {
 						associativity = AttributeValue.RIGHT;
 					}
 
 			// 前置インクリメント
-			} else if (symbol.equals(SCRIPT_WORD.increment)) {
+			} else if (symbol.equals(ScriptWord.INCREMENT)) {
 					if (tokens[i].getAttribute(AttributeKey.OPERATOR_SYNTAX).equals(AttributeValue.PREFIX)) {
 						associativity = AttributeValue.RIGHT;
 					}
 
 			// 前置デクリメント
-			} else if (symbol.equals(SCRIPT_WORD.decrement)) {
+			} else if (symbol.equals(ScriptWord.DECREMENT)) {
 					if (tokens[i].getAttribute(AttributeKey.OPERATOR_SYNTAX).equals(AttributeValue.PREFIX)) {
 						associativity = AttributeValue.RIGHT;
 					}
 
 			// 論理否定
-			} else if (symbol.equals(SCRIPT_WORD.not)) {
+			} else if (symbol.equals(ScriptWord.NOT)) {
 					associativity = AttributeValue.RIGHT;
 
 			// 単項プラス
-			} else if (symbol.equals(SCRIPT_WORD.plusOrAddition)) {
+			} else if (symbol.equals(ScriptWord.PLUS_OR_ADDITION)) {
 					if (tokens[i].getAttribute(AttributeKey.OPERATOR_SYNTAX).equals(AttributeValue.PREFIX)) {
 						associativity = AttributeValue.RIGHT;
 					}
 
 			// 単項マイナス
-			} else if (symbol.equals(SCRIPT_WORD.minusOrSubtraction)) {
+			} else if (symbol.equals(ScriptWord.MINUS_OR_SUBTRACTION)) {
 					if (tokens[i].getAttribute(AttributeKey.OPERATOR_SYNTAX).equals(AttributeValue.PREFIX)) {
 						associativity = AttributeValue.RIGHT;
 					}
 
 			// 代入
-			} else if (symbol.equals(SCRIPT_WORD.assignment)) {
+			} else if (symbol.equals(ScriptWord.ASSIGNMENT)) {
 					associativity = AttributeValue.RIGHT;
 
 			// 加算代入
-			} else if (symbol.equals(SCRIPT_WORD.additionAssignment)) {
+			} else if (symbol.equals(ScriptWord.ADDITION_ASSIGNMENT)) {
 					associativity = AttributeValue.RIGHT;
 
 			// 減算代入
-			} else if (symbol.equals(SCRIPT_WORD.subtractionAssignment)) {
+			} else if (symbol.equals(ScriptWord.SUBTRACTION_ASSIGNMENT)) {
 					associativity = AttributeValue.RIGHT;
 
 			// 乗算代入
-			} else if (symbol.equals(SCRIPT_WORD.multiplicationAssignment)) {
+			} else if (symbol.equals(ScriptWord.MULTIPLICATION_ASSIGNMENT)) {
 					associativity = AttributeValue.RIGHT;
 
 			// 除算代入
-			} else if (symbol.equals(SCRIPT_WORD.divisionAssignment)) {
+			} else if (symbol.equals(ScriptWord.DIVISION_ASSIGNMENT)) {
 					associativity = AttributeValue.RIGHT;
 
 			// 剰余算代入
-			} else if (symbol.equals(SCRIPT_WORD.remainderAssignment)) {
+			} else if (symbol.equals(ScriptWord.REMAINDER_ASSIGNMENT)) {
 					associativity = AttributeValue.RIGHT;
 			}
 
@@ -781,7 +760,7 @@ public class LexicalAnalyzer {
 				&& token.getAttribute(AttributeKey.LEAF_TYPE).equals(AttributeValue.LITERAL)) {
 
 				String literal = token.getValue();
-				String dataTypeName = LITERAL_SYNTAX.getDataTypeNameOfLiteral(literal);
+				String dataTypeName = LiteralSyntax.getDataTypeNameOfLiteral(literal);
 				token.setAttribute(AttributeKey.DATA_TYPE, dataTypeName);
 				token.setAttribute(AttributeKey.RANK, "0"); // 現状では配列のリテラルは存在しないため, 常にスカラ
 			}
@@ -817,12 +796,12 @@ public class LexicalAnalyzer {
 			// 文字列リテラルトークンの場合
 			if (token.getType() == Token.Type.LEAF
 					&& token.getAttribute(AttributeKey.LEAF_TYPE).equals(AttributeValue.LITERAL)
-					&& LITERAL_SYNTAX.getDataTypeNameOfLiteral(value).equals(DATA_TYPE_NAME.string)) {
+					&& LiteralSyntax.getDataTypeNameOfLiteral(value).equals(DataTypeName.STRING)) {
 
 				// この条件下では, value は "1", "2" などのように番号化された文字列リテラルが入っている
 
 				// 元のリテラル値が stringLiteralExtractResult 配列に格納されているインデックスを取得（番号化リテラルの番号）
-				int index = LITERAL_SYNTAX.getIndexOfNumberedStringLiteral(value);
+				int index = LiteralSyntax.getIndexOfNumberedStringLiteral(value);
 
 				// 番号化リテラルを, 本来の文字列リテラルで置き換える
 				token.setValue(stringLiteralExtractResult[index]);

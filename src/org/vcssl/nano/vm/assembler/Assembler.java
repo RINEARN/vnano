@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2020 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2021 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -15,11 +15,12 @@ import org.vcssl.nano.interconnect.VariableTable;
 import org.vcssl.nano.spec.AssemblyWord;
 import org.vcssl.nano.spec.DataType;
 import org.vcssl.nano.spec.DataTypeName;
-import org.vcssl.nano.spec.LanguageSpecContainer;
+import org.vcssl.nano.spec.ErrorType;
 import org.vcssl.nano.spec.LiteralSyntax;
 import org.vcssl.nano.spec.OperationCode;
 import org.vcssl.nano.vm.VirtualMachineObjectCode;
 import org.vcssl.nano.vm.memory.Memory;
+import org.vcssl.nano.vm.memory.DataContainer;
 import org.vcssl.nano.vm.processor.Instruction;
 
 
@@ -34,32 +35,19 @@ import org.vcssl.nano.vm.processor.Instruction;
  */
 public class Assembler {
 
-	/** アセンブリ言語の語句が定義された設定オブジェクトを保持します。 */
-	private final AssemblyWord ASSEMBLY_WORD;
-
-	/** リテラルの判定規則類が定義された設定オブジェクトを保持します。 */
-	private final LiteralSyntax LITERAL_SYNTAX;
-
-	/** データ型名が定義された設定オブジェクトを保持します。 */
-	private final DataTypeName DATA_TYPE_NAME;
-
-
 	/**
 	 * <span class="lang-en">
-	 * Create a new assembler with the specified language specification settings
+	 * Create a new assembler
 	 * </span>
 	 * <span class="lang-ja">
-	 * 指定された言語仕様設定で, アセンブラを生成します
+	 * アセンブラを生成します
 	 * </span>
 	 * .
 	 * @param langSpec
 	 *   <span class="lang-en">language specification settings.</span>
 	 *   <span class="lang-ja">言語仕様設定.</span>
 	 */
-	public Assembler(LanguageSpecContainer langSpec) {
-		this.ASSEMBLY_WORD = langSpec.ASSEMBLY_WORD;
-		this.LITERAL_SYNTAX = langSpec.LITERAL_SYNTAX;
-		this.DATA_TYPE_NAME = langSpec.DATA_TYPE_NAME;
+	public Assembler() {
 	}
 
 	/**
@@ -75,25 +63,25 @@ public class Assembler {
 
 		StringBuilder codeBuilder = new StringBuilder();
 
-		String[] lines = assemblyCode.split(ASSEMBLY_WORD.instructionSeparatorRegex);
+		String[] lines = assemblyCode.split(AssemblyWord.INSTRUCTION_SEPARATOR_REGEX);
 		int lineLength = lines.length;
 
 		for (int lineIndex=0; lineIndex<lineLength; lineIndex++) {
 
 			String line = lines[lineIndex];
 			codeBuilder.append(line);
-			codeBuilder.append(ASSEMBLY_WORD.instructionSeparator);
+			codeBuilder.append(AssemblyWord.INSTRUCTION_SEPARATOR);
 
 			line = line.trim();
 			String labelCode
-				= ASSEMBLY_WORD.lineSeparator
-				+ ASSEMBLY_WORD.wordSeparator
+				= AssemblyWord.LINE_SEPARATOR
+				+ AssemblyWord.WORD_SEPARATOR
 				+ OperationCode.LABEL.name()
-				+ ASSEMBLY_WORD.wordSeparator
-				+ DATA_TYPE_NAME.voidPlaceholder
-				+ ASSEMBLY_WORD.wordSeparator
-				+ ASSEMBLY_WORD.placeholderOperandPrefix
-				+ ASSEMBLY_WORD.instructionSeparator
+				+ AssemblyWord.WORD_SEPARATOR
+				+ DataTypeName.VOID
+				+ AssemblyWord.WORD_SEPARATOR
+				+ AssemblyWord.PLACEHOLDER_OPERAND_PREFIX
+				+ AssemblyWord.INSTRUCTION_SEPARATOR
 				;
 
 			// 空行
@@ -102,12 +90,12 @@ public class Assembler {
 			}
 
 			// ラベルディレクティブの場合はLABEL命令を置く
-			if (line.startsWith(ASSEMBLY_WORD.labelDirective)) {
+			if (line.startsWith(AssemblyWord.LABEL_DIRECTIVE)) {
 				codeBuilder.append(labelCode);
 				continue;
 			}
 
-			String[] words = line.split(ASSEMBLY_WORD.wordSeparatorRegex);
+			String[] words = line.split(AssemblyWord.WORD_SEPARATOR_REGEX);
 			String operationCode = words[0];
 
 			// CALL命令の直後にLABEL命令を置く（戻り先の着地点になるため）
@@ -115,8 +103,85 @@ public class Assembler {
 				codeBuilder.append(labelCode);
 			}
 		}
-		//System.out.println(codeBuilder.toString());
 		return codeBuilder.toString();
+	}
+
+
+	/**
+	 * 即値を解釈し、値を格納するデータコンテナを生成して返します。
+	 *
+	 * @param immediateValue 解釈する即値
+	 * @return 解釈された値を格納するデータコンテナ
+	 * @throws VnanoException 正常に解釈できない即値が検出された際にスローされます。
+	 */
+	private DataContainer<?> decodeImmediateValue(String immediateValue) throws VnanoException {
+
+		int separatorIndex = immediateValue.indexOf(AssemblyWord.VALUE_SEPARATOR);
+		String dataTypeName = immediateValue.substring(1, separatorIndex);
+		String valueText = immediateValue.substring(separatorIndex+1, immediateValue.length());
+		DataType dataType = DataTypeName.getDataTypeOf(dataTypeName);
+
+		switch (dataType) {
+			case INT64 : {
+				DataContainer<long[]> data = new DataContainer<long[]>();
+				try {
+					// 16進数リテラルの場合
+					if (valueText.startsWith(LiteralSyntax.INT_LITERAL_HEX_PREFIX)) {
+						valueText = valueText.substring(LiteralSyntax.INT_LITERAL_HEX_PREFIX.length());
+						data.setInt64ScalarData(Long.parseLong(valueText, 16));
+
+					// 8進数リテラルの場合
+					} else if (valueText.startsWith(LiteralSyntax.INT_LITERAL_OCT_PREFIX)) {
+						valueText = valueText.substring(LiteralSyntax.INT_LITERAL_OCT_PREFIX.length());
+						data.setInt64ScalarData(Long.parseLong(valueText, 8));
+
+					// 2進数リテラルの場合
+					} else if (valueText.startsWith(LiteralSyntax.INT_LITERAL_BIN_PREFIX)) {
+						valueText = valueText.substring(LiteralSyntax.INT_LITERAL_BIN_PREFIX.length());
+						data.setInt64ScalarData(Long.parseLong(valueText, 2));
+
+					// それ以外は10進数リテラル
+					} else {
+						data.setInt64ScalarData(Long.parseLong(valueText));
+					}
+				} catch(NumberFormatException e) {
+					VnanoException vse = new VnanoException(ErrorType.INVALID_IMMEDIATE_VALUE, new String[] { valueText});
+					throw vse;
+				}
+				return data;
+			}
+			case FLOAT64 : {
+				DataContainer<double[]> data = new DataContainer<double[]>();
+				try {
+					data.setFloat64ScalarData(Double.parseDouble(valueText));
+				} catch(NumberFormatException e) {
+					VnanoException vse = new VnanoException(ErrorType.INVALID_IMMEDIATE_VALUE, new String[] { valueText});
+					throw vse;
+				}
+				return data;
+			}
+			case BOOL : {
+				DataContainer<boolean[]> data = new DataContainer<boolean[]>();
+				if (valueText.equals(LiteralSyntax.TRUE)) {
+					data.setBoolScalarData(true);
+				} else if (valueText.equals(LiteralSyntax.FALSE)) {
+					data.setBoolScalarData(false);
+				} else {
+					VnanoException vse = new VnanoException(ErrorType.INVALID_IMMEDIATE_VALUE, new String[] { valueText});
+					throw vse;
+				}
+				return data;
+			}
+			case STRING : {
+				DataContainer<String[]> data = new DataContainer<String[]>();
+				valueText = valueText.substring(1, valueText.length()-1); // ダブルクォーテーションの除去（後でもっとちゃんとやるべき）
+				data.setStringScalarData(valueText);
+				return data;
+			}
+			default: {
+				throw new VnanoFatalException("Unknown literal data type: " + dataType);
+			}
+		}
 	}
 
 
@@ -138,7 +203,7 @@ public class Assembler {
 
 
 		// 最初に、コード内の文字列リテラルを全て "1", "2", ... などのように番号化リテラルで置き換える
-		String[] stringLiteralExtractResult = LITERAL_SYNTAX.extractStringLiterals(assemblyCode);
+		String[] stringLiteralExtractResult = LiteralSyntax.extractStringLiterals(assemblyCode);
 		assemblyCode = stringLiteralExtractResult[0]; // [0] 番に置き換え済みコードが格納されている（1番以降はリテラル内容）
 
 		// ラベルやCALL命令の着地点の位置にLABEL命令を配置（最適化しやすくするため）
@@ -154,7 +219,7 @@ public class Assembler {
 
 		int constantAddress = 0;
 
-		String[] lines = assemblyCode.split(ASSEMBLY_WORD.instructionSeparatorRegex);
+		String[] lines = assemblyCode.split(AssemblyWord.INSTRUCTION_SEPARATOR_REGEX);
 		int lineLength = lines.length;
 
 		int metaAddress = -1;
@@ -169,22 +234,23 @@ public class Assembler {
 				continue;
 			}
 
-			String[] words = line.split(ASSEMBLY_WORD.wordSeparatorRegex);
+			String[] words = line.split(AssemblyWord.WORD_SEPARATOR_REGEX);
 			int wordLength = words.length;
 
 			// メタディレクティブ -> 内容を控える定数データを生成
-			if (line.startsWith(ASSEMBLY_WORD.metaDirective)) {
+			if (line.startsWith(AssemblyWord.META_DIRECTIVE)) {
 
 				// 前処理で番号化された文字列リテラルから、元の文字列リテラルに戻す
-				int stringLiteralIndex = LITERAL_SYNTAX.getIndexOfNumberedStringLiteral(words[1].trim());
+				int stringLiteralIndex = LiteralSyntax.getIndexOfNumberedStringLiteral(words[1].trim());
 				String originalStringLiteral = stringLiteralExtractResult[ stringLiteralIndex ];
 
 				String metaImmediateValue
-					= Character.toString(ASSEMBLY_WORD.immediateOperandPrefix)
-					+ DATA_TYPE_NAME.getDataTypeNameOf(DataType.STRING)
-					+ ASSEMBLY_WORD.valueSeparator
+					= Character.toString(AssemblyWord.IMMEDIATE_OPERAND_PREFIX)
+					+ DataTypeName.getDataTypeNameOf(DataType.STRING)
+					+ AssemblyWord.VALUE_SEPARATOR
 					+ originalStringLiteral;
-				intermediateCode.addConstantData(metaImmediateValue, constantAddress);
+				DataContainer<?> dataContainer = this.decodeImmediateValue(metaImmediateValue);
+				intermediateCode.addConstantData(metaImmediateValue, dataContainer, constantAddress);
 				metaAddress = constantAddress;
 				constantAddress++;
 
@@ -192,19 +258,19 @@ public class Assembler {
 
 				continue;
 
-			} else if (line.startsWith(Character.toString(ASSEMBLY_WORD.directivePrefix))) {
+			} else if (line.startsWith(Character.toString(AssemblyWord.DIRECTIVE_PREFIX))) {
 				continue;
 			}
 
 
 			OperationCode operationCode = OperationCode.valueOf(words[0]);
 
-			String[] dataTypeNames = words[1].split(ASSEMBLY_WORD.valueSeparatorRegex);
+			String[] dataTypeNames = words[1].split(AssemblyWord.VALUE_SEPARATOR_REGEX);
 			int dataTypeLength = dataTypeNames.length;
 			DataType[] dataTypes = new DataType[dataTypeLength];
 			for (int dataTypeIndex=0; dataTypeIndex<dataTypeLength; dataTypeIndex++) {
 				try {
-					dataTypes[dataTypeIndex] = DATA_TYPE_NAME.getDataTypeOf(dataTypeNames[dataTypeIndex]);
+					dataTypes[dataTypeIndex] = DataTypeName.getDataTypeOf(dataTypeNames[dataTypeIndex]);
 				} catch (VnanoException e) {
 					e.setFileName(sourceFileName);
 					e.setLineNumber(sourceLineNumber);
@@ -227,7 +293,7 @@ public class Assembler {
 				char prefix = word.charAt(0); // 先頭の文字がアドレスタイプに対応している
 
 				// switch 文は使えない
-				if (prefix == ASSEMBLY_WORD.immediateOperandPrefix) {
+				if (prefix == AssemblyWord.IMMEDIATE_OPERAND_PREFIX) {
 						if (intermediateCode.containsConstantData(word)) {
 							operandAddresses[operandIndex] = intermediateCode.getConstantDataAddress(word);
 						} else {
@@ -235,19 +301,20 @@ public class Assembler {
 							// 文字列リテラルの場合は、前処理で番号化されているので元に戻し、エスケープシーケンスも処理
 							if (this.getDataTypeOfImmediateValueLiteral(word) == DataType.STRING) {
 								String literalValue = this.getValuePartOfImmediateValueLiteral(word);
-								int stringLiteralIndex = LITERAL_SYNTAX.getIndexOfNumberedStringLiteral(literalValue);
+								int stringLiteralIndex = LiteralSyntax.getIndexOfNumberedStringLiteral(literalValue);
 								literalValue = stringLiteralExtractResult[stringLiteralIndex];
-								literalValue = LITERAL_SYNTAX.decodeEscapeSequences(literalValue);
+								literalValue = LiteralSyntax.decodeEscapeSequences(literalValue);
 								word = this.replaceImmediateValue(word, literalValue);
 							}
 
 							operandAddresses[operandIndex] = constantAddress;
-							intermediateCode.addConstantData(word, constantAddress);
+							DataContainer<?> dataContainer = this.decodeImmediateValue(word);
+							intermediateCode.addConstantData(word, dataContainer, constantAddress);
 							constantAddress++;
 						}
 						operandAddressTypes[operandIndex] = Memory.Partition.CONSTANT;
 
-				} else if (prefix == ASSEMBLY_WORD.registerOperandOprefix) {
+				} else if (prefix == AssemblyWord.REGISTER_OPERAND_PREFIX) {
 
 						String addressWord = word.substring(1, word.length());
 						int registerAddress = Integer.parseInt(addressWord);
@@ -260,7 +327,7 @@ public class Assembler {
 							registerMaxAddress = operandAddresses[operandIndex];
 						}
 
-				} else if (prefix == ASSEMBLY_WORD.identifierOperandPrefix) {
+				} else if (prefix == AssemblyWord.IDENTIFIER_OPERAND_PREFIX) {
 
 						// ローカル変数の場合はローカルデータアドレスに変換(グローバルよりも優先)
 						if (intermediateCode.containsLocalVariable(word)) {
@@ -280,36 +347,38 @@ public class Assembler {
 							int functionAddress = intermediateCode.getFunctionAddress(word);
 
 							String functionAddressImmediateValue
-									= Character.toString(ASSEMBLY_WORD.immediateOperandPrefix)
-									+ DATA_TYPE_NAME.getDataTypeNameOf(DataType.INT64)
-									+ ASSEMBLY_WORD.valueSeparator
+									= Character.toString(AssemblyWord.IMMEDIATE_OPERAND_PREFIX)
+									+ DataTypeName.getDataTypeNameOf(DataType.INT64)
+									+ AssemblyWord.VALUE_SEPARATOR
 									+ Integer.toString(functionAddress);
 
 							operandAddressTypes[operandIndex] = Memory.Partition.CONSTANT;
 							operandAddresses[operandIndex] = constantAddress;
-							intermediateCode.addConstantData(functionAddressImmediateValue, constantAddress);
+							DataContainer<?> dataContainer = this.decodeImmediateValue(functionAddressImmediateValue);
+							intermediateCode.addConstantData(functionAddressImmediateValue, dataContainer, constantAddress);
 							constantAddress++;
 
 						} else {
 							throw new VnanoFatalException("Undefined identifier has detected in operands: " + word);
 						}
 
-				} else if (prefix == ASSEMBLY_WORD.labelOperandPrefix) {
+				} else if (prefix == AssemblyWord.LABEL_OPERAND_PREFIX) {
 
 						int labelAddress = intermediateCode.getLabelAddress(word);
 
 						String functionAddressImmediateValue
-								= Character.toString(ASSEMBLY_WORD.immediateOperandPrefix)
-								+ DATA_TYPE_NAME.getDataTypeNameOf(DataType.INT64)
-								+ ASSEMBLY_WORD.valueSeparator
+								= Character.toString(AssemblyWord.IMMEDIATE_OPERAND_PREFIX)
+								+ DataTypeName.getDataTypeNameOf(DataType.INT64)
+								+ AssemblyWord.VALUE_SEPARATOR
 								+ Integer.toString(labelAddress);
 
 						operandAddressTypes[operandIndex] = Memory.Partition.CONSTANT;
 						operandAddresses[operandIndex] = constantAddress;
-						intermediateCode.addConstantData(functionAddressImmediateValue, constantAddress);
+						DataContainer<?> dataContainer = this.decodeImmediateValue(functionAddressImmediateValue);
+						intermediateCode.addConstantData(functionAddressImmediateValue, dataContainer, constantAddress);
 						constantAddress++;
 
-				} else if (prefix == ASSEMBLY_WORD.placeholderOperandPrefix) {
+				} else if (prefix == AssemblyWord.PLACEHOLDER_OPERAND_PREFIX) {
 						operandAddresses[operandIndex] = 0;
 						operandAddressTypes[operandIndex] = Memory.Partition.NONE;
 				}
@@ -335,10 +404,10 @@ public class Assembler {
 	 */
 	private DataType getDataTypeOfImmediateValueLiteral(String immediateValueLiteral) throws VnanoException {
 
-		int separatorIndex = immediateValueLiteral.indexOf(ASSEMBLY_WORD.valueSeparator);
+		int separatorIndex = immediateValueLiteral.indexOf(AssemblyWord.VALUE_SEPARATOR);
 		String dataTypeName = immediateValueLiteral.substring(1, separatorIndex);
 
-		DataType dataType = DATA_TYPE_NAME.getDataTypeOf(dataTypeName);
+		DataType dataType = DataTypeName.getDataTypeOf(dataTypeName);
 		return dataType;
 	}
 
@@ -349,7 +418,7 @@ public class Assembler {
 	 * @return 読みとった値部分
 	 */
 	private String getValuePartOfImmediateValueLiteral(String immediateValueLiteral) {
-		int separatorIndex = immediateValueLiteral.indexOf(ASSEMBLY_WORD.valueSeparator);
+		int separatorIndex = immediateValueLiteral.indexOf(AssemblyWord.VALUE_SEPARATOR);
 		String valuePart = immediateValueLiteral.substring(separatorIndex+1, immediateValueLiteral.length());
 		return valuePart;
 	}
@@ -362,9 +431,9 @@ public class Assembler {
 	 * @return 置き換え後の即値リテラル（データ型部は保たれます）
 	 */
 	private String replaceImmediateValue(String immediateValueLiteral, String newValue) {
-		int separatorIndex = immediateValueLiteral.indexOf(ASSEMBLY_WORD.valueSeparator);
+		int separatorIndex = immediateValueLiteral.indexOf(AssemblyWord.VALUE_SEPARATOR);
 		String frontPart = immediateValueLiteral.substring(0, separatorIndex);
-		String newLiteral = frontPart + ASSEMBLY_WORD.valueSeparator + newValue;
+		String newLiteral = frontPart + AssemblyWord.VALUE_SEPARATOR + newValue;
 		return newLiteral;
 	}
 
@@ -387,7 +456,7 @@ public class Assembler {
 
 		int localAddress = 0;
 
-		String[] lines = assemblyCode.split(ASSEMBLY_WORD.instructionSeparatorRegex);
+		String[] lines = assemblyCode.split(AssemblyWord.INSTRUCTION_SEPARATOR_REGEX);
 		int lineLength = lines.length;
 
 		int instructionIndex = 0;
@@ -398,17 +467,17 @@ public class Assembler {
 			if (line.length() == 0) {
 				continue;
 			}
-			String[] words = line.split(ASSEMBLY_WORD.wordSeparatorRegex);
+			String[] words = line.split(AssemblyWord.WORD_SEPARATOR_REGEX);
 
 			// ローカルディレクティブ
-			if (line.startsWith(ASSEMBLY_WORD.localVariableDirective)) {
+			if (line.startsWith(AssemblyWord.LOCAL_VARIABLE_DIRECTIVE)) {
 				String identifier = words[1];
 				assembledObject.addLocalVariable(identifier, localAddress);
 				localAddress++;
 			}
 
 			// グローバルディレクティブ
-			if (line.startsWith(ASSEMBLY_WORD.globalVariableDirective)) {
+			if (line.startsWith(AssemblyWord.GLOBAL_VARIABLE_DIRECTIVE)) {
 				String identifier = words[1];
 				AbstractVariable variable = globalVariableTable.getVariableByAssemblyIdentifier(identifier);
 				int globalAddress = globalVariableTable.getIndexOf(variable);
@@ -416,7 +485,7 @@ public class Assembler {
 			}
 
 			// 関数ディレクティブ
-			if (line.startsWith(ASSEMBLY_WORD.globalFunctionDirective)) {
+			if (line.startsWith(AssemblyWord.GLOBAL_FUNCTION_DIRECTIVE)) {
 				String identifier = words[1];
 				String signature = identifier.substring(1, identifier.length()); // 先頭文字は識別子プレフィックスなので除去
 				AbstractFunction function = functionTable.getFunctionBySignature(signature);
@@ -425,12 +494,12 @@ public class Assembler {
 			}
 
 			// ラベルディレクティブ
-			if (line.startsWith(ASSEMBLY_WORD.labelDirective)) {
+			if (line.startsWith(AssemblyWord.LABEL_DIRECTIVE)) {
 				String identifier = words[1];
 				assembledObject.addLabel(identifier, instructionIndex);
 			}
 
-			if (!line.startsWith(Character.toString(ASSEMBLY_WORD.directivePrefix))) {
+			if (!line.startsWith(Character.toString(AssemblyWord.DIRECTIVE_PREFIX))) {
 				instructionIndex++;
 			}
 		}

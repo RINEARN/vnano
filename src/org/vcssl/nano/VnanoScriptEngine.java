@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2020 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2021 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -21,7 +21,6 @@ import javax.script.SimpleBindings;
 import org.vcssl.nano.interconnect.PluginLoader;
 import org.vcssl.nano.interconnect.ScriptLoader;
 import org.vcssl.nano.spec.EngineInformation;
-import org.vcssl.nano.spec.LanguageSpecContainer;
 import org.vcssl.nano.spec.SpecialBindingKey;
 import org.vcssl.nano.spec.SpecialBindingValue;
 
@@ -54,7 +53,6 @@ import org.vcssl.nano.spec.SpecialBindingValue;
  */
 public final class VnanoScriptEngine implements ScriptEngine {
 
-	private final LanguageSpecContainer LANG_SPEC;
 	private static final String DEFAULT_ENCODING = "UTF-8";
 
 
@@ -149,20 +147,17 @@ public final class VnanoScriptEngine implements ScriptEngine {
 	 */
 	protected VnanoScriptEngine() {
 		try {
-			// デフォルトの言語仕様設定を生成
-			LANG_SPEC = new LanguageSpecContainer();
-
 			// 要素を取り出す順序が登録順と一致する事を保証するため、LinkedHashMapを用いた Bindings を生成
 			this.putPluginBindings = new SimpleBindings(new LinkedHashMap<String, Object>());
 
 			// スクリプトをファイルから読み込むためのローダーを生成（ライブラリはこのローダーに登録）
-			this.libraryScriptLoader = new ScriptLoader(DEFAULT_ENCODING, LANG_SPEC);
+			this.libraryScriptLoader = new ScriptLoader(DEFAULT_ENCODING);
 
 			// プラグインをファイルから読み込むためのローダーを生成
-			this.pluginLoader = new PluginLoader(DEFAULT_ENCODING, LANG_SPEC);
+			this.pluginLoader = new PluginLoader(DEFAULT_ENCODING);
 
 			// デフォルトの設定で Vnano エンジンのインスタンスを生成
-			this.vnanoEngine = new VnanoEngine(LANG_SPEC);
+			this.vnanoEngine = new VnanoEngine();
 
 		// ScriptEngineManager 経由でインスタンスを取得している場合（失敗時は null が返る）に
 		// エラー情報の詳細を把握しやすいようにスタックトレースを出力しておく
@@ -551,14 +546,14 @@ public final class VnanoScriptEngine implements ScriptEngine {
 				} catch (VnanoException e) {
 					throw new VnanoFatalException(e);
 				}
-				this.pluginLoader = new PluginLoader(DEFAULT_ENCODING, LANG_SPEC);
+				this.pluginLoader = new PluginLoader(DEFAULT_ENCODING);
 				this.loadedPluginUpdated = true;
 				break;
 			}
 
 			// ライブラリの登録解除コマンドの場合
 			case SpecialBindingValue.COMMAND_REMOVE_LIBRARY : {
-				this.libraryScriptLoader = new ScriptLoader(DEFAULT_ENCODING, LANG_SPEC);
+				this.libraryScriptLoader = new ScriptLoader(DEFAULT_ENCODING);
 				this.loadedLibraryUpdated = true;
 				break;
 			}

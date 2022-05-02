@@ -31,7 +31,6 @@ public class ScalarLogicalOperationCombinedTest extends CombinedTestElement {
 		}
 	}
 
-	@SuppressWarnings("unused")
 	private void testAndOperations() throws VnanoException {
 		String scriptCode;
 		boolean result;
@@ -53,7 +52,6 @@ public class ScalarLogicalOperationCombinedTest extends CombinedTestElement {
 		super.evaluateResult(result, false, "false && false", scriptCode);
 	}
 
-	@SuppressWarnings("unused")
 	private void testOrOperations() throws VnanoException {
 		String scriptCode;
 		boolean result;
@@ -88,7 +86,6 @@ public class ScalarLogicalOperationCombinedTest extends CombinedTestElement {
 		super.evaluateResult(result, true, "! false", scriptCode);
 	}
 
-	@SuppressWarnings("unused")
 	private void testDualOperations() throws VnanoException {
 		String scriptCode;
 		boolean result;
@@ -122,7 +119,6 @@ public class ScalarLogicalOperationCombinedTest extends CombinedTestElement {
 		super.evaluateResult(result, true, "true || (false && false)", scriptCode);
 	}
 
-	@SuppressWarnings("unused")
 	private void testTripleOperations() throws VnanoException {
 		String scriptCode;
 		boolean result;
@@ -152,7 +148,6 @@ public class ScalarLogicalOperationCombinedTest extends CombinedTestElement {
 		super.evaluateResult(result, false, "false || false && true || false", scriptCode);
 	}
 
-	@SuppressWarnings("unused")
 	private void testQuadOperations() throws VnanoException {
 		String scriptCode;
 		boolean result;

@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2020 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2021 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -41,26 +41,12 @@ import org.vcssl.nano.VnanoException;
  */
 public class LiteralSyntax {
 
-
-	// 各フィールドは元々は static final でしたが、カスタマイズの事を考慮して、動的なフィールドに変更されました。
-	// これにより、このクラスのインスタンスを生成して値を変更（または継承してメソッド実装なども変更）し、
-	// それを LanguageSpecContainer に持たせて VnanoEngle クラスのコンストラクタに渡す事で、
-	// 処理系内のソースコードを保ったまま（再ビルド不要で）定義類を差し替える事ができます。
-
-
-	// 型名の設定内容に依存しているため、コンストラクタで渡す
-	private final DataTypeName DATA_TYPE_NAME;
-	public LiteralSyntax(DataTypeName dataTypeName) {
-		this.DATA_TYPE_NAME = dataTypeName;
-	}
-
-
 	/**
 	 * <span class="lang-en">The value of the bool type literal: "true"</span>
 	 * <span class="lang-ja">bool 型のリテラル値 true です</span>
 	 * .
 	 */
-	public String trueValue = "true";
+	public static final String TRUE = "true";
 
 
 	/**
@@ -68,7 +54,7 @@ public class LiteralSyntax {
 	 * <span class="lang-ja">bool 型のリテラル値 false です</span>
 	 * .
 	 */
-	public String falseValue = "false";
+	public static final String FALSE = "false";
 
 
 	/**
@@ -76,7 +62,7 @@ public class LiteralSyntax {
 	 * <span class="lang-ja">16 進数の int 型リテラルのプレフィックスです</span>
 	 * .
 	 */
-	public String intLiteralHexPrefix = "0x";
+	public static final String INT_LITERAL_HEX_PREFIX = "0x";
 
 
 	/**
@@ -84,7 +70,7 @@ public class LiteralSyntax {
 	 * <span class="lang-ja">8 進数の int 型リテラルのプレフィックスです</span>
 	 * .
 	 */
-	public String intLiteralOctPrefix = "0o";
+	public static final String INT_LITERAL_OCT_PREFIX = "0o";
 
 
 	/**
@@ -92,7 +78,7 @@ public class LiteralSyntax {
 	 * <span class="lang-ja">2 進数の int 型リテラルのプレフィックスです</span>
 	 * .
 	 */
-	public String intLiteralBinPrefix = "0b";
+	public static final String INT_LITERAL_BIN_PREFIX = "0b";
 
 
 	/**
@@ -100,7 +86,7 @@ public class LiteralSyntax {
 	 * <span class="lang-ja">float 型リテラルにおける指数部のプレフィックスの正規表現です</span>
 	 * .
 	 */
-	public String floatLiteralExponentPrefixRegex = "e|E";
+	public static final String FLOAT_LITERAL_EXPONENT_PREFIX = "e|E";
 
 
 	/**
@@ -108,7 +94,7 @@ public class LiteralSyntax {
 	 * <span class="lang-ja">int 型リテラルの正規表現です</span>
 	 * .
 	 */
-	protected String intLiteralRegex =
+	protected static final String INT_LITERAL_REGEX =
 			// 始点
 			"^"
 			// 注: 符号は単項マイナス/プラス演算子と解釈するため、リテラルには含まない
@@ -146,7 +132,7 @@ public class LiteralSyntax {
 	 * <span class="lang-ja">float 型リテラルの正規表現です</span>
 	 * .
 	 */
-	protected String floatLiteralRegex =
+	protected static final String FLOAT_LITERAL_REGEX =
 			// 始点
 			"^"
 			// 注: 符号は単項マイナス/プラス演算子と解釈するため、リテラルには含まない
@@ -180,7 +166,7 @@ public class LiteralSyntax {
 	 * <span class="lang-ja">bool 型リテラルの正規表現です</span>
 	 * .
 	 */
-	protected String boolLiteralRegex = "^" + trueValue + "|" + falseValue + "$";
+	protected static final String BOOL_LITERAL_REGEX = "^" + TRUE + "|" + FALSE + "$";
 
 
 	/**
@@ -188,7 +174,7 @@ public class LiteralSyntax {
 	 * <span class="lang-ja">文字列型リテラル内のエスケープシーケンスのプレフィックス記号「 \ 」です</span>
 	 * .
 	 */
-	private char stringLiteralEscape = '\\';
+	private static final char STEING_LITERAL_ESCAPE = '\\';
 
 
 	/**
@@ -196,7 +182,7 @@ public class LiteralSyntax {
 	 * <span class="lang-ja">文字列型リテラルの始点・終点記号「 " 」です</span>
 	 * .
 	 */
-	public char stringLiteralQuot = '"';
+	public static final char STRING_LITERAL_QUOT = '"';
 
 
 	/**
@@ -204,7 +190,7 @@ public class LiteralSyntax {
 	 * <span class="lang-ja">文字型リテラル（非サポート）の始点・終点記号「 ' 」です</span>
 	 * .
 	 */
-	public char charLiteralQuot = '\'';
+	public static final char CHAR_LITERAL_QUOT = '\'';
 
 
 	/**
@@ -219,7 +205,7 @@ public class LiteralSyntax {
 	 *   <span class="lang-en">The check result ("true" if it can be interpreted as the literal).</span>
 	 *   <span class="lang-ja">判定結果（リテラルとみなせる場合に true ）.</span>
 	 */
-	public boolean isValidLiteral(String token) {
+	public static final boolean isValidLiteral(String token) {
 		try {
 			getDataTypeNameOfLiteral(token);
 			return true;
@@ -245,26 +231,26 @@ public class LiteralSyntax {
 	 *   <span class="lang-en">Thrown when the specified literal could not be interpreted.</span>
 	 *   <span class="lang-ja">指定されたリテラルを解釈できなかった場合にスローされます.</span>
 	 */
-	public String getDataTypeNameOfLiteral(String literal) throws VnanoFatalException {
+	public static final String getDataTypeNameOfLiteral(String literal) throws VnanoFatalException {
 
 		int literalLength = literal.length();
 
-		if (literal.matches(intLiteralRegex)) {
-			return DATA_TYPE_NAME.defaultInt;
+		if (literal.matches(INT_LITERAL_REGEX)) {
+			return DataTypeName.DEFAULT_INT;
 		}
 
-		if (literal.matches(floatLiteralRegex)) {
-			return DATA_TYPE_NAME.defaultFloat;
+		if (literal.matches(FLOAT_LITERAL_REGEX)) {
+			return DataTypeName.DEFAULT_FLOAT;
 		}
 
-		if (literal.matches(boolLiteralRegex)) {
-			return DATA_TYPE_NAME.bool;
+		if (literal.matches(BOOL_LITERAL_REGEX)) {
+			return DataTypeName.BOOL;
 		}
 
-		if (literal.charAt(0) == stringLiteralQuot
-				&& literal.charAt(literalLength-1) == stringLiteralQuot
+		if (literal.charAt(0) == STRING_LITERAL_QUOT
+				&& literal.charAt(literalLength-1) == STRING_LITERAL_QUOT
 				&& literal.length()>=2) {
-			return DATA_TYPE_NAME.string;
+			return DataTypeName.STRING;
 		}
 
 		throw new VnanoFatalException("Invalid literal: " + literal);
@@ -286,7 +272,7 @@ public class LiteralSyntax {
 	 * @return
 	 *   <span class="lang-ja">エスケープシーケンスが処理済みの内容</span>
 	 */
-	public String decodeEscapeSequences(String stringLiteral) {
+	public static final String decodeEscapeSequences(String stringLiteral) {
 
 		// 文字列リテラルのchar配列表現と要素数を取得
 		char[] chars = stringLiteral.toCharArray();
@@ -315,7 +301,7 @@ public class LiteralSyntax {
 			// エスケープ文字があった場合はフラグに記録し、すぐに次へ進む。
 			// ただし、エスケープ文字をエスケープしている場合もあるので、
 			// 直前がエスケープ文字であった場合はこの処理は飛ばす
-			if (chars[i] == stringLiteralEscape && !previousIsEscapeChar) {
+			if (chars[i] == STEING_LITERAL_ESCAPE && !previousIsEscapeChar) {
 				previousIsEscapeChar = true;
 				continue;
 
@@ -363,7 +349,7 @@ public class LiteralSyntax {
 	 * @throws VnanoException
 	 *   <span class="lang-ja">文字列リテラルが全て閉じていない場合にスローされます.</span>
 	 */
-	public String[] extractStringLiterals(String code) throws VnanoException {
+	public static final String[] extractStringLiterals(String code) throws VnanoException {
 
 		// コードのchar配列表現と要素数を取得
 		char[] chars = code.toCharArray();
@@ -380,14 +366,14 @@ public class LiteralSyntax {
 		for (int i=0; i<charLength; i++) {
 
 			// 文字列リテラルの始点・終点記号の場合に行う処理（エスケープ文字直後は行わない）
-			if (chars[i] == stringLiteralQuot && !previousIsEscapeChar) {
+			if (chars[i] == STRING_LITERAL_QUOT && !previousIsEscapeChar) {
 
 				// 文字列リテラル終了
 				if (inLiteral) {
 					inLiteral = false;
 
 					// 読み進めていたリテラルを閉じて取り出す
-					literalBuilder.append(stringLiteralQuot);
+					literalBuilder.append(STRING_LITERAL_QUOT);
 					String literal = literalBuilder.toString();
 					literalBuilder = null;
 
@@ -395,9 +381,9 @@ public class LiteralSyntax {
 					literalList.add(literal);
 
 					// 抽出済みコードに番号化リテラルを追記し、番号を進める
-					resultCodeBuilder.append(stringLiteralQuot);
+					resultCodeBuilder.append(STRING_LITERAL_QUOT);
 					resultCodeBuilder.append(literalNumber);
-					resultCodeBuilder.append(stringLiteralQuot);
+					resultCodeBuilder.append(STRING_LITERAL_QUOT);
 					literalNumber++;
 
 				// 文字列リテラル開始
@@ -406,7 +392,7 @@ public class LiteralSyntax {
 
 					// バッファを生成してリテラル開始記号を追記
 					literalBuilder = new StringBuilder();
-					literalBuilder.append(stringLiteralQuot);
+					literalBuilder.append(STRING_LITERAL_QUOT);
 				}
 				continue;
 			}
@@ -416,8 +402,8 @@ public class LiteralSyntax {
 			// リテラルに追記し、すぐに次へ進む。
 			// ただし、エスケープ文字をエスケープしている場合もあるので、
 			// 直前がエスケープ文字であった場合はこの処理は飛ばす
-			if (inLiteral && chars[i] == stringLiteralEscape && !previousIsEscapeChar) {
-				literalBuilder.append(stringLiteralEscape);
+			if (inLiteral && chars[i] == STEING_LITERAL_ESCAPE && !previousIsEscapeChar) {
+				literalBuilder.append(STEING_LITERAL_ESCAPE);
 				previousIsEscapeChar = true;
 				continue;
 
@@ -472,7 +458,7 @@ public class LiteralSyntax {
 	 *   対象リテラルが格納されている要素のインデックス
 	 *   </span>
 	 */
-	public int getIndexOfNumberedStringLiteral(String numberedLiteral) {
+	public static final int getIndexOfNumberedStringLiteral(String numberedLiteral) {
 
 		// 前後の「 " 」を除去
 		numberedLiteral = numberedLiteral.substring(1, numberedLiteral.length()-1);

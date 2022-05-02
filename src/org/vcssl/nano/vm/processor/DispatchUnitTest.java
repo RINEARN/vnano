@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2019 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2021 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -15,7 +15,6 @@ import org.junit.Test;
 import org.vcssl.nano.interconnect.Interconnect;
 import org.vcssl.nano.spec.DataType;
 import org.vcssl.nano.spec.OperationCode;
-import org.vcssl.nano.spec.LanguageSpecContainer;
 import org.vcssl.nano.spec.SpecialBindingKey;
 import org.vcssl.nano.vm.memory.DataContainer;
 import org.vcssl.nano.vm.memory.Memory;
@@ -24,8 +23,6 @@ import org.vcssl.nano.VnanoException;
 
 
 public class DispatchUnitTest {
-
-	private final LanguageSpecContainer LANG_SPEC = new LanguageSpecContainer();
 
 	private Memory memory;
 
@@ -130,7 +127,7 @@ public class DispatchUnitTest {
 		this.boolInputA.setArrayData(new boolean[3], 0, new int[]{ 3 });
 		this.boolInputB.setArrayData(new boolean[3], 0, new int[]{ 3 });
 
-		this.memory = new Memory(new LanguageSpecContainer());
+		this.memory = new Memory();
 		this.memory.setDataContainer(INT64_OUTPUT_PART, INT64_OUTPUT_ADDR, this.int64Output);
 		this.memory.setDataContainer(INT64_INPUT_A_PART, INT64_INPUT_A_ADDR, this.int64InputA);
 		this.memory.setDataContainer(INT64_INPUT_B_PART, INT64_INPUT_B_ADDR, this.int64InputB);
@@ -208,7 +205,7 @@ public class DispatchUnitTest {
 
 	private int dispatch(Instruction instruction, int pc) throws VnanoException, VnanoFatalException {
 		return new DispatchUnit().dispatch(
-				instruction, this.memory, new Interconnect(LANG_SPEC), new ExecutionUnit(), new boolean[] {false}, pc
+				instruction, this.memory, new Interconnect(), new ExecutionUnit(), new boolean[] {false}, pc
 		);
 	}
 	private int dispatch(Instruction instruction, Interconnect interconnect, int pc) throws VnanoException, VnanoFatalException {
@@ -1379,7 +1376,7 @@ public class DispatchUnitTest {
 		}
 
 		// インターコネクトを生成してメソッドを接続
-		Interconnect interconnect = new Interconnect(LANG_SPEC);
+		Interconnect interconnect = new Interconnect();
 		try {
 			interconnect.connectPlugin(SpecialBindingKey.AUTO_KEY, new Object[] {method,this} );
 		} catch (VnanoException e) {

@@ -35,13 +35,9 @@ import org.vcssl.nano.spec.EngineInformation;
 import org.vcssl.nano.spec.ErrorMessage;
 import org.vcssl.nano.spec.OptionKey;
 import org.vcssl.nano.spec.OptionValue;
-import org.vcssl.nano.spec.LanguageSpecContainer;
 import org.vcssl.nano.vm.VirtualMachine;
 
 public final class VnanoCommandLineApplication {
-
-	// 各種の言語仕様設定類を格納するコンテナを保持する
-	private final LanguageSpecContainer LANG_SPEC = new LanguageSpecContainer(); // デフォルトの言語仕様設定を生成
 
 	// エラーメッセージの表示言語指定などに使用されるロケールを保持する
 	private Locale locale = Locale.getDefault();
@@ -851,7 +847,7 @@ public final class VnanoCommandLineApplication {
 	private Interconnect createInitializedInterconnect(Map<String, Object> optionMap, PluginLoader pluginLoader) {
 
 		// 何も接続されていない、空のインターコネクトを生成
-		Interconnect interconnect = new Interconnect(LANG_SPEC);
+		Interconnect interconnect = new Interconnect();
 
 		// プラグインが接続/初期化時にオプション値を参照する場合があるので、接続前にオプション設定を済ませる
 		try {
@@ -904,7 +900,7 @@ public final class VnanoCommandLineApplication {
 
 		// メソッド接続済みのスクリプトエンジンを生成して取得
 		VnanoEngine engine = this.createInitializedVnanoEngine(
-			this.engineOptionMap, new PluginLoader(DEFAULT_ENCODING, LANG_SPEC)
+			this.engineOptionMap, new PluginLoader(DEFAULT_ENCODING)
 		);
 
 		try {
@@ -930,7 +926,7 @@ public final class VnanoCommandLineApplication {
 					throws VnanoException {
 
 		// ライブラリの読み込み
-		ScriptLoader scriptLoader = new ScriptLoader(defaultEncoding, LANG_SPEC);
+		ScriptLoader scriptLoader = new ScriptLoader(defaultEncoding);
 		scriptLoader.setMainScriptPath(inputFilePath);
 		if (libraryListFilePath != null) {
 			scriptLoader.setLibraryScriptListPath(libraryListFilePath);
@@ -938,7 +934,7 @@ public final class VnanoCommandLineApplication {
 		scriptLoader.load();
 
 		// プラグインの読み込み
-		PluginLoader pluginLoader = new PluginLoader(defaultEncoding, LANG_SPEC);
+		PluginLoader pluginLoader = new PluginLoader(defaultEncoding);
 		if (pluginListFilePath != null) {
 			pluginLoader.setPluginListPath(pluginListFilePath);
 		}
@@ -962,7 +958,7 @@ public final class VnanoCommandLineApplication {
 		this.engineOptionMap.put(OptionKey.UI_MODE, "CUI");
 
 		// オプション内容を正規化（必須項目の補完など）
-		this.engineOptionMap = OptionValue.normalizeValuesOf(this.engineOptionMap, this.LANG_SPEC);
+		this.engineOptionMap = OptionValue.normalizeValuesOf(this.engineOptionMap);
 
 		// オプション設定済み＆プラグイン接続済みのスクリプトエンジンを生成
 		VnanoEngine engine = this.createInitializedVnanoEngine(this.engineOptionMap, pluginLoader);
@@ -1010,7 +1006,7 @@ public final class VnanoCommandLineApplication {
 		this.engineOptionMap.put(OptionKey.UI_MODE, "CUI");
 
 		// オプション内容を正規化（必須項目の補完など）
-		this.engineOptionMap = OptionValue.normalizeValuesOf(this.engineOptionMap, this.LANG_SPEC);
+		this.engineOptionMap = OptionValue.normalizeValuesOf(this.engineOptionMap);
 
 		// オプション設定済み＆プラグイン接続済みのインターコネクトを生成して取得
 		Interconnect interconnect = this.createInitializedInterconnect(this.engineOptionMap, pluginLoader);
@@ -1022,7 +1018,7 @@ public final class VnanoCommandLineApplication {
 		interconnect.activate();
 
 		// VRILコードを実行するプロセス仮想マシン（VM）を生成
-		VirtualMachine vm = new VirtualMachine(LANG_SPEC);
+		VirtualMachine vm = new VirtualMachine();
 
 		// 実測パフォーマンス値を表示するスレッドが必要なら生成
 		PerformanceValuePrinter perfValuePrinter = null;

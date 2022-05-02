@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2020 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2021 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -20,7 +20,6 @@ import org.vcssl.nano.spec.DataType;
 import org.vcssl.nano.spec.DataTypeName;
 import org.vcssl.nano.spec.IdentifierSyntax;
 import org.vcssl.nano.spec.ScriptWord;
-import org.vcssl.nano.spec.LanguageSpecContainer;
 
 /**
  * <p>
@@ -30,16 +29,6 @@ import org.vcssl.nano.spec.LanguageSpecContainer;
  * @author RINEARN (Fumihiro Matsui)
  */
 public class FunctionTable {
-
-	/** スクリプト言語の語句が定義された設定オブジェクトを保持します。 */
-	private final ScriptWord SCRIPT_WORD;
-
-	/** 識別子の判定規則類が定義された設定オブジェクトを保持します。 */
-	private final IdentifierSyntax IDENTIFIER_SYNTAX;
-
-	/** データ型名が定義された設定オブジェクトを保持します。 */
-	private final DataTypeName DATA_TYPE_NAME;
-
 
 	/** 関数を保持するリストです。 */
 	List<AbstractFunction> functionList = null;
@@ -71,14 +60,8 @@ public class FunctionTable {
 
 	/**
 	 * 空の関数テーブルを生成します。
-	 *
-	 * @param langSpec 言語仕様設定。
 	 */
-	public FunctionTable(LanguageSpecContainer langSpec) {
-		this.SCRIPT_WORD = langSpec.SCRIPT_WORD;
-		this.IDENTIFIER_SYNTAX = langSpec.IDENTIFIER_SYNTAX;
-		this.DATA_TYPE_NAME = langSpec.DATA_TYPE_NAME;
-
+	public FunctionTable() {
 		this.functionList = new ArrayList<AbstractFunction>();
 
 		this.signatureFunctionMap = new LinkedHashMap<String, LinkedList<AbstractFunction>>();
@@ -105,11 +88,11 @@ public class FunctionTable {
 		this.size++;
 
 		// 単純識別子から、名前空間を加味した識別子やシグネチャなどを求める
-		String namespacePrefix = function.hasNamespaceName() ? function.getNamespaceName() +  SCRIPT_WORD.namespaceSeparator : "";
+		String namespacePrefix = function.hasNamespaceName() ? function.getNamespaceName() +  ScriptWord.NAMESPACE_SEPARATOR : "";
 		String functionName = function.getFunctionName();
 		String fullFunctionName = namespacePrefix + functionName;
-		String signature = IDENTIFIER_SYNTAX.getSignatureOf(function);
-		String fullSignature = IDENTIFIER_SYNTAX.getSignatureOf(function, namespacePrefix);
+		String signature = IdentifierSyntax.getSignatureOf(function);
+		String fullSignature = IdentifierSyntax.getSignatureOf(function, namespacePrefix);
 
 		// リストとマップに関数を追加
 		this.functionList.add(function);
@@ -164,9 +147,9 @@ public class FunctionTable {
 
 		// コストを定数オーダーにするため、まずシグネチャを求めて、
 		// それとインデックスとの対応を保持しているマップに投げて値を取得する
-		String namespacePrefix = function.hasNamespaceName() ? function.getNamespaceName() +  SCRIPT_WORD.namespaceSeparator : "";
-		String signature = IDENTIFIER_SYNTAX.getSignatureOf(function);
-		String fullSignature = IDENTIFIER_SYNTAX.getSignatureOf(function, namespacePrefix);
+		String namespacePrefix = function.hasNamespaceName() ? function.getNamespaceName() +  ScriptWord.NAMESPACE_SEPARATOR : "";
+		String signature = IdentifierSyntax.getSignatureOf(function);
+		String fullSignature = IdentifierSyntax.getSignatureOf(function, namespacePrefix);
 		if (signatureIndexMap.containsKey(signature)) {
 			return IdentifierMapManager.getLastFromMap(this.signatureIndexMap, signature);
 		}
@@ -204,8 +187,8 @@ public class FunctionTable {
 			boolean[] parameterDataTypeArbitrarinesses, boolean[] parameterArrayRankArbitrarinesses,
 			boolean parameterCountArbitrary, boolean parameterVariadic) {
 
-		String[] parameterDataTypeNames = DATA_TYPE_NAME.getDataTypeNamesOf(parameterDataTypes);
-		String signature = IDENTIFIER_SYNTAX.getSignatureOf(
+		String[] parameterDataTypeNames = DataTypeName.getDataTypeNamesOf(parameterDataTypes);
+		String signature = IdentifierSyntax.getSignatureOf(
 				functionName, parameterDataTypeNames, parameterArrayRanks,
 				parameterDataTypeArbitrarinesses, parameterArrayRankArbitrarinesses,
 				parameterCountArbitrary, parameterVariadic
@@ -268,7 +251,7 @@ public class FunctionTable {
 	public AbstractFunction getCalleeFunctionOf(AstNode callerNode) {
 
 		// まずコールシグネチャと宣言シグネチャが一致するものがあるか検索（あれば最も検索が速い）
-		String signature = IDENTIFIER_SYNTAX.getSignatureOfCalleeFunctionOf(callerNode);
+		String signature = IdentifierSyntax.getSignatureOfCalleeFunctionOf(callerNode);
 		if (this.hasFunctionWithSignature(signature)) {
 			return this.getFunctionBySignature(signature);
 		}

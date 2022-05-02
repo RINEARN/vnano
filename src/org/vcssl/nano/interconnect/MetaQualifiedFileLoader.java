@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2020 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2020-2021 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -19,7 +19,8 @@ import java.util.List;
 
 import org.vcssl.nano.VnanoException;
 import org.vcssl.nano.spec.ErrorType;
-import org.vcssl.nano.spec.LanguageSpecContainer;
+import org.vcssl.nano.spec.LiteralSyntax;
+import org.vcssl.nano.spec.ScriptWord;
 
 
 /**
@@ -119,15 +120,11 @@ public class MetaQualifiedFileLoader {
 	 *   <span class="lang-en">The name of the default encoding</span>
 	 *   <span class="lang-ja">デフォルトの文字コードの名称</span>
 	 *
-	 * @param langSpec
-	 *   <span class="lang-en">language specification settings</span>
-	 *   <span class="lang-ja">言語仕様設定</span>
-	 *
 	 * @return
 	 *   <span class="lang-en">The loaded and normalized content</span>
 	 *   <span class="lang-ja">読み込まれて正規化された内容</span>
 	 */
-	public static final String load(String filePath, String defaultEncoding, LanguageSpecContainer langSpec)
+	public static final String load(String filePath, String defaultEncoding)
 			throws VnanoException {
 
 		if (!new File(filePath).exists()) {
@@ -135,7 +132,7 @@ public class MetaQualifiedFileLoader {
 		}
 
 		// ファイル内に文字コード宣言があればその文字コード、無ければデフォルトの文字コードから Charset を生成
-		Charset charset = determinCharset(filePath, defaultEncoding, langSpec);
+		Charset charset = determinCharset(filePath, defaultEncoding);
 
 		// ファイルの全行を読み込む
 		List<String> lineList = null;
@@ -149,7 +146,7 @@ public class MetaQualifiedFileLoader {
 		String content = String.join("\n", lineList.toArray(new String[0]) );
 
 		// 環境依存やエンコーディング/デコーディング依存による内容の揺れの正規化や、文字コード宣言の削除を行う
-		content = postprocess(filePath, content, langSpec);
+		content = postprocess(filePath, content);
 
 		return content;
 	}
@@ -175,19 +172,15 @@ public class MetaQualifiedFileLoader {
 	 *   <span class="lang-en">The content of the loaded file</span>
 	 *   <span class="lang-ja">読み込まれたファイルの内容</span>
 	 *
-	 * @param langSpec
-	 *   <span class="lang-en">language specification settings</span>
-	 *   <span class="lang-ja">言語仕様設定</span>
-	 *
 	 * @return
 	 *   <span class="lang-en">The postprocessed content</span>
 	 *   <span class="lang-ja">後処理を行った内容</span>
 	 */
-	public static final String postprocess(String fileName, String fileContent, LanguageSpecContainer langSpec)
+	public static final String postprocess(String fileName, String fileContent)
 			throws VnanoException {
 
 		fileContent = normalize(fileContent);
-		fileContent = removeEncodingDeclaration(fileName, fileContent, langSpec);
+		fileContent = removeEncodingDeclaration(fileName, fileContent);
 		return fileContent;
 	}
 
@@ -208,10 +201,6 @@ public class MetaQualifiedFileLoader {
 	 *   <span class="lang-en">The name of the default encoding</span>
 	 *   <span class="lang-ja">デフォルトの文字コードの名称</span>
 	 *
-	 * @param langSpec
-	 *   <span class="lang-en">language specification settings</span>
-	 *   <span class="lang-ja">言語仕様設定</span>
-	 *
 	 * @return
 	 *   <span class="lang-en">
 	 *   If the encoding-declaration exists, Charset corresponding with it will be returned.
@@ -222,11 +211,11 @@ public class MetaQualifiedFileLoader {
 	 *   文字コード宣言が無い場合, デフォルトの文字コードに対応する Charset が返されます.
 	 *   </span>
 	 */
-	private static final Charset determinCharset(String filePath, String defaultEncodingName, LanguageSpecContainer langSpec)
+	private static final Charset determinCharset(String filePath, String defaultEncodingName)
 			throws VnanoException {
 
 		// 文字コード宣言を読み、宣言されている文字コードの名称を取得
-		String declEncodingName = readDeclaredEncodingName(filePath, defaultEncodingName, langSpec);
+		String declEncodingName = readDeclaredEncodingName(filePath, defaultEncodingName);
 
 		// 文字コードが宣言されていなければ、デフォルトの文字コードを返す
 		if (declEncodingName == null) {
@@ -264,15 +253,11 @@ public class MetaQualifiedFileLoader {
 	 *   <span class="lang-en">The name of the encoding for reading the file</span>
 	 *   <span class="lang-ja">ファイルを読み込む際の文字コードの名称</span>
 	 *
-	 * @param langSpec
-	 *   <span class="lang-en">language specification settings</span>
-	 *   <span class="lang-ja">言語仕様設定</span>
-	 *
 	 * @return
 	 *   <span class="lang-en">The name of the declared encoding (or, null if there is no encoding-declaration in the file)</span>
 	 *   <span class="lang-ja">宣言されている文字コードの名称 (文字コード宣言が無い場合は null)</span>
 	 */
-	private static final String readDeclaredEncodingName(String filePath, String encodingNameForReading, LanguageSpecContainer langSpec)
+	private static final String readDeclaredEncodingName(String filePath, String encodingNameForReading)
 			throws VnanoException {
 
 		// 有効な文字コード宣言は先頭行で完結しているため、ファイルの先頭行のみを読み込む
@@ -287,7 +272,7 @@ public class MetaQualifiedFileLoader {
 		firstLine = normalize(firstLine);
 
 		// 文字コード宣言を解釈して文字コード名を取得（無い場合はnull）
-		return extractDeclaredEncodingName(filePath, firstLine, langSpec);
+		return extractDeclaredEncodingName(filePath, firstLine);
 	}
 
 
@@ -307,15 +292,11 @@ public class MetaQualifiedFileLoader {
 	 *   <span class="lang-en">The content of the file</span>
 	 *   <span class="lang-ja">対象ファイルの内容</span>
 	 *
-	 * @param langSpec
-	 *   <span class="lang-en">language specification settings</span>
-	 *   <span class="lang-ja">言語仕様設定</span>
-	 *
 	 * @return
 	 *   <span class="lang-en">The name of the declared encoding (or, null if there is no encoding-declaration in the file)</span>
 	 *   <span class="lang-ja">宣言されている文字コードの名称 (文字コード宣言が無い場合は null)</span>
 	 */
-	private static final String extractDeclaredEncodingName(String fileName, String fileContent, LanguageSpecContainer langSpec)
+	private static final String extractDeclaredEncodingName(String fileName, String fileContent)
 			throws VnanoException {
 
 		// 内容が無い場合は明らかに文字コード宣言も無いので終了
@@ -338,7 +319,7 @@ public class MetaQualifiedFileLoader {
 			if (firstLine.startsWith(declLineHead)) {
 
 				// 文字コード宣言のキーワードと文末記号との間に囲まれた部分（空白は除去済み）が文字コード名なので、抽出する
-				int encodingDeclEnd = firstLine.indexOf(langSpec.SCRIPT_WORD.endOfStatement);
+				int encodingDeclEnd = firstLine.indexOf(ScriptWord.END_OF_STATEMENT);
 				if (encodingDeclEnd != -1) {
 					encodingName = firstLine.substring(declLineHead.length(), encodingDeclEnd);
 					break;
@@ -356,11 +337,11 @@ public class MetaQualifiedFileLoader {
 		// そのため、文字コード宣言内では上記のようなものは使えないものとし、実際に使っていない事を検査しておく。
 		// （処理系の解釈の仕方によって挙動が変わるのを避けるため）
 		String[] invalidSymbols = new String[] {
-			langSpec.SCRIPT_WORD.lineCommentPrefix,
-			langSpec.SCRIPT_WORD.blockCommentBegin,
-			langSpec.SCRIPT_WORD.blockCommentEnd,
-			Character.toString(langSpec.LITERAL_SYNTAX.stringLiteralQuot),
-			Character.toString(langSpec.LITERAL_SYNTAX.charLiteralQuot),
+			ScriptWord.LINE_COMMENT_PREFIX,
+			ScriptWord.BLOCK_COMMENT_BEGIN,
+			ScriptWord.BLOCK_COMMENT_END,
+			Character.toString(LiteralSyntax.STRING_LITERAL_QUOT),
+			Character.toString(LiteralSyntax.CHAR_LITERAL_QUOT),
 		};
 		for (String invalidSymbol: invalidSymbols) {
 			if (encodingName != null && encodingName.contains(invalidSymbol)) {
@@ -391,18 +372,14 @@ public class MetaQualifiedFileLoader {
 	 *   <span class="lang-en">The content of the file</span>
 	 *   <span class="lang-ja">対象ファイルの内容</span>
 	 *
-	 * @param langSpec
-	 *   <span class="lang-en">language specification settings</span>
-	 *   <span class="lang-ja">言語仕様設定</span>
-	 *
 	 * @return
 	 *   <span class="lang-en">true if the encoding declaration exists</span>
 	 *   <span class="lang-ja">文字コード宣言が存在すれば true</span>
 	 */
-	private static final boolean existsEncodingDeclaration(String fileName, String fileContent, LanguageSpecContainer langSpec)
+	private static final boolean existsEncodingDeclaration(String fileName, String fileContent)
 			throws VnanoException {
 
-		return extractDeclaredEncodingName(fileName, fileContent, langSpec) != null;
+		return extractDeclaredEncodingName(fileName, fileContent) != null;
 	}
 
 
@@ -422,20 +399,16 @@ public class MetaQualifiedFileLoader {
 	 *   <span class="lang-en">The content of the file</span>
 	 *   <span class="lang-ja">対象ファイルの内容</span>
 	 *
-	 * @param langSpec
-	 *   <span class="lang-en">language specification settings</span>
-	 *   <span class="lang-ja">言語仕様設定</span>
-	 *
 	 * @return
 	 *   <span class="lang-en">the content of the file from which the encoding declaration is removed</span>
 	 *   <span class="lang-ja">文字コード宣言が削除された, 対象ファイルの内容</span>
 	 */
-	private static final String removeEncodingDeclaration(String fileName, String fileContent, LanguageSpecContainer langSpec)
+	private static final String removeEncodingDeclaration(String fileName, String fileContent)
 			throws VnanoException {
 
 		// 文字コード宣言がある場合： 最初の文末記号までが文字コード宣言なので、その後の残りを返す
-		if (existsEncodingDeclaration(fileName, fileContent, langSpec)) {
-			int encodingDeclEnd = fileContent.indexOf(langSpec.SCRIPT_WORD.endOfStatement); // 文字コード宣言がある場合は、文末記号は必ずあるはず
+		if (existsEncodingDeclaration(fileName, fileContent)) {
+			int encodingDeclEnd = fileContent.indexOf(ScriptWord.END_OF_STATEMENT); // 文字コード宣言がある場合は、文末記号は必ずあるはず
 			return fileContent.substring(encodingDeclEnd + 1, fileContent.length()); // 同様に、このインデックスが範囲外になる事はあり得ないはず
 
 		// 文字コード宣言が無い場合： 全体をそのまま返す

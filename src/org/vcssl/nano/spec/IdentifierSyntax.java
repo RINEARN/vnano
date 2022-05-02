@@ -44,25 +44,9 @@ import org.vcssl.nano.interconnect.AbstractVariable;
  *
  * @author RINEARN (Fumihiro Matsui)
  */
-public class IdentifierSyntax {
+public final class IdentifierSyntax {
 
-
-	// 各メソッドは元々は static final でしたが、カスタマイズの事を考慮して、普通のメソッドに変更されました。
-	// これにより、このクラスを継承してメソッド実装を変更し、
-	// そのインスタンスを LanguageSpecContainer に持たせて VnanoEngle クラスのコンストラクタに渡す事で、
-	// 処理系内のソースコードを保ったまま（再ビルド不要で）定義類を差し替える事ができます。
-
-
-	// 型名など、他の設定内容に依存しているため、コンストラクタで渡す
-	private final DataTypeName DATA_TYPE_NAME;
-	private final AssemblyWord ASSEMBLY_WORD;
-	public IdentifierSyntax(DataTypeName dataTypeName, AssemblyWord assemblyWord) {
-		this.DATA_TYPE_NAME = dataTypeName;
-		this.ASSEMBLY_WORD = assemblyWord;
-	}
-
-
-	public boolean isValidSyntaxIdentifier(String identifier) {
+	public static final boolean isValidSyntaxIdentifier(String identifier) {
 
 		// 数字で始まる識別子はNG
 		if (identifier.matches("^[0-9].*$")) {
@@ -84,7 +68,7 @@ public class IdentifierSyntax {
 		return true;
 	}
 
-	public String getSignatureOf(String functionName,
+	public static final String getSignatureOf(String functionName,
 			String[] parameterDataTypeNames, int[] parameterArrayRanks,
 			boolean[] parameterDataTypeArbitrarinesses, boolean[] parameterArrayRankArbitrarinesses,
 			boolean parameterCountArbitrary, boolean parameterVariadic) {
@@ -97,7 +81,7 @@ public class IdentifierSyntax {
 		if (parameterCountArbitrary) {
 			builder.append("...");
 			if (parameterDataTypeArbitrarinesses[0]) {
-				builder.append(DATA_TYPE_NAME.any);
+				builder.append(DataTypeName.ANY);
 			} else {
 				builder.append(parameterDataTypeNames[0]);
 			}
@@ -113,7 +97,7 @@ public class IdentifierSyntax {
 		for (int parameterIndex=0; parameterIndex<parameterLength; parameterIndex++) {
 
 			if (parameterDataTypeArbitrarinesses[parameterIndex]) {
-				builder.append(DATA_TYPE_NAME.any);
+				builder.append(DataTypeName.ANY);
 			} else {
 				builder.append(parameterDataTypeNames[parameterIndex]);
 			}
@@ -136,7 +120,7 @@ public class IdentifierSyntax {
 		return builder.toString();
 	}
 
-	public String getSignatureOf(AstNode functionDeclarationNode) {
+	public static final String getSignatureOf(AstNode functionDeclarationNode) {
 
 		String functionName = functionDeclarationNode.getAttribute(AttributeKey.IDENTIFIER_VALUE);
 		AstNode[] parameterNodes = functionDeclarationNode.getChildNodes();
@@ -156,8 +140,8 @@ public class IdentifierSyntax {
 
 			// データ型名のエイリアス（floatに対するdoubleなど）を一意な型名に揃えるため、一旦DataTypeに変換して戻す
 			try {
-				DataType dataType = DATA_TYPE_NAME.getDataTypeOf(dataTypeName);
-				dataTypeName = DATA_TYPE_NAME.getDataTypeNameOf(dataType);
+				DataType dataType = DataTypeName.getDataTypeOf(dataTypeName);
+				dataTypeName = DataTypeName.getDataTypeNameOf(dataType);
 			} catch (VnanoException e) {
 				// DataTypeに定義されない未知の型の場合は、記述された型名をそのまま使用する
 			}
@@ -176,7 +160,7 @@ public class IdentifierSyntax {
 		return signature;
 	}
 
-	public String getSignatureOfCalleeFunctionOf(AstNode callerNode) {
+	public static final String getSignatureOfCalleeFunctionOf(AstNode callerNode) {
 
 		AstNode[] childNodes = callerNode.getChildNodes();
 
@@ -199,8 +183,8 @@ public class IdentifierSyntax {
 
 			// データ型名のエイリアス（floatに対するdoubleなど）を一意な型名に揃えるため、一旦DataTypeに変換して戻す
 			try {
-				DataType dataType = DATA_TYPE_NAME.getDataTypeOf(dataTypeName);
-				dataTypeName = DATA_TYPE_NAME.getDataTypeNameOf(dataType);
+				DataType dataType = DataTypeName.getDataTypeOf(dataTypeName);
+				dataTypeName = DataTypeName.getDataTypeNameOf(dataType);
 			} catch (VnanoException e) {
 				// DataTypeに定義されない未知の型の場合は、記述された型名をそのまま使用する
 			}
@@ -210,7 +194,7 @@ public class IdentifierSyntax {
 			argumentArrayRanks[argumentNodeIndex] = argumentNodes[argumentNodeIndex].getRank();
 		}
 
-		String signature = this.getSignatureOf(
+		String signature = getSignatureOf(
 				functionName, argumentDataTypeNames, argumentArrayRanks,
 				argumentDataTypeArbitrarinesses, argumentArrayRankArbitrarinesses,
 				false, false
@@ -220,16 +204,16 @@ public class IdentifierSyntax {
 	}
 
 
-	public String getSignatureOf(AbstractFunction function) {
+	public static final String getSignatureOf(AbstractFunction function) {
 		return getSignatureOf(function, "");
 	}
-	public String getSignatureOf(AbstractFunction function, String nameSpacePrefix) {
+	public static final String getSignatureOf(AbstractFunction function, String nameSpacePrefix) {
 		String[] parameterDataTypeNames = function.getParameterDataTypeNames();
 		int[] parameterArrayRanks = function.getParameterArrayRanks();
 		boolean[] parameterDataTypeArbitrarinesses = function.getParameterDataTypeArbitrarinesses();
 		boolean[] parameterArrayRankArbitrarinesses = function.getParameterArrayRankArbitrarinesses();
 		String functionName = nameSpacePrefix + function.getFunctionName();
-		String signature = this.getSignatureOf(
+		String signature = getSignatureOf(
 				functionName, parameterDataTypeNames, parameterArrayRanks,
 				parameterDataTypeArbitrarinesses, parameterArrayRankArbitrarinesses,
 				function.isParameterCountArbitrary(), function.hasVariadicParameters()
@@ -239,34 +223,34 @@ public class IdentifierSyntax {
 	}
 
 	// 後の工程での削除候補
-	public String getAssemblyIdentifierOf(String variableName) {
-		return ASSEMBLY_WORD.identifierOperandPrefix + variableName;
+	public static final String getAssemblyIdentifierOf(String variableName) {
+		return AssemblyWord.IDENTIFIER_OPERAND_PREFIX + variableName;
 	}
 
-	public String getAssemblyIdentifierOf(AstNode variableNode) {
+	public static final String getAssemblyIdentifierOf(AstNode variableNode) {
 		String variableName = variableNode.getAttribute(AttributeKey.IDENTIFIER_VALUE);
 		String serialNumber = variableNode.getAttribute(AttributeKey.IDENTIFIER_SERIAL_NUMBER);
 		String assemblyIdentifier
-				= ASSEMBLY_WORD.identifierOperandPrefix
+				= AssemblyWord.IDENTIFIER_OPERAND_PREFIX
 				+ variableName
-				+ ASSEMBLY_WORD.identifierSerialNumberSeparator
+				+ AssemblyWord.IDENTIFIER_SERIAL_NUMBER_SEPARATOR
 				+ serialNumber;
 
 		return assemblyIdentifier;
 	}
 
 	// 後で AbstractVariable がシリアルナンバーを持てるようにした場合は、持っていれば付けるべき
-	public String getAssemblyIdentifierOf(AbstractVariable variable) {
+	public static final String getAssemblyIdentifierOf(AbstractVariable variable) {
 		return getAssemblyIdentifierOf(variable, "");
 	}
 
-	public String getAssemblyIdentifierOf(AbstractVariable variable, String nameSpacePrefix) {
+	public static final String getAssemblyIdentifierOf(AbstractVariable variable, String nameSpacePrefix) {
 		String variableName = variable.getVariableName();
-		return ASSEMBLY_WORD.identifierOperandPrefix + nameSpacePrefix + variableName;
+		return AssemblyWord.IDENTIFIER_OPERAND_PREFIX + nameSpacePrefix + variableName;
 	}
 
 	// スクリプト名の中で、意味のある記号などを置き換えて正規化する（中間コードのメタ情報などに記載されるため）
-	public String normalizeScriptIdentifier(String scriptName) {
+	public static final String normalizeScriptIdentifier(String scriptName) {
 
 		String normalizedName = scriptName;
 

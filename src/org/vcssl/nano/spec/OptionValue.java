@@ -33,7 +33,7 @@ import org.vcssl.nano.VnanoException;
  *
  * @author RINEARN (Fumihiro Matsui)
  */
-public class OptionValue {
+public final class OptionValue {
 
 
 	/**
@@ -320,7 +320,7 @@ public class OptionValue {
 	 * <span class="lang-ja">オプションマップのデフォルト値を保持するマップです</span>
 	 * .
 	 */
-	private static Map<String, Object> DEFAULT_VALUE_MAP = new LinkedHashMap<String, Object>(); // 環境依存の内容を含むので final にはしない
+	private static final Map<String, Object> DEFAULT_VALUE_MAP = new LinkedHashMap<String, Object>(); // 環境依存の内容を含むので final にはしない
 	static {
 		DEFAULT_VALUE_MAP.put(OptionKey.EVAL_INT_LITERAL_AS_FLOAT, Boolean.FALSE);
 		DEFAULT_VALUE_MAP.put(OptionKey.EVAL_ONLY_FLOAT, Boolean.FALSE);
@@ -373,8 +373,7 @@ public class OptionValue {
 	 *   <span class="lang-en">The normalized option map</span>
 	 *   <span class="lang-ja">正規化されたオプションマップ</span>
 	 */
-	public static Map<String, Object> normalizeValuesOf(
-			Map<String, Object> optionMap, LanguageSpecContainer langSpec) {
+	public static final Map<String, Object> normalizeValuesOf(Map<String, Object> optionMap) {
 
 		// 補完結果として返すマップを生成
 		Map<String, Object> returnMap = new LinkedHashMap<String, Object>();
@@ -412,7 +411,7 @@ public class OptionValue {
 			} else {
 				returnMap.put(
 					OptionKey.MAIN_SCRIPT_NAME,
-					langSpec.IDENTIFIER_SYNTAX.normalizeScriptIdentifier(mainScriptName)
+					IdentifierSyntax.normalizeScriptIdentifier(mainScriptName)
 				);
 			}
 		}
@@ -438,7 +437,7 @@ public class OptionValue {
 	 *   <span class="lang-en">Thrown if invalid contents are detected.</span>
 	 *   <span class="lang-ja">無効な内容が検出された場合にスローされます.</span>
 	 */
-	public static void checkContentsOf(Map<String, Object> optionMap) throws VnanoException {
+	public static final void checkContentsOf(Map<String, Object> optionMap) throws VnanoException {
 		checkKeysOf(optionMap);
 		checkValuesOf(optionMap);
 	}
@@ -461,7 +460,7 @@ public class OptionValue {
 	 *   <span class="lang-en">Thrown if invalid names are detected.</span>
 	 *   <span class="lang-ja">無効な名称が検出された場合にスローされます.</span>
 	 */
-	public static void checkKeysOf(Map<String, Object> optionMap) throws VnanoException {
+	public static final void checkKeysOf(Map<String, Object> optionMap) throws VnanoException {
 
 		// オプション名が古い場合の検査
 		if(optionMap.containsKey("EVAL_NUMBER_AS_FLOAT")) {
@@ -494,7 +493,7 @@ public class OptionValue {
 	 *   <span class="lang-en">Thrown if invalid values are detected.</span>
 	 *   <span class="lang-ja">無効な値が検出された場合にスローされます.</span>
 	 */
-	private static void checkValuesOf(Map<String, Object> optionMap) throws VnanoException {
+	private static final void checkValuesOf(Map<String, Object> optionMap) throws VnanoException {
 		checkValueOf(OptionKey.EVAL_INT_LITERAL_AS_FLOAT, optionMap, Boolean.class);
 		checkValueOf(OptionKey.EVAL_ONLY_FLOAT, optionMap, Boolean.class);
 		checkValueOf(OptionKey.EVAL_ONLY_EXPRESSION, optionMap, Boolean.class);
@@ -544,7 +543,7 @@ public class OptionValue {
 	 *   <span class="lang-en">Thrown if the value is invalid, or does not exist.</span>
 	 *   <span class="lang-ja">値が無効か, または存在しない場合にスローされます.</span>
 	 */
-	private static void checkValueOf(String optionKey, Map<String, Object> optionMap, Class<?> classOfValue)
+	private static final void checkValueOf(String optionKey, Map<String, Object> optionMap, Class<?> classOfValue)
 			throws VnanoException {
 
 		if (!optionMap.containsKey(optionKey)) {

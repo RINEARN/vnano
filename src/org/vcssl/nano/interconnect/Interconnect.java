@@ -24,7 +24,6 @@ import org.vcssl.connect.MethodToXfci1Adapter;
 import org.vcssl.connect.PermissionAuthorizerConnectorInterface1;
 import org.vcssl.nano.spec.ErrorType;
 import org.vcssl.nano.spec.IdentifierSyntax;
-import org.vcssl.nano.spec.LanguageSpecContainer;
 import org.vcssl.nano.spec.OptionValue;
 import org.vcssl.nano.spec.SpecialBindingKey;
 import org.vcssl.nano.vm.VirtualMachineObjectCode;
@@ -84,13 +83,6 @@ import org.vcssl.nano.VnanoFatalException;
  */
 public class Interconnect {
 
-	/** 各種の言語仕様設定類を格納するコンテナを保持します。 */
-	private final LanguageSpecContainer LANG_SPEC;
-
-	/** 上記コンテナ内の、識別子の判定規則類が定義された設定オブジェクトを保持します。 */
-	private final IdentifierSyntax IDENTIFIER_SYNTAX;
-
-
 	/** 外部関数の情報を保持する関数テーブルです。 */
 	private FunctionTable externalFunctionTable = null;
 
@@ -132,23 +124,17 @@ public class Interconnect {
 
 	/**
 	 * <span class="lang-en">
-	 * Creates a blank interconnect to which nothing are connected,
-	 * with the specified language specification settings
+	 * Creates a blank interconnect to which nothing are connected
 	 * </span>
 	 * <span class="lang-ja">
-	 * 指定された言語仕様設定で, 何も接続されていない空のインターコネクトを生成します
+	 * 何も接続されていない空のインターコネクトを生成します
 	 * </span>
 	 * .
-	 * @param langSpec
-	 *   <span class="lang-en">language specification settings.</span>
-	 *   <span class="lang-ja">言語仕様設定.</span>
 	 */
-	public Interconnect(LanguageSpecContainer langSpec) {
-		this.LANG_SPEC = langSpec;
-		this.IDENTIFIER_SYNTAX = LANG_SPEC.IDENTIFIER_SYNTAX;
+	public Interconnect() {
 		this.engineConnector = new EngineConnector();
-		this.externalFunctionTable = new FunctionTable(LANG_SPEC);
-		this.externalVariableTable = new VariableTable(LANG_SPEC);
+		this.externalFunctionTable = new FunctionTable();
+		this.externalVariableTable = new VariableTable();
 		this.xnci1PluginList = new ArrayList<ExternalNamespaceConnectorInterface1>();
 		this.xfci1PluginList = new ArrayList<ExternalFunctionConnectorInterface1>();
 		this.xvci1PluginList = new ArrayList<ExternalVariableConnectorInterface1>();
@@ -156,7 +142,7 @@ public class Interconnect {
 		// Create an option map and set default values, and reflect to the engine connector.
 		// オプションマップを生成し, 必須項目をデフォルト値で補完した上で、エンジンコネクタに反映
 		this.optionMap = new LinkedHashMap<String, Object>();
-		this.optionMap = OptionValue.normalizeValuesOf(optionMap, langSpec);
+		this.optionMap = OptionValue.normalizeValuesOf(optionMap);
 		this.engineConnector = this.engineConnector.createOptionMapUpdatedInstance(this.optionMap);
 
 		// Create an empty permission map and set "DENY" to the default value, and reflect to the engine connector.
@@ -237,7 +223,7 @@ public class Interconnect {
 
 		// Supplement some option items by default values, and store the map to the field of this class.
 		// 必須項目をデフォルト値で補完した上で、このクラスのフィールドに設定
-		this.optionMap = OptionValue.normalizeValuesOf(optionMap, LANG_SPEC);
+		this.optionMap = OptionValue.normalizeValuesOf(optionMap);
 
 		// Check the content of option settings.
 		// オプション設定の内容を検査
@@ -639,8 +625,8 @@ public class Interconnect {
 	 */
 	public void disconnectAllPlugins() throws VnanoException {
 		this.finalizeAllPluginsForDisconnection();
-		this.externalFunctionTable = new FunctionTable(LANG_SPEC);
-		this.externalVariableTable = new VariableTable(LANG_SPEC);
+		this.externalFunctionTable = new FunctionTable();
+		this.externalVariableTable = new VariableTable();
 		this.xnci1PluginList = new ArrayList<ExternalNamespaceConnectorInterface1>();
 		this.xfci1PluginList = new ArrayList<ExternalFunctionConnectorInterface1>();
 		this.xvci1PluginList = new ArrayList<ExternalVariableConnectorInterface1>();
@@ -692,7 +678,7 @@ public class Interconnect {
 
 		// 内部関数と互換の変数オブジェクト
 		} else if (plugin instanceof AbstractFunction) {
-			return IDENTIFIER_SYNTAX.getSignatureOf((AbstractFunction)plugin);
+			return IdentifierSyntax.getSignatureOf((AbstractFunction)plugin);
 
 		// XVCI 1 形式の外部変数プラグイン
 		} else if (plugin instanceof ExternalVariableConnectorInterface1) {
@@ -701,8 +687,8 @@ public class Interconnect {
 		// XFCI 1 形式の外部関数プラグイン
 		} else if (plugin instanceof ExternalFunctionConnectorInterface1) {
 			AbstractFunction functionAdapter =
-					new Xfci1ToFunctionAdapter((ExternalFunctionConnectorInterface1)plugin, LANG_SPEC);
-			return IDENTIFIER_SYNTAX.getSignatureOf(functionAdapter);
+					new Xfci1ToFunctionAdapter((ExternalFunctionConnectorInterface1)plugin);
+			return IdentifierSyntax.getSignatureOf(functionAdapter);
 
 		// XNCI 1 形式の外部関数プラグイン
 		} else if (plugin instanceof ExternalNamespaceConnectorInterface1) {
@@ -715,8 +701,8 @@ public class Interconnect {
 		// クラスメソッドの場合
 		} else if (plugin instanceof Method) {
 			ExternalFunctionConnectorInterface1 xfci1Adapter = new MethodToXfci1Adapter((Method)plugin);
-			AbstractFunction functionAdapter = new Xfci1ToFunctionAdapter(xfci1Adapter, LANG_SPEC);
-			return IDENTIFIER_SYNTAX.getSignatureOf(functionAdapter);
+			AbstractFunction functionAdapter = new Xfci1ToFunctionAdapter(xfci1Adapter);
+			return IdentifierSyntax.getSignatureOf(functionAdapter);
 
 		// クラスの場合
 		} else if (plugin instanceof Class) {
@@ -1025,7 +1011,7 @@ public class Interconnect {
 
 		// コンパイラやVMでは各種変数は AbstractVariable に抽象化した形で扱うので、
 		// XVCI1 から AbstractVariable へ変換するアダプタ（AbstractVariableを継承している）を生成
-		AbstractVariable adapter = new Xvci1ToVariableAdapter(plugin, LANG_SPEC);
+		AbstractVariable adapter = new Xvci1ToVariableAdapter(plugin);
 
 		// 所属名前空間やエイリアス（別名）などが必要なら設定
 		if (belongsToNamespace) {
@@ -1095,7 +1081,7 @@ public class Interconnect {
 
 		// コンパイラやVMでは各種関数は AbstractFunction に抽象化した形で扱うので、
 		// XFCI1 から AbstractFunction へ変換するアダプタ（AbstractFunctionを継承している）を生成
-		AbstractFunction adapter = new Xfci1ToFunctionAdapter(plugin, LANG_SPEC);
+		AbstractFunction adapter = new Xfci1ToFunctionAdapter(plugin);
 
 		// 所属名前空間やエイリアス（別名）などが必要なら設定
 		if (belongsToNamespace) {

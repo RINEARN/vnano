@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2018 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2021 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -77,10 +77,9 @@ public class TokenTest {
 
 	@Test
 	public void testSetGetOperatorPrecedence() {
-		OperatorPrecedence precedence = new OperatorPrecedence();
 		Token token = new Token("Hello", 123, "Test.vnano");
-		token.setPrecedence(precedence.addition);
-		assertEquals(precedence.addition, token.getPrecedence());
+		token.setPrecedence(OperatorPrecedence.ADDITION);
+		assertEquals(OperatorPrecedence.ADDITION, token.getPrecedence());
 	}
 
 

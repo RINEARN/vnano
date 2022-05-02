@@ -25,8 +25,8 @@ import org.vcssl.nano.spec.DataType;
 import org.vcssl.nano.spec.DataTypeName;
 import org.vcssl.nano.spec.ErrorType;
 import org.vcssl.nano.spec.IdentifierSyntax;
+import org.vcssl.nano.spec.LiteralSyntax;
 import org.vcssl.nano.spec.ScriptWord;
-import org.vcssl.nano.spec.LanguageSpecContainer;
 import org.vcssl.nano.spec.OptionKey;
 
 //Documentation:  https://www.vcssl.org/en-us/dev/code/main-jimpl/api/org/vcssl/nano/compiler/SemanticAnalyzer.html
@@ -58,36 +58,16 @@ import org.vcssl.nano.spec.OptionKey;
  */
 public class SemanticAnalyzer {
 
-	/** 各種の言語仕様設定類を格納するコンテナを保持します。 */
-	private final LanguageSpecContainer LANG_SPEC;
-
-	/** 上記コンテナ内の、スクリプト言語の語句が定義された設定オブジェクトを保持します。 */
-	private final ScriptWord SCRIPT_WORD;
-
-	/** 上記コンテナ内の、識別子の判定規則類が定義された設定オブジェクトを保持します。 */
-	private final IdentifierSyntax IDENTIFIER_SYNTAX;
-
-	/** 上記コンテナ内の、データ型名が定義された設定オブジェクトを保持します。 */
-	private final DataTypeName DATA_TYPE_NAME;
-
-
 	/**
 	 * <span class="lang-en">
-	 * Create a new semantic analyzer with the specified language specification settings
+	 * Create a new semantic analyzer
 	 * </span>
 	 * <span class="lang-ja">
-	 * 指定された言語仕様設定で, セマンティックアナライザを生成します
+	 * セマンティックアナライザを生成します
 	 * </span>
 	 * .
-	 * @param langSpec
-	 *   <span class="lang-en">language specification settings.</span>
-	 *   <span class="lang-ja">言語仕様設定.</span>
 	 */
-	public SemanticAnalyzer(LanguageSpecContainer langSpec) {
-		this.LANG_SPEC = langSpec;
-		this.SCRIPT_WORD = langSpec.SCRIPT_WORD;
-		this.IDENTIFIER_SYNTAX = langSpec.IDENTIFIER_SYNTAX;
-		this.DATA_TYPE_NAME = langSpec.DATA_TYPE_NAME;
+	public SemanticAnalyzer() {
 	}
 
 
@@ -216,14 +196,14 @@ public class SemanticAnalyzer {
 			String dataTypeName = currentNode.getAttribute(AttributeKey.DATA_TYPE);
 
 			// 型名が double の場合は float に置き換え
-			if (dataTypeName.equals(LANG_SPEC.DATA_TYPE_NAME.doubleFloat)) {
-				currentNode.setAttribute(AttributeKey.DATA_TYPE, LANG_SPEC.DATA_TYPE_NAME.defaultFloat);
+			if (dataTypeName.equals(DataTypeName.DOUBLE_FLOAT)) {
+				currentNode.setAttribute(AttributeKey.DATA_TYPE, DataTypeName.DEFAULT_FLOAT);
 				continue;
 			}
 
 			// 型名が long の場合は int に置き換え
-			if (dataTypeName.equals(LANG_SPEC.DATA_TYPE_NAME.longInt)) {
-				currentNode.setAttribute(AttributeKey.DATA_TYPE, LANG_SPEC.DATA_TYPE_NAME.defaultInt);
+			if (dataTypeName.equals(DataTypeName.LONG_INT)) {
+				currentNode.setAttribute(AttributeKey.DATA_TYPE, DataTypeName.DEFAULT_INT);
 				continue;
 			}
 
@@ -259,7 +239,7 @@ public class SemanticAnalyzer {
 		int localVariableSerialNumber = 0;
 
 		// ローカル変数テーブル
-		VariableTable localVariableTable = new VariableTable(LANG_SPEC);
+		VariableTable localVariableTable = new VariableTable();
 
 		AstNode currentNode = astRootNode;
 
@@ -321,7 +301,7 @@ public class SemanticAnalyzer {
 				String dataTypeName = currentNode.getDataTypeName();
 				int rank = currentNode.getRank();
 				boolean isFunctionParam = currentNode.getParentNode().getType() == AstNode.Type.FUNCTION;
-				boolean isConstant = currentNode.hasModifier(SCRIPT_WORD.constModifier);
+				boolean isConstant = currentNode.hasModifier(ScriptWord.CONST_MODIFIER);
 
 				// 宣言箇所からの可視範囲内に、既に同名変数が存在する場合はエラーとする（可視範囲外の変数はブロック末端で削除済み）
 				if (localVariableTable.containsVariableWithName(variableName) && !isFunctionParam) { // ただし関数引数は特例的に許可
@@ -377,7 +357,7 @@ public class SemanticAnalyzer {
 				currentNode.setAttribute(AttributeKey.RANK, Integer.toString(variable.getRank()));
 				currentNode.setAttribute(AttributeKey.DATA_TYPE, variable.getDataTypeName());
 				if (variable.isConstant()) {
-					currentNode.addModifier(SCRIPT_WORD.constModifier);
+					currentNode.addModifier(ScriptWord.CONST_MODIFIER);
 				}
 				if (variable.hasNamespaceName()) {
 					currentNode.setAttribute(AttributeKey.NAME_SPACE, variable.getNamespaceName());
@@ -397,7 +377,7 @@ public class SemanticAnalyzer {
 	 */
 	private FunctionTable extractFunctions(AstNode astRootNode) throws VnanoException {
 
-		FunctionTable localFunctionTable = new FunctionTable(LANG_SPEC);
+		FunctionTable localFunctionTable = new FunctionTable();
 
 		if (!astRootNode.hasChildNodes()) {
 			return localFunctionTable;
@@ -445,8 +425,8 @@ public class SemanticAnalyzer {
 					argNames[argIndex] = argNodes[argIndex].getAttribute(AttributeKey.IDENTIFIER_VALUE);
 					argTypeNames[argIndex] = argNodes[argIndex].getAttribute(AttributeKey.DATA_TYPE);
 					argRanks[argIndex] = argNodes[argIndex].getRank();
-					argRefs[argIndex] = argNodes[argIndex].hasModifier(SCRIPT_WORD.refModifier);
-					argConsts[argIndex] = argNodes[argIndex].hasModifier(SCRIPT_WORD.constModifier);
+					argRefs[argIndex] = argNodes[argIndex].hasModifier(ScriptWord.REF_MODIFIER);
+					argConsts[argIndex] = argNodes[argIndex].hasModifier(ScriptWord.CONST_MODIFIER);
 				}
 
 				// 関数情報を保持するインスタンスを生成
@@ -455,7 +435,7 @@ public class SemanticAnalyzer {
 				);
 
 				// シグネチャが完全に競合する関数が、既に宣言されている場合はエラーとする
-				String signature = IDENTIFIER_SYNTAX.getSignatureOf(internalFunction);
+				String signature = IdentifierSyntax.getSignatureOf(internalFunction);
 				if (localFunctionTable.hasFunctionWithSignature(signature)) {
 					throw new VnanoException(
 						ErrorType.DUPLICATE_FUNCTION_SIGNATURE, new String[] {signature},
@@ -537,7 +517,7 @@ public class SemanticAnalyzer {
 					&& currentNode.getAttribute(AttributeKey.LEAF_TYPE).equals(AttributeValue.LITERAL)) {
 
 				currentNode.setAttribute(AttributeKey.RANK, "0"); // 現状では配列のリテラルは存在しないため、常にスカラ
-				currentNode.addModifier(SCRIPT_WORD.constModifier); // リテラルは const 扱い
+				currentNode.addModifier(ScriptWord.CONST_MODIFIER); // リテラルは const 扱い
 
 				// リテラルのデータ型はLexicalAnalyzerの時点で自明なので、その段階で既に設定されている
 				//（ EVAL_NUMBER_AS_FLOATオプションの実装上も、そうした方が都合が良い ）
@@ -641,7 +621,7 @@ public class SemanticAnalyzer {
 						AstNode[] inputNodes = currentNode.getChildNodes();
 						String leftOperandType = inputNodes[0].getDataTypeName();
 						String rightOperandType = inputNodes[1].getDataTypeName();
-						dataType = DATA_TYPE_NAME.bool;
+						dataType = DataTypeName.BOOL;
 						operationDataType = this.analyzeComparisonBinaryOperatorDataType(
 								leftOperandType, rightOperandType,
 								currentNode.getAttribute(AttributeKey.OPERATOR_SYMBOL),
@@ -662,7 +642,7 @@ public class SemanticAnalyzer {
 								AstNode[] inputNodes = currentNode.getChildNodes();
 								String leftOperandType = inputNodes[0].getDataTypeName();
 								String rightOperandType = inputNodes[1].getDataTypeName();
-								dataType = DATA_TYPE_NAME.bool;
+								dataType = DataTypeName.BOOL;
 								operationDataType = this.analyzeLogicalBinaryOperatorDataType(
 										leftOperandType, rightOperandType,
 										currentNode.getAttribute(AttributeKey.OPERATOR_SYMBOL),
@@ -677,8 +657,8 @@ public class SemanticAnalyzer {
 							}
 							case AttributeValue.PREFIX : {
 								AstNode[] inputNodes = currentNode.getChildNodes();
-								dataType = DATA_TYPE_NAME.bool;
-								operationDataType = DATA_TYPE_NAME.bool;
+								dataType = DataTypeName.BOOL;
+								operationDataType = DataTypeName.BOOL;
 								rank = inputNodes[0].getRank();
 								break;
 							}
@@ -745,7 +725,7 @@ public class SemanticAnalyzer {
 						} else {
 							throw new VnanoException(
 									ErrorType.FUNCTION_IS_NOT_FOUND,
-									IDENTIFIER_SYNTAX.getSignatureOfCalleeFunctionOf(currentNode),
+									IdentifierSyntax.getSignatureOfCalleeFunctionOf(currentNode),
 									currentNode.getFileName(), currentNode.getLineNumber()
 							);
 						}
@@ -754,7 +734,7 @@ public class SemanticAnalyzer {
 						//（定数は参照渡しできない等の制約により、型は整合しても呼べないケースがある）
 						this.checkFunctionCallablility(function, currentNode);
 
-						currentNode.setAttribute(AttributeKey.CALLEE_SIGNATURE, IDENTIFIER_SYNTAX.getSignatureOf(function));
+						currentNode.setAttribute(AttributeKey.CALLEE_SIGNATURE, IdentifierSyntax.getSignatureOf(function));
 						if (function.hasNamespaceName()) {
 							currentNode.setAttribute(AttributeKey.NAME_SPACE, function.getNamespaceName());
 						}
@@ -845,7 +825,7 @@ public class SemanticAnalyzer {
 			// void 型の値（関数戻り値など）は引数に渡せないので、検査して弾く
 			// （例えば任意型引数の関数などは、全ての型の引数を許容するので、voidを渡す事も構文上は整合するが、
 			//   実行時に未初期化データを渡す事になってVM側で落ちるので、ここで弾く）
-			if (argNode.getAttribute(AttributeKey.DATA_TYPE).equals(LANG_SPEC.DATA_TYPE_NAME.voidPlaceholder)) {
+			if (argNode.getAttribute(AttributeKey.DATA_TYPE).equals(DataTypeName.VOID)) {
 				// エラーメッセージのために、引数に（戻り値を）渡している関数の名前を取得
 				String argFunctionName = null; // null の場合はエラーメッセージ内で記載されない
 				if (argNode.getType() == AstNode.Type.OPERATOR
@@ -980,20 +960,20 @@ public class SemanticAnalyzer {
 		String arithmeticBinaryOperatorSymbol = null;
 
 		// 後で if 文ではなくHashMap にすべき
-		if (operatorSymbol.equals(SCRIPT_WORD.additionAssignment)) {
-				arithmeticBinaryOperatorSymbol = SCRIPT_WORD.plusOrAddition;
+		if (operatorSymbol.equals(ScriptWord.ADDITION_ASSIGNMENT)) {
+				arithmeticBinaryOperatorSymbol = ScriptWord.PLUS_OR_ADDITION;
 
-		} else if (operatorSymbol.equals(SCRIPT_WORD.subtractionAssignment)) {
-				arithmeticBinaryOperatorSymbol = SCRIPT_WORD.minusOrSubtraction;
+		} else if (operatorSymbol.equals(ScriptWord.SUBTRACTION_ASSIGNMENT)) {
+				arithmeticBinaryOperatorSymbol = ScriptWord.MINUS_OR_SUBTRACTION;
 
-		} else if (operatorSymbol.equals(SCRIPT_WORD.multiplicationAssignment)) {
-				arithmeticBinaryOperatorSymbol = SCRIPT_WORD.multiplication;
+		} else if (operatorSymbol.equals(ScriptWord.MULTIPLICATION_ASSIGNMENT)) {
+				arithmeticBinaryOperatorSymbol = ScriptWord.MULTIPLICATION;
 
-		} else if (operatorSymbol.equals(SCRIPT_WORD.divisionAssignment)) {
-				arithmeticBinaryOperatorSymbol = SCRIPT_WORD.division;
+		} else if (operatorSymbol.equals(ScriptWord.DIVISION_ASSIGNMENT)) {
+				arithmeticBinaryOperatorSymbol = ScriptWord.DIVISION;
 
-		} else if (operatorSymbol.equals(SCRIPT_WORD.remainderAssignment)) {
-				arithmeticBinaryOperatorSymbol = SCRIPT_WORD.remainder;
+		} else if (operatorSymbol.equals(ScriptWord.REMAINDER_ASSIGNMENT)) {
+				arithmeticBinaryOperatorSymbol = ScriptWord.REMAINDER;
 
 		} else {
 				throw new VnanoFatalException("Invalid arithmetic compound operator: " + operatorSymbol);
@@ -1030,35 +1010,35 @@ public class SemanticAnalyzer {
 			String leftOperandTypeName, String rightOperandTypeName, String operatorSymbol,
 			String fileName, int lineNumber) throws VnanoException {
 
-		DataType leftType = DATA_TYPE_NAME.getDataTypeOf(leftOperandTypeName);
-		DataType rightType = DATA_TYPE_NAME.getDataTypeOf(rightOperandTypeName);
+		DataType leftType = DataTypeName.getDataTypeOf(leftOperandTypeName);
+		DataType rightType = DataTypeName.getDataTypeOf(rightOperandTypeName);
 
 		// 文字列型を「含む」場合は文字列
 		if (leftType == DataType.STRING || rightType == DataType.STRING) { // && ではなく || である事に注意
 			// 加算だけ許可する
-			if (operatorSymbol.equals(SCRIPT_WORD.plusOrAddition)) {
-				return DATA_TYPE_NAME.string;
+			if (operatorSymbol.equals(ScriptWord.PLUS_OR_ADDITION)) {
+				return DataTypeName.STRING;
 			}
 		}
 
 		// 整数同士は整数
 		if (leftType == DataType.INT64 && rightType == DataType.INT64) {
-			return DATA_TYPE_NAME.defaultInt;
+			return DataTypeName.DEFAULT_INT;
 		}
 
 		// 浮動小数点数同士は浮動小数点数
 		if (leftType == DataType.FLOAT64 && rightType == DataType.FLOAT64) {
-			return DATA_TYPE_NAME.defaultFloat;
+			return DataTypeName.DEFAULT_FLOAT;
 		}
 
 		// 整数と浮動小数点数の混合は浮動小数点数
 		if (leftType == DataType.INT64 && rightType == DataType.FLOAT64) {
-			return DATA_TYPE_NAME.defaultFloat;
+			return DataTypeName.DEFAULT_FLOAT;
 		}
 
 		// 浮動小数点数と整数の混合は浮動小数点数
 		if (leftType == DataType.FLOAT64 && rightType == DataType.INT64) {
-			return DATA_TYPE_NAME.defaultFloat;
+			return DataTypeName.DEFAULT_FLOAT;
 		}
 
 		throw new VnanoException(
@@ -1092,37 +1072,37 @@ public class SemanticAnalyzer {
 			String leftOperandTypeName, String rightOperandTypeName, String operatorSymbol,
 			String fileName, int lineNumber) throws VnanoException {
 
-		DataType leftType = DATA_TYPE_NAME.getDataTypeOf(leftOperandTypeName);
-		DataType rightType = DATA_TYPE_NAME.getDataTypeOf(rightOperandTypeName);
+		DataType leftType = DataTypeName.getDataTypeOf(leftOperandTypeName);
+		DataType rightType = DataTypeName.getDataTypeOf(rightOperandTypeName);
 
 		// 文字列型を「含む」場合は文字列
 		if (leftType == DataType.STRING || rightType == DataType.STRING) { // && ではなく || である事に注意
-			return DATA_TYPE_NAME.string;
+			return DataTypeName.STRING;
 		}
 
 		// 論理型同士は論理型
 		if (leftType == DataType.BOOL && rightType == DataType.BOOL) {
-			return DATA_TYPE_NAME.bool;
+			return DataTypeName.BOOL;
 		}
 
 		// 整数同士は整数
 		if (leftType == DataType.INT64 && rightType == DataType.INT64) {
-			return DATA_TYPE_NAME.defaultInt;
+			return DataTypeName.DEFAULT_INT;
 		}
 
 		// 浮動小数点数同士は浮動小数点数
 		if (leftType == DataType.FLOAT64 && rightType == DataType.FLOAT64) {
-			return DATA_TYPE_NAME.defaultFloat;
+			return DataTypeName.DEFAULT_FLOAT;
 		}
 
 		// 整数と浮動小数点数の混合は浮動小数点数
 		if (leftType == DataType.INT64 && rightType == DataType.FLOAT64) {
-			return DATA_TYPE_NAME.defaultFloat;
+			return DataTypeName.DEFAULT_FLOAT;
 		}
 
 		// 浮動小数点数と整数の混合は浮動小数点数
 		if (leftType == DataType.FLOAT64 && rightType == DataType.INT64) {
-			return DATA_TYPE_NAME.defaultFloat;
+			return DataTypeName.DEFAULT_FLOAT;
 		}
 
 		throw new VnanoException(
@@ -1157,12 +1137,12 @@ public class SemanticAnalyzer {
 			String leftOperandTypeName, String rightOperandTypeName, String operatorSymbol,
 			String fileName, int lineNumber) throws VnanoException {
 
-		DataType leftType = DATA_TYPE_NAME.getDataTypeOf(leftOperandTypeName);
-		DataType rightType = DATA_TYPE_NAME.getDataTypeOf(rightOperandTypeName);
+		DataType leftType = DataTypeName.getDataTypeOf(leftOperandTypeName);
+		DataType rightType = DataTypeName.getDataTypeOf(rightOperandTypeName);
 
 		// サポートするのは論理型同士の場合のみで、結果も論理型
 		if (leftType == DataType.BOOL && rightType == DataType.BOOL) {
-			return DATA_TYPE_NAME.bool;
+			return DataTypeName.BOOL;
 		}
 
 		throw new VnanoException(
@@ -1369,7 +1349,7 @@ public class SemanticAnalyzer {
 					}
 					// インクリメント/デクリメント演算子の場合
 					case AttributeValue.ARITHMETIC : {
-						if (symbol.equals(SCRIPT_WORD.increment) || symbol.equals(SCRIPT_WORD.decrement)) {
+						if (symbol.equals(ScriptWord.INCREMENT) || symbol.equals(ScriptWord.DECREMENT)) {
 							this.checkWritability( currentNode.getChildNodes()[0], false );
 						}
 						break;
@@ -1415,7 +1395,7 @@ public class SemanticAnalyzer {
 		if (leafType.equals(AttributeValue.VARIABLE_IDENTIFIER)) {
 
 			// const 修飾子が付加されていた場合、初期化子以外での書き換えはエラー
-			if (node.hasModifier(SCRIPT_WORD.constModifier) && !writtenByInitializer) {
+			if (node.hasModifier(ScriptWord.CONST_MODIFIER) && !writtenByInitializer) {
 				throw new VnanoException(
 					ErrorType.WRITING_TO_CONST_VARIABLE,
 					new String[] { node.getAttribute(AttributeKey.IDENTIFIER_VALUE) },
@@ -1518,12 +1498,12 @@ public class SemanticAnalyzer {
 				String identifier = currentNode.getAttribute(AttributeKey.IDENTIFIER_VALUE);
 
 				// 数字で始まったり記号を含むなど、構文上のルールに引っかかる場合はエラー
-				if (!IDENTIFIER_SYNTAX.isValidSyntaxIdentifier(identifier)) {
+				if (!IdentifierSyntax.isValidSyntaxIdentifier(identifier)) {
 					throw new VnanoException(ErrorType.INVALID_IDENTIFIER_SYNTAX, identifier, fileName, lineNumber);
 				}
 
 				// 予約語の場合はエラー
-				if (SCRIPT_WORD.reservedWordSet.contains(identifier)) {
+				if (ScriptWord.RESERVED_WORD_SET.contains(identifier)) {
 					throw new VnanoException(ErrorType.IDENTIFIER_IS_RESERVED_WORD, identifier, fileName, lineNumber);
 				}
 			}
@@ -1557,12 +1537,12 @@ public class SemanticAnalyzer {
 				// 0x/0o/0b 以外の 0 で始まる整数リテラル（ただし 0 そのものは除く）は、
 				// 8進数と10進数のどちらと解釈しても、場面によっては誤用の元になりそうなので、誤用の予防を優先してエラー扱いとする
 				//（8進数リテラルでは、代わりにプレフィックス 0o をサポートしているため、そちらを使用するようエラーメッセージで通知する）
-				if (dataType.equals(LANG_SPEC.DATA_TYPE_NAME.defaultInt) || dataType.equals(LANG_SPEC.DATA_TYPE_NAME.longInt)) {
+				if (dataType.equals(DataTypeName.DEFAULT_INT) || dataType.equals(DataTypeName.LONG_INT)) {
 
 					if (literal.startsWith("0") && !literal.equals("0")  // 0 で始まり、0 そのものではない
-						&& !literal.startsWith(LANG_SPEC.LITERAL_SYNTAX.intLiteralHexPrefix)  // 0x で始まらない
-						&& !literal.startsWith(LANG_SPEC.LITERAL_SYNTAX.intLiteralOctPrefix)  // 0o で始まらない
-						&& !literal.startsWith(LANG_SPEC.LITERAL_SYNTAX.intLiteralBinPrefix)  // 0b で始まらない
+						&& !literal.startsWith(LiteralSyntax.INT_LITERAL_HEX_PREFIX)  // 0x で始まらない
+						&& !literal.startsWith(LiteralSyntax.INT_LITERAL_OCT_PREFIX)  // 0o で始まらない
+						&& !literal.startsWith(LiteralSyntax.INT_LITERAL_BIN_PREFIX)  // 0b で始まらない
 					) {
 						throw new VnanoException(ErrorType.INT_LITERAL_STARTS_WITH_ZERO, fileName, lineNumber);
 					}
@@ -1640,11 +1620,11 @@ public class SemanticAnalyzer {
 						// エラーメッセージに用いる型情報を用意し、それを持たせて例外を投げる
 						String returnedTypeDescription = returnedValueNode.getDataTypeName();
 						for (int dim=0; dim<returnedValueNode.getRank(); dim++) {
-							returnedTypeDescription += SCRIPT_WORD.subscriptBegin + SCRIPT_WORD.subscriptEnd;
+							returnedTypeDescription += ScriptWord.SUBSCRIPT_BEGIN + ScriptWord.SUBSCRIPT_END;
 						}
 						String expectedTypeDescription = currentFunctionReturType;
 						for (int dim=0; dim<currentFunctionReturnRank; dim++) {
-							expectedTypeDescription += SCRIPT_WORD.subscriptBegin + SCRIPT_WORD.subscriptEnd;
+							expectedTypeDescription += ScriptWord.SUBSCRIPT_BEGIN + ScriptWord.SUBSCRIPT_END;
 						}
 						String[] errorWords = {returnedTypeDescription, expectedTypeDescription};
 						throw new VnanoException(
@@ -1654,7 +1634,7 @@ public class SemanticAnalyzer {
 					}
 
 				// return 文に戻り値が指定されている場合: void 型関数でなければエラーにする
-				} else if (!currentFunctionReturType.equals(DATA_TYPE_NAME.voidPlaceholder)) {
+				} else if (!currentFunctionReturType.equals(DataTypeName.VOID)) {
 					throw new VnanoException(
 						ErrorType.RETURNED_VALUE_IS_MISSING, currentNode.getFileName(), currentNode.getLineNumber()
 					);
@@ -1725,7 +1705,7 @@ public class SemanticAnalyzer {
 			if (fileName.equals(targetScriptName) && targetNodeTypeSet.contains(currentNode.getType())) {
 
 				// 値が float 型かどうかを調べて、そうでなければエラー
-				if (!currentNode.getAttribute(AttributeKey.DATA_TYPE).equals(DATA_TYPE_NAME.defaultFloat)) {
+				if (!currentNode.getAttribute(AttributeKey.DATA_TYPE).equals(DataTypeName.DEFAULT_FLOAT)) {
 					throw new VnanoException(ErrorType.NON_FLOAT_DATA_TYPES_ARE_RESTRICTED, fileName, lineNumber);
 				}
 

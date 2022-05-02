@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2020 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2021 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -44,13 +44,6 @@ import org.vcssl.nano.VnanoException;
  */
 public class DataTypeName {
 
-
-	// 各フィールドは元々は static final でしたが、カスタマイズの事を考慮して、動的なフィールドに変更されました。
-	// これにより、このクラスのインスタンスを生成して値を変更（または継承してメソッド実装なども変更）し、
-	// それを LanguageSpecContainer に持たせて VnanoEngle クラスのコンストラクタに渡す事で、
-	// 処理系内のソースコードを保ったまま（再ビルド不要で）定義類を差し替える事ができます。
-
-
 	/**
 	 * <span class="lang-en">
 	 * The name of the standard 64-bit signed integer type
@@ -61,7 +54,7 @@ public class DataTypeName {
 	 * </span>
 	 * .
 	 */
-	public String defaultInt = "int"; // フィールド名、単純な「 int 」は予約語なので使用できない
+	public static final String DEFAULT_INT = "int";
 
 
 	/**
@@ -69,7 +62,7 @@ public class DataTypeName {
 	 * <span class="lang-ja">64bit 符号付き整数型の別名 "long" です</span>
 	 * .
 	 */
-	public String longInt = "long";
+	public static final String LONG_INT = "long";
 
 
 	/**
@@ -82,7 +75,7 @@ public class DataTypeName {
 	 * </span>
 	 * .
 	 */
-	public String defaultFloat = "float"; // フィールド名、単純な「 float 」は予約語なので使用できない
+	public static final String DEFAULT_FLOAT = "float";
 
 
 	/**
@@ -90,7 +83,7 @@ public class DataTypeName {
 	 * <span class="lang-ja">64-bit 浮動小数点数型の別名 "double" です</span>
 	 * .
 	 */
-	public String doubleFloat = "double";
+	public static final String DOUBLE_FLOAT = "double";
 
 
 	/**
@@ -98,14 +91,14 @@ public class DataTypeName {
 	 * <span class="lang-ja">論理型（真偽型）の名称 "bool" です</span>
 	 * .
 	 */
-	public String bool = "bool";
+	public static final String BOOL = "bool";
 
 	/**
 	 * <span class="lang-en">The name of the character string type: "string"</span>
 	 * <span class="lang-ja">文字列型の名称 "string" です</span>
 	 * .
 	 */
-	public String string = "string";
+	public static final String STRING = "string";
 
 
 	/**
@@ -113,7 +106,7 @@ public class DataTypeName {
 	 * <span class="lang-ja">関数の引数や戻り値などが、任意の型であり得る事を示す、特別な型の名称 "any" です</span>
 	 * .
 	 */
-	public String any = "any";
+	public static final String ANY = "any";
 
 
 	/**
@@ -121,44 +114,44 @@ public class DataTypeName {
 	 * <span class="lang-ja">void（プレースホルダ）型の名称 "void" です</span>
 	 * .
 	 */
-	public String voidPlaceholder = "void"; // フィールド名、単純な「 void 」は予約語なので使用できない
+	public static final String VOID = "void";
 
 
 	/** データ型の名称を全て含むハッシュセットです。*/
 	@SuppressWarnings("serial")
-	private Set<String> dataTypeNameSet = new HashSet<String>() {{
-    	add(defaultInt);
-    	add(longInt);
-    	add(defaultFloat);
-    	add(doubleFloat);
-    	add(bool);
-    	add(string);
-    	add(any);
-    	add(voidPlaceholder);
+	private static final Set<String> DATA_TYPE_NAME_SET = new HashSet<String>() {{
+    	add(DEFAULT_INT);
+    	add(LONG_INT);
+    	add(DEFAULT_FLOAT);
+    	add(DOUBLE_FLOAT);
+    	add(BOOL);
+    	add(STRING);
+    	add(ANY);
+    	add(VOID);
     }};
 
 	/** データ型の名称を、{org.vcssl.nano.lang.DataType DataType} 列挙子の要素に変換するマップです。 */
 	@SuppressWarnings("serial")
-	private Map<String,DataType> dataTypeNameEnumMap =  new HashMap<String,DataType>() {{
-		put(defaultInt, DataType.INT64);
-		put(longInt, DataType.INT64);
-		put(defaultFloat, DataType.FLOAT64);
-		put(doubleFloat, DataType.FLOAT64);
-		put(bool, DataType.BOOL);
-		put(string, DataType.STRING);
-		put(any, DataType.ANY);
-		put(voidPlaceholder, DataType.VOID);
+	private static final Map<String,DataType> DATA_TYPE_NAME_ENUM_MAP =  new HashMap<String,DataType>() {{
+		put(DEFAULT_INT, DataType.INT64);
+		put(LONG_INT, DataType.INT64);
+		put(DEFAULT_FLOAT, DataType.FLOAT64);
+		put(DOUBLE_FLOAT, DataType.FLOAT64);
+		put(BOOL, DataType.BOOL);
+		put(STRING, DataType.STRING);
+		put(ANY, DataType.ANY);
+		put(VOID, DataType.VOID);
 	}};
 
-	/** {org.vcssl.nano.lang.DataType DataType} 列挙子の要素を、データ型の名称に変換するマップです。 */
+	/** {plink org.vcssl.nano.lang.DataType DataType} 列挙子の要素を、データ型の名称に変換するマップです。 */
 	@SuppressWarnings("serial")
-	private Map<DataType,String> dataTypeEnumNameMap =  new HashMap<DataType,String>() {{
-		put(DataType.INT64, defaultInt);
-		put(DataType.FLOAT64, defaultFloat);
-		put(DataType.BOOL, bool);
-		put(DataType.STRING, string);
-		put(DataType.ANY, any);
-		put(DataType.VOID, voidPlaceholder);
+	private static final Map<DataType,String> DATA_TYPE_ENUM_NAME_MAP =  new HashMap<DataType,String>() {{
+		put(DataType.INT64, DEFAULT_INT);
+		put(DataType.FLOAT64, DEFAULT_FLOAT);
+		put(DataType.BOOL, BOOL);
+		put(DataType.STRING, STRING);
+		put(DataType.ANY, ANY);
+		put(DataType.VOID, VOID);
 	}};
 
 
@@ -174,8 +167,8 @@ public class DataTypeName {
 	 *   <span class="lang-en">The check result ("true" if it is the name of the data type)</span>
 	 *   <span class="lang-ja">判定結果（データ型名であれば true ）</span>
 	 */
-	public boolean isDataTypeName(String dataTypeName) {
-		return dataTypeNameSet.contains(dataTypeName);
+	public static final boolean isDataTypeName(String dataTypeName) {
+		return DATA_TYPE_NAME_SET.contains(dataTypeName);
 	}
 
 
@@ -195,8 +188,8 @@ public class DataTypeName {
 	 *   <span class="lang-en">The name of the data type.</span>
 	 *   <span class="lang-ja">データ型の名称.</span>
 	 */
-	public String getDataTypeNameOf(DataType dataType) {
-		return dataTypeEnumNameMap.get(dataType);
+	public static final String getDataTypeNameOf(DataType dataType) {
+		return DATA_TYPE_ENUM_NAME_MAP.get(dataType);
 	}
 
 
@@ -220,8 +213,8 @@ public class DataTypeName {
 	 *    </span>
 	 *   <span class="lang-ja">判定結果（一致すれば true ）</span>
 	 */
-	public boolean isDataTypeNameOf(DataType dataType, String dataTypeName) {
-		return dataTypeNameEnumMap.get(dataTypeName) == dataType;
+	public static final boolean isDataTypeNameOf(DataType dataType, String dataTypeName) {
+		return DATA_TYPE_NAME_ENUM_MAP.get(dataTypeName) == dataType;
 	}
 
 
@@ -241,7 +234,7 @@ public class DataTypeName {
 	 *   <span class="lang-en">Names of the data type.</span>
 	 *   <span class="lang-ja">データ型の名称（複数）.</span>
 	 */
-	public String[] getDataTypeNamesOf(DataType[] dataTypes) {
+	public static final String[] getDataTypeNamesOf(DataType[] dataTypes) {
 		int length = dataTypes.length;
 		String[] dataTypeNames = new String[length];
 		for (int index=0; index<length; index++) {
@@ -267,11 +260,11 @@ public class DataTypeName {
 	 *   <span class="lang-en">The converted enum element.</span>
 	 *   <span class="lang-ja">変換された列挙子の要素.</span>
 	 */
-	public DataType getDataTypeOf(String dataTypeName)
+	public static final DataType getDataTypeOf(String dataTypeName)
 			throws VnanoException {
 
-		if (dataTypeNameEnumMap.containsKey(dataTypeName)) {
-			return dataTypeNameEnumMap.get(dataTypeName);
+		if (DATA_TYPE_NAME_ENUM_MAP.containsKey(dataTypeName)) {
+			return DATA_TYPE_NAME_ENUM_MAP.get(dataTypeName);
 		} else {
 			VnanoException e = new VnanoException(ErrorType.UNKNOWN_DATA_TYPE, new String[] { dataTypeName });
 			throw e;
@@ -295,7 +288,7 @@ public class DataTypeName {
 	 *   <span class="lang-en">The converted enum elements.</span>
 	 *   <span class="lang-ja">変換された列挙子の要素（複数）.</span>
 	 */
-	public DataType[] getDataTypesOf(String[] dataTypeNames)
+	public static final DataType[] getDataTypesOf(String[] dataTypeNames)
 			throws VnanoException {
 
 		int length = dataTypeNames.length;
