@@ -1,0 +1,15 @@
+/*
+ * A very simple example of a Vnano script.
+ * 
+ * How to Run:
+ *     java -jar Vnano.jar ExampleScript1.vnano
+ */
+
+int sum = 0;
+for (int i=1; i<=100; i++) {
+    sum += i;
+}
+output(sum);
+
+float value = mean(1.0, 2.0);
+print(value);
