@@ -12,6 +12,7 @@
 - [Execute Scripts](#scripting)
 - [Load Library Scripts](#libraries)
 - [Command-Line Mode](#command-line-mode)
+- [Specifications](#specifications)
 
 <hr />
 
@@ -438,6 +439,11 @@ Now you can use [all features of all standard plug-ins](https://www.vcssl.org/ja
 
 For more details of the command-line mode, specify --help option.
 
+
+<a id="specifications"></a>
+## Specifications
+
+For detailed specifications of methods, options and so on of Vnano Engine, see the document: [Specifications of Vnano Engine](SPEC.md).
 
 
 ## Credits

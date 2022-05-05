@@ -27,7 +27,7 @@ See also: An example app using Vnano: [RINPn](https://github.com/RINEARN/rinpn).
 - [How to Use in Your Apps](#use)
 	- [How to Compile and Run an Application](#use-compile-and-run)
 	- [How to Create a JAR file of an Application](#use-create-jar)
-- [Main Features](#features)
+- [Main Features and Specifications](#features)
 - [Vnano as a Language](#language)
 - [Performances](#performances)
 - [About Us](#about-us)
@@ -195,7 +195,7 @@ And you can run the created JAR file "ExampleApp1.jar" as:
 
 
 <a id="features"></a>
-## Main Features
+## Main Features and Specifications
 
 As shown above, by using Vnano Engine, you can execute expression and scripts on your apps.
 
@@ -211,6 +211,7 @@ By using these features of Vnano Engine, you can develop highly customizable app
 
 For details of features, see the document: [Main Features of Vnano Engine](FEATURE.md).
 
+Also, for list of methods, options, and so on of Vnano Engine, see the document: [Specifications of Vnano Engine](SPEC.md).
 
 <a id="language"></a>
 ## Vnano as a Language
