@@ -36,10 +36,14 @@
 		engine.setOptionMap(optionMap);
 
 		// ユーザーに式を入力してもらう
-		System.out.println("式を入力してください。例：");
-		System.out.println("1.2 + 3.4 * 5.6 ;");
+		System.out.println("Input an expression, e.g.:  1.2 + 3.4 * 5.6");
 		Scanner scanner = new Scanner(System.in);
 		String expression = scanner.nextLine();
+
+		// 入力内容が「 ; 」で終わっていない場合は、末尾に付ける
+		if (!expression.trim().endsWith(";")) {
+			expression += ";";
+		}
 
 		// Vnano Engine で式の値を計算し、結果を表示
 		double result = (Double)engine.executeScript(expression);
@@ -59,9 +63,7 @@
 ここで上記の「 ExampleApp1 」は、ユーザーに式を入力するようリクエストしてきます。
 従って以下のように式を入力し、エンターキーを押します：
 
-	1.2 + 3.4 * 5.6 ;
-
-(!!! 末尾の「 ; 」記号のつけ忘れにご注意ください !!!)
+	1.2 + 3.4 * 5.6
 
 すると、入力した式が Vnano Engine で計算され、結果が以下のように表示されます：
 
@@ -144,7 +146,7 @@ Javaで実装した任意のクラスのフィールド/メソッドを Vnano En
 
 実行すると式の入力を求められるので、下記の通りに入力します:
 
-	1.2 + f(x) ;
+	1.2 + f(x)
 
 今の ExampleApp2 内の AnyClass クラスの実装では、x は 3.4 で、f(x) は x * 5.6 を返すため、期待される結果は 1.2 + (3.4 * 5.6) = 20.24 です。実際に表示される結果も：
 
@@ -230,7 +232,7 @@ Javaで実装した任意のクラスのフィールド/メソッドを Vnano En
 
 式の入力をリクエストされるので、以下のように入力します：
 
-	1.2 + f(x) ;
+	1.2 + f(x)
 
 結果は：
 

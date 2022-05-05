@@ -119,10 +119,14 @@ Ant 用のビルドファイルも同梱されています：
 		engine.setOptionMap(optionMap);
 
 		// ユーザーに式を入力してもらう
-		System.out.println("式を入力してください。例：");
-		System.out.println("1.2 + 3.4 * 5.6 ;");
+		System.out.println("Input an expression, e.g.:  1.2 + 3.4 * 5.6");
 		Scanner scanner = new Scanner(System.in);
 		String expression = scanner.nextLine();
+
+		// 入力内容が「 ; 」で終わっていない場合は、末尾に付ける
+		if (!expression.trim().endsWith(";")) {
+			expression += ";";
+		}
 
 		// Vnano Engine で式の値を計算し、結果を表示
 		double result = (Double)engine.executeScript(expression);
@@ -142,9 +146,7 @@ Ant 用のビルドファイルも同梱されています：
 ここで上記の「 ExampleApp1 」は、ユーザーに式を入力するようリクエストしてきます。
 従って以下のように式を入力し、エンターキーを押します：
 
-	1.2 + 3.4 * 5.6 ;
-
-(!!! 末尾の「 ; 」記号のつけ忘れにご注意ください !!!)
+	1.2 + 3.4 * 5.6
 
 すると、入力した式が Vnano Engine で計算され、結果が以下のように表示されます：
 

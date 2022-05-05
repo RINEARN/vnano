@@ -41,10 +41,14 @@ public class ExampleApp3 {
 		engine.setOptionMap(optionMap);
 
 		// Get an expression from the user.
-		System.out.println("Input an expression, e.g.:");
-		System.out.println("1.2 + f(x) ;");
+		System.out.println("Input an expression, e.g.:  1.2 + f(x)");
 		Scanner scanner = new Scanner(System.in);
 		String expression = scanner.nextLine();
+
+		// Append ";" at the end of the expression, if it does not exist.
+		if (!expression.trim().endsWith(";")) {
+			expression += ";";
+		}
 
 		// Execute the inputted expression by Vnano Engine.
 		double result = (Double)engine.executeScript(expression);

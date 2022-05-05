@@ -35,10 +35,14 @@ As shown in [README](README.md), you can calculate the value of an expression:
 		engine.setOptionMap(optionMap);
 
 		// Get an expression from the user.
-		System.out.println("Input an expression, e.g.:");
-		System.out.println("1.2 + 3.4 * 5.6 ;");
+		System.out.println("Input an expression, e.g.:  1.2 + 3.4 * 5.6");
 		Scanner scanner = new Scanner(System.in);
 		String expression = scanner.nextLine();
+
+		// Append ";" at the end of the expression, if it does not exist.
+		if (!expression.trim().endsWith(";")) {
+			expression += ";";
+		}
 
 		// Execute the inputted expression by Vnano Engine.
 		double result = (Double)engine.executeScript(expression);
@@ -58,9 +62,7 @@ How to compile and run is:
 The above example app requests you to input the expression to be calculated.
 So input as follows:
 
-	1.2 + 3.4 * 5.6 ;
-
-(!!! Don't forget to put ";" at the end !!!)
+	1.2 + 3.4 * 5.6
 
 Then the expression will be calculated by using the Vnano Engine, and the result will be displayed as:
 
@@ -139,7 +141,7 @@ Let's compile and run:
 
 Then input the following expression:
 
-	1.2 + f(x) ;
+	1.2 + f(x)
 
 Now the value of x is 3.4 and f(x) = x * 5.6, so we should get the result of 1.2 + (3.4 * 5.6) = 20.24.
 The actual result is:
@@ -225,7 +227,7 @@ Let's compile and run:
 
 Input the expression:
 
-	1.2 + f(x) ;
+	1.2 + f(x)
 
 And you can get the result:
 
