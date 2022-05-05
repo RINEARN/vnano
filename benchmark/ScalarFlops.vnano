@@ -1,0 +1,65 @@
+coding UTF-8;
+/*
+ * A benchmarking program for measuring the peak performance of 
+ * 64-bit floating-point scalar operations of Vnano Engine.
+ * --------------------------------------------------------------------------------
+ * This file is released under CC0.
+ * Written in 2018-2022 by RINEARN (Fumihiro Matsui)
+ * --------------------------------------------------------------------------------
+ * 
+ * Preparation
+ * 
+ *     Execute "build.bat" or "build.sh" in advance to generate "Vnano.jar".
+ * 
+ * How to Run This Code
+ * 
+ *     Set the current directory to the location of "Vnano.jar" by cd command, then:
+ * 
+ *         java -jar Vnano.jar benchmark/ScalarFlops.vnano --accelerator true --optLevel 3
+ * 
+ * Example of Result:
+ * 
+ *     OPERATING_SPEED = 704.6223224351747 [MFLOPS]
+ *     REQUIRED_TIME = 14.192 [SEC]
+ *     TOTAL_OPERATIONS = 10000000000 [xFLOAT64_ADD]
+ *     OPERATED_VALUE = 1.0E10
+ * 
+ *     * Values of OPERATING_SPEED and REQUIRED_TIME are dependent on your environment.
+ * 
+ * --------------------------------------------------------------------------------
+ */
+
+// Note: The precision of "float" type in the Vnano is 64-bit, same with "double".
+
+int LOOP_N = 100*1000*1000;
+int FLOP_PER_LOOP = 100;
+int TOTAL_FLOP = FLOP_PER_LOOP * LOOP_N;
+
+float x = 0.0;
+float y = 1.0;
+
+int beginTime = time();
+
+for (int i=0; i<LOOP_N; ++i) {
+
+	x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y;
+	x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y;
+	x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y;
+	x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y;
+	x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y;
+	x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y;
+	x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y;
+	x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y;
+	x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y;
+	x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y; x+=y;
+
+}
+
+int endTime = time();
+float requiredTime = (endTime - beginTime) / 1000.0;
+float flops = TOTAL_FLOP / requiredTime;
+
+output("OPERATING_SPEED = " +  flops/(1000.0*1000.0) + " [MFLOPS]");
+output("REQUIRED_TIME = "+ requiredTime + " [SEC]");
+output("TOTAL_OPERATIONS = " + TOTAL_FLOP + " [xFLOAT64_ADD]");
+output("OPERATED_VALUE = " + x);
