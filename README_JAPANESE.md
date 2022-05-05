@@ -106,31 +106,38 @@ Ant 用のビルドファイルも同梱されています：
 
 	(in ExampleApp1.java)
 
-	...
-	public static void main(String[] args) throws VnanoException {
+	import org.vcssl.nano.VnanoEngine;
+	import org.vcssl.nano.VnanoException;
+	import java.util.Map;
+	import java.util.HashMap;
+	import java.util.Scanner;
 
-		// Vnano Engine のインスタンスを生成
-		VnanoEngine engine = new VnanoEngine();
+	public class ExampleApp1 {
+		public static void main(String[] args) throws VnanoException {
 
-		// 整数リテラルを float (=double) 型と見なすオプションを有効化
-		// (式の計算用途に便利ですが、スクリプトの実行用途には適しません)
-		Map<String, Object> optionMap = new HashMap<String, Object>();
-		optionMap.put("EVAL_INT_LITERAL_AS_FLOAT", true);
-		engine.setOptionMap(optionMap);
+			// Vnano Engine のインスタンスを生成
+			VnanoEngine engine = new VnanoEngine();
 
-		// ユーザーに式を入力してもらう
-		System.out.println("Input an expression, e.g.:  1.2 + 3.4 * 5.6");
-		Scanner scanner = new Scanner(System.in);
-		String expression = scanner.nextLine();
+			// 整数リテラルを float (=double) 型と見なすオプションを有効化
+			// (式の計算用途に便利ですが、スクリプトの実行用途には適しません)
+			Map<String, Object> optionMap = new HashMap<String, Object>();
+			optionMap.put("EVAL_INT_LITERAL_AS_FLOAT", true);
+			engine.setOptionMap(optionMap);
 
-		// 入力内容が「 ; 」で終わっていない場合は、末尾に付ける
-		if (!expression.trim().endsWith(";")) {
-			expression += ";";
+			// ユーザーに式を入力してもらう
+			System.out.println("式を入力してください。例：  1.2 + 3.4 * 5.6");
+			Scanner scanner = new Scanner(System.in);
+			String expression = scanner.nextLine();
+
+			// 入力内容が「 ; 」で終わっていない場合は、末尾に付ける
+			if (!expression.trim().endsWith(";")) {
+				expression += ";";
+			}
+
+			// Vnano Engine で式の値を計算し、結果を表示
+			double result = (Double)engine.executeScript(expression);
+			System.out.println("result: " + result);
 		}
-
-		// Vnano Engine で式の値を計算し、結果を表示
-		double result = (Double)engine.executeScript(expression);
-		System.out.println("result: " + result);
 	}
 
 上記のコードは、以下のようにコンパイルできます：
