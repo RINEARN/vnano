@@ -20,8 +20,7 @@ import java.lang.reflect.Method;
 
 public class ExampleApp4 {
 
-	public static void main(String[] args)
-			throws VnanoException, NoSuchFieldException, NoSuchMethodException {
+	public static void main(String[] args) throws VnanoException {
 
 		// Create a scripting engine of Vnano (= Vnano Engine).
 		VnanoEngine engine = new VnanoEngine();
