@@ -20,12 +20,12 @@ Vnano を用いる事で、自作アプリ上でスクリプトを実行可能�
 - [ライセンス](#license)
 - [必要なもの](#requirements)
 - [ビルド方法](#build)
-	- [Microsoft&reg; Windows&reg; での場合](#build-win)
-	- [Linux 等での場合](#build-lin)
-	- [Apache Ant を使用する場合](#build-ant)
+    - [Microsoft&reg; Windows&reg; での場合](#build-win)
+    - [Linux 等での場合](#build-lin)
+    - [Apache Ant を使用する場合](#build-ant)
 - [アプリケーションへの組み込み/使用方法](#use)
-	- [アプリケーションのコンパイル/実行方法](#use-compile-and-run)
-	- [アプリケーションのJARファイルの作成方法](#use-create-jar)
+    - [アプリケーションのコンパイル/実行方法](#use-compile-and-run)
+    - [アプリケーションのJARファイルの作成方法](#use-create-jar)
 - [主な機能と仕様](#features)
 - [言語としての Vnano](#language)
 - [処理速度](#performances)
@@ -62,9 +62,9 @@ Vnano Engine はMITライセンスの下でリリースされています。
 
 このリポジトリを clone して、同梱されているバッチファイル「 build.bat 」を実行します:
 
-	git clone https://github.com/RINEARN/vnano
-	cd vnano
-	.\build.bat
+    git clone https://github.com/RINEARN/vnano
+    cd vnano
+    .\build.bat
 
 すると、ビルド結果のJARファイル「 Vnano.jar 」が生成されます。
 
@@ -73,10 +73,10 @@ Vnano Engine はMITライセンスの下でリリースされています。
 
 このリポジトリを clone して、同梱されているシェルスクリプト「 build.sh 」を実行します：
 
-	git clone https://github.com/RINEARN/vnano
-	cd vnano
-	sudo chmod +x ./build.sh
-	./build.sh
+    git clone https://github.com/RINEARN/vnano
+    cd vnano
+    sudo chmod +x ./build.sh
+    ./build.sh
 
 すると、ビルド結果のJARファイル「 Vnano.jar 」が生成されます。
 
@@ -86,9 +86,9 @@ Vnano Engine はMITライセンスの下でリリースされています。
 
 Ant 用のビルドファイルも同梱されています：
 
-	git clone https://github.com/RINEARN/vnano
-	cd vnano
-	ant -f build.xml
+    git clone https://github.com/RINEARN/vnano
+    cd vnano
+    ant -f build.xml
 
 すると、ビルド結果のJARファイル「 Vnano.jar 」が生成されます。
 
@@ -103,39 +103,39 @@ Ant 用のビルドファイルも同梱されています：
 ここでは例として、非常に単純な内容のアプリケーションを作成します。
 ソースコードはリポジトリ内に「 ExampleApp1.java 」として同梱されています：
 
-	(in ExampleApp1.java)
+    (in ExampleApp1.java)
 
-	import org.vcssl.nano.VnanoEngine;
-	import org.vcssl.nano.VnanoException;
+    import org.vcssl.nano.VnanoEngine;
+    import org.vcssl.nano.VnanoException;
 
-	 public class ExampleApp1 {
-    	public static void main(String[] args) throws VnanoException {
+     public class ExampleApp1 {
+        public static void main(String[] args) throws VnanoException {
 
-	        // Vnano のスクリプト実行エンジン（Vnano Engine）のインスタンスを生成
-    	    VnanoEngine engine = new VnanoEngine();
+            // Vnano のスクリプト実行エンジン（Vnano Engine）のインスタンスを生成
+            VnanoEngine engine = new VnanoEngine();
 
-	        // 単純な内容のスクリプトを用意し、Vnano Engine で実行
-    	    String script = "double a = 1.2;  double b = 3.4;  double c = a + b;  c;";
-        	double result = (Double)engine.executeScript(script);
+            // 単純な内容のスクリプトを用意し、Vnano Engine で実行
+            String script = "double a = 1.2;  double b = 3.4;  double c = a + b;  c;";
+            double result = (Double)engine.executeScript(script);
 
-	        // 結果を表示
-    	    System.out.println("Result: " + result);
-    	}
-	}
+            // 結果を表示
+            System.out.println("Result: " + result);
+        }
+    }
 
 上記のコードは、以下のようにコンパイルできます：
 
-	javac -cp .;Vnano.jar ExampleApp1.java        (For Windows)
-	javac -cp .:Vnano.jar ExampleApp1.java        (For Linux)
+    javac -cp .;Vnano.jar ExampleApp1.java        (For Windows)
+    javac -cp .:Vnano.jar ExampleApp1.java        (For Linux)
 
 そして以下のように実行します：
 
-	java -cp .;Vnano.jar ExampleApp1        (For Windows)
-	java -cp .:Vnano.jar ExampleApp1        (For Linux)
+    java -cp .;Vnano.jar ExampleApp1        (For Windows)
+    java -cp .:Vnano.jar ExampleApp1        (For Linux)
 
 実行結果は：
 
-	5.6
+    5.6
 
 上記の ExampleApp1 アプリは、Vnano Engine を用いてスクリプトを処理しますが、そのスクリプトは 1.2 + 3.4 の値（ = 5.6 ）を計算する内容になっています。従って、無事 Vnano Engine を使って、スクリプトを正しく実行できた事がわかります。
 
@@ -149,20 +149,20 @@ Vnano Engine の各機能に関する詳細は、[スクリプトの実行](doc/
 それには、まずマニフェストファイル「 manifest.txt 」を作成して、
 その中で「 Vnano.jar 」にクラスパスを通します:
 
-	Main-Class: ExampleApp1
-	Class-Path: . Vnano.jar
+    Main-Class: ExampleApp1
+    Class-Path: . Vnano.jar
 
-	(!!! 重要: このファイルの内容は空行で終わっている必要があります !!!)
+    (!!! 重要: このファイルの内容は空行で終わっている必要があります !!!)
 
 なお、もし「 Vnano.jar 」をどこか別の場所（例えば lib フォルダ内など）に配置する事を想定している場合は、上記の Class-Path セクションに書くパスも適切に合わせてください（「Class-Path: . lib/Vnano.jar」など）。
 
 以上が済んだら、以下のようにJARファイルを生成します：
 
-	jar cvfm ExampleApp1.jar manifest.txt ExampleApp1.class
+    jar cvfm ExampleApp1.jar manifest.txt ExampleApp1.class
 
 生成したJARファイルは、以下のように実行できます：
 
-	java -jar ExampleApp1.jar
+    java -jar ExampleApp1.jar
 
 
 <a id="features"></a>
@@ -189,11 +189,11 @@ Javaで記述したクラスの代わりに、スクリプトファイルとし�
 Vnano Engine 上で実行可能なスクリプト言語の名前は、そのまま「 Vnano 」と言います。
 Vnano は C言語系のシンプルな文法を持つ言語です。例えば：
 
-	int sum = 0;
-	for (int i=1; i<=100; i++) {
-    	sum += i;
-	}
-	output(sum);
+    int sum = 0;
+    for (int i=1; i<=100; i++) {
+        sum += i;
+    }
+    output(sum);
 
 上記コードのような具合です。
 Vnano の構文や言語機能について詳しくは、別途文書「 [言語としての Vnano](doc/LANGUAGE_JAPANESE.md) 」をご参照ください。
@@ -208,28 +208,28 @@ Vnano は、データ解析ソフトや計算ソフト、および可視化ソ�
 
 例えば、64-bit 浮動小数点数によるスカラ（非配列）演算のベンチマークを実行するには：
 
-	java -jar Vnano.jar benchmark/ScalarFlops.vnano --accelerator true --optLevel 3
+    java -jar Vnano.jar benchmark/ScalarFlops.vnano --accelerator true --optLevel 3
 
 結果は以下の通りです：
 
-	OPERATING_SPEED = 704.6223224351747 [MFLOPS]
-	REQUIRED_TIME = 14.192 [SEC]
-	TOTAL_OPERATIONS = 10000000000 [xFLOAT64_ADD]
-	OPERATED_VALUE = 1.0E10
+    OPERATING_SPEED = 704.6223224351747 [MFLOPS]
+    REQUIRED_TIME = 14.192 [SEC]
+    TOTAL_OPERATIONS = 10000000000 [xFLOAT64_ADD]
+    OPERATED_VALUE = 1.0E10
 
 上記はミドルスペックのノートPCでの実測値です。
 
 続いて、64-bit 浮動小数点数によるベクトル（配列）演算のベンチマークを実行するには：
 
-	java -jar Vnano.jar benchmark/VectorFlops.vnano --accelerator true --optLevel 3
+    java -jar Vnano.jar benchmark/VectorFlops.vnano --accelerator true --optLevel 3
 
 結果は：
 
-	OPERATING_SPEED = 15.400812152203338 [GFLOPS]
-	REQUIRED_TIME = 13.298 [SEC]
-	TOTAL_OPERATIONS = 204800000000 [xFLOAT64_ADD]
-	VECTOR_SIZE = 2048 [x64BIT]
-	OPERATED_VALUES = { 1.0E8, 2.0E8, 3.0E8, ... 2.047E11, 2.048E11 }
+    OPERATING_SPEED = 15.400812152203338 [GFLOPS]
+    REQUIRED_TIME = 13.298 [SEC]
+    TOTAL_OPERATIONS = 204800000000 [xFLOAT64_ADD]
+    VECTOR_SIZE = 2048 [x64BIT]
+    OPERATED_VALUES = { 1.0E8, 2.0E8, 3.0E8, ... 2.047E11, 2.048E11 }
 
 以上の通りです。なお、配列演算の速度は、演算対象の配列サイズ、およびCPUのキャッシュサイズ等に大きく依存する事に留意が必要です。
 

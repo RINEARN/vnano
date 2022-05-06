@@ -75,23 +75,23 @@ Vnano は、データ型として int (=long)、float (=double)、bool、およ�
 
 以下は、スカラ変数（配列ではない普通の変数）を宣言する例のコードです：
 
-	int    i = 1;
-	float  f = 2.3;
-	bool   b = true;
-	string s = "Hello, World !";
+    int    i = 1;
+    float  f = 2.3;
+    bool   b = true;
+    string s = "Hello, World !";
 
-	print(i, f, b, s);
+    print(i, f, b, s);
 
 このコードを[コマンドラインモード](FEATURE_JAPANESE.md#command-line-mode)で実行すると（標準プラグインが必要です）、実行結果は：
 
-	1    2.3    true    Hello, World !
+    1    2.3    true    Hello, World !
 
 一方でVnanoでは、以下のように一つの文の中で複数の変数を宣言する事はできません：
 
-	(!!! このコードは動作しません !!!)
+    (!!! このコードは動作しません !!!)
 
-	int i, j;
-	int n = 1, m = 2;
+    int i, j;
+    int n = 1, m = 2;
 
 
 <a id="variable-array"></a>
@@ -99,19 +99,19 @@ Vnano は、データ型として int (=long)、float (=double)、bool、およ�
 
 配列は以下のように宣言して使用できます：
 
-	int a[8];
-	a[2] = 123;
-	print(a[2]);
+    int a[8];
+    a[2] = 123;
+    print(a[2]);
 
 このコードを [コマンドラインモード](FEATURE_JAPANESE.md#command-line-mode) で実行すると、実行結果は：
 
-	123
+    123
 
 一方でVnanoでは、以下のような配列初期化子は使用できません：
 
-	(!!! このコードは動作しません !!!)
+    (!!! このコードは動作しません !!!)
 
-	int a[8] = { 10, 20, 30, 40, 50, 60, 70, 80 };
+    int a[8] = { 10, 20, 30, 40, 50, 60, 70, 80 };
 
 
 <a id="control"></a>
@@ -125,24 +125,24 @@ C言語系の制御文の中で、Vnano では if / else / for / while / break /
 
 以下は if 文と else 文の使用例です：
 
-	int x = 1;
-	if (x == 1) {
-		print("x is 1.");
-	} else {
-		print("x is not 1.");
-	}
+    int x = 1;
+    if (x == 1) {
+        print("x is 1.");
+    } else {
+        print("x is not 1.");
+    }
 
 実行結果は：
 
-	x is 1.
+    x is 1.
 
 ところでVnanoでは、if / else / for / while 文の後には必ずブロック文 {...} が続かなければいけません。
 従って、以下のように if 文の後に、波括弧 { } で囲まれていない単文を記述する事はできません：
 
-	(!!! このコードは動作しません !!!)
+    (!!! このコードは動作しません !!!)
 
-	int x = 1;
-	if (x == 1) print("x is 1.");
+    int x = 1;
+    if (x == 1) print("x is 1.");
 
 
 <a id="control-for"></a>
@@ -150,18 +150,18 @@ C言語系の制御文の中で、Vnano では if / else / for / while / break /
 
 以下は for 文の使用例です：
 
-	for (int i=1; i<=5; i++) {
-		println("i=" + i);
-	}
+    for (int i=1; i<=5; i++) {
+        println("i=" + i);
+    }
 
 
 ここでも波括弧 { } は省略できない事に注意してください。実行結果は：
 
-	i=1
-	i=2
-	i=3
-	i=4
-	i=5
+    i=1
+    i=2
+    i=3
+    i=4
+    i=5
 
 
 <a id="control-while"></a>
@@ -169,19 +169,19 @@ C言語系の制御文の中で、Vnano では if / else / for / while / break /
 
 以下は while 文の使用例です：
 
-	int a = 500;
-	while (0 <= a) {
-		println("a=" + a);
-		a -= 123;
-	}
+    int a = 500;
+    while (0 <= a) {
+        println("a=" + a);
+        a -= 123;
+    }
 
 ここでも波括弧 { } は省略できない事に注意してください。実行結果は：
 
-	a=500
-	a=377
-	a=254
-	a=131
-	a=8
+    a=500
+    a=377
+    a=254
+    a=131
+    a=8
 
 
 <a id="control-break"></a>
@@ -189,40 +189,40 @@ C言語系の制御文の中で、Vnano では if / else / for / while / break /
 
 以下は break 文の使用例です：
 
-	for (int i=1; i<=10; i++) {
-		println("i=" + i);
-		if (i == 3) {
-			break;
-		}
-	}
+    for (int i=1; i<=10; i++) {
+        println("i=" + i);
+        if (i == 3) {
+            break;
+        }
+    }
 
 実行結果は：
 
-	i=1
-	i=2
-	i=3
+    i=1
+    i=2
+    i=3
 
 <a id="control-continue"></a>
 ## continue 文
 
 以下は continue 文の使用例です：
 
-	for (int i=1; i<=10; i++) {
-		if (i % 3 == 0) {
-			continue;
-		}
-		println("i=" + i);
-	}
+    for (int i=1; i<=10; i++) {
+        if (i % 3 == 0) {
+            continue;
+        }
+        println("i=" + i);
+    }
 
 実行結果は：
 
-	i=1
-	i=2
-	i=4
-	i=5
-	i=7
-	i=8
-	i=10
+    i=1
+    i=2
+    i=4
+    i=5
+    i=7
+    i=8
+    i=10
 
 
 <a id="expression"></a>
@@ -234,12 +234,12 @@ C言語系の制御文の中で、Vnano では if / else / for / while / break /
 式は、演算子と末端オペランドおよび括弧 ( ) で構成される一連のトークン（字句）列です。
 ここでオペランドはリテラルや識別子などです。例えば：
 
-	(x + 2) * 3;
+    (x + 2) * 3;
 
 上の式において、 + と * は演算子、x と 2 と 3 は末端オペランド、そして ( ) は括弧です。
 VnanoではC言語と同様、代入の記号「=」も演算子なので、以下の内容も式になります：
 
-	y = (x + 2) * 3;
+    y = (x + 2) * 3;
 
 式は、単独でも「式文」として文となり得ます。加えて、if 文の条件式など、他の種類の文の構成要素にもなります。
 
@@ -312,16 +312,16 @@ Vnanoのスクリプトコード内で、C言語系の記法で関数を宣言�
 
 以下は、スカラ変数（配列ではない普通の変数）を引数や戻り値とする関数のコード例です：
 
-	int fun(int a, int b) {
-		return a + b;
-	}
+    int fun(int a, int b) {
+        return a + b;
+    }
 
-	int v = fun(1, 2);
-	print(v);
+    int v = fun(1, 2);
+    print(v);
 
 このコードを [コマンドラインモード](FEATURE_JAPANESE.md#command-line-mode) で実行すると、実行結果は：
 
-	3
+    3
 
 
 <a id="function-array"></a>
@@ -329,37 +329,37 @@ Vnanoのスクリプトコード内で、C言語系の記法で関数を宣言�
 
 配列を引数や戻り値にしたい場合の例は、以下の通りです：
 
-	int[] fun(int a[], int b[], int n) {
-		int c[n];
-		for (int i=0; i<n; i++) {
-			c[i] = a[i] + b[i];
-		}
-		return c;
-	}
+    int[] fun(int a[], int b[], int n) {
+        int c[n];
+        for (int i=0; i<n; i++) {
+            c[i] = a[i] + b[i];
+        }
+        return c;
+    }
 
-	int x[3];
-	x[0] = 0;
-	x[1] = 1;
-	x[2] = 2;
+    int x[3];
+    x[0] = 0;
+    x[1] = 1;
+    x[2] = 2;
 
-	int y[3];
-	y[0] = 3;
-	y[1] = 4;
-	y[2] = 5;
+    int y[3];
+    y[0] = 3;
+    y[1] = 4;
+    y[2] = 5;
 
-	int z[] = fun(x, y, 3);
+    int z[] = fun(x, y, 3);
 
-	println("z[0]=" + z[0]);
-	println("z[1]=" + z[1]);
-	println("z[2]=" + z[2]);
+    println("z[0]=" + z[0]);
+    println("z[1]=" + z[1]);
+    println("z[2]=" + z[2]);
 
 The result is:
 
 実行結果は：
 
-	z[0]=3
-	z[1]=5
-	z[2]=7
+    z[0]=3
+    z[1]=5
+    z[2]=7
 
 
 なお、<a href="#data-type">データ型</a>の項目でも触れた通り、
@@ -377,13 +377,13 @@ Vnano（および VCSSL）における配列は、ポインタや参照型では
 
 以下の例の「 a 」のように、関数側で宣言されている引数の事を「仮引数」と呼びます。それに対して、以下の例の「 x 」のように、呼び出し元から関数に渡している引数の事を「実引数」と呼びます。
 
-	void fun(int a) {
-		...
-	}
+    void fun(int a) {
+        ...
+    }
 
-	...
+    ...
 
-	fun(x);
+    fun(x);
 
 
 <a id="function-call-by-value"></a>
@@ -391,32 +391,32 @@ Vnano（および VCSSL）における配列は、ポインタや参照型では
 
 デフォルトでは、関数内における仮引数の値の変更は、呼び出し元の実引数の値には反映されません。例えば：
 
-	void fun(int a, int b[]) {
-		a = 2;
-		b[0] = 10;
-		b[1] = 11;
-		b[2] = 12;
-	}
+    void fun(int a, int b[]) {
+        a = 2;
+        b[0] = 10;
+        b[1] = 11;
+        b[2] = 12;
+    }
 
-	int x = 0;
-	int y[3];
-	y[0] = 0;
-	y[1] = 0;
-	y[2] = 0;
+    int x = 0;
+    int y[3];
+    y[0] = 0;
+    y[1] = 0;
+    y[2] = 0;
 
-	fun(x, y);
+    fun(x, y);
 
-	println("x = " + x);
-	println("y[0] = " + y[0]);
-	println("y[1] = " + y[1]);
-	println("y[2] = " + y[2]);
+    println("x = " + x);
+    println("y[0] = " + y[0]);
+    println("y[1] = " + y[1]);
+    println("y[2] = " + y[2]);
 
 実行結果は：
 
-	x = 0
-	y[0] = 0
-	y[1] = 0
-	y[2] = 0
+    x = 0
+    y[0] = 0
+    y[1] = 0
+    y[2] = 0
 
 上の例の通り、関数「 fun 」内で仮引数「 x 」と「 y 」の値を変更していますが、呼び出し元の実引数「 a 」と「 b 」の値は変化していない事がわかります。これは、デフォルトでの関数の引数の受け渡しが、単純な値のコピーによって、呼び出し時に一度のみに行われるからです。このような引数の渡し方を「値渡し」と呼びます。
 
@@ -426,31 +426,31 @@ Vnano（および VCSSL）における配列は、ポインタや参照型では
 
 関数内での仮引数の値の変更を、呼び出し元の実引数の値に反映させたい場合は、仮引数の宣言において、名前の前に「 & 」記号を付加してください。例えば：
 
-	void fun(int &a, int &b[]) {
-		a = 2;
-		b[0] = 10;
-		b[1] = 11;
-		b[2] = 12;
-	}
+    void fun(int &a, int &b[]) {
+        a = 2;
+        b[0] = 10;
+        b[1] = 11;
+        b[2] = 12;
+    }
 
-	int x = 0;
-	int y[3];
-	y[0] = 0;
-	y[1] = 0;
-	y[2] = 0;
+    int x = 0;
+    int y[3];
+    y[0] = 0;
+    y[1] = 0;
+    y[2] = 0;
 
-	fun(x, y);
+    fun(x, y);
 
-	println("x = " + x);
-	println("y[0] = " + y[0]);
-	println("y[1] = " + y[1]);
-	println("y[2] = " + y[2]);
+    println("x = " + x);
+    println("y[0] = " + y[0]);
+    println("y[1] = " + y[1]);
+    println("y[2] = " + y[2]);
 
 実行結果は：
 
-	x = 2
-	y[0] = 10
-	y[1] = 11
-	y[2] = 12
+    x = 2
+    y[0] = 10
+    y[1] = 11
+    y[2] = 12
 
 上の例の通り、関数「 fun 」内で仮引数「 x 」と「 y 」の値を変更した結果、呼び出し元の実引数「 a 」と「 b 」も、同じ値に変化した事がわかります。これは、「 & 」を付けて宣言された仮引数のデータへのメモリ参照が、実引数のデータへのメモリ参照と共有されるためです。このような引数の渡し方を「参照渡し」と呼びます。

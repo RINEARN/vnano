@@ -78,23 +78,23 @@ You can describe the variable declaration statements with C-like syntax.
 
 The following is an example code of declaration statements of scalar variables (non-array variables) :
 
-	int    i = 1;
-	float  f = 2.3;
-	bool   b = true;
-	string s = "Hello, World !";
+    int    i = 1;
+    float  f = 2.3;
+    bool   b = true;
+    string s = "Hello, World !";
 
-	print(i, f, b, s);
+    print(i, f, b, s);
 
 The result on [the command-line mode](FEATURE.md#command-line-mode) (standard plug-ins are required) is: 
 
-	1    2.3    true    Hello, World !
+    1    2.3    true    Hello, World !
 
 However, you can NOT declare multiple variable in 1 statement in the Vnano:
 
-	(!!! This code does not work !!!)
+    (!!! This code does not work !!!)
 
-	int i, j;
-	int n = 1, m = 2;
+    int i, j;
+    int n = 1, m = 2;
 
 
 <a id="variable-array"></a>
@@ -102,19 +102,19 @@ However, you can NOT declare multiple variable in 1 statement in the Vnano:
 
 You can declare and use arrays as follows:
 
-	int a[8];
-	a[2] = 123;
-	print(a[2]);
+    int a[8];
+    a[2] = 123;
+    print(a[2]);
 
 The result on [the command-line mode](FEATURE.md#command-line-mode) is: 
 
-	123
+    123
 
 However, you can NOT use array initializers in the Vnano:
 
-	(!!! This code does not work !!!)
+    (!!! This code does not work !!!)
 
-	int a[8] = { 10, 20, 30, 40, 50, 60, 70, 80 };
+    int a[8] = { 10, 20, 30, 40, 50, 60, 70, 80 };
 
 
 <a id="control"></a>
@@ -127,24 +127,24 @@ In control statements of C-like languages, Vnano supports if / else / for / whil
 
 The folloing is an example code of if and else statements:
 
-	int x = 1;
-	if (x == 1) {
-		print("x is 1.");
-	} else {
-		print("x is not 1.");
-	}
+    int x = 1;
+    if (x == 1) {
+        print("x is 1.");
+    } else {
+        print("x is not 1.");
+    }
 
 The result is:
 
-	x is 1.
+    x is 1.
 
 By the way, in the Vnano, after of if / else / for / while statements must be a block statement {...}.
 Therefore, you can NOT write single statement which is not enclosed by braces { } after the if statement as follows:
 
-	(!!! This code does not work !!!)
+    (!!! This code does not work !!!)
 
-	int x = 1;
-	if (x == 1) print("x is 1.");
+    int x = 1;
+    if (x == 1) print("x is 1.");
 
 
 <a id="control-for"></a>
@@ -152,18 +152,18 @@ Therefore, you can NOT write single statement which is not enclosed by braces { 
 
 The folloing is an example code of for statement:
 
-	for (int i=1; i<=5; i++) {
-		println("i=" + i);
-	}
+    for (int i=1; i<=5; i++) {
+        println("i=" + i);
+    }
 
 
 Please note that braces { } can not be omitted. The result is:
 
-	i=1
-	i=2
-	i=3
-	i=4
-	i=5
+    i=1
+    i=2
+    i=3
+    i=4
+    i=5
 
 
 <a id="control-while"></a>
@@ -171,19 +171,19 @@ Please note that braces { } can not be omitted. The result is:
 
 The folloing is an example code of while statement:
 
-	int a = 500;
-	while (0 <= a) {
-		println("a=" + a);
-		a -= 123;
-	}
+    int a = 500;
+    while (0 <= a) {
+        println("a=" + a);
+        a -= 123;
+    }
 
 Please note that braces { } can not be omitted. The result is:
 
-	a=500
-	a=377
-	a=254
-	a=131
-	a=8
+    a=500
+    a=377
+    a=254
+    a=131
+    a=8
 
 
 <a id="control-break"></a>
@@ -191,40 +191,40 @@ Please note that braces { } can not be omitted. The result is:
 
 The folloing is an example code of break statement:
 
-	for (int i=1; i<=10; i++) {
-		println("i=" + i);
-		if (i == 3) {
-			break;
-		}
-	}
+    for (int i=1; i<=10; i++) {
+        println("i=" + i);
+        if (i == 3) {
+            break;
+        }
+    }
 
 The result is:
 
-	i=1
-	i=2
-	i=3
+    i=1
+    i=2
+    i=3
 
 <a id="control-continue"></a>
 ## continue statement
 
 The folloing is an example code of continue statement:
 
-	for (int i=1; i<=10; i++) {
-		if (i % 3 == 0) {
-			continue;
-		}
-		println("i=" + i);
-	}
+    for (int i=1; i<=10; i++) {
+        if (i % 3 == 0) {
+            continue;
+        }
+        println("i=" + i);
+    }
 
 The result is:
 
-	i=1
-	i=2
-	i=4
-	i=5
-	i=7
-	i=8
-	i=10
+    i=1
+    i=2
+    i=4
+    i=5
+    i=7
+    i=8
+    i=10
 
 
 <a id="expression"></a>
@@ -237,14 +237,14 @@ The expression is the set of tokens consists of operators, leaf operands, and pa
 where leaf operands are literals, identifiers, and so on.
 For example:
 
-	(x + 2) * 3;
+    (x + 2) * 3;
 
 In the above expression, + and * are operators, x and 2 and 3 are leaf operands, 
 ( ) are parentheses.
 In the Vnano, as the same with the C programming language, 
 the symbol of the assignment "=" is an operator, so the following is also expression:
 
-	y = (x + 2) * 3;
+    y = (x + 2) * 3;
 
 An expression alone can be a statement as "expression statement". 
 In addition, an expression can be described as a part of other statements, e.g., a condition expression of an if statement.
@@ -319,16 +319,16 @@ because allocations of local variables are implemented in very simple way.
 
 The following is an example code of the function of which arguments and the return value is scalar (non-array) values:
 
-	int fun(int a, int b) {
-		return a + b;
-	}
+    int fun(int a, int b) {
+        return a + b;
+    }
 
-	int v = fun(1, 2);
-	print(v);
+    int v = fun(1, 2);
+    print(v);
 
 The result on [the command-line mode](FEATURE.md#command-line-mode) is: 
 
-	3
+    3
 
 
 <a id="function-array"></a>
@@ -336,36 +336,36 @@ The result on [the command-line mode](FEATURE.md#command-line-mode) is:
 
 If you want to return an array, or get arrays as arguments, the following code is an example:
 
-	int[] fun(int a[], int b[], int n) {
-		int c[n];
-		for (int i=0; i<n; i++) {
-			c[i] = a[i] + b[i];
-		}
-		return c;
-	}
+    int[] fun(int a[], int b[], int n) {
+        int c[n];
+        for (int i=0; i<n; i++) {
+            c[i] = a[i] + b[i];
+        }
+        return c;
+    }
 
-	int x[3];
-	x[0] = 0;
-	x[1] = 1;
-	x[2] = 2;
+    int x[3];
+    x[0] = 0;
+    x[1] = 1;
+    x[2] = 2;
 
-	int y[3];
-	y[0] = 3;
-	y[1] = 4;
-	y[2] = 5;
+    int y[3];
+    y[0] = 3;
+    y[1] = 4;
+    y[2] = 5;
 
-	int z[] = fun(x, y, 3);
+    int z[] = fun(x, y, 3);
 
-	println("z[0]=" + z[0]);
-	println("z[1]=" + z[1]);
-	println("z[2]=" + z[2]);
+    println("z[0]=" + z[0]);
+    println("z[1]=" + z[1]);
+    println("z[2]=" + z[2]);
 
 The result is:
 
 
-	z[0]=3
-	z[1]=5
-	z[2]=7
+    z[0]=3
+    z[1]=5
+    z[2]=7
 
 
 Please note that, as we mentioned in the section of <a href="#data-type">Data Types</a>, 
@@ -382,13 +382,13 @@ so we omitted to specify size of array declarations in several places in the abo
 
 The parameter-variable declared in a function declaration like as "a" in the following example is called as "formal parameter". In contrast, the value/variable passed to a function like as "x" in the following example is called as "actual argument".
 
-	void fun(int a) {
-		...
-	}
+    void fun(int a) {
+        ...
+    }
 
-	...
+    ...
 
-	fun(x);
+    fun(x);
 
 
 <a id="function-call-by-value"></a>
@@ -396,32 +396,32 @@ The parameter-variable declared in a function declaration like as "a" in the fol
 
 By default, change of values of formal parameters in functions don't affect to values of actual arguments of caller-side, For example:
 
-	void fun(int a, int b[]) {
-		a = 2;
-		b[0] = 10;
-		b[1] = 11;
-		b[2] = 12;
-	}
+    void fun(int a, int b[]) {
+        a = 2;
+        b[0] = 10;
+        b[1] = 11;
+        b[2] = 12;
+    }
 
-	int x = 0;
-	int y[3];
-	y[0] = 0;
-	y[1] = 0;
-	y[2] = 0;
+    int x = 0;
+    int y[3];
+    y[0] = 0;
+    y[1] = 0;
+    y[2] = 0;
 
-	fun(x, y);
+    fun(x, y);
 
-	println("x = " + x);
-	println("y[0] = " + y[0]);
-	println("y[1] = " + y[1]);
-	println("y[2] = " + y[2]);
+    println("x = " + x);
+    println("y[0] = " + y[0]);
+    println("y[1] = " + y[1]);
+    println("y[2] = " + y[2]);
 
 The result is:
 
-	x = 0
-	y[0] = 0
-	y[1] = 0
-	y[2] = 0
+    x = 0
+    y[0] = 0
+    y[1] = 0
+    y[2] = 0
 
 As demonstrated by the above result, actual arguments of caller-side "a" and "b" have not changed although formal parameters "x" and "y" changed in the function "fun". This is because, by default, actual arguments will be simply copied once to formal parameters when the function is called. This behaviour is called as "call-by-value".
 
@@ -431,31 +431,31 @@ As demonstrated by the above result, actual arguments of caller-side "a" and "b"
 
 If you want to affect changed values of formal parameters in functions to values of actual arguments of caller-side, describe the symbol "&" before the name of formal parameters in declarations of them. For example:
 
-	void fun(int &a, int &b[]) {
-		a = 2;
-		b[0] = 10;
-		b[1] = 11;
-		b[2] = 12;
-	}
+    void fun(int &a, int &b[]) {
+        a = 2;
+        b[0] = 10;
+        b[1] = 11;
+        b[2] = 12;
+    }
 
-	int x = 0;
-	int y[3];
-	y[0] = 0;
-	y[1] = 0;
-	y[2] = 0;
+    int x = 0;
+    int y[3];
+    y[0] = 0;
+    y[1] = 0;
+    y[2] = 0;
 
-	fun(x, y);
+    fun(x, y);
 
-	println("x = " + x);
-	println("y[0] = " + y[0]);
-	println("y[1] = " + y[1]);
-	println("y[2] = " + y[2]);
+    println("x = " + x);
+    println("y[0] = " + y[0]);
+    println("y[1] = " + y[1]);
+    println("y[2] = " + y[2]);
 
 The result is:
 
-	x = 2
-	y[0] = 10
-	y[1] = 11
-	y[2] = 12
+    x = 2
+    y[0] = 10
+    y[1] = 11
+    y[2] = 12
 
 As demonstrated by the above result, the memory-reference to data of a formal parameter declared with "&" will be shared with reference to data of an actual argument, so after values of formal parameters "x" and "y" in the function "fun" changed, actual arguments "a" and "b" of caller-side also changed to same values with "x" and "y". This behaviour is called as "call-by-reference".

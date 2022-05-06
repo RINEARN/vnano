@@ -20,12 +20,12 @@ By using Vnano, you can execute scripts on you apps, so it enable you to develop
 - [License](#license)
 - [Requirements](#requirements)
 - [How to Build](#build)
-	- [For Microsoft&reg; Windows&reg;](#build-win)
-	- [For Linux, etc.](#build-lin)
-	- [For Apache Ant](#build-ant)
+    - [For Microsoft&reg; Windows&reg;](#build-win)
+    - [For Linux, etc.](#build-lin)
+    - [For Apache Ant](#build-ant)
 - [How to Use in Your Apps](#use)
-	- [How to Compile and Run an Application](#use-compile-and-run)
-	- [How to Create a JAR file of an Application](#use-create-jar)
+    - [How to Compile and Run an Application](#use-compile-and-run)
+    - [How to Create a JAR file of an Application](#use-create-jar)
 - [Main Features and Specifications](#features)
 - [Vnano as a Language](#language)
 - [Performances](#performances)
@@ -62,9 +62,9 @@ First of all, necessary to build Vnano Engine (interpreter).
 
 Clone this repository, and execute a batch file "build.bat" included in it:
 
-	git clone https://github.com/RINEARN/vnano
-	cd vnano
-	.\build.bat
+    git clone https://github.com/RINEARN/vnano
+    cd vnano
+    .\build.bat
 
 Then the built JAR file "Vnano.jar" will be generated.
 
@@ -73,10 +73,10 @@ Then the built JAR file "Vnano.jar" will be generated.
 
 Clone this repository, and execute a shell script "build.sh" included in it:
 
-	git clone https://github.com/RINEARN/vnano
-	cd vnano
-	sudo chmod +x ./build.sh
-	./build.sh
+    git clone https://github.com/RINEARN/vnano
+    cd vnano
+    sudo chmod +x ./build.sh
+    ./build.sh
 
 Then the built JAR file "Vnano.jar" will be generated.
 
@@ -85,9 +85,9 @@ Then the built JAR file "Vnano.jar" will be generated.
 
 Also, if you are using Ant, you can build Vnano Engine as follows:
 
-	git clone https://github.com/RINEARN/vnano
-	cd vnano
-	and -f build.xml
+    git clone https://github.com/RINEARN/vnano
+    cd vnano
+    and -f build.xml
 
 Then the built JAR file "Vnano.jar" will be generated.
 
@@ -100,39 +100,39 @@ Then the built JAR file "Vnano.jar" will be generated.
 
 Then, Let's try to use Vnano Engine practically, by making a very simple application. The source code of it is included in this repository as "ExampleApp1.java":
 
-	(in ExampleApp1.java)
+    (in ExampleApp1.java)
 
-	import org.vcssl.nano.VnanoEngine;
-	import org.vcssl.nano.VnanoException;
+    import org.vcssl.nano.VnanoEngine;
+    import org.vcssl.nano.VnanoException;
 
-	 public class ExampleApp1 {
-    	public static void main(String[] args) throws VnanoException {
+     public class ExampleApp1 {
+        public static void main(String[] args) throws VnanoException {
 
-	        // Create a scripting engine of Vnano (= Vnano Engine).
-    	    VnanoEngine engine = new VnanoEngine();
+            // Create a scripting engine of Vnano (= Vnano Engine).
+            VnanoEngine engine = new VnanoEngine();
 
-	        // Execute a script by using Vnano Engine.
-    	    String script = "double a = 1.2;  double b = 3.4;  double c = a + b;  c;";
-        	double result = (Double)engine.executeScript(script);
+            // Execute a script by using Vnano Engine.
+            String script = "double a = 1.2;  double b = 3.4;  double c = a + b;  c;";
+            double result = (Double)engine.executeScript(script);
 
-	        // Display the result.
-    	    System.out.println("Result: " + result);
-    	}
-	}
+            // Display the result.
+            System.out.println("Result: " + result);
+        }
+    }
 
 You can compile the above code as follows:
 
-	javac -cp .;Vnano.jar ExampleApp1.java        (For Windows)
-	javac -cp .:Vnano.jar ExampleApp1.java        (For Linux)
+    javac -cp .;Vnano.jar ExampleApp1.java        (For Windows)
+    javac -cp .:Vnano.jar ExampleApp1.java        (For Linux)
 
 And run it as:
 
-	java -cp .;Vnano.jar ExampleApp1        (For Windows)
-	java -cp .:Vnano.jar ExampleApp1        (For Linux)
+    java -cp .;Vnano.jar ExampleApp1        (For Windows)
+    java -cp .:Vnano.jar ExampleApp1        (For Linux)
 
 The result is:
 
-	4.6
+    4.6
 
 The above "ExampleApp1" executes a script by using Vnano Engine, and the script calculates the value of 1.2 + 3.4 = 4.6, so the above result means that we've succeeded to process the script correctly.
 
@@ -144,20 +144,20 @@ For more details to use features of Vnano Engine, see the document: [Main Featur
 
 To create a JAR file of the above "ExampleApp1" application, create a manifest file "manifest.txt" in advance, and in there specify "Vnano.jar" to the Class-Path section as follows:
 
-	Main-Class: ExampleApp1
-	Class-Path: . Vnano.jar
+    Main-Class: ExampleApp1
+    Class-Path: . Vnano.jar
 
-	(!!! Important note: This file should ends with a blank line !!!)
+    (!!! Important note: This file should ends with a blank line !!!)
 
 Note that, if you want to put "Vnano.jar" in the different folder (e.g. in "lib" folder), you are required to modify the "Class-Path" section of the above manifest file accordingly (e.g. "Class-Path: . lib/Vnano.jar").
 
 Then you can creaet a JAR file as:
 
-	jar cvfm ExampleApp1.jar manifest.txt ExampleApp1.class
+    jar cvfm ExampleApp1.jar manifest.txt ExampleApp1.class
 
 And you can run the created JAR file "ExampleApp1.jar" as:
 
-	java -jar ExampleApp1.jar
+    java -jar ExampleApp1.jar
 
 
 <a id="features"></a>
@@ -186,11 +186,11 @@ The name of the scripting language executable on Vnano Engine is "Vnano".
 
 Vnano having simple C-like syntax. For example:
 
-	int sum = 0;
-	for (int i=1; i<=100; i++) {
-    	sum += i;
-	}
-	output(sum);
+    int sum = 0;
+    for (int i=1; i<=100; i++) {
+        sum += i;
+    }
+    output(sum);
 
 For details of syntax and language feature of Vnano, see the document: [Vnano as a Language](doc/LANGUAGE.md).
 
@@ -202,28 +202,28 @@ In this repository, benchmarking scripts for measuring processing speed of Vnano
 
 For measuring the performance of scalar (non-array) operations of 64-bit float values:
 
-	java -jar Vnano.jar benchmark/ScalarFlops.vnano --accelerator true --optLevel 3
+    java -jar Vnano.jar benchmark/ScalarFlops.vnano --accelerator true --optLevel 3
 
 The result is (depends on you environment):
 
-	OPERATING_SPEED = 704.6223224351747 [MFLOPS]
-	REQUIRED_TIME = 14.192 [SEC]
-	TOTAL_OPERATIONS = 10000000000 [xFLOAT64_ADD]
-	OPERATED_VALUE = 1.0E10
+    OPERATING_SPEED = 704.6223224351747 [MFLOPS]
+    REQUIRED_TIME = 14.192 [SEC]
+    TOTAL_OPERATIONS = 10000000000 [xFLOAT64_ADD]
+    OPERATED_VALUE = 1.0E10
 
 The above score had been measured on a mid-range laptop PC.
 
 For measuring the performance of vector (array) operations of 64-bit float values:
 
-	java -jar Vnano.jar benchmark/VectorFlops.vnano --accelerator true --optLevel 3
+    java -jar Vnano.jar benchmark/VectorFlops.vnano --accelerator true --optLevel 3
 
 The result is (depends on you environment):
 
-	OPERATING_SPEED = 15.400812152203338 [GFLOPS]
-	REQUIRED_TIME = 13.298 [SEC]
-	TOTAL_OPERATIONS = 204800000000 [xFLOAT64_ADD]
-	VECTOR_SIZE = 2048 [x64BIT]
-	OPERATED_VALUES = { 1.0E8, 2.0E8, 3.0E8, ... 2.047E11, 2.048E11 }
+    OPERATING_SPEED = 15.400812152203338 [GFLOPS]
+    REQUIRED_TIME = 13.298 [SEC]
+    TOTAL_OPERATIONS = 204800000000 [xFLOAT64_ADD]
+    VECTOR_SIZE = 2048 [x64BIT]
+    OPERATED_VALUES = { 1.0E8, 2.0E8, 3.0E8, ... 2.047E11, 2.048E11 }
 
 Note that, performances of vector operations are greatly depend on the size of operand vectors, and cache size of your CPU.
 

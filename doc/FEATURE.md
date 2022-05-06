@@ -23,74 +23,74 @@ Vnano Engine is an interpreter for processing scripts, but it is also available 
 
 The following is an example application, calculating an expression inputted by the user:
 
-	(in ExampleApp2.java)
+    (in ExampleApp2.java)
 
-	import org.vcssl.nano.VnanoEngine;
-	import org.vcssl.nano.VnanoException;
-	import java.util.Map;
-	import java.util.HashMap;
-	import java.util.Scanner;
+    import org.vcssl.nano.VnanoEngine;
+    import org.vcssl.nano.VnanoException;
+    import java.util.Map;
+    import java.util.HashMap;
+    import java.util.Scanner;
 
-	public class ExampleApp2 {
-		public static void main(String[] args) throws VnanoException {
+    public class ExampleApp2 {
+        public static void main(String[] args) throws VnanoException {
 
-			// Create a scripting engine of Vnano (= Vnano Engine).
-			VnanoEngine engine = new VnanoEngine();
+            // Create a scripting engine of Vnano (= Vnano Engine).
+            VnanoEngine engine = new VnanoEngine();
 
-			// Set an option, to handle all numeric literals as "float" (=double) type.
-			// (Useful when calculate expressions, but don't enable when run scripts.)
-			Map<String, Object> optionMap = new HashMap<String, Object>();
-			optionMap.put("EVAL_INT_LITERAL_AS_FLOAT", true);
-			engine.setOptionMap(optionMap);
+            // Set an option, to handle all numeric literals as "float" (=double) type.
+            // (Useful when calculate expressions, but don't enable when run scripts.)
+            Map<String, Object> optionMap = new HashMap<String, Object>();
+            optionMap.put("EVAL_INT_LITERAL_AS_FLOAT", true);
+            engine.setOptionMap(optionMap);
 
-			// Get an expression from the user.
-			System.out.println("Input an expression, e.g.:  1.2 + 3.4 * 5.6");
-			Scanner scanner = new Scanner(System.in);
-			String expression = scanner.nextLine();
+            // Get an expression from the user.
+            System.out.println("Input an expression, e.g.:  1.2 + 3.4 * 5.6");
+            Scanner scanner = new Scanner(System.in);
+            String expression = scanner.nextLine();
 
-			// Append ";" at the end of the expression, if it does not exist.
-			if (!expression.trim().endsWith(";")) {
-				expression += ";";
-			}
+            // Append ";" at the end of the expression, if it does not exist.
+            if (!expression.trim().endsWith(";")) {
+                expression += ";";
+            }
 
-			// Execute the inputted expression by Vnano Engine.
-			double result = (Double)engine.executeScript(expression);
-			System.out.println("result: " + result);
-		}
-	}
+            // Execute the inputted expression by Vnano Engine.
+            double result = (Double)engine.executeScript(expression);
+            System.out.println("result: " + result);
+        }
+    }
 
 How to compile and run is:
 
-	(For Windows)
-	javac -cp .;Vnano.jar ExampleApp2.java
-	java -cp .;Vnano.jar ExampleApp2
+    (For Windows)
+    javac -cp .;Vnano.jar ExampleApp2.java
+    java -cp .;Vnano.jar ExampleApp2
 
-	(For Linux)
-	javac -cp .:Vnano.jar ExampleApp2.java
-	java -cp .:Vnano.jar ExampleApp2
+    (For Linux)
+    javac -cp .:Vnano.jar ExampleApp2.java
+    java -cp .:Vnano.jar ExampleApp2
 
 When you have executed the above "ExampleApp2", it requests you to input the expression to be calculated.
 So input as follows:
 
-	1.2 + 3.4 * 5.6
+    1.2 + 3.4 * 5.6
 
 Then the expression will be calculated by using the Vnano Engine, and the result will be displayed as:
 
-	20.24
+    20.24
 
 Also, you can input script code instead of an expression as:
 
-	float value=0.0; for (int i=0; i<10; i++) { value += 1.2; } value += 123.4; value;
+    float value=0.0; for (int i=0; i<10; i++) { value += 1.2; } value += 123.4; value;
 
 The result is:
 
-	result: 135.4
+    result: 135.4
 
 For more details, see [Execute Scripts](#scripting).
 
 Please note that, when you execute scripts, we strongly recommend to remove the line of:
 
-	optionMap.put("EVAL_INT_LITERAL_AS_FLOAT", true);
+    optionMap.put("EVAL_INT_LITERAL_AS_FLOAT", true);
 
 If the above option is enabled, all numeric literals (including integer literals) are handled as float-type values. It should be a cause of confusion. By the way, above option does not affect to contents of [library scripts](#libraries).
 
@@ -104,61 +104,61 @@ You can connect fields and methods of any class to Vnano Engine, and can access 
 
 For example:
 
-	(in ExampleApp3.java)
+    (in ExampleApp3.java)
 
-	...
-	public static class AnyClass {
+    ...
+    public static class AnyClass {
 
-		// A field and a method to be accessed from 
-		// an expression/script runs on Vnano Engine.
-		public double x = 3.4;
-		public double f(double arg) {
-			return arg * 5.6;
-		}
-	}
+        // A field and a method to be accessed from 
+        // an expression/script runs on Vnano Engine.
+        public double x = 3.4;
+        public double f(double arg) {
+            return arg * 5.6;
+        }
+    }
 
-	public static void main(String[] args)
-			throws VnanoException, NoSuchFieldException, NoSuchMethodException {
+    public static void main(String[] args)
+            throws VnanoException, NoSuchFieldException, NoSuchMethodException {
 
-		// Create a scripting engine of Vnano (= Vnano Engine).
-		VnanoEngine engine = new VnanoEngine();
+        // Create a scripting engine of Vnano (= Vnano Engine).
+        VnanoEngine engine = new VnanoEngine();
 
-		// Connect a field/method of "AnyClass" class to Vnano Engine.
-		Field field = AnyClass.class.getField("x");
-		Method method = AnyClass.class.getMethod("f", double.class);
-		AnyClass anyClassInstance = new AnyClass();
-		engine.connectPlugin("x", new Object[]{ field, anyClassInstance });
-		engine.connectPlugin("f", new Object[]{ method, anyClassInstance });
+        // Connect a field/method of "AnyClass" class to Vnano Engine.
+        Field field = AnyClass.class.getField("x");
+        Method method = AnyClass.class.getMethod("f", double.class);
+        AnyClass anyClassInstance = new AnyClass();
+        engine.connectPlugin("x", new Object[]{ field, anyClassInstance });
+        engine.connectPlugin("f", new Object[]{ method, anyClassInstance });
 
-		// For staric field/method, you can connect without an instance as follows:
-		// Field field = AnyClass.class.getField("x");
-		// Method method = AnyClass.class.getMethod("f", double.class);
-		// engine.connectPlugin("x", field);
-		// engine.connectPlugin("f", method);
+        // For staric field/method, you can connect without an instance as follows:
+        // Field field = AnyClass.class.getField("x");
+        // Method method = AnyClass.class.getMethod("f", double.class);
+        // engine.connectPlugin("x", field);
+        // engine.connectPlugin("f", method);
 
-		...
-		(same as ExampleApp2.java)
-	}
+        ...
+        (same as ExampleApp2.java)
+    }
 
 
 Let's compile and run:
 
-	(For Windows)
-	javac -cp .;Vnano.jar ExampleApp3.java
-	java -cp .;Vnano.jar ExampleApp3
+    (For Windows)
+    javac -cp .;Vnano.jar ExampleApp3.java
+    java -cp .;Vnano.jar ExampleApp3
 
-	(For Linux)
-	javac -cp .:Vnano.jar ExampleApp3.java
-	java -cp .:Vnano.jar ExampleApp3
+    (For Linux)
+    javac -cp .:Vnano.jar ExampleApp3.java
+    java -cp .:Vnano.jar ExampleApp3
 
 Then input the following expression:
 
-	1.2 + f(x)
+    1.2 + f(x)
 
 Now the value of x is 3.4 and f(x) = x * 5.6, so we should get the result of 1.2 + (3.4 * 5.6) = 20.24.
 The actual result is:
 
-	20.24
+    20.24
 
 Like as "AnyClass" in Example2, we call a class providing fields/methods to Vnano Engine as a "plug-in".
 
@@ -174,32 +174,32 @@ Hence, if you want to pass/receive values between Java-side and Script-side inte
 You can implement plug-ins as independent class files, and can load them dynamically.
 An example plug-in class "ExamplePlugin1.java" is included in "plugin" folder:
 
-	(in plugin/ExamplePlugin1.java)
+    (in plugin/ExamplePlugin1.java)
 
-	public class ExamplePlugin1 {
+    public class ExamplePlugin1 {
     
-		// A field and a method to be accessed from 
-		// an expression/script runs on Vnano Engine.
-		public double x = 3.4;
-		public double f(double arg) {
-			return arg * 5.6;
-		}
-	}
+        // A field and a method to be accessed from 
+        // an expression/script runs on Vnano Engine.
+        public double x = 3.4;
+        public double f(double arg) {
+            return arg * 5.6;
+        }
+    }
 
 Compile it as follows:
 
-	cd plugin
-	javac ExamplePlugin1.java
-	cd ..
+    cd plugin
+    javac ExamplePlugin1.java
+    cd ..
 
 In addition, create a text file "VnanoPluginList.txt" in "plugin" folder, and in there list-up compiled plug-ins to be loaded, as follows:
 
-	(in plugin/VnanoPlyginList.txt)
+    (in plugin/VnanoPlyginList.txt)
 
-	ExamplePlugin1.class
-	# ExamplePlugin2.class
-	# ExamplePlugin3.class
-	# ...
+    ExamplePlugin1.class
+    # ExamplePlugin2.class
+    # ExamplePlugin3.class
+    # ...
 
 where lines starts with "#" will be ignored.
 
@@ -207,45 +207,45 @@ On the [command-line mode](#command-line-mode), the above list file will be refe
 
 Now you are all set. Let's load plug-ins dynamically and connect them to Vnano Engine:
 
-	(in ExampleApp4.java)
-	
-	import org.vcssl.nano.interconnect.PluginLoader;
+    (in ExampleApp4.java)
+    
+    import org.vcssl.nano.interconnect.PluginLoader;
 
-	...
-	public static void main(String[] args) throws VnanoException {
+    ...
+    public static void main(String[] args) throws VnanoException {
 
-		// Create a scripting engine of Vnano (= Vnano Engine).
-		VnanoEngine engine = new VnanoEngine();
+        // Create a scripting engine of Vnano (= Vnano Engine).
+        VnanoEngine engine = new VnanoEngine();
 
-		// Load a plug-in classes dynamically, and connect them to Vnano Engine.
-		PluginLoader pluginLoader = new PluginLoader("UTF-8");
-		pluginLoader.setPluginListPath("./plugin/VnanoPluginList.txt");
-		pluginLoader.load();
-		for (Object plugin: pluginLoader.getPluginInstances()) {
-			engine.connectPlugin("___VNANO_AUTO_KEY", plugin);
-		}
+        // Load a plug-in classes dynamically, and connect them to Vnano Engine.
+        PluginLoader pluginLoader = new PluginLoader("UTF-8");
+        pluginLoader.setPluginListPath("./plugin/VnanoPluginList.txt");
+        pluginLoader.load();
+        for (Object plugin: pluginLoader.getPluginInstances()) {
+            engine.connectPlugin("___VNANO_AUTO_KEY", plugin);
+        }
 
-		...
-		(same as ExampleApp2.java)
-	}
+        ...
+        (same as ExampleApp2.java)
+    }
 
 Let's compile and run:
 
-	(For Windows)
-	javac -cp .;Vnano.jar ExampleApp4.java
-	java -cp .;Vnano.jar ExampleApp4
+    (For Windows)
+    javac -cp .;Vnano.jar ExampleApp4.java
+    java -cp .;Vnano.jar ExampleApp4
 
-	(For Linux)
-	javac -cp .:Vnano.jar ExampleApp4.java
-	java -cp .:Vnano.jar ExampleApp4
+    (For Linux)
+    javac -cp .:Vnano.jar ExampleApp4.java
+    java -cp .:Vnano.jar ExampleApp4
 
 Input the expression:
 
-	1.2 + f(x)
+    1.2 + f(x)
 
 And you can get the result:
 
-	20.24
+    20.24
 
 
 
@@ -277,44 +277,44 @@ For details of syntax and language features of Vnano, see the following document
 
 Let's execute a Vnano script:
 
-	(in ExampleApp5.java)
+    (in ExampleApp5.java)
 
-	...
-	public static void main(String[] args) throws VnanoException {
+    ...
+    public static void main(String[] args) throws VnanoException {
 
-		// Create a scripting engine of Vnano (= Vnano Engine).
-		VnanoEngine engine = new VnanoEngine();
+        // Create a scripting engine of Vnano (= Vnano Engine).
+        VnanoEngine engine = new VnanoEngine();
 
-		// Prepare the content of the script to be executed.
-		String script =
+        // Prepare the content of the script to be executed.
+        String script =
 
-			" int sum = 0;                 " +
-			" for (int i=1; i<=100; i++) { " +
-			"     sum += i;                " +
-			" }                            " +
-			" sum;                         " ;
+            " int sum = 0;                 " +
+            " for (int i=1; i<=100; i++) { " +
+            "     sum += i;                " +
+            " }                            " +
+            " sum;                         " ;
 
-		// Execute a script by Vnano Engine.
-		long result = (Long)engine.executeScript(script);
-		System.out.println("result: " + result);
-	}
+        // Execute a script by Vnano Engine.
+        long result = (Long)engine.executeScript(script);
+        System.out.println("result: " + result);
+    }
 
 When "executeScript(script)" method has executed a script, it returns: the value of the expression statement (if exists) at the last line in the script.
 So we will get the value of the variable "sum", when we run the above Example4.
 
 Compile the above example and run:
 
-	(For Windows)
-	javac -cp .;Vnano.jar ExampleApp5.java
-	java -cp .;Vnano.jar ExampleApp5
+    (For Windows)
+    javac -cp .;Vnano.jar ExampleApp5.java
+    java -cp .;Vnano.jar ExampleApp5
 
-	(For Linux)
-	javac -cp .:Vnano.jar ExampleApp5.java
-	java -cp .:Vnano.jar ExampleApp5
+    (For Linux)
+    javac -cp .:Vnano.jar ExampleApp5.java
+    java -cp .:Vnano.jar ExampleApp5
 
 And you can get the result:
 
-	5050
+    5050
 
 This value equals to the summation from 1 to 100 ( = 100 * 101 / 2 ), so we have gotten the correct result.
 
@@ -329,67 +329,67 @@ We call such script providing variables/functions for other scripts, as a "libra
 
 An example of a library script is:
 
-	(in lib/ExampleLibrary1.vnano)
+    (in lib/ExampleLibrary1.vnano)
 
-	float x = 3.4;
-	float f(float arg) {
-		return arg * 5.6;
-	}
+    float x = 3.4;
+    float f(float arg) {
+        return arg * 5.6;
+    }
 
 To load the above library, create a text file "lib/VnanoLibraryList.txt" and in there list-up library scripts:
 
-	(in lib/VnanoLibraryList.txt)
+    (in lib/VnanoLibraryList.txt)
 
-	ExampleLibrary1.vnano
-	# ExampleLibrary2.vnano
-	# ExampleLibrary3.vnano
+    ExampleLibrary1.vnano
+    # ExampleLibrary2.vnano
+    # ExampleLibrary3.vnano
 
 where lines starts with "#" will be ignored.
 
 On the [command-line mode](#command-line-mode), the above list file will be referred by default. On the other hand, when you use Vnano Engine on you applications, it is necessary to specify the list file explicitly as:
 
-	(in ExampleApp6.java)
-	
-	import org.vcssl.nano.interconnect.ScriptLoader;
+    (in ExampleApp6.java)
+    
+    import org.vcssl.nano.interconnect.ScriptLoader;
 
-	...
-	public static void main(String[] args) throws VnanoException {
+    ...
+    public static void main(String[] args) throws VnanoException {
 
-		// Create a scripting engine of Vnano (= Vnano Engine).
-		VnanoEngine engine = new VnanoEngine();
+        // Create a scripting engine of Vnano (= Vnano Engine).
+        VnanoEngine engine = new VnanoEngine();
 
-		// Load library scripts from files.
-		ScriptLoader scriptLoader = new ScriptLoader("UTF-8");
-		scriptLoader.setLibraryScriptListPath("./lib/VnanoLibraryList.txt");
-		scriptLoader.load();
+        // Load library scripts from files.
+        ScriptLoader scriptLoader = new ScriptLoader("UTF-8");
+        scriptLoader.setLibraryScriptListPath("./lib/VnanoLibraryList.txt");
+        scriptLoader.load();
 
-		// Register library scripts to Vnano Engine.
-		String[] libNames = scriptLoader.getLibraryScriptNames();
-		String[] libScripts = scriptLoader.getLibraryScriptContents();
-		int libCount = libNames.length;
-		for (int ilib=0; ilib<libCount; ilib++) {
-			engine.includeLibraryScript(libNames[ilib], libScripts[ilib]);
-		}
+        // Register library scripts to Vnano Engine.
+        String[] libNames = scriptLoader.getLibraryScriptNames();
+        String[] libScripts = scriptLoader.getLibraryScriptContents();
+        int libCount = libNames.length;
+        for (int ilib=0; ilib<libCount; ilib++) {
+            engine.includeLibraryScript(libNames[ilib], libScripts[ilib]);
+        }
 
-		// Prepare the content of the script to be executed.
-		String script =
+        // Prepare the content of the script to be executed.
+        String script =
 
-			" float value = 1.2 + f(3.4); " +
-			" value;                      " ;
+            " float value = 1.2 + f(3.4); " +
+            " value;                      " ;
 
-		// Execute a scriptby Vnano Engine.
-		double result = (Double)engine.executeScript(script);
-		System.out.println("result: " + result);
-	}
+        // Execute a scriptby Vnano Engine.
+        double result = (Double)engine.executeScript(script);
+        System.out.println("result: " + result);
+    }
 
 How to compile and run is:
 
-	javac -cp .;Vnano.jar ExampleApp6.java
-	java -cp .;Vnano.jar ExampleApp6
+    javac -cp .;Vnano.jar ExampleApp6.java
+    java -cp .;Vnano.jar ExampleApp6
 
 The result is:
 
-	result: 20.24
+    result: 20.24
 
 As declared in "lib/ExampleLibrary1.vnano", the value of x is 3.4 and f(x) = x * 5.6, so we should get the result of 1.2 + (3.4 * 5.6) = 20.24. Hence the above result is correct.
 
@@ -402,21 +402,21 @@ It may be helpful for debugging scripts/plug-ins when you are developing them.
 
 The following is an example of Vnano script:
 
-	(in ExampleScript1.vnano)
+    (in ExampleScript1.vnano)
 
-	int sum = 0;
-	for (int i=1; i<=100; i++) {
-    	sum += i;
-	}
-	output(sum);
+    int sum = 0;
+    for (int i=1; i<=100; i++) {
+        sum += i;
+    }
+    output(sum);
 
 Let's execute it as:
 
-	java -jar Vnano.jar ExampleScript1.vnano
+    java -jar Vnano.jar ExampleScript1.vnano
 
 As the above, when a script is specified as an argument, "Vnano.jar" works in the command-line mode, and executes the specified script. The result is:
 
-	5050
+    5050
 
 As the above example script, on the command-line mode, "output" function is provided by default for the convenience.
 Please note that, it is NOT provided by default when you execute scripts 
@@ -424,20 +424,20 @@ by using "executeScript" method of Vnano Enginem, embedded in your Java applicat
 
 We recommend to introduce Vnano Standard Plug-ins if you use this command-line mode frequently. How to:
 
-	git clone https://github.com/RINEARN/vnano-standard-plugin
-	cd vnano-standard-plugin/plugin
-	javac -encoding UTF-8 @org/vcssl/connect/sourcelist.txt
-	javac -encoding UTF-8 @org/vcssl/nano/plugin/sourcelist.txt
+    git clone https://github.com/RINEARN/vnano-standard-plugin
+    cd vnano-standard-plugin/plugin
+    javac -encoding UTF-8 @org/vcssl/connect/sourcelist.txt
+    javac -encoding UTF-8 @org/vcssl/nano/plugin/sourcelist.txt
 
 And then copy & paste "vnano-standard-plugin/plugin" folder to "vnano/plugin" folder, 
 and rename "VnanoPluginList_AllStandards.txt" in the folder to "VnanoPluginList.txt" (it will be referred by default on the command-line mode).
 
 If you have succeeded to introduce standard plug-ins, following script should run without any errors:
 
-	float value = mean(1.0, 2.0);  // Compute the mean value
-	print(value);                  // Prints the value on the terminal
+    float value = mean(1.0, 2.0);  // Compute the mean value
+    print(value);                  // Prints the value on the terminal
 
-	// result: 1.5
+    // result: 1.5
 
 Now you can use [all features of all standard plug-ins](https://www.vcssl.org/ja-jp/vnano/plugin/), on the command-line mode. Also, some practical example scripts are [provided on vcssl.org](https://www.vcssl.org/en-us/code/#vnano). Now you should able to execute all of them.
 
