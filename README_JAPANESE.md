@@ -50,6 +50,7 @@ Vnano Engine はMITライセンスの下でリリースされています。
 ## 必要なもの
 
 - Java Development Kit (バージョン 8 以降が必須、最新版の Java 18 は対応済み)
+- Git
 
 
 <a id="build"></a>
