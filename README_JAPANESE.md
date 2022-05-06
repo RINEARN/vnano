@@ -213,9 +213,7 @@ Vnano は、データ解析ソフトや計算ソフト、および可視化ソ�
 結果は以下の通りです：
 
     OPERATING_SPEED = 704.6223224351747 [MFLOPS]
-    REQUIRED_TIME = 14.192 [SEC]
-    TOTAL_OPERATIONS = 10000000000 [xFLOAT64_ADD]
-    OPERATED_VALUE = 1.0E10
+    ...
 
 上記はミドルスペックのノートPCでの実測値です。
 
@@ -226,10 +224,7 @@ Vnano は、データ解析ソフトや計算ソフト、および可視化ソ�
 結果は：
 
     OPERATING_SPEED = 15.400812152203338 [GFLOPS]
-    REQUIRED_TIME = 13.298 [SEC]
-    TOTAL_OPERATIONS = 204800000000 [xFLOAT64_ADD]
-    VECTOR_SIZE = 2048 [x64BIT]
-    OPERATED_VALUES = { 1.0E8, 2.0E8, 3.0E8, ... 2.047E11, 2.048E11 }
+    ...
 
 以上の通りです。なお、配列演算の速度は、演算対象の配列サイズ、およびCPUのキャッシュサイズ等に大きく依存する事に留意が必要です。
 

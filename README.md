@@ -207,9 +207,7 @@ For measuring the performance of scalar (non-array) operations of 64-bit float v
 The result is (depends on you environment):
 
     OPERATING_SPEED = 704.6223224351747 [MFLOPS]
-    REQUIRED_TIME = 14.192 [SEC]
-    TOTAL_OPERATIONS = 10000000000 [xFLOAT64_ADD]
-    OPERATED_VALUE = 1.0E10
+    ...
 
 The above score had been measured on a mid-range laptop PC.
 
@@ -220,10 +218,7 @@ For measuring the performance of vector (array) operations of 64-bit float value
 The result is (depends on you environment):
 
     OPERATING_SPEED = 15.400812152203338 [GFLOPS]
-    REQUIRED_TIME = 13.298 [SEC]
-    TOTAL_OPERATIONS = 204800000000 [xFLOAT64_ADD]
-    VECTOR_SIZE = 2048 [x64BIT]
-    OPERATED_VALUES = { 1.0E8, 2.0E8, 3.0E8, ... 2.047E11, 2.048E11 }
+    ...
 
 Note that, performances of vector operations are greatly depend on the size of operand vectors, and cache size of your CPU.
 
