@@ -10,8 +10,7 @@ Its interpreter, Vnano Engine, is designed to be embedded in Java&reg; applicati
 By using Vnano, you can execute scripts on you apps, so it enable you to develop highly customizable features.
 
 * [Vnano Website](https://www.vcssl.org/en-us/vnano/)
-
-See also: An example app using Vnano: [RINPn](https://github.com/RINEARN/rinpn).
+* [List of Documents](doc/README.md)
 
 
 ## English README Index

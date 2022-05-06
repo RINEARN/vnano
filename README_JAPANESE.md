@@ -10,8 +10,7 @@ Vnano のインタープリタは、特にJava&reg;製のアプリケーショ�
 Vnano を用いる事で、自作アプリ上でスクリプトを実行可能になるため、カスタマイズ性の高いアプリの開発が可能になります。
 
 * [Vnano 公式サイト](https://www.vcssl.org/ja-jp/vnano/)
-
-参考： Vnano を用いたアプリケーションの例: [RINPn](https://github.com/RINEARN/rinpn).
+* [ドキュメントの一覧](doc/README_JAPANESE.md)
 
 
 ## 目次
