@@ -19,7 +19,7 @@
 <a id="calculate-expression"></a>
 ## Calculate Expressions
 
-As shown in [README](README.md), you can calculate the value of an expression:
+As shown in [README](../README.md), you can calculate the value of an expression:
 
 	(in ExampleApp1.java)
 

@@ -20,7 +20,7 @@
 <a id="calculate-expression"></a>
 ## 式を計算する
 
-[README](README_JAPANESE.md) でも見た通り、Vnano Engine を用いて式の値を計算する事ができます:
+[README](../README_JAPANESE.md) でも見た通り、Vnano Engine を用いて式の値を計算する事ができます:
 
 	(in ExampleApp1.java)
 

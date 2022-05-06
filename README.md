@@ -164,13 +164,13 @@ The result is:
 
 	result: 135.4
 
-For more details, see [Execute Scripts](FEATURE.md#scripting).
+For more details, see [Execute Scripts](doc/FEATURE.md#scripting).
 
 Please note that, when you execute scripts, we strongly recommend to remove the line of:
 
 	optionMap.put("EVAL_INT_LITERAL_AS_FLOAT", true);
 
-If the above option is enabled, all numeric literals (including integer literals) are handled as float-type values. It should be a cause of confusion. By the way, above option does not affect to contents of [library scripts](FEATURE.md#libraries).
+If the above option is enabled, all numeric literals (including integer literals) are handled as float-type values. It should be a cause of confusion. By the way, above option does not affect to contents of [library scripts](doc/FEATURE.md#libraries).
 
 
 <a id="use-create-jar"></a>
@@ -209,9 +209,9 @@ By using these features of Vnano Engine, you can develop highly customizable app
 (for example, see [RINPn](https://github.com/RINEARN/rinpn), which is a programmable calculator software).
 
 
-For details of features, see the document: [Main Features of Vnano Engine](FEATURE.md).
+For details of features, see the document: [Main Features of Vnano Engine](doc/FEATURE.md).
 
-Also, for list of methods, options, and so on of Vnano Engine, see the document: [Specifications of Vnano Engine](SPEC.md).
+Also, for list of methods, options, and so on of Vnano Engine, see the document: [Specifications of Vnano Engine](doc/SPEC.md).
 
 <a id="language"></a>
 ## Vnano as a Language
@@ -226,7 +226,7 @@ Vnano having simple C-like syntax. For example:
 	}
 	output(sum);
 
-For details of syntax and language feature of Vnano, see the document: [Vnano as a Language](LANGUAGE.md).
+For details of syntax and language feature of Vnano, see the document: [Vnano as a Language](doc/LANGUAGE.md).
 
 <a id="performances"></a>
 ## Performances

@@ -167,7 +167,7 @@ Ant 用のビルドファイルも同梱されています：
 
 	result: 135.4
 
-スクリプト実行に関する詳細は [スクリプトの実行](FEATURE_JAPANESE.md#scripting) の項目をご参照ください。
+スクリプト実行に関する詳細は [スクリプトの実行](doc/FEATURE_JAPANESE.md#scripting) の項目をご参照ください。
 
 ところで、式ではなくスクリプトを実行する用途においては、以下のオプション指定の行は削除する事をおすすめします：
 
@@ -176,7 +176,7 @@ Ant 用のビルドファイルも同梱されています：
 既に述べた通り、上記オプションは式内に書かれた整数値（整数リテラル）を float 型の値として扱うもので、
 式の計算には便利です（指定しないと、整数同士の除算結果が整数になって厄介です）。一方で、スクリプトに対して効かせると混乱の元になりかねません。
 
-ただし、上記オプションは executeScript メソッドで直接実行する内容に対してのみ作用し、[ライブラリスクリプト](FEATURE_JAPANESE.md#libraries) に対しては作用しないため、ライブラリの処理内容への影響を心配する必要はありません。
+ただし、上記オプションは executeScript メソッドで直接実行する内容に対してのみ作用し、[ライブラリスクリプト](doc/FEATURE_JAPANESE.md#libraries) に対しては作用しないため、ライブラリの処理内容への影響を心配する必要はありません。
 
 
 <a id="use-create-jar"></a>
@@ -215,9 +215,9 @@ Javaで記述したクラスの代わりに、スクリプトファイルとし�
 （具体例としては、プログラム関数電卓ソフトの「 [RINPn](https://github.com/RINEARN/rinpn) 」をご参照ください）。
 
 
-各機能の詳細については、別途文書「 [Vnano Engine の主な機能](FEATURE_JAPANESE.md) 」をご参照ください。
+各機能の詳細については、別途文書「 [Vnano Engine の主な機能](doc/FEATURE_JAPANESE.md) 」をご参照ください。
 
-また、Vnano Engine の全メソッドの一覧/詳細説明や、オプション類などについては、別途文書「 [Vnano Engine の各種仕様](SPEC_JAPANESE.md) 」をご参照ください。
+また、Vnano Engine の全メソッドの一覧/詳細説明や、オプション類などについては、別途文書「 [Vnano Engine の各種仕様](doc/SPEC_JAPANESE.md) 」をご参照ください。
 
 
 <a id="language"></a>
@@ -233,7 +233,7 @@ Vnano は C言語系のシンプルな文法を持つ言語です。例えば：
 	output(sum);
 
 上記コードのような具合です。
-Vnano の構文や言語機能について詳しくは、別途文書「 [言語としての Vnano](LANGUAGE_JAPANESE.md) 」をご参照ください。
+Vnano の構文や言語機能について詳しくは、別途文書「 [言語としての Vnano](doc/LANGUAGE_JAPANESE.md) 」をご参照ください。
 
 
 <a id="performances"></a>
