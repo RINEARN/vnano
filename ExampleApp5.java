@@ -1,8 +1,5 @@
 /*
- * An example executing a script, in which 
- * a function/variable provided by "lib/ExampleLibrary1.vnano" are used.
- * To load the above library script, it is necessary to modify
- * the content of "lib/VnanoLibraryList.txt".
+ * An example executing a script using Vnano Engine.
  * 
  * How to Compile:
  *     javac -cp .;Vnano.jar ExampleApp5.java
@@ -13,7 +10,6 @@
 
 import org.vcssl.nano.VnanoEngine;
 import org.vcssl.nano.VnanoException;
-import org.vcssl.nano.interconnect.ScriptLoader;
 
 public class ExampleApp5 {
 
@@ -22,27 +18,17 @@ public class ExampleApp5 {
 		// Create a scripting engine of Vnano (= Vnano Engine).
 		VnanoEngine engine = new VnanoEngine();
 
-		// Load library scripts from files.
-		ScriptLoader scriptLoader = new ScriptLoader("UTF-8");
-		scriptLoader.setLibraryScriptListPath("./lib/VnanoLibraryList.txt");
-		scriptLoader.load();
-
-		// Register library scripts to Vnano Engine.
-		String[] libNames = scriptLoader.getLibraryScriptNames();
-		String[] libScripts = scriptLoader.getLibraryScriptContents();
-		int libCount = libNames.length;
-		for (int ilib=0; ilib<libCount; ilib++) {
-			engine.includeLibraryScript(libNames[ilib], libScripts[ilib]);
-		}
-
 		// Prepare the content of the script to be executed.
 		String script =
 
-			" float value = 1.2 + f(3.4); " +
-			" value;                      " ;
+			" int sum = 0;                 " +
+			" for (int i=1; i<=100; i++) { " +
+			"     sum += i;                " +
+			" }                            " +
+			" sum;                         " ;
 
-		// Execute a scriptby Vnano Engine.
-		double result = (Double)engine.executeScript(script);
+		// Execute a script by Vnano Engine.
+		long result = (Long)engine.executeScript(script);
 		System.out.println("result: " + result);
 	}
 }

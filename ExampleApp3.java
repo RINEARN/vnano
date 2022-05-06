@@ -1,6 +1,5 @@
 /*
- * A example accessing to fields/methods of dynamically loaded classes,
- * from an expression executed by Vnano Engine.
+ * A example accessing to fields/methods from an expression executed by Vnano Engine.
  * 
  * How to Compile:
  *     javac -cp .;Vnano.jar ExampleApp3.java
@@ -11,7 +10,6 @@
 
 import org.vcssl.nano.VnanoEngine;
 import org.vcssl.nano.VnanoException;
-import org.vcssl.nano.interconnect.PluginLoader;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Scanner;
@@ -20,19 +18,34 @@ import java.lang.reflect.Method;
 
 public class ExampleApp3 {
 
+	public static class AnyClass {
+
+		// A field and a method to be accessed from 
+		// an expression/script runs on Vnano Engine.
+		public double x = 3.4;
+		public double f(double arg) {
+			return arg * 5.6;
+		}
+	}
+
 	public static void main(String[] args)
 			throws VnanoException, NoSuchFieldException, NoSuchMethodException {
 
 		// Create a scripting engine of Vnano (= Vnano Engine).
 		VnanoEngine engine = new VnanoEngine();
 
-		// Load a plug-in classes dynamically, and connect them to Vnano Engine.
-		PluginLoader pluginLoader = new PluginLoader("UTF-8");
-		pluginLoader.setPluginListPath("./plugin/VnanoPluginList.txt");
-		pluginLoader.load();
-		for (Object plugin: pluginLoader.getPluginInstances()) {
-			engine.connectPlugin("___VNANO_AUTO_KEY", plugin);
-		}
+		// Connect a field/method of "AnyClass" class to Vnano Engine.
+		Field field = AnyClass.class.getField("x");
+		Method method = AnyClass.class.getMethod("f", double.class);
+		AnyClass anyClassInstance = new AnyClass();
+		engine.connectPlugin("x", new Object[]{ field, anyClassInstance });
+		engine.connectPlugin("f", new Object[]{ method, anyClassInstance });
+
+		// For staric field/method, you can connect it more simple as follows:
+		// Field field = AnyClass.class.getField("x");
+		// Method method = AnyClass.class.getMethod("f", double.class);
+		// engine.connectPlugin("x", field);
+		// engine.connectPlugin("f", method);
 
 		// Set an option, to handle all numeric literals as "float" (=double) type.
 		// (Useful when calculate expressions, but don't enable when run scripts.)
