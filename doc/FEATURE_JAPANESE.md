@@ -20,9 +20,12 @@
 <a id="calculate-expression"></a>
 ## 式を計算する
 
-[README](../README_JAPANESE.md) でも見た通り、Vnano Engine を用いて式の値を計算する事ができます:
+Vnano Engine はスクリプトを実行できるエンジンですが、単に、式の値を計算するのにも使用できます。
+現実の用途においては、式の計算の方が多いかもしれません。そのため、式の計算から解説を始めましょう。
 
-	(in ExampleApp1.java)
+以下は、ユーザーが入力した式の値を計算するサンプルコードです：
+
+	(in ExampleApp2.java)
 
 	import org.vcssl.nano.VnanoEngine;
 	import org.vcssl.nano.VnanoException;
@@ -30,7 +33,7 @@
 	import java.util.HashMap;
 	import java.util.Scanner;
 
-	public class ExampleApp1 {
+	public class ExampleApp2 {
 		public static void main(String[] args) throws VnanoException {
 
 			// Vnano Engine のインスタンスを生成
@@ -58,17 +61,19 @@
 		}
 	}
 
-上記のコードは、以下のようにコンパイルできます：
+ここで注意が必要なのは、Vnano Engine では、式でもスクリプトでも、行の最後に「 ; 」が必要な事です。そのため、上では自動的に付けるようにしています。
 
-	javac -cp .;Vnano.jar ExampleApp1.java        (For Windows)
-	javac -cp .:Vnano.jar ExampleApp1.java        (For Linux)
+さて、上記のコードは、以下のようにコンパイルできます：
+
+	javac -cp .;Vnano.jar ExampleApp2.java        (For Windows)
+	javac -cp .:Vnano.jar ExampleApp2.java        (For Linux)
 
 そして以下のように実行します：
 
-	java -cp .;Vnano.jar ExampleApp1        (For Windows)
-	java -cp .:Vnano.jar ExampleApp1        (For Linux)
+	java -cp .;Vnano.jar ExampleApp2        (For Windows)
+	java -cp .:Vnano.jar ExampleApp2        (For Linux)
 
-ここで上記の「 ExampleApp1 」は、ユーザーに式を入力するようリクエストしてきます。
+ここで上記の「 ExampleApp2 」は、ユーザーに式を入力するようリクエストしてきます。
 従って以下のように式を入力し、エンターキーを押します：
 
 	1.2 + 3.4 * 5.6
@@ -107,7 +112,7 @@ Javaで実装した任意のクラスのフィールド/メソッドを Vnano En
 
 以下はその例です：
 
-	(in ExampleApp2.java)
+	(in ExampleApp3.java)
 
 	...
 	public static class AnyClass {
@@ -140,25 +145,25 @@ Javaで実装した任意のクラスのフィールド/メソッドを Vnano En
 		// engine.connectPlugin("f", method);
 
 		...
-		(後は ExampleApp1.java と同じです)
+		(後は ExampleApp2.java と同じです)
 	}
 
 
 コンパイルして実行してみましょう:
 
 	(For Windows)
-	javac -cp .;Vnano.jar ExampleApp2.java
-	java -cp .;Vnano.jar ExampleApp2
+	javac -cp .;Vnano.jar ExampleApp3.java
+	java -cp .;Vnano.jar ExampleApp3
 
 	(For Linux)
-	javac -cp .:Vnano.jar ExampleApp2.java
-	java -cp .:Vnano.jar ExampleApp2
+	javac -cp .:Vnano.jar ExampleApp3.java
+	java -cp .:Vnano.jar ExampleApp3
 
 実行すると式の入力を求められるので、下記の通りに入力します:
 
 	1.2 + f(x)
 
-今の ExampleApp2 内の AnyClass クラスの実装では、x は 3.4 で、f(x) は x * 5.6 を返すため、期待される結果は 1.2 + (3.4 * 5.6) = 20.24 です。実際に表示される結果も：
+今の ExampleApp3 内の AnyClass クラスの実装では、x は 3.4 で、f(x) は x * 5.6 を返すため、期待される結果は 1.2 + (3.4 * 5.6) = 20.24 です。実際に表示される結果も：
 
 	20.24
 
@@ -210,7 +215,7 @@ Javaで実装した任意のクラスのフィールド/メソッドを Vnano En
 
 さて、下準備は以上です。Vnano Engine から読み込んで使っていましょう：
 
-	(in ExampleApp3.java)
+	(in ExampleApp4.java)
 	
 	import org.vcssl.nano.interconnect.PluginLoader;
 
@@ -229,18 +234,18 @@ Javaで実装した任意のクラスのフィールド/メソッドを Vnano En
 		}
 
 		...
-		(後は ExampleApp1.java と同じです)
+		(後は ExampleApp2.java と同じです)
 	}
 
 コンパイルして実行するには：
 
 	(For Windows)
-	javac -cp .;Vnano.jar ExampleApp3.java
-	java -cp .;Vnano.jar ExampleApp3
+	javac -cp .;Vnano.jar ExampleApp4.java
+	java -cp .;Vnano.jar ExampleApp4
 
 	(For Linux)
-	javac -cp .:Vnano.jar ExampleApp3.java
-	java -cp .:Vnano.jar ExampleApp3
+	javac -cp .:Vnano.jar ExampleApp4.java
+	java -cp .:Vnano.jar ExampleApp4
 
 式の入力をリクエストされるので、以下のように入力します：
 
@@ -282,7 +287,7 @@ Javaで実装した任意のクラスのフィールド/メソッドを Vnano En
 
 実際に Vnano で記述したスクリプトを実行してみましょう：
 
-	(in ExampleApp4.java)
+	(in ExampleApp5.java)
 
 	...
 	public static void main(String[] args) throws VnanoException {
@@ -306,17 +311,17 @@ Javaで実装した任意のクラスのフィールド/メソッドを Vnano En
 
 上のように、Vnano Engine の「 executeScript(script) 」メソッドにスクリプトを渡して実行すると、
 その戻り値として、「 最終行に書かれた式文（あれば）の値 」が返されます。
-従って上の ExampleApp4 の場合は、変数「 sum 」の値が返されるはずです。
+従って上の ExampleApp5 の場合は、変数「 sum 」の値が返されるはずです。
 
 実際にコンパイルして実行してみましょう：
 
 	(For Windows)
-	javac -cp .;Vnano.jar ExampleApp4.java
-	java -cp .;Vnano.jar ExampleApp4
+	javac -cp .;Vnano.jar ExampleApp5.java
+	java -cp .;Vnano.jar ExampleApp5
 
 	(For Linux)
-	javac -cp .:Vnano.jar ExampleApp4.java
-	java -cp .:Vnano.jar ExampleApp4
+	javac -cp .:Vnano.jar ExampleApp5.java
+	java -cp .:Vnano.jar ExampleApp5
 
 実行結果は：
 
@@ -354,7 +359,7 @@ Vnano は、言語機能として変数や関数の宣言をサポートして�
 後述する [コマンドラインモード](#command-line-mode) では、この VnanoLibraryList.txt はデフォルトで読み込まれます。
 一方、Vnano Engine をアプリ内に組み込んで使用する際は、以下のように明示的に指定して読み込む必要があります：
 
-	(in ExampleApp5.java)
+	(in ExampleApp6.java)
 	
 	import org.vcssl.nano.interconnect.ScriptLoader;
 
@@ -391,12 +396,12 @@ Vnano は、言語機能として変数や関数の宣言をサポートして�
 実際にコンパイルして実行してみましょう：
 
 	(For Windows)
-	javac -cp .;Vnano.jar ExampleApp5.java
-	java -cp .;Vnano.jar ExampleApp5
+	javac -cp .;Vnano.jar ExampleApp6.java
+	java -cp .;Vnano.jar ExampleApp6
 
 	(For Linux)
-	javac -cp .:Vnano.jar ExampleApp5.java
-	java -cp .:Vnano.jar ExampleApp5
+	javac -cp .:Vnano.jar ExampleApp6.java
+	java -cp .:Vnano.jar ExampleApp6
 
 結果は：
 

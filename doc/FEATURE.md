@@ -19,9 +19,11 @@
 <a id="calculate-expression"></a>
 ## Calculate Expressions
 
-As shown in [README](../README.md), you can calculate the value of an expression:
+Vnano Engine is an interpreter for processing scripts, but it is also available for calculating expressions. Probably there are many times you want to calculate expressions than scripts, so Let's start this guide from: how to calculate expressions.
 
-	(in ExampleApp1.java)
+The following is an example application, calculating an expression inputted by the user:
+
+	(in ExampleApp2.java)
 
 	import org.vcssl.nano.VnanoEngine;
 	import org.vcssl.nano.VnanoException;
@@ -29,7 +31,7 @@ As shown in [README](../README.md), you can calculate the value of an expression
 	import java.util.HashMap;
 	import java.util.Scanner;
 
-	public class ExampleApp1 {
+	public class ExampleApp2 {
 		public static void main(String[] args) throws VnanoException {
 
 			// Create a scripting engine of Vnano (= Vnano Engine).
@@ -60,14 +62,14 @@ As shown in [README](../README.md), you can calculate the value of an expression
 How to compile and run is:
 
 	(For Windows)
-	javac -cp .;Vnano.jar ExampleApp1.java
-	java -cp .;Vnano.jar ExampleApp1
+	javac -cp .;Vnano.jar ExampleApp2.java
+	java -cp .;Vnano.jar ExampleApp2
 
 	(For Linux)
-	javac -cp .:Vnano.jar ExampleApp1.java
-	java -cp .:Vnano.jar ExampleApp1
+	javac -cp .:Vnano.jar ExampleApp2.java
+	java -cp .:Vnano.jar ExampleApp2
 
-The above example app requests you to input the expression to be calculated.
+When you have executed the above "ExampleApp2", it requests you to input the expression to be calculated.
 So input as follows:
 
 	1.2 + 3.4 * 5.6
@@ -102,7 +104,7 @@ You can connect fields and methods of any class to Vnano Engine, and can access 
 
 For example:
 
-	(in ExampleApp2.java)
+	(in ExampleApp3.java)
 
 	...
 	public static class AnyClass {
@@ -135,19 +137,19 @@ For example:
 		// engine.connectPlugin("f", method);
 
 		...
-		(same as ExampleApp1.java)
+		(same as ExampleApp2.java)
 	}
 
 
 Let's compile and run:
 
 	(For Windows)
-	javac -cp .;Vnano.jar ExampleApp2.java
-	java -cp .;Vnano.jar ExampleApp2
+	javac -cp .;Vnano.jar ExampleApp3.java
+	java -cp .;Vnano.jar ExampleApp3
 
 	(For Linux)
-	javac -cp .:Vnano.jar ExampleApp2.java
-	java -cp .:Vnano.jar ExampleApp2
+	javac -cp .:Vnano.jar ExampleApp3.java
+	java -cp .:Vnano.jar ExampleApp3
 
 Then input the following expression:
 
@@ -205,7 +207,7 @@ On the [command-line mode](#command-line-mode), the above list file will be refe
 
 Now you are all set. Let's load plug-ins dynamically and connect them to Vnano Engine:
 
-	(in ExampleApp3.java)
+	(in ExampleApp4.java)
 	
 	import org.vcssl.nano.interconnect.PluginLoader;
 
@@ -224,18 +226,18 @@ Now you are all set. Let's load plug-ins dynamically and connect them to Vnano E
 		}
 
 		...
-		(same as ExampleApp1.java)
+		(same as ExampleApp2.java)
 	}
 
 Let's compile and run:
 
 	(For Windows)
-	javac -cp .;Vnano.jar ExampleApp3.java
-	java -cp .;Vnano.jar ExampleApp3
+	javac -cp .;Vnano.jar ExampleApp4.java
+	java -cp .;Vnano.jar ExampleApp4
 
 	(For Linux)
-	javac -cp .:Vnano.jar ExampleApp3.java
-	java -cp .:Vnano.jar ExampleApp3
+	javac -cp .:Vnano.jar ExampleApp4.java
+	java -cp .:Vnano.jar ExampleApp4
 
 Input the expression:
 
@@ -275,7 +277,7 @@ For details of syntax and language features of Vnano, see the following document
 
 Let's execute a Vnano script:
 
-	(in ExampleApp4.java)
+	(in ExampleApp5.java)
 
 	...
 	public static void main(String[] args) throws VnanoException {
@@ -303,12 +305,12 @@ So we will get the value of the variable "sum", when we run the above Example4.
 Compile the above example and run:
 
 	(For Windows)
-	javac -cp .;Vnano.jar ExampleApp4.java
-	java -cp .;Vnano.jar ExampleApp4
+	javac -cp .;Vnano.jar ExampleApp5.java
+	java -cp .;Vnano.jar ExampleApp5
 
 	(For Linux)
-	javac -cp .:Vnano.jar ExampleApp4.java
-	java -cp .:Vnano.jar ExampleApp4
+	javac -cp .:Vnano.jar ExampleApp5.java
+	java -cp .:Vnano.jar ExampleApp5
 
 And you can get the result:
 
@@ -346,7 +348,7 @@ where lines starts with "#" will be ignored.
 
 On the [command-line mode](#command-line-mode), the above list file will be referred by default. On the other hand, when you use Vnano Engine on you applications, it is necessary to specify the list file explicitly as:
 
-	(in ExampleApp5.java)
+	(in ExampleApp6.java)
 	
 	import org.vcssl.nano.interconnect.ScriptLoader;
 
@@ -382,8 +384,8 @@ On the [command-line mode](#command-line-mode), the above list file will be refe
 
 How to compile and run is:
 
-	javac -cp .;Vnano.jar ExampleApp5.java
-	java -cp .;Vnano.jar ExampleApp5
+	javac -cp .;Vnano.jar ExampleApp6.java
+	java -cp .;Vnano.jar ExampleApp6
 
 The result is:
 
