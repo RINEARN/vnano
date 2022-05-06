@@ -10,8 +10,7 @@ Its interpreter, Vnano Engine, is designed to be embedded in Java&reg; applicati
 By using Vnano, you can execute scripts on you apps, so it enable you to develop highly customizable features.
 
 * [Vnano Website](https://www.vcssl.org/en-us/vnano/)
-
-See also: An example app using Vnano: [RINPn](https://github.com/RINEARN/rinpn).
+* [List of Documents](doc/README.md)
 
 
 ## English README Index
@@ -21,13 +20,13 @@ See also: An example app using Vnano: [RINPn](https://github.com/RINEARN/rinpn).
 - [License](#license)
 - [Requirements](#requirements)
 - [How to Build](#build)
-	- [For Microsoft&reg; Windows&reg;](#build-win)
-	- [For Linux, etc.](#build-lin)
-	- [For Apache Ant](#build-ant)
+    - [For Microsoft&reg; Windows&reg;](#build-win)
+    - [For Linux, etc.](#build-lin)
+    - [For Apache Ant](#build-ant)
 - [How to Use in Your Apps](#use)
-	- [How to Compile and Run an Application](#use-compile-and-run)
-	- [How to Create a JAR file of an Application](#use-create-jar)
-- [Main Features](#features)
+    - [How to Compile and Run an Application](#use-compile-and-run)
+    - [How to Create a JAR file of an Application](#use-create-jar)
+- [Main Features and Specifications](#features)
 - [Vnano as a Language](#language)
 - [Performances](#performances)
 - [About Us](#about-us)
@@ -63,9 +62,9 @@ First of all, necessary to build Vnano Engine (interpreter).
 
 Clone this repository, and execute a batch file "build.bat" included in it:
 
-	git clone https://github.com/RINEARN/vnano
-	cd vnano
-	.\build.bat
+    git clone https://github.com/RINEARN/vnano
+    cd vnano
+    .\build.bat
 
 Then the built JAR file "Vnano.jar" will be generated.
 
@@ -74,10 +73,10 @@ Then the built JAR file "Vnano.jar" will be generated.
 
 Clone this repository, and execute a shell script "build.sh" included in it:
 
-	git clone https://github.com/RINEARN/vnano
-	cd vnano
-	sudo chmod +x ./build.sh
-	./build.sh
+    git clone https://github.com/RINEARN/vnano
+    cd vnano
+    sudo chmod +x ./build.sh
+    ./build.sh
 
 Then the built JAR file "Vnano.jar" will be generated.
 
@@ -86,9 +85,9 @@ Then the built JAR file "Vnano.jar" will be generated.
 
 Also, if you are using Ant, you can build Vnano Engine as follows:
 
-	git clone https://github.com/RINEARN/vnano
-	cd vnano
-	and -f build.xml
+    git clone https://github.com/RINEARN/vnano
+    cd vnano
+    and -f build.xml
 
 Then the built JAR file "Vnano.jar" will be generated.
 
@@ -99,78 +98,45 @@ Then the built JAR file "Vnano.jar" will be generated.
 <a id="use-compile-and-run"></a>
 ### How to Compile and Run an Application
 
-Then, Let's use Vnano Engine practically, by making a simple expression-calculator application. The source code of it is included in this repository as "ExampleApp1.java":
+Then, Let's try to use Vnano Engine practically, by making a very simple application. The source code of it is included in this repository as "ExampleApp1.java":
 
-	(in ExampleApp1.java)
+    (in ExampleApp1.java)
 
-	import org.vcssl.nano.VnanoEngine;
-	import org.vcssl.nano.VnanoException;
-	import java.util.Map;
-	import java.util.HashMap;
-	import java.util.Scanner;
+    import org.vcssl.nano.VnanoEngine;
+    import org.vcssl.nano.VnanoException;
 
-	public class ExampleApp1 {
-		public static void main(String[] args) throws VnanoException {
+     public class ExampleApp1 {
+        public static void main(String[] args) throws VnanoException {
 
-			// Create a scripting engine of Vnano (= Vnano Engine).
-			VnanoEngine engine = new VnanoEngine();
+            // Create a scripting engine of Vnano (= Vnano Engine).
+            VnanoEngine engine = new VnanoEngine();
 
-			// Set an option, to handle all numeric literals as "float" (=double) type.
-			// (Useful when calculate expressions, but don't enable when run scripts.)
-			Map<String, Object> optionMap = new HashMap<String, Object>();
-			optionMap.put("EVAL_INT_LITERAL_AS_FLOAT", true);
-			engine.setOptionMap(optionMap);
+            // Execute a script by using Vnano Engine.
+            String script = "double a = 1.2;  double b = 3.4;  double c = a + b;  c;";
+            double result = (Double)engine.executeScript(script);
 
-			// Get an expression from the user.
-			System.out.println("Input an expression, e.g.:  1.2 + 3.4 * 5.6");
-			Scanner scanner = new Scanner(System.in);
-			String expression = scanner.nextLine();
-
-			// Append ";" at the end of the expression, if it does not exist.
-			if (!expression.trim().endsWith(";")) {
-				expression += ";";
-			}
-
-			// Execute the inputted expression by Vnano Engine.
-			double result = (Double)engine.executeScript(expression);
-			System.out.println("result: " + result);
-		}
-	}
+            // Display the result.
+            System.out.println("Result: " + result);
+        }
+    }
 
 You can compile the above code as follows:
 
-	javac -cp .;Vnano.jar ExampleApp1.java        (For Windows)
-	javac -cp .:Vnano.jar ExampleApp1.java        (For Linux)
+    javac -cp .;Vnano.jar ExampleApp1.java        (For Windows)
+    javac -cp .:Vnano.jar ExampleApp1.java        (For Linux)
 
 And run it as:
 
-	java -cp .;Vnano.jar ExampleApp1        (For Windows)
-	java -cp .:Vnano.jar ExampleApp1        (For Linux)
-
-The above "ExampleApp1" application requests you to input the expression to be calculated.
-So input as follows:
-
-	1.2 + 3.4 * 5.6
-
-Then the expression will be calculated by using the Vnano Engine, and the result will be displayed as:
-
-	20.24
-
-Also, you can input script code instead of an expression as:
-
-	float value=0.0; for (int i=0; i<10; i++) { value += 1.2; } value += 123.4; value;
+    java -cp .;Vnano.jar ExampleApp1        (For Windows)
+    java -cp .:Vnano.jar ExampleApp1        (For Linux)
 
 The result is:
 
-	result: 135.4
+    4.6
 
-For more details, see [Execute Scripts](FEATURE.md#scripting).
+The above "ExampleApp1" executes a script by using Vnano Engine, and the script calculates the value of 1.2 + 3.4 = 4.6, so the above result means that we've succeeded to process the script correctly.
 
-Please note that, when you execute scripts, we strongly recommend to remove the line of:
-
-	optionMap.put("EVAL_INT_LITERAL_AS_FLOAT", true);
-
-If the above option is enabled, all numeric literals (including integer literals) are handled as float-type values. It should be a cause of confusion. By the way, above option does not affect to contents of [library scripts](FEATURE.md#libraries).
+For more details to use features of Vnano Engine, see the document: [Main Feature of Vnano Engine](doc/FEATURE.md).
 
 
 <a id="use-create-jar"></a>
@@ -178,24 +144,24 @@ If the above option is enabled, all numeric literals (including integer literals
 
 To create a JAR file of the above "ExampleApp1" application, create a manifest file "manifest.txt" in advance, and in there specify "Vnano.jar" to the Class-Path section as follows:
 
-	Main-Class: ExampleApp1
-	Class-Path: . Vnano.jar
+    Main-Class: ExampleApp1
+    Class-Path: . Vnano.jar
 
-	(!!! Important note: This file should ends with a blank line !!!)
+    (!!! Important note: This file should ends with a blank line !!!)
 
 Note that, if you want to put "Vnano.jar" in the different folder (e.g. in "lib" folder), you are required to modify the "Class-Path" section of the above manifest file accordingly (e.g. "Class-Path: . lib/Vnano.jar").
 
 Then you can creaet a JAR file as:
 
-	jar cvfm ExampleApp1.jar manifest.txt ExampleApp1.class
+    jar cvfm ExampleApp1.jar manifest.txt ExampleApp1.class
 
 And you can run the created JAR file "ExampleApp1.jar" as:
 
-	java -jar ExampleApp1.jar
+    java -jar ExampleApp1.jar
 
 
 <a id="features"></a>
-## Main Features
+## Main Features and Specifications
 
 As shown above, by using Vnano Engine, you can execute expression and scripts on your apps.
 
@@ -209,8 +175,9 @@ By using these features of Vnano Engine, you can develop highly customizable app
 (for example, see [RINPn](https://github.com/RINEARN/rinpn), which is a programmable calculator software).
 
 
-For details of features, see the document: [Main Features of Vnano Engine](FEATURE.md).
+For details of features, see the document: [Main Features of Vnano Engine](doc/FEATURE.md).
 
+Also, for list of methods, options, and so on of Vnano Engine, see the document: [Specifications of Vnano Engine](doc/SPEC.md).
 
 <a id="language"></a>
 ## Vnano as a Language
@@ -219,13 +186,13 @@ The name of the scripting language executable on Vnano Engine is "Vnano".
 
 Vnano having simple C-like syntax. For example:
 
-	int sum = 0;
-	for (int i=1; i<=100; i++) {
-    	sum += i;
-	}
-	output(sum);
+    int sum = 0;
+    for (int i=1; i<=100; i++) {
+        sum += i;
+    }
+    output(sum);
 
-For details of syntax and language feature of Vnano, see the document: [Vnano as a Language](LANGUAGE.md).
+For details of syntax and language feature of Vnano, see the document: [Vnano as a Language](doc/LANGUAGE.md).
 
 <a id="performances"></a>
 ## Performances
@@ -233,30 +200,28 @@ For details of syntax and language feature of Vnano, see the document: [Vnano as
 Our main purpose to develop Vnano Engine is, using it in data-analysis, calculation, and visualization apps. Processing speed is important on such kind of apps, so Vnano Engine can execute scripts at relatively high speed.
 In this repository, benchmarking scripts for measuring processing speed of Vnano Engine are included in "benckmark" folder.
 
-For measuring the performance of scalar (non-array) operations of 64-bit float values:
+For measuring the performance of scalar (non-array) operations of 64-bit floating point (FP64) numbers:
 
-	java -jar Vnano.jar benchmark/ScalarFlops.vnano --accelerator true --optLevel 3
-
-The result is (depends on you environment):
-
-	OPERATING_SPEED = 704.6223224351747 [MFLOPS]
-	REQUIRED_TIME = 14.192 [SEC]
-	TOTAL_OPERATIONS = 10000000000 [xFLOAT64_ADD]
-	OPERATED_VALUE = 1.0E10
-
-The above score had been measured on a mid-range laptop PC.
-
-For measuring the performance of vector (array) operations of 64-bit float values:
-
-	java -jar Vnano.jar benchmark/VectorFlops.vnano --accelerator true --optLevel 3
+    java -jar Vnano.jar benchmark/ScalarFlops.vnano --accelerator true --optLevel 3
 
 The result is (depends on you environment):
 
-	OPERATING_SPEED = 15.400812152203338 [GFLOPS]
-	REQUIRED_TIME = 13.298 [SEC]
-	TOTAL_OPERATIONS = 204800000000 [xFLOAT64_ADD]
-	VECTOR_SIZE = 2048 [x64BIT]
-	OPERATED_VALUES = { 1.0E8, 2.0E8, 3.0E8, ... 2.047E11, 2.048E11 }
+    OPERATING_SPEED = 704.6223224351747 [MFLOPS]
+    ...
+
+where [MFLOPS] is a unit of operating speed of floating point numbers. 1MFLOPS represents the speed that 1 million of operations are performed in 1 second. 
+The above score means that, on Vnano Engine, about 700 millions of FP64 operations have performed in 1 second (measured on a mid-range laptop PC).
+
+For measuring the performance of vector (array) operations of 64-bit floating point (FP64) numbers:
+
+    java -jar Vnano.jar benchmark/VectorFlops.vnano --accelerator true --optLevel 3
+
+The result is (depends on you environment):
+
+    OPERATING_SPEED = 15.400812152203338 [GFLOPS]
+    ...
+
+where [GFLOPS] is also a unit of operating speed of floating point numbers. 1GFLOPS represents the speed that 1 billion of operations are performed in 1 second. Hence the above result means that, on Vnano Engine, about 15 billions of FP64 operations have performed in 1 second.
 
 Note that, performances of vector operations are greatly depend on the size of operand vectors, and cache size of your CPU.
 

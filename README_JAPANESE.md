@@ -10,8 +10,7 @@ Vnano のインタープリタは、特にJava&reg;製のアプリケーショ�
 Vnano を用いる事で、自作アプリ上でスクリプトを実行可能になるため、カスタマイズ性の高いアプリの開発が可能になります。
 
 * [Vnano 公式サイト](https://www.vcssl.org/ja-jp/vnano/)
-
-参考： Vnano を用いたアプリケーションの例: [RINPn](https://github.com/RINEARN/rinpn).
+* [ドキュメントの一覧](doc/README_JAPANESE.md)
 
 
 ## 目次
@@ -21,13 +20,13 @@ Vnano を用いる事で、自作アプリ上でスクリプトを実行可能�
 - [ライセンス](#license)
 - [必要なもの](#requirements)
 - [ビルド方法](#build)
-	- [Microsoft&reg; Windows&reg; での場合](#build-win)
-	- [Linux 等での場合](#build-lin)
-	- [Apache Ant を使用する場合](#build-ant)
+    - [Microsoft&reg; Windows&reg; での場合](#build-win)
+    - [Linux 等での場合](#build-lin)
+    - [Apache Ant を使用する場合](#build-ant)
 - [アプリケーションへの組み込み/使用方法](#use)
-	- [アプリケーションのコンパイル/実行方法](#use-compile-and-run)
-	- [アプリケーションのJARファイルの作成方法](#use-create-jar)
-- [主な機能](#features)
+    - [アプリケーションのコンパイル/実行方法](#use-compile-and-run)
+    - [アプリケーションのJARファイルの作成方法](#use-create-jar)
+- [主な機能と仕様](#features)
 - [言語としての Vnano](#language)
 - [処理速度](#performances)
 - [開発元について](#about-us)
@@ -63,9 +62,9 @@ Vnano Engine はMITライセンスの下でリリースされています。
 
 このリポジトリを clone して、同梱されているバッチファイル「 build.bat 」を実行します:
 
-	git clone https://github.com/RINEARN/vnano
-	cd vnano
-	.\build.bat
+    git clone https://github.com/RINEARN/vnano
+    cd vnano
+    .\build.bat
 
 すると、ビルド結果のJARファイル「 Vnano.jar 」が生成されます。
 
@@ -74,10 +73,10 @@ Vnano Engine はMITライセンスの下でリリースされています。
 
 このリポジトリを clone して、同梱されているシェルスクリプト「 build.sh 」を実行します：
 
-	git clone https://github.com/RINEARN/vnano
-	cd vnano
-	sudo chmod +x ./build.sh
-	./build.sh
+    git clone https://github.com/RINEARN/vnano
+    cd vnano
+    sudo chmod +x ./build.sh
+    ./build.sh
 
 すると、ビルド結果のJARファイル「 Vnano.jar 」が生成されます。
 
@@ -87,9 +86,9 @@ Vnano Engine はMITライセンスの下でリリースされています。
 
 Ant 用のビルドファイルも同梱されています：
 
-	git clone https://github.com/RINEARN/vnano
-	cd vnano
-	ant -f build.xml
+    git clone https://github.com/RINEARN/vnano
+    cd vnano
+    ant -f build.xml
 
 すると、ビルド結果のJARファイル「 Vnano.jar 」が生成されます。
 
@@ -101,82 +100,46 @@ Ant 用のビルドファイルも同梱されています：
 ### アプリケーションのコンパイル/実行方法
 
 続いて、実際にアプリケーションに Vnano Engine を組み込んで使ってみましょう。
-ここでは例として、入力された式を計算する簡単なアプリケーションを作成します。
+ここでは例として、非常に単純な内容のアプリケーションを作成します。
 ソースコードはリポジトリ内に「 ExampleApp1.java 」として同梱されています：
 
-	(in ExampleApp1.java)
+    (in ExampleApp1.java)
 
-	import org.vcssl.nano.VnanoEngine;
-	import org.vcssl.nano.VnanoException;
-	import java.util.Map;
-	import java.util.HashMap;
-	import java.util.Scanner;
+    import org.vcssl.nano.VnanoEngine;
+    import org.vcssl.nano.VnanoException;
 
-	public class ExampleApp1 {
-		public static void main(String[] args) throws VnanoException {
+     public class ExampleApp1 {
+        public static void main(String[] args) throws VnanoException {
 
-			// Vnano Engine のインスタンスを生成
-			VnanoEngine engine = new VnanoEngine();
+            // Vnano のスクリプト実行エンジン（Vnano Engine）のインスタンスを生成
+            VnanoEngine engine = new VnanoEngine();
 
-			// 整数リテラルを float (=double) 型と見なすオプションを有効化
-			// (式の計算用途に便利ですが、スクリプトの実行用途には適しません)
-			Map<String, Object> optionMap = new HashMap<String, Object>();
-			optionMap.put("EVAL_INT_LITERAL_AS_FLOAT", true);
-			engine.setOptionMap(optionMap);
+            // 単純な内容のスクリプトを用意し、Vnano Engine で実行
+            String script = "double a = 1.2;  double b = 3.4;  double c = a + b;  c;";
+            double result = (Double)engine.executeScript(script);
 
-			// ユーザーに式を入力してもらう
-			System.out.println("式を入力してください。例：  1.2 + 3.4 * 5.6");
-			Scanner scanner = new Scanner(System.in);
-			String expression = scanner.nextLine();
-
-			// 入力内容が「 ; 」で終わっていない場合は、末尾に付ける
-			if (!expression.trim().endsWith(";")) {
-				expression += ";";
-			}
-
-			// Vnano Engine で式の値を計算し、結果を表示
-			double result = (Double)engine.executeScript(expression);
-			System.out.println("result: " + result);
-		}
-	}
+            // 結果を表示
+            System.out.println("Result: " + result);
+        }
+    }
 
 上記のコードは、以下のようにコンパイルできます：
 
-	javac -cp .;Vnano.jar ExampleApp1.java        (For Windows)
-	javac -cp .:Vnano.jar ExampleApp1.java        (For Linux)
+    javac -cp .;Vnano.jar ExampleApp1.java        (For Windows)
+    javac -cp .:Vnano.jar ExampleApp1.java        (For Linux)
 
 そして以下のように実行します：
 
-	java -cp .;Vnano.jar ExampleApp1        (For Windows)
-	java -cp .:Vnano.jar ExampleApp1        (For Linux)
+    java -cp .;Vnano.jar ExampleApp1        (For Windows)
+    java -cp .:Vnano.jar ExampleApp1        (For Linux)
 
-ここで上記の「 ExampleApp1 」は、ユーザーに式を入力するようリクエストしてきます。
-従って以下のように式を入力し、エンターキーを押します：
+実行結果は：
 
-	1.2 + 3.4 * 5.6
+    5.6
 
-すると、入力した式が Vnano Engine で計算され、結果が以下のように表示されます：
+上記の ExampleApp1 アプリは、Vnano Engine を用いてスクリプトを処理しますが、そのスクリプトは 1.2 + 3.4 の値（ = 5.6 ）を計算する内容になっています。従って、無事 Vnano Engine を使って、スクリプトを正しく実行できた事がわかります。
 
-	20.24
-
-なお、ここで式の代わりに、以下のようなスクリプトコードを入力しても動きます：
-
-	float value=0.0; for (int i=0; i<10; i++) { value += 1.2; } value += 123.4; value;
-
-結果は:
-
-	result: 135.4
-
-スクリプト実行に関する詳細は [スクリプトの実行](FEATURE_JAPANESE.md#scripting) の項目をご参照ください。
-
-ところで、式ではなくスクリプトを実行する用途においては、以下のオプション指定の行は削除する事をおすすめします：
-
-	optionMap.put("EVAL_INT_LITERAL_AS_FLOAT", true);
-
-既に述べた通り、上記オプションは式内に書かれた整数値（整数リテラル）を float 型の値として扱うもので、
-式の計算には便利です（指定しないと、整数同士の除算結果が整数になって厄介です）。一方で、スクリプトに対して効かせると混乱の元になりかねません。
-
-ただし、上記オプションは executeScript メソッドで直接実行する内容に対してのみ作用し、[ライブラリスクリプト](FEATURE_JAPANESE.md#libraries) に対しては作用しないため、ライブラリの処理内容への影響を心配する必要はありません。
+Vnano Engine の各機能に関する詳細は、[スクリプトの実行](doc/FEATURE_JAPANESE.md#scripting) の項目をご参照ください。
 
 
 <a id="use-create-jar"></a>
@@ -186,24 +149,24 @@ Ant 用のビルドファイルも同梱されています：
 それには、まずマニフェストファイル「 manifest.txt 」を作成して、
 その中で「 Vnano.jar 」にクラスパスを通します:
 
-	Main-Class: ExampleApp1
-	Class-Path: . Vnano.jar
+    Main-Class: ExampleApp1
+    Class-Path: . Vnano.jar
 
-	(!!! 重要: このファイルの内容は空行で終わっている必要があります !!!)
+    (!!! 重要: このファイルの内容は空行で終わっている必要があります !!!)
 
 なお、もし「 Vnano.jar 」をどこか別の場所（例えば lib フォルダ内など）に配置する事を想定している場合は、上記の Class-Path セクションに書くパスも適切に合わせてください（「Class-Path: . lib/Vnano.jar」など）。
 
 以上が済んだら、以下のようにJARファイルを生成します：
 
-	jar cvfm ExampleApp1.jar manifest.txt ExampleApp1.class
+    jar cvfm ExampleApp1.jar manifest.txt ExampleApp1.class
 
 生成したJARファイルは、以下のように実行できます：
 
-	java -jar ExampleApp1.jar
+    java -jar ExampleApp1.jar
 
 
 <a id="features"></a>
-## 主な機能
+## 主な機能と仕様
 
 上でも見てきたように、Vnano Engine を用いると、アプリ上で式やスクリプトを実行する事ができます。
 
@@ -215,7 +178,9 @@ Javaで記述したクラスの代わりに、スクリプトファイルとし�
 （具体例としては、プログラム関数電卓ソフトの「 [RINPn](https://github.com/RINEARN/rinpn) 」をご参照ください）。
 
 
-各機能の詳細については、別途文書「 [Vnano Engine の主な機能](FEATURE_JAPANESE.md) 」をご参照ください。
+各機能の詳細については、別途文書「 [Vnano Engine の主な機能](doc/FEATURE_JAPANESE.md) 」をご参照ください。
+
+また、Vnano Engine の全メソッドの一覧/詳細説明や、オプション類などについては、別途文書「 [Vnano Engine の各種仕様](doc/SPEC_JAPANESE.md) 」をご参照ください。
 
 
 <a id="language"></a>
@@ -224,14 +189,14 @@ Javaで記述したクラスの代わりに、スクリプトファイルとし�
 Vnano Engine 上で実行可能なスクリプト言語の名前は、そのまま「 Vnano 」と言います。
 Vnano は C言語系のシンプルな文法を持つ言語です。例えば：
 
-	int sum = 0;
-	for (int i=1; i<=100; i++) {
-    	sum += i;
-	}
-	output(sum);
+    int sum = 0;
+    for (int i=1; i<=100; i++) {
+        sum += i;
+    }
+    output(sum);
 
 上記コードのような具合です。
-Vnano の構文や言語機能について詳しくは、別途文書「 [言語としての Vnano](LANGUAGE_JAPANESE.md) 」をご参照ください。
+Vnano の構文や言語機能について詳しくは、別途文書「 [言語としての Vnano](doc/LANGUAGE_JAPANESE.md) 」をご参照ください。
 
 
 <a id="performances"></a>
@@ -241,32 +206,33 @@ Vnano は、データ解析ソフトや計算ソフト、および可視化ソ�
 そのため、処理速度は恐らくそれなりに高速な部類に入ります。
 このリポジトリには、実際に処理速度を計測するためのベンチマークスクリプト類も、「 benchmark 」フォルダ内に同梱されています。
 
-例えば、64-bit 浮動小数点数によるスカラ（非配列）演算のベンチマークを実行するには：
+例えば、64-bit 浮動小数点数（FP64）によるスカラ（非配列）演算のベンチマークを実行するには：
 
-	java -jar Vnano.jar benchmark/ScalarFlops.vnano --accelerator true --optLevel 3
+    java -jar Vnano.jar benchmark/ScalarFlops.vnano --accelerator true --optLevel 3
 
 結果は以下の通りです：
 
-	OPERATING_SPEED = 704.6223224351747 [MFLOPS]
-	REQUIRED_TIME = 14.192 [SEC]
-	TOTAL_OPERATIONS = 10000000000 [xFLOAT64_ADD]
-	OPERATED_VALUE = 1.0E10
+    OPERATING_SPEED = 704.6223224351747 [MFLOPS]
+    ...
 
 上記はミドルスペックのノートPCでの実測値です。
+ここで「 MFLOPS 」は浮動小数点数の演算速度の単位で、1MFLOPS = 100万回演算/秒です。
+従って上記の結果は、FP64演算が Vnano Engine 上で約7億回/秒の速度で実行された事を表しています（ミドルスペックのノートPC上での計測値です）。
 
-続いて、64-bit 浮動小数点数によるベクトル（配列）演算のベンチマークを実行するには：
+続いて、64-bit 浮動小数点数（FP64）によるベクトル（配列）演算のベンチマークを実行するには：
 
-	java -jar Vnano.jar benchmark/VectorFlops.vnano --accelerator true --optLevel 3
+    java -jar Vnano.jar benchmark/VectorFlops.vnano --accelerator true --optLevel 3
 
 結果は：
 
-	OPERATING_SPEED = 15.400812152203338 [GFLOPS]
-	REQUIRED_TIME = 13.298 [SEC]
-	TOTAL_OPERATIONS = 204800000000 [xFLOAT64_ADD]
-	VECTOR_SIZE = 2048 [x64BIT]
-	OPERATED_VALUES = { 1.0E8, 2.0E8, 3.0E8, ... 2.047E11, 2.048E11 }
+    OPERATING_SPEED = 15.400812152203338 [GFLOPS]
+    ...
 
-以上の通りです。なお、配列演算の速度は、演算対象の配列サイズ、およびCPUのキャッシュサイズ等に大きく依存する事に留意が必要です。
+以上の通りです。「 GFLOPS 」も浮動小数点数の演算速度の単位で、1GFLOPS = 10億回演算/秒です。
+従って上記の結果は、FP64演算が Vnano Engine 上で約150億回/秒の速度で実行された事を表しています。
+
+なお、配列演算の速度は、演算対象の配列サイズ、およびCPUのキャッシュサイズ等に大きく依存する事に留意が必要です。
+
 
 
 <a id="about-us"></a>
