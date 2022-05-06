@@ -5,7 +5,7 @@
 ( &raquo; [Japanese](SPEC_JAPANESE.md) )
 
 * [Engine Methods](#methods)
-* [Engine Options](#options)
+* [Option Items](#options)
 * [Permission Items](#permissions)
 
 <hr />
@@ -19,14 +19,14 @@ The following is the list of all methods of Vnano Engine (org.vcssl.nano.VnanoEn
 | Signature |Object executeScript(String script) |
 |:---|:---|
 | Description | Executes an expression or script code specified as an argument. |
-| Parameters | script: An expression or script code to be executed. |
+| Parameters | script: An expression or script code to be executed |
 | Return | The evaluated value of the expression, or the last expression statement in script code. If there is no evaluated value, returns null. |
 | Exception | VnanoException will be thrown when any error has detected for the content or the processing of the script. |
 
 
 | Signature | void terminateScript() |
 |:---|:---|
-| Description | <p>Terminates the currently running script as soon as possible.</p> <p>To be precise, the VirtualMachine (which is processing instructions compiled from the script) in the engine will be terminated after when the processing of a currently executed instruction has been completed, without processing remained instructions.</p> <p>Also, if you used this method, call "resetTerminator()" method before the next execution of a new script, otherwise the next execution will end immediately without processing any instructions (By this behavior, even when a termination-request and an execution-request from another thread are conflict, the execution will be terminated certainly).</p> |
+| Description | <p>Terminates the currently running script as soon as possible.</p> <p>To be precise, the VirtualMachine (which is processing instructions compiled from the script) in the engine will be terminated after when the processing of a currently executed instruction has been completed, without processing remained instructions. Usually it ends in a moment, but sometimes it takes time. For example, it can't end while external function provided by a plug-in is being executed.</p> <p>Also, if you used this method, call "resetTerminator()" method before the next execution of a new script, otherwise the next execution will end immediately without processing any instructions (By this behavior, even when a termination-request and an execution-request from another thread are conflict, the execution will be terminated certainly).</p> |
 | Parameters | None |
 | Return | None |
 | Exception | VnanoException will be thrown when it faild to terminate. |
@@ -66,7 +66,7 @@ The following is the list of all methods of Vnano Engine (org.vcssl.nano.VnanoEn
 
 | Signature | void setOptionMap(Map&lt;String,Object&gt; optionMap) |
 |:---|:---|
-| Description | <p>Sets options, by a Map (option map) storing names and values of options you want to set.</p> <p>Type of the option map is Map&lt;String,Object&gt;, and its keys represents option names. For details, see [Engine Options](#options) section.<p> |
+| Description | <p>Sets options, by a Map (option map) storing names and values of options you want to set.</p> <p>Type of the option map is Map&lt;String,Object&gt;, and its keys represents option names. For details, see [Option Items](#options) section.<p> |
 | Parameters | optionMap: A Map (option map) storing names and values of options |
 | Return | None |
 | Exception | VnanoException will be thrown if invalid option settings is detected. |
@@ -117,16 +117,16 @@ The following is the list of all available options of Vnano Engine. The type of 
 |:--|:--|:--|
 | LOCALE | java.util.Locale | The locale to switch the language of error messages. |
 | MAIN_SCRIPT_NAME  | String | The name of the execution target script. |
-| MAIN_SCRIPT_DIRECTORY  | String | The path of the directory in which the execution target script is locating. |
+| MAIN_SCRIPT_DIRECTORY  | String | The path of the directory (folder) in which the execution target script is locating. |
 | EVAL_INT_LITERAL_AS_FLOAT  | Boolean | An option to regard integer literals as float type in the execution/evaluation target expressions and scripts (excepting library scripts). |
 | EVAL_ONLY_EXPRESSION  | Boolean | An option to restrict types of available statements in the execution target scripts (excepting library scripts) to only "expression". |
 | EVAL_ONLY_FLOAT  | Boolean | An option to restrict available data types of operators/operands in the execution target scripts (excepting library scripts) to only "float". |
-| ACCELERATOR_ENABLED | Boolean | An option to enable/disable the Accelerator, which is the high-speed virtual processor implementation in the VM. |
-| ACCELERATOR_OPTIMIZATION_LEVEL | Integer | An option to control the optimization level of processing in the Accelerator. Specify the number from 0 (don't optimize) to 3 (optimize as possible as). |
-| TERMINATOR_ENABLED | Boolean | <p>An option to enable/disable the feature for terminating a running script</p> <p>If you enable this option, you become to able to terminate a running script BY OPERATION OF THE SCRIPT ENGINE, but the maximum numerical operating speed (and so on) may decreases slightly. Probably, for most cases, users hardly can recognize the decreasing of the operating speed caused by this option. However, for highly optimized numerical computation scripts, the operating speed may decrease about 10% or more. Note that, the script will be terminated when all procedures in the script completed, or when any errors occurred in the script, or when exit() function is called in the script, regardless whether this option is enabled or disabled.</p> |
+| ACCELERATOR_ENABLED | Boolean | An option to enable/disable the Accelerator (org.vcssl.nano.vm.accelerator.Accelerator), which is the high-speed virtual processor implementation in the VM. |
+| ACCELERATOR_OPTIMIZATION_LEVEL | Integer | <p>An option to control the optimization level of processing in the Accelerator. The value is:</p> <p>0: Dont't optimize.</p> <p>1: Optimize data accesses for reducing overhead costs (e.g.: caching operand/operated values).</p> <p>2: In addition to the above, optimize instructions with keeping code structures (e.g.: join multiple instructions by reordering them).</p> <p>3: In addition to the above, optimize with modifying code structures (e.g.: inline expansion).</p> |
+| TERMINATOR_ENABLED | Boolean | <p>An option to enable/disable the feature for terminating a running script.</p> <p>If you enable this option, you become to able to terminate a running script BY OPERATION OF THE SCRIPT ENGINE, but the maximum numerical operating speed (and so on) may decreases slightly. Probably, for most cases, users hardly can recognize the decreasing of the operating speed caused by this option. However, for highly optimized numerical computation scripts, the operating speed may decrease about 10% or more. Note that, the script will be terminated when all procedures in the script completed, or when any errors occurred in the script, or when exit() function is called in the script, regardless whether this option is enabled or disabled.</p> |
 | PERFORMANCE_MONITOR_ENABLED | Boolean | <p>An option to enable/disable the performance monitor.</p> <p>If you enable this option, you become to get performance monitoring values of the engine, but the maximum numerical operating speed (and so on) may decreases to some extent. Probably, for most cases, decreasing of the operating speed caused by this option is not so heavy. However, for highly optimized numerical computation scripts, the operating speed may decrease about 25% or more.</p> |
 | DUMPER_ENABLED | Boolean | An option to dump states and intermediate representations in the compiler, VM, etc. |
-| DUMPER_TARGET | String | <p>Specify the target of to dump. Values are the followings:</p> <p>"ALL": Dump all contents.</p> <p>"INPUTTED_CODE": Dump the inutted script code.</p> <p>"PREPROCESSED_CODE": Dump pre-processed script code.</p> <p>"TOKEN": Dump tokens, which are output of the LexicalAnalyzer.</p> <p>"PARSED_AST": Dump the Abstract Syntax Tree (AST), which is the output of the Parser.</p> <p>"ANALYZED_AST": Dump the semantic-analyzed AST, which is the output of the SemanticAnalyzer.</p> <p>"ASSEMBLY_CODE": Dump the VRIL code, which is the compilation result, output of the CodeGenerator.</p> <p>"OBJECT_CODE": Dump the VM object code, output of the Assembler.</p> <p>"ACCELERATOR_CODE": Dump instructions of the Accelerator, which are output of the AcceleratorSchedulingUnit.</p> <p>"ACCELERATOR_STATE": Dump the internal state (dispatchments of execution units, and so on) of the Accelerator.</p> |
+| DUMPER_TARGET | String | <p>Specify the target of to dump. Values are the followings:</p> <p>"ALL": Dump all contents.</p> <p>"INPUTTED_CODE": Dump the inutted script code.</p> <p>"PREPROCESSED_CODE": Dump pre-processed script code, from which comments are removed.</p> <p>"TOKEN": Dump tokens, which are output of the LexicalAnalyzer.</p> <p>"PARSED_AST": Dump the Abstract Syntax Tree (AST), which is the output of the Parser.</p> <p>"ANALYZED_AST": Dump the semantic-analyzed AST, which is the output of the SemanticAnalyzer.</p> <p>"ASSEMBLY_CODE": Dump the VRIL code, which is the compilation result, output of the CodeGenerator.</p> <p>"OBJECT_CODE": Dump the VM object code (unoptimized), which is output of the Assembler.</p> <p>"ACCELERATOR_CODE": Dump optimized instructions for the Accelerator, which are output of the AcceleratorOptimizationUnit.</p> <p>"ACCELERATOR_STATE": Dump the internal state (dispatchments of execution units, and so on) of the Accelerator.</p> |
 | DUMPER_STREAM | java.io.PrintStream | Specify the stream to output dumped contents. |
 | RUNNING_ENABLED  | Boolean | <p>An option to switch whether execute script or don't.</p> <p>This option might be useful when you want to dump the compiled result for debugging but don't want to run it.</p> |
 | UI_MODE | String | <p>Specify the mode of UI for inputting/outputting values and so on.</p> <p>As the value, specify "GUI" or "CUI". The default value is "GUI", but it will be set to "CUI" automatically when you execute the Vnano engine in the command-line mode.</p> <p>This option is referred by I/O plug-ins if they are connected.</p> |
@@ -136,7 +136,7 @@ The following is the list of all available options of Vnano Engine. The type of 
 | FILE_IO_ENCODING | String | <p>Specify the name of the default encoding for writing to / reading files in scripts.</p> <p>This option is referred by I/O plug-ins if they are connected.</p> |
 | STDIN_STREAM | Java.io.InputStream | <p>Specify the stream for standard input used when the option TERMINAL_IO_UI is set to "CUI".</p> <p>This option is referred by I/O plug-ins if they are connected.</p> |
 | STDOUT_STREAM | Java.io.PrintStream | <p>Specify the stream for standard output used when the option TERMINAL_IO_UI is set to "CUI".</p> <p>This option is referred by I/O plug-ins if they are connected.</p> |
-| STDERR_STREAM | Java.io.PrintStream | Specify the stream for standard error output when the option TERMINAL_IO_UI is set to "CUI".</p> <p>This option is referred by I/O plug-ins if they are connected.</p>
+| STDERR_STREAM | Java.io.PrintStream | <p>Specify the stream for standard error output when the option TERMINAL_IO_UI is set to "CUI".</p> <p>This option is referred by I/O plug-ins if they are connected.</p>
 
 <a id="permissions"></a>
 ## Permission Items

@@ -27,7 +27,7 @@ Vnano を用いる事で、自作アプリ上でスクリプトを実行可能�
 - [アプリケーションへの組み込み/使用方法](#use)
 	- [アプリケーションのコンパイル/実行方法](#use-compile-and-run)
 	- [アプリケーションのJARファイルの作成方法](#use-create-jar)
-- [主な機能](#features)
+- [主な機能と仕様](#features)
 - [言語としての Vnano](#language)
 - [処理速度](#performances)
 - [開発元について](#about-us)
@@ -203,7 +203,7 @@ Ant 用のビルドファイルも同梱されています：
 
 
 <a id="features"></a>
-## 主な機能
+## 主な機能と仕様
 
 上でも見てきたように、Vnano Engine を用いると、アプリ上で式やスクリプトを実行する事ができます。
 
@@ -216,6 +216,8 @@ Javaで記述したクラスの代わりに、スクリプトファイルとし�
 
 
 各機能の詳細については、別途文書「 [Vnano Engine の主な機能](FEATURE_JAPANESE.md) 」をご参照ください。
+
+また、Vnano Engine の全メソッドの一覧/詳細説明や、オプション類などについては、別途文書「 [Vnano Engine の各種仕様](SPEC_JAPANESE.md) 」をご参照ください。
 
 
 <a id="language"></a>

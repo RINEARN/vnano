@@ -92,6 +92,8 @@ Please note that, when you execute scripts, we strongly recommend to remove the 
 
 If the above option is enabled, all numeric literals (including integer literals) are handled as float-type values. It should be a cause of confusion. By the way, above option does not affect to contents of [library scripts](#libraries).
 
+Also, for the list and details of available option items, see the document: [Specifications of Vnano Engine](SPEC.md).
+
 
 <a id="fields-and-methods"></a>
 ## Access to Fields/Methods of a Java Class (Plug-in)
