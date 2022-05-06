@@ -1,5 +1,5 @@
 
-# Main Features of Vnano Engine
+# Main Features of Vnano Engine, and Examples
 
 ## Index
 
@@ -76,7 +76,7 @@ So input as follows:
 
 Then the expression will be calculated by using the Vnano Engine, and the result will be displayed as:
 
-    20.24
+    result: 20.24
 
 Also, you can input script code instead of an expression as:
 
@@ -158,7 +158,7 @@ Then input the following expression:
 Now the value of x is 3.4 and f(x) = x * 5.6, so we should get the result of 1.2 + (3.4 * 5.6) = 20.24.
 The actual result is:
 
-    20.24
+    result: 20.24
 
 Like as "AnyClass" in Example2, we call a class providing fields/methods to Vnano Engine as a "plug-in".
 
@@ -245,7 +245,7 @@ Input the expression:
 
 And you can get the result:
 
-    20.24
+    result: 20.24
 
 
 
@@ -314,7 +314,7 @@ Compile the above example and run:
 
 And you can get the result:
 
-    5050
+    result: 5050
 
 This value equals to the summation from 1 to 100 ( = 100 * 101 / 2 ), so we have gotten the correct result.
 

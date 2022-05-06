@@ -56,7 +56,7 @@ The following is the list of all methods of Vnano Engine (org.vcssl.nano.VnanoEn
 | Exception | VnanoException will be thrown when incorrect something is detected for specified scripts. |
 
 
-| Signature | unincludeAllLibraryScripts() |
+| Signature | void unincludeAllLibraryScripts() |
 |:---|:---|
 | Description | Uninclude all library scripts. |
 | Parameters | None |
