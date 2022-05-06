@@ -98,42 +98,26 @@ Then the built JAR file "Vnano.jar" will be generated.
 <a id="use-compile-and-run"></a>
 ### How to Compile and Run an Application
 
-Then, Let's use Vnano Engine practically, by making a simple expression-calculator application. The source code of it is included in this repository as "ExampleApp1.java":
+Then, Let's try to use Vnano Engine practically, by making a very simple application. The source code of it is included in this repository as "ExampleApp1.java":
 
 	(in ExampleApp1.java)
 
 	import org.vcssl.nano.VnanoEngine;
 	import org.vcssl.nano.VnanoException;
-	import java.util.Map;
-	import java.util.HashMap;
-	import java.util.Scanner;
 
-	public class ExampleApp1 {
-		public static void main(String[] args) throws VnanoException {
+	 public class ExampleApp1 {
+    	public static void main(String[] args) throws VnanoException {
 
-			// Create a scripting engine of Vnano (= Vnano Engine).
-			VnanoEngine engine = new VnanoEngine();
+	        // Create a scripting engine of Vnano (= Vnano Engine).
+    	    VnanoEngine engine = new VnanoEngine();
 
-			// Set an option, to handle all numeric literals as "float" (=double) type.
-			// (Useful when calculate expressions, but don't enable when run scripts.)
-			Map<String, Object> optionMap = new HashMap<String, Object>();
-			optionMap.put("EVAL_INT_LITERAL_AS_FLOAT", true);
-			engine.setOptionMap(optionMap);
+	        // Execute a script by using Vnano Engine.
+    	    String script = "double a = 1.2;  double b = 3.4;  double c = a + b;  c;";
+        	double result = (Double)engine.executeScript(script);
 
-			// Get an expression from the user.
-			System.out.println("Input an expression, e.g.:  1.2 + 3.4 * 5.6");
-			Scanner scanner = new Scanner(System.in);
-			String expression = scanner.nextLine();
-
-			// Append ";" at the end of the expression, if it does not exist.
-			if (!expression.trim().endsWith(";")) {
-				expression += ";";
-			}
-
-			// Execute the inputted expression by Vnano Engine.
-			double result = (Double)engine.executeScript(expression);
-			System.out.println("result: " + result);
-		}
+	        // Display the result.
+    	    System.out.println("Result: " + result);
+    	}
 	}
 
 You can compile the above code as follows:
@@ -146,30 +130,13 @@ And run it as:
 	java -cp .;Vnano.jar ExampleApp1        (For Windows)
 	java -cp .:Vnano.jar ExampleApp1        (For Linux)
 
-The above "ExampleApp1" application requests you to input the expression to be calculated.
-So input as follows:
-
-	1.2 + 3.4 * 5.6
-
-Then the expression will be calculated by using the Vnano Engine, and the result will be displayed as:
-
-	20.24
-
-Also, you can input script code instead of an expression as:
-
-	float value=0.0; for (int i=0; i<10; i++) { value += 1.2; } value += 123.4; value;
-
 The result is:
 
-	result: 135.4
+	4.6
 
-For more details, see [Execute Scripts](doc/FEATURE.md#scripting).
+The above "ExampleApp1" executes a script by using Vnano Engine, and the script calculates the value of 1.2 + 3.4 = 4.6, so the above result means that we've succeeded to process the script correctly.
 
-Please note that, when you execute scripts, we strongly recommend to remove the line of:
-
-	optionMap.put("EVAL_INT_LITERAL_AS_FLOAT", true);
-
-If the above option is enabled, all numeric literals (including integer literals) are handled as float-type values. It should be a cause of confusion. By the way, above option does not affect to contents of [library scripts](doc/FEATURE.md#libraries).
+For more details to use features of Vnano Engine, see the document: [Main Feature of Vnano Engine](doc/FEATURE.md).
 
 
 <a id="use-create-jar"></a>

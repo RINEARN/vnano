@@ -100,43 +100,27 @@ Ant 用のビルドファイルも同梱されています：
 ### アプリケーションのコンパイル/実行方法
 
 続いて、実際にアプリケーションに Vnano Engine を組み込んで使ってみましょう。
-ここでは例として、入力された式を計算する簡単なアプリケーションを作成します。
+ここでは例として、非常に単純な内容のアプリケーションを作成します。
 ソースコードはリポジトリ内に「 ExampleApp1.java 」として同梱されています：
 
 	(in ExampleApp1.java)
 
 	import org.vcssl.nano.VnanoEngine;
 	import org.vcssl.nano.VnanoException;
-	import java.util.Map;
-	import java.util.HashMap;
-	import java.util.Scanner;
 
-	public class ExampleApp1 {
-		public static void main(String[] args) throws VnanoException {
+	 public class ExampleApp1 {
+    	public static void main(String[] args) throws VnanoException {
 
-			// Vnano Engine のインスタンスを生成
-			VnanoEngine engine = new VnanoEngine();
+	        // Vnano のスクリプト実行エンジン（Vnano Engine）のインスタンスを生成
+    	    VnanoEngine engine = new VnanoEngine();
 
-			// 整数リテラルを float (=double) 型と見なすオプションを有効化
-			// (式の計算用途に便利ですが、スクリプトの実行用途には適しません)
-			Map<String, Object> optionMap = new HashMap<String, Object>();
-			optionMap.put("EVAL_INT_LITERAL_AS_FLOAT", true);
-			engine.setOptionMap(optionMap);
+	        // 単純な内容のスクリプトを用意し、Vnano Engine で実行
+    	    String script = "double a = 1.2;  double b = 3.4;  double c = a + b;  c;";
+        	double result = (Double)engine.executeScript(script);
 
-			// ユーザーに式を入力してもらう
-			System.out.println("式を入力してください。例：  1.2 + 3.4 * 5.6");
-			Scanner scanner = new Scanner(System.in);
-			String expression = scanner.nextLine();
-
-			// 入力内容が「 ; 」で終わっていない場合は、末尾に付ける
-			if (!expression.trim().endsWith(";")) {
-				expression += ";";
-			}
-
-			// Vnano Engine で式の値を計算し、結果を表示
-			double result = (Double)engine.executeScript(expression);
-			System.out.println("result: " + result);
-		}
+	        // 結果を表示
+    	    System.out.println("Result: " + result);
+    	}
 	}
 
 上記のコードは、以下のようにコンパイルできます：
@@ -149,33 +133,13 @@ Ant 用のビルドファイルも同梱されています：
 	java -cp .;Vnano.jar ExampleApp1        (For Windows)
 	java -cp .:Vnano.jar ExampleApp1        (For Linux)
 
-ここで上記の「 ExampleApp1 」は、ユーザーに式を入力するようリクエストしてきます。
-従って以下のように式を入力し、エンターキーを押します：
+実行結果は：
 
-	1.2 + 3.4 * 5.6
+	5.6
 
-すると、入力した式が Vnano Engine で計算され、結果が以下のように表示されます：
+上記の ExampleApp1 アプリは、Vnano Engine を用いてスクリプトを処理しますが、そのスクリプトは 1.2 + 3.4 の値（ = 5.6 ）を計算する内容になっています。従って、無事 Vnano Engine を使って、スクリプトを正しく実行できた事がわかります。
 
-	20.24
-
-なお、ここで式の代わりに、以下のようなスクリプトコードを入力しても動きます：
-
-	float value=0.0; for (int i=0; i<10; i++) { value += 1.2; } value += 123.4; value;
-
-結果は:
-
-	result: 135.4
-
-スクリプト実行に関する詳細は [スクリプトの実行](doc/FEATURE_JAPANESE.md#scripting) の項目をご参照ください。
-
-ところで、式ではなくスクリプトを実行する用途においては、以下のオプション指定の行は削除する事をおすすめします：
-
-	optionMap.put("EVAL_INT_LITERAL_AS_FLOAT", true);
-
-既に述べた通り、上記オプションは式内に書かれた整数値（整数リテラル）を float 型の値として扱うもので、
-式の計算には便利です（指定しないと、整数同士の除算結果が整数になって厄介です）。一方で、スクリプトに対して効かせると混乱の元になりかねません。
-
-ただし、上記オプションは executeScript メソッドで直接実行する内容に対してのみ作用し、[ライブラリスクリプト](doc/FEATURE_JAPANESE.md#libraries) に対しては作用しないため、ライブラリの処理内容への影響を心配する必要はありません。
+Vnano Engine の各機能に関する詳細は、[スクリプトの実行](doc/FEATURE_JAPANESE.md#scripting) の項目をご参照ください。
 
 
 <a id="use-create-jar"></a>
