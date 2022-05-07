@@ -1,7 +1,8 @@
 /*
  * An example executing a script, in which 
  * a function/variable provided by "lib/ExampleLibrary1.vnano" are used.
- * To load the above library script, it is necessary to modify
+ * 
+ * To load library scripts, it is necessary to modify
  * the content of "lib/VnanoLibraryList.txt".
  * 
  * How to Compile:
@@ -38,7 +39,7 @@ public class ExampleApp6 {
 		// Prepare the content of the script to be executed.
 		String script =
 
-			" float value = 1.2 + f(3.4); " +
+			" float value = 1.2 + f(x); " +
 			" value;                      " ;
 
 		// Execute a scriptby Vnano Engine.

@@ -1,6 +1,10 @@
 /*
- * A example accessing to fields/methods of dynamically loaded classes,
+ * An example accessing to fields/methods of 
+ * dynamically loaded classes (plug-ins),
  * from an expression executed by Vnano Engine.
+ * 
+ * To load plug-in classes, it is necessary to modify
+ * the content of "plugin/VnanoPluginList.txt".
  * 
  * How to Compile:
  *     javac -cp .;Vnano.jar ExampleApp4.java
@@ -20,8 +24,7 @@ import java.lang.reflect.Method;
 
 public class ExampleApp4 {
 
-	public static void main(String[] args)
-			throws VnanoException, NoSuchFieldException, NoSuchMethodException {
+	public static void main(String[] args) throws VnanoException {
 
 		// Create a scripting engine of Vnano (= Vnano Engine).
 		VnanoEngine engine = new VnanoEngine();

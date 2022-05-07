@@ -50,6 +50,7 @@ Vnano Engine is released under the MIT License.
 ## Requirements
 
 - Java Development Kit (Version 8 or later is required. The latest version Java 18 is already available.)
+- Git
 
 
 <a id="build"></a>
@@ -116,7 +117,7 @@ Then, Let's try to use Vnano Engine practically, by making a very simple applica
             double result = (Double)engine.executeScript(script);
 
             // Display the result.
-            System.out.println("Result: " + result);
+            System.out.println("result: " + result);
         }
     }
 
@@ -132,11 +133,11 @@ And run it as:
 
 The result is:
 
-    4.6
+    result: 4.6
 
 The above "ExampleApp1" executes a script by using Vnano Engine, and the script calculates the value of 1.2 + 3.4 = 4.6, so the above result means that we've succeeded to process the script correctly.
 
-For more details to use features of Vnano Engine, see the document: [Main Feature of Vnano Engine](doc/FEATURE.md).
+For more details to use features of Vnano Engine, see the document: [Main Feature of Vnano Engine, and Examples](doc/FEATURE.md).
 
 
 <a id="use-create-jar"></a>
@@ -175,7 +176,7 @@ By using these features of Vnano Engine, you can develop highly customizable app
 (for example, see [RINPn](https://github.com/RINEARN/rinpn), which is a programmable calculator software).
 
 
-For details of features, see the document: [Main Features of Vnano Engine](doc/FEATURE.md).
+For details of features, see the document: [Main Features of Vnano Engine, and Examples](doc/FEATURE.md).
 
 Also, for list of methods, options, and so on of Vnano Engine, see the document: [Specifications of Vnano Engine](doc/SPEC.md).
 

@@ -1,0 +1,15 @@
+/*
+ * An example of a library script.
+ * 
+ * Library scripts are scripts for providing a function/variable
+ * to scripts/expressions runs on Vnano Engine.
+ * 
+ * To load this library script, modify "VnanoLibraryList.txt", 
+ * an then load it by using ScriptLoader. See: "ExampleApp6.java".
+ */
+
+float x = 3.4;
+
+float f(float arg) {
+	return arg * 5.6;
+}

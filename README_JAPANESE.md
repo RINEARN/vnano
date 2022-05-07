@@ -50,6 +50,7 @@ Vnano Engine はMITライセンスの下でリリースされています。
 ## 必要なもの
 
 - Java Development Kit (バージョン 8 以降が必須、最新版の Java 18 は対応済み)
+- Git
 
 
 <a id="build"></a>
@@ -119,7 +120,7 @@ Ant 用のビルドファイルも同梱されています：
             double result = (Double)engine.executeScript(script);
 
             // 結果を表示
-            System.out.println("Result: " + result);
+            System.out.println("result: " + result);
         }
     }
 
@@ -135,11 +136,11 @@ Ant 用のビルドファイルも同梱されています：
 
 実行結果は：
 
-    5.6
+    result: 5.6
 
 上記の ExampleApp1 アプリは、Vnano Engine を用いてスクリプトを処理しますが、そのスクリプトは 1.2 + 3.4 の値（ = 5.6 ）を計算する内容になっています。従って、無事 Vnano Engine を使って、スクリプトを正しく実行できた事がわかります。
 
-Vnano Engine の各機能に関する詳細は、[スクリプトの実行](doc/FEATURE_JAPANESE.md#scripting) の項目をご参照ください。
+Vnano Engine の各機能に関する詳細は、別途文書 [Vnano Engine の主な機能](doc/FEATURE_JAPANESE.md) の項目をご参照ください。
 
 
 <a id="use-create-jar"></a>
@@ -178,7 +179,7 @@ Javaで記述したクラスの代わりに、スクリプトファイルとし�
 （具体例としては、プログラム関数電卓ソフトの「 [RINPn](https://github.com/RINEARN/rinpn) 」をご参照ください）。
 
 
-各機能の詳細については、別途文書「 [Vnano Engine の主な機能](doc/FEATURE_JAPANESE.md) 」をご参照ください。
+各機能の詳細については、別途文書「 [Vnano Engine の主な機能と用例](doc/FEATURE_JAPANESE.md) 」をご参照ください。
 
 また、Vnano Engine の全メソッドの一覧/詳細説明や、オプション類などについては、別途文書「 [Vnano Engine の各種仕様](doc/SPEC_JAPANESE.md) 」をご参照ください。
 
@@ -215,7 +216,6 @@ Vnano は、データ解析ソフトや計算ソフト、および可視化ソ�
     OPERATING_SPEED = 704.6223224351747 [MFLOPS]
     ...
 
-上記はミドルスペックのノートPCでの実測値です。
 ここで「 MFLOPS 」は浮動小数点数の演算速度の単位で、1MFLOPS = 100万回演算/秒です。
 従って上記の結果は、FP64演算が Vnano Engine 上で約7億回/秒の速度で実行された事を表しています（ミドルスペックのノートPC上での計測値です）。
 
