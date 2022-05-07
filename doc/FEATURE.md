@@ -374,7 +374,7 @@ On the [command-line mode](#command-line-mode), the above list file will be refe
         // Prepare the content of the script to be executed.
         String script =
 
-            " float value = 1.2 + f(3.4); " +
+            " float value = 1.2 + f(x); " +
             " value;                      " ;
 
         // Execute a scriptby Vnano Engine.

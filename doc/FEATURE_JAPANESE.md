@@ -385,7 +385,7 @@ Vnano は、言語機能として変数や関数の宣言をサポートして�
         // 実行するスクリプトの内容を用意
         String script =
 
-            " float value = 1.2 + f(3.4); " +
+            " float value = 1.2 + f(x); " +
             " value;                      " ;
 
         // Vnano Engine でスクリプトを実行
