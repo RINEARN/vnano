@@ -59,6 +59,8 @@ The following is an example application, calculating an expression inputted by t
         }
     }
 
+Note that, in the input content to Vnano Engine, regardless of whether it is an expression or a script, a semicolon ";" is required at the end of each lines. So in the above example, it appends ";" at the end of an expression, before passing it to Vnano Engine.
+
 How to compile and run is:
 
     (For Windows)
@@ -160,7 +162,9 @@ The actual result is:
 
     result: 20.24
 
-Like as "AnyClass" in Example2, we call a class providing fields/methods to Vnano Engine as a "plug-in".
+Like as "AnyClass" in Example2, we call a class providing fields/methods to Vnano Engine as a "**plug-in**".
+In addition, sometimes we call fields/methods provided by plug-ins as "**external variables/functions**", 
+to distinguish from internally declared variables/functions in scripts.
 
 By the way, from scripts runs on Vnano Engine, you can modify the value of a field of a Java class (e.g.: "x" of the above example), but beware of the following behaviour of Vnano Engine: 
 **Vnano Engine reads values of connected Java fields just before execution of scripts/expressions, and caches them internally. Then, when the execution has completed, cached values (may be modified by scripts) will be write-backed to connected Java fields.**
@@ -325,7 +329,7 @@ This value equals to the summation from 1 to 100 ( = 100 * 101 / 2 ), so we have
 
 Vnano (as a scripting language) supports declarations of variables and functions.
 So sometimes you may want to make a script in there utility functions and variables are declared, for using them in other scripts.
-We call such script providing variables/functions for other scripts, as a "library script".
+We call such script providing variables/functions for other scripts, as a "**library script**".
 
 An example of a library script is:
 

@@ -120,7 +120,7 @@ Ant 用のビルドファイルも同梱されています：
             double result = (Double)engine.executeScript(script);
 
             // 結果を表示
-            System.out.println("Result: " + result);
+            System.out.println("result: " + result);
         }
     }
 
@@ -136,7 +136,7 @@ Ant 用のビルドファイルも同梱されています：
 
 実行結果は：
 
-    5.6
+    result: 5.6
 
 上記の ExampleApp1 アプリは、Vnano Engine を用いてスクリプトを処理しますが、そのスクリプトは 1.2 + 3.4 の値（ = 5.6 ）を計算する内容になっています。従って、無事 Vnano Engine を使って、スクリプトを正しく実行できた事がわかります。
 

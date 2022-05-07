@@ -135,7 +135,9 @@
 | FILE_IO_ENCODING | String | "UTF-8" | <p>スクリプト内でのファイルの読み書きに用いる、デフォルトの文字コード名を指定します。</p> <p>このオプションは、入出力系のプラグインが接続されている場合に、それらによって参照されます。</p> |
 | STDIN_STREAM | Java.io.InputStream | System.in | <p>TERMINAL_IO_UI が "CUI" に設定されている際に、標準入力に用いるストリームを指定します。</p> <p>このオプションは、入出力系のプラグインが接続されている場合に、それらによって参照されます。</p> |
 | STDOUT_STREAM | Java.io.PrintStream | System.out | <p>TERMINAL_IO_UI が "CUI" に設定されている際に、標準出力に用いるストリームを指定します。</p> <p>このオプションは、入出力系のプラグインが接続されている場合に、それらによって参照されます。</p> |
-| STDERR_STREAM | Java.io.PrintStream | System.err | <p>TERMINAL_IO_UI が "CUI" に設定されている際に、標準エラー出力に用いるストリームを指定します。</p> <p>このオプションは、入出力系のプラグインが接続されている場合に、それらによって参照されます。</p>
+| STDERR_STREAM | Java.io.PrintStream | System.err | <p>TERMINAL_IO_UI が "CUI" に設定されている際に、標準エラー出力に用いるストリームを指定します。</p> <p>このオプションは、入出力系のプラグインが接続されている場合に、それらによって参照されます。</p> |
+
+
 
 <a id="permissions"></a>
 ## パーミッション項目

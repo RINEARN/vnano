@@ -22,7 +22,7 @@ import org.vcssl.nano.VnanoException;
         double result = (Double)engine.executeScript(script);
 
         // Display the result.
-        System.out.println("Result: " + result);
+        System.out.println("result: " + result);
     }
 }
 

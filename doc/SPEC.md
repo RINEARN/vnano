@@ -29,7 +29,7 @@ The following is the list of all methods of Vnano Engine (org.vcssl.nano.VnanoEn
 | Description | <p>Terminates the currently running script as soon as possible.</p> <p>To be precise, the VirtualMachine (which is processing instructions compiled from the script) in the engine will be terminated after when the processing of a currently executed instruction has been completed, without processing remained instructions. Usually it ends in a moment, but sometimes it takes time. For example, it can't end while external function provided by a plug-in is being executed.</p> <p>Also, if you used this method, call "resetTerminator()" method before the next execution of a new script, otherwise the next execution will end immediately without processing any instructions (By this behavior, even when a termination-request and an execution-request from another thread are conflict, the execution will be terminated certainly).</p> |
 | Parameters | None |
 | Return | None |
-| Exception | VnanoException will be thrown when it faild to terminate. |
+| Exception | VnanoException will be thrown when the option TERMINATOR_ENABLED is disabled. |
 
 
 | Signature | void connectPlugin(String bindingName, Object plugin) |
@@ -37,7 +37,7 @@ The following is the list of all methods of Vnano Engine (org.vcssl.nano.VnanoEn
 | Description | Connects various types of plug-ins which provides external functions/variables and so on. |
 | Parameters | <p>bindingName:  A name in scripts of the variable/function/namespace provided by the connected plug-in. If the passed argument contains a white space or a character "(", the content after it will be ignored. Also, you can specify "___VNANO_AUTO_KEY" for using a valid value generated automatically.</p><p>plugin: The plug-in providing external function/variable and so on. As the type of plug-ins, java.lang.reflect.Field and Method, java.lang.Class and Object, org.vcssl.connect.ExternalVariableConnectorInterface1,  ExternalFunctionConnectorInterface1, ExternalNamespaceConnectorInterface1, and PermissionAuthorizerConnectorInterface1 are available.</p> |
 | Return | None |
-| Exception | VnanoException will be thrown when it failed to connect/initialize the specified plug-in |
+| Exception | VnanoException will be thrown when it failed to connect/initialize the specified plug-in. |
 
 
 | Signature | void disconnectAllPlugins() |
@@ -45,7 +45,7 @@ The following is the list of all methods of Vnano Engine (org.vcssl.nano.VnanoEn
 | Description | Disconnects all plug-ins. |
 | Parameters | None |
 | Return | None |
-| Exception | VnanoException will be thrown when any error occurred in finalizations of plug-ins |
+| Exception | VnanoException will be thrown when any error occurred in finalizations of plug-ins. |
 
 
 | Signature | void includeLibraryScript(String libraryScriptName, String libraryScriptContent) |
@@ -137,7 +137,9 @@ Also, "Env." in the "Default Value" column means "Environment Dependent".
 | FILE_IO_ENCODING | String | "UTF-8" | <p>Specify the name of the default encoding for writing to / reading files in scripts.</p> <p>This option is referred by I/O plug-ins if they are connected.</p> |
 | STDIN_STREAM | Java.io.InputStream | System.in | <p>Specify the stream for standard input used when the option TERMINAL_IO_UI is set to "CUI".</p> <p>This option is referred by I/O plug-ins if they are connected.</p> |
 | STDOUT_STREAM | Java.io.PrintStream | System.out | <p>Specify the stream for standard output used when the option TERMINAL_IO_UI is set to "CUI".</p> <p>This option is referred by I/O plug-ins if they are connected.</p> |
-| STDERR_STREAM | Java.io.PrintStream | System.err | <p>Specify the stream for standard error output when the option TERMINAL_IO_UI is set to "CUI".</p> <p>This option is referred by I/O plug-ins if they are connected.</p>
+| STDERR_STREAM | Java.io.PrintStream | System.err | <p>Specify the stream for standard error output when the option TERMINAL_IO_UI is set to "CUI".</p> <p>This option is referred by I/O plug-ins if they are connected.</p> |
+
+
 
 <a id="permissions"></a>
 ## Permission Items
@@ -145,14 +147,14 @@ Also, "Env." in the "Default Value" column means "Environment Dependent".
 The following is the list of permission items.
 The type of names is "String". The type of values is also "String", and it takes either "DENY", "ALLOW", or "ASK". A permission value "ASK" means that: "determine whether allow or deny by asking the user". By defailt, all values are set to "DENY".
 
-|Name | Description
+| Name | Description
 |:--|:--|
 | PROGRAM_EXIT | The permission to exit the currently executed program (script). |
 | PROGRAM_RESET | The permission to reset/restart the currently executed program (script). |
 | PROGRAM_CHANGE | The permission to change the currently executed program (script). |
 | SYSTEM_PROCESS | The permission to execute commands or other programs through the Operating System and so on. |
 | DIRECTORY_CREATE | The permission to create a new directory (folder) |
-| DIRECTORY_DELETE | The permission to delete a directory (folder) |
+| DIRECTORY_DELETE | The permission to delete a directory (folder). |
 | DIRECTORY_LIST | The permission to get the list of files in a directory (folder). |
 | FILE_CREATE | The permission to create a new file. |
 | FILE_DELETE | The permission to delete a file. |

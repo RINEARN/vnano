@@ -117,7 +117,7 @@ Then, Let's try to use Vnano Engine practically, by making a very simple applica
             double result = (Double)engine.executeScript(script);
 
             // Display the result.
-            System.out.println("Result: " + result);
+            System.out.println("result: " + result);
         }
     }
 
@@ -133,7 +133,7 @@ And run it as:
 
 The result is:
 
-    4.6
+    result: 4.6
 
 The above "ExampleApp1" executes a script by using Vnano Engine, and the script calculates the value of 1.2 + 3.4 = 4.6, so the above result means that we've succeeded to process the script correctly.
 
