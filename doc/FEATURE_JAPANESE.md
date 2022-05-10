@@ -6,12 +6,14 @@
 ( &raquo; [English](FEATURE.md) )
 
 - [式を計算する](#calculate-expression)
-- [Java&reg;製クラスのフィールド/メソッドにアクセスする（プラグイン）](#fields-and-methods)
-- [プラグインを動的に読み込む](#plugins-load)
+- [Java&reg;製クラスのフィールド/メソッドにアクセスする](#fields-and-methods)
+- [メソッド/フィールドを提供するクラス（プラグイン）を、独立なファイルに定義する](#plugin-import)
+- [リストファイルで指定したプラグインを読み込む](#plugins-load)
 - [プラグインに関する発展的な事項 (標準プラグイン、高速インターフェース、等)](#plugins-advanced)
 - [スクリプトを実行する](#scripting)
 - [ライブラリ スクリプトを読み込む](#libraries)
 - [コマンドラインモード](#command-line-mode)
+- [パフォーマンス計測と解析](#performances)
 - [仕様書](#specifications)
 
 <hr />
@@ -105,7 +107,7 @@ Vnano Engine はスクリプトを実行できるエンジンですが、単に�
 
 
 <a id="fields-and-methods"></a>
-## Java製クラスのフィールド/メソッドにアクセスする（プラグイン）
+## Java製クラスのフィールド/メソッドにアクセスする
 
 Javaで実装した任意のクラスのフィールド/メソッドを Vnano Engine に接続して、
 その上で実行する式やスクリプト内からアクセスする事ができます。
@@ -167,7 +169,18 @@ Javaで実装した任意のクラスのフィールド/メソッドを Vnano En
 
     result: 20.24
 
-ここでの AnyClass クラスのように、式やスクリプト内からアクセスするフィールドやメソッド、その他諸機能などを提供するJava製クラスを、Vnano Engine では「 **プラグイン** 」と呼びます。また、スクリプト内で宣言された変数/関数と区別するため、プラグインが提供するフィールド/メソッドの事を「 **外部変数/関数** 」と呼ぶ事もあります。
+なお、以下のようにクラス/インスタンス自体を connectPlugin メソッドに渡す事で、それに属する全てのフィールド/メソッドを一括で接続する事もできます：
+
+    (in ExampleApp3.java, 変更内容)
+
+    ...
+    VnanoEngine engine = new VnanoEngine();
+
+    AnyClass anyClassInstance = new AnyClass();
+    engine.connectPlugin("AnyNamespace", anyClassInstance);
+    ...
+
+こうすると、スクリプト内で先と全く同様に x と f(x) にアクセスできる他に、必要に応じて、それらの名前の頭に名前空間「 AnyNamespace. 」を付けてアクセスする事もできます。同じクラスのインスタンスを複数接続する場合に、競合を防ぐために別々の名前空間を割り当てるなどの用途があります。
 
 ところで、接続したJava側のフィールド値（上の例では「 x 」の値）を、スクリプト内から書き換える事も可能です。ただしそれに関して、以下のような Vnano Engine の挙動を意識しておく必要があります：
 **Vnano Engine は、スクリプトや式の実行直前に、接続されたJavaフィールドの値を読み、それを内部にキャッシュします。そして実行処理が完了したタイミングで、キャッシュされた値（スクリプト内容によっては、書き換えられた値）が、Javaフィールドに書き戻されます。**
@@ -175,11 +188,50 @@ Javaで実装した任意のクラスのフィールド/メソッドを Vnano En
 従って、Java側とスクリプト側の間で、実行中に何度も更新し合うような値については、フィールドとして直接 Vnano Engine に接続してアクセスするような事はしないでください。そのような場面では、その値を読み書きするための setter/getter メソッドを作成して接続し、スクリプト内からはそれを用いるようにします。
 
 
-<a id="plugins-load"></a>
-## プラグインを動的に読み込む
+<a id="plugins-import"></a>
+## メソッド/フィールドを提供するクラス（プラグイン）を、独立なファイルに定義する
 
-プラグインを独立なクラスファイルの形で用意して、動的に読み込む事もできます。
-実際に「 plugin 」フォルダ内に、サンプルのプラグイン実装「 ExamplePlugin1.java 」が同梱されています：
+上の例での AnyClass クラスのように、式やスクリプト内からアクセスするフィールドやメソッド、その他諸機能などを提供するJava製クラスを、Vnano Engine では「 **プラグイン** 」と呼びます。（また、スクリプト内で宣言された変数/関数と区別するため、プラグインが提供するフィールド/メソッドの事を「 **外部変数/関数** 」と呼ぶ事もあります。）
+
+先の例では、AnyClass プラグインを、ExampleApp3 クラスの内部クラスとして作成していました。
+しかしもちろん、適当なパッケージ内の独立なクラスとして定義する事もできます：
+
+    (適当なパッケージ内の独立なクラスとして)
+    package anypackage;
+    public class AnyClass {
+
+        // Vnano Engine 上で実行される式やスクリプト内から
+        // アクセスしたいフィールド/メソッド
+        public double x = 3.4;
+        public double f(double arg) {
+            return arg * 5.6;
+        }
+    }
+
+このような場合は、アプリケーションから普通に import して使用すれば OK です：
+
+    (in ExampleApp3.java, 変更内容)
+
+    import anypackage.AnyClass;
+
+    ...
+    VnanoEngine engine = new VnanoEngine();
+
+    AnyClass anyClassInstance = new AnyClass();
+    engine.connectPlugin("AnyNamespace", anyClassInstance);
+    ...
+
+動作は前の例と同じです。
+
+
+<a id="plugins-load"></a>
+## リストファイルで指定したプラグインを読み込む
+
+上の例では、「どのプラグインを import して接続するか」が、アプリケーションのコンパイル時点で決まっている必要があります。
+一方で、読み込むプラグインを、ユーザーが自由に決められるようにしたい場合もあります。
+少し複雑になりますが、実際に行ってみましょう。
+
+まず「 plugin 」フォルダ内に、サンプルのプラグイン実装「 ExamplePlugin1.java 」が同梱されています：
 
     (in plugin/ExamplePlugin1.java)
 
@@ -199,7 +251,7 @@ Javaで実装した任意のクラスのフィールド/メソッドを Vnano En
     javac ExamplePlugin1.java
     cd ..
 
-加えて、「 plugin 」フォルダ内にテキストファイル "VnanoPluginList.txt" を作成し, 
+加えて、「 plugin 」フォルダ内にテキストファイル（リストファイル）「 VnanoPluginList.txt 」を作成し, 
 以下のように、読み込みたいプラグインを記載します：
 
     (in plugin/VnanoPlyginList.txt)
@@ -460,6 +512,71 @@ Vnano は、言語機能として変数や関数の宣言をサポートして�
 また、[vcssl.org](https://www.vcssl.org/ja-jp/code/#vnano) において、より実践的な内容のサンプルスクリプト類がいくつか配布されていますが、それらも標準プラグインを全て導入した（フル機能の）状態なら実行できるはずです。
 
 なお、コマンドラインモードには、色々と細かい機能があります。それらの一覧と詳細については、--help オプションを指定して、その内容をご参照ください。
+
+
+<a id="performances"></a>
+## パフォーマンス計測と解析
+
+Vnano Engine では、データ解析/計算ソフトなどでの使用も想定して、処理速度を重視した設計を採用しています。
+このリポジトリ内には、実際に使用している環境における、Vnano Engine の処理速度の上限値を計測するためのベンチマークスクリプト類も同梱されています。
+
+例えば、64-bit 浮動小数点数（FP64）によるスカラ（非配列）演算のベンチマークを実行するには：
+
+    java -jar Vnano.jar benchmark/ScalarFlops.vnano
+
+結果は以下の通りです：
+
+    OPERATING_SPEED = 704.6223224351747 [MFLOPS]
+    ...
+
+ここで「 MFLOPS 」は浮動小数点数の演算速度の単位で、1MFLOPS = 100万回演算/秒です。
+従って上記の結果は、FP64演算が Vnano Engine 上で約7億回/秒の速度で実行された事を表しています（ミドルスペックのノートPC上での計測値です）。
+
+続いて、64-bit 浮動小数点数（FP64）によるベクトル（配列）演算のベンチマークを実行するには：
+
+    java -jar Vnano.jar benchmark/VectorFlops.vnano
+
+結果は：
+
+    OPERATING_SPEED = 15.400812152203338 [GFLOPS]
+    ...
+
+以上の通りです。「 GFLOPS 」も浮動小数点数の演算速度の単位で、1GFLOPS = 10億回演算/秒です。
+従って上記の結果は、FP64演算が Vnano Engine 上で約150億回/秒の速度で実行された事を表しています。
+なお、配列演算の速度は、演算対象の配列サイズ、およびCPUのキャッシュサイズ等に大きく依存する事に留意が必要です。
+
+ところで、何らかの目的を持つ、実際のスクリプトのパフォーマンスチューニングを行う際には、そのための解析を行うコマンドラインオプション「 --perf all 」が有用です：
+
+    java -jar Vnano.jar  --perf all 解析対象のスクリプト.vnano
+
+実行結果の例は：
+
+    (概ね 1 秒に 1 回表示されます)
+
+    ==================================================
+    = Performance Monitor (2022-05-07 14:16:39.28)
+    = - VM Speed  = 384.2 MHz (VRIL Instructions / sec)
+    = - RAM Usage = 21.8 MiB (Max 16.0 GiB Available)
+    = - Instruction Execution Frequency :
+        -     MOV :  34.83 %   (938 count)
+        -     MUL :  23.80 %   (641 count)
+        -     ADD :  21.50 %   (579 count) 
+        -     DIV :   7.69 %   (207 count)
+        -     NEG :   5.46 %   (147 count)
+        -     SUB :   4.57 %   (123 count)
+        -    JMPN :   0.76 %   (20.5 count)
+        -     REM :   0.63 %   (17 count)
+        -      LT :   0.58 %   (15.5 count)
+        -      EQ :   0.19 %   (5 count)
+        (Total 3686 Samples)
+    ==================================================
+
+結果の「 Instruction Execution Frequency 」セクションの内容において、
+算術演算（ADD, SUB, MUL, DIV, REM, NEG）と外部関数呼び出し（CALLX）とMOV命令を合計した比率が十分大きい場合には、そのスクリプトは十分に最適化されています。
+
+それに対して、JMP/JMPN や LT/GT/EQ/GEQ/LEQ などが大きな割合を占める場合、それはスクリプト内の if/else 文や小さなループがボトルネックになっている事を示唆しています。
+従ってその場合、処理フローを見直す事で、速度を大きく改善できる余地があるかもしれません。
+
 
 
 <a id="specifications"></a>

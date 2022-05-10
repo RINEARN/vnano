@@ -199,32 +199,10 @@ For details of syntax and language feature of Vnano, see the document: [Vnano as
 ## Performances
 
 Our main purpose to develop Vnano Engine is, using it in data-analysis, calculation, and visualization apps. Processing speed is important on such kind of apps, so Vnano Engine can execute scripts at relatively high speed.
-In this repository, benchmarking scripts for measuring processing speed of Vnano Engine are included in "benckmark" folder.
 
-For measuring the performance of scalar (non-array) operations of 64-bit floating point (FP64) numbers:
+For example, on a general laptop PC, as scores under ideal conditions (measuerd by benchmarking scripts): Vnano Engine can perform about 7 million operations per second (700MFLOPS) for scalar values. In addition, it can perform about 15 billion operations per second (15GFLOPS) for values stored in arrays.
 
-    java -jar Vnano.jar benchmark/ScalarFlops.vnano --accelerator true --optLevel 3
-
-The result is (depends on you environment):
-
-    OPERATING_SPEED = 704.6223224351747 [MFLOPS]
-    ...
-
-where [MFLOPS] is a unit of operating speed of floating point numbers. 1MFLOPS represents the speed that 1 million of operations are performed in 1 second. 
-The above score means that, on Vnano Engine, about 700 millions of FP64 operations have performed in 1 second (measured on a mid-range laptop PC).
-
-For measuring the performance of vector (array) operations of 64-bit floating point (FP64) numbers:
-
-    java -jar Vnano.jar benchmark/VectorFlops.vnano --accelerator true --optLevel 3
-
-The result is (depends on you environment):
-
-    OPERATING_SPEED = 15.400812152203338 [GFLOPS]
-    ...
-
-where [GFLOPS] is also a unit of operating speed of floating point numbers. 1GFLOPS represents the speed that 1 billion of operations are performed in 1 second. Hence the above result means that, on Vnano Engine, about 15 billions of FP64 operations have performed in 1 second.
-
-Note that, performances of vector operations are greatly depend on the size of operand vectors, and cache size of your CPU.
+For details, see [Performance Benchmarking and Analysis](doc/FEATURE.md#performances).
 
 
 <a id="about-us"></a>

@@ -59,8 +59,9 @@ However, please note that arrays in the Vnano (and VCSSL) behaves as value types
 The assignment operation (=) of an array behaves as the copy of all values of elements, not the copy of the reference to (address on) the memory.
 It is the same for character strings. 
 In the Vnano, the "string" type which is the data type to store character strings behaves as the value type, not reference type.
+
 In short, Vnano has no reference types, so all data types in the Vnano are value types.
-Therefore, the script engine of the Vnano has no garbage-collection (GC) modules.
+Because of that, the script engine of the Vnano has no garbage-collection (GC) modules.
 
 By the way, if sizes of arrays at the left-hand and the right-hand of the assignment operation (=) are different, 
 the size of the left-hand array will be adjusted to the same size with the right-hand array, 
@@ -120,12 +121,12 @@ However, you can NOT use array initializers in the Vnano:
 <a id="control"></a>
 ## Control Statements
 
-In control statements of C-like languages, Vnano supports if / else / for / while / continue / break statements.
+In control statements of C-like languages, Vnano supports "if" / "else" / "for" / "while" / "continue" / "break" statements.
 
 <a id="control-if-else"></a>
-## if and else statements
+## "if" and "else" statements
 
-The folloing is an example code of if and else statements:
+The folloing is an example code of "if" and "else" statements:
 
     int x = 1;
     if (x == 1) {
@@ -138,19 +139,20 @@ The result is:
 
     x is 1.
 
-By the way, in the Vnano, after of if / else / for / while statements must be a block statement {...}.
-Therefore, you can NOT write single statement which is not enclosed by braces { } after the if statement as follows:
+By the way, in the Vnano, after of "if" / "else" / "for" / "while" statements must be a block statement {...}.
+So you can NOT write single statement which is not enclosed by braces { } after the "if" statement as follows:
 
     (!!! This code does not work !!!)
 
     int x = 1;
     if (x == 1) print("x is 1.");
 
+However, for else statement at just before of if statement (so-called "else if"), braces { } can be omitted.
 
 <a id="control-for"></a>
-## for statement
+## "for" statement
 
-The folloing is an example code of for statement:
+The folloing is an example code of "for" statement:
 
     for (int i=1; i<=5; i++) {
         println("i=" + i);
@@ -167,9 +169,9 @@ Please note that braces { } can not be omitted. The result is:
 
 
 <a id="control-while"></a>
-## while statement
+## "while" statement
 
-The folloing is an example code of while statement:
+The folloing is an example code of "while" statement:
 
     int a = 500;
     while (0 <= a) {
@@ -187,9 +189,9 @@ Please note that braces { } can not be omitted. The result is:
 
 
 <a id="control-break"></a>
-## break statement
+## "break" statement
 
-The folloing is an example code of break statement:
+The folloing is an example code of "break" statement:
 
     for (int i=1; i<=10; i++) {
         println("i=" + i);
@@ -205,7 +207,7 @@ The result is:
     i=3
 
 <a id="control-continue"></a>
-## continue statement
+## "continue" statement
 
 The folloing is an example code of continue statement:
 
@@ -233,21 +235,31 @@ The result is:
 <a id="expression-syntax"></a>
 ## Syntax elements of expressions
 
-The expression is the set of tokens consists of operators, leaf operands, and parentheses ( ), 
-where leaf operands are literals, identifiers, and so on.
+An expression is a series of tokens to describe operations, consists of operators, operands, and parentheses ( ).
+An expression can be a statement as an "expression statement" by itself.
+In addition, expressions can be parts of other kinds of statements, e.g.: a condition expression of "if" statement.
+
+As syntactic elements of expressions, "operators" are symbols of operations, e.g.: "+", "-", and so on.
+Values to be operated are called as "operands", e.g.: 1 and 2.3 for "1 + 2.3". 
+More specifically, as syntactic elements, values directly described such as "1", "2.3" and so on are called as "literals".
+Besides literals, identifiers of variables (e.g.: "x"), and results of other operations can be operands.
+
 For example:
 
     (x + 2) * 3;
 
-In the above expression, + and * are operators, x and 2 and 3 are leaf operands, 
-( ) are parentheses.
-In the Vnano, as the same with the C programming language, 
-the symbol of the assignment "=" is an operator, so the following is also expression:
+In the above expression, "+" and "*" are operators, "x" and "2" and "3" are operands, 
+"(" and ")" are parentheses.
+
+However, the result of the addition "(x + 2)" is also an operand for the "*" operator, 
+so the word "operands" is ambiguous. 
+For disambiguation, sometimes minimum units of operands such as "x" and "2" and "3" are syntactically called as "leaf operands".
+
+By the way, in the Vnano, as the same with the C programming language, 
+the symbol of the assignment "=" is an operator, so the following is also an expression:
 
     y = (x + 2) * 3;
 
-An expression alone can be a statement as "expression statement". 
-In addition, an expression can be described as a part of other statements, e.g., a condition expression of an if statement.
 
 
 <a id="expression-operator"></a>
@@ -267,7 +279,7 @@ The following is the list of operators supported in the Vnano:
 | - | 2000 | prefix | right | int | int |
 | ! | 2000 | prefix | right | bool | bool |
 | (...) as cast | 2000 | prefix | right | any | any |
-| * | 3000 | binary | left | int, float | int, float |
+| * | 3000 | binary | left | int, float | int, float (See the next table) |
 | / | 3000 | binary | left | int, float | int, float |
 | % | 3000 | binary | left | int, float | int, float |
 | + | 3100 | binary | left | int, float, string | int, float, string |
@@ -310,8 +322,13 @@ Where you can choose the right or the left operand as the operand A (or operand 
 ## Functions
 
 You can declare and call functions in the Vnano script code with C-like syntax. 
-However, this script engine does not support recursive calls of functions, 
-because allocations of local variables are implemented in very simple way.
+
+Note that, the Vnano does not support recursive calls of functions, 
+because allocations of local variables are implemented in very simple way in the script engine of the Vnano.
+
+Also, in the Vnano, functions declared in scripts are called as "internal functions", 
+in contrast to that, functions provided by plug-ins connectet to the script engine are called as "external functions".
+
 
 <a id="function-scalar"></a>
 ## Scalar input/output functions
@@ -458,4 +475,4 @@ The result is:
     y[1] = 11
     y[2] = 12
 
-As demonstrated by the above result, the memory-reference to data of a formal parameter declared with "&" will be shared with reference to data of an actual argument, so after values of formal parameters "x" and "y" in the function "fun" changed, actual arguments "a" and "b" of caller-side also changed to same values with "x" and "y". This behaviour is called as "call-by-reference".
+The memory-reference to data of a formal parameter declared with "&" will be shared with reference to data of an actual argument. Hence, as demonstrated by the above result, after values of formal parameters "x" and "y" in the function "fun" changed, actual arguments "a" and "b" of caller-side also changed to same values with "x" and "y". This behaviour is called as "call-by-reference".
