@@ -7,11 +7,13 @@
 
 - [Calculate Expressions](#calculate-expression)
 - [Access to Fields/Methods of a Java&reg; Class (Plug-in)](#fields-and-methods)
-- [Load Plug-ins Dynamically](#plugins-load)
+- [Define a (Plug-in) Class Providing Methods/Fields as Another File](#plugin-import)
+- [Specify Plug-ins to be Loaded, by a List File](#plugins-load)
 - [Advanced Steps About Plug-ins (Standard Plug-ins, Less-Overhead Interfaces, etc.)](#plugins-advanced)
 - [Execute Scripts](#scripting)
 - [Load Library Scripts](#libraries)
 - [Command-Line Mode](#command-line-mode)
+- [Performance Benchmarking / Analysis](#performances)
 - [Specifications](#specifications)
 
 <hr />
@@ -162,9 +164,17 @@ The actual result is:
 
     result: 20.24
 
-Like as "AnyClass" in Example2, we call a class providing fields/methods to Vnano Engine as a "**plug-in**".
-In addition, sometimes we call fields/methods provided by plug-ins as "**external variables/functions**", 
-to distinguish from internally declared variables/functions in scripts.
+Also, when you want to connect all methods/fields belong to a class/instance, 
+simply pass the class/instance to "connectPlugin" method:
+
+    (in ExampleApp3.java, modified)
+    ...
+    AnyClass anyClassInstance = new AnyClass();
+    engine.connectPlugin("AnyNamespace", anyClassInstance);
+    ...
+
+As a result of the above, you can access to "x" and "f(x)" from scripts/expression as completely the same as the previous way, in addition, you also can accsess to them with specifing the namespace "AnyNamespace." at  heads of their names.
+It is helpful when you want to connect multiple instances of the same class (assign a unique namespace for each instance).
 
 By the way, from scripts runs on Vnano Engine, you can modify the value of a field of a Java class (e.g.: "x" of the above example), but beware of the following behaviour of Vnano Engine: 
 **Vnano Engine reads values of connected Java fields just before execution of scripts/expressions, and caches them internally. Then, when the execution has completed, cached values (may be modified by scripts) will be write-backed to connected Java fields.**
@@ -172,10 +182,53 @@ By the way, from scripts runs on Vnano Engine, you can modify the value of a fie
 Hence, if you want to pass/receive values between Java-side and Script-side interactively, don't access to Java fields directly from scripts. For such purpose, create setter/getter methods of values and connect them to Vnano Engine, and use them from scripts.
 
 
-<a id="plugins-load"></a>
-## Load Plug-ins Dynamically
 
-You can implement plug-ins as independent class files, and can load them dynamically.
+<a id="plugin-import"></a>
+# Define a (Plug-in) Class Providing Methods/Fields as Another File
+
+Like as "AnyClass" in Example2, we call a class providing fields/methods to Vnano Engine as a "**plug-in**".
+(In addition, sometimes we call fields/methods provided by plug-ins as "**external variables/functions**", 
+to distinguish from internally declared variables/functions in scripts.)
+
+
+In previous example, we defined "AnyClass" plug-in as an inner class of "ExampleApp3". 
+If you want, you can define it as another file in any package:
+
+    (in a file in any package)
+    package anypackage;
+    public class AnyClass {
+
+        // A field and a method to be accessed from 
+        // an expression/script runs on Vnano Engine.
+        public double x = 3.4;
+        public double f(double arg) {
+            return arg * 5.6;
+        }
+    }
+
+You can simply import and use it in usual way:
+
+    (in ExampleApp3.java, modified)
+
+    import anypackage.AnyClass;
+
+    ...
+    VnanoEngine engine = new VnanoEngine();
+
+    AnyClass anyClassInstance = new AnyClass();
+    engine.connectPlugin("AnyNamespace", anyClassInstance);
+    ...
+
+The result is the same as the previous example.
+
+
+<a id="plugins-load"></a>
+## Specify Plug-ins to be Loaded, by a List File
+
+The previous example requires to decide "which plug-ins should be loaded/connected" before when the application is compiled. 
+However, sometimes you may want to make it customizable by users. 
+It becomes little complex than previous examples, but Let's try to do it.
+
 An example plug-in class "ExamplePlugin1.java" is included in "plugin" folder:
 
     (in plugin/ExamplePlugin1.java)
@@ -196,7 +249,7 @@ Compile it as follows:
     javac ExamplePlugin1.java
     cd ..
 
-In addition, create a text file "VnanoPluginList.txt" in "plugin" folder, and in there list-up compiled plug-ins to be loaded, as follows:
+In addition, create a text file (list file) "VnanoPluginList.txt" in "plugin" folder, and in there list-up compiled plug-ins to be loaded, as follows:
 
     (in plugin/VnanoPlyginList.txt)
 
@@ -446,6 +499,67 @@ If you have succeeded to introduce standard plug-ins, following script should ru
 Now you can use [all features of all standard plug-ins](https://www.vcssl.org/ja-jp/vnano/plugin/), on the command-line mode. Also, some practical example scripts are [provided on vcssl.org](https://www.vcssl.org/en-us/code/#vnano). Now you should able to execute all of them.
 
 For more details of the command-line mode, specify --help option.
+
+
+<a id="performances"></a>
+## Performance Benchmarking / Analysis
+
+Vnano Engine focuses on processing speed, assuming use in data-analysis / calculation software. 
+In this repository, benchmarking scripts for measuring processing speed of Vnano Engine are included in "benckmark" folder.
+
+For measuring the performance of scalar (non-array) operations of 64-bit floating point (FP64) numbers:
+
+    java -jar Vnano.jar benchmark/ScalarFlops.vnano
+
+The result is (depends on you environment):
+
+    OPERATING_SPEED = 704.6223224351747 [MFLOPS]
+    ...
+
+where [MFLOPS] is a unit of operating speed of floating point numbers. 1MFLOPS represents the speed that 1 million of operations are performed in 1 second. 
+The above score means that, on Vnano Engine, about 700 millions of FP64 operations have performed in 1 second (measured on a mid-range laptop PC).
+
+For measuring the performance of vector (array) operations of 64-bit floating point (FP64) numbers:
+
+    java -jar Vnano.jar benchmark/VectorFlops.vnano
+
+The result is (depends on you environment):
+
+    OPERATING_SPEED = 15.400812152203338 [GFLOPS]
+    ...
+
+where [GFLOPS] is also a unit of operating speed of floating point numbers. 1GFLOPS represents the speed that 1 billion of operations are performed in 1 second. Hence the above result means that, on Vnano Engine, about 15 billions of FP64 operations have performed in 1 second.
+Note that, performances of vector operations are greatly depend on the size of operand vectors, and cache size of your CPU.
+
+Also, when you do performance tuning of your practical scripts, the command-line option "--perf all" may be helpful:
+
+    java -jar Vnano.jar  --perf all YourScript.vnano
+
+An example of result is:
+
+    (printed for each second)
+
+    ==================================================
+    = Performance Monitor (2022-05-07 14:16:39.28)
+    = - VM Speed  = 384.2 MHz (VRIL Instructions / sec)
+    = - RAM Usage = 21.8 MiB (Max 16.0 GiB Available)
+    = - Instruction Execution Frequency :
+        -     MOV :  34.83 %   (938 count)
+        -     MUL :  23.80 %   (641 count)
+        -     ADD :  21.50 %   (579 count) 
+        -     DIV :   7.69 %   (207 count)
+        -     NEG :   5.46 %   (147 count)
+        -     SUB :   4.57 %   (123 count)
+        -    JMPN :   0.76 %   (20.5 count)
+        -     REM :   0.63 %   (17 count)
+        -      LT :   0.58 %   (15.5 count)
+        -      EQ :   0.19 %   (5 count)
+        (Total 3686 Samples)
+    ==================================================
+
+On the result of "Instruction Execution Frequency" section, if the total propotions of arithmetic operations (ADD, SUB, MUL, DIV, REM, NEG) and external function calls (CALLX) and MOV instructions are enough high, the script is well optimized.
+
+In the contrast, if JMP/JMPN or LT/GT/EQ/GEQ/LEQ have large proportions, it means that "if/else" statements or small loops are being bottolnecks in your scripts, so maybe you can improve performance by modifying its processing flow.
 
 
 <a id="specifications"></a>
