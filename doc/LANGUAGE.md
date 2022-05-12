@@ -75,7 +75,7 @@ You can describe the variable declaration statements with C-like syntax.
 
 
 <a id="variable-scalar"></a>
-## Declaration of scalar variables
+### Declaration of scalar variables
 
 The following is an example code of declaration statements of scalar variables (non-array variables) :
 
@@ -99,7 +99,7 @@ However, you can NOT declare multiple variable in 1 statement in the Vnano:
 
 
 <a id="variable-array"></a>
-## Declaration of arrays
+### Declaration of arrays
 
 You can declare and use arrays as follows:
 
@@ -124,7 +124,7 @@ However, you can NOT use array initializers in the Vnano:
 In control statements of C-like languages, Vnano supports "if" / "else" / "for" / "while" / "continue" / "break" statements.
 
 <a id="control-if-else"></a>
-## "if" and "else" statements
+### "if" and "else" statements
 
 The folloing is an example code of "if" and "else" statements:
 
@@ -147,10 +147,10 @@ So you can NOT write single statement which is not enclosed by braces { } after 
     int x = 1;
     if (x == 1) print("x is 1.");
 
-However, for else statement at just before of if statement (so-called "else if"), braces { } can be omitted.
+However, for "else" statement at just before of "if" statement (so-called "else if"), braces { } can be omitted.
 
 <a id="control-for"></a>
-## "for" statement
+### "for" statement
 
 The folloing is an example code of "for" statement:
 
@@ -169,7 +169,7 @@ Please note that braces { } can not be omitted. The result is:
 
 
 <a id="control-while"></a>
-## "while" statement
+### "while" statement
 
 The folloing is an example code of "while" statement:
 
@@ -189,7 +189,7 @@ Please note that braces { } can not be omitted. The result is:
 
 
 <a id="control-break"></a>
-## "break" statement
+### "break" statement
 
 The folloing is an example code of "break" statement:
 
@@ -207,7 +207,7 @@ The result is:
     i=3
 
 <a id="control-continue"></a>
-## "continue" statement
+### "continue" statement
 
 The folloing is an example code of continue statement:
 
@@ -233,7 +233,7 @@ The result is:
 ## Expressions
 
 <a id="expression-syntax"></a>
-## Syntax elements of expressions
+### Syntax elements of expressions
 
 An expression is a series of tokens to describe operations, consists of operators, operands, and parentheses ( ).
 An expression can be a statement as an "expression statement" by itself.
@@ -263,7 +263,7 @@ the symbol of the assignment "=" is an operator, so the following is also an exp
 
 
 <a id="expression-operator"></a>
-## Operators
+### Operators
 
 The following is the list of operators supported in the Vnano:
 
@@ -331,7 +331,7 @@ in contrast to that, functions provided by plug-ins connectet to the script engi
 
 
 <a id="function-scalar"></a>
-## Scalar input/output functions
+### Scalar input/output functions
 
 
 The following is an example code of the function of which arguments and the return value is scalar (non-array) values:
@@ -349,7 +349,7 @@ The result on [the command-line mode](FEATURE.md#command-line-mode) is:
 
 
 <a id="function-array"></a>
-## Array input/output functions
+### Array input/output functions
 
 If you want to return an array, or get arrays as arguments, the following code is an example:
 
@@ -395,7 +395,7 @@ so we omitted to specify size of array declarations in several places in the abo
 
 
 <a id="function-params-and-args"></a>
-## Formal parameters and actual arguments
+### Formal parameters and actual arguments
 
 The parameter-variable declared in a function declaration like as "a" in the following example is called as "formal parameter". In contrast, the value/variable passed to a function like as "x" in the following example is called as "actual argument".
 
@@ -409,7 +409,7 @@ The parameter-variable declared in a function declaration like as "a" in the fol
 
 
 <a id="function-call-by-value"></a>
-## Call by value
+### Call by value
 
 By default, change of values of formal parameters in functions don't affect to values of actual arguments of caller-side, For example:
 
@@ -444,7 +444,7 @@ As demonstrated by the above result, actual arguments of caller-side "a" and "b"
 
 
 <a id="function-call-by-reference"></a>
-## Call by reference
+### Call by reference
 
 If you want to affect changed values of formal parameters in functions to values of actual arguments of caller-side, describe the symbol "&" before the name of formal parameters in declarations of them. For example:
 

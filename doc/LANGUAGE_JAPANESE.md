@@ -72,7 +72,7 @@ Vnano は、データ型として int (=long)、float (=double)、bool、およ�
 
 
 <a id="variable-scalar"></a>
-## スカラ変数の宣言
+### スカラ変数の宣言
 
 以下は、スカラ変数（配列ではない普通の変数）を宣言する例のコードです：
 
@@ -96,7 +96,7 @@ Vnano は、データ型として int (=long)、float (=double)、bool、およ�
 
 
 <a id="variable-array"></a>
-## 配列宣言
+### 配列宣言
 
 配列は以下のように宣言して使用できます：
 
@@ -122,7 +122,7 @@ C言語系の制御文の中で、Vnano では if / else / for / while / break /
 
 
 <a id="control-if-else"></a>
-## if 文と else 文
+### if 文と else 文
 
 以下は if 文と else 文の使用例です：
 
@@ -147,7 +147,7 @@ C言語系の制御文の中で、Vnano では if / else / for / while / break /
 
 
 <a id="control-for"></a>
-## for 文
+### for 文
 
 以下は for 文の使用例です：
 
@@ -166,7 +166,7 @@ C言語系の制御文の中で、Vnano では if / else / for / while / break /
 
 
 <a id="control-while"></a>
-## while 文
+### while 文
 
 以下は while 文の使用例です：
 
@@ -186,7 +186,7 @@ C言語系の制御文の中で、Vnano では if / else / for / while / break /
 
 
 <a id="control-break"></a>
-## break 文
+### break 文
 
 以下は break 文の使用例です：
 
@@ -204,7 +204,7 @@ C言語系の制御文の中で、Vnano では if / else / for / while / break /
     i=3
 
 <a id="control-continue"></a>
-## continue 文
+### continue 文
 
 以下は continue 文の使用例です：
 
@@ -230,7 +230,7 @@ C言語系の制御文の中で、Vnano では if / else / for / while / break /
 ## 式
 
 <a id="expression-syntax"></a>
-## 式の構文要素
+### 式の構文要素
 
 式は、演算処理などを記述するための、演算子とオペランドおよび括弧 ( ) で構成される一連のトークン（字句）列です。
 単独でも「式文」として文となり得ますし、加えて if 文の条件式など、他の種類の文の構成要素にもなります。
@@ -253,7 +253,7 @@ C言語系の制御文の中で、Vnano では if / else / for / while / break /
 
 
 <a id="expression-operator"></a>
-## 演算子
+### 演算子
 
 Vnano でサポートされている演算子は、以下の一覧の通りです：
 
@@ -318,7 +318,7 @@ Vnanoのスクリプトコード内で、C言語系の記法で関数を宣言�
 それに対する呼び方として、ここで扱うようにスクリプト内で宣言された関数の事を「 内部関数 」とも呼びます。
 
 <a id="function-scalar"></a>
-## スカラを引数や戻り値とする関数
+### スカラを引数や戻り値とする関数
 
 以下は、スカラ変数（配列ではない普通の変数）を引数や戻り値とする関数のコード例です：
 
@@ -335,7 +335,7 @@ Vnanoのスクリプトコード内で、C言語系の記法で関数を宣言�
 
 
 <a id="function-array"></a>
-## 配列を引数や戻り値とする関数
+### 配列を引数や戻り値とする関数
 
 配列を引数や戻り値にしたい場合の例は、以下の通りです：
 
@@ -383,7 +383,7 @@ Vnano（および VCSSL）における配列は、ポインタや参照型では
 
 
 <a id="function-params-and-args"></a>
-## 仮引数と実引数
+### 仮引数と実引数
 
 以下の例の「 a 」のように、関数側で宣言されている引数の事を「仮引数」と呼びます。それに対して、以下の例の「 x 」のように、呼び出し元から関数に渡している引数の事を「実引数」と呼びます。
 
@@ -397,7 +397,7 @@ Vnano（および VCSSL）における配列は、ポインタや参照型では
 
 
 <a id="function-call-by-value"></a>
-## 引数の値渡し
+### 引数の値渡し
 
 デフォルトでは、関数内における仮引数の値の変更は、呼び出し元の実引数の値には反映されません。例えば：
 
@@ -433,7 +433,7 @@ Vnano（および VCSSL）における配列は、ポインタや参照型では
 
 
 <a id="function-call-by-reference"></a>
-## 引数の参照渡し
+### 引数の参照渡し
 
 関数内での仮引数の値の変更を、呼び出し元の実引数の値に反映させたい場合は、仮引数の宣言において、名前の前に「 & 」記号を付加してください。例えば：
 
