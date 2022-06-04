@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2021 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2022 RINEARN
  * This software is released under the MIT License.
  */
 
@@ -17,153 +17,96 @@ import org.vcssl.nano.spec.DataTypeName;
 import org.vcssl.nano.spec.OptionKey;
 import org.vcssl.nano.spec.OptionValue;
 
-//Documentation:  https://www.vcssl.org/en-us/dev/code/main-jimpl/api/org/vcssl/nano/compiler/Compiler.html
-//ドキュメント:   https://www.vcssl.org/ja-jp/dev/code/main-jimpl/api/org/vcssl/nano/compiler/Compiler.html
 
 /**
- * <p>
- * <span>
- * <span class="lang-en">
- * The class performing the function of a compiler in the script engine of the Vnano
- * </span>
- * <span class="lang-ja">
- * Vnanoのスクリプトエンジン内で, コンパイラの機能を担うクラスです
- * </span>
- * .
- * </p>
+ * The class performing the function of a compiler in the script engine of the Vnano.
  *
- * <p>
- * <span class="lang-en">
- * This class compiles script code written in the Vnano
- * to a kind of intermediate code, named as "VRIL" code.
- * VRIL ― Vector Register Intermediate Language ― is a low-level (but readable text format) language
+ * This class compiles script code written in the Vnano to a kind of intermediate code, named as "VRIL" code.
+ * VRIL (Vector Register Intermediate Language) is a low-level (but readable text format) language
  * designed as a virtual assembly code of the VM (Virtual Machine) layer of Vnano Engine.
- * </span>
- *
- * <span class="lang-ja">
- * このクラスは,
- * Vnanoのスクリプトコードを, "VRILコード" と呼ぶ一種の中間コードへと変換します.
- * VRIL（Vector Register Intermediate Language; ベクトルレジスタ中間言語）は, Vnanoエンジンの
- * VM（仮想マシン）層の単位動作に対応するレベルの低抽象度な命令を提供する,  仮想的なアセンブリ言語です.
- * VRILコードは, 実在のアセンブリコードと同様に, 人間にとって可読なテキスト形式のコードです.
- * </span>
- * </p>
- *
- * <p>
- * &raquo; <a href="../../../../../src/org/vcssl/nano/compiler/Compiler.java">Source code</a>
- * </p>
- *
- * <hr>
- *
- * <p>
- * | <a href="../../../../../api/org/vcssl/nano/compiler/Compiler.html">Public Only</a>
- * | <a href="../../../../../api-all/org/vcssl/nano/compiler/Compiler.html">All</a> |
- * </p>
- *
- * @author RINEARN (Fumihiro Matsui)
  */
 public class Compiler {
 
 	/**
-	 * <span class="lang-en">
-	 * Create a new compiler
-	 * </span>
-	 * <span class="lang-ja">
-	 * コンパイラを生成します
-	 * </span>
-	 * .
+	 * Create a new compiler.
 	 */
 	public Compiler() {
 	}
 
 
 	/**
-	 * <span class="lang-en">
-	 * Compiles the script code written in the Vnano to VRIL code
-	 * </span>
-	 * <span class="lang-ja">
-	 * Vnanoで記述されたスクリプトコードを, VRILコードにコンパイルします
-	 * </span>
-	 * .
+	 * Compiles the script code written in the Vnano to VRIL code.
 	 *
-	 * @param scripts
-	 *   <span class="lang-en">Code of scripts to be compiled.</span>
-	 *   <span class="lang-ja">コンパイルしたいスクリプト（複数）のコード.</span>
-	 *
-	 * @param names
-	 *   <span class="lang-en">Names of scripts.</span>
-	 *   <span class="lang-ja">スクリプト（複数）の名前.</span>
-	 *
-	 * @param interconnect
-	 *   <span class="lang-en">The interconnect to which external functions/variables are connected.</span>
-	 *   <span class="lang-ja">外部変数/関数が接続されているインターコネクト.</span>
-	 *
-	 * @return
-	 *   <span class="lang-en">The compiled VRIL code.</span>
-	 *   <span class="lang-ja">コンパイルされたVRILコード.</span>
-	 *
-	 * @throws VnanoException
-	 *   <span class="lang-en">Thrown when a syntax error will be detected for the content of the script.</span>
-	 *   <span class="lang-ja">スクリプトの内容に構文エラーが検出された場合にスローされます.</span>
+	 * @param scripts Code of scripts to be compiled.
+	 * @param names Names of scripts.
+	 * @param interconnect The interconnect to which external functions/variables are connected.
+	 * @return The compiled VRIL code.
+	 * @throws VnanoException Thrown when a syntax error will be detected for the content of the script.
 	 */
 	public String compile(String[] scripts, String[] names, Interconnect interconnect)
 					throws VnanoException {
 
-		// スクリプトコードの枚数とスクリプト名の個数が違う場合はエラー
 		if (scripts.length != names.length) {
 			throw new VnanoFatalException("Array-lengths of \"scripts\" and \"names\" arguments are mismatching.");
 		}
 
-		// 全オプションの名前と値を格納するマップを（オプションマップ）取得
-		Map<String, Object> optionMap = interconnect.getOptionMap();  // 正規化は Interconnect 側で実施済み
+		// Get the option map, which is a map storing sets of names and values of options.
+		// (The contents of the option map had already been normalized in Interconnect.)
+		Map<String, Object> optionMap = interconnect.getOptionMap();
 
-		// スクリプトコードの枚数を取得
+		// Get the total number of scripts.
 		int scriptLength = scripts.length;
 
-		// EVAL_NUMBER_AS_FLOAT オプションの値を取得
+		// Check whether EVAL_INT_LITERAL_AS_FLOAT option is enabled, 
+		// where EVAL_INT_LITERAL_AS_FLOAT is the option to handle all integer literals in scripts as float-type values.
+		// It is useful for purposes calculating values of expressions.
 		boolean evalNumberAsFloat = (Boolean)optionMap.get(OptionKey.EVAL_INT_LITERAL_AS_FLOAT);
 
-		// ダンプ関連のオプション指定内容を取得
-		boolean shouldDump = (Boolean)optionMap.get(OptionKey.DUMPER_ENABLED);        // ダンプするかどうか
-		String dumpTarget = (String)optionMap.get(OptionKey.DUMPER_TARGET);           // ダンプ対象
-		boolean dumpTargetIsAll = dumpTarget.equals(OptionValue.DUMPER_TARGET_ALL);   // ダンプ対象が全てかどうか
-		PrintStream dumpStream = (PrintStream)optionMap.get(OptionKey.DUMPER_STREAM); // ダンプ先ストリーム
+		// Get values of options to dump parsed/compiled contents for debugging.
+		boolean shouldDump = (Boolean)optionMap.get(OptionKey.DUMPER_ENABLED);
+		String dumpTarget = (String)optionMap.get(OptionKey.DUMPER_TARGET);
+		boolean dumpTargetIsAll = dumpTarget.equals(OptionValue.DUMPER_TARGET_ALL);
+		PrintStream dumpStream = (PrintStream)optionMap.get(OptionKey.DUMPER_STREAM);
 
 
-		// 入力スクリプトコードをダンプ
+		// Dump inputted scripts.
 		if (shouldDump && (dumpTargetIsAll || dumpTarget.equals(OptionValue.DUMPER_TARGET_INPUTTED_CODE)) ) {
 			this.dumpInputtedCode(scripts, names, dumpTargetIsAll, dumpStream);
 		}
 
 
-		// プリプロセッサでコメントを削除し、改行コードを LF (0x0A) に統一
+		// By preprocessor, remove comments, and replace line feeds to LF (0x0A).
 		String[] preprocessedScripts = new String[scriptLength];
 		for (int scriptIndex=0; scriptIndex<scriptLength; scriptIndex++) {
 			preprocessedScripts[scriptIndex] = new Preprocessor().preprocess(scripts[scriptIndex]);
 		}
 
-		// プリプロセッサ処理後のコードをダンプ
+		// Dump preprocessed scripts.
 		if (shouldDump && (dumpTargetIsAll || dumpTarget.equals(OptionValue.DUMPER_TARGET_PREPROCESSED_CODE)) ) {
 			this.dumpPreprocessedCode(preprocessedScripts, names, dumpTargetIsAll, dumpStream);
 		}
 
 
-		// 字句解析でトークン配列を生成
+		// By LexicalAnalyzer, split the script into tokens.
 		LexicalAnalyzer lexer = new LexicalAnalyzer();
-		Token[][] tokens = new Token[scriptLength][]; // [ スクリプトのインデックス ][ トークンのインデックス ]
+		Token[][] tokens = new Token[scriptLength][]; // [ index of script ][ index of token ]
 		for (int scriptIndex=0; scriptIndex<scriptLength; scriptIndex++) {
 			tokens[scriptIndex] = lexer.analyze(preprocessedScripts[scriptIndex], names[scriptIndex]);
 		}
 
-		// EVAL_NUMBER_AS_FLOAT オプションが有効な場合、エンジンのevalに渡されたスクリプト内のintリテラルをfloat型に変更
+		// If EVAL_INT_LITERALS_AS_FLOAT option is enabled, replaces data-types of all integer literals to "float".
 		if (evalNumberAsFloat) {
-			tokens[scriptLength-1] = this.replaceDataTypeOfLiteralTokens( // [scriptLength-1]番目はeval対象のスクリプト
+			tokens[scriptLength-1] = this.replaceDataTypeOfLiteralTokens(
 				tokens[scriptLength-1], DataTypeName.DEFAULT_INT, DataTypeName.DEFAULT_FLOAT
 			);
+			// where tokens[scriptLength-1] are tokens of the (main) script 
+			// passes as an argument of "executeScript(String script)" method of VnanoEngine.
 		}
 
-		// 全スクリプトのトークン配列を結合 ( 最初にスクリプトそのものを結合せず、わざわざ
-		// 字句解析後に結合している理由は、エラー情報などで使用する、行番号やファイル名情報のずれを防ぐため ）
+		// Marge tokens of all scripts.
+		// Why we haven't marge them before here is: to display correct cause information when any error is detected.
+		// Line numbers and script names are set to tokens by LexicalAnalyzer, so if we link scripts before lexical analysis, 
+		// incorrect line numbers and script names will be set to tokens, and displayed in error messages.
 		List<Token> tokenList = new ArrayList<Token>();
 		for (int scriptIndex=0; scriptIndex<scriptLength; scriptIndex++) {
 			for (Token token: tokens[scriptIndex]) {
@@ -173,40 +116,41 @@ public class Compiler {
 		Token[] unifiedTokens = tokenList.toArray(new Token[0]);
 
 
-		// トークン配列をダンプ
+		// Dump tokens.
 		if (shouldDump && (dumpTargetIsAll || dumpTarget.equals(OptionValue.DUMPER_TARGET_TOKEN)) ) {
 			this.dumpTokens(unifiedTokens, dumpTargetIsAll, dumpStream);
 		}
 
 
-		// 構文解析でAST（抽象構文木）を生成
+		// By Parser, construct an AST from tokens.
 		AstNode parsedAstRootNode = new Parser().parse(unifiedTokens);
 
-		// 構文解析後のASTをダンプ
+		// Dump the parsed AST.
 		if (shouldDump && (dumpTargetIsAll || dumpTarget.equals(OptionValue.DUMPER_TARGET_PARSED_AST)) ) {
 			this.dumpParsedAst(parsedAstRootNode, dumpTargetIsAll, dumpStream);
 		}
 
 
-		// 意味解析でASTの情報を補間
+		// By SemanticAnalyzer, analyze/supplement data-types and so on of nodes in the AST.
 		AstNode analyzedAstRootNode = new SemanticAnalyzer().analyze(parsedAstRootNode, interconnect);
 
-		// 意味解析後のASTをダンプ
+		// Dump the analyzed AST.
 		if (shouldDump && (dumpTargetIsAll || dumpTarget.equals(OptionValue.DUMPER_TARGET_ANALYZED_AST)) ) {
 			this.dumpAnalyzedAst(analyzedAstRootNode, dumpTargetIsAll, dumpStream);
 		}
 
 
-		// 中間アセンブリコードを生成
+		// By CodeGenerator, generate the intermediate assembly code (VRIL assembly code) processable on the VM.
 		String assemblyCode = new CodeGenerator().generate(analyzedAstRootNode);
 
-		// 中間アセンブリコードをダンプ
+		// Dump the VRIL assembly code.
 		if (shouldDump && (dumpTargetIsAll || dumpTarget.equals(OptionValue.DUMPER_TARGET_ASSEMBLY_CODE)) ) {
 			this.dumpAssemblyCode(assemblyCode, dumpTargetIsAll, dumpStream);
 		}
 
 		return assemblyCode;
 	}
+
 
 	private void dumpInputtedCode(
 			String[] inputtedCode, String[] scriptNames, boolean withHeader, PrintStream dumpStream) {
@@ -317,7 +261,7 @@ public class Compiler {
 
 		if (withHeader) {
 			dumpStream.println("================================================================================");
-			dumpStream.println("= Assembly Code (VRIL Code)");
+			dumpStream.println("= VRIL Assembly Code");
 			dumpStream.println("= - Output of: org.vcssl.nano.compiler.CodeGenerator");
 			dumpStream.println("= - Input  of: org.vcssl.nano.vm.assembler.Assembler");
 			dumpStream.println("================================================================================");
@@ -331,23 +275,7 @@ public class Compiler {
 	}
 
 
-	/**
-	 * <span class="lang-ja">トークン配列の中で、特定のデータ型のリテラルを、別のデータ型に置き換えます</span>
-	 * .
-	 * <span class="lang-ja">この処理は EVAL_NUMBER_AS_FLOAT オプションの挙動のために使用されます. </span>
-	 *
-	 * @param tokens
-	 *   <span class="lang-ja">対象のトークン配列.</span>
-	 *
-	 * @param fromTypeName
-	 *   <span class="lang-ja">置き換え前のデータ型.</span>
-	 *
-	 * @param toTypeName
-	 *   <span class="lang-ja">置き換え後のデータ型.</span>
-	 *
-	 * @return
-	 *   <span class="lang-ja">リテラルのデータ型を置き換えたトークン配列.</span>
-	 */
+	// For EVAL_INT_LITERAL_AS_FLOAT option
 	private Token[] replaceDataTypeOfLiteralTokens(Token[] tokens, String fromTypeName, String toTypeName) {
 		int tokenLength = tokens.length;
 		Token[] replacedTokens = new Token[tokenLength];
