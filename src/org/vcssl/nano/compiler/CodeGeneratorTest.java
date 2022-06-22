@@ -1,8 +1,3 @@
-/*
- * Copyright(C) 2017-2021 RINEARN (Fumihiro Matsui)
- * This software is released under the MIT License.
- */
-
 package org.vcssl.nano.compiler;
 
 import static org.junit.Assert.*;
@@ -53,7 +48,7 @@ public class CodeGeneratorTest {
 	private final String END_CODE = IND + OperationCode.END + WS + DataTypeName.VOID
 	                                     + WS + AssemblyWord.PLACEHOLDER_OPERAND_PREFIX + EOI;
 
-	// テストコードの先頭に常に付く定型コード（バージョン情報など）
+	// Generated code always begins with the following contents:
 	private final String HEADER =
 			AssemblyWord.ASSEMBLY_LANGUAGE_IDENTIFIER_DIRECTIVE + AssemblyWord.WORD_SEPARATOR
 			+
@@ -73,7 +68,7 @@ public class CodeGeneratorTest {
 			+
 			AssemblyWord.LINE_SEPARATOR;
 
-	// メタディレクティブコード
+	// Code of a dummy meta information directive.
 	private final String META = AssemblyWord.LINE_SEPARATOR
 			+ AssemblyWord.META_DIRECTIVE + AssemblyWord.WORD_SEPARATOR + "\"line=123, file=Test.vnano\"";
 
@@ -129,7 +124,6 @@ public class CodeGeneratorTest {
 	}
 
 
-	// 代入演算子のテスト
 	@Test
 	public void testGenerateAssignmentOperatorCode() {
 		this.testGenerateAssignmentOperatorCodeVector();
@@ -137,7 +131,7 @@ public class CodeGeneratorTest {
 
 	public void testGenerateAssignmentOperatorCodeVector() {
 
-		//「 intVectorA = intVectorB; 」のASTを用意（symbolは引数に渡された二項算術演算子）
+		// Prepare AST of "intVectorA = intVectorB;"
 		AstNode rootNode = this.createRootNode();
 		AstNode exprNode = this.createExpressionNode(DataTypeName.DEFAULT_INT, 1);
 		AstNode operatorNode = this.createOperatorNode(
@@ -152,13 +146,9 @@ public class CodeGeneratorTest {
 		exprNode.addChildNode(operatorNode);
 		operatorNode.addChildNodes(operandNodes);
 
-		// ASTの内容を確認
-		//System.out.println(rootNode);
-
-		// コード生成
 		String generatedCode = new CodeGenerator().generate(rootNode);
 
-		/* 期待コードを用意（内容は下記コメントの通り、ただし空白幅は見やすいよう調整）
+		/* Expected code:
 
 		  #GLOBAL	_intVectorA
 		  #GLOBAL	_intVectorB
@@ -172,16 +162,10 @@ public class CodeGeneratorTest {
 			+ IND + OperationCode.MOV + WS + DataTypeName.DEFAULT_INT + WS + IVA + WS + IVB + EOI
 			+ END_CODE;
 
-		// 生成コードと期待コードの内容を確認
-		//System.out.println(generatedCode);
-		//System.out.println(expectedCode);
-
-		// 生成コードと期待コードを比較検査
 		assertEquals(expectedCode.replace(AssemblyWord.LINE_SEPARATOR,""), generatedCode.replace(AssemblyWord.LINE_SEPARATOR,""));
 	}
 
 
-	// 算術二項演算子のテスト
 	@Test
 	public void testGenerateArithmeticBinaryOperatorCode() {
 
@@ -301,7 +285,7 @@ public class CodeGeneratorTest {
 
 	public void testGenerateArithmeticBinaryOperatorCodeScalar(String symbol, int priority, OperationCode operationCode) {
 
-		//「 1 symbol 2; 」のASTを用意（symbolは引数に渡された二項算術演算子）
+		// Prepare AST of "1 symbol 2;", where the symbol is an arithmetic operator.
 		AstNode rootNode = this.createRootNode();
 		AstNode exprNode = this.createExpressionNode(DataTypeName.DEFAULT_INT, RANK_OF_SCALAR);
 		AstNode operatorNode = this.createOperatorNode(
@@ -315,17 +299,13 @@ public class CodeGeneratorTest {
 		exprNode.addChildNode(operatorNode);
 		operatorNode.addChildNodes(operandNodes);
 
-		// ASTの内容を確認
-		//System.out.println(rootNode);
-
-		// コード生成
 		String generatedCode = new CodeGenerator().generate(rootNode);
 
-		/* 期待コードを用意（内容は下記コメントの通り、ただし空白幅は見やすいよう調整）
+		/* Expected code:
 
 		  #META  "line=123, file=Test.vnano";
 		      ALLOC   int    R0;
-		      ???     int    R0    ~int:1    ~int:2;   (???の箇所に算術演算の命令コードが入る)
+		      ???     int    R0    ~int:1    ~int:2;   (??? is the specified operation code)
 		      END     void    -;
 		 */
 		String expectedCode = HEADER + META + EOI
@@ -333,16 +313,12 @@ public class CodeGeneratorTest {
 			+ IND + operationCode + WS + DataTypeName.DEFAULT_INT + WS + R + "0" + WS + IINT + VS + "1" + WS + IINT + VS + "2" + EOI
 			+ END_CODE;
 
-		// 生成コードと期待コードの内容を確認
-		//System.out.println(generatedCode);
-		//System.out.println(expectedCode);
-
-		// 生成コードと期待コードを比較検査
 		assertEquals(expectedCode.replace(AssemblyWord.LINE_SEPARATOR,""), generatedCode.replace(AssemblyWord.LINE_SEPARATOR,""));
 	}
+
 	public void testGenerateArithmeticBinaryOperatorCodeScalarCast(String symbol, int priority, OperationCode operationCode) {
 
-		//「 1 symbol 2; 」のASTを用意（symbolは引数に渡された二項算術演算子）
+		// Prepare AST of "1 symbol 2;", where the symbol is an arithmetic operator.
 		AstNode rootNode = this.createRootNode();
 		AstNode exprNode = this.createExpressionNode(DataTypeName.DEFAULT_FLOAT, RANK_OF_SCALAR);
 		AstNode operatorNode = this.createOperatorNode(
@@ -356,19 +332,15 @@ public class CodeGeneratorTest {
 		exprNode.addChildNode(operatorNode);
 		operatorNode.addChildNodes(operandNodes);
 
-		// ASTの内容を確認
-		//System.out.println(rootNode);
-
-		// コード生成
 		String generatedCode = new CodeGenerator().generate(rootNode);
 
-		/* 期待コードを用意（内容は下記コメントの通り、ただし空白幅は見やすいよう調整）
+		/* Expected code:
 
 		  #META  "line=123, file=Test.vnano";
 		      ALLOC   float      R1;
 		      CAST    float:int  R1    ~int:2;
 		      ALLOC   float      R0;
-		      ???     float      R0    ~float:1    ~int:2;   (???の箇所に算術演算の命令コードが入る)
+		      ???     float      R0    ~float:1    ~int:2;   (??? is the specified operation code)
 		      END     void    -;
 		 */
 		String expectedCode = HEADER + META + EOI
@@ -378,16 +350,11 @@ public class CodeGeneratorTest {
 			+ IND + operationCode + WS + DataTypeName.DEFAULT_FLOAT + WS + R + "0" + WS + IFLOAT + VS + "1" + WS + R + "1" + EOI
 			+ END_CODE;
 
-		// 生成コードと期待コードの内容を確認
-		//System.out.println(generatedCode);
-		//System.out.println(expectedCode);
-
-		// 生成コードと期待コードを比較検査
 		assertEquals(expectedCode.replace(AssemblyWord.LINE_SEPARATOR,""), generatedCode.replace(AssemblyWord.LINE_SEPARATOR,""));
 	}
 	public void testGenerateArithmeticBinaryOperatorCodeVector(String symbol, int priority, OperationCode operationCode) {
 
-		//「 intVectorA symbol intVectorB; 」のASTを用意（symbolは引数に渡された二項算術演算子）
+		// Prepare AST of "intVectorA symbol intVectorB;", where the symbol is an arithmetic operator.
 		AstNode rootNode = this.createRootNode();
 		AstNode exprNode = this.createExpressionNode(DataTypeName.DEFAULT_INT, 1);
 		AstNode operatorNode = this.createOperatorNode(
@@ -401,19 +368,15 @@ public class CodeGeneratorTest {
 		exprNode.addChildNode(operatorNode);
 		operatorNode.addChildNodes(operandNodes);
 
-		// ASTの内容を確認
-		//System.out.println(rootNode);
-
-		// コード生成
 		String generatedCode = new CodeGenerator().generate(rootNode);
 
-		/* 期待コードを用意（内容は下記コメントの通り、ただし空白幅は見やすいよう調整）
+		/* Expected code:
 
 		  #GLOBAL	_intVectorA
 		  #GLOBAL	_intVectorB
 		  #META  "line=123, file=Test.vnano";
 		      ALLOCR  int    R0    _intVectorA;
-		      ???     int    R0    _intVectorA    _intVectorB;   (???の箇所に算術演算の命令コードが入る)
+		      ???     int    R0    _intVectorA    _intVectorB;   (??? is the specified operation code)
 		      END     void    -;
 		 */
 		String expectedCode = HEADER + GLOBAL_DIRECTIVE_IVA + EOI + GLOBAL_DIRECTIVE_IVB + EOI + META + EOI
@@ -421,17 +384,12 @@ public class CodeGeneratorTest {
 			+ IND + operationCode + WS + DataTypeName.DEFAULT_INT + WS + R + "0" + WS + IVA + WS + IVB + EOI
 			+ END_CODE;
 
-		// 生成コードと期待コードの内容を確認
-		//System.out.println(generatedCode);
-		//System.out.println(expectedCode);
-
-		// 生成コードと期待コードを比較検査
 		assertEquals(expectedCode.replace(AssemblyWord.LINE_SEPARATOR,""), generatedCode.replace(AssemblyWord.LINE_SEPARATOR,""));
 	}
 
 	public void testGenerateArithmeticBinaryOperatorCodeVectorCast(String symbol, int priority, OperationCode operationCode) {
 
-		//「 floatVectorA symbol intVectorB; 」のASTを用意（symbolは引数に渡された二項算術演算子）
+		// Prepare AST of "floatVectorA symbol intVectorB;", where the symbol is an arithmetic operator.
 		AstNode rootNode = this.createRootNode();
 		AstNode exprNode = this.createExpressionNode(DataTypeName.DEFAULT_FLOAT, RANK_OF_SCALAR);
 		AstNode operatorNode = this.createOperatorNode(
@@ -445,13 +403,9 @@ public class CodeGeneratorTest {
 		exprNode.addChildNode(operatorNode);
 		operatorNode.addChildNodes(operandNodes);
 
-		// ASTの内容を確認
-		//System.out.println(rootNode);
-
-		// コード生成
 		String generatedCode = new CodeGenerator().generate(rootNode);
 
-		/* 期待コードを用意（内容は下記コメントの通り、ただし空白幅は見やすいよう調整）
+		/* Expected code:
 
 		  #GLOBAL	_floatVectorA
 		  #GLOBAL	_intVectorB
@@ -459,7 +413,7 @@ public class CodeGeneratorTest {
 		      ALLOCR  float      R1    _intVectorB;
 		      CAST    float:int  R1    _intVectorB;
 		      ALLOCR  float      R0    _floatVectorA;
-		      ???     float      R0    _floatVectorA    R1;   (???の箇所に算術演算の命令コードが入る)
+		      ???     float      R0    _floatVectorA    R1;   (??? is the specified operation code)
 		      END     void    -;
 		 */
 		String expectedCode = HEADER + GLOBAL_DIRECTIVE_FVA + EOI + GLOBAL_DIRECTIVE_IVB + EOI + META + EOI
@@ -469,16 +423,11 @@ public class CodeGeneratorTest {
 			+ IND + operationCode + WS + DataTypeName.DEFAULT_FLOAT + WS + R + "0" + WS + FVA + WS + R + "1" + EOI
 			+ END_CODE;
 
-		// 生成コードと期待コードの内容を確認
-		//System.out.println(generatedCode);
-		//System.out.println(expectedCode);
-
-		// 生成コードと期待コードを比較検査
 		assertEquals(expectedCode.replace(AssemblyWord.LINE_SEPARATOR,""), generatedCode.replace(AssemblyWord.LINE_SEPARATOR,""));
 	}
 	public void testGenerateArithmeticBinaryOperatorCodeVectorScalarMixed(String symbol, int priority, OperationCode operationCode) {
 
-		//「 intVectorA symbol floatVectorB; 」のASTを用意（symbolは引数に渡された二項算術演算子）
+		// Prepare AST of "intVectorA symbol floatVectorB;", where the symbol is an arithmetic operator.
 		AstNode rootNode = this.createRootNode();
 		AstNode exprNode = this.createExpressionNode(DataTypeName.DEFAULT_INT, RANK_OF_SCALAR);
 		AstNode operatorNode = this.createOperatorNode(
@@ -492,13 +441,9 @@ public class CodeGeneratorTest {
 		exprNode.addChildNode(operatorNode);
 		operatorNode.addChildNodes(operandNodes);
 
-		// ASTの内容を確認
-		//System.out.println(rootNode);
-
-		// コード生成
 		String generatedCode = new CodeGenerator().generate(rootNode);
 
-		/* 期待コードを用意（内容は下記コメントの通り、ただし空白幅は見やすいよう調整）
+		/* Expected code:
 
 		  #GLOBAL	_floatVectorA
 		  #GLOBAL	_intVectorB
@@ -506,7 +451,7 @@ public class CodeGeneratorTest {
 		      ALLOCR  int        R1    _intVectorA;
               FILL    int        R1    _intScalarB;
 		      ALLOCR  int        R0    _intVectorA;
-		      ???     int        R0    _intVectorA    R1;   (???の箇所に算術演算の命令コードが入る)
+		      ???     int        R0    _intVectorA    R1;   (??? is the specified operation code)
 		      END     void    -;
 		 */
 		String expectedCode = HEADER + GLOBAL_DIRECTIVE_IVA + EOI + GLOBAL_DIRECTIVE_ISB + EOI + META + EOI
@@ -516,16 +461,11 @@ public class CodeGeneratorTest {
 			+ IND + operationCode + WS + DataTypeName.DEFAULT_INT + WS + R + "0" + WS + IVA + WS + R + "1" + EOI
 			+ END_CODE;
 
-		// 生成コードと期待コードの内容を確認
-		//System.out.println(generatedCode);
-		//System.out.println(expectedCode);
-
-		// 生成コードと期待コードを比較検査
 		assertEquals(expectedCode.replace(AssemblyWord.LINE_SEPARATOR,""), generatedCode.replace(AssemblyWord.LINE_SEPARATOR,""));
 	}
 	public void testGenerateArithmeticBinaryOperatorCodeVectorScalarMixedCastVector(String symbol, int priority, OperationCode operationCode) {
 
-		//「 intVectorA symbol floatScalarB; 」のASTを用意（symbolは引数に渡された二項算術演算子）
+		// Prepare AST of "intVectorA symbol floatScalarB;", where the symbol is an arithmetic operator.
 		AstNode rootNode = this.createRootNode();
 		AstNode exprNode = this.createExpressionNode(DataTypeName.DEFAULT_FLOAT, RANK_OF_SCALAR);
 		AstNode operatorNode = this.createOperatorNode(
@@ -539,13 +479,9 @@ public class CodeGeneratorTest {
 		exprNode.addChildNode(operatorNode);
 		operatorNode.addChildNodes(operandNodes);
 
-		// ASTの内容を確認
-		//System.out.println(rootNode);
-
-		// コード生成
 		String generatedCode = new CodeGenerator().generate(rootNode);
 
-		/* 期待コードを用意（内容は下記コメントの通り、ただし空白幅は見やすいよう調整）
+		/* Expected code:
 
 		  #GLOBAL	_floatVectorA
 		  #GLOBAL	_intVectorB
@@ -555,7 +491,7 @@ public class CodeGeneratorTest {
 		      ALLOCR  float      R2    _intVectorA;
               FILL    float      R2    _floatScalarB;
 		      ALLOCR  float      R0    _intVectorA;
-		      ???     float      R0    R1    R2;   (???の箇所に算術演算の命令コードが入る)
+		      ???     float      R0    R1    R2;   (??? is the specified operation code)
 		      END     void    -;
 		 */
 		String expectedCode = HEADER + GLOBAL_DIRECTIVE_IVA + EOI + GLOBAL_DIRECTIVE_FSB + EOI + META + EOI
@@ -567,16 +503,11 @@ public class CodeGeneratorTest {
 			+ IND + operationCode + WS + DataTypeName.DEFAULT_FLOAT + WS + R + "0" + WS + R + "1" + WS + R + "2" + EOI
 			+ END_CODE;
 
-		// 生成コードと期待コードの内容を確認
-		//System.out.println(generatedCode);
-		//System.out.println(expectedCode);
-
-		// 生成コードと期待コードを比較検査
 		assertEquals(expectedCode.replace(AssemblyWord.LINE_SEPARATOR,""), generatedCode.replace(AssemblyWord.LINE_SEPARATOR,""));
 	}
 	public void testGenerateArithmeticBinaryOperatorCodeVectorScalarMixedCastScalar(String symbol, int priority, OperationCode operationCode) {
 
-		//「 floatVectorA symbol intScalarB; 」のASTを用意（symbolは引数に渡された二項算術演算子）
+		// Prepare AST of "floatVectorA symbol intScalarB;", where the symbol is an arithmetic operator.
 		AstNode rootNode = this.createRootNode();
 		AstNode exprNode = this.createExpressionNode(DataTypeName.DEFAULT_FLOAT, RANK_OF_SCALAR);
 		AstNode operatorNode = this.createOperatorNode(
@@ -590,13 +521,9 @@ public class CodeGeneratorTest {
 		exprNode.addChildNode(operatorNode);
 		operatorNode.addChildNodes(operandNodes);
 
-		// ASTの内容を確認
-		//System.out.println(rootNode);
-
-		// コード生成
 		String generatedCode = new CodeGenerator().generate(rootNode);
 
-		/* 期待コードを用意（内容は下記コメントの通り、ただし空白幅は見やすいよう調整）
+		/* Expected code:
 
 		  #GLOBAL	_floatVectorA
 		  #GLOBAL	_intVectorB
@@ -606,7 +533,7 @@ public class CodeGeneratorTest {
 		      ALLOCR  float      R2    _floatVectorA;
               FILL 	  float      R2    R1;
 		      ALLOCR  float      R0    _floatVectorA;
-		      ???     float      R0    _floatVectorA    R2;   (???の箇所に算術演算の命令コードが入る)
+		      ???     float      R0    _floatVectorA    R2;   (??? is the specified operation code)
 		      END     void    -;
 		 */
 		String expectedCode = HEADER + GLOBAL_DIRECTIVE_FVA + EOI + GLOBAL_DIRECTIVE_ISB + EOI + META + EOI
@@ -618,16 +545,10 @@ public class CodeGeneratorTest {
 			+ IND + operationCode + WS + DataTypeName.DEFAULT_FLOAT + WS + R + "0" + WS + FVA + WS + R + "2" + EOI
 			+ END_CODE;
 
-		// 生成コードと期待コードの内容を確認
-		//System.out.println(generatedCode);
-		//System.out.println(expectedCode);
-
-		// 生成コードと期待コードを比較検査
 		assertEquals(expectedCode.replace(AssemblyWord.LINE_SEPARATOR,""), generatedCode.replace(AssemblyWord.LINE_SEPARATOR,""));
 	}
 
 
-	// 算術複合代入演算子のテスト
 	@Test
 	public void testGenerateArithmeticCompoundAssignmentOperatorCode() {
 
@@ -663,9 +584,10 @@ public class CodeGeneratorTest {
 			ScriptWord.REMAINDER_ASSIGNMENT, OperatorPrecedence.REMAINDER_ASSIGNMENT, OperationCode.REM
 		);
 	}
+
 	public void testGenerateArithmeticCompoundAssignmentOperatorCodeScalar(String symbol, int priority, OperationCode operationCode) {
 
-		//「 intScalarA symbol intScalarB; 」のASTを用意（symbolは引数に渡された二項算術演算子）
+		// Prepare AST of "intScalarA symbol intScalarB;", where the symbol is an arithmetic-compound operator.
 		AstNode rootNode = this.createRootNode();
 		AstNode exprNode = this.createExpressionNode(DataTypeName.DEFAULT_INT, RANK_OF_SCALAR);
 		AstNode operatorNode = this.createOperatorNode(
@@ -679,32 +601,23 @@ public class CodeGeneratorTest {
 		exprNode.addChildNode(operatorNode);
 		operatorNode.addChildNodes(operandNodes);
 
-		// ASTの内容を確認
-		//System.out.println(rootNode);
-
-		// コード生成
 		String generatedCode = new CodeGenerator().generate(rootNode);
 
-		/* 期待コードを用意（内容は下記コメントの通り、ただし空白幅は見やすいよう調整）
+		/* Expected code:
 
 		  #META  "line=123, file=Test.vnano";
-		      ???     int    _intScalarA    _intScalarA    _intScalarB;   (???の箇所に算術演算の命令コードが入る)
+		      ???     int    _intScalarA    _intScalarA    _intScalarB;   (??? is the specified operation code)
 		      END     void    -;
 		 */
 		String expectedCode = HEADER + GLOBAL_DIRECTIVE_ISA + EOI + GLOBAL_DIRECTIVE_ISB + EOI + META + EOI
 			+ IND + operationCode + WS + DataTypeName.DEFAULT_INT + WS + ISA + WS + ISA + WS + ISB + EOI
 			+ END_CODE;
 
-		// 生成コードと期待コードの内容を確認
-		//System.out.println(generatedCode);
-		//System.out.println(expectedCode);
-
-		// 生成コードと期待コードを比較検査
 		assertEquals(expectedCode.replace(AssemblyWord.LINE_SEPARATOR,""), generatedCode.replace(AssemblyWord.LINE_SEPARATOR,""));
 	}
 	public void testGenerateArithmeticCompoundAssignmentOperatorCodeVector(String symbol, int priority, OperationCode operationCode) {
 
-		//「 intVectorA symbol intVectorB; 」のASTを用意（symbolは引数に渡された二項算術演算子）
+		// Prepare AST of "intVectorA symbol intVectorB;", where the symbol is an arithmetic-compound operator.
 		AstNode rootNode = this.createRootNode();
 		AstNode exprNode = this.createExpressionNode(DataTypeName.DEFAULT_INT, 1);
 		AstNode operatorNode = this.createOperatorNode(
@@ -718,29 +631,20 @@ public class CodeGeneratorTest {
 		exprNode.addChildNode(operatorNode);
 		operatorNode.addChildNodes(operandNodes);
 
-		// ASTの内容を確認
-		//System.out.println(rootNode);
-
-		// コード生成
 		String generatedCode = new CodeGenerator().generate(rootNode);
 
-		/* 期待コードを用意（内容は下記コメントの通り、ただし空白幅は見やすいよう調整）
+		/* Expected code:
 
 		  #GLOBAL	_intVectorA
 		  #GLOBAL	_intVectorB
 		  #META  "line=123, file=Test.vnano";
-		      ???     int    _intVectorA    _intVectorA    _intVectorB;   (???の箇所に算術演算の命令コードが入る)
+		      ???     int    _intVectorA    _intVectorA    _intVectorB;   (??? is the specified operation code)
 		      END     void    -;
 		 */
 		String expectedCode = HEADER + GLOBAL_DIRECTIVE_IVA + EOI + GLOBAL_DIRECTIVE_IVB + EOI + META + EOI
 			+ IND + operationCode + WS + DataTypeName.DEFAULT_INT + WS + IVA + WS + IVA + WS + IVB + EOI
 			+ END_CODE;
 
-		// 生成コードと期待コードの内容を確認
-		//System.out.println(generatedCode);
-		//System.out.println(expectedCode);
-
-		// 生成コードと期待コードを比較検査
 		assertEquals(expectedCode.replace(AssemblyWord.LINE_SEPARATOR,""), generatedCode.replace(AssemblyWord.LINE_SEPARATOR,""));
 	}
 

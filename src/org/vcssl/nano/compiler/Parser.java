@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2021 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2022 RINEARN
  * This software is released under the MIT License.
  */
 
@@ -19,112 +19,61 @@ import org.vcssl.nano.spec.OperatorPrecedence;
 import org.vcssl.nano.spec.ScriptWord;
 import org.vcssl.nano.spec.ErrorType;
 
-//Documentation:  https://www.vcssl.org/en-us/dev/code/main-jimpl/api/org/vcssl/nano/compiler/Parser.html
-//ドキュメント:   https://www.vcssl.org/ja-jp/dev/code/main-jimpl/api/org/vcssl/nano/compiler/Parser.html
-
 /**
- * <p>
  * <span class="lang-en">
- * The class performing the function of the parser in the compiler of the Vnano
- * </span>
- * <span class="lang-ja">
- * Vnano のコンパイラ内において, パーサ（構文解析器）の機能を担うクラスです
- * </span>
- * .
- * </p>
- *
- * <p>
- * <span class="lang-en">
+ * The class performing the function of the parser in the compiler of the Vnano.
+ * 
  * The processing of this class takes tokens as input,
  * then constructs the AST (Abstract Syntax Tree) and outputs it.
- * </span>
- * <span class="lang-ja">
- * このクラスが行う構文解析処理は, 入力としてトークン列を受け取り,
- * AST（抽象構文木）を構築して出力します.
- * </span>
- * </p>
- *
- * <p>
- * &raquo; <a href="../../../../../src/org/vcssl/nano/compiler/Parser.java">Source code</a>
- * </p>
- *
- * <hr>
- *
- * <p>
- * | <a href="../../../../../api/org/vcssl/nano/compiler/Parser.html">Public Only</a>
- * | <a href="../../../../../api-all/org/vcssl/nano/compiler/Parser.html">All</a> |
- * </p>
- *
- * @author RINEARN (Fumihiro Matsui)
  */
 public class Parser {
 
-	/**
-	 * <span class="lang-ja">スカラの配列次元数です</span>
-	 * <span class="lang-en">The array-rank of the scalar</span>
-	 * .
-	 */
+	/** The array-rank of the scalar. */
 	private static final int RANK_OF_SCALAR = 0;
 
 
 	/**
-	 * <span class="lang-en">
-	 * Create a new parser
-	 * </span>
-	 * <span class="lang-ja">
-	 * パーサを生成します
-	 * </span>
-	 * .
-	 * @param langSpec
-	 *   <span class="lang-en">language specification settings.</span>
+	 * Create a new parser.
 	 */
 	public Parser() {
 	}
 
 
 	/**
-	 * <span class="lang-en">Constructs and returns the AST by parsing tokens</span>
-	 * <span class="lang-ja">トークン列を構文解析し, ASTを構築して返します</span>
-	 * .
-	 * @param tokens
-	 *   <span class="lang-en">Tokens to be parsed.</span>
-	 *   <span class="lang-ja">解析対象のトークン列.</span>
-	 *
-	 * @return
-	 *   <span class="lang-en">The constructed AST.</span>
-	 *   <span class="lang-ja">構築されたAST.</span>
-	 *
-	 * @throws VnanoException
-	 *   <span class="lang-en">Thrown when any syntax error has detected.</span>
-	 *   <span class="lang-ja">構文エラーが検出された場合にスローされます.</span>
+	 * Constructs and returns the AST by parsing tokens.
+	 * 
+	 * @param tokens Tokens to be parsed.
+	 * @return The constructed AST.
+	 * @throws VnanoException Thrown when any syntax error has detected.
 	 */
 	public AstNode parse(Token[] tokens) throws VnanoException {
 
 		LexicalChecker lexicalChecker = new LexicalChecker();
 
-		// パース作業用のスタックとして使用する双方向キュー
+		// Working stack to form multiple AstNode instances into a tree-shape.
 		Deque<AstNode> statementStack = new ArrayDeque<AstNode>();
 
-		int tokenLength = tokens.length; // トークンの総数
-		int statementBegin = 0; // 文の始点のインデックスを格納する
+		int tokenLength = tokens.length; // The total number of tokens.
+		int statementBegin = 0; // Stores the array index of the beginning token of a statement.
 
 		while(statementBegin < tokenLength) {
 
-			// 文の終端（文末記号）と、次のブロック始点・終端のインデックスを取得
+			// Get indices of the end of the statement, and the beginning/end of the next block.
 			int statementEnd = Token.getIndexOf(tokens, ScriptWord.END_OF_STATEMENT, statementBegin);
 			int blockBegin = Token.getIndexOf(tokens, ScriptWord.BLOCK_BEGIN, statementBegin);
 			int blockEnd = Token.getIndexOf(tokens, ScriptWord.BLOCK_END, statementBegin);
 
 			Token beginToken = tokens[statementBegin];
 
-			// 文末記号が無い場合のエラー（3つめの条件は、ブロック終端後に文が無い場合のため）
+			// Throw an exception when the statement end symbol ";" is missing.
+			// The third condition is for excluding the case that there is no statement after a block-end.
 			if (statementEnd < 0 && blockBegin < 0 && statementBegin!=blockEnd) {
 				throw new VnanoException(
 						ErrorType.STATEMENT_END_IS_NOT_FOUND, beginToken.getFileName(), beginToken.getLineNumber()
 				);
 			}
 
-			// 空文（内容が無い文）の場合
+			// Empty statement:
 			if (statementBegin == statementEnd) {
 				AstNode emptyStatementNode = new AstNode(
 						AstNode.Type.EMPTY, tokens[statementBegin].getLineNumber(), beginToken.getFileName()
@@ -132,21 +81,23 @@ public class Parser {
 				statementStack.push(emptyStatementNode);
 				statementBegin++;
 
-			// ブロック文の始点 or 終点の場合
+			// Beginning/end of a block:
 			} else if (beginToken.getType()==Token.Type.BLOCK) {
 
-				// ブロック始点 -> スタックに目印のフタをつめる（第二引数は目印とするマーカー）
+				// Beginning of a block:
+				// Put a "lid" to the stack, as a marker of the beginning of the block, 
+				// for collecting statements in the block later.
 				if (beginToken.getValue().equals(ScriptWord.BLOCK_BEGIN)) {
 					this.pushLid(statementStack);
 					statementBegin++;
 
-				// ブロック終点
+				// End of a block:
 				} else {
 
-					// 目印のフタの位置まで、スタックから文のノード（=ブロックの中身の文）を全て回収
+					// Collect nodes of statements in the current block, from the stack.
 					AstNode[] statementsInBlock = this.popStatementNodes(statementStack);
 
-					// ブロック文ノードを生成し、上で取り出した文のノードを全てぶら下げる
+					// Create a block node, and link nodes of statements in the block as child nodes.
 					AstNode blockNode = new AstNode(
 						AstNode.Type.BLOCK, beginToken.getLineNumber(), beginToken.getFileName()
 					);
@@ -154,58 +105,59 @@ public class Parser {
 						blockNode.addChildNode(statementNode);
 					}
 
-					// ブロック文ノードをプッシュ
+					// Push the created block node to the stack.
 					statementStack.push(blockNode);
 					statementBegin++;
 				}
 
-			// 制御文の場合
+			// Control statements:
 			} else if (beginToken.getType()==Token.Type.CONTROL) {
 				String word = beginToken.getValue();
 
-				// if / for / while文 (この処理系では直後にブロックが必須)
+				// "if", "for", or "while" statements:
+				// (In Vnano, a block {...} is always required for an above statement.)
 				if (word.equals(ScriptWord.IF) || word.equals(ScriptWord.FOR) || word.equals(ScriptWord.WHILE)) {
 
-					// 括弧 (...) やブロック {...} が存在するか確認（この言語ではif/else/for/whileのブロックは必須）
-					lexicalChecker.checkTokensAfterControlStatement(tokens, statementBegin, word.equals(ScriptWord.FOR)); // 最後の引数は、括弧内に文末記号を許すかどうか
+					// "for" statement contains ";" in its "(...)", and other statements doesn't contain it.
+					boolean allowsStatementEndSymbolsInControlStatement = word.equals(ScriptWord.FOR);
+
+					// Check existence of a block.
+					lexicalChecker.checkTokensAfterControlStatement(tokens, statementBegin, allowsStatementEndSymbolsInControlStatement);
 
 					Token[] subTokens = Arrays.copyOfRange(tokens, statementBegin, blockBegin);
 					statementStack.push(this.parseControlStatement(subTokens));
 					statementBegin = blockBegin;
 
-				// else文
+				// "else" statement:
 				} else if (beginToken.getValue().equals(ScriptWord.ELSE)) {
 
-					// ブロック {...} が存在するか確認（この言語ではif/else/for/whileのブロックは必須）
-					lexicalChecker.checkTokensAfterControlStatement(tokens, statementBegin, false); // 最後の引数は、括弧内に文末記号を許すかどうか
+					// Check existence of a block.
+					lexicalChecker.checkTokensAfterControlStatement(tokens, statementBegin, false);
 
 					Token[] subTokens = Arrays.copyOfRange(tokens, statementBegin, statementBegin+1);
 					statementStack.push(this.parseControlStatement(subTokens));
 					statementBegin++;
 
-				// break / continue / return 文など
+				// "break", "continue", or "return" statements:
 				} else {
 					Token[] subTokens = Arrays.copyOfRange(tokens, statementBegin, statementEnd);
 					statementStack.push(this.parseControlStatement(subTokens));
 					statementBegin = statementEnd + 1;
 				}
 
-			// 関数宣言文の場合）
+			// Function declaration sstatement:
 			} else if (this.startsWithFunctionDeclarationTokens(tokens, statementBegin)) {
-
-				//LexicalChecker.checkTokensAfterFunctionDeclarationStatement(tokens, statementBegin, false);
 				Token[] subTokens = Arrays.copyOfRange(tokens, statementBegin, blockBegin);
 				statementStack.push(this.parseFunctionDeclarationStatement(subTokens));
 				statementBegin = blockBegin;
 
-			// 変数宣言文の場合
+			// Variable declaration statement:
 			} else if (beginToken.getType()==Token.Type.DATA_TYPE || beginToken.getType()==Token.Type.MODIFIER) {
-
 				Token[] subTokens = Arrays.copyOfRange(tokens, statementBegin, statementEnd);
 				statementStack.push(this.parseVariableDeclarationStatement(subTokens, true));
 				statementBegin = statementEnd + 1;
 
-			// 式文の場合
+			// Expression statement:
 			} else {
 				Token[] subTokens = Arrays.copyOfRange(tokens, statementBegin, statementEnd);
 				statementStack.push(this.parseExpression(subTokens));
@@ -213,7 +165,7 @@ public class Parser {
 			}
 		}
 
-		// ルートノードの保持情報用にファイル名と行番号を用意（空のスクリプトなどではトークンが全く無いため、個数検査が必要）
+		// Extract the file name and the line number of the first token, to set it to the root node.
 		String fileName = null;
 		int lineNumber = -1;
 		if (tokens.length != 0) {
@@ -221,13 +173,14 @@ public class Parser {
 			lineNumber = tokens[0].getLineNumber();
 		}
 
-		// ルートノードを生成し、最上階層のノードを全てぶら下げる(スタックに積まれている順序に注意)
+		// Create the root node of the AST, and link nodes at the top-hierarchy as child nodes.
 		AstNode rootNode = new AstNode(AstNode.Type.ROOT, lineNumber, fileName);
 		while (statementStack.size() != 0) {
+			// The order of nodes on the stack is reversed, so use "pollLast" instead of "pop", to extract them.
 			rootNode.addChildNode(statementStack.pollLast());
 		}
 
-		// AST内の各ノードに、ルートノードを深度 0 とする深度情報を設定
+		// Set depth values of all nodes in the AST.
 		rootNode.updateDepths();
 
 		return rootNode;
@@ -239,156 +192,163 @@ public class Parser {
 
 	// ====================================================================================================
 	// Parsing of Expressions
-	// 式の構文解析関連
 	// ====================================================================================================
 
 
 	/**
-	 * 式のトークン配列を解析し、AST（抽象構文木）を構築して返します。
+	 * Parses an expression.
 	 *
-	 * @param tokens 式のトークン配列
-	 * @return 構築したAST（抽象構文木）のルートノード
-	 * @throws VnanoException 式の構文に異常があった場合にスローされます。
+	 * @param tokens Tokens composing an expression.
+	 * @return The constructed AST.
+	 * @throws VnanoException Thrown when any syntactic error is detected.
 	 */
 	private AstNode parseExpression(Token[] tokens) throws VnanoException {
 
-		// 最初に、トークンの種類や括弧の数などに、式の構成トークンとして問題無いか検査
-		//（細かい原因情報を持たせた例外の生成もそちらで行う。そこで拾いきれなかったもののみ、後続処理でやや大枠の INVALID_EXPRESSION_SYNTAX エラーを投げる)
+		// Check types of tokens, correspondence of parentheses, and so on.
+		// (VnanoException will be thrown when any problem is detected.)
 		new LexicalChecker().checkTokensInExpression(tokens);
 
-		// キャスト演算子は複数トークンから成る特別な前置演算子なので、先に単一トークンの前置演算子に変換する
+		// Syntax of cast operators are little irregular, 
+		// so replace it to single-token prefix operators to simplify its parsing.
 		tokens = preprocessCastSequentialTokens(tokens);
 
-		int tokenLength = tokens.length; // トークン数
-		int readingIndex = 0; // 注目トークンのインデックス
-		int lineNumber = tokens[0].getLineNumber(); // エラーメッセージで使用
-		String fileName = tokens[0].getFileName(); // エラーメッセージで使用
+		int tokenLength = tokens.length;  // The total number ot tokens.
+		int readingIndex = 0;             // The array-index of the currently reading token.
+		int lineNumber = tokens[0].getLineNumber(); // Displayed in error messages.
+		String fileName = tokens[0].getFileName();  // Displayed in error messages.
 
-		// パース作業用のスタックとして使用する双方向キューを用意
+		// Working stack to form multiple AstNode instances into a tree-shape.
 		Deque<AstNode> stack = new ArrayDeque<AstNode>();
 
-		// トークン配列をスキャンし、個々のトークンの次（右側の最も近く）にある演算子の優先度を配列に格納（結合の判断で使用）
+		// The array storing next operator's precedence for each token.
+		// At [i], it is stored that the precedence of the first operator of which token-index is greater than i.
 		int[] nextOperatorPrecedence = this.getNextOperatorPrecedence(tokens);
 
-		// トークンを左から順に末尾まで読み進むループ
+		// Read tokens from left to right.
 		do {
-			AstNode operatorNode = null; // 生成した演算子ノードを控える
+			AstNode operatorNode = null;
 
-			Token readingToken = tokens[readingIndex];                 // このループでの読み込み対象トークン
-			int readingOpPrecedence = readingToken.getPrecedence();        // 読み込み対象トークンの演算子優先度
-			int nextOpPrecedence = nextOperatorPrecedence[readingIndex]; // 読み込み対象トークンの後方（右側）で最初にある演算子の優先度
-			String readingOpAssociativity = readingToken.getAttribute(AttributeKey.OPERATOR_ASSOCIATIVITY); // 演算子の結合性（右/左）
+			Token readingToken = tokens[readingIndex];
+			int readingOpPrecedence = readingToken.getPrecedence();      // The operator-precedence of the currently reading token, if it is an operator.
+			int nextOpPrecedence = nextOperatorPrecedence[readingIndex]; // The operator-precedence of the next operator.
+			String readingOpAssociativity = readingToken.getAttribute(AttributeKey.OPERATOR_ASSOCIATIVITY); // The associativity of the currently reading operator-token.
 
-			// 識別子やリテラルなどのリーフ（末端オペランド）ノードの場合 -> スタックにプッシュ
+			// Leaf nodes (identifier, literal, and so on):
 			if (readingToken.getType() == Token.Type.LEAF) {
 
+				// For leafs, simply push the node to the stack. It will be popped and linked to an operator token later.
 				stack.push(this.createLeafNode(readingToken));
 				readingIndex++;
 				continue;
 
-			// 括弧の場合
+			// Syntactic parentheses (excluding function-call and cast operators):
 			} else if (readingToken.getType()==Token.Type.PARENTHESIS) {
+				if (readingToken.getValue().equals(ScriptWord.PARENTHESIS_BEGIN)) { // Case of "("
 
-				// 開き括弧の場合、部分式の境界前後が結合しないよう、スタックに非演算子のフタをつめる（第二引数は回収時の目印）
-				if (readingToken.getValue().equals(ScriptWord.PARENTHESIS_BEGIN)) {
+					// Push a lid to the stack, for isolating tokens in a partial expression (...), from tokens pushed before them.
+					// For details, see the description of {@link Parser#pushLid} method.
 					this.pushLid(stack, AttributeValue.PARTIAL_EXPRESSION);
 					readingIndex++;
 					continue;
 
-				// 閉じ括弧の場合、スタックから構築済みの部分式構文木ノード（括弧の場合は1個しか無いはず）を取り出し、フタも除去
-				} else {
+				} else { // Case of ")"
 					operatorNode = this.popPartialExpressionNodes(stack, AttributeValue.PARTIAL_EXPRESSION, fileName, lineNumber)[0];
 				}
 
-			// 演算子ノードの場合
+			// Operators:
 			} else if (readingToken.getType() == Token.Type.OPERATOR) {
 
-				// 演算子ノードを生成し、演算子の（構文的な）種類ごとに分岐
 				operatorNode = this.createOperatorNode(readingToken);
 				switch (readingToken.getAttribute(AttributeKey.OPERATOR_SYNTAX)) {
 
-					// 後置演算子
+					// Postfix operators:
 					case AttributeValue.POSTFIX : {
 
-						// スタックに左オペランドノード（リーフまたは演算子）が積まれているので、取り出してぶら下げる
-						// ※ 後置演算子はトークンの並び的に左結合しかありえない上に、必ず直前のものに結合するので、単純に処理
+						// The left operand is at the top of the stack, so pop it and link to this operator.
 						operatorNode.addChildNode( this.popNode(stack, fileName, lineNumber, AstNode.Type.LEAF, AstNode.Type.OPERATOR) );
 						break;
 					}
 
-					// 前置演算子
+					// Prefix operator:
 					case AttributeValue.PREFIX : {
 
-						// 優先度が次の演算子よりも強い場合、右トークンを先読みし、リーフノードとして演算子ノードにぶら下げる
+						// If the precedence of this operator is stronger than the next operator, 
+						// look-ahead the next token as an leaf, and link its node to this operator node as a child.
+						// (At the top of this method, it should be checked that the leaf token exists at the next of this operator.)
 						if (this.shouldAddRightOperand(readingOpAssociativity, readingOpPrecedence, nextOpPrecedence)) {
-							operatorNode.addChildNode( this.createLeafNode(tokens[readingIndex+1]) ); // 存在は LexicalChecker で検査済みのはず
-							readingIndex++; // 次のトークンは先読みして処理を終えたので1つ余分に進める
+							operatorNode.addChildNode( this.createLeafNode(tokens[readingIndex+1]) );
+							readingIndex++; // The next token has been looked-ahead.
 						}
 						break;
 					}
 
-					// 二項演算子
+					// Binary operators:
 					case AttributeValue.BINARY : {
 
-						// スタックに左オペランドノードが積まれているので取り出してぶら下げる
+						// The left operand is at the top of the stack, so pop it and link to this operator.
 						operatorNode.addChildNode(stack.pop());
 
-						// 優先度が次の演算子よりも強い場合、右トークンを先読みし、リーフノードとして演算子ノードにぶら下げる
+						// If the precedence of this operator is stronger than the next operator, 
+						// look-ahead the next token as an leaf, and link its node to this operator node as a child.
+						// (At the top of this method, it should be checked that the leaf token exists at the next of this operator.)
 						if (this.shouldAddRightOperand(readingOpAssociativity, readingOpPrecedence, nextOpPrecedence)) {
-							operatorNode.addChildNode( this.createLeafNode(tokens[readingIndex+1]) ); // 存在は LexicalChecker で検査済みのはず
-							readingIndex++; // 次のトークンは先読みして処理を終えたので1つ余分に進める
+							operatorNode.addChildNode( this.createLeafNode(tokens[readingIndex+1]) );
+							readingIndex++; // The next token has been looked-ahead.
 						}
 						break;
 					}
 
-					// マルチオペランド演算子の始点（関数呼び出しの「 ( 」や配列参照の「 [ 」）
+					// Beginning tokens of multiary operators:
+					// (e.g.: "(" of a function-call operator, "[" of a subscript operator)
 					case AttributeValue.MULTIARY : {
 
-						// スタックに識別子のリーフノードが積まれているので、取り出して演算子ノードにぶら下げ、それをプッシュする
+						// The identifier node is at the top of the stack, so pop it and link to this operator, and push this operator.
 						operatorNode.addChildNode( this.popNode(stack, fileName, lineNumber, AstNode.Type.LEAF) );
 						stack.push(operatorNode);
 
-						// 引数部分式の境界前後が結合しないよう、スタックに非演算子のフタをつめる（第二引数は回収時の目印）
+						// Push a lid to the stack, for isolating tokens of a partial expression of an argument/index, from tokens pushed before them.
+						// For details, see the description of {@link Parser#pushLid} method.
 						this.pushLid(stack, readingToken.getAttribute(AttributeKey.OPERATOR_EXECUTOR));
 						readingIndex++;
 						continue;
 					}
 
-					// マルチオペランド演算子のセパレータ（関数呼び出しの「 , 」や多次元配列参照の「 ][ 」）
+					// Separator tokens of multiary operators:
+					// (e.g.: "," of a function-call operator, "][" of a subscript operator)
 					case AttributeValue.MULTIARY_SEPARATOR : {
 
-						// 引数部分式の境界前後が結合しないよう、スタックに非演算子のフタをつめる
+						// Push a lid to the stack, for isolating tokens of a partial expression of an argument/index, from tokens pushed before them.
 						this.pushLid(stack);
 						readingIndex++;
 						continue;
 					}
 
-					// マルチオペランド演算子の終点（関数呼び出しの「 ) 」や配列参照の「 ] 」）
+					// Ending tokens of multiary operators:
+					// (e.g.: ")" of a function-call operator, "]" of a subscript operator)
 					case AttributeValue.MULTIARY_END : {
 
-						// スタックからの引数ノードを全て回収する（フタ区切りで独立構文木として形成されている）
+						// Extract nodes of partial expressions of all arguments/indices.
+						// (Each partial expression is formed as an isolated AST on the stack, separated by "stack-lid"s.)
 						AstNode[] argumentNodes = this.popPartialExpressionNodes(
 								stack, readingToken.getAttribute(AttributeKey.OPERATOR_EXECUTOR), fileName, lineNumber
 						);
 
-						// スタックから関数呼び出し演算子ノードを取り出し、引数ノードをぶら下げる
+						// Pop the function-call/subscript operator node, and link arguments/indices nodes to it as child nodes.
 						operatorNode = this.popNode(stack, fileName, lineNumber, AstNode.Type.OPERATOR);
 						operatorNode.addChildNodes(argumentNodes);
 						break;
 					}
 
-					// ここに到達するのはLexicalAnalyzerの異常（不明な種類の演算子構文種類）
 					default : {
 						throw new VnanoFatalException("Unknown operator syntax");
 					}
 				}
 
-			// ここに到達するのはLexicalAnalyzerの異常（不明な種類のトークン）
 			} else {
 				throw new VnanoFatalException("Unknown token type");
 			}
 
-			// 次に出現する演算子よりも、スタック上の演算子の方が高優先度の場合、スタック上の演算子において必要な子ノード連結を全て済ませる
+			// If the precedence of the operator at the top of the stack is stronger than the next operator, link its operands stored in the stack to it.
 			while (this.shouldAddRightOperandToStackedOperator(stack, nextOperatorPrecedence[readingIndex])) {
 				AstNode oldOperatorNode = operatorNode;
 				operatorNode = this.popNode(stack, fileName, lineNumber, AstNode.Type.OPERATOR);
@@ -397,73 +357,57 @@ public class Parser {
 
 			stack.push(operatorNode);
 			readingIndex++;
-
-		// トークンを左から順に末尾まで読み進むループ
 		} while (readingIndex < tokenLength);
 
-
-		// 構文解析が正常に完了していれば、式の構文木の頂点ノードのみがスタック上にあるはずなので、スタック上の残りノード数が 1 以外ならエラー
+		// If the parsing completed expectedly, only the root node of the constructed AST should be in the stack.
+		// Otherwise something in inputted tokens should be syntactically incorrect.
 		if (stack.size() != 1) {
 			throw new VnanoException(ErrorType.INVALID_EXPRESSION_SYNTAX, fileName, lineNumber);
 		}
 
-		// 式の構文木の頂点ノードを、種類を検査（リーフか演算子）しつつ取り出し、それを EXPRESSION タイプのノードにぶら下げて返す
+		// Pop the root node of the constructed AST from the stack, and wrap it by an EXPRESSION type node.
 		AstNode exprRootNode = this.popNode(stack, fileName, lineNumber, AstNode.Type.LEAF, AstNode.Type.OPERATOR);
 		AstNode expressionNode = new AstNode(AstNode.Type.EXPRESSION, lineNumber, fileName);
 		expressionNode.addChildNode(exprRootNode);
 		return expressionNode;
 	}
 
-
 	/**
-	 * {@link Parser#parseExpression parseExpression} メソッド内で、
-	 * 演算子の右オペランドをすぐにぶら下げるか、それとも後方のトークン列の構文解析が終わった後にすべきかを、
-	 * 演算子の優先度や結合性を考慮して判定します。
+	 * Judges whether the right-side token should be connected directly to the target operator as an operand, 
+	 * in {@link Parser#parseExpression} method.
 	 *
-	 * トークン列を構文解析しながらASTノードを生成・連結していく際、
-	 * 演算子と別の演算子の間に存在するオペランド（リーフ、または演算子もあり得ます）が、
-	 * どちらの演算子ノードの子要素としてぶら下がるべきかは、優先度や結合性などによって異なります。
-	 *
-	 * このメソッドでは、注目している演算子と次の演算子の情報に基づいて、
-	 * その間にあるオペランドがどちらにぶら下がるべきかを判定します。
-	 * 注目している演算子にぶら下がるべき場合に true が返されます。
-	 *
-	 * @param targetOperatorAssociativity 注目演算子の結合性（右結合や左結合）
-	 * @param targetOperatorPrecedence 注目演算子の優先度（数字が小さい方が高優先度）
-	 * @param nextOperatorPrecedence 次の演算子の優先度（数字が小さい方が高優先度）
-	 * @return 注目演算子にぶら下げるべきなら true
+	 * @param targetOperatorAssociativity The associativity (right/left) of the target opeartor.
+	 * @param targetOperatorPrecedence The precedence of the target operator (smaller value gives higher precedence).
+	 * @param nextOperatorPrecedence The precedence of the next operator (smaller value gives higher precedence).
+	 * @return Returns true if the right-side token (operand) should be connected to the target operator.
 	 */
 	private boolean shouldAddRightOperand(
 			String targetOperatorAssociativity, int targetOperatorPrecedence, int nextOperatorPrecedence) {
 
-		// 注目演算子の優先度が、次の演算子よりも強い場合に true
-		boolean targetOpPrecedenceIsStrong = targetOperatorPrecedence < nextOperatorPrecedence; // ※数字が小さい方が高優先度
+		// If the precedence of the target operator is stronger than the next operator, return true.
+		// If the precedence of the next operator is stronger than the target operator, return false.
+		// If the precedence of both operators is the same:
+		//         Return true if the target operator is left-associative.
+		//         Return false if the target operator is right-associative.
 
-		// 注目演算子の優先度が、次の演算子と等しい場合に true
-		boolean targetOpPrecedenceIsEqual = targetOperatorPrecedence == nextOperatorPrecedence; // ※数字が小さい方が高優先度
-
-		// 注目演算子が左結合なら true、右結合なら false
+		boolean targetOpPrecedenceIsStrong = targetOperatorPrecedence < nextOperatorPrecedence; // Smaller value gives higher precedence.
+		boolean targetOpPrecedenceIsEqual = targetOperatorPrecedence == nextOperatorPrecedence; // Smaller value gives higher precedence.
 		boolean targetOpAssociativityIsLeft = targetOperatorAssociativity.equals(AttributeValue.LEFT);
-
-		// 結果を以下の通りに返す。
-		// ・注目演算子の方が次の演算子よりも強い場合は true、弱い場合は false。
-		// ・優先度がちょうど等しい場合、注目演算子が左結合であれば true、右結合なら false。
 		return targetOpPrecedenceIsStrong || (targetOpPrecedenceIsEqual && targetOpAssociativityIsLeft);
 	}
 
 
 	/**
-	 * {@link Parser#parseExpression parseExpression} メソッド内において、
-	 * 注目演算子ノードを、現在作業用スタック上の先頭にある演算子ノードの下にぶら下げるべきかどうかを、
-	 * 演算子の優先度や結合性を考慮して判定します。
+	 * Judges whether the right-side token should be connected directly as an operand, to the operator at the top of the working stack,
+	 * in {@link Parser#parseExpression} method.
 	 *
-	 * @param stack 構文解析の作業用スタックとして使用している双方向キュー
-	 * @param nextOperatorPrecedence 注目演算子の次（右側の最も近く）にある演算子の優先度
-	 * @return ぶら下げるべきなら true
+	 * @param stack The working stack used for the parsing.
+	 * @param nextOperatorPrecedence The precedence of the next operator (smaller value gives higher precedence).
+	 * @return Returns true if the right-side token (operand) should be connected to the operator at the top of the stack.
 	 */
 	private boolean shouldAddRightOperandToStackedOperator(Deque<AstNode> stack, int nextOperatorPrecedence) {
 
-		// スタック上にノードが無い場合や、あっても演算子ではない場合は、その時点でfalse
+		// When there is no operator node at the top of the stack, return false.
 		if (stack.size() == 0) {
 			return false;
 		}
@@ -471,52 +415,52 @@ public class Parser {
 			return false;
 		}
 
-		// スタック上の演算子の優先度（※数字が小さい方が優先度が高い）
+		// Return the result depending on the precedence/associativity of the operator at the top of the stack.
 		int stackedOperatorPrecedence = Integer.parseInt(stack.peek().getAttribute(AttributeKey.OPERATOR_PRECEDENCE));
-
-		// スタック上の演算子の結合性（右/左）
 		String stackedOperatorAssociativity = stack.peek().getAttribute(AttributeKey.OPERATOR_ASSOCIATIVITY);
-
-		// 次の演算子の優先度などを考慮した上で判断した結果を返す
 		return this.shouldAddRightOperand(stackedOperatorAssociativity, stackedOperatorPrecedence, nextOperatorPrecedence);
 	}
 
 
 	/**
-	 * トークン配列を解析し、各要素に、次（右）の演算子要素の優先度を設定します。
+	 * Returns an array storing next operator's precedence for each token.
+	 * In the returned array, it will stored at [i] that
+	 * precedence of the first operator of which token-index is greater than i.
 	 *
-	 * @param tokens 解析・設定対象のトークン配列
+	 * @param tokens All tokens to be parsed.
+	 * @return The array storing next operator's precedence for each token.
 	 */
 	private int[] getNextOperatorPrecedence(Token[] tokens) {
 
 		int length = tokens.length;
 		int[] rightOpPrecedences = new int[ length ];
 
-		// 最も右にある演算子は必ず優先になるよう、最小優先度を初期値とする
+		// Stores the precedence of the operator being on the right-side of the currently reading token.
+		// The operator at the right end hasn't any "right operator", so set LEAST_PRIOR as the initial value.
 		int rightOpPrecedence = OperatorPrecedence.LEAST_PRIOR;
 
-		// 末尾から先頭へ向かって要素を見ていく
+		// Read tokens from the right to the left.
 		for(int i = length-1; 0 <= i; i--) {
 
-			// i 番の要素に、右の演算子の優先度を設定
+			// Store the precedence of the operator being on the right-side of i-th token, to the array to be returned.
 			rightOpPrecedences[i] = rightOpPrecedence;
 
-			// i 番の要素が演算子なら、その優先度を新たな右演算子優先度に設定
+			// If i-th token is an operator, update the value of rightOpPrecedence.
 			if (tokens[i].getType() == Token.Type.OPERATOR) {
 				rightOpPrecedence = tokens[i].getPrecedence();
 			}
 
-			// 括弧の内部の部分式は外側よりも常に高優先度となるよう、括弧の境界部で調整する
+			// Parentheses are not operators, but they have precedences, 
+			// for realizing syntactic role of them in the parsing algorithm used by this parser.
 			if (tokens[i].getType() == Token.Type.PARENTHESIS) {
 
-				// 部分式内部が常に優先になるよう、開き括弧 ( では右側演算子優先度を最高値に設定する
+				// "(" has strongest precedence value, for always isolating the right operand from the left operand.
 				if(tokens[i].getValue().equals(ScriptWord.PARENTHESIS_BEGIN)){
 					rightOpPrecedence = OperatorPrecedence.MOST_PRIOR;
 
-				// 閉じ括弧 ) は文末と同じ効果なので、右側演算子優先度を最低に設定する
+				// ")" has weakest precedence value, to complete linking of tokens in the partial expression.
 				} else {
 					rightOpPrecedence = OperatorPrecedence.LEAST_PRIOR;
-
 				}
 			}
 		}
@@ -530,33 +474,32 @@ public class Parser {
 
 	// ====================================================================================================
 	// Parsing of Variable Declarations
-	// 変数宣言の構文解析関連
 	// ====================================================================================================
 
 
 	/**
-	 * 変数宣言文を構成するトークン配列に対して構文解析を行い、AST（抽象構文木）を構築して返します。
+	 * Parses an variable declaration statement.
+	 * 
+	 * In the root node of the result of this method, 
+	 * the identifier of the variable will be stored as IDENTIFIER attribute, 
+	 * and the data-type will be stored as DATA_TYPE attribute, 
+	 * and the array-rank will be stored as RANK attribute.
+	 * If the array-rank is non-zero (non-scalar), a LENGTHS type node generated by 
+	 * {@link Parser#parseVariableDeclarationArrayLengths parseVariableDeclarationArrayLengths} method
+	 * will be linked as a child node.
+	 * Also, if there is an expression for initialization of the declared variable, 
+	 * an EXPRESSION type node will be linked as a child node.
 	 *
-	 * このメソッドが返すASTのルートは、{@link AstNode.Type#VARIABLE VARIABLE} タイプのノードとなります。
-	 * また、変数名（識別子）を {@link AttributeKey#IDENTIFIER_VALUE IDENTIFIER} 属性、
-	 * データ型を {@link AttributeKey#DATA_TYPE DATA_TYPE} 属性、
-	 * 配列次元を {@link AttributeKey#RANK RANK} 属性の値に持ちます。
-	 * さらに、初期化式がある場合には、子ノードとして {@link AstNode.Type#EXPRESSION EXPRESSION}
-	 * タイプのノードがぶら下がります。
-	 * 加えて、変数が配列である場合には、
-	 * {@link Parser#parseVariableDeclarationArrayLengths parseVariableDeclarationArrayLengths}
-	 * メソッドによって生成される {@link AstNode.Type#LENGTHS LENGTHS} タイプのノードがぶら下がります。
-	 *
-	 * @param tokens 文のトークン配列（文末記号は含まない）
-	 * @param requiresIdentifier 識別子を必須にするかどうか（trueなら必須）
-	 * @return 構築したAST（抽象構文木）のルートノード
-	 * @throws VnanoException 文の構文に異常があった場合にスローされます。
+	 * @param tokens Tokens of the variable declaration statement.
+	 * @param requiresIdentifier Specify true if the identifier can't be omitted.
+	 * @return The constructed AST.
+	 * @throws VnanoException Thrown when any syntactic error is detected.
 	 */
 	private AstNode parseVariableDeclarationStatement(Token[] tokens, boolean requiresIdentifier)
 			throws VnanoException {
 
 		AstNode variableNode = new AstNode(AstNode.Type.VARIABLE, tokens[0].getLineNumber(), tokens[0].getFileName());
-		List<String> modifierList = new ArrayList<String>(); // 修飾子を控える
+		List<String> modifierList = new ArrayList<String>();
 		List<Token> tokenList = new ArrayList<Token>();
 
 		for (Token token: tokens) {
@@ -565,7 +508,7 @@ public class Parser {
 
 		int readingIndex = 0;
 
-		// 型名の前に置かれる修飾子を検出して修飾子リストに追加（あとで型名後方のものとまとめて属性値に持たせる）
+		// Extract modifiers put before the data-type name, and register to the list.
 		if (tokens[readingIndex].getType() == Token.Type.MODIFIER) {
 			if (ScriptWord.PREFIX_MODIFIER_SET.contains(tokens[readingIndex].getValue()) ) {
 				modifierList.add(tokens[readingIndex].getValue());
@@ -578,7 +521,7 @@ public class Parser {
 			}
 		}
 
-		// 型情報を読んで付加
+		// Extract data-type name, and set it as an attribute of the node.
 		if (readingIndex < tokens.length) {
 			Token typeToken = tokens[readingIndex];
 			variableNode.setAttribute(AttributeKey.DATA_TYPE, typeToken.getValue());
@@ -590,7 +533,7 @@ public class Parser {
 			);
 		}
 
-		// 型名の後に置かれる修飾子を検出して修飾子リストに追加（あとで型名前方のものとまとめて属性値に持たせる）
+		// Extract modifiers put after the data-type name, and register to the list.
 		if (readingIndex < tokens.length && tokens[readingIndex].getType() == Token.Type.MODIFIER) {
 			if (ScriptWord.POSTFIX_MODIFIER_SET.contains(tokens[readingIndex].getValue()) ) {
 				modifierList.add(tokens[readingIndex].getValue());
@@ -603,11 +546,12 @@ public class Parser {
 			}
 		}
 
-		// 識別子トークンを抽出して控える
+		// To this variable, store an extracted variable name (identifier).
 		Token nameToken = null;
 
-		// 次にトークンが存在しない場合は、識別子が無いので構文エラー
-		//   ただし識別子が省略可能と指定されている場合はエラーにしない（関数シグネチャ内での引数宣言など）
+		// If there is no more token, the variable name is missing, so throw an exception.
+		// However, if requiresIdentifier is set to false, allow missing of the name.
+		// (it occurs when parsing declarations of parameter variables in function signatures, e.g.: fun(int,float))
 		if (tokens.length <= readingIndex) {
 			if (requiresIdentifier) {
 				throw new VnanoException(
@@ -616,11 +560,10 @@ public class Parser {
 				);
 			}
 
-		// 次にトークンがあっても、識別子トークンではない場合は構文エラー
+		// If the next token isn't the variable name,  throw an exception.
+		// However, if requiresIdentifier is set to false, allow missing of the name.
 		} else if (tokens[readingIndex].getType()!=Token.Type.LEAF
 			|| !tokens[readingIndex].getAttribute(AttributeKey.LEAF_TYPE).equals(AttributeValue.VARIABLE_IDENTIFIER)) {
-
-			// 識別子が省略可能と指定されている場合はエラーにしない（関数シグネチャでの引数宣言など）
 			if (requiresIdentifier) {
 				throw new VnanoException(
 					ErrorType.INVALID_IDENTIFIER_TYPE,
@@ -629,14 +572,14 @@ public class Parser {
 				);
 			}
 
-		// 識別子トークンがあるので、識別子情報を付加
+		// Extract the variable name, and set it as an attribute of the node.
 		} else {
 			nameToken = tokens[readingIndex];
 			variableNode.setAttribute(AttributeKey.IDENTIFIER_VALUE, nameToken.getValue());
 			readingIndex++;
 		}
 
-		// 配列次元数と要素数の検出
+		// Extract array-rank and lengths.
 		int arrayRank = RANK_OF_SCALAR;
 		AstNode arrayLengthNode = null;
 		if (readingIndex<tokens.length-1 && tokens[readingIndex].getValue().equals(ScriptWord.SUBSCRIPT_BEGIN)) {
@@ -649,14 +592,16 @@ public class Parser {
 			readingIndex = lengthsEnd + 1;
 		}
 
-		// 配列情報を付加
+		// Set aboves to the node.
 		variableNode.setAttribute(AttributeKey.RANK, Integer.toString(arrayRank));
 		if (arrayLengthNode != null) {
 			arrayRank = arrayLengthNode.getChildNodes(AstNode.Type.EXPRESSION).length;
 			variableNode.addChildNode(arrayLengthNode);
 		}
 
-		// ここ以降は初期化式であるが、識別子が省略されているのに初期化式がある場合はエラー
+		// Latter tokens compose an expression for initialization of the declared variable.
+
+		// When the variable name is omitted, it can't have an expression for initialization.
 		if (!requiresIdentifier && readingIndex < tokens.length) {
 			throw new VnanoException(
 					ErrorType.TOO_MANY_TOKENS_FOR_VARIABLE_DECLARATION,
@@ -664,7 +609,8 @@ public class Parser {
 			);
 		}
 
-		// 初期化式のトークン列を、parseExpressionで解釈してASTを構築して付加
+		// Construct the AST of the expression for the initialization, 
+		// and link it to the node of the variable declaration as a child node.
 		if(readingIndex<tokens.length-1 && tokens[readingIndex].getValue().equals(ScriptWord.ASSIGNMENT)) {
 			int initTokenLength = tokens.length - readingIndex + 1;
 			Token[] initTokens = new Token[initTokenLength];
@@ -676,7 +622,7 @@ public class Parser {
 			variableNode.addChildNode(this.parseExpression(initTokens));
 		}
 
-		// それ以上トークンが続く場合は、明らかに余計なトークンであるため構文エラー
+		// If there are more tokens, their positions are syntactically incorrect.
 		if (readingIndex < tokens.length) {
 			throw new VnanoException(
 					ErrorType.TOO_MANY_TOKENS_FOR_VARIABLE_DECLARATION,
@@ -684,7 +630,7 @@ public class Parser {
 			);
 		}
 
-		// 識別子をリストから取り出してノードに持たせる
+		// Register modifiers to the variable declaration node.
 		for (String modifier: modifierList) {
 				variableNode.addModifier(modifier);
 		}
@@ -694,34 +640,36 @@ public class Parser {
 
 
 	/**
-	 * 変数宣言文の内で、配列の要素数の宣言部を構成するトークン配列に対して構文解析を行い、
-	 * 配列次元数を返します。
-	 *
-	 * @param tokens 要素数宣言部のトークン配列
-	 * @return 配列次元数（任意次元として宣言されていた場合は -1）
-	 * @throws VnanoException 文の構文に異常があった場合にスローされます。
+	 * Parses a part declaring array lengths in a variable declaration statement, 
+	 * and returns the declared array-rank.
+	 * 
+	 * @param tokens Tokens of a part declaring array lengths in a variable declaration statement.
+	 * @return The array-rank of the declared variable (returns -1 for an any-rank arary).
+	 * @throws VnanoException Thrown when any syntactic error is detected.
 	 */
 	private int parseVariableDeclarationArrayRank(Token[] tokens) throws VnanoException {
 		int tokenLength = tokens.length;
 
-		// 任意次元宣言は表記が「 [...] 」に限られるので、まずそれかどうか検査（その方が後で考慮パターンを減らせる）
+		// If the declaration of array lengths is "[...]", it means the array is "any rank".
+		// For detecting syntactical mistake and pointing it out in an error message, 
+		// firstly check whether "..." is contained in tokens or not, and then check tokens more strictly.
 		boolean isArbitraryRank = false;
 		for(int i=0; i<tokenLength; i++) {
-			if (tokens[i].getValue().equals(ScriptWord.ARBITRARY_COUNT_MODIFIER)) {
+			if (tokens[i].getValue().equals(ScriptWord.ARBITRARY_COUNT_MODIFIER)) { // ARBITRARY_COUNT_MODIFIER is "..."
 				isArbitraryRank = true;
 			}
 		}
 		if (isArbitraryRank) {
 
-			// 構文的に正しい任意次元宣言の場合
+			// If "..." is contained in tokens, contants of tokens should be:  "["   "..."   "]" .
 			if (tokenLength == 3
 					&& tokens[0].getValue().equals(ScriptWord.SUBSCRIPT_BEGIN)
 					&& tokens[1].getValue().equals(ScriptWord.ARBITRARY_COUNT_MODIFIER)
 					&& tokens[2].getValue().equals(ScriptWord.SUBSCRIPT_END)) {
 
-				return -1; // 任意次元の場合は -1 を返す仕様
+				return -1; // Returns -1 for any rank array.
 
-			// 構文的に正しくない任意次元宣言の場合
+			// Otherwise it probably be a syntactical mistake.
 			} else {
 				String errorWord = "";
 				for(int i=0; i<tokenLength; i++) {
@@ -733,32 +681,36 @@ public class Parser {
 			}
 		}
 
-		// 任意次元ではない、一般の場合の次元数カウント
+		// For non-any rank array, count up its rank.
 		int rank = 0;
-		int depth = 0;
+		int depth = 0; // Incremented at "[", and decremented at "]".
 		for(int i=0; i<tokenLength; i++) {
 			String word = tokens[i].getValue();
 
-			// 「 [ 」記号
-			if(word.equals(ScriptWord.SUBSCRIPT_BEGIN)) {
+			// Be careful of the case that subscript operators are used in the declaration part of array lengths, e.g.:
+			//     int a[ len[0] ][ len[1] ];
+			// where "len" is an int-type array.
 
-				// 階層が 0 なら要素数宣言の開始なので次元数を加算（それ以外は、要素数の式を構成する配列インデックス演算子のもの）
+			if(word.equals(ScriptWord.SUBSCRIPT_BEGIN)) { // "["
+
+				// If the current depth is 0, 
+				// the "[" is the beginning of the declaration of the length of the first dimension, so increment the rank.
+				// Note that, if the depth isn't 0, the "[" is a subscript operator.
 				if (depth==0) {
 					rank++;
 				}
 				depth++;
 
-			// 「 ][ 」記号
-			} else if(word.equals(ScriptWord.SUBSCRIPT_SEPARATOR)) {
+			} else if(word.equals(ScriptWord.SUBSCRIPT_SEPARATOR)) { // "]["
 
-				// 階層が 1 なら次の要素数宣言の次元区切りなので次元数を加算（それ以外は上記コメントの説明と同様）
+				// If the current depth is 1, 
+				// the "][" is the beginning of the declaration of the length of a new dimension, so increment the rank.
+				// Note that, if the depth isn't 1, the "][" is a subscript operator.
 				if (depth==1) {
 					rank++;
 				}
 
-			// 「 ] 」記号
-			} else if (word.equals(ScriptWord.SUBSCRIPT_END)) {
-				// 開き点と閉じ点で両方カウントすると重複カウントになるので、この場合はカウントせず階層を降りるだけ
+			} else if (word.equals(ScriptWord.SUBSCRIPT_END)) { // "]"
 				depth--;
 			}
 		}
@@ -767,43 +719,45 @@ public class Parser {
 
 
 	/**
-	 * 変数宣言文の内で、配列の要素数の宣言部を構成するトークン配列に対して構文解析を行い、
-	 * 配列要素数情報の AST（抽象構文木）を構築して返します。
-	 *
-	 * このメソッドが返すASTのルートは、{@link AstNode.Type#LENGTHS LENGTHS} タイプのノードとなります。
-	 * その下には、各次元の要素数の計算式に対応する {@link AstNode.Type#EXPRESSION EXPRESSION}
-	 * タイプのノードが、次元の数だけ次元順にぶら下がります。
-	 *
-	 * @param tokens 要素数宣言部のトークン配列
-	 * @return 構築したAST（抽象構文木）のルートノード
-	 * @throws VnanoException 文の構文に異常があった場合にスローされます。
+	 * Parses a part declaring array lengths in a variable declaration statement, 
+	 * and returns ASTs of expressions of array-lengths.
+	 * 
+	 * @param tokens Tokens of a part declaring array lengths in a variable declaration statement.
+	 * @return ASTs of expressions of array-lengths.
+	 * @throws VnanoException Thrown when any syntactic error is detected.
 	 */
 	private AstNode parseVariableDeclarationArrayLengths(Token[] tokens) throws VnanoException {
 		AstNode lengthsNode = new AstNode(AstNode.Type.LENGTHS, tokens[0].getLineNumber(), tokens[0].getFileName());
 		int currentExprBegin = -1;
 
 		int tokenLength = tokens.length;
-		int depth = 0;
+		int depth = 0; // Incremented at "[", and decremented at "]".
 		for(int i=0; i<tokenLength; i++) {
 			String word = tokens[i].getValue();
 
-			// 「 [ 」記号
-			if(word.equals(ScriptWord.SUBSCRIPT_BEGIN)) {
+			// Be careful of the case that subscript operators are used in the declaration part of array lengths, e.g.:
+			//     int a[ len[0] ][ len[1] ];
+			// where "len" is an int-type array.
 
-				// 階層が 0 なら要素数宣言の開始（それ以外は、要素数の式を構成する配列インデックス演算子のもの）
+			if(word.equals(ScriptWord.SUBSCRIPT_BEGIN)) { // "["
+
+				// If the current depth is 0, 
+				// the "[" is the beginning of the declaration of the length of the first dimension.
+				// Note that, if the depth isn't 0, the "[" is a subscript operator.
 				if (depth==0) {
 					currentExprBegin = i + 1;
 				}
 				depth++;
 
-			// 「 ] 」記号か「 ][ 」記号
-			} else if(word.equals(ScriptWord.SUBSCRIPT_END) || word.equals(ScriptWord.SUBSCRIPT_SEPARATOR)) {
+			} else if(word.equals(ScriptWord.SUBSCRIPT_END) || word.equals(ScriptWord.SUBSCRIPT_SEPARATOR)) { // "]" or "]["
 
-				// 階層が 1 なら要素数宣言の次元区切り
+				// If the current depth is 1, 
+				// the "][" is the beginning of the declaration of the length of a new dimension, so increment the rank.
+				// Note that, if the depth isn't 1, the "][" is a subscript operator.
 				if (depth==1) {
 					Token[] exprTokens = Arrays.copyOfRange(tokens, currentExprBegin, i);
 
-					// 要素数宣言の内容が省略されている場合は、要素数 0 の宣言と同じものとする（言語仕様）
+					// If the content between "[" and "]" is empty, regard it as the same as "[0]".
 					if (exprTokens.length == 0) {
 						AstNode zeroExprNode = new AstNode(AstNode.Type.EXPRESSION, tokens[i].getLineNumber(), tokens[i].getFileName());
 						AstNode zeroLeafNode = this.createLeafNode(
@@ -812,7 +766,8 @@ public class Parser {
 						zeroExprNode.addChildNode(zeroLeafNode);
 						lengthsNode.addChildNode(zeroExprNode);
 
-					// 省略されていなければ、内容を式として解釈してぶら下げる
+					// Otherwise, parse the content between "[" and "]" as an expression, 
+					// and link its AST to the variable declaration node as a child node.
 					} else {
 						lengthsNode.addChildNode( this.parseExpression(exprTokens) );
 					}
@@ -834,31 +789,25 @@ public class Parser {
 
 	// ====================================================================================================
 	// Parsing of Function Declarations
-	// 関数宣言の構文解析関連
 	// ====================================================================================================
 
 
 	/**
-	 * 関数宣言文を構成するトークン配列に対して構文解析を行い、AST（抽象構文木）を構築して返します。
+	 * Parses a function declaration statement.
 	 *
-	 * このメソッドが返すASTのルートは、{@link AstNode.Type#FUNCTION FUNCTION} タイプのノードとなります。
-	 * また、関数名（識別子）を {@link AttributeKey#IDENTIFIER_VALUE IDENTIFIER} 属性、
-	 * データ型を {@link AttributeKey#DATA_TYPE DATA_TYPE} 属性、
-	 * 配列次元を {@link AttributeKey#RANK RANK} 属性の値に持ちます。
-	 * さらに、引数がある場合には、子ノードとして {@link AstNode.Type#VARIABLE VARIABLE}
-	 * タイプのノードがぶら下がります。
+	 * In the root node of the result of this method, 
+	 * the identifier of the function will be stored as IDENTIFIER attribute, 
+	 * and the data-type of the return value will be stored as DATA_TYPE attribute, 
+	 * and the array-rank of the return value will be stored as RANK attribute.
+	 * Also, if there are parameters variables, nodes of their declaration statements
+	 * (as VARIABLE type nodes) will be linked as child nodes.
+	 * 
+	 * Note that, the returned node by this method storing only information of signature of the function.
+	 * Internal code of the function written in "{...}" will be parsed as a BLOCK type node later.
 	 *
-	 * なお、関数のシグネチャ宣言部を除いた、ブロック { ... } の中身のコードに関する内容は、
-	 * この {@link AstNode.Type#FUNCTION FUNCTION}
-	 * タイプのノードやその子ノードには含まれません。
-	 * 関数のブロック内の内容は、
-	 * {@link Parser#parse(Token[]) parse} メソッドによるコード全体の構文解析結果のASTにおいて、
-	 * この {@link AstNode.Type#FUNCTION FUNCTION} タイプのノードの直後に続く
-	 * {@link AstNode.Type#BLOCK BLOCK} タイプのノードとして保持されます。
-	 *
-	 * @param tokens 文のトークン配列（関数宣言の先頭からブロック直前までの、いわゆるシグネチャ部分）
-	 * @return 構築したAST（抽象構文木）のルートノード
-	 * @throws VnanoException 文の構文に異常があった場合にスローされます。
+	 * @param tokens Token of a function declaration statement.
+	 * @return The constructed AST.
+	 * @throws VnanoException Thrown when any syntactic error is detected.
 	 */
 	private AstNode parseFunctionDeclarationStatement(Token[] tokens) throws VnanoException {
 
@@ -869,30 +818,25 @@ public class Parser {
 		int rank = 0;
 		Token identifierToken = null;
 
-		// 最初のトークンはデータ型
+		// The first token represents the data type of the return value.
 		Token dataTypeToken = tokens[0];
 
-		// それ以降のトークンを、識別子が来るまで読み進める
+		// Read tokens of array information of the return value, and identifier of the function.
 		int readingIndex = 1;
 		while(readingIndex < tokenLength) {
 
-			// 識別子トークンの場合
+			// Identifier of the function:
 			if (tokens[readingIndex].getType() == Token.Type.LEAF
 					&& tokens[readingIndex].getAttribute(AttributeKey.LEAF_TYPE).equals(AttributeValue.FUNCTION_IDENTIFIER) ) {
 				identifierToken = tokens[readingIndex];
 				readingIndex++;
 				break;
 
-			// それ以外は、データ型の後に付く配列の「 [ 」か「 ][ 」か「 ] 」しか有り得ないので、配列次元数をカウントする
-			// (文の種類の判断時に startsWithFunctionDeclarationTokens メソッドで既に検査されている)
+			// Array information of the return value:
 			} else {
 
-				// 以下、後でもっと開き閉じが対応しているかの検査などが追加で必要
-				// -> 処理中に検査入れると読むの難しくなるし、検査は LexicalChecker に分離して対応すべき（どうせ引数部の検査もあるし）
-
+				// Increment the array rank if the token is "[" or "][".
 				String operatorSyntax = tokens[readingIndex].getAttribute(AttributeKey.OPERATOR_SYNTAX);
-
-				// 「 [ 」か「 ][ 」の場合は次元を1つ上げる（検査ではなくただの次元カウントなので、「 ] 」では特に何もしない）
 				if (operatorSyntax.equals(AttributeValue.MULTIARY) || operatorSyntax.equals(AttributeValue.MULTIARY_SEPARATOR)) {
 					rank++;
 				}
@@ -900,24 +844,26 @@ public class Parser {
 			readingIndex++;
 		}
 
-		// 次のトークンは引数部の始点の「 ( 」なので読み飛ばす
+		// Skip the next token because it is "(".
 		readingIndex++;
 
-		// 引数部を読み進む
+		// Parse declarations of parameter variables.
 		int argumentBegin = readingIndex;
 		List<AstNode> argumentNodeList = new ArrayList<AstNode>();
 		while (readingIndex < tokenLength) {
 
-			// 「 , 」 か 「 ) 」が出現する度に、そこまでで1つの引数宣言として一旦切って解釈
+			// Split tokens at the point of "," or ")", 
+			// and parse tokens before it as a declaration statement of a parameter variable.
 			if (tokens[readingIndex].getValue().equals(ScriptWord.ARGUMENT_SEPARATOR) ||
 					tokens[readingIndex].getValue().equals(ScriptWord.PARENTHESIS_END)) {
 
-				// 引数のトークンを変数宣言文として解釈してASTノードを生成（トークン数が0の場合はvoidなので無視）
 				Token[] argTokens = Arrays.copyOfRange(tokens, argumentBegin, readingIndex);
 				if (0 < argTokens.length) {
 
-					// シグネチャのみをパースする用途の事を考えて、ここでは引数名は省略可能とし、意味解析で検査する
-					AstNode argNode = this.parseVariableDeclarationStatement(argTokens, false);
+					// This method is also used for parsing signature, so set the parameter name omittable here.
+					// They will be checked by SemanticAnalyzer later, if they are mandatory.
+					boolean requiresParameterNames = false;
+					AstNode argNode = this.parseVariableDeclarationStatement(argTokens, requiresParameterNames);
 					argumentNodeList.add(argNode);
 					argumentBegin = readingIndex + 1;
 				}
@@ -925,7 +871,7 @@ public class Parser {
 			readingIndex++;
 		}
 
-		// 関数宣言文のASTノードを生成し、属性値や引数ノードを登録
+		// Create an AST node of the function declaration statement, and register information and child nodes.
 		AstNode node = new AstNode(AstNode.Type.FUNCTION, lineNumber, fileName);
 		node.setAttribute(AttributeKey.IDENTIFIER_VALUE, identifierToken.getValue());
 		node.setAttribute(AttributeKey.DATA_TYPE, dataTypeToken.getValue());
@@ -938,45 +884,46 @@ public class Parser {
 
 
 	/**
-	 * トークン配列内の指定位置から読み進み、それが関数宣言文で始まっているかを判定します。
+	 * Looks ahead tokens from the specified index, and determine whether it is a function declaration statement or not.
 	 *
-	 * @param tokens トークン配列
-	 * @param begin 読み進む視点
-	 * @return 判定結果（関数宣言文で始まっていれば true ）
+	 * @param tokens Tokens in which a function declaration statement probably be contained.
+	 * @param begin The index from which a function declaration statement probably begin.
+	 * @return Returns true if a function declaration statement begins from the specified index.
 	 */
 	private boolean startsWithFunctionDeclarationTokens(Token[] tokens, int begin) {
 		int tokenLength = tokens.length;
 
-		// 最初がデータ型でなければ明らかに関数宣言ではない
+		// In vnano, a function declaration statement always begins with a data-type.
 		if (tokens[begin].getType() != Token.Type.DATA_TYPE) {
 			return false;
 		}
 
-		// 識別子が来るまで読み進める
+		// Read latter tokens.
 		int readingIndex = begin + 1;
 		while (readingIndex < tokenLength) {
 
 			Token readingToken = tokens[readingIndex];
 
+			// True if the reading token is a function identifier.
 			boolean readingTokenIsFunctionIdenfifier = readingToken.getType() == Token.Type.LEAF
 					&& readingToken.getAttribute(AttributeKey.LEAF_TYPE).equals(AttributeValue.FUNCTION_IDENTIFIER);
 
+			// True if the reading token is "[" or "]".
 			boolean readingTokenIsIndex = readingToken.getType() == Token.Type.OPERATOR
 					&& readingToken.getAttribute(AttributeKey.OPERATOR_EXECUTOR) == AttributeValue.SUBSCRIPT;
 
-			// 最初に見つかったのが関数識別子であれば関数宣言
+			// If a function identifier found after the data-type (including [ ]), it is a function declaration.
 			if (readingTokenIsFunctionIdenfifier) {
 				return true;
 
-			// 識別子の前に、データ型の後に付いて配列である事を示す [ ] が付いている事は有り得る。
-			// しかし、それ以外のトークンがそこに存在する事はあり得ないので、その場合は関数宣言ではない。
+			// If any other kinds of token exists here, excluding "[" or "]", the tokens is not a function declaration statement.
 			} else if (!readingTokenIsIndex) {
 				return false;
 			}
 			readingIndex++;
 		}
 
-		// ここに到達するのは、データ型の後に [ ] のみが続いてトークン末尾に達した場合なので、関数宣言文ではない
+		// When no function identifier has found, the tokens is not a function declaration statement.
 		return false;
 	}
 
@@ -986,93 +933,95 @@ public class Parser {
 
 	// ====================================================================================================
 	// Parsing of Control Statements
-	// 制御文の構文解析関連
 	// ====================================================================================================
 
 
 	/**
-	 * 制御文を構成するトークン配列に対して構文解析を行い、AST（抽象構文木）を構築して返します。
+	 * Parses a control statement (if, else, for, and so on).
 	 *
-	 * このメソッドが返すASTのルートは、制御文の種類に応じたタイプのノードとなります。
-	 * 例えば if 文なら {@link AstNode.Type#IF IF} タイプ、
-	 * for 文なら {@link AstNode.Type#FOR FOR} タイプ、
-	 * break 文なら {@link AstNode.Type#BREAK BREAK} タイプといった具合です。
+	 * When the control statement is "if" or "while", to its node returned by this method,
+	 * an AST of a conditional expression is linked as a child node.
 	 *
-	 * if文とwhile文のノードは、その直下に、条件式に対応する
-	 * {@link AstNode.Type#EXPRESSION EXPRESSION}
-	 * タイプのノードがぶら下がります。
-	 *
-	 * また、for 文のノードの直下には、それぞれ初期化文と条件式および更新式に対応する、
-	 * {@link AstNode.Type#EXPRESSION EXPRESSION} タイプのノードが、この順に3つぶら下がります。
-	 * ただし、初期化文で変数宣言を行っている場合、
-	 * 初期化文のノードは {@link AstNode.Type#VARIABLE VARIABLE} タイプとなります。
-	 *
-	 * その他の制御文については、直下に何もぶら下がりません。
-	 *
-	 * @param tokens 制御文を構成するトークン配列
-	 * @return 構築したAST（抽象構文木）のルートノード
-	 * @throws VnanoException 文の構文に異常があった場合にスローされます。
+	 * When the control statement is "for", to its node returned by this method, 
+	 * ASTs of a declaraton statement of a counter variable, 
+	 * of a conditional expression, and of an process for updating the counter are linked as child nodes.
+	 * 
+	 * @param tokens Tokens composing a control statement.
+	 * @return The constructed AST.
+	 * @throws VnanoException VnanoException Thrown when any syntactic error is detected.
 	 */
 	private AstNode parseControlStatement(Token[] tokens) throws VnanoException {
-
-		// 最初に、括弧の存在や条件式・文の存在などを検査しておく（問題がある場合はここで例外発生）
 		new LexicalChecker().checkControlStatementTokens(tokens);
 
 		Token controlTypeToken = tokens[0];
 		int lineNumber = controlTypeToken.getLineNumber();
 		String fileName = controlTypeToken.getFileName();
 
-		// if文の場合: if文ノードを生成し、条件式をパースしてぶら下げる
+		// "if" statement: 
+		// create its node, and parse the conditional expression, and link the latter node to the former node as a child node.
 		if(controlTypeToken.getValue().equals(ScriptWord.IF)) {
 			AstNode node = new AstNode(AstNode.Type.IF, lineNumber, fileName);
 			node.addChildNode(this.parseExpression(Arrays.copyOfRange(tokens, 2, tokens.length-1)));
 			return node;
 
-		// else文の場合: else文ノードを生成するのみ
+		// "else" statement:
+		// create its node.
 		} else if(controlTypeToken.getValue().equals(ScriptWord.ELSE)) {
 			AstNode node = new AstNode(AstNode.Type.ELSE, lineNumber, fileName);
 			return node;
 
-		// whilw文の場合: while文ノードを生成し、条件式をパースしてぶら下げる
+		// "while" statement: 
+		// create its node, and parse the conditional expression, and link the latter node to the former node as a child node.
 		} else if(controlTypeToken.getValue().equals(ScriptWord.WHILE)) {
 			AstNode node = new AstNode(AstNode.Type.WHILE, lineNumber, fileName);
 			node.addChildNode(this.parseExpression(Arrays.copyOfRange(tokens, 2, tokens.length-1)));
 			return node;
 
-		// for文の場合: for文ノードを生成し、初期化文（変数宣言文または式文）・条件文・更新文をパースしてぶら下げる
+		// "for" statement: 
+		// create its node, 
+		// and parse the counter declaration statement, the conditional expression, and process for updating the counter.
+		// Then link their node to the "for" statement node as child nodees.
 		} else if(controlTypeToken.getValue().equals(ScriptWord.FOR)) {
 			AstNode node = new AstNode(AstNode.Type.FOR, lineNumber, fileName);
 
-			// 初期化文と条件文の終端トークンインデックスを取得
-			int initializationEnd = Token.getIndexOf(tokens, ScriptWord.END_OF_STATEMENT, 0);
-			int conditionEnd = Token.getIndexOf(tokens, ScriptWord.END_OF_STATEMENT, initializationEnd+1);
+			// Get indices at the end of the counter declaration statement and the conditional expression.
+			int counterDeclEnd = Token.getIndexOf(tokens, ScriptWord.END_OF_STATEMENT, 0);
+			int conditionEnd = Token.getIndexOf(tokens, ScriptWord.END_OF_STATEMENT, counterDeclEnd+1);
 
-			// 初期化文をパースしてfor文ノードにぶら下げる: 初期化文が変数宣言文の場合
+			// Parse the counter declaration statement. Note that, syntactically, it may be other kinds of statement.
+			// When it is a variable declaration statement:
 			if (DataTypeName.isDataTypeName(tokens[2].getValue())) {
-				node.addChildNode(this.parseVariableDeclarationStatement(Arrays.copyOfRange(tokens, 2, initializationEnd), true));
-			} else if (initializationEnd == 2) { // 空文の場合
+				node.addChildNode(this.parseVariableDeclarationStatement(Arrays.copyOfRange(tokens, 2, counterDeclEnd), true));
+			// When it is an empty statement:
+			} else if (counterDeclEnd == 2) {
 				node.addChildNode(new AstNode(AstNode.Type.EMPTY, tokens[0].getLineNumber(), tokens[0].getFileName()));
-			} else { // それ以外の場合は式文（しか許されない）
-				node.addChildNode(this.parseExpression(Arrays.copyOfRange(tokens, 2, initializationEnd)));
+			// When it is an expression statement:
+			} else {
+				node.addChildNode(this.parseExpression(Arrays.copyOfRange(tokens, 2, counterDeclEnd)));
 			}
 
-			// 条件文をパースしてfor文ノードにぶら下げる
-			if (initializationEnd+1 == conditionEnd) { // 空文の場合
+			// Parse the conditional expression. Note that, syntactically, it may be other kinds of statement.
+			// When it is an empty statement:
+			if (counterDeclEnd+1 == conditionEnd) {
 				node.addChildNode(new AstNode(AstNode.Type.EMPTY, tokens[0].getLineNumber(), tokens[0].getFileName()));
-			} else { // 式文の場合
-				node.addChildNode(this.parseExpression(Arrays.copyOfRange(tokens, initializationEnd+1, conditionEnd)));
+			// When it is an expression statement:
+			} else {
+				node.addChildNode(this.parseExpression(Arrays.copyOfRange(tokens, counterDeclEnd+1, conditionEnd)));
 			}
 
-			// 更新文をパースしてfor文ノードにぶら下げる
-			if (conditionEnd+1 == tokens.length-1) { // 空文の場合
+			// Parse the process for updating the counter. Note that, syntactically, it may be other kinds of statement.
+			// When it is an empty statement:
+			if (conditionEnd+1 == tokens.length-1) {
 				node.addChildNode(new AstNode(AstNode.Type.EMPTY, tokens[0].getLineNumber(), tokens[0].getFileName()));
-			} else { // 式文の場合
+			// When it is an expression statement:
+			} else {
 				node.addChildNode(this.parseExpression(Arrays.copyOfRange(tokens, conditionEnd+1, tokens.length-1)));
 			}
 
 			return node;
 
-		// return文の場合: return文ノードを生成し、戻り値の式をパースしてぶら下げる
+		// "return" statement: 
+		// create its node, and link the node of the value (may be an expression) to be returned as a child node.
 		} else if(controlTypeToken.getValue().equals(ScriptWord.RETURN)) {
 			AstNode node = new AstNode(AstNode.Type.RETURN, lineNumber, fileName);
 			if (2 <= tokens.length) {
@@ -1080,18 +1029,19 @@ public class Parser {
 			}
 			return node;
 
-		// break文の場合: break文ノードを生成するのみ
+		// "break" statement: 
+		// create its node.
 		} else if(controlTypeToken.getValue().equals(ScriptWord.BREAK)) {
 			AstNode node = new AstNode(AstNode.Type.BREAK, lineNumber, fileName);
 			return node;
 
-		// continue文の場合: continue文ノードを生成するのみ
+		// "continue" statement: 
+		// create its node.
 		} else if(controlTypeToken.getValue().equals(ScriptWord.CONTINUE)) {
 			AstNode node = new AstNode(AstNode.Type.CONTINUE, lineNumber, fileName);
 			return node;
 
 		} else {
-			// ここに到達するのはLexicalAnalyzerの異常（不明な種類の制御構文）
 			throw new VnanoFatalException("Unknown controll statement: " + controlTypeToken.getValue());
 		}
 	}
@@ -1102,16 +1052,14 @@ public class Parser {
 
 	// ====================================================================================================
 	// Others (Utilities, etc.)
-	// その他の部品的な処理など
 	// ====================================================================================================
 
 
 	/**
-	 * 演算子のトークンの情報に基づいて、
-	 * 演算子ノードである {@link AstNode.Type#OPERATOR OPERATOR} タイプのASTノードを生成して返します。
+	 * Creates an AST node of an operator.
 	 *
-	 * @param token 演算子のトークン
-	 * @return 生成した演算子ノード
+	 * @param token The token of an operator.
+	 * @return The created node.
 	 */
 	private AstNode createOperatorNode(Token token) {
 		AstNode operatorNode = new AstNode(AstNode.Type.OPERATOR, token.getLineNumber(), token.getFileName());
@@ -1121,7 +1069,8 @@ public class Parser {
 		operatorNode.setAttribute(AttributeKey.OPERATOR_SYMBOL, token.getValue());
 		operatorNode.setAttribute(AttributeKey.OPERATOR_PRECEDENCE, Integer.toString(token.getPrecedence()));
 
-		// キャスト演算子など、演算子トークンがランク・型情報を持っている場合があるので、その場合はノードに設定
+		// Some kinds of operator tokens have data-type / array-ranks (e.g.: cast operators).
+		// Copy attributes of them for such operators.
 		if (token.hasAttribute(AttributeKey.DATA_TYPE)) {
 			operatorNode.setAttribute(AttributeKey.DATA_TYPE, token.getAttribute(AttributeKey.DATA_TYPE));
 		}
@@ -1134,22 +1083,21 @@ public class Parser {
 
 
 	/**
-	 * 識別子（変数名や関数名）またはリテラルを表すトークンの情報に基づいて、
-	 * 式のリーフノードとなる {@link AstNode.Type#LEAF LEAF} タイプのASTノードを生成して返します。
+	* Creates an AST node of a leaf (an identifier or a literal), from a token.
 	 *
-	 * @param token 識別子またはリテラルのトークン
-	 * @return 生成したリーフノード
+	 * @param token The token of an identifier or a literal.
+	 * @return The created node.
 	 */
 	private AstNode createLeafNode(Token token) {
 		AstNode node = new AstNode(AstNode.Type.LEAF, token.getLineNumber(), token.getFileName());
 		node.setAttribute(AttributeKey.LEAF_TYPE, token.getAttribute(AttributeKey.LEAF_TYPE));
 
-		// リテラルなら値を LITERAL 属性に設定し、LexicalAnalyzerで設定されているデータ型も設定
+		// Literal:
 		if (token.getAttribute(AttributeKey.LEAF_TYPE).equals(AttributeValue.LITERAL)) {
 			node.setAttribute(AttributeKey.LITERAL_VALUE, token.getValue());
 			node.setAttribute(AttributeKey.DATA_TYPE, token.getAttribute(AttributeKey.DATA_TYPE));
 
-		// それ以外は識別子なので値を IDENTIFIER 属性に設定
+		// Identifier:
 		} else {
 			node.setAttribute(AttributeKey.IDENTIFIER_VALUE, token.getValue());
 		}
@@ -1158,13 +1106,12 @@ public class Parser {
 
 
 	/**
-	 * 識別子またはリテラルの表す文字列に基づいて、
-	 * 式のリーフノードとなる {@link AstNode.Type#LEAF LEAF} タイプのASTノードを生成して返します。
-	 *
-	 * @param tokenValue 識別子またはリテラルの文字列
-	 * @param leafType {@link AttributeKey#LEAF_TYPE LEAF_TYPE}属性の値
-	 * @param dataType リテラルのデータ型名
-	 * @return 生成したリーフノード
+	 * Creates an AST node of a leaf, from a string value of an identifier or a literal.
+	 * 
+	 * @param tokenValue A string value of an identifier or a literal.
+	 * @param leafType The type of the leaf (The value of {@link AttributeKey#LEAF_TYPE LEAF_TYPE} attribute)
+	 * @param dataType The data-type of the leaf.
+	 * @return The created node.
 	 */
 	private AstNode createLeafNode(String tokenValue, String leafType, String dataType, String fileName, int lineNumber) {
 		Token token = new Token(tokenValue, lineNumber, fileName);
@@ -1176,15 +1123,17 @@ public class Parser {
 
 
 	/**
-	 * 構文解析の作業用スタック上に、フタノード（{@link AstNode.Type#STACK_LID STACK_LID} タイプのノード）を積みます。
+	 * Push a stack-lid node to the stack.
+	 * 
+	 * A stack node is a temporary node for isolating inner nodes in a partial expression from its outer nodes.
+	 * The parser links nodes in an expression based on precedence of operators.
+	 * Hence, if a temporary nodes having the least-prior precedence are inserted to positions of "(", 
+	 * nodes of subsequent tokens can't be linked to the node of the previous operator of "(". 
+	 * So tokens after "(" will be constructed as an lsolated AST.
+	 * Then, when the parser read ")", the AST of the partial expression on the stack will be popped 
+	 * and will be linked to the node of the previous operator of "(".
 	 *
-	 * フタノードは、最終的なAST（抽象構文木）の中には現れませんが、
-	 * 構文解析作業中において、スタックの領域を分割したり、特定の領域が始まる目印として使用されます。
-	 *
-	 * このメソッドは、{@link AttributeKey#LID_MARKER LID_MARKER} 属性値を持たないフタノードを積むもので、
-	 * ブロック文の始点や、複数の部分式の区切りなどの際に使用されます。
-	 *
-	 * @param stack 構文解析の作業用スタックとして使用している双方向キュー
+	 * @param stack The working stack used in {@link Parser#parseExpression} method.
 	 */
 	private void pushLid(Deque<AstNode> stack) {
 		AstNode stackLid = new AstNode(AstNode.Type.STACK_LID, 0, "");
@@ -1194,21 +1143,18 @@ public class Parser {
 
 
 	/**
-	 * 構文解析の作業用スタック上に、フタノード（{@link AstNode.Type#STACK_LID STACK_LID} タイプのノード）を積み、
-	 * その {@link AttributeKey#LID_MARKER LID_MARKER} 属性値に、引数 marker の値を設定します。
-	 *
-	 * フタノードは、最終的なAST（抽象構文木）の中には現れませんが、
-	 * 構文解析作業中において、スタックの領域を分割したり、特定の領域が始まる目印として使用されます。
-	 *
-	 * このメソッドは、関数呼び出し演算子や配列要素アクセス演算子において、
-	 * 引数やインデックスを指定する部分式（複数あり得る）の始点を、
-	 * スタック上で示すために使用されます。
-	 * 両者は互いに入れ子になる可能性があるため、スタックからの回収時に区別するために
-	 * {@link AttributeKey#LID_MARKER LID_MARKER} 属性値が使用されます。
-	 * 詳細は {@link Parser#popPartialExpressionNodes popPartialExpressionNodes} メソッドの説明を参照してください。
-	 *
-	 * @param stack 構文解析の作業用スタックとして使用している双方向キュー
-	 * @param marker フタノードに設定する {@link AttributeKey#LID_MARKER LID_MARKER} 属性値
+	 * Push a stack-lid node to the stack, with a marker to identify the lid.
+	 * 
+	 * This method is a derived version of {@link Parser# pushLid(Deque<AstNode> stack)} method, 
+	 * having an additional parameter "marker".
+	 * The parameter "marker" is used for identify multiple partial expressions of 
+	 * arguments of a call operator, or of indices of a subscript operator.
+	 * They may be nested each other (e.g.: a[ f(1+2) + 3 ], f(a[1+2]+3), and so on), 
+	 * so the parser is required to distinguish them by using markers.
+	 * 
+	 * @param stack The working stack used in {@link Parser#parseExpression} method.
+	 * @param marker The marker to identify the lid to be pushed.
+	 * @see Parser#popPartialExpressionNodes(Deque<AstNode>, String, String, int) popPartialExpressionNodes
 	 */
 	private void pushLid(Deque<AstNode> stack, String marker) {
 		AstNode stackLid = new AstNode(AstNode.Type.STACK_LID, 0, "");
@@ -1219,27 +1165,25 @@ public class Parser {
 
 
 	/**
-	 * 構文解析の作業用スタック上の先頭にあるノードが、指定された種類かどうか検査した上で、回収せずに参照します。
-	 * ただし、種類を何も指定しなかった場合は、検査は行われません。
-	 *
-	 * @param stack 構文解析の作業用スタックとして使用している双方向キュー
-	 * @param fileName 解析対象の式が属するファイル名（エラーメッセージで使用）
-	 * @param lineNumber 解析対象の式の行番号（エラーメッセージで使用）
-	 * @param expectedTypes 期待されるノードの種類
-	 * @return スタック上の先頭にあるノード
+	 * Pops a node from the top of the stack, with checking its type.
+	 * 
+	 * @param stack The working stack used in {@link Parser#parseExpression} method.
+	 * @param fileName The name of the file in which the currently parsing expression is contained (usen in an error message).
+	 * @param lineNumber The line number of the currently parsing expression is contained (usen in an error message).
+	 * @param expectedTypes Expected type(s) of the node at the top of the stack.
+	 * @return The node popped from the top of the stack.
 	 * @throws VnanoException
-	 * 		スタック上の先頭にあるノードの種類が、expectedTypes に指定したもの以外だった場合にスローされます。
+	 *           Thrown when the type of the node at the top of the stack doesn't match expected types,
+	 *           or when there is no node in the stack.
 	 */
-	private AstNode peekNode(Deque<AstNode> stack, String fileName, int lineNumber, AstNode.Type ...expectedTypes)
+	private AstNode popNode(Deque<AstNode> stack, String fileName, int lineNumber, AstNode.Type ...expectedTypes)
 			throws VnanoException {
 
-		// 初期状態でスタックが空なら明らかにおかしい
-		//（ オペランドが既に他ノードにぶら下がって回収されてしまっているなど ）
 		if (stack.size() == 0) {
 			throw new VnanoException(ErrorType.INVALID_EXPRESSION_SYNTAX, fileName, lineNumber);
 		}
 
-		// スタック上のノードの種類が、expectedTypes に指定された種類のいずれかと一致するか検査
+		// Check the type of the node at the top of the stack.
 		if (expectedTypes.length != 0) {
 			boolean matched = false;
 			AstNode.Type type = stack.peek().getType();
@@ -1254,63 +1198,37 @@ public class Parser {
 			}
 		}
 
-		return stack.peek();
-	}
-
-
-	/**
-	 * 構文解析の作業用スタック上の先頭にあるノードが、指定された種類かどうか検査した上で、回収して返します。
-	 * ただし、種類を何も指定しなかった場合は、検査は行われません。
-	 *
-	 * @param stack 構文解析の作業用スタックとして使用している双方向キュー
-	 * @param fileName 解析対象の式が属するファイル名（エラーメッセージで使用）
-	 * @param lineNumber 解析対象の式の行番号（エラーメッセージで使用）
-	 * @param expectedTypes 期待されるノードの種類
-	 * @return スタック上の先頭から回収したノード
-	 * @throws VnanoException スタック上の先頭にあるノードが、演算子ノードではなかった場合にスローされます。
-	 */
-	private AstNode popNode(Deque<AstNode> stack, String fileName, int lineNumber, AstNode.Type ...expectedTypes)
-			throws VnanoException {
-
-		// スタック上の先頭要素を検査し、例外が発生しなければ先頭要素を回収して返す
-		this.peekNode(stack, fileName, lineNumber, expectedTypes);
 		return stack.pop();
 	}
 
 
 
 	/**
-	 * 構文解析の作業用スタック上に構築されている、文のAST（抽象構文木）ノードの内、
-	 * フタノード（{@link AstNode.Type#STACK_LID STACK_LID} タイプのノード）以降にあるものを全て回収します。
+	 * From the stack, pops all nodes being above an stack lid, and returns them as an array.
+	 * Order of nodes in the returned array is FIFO.
+	 * This method is used for collecting nodes of statements in a block "{...}", 
+	 * when the parser has read the end of the block "}".
 	 *
-	 * このメソッドによって返される配列は、要素として文のASTのルートノードを、
-	 * スタック上のフタノード以降に置かれている数だけ格納しています。
-	 * その順序は、スタックの深い側（最初に積まれた側）にあるものが先頭になるよう整列されます。
-	 *
-	 * なお、このメソッドは、構文解析がブロック文の終端トークンに達した際に、
-	 * ブロック文の内側の文のASTノードを、スタック上から回収するために使用されます。
-	 *
-	 * @param stack 構文解析の作業用スタックとして使用している双方向キュー
-	 * @return 文式のASTのルートノードを格納する配列（スタック上で深い側にあるものが先頭）
+	 * @param stack The working stack used in {@link Parser#parse} method.
+	 * @return An array in which nodes of statements are stored (their order is FIFO).
 	 */
 	private AstNode[] popStatementNodes(Deque<AstNode> stack) {
 
 		List<AstNode> statementNodeList = new ArrayList<AstNode>();
 		while(stack.size() != 0) {
 
-			// フタノードに到達したら、フタを除去して回収完了
+			// If a "lid" node is found, remove it and finish collecting.
 			if (stack.peek().getType()==AstNode.Type.STACK_LID) {
 				stack.pop();
 				break;
 			}
 
-			// 文の構文木ノードを1個取り出す
+			// Pop a statement node.
 			AstNode statementNode = stack.pop();
 			statementNodeList.add(statementNode);
-
 		}
 
-		// スタックに入れた順と取り出し順は逆になっているので、逆転させて戻す
+		// Reorder nodes to the order of FIFO.
 		Collections.reverse(statementNodeList);
 
 		return statementNodeList.toArray(new AstNode[0]);
@@ -1318,41 +1236,23 @@ public class Parser {
 
 
 	/**
-	 * 構文解析の作業用スタック上に構築されている、
-	 * 部分式のAST（抽象構文木）のルートノードを全て回収します。
+	 * From the stack, pops all nodes being above an stack lid having the specified marker, 
+	 * and returns them as an array. Order of nodes in the returned array is FIFO.
+	 * This method is used for collecting nodes of partial expressions.
+	 * 
+	 * In the stack, multiple nodes of partial expressions to be collected 
+	 * must be separated by stack lids having different markers from the specified argument "marker".
 	 *
-	 * ただし、作業用スタック上には、部分式のルートノードが積まれている始点（深い側）に、
-	 * 目印として引数 marker と同じ値を {@link AttributeKey#LID_MARKER LID_MARKER}
-	 * 属性値に持つフタノード（{@link AstNode.Type#STACK_LID STACK_LID} タイプのノード）
-	 * が配置されている事が必要です。
-	 * また、部分式が複数ある場合、スタック上でそれらのルートノードの間には、
-	 * 引数 marker とは異なる値を {@link AttributeKey#LID_MARKER LID_MARKER}
-	 * 属性値に持つフタノードが挟まれている事が必要です。
-	 *
-	 * このメソッドによって返される配列は、要素として部分式の構文木のルートノードを、
-	 * 部分式の数だけ格納しています。
-	 * その順序は、スタックの深い側（最初に積まれた側）にあるものが先頭になるよう整列されます。
-	 *
-	 * なお、このメソッドで回収する部分式は、例えば式の構文解析において、
-	 * 演算子の優先度を調整するための括弧（かっこ）や、
-	 * 関数呼び出し演算子、および配列要素アクセス演算子の括弧で挟まれた箇所に存在します。
-	 * このParserでは、構文解析がそれらの括弧の終端トークンに達した時点で、
-	 * スタック上に部分式のASTのルートノードが積まれた状態になるよう実装されています。
-	 * そのタイミングでこのメソッドが使用され、それらが回収されて、
-	 * 演算子ノードの直下にオペランドとしてぶら下げられます。
-	 *
-	 * @param stack 構文解析の作業用スタックとして使用している双方向キュー
-	 * @param marker 回収の最深部に配置してあるフタノードのマーカー値
-	 * @param fileName 解析対象の式が属するファイル名（エラーメッセージで使用）
-	 * @param lineNumber 解析対象の式の行番号（エラーメッセージで使用）
-	 * @return 回収した部分式のASTのルートノードを格納する配列（スタック上で深い側にあるものが先頭）
-	 * @throws VnanoException スタックに積まれた部分式が無い場合にスローされます。
+	 * @param stack The working stack used in {@link Parser#parseExpression} method.
+	 * @param marker The marker of the lid at the beginning of the first partial expression's node to be collected.
+	 * @param fileName The name of the file in which the currently parsing expression is contained (usen in an error message).
+	 * @param lineNumber The line number of the currently parsing expression is contained (usen in an error message).
+	 * @return An array in which nodes of partial expressions are stored (their order is FIFO).
+	 * @throws VnanoException Thrown when contents of the stack is incorrect.
 	 */
 	private AstNode[] popPartialExpressionNodes(Deque<AstNode> stack, String marker, String fileName, int lineNumber)
 			throws VnanoException {
 
-		// 初期状態でスタックが空なら明らかにおかしい
-		//（ 例えば括弧の対応がおかしくて、部分式が既にスタックから回収されてしまっているなど ）
 		if (stack.size() == 0) {
 			throw new VnanoException(ErrorType.INVALID_EXPRESSION_SYNTAX, fileName, lineNumber);
 		}
@@ -1360,22 +1260,23 @@ public class Parser {
 		List<AstNode> partialExprNodeList = new ArrayList<AstNode>();
 		while(stack.size() != 0) {
 
-			// 部分式があって正常に解析完了していれば、その構文木の頂点ノードがスタック上にあるはずなので、それを取り出す
-			// （引数が無い関数の呼び出し fun() の場合など、部分式の中身が無い場合もある事に注意）
+			// If the parsing of a partial expression completed expectedly, 
+			// a root node of the AST of it is pushed to the stack. So pop it.
+			// (Note that, when the content of the partial expression is empty, there is no node between stack lids.)
 			if (stack.peek().getType() != AstNode.Type.STACK_LID) { // 部分式が無い場合はフタがあるだけ
 				partialExprNodeList.add(stack.pop());
 			}
 
-			// 式の内容と解析が正しければ、スタック上の次の位置にはフタが置いてあるはずなので、無ければエラー
+			// If the parsing of a partial expression completed expectedly, the next node on the stack is a lid.
 			if (stack.size() == 0) {
 				throw new VnanoException(ErrorType.INVALID_EXPRESSION_SYNTAX, fileName, lineNumber);
 			}
 
-			// フタを除去
+			// Remove the lid.
 			if (stack.peek().getType() == AstNode.Type.STACK_LID) {
 				AstNode stackLid = stack.pop();
 
-				// フタに記載されたマーカーが指定値なら、全ての部分式の回収は完了
+				// If the marker of the lid is the same as the marker specified as an argument, finish collecting.
 				if (stackLid.hasAttribute(AttributeKey.LID_MARKER)
 						&& stackLid.getAttribute(AttributeKey.LID_MARKER).equals(marker)) {
 
@@ -1384,7 +1285,7 @@ public class Parser {
 			}
 		}
 
-		// スタックに入れた順と取り出し順は逆になっているので、逆転させて戻す
+		// Reorder nodes to the order of FIFO.
 		Collections.reverse(partialExprNodeList);
 
 		return partialExprNodeList.toArray(new AstNode[0]);
@@ -1392,17 +1293,17 @@ public class Parser {
 
 
 	/**
-	 * トークン配列の中に含まれる、全キャスト演算子の「 始点, データ型, 終端 」と並ぶトークン列をまとめ、
-	 * それぞれ単一のトークンに変換したもので置き換えて返します。
+	 * Replace all tokens composing cast operators (e.g.: "(", "int", ")" ) contained in specified tokens, 
+	 * to single-token cast operators.
 	 *
-	 * @param 変換対象のトークン配列
+	 * @param Tokens in which all tokens composing cast operators are replaced to single-token cast operators.
 	 */
 	private Token[] preprocessCastSequentialTokens(Token[] tokens) {
 
-		int tokenLength = tokens.length; // トークン数
-		int readingIndex = 0; // 注目トークンのインデックス
+		int tokenLength = tokens.length;
+		int readingIndex = 0;
 
-		// 変換後のトークンを格納するリスト
+		// Stores tokens to be returned.
 		List<Token> tokenList = new ArrayList<Token>();
 
 		while (readingIndex<tokenLength) {
@@ -1413,17 +1314,18 @@ public class Parser {
 				&& readingToken.getType() == Token.Type.OPERATOR
 				&& readingToken.getAttribute(AttributeKey.OPERATOR_EXECUTOR).equals(AttributeValue.CAST);
 
-			// キャスト始点トークンの場合は、次がデータ型トークン、
-			// その後が終端トークン（配列キャストは未サポート）なので、情報を1つにまとめてリストに格納
+			// If the reading token is a beginning of a cast operator, to remake it as a single-token cast operator,
+			// add attributes of the data-type and the array-rank read from latter tokens composing the cast operator.
+			// And add only the single-token cast operator to tokenList.
 			if (isCastBeginToken) {
 				String dataType = tokens[ readingIndex+1 ].getValue();
 				readingToken.setAttribute(AttributeKey.DATA_TYPE, dataType);
-				readingToken.setAttribute(AttributeKey.RANK, Integer.toString(RANK_OF_SCALAR)); // 現在は配列のキャストに未対応なため
+				readingToken.setAttribute(AttributeKey.RANK, Integer.toString(RANK_OF_SCALAR)); // The cast of arrays have not been supported yet.
 				readingToken.setValue(ScriptWord.PARENTHESIS_BEGIN + dataType + ScriptWord.PARENTHESIS_END);
 				tokenList.add(readingToken);
 				readingIndex += 3;
 
-			// その他のトークンの場合はそのまま変換後リストに格納
+			// Other kinds of tokens:
 			} else {
 				tokenList.add(readingToken);
 				readingIndex++;
@@ -1436,45 +1338,38 @@ public class Parser {
 
 
 	/**
-	 * 変数宣言文のトークン配列から、配列変数の要素数宣言部の後端トークン（ ] ）を検索し、
-	 * そのインデックスを返します。
+	 * Finds the token "]" at the end of declaration of array lengths, 
+	 * from tokens of a variable declaration statements.
 	 *
-	 * なお、宣言されている配列が多次元の場合、最後の次元の後端トークンが検索されます。
-	 * また、配列要素数を記述する式の中に、配列要素アクセス演算子が存在する場合
-	 * （つまり、別の配列の要素の値を、宣言配列の要素数の式中で使用している場合）
-	 * においても、その後端の「 ] 」記号の存在は、結果には影響しません。
-	 * このメソッドは、あくまでも配列変数の要素数宣言部の後端の位置を返します。
-	 *
-	 * @param tokens 変数宣言文のトークン配列
-	 * @param fromIndex 検索を開始する位置のインデックス
-	 * @return 見つかった後端トークン（ ] ）のインデックス（見つからなかった場合は -1）
+	 * @param tokens Tokens of a variable declaration statements.
+	 * @param fromIndex The beginning index of the search.
+	 * @return The index of the found token, or -1 if it hasn't been found.
 	 */
 	private int getLengthEndIndex(Token[] tokens, int fromIndex) {
 
-		int tokenLength = tokens.length; // トークン総数
-		int depth = 0; // 「 [ 」で上がり「 ] 」で下がる階層をカウントする
+		int tokenLength = tokens.length;
+		int depth = 0; // Incremented at "[", and decremented at "]".
 
 		for(int i=fromIndex; i<tokenLength; i++) {
-
-			// トークン内容の文字列
 			String word = tokens[i].getValue();
 
-			// 見つからないまま初期化式に入った場合は要素数宣言無し
+			// If it reaches to the end of tokens without finding "]", 
+			// the declared variable is not an array.
+			// Then this method should return -1.
 			if (depth==0 && word.equals(ScriptWord.ASSIGNMENT)) {
 				return -1;
 			}
 
-			// 「 [ 」記号があれば階層を上がる
-			// 階層0が要素数宣言、1以上は要素数の式中の配列要素アクセス演算子のもの
+			// "[": Increment the depth.
 			if(word.equals(ScriptWord.SUBSCRIPT_BEGIN)) {
 				depth++;
 
-			// 「 ] 」記号があれば階層を下がる
-			// （この処理系では、次元区切り「 ][ 」は別種のトークンなのでここにはヒットしない）
+			// "]": Dencrement the depth.
 			} else if(word.equals(ScriptWord.SUBSCRIPT_END)) {
 				depth--;
 
-				// 階層0の「 ] 」は配列要素数宣言の終端なので、インデックスを返す
+				// If the depth is 0, it is the end of declaration of array lengths. So return the index of it.
+				// (If the depth is non-zero, it is an end of a subscript operator, not declaration of array lengths.)
 				if (depth == 0) {
 					return i;
 				}
@@ -1484,3 +1379,4 @@ public class Parser {
 	}
 
 }
+

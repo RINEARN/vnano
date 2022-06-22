@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2018-2021 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2018-2022 RINEARN
  * This software is released under the MIT License.
  */
 
@@ -13,43 +13,37 @@ import org.vcssl.nano.spec.ScriptWord;
 public class LexicalChecker {
 
 	/**
-	 * <span class="lang-en">
-	 * Create a new lexical checker
-	 * </span>
-	 * <span class="lang-ja">
-	 * レキシカルチェッカーを生成します
-	 * </span>
-	 * .
+	 * Create a new lexical checker.
 	 */
 	public LexicalChecker() {
 	}
 
 
 	/**
-	 * トークン配列に対して、if/else/for/whileの制御文の後方に、
-	 * 必要な括弧やブロック（この言語では必須）などが存在する正しい構造になっているかを検査します。
-	 * 検査の結果、問題が無かった場合には何もせず、問題が見つかった場合には例外をスローします。
+	 * Checks tokens after keywords of control statements (if, else, for, while, and so on).
+	 * For example, after "if", there must be tokens of "(...){...}".
+	 * This method throws an exception when any syntactic problem is detected, and otherwise do nothing.
 	 *
-	 * @param tokens 検査対象のトークン配列
-	 * @param controlStatementBegin 対象の制御文の始点インデックス
-	 * @throws VnanoException トークン配列に、制御文の構成トークンとしての問題があった場合にスローされます。
+	 * @param tokens Tokens to be checked.
+	 * @param controlStatementBegin The array index of the beginning token of the control statement to be checked.
+	 * @throws VnanoException Thrown when any syntactic problem is detected.
 	 */
 	protected void checkTokensAfterControlStatement(
 			Token[] tokens, int controlStatementBegin, boolean arrowStatementsInParentheses)
 					throws VnanoException {
 
-		// 「 if 」や「 for 」などの制御文のキーワードのトークン
+		// The token of the keyword of the control statemen, e.g.t: "if", "for", and so on.
 		Token controlToken = tokens[controlStatementBegin];
 		String controlWord = controlToken.getValue();
 
-		int readingIndex = controlStatementBegin + 1; // 読んでいるトークン位置
+		int readingIndex = controlStatementBegin + 1;
 
-		// 括弧 (...) が必要な場合は検査
+		// If parentheses (...) are necessary, check:
 		if ( controlWord.equals(ScriptWord.IF)
 				|| controlWord.equals(ScriptWord.WHILE)
 				|| controlWord.equals(ScriptWord.FOR) ) {
 
-			// 次のトークンが無いか、開き括弧「 ( 」でなければ構文エラー
+			// If the next token of the keyword of the control statement isn't "(", throw an exception:
 			if (tokens.length <= controlStatementBegin+1
 					|| !tokens[controlStatementBegin+1].getValue().equals(ScriptWord.PARENTHESIS_BEGIN)) {
 
@@ -59,8 +53,8 @@ public class LexicalChecker {
 				);
 			}
 
-			// 括弧が閉じる箇所を探す
-			int hierarchy = 0; // 開き括弧で上がり、閉じ括弧で下がる階層カウンタ
+			// Find the closing parenthesis ")" corresponding with the first "(" after the keyword of the control statement:
+			int hierarchy = 0; // A variable for counting-up hierarchy of parentheses (incremented at "(", and decremented at ")").
 			while (true) {
 				Token readingToken = tokens[readingIndex];
 				if (readingToken.getValue().equals(ScriptWord.PARENTHESIS_BEGIN)) {
@@ -70,12 +64,12 @@ public class LexicalChecker {
 					hierarchy--;
 				}
 
-				// 階層が 0 になったら、それが最初の開き括弧に対応している閉じ括弧
+				// ")" of which hierarchy is 0 corresponds with the first "(".
 				if (hierarchy == 0) {
 					break;
 				}
 
-				// 開き括弧に対応している対応している閉じ括弧が見つからないまま文末に達した場合は構文エラー
+				// If it does not exist, throw an exception:
 				if (readingIndex == tokens.length-1
 						|| readingToken.getValue().equals(ScriptWord.BLOCK_BEGIN)
 						|| readingToken.getValue().equals(ScriptWord.BLOCK_END)
@@ -88,26 +82,23 @@ public class LexicalChecker {
 				}
 				readingIndex++;
 			}
-
 			readingIndex++;
 		}
 
-		// この時点で readingIndex の値は、
-		// if / for / while 文については閉じ丸括弧トークン「 ) 」の次、
-		// else 文については「 else 」トークンの次を指している
+		// If ")" has been detected in the above, here "readingIndex" is pointing to the next of ")".
+		// Otherwise, it is pointing to the next of the keyword of the control statement (e.g.: "else").
 
-		// else の後に if が続く場合は、else 直後に特例的にブロック始点が無くても許可する
+		// Only when an "else" is followed by an "if", you can omit "{...}" after the "else".
 		if ( controlWord.equals(ScriptWord.ELSE) && tokens[readingIndex].getValue().equals(ScriptWord.IF) ) {
 			return;
 		}
 
-		// それ以外の if / else / for / while 文は、直後にブロック始点「 { 」が必要（この言語では仕様で必須化されている）
+		// Otherwise, "{...}" is always required after an "if(...)" / "else" / "for(...)" / "while(...)", in Vnano.
 		if ( controlWord.equals(ScriptWord.IF)
 				|| controlWord.equals(ScriptWord.ELSE)
 				|| controlWord.equals(ScriptWord.FOR)
 				|| controlWord.equals(ScriptWord.WHILE) ) {
 
-			// 直後に「 { 」が続いていなければ構文エラーとする
 			if (readingIndex == tokens.length-1
 					|| !tokens[readingIndex].getValue().equals(ScriptWord.BLOCK_BEGIN)) {
 
@@ -122,58 +113,56 @@ public class LexicalChecker {
 
 
 	/**
-	 * 制御文の構文解析の前処理として、文を構成するトークン配列に対して、
-	 * 括弧や条件式、その他必要な文の有無などを検査します。
-	 * 検査の結果、問題が無かった場合には何もせず、問題が見つかった場合には例外をスローします。
-	 *
-	 * @param tokens 検査対象のトークン配列
-	 * @throws VnanoException トークン配列に、制御文の構成トークンとしての問題があった場合にスローされます。
+	 * Checks existences of conditional expressions and so on, of control statements.
+	 * This method throws an exception when any syntactic problem is detected, and otherwise do nothing.
+	 * 
+	 * @param tokens Tokens to be checked.
+	 * @throws VnanoException Thrown when any syntactic problem is detected.
 	 */
 	protected void checkControlStatementTokens(Token[] tokens) throws VnanoException {
 		Token controlTypeToken = tokens[0];
 		int lineNumber = controlTypeToken.getLineNumber();
 		String fileName = controlTypeToken.getFileName();
 
-		// if文の場合
+		// "if" statements:
 		if(controlTypeToken.getValue().equals(ScriptWord.IF)) {
 
-			// 条件式が空の場合は構文エラー
+			// If it hasn't any conditional expression, throw an exception.
 			if (tokens.length == 3) {
 				throw new VnanoException(ErrorType.NO_CONDITION_EXPRESSION_OF_IF_STATEMENT, fileName, lineNumber);
 			}
 
-		// while文の場合
+		// "while" statements:
 		} else if(controlTypeToken.getValue().equals(ScriptWord.WHILE)) {
 
-			// 条件式が空の場合は構文エラー
+			// If it hasn't any conditional expression, throw an exception.
 			if (tokens.length == 3) {
 				throw new VnanoException(ErrorType.NO_CONDITION_EXPRESSION_OF_WHILE_STATEMENT, fileName, lineNumber);
 			}
 
-		// for文の場合
+		// "for" statements:
 		} else if(controlTypeToken.getValue().equals(ScriptWord.FOR)) {
 
-			// 初期化式と条件式の終端トークンインデックスを取得
+			// Get index of ending tokens of an initialization statement and a condition expression.
 			int initializationEnd = Token.getIndexOf(tokens, ScriptWord.END_OF_STATEMENT, 0);
 			int conditionEnd = Token.getIndexOf(tokens, ScriptWord.END_OF_STATEMENT, initializationEnd+1);
 
-			// 括弧 (...;...;...) 内の区切りが無いか足りない場合は構文エラー
+			// If the number of separators ";" in "(...;...;...)" is deficient, throw an exception.
 			if (initializationEnd < 0 || conditionEnd < 0) {
 				throw new VnanoException(
 						ErrorType.ELEMENTS_OF_FOR_STATEMENT_IS_DEFICIENT, fileName, lineNumber
 				);
 			}
 
+		// "return" statements:
 		} else if (controlTypeToken.getValue().equals(ScriptWord.RETURN)) {
 
-			// 後に任意の式が続き、省略も可能なので、トークン列の段階では特に制約しない
-
-		// else / break / continue 文の場合
+		// "else", "brek", "continue" statements:
 		} else if(controlTypeToken.getValue().equals(ScriptWord.ELSE)
 				|| controlTypeToken.getValue().equals(ScriptWord.BREAK)
 				|| controlTypeToken.getValue().equals(ScriptWord.CONTINUE) ) {
 
-			// 余計な記述が付いている
+			// If it has unnecessary tokens, throw an exception.
 			if (tokens.length > 1) {
 				throw new VnanoException(
 						ErrorType.TOO_MANY_TOKENS_FOR_CONTROL_STATEMENT,
@@ -182,23 +171,47 @@ public class LexicalChecker {
 			}
 
 		} else {
-			// ここに到達するのはLexicalAnalyzerの異常（不明な種類の制御構文）
 			throw new VnanoFatalException("Unknown controll statement: " + controlTypeToken.getValue());
 		}
 	}
 
 
 	/**
-	 * 式のトークン配列内における、開き括弧「 ( 」と閉じ括弧「 ) 」の個数が合っているかどうかを検査します。
-	 * なお、構文要素の括弧だけでなく、関数呼び出し演算子やキャスト演算子の括弧も含めて検査されます。
-	 * 検査の結果、個数が合っていた場合には何もせず、合っていなかった場合には例外をスローします。
-	 *
-	 * @param tokens 検査対象のトークン配列
-	 * @throws VnanoException 開き括弧と閉じ括弧の個数が合っていなかった場合にスローされます。
+	 * Checks types, orders, correspondence of open/closing parentheses and so on of tokens in an expression.
+	 * This method throws an exception when any syntactic problem is detected, and otherwise do nothing.
+	 * 
+	 * @param tokens Tokens to be checked.
+	 * @throws VnanoException Thrown when any syntactic problem is detected.
+	 */
+	protected void checkTokensInExpression(Token[] tokens) throws VnanoException {
+
+		// トークン列内の開き括弧と閉じ括弧の対応を確認（合っていなければここで例外発生）
+		checkParenthesisOpeningClosings(tokens);
+
+		// トークン列内の配列インデックスの [ と ] の対応を確認（合っていなければここで例外発生）
+		checkSubscriptOpeningClosings(tokens);
+
+		// 式の構成要素になり得ない種類のトークンが存在しないか確認（存在すればここで例外発生）
+		checkTypeOfTokensInExpression(tokens);
+
+		// 式の中に空の括弧が存在しないか確認（関数呼び出し演算子は除く）
+		checkEmptyParenthesesInExpression(tokens);
+
+		// 演算子やリーフの位置が適切な関係で並んでいるか確認
+		checkLocationsOfOperatorsAndLeafsInExpression(tokens);
+	}
+
+
+	/**
+	 * Checks correspondencies of open parentheses "(" and closing parentheses ")", in tokens of an expression.
+	 * This method throws an exception when any syntactic problem is detected, and otherwise do nothing.
+	 * 
+	 * @param tokens Tokens to be checked.
+	 * @throws VnanoException Thrown when any syntactic problem is detected.
 	 */
 	protected void checkParenthesisOpeningClosings(Token[] tokens) throws VnanoException {
 		int tokenLength = tokens.length;
-		int hierarchy = 0; // 開き括弧で上がり、閉じ括弧で下がる階層カウンタ
+		int hierarchy = 0; // A variable for counting-up hierarchy of parentheses (incremented at "(", and decremented at ")").
 
 		for (int tokenIndex=0; tokenIndex<tokenLength; tokenIndex++) {
 			Token token = tokens[tokenIndex];
@@ -216,16 +229,13 @@ public class LexicalChecker {
 					hierarchy--;
 				}
 			}
-
-			// 階層が負になった場合は、その時点で明らかに開き括弧が足りない
 			if (hierarchy < 0) {
 				throw new VnanoException(
 					ErrorType.OPENING_PARENTHESES_IS_DEFICIENT,
-					tokens[0].getFileName(), tokens[0].getLineNumber() // 階層が0でない時点でトークンは1個以上あるので[0]で参照可能
+					tokens[0].getFileName(), tokens[0].getLineNumber()
 				);
 			}
 		}
-		// 式のトークンを全て読み終えた時点で階層が1以上残っているなら、閉じ括弧が足りない
 		if (hierarchy > 0) {
 			throw new VnanoException(
 				ErrorType.CLOSING_PARENTHESES_IS_DEFICIENT,
@@ -236,15 +246,15 @@ public class LexicalChecker {
 
 
 	/**
-	 * 式のトークン配列内における、配列インデックスの開き「 [ 」と閉じ「 ] 」の個数が合っているかどうかを検査します。
-	 * 検査の結果、個数が合っていた場合には何もせず、合っていなかった場合には例外をスローします。
-	 *
-	 * @param tokens 検査対象のトークン配列
-	 * @throws VnanoException 開き括弧と閉じ括弧の個数が合っていなかった場合にスローされます。
+	 * Checks correspondencies of "[" and "]", in tokens of an expression.
+	 * This method throws an exception when any syntactic problem is detected, and otherwise do nothing.
+	 * 
+	 * @param tokens Tokens to be checked.
+	 * @throws VnanoException Thrown when any syntactic problem is detected.
 	 */
 	protected void checkSubscriptOpeningClosings(Token[] tokens) throws VnanoException {
 		int tokenLength = tokens.length;
-		int hierarchy = 0; // 開き括弧で上がり、閉じ括弧で下がる階層カウンタ
+		int hierarchy = 0; // A variable for counting-up hierarchy of [ ] (incremented at "[", and decremented at "]").
 
 		for (int tokenIndex=0; tokenIndex<tokenLength; tokenIndex++) {
 			Token token = tokens[tokenIndex];
@@ -260,15 +270,13 @@ public class LexicalChecker {
 				}
 			}
 
-			// 階層が負になった場合は、その時点で明らかに [ が足りない
 			if (hierarchy < 0) {
 				throw new VnanoException(
 					ErrorType.OPENING_SUBSCRIPT_OPERATOR_IS_DEFICIENT,
-					tokens[0].getFileName(), tokens[0].getLineNumber() // 階層が0でない時点でトークンは1個以上あるので[0]で参照可能
+					tokens[0].getFileName(), tokens[0].getLineNumber()
 				);
 			}
 		}
-		// 式のトークンを全て読み終えた時点で階層が1以上残っているなら、] が足りない
 		if (hierarchy > 0) {
 			throw new VnanoException(
 				ErrorType.CLOSING_SUBSCRIPT_OPERATOR_IS_DEFICIENT,
@@ -279,26 +287,29 @@ public class LexicalChecker {
 
 
 	/**
-	 * 式のトークン配列のトークンタイプを検査し、式の構成要素になり得ないタイプのトークンが存在していないか検査します。
-	 * 検査の結果、問題が無かった場合には何もせず、問題が見つかった場合には例外をスローします。
-	 *
-	 * @param tokens 検査対象のトークン配列
-	 * @throws VnanoException 式の構成要素になり得ないタイプのトークンが存在していた場合にスローされます。
+	 * Checks types of tokens in an expression.
+	 * This method throws an exception when any syntactic problem is detected, and otherwise do nothing.
+	 * 
+	 * @param tokens Tokens to be checked.
+	 * @throws VnanoException Thrown when any syntactic problem is detected.
 	 */
 	protected void checkTypeOfTokensInExpression(Token[] tokens) throws VnanoException {
 		for(Token token: tokens) {
 			switch (token.getType()) {
 
-				// 演算子、リーフ、括弧は式の構成要素になる
+				// Operators, leafs, and parentheses can be elements of expressions.
 				case OPERATOR : break;
 				case LEAF : break;
 				case PARENTHESIS : break;
 
+				// Data-types can be elements of expressions (as cast-operators).
 				// キャスト演算子ではデータ型も構成要素になる
 				case DATA_TYPE: break;
 
-				// 式文の中にブロックの始点・終点がある場合は、スクリプト内に文末記号を書き忘れているので、
-				// そういった方向のエラーメッセージで構文エラーとする
+				// "{" and "}" can't be elements of expressions.
+				// If they are contained in an expression, 
+				// the author of the script may have forgotten to put ";" to the end of an expression statement.
+				// So sudgest it by the error message.
 				case BLOCK : {
 					throw new VnanoException(
 							ErrorType.STATEMENT_END_IS_NOT_FOUND,
@@ -307,7 +318,7 @@ public class LexicalChecker {
 					);
 				}
 
-				// それ以外も式の構成要素になり得ないので、単純にそういったエラーメッセージで構文エラーとする
+				// Other kinds of tokens can't be elements of expressions.
 				default : {
 					throw new VnanoException(
 							ErrorType.INVALID_TYPE_TOKEN_IN_EXPRESSION,
@@ -321,14 +332,11 @@ public class LexicalChecker {
 
 
 	/**
-	 * 式のトークン配列内における、開き括弧「 ( 」と閉じ括弧「 ) 」に囲まれた部分式の中身が、
-	 * 空になっている箇所が無いか検査します。
-	 * ただし、関数呼び出し演算子の ( ) は、中身が空でも有効であるため、検査対象に含まれません。
-	 * キャスト演算子に関しても、そもそも中身が空の場合はキャスト演算子と解釈されないはずであるため、検査されません。
-	 * 検査の結果、問題が無かった場合には何もせず、問題が見つかった場合には例外をスローします。
-	 *
-	 * @param tokens 検査対象のトークン配列
-	 * @throws VnanoException 空の部分式が含まれていた場合にスローされます。
+	 * Checks existences of contents in parentheses "( )" in an expression, excluding call operators.
+	 * This method throws an exception when any syntactic problem is detected, and otherwise do nothing.
+	 * 
+	 * @param tokens Tokens to be checked.
+	 * @throws VnanoException Thrown when any syntactic problem is detected.
 	 */
 	protected void checkEmptyParenthesesInExpression(Token[] tokens) throws VnanoException {
 		int tokenLength = tokens.length;
@@ -354,16 +362,14 @@ public class LexicalChecker {
 
 
 	/**
-	 * 式のトークン配列内で、演算子やリーフの位置が、適切な関係で並んでいるか検査します。
-	 * 検査の結果、問題が無かった場合には何もせず、問題が見つかった場合には例外をスローします。
-	 *
-	 * @param tokens 検査対象のトークン配列
-	 * @throws VnanoException 問題が見つかった場合にスローされます。
+	 * Checks orders of operators and leafs in an expression.
+	 * This method throws an exception when any syntactic problem is detected, and otherwise do nothing.
+	 * 
+	 * @param tokens Tokens to be checked.
+	 * @throws VnanoException Thrown when any syntactic problem is detected.
 	 */
 	protected void checkLocationsOfOperatorsAndLeafsInExpression(Token[] tokens) throws VnanoException {
 		int tokenLength = tokens.length;
-
-		// トークンを先頭から末尾まで辿って検査
 		for (int tokenIndex=0; tokenIndex<tokenLength; tokenIndex++) {
 			Token token = tokens[tokenIndex];
 
@@ -402,15 +408,15 @@ public class LexicalChecker {
 					&& tokens[tokenIndex+2].getAttribute(AttributeKey.OPERATOR_EXECUTOR).equals(AttributeValue.CAST)
 					&& tokens[tokenIndex+2].getValue().equals(ScriptWord.PARENTHESIS_END);
 
-			// 演算子の場合
+			// Operators:
 			if (token.getType() == Token.Type.OPERATOR) {
 				String operatorSyntax = token.getAttribute(AttributeKey.OPERATOR_SYNTAX);
 				String operatorExecutor = token.getAttribute(AttributeKey.OPERATOR_EXECUTOR);
 
-				// 前置演算子の場合
+				// Prefix operators:
 				if (operatorSyntax.equals(AttributeValue.PREFIX)) {
 
-					// キャスト演算子の始点の場合は、右がデータ型があり、かつその直後が閉じ括弧でないとエラー
+					// Beginning of a cast operator: the next token must be a data-type, and the next of it must be ")".
 					if (operatorExecutor.equals(AttributeValue.CAST) && token.getValue().equals(ScriptWord.PARENTHESIS_BEGIN)) {
 						if (!nextIsDataType) {
 							throw new VnanoException(
@@ -425,7 +431,7 @@ public class LexicalChecker {
 							);
 						}
 
-					// それ以外の場合は、右がリーフか開き括弧か多項演算子（関数呼び出しや配列アクセス）始点か前置演算子でないとエラー
+					// Otherwise: the next token is an operand, so it must be a leaf, or "(", or the beginning of a multiary operator, or a prefix-operator.
 					} else if ( !(  nextIsLeaf || nextIsOpenParenthesis || nextIsMultialyBegin || nextIsPrefixOperator  ) ) {
 						throw new VnanoException(
 							ErrorType.OPERAND_IS_MISSING_AT_RIGHT,
@@ -433,9 +439,9 @@ public class LexicalChecker {
 						);
 					}
 
-				} // 前置演算子の場合
+				} // Prefix operators
 
-				// 後置演算子の場合は、右がリーフか閉じ括弧か多項演算子（関数呼び出しや配列アクセス）終点や後置演算子でないとエラー
+				// Postfix operator: the next token must be a leaf, or ")", or the end of a multiary operator, or a postfix-operator.
 				if (operatorSyntax.equals(AttributeValue.POSTFIX)
 						&& !(  prevIsLeaf || prevIsCloseParenthesis || prevIsMultialyEnd || prevIsPostfixOperator ) ) {
 
@@ -443,35 +449,36 @@ public class LexicalChecker {
 						ErrorType.OPERAND_IS_MISSING_AT_LEFT,
 						token.getValue(), token.getFileName(), token.getLineNumber()
 					);
-				} // 後置演算子の場合
+				} // Postfix operator
 
-				// 二項演算子や、多項演算子（関数呼び出しや配列アクセス）の区切りの場合
+				// Binary operators, or separators in multiary operators:
 				if (operatorSyntax.equals(AttributeValue.BINARY)
 						|| operatorSyntax.equals(AttributeValue.MULTIARY_SEPARATOR)) {
 
-					// 右がリーフか開き括弧か前置演算子か多項演算子（関数呼び出しや配列アクセス）の始点でないとエラー
+					// The next token must be "(", or a prefix-operator, or the beginning of a multiary operator.
 					if( !(  nextIsLeaf || nextIsOpenParenthesis || nextIsPrefixOperator || nextIsMultialyBegin  ) ) {
 						throw new VnanoException(
 							ErrorType.OPERAND_IS_MISSING_AT_RIGHT,
 							token.getValue(), token.getFileName(), token.getLineNumber()
 						);
 					}
-					// 左のトークンがリーフか閉じ括弧か後置演算子か多項演算子（関数呼び出しや配列アクセス）の終点でないとエラー
+							
+					// The previous token must be ")", or a postfix operator, or the end of a multiary operator.
 					if( !(  prevIsLeaf || prevIsCloseParenthesis || prevIsPostfixOperator || prevIsMultialyEnd  ) ) {
 						throw new VnanoException(
 							ErrorType.OPERAND_IS_MISSING_AT_LEFT,
 							token.getValue(), token.getFileName(), token.getLineNumber()
 						);
 					}
-				} // 二項演算子や、多項演算子（関数呼び出しや配列アクセス）の区切りの場合
+				} // Binary operators, or separators in multiary operators
 
-			} // 演算子の場合
+			} // Operators
 
-			// リーフの場合
+			// Leafs:
 			if (token.getType() == Token.Type.LEAF) {
 
-				// 右のトークンが開き括弧やリーフの場合はエラー
-				if (nextIsOpenParenthesis || nextIsLeaf) {     // nextIsMultialyBegin は付加してはいけない（普通に配列アクセスや関数呼び出しが来る右に場合が該当してしまう）
+				// Some tokens can't be at the right of a leaf.
+				if (nextIsOpenParenthesis || nextIsLeaf) {     // Don't filter out "nextIsMultialyBegin". It can be at the right of a leaf, e.g.: fun(..., a[..., and so on.
 					throw new VnanoException(
 						ErrorType.OPERATOR_IS_MISSING_AT_RIGHT,
 						new String[] {token.getValue(), tokens[tokenIndex+1].getValue()},
@@ -479,7 +486,7 @@ public class LexicalChecker {
 					);
 				}
 
-				// 左のトークンが閉じ括弧やリーフの場合はエラー
+				// Some tokens can't be at the left of a leaf.
 				if (prevIsCloseParenthesis || prevIsLeaf || prevIsMultialyEnd) {
 					throw new VnanoException(
 						ErrorType.OPERATOR_IS_MISSING_AT_LEFT,
@@ -487,36 +494,9 @@ public class LexicalChecker {
 						token.getFileName(), token.getLineNumber()
 					);
 				}
-			}
+			} // Leafs
 
-		} // トークンを先頭から末尾まで辿るループ
-	}
-
-
-	/**
-	 * 式の構文解析の前処理として、式を構成するトークン配列に対して、
-	 * トークンタイプや括弧の開き閉じ対応などの検査を行います。
-	 * 検査の結果、問題が無かった場合には何もせず、問題が見つかった場合には例外をスローします。
-	 *
-	 * @param tokens 検査対象のトークン配列
-	 * @throws VnanoException トークン配列に、式の構成トークンとしての問題があった場合にスローされます。
-	 */
-	protected void checkTokensInExpression(Token[] tokens) throws VnanoException {
-
-		// トークン列内の開き括弧と閉じ括弧の対応を確認（合っていなければここで例外発生）
-		checkParenthesisOpeningClosings(tokens);
-
-		// トークン列内の配列インデックスの [ と ] の対応を確認（合っていなければここで例外発生）
-		checkSubscriptOpeningClosings(tokens);
-
-		// 式の構成要素になり得ない種類のトークンが存在しないか確認（存在すればここで例外発生）
-		checkTypeOfTokensInExpression(tokens);
-
-		// 式の中に空の括弧が存在しないか確認（関数呼び出し演算子は除く）
-		checkEmptyParenthesesInExpression(tokens);
-
-		// 演算子やリーフの位置が適切な関係で並んでいるか確認
-		checkLocationsOfOperatorsAndLeafsInExpression(tokens);
+		}
 	}
 
 }

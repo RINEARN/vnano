@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2018 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2022 RINEARN (Fumihiro Matsui)
  * This software is released under the MIT License.
  */
 
@@ -10,81 +10,66 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * <p>
- * コンパイラ内において、
- * トークン（字句）として扱うクラスです。
- * </p>
- *
- * @author RINEARN (Fumihiro Matsui)
+ * The class represents a token in the compiler of the Vnano.
  */
 public class Token implements Cloneable {
 
 	/**
-	 * <p>
-	 * コンパイラ内において、
-	 * {@link Token Token} （トークン、字句）の種類を区別するための列挙子です。
-	 * </p>
-	 *
-	 * @author RINEARN (Fumihiro Matsui)
+	 * The enum to distinguish types of {@link Token Token} in the compiler of the Vnano.
 	 */
 	public static enum Type {
 
-		/** データ型のトークンを表します。 */
+		/** Represents the token of a data-type. */
 		DATA_TYPE,
 
-		/** 識別子やリテラルなど、ASTノードの葉要素となるトークンを表します。 */
+		/** Represents the token of a leaf element (literal, variable identifier, and so ons). */
 		LEAF,
 
-		/** 式の優先度を指定する括弧（かっこ）のトークンを表します。関数呼び出し演算子の括弧は含まれません。 */
+		/** Represents the token of a syntactic parenthesis. */
 		PARENTHESIS,
 
-		/** ブロックの始点および終点のトークンを表します。 */
+		/** Represents the beginning/ending token of a block. */
 		BLOCK,
 
-		/** 制御構文の名称（ if や for など ）のトークンを表します。 */
+		/** Represents the token of the name of a control statement ("if", "for", and so on). */
 		CONTROL,
 
-		/** 文末のトークンを表します。 */
+		/** Represents the token of an end-of-statement (";"). */
 		END_OF_STATEMENT,
 
-		/** 演算子のトークンを表します。 */
+		/** Represents the token of an operator. */
 		OPERATOR,
 
-		/** 修飾子のトークンを表します。 */
+		/** Represents the token of a modifier ("const", "&", and so on). */
 		MODIFIER,
 	}
 
 
-	/** トークンの値を保持します。 */
+	/** Stores the value of this token. */
 	private String value;
 
-	/** トークンのタイプ（種類）を保持します。 */
+	/** Stores the type of this token. */
 	private Type type;
 
-	/** トークンの演算子優先度を保持します（小さい方が高優先度）。 */
+	/** Stores the operator precedence of this token. Note that, smaller value gives higher precedence. */
 	private int precedence;
 
-	/** スクリプト内での行番号を保持します。 */
+	/** Stores the number of the line in which this token is written. */
 	private int lineNumber;
 
-	/** スクリプトのファイル名を保持します。 */
+	/** Stores the name of the script in which this token is written. */
 	private String fileName;
 
-	/** トークンの属性情報を保持するマップです。 */
+	/** Stores attributes (data-type of literal, syntactic-type of operators, and so on) of this token. */
 	private Map<AttributeKey, String> attributeMap;
 
 
 	/**
-	 * 指定された値を持つトークンを生成します。
+	 * Creates a token having the specified value.
 	 *
-	 * 生成時点では、トークンの値（字句そのもの）、スクリプト内での行番号、
-	 * およびスクリプトのファイル名の情報が設定されます。
-	 * それ以外の情報においては、生成時点では有効な値は設定されず、
-	 * {@link LexicalAnalyzer LexicalAnalyzer} による字句解析の過程で外部から設定されます。
-	 *
-	 * @param value トークンの値（字句）
-	 * @param lineNumber スクリプト内での行番号
-	 * @param fileName スクリプトのファイル名
+	 * @param value The value of the token.
+	 * @param lineNumber The number of the line in which this token is written.
+	 * @param fileName The name of the script in which this token is written.
 	 */
 	public Token(String value, int lineNumber, String fileName){
 		this.value = value;
@@ -93,7 +78,7 @@ public class Token implements Cloneable {
 		this.lineNumber = lineNumber;
 		this.fileName = fileName;
 
-		// toStringでダンプする際など、順序が不定だとテストやデバッグで面倒なので、HashMapではなくLinkedHashMapを使用
+		// To keep the order of attributes in the content of "toString()", using LinkedHashMap instead of HashMap.
 		this.attributeMap = new LinkedHashMap<AttributeKey, String>();
 	}
 
@@ -109,18 +94,18 @@ public class Token implements Cloneable {
 
 
 	/**
-	 * トークンの値を設定（変更）します。
-	 *
-	 * @param トークンの値
+	 * Sets the value of this token.
+	 * 
+	 * @param value The value of this token.
 	 */
 	public void setValue(String value) {
 		this.value = value;
 	}
 
 	/**
-	 * トークンの値を取得します。
-	 *
-	 * @return トークンの値
+	 * Gets the value of this token.
+	 * 
+	 * @return The value of this token.
 	 */
 	public String getValue() {
 		return this.value;
@@ -128,9 +113,9 @@ public class Token implements Cloneable {
 
 
 	/**
-	 * スクリプト内での行番号を取得します。
+	 * Gets the number of the line in which this token is written.
 	 *
-	 * @return スクリプト内での行番号
+	 * @return The number of the line in which this token is written.
 	 */
 	public int getLineNumber() {
 		return this.lineNumber;
@@ -138,9 +123,9 @@ public class Token implements Cloneable {
 
 
 	/**
-	 * このトークンが含まれていたスクリプトのファイル名を取得します。
+	 * Gets the name of the script in which this token is written.
 	 *
-	 * @return スクリプトのファイル名
+	 * @return The name of the script in which this token is written.
 	 */
 	public String getFileName() {
 		return this.fileName;
@@ -148,9 +133,9 @@ public class Token implements Cloneable {
 
 
 	/**
-	 * トークンの種類を区別するトークンタイプを設定します。
+	 * Sets the type of this token.
 	 *
-	 * @param type トークンタイプ
+	 * @param type The type of this token.
 	 */
 	public void setType(Type type) {
 		this.type = type;
@@ -158,9 +143,9 @@ public class Token implements Cloneable {
 
 
 	/**
-	 * トークンの種類を区別するトークンタイプを取得します。
+	 * Gets the type of this token.
 	 *
-	 * @return type トークンタイプ
+	 * @return The type of this token.
 	 */
 	public Type getType() {
 		return this.type;
@@ -168,10 +153,11 @@ public class Token implements Cloneable {
 
 
 	/**
-	 * 属性情報を設定します。既に同じキーの属性が存在する場合は、上書きされます。
+	 * Set the attribute of this token.
+	 * When the attribute having the same key is already registered, the value of it will be overwritten.
 	 *
-	 * @param attributeKey 属性キー
-	 * @param attributeValue 属性値
+	 * @param attributeKey The key (name) of the attribute to be set.
+	 * @param attributeValue The value of the attribute to be set.
 	 */
 	public void setAttribute(AttributeKey attributeKey, String attributeValue) {
 		if (this.attributeMap.containsKey(attributeKey)) {
@@ -182,10 +168,10 @@ public class Token implements Cloneable {
 
 
 	/**
-	 * 指定された属性キーに対応する属性値を取得します。
+	 * Get the value of the attribute having the specified key (name).
 	 *
-	 * @param key 属性キー
-	 * @return 属性値
+	 * @param key The key of the attribute.
+	 * @return The value of the attribute.
 	 */
 	public String getAttribute(AttributeKey attributeKey) {
 		return this.attributeMap.get(attributeKey);
@@ -193,10 +179,10 @@ public class Token implements Cloneable {
 
 
 	/**
-	 * 指定された属性キーに対応する属性値を保持しているかどうかを判定します。
+	 * Returns whether this token has the attribute corresponding the specified key or hasn't.
 	 *
-	 * @param attributeKey 属性キー
-	 * @return 保持していればtrue
+	 * @param attributeKey The key of the attribute.
+	 * @return Returns true if this token has the specified attribute.
 	 */
 	public boolean hasAttribute(AttributeKey attributeKey) {
 		return this.attributeMap.containsKey(attributeKey);
@@ -204,9 +190,10 @@ public class Token implements Cloneable {
 
 
 	/**
-	 * トークンの演算子優先度を設定します。
+	 * Sets the operator precedence of this token.
+	 * Note that, smaller value gives higher precedence.
 	 *
-	 * @param precedence 演算子優先度
+	 * @param precedence The operator precedence of this token.
 	 */
 	public void setPrecedence(int precedence) {
 		this.precedence = precedence;
@@ -214,9 +201,10 @@ public class Token implements Cloneable {
 
 
 	/**
-	 * トークンの演算子優先度を取得します。
+	 * Gets the operator precedence of this token.
+	 * Note that, smaller value gives higher precedence.
 	 *
-	 * @return 演算子優先度
+	 * @return The operator precedence of this token.
 	 */
 	public int getPrecedence() {
 		return this.precedence;
@@ -224,12 +212,12 @@ public class Token implements Cloneable {
 
 
 	/**
-	 * トークン配列から、指定された値を持つトークンを検索し、最初に見つかったものを返します。
+	 * Finds the token having the specified value form an array of tokens.
 	 *
-	 * @param tokens トークン配列
-	 * @param tokenValue 検索対象のトークンの値
-	 * @param fromIndex 検索を開始する位置のインデックス
-	 * @return 見つかったトークンのインデックス（見つからなかった場合は -1）
+	 * @param tokens The array of tokens.
+	 * @param tokenValue The value of the token you want to find.
+	 * @param fromIndex The token will be searched in the range from this index to the end, in the array.
+	 * @return Returns the index of the firstly found token, or -1 when no token hasn't been found.
 	 */
 	public static int getIndexOf(Token[] tokens, String tokenValue, int fromIndex) {
 		int n = tokens.length;
@@ -243,9 +231,9 @@ public class Token implements Cloneable {
 
 
 	/**
-	 * トークンの文字列表現を返します（デバッグ用）。
+	 * Returns the string representation (debugging information, not the value) of this token.
 	 *
-	 * @return トークンの文字列表現
+	 * @return The string representation of this token.
 	 */
 	@Override
 	public String toString() {
@@ -266,3 +254,4 @@ public class Token implements Cloneable {
 	}
 
 }
+
