@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2021 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2021 RINEARN
  * This software is released under the MIT License.
  */
 

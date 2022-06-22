@@ -1,8 +1,3 @@
-/*
- * Copyright(C) 2017-2018 RINEARN (Fumihiro Matsui)
- * This software is released under the MIT License.
- */
-
 package org.vcssl.nano.compiler;
 
 import static org.junit.Assert.*;
@@ -10,6 +5,7 @@ import static org.junit.Assert.*;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
 
 public class AstNodeTest {
 
@@ -42,28 +38,28 @@ public class AstNodeTest {
 	@Test
 	public void testAddGetHasChildNodes() {
 
-		// 親ノードと子ノードを用意
+		// Prepare a parent node and its child nodes.
 		AstNode parent = new AstNode(AstNode.Type.BLOCK, 123, "Test.vnano");
 		AstNode childA = new AstNode(AstNode.Type.IF, 124, "Test.vnano");
 		AstNode childB = new AstNode(AstNode.Type.EXPRESSION, 125, "Test.vnano");
 		AstNode childC = new AstNode(AstNode.Type.ELSE, 126, "Test.vnano");
 		AstNode childD = new AstNode(AstNode.Type.EXPRESSION, 125, "Test.vnano");
 
-		// 子ノードを追加していなければ hasChildNodes() は false を返す
+		// "hasChildNodes()" should return "false" when we have not added any child node yet.
 		assertEquals(false, parent.hasChildNodes());
 
-		// 子ノードを追加
+		// Add child nodes to the parent node.
 		parent.addChildNode(childA);
 		parent.addChildNodes(new AstNode[]{ childB, childC, childD });
 
-		// 子ノードが1個以上あれば hasChildNodes() は true を返す
+		// "hasChildNodes()" should return "true" after when we have added child nodes.
 		assertTrue(parent.hasChildNodes());
 
-		// hasChildNodes にタイプを指定して子ノード検索の検査
+		// Tests results of "hasChildNodes(AstNode.Type)" method.
 		assertTrue(parent.hasChildNodes(AstNode.Type.IF));
 		assertFalse(parent.hasChildNodes(AstNode.Type.FOR));
 
-		// 全ての子ノードを取り出して一致検査
+		// Get all child nodes, and check them.
 		AstNode[] children = parent.getChildNodes();
 		assertEquals(4, children.length);
 		assertEquals(children[0], childA);
@@ -71,7 +67,7 @@ public class AstNodeTest {
 		assertEquals(children[2], childC);
 		assertEquals(children[3], childD);
 
-		// 特定のタイプの子ノードのみを取り出して一致検査
+		// Get child nodes of the specified type, and check them.
 		children = parent.getChildNodes(AstNode.Type.EXPRESSION);
 		assertEquals(2, children.length);
 		assertEquals(children[0], childB);
@@ -81,18 +77,18 @@ public class AstNodeTest {
 	@Test
 	public void testAddGetHasParentNode() {
 
-		// 親ノードと子ノードを用意
+		// Prepare a parent node and its child node.
 		AstNode parent = new AstNode(AstNode.Type.ROOT, 0, "Test.vnano");
 		AstNode child = new AstNode(AstNode.Type.BLOCK, 123, "Test.vnano");
 
-		// 親ノードに追加していない時点では、子ノードの hasParentNode() は false を返す
+		// "hasParentNode()" should return "false" when we have not added the child node to the parent node.
 		assertFalse(child.hasParentNode());
 
-		// 親ノードに子ノードを追加した後は true を返す
+		// "hasChildNodes()" should return "true" after when we have added the child node to the parent node.
 		parent.addChildNode(child);
 		assertTrue(child.hasParentNode());
 
-		// 親ノードを取得して一致検査
+		// Get the parent node and check it.
 		assertEquals(parent, child.getParentNode());
 	}
 
@@ -100,20 +96,22 @@ public class AstNodeTest {
 	@Test
 	public void testGetSiblingIndex() {
 
-		// 親ノードと子ノードを用意
+		// Prepare a parent node and its child nodes.
 		AstNode parent = new AstNode(AstNode.Type.BLOCK, 123, "Test.vnano");
 		AstNode childA = new AstNode(AstNode.Type.IF, 124, "Test.vnano");
 		AstNode childB = new AstNode(AstNode.Type.EXPRESSION, 125, "Test.vnano");
 		AstNode childC = new AstNode(AstNode.Type.ELSE, 126, "Test.vnano");
 		AstNode childD = new AstNode(AstNode.Type.EXPRESSION, 125, "Test.vnano");
 
-		// 配置
+		// Add child nodes to the parent node.
 		parent.addChildNode(childA);
 		parent.addChildNode(childB);
 		parent.addChildNode(childC);
 		parent.addChildNode(childD);
 
-		// 親ノードから見た子ノードのインデックス（兄弟ノードの中での順序）を取得して検査
+		// Get and check the sibling index, 
+		// which is an order index of a child node in all child nodes added to a same parent, 
+		// for each child node.
 		assertEquals(0, childA.getSiblingIndex());
 		assertEquals(1, childB.getSiblingIndex());
 		assertEquals(2, childC.getSiblingIndex());
@@ -123,23 +121,23 @@ public class AstNodeTest {
 	@Test
 	public void testGetDepth() {
 
-		// ルートノードと子ノードを用意
+		// Prepare a root node and child nodes.
 		AstNode root = new AstNode(AstNode.Type.ROOT, 123, "Test.vnano");
 		AstNode childDepth1 = new AstNode(AstNode.Type.BLOCK, 124, "Test.vnano");
 		AstNode childDepth2 = new AstNode(AstNode.Type.IF, 125, "Test.vnano");
 		AstNode childDepth3 = new AstNode(AstNode.Type.EXPRESSION, 126, "Test.vnano");
 		AstNode childDepth4 = new AstNode(AstNode.Type.OPERATOR, 125, "Test.vnano");
 
-		// 階層が root -> childDepth1 -> childDepth2 ... と深くなるよう直列に配置
+		// Link nodes in a "linear" form.
 		root.addChildNode(childDepth1);
 		childDepth1.addChildNode(childDepth2);
 		childDepth2.addChildNode(childDepth3);
 		childDepth3.addChildNode(childDepth4);
 
-		// AST内の全ノードの深度情報を更新
+		// Update depth values of all nodes in the AST.
 		root.updateDepths();
 
-		// 各ノードの階層の深さを取得して検査
+		// Get and check depth values of all nodes.
 		assertEquals(0, root.getDepth());
 		assertEquals(1, childDepth1.getDepth());
 		assertEquals(2, childDepth2.getDepth());
@@ -150,46 +148,46 @@ public class AstNodeTest {
 	@Test
 	public void testSetGetHasAttribute() {
 
-		// ノードを用意
+		// Prepare a node.
 		AstNode node = new AstNode(AstNode.Type.LEAF, 123, "Test.vnano");
 
-		// 属性を追加していない時点では hasAttributes は false を返す
+		// "hasAttribute(...)" should return "false" before when we have set any attributes.
 		assertFalse(node.hasAttribute(AttributeKey.IDENTIFIER_VALUE));
 
-		// 属性を追加すると、その属性キーに対して  hasAttributes は true を返すようになる
+		// "hasAttribute(...)" should return "true" after when we have set any attributes.
 		node.setAttribute(AttributeKey.IDENTIFIER_VALUE, "hello");
 		assertTrue(node.hasAttribute(AttributeKey.IDENTIFIER_VALUE));
 
-		// 属性値を取得して一致比較
+		// Get and check the attribute we set.
 		assertEquals("hello", node.getAttribute(AttributeKey.IDENTIFIER_VALUE));
 	}
 
 	@Test
 	public void testSetGetDataTypeName() {
 
-		// ノードを用意し、データ型名を属性値として設定
+		// Prepare a node, and set the data-type name to it as an attribute.
 		AstNode node = new AstNode(AstNode.Type.OPERATOR, 123, "Test.vnano");
 		node.setAttribute(AttributeKey.DATA_TYPE, "int");
 
-		// データ型名を取得して一致比較
+		// Get and check the above attribute.
 		assertEquals("int", node.getDataTypeName());
 	}
 
 	@Test
 	public void testSetGetRank() {
 
-		// ノードを用意し、次元を属性値として設定
+		// Prepare a node, and set the array-rank to it as an attribute.
 		AstNode node = new AstNode(AstNode.Type.OPERATOR, 123, "Test.vnano");
 		node.setAttribute(AttributeKey.RANK, "3");
 
-		// データ型名を取得して一致比較
+		// Get and check the above attribute.
 		assertEquals(3, node.getRank());
 	}
 
 	@Test
 	public void testPreorderTraversal() {
 
-		// 下図の形のASTを用意
+		// Construct the following AST.
 		/*
                       r
              _________|___________________
@@ -220,7 +218,7 @@ public class AstNodeTest {
 		d.addChildNode(d1);
 		d.addChildNode(d2);
 
-		// 以下、行がけ順の深さ優先走査でノードを移動しながら、正しいノードと一致検査
+		// Check all nodes in the AST by traversing it in the order of preorder-depth-first traversal.
 
 		AstNode node = r;
 
@@ -264,7 +262,7 @@ public class AstNodeTest {
 		node = node.getPreorderDftNextNode();
 		assertEquals(d2, node);
 
-		// 走査の終端まで来たので、最終ノードと判定されているはず
+		// Check of the detection of the last node of the traversal.
 		assertTrue(node.isPreorderDftLastNode());
 		assertNull(node.getPreorderDftNextNode());
 	}
@@ -272,7 +270,7 @@ public class AstNodeTest {
 	@Test
 	public void testPostorderTraversal() {
 
-		// 下図の形のASTを用意
+		// Construct the following AST.
 		/*
                       r
              _________|___________________
@@ -303,7 +301,7 @@ public class AstNodeTest {
 		d.addChildNode(d1);
 		d.addChildNode(d2);
 
-		// 以下、帰りがけ順の深さ優先走査でノードを移動しながら、正しいノードと一致検査
+		// Check all nodes in the AST by traversing it in the order of preorder-depth-first traversal.
 
 		AstNode node = r.getPostorderDftFirstNode();
 		assertEquals(a, node);
@@ -348,7 +346,7 @@ public class AstNodeTest {
 		node = node.getPostorderDftNextNode();
 		assertEquals(r, node);
 
-		// 走査の終端まで来たので、最終ノードと判定されているはず
+		// Check of the detection of the last node of the traversal.
 		assertTrue(node.isPostorderDftLastNode());
 		assertNull(node.getPostorderDftNextNode());
 	}

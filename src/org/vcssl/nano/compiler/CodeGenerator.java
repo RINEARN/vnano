@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2021 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2022 RINEARN
  * This software is released under the MIT License.
  */
 
@@ -23,178 +23,135 @@ import org.vcssl.nano.spec.MetaInformationSyntax;
 import org.vcssl.nano.spec.OperationCode;
 import org.vcssl.nano.spec.ScriptWord;
 
-//Documentation:  https://www.vcssl.org/en-us/dev/code/main-jimpl/api/org/vcssl/nano/compiler/CodeGenerator.html
-//ドキュメント:   https://www.vcssl.org/ja-jp/dev/code/main-jimpl/api/org/vcssl/nano/compiler/CodeGenerator.html
 
 /**
- * <p>
- * <span class="lang-en">
- * The class performing the function of the code generator in the compiler of the Vnano
- * </span>
- * <span class="lang-ja">
- * Vnano のコンパイラ内において, コードジェネレータ（コード生成器）の機能を担うクラスです
- * </span>
- * .
- * </p>
+ * The class performing the function of the code generator in the compiler of the Vnano.
  *
- * <p>
- * <span class="lang-en">
  * The processing of this class takes the semantic-analyzed AST as the input,
- * and outputs a kind of the intermediate code written in the VRIL (Vector Register Intermediate Language)
+ * and outputs a kind of the intermediate code written in the VRIL 
+ * (Vector Register Intermediate Language)
  * which is a virtual assembly language interpreted by the VM
  * ({@link org.vcssl.nano.vm.VirtualMachine}) of the Vnano.
- * </span>
- * <span class="lang-ja">
- * このクラスが行う処理は, 入力として意味解析済みのASTを受け取り,
- * それを Vnano のVM ({@link org.vcssl.nano.vm.VirtualMachine}) で解釈可能な、
- * 一種の中間コードに変換して出力します.
- * この中間コードは、Vnano のVM用に設計された仮想的なアセンブリ言語である,
- * VRIL（Vector Register Intermediate Language）で記述されます.
- * </span>
- * </p>
- *
- * <p>
- * &raquo; <a href="../../../../../src/org/vcssl/nano/compiler/CodeGenerator.java">Source code</a>
- * </p>
- *
- * <hr>
- *
- * <p>
- * | <a href="../../../../../api/org/vcssl/nano/compiler/CodeGenerator.html">Public Only</a>
- * | <a href="../../../../../api-all/org/vcssl/nano/compiler/CodeGenerator.html">All</a> |
- * </p>
- *
- * @author RINEARN (Fumihiro Matsui)
+ * 
+ * @see <a href="https://www.vcssl.org/en-us/vril/">Specifications of VRIL</a>
  */
 public class CodeGenerator {
 
-	/**
-	 * <span class="lang-ja">スカラの配列次元数です</span>
-	 * <span class="lang-en">The array-rank of the scalar</span>
-	 * .
-	 */
+	/** The array-rank of the scalar. */
 	private static final int RANK_OF_SCALAR = 0;
 
-	/**
-	 * <span class="lang-en">The string used as the name of labels excluding numbers</span>
-	 * <span class="lang-ja">ラベルの名称において, 末尾の番号を除いた部分に使用される文字列です<span>
-	 * .
-	 */
+	/** The string used as the name of labels excluding numbers */
 	private static final String LABEL_NAME = "LABEL";
 
-	/**
-	 * <span class="lang-en">The immediate value of "true", used in code of jump instructions</span>
-	 * <span class="lang-ja">ジャンプ命令のコード生成などに使用される, true を表す即値の文字列です<span>
-	 * .
-	 */
-	private final String IMMEDIATE_TRUE; // 言語仕様設定に依存するのでコンストラクタで初期化
+	/** The immediate value of "true", used in code of jump instructions */
+	private final String IMMEDIATE_TRUE =
+		AssemblyWord.IMMEDIATE_OPERAND_PREFIX + DataTypeName.BOOL + AssemblyWord.VALUE_SEPARATOR + LiteralSyntax.TRUE;
 
+	/** The string of the placeholder which is put at the position of the unused operand for some instructions. */
+	private final String PLACE_HOLDER = Character.toString(AssemblyWord.PLACEHOLDER_OPERAND_PREFIX);
 
-	/**
-	 * <span class="lang-en">The string of the placeholder which is put at the position of the unused operand for some instructions</span>
-	 * <span class="lang-ja">命令仕様上、使用しない位置のオペランドの箇所に置くプレースホルダ</span>
-	 * .
-	 */
-	private final String PLACE_HOLDER; // 言語仕様設定に依存するのでコンストラクタで初期化
-
-
-	/**
-	 * <span class="lang-en">The counter to assign new registers</span>
-	 * <span class="lang-ja">新規レジスタの割り当てに用いるカウンタです</span>
-	 * .
-	 */
+	/** The counter to assign new registers. */
 	private int registerCounter;
 
-	/**
-	 * <span class="lang-en">The counter to assign new labels</span>
-	 * <span class="lang-ja">新規ラベルの割り当てに用いるカウンタです</span>
-	 * .
-	 */
+	/** The counter to assign new labels. */
 	private int labelCounter;
 
+
 	/**
-	 * <span class="lang-en">
-	 * Creates an new code generator of which counters (e.g. counter to assign registers) are initialized by 0
-	 * </span>
-	 * <span class="lang-ja">
-	 * 各種カウンタ値（レジスタの割り当てカウンタなど）が 0 で初期化されたコードジェネレータを作成します
-	 * </span>
-	 * .
+	 * Creates an new code generator of which counters (e.g. counter to assign registers) are initialized by 0.
 	 */
 	public CodeGenerator() {
-		this.IMMEDIATE_TRUE = AssemblyWord.IMMEDIATE_OPERAND_PREFIX + DataTypeName.BOOL
-				+ AssemblyWord.VALUE_SEPARATOR + LiteralSyntax.TRUE;
-
-		this.PLACE_HOLDER = Character.toString(AssemblyWord.PLACEHOLDER_OPERAND_PREFIX);
-
 		this.registerCounter = 0;
 		this.labelCounter = 0;
 	}
 
 
-
 	/**
-	 * <span class="lang-ja">
 	 * The class for storing information (context) depending on before/after statements which are
 	 * necessary for transforming sequentially a statement to the (virtual) assembly code from the top.
-	 * </span>
-	 * <span class="lang-ja">
-	 * 文を逐次的にコードに変換していく際に必要な, 前後の文に依存する情報（コンテキスト）を保持するクラスです
-	 * </span>
-	 * .
-	 * <span class="lang-en">
+	 * 
 	 * For example, labels for breaking from the loop should be put at the end the instructions
 	 * corresponding with statements in the loop,
 	 * but should be determined when the instructions at the top of the loop are generated.
 	 * It is because instructions at the top of the loop contains a jump instruction
 	 * to jump to outside of the loop when the condition is false,
 	 * and the jump instruction takes the label as an operand.
-	 * </span>
-	 * </span>
-	 * <span class="lang-ja">
-	 * 例えば、if 文や while 文 および for 文では、その後に続く文のコード生成が完了した後に、
-	 * 条件不成立時やループ脱出時のジャンプ先となるラベルを配置する必要があります。
-	 * また、else 文では、直前の if 文の条件式の結果が、
-	 * 仮想メモリ上のどのアドレスに保持されているのかという情報が必要です。
-	 * </span>
 	 *
-	 * <span class="lang-en">
-	 * This class is used in
-	 * {@link CodeGenerator#trackAllStatements CodeGenerator.trackAllStatements}
-	 * and
-	 * {@link CodeGenerator#generateStatementCode CodeGenerator.generateStatementCode}
-	 * methods.
-	 * </span>
-	 * <span class="lang-ja">
-	 * {@link CodeGenerator#trackAllStatements CodeGenerator.trackAllStatements}
-	 * メソッドや
-	 * {@link CodeGenerator#generateStatementCode CodeGenerator.generateStatementCode}
-	 * メソッド内で使用されます。
-	 * </span>
+	 * This class is used in {@link CodeGenerator#trackAllStatements}
+	 * and {@link CodeGenerator#generateStatementCode} methods.
 	 */
 	private class StatementTrackingContext implements Cloneable {
 
-		private String beginPointLabel = null; // ループ文などで、後の文の生成後の地点に先頭に戻るコードを置いてほしい場合、これに先頭地点のラベル値を入れる
-		private String updatePointLabel = null; // ループ文などで、ループ毎の更新処理の直前にラベルを置いてほしい場合、これにラベル値を入れる
-		private String updatePointStatement = null; // for文の更新式の文
-		private ArrayList<String> endPointLabelList = null; // IF文など、後の文の生成後の地点にラベルを置いてほしい場合、これにラベル値を入れる(ifの後にelseが続く場合のみ要素が2個になり得る)
-		private String endPointStatement = null; // 関数など、ブロック末尾にデフォルトの return 文などを置きたい場合、これに文を入れる
+		/**
+		 * When it should generate a jump instruction to the beginning point of a loop after generating other code, 
+		 * store the label at the beginning point into this field.
+		 */
+		private String beginPointLabel = null;
 
-		private String lastIfConditionRegister = null; // 直前の if 文の条件式結果を格納するレジスタを控えて、else 文で使う
-		private String lastLoopBeginPointLabel = null; // 最後に踏んだループの始点ラベル
-		private String lastLoopUpdatePointLabel = null; // 最後に踏んだループの更新ラベル
-		private String lastLoopEndPointLabel = null;   // 最後に踏んだループの終点ラベル
-		private String lastFunctionLabel = null; // 最後に踏んだ関数の先頭ラベル
+		/**
+		 * When it should put a label at the top of the updating process (of counter and so on) of a loop, 
+		 * store the label into this field.
+		 */
+		private String updatePointLabel = null;
 
-		private String outerLoopBeginPointLabel = null; // 1階層外のループの始点ラベル
-		private String outerLoopUpdatePointLabel = null; // 1階層外のループの更新ラベル
-		private String outerLoopEndPointLabel = null; // 1階層外のループの終点ラベル
+		/**
+		 * Stores the statement of the updating process (of counter and so on) of a "for" loop.
+		 */
+		private String updatePointStatement = null;
 
+		/**
+		 * When it should put a label after instructions of latter statements, store the label into this field.
+		 * For example, landing point labels of jump instructions of: "if" statements, short circuit evaluations, and so on.
+		 * This field may store two labels for handling the combination of "if" and "else" statements (so called "if-else").
+		 */
+		private ArrayList<String> endPointLabelList = null;
+
+		/**
+		 * When it should put an statement (e.g.: "return" statement in a function) at the end of a block,
+		 * store the statement into this field.
+		 */
+		private String endPointStatement = null;
+
+		/**
+		 * Stores a register of the value of the condition expression of the last-traversed "if" statement, 
+		 * for using it in code generation of "else" statement.
+		 */
+		private String lastIfConditionRegister = null;
+
+		/** Stores the beginning point label of the last-traversed loop. */
+		private String lastLoopBeginPointLabel = null;
+
+		/** Stores the updating point label of the last-traversed loop. */
+		private String lastLoopUpdatePointLabel = null;
+		
+		/** Stores the end point label of the last-traversed loop. */
+		private String lastLoopEndPointLabel = null;
+
+		/** Stores the beginning point label of the last-traversed function. */
+		private String lastFunctionLabel = null;
+
+		/** Stores the beginning point label of the outer loop, used for generating code of "continue" statements. */
+		private String outerLoopBeginPointLabel = null;
+
+		/** Stores the beginning point label of the outer loop, used for generating code of "continue" statements. */
+		private String outerLoopUpdatePointLabel = null;
+
+		/** Stores the beginning point label of the outer loop, used for generating code of "break" statements. */
+		private String outerLoopEndPointLabel = null;
+
+		/** Stores whether the next block is a loop or not. */
 		private boolean isNextBlockLoop = false;
 
+		/** Stores nodes of statements in the currently traversed block. */
 		private AstNode[] statementNodes = null;
+
+		/** Stores the total number of statements in the currently traversed block. */
 		private int statementLength = -1;
+
+		/** Stores index of the currently traversed statement in the block. */
 		private int statementIndex = -1;
+
+		/** Stores generated code of a statement, by "generateStatementCode" method (see its description). */
 		private String lastStatementCode = null;
 
 		public StatementTrackingContext() {
@@ -213,7 +170,6 @@ public class CodeGenerator {
 				clone.endPointLabelList.add(endPointLabel);
 			}
 
-			// （これらの状態変数は無駄が多い気がするのでそのうちリファクタリングしたい。lastLoop系を削ってouterLoop系のみに。）
 			clone.lastIfConditionRegister = this.lastIfConditionRegister;
 			clone.lastLoopBeginPointLabel = this.lastLoopBeginPointLabel;
 			clone.lastLoopUpdatePointLabel = this.lastLoopUpdatePointLabel;
@@ -413,73 +369,70 @@ public class CodeGenerator {
 
 
 	/**
-	 * <span class="lang-en">Generates intermediate code written in the VRIL from the semantic-analyzed AST</span>
-	 * <span class="lang-ja">意味解析済みのASTから、VRILで記述された中間コードを生成して返します</span>
-	 * .
-	 * <span class="lang-en">
+	 * Generates intermediate code written in the VRIL from the semantic-analyzed AST.
+	 * 
 	 * Intermediate code generated by this method can be executed on the VM
 	 * ({@link org.vcssl.nano.vm.VirtualMachine}) of the Vnano.
-	 * </span>
-	 * <span class="lang-ja">
-	 * このメソッドによって生成された中間コードは、Vnano のVM
-	 * ({@link org.vcssl.nano.vm.VirtualMachine}) によって実行できます.
-	 * </span>
 	 *
-	 * @param inputAst
-	 *   <span class="lang-en">The root node of the sematic-analyzed AST.</span>
-	 *   <span class="lang-ja">意味解析済みのASTのルートノード.</span>
-	 *
-	 * @return
-	 *   <span class="lang-en">Intermediate code written in the VRIL.</span>
-	 *   <span class="lang-ja">VRILで記述された中間コード.</span>
+	 * @param inputAst The root node of the sematic-analyzed AST.
+	 * @return Intermediate code written in the VRIL.
 	 */
 	public String generate(AstNode inputAst) {
 
+		// The buffer to which generated code will be stored/appended.
 		StringBuilder codeBuilder = new StringBuilder();
 
-		// 言語の識別用情報関連のディレクティブ（言語名やバージョンなど）を一括生成
-		codeBuilder.append( this.generateLanguageInformationDirectives() );
-
-
-		// 引数のASTに破壊的変更を加えないように複製
+		// We should not modify the passed AST instance, so clone it at first.
 		AstNode cloneAst = inputAst.clone();
 
-		// レジスタや識別子、即値、ラベルなどの値を、ASTノードに属性値として割りふる
+		// Assign values in VRIL code to AST nodes, 
+		// e.g.; register names, immediate values, labels, etc.
 		this.assignAssemblyValues(cloneAst);
 		this.assignLabels(cloneAst);
 
-		// 関数ディレクティブを一括生成
+		// Generate directives declaring language information (version, language name, etc).
+		codeBuilder.append( this.generateLanguageInformationDirectives() );
+
+		// Generate function directives, 
+		// for declaring signatures of (both internal/external) functions in VRIL code.
 		codeBuilder.append( generateFunctionIdentifierDirectives(cloneAst) );
 
-		// グローバル変数ディレクティブを一括生成
+		// Generate global variable directives, 
+		// for declaring names of external variables in VRIL code.
+		// (For local variables, we will generate their declaration directives 
+		//  just before their registers are allocated, for readability.)
 		codeBuilder.append( generateGlobalIdentifierDirectives(cloneAst) );
 
-		// 全ての文を辿ってコード生成
+		// Traverse all nodes in the AST, and generate their code.
 		codeBuilder.append( this.trackAllStatements(cloneAst) );
 
-		// 終了処理のコードを生成
-		// （スクリプトエンジンのevalメソッドの評価値に対応するデータをメモリに設定して終了する）
+		// Generate finalization code, for returning a result value of the script 
+		// to the caller of "evaluateScript" method of VanoEngine.
 		codeBuilder.append( generateFinalizationCode(cloneAst) );
 
-		// ここまでの内容で、コードは動作上は完成しているので取得
+		// Get the generated code from the buffer.
 		String code = codeBuilder.toString();
 
-		// 可読性を上げるため、生成コードの再整形を行う（行の並べ替えなどの軽い範囲）
+		// Arrange the form of code a little for readability.
 		String realignedCode = this.realign(code);
 		return realignedCode;
 	}
 
 
 	/**
-	 * AST(抽象構文木)内の各ノードに対して、
-	 * 中間アセンブリコード内でそのノードに対応する値（レジスタ、即値、識別子など）を求め、
-	 * それらを各ノードの {@link AttributeKey#ASSEMBLY_VALUE ASSEMBLY_VALUE} 属性値に設定します
-	 * （従って、このメソッドは破壊的メソッドです）。
+	 * Assigns the value in VRIL code, for each node in the AST
+	 * (operator node, literal node, and so on).
+	 * 
+	 * For example, immediate value will be assigned to literal nodes, 
+	 * and identifier in VRIL notation will be assigned to variable nodes.
+	 * Also, register names for storing operation results are assigned 
+	 * to operator nodes.
+	 * 
+	 * In each AST node, the assigned value will be stored as the value of 
+	 * {@link AttributeKey#ASSEMBLY_VALUE ASSEMBLY_VALUE} attribute.
+	 * (So this method modify the state of the passed argument.)
 	 *
-	 * 演算子ノードに対する、演算結果を格納するレジスタ（アキュームレータ）
-	 * のアドレス割り当ても、このメソッド内で行われます。
-	 *
-	 * @param inputAst 解析対象のAST(抽象構文木)
+	 * @param inputAst The AST you want to assign assembly values to.
 	 */
 	private void assignAssemblyValues(AstNode inputAst) {
 
@@ -488,15 +441,15 @@ public class CodeGenerator {
 
 			AstNode.Type nodeType = currentNode.getType();
 
-
-			// 変数ノードやリーフ（リテラルや識別子などの末端）ノード: アセンブリ用識別子や即値に変換
+			// Variable declaration nodes and leaf (variable/function identifier and literal) nodes:
+			// assign identifiers or immediate values in VRIL notations.
 			if (nodeType == AstNode.Type.VARIABLE || nodeType == AstNode.Type.LEAF) {
 
 				boolean isVariable = nodeType == AstNode.Type.VARIABLE;
 				boolean isLeaf = nodeType == AstNode.Type.LEAF;
 				String leafType = currentNode.getAttribute(AttributeKey.LEAF_TYPE);
 
-				// 関数識別子
+				// Function identifiers
 				if(isLeaf && leafType == AttributeValue.FUNCTION_IDENTIFIER) {
 					AstNode callOperatorNode = currentNode.getParentNode();
 					String calleeSignature = callOperatorNode.getAttribute(AttributeKey.CALLEE_SIGNATURE);
@@ -504,7 +457,7 @@ public class CodeGenerator {
 					//String assemblyValue = IdentifierSyntax.getAssemblyIdentifierOfCalleeFunctionOf(callOperatorNode);
 					currentNode.setAttribute(AttributeKey.ASSEMBLY_VALUE, assemblyValue);
 
-				// 変数または変数識別子
+				// Variable declarations or variable identifiers
 				} else if(isVariable || (isLeaf && leafType == AttributeValue.VARIABLE_IDENTIFIER) ) {
 					String identifier = currentNode.getAttribute(AttributeKey.IDENTIFIER_VALUE);
 					String assemblyValue = IdentifierSyntax.getAssemblyIdentifierOf(identifier);
@@ -514,7 +467,7 @@ public class CodeGenerator {
 					}
 					currentNode.setAttribute(AttributeKey.ASSEMBLY_VALUE, assemblyValue);
 
-				// リテラル
+				// Literals
 				} else if(isLeaf && leafType == AttributeValue.LITERAL) {
 
 					String dataTypeName = currentNode.getAttribute(AttributeKey.DATA_TYPE);
@@ -527,7 +480,7 @@ public class CodeGenerator {
 				}
 			}
 
-			// 演算子ノード
+			// Operator nodes:
 			if (currentNode.getType() == AstNode.Type.OPERATOR) {
 
 				String execType = currentNode.getAttribute(AttributeKey.OPERATOR_EXECUTOR);
@@ -535,33 +488,37 @@ public class CodeGenerator {
 				String operatorSymbol = currentNode.getAttribute(AttributeKey.OPERATOR_SYMBOL);
 				switch (execType) {
 
-					// 代入演算子は、左辺の子ノードが、そのまま演算子ノードの値
+					// Assignment operators: its value is the same as the left-hand-side node.
 					case AttributeValue.ASSIGNMENT : {
 						String value = currentNode.getChildNodes()[0].getAttribute(AttributeKey.ASSEMBLY_VALUE);
 						currentNode.setAttribute(AttributeKey.ASSEMBLY_VALUE, value);
 						break;
 					}
 
-					// 複合代入演算子
+					// Arithmetic compound assignment operators (++, --, +=, -=, *=, /=, %=):
 					case AttributeValue.ARITHMETIC_COMPOUND_ASSIGNMENT : {
 						if (operatorSymbol.equals(ScriptWord.INCREMENT) || operatorSymbol.equals(ScriptWord.DECREMENT)) {
 
-							// 前置インクリメント: 対象変数がそのまま演算子ノードの値
+							// Prefix increment/decrement: its value is the same as the operand variable.
 							if(syntaxType.equals(AttributeValue.PREFIX)) {
 								String value = currentNode.getChildNodes()[0].getAttribute(AttributeKey.ASSEMBLY_VALUE);
 								currentNode.setAttribute(AttributeKey.ASSEMBLY_VALUE, value);
 								break;
 
-							// 後置インクリメント: 個別のレジスタを生成予約してそれに演算結果を格納すべき
+							// Postfix increment/decrement: 
+							// its value must be the value of the operand variable before operation is performed, 
+							// so assign a new register to it, for storing the value before operation.
 							} else {
 								String register = AssemblyWord.REGISTER_OPERAND_PREFIX + Integer.toString(registerCounter);
 								this.registerCounter++;
 								currentNode.setAttribute(AttributeKey.ASSEMBLY_VALUE, register);
-								currentNode.setAttribute(AttributeKey.NEW_REGISTER, register); // このノードのために新規生成するレジスタなので、CodeGenerator がASTを辿っている際にこのノードの地点でメモリ確保が必要という事を知らせる
+
+								// Mark that memory allocation for this register is required when generate code of this node.
+								currentNode.setAttribute(AttributeKey.NEW_REGISTER, register);
 								break;
 							}
 
-						// それ以外(普通の複合代入演算子): 代入演算子と全く同様に、左辺の子ノードがそのまま演算子ノードの値
+						// Compound assignment operators excluding increments/decrements: its value is the same as the left-hand-side node.
 						} else {
 							String value = currentNode.getChildNodes()[0].getAttribute(AttributeKey.ASSEMBLY_VALUE);
 							currentNode.setAttribute(AttributeKey.ASSEMBLY_VALUE, value);
@@ -569,18 +526,21 @@ public class CodeGenerator {
 						}
 					}
 
-					// 上記以外の場合、その演算子の値は、個別のレジスタを生成予約して控える
+					// Non-assignment operators: assign a new register for storing the result of operations.
 					default : {
 						String register = AssemblyWord.REGISTER_OPERAND_PREFIX + Integer.toString(registerCounter);
 						this.registerCounter++;
 						currentNode.setAttribute(AttributeKey.ASSEMBLY_VALUE, register);
-						currentNode.setAttribute(AttributeKey.NEW_REGISTER, register); // このノードのために新規生成するレジスタなので、CodeGenerator がASTを辿っている際にこのノードの地点でメモリ確保が必要という事を知らせる
+
+						// Mark that memory allocation for this register is required when generate code of this node.
+						currentNode.setAttribute(AttributeKey.NEW_REGISTER, register);
 						break;
 					}
 				}
 			}
 
-			// 式ノード: 直下にあるルート演算子の結果 = 式の結果
+			// Expression node: its value is the root operator node of the partial AST of the expression, 
+			// where the root operator node is added to the expression node as a child.
 			if (currentNode.getType() == AstNode.Type.EXPRESSION) {
 				String value = currentNode.getChildNodes()[0].getAttribute(AttributeKey.ASSEMBLY_VALUE);
 				currentNode.setAttribute(AttributeKey.ASSEMBLY_VALUE, value);
@@ -593,18 +553,21 @@ public class CodeGenerator {
 
 
 	/**
-	 * AST(抽象構文木)内の各ノードに対して、
-	 * 中間アセンブリコード内で使用するラベルを割りふり、
-	 * それらを各ノードのラベル関連の属性値に設定します
-	 * （従って、このメソッドは破壊的メソッドです）。
+	 * Assigns labels in VRIL code, for each node in the AST
+	 * ("if" statement node, "while" statement node, and so on).
+	 * 
+	 * In each AST node, the assigned labels will be stored as the value of 
+	 * laben-related attributes.
+	 * (So this method modify the state of the passed argument.)
 	 *
-	 * @param inputAst 解析対象のAST(抽象構文木)
+	 * @param inputAst The AST you want to assign assembly labels to.
 	 */
 	private void assignLabels(AstNode inputAst) {
 
 		AstNode currentNode = inputAst.getPostorderDftFirstNode();
 		while (currentNode != inputAst) {
 
+			// Control statement nodes:
 			if (currentNode.getType() == AstNode.Type.IF) {
 				currentNode.setAttribute(AttributeKey.END_LABEL, this.generateLabelOperandCode());
 			}
@@ -624,11 +587,14 @@ public class CodeGenerator {
 				currentNode.setAttribute(AttributeKey.END_LABEL, this.generateLabelOperandCode());
 			}
 
-			// 演算子ノード
+			// Operator nodes:
 			if (currentNode.getType() == AstNode.Type.OPERATOR) {
 				String symbol = currentNode.getAttribute(AttributeKey.OPERATOR_SYMBOL);
+				
+				// "&&" and "||" operators skip the evaluation of the right operand,
+				// when the result can be determined only by the left operand (so-called "short circuit evaluation").
+				// So they require labels for skipping it by JMP/JMPN instructions.
 				if (symbol.equals(ScriptWord.SHORT_CIRCUIT_AND) || symbol.equals(ScriptWord.SHORT_CIRCUIT_OR)) {
-					// 短絡評価で第二オペランドの演算をスキップする場合のラベル
 					currentNode.setAttribute(AttributeKey.END_LABEL, this.generateLabelOperandCode());
 				}
 			}
@@ -639,15 +605,18 @@ public class CodeGenerator {
 
 
 	/**
-	 * AST(抽象構文)内の全ての文ノードをトップダウン順で辿りながら、
-	 * 各文に対するコード生成メソッドを実行し、
-	 * それらを逐次実行用の順序で結合したコードを返します。
+	 * Generates VRIL code corresponding with the specified AST.
+	 * 
+	 * This method traverses all nodes in the AST, 
+	 * and generates code for each statement node, 
+	 * and connect them in the order of execution.
 	 *
-	 * @param inputAst AST(抽象構文木)全体のルートノード
-	 * @return 生成コード
+	 * @param inputAst The AST you want to generate its code.
+	 * @return The generated VRIL code.
 	 */
 	private String trackAllStatements(AstNode inputAst) {
 
+		// The buffer storing generated code.
 		StringBuilder codeBuilder = new StringBuilder();
 
 		AstNode[] statementNodes = inputAst.getChildNodes();
@@ -662,50 +631,61 @@ public class CodeGenerator {
 			AstNode currentNode = statementNodes[ statementIndex ];
 			AstNode.Type nodeType = currentNode.getType();
 
-			// ブロック文以外ではメタディレクティブを生成
+			// Generate a meta directive to comment that what generated code is/are doing, 
+			// excluding block statement nodes.
 			if (!nodeType.equals(AstNode.Type.BLOCK)) {
 				String metaDirective = this.generateMetaDirectiveCode(currentNode);
 				codeBuilder.append(metaDirective);
 			}
 
-			// 文の種類に応じてコードを生成する
+			// Generate VRIL code for each statement node, in the current block:
 			switch (nodeType) {
 
-				// ブロック文に突入する場合
+				// When the traversal-flow enters into a block:
 				case BLOCK : {
 
-					// 現在のコンテキスト（状態変数の集合）をスタックに退避して新規生成
+					// Store the current context to the stack, and create a new context.
 					context.setStatementIndex(statementIndex);
 					context.setStatementLength(statementLength);
 					context.setStatementNodes(statementNodes);
 					contextStack.push(context);
 					context = new StatementTrackingContext();
 
-					// 外のブロックから引き継ぐ必要がある情報をコピー
-					// （これらの状態変数は無駄が多い気がするのでそのうちリファクタリングしたい）
-					context.setLastLoopBeginPointLabel(contextStack.peek().getLastLoopBeginPointLabel());
-					context.setLastLoopUpdatePointLabel(contextStack.peek().getLastLoopUpdatePointLabel());
-					context.setLastLoopEndPointLabel(contextStack.peek().getLastLoopEndPointLabel());
-					context.setOuterLoopBeginPointLabel(contextStack.peek().getOuterLoopBeginPointLabel());
-					context.setOuterLoopUpdatePointLabel(contextStack.peek().getOuterLoopUpdatePointLabel());
-					context.setOuterLoopEndPointLabel(contextStack.peek().getOuterLoopEndPointLabel());
-					context.setLastFunctionLabel(contextStack.peek().getLastFunctionLabel());
+					// The context of the outer block, pushed to the stack just now.
+					StatementTrackingContext outerBlockContext = contextStack.peek();
 
-					// 突入するブロックがループの場合は、最後に踏んだループを、1階層外のループとして登録
-					if (contextStack.peek().isNextBlockLoop()) {
-						context.setOuterLoopBeginPointLabel(contextStack.peek().getLastLoopBeginPointLabel());
-						context.setOuterLoopUpdatePointLabel(contextStack.peek().getLastLoopUpdatePointLabel());
-						context.setOuterLoopEndPointLabel(contextStack.peek().getLastLoopEndPointLabel());
+					// Copy some values in the context, 
+					// which require to be "inherited" from the context of the outer block.
+					context.setLastLoopBeginPointLabel(outerBlockContext.getLastLoopBeginPointLabel());
+					context.setLastLoopUpdatePointLabel(outerBlockContext.getLastLoopUpdatePointLabel());
+					context.setLastLoopEndPointLabel(outerBlockContext.getLastLoopEndPointLabel());
+					context.setOuterLoopBeginPointLabel(outerBlockContext.getOuterLoopBeginPointLabel());
+					context.setOuterLoopUpdatePointLabel(outerBlockContext.getOuterLoopUpdatePointLabel());
+					context.setOuterLoopEndPointLabel(outerBlockContext.getOuterLoopEndPointLabel());
+					context.setLastFunctionLabel(outerBlockContext.getLastFunctionLabel());
+
+					// If the entering block belongs to a loop, register the loop as "outer loop" of the (new) context of the entering block.
+					// It will be used in code generation for "break", "continue", and some other statements in the entering block.
+					if (outerBlockContext.isNextBlockLoop()) {
+						
+						// A block statement node does not have information of the loop (beginning label, end label, etc.). 
+						// The loop statement ("for" or "while") node at just before the block statement node has such information.
+						// And you can get it by using "getLastLoop*" methods of the outerBlockContext.
+						// So get them from outerBlockContext, and set them as information of "outer loop", to the current context.
+						context.setOuterLoopBeginPointLabel(outerBlockContext.getLastLoopBeginPointLabel());
+						context.setOuterLoopUpdatePointLabel(outerBlockContext.getLastLoopUpdatePointLabel());
+						context.setOuterLoopEndPointLabel(outerBlockContext.getLastLoopEndPointLabel());
 					}
 
-					// ブロック内の文を、読み込み対象として展開する
+					// Extract statements in the entering block, to be traversed.
 					statementNodes = currentNode.getChildNodes();
 					statementLength = statementNodes.length;
 					statementIndex = 0;
 					break;
 				}
 
-				// ブロック文以外の文の場合
+				// When walking on statement nodes in a block:
+				// generates code of the statement, and push it at the end of the buffer.
 				case VARIABLE :
 				case FUNCTION :
 				case IF :
@@ -722,30 +702,38 @@ public class CodeGenerator {
 					break;
 				}
 
-				// 文ではない場合: 式中の演算子やリーフノードなので、上の式文のケース内で処理されるため無視
+				// Non-statement nodes (operators, literals, and so on):
+				// They will be handled in code generation of "EXPRESSION" statement node, 
+				// so we should not do nothing here.
 				default : {
 					statementIndex++;
 					break;
 				}
 			}
 
-			// ブロック終端まで処理終了 ... ブロック階層を降りる処理を行う
-			//（if文ではなくwhile文なのは、降りた地点がさらにブロック終端の場合もあるため）
+			// When code generation of the last statement in the current block has completed, return to the outer block.
+			// Note that, we should use "while" instead of "if", 
+			// because of multiple (nested) blocks may end at the same point in the AST.
 			while (statementIndex == statementLength) {
 
-				// コンテキスト（状態変数の集合）のスタックが空なら、ルートブロックまでコード生成できているので、処理を終了
+				// If no context remain in the stack, 
+				// it means that the code generations of all statements in the root block have completed, 
+				// so finish the code generation.
 				if (contextStack.isEmpty()) {
 					break;
 				}
 
-				// コンテキスト（状態変数の集合）をスタックから復元し、ブロックに入る前の状態に戻る
+				// Otherwise, we should return to the outer block, so recover the context by popping it from the stack.
 				context = contextStack.pop();
 				statementIndex = context.getStatementIndex();
 				statementLength = context.getStatementLength();
 				statementNodes = context.getStatementNodes();
 				statementIndex++;
 
-				// for文の更新式と更新式位置ラベルを置く必要があれば置く（先頭に戻るラベルより先に）
+				// Put some code at the end of the block, if necessary.
+
+				// Some labels used by code of "for" statement:
+				// (It must be before of: code to jump to the top)
 				if (context.hasUpdatePointLabel()) {
 					codeBuilder.append(this.generateLabelDirectiveCode(context.getUpdatePointLabel()));
 					context.clearUpdatePointLabel();
@@ -755,9 +743,7 @@ public class CodeGenerator {
 					context.clearUpdatePointStatement();
 				}
 
-				// 以下、ループの先頭に戻るコードなど、ブロック末尾に置きたいコードがあれば置く
-
-				// ループの先頭に戻るJMP命令など
+				// Jump instructions for returning to the top of a loop:
 				if (context.hasBeginPointLabel()) {
 					String jumpCode = this.generateInstruction(
 							OperationCode.JMP.name(), DataTypeName.BOOL,
@@ -767,13 +753,17 @@ public class CodeGenerator {
 					context.clearBeginPointLabel();
 				}
 
-				// 関数のデフォルトの return 文など
+				// Default return instructions of functions, and so on:
 				if (context.hasEndPointStatement()) {
 					codeBuilder.append(context.getEndPointStatement());
 					context.clearEndPointStatement();
 				}
 
-				// ループ脱出ラベルや、関数終端ラベル（命令列の逐次実行で上から関数内に突入しないように避けているJMP命令の着地点）など
+				// Landing point labels used by "break" statements, function-skipping labels, and so on.
+				// Where "function-skipping labels" are the labels at ends of code of function declarations, 
+				// for skipping execution of them when whole code of a script is executed from the top to the bottom.
+				// (For the same purpose, JMP instructions will be put at beginnings of function declarations.)
+				// Code of function declarations will be processed only when the flow will jumps into them by CALL instructions.
 				if (context.hasEndPointLabel()) {
 					String[] endPointLabels = context.getEndPointLabels();
 					for (String endPointLabel: endPointLabels) {
@@ -789,58 +779,49 @@ public class CodeGenerator {
 
 
 	/**
-	 * 単文の処理を実行するコードを生成し、その内容を含む、更新されたコンテキストを生成して返します。
+	 * Generates VRIL code corresponding with the specified statement node, and updates the context.
+	 * 
+	 * Code generation of some statements reuires to update the context, so this method returns the updated context.
+	 * In the returned context, the generated code is stored. 
+	 * You can get it by {@link StatementTrackingContext#getLastStatementCode} method.
 	 *
-	 * ここでのコンテキストとは、文のコード生成に必要な、
-	 * それまでのコード生成過程に依存する情報
-	 * （例えば、対象とする文よりも前にある制御文のジャンプ先ラベルや、条件式の結果など）
-	 * の事を指します。
-	 *
-	 * 文のコード生成処理においては、単に生成されたコードを返すだけではなく、
-	 * 後の文のコード生成のために、コンテキストを更新する事が必要となります。
-	 * 従って、このメソッドは、引数に受け取ったコンテキストに基づいて文のコード生成を行った上で、
-	 * それを更新した新しいコンテキストを返します。
-	 * その中に、文の生成コードも含まれており、
-	 * {@link StatementTrackingContext#getLastStatementCode StatementTrackingContext.getLastStatementCode}
-	 * メソッドで取り出す事ができます。
-	 *
-	 * @param node 単文のASTノード
-	 * @param context 直前の文のコード生成が完了した時点のコンテキスト
-	 * @return 生成コードを含む、更新されたコンテキスト
+	 * @param node The AST node of a statement.
+	 * @param context The current context.
+	 * @return The context updated by the code generation of this method.
 	 */
 	private StatementTrackingContext generateStatementCode(AstNode node, StatementTrackingContext context) {
 		context = context.clone();
 
 		AstNode.Type nodeType = node.getType();
 
-		// 文の種類に応じてコードを生成する
+		// Generate code, depends on the kind of the specified statement:
 		String code = null;
 		switch (nodeType) {
 
-			// 変数宣言文
+			// Variable declaration statements:
 			case VARIABLE : {
 				code = this.generateVariableDeclarationStatementCode(node);
 				break;
 			}
 
-			// 関数宣言文
+			// Function declaration statements:
 			case FUNCTION : {
 
-				// 関数先頭のラベルを生成 ... 先頭はラベルである事を示すプレフィックス、その後に識別子プレフィックス + 関数シグネチャ
+				// Generate a label at the top of the function.
 				String signature = IdentifierSyntax.getSignatureOf(node);
 				String functionLabelName = Character.toString(AssemblyWord.LABEL_OPERAND_PREFIX)
 					+ Character.toString(AssemblyWord.IDENTIFIER_OPERAND_PREFIX) + signature;
 
-				// 関数宣言コードを生成
+				// Generate internal code of the function.
 				code = this.generateFunctionDeclarationStatementCode(node, functionLabelName);
 
-				// 関数シグネチャを ENDFUNC 命令（すぐ下で生成）のオペランドに渡すため、文字列の即値の記法で表現したものを用意
+				// Prepare a string-type immediate value used as an operand of ENDFUNC instruction.
 				String functionNameOperand = AssemblyWord.IMMEDIATE_OPERAND_PREFIX
 						+ DataTypeName.STRING + AssemblyWord.VALUE_SEPARATOR
 						+ LiteralSyntax.STRING_LITERAL_QUOT + signature + LiteralSyntax.STRING_LITERAL_QUOT;
 
-				// 関数終端の処理を生成: 通常は ENDFUN 命令のみで、return 忘れなどで処理がこの命令に達するとエラーが発生する。
-				// ただし void 型の関数では、関数終端に return 文があると見なし、ENDFUN命令の直前に RET 命令を置く。
+				// Generate ENDFUN instruction at the end of internal code of the function.
+				// In addition, also generate RET instruction for void-type functions.
 				String endPointStatement = this.generateInstruction(OperationCode.ENDFUN.name(), DataTypeName.STRING, functionNameOperand);
 				if (node.getDataTypeName().equals(DataTypeName.VOID)) {
 					endPointStatement = this.generateInstruction(
@@ -855,7 +836,7 @@ public class CodeGenerator {
 				break;
 			}
 
-			// if 文
+			// "if" statements:
 			case IF : {
 				context.addEndPointLabel(node.getAttribute(AttributeKey.END_LABEL));
 				String lastIfConditionRegister = null;
@@ -872,47 +853,49 @@ public class CodeGenerator {
 				break;
 			}
 
-			// else 文
+			// "else" statements:
 			case ELSE : {
 				code = this.generateElseStatementCode(node, context.getLastIfConditionRegister());
 				context.addEndPointLabel(node.getAttribute(AttributeKey.END_LABEL));
 				context.setNextBlockLoop(false);
-				//context.clearLastIfConditionValue(); // else if 対応後はさらに else 文が続く場合があるので消してはいけない
+				//context.clearLastIfConditionValue(); // "else" may locate after "else if", so don't do this.
 				break;
 			}
 
-			// while 文
+			// "while" statements:
 			case WHILE : {
 				code = this.generateWhileStatementCode(node);
 				context.setBeginPointLabel(node.getAttribute(AttributeKey.BEGIN_LABEL));
 				context.addEndPointLabel(node.getAttribute(AttributeKey.END_LABEL));
 				context.setLastLoopBeginPointLabel( context.getBeginPointLabel() );
 				context.setLastLoopUpdatePointLabel( context.getUpdatePointLabel() );
-				context.setLastLoopEndPointLabel( context.getEndPointLabels()[0] ); // while文の場合は endPointLabels は1要素のはず
+				context.setLastLoopEndPointLabel( context.getEndPointLabels()[0] );
 				context.setNextBlockLoop(true);
 				break;
 			}
 
-			// for 文
+			// "for" statements:
 			case FOR : {
 				code = this.generateForStatementCode(node);
 				context.setBeginPointLabel(node.getAttribute(AttributeKey.BEGIN_LABEL));
 				context.setUpdatePointLabel(node.getAttribute(AttributeKey.UPDATE_LABEL));
 				context.addEndPointLabel(node.getAttribute(AttributeKey.END_LABEL));
 
-				// 更新文（for文の丸括弧内での3つ目の式）
+				// Statement to update a conter (3rd statement of for(...;...;...) ):
+				// Usually it is an expression statement, so generate code for evaluation of it.
+				// However, it may be an empty statement, and we should do nothing for it.
 				if (node.getChildNodes()[2].getType() == AstNode.Type.EXPRESSION) { // 式文の場合は評価コード生成
 					context.setUpdatePointStatement(this.generateExpressionCode(node.getChildNodes()[2]));
-				} // 他に空文の場合もあり得るが、その場合は何もしない
+				}
 
 				context.setLastLoopBeginPointLabel( context.getBeginPointLabel() );
 				context.setLastLoopUpdatePointLabel( context.getUpdatePointLabel() );
-				context.setLastLoopEndPointLabel( context.getEndPointLabels()[0] ); // for文の場合は endPointLabels は1要素のはず
+				context.setLastLoopEndPointLabel( context.getEndPointLabels()[0] );
 				context.setNextBlockLoop(true);
 				break;
 			}
 
-			// break 文: 1階層外のループ末端へのジャンプ命令そのもの
+			// "break" statement: generate a jump instruction to the end of the outer loop.
 			case BREAK : {
 				code = this.generateInstruction(
 					OperationCode.JMP.name(), DataTypeName.BOOL, PLACE_HOLDER, context.getOuterLoopEndPointLabel(), IMMEDIATE_TRUE
@@ -920,31 +903,38 @@ public class CodeGenerator {
 				break;
 			}
 
-			// continue 文: 1階層外のループ先頭か更新式の位置へのジャンプ命令そのもの
+			// "continue" statement: generate a jump instruction to the top (or the statement to update a counter) of the outer loop.
 			case CONTINUE : {
-				String continueJumpPointLabel = context.getOuterLoopBeginPointLabel(); // ループ先頭に飛ぶラベル
+
+				// Prepare the landing point label. By default, use the label at the top of the outerloop (for "while" loops).
+				String continueJumpPointLabel = context.getOuterLoopBeginPointLabel();
+
+				// If the label at the statement to update a counter of the outer loop exists, use it (for "for" loops).
 				if (context.hasLastLoopUpdatePointLabel()) {
-					continueJumpPointLabel = context.getOuterLoopUpdatePointLabel(); // for文は更新式の位置に飛ぶ
+					continueJumpPointLabel = context.getOuterLoopUpdatePointLabel();
 				}
+
+				// Generate code jumping to the above label.
 				code = this.generateInstruction(
 					OperationCode.JMP.name(), DataTypeName.BOOL, PLACE_HOLDER, continueJumpPointLabel, IMMEDIATE_TRUE
 				);
 				break;
 			}
 
-			// return 文
+			// "return" statement:
 			case RETURN : {
 				code = this.generateReturnStatementCode(node, context.getLastFunctionLabel());
 				break;
 			}
 
-			// 式文
+			// Expression statements:
 			case EXPRESSION : {
 				code = this.generateExpressionCode(node);
 				break;
 			}
 
-			// 文以外のノードは式中の演算子やリーフノードなので、上の式文のケース内で処理される
+			// Other kinds of (non-statement) nodes:
+			// They will be handled in code generation of "EXPRESSION" statement node, so we should not do nothing here.
 			default : {
 				break;
 			}
@@ -956,31 +946,28 @@ public class CodeGenerator {
 
 
 	/**
-	 * 変数宣言文の処理を実行するコードを生成して返します。
+	 * Generates code of a variable declaration node
 	 *
-	 * @param node 変数宣言文のASTノード（{@link AstNode.Type#VARIABLE VARIABLE}タイプ）
-	 * @return 生成コード
+	 * @param node The AST node of variable declaration statement.
+	 * @return The generated code.
 	 */
 	private String generateVariableDeclarationStatementCode (AstNode node) {
 
 		StringBuilder codeBuilder = new StringBuilder();
-		//String variableName= node.getAttribute(AttributeKey.IDENTIFIER_VALUE);
-		//String variableOperand = AssemblyWord.identifierOperandPrefix+variableName;
 		String variableOperand = node.getAttribute(AttributeKey.ASSEMBLY_VALUE);
+		String variableType = node.getDataTypeName();
 
-		// 識別子ディレクティブを生成
+		// Generate the identifier directive.
 		codeBuilder.append(AssemblyWord.LOCAL_VARIABLE_DIRECTIVE);
 		codeBuilder.append(AssemblyWord.WORD_SEPARATOR);
 		codeBuilder.append(variableOperand);
 		codeBuilder.append(AssemblyWord.INSTRUCTION_SEPARATOR);
 		codeBuilder.append(AssemblyWord.LINE_SEPARATOR);
 
-		// 先に子ノードを処理し、型情報や配列要素数などを取得
-		String variableType = node.getDataTypeName();
-
+		// Firstly, generate code of all child nodes, 
+		// and store array rank/lengths of the variable to be declared.
 		int rank = RANK_OF_SCALAR;
 		String[] arrayLengthValues = null;
-
 		if (node.hasChildNodes(AstNode.Type.LENGTHS)) {
 			AstNode[] lengthExprNodes
 				= node.getChildNodes(AstNode.Type.LENGTHS)[0].getChildNodes(AstNode.Type.EXPRESSION);
@@ -993,16 +980,14 @@ public class CodeGenerator {
 			}
 		}
 
-		// 以下、メモリ確保のためのALLOC命令を生成
-
-		// スカラなら1オペランドのALLOC命令を生成
+		// If the variable is a scalar, generate an 1-operand ALLOC instruction.
 		if (rank == RANK_OF_SCALAR) {
-
 			codeBuilder.append(
 				this.generateInstruction(OperationCode.ALLOC.name(), variableType, variableOperand)
 			);
 
-		// 配列確保なら要素数オペランドを付けたALLOC命令を生成
+		// If the variable is an array, generate a multi-operand ALLOC instruction, 
+		// and specify array lengths to its operands.
 		} else {
 
 			String[] allocOperands = new String[ arrayLengthValues.length + 1 ];
@@ -1013,22 +998,23 @@ public class CodeGenerator {
 			);
 		}
 
-		// 初期化式があれば、そのコードを生成
+		// If the statement having an expression for initialize the value of the declared variable,
+		// generate code of it.
 		AstNode[] initExprNodes = node.getChildNodes(AstNode.Type.EXPRESSION);
 		if (initExprNodes.length == 1) {
 			codeBuilder.append( this.generateExpressionCode(initExprNodes[0]) );
 
-		// 初期化式が無い場合は、デフォルト値で初期化するコードを生成
+		// Otherwise, generate code for initializing the variable by a default value.
 		} else {
 			String defaultValueOperand = this.generateDefaultValueImmediateOperandCode(variableType);
 
-			// スカラなら単純にMOV命令で値を代入
+			// Use MOV for a scalar variable.
 			if (rank == RANK_OF_SCALAR) {
 				codeBuilder.append(
 					this.generateInstruction(OperationCode.MOV.name(), variableType, variableOperand, defaultValueOperand)
 				);
 
-			// 配列ならFILL命令で全要素を一括代入
+			// Use FILL for an array variable.
 			} else {
 				codeBuilder.append(
 					this.generateInstruction(OperationCode.FILL.name(), variableType, variableOperand, defaultValueOperand)
@@ -1041,27 +1027,45 @@ public class CodeGenerator {
 
 
 	/**
-	 * 関数宣言文の処理を実行するコードを生成して返します。
+	 * Generates code of a function declaration node
 	 *
-	 * @param node 関数宣言文のASTノード（{@link AstNode.Type#FUNCTION FUNCTION}タイプ）
-	 * @param functionLabelName 関数の先頭に配置するラベル名
-	 * @return 生成コード
+	 * @param node The AST node of the function declaration statement.
+	 * @param functionLabelName The label to be put at the top of the function's code.
+	 * @return The generated code.
 	 */
 	private String generateFunctionDeclarationStatementCode (AstNode node, String functionLabelName) {
 
+		// Important Note:
+		// 
+		// At the top of function, a JMP instruction (to the end of the function) will be put, 
+		// for skipping execution of the function's code 
+		// when whole code of a script is executed from the top to the bottom.
+		// 
+		// At the next of the JMP instruction, a label specified as the argument "functionLabelName" will be put.
+		// When the function is called, the processing flow jumps to the label by CALL instruction.
+		// 
+		// At end of function's code, a label (function skipping label) will be put, 
+		// for skipping execution of the function's code, 
+		// when whole code of a script is executed from the top to the bottom.
+		// (For the same purpose, JMP instructions will be put at beginnings of function declarations.)
+		// Code of function declarations will be processed only when the flow will jumps into them by CALL instructions.
+
+		// The buffer storing generated code.
 		StringBuilder codeBuilder = new StringBuilder();
 
-		// 関数の外側のコードを上から逐次実行されている時に、関数内のコードを実行せず読み飛ばすためのJMP命令を生成
+		// Generate a JMP instruction for skipping function's code 
+		// when whole code of a script is executed from the top to the bottom (see the above note).
 		String skipLabel = node.getAttribute(AttributeKey.END_LABEL);
 		codeBuilder.append(
 			this.generateInstruction(OperationCode.JMP.name(), DataTypeName.BOOL, PLACE_HOLDER, skipLabel, IMMEDIATE_TRUE)
 		);
 
-		// 関数先頭ラベルを配置
+		// Generate the specified label at the top of the function's code.
 		codeBuilder.append( this.generateLabelDirectiveCode(functionLabelName) );
 
-		// 子ノードは引数のノードなので、それらに対してスタック上のデータを取りだして格納するコードを生成
-		// 注意；引数は宣言順にスタックに積まれてて、取り出す際は逆順で出てくるので、逆順で受け取るコードを生成する必要がある
+		// Generate code transferring values of actual arguments on the stack to parameter variables, 
+		// where nodes of parameter variables are linked to the function declaration statement as child nodes.
+		// Note: the stack is LIFO, so the order of actual arguments on the stack is reversed.
 		AstNode[] argNodes = node.getChildNodes();
 		int argLength = argNodes.length;
 		for (int argIndex=argLength-1; 0 <= argIndex; argIndex--) {
@@ -1072,11 +1076,14 @@ public class CodeGenerator {
 			String argDataType = argNode.getAttribute(AttributeKey.DATA_TYPE);
 			int argRank = argNode.getRank();
 
-			// ALLOCT 命令（生成箇所のコメント参照）に渡すオペランド: 対象データの後に次元の数だけ 0 を並べる
+			// Prepare operands of an ALLOCT instruction (see comments at lines generating them):
+			// The first operand is the identifier of the parameter variable.
+			// After of it, Put N zeros as operands, where N is the array rank.
 			String[] alloctOperands = new String[argRank+1];
 			Arrays.fill(alloctOperands, this.generateImmediateOperandCode(DataTypeName.DEFAULT_INT, "0") );
 			alloctOperands[0] = argIdentifier;
 
+			// Generate local variable directive of the parameter variable.
 			// 引数のローカル変数ディレクティブを生成
 			codeBuilder.append(AssemblyWord.LOCAL_VARIABLE_DIRECTIVE);
 			codeBuilder.append(AssemblyWord.WORD_SEPARATOR);
@@ -1084,49 +1091,55 @@ public class CodeGenerator {
 			codeBuilder.append(AssemblyWord.INSTRUCTION_SEPARATOR);
 			codeBuilder.append(AssemblyWord.LINE_SEPARATOR);
 
-			// 参照渡しの場合 ... メモリ上のデータ領域の新規確保は不要
+			// For call-by-reference: it doesn't requier memory allocation.
 			if (argNode.hasAttribute(AttributeKey.MODIFIER)
 					&& argNode.getAttribute(AttributeKey.MODIFIER).contains(ScriptWord.REF_MODIFIER) ) {
 
-				// スタックを介するデータはコード上での型情報把握が難しいので、可読性や最適化時のため ALLOCT 命令で型情報を明示
+				// It is difficult for the VM to statically analyze the type/rank of a value popped from the stack, 
+				// because any type/rank value can be stored in the stack. 
+				// On the other hand, the compiler knows the type/rank of such value.
+				// So, for optimization and readability, generate ALLOCT instruction 
+				// which only declares type and rank of the variable without allocating memory actually.
 				codeBuilder.append(
 					this.generateInstruction(OperationCode.ALLOCT.name(), argDataType, alloctOperands)
 				);
 
-				// 参照渡しの場合は、スタックからの引数の値の取得に、「取り出し + 参照代入」の MOVPOP 命令を用いる
-				// （この命令はデータ領域の参照自体を変更するため、参照渡しではALLOC/ALLOCPによるデータ領域の事前確保は不要）
+				// Generate REFPOP instruction, 
+				// for setting data-reference of the parameter variable to data popped from the stack.
+				// (It is a copy operation of "reference", not data, so it does not require the memory allocation.)
 				codeBuilder.append(
 					this.generateInstruction(OperationCode.REFPOP.name(), argDataType, argIdentifier)
 				);
 
-			// 値渡しの場合 ... メモリ上のデータ領域の新規確保が必要
+			// For call-by-value: it requires memory allocation.
 			} else {
 
-				// スタックを介するデータはコード上での型情報把握が難しいので、可読性や最適化時のため ALLOCT 命令で型情報を明示
+				// Generate ALLOCT instruction, for the same reason as code of "call-by-reference".
 				codeBuilder.append(
 					this.generateInstruction(OperationCode.ALLOCT.name(), argDataType, alloctOperands)
 				);
 
-				// ALLOCP 命令で、スタック上の先端にあるデータと同じ型/次元/要素数のデータ領域を確保
+				// Allocate memory for storing data at the top of the stack, by using ALLOCP instruction.
 				codeBuilder.append(
 					this.generateInstruction(OperationCode.ALLOCP.name(), argDataType, argIdentifier)
 				);
 
-				// 値渡しの場合は、スタックからの引数の値の取得に、「取り出し + コピー代入」の MOVPOP 命令を用いる
+				// Generate MOFPOP instruction, 
+				// for copying data from the top of the stack to the parameter variable.
 				codeBuilder.append(
 					this.generateInstruction(OperationCode.MOVPOP.name(), argDataType, argIdentifier)
 				);
 			}
 		}
 
-		// 関数シグネチャを ENDPRM 命令（すぐ下で生成）のオペランドに渡すため、文字列の即値の記法で表現したものを用意
-		String functionNameOperand = AssemblyWord.IMMEDIATE_OPERAND_PREFIX
+		// Prepare the signature of the function as the immediate value.
+		String functionSignatureOperand = AssemblyWord.IMMEDIATE_OPERAND_PREFIX
 				+ DataTypeName.STRING + AssemblyWord.VALUE_SEPARATOR
 				+ LiteralSyntax.STRING_LITERAL_QUOT + IdentifierSyntax.getSignatureOf(node) + LiteralSyntax.STRING_LITERAL_QUOT;
 
-		// 引数の取り出しが終わった箇所に ENDPRM 命令を置いておく（最適化補助と可読性に貢献するメタ情報命令）
+		// Put ENDPRM instruction at the end of parameter transfering code, for optimization and readability.
 		codeBuilder.append(
-			this.generateInstruction(OperationCode.ENDPRM.name(), DataTypeName.STRING, functionNameOperand)
+			this.generateInstruction(OperationCode.ENDPRM.name(), DataTypeName.STRING, functionSignatureOperand)
 		);
 
 		return codeBuilder.toString();
@@ -1134,11 +1147,11 @@ public class CodeGenerator {
 
 
 	/**
-	 * return文の処理を実行するコードを生成して返します。
+	 * Generates code of a "return" statement.
 	 *
-	 * @param node return文のASTノード（{@link AstNode.Type#RETURN returnStatement}タイプ）
-	 * @param functionLabelName このreturn文が属する関数のラベル名
-	 * @return 生成コード
+	 * @param node The AST node of the "return" statement.
+	 * @param functionLabelName The label of the function to which the return statement belongs.
+	 * @return The generated code.
 	 */
 	private String generateReturnStatementCode(AstNode node, String functionLabelName) {
 
@@ -1146,13 +1159,14 @@ public class CodeGenerator {
 
 		AstNode[] childNodes = node.getChildNodes();
 
-		// 戻り値が無い場合
+		// For void functions:
 		if (childNodes.length == 0) {
 			codeBuilder.append(
 				this.generateInstruction(OperationCode.RET.name(), DataTypeName.VOID, PLACE_HOLDER, functionLabelName)
 			);
 
-		// 戻り値がある場合 ... 戻り値の式を解釈し、その結果をオペランドに追加したRET命令を生成
+		// For non-void functions:
+		// evaluate the value of (the expression of) the return value, and specify it as an operand of the RET instruction.
 		} else {
 			AstNode exprNode = childNodes[0];
 			String exprValue = exprNode.getAttribute(AttributeKey.ASSEMBLY_VALUE);
@@ -1168,40 +1182,43 @@ public class CodeGenerator {
 
 
 	/**
-	 * if文の処理を実行するコードを生成して返します。
+	 * Generates code of a "if" statement.
+	 * 
+	 * Behavior of a "if" statement is realized by a JMPN instruction,
+	 * which jumps to a "end-point" label at the end of the block "{...}" when the condition value is false.
+	 * 
+	 * Note that, code generated by this method does not contain the end-point label, 
+	 * because code of internal processes of "{...}" will be generated after generating code of this "if" statement.
+	 * Hence, the caller side must put the end-point label after generating code of "{...}".
 	 *
-	 * 中間アセンブリコード内におけるif文の処理は、
-	 * 条件成立時に実行される範囲の終端にラベルを配置し、
-	 * 条件不成立時はそこへジャンプ系命令で移動する
-	 * （つまり、if文の実行対象範囲のコードを実行せずに飛ばす）
-	 * 事によって実現されます。
-	 * この終端ラベルは、呼び出し側で用意した上で、このメソッドの引数に渡す必要があります。
-	 *
-	 * なお、このメソッドは、指定された終端ラベルをジャンプ系命令の移動先に使用しますが、
-	 * 終端ラベルの配置は行いません。
-	 * 従って、if文の実行対象範囲のコード生成が終わった後に、
-	 * 終端ラベルを配置する必要があります。
-	 *
-	 * @param node if文のASTノード（{@link AstNode.Type#IF ifStatement}タイプ）
-	 * @param lastIfConditionRegister 文を実行していく過程で、最後（直前）のif文の条件式結果を控えておくレジスタ
-	 * @param lastIfConditionRegisterAllocRequired 条件式結果を控えておくレジスタのメモリ確保(ALLOC)処理が必要かどうか
-	 * @return 生成コード
+	 * @param node The AST node of the "if" statement.
+	 * 
+	 * @param lastIfConditionRegister
+	 *     The register for storing the evaluated value of the condition.
+	 *     When multiple "else if" or "else" sections continues after this "if" ("else if"), 
+	 *     the same register will be shared between them.
+	 * 
+	 * @param lastIfConditionRegisterAllocRequired
+	 *     Specify true if it should newly allocate the memory for "lastIfConditionRegister".
+	 * 
+	 * @return The generated code.
 	 */
 	private String generateIfStatementCode(AstNode node,
 			String lastIfConditionRegister, boolean lastIfConditionRegisteAllocRequired) {
 
 		StringBuilder codeBuilder = new StringBuilder();
 
-		// 条件式の評価コードを生成
-		AstNode conditionExprNode = node.getChildNodes(AstNode.Type.EXPRESSION)[0]; // 後で検査が必要
+		// Generate code evaluating the value of the condition expression.
+		AstNode conditionExprNode = node.getChildNodes(AstNode.Type.EXPRESSION)[0];
 		codeBuilder.append( this.generateExpressionCode(conditionExprNode) );
 
+		// The value of the condition expression must be a scalar
+		// (should had been checked by SemanticAnalyzer).
 		if (conditionExprNode.getRank() != RANK_OF_SCALAR) {
-			// 条件式が配列の場合は弾くべき
 			return null;
 		}
 
-		// 条件式の結果を lastIfConditionRegister に控える (else文のコード生成で必要)
+		// Generate code for storing the evaluated condition value in "lastIfConditionRegister".
 		if (lastIfConditionRegisteAllocRequired) {
 			codeBuilder.append( this.generateInstruction(OperationCode.ALLOC.name(), DataTypeName.BOOL, lastIfConditionRegister));
 		}
@@ -1211,7 +1228,7 @@ public class CodeGenerator {
 		);
 		codeBuilder.append(lastIfConditionMovCode);
 
-		// 条件不成立の時に終端ラベルに飛ぶコードを生成
+		// Generate an instruction to jump to the end of "{...}", when the condition is not satisfied.
 		String endLabel = node.getAttribute(AttributeKey.END_LABEL);
 		String conditionExprValue = conditionExprNode.getAttribute(AttributeKey.ASSEMBLY_VALUE);
 		codeBuilder.append(
@@ -1223,31 +1240,27 @@ public class CodeGenerator {
 
 
 	/**
-	 * else文の処理を実行するコードを生成して返します。
+	 * Generates code of a "else" statement.
 	 *
-	 * 中間アセンブリコード内におけるelse文の処理は、
-	 * else文の実行対象範囲の終端にラベルを配置し、
-	 * 直前のif文の条件が成立していた場合のみ、
-	 * 終端ラベルへジャンプ系命令で移動する
-	 * （つまり、else文の実行対象範囲のコードを実行せずに飛ばす）
-	 * 事によって実現されます。
-	 * この終端ラベルは、呼び出し側で用意した上で、このメソッドの引数に渡す必要があります。
-	 *
-	 * なお、このメソッドは、指定された終端ラベルをジャンプ系命令の移動先に使用しますが、
-	 * 終端ラベルの配置は行いません。
-	 * 従って、else文の実行対象範囲のコード生成が終わった後に、
-	 * 終端ラベルを配置する必要があります。
-	 *
-	 * @param lastIfConditionRegister 直前のif文における条件式の値（レジスタや変数の識別子、または即値）
-	 * @return 生成コード
+	 * Behavior of a "else" statement is realized by a JMP instruction,
+	 * which jumps to a "end-point" label at the end of the block "{...}", 
+	 * when the value of the last evaluated condition of a "if" (including "else if") statement is true.
+	 * 
+	 * Note that, code generated by this method does not contain the end-point label, 
+	 * because code of internal processes of "{...}" will be generated after generating code of this "else" statement.
+	 * Hence, the caller side must put the end-point label after generating code of "{...}".
+	 * 
+	 * @param node The AST node of the "else" statement.
+	 * @param lastIfConditionRegister The register in which the last evaluated condition value of "if" / "else if" is stored.
+	 * @return The generated code
 	 */
 	private String generateElseStatementCode(AstNode node, String lastIfConditionValue) {
 		StringBuilder codeBuilder = new StringBuilder();
 
 		String endLabel = node.getAttribute(AttributeKey.END_LABEL);
 
-		// 条件成立の時に末端ラベルへ飛ぶコードを生成
-		//（ else は直前の if 文が不成立だった場合に実行するので、成立していた場合は逆にelse末尾まで飛ぶ ）
+		// Generate an instruction to jump at the end of "{...}",
+		// when the last evaluated condition of "if" / "else if" is satisified.
 		codeBuilder.append(
 			this.generateInstruction(OperationCode.JMP.name(), DataTypeName.BOOL, PLACE_HOLDER, endLabel, lastIfConditionValue)
 		);
@@ -1257,21 +1270,27 @@ public class CodeGenerator {
 
 
 	/**
-	 * while文の処理を実行するコードを生成して返します。
+	 * Generates code of a "while" statement.
 	 *
-	 * 中間アセンブリコード内におけるwhile文やfor文などのループ処理は、
-	 * ループ先頭と終端の2箇所にラベルを配置し、
-	 * ループ継続時では前者のラベル、ループ終了時では後者のラベルへと、
-	 * ジャンプ系命令で移動する事によって実現されます。
-	 * そのため、それら2つのラベルを呼び出し側で用意した上で、
-	 * このメソッドの引数に渡す必要があります。
+	 * Behavior of a "while" statement is realized by a JMP and a JMPN instructions.
+	 * 
+	 * At the location of a "while" statement, a JMPN instruction will be put.
+	 * By this instruction, the processing flow jumps to the end of the block "{...}"
+	 * (an "end-point" laben will be put there) when the loop condition isn't satisfied.
+	 * 
+	 * On the other hand, when the loop condition is satisfied, 
+	 * the flow doesn't jump and enters into {...}.
+	 * Then, the flow returns to the location of code evaluating the loop condition 
+	 * (a "beginning-point" label will be put there), 
+	 * by a JMP instruction at just before of the end-point label at the end of {...}.
+	 * 
+	 * Note that, code generated by this method does not contain the end-point label,
+	 * and JMP instruction to return to the beginning-point label,
+	 * because code of internal processes of "{...}" will be generated after generating code of this "while" statement.
+	 * Hence, the caller side must put the end-point label and the JMP instruction after generating code of "{...}".
 	 *
-	 * なお、このメソッドはループ先頭ラベルの配置は行いますが、
-	 * ループ終端ラベルは配置せず、ジャンプ系命令の移動先に使用するだけです。
-	 * 従って、ループ対象範囲のコード生成が終わった後に、ループ終端ラベルを配置する必要があります。
-	 *
-	 * @param node while文のASTノード（{@link AstNode.Type#WHILE whileStatement}タイプ）
-	 * @return 生成コード
+	 * @param node The AST node of the "while" statement.
+	 * @return The generated code.
 	 */
 	private String generateWhileStatementCode(AstNode node) {
 		StringBuilder codeBuilder = new StringBuilder();
@@ -1279,19 +1298,20 @@ public class CodeGenerator {
 		String beginLabel = node.getAttribute(AttributeKey.BEGIN_LABEL);
 		String endLabel = node.getAttribute(AttributeKey.END_LABEL);
 
-		// ループで戻って来るラベルを配置
+		// Put the beginning-point label.
 		codeBuilder.append(this.generateLabelDirectiveCode(beginLabel));
 
-		// 条件式の評価コードを生成
-		AstNode conditionExprNode = node.getChildNodes(AstNode.Type.EXPRESSION)[0]; // 後で検査が必要
+		// Generate code evaluating the value of the condition expression.
+		AstNode conditionExprNode = node.getChildNodes(AstNode.Type.EXPRESSION)[0];
 		codeBuilder.append( this.generateExpressionCode(conditionExprNode) );
 
+		// The value of the condition expression must be a scalar
+		// (should had been checked by SemanticAnalyzer).
 		if (conditionExprNode.getRank() != RANK_OF_SCALAR) {
-			// 条件式が配列の場合は意味解析の段階で弾くべき
 			return null;
 		}
 
-		// 条件不成立時はループ外に脱出するコードを生成
+		// Generate an instruction to jump to the end of "{...}", when the condition is not satisfied.
 		String conditionExprValue = conditionExprNode.getAttribute(AttributeKey.ASSEMBLY_VALUE);
 		codeBuilder.append(
 			this.generateInstruction(OperationCode.JMPN.name(), DataTypeName.BOOL, PLACE_HOLDER, endLabel, conditionExprValue)
@@ -1302,75 +1322,64 @@ public class CodeGenerator {
 
 
 	/**
-	 * for文の処理を実行するコードを生成して返します。
+	 * Generates code of a "for" statement.
 	 *
-	 * 中間アセンブリコード内におけるwhile文やfor文などのループ処理は、
-	 * ループ先頭と終端の2箇所にラベルを配置し、
-	 * ループ継続時では前者のラベル、ループ終了時では後者のラベルへと、
-	 * ジャンプ系命令で移動する事によって実現されます。
-	 * そのため、それら2つのラベルを呼び出し側で用意した上で、
-	 * このメソッドの引数に渡す必要があります。
+	 * Behavior of a "for" statement is realized by a JMP and a JMPN instructions.
+	 * 
+	 * When the processing flow reaches to the "for" statement, 
+	 * firstly, code to allocate/initialize a counter variable will be executed.
+	 * Then, if the loop condition isn't satisfied, the flow will jump to the end of the block "{...}"
+	 * (an "end-point" laben will be put there) by JMPN instruction.
+	 * 
+	 * On the other hand, if the loop condition is satisfied, the flow will not jump, so it will enter into {...}.
+	 * When the flow will have reached to the end of {...}, code to update the counter variable will be executed,
+	 * and then the flow will return to the location of code evaluating the loop condition 
+	 * (a "beginning-point" label will be put there), 
+	 * by a JMP instruction.
+	 * 
+	 * Note that, code generated by this method does not contain the end-point label,
+	 * and JMP instruction to return to the beginning-point label,
+	 * because code of internal processes of "{...}" will be generated after generating code of this "for" statement.
+	 * Hence, the caller side must put the end-point label and the JMP instruction after generating code of "{...}".
 	 *
-	 * なお、このメソッドはループ先頭ラベルの配置は行いますが、
-	 * ループ終端ラベルは配置せず、ジャンプ系命令の移動先に使用するだけです。
-	 * 従って、ループ対象範囲のコード生成が終わった後に、ループ終端ラベルを配置する必要があります。
-	 *
-	 * また、for文の括弧内にセミコロンで区切られた、3番目の式（通常はカウンタの更新式）のコードは、
-	 * このメソッドでは生成されません。
-	 * それについては、ループ対象範囲のコード生成が終わった後に、別途
-	 * {@link CodeGenerator#generateExpressionCode generateExpressionCode} メソッド
-	 * で生成して配置する必要があります。
-	 *
-	 * @param node for文のASTノード（{@link AstNode.Type#FOR forStatement}タイプ）
-	 * @return 生成コード
+	 * @param node The AST node of the "for" statement.
+	 * @return The generated code.
 	 */
 	private String generateForStatementCode(AstNode node) {
 		StringBuilder codeBuilder = new StringBuilder();
 
+		AstNode[] childNodes =  node.getChildNodes();
 		String beginLabel = node.getAttribute(AttributeKey.BEGIN_LABEL);
 		String endLabel = node.getAttribute(AttributeKey.END_LABEL);
 
-		// 初期化文、条件文、更新文の評価コードを生成
-		AstNode[] childNodes =  node.getChildNodes();
+		String initStatementCode = null;      // Stores code of the initializaton (or variable declaration) statement of the counter variable.
+		String conditionStatementCode = null; // Stores code of the condition expression statement.
+		String conditionValue = null;         // Stores a register or a immediate value of as the value of the condition expression.
 
-		String initStatementCode = null;  // 初期化文の生成コードを控える
-		String conditionStatementCode = null; // 条件分の生成コードを控える
-		String conditionValue = null; // 条件文の結果の値を格納するレジスタ、または即値を控える
-
-
-		// 初期化文のコード生成 ... 変数宣言文の場合は宣言処理（初期化処理含む）のコードを生成
+		// Generate code of the initialization (or variable declaration) statement of the counter variable.
 		if (childNodes[0].getType() == AstNode.Type.VARIABLE) {
 			initStatementCode = this.generateVariableDeclarationStatementCode(childNodes[0]);
-		// そうでなければ式文なので式の評価コードを生成
 		} else if (childNodes[0].getType() == AstNode.Type.EXPRESSION) {
 			initStatementCode = this.generateExpressionCode(childNodes[0]);
-		// 空文の場合は何もしない
 		} else if (childNodes[0].getType() == AstNode.Type.EMPTY) {
 			initStatementCode = "";
 		}
+		codeBuilder.append(initStatementCode);
 
-		// 条件分のコード生成 ... 式文の場合は式の評価コードを生成
+		// Put the beginning-point label.
+		codeBuilder.append(this.generateLabelDirectiveCode(beginLabel));
+
+		// Generate code of the condition expression statement.
 		if (childNodes[1].getType() == AstNode.Type.EXPRESSION) {
 			conditionStatementCode = this.generateExpressionCode(childNodes[1]);
 			conditionValue = childNodes[1].getAttribute(AttributeKey.ASSEMBLY_VALUE);
-		// 空文の場合は常に true と見なす
 		} else if (childNodes[1].getType() == AstNode.Type.EMPTY) {
 			conditionStatementCode = "";
 			conditionValue = IMMEDIATE_TRUE;
 		}
-
-
-		// 初期化文のコードを出力
-		codeBuilder.append(initStatementCode);
-
-		// その後に、ループで戻って来る地点のラベルを配置
-		codeBuilder.append(this.generateLabelDirectiveCode(beginLabel));
-
-
-		// 条件文の評価コードを出力
 		codeBuilder.append(conditionStatementCode);
 
-		// 条件不成立時はループ外に脱出するコードを生成
+		// Generate an instruction to jump to the end of "{...}", when the condition is not satisfied.
 		codeBuilder.append(
 			this.generateInstruction(OperationCode.JMPN.name(), DataTypeName.BOOL, PLACE_HOLDER, endLabel, conditionValue)
 		);
@@ -1383,61 +1392,61 @@ public class CodeGenerator {
 
 
 	/**
-	 * 式のAST(抽象構文木)内をボトムアップ順で辿り、その式内の全ての演算を逐次実行するコードを生成して返します。
+	 * Generate code of an expression statement.
 	 *
-	 * @param exprRootNode 式のASTのルートノード({@link AstNode.Type#EXPRESSION EXPRESSION}タイプ、または式の構成要素になり得るタイプ)
-	 * @return 生成コード
+	 * @param node The AST node of the expression statement.
+	 * @return The generated code.
 	 */
 	private String generateExpressionCode(AstNode exprRootNode) {
 
 		StringBuilder codeBuilder = new StringBuilder();
 
+		// Traverse AST nodes composing the expression.
 		AstNode currentNode = exprRootNode.getPostorderDftFirstNode();
 		while(currentNode != exprRootNode) {
 
-			// 演算子ノードに対する演算コード生成処理
+			// Generate code of operation corresponding with the type of the operator.
 			if (currentNode.getType() == AstNode.Type.OPERATOR) {
 				String operatorSyntax = currentNode.getAttribute(AttributeKey.OPERATOR_SYNTAX);
 				String operatorExecution = currentNode.getAttribute(AttributeKey.OPERATOR_EXECUTOR);
 
 				switch (operatorExecution) {
-					case AttributeValue.CALL : { // 関数呼び出し演算子
+					case AttributeValue.CALL : {
 						codeBuilder.append( this.generateCallOperatorCode(currentNode) );
 						break;
 					}
-					case AttributeValue.ASSIGNMENT : { // 代入演算子
+					case AttributeValue.ASSIGNMENT : {
 						codeBuilder.append( this.generateAssignmentOperatorCode(currentNode) );
 						break;
 					}
-					case AttributeValue.ARITHMETIC : { // 算術演算子
+					case AttributeValue.ARITHMETIC : {
 						switch (operatorSyntax) {
-							case AttributeValue.BINARY : { // 二項
+							case AttributeValue.BINARY : {
 								codeBuilder.append( this.generateArithmeticBinaryOperatorCode(currentNode) );
 								break;
 							}
-							case AttributeValue.PREFIX : { // 前置
+							case AttributeValue.PREFIX : {
 								codeBuilder.append( this.generateArithmeticPrefixOperatorCode(currentNode) );
 								break;
 							}
-							// 算術演算子の後置パターンは現状では無いはず
 							default : {
 								throw new VnanoFatalException("Invalid operator syntax for arithmetic operators: " + operatorSyntax);
 							}
 						}
 						break;
 					}
-					case AttributeValue.ARITHMETIC_COMPOUND_ASSIGNMENT : { // 複合代入演算子
+					case AttributeValue.ARITHMETIC_COMPOUND_ASSIGNMENT : {
 
 						switch (operatorSyntax) {
-							case AttributeValue.BINARY : { // 二項
+							case AttributeValue.BINARY : {
 								codeBuilder.append( this.generateArithmeticCompoundAssignmentBinaryOperatorCode(currentNode) );
 								break;
 							}
-							case AttributeValue.PREFIX : { // 前置
+							case AttributeValue.PREFIX : {
 								codeBuilder.append( this.generateArithmeticCompoundPrefixOperatorCode(currentNode) );
 								break;
 							}
-							case AttributeValue.POSTFIX : { // 後置
+							case AttributeValue.POSTFIX : {
 								codeBuilder.append( this.generateArithmeticCompoundPostfixOperatorCode(currentNode) );
 								break;
 							}
@@ -1447,17 +1456,17 @@ public class CodeGenerator {
 						}
 						break;
 					}
-					case AttributeValue.COMPARISON : { // 比較演算子
+					case AttributeValue.COMPARISON : {
 						codeBuilder.append( this.generateComparisonBinaryOperatorCode(currentNode) );
 						break;
 					}
-					case AttributeValue.LOGICAL : { // 論理演算子
+					case AttributeValue.LOGICAL : {
 						switch (operatorSyntax) {
-							case AttributeValue.BINARY : { // 二項
+							case AttributeValue.BINARY : {
 								codeBuilder.append( this.generateLogicalBinaryOperatorCode(currentNode) );
 								break;
 							}
-							case AttributeValue.PREFIX : { // 前置
+							case AttributeValue.PREFIX : {
 								codeBuilder.append( this.generateLogicalPrefixOperatorCode(currentNode) );
 								break;
 							}
@@ -1467,11 +1476,11 @@ public class CodeGenerator {
 						}
 						break;
 					}
-					case AttributeValue.SUBSCRIPT : { // 配列要素アクセス演算子
+					case AttributeValue.SUBSCRIPT : {
 						codeBuilder.append( this.generateIndexOperatorCode(currentNode) );
 						break;
 					}
-					case AttributeValue.CAST : { // キャスト演算子
+					case AttributeValue.CAST : {
 						codeBuilder.append( this.generateCastOperatorCode(currentNode) );
 						break;
 					}
@@ -1479,33 +1488,34 @@ public class CodeGenerator {
 						throw new VnanoFatalException("Unknown operator execution type: " + operatorExecution);
 					}
 				}
-			} // 演算子ノードに対する演算コード生成処理
+			} // Code generations of operators
 
 
-			// 部分式の評価後に、親ノードの演算子に応じて追加処理が必要な場合
+			// Some operators require to execute some additional processes 
+			// after when its operand/s (may be a partial expressions) is/are evaluated.
 			AstNode parentNode = currentNode.getParentNode();
 			if (parentNode.getType() == AstNode.Type.OPERATOR) {
 				String parentOperatorSymbol = currentNode.getParentNode().getAttribute(AttributeKey.OPERATOR_SYMBOL);
 
-				//「&&」と「||」演算子: 短絡評価により、左オペランドの値によっては右オペランドの演算をスキップする必要がある
+				// "&&" and "||": require code for performing the short-circuit evaluation.
 				if (parentOperatorSymbol.equals(ScriptWord.SHORT_CIRCUIT_AND) || parentOperatorSymbol.equals(ScriptWord.SHORT_CIRCUIT_OR)) {
 
 					String jumpLabel = parentNode.getAttribute(AttributeKey.END_LABEL);
 					String leftOperandValue = currentNode.getAttribute(AttributeKey.ASSEMBLY_VALUE);
 
-					//スキップ用のジャンプ命令: || なら左オペランドがtrueの時に省略するのでJMP命令、&& ならその逆で JMPN 命令
+					// Prepare a jump instruction (JMP for "||", and JMPN for "&&").
 					String jumpOpcode = OperationCode.JMP.name();
 					if (parentOperatorSymbol.equals(ScriptWord.SHORT_CIRCUIT_AND)) {
 						jumpOpcode = OperationCode.JMPN.name();
 					}
 
-					// 左オペランドの場合: スキップ用のジャンプ系命令を置く
+					// After the evaluation code of the left-operand, put the above jump instruction.
 					if (currentNode == parentNode.getChildNodes()[0]) {
 						codeBuilder.append(
 								this.generateInstruction(jumpOpcode, DataTypeName.BOOL, PLACE_HOLDER, jumpLabel, leftOperandValue)
 						);
 
-					// 右オペランド場合: スキップ地点のラベルを置く
+					// After the evaluation code of the right-operand, put the label to be jumped to.
 					} else {
 						codeBuilder.append(
 								this.generateLabelDirectiveCode(parentNode.getAttribute(AttributeKey.END_LABEL))
@@ -1523,18 +1533,18 @@ public class CodeGenerator {
 
 
 	/**
-	 * 次元や要素数に応じて、最適なレジスタ確保コードを生成します。
+	 * Generate VRIL code for allocating a register.
+	 * 
+	 * The generated code by this method uses ALLOC instruction for allocating a scalar register,
+	 * and uses ALLOCR instruction for allocating an array register.
 	 *
-	 * 本来は、スカラかベクトルかを問わず {@link OperationCode#ALLOCR ALLOCR} 命令でレジスタ確保を行う事が可能ですが、
-	 * 確保対象がスカラである場合には、{@link OperationCode#ALLOCR ALLOCR} 命令の要素数参照オペランドは冗長になります。
-	 * そのためこのメソッドでは、確保対象がスカラの場合には、
-	 * 最も単純な1オペランドの {@link OperationCode#ALLOC ALLOC} 命令を使用します。
-	 *
-	 * @param dataType 確保するレジスタのデータ型名
-	 * @param target 確保対象のレジスタ
-	 * @param lengthsDeterminer レジスタがベクトルの場合の要素数参照オペランド（スカラの場合には使用されません）
-	 * @param rank レジスタの次元数
-	 * @return レジスタを確保するコード
+	 * @param dataType The data type of the register to be allocated.
+	 * @param target The name of the register to be allocated.
+	 * @param lengthsDeterminer
+	            The register/variable/value having the same array-rank and lengths as the register to be allocated.
+	            When this method is used for allocating a scalar register, this arguments will not be used.
+	 * @param rank The array-rank of the register to be allocated (specify 0 for allocating a scalar register).
+	 * @return The generated code.
 	 */
 	private String generateRegisterAllocationCode(String dataType, String target, String lengthsDeterminer, int rank) {
 		if (rank == RANK_OF_SCALAR) {
@@ -1546,22 +1556,16 @@ public class CodeGenerator {
 
 
 	/**
-	 * 算術二項演算子の演算を実行するコードを生成して返します。
+	 * Generates code of an arithmetic binary operation.
 	 *
-	 * 具体的な演算子としては、中置記法の可算、減算、乗算、除算、剰余算が該当します。
-	 *
-	 * @param operatorNode 算術二項演算子のASTノード
-	 * （{@link AstNode.Type#OPERATOR OPERATOR}タイプ、
-	 *   {@link AttributeKey#OPERATOR_EXECUTOR OPERATOR_EXECUTOR}属性値が{@link AttributeValue#ARITHMETIC ARITHMETIC}、
-	 *   {@link AttributeKey#OPERATOR_SYNTAX OPERATOR_SYNTAX}属性値が{@link AttributeValue#BINARY BINARY}）
-	 * @return 生成コード
+	 * @param operatorNode The AST node of the arithmetic binary operator.
+	 * @return The generated code.
 	 */
 	private String generateArithmeticBinaryOperatorCode(AstNode operatorNode) {
 		String operatorSymbol = operatorNode.getAttribute(AttributeKey.OPERATOR_SYMBOL);
 
 		String opcode = null;
 
-		// switch は使えない。リファクタでHashMap にすべき？
 		if (operatorSymbol.equals(ScriptWord.PLUS_OR_ADDITION)) {
 			opcode = OperationCode.ADD.name();
 
@@ -1586,32 +1590,45 @@ public class CodeGenerator {
 
 
 	/**
-	 * 算術前置演算子の演算を実行するコードを生成して返します。
+	 * Generates code of an arithmetic prefix operation.
 	 *
-	 * 具体的な演算子としては、単項プラスと単項マイナスが該当します。
-	 * ただし、単項マイナスのコード生成には、内部で
-	 * {@link CodeGenerator#generateNegateOperatorCode generateNegateOperatorCode}
-	 * メソッドがそのまま使用されます。
-	 *
-	 * @param operatorNode 算術前置演算子のASTノード
-	 * （{@link AstNode.Type#OPERATOR OPERATOR}タイプ、
-	 *   {@link AttributeKey#OPERATOR_EXECUTOR OPERATOR_EXECUTOR}属性値が{@link AttributeValue#ARITHMETIC ARITHMETIC}、
-	 *   {@link AttributeKey#OPERATOR_SYNTAX OPERATOR_SYNTAX}属性値が{@link AttributeValue#POSTFIX PREFIX}）
-	 * @return 生成コード
+	 * @param operatorNode The AST node of the arithmetic prefix operator.
+	 * @return The generated code.
 	 */
 	private String generateArithmeticPrefixOperatorCode(AstNode operatorNode) {
 
 		String operatorSymbol = operatorNode.getAttribute(AttributeKey.OPERATOR_SYMBOL);
 
-		// 単項プラスは対象変数をそのまま結果とする
+		// Unary plus operator
 		if (operatorSymbol.equals(ScriptWord.PLUS_OR_ADDITION)) {
 			return operatorNode.getAttribute(AttributeKey.ASSEMBLY_VALUE);
 
-		// 単項マイナスは別メソッド
+		// Unary minus operator
 		} else if (operatorSymbol.equals(ScriptWord.MINUS_OR_SUBTRACTION)) {
-			return this.generateNegateOperatorCode(operatorNode);
 
-		// それ以外は前置インクリメントまたはデクリメント
+			StringBuilder codeBuilder = new StringBuilder();
+
+			AstNode operandNode = operatorNode.getChildNodes()[0];
+			String operandValue = operandNode.getAttribute(AttributeKey.ASSEMBLY_VALUE);
+			String accumulatorRegister = operatorNode.getAttribute(AttributeKey.ASSEMBLY_VALUE);
+
+			// If necessary, allocate memory for the register in which the operation result will be stored.
+			if (operatorNode.hasAttribute(AttributeKey.NEW_REGISTER)) {
+				codeBuilder.append(
+					this.generateRegisterAllocationCode(
+						operatorNode.getDataTypeName(), operatorNode.getAttribute(AttributeKey.NEW_REGISTER),
+						operandValue, operatorNode.getRank()
+					)
+				);
+			}
+
+			// Generate code of the operation.
+			codeBuilder.append(
+				this.generateInstruction(OperationCode.NEG.name(), operandNode.getDataTypeName(), accumulatorRegister, operandValue)
+			);
+
+			return codeBuilder.toString();
+
 		} else {
 			throw new VnanoFatalException("Unexpected arithmetic prefix operator detected.");
 		}
@@ -1619,63 +1636,15 @@ public class CodeGenerator {
 
 
 	/**
-	 * 単項マイナス演算子の演算を実行するコードを生成して返します。
+	 * Generates code of a logical binary operation.
 	 *
-	 * このメソッドは、
-	 * {@link CodeGenerator#generateArithmeticPrefixOperatorCode generateArithmeticPrefixOperatorCode}
-	 * メソッド内において使用されます。
-	 *
-	 * @param operatorNode 単項マイナス演算子のASTノード
-	 * @return 生成コード
-	 */
-	private String generateNegateOperatorCode(AstNode operatorNode) {
-		StringBuilder codeBuilder = new StringBuilder();
-
-		// 符号操作の対象
-		AstNode operandNode = operatorNode.getChildNodes()[0];
-		String operandValue = operandNode.getAttribute(AttributeKey.ASSEMBLY_VALUE);
-
-		// 演算結果を格納するレジスタ
-		String accumulatorRegister = operatorNode.getAttribute(AttributeKey.ASSEMBLY_VALUE);
-
-		// 演算結果を格納するレジスタが、この演算子のために専用予約されたものである場合、確保処理が必要
-		if (operatorNode.hasAttribute(AttributeKey.NEW_REGISTER)) {
-			codeBuilder.append(
-				this.generateRegisterAllocationCode(
-					operatorNode.getDataTypeName(), operatorNode.getAttribute(AttributeKey.NEW_REGISTER),
-					operandValue, operatorNode.getRank()
-				)
-			);
-		}
-
-		// 演算
-		codeBuilder.append(
-			this.generateInstruction(OperationCode.NEG.name(), operandNode.getDataTypeName(), accumulatorRegister, operandValue)
-		);
-
-		return codeBuilder.toString();
-	}
-
-
-
-
-	/**
-	 * 論理二項演算子の演算を実行するコードを生成して返します。
-	 *
-	 * 具体的な演算子としては、論理積（&amp;&amp;）および論理和（||）が該当します。
-	 *
-	 * @param operatorNode 論理二項演算子のASTノード
-	 * （{@link AstNode.Type#OPERATOR OPERATOR}タイプ、
-	 *   {@link AttributeKey#OPERATOR_EXECUTOR OPERATOR_EXECUTOR}属性値が{@link AttributeValue#LOGICAL LOGICAL}、
-	 *   {@link AttributeKey#OPERATOR_SYNTAX OPERATOR_SYNTAX}属性値が{@link AttributeValue#BINARY BINARY}）
-	 * @return 生成コード
+	 * @param operatorNode The AST node of the logical binray operator.
+	 * @return The generated code.
 	 */
 	private String generateLogicalBinaryOperatorCode(AstNode operatorNode) {
 		String operatorSymbol = operatorNode.getAttribute(AttributeKey.OPERATOR_SYMBOL);
 
 		String opcode = null;
-
-		// switch は使えない。リファクタでHashMap にすべき？
 		if (operatorSymbol.equals(ScriptWord.SHORT_CIRCUIT_AND)) {
 			opcode = OperationCode.ANDM.name();
 		} else if (operatorSymbol.equals(ScriptWord.SHORT_CIRCUIT_OR)) {
@@ -1689,26 +1658,24 @@ public class CodeGenerator {
 
 
 	/**
-	 * 論理前置演算子の演算を実行するコードを生成して返します。
+	 * Generates code of a logical prefix operation.
 	 *
-	 * 具体的な演算子としては、論理否定（!）のみが該当します。
-	 *
-	 * @param operatorNode 論理前置演算子のASTノード
-	 * （{@link AstNode.Type#OPERATOR OPERATOR}タイプ、
-	 *   {@link AttributeKey#OPERATOR_EXECUTOR OPERATOR_EXECUTOR}属性値が{@link AttributeValue#LOGICAL LOGICAL}、
-	 *   {@link AttributeKey#OPERATOR_SYNTAX OPERATOR_SYNTAX}属性値が{@link AttributeValue#PREFIX PREFIX}）
-	 * @return 生成コード
+	 * @param operatorNode The AST node of the logical prefix operator.
+	 * @return The generated code.
 	 */
 	private String generateLogicalPrefixOperatorCode(AstNode operatorNode) {
+		String operatorSymbol = operatorNode.getAttribute(AttributeKey.OPERATOR_SYMBOL);
+		if (!operatorSymbol.equals(ScriptWord.NOT)) {
+			throw new VnanoFatalException("Invalid operator symbol for logical prefix operators: " + operatorSymbol);
+		}
+
 		StringBuilder codeBuilder = new StringBuilder();
 
 		AstNode operandNode = operatorNode.getChildNodes()[0];
 		String operandValue = operandNode.getAttribute(AttributeKey.ASSEMBLY_VALUE);
-
-		// 演算結果を格納するレジスタ
 		String accumulatorRegister = operatorNode.getAttribute(AttributeKey.ASSEMBLY_VALUE);
 
-		// 演算結果を格納するレジスタが、この演算子のために専用予約されたものである場合、確保処理が必要
+		// If necessary, allocate memory for the register in which the operation result will be stored.
 		if (operatorNode.hasAttribute(AttributeKey.NEW_REGISTER)) {
 			codeBuilder.append(
 				this.generateRegisterAllocationCode(
@@ -1717,7 +1684,7 @@ public class CodeGenerator {
 			);
 		}
 
-		// 演算
+		// Generate code of the operation.
 		codeBuilder.append(
 			this.generateInstruction(OperationCode.NOT.name(), DataTypeName.BOOL, accumulatorRegister, operandValue)
 		);
@@ -1727,23 +1694,15 @@ public class CodeGenerator {
 
 
 	/**
-	 * 比較二項演算子の演算を実行するコードを生成して返します。
+	 * Generates code of a comparison binary operation.
 	 *
-	 * 具体的な演算子としては、等号（==）、不等号（!=）、
-	 * 大なり（&gt;）、小なり（&lt;）、以上（&gt;=）、以下（&lt;=）が該当します。。
-	 *
-	 * @param operatorNode 比較二項演算子のASTノード
-	 * （{@link AstNode.Type#OPERATOR OPERATOR}タイプ、
-	 *   {@link AttributeKey#OPERATOR_EXECUTOR OPERATOR_EXECUTOR}属性値が{@link AttributeValue#COMPARISON COMPARISON}、
-	 *   {@link AttributeKey#OPERATOR_SYNTAX OPERATOR_SYNTAX}属性値が{@link AttributeValue#BINARY BINARY}）
-	 * @return 生成コード
+	 * @param operatorNode The AST node of the comparison binary operator.
+	 * @return The generated code.
 	 */
 	private String generateComparisonBinaryOperatorCode(AstNode operatorNode) {
 		String operatorSymbol = operatorNode.getAttribute(AttributeKey.OPERATOR_SYMBOL);
 
 		String opcode = null;
-
-		// switch は使えない。リファクタでHashMap にすべき？
 		if(operatorSymbol.equals(ScriptWord.EQUAL)) {
 			opcode = OperationCode.EQ.name();
 
@@ -1766,18 +1725,16 @@ public class CodeGenerator {
 			throw new VnanoFatalException("Invalid operator symbol for comparison binary operators: " + operatorSymbol);
 		}
 
+		// Generate code of the operation.
 		return this.generateBinaryOperatorCode(operatorNode, opcode, false, operatorNode.getChildNodes());
 	}
 
 
 	/**
-	 * 代入演算子の演算を実行するコードを生成して返します。
+	 * Generates code of an assignment operation.
 	 *
-	 * @param operatorNode 代入演算子のASTノード
-	 * （{@link AstNode.Type#OPERATOR OPERATOR}タイプ、
-	 *   {@link AttributeKey#OPERATOR_EXECUTOR OPERATOR_EXECUTOR}属性値が{@link AttributeValue#ASSIGNMENT assignment}、
-	 *   {@link AttributeKey#OPERATOR_SYNTAX OPERATOR_SYNTAX}属性値が{@link AttributeValue#BINARY BINARY}）
-	 * @return 生成コード
+	 * @param operatorNode The AST node of the assignment operator.
+	 * @return The generated code.
 	 */
 	private String generateAssignmentOperatorCode(AstNode operatorNode) {
 		StringBuilder codeBuilder = new StringBuilder();
@@ -1790,19 +1747,19 @@ public class CodeGenerator {
 			operandValues[operandIndex] = operandNodes[operandIndex].getAttribute(AttributeKey.ASSEMBLY_VALUE);
 		}
 
-		// 型が違う場合はキャストが必要
+		// If data-types of left and right operands are different, it requires a cast operation before copying the value.
 		String rightHandValue = operandValues[1];
-		String toType = operandNodes[0].getDataTypeName();  // キャスト先のデータ型名
-		String fromType = operandNodes[1].getDataTypeName(); // キャスト元のデータ型名
+		String toType = operandNodes[0].getDataTypeName();
+		String fromType = operandNodes[1].getDataTypeName();
 		if (!toType.equals(fromType)) {
 
-			// キャスト先レジスタを確保
+			// Allocate memory for a register in which the casted value will be stored.
 			String castedRegister = this.generateRegisterOperandCode();
 			codeBuilder.append(
 				this.generateRegisterAllocationCode(toType, castedRegister, operandValues[1], operatorNode.getRank())
 			);
 
-			// レジスタに右辺値をキャスト
+			// Cast the value of the right operand, and store it in the register.
 			String typeSpecification = toType + AssemblyWord.VALUE_SEPARATOR + fromType;
 			codeBuilder.append(
 				this.generateInstruction(
@@ -1810,20 +1767,18 @@ public class CodeGenerator {
 				)
 			);
 
-			// 代入値は、キャスト済み値を格納するレジスタで置き換える
 			rightHandValue = castedRegister;
 		}
 
-		// 以下、演算内容の生成
-		// (左右オペランドが配列かスカラかによって異なるため、それぞれの場合に関して分岐する)
+		// Followings are code generations of the assignment operation.
 
-		// 「スカラ = スカラ」の場合: 単純にMOV命令で値をコピーするコードを生成
+		// Scalar to scalar: simply copy the value by a MOV instruction.
 		if (operandNodes[0].getRank()==RANK_OF_SCALAR && operandNodes[1].getRank()==RANK_OF_SCALAR) {
 			codeBuilder.append(
 				this.generateInstruction(OperationCode.MOV.name(), toType, operandValues[0], rightHandValue)
 			);
 
-		// 「配列 = 配列」の場合:  ALLOCR命令を用いて、右辺と同じ要素数で左辺のデータ領域を再確保し、その後MOVでコピー
+		// Array to array: allocate memory by an ALLOCR instruction, and copy values of all elements by a MOV instruction.
 		} else if (operandNodes[0].getRank()!=RANK_OF_SCALAR && operandNodes[1].getRank()!=RANK_OF_SCALAR) {
 			codeBuilder.append(
 				this.generateInstruction(OperationCode.ALLOCR.name(), toType, operandValues[0], rightHandValue)
@@ -1832,13 +1787,13 @@ public class CodeGenerator {
 				this.generateInstruction(OperationCode.MOV.name(), toType, operandValues[0], rightHandValue)
 			);
 
-		// 「配列 = スカラ」の場合: 左辺の全要素に、同じ値（右辺のスカラ値）を代入する演算となるため、FILL命令を生成
+		// Scalar to array: fill values of all elements of the array by the scalar value, by a FILL instruction.
 		} else if (operandNodes[0].getRank()!=RANK_OF_SCALAR && operandNodes[1].getRank()==RANK_OF_SCALAR) {
 			codeBuilder.append(
 				this.generateInstruction(OperationCode.FILL.name(), toType, operandValues[0], rightHandValue)
 			);
 
-		// 「スカラ = 配列」の場合: 右辺の配列要素数が 1 なら代入可能なため、単純にMOV命令を生成し、実行時に検査する
+		// Array to scalar: copy an element of the array to the scalar by MOV instruction, where the size of the array must be 1 (dynamically checked).
 		} else {
 			codeBuilder.append(
 				this.generateInstruction(OperationCode.MOV.name(), toType, operandValues[0], rightHandValue)
@@ -1850,30 +1805,19 @@ public class CodeGenerator {
 
 
 	/**
-	 * 算術複合代入演算子の演算を実行するコードを生成して返します。
+	 * Generates code of an arithmetic-assignment compound operation.
 	 *
-	 * 具体的な演算子としては、可算代入（+=）、減算代入（-=）、
-	 * 乗算代入（*=）、除算代入（/=）、剰余算代入（%=）が該当します。
-	 *
-	 * @param operatorNode 代入演算子のASTノード
-	 * （{@link AstNode.Type#OPERATOR OPERATOR}タイプ、
-	 *   {@link AttributeKey#OPERATOR_EXECUTOR OPERATOR_EXECUTOR}属性値が{@link AttributeValue#ARITHMETIC_COMPOUND_ASSIGNMENT ARITHMETIC_COMPOUND_ASSIGNMENT}、
-	 *   {@link AttributeKey#OPERATOR_SYNTAX OPERATOR_SYNTAX}属性値が{@link AttributeValue#BINARY BINARY}）
-	 * @return 生成コード
+	 * @param operatorNode The AST node of the arithmetic-assignment compound operator.
+	 * @return The generated code.
 	 */
 	private String generateArithmeticCompoundAssignmentBinaryOperatorCode(AstNode operatorNode) {
 
-		// 複合代入演算は、右辺と左辺で配列要素数が揃っている事を前提とする。
-		// 自動で配列要素数の同期などを行うようにしても、拡張された部分には単純に 0 などの初期値が詰まっているし、
-		// それに対して、元から意味ある値が詰まっている要素と一緒に算術演算などを行えても嬉しい場面はないし、
-		// むしろエラーとして弾いてくれた方が嬉しいと思うので。配列要素数の同期は、純粋な代入演算子のみとする。
+		// Note: For arithmetic-assignment compound operation, 
+		//       array-ranks and lengths of left and right operands must be the same.
 
 		String operatorSymbol = operatorNode.getAttribute(AttributeKey.OPERATOR_SYMBOL);
 
-		// 対応する算術演算のオペコードを用意
 		String arithmeticOpcode = null;
-
-		// switch は使えない。リファクタでHashMap にすべき？
 		if(operatorSymbol.equals(ScriptWord.ADDITION_ASSIGNMENT)) {
 			arithmeticOpcode = OperationCode.ADD.name();
 
@@ -1896,41 +1840,19 @@ public class CodeGenerator {
 		AstNode[] childNodes = operatorNode.getChildNodes();
 		AstNode[] arithmeticOperandNodes = { childNodes[0], childNodes[1] };
 
-		String executionType = operatorNode.getAttribute(AttributeKey.OPERATOR_EXECUTION_DATA_TYPE); // 算術演算の型
-		String resultType = operatorNode.getAttribute(AttributeKey.DATA_TYPE); // 演算子の値の型 = 代入先の変数の型
+		String executionType = operatorNode.getAttribute(AttributeKey.OPERATOR_EXECUTION_DATA_TYPE);
+		String resultType = operatorNode.getAttribute(AttributeKey.DATA_TYPE);
 		boolean castBeforeStoringNecessary = !executionType.equals(resultType);
 
 		return this.generateBinaryOperatorCode(operatorNode, arithmeticOpcode, castBeforeStoringNecessary, arithmeticOperandNodes);
-
-		// (古いコメント)：型が違う場合のオペランドのキャストをどういうルールにするかは、どこかのタイミングで再検討すべきかも。
-		// 現状では int += float; の加算は、両オペランドを代入先の型である int に揃えてから行うようにしている。
-		// しかし単純な算術二項演算子の加算のコンパイル結果では、両オペランドを float に揃えてから行うので、
-		// 算術複合代入演算子でも、算術二項演算子と同じようにキャストして演算してから、代入先の型に再キャストして代入すべき？
-		// 仮に int += string; とかの場合は、結合文字列を整数に再変換するのか、それとも右辺を整数に変換してから加算するのかで結果が違う。
-		// それとも、型が異なる複合代入演算は解釈が紛らわしいのでコンパイラで弾くべき？
-
-		// -> (後記コメント)：数値型同士でも int *= float; 等で明らかに違いが出てくるが、算術演算との整合性を考慮すると、
-		//    演算自体は両オペランドの型に基づいて算術演算子と同様の型で行うのが妥当、というかそうじゃないとまずいと思う。
-		//    なので、演算実行時の型を算術二項演算子と同じに変更した上で、その演算結果を左辺型にキャストして代入するようにした。
-
-		//    ただそうすると、int += string 等が文字列結合後の int キャスト代入になるのは、
-		//    書き手の意図からすると恐らく混乱の元になりそうなので、string と別の型との += 演算はサポートから外して弾くべきかもしれない。
-		//    そもそもそんな演算はできても嬉しくない気がするし、読み手の事を考えても最初から書けない方が良い気がする。
-		//    後々で要検討。
 	}
 
 
-
 	/**
-	 * 算術後置演算子の演算を実行するコードを生成して返します。
+	* Generates code of an arithmetic-assignment postfix operation (prefix increment and decrement).
 	 *
-	 * 具体的な演算子としては、後置インクメントと後置デクリメントが該当します。
-	 *
-	 * @param operatorNode 算術後置演算子のASTノード
-	 * （{@link AstNode.Type#OPERATOR OPERATOR}タイプ、
-	 *   {@link AttributeKey#OPERATOR_EXECUTOR OPERATOR_EXECUTOR}属性値が{@link AttributeValue#ARITHMETIC ARITHMETIC}、
-	 *   {@link AttributeKey#OPERATOR_SYNTAX OPERATOR_SYNTAX}属性値が{@link AttributeValue#POSTFIX POSTFIX}）
-	 * @return 生成コード
+	 * @param operatorNode The AST node of the arithmetic postfix operator.
+	 * @return The generated code.
 	 */
 	private String generateArithmeticCompoundPostfixOperatorCode(AstNode operatorNode) {
 		StringBuilder codeBuilder = new StringBuilder();
@@ -1947,11 +1869,11 @@ public class CodeGenerator {
 			throw new VnanoFatalException("Invalid operator symbol for arithmetic compound prefix operators: " + operatorSymbol);
 		}
 
-		// インクリメント/デクリメントの対象変数
+		// The variable to be incremented/decremented.
 		AstNode variableNode = operatorNode.getChildNodes()[0];
 		String variableValue = variableNode.getAttribute(AttributeKey.ASSEMBLY_VALUE);
 
-		// 式内での評価値として、演算前の値を控える
+		// Store the value of the variable before incremented/decremented, in a register.
 		String storageRegister = operatorNode.getAttribute(AttributeKey.ASSEMBLY_VALUE);
 		codeBuilder.append(
 			this.generateRegisterAllocationCode(executionDataType, storageRegister, variableValue, operatorNode.getRank())
@@ -1960,7 +1882,7 @@ public class CodeGenerator {
 			this.generateInstruction(OperationCode.MOV.name(), executionDataType, storageRegister, variableValue)
 		);
 
-		// インクリメント/デクリメントの変化幅を即値として保持するノードを用意
+		// Create an AST node representing the amount (step) of the increment/decrement as an immediate value.
 		AstNode stepNode = new AstNode(AstNode.Type.LEAF, variableNode.getLineNumber(), variableNode.getFileName());
 		stepNode.setAttribute(AttributeKey.DATA_TYPE, executionDataType);
 		stepNode.setAttribute(AttributeKey.RANK, Integer.toString(RANK_OF_SCALAR));
@@ -1972,12 +1894,13 @@ public class CodeGenerator {
 			stepNode.setAttribute(AttributeKey.ASSEMBLY_VALUE, immediateValue);
 		}
 
-		// インクリメントの加減算のコード生成に渡すために、生成命令の dest に使われる情報を差し替えたノードを用意
+		// Create a copy of the operator node, and modify its "dest" information, 
+		// for generating code by using methods generating arithmetic binary operations.
 		AstNode destModifiedNode = operatorNode.clone();
 		destModifiedNode.setAttribute(AttributeKey.ASSEMBLY_VALUE, variableValue);
 		destModifiedNode.removeAttribute(AttributeKey.NEW_REGISTER);
 
-		// 加減算のコードを生成
+		// Generate code of the increment/decrement operation (by using methods generating binary addition/subtraction operations).
 		String binaryOperationCode = this.generateBinaryOperatorCode(destModifiedNode, opcode, false, variableNode, stepNode);
 		codeBuilder.append(binaryOperationCode);
 
@@ -1986,18 +1909,10 @@ public class CodeGenerator {
 
 
 	/**
-	 * 算術前置演算子の演算を実行するコードを生成して返します。
+	 * Generates code of an arithmetic-assignment prefix operation (postfix increment and decrement).
 	 *
-	 * 具体的な演算子としては、前置インクメント、前置デクリメント、単項プラス、単項マイナスが該当します。
-	 * ただし、単項マイナスのコード生成には、内部で
-	 * {@link CodeGenerator#generateNegateOperatorCode generateNegateOperatorCode}
-	 * メソッドがそのまま使用されます。
-	 *
-	 * @param operatorNode 算術前置演算子のASTノード
-	 * （{@link AstNode.Type#OPERATOR OPERATOR}タイプ、
-	 *   {@link AttributeKey#OPERATOR_EXECUTOR OPERATOR_EXECUTOR}属性値が{@link AttributeValue#ARITHMETIC ARITHMETIC}、
-	 *   {@link AttributeKey#OPERATOR_SYNTAX OPERATOR_SYNTAX}属性値が{@link AttributeValue#POSTFIX PREFIX}）
-	 * @return 生成コード
+	 * @param operatorNode The AST node of the arithmetic prefix operator.
+	 * @return The generated code.
 	 */
 	private String generateArithmeticCompoundPrefixOperatorCode(AstNode operatorNode) {
 
@@ -2012,11 +1927,11 @@ public class CodeGenerator {
 			throw new VnanoFatalException("Invalid operator symbol for arithmetic compound prefix operators: " + operatorSymbol);
 		}
 
+		// The variable to be incremented/decremented.
 		AstNode variableNode = operatorNode.getChildNodes()[0];
 
-		// インクリメント/デクリメントの変化幅
+		// Create an AST node representing the amount (step) of the increment/decrement as an immediate value.
 		AstNode stepNode = new AstNode(AstNode.Type.LEAF, variableNode.getLineNumber(), variableNode.getFileName());
-
 		String executionDataType = operatorNode.getAttribute(AttributeKey.OPERATOR_EXECUTION_DATA_TYPE);
 		stepNode.setAttribute(AttributeKey.DATA_TYPE, executionDataType);
 		stepNode.setAttribute(AttributeKey.RANK, Integer.toString(RANK_OF_SCALAR));
@@ -2028,32 +1943,20 @@ public class CodeGenerator {
 			stepNode.setAttribute(AttributeKey.ASSEMBLY_VALUE, immediateValue);
 		}
 
-		// 二項演算のADDやSUBで演算実行
+		// Generate code of the increment/decrement operation (by using methods generating binary addition/subtraction operations).
 		return this.generateBinaryOperatorCode(operatorNode, opcode, false, variableNode, stepNode);
 	}
 
 
 	/**
-	 * 二項演算子の演算を実行するコードを生成して返します。
+	 * Generates code of a binary operation.
 	 *
-	 * このメソッドは、算術二項演算子のコード生成を行う
-	 * {@link CodeGenerator#generateArithmeticBinaryOperatorCode generateArithmeticBinaryOperatorCode}
-	 * メソッドなど、より細かい演算子の種類に応じたメソッドの内部で使用されます。
-	 *
-	 * @param operatorNode 二項演算子のASTノード
-	 * （{@link AstNode.Type#OPERATOR OPERATOR}タイプ、
-	 *   {@link AttributeKey#OPERATOR_SYNTAX OPERATOR_SYNTAX}属性値が{@link AttributeValue#BINARY BINARY}）
-	 * @param operationCode 中間アセンブリコードにおけるオペレーションコード
-	 * @param castBeforeStoring 演算結果を格納前に一旦控えてキャストする必要がある場合に true を指定します（異なる型の間の複合代入演算子など）。
-	 * @param inputNodes オペランドとなるASTノード
-	 * @return 生成コード
+	 * @param operatorNode The AST node of the binray operator.
+	 * @param castBeforeStoring Specify "true" if the data-type of the output (dest) operand with the data-type of the operation.
+	 * @param inputNodes AST nodes of input values (operands) of the operation.
+	 * @return The generated code.
 	 */
 	private String generateBinaryOperatorCode(AstNode operatorNode, String operationCode, boolean castBeforeStoring, AstNode ...inputNodes) {
-
-
-		// ここは暫定的にベタ書きなため、後で色々と切り出して要リファクタリング
-
-
 
 		StringBuilder codeBuilder = new StringBuilder();
 
@@ -2063,17 +1966,17 @@ public class CodeGenerator {
 		int rank = operatorNode.getRank();
 		int inputLength = inputNodes.length;
 
+		// Extract information of the input (operand) registers or variables of the operation from the AST.
 		String[] input = new String[inputLength];
 		for (int inputIndex=0; inputIndex<inputLength; inputIndex++) {
 			input[inputIndex] = inputNodes[inputIndex].getAttribute(AttributeKey.ASSEMBLY_VALUE);
 		}
 
-
-		// 演算結果の出力先となる命令オペランドをASTノードから取得
+		// Extract information of the output (dest) register or variable of the operation from the AST.
 		String output = operatorNode.getAttribute(AttributeKey.ASSEMBLY_VALUE);
 
-
-		// ベクトルとスカラの混合演算かどうかを調べる（スカラの配列への昇格が必要になる）
+		// Check whether there are both arrays(vectors) and scalars in operands.
+		// (If true, it requires to convert a scalar to an array to perform the operation.)
 		boolean vectorScalarMixed = false;
 		if (rank != RANK_OF_SCALAR) {
 			for (AstNode inputNode: inputNodes) {
@@ -2084,8 +1987,7 @@ public class CodeGenerator {
 			}
 		}
 
-
-		// 型変換が必要かどうかを調べる
+		// Check whether type-conversions (implicit cast) are necessary.
 		boolean castNecessary = false;
 		for (int inputIndex=0; inputIndex<inputLength; inputIndex++) {
 			if (!inputNodes[inputIndex].getDataTypeName().equals(executionDataType)) {
@@ -2094,9 +1996,8 @@ public class CodeGenerator {
 			}
 		}
 
-
-		// 入力オペランドの内、演算のデータ要素数の基準となるオペランドを探す
-		//（ベクトルオペランドがあればそれを採用、無ければ単に最初のオペランドを採用）
+		// Search the "length-determiner" operand, which determines the array-rank and lengths of operands of code to be generated.
+		// (It is the first array operand, or simply the first operand if there are no array operands.)
 		String lengthsDeterminer = input[0];
 		for (int inputIndex=0; inputIndex<inputLength; inputIndex++) {
 			if (inputNodes[inputIndex].getRank() != RANK_OF_SCALAR) {
@@ -2105,8 +2006,7 @@ public class CodeGenerator {
 			}
 		}
 
-
-		// 入力値の型が演算実行データ型と異なる場合は、型変換を行う
+		// If data-types of some operands are different with the data-type of operation, cast them (so-called "implicit cast").
 		if (castNecessary) {
 
 			for (int inputIndex=0; inputIndex<inputLength; inputIndex++) {
@@ -2114,7 +2014,7 @@ public class CodeGenerator {
 
 				if (!operandDataType.equals(executionDataType)) {
 
-					// レジスタを確保してそこにキャスト
+					// Allocate a new register, for storing the casted value in it.
 					String castTarget = input[inputIndex];
 					int castTargetRank = inputNodes[inputIndex].getRank();
 					String castedRegister = this.generateRegisterOperandCode();
@@ -2122,7 +2022,7 @@ public class CodeGenerator {
 						this.generateRegisterAllocationCode(executionDataType, castedRegister, castTarget, castTargetRank)
 					);
 
-					// CAST命令で型変換を実行
+					// Generate a CAST instruction to cast the operand value.
 					String typeSpecification = executionDataType + AssemblyWord.VALUE_SEPARATOR + operandDataType;
 					codeBuilder.append(
 						this.generateInstruction(OperationCode.CAST.name(), typeSpecification, castedRegister, castTarget
@@ -2133,21 +2033,18 @@ public class CodeGenerator {
 			}
 		}
 
-
-		// ベクトルとスカラの混合演算において必要な処理
+		// If necessary, convert values of scalar operands to arrays.
 		if (vectorScalarMixed) {
 			for (int inputIndex=0; inputIndex<inputLength; inputIndex++) {
-
-				// ベクトル演算の入力値にスカラを含む場合は、ALLOCとFILLで配列に昇格させる
 				if (inputNodes[inputIndex].getRank() == RANK_OF_SCALAR) {
 
-					// ベクトルレジスタを確保
+					// Allocate an scalar(vector) register.
 					String filledRegister = this.generateRegisterOperandCode();
 					codeBuilder.append(
 						this.generateRegisterAllocationCode(executionDataType, filledRegister, lengthsDeterminer, rank)
 					);
 
-					// FILL命令でベクトルレジスタの中身にスカラ値を詰める
+					// Fill all elements of the above register by the value of the scalar operand.
 					codeBuilder.append(
 						this.generateInstruction(OperationCode.FILL.name(), executionDataType, filledRegister, input[inputIndex])
 					);
@@ -2158,7 +2055,7 @@ public class CodeGenerator {
 		}
 
 
-		// 演算結果の格納先が、この演算子のために専用予約されたレジスタの場合は、そのレジスタの確保処理が必要
+		// If necessary, allocate memory for the output (dest) register of the operation.
 		if (operatorNode.hasAttribute(AttributeKey.NEW_REGISTER)) {
 			codeBuilder.append(
 				this.generateRegisterAllocationCode(
@@ -2167,28 +2064,28 @@ public class CodeGenerator {
 			);
 		}
 
-		// 演算結果を、出力先に格納する前に控えてからキャスト代入する必要がある場合
+		// Generate code of the operation.
+		// If necessary, cast the result of the operation.
 		if (castBeforeStoring) {
 
-			// 一時控え用レジスタを確保
+			// Allocate a temporary register to store the result of the operation.
 			String storeRegister = this.generateRegisterOperandCode();
 			codeBuilder.append(
 				this.generateRegisterAllocationCode(executionDataType, storeRegister, lengthsDeterminer, rank)
 			);
-			// 演算実行コード生成（算術複合代入演算子の場合は算術演算）
+			// Generate an instruction performing operation, where its dest is the above temporary register.
 			codeBuilder.append(
 				this.generateInstruction(operationCode, executionDataType, storeRegister, input[0], input[1])
 			);
-			// キャスト命令のコードを生成（キャスト結果の格納先が output なので、結果的に output に代入される）
+			// Cast the value of the temporary register to the output variable/register.
 			String castTypeOperand = resultDataType + AssemblyWord.VALUE_SEPARATOR + executionDataType;
 			codeBuilder.append(
 				this.generateInstruction(OperationCode.CAST.name(), castTypeOperand, output, storeRegister)
 			);
 
-		// 演算結果と出力先との間にキャストが不要な場合： 命令がもともと3オペランドで先頭が格納先なので、単純に単一命令を生成
+		// If the cast isn't necessary, 
+		// we can directly specify the output register/variable to the dest of the instruction performing the operation.
 		} else {
-
-			// 演算実行コード生成
 			codeBuilder.append(
 				this.generateInstruction(operationCode, executionDataType, output, input[0], input[1])
 			);
@@ -2199,13 +2096,10 @@ public class CodeGenerator {
 
 
 	/**
-	 * 関数呼び出し演算子の演算を実行するコードを生成して返します。
+	 * Generate code of a function-call operation.
 	 *
-	 * @param operatorNode 関数呼び出し演算子のASTノード
-	 * （{@link AstNode.Type#OPERATOR OPERATOR}タイプ、
-	 *   {@link AttributeKey#OPERATOR_EXECUTOR OPERATOR_EXECUTOR}属性値が{@link AttributeValue#CALL CALLX}、
-	 *   {@link AttributeKey#OPERATOR_SYNTAX OPERATOR_SYNTAX}属性値が{@link AttributeValue#MULTIARY MULTIARY}）
-	 * @return 生成コード
+	 * @param operatorNode The AST node of the function-call operator.
+	 * @return The generated code.
 	 */
 	private String generateCallOperatorCode(AstNode operatorNode) {
 		StringBuilder codeBuilder = new StringBuilder();
@@ -2224,7 +2118,7 @@ public class CodeGenerator {
 			operands[operandIndex] = childNodes[operandIndex-1].getAttribute(AttributeKey.ASSEMBLY_VALUE);
 		}
 
-		// 外部関数: CALLX命令を生成
+		// If the callee is an external function: generate CALLX instruction.
 		if (scope.equals(AttributeValue.GLOBAL)) {
 			if (returnDataTypeName.equals(DataTypeName.VOID)) {
 				operands[0] = PLACE_HOLDER;
@@ -2235,43 +2129,38 @@ public class CodeGenerator {
 				this.generateInstruction(OperationCode.CALLX.name(), operatorNode.getDataTypeName(), operands)
 			);
 
-		// 内部関数: CALL命令と、戻り値を取得して格納するコードを生成
+		// If the callee is an external function: generate CALL instruction, and code receiving the return value.
 		} else if (scope.equals(AttributeValue.LOCAL)) {
 
-			// CALL命令は戻り値をスタックに積むので、第0オペランドには何も書き込まないため、プレースホルダを置く。
+			// As the result of a CALL instruction, the return value will be pushed on the stack.
+			// So specify a place-holder "-" to the dest operand of the CALL instruction.
 			operands[0] = Character.toString(AssemblyWord.PLACEHOLDER_OPERAND_PREFIX);
 
-			// CALL命令の対象関数指定オペランド値はラベルなので、ラベルのプレフィックスを付加
+			// The first operand of a CALL instruction is a label, so put a label-prefix to it.
 			operands[1] = AssemblyWord.LABEL_OPERAND_PREFIX + operands[1];
 
-			// CALL命令を生成
+			// Generate a CALL instruction.
 			codeBuilder.append(
 				this.generateInstruction(OperationCode.CALL.name(), operatorNode.getDataTypeName(), operands)
 			);
 
-			// 戻り値の型が void の場合は、スタック上の仮の戻り値（スタック順序維持用のために積まれている）を捨てるコードを生成
+			// If the return value is declared as "void", dispose the dummy return value pushed on the stack.
 			if (returnDataTypeName.equals(DataTypeName.VOID)) {
 				codeBuilder.append(
 					this.generateInstruction(OperationCode.POP.name(), operatorNode.getDataTypeName(), PLACE_HOLDER)
 				);
 
-			// 戻り値の型が void でない場合は、戻り値を受け取るコードを生成
+			// Otherwise, generate code receiving the return value from the stack.
 			} else {
-
-				// 戻り値の格納先のメモリー領域を確保するコードを生成
 				if(operatorNode.getRank() == RANK_OF_SCALAR) {
-					// スカラの場合はサイズが固定なので、普通にALLOC命令で確保する
 					codeBuilder.append(
 						this.generateInstruction(OperationCode.ALLOC.name(), operatorNode.getDataTypeName(), returnRegister)
 					);
 				} else {
-					// 配列の場合は、スタック上のデータがちょうど収まるサイズになるように、ALLOCP命令で確保する
 					codeBuilder.append(
 						this.generateInstruction(OperationCode.ALLOCP.name(), operatorNode.getDataTypeName(), returnRegister)
 					);
 				}
-
-				// MOVPOP命令で、スタック上のデータを戻り値の格納先にコピーするコードを生成
 				codeBuilder.append(
 					this.generateInstruction(OperationCode.MOVPOP.name(), operatorNode.getDataTypeName(), returnRegister)
 				);
@@ -2286,13 +2175,10 @@ public class CodeGenerator {
 
 
 	/**
-	 * 配列要素アクセス演算子の演算を実行するコードを生成して返します。
+	 * Generate code of a subscript (array indexing) operation.
 	 *
-	 * @param operatorNode 関数呼び出し演算子のASTノード
-	 * （{@link AstNode.Type#OPERATOR OPERATOR}タイプ、
-	 *   {@link AttributeKey#OPERATOR_EXECUTOR OPERATOR_EXECUTOR}属性値が{@link AttributeValue#INDEX INDEX}、
-	 *   {@link AttributeKey#OPERATOR_SYNTAX OPERATOR_SYNTAX}属性値が{@link AttributeValue#MULTIARY MULTIARY}）
-	 * @return 生成コード
+	 * @param operatorNode The AST node of the subscript operator.
+	 * @return The generated code.
 	 */
 	private String generateIndexOperatorCode(AstNode operatorNode) {
 		StringBuilder codeBuilder = new StringBuilder();
@@ -2302,22 +2188,22 @@ public class CodeGenerator {
 
 		String targetOperand = inputNodes[0].getAttribute(AttributeKey.ASSEMBLY_VALUE);
 
-		// ELEM命令のインデックス指定部に渡すオペランド
+		// Prepare array-indices operands.
 		String[] indexOperands = new String[rank];
 		for (int dim=0; dim<rank; dim++) {
 			indexOperands[dim] = inputNodes[dim + 1].getAttribute(AttributeKey.ASSEMBLY_VALUE);
 		}
 
-		// 結果を格納するレジスタを用意
+		// Prepare the register in which the element of the array will be stored.
 		String accumulator = operatorNode.getAttribute(AttributeKey.ASSEMBLY_VALUE);
 
-		// 生成する REFELM / MOVELM 命令に渡すオペランドを用意（両命令のオペランド仕様は共通）
+		// Prepare operands of an ELEM instruction to be generated.
 		String[] allOperands = new String[indexOperands.length + 2];
 		allOperands[0] = accumulator;
 		allOperands[1] = targetOperand;
 		System.arraycopy(indexOperands, 0, allOperands, 2, indexOperands.length);
 
-		// このノードがぶら下がっている親ノードが、代入を伴う演算子（代入演算子か、インクリメント含む複合代入演算子）かどうかを確認する
+		// Chech whether the parent node is an assignment (or assignment compound) operator node or not.
 		AstNode parentNode = operatorNode.getParentNode();
 		boolean isParentAssignment = parentNode.getType() == AstNode.Type.OPERATOR && (
 				parentNode.getAttribute(AttributeKey.OPERATOR_EXECUTOR).equals(AttributeValue.ASSIGNMENT)
@@ -2325,39 +2211,31 @@ public class CodeGenerator {
 				parentNode.getAttribute(AttributeKey.OPERATOR_EXECUTOR).equals(AttributeValue.ARITHMETIC_COMPOUND_ASSIGNMENT
 		));
 
-		// 同様に親ノードが、関数呼び出し演算子である場合、参照渡し先で代入される可能性があるので、すぐ後の判定条件に使うために控える
+		// Chech whether the parent node is an function-call operator or not.
 		boolean isParentCall = parentNode.getType() == AstNode.Type.OPERATOR && (
 				parentNode.getAttribute(AttributeKey.OPERATOR_EXECUTOR).equals(AttributeValue.CALL)
 		);
+		// 同様に親ノードが、関数呼び出し演算子である場合、参照渡し先で代入される可能性があるので、すぐ後の判定条件に使うために控える
 
-		// このノードの対象である配列要素が、上記で検査したパターンに当てはまる等、後で値を代入される可能性があるかどうかを確認する
+		// Check whether the result (dest) of this operation may be assigned a value later or not.
 		boolean mayBeModified =
 			(isParentAssignment && operatorNode.getSiblingIndex() == 0) // 代入の左辺かどうか
 			||
 			isParentCall; // 関数の引数かどうか
 
-		// ※ 参照渡しかどうかを判断して上の条件に追加すれば、より狭い範囲に絞り込めるが、複雑になるので今ここではしない
-		//    > ここではそのままにして REFELM を生成しておいて、
-		//      VM側で「 REFELM の dest 値を直後に MOV / MOVPOP していて、前者のdest先アドレスに他でアクセスしていない場合を MOVELM に置き換える 」
-		//      最適化をした方がいいような気がする。
-		//      とりあえずVRILでの基本的な値渡し/参照渡しの仕組みは、関数側でMOVPOPするかREFPOPするかの違いなので、
-		//      呼び出し側で複雑な使い分けをすると、VRILコードの最適化で他の最適化手段の妨げになって結局後で戻す可能性がある。
-		//      なので関数引数の場合の分岐については今の上の条件のままとりあえず保留でいいと思う。REFELMを生成すれば動作機能上は確実なので。
-
-		// 後で値を代入される可能性がある場合、結果レジスタを配列要素と参照リンクする REFELM 命令を発行
+		// If the result (dest) of this operation may be assigned a value later, generate a REFELM instruction, 
+		// which lins the data-reference of the dest operand to the array element.
 		if (mayBeModified) {
-			// REFELM はデータ参照を共有するので、データ領域確保のための ALLOC 命令は不要で、REFELMのみを生成すればいい
 			codeBuilder.append(
 				this.generateInstruction(
 					OperationCode.REFELM.name(), inputNodes[0].getDataTypeName(), allOperands
 				)
 			);
 
-		// そうでなければ、式の右辺などでその時点の配列要素値を読んでいるだけなので、
-		// 結果レジスタに配列要素値を単純コピーする MOVELM 命令を発行
+		// Otherwise, generate a MOVELM instruction, 
+		// which copies the value of the array element to the dest operand.
+		// (MOVELM gives more advantage than REFELM, to the optimization in the VM.)
 		} else {
-			// この場合は、データ格納先の領域を確保する ALLOC 命令が必要で、その後にそこに MOVELM で値をコピーする
-			// (subarray はサポートしていないので、コピーする配列要素値 = 確保する領域は必ずスカラ)
 			codeBuilder.append(
 				this.generateInstruction(OperationCode.ALLOC.name(), operatorNode.getDataTypeName(), accumulator)
 			);
@@ -2372,33 +2250,30 @@ public class CodeGenerator {
 
 
 	/**
-	 * キャスト演算子の演算を実行するコードを生成して返します。
+	 * Generates code of a cast operation.
 	 *
-	 * @param operatorNode キャスト演算子のASTノード
-	 * （{@link AstNode.Type#OPERATOR OPERATOR}タイプ、
-	 *   {@link AttributeKey#OPERATOR_EXECUTOR OPERATOR_EXECUTOR}属性値が{@link AttributeValue#CAST CAST}、
-	 *   {@link AttributeKey#OPERATOR_SYNTAX OPERATOR_SYNTAX}属性値が{@link AttributeValue#POSTFIX PREFIX}）
-	 * @return 生成コード
+	 * @param operatorNode The AST node of the cast operator.
+	 * @return The generated code.
 	 */
 	private String generateCastOperatorCode(AstNode operatorNode) {
 		StringBuilder codeBuilder = new StringBuilder();
 
-		// キャスト対象のASTノードとデータ型を取得
+		// Prepare the value, data-type, and array-rank of data to be casted.
 		AstNode targetNode = operatorNode.getChildNodes()[0];
 		String fromDataType = targetNode.getAttribute(AttributeKey.DATA_TYPE);
 		String fromValue = targetNode.getAttribute(AttributeKey.ASSEMBLY_VALUE);
 		int fromRank = targetNode.getRank();
 
-		// キャスト後のデータ型を取得
+		// Prepare the data-type of the result of the cast operation.
 		String toDataType = operatorNode.getAttribute(AttributeKey.DATA_TYPE);
 
-		// キャスト結果を格納するレジスタを確保
+		// Allocate a register in which the casted value will be stored.
 		String castedRegister = operatorNode.getAttribute(AttributeKey.ASSEMBLY_VALUE);
 		codeBuilder.append(
-			this.generateRegisterAllocationCode(toDataType, castedRegister, fromValue, fromRank) // fromValue は length determiner
+			this.generateRegisterAllocationCode(toDataType, castedRegister, fromValue, fromRank) // fromValue is a "length determiner"
 		);
 
-		// CAST命令で型変換を実行
+		// Generate code of the cast operation.
 		String typeSpecification = toDataType + AssemblyWord.VALUE_SEPARATOR + fromDataType;
 		codeBuilder.append(
 			this.generateInstruction(OperationCode.CAST.name(), typeSpecification, castedRegister, fromValue
@@ -2410,14 +2285,14 @@ public class CodeGenerator {
 
 
 	/**
-	 * 言語の名称およびバージョンなどを記載したディレクティブを一括生成して返します。
+	 * Generates code of dierctives of language information.
 	 *
-	 * @return 言語の識別用情報関連のディレクティブ
+	 * @return The generated code.
 	 */
 	private String generateLanguageInformationDirectives() {
 		StringBuilder codeBuilder = new StringBuilder();
 
-		// 中間言語名ディレクティブ
+		// Intermediate language name (VRIL)
 		codeBuilder.append(AssemblyWord.ASSEMBLY_LANGUAGE_IDENTIFIER_DIRECTIVE);
 		codeBuilder.append(AssemblyWord.WORD_SEPARATOR);
 		codeBuilder.append("\"");
@@ -2426,7 +2301,7 @@ public class CodeGenerator {
 		codeBuilder.append(AssemblyWord.INSTRUCTION_SEPARATOR);
 		codeBuilder.append(AssemblyWord.LINE_SEPARATOR);
 
-		// 中間言語バージョンディレクティブ
+		// Intermediate language version
 		codeBuilder.append(AssemblyWord.ASSEMBLY_LANGUAGE_VERSION_DIRECTIVE);
 		codeBuilder.append(AssemblyWord.WORD_SEPARATOR);
 		codeBuilder.append("\"");
@@ -2435,8 +2310,7 @@ public class CodeGenerator {
 		codeBuilder.append(AssemblyWord.INSTRUCTION_SEPARATOR);
 		codeBuilder.append(AssemblyWord.LINE_SEPARATOR);
 
-
-		// スクリプト言語名ディレクティブ
+		// Scripting language name (Vnano)
 		codeBuilder.append(AssemblyWord.SCRIPT_LANGUAGE_IDENTIFIER_DIRECTIVE);
 		codeBuilder.append(AssemblyWord.WORD_SEPARATOR);
 		codeBuilder.append("\"");
@@ -2445,7 +2319,7 @@ public class CodeGenerator {
 		codeBuilder.append(AssemblyWord.INSTRUCTION_SEPARATOR);
 		codeBuilder.append(AssemblyWord.LINE_SEPARATOR);
 
-		// スクリプト言語バージョンディレクティブ
+		// Scripting language version
 		codeBuilder.append(AssemblyWord.SCRIPT_LANGUAGE_VERSION_DIRECTIVE);
 		codeBuilder.append(AssemblyWord.WORD_SEPARATOR);
 		codeBuilder.append("\"");
@@ -2459,37 +2333,34 @@ public class CodeGenerator {
 
 
 	/**
-	 * AST(抽象構文木)全体の中で、呼び出している関数をリストアップし、
-	 * 関数識別子ディレクティブを一括生成して返します。
-	 * （中間アセンブリコード内では、オペランドに識別子を使用する箇所よりも前に、
-	 * その識別子を種類に応じたディレクティブで宣言しておく必要があります。）
+	 * Generates code of function identifier directives, 
+	 * of all functions called from the AST (of the script).
 	 *
-	 * @param inputAst 対象AST(抽象構文木)のルートノード
-	 * @return AST内で呼び出している全関数の識別子ディレクティブ
+	 * @param inputAst The root node of the AST (of the script).
+	 * @return The generated code
 	 */
 	private String generateFunctionIdentifierDirectives(AstNode inputAst) {
 		StringBuilder codeBuilder = new StringBuilder();
 		AstNode currentNode = inputAst.getPostorderDftFirstNode();
 
-		// 出力済みのものを控える
+		// A Set for storing idenfires of which directives had already been generated.
 		Set<String> generatedSet = new HashSet<String>();
 
-		// ボトムアップで全ノードを辿って処理、移動中の注目ノードは currentNode
+		// Traverse all nodes:
 		while(currentNode != inputAst) {
 
-			// 関数を参照している呼び出し演算子の場合
+			// If the node is a function-call operator:
 			if (currentNode.getType() == AstNode.Type.OPERATOR
 				&& currentNode.getAttribute(AttributeKey.OPERATOR_EXECUTOR).equals(AttributeValue.CALL)) {
 
-				// 呼び出し対象関数のアセンブリコード用識別子を生成
+				// Prepare the identifier of the callee function.
 				String calleeSignature = currentNode.getAttribute(AttributeKey.CALLEE_SIGNATURE);
 				String identifier = AssemblyWord.IDENTIFIER_OPERAND_PREFIX + calleeSignature;
-				//String identifier = IdentifierSyntax.getAssemblyIdentifierOfCalleeFunctionOf(currentNode);
 
-				// 呼び出し対象関数のスコープを取得
+				// Prepare the scope of the callee function.
 				String scope = currentNode.getAttribute(AttributeKey.SCOPE);
 
-				// 既に出力済みでなければ出力
+				// Generate a function identifier directive.
 				if (!generatedSet.contains(identifier)) {
 					generatedSet.add(identifier);
 					if (scope.equals(AttributeValue.GLOBAL)) {
@@ -2513,25 +2384,23 @@ public class CodeGenerator {
 
 
 	/**
-	 * AST(抽象構文木)全体の中で、アクセスしているグローバル変数をリストアップし、
-	 * グローバル変数識別子ディレクティブを一括生成して返します。
-	 * （中間アセンブリコード内では、オペランドに識別子を使用する箇所よりも前に、
-	 * その識別子を種類に応じたディレクティブで宣言しておく必要があります。）
+	 * Generate code of global variable identifier directives, 
+	 * of all external variables accessed from the AST (of the script).
 	 *
-	 * @param inputAst 対象AST(抽象構文木)のルートノード
-	 * @return AST内で呼び出している全グローバル変数の識別子ディレクティブ
+	 * @param inputAst The root node of the AST (of the script).
+	 * @return The generated code
 	 */
 	private String generateGlobalIdentifierDirectives(AstNode inputAst) {
 		StringBuilder codeBuilder = new StringBuilder();
 		AstNode currentNode = inputAst.getPostorderDftFirstNode();
 
-		// 出力済みのものを控える
+		// A Set for storing idenfires of which directives had already been generated.
 		Set<String> generatedSet = new HashSet<String>();
 
-		// ボトムアップで全ノードを辿って処理、移動中の注目ノードは currentNode
+		// Traverse all nodes:
 		while(currentNode != inputAst) {
 
-			// グローバル変数の場合
+			// If the node is a leaf node accessing to an external variable:
 			if (currentNode.getType()==AstNode.Type.LEAF
 				&&
 				currentNode.getAttribute(AttributeKey.LEAF_TYPE).equals(AttributeValue.VARIABLE_IDENTIFIER)
@@ -2542,7 +2411,7 @@ public class CodeGenerator {
 				String variableName = currentNode.getAttribute(AttributeKey.IDENTIFIER_VALUE);
 				String identifier = IdentifierSyntax.getAssemblyIdentifierOf(variableName);
 
-				// 既に出力済みでなければ出力
+				// Generate a global variable identifier directive.
 				if (!generatedSet.contains(identifier)) {
 					codeBuilder.append(AssemblyWord.GLOBAL_VARIABLE_DIRECTIVE);
 					codeBuilder.append(AssemblyWord.WORD_SEPARATOR);
@@ -2558,16 +2427,15 @@ public class CodeGenerator {
 	}
 
 
-
 	/**
-	 * メタ情報ディレクティブを生成して返します。
+	 * Generates code of a meta information directives.
 	 *
-	 * @param node 任意のASTノード（行番号およびファイル名の情報が使用されます）
-	 * @return メタ情報ディレクティブ
+	 * @param inputAst The node of the AST.
+	 * @return The generated code
 	 */
 	private String generateMetaDirectiveCode(AstNode node) {
 
-		// ファイル名はオプションマップの正規化時に既にエスケープされているはずだが、念のため出力直前にもエスケープしておく
+		// The script name should already be normalized, but normalize it again here.
 		String escapedFileName = IdentifierSyntax.normalizeScriptIdentifier(node.getFileName());
 
 		StringBuilder codeBuilder = new StringBuilder();
@@ -2588,13 +2456,10 @@ public class CodeGenerator {
 
 
 	/**
-	 * ラベルディレクティブを生成して返します。
+	 * Generate code of a label directives, of the specified label.
 	 *
-	 * この処理系の中間アセンブリコードにおいて、ラベルの配置は、
-	 * このメソッドが返すディレクティブを配置する事によって行います。
-	 *
-	 * @param labelName ラベルの値
-	 * @return ラベルディレクティブ
+	 * @param labelName The name of the label.
+	 * @return The generated code.
 	 */
 	private String generateLabelDirectiveCode(String labelName) {
 		StringBuilder labelBuilder = new StringBuilder();
@@ -2608,9 +2473,9 @@ public class CodeGenerator {
 
 
 	/**
-	 * これまでに生成したラベルと重複しない、新しいラベルの値を生成して返します。
+	 * Generate a new label.
 	 *
-	 * @return 新規生成したラベルの値
+	 * @return The notation in code of the generated label.
 	 */
 	private String generateLabelOperandCode() {
 		StringBuilder labelBuilder = new StringBuilder();
@@ -2623,9 +2488,9 @@ public class CodeGenerator {
 
 
 	/**
-	 * これまでに生成したレジスタと重複しない、新しいレジスタの値を生成して返します。
+	 * Generate a new register.
 	 *
-	 * @return 新規生成したレジスタの値
+	 * @return The notation in code of the generated register.
 	 */
 	private String generateRegisterOperandCode() {
 
@@ -2639,10 +2504,11 @@ public class CodeGenerator {
 
 
 	/**
-	 * ソースコード内の書式に準拠するリテラルの値を、
-	 * 中間アセンブリコードの書式に準拠する即値に変換して返します。
+	 * Generates an immediate value corresponds with the specified literal.
 	 *
-	 * @return 変換された即値
+	 * @param typeName The name of the data-type.
+	 * @param literal The value of the literal.
+	 * @return The notation in code of the immediate value.
 	 */
 	private String generateImmediateOperandCode(String typeName, String literal) {
 		StringBuilder returnBuilder = new StringBuilder();
@@ -2656,9 +2522,10 @@ public class CodeGenerator {
 
 
 	/**
-	 * 型に応じたデフォルト値を、中間アセンブリコードの書式に準拠する即値の形で返します。
+	 * Generates an immediate value of the default value corresponds with the specified data-type.
 	 *
-	 * @return 変換された即値
+	 * @param typeName The name of the data-type.
+	 * @return The notation in code of the immediate value.
 	 */
 	private String generateDefaultValueImmediateOperandCode(String typeName) {
 		StringBuilder returnBuilder = new StringBuilder();
@@ -2670,7 +2537,6 @@ public class CodeGenerator {
 		try {
 			dataType = DataTypeName.getDataTypeOf(typeName);
 		} catch (VnanoException vne) {
-			// ここで想定外の型名が検出される場合は、上層の意味解析での検査不足なので、FatalException 扱いで投げる
 			throw new VnanoFatalException("Unexpected data type: " + typeName);
 		}
 
@@ -2703,12 +2569,12 @@ public class CodeGenerator {
 
 
 	/**
-	 * この処理系の中間アセンブリコードの書式に準拠した、1行の命令コードを生成して返します。
+	 * Generate code of an instruction.
 	 *
-	 * @param opcode オペレーションコード
-	 * @param dataType データ型指定部の内容
-	 * @param operands オペランド（任意個）
-	 * @return 命令コード(1行)
+	 * @param opcode The operation code.
+	 * @param dataType The data-type of the operation.
+	 * @param operands Operands of the instruction.
+	 * @return The generated code.
 	 */
 	private String generateInstruction(String opcode, String dataType, String... operands) {
 		StringBuilder codeBuilder = new StringBuilder();
@@ -2727,10 +2593,10 @@ public class CodeGenerator {
 
 
 	/**
-	 * 生成済みのコードに対して、可読性を向上させるための際整形を行います。
+	* Arranges (reshapes) the form of code for readability.
 	 *
-	 * @param code 元のコード
-	 * @return 際整形済みのコード
+	 * @param code The original code.
+	 * @return The reshaped code.
 	 */
 	private String realign(String code) {
 		StringBuilder codeBuilder = new StringBuilder();
@@ -2738,7 +2604,7 @@ public class CodeGenerator {
 		String[] lines = code.split(AssemblyWord.LINE_SEPARATOR_REGEX);
 		int lineLength = lines.length;
 
-		// 言語情報ディレクティブの抽出/配置
+		// Extract language information directives, and relocate them to the top of code.
 		boolean languageDirectiveExist = false;
 		for (int lineIndex=0; lineIndex<lineLength; lineIndex++) {
 			if (lines[lineIndex].startsWith(AssemblyWord.ASSEMBLY_LANGUAGE_IDENTIFIER_DIRECTIVE)
@@ -2753,12 +2619,12 @@ public class CodeGenerator {
 			}
 		}
 
-		// ディレクティブの種類が変わる箇所で空白行を挟む
+		// Insert a blank line.
 		if (languageDirectiveExist) {
 			codeBuilder.append(AssemblyWord.LINE_SEPARATOR);
 		}
 
-		// グローバル関数ディレクティブの抽出/配置
+		// Extract global function identifier directives, and relocate them.
 		boolean globalFunctionDirectiveExist = false;
 		for (int lineIndex=0; lineIndex<lineLength; lineIndex++) {
 			if (lines[lineIndex].startsWith(AssemblyWord.GLOBAL_FUNCTION_DIRECTIVE)) {
@@ -2769,12 +2635,12 @@ public class CodeGenerator {
 			}
 		}
 
-		// ディレクティブの種類が変わる箇所で空白行を挟む
+		// Insert a blank line.
 		if (globalFunctionDirectiveExist) {
 			codeBuilder.append(AssemblyWord.LINE_SEPARATOR);
 		}
 
-		// ローカル関数ディレクティブの抽出/配置
+		// Extract local function identifier directives, and relocate them.
 		boolean localFunctionDirectiveExist = false;
 		for (int lineIndex=0; lineIndex<lineLength; lineIndex++) {
 			if (lines[lineIndex].startsWith(AssemblyWord.LOCAL_FUNCTION_DIRECTIVE)) {
@@ -2785,12 +2651,12 @@ public class CodeGenerator {
 			}
 		}
 
-		// ディレクティブの種類が変わる箇所で空白行を挟む
+		// Insert a blank line.
 		if (localFunctionDirectiveExist) {
 			codeBuilder.append(AssemblyWord.LINE_SEPARATOR);
 		}
 
-		// グローバル変数ディレクティブの抽出/配置
+		// Extract global variable identifier directives, and relocate them.
 		boolean globalVariableDirectiveExist = false;
 		for (int lineIndex=0; lineIndex<lineLength; lineIndex++) {
 			if (lines[lineIndex].startsWith(AssemblyWord.GLOBAL_VARIABLE_DIRECTIVE)) {
@@ -2801,12 +2667,12 @@ public class CodeGenerator {
 			}
 		}
 
-		// ディレクティブの種類が変わる箇所で空白行を挟む
+		// Insert a blank line.
 		if (globalVariableDirectiveExist) {
 			codeBuilder.append(AssemblyWord.LINE_SEPARATOR);
 		}
 
-		// ローカル変数ディレクティブの抽出/配置
+		// Extract local variable identifier directives, and relocate them.
 		@SuppressWarnings("unused")
 		boolean localVariableDirectiveExist = false;
 		for (int lineIndex=0; lineIndex<lineLength; lineIndex++) {
@@ -2818,23 +2684,16 @@ public class CodeGenerator {
 			}
 		}
 
-		// 直後に続くメタディレクティブの空白行と重複するので、ここでは挟まない
-		/*
-		// ディレクティブの種類が変わる箇所で空白行を挟む
-		if (localVariableDirectiveExist) {
-			codeBuilder.append(AssemblyWord.lineSeparator);
-		}
-		*/
-
-		// その他の行の抽出/配置
+		// Extract other lines, and relocate them, if necessary:
 		for (int lineIndex=0; lineIndex<lineLength; lineIndex++) {
 
+			// Delete blank lines in original code.
 			// 元のコード内にあった空白行は削る
 			if (lines[lineIndex].length() == 0) {
 				continue;
 			}
 
-			// メタディレクティブの直前には空白行を挟む
+			// Insert a blank line before a meta information directive.
 			if (lines[lineIndex].startsWith(AssemblyWord.META_DIRECTIVE)) {
 				codeBuilder.append(AssemblyWord.LINE_SEPARATOR);
 			}
@@ -2848,25 +2707,23 @@ public class CodeGenerator {
 	}
 
 
-
-	// （スクリプトエンジンのevalメソッドの評価値に対応するデータをメモリに設定して終了する）
 	/**
-	 * 終了処理のコードを生成します。
+	 * Generate finalization code, which will be put at the end of code
+	 * for returning the evaluation value of the script to the caller side of the script engine.
 	 *
-	 * 具体的には、必要に応じてスクリプトエンジンのevalメソッドの評価値に対応するデータをメモリに設定して、
-	 * 実行を終了する処理のコードを生成します。
-	 *
-	 * @param inputAst AST(抽象構文木)全体のルートノード
-	 * @return 生成コード
+	 * @param inputAst The root node of the AST (of the script).
+	 * @return The generated code.
 	 */
 	private String generateFinalizationCode(AstNode inputAst) {
 		StringBuilder codeBuilder = new StringBuilder();
 
-		// 最上階層の文のノードを全て取得
+		// Extract all chold nodes of the root node.
 		AstNode[] topLevelStatementNodes = inputAst.getChildNodes();
 		int statementLength = topLevelStatementNodes.length;
 
-		// 最後の文が式文なら、その値をスクリプトエンジンのevalメソッドの評価結果とし、型と値の格納先を取得
+		// If the last statement is an expression statement, 
+		// its evaluated value must be returned to the caller side of the script engine.
+		// So allocate memory for storing its evaluated value.
 		String evalDataType = null;
 		String evalValue = null;
 		if (statementLength != 0) {
@@ -2877,13 +2734,13 @@ public class CodeGenerator {
 			}
 		}
 
-		// 評価結果とすべき値が無いか、もしくはあってもvoid型な場合は、無指定のEND命令を生成
+		// If there is no evaluated value to be returned to the engine, generate a END instruction having no operand.
 		if (evalDataType == null || evalDataType.equals(DataTypeName.VOID)) {
 			codeBuilder.append(
 				this.generateInstruction(OperationCode.END.name(), DataTypeName.VOID, PLACE_HOLDER)
 			);
 
-		// 評価値がある場合は、それをオペランドに指定してEND命令を生成
+		// If there is an evaluated value, specify it as an operand of the END instruction.
 		} else {
 			codeBuilder.append(
 				this.generateInstruction(OperationCode.END.name(), evalDataType, PLACE_HOLDER, evalValue)
