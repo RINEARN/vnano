@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2020 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2022
  * This software is released under the MIT License.
  */
 
@@ -10,261 +10,251 @@ import org.vcssl.nano.vm.memory.DataContainer;
 
 
 /**
- * <p>
- * Vnano処理系内部における関数の抽象クラスです。
- * </p>
- *
- * <p>
- * 各種の外部関数プラグイン・インターフェースも、
- * 最終的にこの抽象クラスを継承したアダプタクラスによってラップされて扱われます
- * （{@link Xfci1ToFunctionAdapter Xfci1ToFunctionAdapter} などを参照）。
- * </p>
- *
- * <p>
- * この抽象クラスの機能を、内部関数用に素直に実装したクラスとしては、
- * {@link InternalFunction InternalFunction} が存在します。
- * </p>
- *
- * @author RINEARN (Fumihiro Matsui)
+ * The abstract class of functions processable in Vnano Engine.
+ * 
+ * In Vnano Engine, internal functions will be handled as instances of 
+ * {@link InternalFunction InternalFunction} class,
+ * and it is a subclass of this abstract class.
+ * 
+ * In addition, external function plug-ins will be connected through 
+ * adapters extending this abstract class, 
+ * e.g.: {@link Xfci1ToFunctionAdapter Xfci1ToFunctionAdapter}.
  */
 public abstract class AbstractFunction {
 
 
 	/**
-	 * この抽象クラスを継承するサブクラスのコンストラクタ実装のための、
-	 * 空のコンストラクタです。
+	 * The empty constructor.
 	 */
 	protected AbstractFunction() {}
 
 
 	/**
-	 * 関数名を設定（変更）します。
-	 *
+	 * Sets the name of this function.
+	 * 
+	 * This method is used for setting an alias for an external function.
+	 * This method isn't available when this function is an internal function, 
+	 * because the name of internal functions isn't modifiable.
+	 * 
 	 * この機能は、外部関数などの接続時に、エイリアスを指定するために使用されます。
 	 * 内部関数など、関数名を変更できない関数も存在し、その場合はこのメソッドは使用できません。
 	 * そのような対象にこのメソッドが使用された場合、それはスクリプトの内容依存ではなく処理系実装上の問題であるため、
 	 * VnanoFatalException が発生します。
 	 *
-	 * @param functionName 関数名
+	 * @param functionName The name of this function.
 	 * @throws VnanoFatalException
-	 * 		名称を変更できない関数（内部関数など）に対して使用された場合にスローされます。
+	 *      Thrown when the name of this function isn't modifiable.
 	 */
 	public abstract void setFunctionName(String functionName);
 
 
 	/**
-	 * 関数名を取得します。
+	 * Gets the name of this function.
 	 *
-	 * @return 関数名
+	 * @return The name of this function.
 	 */
 	public abstract String getFunctionName();
 
 
 	/**
-	 * 所属している名前空間があるかどうかを判定します。
+	 * Returns whether this function belongs to any namespace.
 	 *
-	 * @return 名前空間に所属していれば true
+	 * @return Returns true if this function belongs to a namespace.
 	 */
 	public abstract boolean hasNamespaceName();
 
 
 	/**
-	 * 所属している名前空間の名称を返します。
+	 * Gets the name of the namespace to which this function belongs.
 	 *
-	 * @return 名前空間の名称
+	 * @return The name of the namespace to which this function belongs.
 	 */
 	public abstract String getNamespaceName();
 
 
 	/**
-	 * 所属している名前空間の名称を設定します。
+	 * Sets the name of the namespace to which this funcion belongs.
 	 *
-	 * @namespaceName 名前空間の名称
+	 * @namespaceName The name of the namespace to which this funcion belongs.
 	 */
 	public abstract void setNamespaceName(String namespaceName);
 
 
 	/**
-	 * 全ての仮引数の名称を配列として取得します。
+	 * Gets mames of all parameters.
 	 *
-	 * @return 各仮引数の名称を格納する配列
+	 * @return The array storing all names of parameters.
 	 */
 	public abstract String[] getParameterNames();
 
 
 	/**
-	 * 全ての仮引数のデータ型名を配列として取得します。
-	 * 返される型名の表記内に、配列部分 [][]...[] は含まれません。
+	 * Gets names of data-types of all parameters.
+	 * In data-type names, array declaration parts [][]...[] aren't contained.
 	 *
-	 * @return 各仮引数のデータ型名を格納する配列
+	 * @return The array storing names of data-types of all parameters.
 	 */
 	public abstract String[] getParameterDataTypeNames();
 
 
 	/**
-	 * 全ての仮引数の配列次元数（スカラは0次元として扱う）を配列として取得します。
+	 * Gets array-ranks of all parameters.
+	 * 
+	 * Note that, the array-rank of an scalar is 0.
 	 *
-	 * @return 各仮引数の配列次元数を格納する配列
+	 * @return The array storing array-ranks of all parameters.
 	 */
 	public abstract int[] getParameterArrayRanks();
 
 
 	/**
-	 * 全ての仮引数において、データ型が可変であるかどうかを格納する配列を返します。
+	 * Gets flags representing whether data-types of parameters are arbitrary.
+	 * 
+	 * If the value of an element of the returned array is true,
+	 * the data-type of the corresponding parameter is arbitrary.
 	 *
-	 * @return 各仮引数のデータ型が可変であるかどうかを格納する配列
+	 * @return The array storing flags representing whether data-types of parameters are arbitrary.
 	 */
 	public abstract boolean[] getParameterDataTypeArbitrarinesses();
 
 
 	/**
-	 * 全ての仮引数において、配列次元数が可変であるかどうかを格納する配列を返します。
+	 * Gets flags representing whether array-ranks of parameters are arbitrary.
+	 * 
+	 * If the value of an element of the returned array is true,
+	 * the array-rank of the corresponding parameter is arbitrary.
 	 *
-	 * @return 各仮引数の配列次元数が可変であるかどうかを格納する配列
+	 * @return The array storing flags representing whether array-ranks of parameters are arbitrary.
 	 */
 	public abstract boolean[] getParameterArrayRankArbitrarinesses();
 
 
 	/**
-	 * 全ての仮引数において、参照渡しであるかどうかを格納する配列を返します。
+	 * Gets flags representing whether parameters are passed by references.
+	 * 
+	 * If the value of an element of the returned array is true,
+	 * the corresponding parameter will be passed by reference
+	 * when this function will be invoked.
 	 *
-	 * @return 各仮引数が参照渡しであるかどうかを格納する配列
+	 * @return The array storing flags representing whether parameters are passed by references.
 	 */
 	public abstract boolean[] getParameterReferencenesses();
 
 
 	/**
-	 * 全ての仮引数において、定数であるかどうかを格納する配列を返します。
+	 * Gets flags representing whether parameters are constant.
+	 * 
+	 * If the value of an element of the returned array is true,
+	 * the corresponding parameter is constant, 
+	 * so its value must not be modified in the process of this function.
 	 *
-	 * @return 各仮引数が定数であるかどうかを格納する配列
+	 * @return The array storing flags representing whether parameters are constant.
 	 */
 	public abstract boolean[] getParameterConstantnesses();
 
 
 	/**
-	 * 仮引数の個数が任意であるかどうかを返します。
+	 * Returns whether the number of parameters of this function is arbitrary.
 	 *
-	 * @return 仮引数の個数が任意であるかどうか
+	 * @return Return true if the number of parameters of this function is arbitrary.
 	 */
 	public abstract boolean isParameterCountArbitrary();
 
 
 	/**
-	 * （未サポート）可変長引数であるかどうかを判定します。
+	 * (Unsupported yet) Returns whether this function has variadic parameters.
 	 *
-	 * @return 可変長引数であればtrue
+	 * @return (Unsupported yet) Returns true if this function has variadic parameters.
 	 */
 	public abstract boolean hasVariadicParameters();
 
 
 	/**
-	 * 戻り値のデータ型を取得します。
+	 * Gets the name of the data-type of the return value.
+	 * In the data-type name, array declaration part [][]...[] isn't contained.
+	 * 
+	 * If {@link AbstractFunction#isReturnDataTypeArbitrary() isReturnDataTypeArbitrary()} method
+	 * returns true, data-types and array-ranks of actual arguments will be given as 
+	 * "argumentDataTypeNames" and "argumentArrayRanks".
+	 * 
+	 * In the contrast,
+	 * if {@link AbstractFunction#isReturnDataTypeArbitrary() isReturnDataTypeArbitrary()} method
+	 * returns false, the result of this method must not vary depending on
+	 * "argumentDataTypeNames" and "argumentArrayRanks".
+	 * On the latter case, don't access to "argumentDataTypeNames" and "argumentArrayRanks"
+	 * because it is not guaranteed that valid values will be passed to them.
 	 *
-	 * @return 戻り値のデータ型
-	 * @throws VnanoException
-	 * 		このインスタンスが保持するデータ型名から、
-	 * 		この処理系でサポートされているデータ型に変換できなかった場合にスローされます。
-	 */
-	//public abstract DataType getReturnDataType() throws VnanoException;
-
-
-	/**
-	 * 戻り値のデータ型名を取得します。
-	 * 返される型名の表記内に、配列部分 [][]...[] は含まれません。
-	 *
-	 * {@link AbstractFunction#isReturnDataTypeArbitrary() isReturnDataTypeArbitrary()}
-	 * メソッドが true を返す場合、
-	 * このメソッドの argumentDataTypeNames および argumentArrayRanks には、
-	 * スクリプト内での呼び出しにおける、実引数の型/次元情報が渡されます。
-	 *
-	 * 逆に、
-	 * {@link AbstractFunction#isReturnDataTypeArbitrary() isReturnDataTypeArbitrary()}
-	 * メソッドが false を返す場合、
-	 * このメソッドの戻り値は、argumentDataTypeNames や argumentArrayRanks
-	 * の内容によらず確定している必要があります。
-	 * 従ってその場合には、それらの情報は不要であるため、有効な内容が渡される事は保証されず、
-	 * 参照してはいけません。
-	 *
-	 * @param argumentDataTypeNames 呼び出し時の全引数の型名を格納する配列
-	 * @param argumentArrayRanks 呼び出し時の全引数の配列次元数を格納する配列
-	 * @return 戻り値のデータ型名
+	 * @param argumentDataTypeNames The array storing names of data-types of all actual arguments.
+	 * @param argumentArrayRanks The array storing array-ranks of all actual arguments.
+	 * @return The name of the data-type of the return value.
 	 */
 	public abstract String getReturnDataTypeName(String[] argumentDataTypeNames, int[] argumentArrayRanks);
 
 
 	/**
-	 * 戻り値の配列次元数を取得します。
+	 * Gets the arraya-rank of the return value.
+	 * 
+	 * If {@link AbstractFunction#isReturnDataTypeArbitrary() isReturnDataTypeArbitrary()} method
+	 * returns true, data-types and array-ranks of actual arguments will be given as 
+	 * "argumentDataTypeNames" and "argumentArrayRanks".
+	 * 
+	 * In the contrast,
+	 * if {@link AbstractFunction#isReturnDataTypeArbitrary() isReturnDataTypeArbitrary()} method
+	 * returns false, the result of this method must not vary depending on
+	 * "argumentDataTypeNames" and "argumentArrayRanks".
+	 * On the latter case, don't access to "argumentDataTypeNames" and "argumentArrayRanks"
+	 * because it is not guaranteed that valid values will be passed to them.
 	 *
-	 * {@link AbstractFunction#isReturnArrayRankArbitrary() isReturnArrayRankArbitrary()}
-	 * メソッドが true を返す場合、
-	 * このメソッドの argumentDataTypeNames および argumentArrayRanks には、
-	 * スクリプト内での呼び出しにおける、実引数の型/次元情報が渡されます。
-	 *
-	 * 逆に、
-	 * {@link AbstractFunction#isReturnArrayRankArbitrary() isReturnArrayRankArbitrary()}
-	 * メソッドが false を返す場合、
-	 * このメソッドの戻り値は、argumentDataTypeNames や argumentArrayRanks
-	 * の内容によらず確定している必要があります。
-	 * 従ってその場合には、それらの情報は不要であるため、有効な内容が渡される事は保証されず、
-	 * 参照してはいけません。
-	 *
-	 * @param argumentDataTypeNames 呼び出し時の全引数の型名を格納する配列
-	 * @param argumentArrayRanks 呼び出し時の全引数の配列次元数を格納する配列
-	 * @return 戻り値の配列次元数
+	 * @param argumentDataTypeNames The array storing names of data-types of all actual arguments.
+	 * @param argumentArrayRanks The array storing array-ranks of all actual arguments.
+	 * @return The array-rank of the return value.
 	 */
 	public abstract int getReturnArrayRank(String[] argumentDataTypeNames, int[] argumentArrayRanks);
 
 
 	/**
-	 * 戻り値のデータ型が可変であるかどうかを取得します。
-	 *
-	 * ただし、このメソッドが true を返す場合でも、
-	 * 渡される実引数のデータ型や次元数が確定すると、それに応じて戻り値の型も確定する必要があります。
-	 * 詳細は
-	 * {@link AbstractFunction#getReturnDataTypeName(String[],int[]) getReturnDataTypeName(String[],int[])}
-	 * メソッドの説明を参照してください。
+	 * Gets whether the data-type of the return value varies 
+	 * depending on data-types and array-ranks of actual arguments.
+	 * 
+	 * @return Returns true if the data-type of the return value varies depending on actual arguments.
 	 */
 	public abstract boolean isReturnDataTypeArbitrary();
 
 
 	/**
-	 * 戻り値の配列次元数が可変であるかどうかを取得します。
-	 *
-	 * ただし、このメソッドが true を返す場合でも、
-	 * 渡される実引数のデータ型や次元数が確定すると、それに応じて戻り値の次元数も確定する必要があります。
-	 * 詳細は
-	 * {@link AbstractFunction#getReturnArrayRank(String[],int[]) getReturnArrayRank(String[],int[])}
-	 * メソッドの説明を参照してください。
+	 * Gets whether the array-rank of the return value varies 
+	 * depending on data-types and array-ranks of actual arguments.
+	 * 
+	 * @return Returns true if the array-rank of the return value varies depending on actual arguments.
 	 */
 	public abstract boolean isReturnArrayRankArbitrary();
 
 
 	/**
-	 * 指定された引数で関数を実行する際に発生し得る、事前に検査可能な問題などを検査し、
-	 * 問題があった場合には例外を発生させます。
+	 * Checks this function is invokable without problems which are detectable before invoking.
+	 * 
+	 * If any problem has been found, this method will throw an exception.
+	 * If no problem has been found, nothing will occur.
 	 *
-	 * 例えば、外部関数プラグインが想定しているデータ入出力インターフェースと、
-	 * この処理系のデータコンテナが実装しているデータ入出力インターフェースが異なる場合、
-	 * そのままでは実行時にエラーが発生してしまいますが、それらは事前に検査可能です。
+	 * For example, types of data I/O interfaces used in an external function plug-in 
+	 * must be compatible with the data-types and array-ranks of actual arguments passed in scripts.
+	 * So this method throw an exception if they are incompatible.
 	 *
-	 * なお、問題が検出されなかった場合には、このメソッドはただ処理を返すだけで、何も起こりません。
-	 *
-	 * @param argumentDataTypeNames 呼び出し時の全引数の型名を格納する配列
-	 * @param argumentArrayRanks 呼び出し時の全引数の配列次元数を格納する配列
+	 * @param argumentDataTypeNames The array storing names of data-types of all actual arguments.
+	 * @param argumentArrayRanks The array storing array-ranks of all actual arguments.
 	 * @throws VnanoException
-	 * 		上記の説明を参照してください。
+	 *     Thrown when problems which are detectable before invoking have been found.
 	 */
 	public abstract void checkInvokability(String[] argumentDataTypeNames, int[] argumentArrayRanks) throws VnanoException;
 
 
 	/**
-	 * 関数を実行します。
+	 * Invoke this function.
 	 *
-	 * @param argumentDataUnits 実引数のデータを保持するデータユニットの配列（各要素が個々の実引数に対応）
-	 * @param returnDataUnit 戻り値のデータを格納するデータユニット
+	 * @param argumentDataUnits The array storing data units of all actual arguments.
+	 * @param returnDataUnit The data unit to which the return value will be stored.
 	 */
-	// これ、argumentDataUnits と returnDataUnit の順序を逆にした方がいいかもしれない
-	// シグネチャでもVRILでも戻り値が先だし、一瞬ちょっと混乱する
 	public abstract void invoke(DataContainer<?>[] argumentDataUnits, DataContainer<?> returnDataUnit) throws VnanoException;
+	// Note: It may be better to swap the order of "argumentDataUnits" and "returnDataUnit".
 
 }
