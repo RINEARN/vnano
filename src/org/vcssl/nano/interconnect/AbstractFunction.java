@@ -36,11 +36,6 @@ public abstract class AbstractFunction {
 	 * This method isn't available when this function is an internal function, 
 	 * because the name of internal functions isn't modifiable.
 	 * 
-	 * この機能は、外部関数などの接続時に、エイリアスを指定するために使用されます。
-	 * 内部関数など、関数名を変更できない関数も存在し、その場合はこのメソッドは使用できません。
-	 * そのような対象にこのメソッドが使用された場合、それはスクリプトの内容依存ではなく処理系実装上の問題であるため、
-	 * VnanoFatalException が発生します。
-	 *
 	 * @param functionName The name of this function.
 	 * @throws VnanoFatalException
 	 *      Thrown when the name of this function isn't modifiable.
