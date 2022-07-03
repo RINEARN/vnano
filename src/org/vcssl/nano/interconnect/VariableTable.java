@@ -19,7 +19,7 @@ import org.vcssl.nano.spec.ScriptWord;
 
 /**
  * The class acting as a variable table.
- * Where "variable table" is a table mapping each variable name to information of the corresponding variable.
+ * Where "variable table" is a table mapping each variable's name to information of the corresponding variable.
  */
 public class VariableTable implements Cloneable {
 
@@ -92,7 +92,7 @@ public class VariableTable implements Cloneable {
 
 
 	/**
-	 * Add a new variable.
+	 * Add (regisiter) a new variable to this table.
 	 *
 	 * @param variable The variable to be added.
 	 */
