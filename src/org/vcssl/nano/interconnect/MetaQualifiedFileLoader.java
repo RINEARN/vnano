@@ -139,7 +139,7 @@ public class MetaQualifiedFileLoader {
 			return Charset.forName(defaultEncodingName);
 
 		// If the encoding (charset) is declared, return it.
-s		} else {
+		} else {
 			try {
 				return Charset.forName(declEncodingName);
 
