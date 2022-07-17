@@ -205,7 +205,7 @@ public class PluginLoader {
 			this.pluginLastModList.add(-1l);
 		}
 
-		// Stores the last-modified time of the plugin list file, when it has no error.
+		// Stores the last-modified time of the plugin list file, if it has no error.
 		this.pluginListLastMod = listFile.lastModified();
 	}
 
@@ -230,7 +230,7 @@ public class PluginLoader {
 		URLClassLoader classLoader = new URLClassLoader(new URL[] { pluginDirURL });
 		ConnectorImplementationLoader loader = new ConnectorImplementationLoader(classLoader);
 
-		// If any error occurred when loading a plug-in, skip loading it and go to the next plugin.
+		// If any error occurred when loading a plugin, skip loading it and go to the next plugin.
 		// So store error information to the following variables, and throw it after when all plugin have loaded.
 		String notExistPlugis = "";
 		String initFailedPlugis = "";
@@ -270,7 +270,7 @@ public class PluginLoader {
 			this.pluginInstanceList.set(pluginIndex, pluginInstance);
 			this.pluginNameList.set(pluginIndex, pluginFile.getName());
 
-			// If the plugin instantiated successfully, store the last modified time of the plugin (class) file.
+			// If the plugin has been instantiated successfully, store the last modified time of the plugin (class) file.
 			this.pluginLastModList.set(pluginIndex, pluginFile.lastModified());
 		}
 
