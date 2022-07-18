@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2021 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2022 RINEARN
  * This software is released under the MIT License.
  */
 
@@ -12,40 +12,33 @@ import org.vcssl.nano.spec.DataTypeName;
 import org.vcssl.nano.spec.ErrorType;
 import org.vcssl.nano.vm.memory.DataContainer;
 
+
 /**
- * <p>
- * 指定された {@link org.vcssl.connect.ExternalVariableConnectorInterface1 XVCI 1}
- * 形式の外部変数プラグインを、Vnano処理系内での変数仕様
- * （{@link org.vcssl.nano.interconnect.AbstractVariable AbstractVariable}）
- * に基づく変数オブジェクトへと変換し、
- * {@link Interconnect Interconnect} に接続するためのアダプタです。
- * </p>
- *
- * @author RINEARN (Fumihiro Matsui)
+ * The adapter class for converting 
+ * a {@link org.vcssl.connect.ExternalVariableConnectorInterface1 XVCI1} type external variable plugin
+ * to an {@link org.vcssl.nano.interconnect.AbstractVariable AbstractVariable} type variable object.
  */
 public class Xvci1ToVariableAdapter extends AbstractVariable {
 
-	/** XVCI準拠の外部変数プラグインです。 */
+	/** The XVCI1 type external variable plugin to be converted. */
 	private ExternalVariableConnectorInterface1 xvciPlugin = null;
 
-	/** 変数名を保持します。 */
+	/** The name of the variable. */
 	private String variableName = null;
 
-	/** 外部変数と処理系内部の変数とで、データの型変換を行うコンバータです。 */
+	/** The data converters for converting data of this variable. */
 	private DataConverter dataConverter = null;
 
-	/** 所属している名前空間の名称を保持します。 */
+	/** The name of the namespace to which this variable belongs. */
 	private String namespaceName = null;
 
 
 	/**
-	 * 指定されたXVCI準拠の外部変数プラグインを、
-	 * 処理系内部での仕様に準拠した変数へと変換するアダプタを生成します。
+	 * Create an adapter converting the specified XVCI1 plugin to 
+	 * an {@link org.vcssl.nano.interconnect.AbstractVariable AbstractVariable} type variable object.
 	 *
-	 * @param xvciPlugin XVCI準拠の外部変数プラグイン
-	 * @param scriptWordSetting スクリプト言語の語句が定義された設定オブジェクト
-	 * @throws VnanoException
-	 * 		外部変数のデータや型が、この処理系内部では変数として使用できない場合に発生します。
+	 * @param xvciPlugin The XVCI1 plugin to be converted.
+	 * @throws VnanoException Thrown when incompatible data-types, array-ranks, and so on have been detected.
 	 */
 	public Xvci1ToVariableAdapter(ExternalVariableConnectorInterface1 xvciPlugin) throws VnanoException {
 
@@ -53,8 +46,6 @@ public class Xvci1ToVariableAdapter extends AbstractVariable {
 		this.variableName = xvciPlugin.getVariableName();
 		this.dataConverter = new DataConverter(this.xvciPlugin.getDataClass());
 
-		// 自動データ型変換が無効化されている場合は、やり取りするデータ入出力インターフェースの互換性を検査する
-		// ( XVCI1 の getDataUnconvertedClass() が返すインターフェースを、この処理系のデータコンテナが実装していなければエラー ）
 		if (!this.xvciPlugin.isDataConversionNecessary()) {
 			Class<?> dataAccessorInterface = this.xvciPlugin.getDataUnconvertedClass();
 			if (!dataAccessorInterface.isAssignableFrom(DataContainer.class)) {
@@ -68,11 +59,9 @@ public class Xvci1ToVariableAdapter extends AbstractVariable {
 
 
 	/**
-	 * このアダプタのインスタンスが内部でラップしている、
-	 * {@link org.vcssl.connect.ExternalVariableConnectorInterface1 XVCI 1}
-	 * 形式の外部変数プラグインを取得します。
+	 * Returns the XVCI1 plugin to be converted by this adapter.
 	 *
-	 * @return このインスタンスがラップしているXVCI1プラグイン
+	 * @return The XVCI1 plugin to be converted by this adapter.
 	 */
 	public ExternalVariableConnectorInterface1 getXvci1Plugin() {
 		return this.xvciPlugin;
@@ -80,9 +69,9 @@ public class Xvci1ToVariableAdapter extends AbstractVariable {
 
 
 	/**
-	 * 変数名を取得します。
+	 * Gets the name of this variable.
 	 *
-	 * @return 変数名
+	 * @return The name of this variable.
 	 */
 	@Override
 	public String getVariableName() {
@@ -91,11 +80,11 @@ public class Xvci1ToVariableAdapter extends AbstractVariable {
 
 
 	/**
-	 * 変数名を設定（変更）します。
-	 *
-	 * この機能は、外部変数に、エイリアス（別名）を指定しつつ接続する際に使用されます。
-	 *
-	 * variableName 変数名
+	 * Sets the name of this variable.
+	 * 
+	 * This method is used for setting an alias for an external variable.
+	 * 
+	 * @param variableName The name of this variable.
 	 */
 	@Override
 	public void setVariableName(String variableName) {
@@ -104,9 +93,9 @@ public class Xvci1ToVariableAdapter extends AbstractVariable {
 
 
 	/**
-	 * 所属している名前空間があるかどうかを判定します。
+	 * Returns whether this variable belongs to any namespace.
 	 *
-	 * @return 名前空間に所属していれば true
+	 * @return Returns true if this variable belongs to a namespace.
 	 */
 	@Override
 	public boolean hasNamespaceName() {
@@ -115,9 +104,9 @@ public class Xvci1ToVariableAdapter extends AbstractVariable {
 
 
 	/**
-	 * 所属している名前空間の名称を返します。
+	 * Gets the name of the namespace to which this variable belongs.
 	 *
-	 * @return 名前空間の名称
+	 * @return The name of the namespace to which this variable belongs.
 	 */
 	@Override
 	public String getNamespaceName() {
@@ -126,9 +115,9 @@ public class Xvci1ToVariableAdapter extends AbstractVariable {
 
 
 	/**
-	 * 所属している名前空間の名称を設定します。
+	 * Sets the name of the namespace to which this variable belongs.
 	 *
-	 * @namespaceName 名前空間の名称
+	 * @namespaceName The name of the namespace to which this variable belongs.
 	 */
 	@Override
 	public void setNamespaceName(String namespaceName) {
@@ -137,23 +126,10 @@ public class Xvci1ToVariableAdapter extends AbstractVariable {
 
 
 	/**
-	 * データ型を取得します。
+	 * Gets the name of the data-type of this variable.
+	 * In the data-type name, array declaration parts [][]...[] aren't contained.
 	 *
-	 * @return 変数のデータ型
-	 */
-	/*
-	@Override
-	public DataType getDataType() {
-		return this.dataConverter.getDataType();
-	}
-	*/
-
-
-	/**
-	 * データ型の名称を取得します。
-	 * 返される型名の表記内に、配列部分 [][]...[] は含まれません。
-	 *
-	 * @return 変数のデータ型名
+	 * @return The name of the data-type of this variable.
 	 */
 	@Override
 	public String getDataTypeName() {
@@ -162,54 +138,49 @@ public class Xvci1ToVariableAdapter extends AbstractVariable {
 
 
 	/**
-	 * 配列次元数（スカラの場合は0次元として扱う）を取得します。
+	 * Gets the array-rank of this variable.
+	 * 
+	 * Note that, the array-rank of an scalar is 0.
 	 *
-	 * @return 変数の配列次元数
+	 * @return The array-rank of this variable.
 	 */
 	@Override
 	public int getRank() {
 		return this.dataConverter.getRank();
 	}
+	// TO DO: rename to: getArrayRank()
 
 
 	/**
-	 * 変数のデータを保持するデータコンテナを取得します。
+	 * Gets the data container storing data of this variable.
 	 *
-	 * @return 変数のデータコンテナ
+	 * @return The data container storing data of this variable.
 	 */
 	@Override
 	public DataContainer<?> getDataContainer() throws VnanoException {
 		try {
 
-			// 自動のデータ型変換が有効な場合
+			// If the automatic-data-conversion feature is enabled:
 			if (this.xvciPlugin.isDataConversionNecessary()) {
-
 				Object data = null;
 				data = this.xvciPlugin.getData();
 				return this.dataConverter.convertToDataContainer(data);
 
-			// 自動のデータ型変換が無効な場合
+			// If the automatic-data-conversion feature is disabled:
 			} else {
 				DataContainer<?> dataContainer = new DataContainer<>();
 				this.xvciPlugin.getData(dataContainer);
 				return dataContainer;
 			}
 
-		// プラグイン側でデータアクセス時に発生した例外は VnanoException でラップする。
-		// 検査例外の ConnectorException 以外にも、プラグイン実装側の想定外の例外も発生し得るので、全種の Exception をラップする。
-		// ただし Throwable 全体までの範囲はカバーしない。
-		// これは、Throwable 全体の範囲には、対処困難な（通常の用途ならもう停止するのが自然な）エラーも含まれるためで、
-		// それを catch するかどうかの判断はアプリケーション側に委ねるため。
-		} catch (Exception e) {
+		// If any exception has occurred, re-throw it as a VnanoException,
+		} catch (Exception e) { // Don't modify "Exception" to "Throwable". The latter is too wide for catching here.
 
-			// VnanoException のメッセージ内で用いる情報を用意
+			// Prepare information to be embedded in the error message.
 			String[] errorWords = { this.xvciPlugin.getVariableName(), null };
-
-			// ConnectorException のメッセージは、ユーザーに向けたメッセージなので、VnanoException のメッセージ内にも表示する
 			if (e instanceof ConnectorException) {
 				errorWords[1] = e.getMessage();
 			}
-
 			throw new VnanoException(
 				ErrorType.EXTERNAL_VARIABLE_PLUGIN_CRASHED, errorWords, e
 			);
@@ -218,14 +189,14 @@ public class Xvci1ToVariableAdapter extends AbstractVariable {
 
 
 	/**
-	 * 変数のデータを保持するデータコンテナを設定します。
+	 * Sets the data container storing data of this variable.
 	 *
-	 * @param dataContainer 変数のデータコンテナ
+	 * @param dataContainer The data container storing data of this variable.
 	 */
 	@Override
 	public void setDataContainer(DataContainer<?> dataContainer) throws VnanoException {
 
-		// 自動のデータ型変換が有効な場合
+		// If the automatic-data-conversion feature is enabled:
 		if (this.xvciPlugin.isDataConversionNecessary()) {
 
 			Object data = null;
@@ -247,8 +218,8 @@ public class Xvci1ToVariableAdapter extends AbstractVariable {
 				);
 			}
 
-		// 自動のデータ型変換が無効な場合
-		}else {
+		// If the automatic-data-conversion feature is disabled:
+		} else {
 			try {
 				this.xvciPlugin.setData(dataContainer);
 			} catch (ConnectorException e) {
@@ -262,9 +233,9 @@ public class Xvci1ToVariableAdapter extends AbstractVariable {
 
 
 	/**
-	 * 書き換え不可能な定数であるかどうかを返します。
-	 *
-	 * @return 定数ならtrue
+	 * Returns whether this variable is constant.
+	 * 
+	 * @return Returns true if this variable is constant.
 	 */
 	@Override
 	public boolean isConstant() {
@@ -273,9 +244,10 @@ public class Xvci1ToVariableAdapter extends AbstractVariable {
 
 
 	/**
-	 * 同じ変数名の変数を区別するためのシリアルナンバーを保持しているかどうかを判定します。
+	 * Returns whether this variable has a serial number,
+	 * which is a number to distinguish multiple variables having the same name.
 	 *
-	 * @return 保持していれば true
+	 * @return Returns true if this variable has a serial number.
 	 */
 	@Override
 	public boolean hasSerialNumber() {
@@ -284,12 +256,13 @@ public class Xvci1ToVariableAdapter extends AbstractVariable {
 
 
 	/**
-	 * 同じ変数名の変数を区別するためのシリアルナンバーを返します。
-	 *
-	 * @return シリアルナンバー
+	 * Gets the serial number which is a number to distinguish multiple variables having the same name.
+	 * 
+	 * @return The serial number.
 	 */
 	@Override
 	public int getSerialNumber() {
 		return -1;
 	}
 }
+

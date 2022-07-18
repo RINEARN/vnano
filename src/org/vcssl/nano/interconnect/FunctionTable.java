@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2021 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2022 RINEARN
  * This software is released under the MIT License.
  */
 
@@ -22,44 +22,63 @@ import org.vcssl.nano.spec.IdentifierSyntax;
 import org.vcssl.nano.spec.ScriptWord;
 
 /**
- * <p>
- * 関数テーブルの機能を提供するクラスです。
- * </p>
- *
- * @author RINEARN (Fumihiro Matsui)
+ * The class acting as a function table.
+ * Where "function table" is a table mapping each function's name to information of the corresponding function.
  */
 public class FunctionTable {
 
-	/** 関数を保持するリストです。 */
+	/** The List storing all functions.  */
 	List<AbstractFunction> functionList = null;
 
-	/** 関数シグネチャと、関数とを対応付けるマップです。同じキーの要素を複数格納するため、値をリスト化して保持します。 */
+	/**
+	 * The Map mapping each function's signature to the corresponding function.
+	 * Multiple functions may have the same signature, so this map stores a List as a value.
+	 */
 	Map<String, LinkedList<AbstractFunction>> signatureFunctionMap = null;
 
-	/** 関数名と、関数とを対応付けるマップです。同じキーの要素を複数格納するため、値をリスト化して保持します。 */
+	/**
+	 * The Map mapping each function name to the corresponding function.
+	 * Multiple functions may have the same name, so this map stores a List as a value.
+	 */
 	Map<String, LinkedList<AbstractFunction>> nameFunctionMap = null;
 
-	/** 名前空間付きの関数シグネチャと、関数とを対応付けるマップです。同じキーの要素を複数格納するため、値をリスト化して保持します。 */
+	/**
+	 * The Map mapping each function's fully qualified signature to the corresponding function.
+	 * Multiple functions may have the same signature, so this map stores a List as a value.
+	 */
 	Map<String, LinkedList<AbstractFunction>> fullSignatureFunctionMap = null;
 
-	/** 名前空間付きの関数名と、関数とを対応付けるマップです。同じキーの要素を複数格納するため、値をリスト化して保持します。 */
+	/**
+	 * The Map mapping each function's fully qualified name to the corresponding function.
+	 * Multiple functions may have the same name, so this map stores a List as a value.
+	 */
 	Map<String, LinkedList<AbstractFunction>> fullNameFunctionMap = null;
 
-	/** 関数テーブル内でのインデックスと、関数とを対応付けるマップです。 */
-	Map<Integer, AbstractFunction> indexFunctionMap = null; // functionList は LinkedList なので、要素を辿るコストを避けるため
+	/**
+	 * The Map mapping each function's index in this function table to the corresponding function.
+	 * The "functionList" field is a LinkedList, so getting its element by an index takes a cost.
+	 * This map is used for improving costs of such operations.
+	 */
+	Map<Integer, AbstractFunction> indexFunctionMap = null;
 
-	/** 関数シグネチャと、関数テーブル内でのインデックスとを対応付けるマップです。同じキーの要素を複数格納するため、値をリスト化して保持します。 */
+	/**
+	 * The Map mapping each variable's signature to the function's index in this table.
+	 * Multiple variables may have the same signature, so this map stores a List as a value.
+	 */
 	Map<String, LinkedList<Integer>> signatureIndexMap = null;
 
-	/** 名前空間付きの関数シグネチャと、関数テーブル内でのインデックスとを対応付けるマップです。同じキーの要素を複数格納するため、値をリスト化して保持します。 */
+	/**
+	 * The Map mapping each variable's fully qualified signature to the function's index in this table.
+	 * Multiple variables may have the same signature, so this map stores a List as a value.
+	 */
 	Map<String, LinkedList<Integer>> fullSignatureIndexMap = null;
 
-	/** 登録されている関数の個数を保持します。 */
+	/** The total count of currently registered function. */
 	int size;
 
 
 	/**
-	 * 空の関数テーブルを生成します。
+	 * Creates an empty function table.
 	 */
 	public FunctionTable() {
 		this.functionList = new ArrayList<AbstractFunction>();
@@ -79,29 +98,30 @@ public class FunctionTable {
 
 
 	/**
-	 * 関数を追加登録します。
+	 * Add (regisiter) a new function to this table.
 	 *
-	 * @param function 対象の関数
+	 * @param function The function to be added.
 	 */
 	public void addFunction(AbstractFunction function) {
 		int functionIndex = this.size;
 		this.size++;
 
-		// 単純識別子から、名前空間を加味した識別子やシグネチャなどを求める
+		// Get the fully qualified name/signature, from the (simple) signature/name of the function.
 		String namespacePrefix = function.hasNamespaceName() ? function.getNamespaceName() +  ScriptWord.NAMESPACE_SEPARATOR : "";
 		String functionName = function.getFunctionName();
 		String fullFunctionName = namespacePrefix + functionName;
 		String signature = IdentifierSyntax.getSignatureOf(function);
 		String fullSignature = IdentifierSyntax.getSignatureOf(function, namespacePrefix);
 
-		// リストとマップに関数を追加
+		// Add the function to lists and maps.
 		this.functionList.add(function);
 		IdentifierMapManager.putToMap(this.signatureFunctionMap, signature, function);
 		IdentifierMapManager.putToMap(this.nameFunctionMap, functionName, function);
 		IdentifierMapManager.putToMap(this.fullSignatureFunctionMap, fullSignature, function);
 		IdentifierMapManager.putToMap(this.fullNameFunctionMap, fullFunctionName, function);
 
-		// インデックスと関数とを関連付けるマップに登録（インデックスでの参照時にLinkedListを辿るコストを避けるため）
+		// Register the function's index to some maps as a key, for reducing costs when we want to get the function from the index.
+		// (LinkedList requires the cost of the order O(N) for such operation, but Map can do it with the cost of the order O(1).)
 		this.indexFunctionMap.put(functionIndex, function);
 		IdentifierMapManager.putToMap(this.signatureIndexMap, signature, functionIndex);
 		IdentifierMapManager.putToMap(this.fullSignatureIndexMap, fullSignature, functionIndex);
@@ -109,9 +129,9 @@ public class FunctionTable {
 
 
 	/**
-	 * この関数テーブルに登録されている、全ての関数を配列として返します。
+	 * Gets all functions registered to this table.
 	 *
-	 * @return 登録されている全ての関数を格納する配列
+	 * @return An array sotring all functions registered to this table.
 	 */
 	public AbstractFunction[] getFunctions() {
 		return this.functionList.toArray(new AbstractFunction[0]);
@@ -119,11 +139,12 @@ public class FunctionTable {
 
 
 	/**
-	 * 指定されたインデックスに対応する関数を取得します。
-	 * インデックスは、変数の登録順に、0から昇順で割りふられます。
+	 * Gets the function having the specified index in this table.
+	 * 
+	 * In this table, each function has an unique index.
 	 *
-	 * @param index インデックス
-	 * @return 対象の関数
+	 * @param index The index of the function to be gotten.
+	 * @return The function having the specified index.
 	 */
 	public AbstractFunction getFunctionByIndex(int index) {
 		return this.functionList.get(index);
@@ -131,25 +152,22 @@ public class FunctionTable {
 
 
 	/**
-	 * 指定された関数の、この変数テーブル内でのインデックスを取得します。
-	 * インデックスは、関数の登録順に、0から昇順で割りふられます。
+	 * Gets the index of the specified function.
+	 * 
+	 * In this table, each function has an unique index.
 	 *
-	 * @param function 対象の関数
-	 * @return インデックス
+	 * @param function The function.
+	 * @return The index of the specified function.
 	 */
 	public int getIndexOf(AbstractFunction function) {
-		// ※ このメソッドはアセンブラ内で変数ごとに呼ばれるので、トータルでは N 倍のコストがかかる
 
-
-		// これだと要素を辿っての検索になるので、登録されている変数が多い場合に、重くなってボトルネックになり得る
-		// return this.functionList.indexOf(function); // 以前の処理
-
-
-		// コストを定数オーダーにするため、まずシグネチャを求めて、
-		// それとインデックスとの対応を保持しているマップに投げて値を取得する
+		// Get the fully qualified signature of the function.
 		String namespacePrefix = function.hasNamespaceName() ? function.getNamespaceName() +  ScriptWord.NAMESPACE_SEPARATOR : "";
 		String signature = IdentifierSyntax.getSignatureOf(function);
 		String fullSignature = IdentifierSyntax.getSignatureOf(function, namespacePrefix);
+
+		// Get/return index of the function,
+		// by using map(s) mapping each signature to the corresponding function's index.
 		if (signatureIndexMap.containsKey(signature)) {
 			return IdentifierMapManager.getLastFromMap(this.signatureIndexMap, signature);
 		}
@@ -161,26 +179,16 @@ public class FunctionTable {
 
 
 	/**
-	 * 指定されたシグネチャ（関数の名称と引数情報）に該当する関数を取得します。
+	 * Gets the function having the specified information composing the signature.
 	 *
-	 * このメソッドは、関数がこのテーブルに存在する事を前提としており、存在しない場合は
-	 * {@link org.vcssl.nano.VnanoFatalException VnanoFatalException} を発生させます。
-	 *
-	 * 存在しない場合にこの例外を発生させたくない場合は、事前に
-	 * {@link FunctionTable#hasFunctionWithAssemblyIdentifier hasFunctionWithAssemblyIdentifier}
-	 * メソッド等を使用し、関数がこのテーブルに存在する事を確認した上で使用してください。
-	 *
-	 * @param functionName 関数名
-	 * @param parameterDataTypes 全引数のデータ型を格納する配列（各要素が各引数に対応）
-	 * @param parameterArrayRanks 全引数の配列次元数を格納する配列
-	 * 		（各要素が各引数に対応、スカラは0次元として扱う）
-	 * @oaram parameterDataTypeArbitrarinesses 各引数のデータ型が任意かどうかを格納する配列
-	 * @oaram parameterArrayRankArbitrarinesses 各引数のデータ型が任意かどうかを格納する配列
-	 * @param parameterCountArbitrary 引数の個数が任意かどうか
-	 * @param parameterVariadic 可変長の引数要素を持っているかどうか
-	 * @return 対象の関数
-	 * @throws VnanoFatalException
-	 *   指定された関数がこのテーブルに存在しなかった場合にスローされます。
+	 * @param functionName The name of the function to be gotten.
+	 * @param parameterDataTypes Data-types of all parameters.
+	 * @param parameterArrayRanks Array-ranks of all parameters (The rank of a scalar is 0).
+	 * @oaram parameterDataTypeArbitrarinesses Flags representing whether data-types of parameters vary depending on actual arguments.
+	 * @oaram parameterArrayRankArbitrarinesses Flags representing whether array-ranks of parameters vary depending on actual arguments.
+	 * @param parameterCountArbitrary The flags representing whether the number of parameters vary depending on the number of actual arguments.
+	 * @param parameterVariadic The flags representing whether the function has variadic parameters.
+	 * @return The function having the specified signature.
 	 */
 	public AbstractFunction getFunctionBySignature(
 			String functionName, DataType[] parameterDataTypes, int[] parameterArrayRanks,
@@ -199,11 +207,10 @@ public class FunctionTable {
 
 
 	/**
-	 * 指定されたシグネチャ（関数の名称と引数情報）に該当する関数を取得します。
-	 * 複数存在する場合は、最後に登録されたものを返します。
+	 * Gets the function having the specified signature.
 	 *
-	 * @param signature 対象関数のシグネチャの文字列表現
-	 * @return 登録されていればtrue
+	 * @param signature The signature of the function to be gotten.
+	 * @return The function having the specified signature.
 	 */
 	public AbstractFunction getFunctionBySignature(String signature) {
 		if (this.signatureFunctionMap.containsKey(signature)) {
@@ -217,11 +224,10 @@ public class FunctionTable {
 
 
 	/**
-	 * 指定されたシグネチャ（関数の名称と引数情報）に対応する関数が、
-	 * この関数テーブルに登録されているかどうかを判定します。
+	 * Returns whether the function having the specified signature is registered to this table.
 	 *
-	 * @param signature 対象関数のシグネチャの文字列表現
-	 * @return 登録されていればtrue
+	 * @param signature The signature of the variable to be checked.
+	 * @return Returns true if the specified function is registered to this table.
 	 */
 	public boolean hasFunctionWithSignature(String signature) {
 		return this.signatureFunctionMap.containsKey(signature)
@@ -230,33 +236,38 @@ public class FunctionTable {
 
 
 	/**
-	 * 指定された関数呼び出し演算子のAST（抽象構文木）ノードにおける、
-	 * 呼び出し対象の関数が、この関数テーブルに登録されているかどうかを判定します。
+	 * Returns whether the callee function of the specified function-call operator is registered to this table.
 	 *
-	 * @param callerNode 関数呼び出し演算子のASTノード
-	 * @return 登録されていればtrue
+	 * @param callerNode The AST node of the function-call operator.
+	 * @return Returns true if the callee function of the specified function-call operator is registered to this table.
 	 */
-	public boolean hasCalleeFunctionOf(AstNode callerNode) throws VnanoException {
+	public boolean hasCalleeFunctionOf(AstNode callerNode) {
 		return this.getCalleeFunctionOf(callerNode) != null;
 	}
 
 
 	/**
-	 * 指定された関数呼び出し演算子のAST（抽象構文木）ノードにおける、
-	 * 呼び出し対象の関数を取得します。
+	 * Gets the callee function of the specified function-call operator.
 	 *
-	 * @param callerNode 関数呼び出し演算子のASTノード
-	 * @return 対象の関数
+	 * @param callerNode The AST node of the function-call operator.
+	 * @return The callee function of the specified function-call operator.
 	 */
 	public AbstractFunction getCalleeFunctionOf(AstNode callerNode) {
 
-		// まずコールシグネチャと宣言シグネチャが一致するものがあるか検索（あれば最も検索が速い）
+		// Firstly, create the call-signature of the callee function by actual arguments, 
+		// and search the function by the signature.
+		// This is the fastest way to search the function, if the completely same signature is registered.
 		String signature = IdentifierSyntax.getSignatureOfCalleeFunctionOf(callerNode);
 		if (this.hasFunctionWithSignature(signature)) {
 			return this.getFunctionBySignature(signature);
 		}
 
-		// 無ければ名前だけでも一致するものがあるか検索
+		// Note that, a signature of a function having arbitrary data-type/array-rank parameters 
+		// may not match with the call-signature created by actual arguments, 
+		// even when the function is callable by the actual arguments.
+
+		// So, if the signature does not match with registered signatures, 
+		// extract all functions having the same name as the specified function, from this table.
 		String functionName = callerNode.getChildNodes()[0].getAttribute(AttributeKey.IDENTIFIER_VALUE);
 		List<AbstractFunction> functionList = null;
 		if (this.nameFunctionMap.containsKey(functionName)) {
@@ -265,14 +276,13 @@ public class FunctionTable {
 			functionList = IdentifierMapManager.getAllFromMap(this.fullNameFunctionMap, functionName);
 		}
 
-		// 名前が一致するものが無い場合は、明らかに呼び出し可能な関数は無いため検索終了
+		// If there is no function having the same name as the specified function:
 		if (functionList == null) {
 			return null;
 		}
 
-		// 名前が一致する関数がある場合は、その中から引数の型のマッチを確認していく
-		// （可変長引数や任意型など、コールシグネチャと宣言シグネチャが異なっても呼び出せるものが有り得る）
-
+		// If functions have the same name as the specified function exist, 
+		// determine whether each function can be called by actual arguments of the specified function-call operator.
 		AstNode[] childNodes = callerNode.getChildNodes();
 		int argumentLength = childNodes.length - 1;
 		int[] argumentRanks = new int[argumentLength];
@@ -287,15 +297,15 @@ public class FunctionTable {
 
 			AbstractFunction function = functionList.get(functionIndex);
 
-			// 仮引数の情報を取得
+			// Get information of all parameters.
 			int[] parameterRanks = function.getParameterArrayRanks();
 			String[] parameterDataTypeNames = function.getParameterDataTypeNames();
-			boolean[] parameterDataTypeArbitrarinesses = function.getParameterDataTypeArbitrarinesses(); // 仮引数が任意型かどうか
-			boolean[] parameterArrayRankArbitrarinesses = function.getParameterArrayRankArbitrarinesses(); // 仮引数が任意次元かどうか
+			boolean[] parameterDataTypeArbitrarinesses = function.getParameterDataTypeArbitrarinesses();
+			boolean[] parameterArrayRankArbitrarinesses = function.getParameterArrayRankArbitrarinesses();
 			int parameterLength = parameterRanks.length;
 
-			// 任意個数引数（可変長引数とは整合性検査の挙動が異なる）の場合は、
-			// 仮引数情報の個数を実引数に合わせて延長
+			// If the number of parameters is arbitrary, 
+			// expand the number of information of parameters, depending on the number of actual arguments.
 			if (function.isParameterCountArbitrary() && parameterLength==1) {
 				parameterLength = argumentLength;
 				parameterRanks = Arrays.copyOf(parameterRanks, parameterLength);
@@ -308,13 +318,13 @@ public class FunctionTable {
 				Arrays.fill(parameterArrayRankArbitrarinesses, parameterArrayRankArbitrarinesses[0]);
 			}
 
-			// 仮引数と実引数の個数が違えばスキップ
+			// If the number of parameters is different with the number of actual arguments, the function is not callable.
 			if (parameterLength != argumentLength) {
 				continue;
 			}
 
-			// 仮引数と実引数の型の互換性を先頭から比較し、呼び出し可能か判断する
-			boolean isCallable = true; // 呼び出し可能でなければ無ければこの値を false にする
+			// Check compatibility of data-types between each parameter and actual argument.
+			boolean isCallable = true; // Set false if any parameter/argument is incompatible.
 			for (int parameterIndex=0; parameterIndex<parameterLength; parameterIndex++) {
 
 				String paramTypeName = parameterDataTypeNames[parameterIndex];
@@ -327,43 +337,44 @@ public class FunctionTable {
 				boolean isDataTypeSame = paramTypeName.equals(argTypeName);
 				boolean isRankSame = (paramRank == argRank);
 
-				// 以下、parameterIndex 番目の仮引数と実引数を比較する。
-				// この引数に互換性があれば continue して次の引数の比較へ移行、
-				// 互換性が無ければその時点で呼び出し不可と判断して break する。
+				// Check the compatibility between i-th parameter/argument.
+				// If they are compatible, go to the next parameter/argument by a "continue" statement.
+				// If they aren't compatible, determine that this function is not callable, and "break" from this loop.
 
-				// データ型と次元数の両方が完全に一致している場合は、その時点でOK: 次の引数へ進む
+				// If both the data-type and the array-rank of the parameter/argument are completely the same: compatible.
 				if (isDataTypeSame && isRankSame) {
 					continue;
 				}
 
-				// 仮引数が任意型かつ任意次元の場合は、実引数が何であっても互換性があるのでOK: 次の引数へ進む
+				// If both the data-type and the array-rank of parameters are arbitrary: compatible.
 				if (isParamAnyType && isParamAnyRank) {
 					continue;
 				}
 
-				// 仮引数が任意型であり、かつ任意次元ではない場合は、次元数が一致していればOK: 次の引数へ進む
+				// If the parameter's data-type is arbitrary, but the array-rank is not arbitrary: 
+				// compatible if the parameter's array-rank and the argument's array-rank are the same.
 				if (isParamAnyType && !isParamAnyRank && isRankSame) {
 					continue;
 				}
 
-				// 仮引数が任意次元であり、かつ任意型ではない場合は、データ型数が一致していればOK: 次の引数へ進む
+				// If the parameter's array-rank is arbitrary, but the data-type is not arbitrary: 
+				// compatible if the parameter's data-type and the argument's data-type are the same.
 				if (isParamAnyRank && !isParamAnyType && isDataTypeSame) {
 					continue;
 				}
 
-				// ここまででOKでなければ、この引数に互換性は無いので、この関数は呼び出し可能ではない
+				// Otherwise, the parameter/argument is not compatible, so this function is not callable.
 				isCallable = false;
 				break;
 			}
 
-			// 呼び出し可能と判断されていれば、その関数を返して終了
 			if (isCallable) {
 				return function;
 			}
 		}
 
-		// 呼び出し可能な関数が見つからなければ便宜的に null を返すが、
-		// その場合は hasCalleeFunctionOf が false になるので、そちらで検査可能
+		// This method returns null when there is no callable function.
+		// You can check whether the callable function exists by "hasCalleeFunctionOf" method explicitly.
 		return null;
 	}
 
