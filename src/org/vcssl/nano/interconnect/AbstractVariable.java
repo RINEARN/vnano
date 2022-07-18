@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2020 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2022 RINEARN
  * This software is released under the MIT License.
  */
 
@@ -10,133 +10,128 @@ import org.vcssl.nano.vm.memory.DataContainer;
 
 
 /**
- * <p>
- * Vnano処理系内部における変数の抽象クラスです。
- * </p>
- *
- * <p>
- * 各種の外部変数プラグイン・インターフェースも、
- * 最終的にこの抽象クラスを継承したアダプタクラスによってラップされて扱われます
- * （{@link Xvci1ToVariableAdapter Xvci1ToVariableAdapter} などを参照）。
- * </p>
- *
- * <p>
- * この抽象クラスの機能を、内部変数用に素直に実装したクラスとしては、
- * {@link InternalVariable InternalVariable} が存在します。
- * </p>
- *
- * @author RINEARN (Fumihiro Matsui)
+ * The abstract class of variables accessible in Vnano Engine.
+ * 
+ * In Vnano Engine, internal variable will be handled as instances of 
+ * {@link InternalVariable InternalVariable} class,
+ * and it is a subclass of this abstract class.
+ * 
+ * In addition, external variable plug-ins will be connected through 
+ * adapters extending this abstract class, 
+ * e.g.: {@link Xvci1ToVariableAdapter Xvci1ToVariableAdapter}.
  */
 public abstract class AbstractVariable {
 
 
 	/**
-	 * この抽象クラスを継承するサブクラスのコンストラクタ実装のための、
-	 * 空のコンストラクタです。
+	 * The empty constructor.
 	 */
 	protected AbstractVariable(){}
 
 
 	/**
-	 * 変数名を設定（変更）します。
-	 *
-	 * この機能は、外部変数などの接続時に、エイリアスを指定するために使用されます。
-	 * 内部変数など、変数名を変更できない変数も存在し、その場合はこのメソッドは使用できません。
-	 * そのような対象にこのメソッドが使用された場合、それはスクリプトの内容依存ではなく処理系実装上の問題であるため、
-	 * VnanoFatalException が発生します。
-	 *
-	 * @param variableName 変数名
+	 * Sets the name of this variable.
+	 * 
+	 * This method is used for setting an alias for an external variable.
+	 * This method isn't available when this function is an internal variable, 
+	 * because the name of internal variable isn't modifiable.
+	 * 
+	 * @param variableName The name of this variable.
 	 * @throws VnanoFatalException
-	 * 		名称を変更できない変数（内部変数など）に対して使用された場合にスローされます。
+	 *      Thrown when the name of this variable isn't modifiable.
 	 */
 	public abstract void setVariableName(String variableName);
 
 
 	/**
-	 * 変数名を取得します。
+	 * Gets the name of this variable.
 	 *
-	 * @return 変数名
+	 * @return The name of this variable.
 	 */
 	public abstract String getVariableName();
 
 
 	/**
-	 * 所属している名前空間があるかどうかを判定します。
+	 * Returns whether this variable belongs to any namespace.
 	 *
-	 * @return 名前空間に所属していれば true
+	 * @return Returns true if this variable belongs to a namespace.
 	 */
 	public abstract boolean hasNamespaceName();
 
 
 	/**
-	 * 所属している名前空間の名称を返します。
+	 * Gets the name of the namespace to which this variable belongs.
 	 *
-	 * @return 名前空間の名称
+	 * @return The name of the namespace to which this variable belongs.
 	 */
 	public abstract String getNamespaceName();
 
 
 	/**
-	 * 所属している名前空間の名称を設定します。
+	 * Sets the name of the namespace to which this variable belongs.
 	 *
-	 * @namespaceName 名前空間の名称
+	 * @namespaceName The name of the namespace to which this variable belongs.
 	 */
 	public abstract void setNamespaceName(String namespaceName);
 
 
 	/**
-	 * データ型の名称を取得します。
-	 * 返される型名の表記内に、配列部分 [][]...[] は含まれません。
+	 * Gets the name of the data-type of this variable.
+	 * In the data-type name, array declaration parts [][]...[] aren't contained.
 	 *
-	 * @return この変数のデータ型名
+	 * @return The name of the data-type of this variable.
 	 */
 	public abstract String getDataTypeName();
 
 
 	/**
-	 * この変数のデータを保持するデータコンテナを取得します。
+	 * Gets the array-rank of this variable.
+	 * 
+	 * Note that, the array-rank of an scalar is 0.
 	 *
-	 * @return この変数のデータコンテナ
+	 * @return The array-rank of this variable.
+	 */
+	public abstract int getRank();
+	// TO DO: rename to: getArrayRank()
+
+
+	/**
+	 * Gets the data container storing data of this variable.
+	 *
+	 * @return The data container storing data of this variable.
 	 */
 	public abstract DataContainer<?> getDataContainer() throws VnanoException;
 
 
 	/**
-	 * この変数のデータを保持するデータコンテナを設定します。
+	 * Sets the data container storing data of this variable.
 	 *
-	 * @param dataContainer この変数のデータコンテナ
+	 * @param dataContainer The data container storing data of this variable.
 	 */
 	public abstract void setDataContainer(DataContainer<?> dataContainer) throws VnanoException;
 
 
 	/**
-	 * 配列次元数（スカラは0次元として扱う）を返します。
-	 *
-	 * @return この変数の配列次元数
-	 */
-	public abstract int getRank();
-
-
-	/**
-	 * 書き換え不可能な定数であるかどうかを返します。
-	 *
-	 * @return 定数ならtrue
+	 * Returns whether this variable is constant.
+	 * 
+	 * @return Returns true if this variable is constant.
 	 */
 	public abstract boolean isConstant();
 
 
 	/**
-	 * 同じ変数名の変数を区別するためのシリアルナンバーを保持しているかどうかを判定します。
+	 * Returns whether this variable has a serial number,
+	 * which is a number to distinguish multiple variables having the same name.
 	 *
-	 * @return 保持していれば true
+	 * @return Returns true if this variable has a serial number.
 	 */
 	public abstract boolean hasSerialNumber();
 
 
 	/**
-	 * 同じ変数名の変数を区別するためのシリアルナンバーを返します。
-	 *
-	 * @return シリアルナンバー
+	 * Gets the serial number which is a number to distinguish multiple variables having the same name.
+	 * 
+	 * @return The serial number.
 	 */
 	public abstract int getSerialNumber();
 }

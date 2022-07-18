@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2020-2021 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2020-2022 RINEARN
  * This software is released under the MIT License.
  */
 
@@ -22,90 +22,55 @@ import org.vcssl.nano.spec.IdentifierSyntax;
 
 
 /**
- * <span class="lang-en">
- * The class to perform loading of plug-ins from class files
- * </span>
- * <span class="lang-ja">
- * クラスファイルからプラグインを読み込むためのローダです
- * </span>
- * .
- * <span class="lang-en">
+ * The class to perform loading of plugins from class files.
+ * 
  * Paths of class files to be loaded can be specified by a text file: "plugin list file".
  * In the plugin list file, describe a path of a class file for each line.
  * Lines starts with "#" will be regarded as comment lines. Empty lines are also ignored.
- * </span>
  *
- * <span class="lang-ja">
- * 読み込むクラスファイルは, 一覧をテキストファイルに記述して指定します.
- * そのテキストファイルの事を「プラグインリストファイル」と呼びます.
- * プラグインリストファイル内には, 1行につき1個のクラスファイルのパスを記述してください.
- * 「 # 」で始まる行はコメント行として読み飛ばされます. 空白行も読み飛ばされます.
- * </span>
- *
- * <span class="lang-en">
  * The plugin list file is specified by
  * {@link PluginLoader#setPluginListPath(String) setPluginListPath(String) } method,
  * and plugin class files will be loaded by
  * {@link PluginLoader#load() } method.
- * </span>
- *
- * <span class="lang-en">
- * プラグインリストファイルの指定は
- * {@link PluginLoader#setPluginListPath(String) setPluginListPath(String) } メソッドによって行い,
- * その後のプラグインクラスファイルの読み込みは
- * {@link PluginLoader#load() } メソッドによって行います.
- * </span>
  */
 public class PluginLoader {
 
-	/**
-	 * <span class="lang-en">
-	 * The prefix of comment lines in the list file
-	 * </span>
-	 * <span class="lang-ja">
-	 * リストファイル内のコメント行のプレフィックスです
-	 * </span>
-	 * .
-	 */
+	/** The prefix of comment lines in the list file. */
 	private static final String LIST_FILE_COMMENT_LINE_HEAD = "#";
 
-	/**
-	 * <span class="lang-en">
-	 * Stores the default encoding of list files
-	 * </span>
-	 * <span class="lang-ja">
-	 * リストファイルを読み込む際の, デフォルトの文字コードを保持します
-	 * </span>
-	 * .
-	 */
+	/** The default encoding of list files. */
 	private final String DEFAULT_ENCODING;
 
 
-	// Following fields are caches for skipping storage-accessings when file has not been updated.
-	// 以下、ファイル無更新ならストレージアクセスをスキップして前回読み込み内容を流用するためのキャッシュ類
-
+	/** The file path of the plugin list file. */
 	private String pluginListPath = null;
+
+	/** The last-modified time of the plugin list file. */
 	private long pluginListLastMod = -1;
+
+	/** The list of names of plugins. */
 	private List<String> pluginNameList = null;
+
+	/** The list of file paths of plugins. */
 	private List<String> pluginFilePathList = null;
+
+	/** The list of class paths of plugins. */
 	private List<String> pluginClassPathList = null;
+
+	/** The list of instances of plugins. */
 	private List<Object> pluginInstanceList = null;
+
+	/** The list of last-modified time of plugins. */
 	private List<Long> pluginLastModList = null;
 
+	/** The base directory of plugins. */
 	private File pluginDirectory = null;
 
 
 	/**
-	 * <span class="lang-en">
-	 * Create new script loader under the settings of specified encoding
-	 * </span>
-	 * <span class="lang-ja">
-	 * 指定された文字コードの設定で、スクリプトローダを生成します
-	 * </span>
-	 * .
-	 * @param encoding
-	 *   <span class="lang-en">The encoding of the list file (e.g.: "UTF-8")</span>
-	 *   <span class="lang-ja">リストファイルの読み込みに用いる文字コード (例: "UTF-8")</span>
+	 * Create new script loader under the settings of specified encoding.
+	 * 
+	 * @param encoding The encoding of the list file ("UTF-8" and so on).
 	 */
 	public PluginLoader(String encoding) {
 		this.DEFAULT_ENCODING = encoding;
@@ -113,16 +78,9 @@ public class PluginLoader {
 
 
 	/**
-	 * <span class="lang-en">
-	 * Registers the path of the plugin list file in which file paths of plugins are described
-	 * </span>
-	 * <span class="lang-ja">
-	 * 読み込むプラグインのファイルパスが記載された, プラグインリストファイルのパスを登録します
-	 * </span>
-	 * .
-	 * @param listFilePath
-	 *   <span class="lang-en">The path of the plugin list file</span>
-	 *   <span class="lang-ja">プラグインリストファイルのパス</span>
+	 * Registers the path of the plugin list file in which file paths of plugins are described.
+	 * 
+	 * @param listFilePath The path of the plugin list file.
 	 */
 	public void setPluginListPath(String listFilePath) {
 		this.pluginListPath = listFilePath;
@@ -131,16 +89,9 @@ public class PluginLoader {
 
 
 	/**
-	 * <span class="lang-en">
-	 * Loads/updates scripts from registered files
-	 * </span>
-	 * <span class="lang-ja">
-	 * 登録されたファイルから, プラグインを読み込み/更新します
-	 * </span>
-	 * .
-	 * @throws VnanoException
-	 *   <span class="lang-en">Thrown when plugins could not be loaded successfully.</span>
-	 *   <span class="lang-ja">プラグインが正常に読み込めなかった際にスローされます</span>
+	 * Loads/updates scripts from registered files.
+	 * 
+	 * @throws VnanoException Thrown when plugins could not be loaded successfully.
 	 */
 	public void load() throws VnanoException {
 		if (this.pluginListPath != null) {
@@ -153,16 +104,9 @@ public class PluginLoader {
 
 
 	/**
-	 * <span class="lang-en">
-	 * Returns whether this loader has loaded plugins
-	 * </span>
-	 * <span class="lang-ja">
-	 * このローダが, 読み込み済みのプラグインを保持しているかどうかを判定します
-	 * </span>
-	 * .
-	 * @return
-	 *   <span class="lang-en">True if this loader has plugins.</span>
-	 *   <span class="lang-ja">プラグインを保持していた場合に true が返されます.</span>
+	 * Returns whether this loader has loaded plugins.
+	 * 
+	 * @return True if this loader has plugins.
 	 */
 	public boolean hasPlugins() {
 		return this.pluginInstanceList != null && this.pluginInstanceList.size() != 0;
@@ -170,16 +114,9 @@ public class PluginLoader {
 
 
 	/**
-	 * <span class="lang-en">
-	 * Returns names of the loaded plugins
-	 * </span>
-	 * <span class="lang-ja">
-	 * 読み込まれたプラグインの名称を返します
-	 * </span>
-	 * .
-	 * @return
-	 *   <span class="lang-en">Names of the plugins.</span>
-	 *   <span class="lang-ja">プラグインの名称.</span>
+	 * Returns names of the loaded plugins.
+	 * 
+	 * @return Names of the plugins.
 	 */
 	public String[] getPluginNames() {
 		return this.pluginNameList.toArray(new String[0]);
@@ -187,16 +124,9 @@ public class PluginLoader {
 
 
 	/**
-	 * <span class="lang-en">
-	 * Returns instances of the loaded plugins
-	 * </span>
-	 * <span class="lang-ja">
-	 * 読み込まれたプラグインのインスタンスを返します
-	 * </span>
-	 * .
-	 * @return
-	 *   <span class="lang-en">Instances of plugins.</span>
-	 *   <span class="lang-ja">プラグインのインスタンス.</span>
+	 * Returns instances of the loaded plugins.
+	 * 
+	 * @return Instances of plugins.
 	 */
 	public Object[] getPluginInstances() {
 		return this.pluginInstanceList.toArray(new Object[0]);
@@ -204,13 +134,7 @@ public class PluginLoader {
 
 
 	/**
-	 * <span class="lang-en">
-	 * Loads/updates paths of plugin class files from the content of the plugin list file
-	 * </span>
-	 * <span class="lang-ja">
-	 * プラグインリストファイルから, プラグインクラスファイルのパスを読み込み（または更新し）ます
-	 * </span>
-	 * .
+	 * Loads/updates paths of plugin class files from the content of the plugin list file.
 	 */
 	private void loadPluginPaths() throws VnanoException {
 		File listFile = new File(this.pluginListPath);
@@ -218,34 +142,34 @@ public class PluginLoader {
 			throw new VnanoException(ErrorType.PLUGIN_LIST_FILE_DOES_NOT_EXIST, this.pluginListPath);
 		}
 
-		// 前回読み込み時から更新日時が変わっていなければ、内容も変わっていないと見なして、再読み込みせず終了
+		// If the content of the plugin list file has not been modified, skip reloading.
 		if (listFile.lastModified() == this.pluginListLastMod) {
 			return;
 		}
 
-		// リストが変わったので、既存のリスト内容を控えているフィールドを一旦リセット
+		// Clear lists.
 		this.pluginNameList = new ArrayList<String>();
 		this.pluginFilePathList = new ArrayList<String>();
 		this.pluginClassPathList = new ArrayList<String>();
 		this.pluginInstanceList = new ArrayList<Object>();
 		this.pluginLastModList = new ArrayList<Long>();
 
-		// リストファイルのあるディレクトリを、クラスパスの基準ディレクトリとする
+		// Set the directory in which the plugin list file is located, to the base directory of plugins.
 		this.pluginDirectory = listFile.getParentFile();
 
-		// リストファイルから、プラグインのクラスパス一覧を再読み込み（または初回読み込み）
+		// Read file paths of plugins from the plugin list file.
 		String listFileContent = MetaQualifiedFileLoader.load(this.pluginListPath, DEFAULT_ENCODING);
-		String[] pluginPaths = listFileContent.split("\\n"); // 上記の load で読んだ内容は、改行コードがLF (\n) に正規化済み
+		String[] pluginPaths = listFileContent.split("\\n"); // Note: line-feed-code in the loaded content is normalized to LF (\n).
 
-		// 読み込んだクラスパスの一覧をフィールドに反映
+		// Analyze file paths of plugins, and set results to fields (Lists) of this class.
 		for (String pluginPath: pluginPaths) {
 
-			// 空行やコメント行は無視
+			// Ignore empty/comment lines.
 			if (pluginPath.trim().isEmpty() || pluginPath.trim().startsWith(LIST_FILE_COMMENT_LINE_HEAD)) {
 				continue;
 			}
 
-			// ファイルパスからクラスパスを用意（クラスパスはリストファイルのディレクトリ基準にしなくてもいい）
+			// Prepare the class path of the plugin from its file path.
 			String pluginClassPath = pluginPath;
 			if (pluginClassPath.endsWith(".class")) {
 				pluginClassPath = pluginClassPath.substring(0, pluginClassPath.length() - 6);
@@ -256,23 +180,24 @@ public class PluginLoader {
 			pluginClassPath = pluginClassPath.replace('/', '.');
 			pluginClassPath = pluginClassPath.replace('\\', '.');
 
-			// ファイルパスについては、リスト内に相対パスで記載されている場合、リストファイルのディレクトリ基準に変換
+			// The file path of the plugin is described as the relative file path 
+			// from the directory in which the plugin list file is located, so then convert it to the absolute path.
 			File pluginFile = new File(pluginPath);
 			if (!pluginFile.isAbsolute() ) {
 				pluginFile = new File(this.pluginDirectory, pluginPath);
 			}
 			String pluginFilePath = pluginFile.getPath();
 
-			// プラグイン名を抽出（ファイル名から拡張子を除いた部分）
+			// Extract the name of the plugin.
 			String pluginName = pluginFile.getName();
 			if (pluginName.endsWith(".class")) {
 				pluginName = pluginName.substring(0, pluginName.length() - 6);
 			}
 
-			// プラグイン名の中で使用できない記号等を、スクリプト名と同じ名前で正規化する
+			// Normalize the name of the plugin (may contain non-available characters).
 			pluginName = IdentifierSyntax.normalizeScriptIdentifier(pluginName);
 
-			// フィールドにライブラリファイルの情報を登録
+			// Register above analyzed results to fields (Lists) of this class.
 			this.pluginFilePathList.add(pluginFilePath);
 			this.pluginClassPathList.add(pluginClassPath);
 			this.pluginNameList.add(pluginName);
@@ -280,26 +205,20 @@ public class PluginLoader {
 			this.pluginLastModList.add(-1l);
 		}
 
-		// 読み込みが正常に完了したら、ファイルの更新日時を控える（次回で不変なら読み込みスキップするため）
+		// Stores the last-modified time of the plugin list file, if it has no error.
 		this.pluginListLastMod = listFile.lastModified();
 	}
 
 
 
 	/**
-	 * <span class="lang-en">
-	 * Loads/updates class files of plugins from paths of them, and instantiate them
-	 * </span>
-	 * <span class="lang-ja">
-	 * プラグインクラスファイルのパスから, プラグインを読み込んで（または更新して）インスタンス化します
-	 * </span>
-	 * .
+	 * Loads/updates class files of plugins from paths of them, and instantiate them.
 	 */
 	private void loadPlugins() throws VnanoException {
 
 		int pluginN = this.pluginFilePathList.size();
 
-		// プラグインのクラスローダ周りを生成
+		// Create a class loader, to load classes of plugins.
 		URL pluginDirURL;
 		try {
 			pluginDirURL = this.pluginDirectory.toURI().toURL();
@@ -311,36 +230,37 @@ public class PluginLoader {
 		URLClassLoader classLoader = new URLClassLoader(new URL[] { pluginDirURL });
 		ConnectorImplementationLoader loader = new ConnectorImplementationLoader(classLoader);
 
-		// 後続の読み込み処理に失敗したプラグインはここに追記していく（即例外を投げると後続プラグインを読み込めないため）
+		// If any error occurred when loading a plugin, skip loading it and go to the next plugin.
+		// So store error information to the following variables, and throw it after when all plugin have loaded.
 		String notExistPlugis = "";
 		String initFailedPlugis = "";
 		Throwable initFailedCause = null;
 		boolean[] isLoadingFailed = new boolean[pluginN];
 		Arrays.fill(isLoadingFailed, false);
 
-		// プラグインを一個ずつ読んでいく
+		// Load each plugin:
 		for (int pluginIndex=0; pluginIndex<pluginN; pluginIndex++) {
+
+			// Get the file of the plugin.
 			String pluginPath = this.pluginFilePathList.get(pluginIndex);
 			File pluginFile = new File(pluginPath);
 			if (!pluginFile.exists()) {
-				//throw new VnanoException(ErrorType.PLUGIN_FILE_DOES_NOT_EXIST, pluginPath);
 				notExistPlugis += (!notExistPlugis.isEmpty() ? ", " : "") + pluginFile.getName();
 				isLoadingFailed[pluginIndex] = true;
 				continue;
 			}
 
-			// 前回読み込み時から更新日時が変わっていなければ、内容も変わっていないと見なして読み込みスキップ
+			// If the (class) file has not been modified, skip loading it.
 			if (pluginFile.lastModified() == this.pluginLastModList.get(pluginIndex)) {
 				continue;
 			}
 
-			// プラグインクラスファイルを読み込んでインスタンス化し、フィールドに登録
+			// Load the class from the file, and instantiate it.
 			ConnectorImplementationContainer pluginContainer;
 			String pluginClassPath = this.pluginClassPathList.get(pluginIndex);
 			try {
 				pluginContainer = loader.load(pluginClassPath);
 			} catch (ConnectorException e) {
-				//throw new VnanoException(ErrorType.PLUGIN_INITIALIZATION_FAILED, pluginClassPath, e);
 				initFailedPlugis += (!initFailedPlugis.isEmpty() ? ", " : "") + pluginFile.getName();
 				initFailedCause = e;
 				isLoadingFailed[pluginIndex] = true;
@@ -350,11 +270,11 @@ public class PluginLoader {
 			this.pluginInstanceList.set(pluginIndex, pluginInstance);
 			this.pluginNameList.set(pluginIndex, pluginFile.getName());
 
-			// 読み込みが正常に完了したら、ファイルの更新日時を控える（次回で不変なら読み込みスキップするため）
+			// If the plugin has been instantiated successfully, store the last modified time of the plugin (class) file.
 			this.pluginLastModList.set(pluginIndex, pluginFile.lastModified());
 		}
 
-		// 読み込みに失敗したものはリストから削除する
+		// Remove failed plugins from lists.
 		if (!notExistPlugis.isEmpty() || !notExistPlugis.isEmpty()) {
 			List<String> succeededPluginFilePathList = new ArrayList<String>();
 			List<String> succeededPluginClassPathList = new ArrayList<String>();
@@ -377,7 +297,7 @@ public class PluginLoader {
 			this.pluginLastModList = succeededPluginLastModList;
 		}
 
-		// 読み込みに失敗したものが 1 つでもあれば例外を投げる
+		// Throw an exception if any plugin could not be loaded/instantiated successfully.
 		if (!notExistPlugis.isEmpty()) {
 			throw new VnanoException(ErrorType.PLUGIN_FILE_DOES_NOT_EXIST, notExistPlugis);
 		}
@@ -387,3 +307,4 @@ public class PluginLoader {
 	}
 
 }
+

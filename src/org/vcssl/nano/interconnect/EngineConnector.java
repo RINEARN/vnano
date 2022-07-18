@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2019-2022 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2019-2022 RINEARN
  * This software is released under the MIT License.
  */
 
@@ -17,63 +17,106 @@ import org.vcssl.nano.spec.ErrorMessage;
 import org.vcssl.nano.spec.ErrorType;
 import org.vcssl.nano.spec.OptionKey;
 
-//Documentation:  https://www.vcssl.org/en-us/dev/code/main-jimpl/api/org/vcssl/nano/EngineConnector.html
-//ドキュメント:   https://www.vcssl.org/ja-jp/dev/code/main-jimpl/api/org/vcssl/nano/EngineConnector.html
-
 /**
- * <span class="lang-en">
- * The connector class to access the script engine of the Vnano from plug-ins
- * </span>
- * <span class="lang-ja">
- * プラグイン等からVnanoのスクリプトエンジンにアクセスするためのコネクタークラスです
- * </span>
- * .
- *
- * <p>
- * &raquo; <a href="../../../../../src/org/vcssl/nano/interconnect/EngineConnector.java">Source code</a>
- * </p>
- *
- * <hr>
- *
- * <p>
- * | <a href="../../../../../api/org/vcssl/nano/interconnect/EngineConnector.html">Public Only</a>
- * | <a href="../../../../../api-all/org/vcssl/nano/interconnect/EngineConnector.html">All</a> |
- * </p>
- *
- * @author RINEARN (Fumihiro Matsui)
+ * The connector class to access the script engine of the Vnano from plug-ins.
+ * In Vnano Engine, we call this kind of object as an "engine connector".
  */
 public final class EngineConnector implements EngineConnectorInterface1 {
 
-	// プラグイン側からフィールドを差し替えられると、想定外の問題の原因になったりデバッグの難しい挙動を招き得るので、
-	// フィールドの setter は設けず、差し替えたい場合は create～Instance 系メソッドに渡して別インスタンスを再生成する方針
-	// (リフレクション経由での変更可能性については、必要に応じてホストアプリケーション側で実行環境設定等で対応)
+	// Don't create setters of fields of this class.
+	// An instance of this class will be accessed from plug-ins, not only from the engine.
+	// It may be cause of unexpected problems when the fields are freely modified from plug-ins.
+	// To get an instance having the field you want, use "create*UpdatedInstance" methods.
 
+	/** The Map (option map) storing names and values of options. */
 	private final Map<String, Object> optionMap;
+
+	/** The Map (permission map) storing names and values of permission items. */
 	private final Map<String, String> permissionMap;
+
+	/** The permission authorizer, which is an object for authorizing requests of permissions from plug-ins. */
 	private final PermissionAuthorizerConnectorInterface1 permissionAuthorizer;
 
 
+	/**
+	 * Creates an instance of the engine connector, having no information.
+	 * To add information, call "create*UpdatedInstance" methods 
+	 * which creates new instance having the specified information.
+	 */
 	public EngineConnector() {
 		this.optionMap = null;
 		this.permissionMap = null;
 		this.permissionAuthorizer = null;
 	}
 
-	// このコンストラクタは参照を控えるのみで、
-	// それらの間の関連性の更新などは行わない（例外を投げる場合があるため）ので、
-	// 別途 reflectPermissionSettings() 等を呼ぶ必要がある。
-	// create～Instance 系メソッドはそのような必要な処理も済ませたインスタンスを返す。
+	/**
+	 * Creates an instance of an engine connector, having the specified information.
+	 * 
+	 * @param optionMap The Map (option map) storing names and values of options.
+	 * @param permissionMap The Map (permission map) storing names and values of permission items.
+	 * @param permissionAuthorizer The permission authorizer.
+	 */
 	private EngineConnector(
 			Map<String, Object> optionMap, Map<String, String> permissionMap,
 			PermissionAuthorizerConnectorInterface1 permissionAuthorizer) {
+
+		// Note: This constructor only sets references of fields.
+		//       It doesn't update relationship between them (because it may throw exceptions).
+		//       
+		//       For example, the permission authorizer shoud has reference to the permission map.
+		//       Such ancillary settings will be performed by "create*UpdatedInstance" methods.
+		//       This constructor will be used at only inside of this class,
+		//       and "create*UpdatedInstance" methods will be used from the outside of this class.
 
 		this.optionMap = optionMap;
 		this.permissionMap = permissionMap;
 		this.permissionAuthorizer = permissionAuthorizer;
 	}
 
-	// permissionMap の設定内容を permissionAuthorizer に反映させる
-	// (例外を投げる可能性があるので、コンストラクタから別メソッドに切り分けている / コンストラクタの説明参照)
+
+	/**
+	 * Creates a copy of this instance having the specified option map.
+	 * 
+	 * @param updatedOptionMap The Map (option map) storing names and values of options.
+	 */
+	public final EngineConnector createOptionMapUpdatedInstance(Map<String, Object> updatedOptionMap) {
+		return new EngineConnector(updatedOptionMap, this.permissionMap, this.permissionAuthorizer);
+	}
+
+
+	/**
+	 * Creates a copy of this instance having the specified permission map.
+	 * 
+	 * @param updatedPermissionMap The Map (permission map) storing names and values of permission items.
+	 */
+	public final EngineConnector createPermissionMapUpdatedInstance(Map<String, String> updatedPermissionMap)
+			throws VnanoException {
+
+		EngineConnector updatedEngineConnector = new EngineConnector(this.optionMap, updatedPermissionMap, this.permissionAuthorizer);
+		updatedEngineConnector.reflectPermissionSettings();
+		return updatedEngineConnector;
+	}
+
+
+	/**
+	 * Creates a copy of this instance having the specified permission authorizer.
+	 * 
+	 * @param updatedPermissionAuthorizer The permission authorizer, which is an object for authorizing requests of permissions from plug-ins.
+	 */
+	public final EngineConnector createPermissionAuthorizerUpdatedInstance(PermissionAuthorizerConnectorInterface1 updatedPermissionAuthorizer)
+			throws VnanoException {
+
+		EngineConnector updatedEngineConnector = new EngineConnector(this.optionMap, this.permissionMap, updatedPermissionAuthorizer);
+		updatedEngineConnector.reflectPermissionSettings();
+		return updatedEngineConnector;
+	}
+
+
+	/**
+	 * Refrects the current permission map to the permission authorizer.
+	 * 
+	 * @throws VnanoException Thrown when invalid names/values of permission items have been detected.
+	 */
 	private final void reflectPermissionSettings() throws VnanoException {
 		if (this.permissionAuthorizer != null) {
 			try {
@@ -88,49 +131,11 @@ public final class EngineConnector implements EngineConnectorInterface1 {
 	}
 
 
-	// オプションマップを差し替えたインスタンスを生成して返す
-	public final EngineConnector createOptionMapUpdatedInstance(Map<String, Object> updatedOptionMap) {
-		return new EngineConnector(updatedOptionMap, this.permissionMap, this.permissionAuthorizer);
-	}
-
-
-	// パーミッションマップを差し替えたインスタンスを生成して返す
-	public final EngineConnector createPermissionMapUpdatedInstance(Map<String, String> updatedPermissionMap)
-			throws VnanoException {
-
-		EngineConnector updatedEngineConnector = new EngineConnector(this.optionMap, updatedPermissionMap, this.permissionAuthorizer);
-		updatedEngineConnector.reflectPermissionSettings();
-		return updatedEngineConnector;
-	}
-
-
-	// パーミッション認可プラグイン(permission authorizer)を差し替えたインスタンスを生成して返す
-	public final EngineConnector createPermissionAuthorizerUpdatedInstance(PermissionAuthorizerConnectorInterface1 updatedPermissionAuthorizer)
-			throws VnanoException {
-
-		EngineConnector updatedEngineConnector = new EngineConnector(this.optionMap, this.permissionMap, updatedPermissionAuthorizer);
-		updatedEngineConnector.reflectPermissionSettings();
-		return updatedEngineConnector;
-	}
-
-
-
 	/**
-	 * <span class="lang-en">
-	 * Checks whether the option is set or not
-	 * </span>
-	 * <span class="lang-ja">
-	 * 指定された名称のオプションが設定されているかどうかを判定します
-	 * </span>
-	 * .
+	 * Checks whether the option is set.
 	 *
-	 * @param optionKey
-	 *   <span class="lang-en">The key of the option (option name) to be checked.</span>
-	 *   <span class="lang-ja">判定するオプションのキー（オプション名）.</span>
-	 *
-	 * @return
-	 *   <span class="lang-en">The chech result (if the option is set, then returns true)</span>
-	 *   <span class="lang-ja">判定結果（保持していれば true）.</span>
+	 * @param optionKey The name (key) of the option (option name) to be checked.
+	 * @return Returns true if the specified option is set.
 	 */
 	@Override
 	public final boolean hasOptionValue(String optionKey) {
@@ -139,21 +144,10 @@ public final class EngineConnector implements EngineConnectorInterface1 {
 
 
 	/**
-	 * <span class="lang-en">
-	 * Gets the value of the option
-	 * </span>
-	 * <span class="lang-ja">
-	 * 指定されたオプションの値を取得します
-	 * </span>
-	 * .
+	 * Gets the value of the option.
 	 *
-	 * @param optionKey
-	 *   <span class="lang-en">The key of the option (option name).</span>
-	 *   <span class="lang-ja">オプションのキー（オプション名）.</span>
-	 *
-	 * @return
-	 *   <span class="lang-en">The option value.</span>
-	 *   <span class="lang-ja">オプションの値.</span>
+	 * @param optionKey The name (key) of the option (option name).
+	 * @return The option value.
 	 */
 	@Override
 	public final Object getOptionValue(String optionName) {
@@ -162,42 +156,24 @@ public final class EngineConnector implements EngineConnectorInterface1 {
 
 
 	/**
-	 * <span class="lang-en">Request the specified permission</span>
-	 * <span class="lang-ja">指定されたパーミッションを要求します</span>
-	 * .
-	 * @param permissionName
-	 *     <span class="lang-en">The name of the permission item to request</span>
-	 *     <span class="lang-ja">要求するパーミッション項目の名称</span>
-	 *
-	 * @param requester
-	 *     <span class="lang-en">The plug-in requesting the permission</span>
-	 *     <span class="lang-ja">パーミッションを要求しているプラグイン</span>
-	 *
-	 * @param metaInformation
-	 *     <span class="lang-en">
-	 *         The information to be notified to the user
-	 *         (especially when the current value of the permission is set to {@link ConnectorPermissionValue#ASK ASK})
-	 *     </span>
-	 *     <span class="lang-ja">
-	 *         必要に応じてユーザーに通知されるメタ情報
-	 *         （特に, パーミッション値が {@link ConnectorPermissionValue#ASK ASK} に設定されている際などに表示されます）
-	 *     </span>
-	 *
-	 * @throws ConnectorException
-	 *     <span class="lang-en">Thrown when the requested permission has been denied</span>
-	 *     <span class="lang-ja">要求したパーミッションが拒否された場合にスローされます</span>
+	 * Requests the specified permission.
+	 * @param permissionName The name of the permission item to request.
+	 * @param requester The plug-in requesting the permission.
+	 * @param metaInformation The information to be notified to the user, especially when the permission is set to "ASK".
+  	 * @throws ConnectorException Thrown when the requested permission has been denied.
 	 */
 	@Override
 	public final void requestPermission(String permissionName, Object requester, Object metaInformation)
 			throws ConnectorException {
 
-		// 接続されているパーミッション許可プラグインに要求を投げる
+		// Request to the permission authorizer plug-in.
 		if (this.permissionAuthorizer != null) {
 
-			// (許可されれば何も起こらず、拒否されれば ConnectorException が発生する)
+			// If the request will be allowed, nothing will occur.
+			// If the request will be denied, a ConnectorException will be thrown.
 			this.permissionAuthorizer.requestPermission(permissionName, requester, metaInformation);
 
-		// パーミッション許可プラグインが接続されていない場合はエラー
+		// If no permission authorizer plug-in is connecter: Error
 		} else {
 			String errorMessage = ErrorMessage.generateErrorMessage(
 				ErrorType.NO_PERMISSION_AUTHORIZER_IS_CONNECTED, (Locale)this.optionMap.get(OptionKey.LOCALE)
@@ -208,16 +184,10 @@ public final class EngineConnector implements EngineConnectorInterface1 {
 
 
 	/**
-	 * <span class="lang-en">Returns whether the other type of engine connector is available or not</span>
-	 * <span class="lang-en">他種のエンジンコネクターが利用可能かどうかを返します</span>
-	 * .
-	 * @param engineConnectorClass
-	 *     <span class="lang-en">The class of the engine connector you want to use</span>
-	 *     <span class="lang-ja">使用したいエンジンコネクターのクラス</span>
-	 *
-	 * @return
-	 *     <span class="lang-en">Returns "true" if the specified engine connector is available</span>
-	 *     <span class="lang-ja">指定されたエンジンコネクターが利用可能な場合に true が返されます</span>
+	 * Returns whether the other type of engine connector is available.
+	 * 
+	 * @param engineConnectorClass The class of the engine connector you want to use.
+	 * @return Returns true if the specified engine connector is available.
 	 */
 	@Override
 	public boolean isOtherEngineConnectorAvailable(Class<?> engineConnectorClass) {
@@ -227,16 +197,10 @@ public final class EngineConnector implements EngineConnectorInterface1 {
 
 
 	/**
-	 * <span class="lang-en">Returns the other type of engine connector</span>
-	 * <span class="lang-en">他種のエンジンコネクターを返します</span>
-	 * .
-	 * @param engineConnectorClass
-	 *     <span class="lang-en">The class of the engine connector you want to use</span>
-	 *     <span class="lang-ja">使用したいエンジンコネクターのクラス</span>
-	 *
-	 * @return
-	 *     <span class="lang-en">The specified type of engine connector</span>
-	 *     <span class="lang-ja">指定された種類のエンジンコネクター</span>
+	 * Returns the other type of engine connector.
+	 * 
+	 * @param engineConnectorClass The class of the engine connector you want to use.
+	 * @return The specified type of engine connector.
 	 */
 	@Override
 	public <T> T getOtherEngineConnector(Class<T> engineConnectorClass) {
@@ -246,4 +210,5 @@ public final class EngineConnector implements EngineConnectorInterface1 {
 			return null;
 		}
 	}
+
 }

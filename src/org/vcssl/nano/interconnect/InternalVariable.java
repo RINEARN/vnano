@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2020 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2022 RINEARN
  * This software is released under the MIT License.
  */
 
@@ -9,47 +9,42 @@ import org.vcssl.nano.VnanoFatalException;
 import org.vcssl.nano.vm.memory.DataContainer;
 
 /**
- * <p>
- * Vnano処理系内部における変数の実装クラスです。
- * </p>
- *
- * @author RINEARN (Fumihiro Matsui)
+ * The class of an internal variable.
  */
 public class InternalVariable extends AbstractVariable {
 
-	/** 変数名を保持します。 */
+	/** The name of this variable. */
 	private String variableName = null;
 
-	// コンパイルの段階では、なるべくデータ型をサポート範囲内には絞らず拡張性を持たせるため、DataType列挙子ではなくデータ型名を保持する
-	/** データ型名を保持します。 */
+	/** The name of the data-type of this variable. */
 	private String dataTypeName = null;
 
-	/** 配列次元数（スカラは0次元として扱う）を保持します。 */
+	/** The array-rank (0 for a scalar) of this variable. */
 	private int rank = -1;
 
-	/** 書き換え不可能な定数であるかどうかを保持します。 */
+	/** The flag representing whether this variable is a constant (unmodifiable). */
 	private boolean constantness = false;
 
-	/** この変数のデータを保持する、データユニットを保持します。 */
+	/** The data-container in which data of this variable will be stored. */
 	private DataContainer<?> dataContainer;
 
-	/** 変数名が競合している変数を区別するためのシリアルナンバーを保持します。 */
+	/** The serial number of this variable, to distinguish multiple variables having the same name. */
 	private int serialNumber = -1;
 
-	/** 変数名が競合している変数を区別するためのシリアルナンバーを保持しているかどうかを表すフラグです。 */
+	/** The flag representing whether this variable has a serial number. */
 	private boolean hasSerialNumber = false;
 
 
 	/**
-	 * 変数名とデータ型、および配列次元数を指定して、変数を生成します。
-	 * ただし、変数のデータを保持するデータユニットは、自動では生成されないため、
-	 * 外部で生成したものを {@link InternalVariable#setDataUnit dataUnit}
-	 * メソッドで設定する必要がああります。
-	 *
-	 * @param variableName 変数名
-	 * @param dataTypeName データ型名（配列部分 [][]...[] は含まない）
-	 * @param rank 配列次元数（スカラは0次元として扱う）
-	 * @param constantness 定数かどうか
+	 * Creates a new variable having specified information.
+	 * 
+	 * Note that, the data-container for storing data will not generated automatically, 
+	 * so create it separately, and set it by {@link InternalVariable#setDataUnit dataUnit} method.
+	 * 
+	 * @param variableName The name of this variable.
+	 * @param dataTypeName The name of the data-type of this variable.
+	 * @param rank The array-rank (0 for a scalar) of this variable.
+	 * @param constantness The flag representing whether this variable is a constant (unmodifiable).
 	 */
 	public InternalVariable(String variableName, String dataTypeName, int rank, boolean constantness) {
 		this.variableName = variableName;
@@ -59,16 +54,16 @@ public class InternalVariable extends AbstractVariable {
 	}
 
 	/**
-	 * 変数名とデータ型、配列次元数、およびシリアルナンバーを指定して、変数を生成します。
-	 * ただし、変数のデータを保持するデータユニットは、自動では生成されないため、
-	 * 外部で生成したものを {@link InternalVariable#setDataUnit dataUnit}
-	 * メソッドで設定する必要がああります。
-	 *
-	 * @param variableName 変数名
-	 * @param dataTypeName データ型名（配列部分 [][]...[] は含まない）
-	 * @param rank 配列次元数（スカラは0次元として扱う）
-	 * @param constantness 定数かどうか
-	 * @param int serialNumber 変数名が競合している変数を区別するためのシリアルナンバー
+	 * Creates a new variable having specified information, including a serial number.
+	 * 
+	 * Note that, the data-container for storing data will not generated automatically, 
+	 * so create it separately, and set it by {@link InternalVariable#setDataUnit dataUnit} method.
+	 * 
+	 * @param variableName The name of this variable.
+	 * @param dataTypeName The name of the data-type of this variable.
+	 * @param rank The array-rank (0 for a scalar) of this variable.
+	 * @param constantness The flag representing whether this variable is a constant (unmodifiable).
+	 * @param serialNumber The serial number of this variable, to distinguish multiple variables having the same name.
 	 */
 	public InternalVariable(String variableName, String dataTypeName, int rank, boolean isConstant, int serialNumber) {
 		this(variableName, dataTypeName, rank, isConstant);
@@ -78,9 +73,9 @@ public class InternalVariable extends AbstractVariable {
 
 
 	/**
-	 * 変数名を取得します。
+	 * Gets the name of this variable.
 	 *
-	 * @return 変数名
+	 * @return The name of this variable.
 	 */
 	@Override
 	public String getVariableName() {
@@ -89,14 +84,15 @@ public class InternalVariable extends AbstractVariable {
 
 
 	/**
-	 * このメソッドは使用できません。
+	 * Sets the name of this variable.
+	 * However, this method isn't available, on the current version.
+	 * 
+	 * This method is used for setting an alias for external variables.
+	 * On the other hand, on the current language specification of Vnano, 
+	 * an internal variables can not have multiple names (aliases),
+	 * so VnanoFatalException will be thrown when this method is invoked.
 	 *
-	 * このメソッドは、外部変数などの接続時に、エイリアスを指定するための機能として AbstractVariable に宣言されています。
-	 * 一方、現在のVnanoでは、内部変数にエイリアスを付ける言語機能はサポートしていないため、
-	 * もしも内部変数に対してこのメソッドが呼ばれた場合、それは実装上のミスによるものと考えられます。
-	 * 従って、このメソッドは呼ばれると VnanoFatalException を発生させます。
-	 *
-	 * @param variableName 変数名
+	 * @param variableName The name of this variable.
 	 */
 	@Override
 	public void setVariableName(String variableName) {
@@ -105,20 +101,33 @@ public class InternalVariable extends AbstractVariable {
 
 
 	/**
-	 * 所属している名前空間があるかどうかを判定します。
+	 * Returns whether this variable belongs to any namespace.
 	 *
-	 * @return 名前空間に所属していれば true
+	 * @return Returns true if this variable belongs to a namespace.
 	 */
 	@Override
 	public boolean hasNamespaceName() {
-		return false; // スクリプト内での名前空間定義はサポートされていない
+		return false;
 	}
 
+
+	/**
+	 * Gets the name of the namespace to which this variable belongs.
+	 *
+	 * @return The name of the namespace to which this variable belongs.
+	 */
 	@Override
 	public final String getNamespaceName() {
 		throw new VnanoFatalException("Internal variables can not belongs to any namespaces.");
 	}
 
+
+	/**
+	 * Sets the name of the namespace to which this variable belongs.
+	 * However, this method isn't available, on the current version.
+	 *
+	 * @namespaceName The name of the namespace to which this variable belongs.
+	 */
 	@Override
 	public final void setNamespaceName(String namespaceName) {
 		throw new VnanoFatalException("Internal variables can not belongs to any namespaces.");
@@ -126,26 +135,10 @@ public class InternalVariable extends AbstractVariable {
 
 
 	/**
-	 * データ型を取得します。
+	 * Gets the name of the data-type of this variable.
+	 * In the data-type name, array declaration parts [][]...[] aren't contained.
 	 *
-	 * @return データ型
-	 * @throws VnanoException
-	 * 		このインスタンスが保持するデータ型名から、
-	 * 		この処理系でサポートされているデータ型に変換できなかった場合にスローされます。
-	 */
-	/*
-	@Override
-	public DataType getDataType() throws VnanoException {
-		//return this.dataType;
-		return DataTypeName.getDataTypeOf(this.dataTypeName);
-	}
-	*/
-
-
-	/**
-	 * データ型の名称を取得します。
-	 *
-	 * @return データ型の名称
+	 * @return The name of the data-type of this variable.
 	 */
 	@Override
 	public String getDataTypeName() {
@@ -154,19 +147,20 @@ public class InternalVariable extends AbstractVariable {
 
 
 	/**
-	 * この変数のデータを保持するデータコンテナを取得します。
-	 *
-	 * @return データコンテナ
+	 * Gets the data-container for storing data of this variable.
+	 * 
+	 * @return The data-container for storing data of this variable.
 	 */
 	@Override
 	public DataContainer<?> getDataContainer() {
 		return this.dataContainer;
 	}
 
+
 	/**
-	 * この変数のデータを保持するデータコンテナを設定します。
-	 *
-	 * @param dataContainer データコンテナ
+	 * Sets the data-container for storing data of this variable.
+	 * 
+	 * @param dataContainer The data-container for storing data of this variable.
 	 */
 	@Override
 	public void setDataContainer(DataContainer<?> dataContainer) {
@@ -175,41 +169,48 @@ public class InternalVariable extends AbstractVariable {
 
 
 	/**
-	 * 配列次元数（スカラは0次元として扱う）を取得します。
+	 * Gets array-ranks of all parameters.
+	 * 
+	 * Note that, the array-rank of an scalar is 0.
 	 *
-	 * @return 配列次元数
+	 * @return The array storing array-ranks of all parameters.
 	 */
 	@Override
 	public int getRank() {
 		return this.rank;
 	}
+	// TO DO: rename to: getArrayRank()
 
 
 	/**
-	 * 書き換え不可能な定数であるかどうかを返します。
-	 *
-	 * @return 定数ならtrue
+	 * Returns whether this variable is constant.
+	 * 
+	 * @return Returns true if this variable is constant.
 	 */
+	@Override
 	public boolean isConstant() {
 		return this.constantness;
 	}
 
 
 	/**
-	 * 同じ変数名の変数を区別するためのシリアルナンバーを保持しているかどうかを判定します。
+	 * Returns whether this variable has a serial number,
+	 * which is a number to distinguish multiple variables having the same name.
 	 *
-	 * @return 保持していれば true
+	 * @return Returns true if this variable has a serial number.
 	 */
+	@Override
 	public boolean hasSerialNumber() {
 		return this.hasSerialNumber;
 	}
 
 
 	/**
-	 * 同じ変数名の変数を区別するためのシリアルナンバーを返します。
-	 *
-	 * @return シリアルナンバー
+	 * Gets the serial number which is a number to distinguish multiple variables having the same name.
+	 * 
+	 * @return The serial number.
 	 */
+	@Override
 	public int getSerialNumber() {
 		return this.serialNumber;
 	}

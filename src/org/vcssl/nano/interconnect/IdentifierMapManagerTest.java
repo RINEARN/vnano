@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2019 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2019-2022 RINEARN
  * This software is released under the MIT License.
  */
 
@@ -27,8 +27,6 @@ public class IdentifierMapManagerTest {
 
 	@Test
 	public void testConstructor() {
-		// staticメソッドだけしかないものの、一応コンストラクタを呼んでも落ちない事のテスト
-		// （他のテストで一度も呼ばないので）
 		new IdentifierMapManager();
 	}
 
@@ -36,10 +34,10 @@ public class IdentifierMapManagerTest {
 	@Test
 	public void testPutToMap() {
 
-		// 操作対象のマップを用意
+		// Create an Map instance for testing.
 		LinkedHashMap<String, LinkedList<String>> map = new LinkedHashMap<String, LinkedList<String>>();
 
-		// 要素を追加
+		// Put values.
 		IdentifierMapManager.putToMap(map, "a", "A0");
 		IdentifierMapManager.putToMap(map, "b", "B0");
 		IdentifierMapManager.putToMap(map, "b", "B1");
@@ -47,23 +45,23 @@ public class IdentifierMapManagerTest {
 		IdentifierMapManager.putToMap(map, "c", "C1");
 		IdentifierMapManager.putToMap(map, "c", "C2");
 
-		// 指定したキーで要素が登録されているか確認
+		// Test that above keys are registered to the Map.
 		assertTrue(map.containsKey("a"));
 		assertTrue(map.containsKey("b"));
 		assertTrue(map.containsKey("c"));
 		assertFalse(map.containsKey("d"));
 		assertFalse(map.containsKey("e"));
 
-		// キー「a」の要素の内容を確認
+		// Test the value associated with the key "a".
 		assertEquals(1, map.get("a").size());
 		assertEquals("A0", map.get("a").get(0));
 
-		// キー「b」の要素の内容を確認
+		// Test the value associated with the key "b".
 		assertEquals(2, map.get("b").size());
 		assertEquals("B0", map.get("b").get(0));
 		assertEquals("B1", map.get("b").get(1));
 
-		// キー「c」の要素の内容を確認
+		// Test the value associated with the key "c".
 		assertEquals(3, map.get("c").size());
 		assertEquals("C0", map.get("c").get(0));
 		assertEquals("C1", map.get("c").get(1));
@@ -74,10 +72,10 @@ public class IdentifierMapManagerTest {
 	@Test
 	public void testGetFromMap() {
 
-		// 操作対象のマップを用意
+		// Create an Map instance for testing.
 		LinkedHashMap<String, LinkedList<String>> map = new LinkedHashMap<String, LinkedList<String>>();
 
-		// 要素を追加
+		// Put values.
 		IdentifierMapManager.putToMap(map, "a", "A0");
 		IdentifierMapManager.putToMap(map, "b", "B0");
 		IdentifierMapManager.putToMap(map, "b", "B1");
@@ -85,7 +83,7 @@ public class IdentifierMapManagerTest {
 		IdentifierMapManager.putToMap(map, "c", "C1");
 		IdentifierMapManager.putToMap(map, "c", "C2");
 
-		// 各の要素を取得して検査（重複キーで複数の要素がある場合、最後の要素を取得するはず）
+		// Test the values associated with keys.
 		assertEquals("A0", IdentifierMapManager.getLastFromMap(map, "a"));
 		assertEquals("B1", IdentifierMapManager.getLastFromMap(map, "b"));
 		assertEquals("C2", IdentifierMapManager.getLastFromMap(map, "c"));
@@ -95,10 +93,10 @@ public class IdentifierMapManagerTest {
 	@Test
 	public void testRemoveFromMap() {
 
-		// 操作対象のマップを用意
+		// Create an Map instance for testing.
 		LinkedHashMap<String, LinkedList<String>> map = new LinkedHashMap<String, LinkedList<String>>();
 
-		// 要素を追加
+		// Put values.
 		IdentifierMapManager.putToMap(map, "a", "A0");
 		IdentifierMapManager.putToMap(map, "b", "B0");
 		IdentifierMapManager.putToMap(map, "b", "B1");
@@ -106,22 +104,21 @@ public class IdentifierMapManagerTest {
 		IdentifierMapManager.putToMap(map, "c", "C1");
 		IdentifierMapManager.putToMap(map, "c", "C2");
 
-		// 要素を削除（重複キーで複数の要素がある場合、最後の要素が削除されるはず）
+		// Remove values.
 		IdentifierMapManager.removeLastFromMap(map, "a");
 		IdentifierMapManager.removeLastFromMap(map, "b");
 		IdentifierMapManager.removeLastFromMap(map, "c");
 
-		// 各キーでの要素の有無を検査
-		assertFalse(map.containsKey("a")); // キー「 a 」の要素は1個だけだったので、削除でマップから消えているはず
-		assertTrue(map.containsKey("b")); // キー「 b 」、「 c 」はまだあるはず
-		assertTrue(map.containsKey("c"));
+		// Test the values associated with keys.
+		assertFalse(map.containsKey("a")); // Only one value had put with the key "a", and we have removed it, so "containsKey" should return false.
+		assertTrue(map.containsKey("b")); // Multiple values had put with the key "b", and we have removed the last one, so "containsKey" should return true.
+		assertTrue(map.containsKey("c")); // As the same as the key "b", "containsKey" should return true.
 
-
-		// キー「b」の要素の内容を確認
+		// Test values associated with the key "b".
 		assertEquals(1, map.get("b").size());
 		assertEquals("B0", map.get("b").get(0));
 
-		// キー「c」の要素の内容を確認
+		// Test values associated with the key "c".
 		assertEquals(2, map.get("c").size());
 		assertEquals("C0", map.get("c").get(0));
 		assertEquals("C1", map.get("c").get(1));

@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2021 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2022 RINEARN
  * This software is released under the MIT License.
  */
 
@@ -18,44 +18,63 @@ import org.vcssl.nano.spec.IdentifierSyntax;
 import org.vcssl.nano.spec.ScriptWord;
 
 /**
- * <p>
- * 変数テーブルの機能を提供するクラスです。
- * </p>
- *
- * @author RINEARN (Fumihiro Matsui)
+ * The class acting as a variable table.
+ * Where "variable table" is a table mapping each variable's name to information of the corresponding variable.
  */
 public class VariableTable implements Cloneable {
 
-	/** 変数を保持するリストです。 */
+	/** The List storing all variables. */
 	LinkedList<AbstractVariable> variableList = null;
 
-	/** 変数名と、変数とを対応付けるマップです。同じキーの要素を複数格納するため、値をリスト化して保持します。 */
+	/**
+	 * The Map mapping each variable name to the corresponding variable.
+	 * Multiple variables may have the same name, so this map stores a List as a value.
+	 */
 	Map<String, LinkedList<AbstractVariable>> nameVariableMap = null;
 
-	/** 名前空間付きの変数名と、変数とを対応付けるマップです。同じキーの要素を複数格納するため、値をリスト化して保持します。 */
+	/**
+	 * The Map mapping each variable fully qualified name to the corresponding variable.
+	 * Multiple variables may have the same fully qualified name, so this map stores a List as a value.
+	 */
 	Map<String, LinkedList<AbstractVariable>> fullNameVariableMap = null;
 
-	/** 中間アセンブリコード識別子と、変数とを対応付けるマップです。同じキーの要素を複数格納するため、値をリスト化して保持します。 */
+	/**
+	 * The Map mapping each variable's identifier in assembly code to the corresponding variable.
+	 * Multiple variables may have the same assembly identifier, so this map stores a List as a value.
+	 */
 	Map<String, LinkedList<AbstractVariable>> assemblyIdentifierVariableMap = null;
 
-	/** 名前空間付きの中間アセンブリコード識別子と、変数とを対応付けるマップです。同じキーの要素を複数格納するため、値をリスト化して保持します。 */
+	/**
+	 * The Map mapping each variable's fully qualified identifier in assembly code to the corresponding variable.
+	 * Multiple variables may have the same assembly identifier, so this map stores a List as a value.
+	 */
 	Map<String, LinkedList<AbstractVariable>> fullAssemblyIdentifierVariableMap = null;
 
-	/** 変数テーブル内でのインデックスと、変数とを対応付けるマップです。 */
-	Map<Integer, AbstractVariable> indexVariableMap = null; // variableList は LinkedList なので、要素を辿るコストを避けるため
+	/**
+	 * The Map mapping each variable's index in this variable table to the corresponding variable.
+	 * The "variableList" field is a LinkedList, so getting its element by an index takes a cost.
+	 * This map is used for improving costs of such operations.
+	 */
+	Map<Integer, AbstractVariable> indexVariableMap = null;
 
-	/** 中間アセンブリコード識別子と、変数テーブル内でのインデックスとを対応付けるマップです。同じキーの要素を複数格納するため、値をリスト化して保持します。 */
+	/**
+	 * The Map mapping each variable's identifier in assembly code to the variable's index in this table.
+	 * Multiple variables may have the same assembly identifier, so this map stores a List as a value.
+	 */
 	Map<String, LinkedList<Integer>> assemblyIdentifierIndexMap = null;
 
-	/** 名前空間付きの中間アセンブリコード識別子と、変数テーブル内でのインデックスとを対応付けるマップです。同じキーの要素を複数格納するため、値をリスト化して保持します。 */
+	/**
+	 * The Map mapping each variable's fully qualified identifier in assembly code to the variable's index in this table.
+	 * Multiple variables may have the same assembly identifier, so this map stores a List as a value.
+	 */
 	Map<String, LinkedList<Integer>> fullAssemblyIdentifierIndexMap = null;
 
-	/** 登録されている変数の個数を保持します。 */
+	/** The total count of currently registered variables. */
 	int size;
 
 
 	/**
-	 * 空の変数テーブルを生成します。
+	 * Creates an empty variable table.
 	 */
 	public VariableTable() {
 		this.variableList = new LinkedList<AbstractVariable>();
@@ -73,28 +92,29 @@ public class VariableTable implements Cloneable {
 
 
 	/**
-	 * 変数を追加登録します。
+	 * Add (regisiter) a new variable to this table.
 	 *
-	 * @param variable 対象の変数
+	 * @param variable The variable to be added.
 	 */
 	public void addVariable(AbstractVariable variable) {
 		int variableIndex = this.size;
 		this.size++;
 
-		// 単純識別子から、名前空間を加味した識別子や、アセンブリ識別子などを求める
+		// Get the fully qualified name, and the identifier in assembly code, from the (simple) name of the variable.
 		String namespacePrefix = variable.hasNamespaceName() ? variable.getNamespaceName() + ScriptWord.NAMESPACE_SEPARATOR : "";
 		String varName = variable.getVariableName();
 		String asmName = IdentifierSyntax.getAssemblyIdentifierOf(variable);
 		String fullAsmName = IdentifierSyntax.getAssemblyIdentifierOf(variable, namespacePrefix);
 
-		// リストとマップに変数を追加
+		// Add the variable to lists and maps.
 		this.variableList.add(variable);
 		IdentifierMapManager.putToMap(this.nameVariableMap, varName, variable); // 重複キーに対応するためのマップ操作メソッド
 		IdentifierMapManager.putToMap(this.fullNameVariableMap, namespacePrefix + varName, variable);
 		IdentifierMapManager.putToMap(this.assemblyIdentifierVariableMap, asmName, variable);
 		IdentifierMapManager.putToMap(this.fullAssemblyIdentifierVariableMap, fullAsmName, variable);
 
-		// インデックスと変数とを関連付けるマップに登録（インデックスでの参照時にLinkedListを辿るコストを避けるため）
+		// Register the variable's index to some maps as a key, for reducing costs when we want to get the variable from the index.
+		// (LinkedList requires the cost of the order O(N) for such operation, but Map can do it with the cost of the order O(1).)
 		this.indexVariableMap.put(variableIndex, variable);
 		IdentifierMapManager.putToMap(this.assemblyIdentifierIndexMap, asmName, variableIndex);
 		IdentifierMapManager.putToMap(this.fullAssemblyIdentifierIndexMap, fullAsmName, variableIndex);
@@ -102,41 +122,43 @@ public class VariableTable implements Cloneable {
 
 
 	/**
-	 * 指定された変数名の変数（複数存在する場合は最後に登録されたもの）を削除します。
+	 * Remove the variable having the specified (simple) name.
+	 * 
+	 * If multiple variables having the same name exist in the table, the last added one will be removed.
 	 *
-	 * @param variableName 削除する変数名
+	 * @param variableName The (simple) name of the variable to be removed.
 	 */
 	public void removeLastVariable() {
 		this.size--;
 		int variableIndex = this.size;
 
-		// 単純識別子から、名前空間を加味した識別子や、アセンブリ識別子などを求める（削除する際のキーに使う）
+		// Get the fully qualified name, and the identifier in assembly code, from the (simple) name of the variable.
 		AbstractVariable variable = this.variableList.getLast();
 		String namespacePrefix = variable.hasNamespaceName() ? variable.getNamespaceName() + ScriptWord.NAMESPACE_SEPARATOR : "";
 		String varName = variable.getVariableName();
 		String asmName = IdentifierSyntax.getAssemblyIdentifierOf(variable);
 		String fullAsmName = IdentifierSyntax.getAssemblyIdentifierOf(variable, namespacePrefix);
 
-		// リストとマップから変数を削除
+		// Remove the variable from lists and maps.
 		this.variableList.removeLast();
 		IdentifierMapManager.removeLastFromMap(this.nameVariableMap, varName); // 重複キーに対応するためのマップ操作メソッド
 		IdentifierMapManager.removeLastFromMap(this.fullNameVariableMap, namespacePrefix + varName);
 		IdentifierMapManager.removeLastFromMap(this.assemblyIdentifierVariableMap, asmName);
 		IdentifierMapManager.removeLastFromMap(this.fullAssemblyIdentifierVariableMap, fullAsmName);
-
-		// インデックスと変数とを関連付けるマップから削除
 		this.indexVariableMap.remove(variableIndex, variable);
+		IdentifierMapManager.removeLastFromMap(this.assemblyIdentifierIndexMap, asmName);
+		IdentifierMapManager.removeLastFromMap(this.fullAssemblyIdentifierIndexMap, fullAsmName);
 	}
 
 
 	/**
-	 * この変数テーブルに登録されている、全ての変数を配列として返します。
+	 * Gets all variables registered to this table.
 	 *
-	 * @return 登録されている全ての変数を格納する配列
+	 * @return An array sotring all variables registered to this table.
 	 */
 	public AbstractVariable[] getVariables() {
 
-		// このリストに変数を全部リストアップして、配列に変換して返す
+		// Add all variables to the following list, and convert it to an array.
 		List<AbstractVariable> variableList = new ArrayList<AbstractVariable>();
 
 		Set<Entry<String, LinkedList<AbstractVariable>>> entrySet = this.nameVariableMap.entrySet();
@@ -148,10 +170,10 @@ public class VariableTable implements Cloneable {
 
 
 	/**
-	 * 指定された名称の変数が、この変数テーブルに登録されているかどうかを判定します。
+	 * Returns whether the variable having the specified name is registered to this table.
 	 *
-	 * @param name 対象変数の名称
-	 * @return 含まれていればtrue
+	 * @param name The name of the variable to be checked.
+	 * @return Returns true if the specified variable is registered to this table.
 	 */
 	public boolean containsVariableWithName(String name) {
 		return this.nameVariableMap.containsKey(name) || this.fullNameVariableMap.containsKey(name);
@@ -159,11 +181,11 @@ public class VariableTable implements Cloneable {
 
 
 	/**
-	 * 指定された名称の変数を取得します。
-	 * 同名の要素が複数存在する場合は、最後に登録されたものを返します。
+	 * Gets the variable having the specified name.
+	 * If multiple variables in this table have the specified name, returns the last added one.
 	 *
-	 * @param name 対象変数の名称
-	 * @return 対象の変数
+	 * @param name The name of the variable to be gotten.
+	 * @return The variable having the specified name.
 	 */
 	public AbstractVariable getVariableByName(String name) {
 		if (this.nameVariableMap.containsKey(name)) {
@@ -177,11 +199,10 @@ public class VariableTable implements Cloneable {
 
 
 	/**
-	 * 指定された中間アセンブリコード識別子に対応する変数が、
-	 * この変数テーブルに登録されているかどうかを判定します。
+	 * Returns whether the variable having the specified identifier in assembly code is registered to this table.
 	 *
-	 * @param identifier 対象変数のアセンブリコード識別子
-	 * @return 登録されていればtrue
+	 * @param identifier The identifier (in assembly code) of the variable to be checked.
+	 * @return Returns true if the specified variable is registered to this table.
 	 */
 	public boolean containsVariableWithAssemblyIdentifier(String identifier) {
 		return this.assemblyIdentifierVariableMap.containsKey(identifier)
@@ -190,11 +211,11 @@ public class VariableTable implements Cloneable {
 
 
 	/**
-	 * 指定された中間アセンブリコード識別子に対応する変数を取得します。
-	 * 同名の要素が複数存在する場合は、最後に登録されたものを返します。
+	 * Gets the variable having the specified identifier in assembly code.
+	 * If multiple variables in this table have the specified identifier, returns the last added one.
 	 *
-	 * @param identifier 対象変数のアセンブリコード識別子
-	 * @return 対象の変数
+	 * @param identifier The identifier (in assembly code) of the variable to be gotten.
+	 * @return The variable having the specified identifier.
 	 */
 	public AbstractVariable getVariableByAssemblyIdentifier(String identifier) {
 		if (assemblyIdentifierVariableMap.containsKey(identifier)) {
@@ -208,53 +229,50 @@ public class VariableTable implements Cloneable {
 
 
 	/**
-	 * 指定されたインデックスに対応する変数を取得します。
-	 * インデックスは、変数の登録順に、0から昇順で割りふられます。
+	 * Gets the variable having the specified index in this table.
+	 * 
+	 * In this table, each variable has an unique index.
 	 *
-	 * @param index インデックス
-	 * @return 対象の変数
+	 * @param index The index of the variable to be gotten.
+	 * @return The variable having the specified index.
 	 */
-
 	public AbstractVariable getVariableByIndex(int index) {
 		return this.indexVariableMap.get(index);
 	}
 
 
 	/**
-	 * 指定された変数の、この変数テーブル内でのインデックスを取得します。
-	 * インデックスは、変数の登録順に、0から昇順で割りふられます。
+	 * Gets the index of the specified variable.
+	 * 
+	 * In this table, each variable has an unique index.
 	 *
-	 * @param variable 対象の変数
-	 * @return インデックス
+	 * @param variable The variable.
+	 * @return The index of the specified variable.
 	 */
 	public int getIndexOf(AbstractVariable variable) {
-		// ※ このメソッドはアセンブラ内で変数ごとに呼ばれるので、トータルでは N 倍のコストがかかる
 
-
-		// これだと要素を辿っての検索になるので、登録されている変数が多い場合に、重くなってボトルネックになり得る
-		// return this.variableList.indexOf(variable); // 以前の処理
-
-
-		// コストを定数オーダーにするため、まずアセンブリ識別子を求めて、
-		// それとインデックスとの対応を保持しているマップに投げて値を取得する
+		// Get the assembly idenfitier of the variable.
 		String namespacePrefix = variable.hasNamespaceName() ? variable.getNamespaceName() + ScriptWord.NAMESPACE_SEPARATOR : "";
 		String asmName = IdentifierSyntax.getAssemblyIdentifierOf(variable);
 		String fullAsmName = IdentifierSyntax.getAssemblyIdentifierOf(variable, namespacePrefix);
+
+		// Get/return index of the variable,
+		// by using map(s) mapping each assembly identifier to the corresponding variable's index.
 		if (assemblyIdentifierIndexMap.containsKey(asmName)) {
 			return IdentifierMapManager.getLastFromMap(this.assemblyIdentifierIndexMap, asmName);
 		}
 		if (fullAssemblyIdentifierIndexMap.containsKey(fullAsmName)) {
 			return IdentifierMapManager.getLastFromMap(this.fullAssemblyIdentifierIndexMap, fullAsmName);
 		}
+
 		throw new VnanoFatalException("Variable index not found: " + fullAsmName);
 	}
 
 
-
 	/**
-	 * この変数テーブルに登録されている、変数の数を取得します。
+	 * Gets the total count of currently registered variables in this table.
 	 *
-	 * @return 登録されている変数の数
+	 * @return The total count of currently registered variables in this table.
 	 */
 	public int getSize() {
 		return this.size;

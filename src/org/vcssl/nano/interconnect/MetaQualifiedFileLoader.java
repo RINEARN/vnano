@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2020-2021 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2020-2022 RINEARN
  * This software is released under the MIT License.
  */
 
@@ -24,15 +24,9 @@ import org.vcssl.nano.spec.ScriptWord;
 
 
 /**
- * <span class="lang-en">
  * The class to perform loading of text file which is qualified with meta information for loadings,
- * such as encoding-declaration
- * </span>
- * <span class="lang-ja">
- * 文字コード宣言などのメタ情報が付加されたテキストファイルを読み込むローダです
- * </span>
- * .
- * <span class="lang-en">
+ * such as encoding-declaration.
+ * 
  * If the content of the file starts with "coding", the first line of the file will be regarded as "encoding-declaration".
  * The syntax of encoding declarations is: "coding encodingName;".
  * Also, "#" can be appended at the head of encoding declarations.
@@ -41,44 +35,22 @@ import org.vcssl.nano.spec.ScriptWord;
  * As the specification to make it easy to detect/parse a encoding-declaration,
  * it should be described as the single line at the top of the file,
  * and no comments allowed before the end of the encoding-declaration.
- * </span>
- *
- * <span class="lang-ja">
- * このローダがファイルを読み込む際, ファイルの先頭が文字列「 coding 」で始まっている場合には,
- * そのファイルの先頭行は文字コード宣言であると見なされます。文字コード宣言の記法は「 coding 文字コード名; 」です.
- * 文字コード宣言の先頭には「 # 」を付加する事もでき,
- * また, VCSSLでの歴史的経緯との関係で, 「 coding 」の代わりに「 encode 」「 encoding 」を使用する事も可能です (推奨はされません).
- * 検出を容易にするため, 文字コード宣言は必ず先頭行内で完結している必要があり,
- * また, 文字コード宣言の終端よりも前にコメントを含む事はできません.
- * </span>
- *
- * <span class="lang-en">
+ * 
  * If the encoding-declaration exists in the file, it will be used for decoding the content of the file.
  * Otherwise, the specified default encoding will be used.
  * Also, the normalization of environment-dependency and encoding-dependency will be performed
  * to the loaded content, so all line-feed codes in the content will be replaces to LF (\n).
- * </span>
- * <span class="lang-ja">
- * ファイル内に文字コード宣言がある場合, このローダはその文字コードを使用してファイル内容を読み込みます.
- * 文字コード宣言が無い場合には, デフォルトの文字コードが使用されます.
- * なお, 読み込まれたファイルの内容は, 環境依存やエンコーディング/デコーディング依存による内容の揺れが正規化され,
- * 従って改行コードは必ず LF (\n) に統一されます.
- * </span>
  */
 public class MetaQualifiedFileLoader {
 
 	/**
-	 * <span class="lang-en">
-	 * The prefix of the encoding-declaration line in files
-	 * </span>
-	 * <span class="lang-ja">
-	 * ファイル内の文字コード宣言行のプレフィックスです
-	 * </span>
-	 * .
+	 * The prefix of the encoding-declaration line in files.
 	 */
 	private static final String[] ENCODING_DECLARATION_LINE_HEAD = {
+		// White-spaces will be removed before the detection of the encoding declaration,
+		// so don't include white spaces into following values.
 		"coding",
-		"#coding", // スペースは詰めた状態で判定されるので挟まなくてもいい
+		"#coding",
 		"encoding",
 		"#encoding",
 		"encode",
@@ -87,42 +59,18 @@ public class MetaQualifiedFileLoader {
 
 
 	/**
-	 * <span class="lang-en">
-	 * Loads the content of the file
-	 * </span>
-	 * <span class="lang-ja">
-	 * 指定されたファイルの内容を読み込みます
-	 * </span>
-	 * .
-	 * <span class="lang-en">
+	 * Loads the content of the file.
+	 * 
 	 * If the encoding-declaration exists in the file, it will be used for decoding the file.
 	 * Otherwise, the specified default encoding will be used.
 	 * The encoding-declaration will be removed from the loaded content,
 	 * so it will not be contained in the returned value of this method.
 	 * Also, the normalization of environment-dependency and encoding-dependency will be performed
 	 * to the loaded content, so all line-feed codes in the content will be replaces to LF (\n).
-	 * </span>
 	 *
-	 * <span class="lang-ja">
-	 * ファイル内に文字コード宣言が記述されている場合, その文字コードが, ファイルの読み込みに使用されます.
-	 * 文字コード宣言が無い場合には, 指定されたデフォルトの文字コードが使用されます.
-	 * 文字コード宣言は, 読み込んだ内容からは削除されるため, このメソッドの戻り値の内容には含まれません.
-	 * なお, 読み込まれたファイルの内容は,
-	 * 環境依存やエンコーディング/デコーディング依存による内容の揺れが正規化されており,
-	 * 従って改行コードは必ず LF (\n) に統一されています.
-	 * </span>
-	 *
-	 * @param filePath
-	 *   <span class="lang-en">The path of the file to be loaded</span>
-	 *   <span class="lang-ja">読み込むファイルのパス</span>
-	 *
-	 * @param defaultEncodingName
-	 *   <span class="lang-en">The name of the default encoding</span>
-	 *   <span class="lang-ja">デフォルトの文字コードの名称</span>
-	 *
-	 * @return
-	 *   <span class="lang-en">The loaded and normalized content</span>
-	 *   <span class="lang-ja">読み込まれて正規化された内容</span>
+	 * @param filePath The path of the file to be loaded.
+	 * @param defaultEncodingName The name of the default encoding.
+	 * @return The loaded and normalized content.
 	 */
 	public static final String load(String filePath, String defaultEncoding)
 			throws VnanoException {
@@ -131,10 +79,11 @@ public class MetaQualifiedFileLoader {
 			throw new VnanoException(ErrorType.META_QUALIFIED_FILE_DOES_NOT_EXIST, filePath);
 		}
 
-		// ファイル内に文字コード宣言があればその文字コード、無ければデフォルトの文字コードから Charset を生成
+		// If there is an encoding declaration line in the file, detect the encoding (charset) from it.
+		// Otherwise use the default encoding (charset).
 		Charset charset = determinCharset(filePath, defaultEncoding);
 
-		// ファイルの全行を読み込む
+		// Load all lines from the file.
 		List<String> lineList = null;
 		try {
 			lineList = Files.readAllLines(Paths.get(filePath), charset);
@@ -142,10 +91,10 @@ public class MetaQualifiedFileLoader {
 			throw new VnanoException(ErrorType.META_QUALIFIED_FILE_IS_NOT_ACCESSIBLE, filePath, ioe);
 		}
 
-		// 改行コード LF (\n) で結合（それ以外の改行コードを用いても、後の normalize で LF に統一される）
+		// Join all lines with line feeds (code: LF, \n).
 		String content = String.join("\n", lineList.toArray(new String[0]) );
 
-		// 環境依存やエンコーディング/デコーディング依存による内容の揺れの正規化や、文字コード宣言の削除を行う
+		// Normalize the loaded content.
 		content = postprocess(filePath, content);
 
 		return content;
@@ -153,28 +102,13 @@ public class MetaQualifiedFileLoader {
 
 
 	/**
-	 * <span class="lang-en">
 	 * Performs the same post-processing as the content loaded by
 	 * {MetaQualifiedFileLoader#load(String, String, LanguageSpecContainer) load}
 	 * method of this class, to the content loaded independently at outside this class
-	 * </span>
-	 * <span class="lang-ja">
-	 * このクラス外などで別途ファイルから読み込んだ内容に対して, このクラスの
-	 * {MetaQualifiedFileLoader#load(String, String, LanguageSpecContainer) load}
-	 * メソッドで読み込んだ場合と同様の後処理を行います
-	 * </span>
 	 *
-	 * @param fileName
-	 *   <span class="lang-en">The name of the loaded file (will be used in error messages)</span>
-	 *   <span class="lang-ja">読み込まれたファイルの名前（エラーメッセージ等で使用されます）</span>
-	 *
-	 * @param fileContent
-	 *   <span class="lang-en">The content of the loaded file</span>
-	 *   <span class="lang-ja">読み込まれたファイルの内容</span>
-	 *
-	 * @return
-	 *   <span class="lang-en">The postprocessed content</span>
-	 *   <span class="lang-ja">後処理を行った内容</span>
+	 * @param fileName The name of the loaded file (will be used in error messages).
+	 * @param fileContent The content of the loaded file.
+	 * @return The postprocessed content.
 	 */
 	public static final String postprocess(String fileName, String fileContent)
 			throws VnanoException {
@@ -186,47 +120,29 @@ public class MetaQualifiedFileLoader {
 
 
 	/**
-	 * <span class="lang-en">
-	 * Determins/returns the appropriate Charset from the encoding-declaration in the specified file
-	 * </span>
-	 * <span class="lang-ja">
-	 * 指定されたファイル内の文字コード宣言などに基づいて, 適切な Charset を生成して返します
-	 * </span>
-	 * .
-	 * @param filePath
-	 *   <span class="lang-en">The path of the file to be loaded</span>
-	 *   <span class="lang-ja">読み込むファイルのパス</span>
-	 *
-	 * @param defaultEncodingName
-	 *   <span class="lang-en">The name of the default encoding</span>
-	 *   <span class="lang-ja">デフォルトの文字コードの名称</span>
-	 *
+	 * Determins/returns the appropriate Charset from the encoding-declaration in the specified file.
+	 * 
+	 * @param filePath The path of the file to be loaded.
+	 * @param defaultEncodingName The name of the default encoding.
 	 * @return
-	 *   <span class="lang-en">
 	 *   If the encoding-declaration exists, Charset corresponding with it will be returned.
 	 *   If the encoding-declaration does not exist, Charset corresponding with the default encoding will be returned.
-	 *   </span>
-	 *   <span class="lang-ja">
-	 *   文字コード宣言がある場合, 宣言されている文字コードに対応する Charset が返されます.
-	 *   文字コード宣言が無い場合, デフォルトの文字コードに対応する Charset が返されます.
-	 *   </span>
 	 */
 	private static final Charset determinCharset(String filePath, String defaultEncodingName)
 			throws VnanoException {
 
-		// 文字コード宣言を読み、宣言されている文字コードの名称を取得
+		// Detect the encoding from the encoding declaration line.
 		String declEncodingName = readDeclaredEncodingName(filePath, defaultEncodingName);
 
-		// 文字コードが宣言されていなければ、デフォルトの文字コードを返す
+		// If there is no encoding declaration line, return the default encoding (charset).
 		if (declEncodingName == null) {
 			return Charset.forName(defaultEncodingName);
 
-		// 文字コードが宣言されていれば、それを返す
+		// If the encoding (charset) is declared, return it.
 		} else {
 			try {
 				return Charset.forName(declEncodingName);
 
-			// 無効な文字コード名だった場合
 			} catch (IllegalCharsetNameException | UnsupportedCharsetException ce) {
 				throw new VnanoException(
 					ErrorType.DECLARED_ENCODING_IS_UNSUPPORTED, new String[] { declEncodingName, filePath }, ce
@@ -237,31 +153,18 @@ public class MetaQualifiedFileLoader {
 
 
 	/**
-	 * <span class="lang-en">
 	 * Reads the name of the declared encoding from the specified file and returns it,
-	 * if the encoding-declaration exists in the specified file
-	 * </span>
-	 * <span class="lang-ja">
-	 * 指定されたファイル内に、文字コード宣言が記述されている場合, 宣言されている文字コード名を読んで返します
-	 * </span>
-	 * .
-	 * @param fileName
-	 *   <span class="lang-en">The path of the file</span>
-	 *   <span class="lang-ja">対象ファイルのパス</span>
-	 *
-	 * @param encodingNameForReading
-	 *   <span class="lang-en">The name of the encoding for reading the file</span>
-	 *   <span class="lang-ja">ファイルを読み込む際の文字コードの名称</span>
-	 *
-	 * @return
-	 *   <span class="lang-en">The name of the declared encoding (or, null if there is no encoding-declaration in the file)</span>
-	 *   <span class="lang-ja">宣言されている文字コードの名称 (文字コード宣言が無い場合は null)</span>
+	 * if the encoding-declaration exists in the specified file.
+	 * 
+	 * @param fileName The path of the file.
+	 * @param encodingNameForReading The name of the encoding for reading the file.
+	 * @return The name of the declared encoding (or, null if there is no encoding-declaration in the file).
 	 */
 	private static final String readDeclaredEncodingName(String filePath, String encodingNameForReading)
 			throws VnanoException {
 
-		// 有効な文字コード宣言は先頭行で完結しているため、ファイルの先頭行のみを読み込む
-		// （その後の本文パートには、読み込み用文字コードで解釈できない文字バイト列も存在し得るので、そこまで読もうとするとエラーになり得る）
+		// Valid encoding declaration must be at the first line in a file, so read the first line.
+		// Latter lines may contain unrepresentable characters in the specified encoding (charset), so read ONLY the first line.
 		String firstLine = null;
 		Charset charset = Charset.forName(encodingNameForReading);
 		try (BufferedReader bufferedReader = new BufferedReader( new InputStreamReader( new FileInputStream(filePath), charset) ) ) {
@@ -271,60 +174,48 @@ public class MetaQualifiedFileLoader {
 		}
 		firstLine = normalize(firstLine);
 
-		// 文字コード宣言を解釈して文字コード名を取得（無い場合はnull）
+		// Parse and extract the declared encoding name, from the encoding declaration line.
 		return extractDeclaredEncodingName(filePath, firstLine);
 	}
 
 
 	/**
-	 * <span class="lang-en">
-	 * Returns the name of the declared encoding, if the encoding-declaration exists in the specified file content
-	 * </span>
-	 * <span class="lang-ja">
-	 * 指定されたファイル内容の中に文字コード宣言が記述されている場合, 宣言されている文字コード名を抽出して返します
-	 * </span>
-	 * .
-	 * @param fileName
-	 *   <span class="lang-en">The name of the file</span>
-	 *   <span class="lang-ja">対象ファイルの名称</span>
-	 *
-	 * @param fileContent
-	 *   <span class="lang-en">The content of the file</span>
-	 *   <span class="lang-ja">対象ファイルの内容</span>
-	 *
-	 * @return
-	 *   <span class="lang-en">The name of the declared encoding (or, null if there is no encoding-declaration in the file)</span>
-	 *   <span class="lang-ja">宣言されている文字コードの名称 (文字コード宣言が無い場合は null)</span>
+	 * Returns the name of the declared encoding, if the encoding-declaration exists in the specified file content.
+	 * 
+	 * @param fileName The name of the file.
+	 * @param fileContent The content of the file.
+	 * @return The name of the declared encoding (or, null if there is no encoding-declaration in the file).
 	 */
 	private static final String extractDeclaredEncodingName(String fileName, String fileContent)
 			throws VnanoException {
 
-		// 内容が無い場合は明らかに文字コード宣言も無いので終了
 		if (fileContent.length() == 0) {
 			return null;
 		}
 
-		// 環境依存やエンコーディング依存の内容を統一（改行コードも \n に統一される）
+		// Normalize encoding/environment dependent characters and so on.
+		// The line feed code will also be replaced to LF (\n) at here.
 		fileContent = normalize(fileContent);
 
-		// 文字コード宣言がある場合、その位置は先頭行に限られるので、先頭行を抽出する
-		String firstLine = fileContent.split("\\n", -1)[0];  // 上で内容が無い場合を弾いているので、[0] が領域外になる事はあり得ない
+		// The first line may be an encoding declaration line, so extract the first line.
+		String firstLine = fileContent.split("\\n", -1)[0];
 
-		// 先頭行の中にある空白の類を詰める
+		// Remove white spaces in the extracted first line.
 		firstLine = firstLine.replaceAll("\\s", "").replaceAll("\\t", "");
 
-		// 先頭行が文字コード宣言のキーワードで始まっている場合、解釈して文字コード名を抽出
+		// If the extracted first line is an encoding declaration, detect the name of the declared encoding (charset).
 		String encodingName = null;
 		for (String declLineHead: ENCODING_DECLARATION_LINE_HEAD) {
 			if (firstLine.startsWith(declLineHead)) {
 
-				// 文字コード宣言のキーワードと文末記号との間に囲まれた部分（空白は除去済み）が文字コード名なので、抽出する
+				// The encoding name is described between 
+				// the encoding declaration keyword "coding" (etc.) and the end-of-statement symbol ";", so extract it.
 				int encodingDeclEnd = firstLine.indexOf(ScriptWord.END_OF_STATEMENT);
 				if (encodingDeclEnd != -1) {
 					encodingName = firstLine.substring(declLineHead.length(), encodingDeclEnd);
 					break;
 
-				// 文字コード宣言キーワードで始まっている行内に、文末記号が無い場合はエラーとする
+				// If there is no end-of-statement symbol ";" in the encoding declaration line: Error
 				//（文字コード宣言の抽出はファイル読み込みの最初の一歩なので、抽出処理を簡単にできるようにそういう仕様にする）
 				} else {
 					throw new VnanoException(ErrorType.NO_ENCODING_DECLARATION_END, fileName);
@@ -332,10 +223,9 @@ public class MetaQualifiedFileLoader {
 			}
 		}
 
-		// 文字コード宣言内にコメントや文字列リテラルを使用できると、
-		// ファイル読み込みの最初の一歩の段階で、かなり複雑な解析が必要になってしてしまう。
-		// そのため、文字コード宣言内では上記のようなものは使えないものとし、実際に使っていない事を検査しておく。
-		// （処理系の解釈の仕方によって挙動が変わるのを避けるため）
+		// To make simple and sure the detection of the encoding, 
+		// can not use comments and string literals in the encoding declaration line.
+		// So check that they aren't used.
 		String[] invalidSymbols = new String[] {
 			ScriptWord.LINE_COMMENT_PREFIX,
 			ScriptWord.BLOCK_COMMENT_BEGIN,
@@ -357,24 +247,11 @@ public class MetaQualifiedFileLoader {
 
 
 	/**
-	 * <span class="lang-en">
-	 * Checks whether the encoding-declaration exists in the specified file content or not
-	 * </span>
-	 * <span class="lang-ja">
-	 * 指定されたファイル内容の中に、文字コード宣言が記述されているかどうかを判定します
-	 * </span>
-	 * .
-	 * @param fileName
-	 *   <span class="lang-en">The name of the file</span>
-	 *   <span class="lang-ja">対象ファイルの名称</span>
-	 *
-	 * @param fileContent
-	 *   <span class="lang-en">The content of the file</span>
-	 *   <span class="lang-ja">対象ファイルの内容</span>
-	 *
-	 * @return
-	 *   <span class="lang-en">true if the encoding declaration exists</span>
-	 *   <span class="lang-ja">文字コード宣言が存在すれば true</span>
+	 * Checks whether the encoding-declaration exists in the specified file content or not.
+	 * 
+	 * @param fileName The name of the file.
+	 * @param fileContent The content of the file.
+	 * @return true if the encoding declaration exists.
 	 */
 	private static final boolean existsEncodingDeclaration(String fileName, String fileContent)
 			throws VnanoException {
@@ -384,34 +261,21 @@ public class MetaQualifiedFileLoader {
 
 
 	/**
-	 * <span class="lang-en">
-	 * Removes the encoding-declaration from the file content
-	 * </span>
-	 * <span class="lang-ja">
-	 * 指定されたファイル内容から、文字コード宣言を削除して返します
-	 * </span>
-	 * .
-	 * @param fileName
-	 *   <span class="lang-en">The name of the file</span>
-	 *   <span class="lang-ja">対象ファイルの名称</span>
-	 *
-	 * @param fileContent
-	 *   <span class="lang-en">The content of the file</span>
-	 *   <span class="lang-ja">対象ファイルの内容</span>
-	 *
-	 * @return
-	 *   <span class="lang-en">the content of the file from which the encoding declaration is removed</span>
-	 *   <span class="lang-ja">文字コード宣言が削除された, 対象ファイルの内容</span>
+	 * Removes the encoding-declaration from the file content.
+	 * 
+	 * @param fileName The name of the file.
+	 * @param fileContent The content of the file.
+	 * @return The content of the file from which the encoding declaration is removed.
 	 */
 	private static final String removeEncodingDeclaration(String fileName, String fileContent)
 			throws VnanoException {
 
-		// 文字コード宣言がある場合： 最初の文末記号までが文字コード宣言なので、その後の残りを返す
+		// If there is an encoding declaration line exists: remove the line.
 		if (existsEncodingDeclaration(fileName, fileContent)) {
-			int encodingDeclEnd = fileContent.indexOf(ScriptWord.END_OF_STATEMENT); // 文字コード宣言がある場合は、文末記号は必ずあるはず
-			return fileContent.substring(encodingDeclEnd + 1, fileContent.length()); // 同様に、このインデックスが範囲外になる事はあり得ないはず
+			int encodingDeclEnd = fileContent.indexOf(ScriptWord.END_OF_STATEMENT);
+			return fileContent.substring(encodingDeclEnd + 1, fileContent.length());
 
-		// 文字コード宣言が無い場合： 全体をそのまま返す
+		// If there is no encoding declaration line: do nothing.
 		} else {
 			return fileContent;
 		}
@@ -419,52 +283,38 @@ public class MetaQualifiedFileLoader {
 
 
 	/**
-	 * <span class="lang-en">
-	 * Normalize the environment-dependent / encoding-dependent content loaded from a file
-	 * </span>
-	 * <span class="lang-ja">
-	 * ファイルから読み込んだ, 環境やエンコーディングに依存する内容を正規化します
-	 * </span>
-	 * .
-	 * <span class="lang-en">
+	 * Normalize the environment-dependent / encoding-dependent content loaded from a file.
+	 * 
 	 * For example, by this method,
 	 * all environment-dependent line-feed codes in the content will be replaced to LF (\n).
 	 * In addition, this method normalizes encoding/decoding-dependent differences of the content.
-	 * </span>
-	 * <span class="lang-ja">
-	 * 例えば, このメソッドによって, 環境依存の改行コードは全てLF (\n) に統一されます.
-	 * また, エンコーディング/デコーディング由来の内容の差異なども正規化されます.
-	 * </span>
 	 *
-	 * @param content
-	 *   <span class="lang-en">The content to be normalized</span>
-	 *   <span class="lang-ja">正規化する内容</span>
-	 *
-	 * @return
-	 *   <span class="lang-en">The normalized content</span>
-	 *   <span class="lang-ja">正規化された内容</span>
+	 * @param content The content to be normalized.
+	 * @return The normalized content.
 	 */
 	private static final String normalize(String content) {
 
-		// ファイル内に内容も改行が無いまま EOF で閉じられていた場合は読み込み結果が null になっているが、その場合は空文字にする
+		// If the loaded file had contained only EOF, the read result is null.
+		// Normalize such result to the embly string.
 		if (content == null) {
 			return "";
 		}
 
-		// 改行コードは環境に依存して CRLF (\r\n), CR (\r), LF (\n) があるが、LF (\n) のみに統一する。
+		// Normalize line feed codes (CRLF, CR, LF) to LF.
 		content = content.replaceAll("\\r\\n", "\n");
 		content = content.replaceAll("\\r", "\n");
 
-		// Unicodeの空白文字の一種 U+FEFF は、通常この処理系が想定する正しいコードには混ざっていない（混ざっていてはいけない）。
-		// しかしながら、読み込み元ファイルが UTF-8 でBOMバイト列 0xEF 0xBB 0xBF で始まっていた場合、
-		// それは通常の読み込み方法では、BOMではなくこの U+FEFF 文字のUTF-8表現と見なしてデコードされる（解釈に任意性がある）。
-		// そして、文字列の内部表現はUTF-16なため、上記文字は文字列先頭において、値が 0xFEFF の char 一文字として格納されている。
-		// 従って、内容の先頭がこの文字であれば削除する。
-		// （読み込み元が UTF-8 以外でも、この文字で始まるコードはそもそもこの処理系では正しくないため、統一的に削除する仕様にして問題ないと思う）
+		// A kind of whitespace U+FEFF (unicode) should not be contained in strings read by using encodings (charsets) supported by this script engine.
+		// However, when the read file is encoded in UTF-8, and its contents starts with the byte-order-mark bytes "0xEF 0xBB 0xBF", 
+		// they will be decoded as the UTF-8 representation of a kind of whitespace U+FEFF.
+		// And then, the decoded "U+FEFF" char will be stored at the top of the read result string, as a char of which value is 0xFEFF.
+		// (Note that, the internal encoding of "char" type is UTF-16.)
+		// Hence, remove the first char if its value is 0xFEFF.
 		if (0 < content.length() && content.charAt(0) == (char)0xFEFF) {
 			content = content.substring(1, content.length());
 		}
 
 		return content;
 	}
+
 }

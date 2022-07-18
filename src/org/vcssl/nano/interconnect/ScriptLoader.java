@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2020-2021 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2020-2022 RINEARN
  * This software is released under the MIT License.
  */
 
@@ -16,14 +16,8 @@ import org.vcssl.nano.spec.IdentifierSyntax;
 
 
 /**
- * <span class="lang-en">
- * The class to perform loading of scripts from text files
- * </span>
- * <span class="lang-ja">
- * テキストファイルからスクリプトコードを読み込むためのローダです
- * </span>
- * .
- * <span class="lang-en">
+ * The class to perform loading of scripts from text files.
+ * 
  * How to register scripts to this loader depends on whether it is a "main script" or "library scripts".
  * The path of the main script file is simply specified by
  * {@link ScriptLoader#setMainScriptPath(String) setMainScriptPath(String) } method.
@@ -33,82 +27,54 @@ import org.vcssl.nano.spec.IdentifierSyntax;
  * {@link ScriptLoader#setLibraryListPath(String) setLibraryListPath(String) } method.
  * In the library list file, describe a path of a library script file for each line.
  * Lines starts with "#" will be regarded as comment lines. Empty lines are also ignored.
- * </span>
  *
- * <span class="lang-ja">
- * このローダへのスクリプトの読み込み指定方法は, 処理系内での利便性のため,
- * 「メインスクリプトファイル」と「ライブラリスクリプトファイル」とで異なります.
- * 前者は単一のファイル, 後者は複数のファイルです.
- * メインスクリプトファイルは,
- * 単純にそのパスを {@link ScriptLoader#setMainScriptPath(String) setMainScriptPath(String) }
- * メソッドによって指定します.
- * それに対して, ライブラリスクリプトファイルは, 一覧をテキストファイルに記述し, そのパスを
- * {@link ScriptLoader#setLibraryListPath(String) setLibraryListPath(String) } メソッドで指定します.
- * このテキストファイルの事を「ライブラリリストファイル」と呼びます.
- * ライブラリリストファイル内には, 1行につき1個のライブラリスクリプトファイルのパスを記述してください.
- * 「 # 」で始まる行はコメント行として読み飛ばされます. 空白行も読み飛ばされます.
- * </span>
- *
- * <span class="lang-en">
  * After registering scripts to be loaded, they will be loaded by {@link ScriptLoader#load() } method.
- * </span>
- *
- * <span class="lang-en">
- * スクリプトを指定した後は, それらの読み込みは {@link ScriptLoader#load() } メソッドによって行います.
- * </span>
  */
 public class ScriptLoader {
 
-	/**
-	 * <span class="lang-en">
-	 * The prefix of comment lines in the list file
-	 * </span>
-	 * <span class="lang-ja">
-	 * リストファイル内のコメント行のプレフィックスです
-	 * </span>
-	 * .
-	 */
+	/** The prefix of comment lines in the list file. */
 	private static final String LIST_FILE_COMMENT_LINE_HEAD = "#";
 
-	/**
-	 * <span class="lang-en">
-	 * Stores the default encoding of the list file and script files
-	 * </span>
-	 * <span class="lang-ja">
-	 * リストファイルやスクリプトを読み込む際の, デフォルトの文字コードを保持します
-	 * </span>
-	 * .
-	 */
+	/** The default encoding of the list file and script files. */
 	private final String DEFAULT_ENCODING;
 
 
-	// Following fields are caches for skipping storage-accessings when file has not been updated.
-	// 以下、ファイル無更新ならストレージアクセスをスキップして前回読み込み内容を流用するためのキャッシュ類
-
+	/** The name of the main script. */
 	private String mainScriptName = null;
+
+	/** The file path of the main script. */
 	private String mainScriptPath = null;
+
+	/** The content of the main script. */
 	private String mainScriptContent = null;
+
+	/** The last modified time of the main script. */
 	private long mainScriptLastMod = -1;
 
+
+	/** The file path of the library script list file. */
 	private String libraryScriptListPath = null;
+
+	/** The last modified time of the library list file. */
 	private long libraryScriptListLastMod = -1;
+
+	/** The list of the names of the library scripts. */
 	private List<String> libraryScriptNameList = null;
+
+	/** The list of the file paths of the library scripts. */
 	private List<String> libraryScriptPathList = null;
+
+	/** The list of the contents of the library scripts. */
 	private List<String> libraryScriptContentList = null;
+
+	/** The list of last modified time of the library scripts. */
 	private List<Long> libraryScriptLastModList = null;
 
 
 	/**
-	 * <span class="lang-en">
-	 * Create new script loader under the settings of specified encoding and end-line-code
-	 * </span>
-	 * <span class="lang-ja">
-	 * 指定されたデフォルト文字コードと改行コードの設定で、スクリプトローダを生成します
-	 * </span>
-	 * .
-	 * @param defaultEncoding
-	 *   <span class="lang-en">The default encoding (e.g.: "UTF-8")</span>
-	 *   <span class="lang-ja">デフォルトの文字コード (例: "UTF-8")</span>
+	 * Create new script loader under the settings of specified encoding and end-line-code.
+	 * 
+	 * @param defaultEncoding The default encoding ("UTF-8" and so on).
 	 */
 	public ScriptLoader(String defaultEncoding) {
 		this.DEFAULT_ENCODING = defaultEncoding;
@@ -116,16 +82,9 @@ public class ScriptLoader {
 
 
 	/**
-	 * <span class="lang-en">
-	 * Registers the path of the main script file to be loaded
-	 * </span>
-	 * <span class="lang-ja">
-	 * 読み込むメインスクリプトファイルのパスを登録します
-	 * </span>
-	 * .
-	 * @param defaultEncoding
-	 *   <span class="lang-en">The path of the main script file</span>
-	 *   <span class="lang-ja">メインスクリプトファイルのパス</span>
+	 * Registers the path of the main script file to be loaded.
+	 * 
+	 * @param defaultEncoding The path of the main script file.
 	 */
 	public void setMainScriptPath (String scriptFilePath) {
 		this.mainScriptPath = scriptFilePath;
@@ -133,16 +92,9 @@ public class ScriptLoader {
 
 
 	/**
-	 * <span class="lang-en">
-	 * Registers the path of the library list file in which file paths of library scripts are described
-	 * </span>
-	 * <span class="lang-ja">
-	 * 読み込むライブラリのファイルパスが記載された, ライブラリリストファイルのパスを登録します
-	 * </span>
-	 * .
-	 * @param listFilePath
-	 *   <span class="lang-en">The path of the library list file</span>
-	 *   <span class="lang-ja">ライブラリリストファイルのパス</span>
+	 * Registers the path of the library list file in which file paths of library scripts are described.
+	 * 
+	 * @param listFilePath The path of the library list file.
 	 */
 	public void setLibraryScriptListPath(String listFilePath) {
 		this.libraryScriptListPath = listFilePath;
@@ -151,16 +103,9 @@ public class ScriptLoader {
 
 
 	/**
-	 * <span class="lang-en">
-	 * Loads/updates scripts from registered files
-	 * </span>
-	 * <span class="lang-ja">
-	 * 登録されたファイルから, スクリプトを読み込み/更新します
-	 * </span>
-	 * .
-	 * @throws VnanoException
-	 *   <span class="lang-en">Thrown when scripts could not be loaded successfully.</span>
-	 *   <span class="lang-ja">スクリプトが正常に読み込めなかった際にスローされます</span>
+	 * Loads/updates scripts from registered files.
+	 * 
+	 * @throws VnanoException Thrown when scripts could not be loaded successfully.
 	 */
 	public void load() throws VnanoException {
 		if (this.mainScriptPath != null) {
@@ -176,16 +121,9 @@ public class ScriptLoader {
 
 
 	/**
-	 * <span class="lang-en">
-	 * Returns whether this loader has a loaded main script
-	 * </span>
-	 * <span class="lang-ja">
-	 * このローダが, 読み込み済みのメインスクリプトを保持しているかどうかを判定します
-	 * </span>
-	 * .
-	 * @return
-	 *   <span class="lang-en">True if this loader has a main script.</span>
-	 *   <span class="lang-ja">メインスクリプトを保持していた場合に true が返されます.</span>
+	 * Returns whether this loader has a loaded main script.
+	 * 
+	 * @return True if this loader has a main script.
 	 */
 	public boolean hasMainScript() {
 		return this.mainScriptContent != null;
@@ -193,16 +131,9 @@ public class ScriptLoader {
 
 
 	/**
-	 * <span class="lang-en">
-	 * Returns the name of the loaded main script
-	 * </span>
-	 * <span class="lang-ja">
-	 * 読み込まれたメインスクリプトの名称を返します
-	 * </span>
-	 * .
-	 * @return
-	 *   <span class="lang-en">The name of the main script.</span>
-	 *   <span class="lang-ja">メインスクリプトの名称.</span>
+	 * Returns the name of the loaded main script.
+	 * 
+	 * @return The name of the main script.
 	 */
 	public String getMainScriptName() {
 		return this.mainScriptName;
@@ -210,16 +141,9 @@ public class ScriptLoader {
 
 
 	/**
-	 * <span class="lang-en">
-	 * Returns the content of the loaded main script
-	 * </span>
-	 * <span class="lang-ja">
-	 * 読み込まれたメインスクリプトの内容を返します
-	 * </span>
-	 * .
-	 * @return
-	 *   <span class="lang-en">The content of the main script.</span>
-	 *   <span class="lang-ja">メインスクリプトの内容.</span>
+	 * Returns the content of the loaded main script.
+	 * 
+	 * @return The content of the main script.
 	 */
 	public String getMainScriptContent() {
 		return this.mainScriptContent;
@@ -227,16 +151,9 @@ public class ScriptLoader {
 
 
 	/**
-	 * <span class="lang-en">
-	 * Returns whether this loader has loaded library scripts
-	 * </span>
-	 * <span class="lang-ja">
-	 * このローダが, 読み込み済みのライブラリスクリプトを保持しているかどうかを判定します
-	 * </span>
-	 * .
-	 * @return
-	 *   <span class="lang-en">True if this loader has library scripts.</span>
-	 *   <span class="lang-ja">ライブラリスクリプトを保持していた場合に true が返されます.</span>
+	 * Returns whether this loader has loaded library scripts.
+	 * 
+	 * @return True if this loader has library scripts.
 	 */
 	public boolean hasLibraryScripts() {
 		return this.libraryScriptContentList != null && this.libraryScriptContentList.size() != 0;
@@ -244,16 +161,9 @@ public class ScriptLoader {
 
 
 	/**
-	 * <span class="lang-en">
-	 * Returns names of the loaded library scripts
-	 * </span>
-	 * <span class="lang-ja">
-	 * 読み込まれたライブラリスクリプトの名称を返します
-	 * </span>
-	 * .
-	 * @return
-	 *   <span class="lang-en">Names of the library scripts.</span>
-	 *   <span class="lang-ja">ライブラリスクリプトの名称.</span>
+	 * Returns names of the loaded library scripts.
+	 * 
+	 * @return Names of the library scripts.
 	 */
 	public String[] getLibraryScriptNames() {
 		return this.libraryScriptNameList.toArray(new String[0]);
@@ -261,16 +171,9 @@ public class ScriptLoader {
 
 
 	/**
-	 * <span class="lang-en">
-	 * Returns contents of the loaded library scripts
-	 * </span>
-	 * <span class="lang-ja">
-	 * 読み込まれたライブラリスクリプトの内容を返します
-	 * </span>
-	 * .
-	 * @return
-	 *   <span class="lang-en">Contents of the library scripts.</span>
-	 *   <span class="lang-ja">ライブラリスクリプトの内容.</span>
+	 * Returns contents of the loaded library scripts.
+	 * 
+	 * @return Contents of the library scripts.
 	 */
 	public String[] getLibraryScriptContents() {
 		return this.libraryScriptContentList.toArray(new String[0]);
@@ -278,76 +181,64 @@ public class ScriptLoader {
 
 
 	/**
-	 * <span class="lang-en">
-	 * Loads/updates paths of library script files from the content of the library list file
-	 * </span>
-	 * <span class="lang-ja">
-	 * ライブラリリストファイルから, ライブラリスクリプトファイルのパスを読み込み（または更新し）ます
-	 * </span>
-	 * .
+	 * Loads/updates paths of library script files from the content of the library list file.
 	 */
 	private void loadLibraryScriptPaths() throws VnanoException {
-
 		File listFile = new File(this.libraryScriptListPath);
 		if (!listFile.exists()) {
 			throw new VnanoException(ErrorType.LIBRARY_LIST_FILE_DOES_NOT_EXIST, this.libraryScriptListPath);
 		}
 
-		// 前回読み込み時から更新日時が変わっていなければ、内容も変わっていないと見なして、再読み込みせず終了
+		// If the content of the library list file has not been modified, skip reloading.
 		if (listFile.lastModified() == this.libraryScriptListLastMod) {
 			return;
 		}
 
-		// リストが変わったので、既存のリスト内容を控えているフィールドを一旦リセット
+		// Clear lists.
 		this.libraryScriptNameList = new ArrayList<String>();
 		this.libraryScriptPathList = new ArrayList<String>();
 		this.libraryScriptContentList = new ArrayList<String>();
 		this.libraryScriptLastModList = new ArrayList<Long>();
 
-		// リストファイルのあるディレクトリを、ライブラリパスの基準ディレクトリとする
+		// Set the directory in which the library list file is located, to the base directory of libraries.
 		File libDirectory = listFile.getParentFile();
 
-		// リストファイルから、ライブラリのパス一覧を再読み込み（または初回読み込み）
+		// Read file paths of libraries from the library list file.
 		String listFileContent = MetaQualifiedFileLoader.load(this.libraryScriptListPath, DEFAULT_ENCODING);
-		String[] libPaths = listFileContent.split("\\n"); // 上記の load で読んだ内容は、改行コードがLF (\n) に正規化済み
+		String[] libPaths = listFileContent.split("\\n"); // Note: line-feed-code in the loaded content is normalized to LF (\n).
 
-		// 読み込んだライブラリパスの一覧をフィールドに反映
+		// Analyze file paths of libraries, and set results to fields (Lists) of this class.
 		for (String libPath: libPaths) {
 
-			// 空行やコメント行は無視
+			// Ignore empty/comment lines.
 			if (libPath.trim().isEmpty() || libPath.trim().startsWith(LIST_FILE_COMMENT_LINE_HEAD)) {
 				continue;
 			}
 
-			// リスト内に記載されたパスが相対パスの場合は、リストファイルのディレクトリ基準に変換
+			// The file path of the library may be described as the relative file path 
+			// from the directory in which the library list file is located, so then convert it to the absolute path.
 			File libFile = new File(libPath);
 			if (!libFile.isAbsolute() ) {
 				libFile = new File(libDirectory, libPath);
 			}
 
-			// スクリプト名の中で使用できない記号等を置き換えて正規化する
+			// Normalize the name of the library (may contain non-available characters).
 			String libraryName = IdentifierSyntax.normalizeScriptIdentifier( libFile.getName() );
 
-			// フィールドにライブラリファイルの情報を登録
+			// Register above analyzed results to fields (Lists) of this class.
 			this.libraryScriptPathList.add(libFile.getPath());
 			this.libraryScriptNameList.add(libraryName);
 			this.libraryScriptContentList.add("");
 			this.libraryScriptLastModList.add(-1l);
 		}
 
-		// 読み込みが正常に完了したら、ファイルの更新日時を控える（次回で不変なら読み込みスキップするため）
+		// Stores the last-modified time of the library list file, when it has no error.
 		this.libraryScriptListLastMod = listFile.lastModified();
 	}
 
 
 	/**
-	 * <span class="lang-en">
-	 * Loads/updates contents (code) of the main script from the path of the main script file
-	 * </span>
-	 * <span class="lang-ja">
-	 * メインスクリプトファイルのパスから, コード内容を読み込み（または更新し）ます
-	 * </span>
-	 * .
+	 * Loads/updates contents (code) of the main script from the path of the main script file.
 	 */
 	private void loadMainScriptContent() throws VnanoException {
 		File scriptFile = new File(this.mainScriptPath);
@@ -356,9 +247,11 @@ public class ScriptLoader {
 			throw new VnanoException(ErrorType.SCRIPT_FILE_DOES_NOT_EXIST, this.mainScriptPath);
 		}
 
-		// 前回読み込み時から更新日時が変わっていなければ、内容も変わっていないと見なして読み込みスキップ
+		// If the content of the library has not been modified, skip reloading.
 		if (scriptFile.lastModified() == this.mainScriptLastMod) {
 			return;
+
+		// Load/reload the library.
 		} else {
 			this.mainScriptName = scriptFile.getName();
 			try {
@@ -371,48 +264,44 @@ public class ScriptLoader {
 			}
 		}
 
-		// 読み込みが正常に完了したら、ファイルの更新日時を控える（次回で不変なら読み込みスキップするため）
+		// Stores the last-modified time of the library, if it has no error.
 		this.mainScriptLastMod = scriptFile.lastModified();
 	}
 
 
 	/**
-	 * <span class="lang-en">
-	 * Loads/updates contents (code) of library scripts from paths of library script files
-	 * </span>
-	 * <span class="lang-ja">
-	 * ライブラリスクリプトファイルのパスから, ライブラリのコード内容を読み込み（または更新し）ます
-	 * </span>
-	 * .
+	 * Loads/updates contents (code) of library scripts from paths of library script files.
 	 */
 	private void loadLibraryScriptContents() throws VnanoException {
 
 		int libN = this.libraryScriptPathList.size();
 
-		// 読み込み処理に失敗したライブラリはここに追記していく（即例外を投げると後続プラグインを読み込めないため）
+		// If any error occurred when loading a library, skip loading it and go to the next library.
+		// So store error information to the following variables, and throw it after when all libraries have loaded.
 		String notExistLibraries = "";
 		String loadingFailedLibraries = "";
 		Throwable loadingFailedCause = null;
 		boolean[] isLaodingFailed = new boolean[libN];
 		Arrays.fill(isLaodingFailed, false);
 
-		// ライブラリを 1 個ずつ読んでいく
+		// Load each library:
 		for (int libIndex=0; libIndex<libN; libIndex++) {
+
+			// Get the file of the library.
 			String libPath = this.libraryScriptPathList.get(libIndex);
 			File libFile = new File(libPath);
 			if (!libFile.exists()) {
 				notExistLibraries += (!notExistLibraries.isEmpty() ? ", " : "") + libFile.getName();
-				//throw new VnanoException(ErrorType.SCRIPT_FILE_DOES_NOT_EXIST, libPath);
 				isLaodingFailed[libIndex] = true;
 				continue;
 			}
 
-			// 前回読み込み時から更新日時が変わっていなければ、内容も変わっていないと見なして読み込みスキップ
+			// If the file has not been modified, skip loading it.
 			if (libFile.lastModified() == this.libraryScriptLastModList.get(libIndex)) {
 				continue;
 			}
 
-			// ライブラリファイルの中身を読み込み、フィールドに登録
+			// Load the content of the file.
 			String libContent = null;
 			try {
 				libContent = MetaQualifiedFileLoader.load(libPath, DEFAULT_ENCODING);
@@ -425,11 +314,11 @@ public class ScriptLoader {
 			this.libraryScriptContentList.set(libIndex, libContent);
 			this.libraryScriptNameList.set(libIndex, libFile.getName());
 
-			// 読み込みが正常に完了したら、ファイルの更新日時を控える（次回で不変なら読み込みスキップするため）
+			// If the library has been loaded successfully, store the last modified time of the library file.
 			this.libraryScriptLastModList.set(libIndex, libFile.lastModified());
 		}
 
-		// 読み込みに失敗したものはリストから削除する
+		// Remove failed library from lists.
 		if (!notExistLibraries.isEmpty() || !loadingFailedLibraries.isEmpty()) {
 			List<String> succeededLibraryPathList = new ArrayList<String>();
 			List<String> succeededLibraryNameList = new ArrayList<String>();
@@ -449,7 +338,7 @@ public class ScriptLoader {
 			this.libraryScriptLastModList = succeededLibraryLastModList;
 		}
 
-		// 読み込みに失敗したものが 1 つでもあれば例外を投げる
+		// Throw an exception if any library could not be loaded successfully.
 		if (!notExistLibraries.isEmpty()) {
 			throw new VnanoException(ErrorType.SCRIPT_FILE_DOES_NOT_EXIST, notExistLibraries);
 		}
@@ -457,4 +346,6 @@ public class ScriptLoader {
 			throw new VnanoException(ErrorType.SCRIPT_FILE_IS_NOT_ACCESSIBLE, loadingFailedLibraries, loadingFailedCause);
 		}
 	}
+
 }
+
