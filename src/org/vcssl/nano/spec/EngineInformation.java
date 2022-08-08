@@ -1,54 +1,31 @@
 /*
- * Copyright(C) 2017-2021 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2022 RINEARN
  * This software is released under the MIT License.
  */
 
 package org.vcssl.nano.spec;
-
 import java.util.HashMap;
 import java.util.Map;
-
 import javax.script.ScriptEngine;
 
-// Documentation:  https://www.vcssl.org/en-us/dev/code/main-jimpl/api/org/vcssl/nano/spec/EngineInformation.html
-// ドキュメント:   https://www.vcssl.org/ja-jp/dev/code/main-jimpl/api/org/vcssl/nano/spec/EngineInformation.html
-
 /**
- * <p>
- * <span>
- * <span class="lang-en">
- * The class to define basic information (language name, version, and so on) of
- * this implementation of the script engine of the Vnano
- * </span>
- * <span class="lang-ja">
- * この Vnano のスクリプトエンジン実装の基本情報（言語名やバージョンなど）が定義されたクラスです
- * </span>
- * .
- * </p>
- *
- * <p>
- * &raquo; <a href="../../../../../src/org/vcssl/nano/spec/EngineInformation.java">Source code</a>
- * </p>
- *
- * <hr>
- *
- * <p>
- * | <a href="../../../../../api/org/vcssl/nano/spec/EngineInformation.html">Public Only</a>
- * | <a href="../../../../../api-all/org/vcssl/nano/spec/EngineInformation.html">All</a> |
- * </p>
- *
- * @author RINEARN (Fumihiro Matsui)
+ * The class to define basic information (language name, version, and so on) of this implementation of the script engine of the Vnano.
  */
 public class EngineInformation {
 
+	/** The name of this script engine. */
 	public static final String ENGINE_NAME = "RINEARN Vnano Engine";
 
+	/** The version of this script engine. */
 	public static final String ENGINE_VERSION = "0.9.1";
 
+	/** The extension of script files which can run on this script engine. */
 	public static final String[] EXTENTIONS = { "vnano" };
 
+	/** The MIME types of script files which can run on this script engine. */
 	public static final String[] MIME_TYPES = { };
 
+	/** The names of this script engine, for searching this engine by name. */
 	public static final String[] NAMES = {
 			"vnano",
 			"Vnano",
@@ -61,11 +38,14 @@ public class EngineInformation {
 			ENGINE_NAME,
 	};
 
+	/** The name of the scripting language supported by this script engine. */
 	public static final String LANGUAGE_NAME = "Vnano";
 
+	/** The version of the scripting language supported by this script engine. */
 	public static final String LANGUAGE_VERSION = ENGINE_VERSION;
 
 
+	/** The Map mapping from each key of {@link EngineInformation#getValue(key)} method to the corresponding value. */
 	private static final Map<String, Object> KEY_INFORMATION_MAP = new HashMap<String, Object>();
 	static {
 		KEY_INFORMATION_MAP.put(ScriptEngine.ENGINE, ENGINE_NAME);
@@ -75,6 +55,12 @@ public class EngineInformation {
 		KEY_INFORMATION_MAP.put(ScriptEngine.NAME, NAMES[0]);
 	}
 
+	/**
+	 * Returns the value of the engine information corresponding with the specified key.
+	 * 
+	 * @param key The key of the engine information.
+	 * @return The value of the engine information corresponding with the specified key.
+	 */
 	public static final Object getValue(String key) {
 		return KEY_INFORMATION_MAP.get(key);
 	}
