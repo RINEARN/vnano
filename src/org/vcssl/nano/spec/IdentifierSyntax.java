@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2021 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2022
  * This software is released under the MIT License.
  */
 
@@ -14,47 +14,26 @@ import org.vcssl.nano.compiler.AttributeKey;
 import org.vcssl.nano.interconnect.AbstractFunction;
 import org.vcssl.nano.interconnect.AbstractVariable;
 
-// Documentation:  https://www.vcssl.org/en-us/dev/code/main-jimpl/api/org/vcssl/nano/spec/IdentifierSyntax.html
-// ドキュメント:   https://www.vcssl.org/ja-jp/dev/code/main-jimpl/api/org/vcssl/nano/spec/IdentifierSyntax.html
-
-// SignatureSyntax に変更する？
-
 /**
- * <p>
- * <span>
- * <span class="lang-en">
- * The utilities class for handling identifiers and signatures
- * </span>
- * <span class="lang-ja">
- * 識別子やシグネチャの扱いを補助する操作を提供するクラスです
- * </span>
- * .
- * </p>
- *
- * <p>
- * &raquo; <a href="../../../../../src/org/vcssl/nano/spec/IdentifierSyntax.java">Source code</a>
- * </p>
- *
- * <hr>
- *
- * <p>
- * | <a href="../../../../../api/org/vcssl/nano/spec/IdentifierSyntax.html">Public Only</a>
- * | <a href="../../../../../api-all/org/vcssl/nano/spec/IdentifierSyntax.html">All</a> |
- * </p>
- *
- * @author RINEARN (Fumihiro Matsui)
+ * The class to generate syntactically valid identifiers and signatures.
  */
 public final class IdentifierSyntax {
 
+	/**
+	 * Judges whether the specified identifier is syntactically valid.
+	 * 
+	 * @param identifier The identifier to be judged.
+	 * @return Returns true if the specified identifier is syntactically valid.
+	 */
 	public static final boolean isValidSyntaxIdentifier(String identifier) {
 
-		// 数字で始まる識別子はNG
+		// If the identifier begins with numbers: NG.
 		if (identifier.matches("^[0-9].*$")) {
 			return false;
 		}
 
-		// めぼしい半角記号文字を含む識別子はNG
-		// (各種演算子や構文的な記号は LexicalAnalyzer で分割されるため、識別子トークン内には含まれない)
+		// If the identifier begins with some special symbols: NG.
+		// (Note: Symbols of operators will not be contained in an identifier token, as long as LexicalAnalyzer works expectedly.)
 		char[] invalidChars = { '#', '$', '%', '&', '~', '@', ':', '`', '^', '.', '?', '\"', '\'', '\\' };
 		HashSet<Character> invalidCharSet = new HashSet<Character>();
 		for (char invalidChar: invalidChars) {
@@ -68,6 +47,19 @@ public final class IdentifierSyntax {
 		return true;
 	}
 
+
+	/**
+	 * Returns the signature of the function having the specified information.
+	 * 
+	 * @param functionName The name of the function.
+	 * @param parameterDataTypeNames The names of the data-types of the parameters.
+	 * @param parameterArrayRanks The array-ranks of the parameters.
+	 * @param parameterDataTypeArbitrarinesses The flags representing whether the data-types of the parameters are arbitrary.
+	 * @param parameterArrayRankArbitrarinesses The flags representing whether the array-rank of the parameters are arbitrary.
+	 * @param parameterCountArbitrary The flag representing whether the total number of the parameters is arbitrary.
+	 * @param parameterVariadic The flag representing whether the function has variadic parameters.
+	 * @return The signature of the function.
+	 */
 	public static final String getSignatureOf(String functionName,
 			String[] parameterDataTypeNames, int[] parameterArrayRanks,
 			boolean[] parameterDataTypeArbitrarinesses, boolean[] parameterArrayRankArbitrarinesses,
@@ -120,6 +112,13 @@ public final class IdentifierSyntax {
 		return builder.toString();
 	}
 
+
+	/**
+	 * Returns the signature of the function declared by the specified AST.
+	 * 
+	 * @param functionDeclarationNode The AST node of the function declaration.
+	 * @return The signature of the function.
+	 */
 	public static final String getSignatureOf(AstNode functionDeclarationNode) {
 
 		String functionName = functionDeclarationNode.getAttribute(AttributeKey.IDENTIFIER_VALUE);
@@ -135,19 +134,17 @@ public final class IdentifierSyntax {
 		Arrays.fill(parameterArrayRankArbitrarinesses, false);
 
 		for (int parameterNodeIndex=0; parameterNodeIndex<parameterNodeLength; parameterNodeIndex++) {
-
 			String dataTypeName = parameterNodes[parameterNodeIndex].getAttribute(AttributeKey.DATA_TYPE);
 
-			// データ型名のエイリアス（floatに対するdoubleなど）を一意な型名に揃えるため、一旦DataTypeに変換して戻す
+			// Replace aliases of the data-type to the canonical name, 
+			// by converting the name to DataType enum and re-converting it to the name again.
 			try {
 				DataType dataType = DataTypeName.getDataTypeOf(dataTypeName);
 				dataTypeName = DataTypeName.getDataTypeNameOf(dataType);
 			} catch (VnanoException e) {
-				// DataTypeに定義されない未知の型の場合は、記述された型名をそのまま使用する
+				// Do nothing for data-type names which are undefined in DataType enum.
 			}
-
 			parameterDataTypeNames[parameterNodeIndex] = dataTypeName;
-
 			parameterArrayRanks[parameterNodeIndex] = parameterNodes[parameterNodeIndex].getRank();
 		}
 
@@ -160,17 +157,26 @@ public final class IdentifierSyntax {
 		return signature;
 	}
 
+
+	/**
+	 * Returns the signature of the function which is called from the function-call operator of the specified AST node.
+	 * 
+	 * @param callerNode The AST node of the function-call operator.
+	 * @return The signature of the callee function of the specified function-call operator.
+	 */
 	public static final String getSignatureOfCalleeFunctionOf(AstNode callerNode) {
 
 		AstNode[] childNodes = callerNode.getChildNodes();
 
-		// 最初の子ノードが関数識別子ノード
+		// The function name is stored in the first child node (= function identifier node).
 		String functionName = childNodes[0].getAttribute(AttributeKey.IDENTIFIER_VALUE);
 
+		// Store all argument's nodes into an array.
 		int argumentNodeLength = childNodes.length-1;
 		AstNode[] argumentNodes = new AstNode[argumentNodeLength];
 		System.arraycopy(childNodes, 1, argumentNodes, 0, argumentNodeLength);
 
+		// Stores all argument's data-type names, array-ranks, and flags into arrays.
 		String[] argumentDataTypeNames = new String[argumentNodeLength];
 		int[] argumentArrayRanks = new int[argumentNodeLength];
 		boolean[] argumentDataTypeArbitrarinesses = new boolean[argumentNodeLength];
@@ -181,16 +187,15 @@ public final class IdentifierSyntax {
 		for (int argumentNodeIndex=0; argumentNodeIndex<argumentNodeLength; argumentNodeIndex++) {
 			String dataTypeName = argumentNodes[argumentNodeIndex].getAttribute(AttributeKey.DATA_TYPE);
 
-			// データ型名のエイリアス（floatに対するdoubleなど）を一意な型名に揃えるため、一旦DataTypeに変換して戻す
+			// Replace aliases of the data-type to the canonical name, 
+			// by converting the name to DataType enum and re-converting it to the name again.
 			try {
 				DataType dataType = DataTypeName.getDataTypeOf(dataTypeName);
 				dataTypeName = DataTypeName.getDataTypeNameOf(dataType);
 			} catch (VnanoException e) {
-				// DataTypeに定義されない未知の型の場合は、記述された型名をそのまま使用する
+				// Do nothing for data-type names which are undefined in DataType enum.
 			}
-
 			argumentDataTypeNames[argumentNodeIndex] = dataTypeName;
-
 			argumentArrayRanks[argumentNodeIndex] = argumentNodes[argumentNodeIndex].getRank();
 		}
 
@@ -204,6 +209,12 @@ public final class IdentifierSyntax {
 	}
 
 
+	/**
+	 * Returns the signature of the specified function.
+	 * 
+	 * @param function The function.
+	 * @return The signature of the specified function.
+	 */
 	public static final String getSignatureOf(AbstractFunction function) {
 		return getSignatureOf(function, "");
 	}
@@ -222,65 +233,112 @@ public final class IdentifierSyntax {
 		return signature;
 	}
 
-	// 後の工程での削除候補
+
+
+	// Should remove?
+	/**
+	 * Returns the identifier in assembly code, corresponding with the specified variable name.
+	 * 
+	 * @param variableName The name of the variable.
+	 * @return The identifier of the variable in assembly code.
+	 */
+	/*
 	public static final String getAssemblyIdentifierOf(String variableName) {
 		return AssemblyWord.IDENTIFIER_OPERAND_PREFIX + variableName;
 	}
+	*/
 
+
+	/**
+	 * Returns the identifier in assembly code, corresponding with the specified variable's AST node.
+	 * 
+	 * @param variableNode The AST node of the variable declaration.
+	 * @return The identifier of the variable in assembly code.
+	 */
 	public static final String getAssemblyIdentifierOf(AstNode variableNode) {
 		String variableName = variableNode.getAttribute(AttributeKey.IDENTIFIER_VALUE);
-		String serialNumber = variableNode.getAttribute(AttributeKey.IDENTIFIER_SERIAL_NUMBER);
-		String assemblyIdentifier
-				= AssemblyWord.IDENTIFIER_OPERAND_PREFIX
-				+ variableName
-				+ AssemblyWord.IDENTIFIER_SERIAL_NUMBER_SEPARATOR
-				+ serialNumber;
-
+		String assemblyIdentifier = AssemblyWord.IDENTIFIER_OPERAND_PREFIX + variableName;
+		if (variableNode.hasAttribute(AttributeKey.IDENTIFIER_SERIAL_NUMBER)) {
+			String serialNumber = variableNode.getAttribute(AttributeKey.IDENTIFIER_SERIAL_NUMBER);
+			assemblyIdentifier += AssemblyWord.IDENTIFIER_SERIAL_NUMBER_SEPARATOR + serialNumber;
+		}
 		return assemblyIdentifier;
 	}
 
-	// 後で AbstractVariable がシリアルナンバーを持てるようにした場合は、持っていれば付けるべき
+
+	/**
+	 * Returns the identifier in assembly code of the specified variable.
+	 * 
+	 * @param variable The variable.
+	 * @return The identifier in assembly code of the specified variable.
+	 */
 	public static final String getAssemblyIdentifierOf(AbstractVariable variable) {
 		return getAssemblyIdentifierOf(variable, "");
 	}
 
+	/**
+	 * Returns the identifier in assembly code of the specified variable.
+	 * 
+	 * @param variable The variable.
+	 * @param nameSpacePrefix The prefix representing the namespace to which the variable belongs.
+	 * @return The identifier in assembly code of the specified variable.
+	 */
 	public static final String getAssemblyIdentifierOf(AbstractVariable variable, String nameSpacePrefix) {
 		String variableName = variable.getVariableName();
+		if (variable.hasSerialNumber()) {
+			variableName += AssemblyWord.IDENTIFIER_SERIAL_NUMBER_SEPARATOR + variable.getSerialNumber();
+		}
 		return AssemblyWord.IDENTIFIER_OPERAND_PREFIX + nameSpacePrefix + variableName;
 	}
 
-	// スクリプト名の中で、意味のある記号などを置き換えて正規化する（中間コードのメタ情報などに記載されるため）
+	/**
+	 * Normalizes the name of the specified script.
+	 * 
+	 * File names of scripts (script names) may contain symbols 
+	 * which have syntactic meaning in the virtual assembly language of the VM (VRIL).
+	 * In assembly code, script names of scripts will be embedded as meta-information directives,
+	 * so we must replace special symbols in script names to non-special symbols.
+	 * This method performs the above, and we call it as "normalization of script names".
+	 * 
+	 * @param scriptName The script name to be normalized.
+	 * @return The normalized script name.
+	 */
 	public static final String normalizeScriptIdentifier(String scriptName) {
 
 		String normalizedName = scriptName;
 
-		// ※ 現時点の仕様では、ドットはファイル名や名前空間に含める事が可能な記号として許可する
+		// Note: In the current specification, we allow dots "." to be contained in script names.
 
-		// エスケープする箇所をこの文字列で置き換える
+		// Replace special symbols to the following symbol "_".
 		String escapedWord = "_";
 
-		// 文字列リテラルの範囲を崩さないようにダブルクォーテーションをエスケープ
+		// Replace double-quotations (").
 		normalizedName = normalizedName.replaceAll("\"", escapedWord);
 
-		// メタ情報の記法「key1=value1,key2=value2,...」を崩さないように「,」と「=」をエスケープ
+		// Replace "," and "=".
+		// They have syntactic meanings in meta-information directives as: #META "key1=value1,key2=value2,..."
 		normalizedName = normalizedName.replaceAll("=", escapedWord);
 		normalizedName = normalizedName.replaceAll(",", escapedWord);
 
-		// VRILの処理単位の区切りになるセミコロンをエスケープ
+		// Replace ";". It has syntactic meanings to indicate the end of each instruction/directive.
 		normalizedName = normalizedName.replaceAll(";", escapedWord);
 
-		// 空白/改行はVRILの動作上は問題にはならないものの、メタ情報が改行されたりすると読みづらいのでエスケープする。
-		// ただし、eval にコードを直接渡した場合の仮のメインスクリプト名は、
-		// ファイルから読み込んだスクリプト名と競合しないように空白を含ませたりしているが、
-		// それをエスケープすると競合し得るようになるため、その場合にはエスケープしない。
+		// Line-feeds don't cause syntactic problems, but they make assembly code hard to read, so replace them.
+		normalizedName = normalizedName.replaceAll("\t", escapedWord);
+		normalizedName = normalizedName.replaceAll("\r", escapedWord);
+		normalizedName = normalizedName.replaceAll("\n", escapedWord);
+
+		// To avoid confusion, replace white-spaces.
+		// 
+		// Note that, to the script code passed as an argument of "eval" method directly,
+		// the special script name "main script" (OptionValue.MAIN_SCRIPT_NAME_DEFAULT) will be assigned by default.
+		// It contains a white space on purpose to avoid conflict of names with other (library) scripts.
+		// So we must not replace a white space in MAIN_SCRIPT_NAME_DEFAULT.
 		if (!scriptName.equals(OptionValue.MAIN_SCRIPT_NAME_DEFAULT)) {
 			normalizedName = normalizedName.replaceAll(" ", escapedWord);
-			normalizedName = normalizedName.replaceAll("\t", escapedWord);
-			normalizedName = normalizedName.replaceAll("\r", escapedWord);
-			normalizedName = normalizedName.replaceAll("\n", escapedWord);
 		}
 
-		// 階層区切りのバックスラッシュはスラッシュに統一
+		// Replace backslashes to slashes.
 		normalizedName = normalizedName.replace("\\", "/");
 
 		return normalizedName;
