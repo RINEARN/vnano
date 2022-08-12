@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2022
+ * Copyright(C) 2017-2022 RINEARN
  * This software is released under the MIT License.
  */
 

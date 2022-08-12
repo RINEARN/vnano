@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2021 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2022 RINEARN
  * This software is released under the MIT License.
  */
 
@@ -11,199 +11,127 @@ import java.util.ArrayList;
 import org.vcssl.nano.VnanoFatalException;
 import org.vcssl.nano.VnanoException;
 
-// Documentation:  https://www.vcssl.org/en-us/dev/code/main-jimpl/api/org/vcssl/nano/spec/LiteralSyntax.html
-// ドキュメント:   https://www.vcssl.org/ja-jp/dev/code/main-jimpl/api/org/vcssl/nano/spec/LiteralSyntax.html
 
 /**
- * <p>
- * <span>
- * <span class="lang-en">
- * The class performing functions to interpret literals in script code of the Vnano
- * </span>
- * <span class="lang-ja">
- * Vnano のスクリプトコード内のリテラルを解釈する機能を提供するクラスです
- * </span>
- * .
- * </p>
- *
- * <p>
- * &raquo; <a href="../../../../../src/org/vcssl/nano/spec/LiteralSyntax.java">Source code</a>
- * </p>
- *
- * <hr>
- *
- * <p>
- * | <a href="../../../../../api/org/vcssl/nano/spec/LiteralSyntax.html">Public Only</a>
- * | <a href="../../../../../api-all/org/vcssl/nano/spec/LiteralSyntax.html">All</a> |
- * </p>
- *
- * @author RINEARN (Fumihiro Matsui)
+ * The class to define syntax of literals, and performs validations/detections of literals.
  */
 public class LiteralSyntax {
 
-	/**
-	 * <span class="lang-en">The value of the bool type literal: "true"</span>
-	 * <span class="lang-ja">bool 型のリテラル値 true です</span>
-	 * .
-	 */
+	/** The value of the bool type literal: "true". */
 	public static final String TRUE = "true";
 
 
-	/**
-	 * <span class="lang-en">The value of the bool type literal: "false"</span>
-	 * <span class="lang-ja">bool 型のリテラル値 false です</span>
-	 * .
-	 */
+	/** The value of the bool type literal: "false". */
 	public static final String FALSE = "false";
 
 
-	/**
-	 * <span class="lang-en">The prefix of hexadecimal int literals</span>
-	 * <span class="lang-ja">16 進数の int 型リテラルのプレフィックスです</span>
-	 * .
-	 */
+	/** The prefix of hexadecimal int literals. */
 	public static final String INT_LITERAL_HEX_PREFIX = "0x";
 
 
-	/**
-	 * <span class="lang-en">The prefix of octal int literals</span>
-	 * <span class="lang-ja">8 進数の int 型リテラルのプレフィックスです</span>
-	 * .
-	 */
+	/** The prefix of octal int literals. */
 	public static final String INT_LITERAL_OCT_PREFIX = "0o";
 
 
-	/**
-	 * <span class="lang-en">The prefix of binary int literals</span>
-	 * <span class="lang-ja">2 進数の int 型リテラルのプレフィックスです</span>
-	 * .
-	 */
+	/** The prefix of binary int literals. */
 	public static final String INT_LITERAL_BIN_PREFIX = "0b";
 
 
-	/**
-	 * <span class="lang-en">The regular expression of the prefix of an exponent part of "float" type literals</span>
-	 * <span class="lang-ja">float 型リテラルにおける指数部のプレフィックスの正規表現です</span>
-	 * .
-	 */
+	/** The regular expression of the prefix of an exponent part of "float" type literals. */
 	public static final String FLOAT_LITERAL_EXPONENT_PREFIX = "e|E";
 
 
 	/**
-	 * <span class="lang-en">The regular expression of "int" type literals</span>
-	 * <span class="lang-ja">int 型リテラルの正規表現です</span>
-	 * .
+	 * The regular expression of "int" type literals.
+	 * Note that, literals don't contain signs (+/-) because they will be parsed as sign operators, not parts of literals.
 	 */
 	protected static final String INT_LITERAL_REGEX =
-			// 始点
+			// The beginning of the regex.
 			"^"
-			// 注: 符号は単項マイナス/プラス演算子と解釈するため、リテラルには含まない
 			+
-			// 16進リテラルの場合： 16進数プレフィックス 0x の後に1個以上の「0～9までの数字またはA～Fまでのアルファベット」の列
+			// Hex literals: Begins with "0x", and one or multiple 0~9/A~F continue after it.
 			"(0x[0-9a-zA-F]+)"
 			+
-			// または
+			// Or
 			"|"
 			+
-			// 8進数リテラルの場合： 8進数プレフィックス 0o の後に1個以上の「0～7までの数字」の列
+			// Octal literals: Begins with "0o", and one or multiple 0~7 continue after it.
 			"(0o[0-7]+)"
 			+
-			// または
+			// Or
 			"|"
 			+
-			// 2進数リテラルの場合： 2進数プレフィックス 0b の後に1個以上の「0～1までの数字」の列
+			// Binary literals: Begins with "0b", and one or multiple 0~1 continue after it.
 			"(0b[0-1]+)"
 			+
 			// または
 			"|"
 			+
-			// 10進数リテラルの場合(一般的な場合)： プレフィックス無しで「0～9までの数字」の列
+			// Decimal literals: One or multiple 0~9, without any prefix.
 			"([0-9]+)"
 			+
-			// 最後に long 型のサフィックス（有無は任意）
+			// A type-suffix (l or L) may be specified at the end of a literal.
 			"(l|L)?"
 			+
-			// 終端
+			// The end of the regex.
 			"$";
 
 
 	/**
-	 * <span class="lang-en">The regular expression of "float" type literals</span>
-	 * <span class="lang-ja">float 型リテラルの正規表現です</span>
-	 * .
+	 * The regular expression of "float" type literals.
+	 * Note that, literals don't contain signs (+/-) because they will be parsed as sign operators, not parts of literals.
 	 */
 	protected static final String FLOAT_LITERAL_REGEX =
-			// 始点
+			// The beginning of the regex.
 			"^"
-			// 注: 符号は単項マイナス/プラス演算子と解釈するため、リテラルには含まない
 			+
-			// 数字列のみの後に float/double 型のサフィックスが付く場合（この場合サフィックスは、無いとintリテラルになってしまうので必須）
+			// Simple cases: begins with one or multiple 0~9, and ends with type-suffix (d/f/D/F).
+			// Note that, if it has no suffix in this case, it should be be parsed as an "int" literal.
 			"([0-9]+(d|f|D|F))"
 			+
-			// または
+			// Or
 			"|"
 			+
-			// それ以外の一般的な場合
+			// General cases:
 			"("
 				+
-				//「 1個以上の数字列 . 0個以上の数字列 」または「 0個以上の数字列 . 1個以上の数字列 」
+				// Begins with one or multiple 0~9, and the next is a floating point (.), and one or multiple 0~9 continues after it again.
+				// Note that, in Vnano, can not omit numbers before/after the floating point, though some languages allow it to be omitted.
 				"(([0-9]+\\.[0-9]*)|([0-9]*\\.[0-9]+))"
 				+
-				// その後に指数部（あっても無くてもいい）
+				// An exponent part may continues after the above.
 				"((e|E)(\\+|-)?[0-9]+)?"
 				+
-				// その後に float/double 型のサフィックス（この場合サフィックスの有無は任意）
+				// A type-suffix (d/f/D/F) part may continues at the end of a literal.
 				"(d|f|D|F)?"
 				+
 			")"
 			+
-			// 終端
+			// The end of the regex.
 			"$";
 
 
-	/**
-	 * <span class="lang-en">The regular expression of "bool" type literals</span>
-	 * <span class="lang-ja">bool 型リテラルの正規表現です</span>
-	 * .
-	 */
+	/** The regular expression of "bool" type literals. */
 	protected static final String BOOL_LITERAL_REGEX = "^" + TRUE + "|" + FALSE + "$";
 
 
-	/**
-	 * <span class="lang-en">The prefix character of escape sequences in string literals: \</span>
-	 * <span class="lang-ja">文字列型リテラル内のエスケープシーケンスのプレフィックス記号「 \ 」です</span>
-	 * .
-	 */
+	/** The prefix character of escape sequences in string literals. */
 	private static final char STEING_LITERAL_ESCAPE = '\\';
 
 
-	/**
-	 * <span class="lang-en">The beginning/end character of string-literals: "</span>
-	 * <span class="lang-ja">文字列型リテラルの始点・終点記号「 " 」です</span>
-	 * .
-	 */
+	/** The beginning/end character of string-literals. */
 	public static final char STRING_LITERAL_QUOT = '"';
 
 
-	/**
-	 * <span class="lang-en">The beginning/end character of char-literals (unsupported): '</span>
-	 * <span class="lang-ja">文字型リテラル（非サポート）の始点・終点記号「 ' 」です</span>
-	 * .
-	 */
+	/** The beginning/end character of char-literals (unsupported). */
 	public static final char CHAR_LITERAL_QUOT = '\'';
 
 
 	/**
-	 * <span class="lang-en">Checks whether the specified token can be interpreted as the literal or not</span>
-	 * <span class="lang-ja">指定された字句が, リテラルとして解釈できるかどうかを判定します</span>
-	 * .
-	 * @param token
-	 *   <span class="lang-en">The token to be checked.</span>
-	 *   <span class="lang-en">判定対象の字句.</span>
-	 *
-	 * @return
-	 *   <span class="lang-en">The check result ("true" if it can be interpreted as the literal).</span>
-	 *   <span class="lang-ja">判定結果（リテラルとみなせる場合に true ）.</span>
+	 * Checks whether the specified token can be interpreted as the literal or not.
+	 * 
+	 * @param token The token to be checked.
+	 * @return The check result ("true" if it can be interpreted as the literal).
 	 */
 	public static final boolean isValidLiteral(String token) {
 		try {
@@ -216,20 +144,11 @@ public class LiteralSyntax {
 
 
 	/**
-	 * <span class="lang-en">Determines the data type of the specified literal and returns its name</span>
-	 * <span class="lang-ja">指定されたリテラルのデータ型を判定し, その型の名称を返します</span>
-	 * .
-	 * @param literal
-	 *   <span class="lang-en">The literal for which get the name of the data type.</span>
-	 *   <span class="lang-ja">データ型の名称を取得したいリテラル.</span>
-	 *
-	 * @return
-	 *   <span class="lang-en">The name of the data type of the literal.</span>
-	 *   <span class="lang-ja">リテラルのデータ型の名称.</span>
-	 *
-	 * @throws VnanoFatalException
-	 *   <span class="lang-en">Thrown when the specified literal could not be interpreted.</span>
-	 *   <span class="lang-ja">指定されたリテラルを解釈できなかった場合にスローされます.</span>
+	 * Determines the data type of the specified literal and returns its name.
+	 * 
+	 * @param literal The literal for which get the name of the data type.
+	 * @return The name of the data type of the literal.
+	 * @throws VnanoFatalException Thrown when the specified literal could not be interpreted.
 	 */
 	public static final String getDataTypeNameOfLiteral(String literal) throws VnanoFatalException {
 
@@ -258,34 +177,28 @@ public class LiteralSyntax {
 
 
 	/**
-	 * <span class="lang-ja">指定された文字列リテラル内のエスケープシーケンスを処理した文字列を返します</span>
-	 * .
-	 * <span class="lang-ja">
-	 * 引数に渡される文字列リテラルは単一である必要があります.
-	 * 即ち、エスケープされていない文字列リテラルの始点・終点記号は,
-	 * 引数 stringLiteral の先頭および末尾のみに存在が許されます（省略可能です）.
-	 * </span>
-	 *
-	 * @param stringLiteral
-	 *   <span class="lang-ja">処理対象の文字列リテラル内容</span>
-	 *
-	 * @return
-	 *   <span class="lang-ja">エスケープシーケンスが処理済みの内容</span>
+	 * Replaces some escape-sequences (\n, \r, \t, and so on) 
+	 * contained in the specified string literal to corresponding characters.
+	 * 
+	 * @param stringLiteral The string literal (must begins/ends with a double-quotation) to be processed.
+	 * @return The processed string literal.
 	 */
 	public static final String decodeEscapeSequences(String stringLiteral) {
 
-		// 文字列リテラルのchar配列表現と要素数を取得
+		// Get UTF-16 characters composing the string literal.
 		char[] chars = stringLiteral.toCharArray();
 		int charLength = chars.length;
 
+		// Create a buffer to build the result string.
 		StringBuilder resultBuilder = new StringBuilder(charLength);
 
-		boolean previousIsEscapeChar = false; // 直前がエスケープ文字だったかどうかのフラグ
+		// The flag representing whether the last character is the escape symbol '\'.
+		boolean previousIsEscapeSymbol = false; // 直前がエスケープ文字だったかどうかのフラグ
 
 		for (int i=0; i<charLength; i++) {
 
-			// 直前がエスケープ文字だった場合は、デコードして出力に追加
-			if (previousIsEscapeChar) {
+			// If the last char is the escape symbol '\', decode the escape sequence, and push the result to the buffer.
+			if (previousIsEscapeSymbol) {
 				switch (chars[i]) {
 					case 't' : resultBuilder.append('\t'); break;
 					case 'n' : resultBuilder.append('\n'); break;
@@ -293,24 +206,25 @@ public class LiteralSyntax {
 					case '"' : resultBuilder.append('"'); break;
 					default : throw new VnanoFatalException("Unknown escape sequence: " + chars[i]);
 				}
-				// エスケープ対象文字の処理が完了したら、直前エスケープフラグは階乗する
+
+				// Resets the flag when it has completed to decode the escape sequence.
 				previousIsEscapeChar = false;
 				continue;
 			}
 
-			// エスケープ文字があった場合はフラグに記録し、すぐに次へ進む。
-			// ただし、エスケープ文字をエスケープしている場合もあるので、
-			// 直前がエスケープ文字であった場合はこの処理は飛ばす
-			if (chars[i] == STEING_LITERAL_ESCAPE && !previousIsEscapeChar) {
-				previousIsEscapeChar = true;
+			// If the current character is the escape symbol '\', enable the flag, 
+			// and decode the escape sequence at the next cycle of the loop.
+			// However, if the last character is also the escape symbol '\',
+			// it means that "a escape symbol is escaped", so it should be decoded simply as the character '\'.
+			// So in such case, we disable the flag, to read the '\' as a regular character.
+			if (chars[i] == STEING_LITERAL_ESCAPE && !previousIsEscapeSymbol) {
+				previousIsEscapeSymbol = true;
 				continue;
-
-			// 上の条件に該当しない条件下で1文字読んだら、直前エスケープフラグは解除する
 			} else {
-				previousIsEscapeChar = false;
+				previousIsEscapeSymbol = false;
 			}
 
-			// ここまで到達するのは普通の文字なので、そのまま出力に追加
+			// Regular character: simply append to the buffer.
 			resultBuilder.append(chars[i]);
 		}
 
@@ -319,39 +233,20 @@ public class LiteralSyntax {
 
 
 	/**
-	 * <span class="lang-ja">
-	 * 指定されたコード内の文字列リテラルを全て抽出し,
-	 * それらのリテラルがあった箇所を番号化リテラル（後述）で置き換えたコードと,
-	 * 全リテラルの中身を配列にまとめて返します
-	 * <span>
-	 * .
-	 * <span class="lang-ja">
-	 * 戻り値配列の [0] 番要素には、code 内の文字列リテラルを先頭から順に,
-	 * "1", "2" ... などのように「 番号を文字列リテラル記号で挟んだもの（番号化リテラル） 」
-	 * で置き換えたものが格納されます.
-	 * その番号をインデックスとする、戻り値配列の要素に,
-	 * その箇所にあった文字列リテラルの中身が格納されます.
+	 * Extracts all string literals in the specified code, and replace them in the code to "numberized literals".
+	 * 
+	 * Where "numberized literals" are string literals consists of serial numbers, e.g.: "1", "2", ...
+	 * The serial number in a numberized literal is the same as 
+	 * the array index of the corresponding (original) string literal in the returned array of this method.
+	 * 
+	 * In the returned array of this method, the literal-replaced script code will is stored at [0]. 
+	 * And extracted (original) string literals are stored at [1], [2], ... in the order of apparence in the script code.
 	 *
-	 * 結果の配列から元の文字列リテラル値を取り出すためのインデックスは,
-	 * 番号化リテラルの文字列を引数として,
-	 * {@link LiteralSyntax#getIndexOfNumberedStringLiteral getIndexOfNumberedStringLiteral}
-	 * メソッドで得る事もできます.
-	 *
-	 * 番号は、1番から順に、出現する順序で1ずつ加算して割りふられます.
-	 * <span>
-	 *
-	 * @param code
-	 *   <span class="lang-ja">文字列リテラルを抽出したいコード.</span>
-	 *
-	 * @return
-	 *   <span class="lang-ja">抽出済みコードと全リテラル内容を格納する配列.<span>
-	 *
-	 * @throws VnanoException
-	 *   <span class="lang-ja">文字列リテラルが全て閉じていない場合にスローされます.</span>
+	 * @param code The script code which may contain string literals.
+	 * @return The array storing the literal-replaced code and extracted litarals. See the above description.
+	 * @throws VnanoException Thrown when an unclosed string literal has been found. 
 	 */
 	public static final String[] extractStringLiterals(String code) throws VnanoException {
-
-		// コードのchar配列表現と要素数を取得
 		char[] chars = code.toCharArray();
 		int charLength = chars.length;
 
@@ -360,59 +255,63 @@ public class LiteralSyntax {
 		List<String> literalList = new ArrayList<String>();
 		int literalNumber = 1;
 
-		boolean previousIsEscapeChar = false; // 直前がエスケープ文字だったかどうかのフラグ
-		boolean inLiteral = false; // 文字列リテラル内かどうかのフラグ
+		// The flag representing whether the last character is the escape symbol '\'.
+		boolean previousIsEscapeChar = false;
 
+		// The flag representing whether the current character is locating in a string literal.
+		boolean inLiteral = false;
+
+		// Traverse all characters in the code.
 		for (int i=0; i<charLength; i++) {
 
-			// 文字列リテラルの始点・終点記号の場合に行う処理（エスケープ文字直後は行わない）
+			// Detections of the beginning/ending of a string literal.
 			if (chars[i] == STRING_LITERAL_QUOT && !previousIsEscapeChar) {
 
-				// 文字列リテラル終了
+				// The end of the current string literal.
 				if (inLiteral) {
 					inLiteral = false;
 
-					// 読み進めていたリテラルを閉じて取り出す
+					// Push the literal-ending symbol to a buffer to store the content of the literal, 
+					// and extract the content of the literal from the buffer, and register it to the list.
 					literalBuilder.append(STRING_LITERAL_QUOT);
 					String literal = literalBuilder.toString();
 					literalBuilder = null;
-
-					// リテラルリストにリテラルを追加
 					literalList.add(literal);
 
-					// 抽出済みコードに番号化リテラルを追記し、番号を進める
+					// Push a numberized literal to the buffer to build the literal-escaped code, 
+					//  and increment the serial number which will be assigned to the next numberized literal.
 					resultCodeBuilder.append(STRING_LITERAL_QUOT);
 					resultCodeBuilder.append(literalNumber);
 					resultCodeBuilder.append(STRING_LITERAL_QUOT);
 					literalNumber++;
 
-				// 文字列リテラル開始
+				// The beginning of a new string literal.
 				} else {
 					inLiteral = true;
 
-					// バッファを生成してリテラル開始記号を追記
+					// Create a buffer to store the content of the literal,
+					// and push the literal-beginning symbol to it.
 					literalBuilder = new StringBuilder();
 					literalBuilder.append(STRING_LITERAL_QUOT);
 				}
 				continue;
 			}
 
-			// リテラル内を読んでいる最中にエスケープ文字があった場合は、
-			// 文字列リテラル終点判定に影響するためフラグに記録した上で、
-			// リテラルに追記し、すぐに次へ進む。
-			// ただし、エスケープ文字をエスケープしている場合もあるので、
-			// 直前がエスケープ文字であった場合はこの処理は飛ばす
+			// If the escape-symbol '\' has been detected,
+			// register it to the flag because it may affect to the detection of the end of the current literal.
+			// However, it the '\' is escaped by the previous '\', it don't affect to the detection of the end of the literal,
+			// so cancel the flag in such case.
 			if (inLiteral && chars[i] == STEING_LITERAL_ESCAPE && !previousIsEscapeChar) {
 				literalBuilder.append(STEING_LITERAL_ESCAPE);
 				previousIsEscapeChar = true;
 				continue;
-
-			// 上の条件に該当しない条件下で1文字読んだら、直前エスケープフラグは解除する
 			} else {
 				previousIsEscapeChar = false;
 			}
 
-			// それ以外の文字は、リテラル内の時はリテラルに、そうではない時は抽出済みコードに追記
+			// General characters:
+			//   Append it to the literal buffer if it is contained in a literal, 
+			//   otherwise append it to the code buffer.
 			if (inLiteral) {
 				literalBuilder.append(chars[i]);
 			} else {
@@ -420,14 +319,15 @@ public class LiteralSyntax {
 			}
 		}
 
-		// コードを全て読み終えても文字列リテラル内なら、閉じていない文字列リテラルがある
+		// If the literal detection flag is enabled when the all characters in the code has been read,
+		// there is/are an unclosed literal(s) in the code.
 		if (inLiteral) {
 			throw new VnanoException(
 					ErrorType.STRING_LITERAL_IS_NOT_CLOSED
 			);
 		}
 
-		// 以下、抽出済みコードと全リテラルを仕様通りの順で配列に詰めて返す
+		// Store results to an array, and return it.
 
 		String[] result = new String[literalList.size() + 1];
 		result[0] = resultCodeBuilder.toString();
@@ -443,32 +343,21 @@ public class LiteralSyntax {
 
 
 	/**
-	 * <span class="lang-ja">
-	 * 指定された文字列を, {@link LiteralSyntax#extractStringLiterals extractStringLiterals}
-	 * メソッドで置き換えられた番号化リテラルであると見なして,
-	 * 同メソッドの戻り値配列から元の文字列リテラル値を取り出して復元するためのインデックスを求めて返します
-	 * </span>
-	 * .
-	 * @param numberedLiteral
-	 *   <span class="lang-ja">復元したい番号化リテラル</span>
-	 *
-	 * @return
-	 *   <span class="lang-ja">
-	 *   {@link LiteralSyntax#extractStringLiterals extractStringLiterals} メソッドの戻り値の中で,
-	 *   対象リテラルが格納されている要素のインデックス
-	 *   </span>
+	 * Returns the serial number of the specified numberized string literal.
+	 * 
+	 * @param numberedLiteral The numberized string literal.
+	 * @return The serial number of the numberized literal.
 	 */
 	public static final int getIndexOfNumberedStringLiteral(String numberedLiteral) {
 
-		// 前後の「 " 」を除去
+		// Remove double-quatations at the beginning/end of the literal.
 		numberedLiteral = numberedLiteral.substring(1, numberedLiteral.length()-1);
 
-		// 番号を整数に変換
+		// Convert the serial number part (string) to an int-type value, and return it.
 		int index = -1;
 		try {
 			index = Integer.parseInt(numberedLiteral);
 		} catch (NumberFormatException e) {
-			// 番号部が整数と解釈できないのは extractStringLiterals メソッドの十道の異常
 			throw new VnanoFatalException("Invalid numbered string literal: " + numberedLiteral, e);
 		}
 		return index;
