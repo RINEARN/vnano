@@ -208,7 +208,7 @@ public class LiteralSyntax {
 				}
 
 				// Resets the flag when it has completed to decode the escape sequence.
-				previousIsEscapeChar = false;
+				previousIsEscapeSymbol = false;
 				continue;
 			}
 
