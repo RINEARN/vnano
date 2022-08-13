@@ -95,8 +95,10 @@ public class LiteralSyntax {
 			// General cases:
 			"("
 				+
-				// Begins with one or multiple 0~9, and the next is a floating point (.), and one or multiple 0~9 continues after it again.
-				// Note that, in Vnano, can not omit numbers before/after the floating point, though some languages allow it to be omitted.
+				// A mantissa part:
+				//   Case1: Begins with one or more 0~9, and the next is a floating point (.), and zero or more 0~9 continues after it again.
+				//   Case2: Begins with zero or more 0~9, and the next is a floating point (.), and one or more 0~9 continues after it again.
+				// Note that, can omit either numbers at the left or right of the floating point.
 				"(([0-9]+\\.[0-9]*)|([0-9]*\\.[0-9]+))"
 				+
 				// An exponent part may continues after the above.
