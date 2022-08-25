@@ -454,17 +454,11 @@ public class CodeGenerator {
 					AstNode callOperatorNode = currentNode.getParentNode();
 					String calleeSignature = callOperatorNode.getAttribute(AttributeKey.CALLEE_SIGNATURE);
 					String assemblyValue = AssemblyWord.IDENTIFIER_OPERAND_PREFIX + calleeSignature;
-					//String assemblyValue = IdentifierSyntax.getAssemblyIdentifierOfCalleeFunctionOf(callOperatorNode);
 					currentNode.setAttribute(AttributeKey.ASSEMBLY_VALUE, assemblyValue);
 
 				// Variable declarations or variable identifiers
 				} else if(isVariable || (isLeaf && leafType == AttributeValue.VARIABLE_IDENTIFIER) ) {
-					String identifier = currentNode.getAttribute(AttributeKey.IDENTIFIER_VALUE);
-					String assemblyValue = IdentifierSyntax.getAssemblyIdentifierOf(identifier);
-					if (currentNode.hasAttribute(AttributeKey.IDENTIFIER_SERIAL_NUMBER)) {
-						assemblyValue += AssemblyWord.IDENTIFIER_SERIAL_NUMBER_SEPARATOR
-						              + currentNode.getAttribute(AttributeKey.IDENTIFIER_SERIAL_NUMBER);
-					}
+					String assemblyValue = IdentifierSyntax.getAssemblyIdentifierOf(currentNode);
 					currentNode.setAttribute(AttributeKey.ASSEMBLY_VALUE, assemblyValue);
 
 				// Literals
@@ -2407,15 +2401,13 @@ public class CodeGenerator {
 				&&
 				currentNode.getAttribute(AttributeKey.SCOPE).equals(AttributeValue.GLOBAL) ){
 
-
-				String variableName = currentNode.getAttribute(AttributeKey.IDENTIFIER_VALUE);
-				String identifier = IdentifierSyntax.getAssemblyIdentifierOf(variableName);
+				String asmIdentifier = IdentifierSyntax.getAssemblyIdentifierOf(currentNode);
 
 				// Generate a global variable identifier directive.
-				if (!generatedSet.contains(identifier)) {
+				if (!generatedSet.contains(asmIdentifier)) {
 					codeBuilder.append(AssemblyWord.GLOBAL_VARIABLE_DIRECTIVE);
 					codeBuilder.append(AssemblyWord.WORD_SEPARATOR);
-					codeBuilder.append(identifier);
+					codeBuilder.append(asmIdentifier);
 					codeBuilder.append(AssemblyWord.INSTRUCTION_SEPARATOR);
 					codeBuilder.append(AssemblyWord.LINE_SEPARATOR);
 				}

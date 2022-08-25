@@ -1,37 +1,12 @@
 /*
- * Copyright(C) 2017-2021 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2022 RINEARN
  * This software is released under the MIT License.
  */
 
 package org.vcssl.nano.spec;
 
-// Documentation:  https://www.vcssl.org/en-us/dev/code/main-jimpl/api/org/vcssl/nano/spec/ErrorType.html
-// ドキュメント:   https://www.vcssl.org/ja-jp/dev/code/main-jimpl/api/org/vcssl/nano/spec/ErrorType.html
-
 /**
- * <p>
- * <span>
- * <span class="lang-en">
- * The enum to define types of errors of the script engine of the Vnano
- * </span>
- * <span class="lang-ja">
- * Vnano のスクリプトエンジンのエラーの種類が定義された列挙子です
- * </span>
- * .
- * </p>
- *
- * <p>
- * &raquo; <a href="../../../../../src/org/vcssl/nano/spec/ErrorMessage.java">Source code</a>
- * </p>
- *
- * <hr>
- *
- * <p>
- * | <a href="../../../../../api/org/vcssl/nano/spec/ErrorMessage.html">Public Only</a>
- * | <a href="../../../../../api-all/org/vcssl/nano/spec/ErrorMessage.html">All</a> |
- * </p>
- *
- * @author RINEARN (Fumihiro Matsui)
+ * The enum to distinguish types of errors.
  */
 public enum ErrorType {
 	VARIABLE_IS_NOT_FOUND,
