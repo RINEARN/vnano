@@ -1,3 +1,8 @@
+/*
+ * Copyright(C) 2020-2022 RINEARN
+ * This software is released under the MIT License.
+ */
+
 package org.vcssl.nano.spec;
 
 import java.util.HashMap;
@@ -7,8 +12,13 @@ import java.util.Map;
 import org.vcssl.connect.ConnectorPermissionName;
 import org.vcssl.nano.VnanoFatalException;
 
+
+/**
+ * The class defining confirmation messages.
+ */
 public class ConfirmationMessage {
 
+	/** The Map for converting each permission name to the corresponding text in Japanese. */
 	private static final Map<String, String> PERMISSION_JAJP_NAME_MAP;
 	static {
 		PERMISSION_JAJP_NAME_MAP = new HashMap<String, String>();
@@ -23,6 +33,7 @@ public class ConfirmationMessage {
 		PERMISSION_JAJP_NAME_MAP.put(ConnectorPermissionName.DIRECTORY_DELETE, "フォルダの削除");
 	}
 
+	/** The Map for converting each permission name to the corresponding text in English. */
 	private static final Map<String, String> PERMISSION_ENUS_NAME_MAP;
 	static {
 		PERMISSION_ENUS_NAME_MAP = new HashMap<String, String>();

@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2021 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2022 RINEARN
  * This software is released under the MIT License.
  */
 
@@ -7,58 +7,51 @@ package org.vcssl.nano.spec;
 
 import java.util.Locale;
 
-// Documentation:  https://www.vcssl.org/en-us/dev/code/main-jimpl/api/org/vcssl/nano/spec/ErrorMessage.html
-// ドキュメント:   https://www.vcssl.org/ja-jp/dev/code/main-jimpl/api/org/vcssl/nano/spec/ErrorMessage.html
-
 /**
- * <p>
- * <span>
- * <span class="lang-en">
- * The class to define error messages of the script engine of the Vnano
- * </span>
- * <span class="lang-ja">
- * Vnano のスクリプトエンジンのエラーメッセージが定義されたクラスです
- * </span>
- * .
- * </p>
- *
- * <p>
- * &raquo; <a href="../../../../../src/org/vcssl/nano/spec/ErrorMessage.java">Source code</a>
- * </p>
- *
- * <hr>
- *
- * <p>
- * | <a href="../../../../../api/org/vcssl/nano/spec/ErrorMessage.html">Public Only</a>
- * | <a href="../../../../../api-all/org/vcssl/nano/spec/ErrorMessage.html">All</a> |
- * </p>
- *
- * @author RINEARN (Fumihiro Matsui)
+ * The class which defines error messages.
  */
 public class ErrorMessage {
 
+	/**
+	 * Generates the error message corresponding with the specified error type, in the language of the specified locale.
+	 * 
+	 * @param errorType The type of the error.
+	 * @param locale The locale to determine which language the error message should be described in.
+	 * @return The generated error message.
+	 */
 	public static String generateErrorMessage(ErrorType errorType, Locale locale) {
 		return generateErrorMessage(errorType, new String[0], locale);
 	}
 
+	/**
+	 * Generates the error message corresponding with the specified error type, in the language of the specified locale.
+	 * 
+	 * @param errorType The type of the error.
+	 * @param words The words to be embedded in the error message (For example: the name of the variable for a "variable not found" error).
+	 * @param locale The locale to determine which language the error message should be described in.
+	 * @return The generated error message.
+	 */
 	public static String generateErrorMessage(ErrorType errorType, String[] words, Locale locale) {
 
-		// CAST系エラーで渡されるVMのデータ型名はユーザーに分かりにくいので、スクリプト言語上でのデフォルトの型名で一致するものがあれば置き換える
-		if (errorType == ErrorType.CAST_FAILED_DUE_TO_TYPE ) {
+		// If the error is "cast failed" error, which occur when CAST operation is executed by the VM, 
+		// the names of the data-types of operands are passed as the arg "words".
+		// However, they are written in the data-type notation used in the VM, e.g.: "INT64", "FLOAT64", and so on.
+		// So convert them to the data-type notation used in scripts, e.g.: "int", "float", and so on.
+		if (errorType == ErrorType.CAST_FAILED_DUE_TO_TYPE) {
 			try {
 				words[0] = DataTypeName.getDataTypeNameOf(DataType.valueOf(words[0]));
 				words[1] = DataTypeName.getDataTypeNameOf(DataType.valueOf(words[1]));
 			} catch (IllegalArgumentException iae) {
 			}
 		}
-		if (errorType == ErrorType.CAST_FAILED_DUE_TO_VALUE ) {
+		if (errorType == ErrorType.CAST_FAILED_DUE_TO_VALUE) {
 			try {
 				words[1] = DataTypeName.getDataTypeNameOf(DataType.valueOf(words[1]));
 			} catch (IllegalArgumentException iae) {
 			}
 		}
 
-		// ロケール言語に応じたエラーメッセージを生成して返す
+		// Generate the error message in the language of the specified locale, and return it.
 		if (   ( locale.getLanguage()!=null && locale.getLanguage().equals("ja") )
 			   || ( locale.getCountry()!=null && locale.getCountry().equals("JP") )   ) {
 
@@ -68,6 +61,14 @@ public class ErrorMessage {
 		}
 	}
 
+
+	/**
+	 * Generates the error message corresponding with the specified error type, in Japanese.
+	 * 
+	 * @param errorType The type of the error.
+	 * @param words The words to be embedded in the error message (For example: the name of the variable for a "variable not found" error).
+	 * @return The generated error message.
+	 */
 	public static String generateErrorMessageJaJP(ErrorType errorType, String[] words) {
 
 		switch (errorType) {
@@ -184,6 +185,13 @@ public class ErrorMessage {
 	}
 
 
+	/**
+	 * Generates the error message corresponding with the specified error type, in US English.
+	 * 
+	 * @param errorType The type of the error.
+	 * @param words The words to be embedded in the error message (For example: the name of the variable for a "variable not found" error).
+	 * @return The generated error message.
+	 */
 	public static String generateErrorMessageEnUS(ErrorType errorType, String[] words) {
 
 		switch (errorType) {
@@ -299,3 +307,4 @@ public class ErrorMessage {
 		}
 	}
 }
+
