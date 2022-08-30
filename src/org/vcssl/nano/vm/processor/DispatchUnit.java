@@ -55,6 +55,9 @@ public class DispatchUnit {
 		// Dispatch to the execution unit, and execute.
 		switch (opcode) {
 
+			// For the detail of each instruction, see:
+			//     https://www.vcssl.org/en-us/vril/isa/instruction
+
 			// Arithmetic instructions:
 			case ADD : {
 				this.checkNumberOfOperands(instruction, 3);
