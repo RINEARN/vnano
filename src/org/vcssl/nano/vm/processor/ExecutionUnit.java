@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2021 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2022 RINEARN
  * This software is released under the MIT License.
  */
 
@@ -15,49 +15,29 @@ import org.vcssl.nano.VnanoException;
 
 
 /**
- * <p>
- * 仮想プロセッサ内において、{@link DispatchUnit ControlUnit}（制御ユニット）
- * から命令に該当する演算処理をディスパッチされて実行する、
- * 演算ユニットのクラスです。
- * </p>
- *
- * @author RINEARN (Fumihiro Matsui)
+ * The class which executes an operation of each instruction, dispatched by {@link DispatchUnit DispatchUnit}.
  */
 public class ExecutionUnit {
 
-	/** スカラの次元数です。 */
-	@SuppressWarnings("unused")
-	private static final int RANK_OF_SCALAR = 0;
-
+	// --------------------------------------------------------------------------------
+	//   For the detail of each instruction, see:
+	//       https://www.vcssl.org/en-us/vril/isa/instruction
+	// --------------------------------------------------------------------------------
 
 	/**
-	 * このクラスは状態を保持するフィールドを持たないため、コンストラクタは何もしません。
+	 * Create a new execution unit.
 	 */
 	public ExecutionUnit() {
 	}
 
 
 	/**
-	 * {@link org.vcssl.nano.spec.OperationCode#ADD ADD} 命令を実行します。
-	 *
-	 * この命令により、引数 inputA のデータと、引数 inputB のデータが加算され、
-	 * 結果が引数 output のデータに格納されます。
-	 *
-	 * この命令はSIMD命令であり、
-	 * オペランド（outputを含む）のデータは配列で、
-	 * 全オペランドにおいて要素数が同一に揃っている必要があります
-	 * （スカラは要素数1かつ0次元の配列として演算されます）。
-	 *
-	 * また、すべてのオペランド（outputを含む）のデータは、
-	 * 引数 type に指定されたデータ型のものに揃っている必要があります。
-	 *
-	 * @param type 演算データ型
-	 * @param output 結果を格納するデータ
-	 * @param inputA 演算対象データ（中置記法における左側）
-	 * @param inputB 演算対象データ（中置記法における右側）
-	 * @throws VnanoFatalException
-	 *   この命令が対応していないデータ型が指定された場合や、
-	 *   指定データ型とオペランドの実際のデータ型が一致しない場合に発生します。
+	 * Execute the ADD instruction.
+	 * 
+	 * @param type The data-type of operands.
+	 * @param output The data container for storing the operation result.
+	 * @param inputA The left operand of the addition operator.
+	 * @param inputB The right operand of the addition operator.
 	 */
 	public void add(DataType type, DataContainer<?> output, DataContainer<?> inputA, DataContainer<?> inputB) {
 
@@ -105,26 +85,12 @@ public class ExecutionUnit {
 
 
 	/**
-	 * {@link org.vcssl.nano.spec.OperationCode#SUB SUB} 命令を実行します。
-	 *
-	 * この命令により、引数 inputA のデータから、引数 inputB のデータが減算され、
-	 * 結果が引数 output のデータに格納されます。
-	 *
-	 * この命令はSIMD命令であり、
-	 * オペランド（outputを含む）のデータは配列で、
-	 * 全オペランドにおいて要素数が同一に揃っている必要があります
-	 * （スカラは要素数1かつ0次元の配列として演算されます）。
-	 *
-	 * また、すべてのオペランド（outputを含む）のデータは、
-	 * 引数 type に指定されたデータ型のものに揃っている必要があります。
-	 *
-	 * @param type 演算データ型
-	 * @param output 結果を格納するデータ
-	 * @param inputA 演算対象データ（中置記法における左側）
-	 * @param inputB 演算対象データ（中置記法における右側）
-	 * @throws VnanoFatalException
-	 *   この命令が対応していないデータ型が指定された場合や、
-	 *   指定データ型とオペランドの実際のデータ型が一致しない場合に発生します。
+	 * Execute the SUB instruction.
+	 * 
+	 * @param type The data-type of operands.
+	 * @param output The data container for storing the operation result.
+	 * @param inputA The left operand of the subtraction operator.
+	 * @param inputB The right operand of the subtraction operator.
 	 */
 	public void sub(DataType type, DataContainer<?> output, DataContainer<?> inputA, DataContainer<?> inputB) {
 
@@ -164,26 +130,12 @@ public class ExecutionUnit {
 
 
 	/**
-	 * {@link org.vcssl.nano.spec.OperationCode#MUL MUL} 命令を実行します。
-	 *
-	 * この命令により、引数 inputA のデータに、引数 inputB のデータが乗算され、
-	 * 結果が引数 output のデータに格納されます。
-	 *
-	 * この命令はSIMD命令であり、
-	 * オペランド（outputを含む）のデータは配列で、
-	 * 全オペランドにおいて要素数が同一に揃っている必要があります
-	 * （スカラは要素数1かつ0次元の配列として演算されます）。
-	 *
-	 * また、すべてのオペランド（outputを含む）のデータは、
-	 * 引数 type に指定されたデータ型のものに揃っている必要があります。
-	 *
-	 * @param type 演算データ型
-	 * @param output 結果を格納するデータ
-	 * @param inputA 演算対象データ（中置記法における左側）
-	 * @param inputB 演算対象データ（中置記法における右側）
-	 * @throws VnanoFatalException
-	 *   この命令が対応していないデータ型が指定された場合や、
-	 *   指定データ型とオペランドの実際のデータ型が一致しない場合に発生します。
+	 * Execute the MUL instruction.
+	 * 
+	 * @param type The data-type of operands.
+	 * @param output The data container for storing the operation result.
+	 * @param inputA The left operand of the multiplication operator.
+	 * @param inputB The right operand of the multiplication operator.
 	 */
 	public void mul(DataType type, DataContainer<?> output, DataContainer<?> inputA, DataContainer<?> inputB) {
 
@@ -223,26 +175,12 @@ public class ExecutionUnit {
 
 
 	/**
-	 * {@link org.vcssl.nano.spec.OperationCode#DIV DIV} 命令を実行します。
-	 *
-	 * この命令により、引数 inputA のデータが、引数 inputB のデータで除算され、
-	 * 結果が引数 output のデータに格納されます。
-	 *
-	 * この命令はSIMD命令であり、
-	 * オペランド（outputを含む）のデータは配列で、
-	 * 全オペランドにおいて要素数が同一に揃っている必要があります
-	 * （スカラは要素数1かつ0次元の配列として演算されます）。
-	 *
-	 * また、すべてのオペランド（outputを含む）のデータは、
-	 * 引数 type に指定されたデータ型のものに揃っている必要があります。
-	 *
-	 * @param type 演算データ型
-	 * @param output 結果を格納するデータ
-	 * @param inputA 演算対象データ（中置記法における左側）
-	 * @param inputB 演算対象データ（中置記法における右側）
-	 * @throws VnanoFatalException
-	 *   この命令が対応していないデータ型が指定された場合や、
-	 *   指定データ型とオペランドの実際のデータ型が一致しない場合に発生します。
+	 * Execute the DIV instruction.
+	 * 
+	 * @param type The data-type of operands.
+	 * @param output The data container for storing the operation result.
+	 * @param inputA The left operand of the division operator.
+	 * @param inputB The right operand of the division operator.
 	 */
 	public void div(DataType type, DataContainer<?> output, DataContainer<?> inputA, DataContainer<?> inputB) {
 
@@ -282,26 +220,12 @@ public class ExecutionUnit {
 
 
 	/**
-	 * {@link org.vcssl.nano.spec.OperationCode#REM REM} 命令を実行します。
-	 *
-	 * この命令により、引数 inputA のデータを、引数 inputB のデータで除算した剰余が計算され、
-	 * 結果が引数 output のデータに格納されます。
-	 *
-	 * この命令はSIMD命令であり、
-	 * オペランド（outputを含む）のデータは配列で、
-	 * 全オペランドにおいて要素数が同一に揃っている必要があります
-	 * （スカラは要素数1かつ0次元の配列として演算されます）。
-	 *
-	 * また、すべてのオペランド（outputを含む）のデータは、
-	 * 引数 type に指定されたデータ型のものに揃っている必要があります。
-	 *
-	 * @param type 演算データ型
-	 * @param output 結果を格納するデータ
-	 * @param inputA 演算対象データ（中置記法における左側）
-	 * @param inputB 演算対象データ（中置記法における右側）
-	 * @throws VnanoFatalException
-	 *   この命令が対応していないデータ型が指定された場合や、
-	 *   指定データ型とオペランドの実際のデータ型が一致しない場合に発生します。
+	 * Execute the REM instruction.
+	 * 
+	 * @param type The data-type of operands.
+	 * @param output The data container for storing the operation result.
+	 * @param inputA The left operand of the remainder operator.
+	 * @param inputB The right operand of the remainder operator.
 	 */
 	public void rem(DataType type, DataContainer<?> output, DataContainer<?> inputA, DataContainer<?> inputB) {
 
@@ -340,27 +264,12 @@ public class ExecutionUnit {
 	}
 
 
-
-
 	/**
-	 * {@link org.vcssl.nano.spec.OperationCode#NEG NEG} 命令を実行します。
-	 *
-	 * この命令により、引数 input のデータの符号反転を行った結果が、
-	 * 引数 output のデータに格納されます。
-	 *
-	 * この命令はSIMD命令であり、
-	 * オペランド（outputを含む）のデータは配列で、
-	 * 全オペランドにおいて要素数が同一に揃っている必要があります
-	 * （スカラは要素数1かつ0次元の配列として演算されます）。
-	 *
-	 * また、オペランドのデータは、引数 type に指定されたデータ型のものと一致している必要があります。
-	 *
-	 * @param type 演算データ型
-	 * @param output 結果を格納するデータ
-	 * @param input 演算対象データ
-	 * @throws VnanoFatalException
-	 *   この命令が対応していないデータ型が指定された場合や、
-	 *   指定データ型とオペランドの実際のデータ型が一致しない場合に発生します。
+	 * Execute the NEG instruction.
+	 * 
+	 * @param type The data-type of operands.
+	 * @param output The data container for storing the operation result.
+	 * @param input The operand of the unary minus operator.
 	 */
 	public void neg(DataType type, DataContainer<?> output, DataContainer<?> input) {
 
@@ -395,28 +304,15 @@ public class ExecutionUnit {
 	}
 
 
+
+
 	/**
-	 * {@link org.vcssl.nano.spec.OperationCode#EQ EQ} 命令を実行します。
-	 *
-	 * この命令により、引数 inputA のデータと、引数 inputB のデータの等値比較が行われ、
-	 * 結果が output のデータに格納されます。
-	 * 演算結果は、inputA および inputB が一致している場合に true、一致しない場合に false となります。
-	 *
-	 * この命令はSIMD命令であり、
-	 * オペランド（outputを含む）のデータは配列で、
-	 * 全オペランドにおいて要素数が同一に揃っている必要があります
-	 * （スカラは要素数1かつ0次元の配列として演算されます）。
-	 *
-	 * また、inputA および inputB のデータは、引数 type に指定されたデータ型のものに揃っている必要があります。
-	 * output のデータ型は、必ず {@link org.vcssl.nano.spec.DataType#BOOL BOOL} 型である事が必要です。
-	 *
-	 * @param type 演算データ型
-	 * @param output 結果を格納するデータ
-	 * @param inputA 演算対象データ（中置記法における左側）
-	 * @param inputB 演算対象データ（中置記法における右側）
-	 * @throws VnanoFatalException
-	 *   この命令が対応していないデータ型が指定された場合や、
-	 *   指定データ型とオペランドの実際のデータ型が一致しない場合に発生します。
+	 * Execute the EQ instruction.
+	 * 
+	 * @param type The data-type of operands.
+	 * @param output The data container for storing the operation result.
+	 * @param inputA The left operand of the equarity operator.
+	 * @param inputB The right operand of the equarity operator.
 	 */
 	public void eq(DataType type, DataContainer<?> output, DataContainer<?> inputA, DataContainer<?> inputB) {
 
@@ -474,27 +370,12 @@ public class ExecutionUnit {
 
 
 	/**
-	 * {@link org.vcssl.nano.spec.OperationCode#NEQ NEQ} 命令を実行します。
-	 *
-	 * この命令により、引数 inputA のデータと、引数 inputB のデータの非等値比較が行われ、
-	 * 結果が output のデータに格納されます。
-	 * 演算結果は、inputA および inputB が一致しない場合に true、一致する場合に false となります。
-	 *
-	 * この命令はSIMD命令であり、
-	 * オペランド（outputを含む）のデータは配列で、
-	 * 全オペランドにおいて要素数が同一に揃っている必要があります
-	 * （スカラは要素数1かつ0次元の配列として演算されます）。
-	 *
-	 * また、inputA および inputB のデータは、引数 type に指定されたデータ型のものに揃っている必要があります。
-	 * output のデータ型は、必ず {@link org.vcssl.nano.spec.DataType#BOOL BOOL} 型である事が必要です。
-	 *
-	 * @param type 演算データ型
-	 * @param output 結果を格納するデータ
-	 * @param inputA 演算対象データ（中置記法における左側）
-	 * @param inputB 演算対象データ（中置記法における右側）
-	 * @throws VnanoFatalException
-	 *   この命令が対応していないデータ型が指定された場合や、
-	 *   指定データ型とオペランドの実際のデータ型が一致しない場合に発生します。
+	 * Execute the NEQ instruction.
+	 * 
+	 * @param type The data-type of operands.
+	 * @param output The data container for storing the operation result.
+	 * @param inputA The left operand of the non-equarity operator.
+	 * @param inputB The right operand of the non-equarity operator.
 	 */
 	public void neq(DataType type, DataContainer<?> output, DataContainer<?> inputA, DataContainer<?> inputB) {
 
@@ -551,30 +432,13 @@ public class ExecutionUnit {
 	}
 
 
-
 	/**
-	 * {@link org.vcssl.nano.spec.OperationCode#GEQ GEQ} 命令を実行します。
-	 *
-	 * この命令により、引数 inputA のデータと、引数 inputB のデータの大小比較が行われ、
-	 * 結果が output のデータに格納されます。
-	 * 演算結果は、inputA のデータの値が、inputB のもの以上（等値を含む）である場合に true、
-	 * そうでない場合に false となります。
-	 *
-	 * この命令はSIMD命令であり、
-	 * オペランド（outputを含む）のデータは配列で、
-	 * 全オペランドにおいて要素数が同一に揃っている必要があります
-	 * （スカラは要素数1かつ0次元の配列として演算されます）。
-	 *
-	 * また、inputA および inputB のデータは、引数 type に指定されたデータ型のものに揃っている必要があります。
-	 * output のデータ型は、必ず {@link org.vcssl.nano.spec.DataType#BOOL BOOL} 型である事が必要です。
-	 *
-	 * @param type 演算データ型
-	 * @param output 結果を格納するデータ
-	 * @param inputA 演算対象データ（中置記法における左側）
-	 * @param inputB 演算対象データ（中置記法における右側）
-	 * @throws VnanoFatalException
-	 *   この命令が対応していないデータ型が指定された場合や、
-	 *   指定データ型とオペランドの実際のデータ型が一致しない場合に発生します。
+	 * Execute the GEQ instruction.
+	 * 
+	 * @param type The data-type of operands.
+	 * @param output The data container for storing the operation result.
+	 * @param inputA The left operand of the greater-equal operator.
+	 * @param inputB The right operand of the greater-equal operator.
 	 */
 	public void geq(DataType type, DataContainer<?> output, DataContainer<?> inputA, DataContainer<?> inputB) {
 
@@ -614,28 +478,12 @@ public class ExecutionUnit {
 
 
 	/**
-	 * {@link org.vcssl.nano.spec.OperationCode#LEQ LEQ} 命令を実行します。
-	 *
-	 * この命令により、引数 inputA のデータと、引数 inputB のデータの大小比較が行われ、
-	 * 結果が output のデータに格納されます。
-	 * 演算結果は、inputA のデータの値が、inputB のもの以下（等値を含む）である場合に true、
-	 * そうでない場合に false となります。
-	 *
-	 * この命令はSIMD命令であり、
-	 * オペランド（outputを含む）のデータは配列で、
-	 * 全オペランドにおいて要素数が同一に揃っている必要があります
-	 * （スカラは要素数1かつ0次元の配列として演算されます）。
-	 *
-	 * また、inputA および inputB のデータは、引数 type に指定されたデータ型のものに揃っている必要があります。
-	 * output のデータ型は、必ず {@link org.vcssl.nano.spec.DataType#BOOL BOOL} 型である事が必要です。
-	 *
-	 * @param type 演算データ型
-	 * @param output 結果を格納するデータ
-	 * @param inputA 演算対象データ（中置記法における左側）
-	 * @param inputB 演算対象データ（中置記法における右側）
-	 * @throws VnanoFatalException
-	 *   この命令が対応していないデータ型が指定された場合や、
-	 *   指定データ型とオペランドの実際のデータ型が一致しない場合に発生します。
+	 * Execute the LEQ instruction.
+	 * 
+	 * @param type The data-type of operands.
+	 * @param output The data container for storing the operation result.
+	 * @param inputA The left operand of the less-equal operator.
+	 * @param inputB The right operand of the less-equal operator.
 	 */
 	public void leq(DataType type, DataContainer<?> output, DataContainer<?> inputA, DataContainer<?> inputB) {
 
@@ -675,28 +523,12 @@ public class ExecutionUnit {
 
 
 	/**
-	 * {@link org.vcssl.nano.spec.OperationCode#GT GT} 命令を実行します。
-	 *
-	 * この命令により、引数 inputA のデータと、引数 inputB のデータの大小比較が行われ、
-	 * 結果が output のデータに格納されます。
-	 * 演算結果は、inputA のデータの値が、inputB のものよりも大きい（等値を含まない）場合に true、
-	 * そうでない場合に false となります。
-	 *
-	 * この命令はSIMD命令であり、
-	 * オペランド（outputを含む）のデータは配列で、
-	 * 全オペランドにおいて要素数が同一に揃っている必要があります
-	 * （スカラは要素数1かつ0次元の配列として演算されます）。
-	 *
-	 * また、inputA および inputB のデータは、引数 type に指定されたデータ型のものに揃っている必要があります。
-	 * output のデータ型は、必ず {@link org.vcssl.nano.spec.DataType#BOOL BOOL} 型である事が必要です。
-	 *
-	 * @param type 演算データ型
-	 * @param output 結果を格納するデータ
-	 * @param inputA 演算対象データ（中置記法における左側）
-	 * @param inputB 演算対象データ（中置記法における右側）
-	 * @throws VnanoFatalException
-	 *   この命令が対応していないデータ型が指定された場合や、
-	 *   指定データ型とオペランドの実際のデータ型が一致しない場合に発生します。
+	 * Execute the GT instruction.
+	 * 
+	 * @param type The data-type of operands.
+	 * @param output The data container for storing the operation result.
+	 * @param inputA The left operand of the greater-than operator.
+	 * @param inputB The right operand of the greater-than operator.
 	 */
 	public void gt(DataType type, DataContainer<?> output, DataContainer<?> inputA, DataContainer<?> inputB) {
 
@@ -736,28 +568,12 @@ public class ExecutionUnit {
 
 
 	/**
-	 * {@link org.vcssl.nano.spec.OperationCode#LT LT} 命令を実行します。
-	 *
-	 * この命令により、引数 inputA のデータと、引数 inputB のデータの大小比較が行われ、
-	 * 結果が output のデータに格納されます。
-	 * 演算結果は、inputA のデータの値が、inputB のものよりも小さい（等値を含まない）場合に true、
-	 * そうでない場合に false となります。
-	 *
-	 * この命令はSIMD命令であり、
-	 * オペランド（outputを含む）のデータは配列で、
-	 * 全オペランドにおいて要素数が同一に揃っている必要があります
-	 * （スカラは要素数1かつ0次元の配列として演算されます）。
-	 *
-	 * また、inputA および inputB のデータは、引数 type に指定されたデータ型のものに揃っている必要があります。
-	 * output のデータ型は、必ず {@link org.vcssl.nano.spec.DataType#BOOL BOOL} 型である事が必要です。
-	 *
-	 * @param type 演算データ型
-	 * @param output 結果を格納するデータ
-	 * @param inputA 演算対象データ（中置記法における左側）
-	 * @param inputB 演算対象データ（中置記法における右側）
-	 * @throws VnanoFatalException
-	 *   この命令が対応していないデータ型が指定された場合や、
-	 *   指定データ型とオペランドの実際のデータ型が一致しない場合に発生します。
+	 * Execute the LT instruction.
+	 * 
+	 * @param type The data-type of operands.
+	 * @param output The data container for storing the operation result.
+	 * @param inputA The left operand of the less-than operator.
+	 * @param inputB The right operand of the less-than operator.
 	 */
 	public void lt(DataType type, DataContainer<?> output, DataContainer<?> inputA, DataContainer<?> inputB) {
 
@@ -797,35 +613,14 @@ public class ExecutionUnit {
 
 
 
+
 	/**
-	 * {@link org.vcssl.nano.spec.OperationCode#ANDM ANDM} 命令を実行します。
-	 *
-	 * この命令により、引数 inputA のデータと、引数 inputB との論理積が計算され、
-	 * 結果が output のデータに格納されます。
-	 * 演算結果は、inputA のデータの値と、inputB のデータの値が両者共に
-	 * true である場合に true、そうでない場合に false となります。
-	 *
-	 * この命令はSIMD命令であり、
-	 * オペランド（outputを含む）のデータは配列で、
-	 * 全オペランドにおいて要素数が同一に揃っている必要があります
-	 * （スカラは要素数1かつ0次元の配列として演算されます）。
-	 *
-	 * また、すべてのオペランド（outputを含む）のデータは、
-	 * {@link org.vcssl.nano.spec.DataType#BOOL BOOL}
-	 * 型のものに揃っている必要があります。
-	 * 引数 type にも、必ず
-	 * {@link org.vcssl.nano.spec.DataType#BOOL BOOL}
-	 * 型を指定しなければなりません。
-	 *
-	 * ただし、（ここに短絡評価に関する説明）
-	 *
-	 * @param type 演算データ型
-	 * @param output 結果を格納するデータ
-	 * @param inputA 演算対象データ（中置記法における左側）
-	 * @param inputB 演算対象データ（中置記法における右側）
-	 * @throws VnanoFatalException
-	 *   この命令が対応していないデータ型が指定された場合や、
-	 *   指定データ型とオペランドの実際のデータ型が一致しない場合に発生します。
+	 * Execute the ANDM instruction.
+	 * 
+	 * @param type The data-type of operands.
+	 * @param output The data container for storing the operation result.
+	 * @param inputA The left operand of the logical-and operator.
+	 * @param inputB The right operand of the logical-and operator.
 	 */
 	public void and(DataType type, DataContainer<?> output, DataContainer<?> inputA, DataContainer<?> inputB) {
 
@@ -841,21 +636,25 @@ public class ExecutionUnit {
 		this.checkDataType(output, type);
 		this.checkDataType(inputA, type);
 
-		boolean allLeftValuesAreFalse = true; // 短絡評価の判定用
+		// The flag for short-circuit evaluation.
+		boolean allLeftValuesAreFalse = true;
 
+		// Evaluation of the left operand.
 		boolean[] inputDataA = (boolean[])inputA.getArrayData();
 		boolean[] outputData = (boolean[])output.getArrayData();
 		for (int i=0; i<dataLength; i++) {
 			outputData[outputOffset+i] = inputDataA[inputAOffset+i];
 
-			// inputDataA要素が一個でもtrueになれば、その後allLeftValuesAreFalseは常にfalse
+			// If at least 1 element in inputDataA is true, the value of allLeftValuesAreFalse should be false.
 			allLeftValuesAreFalse &= !inputDataA[inputAOffset+i];
 		}
 
+		// Short-circuit evaluation: skip evaluation of the right operand.
 		if (allLeftValuesAreFalse) {
 			return;
 		}
 
+		// Evaluation of the right operand.
 		boolean[] inputDataB = (boolean[])inputB.getArrayData();
 		this.checkDataType(inputB, type);
 		for (int i=0; i<dataLength; i++) {
@@ -865,36 +664,13 @@ public class ExecutionUnit {
 
 
 	/**
-	 * {@link org.vcssl.nano.spec.OperationCode#ORM ORM} 命令を実行します。
-	 *
-	 * この命令により、引数 inputA のデータと、引数 inputB との論理和が計算され、
-	 * 結果が output のデータに格納されます。
-	 * 演算結果は、inputA のデータの値と、inputB のデータの値の、
-	 * 少なくとも片方が true である場合に true、両者とも false である場合に false となります。
-	 *
-	 * この命令はSIMD命令であり、
-	 * オペランド（outputを含む）のデータは配列で、
-	 * 全オペランドにおいて要素数が同一に揃っている必要があります
-	 * （スカラは要素数1かつ0次元の配列として演算されます）。
-	 *
-	 * また、すべてのオペランド（outputを含む）のデータは、
-	 * {@link org.vcssl.nano.spec.DataType#BOOL BOOL}
-	 * 型のものに揃っている必要があります。
-	 * 引数 type にも、必ず
-	 * {@link org.vcssl.nano.spec.DataType#BOOL BOOL}
-	 * 型を指定しなければなりません。
-	 *
-	 * ただし、（ここに短絡評価に関する説明）
-	 *
-	 * @param type 演算データ型
-	 * @param output 結果を格納するデータ
-	 * @param inputA 演算対象データ（中置記法における左側）
-	 * @param inputB 演算対象データ（中置記法における右側）
-	 * @throws VnanoFatalException
-	 *   この命令が対応していないデータ型が指定された場合や、
-	 *   指定データ型とオペランドの実際のデータ型が一致しない場合に発生します。
+	 * Execute the ORM instruction.
+	 * 
+	 * @param type The data-type of operands.
+	 * @param output The data container for storing the operation result.
+	 * @param inputA The left operand of the logical-or operator.
+	 * @param inputB The right operand of the logical-or operator.
 	 */
-	// 短絡評価により、inputB は null の場合がある
 	public void or(DataType type, DataContainer<?> output, DataContainer<?> inputA, DataContainer<?> inputB) {
 
 		if (type != DataType.BOOL) {
@@ -909,21 +685,25 @@ public class ExecutionUnit {
 		this.checkDataType(output, type);
 		this.checkDataType(inputA, type);
 
-		boolean allLeftValuesAreTrue = true; // 短絡評価の判定用
+		// The flag for short-circuit evaluation.
+		boolean allLeftValuesAreTrue = true;
 
+		// Evaluation of the left operand:
 		boolean[] inputDataA = (boolean[])inputA.getArrayData();
 		boolean[] outputData = (boolean[])output.getArrayData();
 		for (int i=0; i<dataLength; i++) {
 			outputData[outputOffset+i] = inputDataA[inputAOffset+i];
 
-			// inputDataA要素が一個でもtrueになれば、その後allLeftValuesAreFalseは常にfalse
+			// If at least 1 element in inputDataA is false, the value of allLeftValuesAreTrue should be false.
 			allLeftValuesAreTrue &= inputDataA[inputAOffset+i];
 		}
 
+		// Short-circuit evaluation: skip evaluation of the right operand.
 		if (allLeftValuesAreTrue) {
 			return;
 		}
 
+		// Evaluation of the right operand:
 		boolean[] inputDataB = (boolean[])inputB.getArrayData();
 		this.checkDataType(inputB, type);
 		for (int i=0; i<dataLength; i++) {
@@ -932,33 +712,12 @@ public class ExecutionUnit {
 	}
 
 
-
 	/**
-	 * {@link org.vcssl.nano.spec.OperationCode#NOT NOT} 命令を実行します。
-	 *
-	 * この命令により、引数 input のデータの論理否定値が計算され、
-	 * 結果が output のデータに格納されます。
-	 * 演算結果は、input のデータの値が true である場合に false、
-	 * 逆に false である場合に true となります。
-	 *
-	 * この命令はSIMD命令であり、
-	 * オペランド（outputを含む）のデータは配列で、
-	 * 全オペランドにおいて要素数が同一に揃っている必要があります
-	 * （スカラは要素数1かつ0次元の配列として演算されます）。
-	 *
-	 * また、すべてのオペランド（outputを含む）のデータは、
-	 * {@link org.vcssl.nano.spec.DataType#BOOL BOOL}
-	 * 型のものに揃っている必要があります。
-	 * 引数 type にも、必ず
-	 * {@link org.vcssl.nano.spec.DataType#BOOL BOOL}
-	 * 型を指定しなければなりません。
-	 *
-	 * @param type 演算データ型
-	 * @param output 結果を格納するデータ
-	 * @param input 演算対象データ
-	 * @throws VnanoFatalException
-	 *   この命令が対応していないデータ型が指定された場合や、
-	 *   指定データ型とオペランドの実際のデータ型が一致しない場合に発生します。
+	 * Execute the NOT instruction.
+	 * 
+	 * @param type The data-type of operands.
+	 * @param output The data container for storing the operation result.
+	 * @param input The left operand of the logical-not operator.
 	 */
 	public void not(DataType type, DataContainer<?> output, DataContainer<?> input) {
 
@@ -987,135 +746,13 @@ public class ExecutionUnit {
 
 
 
-
-
 	/**
-	 * 1オペランドの {@link org.vcssl.nano.spec.OperationCode#ALLOC ALLOC} 命令（スカラ確保用）を実行します。
-	 *
-	 * この命令により、引数 target のデータの格納領域が、
-	 * 引数 type に指定されたデータ型のスカラ値を保持できるように確保されます。
-	 *
-	 * @param type 確保するデータの型
-	 * @param target 対象データ
-	 * @throws VnanoException 無効なデータ型が指定された場合に発生します。
-	 */
-	@SuppressWarnings("unchecked")
-	public void allocScalar(DataType type, DataContainer<?> target) {
-		switch (type) {
-			case INT64 : {
-				((DataContainer<long[]>)target).setArrayData(
-					new long[DataContainer.ARRAY_SIZE_OF_SCALAR], 0, DataContainer.ARRAY_LENGTHS_OF_SCALAR
-				);
-				return;
-			}
-			case FLOAT64 : {
-				((DataContainer<double[]>)target).setArrayData(
-					new double[DataContainer.ARRAY_SIZE_OF_SCALAR], 0, DataContainer.ARRAY_LENGTHS_OF_SCALAR
-				);
-				return;
-			}
-			case BOOL : {
-				((DataContainer<boolean[]>)target).setArrayData(
-					new boolean[DataContainer.ARRAY_SIZE_OF_SCALAR], 0, DataContainer.ARRAY_LENGTHS_OF_SCALAR
-				);
-				return;
-			}
-			case STRING : {
-				((DataContainer<String[]>)target).setArrayData(
-					new String[DataContainer.ARRAY_SIZE_OF_SCALAR], 0, DataContainer.ARRAY_LENGTHS_OF_SCALAR
-				);
-				return;
-			}
-			default : {
-				throw new VnanoFatalException("Unoperatable data type: " + type);
-			}
-		}
-	}
-
-
-	/**
-	 * 2オペランド以上の {@link org.vcssl.nano.spec.OperationCode#ALLOC ALLOC} 命令（配列確保用）を実行します。
-	 *
-	 * この命令により、引数 target のデータの格納領域が、
-	 * 引数 type に指定されたデータ型の、任意次元の配列値を保持できるように確保されます。
-	 * 確保される配列の、各次元における要素数は、引数 lengthsContainers の各要素が保持する値によって決定されます。
-	 *
-	 * @param type 確保するデータの型
-	 * @param target 対象データ
-	 * @param lengthsContainers 確保したい配列の、各次元の要素数を格納するコンテナの配列
-	 * @throws VnanoException 無効なデータ型が指定された場合に発生します。
-	 */
-	@SuppressWarnings("unchecked")
-	public void allocVector(DataType type, DataContainer<?> target, DataContainer<?> ... lengthsContainers) {
-		int size = 1;
-		int rank = lengthsContainers.length;
-
-		// 注意: alloc で要素数配列の内容を変える時は、そのまま代入せずに new で参照を切る事 (同要素数の複数コンテナで共用されている場合がある)
-		int[] lengths = new int[rank];
-		for (int dim=0; dim<rank; dim++) {
-			long[] lengthContainerData = ( (DataContainer<long[]>)lengthsContainers[dim] ).getArrayData();
-			lengths[dim] = (int)( lengthContainerData[ lengthsContainers[dim].getArrayOffset() ] );
-			size *= lengths[dim];
-		}
-
-		this.alloc(type, target, size, lengths);
-	}
-
-
-	/**
-	 * {@link org.vcssl.nano.spec.OperationCode#ALLOCR ALLOCR} 命令（配列確保用）を実行します。
-	 *
-	 * この命令により、引数 target のデータの格納領域が、
-	 * 引数 type に指定されたデータ型の、任意次元の配列値を保持できるように確保されます。
-	 * 配列の次元数および各次元の要素数は、引数 len に指定したデータコンテナと等しいものになります。
-	 * この命令は主に、ベクトル演算の結果を格納するためのレジスタ確保に使用されます。
-	 *
-	 * @param type 確保するデータの型
-	 * @param target 対象データ
-	 * @param sameLengthsContainer 確保したい配列と、全次元において同じ要素数を持つデータコンテナ（要素数の情報が参照されます）
-	 * @throws VnanoFatalException 無効なデータ型が指定された場合に発生します。
-	 */
-	public void allocSameLengths(DataType type, DataContainer<?> target, DataContainer<?> sameLengthsContainer) {
-
-		int size = sameLengthsContainer.getArraySize();
-		int rank = sameLengthsContainer.getArrayRank();
-
-		int[] lengths = sameLengthsContainer.getArrayLengths();
-		int[] copiedLengths = new int[rank];
-
-		if (0 < rank) {
-			System.arraycopy(lengths, 0, copiedLengths, 0, rank);
-		}
-
-		this.alloc(type, target, size, copiedLengths);
-	}
-
-
-	/**
-	 * !!!!!これは引数の型からして内部用では？ 上の2オペランドのもので多次元配列の対応も必要なのでは？
-	 * 恐らくコメントの書き直しが必要。
-	 *
-	 * 3オペランドの {@link org.vcssl.nano.spec.OperationCode#ALLOC ALLOC} 命令（多次元配列確保用）を実行します。
-	 *
-	 * この命令により、引数 target のデータの格納領域が、
-	 * 引数 type に指定されたデータ型の多次元配列値を保持できるように確保されます。
-	 * 配列の各次元の要素数は、引数 arrayLength で指定します。
-	 *
-	 * また、多次元配列の総要素数を、引数 dataLength に指定する必要があります。
-	 * これは通常、arrayLength の全要素値の積として求められます。
-	 * ただし、この処理系では、スカラは0次元の配列として扱われるため、
-	 * 0次元の場合は dataLength に 1 を指定する必要があります。
-	 * しかしながら、その場合は1オペランドの
-	 * {@link org.vcssl.nano.spec.OperationCode#ALLOC ALLOC}
-	 * 命令を実行する
-	 * {@link ExecutionUnit#allocScalar(org.vcssl.nano.vm.memory.DataContainer.DataType, DataContainer) alloc(Data.Type, Data)}
-	 * メソッドを使用する方が簡潔です。
-	 *
-	 * @param type 確保するデータの型
-	 * @param target 対象データ
-	 * @param dataLength 多次元配列の総要素数
-	 * @param arrayLengths 多次元配列における、各次元の要素数を格納する配列
-	 * @throws VnanoFatalException 無効なデータ型が指定された場合に発生します。
+	 * Execute the ALLOC instruction, to allocate memory for a scalar/array data.
+	 * 
+	 * @param type The data-type of the data.
+	 * @param target The data container for storing the data.
+	 * @param dataLength The number of all elements of the data.
+	 * @param arrayLengths The array-lengths of dimensions of the data.
 	 */
 	@SuppressWarnings("unchecked")
 	public void alloc(DataType type, DataContainer<?> target, int dataLength, int[] arrayLengths) {
@@ -1153,32 +790,106 @@ public class ExecutionUnit {
 		}
 	}
 
+	/**
+	 * Execute the ALLOC instruction, to allocate memory for a scalar data.
+	 * 
+	 * @param type The data-type of the scalar data.
+	 * @param target The data container for storing the data.
+	 */
+	@SuppressWarnings("unchecked")
+	public void allocScalar(DataType type, DataContainer<?> target) {
+		switch (type) {
+			case INT64 : {
+				((DataContainer<long[]>)target).setArrayData(
+					new long[DataContainer.ARRAY_SIZE_OF_SCALAR], 0, DataContainer.ARRAY_LENGTHS_OF_SCALAR
+				);
+				return;
+			}
+			case FLOAT64 : {
+				((DataContainer<double[]>)target).setArrayData(
+					new double[DataContainer.ARRAY_SIZE_OF_SCALAR], 0, DataContainer.ARRAY_LENGTHS_OF_SCALAR
+				);
+				return;
+			}
+			case BOOL : {
+				((DataContainer<boolean[]>)target).setArrayData(
+					new boolean[DataContainer.ARRAY_SIZE_OF_SCALAR], 0, DataContainer.ARRAY_LENGTHS_OF_SCALAR
+				);
+				return;
+			}
+			case STRING : {
+				((DataContainer<String[]>)target).setArrayData(
+					new String[DataContainer.ARRAY_SIZE_OF_SCALAR], 0, DataContainer.ARRAY_LENGTHS_OF_SCALAR
+				);
+				return;
+			}
+			default : {
+				throw new VnanoFatalException("Unoperatable data type: " + type);
+			}
+		}
+	}
+
 
 	/**
-	 * {@link org.vcssl.nano.spec.OperationCode#MOV MOV} 命令を実行します。
-	 *
-	 * この命令の実行により、引数 src のデータが、引数 dest にコピーされます。
-	 * その際、データの参照がコピーされるのではなく、内容がコピーされます。
-	 * また、コピー先とコピー元のデータサイズは等しい事が前提とされます。
-	 *
-	 * この命令によるデータのコピーでは、型変換は行われないため、
-	 * コピー元とコピー先のデータ型が共に、
-	 * 引数 type に指定された型に揃っていなければなりません。
-	 *
-	 * コピー元とコピー先の型が異なる場合は、この命令の代わりに、
-	 * {@link org.vcssl.nano.spec.OperationCode#CAST CAST}
-	 * 命令を使用する事で対応できます。
-	 *
-	 * しかしながら、この命令は型変換が不要な分だけ、一般に
-	 * （特に {@link Accelerator Accelerator}を有効化した場合において）
-	 * {@link org.vcssl.nano.spec.OperationCode#CAST CAST}
-	 * 命令よりも処理速度面で有利です。
-	 *
-	 * @param type オペランドのデータ型
-	 * @param dest コピー先データ
-	 * @param src コピー元データ
-	 * @throws VnanoFatalException
-	 *   指定データ型とオペランドの実際のデータ型が一致しない場合に発生します。
+	 * Execute the ALLOC instruction, to allocate memory for an array data.
+	 * 
+	 * @param type The data-type of the array data.
+	 * @param target The data container for storing the data.
+	 * @param lengthsContainers The data containers storing lengths of dimensions of the array.
+	 */
+	@SuppressWarnings("unchecked")
+	public void allocVector(DataType type, DataContainer<?> target, DataContainer<?> ... lengthsContainers) {
+		int size = 1;
+		int rank = lengthsContainers.length;
+		
+		// !!! CAUTON !!!
+		// When we required to change values of "lengths"-array of the data container, 
+		// we must not modify the currently set "lengths"-array, because 
+		// sometimes it is being shared between multiple data containers having the same lengths.
+		// So we must create a new array here.
+		int[] lengths = new int[rank];
+		for (int dim=0; dim<rank; dim++) {
+			long[] lengthContainerData = ( (DataContainer<long[]>)lengthsContainers[dim] ).getArrayData();
+			lengths[dim] = (int)( lengthContainerData[ lengthsContainers[dim].getArrayOffset() ] );
+			size *= lengths[dim];
+		}
+
+		this.alloc(type, target, size, lengths);
+	}
+
+
+	/**
+	 * Execute the ALLOCR instruction, to allocate memory for storing data 
+	 * having the same array-rank/lengths with the specified data container (sameLengthsContainer).
+	 * 
+	 * @param type The data-type of the data.
+	 * @param target The data container for storing the data.
+	 * @param sameLengthsContainer The data containers having the same array-rank/lengths with the memory you want to allocate.
+	 */
+	public void allocSameLengths(DataType type, DataContainer<?> target, DataContainer<?> sameLengthsContainer) {
+
+		int size = sameLengthsContainer.getArraySize();
+		int rank = sameLengthsContainer.getArrayRank();
+
+		int[] lengths = sameLengthsContainer.getArrayLengths();
+		int[] copiedLengths = new int[rank];
+
+		if (0 < rank) {
+			System.arraycopy(lengths, 0, copiedLengths, 0, rank);
+		}
+
+		this.alloc(type, target, size, copiedLengths);
+	}
+
+
+	/**
+	 * Execute the MOV instruction.
+	 * 
+	 * @param type The data-type of operands.
+	 * @param dest The left operand of the assignment operator.
+	 * @param src The right operand of the assignment operator.
+	 * @throws VnanoException
+	 *     Thrown when an unexpected data-type is specified, or it does not match with the actual data-type.
 	 */
 	public void mov(DataType type, DataContainer<?> dest, DataContainer<?> src) throws VnanoException {
 		this.checkDataType(dest, type);
@@ -1200,31 +911,34 @@ public class ExecutionUnit {
 	}
 
 
+	/**
+	 * Execute the REF instruction.
+	 * 
+	 * @param type The data-type of operands.
+	 * @param dest The destination operand of the reference-assignment operation.
+	 * @param src The source-operand of the reference-assignment operation.
+	 * @throws VnanoException
+	 *     Thrown when an unexpected data-type is specified, or it does not match with the actual data-type.
+	 */
 	@SuppressWarnings("unchecked")
 	public void ref(DataType type, DataContainer<?> dest, DataContainer<?> src) {
-		// this.checkDataType(dest, type); // データ参照を上書きする命令なので、上書き前の dest は検査不要（未確保の場合もある）
-		this.checkDataType(src, type);
+		// this.checkDataType(dest, type); // This instruction can be used even when the memory of the dest has not been allocated yet.
+		this.checkDataType(src, type);     // The memory of the src must be already allocated.
 		( (DataContainer<Object>)dest ).refer( (DataContainer<Object>)src );
 	}
 
 
 
 	/**
-	 * {@link org.vcssl.nano.vm.processor.OperationCode#REORD REORD} 命令を実行します。
-	 *
-	 * この命令の実行により、引数 src のデータが、引数 dest にコピーされます。
-	 * ただし、両者が1次元以上の配列である事が前提であり、
-	 * 同じ多次元配列インデックスで参照される要素が、同じ値となるよう、
-	 * コピー先の要素の配置が整列されます。
-	 *
-	 * @param type オペランドのデータ型
-	 * @param dest コピー先データ
-	 * @param src コピー元データ
-	 * @throws VnanoFatalException
-	 *   指定データ型とオペランドの実際のデータ型が一致しない場合に発生します。
+	 * Execute the REORD instruction.
+	 * 
+	 * @param type The data-type of operands.
+	 * @param dest The destination operand of the reorder-assignment operation.
+	 * @param src The source-operand of the reorder-assignment operation.
+	 * @throws VnanoException
+	 *     Thrown when an unexpected data-type is specified, or it does not match with the actual data-type.
 	 */
 	/*
-	// 現時点では不要
 	public void reord(DataType type, DataContainer<?> dest, DataContainer<?> src)
 			throws VnanoException {
 
@@ -1236,14 +950,14 @@ public class ExecutionUnit {
 		int srcRank = src.getRank();
 		int destRank = dest.getRank();
 		if (srcRank != destRank) {
-			// エラー
+			// Error
 		}
 
 		int srcDataLength = src.getSize();
 
 
-		int address[] = new int[ srcRank ];  // oldの1次元indexに対応するaddressを求める
-		int scale[] = new int[ srcRank ];  // 各次元が1インクリメントされた際に、1次元indexがどれだけ増えるかの単位
+		// The increase amount of 1D index, when each index of each dimension is incremented.
+		int scale[] = new int[ srcRank ];
 		scale[0] = 1;
 		int currentScale = 1;
 		for( int i=srcRank-1; 1<=i; i-- ){
@@ -1251,25 +965,28 @@ public class ExecutionUnit {
 			scale[i] = currentScale;
 		}
 
-		// fromData の1次元インデックスに関するループ
+		// In the following loop, stores indices corresponding with fromData's 1D index.
+		int address[] = new int[ srcRank ];
+
+		// Loop for 1D index of all elements of fromData:
 		for(int fromDataIndex=0; fromDataIndex<srcDataLength; fromDataIndex++){
 
-			// fromData の1次元インデックスに対応するインデックス配列
+			// Compute indicess corresponding fromDataIndex, and store them into "address".
 			int mod = fromDataIndex;
 			for( int dim=srcRank-1; 0<=dim; dim-- ){
 				address[srcRank-1-dim] = mod / scale[dim];
 				mod = mod % scale[dim];
 			}
 
-			// 各次元のインデックスが、データの容量内か確認
+			// Check whether indices aren't out of bounds.
 			for(int dim=0; dim<srcRank; dim++){
 				if( destArrayLength[dim]-1 < address[dim] ){
-					// 容量外なので、この要素はスキップ
+					// Skipe elements at out of bounds.
 					continue;
 				}
 			}
 
-			// このインスタンスでのデータの1次元インデックスをもとめる
+			// Compute the 1D index in toData.
 			int toScale = 1;
 			int toDataIndex = 0;
 			for(int dim=srcRank-1; 0<=dim; dim-- ){
@@ -1277,7 +994,7 @@ public class ExecutionUnit {
 				toScale *= destArrayLength[ dim ];
 			}
 
-			// 要素をコピー
+			// Copy the data.
 			System.arraycopy(src.getData(), fromDataIndex, dest.getData(), toDataIndex, 1);
 		}
 	}
@@ -1285,22 +1002,13 @@ public class ExecutionUnit {
 
 
 	/**
-	 * {@link org.vcssl.nano.spec.OperationCode#FILL FILL} 命令を実行します。
-	 *
-	 * この命令により、引数 output のデータの全要素値に、
-	 * 引数 filler のデータの値がコピーされます。
-	 *
-	 * ただし、前者のデータは配列であり、
-	 * かつ後者の配列はスカラ（要素数1かつ0次元の配列）である事が前提です。
-	 * また、すべてのオペランドのデータは、
-	 * 引数 type に指定されたデータ型のものに揃っている必要があります
-	 *
-	 * @param type オペランドのデータ型
-	 * @param dest コピー先データ
-	 * @param src コピー元データ
-	 * @throws VnanoFatalException
-	 *   この命令が対応していないデータ型が指定された場合や、
-	 *   指定データ型とオペランドの実際のデータ型が一致しない場合に発生します。
+	 * Execute the FILL instruction.
+	 * 
+	 * @param type The data-type of operands.
+	 * @param dest The destination operand of the fill operation.
+	 * @param src The source-operand of the fill operation.
+	 * @throws VnanoException
+	 *     Thrown when an unexpected data-type is specified, or it does not match with the actual data-type.
 	 */
 	public void fill(DataType type, DataContainer<?> dest, DataContainer<?> src) {
 
@@ -1352,19 +1060,15 @@ public class ExecutionUnit {
 
 
 	/**
-	 * {@link org.vcssl.nano.spec.OperationCode#REFELM REFELM} 命令を実行します。
-	 *
-	 * この命令の実行により、引数 dest が、引数 src のデータの配列要素を参照するようになります。
-	 *
-	 * @param type オペランドのデータ型
-	 * @param dest 配列要素とするデータ
-	 * @param src 配列のデータ
-	 * @param operands 全オペランドを格納する配列
-	 * @param indicesBegin 上記の operands 内において、アクセス対象要素のインデックスオペランド(多次元の場合は複数)が始まる位置
-	 * @throws VnanoFatalException
-	 *   この命令が対応していないデータ型が指定された場合や、
-	 *   指定データ型とオペランドの実際のデータ型が一致しない場合、
-	 *   およびインデックスが配列の範囲を超えていた場合に発生します。
+	 * Execute the REFELM instruction.
+	 * 
+	 * @param type The data-type of src/dest operands.
+	 * @param dest The destination operand of the reference-assignment operation.
+	 * @param src The source-operand of the reference-assignment operation.
+	 * @param operands All operands of the REFELM instruction, including src, dest, indices.
+	 * @param indicesBegin The index in operands, from which index operands begin.
+	 * @throws VnanoException
+	 *     Thrown when an unexpected data-type is specified, or it does not match with the actual data-type.
 	 */
 	@SuppressWarnings("unchecked")
 	public void refelm(DataType type, DataContainer<?> dest, DataContainer<?> src, DataContainer<?>[] operands, int indicesBegin)
@@ -1372,18 +1076,16 @@ public class ExecutionUnit {
 
 		this.checkDataType(src, type);
 
-		int rank = operands.length - indicesBegin; // 配列次元数 = インデックスオペランド数
-		int[] arrayLength = src.getArrayLengths();      // 各次元の要素数
-
-		// 多次元インデックスを 1 次元化されたインデックスに変換
+		int rank = operands.length - indicesBegin;
+		int[] arrayLength = src.getArrayLengths();
 		int dataIndex = this.compute1DIndexFromIndicesOperands(operands, indicesBegin, arrayLength, rank);
 
-		// 1次元化されたインデックスに基づいて、dest が src 内のその配列要素を参照するよう設定
 		switch (type) {
 			case INT64 : {
 				((DataContainer<long[]>)dest).setArrayData(
 					((DataContainer<long[]>)src).getArrayData(),
-					dataIndex + src.getArrayOffset(), DataContainer.ARRAY_LENGTHS_OF_SCALAR // getArrayOffset() を足しているのは、現在は subarray 等をサポートしていないので不要（配列全体側は常に0）なものの、将来的な拡張に備えて
+					dataIndex + src.getArrayOffset(), DataContainer.ARRAY_LENGTHS_OF_SCALAR
+					// In the above, we have add getArrayOffset() with considering that subarray may be going to supported in future.
 				);
 				break;
 			}
@@ -1416,36 +1118,31 @@ public class ExecutionUnit {
 
 
 	/**
-	 * {@link org.vcssl.nano.spec.OperationCode#MOVELM MOVELM} 命令を実行します。
-	 *
-	 * この命令の実行により、引数 src の配列要素値のデータが、引数 dest にコピーされます。
-	 *
-	 * @param type オペランドのデータ型
-	 * @param dest コピー先データ
-	 * @param src コピー元の要素を格納する配列データ
-	 * @param operands 全オペランドを格納する配列
-	 * @param indicesBegin 上記の operands 内において、コピー対象要素のインデックスオペランド(多次元の場合は複数)が始まる位置
-	 * @throws VnanoFatalException
-	 *   この命令が対応していないデータ型が指定された場合や、
-	 *   指定データ型とオペランドの実際のデータ型が一致しない場合に発生します。
+	 * Execute the MOVELM instruction.
+	 * 
+	 * @param type The data-type of src/dest operands.
+	 * @param dest The destination operand of the element-assignment operation.
+	 * @param src The source-operand of the element-assignment operation.
+	 * @param operands All operands of the MOVELM instruction, including src, dest, indices.
+	 * @param indicesBegin The index in operands, from which index operands begin.
+	 * @throws VnanoException
+	 *     Thrown when an unexpected data-type is specified, or it does not match with the actual data-type.
 	 */
 	public void movelm(DataType type, DataContainer<?> dest, DataContainer<?> src, DataContainer<?>[] operands, int indicesBegin)
 			throws VnanoException {
 
 		this.checkDataType(src, type);
 
-		int rank = operands.length - indicesBegin; // 配列次元数 = インデックスオペランド数
-		int[] arrayLength = src.getArrayLengths();      // 各次元の要素数
-
-		// 多次元インデックスを 1 次元化されたインデックスに変換
+		int rank = operands.length - indicesBegin;
+		int[] arrayLength = src.getArrayLengths();
 		int dataIndex = this.compute1DIndexFromIndicesOperands(operands, indicesBegin, arrayLength, rank);
 
-		// 1次元化されたインデックスに基づいて、src の要素値を dest にコピー
 		switch (type) {
 			case INT64 : {
 				long[] outputData = (long[])dest.getArrayData();
 				long[] inputData = (long[])src.getArrayData();
-				outputData[ dest.getArrayOffset() ] = inputData[ dataIndex + src.getArrayOffset() ]; // 右辺で getArrayOffset() を足しているのは、現在は subarray 等をサポートしていないので不要（配列全体側は常に0）なものの、将来的な拡張に備えて
+				outputData[ dest.getArrayOffset() ] = inputData[ dataIndex + src.getArrayOffset() ];
+				// In the r.h.s of the above, we have add getArrayOffset() with considering that subarray may be going to supported in future.
 				break;
 			}
 			case FLOAT64 : {
@@ -1474,61 +1171,14 @@ public class ExecutionUnit {
 
 
 	/**
-	 * 多次元インデックスのオペランド値から、1次元化されたインデックスを求めて返します。
-	 * このメソッドは、MOVELM命令やREFELM命令のオペランド解釈に使用されます。
-	 *
-	 * @param operands 全オペランドを格納する配列
-	 * @param indicesOperandsBegin 上記の operands 内において、アクセス対象要素のインデックスオペランド(多次元の場合は複数)が始まる位置
-	 * @param arrayLength 配列の各次元の要素数を格納する配列
-	 * @param rank 配列の次元数
-	 * @throws VnanoFatalException
-	 *   インデックスが配列の範囲を超えていた場合にスローされます。
-	 */
-	private int compute1DIndexFromIndicesOperands(
-			DataContainer<?>[] operands, int indicesOperandsBegin, int[] arrayLength, int rank) throws VnanoException {
-
-		int dataIndex = 0;
-		int scale = 1;
-
-		for (int i=rank-1; 0 <= i; i--) {
-
-			// indices[i] が格納しているスカラ値を取得（＝ i 番目次元の配列インデックス）
-			DataContainer<?> indexOperand = operands[i+indicesOperandsBegin];
-			long index = ( (long[])(indexOperand.getArrayData()) )[ indexOperand.getArrayOffset() ];
-
-			if (arrayLength[i] <= index) {
-				String[] errorWords = {Long.toString(index), Integer.toString(arrayLength[i]-1)};
-				throw new VnanoException(ErrorType.INVALID_ARRAY_INDEX, errorWords);
-			}
-
-			// 上で取得したインデックスに、その次元での単位変化量(scale)をかけたものを、1次元化インデックスに加える
-			dataIndex += (int)index * scale;
-
-			// 次の次元の単位変化量は、今の単位変化量に、今の次元の長さをかけたものとして求まる
-			scale *= arrayLength[i];
-		}
-		return dataIndex;
-	}
-
-
-	/**
-	 * {@link org.vcssl.nano.spec.OperationCode#CAST CAST} 命令を実行します。
-	 *
-	 * この命令の実行により、引数 src のデータが、
-	 * 型変換をされた上で、引数 dest のデータへとコピーされます。
-	 * 前者のデータ型を引数 srcType に、後者のデータ型を引数 destType に指定する必要があります。
-	 * コピー先とコピー元のデータサイズは等しい事が前提とされます。
-	 *
-	 * @param destType コピー先データのデータ型
-	 * @param srcType コピー元データのデータ型
-	 * @param src コピー元データ
-	 * @param dest コピー先データ
-	 * @param src コピー元データ
-	 * @throws VnanoFatalException
-	 *   この命令が対応していないデータ型が指定された場合や、
-	 *   指定データ型とオペランドの実際のデータ型が一致しない場合に発生します。
+	 * Execute the CAST instruction.
+	 * 
+	 * @param destType The data-type of the destination operand.
+	 * @param srcType The data-type of the source operand.
+	 * @param dest The destination operand of the cast operation.
+	 * @param src The source operand of the cast operation.
 	 * @throws VnanoException
-	 *   型変換に失敗した場合にスローされます。
+	 *     Thrown when an unexpected data-type is specified, or it can not be casted to the specified type.
 	 */
 	public void cast(DataType destType, DataType srcType, DataContainer<?> dest, DataContainer<?> src)
 			throws VnanoException {
@@ -1564,15 +1214,16 @@ public class ExecutionUnit {
 							try {
 								outputData[outputOffset+i] = Long.parseLong(targetData[targetOffset + i]);
 
-							// 小数点がある場合など、数値でも直接 parseLong はできない場合もあるので、
-							// その場合は double に変換してから long に変換も試みる
-							// (VCSSLとの仕様整合のため / 将来的には warning 扱いにするか要検討)
 							} catch (NumberFormatException nfe) {
+
+								// The string "123.45" can not be converted to the long-type value directly because it has the floating point.
+								// However, we can convert it to the double-type value, and then convert it to the long-type value.
+								// For the compatibility with VCSSL, we try to do it here.
 								try {
 									double d = Double.parseDouble(targetData[targetOffset + i]);
 									outputData[outputOffset + i] = (long)d;
 
-								// それでも無理なら無理
+								// Not a number.
 								} catch (NumberFormatException nfe2){
 									VnanoException e = new VnanoException(
 										ErrorType.CAST_FAILED_DUE_TO_VALUE,
@@ -1726,6 +1377,43 @@ public class ExecutionUnit {
 
 
 	/**
+	 * Computes 1D index corresponding with the specified multi-dimensional indices.
+	 * 
+	 * @param operands All operands of an instruction.
+	 * @param indicesOperandsBegin The index in operands, from which index operands begin.
+	 * @param arrayLength The array-lentghs of the array data.
+	 * @param rank The array-rank of the array data.
+	 * @throws VnanoException Thrown when indices are out of bounds.
+	 */
+	private int compute1DIndexFromIndicesOperands(
+			DataContainer<?>[] operands, int indicesOperandsBegin, int[] arrayLength, int rank) throws VnanoException {
+
+		// Stores the 1D index.
+		int dataIndex = 0;
+
+		// Stores the increase amount of 1D index, when each index of each dimension is incremented.
+		int scale = 1;
+
+		for (int i=rank-1; 0 <= i; i--) {
+
+			// Get the (scalar) value of indices[i].
+			DataContainer<?> indexOperand = operands[i+indicesOperandsBegin];
+			long index = ( (long[])(indexOperand.getArrayData()) )[ indexOperand.getArrayOffset() ];
+
+			if (arrayLength[i] <= index) {
+				String[] errorWords = {Long.toString(index), Integer.toString(arrayLength[i]-1)};
+				throw new VnanoException(ErrorType.INVALID_ARRAY_INDEX, errorWords);
+			}
+
+			// Add the increase amount by i-th dimension to 1D index, and update the scale.
+			dataIndex += (int)index * scale;
+			scale *= arrayLength[i];
+		}
+		return dataIndex;
+	}
+
+
+	/**
 	 * {@link org.vcssl.nano.vm.memory.DataContainer Data} オブジェクトが保持するデータの型を検査し、
 	 * 期待された型と異なれば
 	 * {@link org.vcssl.nano.vm.memory.VnanoException InvalidDataTypeException}
@@ -1761,13 +1449,18 @@ public class ExecutionUnit {
 				}
 				break;
 			}
-			// void は保持データに意味が無いコンテナを示すプレースホルダなので、実際のデータの内容に依存せず通す
+			case ANY : {
+				break;
+			}
+
+			// VOID is used for the placeholder operand, 
+			// so anytime pass the check independently of the actual data in the data container.
 			case VOID : {
 				return;
 			}
-			// 将来的に DataType 列挙子の要素が増えた場合のため
+
 			default : {
-				break;
+				throw new VnanoFatalException("Unexpected data type: " + type);
 			}
 		}
 
@@ -1783,4 +1476,5 @@ public class ExecutionUnit {
 	}
 
 }
+
 

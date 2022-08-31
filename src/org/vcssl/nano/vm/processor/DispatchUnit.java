@@ -17,7 +17,7 @@ import org.vcssl.nano.vm.memory.Memory;
 
 
 /**
- * The class which decode each instruction and dispatch it to {@link ExecutionUnit ExecutionUnit}.
+ * The class which decodes each instruction and dispatch it to {@link ExecutionUnit ExecutionUnit}.
  */
 public class DispatchUnit {
 
@@ -55,8 +55,10 @@ public class DispatchUnit {
 		// Dispatch to the execution unit, and execute.
 		switch (opcode) {
 
-			// For the detail of each instruction, see:
-			//     https://www.vcssl.org/en-us/vril/isa/instruction
+			// --------------------------------------------------------------------------------
+			//   For the detail of each instruction, see:
+			//       https://www.vcssl.org/en-us/vril/isa/instruction
+			// --------------------------------------------------------------------------------
 
 			// Arithmetic instructions:
 			case ADD : {
