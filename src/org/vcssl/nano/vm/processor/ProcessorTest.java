@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2021 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2022 RINEARN
  * This software is released under the MIT License.
  */
 
@@ -24,6 +24,9 @@ import org.vcssl.nano.vm.memory.DataContainer;
 import org.vcssl.nano.vm.memory.Memory;
 import org.vcssl.nano.VnanoException;
 
+/**
+ * The test of Processor class.
+ */
 public class ProcessorTest {
 
 	private static final int REGISTER_N = 200;
@@ -34,22 +37,23 @@ public class ProcessorTest {
 	private static final int META_ADDR = 888;
 	private static final Memory.Partition META_PART = Memory.Partition.CONSTANT;
 
-	// 処理系から関数が呼ばれた事を確認する
-	private boolean connectedMethodCalled = false;
-
-	// 処理系から関数として呼ぶメソッド
+	// The method to be called from the processor.
 	public long methodToConnect(long a, long b) {
 		this.connectedMethodCalled = true;
 		return a + b;
 	}
 
+	// Set true in the above method, for checking that it is called.
+	private boolean connectedMethodCalled = false;
+
+
 	@Before
 	public void setUp() throws Exception {
 
-		// 何も接続されていない、デフォルトのインターコネクトを用意（接続する場合は各テスト内で別途生成）
+		// Create an empty interconnect.
 		this.interconnect = new Interconnect();
 
-		// レジスタを生成してメモリに配置
+		// Create a memory, and initialize the data-containers of the registers in the memory.
 		this.memory = new Memory();
 		this.registers = new DataContainer<?>[REGISTER_N];
 		for (int addr=0; addr<REGISTER_N; addr++) {
@@ -57,12 +61,12 @@ public class ProcessorTest {
 			memory.setDataContainer(Memory.Partition.REGISTER, addr, registers[addr]);
 		}
 
-		// 命令のメタ情報をメモリに配置（命令の生成に必ず必要）
+		// Prepare meta information referred by instructions.
 		DataContainer<String[]> metaContainer = new DataContainer<String[]>();
 		metaContainer.setArrayData(new String[]{ "meta" }, 0, DataContainer.ARRAY_LENGTHS_OF_SCALAR);
 		memory.setDataContainer(META_PART, META_ADDR, metaContainer);
 
-		// デフォルトのオプションマップを用意し、インターコネクトに設定
+		// Create a default option map, and set it to the interconnect.
 		Map<String, Object> optionMap = new LinkedHashMap<String, Object>();
 		optionMap = OptionValue.normalizeValuesOf(optionMap);
 		this.interconnect.setOptionMap(optionMap);
@@ -94,22 +98,22 @@ public class ProcessorTest {
 		return instruction;
 	}
 
-	// 単一命令の実行
+
 	@SuppressWarnings("unchecked")
 	@Test
 	public void testProcessSingleInstruction() {
 
-		// レジスタにテスト値を設定
-		this.initializeRegisters();
+		// Set the values to the registers.
+s		this.initializeRegisters();
 		((DataContainer<long[]>)this.registers[0]).setArrayData(new long[]{ -1L }, 0, DataContainer.ARRAY_LENGTHS_OF_SCALAR);  // R0=-1
 		((DataContainer<long[]>)this.registers[1]).setArrayData(new long[]{ 123L }, 0, DataContainer.ARRAY_LENGTHS_OF_SCALAR); // R1=123
 		((DataContainer<long[]>)this.registers[2]).setArrayData(new long[]{ 456L }, 0, DataContainer.ARRAY_LENGTHS_OF_SCALAR); // R2=456
 
-		// R0 = R1 + R2 の値を求める加算命令を生成
+		// Create an instruction performing the addition "R0 = R1 + R2".
 		Instruction instruction = this.generateInstruction(OperationCode.ADD, DataType.INT64, 0, 1, 2); // ADD INT64 R0 R1 R2
 
-		// 命令を単一実行
-		int programCounter = 10; // 実行時点でのプログラムカウンタの値（実行によって戻り値で更新される）
+		// Execute the instruction.
+		int programCounter = 10;
 		try {
 			programCounter = new Processor().process(instruction, this.memory, this.interconnect, programCounter);
 		} catch (VnanoException e) {
@@ -117,17 +121,17 @@ public class ProcessorTest {
 			fail("Unexpected exception occurred");
 		}
 
-		// プログラムカウンタの更新値と演算結果の検査
+		// Check the updated program counter, and the operation result.
 		assertEquals(11, programCounter);
 		assertEquals(579L, ((DataContainer<long[]>)this.registers[0]).getArrayData()[0]); // R0==579
 	}
 
-	// 分岐の無い命令列の逐次実行
+
 	@SuppressWarnings("unchecked")
 	@Test
 	public void testProcessSerialInstructions() {
 
-		// レジスタにテスト値を設定
+		// Set the values to the registers.
 		this.initializeRegisters();
 		((DataContainer<long[]>)this.registers[0]).setArrayData(new long[]{ -1L }, 0, DataContainer.ARRAY_LENGTHS_OF_SCALAR);  // R0=-1
 		((DataContainer<long[]>)this.registers[1]).setArrayData(new long[]{ 123L }, 0, DataContainer.ARRAY_LENGTHS_OF_SCALAR); // R1=123
@@ -137,7 +141,7 @@ public class ProcessorTest {
 		((DataContainer<long[]>)this.registers[5]).setArrayData(new long[]{ 100L }, 0, DataContainer.ARRAY_LENGTHS_OF_SCALAR); // R5=100
 		((DataContainer<long[]>)this.registers[6]).setArrayData(new long[]{ -1L }, 0, DataContainer.ARRAY_LENGTHS_OF_SCALAR);  // R6=-1
 
-		// R0 = (R1+R2) * (R4-$5) の値を求める逐次演算の命令列を生成
+		// Create instructions performing the series of operations "R0 = (R1+R2) * (R4-R5)".
 		Instruction[] instructions = new Instruction[]{
 				this.generateInstruction(OperationCode.ADD, DataType.INT64, 0, 1, 2), // ADD INT64 R0 R1 R2 (R0=R1+R2)
 				this.generateInstruction(OperationCode.MOV, DataType.INT64, 3, 0),    // MOV R4 R0          (R3=R0)
@@ -146,7 +150,7 @@ public class ProcessorTest {
 				this.generateInstruction(OperationCode.MUL, DataType.INT64, 0, 3, 6), // MUL INT64 R0 R3 R6 (R0=R3*R6)
 		};
 
-		// 命令列を逐次実行
+		// Execute instructions.
 		try {
 			new Processor().process(instructions, this.memory, this.interconnect);
 		} catch (VnanoException e) {
@@ -154,16 +158,16 @@ public class ProcessorTest {
 			fail("Unexpected exception occurred");
 		}
 
-		// 演算結果の検査
+		// Check the operation result.
 		assertEquals(57900L, ((DataContainer<long[]>)this.registers[0]).getArrayData()[0]); // R0==57900
 	}
 
-	// 分岐のある命令列の逐次実行
+
 	@SuppressWarnings("unchecked")
 	@Test
 	public void testProcessBranchedInstructions() {
 
-		// レジスタにテスト値を設定
+		// Set the values to the registers.
 		this.initializeRegisters();
 		((DataContainer<long[]>)this.registers[1]).setArrayData(new long[]{ 111L }, 0, DataContainer.ARRAY_LENGTHS_OF_SCALAR); // R1=111
 		((DataContainer<long[]>)this.registers[2]).setArrayData(new long[]{ 222L }, 0, DataContainer.ARRAY_LENGTHS_OF_SCALAR); // R2=222
@@ -171,15 +175,15 @@ public class ProcessorTest {
 		((DataContainer<long[]>)this.registers[4]).setArrayData(new long[]{ -1L }, 0, DataContainer.ARRAY_LENGTHS_OF_SCALAR);  // R4=-1
 		((DataContainer<long[]>)this.registers[10]).setArrayData(new long[]{ 3L }, 0, DataContainer.ARRAY_LENGTHS_OF_SCALAR);  // R10=3 ... 分岐先の命令位置
 
-		// R0 = (R1+R2) * (R4-$5) の値を求める逐次演算の命令列を生成
+		// Create instructions containing a branch instruction (JMP).
 		Instruction[] instructions = new Instruction[]{
-				this.generateInstruction(OperationCode.MOV, DataType.INT64, 3, 1),   // MOV INT64 R3 R1  (R3=R1)
-				this.generateInstruction(OperationCode.JMP, DataType.BOOL,  100, 10, 0),  // JMP BOOL  R100 R10 R0 (R0がtrueならR10番命令に飛ぶ / 先頭オペランドは読み書きされないプレースホルダ)
-				this.generateInstruction(OperationCode.MOV, DataType.INT64, 3, 2),   // MOV INT64 R3 R2  (R3=R2 ... 分岐成立で飛ばされる)
-				this.generateInstruction(OperationCode.MOV, DataType.INT64, 4, 3),   // MOV INT64 R4 R3  (R4=R3 ... 分岐成立でここに着地)
+				this.generateInstruction(OperationCode.MOV, DataType.INT64, 3, 1),        // MOV INT64 R3 R1         (R3=R1)
+				this.generateInstruction(OperationCode.JMP, DataType.BOOL,  100, 10, 0),  // JMP BOOL  R100 R10 R0   (Jumps to the instruction of which address is R10, when R0 is true. The first operand R100 is a placeholder.)
+				this.generateInstruction(OperationCode.MOV, DataType.INT64, 3, 2),        // MOV INT64 R3 R2         (R3=R2 ... Will be skipped when R0 is true.)
+				this.generateInstruction(OperationCode.MOV, DataType.INT64, 4, 3),        // MOV INT64 R4 R3         (R4=R3 ... Jumped to this point when R0 is true.)
 		};
 
-		// 分岐成立の条件（R0==true）で命令列を逐次実行
+		// Execute instructions under the condition of R0 is true. (So the flow should jump.)
 		((DataContainer<boolean[]>)this.registers[0]).setArrayData(new boolean[]{ true }, 0, DataContainer.ARRAY_LENGTHS_OF_SCALAR);  // R0=true
 		try {
 			new Processor().process(instructions, this.memory, this.interconnect);
@@ -188,10 +192,10 @@ public class ProcessorTest {
 			fail("Unexpected exception occurred");
 		}
 
-		// 演算結果の検査
+		// Check the result.
 		assertEquals(111L, ((DataContainer<long[]>)this.registers[4]).getArrayData()[0]); // R4==111 (==R1)
 
-		// 分岐不成立の条件（R0==false）で命令列を逐次実行
+		// Execute instructions under the condition of R0 is false. (So the flow should not jump.)
 		((DataContainer<boolean[]>)this.registers[0]).setArrayData(new boolean[]{ false }, 0, DataContainer.ARRAY_LENGTHS_OF_SCALAR);  // R0=false
 		try {
 			new Processor().process(instructions, this.memory, this.interconnect);
@@ -200,13 +204,13 @@ public class ProcessorTest {
 			fail("Unexpected exception occurred");
 		}
 
-		// 演算結果の検査
+		// Check the result.
 		assertEquals(222L, ((DataContainer<long[]>)this.registers[4]).getArrayData()[0]); // R4==222 (==R2)
 
 
-		// 分岐で命令列の領域外(-1)に飛ぶと実行が終了する事を検査
+		// Check that the process ends when the flow has jumped to out of bounds of instructions (-1).
 		((DataContainer<long[]>)this.registers[4]).setArrayData(new long[]{ -1L }, 0, DataContainer.ARRAY_LENGTHS_OF_SCALAR);   // R4=-1
-		((DataContainer<long[]>)this.registers[10]).setArrayData(new long[]{ -1L }, 0, DataContainer.ARRAY_LENGTHS_OF_SCALAR);  // R10=-1 ... 分岐先の命令位置
+		((DataContainer<long[]>)this.registers[10]).setArrayData(new long[]{ -1L }, 0, DataContainer.ARRAY_LENGTHS_OF_SCALAR);  // R10=-1 ... The address to jump.
 		((DataContainer<boolean[]>)this.registers[0]).setArrayData(new boolean[]{ true }, 0, DataContainer.ARRAY_LENGTHS_OF_SCALAR);  // R0=true
 		try {
 			new Processor().process(instructions, this.memory, this.interconnect);
@@ -218,18 +222,17 @@ public class ProcessorTest {
 	}
 
 
-	// 関数コール命令の実行（Processor.processの引数に渡すInterconnectが繋がっている事の確認）
 	@SuppressWarnings("unchecked")
 	@Test
 	public void testProcessCallInstructions() {
 
-		// レジスタにテスト値を設定
+		// Set the values to the registers.
 		this.initializeRegisters();
 		((DataContainer<long[]>)this.registers[0]).setArrayData(new long[]{ -1L }, 0, DataContainer.ARRAY_LENGTHS_OF_SCALAR);  // R0=-1
 		((DataContainer<long[]>)this.registers[1]).setArrayData(new long[]{ 123L }, 0, DataContainer.ARRAY_LENGTHS_OF_SCALAR); // R1=123
 		((DataContainer<long[]>)this.registers[2]).setArrayData(new long[]{ 456L }, 0, DataContainer.ARRAY_LENGTHS_OF_SCALAR); // R2=456
 
-		// このテスト用のInterconnectを生成し、"methodToConnect" メソッドを接続
+		// Create an interconnect, and connect the method: "methodToConnect".
 		Interconnect interconnect = new Interconnect();
 		Method method;
 		try {
@@ -240,16 +243,16 @@ public class ProcessorTest {
 			fail("Unexpected exception occurred");
 		}
 
-		// 接続された "methodToConnect" メソッドをR10レジスタに設定
-		int functionAddress = 0;  // 関数は1個しか接続していないので0番なはず
+		// Store the external function address of the "methodToConnect" (is 0) to R10 register.
+		int functionAddress = 0;
 		((DataContainer<long[]>)this.registers[10]).setArrayData(new long[]{ (long)functionAddress }, 0, DataContainer.ARRAY_LENGTHS_OF_SCALAR);
 
-		// メソッドを呼び出す CALLX 命令を生成
+		// Create a CALLX instruction for calling the "methodToConnect" method from the processor.
 		Instruction[] instructions = new Instruction[]{
 				this.generateInstruction(OperationCode.CALLX, DataType.INT64, 0, 10, 1, 2), // CALLX R0 R10 R1 R2 (R0=methodToConnect(R1,R2))
 		};
 
-		// 命令を実行
+		// Execute the instruction.
 		try {
 			new Processor().process(instructions, this.memory, interconnect);
 		} catch (VnanoException e) {
@@ -257,7 +260,7 @@ public class ProcessorTest {
 			fail("Unexpected exception occurred");
 		}
 
-		// メソッドが呼ばれた事と戻り値の検査
+		// Check that the method has been called, and the return value is correct.
 		assertEquals(true, this.connectedMethodCalled);
 		assertEquals(579L, ((DataContainer<long[]>)this.registers[0]).getArrayData()[0]); // R0==579
 	}

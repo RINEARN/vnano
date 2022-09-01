@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2021 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2022 RINEARN
  * This software is released under the MIT License.
  */
 
@@ -22,6 +22,9 @@ import org.vcssl.nano.VnanoFatalException;
 import org.vcssl.nano.VnanoException;
 
 
+/**
+ * The test of DispatchUnit class.
+ */
 public class DispatchUnitTest {
 
 	private Memory memory;
@@ -168,8 +171,8 @@ public class DispatchUnitTest {
 		this.testDispatchJmp();
 		this.testDispatchJmpn();
 		this.testDispatchAllocScalar();
-		this.testDispatchAllocVector();
-		this.testCall();
+		this.testDispatchAllocArray();
+		this.testCallx();
 		this.testDispatchNop();
 		this.testDispatchLabel();
 	}
@@ -216,702 +219,657 @@ public class DispatchUnitTest {
 
 	private void testDispatchAdd() {
 
-		// 入出力オペランドに値を設定
+		// Set values to operands.
 		this.int64InputA.setArrayData(new long[]{ 1L, 2L, 3L }, 0, new int[] {3});
 		this.int64InputB.setArrayData(new long[]{ 4L, 5L, 6L }, 0, new int[] {3});
 		this.int64Output.setArrayData(new long[]{ -1L, -1L, -1L }, 0, new int[] {3});
 
-		// 上記オペランドで演算を行う命令を生成
+		// Create an instruction.
 		Instruction instruction = this.generateInt64x3Instruction(OperationCode.ADD);
 
-		// 命令を実行
-		int pc = 10; // プログラムカウンタ
+		// Dispatch/execute the instruction.
+		int programCounter = 10;
 		try {
-			pc = this.dispatch(instruction, pc);
+			programCounter = this.dispatch(instruction, pc);
 		} catch (VnanoException | VnanoFatalException e) {
 			e.printStackTrace();
-			fail("Unexpected exception occurred");
+			fail("Expected exception has not occurred");
 		}
 
-		// プログラムカウンタの更新値を検査
-		if (pc != 11) {
+		// Check the updated value of the program counter.
+		if (programCounter != 11) {
 			fail("Incorrect program counter");
 		}
 
-		// 命令実行結果の値を検査
+		// Check the data of the output operand.
 		long[] output = this.int64Output.getArrayData();
 		if (output[0] != 5L || output[1] != 7L || output[2] != 9L) {
 			fail("Incorrect output");
 		}
 
-		// オペランドの個数が間違っている場合の検査
+		// Test of the behaviour when the number of operands is incorrect.
 		try {
 			instruction = this.generateInt64x2Instruction(OperationCode.ADD);
-			pc = this.dispatch(instruction, pc);
-			fail("Unexpected exception occurred");
+			programCounter = this.dispatch(instruction, pc);
+			fail("Expected exception has not occurred");
 		} catch (VnanoException | VnanoFatalException e) {
-			// 例外が発生するのが正しい挙動
+			// The exception should be thrown for this case.
 		}
 	}
 
 	private void testDispatchSub() {
 
-		// 入出力オペランドに値を設定
+		// Set values to operands.
 		this.int64InputA.setArrayData(new long[]{ 10L, 5L, 3L }, 0, new int[] {3});
 		this.int64InputB.setArrayData(new long[]{ 2L, 5L, 7L }, 0, new int[] {3});
 		this.int64Output.setArrayData(new long[]{ -1L, -1L, -1L }, 0, new int[] {3});
 
-		// 上記オペランドで演算を行う命令を生成
+		// Create an instruction.
 		Instruction instruction = this.generateInt64x3Instruction(OperationCode.SUB);
 
-		// 命令を実行
-		int pc = 10; // プログラムカウンタ
+		// Dispatch/execute the instruction.
+		int programCounter = 10;
 		try {
-			pc = this.dispatch(instruction, pc);
+			programCounter = this.dispatch(instruction, pc);
 		} catch (VnanoException | VnanoFatalException e) {
 			e.printStackTrace();
-			fail("Unexpected exception occurred");
+			fail("Expected exception has not occurred");
 		}
 
-		// プログラムカウンタの更新値を検査
-		if (pc != 11) {
+		// Check the updated value of the program counter.
+		if (programCounter != 11) {
 			fail("Incorrect program counter");
 		}
 
-		// 命令実行結果の値を検査
+		// Check the data of the output operand.
 		long[] output = this.int64Output.getArrayData();
 		if (output[0] != 8L || output[1] != 0L || output[2] != -4L) {
 			fail("Incorrect output");
 		}
 
-		// オペランドの個数が間違っている場合の検査
+		// Test of the behaviour when the number of operands is incorrect.
 		try {
 			instruction = this.generateInt64x2Instruction(OperationCode.SUB);
-			pc = this.dispatch(instruction, pc);
-			fail("Unexpected exception occurred");
+			programCounter = this.dispatch(instruction, pc);
+			fail("Expected exception has not occurred");
 		} catch (VnanoException | VnanoFatalException e) {
-			// 例外が発生するのが正しい挙動
+			// The exception should be thrown for this case.
 		}
 	}
 
 	private void testDispatchMul() {
 
-		// 入出力オペランドに値を設定
+		// Set values to operands.
 		this.int64InputA.setArrayData(new long[]{ 1L, 2L, 3L }, 0, new int[] {3});
 		this.int64InputB.setArrayData(new long[]{ 4L, 5L, 6L }, 0, new int[] {3});
 		this.int64Output.setArrayData(new long[]{ -1L, -1L, -1L }, 0, new int[] {3});
 
-		// 上記オペランドで演算を行う命令を生成
+		// Create an instruction.
 		Instruction instruction = this.generateInt64x3Instruction(OperationCode.MUL);
 
-		// 命令を実行
-		int pc = 10; // プログラムカウンタ
+		// Dispatch/execute the instruction.
+		int programCounter = 10; 
 		try {
-			pc = this.dispatch(instruction, pc);
+			programCounter = this.dispatch(instruction, pc);
 		} catch (VnanoException | VnanoFatalException e) {
 			e.printStackTrace();
-			fail("Unexpected exception occurred");
+			fail("Expected exception has not occurred");
 		}
 
-		// プログラムカウンタの更新値を検査
-		if (pc != 11) {
+		// Check the updated value of the program counter.
+		if (programCounter != 11) {
 			fail("Incorrect program counter");
 		}
 
-		// 命令実行結果の値を検査
+		// Check the data of the output operand.
 		long[] output = this.int64Output.getArrayData();
 		if (output[0] != 4L || output[1] != 10L || output[2] != 18L) {
 			fail("Incorrect output");
 		}
 
-		// オペランドの個数が間違っている場合の検査
+		// Test of the behaviour when the number of operands is incorrect.
 		try {
 			instruction = this.generateInt64x2Instruction(OperationCode.MUL);
-			pc = this.dispatch(instruction, pc);
-			fail("Unexpected exception occurred");
+			programCounter = this.dispatch(instruction, pc);
+			fail("Expected exception has not occurred");
 		} catch (VnanoException | VnanoFatalException e) {
-			// 例外が発生するのが正しい挙動
+			// The exception should be thrown for this case.
 		}
 	}
 
 	private void testDispatchDiv() {
 
-		// 入出力オペランドに値を設定
+		// Set values to operands.
 		this.int64InputA.setArrayData(new long[]{ 10L, 11L, 100L }, 0, new int[] {3});
 		this.int64InputB.setArrayData(new long[]{ 5L, 3L, 20L }, 0, new int[] {3});
 		this.int64Output.setArrayData(new long[]{ -1L, -1L, -1L }, 0, new int[] {3});
 
-		// 上記オペランドで演算を行う命令を生成
+		// Create an instruction.
 		Instruction instruction = this.generateInt64x3Instruction(OperationCode.DIV);
 
-		// 命令を実行
-		int pc = 10; // プログラムカウンタ
+		// Dispatch/execute the instruction.
+		int programCounter = 10; 
 		try {
-			pc = this.dispatch(instruction, pc);
+			programCounter = this.dispatch(instruction, pc);
 		} catch (VnanoException | VnanoFatalException e) {
 			e.printStackTrace();
-			fail("Unexpected exception occurred");
+			fail("Expected exception has not occurred");
 		}
 
-		// プログラムカウンタの更新値を検査
-		if (pc != 11) {
+		// Check the updated value of the program counter.
+		if (programCounter != 11) {
 			fail("Incorrect program counter");
 		}
 
-		// 命令実行結果の値を検査
+		// Check the data of the output operand.
 		long[] output = this.int64Output.getArrayData();
 		if (output[0] != 2L || output[1] != 3L || output[2] != 5L) {
 			fail("Incorrect output");
 		}
 
-		// オペランドの個数が間違っている場合の検査
+		// Test of the behaviour when the number of operands is incorrect.
 		try {
 			instruction = this.generateInt64x2Instruction(OperationCode.DIV);
-			pc = this.dispatch(instruction, pc);
-			fail("Unexpected exception occurred");
+			programCounter = this.dispatch(instruction, pc);
+			fail("Expected exception has not occurred");
 		} catch (VnanoException | VnanoFatalException e) {
-			// 例外が発生するのが正しい挙動
+			// The exception should be thrown for this case.
 		}
 	}
 
 	private void testDispatchRem() {
 
-		// 入出力オペランドに値を設定
+		// Set values to operands.
 		this.int64InputA.setArrayData(new long[]{ 10L, 11L, 100L }, 0, new int[] {3});
 		this.int64InputB.setArrayData(new long[]{ 5L, 3L, 20L }, 0, new int[] {3});
 		this.int64Output.setArrayData(new long[]{ -1L, -1L, -1L }, 0, new int[] {3});
 
-		// 上記オペランドで演算を行う命令を生成
+		// Create an instruction.
 		Instruction instruction = this.generateInt64x3Instruction(OperationCode.REM);
 
-		// 命令を実行
-		int pc = 10; // プログラムカウンタ
+		// Dispatch/execute the instruction.
+		int programCounter = 10; 
 		try {
-			pc = this.dispatch(instruction, pc);
+			programCounter = this.dispatch(instruction, pc);
 		} catch (VnanoException | VnanoFatalException e) {
 			e.printStackTrace();
-			fail("Unexpected exception occurred");
+			fail("Expected exception has not occurred");
 		}
 
-		// プログラムカウンタの更新値を検査
-		if (pc != 11) {
+		// Check the updated value of the program counter.
+		if (programCounter != 11) {
 			fail("Incorrect program counter");
 		}
 
-		// 命令実行結果の値を検査
+		// Check the data of the output operand.
 		long[] output = this.int64Output.getArrayData();
 		if (output[0] != 0L || output[1] != 2L || output[2] != 0L) {
 			fail("Incorrect output");
 		}
 
-		// オペランドの個数が間違っている場合の検査
+		// Test of the behaviour when the number of operands is incorrect.
 		try {
 			instruction = this.generateInt64x2Instruction(OperationCode.REM);
-			pc = this.dispatch(instruction, pc);
-			fail("Unexpected exception occurred");
+			programCounter = this.dispatch(instruction, pc);
+			fail("Expected exception has not occurred");
 		} catch (VnanoException | VnanoFatalException e) {
-			// 例外が発生するのが正しい挙動
+			// The exception should be thrown for this case.
 		}
 	}
 
 	private void testDispatchNeg() {
 
-		// 入出力オペランドに値を設定
+		// Set values to operands.
 		this.int64InputA.setArrayData(new long[]{ 1L, -2L, 3L }, 0, new int[] {3});
 		this.int64Output.setArrayData(new long[]{ -1L, -1L, -1L }, 0, new int[] {3});
 
-		// 上記オペランドで演算を行う命令を生成
+		// Create an instruction.
 		Instruction instruction = this.generateInt64x2Instruction(OperationCode.NEG);
 
-		// 命令を実行
-		int pc = 10; // プログラムカウンタ
+		// Dispatch/execute the instruction.
+		int programCounter = 10; 
 		try {
-			pc = this.dispatch(instruction, pc);
+			programCounter = this.dispatch(instruction, pc);
 		} catch (VnanoException | VnanoFatalException e) {
 			e.printStackTrace();
-			fail("Unexpected exception occurred");
+			fail("Expected exception has not occurred");
 		}
 
-		// プログラムカウンタの更新値を検査
-		if (pc != 11) {
+		// Check the updated value of the program counter.
+		if (programCounter != 11) {
 			fail("Incorrect program counter");
 		}
 
-		// 命令実行結果の値を検査
+		// Check the data of the output operand.
 		long[] output = this.int64Output.getArrayData();
 		if (output[0] != -1L || output[1] != 2L || output[2] != -3L) {
 			fail("Incorrect output");
 		}
 
-		// オペランドの個数が間違っている場合の検査
+		// Test of the behaviour when the number of operands is incorrect.
 		try {
 			instruction = this.generateInt64x3Instruction(OperationCode.NEG);
-			pc = this.dispatch(instruction, pc);
-			fail("Unexpected exception occurred");
+			programCounter = this.dispatch(instruction, pc);
+			fail("Expected exception has not occurred");
 		} catch (VnanoException | VnanoFatalException e) {
-			// 例外が発生するのが正しい挙動
+			// The exception should be thrown for this case.
 		}
 	}
 
 	private void testDispatchEq() {
 
-		// 入出力オペランドに値を設定
+		// Set values to operands.
 		this.int64InputA.setArrayData(new long[]{ 200L, 500L, 700L }, 0, new int[] {3});
 		this.int64InputB.setArrayData(new long[]{ 100L, 500L, 800L }, 0, new int[] {3});
 		this.boolOutput.setArrayData(new boolean[]{ false, false, false }, 0, new int[] {3});
 
-		// 上記オペランドで演算を行う命令を生成
+		// Create an instruction.
 		Instruction instruction = this.generateBoolx1Int64x2Instruction(OperationCode.EQ);
 
-		// 命令を実行
-		int pc = 10; // プログラムカウンタ
+		// Dispatch/execute the instruction.
+		int programCounter = 10; 
 		try {
-			pc = this.dispatch(instruction, pc);
+			programCounter = this.dispatch(instruction, pc);
 		} catch (VnanoException | VnanoFatalException e) {
 			e.printStackTrace();
-			fail("Unexpected exception occurred");
+			fail("Expected exception has not occurred");
 		}
 
-		// プログラムカウンタの更新値を検査
-		if (pc != 11) {
+		// Check the updated value of the program counter.
+		if (programCounter != 11) {
 			fail("Incorrect program counter");
 		}
 
-		// 命令実行結果の値を検査
+		// Check the data of the output operand.
 		boolean[] output = this.boolOutput.getArrayData();
 		if (output[0] != false || output[1] != true || output[2] != false) {
 			fail("Incorrect output");
 		}
 
-		// オペランドの個数が間違っている場合の検査
+		// Test of the behaviour when the number of operands is incorrect.
 		try {
 			instruction = this.generateInt64x2Instruction(OperationCode.EQ);
-			pc = this.dispatch(instruction, pc);
-			fail("Unexpected exception occurred");
+			programCounter = this.dispatch(instruction, pc);
+			fail("Expected exception has not occurred");
 		} catch (VnanoException | VnanoFatalException e) {
-			// 例外が発生するのが正しい挙動
+			// The exception should be thrown for this case.
 		}
 	}
 
 	private void testDispatchNeq() {
 
-		// 入出力オペランドに値を設定
+		// Set values to operands.
 		this.int64InputA.setArrayData(new long[]{ 200L, 500L, 700L }, 0, new int[] {3});
 		this.int64InputB.setArrayData(new long[]{ 100L, 500L, 800L }, 0, new int[] {3});
 		this.boolOutput.setArrayData(new boolean[]{ false, false, false }, 0, new int[] {3});
 
-		// 上記オペランドで演算を行う命令を生成
+		// Create an instruction.
 		Instruction instruction = this.generateBoolx1Int64x2Instruction(OperationCode.NEQ);
 
-		// 命令を実行
-		int pc = 10; // プログラムカウンタ
+		// Dispatch/execute the instruction.
+		int programCounter = 10; 
 		try {
-			pc = this.dispatch(instruction, pc);
+			programCounter = this.dispatch(instruction, pc);
 		} catch (VnanoException | VnanoFatalException e) {
 			e.printStackTrace();
-			fail("Unexpected exception occurred");
+			fail("Expected exception has not occurred");
 		}
 
-		// プログラムカウンタの更新値を検査
-		if (pc != 11) {
+		// Check the updated value of the program counter.
+		if (programCounter != 11) {
 			fail("Incorrect program counter");
 		}
 
-		// 命令実行結果の値を検査
+		// Check the data of the output operand.
 		boolean[] output = this.boolOutput.getArrayData();
 		if (output[0] != true || output[1] != false || output[2] != true) {
 			fail("Incorrect output");
 		}
 
-		// オペランドの個数が間違っている場合の検査
+		// Test of the behaviour when the number of operands is incorrect.
 		try {
 			instruction = this.generateInt64x2Instruction(OperationCode.NEQ);
-			pc = this.dispatch(instruction, pc);
-			fail("Unexpected exception occurred");
+			programCounter = this.dispatch(instruction, pc);
+			fail("Expected exception has not occurred");
 		} catch (VnanoException | VnanoFatalException e) {
-			// 例外が発生するのが正しい挙動
+			// The exception should be thrown for this case.
 		}
 	}
 
 
 	private void testDispatchGeq() {
 
-		// 入出力オペランドに値を設定
+		// Set values to operands.
 		this.int64InputA.setArrayData(new long[]{ 200L, 500L, 700L }, 0, new int[] {3});
 		this.int64InputB.setArrayData(new long[]{ 100L, 500L, 800L }, 0, new int[] {3});
 		this.boolOutput.setArrayData(new boolean[]{ false, false, false }, 0, new int[] {3});
 
-		// 上記オペランドで演算を行う命令を生成
+		// Create an instruction.
 		Instruction instruction = this.generateBoolx1Int64x2Instruction(OperationCode.GEQ);
 
-		// 命令を実行
-		int pc = 10; // プログラムカウンタ
+		// Dispatch/execute the instruction.
+		int programCounter = 10; 
 		try {
-			pc = this.dispatch(instruction, pc);
+			programCounter = this.dispatch(instruction, pc);
 		} catch (VnanoException | VnanoFatalException e) {
 			e.printStackTrace();
-			fail("Unexpected exception occurred");
+			fail("Expected exception has not occurred");
 		}
 
-		// プログラムカウンタの更新値を検査
-		if (pc != 11) {
+		// Check the updated value of the program counter.
+		if (programCounter != 11) {
 			fail("Incorrect program counter");
 		}
 
-		// 命令実行結果の値を検査
+		// Check the data of the output operand.
 		boolean[] output = this.boolOutput.getArrayData();
 		if (output[0] != true || output[1] != true || output[2] != false) {
 			fail("Incorrect output");
 		}
 
-		// オペランドの個数が間違っている場合の検査
+		// Test of the behaviour when the number of operands is incorrect.
 		try {
 			instruction = this.generateInt64x2Instruction(OperationCode.GEQ);
-			pc = this.dispatch(instruction, pc);
-			fail("Unexpected exception occurred");
+			programCounter = this.dispatch(instruction, pc);
+			fail("Expected exception has not occurred");
 		} catch (VnanoException | VnanoFatalException e) {
-			// 例外が発生するのが正しい挙動
+			// The exception should be thrown for this case.
 		}
 	}
 
 
 	private void testDispatchLeq() {
 
-		// 入出力オペランドに値を設定
+		// Set values to operands.
 		this.int64InputA.setArrayData(new long[]{ 200L, 500L, 700L }, 0, new int[] {3});
 		this.int64InputB.setArrayData(new long[]{ 100L, 500L, 800L }, 0, new int[] {3});
 		this.boolOutput.setArrayData(new boolean[]{ false, false, false }, 0, new int[] {3});
 
-		// 上記オペランドで演算を行う命令を生成
+		// Create an instruction.
 		Instruction instruction = this.generateBoolx1Int64x2Instruction(OperationCode.LEQ);
 
-		// 命令を実行
-		int pc = 10; // プログラムカウンタ
+		// Dispatch/execute the instruction.
+		int programCounter = 10; 
 		try {
-			pc = this.dispatch(instruction, pc);
+			programCounter = this.dispatch(instruction, pc);
 		} catch (VnanoException | VnanoFatalException e) {
 			e.printStackTrace();
-			fail("Unexpected exception occurred");
+			fail("Expected exception has not occurred");
 		}
 
-		// プログラムカウンタの更新値を検査
-		if (pc != 11) {
+		// Check the updated value of the program counter.
+		if (programCounter != 11) {
 			fail("Incorrect program counter");
 		}
 
-		// 命令実行結果の値を検査
+		// Check the data of the output operand.
 		boolean[] output = this.boolOutput.getArrayData();
 		if (output[0] != false || output[1] != true || output[2] != true) {
 			fail("Incorrect output");
 		}
 
-		// オペランドの個数が間違っている場合の検査
+		// Test of the behaviour when the number of operands is incorrect.
 		try {
 			instruction = this.generateInt64x2Instruction(OperationCode.LEQ);
-			pc = this.dispatch(instruction, pc);
-			fail("Unexpected exception occurred");
+			programCounter = this.dispatch(instruction, pc);
+			fail("Expected exception has not occurred");
 		} catch (VnanoException | VnanoFatalException e) {
-			// 例外が発生するのが正しい挙動
+			// The exception should be thrown for this case.
 		}
 	}
 
 
 	private void testDispatchGt() {
 
-		// 入出力オペランドに値を設定
+		// Set values to operands.
 		this.int64InputA.setArrayData(new long[]{ 200L, 500L, 700L }, 0, new int[] {3});
 		this.int64InputB.setArrayData(new long[]{ 100L, 500L, 800L }, 0, new int[] {3});
 		this.boolOutput.setArrayData(new boolean[]{ false, false, false }, 0, new int[] {3});
 
-		// 上記オペランドで演算を行う命令を生成
+		// Create an instruction.
 		Instruction instruction = this.generateBoolx1Int64x2Instruction(OperationCode.GT);
 
-		// 命令を実行
-		int pc = 10; // プログラムカウンタ
+		// Dispatch/execute the instruction.
+		int programCounter = 10; 
 		try {
-			pc = this.dispatch(instruction, pc);
+			programCounter = this.dispatch(instruction, pc);
 		} catch (VnanoException | VnanoFatalException e) {
 			e.printStackTrace();
-			fail("Unexpected exception occurred");
+			fail("Expected exception has not occurred");
 		}
 
-		// プログラムカウンタの更新値を検査
-		if (pc != 11) {
+		// Check the updated value of the program counter.
+		if (programCounter != 11) {
 			fail("Incorrect program counter");
 		}
 
-		// 命令実行結果の値を検査
+		// Check the data of the output operand.
 		boolean[] output = this.boolOutput.getArrayData();
 		if (output[0] != true || output[1] != false || output[2] != false) {
 			fail("Incorrect output");
 		}
 
-		// オペランドの個数が間違っている場合の検査
+		// Test of the behaviour when the number of operands is incorrect.
 		try {
 			instruction = this.generateInt64x2Instruction(OperationCode.GT);
-			pc = this.dispatch(instruction, pc);
-			fail("Unexpected exception occurred");
+			programCounter = this.dispatch(instruction, pc);
+			fail("Expected exception has not occurred");
 		} catch (VnanoException | VnanoFatalException e) {
-			// 例外が発生するのが正しい挙動
+			// The exception should be thrown for this case.
 		}
 	}
 
 
 	private void testDispatchLt() {
 
-		// 入出力オペランドに値を設定
+		// Set values to operands.
 		this.int64InputA.setArrayData(new long[]{ 200L, 500L, 700L }, 0, new int[] {3});
 		this.int64InputB.setArrayData(new long[]{ 100L, 500L, 800L }, 0, new int[] {3});
 		this.boolOutput.setArrayData(new boolean[]{ false, false, false }, 0, new int[] {3});
 
-		// 上記オペランドで演算を行う命令を生成
+		// Create an instruction.
 		Instruction instruction = this.generateBoolx1Int64x2Instruction(OperationCode.LT);
 
-		// 命令を実行
-		int pc = 10; // プログラムカウンタ
+		// Dispatch/execute the instruction.
+		int programCounter = 10; 
 		try {
-			pc = this.dispatch(instruction, pc);
+			programCounter = this.dispatch(instruction, pc);
 		} catch (VnanoException | VnanoFatalException e) {
 			e.printStackTrace();
-			fail("Unexpected exception occurred");
+			fail("Expected exception has not occurred");
 		}
 
-		// プログラムカウンタの更新値を検査
-		if (pc != 11) {
+		// Check the updated value of the program counter.
+		if (programCounter != 11) {
 			fail("Incorrect program counter");
 		}
 
-		// 命令実行結果の値を検査
+		// Check the data of the output operand.
 		boolean[] output = this.boolOutput.getArrayData();
 		if (output[0] != false || output[1] != false || output[2] != true) {
 			fail("Incorrect output");
 		}
 
-		// オペランドの個数が間違っている場合の検査
+		// Test of the behaviour when the number of operands is incorrect.
 		try {
 			instruction = this.generateInt64x2Instruction(OperationCode.LT);
-			pc = this.dispatch(instruction, pc);
-			fail("Unexpected exception occurred");
+			programCounter = this.dispatch(instruction, pc);
+			fail("Expected exception has not occurred");
 		} catch (VnanoException | VnanoFatalException e) {
-			// 例外が発生するのが正しい挙動
+			// The exception should be thrown for this case.
 		}
 	}
 
 
 	private void testDispatchAnd() {
 
-		// 入出力オペランドに値を設定
+		// Set values to operands.
 		this.boolInputA.setArrayData(new boolean[]{ false, true,  true }, 0, new int[] {3});
 		this.boolInputB.setArrayData(new boolean[]{ false, false, true }, 0, new int[] {3});
 		this.boolOutput.setArrayData(new boolean[]{ false, false, false }, 0, new int[] {3});
 
-		// 上記オペランドで演算を行う命令を生成
+		// Create an instruction.
 		Instruction instruction = this.generateBoolx3Instruction(OperationCode.ANDM);
 
-		// 命令を実行
-		int pc = 10; // プログラムカウンタ
+		// Dispatch/execute the instruction.
+		int programCounter = 10; 
 		try {
-			pc = this.dispatch(instruction, pc);
+			programCounter = this.dispatch(instruction, pc);
 		} catch (VnanoException | VnanoFatalException e) {
 			e.printStackTrace();
-			fail("Unexpected exception occurred");
+			fail("Expected exception has not occurred");
 		}
 
-		// プログラムカウンタの更新値を検査
-		if (pc != 11) {
+		// Check the updated value of the program counter.
+		if (programCounter != 11) {
 			fail("Incorrect program counter");
 		}
 
-		// 命令実行結果の値を検査
+		// Check the data of the output operand.
 		boolean[] output = this.boolOutput.getArrayData();
 		if (output[0] != false || output[1] != false || output[2] != true) {
 			fail("Incorrect output");
 		}
 
-		// オペランドの個数が間違っている場合の検査
+		// Test of the behaviour when the number of operands is incorrect.
 		try {
 			instruction = this.generateInt64x2Instruction(OperationCode.ANDM);
-			pc = this.dispatch(instruction, pc);
-			fail("Unexpected exception occurred");
+			programCounter = this.dispatch(instruction, pc);
+			fail("Expected exception has not occurred");
 		} catch (VnanoException | VnanoFatalException e) {
-			// 例外が発生するのが正しい挙動
+			// The exception should be thrown for this case.
 		}
 	}
 
 	private void testDispatchOr() {
 
-		// 入出力オペランドに値を設定
+		// Set values to operands.
 		this.boolInputA.setArrayData(new boolean[]{ false, true,  true }, 0, new int[] {3});
 		this.boolInputB.setArrayData(new boolean[]{ false, false, true }, 0, new int[] {3});
 		this.boolOutput.setArrayData(new boolean[]{ false, false, false }, 0, new int[] {3});
 
-		// 上記オペランドで演算を行う命令を生成
+		// Create an instruction.
 		Instruction instruction = this.generateBoolx3Instruction(OperationCode.ORM);
 
-		// 命令を実行
-		int pc = 10; // プログラムカウンタ
+		// Dispatch/execute the instruction.
+		int programCounter = 10; 
 		try {
-			pc = this.dispatch(instruction, pc);
+			programCounter = this.dispatch(instruction, pc);
 		} catch (VnanoException | VnanoFatalException e) {
 			e.printStackTrace();
-			fail("Unexpected exception occurred");
+			fail("Expected exception has not occurred");
 		}
 
-		// プログラムカウンタの更新値を検査
-		if (pc != 11) {
+		// Check the updated value of the program counter.
+		if (programCounter != 11) {
 			fail("Incorrect program counter");
 		}
 
-		// 命令実行結果の値を検査
+		// Check the data of the output operand.
 		boolean[] output = this.boolOutput.getArrayData();
 		if (output[0] != false || output[1] != true || output[2] != true) {
 			fail("Incorrect output");
 		}
 
-		// オペランドの個数が間違っている場合の検査
+		// Test of the behaviour when the number of operands is incorrect.
 		try {
 			instruction = this.generateInt64x2Instruction(OperationCode.ORM);
-			pc = this.dispatch(instruction, pc);
-			fail("Unexpected exception occurred");
+			programCounter = this.dispatch(instruction, pc);
+			fail("Expected exception has not occurred");
 		} catch (VnanoException | VnanoFatalException e) {
-			// 例外が発生するのが正しい挙動
+			// The exception should be thrown for this case.
 		}
 	}
 
 	private void testDispatchNot() {
 
-		// 入出力オペランドに値を設定
+		// Set values to operands.
 		this.boolInputA.setArrayData(new boolean[]{ false, true,  false }, 0, new int[] {3});
 		this.boolOutput.setArrayData(new boolean[]{ false, false, false }, 0, new int[] {3});
 
-		// 上記オペランドで演算を行う命令を生成
+		// Create an instruction.
 		Instruction instruction = this.generateBoolx2Instruction(OperationCode.NOT);
 
-		// 命令を実行
-		int pc = 10; // プログラムカウンタ
+		// Dispatch/execute the instruction.
+		int programCounter = 10; 
 		try {
-			pc = this.dispatch(instruction, pc);
+			programCounter = this.dispatch(instruction, pc);
 		} catch (VnanoException | VnanoFatalException e) {
 			e.printStackTrace();
-			fail("Unexpected exception occurred");
+			fail("Expected exception has not occurred");
 		}
 
-		// プログラムカウンタの更新値を検査
-		if (pc != 11) {
+		// Check the updated value of the program counter.
+		if (programCounter != 11) {
 			fail("Incorrect program counter");
 		}
 
-		// 命令実行結果の値を検査
+		// Check the data of the output operand.
 		boolean[] output = this.boolOutput.getArrayData();
 		if (output[0] != true || output[1] != false || output[2] != true) {
 			fail("Incorrect output");
 		}
 
-		// オペランドの個数が間違っている場合の検査
+		// Test of the behaviour when the number of operands is incorrect.
 		try {
 			instruction = this.generateInt64x2Instruction(OperationCode.NOT);
-			pc = this.dispatch(instruction, pc);
-			fail("Unexpected exception occurred");
+			programCounter = this.dispatch(instruction, pc);
+			fail("Expected exception has not occurred");
 		} catch (VnanoException | VnanoFatalException e) {
-			// 例外が発生するのが正しい挙動
+			// The exception should be thrown for this case.
 		}
 	}
-/*
-	private void testDispatchVec() {
 
-		// ベクトルにまとめるスカラを雑用アドレスに用意
-		DataContainer<long[]> scalarA = new DataContainer<long[]>();
-		DataContainer<long[]> scalarB = new DataContainer<long[]>();
-		DataContainer<long[]> scalarC = new DataContainer<long[]>();
-		this.memory.setDataContainer(TMP_A_PART, TMP_A_ADDR, scalarA);
-		this.memory.setDataContainer(TMP_B_PART, TMP_B_ADDR, scalarB);
-		this.memory.setDataContainer(TMP_C_PART, TMP_C_ADDR, scalarC);
-
-		// 入出力オペランドに値を設定
-		this.int64Output.setData(new long[]{ -1L, -1L, -1L });
-		scalarA.setData(new long[]{ 11L });
-		scalarB.setData(new long[]{ 22L });
-		scalarC.setData(new long[]{ 33L });
-
-		// 上記オペランドで演算を行う命令を生成
-		Instruction instruction = new Instruction(
-				OperationCode.VEC, INT64_TYPE,
-				new Memory.Partition[]{ INT64_OUTPUT_PART, TMP_A_PART, TMP_B_PART, TMP_C_PART },
-				new int[]{ INT64_OUTPUT_ADDR, TMP_A_ADDR, TMP_B_ADDR, TMP_C_ADDR },
-				META_PART, META_ADDR
-		);
-
-		// 命令を実行
-		int pc = 10; // プログラムカウンタ
-		try {
-			pc = new DispatchUnit().dispatch(instruction, this.memory, this.interconnect, new ExecutionUnit(), pc);
-		} catch (VnanoException | VnanoFatalException e) {
-			e.printStackTrace();
-			fail("Unexpected exception occurred");
-		}
-
-		// プログラムカウンタの更新値を検査
-		if (pc != 11) {
-			fail("Incorrect program counter");
-		}
-
-		// 命令実行結果の値を検査
-		long[] output = this.int64Output.getData();
-		if (output[0] != 11L || output[1] != 22L || output[2] != 33L) {
-			fail("Incorrect output");
-		}
-	}
-*/
 	private void testDispatchMov() {
 
-		// 入出力オペランドに値を設定
+		// Set values to operands.
 		this.int64InputA.setArrayData(new long[]{ 11L, 22L, 33L }, 0, new int[] {3});
 		this.int64Output.setArrayData(new long[]{ -1L, -1L, -1L }, 0, new int[] {3});
 
-		// 上記オペランドで演算を行う命令を生成
+		// Create an instruction.
 		Instruction instruction = this.generateInt64x2Instruction(OperationCode.MOV);
 
-		// 命令を実行
-		int pc = 10; // プログラムカウンタ
+		// Dispatch/execute the instruction.
+		int programCounter = 10; 
 		try {
-			pc = this.dispatch(instruction, pc);
+			programCounter = this.dispatch(instruction, pc);
 		} catch (VnanoException | VnanoFatalException e) {
 			e.printStackTrace();
-			fail("Unexpected exception occurred");
+			fail("Expected exception has not occurred");
 		}
 
-		// プログラムカウンタの更新値を検査
-		if (pc != 11) {
+		// Check the updated value of the program counter.
+		if (programCounter != 11) {
 			fail("Incorrect program counter");
 		}
 
-		// 命令実行結果の値を検査
+		// Check the data of the output operand.
 		long[] output = this.int64Output.getArrayData();
 		if (output[0] != 11L || output[1] != 22L || output[2] != 33L) {
 			fail("Incorrect output");
 		}
 
-		// オペランドの個数が間違っている場合の検査
+		// Test of the behaviour when the number of operands is incorrect.
 		try {
 			instruction = this.generateInt64x3Instruction(OperationCode.MOV);
-			pc = this.dispatch(instruction, pc);
-			fail("Unexpected exception occurred");
+			programCounter = this.dispatch(instruction, pc);
+			fail("Expected exception has not occurred");
 		} catch (VnanoException | VnanoFatalException e) {
-			// 例外が発生するのが正しい挙動
+			// The exception should be thrown for this case.
 		}
 	}
 
 	private void testDispatchCast() {
 
-		// キャスト元のFLOAT64データを雑用アドレスに用意
+		// Create a FLOAT64 data to be casted, and put it at a temporary address.
 		DataContainer<double[]> float64Input = new DataContainer<double[]>();
 		this.memory.setDataContainer(TMP_A_PART, TMP_A_ADDR, float64Input);
 
-		// 入出力オペランドに値を設定
-		float64Input.setArrayData(new double[]{ 1.25, 2.25, 3.5 }, 0, new int[] {3}); // 2進表現で割り切れる値
+		// Set values to operands.
+		float64Input.setArrayData(new double[]{ 1.25, 2.25, 3.5 }, 0, new int[] {3}); // Divisible in binary representations.
 		this.int64Output.setArrayData(new long[]{ -1L, -1L, -1L }, 0, new int[] {3});
 
-		// 上記オペランドで演算を行う命令を生成
+		// Create an instruction.
 		Instruction instruction = new Instruction(
 				OperationCode.CAST,
 				new DataType[]{ DataType.INT64, DataType.FLOAT64 },
@@ -920,21 +878,21 @@ public class DispatchUnitTest {
 				META_PART, META_ADDR
 		);
 
-		// 命令を実行
-		int pc = 10; // プログラムカウンタ
+		// Dispatch/execute the instruction.
+		int programCounter = 10; 
 		try {
-			pc = this.dispatch(instruction, pc);
+			programCounter = this.dispatch(instruction, pc);
 		} catch (VnanoException | VnanoFatalException e) {
 			e.printStackTrace();
-			fail("Unexpected exception occurred");
+			fail("Expected exception has not occurred");
 		}
 
-		// プログラムカウンタの更新値を検査
-		if (pc != 11) {
+		// Check the updated value of the program counter.
+		if (programCounter != 11) {
 			fail("Incorrect program counter");
 		}
 
-		// 命令実行結果の値を検査
+		// Check the data of the output operand.
 		long[] output = this.int64Output.getArrayData();
 		if (output[0] != 1L || output[1] != 2L || output[2] != 3L) {
 			fail("Incorrect output");
@@ -943,15 +901,15 @@ public class DispatchUnitTest {
 
 	private void testDispatchFill() {
 
-		// ベクトルにまとめるスカラを雑用アドレスに用意
+		// Create a scalar data to fill the vector, and put it at a temporary address.
 		DataContainer<long[]> scalar = new DataContainer<long[]>();
 		this.memory.setDataContainer(TMP_A_PART, TMP_A_ADDR, scalar);
 
-		// 入出力オペランドに値を設定
+		// Set values to operands.
 		this.int64Output.setArrayData(new long[]{ -1L, -1L, -1L }, 0, new int[] {3});
 		scalar.setArrayData(new long[]{ 123L }, 0, new int[] {3});
 
-		// 上記オペランドで演算を行う命令を生成
+		// Create an instruction.
 		Instruction instruction = new Instruction(
 				OperationCode.FILL, INT64_TYPE,
 				new Memory.Partition[]{ INT64_OUTPUT_PART, TMP_A_PART },
@@ -959,21 +917,21 @@ public class DispatchUnitTest {
 				META_PART, META_ADDR
 		);
 
-		// 命令を実行
-		int pc = 10; // プログラムカウンタ
+		// Dispatch/execute the instruction.
+		int programCounter = 10; 
 		try {
-			pc = this.dispatch(instruction, pc);
+			programCounter = this.dispatch(instruction, pc);
 		} catch (VnanoException | VnanoFatalException e) {
 			e.printStackTrace();
-			fail("Unexpected exception occurred");
+			fail("Expected exception has not occurred");
 		}
 
-		// プログラムカウンタの更新値を検査
-		if (pc != 11) {
+		// Check the updated value of the program counter.
+		if (programCounter != 11) {
 			fail("Incorrect program counter");
 		}
 
-		// 命令実行結果の値を検査
+		// Check the data of the output operand.
 		long[] output = this.int64Output.getArrayData();
 		if (output[0] != 123L || output[1] != 123L || output[2] != 123L) {
 			fail("Incorrect output");
@@ -982,18 +940,18 @@ public class DispatchUnitTest {
 
 	private void testDispatchMovelm() {
 
-		// 参照要素やインデックスを格納するコンテナを雑用アドレスに用意
+		// Create data containers for storing element's value and index, and put them at temporary addresses.
 		DataContainer<long[]> element = new DataContainer<long[]>();
 		DataContainer<long[]> index = new DataContainer<long[]>();
 		this.memory.setDataContainer(TMP_A_PART, TMP_A_ADDR, element);
 		this.memory.setDataContainer(TMP_B_PART, TMP_B_ADDR, index);
 
-		// 入出力オペランドに値を設定
-		this.int64InputA.setArrayData(new long[]{ 11L, 22L, 33L }, 0, new int[] {3}); // 要素を参照する配列
+		// Set values to operands.
+		this.int64InputA.setArrayData(new long[]{ 11L, 22L, 33L }, 0, new int[] {3}); // Indices to access the element[11][22][33].
 		index.setArrayData(new long[]{ 1L }, 0, DataContainer.ARRAY_LENGTHS_OF_SCALAR);
 		element.setArrayData(new long[]{ -1L }, 0, DataContainer.ARRAY_LENGTHS_OF_SCALAR);
 
-		// 上記オペランドで演算を行う命令を生成
+		// Create an instruction.
 		Instruction instruction = new Instruction(
 				OperationCode.MOVELM, INT64_TYPE,
 				new Memory.Partition[]{ TMP_A_PART, INT64_INPUT_A_PART, TMP_B_PART },
@@ -1001,21 +959,21 @@ public class DispatchUnitTest {
 				META_PART, META_ADDR
 		);
 
-		// 命令を実行
-		int pc = 10; // プログラムカウンタ
+		// Dispatch/execute the instruction.
+		int programCounter = 10; 
 		try {
-			pc = this.dispatch(instruction, pc);
+			programCounter = this.dispatch(instruction, pc);
 		} catch (VnanoException | VnanoFatalException e) {
 			e.printStackTrace();
-			fail("Unexpected exception occurred");
+			fail("Expected exception has not occurred");
 		}
 
-		// プログラムカウンタの更新値を検査
-		if (pc != 11) {
+		// Check the updated value of the program counter.
+		if (programCounter != 11) {
 			fail("Incorrect program counter");
 		}
 
-		// 命令実行結果の値を検査
+		// Check the data of the output operand.
 		if (element.getArrayData()[ element.getArrayOffset() ] != 22L) {
 			fail("Incorrect output");
 		}
@@ -1023,18 +981,18 @@ public class DispatchUnitTest {
 
 	private void testDispatchRefelm() {
 
-		// 参照要素やインデックスを格納するコンテナを雑用アドレスに用意
+		// Create data containers for storing element's value and index, and put them at temporary addresses.
 		DataContainer<long[]> element = new DataContainer<long[]>();
 		DataContainer<long[]> index = new DataContainer<long[]>();
 		this.memory.setDataContainer(TMP_A_PART, TMP_A_ADDR, element);
 		this.memory.setDataContainer(TMP_B_PART, TMP_B_ADDR, index);
 
-		// 入出力オペランドに値を設定
-		this.int64InputA.setArrayData(new long[]{ 11L, 22L, 33L }, 0, new int[] {3}); // 要素を参照する配列
+		// Set values to operands.
+		this.int64InputA.setArrayData(new long[]{ 11L, 22L, 33L }, 0, new int[] {3}); // Indices to access the element[11][22][33].
 		index.setArrayData(new long[]{ 1L }, 0, DataContainer.ARRAY_LENGTHS_OF_SCALAR);
 		element.setArrayData(new long[]{ -1L }, 0, DataContainer.ARRAY_LENGTHS_OF_SCALAR);
 
-		// 上記オペランドで演算を行う命令を生成
+		// Create an instruction.
 		Instruction instruction = new Instruction(
 				OperationCode.REFELM, INT64_TYPE,
 				new Memory.Partition[]{ TMP_A_PART, INT64_INPUT_A_PART, TMP_B_PART },
@@ -1042,83 +1000,38 @@ public class DispatchUnitTest {
 				META_PART, META_ADDR
 		);
 
-		// 命令を実行
-		int pc = 10; // プログラムカウンタ
+		// Dispatch/execute the instruction.
+		int programCounter = 10; 
 		try {
-			pc = this.dispatch(instruction, pc);
+			programCounter = this.dispatch(instruction, pc);
 		} catch (VnanoException | VnanoFatalException e) {
 			e.printStackTrace();
-			fail("Unexpected exception occurred");
+			fail("Expected exception has not occurred");
 		}
 
-		// プログラムカウンタの更新値を検査
-		if (pc != 11) {
+		// Check the updated value of the program counter.
+		if (programCounter != 11) {
 			fail("Incorrect program counter");
 		}
 
-		// 命令実行結果の値を検査
+		// Check the data of the output operand.
 		if (element.getArrayData()[ element.getArrayOffset() ] != 22L) {
 			fail("Incorrect output");
 		}
 	}
 
-	/*
-	private void testDispatchLen() {
-
-		// 配列や要素数を格納するコンテナを雑用アドレスに用意
-		DataContainer<long[]> len = new DataContainer<long[]>();
-		DataContainer<long[]> array = new DataContainer<long[]>();
-		int[] lenLengths = new int[]{ 3 };
-		int[] arrayLengths = new int[]{ 2, 3, 4 };
-		this.memory.setDataContainer(TMP_A_PART, TMP_A_ADDR, len);
-		this.memory.setDataContainer(TMP_B_PART, TMP_B_ADDR, array);
-
-		// 入出力オペランドに値を設定
-		array.setData(new long[]{0L,1L,2L,3L,4L,5L,6L,7L,8L,9L,10L,11L,12L,13L,14L,15L,16L,17L,18L,19L,20L,21L,22L,23L}, arrayLengths);
-		len.setData(new long[]{ -1L, -1L, -1L }, lenLengths);
-
-		// 上記オペランドで演算を行う命令を生成
-		Instruction instruction = new Instruction(
-				OperationCode.LEN, INT64_TYPE,
-				new Memory.Partition[]{ TMP_A_PART, TMP_B_PART },
-				new int[]{ TMP_A_ADDR, TMP_B_ADDR },
-				META_PART, META_ADDR
-		);
-
-		// 命令を実行
-		int pc = 10; // プログラムカウンタ
-		try {
-			pc = new DispatchUnit().dispatch(instruction, this.memory, this.interconnect, new ExecutionUnit(), pc);
-		} catch (VnanoException | VnanoFatalException e) {
-			e.printStackTrace();
-			fail("Unexpected exception occurred");
-		}
-
-		// プログラムカウンタの更新値を検査
-		if (pc != 11) {
-			fail("Incorrect program counter");
-		}
-
-		// 命令実行結果の値を検査
-		long[] output = len.getData();
-		if (output[0] != 2L || output[1] != 3L || output[2] != 4L) {
-			fail("Incorrect output");
-		}
-	}
-*/
-
 	private void testDispatchFree() {
 
-		// 解放するコンテナを雑用アドレスに用意
+		// Create a data container to be free-ed.
 		DataContainer<long[]> target = new DataContainer<long[]>();
 		int[] targetLengths = new int[]{ 4 }; // 5-offset
 		this.memory.setDataContainer(TMP_A_PART, TMP_A_ADDR, target);
 
-		// データを格納
+		// Store data.
 		long[] data = new long[]{ 1L, 2L, 3L, 4L, 5L };
 		target.setArrayData(data, 0, targetLengths);
 
-		// 上記オペランドで演算を行う命令を生成
+		// Create an instruction.
 		Instruction instruction = new Instruction(
 				OperationCode.FREE, INT64_TYPE,
 				new Memory.Partition[]{ TMP_A_PART },
@@ -1126,7 +1039,7 @@ public class DispatchUnitTest {
 				META_PART, META_ADDR
 		);
 
-		// データ解放前の状態を念のため検査
+		// Check the state of the data container before free it.
 		if (target.getArrayData() != data
 				|| target.getArrayOffset() != 0
 				|| target.getArraySize() != 4
@@ -1135,22 +1048,22 @@ public class DispatchUnitTest {
 			fail("Incorrect output");
 		}
 
-		// 命令を実行
-		int pc = 10; // プログラムカウンタ
+		// Dispatch/execute the instruction.
+		int programCounter = 10; 
 		try {
-			pc = this.dispatch(instruction, pc);
+			programCounter = this.dispatch(instruction, pc);
 		} catch (VnanoException | VnanoFatalException e) {
 			e.printStackTrace();
-			fail("Unexpected exception occurred");
+			fail("Expected exception has not occurred");
 		}
 
-		// プログラムカウンタの更新値を検査
-		if (pc != 11) {
+		// Check the updated value of the program counter.
+		if (programCounter != 11) {
 			fail("Incorrect program counter");
 		}
 
-		// データが解放されてコンテナが初期状態になっている事を検査
-		if (target.getArrayData() != null
+		// Check the state of the data container after it has been free-ed.
+		if (target.getArrayData() != nulls
 				|| target.getArraySize() != 1
 				|| target.getArrayLengths().length != 0
 				|| target.getArrayOffset() != 0) {
@@ -1162,17 +1075,17 @@ public class DispatchUnitTest {
 
 	private void testDispatchJmp() {
 
-		// 分岐条件や分岐先アドレスを格納するコンテナを雑用アドレスに用意
+		// Create data containers for storing the branching condition and the jump address.
 		DataContainer<boolean[]> condition = new DataContainer<boolean[]>();
 		DataContainer<long[]> jumpAddress = new DataContainer<long[]>();
 		this.memory.setDataContainer(TMP_A_PART, TMP_A_ADDR, jumpAddress);
 		this.memory.setDataContainer(TMP_B_PART, TMP_B_ADDR, condition);
 
-		// 入出力オペランドに値を設定
+		// Set values to operands.
 		condition.setArrayData(new boolean[]{ true }, 0, new int[] {3});
 		jumpAddress.setArrayData(new long[]{ 256L }, 0, new int[] {3});
 
-		// 上記オペランドで演算を行う命令を生成
+		// Create an instruction.
 		Instruction instruction = new Instruction(
 				OperationCode.JMP, BOOL_TYPE,
 				new Memory.Partition[]{ Memory.Partition.NONE, TMP_A_PART, TMP_B_PART },
@@ -1180,32 +1093,32 @@ public class DispatchUnitTest {
 				META_PART, META_ADDR
 		);
 
-		// 命令を実行
-		int pc = 10; // プログラムカウンタ
+		// Dispatch/execute the instruction.
+		int programCounter = 10; 
 		try {
-			pc = this.dispatch(instruction, pc);
+			programCounter = this.dispatch(instruction, pc);
 		} catch (VnanoException | VnanoFatalException e) {
 			e.printStackTrace();
-			fail("Unexpected exception occurred");
+			fail("Expected exception has not occurred");
 		}
 
-		// プログラムカウンタの更新値を検査
-		if (pc != 256) {
+		// Check the updated value of the program counter.
+		if (programCounter != 256) {
 			fail("Incorrect program counter");
 		}
 
-		// 分岐条件を変更して再実行
+		// Modify the branch condition, and re-test the behaviour.
 		condition.setArrayData(new boolean[]{ false }, 0, new int[] {3});
-		pc = 10; // プログラムカウンタ
+		programCounter = 10; 
 		try {
-			pc = this.dispatch(instruction, pc);
+			programCounter = this.dispatch(instruction, pc);
 		} catch (VnanoException | VnanoFatalException e) {
 			e.printStackTrace();
-			fail("Unexpected exception occurred");
+			fail("Expected exception has not occurred");
 		}
 
-		// プログラムカウンタの更新値を検査
-		if (pc != 11) {
+		// Check the updated value of the program counter.
+		if (programCounter != 11) {
 			fail("Incorrect program counter");
 		}
 	}
@@ -1213,17 +1126,17 @@ public class DispatchUnitTest {
 
 	private void testDispatchJmpn() {
 
-		// 分岐条件や分岐先アドレスを格納するコンテナを雑用アドレスに用意
+		// Create data containers for storing the branching condition and the jump address.
 		DataContainer<boolean[]> condition = new DataContainer<boolean[]>();
 		DataContainer<long[]> jumpAddress = new DataContainer<long[]>();
 		this.memory.setDataContainer(TMP_A_PART, TMP_A_ADDR, jumpAddress);
 		this.memory.setDataContainer(TMP_B_PART, TMP_B_ADDR, condition);
 
-		// 入出力オペランドに値を設定
+		// Set values to operands.
 		condition.setArrayData(new boolean[]{ true }, 0, new int[] {3});
 		jumpAddress.setArrayData(new long[]{ 256L }, 0, new int[] {3});
 
-		// 上記オペランドで演算を行う命令を生成
+		// Create an instruction.
 		Instruction instruction = new Instruction(
 				OperationCode.JMPN, BOOL_TYPE,
 				new Memory.Partition[]{ Memory.Partition.NONE, TMP_A_PART, TMP_B_PART },
@@ -1231,49 +1144,43 @@ public class DispatchUnitTest {
 				META_PART, META_ADDR
 		);
 
-		// 命令を実行
-		int pc = 10; // プログラムカウンタ
+		// Dispatch/execute the instruction.
+		int programCounter = 10; 
 		try {
-			pc = this.dispatch(instruction, pc);
+			programCounter = this.dispatch(instruction, pc);
 		} catch (VnanoException | VnanoFatalException e) {
 			e.printStackTrace();
-			fail("Unexpected exception occurred");
+			fail("Expected exception has not occurred");
 		}
 
-		// プログラムカウンタの更新値を検査
-		if (pc != 11) {
+		// Check the updated value of the program counter.
+		if (programCounter != 11) {
 			fail("Incorrect program counter");
 		}
 
-		// 分岐条件を変更して再実行
+		// Modify the branch condition, and re-test the behaviour.
 		condition.setArrayData(new boolean[]{ false }, 0, new int[] {3});
-		pc = 10; // プログラムカウンタ
+		programCounter = 10; 
 		try {
-			pc = this.dispatch(instruction, pc);
+			programCounter = this.dispatch(instruction, pc);
 		} catch (VnanoException | VnanoFatalException e) {
 			e.printStackTrace();
-			fail("Unexpected exception occurred");
+			fail("Expected exception has not occurred");
 		}
 
-		// プログラムカウンタの更新値を検査
-		if (pc != 256) {
+		// Check the updated value of the program counter.
+		if (programCounter != 256) {
 			fail("Incorrect program counter");
 		}
-	}
-
-	// 処理系から関数として呼ぶメソッド
-	public long methodToConnect(long a, long b) {
-		this.connectedMethodCalled = true;
-		return a + b;
 	}
 
 	private void testDispatchAllocScalar() {
 
-		// データ確保対象のコンテナを雑用アドレスに用意
+		// Create a data container of which memory will be allocated by ALLOC instruction.
 		DataContainer<long[]> target = new DataContainer<long[]>();
 		this.memory.setDataContainer(TMP_A_PART, TMP_A_ADDR, target);
 
-		// 1オペランドのALLOC命令（スカラ確保）を生成
+		// Create an 1-operand ALLOC instruction, which allocates memory for storing a scalar value.
 		Instruction instruction = new Instruction(
 				OperationCode.ALLOC, INT64_TYPE,
 				new Memory.Partition[]{ TMP_A_PART },
@@ -1281,17 +1188,17 @@ public class DispatchUnitTest {
 				META_PART, META_ADDR
 		);
 
-		// 命令を実行
-		int pc = 10; // プログラムカウンタ
+		// Dispatch/execute the instruction.
+		int programCounter = 10; 
 		this.connectedMethodCalled = false;
 		try {
-			pc = this.dispatch(instruction, pc);
+			programCounter = this.dispatch(instruction, pc);
 		} catch (VnanoException | VnanoFatalException e) {
 			e.printStackTrace();
-			fail("Unexpected exception occurred");
+			fail("Expected exception has not occurred");
 		}
 
-		// 確保されている事を検査
+		// Check that the memory is allocated correctly.
 		if (!(target.getArrayData() instanceof long[])) {
 			fail("Incorrect type of data");
 		}
@@ -1310,9 +1217,10 @@ public class DispatchUnitTest {
 		}
 	}
 
-	private void testDispatchAllocVector() {
+	private void testDispatchAllocArray() {
 
-		// データ確保対象および要素数指定のコンテナを雑用アドレスに用意
+		// Prepare a data container for storing the allocated array,
+		// and operands representing lengths of the array to be allocated.
 		DataContainer<long[]> target = new DataContainer<long[]>();
 		DataContainer<long[]> len0 = new DataContainer<long[]>();
 		DataContainer<long[]> len1 = new DataContainer<long[]>();
@@ -1322,12 +1230,12 @@ public class DispatchUnitTest {
 		this.memory.setDataContainer(TMP_C_PART, TMP_C_ADDR, len1);
 		this.memory.setDataContainer(TMP_D_PART, TMP_D_ADDR, len2);
 
-		// 要素数指定値を設定（ [2][3][4] ）
+		// Set values of the length-operands ([2][3][4]).
 		len0.setArrayData(new long[] { 2L }, 0, DataContainer.ARRAY_LENGTHS_OF_SCALAR);
 		len1.setArrayData(new long[] { 3L }, 0, DataContainer.ARRAY_LENGTHS_OF_SCALAR);
 		len2.setArrayData(new long[] { 4L }, 0, DataContainer.ARRAY_LENGTHS_OF_SCALAR);
 
-		// ALLOC命令（スカラ確保）を生成
+		// Create an multi-operands ALLOC instruction, which allocates memory for storing an array.
 		Instruction instruction = new Instruction(
 				OperationCode.ALLOC, INT64_TYPE,
 				new Memory.Partition[]{ TMP_A_PART, TMP_B_PART, TMP_C_PART, TMP_D_PART },
@@ -1335,17 +1243,17 @@ public class DispatchUnitTest {
 				META_PART, META_ADDR
 		);
 
-		// 命令を実行
-		int pc = 10; // プログラムカウンタ
+		// Dispatch/execute the instruction.
+		int programCounter = 10; 
 		this.connectedMethodCalled = false;
 		try {
-			pc = this.dispatch(instruction, pc);
+			programCounter = this.dispatch(instruction, pc);
 		} catch (VnanoException | VnanoFatalException e) {
 			e.printStackTrace();
-			fail("Unexpected exception occurred");
+			fail("Expected exception has not occurred");
 		}
 
-		// 確保されている事を検査
+		// Check that the memory is allocated correctly.
 		if (!(target.getArrayData() instanceof long[])) {
 			fail("Incorrect type of instance");
 		}
@@ -1364,9 +1272,16 @@ public class DispatchUnitTest {
 		}
 	}
 
-	private void testCall() {
 
-		// 処理系からコールするメソッドをリフレクションで用意
+	// The merhod to be called by CALLX instruction.
+	public long methodToConnect(long a, long b) {
+		this.connectedMethodCalled = true;
+		return a + b;
+	}
+
+	private void testCallx() {
+
+		// Prepare the method to be called by the CALLX instruction..
 		Method method = null;
 		try {
 			method = this.getClass().getMethod("methodToConnect", long.class, long.class);
@@ -1375,7 +1290,7 @@ public class DispatchUnitTest {
 			fail("Reflection failed");
 		}
 
-		// インターコネクトを生成してメソッドを接続
+		// Create an interconnect, and connect the method to it.
 		Interconnect interconnect = new Interconnect();
 		try {
 			interconnect.connectPlugin(SpecialBindingKey.AUTO_KEY, new Object[] {method,this} );
@@ -1383,7 +1298,7 @@ public class DispatchUnitTest {
 			fail("Connection failed");
 		}
 
-		// 引数・戻り値・関数アドレスを格納するオペランドを用意して値を設定
+		// Prepare operands.
 		DataContainer<long[]> argA = new DataContainer<long[]>();
 		DataContainer<long[]> argB = new DataContainer<long[]>();
 		DataContainer<long[]> ret = new DataContainer<long[]>();
@@ -1395,10 +1310,10 @@ public class DispatchUnitTest {
 		argA.setArrayData(new long[]{ 123L }, 0, DataContainer.ARRAY_LENGTHS_OF_SCALAR);
 		argB.setArrayData(new long[]{ 456L }, 0, DataContainer.ARRAY_LENGTHS_OF_SCALAR);
 		ret.setArrayData(new long[]{ -1 }, 0, DataContainer.ARRAY_LENGTHS_OF_SCALAR);
-		int functionAddress = 0; // 関数は1個しか接続していないので0番なはず
+		int functionAddress = 0; // Only 1 function is connected, so the address of it should be 0.
 		functionAddressContainer.setArrayData(new long[]{ functionAddress }, 0, DataContainer.ARRAY_LENGTHS_OF_SCALAR);
 
-		// 上記オペランドでメソッドコールを行う命令を生成
+		// Create an instruction.
 		Instruction instruction = new Instruction(
 				OperationCode.CALLX, INT64_TYPE,
 				new Memory.Partition[]{ TMP_C_PART, TMP_D_PART, TMP_A_PART, TMP_B_PART },
@@ -1406,22 +1321,22 @@ public class DispatchUnitTest {
 				META_PART, META_ADDR
 		);
 
-		// 命令を実行
-		int pc = 10; // プログラムカウンタ
+		// Dispatch/execute the instruction.
+		int programCounter = 10; 
 		this.connectedMethodCalled = false;
 		try {
-			pc = this.dispatch(instruction, interconnect, pc);
+			programCounter = this.dispatch(instruction, interconnect, pc);
 		} catch (VnanoException | VnanoFatalException e) {
 			e.printStackTrace();
-			fail("Unexpected exception occurred");
+			fail("Expected exception has not occurred");
 		}
 
-		// メソッドがコールされたかどうか検査
+		// Check tha the method has been called.
 		if (!this.connectedMethodCalled) {
 			fail("Method did not called");
 		}
 
-		// 戻り値の値を検査（コールしたメソッドは2つの引数の和、つまり 123 + 456 を返す）
+		// Check the return value (sum of two args: 123 + 456)
 		if(ret.getArrayData()[0] != 579) {
 			fail("Incorrect returned value");
 		}
@@ -1429,7 +1344,7 @@ public class DispatchUnitTest {
 
 	private void testDispatchNop() {
 
-		// NOP命令を生成
+		// Create a NOP instruction.
 		Instruction instruction = new Instruction(
 				OperationCode.NOP, VOID_TYPE,
 				new Memory.Partition[] {Memory.Partition.NONE}, new int[] {0},
@@ -1437,34 +1352,34 @@ public class DispatchUnitTest {
 		);
 
 
-		// 命令を実行
-		int pc = 10; // プログラムカウンタ
+		// Dispatch/execute the instruction.
+		int programCounter = 10; 
 		try {
-			pc = this.dispatch(instruction, pc);
+			programCounter = this.dispatch(instruction, pc);
 		} catch (VnanoException | VnanoFatalException e) {
 			e.printStackTrace();
-			fail("Unexpected exception occurred");
+			fail("Expected exception has not occurred");
 		}
 
-		// プログラムカウンタの更新値を検査
-		if (pc != 11) {
+		// Check the updated value of the program counter.
+		if (programCounter != 11) {
 			fail("Incorrect program counter");
 		}
 
-		// オペランドの個数が間違っている場合の検査
+		// Test of the behaviour when the number of operands is incorrect.
 		try {
 			instruction = this.generateInt64x3Instruction(OperationCode.NOP);
-			pc = this.dispatch(instruction, pc);
-			fail("Unexpected exception occurred");
+			programCounter = this.dispatch(instruction, pc);
+			fail("Expected exception has not occurred");
 		} catch (VnanoException | VnanoFatalException e) {
-			// 例外が発生するのが正しい挙動
+			// The exception should be thrown for this case.
 		}
 	}
 
 
 	private void testDispatchLabel() {
 
-		// LABEL命令を生成
+		// Create a LABEL instruction.
 		Instruction instruction = new Instruction(
 				OperationCode.LABEL, VOID_TYPE,
 				new Memory.Partition[] {Memory.Partition.NONE}, new int[] {0},
@@ -1472,27 +1387,27 @@ public class DispatchUnitTest {
 		);
 
 
-		// 命令を実行
-		int pc = 10; // プログラムカウンタ
+		// Dispatch/execute the instruction.
+		int programCounter = 10; 
 		try {
-			pc = this.dispatch(instruction, pc);
+			programCounter = this.dispatch(instruction, pc);
 		} catch (VnanoException | VnanoFatalException e) {
 			e.printStackTrace();
-			fail("Unexpected exception occurred");
+			fail("Expected exception has not occurred");
 		}
 
-		// プログラムカウンタの更新値を検査
-		if (pc != 11) {
+		// Check the updated value of the program counter.
+		if (programCounter != 11) {
 			fail("Incorrect program counter");
 		}
 
-		// オペランドの個数が間違っている場合の検査
+		// Test of the behaviour when the number of operands is incorrect.
 		try {
 			instruction = this.generateInt64x3Instruction(OperationCode.LABEL);
-			pc = this.dispatch(instruction, pc);
-			fail("Unexpected exception occurred");
+			programCounter = this.dispatch(instruction, pc);
+			fail("Expected exception has not occurred");
 		} catch (VnanoException | VnanoFatalException e) {
-			// 例外が発生するのが正しい挙動
+			// The exception should be thrown for this case.
 		}
 	}
 
