@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2020 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2022 RINEARN
  * This software is released under the MIT License.
  */
 
@@ -17,46 +17,29 @@ import org.vcssl.nano.vm.memory.Memory;
 
 
 /**
- * <p>
- * 仮想プロセッサ内において、命令を解釈し、
- * {@link org.vcssl.nano.vm.memory.Memory Memory}（仮想メモリー）からのデータのロードや、
- * {@link ExecutionUnit ExecutionUnit} （演算ユニット）への命令ディスパッチなどを行う、
- * 制御ユニットのクラスです。
- * </p>
- *
- * @author RINEARN (Fumihiro Matsui)
- *
+ * The class which decodes each instruction and dispatch it to {@link ExecutionUnit ExecutionUnit}.
  */
 public class DispatchUnit {
 
 	/**
-	 * このクラスは状態を保持するフィールドを持たないため、コンストラクタは何もしません。
+	 * Create a new dispatch unit.
 	 */
 	public DispatchUnit() {
 	}
 
 
 	/**
-	 * 1個の命令を演算ユニットにディスパッチして実行し、実行後におけるプログラムカウンタの値を返します。
+	 * Dispatches the specified instruction to the execution unit, to execute it.
 	 *
-	 * ここでの命令のディスパッチとは、命令のオペレーションコードに応じて、
-	 * その処理に対応する演算ユニットのメソッドを特定し、
-	 * 引数にオペランドのデータを渡して実行させる事を意味します。
-	 *
-	 * その際、仮想メモリーからオペランドのデータを取り寄せる処理も行います。
-	 *
-	 * @param instruction 実行対象の命令
-	 * @param memory データの入出力に用いる仮想メモリー（実行によって書き換えられます）
-	 * @param interconnect 外部関数が接続されたインターコネクト
-	 * @param executionUnit 命令実行に用いる演算ユニット
-	 * @param functionRunningFlags 関数の実行中に、その先頭の命令アドレス番目の要素がtrueになるテーブル（実行によって書き換えられます）
-	 * @param programCounter 命令実行前におけるプログラムカウンタの値
-	 * @return 命令実行後におけるプログラムカウンタの値
-	 * @throws VnanoException
-	 * 		このコントロールユニットが対応していない命令が実行要求された場合や、
-	 * 		オペランド数やオペランド内容（アドレス値やデータ型など）が不正であった場合、
-	 * 		もしくはこの処理系でサポートされていない操作（関数の再帰呼び出しなど）
-	 * 		が行われた場合に発生します。
+	 * @param instruction The instruction to be dispatched to the execution unit (to be executed).
+	 * @param memory The memory to/from which data will be written/read.
+	 * @param interconnect The interconnect having external variables/functions.
+	 * @param executionUnit The execution unit to execute the instruction.s
+	 * @param functionRunningFlags The flags representing whether each function is being processed
+	 *           (might be modified by the execution of the instruction).
+	 * @param programCounter The value of the program cunter just before execution of the specified instruction.
+	 * @return The value of the program cunter just after execution of the specified instruction.
+	 * @throws VnanoException Thrown when an incorrect/unsupported instruction is specified, or when any run-time error has occurred.
 	 */
 	public final int dispatch(Instruction instruction, Memory memory, Interconnect interconnect,
 			ExecutionUnit executionUnit, boolean[] functionRunningFlags, int programCounter)
@@ -65,14 +48,19 @@ public class DispatchUnit {
 		OperationCode opcode = instruction.getOperationCode();
 		DataType[] dataTypes = instruction.getDataTypes();
 
-		// 仮想メモリ―からデータを取り寄せる
+		// Load data containers of operands from the memory.
 		DataContainer<?>[] operands = this.loadOperandData(instruction, memory);
 		int operandLength = operands.length;
 
-		// 演算器で演算実行
+		// Dispatch to the execution unit, and execute.
 		switch (opcode) {
 
-			// 算術演算
+			// --------------------------------------------------------------------------------
+			//   For the detail of each instruction, see:
+			//       https://www.vcssl.org/en-us/vril/isa/instruction
+			// --------------------------------------------------------------------------------
+
+			// Arithmetic instructions:
 			case ADD : {
 				this.checkNumberOfOperands(instruction, 3);
 				executionUnit.add(dataTypes[0], operands[0], operands[1], operands[2]);
@@ -104,7 +92,7 @@ public class DispatchUnit {
 				return programCounter + 1;
 			}
 
-			// 比較演算
+			// Comparison instructions:
 			case EQ : {
 				this.checkNumberOfOperands(instruction, 3);
 				executionUnit.eq(dataTypes[0], operands[0], operands[1], operands[2]);
@@ -136,7 +124,7 @@ public class DispatchUnit {
 				return programCounter + 1;
 			}
 
-			// 論理演算
+			// Logical instructions:
 			case ANDM : {
 				this.checkNumberOfOperands(instruction, 3);
 				executionUnit.and(dataTypes[0], operands[0], operands[1], operands[2]);
@@ -153,14 +141,14 @@ public class DispatchUnit {
 				return programCounter + 1;
 			}
 
-			// メモリ確保
+			// Memory management instructions:
 			case ALLOC : {
 
-				// スカラの場合
+				// Scalar:
 				if (operands.length == 1) {
 					executionUnit.allocScalar(dataTypes[0], operands[0]);
 
-				// 配列の場合
+				// Array:
 				} else {
 					DataContainer<?>[] lengths = new DataContainer<?>[operands.length-1 ];
 					System.arraycopy(operands, 1, lengths, 0, operands.length-1);
@@ -168,71 +156,77 @@ public class DispatchUnit {
 				}
 				return programCounter + 1;
 			}
-
 			// 第2オペランドと同じ配列要素数で、第1オペランドをメモリ確保
 			case ALLOCR : {
+				// Alloc the memory for the 1st operand, as the data container having same rank/lengths with the 2nd operand.
 				executionUnit.allocSameLengths(dataTypes[0], operands[0], operands[1]);
 				return programCounter + 1;
 			}
-
-			// スタック上の先端に積まれているデータと同じ配列要素数で、第1オペランドをメモリ確保
 			case ALLOCP : {
+				// Alloc the memory for the 1st operand, as the data container having same rank/lengths with the data at the top of the stack.
 				executionUnit.allocSameLengths(dataTypes[0], operands[0], memory.peek());
 				return programCounter + 1;
 			}
-
 			// 可読性や最適化のための型宣言命令なので何もしない（Processor は最適化を行わないので無くても動作する）
 			case ALLOCT : {
+				// This instruction do nothing when it is executed.
+				// (This instruction is used for making the optimization of code easy.)
+				return programCounter + 1;
+			}
+			case FREE : {
+				this.checkNumberOfOperands(instruction, 1);
+				operands[0].initialize();
 				return programCounter + 1;
 			}
 
-			// コピー代入、同型かつ同要素数の場合のみ可能
+			// Transfer instructions:
 			case MOV : {
 				this.checkNumberOfOperands(instruction, 2);
 				executionUnit.mov(dataTypes[0], operands[0], operands[1]);
 				return programCounter + 1;
 			}
-
-			// 参照代入
 			case REF : {
 				this.checkNumberOfOperands(instruction, 2);
 				executionUnit.ref(dataTypes[0], operands[0], operands[1]);
 				return programCounter + 1;
 			}
-
-			// スタックからデータコンテナを1つ取って何もしない（void関数の戻り値取り出し用）
 			case POP : {
 				this.checkNumberOfOperands(instruction, 1);
 				memory.pop();
 				return programCounter + 1;
 			}
-
-			// スタックからデータコンテナを1つ取ってコピー代入
 			case MOVPOP : {
 				this.checkNumberOfOperands(instruction, 1);
 				DataContainer<?> src = memory.pop();
 				executionUnit.mov(dataTypes[0], operands[0], src);
 				return programCounter + 1;
 			}
-
-			// スタックからデータコンテナを1つ取って参照代入
 			case REFPOP : {
 				this.checkNumberOfOperands(instruction, 1);
 				DataContainer<?> src = memory.pop();
 				executionUnit.ref(dataTypes[0], operands[0], src);
 				return programCounter + 1;
 			}
-
-			// 型変換付きでコピー
 			case CAST : {
 				this.checkNumberOfOperands(instruction, 2);
 				executionUnit.cast(dataTypes[0], dataTypes[1], operands[0], operands[1]);
 				return programCounter + 1;
 			}
+			case FILL : {
+				this.checkNumberOfOperands(instruction, 2);
+				executionUnit.fill(dataTypes[0], operands[0], operands[1]);
+				return programCounter + 1;
+			}
+			case MOVELM : {
+				executionUnit.movelm(dataTypes[0], operands[0], operands[1], operands, 2);
+				return programCounter + 1;
+			}
+			case REFELM : {
+				executionUnit.refelm(dataTypes[0], operands[0], operands[1], operands, 2);
+				return programCounter + 1;
+			}
 
 			/*
-			// 現時点では不要
-			// 同じインデックスの要素同士を同じ値に保って配列コピー
 			case REORD : {
 				this.checkNumberOfOperands(instruction, 2);
 				executionUnit.reord(dataTypes[0], operands[0], operands[1]);
@@ -240,130 +234,107 @@ public class DispatchUnit {
 			}
 			*/
 
-			// 配列全要素をスカラでfill
-			case FILL : {
-				this.checkNumberOfOperands(instruction, 2);
-				executionUnit.fill(dataTypes[0], operands[0], operands[1]);
-				return programCounter + 1;
-			}
-
-			// 配列要素コピー
-			case MOVELM : {
-				executionUnit.movelm(dataTypes[0], operands[0], operands[1], operands, 2);
-				return programCounter + 1;
-			}
-
-			// 配列要素参照
-			case REFELM : {
-				executionUnit.refelm(dataTypes[0], operands[0], operands[1], operands, 2);
-				return programCounter + 1;
-			}
-
-			// メモリ解放
-			case FREE : {
-				this.checkNumberOfOperands(instruction, 1);
-				operands[0].initialize();
-				return programCounter + 1;
-			}
-
-			// 条件が true の場合に飛ぶ分岐命令
+			// Control instructions:
 			case JMP : {
 
-				 // 以下、0番オペランドを書き込み対象に統一した際に要変更
-				this.checkNumberOfOperands(instruction, 3); // オペランド[0]はプレースホルダなので、オペランドは3個ある
-				boolean[] conditions = (boolean[])operands[2].getArrayData(); // オペランド[2] が分岐条件（[0]はプレースホルダ）
+				// operands[0]: placeholder
+				// operands[1]: the instruction address to jump to there
+				// operands[2]: the condition value
+				this.checkNumberOfOperands(instruction, 3);
+				boolean[] conditions = (boolean[])operands[2].getArrayData();
 
-				// 以下、飛ぶべきかどうかの判定。オペランド[2]の値がtrueなら飛ぶ。
-				// ただしオペランド[2]はスカラに限らず、ベクトルの場合もあり、その場合は全要素がtrueなら飛ぶものと定義する。
-				// そう定義する事で、中間コードにおいて、ベクトル論理演算とスカラ論理演算の短絡評価処理を統一的かつ簡潔に表現できる。
+				// The flag represents whether the flow should jump.
+				boolean shouldJump = true;
 
-				boolean shouldJump = true; // 飛ぶべき場合にtrue、飛んではいけない場合にfalseにする
+				// If the condition is an array, jump only when all elements are true.
+				// This specification corresponds with the behaviour of short-circuit evaluations of vector logical operators.
 				for (boolean condition: conditions) {
-					shouldJump &= condition; // オペランド[2]の要素に1つでもfalseがあればfalseになり、飛ばなくなる
+					shouldJump &= condition;
 				}
 
-				// 飛ぶべき場合： 分岐先命令に飛ぶ
+				// Jump:
 				if (shouldJump) {
-					return (int)( (long[])operands[1].getArrayData() )[0]; // オペランド[1]に分岐先の命令アドレスが入っている
-
-				// 飛んではいけない場合： 次の命令に進む
+					return (int)( (long[])operands[1].getArrayData() )[0];
+				
+				// Don't jump:
 				} else {
 					return programCounter + 1;
 				}
 			}
-
-			// 条件が false の場合に飛ぶ分岐命令
 			case JMPN : {
 
-				 // 以下、0番オペランドを書き込み対象に統一した際に要変更
-				this.checkNumberOfOperands(instruction, 3); // オペランド[0]はプレースホルダなので、オペランドは3個ある
-				boolean[] conditions = (boolean[])operands[2].getArrayData(); // オペランド[2] が分岐条件（[0]はプレースホルダ）
+				// operands[0]: placeholder
+				// operands[1]: the instruction address to jump to there
+				// operands[2]: the condition value
+				this.checkNumberOfOperands(instruction, 3);
+				boolean[] conditions = (boolean[])operands[2].getArrayData();
 
-				// 以下、飛ぶべきかどうかの判定。オペランド[2]の値がfalseなら飛ぶ。
-				// ただしオペランド[2]はスカラに限らず、ベクトルの場合もあり、その場合は全要素がfalseなら飛ぶものと定義する。
-				// そう定義する事で、中間コードにおいて、ベクトル論理演算とスカラ論理演算の短絡評価処理を統一的かつ簡潔に表現できる。
+				// The flag represents whether the flow should NOT jump.
+				boolean shouldNotJump = false;
 
-				boolean shouldNotJump = false; // 飛んではいけない場合にtrue、飛ぶべき場合にfalseにする
+				// If the condition is an array, don't jump when one or more elements are true.
+				// This specification corresponds with the behaviour of short-circuit evaluations of vector logical operators.
 				for (boolean condition: conditions) {
-					shouldNotJump |= condition; // オペランド[2]の要素に1つでもtrueがあればtrueになり、飛ばなくなる
+					shouldNotJump |= condition;
 				}
 
-				// 飛んではいけない場合： 次の命令に進む
+				// Don't jump:
 				if (shouldNotJump) {
 					return programCounter + 1;
 
-				// 飛ぶべき場合： 分岐先命令に飛ぶ
+				// Jump:
 				} else {
-					return (int)( (long[])operands[1].getArrayData() )[0]; // オペランド[1]に分岐先の命令アドレスが入っている
+					return (int)( (long[])operands[1].getArrayData() )[0];
 				}
 			}
 
 			case CALL : {
 
-				// 関数から戻ってくる命令アドレス（現在の命令アドレス+1）を戻り値スタックに詰む
+				// Push the instruction address to which the flow will be returned (the next of the current instruction) to the stack.
 				int returnAddress = programCounter + 1;
 				DataContainer<long[]> returnAddressContainer = new DataContainer<long[]>();
 				returnAddressContainer.setArrayData(new long[] { returnAddress }, 0, DataContainer.ARRAY_LENGTHS_OF_SCALAR);
 				memory.push(returnAddressContainer);
 
-				// 引数（オペランド[2]以降に並んでいる）を引数スタックに積む
+				// Push arguments to the stack.
 				for (int operandIndex=2; operandIndex<operandLength; operandIndex++) {
 					memory.push(operands[operandIndex]);
 				}
 
-				// オペランドから関数の先頭の命令アドレスを取得
+				// Get the instruction address of the top of the function's code, which is specified as the operands[1].
 				int functionAddress = (int)( (long[])operands[1].getArrayData() )[0];
 
-				// この処理系では関数の再帰/多重呼び出しをサポートしていないため、呼び出し対象の関数が既に実行中であればエラーとする
+				// If the specified function is being processd: Error.
+				// (Because this interpreter does not support recursive calls of functions.)
 				if(functionRunningFlags[functionAddress]) {
 					throw new VnanoException(ErrorType.RECURSIVE_FUNCTION_CALL);
 				}
 				functionRunningFlags[functionAddress] = true;
 
-				// 関数先頭の命令アドレスに飛ぶ
+				// The next instruction is the top of the function's code.
 				return functionAddress;
 			}
 
 			case RET : {
-				// スタックから戻り先の命令アドレスを取り出す
-				//（関数先頭で引数を正しい個数取り出していれば、スタック末尾には、CALL命令で引数より前に積んだ戻り先アドレスが積まれている）
+				
+				// Pops the instruction address to which the processing flow should return, from the stack.
 				DataContainer<?> returnAddressContainer = memory.pop();
 				int returnAddress = (int)( (long[])returnAddressContainer.getArrayData() )[0];
 
-				// 戻り値が無い場合は、戻り値がある場合とスタック上の順序を合わせるため、空のデータコンテナを積む
-				if (operands.length <= 2) { // 先頭オペランドはプレースホルダ、その次は関数アドレスなので、戻り値が無くてもオペランドは2個ある
+				// If the instruction has no return value, push an empty data container to the stack.
+				if (operands.length <= 2) { // operands[0] is a placeholder, operands[1] is the address.
 					memory.push(new DataContainer<Void>());
 
-				// 戻り値がある場合は、それをスタック上に積む
+				// If the instruction has a return value, push it to the stack.
 				} else {
-					memory.push(operands[2]);
+					memory.push(operands[2]); // operands[2] is the return value.
 				}
 
-				// 再帰呼び出し判定用のテーブルから、対象関数の値を解除する
+				// Turn off the flag representing the function is being processed.
 				int functionAddress = (int)( (long[])operands[1].getArrayData() )[0];
 				functionRunningFlags[functionAddress] = false;
 
-				// 戻り先の命令アドレスに飛ぶ
+				// Go to the return address, which is the next of the CALL instruction.
 				return returnAddress;
 			}
 
@@ -382,16 +353,20 @@ public class DispatchUnit {
 			}
 
 			case END : {
-				// スクリプトエンジンの eval メソッドの評価値とするデータがオペランドに指定されていれば、それをメモリに格納
+
+				// If the evaluation result value is specified as an operand, store it to the memory.
 				if (operandLength == 2) {
 
-					// 将来的に、スクリプト終了時にリソースを即時解放するようにした場合に対応するため、データをコピーしてから格納する
+					// Depends on its partition, data container may be going to released when the execution of script has end, 
+					// so copy the content of the data container, not reference of it..
 					DataContainer<?> result = new DataContainer<Object>();
-					executionUnit.allocSameLengths(dataTypes[0], result, operands[1]); // データコンテナの領域確保
-					executionUnit.mov(dataTypes[0], result, operands[1]); // データをコピー代入
-					memory.setResultDataContainer(operands[1]); // 仮想メモリの評価値格納用コンテナに格納
+					executionUnit.allocSameLengths(dataTypes[0], result, operands[1]);
+					executionUnit.mov(dataTypes[0], result, operands[1]);
+					memory.setResultDataContainer(operands[1]);
 				}
-				return -1; // この命令でコード実行は終了するので、プログラムカウンタを命令列の領域外に飛ばす（すると終了する）
+
+				// When the program counter points to out of the range of instructions, the execution ends, so specify -1 to terminate it.
+				return -1;
 			}
 
 			case NOP :
@@ -401,7 +376,6 @@ public class DispatchUnit {
 				return programCounter + 1;
 			}
 
-			// このディスパッチユニットで未対応の命令（上層で処理すべき拡張命令など）
 			default : {
 				throw new VnanoFatalException("Unsupported operation code: " +  opcode);
 			}
@@ -410,13 +384,11 @@ public class DispatchUnit {
 
 
 	/**
-	 * 命令におけるオペランドの個数が、期待される個数と一致するか確認し、
-	 * 一致しない場合は例外を発生させます。
+	 * Check whether the number of operands matches with the expected number.
 	 *
-	 * @param instruction 確認対象の命令
-	 * @param expectedValue 期待されるオペランドの個数
-	 * @throws VnanoFatalException
-	 * 		実際の個数が、期待される個数と異なる場合に発生します。
+	 * @param instruction The instruction to be checked.
+	 * @param expectedValue The expected number of operands.
+	 * @throws VnanoFatalException Thrown when the number of operands does not match with the expected number.
 	 */
 	private void checkNumberOfOperands(Instruction instruction, int numberOfOperands) {
 
@@ -434,14 +406,12 @@ public class DispatchUnit {
 
 
 	/**
-	 * 命令のオペランドアドレスが指し示すデータを、仮想メモリーから取り寄せて返します。
+	 * Load the data containers referred by the operand addresses of the specified instruction, from the memory.
 	 *
-	 * @param instruction 命令
-	 * @param memoryController 仮想メモリー
-	 * @return データ
-	 * @throws VnanoFatalException
-	 * 		命令のオペランドに指定された仮想メモリーアドレスが使用領域外であった場合など、
-	 * 		異常な仮想メモリーアクセスが生じた場合などに発生します。
+	 * @param instruction The instruction.
+	 * @param memoryController The memory in which data of the operands are stored.
+	 * @return Data containers of operands.
+	 * @throws VnanoFatalException Thrown when invalid memory access has been detected.
 	 */
 	private DataContainer<?>[] loadOperandData(Instruction instruction, Memory memory) {
 
