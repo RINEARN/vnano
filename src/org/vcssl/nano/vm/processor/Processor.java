@@ -20,7 +20,7 @@ import org.vcssl.nano.vm.memory.Memory;
 
 
 /**
- * The package takes on the function of a processor, in the virtual machine of the Vnano.
+ * The class takes on the function of a processor, in the virtual machine of the Vnano.
  * 
  * The processor provided by this class executes instructions assembled by a VRIL assembly code 
  * (About the specification of VRIL instructions, see: https://www.vcssl.org/en-us/vril/isa/instruction ).
