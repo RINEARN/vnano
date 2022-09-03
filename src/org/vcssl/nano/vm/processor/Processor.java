@@ -250,7 +250,7 @@ public class Processor implements Processable {
 	/**
 	 * Resets the flag for the termination.
 	 * 
-	 * When you want to process new instructions after using {@link terminate()} method, 
+	 * When you want to process new instructions after using {@link Processor#terminate()} method, 
 	 * it requires to call this method before call {@link Processor#process(Instruction[], Memory, Interconnect)} method.
 	 * If you don't do it, the process of new instructons will be terminated immediately.
 	 */
