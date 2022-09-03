@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2021 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2022 RINEARN
  * This software is released under the MIT License.
  */
 
@@ -24,95 +24,86 @@ import org.vcssl.nano.vm.processor.Processor;
 
 
 /**
- * <p>
- * <span class="lang-en">
- * The class of accelerator to process some instructions faster
- * at the upper layer of {@link Processor Processor}
- * in in case of that some options are enabled
- * </span>
- * <span class="lang-ja">
- * オプション設定に応じて使用される、
- * 特定の条件が揃った命令を {@link Processor Processor}
- * よりも上流で高速実行するアクセラレータのクラスです。
- * </span>
- * </p>
- *
- * <p>
- * Vnano処理系は、全体的にはパフォーマンスよりも実装の簡素さを優先していますが、
- * このクラスは、それでは処理速度が不足してしまう用途に対応するために存在します。
- * そのため、このクラスの実装コードでは、簡素さや保守性よりも処理速度が最も優先されています。
- * その代わりとして、Vnano処理系は、このクラスを全く使用しなくても、機能上は完全に成立するようにできています。
- * Vnano処理系をカスタマイズする際などには、このクラスは除外しておく方が無難です。
- * </p>
- *
- * @author RINEARN (Fumihiro Matsui)
+ * The high-speed implementation of {@link org.vcssl.nano.vm.processor.Processor Processor} class, called the accelerator.
  */
 public class Accelerator {
 
-	/** 処理を継続可能かどうかを表すフラグです。 */
-	// 用途的には終了リクエストフラグだけども、素直に shouldTerminate だとループ条件で ! が要るので、反転したフラグにしている。
-	// そういう事情で、このフラグに対する public なリセットメソッドは resetTerminator() なので注意。
+	/**
+	 * The flag representing whether the process should continue.
+	 * 
+	 * If this flag is turned to false,
+	 * the process of {@link Processor#process(Instruction[], Memory, Interconnect)} method will be terminated immediately, 
+	 * just after when the process of the currently executed instruction completed.
+	 * 
+	 * To turn to true/false this flag, use terminate() / resetTerminator() methods.
+	 */
 	private volatile boolean continuable;
 
-	/** インスタンスの生成時点から、処理した命令数（累積処理命令数）を保持します。 */
-	// 関連個所を触る際の注意:
-	// ・int の上限に達してもリセットはされず、負の端からまた加算され続ける仕様（getterの説明参照）。
-	// ・long にすると書き込み箇所が 32 bit x 2 操作になり得て、どのタイミングで参照されるか不定なので
-	//   値化け予防に synchronized 書き込み（と参照）が必要になるが、それは非常に遅いので int で我慢する。
-	// ・同様に速度への影響を抑えるため volatile 修飾は行わず、
-	//   スレッドキャッシュによるラグはカウンタの精度仕様で許容する（getterの説明参照）。
+	/**
+	 * The counter of the number of the instructions executed by this instance.
+	 * This value is useful for performance monitoring/analysis.
+	 * 
+	 * Note that, when this counter has reached to the maximum limit of the int type, 
+	 * the next counted value jumps to the minimum (negative) limit value of the int type, by so-called "overflow" behaviour.
+	 * 
+	 * This counter frequently overflows, so the caller-side should monitor this value frequently, 
+	 * and should accumulate differentials of monitored values (current value - last monitored value) to more long-precision counter.
+	 * 
+	 * Why we use "int" for this value, not "long", is to avoid to make the updating process of this counter "synchromized".
+	 * If this counter is "long", the writing to it may consists of two operations (32bit x 2), depends on environment.
+	 * So if the value is read from an other thread just when its value is being written, the broken value may be read, 
+	 * if we don't make the writting/reading action "synchronized".
+	 * However, "synchronized" might be a bottleneck of performance, so we avoid the above by using "int" type for this counter.
+	 * 
+	 * For the same reason, we don't make this value "volatile", 
+	 * so some time lag may occurs for this value, by the effect of the "thread cache" mechanism.
+	 */
 	private int executedInstructionCount;
 
-	/** 現在処理中の演算ノードを保持します。 */
-	// パフォーマンスモニタでオペレーションコードごとの命令実行頻度をなどを解析するため
+	/**
+	 * Stores the execution node of the currently executed instruction.
+	 */
 	private AcceleratorExecutionNode currentExecutedNode;
-
-	/** synchronized ブロック用のロック対象オブジェクトです。 */
-	// （主にスレッドキャッシュ剥がしに使うのでこのロック自体にあまり意味は無い）
-	private final Object lock;
 
 
 	/**
-	 * 新しいアクセラレータのインスタンスを生成します。
+	 * Creates an new accelerator.
 	 */
 	public Accelerator() {
 		this.continuable = true;
 		this.executedInstructionCount = 0;
 		this.currentExecutedNode = null;
-		this.lock = new Object();
 	}
 
 
 	/**
-	 * 命令配列に含まれる各命令を逐次実行します。
+	 * Processes the list of instructions.
+	 * 
+	 * The processing-flow begins with the top of the list of the instructions.
+	 * Ordinary, the flow goes towards the end of the list,
+	 * with processing each instruction in the list in the serial order.
+	 * However, sometimes the processing-flow jumps to any point in the list, 
+	 * by the effect of JMP instruction and so on.
+	 * 
+	 * This method ends when the instruction at the end of the list has been processed,
+	 * or when the flow has jumped to out of bounds of the list of the instructions.
 	 *
-	 * 呼び出し側から見た機能としては、{@link ControllUnit#process} メソッドと同様です。
-	 * ただし、高速実行の対象外となる命令に対しては、このクラス内では処理を行わず、
-	 * そのまま下層の {@link ControllUnit#dispatch} メソッドに投げます。
-	 *
-	 * @param instructions 実行対象の命令配列
-	 * @param memory データの入出力に用いる仮想メモリー
-	 * @param interconnect 外部関数プラグインが接続されているインターコネクト（呼び出しに使用）
-	 * @param processor 高速実行の対象外の命令を処理する仮想プロセッサ
-	 * @throws InvalidInstructionException
-	 * 		このコントロールユニットが対応していない命令が実行要求された場合や、
-	 * 		オペランドの数が期待値と異なる場合など、命令内容が不正である場合に発生します。
-	 * @throws MemoryAccessException
-	 * 		命令のオペランドに指定された仮想メモリーアドレスが使用領域外であった場合など、
-	 * 		不正な仮想メモリーアクセスが生じた場合などに発生します。
+	 * @param instructions The list of the instructions to be processed.
+	 * @param memory The memory to which data I/O will be performed.
+	 * @param interconnect The interconnect having the external function plug-ins which may be called by the instructions.
+	 * @param processor The processor for processing some instructions unsupported by this accelerator.
+	 * @throws VnanoException Thrown when any normal run-time error has been occurred (errors of cast, array indexing, and so on).
+	 * @throws VnanoFatalException Thrown when any abnormal error (might be a bug of the VM or the compiler) occurred.
 	 */
 	public void process(Instruction[] instructions, Memory memory, Interconnect interconnect, Processor processor)
 			throws VnanoException {
 
 		// 必要なオプション値を読み込む
-		//（注: GUIアプリなどでのエンジンの使い方を考えると、このメソッドの処理の大元、つまりエンジンの eval のコールは、
-		//      エンジンにオプションマップを put したスレッドとは別のスレッドで行われる可能性がある。スレッドキャッシュとかに注意。）
-		//      -> そういうのは Interconnect 側で activate 時にまとめて前処理すべき? eval 呼んだスレッドで処理されるし。後々で要検討
 		boolean terminatable, monitorable, shouldDump, dumpTargetIsAll, shouldRun;
 		String dumpTarget;
 		PrintStream dumpStream = null;
 		int optimizationLevel = -1;
-		synchronized (this.lock) {
+		synchronized (this) {
 			Map<String, Object> optionMap = interconnect.getOptionMap();                 // オプション値を持っているマップ
 			shouldDump = (Boolean)optionMap.get(OptionKey.DUMPER_ENABLED);               // ダンプするかどうか
 			dumpTarget = (String)optionMap.get(OptionKey.DUMPER_TARGET);                 // ダンプ対象
@@ -301,16 +292,14 @@ public class Accelerator {
 
 
 	/**
-	 * 現在実行中の命令の処理が終わった時点で、残りの命令列の実行を行わずに終了させます。
-	 *
-	 * 命令列の実行が複数同時に行われている場合、それら各々の実行時に Interconnect 経由で指定されたオプションにおいて、
-	 * {@link org.vcssl.nano.spec.OptionKey#TERMINATOR_ENABLED TERMINATOR_ENABLED} オプションが有効であったもののみが終了され、
-	 * 無効であったものには何も起こらず継続して処理されます。
-	 *
-	 * なお、このメソッドで実行を終了させた後に、
-	 * 再び {@link Accelerator#process(Instruction[], Memory, Interconnect) process(...)}
-	 * メソッドによって(新規に)命令列を実行する際には、事前に
-	 * {@link Accelerator#resetTerminator() resetTerminator()()} を呼び出す必要があります。
+	 * Terminates the process of {@link Accelerator#process(Instruction[], Memory, Interconnect)} method immediately, 
+	 * just after when the process of the currently executed instruction completed.
+	 * 
+	 * However, if the {@link org.vcssl.nano.spec.OptionKey#TERMINATOR_ENABLED TERMINATOR_ENABLED} option had been enabled
+	 * when the process started, the process will not be terminated even if this method is called.
+	 * 
+	 * Also, after terminated the process by this method, if you want to process new instructions, 
+	 * it requires to reset the flag for the termination by calling {@link Accelerator#resetTerminator()} method.
 	 */
 	public void terminate() {
 		this.continuable = false;  // volatile
@@ -318,63 +307,52 @@ public class Accelerator {
 
 
 	/**
-	 * {@link Accelerator#terminate() terminate()} メソッドによって終了させたアクセラレータを、再び実行可能な状態に戻します。
+	 * Resets the flag for the termination.
+	 * 
+	 * When you want to process new instructions after using {@link Accelerator#terminate()} method, 
+	 * it requires to call this method before call {@link Accelerator#process(Instruction[], Memory, Interconnect)} method.
+	 * If you don't do it, the process of new instructons will be terminated immediately.
 	 */
-	// process() メソッドが呼ばれてからその中で自動的に true にする方式だと、呼んだ直後に terminate() で false 化した場合に、
-	// タイミングによっては process() 側での true 化の方が後になって、処理が続行されてしまう可能性があるので注意。
-	// process() の最後に true に戻して次回実行に備える方式でも、terminate() のタイミングがまずいと false 化され、
-	// 逆に次回実行不可能になってしまう可能性がある。従って、搭載アプリ側で適切な時にフラグをリセットしてもらう。
 	public void resetTerminator() {
 		this.continuable = true;  // volatile
 	}
 
 
 	/**
-	 * このアクセラレータのインスタンス化時点から、現在までに処理された命令数を、おおまかな目安値として返します。
+	 * Gets the counter value of the instructions executed by this instance.
+	 * This value is useful for performance monitoring/analysis.
+	 * 
+	 * Note that, when the counter has reached to the maximum limit of the int type, 
+	 * the next counted value jumps to the minimum (negative) limit value of the int type, by so-called "overflow" behaviour.
+	 * This counter frequently overflows, so the caller-side should monitor this value frequently, 
+	 * and should accumulate differentials of monitored values (current value - last monitored value) to more long-precision counter.
+	 * 
+	 * Also, some time lag may occurs for the updating of the counter, by the effect of the "thread cache" mechanism.
+	 * So please consider that the returned value is a rough value.
 	 *
-	 * ただし、計測による性能低下をなるべく抑えるため、返される値の精度は完全ではなく、
-	 * 呼び出し元スレッド等によってキャッシュされた少し前の値が返される可能性がある事に留意してください
-	 * (具体的には、内部のカウンタ値が volatile 修飾されていません)。
-	 * 特に、命令列の実行を複数同時に行った際には、カウントに排他処理は行われないため加算漏れが生じます。
-	 *
-	 * 加えて、値が int 型の上限に達してもリセットはされず、その後は負の端
-	 * (int型で表現可能な数直線上の最小値)に至り、そこからまた加算され続ける事にも留意が必要です。
-	 * そのため、取得値をそのまま使うのではなく、取得を十分な頻度
-	 * （目安として、Vnano のコマンドラインモードの --perf オプションの処理では、この値の取得を毎秒 100 回程度行っています）
-	 * で行って、前回からの差分を求めて使用する事などが推奨されます。
-	 *
-	 * なお、実行対象処理の中で、実行開始時に Interconnect 経由で指定されたオプションにおいて、
-	 * {@link org.vcssl.nano.spec.OptionKey#PERFORMANCE_MONITOR_ENABLED PERFORMANCE_MONITOR_ENABLED}
-	 * が有効化されていた処理の命令数のみがカウントされます。
-	 * 同オプションが有効化された処理が実行中でない場合、または何の処理も実行中でない場合に、
-	 * このメソッドをコールすると、単に変化していないカウンタ値が返されます。
-	 *
-	 * @return このアクセラレータのインスタンス化時点から、現在までに処理された命令数の、おおまかな目安値
+	 * @return The counter value of the instructions executed by this instance (a rough value, frequently overflows).
 	 */
-	// 名前が冗長なのは、将来的に値を long 型で取得可能なメソッドをサポートするかもしれないためなのと（その可能性自体は低い）、
-	// メソッド名でそういう可能性をにおわせる事で、値の範囲が int で結構すぐ一周するという事に毎回気付けるようにするため
 	public int getExecutedInstructionCountIntValue() {
-		synchronized (this.lock) {
+		synchronized (this) {
 			return this.executedInstructionCount;
 		}
 	}
 
 
+
 	/**
-	 * このアクセラレータ上において、現在実行中の命令のオペレーションコードを返します。
-	 * アクセラレータは複数の命令を一括で同時に実行する場合があるため、結果は配列として返されます。
-	 * 何の命令も実行されていない時には、空の配列が返されます。
+	 * Gets the operation code of the currently executed instructions.
+	 * This value is useful for performance monitoring/analysis.
 	 *
-	 * なお、複数のスレッドにおいて、このアクセラレータの同一インスタンスを用いて、
-	 * 並列に実行を行った場合でも、このメソッドが返すオペレーションコードの数は増えません。
-	 * このメソッドは、単に命令実行ループ毎にフィールドに控えられたオペレーションコード
-	 * （厳密にはそれを含むオブジェクト）の最新値を返すだけであるため、そのような場合には、
-	 * どれかのスレッド（常に同一とは限りません）が書き換えた値が返されます。
+	 * The return value is an array, because an accelerator can multiple instruction at once.
+	 * 
+	 * Note that, when multiple threads are running in parallel on this instance, 
+	 * Only operation codes of the most recently executed instructions by any one thread will be returned.
 	 *
-	 * @return このアクセラレータ上において、現在実行中の命令のオペレーションコード (複数あり得るため配列)
+	 * @return The operation codes of the currently executed instructions.
 	 */
 	public OperationCode[] getCurrentlyExecutedOperationCodes() {
-		synchronized (this.lock) {
+		synchronized (this) {
 
 			// this.currentExecutedNode の参照はこのメソッドの処理中にも高速で切り替わるので、最初にローカルに控えてから使う
 			AcceleratorExecutionNode currentNodeStock = this.currentExecutedNode;
