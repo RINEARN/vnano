@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2021 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2022 RINEARN
  * This software is released under the MIT License.
  */
 
@@ -17,142 +17,58 @@ import org.vcssl.nano.spec.DataType;
 
 
 /**
- * <p>
- * Vnano処理系内において、データを格納する単位となる、データコンテナのクラスです。
- * </p>
+ * The class of the data-container, which is the unit to store data into the memory, 
+ * in the virtual machine of the Vnano.
+ * 
+ * The architecture of the VM of the Vnano is a kind of a vector processor, 
+ * so any data is stored in a data-container as an 1D array (the "data" field), 
+ * even if it is a scalar.
+ * 
+ * When a data container represents a scalar, the scalar value is stored in the "data" field array, 
+ * and the "offset" field points to the index at which the scalar value is stored.
+ * 
+ * When a data container represents a 1D array, it is stored in the "data" field as it is.
+ * 
+ * When a data container represents a multi dimensional array, it is stored in the "data", 
+ * with serialized as a 1D array.
+ * 
+ * Also, the length of each dimension of the array are stored in the "lengths" field.
+ * For example, the "lengths" of an array[10] is { 10 }, the "lengths" of an array[1][2][3] is {1, 2, 3}, 
+ * and the "lengths" of a scalar is an empty { }.
+ * 
+ * We call the number of the dimensions (= the length of the "lengths" field) of an array as the "array-rank".
+ * To keep consistency with the above specification about the "lengths" field, 
+ * we define the array-rank of a scalar as 0.
+ * 
+ * As similar field as the "lengths", the "size" field is also defined.
+ * It means the number of elements of the array represented by this data-container. 
+ * Note that, the "size" necessarily doesn't match with the number of elements of "data" field.
+ * For example, when a data-container represents a scalar value, the "size" of it is 1, 
+ * but the number of elements of "data" field may be more long, 
+ * and in which the scalar value is stored as the "offset"-th element.
+ * 
+ * This data-container also has the "size" field.
  *
- * <p>
- * 現在のVnano処理系の仮想プロセッサー（
- * {@link org.vcssl.nano.vm.processor.Processor}: プロセス仮想マシンとしてのVM
- * ）は、ベクトル演算主体の命令セットを採用しているため、
- * レジスタや仮想メモリー（{@link Memory Memory}）のデータ単位は、
- * スカラ値も含めて全て配列として扱われます。
- * その配列のデータを格納し、処理系内部でのデータのやり取りの単位や、
- * 演算のオペランドとなるのが、このデータコンテナクラスです。
- * </p>
- *
- * <p>
- * 上記の理由により、このデータコンテナは、
- * 多次元の配列データを表現する事を前提とした仕様になっています。
- * ただし内部では、多次元配列データは右端次元の要素が連続的に並ぶ形式で1次元化した上で
- * {@link DataContainer#data data} フィールドに保持されます。
- * オーバーヘッドを避けるため、このデータコンテナ側において次元変換などは一切行われないため、
- * 格納データを設定する {@link DataContainer#setArrayData(Object, int, int[]) setArrayData(Object,int,int[])}
- * メソッドには、上記のように1次元化した配列を設定する必要があります。
- * 格納データを取得する {@link DataContainer#getArrayData getArrayData()} メソッドも、
- * 1次元化された配列を返します。
- * これらの getter / setter は、{@link DataContainer#data data} フィールドをそのまま設定・取得します。
- * コピーやアライメント調整などは行われません。
- * </p>
- *
- * <p>
- * 1次元化されたデータが、多次元配列のどの要素に対応するかを計算で求めるためには、
- * 多次元配列の各次元ごとの長さ（次元長）が必要ですが、
- * それは {@link DataContainer#lengths lengths} フィールドに保持され、
- * {@link DataContainer#getArrayLengths getArrayLengths()} メソッドによって取得できます
- * （左端次元の長さが [0] 番要素となります）。
- * 配列次元数は、この次元長配列 lengths の要素数、
- * 即ち {@link DataContainer#getArrayLengths getArrayLengths()}.length によって求められますが、
- * 可読性のために {@link DataContainer#getArrayRank getArrayRank()} メソッドによって得る事もできます。
- * 多次元配列の総要素数は {@link DataContainer#size size} フィールドに保持され、
- * {@link DataContainer#getArraySize getArraySize()} メソッドによって取得できます。
- * </p>
- *
- * <p>
- * 例えば、次元長が { len0, len1, len2 } の3次元配列
- * array[ len0 ][ len1 ][ len2 ] のデータが、1次元化されて
- * {@link DataContainer#data data} 配列内に保持されているとします。
- * この場合、3次元インデックス [ dimIndex0 ][ dimIndex1 ][ dimIndex2 ]
- * によって参照される要素が、{@link DataContainer#data data}
- * 配列内で格納される1次元化インデックスを serialIndex とします。即ち：
- *
- * <div style="border-style: solid; padding-left: 10px; margin:10px;">
- * data[ serialIndex ] = array[ dimIndex0 ][ dimIndex1 ][ dimIndex2 ]
- * </div>
- *
- * （ここでの = は代入演算子ではなく、数学的な意味での等号です。）
- * この場合において、各インデックスは以下の関係に従います:
- *
- * <div style="border-style: solid; padding-left: 10px; margin:10px;">
- * serialIndex = len2*len1*dimIndex0 + len2*dimIndex1 + dimIndex2
- * </div>
- *
- * つまり、
- * 「ある次元のインデックス * それよりも右側にある全次元の次元長の積（無い場合は1とする）」
- * の項を、全て足したものが、
- * 1次元化インデックスとなります。
- * </p>
- *
- * <p>
- * 一般には配列とは見なされない、スカラのデータは、
- * このデータコンテナでは0次元の配列と見なして扱います。
- * これは、配列の次元数を、データを並べられる独立な方向の数と解釈した場合に、
- * スカラは並べられる方向を持たない配列であると見なす考え方に基づいています。
- * この考え方は、多次元配列を、何らかの（配列次元数とテンソル階数が一致する）
- * 基底におけるテンソルの配列表現と見なした場合に、
- * 数学的にはスカラは0階のテンソルである事と対応しています。
- * 従って、スカラデータを格納している場合、
- * {@link DataContainer#getArrayRank getArrayRank()} メソッドは 0 を返し、
- * {@link DataContainer#getArrayLengths getArrayLengths()} メソッドは要素数0の配列を返します。
- * ただし、スカラは0次元であっても値を1個持っているため、
- * データの総要素数を表す {@link DataContainer#size size} フィールドの値は 1 となり、
- * {@link DataContainer#getArraySize getArraySize()} メソッドも 1 を返します。
- * </p>
- *
- * <p>
- * スカラデータもまた、内部では1次元化した配列として
- * {@link DataContainer#data data} フィールドに保持されます。
- * ただし、要素数 1 の配列に格納されるとは限らず、
- * より長い配列のどこかに格納される場合もあります。
- * その格納位置のインデックスは、
- * {@link DataContainer#offset offset} フィールドによって保持され、
- * {@link DataContainer#getArrayOffset getArrayOffset()} メソッドによって取得できます。
- * この仕組みは、スクリプトコード側において、
- * 配列変数の要素を配列アクセス演算子（ [ ] ）によって参照する事に対応する処理を、
- * 仮想マシン側で効率的に行うためのものです。
- * 具体的には、スクリプト側での配列変数のデータを {@link DataContener#data data} フィールドに保持し、
- * {@link DataContainer#offset offset} フィールドの値を操作する事によって、
- * 配列変数への要素アクセスを単純かつ低オーバーヘッドな方法で行いながら、
- * 処理上は通常のスカラデータと区別せず統一的に扱う実装を可能にするという利点があります。
- * ところで、上述ような仕組みで配列要素へのアクセスを実現している事から、
- * この処理系では、複数のデータコンテナが同じデータ保持領域（{@link DataContener#data data} フィールドの参照先）
- * を共有する場合が生じる事には留意する必要があります。
- * なお、このデータコンテナが表現する対象がスカラではない場合は、
- * {@link DataContainer#offset offset} フィールドの値は常に 0 である事が保証されます。
- * </p>
- *
- * <p>
- * このデータコンテナは、外部変数・外部関数プラグインとVnano処理系内との間で、
- * オーバーヘッドの無いデータの受け渡しをサポートするため、
- * {@link org.vcssl.connect.ArrayDataAccessorInterface1 ADAI 1}
- * 形式のデータコンテナ・インターフェースを実装しています。
- * {@link org.vcssl.connect.ExternalVariableConnectorInterface1 XVCI 1} 形式や
- * {@link org.vcssl.connect.ExternalFunctionConnectorInterface1 XFCI 1} 形式のプラグインにおいて、
- * 自動データ変換機能を無効化した上でVnano処理系に接続した場合、
- * このデータコンテナが無変換で直接受け渡しされるようになります。
- * プラグイン側において、処理系の実装への依存度を抑えたい場合、
- * {@link org.vcssl.connect.ArrayDataAccessorInterface1 ADAI 1}
- * のインターフェースに定義されたメソッドを通してアクセスする事ができます。
- * </p>
- *
- * @param <T> 保持するデータの型
- * @author RINEARN (Fumihiro Matsui)
+ * @param <T> The type of the data to be stored (specify the type of 1D array, even when it stores a scalar or a multi dimensional array).
  */
 public class DataContainer<T> implements ArrayDataAccessorInterface1<T>,
 		Float64ScalarDataAccessorInterface1, Int64ScalarDataAccessorInterface1,
 		BoolScalarDataAccessorInterface1, StringScalarDataAccessorInterface1 {
 
-	/** スカラデータを格納する場合における、多次元配列としての次元数（値は0）です。*/
+	/** The array-rank of a scalar value. */
 	public static final int   ARRAY_RANK_OF_SCALAR = 0;
 
-	/** スカラデータを格納する場合における、多次元配列としての各次元の長さを表す配列（値は要素無しの int[0]）です。*/
+	/** The array-lengths of a scalar value. */
 	public static final int[] ARRAY_LENGTHS_OF_SCALAR = { };
 
-	/** スカラデータを格納する場合における、データの総要素数（値は1）です。 */
+	/** The size of a scalar value. */
 	public static final int   ARRAY_SIZE_OF_SCALAR = 1;
 
 
-	/** 引数 data に格納するデータのクラスと、{@link org.vcssl.nano.spec.DataType DataType} 列挙子の要素との対応関係を表すマップです。 */
+	/**
+	 * The Map for converting a class specified as the type parameter T 
+	 * to the corresponding element of the {@link org.vcssl.nano.spec.DataType DataType} enum.
+	 */
 	private static final HashMap<Class<?>, DataType> CLASS_DATA_TYPE_MAP = new HashMap<Class<?>, DataType>();
 	static {
 		CLASS_DATA_TYPE_MAP.put(long[].class, DataType.INT64);
@@ -162,72 +78,36 @@ public class DataContainer<T> implements ArrayDataAccessorInterface1<T>,
 	}
 
 
-	/**
-	 * このデータコンテナが格納するデータです。
-	 *
-	 * Vnano処理系では全てのデータを配列として扱うため、このフィールドは常に配列であり、
-	 * [{@link DataContainer#offset offset}] 番目から
-	 * [{@link DataContainer#offset offset}+{@link DataContainer#size size}-1]
-	 * 番目までを使用し、配列の要素を保持します。
-	 *
-	 * 多次元配列は、右端次元の要素が連続的に並ぶように1次元化され、
-	 * このフィールドには1次元配列として保持されます。
-	 *
-	 * スカラ値を保持する場合でも、このフィールドは配列であり、
-	 * その場合は [{@link DataContainer#offset offset}] 番目にスカラの値が格納されます。
-	 */
-	private T  data;
+	/** The serialized 1D array data, of the scalar/array represented by this data-container. */
+	private T data;
 
-
-	/**
-	 * データの総要素数です。
-	 *
-	 * ただし、データの各要素は{@link DataContainer#data data} 配列において、[{@link DataContainer#offset offset}]番目を先頭として並ぶため、
-	 * この値は必ずしも {@link DataContainer#data data} 配列の要素数そのものと一致はしません。
-	 */
+	/** The number of elements of the array represented by this data container. */
 	private int size;
 
-
-	/**
-	 * 多次元配列の各次元の長さを表す配列です。
-	 *
-	 * 実行プログラムのソースコードにおける、多次元配列の宣言の要素数との対応では、
-	 * この[0]番要素が左端次元の要素数、[1]番要素はその1つ右の次元の要素数に一致します。
-	 * （つまり、int a[10][20][30]; と宣言された多次元配列に対して、このフィールドの[0]番要素は10、[1]番要素は20です。）
-	 *
-	 * なお、データがスカラ（単一要素の0次元配列）の場合には要素なしとなります。
-	 */
-	// 注意: alloc 等で要素数配列の内容を変える時は、そのまま代入せずに new で参照を切る事 (同要素数の複数コンテナで共用されている場合がある)
+	/** Stores the length of each dimension of the array represented by this data container. */
 	private int[] lengths;
 
+	// CAUTION: The above array might be shared between multiple data-containers, so don't modify its value.
+	//          When you change the lengths, create an new array and set.
 
-	/**
-	 * {@link DataContainer#data data} 配列内において、
-	 * データの先頭要素が格納されている位置（オフセット値）を示します。
-	 *
-	 * 特に、このデータコンテナが、配列変数の要素（必ずスカラー）を表現する際に使用されます。
-	 * そのような場面では、{@link DataContainer#data data} フィールドに配列変数のデータが格納され、
-	 * このオフセット値に対象要素の（{@link DataContainer#data data} 配列内の）インデックスが保持されます。
-	 */
+	/** Represents the index in the "data" field array, at which the scalar value is stored. */
 	private int offset;
 
-
 	/**
-	 * このデータコンテナが、別のデータコンテナと参照を共有する場合に、
-	 * 参照ツリーのルート（根）に位置するデータコンテナを控えます。
+	 * Stores the root data-container of the tree of references, when this data-container is referencing to the other data-container.
+	 * 
+	 * In general, the referenced data-container also may reference to the other data-container, 
+	 * so the relationship of references between data-container become forms a tree-shape (we calls it as a "reference tree").
+	 * It is a waste of processing cost that walks in a reference tree to the root, for each data-I/O to the data belongs to the tree.
+	 * So all data-containers belongs to a reference tree caches the reference to the root as the following field.
 	 */
 	private DataContainer<T> referenceTreeRoot;
 
 
 	/**
-	 * スカラ（単一要素の0次元配列）のデータを保持するためのデフォルトの設定値で、データコンテナを生成します。
+	 * Creates an empty data-container.
 	 *
-	 * データの保持領域が確保されるわけではないため、保持させるデータは外部で用意し、
-	 * {@link DataContainer#setArrayData(Object, int, int[]) setArrayData(Object,int,int[])} メソッドを使用して渡す必要があります。
-	 *
-	 * なお、スカラではない（1次元以上の）多次元配列データを保持させる場合は、追加で
-	 * {@link DataContainer#setSize(int) setSize} および {@link DataContainer#setLengths(int[]) setLengths}
-	 * メソッドを使用し、総要素数と各次元の長さを設定する必要があります。
+	 * For storing data, use data-setter methods: setArrayData(...), setFloat64ScalarData(...), and so on.
 	 */
 	public DataContainer() {
 		this.initialize();
@@ -235,8 +115,10 @@ public class DataContainer<T> implements ArrayDataAccessorInterface1<T>,
 
 
 	/**
-	 * 生成直後のデフォルトの状態に初期化します。
-	 * 初期化直後は、スカラ（単一要素の0次元配列）のデータを保持する設定がされた状態となります。
+	 * Initializes/re-initializes this instace.
+	 * 
+	 * Initialized instance by this method stores no actual data yet, 
+	 * so for storing data, use data-setter methods: setArrayData(...), setFloat64ScalarData(...), and so on.
 	 */
 	public final void initialize() {
 		this.data = null;
@@ -248,42 +130,33 @@ public class DataContainer<T> implements ArrayDataAccessorInterface1<T>,
 
 
 	/**
-	 * このデータコンテナが格納するデータを、そのデータに関する必須情報（オフセット値、各次元の長さ）と共に設定します。
-	 *
-	 * Vnano処理系では全てのデータを配列として扱うため、引数 data は配列型である必要があります。
-	 * 多次元配列やスカラのデータも、1 次元配列として格納する必要があります。
-	 * 詳細はこのクラスの説明を参照してください。
-	 *
-	 * なお、引数 lengths に関しては、別のデータコンテナに対して {@link DataContainer#getArrayLengths() getLengths()}
-	 * メソッドで取得した要素数配列をそのまま（使い回して）渡した方が、手短で高効率な場面がしばしばあります。
-	 * しかしこれは、「 取得した要素数配列の格納値を変更しなくても済む場合 」のみ可能です。
-	 * なぜなら、そのようにして複数のデータコンテナが要素数配列の参照を共有している状態で、
-	 * どこかで要素数配列の格納値を変更すると、それを参照する全てのデータコンテナの要素数情報が変わり、不整合が生じるためです。
-	 * 従って、同内容の要素数配列をどこかから取得できない場合は、引数 length には新規に生成した配列を渡してください。
-	 *
-	 * @param data 格納するデータ（1次元配列）
-	 * @param offset オフセット値（データ内で値が格納されている要素のインデックスで、スカラ以外を格納する場合は常に 0 を指定します）
-	 * @param arrayLengths 各次元ごとの長さを格納する配列（スカラを格納する場合は、長さ 0 の配列を指定します）
+	 * Set the data to this data-container.
+	 * 
+	 * @param data The serialized 1d array data to be stored.
+	 * @param offset If this data-container represents a scalar, specify the index in the "data" at which the scalar value is stored, and otherwise specify 0.
+	 * @param lengths The array storing the length of each dimension of the array represented by this data-container. 
 	 */
 	@Override
 	public final void setArrayData(T data, int offset, int[] lengths) {
 
-		// 各次元の長さの積（= size）の値を求める
+		// Compute the size: equals to the product of lengths of all dimensions.
 		int productOfLengths = 1;
 		for (int length: lengths) {
 			productOfLengths *= length;
 		}
 
-		// 別のコンテナを参照していない場合： このコンテナの情報を更新
+		// If this data-container don't refer to other container:
+		// Update fields of this container.
 		if (this.referenceTreeRoot == null) {
 			this.data = data;
 			this.offset = offset;
 			this.lengths = lengths;
 			this.size = productOfLengths;
 
-		// 別のコンテナを参照している場合： 参照ツリーのルートは必ず実データを持っているはずなので、その情報を更新
+		// If this data-container is referencing to other container: 
+		// Update fields of the root container of the reference tree to which this container belongs.
 		} else {
-			// ※ ここで referenceTreeRoot.setArrayData(...) を呼ぶと一階層でも再帰コールになってしまうので注意
+			// Don't call referenceTreeRoot.setArrayData(...), because we want to eliminate recursive calls in this script engine, for any case.
 			this.referenceTreeRoot.data = data;
 			this.referenceTreeRoot.offset = offset;
 			this.referenceTreeRoot.lengths = lengths;
@@ -293,12 +166,9 @@ public class DataContainer<T> implements ArrayDataAccessorInterface1<T>,
 
 
 	/**
-	 * このデータコンテナが格納しているデータを取得します。
+	 * Get the serialized 1D array data stored in this data-container.
 	 *
-	 * ただし、多次元配列やスカラのデータは 1 次元化して返されます。
-	 * 詳細はこのクラスの説明を参照してください。
-	 *
-	 * @return data 保持しているデータ
+	 * @return data The serialized 1D array data.
 	 */
 	@Override
 	public final T getArrayData() {
@@ -307,15 +177,12 @@ public class DataContainer<T> implements ArrayDataAccessorInterface1<T>,
 
 
 	/**
-	 * このデータコンテナが、配列データを格納しているかどうかを返します。
+	 * Returns whether this data-container has any serialized 1D array data.
+	 * 
+	 * Note that, when this container stores a scalar value, it is internally stored in a 1D array, so this method returns true.
+	 * This method returns false only when this container has completely no data.
 	 *
-	 * なお、このデータコンテナは、スカラも0次元かつ要素数1の配列データと見なして扱うため、
-	 * 格納しているデータがスカラであっても true が返されます。
-	 * このメソッドが true を返す場合に、格納しているデータがスカラかどうかを確認するには、
-	 * 併せて {@link DataContainer#getArrayRank() getArrayRank()} を呼び出し、
-	 * そのメソッドの戻り値が 0 かどうかによって確認してください。
-	 *
-	 * @return 格納していれば true
+	 * @return Returns true if this data-container has any serialized 1D array data.
 	 */
 	@Override
 	public final boolean hasArrayData() {
@@ -328,13 +195,12 @@ public class DataContainer<T> implements ArrayDataAccessorInterface1<T>,
 
 
 	/**
-	 * スカラ値を保持している場合のオフセット値を取得します。
+	 * Gets the "offset" value of this data-container.
+	 * 
+	 * When this data-container represents a scalar, 
+	 * the scalar value is stored at the "offset"-th index, in the serialized 1D array.
 	 *
-	 * オフセット値とは、このデータコンテナの格納対象データが、
-	 * {@link DataContainer#data data} 配列内で格納されている領域の先頭インデックスを意味します。
-	 * 詳細はこのクラスの説明を参照してください。
-	 *
-	 * @return オフセット値
+	 * @return The "offset" value.
 	 */
 	@Override
 	public final int getArrayOffset() {
@@ -343,17 +209,15 @@ public class DataContainer<T> implements ArrayDataAccessorInterface1<T>,
 
 
 	/**
-	 * このデータコンテナが格納するデータのサイズを取得します。
+	 * Gets the "size" value of this data-container.
+	 * 
+	 * The "size"value  means the number of elements of the array represented by this data-container. 
+	 * Note that, the "size" necessarily doesn't match with the number of elements of "data" field.
+	 * For example, when a data-container represents a scalar value, the "size" of it is 1, 
+	 * but the number of elements of "data" field may be more long, 
+	 * and in which the scalar value is stored as the "offset"-th element.
 	 *
-	 * ここでのサイズとは、このデータコンテナが格納対象とするデータの総要素数の事です。
-	 * 具体的には、データがスカラではない場合には、
-	 * サイズは多次元配列の総要素数、即ち各次元長の積に一致します。
-	 * データがスカラである場合には、サイズは常に 1 となります。
-	 * 例えば、{@link DataContainer#data} 配列の要素数が 1 よりもずっと大きく、
-	 * その配列内に要素として（オフセット値で指定される位置に）格納対象のスカラ値が保持されている場合でも、
-	 * サイズは 1 になります。
-	 *
-	 * @return データの総要素数
+	 * @return The "size" value.
 	 */
 	@Override
 	public final int getArraySize() {
@@ -362,19 +226,13 @@ public class DataContainer<T> implements ArrayDataAccessorInterface1<T>,
 
 
 	/**
-	 * このデータコンテナが保持するデータの、
-	 * 多次元配列における各次元ごとの次元長（要素数）を、配列にまとめて取得します。
+	 * Gets the array storing the length of each dimension of the array, represented by this data-container.
+	 * We call it as "array-lengths", or simply "lengths".
+	 * 
+	 * For example, the "lengths" of an array[10] is { 10 }, the "lengths" of an array[1][2][3] is {1, 2, 3}, 
+	 * and the "lengths" of a scalar is an empty { }.
 	 *
-	 * スクリプトコード側での多次元配列との対応では、左端次元の要素数を[0]番要素、
-	 * その一つ右隣りにある次元の要素数を[1]番要素 ... という順で配列に格納されています。
-	 * データがスカラ値の場合は、0次元の配列と見なし、要素数 0 の配列が返されます。
-	 *
-	 * なお、このメソッドで取得した要素数配列の格納値は、変更しないでください。
-	 * 要素数情報を変更したい場合は、
-	 * {@link DataContainer#setArrayData(Object, int, int[]) setArrayData(Object data, int offset, int[] lengths)}
-	 * メソッドを使用して、データと共に再設定してください。
-	 *
-	 * @return 各次元の次元長を格納する配列
+	 * @return The array storing the length of each dimension of the array ("array-lengths").
 	 */
 	@Override
 	public final int[] getArrayLengths() {
@@ -383,11 +241,12 @@ public class DataContainer<T> implements ArrayDataAccessorInterface1<T>,
 
 
 	/**
-	 * このデータコンテナが保持するデータの、多次元配列における次元数を取得します。
-	 * これは、スクリプトコード側での多次元配列の次元数と一致します。
-	 * データがスカラ値の場合は、次元数 0 の配列と見なし、0 が返されます。
+	 * Gets the number of dimensions of the array represented by this data-container.
+	 * We call it as "array-rank".
+	 * 
+	 * Note that, we define that the array-rank of a scalar is 0.
 	 *
-	 * @return 各次元の次元長を格納する配列
+	 * @return The number of dimensions of the array ("array-rank")
 	 */
 	@Override
 	public final int getArrayRank() {
@@ -396,20 +255,26 @@ public class DataContainer<T> implements ArrayDataAccessorInterface1<T>,
 
 
 	/**
-	 * このデータコンテナが格納しているデータの型を返します。
-	 * 何もデータを格納していない場合は {@link org.vcssl.nano.spec.DataType#VOID VOID} を返します。
+	 * Gets the data-type of the data stored in this data-container.
+	 * The returned data type is independent of whether this data-container represents a scalar or an array.
+	 * 
+	 * For example, this method returns {@link org.vcssl.nano.spec.DataType#STRING STRING} for all of the following cases: 
+	 * When this container represents a string-type scalar, a string-type 1D array, a string-type 3D array, and so on.
+	 * 
+	 * Also, when this container stores no data, returns {@link org.vcssl.nano.spec.DataType#VOID VOID}.
 	 *
-	 * @return データ型
+	 * @return The data-type of the data stored in this data-container.
 	 */
 	public final DataType getDataType() {
 
-		// 格納しているデータのクラスを、データ型との対応関係を保持するハッシュマップに投げて、型を判定する
+		// Converts (resolves) the class of the stored data to the element of DataType enum.
 		T storingData = (this.referenceTreeRoot == null) ? this.data : this.referenceTreeRoot.data;
 		DataType dataType = DataType.VOID;
 		if (storingData != null) {
 			dataType = CLASS_DATA_TYPE_MAP.get(storingData.getClass());
 
-			// 未知の型の場合もVOID型にする（こちらはUNKNOWNなどの別の型を追加すべきかもしれない）
+			// Regards an unknown type to VOID.
+			// (Might be better to define "UNKNOWN" type in DataType enum, in future.)
 			if (dataType == null) {
 				dataType = DataType.VOID;
 			}
@@ -417,38 +282,36 @@ public class DataContainer<T> implements ArrayDataAccessorInterface1<T>,
 
 		return dataType;
 
-		// この方式は、あらかじめ型情報をフィールドに控えて参照する方式よりも、
-		// 毎回ハッシュテーブルを引く処理コストが多少かかるが、しかしながらこのメソッドは
-		// 主にVMの実行前処理で呼ばれるもので、実行中にはほぼ呼ばれないので問題ない。
-		// (VRILは命令自体が型情報を静的に持っているので、実行中に動的にオペランドの型情報を調べる必要はほぼ無い)
-
-		// もし型情報をこのクラスのフィールドに控えて参照するようにする場合、
-		// データの set と同時に set するのは実行時に頻繁に処理コストを食うので好ましくない（元々はそうだった）。
-		// データと独立に set する場合は、例えば ALLOC/ELEM 命令でのデータ確保/参照変更時が考えられるが、
-		// しかしALLOC/ELEM命令は実行頻度が高いので、やはり多少は実行時の処理コストを食ってしまう。
+		// Why this data-container don't have the data-type as a field:
+		// 
+		// It may seems to be more natural to do the above class-DataType resolution 
+		// at the timing when the data is set to this container, and store the resolved data-type as a field, 
+		// and simply returns it by this method.
+		// 
+		// However, if we do so, it requires to do the above resolution 
+		// for every time when data is set/updated. It may become a bottleneck of data I/O.
+		// 
+		// On the other hand, this "getter" of the data-type is rarely called in run-time,
+		// because the Vnano is a static typing language. So it don't be a bottleneck of data I/O.
+		// 
+		// Therefore we do the data-type resolution in this "getter", not the "setter" of data, 
+		// so it dont require the field for storing the resolved data-type.
 	}
 
 
 	/**
-	 * このデータコンテナの状態が、引数に渡されたデータコンテナの状態をそのまま参照するように設定します。
-	 * ただし、引数のコンテナが多重参照状態（あるコンテナがさらに別のコンテナを参照している状態）である場合、
-	 * 設定される参照先は、参照関係のツリー構造（参照ツリー）のルートに位置するコンテナとなります。
+	 * Sets this data-container to refers to the specified data-container.
+	 * 
+	 * If the referred container is also referring to an other container, 
+	 * this container refers to the container at the root of the reference tree.
+	 * 
+	 * After setting the reference by this method, 
+	 * all I/O operations from/to this container will be synchronized to the referenced container.
 	 *
-	 * このメソッドによる参照設定後には、
-	 * このコンテナに対する状態取得操作は、参照先（多重参照の場合はそのルート）のコンテナの状態を返すようになります。
-	 * これにより、参照ツリーに属する全てのコンテナにおいて、状態取得操作で同じ結果を得られるようになります。
-	 * また、このコンテナに対する状態設定操作は、
-	 * 参照ツリーに属する全てのコンテナに対する状態取得結果に反映されるようになります。
-	 *
-	 * このメソッドは、複数回呼び出す事で、参照先を変更できます。
-	 * ただし、このメソッドによる参照設定時点よりも後に、参照先のコンテナが、
-	 * 別のコンテナを参照するようになった場合、その事はこのコンテナの挙動には反映されません。
-	 * 反映させるには、再度このメソッドでそのコンテナを参照先として再設定する必要があります。
-	 *
-	 * @param referencedDataContainer
+	 * @param referredDataContainer The data-container to be referred.
 	 */
-	public final void refer(DataContainer<T> referencedDataContainer) {
-		this.referenceTreeRoot = referencedDataContainer;
+	public final void refer(DataContainer<T> referredDataContainer) {
+		this.referenceTreeRoot = referredDataContainer;
 		while (this.referenceTreeRoot.referenceTreeRoot != null) {
 			this.referenceTreeRoot = this.referenceTreeRoot.referenceTreeRoot;
 		}
@@ -456,7 +319,7 @@ public class DataContainer<T> implements ArrayDataAccessorInterface1<T>,
 
 
 	/**
-	 * このデータコンテナが、別のデータコンテナの状態を参照するよう設定されている場合、その設定を解除します。
+	 * Cancels the setting of the reference by "refer" method.
 	 */
 	public final void derefer() {
 		this.referenceTreeRoot = null;
@@ -464,30 +327,30 @@ public class DataContainer<T> implements ArrayDataAccessorInterface1<T>,
 
 
 	/**
-	 * double ({@link org.vcssl.nano.spec.DataType#FLOAT64 FLOAT64}) 型のスカラ値を格納します。
+	 * Stores a double ({@link org.vcssl.nano.spec.DataType#FLOAT64 FLOAT64}) type scalar data.
+	 * 
+	 * For using this method,
+	 * it is necessary that the "data" field is uninitialized yet, or initialized by the same data-type.
+	 * If the data-type of the "data" field is incompatible, the VnanoFatalException will be thrown.
 	 *
-	 * ただし、このデータコンテナのデータ ({@link DataContainer#data data} フィールド) が、
-	 * あらかじめ double 型配列として初期化されているか、または null である必要があります。
-	 * 別の型で初期化されている場合には例外が発生します。
-	 *
-	 * @param data 格納する値
-	 * @throws VnanoFatalException
-	 *		別の型のデータが格納されている場合にスローされます。
+	 * @param data The scalar data to be stored.
+	 * @throws VnanoFatalException Thrown when the data-type of the "data" field is incompatible.
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
 	public final void setFloat64ScalarData(double data) {
+		this.size = ARRAY_SIZE_OF_SCALAR;
+		this.lengths = ARRAY_LENGTHS_OF_SCALAR;
 
-		// このコンテナのデータ格納用配列を取得
-		// 注: 別のコンテナを参照している場合もあるため、
-		//     this.data に直接アクセスするのでは不十分で、getter/setterを通す
+		// Get the serialized 1D data array of this container.
+		// ( !!! CAUTION !!!  Don't access to "data" field directly here, because this container may refer to the other container. )
 		Object arrayData = this.getArrayData();
 
-		// データ格納用配列が既に確保されている場合は、そのままセットする
+		// If the serialized 1D data array is already initialized by the compatible type, simply set the scalar data in it.
 		if (arrayData instanceof double[]) {
 			( (double[])arrayData )[ this.getArrayOffset() ] = data;
 
-		// 未確保の場合は、スカラを格納できるだけの配列を確保してセットする
+		// If the array is uninitialized yet, allocate a new array storing the scalar data, and set it to this container.
 		} else if (arrayData == null) {
 			try {
 				T newArrayData = (T)( new double[]{ data } );
@@ -496,8 +359,7 @@ public class DataContainer<T> implements ArrayDataAccessorInterface1<T>,
 				throw new VnanoFatalException("Data type is incorrect");
 			}
 
-		// それ以外の場合は、型が違うため格納できない
-		// (そういう場合は setArrayData でデータ格納用配列そのものを差し替えないとだめ)
+		// If the array is initialized by an incompatible data-type: error.
 		} else {
 			throw new VnanoFatalException("Data type is incorrect");
 		}
@@ -505,18 +367,16 @@ public class DataContainer<T> implements ArrayDataAccessorInterface1<T>,
 
 
 	/**
-	 * 格納されている、double ({@link org.vcssl.nano.spec.DataType#FLOAT64 FLOAT64}) 型のスカラ値を取得します。
+	 * Gets the double ({@link org.vcssl.nano.spec.DataType#FLOAT64 FLOAT64}) type scalar data, stored in this container.
 	 *
-	 * @return 取得値
-	 * @throws VnanoFatalException
-	 *		別の型のデータが格納されているか、何も格納されていない場合にスローされます。
+	 * @return The stored scalar data.
+	 * @throws VnanoFatalException Thrown when incompatible data is stored, or no data is stored.
 	 */
 	@Override
 	public final double getFloat64ScalarData() {
 
-		// このコンテナのデータ格納用配列を取得
-		// 注: 別のコンテナを参照している場合もあるため、
-		//     this.data に直接アクセスするのでは不十分で、getter/setterを通す
+		// Get the serialized 1D data array of this container.
+		// ( !!! CAUTION !!!  Don't access to "data" field directly here, because this container may refer to the other container. )
 		Object arrayData = this.getArrayData();
 
 		if (arrayData instanceof double[]) {
@@ -530,10 +390,9 @@ public class DataContainer<T> implements ArrayDataAccessorInterface1<T>,
 
 
 	/**
-	 * このデータコンテナが、double ({@link org.vcssl.nano.spec.DataType#FLOAT64 FLOAT64})
-	 * 型のスカラ値を格納しているかどうかを返します。
+	 * Returns whether this data-container stores a double ({@link org.vcssl.nano.spec.DataType#FLOAT64 FLOAT64}) type scalar data.
 	 *
-	 * @return 格納していれば true
+	 * @return Returns true if this data-container stores it.
 	 */
 	@Override
 	public final boolean hasFloat64ScalarData() {
@@ -551,30 +410,30 @@ public class DataContainer<T> implements ArrayDataAccessorInterface1<T>,
 
 
 	/**
-	 * long ({@link org.vcssl.nano.spec.DataType#INT64 INT64}) 型のスカラ値を格納します。
+	 * Stores a long ({@link org.vcssl.nano.spec.DataType#INT64 INT64}) type scalar data.
+	 * 
+	 * For using this method,
+	 * it is necessary that the "data" field is uninitialized yet, or initialized by the same data-type.
+	 * If the data-type of the "data" field is incompatible, the VnanoFatalException will be thrown.
 	 *
-	 * ただし、このデータコンテナのデータ ({@link DataContainer#data data} フィールド) が、
-	 * あらかじめ long 型配列として初期化されているか、または null である必要があります。
-	 * 別の型で初期化されている場合には例外が発生します。
-	 *
-	 * @param data 格納する値
-	 * @throws VnanoFatalException
-	 *		別の型のデータが格納されている場合にスローされます。
+	 * @param data The scalar data to be stored.
+	 * @throws VnanoFatalException Thrown when the data-type of the "data" field is incompatible.
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
 	public final void setInt64ScalarData(long data) {
+		this.size = ARRAY_SIZE_OF_SCALAR;
+		this.lengths = ARRAY_LENGTHS_OF_SCALAR;
 
-		// このコンテナのデータ格納用配列を取得
-		// 注: 別のコンテナを参照している場合もあるため、
-		//     this.data に直接アクセスするのでは不十分で、getter/setterを通す
+		// Get the serialized 1D data array of this container.
+		// ( !!! CAUTION !!!  Don't access to "data" field directly here, because this container may refer to the other container. )
 		Object arrayData = this.getArrayData();
 
-		// データ格納用配列が既に確保されている場合は、そのままセットする
+		// If the serialized 1D data array is already initialized by the compatible type, simply set the scalar data in it.
 		if (arrayData instanceof long[]) {
 			( (long[])arrayData )[ this.getArrayOffset() ] = data;
 
-		// 未確保の場合は、スカラを格納できるだけの配列を確保してセットする
+		// If the array is uninitialized yet, allocate a new array storing the scalar data, and set it to this container.
 		} else if (arrayData == null) {
 			try {
 				T newArrayData = (T)( new long[]{ data } );
@@ -583,8 +442,7 @@ public class DataContainer<T> implements ArrayDataAccessorInterface1<T>,
 				throw new VnanoFatalException("Data type is incorrect");
 			}
 
-		// それ以外の場合は、型が違うため格納できない
-		// (そういう場合は setArrayData でデータ格納用配列そのものを差し替えないとだめ)
+		// If the array is initialized by an incompatible data-type: error.
 		} else {
 			throw new VnanoFatalException("Data type is incorrect");
 		}
@@ -592,18 +450,16 @@ public class DataContainer<T> implements ArrayDataAccessorInterface1<T>,
 
 
 	/**
-	 * 格納されている、long ({@link org.vcssl.nano.spec.DataType#INT64 INT64}) 型のスカラ値を取得します。
+	 * Gets the long ({@link org.vcssl.nano.spec.DataType#INT64 INT64}) type scalar data, stored in this container.
 	 *
-	 * @return 取得値
-	 * @throws VnanoFatalException
-	 *		別の型のデータが格納されているか、何も格納されていない場合にスローされます。
+	 * @return The stored scalar data.
+	 * @throws VnanoFatalException Thrown when incompatible data is stored, or no data is stored.
 	 */
 	@Override
 	public final long getInt64ScalarData() {
 
-		// このコンテナのデータ格納用配列を取得
-		// 注: 別のコンテナを参照している場合もあるため、
-		//     this.data に直接アクセスするのでは不十分で、getter/setterを通す
+		// Get the serialized 1D data array of this container.
+		// ( !!! CAUTION !!!  Don't access to "data" field directly here, because this container may refer to the other container. )
 		Object arrayData = this.getArrayData();
 
 		if (arrayData instanceof long[]) {
@@ -617,10 +473,9 @@ public class DataContainer<T> implements ArrayDataAccessorInterface1<T>,
 
 
 	/**
-	 * このデータコンテナが、long ({@link org.vcssl.nano.spec.DataType#INT64 INT64})
-	 * 型のスカラ値を格納しているかどうかを返します。
+	 * Returns whether this data-container stores a long ({@link org.vcssl.nano.spec.DataType#INT64 INT64}) type scalar data.
 	 *
-	 * @return 格納していれば true
+	 * @return Returns true if this data-container stores it.
 	 */
 	@Override
 	public final boolean hasInt64ScalarData() {
@@ -638,29 +493,30 @@ public class DataContainer<T> implements ArrayDataAccessorInterface1<T>,
 
 
 	/**
-	 * boolean ({@link org.vcssl.nano.spec.DataType#BOOL BOOL}) 型のスカラ値を格納します。
-	 * ただし、このデータコンテナのデータ ({@link DataContainer#data data} フィールド) が、
-	 * あらかじめ boolean 型配列として初期化されているか、または null である必要があります。
-	 * 別の型で初期化されている場合には例外が発生します。
+	 * Stores a boolean ({@link org.vcssl.nano.spec.DataType#BOOL BOOL}) type scalar data.
+	 * 
+	 * For using this method,
+	 * it is necessary that the "data" field is uninitialized yet, or initialized by the same data-type.
+	 * If the data-type of the "data" field is incompatible, the VnanoFatalException will be thrown.
 	 *
-	 * @param data 格納する値
-	 * @throws VnanoFatalException
-	 *		別の型のデータが格納されている場合にスローされます。
+	 * @param data The scalar data to be stored.
+	 * @throws VnanoFatalException Thrown when the data-type of the "data" field is incompatible.
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
 	public final void setBoolScalarData(boolean data) {
+		this.size = ARRAY_SIZE_OF_SCALAR;
+		this.lengths = ARRAY_LENGTHS_OF_SCALAR;
 
-		// このコンテナのデータ格納用配列を取得
-		// 注: 別のコンテナを参照している場合もあるため、
-		//     this.data に直接アクセスするのでは不十分で、getter/setterを通す
+		// Get the serialized 1D data array of this container.
+		// ( !!! CAUTION !!!  Don't access to "data" field directly here, because this container may refer to the other container. )
 		Object arrayData = this.getArrayData();
 
-		// データ格納用配列が既に確保されている場合は、そのままセットする
+		// If the serialized 1D data array is already initialized by the compatible type, simply set the scalar data in it.
 		if (arrayData instanceof boolean[]) {
 			( (boolean[])arrayData )[ this.getArrayOffset() ] = data;
 
-		// 未確保の場合は、スカラを格納できるだけの配列を確保してセットする
+		// If the array is uninitialized yet, allocate a new array storing the scalar data, and set it to this container.
 		} else if (arrayData == null) {
 			try {
 				T newArrayData = (T)( new boolean[]{ data } );
@@ -669,8 +525,7 @@ public class DataContainer<T> implements ArrayDataAccessorInterface1<T>,
 				throw new VnanoFatalException("Data type is incorrect");
 			}
 
-		// それ以外の場合は、型が違うため格納できない
-		// (そういう場合は setArrayData でデータ格納用配列そのものを差し替えないとだめ)
+		// If the array is initialized by an incompatible data-type: error.
 		} else {
 			throw new VnanoFatalException("Data type is incorrect");
 		}
@@ -678,18 +533,16 @@ public class DataContainer<T> implements ArrayDataAccessorInterface1<T>,
 
 
 	/**
-	 * 格納されている、boolean ({@link org.vcssl.nano.spec.DataType#BOOL BOOL}) 型のスカラ値を取得します。
+	 * Gets the boolean ({@link org.vcssl.nano.spec.DataType#BOOL BOOL}) type scalar data, stored in this container.
 	 *
-	 * @return 取得値
-	 * @throws VnanoFatalException
-	 *		別の型のデータが格納されているか、何も格納されていない場合にスローされます。
+	 * @return The stored scalar data.
+	 * @throws VnanoFatalException Thrown when incompatible data is stored, or no data is stored.
 	 */
 	@Override
 	public final boolean getBoolScalarData() {
 
-		// このコンテナのデータ格納用配列を取得
-		// 注: 別のコンテナを参照している場合もあるため、
-		//     this.data に直接アクセスするのでは不十分で、getter/setterを通す
+		// Get the serialized 1D data array of this container.
+		// ( !!! CAUTION !!!  Don't access to "data" field directly here, because this container may refer to the other container. )
 		Object arrayData = this.getArrayData();
 
 		if (arrayData instanceof boolean[]) {
@@ -703,10 +556,9 @@ public class DataContainer<T> implements ArrayDataAccessorInterface1<T>,
 
 
 	/**
-	 * このデータコンテナが、boolean ({@link org.vcssl.nano.spec.DataType#BOOL BOOL})
-	 * 型のスカラ値を格納しているかどうかを返します。
+	 * Returns whether this data-container stores a boolean ({@link org.vcssl.nano.spec.DataType#BOOL BOOL}) type scalar data.
 	 *
-	 * @return 格納していれば true
+	 * @return Returns true if this data-container stores it.
 	 */
 	@Override
 	public final boolean hasBoolScalarData() {
@@ -724,29 +576,30 @@ public class DataContainer<T> implements ArrayDataAccessorInterface1<T>,
 
 
 	/**
-	 * String ({@link org.vcssl.nano.spec.DataType#STRING STRING}) 型のスカラ値を格納します。
-	 * ただし、このデータコンテナのデータ ({@link DataContainer#data data} フィールド) が、
-	 * あらかじめ String 型配列として初期化されているか、または null である必要があります。
-	 * 別の型で初期化されている場合には例外が発生します。
+	 * Stores a String ({@link org.vcssl.nano.spec.DataType#STRING STRING}) type scalar data.
+	 * 
+	 * For using this method,
+	 * it is necessary that the "data" field is uninitialized yet, or initialized by the same data-type.
+	 * If the data-type of the "data" field is incompatible, the VnanoFatalException will be thrown.
 	 *
-	 * @param data 格納する値
-	 * @throws VnanoFatalException
-	 *		別の型のデータが格納されている場合にスローされます。
+	 * @param data The scalar data to be stored.
+	 * @throws VnanoFatalException Thrown when the data-type of the "data" field is incompatible.
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
 	public final void setStringScalarData(String data) {
+		this.size = ARRAY_SIZE_OF_SCALAR;
+		this.lengths = ARRAY_LENGTHS_OF_SCALAR;
 
-		// このコンテナのデータ格納用配列を取得
-		// 注: 別のコンテナを参照している場合もあるため、
-		//     this.data に直接アクセスするのでは不十分で、getter/setterを通す
+		// Get the serialized 1D data array of this container.
+		// ( !!! CAUTION !!!  Don't access to "data" field directly here, because this container may refer to the other container. )
 		Object arrayData = this.getArrayData();
 
-		// データ格納用配列が既に確保されている場合は、そのままセットする
+		// If the serialized 1D data array is already initialized by the compatible type, simply set the scalar data in it.
 		if (arrayData instanceof String[]) {
 			( (String[])arrayData )[ this.getArrayOffset() ] = data;
 
-		// 未確保の場合は、スカラを格納できるだけの配列を確保してセットする
+		// If the array is uninitialized yet, allocate a new array storing the scalar data, and set it to this container.
 		} else if (arrayData == null) {
 			try {
 				T newArrayData = (T)( new String[]{ data } );
@@ -755,8 +608,7 @@ public class DataContainer<T> implements ArrayDataAccessorInterface1<T>,
 				throw new VnanoFatalException("Data type is incorrect");
 			}
 
-		// それ以外の場合は、型が違うため格納できない
-		// (そういう場合は setArrayData でデータ格納用配列そのものを差し替えないとだめ)
+		// If the array is initialized by an incompatible data-type: error.
 		} else {
 			throw new VnanoFatalException("Data type is incorrect");
 		}
@@ -764,18 +616,16 @@ public class DataContainer<T> implements ArrayDataAccessorInterface1<T>,
 
 
 	/**
-	 * 格納されている、String ({@link org.vcssl.nano.spec.DataType#STRING STRING}) 型のスカラ値を取得します。
+	 * Gets the String ({@link org.vcssl.nano.spec.DataType#STRING STRING}) type scalar data, stored in this container.
 	 *
-	 * @return 取得値
-	 * @throws VnanoFatalException
-	 *		別の型のデータが格納されているか、何も格納されていない場合にスローされます。
+	 * @return The stored scalar data.
+	 * @throws VnanoFatalException Thrown when incompatible data is stored, or no data is stored.
 	 */
 	@Override
 	public final String getStringScalarData() {
 
-		// このコンテナのデータ格納用配列を取得
-		// 注: 別のコンテナを参照している場合もあるため、
-		//     this.data に直接アクセスするのでは不十分で、getter/setterを通す
+		// Get the serialized 1D data array of this container.
+		// ( !!! CAUTION !!!  Don't access to "data" field directly here, because this container may refer to the other container. )
 		Object arrayData = this.getArrayData();
 
 		if (arrayData instanceof String[]) {
@@ -789,10 +639,9 @@ public class DataContainer<T> implements ArrayDataAccessorInterface1<T>,
 
 
 	/**
-	 * このデータコンテナが、String ({@link org.vcssl.nano.spec.DataType#STRING STRING})
-	 * 型のスカラ値を格納しているかどうかを返します。
+	 * Returns whether this data-container stores a String ({@link org.vcssl.nano.spec.DataType#STRING STRING}) type scalar data.
 	 *
-	 * @return 格納していれば true
+	 * @return Returns true if this data-container stores it.
 	 */
 	@Override
 	public final boolean hasStringScalarData() {
