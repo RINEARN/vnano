@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2021 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2022 RINEARN
  * This software is released under the MIT License.
  */
 
@@ -12,6 +12,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.vcssl.nano.VnanoFatalException;
 
+
+/**
+ * The test of Memory class.
+ */
 public class MemoryTest {
 
 	@Before
@@ -44,26 +48,26 @@ public class MemoryTest {
 	private void testGetSize(Memory.Partition partition) {
 		Memory memory = new Memory();
 
-		// 何も保持していない時点でのサイズを検査
+		// Check the size when storing no data-container.
 		if (memory.getSize(partition) != 0) {
 			fail("Incorrect value");
 		}
 
-		// データを保持している状態でのサイズを検査
+		// Check the size when storing some data-containers.
 		memory.setDataContainer(partition, 255, new DataContainer<long[]>());
-		if (memory.getSize(partition) != 256) { // 全データ中の最大アドレス+1 がサイズのはず
+		if (memory.getSize(partition) != 256) {  // The current size should be the maximum address (255) + 1.
 			fail("Incorrect value");
 		}
 
-		// サイズよりも小さいアドレスにデータを置いた時点でのサイズを検査
+		// Check the size after when we put a data-container at the address less than the current maximum address.
 		memory.setDataContainer(partition, 100, new DataContainer<long[]>());
-		if (memory.getSize(partition) != 256) { // 最大アドレスは変わっていないのでサイズも不変のはず
+		if (memory.getSize(partition) != 256) {  // The size should not change for this case.
 			fail("Incorrect value");
 		}
 
-		// サイズを超えるアドレスにデータを置いた時点でのサイズを検査
+		// Check the size after when we put a data-container at the address greater than the current maximum address.
 		memory.setDataContainer(partition, 1000, new DataContainer<long[]>());
-		if (memory.getSize(partition) != 1001) { // 最大アドレスが更新されたのでサイズが拡張されているはず
+		if (memory.getSize(partition) != 1001) { // The size should be expanded for this case.
 			fail("Incorrect value");
 		}
 	}
@@ -76,7 +80,8 @@ public class MemoryTest {
 		DataContainer<long[]> containerC = new DataContainer<long[]>();
 		DataContainer<long[]> containerD = new DataContainer<long[]>();
 
-		// set 直後に get し、同じデータコンテナかどうかを検査（このアドレスが暫定的な最大アドレスになる）
+		// Check setting/getting a data-container.
+		// (The maximum address will be expanded to 8 automatically.)
 		memory.setDataContainer(partition, 8, containerA);
 		try {
 			if (containerA != memory.getDataContainer(partition, 8)) {
@@ -87,7 +92,7 @@ public class MemoryTest {
 			fail("Unexpected exception occured");
 		}
 
-		// 最大アドレスよりも小さいアドレスに対して set / get 検査
+		// Check setting/getting a data-container at the address less than the current maximum address.
 		memory.setDataContainer(partition, 2, containerB);
 		try {
 			if (containerB != memory.getDataContainer(partition, 2)) {
@@ -98,7 +103,7 @@ public class MemoryTest {
 			fail("Unexpected exception occured");
 		}
 
-		// 最大アドレスよりも大きなアドレスに対して set / get 検査（最大アドレスは更新される）
+		// Check setting/getting a data-container at the address greater than the current maximum address.
 		memory.setDataContainer(partition, 1000, containerC);
 		try {
 			if (containerC != memory.getDataContainer(partition, 1000)) {
@@ -109,7 +114,8 @@ public class MemoryTest {
 			fail("Unexpected exception occured");
 		}
 
-		// 最大アドレス+1 のアドレスに対して set / get 検査（内部処理が異なる）
+		// Check setting/getting a data-container at the current maximum address + 1.
+		// (The internal process is little different from the previous case.)
 		memory.setDataContainer(partition, 1001, containerD);
 		try {
 			if (containerD != memory.getDataContainer(partition, 1001)) {
@@ -120,6 +126,7 @@ public class MemoryTest {
 			fail("Unexpected exception occured");
 		}
 
+		// Check that the already stored data-containers are not moved/removed when we store a new data-container.
 		// データの追加によって、それまでに追加したデータが飛んだり移動したりしてないか検証
 		try {
 			if (containerA != memory.getDataContainer(partition, 8)
@@ -133,13 +140,13 @@ public class MemoryTest {
 			fail("Unexpected exception occured");
 		}
 
-		// 最大アドレスよりも大きいアドレスに対して、set せずに get のみ行う検査
+		// Check that we can not read data at the address exceeds the current maximum address.
 		try {
 			@SuppressWarnings("unused")
 			DataContainer<?> c = memory.getDataContainer(partition, 2000);
 			fail("Expected exception did not occured");
 		} catch (VnanoFatalException e) {
-			// 例外が発生するのが正しい挙動
+			// We expect that the exception occurs.
 		}
 	}
 
@@ -166,5 +173,4 @@ public class MemoryTest {
 			fail("Incorrect container");
 		}
 	}
-
 }
