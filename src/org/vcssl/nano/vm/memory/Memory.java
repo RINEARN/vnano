@@ -22,10 +22,10 @@ import org.vcssl.nano.VnanoException;
 /**
  * The class takes on the memory in the virtual machine of the Vnano.
  * 
- * The architecture of the VM of the Vnano is a kind of a vector processor, so the unit of this memory is an array.
+ * The architecture of the VM of the Vnano is a kind of a vector processor, 
+ * so the unit of this memory is an array, not a scalar.
  * This memory internally has lists of data-containers (instances of {@link DataContainer} class), 
- * and each data-container can store an array data.
- * An unique address is assigned for each data-container.
+ * and each data-container can store an array data. An unique address is assigned for each data-container.
  * 
  * This memory has multiple lists of data-containers. We call them as "partitions".
  * For example, "LOCAL" partition stores data of local variables,
