@@ -1,0 +1,884 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+	<title>VnanoException Class Specification</title>
+	<meta charset="UTF-8">
+	<style type="text/css">
+		h1 .spec-path { font-size: 70%; }
+		h2 .spec-path { font-size: 70%; }
+		.spec-table { width: 100%; border: 1px solid #000000; border-collapse: collapse; margin-bottom: 20px; }
+		.spec-table td { border: 1px solid #000000; text-align: left; }
+		.spec-table th { border: 1px solid #000000; text-align: left; }
+		.spec-table .lcol { width: 100px; background-color: #eeeeee; }
+		.spec-table .rcol { }
+		.spec-dl { }
+		.spec-dl dt { font-weight: bold; display: list-item; list-style-position: outside; margin-left: 20px; list-style-type: disc; }
+		.spec-dl dd { margin-bottom: 14px; line-height: 160%; }
+	</style>
+</head>
+
+<body>
+
+
+
+<h1>VnanoException Class Specification<br /><span class="spec-path">(org.vcssl.nano.VnanoException)</span></h1>
+
+<hr />
+
+
+
+<h2>Abstract</h2>
+
+<p>
+The exception class thrown when non-fatal errors, which should be catched and handled by the application-side, are detected.
+</p>
+
+<p>
+For example, this exception will be thrown when any syntax error has been detected in the inputted script, 
+or when the error(...) function has been called from the inputted script, 
+or other callee functions have thrown errors, and so on.
+</p>
+
+
+
+<h2>Public Constructors/Fields/Methods</h2>
+
+<dl class="spec-dl">
+
+	<dt><a href="#VnanoException1">VnanoException(Throwable errorCauseThrowable)</a></dt>
+		<dd>
+			Creates the VnanoException wrapping the specified Throwable.
+		</dd>
+
+	<dt><a href="#VnanoException2">VnanoException(ErrorType errorType)</a></dt>
+		<dd>
+			Creates the VnanoException of the specified error type.
+		</dd>
+
+	<dt><a href="#VnanoException3">VnanoException(ErrorType errorType, Throwable cause) </a></dt>
+		<dd>
+			Creates the VnanoException of the specified error type, having the cause information.
+		</dd>
+
+	<dt><a href="#VnanoException4">VnanoException(ErrorType errorType, String fileName, int lineNumber)</a></dt>
+		<dd>
+			Creates the VnanoException of the specified error type, having the cause file name / line number.
+		</dd>
+
+	<dt><a href="#VnanoException5">VnanoException(ErrorType errorType, String errorWord)</a></dt>
+		<dd>
+			Creates the VnanoException of the specified error type, having the keyword which will be embedded in the error message.
+		</dd>
+
+	<dt><a href="#VnanoException6">VnanoException(ErrorType errorType, String[] errorWords)</a></dt>
+		<dd>
+			Creates the VnanoException of the specified error type, having the keywords which will be embedded in the error message.
+		</dd>
+
+	<dt><a href="#VnanoException7">VnanoException(ErrorType errorType, String errorWord, Throwable cause)</a></dt>
+		<dd>
+			Creates the VnanoException of the specified error type, having the cause information.
+		</dd>
+
+	<dt><a href="#VnanoException8">VnanoException(ErrorType errorType, String[] errorWords, Throwable cause)</a></dt>
+		<dd>
+			Creates the VnanoException of the specified error type, having the keyword which will be embedded in the error message, and the cause information.
+		</dd>
+
+	<dt><a href="#VnanoException9">VnanoException(ErrorType errorType, String[] errorWords, String fileName, int lineNumber)</a></dt>
+		<dd>
+			Creates the VnanoException of the specified error type, having the keyword which will be embedded in the error message, and the cause file name / line number.
+		</dd>
+
+	<dt><a href="#VnanoException10">VnanoException(ErrorType errorType, String[] errorWords, Throwable cause, String fileName, int lineNumber)</a></dt>
+		<dd>
+			Creates the VnanoException of the specified error type, with specifying the various detailed information.
+		</dd>
+
+	<dt><a href="#getErrorType">ErrorType getErrorType()</a></dt>
+		<dd>
+			Gets the element of org.vcssl.nano.spec.ErrorType enum, representing the error type of this VnanoException.
+		</dd>
+
+	<dt><a href="#setErrorType">void getErrorType(ErrorType errorType)</a></dt>
+		<dd>
+			Sets the element of org.vcssl.nano.spec.ErrorType enum, representing the error type of this VnanoException.
+		</dd>
+
+	<dt><a href="#getErrorWords">String[] getErrorWords()</a></dt>
+		<dd>
+			Gets the keywords which will be embedded in the error mesage.
+		</dd>
+
+	<dt><a href="#setErrorWords">void getErrorWords(setErrorWords errorWords)</a></dt>
+		<dd>
+			Sets the keywords which will be embedded in the error mesage.
+		</dd>
+
+	<dt><a href="#hasFileName">boolean hasFileName()</a></dt>
+		<dd>
+			Returns whether this instance has the script file name of the cause of the error.
+		</dd>
+
+	<dt><a href="#getFileName">String getFileName()</a></dt>
+		<dd>
+			Gets the script file name of the cause of the error.
+		</dd>
+
+	<dt><a href="#setFileName">void setFileName(String fileName)</a></dt>
+		<dd>
+			Sets the script file name of the cause of the error.
+		</dd>
+
+	<dt><a href="#hasLineNumber">boolean hasLineNumber()</a></dt>
+		<dd>
+			Returns whether this instance has the line number of the cause of the error.
+		</dd>
+
+	<dt><a href="#getLineNumber">int getLineNumber()</a></dt>
+		<dd>
+			Gets the line number of the cause of the error.
+		</dd>
+
+	<dt><a href="#setLineNumber">void setLineNumber(int lineNumber)</a></dt>
+		<dd>
+			Sets the line number of the cause of the error.
+		</dd>
+
+	<dt><a href="#setLocale">void setLocale(Locale locale)</a></dt>
+		<dd>
+			Sets the Locale to determin the language of the error message.
+		</dd>
+
+	<dt><a href="#getMessage">String getMessage()</a></dt>
+		<dd>
+			Gets the error message.
+		</dd>
+
+	<dt><a href="#getMessageWithoutLocation">String getMessageWithoutLocation()</a></dt>
+		<dd>
+			Gets the error message, which does not contain the script file name and the line number of the cause.
+		</dd>
+
+</dl>
+
+
+
+
+
+
+<hr />
+
+
+<h2>Public Constructors</h2>
+
+
+<table id="VnanoException1" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">VnanoException</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">VnanoException(Throwable errorCauseThrowable)</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">Creates the VnanoException wrapping the specified Throwable.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">errorCauseThrowable: The Throwable of the cause.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">The created VnanoException</td>
+	</tr>
+</table>
+
+
+<table id="VnanoException2" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">VnanoException</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">VnanoException(ErrorType errorType)</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">Creates the VnanoException of the specified error type.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">errorType: The element of org.vcssl.nano.spec.ErrorType enum, representing the type of the error.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">The created VnanoException</td>
+	</tr>
+</table>
+
+
+<table id="VnanoException3" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">VnanoException</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">VnanoException(ErrorType errorType, Throwable cause) </td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">Creates the VnanoException of the specified error type, having the cause information.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">
+			errorType: The element of org.vcssl.nano.spec.ErrorType enum, representing the type of the error.
+			<br />
+			errorCauseThrowable: The Throwable of the cause.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">The created VnanoException</td>
+	</tr>
+</table>
+
+
+<table id="VnanoException4" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">VnanoException</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">VnanoException(ErrorType errorType, String fileName, int lineNumber)</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">Creates the VnanoException of the specified error type, having the cause file name / line number.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">
+			errorType: The element of org.vcssl.nano.spec.ErrorType enum, representing the type of the error.
+			<br />
+			The script file name of the cause.
+			<br />
+			lineNumber: The line number of the cause.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">The created VnanoException</td>
+	</tr>
+</table>
+
+
+<table id="VnanoException5" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">VnanoException</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">VnanoException(ErrorType errorType, String errorWord)</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">Creates the VnanoException of the specified error type, having the keyword which will be embedded in the error message.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">
+			errorType: The element of org.vcssl.nano.spec.ErrorType enum, representing the type of the error.
+			<br />
+			errorWord: The keyword to be embedded in the error message.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">The created VnanoException</td>
+	</tr>
+</table>
+
+
+<table id="VnanoException6" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">VnanoException</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">VnanoException(ErrorType errorType, String[] errorWords)</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">Creates the VnanoException of the specified error type, having the keywords which will be embedded in the error message.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">
+			errorType: The element of org.vcssl.nano.spec.ErrorType enum, representing the type of the error.
+			<br />
+			errorWords[]: The keywords to be embedded in the error message.
+			<br />
+			The script file name of the cause.
+			<br />
+			lineNumber: The line number of the cause.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">The created VnanoException</td>
+	</tr>
+</table>
+
+
+<table id="VnanoException7" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">VnanoException</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">VnanoException(ErrorType errorType, String errorWord, Throwable cause)</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">Creates the VnanoException of the specified error type, having the cause information.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">
+			errorType: The element of org.vcssl.nano.spec.ErrorType enum, representing the type of the error.
+			<br />
+			errorWord: The keyword to be embedded in the error message.
+			<br />
+			cause: The Throwable of the cause.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">The created VnanoException</td>
+	</tr>
+</table>
+
+
+<table id="VnanoException8" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">VnanoException</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">VnanoException(ErrorType errorType, String[] errorWords, Throwable cause)</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">Creates the VnanoException of the specified error type, having the keyword which will be embedded in the error message, and the cause information.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">
+			errorType: The element of org.vcssl.nano.spec.ErrorType enum, representing the type of the error.
+			<br />
+			errorWords[]: The keywords to be embedded in the error message.
+			<br />
+			cause: The Throwable of the cause.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">The created VnanoException</td>
+	</tr>
+</table>
+
+
+<table id="VnanoException9" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">VnanoException</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">VnanoException(ErrorType errorType, String[] errorWords, String fileName, int lineNumber)</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">Creates the VnanoException of the specified error type, having the keyword which will be embedded in the error message, and the cause file name / line number.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">
+			errorType: The element of org.vcssl.nano.spec.ErrorType enum, representing the type of the error.
+			<br />
+			errorWords[]: The keywords to be embedded in the error message.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">The created VnanoException</td>
+	</tr>
+</table>
+
+
+<table id="VnanoException10" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">VnanoException</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">VnanoException(ErrorType errorType, String[] errorWords, Throwable cause, String fileName, int lineNumber)</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">Creates the VnanoException of the specified error type, with specifying the various detailed information.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">
+			errorType: The element of org.vcssl.nano.spec.ErrorType enum, representing the type of the error.
+			<br />
+			errorWords[]: The keywords to be embedded in the error message.
+			<br />
+			cause: The Throwable of the cause.
+			<br />
+			The script file name of the cause.
+			<br />
+			lineNumber: The line number of the cause.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">The created VnanoException</td>
+	</tr>
+</table>
+
+
+
+
+
+<!-- ==================================================================================================== -->
+
+<h2>Public Fields</h2>
+
+<p>
+- None -
+</p>
+
+
+
+
+<!-- ==================================================================================================== -->
+
+<h2>Public Methods</h2>
+
+
+
+
+<table id="getErrorType" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">getErrorType</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">ErrorType getErrorType()</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">
+			Returns the element of org.vcssl.nano.spec.ErrorType enum, representing the type of the error.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">None</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">The element of org.vcssl.nano.spec.ErrorType enum, representing the type of the error.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Exception</td>
+		<td class="rcol">None</td>
+	</tr>
+</table>
+
+
+
+<table id="setErrorType" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">setErrorType</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">void getErrorType(ErrorType errorType)</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">
+			Sets the element of org.vcssl.nano.spec.ErrorType enum, representing the type of the error.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">errorType: the element of org.vcssl.nano.spec.ErrorType enum, representing the type of the error.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">None</td>
+	</tr>
+	<tr>
+		<td class="lcol">Exception</td>
+		<td class="rcol">None</td>
+	</tr>
+</table>
+
+
+<table id="getErrorWords" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">getErrorWords</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">String[] getErrorWords()</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">
+			Gets the keyword which will be embedded in the error message.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">None</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">The keyword which will be embedded in the error message.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Exception</td>
+		<td class="rcol">None</td>
+	</tr>
+</table>
+
+
+
+<table id="setErrorWords" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">setErrorWords</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">void getErrorWords(setErrorWords errorWords)</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">
+			Sets the keyword which will be embedded in the error message.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">errorWords: The keyword which will be embedded in the error message.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">None</td>
+	</tr>
+	<tr>
+		<td class="lcol">Exception</td>
+		<td class="rcol">None</td>
+	</tr>
+</table>
+
+
+<table id="hasFileName" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">hasFileName</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">boolean hasFileName()</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">
+			Returns whether this instance has the script file name of the cause of the error.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">None</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">Returns true if this instance has the script file name of the cause.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Exception</td>
+		<td class="rcol">None</td>
+	</tr>
+</table>
+
+
+<table id="getFileName" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">getFileName</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">String getFileName()</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">
+			Gets the script file name of the cause of the error.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">None</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">The script file name of the cause of the error.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Exception</td>
+		<td class="rcol">None</td>
+	</tr>
+</table>
+
+
+<table id="setFileName" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">setFileName</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">void setFileName(String fileName)</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">
+			Sets the script file name of the cause of the error.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">None</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">The script file name of the cause of the error.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Exception</td>
+		<td class="rcol">None</td>
+	</tr>
+</table>
+
+
+
+
+<table id="hasLineNumber" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">hasLineNumber</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">boolean hasLineNumber()</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">
+			Returns whether this instance has the line number of the cause of the error.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">None</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">Returns true if this instance has the line number of the cause of the error.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Exception</td>
+		<td class="rcol">None</td>
+	</tr>
+</table>
+
+
+<table id="getLineNumber" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">getLineNumber</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">int getLineNumber()</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">
+			Gets the line number of the cause of the error.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">None</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">The line number of the cause.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Exception</td>
+		<td class="rcol">None</td>
+	</tr>
+</table>
+
+
+<table id="setLineNumber" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">setLineNumber</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">void setLineNumber(int lineNumber)</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">
+			Sets the line number of the cause of the error.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">lineNumber: The line number of the cause.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">None</td>
+	</tr>
+	<tr>
+		<td class="lcol">Exception</td>
+		<td class="rcol">None</td>
+	</tr>
+</table>
+
+
+
+<table id="setLocale" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">setLocale</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">void setLocale(Locale locale)</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">
+			Sets the Locale to determin the language of the error message.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">locale: The locale to determin the language of the error message.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">None</td>
+	</tr>
+	<tr>
+		<td class="lcol">Exception</td>
+		<td class="rcol">None</td>
+	</tr>
+</table>
+
+
+
+<table id="getMessage" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">getMessage</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">String getMessage()</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">
+			Gets the error message.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">None</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">The error message.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Exception</td>
+		<td class="rcol">None</td>
+	</tr>
+</table>
+
+
+<table id="getMessageWithoutLocation" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">getMessageWithoutLocation</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">String getMessageWithoutLocation()</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">
+			Gets the error message, which does not contain the script file name and the line number of the cause.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">None</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">The error message (without the script file name and the line number).</td>
+	</tr>
+	<tr>
+		<td class="lcol">Exception</td>
+		<td class="rcol">None</td>
+	</tr>
+</table>
+
+
+
+</body>
+</html>
