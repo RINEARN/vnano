@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="ja">
+
+<head>
+	<title>VnanoFatalException クラス仕様書</title>
+	<meta charset="UTF-8">
+	<style type="text/css">
+		h1 .spec-path { font-size: 70%; }
+		h2 .spec-path { font-size: 70%; }
+		.spec-table { width: 100%; border: 1px solid #000000; border-collapse: collapse; margin-bottom: 20px; }
+		.spec-table td { border: 1px solid #000000; text-align: left; }
+		.spec-table th { border: 1px solid #000000; text-align: left; }
+		.spec-table .lcol { width: 100px; background-color: #eeeeee; }
+		.spec-table .rcol { }
+		.spec-dl { }
+		.spec-dl dt { font-weight: bold; display: list-item; list-style-position: outside; margin-left: 20px; list-style-type: disc; }
+		.spec-dl dd { margin-bottom: 14px; line-height: 160%; }
+	</style>
+</head>
+
+<body>
+
+
+
+<h1>VnanoFatalException クラス仕様書<br /><span class="spec-path">(org.vcssl.nano.VnanoFatalException)</span></h1>
+
+<hr />
+
+
+
+<h2>概要</h2>
+
+<p>
+スクリプトエンジン内で、何らかの予期しない異常な状態が検出された際にスローされる例外です。
+</p>
+
+
+
+<h2>公開コンストラクタ/フィールド/メソッド等の一覧</h2>
+
+<dl class="spec-dl">
+
+	<dt><a href="#VnanoFatalException1">VnanoFatalException()</a></dt>
+		<dd>
+			何もメッセージを持たない VnanoFatalException 例外を生成します。
+		</dd>
+
+	<dt><a href="#VnanoFatalException2">VnanoFatalException(String errorMessage)</a></dt>
+		<dd>
+			指定されたエラーメッセージを持つ VnanoFatalException 例外を生成します。
+		</dd>
+
+	<dt><a href="#VnanoFatalException3">VnanoFatalException(Throwable errorCauseThrowable)</a></dt>
+		<dd>
+			指定された原因情報を持つ VnanoFatalException 例外を生成します。
+		</dd>
+
+	<dt><a href="#VnanoFatalException4">VnanoFatalException(String errorMessage, Throwable errorCauseThrowable)</a></dt>
+		<dd>
+			指定されたエラーメッセージと原因箇所の情報を持つ VnanoFatalException を生成します。
+		</dd>
+
+</dl>
+
+
+
+
+
+
+<hr />
+
+
+<h2>公開コンストラクタ</h2>
+
+
+<table id="VnanoFatalException1" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">VnanoFatalException</th>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">VnanoFatalException()</td>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">何もメッセージを持たない VnanoFatalException 例外を生成します。</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">なし</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">生成された例外。</td>
+	</tr>
+</table>
+
+
+<table id="VnanoFatalException2" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">VnanoFatalException</th>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">VnanoFatalException(String errorMessage)</td>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">指定されたエラーメッセージを持つ VnanoFatalException 例外を生成します。</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">errorMessage: エラーメッセージ。</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">生成された例外。</td>
+	</tr>
+</table>
+
+
+<table id="VnanoFatalException3" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">VnanoFatalException</th>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">VnanoFatalException(Throwable errorCauseThrowable)</td>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">指定された原因情報を持つ VnanoFatalException 例外を生成します。</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">
+			errorCauseThrowable: 原因を表す Throwable。
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">生成された例外。</td>
+	</tr>
+</table>
+
+
+<table id="VnanoFatalException4" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">VnanoFatalException</th>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">VnanoFatalException(String errorMessage, Throwable errorCauseThrowable)</td>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">指定されたエラーメッセージと原因箇所の情報を持つ VnanoFatalException を生成します。</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">
+			errorMessage: エラーメッセージ。
+			<br />
+			errorCauseThrowable: 原因を表す Throwable。
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">生成された例外。</td>
+	</tr>
+</table>
+
+
+<h2>公開フィールド</h2>
+
+<p>
+- なし -
+</p>
+
+
+<h2>公開メソッド</h2>
+
+<p>
+- なし -
+</p>
+
+
+</body>
+</html>

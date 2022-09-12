@@ -47,7 +47,7 @@
 
 	<dt><a href="#VnanoException1">VnanoException(Throwable errorCauseThrowable)</a></dt>
 		<dd>
-			指定された Throwable をラップする例外を生成します。
+			指定された Throwable をラップする VnanoException 例外を生成します。
 		</dd>
 
 	<dt><a href="#VnanoException2">VnanoException(ErrorType errorType)</a></dt>
@@ -57,7 +57,7 @@
 
 	<dt><a href="#VnanoException3">VnanoException(ErrorType errorType, Throwable cause) </a></dt>
 		<dd>
-			指定されたエラー種類と原因情報を持つ例外を生成します。
+			指定されたエラー種類と原因情報を持つ VnanoException 例外を生成します。
 		</dd>
 
 	<dt><a href="#VnanoException4">VnanoException(ErrorType errorType, String fileName, int lineNumber)</a></dt>
@@ -67,32 +67,32 @@
 
 	<dt><a href="#VnanoException5">VnanoException(ErrorType errorType, String errorWord)</a></dt>
 		<dd>
-			指定されたエラー種類とキーワードを持つ例外を生成します。
+			指定されたエラー種類とキーワードを持つ VnanoException 例外を生成します。
 		</dd>
 
 	<dt><a href="#VnanoException6">VnanoException(ErrorType errorType, String[] errorWords)</a></dt>
 		<dd>
-			指定されたエラー種類と、複数のキーワードを持つ例外を生成します。
+			指定されたエラー種類と、複数のキーワードを持つ VnanoException 例外を生成します。
 		</dd>
 
 	<dt><a href="#VnanoException7">VnanoException(ErrorType errorType, String errorWord, Throwable cause)</a></dt>
 		<dd>
-			指定されたエラー種類と、キーワード、およびさらに深い原因情報を持つ例外を生成します。
+			指定されたエラー種類と、キーワード、およびさらに深い原因情報を持つ VnanoException 例外を生成します。
 		</dd>
 
 	<dt><a href="#VnanoException8">VnanoException(ErrorType errorType, String[] errorWords, Throwable cause)</a></dt>
 		<dd>
-			指定されたエラー種類と、複数のキーワード、およびさらに深い原因情報を持つ例外を生成します。
+			指定されたエラー種類と、複数のキーワード、およびさらに深い原因情報を持つ VnanoException 例外を生成します。
 		</dd>
 
 	<dt><a href="#VnanoException9">VnanoException(ErrorType errorType, String[] errorWords, String fileName, int lineNumber)</a></dt>
 		<dd>
-			指定されたエラー種類と、複数のキーワード、および原因箇所の情報を持つ例外を生成します。
+			指定されたエラー種類と、複数のキーワード、および原因箇所の情報を持つ VnanoException 例外を生成します。
 		</dd>
 
 	<dt><a href="#VnanoException10">VnanoException(ErrorType errorType, String[] errorWords, Throwable cause, String fileName, int lineNumber)</a></dt>
 		<dd>
-			保持する情報を細かく指定した例外を生成します。
+			保持する情報を細かく指定した VnanoException 例外を生成します。
 		</dd>
 
 	<dt><a href="#getErrorType">ErrorType getErrorType()</a></dt>
@@ -184,7 +184,7 @@
 	</tr>
 	<tr>
 		<td class="lcol">機能</td>
-		<td class="rcol">指定された Throwable をラップする例外を生成します。</td>
+		<td class="rcol">指定された Throwable をラップする VnanoException 例外を生成します。</td>
 	</tr>
 	<tr>
 		<td class="lcol">引数</td>
@@ -192,7 +192,7 @@
 	</tr>
 	<tr>
 		<td class="lcol">戻り値</td>
-		<td class="rcol">生成された例外</td>
+		<td class="rcol">生成された例外。</td>
 	</tr>
 </table>
 
@@ -208,7 +208,7 @@
 	</tr>
 	<tr>
 		<td class="lcol">機能</td>
-		<td class="rcol">指定されたエラー種類の例外を生成します。</td>
+		<td class="rcol">指定されたエラー種類の例外を VnanoException 生成します。</td>
 	</tr>
 	<tr>
 		<td class="lcol">引数</td>
@@ -216,7 +216,7 @@
 	</tr>
 	<tr>
 		<td class="lcol">戻り値</td>
-		<td class="rcol">生成された例外</td>
+		<td class="rcol">生成された例外。</td>
 	</tr>
 </table>
 
@@ -232,7 +232,7 @@
 	</tr>
 	<tr>
 		<td class="lcol">機能</td>
-		<td class="rcol">指定されたエラー種類と原因情報を持つ例外を生成します。</td>
+		<td class="rcol">指定されたエラー種類と原因情報を持つ VnanoException 例外を生成します。</td>
 	</tr>
 	<tr>
 		<td class="lcol">引数</td>
@@ -244,7 +244,7 @@
 	</tr>
 	<tr>
 		<td class="lcol">戻り値</td>
-		<td class="rcol">生成された例外</td>
+		<td class="rcol">生成された例外。</td>
 	</tr>
 </table>
 
@@ -260,7 +260,7 @@
 	</tr>
 	<tr>
 		<td class="lcol">機能</td>
-		<td class="rcol">指定されたエラー種類の例外を、原因箇所の情報と共に生成します。</td>
+		<td class="rcol">指定されたエラー種類の VnanoException 例外を、原因箇所の情報と共に生成します。</td>
 	</tr>
 	<tr>
 		<td class="lcol">引数</td>
@@ -274,7 +274,7 @@
 	</tr>
 	<tr>
 		<td class="lcol">戻り値</td>
-		<td class="rcol">生成された例外</td>
+		<td class="rcol">生成された例外。</td>
 	</tr>
 </table>
 
@@ -290,7 +290,7 @@
 	</tr>
 	<tr>
 		<td class="lcol">機能</td>
-		<td class="rcol">指定されたエラー種類とキーワードを持つ例外を生成します。</td>
+		<td class="rcol">指定されたエラー種類とキーワードを持つ VnanoException 例外を生成します。</td>
 	</tr>
 	<tr>
 		<td class="lcol">引数</td>
@@ -302,7 +302,7 @@
 	</tr>
 	<tr>
 		<td class="lcol">戻り値</td>
-		<td class="rcol">生成された例外</td>
+		<td class="rcol">生成された例外。</td>
 	</tr>
 </table>
 
@@ -318,7 +318,7 @@
 	</tr>
 	<tr>
 		<td class="lcol">機能</td>
-		<td class="rcol">指定されたエラー種類と、複数のキーワードを持つ例外を生成します。</td>
+		<td class="rcol">指定されたエラー種類と、複数のキーワードを持つ VnanoException 例外を生成します。</td>
 	</tr>
 	<tr>
 		<td class="lcol">引数</td>
@@ -334,7 +334,7 @@
 	</tr>
 	<tr>
 		<td class="lcol">戻り値</td>
-		<td class="rcol">生成された例外</td>
+		<td class="rcol">生成された例外。</td>
 	</tr>
 </table>
 
@@ -350,7 +350,7 @@
 	</tr>
 	<tr>
 		<td class="lcol">機能</td>
-		<td class="rcol">指定されたエラー種類と、キーワード、およびさらに深い原因情報を持つ例外を生成します。</td>
+		<td class="rcol">指定されたエラー種類と、キーワード、およびさらに深い原因情報を持つ VnanoException 例外を生成します。</td>
 	</tr>
 	<tr>
 		<td class="lcol">引数</td>
@@ -364,7 +364,7 @@
 	</tr>
 	<tr>
 		<td class="lcol">戻り値</td>
-		<td class="rcol">生成された例外</td>
+		<td class="rcol">生成された例外。</td>
 	</tr>
 </table>
 
@@ -380,7 +380,7 @@
 	</tr>
 	<tr>
 		<td class="lcol">機能</td>
-		<td class="rcol">指定されたエラー種類と、複数のキーワード、およびさらに深い原因情報を持つ例外を生成します。</td>
+		<td class="rcol">指定されたエラー種類と、複数のキーワード、およびさらに深い原因情報を持つ VnanoException 例外を生成します。</td>
 	</tr>
 	<tr>
 		<td class="lcol">引数</td>
@@ -394,7 +394,7 @@
 	</tr>
 	<tr>
 		<td class="lcol">戻り値</td>
-		<td class="rcol">生成された例外</td>
+		<td class="rcol">生成された例外。</td>
 	</tr>
 </table>
 
@@ -410,7 +410,7 @@
 	</tr>
 	<tr>
 		<td class="lcol">機能</td>
-		<td class="rcol">指定されたエラー種類と、複数のキーワード、および原因箇所の情報を持つ例外を生成します。</td>
+		<td class="rcol">指定されたエラー種類と、複数のキーワード、および原因箇所の情報を持つ VnanoException 例外を生成します。</td>
 	</tr>
 	<tr>
 		<td class="lcol">引数</td>
@@ -422,7 +422,7 @@
 	</tr>
 	<tr>
 		<td class="lcol">戻り値</td>
-		<td class="rcol">生成された例外</td>
+		<td class="rcol">生成された例外。</td>
 	</tr>
 </table>
 
@@ -438,7 +438,7 @@
 	</tr>
 	<tr>
 		<td class="lcol">機能</td>
-		<td class="rcol">保持する情報を細かく指定した例外を生成します。</td>
+		<td class="rcol">保持する情報を細かく指定した VnanoException 例外を生成します。</td>
 	</tr>
 	<tr>
 		<td class="lcol">引数</td>
@@ -456,7 +456,7 @@
 	</tr>
 	<tr>
 		<td class="lcol">戻り値</td>
-		<td class="rcol">生成された例外</td>
+		<td class="rcol">生成された例外。</td>
 	</tr>
 </table>
 
