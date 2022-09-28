@@ -1,0 +1,306 @@
+<!doctype html>
+<html lang="ja">
+
+<head>
+	<title>VnanoScriptEngine クラス仕様書</title>
+	<meta charset="UTF-8">
+	<style type="text/css">
+		h1 .spec-path { font-size: 70%; }
+		h2 .spec-path { font-size: 70%; }
+		.spec-table { width: 100%; border: 1px solid #000000; border-collapse: collapse; margin-bottom: 20px; }
+		.spec-table td { border: 1px solid #000000; text-align: left; }
+		.spec-table th { border: 1px solid #000000; text-align: left; }
+		.spec-table .lcol { width: 100px; background-color: #eeeeee; }
+		.spec-table .rcol { }
+		.spec-dl { }
+		.spec-dl dt { font-weight: bold; display: list-item; list-style-position: outside; margin-left: 20px; list-style-type: disc; }
+		.spec-dl dd { margin-bottom: 14px; line-height: 160%; }
+	</style>
+</head>
+
+<body>
+
+
+
+<h1>VnanoScriptEngine クラス仕様書<br /><span class="spec-path">(org.vcssl.nano.VnanoScriptEngine)</span></h1>
+
+<hr />
+
+
+
+<h2>概要</h2>
+
+<p>
+<a href="./VnanoEngine_SPEC_JAPANESE.html">VnanoEngine</a> クラスの各機能を、
+javax.script.ScriptEngine インターフェース経由で用いるための、ラッパークラスです。
+</p>
+
+<p>
+Scripting API（javax.script パッケージ）が利用可能な環境においては、
+実行時に Vnano.jar にパスが通っていれば、以下のようにこのクラスのインスタンスを取得できます：
+</p>
+
+<div style="margin-left: 50px;">
+	import javax.script.ScriptEngineManager;
+	<br />
+	import javax.script.ScriptEngine;
+	<br />
+	...
+	<br />
+	ScriptEngineManager scriptEngineManager = new ScriptEngineManager();
+	<br />
+	ScriptEngine vnanoScriptEngine = scriptEngineManager.getEngineByName("vnano");
+</div>
+
+<p>
+上記のように、このクラスのインスタンスを取得したり、それを使用（スクリプト実行）するコードは、Vnano.jar が無くてもコンパイル可能です。
+<br />
+そのため、スクリプトエンジンとアプリケーションの分離性を高めたい場合に有用かもしれません。
+</p>
+
+<p>
+一方で、細かい制御を全て put メソッド経由で行うのが少しややこしく、また、
+Scripting API がサポートされない環境では動作しないなどのデメリットもあります。
+<br />
+特に意図が無ければ、<a href="./VnanoEngine_SPEC_JAPANESE.html">VnanoEngine</a> クラスを直接用いる方が、色々な場面においてシンプルに済みます。
+</p>
+
+
+<h2>公開コンストラクタ/フィールド/メソッド等の一覧</h2>
+
+<dl class="spec-dl">
+
+	<dt><a href="#eval1">Object eval(String scriptCode)</a></dt>
+		<dd>
+			引数に指定された式またはスクリプトコードを実行します。
+		</dd>
+
+	<dt><a href="#eval2">Object eval(Reader reader)</a></dt>
+		<dd>
+			FileReader などの Reader からスクリプトコードを読み込んで実行します。
+		</dd>
+
+	<dt><a href="#put">void put(String name, Object value)</a></dt>
+		<dd>
+			外部関数や変数を接続したり、オプション/パーミッションを設定したり、またはいくつかの特別な操作を行うのに使用します。
+		</dd>
+
+	<dt><a href="#get">Object get(String name)</a></dt>
+		<dd>
+			エンジン情報や言語情報（バージョンなど）の値や、パフォーマンス計測値、
+			または <a href="#put">put(String, Object)</a> メソッドで設定した値を取得します。
+		</dd>
+
+
+</dl>
+
+
+
+
+<hr />
+
+
+<h2>公開コンストラクタ</h2>
+
+<p>
+- なし （インスタンスはScriptEngineManager経由で取得します） -
+</p>
+
+
+
+
+
+<!-- ==================================================================================================== -->
+
+<h2>公開フィールド</h2>
+
+<p>
+- なし -
+</p>
+
+
+
+
+<!-- ==================================================================================================== -->
+
+<h2>公開メソッド（未サポートのものは除く）</h2>
+
+
+
+
+<table id="eval1" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">eval</th>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">Object eval(String scriptCode) throws ScriptException</td>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">
+			引数に指定された式またはスクリプトコードを実行します。
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">
+			scriptCode: 実行対象の式またはスクリプトコード。
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">
+			式の評価値、またはスクリプトコード内の最後の式文の評価値（存在しない場合は null）
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">例外</td>
+		<td class="rcol">
+			ScriptException: スクリプトの内容または実行過程にエラーが検出された場合にスローされます。
+		</td>
+	</tr>
+</table>
+
+
+<table id="eval2" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">eval</th>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">Object eval(Reader reader) throws ScriptException</td>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">
+			FileReader などの Reader からスクリプトコードを読み込んで実行します。
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">
+			reader: 実スクリプトコードを読み込む Reader インスタンス。
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">
+			式の評価値、またはスクリプトコード内の最後の式文の評価値（存在しない場合は null）
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">例外</td>
+		<td class="rcol">
+			ScriptException: スクリプトの内容または実行過程にエラーが検出された場合にスローされます。
+		</td>
+	</tr>
+</table>
+
+
+<table id="put" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">put</th>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">void put(String name, Object value)</td>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			外部関数や変数を接続したり、オプション/パーミッションを設定したり、またはいくつかの特別な操作を行うのに使用します。
+			</p>
+			<p>
+			引数 "name" の値に "___VNANO_OPTION_MAP" が指定されている場合、このメソッドは、オプション設定を行う
+			<a href="VnanoEngine_SPEC_JAPANESE.html#setOptionMap">VnanoEngine.setOptionMap(Map)</a> 
+			メソッドのラッパーとして振舞います。
+			</p>
+			<p>
+			引数 "name" の値に "___VNANO_PERMISSION_MAP" が指定されている場合、このメソッドは、パーミッション設定を行う
+			<a href="VnanoEngine_SPEC_JAPANESE.html#setPermissionMap">VnanoEngine.setPermissionMap(Map)</a> 
+			メソッドのラッパーとして振舞います。
+			</p>
+			<p>
+			引数 "name" の値に "___VNANO_LIBRARY_LIST_FILE" が指定されている場合、このメソッドは、
+			指定されたリストファイルにパスが記載されたライブラリスクリプトを読み込み、
+			それらが実行時に実行対象スクリプトに "include" されるよう, エンジンに登録します。
+			</p>
+			<p>
+			引数 "name" の値に "___VNANO_PLUGIN_LIST_FILE" が指定されている場合、このメソッドは、
+			指定されたリストファイルにパスが記載されたプラグインを読み込み、
+			それらをエンジンに接続します。
+			</p>
+			<p>
+			引数 "name" の値に "___VNANO_COMMAND" が指定されている場合、このメソッドはエンジンの特別なコマンドを実行します。
+			利用可能な値は org.vcssl.nano.spec.SpecialBindingValue クラス内に定義されています。
+			</p>
+			<p>
+			上記の全てに該当しない場合には、このメソッドは、プラグインのインスタンスを接続する
+			<a href="VnanoEngine_SPEC_JAPANESE.html#connectPlugin">VnanoEngine.connectPlugin(String, Object)</a> 
+			メソッドのラッパーとして振舞います。
+			</p>
+		</span>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">
+			name: 上記説明を参照してください。
+			value: 上記説明を参照してください。
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">なし</td>
+	</tr>
+	<tr>
+		<td class="lcol">例外</td>
+		<td class="rcol">なし</td>
+	</tr>
+</table>
+
+
+
+
+<table id="get" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">get</th>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">Object get(String name)</td>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">
+			エンジン情報や言語情報（バージョンなど）の値や、パフォーマンス計測値、
+			または <a href="#put">put(String, Object)</a> メソッドで設定した値を取得します。
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">
+			name: 取得対象の名称、または取得キー。
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">取得した値</td>
+	</tr>
+	<tr>
+		<td class="lcol">例外</td>
+		<td class="rcol">なし</td>
+	</tr>
+</table>
+
+
+
+
+</body>
+</html>
