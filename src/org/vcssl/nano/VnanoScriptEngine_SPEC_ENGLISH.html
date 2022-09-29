@@ -1,0 +1,310 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+	<title>VnanoScriptEngine Specification</title>
+	<meta charset="UTF-8">
+	<style type="text/css">
+		h1 .spec-path { font-size: 70%; }
+		h2 .spec-path { font-size: 70%; }
+		.spec-table { width: 100%; border: 1px solid #000000; border-collapse: collapse; margin-bottom: 20px; }
+		.spec-table td { border: 1px solid #000000; text-align: left; }
+		.spec-table th { border: 1px solid #000000; text-align: left; }
+		.spec-table .lcol { width: 100px; background-color: #eeeeee; }
+		.spec-table .rcol { }
+		.spec-dl { }
+		.spec-dl dt { font-weight: bold; display: list-item; list-style-position: outside; margin-left: 20px; list-style-type: disc; }
+		.spec-dl dd { margin-bottom: 14px; line-height: 160%; }
+	</style>
+</head>
+
+<body>
+
+
+
+<h1>VnanoScriptEngine Class Specification<br /><span class="spec-path">(org.vcssl.nano.VnanoScriptEngine)</span></h1>
+
+<hr />
+
+
+
+<h2>Abstract</h2>
+
+<p>
+The wrapper class for using <a href="./VnanoEngine_SPEC_ENGLISH.html">VnanoEngine</a> class
+through javax.script.ScriptEngine interface.
+</p>
+
+<p>
+If the Scripting API (javax.script package) is available on your environment, 
+you can get an instance of this class as follows:
+</p>
+
+<div style="margin-left: 50px;">
+	import javax.script.ScriptEngineManager;
+	<br />
+	import javax.script.ScriptEngine;
+	<br />
+	...
+	<br />
+	ScriptEngineManager scriptEngineManager = new ScriptEngineManager();
+	<br />
+	ScriptEngine vnanoScriptEngine = scriptEngineManager.getEngineByName("vnano");
+</div>
+
+<p>
+Note that, the above code can be compiled without "Vnano.jar", 
+but it requires to specify the path of "Vnano.jar" for running.
+</p>
+
+<p>
+In the point of view of "loose coupling" between the scripting engine and apps, the above may (using this class) have has some advantage.
+</p>
+
+<p>
+On the other hand, if your apps requires to control the scripting engine detailedly, 
+we recommend to use <a href="./VnanoEngine_SPEC_ENGLISH.html">VnanoEngine</a> directly, instead.
+</p>
+
+
+
+<h2>List of Public Constructors/Fields/Methods</h2>
+
+<dl class="spec-dl">
+
+	<dt><a href="#eval1">Object eval(String scriptCode)</a></dt>
+		<dd>
+			Executes an expression or a script code passed as an argument.
+		</dd>
+
+	<dt><a href="#eval2">Object eval(Reader reader)</a></dt>
+		<dd>
+			Executes an expression or a script code read from Reader (for example: FileReader).
+		</dd>
+
+	<dt><a href="#put">void put(String name, Object value)</a></dt>
+		<dd>
+			Connects an external function/variable, or sets options/permission, or takes some special operations, and so on.
+		</dd>
+
+	<dt><a href="#get">Object get(String name)</a></dt>
+		<dd>
+			Gets information values of the engine/language (e.g.: version), performance monitoring values,
+	 		or the value which is put by <a href="#put">put(String, Object)</a> method.
+		</dd>
+
+
+</dl>
+
+
+
+
+<hr />
+
+
+<h2>Public Constructors</h2>
+
+<p>
+- None -<br />(You can get an instance through ScriptEngineManager. See the description of this class.)
+</p>
+
+
+
+
+
+<!-- ==================================================================================================== -->
+
+<h2>Public Fields</h2>
+
+<p>
+- None -
+</p>
+
+
+
+
+<!-- ==================================================================================================== -->
+
+<h2>Public Methods (Excluding Unsupported Methods defined in ScriptEngine)</h2>
+
+
+
+
+<table id="eval1" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">eval</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">Object eval(String scriptCode) throws ScriptException</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">
+			Executes an expression or a script code passed as an argument.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">
+			scriptCode: The expression or the script code to execute.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">
+			The evaluated value of the expression, or last expression statement in the script code.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Exception</td>
+		<td class="rcol">
+			ScriptException: Thrown when an error will be detected for the content or the processing of the script.
+		</td>
+	</tr>
+</table>
+
+
+<table id="eval2" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">eval</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">Object eval(Reader reader) throws ScriptException</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">
+			Executes an expression or a script code read from Reader (for example: FileReader).
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">
+			reader: The Reader instance to read script code.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">
+			The evaluated value of the expression, or last expression statement in the script code (or, null if it does not exist).
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Exception</td>
+		<td class="rcol">
+			ScriptException: Thrown when an error will be detected for the content or the processing of the script.
+		</td>
+	</tr>
+</table>
+
+
+<table id="put" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">put</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">void put(String name, Object value)</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			Connects an external function/variable, or sets options/permission, or takes some special operations, and so on.
+			</p>
+			<p>
+			If the value of the argument "name" is "___VNANO_OPTION_MAP",
+			this method behaves as a wrapper of 
+			<a href="VnanoEngine_SPEC_ENGLISH.html#setOptionMap">VnanoEngine.setOptionMap(Map)</a> 
+			method, which is to set options.
+			</p>
+			<p>
+			If the value of the argument "name" is "___VNANO_PERMISSION_MAP",
+			this method behaves as a wrapper of 
+			<a href="VnanoEngine_SPEC_ENGLISH.html#setPermissionMap">VnanoEngine.setPermissionMap(Map)</a> 
+			method, which is to set permissions.
+			</p>
+			<p>
+			If the value of the argument "name" is "___VNANO_LIBRARY_LIST_FILE",
+			this method loads library scripts of which paths are described in the specified list file,
+			and register them  to be "include"-ed in the execution script by the engine.
+			</p>
+			<p>
+			If the value of the argument "name" is "___VNANO_PLUGIN_LIST_FILE",
+			this method loads plug-ins of which paths are described in the specified list file,
+			and connect them to the engine.
+			</p>
+			<p>
+			If the value of the argument "name" is "___VNANO_COMMAND", this method invokes special commands of the engine.
+			Available commands are defined in org.vcssl.nano.spec.SpecialBindingValue class.
+			</p>
+			<p>
+			Other than the above, this method behaves as a wrapper of
+			<a href="VnanoEngine_SPEC_ENGLISH.html#connectPlugin">VnanoEngine.connectPlugin(String, Object)</a> 
+			method, which is to connect instances of plug-ins.
+			</p>
+		</span>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">
+			name: See the above description.
+			value: See the above description.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">None</td>
+	</tr>
+	<tr>
+		<td class="lcol">Exception</td>
+		<td class="rcol">None</td>
+	</tr>
+</table>
+
+
+
+
+<table id="get" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">get</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">Object get(String name)</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">
+			Gets information values of the engine/language (e.g.: version), performance monitoring values,
+	 		or the value which is put by <a href="#put">put(String, Object)</a> method.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">
+			name: The name/key of the value to be gotten.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">The gotten value.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Exception</td>
+		<td class="rcol">None</td>
+	</tr>
+</table>
+
+
+
+
+</body>
+</html>

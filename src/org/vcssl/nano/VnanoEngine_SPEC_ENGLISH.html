@@ -1,0 +1,705 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+	<title>VnanoEngine Class Specification</title>
+	<meta charset="UTF-8">
+	<style type="text/css">
+		h1 .spec-path { font-size: 70%; }
+		h2 .spec-path { font-size: 70%; }
+		.spec-table { width: 100%; border: 1px solid #000000; border-collapse: collapse; margin-bottom: 20px; }
+		.spec-table td { border: 1px solid #000000; text-align: left; }
+		.spec-table th { border: 1px solid #000000; text-align: left; }
+		.spec-table .lcol { width: 100px; background-color: #eeeeee; }
+		.spec-table .rcol { }
+		.spec-dl { }
+		.spec-dl dt { font-weight: bold; display: list-item; list-style-position: outside; margin-left: 20px; list-style-type: disc; }
+		.spec-dl dd { margin-bottom: 14px; line-height: 160%; }
+	</style>
+</head>
+
+<body>
+
+
+
+<h1>VnanoEngine Class Specification<br /><span class="spec-path">(org.vcssl.nano.VnanoEngine)</span></h1>
+
+<hr />
+
+
+
+<h2>Abstract</h2>
+
+<p>
+The class of the scripting engine of the Vnano (Vnano Engine).
+</p>
+
+
+
+
+
+
+<h2>List of Public Constructors/Fields/Methods</h2>
+
+
+<dl class="spec-dl">
+
+	<dt><a href="#VnanoEngine">VnanoEngine()</a></dt>
+		<dd>
+			Create a Vnano Engine with default settings.
+		</dd>
+
+	<dt><a href="#executeScript">Object executeScript(String script)</a></dt>
+		<dd>
+			Executes an expression or script code specified as the argument.
+		</dd>
+
+	<dt><a href="#setBoolScalarData">void terminateScript()</a></dt>
+		<dd>
+			Terminates the currently running script as soon as possible.
+		</dd>
+
+	<dt><a href="#getBoolScalarData">void resetTerminator()</a></dt>
+		<dd>
+			Resets the engine which had terminated by <a href="#terminateScript">terminateScript()</a> method, for processing new scripts.
+		</dd>
+
+	<dt><a href="#connectPlugin">void connectPlugin(String bindingName, Object plugin)</a></dt>
+		<dd>
+			Connects various types of plug-ins which provides external functions/variables.
+		</dd>
+
+	<dt><a href="#connectPlugin">void disconnectAllPlugins()</a></dt>
+		<dd>
+			Disconnects all plug-ins.
+		</dd>
+
+	<dt><a href="#includeLibraryScript">void includeLibraryScript(String libraryScriptName, String libraryScriptContent)</a></dt>
+		<dd>
+			Add a library script which will be "include"-ed at the head of a executed script.
+		</dd>
+
+	<dt><a href="#includeLibraryScript">void unincludeAllLibraryScripts()</a></dt>
+		<dd>
+			Uninclude all library scripts.
+		</dd>
+
+	<dt><a href="#setOptionMap">void setOptionMap(Map&lt;String,Object&gt; optionMap)</a></dt>
+		<dd>
+			Sets options, by a Map (option map) storing names and values of options you want to set.
+		</dd>
+
+	<dt><a href="#getOptionMap">Map&lt;String,Object&gt; getOptionMap()</a></dt>
+		<dd>
+			Gets the Map (option map) storing names and values of options.
+		</dd>
+
+	<dt><a href="#setOptionMap">void setPermissionMap(Map&lt;String,String&gt; permissionMap)</a></dt>
+		<dd>
+			Sets permissions, by a Map (permission map) storing names and values of permission items you want to set.
+		</dd>
+
+	<dt><a href="#getOptionMap">Map&lt;String,String&gt; getPermissionMap()</a></dt>
+		<dd>
+			Gets the Map (permission map) storing names and values of permission items.
+		</dd>
+
+	<dt><a href="#getOptionMap">Map&lt;String,Object&gt; getPerformanceMap()</a></dt>
+		<dd>
+			Gets the Map (performance map) storing names and values of performance monitoring items.
+		</dd>
+
+</dl>
+
+
+
+<hr />
+
+
+<h2>Public Constructors</h2>
+
+
+<table id="VnanoEngine" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">VnanoEngine</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">VnanoEngine()</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">Create a Vnano Engine with default settings.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">None</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">The created instance of the VnanoEngine class.</td>
+	</tr>
+</table>
+
+
+
+
+<!-- ==================================================================================================== -->
+
+<h2>Public Fields</h2>
+
+<p>
+- None -
+</p>
+
+
+
+
+
+<!-- ==================================================================================================== -->
+
+<h2>Public Methods</h2>
+
+
+<table id="executeScript" class="spec-table">
+	<tr>
+		<td class="lcol">Name</td>
+		<th class="rcol">executeScript</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">Object executeScript(String script) throws VnanoException</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			Executes an expression or script code specified as the argument.
+			</p>
+			<p>
+			Please note that,
+			you must not call this method of the same instance at the same time from multiple threads,
+			for processing multiple scripts in parallel.
+			For such parallel executions, create an independent instance of the engine for each thread and use them.
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">script: An expression or script code to be executed.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">
+			The evaluated value of the expression, or the last expression statement in script code.
+			If there is no evaluated value, returns null.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Exception</td>
+		<td class="rcol">
+			VnanoException: Thrown when any error has detected for the content or the processing of the script.
+		</td>
+	</tr>
+</table>
+
+
+
+<table id="terminateScript" class="spec-table">
+	<tr>
+		<td class="lcol">Name</td>
+		<th class="rcol">terminateScript</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">void terminateScript() throws VnanoException</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			Terminates the currently running script as soon as possible.
+			</p>
+			<p>
+			To be precise, the VM in the scripting engine
+			will be terminated after when the processing of a currently executed instruction has been completed,
+			without processing remained instructions.
+			</p>
+			<p>
+			Also, if you used this method, call <a href="#resetTerminator">resetTerminator()</a>
+			method before the next execution of a new script,
+			otherwise the next execution will end immediately without processing any instructions.
+			</p>
+			<p>
+			By the above behavior, even if a termination request by this method and
+			an execution request by another thread are conflict, the execution will be terminated certainly
+			(unless <a href="#resetTerminator">resetTerminator()</a> will be called before
+			when the execution will have been terminated).
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">
+			None
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">
+			None
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Exception</td>
+		<td class="rcol">
+			VnanoException: Thrown when the option {@link org.vcssl.spec.OptionKey#TERMINATOR_ENABLED} is disabled.
+		</td>
+	</tr>
+</table>
+
+
+
+<table id="resetTerminator" class="spec-table">
+	<tr>
+		<td class="lcol">Name</td>
+		<th class="rcol">resetTerminator</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">void resetTerminator() throws VnanoException</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			Resets the engine which had terminated by <a href="#terminateScript">terminateScript()</a> method, 
+			for processing new scripts.
+			</p>
+			<p>
+			Please note that, if an execution of code is requested by another thread
+			when this method is being processed, the execution request might be missed.
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">
+			None
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">
+			None
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Exception</td>
+		<td class="rcol">
+			VnanoException: Thrown when the option {@link org.vcssl.spec.OptionKey#TERMINATOR_ENABLED} is disabled.
+		</td>
+	</tr>
+</table>
+
+
+
+
+<table id="connectPlugin" class="spec-table">
+	<tr>
+		<td class="lcol">Name</td>
+		<th class="rcol">connectPlugin</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">void connectPlugin(String bindingName, Object plugin) throws VnanoException</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			Connects various types of plug-ins which provides external functions/variables.
+			</p>
+			<p>
+			For the parameter "bindingName", 
+			specify the name in scripts of the variable/function/namespace provided by the connected plug-in.
+			If the passed argument contains a white space or a character "(", the content after it will be ignored.
+			By the above specification, for a function plug-in,
+			you can specify a signature containing parameter-declarations like "foo(int,float)"
+			(note that, syntax or correctness of parameter-declarations will not be checked).
+			In addition, for plug-ins providing elements belonging to the same namespace "Bar",
+			you can specify "Bar 1", "Bar 2", and so on.
+			Also, you can specify "___VNANO_AUTO_KEY" for using a valid value generated automatically.
+			</p>
+			<p>
+			For the parameter "plugin", specify the plug-in to be connected.
+			General "Object" type instances can be connected as a plug-in,
+			for accessing their methods/fields from the script code as external functions/variables.
+			For accessing only static methods and fields, "Class&lt;T&gt;" type instance can also be connected.
+			In addition, if you want to choose a method/field to be accessible from script code,
+			a "Method"/"Field" type instance can be connected.
+			( In that case, if the method/field is static, pass an Object type array for this argument,
+			and store the Method/Field type instance at [0],
+			and store "Class&lt;T&gt;" type instance of the class defining the method/field at [1] ).
+			Furthermore, an instance of a class implementing less-overhead plug-in interfaces, e.g.: XFCI, 
+			can be connected by this method.
+			Also, this method is used for connecting PACI1 type plug-ins which is used for managing permissions.
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">
+			bindingName: The name in scripts of the variable/function/namespace provided by the connected plug-in.
+			<br />
+			plugin: The plug-in to be connected.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">
+			None
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Exception</td>
+		<td class="rcol">
+			VnanoException: 
+			Thrown if the plug-in could not be connected, caused by unsupported interfaces, 
+			incompatibility of data types, and so on.
+		</td>
+	</tr>
+</table>
+
+
+<table id="disconnectAllPlugins" class="spec-table">
+	<tr>
+		<td class="lcol">Name</td>
+		<th class="rcol">disconnectAllPlugins</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">void disconnectAllPlugins() throws VnanoException</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">
+			Disconnects all plug-ins.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">
+			None
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">
+			None
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Exception</td>
+		<td class="rcol">
+			VnanoException: Thrown when an exception occurred on the finalization of the plug-in to be disconnected.
+		</td>
+	</tr>
+</table>
+
+
+
+<table id="includeLibraryScript" class="spec-table">
+	<tr>
+		<td class="lcol">Name</td>
+		<th class="rcol">includeLibraryScript</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">void includeLibraryScript(String libraryScriptName, String libraryScriptContent) throws VnanoException</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">
+			Add a library script which will be "include"-ed at the head of a executed script.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">
+			libraryScriptName: Names of the library script (displayed in error messages).
+			<br />
+			libraryScriptContent: Content (code) of the library script.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">
+			None
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Exception</td>
+		<td class="rcol">
+			VnanoException: Thrown when incorrect somethings have been detected for the specified library.
+		</td>
+	</tr>
+</table>
+
+
+
+<table id="unincludeAllLibraryScripts" class="spec-table">
+	<tr>
+		<td class="lcol">Name</td>
+		<th class="rcol">unincludeAllLibraryScripts</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">void unincludeAllLibraryScripts() throws VnanoException</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">
+			Uninclude all library scripts.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">
+			None
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">
+			None
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Exception</td>
+		<td class="rcol">
+			VnanoException: Thrown when incorrect somethings have been detected for the specified library.
+		</td>
+	</tr>
+</table>
+
+
+
+<table id="setOptionMap" class="spec-table">
+	<tr>
+		<td class="lcol">Name</td>
+		<th class="rcol">setOptionMap</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">void setOptionMap(Map&lt;String,Object&gt; optionMap) throws VnanoException</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			Sets options, by a Map (option map) storing names and values of options you want to set.
+			</p>
+			<p>
+			Type of the option map is Map<String,Object>, and its keys represents option names.
+			For details, see the document of options.
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">
+			optionMap: The Map (option map) storing names and values of options.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">
+			None
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Exception</td>
+		<td class="rcol">
+			VnanoException: Thrown if invalid option settings is detected.
+		</td>
+	</tr>
+</table>
+
+
+<table id="getOptionMap" class="spec-table">
+	<tr>
+		<td class="lcol">Name</td>
+		<th class="rcol">getOptionMap</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">Map&lt;String,Object&gt; getOptionMap()</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			Gets the Map (option map) storing names and values of options
+			</p>
+			<p>
+			Type of the option map is Map<String,Object>, and its keys represents option names.
+			For details, see the document of options.
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">
+			None
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">
+			The Map (option map) storing names and values of options.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Exception</td>
+		<td class="rcol">
+			None
+		</td>
+	</tr>
+</table>
+
+
+<table id="setPermissionMap" class="spec-table">
+	<tr>
+		<td class="lcol">Name</td>
+		<th class="rcol">setPermissionMap</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">void setPermissionMap(Map&lt;String,String&gt; permissionMap) throws VnanoException</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			Sets permissions, by a Map (permission map) storing names and values of permission items you want to set.
+			</p>
+			<p>
+			Type of the permission map is Map&lt;String,String&gt;, and its keys represents names of permission items.
+			For details, see the document of permission items.
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">
+			permissionMap: The Map (permission map) storing names and values of permission items.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">
+			None
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Exception</td>
+		<td class="rcol">
+			VnanoException: Thrown if invalid permission settings is detected.
+		</td>
+	</tr>
+</table>
+
+
+<table id="getPermissionMap" class="spec-table">
+	<tr>
+		<td class="lcol">Name</td>
+		<th class="rcol">getPermissionMap</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">Map&lt;String,String&gt; getPermissionMap() throws VnanoException</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			Gets the Map (permission map) storing names and values of permission items.
+			</p>
+			<p>
+			Type of the permission map is Map<String,String>, and its keys represents names of permission items.
+			For details, see the document of permissions.
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">
+			None
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">
+			The Map (permission map) storing names and values of permission items.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Exception</td>
+		<td class="rcol">
+			VnanoException: Thrown when the read-access to the permission map has been denied.
+		</td>
+	</tr>
+</table>
+
+
+
+<table id="getPerformanceMap" class="spec-table">
+	<tr>
+		<td class="lcol">Name</td>
+		<th class="rcol">getPerformanceMap</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">Map&lt;String,Object&gt; getPerformanceMap() throws VnanoException</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			Gets the Map (performance map) storing names and values of performance monitoring items.
+			</p>
+			<p>
+			Note that, when some measured values for some monitoring items don't exist
+			(e.g.: when any scripts are not running, or running but their performance values are not measualable yet),
+			the returned performance map does not contain values for such monitoring items,
+			so sometimes the returned performance map is incomplete (missing values for some items) or empty.
+			Please be careful of the above point when you "get" measured performance values from the returned performance map.
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">
+			None
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">
+			The Map (performance map) storing names and values of performance monitoring items.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Exception</td>
+		<td class="rcol">
+			VnanoException: Thrown when the "PERFORMANCE_MONITOR_ENABLED" option is disabled.
+		</td>
+	</tr>
+</table>
+
+
+
+</body>
+</html>
