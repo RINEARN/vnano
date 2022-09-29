@@ -1,0 +1,633 @@
+<!doctype html>
+<html lang="ja">
+
+<head>
+	<title>VnanoEngine クラス仕様書</title>
+	<meta charset="UTF-8">
+	<style type="text/css">
+		h1 .spec-path { font-size: 70%; }
+		h2 .spec-path { font-size: 70%; }
+		.spec-table { width: 100%; border: 1px solid #000000; border-collapse: collapse; margin-bottom: 20px; }
+		.spec-table td { border: 1px solid #000000; text-align: left; }
+		.spec-table th { border: 1px solid #000000; text-align: left; }
+		.spec-table .lcol { width: 100px; background-color: #eeeeee; }
+		.spec-table .rcol { }
+		.spec-dl { }
+		.spec-dl dt { font-weight: bold; display: list-item; list-style-position: outside; margin-left: 20px; list-style-type: disc; }
+		.spec-dl dd { margin-bottom: 14px; line-height: 160%; }
+	</style>
+</head>
+
+<body>
+
+
+
+<h1>VnanoEngine クラス仕様書<br /><span class="spec-path">(org.vcssl.nano.VnanoEngine)</span></h1>
+
+<hr />
+
+
+
+<h2>概要</h2>
+
+<p>
+Vnanoのスクリプトエンジン（Vnanoエンジン）のクラスです。
+</p>
+
+
+
+<h2>公開コンストラクタ/フィールド/メソッド等の一覧</h2>
+
+<dl class="spec-dl">
+
+	<dt><a href="#VnanoEngine">VnanoEngine()</a></dt>
+		<dd>
+			標準設定のVnanoエンジンを生成します。
+		</dd>
+
+	<dt><a href="#executeScript">Object executeScript(String script)</a></dt>
+		<dd>
+			引数に指定された式またはスクリプトコードを実行します。
+		</dd>
+
+	<dt><a href="#setBoolScalarData">void terminateScript()</a></dt>
+		<dd>
+			現在実行中のスクリプトの処理を、可能な限り早期に放棄して終了させます。
+		</dd>
+
+	<dt><a href="#getBoolScalarData">void resetTerminator()</a></dt>
+		<dd>
+			terminate() メソッドによって終了させたエンジンを、再び(新規)スクリプト実行可能な状態に戻します・
+		</dd>
+
+	<dt><a href="#connectPlugin">void connectPlugin(String bindingName, Object plugin)</a></dt>
+		<dd>
+			外部関数/変数を提供する、各種のプラグインを接続します。
+		</dd>
+
+	<dt><a href="#connectPlugin">void disconnectAllPlugins()</a></dt>
+		<dd>
+			全てのプラグインの接続を解除します。
+		</dd>
+
+	<dt><a href="#includeLibraryScript">void includeLibraryScript(String libraryScriptName, String libraryScriptContent)</a></dt>
+		<dd>
+			実行対象スクリプトの先頭に "include" される, ライブラリスクリプトを追加します。
+		</dd>
+
+	<dt><a href="#includeLibraryScript">void unincludeAllLibraryScripts()</a></dt>
+		<dd>
+			全てのライブラリスクリプトの include 登録を解除します。
+		</dd>
+
+	<dt><a href="#setOptionMap">void setOptionMap(Map&lt;String,Object&gt; optionMap)</a></dt>
+		<dd>
+			オプションの名前と値を格納するマップ（オプションマップ）によって、オプションを設定します。
+		</dd>
+
+	<dt><a href="#getOptionMap">Map&lt;String,Object&gt; getOptionMap()</a></dt>
+		<dd>
+			オプションの名前と値を格納するマップ（オプションマップ）を取得します。
+		</dd>
+
+	<dt><a href="#setOptionMap">void setPermissionMap(Map&lt;String,String&gt; permissionMap)</a></dt>
+		<dd>
+			パーミッション項目の名前と値を格納するマップ（パーミッションマップ）によって、各パーミッションの値を設定します。
+		</dd>
+
+	<dt><a href="#getOptionMap">Map&lt;String,String&gt; getPermissionMap()</a></dt>
+		<dd>
+			パーミッション項目の名前と値を格納するマップ（パーミッションマップ）を取得します。
+		</dd>
+
+	<dt><a href="#getOptionMap">Map&lt;String,Object&gt; getPerformanceMap()</a></dt>
+		<dd>
+			パフォーマンスモニタの計測項目名と値を格納するマップ（パフォーマンスマップ）を取得します。
+		</dd>
+
+</dl>
+
+
+
+
+
+
+<hr />
+
+
+<h2>公開コンストラクタ</h2>
+
+
+<table id="VnanoEngine" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">VnanoEngine</th>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">VnanoEngine()</td>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">標準設定のVnanoエンジンを生成します。</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">なし</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">生成されたインスタンス</td>
+	</tr>
+</table>
+
+
+
+<!-- ==================================================================================================== -->
+
+<h2>公開フィールド</h2>
+
+<p>
+- なし -
+</p>
+
+
+
+
+<!-- ==================================================================================================== -->
+
+<h2>公開メソッド</h2>
+
+
+
+
+<table id="executeScript" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">executeScript</th>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">Object executeScript(String script) throws VnanoException</td>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			引数に指定された式またはスクリプトコードを実行します。
+			</p>
+			<p>
+			なお、同一インスタンスにおけるこのメソッドを複数のスレッドから呼び出し、
+			複数のスクリプトを同時に（並行して）実行する事には対応していません。
+			そのような並列処理を行いたい場合には、スレッドごとに独立なエンジンのインスタンスを生成して使用してください。
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">script: 実行対象の式またはスクリプトコード。</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">式、またはスクリプトコード内の最後の式文の評価値（もしも評価値が無かった場合は null が返されます）</td>
+	</tr>
+	<tr>
+		<td class="lcol">例外</td>
+		<td class="rcol">VnanoException: スクリプトの内容または実行過程にエラーが検出された場合にスローされます。</td>
+	</tr>
+</table>
+
+
+
+
+<table id="terminateScript" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">terminateScript</th>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">void terminateScript() throws VnanoException</td>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			現在実行中のスクリプトの処理を、可能な限り早期に放棄して終了させます
+			</p>
+			<p>
+			より正確には、スクリプトからコンパイルされた命令列を処理している、エンジン内のVMが、
+			現在実行中の命令(1個)の処理が完了した時点で、残りの命令列の実行を放棄して終了します。
+			</p>
+			<p>
+			なお、このメソッドを呼び出して実行を終了させた後に、再び(新規に)スクリプトを実行する際には、事前に
+			<a href="#resetTerminator">resetTerminator()</a> メソッドを呼び出す必要があります。
+			前者の呼び出しから後者の呼び出しまでの間、実行が要求されたスクリプトはすぐに終了します。
+			</p>
+			<p>
+			上記の仕様により、このメソッドの呼び出しと新規実行リクエストが、
+			別スレッドからシビアに競合したタイミングで行われた場合においても、
+			(終了前に {@link VnanoEngine#resetTerminator() resetTerminator()} が呼ばれない限り)
+			スクリプトは確実に終了します。
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">なし</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">なし</td>
+	</tr>
+	<tr>
+		<td class="lcol">例外</td>
+		<td class="rcol">VnanoException: 「TERMINATOR_ENABLED」オプションが無効化されていた場合にスローされます。</td>
+	</tr>
+</table>
+
+
+<table id="resetTerminator" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">resetTerminator</th>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">void resetTerminator() throws VnanoException</td>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			<a href="#terminateScript">terminateScript()</a> メソッドによって終了させたエンジンを、
+			再び(新規)スクリプト実行可能な状態に戻します。
+			</p>
+			<p>
+			なお, このメソッドの呼び出しと新規実行リクエストが、別スレッドからシビアに競合したタイミングで行われた場合には、
+			スクリプトは実行されない可能性がある事に留意してください。
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">なし</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">なし</td>
+	</tr>
+	<tr>
+		<td class="lcol">例外</td>
+		<td class="rcol">VnanoException: 「TERMINATOR_ENABLED」オプションが無効化されていた場合にスローされます。</td>
+	</tr>
+</table>
+
+
+<table id="connectPlugin" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">connectPlugin</th>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">void connectPlugin(String bindingName, Object plugin) throws VnanoException</td>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			外部関数/変数を提供する、各種のプラグインを接続します。
+			</p>
+			
+			<p>
+			引数 bindingName には、接続されるプラグインが提供する変数/関数/名前空間のｍスクリプト内での名前を指定します。
+			内容に空白または「 ( 」が含まれている場合、それ以降は名前としては無視されます。
+			これにより、例えば関数 "foo" に対して引数部を含めて "foo(int,float)" 等と指定したり
+			(引数部の構文や整合性検査などは行われません）、
+			同じ名前空間 "Bar" の要素を提供するプラグイン群に対して "Bar 1", "Bar 2", ... のように指定する事ができます。
+			なお、"___VNANO_AUTO_KEY" を指定する事で, 有効な値の指定を自動で行う事もできます.
+			</p>
+			
+			<p>
+			また、引数 plugin には、接続したいプラグインを指定します。
+			一般の Object 型のインスタンスをプラグインとして接続して、
+			それに属するメソッド/フィールドに、スクリプト内から外部関数/変数としてアクセスする事もできます。
+			static なメソッド/フィールドのみにアクセスする場合には, Class&lt;T&gt; 型のインスタンスも接続できます。
+			また、個々のメソッド/フィールドを選んで接続したい場合のために、
+			Method / Field 型のインスタンスを接続する事もできます。
+			その際、もしそのフィールド・メソッドが static ではない場合には,
+			引数 plugin は Object 配列型とし、その [0] 番要素に Field または Method を格納し、
+			[1] 番要素にそのフィールド・メソッドが定義されたクラスの Class&lt;T&gt; 型インスタンスを格納してください。
+			</p>
+			
+			<p>
+			なお、XFCI1 等の各種のプラグイン用インターフェースを実装したクラスのインスタンスも接続できます。
+			パーミッションの管理を行う PACI1 形式のプラグインの接続にも、このメソッドを用います。
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">
+			bindingName: 接続されるプラグインが提供する変数/関数/名前空間の、スクリプト内での名前。
+			<br />
+			plugin: 接続したいプラグイン。
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">なし</td>
+	</tr>
+	<tr>
+		<td class="lcol">例外</td>
+		<td class="rcol">
+			VnanoException: 
+			サポートされていないインターフェースの使用や、データ型の互換性などの原因により、
+			プラグインの接続に失敗した場合にスローされます。
+		</td>
+	</tr>
+</table>
+
+
+<table id="disconnectAllPlugins" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">disconnectAllPlugins</th>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">void disconnectAllPlugins() throws VnanoException</td>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">
+			全てのプラグインの接続を解除します。
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">なし</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">なし</td>
+	</tr>
+	<tr>
+		<td class="lcol">例外</td>
+		<td class="rcol">VnanoException: プラグインの終了時処理でエラーが発生した場合にスローされます。</td>
+	</tr>
+</table>
+
+
+<table id="includeLibraryScript" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">includeLibraryScript</th>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">void includeLibraryScript(String libraryScriptName, String libraryScriptContent) throws VnanoException</td>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">
+			実行対象スクリプトの先頭に "include" される, ライブラリスクリプトを追加します。
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">
+			libraryScriptName: ライブラリスクリプトの名称 (エラーメッセージ等で使用されます)。
+			<br />
+			libraryScriptContent: ライブラリスクリプトのコード内容。
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">なし</td>
+	</tr>
+	<tr>
+		<td class="lcol">例外</td>
+		<td class="rcol">VnanoException: ライブラリに異常があった場合にスローされます。</td>
+	</tr>
+</table>
+
+
+
+<table id="unincludeAllLibraryScripts" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">unincludeAllLibraryScripts</th>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">void unincludeAllLibraryScripts() throws VnanoException</td>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">
+			全てのライブラリスクリプトの include 登録を解除します。
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">なし</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">なし</td>
+	</tr>
+	<tr>
+		<td class="lcol">例外</td>
+		<td class="rcol">VnanoException: 現状ではスローされませんが、将来的な互換性維持のためのために catch する必要があります。</td>
+	</tr>
+</table>
+
+
+<table id="setOptionMap" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">setOptionMap</th>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">void setOptionMap(Map&lt;String,Object&gt; optionMap) throws VnanoException</td>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			オプションの名前と値を格納するマップ（オプションマップ）によって、オプションを設定します。
+			</p>
+			<p>
+			オプションマップは Map&lt;String,Object&gt; 型で, そのキーはオプション名に対応します。
+			オプション名と値の詳細については、別途ドキュメントをご参照ください。
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">optionMap: オプションの名前と値を格納するマップ（オプションマップ）。</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">なし</td>
+	</tr>
+	<tr>
+		<td class="lcol">例外</td>
+		<td class="rcol">VnanoException: オプションの指定内容が正しくなかった場合にスローされます。</td>
+	</tr>
+</table>
+
+
+<table id="getOptionMap" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">getOptionMap</th>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">Map&lt;String,Object&gt; getOptionMap()</td>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			オプションの名前と値を格納するマップ（オプションマップ）を取得します。
+			</p>
+			<p>
+			オプションマップは Map&lt;String,Object&gt; 型で、そのキーはオプション名に対応します。
+			オプション名と値の詳細については、別途ドキュメントをご参照ください。
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">なし</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">オプションの名前と値を格納するマップ（オプションマップ）。</td>
+	</tr>
+	<tr>
+		<td class="lcol">例外</td>
+		<td class="rcol">なし</td>
+	</tr>
+</table>
+
+
+
+<table id="setPermissionMap" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">setPermissionMap</th>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">void setPermissionMap(Map&lt;String, String&gt; permissionMap) throws VnanoException</td>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			パーミッション項目の名前と値を格納するマップ（パーミッションマップ）によって、各パーミッションの値を設定します
+			</p>
+			<p>
+			パーミッションマップは Map&lt;String,String&gt; 型で、そのキーはパーミッション項目の名称に対応します。
+			パーミッション項目の名称と値の詳細については、別途ドキュメントをご参照ください。
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">permissionMap: パーミッション項目の名前と値を格納するマップ（パーミッションマップ）。</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">なし</td>
+	</tr>
+	<tr>
+		<td class="lcol">例外</td>
+		<td class="rcol">VnanoException: パーミッションの指定内容が正しくなかった場合にスローされます。</td>
+	</tr>
+</table>
+
+
+<table id="getPermissionMap" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">getPermissionMap</th>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">Map&lt;String,String&gt; getPermissionMap()</td>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			パーミッション項目の名前と値を格納するマップ（パーミッションマップ）を取得します。
+			</p>
+			<p>
+			パーミッションマップは Map&String;String,Object&gt; 型で、そのキーはパーミッション項目の名称に対応します。
+			パーミッション項目の名称と値の詳細については、別途ドキュメントをご参照ください。
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">なし</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">パーミッション項目の名前と値を格納するマップ（パーミッションマップ）。</td>
+	</tr>
+	<tr>
+		<td class="lcol">例外</td>
+		<td class="rcol">VnanoException: パーミッションマップの取得が許可されない場合にスローされます。</td>
+	</tr>
+</table>
+
+
+<table id="getPerformanceMap" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">getPerformanceMap</th>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">Map&lt;String,Object&gt; getPerformanceMap()</td>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			パフォーマンスモニタの計測項目名と値を格納するマップ（パフォーマンスマップ）を取得します。
+			</p>
+			<p>
+			なお、スクリプトを実行していない時や、実行開始後でも性能を有効に計測可能な段階にまだ達していない時など、
+			一部の計測値が存在しないタイミングでは、それらの値は戻り値のパフォーマンスマップ内には格納されません。
+			そのような「欠けた」または「空の」パフォーマンスマップが有り得る事には、計測値を取り出す際に留意する必要があります。
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">なし</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">パフォーマンスモニタの計測項目名と値を格納するマップ（パフォーマンスマップ）。</td>
+	</tr>
+	<tr>
+		<td class="lcol">例外</td>
+		<td class="rcol">VnanoException: 「PERFORMANCE_MONITOR_ENABLED」オプションが無効化されていた場合にスローされます。</td>
+	</tr>
+</table>
+
+
+
+
+</body>
+</html>
