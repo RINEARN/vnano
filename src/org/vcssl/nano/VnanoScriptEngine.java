@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2021 RINEARN (Fumihiro Matsui)
+ * Copyright(C) 2017-2022
  * This software is released under the MIT License.
  */
 
@@ -24,143 +24,54 @@ import org.vcssl.nano.spec.EngineInformation;
 import org.vcssl.nano.spec.SpecialBindingKey;
 import org.vcssl.nano.spec.SpecialBindingValue;
 
-//Documentation:  https://www.vcssl.org/en-us/dev/code/main-jimpl/api/org/vcssl/nano/VnanoScriptEngine.html
-//ドキュメント:   https://www.vcssl.org/ja-jp/dev/code/main-jimpl/api/org/vcssl/nano/VnanoScriptEngine.html
-
 /**
- * <span class="lang-en">
  * The wrapper class of {@link VnanoEngine VnanoEngine} class to use it
- * through "ScriptEngine" interface of the Scripting API of the standard library
- * </span>
- * <span class="lang-ja">
- * {@link VnanoEngine VnanoEngine} クラスを, 標準ライブラリの Scripting API における
- * ScriptEngine インターフェースを介して用いるためのラッパークラスです
- * </span>
- * .
- *
- * <p>
- * &raquo; <a href="../../../../src/org/vcssl/nano/VnanoScriptEngine.java">Source code</a>
- * </p>
- *
- * <hr>
- *
- * <p>
- * | <a href="../../../../api/org/vcssl/nano/VnanoScriptEngine.html">Public Only</a>
- * | <a href="../../../../api-all/org/vcssl/nano/VnanoScriptEngine.html">All</a> |
- * </p>
- *
- * @author RINEARN (Fumihiro Matsui)
+ * through "ScriptEngine" interface of the Scripting API of the standard library.
  */
 public final class VnanoScriptEngine implements ScriptEngine {
 
 	private static final String DEFAULT_ENCODING = "UTF-8";
 
 
-	/**
-	 * <span class="lang-en">A Vnano Engine to be wrapped by ScriptEngine interface</span>
-	 * <span class="lang-ja">ScriptEngine インターフェースでラップする対象の Vnano エンジンです</span>
-	 * .
-	 */
+	/** A Vnano Engine to be wrapped by ScriptEngine interface. */
 	private VnanoEngine vnanoEngine = null;
 
-
-	/**
-	 * <span class="lang-en">A loader for loading library scripts from files</span>
-	 * <span class="lang-ja">ファイルからライブラリスクリプトを読み込むためのローダーです</span>
-	 * .
-	 */
+	/** A loader for loading library scripts from files. */
 	private ScriptLoader libraryScriptLoader = null;
 
-
-	/**
-	 * <span class="lang-en">A loader for loading plug-ins from files</span>
-	 * <span class="lang-ja">ファイルからプラグインを読み込むためのローダーです</span>
-	 * .
-	 */
+	/** A loader for loading plug-ins from files. */
 	private PluginLoader pluginLoader = null;
 
-
-	/**
-	 * <span class="lang-en">Stores plug-ins registerd by "put" method to be connected</span>
-	 * <span class="lang-ja">put メソッドによって接続登録されたプラグインを保持します</span>
-	 * .
-	 */
+	/** Stores plug-ins registerd by "put" method to be connected. */
 	private Bindings putPluginBindings = null;
 
-
-	/**
-	 * <span class="lang-en">
-	 * Stores whether plug-ins are added by "put" method after the previous execution or not
-	 * </span>
-	 * <span class="lang-ja">
-	 * 前回の実行後に、プラグインが put メソッドによって追加されたかどうかを保持します
-	 * </span>
-	 */
+	/** Stores whether plug-ins are added by "put" method after the previous execution. */
 	private boolean putPluginBindingsUpdated = false;
 
-
-	/**
-	 * <span class="lang-en">
-	 * Stores whether plug-ins are added/removed by re-loadings after the previous execution or not
-	 * </span>
-	 * <span class="lang-ja">
-	 * 前回の実行後に、プラグインが再読み込みによって追加/削除されたかどうかを保持します
-	 * </span>
-	 */
+	/** Stores whether plug-ins are added/removed by re-loadings after the previous execution. */
 	private boolean loadedPluginUpdated = false;
 
 
-	/**
-	 * <span class="lang-en">
-	 * Stores whether library scripts are added/removed by re-loadings after the previous execution or not
-	 * </span>
-	 * <span class="lang-ja">
-	 * 前回の実行後に、ライブラリが再読み込みによって追加/削除されたかどうかを保持します
-	 * </span>
-	 */
+	/** Stores whether library scripts are added/removed by re-loadings after the previous execution. */
 	private boolean loadedLibraryUpdated = false;
 
 
 	/**
-	 * <span class="lang-en">
 	 * Create an script engine of the Vnano, however,
 	 * use "getEngineByName" method of "ScriptEngineManager" class with an argument "Vnano",
 	 * instead of using this constructor directly
-	 * </span>
-	 * <span class="lang-ja">
-	 * 標準設定でVnanoのスクリプトエンジンを生成しますが,
-	 * 通常はこのコンストラクタを直接用いる代わりに,
-	 * ScriptEngineManager クラスの getEngineByName メソッドを, 引数 "Vnano" を指定して用いてください
-	 * </span>
-	 * .
-	 * <span class="lang-en">
+	 * 
 	 * If you want to create and use an instance of the script engine of the Vnano directly,
 	 * use {@link VnanoEngine VnanoEngine}.
 	 * This class is its wrapper for using it through the Scripting API of the standard library.
-	 * </span>
-	 *
-	 * <span class="lang-ja">
-	 * もしもVnanoのスクリプトエンジンのインスタンスを直接生成して使用したい場合は,
-	 * {@link VnanoEngine VnanoEngine} クラスを使用してください.
-	 * このクラスはそのラッパーで, 標準ライブラリの Scripting API を介して利用するためのものです.
-	 * </span>
 	 */
 	protected VnanoScriptEngine() {
 		try {
-			// 要素を取り出す順序が登録順と一致する事を保証するため、LinkedHashMapを用いた Bindings を生成
 			this.putPluginBindings = new SimpleBindings(new LinkedHashMap<String, Object>());
-
-			// スクリプトをファイルから読み込むためのローダーを生成（ライブラリはこのローダーに登録）
 			this.libraryScriptLoader = new ScriptLoader(DEFAULT_ENCODING);
-
-			// プラグインをファイルから読み込むためのローダーを生成
 			this.pluginLoader = new PluginLoader(DEFAULT_ENCODING);
-
-			// デフォルトの設定で Vnano エンジンのインスタンスを生成
 			this.vnanoEngine = new VnanoEngine();
 
-		// ScriptEngineManager 経由でインスタンスを取得している場合（失敗時は null が返る）に
-		// エラー情報の詳細を把握しやすいようにスタックトレースを出力しておく
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw e;
@@ -169,20 +80,11 @@ public final class VnanoScriptEngine implements ScriptEngine {
 
 
 	/**
-	 * <span class="lang-en">Executes an expression or a script code passed as an argument</span>
-	 * <span class="lang-ja">引数に指定された式またはスクリプトコードを実行します</span>
-	 * .
-	 * @param script
-	 *   <span class="lang-en">The expression or the script code to execute.</span>
-	 *   <span class="lang-ja">実行対象の式またはスクリプトコード.</span>
-	 *
-	 * @return
-	 *   <span class="lang-en">The evaluated value of the expression, or last expression statement in the script code.</span>
-	 *   <span class="lang-ja">式、またはスクリプトコード内の最後の式文の評価値.</span>
-	 *
-	 * @throws ScriptException
-	 *   <span class="lang-en">Thrown when an error will be detected for the content or the processing of the script.</span>
-	 *   <span class="lang-ja">スクリプトの内容または実行過程にエラーが検出された場合にスローされます.</span>
+	 * Executes an expression or a script code passed as an argument.
+	 * 
+	 * @param scriptCode The expression or the script code to execute.
+	 * @return The evaluated value of the expression, or last expression statement in the script code.
+	 * @throws ScriptException Thrown when an error will be detected for the content or the processing of the script.
 	 */
 	@Override
 	public Object eval(String scriptCode) throws ScriptException {
@@ -192,24 +94,22 @@ public final class VnanoScriptEngine implements ScriptEngine {
 
 		try {
 
-			// ライブラリとプラグインをエンジンに登録
+			// Register plug-ins and library scripts to the engine.
 			this.updatePluginConnections();
 			this.updateLibraryInclusions();
 
-			// スクリプトコードを実行
+			// Execute the script.
 			Object value = this.vnanoEngine.executeScript(scriptCode);
 			return value;
 
-		// 発生し得る例外は ScriptException でラップして投げる
+		// If a VnanoException has occurred, wrap it by a ScriptException and rethrow,
 		} catch (VnanoException vnanoException) {
 
-			// 行番号などを除いたエラーメッセージを取得（ScriptException側が行番号などを付加するので、重複しないように）
+			// Get the error message without the line-number, because it will be appended by the ScriptException.
 			String message = vnanoException.getMessageWithoutLocation();
 
-			// エラーメッセージがある場合は、そのメッセージで ScriptException を生成して投げる
+			// If the error message exists, create an ScriptException from the message, and set the VnanoException as the cause.
 			if (message != null) {
-
-				// エラーメッセージを指定してScriptExceptionを生成
 				ScriptException scriptException = null;
 				if (vnanoException.hasFileName() && vnanoException.hasLineNumber()) {
 					scriptException = new ScriptException(
@@ -219,22 +119,21 @@ public final class VnanoScriptEngine implements ScriptEngine {
 					scriptException = new ScriptException(message);
 				}
 
-				// 原因となった例外の情報（cause情報）を持たせる
 				try {
-					scriptException.initCause(vnanoException); // Throwable のメソッド
+					scriptException.initCause(vnanoException);
 				} catch (IllegalStateException ise) {
-					// Throwableのcause情報は、既に持っていた場合は更新できないので、失敗した場合は既に持っている
-					// （現状ではあり得ないが、将来的な事を考えて catch しておく）
+					// If the ScriptException already has any cause, this IllegalStateException will be thrown.
+					// But we consider that it never occurs here.
 				}
 
 				throw scriptException;
 
-			// エラーメッセージが無い場合はそのままラップして投げる
+			// If the VnanoException has no error message, simply wrap it by ScriptException and rethrow.
 			} else {
 				throw new ScriptException(vnanoException);
 			}
 
-		// 実装の不備等による予期しない例外も ScriptException でラップして投げる（上層を落としたくない用途のため）
+		// Wrap and rethrow other kinds of Exceptions.
 		} catch (Exception unexpectedException) {
 
 			ScriptException scriptException = new ScriptException(unexpectedException);
@@ -244,20 +143,11 @@ public final class VnanoScriptEngine implements ScriptEngine {
 
 
 	/**
-	 * <span class="lang-en">Executes an expression or a script code read from Reader (for example: FileReader)</span>
-	 * <span class="lang-ja">FileReader などの Reader からスクリプトコードを読み込んで実行します</span>
+	 * Executes an expression or a script code read from Reader (for example: FileReader).
 	 * .
-	 * @param reader
-	 *   <span class="lang-en">The Reader instance to read script code.</span>
-	 *   <span class="lang-ja">スクリプトコードを読み込む Reader インスタンス.</span>
-	 *
-	 * @return
-	 *   <span class="lang-en">The evaluated value of the expression, or last expression statement in the script code.</span>
-	 *   <span class="lang-ja">式、またはスクリプトコード内の最後の式文の評価値.</span>
-	 *
-	 * @throws ScriptException
-	 *   <span class="lang-en">Thrown when an error will be detected for the content or the processing of the script.</span>
-	 *   <span class="lang-ja">スクリプトの内容または実行過程にエラーが検出された場合にスローされます.</span>
+	 * @param reader The Reader instance to read script code.
+	 * @return The evaluated value of the expression, or last expression statement in the script code (or, null if it does not exist).
+	 * @throws ScriptException Thrown when an error will be detected for the content or the processing of the script.
 	 */
 	@Override
 	public Object eval(Reader reader) throws ScriptException {
@@ -281,36 +171,24 @@ public final class VnanoScriptEngine implements ScriptEngine {
 
 
 	/**
-	 * <span class="lang-en">
-	 * Updates connections between the VnanoEngine and plug-ins stored in fields of this class
-	 * </span>
-	 * <span class="lang-ja">
-	 * このクラスのフィールドに保持しているプラグインと, VnanoEngine との間の接続を更新します
-	 * </span>
-	 * .
-	 * @throws VnanoException
-	 *   <span class="lang-en">
-	 *   Thrown if plug-ins could not be connected,
-	 *   caused by unsupported interfaces, incompatibility of data types, and so on.
-	 *   </span>
-	 *   <span class="lang-ja">
-	 *   サポートされていないインターフェースの使用や, データ型の互換性などの原因により,
-	 *   プラグインの接続に失敗した場合にスローされます.
-	 *   </span>
+	 * Updates connections between the VnanoEngine and plug-ins stored in fields of this class.
+	 * 
+	 * @throws VnanoException Thrown if plug-ins could not be connected,
+	 *     caused by unsupported interfaces, incompatibility of data types, and so on.
 	 */
 	private void updatePluginConnections() throws VnanoException {
 
-		 // 前回実行時から登録変更が無ければ更新不要
+		// Skip updating if there is no need to do it.
 		if (!this.putPluginBindingsUpdated && !this.loadedPluginUpdated) {
 			return;
 		}
 		this.putPluginBindingsUpdated = false;
 		this.loadedPluginUpdated = false;
 
-		// 現在接続されているプラグインを一旦全て接続解除
+		// Disconnect all plug-ins.
 		this.vnanoEngine.disconnectAllPlugins();
 
-		// ファイルから読み込まれたプラグインを接続（あれば）
+		// Re-connect plug-ins loaded from files.
 		if (this.pluginLoader.hasPlugins()) {
 			String[] loadedPluginNames = this.pluginLoader.getPluginNames();
 			Object[] loadedPluginInstances = this.pluginLoader.getPluginInstances();
@@ -320,7 +198,8 @@ public final class VnanoScriptEngine implements ScriptEngine {
 			}
 		}
 
-		// 直接 put されたプラグインを接続（直接 put の方を高優先度にするため、上記よりも後で接続する）
+		// (Re-)Connect plug-ins directly registered by "put" method.
+		// (Connect after the plug-ins loaded from files has been connected, because directly-put plug-ins has higher precedences.)
 		for (Entry<String,Object> pair: this.putPluginBindings.entrySet()) {
 			this.vnanoEngine.connectPlugin(pair.getKey(), pair.getValue());
 		}
@@ -328,33 +207,22 @@ public final class VnanoScriptEngine implements ScriptEngine {
 
 
 	/**
-	 * <span class="lang-en">
-	 * Updates "include"-registrations between the VnanoEngine and libraries stored in fields of this class
-	 * </span>
-	 * <span class="lang-ja">
-	 * このクラスのフィールドに保持しているライブラリと, VnanoEngine との間の include 登録を更新します
-	 * </span>
-	 * .
-	 * @throws VnanoException
-	 *   <span class="lang-en">
-	 *   Thrown if libraries could not be included, caused by "duplicate include" and so on.
-	 *   </span>
-	 *   <span class="lang-ja">
-	 *   多重 include などにより, ライブラリの include 登録に失敗した場合にスローされます.
-	 *   </span>
+	 * Updates "include"-registrations between the VnanoEngine and libraries stored in fields of this class.
+	 * 
+	 * @throws VnanoException Thrown if libraries could not be included, caused by "duplicate include" and so on.
 	 */
 	private void updateLibraryInclusions() throws VnanoException {
 
-		 // 前回実行時から登録変更が無ければ更新不要
+		// Skip updating if there is no need to do it.
 		if (!this.loadedLibraryUpdated) {
 			return;
 		}
 		this.loadedLibraryUpdated = false;
 
-		// 現在 include 登録されているライブラリを一旦全て登録解除
+		// Remove library scripts.
 		this.vnanoEngine.unincludeAllLibraryScripts();
 
-		// ファイルから読み込まれたライブラリをエンジンに include 登録
+		// (Re-)Include library scripts.
 		if(this.libraryScriptLoader.hasLibraryScripts()) {
 			String[] libNames = this.libraryScriptLoader.getLibraryScriptNames();
 			String[] libContents = this.libraryScriptLoader.getLibraryScriptContents();
@@ -367,16 +235,8 @@ public final class VnanoScriptEngine implements ScriptEngine {
 
 
 	/**
-	 * <span class="lang-en">
-	 * This method is used for connecting an external function/variable, or setting options/permission,
-	 * or taking some special operations, and so on
-	 * </span>
-	 * <span class="lang-ja">
-	 * このメソッドは, 外部関数や変数を接続したり, オプション/パーミッションを設定したり,
-	 * またはいくつかの特別な操作を行ったりするのに使用します</span>
-	 * </span>
-	 * .
-	 * <span class="lang-en">
+	 * Connects an external function/variable, or sets options/permission, or takes some special operations, and so on.
+	 * <br>
 	 * If the value of the argument "name" is "___VNANO_OPTION_MAP",
 	 * this method behaves as a wrapper of {@link VnanoEngine#setOptionMap(Map) VnanoEngine.setOptionMap(Map)}
 	 * method, which is to set options.
@@ -411,46 +271,9 @@ public final class VnanoScriptEngine implements ScriptEngine {
 	 * {@link org.vcssl.nano.VnanoScriptEngine#put(String, Object) VnanoScriptEngine.put(String, Object) }
 	 * method which wraps this method.
 	 * Also, you can specify "___VNANO_AUTO_KEY" for using a valid value generated automatically.
-	 * </span>
 	 *
-	 * <span class="lang-ja">
-	 * 引数 "name" の値に "___VNANO_OPTION_MAP" が指定されている場合, このメソッドは, オプション設定を行う
-	 * {@link VnanoEngine#setOptionMap(Map) setOptionMap(Map)} メソッドのラッパーとして振舞います.
-	 * <br>
-	 * 引数 "name" の値に "___VNANO_PERMISSION_MAP" が指定されている場合, このメソッドは, オプション設定を行う
-	 * {@link VnanoEngine#setPermissionMap(Map) setPermissionMap(Map)} メソッドのラッパーとして振舞います.
-	 * <br>
-	 * 引数 "name" の値に "___VNANO_LIBRARY_LIST_FILE" が指定されている場合, このメソッドは,
-	 * 指定されたリストファイルにパスが記載されたライブラリスクリプトを読み込み,
-	 * それらが実行時に実行対象スクリプトに "include" されるよう, エンジンに登録します.
-	 * <br>
-	 * 引数 "name" の値に "___VNANO_PLUGIN_LIST_FILE" が指定されている場合, このメソッドは,
-	 * 指定されたリストファイルにパスが記載されたプラグインを読み込み, それらをエンジンに接続します.
-	 * <br>
-	 * 引数 "name" の値に "___VNANO_COMMAND" が指定されている場合, このメソッドはエンジンの特別なコマンドを実行します.
-	 * 利用可能な値は {@link org.vcssl.nano.spec.SpecialBindingValue} に定義されています.
-	 * <br>
-	 * 上記の全てに該当しない場合には, このメソッドは, プラグインのインスタンスを接続する
-	 * {@link VnanoEngine#connectPlugin(String,Object) VnanoEngine.connectPlugin(String, Object)}
-	 * メソッドのラッパーとして振舞います.
-	 * この場合, 引数 "name" は, 接続されるプラグインが提供する変数/関数/名前空間の, スクリプト内での名前として機能します.
-	 * 引数 "name" の内容に空白または「 ( 」が含まれている場合、それ以降は名前としては無視されます.
-	 * これにより, 例えば関数 "foo" に対して引数部を含めて "foo(int,float)" 等と指定したり
-	 * (引数部の構文や整合性検査などは行われません）,
-	 * 同じ名前空間 "Bar" の要素を提供するプラグイン群に対して "Bar 1", "Bar 2", ... のように指定する事ができます.
-	 * これは, このメソッドをラップしている
-	 * {@link org.vcssl.nano.VnanoScriptEngine#put(String, Object) VnanoScriptEngine.put(String, Object) }
-	 * メソッドにおいて, キーの重複を避けたい場合に有効です.
-	 * なお, "___VNANO_AUTO_KEY" を指定する事で, 有効な値の指定を自動で行う事もできます.
-	 * </span>
-	 *
-	 * @param name
-	 *   <span class="lang-en">See the above description</span>
-	 *   <span class="lang-ja">上記説明を参照してください</span>
-	 *
-	 * @param value
-	 *   <span class="lang-en">See the above description</span>
-	 *   <span class="lang-ja">上記説明を参照してください</span>
+	 * @param name See the above description.
+	 * @param value See the above description.
 	 */
 	@Override
 	public void put(String name, Object value) {
@@ -458,7 +281,7 @@ public final class VnanoScriptEngine implements ScriptEngine {
 			throw new NullPointerException();
 		}
 
-		// オプションマップの場合
+		// OptionMap:
 		if (name.equals(SpecialBindingKey.OPTION_MAP)) {
 			if (value instanceof Map) {
 
@@ -476,7 +299,7 @@ public final class VnanoScriptEngine implements ScriptEngine {
 				);
 			}
 
-		// パーミッションマップの場合
+		// PermissionMap:
 		} else if (name.equals(SpecialBindingKey.PERMISSION_MAP)) {
 			if (value instanceof Map) {
 
@@ -494,24 +317,24 @@ public final class VnanoScriptEngine implements ScriptEngine {
 				);
 			}
 
-		// 制御コマンドの場合
+		// Commands:
 		} else if (name.equals(SpecialBindingKey.COMMAND)){
 			if (!(value instanceof String)) {
 				throw new VnanoFatalException("Invalid command (should be a String)");
 			}
 			this.handleCommands((String)value);
 
-		// ライブラリの読み込みリストファイル指定の場合
+		// Library list file:
 		} else if (name.equals(SpecialBindingKey.LIBRARY_LIST_FILE)) {
 			this.libraryScriptLoader.setLibraryScriptListPath((String)value);
 			this.loadLibraries();
 
-		// プラグインの読み込みリストファイル指定の場合
+		// Plug-in list file:
 		} else if (name.equals(SpecialBindingKey.PLUGIN_LIST_FILE)) {
 			this.pluginLoader.setPluginListPath((String)value);
 			this.loadPlugins();
 
-		// 外部変数/関数プラグインのインスタンスを直接登録する場合
+		// Plug-in instance:
 		} else {
 			this.putPluginBindings.put(name, value);
 			this.putPluginBindingsUpdated = true;
@@ -539,7 +362,6 @@ public final class VnanoScriptEngine implements ScriptEngine {
 	private void handleCommands(String commandName) {
 		switch (commandName) {
 
-			// プラグインの登録解除コマンドの場合
 			case SpecialBindingValue.COMMAND_REMOVE_PLUGIN : {
 				try {
 					this.vnanoEngine.disconnectAllPlugins();
@@ -551,45 +373,34 @@ public final class VnanoScriptEngine implements ScriptEngine {
 				break;
 			}
 
-			// ライブラリの登録解除コマンドの場合
 			case SpecialBindingValue.COMMAND_REMOVE_LIBRARY : {
 				this.libraryScriptLoader = new ScriptLoader(DEFAULT_ENCODING);
 				this.loadedLibraryUpdated = true;
 				break;
 			}
 
-			// プラグインの再読み込みコマンドの場合
 			case SpecialBindingValue.COMMAND_RELOAD_PLUGIN : {
 				this.loadPlugins();
 				break;
 			}
 
-			// ライブラリの再読み込みコマンドの場合
 			case SpecialBindingValue.COMMAND_RELOAD_LIBRARY : {
 				this.loadLibraries();
 				break;
 			}
 
-			// スクリプトの実行終了リクエストコマンドの場合
-			// (VnanoEngine.terminate() および VnanoEngine.resetTerminator() の説明参照)
 			case SpecialBindingValue.COMMAND_TERMINATE_SCRIPT : {
 				try {
 					this.vnanoEngine.terminateScript();
-
-				// TERMINATOR_ENABLED オプションが無効に設定されていた場合は例外が発生する
 				} catch (VnanoException vne) {
 					throw new VnanoFatalException(vne.getMessage());
 				}
 				break;
 			}
 
-			// スクリプトの実行終了フラグをリセットするコマンドの場合
-			// (VnanoEngine.terminate() および VnanoEngine.resetTerminator() の説明参照)
 			case SpecialBindingValue.COMMAND_SESET_TERMINATOR : {
 				try {
 					this.vnanoEngine.resetTerminator();
-
-				// TERMINATOR_ENABLED オプションが無効に設定されていた場合は例外が発生する
 				} catch (VnanoException vne) {
 					throw new VnanoFatalException(vne.getMessage());
 				}
@@ -604,14 +415,8 @@ public final class VnanoScriptEngine implements ScriptEngine {
 
 
 	/**
-	 * <span class="lang-en">
 	 * Gets information values of the engine/language (e.g.: version), performance monitoring values,
 	 * or the value which is put by {@link VnanoScriptEngine#put put} method.
-	 * </span>
-	 * <span class="lang-ja">
-	 * エンジン情報や言語情報（バージョンなど）の値や, パフォーマンス計測値,
-	 * または {@link VnanoScriptEngine#put put} メソッドで設定した値を取得します</span>
-	 * .
 	 */
 	@Override
 	public Object get(String name) {
@@ -646,9 +451,7 @@ public final class VnanoScriptEngine implements ScriptEngine {
 
 
 	/**
-	 * <span class="lang-en"Unsupported on this script engine implementation</span>
-	 * <span class="lang-ja">このスクリプトエンジンではサポートされていません</span>
-	 * .
+	 * Unsupported on this script engine implementation.
 	 */
 	@Override
 	public Object eval(String script, Bindings bindings) throws ScriptException {
@@ -657,9 +460,7 @@ public final class VnanoScriptEngine implements ScriptEngine {
 
 
 	/**
-	 * <span class="lang-en"Unsupported on this script engine implementation</span>
-	 * <span class="lang-ja">このスクリプトエンジンではサポートされていません</span>
-	 * .
+	 * Unsupported on this script engine implementation.
 	 */
 	@Override
 	public Object eval(String script, ScriptContext context) throws ScriptException {
@@ -667,9 +468,7 @@ public final class VnanoScriptEngine implements ScriptEngine {
 	}
 
 	/**
-	 * <span class="lang-en"Unsupported on this script engine implementation</span>
-	 * <span class="lang-ja">このスクリプトエンジンではサポートされていません</span>
-	 * .
+	 * Unsupported on this script engine implementation.
 	 */
 	@Override
 	public Object eval(Reader reader, ScriptContext context) throws ScriptException {
@@ -678,9 +477,7 @@ public final class VnanoScriptEngine implements ScriptEngine {
 
 
 	/**
-	 * <span class="lang-en"Unsupported on this script engine implementation</span>
-	 * <span class="lang-ja">このスクリプトエンジンではサポートされていません</span>
-	 * .
+	 * Unsupported on this script engine implementation.
 	 */
 	@Override
 	public Object eval(Reader reader, Bindings bindings) throws ScriptException {
@@ -689,76 +486,63 @@ public final class VnanoScriptEngine implements ScriptEngine {
 
 
 	/**
-	 * <span class="lang-en"Unsupported on this script engine implementation</span>
-	 * <span class="lang-ja">このスクリプトエンジンではサポートされていません</span>
-	 * .
+	 * Unsupported on this script engine implementation.
 	 */
 	@Override
 	public Bindings getBindings(int scope) {
-		//Scripting API側での読み込み/初期化時に落とさないため、VnanoFatalException は投げない
-		//throw new VnanoFatalException("This feature is unsupported");
+		// If we throw the below, we can't get an instance through the Scripting API.
+		// throw new VnanoFatalException("This feature is unsupported");
 		return null;
 	}
 
 
 	/**
-	 * <span class="lang-en"Unsupported on this script engine implementation</span>
-	 * <span class="lang-ja">このスクリプトエンジンではサポートされていません</span>
-	 * .
+	 * Unsupported on this script engine implementation.
 	 */
 	@Override
 	public void setBindings(Bindings bind, int scope) {
 		if (bind == null) {
 			throw new NullPointerException();
 		}
-
-		//Scripting API側での読み込み/初期化時に落とさないため、VnanoFatalException は投げない
-		//throw new VnanoFatalException("This feature is unsupported");
+		// If we throw the below, we can't get an instance through the Scripting API.
+		// throw new VnanoFatalException("This feature is unsupported");
 	}
 
 
 	/**
-	 * <span class="lang-en"Unsupported on this script engine implementation</span>
-	 * <span class="lang-ja">このスクリプトエンジンではサポートされていません</span>
-	 * .
+	 * Unsupported on this script engine implementation.
 	 */
 	@Override
 	public Bindings createBindings() {
-		//Scripting API側での読み込み/初期化時に落とさないため、VnanoFatalException は投げない
-		//throw new VnanoFatalException("This feature is unsupported");
+		// If we throw the below, we can't get an instance through the Scripting API.
+		// throw new VnanoFatalException("This feature is unsupported");
 		return null;
 	}
 
 
 	/**
-	 * <span class="lang-en"Unsupported on this script engine implementation</span>
-	 * <span class="lang-ja">このスクリプトエンジンではサポートされていません</span>
-	 * .
+	 * Unsupported on this script engine implementation.
 	 */
 	@Override
 	public ScriptContext getContext() {
-		//Scripting API側での読み込み/初期化時に落とさないため、VnanoFatalException は投げない
-		//throw new VnanoFatalException("This feature is unsupported");
+		// If we throw the below, we can't get an instance through the Scripting API.
+		// throw new VnanoFatalException("This feature is unsupported");
 		return null;
 	}
 
 
 	/**
-	 * <span class="lang-en"Unsupported on this script engine implementation</span>
-	 * <span class="lang-ja">このスクリプトエンジンではサポートされていません</span>
-	 * .
+	 * Unsupported on this script engine implementation.
 	 */
 	@Override
 	public void setContext(ScriptContext context) {
-		//Scripting API側での読み込み/初期化時に落とさないため、VnanoFatalException は投げない
-		//throw new VnanoFatalException("This feature is unsupported");
+		// If we throw the below, we can't get an instance through the Scripting API.
+		// throw new VnanoFatalException("This feature is unsupported");
 	}
 
 
 	/**
-	 * <span class="lang-en">Not normally used</span>
-	 * <span class="lang-ja">通常は使用しません</span>
-	 * .
+	 * Unsupported on this script engine implementation.
 	 */
 	@Override
 	public ScriptEngineFactory getFactory() {
