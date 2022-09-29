@@ -1,0 +1,747 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+	<title>XNCI1 Specification</title>
+	<meta charset="UTF-8">
+	<style type="text/css">
+		h1 .spec-path { font-size: 70%; }
+		h2 .spec-path { font-size: 70%; }
+		.spec-table { width: 100%; border: 1px solid #000000; border-collapse: collapse; margin-bottom: 20px; }
+		.spec-table td { border: 1px solid #000000; text-align: left; }
+		.spec-table th { border: 1px solid #000000; text-align: left; }
+		.spec-table .lcol { width: 100px; background-color: #eeeeee; }
+		.spec-table .rcol { }
+		.spec-dl { }
+		.spec-dl dt { font-weight: bold; display: list-item; list-style-position: outside; margin-left: 20px; list-style-type: disc; }
+		.spec-dl dd { margin-bottom: 14px; line-height: 160%; }
+	</style>
+</head>
+
+<body>
+
+
+
+<div style="text-align: center; width: 100%; border: 1px solid #000000; background-color: #eeeeff;">
+VCSSL/VNANO PLUGIN INTERFACE SPECIFICATION
+</div>
+
+
+<h1>External Namespace Connector Interface 1 (XNCI1)<br />Specification Document<br /><span class="spec-path">(org.vcssl.connect.ExternalNamespaceConnectorInterface1)</span></h1>
+
+<hr />
+
+
+
+<h2>Abstract</h2>
+
+<p>
+External Namespace Connector Interface 1 (XNCI1) 
+is an interface (abbreviated as XNCI1) for implementing namespace plug-ins 
+which provides multiple functions and variables available in scripts.
+</p>
+
+
+<h2>Status</h2>
+
+<p>
+The status of this interface is "FINALIZED".
+</p>
+
+<p>
+The specification of this interface had been finalized at 2022/08/31.
+No modifications will be applied for this interface, excluding documents/comments.
+</p>
+
+<p>
+This interface is currently supported by the scripting engine of Vnano. 
+You can use this interface for development of plug-ins of applications equipped with the Vnano engine.
+</p>
+
+
+<h2>License</h2>
+
+<p>
+This interface is published under CC0, which is almost the same as the so-called "copyright-free" (domain).
+</p>
+
+
+
+<h2>List of Fields/Methods</h2>
+
+
+<dl class="spec-dl">
+
+	<dt><a href="#INTERFACE_TYPE_ID">INTERFACE_TYPE_ID</a></dt>
+		<dd>
+			The type ID of this interface (value: "XNCI") referred when the plug-in will be loaded.
+		</dd>
+
+	<dt><a href="#INTERFACE_GENERATION">INTERFACE_GENERATION</a></dt>
+		<dd>
+			The generation of this interface (value: "1").
+		</dd>
+
+	<dt><a href="#getNamespaceName">String getNamespaceName()</a></dt>
+		<dd>
+			Gets the name of this namespace.
+		</dd>
+
+	<dt><a href="#isMandatoryToAccessMembers">boolean isMandatoryToAccessMembers()</a></dt>
+		<dd>
+			Returns whether it is mandatory to specify of this namespace explicitly when accessing member functions/variables.
+		</dd>
+
+	<dt><a href="#getFunctions">ExternalFunctionConnectorInterface1[] getFunctions()</a></dt>
+		<dd>
+			Gets all functions belong to this namespace.
+		</dd>
+
+	<dt><a href="#getVariables">ExternalVariableConnectorInterface1[] getVariables()</a></dt>
+		<dd>
+			Gets all variables belong to this namespace.
+		</dd>
+
+	<dt><a href="#getStructs">ExternalStructConnectorInterface1[] getStructs()</a></dt>
+		<dd>
+			Gets all structs belong to this namespace.
+		</dd>
+
+	<dt><a href="#getEngineConnectorClass">Class&lt;?&gt; getEngineConnectorClass()</a></dt>
+		<dd>
+			Gets the instance of "Class" class, representing the interface or the class of the engine connector, 
+			which is an object for communicating with the scripting engine.
+		</dd>
+
+	<dt><a href="#preInitializeForConnection">void preInitializeForConnection(Object engineConnector)</a></dt>
+		<dd>
+			Performs the pre-initialization process necessary when this plug-in is connected to the script engine.
+		</dd>
+
+	<dt><a href="#postInitializeForConnection">void postInitializeForConnection(Object engineConnector)</a></dt>
+		<dd>
+			Performs the post-initialization process necessary when this plug-in is connected to the script engine.
+		</dd>
+
+	<dt><a href="#preFinalizeForDisconnection">void preFinalizeForDisconnection(Object engineConnector)</a></dt>
+		<dd>
+			Performs the pre-finalization process necessary when this plug-in is disconnected from the script engine.
+		</dd>
+
+	<dt><a href="#postFinalizeForDisconnection">void postFinalizeForDisconnection(Object engineConnector)</a></dt>
+		<dd>
+			Performs the post-finalization process necessary when this plug-in is disconnected from the script engine.
+		</dd>
+
+	<dt><a href="#preInitializeForExecution">void preInitializeForExecution(Object engineConnector)</a></dt>
+		<dd>
+			Performs the pre-initialization process necessary for each execution of a script.
+		</dd>
+
+	<dt><a href="#postInitializeForExecution">void postInitializeForExecution(Object engineConnector)</a></dt>
+		<dd>
+			Performs the post-initialization process necessary for each execution of a script.
+		</dd>
+
+	<dt><a href="#preFinalizeForTermination">void preFinalizeForTermination(Object engineConnector)</a></dt>
+		<dd>
+			Performs the pre-finalization process necessary for each execution of a script.
+		</dd>
+
+	<dt><a href="#postFinalizeForTermination">void postFinalizeForTermination(Object engineConnector)</a></dt>
+		<dd>
+			Performs the post-finalization process necessary for each execution of a script.
+		</dd>
+
+</dl>
+
+<hr />
+
+
+
+<!-- ==================================================================================================== -->
+
+<h2>フィールド</h2>
+
+<table id="INTERFACE_TYPE_ID" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">INTERFACE_TYPE_ID</th>
+	</tr>
+	<tr>
+		<td class="lcol">Value</td>
+		<td class="rcol">The type ID of this interface (value: "XNCI") referred when the plug-in will be loaded.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Type</td>
+		<td class="rcol">static final String</td>
+	</tr>
+</table>
+
+
+<table id="INTERFACE_GENERATION" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">INTERFACE_GENERATION</th>
+	</tr>
+	<tr>
+		<td class="lcol">Value</td>
+		<td class="rcol">The generation of this interface (value: "1").</td>
+	</tr>
+	<tr>
+		<td class="lcol">Type</td>
+		<td class="rcol">static final String</td>
+	</tr>
+</table>
+
+
+
+
+<!-- ==================================================================================================== -->
+
+<h2>Methods</h2>
+
+
+
+
+<table id="getNamespaceName" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">getNamespaceName</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">String getNamespaceName()</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">Gets the name of this namespace.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">None</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">The name of this namespace.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Exception</td>
+		<td class="rcol">None</td>
+	</tr>
+</table>
+
+
+
+<table id="isMandatoryToAccessMembers" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">isMandatoryToAccessMembers</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">boolean isMandatoryToAccessMembers()</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			Returns whether it is mandatory to specify of this namespace explicitly when accessing member functions/variables.
+			</p>
+			<p>
+			This feature may be ignored on the script engine which does not support it.
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">None</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">Returns true if this namespace is mandatory to be specified to access members.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Exception</td>
+		<td class="rcol">None</td>
+	</tr>
+</table>
+
+
+
+<table id="getFunctions" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">getFunctions</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">ExternalFunctionConnectorInterface1[] getFunctions()</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">
+			Gets all functions belong to this namespace.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">None</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">The array storing all functions belong to this namespace.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Exception</td>
+		<td class="rcol">None</td>
+	</tr>
+</table>
+
+
+<table id="getVariables" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">getVariables</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">ExternalVariableConnectorInterface1[] getVariables()</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">
+			Gets all variables belong to this namespace.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">None</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">The array storing all variables belong to this namespace.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Exception</td>
+		<td class="rcol">None</td>
+	</tr>
+</table>
+
+
+
+<table id="getVariables" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">getVariables</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">ExternalStructConnectorInterface1[] getStructs()</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			Gets all structs belong to this namespace.
+			</p>
+			<p>
+			However, the specification of ExternalStructConnectorInterface1 (XSCI1) has not been determined yet, 
+			so as for now, the content of the XSCI1's interface file is almost empty.
+			</p>
+			<p>
+			Hence, at least now, this method has no meanings so it always returns (should be implemented to return) an empty array.
+			This method will be available after when XSCI1's specification is determined.
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">None</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">The array storing all structs belong to this namespace.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Exception</td>
+		<td class="rcol">None</td>
+	</tr>
+</table>
+
+
+
+
+<table id="getEngineConnectorClass" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">getEngineConnectorClass</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">Class&lt;?&gt; getEngineConnectorClass()</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			Returns the instance of "Class" class, representing the interface or the class of the engine connector, 
+			which is an object for communicating with the scripting engine.
+			</p>
+			<p>
+			The instance of the specified interface/class by this method will be passed to the argument of 
+			initialization/finalization methods, e.g.: <a href="#preInitializeForConnection">preInitializeForConnection(Object engineConnector)</a>.
+			</p>
+			<p>
+			What type of interfaces are available depend on the implementation of the scripting engine, 
+			but at least, 
+			<a href="./EngineConnector1_SPEC_ENGLISH.html">ECI1</a> 
+			is guaranteed to be available by the specification of XNCI1.
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">None</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">
+		The Class representing the interface/class for communicating with the scripting engine.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Exception</td>
+		<td class="rcol">None</td>
+	</tr>
+</table>
+
+
+
+
+<table id="preInitializeForConnection" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">preInitializeForConnection</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">void preInitializeForConnection(Object engineConnector) throws ConnectorException</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			Performs the pre-initialization process necessary when this plug-in is connected to the script engine.
+			</p>
+			<p>
+			On this interface, two connection-initialization (pre- and post-) processes can be implemented.
+			This process (pre-) will be performed before when all member variables/functions are initialized.
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">
+			engineConnector: The engine connector
+			(see: <a href="#getEngineConnectorClass">getEngineConnectorClass()</a> method).
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">None</td>
+	</tr>
+	<tr>
+		<td class="lcol">Exception</td>
+		<td class="rcol">ConnectorException: Thrown when the initialization has failed.</td>
+	</tr>
+</table>
+
+<table id="postInitializeForConnection" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">postInitializeForConnection</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">void postInitializeForConnection(Object engineConnector) throws ConnectorException</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			Performs the post-initialization process necessary when this plug-in is connected to the script engine.
+			</p>
+			<p>
+			On this interface, two connection-initialization (pre- and post-) processes can be implemented.
+			This process (post-) will be performed after when all member variables/functions are initialized.
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">
+			engineConnector: The engine connector
+			(see: <a href="#getEngineConnectorClass">getEngineConnectorClass()</a> method).
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">None</td>
+	</tr>
+	<tr>
+		<td class="lcol">Exception</td>
+		<td class="rcol">ConnectorException: Thrown when the initialization has failed.</td>
+	</tr>
+</table>
+
+
+
+<table id="preFinalizeForDisconnection" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">preFinalizeForDisconnection</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">void preFinalizeForDisconnection(Object engineConnector) throws ConnectorException</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			Performs the pre-finalization process necessary when this plug-in is disconnected from the script engine.
+			</p>
+			<p>
+			On this interface, two connection-finalization (pre- and post-) processes can be implemented.
+			This process (pre-) will be performed before when all member variables/functions are finalized.
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">
+			engineConnector: The engine connector
+			(see: <a href="#getEngineConnectorClass">getEngineConnectorClass()</a> method).
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">None</td>
+	</tr>
+	<tr>
+		<td class="lcol">Exception</td>
+		<td class="rcol">ConnectorException: Thrown when the finalization has failed.</td>
+	</tr>
+</table>
+
+<table id="postFinalizeForDisconnection" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">postFinalizeForDisconnection</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">void postFinalizeForDisconnection(Object engineConnector) throws ConnectorException</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			Performs the post-finalization process necessary when this plug-in is disconnected from the script engine.
+			</p>
+			<p>
+			On this interface, two connection-finalization (pre- and post-) processes can be implemented.
+			This process (post-) will be performed after when all member variables/functions are finalized.
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">
+			engineConnector: The engine connector
+			(see: <a href="#getEngineConnectorClass">getEngineConnectorClass()</a> method).
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">None</td>
+	</tr>
+	<tr>
+		<td class="lcol">Exception</td>
+		<td class="rcol">ConnectorException: Thrown when the finalization has failed.</td>
+	</tr>
+</table>
+
+
+
+
+
+
+
+
+
+
+<table id="preInitializeForExecution" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">preInitializeForExecution</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">void preInitializeForExecution(Object engineConnector) throws ConnectorException</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			Performs the pre-initialization process necessary for each execution of a script.
+			</p>
+			<p>
+			On this interface, two execution-initialization (pre- and post-) processes can be implemented.
+			This process (pre-) will be performed before when all member variables/functions are initialized.
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">
+			engineConnector: The engine connector
+			(see: <a href="#getEngineConnectorClass">getEngineConnectorClass()</a> method).
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">None</td>
+	</tr>
+	<tr>
+		<td class="lcol">Exception</td>
+		<td class="rcol">ConnectorException: Thrown when the initialization has failed.</td>
+	</tr>
+</table>
+
+<table id="postInitializeForExecution" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">postInitializeForExecution</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">void postInitializeForExecution(Object engineConnector) throws ConnectorException</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			Performs the post-initialization process necessary for each execution of a script.
+			</p>
+			<p>
+			On this interface, two execution-initialization (pre- and post-) processes can be implemented.
+			This process (post-) will be performed after when all member variables/functions are initialized.
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">
+			engineConnector: The engine connector
+			(see: <a href="#getEngineConnectorClass">getEngineConnectorClass()</a> method).
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">None</td>
+	</tr>
+	<tr>
+		<td class="lcol">Exception</td>
+		<td class="rcol">ConnectorException: Thrown when the initialization has failed.</td>
+	</tr>
+</table>
+
+
+
+
+
+<table id="preFinalizeForTermination" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">preFinalizeForTermination</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">void preFinalizeForTermination(Object engineConnector) throws ConnectorException</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			Performs the pre-finalization process necessary for each execution of a script.
+			</p>
+			<p>
+			On this interface, two execution-finalization (pre- and post-) processes can be implemented.
+			This process (pre-) will be performed before when all member variables/functions are finalized.
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">
+			engineConnector: The engine connector
+			(see: <a href="#getEngineConnectorClass">getEngineConnectorClass()</a> method).
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">None</td>
+	</tr>
+	<tr>
+		<td class="lcol">Exception</td>
+		<td class="rcol">ConnectorException: Thrown when the finalization has failed.</td>
+	</tr>
+</table>
+
+<table id="postFinalizeForTermination" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">postFinalizeForTermination</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">void postFinalizeForTermination(Object engineConnector) throws ConnectorException</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			Performs the post-finalization process necessary for each execution of a script.
+			</p>
+			<p>
+			On this interface, two execution-finalization (pre- and post-) processes can be implemented.
+			This process (post-) will be performed after when all member variables/functions are finalized.
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">
+			engineConnector: The engine connector
+			(see: <a href="#getEngineConnectorClass">getEngineConnectorClass()</a> method).
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">None</td>
+	</tr>
+	<tr>
+		<td class="lcol">Exception</td>
+		<td class="rcol">ConnectorException: Thrown when the finalization has failed.</td>
+	</tr>
+</table>
+
+
+
+
+
+
+</body>
+</html>

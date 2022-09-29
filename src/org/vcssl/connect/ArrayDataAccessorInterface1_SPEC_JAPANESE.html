@@ -1,0 +1,543 @@
+<!doctype html>
+<html lang="ja">
+
+<head>
+	<title>ADAI1 仕様書</title>
+	<meta charset="UTF-8">
+	<style type="text/css">
+		h1 .spec-path { font-size: 70%; }
+		h2 .spec-path { font-size: 70%; }
+		.spec-table { width: 100%; border: 1px solid #000000; border-collapse: collapse; margin-bottom: 20px; }
+		.spec-table td { border: 1px solid #000000; text-align: left; }
+		.spec-table th { border: 1px solid #000000; text-align: left; }
+		.spec-table .lcol { width: 100px; background-color: #eeeeee; }
+		.spec-table .rcol { }
+		.spec-dl { }
+		.spec-dl dt { font-weight: bold; display: list-item; list-style-position: outside; margin-left: 20px; list-style-type: disc; }
+		.spec-dl dd { margin-bottom: 14px; line-height: 160%; }
+	</style>
+</head>
+
+<body>
+
+
+
+<div style="text-align: center; width: 100%; border: 1px solid #000000; background-color: #eeeeff;">
+VCSSL/Vnano プラグイン インターフェース 仕様書
+</div>
+
+
+<h1>Array Data Accessor Interface 1 (ADAI1)<br />インターフェース仕様書<br /><span class="spec-path">(org.vcssl.connect.ArrayDataAccessorInterface1)</span></h1>
+
+<hr />
+
+
+
+<h2>概要</h2>
+
+<p>
+Array Data Accessor Interface 1 (ADAI1) は、主に処理系のデータコンテナが実装してサポートする、データ入出力インターフェースの一つです。
+</p>
+
+<p>
+この org.vcssl.connect パッケージ内では、スクリプトエンジン側とプラグイン側との間で、必要に応じてデータ型の変換なしにデータを受け渡しするための、
+複数のデータ入出力インターフェースが提供されています。
+</p>
+
+<p>
+その中でこの ADAI1 は、多次元配列データに対する入出力機能を提供します。
+</p>
+
+
+<h2>ステータス</h2>
+
+<p>
+このインターフェースの現在のステータスは "FINALIZED"（確定済み）です。
+</p>
+
+<p>
+このインターフェースの仕様は、2022年8月31日時点で最終確定しました。今後は原則として、ドキュメントやコメント類以外の変更は加えられません。
+</p>
+
+<p>
+現在は <a href="https://www.vcssl.org/ja-jp/vnano/">Vnano</a> のスクリプトエンジンでサポートされ、同エンジンを搭載したアプリケーションのプラグイン開発において利用できます。
+</p>
+
+
+<h2>ライセンス</h2>
+
+<p>
+このインターフェースは、実質的な著作権フリー/パブリックドメインである CC0 に基づいて公開されています。
+</p>
+
+
+<h2>フィールド/メソッド等の一覧</h2>
+
+<dl class="spec-dl">
+
+	<dt><a href="#type-param">型パラメータ</a></dt>
+		<dd>
+			このインターフェースは、実装クラスのインスタンス生成時に、型パラメータ T の指定が必要です。
+		</dd>
+
+	<dt><a href="#INTERFACE_TYPE_ID">INTERFACE_TYPE_ID</a></dt>
+		<dd>
+			プラグインのロード時に参照される、このインターフェースの形式ID（値: "ADAI"）です。
+		</dd>
+
+	<dt><a href="#INTERFACE_GENERATION">INTERFACE_GENERATION</a></dt>
+		<dd>
+			このインターフェースの世代名です（値: "1"）。
+		</dd>
+
+	<dt><a href="#ARRAY_SIZE_OF_SCALAR">ARRAY_SIZE_OF_SCALAR</a></dt>
+		<dd>
+			スカラ値におけるサイズ値です（値: 1）。
+		</dd>
+
+	<dt><a href="#ARRAY_RANK_OF_SCALAR">ARRAY_RANK_OF_SCALAR</a></dt>
+		<dd>
+			スカラ値における配列次元数（配列ランク値）です（値: 0）。
+		</dd>
+
+	<dt><a href="#ARRAY_LENGTHS_OF_SCALAR">ARRAY_LENGTHS_OF_SCALAR</a></dt>
+		<dd>
+			スカラ値における、各次元の長さを格納する配列です（値: { }）。
+		</dd>
+
+	<dt><a href="#setArrayData">void setArrayData(T data, int offset, int[] lengths)</a></dt>
+		<dd>
+			1次元に直列化された配列データを、そのデータに関する必須情報と共に設定します。
+		</dd>
+
+	<dt><a href="#getArrayData">T getArrayData()</a></dt>
+		<dd>
+			1次元に直列化された配列データを取得します。
+		</dd>
+
+	<dt><a href="#hasArrayData">boolean hasArrayData()</a></dt>
+		<dd>
+			1次元に直列化された配列データを取得可能かどうかを判定します。
+		</dd>
+
+	<dt><a href="#getArrayOffset">int getArrayOffset()</a></dt>
+		<dd>
+			1次元に直列化された配列データの中で、スカラ値が格納されているインデックスを返します。
+		</dd>
+
+	<dt><a href="#getArrayLengths">int[] getArrayLengths()</a></dt>
+		<dd>
+			配列データの各次元の長さを格納する配列を取得します。
+		</dd>
+
+	<dt><a href="#getArraySize">int getArraySize()</a></dt>
+		<dd>
+			1次元に直列化された直列化された配列としての、データのサイズ（長さ）を返します。
+		</dd>
+
+	<dt><a href="#getArrayRank">int getArrayRank()</a></dt>
+		<dd>
+			配列データの次元数（配列ランク値）を返します。
+		</dd>
+
+</dl>
+
+
+
+<hr />
+
+
+<h2 id="type-param">型パラメータ</h2>
+
+<p>
+このインターフェースの実装クラスは、以下のように、インスタンス生成の際に型パラメータを指定します：
+</p>
+
+<p style="margin-left: 50px;">
+	ArrayDataAccessorInterface1&lt;double[]&gt; instance = new ImplClass&lt;double[]&gt;();
+</p>
+
+<p>
+ここでImplClassクラスは、このインターフェースを実装したクラスの例です。
+上記で指定している double[] が型パラメータで、本ドキュメント内では「 T 」と表します。
+</p>
+
+
+<!-- ==================================================================================================== -->
+
+<h2>フィールド</h2>
+
+<table id="INTERFACE_TYPE_ID" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">INTERFACE_TYPE_ID</th>
+	</tr>
+	<tr>
+		<td class="lcol">値の意味</td>
+		<td class="rcol">プラグインのロード時に参照される、このインターフェースの形式ID（値: "ADAI"）です。</td>
+	</tr>
+	<tr>
+		<td class="lcol">データ型</td>
+		<td class="rcol">static final String</td>
+	</tr>
+</table>
+
+
+<table id="INTERFACE_GENERATION" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">INTERFACE_GENERATION</th>
+	</tr>
+	<tr>
+		<td class="lcol">値の意味</td>
+		<td class="rcol">このインターフェースの世代名です（値: "1"）。</td>
+	</tr>
+	<tr>
+		<td class="lcol">データ型</td>
+		<td class="rcol">static final String</td>
+	</tr>
+</table>
+
+
+<table id="ARRAY_SIZE_OF_SCALAR" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">ARRAY_SIZE_OF_SCALAR</th>
+	</tr>
+	<tr>
+		<td class="lcol">値の意味</td>
+		<td class="rcol">スカラ値におけるサイズ値です（値: 1）。</td>
+	</tr>
+	<tr>
+		<td class="lcol">データ型</td>
+		<td class="rcol">static final int</td>
+	</tr>
+</table>
+
+
+
+<table id="ARRAY_RANK_OF_SCALAR" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">ARRAY_RANK_OF_SCALAR</th>
+	</tr>
+	<tr>
+		<td class="lcol">値の意味</td>
+		<td class="rcol">スカラ値における配列次元数（配列ランク値）です（値: 0）。</td>
+	</tr>
+	<tr>
+		<td class="lcol">データ型</td>
+		<td class="rcol">static final int</td>
+	</tr>
+</table>
+
+
+<table id="ARRAY_LENGTHS_OF_SCALAR" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">ARRAY_LENGTHS_OF_SCALAR</th>
+	</tr>
+	<tr>
+		<td class="lcol">値の意味</td>
+		<td class="rcol">スカラ値における、各次元の長さを格納する配列です（値: { }）。</td>
+	</tr>
+	<tr>
+		<td class="lcol">データ型</td>
+		<td class="rcol">static final int[ ]</td>
+	</tr>
+</table>
+
+
+
+
+
+<!-- ==================================================================================================== -->
+
+<h2>メソッド</h2>
+
+
+
+
+<table id="setArrayData" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">setArrayData</th>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">void setArrayData(T data, int offset, int[] lengths)</td>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">
+			
+			<p style="margin-top: 0px;">
+			1次元に直列化された配列データを、そのデータに関する必須情報と共に設定します。
+			</p>
+			
+			<p>
+			このインターフェースでは、スカラ値や多次元配列も含めて、データは全て1次元の配列として入出力します。
+			そのため、引数 data には常に 1 次元配列を渡してください。1 次元配列への、データの格納の仕方は下記の通りです。
+			</p>
+			
+			<p>
+			<b>スカラ値を設定する場合:</b>
+			引数 data には、スカラ値が要素として、任意のインデックスの位置に格納されている配列を1次元指定します。
+			そして、そのインデックスを引数 offset に指定します。
+			引数 lengths には、長さ 0 のから配列を指定します
+			（即ち、このインターフェースではスカラ値を「 0 次元の配列 」と見なして扱います）。
+			</p>
+			
+			<p>
+			<b>1次元配列データを設定する場合:</b>
+			引数 data には、設定したい1次元配列データをそのまま指定します。
+			引数 offset には、常に 0 を指定します。
+			引数 lengths には、長さが 1 で、[0] の位置に1次元配列データ（引数 data に指定）の長さが格納された配列を指定します。
+			</p>
+			
+			<p>
+			<b>多次元配列データを格納する場合:</b>
+			引数 data には、多次元配列の各要素値を、下記の通り規則的に並べた（直列化された） 1 次元配列を指定します:
+			</span>
+			
+			<div class="lang-ja" style="border: 1px solid #000000; margin: 5px; padding: 3px;">
+			    (長さが [N1][N2] の 2 次元配列の場合)
+			    <br>
+			    <span style="margin-left: 30px;">data[ 直列化されたインデックス ] = 2次元配列[ 1次元目のインデックス ][ 2次元目のインデックス ]</span>
+			    <br>
+			    ここで「直列化されたインデックス」は以下のように求めます：
+			    <br>
+			    <span style="margin-left: 30px;">直列化されたインデックス = N2 * 1次元目のインデックス + 2次元目のインデックス</span>
+			</div>
+			
+			<div class="lang-ja" style="border: 1px solid #000000; margin: 5px; padding: 3px;">
+			    (長さが [N1][N2][N3] の 3 次元配列の場合)
+			    <br>
+			    <span style="margin-left: 30px;">data[ 直列化されたインデックス ] = 3次元配列[ 1次元目のインデックス ][ 2次元目のインデックス ][ 3次元目のインデックス ]</span>
+			    <br>
+			    ここで「直列化されたインデックス」は以下のように求めます：
+			    <br>
+			    <span style="margin-left: 30px;">直列化されたインデックス = N3*N2 * 1次元目のインデックス + N3 * 2次元目のインデックス + 3次元目のインデックス</span>
+			</div>
+			
+			<div class="lang-ja" style="border: 1px solid #000000; margin: 5px; padding: 3px;">
+			    (長さが [N1][N2][N3][N4] の 4 次元配列の場合)
+			    <br>
+			    <span style="margin-left: 30px;">data[ 直列化されたインデックス ] = 4次元配列[ 1次元目のインデックス ][ 2次元目のインデックス ][ 3次元目のインデックス ][ 4次元目のインデックス ]</span>
+			    <br>
+			    ここで「直列化されたインデックス」は以下のように求めます：
+			    <br>
+			    <span style="margin-left: 30px;">直列化されたインデックス = N4*N3*N2 * 1次元目のインデックス + N4*N3 * 2次元目のインデックス + N4 * 3次元目のインデックス + 4次元目のインデックス</span>
+			</div>
+			...
+			</p>
+			
+			<p>
+			引数 offset には、常に 0 を指定します。
+			引数 lengths には、長さが多次元配列データ（引数 data に指定）の次元数に等しい配列を指定し、
+			その中に、各次元の長さを格納します。その際、要素 [0] が左端次元の長さを表し、要素 [max] が右端次元の長さを表します
+			（具体例としては、長さ [N1][N2][N3] の 3 次元配列においては {N1, N2, N3} を指定します）。
+			</p>
+			
+			<p>
+			なお、data や offset および lengths の値を個別に設定するメソッドは、
+			それらの関係が瞬間的にでも不整合な状態になる事を防ぐため、提供されません。
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">data: 設定するデータ（上記参照）<br />offset: スカラ値の格納位置（上記参照）<br/>lengths: 次元ごとの長さを格納する配列</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">なし</td>
+	</tr>
+</table>
+
+
+
+
+
+
+<table id="getArrayData" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">getArrayData</th>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">T getArrayData()</td>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">
+			1次元に直列化された配列データを取得します。
+			<br />
+			スカラ値や多次元配列データの格納のされ方については、
+			<a href="#setArrayData">setArrayData</a> メソッドの説明を参照してください。
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">なし</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">データ内容を格納する（直列化された） 1 次元配列</td>
+	</tr>
+</table>
+
+
+
+<table id="hasArrayData" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">hasArrayData</th>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">boolean hasArrayData()</td>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">
+			1次元に直列化された配列データを取得可能かどうかを判定します。
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">なし</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">配列データを取得可能であれば true が返されます。</td>
+	</tr>
+</table>
+
+
+
+<table id="getArrayOffset" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">getArrayOffset</th>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">int getArrayOffset()</td>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">
+			1次元に直列化された配列データの中で、スカラ値が格納されているインデックスを返します。
+			詳細は、
+			<a href="#setArrayData">setArrayData</a> メソッドの引数 offset に関する説明を参照してください。
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">なし</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">配列データの中で、スカラ値が格納されているインデックス</td>
+	</tr>
+</table>
+
+
+
+<table id="getArrayLengths" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">getArrayLengths</th>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">int[] getArrayLengths()</td>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">
+			配列データの各次元の長さを格納する配列を取得します。
+			詳細は、
+			<a href="#setArrayData">setArrayData</a> メソッドの引数 lengths に関する説明を参照してください。
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">なし</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">配列データの各次元の長さを格納する配列</td>
+	</tr>
+</table>
+
+
+<table id="getArraySize" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">getArraySize</th>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">int getArraySize()</td>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">
+			1次元に直列化された配列としての、データのサイズ（長さ）を返します。
+			<br />
+			データがスカラ値の場合、サイズは常に 1 となります。
+			<br />
+			データが 1 次元配列の場合、サイズはその長さそのものです。
+			<br />
+			データが長さ [N1][N2][N3]...[NM] の多次元配列の場合、サイズは N1*n2*n3*...*NM となります。
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">なし</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">直列化された 1 次元配列としてのデータのサイズ（長さ）</td>
+	</tr>
+</table>
+
+
+<table id="getArrayRank" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">getArrayRank</th>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">int getArrayRank()</td>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">
+			配列データの次元数（配列ランク値）を返します。
+			<br />
+			データがスカラ値の場合、配列ランク値は常に 0 となります。
+			<br />
+			データが 1 次元配列の場合、配列ランク値は常に 1 となります。
+			<br />
+			データが N 次元配列の場合、配列ランク値は N です。
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">なし</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">多次元配列データの次元数（配列ランク値）</td>
+	</tr>
+</table>
+
+
+
+</body>
+</html>

@@ -1,0 +1,1161 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+	<title>XFCI1 Specification</title>
+	<meta charset="UTF-8">
+	<style type="text/css">
+		h1 .spec-path { font-size: 70%; }
+		h2 .spec-path { font-size: 70%; }
+		.spec-table { width: 100%; border: 1px solid #000000; border-collapse: collapse; margin-bottom: 20px; }
+		.spec-table td { border: 1px solid #000000; text-align: left; }
+		.spec-table th { border: 1px solid #000000; text-align: left; }
+		.spec-table .lcol { width: 100px; background-color: #eeeeee; }
+		.spec-table .rcol { }
+		.spec-dl { }
+		.spec-dl dt { font-weight: bold; display: list-item; list-style-position: outside; margin-left: 20px; list-style-type: disc; }
+		.spec-dl dd { margin-bottom: 14px; line-height: 160%; }
+	</style>
+</head>
+
+<body>
+
+
+
+<div style="text-align: center; width: 100%; border: 1px solid #000000; background-color: #eeeeff;">
+VCSSL/VNANO PLUGIN INTERFACE SPECIFICATION
+</div>
+
+
+<h1>External Function Connector Interface 1 (XFCI1)<br />Specification Document<br /><span class="spec-path">(org.vcssl.connect.ExternalFunctionConnectorInterface1)</span></h1>
+
+<hr />
+
+
+
+<h2>Abstract</h2>
+
+<p>
+External Function Connector Interface 1 (XFCI1) 
+is an interface for implementing external function plug-ins which provide functions available in scripts.
+</p>
+
+
+<h2>Status</h2>
+
+<p>
+The status of this interface is "FINALIZED".
+</p>
+
+<p>
+The specification of this interface had been finalized at 2022/08/31.
+No modifications will be applied for this interface, excluding documents/comments.
+</p>
+
+<p>
+This interface is currently supported by the scripting engine of Vnano. 
+You can use this interface for development of plug-ins of applications equipped with the Vnano engine.
+</p>
+
+
+<h2>License</h2>
+
+<p>
+This interface is published under CC0, which is almost the same as the so-called "copyright-free" (domain).
+</p>
+
+
+<h2>List of Fields/Methods</h2>
+
+
+
+<dl class="spec-dl">
+
+	<dt><a href="#INTERFACE_TYPE_ID">INTERFACE_TYPE_ID</a></dt>
+		<dd>
+			The type ID of this interface (value: "XFCI") referred when the plug-in will be loaded.
+		</dd>
+
+	<dt><a href="#INTERFACE_GENERATION">INTERFACE_GENERATION</a></dt>
+		<dd>
+			The generation of this interface (value: "1").
+		</dd>
+
+	<dt><a href="#getFunctionName">String getFunctionName()</a></dt>
+		<dd>
+			Gets the name of the function.
+		</dd>
+
+	<dt><a href="#hasParameterNames">boolean hasParameterNames()</a></dt>
+		<dd>
+			Returns whether parameter names can be gotten.
+		</dd>
+
+	<dt><a href="#getParameterNames">String[] getParameterNames()</a></dt>
+		<dd>
+			Returns names of all parameters.
+		</dd>
+
+	<dt><a href="#getParameterClasses">Class&lt;?&gt;[] getParameterClasses()</a></dt>
+		<dd>
+			Returns the instances of "Class" class representing data-types and array-ranks of all parameters.
+		</dd>
+
+	<dt><a href="#getParameterUnconvertedClasses">Class&lt;?&gt;[] getParameterUnconvertedClasses()</a></dt>
+		<dd>
+			Returns the instance of "Class" class representing data-I/O interfaces for accessing to data of parameters, 
+			when the data-conversion feature is disabled.
+		</dd>
+
+	<dt><a href="#getParameterDataTypeArbitrarinesses">boolean[] getParameterDataTypeArbitrarinesses()</a></dt>
+		<dd>
+			Returns arbitrarinesses of data-types of parameters.
+		</dd>
+
+	<dt><a href="#getParameterArrayRankArbitrarinesses">boolean[] getParameterArrayRankArbitrarinesses()</a></dt>
+		<dd>
+			Returns arbitrarinesses of array-ranks of parameters.
+		</dd>
+
+	<dt><a href="#getParameterReferencenesses">boolean[] getParameterReferencenesses()</a></dt>
+		<dd>
+			Returns referencenesses of parameters.
+		</dd>
+
+	<dt><a href="#getParameterConstantnesses">boolean[] getParameterConstantnesses()</a></dt>
+		<dd>
+			Returns constantnesses of parameters.
+		</dd>
+
+	<dt><a href="#isParameterCountArbitrary">boolean isParameterCountArbitrary()</a></dt>
+		<dd>
+			Returns whether the number of parameters is arbitrary.
+		</dd>
+
+	<dt><a href="#hasVariadicParameters">boolean hasVariadicParameters()</a></dt>
+		<dd>
+			（Unsupported feature on the current version of VCSSL/Vnano Engine）
+		</dd>
+
+	<dt><a href="#getReturnClass">Class&lt;?&gt; getReturnClass(Class&lt;?&gt;[] parameterClasses)</a></dt>
+		<dd>
+			Returns the instance of "Class" class, representing a data-type and an array-rank of the return value of this function.
+		</dd>
+
+	<dt><a href="#getReturnUnconvertedClass">Class&lt;?&gt; getReturnUnconvertedClass(Class&lt;?&gt;[] parameterClasses)</a></dt>
+		<dd>
+			Returns Class-instances representing data-I/O interfaces for accessing to data 
+			of return value of this function, when the data-conversion feature is disabled.
+		</dd>
+
+	<dt><a href="#isReturnDataTypeArbitrary">boolean isReturnDataTypeArbitrary()</a></dt>
+		<dd>
+			Returns whether the data-type of the return value of this function varies arbitrary.
+		</dd>
+
+	<dt><a href="#isReturnArrayRankArbitrary">boolean isReturnArrayRankArbitrary()</a></dt>
+		<dd>
+			Returns whether the array-rank (number of dimensions) of the return value of this function varies arbitrary.
+		</dd>
+
+	<dt><a href="#isDataConversionNecessary">boolean isDataConversionNecessary()</a></dt>
+		<dd>
+			Returns whether the data-conversions for arguments and return value are necessary.
+		</dd>
+
+	<dt><a href="#invoke">Object invoke(Object[] arguments)</a></dt>
+		<dd>
+			Invokes the process of this function.
+		</dd>
+
+	<dt><a href="#getEngineConnectorClass">Class&lt;?&gt; getEngineConnectorClass()</a></dt>
+		<dd>
+			Returns the instance of "Class" class, representing the interface or the class of the engine connector, 
+			which is an object for communicating with the scripting engine.
+		</dd>
+
+	<dt><a href="#initializeForConnection">void initializeForConnection(Object engineConnector)</a></dt>
+		<dd>
+			Performs the initialization process necessary when this plug-in is connected to the scripting engine.
+		</dd>
+
+	<dt><a href="#finalizeForDisconnection">void finalizeForDisconnection(Object engineConnector)</a></dt>
+		<dd>
+			Performs the finalization process necessary when this plug-in is disconnected from the scripting engine.
+		</dd>
+
+	<dt><a href="#initializeForExecution">void initializeForExecution(Object engineConnector)</a></dt>
+		<dd>
+			Performs the initialization process necessary for each execution of a script.
+		</dd>
+
+	<dt><a href="#finalizeForTermination">void finalizeForTermination(Object engineConnector)</a></dt>
+		<dd>
+			Performs the finalization process necessary for each execution of a script.
+		</dd>
+</dl>
+
+
+
+<hr />
+
+
+
+<!-- ==================================================================================================== -->
+
+<h2>Fields</h2>
+
+<table id="INTERFACE_TYPE_ID" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">INTERFACE_TYPE_ID</th>
+	</tr>
+	<tr>
+		<td class="lcol">Value</td>
+		<td class="rcol">The type ID of this interface (value: "XFCI") referred when the plug-in will be loaded.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Type</td>
+		<td class="rcol">static final String</td>
+	</tr>
+</table>
+
+
+<table id="INTERFACE_GENERATION" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">INTERFACE_GENERATION</th>
+	</tr>
+	<tr>
+		<td class="lcol">Value</td>
+		<td class="rcol">The generation of this interface (value: "1").</td>
+	</tr>
+	<tr>
+		<td class="lcol">Type</td>
+		<td class="rcol">static final String</td>
+	</tr>
+</table>
+
+
+
+
+<!-- ==================================================================================================== -->
+
+<h2>Methods</h2>
+
+
+
+
+<table id="getFunctionName" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">getFunctionName</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">String getFunctionName()</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">Gets the name of the function.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">None</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">The name of the function.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Exception</td>
+		<td class="rcol">None</td>
+	</tr>
+</table>
+
+
+
+
+<table id="hasParameterNames" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">hasParameterNames</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">boolean hasParameterNames()</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">Returns whether parameter names can be gotten.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">None</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">Returns true if parameter names can be gotten.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Exception</td>
+		<td class="rcol">None</td>
+	</tr>
+</table>
+
+
+<table id="getParameterNames" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">getParameterNames</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">String[] getParameterNames()</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">Returns names of all parameters.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">None</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">The array storing names of all parameters.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Exception</td>
+		<td class="rcol">None</td>
+	</tr>
+</table>
+
+
+<table id="getParameterClasses" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">getParameterClasses</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">Class&lt;?&gt;[] getParameterClasses()</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			Returns the instances of "Class" class representing data-types and array-ranks of all parameters.
+			</p>
+			<p>
+			For example, returns { double.class, long[][].class } when parameters of this function are: (double, long[][]).
+			<br />
+			(Note that, "float" type values in scripts are handled as "double" type values in plug-ins, 
+			and "int" type values in scripts are handled as "long" type values in plug-ins.)
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">None</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">
+			The "Class" type array, each element represents the data-type and array-rank of each parameter.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Exception</td>
+		<td class="rcol">None</td>
+	</tr>
+</table>
+
+
+
+<table id="getParameterUnconvertedClasses" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">getParameterUnconvertedClasses</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">Class&lt;?&gt;[] getParameterUnconvertedClasses()</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			Returns the instance of "Class" class representing data-I/O interfaces for accessing to data of parameters, 
+			when <a href="#isDataConversionNecessary">the data-conversion feature</a> is disabled.
+			</p>
+			<p>
+			As interfaces for accessing to a scalar parameter, 
+			<a href="./Int64ScalarDataAccessorInterface1_SPEC_ENGLISH.html">Int64 SDAI1</a>、
+			<a href="./Float64ScalarDataAccessorInterface1_SPEC_ENGLISH.html">Float64 SDAI1</a>、
+			<a href="./BoolScalarDataAccessorInterface1_SPEC_ENGLISH.html">Bool SDAI1</a>、
+			<a href="./StringScalarDataAccessorInterface1_SPEC_ENGLISH.html">String SDAI1</a>、
+			and
+			<a href="./ArrayDataAccessorInterface1_SPEC_ENGLISH.html">ADAI1</a>
+			are available.
+			For an array parameter, only 
+			<a href="./ArrayDataAccessorInterface1_SPEC_ENGLISH.html">ADAI1</a>
+			is available.
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">None</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">
+			The "Class" type array, each element represents the I/O interface for accessing to the data of each parameter.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Exception</td>
+		<td class="rcol">None</td>
+	</tr>
+</table>
+
+
+
+<table id="getParameterDataTypeArbitrarinesses" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">getParameterDataTypeArbitrarinesses</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">boolean[] getParameterDataTypeArbitrarinesses()</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			Returns arbitrarinesses of data-types of parameters.
+			</p>
+			<p>
+			When the data-type arbitrariness is "true" for a parameter, 
+			any type of value can be passed as an actual argument for the parameter.
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">None</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">
+			The array storing data-type arbitrarinesses of all parameters.
+			<br />
+			(Each element represents the data-type arbitrariness of each paremeter.)
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Exception</td>
+		<td class="rcol">None</td>
+	</tr>
+</table>
+
+
+
+<table id="getParameterArrayRankArbitrarinesses" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">getParameterArrayRankArbitrarinesses</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">boolean[] getParameterArrayRankArbitrarinesses()</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			Returns arbitrarinesses of array-ranks of parameters.
+			</p>
+			<p>
+			When the array-rank arbitrariness is "true" for a parameter, 
+			an array having any rank (number of dimensions) can be passed as an actual argument for the parameter.
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">None</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">
+			The array storing array-rank arbitrarinesses of all parameters.
+			<br />
+			(Each element represents the array-rank arbitrariness of each paremeter.)
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Exception</td>
+		<td class="rcol">None</td>
+	</tr>
+</table>
+
+
+
+<table id="getParameterReferencenesses" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">getParameterReferencenesses</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">boolean[] getParameterReferencenesses()</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			Returns referencenesses of parameters.
+			</p>
+			<p>
+			When the referenceness is "true" for a parameter, 
+			an actual argument of the parameter will be passed by reference.
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">None</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">
+			The array storing referencenesses of all parameters.
+			<br />
+			(Each element represents the referenceness of each paremeter.)
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Exception</td>
+		<td class="rcol">None</td>
+	</tr>
+</table>
+
+
+<table id="getParameterConstantnesses" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">getParameterConstantnesses</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">boolean[] getParameterConstantnesses()</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			Returns constantnesses of parameters.
+			</p>
+			<p>
+			When the constantness is "true" for a parameter, 
+			it is regarded that the value of an actual argument of the parameter will not be modified 
+			in the process of this function.
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">None</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">
+			The array storing constantnesses of all parameters.
+			<br />
+			(Each element represents the constantness of each paremeter.)
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Exception</td>
+		<td class="rcol">None</td>
+	</tr>
+</table>
+
+
+
+<table id="isParameterCountArbitrary" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">isParameterCountArbitrary</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">boolean isParameterCountArbitrary()</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			Returns whether the number of parameters is arbitrary.
+			</p>
+			<p>
+			When this feature is enabled (when this method returns "true"), 
+			by default, it is regarded that all parameters have the same data-type and array-rank.
+			Hence, <a href="#getParameterClasses">getParameterClasses()</a> method should return an array of which length is 1, 
+			and it represents the data-type/array-rank of all parameters.
+			</p>
+			<p>
+			However, if <a href="#getParameterDataTypeArbitrarinesses">getParameterDataTypeArbitrarinesses()</a> 
+			method or  
+			<a href="#getParameterArrayRankArbitrarinesses">getParameterArrayRankArbitrarinesses()</a>
+			method returns { true }, data-types / array-ranks of parameters are arbitrary, so they may different each other.
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">None</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">
+			Returns true if the number of parameters is arbitrary.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Exception</td>
+		<td class="rcol">None</td>
+	</tr>
+</table>
+
+
+
+<table id="hasVariadicParameters" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">hasVariadicParameters</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">boolean hasVariadicParameters()</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">
+		（Unsupported feature on the current version of VCSSL/Vnano Engine）
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">None</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">
+			（Unsupported feature on the current version of VCSSL/Vnano Engine）
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Exception</td>
+		<td class="rcol">None</td>
+	</tr>
+</table>
+
+
+
+<table id="getReturnClass" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">getReturnClass</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">Class&lt;?&gt; getReturnClass(Class&lt;?&gt;[] parameterClasses)</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			Returns the instance of "Class" class, representing a data-type and an array-rank of the return value of this function.
+			</p>
+			<p>
+			For example, returns double.class for double-type return value, 
+			returns long[][].class for long[][]-type return value, and so on.
+			<br />
+			(Note that, "float" type values in scripts are handled as "double" type values in plug-ins, 
+			and "int" type values in scripts are handled as "long" type values in plug-ins.)
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">
+			parameterClasses: The "Class" type array, each element represents the data-type and array-rank of each actual argument.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">
+			The "Class" type value representing the data-type and the array-rank of the return value of this function.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Exception</td>
+		<td class="rcol">None</td>
+	</tr>
+</table>
+
+
+
+
+<table id="getReturnUnconvertedClass" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">getReturnUnconvertedClass</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">Class&lt;?&gt; getReturnUnconvertedClass(Class&lt;?&gt;[] parameterClasses)</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			Returns Class-instances representing data-I/O interfaces for accessing to data 
+			of return value of this function, when <a href="#isDataConversionNecessary">the data-conversion feature</a> is disabled.
+			</p>
+			<p>
+			As interfaces for accessing to a scalar return value, 
+			<a href="./Int64ScalarDataAccessorInterface1_SPEC_ENGLISH.html">Int64 SDAI1</a>、
+			<a href="./Float64ScalarDataAccessorInterface1_SPEC_ENGLISH.html">Float64 SDAI1</a>、
+			<a href="./BoolScalarDataAccessorInterface1_SPEC_ENGLISH.html">Bool SDAI1</a>、
+			<a href="./StringScalarDataAccessorInterface1_SPEC_ENGLISH.html">String SDAI1</a>、
+			and
+			<a href="./ArrayDataAccessorInterface1_SPEC_ENGLISH.html">ADAI1</a>
+			are available.
+			For an array return value, only 
+			<a href="./ArrayDataAccessorInterface1_SPEC_ENGLISH.html">ADAI1</a>
+			is available.
+			</p>
+			<p>
+			Also, information of data-types and array-ranks of actual arguments will be passed to "parameterClasses".
+			The above information enable to implement a kind of "generic" function 
+			of which the data-type/array-rank varies depending on data-types/array-ranks of parameters.
+			(To implement such functions, set the data-type/array-rank of the return value arbitrary,
+			by implementing 
+			<a href="#isReturnDataTypeArbitrary">isReturnDataTypeArbitrary()</a> and
+			<a href="#isReturnArrayRankArbitrary">isReturnArrayRankArbitrary()</a> 
+			methods to return "true".)
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">
+			parameterClasses: The "Class" type array, each element represents the data-type/array-rank of each actual argument.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">
+			The "Class" type value representing the I/O interface for accessing to the data of return value.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Exception</td>
+		<td class="rcol">None</td>
+	</tr>
+</table>
+
+
+<table id="isReturnDataTypeArbitrary" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">isReturnDataTypeArbitrary</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">boolean isReturnDataTypeArbitrary()</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			Returns whether the data-type of the return value of this function varies arbitrary.
+			</p>
+			<p>
+			This feature is for implementing a kind of "generic" function of which type of return value 
+			varies depending on types of actual arguments.
+			Hence, even if this feature is enabled (even if this method returns "true"), 
+			the type of the return value must be determined at when types of actual arguments are determined.
+			See also: exprenation of <a href="#getReturnClass">getReturnClass(Class[])</a> method.
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">None</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">
+			Returns true if the data-type of the return value varies arbitrary.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Exception</td>
+		<td class="rcol">None</td>
+	</tr>
+</table>
+
+
+
+<table id="isReturnArrayRankArbitrary" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">isReturnArrayRankArbitrary</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">boolean isReturnArrayRankArbitrary()</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			Returns whether the array-rank (number of dimensions) of the return value of this function varies arbitrary.
+			</p>
+			<p>
+			This feature is for implementing a kind of "generic" function of which array-rank of return value 
+			varies depending on types/ranks of actual arguments.
+			Hence, even if this feature is enabled (even if this method returns "true"), 
+			the rank of the return value must be determined at when types/ranks of actual arguments are determined.
+			See also: exprenation of <a href="#getReturnClass">getReturnClass(Class[])</a> method.
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">None</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">
+			Returns true if the array-rank of the return value varies arbitrary.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Exception</td>
+		<td class="rcol">None</td>
+	</tr>
+</table>
+
+
+
+<table id="isDataConversionNecessary" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">isDataConversionNecessary</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">boolean isDataConversionNecessary()</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			Returns whether the data-conversions for arguments and return value are necessary.
+			</p>
+			<p>
+			When this feature is enabled (when this method returns "true"),
+			you can receive data of arguments by using simple data-types.
+			For example, you can receive Double instance for double-type parameter, 
+			long[][] instance for long[][]-type parameter, and so on.
+			Also, as same as the arguments, 
+			you can return the simple data-type value as the return value of the function.
+			</p>
+			<p>
+			On the other hand, when this feature is disabled (when this method retunrs "false"),
+			it is necessary to access to data of parameters and the return value through data-I/O interfaces, 
+			which are specified as return values of 
+			<a href="#getParameterUnconvertedClasses">getParameterUnconvertedClasses()</a> 
+			and
+			<a href="#getReturnUnconvertedClass">getReturnUnconvertedClass(Class[])</a> method. 
+			</p>
+			<p>
+			Enabling this feature make the implementation of the plugin simple.
+			However, this feature takes overhead processing costs for converting data of parameters and return value.
+			Therefore, if you want to implement a function plug-in which will be called frequently from scripts 
+			of which processing speed is required to be fast in some degree,
+			disabling this feature gives some advantage to reduce overhead processing costs of function calls.
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">None</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">
+			Returns true if the data-conversions are necessary.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Exception</td>
+		<td class="rcol">None</td>
+	</tr>
+</table>
+
+
+
+
+<table id="invoke" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">invoke</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">Object invoke(Object[] arguments) throws ConnectorException</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			Invokes the process of this function.
+			</p>
+			<p>
+			The data of the actual arguments of the function will be passed to the argument of this method: "arguments", 
+			which is an Object[] type array storing data of each actual argument as an element.
+			</p>
+			<p>
+			When data-conversion feature is enabled (see: {@link isDataConversionNecessary()} method), 
+			each actual argument will be stored as a simple type of data in "arguments".
+			For example, Double instance for double-type parameter, long[][] instance for long[][]-type parameter, and so on.
+			</p>
+			<p>
+			On the other hand, when data-conversion feature is disabled, in "arguments",
+			each actual argument will be stored as a data-container object implementing data-I/O interface,
+			specified as each element of return values of 
+			<a href="#getParameterUnconvertedClasses">getParameterUnconvertedClasses()</a> method.
+			In addition, in this case, 
+			"arguments[0]" will be a data-container object for storing data of the return value of this function,
+			so the data of first argument will be stored at "arguments[1]", and the next arg will be stored at "argument[2]". 
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">
+			arguments: The array storing all actual arguments, which are passed from the caller-side.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">
+			The return value of the function call.
+			<br />
+			(When <a href="#isDataConversionNecessary">the data conversion feature</a> is disabled, store the return value to arguments[0] instead.)
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Exception</td>
+		<td class="rcol">ConnectorException: Thrown when any error occurred in the process of this function.</td>
+	</tr>
+</table>
+
+
+
+
+<table id="getEngineConnectorClass" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">getEngineConnectorClass</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">Class&lt;?&gt; getEngineConnectorClass()</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			Returns the instance of "Class" class, representing the interface or the class of the engine connector, 
+			which is an object for communicating with the scripting engine.
+			</p>
+			<p>
+			The instance of the specified interface/class by this method will be passed to the argument of 
+			initialization/finalization methods, e.g.: <a href="#initializeForConnection">initializeForConnection(Object engineConnector)</a>.
+			</p>
+			<p>
+			What type of interfaces are available depend on the implementation of the scripting engine, 
+			but at least, 
+			<a href="./EngineConnector1_SPEC_ENGLISH.html">ECI1</a> 
+			is guaranteed to be available by the specification of XFCI1.
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">None</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">
+		The Class representing the interface/class for communicating with the scripting engine.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Exception</td>
+		<td class="rcol">None</td>
+	</tr>
+</table>
+
+
+
+<table id="initializeForConnection" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">initializeForConnection</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">void initializeForConnection(Object engineConnector) throws ConnectorException</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">
+			Performs the initialization process necessary when this plug-in is connected to the scripting engine.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">
+			engineConnector: The engine connector 
+			(see: <a href="#getEngineConnectorClass">getEngineConnectorClass()</a> method).
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">None</td>
+	</tr>
+	<tr>
+		<td class="lcol">Exception</td>
+		<td class="rcol">ConnectorException: Thrown when the initialization has failed.</td>
+	</tr>
+</table>
+
+
+
+<table id="finalizeForDisconnection" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">finalizeForDisconnection</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">void finalizeForDisconnection(Object engineConnector) throws ConnectorException</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">
+			Performs the finalization process necessary when this plug-in is disconnected from the scripting engine.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">
+			engineConnector: The engine connector 
+			(see: <a href="#getEngineConnectorClass">getEngineConnectorClass()</a> method).
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">None</td>
+	</tr>
+	<tr>
+		<td class="lcol">Exception</td>
+		<td class="rcol">ConnectorException: Thrown when the finalization has failed.</td>
+	</tr>
+</table>
+
+
+
+<table id="initializeForExecution" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">initializeForExecution</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">void initializeForExecution(Object engineConnector) throws ConnectorException</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">
+			Performs the initialization process necessary for each execution of a script.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">
+			engineConnector: The engine connector 
+			(see: <a href="#getEngineConnectorClass">getEngineConnectorClass()</a> method).
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">None</td>
+	</tr>
+	<tr>
+		<td class="lcol">Exception</td>
+		<td class="rcol">ConnectorException: Thrown when the initialization has failed.</td>
+	</tr>
+</table>
+
+
+
+<table id="finalizeForTermination" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">finalizeForTermination</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">void finalizeForTermination(Object engineConnector) throws ConnectorException</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">
+			Performs the finalization process necessary for each execution of a script.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">
+			engineConnector: The engine connector 
+			(see: <a href="#getEngineConnectorClass">getEngineConnectorClass()</a> method).
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">None</td>
+	</tr>
+	<tr>
+		<td class="lcol">Exception</td>
+		<td class="rcol">ConnectorException: Thrown when the finalization has failed.</td>
+	</tr>
+</table>
+
+
+
+
+
+
+</body>
+</html>

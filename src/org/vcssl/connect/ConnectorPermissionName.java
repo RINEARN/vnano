@@ -1,86 +1,90 @@
 /*
  * ==================================================
- * Connector Parmission
- * ( for VCSSL / Vnano Plug-in Development )
+ * Connector Parmission Name
  * --------------------------------------------------
  * This file is released under CC0.
- * Written in 2017-2020 by RINEARN (Fumihiro Matsui)
+ * Written in 2017-2022 by RINEARN
  * ==================================================
  */
 
+// THE STATUS OF THE SPECIFICATION OF THIS CLASS IS "EXTENSION ONLY".
+// IN PRINCIPLE, DON'T DELETE EXISTING CONSTRUCTORS/METHODS/FIELDS.
+
 package org.vcssl.connect;
 
+
 /**
- * <p>
- * パーミッション設定ベースのセキュリティレイヤーを持つ処理系のために、
- * 列挙的にパーミッションが定義されたクラスです。
- * </p>
+ * A class defining names of permission items.
  *
- * <p>
- * このクラスがフィールドとして提供する各パーミッションは、
- * 本来は列挙子の要素として定義されるのが素直であり、
- * その方が処理系側の検査オーバーヘッドも軽減が見込めますが、
- * 定義順序変更時のプラグイン側の再コンパイルを不要にするためや、
- * その他の互換性を考慮して、
- * public static final な文字列フィールドとして定義されています。
- * </p>
- *
- * <p>
- * その上で、検査オーバーヘッドを可能な限り軽減するために、
- * 各パーミッションの定義値は、明瞭さと引き換えに文字列長を短く抑えています。
- * そのため、各定義値をリテラルなどで直接使用する事は避け、
- * なるべくこのクラスのフィールドを参照して使用してください。
- * </p>
- *
- * @author RINEARN (Fumihiro Matsui)
+ * Fields of this class are natural to be defined as elements of an enum, 
+ * however, they are defined as "public static final String" fields, 
+ * instead of enum elements.
+ * This is to prevent unexpected behaviour when definition order of them are changed, 
+ * and plug-ins referencing them have not been re-compiled.
+ * 
+ * Please note that, it is not recommended to describe values of them directly (as String literals).
+ * Refer fields of this class as possible as.
  */
 public class ConnectorPermissionName {
 
-	/** 全てのパーミッションを含む事を表します。 */
+	/** The name of the meta item representing all permission items. */
 	public static final String ALL = "ALL";
 
-	/** どのパーミッションも含まない事を表します。 */
+	/** The name of the meta item representing no permission item. */
 	public static final String NONE = "NONE";
 
-	/** 全パーミッション項目における、未設定時のデフォルト値を設定/取得する際に用います。 */
+	/**
+	 * The name of the meta item storing the default permission value.
+	 * 
+	 * For permission items of which values are not specified explicitly, 
+	 * a default value (e.g. {@link ConnectorPermissionValue#DENY DENY}) will be set automatically.
+	 * You can change that default value by setting the value to this meta permission item.
+	 * For example, if you set the value {@link ConnectorPermissionValue#ASK ASK} to this permission item "DEFAULT", 
+	 * the script engine will ask to the user when non-specified permissions are required.
+	 */
 	public static final String DEFAULT = "DEFAULT";
 
-	/** 実行対象スクリプトの終了を要求する事に対するパーミッションです。 */
+	/** The permission to exit the currently executed program (script).  */
 	public static final String PROGRAM_EXIT = "PROGRAM_EXIT";
 
-	/** 実行対象スクリプトのリセットを要求する事に対するパーミッションです。 */
+ 	/** The permission to reset/restart the currently executed program (script). */
 	public static final String PROGRAM_RESET = "PROGRAM_RESET";
 
-	/** 実行対象スクリプトの変更を要求する事に対するパーミッションです。 */
+	/** The permission to change the currently executed program (script). */
 	public static final String PROGRAM_CHANGE = "PROGRAM_CHANGE";
 
-	/** システム経由における外部プログラムやコマンドの実行（execの相当操作に対するパーミッションです。 */
+	/** The permission to execute commands or other programs through the Operating System and so on. */
 	public static final String SYSTEM_PROCESS = "SYSTEM_PROCESS";
 
-	/** ディレクトリの新規作成に対するパーミッションです。 */
+	/** The permission to create a new directory (folder). */
 	public static final String DIRECTORY_CREATE = "DIRECTORY_CREATE";
 
-	/** ディレクトリの削除に対するパーミッションです。 */
+ 	/** The permission to delete a directory (folder). */
 	public static final String DIRECTORY_DELETE = "DIRECTORY_DELETE";
 
-	/** ディレクトリ内のファイル一覧取得に対するパーミッションです。 */
+	/** The permission to get the list of files in a directory (folder). */
 	public static final String DIRECTORY_LIST = "DIRECTORY_LIST";
 
-	/** ファイルの新規作成に対するパーミッションです。 */
+	// note: The permission to change a directory name is substitutable by the combination of CREATE/DELETE/LIST permissions.
+
+	/** The permission to create a new file. */
 	public static final String FILE_CREATE = "FILE_CREATE";
 
-	/** ファイルの削除に対するパーミッションです。 */
+	/** The permission to delete a file. */
 	public static final String FILE_DELETE = "FILE_DELETE";
 
-	/** ファイルの書き込みに対するパーミッションです。 */
+	/** The permission to write contents of a file. */
 	public static final String FILE_WRITE = "FILE_WRITE";
 
-	/** ファイルの書き込みに対するパーミッションです。 */
+ 	/** The permission to read contents of a file. */
 	public static final String FILE_READ = "FILE_READ";
 
-	/** ファイルの上書きに対するパーミッションです。 */
+	/** The permission to overwrite contents of a file. */
 	public static final String FILE_OVERWRITE = "FILE_OVERWRITE";
 
-	/** ファイルの情報変更に対するパーミッションです。 */
+	/** The permission to change information (last modified date, and so on) of a file. */
 	public static final String FILE_INFORMATION_CHANGE = "FILE_INFORMATION_CHANGE";
+
+	// note: The permission to change a file name is substitutable by the combination of CREATE/READ/WRITE/DELETE permissions.
+
 }

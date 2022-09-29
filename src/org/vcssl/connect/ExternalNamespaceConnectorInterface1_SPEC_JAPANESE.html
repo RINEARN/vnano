@@ -1,0 +1,743 @@
+<!doctype html>
+<html lang="ja">
+
+<head>
+	<title>XNCI1 仕様書</title>
+	<meta charset="UTF-8">
+	<style type="text/css">
+		h1 .spec-path { font-size: 70%; }
+		h2 .spec-path { font-size: 70%; }
+		.spec-table { width: 100%; border: 1px solid #000000; border-collapse: collapse; margin-bottom: 20px; }
+		.spec-table td { border: 1px solid #000000; text-align: left; }
+		.spec-table th { border: 1px solid #000000; text-align: left; }
+		.spec-table .lcol { width: 100px; background-color: #eeeeee; }
+		.spec-table .rcol { }
+		.spec-dl { }
+		.spec-dl dt { font-weight: bold; display: list-item; list-style-position: outside; margin-left: 20px; list-style-type: disc; }
+		.spec-dl dd { margin-bottom: 14px; line-height: 160%; }
+	</style>
+</head>
+
+<body>
+
+
+
+<div style="text-align: center; width: 100%; border: 1px solid #000000; background-color: #eeeeff;">
+VCSSL/Vnano プラグイン インターフェース 仕様書
+</div>
+
+
+<h1>External Namespace Connector Interface 1 (XNCI1)<br />インターフェース仕様書<br /><span class="spec-path">(org.vcssl.connect.ExternalNamespaceConnectorInterface1)</span></h1>
+
+<hr />
+
+
+
+<h2>概要</h2>
+
+<p>
+External Namespace Connector Interface 1 (XNCI1) は、
+スクリプト内で使用可能な、複数の関数/変数をまとめて提供する、
+名前空間プラグインを実装するためのインターフェースです。
+</p>
+
+
+<h2>ステータス</h2>
+
+<p>
+このインターフェースの現在のステータスは "FINALIZED"（確定済み）です。
+</p>
+
+<p>
+このインターフェースの仕様は、2022年8月31日時点で最終確定しました。今後は原則として、ドキュメントやコメント類以外の変更は加えられません。
+</p>
+
+<p>
+現在は <a href="https://www.vcssl.org/ja-jp/vnano/">Vnano</a> のスクリプトエンジンでサポートされ、同エンジンを搭載したアプリケーションのプラグイン開発において利用できます。
+</p>
+
+
+<h2>ライセンス</h2>
+
+<p>
+このインターフェースは、実質的な著作権フリー/パブリックドメインである CC0 に基づいて公開されています。
+</p>
+
+
+<h2>フィールド/メソッド等の一覧</h2>
+
+
+<dl class="spec-dl">
+
+	<dt><a href="#INTERFACE_TYPE_ID">INTERFACE_TYPE_ID</a></dt>
+		<dd>
+			プラグインのロード時に参照される、このインターフェースの形式ID（値: "XNCI"）です。
+		</dd>
+
+	<dt><a href="#INTERFACE_GENERATION">INTERFACE_GENERATION</a></dt>
+		<dd>
+			このインターフェースの世代名です（値: "1"）。
+		</dd>
+
+	<dt><a href="#getNamespaceName">String getNamespaceName()</a></dt>
+		<dd>
+			この名前空間の名称を取得します。
+		</dd>
+
+	<dt><a href="#isMandatoryToAccessMembers">boolean isMandatoryToAccessMembers()</a></dt>
+		<dd>
+			この名前空間に属する関数/変数にアクセスする際に、名前空間の明示的な指定が必須であるかどうかを返します。
+		</dd>
+
+	<dt><a href="#getFunctions">ExternalFunctionConnectorInterface1[] getFunctions()</a></dt>
+		<dd>
+			この名前空間に属する全ての関数を返します。
+		</dd>
+
+	<dt><a href="#getVariables">ExternalVariableConnectorInterface1[] getVariables()</a></dt>
+		<dd>
+			この名前空間に属する全ての変数を返します。
+		</dd>
+
+	<dt><a href="#getStructs">ExternalStructConnectorInterface1[] getStructs()</a></dt>
+		<dd>
+			この名前空間に属する全ての構造体を返します。
+		</dd>
+
+	<dt><a href="#getEngineConnectorClass">Class&lt;?&gt; getEngineConnectorClass()</a></dt>
+		<dd>
+			スクリプトエンジンと情報をやり取りする際に使用するオブジェクトである「エンジンコネクタ」の、
+			インターフェースまたはクラスを返します。
+		</dd>
+
+	<dt><a href="#preInitializeForConnection">void preInitializeForConnection(Object engineConnector)</a></dt>
+		<dd>
+			このプラグインが、スクリプトエンジンに接続される際に必要となる初期化処理（関数/変数の初期化よりも前）を実行します。
+		</dd>
+
+	<dt><a href="#postInitializeForConnection">void postInitializeForConnection(Object engineConnector)</a></dt>
+		<dd>
+			このプラグインが、スクリプトエンジンに接続される際に必要となる初期化処理（関数/変数の初期化よりも後）を実行します。
+		</dd>
+
+	<dt><a href="#preFinalizeForDisconnection">void preFinalizeForDisconnection(Object engineConnector)</a></dt>
+		<dd>
+			このプラグインが、スクリプトエンジンから接続解除される際に必要となる終了時処理（関数/変数の終了時処理よりも前）を実行します。
+		</dd>
+
+	<dt><a href="#postFinalizeForDisconnection">void postFinalizeForDisconnection(Object engineConnector)</a></dt>
+		<dd>
+			このプラグインが、スクリプトエンジンから接続解除される際に必要となる終了時処理（関数/変数の終了時処理よりも後）を実行します。
+		</dd>
+
+	<dt><a href="#preInitializeForExecution">void preInitializeForExecution(Object engineConnector)</a></dt>
+		<dd>
+			スクリプトの実行毎に必要な初期化処理（関数/変数の初期化よりも前）を実行します。
+		</dd>
+
+	<dt><a href="#postInitializeForExecution">void postInitializeForExecution(Object engineConnector)</a></dt>
+		<dd>
+			スクリプトの実行毎に必要な初期化処理（関数/変数の初期化よりも後）を実行します。
+		</dd>
+
+	<dt><a href="#preFinalizeForTermination">void preFinalizeForTermination(Object engineConnector)</a></dt>
+		<dd>
+			スクリプトの実行毎に必要な終了時処理（関数/変数の終了時処理よりも前）を実行します。
+		</dd>
+
+	<dt><a href="#postFinalizeForTermination">void postFinalizeForTermination(Object engineConnector)</a></dt>
+		<dd>
+			スクリプトの実行毎に必要な終了時処理（関数/変数の終了時処理よりも後）を実行します。
+		</dd>
+
+</dl>
+
+<hr />
+
+
+
+<!-- ==================================================================================================== -->
+
+<h2>フィールド</h2>
+
+<table id="INTERFACE_TYPE_ID" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">INTERFACE_TYPE_ID</th>
+	</tr>
+	<tr>
+		<td class="lcol">値の意味</td>
+		<td class="rcol">プラグインのロード時に参照される、このインターフェースの形式ID（値: "XNCI"）です。</td>
+	</tr>
+	<tr>
+		<td class="lcol">データ型</td>
+		<td class="rcol">static final String</td>
+	</tr>
+</table>
+
+
+<table id="INTERFACE_GENERATION" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">INTERFACE_GENERATION</th>
+	</tr>
+	<tr>
+		<td class="lcol">値の意味</td>
+		<td class="rcol">このインターフェースの世代名です（値: "1"）。</td>
+	</tr>
+	<tr>
+		<td class="lcol">データ型</td>
+		<td class="rcol">static final String</td>
+	</tr>
+</table>
+
+
+
+
+<!-- ==================================================================================================== -->
+
+<h2>メソッド</h2>
+
+
+
+
+<table id="getNamespaceName" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">getNamespaceName</th>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">String getNamespaceName()</td>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">この名前空間の名称を取得します。</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">なし</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">名前空間の名称。</td>
+	</tr>
+	<tr>
+		<td class="lcol">例外</td>
+		<td class="rcol">なし</td>
+	</tr>
+</table>
+
+
+
+<table id="isMandatoryToAccessMembers" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">isMandatoryToAccessMembers</th>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">boolean isMandatoryToAccessMembers()</td>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			この名前空間に属する関数/変数にアクセスする際に、名前空間の明示的な指定が必須であるかどうかを返します。
+			</p>
+			<p>
+			この機能は、未対応の処理系においては無視される可能性があります。
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">なし</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">メンバーへのアクセスの際に、この名前空間の指定が必須である場合は true が返されます。</td>
+	</tr>
+	<tr>
+		<td class="lcol">例外</td>
+		<td class="rcol">なし</td>
+	</tr>
+</table>
+
+
+
+<table id="getFunctions" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">getFunctions</th>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">ExternalFunctionConnectorInterface1[] getFunctions()</td>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">
+			この名前空間に属する全ての関数を返します。
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">なし</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">この名前空間に属する全ての関数を格納する配列。</td>
+	</tr>
+	<tr>
+		<td class="lcol">例外</td>
+		<td class="rcol">なし</td>
+	</tr>
+</table>
+
+
+<table id="getVariables" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">getVariables</th>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">ExternalVariableConnectorInterface1[] getVariables()</td>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">
+			この名前空間に属する全ての変数を返します。
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">なし</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">この名前空間に属する全ての変数を格納する配列。</td>
+	</tr>
+	<tr>
+		<td class="lcol">例外</td>
+		<td class="rcol">なし</td>
+	</tr>
+</table>
+
+
+
+<table id="getVariables" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">getVariables</th>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">ExternalStructConnectorInterface1[] getStructs()</td>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			この名前空間に属する全ての構造体を返します。
+			</p>
+			<p>
+			ただし、ExternalStructConnectorInterface1 の仕様は現時点で完全に未定であり、
+			同名のインターフェースファイルが定義されているのみの段階です。
+			</p>
+			<p>
+			このメソッドも、現状では予約的に宣言されているのみであり、常に空配列を返します
+			（プラグイン開発の際は、そのように実装します）。
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">なし</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">この名前空間に属する全ての構造体を格納する配列。</td>
+	</tr>
+	<tr>
+		<td class="lcol">例外</td>
+		<td class="rcol">なし</td>
+	</tr>
+</table>
+
+
+
+
+<table id="getEngineConnectorClass" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">getEngineConnectorClass</th>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">Class&lt;?&gt; getEngineConnectorClass()</td>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			スクリプトエンジンと情報をやり取りする際に使用するオブジェクトである「エンジンコネクタ」の、
+			インターフェースまたはクラスを返します。
+			</p>
+			<p>
+			このメソッドで戻り値として指定したインターフェースまたはクラスの実装インスタンスが、
+			<a href="#preInitializeForConnection">preInitializeForConnection(Object engineConnector)</a> 
+			メソッド等の初期化/終了時メソッド群の、引数 engineConnector に渡されます。
+			</p>
+			<p>
+			利用可能なエンジンコネクタの形式は、スクリプトエンジンの実装に依存しますが、
+			少なくとも <a href="./EngineConnector1_SPEC_JAPANESE.html">ECI1</a> は利用可能である事が、
+			XNCI1の仕様上保証されています。
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">なし</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">
+		使用したいエンジンコネクタのインターフェースまたはクラス。
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">例外</td>
+		<td class="rcol">なし</td>
+	</tr>
+</table>
+
+
+
+<table id="preInitializeForConnection" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">preInitializeForConnection</th>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">void preInitializeForConnection(Object engineConnector) throws ConnectorException</td>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			このプラグインが、スクリプトエンジンに接続される際に必要となる初期化処理を実行します。
+			</p>
+			<p>
+			このインターフェースでは、接続初期化処理は 2 通り（pre- と post-）実装可能です。
+			こちらの処理（pre-）は、この名前空間に属する全ての変数/関数の接続初期化処理よりも前に実行されます。
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">
+			engineConnector: エンジンコネクタ
+			（<a href="#getEngineConnectorClass">getEngineConnectorClass()</a> メソッド参照）
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">なし</td>
+	</tr>
+	<tr>
+		<td class="lcol">例外</td>
+		<td class="rcol">ConnectorException: 初期化処理に失敗した場合にスローされます。</td>
+	</tr>
+</table>
+
+<table id="postInitializeForConnection" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">postInitializeForConnection</th>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">void postInitializeForConnection(Object engineConnector) throws ConnectorException</td>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			このプラグインが、スクリプトエンジンに接続される際に必要となる初期化処理を実行します。
+			</p>
+			<p>
+			このインターフェースでは、接続初期化処理は 2 通り（pre- と post-）実装可能です。
+			こちらの処理（post-）は、この名前空間に属する全ての変数/関数の接続初期化処理よりも後に実行されます。
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">
+			engineConnector: エンジンコネクタ
+			（<a href="#getEngineConnectorClass">getEngineConnectorClass()</a> メソッド参照）
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">なし</td>
+	</tr>
+	<tr>
+		<td class="lcol">例外</td>
+		<td class="rcol">ConnectorException: 初期化処理に失敗した場合にスローされます。</td>
+	</tr>
+</table>
+
+
+
+<table id="preFinalizeForDisconnection" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">preFinalizeForDisconnection</th>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">void preFinalizeForDisconnection(Object engineConnector) throws ConnectorException</td>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			このプラグインが、スクリプトエンジンから接続解除される際に必要となる終了時処理を実行します。
+			</p>
+			<p>
+			このインターフェースでは、接続終了時処理は 2 通り（pre- と post-）実装可能です。
+			こちらの処理（pre-）は、この名前空間に属する全ての変数/関数の接続終了時処理よりも前に実行されます。
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">
+			engineConnector: エンジンコネクタ
+			（<a href="#getEngineConnectorClass">getEngineConnectorClass()</a> メソッド参照）
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">なし</td>
+	</tr>
+	<tr>
+		<td class="lcol">例外</td>
+		<td class="rcol">ConnectorException: 終了時処理に失敗した場合にスローされます。</td>
+	</tr>
+</table>
+
+<table id="postFinalizeForDisconnection" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">postFinalizeForDisconnection</th>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">void postFinalizeForDisconnection(Object engineConnector) throws ConnectorException</td>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			このプラグインが、スクリプトエンジンから接続解除される際に必要となる終了時処理を実行します。
+			</p>
+			<p>
+			このインターフェースでは、接続終了時処理は 2 通り（pre- と post-）実装可能です。
+			こちらの処理（post-）は、この名前空間に属する全ての変数/関数の接続終了時処理よりも後に実行されます。
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">
+			engineConnector: エンジンコネクタ
+			（<a href="#getEngineConnectorClass">getEngineConnectorClass()</a> メソッド参照）
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">なし</td>
+	</tr>
+	<tr>
+		<td class="lcol">例外</td>
+		<td class="rcol">ConnectorException: 終了時処理に失敗した場合にスローされます。</td>
+	</tr>
+</table>
+
+
+
+
+
+
+
+
+
+
+<table id="preInitializeForExecution" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">preInitializeForExecution</th>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">void preInitializeForExecution(Object engineConnector) throws ConnectorException</td>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			スクリプトの実行毎に必要な初期化処理を実行します。
+			</p>
+			<p>
+			このインターフェースでは、実行毎初期化処理は 2 通り（pre- と post-）実装可能です。 
+			こちらの処理（pre-）は、この名前空間に属する全ての変数/関数の実行毎初期化処理よりも前に実行されます。
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">
+			engineConnector: エンジンコネクタ
+			（<a href="#getEngineConnectorClass">getEngineConnectorClass()</a> メソッド参照）
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">なし</td>
+	</tr>
+	<tr>
+		<td class="lcol">例外</td>
+		<td class="rcol">ConnectorException: 初期化処理に失敗した場合にスローされます。</td>
+	</tr>
+</table>
+
+<table id="postInitializeForExecution" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">postInitializeForExecution</th>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">void postInitializeForExecution(Object engineConnector) throws ConnectorException</td>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			スクリプトの実行毎に必要な初期化処理を実行します。
+			</p>
+			<p>
+			このインターフェースでは、実行毎初期化処理は 2 通り（pre- と post-）実装可能です。 
+			こちらの処理（post-）は、この名前空間に属する全ての変数/関数の実行毎初期化処理よりも後に実行されます。
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">
+			engineConnector: エンジンコネクタ
+			（<a href="#getEngineConnectorClass">getEngineConnectorClass()</a> メソッド参照）
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">なし</td>
+	</tr>
+	<tr>
+		<td class="lcol">例外</td>
+		<td class="rcol">ConnectorException: 初期化処理に失敗した場合にスローされます。</td>
+	</tr>
+</table>
+
+
+
+
+
+<table id="preFinalizeForTermination" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">preFinalizeForTermination</th>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">void preFinalizeForTermination(Object engineConnector) throws ConnectorException</td>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			スクリプトの実行毎に必要な終了時処理を実行します。
+			</p>
+			<p>
+			このインターフェースでは、実行毎終了時処理は 2 通り（pre- と post-）実装可能です。
+			こちらの処理（pre-）は、この名前空間に属する全ての変数/関数の実行毎終了時処理よりも前に実行されます。
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">
+			engineConnector: エンジンコネクタ
+			（<a href="#getEngineConnectorClass">getEngineConnectorClass()</a> メソッド参照）
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">なし</td>
+	</tr>
+	<tr>
+		<td class="lcol">例外</td>
+		<td class="rcol">ConnectorException: 終了時処理に失敗した場合にスローされます。</td>
+	</tr>
+</table>
+
+<table id="postFinalizeForTermination" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">postFinalizeForTermination</th>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">void postFinalizeForTermination(Object engineConnector) throws ConnectorException</td>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			スクリプトの実行毎に必要な終了時処理を実行します。
+			</p>
+			<p>
+			このインターフェースでは、実行毎終了時処理は 2 通り（pre- と post-）実装可能です。
+			こちらの処理（post-）は、この名前空間に属する全ての変数/関数の実行毎終了時処理よりも後に実行されます。
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">
+			engineConnector: エンジンコネクタ
+			（<a href="#getEngineConnectorClass">getEngineConnectorClass()</a> メソッド参照）
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">なし</td>
+	</tr>
+	<tr>
+		<td class="lcol">例外</td>
+		<td class="rcol">ConnectorException: 終了時処理に失敗した場合にスローされます。</td>
+	</tr>
+</table>
+
+
+
+
+
+
+</body>
+</html>

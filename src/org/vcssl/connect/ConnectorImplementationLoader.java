@@ -3,7 +3,7 @@
  * Connector Implementation Loader
  * --------------------------------------------------
  * This file is released under CC0.
- * Written in 2019 by RINEARN (Fumihiro Matsui)
+ * Written in 2019-2022 by RINEARN
  * ==================================================
  */
 
@@ -16,27 +16,51 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 
+/**
+ * A class for loading plug-in objects, implementing plug-in connector interfaces provided in this package.
+ */
 public class ConnectorImplementationLoader {
 
+	/** The default path from which plug-ins will be loaded. */
 	private static final String[] DEFAULT_LOADING_PATHS = { "." };
-	private static final String INTERFACE_TYPE_FIELD_NAME = "INTERFACE_TYPE";
+
+	/** The name of the field declaring the type ID of the interface. */
+	private static final String INTERFACE_TYPE_ID_FIELD_NAME = "INTERFACE_TYPE_ID";
+
+	/** The name of the field declaring the generation of the interface. */
 	private static final String INTERFACE_GENERATION_FIELD_NAME = "INTERFACE_GENERATION";
 
+	/** The ClassLoader for loading classes of plug-ins. */
 	private ClassLoader classLoader = null;
+
+	/** Stores whether filter out loaded plug-ins in which no interface type name is declared. */
 	private boolean interfaceFilterEnabled = false;
 
+
+	/**
+	 * Creates an new loader.
+	 */
 	public ConnectorImplementationLoader() {
 		this.classLoader = null;
 	}
 
+
+	/**
+	 * Creates an new loader using the specified ClassLoader.
+	 * 
+	 * @param classLoader The ClassLoader for loading classes of plug-ins.
+	 */
 	public ConnectorImplementationLoader(ClassLoader classLoader) {
 		this.classLoader = classLoader;
 	}
 
-	private void initializeDefaultClassLoader() throws MalformedURLException {
-		this.initializeDefaultClassLoader(DEFAULT_LOADING_PATHS);
-	}
 
+	/**
+	 * Initializes the ClassLoader by default procedures.
+	 * 
+	 * @param directoryPaths An array storing path of directories from which plug-in will be loaded.
+	 * @throws MalformedURLException Thrown when paths in "directoryPaths" are invalid.
+	 */
 	private void initializeDefaultClassLoader(String[] directoryPaths) throws MalformedURLException {
 		int directoryLength = directoryPaths.length;
 		URL directoryURLs[] = new URL[directoryLength];
@@ -48,27 +72,50 @@ public class ConnectorImplementationLoader {
 		this.classLoader = new URLClassLoader(directoryURLs);
 	}
 
+
+	/**
+	 * Sets whether filter out plug-ins in which no interface type name is declared.
+	 * 
+	 * @param enabled Specify true for filtering out.
+	 */
 	public void setInterfaceFilterEnabled(boolean enabled) {
 		this.interfaceFilterEnabled = enabled;
 	}
 
+
+	/**
+	 * Returns whether filter out plug-ins in which no interface type name is declared.
+	 * 
+	 * @return Returns true it it will be filtered out.
+	 */
 	public boolean isInterfaceFilterEnabled() {
 		return this.interfaceFilterEnabled;
 	}
 
+	/**
+	 * Loads the plug-in class and instantiate it.
+	 * 
+	 * @param connectorImplementationName 
+	 *     The name of the plug-in class to be loaded, which plug-in connector interfaces provided in this package.
+	 * 
+	 * @return
+	 *     An object storing the loaded plug-in and information of implemented the interface.
+	 * 
+	 * @throws ConnectorException
+	 *     Thrown when the loading has failed, or the loaded plug-in has been filtered out.
+	 */
 	public ConnectorImplementationContainer load(String connectorImplementationName)
 			throws ConnectorException {
 
 		if (this.classLoader == null) {
 			try {
-				this.initializeDefaultClassLoader();
+				this.initializeDefaultClassLoader(DEFAULT_LOADING_PATHS);
 			} catch (MalformedURLException e) {
 				throw new ConnectorException(
 					"ClassLoader initialization failed.", e
 				);
 			}
 		}
-
 
 		Class<?> connectorImplClass = null;
 		try {
@@ -78,7 +125,6 @@ public class ConnectorImplementationLoader {
 				"Loading failed: " + connectorImplementationName, e
 			);
 		}
-
 
 		Object connectorImplInstance = null;
 		try {
@@ -91,29 +137,28 @@ public class ConnectorImplementationLoader {
 			);
 		}
 
-
-		String interfaceType = null;
+		String interfaceTypeId = null;
 		String interfaceGeneration = null;
 		try {
-			Field interfaceTypeField = connectorImplClass.getField(INTERFACE_TYPE_FIELD_NAME);
+			Field interfaceTypeIdField = connectorImplClass.getField(INTERFACE_TYPE_ID_FIELD_NAME);
 			Field interfaceVersionField = connectorImplClass.getField(INTERFACE_GENERATION_FIELD_NAME);
-			interfaceType = interfaceTypeField.get(null).toString();
+			interfaceTypeId = interfaceTypeIdField.get(null).toString();
 			interfaceGeneration = interfaceVersionField.get(null).toString();
 
 		} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
 
 			if (connectorImplInstance instanceof GeneralProcessConnectorInterface2) {
-				interfaceType = "GPCI";
+				interfaceTypeId = "GPCI";
 				interfaceGeneration = "2";
 			} else if (connectorImplInstance instanceof GeneralProcessConnectorInterface1) {
-				interfaceType = "GPCI";
+				interfaceTypeId = "GPCI";
 				interfaceGeneration = "1";
 			} else {
 				if (this.interfaceFilterEnabled) {
 					throw new ConnectorException(
 						"Invalid implementation (unknown interface): "
 						+ connectorImplementationName
-						+ " (interface-type: " + interfaceType + ", "
+						+ " (interface-type-id: " + interfaceTypeId + ", "
 						+ "interface-generation: " + interfaceGeneration + ")", e
 					);
 				}
@@ -121,7 +166,7 @@ public class ConnectorImplementationLoader {
 		}
 
 		ConnectorImplementationContainer container = new ConnectorImplementationContainer(
-			connectorImplInstance, interfaceType, interfaceGeneration
+			connectorImplInstance, interfaceTypeId, interfaceGeneration
 		);
 
 		this.checkImplementation(container, connectorImplementationName);
@@ -129,18 +174,31 @@ public class ConnectorImplementationLoader {
 		return container;
 	}
 
+
+	/**
+	 * Checks whether the loaded result is valid.
+	 * 
+	 * @param container
+	 *     An object storing the loaded plug-in and information of implemented the interface.
+	 * 
+	 * @param connectorImplementationName
+	 *     The name of the loaded plug-in class.
+	 * 
+	 * @throws ConnectorException
+	 *     Thrown when the loaded result is invalid.
+	 */
 	private void checkImplementation(
 			ConnectorImplementationContainer container, String connectorImplementationName)
 					throws ConnectorException {
 
-		String interfaceType = container.getInterfaceType();
+		String interfaceTypeId = container.getInterfaceTypeId();
 		String interfaceGeneration = container.getInterfaceGeneration();
-		if (interfaceType == null) {
+		if (interfaceTypeId == null) {
 			if (!this.interfaceFilterEnabled) {
 				return;
 			}
 			throw new ConnectorException(
-				"Invalid implementation (null interface-type): " + connectorImplementationName
+				"Invalid implementation (null interface-type-id): " + connectorImplementationName
 			);
 		}
 		if (interfaceGeneration == null) {
@@ -150,7 +208,7 @@ public class ConnectorImplementationLoader {
 		}
 
 		Object implementation = container.getConnectorImplementation();
-		String interfaceCode = container.getInterfaceType() + container.getInterfaceGeneration();
+		String interfaceCode = container.getInterfaceTypeId() + container.getInterfaceGeneration();
 
 		switch (interfaceCode) {
 
@@ -214,7 +272,7 @@ public class ConnectorImplementationLoader {
 					throw new ConnectorException(
 						"Invalid implementation (unsupported interface): "
 						+ connectorImplementationName
-						+ " (interface-type: " + interfaceType + ", "
+						+ " (interface-type-id: " + interfaceTypeId + ", "
 						+ "interface-generation: " + interfaceGeneration + ")"
 					);
 				}

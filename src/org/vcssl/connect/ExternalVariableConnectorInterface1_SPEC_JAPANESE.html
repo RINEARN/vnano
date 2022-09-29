@@ -1,0 +1,804 @@
+<!doctype html>
+<html lang="ja">
+
+<head>
+	<title>XVCI1 仕様書</title>
+	<meta charset="UTF-8">
+	<style type="text/css">
+		h1 .spec-path { font-size: 70%; }
+		h2 .spec-path { font-size: 70%; }
+		.spec-table { width: 100%; border: 1px solid #000000; border-collapse: collapse; margin-bottom: 20px; }
+		.spec-table td { border: 1px solid #000000; text-align: left; }
+		.spec-table th { border: 1px solid #000000; text-align: left; }
+		.spec-table .lcol { width: 100px; background-color: #eeeeee; }
+		.spec-table .rcol { }
+		.spec-dl { }
+		.spec-dl dt { font-weight: bold; display: list-item; list-style-position: outside; margin-left: 20px; list-style-type: disc; }
+		.spec-dl dd { margin-bottom: 14px; line-height: 160%; }
+	</style>
+</head>
+
+<body>
+
+
+
+<div style="text-align: center; width: 100%; border: 1px solid #000000; background-color: #eeeeff;">
+VCSSL/Vnano プラグイン インターフェース 仕様書
+</div>
+
+
+<h1>External Variable Connector Interface 1 (XVCI1)<br />インターフェース仕様書<br /><span class="spec-path">(org.vcssl.connect.ExternalVariableConnectorInterface1)</span></h1>
+
+<hr />
+
+
+
+<h2>概要</h2>
+
+<p>
+External Variable Connector Interface 1 (XVCI1) は、
+スクリプト内で使用可能な変数を提供する、外部変数プラグインを実装するためのインターフェースです。
+</p>
+
+
+<h2>ステータス</h2>
+
+<p>
+このインターフェースの現在のステータスは "FINALIZED"（確定済み）です。
+</p>
+
+<p>
+このインターフェースの仕様は、2022年8月31日時点で最終確定しました。今後は原則として、ドキュメントやコメント類以外の変更は加えられません。
+</p>
+
+<p>
+現在は <a href="https://www.vcssl.org/ja-jp/vnano/">Vnano</a> のスクリプトエンジンでサポートされ、同エンジンを搭載したアプリケーションのプラグイン開発において利用できます。
+</p>
+
+
+<h2>ライセンス</h2>
+
+<p>
+このインターフェースは、実質的な著作権フリー/パブリックドメインである CC0 に基づいて公開されています。
+</p>
+
+
+<h2>フィールド/メソッド等の一覧</h2>
+
+
+<dl class="spec-dl">
+
+	<dt><a href="#INTERFACE_TYPE_ID">INTERFACE_TYPE_ID</a></dt>
+		<dd>
+			プラグインのロード時に参照される、このインターフェースの形式ID（値: "XVCI"）です。
+		</dd>
+
+	<dt><a href="#INTERFACE_GENERATION">INTERFACE_GENERATION</a></dt>
+		<dd>
+			このインターフェースの世代名です（値: "1"）。
+		</dd>
+
+	<dt><a href="#getVariableName">String getVariableName()</a></dt>
+		<dd>
+			変数名を取得します。
+		</dd>
+
+	<dt><a href="#getDataClass">Class&lt;?&gt; getDataClass()</a></dt>
+		<dd>
+			この変数のデータ型と配列次元数を表す Class インスタンスを返します。
+		</dd>
+
+	<dt><a href="#getDataUnconvertedClass">Class&lt;?&gt; getDataUnconvertedClass()</a></dt>
+		<dd>
+			データ変換機能を無効化している場合において、変数のデータの読み書きに用いる、データ入出力インターフェースの型を表す Class インスタンスを返します。
+		</dd>
+
+	<dt><a href="#isConstant">boolean isConstant()</a></dt>
+		<dd>
+			この変数が定数であるかどうかを取得します。
+		</dd>
+
+	<dt><a href="#isReference">boolean isReference()</a></dt>
+		<dd>
+			（現在のVCSSL/Vnano処理系では未サポート）この変数が参照であるかどうかを取得します。
+		</dd>
+
+	<dt><a href="#isDataTypeArbitrary">boolean isDataTypeArbitrary()</a></dt>
+		<dd>
+			（現在のVCSSL/Vnano処理系では未サポート）この変数のデータ型が、任意に変化するかどうかを取得します。
+		</dd>
+
+	<dt><a href="#isArrayRankArbitrary">boolean isArrayRankArbitrary()</a></dt>
+		<dd>
+			（現在のVCSSL/Vnano処理系では未サポート）この変数の配列次元数が、任意に変化するかどうかを取得します。
+		</dd>
+
+	<dt><a href="#isDataConversionNecessary">boolean isDataConversionNecessary()</a></dt>
+		<dd>
+			この変数の値の読み書きに際して、データ型の変換が必要かどうかを取得します。
+		</dd>
+
+	<dt><a href="#getData1">Object getData()</a></dt>
+		<dd>
+			この変数のデータを返します。
+		</dd>
+
+	<dt><a href="#getData2">void getData(Object dataContainer)</a></dt>
+		<dd>
+			引数を介して、この変数のデータを取得します。
+		</dd>
+
+	<dt><a href="#setData">void setData(Object data)</a></dt>
+		<dd>
+			この変数のデータを設定します。
+		</dd>
+
+	<dt><a href="#getEngineConnectorClass">Class&lt;?&gt; getEngineConnectorClass()</a></dt>
+		<dd>
+			スクリプトエンジンと情報をやり取りする際に使用するオブジェクトである「エンジンコネクタ」の、インターフェースまたはクラスを返します。
+		</dd>
+
+	<dt><a href="#initializeForConnection">void initializeForConnection(Object engineConnector)</a></dt>
+		<dd>
+			このプラグインが、スクリプトエンジンに接続される際に必要となる初期化処理を実行します。
+		</dd>
+
+	<dt><a href="#finalizeForDisconnection">void finalizeForDisconnection(Object engineConnector)</a></dt>
+		<dd>
+			このプラグインが、スクリプトエンジンから接続解除される際に必要となる終了時処理を実行します。
+		</dd>
+
+	<dt><a href="#initializeForExecution">void initializeForExecution(Object engineConnector)</a></dt>
+		<dd>
+			スクリプトの実行毎に必要な初期化処理を実行します。
+		</dd>
+
+	<dt><a href="#finalizeForTermination">void finalizeForTermination(Object engineConnector)</a></dt>
+		<dd>
+			スクリプトの実行毎に必要な終了時処理を実行します。
+		</dd>
+
+</dl>
+
+
+<hr />
+
+
+
+<!-- ==================================================================================================== -->
+
+<h2>フィールド</h2>
+
+<table id="INTERFACE_TYPE_ID" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">INTERFACE_TYPE_ID</th>
+	</tr>
+	<tr>
+		<td class="lcol">値の意味</td>
+		<td class="rcol">プラグインのロード時に参照される、このインターフェースの形式ID（値: "XVCI"）です。</td>
+	</tr>
+	<tr>
+		<td class="lcol">データ型</td>
+		<td class="rcol">static final String</td>
+	</tr>
+</table>
+
+
+<table id="INTERFACE_GENERATION" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">INTERFACE_GENERATION</th>
+	</tr>
+	<tr>
+		<td class="lcol">値の意味</td>
+		<td class="rcol">このインターフェースの世代名です（値: "1"）。</td>
+	</tr>
+	<tr>
+		<td class="lcol">データ型</td>
+		<td class="rcol">static final String</td>
+	</tr>
+</table>
+
+
+
+
+<!-- ==================================================================================================== -->
+
+<h2>メソッド</h2>
+
+
+
+
+<table id="getVariableName" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">getVariableName</th>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">String getVariableName()</td>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">変数名を取得します。</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">なし</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">変数名。</td>
+	</tr>
+	<tr>
+		<td class="lcol">例外</td>
+		<td class="rcol">なし</td>
+	</tr>
+</table>
+
+
+
+
+<table id="getDataClass" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">getDataClass</th>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">Class&lt;?&gt; getDataClass()</td>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			この変数のデータ型と配列次元数を表す Class インスタンスを返します。
+			</p>
+			<p>
+			例えば, データが double 型（スクリプト内では float 型）の変数の場合は double.class を、
+			long[][] 型（スクリプト内では int[][] 型）の場合には long[][].class を返します。
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">なし</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">この変数のデータ型と配列次元数を表す Class インスタンス。</td>
+	</tr>
+	<tr>
+		<td class="lcol">例外</td>
+		<td class="rcol">なし</td>
+	</tr>
+</table>
+
+
+
+
+<table id="getDataUnconvertedClass" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">getDataUnconvertedClass</th>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">Class&lt;?&gt; getDataUnconvertedClass()</td>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			<a href="#isDataConversionNecessary">データ変換機能</a>
+			を無効化している場合において、変数のデータの読み書きに用いる、データ入出力インターフェースの型を表す Class インスタンスを返します。
+			</p>
+			<p>
+			スカラの変数に対する入出力インターフェースとしては、
+			<a href="./Int64ScalarDataAccessorInterface1_SPEC_JAPANESE.html">Int64 SDAI1</a>、
+			<a href="./Float64ScalarDataAccessorInterface1_SPEC_JAPANESE.html">Float64 SDAI1</a>、
+			<a href="./BoolScalarDataAccessorInterface1_SPEC_JAPANESE.html">Bool SDAI1</a>、
+			<a href="./StringScalarDataAccessorInterface1_SPEC_JAPANESE.html">String SDAI1</a>、
+			および
+			<a href="./ArrayDataAccessorInterface1_SPEC_JAPANESE.html">ADAI1</a>
+			が利用可能です。
+			配列変数に対しては、
+			<a href="./ArrayDataAccessorInterface1_SPEC_JAPANESE.html">ADAI1</a>
+			のみが利用可能です。
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">なし</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">この変数のデータの読み書きに使用する、データ入出力インターフェースの型を表す Class インスタンス。</td>
+	</tr>
+	<tr>
+		<td class="lcol">例外</td>
+		<td class="rcol">なし</td>
+	</tr>
+</table>
+
+
+
+<table id="isConstant" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">isConstant</th>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">boolean isConstant()</td>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">
+			この変数が定数であるかどうかを取得します。
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">なし</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">この変数が定数でれば true を返します。</td>
+	</tr>
+	<tr>
+		<td class="lcol">例外</td>
+		<td class="rcol">なし</td>
+	</tr>
+</table>
+
+
+<table id="isReference" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">isReference</th>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">boolean isReference()</td>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">
+			（現在のVCSSL/Vnano処理系では未サポート）この変数が参照であるかどうかを取得します。
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">なし</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">この変数が参照である場合に true を返します。</td>
+	</tr>
+	<tr>
+		<td class="lcol">例外</td>
+		<td class="rcol">なし</td>
+	</tr>
+</table>
+
+
+
+<table id="isDataTypeArbitrary" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">isDataTypeArbitrary</th>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">boolean isDataTypeArbitrary()</td>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">
+			（現在のVCSSL/Vnano処理系では未サポート）この変数のデータ型が、任意に変化するかどうかを取得します。
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">なし</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">この変数のデータ型が任意に変化する場合に true が返されます。</td>
+	</tr>
+	<tr>
+		<td class="lcol">例外</td>
+		<td class="rcol">なし</td>
+	</tr>
+</table>
+
+
+<table id="isArrayRankArbitrary" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">isArrayRankArbitrary</th>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">boolean isArrayRankArbitrary()</td>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">
+			（現在のVCSSL/Vnano処理系では未サポート）この変数の配列次元数が、任意に変化するかどうかを取得します。
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">なし</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">この変数の配列次元数が任意に変化する場合に true を返します。</td>
+	</tr>
+	<tr>
+		<td class="lcol">例外</td>
+		<td class="rcol">なし</td>
+	</tr>
+</table>
+
+
+
+
+<table id="isDataConversionNecessary" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">isDataConversionNecessary</th>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">boolean isDataConversionNecessary()</td>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			この変数の値の読み書きに際して、データ型の変換が必要かどうかを取得します。
+			</p>
+			<p>
+			この機能が有効化されている（このメソッドが true を返すようにした）場合、
+			変数のデータを、単純なデータ型で読み書きする事ができます。例えば、
+			double 型（スクリプト内では float 型）変数のデータにおいては Double 型インスタンス、
+			long[][] 型（スクリプト内では int[][] 型）変数データに対しては long[][] 型インスタンス
+			などとして読み書きできます。
+			</p>
+			<p>
+			一方、この機能が無効化されている（このメソッドが false を返すようにした）場合、
+			変数のデータに対しては、各種のデータ入出力インターフェースを介してアクセスする必要があります。
+			その際、使用するデータ入出力インターフェースは、
+			<a href="#getDataUnconvertedClass">getDataUnconvertedClass()</a> メソッドの戻り値として指定します。
+			</p>
+			<p>
+			スカラの変数に対する入出力インターフェースとしては、
+			<a href="./Int64ScalarDataAccessorInterface1_SPEC_JAPANESE.html">Int64 SDAI1</a>、
+			<a href="./Float64ScalarDataAccessorInterface1_SPEC_JAPANESE.html">Float64 SDAI1</a>、
+			<a href="./BoolScalarDataAccessorInterface1_SPEC_JAPANESE.html">Bool SDAI1</a>、
+			<a href="./StringScalarDataAccessorInterface1_SPEC_JAPANESE.html">String SDAI1</a>、
+			および
+			<a href="./ArrayDataAccessorInterface1_SPEC_JAPANESE.html">ADAI1</a>
+			が利用可能です。
+			配列変数に対しては、
+			<a href="./ArrayDataAccessorInterface1_SPEC_JAPANESE.html">ADAI1</a>
+			のみが利用可能です。
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">なし</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">データ変換が必要なら true を返します。</td>
+	</tr>
+	<tr>
+		<td class="lcol">例外</td>
+		<td class="rcol">なし</td>
+	</tr>
+</table>
+
+
+
+<table id="getData1" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">getData</th>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">Object getData() throws ConnectorException</td>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			この変数のデータを返します。
+			</p>
+			<p>
+			このメソッドは、データ変換機能が無効化されている場合
+			（<a href="#isDataConversionNecessary">isDataConversionNecessary()</a> メソッドが false を返す場合）
+			に使用されます。
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">なし</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">この変数のデータ。</td>
+	</tr>
+	<tr>
+		<td class="lcol">例外</td>
+		<td class="rcol">ConnectorException: データへのアクセスに失敗した場合にスローされます。</td>
+	</tr>
+</table>
+
+
+<table id="getData2" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">getData</th>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">void getData(Object dataContainer) throws ConnectorException</td>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			引数を介して、この変数のデータを取得します。
+			</p>
+			<p>
+			このメソッドは、データ変換機能が無効化されている場合
+			（<a href="#isDataConversionNecessary">isDataConversionNecessary()</a> メソッドが false を返す場合）
+			に使用されます。
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">なし</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">この変数のデータ。</td>
+	</tr>
+	<tr>
+		<td class="lcol">例外</td>
+		<td class="rcol">ConnectorException: データへのアクセスに失敗した場合にスローされます。</td>
+	</tr>
+</table>
+
+
+<table id="setData" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">setData</th>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">void setData(Object data) throws ConnectorException</td>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">
+			この変数のデータを設定します。
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">
+		data: この変数に設定するデータ。
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">なし</td>
+	</tr>
+	<tr>
+		<td class="lcol">例外</td>
+		<td class="rcol">ConnectorException: データへのアクセスに失敗した場合にスローされます。</td>
+	</tr>
+</table>
+
+
+
+<table id="getEngineConnectorClass" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">getEngineConnectorClass</th>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">Class&lt;?&gt; getEngineConnectorClass()</td>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			スクリプトエンジンと情報をやり取りする際に使用するオブジェクトである「エンジンコネクタ」の、
+			インターフェースまたはクラスを返します。
+			</p>
+			<p>
+			このメソッドで戻り値として指定したインターフェースまたはクラスの実装インスタンスが、
+			<a href="#initializeForConnection">initializeForConnection(Object engineConnector)</a> 
+			メソッド等の初期化/終了時メソッド群の、引数 engineConnector に渡されます。
+			</p>
+			<p>
+			利用可能なエンジンコネクタの形式は、スクリプトエンジンの実装に依存しますが、
+			少なくとも <a href="./EngineConnector1_SPEC_JAPANESE.html">ECI1</a> は利用可能である事が、
+			XVCI1の仕様上保証されています。
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">なし</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">
+		使用したいエンジンコネクタのインターフェースまたはクラス。
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">例外</td>
+		<td class="rcol">なし</td>
+	</tr>
+</table>
+
+
+
+<table id="initializeForConnection" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">initializeForConnection</th>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">void initializeForConnection(Object engineConnector) throws ConnectorException</td>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">
+			このプラグインが、スクリプトエンジンに接続される際に必要となる初期化処理を実行します。
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">
+			engineConnector: エンジンコネクタ
+			（<a href="#getEngineConnectorClass">getEngineConnectorClass()</a> メソッド参照）
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">なし</td>
+	</tr>
+	<tr>
+		<td class="lcol">例外</td>
+		<td class="rcol">ConnectorException: 初期化処理に失敗した場合にスローされます。</td>
+	</tr>
+</table>
+
+
+
+<table id="finalizeForDisconnection" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">finalizeForDisconnection</th>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">void finalizeForDisconnection(Object engineConnector) throws ConnectorException</td>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">
+			このプラグインが、スクリプトエンジンから接続解除される際に必要となる終了時処理を実行します。
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">
+			engineConnector: エンジンコネクタ
+			（<a href="#getEngineConnectorClass">getEngineConnectorClass()</a> メソッド参照）
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">なし</td>
+	</tr>
+	<tr>
+		<td class="lcol">例外</td>
+		<td class="rcol">ConnectorException: 終了時処理に失敗した場合にスローされます。</td>
+	</tr>
+</table>
+
+
+
+<table id="initializeForExecution" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">initializeForExecution</th>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">void initializeForExecution(Object engineConnector) throws ConnectorException</td>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">
+			スクリプトの実行毎に必要な初期化処理を実行します。
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">
+			engineConnector: エンジンコネクタ
+			（<a href="#getEngineConnectorClass">getEngineConnectorClass()</a> メソッド参照）
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">なし</td>
+	</tr>
+	<tr>
+		<td class="lcol">例外</td>
+		<td class="rcol">ConnectorException: 初期化処理に失敗した場合にスローされます。</td>
+	</tr>
+</table>
+
+
+
+<table id="finalizeForTermination" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">finalizeForTermination</th>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">void finalizeForTermination(Object engineConnector) throws ConnectorException</td>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">
+			スクリプトの実行毎に必要な終了時処理を実行します。
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">
+			engineConnector: エンジンコネクタ
+			（<a href="#getEngineConnectorClass">getEngineConnectorClass()</a> メソッド参照）
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">なし</td>
+	</tr>
+	<tr>
+		<td class="lcol">例外</td>
+		<td class="rcol">ConnectorException: 終了時処理に失敗した場合にスローされます。</td>
+	</tr>
+</table>
+
+
+
+
+
+
+
+</body>
+</html>

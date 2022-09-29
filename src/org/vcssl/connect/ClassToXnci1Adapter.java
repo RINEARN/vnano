@@ -3,7 +3,7 @@
  * Class to XLCI Plug-in Adapter
  * --------------------------------------------------
  * This file is released under CC0.
- * Written in 2019-2021 by RINEARN (Fumihiro Matsui)
+ * Written in 2019-2022 by RINEARN
  * ==================================================
  */
 
@@ -16,28 +16,23 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * <p>
- * ホスト言語側のクラスを、{@link org.vcssl.connect.ExternalNamespaceConnectorInterface1 XNCI 1}
- * 形式の外部変数プラグイン仕様に変換し、XNCI 1 対応の言語処理系に接続するためのアダプタです。
- * </p>
- *
- * @author RINEARN (Fumihiro Matsui)
+ * An adapter class converting a host-language-side class to a 
+ * {@link org.vcssl.connect.ExternalNamespaceConnectorInterface1 XNCI 1} plug-in, 
+ * to access to its fields and methods from scripts.
  */
 public class ClassToXnci1Adapter implements ExternalNamespaceConnectorInterface1 {
 
-	/** ホスト言語側のクラスです。 */
+	/** The class to be accessed from scripts. */
 	private Class<?> pluginClass = null;
 
-	/** ホスト言語のメソッドが属するオブジェクトのインスタンスです。 */
+	/** The instance of "pluginClass" class. */
 	private Object pluginInstance = null;
 
 
-	/**
-	 * 指定されたホスト言語側のクラスを、インスタンスメソッドやインスタンスフィールドを含めて、
-	 * XNCI準拠の外部変数プラグインへと変換するアダプタを生成します。
-	 *
-	 * @param pluginClass 対象クラス
-	 * @param objectInstance 対象クラスのインスタンス
+	/** Creates a new adapter to access to all static and non-static fields/methods of the class.
+	 * 
+	 * @param pluginClass The class to which fields/methods to be accessed belongs to.
+	 * @param pluginInstance The instance of the class specified to the argument "pluginClass".
 	 */
 	public ClassToXnci1Adapter(Class<?> pluginClass, Object pluginInstance) {
 		this.pluginClass = pluginClass;
@@ -46,139 +41,96 @@ public class ClassToXnci1Adapter implements ExternalNamespaceConnectorInterface1
 
 
 	/**
-	 * 指定されたホスト言語側のクラスを、staticメソッドやstaticフィールドのみの範囲で、
-	 * XNCI準拠の外部変数プラグインへと変換するアダプタを生成します。
-	 *
-	 * @param pluginClass 対象クラス
+	 * Creates a new adapter to access to all static fields/methods of the class.
+	 * 
+	 * @param pluginClass The class to which fields/methods to be accessed belongs to.
 	 */
 	public ClassToXnci1Adapter(Class<?> pluginClass) {
 		this.pluginClass = pluginClass;
 	}
 
 
-	/**
-	 * 名前空間の名称を取得します。
-	 *
-	 * @return 名前空間の名称
-	 */
 	@Override
 	public String getNamespaceName() {
 		return null;
 	}
 
-
-	/**
-	 * スクリプト内で、この名前空間に属する関数/変数にアクセスする際に、名前空間の指定が必須かどうかを返します。
-	 *
-	 * なお、このメソッドに対応する機能は、処理系によってはサポートされません。
-	 * サポートされていない処理系では、恐らく名前空間は常に省略可能（つまりこのメソッドの値が false であるのと同等）となります。
-	 * そのため現状では、特に必要性がなければ、このメソッドは false を返すように実装する事が推奨されます。
-	 * このメソッドは将来的には有用になる可能性があるため、予約的に定義されています。
-	 *
-	 * @return 名前空間の明示指定が必須である場合は true、省略可能な場合は false
-	 */
 	@Override
 	public boolean isMandatoryToAccessMembers() {
 		return false;
 	}
 
-
-	/**
-	 * この名前空間に属する全ての関数を、配列にまとめて返します。
-	 *
-	 * @return この名前空間に属する関数をまとめた配列
-	 */
 	@Override
 	public ExternalFunctionConnectorInterface1[] getFunctions() {
 
-		// 変換対象クラスに属する全てのメソッドを取得
+		// Gets all methods.
 		Method[] methods = this.pluginClass.getDeclaredMethods();
 
-		// XFCI1形式に変換したアダプタを格納するリスト
+		// The list storing adapters converting above methods to XFCI1 plug-ins.
 		List<ExternalFunctionConnectorInterface1> xfciList = new ArrayList<ExternalFunctionConnectorInterface1>();
 
-		// メソッドを1つずつXFCI1形式に変換してリストに追加していく
+		// Converts each method to XFCI1 a plug-in, and put it into the list.
 		for (Method method: methods) {
-
-			// メソッドの修飾子情報を表すフラグ
 			int modifiers = method.getModifiers();
 
-			// public でなければスクリプトエンジンからアクセスできないのでスキップ
+			// Skip non-public methods because it can not be accessed from the script engine.
 			if (!Modifier.isPublic(modifiers)) {
 				continue;
 			}
 
-			// 以下、public な場合
-
-			// staticメソッドは全て変換
+			// If the method is static, always converts it.
 			if (Modifier.isStatic(modifiers)) {
 				xfciList.add(new MethodToXfci1Adapter(method));
 
-			// インスタンスメソッドは、このアダプタがインスタンスを保持している場合のみ変換
+			// If the method is non-static, converts it only when this adapter has an object instance of the class
+			// (It can be specified as an argument of the constructor).
 			} else if (this.pluginInstance != null) {
 				xfciList.add(new MethodToXfci1Adapter(method, this.pluginInstance));
 			}
 		}
-
-		// リスト内容を配列にまとめて返す
 		return xfciList.toArray(new ExternalFunctionConnectorInterface1[0]);
 	}
 
-
-	/**
-	 * この名前空間に属する全ての変数を、配列にまとめて返します。
-	 *
-	 * @return この名前空間に属する変数をまとめた配列
-	 */
 	@Override
 	public ExternalVariableConnectorInterface1[] getVariables() {
 
-		// 変換対象クラスに属する全てのフィールドを取得
+		// Gets all fields.
 		Field[] fields = this.pluginClass.getDeclaredFields();
 
-		// XVCI1形式に変換したアダプタを格納するリスト
+		// The list storing adapters converting above fields to XVCI1 plug-ins.
 		List<ExternalVariableConnectorInterface1> xvciList = new ArrayList<ExternalVariableConnectorInterface1>();
 
-		// フィールドを1つずつXVCI1形式に変換してリストに追加していく
+		// Converts each field to XVCI1 a plug-in, and put it into the list.
 		for (Field field: fields) {
-
-			// フィールドの修飾子情報を表すフラグ
 			int modifiers = field.getModifiers();
 
-			// public でなければスクリプトエンジンからアクセスできないのでスキップ
+			// Skip non-public fields because it can not be accessed from the script engine.
 			if (!Modifier.isPublic(modifiers)) {
 				continue;
 			}
 
-			// 以下、public な場合
-
-			// staticフィールドは全て変換
+			// If the field is static, always converts it.
 			if (Modifier.isStatic(modifiers)) {
 				xvciList.add(new FieldToXvci1Adapter(field));
 
-			// インスタンスフィールドは、このアダプタがインスタンスを保持している場合のみ変換
+			// If the field is non-static, converts it only when this adapter has an object instance of the class
+			// (It can be specified as an argument of the constructor).
 			} else if (this.pluginInstance != null) {
 				xvciList.add(new FieldToXvci1Adapter(field, this.pluginInstance));
 			}
 		}
-
-		// リスト内容を配列にまとめて返す
 		return xvciList.toArray(new ExternalVariableConnectorInterface1[0]);
 	}
 
-
-	/**
-	 * この名前空間に属する全ての構造体を、配列にまとめて返します。
-	 *
-	 * @return この名前空間に属する構造体をまとめた配列
-	 */
+	@Override
 	public ExternalStructConnectorInterface1[] getStructs() {
 		return new ExternalStructConnectorInterface1[0];
 	}
 
-
-	// 以下、インターフェースで定義されている名前空間レベルでの初期化/終了時処理
-	// （このクラスでは特に何もしない）
+	@Override
+	public Class<?> getEngineConnectorClass() {
+		return EngineConnectorInterface1.class;
+	}
 
 	@Override
 	public void preInitializeForConnection(Object engineConnector) throws ConnectorException {

@@ -1,0 +1,344 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+	<title>ECI1 Specification</title>
+	<meta charset="UTF-8">
+	<style type="text/css">
+		h1 .spec-path { font-size: 70%; }
+		h2 .spec-path { font-size: 70%; }
+		.spec-table { width: 100%; border: 1px solid #000000; border-collapse: collapse; margin-bottom: 20px; }
+		.spec-table td { border: 1px solid #000000; text-align: left; }
+		.spec-table th { border: 1px solid #000000; text-align: left; }
+		.spec-table .lcol { width: 100px; background-color: #eeeeee; }
+		.spec-table .rcol { }
+		.spec-dl { }
+		.spec-dl dt { font-weight: bold; display: list-item; list-style-position: outside; margin-left: 20px; list-style-type: disc; }
+		.spec-dl dd { margin-bottom: 14px; line-height: 160%; }
+	</style>
+</head>
+
+<body>
+
+
+
+<div style="text-align: center; width: 100%; border: 1px solid #000000; background-color: #eeeeff;">
+VCSSL/VNANO PLUGIN INTERFACE SPECIFICATION
+</div>
+
+
+<h1>Engine Connector Interface 1 (ECI1)<br />Specification Document<br /><span class="spec-path">(org.vcssl.connect.EngineConnectorInterface1)</span></h1>
+
+<hr />
+
+
+
+<h2>Abstract</h2>
+
+<p>
+Engine Connector Interface 1 (ECI1) 
+is an interface for mediate communication of some information between scripting engines and plug-ins.
+</p>
+
+<p>
+Scripting engines pass an object implementing this interface to arguments 
+of initialization/finalization methods of plug-ins. 
+</p>
+
+
+<h2>Status</h2>
+
+<p>
+The status of this interface is "FINALIZED".
+</p>
+
+<p>
+The specification of this interface had been finalized at 2022/08/31.
+No modifications will be applied for this interface, excluding documents/comments.
+</p>
+
+<p>
+This interface is currently supported by the scripting engine of Vnano. 
+You can use this interface for development of plug-ins of applications equipped with the Vnano engine.
+</p>
+
+
+<h2>License</h2>
+
+<p>
+This interface is published under CC0, which is almost the same as the so-called "copyright-free" (domain).
+</p>
+
+
+<h2>List of Fields/Methods</h2>
+
+
+
+<dl class="spec-dl">
+
+	<dt><a href="#INTERFACE_TYPE_ID">INTERFACE_TYPE_ID</a></dt>
+		<dd>
+			The type ID of this interface (value: "ECI") referred when the plug-in will be loaded.
+		</dd>
+
+	<dt><a href="#INTERFACE_GENERATION">INTERFACE_GENERATION</a></dt>
+		<dd>
+			The generation of this interface (value: "1").
+		</dd>
+
+	<dt><a href="#hasOptionValue">boolean hasOptionValue(String optionName)</a></dt>
+		<dd>
+			Returns whether the engine has the value of the option with the specified name.
+		</dd>
+
+	<dt><a href="#getOptionValue">Object getOptionValue(String optionName)</a></dt>
+		<dd>
+			Gets the value of the specified option.
+		</dd>
+
+	<dt><a href="#requestPermission">void requestPermission(String permissionName, Object requester, Object metaInformation)</a></dt>
+		<dd>
+			Requests the specified permission.
+		</dd>
+
+	<dt><a href="#isOtherEngineConnectorAvailable">isOtherEngineConnectorAvailable(Class&lt;?&gt engineConnectorClass)</a></dt>
+		<dd>
+			Returns whether the other type of engine connector is available.
+		</dd>
+
+	<dt><a href="#getParameterDataTypeArbitrarinesses">&lt;T&gt T getOtherEngineConnector(Class&lt;T&gt engineConnectorClass)</a></dt>
+		<dd>
+			Gets the other type of engine connector.
+		</dd>
+</dl>
+
+
+<hr />
+
+
+
+<!-- ==================================================================================================== -->
+
+<h2>Fields</h2>
+
+<table id="INTERFACE_TYPE_ID" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">INTERFACE_TYPE_ID</th>
+	</tr>
+	<tr>
+		<td class="lcol">Value</td>
+		<td class="rcol">The type ID of this interface (value: "ECI") referred when the plug-in will be loaded.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Type</td>
+		<td class="rcol">static final String</td>
+	</tr>
+</table>
+
+
+<table id="INTERFACE_GENERATION" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">INTERFACE_GENERATION</th>
+	</tr>
+	<tr>
+		<td class="lcol">Value</td>
+		<td class="rcol">The generation of this interface (value: "1").</td>
+	</tr>
+	<tr>
+		<td class="lcol">Type</td>
+		<td class="rcol">static final String</td>
+	</tr>
+</table>
+
+
+
+
+<!-- ==================================================================================================== -->
+
+<h2>Methods</h2>
+
+
+
+
+<table id="hasOptionValue" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">hasOptionValue</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">boolean hasOptionValue(String optionName)</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">Returns whether the engine has the value of the option with the specified name.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">optionName: The name of the option.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">Returns true if the engine has the value of the specified option.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Exception</td>
+		<td class="rcol">None</td>
+	</tr>
+</table>
+
+
+<table id="getOptionValue" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">getOptionValue</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">Object getOptionValue(String optionName)</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			Gets the value of the specified option.
+			</p>
+			<p>
+			Before calling this method, check that the value of the specified option exists and is accessible, by 
+			<a href="#hasOptionValue">hasOptionValue(String optionName)</a> method.
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">optionName: The name of the option.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">The value of the specified option.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Exception</td>
+		<td class="rcol">ConnectorFatalException (Unchecked): Thrown when the value of the specified option does not exist, or is not accessible.</td>
+	</tr>
+</table>
+
+
+<table id="requestPermission" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">requestPermission</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">void requestPermission(String permissionName, Object requester, Object metaInformation) throws ConnectorException</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			Requests the specified permission.
+			</p>
+			<p>
+			If the requested permission is allowed, nothing will occur. On the other hand, 
+			when the requested permission has been denied, this method throws a ConnectorException.
+			Whether the request will be allowed or denied depends on 
+			settings of an application, or decision of its user.
+			Hence, in principle, it is necessary to assume that any request may be denied. 
+			So it requires to catch (or rethrow) the exception explicitly.
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">
+			permissionName: The name of the permission item to request.
+			<br />
+			requester: The plug-in requesting the permission.
+			<br />
+			metaInformation: The information to be notified to the user (especially when the current value of the permission is set to "ASK").
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">None</td>
+	</tr>
+	<tr>
+		<td class="lcol">Exception</td>
+		<td class="rcol">ConnectorException: Thrown when the requested permission has been denied.</td>
+	</tr>
+</table>
+
+
+<table id="isOtherEngineConnectorAvailable" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">isOtherEngineConnectorAvailable</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">boolean isOtherEngineConnectorAvailable(Class&lt;?&gt; engineConnectorClass)</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">Returns whether the other type of engine connector is available.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">engineConnectorClass: The class of the engine connector you want to use.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">Returns true if the specified engine connector is available.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Exception</td>
+		<td class="rcol">None</td>
+	</tr>
+</table>
+
+
+<table id="getOtherEngineConnector" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">getOtherEngineConnector</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">&lt;T&gt; T getOtherEngineConnector(Class&lt;T&gt; engineConnectorClass)</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			Gets the other type of engine connector.
+			</p>
+			<p>
+			Before calling this method, check that the specified type of the engine connector is available, by 
+			<a href="#isOtherEngineConnectorAvailable">isOtherEngineConnectorAvailable(Class&lt;?&gt; engineConnectorClass)</a> method.
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">engineConnectorClass: The class of the engine connector you want to use.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">The specified type of engine connector.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Exception</td>
+		<td class="rcol">ConnectorFatalException (Unchecked): Thrown if the specified engine connector is not available.</td>
+	</tr>
+</table>
+
+
+
+
+
+
+</body>
+</html>

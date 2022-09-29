@@ -1,0 +1,452 @@
+<!doctype html>
+<html lang="ja">
+
+<head>
+	<title>ConnectorPermissionName 仕様書</title>
+	<meta charset="UTF-8">
+	<style type="text/css">
+		h1 .spec-path { font-size: 70%; }
+		h2 .spec-path { font-size: 70%; }
+		.spec-table { width: 100%; border: 1px solid #000000; border-collapse: collapse; margin-bottom: 20px; }
+		.spec-table td { border: 1px solid #000000; text-align: left; }
+		.spec-table th { border: 1px solid #000000; text-align: left; }
+		.spec-table .lcol { width: 100px; background-color: #eeeeee; }
+		.spec-table .rcol { }
+		.spec-dl { }
+		.spec-dl dt { font-weight: bold; display: list-item; list-style-position: outside; margin-left: 20px; list-style-type: disc; }
+		.spec-dl dd { margin-bottom: 14px; line-height: 160%; }
+	</style>
+</head>
+
+<body>
+
+
+
+<div style="text-align: center; width: 100%; border: 1px solid #000000; background-color: #eeeeff;">
+VCSSL/Vnano プラグイン インターフェース 仕様書
+</div>
+
+
+<h1>ConnectorPermissionName<br />クラス仕様書<br /><span class="spec-path">(org.vcssl.connect.ConnectorPermissionName)</span></h1>
+
+<hr />
+
+
+
+<h2>概要</h2>
+
+<p>
+ConnectorPermissionName は、パーミッションの項目名が定義されたクラスです。
+</p>
+
+<p>
+このクラスのフィールドは、本来は enum の要素として定義されるのが自然ですが、
+実際にはそうではなく "public static final String" のフィールドが列挙的に定義されています。
+これは、それらの定義順序が変更された場合における、
+それらを参照しているプラグインの（再コンパイルされない状態での）予期しない動作を防ぐためです。
+</p>
+
+<p>
+なお、各フィールドの文字列値を直接（文字列リテラルなどとして）記述する事は推奨されません。
+なるべくこのクラスのフィールドを参照してください。
+</p>
+
+
+<h2>ステータス</h2>
+
+<p>
+このクラスの現在のステータスは "EXTENSION ONLY"（拡張のみ）です。
+</p>
+
+<p>
+既存のコンストラクタ/メソッド/フィールドは原則として削除されませんが、将来的に新規追加される事はあり得ます。
+<br />
+また、どうしてもやむを得ない事情があった場合のみ、非推奨化の段階を経た上で、各要素の削除が検討される事もあり得ます。
+</p>
+
+<p>
+このクラスは、現在は <a href="https://www.vcssl.org/ja-jp/vnano/">Vnano</a> のスクリプトエンジンでサポートされ、同エンジンを搭載したアプリケーションのプラグイン開発において利用できます。
+</p>
+
+
+<h2>ライセンス</h2>
+
+<p>
+このクラスは、実質的な著作権フリー/パブリックドメインである CC0 に基づいて公開されています。
+</p>
+
+
+<h2>フィールド/メソッド等の一覧</h2>
+
+<dl class="spec-dl">
+
+	<dt><a href="#ALL">ALL</a></dt>
+		<dd>
+			全てのパーミッション項目を表す、メタ項目名です。
+		</dd>
+
+	<dt><a href="#NONE">NONE</a></dt>
+		<dd>
+			全パーミッション項目における未設定時のデフォルト値を保持する、メタ項目名です。
+		</dd>
+
+	<dt><a href="#DEFAULT">DEFAULT</a></dt>
+		<dd>
+			全パーミッション項目における未設定時のデフォルト値を保持する、メタ項目名です。
+		</dd>
+
+	<dt><a href="#PROGRAM_EXIT">PROGRAM_EXIT</a></dt>
+		<dd>
+			現在実行中のプログラム（スクリプト）を終了させる事に対するパーミッションです。
+		</dd>
+
+	<dt><a href="#PROGRAM_RESET">PROGRAM_RESET</a></dt>
+		<dd>
+			現在実行中のプログラム（スクリプト）をリセット/再実行する事に対するパーミッションです。
+		</dd>
+
+	<dt><a href="#PROGRAM_CHANGE">PROGRAM_CHANGE</a></dt>
+		<dd>
+			現在実行中のプログラム（スクリプト）を変更する事に対するパーミッションです。
+		</dd>
+
+	<dt><a href="#SYSTEM_PROCESS">SYSTEM_PROCESS</a></dt>
+		<dd>
+			オペレーティングシステム等を介して、コマンドや別のプログラム等を実行する事に対するパーミッションです。
+		</dd>
+
+	<dt><a href="#DIRECTORY_CREATE">DIRECTORY_CREATE</a></dt>
+		<dd>
+			ディレクトリ（フォルダ）の新規作成に対するパーミッションです。
+		</dd>
+
+	<dt><a href="#DIRECTORY_DELETE">DIRECTORY_DELETE</a></dt>
+		<dd>
+			ディレクトリ（フォルダ）の削除に対するパーミッションです。
+		</dd>
+
+	<dt><a href="#DIRECTORY_LIST">DIRECTORY_LIST</a></dt>
+		<dd>
+			ディレクトリ（フォルダ）内のファイル一覧取得に対するパーミッションです。
+		</dd>
+
+	<dt><a href="#FILE_CREATE">FILE_CREATE</a></dt>
+		<dd>
+			ファイルの新規作成に対するパーミッションです。
+		</dd>
+
+	<dt><a href="#FILE_DELETE">FILE_DELETE</a></dt>
+		<dd>
+			ファイルの削除に対するパーミッションです。
+		</dd>
+
+	<dt><a href="#FILE_WRITE">FILE_WRITE</a></dt>
+		<dd>
+			ファイルへの書き込みに対するパーミッションです。
+		</dd>
+
+	<dt><a href="#FILE_READ">FILE_READ</a></dt>
+		<dd>
+			ファイルからの読み込みに対するパーミッションです。
+		</dd>
+
+	<dt><a href="#FILE_OVERWRITE">FILE_OVERWRITE</a></dt>
+		<dd>
+			ファイルへの上書きに対するパーミッションです。
+		</dd>
+
+	<dt><a href="#FILE_INFORMATION_CHANGE">FILE_INFORMATION_CHANGE</a></dt>
+		<dd>
+			ファイルの情報変更（更新日時など）に対するパーミッションです。
+		</dd>
+
+</dl>
+
+
+
+<hr />
+
+
+
+<!-- ==================================================================================================== -->
+
+<h2>フィールド</h2>
+
+<table id="ALL" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">ALL</th>
+	</tr>
+	<tr>
+		<td class="lcol">値の意味</td>
+		<td class="rcol">全てのパーミッション項目を表す、メタ項目名です。</td>
+	</tr>
+	<tr>
+		<td class="lcol">データ型</td>
+		<td class="rcol">static final String</td>
+	</tr>
+</table>
+
+
+<table id="NONE" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">NONE</th>
+	</tr>
+	<tr>
+		<td class="lcol">値の意味</td>
+		<td class="rcol">全パーミッション項目における未設定時のデフォルト値を保持する、メタ項目名です。</td>
+	</tr>
+	<tr>
+		<td class="lcol">データ型</td>
+		<td class="rcol">static final String</td>
+	</tr>
+</table>
+
+
+<table id="DEFAULT" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">DEFAULT</th>
+	</tr>
+	<tr>
+		<td class="lcol">値の意味</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			全パーミッション項目における未設定時のデフォルト値を保持する、メタ項目名です。
+			</p>
+			<p>
+			明示的に設定されていないパーミッション項目には、
+			デフォルト値（例えば <a href="ConnectorPermissionValue_SPEC_JAPANESE.html#DENY">DENY</a> など）
+			が自動的に設定されます。このデフォルト値は、このメタパーミッション項目「 DEFAULT 」の値を変える事で変更できます。 
+			例えば、この「 DEFAULT 」項目に値 <a href="ConnectorPermissionValue_SPEC_JAPANESE.html#ASK">ASK</a> を設定すると、
+			スクリプトエンジンは、未設定のパーミッションが要求された際に、ユーザーに許可/拒否を尋ねるようになります。
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">データ型</td>
+		<td class="rcol">static final String</td>
+	</tr>
+</table>
+
+
+<table id="PROGRAM_EXIT" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">PROGRAM_EXIT</th>
+	</tr>
+	<tr>
+		<td class="lcol">値の意味</td>
+		<td class="rcol">現在実行中のプログラム（スクリプト）を終了させる事に対するパーミッションです。</td>
+	</tr>
+	<tr>
+		<td class="lcol">データ型</td>
+		<td class="rcol">static final String</td>
+	</tr>
+</table>
+
+
+<table id="PROGRAM_RESET" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">PROGRAM_RESET</th>
+	</tr>
+	<tr>
+		<td class="lcol">値の意味</td>
+		<td class="rcol">現在実行中のプログラム（スクリプト）をリセット/再実行する事に対するパーミッションです。</td>
+	</tr>
+	<tr>
+		<td class="lcol">データ型</td>
+		<td class="rcol">static final String</td>
+	</tr>
+</table>
+
+
+<table id="PROGRAM_CHANGE" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">PROGRAM_CHANGE</th>
+	</tr>
+	<tr>
+		<td class="lcol">値の意味</td>
+		<td class="rcol">現在実行中のプログラム（スクリプト）を変更する事に対するパーミッションです。</td>
+	</tr>
+	<tr>
+		<td class="lcol">データ型</td>
+		<td class="rcol">static final String</td>
+	</tr>
+</table>
+
+
+<table id="SYSTEM_PROCESS" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">SYSTEM_PROCESS</th>
+	</tr>
+	<tr>
+		<td class="lcol">値の意味</td>
+		<td class="rcol">オペレーティングシステム等を介して、コマンドや別のプログラム等を実行する事に対するパーミッションです。</td>
+	</tr>
+	<tr>
+		<td class="lcol">データ型</td>
+		<td class="rcol">static final String</td>
+	</tr>
+</table>
+
+
+<table id="DIRECTORY_CREATE" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">DIRECTORY_CREATE</th>
+	</tr>
+	<tr>
+		<td class="lcol">値の意味</td>
+		<td class="rcol">ディレクトリ（フォルダ）の新規作成に対するパーミッションです。</td>
+		<!-- ディレクトリの名称変更権限は、CREATE/DELETE/LIST やファイルの関連権限の全てがONという条件で代替可能 -->
+	</tr>
+	<tr>
+		<td class="lcol">データ型</td>
+		<td class="rcol">static final String</td>
+	</tr>
+</table>
+
+
+<table id="DIRECTORY_DELETE" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">DIRECTORY_DELETE</th>
+	</tr>
+	<tr>
+		<td class="lcol">値の意味</td>
+		<td class="rcol">ディレクトリ（フォルダ）の削除に対するパーミッションです。</td>
+		<!-- ディレクトリの名称変更権限は、CREATE/DELETE/LIST やファイルの関連権限の全てがONという条件で代替可能 -->
+	</tr>
+	<tr>
+		<td class="lcol">データ型</td>
+		<td class="rcol">static final String</td>
+	</tr>
+</table>
+
+
+<table id="DIRECTORY_LIST" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">DIRECTORY_LIST</th>
+	</tr>
+	<tr>
+		<td class="lcol">値の意味</td>
+		<td class="rcol">ディレクトリ（フォルダ）内のファイル一覧取得に対するパーミッションです。</td>
+		<!-- ディレクトリの名称変更権限は、CREATE/DELETE/LIST やファイルの関連権限の全てがONという条件で代替可能 -->
+	</tr>
+	<tr>
+		<td class="lcol">データ型</td>
+		<td class="rcol">static final String</td>
+	</tr>
+</table>
+
+
+<table id="FILE_CREATE" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">FILE_CREATE</th>
+	</tr>
+	<tr>
+		<td class="lcol">値の意味</td>
+		<td class="rcol">ファイルの新規作成に対するパーミッションです。</td>
+		<!-- ファイルの名称変更権限は、CREATE/READ/WRITE/DELETE の全てがONという条件で代替可能 -->
+	</tr>
+	<tr>
+		<td class="lcol">データ型</td>
+		<td class="rcol">static final String</td>
+	</tr>
+</table>
+
+
+<table id="FILE_DELETE" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">FILE_DELETE</th>
+	</tr>
+	<tr>
+		<td class="lcol">値の意味</td>
+		<td class="rcol">ファイルの削除に対するパーミッションです。</td>
+		<!-- ファイルの名称変更権限は、CREATE/READ/WRITE/DELETE の全てがONという条件で代替可能 -->
+	</tr>
+	<tr>
+		<td class="lcol">データ型</td>
+		<td class="rcol">static final String</td>
+	</tr>
+</table>
+
+
+<table id="FILE_WRITE" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">FILE_WRITE</th>
+	</tr>
+	<tr>
+		<td class="lcol">値の意味</td>
+		<td class="rcol">ファイルへの書き込みに対するパーミッションです。</td>
+		<!-- ファイルの名称変更権限は、CREATE/READ/WRITE/DELETE の全てがONという条件で代替可能 -->
+	</tr>
+	<tr>
+		<td class="lcol">データ型</td>
+		<td class="rcol">static final String</td>
+	</tr>
+</table>
+
+
+<table id="FILE_READ" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">FILE_READ</th>
+	</tr>
+	<tr>
+		<td class="lcol">値の意味</td>
+		<td class="rcol">ファイルからの読み込みに対するパーミッションです。</td>
+		<!-- ファイルの名称変更権限は、CREATE/READ/WRITE/DELETE の全てがONという条件で代替可能 -->
+	</tr>
+	<tr>
+		<td class="lcol">データ型</td>
+		<td class="rcol">static final String</td>
+	</tr>
+</table>
+
+<table id="FILE_OVERWRITE" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">FILE_OVERWRITE</th>
+	</tr>
+	<tr>
+		<td class="lcol">値の意味</td>
+		<td class="rcol">ファイルへの上書きに対するパーミッションです。</td>
+	</tr>
+	<tr>
+		<td class="lcol">データ型</td>
+		<td class="rcol">static final String</td>
+	</tr>
+</table>
+
+<table id="FILE_INFORMATION_CHANGE" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">FILE_INFORMATION_CHANGE</th>
+	</tr>
+	<tr>
+		<td class="lcol">値の意味</td>
+		<td class="rcol">ファイルの情報変更（更新日時など）に対するパーミッションです。</td>
+	</tr>
+	<tr>
+		<td class="lcol">データ型</td>
+		<td class="rcol">static final String</td>
+	</tr>
+</table>
+
+
+
+
+
+
+</body>
+</html>

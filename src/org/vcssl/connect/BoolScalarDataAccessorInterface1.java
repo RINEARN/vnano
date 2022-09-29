@@ -1,50 +1,55 @@
 /*
  * ================================================================
- * Scalar Data Accessor Interface 1 (SDAI 1) for Boolean Type Data
- * ( for VCSSL / Vnano Plug-in Development )
+ * Scalar Data Accessor Interface 1 for Bool Type Data (Bool SDAI1)
  * ----------------------------------------------------------------
  * This file is released under CC0.
- * Written in 2020-2021 by RINEARN (Fumihiro Matsui)
+ * Written in 2020-2022 by RINEARN
  * ================================================================
  */
+
+// THE SPECIFICATION OF THIS INTERFACE HAD BEEN FINALIZED AT 2022/08/31.
+// NO MODIFICATIONS WILL BE APPLIED FOR THIS INTERFACE, EXCLUDING DOCUMENTS/COMMENTS.
 
 package org.vcssl.connect;
 
 /**
- * <p>
- * 主に処理系のデータコンテナが実装してサポートする、
- * 論理型用のSDAI 1 (Scalar Data Accessor Interface 1) 形式のデータ入出力インターフェースです。
- * </p>
+ * A data-I/O interface (abbreviated as Bool SDAI 1), mainly implemented by data container objects of language processor systems.
+ *
+ * In this org.vcssl.connect package, multiple data I/O interfaces are provided for passing/receiving data 
+ * without any data-conversions, between script-engine-side and plug-in-side, if required.
+ * 
+ * In them, this interface Bool SDAI 1 provides I/O methods of a boolean-type scalar value.
  */
 public interface BoolScalarDataAccessorInterface1 {
 
-	/** 動的ロード時などに処理系側から参照される、インターフェースの形式名（値は"BOOL_SDAI"）です。*/
-	public static final String INTERFACE_TYPE = "BOOL_SDAI";
 
-	/** 動的ロード時などに処理系側から参照される、インターフェースの世代名（値は"1"）です。*/
+	/** The type ID of this interface (value: "BOOL_SDAI") referred when the plug-in will be loaded. */
+	public static final String INTERFACE_TYPE_ID = "BOOL_SDAI";
+
+	/** The generation of this interface (value: "1"). */
 	public static final String INTERFACE_GENERATION = "1";
 
 
 	/**
-	 * 値を設定します。
-	 *
-	 * @param data 設定値
+	 * Sets the boolean-type scalar value.
+	 * 
+	 * @param data The scalar value to be set.
 	 */
 	public abstract void setBoolScalarData(boolean data);
 
 
 	/**
-	 * 値を取得します。
-	 *
-	 * @return 取得値
+	 * Gets the boolean-type scalar value.
+	 * 
+	 * @return The scalar value.
 	 */
 	public abstract boolean getBoolScalarData();
 
 
 	/**
-	 * 値を保持しているかどうかを返します。
-	 *
-	 * @return 保持していれば true
+	 * Returns whether any boolean-type scalar value can be gotten.
+	 * 
+	 * @return Returns true if any boolean-type scalar value can be gotton.
 	 */
 	public abstract boolean hasBoolScalarData();
 }

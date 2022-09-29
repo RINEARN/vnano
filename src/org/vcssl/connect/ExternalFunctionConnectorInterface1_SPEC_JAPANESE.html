@@ -1,0 +1,1137 @@
+<!doctype html>
+<html lang="ja">
+
+<head>
+	<title>XFCI1 仕様書</title>
+	<meta charset="UTF-8">
+	<style type="text/css">
+		h1 .spec-path { font-size: 70%; }
+		h2 .spec-path { font-size: 70%; }
+		.spec-table { width: 100%; border: 1px solid #000000; border-collapse: collapse; margin-bottom: 20px; }
+		.spec-table td { border: 1px solid #000000; text-align: left; }
+		.spec-table th { border: 1px solid #000000; text-align: left; }
+		.spec-table .lcol { width: 100px; background-color: #eeeeee; }
+		.spec-table .rcol { }
+		.spec-dl { }
+		.spec-dl dt { font-weight: bold; display: list-item; list-style-position: outside; margin-left: 20px; list-style-type: disc; }
+		.spec-dl dd { margin-bottom: 14px; line-height: 160%; }
+	</style>
+</head>
+
+<body>
+
+
+
+<div style="text-align: center; width: 100%; border: 1px solid #000000; background-color: #eeeeff;">
+VCSSL/Vnano プラグイン インターフェース 仕様書
+</div>
+
+
+<h1>External Function Connector Interface 1 (XFCI1)<br />インターフェース仕様書<br /><span class="spec-path">(org.vcssl.connect.ExternalFunctionConnectorInterface1)</span></h1>
+
+<hr />
+
+
+
+<h2>概要</h2>
+
+<p>
+External Function Connector Interface 1 (XFCI1) は、
+スクリプト内で使用可能な関数を提供する、外部関数プラグインを実装するためのインターフェースです。
+</p>
+
+
+<h2>ステータス</h2>
+
+<p>
+このインターフェースの現在のステータスは "FINALIZED"（確定済み）です。
+</p>
+
+<p>
+このインターフェースの仕様は、2022年8月31日時点で最終確定しました。今後は原則として、ドキュメントやコメント類以外の変更は加えられません。
+</p>
+
+<p>
+現在は <a href="https://www.vcssl.org/ja-jp/vnano/">Vnano</a> のスクリプトエンジンでサポートされ、同エンジンを搭載したアプリケーションのプラグイン開発において利用できます。
+</p>
+
+
+<h2>ライセンス</h2>
+
+<p>
+このインターフェースは、実質的な著作権フリー/パブリックドメインである CC0 に基づいて公開されています。
+</p>
+
+
+<h2>フィールド/メソッド等の一覧</h2>
+
+
+
+<dl class="spec-dl">
+
+	<dt><a href="#INTERFACE_TYPE_ID">INTERFACE_TYPE_ID</a></dt>
+		<dd>
+			プラグインのロード時に参照される、このインターフェースの形式ID（値: "XFCI"）です。
+		</dd>
+
+	<dt><a href="#INTERFACE_GENERATION">INTERFACE_GENERATION</a></dt>
+		<dd>
+			このインターフェースの世代名です（値: "1"）。
+		</dd>
+
+	<dt><a href="#getFunctionName">String getFunctionName()</a></dt>
+		<dd>
+			関数名を取得します。
+		</dd>
+
+	<dt><a href="#hasParameterNames">boolean hasParameterNames()</a></dt>
+		<dd>
+			引数名を取得可能かどうかを判定します。
+		</dd>
+
+	<dt><a href="#getParameterNames">String[] getParameterNames()</a></dt>
+		<dd>
+			全引数の名前を返します。
+		</dd>
+
+	<dt><a href="#getParameterClasses">Class&lt;?&gt;[] getParameterClasses()</a></dt>
+		<dd>
+			全引数のデータ型と配列次元数を表す、Class クラスのインスタンスを返します。
+		</dd>
+
+	<dt><a href="#getParameterUnconvertedClasses">Class&lt;?&gt;[] getParameterUnconvertedClasses()</a></dt>
+		<dd>
+			データ変換機能を無効化している場合において、
+			「 引数のデータのやり取りに用いるデータ入出力インターフェース 」の型を表す、
+			Class クラスのインスタンスを返します。
+		</dd>
+
+	<dt><a href="#getParameterDataTypeArbitrarinesses">boolean[] getParameterDataTypeArbitrarinesses()</a></dt>
+		<dd>
+			全引数におけるデータ型の任意性を取得します。
+		</dd>
+
+	<dt><a href="#getParameterArrayRankArbitrarinesses">boolean[] getParameterArrayRankArbitrarinesses()</a></dt>
+		<dd>
+			全引数における配列次元数の任意性を取得します。
+		</dd>
+
+	<dt><a href="#getParameterReferencenesses">boolean[] getParameterReferencenesses()</a></dt>
+		<dd>
+			全引数における参照性を取得します。
+		</dd>
+
+	<dt><a href="#getParameterConstantnesses">boolean[] getParameterConstantnesses()</a></dt>
+		<dd>
+			全引数における定数性を取得します。
+		</dd>
+
+	<dt><a href="#isParameterCountArbitrary">boolean isParameterCountArbitrary()</a></dt>
+		<dd>
+			任意個の引数を受け取るかどうかを返します。
+		</dd>
+
+	<dt><a href="#hasVariadicParameters">boolean hasVariadicParameters()</a></dt>
+		<dd>
+			（現在のVCSSL/Vnano処理系では未サポートの機能です。）
+		</dd>
+
+	<dt><a href="#getReturnClass">Class&lt;?&gt; getReturnClass(Class&lt;?&gt;[] parameterClasses)</a></dt>
+		<dd>
+			この関数の戻り値のデータ型と配列次元数を表す、 Class クラスのインスタンスを返します。
+		</dd>
+
+	<dt><a href="#getReturnUnconvertedClass">Class&lt;?&gt; getReturnUnconvertedClass(Class&lt;?&gt;[] parameterClasses)</a></dt>
+		<dd>
+			データ変換機能を無効化している場合において、
+			「 この関数の戻り値のデータのやり取りに用いる、データ入出力インターフェースの型 」
+			を表す、Class クラスのインスタンスを返します。
+		</dd>
+
+	<dt><a href="#isReturnDataTypeArbitrary">boolean isReturnDataTypeArbitrary()</a></dt>
+		<dd>
+			この関数の戻り値のデータ型が、任意に変化するかどうかを返します。
+		</dd>
+
+	<dt><a href="#isReturnArrayRankArbitrary">boolean isReturnArrayRankArbitrary()</a></dt>
+		<dd>
+			この関数の戻り値の配列次元数が、任意に変化するかどうかを返します。
+		</dd>
+
+	<dt><a href="#isDataConversionNecessary">boolean isDataConversionNecessary()</a></dt>
+		<dd>
+			この関数の引数や戻り値に対して、データ変換が必要かどうかを返します。
+		</dd>
+
+	<dt><a href="#invoke">Object invoke(Object[] arguments)</a></dt>
+		<dd>
+			この関数の処理を実行します。
+		</dd>
+
+	<dt><a href="#getEngineConnectorClass">Class&lt;?&gt; getEngineConnectorClass()</a></dt>
+		<dd>
+			スクリプトエンジンと情報をやり取りする際に使用するオブジェクトである「エンジンコネクタ」の、
+			インターフェースまたはクラスを返します。
+		</dd>
+
+	<dt><a href="#initializeForConnection">void initializeForConnection(Object engineConnector)</a></dt>
+		<dd>
+			このプラグインが、スクリプトエンジンに接続される際に必要となる初期化処理を実行します。
+		</dd>
+
+	<dt><a href="#finalizeForDisconnection">void finalizeForDisconnection(Object engineConnector)</a></dt>
+		<dd>
+			このプラグインが、スクリプトエンジンから接続解除される際に必要となる終了時処理を実行します。
+		</dd>
+
+	<dt><a href="#initializeForExecution">void initializeForExecution(Object engineConnector)</a></dt>
+		<dd>
+			スクリプトの実行毎に必要な初期化処理を実行します。
+		</dd>
+
+	<dt><a href="#finalizeForTermination">void finalizeForTermination(Object engineConnector)</a></dt>
+		<dd>
+			スクリプトの実行毎に必要な終了時処理を実行します。
+		</dd>
+</dl>
+
+
+<hr />
+
+
+
+<!-- ==================================================================================================== -->
+
+<h2>フィールド</h2>
+
+<table id="INTERFACE_TYPE_ID" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">INTERFACE_TYPE_ID</th>
+	</tr>
+	<tr>
+		<td class="lcol">値の意味</td>
+		<td class="rcol">プラグインのロード時に参照される、このインターフェースの形式ID（値: "XVCI"）です。</td>
+	</tr>
+	<tr>
+		<td class="lcol">データ型</td>
+		<td class="rcol">static final String</td>
+	</tr>
+</table>
+
+
+<table id="INTERFACE_GENERATION" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">INTERFACE_GENERATION</th>
+	</tr>
+	<tr>
+		<td class="lcol">値の意味</td>
+		<td class="rcol">このインターフェースの世代名です（値: "1"）。</td>
+	</tr>
+	<tr>
+		<td class="lcol">データ型</td>
+		<td class="rcol">static final String</td>
+	</tr>
+</table>
+
+
+
+
+<!-- ==================================================================================================== -->
+
+<h2>メソッド</h2>
+
+
+
+
+<table id="getFunctionName" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">getFunctionName</th>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">String getFunctionName()</td>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">関数名を取得します。</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">なし</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">関数名。</td>
+	</tr>
+	<tr>
+		<td class="lcol">例外</td>
+		<td class="rcol">なし</td>
+	</tr>
+</table>
+
+
+
+
+<table id="hasParameterNames" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">hasParameterNames</th>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">boolean hasParameterNames()</td>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">引数名を取得可能かどうかを判定します。</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">なし</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">引数名が取得可能であれば true が返されます。</td>
+	</tr>
+	<tr>
+		<td class="lcol">例外</td>
+		<td class="rcol">なし</td>
+	</tr>
+</table>
+
+
+<table id="getParameterNames" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">getParameterNames</th>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">String[] getParameterNames()</td>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">全引数の名前を返します。</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">なし</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">全引数の名前を格納する配列。</td>
+	</tr>
+	<tr>
+		<td class="lcol">例外</td>
+		<td class="rcol">なし</td>
+	</tr>
+</table>
+
+
+<table id="getParameterClasses" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">getParameterClasses</th>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">Class&lt;?&gt;[] getParameterClasses()</td>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			全引数のデータ型と配列次元数を表す、Class クラスのインスタンスを返します。
+			</p>
+			<p>
+			例えば、この関数の引数が (double, long[][]) の場合には { double.class, long[][].class } を返します。
+			（※ プラグインでは、スクリプト内での float 型は double 型、スクリプト内での int 型は long 型として扱います.）
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">なし</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">
+			各要素が、各引数のデータ型と配列次元数を表す、Class 型の配列。
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">例外</td>
+		<td class="rcol">なし</td>
+	</tr>
+</table>
+
+
+
+<table id="getParameterUnconvertedClasses" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">getParameterUnconvertedClasses</th>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">Class&lt;?&gt;[] getParameterUnconvertedClasses()</td>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			<a href="#isDataConversionNecessary">データ変換機能</a> 
+			を無効化している場合において、「 引数のデータのやり取りに用いるデータ入出力インターフェース 」の型を表す、
+			Class クラスのインスタンスを返します。
+			</p>
+			<p>
+			スカラの引数に対する入出力インターフェースとしては、
+			<a href="./Int64ScalarDataAccessorInterface1_SPEC_JAPANESE.html">Int64 SDAI1</a>、
+			<a href="./Float64ScalarDataAccessorInterface1_SPEC_JAPANESE.html">Float64 SDAI1</a>、
+			<a href="./BoolScalarDataAccessorInterface1_SPEC_JAPANESE.html">Bool SDAI1</a>、
+			<a href="./StringScalarDataAccessorInterface1_SPEC_JAPANESE.html">String SDAI1</a>、
+			および
+			<a href="./ArrayDataAccessorInterface1_SPEC_JAPANESE.html">ADAI1</a>
+			が利用可能です。
+			配列の引数に対しては、
+			<a href="./ArrayDataAccessorInterface1_SPEC_JAPANESE.html">ADAI1</a>
+			のみが利用可能です。
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">なし</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">
+			各要素が、各引数の「 データのやり取りに用いるデータ入出力インターフェース 」を表す、Class 型の配列。
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">例外</td>
+		<td class="rcol">なし</td>
+	</tr>
+</table>
+
+
+
+<table id="getParameterDataTypeArbitrarinesses" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">getParameterDataTypeArbitrarinesses</th>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">boolean[] getParameterDataTypeArbitrarinesses()</td>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			全引数におけるデータ型の任意性を取得します。
+			</p>
+			<p>
+			データ型の任意性として true が指定された引数に対しては、呼び出し時に任意の型の値を受け取れるようになります。
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">なし</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">
+			各要素が、各引数のデータ型の任意性を表す配列。
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">例外</td>
+		<td class="rcol">なし</td>
+	</tr>
+</table>
+
+
+
+<table id="getParameterArrayRankArbitrarinesses" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">getParameterArrayRankArbitrarinesses</th>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">boolean[] getParameterArrayRankArbitrarinesses()</td>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			全引数における配列次元数の任意性を取得します。
+			</p>
+			<p>
+			データ型の任意性として true が指定された引数に対しては、呼び出し時に任意次元の配列を受け取れるようになります。
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">なし</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">
+			各要素が、各引数の配列次元数の任意性を表す配列。
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">例外</td>
+		<td class="rcol">なし</td>
+	</tr>
+</table>
+
+
+
+<table id="getParameterReferencenesses" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">getParameterReferencenesses</th>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">boolean[] getParameterReferencenesses()</td>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			全引数における参照性を取得します。
+			</p>
+			<p>
+			参照性として true が指定された引数に対しては、呼び出し時に実引数が参照渡しされます。
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">なし</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">
+			各要素が、各引数の参照性を表す配列。
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">例外</td>
+		<td class="rcol">なし</td>
+	</tr>
+</table>
+
+
+<table id="getParameterConstantnesses" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">getParameterConstantnesses</th>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">boolean[] getParameterConstantnesses()</td>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			全引数における定数性を取得します。
+			</p>
+			<p>
+			定数性として true が指定された引数に対しては、この関数の実行時に、実引数の値が変更されないものと見なされます。
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">なし</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">
+			各要素が、各引数の定数性を表す配列。
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">例外</td>
+		<td class="rcol">なし</td>
+	</tr>
+</table>
+
+
+
+<table id="isParameterCountArbitrary" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">isParameterCountArbitrary</th>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">boolean isParameterCountArbitrary()</td>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			任意個の引数を受け取るかどうかを返します。
+			</p>
+			<p>
+			この機能が有効化されている（このメソッドが true を返す）場合、
+			デフォルトでは、全引数のデータ型と配列次元数は同一であると見なされます。
+			従ってその場合、<a href="#getParameterClasses">getParameterClasses()</a> メソッドは要素数 1 の配列を返すようにし、
+			その値が、全引数のデータ型と配列次元数を表すものと見なされます。
+			</p>
+			<p>
+			ただし、 <a href="#getParameterDataTypeArbitrarinesses">getParameterDataTypeArbitrarinesses()</a>
+			メソッドや <a href="#getParameterArrayRankArbitrarinesses">getParameterArrayRankArbitrarinesses()</a>
+			メソッドが { true } を返す場合には、データ型や配列次元数は任意となるため、各引数で異なる場合も生じ得ます.
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">なし</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">
+			この関数が任意個の引数を取る場合に true が返されます。
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">例外</td>
+		<td class="rcol">なし</td>
+	</tr>
+</table>
+
+
+
+<table id="hasVariadicParameters" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">hasVariadicParameters</th>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">boolean hasVariadicParameters()</td>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">
+		（現在のVCSSL/Vnano処理系では未サポートの機能です。）
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">なし</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">
+			（現在のVCSSL/Vnano処理系では未サポートの機能です。）
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">例外</td>
+		<td class="rcol">なし</td>
+	</tr>
+</table>
+
+
+
+<table id="getReturnClass" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">getReturnClass</th>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">Class&lt;?&gt; getReturnClass(Class&lt;?&gt;[] parameterClasses)</td>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			この関数の戻り値のデータ型と配列次元数を表す、 Class クラスのインスタンスを返します。
+			</p>
+			<p>
+			例えば、double 型の戻り値に対しては double.class を返し、long[][] 型の戻り値に対しては long[][].class を返します。
+			（※ プラグインでは、スクリプト内での float 型は double 型、スクリプト内での int 型は long 型として扱います。）
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">
+			parameterClasses: 各要素が各実引数のデータ型と配列次元数を表す、Class 型の配列。
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">
+			この関数の戻り値におけるデータ型と配列次元数を表す、Class 型の値
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">例外</td>
+		<td class="rcol">なし</td>
+	</tr>
+</table>
+
+
+
+
+<table id="getReturnUnconvertedClass" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">getReturnUnconvertedClass</th>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">Class&lt;?&gt; getReturnUnconvertedClass(Class&lt;?&gt;[] parameterClasses)</td>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			<a href="#isDataConversionNecessary">データ変換機能</a>
+			を無効化している場合において、
+			「 この関数の戻り値のデータのやり取りに用いる、データ入出力インターフェースの型 」
+			を表す、Class クラスのインスタンスを返します。
+			</p>
+			<p>
+			スカラの戻り値に対する入出力インターフェースとしては、
+			<a href="./Int64ScalarDataAccessorInterface1_SPEC_JAPANESE.html">Int64 SDAI1</a>、
+			<a href="./Float64ScalarDataAccessorInterface1_SPEC_JAPANESE.html">Float64 SDAI1</a>、
+			<a href="./BoolScalarDataAccessorInterface1_SPEC_JAPANESE.html">Bool SDAI1</a>、
+			<a href="./StringScalarDataAccessorInterface1_SPEC_JAPANESE.html">String SDAI1</a>、
+			および
+			<a href="./ArrayDataAccessorInterface1_SPEC_JAPANESE.html">ADAI1</a>
+			が利用可能です。
+			配列の戻り値に対しては、
+			<a href="./ArrayDataAccessorInterface1_SPEC_JAPANESE.html">ADAI1</a>
+			のみが利用可能です。
+			</p>
+			<p>
+			なお、引数 parameterClasses には、スクリプト内での呼び出しにおける、引数のデータ型情報が渡されます. 
+			これにより、引数の型によって戻り値の型が異なるだけの、複数の関数に相当する処理を、まとめて提供する事ができます。
+			<br />
+			（そのような関数を実装する場合、併せて
+			<a href="#isReturnDataTypeArbitrary">isReturnDataTypeArbitrary()</a>
+			および
+			<a href="#isReturnArrayRankArbitrary">isReturnArrayRankArbitrary()</a> メソッドが
+			true を返すように実装する事で、戻り値のデータ型と配列次元数を「任意」に設定しておく必要があります。）
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">
+			parameterClasses: 各要素が、各実引数のデータ型と配列次元数を表す、Class 型の配列。
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">
+			「戻り値のデータのやり取りに用いる、データ入出力インターフェースの型」を表す、Class 型のインスタンス
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">例外</td>
+		<td class="rcol">なし</td>
+	</tr>
+</table>
+
+
+<table id="isReturnDataTypeArbitrary" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">isReturnDataTypeArbitrary</th>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">boolean isReturnDataTypeArbitrary()</td>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			この関数の戻り値のデータ型が、任意に変化するかどうかを返します。
+			</p>
+			<p>
+			この機能は、戻り値の型が引数の型に依存するような、一種のジェネリックな関数を実装するためのものです。
+			従って、この機能を有効化した場合（このメソッドが true を返す場合）でも、
+			渡される引数のデータ型が確定すると、それに応じて戻り値の型も一意に決定される必要があります。
+			<a href="#getReturnClass">getReturnClass(Class[])</a> メソッドの説明も併せてご参照ください。
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">なし</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">
+			戻り値のデータ型が、任意に変化する場合に true を返します。
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">例外</td>
+		<td class="rcol">なし</td>
+	</tr>
+</table>
+
+
+
+<table id="isReturnArrayRankArbitrary" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">isReturnArrayRankArbitrary</th>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">boolean isReturnArrayRankArbitrary()</td>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			この関数の戻り値の配列次元数が、任意に変化するかどうかを返します。
+			</p>
+			<p>
+			この機能は、戻り値の配列次元数が引数の型/次元数に依存するような、一種のジェネリックな関数を実装するためのものです。
+			従って、この機能を有効化した場合（このメソッドが true を返す場合）でも、
+			渡される引数のデータ型/次元数が確定すると、それに応じて戻り値の次元数も一意に決定される必要があります。
+			<a href="#getReturnClass">getReturnClass(Class[])</a> メソッドの説明も併せてご参照ください。
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">なし</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">
+			戻り値の配列次元数が、任意に変化する場合に true を返します。
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">例外</td>
+		<td class="rcol">なし</td>
+	</tr>
+</table>
+
+
+
+<table id="isDataConversionNecessary" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">isDataConversionNecessary</th>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">boolean isDataConversionNecessary()</td>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			この関数の引数や戻り値に対して、データ変換が必要かどうかを返します。
+			</p>
+			<p>
+			この機能が有効化されている（このメソッドが true を返すようにした）場合、
+			各引数のデータを、単純なデータ型で受け取る事ができます。例えば、
+			double 型引数においては Double 型インスタンス、long[][] 型引数に対しては long[][] 型インスタンスなど受け取れます。
+			戻り値に対しても、引数と同様に、単純なデータ型の値で返す事ができます。
+			</p>
+			<p>
+			一方、この機能が無効化されている（このメソッドが false を返すようにした）場合、
+			引数や戻り値のデータに対しては、各種のデータ入出力インターフェースを介してアクセスする必要があります。
+			その際、使用するデータ入出力インターフェースは
+			<a href="#getParameterUnconvertedClasses">getParameterUnconvertedClasses()</a> メソッドや
+			<a href="#getReturnUnconvertedClass">getReturnUnconvertedClass(Class[])</a> メソッドの戻り値として指定します。
+			</p>
+			<p>
+			この機能は、有効化した方がプラグインの実装が単純になりますが、
+			反面、引数や戻り値のやり取りにおいて、データ変換処理のオーバーヘッドがかかるようになります。
+			従って、処理速度が要求される処理において、頻繁に呼び出されるような関数プラグインの実装においては、
+			この機能を無効化する事で、呼び出しコストを削減できる利点があります。
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">なし</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">
+			データ変換が必要なら true を返します。
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">例外</td>
+		<td class="rcol">なし</td>
+	</tr>
+</table>
+
+
+
+
+<table id="invoke" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">invoke</th>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">Object invoke(Object[] arguments) throws ConnectorException</td>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			この関数の処理を実行します。
+			</p>
+			<p>
+			関数呼び出し時の実引数のデータは、このメソッドの引数 arguments に渡されます。
+			この arguments は Object[] 型の配列で、各要素に各実引数のデータが格納されます。
+			</p>
+			<p>
+			データ変換機能が有効化されている場合（<a href="#isDataConversionNecessary">isDataConversionNecessary()</a> メソッド参照）、
+			各実引数は単純な型のデータとして arguments に格納されます。例えば、
+			double 型引数に対しては Double インスタンス、long[][] 型引数に対しては long[][] 型インスタンスなどです。
+			</p>
+			<p>
+			一方で、データ変換機能が無効化されている場合、arguments の各要素には、
+			各種のデータ入出力インターフェースを実装したデータコンテナオブジェクトが格納されて渡されます。
+			それを介して、各引数のデータにアクセスします。
+			具体的なデータ入出力インターフェースは 
+			<a href="#getParameterUnconvertedClasses">getParameterUnconvertedClasses()</a> メソッドの戻り値として指定します。
+			なお、この場合、arguments[0] には、戻り値のデータを格納するためのデータコンテナオブジェクトが割り当てられています。
+			従って最初の引数は arguments[1]、次の引数は arguments[2]、... を参照する必要があります。
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">
+			arguments: 関数呼び出し時における、全ての実引数を格納する配列。
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">
+			関数呼び出しにおける戻り値。
+			<br />
+			（<a href="#isDataConversionNecessary">データ変換機能</a>が無効化されている場合は、代わりに arguments[0] に戻り値を格納します。）
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">例外</td>
+		<td class="rcol">ConnectorException: 関数の実行処理において, 何らかのエラーが発生した場合にスローされます。</td>
+	</tr>
+</table>
+
+
+
+
+
+<table id="getEngineConnectorClass" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">getEngineConnectorClass</th>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">Class&lt;?&gt; getEngineConnectorClass()</td>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			スクリプトエンジンと情報をやり取りする際に使用するオブジェクトである「エンジンコネクタ」の、
+			インターフェースまたはクラスを返します。
+			</p>
+			<p>
+			このメソッドで戻り値として指定したインターフェースまたはクラスの実装インスタンスが、
+			<a href="#initializeForConnection">initializeForConnection(Object engineConnector)</a> 
+			メソッド等の初期化/終了時メソッド群の、引数 engineConnector に渡されます。
+			</p>
+			<p>
+			利用可能なエンジンコネクタの形式は、スクリプトエンジンの実装に依存しますが、
+			少なくとも <a href="./EngineConnector1_SPEC_JAPANESE.html">ECI1</a> は利用可能である事が、
+			XFCI1の仕様上保証されています。
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">なし</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">
+		使用したいエンジンコネクタのインターフェースまたはクラス。
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">例外</td>
+		<td class="rcol">なし</td>
+	</tr>
+</table>
+
+
+
+<table id="initializeForConnection" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">initializeForConnection</th>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">void initializeForConnection(Object engineConnector) throws ConnectorException</td>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">
+			このプラグインが、スクリプトエンジンに接続される際に必要となる初期化処理を実行します。
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">
+			engineConnector: エンジンコネクタ
+			（<a href="#getEngineConnectorClass">getEngineConnectorClass()</a> メソッド参照）
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">なし</td>
+	</tr>
+	<tr>
+		<td class="lcol">例外</td>
+		<td class="rcol">ConnectorException: 初期化処理に失敗した場合にスローされます。</td>
+	</tr>
+</table>
+
+
+
+<table id="finalizeForDisconnection" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">finalizeForDisconnection</th>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">void finalizeForDisconnection(Object engineConnector) throws ConnectorException</td>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">
+			このプラグインが、スクリプトエンジンから接続解除される際に必要となる終了時処理を実行します。
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">
+			engineConnector: エンジンコネクタ
+			（<a href="#getEngineConnectorClass">getEngineConnectorClass()</a> メソッド参照）
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">なし</td>
+	</tr>
+	<tr>
+		<td class="lcol">例外</td>
+		<td class="rcol">ConnectorException: 終了時処理に失敗した場合にスローされます。</td>
+	</tr>
+</table>
+
+
+
+<table id="initializeForExecution" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">initializeForExecution</th>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">void initializeForExecution(Object engineConnector) throws ConnectorException</td>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">
+			スクリプトの実行毎に必要な初期化処理を実行します。
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">
+			engineConnector: エンジンコネクタ
+			（<a href="#getEngineConnectorClass">getEngineConnectorClass()</a> メソッド参照）
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">なし</td>
+	</tr>
+	<tr>
+		<td class="lcol">例外</td>
+		<td class="rcol">ConnectorException: 初期化処理に失敗した場合にスローされます。</td>
+	</tr>
+</table>
+
+
+
+<table id="finalizeForTermination" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">finalizeForTermination</th>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">void finalizeForTermination(Object engineConnector) throws ConnectorException</td>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">
+			スクリプトの実行毎に必要な終了時処理を実行します。
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">
+			engineConnector: エンジンコネクタ
+			（<a href="#getEngineConnectorClass">getEngineConnectorClass()</a> メソッド参照）
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">なし</td>
+	</tr>
+	<tr>
+		<td class="lcol">例外</td>
+		<td class="rcol">ConnectorException: 終了時処理に失敗した場合にスローされます。</td>
+	</tr>
+</table>
+
+
+
+
+</body>
+</html>

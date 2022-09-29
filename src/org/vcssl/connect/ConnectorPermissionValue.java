@@ -1,66 +1,38 @@
 /*
  * ==================================================
- * Connector Parmission
- * ( for VCSSL / Vnano Plug-in Development )
+ * Connector Parmission Value
  * --------------------------------------------------
  * This file is released under CC0.
- * Written in 2020 by RINEARN (Fumihiro Matsui)
+ * Written in 2020-2022 by RINEARN
  * ==================================================
  */
 
+// THE STATUS OF THE SPECIFICATION OF THIS CLASS IS "EXTENSION ONLY".
+// IN PRINCIPLE, DON'T DELETE EXISTING CONSTRUCTORS/METHODS/FIELDS.
+
 package org.vcssl.connect;
 
+
 /**
- * <p>
- * パーミッション設定ベースのセキュリティレイヤーを持つ処理系のために、
- * 列挙的にパーミッション値が定義されたクラスです。
- * </p>
+ * A class defining permission values.
  *
- * <p>
- * このクラスがフィールドとして提供する各パーミッション値は、
- * 本来は列挙子の要素として定義されるのが素直であり、
- * その方が処理系側の検査オーバーヘッドも軽減が見込めますが、
- * 定義順序変更時のプラグイン側の再コンパイルを不要にするためや、
- * その他の互換性を考慮して、
- * public static final な文字列フィールドとして定義されています。
- * </p>
- *
- * @author RINEARN (Fumihiro Matsui)
+ * Fields of this class are natural to be defined as elements of an enum, 
+ * however, they are defined as "public static final String" fields, 
+ * instead of enum elements.
+ * This is to prevent unexpected behaviour when definition order of them are changed, 
+ * and plug-ins referencing them have not been re-compiled.
+ * 
+ * Please note that, it is not recommended to describe values of them directly (as String literals).
+ * Refer fields of this class as possible as.
  */
 public class ConnectorPermissionValue {
 
-	/**
-	 * <span class="jang-en">
-	 * Requests for permission items having this value will always be allowed
-	 * </span>
-	 * <span class="jang-ja">
-	 * この値を持つパーミッション項目は, リクエストが常に許可されます
-	 * </span>
-	 * .
-	 */
+	/** Requests for permission items having this value will always be allowed. */
 	public static final String ALLOW = "ALLOW";
 
-	/**
-	 * <span class="jang-en">
-	 * Requests for permission items having this value will always be denied
-	 * </span>
-	 * <span class="jang-ja">
-	 * この値を持つパーミッション項目は, リクエストが常に拒否されます
-	 * </span>
-	 * .
-	 */
+	/** Requests for permission items having this value will always be denied. */
 	public static final String DENY = "DENY";
 
-	/**
-	 * <span class="jang-en">
-	 * When permission items having this value are requested,
-	 * the script engine asks the user whether allows it or not
-	 * </span>
-	 * <span class="jang-ja">
-	 * この値を持つパーミッション項目においては, スクリプトエンジンがユーザーに対して,
-	 * リクエストを許可するかどうかを尋ねた上で決定します
-	 * </span>
-	 * .
-	 */
+	/** When permission items having this value are requested, the scripting engine asks the user whether allows it. */
 	public static final String ASK = "ASK";
 }

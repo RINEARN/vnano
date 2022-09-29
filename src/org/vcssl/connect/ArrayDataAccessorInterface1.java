@@ -1,226 +1,126 @@
 /*
  * ==================================================
  * Array Data Accessor Interface 1 (ADAI 1)
- * ( for VCSSL / Vnano Plug-in Development )
  * --------------------------------------------------
  * This file is released under CC0.
- * Written in 2017-2021 by RINEARN (Fumihiro Matsui)
+ * Written in 2017-2022 by RINEARN
  * ==================================================
  */
+
+// THE SPECIFICATION OF THIS INTERFACE HAD BEEN FINALIZED AT 2022/08/31.
+// NO MODIFICATIONS WILL BE APPLIED FOR THIS INTERFACE, EXCLUDING DOCUMENTS/COMMENTS.
 
 package org.vcssl.connect;
 
 /**
- * <p>
- * 主に処理系のデータコンテナが実装してサポートする、
- * ADAI 1 (Array Data Accessor Interface 1) 形式のデータ入出力インターフェースです。
- * </p>
+ * A data-I/O interface (abbreviated as ADAI1), mainly implemented by data container objects of language processor systems.
  *
- * <p>
- * <span style="font-weight: bold;">
- * ※ このインターフェースは未確定であり、
- * このインターフェースをサポートする処理系が正式にリリースされるまでの間、
- * 一部仕様が変更される可能性があります。
- * </span>
- * </p>
- *
- * <p>
- * ここでのデータコンテナとは、処理系内部や内外でデータをやり取りする単位として、
- * データを格納する事を目的としたオブジェクトの事を指します。
- * このデータコンテナ・インターフェースは、言語処理系と、処理系外部のプラグインとの間で、
- * 多次元配列データを直接的に（変換などを行わずに）やり取りしたい場合などに使用します。
- * </p>
- *
- * <p>
- * 外部変数や外部関数のプラグインはホスト言語で実装されるため、
- * ホスト言語とスクリプト言語との間におけるデータ型の違いや、
- * 処理系内部でのデータの扱いの違いなどを、どこかで吸収する必要があります。
- * 通常、プラグイン側はホスト言語のデータ型のみを用いて開発され、
- * そのようなデータ変換などは処理系側において自動的に行われます。
- * </p>
- *
- * <p>
- * しかし、オーバーヘッドを避けるためなどの理由で、
- * 自動のデータ変換を利用しない場合（プラグイン開発の際に任意に選択できます）、
- * プラグイン側は、処理系側の内部で使用されるデータコンテナの形式で、
- * データを受け渡しする必要があります。
- * その形式は処理系に依存しますが、このインターフェースは、
- * 主にベクトル演算ベースの処理系の内部で使用されるデータコンテナの仕様を、
- * プラグインの再利用性を確保するために抽象化して定義したものです。
- * </p>
- *
- * <p>
- * 現時点では、このインターフェースは
- * Vnano (VCSSL nano) 処理系の内部でのデータコンテナ形式において使用されています。
- * Vnano 処理系は仮想プロセッサ（いわゆるVM）がベクトル演算主体の設計であり、
- * レジスタや仮想メモリーのデータ単位が全て配列であるため、
- * スカラも含めたあらゆるデータにおいて、このインターフェースを実装したデータコンテナが使用されます。
- * 従って、Vnano用のプラグイン開発において、自動のデータ変換を利用しない場合、
- * このインターフェースを実装したデータコンテナによって、
- * 引数や戻り値などのデータをやり取りします。
- * </p>
- *
- * <p>
- * データの格納のされ方などの詳細については、具体的な実装を交えた説明の方が適しているため、
- * Vnano のスクリプトエンジン実装における org.vcssl.nano.vm.memory.DataContainer
- * クラスの説明などを参照してください。
- * </p>
- *
- * @param <T> 保持するデータの型
- * @author RINEARN (Fumihiro Matsui)
+ * In this org.vcssl.connect package, multiple data I/O interfaces are provided for passing/receiving data 
+ * without any data-conversions, between script-engine-side and plug-in-side, if required.
+ * 
+ * In them, this interface ADAI1 provides I/O methods of multi-dimensional array data.
+ * 
+ * @param <T> The type of data stored in the data container implementing this interface.
  */
 public interface ArrayDataAccessorInterface1<T> {
 
 
-	/** 動的ロード時などに処理系側から参照される、インターフェースの形式名（値は"ADAI"）です。*/
-	public static final String INTERFACE_TYPE = "ADAI";
+	/** The type ID of this interface (value: "ADAI") referred when the plug-in will be loaded. */
+	public static final String INTERFACE_TYPE_ID = "ADAI";
 
-	/** 動的ロード時などに処理系側から参照される、インターフェースの世代名（値は"1"）です。*/
+	/** The generation of this interface (value: "1"). */
 	public static final String INTERFACE_GENERATION = "1";
 
-
-	/** スカラ値を格納している場合におけるサイズ（値は 1 ）です。 */
+ 	/** The value of the size of a scalar value (value: 1). */
 	public static final int ARRAY_SIZE_OF_SCALAR = 1;
 
-	/** スカラ値を格納している場合における次元数（値は 0 ）です。 */
+ 	/** The number of dimensions (array-rank) of a scalar value (value: 0). */
 	public static final int ARRAY_RANK_OF_SCALAR = 0;
 
-	/** スカラ値を格納している場合における次元長配列（値は長さ 0 の int[] ）です。 */
+	/** An array storing dimension-lengths of a scalar value (value: { }). */
 	public static final int[] ARRAY_LENGTHS_OF_SCALAR = { };
 
 
 	/**
-	 * 格納するデータを、そのデータに関する必須情報と共に設定します。
+	 * Sets the serialized 1D array data with related information.
 	 *
-	 * このデータコンテナの仕様は、
-	 * 内部でデータを1次元配列として保持する事を前提としているため、
-	 * 引数 data には常に1次元配列を渡す必要があります。
-	 *
-	 * スカラ値を格納する場合は、その値を含む配列を引数 data に渡し、
-	 * その中で対象のスカラ値が保持されている要素のインデックスを、引数 offset に指定してください。
-	 * この場合、引数 lengths には要素数 0 の配列を指定します（つまりスカラは0次元の配列と見なします）。
-	 *
-	 * 多次元配列を格納する場合は、
-	 * 右端次元の要素が連続的に並ぶように1次元化した配列を引数 data に渡し、
-	 * そして引数 lengths に、次元ごとの長さを格納する配列を指定してください（後述）。
-	 * この場合、引数 offset には、現状では常に 0 を指定します。この場合における非 0 のオフセット値は、
-	 * 将来的には「 引数 data 内で対象データが格納されている始点要素のインデックス 」
-	 * として解釈される可能性がありますが、現在存在する処理系ではサポートされていません。
-	 *
-	 * 引数 lengths 内の要素の順序については、スクリプト言語内での多次元配列との対応において、
-	 * 左端次元の要素数を[0]番要素、その一つ右隣りにある次元の要素数を[1]番要素 ...
-	 * という順で格納してください。
-	 *
-	 * なお、データコンテナが保持する設定値の組み合わせが、瞬間的にでも不整合な状態になる事を防ぐため、
-	 * オフセット値のみや、次元ごとの長さ情報（引数 lengths）のみを変更するメソッドは提供されません。
-	 *
-	 * @param data 格納するデータ（1次元配列）
-	 * @param offset オフセット値（データ内で値が格納されている要素のインデックスで、スカラ以外を格納する場合は常に 0 を指定します）
-	 * @param lengths 次元ごとの長さを格納する配列（スカラを格納する場合は、長さ 0 の配列を指定します）
+	 * On this interface, contents of any data including a scalar value, an 1-dimensional (1D) array, 
+	 * and a multi-dimensional array are always handled as an 1D array, 
+	 * so specify an 1D array for the argument "data".
+	 * We call it as "serialized 1D array data" in this document. 
+	 * 
+	 * How to store elements into the serialized 1D array data is explained in the specification document,
+	 * bundled with this interface file.
+	 * 
+	 * @param data The serialized 1D array data to be set.
+	 * @param offset The index at wich the scalar value is stored(see the above explanation).
+	 * @param lengths An array storing lengths of each dimension (see the above explanation).
 	 */
 	public abstract void setArrayData(T data, int offset, int[] lengths);
 
 
 	/**
-	 * 格納されているデータを取得します。
-	 *
-	 * このデータコンテナの仕様は、
-	 * 内部でデータを1次元配列として保持する事を前提としているため、
-	 * 戻り値は1次元配列として返されます。
-	 *
-	 * 多次元配列は、右端次元の要素が連続的に並ぶように1次元化されます。
-	 * スカラは、要素数1の配列として返されるか、
-	 * またはより大きな配列のどこかに格納した上で返され、後者の場合は
-	 * {@link ArrayDataAccessorInterface1#getArrayOffset getArrayOffset()}
-	 * メソッドでそのインデックスを取得できます。
-	 *
-	 * @return 格納されているデータ（1次元配列）
+	 * Returns the serialized 1D the array data.
+	 * 
+	 * How a scalar or a multi dimensional array is stored in the serialized 1D array data
+	 * is explained in the specification document, bundled with this interface file.
+	 * 
+	 * @return The serialized 1D array data.
 	 */
 	public abstract T getArrayData();
 
 
 	/**
-	 * このデータコンテナが、配列データを保持しているかどうかを返します。
-	 *
-	 * @return 配列データを保持していれば true
+	 * Returns whether any serialized 1D array data can be gotten.
+	 * 
+ 	 * @return Returns true if any serialized 1D array data can be gotton.
 	 */
 	public abstract boolean hasArrayData();
 
 
 	/**
-	 * 格納されているデータをスカラ値と見なす場合における、オフセット値を取得します。
+	 * Returns the index of the scalar value in the serialized 1D array data.
+	 * 
+	 * For details, see the description of "setArrayData" method in the specification document,
+	 * bundled with this interface file.
 	 *
-	 * オフセット値とは、データコンテナが内部で保持している配列データ内において、
-	 * スカラ値が格納されている要素のインデックスを意味します。
-	 * この仕様は、ベクトル演算ベースの処理系において、
-	 * 配列ベースのデータコンテナでスカラデータを効率的に扱うためのものです。
-	 *
-	 * 格納されているデータがスカラ以外の（次元数が 1 以上の配列の）場合においては、オフセット値は
-	 * 仕様上「 引数 data 内で対象データが格納されている始点要素のインデックス 」を意味します。
-	 * ただし、現在存在する処理系では、そのような「ずれた」格納の仕方をサポートしていないため、通常は 0 が返ります。
-	 * 将来的に、上記のような仕様をサポートする処理系に対しても機能するプラグインを開発したい場合には、
-	 * オフセット値が非 0 の場合も想定した実装を行ってください。
-	 *
-	 * なお、データコンテナが保持する設定値の組み合わせが、瞬間的にでも不整合な状態になる事を防ぐため、
-	 * オフセット値のみを設定するメソッドは提供されません。
-	 * 設定したい場合は {@link ArrayDataAccessorInterface1#setArrayData(Object, int, int[]) setArrayData(T, int, int[]) }
-	 * メソッドを使用して、データと共に設定してください。
-	 *
-	 * @return スカラデータの配列内位置を示すオフセット値
+ 	 * @return The index of the scalar value in the serialized 1D array data.
 	 */
 	public abstract int getArrayOffset();
 
 
 	/**
-	 * 多次元配列の、各次元ごとの長さを格納する配列（次元長配列）を取得します。
-	 *
-	 * なお、データコンテナが保持する設定値の組み合わせが、瞬間的にでも不整合な状態になる事を防ぐため、
-	 * 次元ごとの長さのみを設定するメソッドは提供されません。
-	 * 設定したい場合は {@link ArrayDataAccessorInterface1#setArrayData(Object, int, int[]) setArrayData(T, int, int[]) }
-	 * メソッドを使用して、データと共に設定してください。
-	 *
-	 * @return 各次元ごとの長さを格納する配列（次元長配列）
+	 * Returns the array storing lengths of dimensions of the array.
+	 * 
+	 * For details, see the description of "setArrayData" method in the specification document,
+	 * bundled with this interface file.
+	 * 
+	 * @return The array storing lengths of dimensions of the array.
 	 */
 	public abstract int[] getArrayLengths();
 
 
 	/**
-	 * サイズを取得します。
-	 *
-	 * ここでのサイズとは、多次元配列における総要素数の事です。
-	 * 具体的には、データがスカラではない場合には、サイズは
-	 * {@link ArrayDataAccessorInterface1#getArrayLengths getArrayLengths()}
-	 * メソッドで取得できる次元長配列の、全要素の積に一致します。
-	 *
-	 * データがスカラである場合には、サイズは常に 1 となります。
-	 * 仮に {@link ArrayDataAccessorInterface1#getArrayData getArrayData()}
-	 * メソッドで取得したデータの配列の要素数が 1 よりも大きく
-	 * その配列内に要素として（オフセット値で指定される位置に）
-	 * スカラ値が格納されている場合でも、
-	 * このメソッドで返されるサイズは 1 になります。
-	 *
-	 * サイズとデータの要素数を独立に設定する事はできないため、
-	 * サイズの setter はありません。
-	 * 設定したい場合は {@link ArrayDataAccessorInterface1#setArrayData(Object, int, int[]) setArrayData(T, int, int[]) }
-	 * メソッドなどを使用して、データおよび次元ごとの長さ情報と共に設定してください。
-	 *
-	 * @return サイズ
+	 * Returns the size (lenth) of the serialized 1D array data.
+	 * 
+	 * When data is a scalar value, the size always is 1.
+	 * When data is an 1-dimensional array, the size is its length.
+	 * When data is a multi-dimensional array of which lengths are [N1][N2][N3]...[NM], 
+	 * the size is the value of the product of them: N1*n2*n3*...*NM.
+	 * 
+	 * @return The size (lenth) of the serialized 1D array data.
 	 */
 	public abstract int getArraySize();
 
 
 	/**
-	 * 多次元配列の次元数（次元の総数）を取得します。
+	 * Returns the number of dimensions (array-rank) of the array.
 	 *
-	 * 具体的には、{@link ArrayDataAccessorInterface1#getArrayLengths getArrayLengths()}
-	 * メソッドで取得できる次元長配列の、要素数に一致します。
-	 *
-	 * 次元数と、次元ごとの長さを独立に設定する事はできないため、
-	 * 次元数の setter はありません。
-	 * 設定したい場合は {@link ArrayDataAccessorInterface1#setArrayData(Object, int, int[]) setArrayData(T, int, int[]) }
-	 * メソッドなどを使用して、データおよび次元ごとの長さ情報と共に設定してください。
-	 *
-	 * @return 次元数
+	 * When data is a scalar value, the array-rank always is 0.
+	 * When data is an 1-dimensional array, the array-rank always is 1.
+	 * When data is an N-dimensional array, the array-rank is N.
+	 * 
+	 * @return The number of dimensions (array-rank) of multi-dimensional array data.
 	 */
 	public abstract int getArrayRank();
 

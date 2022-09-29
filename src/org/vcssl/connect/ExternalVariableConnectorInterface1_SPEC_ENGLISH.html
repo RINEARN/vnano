@@ -1,0 +1,804 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+	<title>XVCI1 Specification</title>
+	<meta charset="UTF-8">
+	<style type="text/css">
+		h1 .spec-path { font-size: 70%; }
+		h2 .spec-path { font-size: 70%; }
+		.spec-table { width: 100%; border: 1px solid #000000; border-collapse: collapse; margin-bottom: 20px; }
+		.spec-table td { border: 1px solid #000000; text-align: left; }
+		.spec-table th { border: 1px solid #000000; text-align: left; }
+		.spec-table .lcol { width: 100px; background-color: #eeeeee; }
+		.spec-table .rcol { }
+		.spec-dl { }
+		.spec-dl dt { font-weight: bold; display: list-item; list-style-position: outside; margin-left: 20px; list-style-type: disc; }
+		.spec-dl dd { margin-bottom: 14px; line-height: 160%; }
+	</style>
+</head>
+
+<body>
+
+
+<div style="text-align: center; width: 100%; border: 1px solid #000000; background-color: #eeeeff;">
+VCSSL/VNANO PLUGIN INTERFACE SPECIFICATION
+</div>
+
+
+<h1>External Variable Connector Interface 1 (XVCI1)<br />Specification Document<br /><span class="spec-path">(org.vcssl.connect.ExternalVariableConnectorInterface1)</span></h1>
+
+<hr />
+
+
+
+<h2>Abstract</h2>
+
+<p>
+External Variable Connector Interface 1 (XVCI1) 
+is an interface for implementing external variable plug-ins which provide variables available in scripts.
+</p>
+
+
+<h2>Status</h2>
+
+<p>
+The status of this interface is "FINALIZED".
+</p>
+
+<p>
+The specification of this interface had been finalized at 2022/08/31.
+No modifications will be applied for this interface, excluding documents/comments.
+</p>
+
+<p>
+This interface is currently supported by the scripting engine of Vnano. 
+You can use this interface for development of plug-ins of applications equipped with the Vnano engine.
+</p>
+
+
+<h2>License</h2>
+
+<p>
+This interface is published under CC0, which is almost the same as the so-called "copyright-free" (domain).
+</p>
+
+
+
+<h2>List of Fields/Methods</h2>
+
+<dl class="spec-dl">
+
+	<dt><a href="#INTERFACE_TYPE_ID">INTERFACE_TYPE_ID</a></dt>
+		<dd>
+			The type ID of this interface (value: "XVCI") referred when the plug-in will be loaded.
+		</dd>
+
+	<dt><a href="#INTERFACE_GENERATION">INTERFACE_GENERATION</a></dt>
+		<dd>
+			The generation of this interface (value: "1").
+		</dd>
+
+	<dt><a href="#getVariableName">String getVariableName()</a></dt>
+		<dd>
+			Gets the name of the variable.
+		</dd>
+
+	<dt><a href="#getDataClass">Class&lt;?&gt; getDataClass()</a></dt>
+		<dd>
+			Returns the instance of "Class" class representing the data-type and the array-rank of this variable.
+		</dd>
+
+	<dt><a href="#getDataUnconvertedClass">Class&lt;?&gt; getDataUnconvertedClass()</a></dt>
+		<dd>
+			Returns the instance of "Class" class representing data-I/O interfaces for accessing to data of this variable, 
+			when the data-conversion feature is disabled.
+		</dd>
+
+	<dt><a href="#isConstant">boolean isConstant()</a></dt>
+		<dd>
+			Returns whether this variable is a constant.
+		</dd>
+
+	<dt><a href="#isReference">boolean isReference()</a></dt>
+		<dd>
+			（Unsupported feature on the current version of VCSSL/Vnano Engine）Returns whether this variable is a reference.
+		</dd>
+
+	<dt><a href="#isDataTypeArbitrary">boolean isDataTypeArbitrary()</a></dt>
+		<dd>
+			(Unsupported feature on the current version of VCSSL/Vnano Engine) Returns whether the data-type of this variable varies arbitrary.
+		</dd>
+
+	<dt><a href="#isArrayRankArbitrary">boolean isArrayRankArbitrary()</a></dt>
+		<dd>
+			(Unsupported feature on the current version of VCSSL/Vnano Engine) Returns whether the array-rank of this variable varies arbitrary.
+		</dd>
+
+	<dt><a href="#isDataConversionNecessary">boolean isDataConversionNecessary()</a></dt>
+		<dd>
+			Returns whether the data-conversions for accessing data of this variable is necessary.
+		</dd>
+
+	<dt><a href="#getData1">Object getData()</a></dt>
+		<dd>
+			Returns the data of this variable.
+		</dd>
+
+	<dt><a href="#getData2">void getData(Object dataContainer)</a></dt>
+		<dd>
+			Gets the data of this variable through the argument.
+		</dd>
+
+	<dt><a href="#setData">void setData(Object data)</a></dt>
+		<dd>
+			Sets the data of this variable.
+		</dd>
+
+	<dt><a href="#getEngineConnectorClass">Class&lt;?&gt; getEngineConnectorClass()</a></dt>
+		<dd>
+			Returns the instance of "Class" class, representing the interface or the class of the engine connector, which is an object for communicating with the scripting engine.
+		</dd>
+
+	<dt><a href="#initializeForConnection">void initializeForConnection(Object engineConnector)</a></dt>
+		<dd>
+			Performs the initialization process necessary when this plug-in is connected to the scripting engine.
+		</dd>
+
+	<dt><a href="#finalizeForDisconnection">void finalizeForDisconnection(Object engineConnector)</a></dt>
+		<dd>
+			Performs the finalization process necessary when this plug-in is disconnected from the scripting engine.
+		</dd>
+
+	<dt><a href="#initializeForExecution">void initializeForExecution(Object engineConnector)</a></dt>
+		<dd>
+			Performs the initialization process necessary for each execution of a script.
+		</dd>
+
+	<dt><a href="#finalizeForTermination">void finalizeForTermination(Object engineConnector)</a></dt>
+		<dd>
+			Performs the finalization process necessary for each execution of a script.
+		</dd>
+
+</dl>
+
+
+<hr />
+
+
+
+<!-- ==================================================================================================== -->
+
+<h2>Fields</h2>
+
+
+<table id="INTERFACE_TYPE_ID" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">INTERFACE_TYPE_ID</th>
+	</tr>
+	<tr>
+		<td class="lcol">Value</td>
+		<td class="rcol">The type ID of this interface (value: "XVCI") referred when the plug-in will be loaded.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Type</td>
+		<td class="rcol">static final String</td>
+	</tr>
+</table>
+
+
+<table id="INTERFACE_GENERATION" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">INTERFACE_GENERATION</th>
+	</tr>
+	<tr>
+		<td class="lcol">Value</td>
+		<td class="rcol">The generation of this interface (value: "1").</td>
+	</tr>
+	<tr>
+		<td class="lcol">Type</td>
+		<td class="rcol">static final String</td>
+	</tr>
+</table>
+
+
+
+
+<!-- ==================================================================================================== -->
+
+<h2>Methods</h2>
+
+
+
+
+<table id="getVariableName" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">getVariableName</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">String getVariableName()</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">Gets the name of this variable.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">None</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">The name of this variable.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Exception</td>
+		<td class="rcol">None</td>
+	</tr>
+</table>
+
+
+
+
+<table id="getDataClass" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">getDataClass</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">Class&lt;?&gt; getDataClass()</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			Returns the instance of "Class" class representing the data-type and the array-rank of this variable.
+			</p>
+			<p>
+			For example, 
+			returns double.class for double-type ("float" in scripts) variable, 
+			and returns long[][].class for long[][]-type ("int[][]" in scripts) variable.
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">None</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">The Class representing the data-type and the array-rank of this variable.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Exception</td>
+		<td class="rcol">None</td>
+	</tr>
+</table>
+
+
+
+
+<table id="getDataUnconvertedClass" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">getDataUnconvertedClass</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">Class&lt;?&gt; getDataUnconvertedClass()</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			Returns the instance of "Class" class representing data-I/O interfaces for accessing to data of this variable, 
+			when <a href="#isDataConversionNecessary">the data-conversion feature</a> is disabled.
+			</p>
+			<p>
+			As interfaces for accessing to data of a scalar variable, 
+			<a href="./Int64ScalarDataAccessorInterface1_SPEC_ENGLISH.html">Int64 SDAI1</a>、
+			<a href="./Float64ScalarDataAccessorInterface1_SPEC_ENGLISH.html">Float64 SDAI1</a>、
+			<a href="./BoolScalarDataAccessorInterface1_SPEC_ENGLISH.html">Bool SDAI1</a>、
+			<a href="./StringScalarDataAccessorInterface1_SPEC_ENGLISH.html">String SDAI1</a>、
+			and
+			<a href="./ArrayDataAccessorInterface1_SPEC_ENGLISH.html">ADAI1</a>
+			are available.
+			For an array variable, only 
+			<a href="./ArrayDataAccessorInterface1_SPEC_ENGLISH.html">ADAI1</a>
+			is available for accessing to data.
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">None</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">The Class representing the I/O interface for accessing to the data of this variable.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Exception</td>
+		<td class="rcol">None</td>
+	</tr>
+</table>
+
+
+
+<table id="isConstant" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">isConstant</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">boolean isConstant()</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">
+			Returns whether this variable is a constant.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">None</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">Returns true if this variable is a constant.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Exception</td>
+		<td class="rcol">None</td>
+	</tr>
+</table>
+
+
+<table id="isReference" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">isReference</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">boolean isReference()</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">
+			(Unsupported feature on the current version of VCSSL/Vnano Engine) Returns whether this variable is a reference.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">None</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">Returns true if this variable is a reference.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Exception</td>
+		<td class="rcol">None</td>
+	</tr>
+</table>
+
+
+
+<table id="isDataTypeArbitrary" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">isDataTypeArbitrary</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">boolean isDataTypeArbitrary()</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">
+			(Unsupported feature on the current version of VCSSL/Vnano Engine) Returns whether the data-type of this variable varies arbitrary.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">None</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">@return Returns true if the data-type of this variable varies arbitrary.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Exception</td>
+		<td class="rcol">None</td>
+	</tr>
+</table>
+
+
+<table id="isArrayRankArbitrary" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">isArrayRankArbitrary</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">boolean isArrayRankArbitrary()</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">
+			(Unsupported feature on the current version of VCSSL/Vnano Engine) Returns whether the array-rank of this variable varies arbitrary.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">None</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">Returns true if the array-rank of this variable varies arbitrary.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Exception</td>
+		<td class="rcol">None</td>
+	</tr>
+</table>
+
+
+
+
+<table id="isDataConversionNecessary" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">isDataConversionNecessary</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">boolean isDataConversionNecessary()</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			Returns whether the data-conversions for accessing data of this variable is necessary.
+			</p>
+			<p>
+			When this feature is enabled (when this method returns "true"),
+			you can set/get data of this variable by using simple data-types.
+			For example, you can get/set Double instance for double-type ("float" in scripts) variable, 
+			long[][] instance for long[][]-type ("int[][]" in scripts) variable, and so on.
+			</p>
+			<p>
+			On the other hand, when this feature is disabled (when this method retunrs "false"),
+			it is necessary to access to data through a data-I/O interface, 
+			of which type is specified as a return values of {@link getDataUnconvertedClass()} method. 
+			</p>
+			<p>
+			As interfaces for accessing to data of a scalar variable, 
+			<a href="./Int64ScalarDataAccessorInterface1_SPEC_ENGLISH.html">Int64 SDAI1</a>、
+			<a href="./Float64ScalarDataAccessorInterface1_SPEC_ENGLISH.html">Float64 SDAI1</a>、
+			<a href="./BoolScalarDataAccessorInterface1_SPEC_ENGLISH.html">Bool SDAI1</a>、
+			<a href="./StringScalarDataAccessorInterface1_SPEC_ENGLISH.html">String SDAI1</a>、
+			and
+			<a href="./ArrayDataAccessorInterface1_SPEC_ENGLISH.html">ADAI1</a>
+			are available.
+			For an array variable, only 
+			<a href="./ArrayDataAccessorInterface1_SPEC_ENGLISH.html">ADAI1</a>
+			is available for accessing to data.
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">None</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">Returns true if the data-conversions are necessary.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Exception</td>
+		<td class="rcol">None</td>
+	</tr>
+</table>
+
+
+
+<table id="getData1" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">getData</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">Object getData() throws ConnectorException</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			Returns the data of this variable.
+			</p>
+			<p>
+			This method is used when the data-conversion feature is enabled 
+			(when <a href="#isDataConversionNecessary">isDataConversionNecessary()</a> returns false).
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">None</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">The data of this variable.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Exception</td>
+		<td class="rcol">ConnectorException: Thrown when failed to access to the data.</td>
+	</tr>
+</table>
+
+
+<table id="getData2" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">getData</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">void getData(Object dataContainer) throws ConnectorException</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			Gets the data of this variable through the argument.
+			</p>
+			<p>
+			This method is used when the data-conversion feature is disabled 
+			(when <a href="#isDataConversionNecessary">isDataConversionNecessary()</a> returns true).
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">None</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">The data container object for storing the data to be gotten.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Exception</td>
+		<td class="rcol">ConnectorException: Thrown when failed to access to the data.</td>
+	</tr>
+</table>
+
+
+<table id="setData" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">setData</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">void setData(Object data) throws ConnectorException</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">
+			Sets the data of this variable.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">
+		data: The data of this variable to be set.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">None</td>
+	</tr>
+	<tr>
+		<td class="lcol">Exception</td>
+		<td class="rcol">ConnectorException: Thrown when failed to access to the data.</td>
+	</tr>
+</table>
+
+
+
+<table id="getEngineConnectorClass" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">getEngineConnectorClass</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">Class&lt;?&gt; getEngineConnectorClass()</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			Returns the instance of "Class" class, representing the interface or the class of the engine connector, 
+			which is an object for communicating with the scripting engine.
+			</p>
+			<p>
+			The instance of the specified interface/class by this method will be passed to the argument of 
+			initialization/finalization methods, e.g.: <a href="#initializeForConnection">initializeForConnection(Object engineConnector)</a>.
+			</p>
+			<p>
+			What type of interfaces are available depend on the implementation of the scripting engine, 
+			but at least, 
+			<a href="./EngineConnector1_SPEC_ENGLISH.html">ECI1</a> 
+			is guaranteed to be available by the specification of XVCI1.
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">None</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">
+		The Class representing the interface/class for communicating with the scripting engine.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Exception</td>
+		<td class="rcol">None</td>
+	</tr>
+</table>
+
+
+
+<table id="initializeForConnection" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">initializeForConnection</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">void initializeForConnection(Object engineConnector) throws ConnectorException</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">
+			Performs the initialization process necessary when this plug-in is connected to the scripting engine.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">
+			engineConnector: The engine connector 
+			(see: <a href="#getEngineConnectorClass">getEngineConnectorClass()</a> method).
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">None</td>
+	</tr>
+	<tr>
+		<td class="lcol">Exception</td>
+		<td class="rcol">ConnectorException: Thrown when the initialization has failed.</td>
+	</tr>
+</table>
+
+
+
+<table id="finalizeForDisconnection" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">finalizeForDisconnection</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">void finalizeForDisconnection(Object engineConnector) throws ConnectorException</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">
+			Performs the finalization process necessary when this plug-in is disconnected from the scripting engine.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">
+			engineConnector: The engine connector 
+			(see: <a href="#getEngineConnectorClass">getEngineConnectorClass()</a> method).
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">None</td>
+	</tr>
+	<tr>
+		<td class="lcol">Exception</td>
+		<td class="rcol">ConnectorException: Thrown when the finalization has failed.</td>
+	</tr>
+</table>
+
+
+
+<table id="initializeForExecution" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">initializeForExecution</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">void initializeForExecution(Object engineConnector) throws ConnectorException</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">
+			Performs the initialization process necessary for each execution of a script.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">
+			engineConnector: The engine connector 
+			(see: <a href="#getEngineConnectorClass">getEngineConnectorClass()</a> method).
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">None</td>
+	</tr>
+	<tr>
+		<td class="lcol">Exception</td>
+		<td class="rcol">ConnectorException: Thrown when the initialization has failed.</td>
+	</tr>
+</table>
+
+
+
+<table id="finalizeForTermination" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">finalizeForTermination</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">void finalizeForTermination(Object engineConnector) throws ConnectorException</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">
+			Performs the finalization process necessary for each execution of a script.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">
+			engineConnector: The engine connector 
+			(see: <a href="#getEngineConnectorClass">getEngineConnectorClass()</a> method).
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">None</td>
+	</tr>
+	<tr>
+		<td class="lcol">Exception</td>
+		<td class="rcol">ConnectorException: Thrown when the finalization has failed.</td>
+	</tr>
+</table>
+
+
+
+
+
+
+
+</body>
+</html>

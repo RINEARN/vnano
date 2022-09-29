@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+	<title>ConnectorFatalException Specification</title>
+	<meta charset="UTF-8">
+	<style type="text/css">
+		h1 .spec-path { font-size: 70%; }
+		h2 .spec-path { font-size: 70%; }
+		.spec-table { width: 100%; border: 1px solid #000000; border-collapse: collapse; margin-bottom: 20px; }
+		.spec-table td { border: 1px solid #000000; text-align: left; }
+		.spec-table th { border: 1px solid #000000; text-align: left; }
+		.spec-table .lcol { width: 100px; background-color: #eeeeee; }
+		.spec-table .rcol { }
+		.spec-dl { }
+		.spec-dl dt { font-weight: bold; display: list-item; list-style-position: outside; margin-left: 20px; list-style-type: disc; }
+		.spec-dl dd { margin-bottom: 14px; line-height: 160%; }
+	</style>
+</head>
+
+<body>
+
+
+
+<div style="text-align: center; width: 100%; border: 1px solid #000000; background-color: #eeeeff;">
+VCSSL/VNANO PLUGIN INTERFACE SPECIFICATION
+</div>
+
+
+<h1>ConnectorFatalException<br />Specification Document<br /><span class="spec-path">(org.vcssl.connect.ConnectorFatalException)</span></h1>
+
+<hr />
+
+
+
+<h2>Abstract</h2>
+
+<p>
+ConnectorFatalException is an unchecked Exception class thrown when errors have occurred, 
+caused by incorrect implementations (might be bugs) of plug-ins or scripting engines.
+</p>
+
+<p>
+If the error is normally expected, 
+and is NOT caused by incorrect implementations (bugs and so on) of plug-ins or scripting engines,
+throw <a href="ConnectorException_SPEC_ENGLISH.html">ConnectorException</a> instead, 
+which is a checked Exception.
+</p>
+
+
+<h2>Status</h2>
+
+<p>
+The status of this class is "EXTENSION ONLY".
+</p>
+
+<p>
+Existing fields/methods/constructors will not be deleted in principle, 
+but new fields/methods/constructors will be able to be added in future.
+<br />
+Also, only when an unavoidable problem has been discovered, 
+a field/method/constructor might be deleted, after a period of the "deprecated" status.
+</p>
+
+<p>
+This class is currently supported by the scripting engine of Vnano. 
+You can use this interface for development of plug-ins of applications equipped with the Vnano engine.
+</p>
+
+
+<h2>License</h2>
+
+<p>
+This class is published under CC0, which is almost the same as the so-called "copyright-free" (domain).
+</p>
+
+
+<h2>List of Constractors/Fields/Methods</h2>
+
+
+<dl class="spec-dl">
+
+	<dt><a href="#ConnectorFatalException1">ConnectorFatalException()</a></dt>
+		<dd>
+			Creates a ConnectorFatalException having no error message.
+		</dd>
+
+	<dt><a href="#ConnectorFatalException2">ConnectorFatalException(String errorMessage)</a></dt>
+		<dd>
+			Creates a ConnectorFatalException having the specified error message.
+		</dd>
+
+	<dt><a href="#ConnectorFatalException3">ConnectorFatalException(Throwable wrappedThrowable)</a></dt>
+		<dd>
+			Creates a ConnectorFatalException wrapping the specified Throwable.
+		</dd>
+
+	<dt><a href="#ConnectorFatalException4">ConnectorFatalException(String errorMessage, Throwable wrappedThrowable)</a></dt>
+		<dd>
+			Creates a ConnectorFatalException having the specified error message, and wrapping the specified Throwable.
+		</dd>
+
+</dl>
+
+
+<hr />
+
+
+
+<!-- ==================================================================================================== -->
+
+<h2>Constructors</h2>
+
+<p>
+- None -
+</p>
+
+
+<table id="ConnectorFatalException1" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">ConnectorFatalException</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">ConnectorFatalException()</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">Creates a ConnectorFatalException having no error message.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">None</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">The created ConnectorFatalException.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Exception</td>
+		<td class="rcol">None</td>
+	</tr>
+</table>
+
+
+<table id="ConnectorFatalException2" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">ConnectorFatalException</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">ConnectorFatalException(String errorMessage)</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">Creates a ConnectorFatalException having the specified error message.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">errorMessage: The error message.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">The created ConnectorFatalException.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Exception</td>
+		<td class="rcol">None</td>
+	</tr>
+</table>
+
+
+<table id="ConnectorFatalException3" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">ConnectorFatalException</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">ConnectorFatalException(Throwable wrappedThrowable)</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">Creates a ConnectorFatalException having the specified error message.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">wrappedThrowable: The throwable of the cause, to be wrapped by the created ConnectorFatalException.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">The created ConnectorFatalException.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Exception</td>
+		<td class="rcol">None</td>
+	</tr>
+</table>
+
+
+<table id="ConnectorFatalException4" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">ConnectorFatalException</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">ConnectorFatalException(String errorMessage, Throwable wrappedThrowable)</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">
+			Creates a ConnectorFatalException having the specified error message, 
+			and wrapping the specified Throwable.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">
+			errorMessage: The error message.
+			<br />
+			wrappedThrowable: The throwable of the cause, to be wrapped by the created ConnectorFatalException.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">The created ConnectorFatalException.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Exception</td>
+		<td class="rcol">None</td>
+	</tr>
+</table>
+
+
+
+
+<!-- ==================================================================================================== -->
+
+<h2>Fields</h2>
+
+<p>
+- None -
+</p>
+
+
+
+<!-- ==================================================================================================== -->
+
+<h2>Methods</h2>
+
+<p>
+- None -
+</p>
+
+
+
+
+
+
+
+</body>
+</html>
