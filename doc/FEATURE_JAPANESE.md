@@ -315,7 +315,7 @@ Javaで実装した任意のクラスのフィールド/メソッドを Vnano En
 基本的な機能群を提供するプラグインは、「 Vnano標準プラグイン 」として公式に提供されています：
 
 * [Vnano標準プラグインのソースコードリポジトリ](https://github.com/RINEARN/vnano-standard-plugin)
-* [Vnano標準プラグインの一覧と仕様書](https://www.vcssl.org/en-us/vnano/plugin/)
+* [Vnano標準プラグインの一覧と仕様書](https://www.vcssl.org/ja-jp/vnano/plugin/)
 
 基礎的な入出力、数学/統計関数、等々は上記の標準プラグインとして提供されているため、自作する必要はありません。
 
