@@ -14,13 +14,6 @@ javac @org/vcssl/nano/sourcelist.txt -d ../bin -encoding UTF-8
 cd ..
 
 # --------------------------------------------------
-# copy meta files
-# --------------------------------------------------
-
-mkdir bin/META-INF
-cp -r src/META-INF/. bin/META-INF/.
-
-# --------------------------------------------------
 # create a JAR file
 # --------------------------------------------------
 
