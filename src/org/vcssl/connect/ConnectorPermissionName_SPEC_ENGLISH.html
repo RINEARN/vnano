@@ -1,0 +1,458 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+	<title>ConnectorPermissionName Specification</title>
+	<meta charset="UTF-8">
+	<style type="text/css">
+		h1 .spec-path { font-size: 70%; }
+		h2 .spec-path { font-size: 70%; }
+		.spec-table { width: 100%; border: 1px solid #000000; border-collapse: collapse; margin-bottom: 20px; }
+		.spec-table td { border: 1px solid #000000; text-align: left; }
+		.spec-table th { border: 1px solid #000000; text-align: left; }
+		.spec-table .lcol { width: 100px; background-color: #eeeeee; }
+		.spec-table .rcol { }
+		.spec-dl { }
+		.spec-dl dt { font-weight: bold; display: list-item; list-style-position: outside; margin-left: 20px; list-style-type: disc; }
+		.spec-dl dd { margin-bottom: 14px; line-height: 160%; }
+	</style>
+</head>
+
+<body>
+
+
+
+<div style="text-align: center; width: 100%; border: 1px solid #000000; background-color: #eeeeff;">
+VCSSL/VNANO PLUGIN INTERFACE SPECIFICATION
+</div>
+
+
+<h1>ConnectorPermissionName<br />Specification Document<br /><span class="spec-path">(org.vcssl.connect.ConnectorPermissionName)</span></h1>
+
+<hr />
+
+
+
+<h2>Abstract</h2>
+
+<p>
+ConnectorPermissionName is a class defining names of permission items.
+</p>
+
+<p>
+Fields of this class are natural to be defined as elements of an enum, 
+however, they are defined as "public static final String" fields, 
+instead of enum elements.
+This is to prevent unexpected behaviour when definition order of them are changed, 
+and plug-ins referencing them have not been re-compiled.
+</p>
+
+<p>
+Please note that, it is not recommended to describe values of them directly (as String literals).
+Refer fields of this class as possible as.
+</p>
+
+
+<h2>Status</h2>
+
+<p>
+The status of this class is "EXTENSION ONLY".
+</p>
+
+<p>
+Existing fields/methods/constructors will not be deleted in principle, 
+but new fields/methods/constructors will be able to be added in future.
+<br />
+Also, only when an unavoidable problem has been discovered, 
+a field/method/constructor might be deleted, after a period of the "deprecated" status.
+</p>
+
+<p>
+This class is currently supported by the scripting engine of Vnano. 
+You can use this interface for development of plug-ins of applications equipped with the Vnano engine.
+</p>
+
+
+<h2>License</h2>
+
+<p>
+This class is published under CC0, which is almost the same as the so-called "copyright-free" (domain).
+</p>
+
+
+<h2>List of Fields/Methods</h2>
+
+
+<dl class="spec-dl">
+
+	<dt><a href="#ALL">ALL</a></dt>
+		<dd>
+			The name of the meta item representing all permission items.
+		</dd>
+
+	<dt><a href="#NONE">NONE</a></dt>
+		<dd>
+			The name of the meta item representing no permission item.
+		</dd>
+
+	<dt><a href="#DEFAULT">DEFAULT</a></dt>
+		<dd>
+			The name of the meta item storing the default permission value.
+		</dd>
+
+	<dt><a href="#PROGRAM_EXIT">PROGRAM_EXIT</a></dt>
+		<dd>
+			The permission to exit the currently executed program (script).
+		</dd>
+
+	<dt><a href="#PROGRAM_RESET">PROGRAM_RESET</a></dt>
+		<dd>
+			The permission to reset/restart the currently executed program (script).
+		</dd>
+
+	<dt><a href="#PROGRAM_CHANGE">PROGRAM_CHANGE</a></dt>
+		<dd>
+			The permission to change the currently executed program (script).
+		</dd>
+
+	<dt><a href="#SYSTEM_PROCESS">SYSTEM_PROCESS</a></dt>
+		<dd>
+			The permission to execute commands or other programs through the Operating System and so on.
+		</dd>
+
+	<dt><a href="#DIRECTORY_CREATE">DIRECTORY_CREATE</a></dt>
+		<dd>
+			The permission to create a new directory (folder).
+		</dd>
+
+	<dt><a href="#DIRECTORY_DELETE">DIRECTORY_DELETE</a></dt>
+		<dd>
+			The permission to delete a directory (folder).
+		</dd>
+
+	<dt><a href="#DIRECTORY_LIST">DIRECTORY_LIST</a></dt>
+		<dd>
+			The permission to get the list of files in a directory (folder).
+		</dd>
+
+	<dt><a href="#FILE_CREATE">FILE_CREATE</a></dt>
+		<dd>
+			The permission to create a new file.
+		</dd>
+
+	<dt><a href="#FILE_DELETE">FILE_DELETE</a></dt>
+		<dd>
+			The permission to delete a file.
+		</dd>
+
+	<dt><a href="#FILE_WRITE">FILE_WRITE</a></dt>
+		<dd>
+			The permission to write contents of a file.
+		</dd>
+
+	<dt><a href="#FILE_READ">FILE_READ</a></dt>
+		<dd>
+			The permission to read contents of a file.
+		</dd>
+
+	<dt><a href="#FILE_OVERWRITE">FILE_OVERWRITE</a></dt>
+		<dd>
+			The permission to overwrite contents of a file.
+		</dd>
+
+	<dt><a href="#FILE_INFORMATION_CHANGE">FILE_INFORMATION_CHANGE</a></dt>
+		<dd>
+			The permission to change information (last modified date, and so on) of a file.
+		</dd>
+
+</dl>
+
+
+<hr />
+
+
+
+<!-- ==================================================================================================== -->
+
+<h2>Fields</h2>
+
+<table id="ALL" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">ALL</th>
+	</tr>
+	<tr>
+		<td class="lcol">Value</td>
+		<td class="rcol">The name of the meta item representing all permission items.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Type</td>
+		<td class="rcol">static final String</td>
+	</tr>
+</table>
+
+
+<table id="NONE" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">NONE</th>
+	</tr>
+	<tr>
+		<td class="lcol">Value</td>
+		<td class="rcol">The name of the meta item representing no permission item.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Type</td>
+		<td class="rcol">static final String</td>
+	</tr>
+</table>
+
+
+<table id="DEFAULT" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">DEFAULT</th>
+	</tr>
+	<tr>
+		<td class="lcol">Value</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			The name of the meta item storing the default permission value.
+			</p>
+			<p>
+			For permission items of which values are not specified explicitly, 
+			a default value (e.g. <a href="ConnectorPermissionValue_SPEC_ENGLISH.html#DENY">DENY</a>) 
+			will be set automatically.
+			You can change that default value by setting the value to this meta permission item.
+			For example, if you set the value <a href="ConnectorPermissionValue_SPEC_ENGLISH.html#ASK">ASK</a> 
+			to this permission item "DEFAULT", 
+			the script engine will ask to the user when non-specified permissions are required.
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Type</td>
+		<td class="rcol">static final String</td>
+	</tr>
+</table>
+
+
+<table id="PROGRAM_EXIT" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">PROGRAM_EXIT</th>
+	</tr>
+	<tr>
+		<td class="lcol">Value</td>
+		<td class="rcol">The permission to exit the currently executed program (script).</td>
+	</tr>
+	<tr>
+		<td class="lcol">Type</td>
+		<td class="rcol">static final String</td>
+	</tr>
+</table>
+
+
+<table id="PROGRAM_RESET" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">PROGRAM_RESET</th>
+	</tr>
+	<tr>
+		<td class="lcol">Value</td>
+		<td class="rcol">The permission to reset/restart the currently executed program (script).</td>
+	</tr>
+	<tr>
+		<td class="lcol">Type</td>
+		<td class="rcol">static final String</td>
+	</tr>
+</table>
+
+
+<table id="PROGRAM_CHANGE" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">PROGRAM_CHANGE</th>
+	</tr>
+	<tr>
+		<td class="lcol">Value</td>
+		<td class="rcol">The permission to change the currently executed program (script).</td>
+	</tr>
+	<tr>
+		<td class="lcol">Type</td>
+		<td class="rcol">static final String</td>
+	</tr>
+</table>
+
+
+<table id="SYSTEM_PROCESS" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">SYSTEM_PROCESS</th>
+	</tr>
+	<tr>
+		<td class="lcol">Value</td>
+		<td class="rcol">The permission to execute commands or other programs through the Operating System and so on.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Type</td>
+		<td class="rcol">static final String</td>
+	</tr>
+</table>
+
+
+<table id="DIRECTORY_CREATE" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">DIRECTORY_CREATE</th>
+	</tr>
+	<tr>
+		<td class="lcol">Value</td>
+		<td class="rcol">The permission to create a new directory (folder).</td>
+		<!-- The permission to change a directory name is substitutable by the combination of CREATE/DELETE/LIST permissions. -->
+	</tr>
+	<tr>
+		<td class="lcol">Type</td>
+		<td class="rcol">static final String</td>
+	</tr>
+</table>
+
+
+<table id="DIRECTORY_DELETE" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">DIRECTORY_DELETE</th>
+	</tr>
+	<tr>
+		<td class="lcol">Value</td>
+		<td class="rcol">The permission to delete a directory (folder).</td>
+		<!-- The permission to change a directory name is substitutable by the combination of CREATE/DELETE/LIST permissions. -->
+	</tr>
+	<tr>
+		<td class="lcol">Type</td>
+		<td class="rcol">static final String</td>
+	</tr>
+</table>
+
+
+<table id="DIRECTORY_LIST" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">DIRECTORY_LIST</th>
+	</tr>
+	<tr>
+		<td class="lcol">Value</td>
+		<td class="rcol">The permission to get the list of files in a directory (folder).</td>
+		<!-- The permission to change a directory name is substitutable by the combination of CREATE/DELETE/LIST permissions. -->
+	</tr>
+	<tr>
+		<td class="lcol">Type</td>
+		<td class="rcol">static final String</td>
+	</tr>
+</table>
+
+
+<table id="FILE_CREATE" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">FILE_CREATE</th>
+	</tr>
+	<tr>
+		<td class="lcol">Value</td>
+		<td class="rcol">The permission to create a new file.</td>
+		<!-- The permission to change a file name is substitutable by the combination of CREATE/READ/WRITE/DELETE permissions. -->
+	</tr>
+	<tr>
+		<td class="lcol">Type</td>
+		<td class="rcol">static final String</td>
+	</tr>
+</table>
+
+
+<table id="FILE_DELETE" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">FILE_DELETE</th>
+	</tr>
+	<tr>
+		<td class="lcol">Value</td>
+		<td class="rcol">The permission to delete a file.</td>
+		<!-- The permission to change a file name is substitutable by the combination of CREATE/READ/WRITE/DELETE permissions. -->
+	</tr>
+	<tr>
+		<td class="lcol">Type</td>
+		<td class="rcol">static final String</td>
+	</tr>
+</table>
+
+
+<table id="FILE_WRITE" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">FILE_WRITE</th>
+	</tr>
+	<tr>
+		<td class="lcol">Value</td>
+		<td class="rcol">The permission to write contents of a file.</td>
+		<!-- The permission to change a file name is substitutable by the combination of CREATE/READ/WRITE/DELETE permissions. -->
+	</tr>
+	<tr>
+		<td class="lcol">Type</td>
+		<td class="rcol">static final String</td>
+	</tr>
+</table>
+
+
+<table id="FILE_READ" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">FILE_READ</th>
+	</tr>
+	<tr>
+		<td class="lcol">Value</td>
+		<td class="rcol">The permission to read contents of a file.</td>
+		<!-- The permission to change a file name is substitutable by the combination of CREATE/READ/WRITE/DELETE permissions. -->
+	</tr>
+	<tr>
+		<td class="lcol">Type</td>
+		<td class="rcol">static final String</td>
+	</tr>
+</table>
+
+<table id="FILE_OVERWRITE" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">FILE_OVERWRITE</th>
+	</tr>
+	<tr>
+		<td class="lcol">Value</td>
+		<td class="rcol">The permission to overwrite contents of a file.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Type</td>
+		<td class="rcol">static final String</td>
+	</tr>
+</table>
+
+<table id="FILE_INFORMATION_CHANGE" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">FILE_INFORMATION_CHANGE</th>
+	</tr>
+	<tr>
+		<td class="lcol">Value</td>
+		<td class="rcol">The permission to change information (last modified date, and so on) of a file.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Type</td>
+		<td class="rcol">static final String</td>
+	</tr>
+</table>
+
+
+
+
+
+
+</body>
+</html>

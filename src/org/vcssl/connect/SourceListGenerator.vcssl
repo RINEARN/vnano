@@ -1,0 +1,188 @@
+coding UTF-8;
+
+/*
+ * ============================================================
+ * VCSSL Script for generating/updating "sourcelist.txt"
+ * Ver.1.0.2
+ * ------------------------------------------------------------
+ * This file is released under CC0.
+ * Written in 2018-2019 by RINEARN (Fumihiro Matsui)
+ * ============================================================
+ */
+
+import File;
+import Text;
+
+
+// Specify the path of the root directory of the tree of source directories.
+// コンパイル対象ファイルが含まれるフォルダ（ソースフォルダ）のルート階層のパスを指定します。
+const string SOURCE_DIRECTORY_PATH = ".";
+
+// Specify the path of the output file in which compilation-target-files will be described.
+// コンパイル対象リストに書き出す、出力ファイルのパスを指定します。
+const string OUTPUT_FILE_PATH = "./sourcelist.txt";
+
+// Specify whether removes "./" at the head of pathes or don't.
+// 出力内容において、パス先頭の「 ./ 」を削除するかどうかを指定する変数です。
+const boolean REMOVES_DOTSLASH = true;
+
+// Specify the prefix which will be appended at the head of each file path, in the output content.
+// 出力内容において、ソースファイルのパスの先頭に付加する文字列を指定します。
+const string OUTPUT_PREFIX = "org/vcssl/connect/";
+
+// Specify extensions of compilation-target-files.
+// コンパイル対象ファイルの拡張子を指定します。
+const string FILENAME_EXTENSIONS[] = { ".java" };
+
+// Specify paths of subdirectories you want to exclude from the output content.
+// コンパイル対象から除外したいサブフォルダのパスを指定します。
+const string EXCLUDED_DIRECTORY_PATHS[] = { "./META-INF", "./example", "./dev" };
+
+// Specify regular-expressions of filenames you want to exclude from the output content.
+// コンパイル対象から除外したいファイルにおける、ファイル名の正規表現を指定します。
+const string EXCLUDED_FILENAME_REGEX[] = { ".*Test\\.java" };
+
+
+// The entry point of this script. This function will be executed automatically. 
+// このスクリプトのエントリーポイントです。この関数は、スクリプト起動時に自動で実行されます。
+void main() {
+	
+	// Open the output file and sores the ID.
+	// 出力ファイルを開いてIDを取得
+	int listOutputFileID = open(OUTPUT_FILE_PATH, WRITE);
+	
+	// Traverse source directories recursively, extract compilation-target-files, 
+	// and write the path of them in the output file.
+	// フォルダを再帰的に辿り、コンパイル対象ファイルを検索し、パスを出力ファイルに書き出す
+	processDirectory(SOURCE_DIRECTORY_PATH, listOutputFileID);
+	
+	// Close the output file.
+	// 出力ファイルを閉じる
+	close(listOutputFileID);
+	
+	// Show the completion message (When the user close the window, then this program will exit).
+	// 完了メッセージを表示（ユーザーがウィンドウを閉じるとプログラム実行終了）
+	popup("\"" + OUTPUT_FILE_PATH + "\" has been successfully generated/updated.");
+}
+
+
+// Traverse directories recursively, and write paths of compilation-target-files in the output file.
+// 指定されたフォルダ内を再帰的に辿り、コンパイル対象ファイルのパスを出力ファイルに書き出します。
+// 
+// dirPath:
+//   Traversing directory (recursively passed).
+//   辿るフォルダ（再帰的に指定されます）。
+// 
+// listOutputFileID:
+//    The ID of the output file.
+//    出力ファイルのID。
+// 
+void processDirectory(string dirPath, int listOutputFileID) {
+	
+	// Print the current processing directory.
+	// 現在の処理対象フォルダを画面に追記
+	println("Go to: " + dirPath);
+	
+	// Get and store the number of files and filenames in the current processing directory.
+	// フォルダ内の全ファイル名の一覧とファイル数を取得
+	string fileNames[] = listdir(dirPath);
+	int fileN = length(fileNames);
+	
+	// Check and process each file in the current processing directory.
+	// フォルダ内のファイルを一つ一つ確認/処理していく
+	for (int i=0; i<fileN; i++) {
+		
+		// Get name and path of the current processing file.
+		// ファイル名や相対パスの取得
+		string fileName = fileNames[i];
+		string filePath = getFilePath(fileName, dirPath, RELATIVE);
+		
+		// Replace the directory-separater character "\\" to "/".
+		// パス区切り文字が「 \ 」の場合は「 / 」に置き換える
+		filePath = replaceText(filePath, "\\", "/", ALL);
+		
+		// If the current processing file is a directory:
+		// フォルダの場合：
+		if (isdir(filePath)) {
+			
+			// Check whether the directory is specified to be excluded.
+			// 除外リストに含まれているフォルダかどうか確認
+			bool isExceptDir = false;
+			int exceptDirN = length(EXCLUDED_DIRECTORY_PATHS);
+			for (int exceptDirIndex=0; exceptDirIndex<exceptDirN; exceptDirIndex++) {
+				if (EXCLUDED_DIRECTORY_PATHS[exceptDirIndex] == filePath) {
+					isExceptDir = true;
+					break;
+				}
+			}
+			
+			// If the directory should not be excluded, traverse into it recursively.
+			// 除外リストに含まれてないフォルダなら、再帰で中を辿る
+			if (!isExceptDir) {
+				processDirectory(filePath, listOutputFileID);
+				println("Return to: " + dirPath);
+			}
+			
+		// If the current processing file is not a directory:
+		// フォルダではない（普通のファイルの）場合：
+		} else {
+			processFile(fileName, filePath, listOutputFileID);
+		}
+	}
+}
+
+
+// Check whether the specified file is the compilation-target, and write the path of the file if it is.
+// 指定されたファイルに対して、書き出し対象か判定した上で、パスを書き出します。
+// 
+// fileName:
+//   The name of the file to be processed.
+//   処理対称ファイルの名称。
+// 
+// filePath:
+//   The path of the file to be processed.
+//   処理対称ファイルの名称。
+// 
+// listOutputFileID:
+//    The ID of the output file.
+//    出力ファイルのID。
+// 
+void processFile(string fileName, string filePath, int listOutputFileID) {
+	
+	// Remove "dot slash" at the head of the file path, if specified.
+	// 先頭の ./ を削除するよう指定されている場合は、削除する
+	if (REMOVES_DOTSLASH && checkText(filePath, "./", START)) {
+		filePath = cropText(filePath, 2, countText(filePath));
+	}
+	
+	// Do nothing if the extention of the file is not contained in the list of the processing-target-extensions.
+	// ファイルの拡張子が、処理対象拡張子リスト内に含まれていない場合は、書き出さずに終了
+	int extensionN = length(FILENAME_EXTENSIONS);
+	for (int i=0; i<extensionN; i++) {
+		if (!checkText(fileName, FILENAME_EXTENSIONS[i], END)) {
+			return;
+		}
+	}
+	
+	// Do nothing if the filename matches with the regular expression of the file to be excluded.
+	// ファイル名が除外指定の正規表現とパターン合致する場合は、書き出さずに終了
+	int exceptRegexN = length(EXCLUDED_FILENAME_REGEX);
+	for (int i=0; i<exceptRegexN; i++) {
+		if (checkText(fileName, EXCLUDED_FILENAME_REGEX[i], FULL_PATTERN)) {
+			return;
+		}
+	}
+	
+	// Append the prefix to the file path.
+	// 出力時のプレフィックス文字列を付加
+	string outputLine = OUTPUT_PREFIX + filePath;
+	
+	// Write the file path (with prefix) in the output file.
+	// 対象ファイルのパス（プレフィックス付き）を出力ファイルに書き出す
+	writeln(listOutputFileID, outputLine);
+	
+	// Print the written path (with the prefix).
+	// 書き出したファイルのパス（プレフィックス付き）を画面に追記
+	println("    Add to the list: " + outputLine);
+}
+

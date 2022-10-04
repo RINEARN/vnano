@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+	<title>Int64 SDAI1 Specification</title>
+	<meta charset="UTF-8">
+	<style type="text/css">
+		h1 .spec-path { font-size: 70%; }
+		h2 .spec-path { font-size: 70%; }
+		.spec-table { width: 100%; border: 1px solid #000000; border-collapse: collapse; margin-bottom: 20px; }
+		.spec-table td { border: 1px solid #000000; text-align: left; }
+		.spec-table th { border: 1px solid #000000; text-align: left; }
+		.spec-table .lcol { width: 100px; background-color: #eeeeee; }
+		.spec-table .rcol { }
+		.spec-dl { }
+		.spec-dl dt { font-weight: bold; display: list-item; list-style-position: outside; margin-left: 20px; list-style-type: disc; }
+		.spec-dl dd { margin-bottom: 14px; line-height: 160%; }
+	</style>
+</head>
+
+<body>
+
+<div style="text-align: center; width: 100%; border: 1px solid #000000; background-color: #eeeeff;">
+VCSSL/VNANO PLUGIN INTERFACE SPECIFICATION
+</div>
+
+
+<h1>Int64 Scalar Data Accessor Interface 1 (Int64 SDAI1)<br />Specification Document<br /><span class="spec-path">(org.vcssl.connect.Int64ScalarDataAccessorInterface1)</span></h1>
+
+<hr />
+
+
+
+<h2>Abstract</h2>
+
+<p>
+Int64 Scalar Data Accessor Interface 1 (Int64 SDAI1) is a data-I/O interface, mainly implemented by data container objects of language processor systems.
+</p>
+
+<p>
+In this org.vcssl.connect package, multiple data I/O interfaces are provided for passing/receiving data 
+without any data-conversions, between script-engine-side and plug-in-side, if required.
+</p>
+
+<p>
+In them, this interface Int64 SDAI1 provides I/O methods of a long-type (64-bit integer type) scalar value.
+</p>
+
+
+
+<h2>Status</h2>
+
+<p>
+The status of this interface is "FINALIZED".
+</p>
+
+<p>
+The specification of this interface had been finalized at 2022/08/31.
+No modifications will be applied for this interface, excluding documents/comments.
+</p>
+
+<p>
+This interface is currently supported by the scripting engine of Vnano. 
+You can use this interface for development of plug-ins of applications equipped with the Vnano engine.
+</p>
+
+
+<h2>License</h2>
+
+<p>
+This interface is published under CC0, which is almost the same as the so-called "copyright-free" (domain).
+</p>
+
+
+<h2>List of Fields/Methods</h2>
+
+<dl class="spec-dl">
+
+	<dt><a href="#INTERFACE_TYPE_ID">INTERFACE_TYPE_ID</a></dt>
+		<dd>
+			The type ID of this interface (value: "INT64_SDAI") referred when the plug-in will be loaded.
+		</dd>
+
+	<dt><a href="#INTERFACE_GENERATION">INTERFACE_GENERATION</a></dt>
+		<dd>
+			The generation of this interface (value: "1").
+		</dd>
+
+	<dt><a href="#setInt64ScalarData">void setInt64ScalarData(long data)</a></dt>
+		<dd>
+			Sets the long-type scalar value.
+		</dd>
+
+	<dt><a href="#getInt64ScalarData">long getInt64ScalarData()</a></dt>
+		<dd>
+			Gets the long-type scalar value.
+		</dd>
+
+	<dt><a href="#hasInt64ScalarData">boolean hasInt64ScalarData()</a></dt>
+		<dd>
+			Returns whether any long-type scalar value can be gotten.
+		</dd>
+
+</dl>
+
+
+
+<hr />
+
+
+<!-- ==================================================================================================== -->
+
+<h2>Fields</h2>
+
+<table id="INTERFACE_TYPE_ID" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">INTERFACE_TYPE_ID</th>
+	</tr>
+	<tr>
+		<td class="lcol">Value</td>
+		<td class="rcol">The type ID of this interface (value: "INT64_SDAI") referred when the plug-in will be loaded.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Type</td>
+		<td class="rcol">static final String</td>
+	</tr>
+</table>
+
+
+<table id="INTERFACE_GENERATION" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">INTERFACE_GENERATION</th>
+	</tr>
+	<tr>
+		<td class="lcol">Value</td>
+		<td class="rcol">The generation of this interface (value: "1").</td>
+	</tr>
+	<tr>
+		<td class="lcol">Type</td>
+		<td class="rcol">static final String</td>
+	</tr>
+</table>
+
+
+
+
+
+<!-- ==================================================================================================== -->
+
+<h2>Methods</h2>
+
+
+<table id="setInt64ScalarData" class="spec-table">
+	<tr>
+		<td class="lcol">Name</td>
+		<th class="rcol">setInt64ScalarData</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">void setInt64ScalarData(long data)</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">Sets the long-type scalar value.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">data: The scalar value to be set.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">None</td>
+	</tr>
+</table>
+
+
+<table id="getInt64ScalarData" class="spec-table">
+	<tr>
+		<td class="lcol">Name</td>
+		<th class="rcol">getInt64ScalarData</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">long getInt64ScalarData()</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">Gets the long-type scalar value.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">None</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">The scalar value.</td>
+	</tr>
+</table>
+
+
+<table id="hasInt64ScalarData" class="spec-table">
+	<tr>
+		<td class="lcol">Name</td>
+		<th class="rcol">hasInt64ScalarData</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">boolean hasInt64ScalarData()</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">Returns whether any long-type scalar value can be gotten.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">None</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">Returns true if any long-type scalar value can be gotton.</td>
+	</tr>
+</table>
+
+
+
+
+
+
+
+
+</body>
+</html>

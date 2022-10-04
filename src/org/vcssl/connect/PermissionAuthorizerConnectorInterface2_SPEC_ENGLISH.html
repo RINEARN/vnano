@@ -1,0 +1,741 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+	<title>PACI2 Specification</title>
+	<meta charset="UTF-8">
+	<style type="text/css">
+		h1 .spec-path { font-size: 70%; }
+		h2 .spec-path { font-size: 70%; }
+		.spec-table { width: 100%; border: 1px solid #000000; border-collapse: collapse; margin-bottom: 20px; }
+		.spec-table td { border: 1px solid #000000; text-align: left; }
+		.spec-table th { border: 1px solid #000000; text-align: left; }
+		.spec-table .lcol { width: 100px; background-color: #eeeeee; }
+		.spec-table .rcol { }
+		.spec-dl { }
+		.spec-dl dt { font-weight: bold; display: list-item; list-style-position: outside; margin-left: 20px; list-style-type: disc; }
+		.spec-dl dd { margin-bottom: 14px; line-height: 160%; }
+	</style>
+</head>
+
+<body>
+
+
+
+<div style="text-align: center; width: 100%; border: 1px solid #000000; background-color: #eeeeff;">
+VCSSL/VNANO PLUGIN INTERFACE SPECIFICATION
+</div>
+
+
+
+<h1>Permission Authorizer Connector Interface 2 (PACI2)<br />Specification Document<br /><span class="spec-path">(org.vcssl.connect.PermissionAuthorizerConnectorInterface2)</span></h1>
+
+<hr />
+
+
+
+<h2>Abstract</h2>
+
+<p>
+Permission Authorizer Connector Interface 2 (PACI2) is 
+an interface for implementing permission-based security plug-ins.
+</p>
+
+
+
+<h2>Status</h2>
+
+<p>
+The status of this interface is "DRAFT".
+</p>
+
+<p style="color: #ff5533;">
+Please note that: the specification of this interface may be going to be changed continuously/largely in future.
+</p>
+
+<p>
+This interface is not available yet on any scripting engine. 
+Instead, use <a href="PermissionAuthorizerConnectorInterface1_SPEC_ENGLISH.html">PACI1</a> at the present stage.
+</p>
+
+
+<h2>License</h2>
+
+<p>
+This interface is published under CC0, which is almost the same as the so-called "copyright-free" (domain).
+</p>
+
+
+<h2>List of Fields/Methods</h2>
+
+
+<dl class="spec-dl">
+
+	<dt><a href="#INTERFACE_TYPE_ID">INTERFACE_TYPE_ID</a></dt>
+		<dd>
+			The type ID of this interface (value: "PACI") referred when the plug-in will be loaded.
+		</dd>
+
+	<dt><a href="#INTERFACE_GENERATION">INTERFACE_GENERATION</a></dt>
+		<dd>
+			The generation of this interface (value: "2").
+		</dd>
+
+	<dt><a href="#setPermissionMap">void setPermissionMap(Map&lt;String, String&gt; permissionMap, boolean setsToBase)</a></dt>
+		<dd>
+			Sets values of permission items, by a Map (permission map) storing names and values of permission items.
+		</dd>
+
+	<dt><a href="#getPermissionMap">Map&lt;String, String&gt; getPermissionMap(boolean getsFromBase)</a></dt>
+		<dd>
+			Gets the Map (permission map) storing names and current values of permission items.
+		</dd>
+
+	<dt><a href="#requestPermission">void requestPermission(String permissionName, Object requester, Object metaInformation)</a></dt>
+		<dd>
+			Receives the request of the specified permission.
+		</dd>
+
+	<dt><a href="#setPermissionValue">void setPermissionValue(String permissionName, String value, boolean setsToBase, boolean calledByEngine)</a></dt>
+		<dd>
+			Sets the value of the specified permission item.
+		</dd>
+
+	<dt><a href="#getPermissionValue">String getPermissionValue(String permissionName, boolean getFromBase, boolean calledByEngine)</a></dt>
+		<dd>
+			Gets the value of the specified permission item.
+		</dd>
+
+	<dt><a href="#storeTemporaryPermissionValues">void storeTemporaryPermissionValues(boolean storesToBase, boolean calledByEngine)</a></dt>
+		<dd>
+			Stores current temporary permission settings.
+		</dd>
+
+	<dt><a href="#restoreTemporaryPermissionValues">void restoreTemporaryPermissionValues(boolean restoresFromBase, boolean calledByEngine, boolean calledByEngine)</a></dt>
+		<dd>
+			Restores current temporary permission settings.
+		</dd>
+
+	<dt><a href="#getEngineConnectorClass">Class&lt;?&gt; getEngineConnectorClass()</a></dt>
+		<dd>
+			Returns the instance of "Class" class, representing the interface or the class of the engine connector, 
+			which is an object for communicating with the scripting engine.
+		</dd>
+
+	<dt><a href="#initializeForConnection">void initializeForConnection(Object engineConnector)</a></dt>
+		<dd>
+			Performs the initialization process necessary when this plug-in is connected to the scripting engine.
+		</dd>
+
+	<dt><a href="#finalizeForDisconnection">void finalizeForDisconnection(Object engineConnector)</a></dt>
+		<dd>
+			Performs the finalization process necessary when this plug-in is disconnected from the scripting engine.
+		</dd>
+
+	<dt><a href="#initializeForExecution">void initializeForExecution(Object engineConnector)</a></dt>
+		<dd>
+			Performs the initialization process necessary for each execution of a script.
+		</dd>
+
+	<dt><a href="#finalizeForTermination">void finalizeForTermination(Object engineConnector)</a></dt>
+		<dd>
+			Performs the finalization process necessary for each execution of a script.
+		</dd>
+
+</dl>
+
+
+
+<hr />
+
+
+
+<!-- ==================================================================================================== -->
+
+<h2>Fields</h2>
+
+<table id="INTERFACE_TYPE_ID" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">INTERFACE_TYPE_ID</th>
+	</tr>
+	<tr>
+		<td class="lcol">Value</td>
+		<td class="rcol">The type ID of this interface (value: "PACI") referred when the plug-in will be loaded.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Type</td>
+		<td class="rcol">static final String</td>
+	</tr>
+</table>
+
+
+<table id="INTERFACE_GENERATION" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">INTERFACE_GENERATION</th>
+	</tr>
+	<tr>
+		<td class="lcol">Value</td>
+		<td class="rcol">The generation of this interface (value: "2").</td>
+	</tr>
+	<tr>
+		<td class="lcol">Type</td>
+		<td class="rcol">static final String</td>
+	</tr>
+</table>
+
+
+
+
+<!-- ==================================================================================================== -->
+
+<h2>Methods</h2>
+
+
+
+
+<table id="setPermissionMap" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">setPermissionMap</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">void setPermissionMap(Map&lt;String, String&gt; permissionMap, boolean setsToBase) throws ConnectorException</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			Sets values of permission items, by a Map (permission map) storing names and values of permission items.
+			</p>
+			<p>
+			This method will be called from script engines or applications.
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">
+			permissionMap: The Map (permission map) storing names and values of permission items.
+			<br />
+			setsToBase: Specify "true" to set base permission settings, "false" to set temporary permission settings.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">None</td>
+	</tr>
+	<tr>
+		<td class="lcol">Exception</td>
+		<td class="rcol">
+			ConnectorException: Thrown when invalid permission settings are detected.
+			Also, thrown when "false" is specified to "setsToBase" but the temporary permission settings does not exist 
+			(not created yet or already disposed).
+		</td>
+	</tr>
+</table>
+
+
+
+
+<table id="getPermissionMap" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">getPermissionMap</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">Map&lt;String, String&gt; getPermissionMap(boolean getsFromBase) throws ConnectorException</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			Gets the Map (permission map) storing names and current values of permission items.
+			</p>
+			<p>
+			This method will be called from script engines or applications.
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">
+			getsFromBase: Specify "true" to get base permission settings, "false" to get temporary permission settings.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">The Map (permission map) storing names and values of permission items.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Exception</td>
+		<td class="rcol">
+			ConnectorException: Thrown when failed to get the specified permission settings.
+			For example, thrown when "false" is specified to "setsToBase" but the temporary permission settings does not exist 
+			(not created yet or already disposed).
+		</td>
+	</tr>
+</table>
+
+
+
+<table id="requestPermission" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">requestPermission</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">void requestPermission(String permissionName, Object requester, Object metaInformation) throws ConnectorException</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			Receives the request of the specified permission.
+			</p>
+			<p>
+			If the specified permission should be allowed, this method is required to do nothing (explicitly).
+			If the specified permission should be denied, this method throws an ConnectorException.
+			</p>
+			<p>
+			This method will be called from other plug-ins through engine-connector interfaces.
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">
+			permissionName: The name of the requested permission item.
+			<br />
+			requester: The plug-in requesting the permission.
+			<br />
+			metaInformation: The information to be notified to the user 
+			(especially when the current value of the permission is set to <a href="ConnectorPermissionValue_SPEC_JAPANESE.html#ASK">ASK</a>).
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">None</td>
+	</tr>
+	<tr>
+		<td class="lcol">Exception</td>
+		<td class="rcol">ConnectorException: Thrown when the requested permission has been denied.</td>
+	</tr>
+</table>
+
+
+
+<table id="setPermissionValue" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">setPermissionValue</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">void setPermissionValue(String permissionName, String value, boolean setsToBase, boolean calledByEngine) throws ConnectorException</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			Sets the value of the specified permission item.
+			</p>
+			<p>
+			This method will be called from script engines/applications, 
+			and may be called from other plug-ins through engine-connector interfaces.
+			In the latter case, the permission for modifying/referencing permissions is required.
+			</p>
+			<p>
+			<p>
+			However, features which enable to modify/refer permission settings from other plug-ins are unsupported yet by 
+			engine-connector interfaces (e.g.: <a href="EngineConnectorInterface1_SPEC_ENGLISH.html">ECI1</a>). 
+			Furthermore, it is unckear whether it will be supported in future. 
+			This method is a kind of "mockup" of the above feature, at the present stage.
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">
+			permissionName: The name of the permission item to be set its value.
+			<br />
+			value: The value to be set.
+			<br />
+			setsToBase: Specify true to set the value of base permission settings, or false to set the value of temporary permission settings.
+			<br />
+			calledByEngine: Specify "true" when calling this method by the scripting engine.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">None</td>
+	</tr>
+	<tr>
+		<td class="lcol">Exception</td>
+		<td class="rcol">
+			ConnectorException:
+			Thrown when the requested action has been denied, or unsupported, especially when "false" is specified to "calledByEngine".
+			Also, thrown when "false" is specified to "setsToBase" but the temporary permission settings does not exist
+			(not created yet or already disposed).
+		</td>
+	</tr>
+</table>
+
+
+
+<table id="getPermissionValue" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">getPermissionValue</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">String getPermissionValue(String permissionName, boolean getFromBase, boolean calledByEngine) throws ConnectorException</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			Gets the value of the specified permission item.
+			</p>
+			<p>
+			This method will be called from script engines/applications, 
+			and may be called from other plug-ins through engine-connector interfaces.
+			In the latter case, the permission for modifying/referencing permissions is required.
+			</p>
+			<p>
+			However, features which enable to modify/refer permission settings from other plug-ins are unsupported yet by 
+			engine-connector interfaces (e.g.: <a href="EngineConnectorInterface1_SPEC_ENGLISH.html">ECI1</a>). 
+			Furthermore, it is unckear whether it will be supported in future. 
+			This method is a kind of "mockup" of the above feature, at the present stage.
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">
+			permissionName: The name of the permission item to be gotten its value.
+			<br />
+			getFromBase: Specify true to get the value of base permission settings, or false to get the value of temporary permission settings.
+			<br />
+			calledByEngine: Specify true when calling this method by the scripting engine.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">he value of the specified permission item.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Exception</td>
+		<td class="rcol">
+			Thrown when the requested action has been denied, or unsupported, especially when "false" is specified to "calledByEngine".
+			Also, thrown when "false" is specified to "getFromBase" but the temporary permission settings does not exist
+			(not created yet or already disposed).
+		</td>
+	</tr>
+</table>
+
+
+<table id="storeTemporaryPermissionValues" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">storeTemporaryPermissionValues</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">void storeTemporaryPermissionValues(boolean storesToBase, boolean calledByEngine) throws ConnectorException</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			Stores current temporary permission settings.
+			</p>
+			<p>
+			Stores current temporary permission settings
+			for restoring it later by 
+			<a href="#restoreTemporaryPermissionValues">restoreTemporaryPermissionValues(boolean restoresFromBase, boolean calledByEngine) method,
+			or overwriting permanent permission settings.
+			</p>
+			<p>
+			This method will be called from script engines/applications, 
+			and may be called from other plug-ins through engine-connector interfaces.
+			In the latter case, the permission for modifying/referencing permissions is required.
+			</p>
+			<p>
+			However, features which enable to modify/refer permission settings from other plug-ins are unsupported yet by 
+			engine-connector interfaces (e.g.: <a href="EngineConnectorInterface1_SPEC_ENGLISH.html">ECI1</a>). 
+			Furthermore, it is unckear whether it will be supported in future. 
+			This method is a kind of "mockup" of the above feature, at the present stage.
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">
+			storesToBase: Specify true to store by overwriting base permission settings, 
+			or false to store temporary for recovering later by 
+			<a href="#restoreTemporaryPermissionValues">restoreTemporaryPermissionValues(boolean restoresFromBase)</a> method.
+			<br />
+			calledByEngine: Specify true when calling this method by the scripting engine.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">None</td>
+	</tr>
+	<tr>
+		<td class="lcol">Exception</td>
+		<td class="rcol">
+			Thrown when the requested action has been denied, or unsupported, especially when "false" is specified to "calledByEngine".
+			Also, thrown when "false" is specified to "getFromBase" but the temporary permission settings does not exist
+			(not created yet or already disposed).
+		</td>
+	</tr>
+</table>
+
+
+<table id="restoreTemporaryPermissionValues" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">restoreTemporaryPermissionValues</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">void restoreTemporaryPermissionValues(boolean restoresFromBase, boolean calledByEngine, boolean calledByEngine) throws ConnectorException</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			Restores current temporary permission settings.
+			</p>
+			<p>
+			This method will be called from script engines/applications, 
+			and may be called from other plug-ins through engine-connector interfaces.
+			In the latter case, the permission for modifying/referencing permissions is required (but unsupported yet).
+			</p>
+			<p>
+			However, features which enable to modify/refer permission settings from other plug-ins are unsupported yet by 
+			engine-connector interfaces (e.g.: <a href="EngineConnectorInterface1_SPEC_ENGLISH.html">ECI1</a>). 
+			Furthermore, it is unckear whether it will be supported in future. 
+			This method is a kind of "mockup" of the above feature, at the present stage.
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">
+			restoresFromBase: Specify true to restore by copying values from base permission settings,
+			or false to restore by loading settings stored temporary by 
+			<a href="#restoreTemporaryPermissionValues">restoreTemporaryPermissionValues(boolean restoresFromBase)</a> method.
+			<br />
+			calledByEngine: Specify true when calling this method by the scripting engine.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">None</td>
+	</tr>
+	<tr>
+		<td class="lcol">Exception</td>
+		<td class="rcol">
+			Thrown when the requested action has been denied, or unsupported, especially when "false" is specified to "calledByEngine".
+			Also, thrown when "false" is specified to "getFromBase" but the temporary permission settings does not exist
+			(not created yet or already disposed).
+		</td>
+	</tr>
+</table>
+
+
+
+<table id="getEngineConnectorClass" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">getEngineConnectorClass</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">Class&lt;?&gt; getEngineConnectorClass()</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			Returns the instance of "Class" class, representing the interface or the class of the engine connector, 
+			which is an object for communicating with the scripting engine.
+			</p>
+			<p>
+			The instance of the specified interface/class by this method will be passed to the argument of 
+			initialization/finalization methods, e.g.: <a href="#initializeForConnection">initializeForConnection(Object engineConnector)</a>.
+			</p>
+			<p>
+			What type of interfaces are available depend on the implementation of the scripting engine, 
+			but at least, 
+			<a href="./EngineConnector1_SPEC_ENGLISH.html">ECI1</a> 
+			is guaranteed to be available by the specification of PACI1.
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">None</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">
+		The Class representing the interface/class for communicating with the scripting engine.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Exception</td>
+		<td class="rcol">None</td>
+	</tr>
+</table>
+
+
+
+<table id="initializeForConnection" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">initializeForConnection</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">void initializeForConnection(Object engineConnector) throws ConnectorException</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">
+			Performs the initialization process necessary when this plug-in is connected to the scripting engine.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">
+			engineConnector: The engine connector 
+			(see: <a href="#getEngineConnectorClass">getEngineConnectorClass()</a> method).
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">None</td>
+	</tr>
+	<tr>
+		<td class="lcol">Exception</td>
+		<td class="rcol">ConnectorException: Thrown when the initialization has failed.</td>
+	</tr>
+</table>
+
+
+
+<table id="finalizeForDisconnection" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">finalizeForDisconnection</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">void finalizeForDisconnection(Object engineConnector) throws ConnectorException</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">
+			Performs the finalization process necessary when this plug-in is disconnected from the scripting engine.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">
+			engineConnector: The engine connector 
+			(see: <a href="#getEngineConnectorClass">getEngineConnectorClass()</a> method).
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">None</td>
+	</tr>
+	<tr>
+		<td class="lcol">Exception</td>
+		<td class="rcol">ConnectorException: Thrown when the finalization has failed.</td>
+	</tr>
+</table>
+
+
+
+<table id="initializeForExecution" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">initializeForExecution</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">void initializeForExecution(Object engineConnector) throws ConnectorException</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">
+			Performs the initialization process necessary for each execution of a script.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">
+			engineConnector: The engine connector 
+			(see: <a href="#getEngineConnectorClass">getEngineConnectorClass()</a> method).
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">None</td>
+	</tr>
+	<tr>
+		<td class="lcol">Exception</td>
+		<td class="rcol">ConnectorException: Thrown when the initialization has failed.</td>
+	</tr>
+</table>
+
+
+
+<table id="finalizeForTermination" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">finalizeForTermination</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">void finalizeForTermination(Object engineConnector) throws ConnectorException</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">
+			Performs the finalization process necessary for each execution of a script.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">
+			engineConnector: The engine connector 
+			(see: <a href="#getEngineConnectorClass">getEngineConnectorClass()</a> method).
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">None</td>
+	</tr>
+	<tr>
+		<td class="lcol">Exception</td>
+		<td class="rcol">ConnectorException: Thrown when the finalization has failed.</td>
+	</tr>
+</table>
+
+
+
+
+
+</body>
+</html>

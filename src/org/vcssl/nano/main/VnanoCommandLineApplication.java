@@ -726,16 +726,30 @@ public final class VnanoCommandLineApplication {
 			// --locale option:
 			case COMMAND_OPTNAME_LOCALE : {
 
+				// Note: The Constructors of the Locale class are deprecated,
+				//       but the alternative method "Locale.toLocale(...)" 
+				//       is not available in old environment.
+				//       
+				//       Hence, we get an instance of Locale in non-simplest way. 
+				//       Don't refactor the following code, for the time being.
+
 				// If the value contains "-" (excluding the head or the tail), it is the separator between a language code and a country code.
 				// So split the value by "-" and pass them to the construction of the Locale class independently.
 				// For example, if "en-US" is specified, split it to { "en", "US" }.
 				if (0 < optionValue.indexOf("-") && optionValue.indexOf("-") < optionValue.length()-1) {
-					String[] localeStrings = optionValue.split("-");
-					this.engineOptionMap.put(OptionKey.LOCALE, new Locale(localeStrings[0], localeStrings[1]));
+					if (optionValue.toLowerCase().equals("ja-jp")) {
+						this.engineOptionMap.put(OptionKey.LOCALE, Locale.JAPANESE);
+					} else {
+						this.engineOptionMap.put(OptionKey.LOCALE, Locale.ENGLISH);
+					}
 
 				// Otherwise, we regard the value as a language code, so simply pass it to the constructor of the Locale class.
 				} else {
-					this.engineOptionMap.put(OptionKey.LOCALE, new Locale(optionValue));
+					if (optionValue.toLowerCase().equals("ja") || optionValue.toLowerCase().equals("jp")) {
+						this.engineOptionMap.put(OptionKey.LOCALE, Locale.JAPANESE);
+					} else {
+						this.engineOptionMap.put(OptionKey.LOCALE, Locale.ENGLISH);
+					}
 				}
 				return true;
 			}

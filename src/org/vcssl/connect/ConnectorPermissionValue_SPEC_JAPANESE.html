@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="ja">
+
+<head>
+	<title>ConnectorPermissionValue 仕様書</title>
+	<meta charset="UTF-8">
+	<style type="text/css">
+		h1 .spec-path { font-size: 70%; }
+		h2 .spec-path { font-size: 70%; }
+		.spec-table { width: 100%; border: 1px solid #000000; border-collapse: collapse; margin-bottom: 20px; }
+		.spec-table td { border: 1px solid #000000; text-align: left; }
+		.spec-table th { border: 1px solid #000000; text-align: left; }
+		.spec-table .lcol { width: 100px; background-color: #eeeeee; }
+		.spec-table .rcol { }
+		.spec-dl { }
+		.spec-dl dt { font-weight: bold; display: list-item; list-style-position: outside; margin-left: 20px; list-style-type: disc; }
+		.spec-dl dd { margin-bottom: 14px; line-height: 160%; }
+	</style>
+</head>
+
+<body>
+
+
+
+<div style="text-align: center; width: 100%; border: 1px solid #000000; background-color: #eeeeff;">
+VCSSL/Vnano プラグイン インターフェース 仕様書
+</div>
+
+
+<h1>ConnectorPermissionValue<br />クラス仕様書<br /><span class="spec-path">(org.vcssl.connect.ConnectorPermissionValue)</span></h1>
+
+<hr />
+
+
+
+<h2>概要</h2>
+
+<p>
+ConnectorPermissionValue は、パーミッションの値が定義されたクラスです。
+</p>
+
+<p>
+このクラスのフィールドは、本来は enum の要素として定義されるのが自然ですが、
+実際にはそうではなく "public static final String" のフィールドが列挙的に定義されています。
+これは、それらの定義順序が変更された場合における、
+それらを参照しているプラグインの（再コンパイルされない状態での）予期しない動作を防ぐためです。
+</p>
+
+<p>
+なお、各フィールドの文字列値を直接（文字列リテラルなどとして）記述する事は推奨されません。
+なるべくこのクラスのフィールドを参照してください。
+</p>
+
+
+<h2>ステータス</h2>
+
+<p>
+このクラスの現在のステータスは "EXTENSION ONLY"（拡張のみ）です。
+</p>
+
+<p>
+既存のコンストラクタ/メソッド/フィールドは原則として削除されませんが、将来的に新規追加される事はあり得ます。
+<br />
+また、どうしてもやむを得ない事情があった場合のみ、非推奨化の段階を経た上で、各要素の削除が検討される事もあり得ます。
+</p>
+
+<p>
+このクラスは、現在は <a href="https://www.vcssl.org/ja-jp/vnano/">Vnano</a> のスクリプトエンジンでサポートされ、同エンジンを搭載したアプリケーションのプラグイン開発において利用できます。
+</p>
+
+
+<h2>ライセンス</h2>
+
+<p>
+このクラスは、実質的な著作権フリー/パブリックドメインである CC0 に基づいて公開されています。
+</p>
+
+
+<h2>フィールド/メソッド等の一覧</h2>
+
+<dl class="spec-dl">
+
+	<dt><a href="#ALLOW">ALLOW</a></dt>
+		<dd>
+			この値を持つパーミッション項目は、リクエストが常に許可されます。
+		</dd>
+
+	<dt><a href="#DENY">DENY</a></dt>
+		<dd>
+			この値を持つパーミッション項目は、リクエストが常に拒否されます。
+		</dd>
+
+	<dt><a href="#ASK">ASK</a></dt>
+		<dd>
+			この値を持つパーミッション項目においては、スクリプトエンジンがユーザーに対して、リクエストを許可するかどうかを尋ねた上で決定します。
+		</dd>
+
+</dl>
+
+
+
+<hr />
+
+
+
+<!-- ==================================================================================================== -->
+
+<h2>フィールド</h2>
+
+<table id="ALLOW" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">ALLOW</th>
+	</tr>
+	<tr>
+		<td class="lcol">値の意味</td>
+		<td class="rcol">この値を持つパーミッション項目は、リクエストが常に許可されます。</td>
+	</tr>
+	<tr>
+		<td class="lcol">データ型</td>
+		<td class="rcol">static final String</td>
+	</tr>
+</table>
+
+
+<table id="DENY" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">DENY</th>
+	</tr>
+	<tr>
+		<td class="lcol">値の意味</td>
+		<td class="rcol">この値を持つパーミッション項目は、リクエストが常に拒否されます。</td>
+	</tr>
+	<tr>
+		<td class="lcol">データ型</td>
+		<td class="rcol">static final String</td>
+	</tr>
+</table>
+
+
+<table id="ASK" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">ASK</th>
+	</tr>
+	<tr>
+		<td class="lcol">値の意味</td>
+		<td class="rcol">
+			この値を持つパーミッション項目においては、スクリプトエンジンがユーザーに対して、
+			リクエストを許可するかどうかを尋ねた上で決定します。
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">データ型</td>
+		<td class="rcol">static final String</td>
+	</tr>
+</table>
+
+
+
+
+</body>
+</html>

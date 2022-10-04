@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="ja">
+
+<head>
+	<title>String SDAI1 仕様書</title>
+	<meta charset="UTF-8">
+	<style type="text/css">
+		h1 .spec-path { font-size: 70%; }
+		h2 .spec-path { font-size: 70%; }
+		.spec-table { width: 100%; border: 1px solid #000000; border-collapse: collapse; margin-bottom: 20px; }
+		.spec-table td { border: 1px solid #000000; text-align: left; }
+		.spec-table th { border: 1px solid #000000; text-align: left; }
+		.spec-table .lcol { width: 100px; background-color: #eeeeee; }
+		.spec-table .rcol { }
+		.spec-dl { }
+		.spec-dl dt { font-weight: bold; display: list-item; list-style-position: outside; margin-left: 20px; list-style-type: disc; }
+		.spec-dl dd { margin-bottom: 14px; line-height: 160%; }
+	</style>
+</head>
+
+<body>
+
+
+
+<div style="text-align: center; width: 100%; border: 1px solid #000000; background-color: #eeeeff;">
+VCSSL/Vnano プラグイン インターフェース 仕様書
+</div>
+
+
+<h1>String Scalar Data Accessor Interface 1 (String SDAI1)<br />インターフェース仕様書<br /><span class="spec-path">(org.vcssl.connect.StringScalarDataAccessorInterface1)</span></h1>
+
+<hr />
+
+
+
+<h2>概要</h2>
+
+<p>
+String Scalar Data Accessor Interface 1 (String SDAI1) は、
+主に処理系のデータコンテナが実装してサポートする、データ入出力インターフェースの一つです。
+</p>
+
+<p>
+この org.vcssl.connect パッケージ内では、スクリプトエンジン側とプラグイン側との間で、必要に応じてデータ型の変換なしにデータを受け渡しするための、
+複数のデータ入出力インターフェースが提供されています。
+</p>
+
+<p>
+その中でこの String SDAI1 は、String 型のスカラ値に対する入出力機能を提供します。
+</p>
+
+
+<h2>ステータス</h2>
+
+<p>
+このインターフェースの現在のステータスは "FINALIZED"（確定済み）です。
+</p>
+
+<p>
+このインターフェースの仕様は、2022年8月31日時点で最終確定しました。今後は原則として、ドキュメントやコメント類以外の変更は加えられません。
+</p>
+
+<p>
+現在は <a href="https://www.vcssl.org/ja-jp/vnano/">Vnano</a> のスクリプトエンジンでサポートされ、同エンジンを搭載したアプリケーションのプラグイン開発において利用できます。
+</p>
+
+
+<h2>ライセンス</h2>
+
+<p>
+このインターフェースは、実質的な著作権フリー/パブリックドメインである CC0 に基づいて公開されています。
+</p>
+
+
+<h2>フィールド/メソッド等の一覧</h2>
+
+<dl class="spec-dl">
+
+	<dt><a href="#INTERFACE_TYPE_ID">INTERFACE_TYPE_ID</a></dt>
+		<dd>
+			プラグインのロード時に参照される、このインターフェースの形式ID（値: "STRING_SDAI"）です。
+		</dd>
+
+	<dt><a href="#INTERFACE_GENERATION">INTERFACE_GENERATION</a></dt>
+		<dd>
+			このインターフェースの世代名です（値: "1"）。
+		</dd>
+
+	<dt><a href="#setStringScalarData">void setStringScalarData(String data)</a></dt>
+		<dd>
+			String 型のスカラ値を設定します。
+		</dd>
+
+	<dt><a href="#getStringScalarData">String getStringScalarData()</a></dt>
+		<dd>
+			String 型のスカラ値を取得します。
+		</dd>
+
+	<dt><a href="#hasStringScalarData">boolean hasStringScalarData()</a></dt>
+		<dd>
+			String 型のスカラ値を取得可能かどうかを判定します。
+		</dd>
+
+</dl>
+
+
+
+<hr />
+
+
+
+<!-- ==================================================================================================== -->
+
+<h2>フィールド</h2>
+
+<table id="INTERFACE_TYPE_ID" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">INTERFACE_TYPE_ID</th>
+	</tr>
+	<tr>
+		<td class="lcol">値の意味</td>
+		<td class="rcol">プラグインのロード時に参照される、このインターフェースの形式ID（値: "STRING_SDAI"）です。</td>
+	</tr>
+	<tr>
+		<td class="lcol">データ型</td>
+		<td class="rcol">static final String</td>
+	</tr>
+</table>
+
+
+<table id="INTERFACE_GENERATION" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">INTERFACE_GENERATION</th>
+	</tr>
+	<tr>
+		<td class="lcol">値の意味</td>
+		<td class="rcol">このインターフェースの世代名です（値: "1"）。</td>
+	</tr>
+	<tr>
+		<td class="lcol">データ型</td>
+		<td class="rcol">static final String</td>
+	</tr>
+</table>
+
+
+
+
+<!-- ==================================================================================================== -->
+
+<h2>メソッド</h2>
+
+
+
+
+<table id="setStringScalarData" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">setStringScalarData</th>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">void setStringScalarData(String data)</td>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">String 型のスカラ値を設定します。</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">data: 設定するスカラ値</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">なし</td>
+	</tr>
+</table>
+
+
+
+
+<table id="getStringScalarData" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">getStringScalarData</th>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">String getStringScalarData()</td>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">String 型のスカラ値を取得します。</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">なし</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">スカラ値</td>
+	</tr>
+</table>
+
+
+<table id="hasStringScalarData" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">hasStringScalarData</th>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">boolean hasStringScalarData()</td>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">String 型のスカラ値を取得可能かどうかを判定します。</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">なし</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">String 型のスカラ値を取得可能であれば true が返されます。</td>
+	</tr>
+</table>
+
+
+
+
+
+
+</body>
+</html>

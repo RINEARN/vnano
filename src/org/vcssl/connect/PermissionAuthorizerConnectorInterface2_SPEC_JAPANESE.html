@@ -1,0 +1,724 @@
+<!doctype html>
+<html lang="ja">
+
+<head>
+	<title>PACI1 仕様書</title>
+	<meta charset="UTF-8">
+	<style type="text/css">
+		h1 .spec-path { font-size: 70%; }
+		h2 .spec-path { font-size: 70%; }
+		.spec-table { width: 100%; border: 1px solid #000000; border-collapse: collapse; margin-bottom: 20px; }
+		.spec-table td { border: 1px solid #000000; text-align: left; }
+		.spec-table th { border: 1px solid #000000; text-align: left; }
+		.spec-table .lcol { width: 100px; background-color: #eeeeee; }
+		.spec-table .rcol { }
+		.spec-dl { }
+		.spec-dl dt { font-weight: bold; display: list-item; list-style-position: outside; margin-left: 20px; list-style-type: disc; }
+		.spec-dl dd { margin-bottom: 14px; line-height: 160%; }
+	</style>
+</head>
+
+<body>
+
+
+
+<div style="text-align: center; width: 100%; border: 1px solid #000000; background-color: #eeeeff;">
+VCSSL/Vnano プラグイン インターフェース 仕様書
+</div>
+
+
+<h1>Permission Authorizer Connector Interface 2 (PACI2)<br />インターフェース仕様書<br /><span class="spec-path">(org.vcssl.connect.PermissionAuthorizerConnectorInterface2)</span></h1>
+
+<hr />
+
+
+
+<h2>概要</h2>
+
+<p>
+Permission Authorizer Connector Interface 2 (PACI2) は、
+パーミッションベースのセキュリティプラグインを実装するためのインターフェースの一つです。
+</p>
+
+
+<h2>ステータス</h2>
+
+<p>
+このインターフェースの現在のステータスは "DRAFT"（草案）です。
+</p>
+
+<p style="color: #ff5533;">
+このインターフェースの仕様は、まだ大幅かつ継続的な変更が加えられる可能性が高く、その点に常に留意が必要な段階です。
+</p>
+
+<p>
+このインターフェースを現在利用可能なスクリプトエンジンは、まだ存在しません。現時点では、代わりに <a href="PermissionAuthorizerConnectorInterface1_SPEC_JAPANESE.html">PACI1</a> を使用してください。
+</p>
+
+
+<h2>ライセンス</h2>
+
+<p>
+このインターフェースは、実質的な著作権フリー/パブリックドメインである CC0 に基づいて公開されています。
+</p>
+
+
+<h2>フィールド/メソッド等の一覧</h2>
+
+
+<dl class="spec-dl">
+
+	<dt><a href="#INTERFACE_TYPE_ID">INTERFACE_TYPE_ID</a></dt>
+		<dd>
+			プラグインのロード時に参照される、このインターフェースの形式ID（値: "PACI"）です。
+		</dd>
+
+	<dt><a href="#INTERFACE_GENERATION">INTERFACE_GENERATION</a></dt>
+		<dd>
+			このインターフェースの世代名です（値: "2"）。
+		</dd>
+
+	<dt><a href="#setPermissionMap">void setPermissionMap(Map&lt;String, String&gt; permissionMap, boolean setsToBase)</a></dt>
+		<dd>
+			パーミッション項目の名前と値を格納するマップ（パーミッションマップ）によって、各パーミッションの値を設定します。
+		</dd>
+
+	<dt><a href="#getPermissionMap">Map&lt;String, String&gt; getPermissionMap(boolean getsFromBase)</a></dt>
+		<dd>
+			パーミッション項目の名前と現在の値を格納するマップ（パーミッションマップ）を返します。
+		</dd>
+
+	<dt><a href="#requestPermission">void requestPermission(String permissionName, Object requester, Object metaInformation)</a></dt>
+		<dd>
+			指定されたパーミッションの要求を受け付けます。
+		</dd>
+
+	<dt><a href="#setPermissionValue">void setPermissionValue(String permissionName, String value, boolean setsToBase, boolean calledByEngine)</a></dt>
+		<dd>
+			指定されたパーミッション項目の値を設定します。
+		</dd>
+
+	<dt><a href="#getPermissionValue">String getPermissionValue(String permissionName, boolean getFromBase, boolean calledByEngine)</a></dt>
+		<dd>
+			指定されたパーミッション項目の値を取得します。
+		</dd>
+
+	<dt><a href="#storeTemporaryPermissionValues">void storeTemporaryPermissionValues(boolean storesToBase, boolean calledByEngine)</a></dt>
+		<dd>
+			現在の一時的なパーミッション状態を保存します。
+		</dd>
+
+	<dt><a href="#restoreTemporaryPermissionValues">void restoreTemporaryPermissionValues(boolean restoresFromBase, boolean calledByEngine, boolean calledByEngine)</a></dt>
+		<dd>
+			現在の一時的なパーミッション状態を復元します。
+		</dd>
+
+	<dt><a href="#getEngineConnectorClass">Class&lt;?&gt; getEngineConnectorClass()</a></dt>
+		<dd>
+			スクリプトエンジンと情報をやり取りする際に使用するオブジェクトである「エンジンコネクタ」の、インターフェースまたはクラスを返します。
+		</dd>
+
+	<dt><a href="#initializeForConnection">void initializeForConnection(Object engineConnector)</a></dt>
+		<dd>
+			このプラグインが、スクリプトエンジンに接続される際に必要となる初期化処理を実行します。
+		</dd>
+
+	<dt><a href="#finalizeForDisconnection">void finalizeForDisconnection(Object engineConnector)</a></dt>
+		<dd>
+			このプラグインが、スクリプトエンジンから接続解除される際に必要となる終了時処理を実行します。
+		</dd>
+
+	<dt><a href="#initializeForExecution">void initializeForExecution(Object engineConnector)</a></dt>
+		<dd>
+			スクリプトの実行毎に必要な初期化処理を実行します。
+		</dd>
+
+	<dt><a href="#finalizeForTermination">void finalizeForTermination(Object engineConnector)</a></dt>
+		<dd>
+			スクリプトの実行毎に必要な終了時処理を実行します。
+		</dd>
+
+</dl>
+
+
+
+<hr />
+
+
+
+<!-- ==================================================================================================== -->
+
+<h2>フィールド</h2>
+
+<table id="INTERFACE_TYPE_ID" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">INTERFACE_TYPE_ID</th>
+	</tr>
+	<tr>
+		<td class="lcol">値の意味</td>
+		<td class="rcol">プラグインのロード時に参照される、このインターフェースの形式ID（値: "PACI"）です。</td>
+	</tr>
+	<tr>
+		<td class="lcol">データ型</td>
+		<td class="rcol">static final String</td>
+	</tr>
+</table>
+
+
+<table id="INTERFACE_GENERATION" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">INTERFACE_GENERATION</th>
+	</tr>
+	<tr>
+		<td class="lcol">値の意味</td>
+		<td class="rcol">このインターフェースの世代名です（値: "1"）。</td>
+	</tr>
+	<tr>
+		<td class="lcol">データ型</td>
+		<td class="rcol">static final String</td>
+	</tr>
+</table>
+
+
+
+
+<!-- ==================================================================================================== -->
+
+<h2>メソッド</h2>
+
+
+
+
+<table id="setPermissionMap" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">setPermissionMap</th>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">void setPermissionMap(Map&lt;String, String&gt; permissionMap, boolean setsToBase) throws ConnectorException</td>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			パーミッション項目の名前と値を格納するマップ（パーミッションマップ）によって、各パーミッションの値を設定します。
+			</p>
+			<p>
+			このメソッドは、スクリプトエンジンやアプリケーションから呼び出されます。
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">
+			permissionMap: パーミッション項目の名前と値を格納するマップ（パーミッションマップ）
+			<br />
+			setsToBase: 基礎パーミッションとして設定する場合は true、一時パーミッションとして設定する場合は false を指定します
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">なし</td>
+	</tr>
+	<tr>
+		<td class="lcol">例外</td>
+		<td class="rcol">
+			ConnectorException: 無効なパーミッション設定が検出された際にスローされます。
+			また、一時パーミッションが存在しないタイミングで、一時パーミッションに対する設定が行われた際にもスローされます。
+		</td>
+	</tr>
+</table>
+
+
+
+
+<table id="getPermissionMap" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">getPermissionMap</th>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">Map&lt;String, String&gt; getPermissionMap(boolean getsFromBase) throws ConnectorException</td>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			パーミッション項目の名前と現在の値を格納するマップ（パーミッションマップ）を返します。
+			</p>
+			<p>
+			このメソッドは、スクリプトエンジンやアプリケーションから呼び出されます。
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">
+			getsFromBase: 基礎パーミッションを取得する場合は true、一時パーミッションを取得する場合は false を指定します。
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">パーミッション項目の名前と値を格納するマップ（パーミッションマップ）</td>
+	</tr>
+	<tr>
+		<td class="lcol">例外</td>
+		<td class="rcol">
+			ConnectorException: 指定したパーミッション設定の取得に失敗した場合された際にスローされます。
+			例えば、一時パーミッションが存在しないタイミングで、一時パーミッションの取得が要求された際にスローされます。
+		</td>
+	</tr>
+</table>
+
+
+
+<table id="requestPermission" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">requestPermission</th>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">void requestPermission(String permissionName, Object requester, Object metaInformation) throws ConnectorException</td>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			指定されたパーミッションの要求を受け付けます。
+			</p>
+			<p>
+			指定されたパーミッションが許可されるべき場合には、このメソッドは（対外的には）何もする必要はありません。
+			指定されたパーミッションが拒否されるべき場合には、このメソッドは ConnectorException 例外を発生させます。
+			</p>
+			<p>
+			このメソッドは, エンジンコネクターインターフェースを介して、他のプラグインから呼び出されます。
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">
+			permissionName: 要求されているパーミッション項目の名称。
+			<br />
+			requester: パーミッションを要求しているプラグイン。
+			<br />
+			metaInformation: 必要に応じてユーザーに通知されるメタ情報
+			（特に、パーミッション値が <a href="ConnectorPermissionValue_SPEC_JAPANESE.html#ASK">ASK</a> に設定されている際などに表示されます）。
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">なし</td>
+	</tr>
+	<tr>
+		<td class="lcol">例外</td>
+		<td class="rcol">ConnectorException: 要求したパーミッションが拒否された場合にスローされます。</td>
+	</tr>
+</table>
+
+
+
+<table id="setPermissionValue" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">setPermissionValue</th>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">void setPermissionValue(String permissionName, String value, boolean setsToBase, boolean calledByEngine) throws ConnectorException</td>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			指定されたパーミッション項目の値を設定します。
+			</p>
+			<p>
+			このメソッドは、スクリプトエンジン/アプリケーション側から呼ばれる場合と、
+			エンジンコネクターインターフェースを介して他のプラグインから呼ばれる場合があります。
+			後者の場合には、パーミッション編集/参照に対するパーミッションが必要です。
+			</p>
+			<p>
+			ただし、プラグインから明示的にパーミッションを編集/参照する操作は、将来的なサポートの可能性が検討されているのみであり、最終的にサポートされるかどうかも含めて、現状では不透明です。
+			そのため、<a href="EngineConnectorInterface1_SPEC_JAPANESE.html">EngineConnectorInterface1</a> にも該当機能は存在しません。従って、当面の間は、calledByEngine に false を指定した呼び出しが行われる事はありません。
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">
+			permissionName: 値を設定するパーミッション項目の名称。
+			<br />
+			value: 設定する値。
+			<br />
+			setsToBase: 基礎パーミッションの値を設定する場合は true、一時パーミッションの値を設定する場合は false を指定します。
+			<br />
+			calledByEngine: スクリプトエンジン/アプリケーション側からの操作の場合は true、それ以外（プラグイン等）からの操作の場合は false を指定します。
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">なし</td>
+	</tr>
+	<tr>
+		<td class="lcol">例外</td>
+		<td class="rcol">
+			ConnectorException: 特に calledByEngine を false に指定した呼び出しにおいて、要求した操作が拒否された場合や、未サポートの場合にスローされます。
+			また、一時パーミッションが存在しないタイミングで、一時パーミッションに対する設定が行われた際にもスローされます。
+		</td>
+	</tr>
+</table>
+
+
+
+<table id="getPermissionValue" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">getPermissionValue</th>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">String getPermissionValue(String permissionName, boolean getFromBase, boolean calledByEngine) throws ConnectorException</td>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			指定されたパーミッション項目の値を取得します。
+			</p>
+			<p>
+			このメソッドは, スクリプトエンジン/アプリケーション側から呼ばれる場合と、
+			エンジンコネクターインターフェースを介して他のプラグインから呼ばれる場合があります。
+			後者の場合には、パーミッション編集/参照に対するパーミッションが必要です。
+			</p>
+			<p>
+			ただし、プラグインから明示的にパーミッションを編集/参照する操作は、将来的なサポートの可能性が検討されているのみであり、最終的にサポートされるかどうかも含めて、現状では不透明です。
+			そのため、<a href="EngineConnectorInterface1_SPEC_JAPANESE.html">EngineConnectorInterface1</a> にも該当機能は存在しません。従って、当面の間は、calledByEngine に false を指定した呼び出しが行われる事はありません。
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">
+			permissionName: 値を取得するパーミッション項目の名称。
+			<br />
+			getFromBase: 基礎パーミッションの値を取得する場合は true、一時パーミッションの値を取得する場合は false を指定します。
+			<br />
+			calledByEngine: スクリプトエンジン/アプリケーション側からの操作の場合は true、それ以外（プラグイン等）からの操作の場合は false を指定します。
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">指定されたパーミッション項目の値</td>
+	</tr>
+	<tr>
+		<td class="lcol">例外</td>
+		<td class="rcol">
+			ConnectorException: 特に calledByEngine を false に指定した呼び出しにおいて、要求した操作が拒否された場合や、未サポートの場合にスローされます。
+			また、一時パーミッションが存在しないタイミングで、一時パーミッションに対する設定が行われた際にもスローされます。
+		</td>
+	</tr>
+</table>
+
+
+<table id="storeTemporaryPermissionValues" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">storeTemporaryPermissionValues</th>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">void storeTemporaryPermissionValues(boolean storesToBase, boolean calledByEngine) throws ConnectorException</td>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			現在の一時的なパーミッション状態を保存します。
+			</p>
+			<p>
+			現在の一時的なパーミッション状態を保存します。
+			後で <a href="#restoreTemporaryPermissionValues">restoreTemporaryPermissionValues(boolean restoresFromBase, boolean calledByEngine)</a> 
+			メソッドによって復元可能な形に、またはパーマネント設定値を上書きする事で保存します
+			</p>
+			<p>
+			このメソッドは、スクリプトエンジン/アプリケーション側から呼ばれる場合と、
+			エンジンコネクターインターフェースを介して他のプラグインから呼ばれる場合があります。
+			後者の場合には、パーミッション編集/参照に対するパーミッションが必要です。
+			</p>
+			<p>
+			ただし、プラグインから明示的にパーミッションを編集/参照する操作は、将来的なサポートの可能性が検討されているのみであり、最終的にサポートされるかどうかも含めて、現状では不透明です。
+			そのため、<a href="EngineConnectorInterface1_SPEC_JAPANESE.html">EngineConnectorInterface1</a> にも該当機能は存在しません。従って、当面の間は、calledByEngine に false を指定した呼び出しが行われる事はありません。
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">
+			storesToBase: 基礎パーミッション設定を上書きする形で保存する場合は true を指定します。
+				後で <a href="#restoreTemporaryPermissionValues">restoreTemporaryPermissionValues(boolean restoresFromBase)</a> 
+				メソッドで復元するために一時保存する場合は false を指定します。
+			<br />
+			calledByEngine: スクリプトエンジン/アプリケーション側からの操作の場合は true、それ以外（プラグイン等）からの操作の場合は false を指定します。
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">なし</td>
+	</tr>
+	<tr>
+		<td class="lcol">例外</td>
+		<td class="rcol">
+			ConnectorException: 特に calledByEngine を false に指定した呼び出しにおいて、要求した操作が拒否された場合や、未サポートの場合にスローされます。
+			また、一時パーミッションが存在しないタイミングで呼び出された際にもスローされます。
+		</td>
+	</tr>
+</table>
+
+
+<table id="restoreTemporaryPermissionValues" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">restoreTemporaryPermissionValues</th>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">void restoreTemporaryPermissionValues(boolean restoresFromBase, boolean calledByEngine, boolean calledByEngine) throws ConnectorException</td>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			現在の一時的なパーミッション状態を復元します。
+			</p>
+			<p>
+			現在の一時的なパーミッション状態を保存します。
+			後で <a href="#restoreTemporaryPermissionValues">restoreTemporaryPermissionValues(boolean restoresFromBase)</a> 
+			メソッドによって復元可能な形に、またはパーマネント設定値を上書きする事で保存します
+			</p>
+			<p>
+			このメソッドは、スクリプトエンジン/アプリケーション側から呼ばれる場合と、
+			エンジンコネクターインターフェースを介して他のプラグインから呼ばれる場合があります。
+			後者の場合には、パーミッション編集/参照に対するパーミッションが必要です。
+			</p>
+			<p>
+			ただし、プラグインから明示的にパーミッションを編集/参照する操作は、将来的なサポートの可能性が検討されているのみであり、最終的にサポートされるかどうかも含めて、現状では不透明です。
+			そのため、<a href="EngineConnectorInterface1_SPEC_JAPANESE.html">EngineConnectorInterface1</a> にも該当機能は存在しません。従って、当面の間は、calledByEngine に false を指定した呼び出しが行われる事はありません。
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">
+			restoresFromBase: 基礎パーミッション設定の値を読み込んで復元する場合は true を指定します。
+				事前に <a href="#storeTemporaryPermissionValues">storeTemporaryPermissionValues(boolean storesToBase)</a> 
+				メソッドで一時保存された設定から復元する場合は false を指定します。
+			<br />
+			calledByEngine: スクリプトエンジン/アプリケーション側からの操作の場合は true、それ以外（プラグイン等）からの操作の場合は false を指定します。
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">なし</td>
+	</tr>
+	<tr>
+		<td class="lcol">例外</td>
+		<td class="rcol">
+			ConnectorException: 特に calledByEngine を false に指定した呼び出しにおいて、要求した操作が拒否された場合や、未サポートの場合にスローされます。
+			また、一時パーミッションが存在しないタイミングで呼び出された際にもスローされます。
+		</td>
+	</tr>
+</table>
+
+
+
+<table id="getEngineConnectorClass" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">getEngineConnectorClass</th>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">Class&lt;?&gt; getEngineConnectorClass()</td>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			スクリプトエンジンと情報をやり取りする際に使用するオブジェクトである「エンジンコネクタ」の、
+			インターフェースまたはクラスを返します。
+			</p>
+			<p>
+			このメソッドで戻り値として指定したインターフェースまたはクラスの実装インスタンスが、
+			<a href="#initializeForConnection">initializeForConnection(Object engineConnector)</a> 
+			メソッド等の初期化/終了時メソッド群の、引数 engineConnector に渡されます。
+			</p>
+			<p>
+			利用可能なエンジンコネクタの形式は、スクリプトエンジンの実装に依存しますが、
+			少なくとも <a href="./EngineConnector1_SPEC_JAPANESE.html">ECI1</a> は利用可能である事が、
+			PACI1の仕様上保証されています。
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">なし</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">
+		使用したいエンジンコネクタのインターフェースまたはクラス。
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">例外</td>
+		<td class="rcol">なし</td>
+	</tr>
+</table>
+
+
+
+<table id="initializeForConnection" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">initializeForConnection</th>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">void initializeForConnection(Object engineConnector) throws ConnectorException</td>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">
+			このプラグインが、スクリプトエンジンに接続される際に必要となる初期化処理を実行します。
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">
+			engineConnector: エンジンコネクタ
+			（<a href="#getEngineConnectorClass">getEngineConnectorClass()</a> メソッド参照）
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">なし</td>
+	</tr>
+	<tr>
+		<td class="lcol">例外</td>
+		<td class="rcol">ConnectorException: 初期化処理に失敗した場合にスローされます。</td>
+	</tr>
+</table>
+
+
+
+<table id="finalizeForDisconnection" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">finalizeForDisconnection</th>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">void finalizeForDisconnection(Object engineConnector) throws ConnectorException</td>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">
+			このプラグインが、スクリプトエンジンから接続解除される際に必要となる終了時処理を実行します。
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">
+			engineConnector: エンジンコネクタ
+			（<a href="#getEngineConnectorClass">getEngineConnectorClass()</a> メソッド参照）
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">なし</td>
+	</tr>
+	<tr>
+		<td class="lcol">例外</td>
+		<td class="rcol">ConnectorException: 終了時処理に失敗した場合にスローされます。</td>
+	</tr>
+</table>
+
+
+
+<table id="initializeForExecution" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">initializeForExecution</th>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">void initializeForExecution(Object engineConnector) throws ConnectorException</td>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">
+			スクリプトの実行毎に必要な初期化処理を実行します。
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">
+			engineConnector: エンジンコネクタ
+			（<a href="#getEngineConnectorClass">getEngineConnectorClass()</a> メソッド参照）
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">なし</td>
+	</tr>
+	<tr>
+		<td class="lcol">例外</td>
+		<td class="rcol">ConnectorException: 初期化処理に失敗した場合にスローされます。</td>
+	</tr>
+</table>
+
+
+
+<table id="finalizeForTermination" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">finalizeForTermination</th>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">void finalizeForTermination(Object engineConnector) throws ConnectorException</td>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">
+			スクリプトの実行毎に必要な終了時処理を実行します。
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">
+			engineConnector: エンジンコネクタ
+			（<a href="#getEngineConnectorClass">getEngineConnectorClass()</a> メソッド参照）
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">なし</td>
+	</tr>
+	<tr>
+		<td class="lcol">例外</td>
+		<td class="rcol">ConnectorException: 終了時処理に失敗した場合にスローされます。</td>
+	</tr>
+</table>
+
+
+
+
+</body>
+</html>

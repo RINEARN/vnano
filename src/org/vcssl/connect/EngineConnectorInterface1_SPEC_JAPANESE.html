@@ -1,0 +1,341 @@
+<!doctype html>
+<html lang="ja">
+
+<head>
+	<title>ECI1 仕様書</title>
+	<meta charset="UTF-8">
+	<style type="text/css">
+		h1 .spec-path { font-size: 70%; }
+		h2 .spec-path { font-size: 70%; }
+		.spec-table { width: 100%; border: 1px solid #000000; border-collapse: collapse; margin-bottom: 20px; }
+		.spec-table td { border: 1px solid #000000; text-align: left; }
+		.spec-table th { border: 1px solid #000000; text-align: left; }
+		.spec-table .lcol { width: 100px; background-color: #eeeeee; }
+		.spec-table .rcol { }
+		.spec-dl { }
+		.spec-dl dt { font-weight: bold; display: list-item; list-style-position: outside; margin-left: 20px; list-style-type: disc; }
+		.spec-dl dd { margin-bottom: 14px; line-height: 160%; }
+	</style>
+</head>
+
+<body>
+
+
+
+<div style="text-align: center; width: 100%; border: 1px solid #000000; background-color: #eeeeff;">
+VCSSL/Vnano プラグイン インターフェース 仕様書
+</div>
+
+
+<h1>Engine Connector Interface 1 (ECI1)<br />インターフェース仕様書<br /><span class="spec-path">(org.vcssl.connect.EngineConnectorInterface1)</span></h1>
+
+<hr />
+
+
+
+<h2>概要</h2>
+
+<p>
+Engine Connector Interface 1 (ECI1) は、
+スクリプトエンジンとプラグインとの間における、いくつかの情報のやり取りを仲介するためのインターフェースです。
+</p>
+
+<p>
+スクリプトエンジンは、このインターフェースを実装したオブジェクトを、
+各プラグインの初期化/終了時処理のメソッドの引数として渡します。
+</p>
+
+
+<h2>ステータス</h2>
+
+<p>
+このインターフェースの現在のステータスは "FINALIZED"（確定済み）です。
+</p>
+
+<p>
+このインターフェースの仕様は、2022年8月31日時点で最終確定しました。今後は原則として、ドキュメントやコメント類以外の変更は加えられません。
+</p>
+
+<p>
+現在は <a href="https://www.vcssl.org/ja-jp/vnano/">Vnano</a> のスクリプトエンジンでサポートされ、同エンジンを搭載したアプリケーションのプラグイン開発において利用できます。
+</p>
+
+
+<h2>ライセンス</h2>
+
+<p>
+このインターフェースは、実質的な著作権フリー/パブリックドメインである CC0 に基づいて公開されています。
+</p>
+
+
+<h2>フィールド/メソッド等の一覧</h2>
+
+
+
+<dl class="spec-dl">
+
+	<dt><a href="#INTERFACE_TYPE_ID">INTERFACE_TYPE_ID</a></dt>
+		<dd>
+			プラグインのロード時に参照される、このインターフェースの形式ID（値: "ECI"）です。
+		</dd>
+
+	<dt><a href="#INTERFACE_GENERATION">INTERFACE_GENERATION</a></dt>
+		<dd>
+			このインターフェースの世代名です（値: "1"）。
+		</dd>
+
+	<dt><a href="#hasOptionValue">boolean hasOptionValue(String optionName)</a></dt>
+		<dd>
+			指定された名称のオプションの値が、設定されているかどうかを返します。
+		</dd>
+
+	<dt><a href="#getOptionValue">Object getOptionValue(String optionName)</a></dt>
+		<dd>
+			指定されたオプションの値を取得します。
+		</dd>
+
+	<dt><a href="#requestPermission">void requestPermission(String permissionName, Object requester, Object metaInformation)</a></dt>
+		<dd>
+			指定されたパーミッションを要求します。
+		</dd>
+
+	<dt><a href="#isOtherEngineConnectorAvailable">isOtherEngineConnectorAvailable(Class&lt;?&gt engineConnectorClass)</a></dt>
+		<dd>
+			他種のエンジンコネクターが利用可能かどうかを返します。
+		</dd>
+
+	<dt><a href="#getParameterDataTypeArbitrarinesses">&lt;T&gt T getOtherEngineConnector(Class&lt;T&gt engineConnectorClass)</a></dt>
+		<dd>
+			他種のエンジンコネクターを返します。
+		</dd>
+</dl>
+
+
+<hr />
+
+
+
+<!-- ==================================================================================================== -->
+
+<h2>フィールド</h2>
+
+<table id="INTERFACE_TYPE_ID" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">INTERFACE_TYPE_ID</th>
+	</tr>
+	<tr>
+		<td class="lcol">値の意味</td>
+		<td class="rcol">プラグインのロード時に参照される、このインターフェースの形式ID（値: "ECI"）です。</td>
+	</tr>
+	<tr>
+		<td class="lcol">データ型</td>
+		<td class="rcol">static final String</td>
+	</tr>
+</table>
+
+
+<table id="INTERFACE_GENERATION" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">INTERFACE_GENERATION</th>
+	</tr>
+	<tr>
+		<td class="lcol">値の意味</td>
+		<td class="rcol">このインターフェースの世代名です（値: "1"）。</td>
+	</tr>
+	<tr>
+		<td class="lcol">データ型</td>
+		<td class="rcol">static final String</td>
+	</tr>
+</table>
+
+
+
+
+<!-- ==================================================================================================== -->
+
+<h2>メソッド</h2>
+
+
+
+
+<table id="hasOptionValue" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">hasOptionValue</th>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">boolean hasOptionValue(String optionName)</td>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">指定された名称のオプションの値が設定されていて、取得可能な状態であるかどうかを返します。</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">optionName: オプションの名称。</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">指定されたオプションの値が取得可能な場合に true が返されます。</td>
+	</tr>
+	<tr>
+		<td class="lcol">例外</td>
+		<td class="rcol">なし</td>
+	</tr>
+</table>
+
+
+<table id="getOptionValue" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">getOptionValue</th>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">Object getOptionValue(String optionName)</td>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			指定されたオプションの値を取得します。
+			</p>
+			<p>
+			このメソッドを用いる際には、事前に、指定オプションの値が取得可能である事を、
+			<a href="#hasOptionValue">hasOptionValue(String optionName)</a> メソッドで確認する必要があります。
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">optionName: オプションの名称。</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">指定されたオプションの値。</td>
+	</tr>
+	<tr>
+		<td class="lcol">例外</td>
+		<td class="rcol">ConnectorFatalException(非検査例外): 指定されたオプションの値が取得不可能な場合にスローされます。</td>
+	</tr>
+</table>
+
+
+<table id="requestPermission" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">requestPermission</th>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">void requestPermission(String permissionName, Object requester, Object metaInformation) throws ConnectorException</td>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			指定されたパーミッションを要求します。
+			</p>
+			<p>
+			要求したパーミッションが許可された場合は何も起こりませんが、
+			拒否された場合には、検査例外である ConnectorException が発生します。
+			要求が許可されるか拒否されるかは、アプリケーション側の設定や、ユーザーの判断などによって決まるため、原則として実行時まで分かりません。
+			そのため、拒否される可能性を常に想定し、例外を適切にハンドリングしてください。
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">
+			permissionName: 要求するパーミッション項目の名称。
+			<br />
+			requester: パーミッションを要求しているプラグイン。
+			<br />
+			metaInformation: 必要に応じてユーザーに通知されるメタ情報（特にパーミッション値が ASK の場合などに用いられます）。
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">なし</td>
+	</tr>
+	<tr>
+		<td class="lcol">例外</td>
+		<td class="rcol">ConnectorException: 要求したパーミッションが拒否された場合にスローされます。</td>
+	</tr>
+</table>
+
+
+<table id="isOtherEngineConnectorAvailable" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">isOtherEngineConnectorAvailable</th>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">boolean isOtherEngineConnectorAvailable(Class&lt;?&gt; engineConnectorClass)</td>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">他種のエンジンコネクターが利用可能かどうかを返します。</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">engineConnectorClass: 使用したいエンジンコネクターのクラス。</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">指定されたエンジンコネクターが利用可能な場合に true が返されます。</td>
+	</tr>
+	<tr>
+		<td class="lcol">例外</td>
+		<td class="rcol">なし</td>
+	</tr>
+</table>
+
+
+<table id="getOtherEngineConnector" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">getOtherEngineConnector</th>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">&lt;T&gt; T getOtherEngineConnector(Class&lt;T&gt; engineConnectorClass)</td>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			他種のエンジンコネクターを返します。
+			</p>
+			<p>
+			このメソッドを用いる際には、事前に、指定エンジンコネクターが利用可能である事を、
+			<a href="#isOtherEngineConnectorAvailable">isOtherEngineConnectorAvailable(Class&lt;?&gt; engineConnectorClass)</a>
+			メソッドで確認する必要があります。
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">engineConnectorClass: 使用したいエンジンコネクターのクラス。</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">指定された種類のエンジンコネクター。</td>
+	</tr>
+	<tr>
+		<td class="lcol">例外</td>
+		<td class="rcol">ConnectorFatalException(非検査例外): 指定されたエンジンコネクターが利用不可能な場合にスローされます。</td>
+	</tr>
+</table>
+
+
+
+
+
+
+</body>
+</html>

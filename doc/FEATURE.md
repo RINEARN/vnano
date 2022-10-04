@@ -319,6 +319,7 @@ Basic I/O functions, math and statistical functions, and so on are provided by t
 Also, interfaces for developing less-overhead plug-ins are provided:
 
 * [Source Code Repository of Vnano Plug-in Interfaces](https://github.com/RINEARN/vcssl-plugin-interface)
+* [Documents of Vnano Plug-in Interfaces](https://www.vcssl.org/en-us/doc/connect/)
 
 When you develop a plug-in which is very frequently accessed from scripts, and you want to make it as faster as possible, consider to use above interfaces.
 

@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+	<title>ConnectorPermissionValue Specification</title>
+	<meta charset="UTF-8">
+	<style type="text/css">
+		h1 .spec-path { font-size: 70%; }
+		h2 .spec-path { font-size: 70%; }
+		.spec-table { width: 100%; border: 1px solid #000000; border-collapse: collapse; margin-bottom: 20px; }
+		.spec-table td { border: 1px solid #000000; text-align: left; }
+		.spec-table th { border: 1px solid #000000; text-align: left; }
+		.spec-table .lcol { width: 100px; background-color: #eeeeee; }
+		.spec-table .rcol { }
+		.spec-dl { }
+		.spec-dl dt { font-weight: bold; display: list-item; list-style-position: outside; margin-left: 20px; list-style-type: disc; }
+		.spec-dl dd { margin-bottom: 14px; line-height: 160%; }
+	</style>
+</head>
+
+<body>
+
+
+
+<div style="text-align: center; width: 100%; border: 1px solid #000000; background-color: #eeeeff;">
+VCSSL/VNANO PLUGIN INTERFACE SPECIFICATION
+</div>
+
+
+<h1>ConnectorPermissionValue<br />Specification Document<br /><span class="spec-path">(org.vcssl.connect.ConnectorPermissionValue)</span></h1>
+
+<hr />
+
+
+
+<h2>Abstract</h2>
+
+<p>
+ConnectorPermissionValue is a class defining values of permission items.
+</p>
+
+<p>
+Fields of this class are natural to be defined as elements of an enum, 
+however, they are defined as "public static final String" fields, 
+instead of enum elements.
+This is to prevent unexpected behaviour when definition order of them are changed, 
+and plug-ins referencing them have not been re-compiled.
+</p>
+
+<p>
+Please note that, it is not recommended to describe values of them directly (as String literals).
+Refer fields of this class as possible as.
+</p>
+
+
+<h2>Status</h2>
+
+<p>
+The status of this class is "EXTENSION ONLY".
+</p>
+
+<p>
+Existing fields/methods/constructors will not be deleted in principle, 
+but new fields/methods/constructors will be able to be added in future.
+<br />
+Also, only when an unavoidable problem has been discovered, 
+a field/method/constructor might be deleted, after a period of the "deprecated" status.
+</p>
+
+<p>
+This class is currently supported by the scripting engine of Vnano. 
+You can use this interface for development of plug-ins of applications equipped with the Vnano engine.
+</p>
+
+
+<h2>License</h2>
+
+<p>
+This class is published under CC0, which is almost the same as the so-called "copyright-free" (domain).
+</p>
+
+
+<h2>List of Fields/Methods</h2>
+
+
+<dl class="spec-dl">
+
+	<dt><a href="#ALLOW">ALLOW</a></dt>
+		<dd>
+			Requests for permission items having this value will always be allowed.
+		</dd>
+
+	<dt><a href="#DENY">DENY</a></dt>
+		<dd>
+			Requests for permission items having this value will always be denied.
+		</dd>
+
+	<dt><a href="#ASK">ASK</a></dt>
+		<dd>
+			When permission items having this value are requested, the scripting engine asks the user whether allows it.
+		</dd>
+
+</dl>
+
+
+<hr />
+
+
+
+<!-- ==================================================================================================== -->
+
+<h2>Fields</h2>
+
+<table id="ALLOW" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">ALLOW</th>
+	</tr>
+	<tr>
+		<td class="lcol">Value</td>
+		<td class="rcol">Requests for permission items having this value will always be allowed.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Type</td>
+		<td class="rcol">static final String</td>
+	</tr>
+</table>
+
+
+<table id="DENY" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">DENY</th>
+	</tr>
+	<tr>
+		<td class="lcol">Value</td>
+		<td class="rcol">Requests for permission items having this value will always be denied.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Type</td>
+		<td class="rcol">static final String</td>
+	</tr>
+</table>
+
+
+<table id="ASK" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">ASK</th>
+	</tr>
+	<tr>
+		<td class="lcol">Value</td>
+		<td class="rcol">
+			When permission items having this value are requested, the scripting engine asks the user whether allows it.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Type</td>
+		<td class="rcol">static final String</td>
+	</tr>
+</table>
+
+
+
+
+
+</body>
+</html>

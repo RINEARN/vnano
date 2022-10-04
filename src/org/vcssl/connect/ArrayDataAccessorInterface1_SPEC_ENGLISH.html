@@ -1,0 +1,554 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+	<title>ADAI1 Specification</title>
+	<meta charset="UTF-8">
+	<style type="text/css">
+		h1 .spec-path { font-size: 70%; }
+		h2 .spec-path { font-size: 70%; }
+		.spec-table { width: 100%; border: 1px solid #000000; border-collapse: collapse; margin-bottom: 20px; }
+		.spec-table td { border: 1px solid #000000; text-align: left; }
+		.spec-table th { border: 1px solid #000000; text-align: left; }
+		.spec-table .lcol { width: 100px; background-color: #eeeeee; }
+		.spec-table .rcol { }
+		.spec-dl { }
+		.spec-dl dt { font-weight: bold; display: list-item; list-style-position: outside; margin-left: 20px; list-style-type: disc; }
+		.spec-dl dd { margin-bottom: 14px; line-height: 160%; }
+	</style>
+</head>
+
+<body>
+
+<div style="text-align: center; width: 100%; border: 1px solid #000000; background-color: #eeeeff;">
+VCSSL/VNANO PLUGIN INTERFACE SPECIFICATION
+</div>
+
+
+<h1>Array Data Accessor Interface 1 (ADAI1)<br />Specification Document<br /><span class="spec-path">(org.vcssl.connect.ArrayDataAccessorInterface1)</span></h1>
+
+<hr />
+
+
+
+<h2>Abstract</h2>
+
+<p>
+Array Data Accessor Interface 1 (ADAI1) is a data-I/O interface, mainly implemented by data container objects of language processor systems.
+</p>
+
+<p>
+In this org.vcssl.connect package, multiple data I/O interfaces are provided for passing/receiving data 
+without any data-conversions, between script-engine-side and plug-in-side, if required.
+</p>
+
+<p>
+In them, this interface ADAI1 provides I/O methods of multi-dimensional array data.
+</p>
+
+
+
+<h2>Status</h2>
+
+<p>
+The status of this interface is "FINALIZED".
+</p>
+
+<p>
+The specification of this interface had been finalized at 2022/08/31.
+No modifications will be applied for this interface, excluding documents/comments.
+</p>
+
+<p>
+This interface is currently supported by the scripting engine of Vnano. 
+You can use this interface for development of plug-ins of applications equipped with the Vnano engine.
+</p>
+
+
+<h2>License</h2>
+
+<p>
+This interface is published under CC0, which is almost the same as the so-called "copyright-free" (domain).
+</p>
+
+
+<h2>List of Fields/Methods</h2>
+
+<dl class="spec-dl">
+
+	<dt><a href="#type-param">Type Parameter</a></dt>
+		<dd>
+			This interface has a type parameter T, which should be specified when instantiate a class implementing this interface.
+		</dd>
+
+	<dt><a href="#INTERFACE_TYPE_ID">INTERFACE_TYPE_ID</a></dt>
+		<dd>
+			The type ID of this interface (value: "ADAI") referred when the plug-in will be loaded.
+		</dd>
+
+	<dt><a href="#INTERFACE_GENERATION">INTERFACE_GENERATION</a></dt>
+		<dd>
+			The generation of this interface (value: "1").
+		</dd>
+
+	<dt><a href="#ARRAY_SIZE_OF_SCALAR">ARRAY_SIZE_OF_SCALAR</a></dt>
+		<dd>
+			The value of size of a scalar value (value: 1).
+		</dd>
+
+	<dt><a href="#ARRAY_RANK_OF_SCALAR">ARRAY_RANK_OF_SCALAR</a></dt>
+		<dd>
+			The number of dimensions (array-rank) of a scalar value (value: 0).
+		</dd>
+
+	<dt><a href="#ARRAY_LENGTHS_OF_SCALAR">ARRAY_LENGTHS_OF_SCALAR</a></dt>
+		<dd>
+			An array storing dimension-lengths of a scalar value (value: { }),
+		</dd>
+
+	<dt><a href="#setArrayData">void setArrayData(T data, int offset, int[] lengths)</a></dt>
+		<dd>
+			Sets the serialized 1D array data with related information.
+		</dd>
+
+	<dt><a href="#getArrayData">T getArrayData()</a></dt>
+		<dd>
+			Returns the serialized 1D array data.
+		</dd>
+
+	<dt><a href="#hasArrayData">boolean hasArrayData()</a></dt>
+		<dd>
+			Returns whether any serialized 1D array data can be gotten
+		</dd>
+
+	<dt><a href="#getArrayOffset">int getArrayOffset()</a></dt>
+		<dd>
+			Returns the index of the scalar value in the serialized 1D array data.
+		</dd>
+
+	<dt><a href="#getArrayLengths">int[] getArrayLengths()</a></dt>
+		<dd>
+			Returns the array storing lengths of dimensions of the array.
+		</dd>
+
+	<dt><a href="#getArraySize">int getArraySize()</a></dt>
+		<dd>
+			Returns the size (lenth) of the serialized 1D array data.
+		</dd>
+
+	<dt><a href="#getArrayRank">int getArrayRank()</a></dt>
+		<dd>
+			Returns the number of dimensions (array-rank) of the array.
+		</dd>
+
+</dl>
+
+
+
+<hr />
+
+
+<h2 id="type-param">Type Parameter</h2>
+
+<p>
+This interface has a type parameter T, which should be specified when instantiate a class implementing this interface, as follows:
+</p>
+
+<p style="margin-left: 50px;">
+	ArrayDataAccessorInterface1&lt;double[]&gt; instance = new ImplClass&lt;double[]&gt;();
+</p>
+
+<p>
+Whete "ImplClass" implements this ADAI 1 interface. In the above, "double[]" is the type parameter.
+<br />
+In this document, we describe the type parameter as "T".
+</p>
+
+<!-- ==================================================================================================== -->
+
+<h2>Fields</h2>
+
+<table id="INTERFACE_TYPE_ID" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">INTERFACE_TYPE_ID</th>
+	</tr>
+	<tr>
+		<td class="lcol">Value</td>
+		<td class="rcol">The type ID of this interface (value: "ADAI") referred when the plug-in will be loaded.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Type</td>
+		<td class="rcol">static final String</td>
+	</tr>
+</table>
+
+
+<table id="INTERFACE_GENERATION" class="spec-table">
+	<tr>
+		<th class="lcol">Name</th>
+		<th class="rcol">INTERFACE_GENERATION</th>
+	</tr>
+	<tr>
+		<td class="lcol">Value</td>
+		<td class="rcol">The generation of this interface (value: "1").</td>
+	</tr>
+	<tr>
+		<td class="lcol">Type</td>
+		<td class="rcol">static final String</td>
+	</tr>
+</table>
+
+
+<table id="ARRAY_SIZE_OF_SCALAR" class="spec-table">
+	<tr>
+		<td class="lcol">Name</td>
+		<th class="rcol">ARRAY_SIZE_OF_SCALAR</th>
+	</tr>
+	<tr>
+		<td class="lcol">Value</td>
+		<td class="rcol">The value of the size of a scalar value (value: 1).</td>
+	</tr>
+	<tr>
+		<td class="lcol">Type</td>
+		<td class="rcol">static final int</td>
+	</tr>
+</table>
+
+
+
+<table id="ARRAY_RANK_OF_SCALAR" class="spec-table">
+	<tr>
+		<td class="lcol">Name</td>
+		<th class="rcol">ARRAY_RANK_OF_SCALAR</th>
+	</tr>
+	<tr>
+		<td class="lcol">Value</td>
+		<td class="rcol">The number of dimensions (array-rank) of a scalar value (value: 0).</td>
+	</tr>
+	<tr>
+		<td class="lcol">Type</td>
+		<td class="rcol">static final int</td>
+	</tr>
+</table>
+
+
+<table id="ARRAY_LENGTHS_OF_SCALAR" class="spec-table">
+	<tr>
+		<td class="lcol">Name</td>
+		<th class="rcol">ARRAY_LENGTHS_OF_SCALAR</th>
+	</tr>
+	<tr>
+		<td class="lcol">Value</td>
+		<td class="rcol">An array storing dimension-lengths of a scalar value (value: { }).</td>
+	</tr>
+	<tr>
+		<td class="lcol">Type</td>
+		<td class="rcol">static final int[ ]</td>
+	</tr>
+</table>
+
+
+
+
+
+<!-- ==================================================================================================== -->
+
+<h2>Methods</h2>
+
+
+
+
+<table id="setArrayData" class="spec-table">
+	<tr>
+		<td class="lcol">Name</td>
+		<th class="rcol">setArrayData</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">void setArrayData(T data, int offset, int[] lengths)</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">
+			
+			<p style="margin-top: 0px;">
+			Sets the serialized 1D array data with related information.
+			</p>
+			
+			<p>
+			On this interface, contents of any data including a scalar value, an 1-dimensional (1D) array, 
+			and a multi-dimensional array are always handled as an 1D array, 
+			so specify an 1D array for the argument "data". 
+			We call it as "serialized 1D array data" in this document.
+			</p>
+			
+			<p>
+			<b>When set a scalar value:</b>
+			For the argument "data", specify an 1D array in which the scalar value is stored as an element, at any index.
+			In addition, specify the array-index of the stored scalar value to the argument "offset".
+			For the argument "lengths", specify an empty array of which length is 0
+			(so we regard an scalar value as a "0-dimensional array" on this interface).
+			</p>
+			
+			<p>
+			<b>When set 1-dimensional array data:</b>
+			For the argument "data", specify the 1-D array data as it is. 
+			For the argument "offset", always specify 0.
+			For the argument "lengths", specify an array of which length is 1, 
+			and stores the length of array data (specified to the argument "data") at [0].
+			</p>
+			
+			<p>
+			<b>When set multi-dimensional array data:</b>
+			For the argument "data", specify the serialized 1D array in which data of multi-dimensional array is aligned
+			in the form of: 
+			</span>
+			
+			<div class="lang-ja" style="border: 1px solid #000000; margin: 5px; padding: 3px;">
+			    (The case of 2D array: multiDimArray[N1][N2])
+			    <br>
+			    <span style="margin-left: 30px;">data[ index1D ] = multiDimArray[ multiIndex1 ][ multiIndex2 ]</span>
+			    <br>
+			    Where "index1D" is determined as follows:
+			    <br>
+			    <span style="margin-left: 30px;">index1D = N2*multiIndex1 + multiIndex3</span>
+			</div>
+			
+			<div class="lang-ja" style="border: 1px solid #000000; margin: 5px; padding: 3px;">
+			    (The case of 3D array: multiDimArray[N1][N2][N3])
+			    <br>
+			    <span style="margin-left: 30px;">data[ index1D ] = multiDimArray[ multiIndex1 ][ multiIndex2 ][ multiIndex3 ]</span>
+			    <br>
+			    Where "index1D" is determined as follows:
+			    <br>
+			    <span style="margin-left: 30px;">index1D = N3*N2*multiIndex1 + N3*multiIndex2 + multiIndex3</span>
+			</div>
+			
+			<div class="lang-ja" style="border: 1px solid #000000; margin: 5px; padding: 3px;">
+			    (The case of 4D array: multiDimArray[N1][N2][N3][N4])
+			    <br>
+			    <span style="margin-left: 30px;">data[ index1D ] = multiDimArray[ multiIndex1 ][ multiIndex2 ][ multiIndex3 ][ multiIndex4 ]</span>
+			    <br>
+			    Where "index1D" is determined as follows:
+			    <br>
+			    <span style="margin-left: 30px;">index1D = N4*N3*N2*multiIndex1 + N4*N3*multiIndex2 + N4*multiIndex3 + multiIndex4</span>
+			</div>
+			...
+			</p>
+			
+			<p>
+			For the argument "offset", always specify 0.
+			For the argument "lengths", specify an array of which length equals to the number of dimensions of the serialized 1D data array, 
+			and stores lengths of each dimension, 
+			where [0] represents the length of most-left dimension, and [max] represents the length of most-right dimension
+			(so specify {N1, N2, N3} for 3D array data of which lengths are [N1][N2][N3]).
+			</p>
+			
+			<p>
+			By the way, methods for setting a value "data", "offset", or "lengths" independently are not provided,
+			for preventing inconsistency between them (never allowed even for a moment).
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">
+			data: The serialized 1D array data to be set (see the above explanation).
+			<br />
+			offset: The index at with the scalar value is stored.
+			<br />
+			lengths: An array storing lengths of each dimension (see the above explanation).
+			</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">None</td>
+	</tr>
+</table>
+
+
+
+
+
+
+<table id="getArrayData" class="spec-table">
+	<tr>
+		<td class="lcol">Name</td>
+		<th class="rcol">getArrayData</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">T getArrayData()</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">
+			Returns the serialized 1D the array data.
+			<br />
+			How a scalar or a multi dimensional array is stored in the serialized 1D array data 
+			is explained in the section of <a href="#setArrayData">setArrayData</a> method.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">None</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">The serialized 1D array data.</td>
+	</tr>
+</table>
+
+
+
+<table id="hasArrayData" class="spec-table">
+	<tr>
+		<td class="lcol">Name</td>
+		<th class="rcol">hasArrayData</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">boolean hasArrayData()</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">
+			Returns whether any serialized 1D array data can be gotten.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">None</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">Returns true if any serialized 1D array data can be gotton.</td>
+	</tr>
+</table>
+
+
+
+<table id="getArrayOffset" class="spec-table">
+	<tr>
+		<td class="lcol">Name</td>
+		<th class="rcol">getArrayOffset</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">int getArrayOffset()</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">
+			Returns the index of the scalar value in the serialized 1D array data.
+			For details, see the description of <a href="#setArrayData">setArrayData</a> method.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">None</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">The index of the scalar value in the serialized 1D array data.</td>
+	</tr>
+</table>
+
+
+
+<table id="getArrayLengths" class="spec-table">
+	<tr>
+		<td class="lcol">Name</td>
+		<th class="rcol">getArrayLengths</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">int[] getArrayLengths()</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">
+			Returns the array storing lengths of dimensions of the array.
+			For details, see the description of <a href="#setArrayData">setArrayData</a> method.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">None</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">The array storing lengths of dimensions of the array.</td>
+	</tr>
+</table>
+
+
+<table id="getArraySize" class="spec-table">
+	<tr>
+		<td class="lcol">Name</td>
+		<th class="rcol">getArraySize</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">int getArraySize()</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">
+			Returns the size (lenth) of the serialized 1D array data.
+			<br />
+			When data is a scalar value, the size always is 1.
+			<br />
+			When data is an 1-dimensional array, the size is its length.
+			<br />
+			When data is a multi-dimensional array of which lengths are [N1][N2][N3]...[NM], 
+			the size is the value of the product of them: N1*n2*n3*...*NM.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">None</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">The size (lenth) of the serialized 1D array data.</td>
+	</tr>
+</table>
+
+
+<table id="getArrayRank" class="spec-table">
+	<tr>
+		<td class="lcol">Name</td>
+		<th class="rcol">getArrayRank</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">int getArrayRank()</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">
+			Returns the number of dimensions (array-rank) of the array.
+			<br />
+			When data is a scalar value, the array-rank always is 0.
+			<br />
+			When data is an 1-dimensional array, the array-rank always is 1.
+			<br />
+			When data is an N-dimensional array, the array-rank is N.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">None</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">The number of dimensions (array-rank) of multi-dimensional array data.</td>
+	</tr>
+</table>
+
+
+
+</body>
+</html>
