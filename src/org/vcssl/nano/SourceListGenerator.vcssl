@@ -46,7 +46,7 @@ const string EXCLUDED_DIRECTORY_PATHS[] = { "./META-INF", "./example", "./dev" }
 
 // Specify regular-expressions of filenames you want to exclude from the output content.
 // コンパイル対象から除外したいファイルにおける、ファイル名の正規表現を指定します。
-const string EXCLUDED_FILENAME_REGEX[] = { ".*Test\\.java" };
+const string EXCLUDED_FILENAME_REGEX[] = { "(?!.*Combined).+Test\\.java" };  // 「...CombinedTest.java」以外の「...Test.java」を除外指定 (単体テストは除外するが結合テストは除外しない)
 
 
 // The entry point of this script. This function will be executed automatically. 
