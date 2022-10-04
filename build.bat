@@ -8,7 +8,7 @@
 
 mkdir bin
 cd src
-javac @sourcelist.txt -d ../bin -encoding UTF-8
+javac @org/vcssl/nano/sourcelist.txt -d ../bin -encoding UTF-8
 cd ..
 
 :: --------------------------------------------------
