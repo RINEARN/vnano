@@ -13,7 +13,7 @@
 			<manifest>
 				<attribute name="Main-Class" value="org.vcssl.nano.main.VnanoCommandLineApplication" />
 			</manifest>
-			<fileset dir="${build.srcdir}">
+			<fileset dir="${build.srcdir}/org/vcssl/nano/meta">
 				<include name="META-INF/services/*" />
 			</fileset>
 		</jar>
