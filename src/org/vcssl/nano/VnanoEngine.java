@@ -388,6 +388,16 @@ public final class VnanoEngine {
 
 
 	/**
+	 * Returns whether {VnanoEngine#getPerformanceMap() getPerformanceMap()} method can return a Map.
+	 * 
+	 * @return Returns true if {VnanoEngine#getPerformanceMap() getPerformanceMap()} method can return a Map.
+	 */
+	public boolean hasPerformanceMap() {
+		return (boolean)this.interconnect.getOptionMap().get(OptionKey.PERFORMANCE_MONITOR_ENABLED);
+	}
+
+
+	/**
 	 * Gets the Map (performance map) storing names and values of performance monitoring items.
 	 * 
 	 * Note that, when some measured values for some monitoring items don't exist

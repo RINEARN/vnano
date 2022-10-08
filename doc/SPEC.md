@@ -113,6 +113,13 @@ The following is the list of all methods of Vnano Engine (org.vcssl.nano.VnanoEn
 | Exception | None |
 
 
+| Signature | boolean hasPerformanceMap() |
+|:---|:---|
+| Description | Returns whether getPerformanceMap() method can return a Map. |
+| Parameters | None |
+| Return | Returns true if getPerformanceMap() method can return a Map |
+| Exception | None |
+
 
 | Signature | Map&lt;String, Object&gt; getPerformanceMap() |
 |:---|:---|
