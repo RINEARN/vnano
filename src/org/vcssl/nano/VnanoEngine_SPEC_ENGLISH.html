@@ -89,6 +89,11 @@ The class of the scripting engine of the Vnano (Vnano Engine).
 			Sets options, by a Map (option map) storing names and values of options you want to set.
 		</dd>
 
+	<dt><a href="#hasOptionMap">boolean hasOptionMap()</a></dt>
+		<dd>
+			Returns whether getOptionMap() method can return a Map.
+		</dd>
+
 	<dt><a href="#getOptionMap">Map&lt;String,Object&gt; getOptionMap()</a></dt>
 		<dd>
 			Gets the Map (option map) storing names and values of options.
@@ -99,12 +104,12 @@ The class of the scripting engine of the Vnano (Vnano Engine).
 			Sets permissions, by a Map (permission map) storing names and values of permission items you want to set.
 		</dd>
 
-	<dt><a href="#getOptionMap">Map&lt;String,String&gt; getPermissionMap()</a></dt>
+	<dt><a href="#getPermissionMap">Map&lt;String,String&gt; getPermissionMap()</a></dt>
 		<dd>
 			Gets the Map (permission map) storing names and values of permission items.
 		</dd>
 
-	<dt><a href="#getOptionMap">Map&lt;String,Object&gt; getPerformanceMap()</a></dt>
+	<dt><a href="#getPermissionMap">Map&lt;String,Object&gt; getPerformanceMap()</a></dt>
 		<dd>
 			Gets the Map (performance map) storing names and values of performance monitoring items.
 		</dd>
@@ -523,6 +528,42 @@ The class of the scripting engine of the Vnano (Vnano Engine).
 		<td class="lcol">Exception</td>
 		<td class="rcol">
 			VnanoException: Thrown if invalid option settings is detected.
+		</td>
+	</tr>
+</table>
+
+
+<table id="hasOptionMap" class="spec-table">
+	<tr>
+		<td class="lcol">Name</td>
+		<th class="rcol">hasOptionMap</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">boolean hasOptionMap()</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">
+			Returns whether <a href="#getOptionMap">getOptionMap()</a> method can return a Map.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">
+			None
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">
+			Returns true if <a href="#getOptionMap">getOptionMap()</a> method can return a Map.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Exception</td>
+		<td class="rcol">
+			None
 		</td>
 	</tr>
 </table>

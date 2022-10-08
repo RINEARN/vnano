@@ -85,6 +85,11 @@ Vnanoのスクリプトエンジン（Vnanoエンジン）のクラスです。
 			オプションの名前と値を格納するマップ（オプションマップ）によって、オプションを設定します。
 		</dd>
 
+	<dt><a href="#hasOptionMap">boolean hasOptionMap()</a></dt>
+		<dd>
+			「getOptionMap() メソッドがマップを返せるかどうか」を判定します。
+		</dd>
+
 	<dt><a href="#getOptionMap">Map&lt;String,Object&gt; getOptionMap()</a></dt>
 		<dd>
 			オプションの名前と値を格納するマップ（オプションマップ）を取得します。
@@ -95,12 +100,12 @@ Vnanoのスクリプトエンジン（Vnanoエンジン）のクラスです。
 			パーミッション項目の名前と値を格納するマップ（パーミッションマップ）によって、各パーミッションの値を設定します。
 		</dd>
 
-	<dt><a href="#getOptionMap">Map&lt;String,String&gt; getPermissionMap()</a></dt>
+	<dt><a href="#getPermissionMap">Map&lt;String,String&gt; getPermissionMap()</a></dt>
 		<dd>
 			パーミッション項目の名前と値を格納するマップ（パーミッションマップ）を取得します。
 		</dd>
 
-	<dt><a href="#getOptionMap">Map&lt;String,Object&gt; getPerformanceMap()</a></dt>
+	<dt><a href="#getPermissionMap">Map&lt;String,Object&gt; getPerformanceMap()</a></dt>
 		<dd>
 			パフォーマンスモニタの計測項目名と値を格納するマップ（パフォーマンスマップ）を取得します。
 		</dd>
@@ -477,6 +482,36 @@ Vnanoのスクリプトエンジン（Vnanoエンジン）のクラスです。
 	<tr>
 		<td class="lcol">例外</td>
 		<td class="rcol">VnanoException: オプションの指定内容が正しくなかった場合にスローされます。</td>
+	</tr>
+</table>
+
+
+<table id="hasOptionMap" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">hasOptionMap</th>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">boolean hasOptionMap()</td>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">
+			「<a href="#getOptionMap">getOptionMap()</a> メソッドがマップを返せるかどうか」を判定します。
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">なし</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol"><a href="#getOptionMap">getOptionMap()</a> メソッドがマップを返せる場合に true が返されます。</td>
+	</tr>
+	<tr>
+		<td class="lcol">例外</td>
+		<td class="rcol">なし</td>
 	</tr>
 </table>
 

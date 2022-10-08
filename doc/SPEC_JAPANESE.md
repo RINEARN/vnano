@@ -71,6 +71,14 @@
 | 例外 | オプションの指定内容が正しくなかった場合に VnanoException がスローされます。 |
 
 
+| 形式 | boolean hasOptionMap() |
+|:---|:---|
+| 説明 | 「getOptionMap() メソッドがマップを返せるかどうか」を判定します。 |
+| 引数 | なし |
+| <span style="white-space: nowrap;">戻り値</span> | getOptionMap() メソッドがマップを返せる場合に true、返せない場合は false |
+| 例外 | なし |
+
+
 | 形式 | Map&lt;String,Object&gt; getOptionMap() |
 |:---|:---|
 | 説明 | オプションの名前と値を格納するマップ（オプションマップ）を取得します。 |

@@ -320,6 +320,16 @@ public final class VnanoEngine {
 
 
 	/**
+	 * Returns whether {VnanoEngine#getOptionMap() getOptionMap()} method can return a Map.
+	 * 
+	 * @return Returns true if {VnanoEngine#getOptionMap() getOptionMap()} method can return a Map.
+	 */
+	public boolean hasOptionMap() {
+		return this.interconnect.getOptionMap() != null;
+	}
+
+
+	/**
 	 * Gets the Map (option map) storing names and values of options.
 	 * 
 	 * Type of the option map is Map<String,Object>, and its keys represents option names.

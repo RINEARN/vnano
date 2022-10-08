@@ -72,6 +72,14 @@ The following is the list of all methods of Vnano Engine (org.vcssl.nano.VnanoEn
 | Exception | VnanoException will be thrown if invalid option settings is detected. |
 
 
+| Signature | boolean hasOptionMap() |
+|:---|:---|
+| Description | Returns whether getOptionMap() method can return a Map. |
+| Parameters | None |
+| Return | Returns true if getOptionMap() method can return a Map |
+| Exception | None |
+
+
 | Signature | Map&lt;String,Object&gt; getOptionMap() |
 |:---|:---|
 | Description | Gets the Map (option map) storing names and values of options. |
