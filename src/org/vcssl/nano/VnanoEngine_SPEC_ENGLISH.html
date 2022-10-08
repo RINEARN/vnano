@@ -54,12 +54,17 @@ The class of the scripting engine of the Vnano (Vnano Engine).
 			Executes an expression or script code specified as the argument.
 		</dd>
 
-	<dt><a href="#setBoolScalarData">void terminateScript()</a></dt>
+	<dt><a href="#terminateScript">void terminateScript()</a></dt>
 		<dd>
 			Terminates the currently running script as soon as possible.
 		</dd>
 
-	<dt><a href="#getBoolScalarData">void resetTerminator()</a></dt>
+	<dt><a href="#isTerminatorEnabled">boolean isTerminatorEnabled()</a></dt>
+		<dd>
+			Returns whether the "terminator" which is the feature to terminate scripts, is enabled.
+		</dd>
+
+	<dt><a href="#resetTerminator">void resetTerminator()</a></dt>
 		<dd>
 			Resets the engine which had terminated by <a href="#terminateScript">terminateScript()</a> method, for processing new scripts.
 		</dd>
@@ -275,6 +280,53 @@ The class of the scripting engine of the Vnano (Vnano Engine).
 </table>
 
 
+<table id="isTerminatorEnabled" class="spec-table">
+	<tr>
+		<td class="lcol">Name</td>
+		<th class="rcol">isTerminatorEnabled</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">boolean isTerminatorEnabled()</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			Returns whether the "terminator" which is the feature to terminate scripts, is enabled.
+			</p>
+			<p>
+			If this method returns true, <a href="#terminateScript">terminateScript()</a> method and
+			<a href="#resetTerminator">resetTerminator()</a> method are available.
+			</p>
+			<p>
+			Please note that, even when this method returns true, some errors may occur in the termination processes 
+			(for example, erros caused by failures of finalization processes of the connected plug-ins, and so on).
+			For details, see the explanation about exceptions, 
+			in the description of <a href="#terminateScript">terminateScript()</a> method.
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">
+			None
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">
+			None
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Exception</td>
+		<td class="rcol">
+			None
+		</td>
+	</tr>
+</table>
+
 
 <table id="resetTerminator" class="spec-table">
 	<tr>
@@ -314,6 +366,10 @@ The class of the scripting engine of the Vnano (Vnano Engine).
 		<td class="lcol">Exception</td>
 		<td class="rcol">
 			VnanoException: Thrown when the option {@link org.vcssl.spec.OptionKey#TERMINATOR_ENABLED} is disabled.
+			Note that, if any exceptions occurred on the finalization processes of the connected plug-ins, 
+			it will be throws by the currently running 
+			<a href="#executeScript">executeScript(String script)</a> method, not by this method.
+			This method throws the exception only when it failed requesting the termination.
 		</td>
 	</tr>
 </table>

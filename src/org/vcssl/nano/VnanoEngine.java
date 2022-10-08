@@ -187,12 +187,35 @@ public final class VnanoEngine {
 	 *
 	 * @throws VnanoException
 	 *       Thrown when the option {@link org.vcssl.spec.OptionKey#TERMINATOR_ENABLED} is disabled.
+	 *       Note that, if any exceptions occurred on the finalization processes of the connected plug-ins, 
+	 *       it will be throws by the currently running 
+	 *       {@link VnanoEngine#executeScript(String script) executeScript(String script)} method, 
+	 *       not by this method.
+	 *       This method throws the exception only when it failed in requesting the termination.
 	 */
 	public void terminateScript() throws VnanoException {
 		if (! (boolean)this.interconnect.getOptionMap().get(OptionKey.TERMINATOR_ENABLED) ) {
 			throw new VnanoException(ErrorType.TERMINATOR_IS_DISABLED);
 		}
 		this.virtualMachine.terminate();
+	}
+
+
+	/**
+	 * Returns whether the "terminator" which is the feature to terminate scripts, is enabled.
+	 * 
+	 * If this method returns true, {@link VnanoEngine#terminateScript() terminateScript()} method and
+	 * {@link VnanoEngine#resetTerminator() resetTerminator()} method are available.
+	 * 
+	 * Please note that, even when this method returns true, some errors may occur in the termination processes 
+	 * (for example, erros caused by failures of finalization processes of the connected plug-ins, and so on).
+	 * For details, see the explanation about exceptions, 
+	 * in the description of {@link VnanoEngine#terminateScript() terminateScript()} method.
+	 * 
+	 * @return Returns true if the "terminator" is enabled.
+	 */
+	public boolean isTerminatorEnabled() {
+		return (boolean)this.interconnect.getOptionMap().get(OptionKey.TERMINATOR_ENABLED);
 	}
 
 

@@ -31,6 +31,23 @@
 | <span style="white-space: nowrap;">戻り値</span> | なし |
 | 例外 | TERMINATOR_ENABLED オプションが無効化されていた場合に VnanoException がスローされます。 |
 
+
+| 形式 | boolean isTerminatorEnabled() |
+|:---|:---|
+| 説明 | <p>スクリプトを途中で終了させるための機能（ターミネーター）が、有効化されているかどうかを返します。</p> <p>このメソッドが true を返す場合には、terminateScript(String script) メソッドや resetTerminator() メソッドが利用可能です。</p> <p>なお、このメソッドが true を返す場合であっても、終了処理において何らかのエラーは生じ得る事にご注意ください（例えば、接続されているプラグインが、スクリプト実行毎の終了時処理に失敗する可能性などがあります）。詳細は、terminateScript(String script) メソッドの例外に関する説明をご参照ください。</p> 
+| 引数 | なし |
+| <span style="white-space: nowrap;">戻り値</span> | スクリプトを途中で終了させるための機能（ターミネーター）が、有効化されている場合に true が返されます。 |
+| 例外 | なし |
+
+
+| 形式 | void resetTerminator() |
+|:---|:---|
+| 説明 | <p>terminateScript()<メソッドによって終了させたエンジンを、再び(新規)スクリプト実行可能な状態に戻します。</p> <p>なお、このメソッドの呼び出しと新規実行リクエストが、別スレッドからシビアに競合したタイミングで行われた場合には、スクリプトは実行されない可能性がある事に留意してください。</p> 
+| 引数 | なし |
+| <span style="white-space: nowrap;">戻り値</span> | なし |
+| 例外 | なし |
+
+
 | 形式 | void connectPlugin(String bindingName, Object plugin) |
 |:---|:---|
 | 説明 | 外部関数/変数などを提供する、各種のプラグインを接続します。 |
