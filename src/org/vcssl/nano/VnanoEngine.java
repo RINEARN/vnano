@@ -363,6 +363,16 @@ public final class VnanoEngine {
 
 
 	/**
+	 * Returns whether {VnanoEngine#getPermissionMap() getPermissionMap()} method can return a Map.
+	 * 
+	 * @return Returns true if {VnanoEngine#getPermissionMap() getPermissionMap()} method can return a Map.
+	 */
+	public boolean hasPermissionMap() {
+		return this.interconnect.getPermissionMap() != null;
+	}
+
+
+	/**
 	 * Gets the Map (permission map) storing names and values of permission items.
 	 * 
 	 * Type of the permission map is Map<String,String>, and its keys represents names of permission items.

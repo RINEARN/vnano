@@ -96,6 +96,14 @@
 | 例外 | パーミッションの指定内容が正しくなかった場合に VnanoException がスローされます。 |
 
 
+| 形式 | boolean hasPermissionMap() |
+|:---|:---|
+| 説明 | 「getPermissionMap() メソッドがマップを返せるかどうか」を判定します。 |
+| 引数 | なし |
+| <span style="white-space: nowrap;">戻り値</span> | getPermissionMap() メソッドがマップを返せる場合に true、返せない場合は false |
+| 例外 | なし |
+
+
 | 形式 | Map&lt;String,String&gt; getPermissionMap() |
 |:---|:---|
 | 説明 | パーミッション項目の名前と値を格納するマップ（パーミッションマップ）を取得します。 |

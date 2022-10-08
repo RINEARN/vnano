@@ -97,6 +97,14 @@ The following is the list of all methods of Vnano Engine (org.vcssl.nano.VnanoEn
 | Exception | VnanoException will be thrown if invalid permission settings is detected. |
 
 
+| Signature | boolean hasPermissionMap() |
+|:---|:---|
+| Description | Returns whether getPermissionMap() method can return a Map. |
+| Parameters | None |
+| Return | Returns true if getPermissionMap() method can return a Map |
+| Exception | None |
+
+
 | Signature | Map&lt;String,String&gt; getPermissionMap() |
 |:---|:---|
 | Description | Gets the Map (permission map) storing names and values of permission items. |

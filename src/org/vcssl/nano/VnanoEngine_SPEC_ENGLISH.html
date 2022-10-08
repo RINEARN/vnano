@@ -104,6 +104,11 @@ The class of the scripting engine of the Vnano (Vnano Engine).
 			Sets permissions, by a Map (permission map) storing names and values of permission items you want to set.
 		</dd>
 
+	<dt><a href="#hasPermissionMap">boolean hasPermissionMap()</a></dt>
+		<dd>
+			Returns whether getPermissionMap() method can return a Map.
+		</dd>
+
 	<dt><a href="#getPermissionMap">Map&lt;String,String&gt; getPermissionMap()</a></dt>
 		<dd>
 			Gets the Map (permission map) storing names and values of permission items.
@@ -648,6 +653,42 @@ The class of the scripting engine of the Vnano (Vnano Engine).
 		<td class="lcol">Exception</td>
 		<td class="rcol">
 			VnanoException: Thrown if invalid permission settings is detected.
+		</td>
+	</tr>
+</table>
+
+
+<table id="hasPermissionMap" class="spec-table">
+	<tr>
+		<td class="lcol">Name</td>
+		<th class="rcol">hasPermissionMap</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">boolean hasPermissionMap()</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">
+			Returns whether <a href="#getPermissionMap">getPermissionMap()</a> method can return a Map.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">
+			None
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">
+			Returns true if <a href="#getPermissionMap">getPermissionMap()</a> method can return a Map.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Exception</td>
+		<td class="rcol">
+			None
 		</td>
 	</tr>
 </table>

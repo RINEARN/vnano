@@ -100,6 +100,11 @@ Vnanoのスクリプトエンジン（Vnanoエンジン）のクラスです。
 			パーミッション項目の名前と値を格納するマップ（パーミッションマップ）によって、各パーミッションの値を設定します。
 		</dd>
 
+	<dt><a href="#hasPermissionMap">boolean hasPermissionMap()</a></dt>
+		<dd>
+			「getPermissionMap() メソッドがマップを返せるかどうか」を判定します。
+		</dd>
+
 	<dt><a href="#getPermissionMap">Map&lt;String,String&gt; getPermissionMap()</a></dt>
 		<dd>
 			パーミッション項目の名前と値を格納するマップ（パーミッションマップ）を取得します。
@@ -585,6 +590,36 @@ Vnanoのスクリプトエンジン（Vnanoエンジン）のクラスです。
 	<tr>
 		<td class="lcol">例外</td>
 		<td class="rcol">VnanoException: パーミッションの指定内容が正しくなかった場合にスローされます。</td>
+	</tr>
+</table>
+
+
+<table id="hasPermissionMap" class="spec-table">
+	<tr>
+		<th class="lcol">名前</th>
+		<th class="rcol">hasPermissionMap</th>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">boolean hasPermissionMap()</td>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">
+			「<a href="#getPermissionMap">getPermissionMap()</a> メソッドがマップを返せるかどうか」を判定します。
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">なし</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol"><a href="#getPermissionMap">getPermissionMap()</a> メソッドがマップを返せる場合に true が返されます。</td>
+	</tr>
+	<tr>
+		<td class="lcol">例外</td>
+		<td class="rcol">なし</td>
 	</tr>
 </table>
 
