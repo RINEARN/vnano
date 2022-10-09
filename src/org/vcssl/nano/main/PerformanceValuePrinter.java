@@ -151,38 +151,31 @@ public class PerformanceValuePrinter implements Runnable {
 			// The names of the currently executed instructions.
 			String[] currentOpcodeNames = new String[0];
 
-			// Measure performance values from the engine or the VM.
-			try {
+			// When we should measure/print performances of the VnanoEngine.
+			// (When we are executing a Vnano script.)
+			if (this.vnanoEngine != null && this.vnanoEngine.hasPerformanceMap()) {
+				Map<String, Object> performanceMap = this.vnanoEngine.getPerformanceMap();
 
-				// When we should measure/print performances of the VnanoEngine.
-				// (When we are executing a Vnano script.)
-				if (this.vnanoEngine != null) {
-					Map<String, Object> performanceMap = this.vnanoEngine.getPerformanceMap();
-
-					// Note: When no performance value has not been measured yet, no value is stored to the performance map.
-					if (performanceMap.containsKey(PerformanceKey.EXECUTED_INSTRUCTION_COUNT_INT_VALUE)) {
-						currentProcCount = (int)performanceMap.get(PerformanceKey.EXECUTED_INSTRUCTION_COUNT_INT_VALUE);
-					}
-					if (performanceMap.containsKey(PerformanceKey.CURRENTLY_EXECUTED_OPERATION_CODE)) {
-						currentOpcodeNames = (String[])performanceMap.get(PerformanceKey.CURRENTLY_EXECUTED_OPERATION_CODE);
-					}
+				// Note: When no performance value has not been measured yet, no value is stored to the performance map.
+				if (performanceMap.containsKey(PerformanceKey.EXECUTED_INSTRUCTION_COUNT_INT_VALUE)) {
+					currentProcCount = (int)performanceMap.get(PerformanceKey.EXECUTED_INSTRUCTION_COUNT_INT_VALUE);
 				}
-
-				// When we should measure/print performances of the VirtualMachine.
-				// (When we are executing a VRIL assembly code.)
-				if (this.virtualMachine != null) {
-
-					// Note: The following methods of the VM always return values, even when no performance value has not been measured yet.
-					currentProcCount = this.virtualMachine.getExecutedInstructionCountIntValue(); // Returns 0 when no value has not been measured.
-					OperationCode[] currentOpcodes = this.virtualMachine.getCurrentlyExecutedOperationCodes(); // Returns an empty array when no value has not been measured.
-					currentOpcodeNames = new String[ currentOpcodes.length ];
-					for (int i=0; i<currentOpcodes.length; i++) {
-						currentOpcodeNames[i] = currentOpcodes[i].toString();
-					}
+				if (performanceMap.containsKey(PerformanceKey.CURRENTLY_EXECUTED_OPERATION_CODE)) {
+					currentOpcodeNames = (String[])performanceMap.get(PerformanceKey.CURRENTLY_EXECUTED_OPERATION_CODE);
 				}
+			}
 
-			} catch (VnanoException vne) {
-				vne.printStackTrace();
+			// When we should measure/print performances of the VirtualMachine.
+			// (When we are executing a VRIL assembly code.)
+			if (this.virtualMachine != null) {
+
+				// Note: The following methods of the VM always return values, even when no performance value has not been measured yet.
+				currentProcCount = this.virtualMachine.getExecutedInstructionCountIntValue(); // Returns 0 when no value has not been measured.
+				OperationCode[] currentOpcodes = this.virtualMachine.getCurrentlyExecutedOperationCodes(); // Returns an empty array when no value has not been measured.
+				currentOpcodeNames = new String[ currentOpcodes.length ];
+				for (int i=0; i<currentOpcodes.length; i++) {
+					currentOpcodeNames[i] = currentOpcodes[i].toString();
+				}
 			}
 
 
