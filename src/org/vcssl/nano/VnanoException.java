@@ -12,7 +12,9 @@ import org.vcssl.nano.spec.ErrorType;
 
 
 /**
- * The exception class thrown when the (usual type of) error detected for contents or processing of scripts
+ * The exception class thrown when the (usual type of) error detected for contents or processing of scripts.
+ * 
+ * See also: {@link org.vcssl.nano.VnanoFatalException VnanoFatalException}.
  */
 @SuppressWarnings("serial")
 public class VnanoException extends Exception implements Cloneable {

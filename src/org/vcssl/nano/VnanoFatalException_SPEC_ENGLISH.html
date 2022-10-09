@@ -31,8 +31,37 @@
 <h2>Abstract</h2>
 
 <p>
-The exception class thrown when unexpected problems occurred in the script engine.
+The exception class thrown when an abnormal condition/problem has been detected in the scripting engine.
 </p>
+
+<p>
+For example, this exception will be thrown when it is strongly presumed that there is an incorrect something (e.g.: bugs) 
+in the implementation code of the scripting engine.
+</p>
+
+<p>
+In addition, 
+this exception will also be thrown when the operation of the scripting engine by the application is not following the expected (correct) procedure.
+<br />
+For example, if the application calls <a href="VnanoEngine_SPEC_JAPANESE.html#terminateScript">terminateScript()</a> method of the engine 
+although <a href="VnanoEngine_SPEC_JAPANESE.html#isTerminatorEnabled">isTerminatorEnabled()</a> method returns "false", 
+then this exception occurs.
+</p>
+
+<p>
+In principle, when implementations of both the scripting engine and the application are correct, this exception does not occur.
+<br />
+Conversely, if this error has occurred, it probably indicates that it requires to fix the implementation of the scripting engine or the application.
+<br />
+Hence, it is not recommended that "catch" this exception and ignore it casually.
+<br />
+For the above reason, this exception is designed as an "unchecked exception", which does not require to be encrosed by try/catch statements.
+</p>
+
+<p>
+See also: the document of <a href="VnanoException_SPEC_ENGLISH.html">VnanoException</a>.
+</p>
+
 
 
 
