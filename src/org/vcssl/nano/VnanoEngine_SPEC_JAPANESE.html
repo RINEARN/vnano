@@ -227,13 +227,13 @@ Vnanoのスクリプトエンジン（Vnanoエンジン）のクラスです。
 	</tr>
 	<tr>
 		<td class="lcol">宣言形式</td>
-		<td class="rcol">void terminateScript() throws VnanoException</td>
+		<td class="rcol">void terminateScript()</td>
 	</tr>
 	<tr>
 		<td class="lcol">機能</td>
 		<td class="rcol">
 			<p style="margin-top: 0px;">
-			現在実行中のスクリプトの処理を、可能な限り早期に放棄して終了させます
+			現在実行中のスクリプトの処理を、可能な限り早期に放棄して終了するようリクエストします。
 			</p>
 			<p>
 			より正確には、スクリプトからコンパイルされた命令列を処理している、エンジン内のVMが、
@@ -263,10 +263,14 @@ Vnanoのスクリプトエンジン（Vnanoエンジン）のクラスです。
 	<tr>
 		<td class="lcol">例外</td>
 		<td class="rcol">
-			VnanoException: 「TERMINATOR_ENABLED」オプションが無効化されていた場合にスローされます。
+			<p style="margin-top: 0px;">
+			VnanoFatalException (非検査例外): <a href="#isTerminatorEnabled">isTerminatorEnabled()</a> メソッドが false を返す状態で、このメソッドがコールされた場合にスローされます。
+			</p>
+			<p>
 			なお、スクリプトの終了時に通常発生し得る例外（プラグインの終了時処理の失敗など）については、このメソッド側ではなく、
 			実行中の <a href="executeScript">executeScript(String script)</a> メソッド側からスローされます。
 			このメソッドは、終了をリクエストする事自体に失敗した場合に例外をスローします。
+			</p>
 		</td>
 	</tr>
 </table>
@@ -286,6 +290,9 @@ Vnanoのスクリプトエンジン（Vnanoエンジン）のクラスです。
 		<td class="rcol">
 			<p style="margin-top: 0px;">
 			スクリプトを途中で終了させるための機能（ターミネーター）が、有効化されているかどうかを返します。
+			</p>
+			<p>
+			内部的には、このメソッドは「 TERMINATOR_ENABLED 」オプションの設定値を読んで返します。
 			</p>
 			<p>
 			このメソッドが true を返す場合には、
@@ -321,7 +328,7 @@ Vnanoのスクリプトエンジン（Vnanoエンジン）のクラスです。
 	</tr>
 	<tr>
 		<td class="lcol">宣言形式</td>
-		<td class="rcol">void resetTerminator() throws VnanoException</td>
+		<td class="rcol">void resetTerminator()</td>
 	</tr>
 	<tr>
 		<td class="lcol">機能</td>
@@ -346,7 +353,9 @@ Vnanoのスクリプトエンジン（Vnanoエンジン）のクラスです。
 	</tr>
 	<tr>
 		<td class="lcol">例外</td>
-		<td class="rcol">VnanoException: 「TERMINATOR_ENABLED」オプションが無効化されていた場合にスローされます。</td>
+		<td class="rcol">
+			VnanoFatalException (非検査例外): <a href="#isTerminatorEnabled">isTerminatorEnabled()</a> メソッドが false を返す状態で、このメソッドがコールされた場合にスローされます。
+		</td>
 	</tr>
 </table>
 
@@ -609,7 +618,9 @@ Vnanoのスクリプトエンジン（Vnanoエンジン）のクラスです。
 	</tr>
 	<tr>
 		<td class="lcol">例外</td>
-		<td class="rcol">なし</td>
+		<td class="rcol">
+			VnanoFatalException (非検査例外): <a href="#hasOptionMap">hasOptionMap()</a> メソッドが false を返す状態で、このメソッドがコールされた場合にスローされます。
+		</td>
 	</tr>
 </table>
 
@@ -712,7 +723,9 @@ Vnanoのスクリプトエンジン（Vnanoエンジン）のクラスです。
 	</tr>
 	<tr>
 		<td class="lcol">例外</td>
-		<td class="rcol">VnanoException: パーミッションマップの取得が許可されない場合にスローされます。</td>
+		<td class="rcol">
+			VnanoFatalException (非検査例外): <a href="#hasPermissionMap">hasPermissionMap()</a> メソッドが false を返す状態で、このメソッドがコールされた場合にスローされます。
+		</td>
 	</tr>
 </table>
 
@@ -730,7 +743,12 @@ Vnanoのスクリプトエンジン（Vnanoエンジン）のクラスです。
 	<tr>
 		<td class="lcol">機能</td>
 		<td class="rcol">
+			<p style="margin-top: 0px;">
 			「<a href="#getPerformanceMap">getPerformanceMap()</a> メソッドがマップを返せるかどうか」を判定します。
+			</p>
+			<p>
+			内部的には、このメソッドは「 PERFORMANCE_MONITOR_ENABLED 」オプションの設定値を読んで返します。
+			</p>
 		</td>
 	</tr>
 	<tr>
@@ -780,7 +798,9 @@ Vnanoのスクリプトエンジン（Vnanoエンジン）のクラスです。
 	</tr>
 	<tr>
 		<td class="lcol">例外</td>
-		<td class="rcol">VnanoException: 「PERFORMANCE_MONITOR_ENABLED」オプションが無効化されていた場合にスローされます。</td>
+		<td class="rcol">
+			VnanoFatalException (非検査例外): <a href="#hasPerformanceMap">hasPerformanceMap()</a> メソッドが false を返す状態で、このメソッドがコールされた場合にスローされます。
+		</td>
 	</tr>
 </table>
 

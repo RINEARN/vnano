@@ -169,7 +169,7 @@ public final class VnanoEngine {
 
 
 	/**
-	 * Terminates the currently running script as soon as possible.
+	 * Requests this engine to terminate the currently running script as soon as possible.
 	 * 
 	 * To be precise, the {@link org.vcssl.nano.vm.VirtualMachine VirtualMachine}
 	 * (which is processing instructions compiled from the script) in the engine

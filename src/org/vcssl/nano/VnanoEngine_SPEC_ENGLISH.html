@@ -233,13 +233,13 @@ The class of the scripting engine of the Vnano (Vnano Engine).
 	</tr>
 	<tr>
 		<td class="lcol">Signature</td>
-		<td class="rcol">void terminateScript() throws VnanoException</td>
+		<td class="rcol">void terminateScript()</td>
 	</tr>
 	<tr>
 		<td class="lcol">Description</td>
 		<td class="rcol">
 			<p style="margin-top: 0px;">
-			Terminates the currently running script as soon as possible.
+			Requests this engine to terminate the currently running script as soon as possible.
 			</p>
 			<p>
 			To be precise, the VM in the scripting engine
@@ -274,7 +274,16 @@ The class of the scripting engine of the Vnano (Vnano Engine).
 	<tr>
 		<td class="lcol">Exception</td>
 		<td class="rcol">
-			VnanoException: Thrown when the option {@link org.vcssl.spec.OptionKey#TERMINATOR_ENABLED} is disabled.
+			<p style="margin-top: 0px;">
+			VnanoFatalException (Unchecked Exception): 
+			Thrown if this method is called in a state in which <a href="#isTerminatorEnabled">isTerminatorEnabled()</a> returns false.
+			</p>
+			<p>
+			Note that, if any exceptions occurred on the finalization processes of the connected plug-ins, 
+			it will be throws by the currently running 
+			<a href="#executeScript">executeScript(String script)</a> method, not by this method.
+			This method throws the exception only when it failed requesting the termination.
+			</p>
 		</td>
 	</tr>
 </table>
@@ -294,6 +303,9 @@ The class of the scripting engine of the Vnano (Vnano Engine).
 		<td class="rcol">
 			<p style="margin-top: 0px;">
 			Returns whether the "terminator" which is the feature to terminate scripts, is enabled.
+			</p>
+			<p>
+			Internally, this method checks the value of "TERMINATOR_ENABLED" option (disabled by default) and returns it.
 			</p>
 			<p>
 			If this method returns true, <a href="#terminateScript">terminateScript()</a> method and
@@ -335,7 +347,7 @@ The class of the scripting engine of the Vnano (Vnano Engine).
 	</tr>
 	<tr>
 		<td class="lcol">Signature</td>
-		<td class="rcol">void resetTerminator() throws VnanoException</td>
+		<td class="rcol">void resetTerminator()</td>
 	</tr>
 	<tr>
 		<td class="lcol">Description</td>
@@ -365,11 +377,8 @@ The class of the scripting engine of the Vnano (Vnano Engine).
 	<tr>
 		<td class="lcol">Exception</td>
 		<td class="rcol">
-			VnanoException: Thrown when the option {@link org.vcssl.spec.OptionKey#TERMINATOR_ENABLED} is disabled.
-			Note that, if any exceptions occurred on the finalization processes of the connected plug-ins, 
-			it will be throws by the currently running 
-			<a href="#executeScript">executeScript(String script)</a> method, not by this method.
-			This method throws the exception only when it failed requesting the termination.
+			VnanoFatalException (Unchecked Exception): 
+			Thrown if this method is called in a state in which <a href="#isTerminatorEnabled">isTerminatorEnabled()</a> returns false.
 		</td>
 	</tr>
 </table>
@@ -671,7 +680,8 @@ The class of the scripting engine of the Vnano (Vnano Engine).
 	<tr>
 		<td class="lcol">Exception</td>
 		<td class="rcol">
-			None
+			VnanoFatalException (Unchecked Exception): 
+			Thrown if this method is called in a state in which <a href="#hasOptionMap">hasOptionMap()</a> returns false.
 		</td>
 	</tr>
 </table>
@@ -762,7 +772,7 @@ The class of the scripting engine of the Vnano (Vnano Engine).
 	</tr>
 	<tr>
 		<td class="lcol">Signature</td>
-		<td class="rcol">Map&lt;String,String&gt; getPermissionMap() throws VnanoException</td>
+		<td class="rcol">Map&lt;String,String&gt; getPermissionMap()</td>
 	</tr>
 	<tr>
 		<td class="lcol">Description</td>
@@ -791,7 +801,8 @@ The class of the scripting engine of the Vnano (Vnano Engine).
 	<tr>
 		<td class="lcol">Exception</td>
 		<td class="rcol">
-			VnanoException: Thrown when the read-access to the permission map has been denied.
+			VnanoFatalException (Unchecked Exception): 
+			Thrown if this method is called in a state in which <a href="#hasPermissionMap">hasPermissionMap()</a> returns false.
 		</td>
 	</tr>
 </table>
@@ -801,7 +812,7 @@ The class of the scripting engine of the Vnano (Vnano Engine).
 <table id="hasPerformanceMap" class="spec-table">
 	<tr>
 		<td class="lcol">Name</td>
-		<th class="rcol">hasPermissionMap</th>
+		<th class="rcol">hasPerformanceMap</th>
 	</tr>
 	<tr>
 		<td class="lcol">Signature</td>
@@ -810,7 +821,12 @@ The class of the scripting engine of the Vnano (Vnano Engine).
 	<tr>
 		<td class="lcol">Description</td>
 		<td class="rcol">
+			<p style="margin-top: 0px;">
 			Returns whether <a href="#getPerformanceMap">getPerformanceMap()</a> method can return a Map.
+			</p>
+			<p>
+			Internally, this method checks the value of "PERFORMANCE_MONITOR_ENABLED" option (disabled by default) and returns it.
+			</p>
 		</td>
 	</tr>
 	<tr>
@@ -873,7 +889,8 @@ The class of the scripting engine of the Vnano (Vnano Engine).
 	<tr>
 		<td class="lcol">Exception</td>
 		<td class="rcol">
-			VnanoException: Thrown when the "PERFORMANCE_MONITOR_ENABLED" option is disabled.
+			VnanoFatalException (Unchecked Exception): 
+			Thrown if this method is called in a state in which <a href="#hasPerformanceMap">hasPerformanceMap()</a> returns false.
 		</td>
 	</tr>
 </table>
