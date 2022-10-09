@@ -390,20 +390,12 @@ public final class VnanoScriptEngine implements ScriptEngine {
 			}
 
 			case SpecialBindingValue.COMMAND_TERMINATE_SCRIPT : {
-				try {
-					this.vnanoEngine.terminateScript();
-				} catch (VnanoException vne) {
-					throw new VnanoFatalException(vne.getMessage());
-				}
+				this.vnanoEngine.terminateScript();
 				break;
 			}
 
 			case SpecialBindingValue.COMMAND_SESET_TERMINATOR : {
-				try {
-					this.vnanoEngine.resetTerminator();
-				} catch (VnanoException vne) {
-					throw new VnanoFatalException(vne.getMessage());
-				}
+				this.vnanoEngine.resetTerminator();
 				break;
 			}
 
@@ -424,13 +416,8 @@ public final class VnanoScriptEngine implements ScriptEngine {
 			throw new NullPointerException();
 		}
 		if (name.equals(SpecialBindingKey.PERFORMANCE_MAP)) {
-			try {
-				return this.vnanoEngine.getPerformanceMap();
-			} catch (VnanoException vne) {
-				throw new VnanoFatalException(vne.getMessage(), vne);
-			}
+			return this.vnanoEngine.getPerformanceMap();
 		}
-
 		if (name.equals(ScriptEngine.NAME)) {
 			return EngineInformation.LANGUAGE_NAME;
 		}
