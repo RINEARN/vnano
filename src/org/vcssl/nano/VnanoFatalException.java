@@ -1,5 +1,8 @@
 package org.vcssl.nano;
 
+import java.util.Locale;
+import org.vcssl.nano.spec.ErrorMessage;
+import org.vcssl.nano.spec.ErrorType;
 
 /**
  * The exception class thrown when an abnormal condition/problem has been detected in the scripting engine.
@@ -28,8 +31,16 @@ package org.vcssl.nano;
 @SuppressWarnings("serial")
 public class VnanoFatalException extends RuntimeException {
 
+	private ErrorType errorType = null;
+
 	public VnanoFatalException() {
 		super();
+	}
+	public VnanoFatalException(ErrorType errorType) {
+		super(ErrorMessage.generateErrorMessage(errorType, null, Locale.getDefault()));
+	}
+	public VnanoFatalException(ErrorType errorType, String[] errorWords) {
+		super(ErrorMessage.generateErrorMessage(errorType, errorWords, Locale.getDefault()));
 	}
 	public VnanoFatalException(String errorMessage) {
 		super(errorMessage);
