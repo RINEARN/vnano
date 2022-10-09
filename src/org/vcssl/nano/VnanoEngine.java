@@ -185,17 +185,17 @@ public final class VnanoEngine {
 	 * (unless {@link VnanoEngine#resetTerminator() resetTerminator()} will be called before
 	 * when the execution will have been terminated).
 	 *
-	 * @throws VnanoException
-	 *       Thrown when the option {@link org.vcssl.spec.OptionKey#TERMINATOR_ENABLED} is disabled.
+	 * @throws VnanoFatalException (Unchecked Exception)
+	 *       Thrown if this method is called in a state in which {@link VnanoEngine#isTerminatorEnabled()} returns false.
 	 *       Note that, if any exceptions occurred on the finalization processes of the connected plug-ins, 
 	 *       it will be throws by the currently running 
 	 *       {@link VnanoEngine#executeScript(String script) executeScript(String script)} method, 
 	 *       not by this method.
 	 *       This method throws the exception only when it failed in requesting the termination.
 	 */
-	public void terminateScript() throws VnanoException {
-		if (! (boolean)this.interconnect.getOptionMap().get(OptionKey.TERMINATOR_ENABLED) ) {
-			throw new VnanoException(ErrorType.TERMINATOR_IS_DISABLED);
+	public void terminateScript() {
+		if (!this.isTerminatorEnabled()) {
+			throw new VnanoFatalException(ErrorType.TERMINATOR_IS_DISABLED);
 		}
 		this.virtualMachine.terminate();
 	}
@@ -203,6 +203,8 @@ public final class VnanoEngine {
 
 	/**
 	 * Returns whether the "terminator" which is the feature to terminate scripts, is enabled.
+	 * 
+	 * Internally, this method checks the value of "TERMINATOR_ENABLED" option (disabled by default) and returns it.
 	 * 
 	 * If this method returns true, {@link VnanoEngine#terminateScript() terminateScript()} method and
 	 * {@link VnanoEngine#resetTerminator() resetTerminator()} method are available.
@@ -226,12 +228,12 @@ public final class VnanoEngine {
 	 * Please note that, if an execution of code is requested by another thread
 	 * when this method is being processed, the execution request might be missed.
 	 * 
-	 * @throws VnanoException
-	 *       Thrown when the option {@link org.vcssl.spec.OptionKey#TERMINATOR_ENABLED} is disabled.
+	 * @throws VnanoFatalException (Unchecked Exception)
+	 *       Thrown if this method is called in a state in which {@link VnanoEngine#isTerminatorEnabled()} returns false.
 	 */
-	public void resetTerminator() throws VnanoException {
-		if (! (boolean)this.interconnect.getOptionMap().get(OptionKey.TERMINATOR_ENABLED) ) {
-			throw new VnanoException(ErrorType.TERMINATOR_IS_DISABLED);
+	public void resetTerminator() {
+		if (!this.isTerminatorEnabled()) {
+			throw new VnanoFatalException(ErrorType.TERMINATOR_IS_DISABLED);
 		}
 		this.virtualMachine.resetTerminator();
 	}
@@ -360,8 +362,13 @@ public final class VnanoEngine {
 	 * see {@link org.vcssl.nano.spec.OptionKey} and {@link org.vcssl.nano.spec.OptionValue}.
 	 *
 	 * @return The Map (option map) storing names and values of options.
+	 * @throws VnanoFatalException (Unchecked Exception)
+	 *       Thrown if this method is called in a state in which {@link VnanoEngine#hasOptionMap()} returns false.
 	 */
 	public Map<String,Object> getOptionMap() {
+		if (!this.hasOptionMap()) {
+			throw new VnanoFatalException(ErrorType.CAN_NOT_GET_OPTION_MAP);
+		}
 		return this.interconnect.getOptionMap();
 	}
 
@@ -403,15 +410,21 @@ public final class VnanoEngine {
 	 * see {@link org.vcssl.connect.ConnectorPermissionName} and {@link org.vcssl.connect.ConnectorPermissionValue}.
 	 *
 	 * @return The Map (permission map) storing names and values of permission items.
-	 * @throws VnanoException Thrown when the read-access to the permission map has been denied.
+	 * @throws VnanoFatalException (Unchecked Exception)
+	 *       Thrown if this method is called in a state in which {@link VnanoEngine#hasPermissionMap()} returns false.
 	 */
-	public Map<String, String> getPermissionMap() throws VnanoException {
+	public Map<String, String> getPermissionMap() {
+		if (!this.hasPermissionMap()) {
+			throw new VnanoFatalException(ErrorType.CAN_NOT_GET_PERMISSION_MAP);
+		}
 		return this.interconnect.getPermissionMap();
 	}
 
 
 	/**
 	 * Returns whether {VnanoEngine#getPerformanceMap() getPerformanceMap()} method can return a Map.
+	 * 
+	 * Internally, this method checks the value of "PERFORMANCE_MONITOR_ENABLED" option and returns it.
 	 * 
 	 * @return Returns true if {VnanoEngine#getPerformanceMap() getPerformanceMap()} method can return a Map.
 	 */
@@ -430,14 +443,13 @@ public final class VnanoEngine {
 	 * Please be careful of the above point when you "get" measured performance values from the returned performance map.
 	 *
 	 * @return The Map (performance map) storing names and values of performance monitoring items.
-	 *
-	 * @throws VnanoException
-	 *   Thrown when the option {@link org.vcssl.nano.spec.OptionKey#PERFORMANCE_MONITOR_ENABLED PERFORMANCE_MONITOR_ENABLED} is disabled.
+	 * @throws VnanoFatalException (Unchecked Exception)
+	 *       Thrown if this method is called in a state in which {@link VnanoEngine#hasPerformanceMap()} returns false.
 	 */
-	public Map<String, Object> getPerformanceMap() throws VnanoException {
+	public Map<String, Object> getPerformanceMap() {
 		synchronized (this) {
-			if (! (boolean)this.interconnect.getOptionMap().get(OptionKey.PERFORMANCE_MONITOR_ENABLED) ) {
-				throw new VnanoException(ErrorType.PERFORMANCE_MONITOR_IS_DISABLED);
+			if (!this.hasPerformanceMap()) {
+				throw new VnanoFatalException(ErrorType.PERFORMANCE_MONITOR_IS_DISABLED);
 			}
 
 			Map<String, Object> performanceMap = new LinkedHashMap<String, Object>();
