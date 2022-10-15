@@ -22,6 +22,8 @@ import org.vcssl.nano.vm.memory.Memory;
 import org.vcssl.nano.vm.processor.Instruction;
 import org.vcssl.nano.vm.processor.Processor;
 
+import org.vcssl.connect.ConnectorException;
+import org.vcssl.connect.ConnectorFatalException;
 
 /**
  * The high-speed implementation of {@link org.vcssl.nano.vm.processor.Processor Processor} class, called the accelerator.
@@ -30,11 +32,11 @@ public class Accelerator {
 
 	/**
 	 * The flag representing whether the process should continue.
-	 * 
+	 *
 	 * If this flag is turned to false,
-	 * the process of {@link Processor#process(Instruction[], Memory, Interconnect)} method will be terminated immediately, 
+	 * the process of {@link Processor#process(Instruction[], Memory, Interconnect)} method will be terminated immediately,
 	 * just after when the process of the currently executed instruction completed.
-	 * 
+	 *
 	 * To turn to true/false this flag, use terminate() / resetTerminator() methods.
 	 */
 	private volatile boolean continuable;
@@ -42,20 +44,20 @@ public class Accelerator {
 	/**
 	 * The counter of the number of the instructions executed by this instance.
 	 * This value is useful for performance monitoring/analysis.
-	 * 
-	 * Note that, when this counter has reached to the maximum limit of the int type, 
+	 *
+	 * Note that, when this counter has reached to the maximum limit of the int type,
 	 * the next counted value jumps to the minimum (negative) limit value of the int type, by so-called "overflow" behaviour.
-	 * 
-	 * This counter frequently overflows, so the caller-side should monitor this value frequently, 
+	 *
+	 * This counter frequently overflows, so the caller-side should monitor this value frequently,
 	 * and should accumulate differentials of monitored values (current value - last monitored value) to more long-precision counter.
-	 * 
+	 *
 	 * Why we use "int" for this value, not "long", is to avoid to make the updating process of this counter "synchromized".
 	 * If this counter is "long", the writing to it may consists of two operations (32bit x 2), depends on environment.
-	 * So if the value is read from an other thread just when its value is being written, the broken value may be read, 
+	 * So if the value is read from an other thread just when its value is being written, the broken value may be read,
 	 * if we don't make the writting/reading action "synchronized".
 	 * However, "synchronized" might be a bottleneck of performance, so we avoid the above by using "int" type for this counter.
-	 * 
-	 * For the same reason, we don't make this value "volatile", 
+	 *
+	 * For the same reason, we don't make this value "volatile",
 	 * so some time lag may occurs for this value, by the effect of the "thread cache" mechanism.
 	 */
 	private int executedInstructionCount;
@@ -78,13 +80,13 @@ public class Accelerator {
 
 	/**
 	 * Processes the list of instructions.
-	 * 
+	 *
 	 * The processing-flow begins with the top of the list of the instructions.
 	 * Ordinary, the flow goes towards the end of the list,
 	 * with processing each instruction in the list in the serial order.
-	 * However, sometimes the processing-flow jumps to any point in the list, 
+	 * However, sometimes the processing-flow jumps to any point in the list,
 	 * by the effect of JMP instruction and so on.
-	 * 
+	 *
 	 * This method ends when the instruction at the end of the list has been processed,
 	 * or when the flow has jumped to out of bounds of the list of the instructions.
 	 *
@@ -262,6 +264,14 @@ public class Accelerator {
 			int lineNumber = MetaInformationSyntax.extractLineNumber(causeInstruction, memory);
 			String fileName = MetaInformationSyntax.extractFileName(causeInstruction, memory);
 
+			// 外部関数をコールする ExternalFunctionControlUnit などの一部ユニットは、
+			// VnanoException を RuntimeException で包んで投げてくるので、そうであれば中身を抽出して置き換える
+			if (e instanceof RuntimeException) {
+				if (e.getCause() != null && e.getCause() instanceof VnanoException) {
+					e = (Exception)(e.getCause());
+				}
+			}
+
 			// 例外が VnanoException の場合は、既に原因情報を持っているので、ファイル名と行番号を持たせて上層に投げる
 			if (e instanceof VnanoException) {
 				VnanoException vne = (VnanoException)e;
@@ -292,13 +302,13 @@ public class Accelerator {
 
 
 	/**
-	 * Terminates the process of {@link Accelerator#process(Instruction[], Memory, Interconnect)} method immediately, 
+	 * Terminates the process of {@link Accelerator#process(Instruction[], Memory, Interconnect)} method immediately,
 	 * just after when the process of the currently executed instruction completed.
-	 * 
+	 *
 	 * However, if the {@link org.vcssl.nano.spec.OptionKey#TERMINATOR_ENABLED TERMINATOR_ENABLED} option had been enabled
 	 * when the process started, the process will not be terminated even if this method is called.
-	 * 
-	 * Also, after terminated the process by this method, if you want to process new instructions, 
+	 *
+	 * Also, after terminated the process by this method, if you want to process new instructions,
 	 * it requires to reset the flag for the termination by calling {@link Accelerator#resetTerminator()} method.
 	 */
 	public void terminate() {
@@ -308,8 +318,8 @@ public class Accelerator {
 
 	/**
 	 * Resets the flag for the termination.
-	 * 
-	 * When you want to process new instructions after using {@link Accelerator#terminate()} method, 
+	 *
+	 * When you want to process new instructions after using {@link Accelerator#terminate()} method,
 	 * it requires to call this method before call {@link Accelerator#process(Instruction[], Memory, Interconnect)} method.
 	 * If you don't do it, the process of new instructons will be terminated immediately.
 	 */
@@ -321,12 +331,12 @@ public class Accelerator {
 	/**
 	 * Gets the counter value of the instructions executed by this instance.
 	 * This value is useful for performance monitoring/analysis.
-	 * 
-	 * Note that, when the counter has reached to the maximum limit of the int type, 
+	 *
+	 * Note that, when the counter has reached to the maximum limit of the int type,
 	 * the next counted value jumps to the minimum (negative) limit value of the int type, by so-called "overflow" behaviour.
-	 * This counter frequently overflows, so the caller-side should monitor this value frequently, 
+	 * This counter frequently overflows, so the caller-side should monitor this value frequently,
 	 * and should accumulate differentials of monitored values (current value - last monitored value) to more long-precision counter.
-	 * 
+	 *
 	 * Also, some time lag may occurs for the updating of the counter, by the effect of the "thread cache" mechanism.
 	 * So please consider that the returned value is a rough value.
 	 *
@@ -345,8 +355,8 @@ public class Accelerator {
 	 * This value is useful for performance monitoring/analysis.
 	 *
 	 * The return value is an array, because an accelerator can multiple instruction at once.
-	 * 
-	 * Note that, when multiple threads are running in parallel on this instance, 
+	 *
+	 * Note that, when multiple threads are running in parallel on this instance,
 	 * Only operation codes of the most recently executed instructions by any one thread will be returned.
 	 *
 	 * @return The operation codes of the currently executed instructions.
