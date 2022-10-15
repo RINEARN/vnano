@@ -40,6 +40,9 @@ public class Token implements Cloneable {
 		/** Represents the token of an operator. */
 		OPERATOR,
 
+		/** Represents the token of an import/include declaration.. */
+		DEPENDENCY_DECLARATOR,
+
 		/** Represents the token of a modifier ("const", "&", and so on). */
 		MODIFIER,
 	}
