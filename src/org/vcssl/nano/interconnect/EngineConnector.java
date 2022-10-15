@@ -9,7 +9,6 @@ import java.util.Locale;
 import java.util.Map;
 
 import org.vcssl.connect.ConnectorException;
-import org.vcssl.connect.ConnectorPermissionValue;
 import org.vcssl.connect.EngineConnectorInterface1;
 import org.vcssl.connect.PermissionAuthorizerConnectorInterface1;
 import org.vcssl.nano.VnanoException;
@@ -40,7 +39,7 @@ public final class EngineConnector implements EngineConnectorInterface1 {
 
 	/**
 	 * Creates an instance of the engine connector, having no information.
-	 * To add information, call "create*UpdatedInstance" methods 
+	 * To add information, call "create*UpdatedInstance" methods
 	 * which creates new instance having the specified information.
 	 */
 	public EngineConnector() {
@@ -51,7 +50,7 @@ public final class EngineConnector implements EngineConnectorInterface1 {
 
 	/**
 	 * Creates an instance of an engine connector, having the specified information.
-	 * 
+	 *
 	 * @param optionMap The Map (option map) storing names and values of options.
 	 * @param permissionMap The Map (permission map) storing names and values of permission items.
 	 * @param permissionAuthorizer The permission authorizer.
@@ -62,7 +61,7 @@ public final class EngineConnector implements EngineConnectorInterface1 {
 
 		// Note: This constructor only sets references of fields.
 		//       It doesn't update relationship between them (because it may throw exceptions).
-		//       
+		//
 		//       For example, the permission authorizer shoud has reference to the permission map.
 		//       Such ancillary settings will be performed by "create*UpdatedInstance" methods.
 		//       This constructor will be used at only inside of this class,
@@ -76,7 +75,7 @@ public final class EngineConnector implements EngineConnectorInterface1 {
 
 	/**
 	 * Creates a copy of this instance having the specified option map.
-	 * 
+	 *
 	 * @param updatedOptionMap The Map (option map) storing names and values of options.
 	 */
 	public final EngineConnector createOptionMapUpdatedInstance(Map<String, Object> updatedOptionMap) {
@@ -86,7 +85,7 @@ public final class EngineConnector implements EngineConnectorInterface1 {
 
 	/**
 	 * Creates a copy of this instance having the specified permission map.
-	 * 
+	 *
 	 * @param updatedPermissionMap The Map (permission map) storing names and values of permission items.
 	 */
 	public final EngineConnector createPermissionMapUpdatedInstance(Map<String, String> updatedPermissionMap)
@@ -100,7 +99,7 @@ public final class EngineConnector implements EngineConnectorInterface1 {
 
 	/**
 	 * Creates a copy of this instance having the specified permission authorizer.
-	 * 
+	 *
 	 * @param updatedPermissionAuthorizer The permission authorizer, which is an object for authorizing requests of permissions from plug-ins.
 	 */
 	public final EngineConnector createPermissionAuthorizerUpdatedInstance(PermissionAuthorizerConnectorInterface1 updatedPermissionAuthorizer)
@@ -114,7 +113,7 @@ public final class EngineConnector implements EngineConnectorInterface1 {
 
 	/**
 	 * Refrects the current permission map to the permission authorizer.
-	 * 
+	 *
 	 * @throws VnanoException Thrown when invalid names/values of permission items have been detected.
 	 */
 	private final void reflectPermissionSettings() throws VnanoException {
@@ -185,7 +184,7 @@ public final class EngineConnector implements EngineConnectorInterface1 {
 
 	/**
 	 * Returns whether the other type of engine connector is available.
-	 * 
+	 *
 	 * @param engineConnectorClass The class of the engine connector you want to use.
 	 * @return Returns true if the specified engine connector is available.
 	 */
@@ -198,7 +197,7 @@ public final class EngineConnector implements EngineConnectorInterface1 {
 
 	/**
 	 * Returns the other type of engine connector.
-	 * 
+	 *
 	 * @param engineConnectorClass The class of the engine connector you want to use.
 	 * @return The specified type of engine connector.
 	 */

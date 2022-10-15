@@ -30,7 +30,6 @@ import org.vcssl.nano.interconnect.PluginLoader;
 import org.vcssl.nano.interconnect.ScriptLoader;
 import org.vcssl.nano.spec.SpecialBindingKey;
 import org.vcssl.nano.spec.EngineInformation;
-import org.vcssl.nano.spec.ErrorMessage;
 import org.vcssl.nano.spec.OptionKey;
 import org.vcssl.nano.spec.OptionValue;
 import org.vcssl.nano.vm.VirtualMachine;
@@ -295,6 +294,7 @@ public final class VnanoCommandLineApplication {
 
 
 	/** The locale of command line messages (including error messages). */
+	@SuppressWarnings("unused") // We will use this value in future.
 	private Locale locale = Locale.getDefault();
 
 	/** The default encoding (charset) of files (script files, library list files, and so on). */
@@ -510,7 +510,7 @@ public final class VnanoCommandLineApplication {
 
 	/**
 	 * The entry-point of the process of the command line mode.
-	 * 
+	 *
 	 * @param args The specified command line arguments.
 	 */
 	public static void main(String[] args) {
@@ -521,7 +521,7 @@ public final class VnanoCommandLineApplication {
 
 	/**
 	 * Dispatches/executes processes corresponding with each specified command line argument.
-	 * 
+	 *
 	 * @param args The specified command line arguments.
 	 */
 	public void dispatch(String[] args) {
@@ -627,7 +627,7 @@ public final class VnanoCommandLineApplication {
 	/**
 	 * Returns whether a script should be specified in the command line.
 	 * (A script does not required for some cases, e.g.: when only --help option is specified.)
-	 * 
+	 *
 	 * @param optionNameValueMap The map storing the specified option names (as keys) and their values.
 	 */
 	private boolean isScriptFileNecessary(Map<String, String> optionNameValueMap) {
@@ -646,7 +646,7 @@ public final class VnanoCommandLineApplication {
 
 	/**
 	 * Dispatches/executes the process corresponding with the specified option.
-	 * 
+	 *
 	 * @param optionName The name of the option to be dispatched/executed.
 	 * @param optionName The value of the option to be dispatched/executed.
 	 * @return true if the process has completed successfully, or false it it has failed.
@@ -727,10 +727,10 @@ public final class VnanoCommandLineApplication {
 			case COMMAND_OPTNAME_LOCALE : {
 
 				// Note: The Constructors of the Locale class are deprecated,
-				//       but the alternative method "Locale.toLocale(...)" 
+				//       but the alternative method "Locale.toLocale(...)"
 				//       is not available in old environment.
-				//       
-				//       Hence, we get an instance of Locale in non-simplest way. 
+				//
+				//       Hence, we get an instance of Locale in non-simplest way.
 				//       Don't refactor the following code, for the time being.
 
 				// If the value contains "-" (excluding the head or the tail), it is the separator between a language code and a country code.
@@ -887,10 +887,10 @@ public final class VnanoCommandLineApplication {
 
 
 	/**
-	 * Parses the specified command line arguments, 
+	 * Parses the specified command line arguments,
 	 * and returns a Map in which names (keys) and values of command line options are stored.
-	 * 
-	 * @param args The command line arguments. 
+	 *
+	 * @param args The command line arguments.
 	 * @return The Map in which names (keys) and values of command line options are stored.
 	 */
 	private Map<String, String> parseArguments(String[] args) {
@@ -919,7 +919,7 @@ public final class VnanoCommandLineApplication {
 			// Otherwise, the arg is a option value.
 			} else {
 
-				// If the previous arg is an option name (currentArgIsExplicitOption is true), 
+				// If the previous arg is an option name (currentArgIsExplicitOption is true),
 				// set this arg to the Map, as a value corresponding with the above option name.
 				if (currentArgIsExplicitOption) {
 					optionNameValueMap.put(currentOptionName, args[argIndex]);
@@ -949,7 +949,7 @@ public final class VnanoCommandLineApplication {
 	/**
 	 * Creates an initialized VnanoEngine.
 	 * The initialization taken by this method contains option settings and plugin loadings.
-	 * 
+	 *
 	 * @param optionMap The Map in which option names (as keys) and values are stored.
 	 * @param pluginLoader The loader of plugins.
 	 * @return The initialized VnanoEngine.
@@ -1008,7 +1008,7 @@ public final class VnanoCommandLineApplication {
 	/**
 	 * Creates an initialized Interconenct.
 	 * The initialization taken by this method contains option settings and plugin loadings.
-	 * 
+	 *
 	 * @param optionMap The Map in which option names (as keys) and values are stored.
 	 * @param pluginLoader The loader of plugins.
 	 * @return The initialized Interconenct.
@@ -1090,7 +1090,7 @@ public final class VnanoCommandLineApplication {
 
 	/**
 	 * Execute the specified Vnano script file or VRIL assembly file.
-	 * 
+	 *
 	 * @param inputFilePath The path of the file to be executed.
 	 * @param libraryListFilePath The path of the library list file.
 	 * @param pluginListFilePath The path of the plugin list file.
@@ -1128,7 +1128,7 @@ public final class VnanoCommandLineApplication {
 
 	/**
 	 * Execute the specified Vnano script file.
-	 * 
+	 *
 	 * @param scriptLoader The script loader in which the main script and library scripts are registered (already loaded).
 	 * @param pluginLoader The plugin loader in which all plugins to be connected are registered (already loaded).
 	 */
@@ -1145,7 +1145,7 @@ public final class VnanoCommandLineApplication {
 		// (Mandatory options are suppremented by default values, if they are not specified.)
 		this.engineOptionMap = OptionValue.normalizeValuesOf(this.engineOptionMap);
 
-		// Create an initialized VnanoEngine, 
+		// Create an initialized VnanoEngine,
 		// where the "initialization" contains option settings and plugin loadings.
 		VnanoEngine engine = this.createInitializedVnanoEngine(this.engineOptionMap, pluginLoader);
 
@@ -1188,7 +1188,7 @@ public final class VnanoCommandLineApplication {
 
 	/**
 	 * Execute the specified VRIL assembly file.
-	 * 
+	 *
 	 * @param scriptLoader The script loader in which the VRIL assembly code and library scripts are registered (already loaded).
 	 * @param pluginLoader The plugin loader in which all plugins to be connected are registered (already loaded).
 	 */
@@ -1205,7 +1205,7 @@ public final class VnanoCommandLineApplication {
 		// (Mandatory options are suppremented by default values, if they are not specified.)
 		this.engineOptionMap = OptionValue.normalizeValuesOf(this.engineOptionMap);
 
-		// Create an initialized Interconnect, 
+		// Create an initialized Interconnect,
 		// where the "initialization" contains option settings and plugin loadings.
 		Interconnect interconnect = this.createInitializedInterconnect(this.engineOptionMap, pluginLoader);
 		if (interconnect == null) {
@@ -1248,7 +1248,7 @@ public final class VnanoCommandLineApplication {
 
 	/**
 	 * Dump (print) the information of the specified Exception.
-	 * 
+	 *
 	 * @param e The Exception to be dumped (printed).
 	 */
 	public void dumpException(Exception e) {

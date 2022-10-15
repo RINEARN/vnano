@@ -9,7 +9,6 @@ import org.vcssl.nano.VnanoFatalException;
 import org.vcssl.nano.interconnect.DataConverter;
 import org.vcssl.nano.spec.DataType;
 import org.vcssl.nano.spec.ErrorType;
-import org.vcssl.nano.vm.accelerator.Accelerator;
 import org.vcssl.nano.vm.memory.DataContainer;
 import org.vcssl.nano.VnanoException;
 
@@ -33,7 +32,7 @@ public class ExecutionUnit {
 
 	/**
 	 * Execute the ADD instruction.
-	 * 
+	 *
 	 * @param type The data-type of operands.
 	 * @param output The data container for storing the operation result.
 	 * @param inputA The left operand of the addition operator.
@@ -86,7 +85,7 @@ public class ExecutionUnit {
 
 	/**
 	 * Execute the SUB instruction.
-	 * 
+	 *
 	 * @param type The data-type of operands.
 	 * @param output The data container for storing the operation result.
 	 * @param inputA The left operand of the subtraction operator.
@@ -131,7 +130,7 @@ public class ExecutionUnit {
 
 	/**
 	 * Execute the MUL instruction.
-	 * 
+	 *
 	 * @param type The data-type of operands.
 	 * @param output The data container for storing the operation result.
 	 * @param inputA The left operand of the multiplication operator.
@@ -176,7 +175,7 @@ public class ExecutionUnit {
 
 	/**
 	 * Execute the DIV instruction.
-	 * 
+	 *
 	 * @param type The data-type of operands.
 	 * @param output The data container for storing the operation result.
 	 * @param inputA The left operand of the division operator.
@@ -221,7 +220,7 @@ public class ExecutionUnit {
 
 	/**
 	 * Execute the REM instruction.
-	 * 
+	 *
 	 * @param type The data-type of operands.
 	 * @param output The data container for storing the operation result.
 	 * @param inputA The left operand of the remainder operator.
@@ -266,7 +265,7 @@ public class ExecutionUnit {
 
 	/**
 	 * Execute the NEG instruction.
-	 * 
+	 *
 	 * @param type The data-type of operands.
 	 * @param output The data container for storing the operation result.
 	 * @param input The operand of the unary minus operator.
@@ -308,7 +307,7 @@ public class ExecutionUnit {
 
 	/**
 	 * Execute the EQ instruction.
-	 * 
+	 *
 	 * @param type The data-type of operands.
 	 * @param output The data container for storing the operation result.
 	 * @param inputA The left operand of the equarity operator.
@@ -371,7 +370,7 @@ public class ExecutionUnit {
 
 	/**
 	 * Execute the NEQ instruction.
-	 * 
+	 *
 	 * @param type The data-type of operands.
 	 * @param output The data container for storing the operation result.
 	 * @param inputA The left operand of the non-equarity operator.
@@ -434,7 +433,7 @@ public class ExecutionUnit {
 
 	/**
 	 * Execute the GEQ instruction.
-	 * 
+	 *
 	 * @param type The data-type of operands.
 	 * @param output The data container for storing the operation result.
 	 * @param inputA The left operand of the greater-equal operator.
@@ -479,7 +478,7 @@ public class ExecutionUnit {
 
 	/**
 	 * Execute the LEQ instruction.
-	 * 
+	 *
 	 * @param type The data-type of operands.
 	 * @param output The data container for storing the operation result.
 	 * @param inputA The left operand of the less-equal operator.
@@ -524,7 +523,7 @@ public class ExecutionUnit {
 
 	/**
 	 * Execute the GT instruction.
-	 * 
+	 *
 	 * @param type The data-type of operands.
 	 * @param output The data container for storing the operation result.
 	 * @param inputA The left operand of the greater-than operator.
@@ -569,7 +568,7 @@ public class ExecutionUnit {
 
 	/**
 	 * Execute the LT instruction.
-	 * 
+	 *
 	 * @param type The data-type of operands.
 	 * @param output The data container for storing the operation result.
 	 * @param inputA The left operand of the less-than operator.
@@ -616,7 +615,7 @@ public class ExecutionUnit {
 
 	/**
 	 * Execute the ANDM instruction.
-	 * 
+	 *
 	 * @param type The data-type of operands.
 	 * @param output The data container for storing the operation result.
 	 * @param inputA The left operand of the logical-and operator.
@@ -665,7 +664,7 @@ public class ExecutionUnit {
 
 	/**
 	 * Execute the ORM instruction.
-	 * 
+	 *
 	 * @param type The data-type of operands.
 	 * @param output The data container for storing the operation result.
 	 * @param inputA The left operand of the logical-or operator.
@@ -714,7 +713,7 @@ public class ExecutionUnit {
 
 	/**
 	 * Execute the NOT instruction.
-	 * 
+	 *
 	 * @param type The data-type of operands.
 	 * @param output The data container for storing the operation result.
 	 * @param input The left operand of the logical-not operator.
@@ -748,7 +747,7 @@ public class ExecutionUnit {
 
 	/**
 	 * Execute the ALLOC instruction, to allocate memory for a scalar/array data.
-	 * 
+	 *
 	 * @param type The data-type of the data.
 	 * @param target The data container for storing the data.
 	 * @param dataLength The number of all elements of the data.
@@ -792,7 +791,7 @@ public class ExecutionUnit {
 
 	/**
 	 * Execute the ALLOC instruction, to allocate memory for a scalar data.
-	 * 
+	 *
 	 * @param type The data-type of the scalar data.
 	 * @param target The data container for storing the data.
 	 */
@@ -832,7 +831,7 @@ public class ExecutionUnit {
 
 	/**
 	 * Execute the ALLOC instruction, to allocate memory for an array data.
-	 * 
+	 *
 	 * @param type The data-type of the array data.
 	 * @param target The data container for storing the data.
 	 * @param lengthsContainers The data containers storing lengths of dimensions of the array.
@@ -841,10 +840,10 @@ public class ExecutionUnit {
 	public void allocVector(DataType type, DataContainer<?> target, DataContainer<?> ... lengthsContainers) {
 		int size = 1;
 		int rank = lengthsContainers.length;
-		
+
 		// !!! CAUTON !!!
-		// When we required to change values of "lengths"-array of the data container, 
-		// we must not modify the currently set "lengths"-array, because 
+		// When we required to change values of "lengths"-array of the data container,
+		// we must not modify the currently set "lengths"-array, because
 		// sometimes it is being shared between multiple data containers having the same lengths.
 		// So we must create a new array here.
 		int[] lengths = new int[rank];
@@ -859,9 +858,9 @@ public class ExecutionUnit {
 
 
 	/**
-	 * Execute the ALLOCR instruction, to allocate memory for storing data 
+	 * Execute the ALLOCR instruction, to allocate memory for storing data
 	 * having the same array-rank/lengths with the specified data container (sameLengthsContainer).
-	 * 
+	 *
 	 * @param type The data-type of the data.
 	 * @param target The data container for storing the data.
 	 * @param sameLengthsContainer The data containers having the same array-rank/lengths with the memory you want to allocate.
@@ -884,7 +883,7 @@ public class ExecutionUnit {
 
 	/**
 	 * Execute the MOV instruction.
-	 * 
+	 *
 	 * @param type The data-type of operands.
 	 * @param dest The left operand of the assignment operator.
 	 * @param src The right operand of the assignment operator.
@@ -913,7 +912,7 @@ public class ExecutionUnit {
 
 	/**
 	 * Execute the REF instruction.
-	 * 
+	 *
 	 * @param type The data-type of operands.
 	 * @param dest The destination operand of the reference-assignment operation.
 	 * @param src The source-operand of the reference-assignment operation.
@@ -931,7 +930,7 @@ public class ExecutionUnit {
 
 	/**
 	 * Execute the REORD instruction.
-	 * 
+	 *
 	 * @param type The data-type of operands.
 	 * @param dest The destination operand of the reorder-assignment operation.
 	 * @param src The source-operand of the reorder-assignment operation.
@@ -1003,7 +1002,7 @@ public class ExecutionUnit {
 
 	/**
 	 * Execute the FILL instruction.
-	 * 
+	 *
 	 * @param type The data-type of operands.
 	 * @param dest The destination operand of the fill operation.
 	 * @param src The source-operand of the fill operation.
@@ -1061,7 +1060,7 @@ public class ExecutionUnit {
 
 	/**
 	 * Execute the REFELM instruction.
-	 * 
+	 *
 	 * @param type The data-type of src/dest operands.
 	 * @param dest The destination operand of the reference-assignment operation.
 	 * @param src The source-operand of the reference-assignment operation.
@@ -1119,7 +1118,7 @@ public class ExecutionUnit {
 
 	/**
 	 * Execute the MOVELM instruction.
-	 * 
+	 *
 	 * @param type The data-type of src/dest operands.
 	 * @param dest The destination operand of the element-assignment operation.
 	 * @param src The source-operand of the element-assignment operation.
@@ -1172,7 +1171,7 @@ public class ExecutionUnit {
 
 	/**
 	 * Execute the CAST instruction.
-	 * 
+	 *
 	 * @param destType The data-type of the destination operand.
 	 * @param srcType The data-type of the source operand.
 	 * @param dest The destination operand of the cast operation.
@@ -1378,7 +1377,7 @@ public class ExecutionUnit {
 
 	/**
 	 * Computes 1D index corresponding with the specified multi-dimensional indices.
-	 * 
+	 *
 	 * @param operands All operands of an instruction.
 	 * @param indicesOperandsBegin The index in operands, from which index operands begin.
 	 * @param arrayLength The array-lentghs of the array data.
@@ -1453,7 +1452,7 @@ public class ExecutionUnit {
 				break;
 			}
 
-			// VOID is used for the placeholder operand, 
+			// VOID is used for the placeholder operand,
 			// so anytime pass the check independently of the actual data in the data container.
 			case VOID : {
 				return;

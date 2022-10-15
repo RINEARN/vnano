@@ -49,14 +49,14 @@ public final class VnanoEngine {
 
 	/**
 	 * Executes an expression or script code specified as the argument.
-	 * 
+	 *
 	 * Please note that,
 	 * you must not call this method of the same instance at the same time from multiple threads,
 	 * for processing multiple scripts in parallel.
 	 * For such parallel executions, create an independent instance of the engine for each thread and use them.
 	 *
 	 * @param script An expression or script code to be executed.
-	 * 
+	 *
 	 * @return
 	 *     The evaluated value of the expression, or the last expression statement in script code.
 	 *     If there is no evaluated value, returns null.
@@ -117,10 +117,9 @@ public final class VnanoEngine {
 			Locale locale = (Locale)this.interconnect.getOptionMap().get(OptionKey.LOCALE); // Type was already checked.
 			e.setLocale(locale);
 
-			// もしも VnanoException が、外部関数が投げる ConnectorException をラップしている場合で、
 			if (e.getCause() instanceof ConnectorException && ((ConnectorException)e.getCause()).getMessage().startsWith("___")) {
 				this.handleSpecialConnectorException((ConnectorException)e.getCause(), e);
-				return null; // 上の行で VnanoException が再スローされなかった場合は何もしない（ exit 関数での終了など ）
+				return null;
 			} else {
 				throw e;
 			}
@@ -135,7 +134,7 @@ public final class VnanoEngine {
 
 	/**
 	 * Handles a ConnectorException thrown when executing a script, if the exception requires special handling.
-	 * 
+	 *
 	 * @param exception The thrown ConnectorException.
 	 * @param callerScriptName
 	      The VnanoException wrapping the thrown ConnectorException
@@ -146,17 +145,17 @@ public final class VnanoEngine {
 
 		String message = exception.getMessage();
 
-		// If the message is "___EXIT", 
-		// it means that the ConnectorException had been thrown by exit() function, for terminating the script normally. 
+		// If the message is "___EXIT",
+		// it means that the ConnectorException had been thrown by exit() function, for terminating the script normally.
 		// So we should not display any error message in this case.
 		if (message.startsWith("___EXIT")) {
 			return;
 		}
 
 		// If the message is "___ERROR",
-		// it means that the ConnectorException had been thrown by error(string errorMessage) function, 
+		// it means that the ConnectorException had been thrown by error(string errorMessage) function,
 		// for terminating the script with the error message specified as the arg "errorMessage".
-		// So extract the content of "errorMessage" from the message of the ConnectorException, 
+		// So extract the content of "errorMessage" from the message of the ConnectorException,
 		// and wrap it by VnanoException, and rethrow it to display.
 		if (message.startsWith("___ERROR")) {
 			String passedErrorMessage = message.split(":")[1]; // = The argument of error(...) function.
@@ -170,7 +169,7 @@ public final class VnanoEngine {
 
 	/**
 	 * Requests this engine to terminate the currently running script as soon as possible.
-	 * 
+	 *
 	 * To be precise, the {@link org.vcssl.nano.vm.VirtualMachine VirtualMachine}
 	 * (which is processing instructions compiled from the script) in the engine
 	 * will be terminated after when the processing of a currently executed instruction has been completed,
@@ -187,9 +186,9 @@ public final class VnanoEngine {
 	 *
 	 * @throws VnanoFatalException (Unchecked Exception)
 	 *       Thrown if this method is called in a state in which {@link VnanoEngine#isTerminatorEnabled()} returns false.
-	 *       Note that, if any exceptions occurred on the finalization processes of the connected plug-ins, 
-	 *       it will be throws by the currently running 
-	 *       {@link VnanoEngine#executeScript(String script) executeScript(String script)} method, 
+	 *       Note that, if any exceptions occurred on the finalization processes of the connected plug-ins,
+	 *       it will be throws by the currently running
+	 *       {@link VnanoEngine#executeScript(String script) executeScript(String script)} method,
 	 *       not by this method.
 	 *       This method throws the exception only when it failed in requesting the termination.
 	 */
@@ -203,17 +202,17 @@ public final class VnanoEngine {
 
 	/**
 	 * Returns whether the "terminator" which is the feature to terminate scripts, is enabled.
-	 * 
+	 *
 	 * Internally, this method checks the value of "TERMINATOR_ENABLED" option (disabled by default) and returns it.
-	 * 
+	 *
 	 * If this method returns true, {@link VnanoEngine#terminateScript() terminateScript()} method and
 	 * {@link VnanoEngine#resetTerminator() resetTerminator()} method are available.
-	 * 
-	 * Please note that, even when this method returns true, some errors may occur in the termination processes 
+	 *
+	 * Please note that, even when this method returns true, some errors may occur in the termination processes
 	 * (for example, erros caused by failures of finalization processes of the connected plug-ins, and so on).
-	 * For details, see the explanation about exceptions, 
+	 * For details, see the explanation about exceptions,
 	 * in the description of {@link VnanoEngine#terminateScript() terminateScript()} method.
-	 * 
+	 *
 	 * @return Returns true if the "terminator" is enabled.
 	 */
 	public boolean isTerminatorEnabled() {
@@ -222,12 +221,12 @@ public final class VnanoEngine {
 
 
 	/**
-	 * Resets the engine which had terminated by {@link VnanoEngine#terminateScript()} method, 
+	 * Resets the engine which had terminated by {@link VnanoEngine#terminateScript()} method,
 	 * for processing new scripts.
-	 * 
+	 *
 	 * Please note that, if an execution of code is requested by another thread
 	 * when this method is being processed, the execution request might be missed.
-	 * 
+	 *
 	 * @throws VnanoFatalException (Unchecked Exception)
 	 *       Thrown if this method is called in a state in which {@link VnanoEngine#isTerminatorEnabled()} returns false.
 	 */
@@ -288,7 +287,7 @@ public final class VnanoEngine {
 
 	/**
 	 * Disconnects all plug-ins.
-	 * 
+	 *
 	 * @throws VnanoException Thrown when an exception occurred on the finalization of the plug-in to be disconnected.
 	 */
 	public void disconnectAllPlugins() throws VnanoException {
@@ -298,7 +297,7 @@ public final class VnanoEngine {
 
 	/**
 	 * Add a library script which will be "include"-ed at the head of a executed script.
-	 * 
+	 *
 	 * @param libraryScriptName Names of the library script (displayed in error messages).
 	 * @param libraryScriptContent Content (code) of the library script.
 	 * @throws VnanoException Thrown when incorrect somethings have been detected for the specified library.
@@ -316,7 +315,7 @@ public final class VnanoEngine {
 
 	/**
 	 * Uninclude all library scripts.
-	 * 
+	 *
 	 * @throws VnanoException
 	 *   Will not be thrown on the current implementation,
 	 *   but it requires to be "catch"-ed for keeping compatibility in future.
@@ -328,7 +327,7 @@ public final class VnanoEngine {
 
 	/**
 	 * Sets options, by a Map (option map) storing names and values of options you want to set.
-	 * 
+	 *
 	 * Type of the option map is Map<String,Object>, and its keys represents option names.
 	 * For details of option names and values,
 	 * see {@link org.vcssl.nano.spec.OptionKey} and {@link org.vcssl.nano.spec.OptionValue}.
@@ -346,7 +345,7 @@ public final class VnanoEngine {
 
 	/**
 	 * Returns whether {VnanoEngine#getOptionMap() getOptionMap()} method can return a Map.
-	 * 
+	 *
 	 * @return Returns true if {VnanoEngine#getOptionMap() getOptionMap()} method can return a Map.
 	 */
 	public boolean hasOptionMap() {
@@ -356,7 +355,7 @@ public final class VnanoEngine {
 
 	/**
 	 * Gets the Map (option map) storing names and values of options.
-	 * 
+	 *
 	 * Type of the option map is Map<String,Object>, and its keys represents option names.
 	 * For details of option names and values,
 	 * see {@link org.vcssl.nano.spec.OptionKey} and {@link org.vcssl.nano.spec.OptionValue}.
@@ -375,7 +374,7 @@ public final class VnanoEngine {
 
 	/**
 	 * Sets permissions, by a Map (permission map) storing names and values of permission items you want to set.
-	 * 
+	 *
 	 * Type of the permission map is Map<String,String>, and its keys represents names of permission items.
 	 * For details of names and values of permission items,
 	 * see {@link org.vcssl.connect.ConnectorPermissionName} and {@link org.vcssl.connect.ConnectorPermissionValue}.
@@ -394,7 +393,7 @@ public final class VnanoEngine {
 
 	/**
 	 * Returns whether {VnanoEngine#getPermissionMap() getPermissionMap()} method can return a Map.
-	 * 
+	 *
 	 * @return Returns true if {VnanoEngine#getPermissionMap() getPermissionMap()} method can return a Map.
 	 */
 	public boolean hasPermissionMap() {
@@ -404,7 +403,7 @@ public final class VnanoEngine {
 
 	/**
 	 * Gets the Map (permission map) storing names and values of permission items.
-	 * 
+	 *
 	 * Type of the permission map is Map<String,String>, and its keys represents names of permission items.
 	 * For details of names and values of permission items,
 	 * see {@link org.vcssl.connect.ConnectorPermissionName} and {@link org.vcssl.connect.ConnectorPermissionValue}.
@@ -423,9 +422,9 @@ public final class VnanoEngine {
 
 	/**
 	 * Returns whether {VnanoEngine#getPerformanceMap() getPerformanceMap()} method can return a Map.
-	 * 
+	 *
 	 * Internally, this method checks the value of "PERFORMANCE_MONITOR_ENABLED" option and returns it.
-	 * 
+	 *
 	 * @return Returns true if {VnanoEngine#getPerformanceMap() getPerformanceMap()} method can return a Map.
 	 */
 	public boolean hasPerformanceMap() {
@@ -435,7 +434,7 @@ public final class VnanoEngine {
 
 	/**
 	 * Gets the Map (performance map) storing names and values of performance monitoring items.
-	 * 
+	 *
 	 * Note that, when some measured values for some monitoring items don't exist
 	 * (e.g.: when any scripts are not running, or running but their performance values are not measualable yet),
 	 * the returned performance map does not contain values for such monitoring items,

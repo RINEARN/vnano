@@ -16,7 +16,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 
 import org.vcssl.nano.VnanoEngine;
-import org.vcssl.nano.VnanoException;
 import org.vcssl.nano.spec.OperationCode;
 import org.vcssl.nano.spec.PerformanceKey;
 import org.vcssl.nano.vm.VirtualMachine;
@@ -46,7 +45,7 @@ public class PerformanceValuePrinter implements Runnable {
 
 	/**
 	 * The Map mapping each operation code to detected count of it.
-	 * Note that, when multiple operation codes are detected at the same moment, 
+	 * Note that, when multiple operation codes are detected at the same moment,
 	 * their count will be incremented 1/N, where N is the number of operation codes detected at the same moment.
 	 */
 	private HashMap<String, Double> operationCodeCountMap;
@@ -72,7 +71,7 @@ public class PerformanceValuePrinter implements Runnable {
 
 	/**
 	 * Create an instance for printing performances of the VnanoEngine.
-	 * 
+	 *
 	 * @param vnanoEngine The VnanoEngine of which performances will be measured/printed.
 	 * @param printsVmSpeed Specify true to measure/print the VM drive speed.
 	 * @param printsRamUsage Specify true to measure/print the RAM usage.
@@ -93,7 +92,7 @@ public class PerformanceValuePrinter implements Runnable {
 
 	/**
 	 * Create an instance for printing performances of the VirtualMachine.
-	 * 
+	 *
 	 * @param vnanoEngine The VnanoEngine of which performances will be measured/printed.
 	 * @param printsVmSpeed Specify true to measure/print the VM drive speed.
 	 * @param printsRamUsage Specify true to measure/print the RAM usage.
@@ -183,7 +182,7 @@ public class PerformanceValuePrinter implements Runnable {
 			if (currentOpcodeNames.length != 0) {
 
 				// When only 1 operation code isdetected, we add 1 to its counter.
-				// When multiple operation codes are detected at the same moment, 
+				// When multiple operation codes are detected at the same moment,
 				// we add 1/N to their counters, where N is the number of operation codes detected at the same moment.
 				double opcodeCountWeight = 1.0 / currentOpcodeNames.length;
 
@@ -286,7 +285,7 @@ public class PerformanceValuePrinter implements Runnable {
 
 	/**
 	 * Format the instruction execution frequencies to be printed.
-	 * 
+	 *
 	 * @param operationCodeCountMap The map in which detected counters of operation codes are stored.
 	 */
 	private String formatInstructionFrequency(HashMap<String, Double> operationCodeCountMap) {
@@ -319,7 +318,7 @@ public class PerformanceValuePrinter implements Runnable {
 		for (Map.Entry<String, Double> modifiedEntry: modifiedEntryList) {
 
 			// Align lengths of operation codes to be printed, by appending spaces to end of them.
-			// The length of the longest operation code is 7 chars (REFELEM and so on), so align to the 7 chars. 
+			// The length of the longest operation code is 7 chars (REFELEM and so on), so align to the 7 chars.
 			String opcode = String.format("%7s", modifiedEntry.getKey().toString());
 
 			// Convert to each frequency (from 0 to 1) to a percentage, and round it.
@@ -344,8 +343,8 @@ public class PerformanceValuePrinter implements Runnable {
 			//double diff = a.getValue() - b.getValue(); // Ascending order.
 			double diff = b.getValue() - a.getValue(); // Descending order.
 			return (int)Math.signum(diff);
-			
-			// Note: The return value of the signum(...) is double, 
+
+			// Note: The return value of the signum(...) is double,
 			//   but it takes only values of 0 or 1, and it can be completely expressed in binary.
 			//   So we can cast it to int without any numerical errors.
 		}
