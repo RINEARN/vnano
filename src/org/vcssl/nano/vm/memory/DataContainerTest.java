@@ -46,7 +46,7 @@ public class DataContainerTest {
 	private void testDefaultState(DataContainer<?> container) {
 
 		// A data-container doesn't have any data by default.
-s		if (container.getArrayData() != null) {
+		if (container.getArrayData() != null) {
 			fail("Incorrect data");
 		}
 

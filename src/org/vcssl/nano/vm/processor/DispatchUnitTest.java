@@ -230,7 +230,7 @@ public class DispatchUnitTest {
 		// Dispatch/execute the instruction.
 		int programCounter = 10;
 		try {
-			programCounter = this.dispatch(instruction, pc);
+			programCounter = this.dispatch(instruction, programCounter);
 		} catch (VnanoException | VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Expected exception has not occurred");
@@ -250,7 +250,7 @@ public class DispatchUnitTest {
 		// Test of the behaviour when the number of operands is incorrect.
 		try {
 			instruction = this.generateInt64x2Instruction(OperationCode.ADD);
-			programCounter = this.dispatch(instruction, pc);
+			programCounter = this.dispatch(instruction, programCounter);
 			fail("Expected exception has not occurred");
 		} catch (VnanoException | VnanoFatalException e) {
 			// The exception should be thrown for this case.
@@ -270,7 +270,7 @@ public class DispatchUnitTest {
 		// Dispatch/execute the instruction.
 		int programCounter = 10;
 		try {
-			programCounter = this.dispatch(instruction, pc);
+			programCounter = this.dispatch(instruction, programCounter);
 		} catch (VnanoException | VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Expected exception has not occurred");
@@ -290,7 +290,7 @@ public class DispatchUnitTest {
 		// Test of the behaviour when the number of operands is incorrect.
 		try {
 			instruction = this.generateInt64x2Instruction(OperationCode.SUB);
-			programCounter = this.dispatch(instruction, pc);
+			programCounter = this.dispatch(instruction, programCounter);
 			fail("Expected exception has not occurred");
 		} catch (VnanoException | VnanoFatalException e) {
 			// The exception should be thrown for this case.
@@ -308,9 +308,9 @@ public class DispatchUnitTest {
 		Instruction instruction = this.generateInt64x3Instruction(OperationCode.MUL);
 
 		// Dispatch/execute the instruction.
-		int programCounter = 10; 
+		int programCounter = 10;
 		try {
-			programCounter = this.dispatch(instruction, pc);
+			programCounter = this.dispatch(instruction, programCounter);
 		} catch (VnanoException | VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Expected exception has not occurred");
@@ -330,7 +330,7 @@ public class DispatchUnitTest {
 		// Test of the behaviour when the number of operands is incorrect.
 		try {
 			instruction = this.generateInt64x2Instruction(OperationCode.MUL);
-			programCounter = this.dispatch(instruction, pc);
+			programCounter = this.dispatch(instruction, programCounter);
 			fail("Expected exception has not occurred");
 		} catch (VnanoException | VnanoFatalException e) {
 			// The exception should be thrown for this case.
@@ -348,9 +348,9 @@ public class DispatchUnitTest {
 		Instruction instruction = this.generateInt64x3Instruction(OperationCode.DIV);
 
 		// Dispatch/execute the instruction.
-		int programCounter = 10; 
+		int programCounter = 10;
 		try {
-			programCounter = this.dispatch(instruction, pc);
+			programCounter = this.dispatch(instruction, programCounter);
 		} catch (VnanoException | VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Expected exception has not occurred");
@@ -370,7 +370,7 @@ public class DispatchUnitTest {
 		// Test of the behaviour when the number of operands is incorrect.
 		try {
 			instruction = this.generateInt64x2Instruction(OperationCode.DIV);
-			programCounter = this.dispatch(instruction, pc);
+			programCounter = this.dispatch(instruction, programCounter);
 			fail("Expected exception has not occurred");
 		} catch (VnanoException | VnanoFatalException e) {
 			// The exception should be thrown for this case.
@@ -388,9 +388,9 @@ public class DispatchUnitTest {
 		Instruction instruction = this.generateInt64x3Instruction(OperationCode.REM);
 
 		// Dispatch/execute the instruction.
-		int programCounter = 10; 
+		int programCounter = 10;
 		try {
-			programCounter = this.dispatch(instruction, pc);
+			programCounter = this.dispatch(instruction, programCounter);
 		} catch (VnanoException | VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Expected exception has not occurred");
@@ -410,7 +410,7 @@ public class DispatchUnitTest {
 		// Test of the behaviour when the number of operands is incorrect.
 		try {
 			instruction = this.generateInt64x2Instruction(OperationCode.REM);
-			programCounter = this.dispatch(instruction, pc);
+			programCounter = this.dispatch(instruction, programCounter);
 			fail("Expected exception has not occurred");
 		} catch (VnanoException | VnanoFatalException e) {
 			// The exception should be thrown for this case.
@@ -427,9 +427,9 @@ public class DispatchUnitTest {
 		Instruction instruction = this.generateInt64x2Instruction(OperationCode.NEG);
 
 		// Dispatch/execute the instruction.
-		int programCounter = 10; 
+		int programCounter = 10;
 		try {
-			programCounter = this.dispatch(instruction, pc);
+			programCounter = this.dispatch(instruction, programCounter);
 		} catch (VnanoException | VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Expected exception has not occurred");
@@ -449,7 +449,7 @@ public class DispatchUnitTest {
 		// Test of the behaviour when the number of operands is incorrect.
 		try {
 			instruction = this.generateInt64x3Instruction(OperationCode.NEG);
-			programCounter = this.dispatch(instruction, pc);
+			programCounter = this.dispatch(instruction, programCounter);
 			fail("Expected exception has not occurred");
 		} catch (VnanoException | VnanoFatalException e) {
 			// The exception should be thrown for this case.
@@ -467,9 +467,9 @@ public class DispatchUnitTest {
 		Instruction instruction = this.generateBoolx1Int64x2Instruction(OperationCode.EQ);
 
 		// Dispatch/execute the instruction.
-		int programCounter = 10; 
+		int programCounter = 10;
 		try {
-			programCounter = this.dispatch(instruction, pc);
+			programCounter = this.dispatch(instruction, programCounter);
 		} catch (VnanoException | VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Expected exception has not occurred");
@@ -489,7 +489,7 @@ public class DispatchUnitTest {
 		// Test of the behaviour when the number of operands is incorrect.
 		try {
 			instruction = this.generateInt64x2Instruction(OperationCode.EQ);
-			programCounter = this.dispatch(instruction, pc);
+			programCounter = this.dispatch(instruction, programCounter);
 			fail("Expected exception has not occurred");
 		} catch (VnanoException | VnanoFatalException e) {
 			// The exception should be thrown for this case.
@@ -507,9 +507,9 @@ public class DispatchUnitTest {
 		Instruction instruction = this.generateBoolx1Int64x2Instruction(OperationCode.NEQ);
 
 		// Dispatch/execute the instruction.
-		int programCounter = 10; 
+		int programCounter = 10;
 		try {
-			programCounter = this.dispatch(instruction, pc);
+			programCounter = this.dispatch(instruction, programCounter);
 		} catch (VnanoException | VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Expected exception has not occurred");
@@ -529,7 +529,7 @@ public class DispatchUnitTest {
 		// Test of the behaviour when the number of operands is incorrect.
 		try {
 			instruction = this.generateInt64x2Instruction(OperationCode.NEQ);
-			programCounter = this.dispatch(instruction, pc);
+			programCounter = this.dispatch(instruction, programCounter);
 			fail("Expected exception has not occurred");
 		} catch (VnanoException | VnanoFatalException e) {
 			// The exception should be thrown for this case.
@@ -548,9 +548,9 @@ public class DispatchUnitTest {
 		Instruction instruction = this.generateBoolx1Int64x2Instruction(OperationCode.GEQ);
 
 		// Dispatch/execute the instruction.
-		int programCounter = 10; 
+		int programCounter = 10;
 		try {
-			programCounter = this.dispatch(instruction, pc);
+			programCounter = this.dispatch(instruction, programCounter);
 		} catch (VnanoException | VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Expected exception has not occurred");
@@ -570,7 +570,7 @@ public class DispatchUnitTest {
 		// Test of the behaviour when the number of operands is incorrect.
 		try {
 			instruction = this.generateInt64x2Instruction(OperationCode.GEQ);
-			programCounter = this.dispatch(instruction, pc);
+			programCounter = this.dispatch(instruction, programCounter);
 			fail("Expected exception has not occurred");
 		} catch (VnanoException | VnanoFatalException e) {
 			// The exception should be thrown for this case.
@@ -589,9 +589,9 @@ public class DispatchUnitTest {
 		Instruction instruction = this.generateBoolx1Int64x2Instruction(OperationCode.LEQ);
 
 		// Dispatch/execute the instruction.
-		int programCounter = 10; 
+		int programCounter = 10;
 		try {
-			programCounter = this.dispatch(instruction, pc);
+			programCounter = this.dispatch(instruction, programCounter);
 		} catch (VnanoException | VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Expected exception has not occurred");
@@ -611,7 +611,7 @@ public class DispatchUnitTest {
 		// Test of the behaviour when the number of operands is incorrect.
 		try {
 			instruction = this.generateInt64x2Instruction(OperationCode.LEQ);
-			programCounter = this.dispatch(instruction, pc);
+			programCounter = this.dispatch(instruction, programCounter);
 			fail("Expected exception has not occurred");
 		} catch (VnanoException | VnanoFatalException e) {
 			// The exception should be thrown for this case.
@@ -630,9 +630,9 @@ public class DispatchUnitTest {
 		Instruction instruction = this.generateBoolx1Int64x2Instruction(OperationCode.GT);
 
 		// Dispatch/execute the instruction.
-		int programCounter = 10; 
+		int programCounter = 10;
 		try {
-			programCounter = this.dispatch(instruction, pc);
+			programCounter = this.dispatch(instruction, programCounter);
 		} catch (VnanoException | VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Expected exception has not occurred");
@@ -652,7 +652,7 @@ public class DispatchUnitTest {
 		// Test of the behaviour when the number of operands is incorrect.
 		try {
 			instruction = this.generateInt64x2Instruction(OperationCode.GT);
-			programCounter = this.dispatch(instruction, pc);
+			programCounter = this.dispatch(instruction, programCounter);
 			fail("Expected exception has not occurred");
 		} catch (VnanoException | VnanoFatalException e) {
 			// The exception should be thrown for this case.
@@ -671,9 +671,9 @@ public class DispatchUnitTest {
 		Instruction instruction = this.generateBoolx1Int64x2Instruction(OperationCode.LT);
 
 		// Dispatch/execute the instruction.
-		int programCounter = 10; 
+		int programCounter = 10;
 		try {
-			programCounter = this.dispatch(instruction, pc);
+			programCounter = this.dispatch(instruction, programCounter);
 		} catch (VnanoException | VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Expected exception has not occurred");
@@ -693,7 +693,7 @@ public class DispatchUnitTest {
 		// Test of the behaviour when the number of operands is incorrect.
 		try {
 			instruction = this.generateInt64x2Instruction(OperationCode.LT);
-			programCounter = this.dispatch(instruction, pc);
+			programCounter = this.dispatch(instruction, programCounter);
 			fail("Expected exception has not occurred");
 		} catch (VnanoException | VnanoFatalException e) {
 			// The exception should be thrown for this case.
@@ -712,9 +712,9 @@ public class DispatchUnitTest {
 		Instruction instruction = this.generateBoolx3Instruction(OperationCode.ANDM);
 
 		// Dispatch/execute the instruction.
-		int programCounter = 10; 
+		int programCounter = 10;
 		try {
-			programCounter = this.dispatch(instruction, pc);
+			programCounter = this.dispatch(instruction, programCounter);
 		} catch (VnanoException | VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Expected exception has not occurred");
@@ -734,7 +734,7 @@ public class DispatchUnitTest {
 		// Test of the behaviour when the number of operands is incorrect.
 		try {
 			instruction = this.generateInt64x2Instruction(OperationCode.ANDM);
-			programCounter = this.dispatch(instruction, pc);
+			programCounter = this.dispatch(instruction, programCounter);
 			fail("Expected exception has not occurred");
 		} catch (VnanoException | VnanoFatalException e) {
 			// The exception should be thrown for this case.
@@ -752,9 +752,9 @@ public class DispatchUnitTest {
 		Instruction instruction = this.generateBoolx3Instruction(OperationCode.ORM);
 
 		// Dispatch/execute the instruction.
-		int programCounter = 10; 
+		int programCounter = 10;
 		try {
-			programCounter = this.dispatch(instruction, pc);
+			programCounter = this.dispatch(instruction, programCounter);
 		} catch (VnanoException | VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Expected exception has not occurred");
@@ -774,7 +774,7 @@ public class DispatchUnitTest {
 		// Test of the behaviour when the number of operands is incorrect.
 		try {
 			instruction = this.generateInt64x2Instruction(OperationCode.ORM);
-			programCounter = this.dispatch(instruction, pc);
+			programCounter = this.dispatch(instruction, programCounter);
 			fail("Expected exception has not occurred");
 		} catch (VnanoException | VnanoFatalException e) {
 			// The exception should be thrown for this case.
@@ -791,9 +791,9 @@ public class DispatchUnitTest {
 		Instruction instruction = this.generateBoolx2Instruction(OperationCode.NOT);
 
 		// Dispatch/execute the instruction.
-		int programCounter = 10; 
+		int programCounter = 10;
 		try {
-			programCounter = this.dispatch(instruction, pc);
+			programCounter = this.dispatch(instruction, programCounter);
 		} catch (VnanoException | VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Expected exception has not occurred");
@@ -813,7 +813,7 @@ public class DispatchUnitTest {
 		// Test of the behaviour when the number of operands is incorrect.
 		try {
 			instruction = this.generateInt64x2Instruction(OperationCode.NOT);
-			programCounter = this.dispatch(instruction, pc);
+			programCounter = this.dispatch(instruction, programCounter);
 			fail("Expected exception has not occurred");
 		} catch (VnanoException | VnanoFatalException e) {
 			// The exception should be thrown for this case.
@@ -830,9 +830,9 @@ public class DispatchUnitTest {
 		Instruction instruction = this.generateInt64x2Instruction(OperationCode.MOV);
 
 		// Dispatch/execute the instruction.
-		int programCounter = 10; 
+		int programCounter = 10;
 		try {
-			programCounter = this.dispatch(instruction, pc);
+			programCounter = this.dispatch(instruction, programCounter);
 		} catch (VnanoException | VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Expected exception has not occurred");
@@ -852,7 +852,7 @@ public class DispatchUnitTest {
 		// Test of the behaviour when the number of operands is incorrect.
 		try {
 			instruction = this.generateInt64x3Instruction(OperationCode.MOV);
-			programCounter = this.dispatch(instruction, pc);
+			programCounter = this.dispatch(instruction, programCounter);
 			fail("Expected exception has not occurred");
 		} catch (VnanoException | VnanoFatalException e) {
 			// The exception should be thrown for this case.
@@ -879,9 +879,9 @@ public class DispatchUnitTest {
 		);
 
 		// Dispatch/execute the instruction.
-		int programCounter = 10; 
+		int programCounter = 10;
 		try {
-			programCounter = this.dispatch(instruction, pc);
+			programCounter = this.dispatch(instruction, programCounter);
 		} catch (VnanoException | VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Expected exception has not occurred");
@@ -918,9 +918,9 @@ public class DispatchUnitTest {
 		);
 
 		// Dispatch/execute the instruction.
-		int programCounter = 10; 
+		int programCounter = 10;
 		try {
-			programCounter = this.dispatch(instruction, pc);
+			programCounter = this.dispatch(instruction, programCounter);
 		} catch (VnanoException | VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Expected exception has not occurred");
@@ -960,9 +960,9 @@ public class DispatchUnitTest {
 		);
 
 		// Dispatch/execute the instruction.
-		int programCounter = 10; 
+		int programCounter = 10;
 		try {
-			programCounter = this.dispatch(instruction, pc);
+			programCounter = this.dispatch(instruction, programCounter);
 		} catch (VnanoException | VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Expected exception has not occurred");
@@ -1001,9 +1001,9 @@ public class DispatchUnitTest {
 		);
 
 		// Dispatch/execute the instruction.
-		int programCounter = 10; 
+		int programCounter = 10;
 		try {
-			programCounter = this.dispatch(instruction, pc);
+			programCounter = this.dispatch(instruction, programCounter);
 		} catch (VnanoException | VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Expected exception has not occurred");
@@ -1049,9 +1049,9 @@ public class DispatchUnitTest {
 		}
 
 		// Dispatch/execute the instruction.
-		int programCounter = 10; 
+		int programCounter = 10;
 		try {
-			programCounter = this.dispatch(instruction, pc);
+			programCounter = this.dispatch(instruction, programCounter);
 		} catch (VnanoException | VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Expected exception has not occurred");
@@ -1063,7 +1063,7 @@ public class DispatchUnitTest {
 		}
 
 		// Check the state of the data container after it has been free-ed.
-		if (target.getArrayData() != nulls
+		if (target.getArrayData() != null
 				|| target.getArraySize() != 1
 				|| target.getArrayLengths().length != 0
 				|| target.getArrayOffset() != 0) {
@@ -1094,9 +1094,9 @@ public class DispatchUnitTest {
 		);
 
 		// Dispatch/execute the instruction.
-		int programCounter = 10; 
+		int programCounter = 10;
 		try {
-			programCounter = this.dispatch(instruction, pc);
+			programCounter = this.dispatch(instruction, programCounter);
 		} catch (VnanoException | VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Expected exception has not occurred");
@@ -1109,9 +1109,9 @@ public class DispatchUnitTest {
 
 		// Modify the branch condition, and re-test the behaviour.
 		condition.setArrayData(new boolean[]{ false }, 0, new int[] {3});
-		programCounter = 10; 
+		programCounter = 10;
 		try {
-			programCounter = this.dispatch(instruction, pc);
+			programCounter = this.dispatch(instruction, programCounter);
 		} catch (VnanoException | VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Expected exception has not occurred");
@@ -1145,9 +1145,9 @@ public class DispatchUnitTest {
 		);
 
 		// Dispatch/execute the instruction.
-		int programCounter = 10; 
+		int programCounter = 10;
 		try {
-			programCounter = this.dispatch(instruction, pc);
+			programCounter = this.dispatch(instruction, programCounter);
 		} catch (VnanoException | VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Expected exception has not occurred");
@@ -1160,9 +1160,9 @@ public class DispatchUnitTest {
 
 		// Modify the branch condition, and re-test the behaviour.
 		condition.setArrayData(new boolean[]{ false }, 0, new int[] {3});
-		programCounter = 10; 
+		programCounter = 10;
 		try {
-			programCounter = this.dispatch(instruction, pc);
+			programCounter = this.dispatch(instruction, programCounter);
 		} catch (VnanoException | VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Expected exception has not occurred");
@@ -1189,10 +1189,10 @@ public class DispatchUnitTest {
 		);
 
 		// Dispatch/execute the instruction.
-		int programCounter = 10; 
+		int programCounter = 10;
 		this.connectedMethodCalled = false;
 		try {
-			programCounter = this.dispatch(instruction, pc);
+			programCounter = this.dispatch(instruction, programCounter);
 		} catch (VnanoException | VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Expected exception has not occurred");
@@ -1244,10 +1244,10 @@ public class DispatchUnitTest {
 		);
 
 		// Dispatch/execute the instruction.
-		int programCounter = 10; 
+		int programCounter = 10;
 		this.connectedMethodCalled = false;
 		try {
-			programCounter = this.dispatch(instruction, pc);
+			programCounter = this.dispatch(instruction, programCounter);
 		} catch (VnanoException | VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Expected exception has not occurred");
@@ -1322,10 +1322,10 @@ public class DispatchUnitTest {
 		);
 
 		// Dispatch/execute the instruction.
-		int programCounter = 10; 
+		int programCounter = 10;
 		this.connectedMethodCalled = false;
 		try {
-			programCounter = this.dispatch(instruction, interconnect, pc);
+			programCounter = this.dispatch(instruction, interconnect, programCounter);
 		} catch (VnanoException | VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Expected exception has not occurred");
@@ -1353,9 +1353,9 @@ public class DispatchUnitTest {
 
 
 		// Dispatch/execute the instruction.
-		int programCounter = 10; 
+		int programCounter = 10;
 		try {
-			programCounter = this.dispatch(instruction, pc);
+			programCounter = this.dispatch(instruction, programCounter);
 		} catch (VnanoException | VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Expected exception has not occurred");
@@ -1369,7 +1369,7 @@ public class DispatchUnitTest {
 		// Test of the behaviour when the number of operands is incorrect.
 		try {
 			instruction = this.generateInt64x3Instruction(OperationCode.NOP);
-			programCounter = this.dispatch(instruction, pc);
+			programCounter = this.dispatch(instruction, programCounter);
 			fail("Expected exception has not occurred");
 		} catch (VnanoException | VnanoFatalException e) {
 			// The exception should be thrown for this case.
@@ -1388,9 +1388,9 @@ public class DispatchUnitTest {
 
 
 		// Dispatch/execute the instruction.
-		int programCounter = 10; 
+		int programCounter = 10;
 		try {
-			programCounter = this.dispatch(instruction, pc);
+			programCounter = this.dispatch(instruction, programCounter);
 		} catch (VnanoException | VnanoFatalException e) {
 			e.printStackTrace();
 			fail("Expected exception has not occurred");
@@ -1404,7 +1404,7 @@ public class DispatchUnitTest {
 		// Test of the behaviour when the number of operands is incorrect.
 		try {
 			instruction = this.generateInt64x3Instruction(OperationCode.LABEL);
-			programCounter = this.dispatch(instruction, pc);
+			programCounter = this.dispatch(instruction, programCounter);
 			fail("Expected exception has not occurred");
 		} catch (VnanoException | VnanoFatalException e) {
 			// The exception should be thrown for this case.
