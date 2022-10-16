@@ -73,6 +73,15 @@ public class Interconnect {
 	/** A map to store all names and values of permission items. */
 	private Map<String, String> permissionMap = null;
 
+	/** Stores contents of library scripts, with their names as keys. */
+	private Map<String, String> libraryNameContentMap = null;
+
+	/** Stores the name of the main script. */
+	private String mainScriptName = null;
+
+	/** Stores the content of the main script. */
+	private String mainScriptContent = null;
+
 
 	/**
 	 * Creates a blank interconnect to which nothing are connected.
@@ -84,6 +93,7 @@ public class Interconnect {
 		this.xnci1PluginList = new ArrayList<ExternalNamespaceConnectorInterface1>();
 		this.xfci1PluginList = new ArrayList<ExternalFunctionConnectorInterface1>();
 		this.xvci1PluginList = new ArrayList<ExternalVariableConnectorInterface1>();
+		this.libraryNameContentMap = new LinkedHashMap<String, String>();
 
 		// Create an option map and set default values, and reflect to the engine connector.
 		this.optionMap = new LinkedHashMap<String, Object>();
@@ -900,4 +910,96 @@ public class Interconnect {
 		}
 	}
 
+
+	/**
+	 * Add a library script.
+	 *
+	 * @param libraryScriptName The names of the library script.
+	 * @param libraryScriptContent The content (code) of the library script.
+	 * @throws VnanoException Thrown when incorrect somethings have been detected for the specified library.
+	 */
+	public void addLibraryScript(String libraryScriptName, String libraryScriptContent) throws VnanoException {
+		if (libraryScriptName == null || libraryScriptContent == null) {
+			throw new NullPointerException();
+		}
+		if (this.libraryNameContentMap.containsKey(libraryScriptName)) {
+			throw new VnanoException(ErrorType.LIBRARY_IS_ALREADY_INCLUDED, libraryScriptName);
+		}
+		this.libraryNameContentMap.put(libraryScriptName, libraryScriptContent);
+	}
+
+
+	/**
+	 * Remove all library scripts.
+	 */
+	public void removeAllLibraryScripts() {
+		this.libraryNameContentMap = new LinkedHashMap<String, String>();
+	}
+
+
+	/**
+	 * Set the main script.
+	 * 
+	 * @param mainScriptName The name of the main script.
+	 * @param mainScriptContent The content of the main script.
+	 */
+	public void setMainScript(String mainScriptName, String mainScriptContent) {
+		this.mainScriptName = mainScriptName;
+		this.mainScriptContent = mainScriptContent;
+	}
+
+
+	/**
+	 * Remove the main script.
+	 */
+	public void removeMainScript() {
+		this.mainScriptName = null;
+		this.mainScriptContent = null;
+	}
+
+
+	/**
+	 * Gets the number of the registered library scripts.
+	 * 
+	 * @return The number of the registered library scripts.
+	 */
+	public int getLibraryScriptCount() {
+		return this.libraryNameContentMap.size();
+	}
+
+
+	/**
+	 * Gets the names of all scripts (the main script and the library scripts).
+	 * 
+	 * @return The names of all scripts.
+	 */
+	public String[] getScriptNames() {
+		List<String> scriptNameList = new ArrayList<String>();
+		for (Map.Entry<String, String> nameContentPair: this.libraryNameContentMap.entrySet()) {
+			String libName = IdentifierSyntax.normalizeScriptIdentifier( nameContentPair.getKey() );
+			scriptNameList.add(libName);
+		}
+		scriptNameList.add(this.mainScriptName);
+		String[] scriptNames = new String[scriptNameList.size()];
+		scriptNames = scriptNameList.toArray(scriptNames);
+		return scriptNames;
+	}
+
+
+	/**
+	 * Gets the contents of all scripts (the main script and the library scripts).
+	 * 
+	 * @return The contents of all scripts.
+	 */
+	public String[] getScriptContents() {
+		List<String> scriptContentList = new ArrayList<String>();
+		for (Map.Entry<String, String> nameContentPair: this.libraryNameContentMap.entrySet()) {
+			String libContent = nameContentPair.getValue();
+			scriptContentList.add(libContent);
+		}
+		scriptContentList.add(this.mainScriptContent);
+		String[] scriptContents = new String[scriptContentList.size()];
+		scriptContents = scriptContentList.toArray(scriptContents);
+		return scriptContents;
+	}
 }

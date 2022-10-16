@@ -33,15 +33,11 @@ public final class VnanoEngine {
 	/** Stores an object to mediate information/connections between components ("interconnect"). */
 	private Interconnect interconnect = null;
 
-	/** Stores contents of library scripts, with their names as keys. */
-	private Map<String, String> libraryNameContentMap = null;
-
 
 	/**
 	 * Create a Vnano Engine with default settings.
 	 */
 	public VnanoEngine() {
-		this.libraryNameContentMap = new LinkedHashMap<String, String>();
 		this.interconnect = new Interconnect();
 		this.virtualMachine = new VirtualMachine();
 	}
@@ -78,26 +74,21 @@ public final class VnanoEngine {
 				throw new ScriptException(message);
 			}
 
+			// Get the name of the main script from the option map, if it is set.
+			// (The main script name has already been normalized,
+			//  because all option values are normalized when the option map is set to the engine.)
+			String mainScriptName = (String)this.interconnect.getOptionMap().get(OptionKey.MAIN_SCRIPT_NAME);
+
+			// Set the name/content of the main script, to the interconnect.
+			this.interconnect.setMainScript(mainScriptName, script);
+
 			// Activate the interconnect, for executing the script.
 			// (All connected plug-ins are initialized at this timing.)
 			this.interconnect.activate();
 
-			// Store the specified (main) script and library scripts into an array.
-			int libN = this.libraryNameContentMap.size();
-			String[] scripts = new String[libN  + 1];
-			String[] names   = new String[libN + 1];
-			names[libN] = (String)this.interconnect.getOptionMap().get(OptionKey.MAIN_SCRIPT_NAME); // This name is already been normalized.
-			scripts[libN] = script;
-			int libIndex = 0;
-			for (Map.Entry<String, String> nameContentPair: this.libraryNameContentMap.entrySet()) {
-				names[libIndex] = IdentifierSyntax.normalizeScriptIdentifier( nameContentPair.getKey() ); // This name has not been normalized yet, so normalize.
-				scripts[libIndex] = nameContentPair.getValue();
-				// The name of the main script must not duplicate with the names of the library scripts.
-				if (names[libIndex].equals(names[libN])) {
-					throw new VnanoException(ErrorType.LIBRARY_SCRIPT_NAME_IS_CONFLICTING_WITH_MAIN_SCRIPT_NAME, names[libIndex]);
-				}
-				libIndex++;
-			}
+			// Get the names/contents of all scripts (the main script and all library scripts), from the interconnect.
+			String[] scripts = this.interconnect.getScriptContents();
+			String[] names   = this.interconnect.getScriptNames();
 
 			// Translate scripts to a VRIL code (intermediate assembly code) by a compiler.
 			String assemblyCode = new Compiler().compile(scripts, names, this.interconnect);
@@ -306,10 +297,7 @@ public final class VnanoEngine {
 		if (libraryScriptName == null || libraryScriptContent == null) {
 			throw new NullPointerException();
 		}
-		if (this.libraryNameContentMap.containsKey(libraryScriptName)) {
-			throw new VnanoException(ErrorType.LIBRARY_IS_ALREADY_INCLUDED, libraryScriptName);
-		}
-		this.libraryNameContentMap.put(libraryScriptName, libraryScriptContent);
+		this.interconnect.addLibraryScript(libraryScriptName, libraryScriptContent);
 	}
 
 
@@ -321,7 +309,7 @@ public final class VnanoEngine {
 	 *   but it requires to be "catch"-ed for keeping compatibility in future.
 	 */
 	public void unincludeAllLibraryScripts() throws VnanoException {
-		this.libraryNameContentMap = new LinkedHashMap<String, String>();
+		this.interconnect.removeAllLibraryScripts();
 	}
 
 
