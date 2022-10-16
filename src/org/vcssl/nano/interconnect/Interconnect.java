@@ -7,10 +7,12 @@ package org.vcssl.nano.interconnect;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
+import java.util.LinkedHashMap;
+import java.util.Set;
+import java.util.HashSet;
 
 import org.vcssl.connect.ClassToXnci1Adapter;
 import org.vcssl.connect.ConnectorException;
@@ -82,6 +84,11 @@ public class Interconnect {
 	/** Stores the content of the main script. */
 	private String mainScriptContent = null;
 
+	/** Stores "import paths" of libraries, which can be specified as values of "import" declarations. */
+	private Set<String> libraryImportPathSet;
+
+	/** Stores "import paths" of namespaces provided by plug-ins, which can be specified as values of "import" declarations. */
+	private Set<String> pluginImportPathSet;
 
 	/**
 	 * Creates a blank interconnect to which nothing are connected.
@@ -94,6 +101,9 @@ public class Interconnect {
 		this.xfci1PluginList = new ArrayList<ExternalFunctionConnectorInterface1>();
 		this.xvci1PluginList = new ArrayList<ExternalVariableConnectorInterface1>();
 		this.libraryNameContentMap = new LinkedHashMap<String, String>();
+		this.libraryImportPathSet = new HashSet<String>();
+		this.pluginImportPathSet = new HashSet<String>();
+
 
 		// Create an option map and set default values, and reflect to the engine connector.
 		this.optionMap = new LinkedHashMap<String, Object>();
@@ -409,6 +419,7 @@ public class Interconnect {
 		this.xnci1PluginList = new ArrayList<ExternalNamespaceConnectorInterface1>();
 		this.xfci1PluginList = new ArrayList<ExternalFunctionConnectorInterface1>();
 		this.xvci1PluginList = new ArrayList<ExternalVariableConnectorInterface1>();
+		this.pluginImportPathSet = new HashSet<String>();
 		this.permissionAuthorizer = null;
 	}
 
@@ -718,6 +729,9 @@ public class Interconnect {
 			nameapaceName = aliasName;
 		}
 
+		// Register the namespace to make it available as the value of "import" declaration.
+		this.pluginImportPathSet.add(nameapaceName);
+
 		// Connect all function plug-ins, which belong to the namespace to be connected.
 		ExternalFunctionConnectorInterface1[] xfciPlugins = plugin.getFunctions();
 		for (ExternalFunctionConnectorInterface1 xfciPlugin: xfciPlugins) {
@@ -925,7 +939,11 @@ public class Interconnect {
 		if (this.libraryNameContentMap.containsKey(libraryScriptName)) {
 			throw new VnanoException(ErrorType.LIBRARY_IS_ALREADY_INCLUDED, libraryScriptName);
 		}
-		this.libraryNameContentMap.put(libraryScriptName, libraryScriptContent);
+		String normalizedName = IdentifierSyntax.normalizeScriptIdentifier(libraryScriptName);
+		this.libraryNameContentMap.put(normalizedName, libraryScriptContent);
+
+		String importPath = this.getImportPathOf(normalizedName);
+		this.libraryImportPathSet.add(importPath);
 	}
 
 
@@ -934,6 +952,7 @@ public class Interconnect {
 	 */
 	public void removeAllLibraryScripts() {
 		this.libraryNameContentMap = new LinkedHashMap<String, String>();
+		this.libraryImportPathSet = new HashSet<String>();
 	}
 
 
@@ -976,7 +995,7 @@ public class Interconnect {
 	public String[] getScriptNames() {
 		List<String> scriptNameList = new ArrayList<String>();
 		for (Map.Entry<String, String> nameContentPair: this.libraryNameContentMap.entrySet()) {
-			String libName = IdentifierSyntax.normalizeScriptIdentifier( nameContentPair.getKey() );
+			String libName = nameContentPair.getKey();
 			scriptNameList.add(libName);
 		}
 		scriptNameList.add(this.mainScriptName);
@@ -1001,5 +1020,45 @@ public class Interconnect {
 		String[] scriptContents = new String[scriptContentList.size()];
 		scriptContents = scriptContentList.toArray(scriptContents);
 		return scriptContents;
+	}
+
+
+	/**
+	 * Converts the specified script name/path to the "import path".
+	 * 
+	 * An import path is a string which can be specified as a value of a "import" declaration,
+	 * e.g.: "dir1.dir2.ExampleScript" for the script "dir1/dir2/ExampleScript.vnano".
+	 * 
+	 * @param scriptName The name or path of the script.
+	 * @return The "import path" of the script.
+	 */
+	private String getImportPathOf(String scriptName) {
+		String identifier = scriptName;
+		if (identifier.toLowerCase().endsWith(".vnano")) {
+			identifier = identifier.substring(0, identifier.length() - ".vnano".length());
+		}
+		identifier = identifier.replace('/', '.');
+		identifier = identifier.replace('\\', '.');
+		identifier = identifier.replace(':', '.');
+		identifier = identifier.replaceAll("\\.+", ".");
+		identifier = identifier.replaceAll("^\\.", "");
+		return identifier;
+	}
+
+
+	/**
+	 * Returns whether this interconnect has the library or plug-in, corresponding with the specified "import path". 
+	 * 
+	 * @param importPath The "import path" of the library/plug-in.
+	 * @return Returns true if the corresponding library/plug-in exists in this interconnect.
+	 */
+	public boolean hasDependentLibraryOrPlugin(String importPath) {
+		if (this.libraryImportPathSet.contains(importPath)) {
+			return true;
+		}
+		if (this.pluginImportPathSet.contains(importPath)) {
+			return true;
+		}
+		return false;
 	}
 }
