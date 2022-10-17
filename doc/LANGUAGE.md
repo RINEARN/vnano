@@ -24,6 +24,7 @@
     - [Formal parameters and actual arguments](#function-params-and-args)
     - [Call by value](#function-call-by-value)
     - [Call by reference](#function-call-by-reference)
+- ["import" and "include" Declarations](#import)
 
 <hr />
 
@@ -476,3 +477,43 @@ The result is:
     y[2] = 12
 
 The memory-reference to data of a formal parameter declared with "&" will be shared with reference to data of an actual argument. Hence, as demonstrated by the above result, after values of formal parameters "x" and "y" in the function "fun" changed, actual arguments "a" and "b" of caller-side also changed to same values with "x" and "y". This behaviour is called as "call-by-reference".
+
+
+
+<a id="import"></a>
+## "import" and "include" Declarations
+
+In the VCSSL, which is the "parent language" of the Vnano, 
+we can describe "import" / "include" declarations in scripts, for loading specified libraries.
+For example:
+
+    import ExampleLibrary;
+
+    float value = exampleFunction(1.2);
+
+If we execute the above code as a VCSSL script, 
+the "ExampleLibrary" will be loaded automatically by the line "import ExampleLibrary;", and then its member function "exampleFunction" will be available in the script.
+
+On the other hand, in the Vnano (is a subset of the VCSSL for embedded use), scripts can not request the scripting engine to load libraries/plug-ins.
+All libraries/plug-ins must be loaded/specified by application-side code or setting files (see [Main Features of Vnano Engine, and Examples](FEATURE.md)), not scripts.
+This is a restriction for keeping security in embedded use.
+
+However, it is possible to "import" or "include" declarations in Vnano scripts, though the specified libraries/plug-ins will not load automatically.
+If an "import" / "include" declaration exists in a Vnano script, the scripting engine confirms that 
+whether the specified library (or the plug-in providing the same namespace) has been loaded.
+If it has not been loaded, the engine notify the user of missing the library/plug-in, as an error message.
+
+For example, if we execute the above example code as a Vnano script, and the library "ExampleLibrary" (or the plug-in prividing "ExampleLibrary" namespace) is not loaded, the following error message will be displayed:
+
+    This script requires features of "ExampleLibrary", but no library or plug-in providing them is not loaded.
+    Check the settings to load libraries/plug-ins.
+
+Also, if we removed the line "import ExampleLibrary;" from the script, the error message changes to the following: 
+
+    Unknown function "exampleFunction(float)" is called.
+
+The former error message is more user friendly than the latter one, because the user can grasp what they should do for solving the problem.
+
+When the specified librarie or plug-in has been loaded and is available, nothing occurs by the "import" / "include" declaration.
+Hence, "import" / "include" declarations are not mandatory for Vnano scripts, but they give the advantage shown in the above.
+
