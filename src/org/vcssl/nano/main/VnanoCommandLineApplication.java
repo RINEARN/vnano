@@ -21,6 +21,8 @@ import java.util.Set;
 import org.vcssl.connect.ConnectorException;
 import org.vcssl.connect.ConnectorImplementationContainer;
 import org.vcssl.connect.ConnectorImplementationLoader;
+import org.vcssl.connect.ConnectorPermissionName;
+import org.vcssl.connect.ConnectorPermissionValue;
 import org.vcssl.nano.VnanoEngine;
 import org.vcssl.nano.VnanoException;
 import org.vcssl.nano.combinedtest.CombinedTestException;
@@ -45,7 +47,7 @@ public final class VnanoCommandLineApplication {
 	 */
 	public void help() {
 		System.out.print("Vnano " + EngineInformation.ENGINE_VERSION);
-		System.out.println("  (Command-Line Mode for Developments and Debuggings)");
+		System.out.println("  (Command-Line Mode)");
 
 		System.out.println("");
 		System.out.println("[ Usage ]");
@@ -256,6 +258,36 @@ public final class VnanoCommandLineApplication {
 		System.out.println("");
 		System.out.println("");
 
+		System.out.println("  --permission <permissionSettingsName>");
+		System.out.println("");
+		System.out.println("      Specify the name of the permission settings.");
+		System.out.println("      This option is specified by default, and the default value is \"" + PERMISSION_VALUE_DENY_ALL + "\"");
+		System.out.println("      You can choose and specify the value of <permissionSettingsName> from the followings:");
+		System.out.println("");
+		System.out.println("          denyAll   : Denies all permission requests.");
+		System.out.println("          allowAll  : Allows all permission requests.");
+		System.out.println("          askAll    : Asks users whether allow or deny each permission request, for all permission items.");
+		System.out.println("");
+		System.out.println("          balanced  : The settings considering the balance between usability and protectivity, as follows:");
+		System.out.println("");
+		System.out.println("                        * DEFAULT:          ASK");
+		System.out.println("                        * FILE_CREATE:      ALLOW");
+		System.out.println("                        * FILE_WRITE:       ALLOW");
+		System.out.println("                      ( * FILE_OVERWRITE:   ASK   )");
+		System.out.println("                        * FILE_READ:        ALLOW");
+		System.out.println("                        * DIRECTORY_CREATE: ALLOW");
+		System.out.println("                        * DIRECTORY_LIST:   ALLOW");
+		System.out.println("                        * PROGRAM_EXIT:     ALLOW");
+		System.out.println("                        * PROGRAM_RESET:    ALLOW");
+		System.out.println("");
+		System.out.println("    e.g.");
+		System.out.println("");
+		System.out.println("      java -jar Vnano.jar Example.vnano --permission denyAll");
+		System.out.println("      java -jar Vnano.jar Example.vnano --permission askAll");
+		System.out.println("      java -jar Vnano.jar Example.vnano --permission balanced");
+		System.out.println("");
+		System.out.println("");
+
 		System.out.println("  --test");
 		System.out.println("");
 		System.out.println("      Execute combined tests of the script engine of the Vnano.");
@@ -372,6 +404,9 @@ public final class VnanoCommandLineApplication {
 	/** The name of --libList option. */
 	private static final String COMMAND_OPTNAME_LIBRARY_LIST = "libList";
 
+	/** The name of --permission option. */
+	private static final String COMMAND_OPTNAME_PERMISSION = "permission";
+
 	/** The name of --test option. */
 	private static final String COMMAND_OPTNAME_TEST = "test";
 
@@ -466,6 +501,66 @@ public final class VnanoCommandLineApplication {
 	/** Stores the specified value of the --perf option (perf target). */
 	private String perfTarget = null;
 
+
+	// --------------------------------------------------------------------------------
+	// Definitions of The Values of the --permission Option (perf target)
+	// --------------------------------------------------------------------------------
+
+	/** Represents the permission settings denying all requests. */
+	private static final String PERMISSION_VALUE_DENY_ALL = "denyAll";
+
+	/** Represents the permission settings allowing all requests. */
+	private static final String PERMISSION_VALUE_ALLOW_ALL = "allowAll";
+
+	/** Represents the permission map asking users whether allows/deny a request, for all permission items. */
+	private static final String PERMISSION_VALUE_ASK_ALL = "askAll";
+
+	/** Represents the permission map considering the balance between usability and protectivity. */
+	private static final String PERMISSION_VALUE_BALANCED = "balanced";
+
+	/** Stores the map of the permission settings specified by --permission option. */
+	private Map<String, String> permissionMap = PERMISSION_MAP_DENY_ALL;
+
+
+	// --------------------------------------------------------------------------------
+	// Definitions of Permission Maps
+	// --------------------------------------------------------------------------------
+
+	/** The permission map denying all requests. */
+	@SuppressWarnings("serial")
+	private static final Map<String, String> PERMISSION_MAP_DENY_ALL = new HashMap<String, String>() {{
+		put(ConnectorPermissionName.DEFAULT, ConnectorPermissionValue.DENY);
+	}};
+
+	/** The permission map allowing all requests. */
+	@SuppressWarnings("serial")
+	private static final Map<String, String> PERMISSION_MAP_ALLOW_ALL = new HashMap<String, String>() {{
+		put(ConnectorPermissionName.DEFAULT, ConnectorPermissionValue.ALLOW);
+	}};
+
+	/** The permission map asking users whether allows/deny a request, for all permission items. */
+	@SuppressWarnings("serial")
+	private static final Map<String, String> PERMISSION_MAP_ASK_ALL = new HashMap<String, String>() {{
+		put(ConnectorPermissionName.DEFAULT, ConnectorPermissionValue.ASK);
+	}};
+
+	/** The permission map considering the balance between usability and protectivity. */
+	@SuppressWarnings("serial")
+	private static final Map<String, String> PERMISSION_MAP_BALANCED = new HashMap<String, String>() {{
+		put(ConnectorPermissionName.DEFAULT, ConnectorPermissionValue.ASK);
+		put(ConnectorPermissionName.PROGRAM_EXIT, ConnectorPermissionValue.ALLOW);
+		put(ConnectorPermissionName.PROGRAM_RESET, ConnectorPermissionValue.ALLOW);
+		put(ConnectorPermissionName.DIRECTORY_CREATE, ConnectorPermissionValue.ALLOW);
+		put(ConnectorPermissionName.DIRECTORY_LIST, ConnectorPermissionValue.ALLOW);
+		put(ConnectorPermissionName.FILE_CREATE, ConnectorPermissionValue.ALLOW);
+		put(ConnectorPermissionName.FILE_WRITE, ConnectorPermissionValue.ALLOW);
+		put(ConnectorPermissionName.FILE_READ, ConnectorPermissionValue.ALLOW);
+	}};
+
+
+	// --------------------------------------------------------------------------------
+	// Others
+	// --------------------------------------------------------------------------------
 
 	/** The Map storing the specified (and default) option names and values, to be passed to the script engine.  */
 	private Map<String, Object> engineOptionMap = new HashMap<String, Object>();
@@ -869,6 +964,36 @@ public final class VnanoCommandLineApplication {
 				return true;
 			}
 
+			// --libList option:
+			case COMMAND_OPTNAME_PERMISSION : {
+				if (optionValue == null) {
+					System.err.println("No value is specified for --" + COMMAND_OPTNAME_PERMISSION + " option.");
+					return false;
+				}
+				switch (optionValue) {
+					case PERMISSION_VALUE_DENY_ALL : {
+						this.permissionMap = PERMISSION_MAP_DENY_ALL;
+						return true;
+					}
+					case PERMISSION_VALUE_ALLOW_ALL : {
+						this.permissionMap = PERMISSION_MAP_ALLOW_ALL;
+						return true;
+					}
+					case PERMISSION_VALUE_ASK_ALL : {
+						this.permissionMap = PERMISSION_MAP_ASK_ALL;
+						return true;
+					}
+					case PERMISSION_VALUE_BALANCED : {
+						this.permissionMap = PERMISSION_MAP_BALANCED;
+						return true;
+					}
+					default: {
+						System.err.println("Invalid value for --" + COMMAND_OPTNAME_PERMISSION + " option: " + optionValue);
+						return false;
+					}
+				}
+			}
+
 			// --test option:
 			case COMMAND_OPTNAME_TEST : {
 				// Enable the flag to run tests.
@@ -951,17 +1076,22 @@ public final class VnanoCommandLineApplication {
 	 * The initialization taken by this method contains option settings and plugin loadings.
 	 *
 	 * @param optionMap The Map in which option names (as keys) and values are stored.
+	 * @param permissionMap The Map in which permission item names (as keys) and values are stored.
 	 * @param pluginLoader The loader of plugins.
 	 * @return The initialized VnanoEngine.
 	 */
-	private VnanoEngine createInitializedVnanoEngine(Map<String, Object> optionMap, PluginLoader pluginLoader) {
+	private VnanoEngine createInitializedVnanoEngine(
+			Map<String, Object> optionMap, Map<String, String> permissionMap, PluginLoader pluginLoader) {
+
 		VnanoEngine engine = new VnanoEngine();
 
-		// Plugins may access to options, so fistly set options to the engine before loading plugins.
+		// Plugins may access to option/permission settings, 
+		// so firstly set options/permissions to the engine before loading plugins.
 		try {
 			engine.setOptionMap(optionMap);
+			engine.setPermissionMap(permissionMap);
 		} catch (VnanoException e) {
-			System.err.println("Option setting failed.");
+			System.out.println("Invalid option/permission settings have been detected.");
 			e.printStackTrace();
 			return null;
 		}
@@ -1010,17 +1140,22 @@ public final class VnanoCommandLineApplication {
 	 * The initialization taken by this method contains option settings and plugin loadings.
 	 *
 	 * @param optionMap The Map in which option names (as keys) and values are stored.
+	 * @param permissionMap The Map in which permission item names (as keys) and values are stored.
 	 * @param pluginLoader The loader of plugins.
 	 * @return The initialized Interconenct.
 	 */
-	private Interconnect createInitializedInterconnect(Map<String, Object> optionMap, PluginLoader pluginLoader) {
+	private Interconnect createInitializedInterconnect(
+			Map<String, Object> optionMap, Map<String, String> permissionMap, PluginLoader pluginLoader) {
+
 		Interconnect interconnect = new Interconnect();
 
-		// Plugins may access to options, so fistly set options to the engine before loading plugins.
+		// Plugins may access to option/permission settings, 
+		// so firstly set options/permissions to the engine before loading plugins.
 		try {
 			interconnect.setOptionMap(optionMap);
+			interconnect.setPermissionMap(permissionMap);
 		} catch (VnanoException e) {
-			System.out.println("Invalid option detected.");
+			System.out.println("Invalid option/permission settings have been detected.");
 			e.printStackTrace();
 		}
 
@@ -1067,7 +1202,7 @@ public final class VnanoCommandLineApplication {
 	 */
 	private boolean executeCombinedTest() {
 		VnanoEngine engine = this.createInitializedVnanoEngine(
-			this.engineOptionMap, new PluginLoader(DEFAULT_ENCODING)
+			this.engineOptionMap, this.permissionMap, new PluginLoader(DEFAULT_ENCODING)
 		);
 
 		try {
@@ -1148,7 +1283,7 @@ public final class VnanoCommandLineApplication {
 
 		// Create an initialized VnanoEngine,
 		// where the "initialization" contains option settings and plugin loadings.
-		VnanoEngine engine = this.createInitializedVnanoEngine(this.engineOptionMap, pluginLoader);
+		VnanoEngine engine = this.createInitializedVnanoEngine(this.engineOptionMap, this.permissionMap, pluginLoader);
 
 		// Register library scripts to be "include"-ed.
 		if (scriptLoader.hasLibraryScripts()) {
@@ -1208,7 +1343,7 @@ public final class VnanoCommandLineApplication {
 
 		// Create an initialized Interconnect,
 		// where the "initialization" contains option settings and plugin loadings.
-		Interconnect interconnect = this.createInitializedInterconnect(this.engineOptionMap, pluginLoader);
+		Interconnect interconnect = this.createInitializedInterconnect(this.engineOptionMap, this.permissionMap, pluginLoader);
 		if (interconnect == null) {
 			return;
 		}
