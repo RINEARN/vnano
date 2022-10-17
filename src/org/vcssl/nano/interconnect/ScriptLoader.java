@@ -64,6 +64,9 @@ public class ScriptLoader {
 	/** The list of the file paths of the library scripts. */
 	private List<String> libraryScriptPathList = null;
 
+	/** The list of the file paths of the library scripts, . */
+	private List<String> libraryScriptRawPathList = null;
+
 	/** The list of the contents of the library scripts. */
 	private List<String> libraryScriptContentList = null;
 

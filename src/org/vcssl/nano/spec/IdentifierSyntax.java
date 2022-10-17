@@ -300,12 +300,12 @@ public final class IdentifierSyntax {
 	 * so we must replace special symbols in script names to non-special symbols.
 	 * This method performs the above, and we call it as "normalization of script names".
 	 * 
-	 * @param scriptName The script name to be normalized.
+	 * @param scriptPathOrName The file path or the name of the script, to be normalized.
 	 * @return The normalized script name.
 	 */
-	public static final String normalizeScriptIdentifier(String scriptName) {
+	public static final String normalizeScriptIdentifier(String scriptPathOrName) {
 
-		String normalizedName = scriptName;
+		String normalizedName = scriptPathOrName;
 
 		// Note: In the current specification, we allow dots "." to be contained in script names.
 
@@ -328,13 +328,18 @@ public final class IdentifierSyntax {
 		normalizedName = normalizedName.replaceAll("\r", escapedWord);
 		normalizedName = normalizedName.replaceAll("\n", escapedWord);
 
+		// Remove redundant "./" in the path.
+		if (normalizedName.startsWith("./") || normalizedName.startsWith(".\\")) {
+			normalizedName = normalizedName.substring(2);
+		}
+
 		// To avoid confusion, replace white-spaces.
 		// 
 		// Note that, to the script code passed as an argument of "eval" method directly,
 		// the special script name "main script" (OptionValue.MAIN_SCRIPT_NAME_DEFAULT) will be assigned by default.
 		// It contains a white space on purpose to avoid conflict of names with other (library) scripts.
 		// So we must not replace a white space in MAIN_SCRIPT_NAME_DEFAULT.
-		if (!scriptName.equals(OptionValue.MAIN_SCRIPT_NAME_DEFAULT)) {
+		if (!normalizedName.equals(OptionValue.MAIN_SCRIPT_NAME_DEFAULT)) {
 			normalizedName = normalizedName.replaceAll(" ", escapedWord);
 		}
 
