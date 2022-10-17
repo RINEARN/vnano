@@ -178,6 +178,7 @@ public class ErrorMessage {
 			case CAN_NOT_GET_OPTION_MAP: return "取得可能なオプションマップがありません。";
 			case CAN_NOT_GET_PERMISSION_MAP: return "取得可能なパーミッションマップが無いか、設定により拒否されました。";
 			case INVALID_DEPENDENCY_DECLARATION_SYNTAX: return "import/include宣言が、想定外の形で記述されています。";
+			case INVALID_DEPENDENCY_DECLARATION_LOCATION: return "import/include宣言が、想定外の場所にあります。正しくは、スクリプトの先頭付近（ヘッダ領域）に書く必要があります。";
 			case DECLARED_DEPENDENCY_IS_NOT_AVAILABLE: return "このスクリプトは「 " + words[0] + " 」の機能群を使用しますが、それを提供するライブラリ/プラグインが読み込まれていません。ライブラリ/プラグインの読み込み設定を確認してください。";
 			case UNEXPECTED_ACCELERATOR_CRASH : return "予期しないVMエラー (命令アドレス: " + words[0] + ", 再配置後命令アドレス: " + words[1] + ")";
 			case UNEXPECTED_PROCESSOR_CRASH : return "予期しないVMエラー（命令アドレス: " + words[0] + ")";
@@ -305,6 +306,7 @@ public class ErrorMessage {
 			case CAN_NOT_GET_OPTION_MAP: return "There is no option map to return";
 			case CAN_NOT_GET_PERMISSION_MAP: return "There is no permission map to return, or denied based on settings";
 			case INVALID_DEPENDENCY_DECLARATION_SYNTAX: return "The syntax of the \"import\" / \"include\" declaration statement is incorrect";
+			case INVALID_DEPENDENCY_DECLARATION_LOCATION: return "The location of the \"import\" / \"include\" declaration is incorrect. It should be described at the near the top (header section) of the script.";
 			case DECLARED_DEPENDENCY_IS_NOT_AVAILABLE: return "This script requires features of \"" + words[0] + "\", but no library or plug-in providing them is not loaded. Check the settings to load libraries/plug-ins.";
 			case UNEXPECTED_ACCELERATOR_CRASH : return "Unexpected VM Error (instruction-addr: " + words[0] + ", reordered-instruction-addr: " + words[1] + ")";
 			case UNEXPECTED_PROCESSOR_CRASH : return "Unexpected VM Error (instruction-addr: " + words[0] + ")";

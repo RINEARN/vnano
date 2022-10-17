@@ -63,6 +63,14 @@ public class SemanticAnalyzer {
 		VariableTable globalVariableTable = interconnect.getExternalVariableTable();
 		FunctionTable globalFunctionTable = interconnect.getExternalFunctionTable();
 
+		// Check values and locations of dependency declaration statements ("import", "include", etc.).
+		// Note that, this should be done before analyzing variable/function identifiers referred in the script.
+		// Because: If the dependent libraries/plug-ins are not loaded/connected,
+		//          their member variables/functions should not be found. In such case,
+		//          the latter errors are "side effects" of the missing of libraries/plug-ins, 
+		//          so we should indicate the user of the "direct cause" as an error message.
+		this.checkDependencyDeclarationsAndLocations(outputAst, interconnect);
+
 		// Replace all aliases of data-type names (e.g.: double to float, long to int, and so on).
 		this.replaceAliasDataTypeNames(outputAst);
 
@@ -1521,6 +1529,75 @@ public class SemanticAnalyzer {
 						ErrorType.RETURNED_VALUE_IS_MISSING, currentNode.getFileName(), currentNode.getLineNumber()
 					);
 				}
+			}
+
+		} while (!currentNode.isPreorderDftLastNode());
+	}
+
+
+	/**
+	 * Checks values and locations of dependency declaration statements ("import" and so on).
+	 *
+	 * @param astRootNode The root node of the AST to be checked.
+	 * @param interconnect The Interconnect having libraries/plug-ins, which may be referred by dependency declarations.
+	 * @throws VnanoException
+	 * 	   Thrown if a dependency declaration is out of the header section,
+	 *     or specified library/namespace (provided by a plug-in) has not been found.
+	 */
+	private void checkDependencyDeclarationsAndLocations(AstNode astRootNode, Interconnect interconnect) throws VnanoException {
+
+		// The flag representing that the currently traversed node is in header the section of the script.
+		// ( Only an encoding declaration and dependency declarations can be described in the header section,
+		//   and the encoding declaration should has been removed by Preprocessor. )
+		boolean isInHeader = true;
+
+		// Traverse all nodes in the AST.
+		AstNode currentNode = astRootNode;
+		do {
+			currentNode = currentNode.getPreorderDftNextNode();
+
+			// "import" or "include" declarations: check availability of the specified library or namespace (provided by a plug-in).
+			if (currentNode.getType() == AstNode.Type.IMPORT || currentNode.getType() == AstNode.Type.INCLUDE) {
+				if (isInHeader) {
+
+					// The specified value of "import" / "include" declaration is connected to the IMPORT/INCLUDE node,
+					// as a LITERAL type child node ("literalType" attribute is "dependencyIdentifier"), so check it.
+					if (!currentNode.hasChildNodes()) {
+						throw new VnanoFatalException("An expected child node of IMPORT/INCLUDE node has not been found.");
+					}
+					AstNode dependencyIdentifierNode = currentNode.getChildNodes()[0];
+					if (dependencyIdentifierNode.getType() != AstNode.Type.LEAF
+							|| !dependencyIdentifierNode.getAttribute(AttributeKey.LEAF_TYPE).equals(AttributeValue.DEPENDENCY_IDENTIFIER)) {
+						throw new VnanoFatalException("Incorrect node type has been detected for the child node of IMPORT/INCLUDE node.");
+					}
+					
+					// Get the value of the specified dependency identifier (= "import path").
+					String dependencyIdentifier = dependencyIdentifierNode.getAttribute(AttributeKey.IDENTIFIER_VALUE);
+
+					// If the specified dependency is available, do nothing.
+					boolean isDependencyAvailable = interconnect.hasDependentLibraryOrPlugin(dependencyIdentifier);
+					if (isDependencyAvailable) {
+						continue;
+
+					// If the specified dependency is not available: Error.
+					} else {
+						throw new VnanoException(
+							ErrorType.DECLARED_DEPENDENCY_IS_NOT_AVAILABLE, new String[] {dependencyIdentifier},
+							currentNode.getFileName(), currentNode.getLineNumber()
+						);
+					}
+					
+				// If the dependency declaration exists at the out of the header section: Error.
+				} else {
+					throw new VnanoException(
+						ErrorType.INVALID_DEPENDENCY_DECLARATION_LOCATION,
+						currentNode.getFileName(), currentNode.getLineNumber()
+					);
+				}
+			
+			// Other node: ends the header section.
+			} else {
+				isInHeader = false;
 			}
 
 		} while (!currentNode.isPreorderDftLastNode());

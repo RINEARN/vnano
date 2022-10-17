@@ -416,7 +416,7 @@ public class LexicalAnalyzer {
 
 				// Dependency identifier (values of import/include declarations):
 				} else if (0<i && tokens[i-1].getType() == Token.Type.DEPENDENCY_DECLARATOR) {
-					tokens[i].setAttribute(AttributeKey.LEAF_TYPE, AttributeValue.NAMESPACE_IDENTIFIER);
+					tokens[i].setAttribute(AttributeKey.LEAF_TYPE, AttributeValue.DEPENDENCY_IDENTIFIER);
 
 				// Function identifier:
 				} else if (i<tokenLength-1 && tokens[i+1].getValue().equals(ScriptWord.PARENTHESIS_BEGIN)) {
