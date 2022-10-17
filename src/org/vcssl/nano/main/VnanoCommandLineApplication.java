@@ -1135,6 +1135,7 @@ public final class VnanoCommandLineApplication {
 	public void executeVnanoScriptFile(ScriptLoader scriptLoader, PluginLoader pluginLoader) throws VnanoException {
 
 		// Set the name of the script to the option map.
+		// (The "import path" of the main script should not be a relative path form, so specify only the name, not path.)
 		this.engineOptionMap.put(OptionKey.MAIN_SCRIPT_NAME, scriptLoader.getMainScriptName());
 
 		// Set the UI_MODE option to CUI mode.
@@ -1151,11 +1152,11 @@ public final class VnanoCommandLineApplication {
 
 		// Register library scripts to be "include"-ed.
 		if (scriptLoader.hasLibraryScripts()) {
-			String[] libNames = scriptLoader.getLibraryScriptNames();
+			String[] libPaths = scriptLoader.getLibraryScriptPaths();
 			String[] libContents = scriptLoader.getLibraryScriptContents();
-			int libN = libNames.length;
+			int libN = libPaths.length;
 			for (int libIndex=0; libIndex<libN; libIndex++) {
-				engine.includeLibraryScript(libNames[libIndex], libContents[libIndex]);
+				engine.includeLibraryScript(libPaths[libIndex], libContents[libIndex]);
 			}
 		}
 

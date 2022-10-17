@@ -224,11 +224,11 @@ public final class VnanoScriptEngine implements ScriptEngine {
 
 		// (Re-)Include library scripts.
 		if(this.libraryScriptLoader.hasLibraryScripts()) {
-			String[] libNames = this.libraryScriptLoader.getLibraryScriptNames();
+			String[] libPaths = this.libraryScriptLoader.getLibraryScriptPaths();
 			String[] libContents = this.libraryScriptLoader.getLibraryScriptContents();
-			int libN = libNames.length;
+			int libN = libPaths.length;
 			for (int libIndex=0; libIndex<libN; libIndex++) {
-				this.vnanoEngine.includeLibraryScript(libNames[libIndex], libContents[libIndex]);
+				this.vnanoEngine.includeLibraryScript(libPaths[libIndex], libContents[libIndex]);
 			}
 		}
 	}

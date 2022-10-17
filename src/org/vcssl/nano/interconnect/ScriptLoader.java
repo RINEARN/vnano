@@ -86,7 +86,7 @@ public class ScriptLoader {
 	 * 
 	 * @param defaultEncoding The path of the main script file.
 	 */
-	public void setMainScriptPath (String scriptFilePath) {
+	public void setMainScriptPath(String scriptFilePath) {
 		this.mainScriptPath = scriptFilePath;
 	}
 
@@ -141,6 +141,16 @@ public class ScriptLoader {
 
 
 	/**
+	 * Returns the file path of the loaded main script.
+	 * 
+	 * @return The file path of the main script.
+	 */
+	public String getMainScriptPath() {
+		return this.mainScriptPath;
+	}
+
+
+	/**
 	 * Returns the content of the loaded main script.
 	 * 
 	 * @return The content of the main script.
@@ -167,6 +177,16 @@ public class ScriptLoader {
 	 */
 	public String[] getLibraryScriptNames() {
 		return this.libraryScriptNameList.toArray(new String[0]);
+	}
+
+
+	/**
+	 * Returns file paths of the loaded library scripts.
+	 * 
+	 * @return File paths of the library scripts.
+	 */
+	public String[] getLibraryScriptPaths() {
+		return this.libraryScriptPathList.toArray(new String[0]);
 	}
 
 
