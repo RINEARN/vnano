@@ -220,7 +220,7 @@ public final class VnanoScriptEngine implements ScriptEngine {
 		this.loadedLibraryUpdated = false;
 
 		// Remove library scripts.
-		this.vnanoEngine.unincludeAllLibraryScripts();
+		this.vnanoEngine.unregisterAllLibraryScripts();
 
 		// (Re-)Include library scripts.
 		if(this.libraryScriptLoader.hasLibraryScripts()) {
@@ -228,7 +228,7 @@ public final class VnanoScriptEngine implements ScriptEngine {
 			String[] libContents = this.libraryScriptLoader.getLibraryScriptContents();
 			int libN = libPaths.length;
 			for (int libIndex=0; libIndex<libN; libIndex++) {
-				this.vnanoEngine.includeLibraryScript(libPaths[libIndex], libContents[libIndex]);
+				this.vnanoEngine.registerLibraryScript(libPaths[libIndex], libContents[libIndex]);
 			}
 		}
 	}

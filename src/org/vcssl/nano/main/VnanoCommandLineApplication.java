@@ -1156,7 +1156,7 @@ public final class VnanoCommandLineApplication {
 			String[] libContents = scriptLoader.getLibraryScriptContents();
 			int libN = libPaths.length;
 			for (int libIndex=0; libIndex<libN; libIndex++) {
-				engine.includeLibraryScript(libPaths[libIndex], libContents[libIndex]);
+				engine.registerLibraryScript(libPaths[libIndex], libContents[libIndex]);
 			}
 		}
 

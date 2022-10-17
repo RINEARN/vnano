@@ -426,7 +426,7 @@ On the [command-line mode](#command-line-mode), the above list file will be refe
         String[] libScripts = scriptLoader.getLibraryScriptContents();
         int libCount = libScripts.length;
         for (int ilib=0; ilib<libCount; ilib++) {
-            engine.includeLibraryScript(libPaths[ilib], libScripts[ilib]);
+            engine.registerLibraryScript(libPaths[ilib], libScripts[ilib]);
         }
 
         // Prepare the content of the script to be executed.

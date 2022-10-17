@@ -286,13 +286,13 @@ public final class VnanoEngine {
 
 
 	/**
-	 * Add a library script which will be "include"-ed at the head of a executed script.
+	 * Register a library script which will be "include"-ed at the head of a executed script.
 	 *
 	 * @param libraryScriptName The file path (or name) of the library script.
 	 * @param libraryScriptContent Content (code) of the library script.
 	 * @throws VnanoException Thrown when incorrect something have been detected for the specified library.
 	 */
-	public void includeLibraryScript(String libraryScriptPath, String libraryScriptContent) throws VnanoException {
+	public void registerLibraryScript(String libraryScriptPath, String libraryScriptContent) throws VnanoException {
 		if (libraryScriptPath == null || libraryScriptContent == null) {
 			throw new NullPointerException();
 		}
@@ -301,13 +301,13 @@ public final class VnanoEngine {
 
 
 	/**
-	 * Uninclude all library scripts.
+	 * Unregister all library scripts.
 	 *
 	 * @throws VnanoException
 	 *   Will not be thrown on the current implementation,
 	 *   but it requires to be "catch"-ed for keeping compatibility in future.
 	 */
-	public void unincludeAllLibraryScripts() throws VnanoException {
+	public void unregisterAllLibraryScripts() throws VnanoException {
 		this.interconnect.removeAllLibraryScripts();
 	}
 

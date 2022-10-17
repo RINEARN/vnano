@@ -33,7 +33,7 @@ public class ExampleApp6 {
 		String[] libScripts = scriptLoader.getLibraryScriptContents();
 		int libCount = libScripts.length;
 		for (int ilib=0; ilib<libCount; ilib++) {
-			engine.includeLibraryScript(libPaths[ilib], libScripts[ilib]);
+			engine.registerLibraryScript(libPaths[ilib], libScripts[ilib]);
 		}
 
 		// Prepare the content of the script to be executed.
