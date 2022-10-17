@@ -75,8 +75,8 @@ public class Interconnect {
 	/** A map to store all names and values of permission items. */
 	private Map<String, String> permissionMap = null;
 
-	/** Stores contents of library scripts, with their names as keys. */
-	private Map<String, String> libraryNameContentMap = null;
+	/** Stores contents of library scripts, with their file paths as keys. */
+	private Map<String, String> libraryFilePathContentMap = null;
 
 	/** Stores the name of the main script. */
 	private String mainScriptName = null;
@@ -90,6 +90,7 @@ public class Interconnect {
 	/** Stores "import paths" of namespaces provided by plug-ins, which can be specified as values of "import" declarations. */
 	private Set<String> pluginImportPathSet;
 
+
 	/**
 	 * Creates a blank interconnect to which nothing are connected.
 	 */
@@ -100,7 +101,7 @@ public class Interconnect {
 		this.xnci1PluginList = new ArrayList<ExternalNamespaceConnectorInterface1>();
 		this.xfci1PluginList = new ArrayList<ExternalFunctionConnectorInterface1>();
 		this.xvci1PluginList = new ArrayList<ExternalVariableConnectorInterface1>();
-		this.libraryNameContentMap = new LinkedHashMap<String, String>();
+		this.libraryFilePathContentMap = new LinkedHashMap<String, String>();
 		this.libraryImportPathSet = new HashSet<String>();
 		this.pluginImportPathSet = new HashSet<String>();
 
@@ -936,11 +937,11 @@ public class Interconnect {
 		if (libraryScriptName == null || libraryScriptContent == null) {
 			throw new NullPointerException();
 		}
-		if (this.libraryNameContentMap.containsKey(libraryScriptName)) {
+		if (this.libraryFilePathContentMap.containsKey(libraryScriptName)) {
 			throw new VnanoException(ErrorType.LIBRARY_IS_ALREADY_INCLUDED, libraryScriptName);
 		}
 		String normalizedName = IdentifierSyntax.normalizeScriptIdentifier(libraryScriptName);
-		this.libraryNameContentMap.put(normalizedName, libraryScriptContent);
+		this.libraryFilePathContentMap.put(normalizedName, libraryScriptContent);
 
 		String importPath = this.getImportPathOf(normalizedName);
 		this.libraryImportPathSet.add(importPath);
@@ -951,7 +952,7 @@ public class Interconnect {
 	 * Remove all library scripts.
 	 */
 	public void removeAllLibraryScripts() {
-		this.libraryNameContentMap = new LinkedHashMap<String, String>();
+		this.libraryFilePathContentMap = new LinkedHashMap<String, String>();
 		this.libraryImportPathSet = new HashSet<String>();
 	}
 
@@ -983,25 +984,31 @@ public class Interconnect {
 	 * @return The number of the registered library scripts.
 	 */
 	public int getLibraryScriptCount() {
-		return this.libraryNameContentMap.size();
+		return this.libraryFilePathContentMap.size();
 	}
 
 
 	/**
-	 * Gets the names of all scripts (the main script and the library scripts).
+	 * Gets the file paths of all scripts (the main script and the library scripts).
 	 * 
-	 * @return The names of all scripts.
+	 * File paths of libraries are stored as elements from [0] to [N-2] of the returned array, 
+	 * where N is the length of the returned array.
+	 * 
+	 * The "name" of the main script is stored at [N-1] (the last element) in the returned array.
+	 * It is not a file path, and may not be an actual file name (specified as the value of "MAIN_SCRIPT_NAME" option).
+	 * 
+	 * @return The file paths of all scripts.
 	 */
-	public String[] getScriptNames() {
-		List<String> scriptNameList = new ArrayList<String>();
-		for (Map.Entry<String, String> nameContentPair: this.libraryNameContentMap.entrySet()) {
-			String libName = nameContentPair.getKey();
-			scriptNameList.add(libName);
+	public String[] getScriptPaths() {
+		List<String> scriptPathList = new ArrayList<String>();
+		for (Map.Entry<String, String> pathContentPair: this.libraryFilePathContentMap.entrySet()) {
+			String libName = pathContentPair.getKey();
+			scriptPathList.add(libName);
 		}
-		scriptNameList.add(this.mainScriptName);
-		String[] scriptNames = new String[scriptNameList.size()];
-		scriptNames = scriptNameList.toArray(scriptNames);
-		return scriptNames;
+		scriptPathList.add(this.mainScriptName);
+		String[] scriptPaths = new String[scriptPathList.size()];
+		scriptPaths = scriptPathList.toArray(scriptPaths);
+		return scriptPaths;
 	}
 
 
@@ -1012,8 +1019,8 @@ public class Interconnect {
 	 */
 	public String[] getScriptContents() {
 		List<String> scriptContentList = new ArrayList<String>();
-		for (Map.Entry<String, String> nameContentPair: this.libraryNameContentMap.entrySet()) {
-			String libContent = nameContentPair.getValue();
+		for (Map.Entry<String, String> pathContentPair: this.libraryFilePathContentMap.entrySet()) {
+			String libContent = pathContentPair.getValue();
 			scriptContentList.add(libContent);
 		}
 		scriptContentList.add(this.mainScriptContent);

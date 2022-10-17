@@ -85,12 +85,12 @@ public final class VnanoEngine {
 			// (All connected plug-ins are initialized at this timing.)
 			this.interconnect.activate();
 
-			// Get the names/contents of all scripts (the main script and all library scripts), from the interconnect.
+			// Get the file paths and contents of all scripts (the main script and all library scripts), from the interconnect.
 			String[] scripts = this.interconnect.getScriptContents();
-			String[] names   = this.interconnect.getScriptNames();
+			String[] paths   = this.interconnect.getScriptPaths();
 
 			// Translate scripts to a VRIL code (intermediate assembly code) by a compiler.
-			String assemblyCode = new Compiler().compile(scripts, names, this.interconnect);
+			String assemblyCode = new Compiler().compile(scripts, paths, this.interconnect);
 
 			// Execute the VRIL code on a VM.
 			Object evalValue = this.virtualMachine.executeAssemblyCode(assemblyCode, this.interconnect);
@@ -288,15 +288,15 @@ public final class VnanoEngine {
 	/**
 	 * Add a library script which will be "include"-ed at the head of a executed script.
 	 *
-	 * @param libraryScriptName Names of the library script (displayed in error messages).
+	 * @param libraryScriptName The file path (or name) of the library script.
 	 * @param libraryScriptContent Content (code) of the library script.
-	 * @throws VnanoException Thrown when incorrect somethings have been detected for the specified library.
+	 * @throws VnanoException Thrown when incorrect something have been detected for the specified library.
 	 */
-	public void includeLibraryScript(String libraryScriptName, String libraryScriptContent) throws VnanoException {
-		if (libraryScriptName == null || libraryScriptContent == null) {
+	public void includeLibraryScript(String libraryScriptPath, String libraryScriptContent) throws VnanoException {
+		if (libraryScriptPath == null || libraryScriptContent == null) {
 			throw new NullPointerException();
 		}
-		this.interconnect.addLibraryScript(libraryScriptName, libraryScriptContent);
+		this.interconnect.addLibraryScript(libraryScriptPath, libraryScriptContent);
 	}
 
 
