@@ -16,7 +16,6 @@ import org.vcssl.nano.compiler.Compiler;
 import org.vcssl.nano.interconnect.Interconnect;
 import org.vcssl.nano.interconnect.MetaQualifiedFileLoader;
 import org.vcssl.nano.spec.ErrorType;
-import org.vcssl.nano.spec.IdentifierSyntax;
 import org.vcssl.nano.spec.OperationCode;
 import org.vcssl.nano.spec.OptionKey;
 import org.vcssl.nano.spec.PerformanceKey;

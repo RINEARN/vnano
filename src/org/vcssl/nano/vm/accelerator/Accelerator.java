@@ -22,9 +22,6 @@ import org.vcssl.nano.vm.memory.Memory;
 import org.vcssl.nano.vm.processor.Instruction;
 import org.vcssl.nano.vm.processor.Processor;
 
-import org.vcssl.connect.ConnectorException;
-import org.vcssl.connect.ConnectorFatalException;
-
 /**
  * The high-speed implementation of {@link org.vcssl.nano.vm.processor.Processor Processor} class, called the accelerator.
  */
