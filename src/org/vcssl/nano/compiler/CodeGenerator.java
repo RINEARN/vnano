@@ -448,6 +448,7 @@ public class CodeGenerator {
 				boolean isVariable = nodeType == AstNode.Type.VARIABLE;
 				boolean isLeaf = nodeType == AstNode.Type.LEAF;
 				String leafType = currentNode.getAttribute(AttributeKey.LEAF_TYPE);
+				boolean isDependencyDeclarations = nodeType == AstNode.Type.IMPORT || nodeType == AstNode.Type.INCLUDE;
 
 				// Function identifiers
 				if(isLeaf && leafType == AttributeValue.FUNCTION_IDENTIFIER) {
@@ -468,6 +469,10 @@ public class CodeGenerator {
 					String literal = currentNode.getAttribute(AttributeKey.LITERAL_VALUE);
 					String assemblyValue = AssemblyWord.getImmediateValueOf(dataTypeName, literal);
 					currentNode.setAttribute(AttributeKey.ASSEMBLY_VALUE, assemblyValue);
+
+				// Dependency declarations ("import" and so on) or dependency identifiers
+				} else if(isDependencyDeclarations || (isLeaf && leafType == AttributeValue.DEPENDENCY_IDENTIFIER)) {
+					// Do nothing.
 
 				} else {
 					throw new VnanoFatalException("Unknown leaf type: " + leafType);
