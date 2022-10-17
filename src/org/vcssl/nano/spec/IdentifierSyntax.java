@@ -328,8 +328,11 @@ public final class IdentifierSyntax {
 		normalizedName = normalizedName.replaceAll("\r", escapedWord);
 		normalizedName = normalizedName.replaceAll("\n", escapedWord);
 
+		// Replace backslashes to slashes.
+		normalizedName = normalizedName.replace("\\", "/");
+
 		// Remove redundant "./" in the path.
-		if (normalizedName.startsWith("./") || normalizedName.startsWith(".\\")) {
+		if (normalizedName.startsWith("./")) {
 			normalizedName = normalizedName.substring(2);
 		}
 
@@ -342,9 +345,6 @@ public final class IdentifierSyntax {
 		if (!normalizedName.equals(OptionValue.MAIN_SCRIPT_NAME_DEFAULT)) {
 			normalizedName = normalizedName.replaceAll(" ", escapedWord);
 		}
-
-		// Replace backslashes to slashes.
-		normalizedName = normalizedName.replace("\\", "/");
 
 		return normalizedName;
 	}

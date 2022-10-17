@@ -1152,7 +1152,7 @@ public final class VnanoCommandLineApplication {
 
 		// Register library scripts to be "include"-ed.
 		if (scriptLoader.hasLibraryScripts()) {
-			String[] libPaths = scriptLoader.getLibraryScriptPaths();
+			String[] libPaths = scriptLoader.getLibraryScriptPaths(true);
 			String[] libContents = scriptLoader.getLibraryScriptContents();
 			int libN = libPaths.length;
 			for (int libIndex=0; libIndex<libN; libIndex++) {

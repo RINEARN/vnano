@@ -428,7 +428,7 @@ Vnano は、言語機能として変数や関数の宣言をサポートして�
         scriptLoader.load();
 
         // 読み込んだライブラリ スクリプトを VnanoEngine に登録
-        String[] libPaths = scriptLoader.getLibraryScriptPaths();
+        String[] libPaths = scriptLoader.getLibraryScriptPaths(true);
         String[] libScripts = scriptLoader.getLibraryScriptContents();
         int libCount = libScripts.length;
         for (int ilib=0; ilib<libCount; ilib++) {

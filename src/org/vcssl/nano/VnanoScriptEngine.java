@@ -224,7 +224,7 @@ public final class VnanoScriptEngine implements ScriptEngine {
 
 		// (Re-)Include library scripts.
 		if(this.libraryScriptLoader.hasLibraryScripts()) {
-			String[] libPaths = this.libraryScriptLoader.getLibraryScriptPaths();
+			String[] libPaths = this.libraryScriptLoader.getLibraryScriptPaths(true);
 			String[] libContents = this.libraryScriptLoader.getLibraryScriptContents();
 			int libN = libPaths.length;
 			for (int libIndex=0; libIndex<libN; libIndex++) {

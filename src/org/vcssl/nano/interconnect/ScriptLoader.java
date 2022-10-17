@@ -64,7 +64,7 @@ public class ScriptLoader {
 	/** The list of the file paths of the library scripts. */
 	private List<String> libraryScriptPathList = null;
 
-	/** The list of the file paths of the library scripts, . */
+	/** The list of the "unmodified" file paths of the library scripts, as they are described in the list file. */
 	private List<String> libraryScriptRawPathList = null;
 
 	/** The list of the contents of the library scripts. */
@@ -186,10 +186,19 @@ public class ScriptLoader {
 	/**
 	 * Returns file paths of the loaded library scripts.
 	 * 
+	 * @param getsRawOatgs
+	 *    Specify true for getting "unmodified" paths described in the library script file.
+	 *    If false is specified, each value of returned paths contains 
+	 *    the location of the directory in which the library script file exists.
+	 * 
 	 * @return File paths of the library scripts.
 	 */
-	public String[] getLibraryScriptPaths() {
-		return this.libraryScriptPathList.toArray(new String[0]);
+	public String[] getLibraryScriptPaths(boolean getsRawPaths) {
+		if (getsRawPaths) {
+			return this.libraryScriptRawPathList.toArray(new String[0]);			
+		} else {
+			return this.libraryScriptPathList.toArray(new String[0]);
+		}
 	}
 
 
@@ -220,6 +229,7 @@ public class ScriptLoader {
 		// Clear lists.
 		this.libraryScriptNameList = new ArrayList<String>();
 		this.libraryScriptPathList = new ArrayList<String>();
+		this.libraryScriptRawPathList = new ArrayList<String>();
 		this.libraryScriptContentList = new ArrayList<String>();
 		this.libraryScriptLastModList = new ArrayList<Long>();
 
@@ -250,6 +260,7 @@ public class ScriptLoader {
 
 			// Register above analyzed results to fields (Lists) of this class.
 			this.libraryScriptPathList.add(libFile.getPath());
+			this.libraryScriptRawPathList.add(libPath);
 			this.libraryScriptNameList.add(libraryName);
 			this.libraryScriptContentList.add("");
 			this.libraryScriptLastModList.add(-1l);
@@ -344,18 +355,21 @@ public class ScriptLoader {
 		// Remove failed library from lists.
 		if (!notExistLibraries.isEmpty() || !loadingFailedLibraries.isEmpty()) {
 			List<String> succeededLibraryPathList = new ArrayList<String>();
+			List<String> succeededLibraryRawPathList = new ArrayList<String>();
 			List<String> succeededLibraryNameList = new ArrayList<String>();
 			List<String> succeededLibraryContentList = new ArrayList<String>();
 			List<Long> succeededLibraryLastModList = new ArrayList<Long>();
 			for (int libIndex=0; libIndex<libN; libIndex++) {
 				if (isLaodingFailed[libIndex]) {
 					succeededLibraryPathList.add(this.libraryScriptPathList.get(libIndex));
+					succeededLibraryRawPathList.add(this.libraryScriptRawPathList.get(libIndex));
 					succeededLibraryNameList.add(this.libraryScriptNameList.get(libIndex));
 					succeededLibraryContentList.add(this.libraryScriptContentList.get(libIndex));
 					succeededLibraryLastModList.add(this.libraryScriptLastModList.get(libIndex));
 				}
 			}
 			this.libraryScriptPathList = succeededLibraryPathList;
+			this.libraryScriptRawPathList = succeededLibraryRawPathList;
 			this.libraryScriptNameList = succeededLibraryNameList;
 			this.libraryScriptContentList = succeededLibraryContentList;
 			this.libraryScriptLastModList = succeededLibraryLastModList;

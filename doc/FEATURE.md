@@ -422,7 +422,7 @@ On the [command-line mode](#command-line-mode), the above list file will be refe
         scriptLoader.load();
 
         // Register library scripts to Vnano Engine.
-        String[] libPaths= scriptLoader.getLibraryScriptPaths();
+        String[] libPaths= scriptLoader.getLibraryScriptPaths(true);
         String[] libScripts = scriptLoader.getLibraryScriptContents();
         int libCount = libScripts.length;
         for (int ilib=0; ilib<libCount; ilib++) {
