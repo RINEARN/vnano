@@ -273,13 +273,13 @@ Note that, smaller "precedence" value gives higher precedence.
 | Operator | Precedence | Syntax | Associativity | Type of Operands | Type of Operated Value |
 | --- | --- | --- | --- | --- | --- |
 | ( ... , ... , ... ) as call | 1000 | multiary | left | any | any |
-| [ ... ][ ... ] ... as index | 1000 | multiary | left | int | any |
+| [ ... ][ ... ][...] as index | 1000 | multiary | left | int | any |
 | ++ (post-increment) | 1000 | postfix | left | int | int |
 | -- (post-decrement) | 1000 | postfix | left | int | int |
 | ++ (pre-increment) | 2000 | prefix | right | int | int |
 | -- (pre-decrement) | 2000 | prefix | right | int | int |
-| + | 2000 | prefix | right | int | int |
-| - | 2000 | prefix | right | int | int |
+| + (unary-plus) | 2000 | prefix | right | int | int |
+| - (unary-minus) | 2000 | prefix | right | int | int |
 | ! | 2000 | prefix | right | bool | bool |
 | (...) as cast | 2000 | prefix | right | any | any |
 | * | 3000 | binary | left | int, float | int, float (See the next table) |
