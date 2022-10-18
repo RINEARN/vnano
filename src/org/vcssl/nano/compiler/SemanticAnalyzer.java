@@ -45,7 +45,7 @@ public class SemanticAnalyzer {
 	/**
 	 * Analyze semantics of the AST and, returns new AST of which information
 	 * required for generating intermediate code are supplemented.
-	 * 
+	 *
 	 * @param inputAst The root node of the AST to be analyzed.
 	 * @param Intterconnect interconnect The interconnect to which external variables/functions are connected.
 	 * @return The semantic-analyzed/information-supplemented AST.
@@ -62,6 +62,14 @@ public class SemanticAnalyzer {
 		Map<String, Object> optionMap = interconnect.getOptionMap();
 		VariableTable globalVariableTable = interconnect.getExternalVariableTable();
 		FunctionTable globalFunctionTable = interconnect.getExternalFunctionTable();
+
+		// Check values and locations of dependency declaration statements ("import", "include", etc.).
+		// Note that, this should be done before analyzing variable/function identifiers referred in the script.
+		// Because: If the dependent libraries/plug-ins are not loaded/connected,
+		//          their member variables/functions should not be found. In such case,
+		//          the latter errors are "side effects" of the missing of libraries/plug-ins, 
+		//          so we should indicate the user of the "direct cause" as an error message.
+		this.checkDependencyDeclarationsAndLocations(outputAst, interconnect);
 
 		// Replace all aliases of data-type names (e.g.: double to float, long to int, and so on).
 		this.replaceAliasDataTypeNames(outputAst);
@@ -160,13 +168,13 @@ public class SemanticAnalyzer {
 
 	/**
 	 * Supplements some attributes of leaf nodes referencing variables.
-	 * 
-	 * For example, this method determine the referred variable by a variable identifier node 
-	 * based on scopes and the global variable table, 
+	 *
+	 * For example, this method determine the referred variable by a variable identifier node
+	 * based on scopes and the global variable table,
 	 * and set its data-type, array-rank, and so on to the node as attribtues.
-	 * 
+	 *
 	 * This method also checks duplicate declarations of multiple variables in the same scope.
-	 * 
+	 *
 	 * @param astRootNode astRootNode The root node of the AST to be processed.
 	 * @param globalVariableTable The table to resolve references to global variables.
 	 * @throws VnanoException
@@ -209,7 +217,7 @@ public class SemanticAnalyzer {
 			// Go to the next node. If closing blocks exist on the path to it, they will be pushed to closedBlockStack.
 			currentNode = currentNode.getPreorderDftNextNode(closedBlockStack, new AstNode.Type[]{ AstNode.Type.BLOCK } );
 
-			// When the traversal flow steps on a function declaraton or a "for" statement, 
+			// When the traversal flow steps on a function declaraton or a "for" statement,
 			// enable the flag to use "nextBlockVariableCounter" instead of "currentBlockVariableCounter".
 			// (This flag will be reset when the flow enters into the next block.)
 			if (currentNode.getType() == AstNode.Type.FUNCTION || currentNode.getType() == AstNode.Type.FOR) {
@@ -252,7 +260,7 @@ public class SemanticAnalyzer {
 				boolean isFunctionParam = currentNode.getParentNode().getType() == AstNode.Type.FUNCTION;
 				boolean isConstant = currentNode.hasModifier(ScriptWord.CONST_MODIFIER);
 
-				// Throw an exception when a variable having the same name already exists in the same scope, 
+				// Throw an exception when a variable having the same name already exists in the same scope,
 				// excluding parameter variables of functions.
 				if (localVariableTable.containsVariableWithName(variableName) && !isFunctionParam) {
 					throw new VnanoException(
@@ -322,7 +330,7 @@ public class SemanticAnalyzer {
 
 	/**
 	 * Extracts local function declared in the specified ASt, and returns the function table of them.
-	 * 
+	 *
 	 * This method also supplements some attributes for function declaration nodes in the specified AST.
 	 *
 	 * @param astRootNode The root node of the AST to be processed.
@@ -441,9 +449,9 @@ public class SemanticAnalyzer {
 
 	/**
 	 * Supplements some attributes of literal-type leaf nodes, in the specified AST.
-	 * 
+	 *
 	 * For example, array-ranks will be set to nodes of literals as attribtues.
-	 * 
+	 *
 	 * @param astRootNode The root node of the AST to be processed.
 	 */
 	private void supplementLiteralLeafAttributes(AstNode astRootNode) {
@@ -464,7 +472,7 @@ public class SemanticAnalyzer {
 				currentNode.setAttribute(AttributeKey.RANK, "0");   // In the current specification of Vnano, array literals are not supported.
 				currentNode.addModifier(ScriptWord.CONST_MODIFIER); // Values of literals must not be modified in programs, so set them as constants.
 
-				// Here data-types of literals have already been determined, 
+				// Here data-types of literals have already been determined,
 				// by Lexical Analyzer, because they are clear from contents of tokens.
 			}
 		} while (!currentNode.isPreorderDftLastNode());
@@ -473,11 +481,11 @@ public class SemanticAnalyzer {
 
 	/**
 	 * Supplements some attributes of literal-type leaf nodes, in the specified AST.
-	 * 
+	 *
 	 * For example, data-types and array-ranks of values of operators will be set to operator noses as attribtues.
-	 * Note that, before using this method, supplement attributes of leaf nodes by using 
+	 * Note that, before using this method, supplement attributes of leaf nodes by using
 	 * {@link SemanticAnalyzer#supplementLeafAttributes supplementLeafAttributes} method.
-	 * 
+	 *
 	 * @param astRootNode The root node of the AST to be processed.
 	 * @param globalFunctionTable The table storing information of global functions called in the specified AST.
 	 * @param localFunctionTable The table storing information of local functions called in the specified AST.
@@ -732,11 +740,11 @@ public class SemanticAnalyzer {
 
 	/**
 	 * Checks callability of specified function syntactically.
-	 * 
+	 *
 	 * For example, data types and array-ranks of actual arguments must match with parameter declarations of the function.
 	 * Note that, there are some additional rules restricting callability of functions,
 	 * e.g.: constant values cannot be passed by reference.
-	 * 
+	 *
 	 * @param function The calleeFunction
 	 * @param callerNode The AST node of the function-call operator.
 	 * @throws VnanoException
@@ -800,8 +808,8 @@ public class SemanticAnalyzer {
 
 	/**
 	 * Supplements some attributes of literal-type leaf nodes of function identifiers, in the specified AST.
-	 * 
-	 * Before using this method, it is necessary to supplement attributes of operators by using 
+	 *
+	 * Before using this method, it is necessary to supplement attributes of operators by using
 	 * {@link SemanticAnalyzer#supplementOperatorAttributes supplementOperatorAttributes} method.
 	 *
 	 * @param astRootNode The root node of the AST to be processed.
@@ -831,8 +839,8 @@ public class SemanticAnalyzer {
 
 	/**
 	 * Supplements some attriutes of expression statement nodes, in the specified AST.
-	 * 
-	 * Specifically, supplements values of data-type and array-rank attributes, 
+	 *
+	 * Specifically, supplements values of data-type and array-rank attributes,
 	 * from types/ranks of the node of the evaluated value of the expression.
 	 *
 	 * @param astRootNode The root node of the AST to be processed.
@@ -853,14 +861,14 @@ public class SemanticAnalyzer {
 
 
 	/**
-	 * Determines the data-type of the "arithmetic operation" of (not the type of operated value of) 
+	 * Determines the data-type of the "arithmetic operation" of (not the type of operated value of)
 	 * arithmetic-assignment compound operator, from data-types of operands.
 	 *
-	 * On run-time, operands will be converted to the data-type returned by this method, 
+	 * On run-time, operands will be converted to the data-type returned by this method,
 	 * and the arithmetic operation will be performed to them.
 	 * Then, the operated value will be converted to the data-type of the right-hand-side variable,
 	 * and stored to the variable.
-	 * 
+	 *
 	 * @param leftOperandType The data-type of the left operand.
 	 * @param rightOperandType The data-type of the right operand.
 	 * @param operatorSymbol The symbol of the operator.s
@@ -901,10 +909,10 @@ public class SemanticAnalyzer {
 
 	/**
 	 * Determines the data-type of the arithmetic binary operation, from data-types of operands.
-	 * 
-	 * On run-time, operands will be converted to the data-type returned by this method, 
+	 *
+	 * On run-time, operands will be converted to the data-type returned by this method,
 	 * and the comparison operation will be performed to them.
-	 * 
+	 *
 	 * @param leftOperandType The data-type of the left operand.
 	 * @param rightOperandType The data-type of the right operand.
 	 * @param operatorSymbol The symbol of the operator.s
@@ -959,11 +967,11 @@ public class SemanticAnalyzer {
 	/**
 	 * Determines the data-type of the comparison binary operation (not the type of the operated value),
 	 * from data-types of operands.
-	 * 
-	 * On run-time, operands will be converted to the data-type returned by this method, 
+	 *
+	 * On run-time, operands will be converted to the data-type returned by this method,
 	 * and the comparison operation will be performed to them.
 	 * The data-type of the operation result value (the value of the operator) is always "bool".
-	 * 
+	 *
 	 * @param leftOperandType The data-type of the left operand.
 	 * @param rightOperandType The data-type of the right operand.
 	 * @param operatorSymbol The symbol of the operator.s
@@ -1020,7 +1028,7 @@ public class SemanticAnalyzer {
 	/**
 	 * Determines the data-type of the logical binary operation (not the type of the operated value),
 	 * from data-types of operands.
-	 * 
+	 *
 	 * @param leftOperandType The data-type of the left operand.
 	 * @param rightOperandType The data-type of the right operand.
 	 * @param operatorSymbol The symbol of the operator.s
@@ -1051,13 +1059,13 @@ public class SemanticAnalyzer {
 	/**
 	 * Determines the data-type of arithmetic/comparison/logical binary operations,
 	 * from arra-ranks of operands.
-	 * 
+	 *
 	 * Generally, array-ranks of both operands must be the same, and then this method returns that rank.
-	 * 
+	 *
 	 * However, in Vnano, operation between a scalar (rank is 0) and a non-scalar is supported.
 	 * In such case, the scalar value will be converted to the array of which rank is the same as the non-scalar operand.
 	 * So in such case, this method returns the rank of the non-scalar operand.
-	 * 
+	 *
 	 * @param leftOperandRank The array-rank of the left operand.
 	 * @param rightOperandRank The array-rank of the right operand.
 	 * @param operatorSymbol The symbol of the operator.s
@@ -1076,7 +1084,7 @@ public class SemanticAnalyzer {
 			return 0;
 		}
 
-		// If one of operands is a scalar, and the other is a non-scalar, 
+		// If one of operands is a scalar, and the other is a non-scalar,
 		// the result is the array-rank of the non-scalar operand.
 		if (leftOperandRank==0 && rightOperandRank!=0) {
 			return rightOperandRank;
@@ -1100,10 +1108,10 @@ public class SemanticAnalyzer {
 	/**
 	 * Determines the array-rank of the compound assignment binary operation (not the type of the operated value),
 	 * from array-ranks of operands.
-	 * 
-	 * On run-time, operands will be converted to arrays having the specified rank returned by this method, 
+	 *
+	 * On run-time, operands will be converted to arrays having the specified rank returned by this method,
 	 * and the operation will be performed to them. Then the result will be stored to the left-side variable.
-	 * 
+	 *
 	 * @param leftOperandRank The array-rank of the left operand.
 	 * @param rightOperandRank The array-rank of the right operand.
 	 * @param operatorSymbol The symbol of the operator.s
@@ -1122,7 +1130,7 @@ public class SemanticAnalyzer {
 		}
 
 		// If the left-side operand is a scalar, and the right-side operand is an array,
-		// Throw an exception because 
+		// Throw an exception because
 		// the operation result (array) can not be stored into the left-side value (scalar).
 		if (leftOperandRank==0 && rightOperandRank!=0) {
 			throw new VnanoException(
@@ -1152,14 +1160,14 @@ public class SemanticAnalyzer {
 
 	/**
 	 * Checks attributes of function declaration nodes in the sepcifed AST.
-	 * 
-	 * For example, if names of parameters of a function declaration are omitted, 
+	 *
+	 * For example, if names of parameters of a function declaration are omitted,
 	 * the Parser parse it without throwing any exception.
-	 * It is because the Parser sometimes used for parsing function-signatures 
+	 * It is because the Parser sometimes used for parsing function-signatures
 	 * from which parameter names are omitted, e.g.: fun(int,float).
-	 * So this method detects missing parameter names in function declarations, 
+	 * So this method detects missing parameter names in function declarations,
 	 * and throws an Exception.
-	 * 
+	 *
 	 * @param astRootNode The root node of the AST to be checked.
 	 * @throws VnanoException Thrown when an incorrect attribute has been detected.
 	 */
@@ -1195,7 +1203,7 @@ public class SemanticAnalyzer {
 
 
 	/**
-	 * Check modifiability of destination operands of assignment operators 
+	 * Check modifiability of destination operands of assignment operators
 	 * (containig arithmetic-assignment compound operators).
 	 *
 	 * @param astRootNode The root node of the AST to be checked.
@@ -1211,14 +1219,13 @@ public class SemanticAnalyzer {
 			if(currentNode.getType() == AstNode.Type.OPERATOR) {
 
 				String execType = currentNode.getAttribute(AttributeKey.OPERATOR_EXECUTOR);
-				String symbol = currentNode.getAttribute(AttributeKey.OPERATOR_SYMBOL);
 				switch (execType) {
 
 					// Assignment operator:
 					case AttributeValue.ASSIGNMENT : {
 
 						// Check whether the assignment is an initializer or not,
-						// because a constant variables can be modified by initializer, 
+						// because a constant variables can be modified by initializer,
 						// and cannot be modified by (non-initializer) assignment operator.
 						boolean isInitializer = (
 							currentNode.getParentNode() != null
@@ -1295,7 +1302,7 @@ public class SemanticAnalyzer {
 
 	/**
 	 * Check first operands of array-subscript operators are arrays having correct rank, in the specified AST.
-	 * 
+	 *
 	 * @param astRootNode The root node of the AST to be checked.
 	 * @throws VnanoException Thrown when an incorrect first operand of an array-subscript operator has been detected.
 	 */
@@ -1413,7 +1420,7 @@ public class SemanticAnalyzer {
 				String literal = currentNode.getAttribute(AttributeKey.LITERAL_VALUE);
 
 				// In Vnano, integer literals start with 0 excluding 0x/0o/0b are invalid.
-				// (Integer literals begin with 0 are regarded as octal literal in some languages, 
+				// (Integer literals begin with 0 are regarded as octal literal in some languages,
 				//  but it is confusing for most users. So in Vnano, use the prefix "0o" for octal literals.)
 				if (dataType.equals(DataTypeName.DEFAULT_INT) || dataType.equals(DataTypeName.LONG_INT)) {
 
@@ -1436,7 +1443,7 @@ public class SemanticAnalyzer {
 	 * Checks returned values and locations of return statements.
 	 * For example, the data-type of a returned value must match with the declaration of the function.
 	 * In addition, return statements must not be outside of functions.
-	 * 
+	 *
 	 * @param astRootNode The root node of the AST to be checked.
 	 * @throws VnanoException Thrown when an invalid return statement has been detected.
 	 */
@@ -1462,7 +1469,7 @@ public class SemanticAnalyzer {
 			// (Multiple blocks may close in 1-step of the traversal.)
 			currentNode = currentNode.getPreorderDftNextNode(closedBlockStack, new AstNode.Type[]{ AstNode.Type.BLOCK } );
 
-			// If there are closed blocks on the path of the above, 
+			// If there are closed blocks on the path of the above,
 			// and the block of the currently checked function is contained in them,
 			// finish checking of the function so reset stored information of the function.
 			if (closedBlockStack.size() != 0 && closedBlockStack.contains(currentFunctionBlock)) {
@@ -1474,7 +1481,7 @@ public class SemanticAnalyzer {
 			}
 
 			// If the current node is a function declaration node:
-			// store data-type and array-rank of the return value, 
+			// store data-type and array-rank of the return value,
 			// and store block statement node existing just after of the function declaration.
 			if (currentNode.getType() == AstNode.Type.FUNCTION) {
 				currentFunctionReturType = currentNode.getDataTypeName();
@@ -1529,11 +1536,80 @@ public class SemanticAnalyzer {
 
 
 	/**
+	 * Checks values and locations of dependency declaration statements ("import" and so on).
+	 *
+	 * @param astRootNode The root node of the AST to be checked.
+	 * @param interconnect The Interconnect having libraries/plug-ins, which may be referred by dependency declarations.
+	 * @throws VnanoException
+	 * 	   Thrown if a dependency declaration is out of the header section,
+	 *     or specified library/namespace (provided by a plug-in) has not been found.
+	 */
+	private void checkDependencyDeclarationsAndLocations(AstNode astRootNode, Interconnect interconnect) throws VnanoException {
+
+		// The flag representing that the currently traversed node is in header the section of the script.
+		// ( Only an encoding declaration and dependency declarations can be described in the header section,
+		//   and the encoding declaration should has been removed by Preprocessor. )
+		boolean isInHeader = true;
+
+		// Traverse all nodes in the AST.
+		AstNode currentNode = astRootNode;
+		do {
+			currentNode = currentNode.getPreorderDftNextNode();
+
+			// "import" or "include" declarations: check availability of the specified library or namespace (provided by a plug-in).
+			if (currentNode.getType() == AstNode.Type.IMPORT || currentNode.getType() == AstNode.Type.INCLUDE) {
+				if (isInHeader) {
+
+					// The specified value of "import" / "include" declaration is connected to the IMPORT/INCLUDE node,
+					// as a LITERAL type child node ("literalType" attribute is "dependencyIdentifier"), so check it.
+					if (!currentNode.hasChildNodes()) {
+						throw new VnanoFatalException("An expected child node of IMPORT/INCLUDE node has not been found.");
+					}
+					AstNode dependencyIdentifierNode = currentNode.getChildNodes()[0];
+					if (dependencyIdentifierNode.getType() != AstNode.Type.LEAF
+							|| !dependencyIdentifierNode.getAttribute(AttributeKey.LEAF_TYPE).equals(AttributeValue.DEPENDENCY_IDENTIFIER)) {
+						throw new VnanoFatalException("Incorrect node type has been detected for the child node of IMPORT/INCLUDE node.");
+					}
+					
+					// Get the value of the specified dependency identifier (= "import path").
+					String dependencyIdentifier = dependencyIdentifierNode.getAttribute(AttributeKey.IDENTIFIER_VALUE);
+
+					// If the specified dependency is available, do nothing.
+					boolean isDependencyAvailable = interconnect.hasDependentLibraryOrPlugin(dependencyIdentifier);
+					if (isDependencyAvailable) {
+						continue;
+
+					// If the specified dependency is not available: Error.
+					} else {
+						throw new VnanoException(
+							ErrorType.DECLARED_DEPENDENCY_IS_NOT_AVAILABLE, new String[] {dependencyIdentifier},
+							currentNode.getFileName(), currentNode.getLineNumber()
+						);
+					}
+					
+				// If the dependency declaration exists at the out of the header section: Error.
+				} else {
+					throw new VnanoException(
+						ErrorType.INVALID_DEPENDENCY_DECLARATION_LOCATION,
+						currentNode.getFileName(), currentNode.getLineNumber()
+					);
+				}
+			
+			// Other node: ends the header section.
+			} else {
+				isInHeader = false;
+			}
+
+		} while (!currentNode.isPreorderDftLastNode());
+	}
+
+
+	/**
 	 * In the specified AST,
 	 * checks all statement nodes belonging to the specified script are expression statements.
-	 * 
+	 *
 	 * This method is used when EVAL_ONLY_EXPRESSION option is enabled.
-	 * 
+	 *
 	 * @param astRootNode The root node of the AST to be checked.
 	 * @param targetScriptName The name of the script in which only expression statements should be written.
 	 * @throws Thrown when non-expression statement belonging to the specified script has been detected.
@@ -1566,11 +1642,11 @@ public class SemanticAnalyzer {
 
 	/**
 	 * In the specified AST,
-	 * checks all data-types of expression elements (literals, variables, and so on) 
+	 * checks all data-types of expression elements (literals, variables, and so on)
 	 * belonging to the specified script are "float" type.
 	 *
 	 * This method is used when EVAL_ONLY_FLOAT option is enabled.
-	 * 
+	 *
 	 * @param astRootNode The root node of the AST to be checked.
 	 * @param targetScriptName The name of the script in which only expression statements should be written.
 	 * @throws Thrown when non-float type expression element (literal, variable, and so on) has been detected.

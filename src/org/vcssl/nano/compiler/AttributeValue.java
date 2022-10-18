@@ -129,6 +129,12 @@ public class AttributeValue {
 	public static final String FUNCTION_IDENTIFIER = "functionIdentifier";
 
 	/**
+	 * Represents dependency identifiers (values of import/include declarations),
+	 * as the value of {@link AttributeKey#LEAF_TYPE LEAF_TYPE} attribute.
+	 */
+	public static final String DEPENDENCY_IDENTIFIER = "dependencyIdentifier";
+
+	/**
 	 * Represents literals, 
 	 * as the value of {@link AttributeKey#LEAF_TYPE LEAF_TYPE} attribute.
 	 */

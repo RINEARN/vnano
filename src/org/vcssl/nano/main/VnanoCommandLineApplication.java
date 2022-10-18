@@ -21,6 +21,8 @@ import java.util.Set;
 import org.vcssl.connect.ConnectorException;
 import org.vcssl.connect.ConnectorImplementationContainer;
 import org.vcssl.connect.ConnectorImplementationLoader;
+import org.vcssl.connect.ConnectorPermissionName;
+import org.vcssl.connect.ConnectorPermissionValue;
 import org.vcssl.nano.VnanoEngine;
 import org.vcssl.nano.VnanoException;
 import org.vcssl.nano.combinedtest.CombinedTestException;
@@ -30,7 +32,6 @@ import org.vcssl.nano.interconnect.PluginLoader;
 import org.vcssl.nano.interconnect.ScriptLoader;
 import org.vcssl.nano.spec.SpecialBindingKey;
 import org.vcssl.nano.spec.EngineInformation;
-import org.vcssl.nano.spec.ErrorMessage;
 import org.vcssl.nano.spec.OptionKey;
 import org.vcssl.nano.spec.OptionValue;
 import org.vcssl.nano.vm.VirtualMachine;
@@ -45,8 +46,21 @@ public final class VnanoCommandLineApplication {
 	 * Prints the content of the --help option.
 	 */
 	public void help() {
+		if (   ( this.locale.getLanguage()!=null && this.locale.getLanguage().toLowerCase().equals("ja") )
+			   || ( this.locale.getCountry()!=null && this.locale.getCountry().toLowerCase().equals("jp") )   ) {
+
+			this.helpInJapanese();
+		} else {
+			this.helpInEnglish();
+		}
+	}
+
+	/**
+	 * Prints the content of the --help option, in English.
+	 */
+	public void helpInEnglish() {
 		System.out.print("Vnano " + EngineInformation.ENGINE_VERSION);
-		System.out.println("  (Command-Line Mode for Developments and Debuggings)");
+		System.out.println("  (Command-Line Mode)");
 
 		System.out.println("");
 		System.out.println("[ Usage ]");
@@ -107,7 +121,7 @@ public final class VnanoCommandLineApplication {
 
 		System.out.println("  --dump <dumpTarget>");
 		System.out.println("");
-		System.out.println("      Dump the intermediate information to the standard output.");
+		System.out.println("      Dump the intermediate information to the standard output, for debugging.");
 		System.out.println("      You can choose and specify the <dumpTarget> from the following list:");
 		System.out.println("");
 		System.out.println("        inputtedCode     : Content of the script code loaded from the file.");
@@ -157,6 +171,11 @@ public final class VnanoCommandLineApplication {
 		System.out.println("        true (default) : Enable the accelerator.");
 		System.out.println("        false          : Disable the accelerator.");
 		System.out.println("");
+		System.out.println("      The accelerator enables high-speed processing, but it has very complex implementation.");
+		System.out.println("      When you feel that there is some bug for interpretation of a script,");
+		System.out.println("      sometimes you may avoid it by disabling the accelerator.");
+		System.out.println("      Please note that, if you disable it, significant slow-down occurs on processing.");
+		System.out.println("");
 		System.out.println("    e.g.");
 		System.out.println("");
 		System.out.println("      java -jar Vnano.jar Example.vnano --accelerator true");
@@ -189,6 +208,11 @@ public final class VnanoCommandLineApplication {
 		System.out.println("        true            : Enable the terminator.");
 		System.out.println("        false (default) : Disable the terminator.");
 		System.out.println("");
+		System.out.println("      Note that, the terminator is the feature for terminating scripts from application-side equipped");
+		System.out.println("      with the Vnano Engine, so there is no situation to use the terminator on the command-line mode.");
+		System.out.println("      However, this option is useful for measuring (a little) slow-down in processing speed,");
+		System.out.println("      occurred when the terminator is enabled.");
+		System.out.println("");
 		System.out.println("    e.g.");
 		System.out.println("");
 		System.out.println("      java -jar Vnano.jar Example.vnano --terminator true");
@@ -201,8 +225,8 @@ public final class VnanoCommandLineApplication {
 		System.out.println("      Enable the performance monitor.");
 		System.out.println("      You can choose and specify the <perfTarget> from the following list:");
 		System.out.println("");
-		System.out.println("        speed            : VM drive speed.");
-		System.out.println("        ram              : RAM usage.");
+		System.out.println("        speed            : VM drive speed (Number of executed instructions per second).");
+		System.out.println("        ram              : Memory usage.");
 		System.out.println("        instructionFreq  : Frequencies of that each instruction is being executed at periodic sampling moments.");
 		System.out.println("        all (default)    : All of the above performance monitoring targets.");
 		System.out.println("");
@@ -216,11 +240,11 @@ public final class VnanoCommandLineApplication {
 
 		System.out.println("  --plugin <pluginPath>");
 		System.out.println("");
-		System.out.println("      Specify the path of the plug-in to be connected.");
+		System.out.println("      Specify the class path of the plug-in to be connected.");
 		System.out.println("      Multiple paths can be specified by separating with \":\" or \";\"");
 		System.out.println("      (depends on the environment).");
-		System.out.println("      If the plug-in is not in the current directory,");
-		System.out.println("      specify the plug-in directory by --pluginDir option BEFORE this option.");
+		System.out.println("      If the root hierarchy of the class path of the plug-in is not \"" + DEFAULT_PLUGIN_DIR + "\" directory,");
+		System.out.println("      specify that directory by --pluginDir option BEFORE this option.");
 		System.out.println("");
 		System.out.println("    e.g.");
 		System.out.println("");
@@ -234,8 +258,8 @@ public final class VnanoCommandLineApplication {
 
 		System.out.println("  --pluginDir <pluginDirectoryPath>");
 		System.out.println("");
-		System.out.println("      Specify the path of the directory in which plug-ins specified by --plugin option are.");
-		System.out.println("      Multiple paths can be specified by separating with \":\" or \";\"");
+		System.out.println("      Specify the file path of the directory at the root hierarchy of class paths of plug-ins.");
+		System.out.println("      Multiple file paths can be specified by separating with \":\" or \";\"");
 		System.out.println("      (depends on the environment).");
 		System.out.println("      The default value is \"" + DEFAULT_PLUGIN_DIR + "\".");
 		System.out.println("");
@@ -243,7 +267,7 @@ public final class VnanoCommandLineApplication {
 
 		System.out.println("  --pluginList <pluginListFilePath>");
 		System.out.println("");
-		System.out.println("      Specify the path of the plugin-list file in which file paths of plug-ins ");
+		System.out.println("      Specify the file path of the plugin-list file in which file paths of plug-ins ");
 		System.out.println("      to be loaded are described.");
 		System.out.println("      The default value is \""+ DEFAULT_PLUGIN_LIST_FILE_PATH + "\".");
 		System.out.println("");
@@ -251,9 +275,39 @@ public final class VnanoCommandLineApplication {
 
 		System.out.println("  --libList <libraryListFilePath>");
 		System.out.println("");
-		System.out.println("      Specify the path of the library-list file in which file paths of library-scripts ");
+		System.out.println("      Specify the file path of the library-list file in which file paths of library-scripts ");
 		System.out.println("      to be loaded are described.");
 		System.out.println("      The default value is \""+ DEFAULT_LIBRARY_LIST_FILE_PATH + "\".");
+		System.out.println("");
+		System.out.println("");
+
+		System.out.println("  --permission <permissionSettingsName>");
+		System.out.println("");
+		System.out.println("      Specify the name of the permission settings.");
+		System.out.println("      This option is specified by default, and the default value is \"" + PERMISSION_VALUE_DENY_ALL + "\"");
+		System.out.println("      You can choose and specify the value of <permissionSettingsName> from the followings:");
+		System.out.println("");
+		System.out.println("          denyAll   : Denies all permission requests.");
+		System.out.println("          allowAll  : Allows all permission requests.");
+		System.out.println("          askAll    : Asks users whether allow or deny each permission request, for all permission items.");
+		System.out.println("");
+		System.out.println("          balanced  : The settings considering the balance between usability and protectivity, as follows:");
+		System.out.println("");
+		System.out.println("                        * DEFAULT:          ASK");
+		System.out.println("                        * FILE_CREATE:      ALLOW");
+		System.out.println("                        * FILE_WRITE:       ALLOW");
+		System.out.println("                      ( * FILE_OVERWRITE:   ASK   )");
+		System.out.println("                        * FILE_READ:        ALLOW");
+		System.out.println("                        * DIRECTORY_CREATE: ALLOW");
+		System.out.println("                        * DIRECTORY_LIST:   ALLOW");
+		System.out.println("                        * PROGRAM_EXIT:     ALLOW");
+		System.out.println("                        * PROGRAM_RESET:    ALLOW");
+		System.out.println("");
+		System.out.println("    e.g.");
+		System.out.println("");
+		System.out.println("      java -jar Vnano.jar Example.vnano --permission denyAll");
+		System.out.println("      java -jar Vnano.jar Example.vnano --permission askAll");
+		System.out.println("      java -jar Vnano.jar Example.vnano --permission balanced");
 		System.out.println("");
 		System.out.println("");
 
@@ -285,11 +339,288 @@ public final class VnanoCommandLineApplication {
 		System.out.println("    other applications, so it is necessary to implement and connect ");
 		System.out.println("    functions(methods) you want to use in the other application to the script engine.");
 		System.out.println("");
-		System.out.println("    Please see the source code of:");
+		System.out.println("    When you want to use the above functions, and other fundamental functions,");
+		System.out.println("    intdocude Vnano Standard Plug-ins, and connect them to the engine.");
+		System.out.println("    For details, see documents of the Vnano Engine.");
 		System.out.println("");
-		System.out.println("      src/org/vcssl/nano/main/VnanoCommanLineApplication.java");
+	}
+
+	/**
+	 * Prints the content of the --help option, in Japanese.
+	 */
+	public void helpInJapanese() {
+		System.out.print("Vnano " + EngineInformation.ENGINE_VERSION);
+		System.out.println(" （コマンドラインモード）");
+
 		System.out.println("");
-		System.out.println("    as a reference.");
+		System.out.println("[ 使用方法 ]");
+		System.out.println("");
+		System.out.println("      java -jar Vnano.jar スクリプト名");
+		System.out.println("");
+		System.out.println("        または");
+		System.out.println("");
+		System.out.println("      java -jar Vnano.jar スクリプト名 --オプション名1 オプション値1 --オプション名2 オプション値2 ...");
+		System.out.println("");
+		System.out.println("[ オプション ]");
+		System.out.println("");
+
+		System.out.println("  --help");
+		System.out.println("");
+		System.out.println("    現在表示されている、メッセージを表示します。");
+		System.out.println("");
+		System.out.println("");
+
+		System.out.println("  --file ファイルパス");
+		System.out.println("");
+		System.out.println("    ファイルから、実行するスクリプトコード (.vnano) または VRIL コード (.vril) を読み込みます。");
+		System.out.println("    このオプションの --file の部分はは省略可能です。");
+		System.out.println("    また、コマンドライン引数が一個だけの場合、このオプションの値と解釈されます。");
+		System.out.println("");
+		System.out.println("    使用例：");
+		System.out.println("");
+		System.out.println("      java -jar Vnano.jar --file Example.vnano");
+		System.out.println("      java -jar Vnano.jar --file Example.vril");
+		System.out.println("      java -jar Vnano.jar Example.vnano");
+		System.out.println("      java -jar Vnano.jar Example.vril");
+		System.out.println("");
+		System.out.println("");
+
+		System.out.println("  --encoding 文字コード名");
+		System.out.println("");
+		System.out.println("      スクリプトファイルの文字コードを指定します。");
+		System.out.println("      コマンドラインモードでのデフォルトの文字コードは「 UTF-8 」です。");
+		System.out.println("");
+		System.out.println("    使用例：");
+		System.out.println("");
+		System.out.println("      java -jar Vnano.jar Example.vnano --encoding UTF-8");
+		System.out.println("      java -jar Vnano.jar Example.vnano --encoding Shift_JIS");
+		System.out.println("");
+		System.out.println("");
+
+		System.out.println("  --locale ロケール名");
+		System.out.println("");
+		System.out.println("      エラーメッセージ等の言語を決めるための、ロケール（≒地域/言語の区分コード）を指定します。");
+		System.out.println("      デフォルトのロケールは、実行されている環境に合わせて自動設定されます。");
+		System.out.println("");
+		System.out.println("    e.g.");
+		System.out.println("");
+		System.out.println("      java -jar Vnano.jar Example.vnano --locale En-US");
+		System.out.println("      java -jar Vnano.jar Example.vnano --locale Ja-JP");
+		System.out.println("");
+		System.out.println("");
+
+		System.out.println("  --dump ダンプ対象");
+		System.out.println("");
+		System.out.println("      エンジン内部での、スクリプト処理に関する中間表現を、標準出力にダンプします（デバッグ用）。");
+		System.out.println("      ダンプ対象の値は、以下の一覧から指定できます：");
+		System.out.println("");
+		System.out.println("        inputtedCode     : ファイルから読み込まれたままの内容");
+		System.out.println("        preprocessedCode : プリプロセッサで、コメント等が除去されたコード");
+		System.out.println("        token            : コードから、字句解析器によって分割されたトークン列");
+		System.out.println("        parsedAst        : 構文解析器で生成された直後の抽象構文木（AST）");
+		System.out.println("        analyzedAst      : 意味解析器によって、型情報などが補完された抽象構文木（AST）");
+		System.out.println("        assemblyCode     : コード生成器で生成された、VRILで記述された仮想的なアセンブリコード");
+		System.out.println("        objectCode       : アセンブラで生成された、仮想マシン（VM）上で実行可能なオブジェクトコード");
+		System.out.println("        acceleratorCode  : 最適化された命令列（アクセラレーター有効時のみ使用可能）");
+		System.out.println("        acceleratorState : アクセラレーターの内部状態（アクセラレーター有効時のみ使用可能）");
+		System.out.println("        all (デフォルト) : 上記の全て");
+		System.out.println("");
+		System.out.println("    使用例：");
+		System.out.println("");
+		System.out.println("      java -jar Vnano.jar Example.vnano --dump");
+		System.out.println("      java -jar Vnano.jar Example.vnano --dump all");
+		System.out.println("      java -jar Vnano.jar Example.vnano --dump assemblyCode");
+		System.out.println("");
+		System.out.println("");
+
+		System.out.println("  --run 実行するかどうか");
+		System.out.println("");
+		System.out.println("      読み込んだスクリプトを、実行するかどうかを指定します。");
+		System.out.println("      このオプションは、デフォルトは true（実行する）に設定されています。");
+		System.out.println("      以下のように、true か false の値を指定します：");
+		System.out.println("");
+		System.out.println("        true (デフォルト) : スクリプトを実行する");
+		System.out.println("        false             : スクリプトを実行しない");
+		System.out.println("");
+		System.out.println("      このオプションは、例えば --dump オプションで構文解析処理のデバッグなどを行っていて、");
+		System.out.println("      スクリプトの実行はさせたくない場合などに有用です。");
+		System.out.println("");
+		System.out.println("    使用例");
+		System.out.println("");
+		System.out.println("      java -jar Vnano.jar Example.vnano --run false");
+		System.out.println("      java -jar Vnano.jar Example.vnano --run false --dump assemblyCode");
+		System.out.println("      java -jar Vnano.jar Example.vnano --run false --dump assemblyCode > debug.txt");
+		System.out.println("");
+		System.out.println("");
+
+		System.out.println("  --accelerator 有効化するかどうか");
+		System.out.println("");
+		System.out.println("      仮想マシン（VM）の高速版実装である、アクセラレーターを有効化するかどうかを指定します。");
+		System.out.println("      このオプションは、デフォルトは true（有効化する）に設定されています。");
+		System.out.println("      以下のように、true か false の値を指定します：");
+		System.out.println("");
+		System.out.println("        true (デフォルト) : アクセラレータを有効化する");
+		System.out.println("        false             : アクセラレータを無効化する");
+		System.out.println("");
+		System.out.println("      アクセラレーターは、処理速度が高い半面、実装も非常に複雑です。");
+		System.out.println("      スクリプトの解釈が何かおかしいと感じた際などに、無効化すると回避できるかもしれません。");
+		System.out.println("      ただし、無効化すると処理速度が大幅に（文字通り桁違いに）低下します。");
+		System.out.println("");
+		System.out.println("    使用例");
+		System.out.println("");
+		System.out.println("      java -jar Vnano.jar Example.vnano --accelerator true");
+		System.out.println("      java -jar Vnano.jar Example.vnano --accelerator false");
+		System.out.println("");
+		System.out.println("");
+
+		System.out.println("  --optLevel 最適化レベル");
+		System.out.println("");
+		System.out.println("      最適化レベルを、0 から " + OptionValue.ACCELERATOR_OPTIMIZATION_LEVEL_MAX + " の範囲で指定します。");
+		System.out.println("      デフォルトでは、最適化レベルは "
+										+ OptionValue.ACCELERATOR_OPTIMIZATION_LEVEL_DEFAULT + "に設定されています。");
+		System.out.println("");
+		System.out.println("    使用例");
+		System.out.println("");
+		System.out.println("      java -jar Vnano.jar Example.vnano --optLevel 0");
+		System.out.println("      java -jar Vnano.jar Example.vnano --optLevel 3");
+		System.out.println("");
+		System.out.println("");
+
+		System.out.println("  --terminator 有効化するかどうか");
+		System.out.println("");
+		System.out.println("      スクリプトを途中終了させるための機能である、ターミネーターを有効化するかどうかを指定します。");
+		System.out.println("      このオプションは、デフォルトで false（無効化する）に設定されています。");
+		System.out.println("      以下のように、true か false の値を指定します：");
+		System.out.println("");
+		System.out.println("        true               : ターミネーターを有効化する");
+		System.out.println("        false (デフォルト) : ターミネーターを無効化する");
+		System.out.println("");
+		System.out.println("      なお、ターミネーターは、アプリケーションにスクリプトエンジンを組み込んだ際のための機能であり、");
+		System.out.println("      コマンドラインモードでは作動させる機会はありません（そのためデフォルトで false になっています）。");
+		System.out.println("      一方で、有効化すると若干の速度低下が生じるため、このオプションはその度合の把握のために用います。");
+		System.out.println("");
+		System.out.println("    使用例：");
+		System.out.println("");
+		System.out.println("      java -jar Vnano.jar Example.vnano --terminator true");
+		System.out.println("      java -jar Vnano.jar Example.vnano --terminator false");
+		System.out.println("");
+		System.out.println("");
+
+		System.out.println("  --perf 計測対象");
+		System.out.println("");
+		System.out.println("      性能計測を有効化するかどうかを指定します。");
+		System.out.println("      計測対象の値は、以下の一覧から指定できます：");
+		System.out.println("");
+		System.out.println("        speed            : 仮想（VM）マシンの動作速度（秒間あたり命令実行数）");
+		System.out.println("        ram              : メモリー使用量");
+		System.out.println("        instructionFreq  : 各命令種類ごとの実行頻度（サンプリングにより計測）");
+		System.out.println("        all (default)    : 上記の全て");
+		System.out.println("");
+		System.out.println("    使用例");
+		System.out.println("");
+		System.out.println("      java -jar Vnano.jar Example.vnano --perf");
+		System.out.println("      java -jar Vnano.jar Example.vnano --perf all");
+		System.out.println("      java -jar Vnano.jar Example.vnano --perf speed");
+		System.out.println("");
+		System.out.println("");
+
+		System.out.println("  --plugin プラグインのパス");
+		System.out.println("");
+		System.out.println("      接続するプラグインのクラスパスを指定します。");
+		System.out.println("      パスは、「:」または「;」区切り（環境依存）で複数指定できます。");
+		System.out.println("      プラグインのクラスパスのルートディレクトリが「 " + DEFAULT_PLUGIN_DIR + " 」ディレクトリではない場合、");
+		System.out.println("      --pluginDir をこのオプションよりも前に付けて、そのディレクトリを指定します。");
+		System.out.println("");
+		System.out.println("    使用例：");
+		System.out.println("");
+		System.out.println("      java -jar Vnano.jar Example.vnano --plugin ExamplePlugin");
+		System.out.println("      java -jar Vnano.jar Example.vnano --plugin examplepackage.ExamplePlugin");
+		System.out.println("      java -jar Vnano.jar Example.vnano --plugin \"Plugin1;Plugin2;Plugin3\"");
+		System.out.println("      java -jar Vnano.jar Example.vnano --plugin \"Plugin1:Plugin2:Plugin3\"");
+		System.out.println("      java -jar Vnano.jar Example.vnano --pluginDir \"./exampleDir/\" --plugin \"ExamplePlugin\"");
+		System.out.println("");
+		System.out.println("");
+
+		System.out.println("  --pluginDir プラグインのクラスパスにおけるルート階層ディレクトリのパス");
+		System.out.println("");
+		System.out.println("      プラグインのクラスパスにおいて、ルート階層に位置するディレクトリのファイルパスを指定します。");
+		System.out.println("      ファイルパスは、「:」または「;」区切り（環境依存）で複数指定できます。");
+		System.out.println("      このオプションは、デフォルトで「 " + DEFAULT_PLUGIN_DIR + " 」に設定されています。");
+		System.out.println("");
+		System.out.println("");
+
+		System.out.println("  --pluginList プラグインリストファイルのパス");
+		System.out.println("");
+		System.out.println("      読み込み対処のプラグインが列挙されている、「プラグイン リスト ファイル」のファイルパスを指定します。");
+		System.out.println("      このオプションはデフォルトで「 "+ DEFAULT_PLUGIN_LIST_FILE_PATH + " 」に設定されています。");
+		System.out.println("");
+		System.out.println("");
+
+		System.out.println("  --libList ライブラリリストファイルのパス");
+		System.out.println("");
+		System.out.println("      読み込み対処のライブラリが列挙されている、「ライブラリ リスト ファイル」のファイルパスを指定します。");
+		System.out.println("      このオプションはデフォルトで「 "+ DEFAULT_LIBRARY_LIST_FILE_PATH + " 」に設定されています。");
+		System.out.println("");
+		System.out.println("");
+
+		System.out.println("  --permission パーミッション設定名");
+		System.out.println("");
+		System.out.println("      パーミッション設定を選択指定します。");
+		System.out.println("      このオプションはデフォルトで「 " + PERMISSION_VALUE_DENY_ALL + " 」に設定されています。");
+		System.out.println("      下記の一覧から選んで指定できます：");
+		System.out.println("");
+		System.out.println("          denyAll   : 全てのパーミッション要求を拒否します。");
+		System.out.println("          allowAll  : 全てのパーミッション要求を許可します。");
+		System.out.println("          askAll    : 各パーミッションのリクエスト時に、ユーザーに尋ねて決定します。");
+		System.out.println("");
+		System.out.println("          balanced  : 一般的な用途を想定し、利便性と保護のバランスを考慮した設定（下記）を使用します：");
+		System.out.println("");
+		System.out.println("                        * DEFAULT:          ASK");
+		System.out.println("                        * FILE_CREATE:      ALLOW");
+		System.out.println("                        * FILE_WRITE:       ALLOW");
+		System.out.println("                      ( * FILE_OVERWRITE:   ASK   )");
+		System.out.println("                        * FILE_READ:        ALLOW");
+		System.out.println("                        * DIRECTORY_CREATE: ALLOW");
+		System.out.println("                        * DIRECTORY_LIST:   ALLOW");
+		System.out.println("                        * PROGRAM_EXIT:     ALLOW");
+		System.out.println("                        * PROGRAM_RESET:    ALLOW");
+		System.out.println("");
+		System.out.println("    使用例");
+		System.out.println("");
+		System.out.println("      java -jar Vnano.jar Example.vnano --permission denyAll");
+		System.out.println("      java -jar Vnano.jar Example.vnano --permission askAll");
+		System.out.println("      java -jar Vnano.jar Example.vnano --permission balanced");
+		System.out.println("");
+		System.out.println("");
+
+		System.out.println("  --test");
+		System.out.println("");
+		System.out.println("      Vnano のスクリプトエンジンの全体テストを実行します。");
+		System.out.println("");
+		System.out.println("    使用例");
+		System.out.println("");
+		System.out.println("      java -jar Vnano.jar --test");
+		System.out.println("");
+		System.out.println("");
+
+		System.out.println("[ 標準で使用できる関数 ]");
+		System.out.println("");
+		System.out.println("    コマンドラインモードでは、開発やデバッグ時の利便性のため、以下の関数が標準で使用できます。");
+		System.out.println("");
+		System.out.println("      void output(int)");
+		System.out.println("      void output(long)");
+		System.out.println("      void output(float)");
+		System.out.println("      void output(double)");
+		System.out.println("      void output(bool)");
+		System.out.println("      void output(string)");
+		System.out.println("      int  time()");
+		System.out.println("");
+		System.out.println("    一方でこれらは、スクリプトエンジンをアプリケーションに組み込んだ際などには、");
+		System.out.println("    標準では使えない事に留意が必要です。標準で使えるのは、あくまでもコマンドラインモードでのみです。");
+		System.out.println("");
+		System.out.println("    アプリケーションへの組み込み時に、上記の関数や、その他の基本的な関数を使用可能にするには、");
+		System.out.println("    Vnano標準プラグインを導入し、読み込み設定を行ってください。");
+		System.out.println("    詳細は　Vnano Engine のドキュメントをご参照ください。");
 		System.out.println("");
 	}
 
@@ -371,6 +702,9 @@ public final class VnanoCommandLineApplication {
 
 	/** The name of --libList option. */
 	private static final String COMMAND_OPTNAME_LIBRARY_LIST = "libList";
+
+	/** The name of --permission option. */
+	private static final String COMMAND_OPTNAME_PERMISSION = "permission";
 
 	/** The name of --test option. */
 	private static final String COMMAND_OPTNAME_TEST = "test";
@@ -467,6 +801,66 @@ public final class VnanoCommandLineApplication {
 	private String perfTarget = null;
 
 
+	// --------------------------------------------------------------------------------
+	// Definitions of The Values of the --permission Option (perf target)
+	// --------------------------------------------------------------------------------
+
+	/** Represents the permission settings denying all requests. */
+	private static final String PERMISSION_VALUE_DENY_ALL = "denyAll";
+
+	/** Represents the permission settings allowing all requests. */
+	private static final String PERMISSION_VALUE_ALLOW_ALL = "allowAll";
+
+	/** Represents the permission map asking users whether allows/deny a request, for all permission items. */
+	private static final String PERMISSION_VALUE_ASK_ALL = "askAll";
+
+	/** Represents the permission map considering the balance between usability and protectivity. */
+	private static final String PERMISSION_VALUE_BALANCED = "balanced";
+
+	/** Stores the map of the permission settings specified by --permission option. */
+	private Map<String, String> permissionMap = PERMISSION_MAP_DENY_ALL;
+
+
+	// --------------------------------------------------------------------------------
+	// Definitions of Permission Maps
+	// --------------------------------------------------------------------------------
+
+	/** The permission map denying all requests. */
+	@SuppressWarnings("serial")
+	private static final Map<String, String> PERMISSION_MAP_DENY_ALL = new HashMap<String, String>() {{
+		put(ConnectorPermissionName.DEFAULT, ConnectorPermissionValue.DENY);
+	}};
+
+	/** The permission map allowing all requests. */
+	@SuppressWarnings("serial")
+	private static final Map<String, String> PERMISSION_MAP_ALLOW_ALL = new HashMap<String, String>() {{
+		put(ConnectorPermissionName.DEFAULT, ConnectorPermissionValue.ALLOW);
+	}};
+
+	/** The permission map asking users whether allows/deny a request, for all permission items. */
+	@SuppressWarnings("serial")
+	private static final Map<String, String> PERMISSION_MAP_ASK_ALL = new HashMap<String, String>() {{
+		put(ConnectorPermissionName.DEFAULT, ConnectorPermissionValue.ASK);
+	}};
+
+	/** The permission map considering the balance between usability and protectivity. */
+	@SuppressWarnings("serial")
+	private static final Map<String, String> PERMISSION_MAP_BALANCED = new HashMap<String, String>() {{
+		put(ConnectorPermissionName.DEFAULT, ConnectorPermissionValue.ASK);
+		put(ConnectorPermissionName.PROGRAM_EXIT, ConnectorPermissionValue.ALLOW);
+		put(ConnectorPermissionName.PROGRAM_RESET, ConnectorPermissionValue.ALLOW);
+		put(ConnectorPermissionName.DIRECTORY_CREATE, ConnectorPermissionValue.ALLOW);
+		put(ConnectorPermissionName.DIRECTORY_LIST, ConnectorPermissionValue.ALLOW);
+		put(ConnectorPermissionName.FILE_CREATE, ConnectorPermissionValue.ALLOW);
+		put(ConnectorPermissionName.FILE_WRITE, ConnectorPermissionValue.ALLOW);
+		put(ConnectorPermissionName.FILE_READ, ConnectorPermissionValue.ALLOW);
+	}};
+
+
+	// --------------------------------------------------------------------------------
+	// Others
+	// --------------------------------------------------------------------------------
+
 	/** The Map storing the specified (and default) option names and values, to be passed to the script engine.  */
 	private Map<String, Object> engineOptionMap = new HashMap<String, Object>();
 
@@ -510,7 +904,7 @@ public final class VnanoCommandLineApplication {
 
 	/**
 	 * The entry-point of the process of the command line mode.
-	 * 
+	 *
 	 * @param args The specified command line arguments.
 	 */
 	public static void main(String[] args) {
@@ -521,7 +915,7 @@ public final class VnanoCommandLineApplication {
 
 	/**
 	 * Dispatches/executes processes corresponding with each specified command line argument.
-	 * 
+	 *
 	 * @param args The specified command line arguments.
 	 */
 	public void dispatch(String[] args) {
@@ -627,7 +1021,7 @@ public final class VnanoCommandLineApplication {
 	/**
 	 * Returns whether a script should be specified in the command line.
 	 * (A script does not required for some cases, e.g.: when only --help option is specified.)
-	 * 
+	 *
 	 * @param optionNameValueMap The map storing the specified option names (as keys) and their values.
 	 */
 	private boolean isScriptFileNecessary(Map<String, String> optionNameValueMap) {
@@ -646,7 +1040,7 @@ public final class VnanoCommandLineApplication {
 
 	/**
 	 * Dispatches/executes the process corresponding with the specified option.
-	 * 
+	 *
 	 * @param optionName The name of the option to be dispatched/executed.
 	 * @param optionName The value of the option to be dispatched/executed.
 	 * @return true if the process has completed successfully, or false it it has failed.
@@ -727,10 +1121,10 @@ public final class VnanoCommandLineApplication {
 			case COMMAND_OPTNAME_LOCALE : {
 
 				// Note: The Constructors of the Locale class are deprecated,
-				//       but the alternative method "Locale.toLocale(...)" 
+				//       but the alternative method "Locale.toLocale(...)"
 				//       is not available in old environment.
-				//       
-				//       Hence, we get an instance of Locale in non-simplest way. 
+				//
+				//       Hence, we get an instance of Locale in non-simplest way.
 				//       Don't refactor the following code, for the time being.
 
 				// If the value contains "-" (excluding the head or the tail), it is the separator between a language code and a country code.
@@ -738,19 +1132,20 @@ public final class VnanoCommandLineApplication {
 				// For example, if "en-US" is specified, split it to { "en", "US" }.
 				if (0 < optionValue.indexOf("-") && optionValue.indexOf("-") < optionValue.length()-1) {
 					if (optionValue.toLowerCase().equals("ja-jp")) {
-						this.engineOptionMap.put(OptionKey.LOCALE, Locale.JAPANESE);
+						this.locale = Locale.JAPANESE;
 					} else {
-						this.engineOptionMap.put(OptionKey.LOCALE, Locale.ENGLISH);
+						this.locale = Locale.ENGLISH;
 					}
 
 				// Otherwise, we regard the value as a language code, so simply pass it to the constructor of the Locale class.
 				} else {
 					if (optionValue.toLowerCase().equals("ja") || optionValue.toLowerCase().equals("jp")) {
-						this.engineOptionMap.put(OptionKey.LOCALE, Locale.JAPANESE);
+						this.locale = Locale.JAPANESE;
 					} else {
-						this.engineOptionMap.put(OptionKey.LOCALE, Locale.ENGLISH);
+						this.locale = Locale.ENGLISH;
 					}
 				}
+				this.engineOptionMap.put(OptionKey.LOCALE, this.locale);
 				return true;
 			}
 
@@ -869,6 +1264,36 @@ public final class VnanoCommandLineApplication {
 				return true;
 			}
 
+			// --libList option:
+			case COMMAND_OPTNAME_PERMISSION : {
+				if (optionValue == null) {
+					System.err.println("No value is specified for --" + COMMAND_OPTNAME_PERMISSION + " option.");
+					return false;
+				}
+				switch (optionValue) {
+					case PERMISSION_VALUE_DENY_ALL : {
+						this.permissionMap = PERMISSION_MAP_DENY_ALL;
+						return true;
+					}
+					case PERMISSION_VALUE_ALLOW_ALL : {
+						this.permissionMap = PERMISSION_MAP_ALLOW_ALL;
+						return true;
+					}
+					case PERMISSION_VALUE_ASK_ALL : {
+						this.permissionMap = PERMISSION_MAP_ASK_ALL;
+						return true;
+					}
+					case PERMISSION_VALUE_BALANCED : {
+						this.permissionMap = PERMISSION_MAP_BALANCED;
+						return true;
+					}
+					default: {
+						System.err.println("Invalid value for --" + COMMAND_OPTNAME_PERMISSION + " option: " + optionValue);
+						return false;
+					}
+				}
+			}
+
 			// --test option:
 			case COMMAND_OPTNAME_TEST : {
 				// Enable the flag to run tests.
@@ -887,10 +1312,10 @@ public final class VnanoCommandLineApplication {
 
 
 	/**
-	 * Parses the specified command line arguments, 
+	 * Parses the specified command line arguments,
 	 * and returns a Map in which names (keys) and values of command line options are stored.
-	 * 
-	 * @param args The command line arguments. 
+	 *
+	 * @param args The command line arguments.
 	 * @return The Map in which names (keys) and values of command line options are stored.
 	 */
 	private Map<String, String> parseArguments(String[] args) {
@@ -919,7 +1344,7 @@ public final class VnanoCommandLineApplication {
 			// Otherwise, the arg is a option value.
 			} else {
 
-				// If the previous arg is an option name (currentArgIsExplicitOption is true), 
+				// If the previous arg is an option name (currentArgIsExplicitOption is true),
 				// set this arg to the Map, as a value corresponding with the above option name.
 				if (currentArgIsExplicitOption) {
 					optionNameValueMap.put(currentOptionName, args[argIndex]);
@@ -949,19 +1374,24 @@ public final class VnanoCommandLineApplication {
 	/**
 	 * Creates an initialized VnanoEngine.
 	 * The initialization taken by this method contains option settings and plugin loadings.
-	 * 
+	 *
 	 * @param optionMap The Map in which option names (as keys) and values are stored.
+	 * @param permissionMap The Map in which permission item names (as keys) and values are stored.
 	 * @param pluginLoader The loader of plugins.
 	 * @return The initialized VnanoEngine.
 	 */
-	private VnanoEngine createInitializedVnanoEngine(Map<String, Object> optionMap, PluginLoader pluginLoader) {
+	private VnanoEngine createInitializedVnanoEngine(
+			Map<String, Object> optionMap, Map<String, String> permissionMap, PluginLoader pluginLoader) {
+
 		VnanoEngine engine = new VnanoEngine();
 
-		// Plugins may access to options, so fistly set options to the engine before loading plugins.
+		// Plugins may access to option/permission settings, 
+		// so firstly set options/permissions to the engine before loading plugins.
 		try {
 			engine.setOptionMap(optionMap);
+			engine.setPermissionMap(permissionMap);
 		} catch (VnanoException e) {
-			System.err.println("Option setting failed.");
+			System.out.println("Invalid option/permission settings have been detected.");
 			e.printStackTrace();
 			return null;
 		}
@@ -1008,19 +1438,24 @@ public final class VnanoCommandLineApplication {
 	/**
 	 * Creates an initialized Interconenct.
 	 * The initialization taken by this method contains option settings and plugin loadings.
-	 * 
+	 *
 	 * @param optionMap The Map in which option names (as keys) and values are stored.
+	 * @param permissionMap The Map in which permission item names (as keys) and values are stored.
 	 * @param pluginLoader The loader of plugins.
 	 * @return The initialized Interconenct.
 	 */
-	private Interconnect createInitializedInterconnect(Map<String, Object> optionMap, PluginLoader pluginLoader) {
+	private Interconnect createInitializedInterconnect(
+			Map<String, Object> optionMap, Map<String, String> permissionMap, PluginLoader pluginLoader) {
+
 		Interconnect interconnect = new Interconnect();
 
-		// Plugins may access to options, so fistly set options to the engine before loading plugins.
+		// Plugins may access to option/permission settings, 
+		// so firstly set options/permissions to the engine before loading plugins.
 		try {
 			interconnect.setOptionMap(optionMap);
+			interconnect.setPermissionMap(permissionMap);
 		} catch (VnanoException e) {
-			System.out.println("Invalid option detected.");
+			System.out.println("Invalid option/permission settings have been detected.");
 			e.printStackTrace();
 		}
 
@@ -1067,7 +1502,7 @@ public final class VnanoCommandLineApplication {
 	 */
 	private boolean executeCombinedTest() {
 		VnanoEngine engine = this.createInitializedVnanoEngine(
-			this.engineOptionMap, new PluginLoader(DEFAULT_ENCODING)
+			this.engineOptionMap, this.permissionMap, new PluginLoader(DEFAULT_ENCODING)
 		);
 
 		try {
@@ -1090,7 +1525,7 @@ public final class VnanoCommandLineApplication {
 
 	/**
 	 * Execute the specified Vnano script file or VRIL assembly file.
-	 * 
+	 *
 	 * @param inputFilePath The path of the file to be executed.
 	 * @param libraryListFilePath The path of the library list file.
 	 * @param pluginListFilePath The path of the plugin list file.
@@ -1128,13 +1563,14 @@ public final class VnanoCommandLineApplication {
 
 	/**
 	 * Execute the specified Vnano script file.
-	 * 
+	 *
 	 * @param scriptLoader The script loader in which the main script and library scripts are registered (already loaded).
 	 * @param pluginLoader The plugin loader in which all plugins to be connected are registered (already loaded).
 	 */
 	public void executeVnanoScriptFile(ScriptLoader scriptLoader, PluginLoader pluginLoader) throws VnanoException {
 
 		// Set the name of the script to the option map.
+		// (The "import path" of the main script should not be a relative path form, so specify only the name, not path.)
 		this.engineOptionMap.put(OptionKey.MAIN_SCRIPT_NAME, scriptLoader.getMainScriptName());
 
 		// Set the UI_MODE option to CUI mode.
@@ -1145,17 +1581,17 @@ public final class VnanoCommandLineApplication {
 		// (Mandatory options are suppremented by default values, if they are not specified.)
 		this.engineOptionMap = OptionValue.normalizeValuesOf(this.engineOptionMap);
 
-		// Create an initialized VnanoEngine, 
+		// Create an initialized VnanoEngine,
 		// where the "initialization" contains option settings and plugin loadings.
-		VnanoEngine engine = this.createInitializedVnanoEngine(this.engineOptionMap, pluginLoader);
+		VnanoEngine engine = this.createInitializedVnanoEngine(this.engineOptionMap, this.permissionMap, pluginLoader);
 
 		// Register library scripts to be "include"-ed.
 		if (scriptLoader.hasLibraryScripts()) {
-			String[] libNames = scriptLoader.getLibraryScriptNames();
+			String[] libPaths = scriptLoader.getLibraryScriptPaths(true);
 			String[] libContents = scriptLoader.getLibraryScriptContents();
-			int libN = libNames.length;
+			int libN = libPaths.length;
 			for (int libIndex=0; libIndex<libN; libIndex++) {
-				engine.includeLibraryScript(libNames[libIndex], libContents[libIndex]);
+				engine.registerLibraryScript(libPaths[libIndex], libContents[libIndex]);
 			}
 		}
 
@@ -1188,7 +1624,7 @@ public final class VnanoCommandLineApplication {
 
 	/**
 	 * Execute the specified VRIL assembly file.
-	 * 
+	 *
 	 * @param scriptLoader The script loader in which the VRIL assembly code and library scripts are registered (already loaded).
 	 * @param pluginLoader The plugin loader in which all plugins to be connected are registered (already loaded).
 	 */
@@ -1205,9 +1641,9 @@ public final class VnanoCommandLineApplication {
 		// (Mandatory options are suppremented by default values, if they are not specified.)
 		this.engineOptionMap = OptionValue.normalizeValuesOf(this.engineOptionMap);
 
-		// Create an initialized Interconnect, 
+		// Create an initialized Interconnect,
 		// where the "initialization" contains option settings and plugin loadings.
-		Interconnect interconnect = this.createInitializedInterconnect(this.engineOptionMap, pluginLoader);
+		Interconnect interconnect = this.createInitializedInterconnect(this.engineOptionMap, this.permissionMap, pluginLoader);
 		if (interconnect == null) {
 			return;
 		}
@@ -1248,7 +1684,7 @@ public final class VnanoCommandLineApplication {
 
 	/**
 	 * Dump (print) the information of the specified Exception.
-	 * 
+	 *
 	 * @param e The Exception to be dumped (printed).
 	 */
 	public void dumpException(Exception e) {

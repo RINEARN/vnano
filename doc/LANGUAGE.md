@@ -24,6 +24,7 @@
     - [Formal parameters and actual arguments](#function-params-and-args)
     - [Call by value](#function-call-by-value)
     - [Call by reference](#function-call-by-reference)
+- ["import" and "include" Declarations](#import)
 
 <hr />
 
@@ -236,7 +237,7 @@ The result is:
 ### Syntax elements of expressions
 
 An expression is a series of tokens to describe operations, consists of operators, operands, and parentheses ( ).
-An expression can be a statement as an "expression statement" by itself.
+An expression can be a statement as an "expression statement" by itself (when it ends with ";").
 In addition, expressions can be parts of other kinds of statements, e.g.: a condition expression of "if" statement.
 
 As syntactic elements of expressions, "operators" are symbols of operations, e.g.: "+", "-", and so on.
@@ -244,11 +245,12 @@ Values to be operated are called as "operands", e.g.: 1 and 2.3 for "1 + 2.3".
 More specifically, as syntactic elements, values directly described such as "1", "2.3" and so on are called as "literals".
 Besides literals, identifiers of variables (e.g.: "x"), and results of other operations can be operands.
 
-For example:
+The syntactic definition of expressions like above is complicated and difficult, so Let's see a typical example:
 
-    (x + 2) * 3;
+    (x + 2) * 3
 
-In the above expression, "+" and "*" are operators, "x" and "2" and "3" are operands, 
+The above is an expression.
+In this expression, "+" and "*" are operators, "x" and "2" and "3" are operands, 
 "(" and ")" are parentheses.
 
 However, the result of the addition "(x + 2)" is also an operand for the "*" operator, 
@@ -258,25 +260,26 @@ For disambiguation, sometimes minimum units of operands such as "x" and "2" and 
 By the way, in the Vnano, as the same with the C programming language, 
 the symbol of the assignment "=" is an operator, so the following is also an expression:
 
-    y = (x + 2) * 3;
+    y = (x + 2) * 3
 
 
 
 <a id="expression-operator"></a>
 ### Operators
 
-The following is the list of operators supported in the Vnano:
+The following is the list of operators supported in the Vnano.
+Note that, smaller "precedence" value gives higher precedence.
 
 | Operator | Precedence | Syntax | Associativity | Type of Operands | Type of Operated Value |
 | --- | --- | --- | --- | --- | --- |
 | ( ... , ... , ... ) as call | 1000 | multiary | left | any | any |
-| [ ... ][ ... ] ... as index | 1000 | multiary | left | int | any |
-| ++ | 1000 | postfix | left | int | int |
-| -- | 1000 | postfix | left | int | int |
-| ++ | 2000 | prefix | right | int | int |
-| -- | 2000 | prefix | right | int | int |
-| + | 2000 | prefix | right | int | int |
-| - | 2000 | prefix | right | int | int |
+| [ ... ][ ... ][...] as index | 1000 | multiary | left | int | any |
+| ++ (post-increment) | 1000 | postfix | left | int | int |
+| -- (post-decrement) | 1000 | postfix | left | int | int |
+| ++ (pre-increment) | 2000 | prefix | right | int | int |
+| -- (pre-decrement) | 2000 | prefix | right | int | int |
+| + (unary-plus) | 2000 | prefix | right | int | int |
+| - (unary-minus) | 2000 | prefix | right | int | int |
 | ! | 2000 | prefix | right | bool | bool |
 | (...) as cast | 2000 | prefix | right | any | any |
 | * | 3000 | binary | left | int, float | int, float (See the next table) |
@@ -440,7 +443,7 @@ The result is:
     y[1] = 0
     y[2] = 0
 
-As demonstrated by the above result, actual arguments of caller-side "a" and "b" have not changed although formal parameters "x" and "y" changed in the function "fun". This is because, by default, actual arguments will be simply copied once to formal parameters when the function is called. This behaviour is called as "call-by-value".
+As demonstrated by the above result, actual arguments of caller-side "x" and "y" have not changed although formal parameters "a" and "b" changed in the function "fun". This is because, by default, actual arguments will be simply copied once to formal parameters when the function is called. This behaviour is called as "call-by-value".
 
 
 <a id="function-call-by-reference"></a>
@@ -475,4 +478,44 @@ The result is:
     y[1] = 11
     y[2] = 12
 
-The memory-reference to data of a formal parameter declared with "&" will be shared with reference to data of an actual argument. Hence, as demonstrated by the above result, after values of formal parameters "x" and "y" in the function "fun" changed, actual arguments "a" and "b" of caller-side also changed to same values with "x" and "y". This behaviour is called as "call-by-reference".
+The memory-reference to data of a formal parameter declared with "&" will be shared with reference to data of an actual argument. Hence, as demonstrated by the above result, after values of formal parameters "a" and "b" in the function "fun" changed, actual arguments "x" and "y" of caller-side also changed to same values with "a" and "b". This behaviour is called as "call-by-reference".
+
+
+
+<a id="import"></a>
+## "import" and "include" Declarations
+
+In the VCSSL, which is the "parent language" of the Vnano, 
+we can describe "import" / "include" declarations in scripts, for loading specified libraries.
+For example:
+
+    import ExampleLibrary;
+
+    float value = exampleFunction(1.2);
+
+If we execute the above code as a VCSSL script, 
+the "ExampleLibrary" will be loaded automatically by the line "import ExampleLibrary;", and then its member function "exampleFunction" will be available in the script.
+
+On the other hand, in the Vnano (is a subset of the VCSSL for embedded use), scripts can not request the scripting engine to load libraries/plug-ins.
+All libraries/plug-ins must be loaded/specified by application-side code or setting files (see [Main Features of Vnano Engine, and Examples](FEATURE.md)), not scripts.
+This is a restriction for keeping security in embedded use.
+
+However, it is possible to "import" or "include" declarations in Vnano scripts, though the specified libraries/plug-ins will not load automatically.
+If an "import" / "include" declaration exists in a Vnano script, the scripting engine confirms that 
+whether the specified library (or the plug-in providing the same namespace) has been loaded.
+If it has not been loaded, the engine notify the user of missing the library/plug-in, as an error message.
+
+For example, if we execute the above example code as a Vnano script, and the library "ExampleLibrary" (or the plug-in prividing "ExampleLibrary" namespace) is not loaded, the following error message will be displayed:
+
+    This script requires features of "ExampleLibrary", but no library or plug-in providing them is not loaded.
+    Check the settings to load libraries/plug-ins.
+
+Also, if we removed the line "import ExampleLibrary;" from the script, the error message changes to the following: 
+
+    Unknown function "exampleFunction(float)" is called.
+
+The former error message is more user friendly than the latter one, because the user can grasp what they should do for solving the problem.
+
+When the specified librarie or plug-in has been loaded and is available, nothing occurs by the "import" / "include" declaration.
+Hence, "import" / "include" declarations are not mandatory for Vnano scripts, but they give the advantage shown in the above.
+

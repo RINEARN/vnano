@@ -145,7 +145,13 @@ public class Parser {
 					statementBegin = statementEnd + 1;
 				}
 
-			// Function declaration sstatement:
+			// Dependency declaration statement (import / include):
+			} else if (beginToken.getType()==Token.Type.DEPENDENCY_DECLARATOR) {
+				Token[] subTokens = Arrays.copyOfRange(tokens, statementBegin, statementEnd);
+				statementStack.push(this.parseDependencyDeclarationStatement(subTokens));
+				statementBegin = statementEnd + 1;
+
+			// Function declaration statement:
 			} else if (this.startsWithFunctionDeclarationTokens(tokens, statementBegin)) {
 				Token[] subTokens = Arrays.copyOfRange(tokens, statementBegin, blockBegin);
 				statementStack.push(this.parseFunctionDeclarationStatement(subTokens));
@@ -1044,6 +1050,50 @@ public class Parser {
 		} else {
 			throw new VnanoFatalException("Unknown controll statement: " + controlTypeToken.getValue());
 		}
+	}
+
+
+
+
+
+	// ====================================================================================================
+	// Parsing of Dependency Declaration Statements (import / include)
+	// ====================================================================================================
+
+
+	/**
+	 * Parses a dependency declaration statement (import / include).
+	 * 
+	 * @param tokens Tokens composing a declaration declaration statement.
+	 * @return The constructed AST.
+	 * @throws VnanoException VnanoException Thrown when any syntactic error is detected.
+	 */
+	private AstNode parseDependencyDeclarationStatement(Token[] tokens) throws VnanoException {
+		
+		// If there is no token, it will not be passed to this method, so the tokens[0] always exists.
+		Token declaratorToken = tokens[0];
+		int lineNumber = declaratorToken.getLineNumber();
+		String fileName = declaratorToken.getFileName();
+
+		// Check the number of tokens: must be 2.
+		if (tokens.length != 2) {
+			throw new VnanoException(ErrorType.INVALID_DEPENDENCY_DECLARATION_SYNTAX, fileName, lineNumber);
+		}
+
+		// Create a IMPORT/INCLUDE node.
+		AstNode node = null;
+		if (declaratorToken.getValue().equals(ScriptWord.IMPORT)) {
+			node = new AstNode(AstNode.Type.IMPORT, lineNumber, fileName);
+		} else if (declaratorToken.getValue().equals(ScriptWord.INCLUDE)) {
+			node = new AstNode(AstNode.Type.INCLUDE, lineNumber, fileName);			
+		} else {
+			throw new VnanoFatalException("Unknown dependency declarator: " + declaratorToken.getValue());
+		}
+
+		// Create a LEAF node of the dependency identifier node, and connect it to the above node.
+		node.addChildNode(this.createLeafNode(tokens[1]));
+
+		return node;
 	}
 
 

@@ -7,10 +7,12 @@ package org.vcssl.nano.interconnect;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
+import java.util.LinkedHashMap;
+import java.util.Set;
+import java.util.HashSet;
 
 import org.vcssl.connect.ClassToXnci1Adapter;
 import org.vcssl.connect.ConnectorException;
@@ -73,6 +75,21 @@ public class Interconnect {
 	/** A map to store all names and values of permission items. */
 	private Map<String, String> permissionMap = null;
 
+	/** Stores contents of library scripts, with their file paths as keys. */
+	private Map<String, String> libraryFilePathContentMap = null;
+
+	/** Stores the name of the main script. */
+	private String mainScriptName = null;
+
+	/** Stores the content of the main script. */
+	private String mainScriptContent = null;
+
+	/** Stores "import paths" of libraries, which can be specified as values of "import" declarations. */
+	private Set<String> libraryImportPathSet;
+
+	/** Stores "import paths" of namespaces provided by plug-ins, which can be specified as values of "import" declarations. */
+	private Set<String> pluginImportPathSet;
+
 
 	/**
 	 * Creates a blank interconnect to which nothing are connected.
@@ -84,6 +101,10 @@ public class Interconnect {
 		this.xnci1PluginList = new ArrayList<ExternalNamespaceConnectorInterface1>();
 		this.xfci1PluginList = new ArrayList<ExternalFunctionConnectorInterface1>();
 		this.xvci1PluginList = new ArrayList<ExternalVariableConnectorInterface1>();
+		this.libraryFilePathContentMap = new LinkedHashMap<String, String>();
+		this.libraryImportPathSet = new HashSet<String>();
+		this.pluginImportPathSet = new HashSet<String>();
+
 
 		// Create an option map and set default values, and reflect to the engine connector.
 		this.optionMap = new LinkedHashMap<String, Object>();
@@ -399,6 +420,7 @@ public class Interconnect {
 		this.xnci1PluginList = new ArrayList<ExternalNamespaceConnectorInterface1>();
 		this.xfci1PluginList = new ArrayList<ExternalFunctionConnectorInterface1>();
 		this.xvci1PluginList = new ArrayList<ExternalVariableConnectorInterface1>();
+		this.pluginImportPathSet = new HashSet<String>();
 		this.permissionAuthorizer = null;
 	}
 
@@ -708,6 +730,9 @@ public class Interconnect {
 			nameapaceName = aliasName;
 		}
 
+		// Register the namespace to make it available as the value of "import" declaration.
+		this.pluginImportPathSet.add(nameapaceName);
+
 		// Connect all function plug-ins, which belong to the namespace to be connected.
 		ExternalFunctionConnectorInterface1[] xfciPlugins = plugin.getFunctions();
 		for (ExternalFunctionConnectorInterface1 xfciPlugin: xfciPlugins) {
@@ -900,4 +925,147 @@ public class Interconnect {
 		}
 	}
 
+
+	/**
+	 * Add a library script.
+	 *
+	 * @param libraryScriptName The names of the library script.
+	 * @param libraryScriptContent The content (code) of the library script.
+	 * @throws VnanoException Thrown when incorrect somethings have been detected for the specified library.
+	 */
+	public void addLibraryScript(String libraryScriptName, String libraryScriptContent) throws VnanoException {
+		if (libraryScriptName == null || libraryScriptContent == null) {
+			throw new NullPointerException();
+		}
+		if (this.libraryFilePathContentMap.containsKey(libraryScriptName)) {
+			throw new VnanoException(ErrorType.LIBRARY_IS_ALREADY_INCLUDED, libraryScriptName);
+		}
+		String normalizedName = IdentifierSyntax.normalizeScriptIdentifier(libraryScriptName);
+		this.libraryFilePathContentMap.put(normalizedName, libraryScriptContent);
+
+		String importPath = this.getImportPathOf(normalizedName);
+		this.libraryImportPathSet.add(importPath);
+	}
+
+
+	/**
+	 * Remove all library scripts.
+	 */
+	public void removeAllLibraryScripts() {
+		this.libraryFilePathContentMap = new LinkedHashMap<String, String>();
+		this.libraryImportPathSet = new HashSet<String>();
+	}
+
+
+	/**
+	 * Set the main script.
+	 * 
+	 * @param mainScriptName The name of the main script.
+	 * @param mainScriptContent The content of the main script.
+	 */
+	public void setMainScript(String mainScriptName, String mainScriptContent) {
+		this.mainScriptName = mainScriptName;
+		this.mainScriptContent = mainScriptContent;
+	}
+
+
+	/**
+	 * Remove the main script.
+	 */
+	public void removeMainScript() {
+		this.mainScriptName = null;
+		this.mainScriptContent = null;
+	}
+
+
+	/**
+	 * Gets the number of the registered library scripts.
+	 * 
+	 * @return The number of the registered library scripts.
+	 */
+	public int getLibraryScriptCount() {
+		return this.libraryFilePathContentMap.size();
+	}
+
+
+	/**
+	 * Gets the file paths of all scripts (the main script and the library scripts).
+	 * 
+	 * File paths of libraries are stored as elements from [0] to [N-2] of the returned array, 
+	 * where N is the length of the returned array.
+	 * 
+	 * The "name" of the main script is stored at [N-1] (the last element) in the returned array.
+	 * It is not a file path, and may not be an actual file name (specified as the value of "MAIN_SCRIPT_NAME" option).
+	 * 
+	 * @return The file paths of all scripts.
+	 */
+	public String[] getScriptPaths() {
+		List<String> scriptPathList = new ArrayList<String>();
+		for (Map.Entry<String, String> pathContentPair: this.libraryFilePathContentMap.entrySet()) {
+			String libName = pathContentPair.getKey();
+			scriptPathList.add(libName);
+		}
+		scriptPathList.add(this.mainScriptName);
+		String[] scriptPaths = new String[scriptPathList.size()];
+		scriptPaths = scriptPathList.toArray(scriptPaths);
+		return scriptPaths;
+	}
+
+
+	/**
+	 * Gets the contents of all scripts (the main script and the library scripts).
+	 * 
+	 * @return The contents of all scripts.
+	 */
+	public String[] getScriptContents() {
+		List<String> scriptContentList = new ArrayList<String>();
+		for (Map.Entry<String, String> pathContentPair: this.libraryFilePathContentMap.entrySet()) {
+			String libContent = pathContentPair.getValue();
+			scriptContentList.add(libContent);
+		}
+		scriptContentList.add(this.mainScriptContent);
+		String[] scriptContents = new String[scriptContentList.size()];
+		scriptContents = scriptContentList.toArray(scriptContents);
+		return scriptContents;
+	}
+
+
+	/**
+	 * Converts the specified script name/path to the "import path".
+	 * 
+	 * An import path is a string which can be specified as a value of a "import" declaration,
+	 * e.g.: "dir1.dir2.ExampleScript" for the script "dir1/dir2/ExampleScript.vnano".
+	 * 
+	 * @param scriptName The name or path of the script.
+	 * @return The "import path" of the script.
+	 */
+	private String getImportPathOf(String scriptName) {
+		String identifier = scriptName;
+		if (identifier.toLowerCase().endsWith(".vnano")) {
+			identifier = identifier.substring(0, identifier.length() - ".vnano".length());
+		}
+		identifier = identifier.replace('/', '.');
+		identifier = identifier.replace('\\', '.');
+		identifier = identifier.replace(':', '.');
+		identifier = identifier.replaceAll("\\.+", ".");
+		identifier = identifier.replaceAll("^\\.", "");
+		return identifier;
+	}
+
+
+	/**
+	 * Returns whether this interconnect has the library or plug-in, corresponding with the specified "import path". 
+	 * 
+	 * @param importPath The "import path" of the library/plug-in.
+	 * @return Returns true if the corresponding library/plug-in exists in this interconnect.
+	 */
+	public boolean hasDependentLibraryOrPlugin(String importPath) {
+		if (this.libraryImportPathSet.contains(importPath)) {
+			return true;
+		}
+		if (this.pluginImportPathSet.contains(importPath)) {
+			return true;
+		}
+		return false;
+	}
 }

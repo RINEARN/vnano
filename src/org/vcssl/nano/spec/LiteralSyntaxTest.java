@@ -82,7 +82,7 @@ public class LiteralSyntaxTest {
 		assertFalse("1.2.3".matches(LiteralSyntax.FLOAT_LITERAL_REGEX));
 		assertFalse("+1.23".matches(LiteralSyntax.FLOAT_LITERAL_REGEX));
 		assertFalse("-1.23".matches(LiteralSyntax.FLOAT_LITERAL_REGEX));
-		assertFalse("".matches(LiteralSyntax.FLOAT_LITERAL_REGEX))
+		assertFalse("".matches(LiteralSyntax.FLOAT_LITERAL_REGEX));
 		assertFalse(" ".matches(LiteralSyntax.FLOAT_LITERAL_REGEX));
 	}
 

@@ -66,6 +66,12 @@ public class AstNode implements Cloneable {
 		/** Represents the node of a return statement. */
 		RETURN,
 
+		/**  Represents the node of a import statement. */
+		IMPORT,
+
+		/**  Represents the node of a include statement. */
+		INCLUDE,
+
 		/** Represents the node at an end-point (leaf) in an expression. */
 		LEAF,
 

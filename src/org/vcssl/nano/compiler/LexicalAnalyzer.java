@@ -387,6 +387,7 @@ public class LexicalAnalyzer {
 					tokens[i].setAttribute(AttributeKey.OPERATOR_SYNTAX, AttributeValue.PREFIX);
 				}
 
+			// Control statements (if, for, while, ...):
 			} else if (word.equals(ScriptWord.IF)
 					|| word.equals(ScriptWord.ELSE)
 					|| word.equals(ScriptWord.FOR)
@@ -396,6 +397,10 @@ public class LexicalAnalyzer {
 					|| word.equals(ScriptWord.CONTINUE)) {
 
 				tokens[i].setType(Token.Type.CONTROL);
+
+			// Dependency declarations (import, include):
+			} else if (word.equals(ScriptWord.IMPORT) || word.equals(ScriptWord.INCLUDE)) {
+				tokens[i].setType(Token.Type.DEPENDENCY_DECLARATOR);
 
 			// Data-type names:
 			} else if (DataTypeName.isDataTypeName(word)) {
@@ -408,6 +413,10 @@ public class LexicalAnalyzer {
 				// Literal:
 				if (LiteralSyntax.isValidLiteral(word)) {
 					tokens[i].setAttribute(AttributeKey.LEAF_TYPE, AttributeValue.LITERAL);
+
+				// Dependency identifier (values of import/include declarations):
+				} else if (0<i && tokens[i-1].getType() == Token.Type.DEPENDENCY_DECLARATOR) {
+					tokens[i].setAttribute(AttributeKey.LEAF_TYPE, AttributeValue.DEPENDENCY_IDENTIFIER);
 
 				// Function identifier:
 				} else if (i<tokenLength-1 && tokens[i+1].getValue().equals(ScriptWord.PARENTHESIS_BEGIN)) {

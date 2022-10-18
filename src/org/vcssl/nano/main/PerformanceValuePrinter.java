@@ -16,7 +16,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 
 import org.vcssl.nano.VnanoEngine;
-import org.vcssl.nano.VnanoException;
 import org.vcssl.nano.spec.OperationCode;
 import org.vcssl.nano.spec.PerformanceKey;
 import org.vcssl.nano.vm.VirtualMachine;
@@ -46,7 +45,7 @@ public class PerformanceValuePrinter implements Runnable {
 
 	/**
 	 * The Map mapping each operation code to detected count of it.
-	 * Note that, when multiple operation codes are detected at the same moment, 
+	 * Note that, when multiple operation codes are detected at the same moment,
 	 * their count will be incremented 1/N, where N is the number of operation codes detected at the same moment.
 	 */
 	private HashMap<String, Double> operationCodeCountMap;
@@ -72,7 +71,7 @@ public class PerformanceValuePrinter implements Runnable {
 
 	/**
 	 * Create an instance for printing performances of the VnanoEngine.
-	 * 
+	 *
 	 * @param vnanoEngine The VnanoEngine of which performances will be measured/printed.
 	 * @param printsVmSpeed Specify true to measure/print the VM drive speed.
 	 * @param printsRamUsage Specify true to measure/print the RAM usage.
@@ -93,7 +92,7 @@ public class PerformanceValuePrinter implements Runnable {
 
 	/**
 	 * Create an instance for printing performances of the VirtualMachine.
-	 * 
+	 *
 	 * @param vnanoEngine The VnanoEngine of which performances will be measured/printed.
 	 * @param printsVmSpeed Specify true to measure/print the VM drive speed.
 	 * @param printsRamUsage Specify true to measure/print the RAM usage.
@@ -151,38 +150,31 @@ public class PerformanceValuePrinter implements Runnable {
 			// The names of the currently executed instructions.
 			String[] currentOpcodeNames = new String[0];
 
-			// Measure performance values from the engine or the VM.
-			try {
+			// When we should measure/print performances of the VnanoEngine.
+			// (When we are executing a Vnano script.)
+			if (this.vnanoEngine != null && this.vnanoEngine.hasPerformanceMap()) {
+				Map<String, Object> performanceMap = this.vnanoEngine.getPerformanceMap();
 
-				// When we should measure/print performances of the VnanoEngine.
-				// (When we are executing a Vnano script.)
-				if (this.vnanoEngine != null) {
-					Map<String, Object> performanceMap = this.vnanoEngine.getPerformanceMap();
-
-					// Note: When no performance value has not been measured yet, no value is stored to the performance map.
-					if (performanceMap.containsKey(PerformanceKey.EXECUTED_INSTRUCTION_COUNT_INT_VALUE)) {
-						currentProcCount = (int)performanceMap.get(PerformanceKey.EXECUTED_INSTRUCTION_COUNT_INT_VALUE);
-					}
-					if (performanceMap.containsKey(PerformanceKey.CURRENTLY_EXECUTED_OPERATION_CODE)) {
-						currentOpcodeNames = (String[])performanceMap.get(PerformanceKey.CURRENTLY_EXECUTED_OPERATION_CODE);
-					}
+				// Note: When no performance value has not been measured yet, no value is stored to the performance map.
+				if (performanceMap.containsKey(PerformanceKey.EXECUTED_INSTRUCTION_COUNT_INT_VALUE)) {
+					currentProcCount = (int)performanceMap.get(PerformanceKey.EXECUTED_INSTRUCTION_COUNT_INT_VALUE);
 				}
-
-				// When we should measure/print performances of the VirtualMachine.
-				// (When we are executing a VRIL assembly code.)
-				if (this.virtualMachine != null) {
-
-					// Note: The following methods of the VM always return values, even when no performance value has not been measured yet.
-					currentProcCount = this.virtualMachine.getExecutedInstructionCountIntValue(); // Returns 0 when no value has not been measured.
-					OperationCode[] currentOpcodes = this.virtualMachine.getCurrentlyExecutedOperationCodes(); // Returns an empty array when no value has not been measured.
-					currentOpcodeNames = new String[ currentOpcodes.length ];
-					for (int i=0; i<currentOpcodes.length; i++) {
-						currentOpcodeNames[i] = currentOpcodes[i].toString();
-					}
+				if (performanceMap.containsKey(PerformanceKey.CURRENTLY_EXECUTED_OPERATION_CODE)) {
+					currentOpcodeNames = (String[])performanceMap.get(PerformanceKey.CURRENTLY_EXECUTED_OPERATION_CODE);
 				}
+			}
 
-			} catch (VnanoException vne) {
-				vne.printStackTrace();
+			// When we should measure/print performances of the VirtualMachine.
+			// (When we are executing a VRIL assembly code.)
+			if (this.virtualMachine != null) {
+
+				// Note: The following methods of the VM always return values, even when no performance value has not been measured yet.
+				currentProcCount = this.virtualMachine.getExecutedInstructionCountIntValue(); // Returns 0 when no value has not been measured.
+				OperationCode[] currentOpcodes = this.virtualMachine.getCurrentlyExecutedOperationCodes(); // Returns an empty array when no value has not been measured.
+				currentOpcodeNames = new String[ currentOpcodes.length ];
+				for (int i=0; i<currentOpcodes.length; i++) {
+					currentOpcodeNames[i] = currentOpcodes[i].toString();
+				}
 			}
 
 
@@ -190,7 +182,7 @@ public class PerformanceValuePrinter implements Runnable {
 			if (currentOpcodeNames.length != 0) {
 
 				// When only 1 operation code isdetected, we add 1 to its counter.
-				// When multiple operation codes are detected at the same moment, 
+				// When multiple operation codes are detected at the same moment,
 				// we add 1/N to their counters, where N is the number of operation codes detected at the same moment.
 				double opcodeCountWeight = 1.0 / currentOpcodeNames.length;
 
@@ -293,7 +285,7 @@ public class PerformanceValuePrinter implements Runnable {
 
 	/**
 	 * Format the instruction execution frequencies to be printed.
-	 * 
+	 *
 	 * @param operationCodeCountMap The map in which detected counters of operation codes are stored.
 	 */
 	private String formatInstructionFrequency(HashMap<String, Double> operationCodeCountMap) {
@@ -326,7 +318,7 @@ public class PerformanceValuePrinter implements Runnable {
 		for (Map.Entry<String, Double> modifiedEntry: modifiedEntryList) {
 
 			// Align lengths of operation codes to be printed, by appending spaces to end of them.
-			// The length of the longest operation code is 7 chars (REFELEM and so on), so align to the 7 chars. 
+			// The length of the longest operation code is 7 chars (REFELEM and so on), so align to the 7 chars.
 			String opcode = String.format("%7s", modifiedEntry.getKey().toString());
 
 			// Convert to each frequency (from 0 to 1) to a percentage, and round it.
@@ -351,8 +343,8 @@ public class PerformanceValuePrinter implements Runnable {
 			//double diff = a.getValue() - b.getValue(); // Ascending order.
 			double diff = b.getValue() - a.getValue(); // Descending order.
 			return (int)Math.signum(diff);
-			
-			// Note: The return value of the signum(...) is double, 
+
+			// Note: The return value of the signum(...) is double,
 			//   but it takes only values of 0 or 1, and it can be completely expressed in binary.
 			//   So we can cast it to int without any numerical errors.
 		}

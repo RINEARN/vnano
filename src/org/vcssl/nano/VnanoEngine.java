@@ -16,7 +16,6 @@ import org.vcssl.nano.compiler.Compiler;
 import org.vcssl.nano.interconnect.Interconnect;
 import org.vcssl.nano.interconnect.MetaQualifiedFileLoader;
 import org.vcssl.nano.spec.ErrorType;
-import org.vcssl.nano.spec.IdentifierSyntax;
 import org.vcssl.nano.spec.OperationCode;
 import org.vcssl.nano.spec.OptionKey;
 import org.vcssl.nano.spec.PerformanceKey;
@@ -33,15 +32,11 @@ public final class VnanoEngine {
 	/** Stores an object to mediate information/connections between components ("interconnect"). */
 	private Interconnect interconnect = null;
 
-	/** Stores contents of library scripts, with their names as keys. */
-	private Map<String, String> libraryNameContentMap = null;
-
 
 	/**
 	 * Create a Vnano Engine with default settings.
 	 */
 	public VnanoEngine() {
-		this.libraryNameContentMap = new LinkedHashMap<String, String>();
 		this.interconnect = new Interconnect();
 		this.virtualMachine = new VirtualMachine();
 	}
@@ -49,14 +44,14 @@ public final class VnanoEngine {
 
 	/**
 	 * Executes an expression or script code specified as the argument.
-	 * 
+	 *
 	 * Please note that,
 	 * you must not call this method of the same instance at the same time from multiple threads,
 	 * for processing multiple scripts in parallel.
 	 * For such parallel executions, create an independent instance of the engine for each thread and use them.
 	 *
 	 * @param script An expression or script code to be executed.
-	 * 
+	 *
 	 * @return
 	 *     The evaluated value of the expression, or the last expression statement in script code.
 	 *     If there is no evaluated value, returns null.
@@ -78,29 +73,24 @@ public final class VnanoEngine {
 				throw new ScriptException(message);
 			}
 
+			// Get the name of the main script from the option map, if it is set.
+			// (The main script name has already been normalized,
+			//  because all option values are normalized when the option map is set to the engine.)
+			String mainScriptName = (String)this.interconnect.getOptionMap().get(OptionKey.MAIN_SCRIPT_NAME);
+
+			// Set the name/content of the main script, to the interconnect.
+			this.interconnect.setMainScript(mainScriptName, script);
+
 			// Activate the interconnect, for executing the script.
 			// (All connected plug-ins are initialized at this timing.)
 			this.interconnect.activate();
 
-			// Store the specified (main) script and library scripts into an array.
-			int libN = this.libraryNameContentMap.size();
-			String[] scripts = new String[libN  + 1];
-			String[] names   = new String[libN + 1];
-			names[libN] = (String)this.interconnect.getOptionMap().get(OptionKey.MAIN_SCRIPT_NAME); // This name is already been normalized.
-			scripts[libN] = script;
-			int libIndex = 0;
-			for (Map.Entry<String, String> nameContentPair: this.libraryNameContentMap.entrySet()) {
-				names[libIndex] = IdentifierSyntax.normalizeScriptIdentifier( nameContentPair.getKey() ); // This name has not been normalized yet, so normalize.
-				scripts[libIndex] = nameContentPair.getValue();
-				// The name of the main script must not duplicate with the names of the library scripts.
-				if (names[libIndex].equals(names[libN])) {
-					throw new VnanoException(ErrorType.LIBRARY_SCRIPT_NAME_IS_CONFLICTING_WITH_MAIN_SCRIPT_NAME, names[libIndex]);
-				}
-				libIndex++;
-			}
+			// Get the file paths and contents of all scripts (the main script and all library scripts), from the interconnect.
+			String[] scripts = this.interconnect.getScriptContents();
+			String[] paths   = this.interconnect.getScriptPaths();
 
 			// Translate scripts to a VRIL code (intermediate assembly code) by a compiler.
-			String assemblyCode = new Compiler().compile(scripts, names, this.interconnect);
+			String assemblyCode = new Compiler().compile(scripts, paths, this.interconnect);
 
 			// Execute the VRIL code on a VM.
 			Object evalValue = this.virtualMachine.executeAssemblyCode(assemblyCode, this.interconnect);
@@ -117,10 +107,9 @@ public final class VnanoEngine {
 			Locale locale = (Locale)this.interconnect.getOptionMap().get(OptionKey.LOCALE); // Type was already checked.
 			e.setLocale(locale);
 
-			// もしも VnanoException が、外部関数が投げる ConnectorException をラップしている場合で、
 			if (e.getCause() instanceof ConnectorException && ((ConnectorException)e.getCause()).getMessage().startsWith("___")) {
 				this.handleSpecialConnectorException((ConnectorException)e.getCause(), e);
-				return null; // 上の行で VnanoException が再スローされなかった場合は何もしない（ exit 関数での終了など ）
+				return null;
 			} else {
 				throw e;
 			}
@@ -135,7 +124,7 @@ public final class VnanoEngine {
 
 	/**
 	 * Handles a ConnectorException thrown when executing a script, if the exception requires special handling.
-	 * 
+	 *
 	 * @param exception The thrown ConnectorException.
 	 * @param callerScriptName
 	      The VnanoException wrapping the thrown ConnectorException
@@ -146,17 +135,17 @@ public final class VnanoEngine {
 
 		String message = exception.getMessage();
 
-		// If the message is "___EXIT", 
-		// it means that the ConnectorException had been thrown by exit() function, for terminating the script normally. 
+		// If the message is "___EXIT",
+		// it means that the ConnectorException had been thrown by exit() function, for terminating the script normally.
 		// So we should not display any error message in this case.
 		if (message.startsWith("___EXIT")) {
 			return;
 		}
 
 		// If the message is "___ERROR",
-		// it means that the ConnectorException had been thrown by error(string errorMessage) function, 
+		// it means that the ConnectorException had been thrown by error(string errorMessage) function,
 		// for terminating the script with the error message specified as the arg "errorMessage".
-		// So extract the content of "errorMessage" from the message of the ConnectorException, 
+		// So extract the content of "errorMessage" from the message of the ConnectorException,
 		// and wrap it by VnanoException, and rethrow it to display.
 		if (message.startsWith("___ERROR")) {
 			String passedErrorMessage = message.split(":")[1]; // = The argument of error(...) function.
@@ -169,8 +158,8 @@ public final class VnanoEngine {
 
 
 	/**
-	 * Terminates the currently running script as soon as possible.
-	 * 
+	 * Requests this engine to terminate the currently running script as soon as possible.
+	 *
 	 * To be precise, the {@link org.vcssl.nano.vm.VirtualMachine VirtualMachine}
 	 * (which is processing instructions compiled from the script) in the engine
 	 * will be terminated after when the processing of a currently executed instruction has been completed,
@@ -185,30 +174,55 @@ public final class VnanoEngine {
 	 * (unless {@link VnanoEngine#resetTerminator() resetTerminator()} will be called before
 	 * when the execution will have been terminated).
 	 *
-	 * @throws VnanoException
-	 *       Thrown when the option {@link org.vcssl.spec.OptionKey#TERMINATOR_ENABLED} is disabled.
+	 * @throws VnanoFatalException (Unchecked Exception)
+	 *       Thrown if this method is called in a state in which {@link VnanoEngine#isTerminatorEnabled()} returns false.
+	 *       Note that, if any exceptions occurred on the finalization processes of the connected plug-ins,
+	 *       it will be throws by the currently running
+	 *       {@link VnanoEngine#executeScript(String script) executeScript(String script)} method,
+	 *       not by this method.
+	 *       This method throws the exception only when it failed in requesting the termination.
 	 */
-	public void terminateScript() throws VnanoException {
-		if (! (boolean)this.interconnect.getOptionMap().get(OptionKey.TERMINATOR_ENABLED) ) {
-			throw new VnanoException(ErrorType.TERMINATOR_IS_DISABLED);
+	public void terminateScript() {
+		if (!this.isTerminatorEnabled()) {
+			throw new VnanoFatalException(ErrorType.TERMINATOR_IS_DISABLED);
 		}
 		this.virtualMachine.terminate();
 	}
 
 
 	/**
-	 * Resets the engine which had terminated by {@link VnanoEngine#terminateScript()} method, 
+	 * Returns whether the "terminator" which is the feature to terminate scripts, is enabled.
+	 *
+	 * Internally, this method checks the value of "TERMINATOR_ENABLED" option (disabled by default) and returns it.
+	 *
+	 * If this method returns true, {@link VnanoEngine#terminateScript() terminateScript()} method and
+	 * {@link VnanoEngine#resetTerminator() resetTerminator()} method are available.
+	 *
+	 * Please note that, even when this method returns true, some errors may occur in the termination processes
+	 * (for example, erros caused by failures of finalization processes of the connected plug-ins, and so on).
+	 * For details, see the explanation about exceptions,
+	 * in the description of {@link VnanoEngine#terminateScript() terminateScript()} method.
+	 *
+	 * @return Returns true if the "terminator" is enabled.
+	 */
+	public boolean isTerminatorEnabled() {
+		return (boolean)this.interconnect.getOptionMap().get(OptionKey.TERMINATOR_ENABLED);
+	}
+
+
+	/**
+	 * Resets the engine which had terminated by {@link VnanoEngine#terminateScript()} method,
 	 * for processing new scripts.
-	 * 
+	 *
 	 * Please note that, if an execution of code is requested by another thread
 	 * when this method is being processed, the execution request might be missed.
-	 * 
-	 * @throws VnanoException
-	 *       Thrown when the option {@link org.vcssl.spec.OptionKey#TERMINATOR_ENABLED} is disabled.
+	 *
+	 * @throws VnanoFatalException (Unchecked Exception)
+	 *       Thrown if this method is called in a state in which {@link VnanoEngine#isTerminatorEnabled()} returns false.
 	 */
-	public void resetTerminator() throws VnanoException {
-		if (! (boolean)this.interconnect.getOptionMap().get(OptionKey.TERMINATOR_ENABLED) ) {
-			throw new VnanoException(ErrorType.TERMINATOR_IS_DISABLED);
+	public void resetTerminator() {
+		if (!this.isTerminatorEnabled()) {
+			throw new VnanoFatalException(ErrorType.TERMINATOR_IS_DISABLED);
 		}
 		this.virtualMachine.resetTerminator();
 	}
@@ -263,7 +277,7 @@ public final class VnanoEngine {
 
 	/**
 	 * Disconnects all plug-ins.
-	 * 
+	 *
 	 * @throws VnanoException Thrown when an exception occurred on the finalization of the plug-in to be disconnected.
 	 */
 	public void disconnectAllPlugins() throws VnanoException {
@@ -272,38 +286,35 @@ public final class VnanoEngine {
 
 
 	/**
-	 * Add a library script which will be "include"-ed at the head of a executed script.
-	 * 
-	 * @param libraryScriptName Names of the library script (displayed in error messages).
+	 * Register a library script which will be "include"-ed at the head of a executed script.
+	 *
+	 * @param libraryScriptName The file path (or name) of the library script.
 	 * @param libraryScriptContent Content (code) of the library script.
-	 * @throws VnanoException Thrown when incorrect somethings have been detected for the specified library.
+	 * @throws VnanoException Thrown when incorrect something have been detected for the specified library.
 	 */
-	public void includeLibraryScript(String libraryScriptName, String libraryScriptContent) throws VnanoException {
-		if (libraryScriptName == null || libraryScriptContent == null) {
+	public void registerLibraryScript(String libraryScriptPath, String libraryScriptContent) throws VnanoException {
+		if (libraryScriptPath == null || libraryScriptContent == null) {
 			throw new NullPointerException();
 		}
-		if (this.libraryNameContentMap.containsKey(libraryScriptName)) {
-			throw new VnanoException(ErrorType.LIBRARY_IS_ALREADY_INCLUDED, libraryScriptName);
-		}
-		this.libraryNameContentMap.put(libraryScriptName, libraryScriptContent);
+		this.interconnect.addLibraryScript(libraryScriptPath, libraryScriptContent);
 	}
 
 
 	/**
-	 * Uninclude all library scripts.
-	 * 
+	 * Unregister all library scripts.
+	 *
 	 * @throws VnanoException
 	 *   Will not be thrown on the current implementation,
 	 *   but it requires to be "catch"-ed for keeping compatibility in future.
 	 */
-	public void unincludeAllLibraryScripts() throws VnanoException {
-		this.libraryNameContentMap = new LinkedHashMap<String, String>();
+	public void unregisterAllLibraryScripts() throws VnanoException {
+		this.interconnect.removeAllLibraryScripts();
 	}
 
 
 	/**
 	 * Sets options, by a Map (option map) storing names and values of options you want to set.
-	 * 
+	 *
 	 * Type of the option map is Map<String,Object>, and its keys represents option names.
 	 * For details of option names and values,
 	 * see {@link org.vcssl.nano.spec.OptionKey} and {@link org.vcssl.nano.spec.OptionValue}.
@@ -320,22 +331,37 @@ public final class VnanoEngine {
 
 
 	/**
+	 * Returns whether {VnanoEngine#getOptionMap() getOptionMap()} method can return a Map.
+	 *
+	 * @return Returns true if {VnanoEngine#getOptionMap() getOptionMap()} method can return a Map.
+	 */
+	public boolean hasOptionMap() {
+		return this.interconnect.getOptionMap() != null;
+	}
+
+
+	/**
 	 * Gets the Map (option map) storing names and values of options.
-	 * 
+	 *
 	 * Type of the option map is Map<String,Object>, and its keys represents option names.
 	 * For details of option names and values,
 	 * see {@link org.vcssl.nano.spec.OptionKey} and {@link org.vcssl.nano.spec.OptionValue}.
 	 *
 	 * @return The Map (option map) storing names and values of options.
+	 * @throws VnanoFatalException (Unchecked Exception)
+	 *       Thrown if this method is called in a state in which {@link VnanoEngine#hasOptionMap()} returns false.
 	 */
 	public Map<String,Object> getOptionMap() {
+		if (!this.hasOptionMap()) {
+			throw new VnanoFatalException(ErrorType.CAN_NOT_GET_OPTION_MAP);
+		}
 		return this.interconnect.getOptionMap();
 	}
 
 
 	/**
 	 * Sets permissions, by a Map (permission map) storing names and values of permission items you want to set.
-	 * 
+	 *
 	 * Type of the permission map is Map<String,String>, and its keys represents names of permission items.
 	 * For details of names and values of permission items,
 	 * see {@link org.vcssl.connect.ConnectorPermissionName} and {@link org.vcssl.connect.ConnectorPermissionValue}.
@@ -353,23 +379,49 @@ public final class VnanoEngine {
 
 
 	/**
+	 * Returns whether {VnanoEngine#getPermissionMap() getPermissionMap()} method can return a Map.
+	 *
+	 * @return Returns true if {VnanoEngine#getPermissionMap() getPermissionMap()} method can return a Map.
+	 */
+	public boolean hasPermissionMap() {
+		return this.interconnect.getPermissionMap() != null;
+	}
+
+
+	/**
 	 * Gets the Map (permission map) storing names and values of permission items.
-	 * 
+	 *
 	 * Type of the permission map is Map<String,String>, and its keys represents names of permission items.
 	 * For details of names and values of permission items,
 	 * see {@link org.vcssl.connect.ConnectorPermissionName} and {@link org.vcssl.connect.ConnectorPermissionValue}.
 	 *
 	 * @return The Map (permission map) storing names and values of permission items.
-	 * @throws VnanoException Thrown when the read-access to the permission map has been denied.
+	 * @throws VnanoFatalException (Unchecked Exception)
+	 *       Thrown if this method is called in a state in which {@link VnanoEngine#hasPermissionMap()} returns false.
 	 */
-	public Map<String, String> getPermissionMap() throws VnanoException {
+	public Map<String, String> getPermissionMap() {
+		if (!this.hasPermissionMap()) {
+			throw new VnanoFatalException(ErrorType.CAN_NOT_GET_PERMISSION_MAP);
+		}
 		return this.interconnect.getPermissionMap();
 	}
 
 
 	/**
+	 * Returns whether {VnanoEngine#getPerformanceMap() getPerformanceMap()} method can return a Map.
+	 *
+	 * Internally, this method checks the value of "PERFORMANCE_MONITOR_ENABLED" option and returns it.
+	 *
+	 * @return Returns true if {VnanoEngine#getPerformanceMap() getPerformanceMap()} method can return a Map.
+	 */
+	public boolean hasPerformanceMap() {
+		return (boolean)this.interconnect.getOptionMap().get(OptionKey.PERFORMANCE_MONITOR_ENABLED);
+	}
+
+
+	/**
 	 * Gets the Map (performance map) storing names and values of performance monitoring items.
-	 * 
+	 *
 	 * Note that, when some measured values for some monitoring items don't exist
 	 * (e.g.: when any scripts are not running, or running but their performance values are not measualable yet),
 	 * the returned performance map does not contain values for such monitoring items,
@@ -377,14 +429,13 @@ public final class VnanoEngine {
 	 * Please be careful of the above point when you "get" measured performance values from the returned performance map.
 	 *
 	 * @return The Map (performance map) storing names and values of performance monitoring items.
-	 *
-	 * @throws VnanoException
-	 *   Thrown when the option {@link org.vcssl.nano.spec.OptionKey#PERFORMANCE_MONITOR_ENABLED PERFORMANCE_MONITOR_ENABLED} is disabled.
+	 * @throws VnanoFatalException (Unchecked Exception)
+	 *       Thrown if this method is called in a state in which {@link VnanoEngine#hasPerformanceMap()} returns false.
 	 */
-	public Map<String, Object> getPerformanceMap() throws VnanoException {
+	public Map<String, Object> getPerformanceMap() {
 		synchronized (this) {
-			if (! (boolean)this.interconnect.getOptionMap().get(OptionKey.PERFORMANCE_MONITOR_ENABLED) ) {
-				throw new VnanoException(ErrorType.PERFORMANCE_MONITOR_IS_DISABLED);
+			if (!this.hasPerformanceMap()) {
+				throw new VnanoFatalException(ErrorType.PERFORMANCE_MONITOR_IS_DISABLED);
 			}
 
 			Map<String, Object> performanceMap = new LinkedHashMap<String, Object>();

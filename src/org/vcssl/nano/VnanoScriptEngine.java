@@ -220,15 +220,15 @@ public final class VnanoScriptEngine implements ScriptEngine {
 		this.loadedLibraryUpdated = false;
 
 		// Remove library scripts.
-		this.vnanoEngine.unincludeAllLibraryScripts();
+		this.vnanoEngine.unregisterAllLibraryScripts();
 
 		// (Re-)Include library scripts.
 		if(this.libraryScriptLoader.hasLibraryScripts()) {
-			String[] libNames = this.libraryScriptLoader.getLibraryScriptNames();
+			String[] libPaths = this.libraryScriptLoader.getLibraryScriptPaths(true);
 			String[] libContents = this.libraryScriptLoader.getLibraryScriptContents();
-			int libN = libNames.length;
+			int libN = libPaths.length;
 			for (int libIndex=0; libIndex<libN; libIndex++) {
-				this.vnanoEngine.includeLibraryScript(libNames[libIndex], libContents[libIndex]);
+				this.vnanoEngine.registerLibraryScript(libPaths[libIndex], libContents[libIndex]);
 			}
 		}
 	}
@@ -390,20 +390,12 @@ public final class VnanoScriptEngine implements ScriptEngine {
 			}
 
 			case SpecialBindingValue.COMMAND_TERMINATE_SCRIPT : {
-				try {
-					this.vnanoEngine.terminateScript();
-				} catch (VnanoException vne) {
-					throw new VnanoFatalException(vne.getMessage());
-				}
+				this.vnanoEngine.terminateScript();
 				break;
 			}
 
 			case SpecialBindingValue.COMMAND_SESET_TERMINATOR : {
-				try {
-					this.vnanoEngine.resetTerminator();
-				} catch (VnanoException vne) {
-					throw new VnanoFatalException(vne.getMessage());
-				}
+				this.vnanoEngine.resetTerminator();
 				break;
 			}
 
@@ -424,13 +416,8 @@ public final class VnanoScriptEngine implements ScriptEngine {
 			throw new NullPointerException();
 		}
 		if (name.equals(SpecialBindingKey.PERFORMANCE_MAP)) {
-			try {
-				return this.vnanoEngine.getPerformanceMap();
-			} catch (VnanoException vne) {
-				throw new VnanoFatalException(vne.getMessage(), vne);
-			}
+			return this.vnanoEngine.getPerformanceMap();
 		}
-
 		if (name.equals(ScriptEngine.NAME)) {
 			return EngineInformation.LANGUAGE_NAME;
 		}

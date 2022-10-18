@@ -29,11 +29,11 @@ public class ExampleApp6 {
 		scriptLoader.load();
 
 		// Register library scripts to Vnano Engine.
-		String[] libNames = scriptLoader.getLibraryScriptNames();
+		String[] libPaths = scriptLoader.getLibraryScriptPaths(true);
 		String[] libScripts = scriptLoader.getLibraryScriptContents();
-		int libCount = libNames.length;
+		int libCount = libScripts.length;
 		for (int ilib=0; ilib<libCount; ilib++) {
-			engine.includeLibraryScript(libNames[ilib], libScripts[ilib]);
+			engine.registerLibraryScript(libPaths[ilib], libScripts[ilib]);
 		}
 
 		// Prepare the content of the script to be executed.

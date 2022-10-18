@@ -139,12 +139,18 @@ public class ScriptWord {
 	/** The keyword of the beginning of return statements: "return". */
 	public static final String RETURN = "return";
 
+	/** The keyword of the beginning of import declarations: "import". */
+	public static final String IMPORT = "import";
+
+	/** The keyword of the beginning of include declarations: "include". */
+	public static final String INCLUDE = "include";
+
 	/** The symbol represents that the number of somethings is arbitrary: "...". */
 	public static final String ARBITRARY_COUNT_MODIFIER = "...";
 
 	/**
 	 * The symbol representing the reference: "&amp;".
-	 * 
+	 *
 	 * In the current version,
 	 * this symbol is used only for a kind of modifier representing call-by-reference,
 	 * and it has not supported as an operator.
@@ -180,7 +186,7 @@ public class ScriptWord {
 	@SuppressWarnings("serial")
 	public static final Set<String> SYMBOL_SET = new HashSet<String>() {{
 
-		// For the current implementation of the LexicalAnalyzer class, it is required that 
+		// For the current implementation of the LexicalAnalyzer class, it is required that
 		// the first 1 or 2 character(s) of an operator consists of multiple characters also can be operator.
 		// In the contrast, the first 1 or 2 character(s) of a syntax keyword (if, for, ...) must not match as an operator.
 

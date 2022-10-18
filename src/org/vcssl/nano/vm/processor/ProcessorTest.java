@@ -104,7 +104,7 @@ public class ProcessorTest {
 	public void testProcessSingleInstruction() {
 
 		// Set the values to the registers.
-s		this.initializeRegisters();
+		this.initializeRegisters();
 		((DataContainer<long[]>)this.registers[0]).setArrayData(new long[]{ -1L }, 0, DataContainer.ARRAY_LENGTHS_OF_SCALAR);  // R0=-1
 		((DataContainer<long[]>)this.registers[1]).setArrayData(new long[]{ 123L }, 0, DataContainer.ARRAY_LENGTHS_OF_SCALAR); // R1=123
 		((DataContainer<long[]>)this.registers[2]).setArrayData(new long[]{ 456L }, 0, DataContainer.ARRAY_LENGTHS_OF_SCALAR); // R2=456

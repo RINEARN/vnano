@@ -29,7 +29,23 @@ The following is the list of all methods of Vnano Engine (org.vcssl.nano.VnanoEn
 | Description | <p>Terminates the currently running script as soon as possible.</p> <p>To be precise, the VirtualMachine (which is processing instructions compiled from the script) in the engine will be terminated after when the processing of a currently executed instruction has been completed, without processing remained instructions. Usually it ends in a moment, but sometimes it takes time. For example, it can't end while external function provided by a plug-in is being executed.</p> <p>Also, if you used this method, call "resetTerminator()" method before the next execution of a new script, otherwise the next execution will end immediately without processing any instructions (By this behavior, even when a termination-request and an execution-request from another thread are conflict, the execution will be terminated certainly).</p> |
 | Parameters | None |
 | Return | None |
-| Exception | VnanoException will be thrown when the option TERMINATOR_ENABLED is disabled. |
+| Exception | <p>VnanoFatalException (unchecked exception) will be thrown if this method is called in a state in which isTerminatorEnabled() method returns false.</p> <p>Note that, if any exceptions occurred on the finalization processes of the connected plug-ins, it will be throws by the currently running executeScript(String script) method, not by this method.</p> <p>This method throws the exception only when it failed requesting the termination.</p> |
+
+
+| Signature |boolean isTerminatorEnabled() |
+|:---|:---|
+| Description | <p>Returns whether the "terminator" which is the feature to terminate scripts, is enabled.</p> <p>Internally, this method checks the value of "TERMINATOR_ENABLED" option (disabled by default) and returns it.</p> <p>If this method returns true, terminateScript() method and resetTerminator() method are available.</p> <p>Please note that, even when this method returns true, some errors may occur in the termination processes (for example, erros caused by failures of finalization processes of the connected plug-ins, and so on). For details, see the explanation about exceptions, in the description of terminateScript() method.</p> |
+| Parameters | None |
+| Return | Returns true if the terminator is enabled. |
+| Exception | None |
+
+
+| Signature |void resetTerminator() |
+|:---|:---|
+| Description | <p>Resets the engine which had terminated by terminateScript() method, for processing new scripts.</p> <p>Please note that, if an execution of code is requested by another thread when this method is being processed, the execution request might be missed.</p> |
+| Parameters | None |
+| Return | None |
+| Exception | VnanoFatalException (unchecked exception) will be thrown if this method is called in a state in which isTerminatorEnabled() method returns false. |
 
 
 | Signature | void connectPlugin(String bindingName, Object plugin) |
@@ -72,12 +88,20 @@ The following is the list of all methods of Vnano Engine (org.vcssl.nano.VnanoEn
 | Exception | VnanoException will be thrown if invalid option settings is detected. |
 
 
+| Signature | boolean hasOptionMap() |
+|:---|:---|
+| Description | Returns whether getOptionMap() method can return a Map. |
+| Parameters | None |
+| Return | Returns true if getOptionMap() method can return a Map. |
+| Exception | None |
+
+
 | Signature | Map&lt;String,Object&gt; getOptionMap() |
 |:---|:---|
 | Description | Gets the Map (option map) storing names and values of options. |
 | Parameters | None |
 | Return | A Map (option map) storing names and values of options |
-| Exception | None |
+| Exception | VnanoFatalException (unchecked exception) will be thrown if this method is called in a state in which hasOptionMap() method returns false. |
 
 
 
@@ -89,13 +113,28 @@ The following is the list of all methods of Vnano Engine (org.vcssl.nano.VnanoEn
 | Exception | VnanoException will be thrown if invalid permission settings is detected. |
 
 
+| Signature | boolean hasPermissionMap() |
+|:---|:---|
+| Description | Returns whether getPermissionMap() method can return a Map. |
+| Parameters | None |
+| Return | Returns true if getPermissionMap() method can return a Map. |
+| Exception | None |
+
+
 | Signature | Map&lt;String,String&gt; getPermissionMap() |
 |:---|:---|
 | Description | Gets the Map (permission map) storing names and values of permission items. |
 | Parameters | None |
 | Return | A Map (permission map) storing names and values of permission items |
-| Exception | None |
+| Exception | VnanoFatalException (unchecked exception) will be thrown if this method is called in a state in which hasPermissionMap() method returns false. |
 
+
+| Signature | boolean hasPerformanceMap() |
+|:---|:---|
+| Description | <p>Returns whether getPerformanceMap() method can return a Map.</p> <p>Internally, this method checks the value of "PERFORMANCE_MONITOR_ENABLED" option (disabled by default) and returns it.</p> |
+| Parameters | None |
+| Return | Returns true if getPerformanceMap() method can return a Map. |
+| Exception | None |
 
 
 | Signature | Map&lt;String, Object&gt; getPerformanceMap() |
@@ -103,7 +142,7 @@ The following is the list of all methods of Vnano Engine (org.vcssl.nano.VnanoEn
 | Description | <p>Gets the Map (performance map) storing names and values of performance monitoring items.</p> <p>Note that, when some measured values for some monitoring items don't exist (e.g.: when any scripts are not running, or running but their performance values are not measualable yet), the returned performance map does not contain values for such monitoring items, so sometimes the returned performance map is incomplete (missing values for some items) or empty. Please be careful of the above point when you "get" measured performance values from the returned performance map.</p> |
 | Parameters | None |
 | Return | A Map (performance map) storing names and values of performance monitoring items |
-| Exception | VnanoException will be thrown when the option PERFORMANCE_MONITOR_ENABLED is disabled. |
+| Exception | VnanoFatalException (unchecked exception) will be thrown if this method is called in a state in which hasPerformanceMap() method returns false. |
 
 
 

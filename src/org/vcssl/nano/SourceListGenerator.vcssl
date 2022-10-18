@@ -3,10 +3,10 @@ coding UTF-8;
 /*
  * ============================================================
  * VCSSL Script for generating/updating "sourcelist.txt"
- * Ver.1.0.2
+ * Ver.1.0.3
  * ------------------------------------------------------------
  * This file is released under CC0.
- * Written in 2018-2019 by RINEARN (Fumihiro Matsui)
+ * Written in 2018-2022 by RINEARN
  * ============================================================
  */
 
@@ -22,13 +22,19 @@ const string SOURCE_DIRECTORY_PATH = ".";
 // コンパイル対象リストに書き出す、出力ファイルのパスを指定します。
 const string OUTPUT_FILE_PATH = "./sourcelist.txt";
 
+// Specify the line-feed code of the output file.
+// 出力ファイルの改行コードを指定します。
+const string OUTPUT_FILE_LENE_FEED = LF;
+// const string OUTPUT_FILE_LENE_FEED = CRLF;
+// const string OUTPUT_FILE_LENE_FEED = EOL; // Environment dependent
+
 // Specify whether removes "./" at the head of pathes or don't.
 // 出力内容において、パス先頭の「 ./ 」を削除するかどうかを指定する変数です。
 const boolean REMOVES_DOTSLASH = true;
 
 // Specify the prefix which will be appended at the head of each file path, in the output content.
 // 出力内容において、ソースファイルのパスの先頭に付加する文字列を指定します。
-const string OUTPUT_PREFIX = "";
+const string OUTPUT_PREFIX = "org/vcssl/nano/";
 
 // Specify extensions of compilation-target-files.
 // コンパイル対象ファイルの拡張子を指定します。
@@ -179,7 +185,8 @@ void processFile(string fileName, string filePath, int listOutputFileID) {
 	
 	// Write the file path (with prefix) in the output file.
 	// 対象ファイルのパス（プレフィックス付き）を出力ファイルに書き出す
-	writeln(listOutputFileID, outputLine);
+	write(listOutputFileID, outputLine);
+	write(listOutputFileID, OUTPUT_FILE_LENE_FEED);
 	
 	// Print the written path (with the prefix).
 	// 書き出したファイルのパス（プレフィックス付き）を画面に追記

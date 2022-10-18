@@ -10,14 +10,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.vcssl.nano.VnanoScriptEngine;
 import org.vcssl.nano.vm.memory.Memory;
 import org.vcssl.nano.vm.memory.DataContainer;
 import org.vcssl.nano.vm.processor.Instruction;
 
 
 /**
- * The class of low-level intermediate code executable on the Processor/Accelerator of the VM, 
+ * The class of low-level intermediate code executable on the Processor/Accelerator of the VM,
  * assembled from VRIL assembly code.
  */
 public class VirtualMachineObjectCode implements Cloneable {
@@ -46,7 +45,7 @@ public class VirtualMachineObjectCode implements Cloneable {
 	/** The list of immediate value literals of constant values. */
 	private List<String> constantDataImmediateValueList = null;
 
-	/** The list of data containers of constant values. */ 
+	/** The list of data containers of constant values. */
 	private List<DataContainer<?>> constantDataContainerList = null;
 
 	/** The list of identifiers of local (internal) variables. */
@@ -142,7 +141,7 @@ public class VirtualMachineObjectCode implements Cloneable {
 
 	/**
 	 * Add an instruction to this code.
-	 * 
+	 *
 	 * @param instruction The instruction to be added.
 	 */
 	public void addInstruction(Instruction instruction) {
@@ -151,7 +150,7 @@ public class VirtualMachineObjectCode implements Cloneable {
 
 	/**
 	 * Gets all instructions.
-	 * 
+	 *
 	 * @return All instructions.
 	 */
 	public Instruction[] getInstructions() {
@@ -160,7 +159,7 @@ public class VirtualMachineObjectCode implements Cloneable {
 
 	/**
 	 * Gets immediate value literals of all constant values.
-	 * 
+	 *
 	 * @return Immediate value literals of all constant values.
 	 */
 	public String[] getConstantImmediateValues() {
@@ -169,7 +168,7 @@ public class VirtualMachineObjectCode implements Cloneable {
 
 	/**
 	 * Gets data containers of all constant values.
-	 * 
+	 *
 	 * @return Data containers of all constant values.
 	 */
 	public DataContainer<?>[] getConstantDataContainers() {
@@ -178,7 +177,7 @@ public class VirtualMachineObjectCode implements Cloneable {
 
 	/**
 	 * Gets identifiers of all global variables.
-	 * 
+	 *
 	 * @return Identifiers of all global variables.
 	 */
 	public String[] getGlobalAssemblyIdentifiers() {
@@ -187,7 +186,7 @@ public class VirtualMachineObjectCode implements Cloneable {
 
 	/**
 	 * Gets identifiers of all functions.
-	 * 
+	 *
 	 * @return Identifiers of all functions.
 	 */
 	public String[] getFunctionAssemblyIdentifiers() {
@@ -197,7 +196,7 @@ public class VirtualMachineObjectCode implements Cloneable {
 
 	/**
 	 * Add a new register to the register list of this code.
-	 * 
+	 *
 	 * @param address The memory address (REGISTER partition) of the register to be added (0 for R0, 1 for R1, ...).
 	 */
 	public void addRegister(int address) {
@@ -206,7 +205,7 @@ public class VirtualMachineObjectCode implements Cloneable {
 
 	/**
 	 * Add a new constant data to the constant data list of this code.
-	 * 
+	 *
 	 * @param immediateValue The immediate value literal of the constant data to be added.
 	 * @param container The data container in which the constant data is stored.
 	 * @param address The memory address (CONSTANT partition) of the constant data.
@@ -221,7 +220,7 @@ public class VirtualMachineObjectCode implements Cloneable {
 
 	/**
 	 * Add a new local variable to the local variable list(s) of this code.
-	 * 
+	 *
 	 * @param uniqueIdentifier The unique identifier of the local variable to be added.
 	 * @param address The memory address (LOCAL partition) to which data of the variable will be stored.
 	 */
@@ -233,7 +232,7 @@ public class VirtualMachineObjectCode implements Cloneable {
 
 	/**
 	 * Add a new global variable to the global variable list(s) of this code.
-	 * 
+	 *
 	 * @param uniqueIdentifier The unique identifier of the global variable to be added.
 	 * @param address The memory address (GLOBAL partition) to which data of the variable will be stored.
 	 */
@@ -245,7 +244,7 @@ public class VirtualMachineObjectCode implements Cloneable {
 
 	/**
 	 * Add a new function to the function list(s) of this code.
-	 * 
+	 *
 	 * @param uniqueIdentifier The unique identifier of the function to be added.
 	 * @param address The address of the function.
 	 */
@@ -257,7 +256,7 @@ public class VirtualMachineObjectCode implements Cloneable {
 
 	/**
 	 * Add a new label to the label list(s) of this code.
-	 * 
+	 *
 	 * @param uniqueIdentifier The unique identifier of the label to be added.
 	 * @param address The address of the label.
 	 */
@@ -269,7 +268,7 @@ public class VirtualMachineObjectCode implements Cloneable {
 
 	/**
 	 * Returns whether a global variable having the specified address is registered.
-	 * 
+	 *
 	 * @return Returns true if a global variable having the specified address is registered.
 	 */
 	public boolean hasGlobalVariableRegisteredAt(int address) {
@@ -278,7 +277,7 @@ public class VirtualMachineObjectCode implements Cloneable {
 
 	/**
 	 * Gets the address (LOCAL partition) of the local variable having the specified unique identifier.
-	 * 
+	 *
 	 * @param uniqueIdentifier The unique identifier of the local variable.
 	 * @return The address (LOCAL partition) of the local variable.
 	 */
@@ -289,7 +288,7 @@ public class VirtualMachineObjectCode implements Cloneable {
 
 	/**
 	 * Gets the address (GLOBAL partition) of the global variable having the specified unique identifier.
-	 * 
+	 *
 	 * @param uniqueIdentifier The unique identifier of the local variable.
 	 * @return The address (GLOBAL partition) of the local variable.
 	 */
@@ -300,7 +299,7 @@ public class VirtualMachineObjectCode implements Cloneable {
 
 	/**
 	 * Gets the address (CONSTANT partition) of the constant data corresponding with the specified immediate value literal.
-	 * 
+	 *
 	 * @param immediateValue The immediate value literal of the constant data.
 	 * @return The address (CONSTANT partition) of the constant data.
 	 */
@@ -311,7 +310,7 @@ public class VirtualMachineObjectCode implements Cloneable {
 
 	/**
 	 * Gets the instruction address of the label having the specified unique identifier.
-	 * 
+	 *
 	 * @param uniqueIdentifier The unique identifier of the label.
 	 * @return The instruction address of the label.
 	 */
@@ -334,7 +333,7 @@ public class VirtualMachineObjectCode implements Cloneable {
 
 	/**
 	 * Gets the unique identifier of the local variable corresponding with the address.
-	 * 
+	 *
 	 * @param address The address (LOCAL partition) corresponding with the local variable.
 	 * @return The unique identifier of the local variable.
 	 */
@@ -344,7 +343,7 @@ public class VirtualMachineObjectCode implements Cloneable {
 
 	/**
 	 * Gets the unique identifier of the global variable corresponding with the address.
-	 * 
+	 *
 	 * @param address The address (GLOBAL partition) corresponding with the global variable.
 	 * @return The unique identifier of the global variable.
 	 */
@@ -354,7 +353,7 @@ public class VirtualMachineObjectCode implements Cloneable {
 
 	/**
 	 * Gets the immediate value literal of the constant data corresponding with the address.
-	 * 
+	 *
 	 * @param address The address (CONSTANT partition) corresponding with the constant data.
 	 * @return The immediate value literal of the constant data.
 	 */
@@ -364,7 +363,7 @@ public class VirtualMachineObjectCode implements Cloneable {
 
 	/**
 	 * Gets the unique identifier of the function corresponding with the address.
-	 * 
+	 *
 	 * @param address The address corresponding with the function.
 	 * @return The unique identifier of the function.
 	 */
@@ -374,7 +373,7 @@ public class VirtualMachineObjectCode implements Cloneable {
 
 	/**
 	 * Returns whether the register corresponding with the specified address is registered.
-	 * 
+	 *
 	 * @param address The address (REGISTER partition) of the register.
 	 * @return Returns true if the register corresponding with the specified address is registered.
 	 */
@@ -384,7 +383,7 @@ public class VirtualMachineObjectCode implements Cloneable {
 
 	/**
 	 * Returns whether the constant data corresponding with the specified address is registered.
-	 * 
+	 *
 	 * @param address The address (CONSTANT partition) of the constant data.
 	 * @return Returns true if the constant data corresponding with the specified address is registered.
 	 */
@@ -394,7 +393,7 @@ public class VirtualMachineObjectCode implements Cloneable {
 
 	/**
 	 * Returns whether the global variable corresponding with the specified address is registered.
-	 * 
+	 *
 	 * @param address The address (GLOBAL partition) of the global variable.
 	 * @return Returns true if the global variable corresponding with the specified address is registered.
 	 */
@@ -404,7 +403,7 @@ public class VirtualMachineObjectCode implements Cloneable {
 
 	/**
 	 * Returns whether the local variable corresponding with the specified address is registered.
-	 * 
+	 *
 	 * @param address The address (LOCAL partition) of the local variable.
 	 * @return Returns true if the local variable corresponding with the specified address is registered.
 	 */
@@ -414,7 +413,7 @@ public class VirtualMachineObjectCode implements Cloneable {
 
 	/**
 	 * Returns whether the function corresponding with the specified address is registered.
-	 * 
+	 *
 	 * @param address The address of the function.
 	 * @return Returns true if the function corresponding with the specified address is registered.
 	 */
@@ -425,7 +424,7 @@ public class VirtualMachineObjectCode implements Cloneable {
 
 	/**
 	 * Returns the maximum address contained in the specified address list.
-	 * 
+	 *
 	 * @param addressList The List storing addresses.
 	 * @return The maximum address contained in addressList.
 	 */
@@ -443,7 +442,7 @@ public class VirtualMachineObjectCode implements Cloneable {
 
 	/**
 	 * Gets the minimum address of registers.
-	 * 
+	 *
 	 * @return The minimum address of registers.
 	 */
 	public int getMinimumRegisterAddress() {
@@ -452,7 +451,7 @@ public class VirtualMachineObjectCode implements Cloneable {
 
 	/**
 	 * Gets the maximum address of registers.
-	 * 
+	 *
 	 * @return The maximum address of registers.
 	 */
 	public int getMaximumRegisterAddress() {
@@ -461,7 +460,7 @@ public class VirtualMachineObjectCode implements Cloneable {
 
 	/**
 	 * Gets the minimum address of local variables.
-	 * 
+	 *
 	 * @return The minimum address of local variables.
 	 */
 	public int getMinimumLocalAddress() {
@@ -470,7 +469,7 @@ public class VirtualMachineObjectCode implements Cloneable {
 
 	/**
 	 * Gets the maximum address of local variables.
-	 * 
+	 *
 	 * @return The maximum address of local variables.
 	 */
 	public int getMaximumLocalAddress() {
@@ -479,7 +478,7 @@ public class VirtualMachineObjectCode implements Cloneable {
 
 	/**
 	 * Gets the minimum address of global variables.
-	 * 
+	 *
 	 * @return The minimum address of global variables.
 	 */
 	public int getMinimumGlobalAddress() {
@@ -488,7 +487,7 @@ public class VirtualMachineObjectCode implements Cloneable {
 
 	/**
 	 * Gets the maximum address of global variables.
-	 * 
+	 *
 	 * @return The maximum address of global variables.
 	 */
 	public int getMaximumGlobalAddress() {
@@ -497,7 +496,7 @@ public class VirtualMachineObjectCode implements Cloneable {
 
 	/**
 	 * Gets the minimum address of constant data.
-	 * 
+	 *
 	 * @return The minimum address of constant data.
 	 */
 	public int getMinimumConstantAddress() {
@@ -506,7 +505,7 @@ public class VirtualMachineObjectCode implements Cloneable {
 
 	/**
 	 * Gets the maximum address of constant data.
-	 * 
+	 *
 	 * @return The maximum address of constant data.
 	 */
 	public int getMaximumConstantAddress() {
@@ -515,7 +514,7 @@ public class VirtualMachineObjectCode implements Cloneable {
 
 	/**
 	 * Gets the minimum address of functions.
-	 * 
+	 *
 	 * @return The minimum address of functions.
 	 */
 	public int getMinimumFunctionAddress() {
@@ -524,7 +523,7 @@ public class VirtualMachineObjectCode implements Cloneable {
 
 	/**
 	 * Gets the maximum address of functions.
-	 * 
+	 *
 	 * @return The maximum address of functions.
 	 */
 	public int getMaximumFunctionAddress() {
@@ -533,7 +532,7 @@ public class VirtualMachineObjectCode implements Cloneable {
 
 	/**
 	 * Generate the String to dump the content of this code.
-	 * 
+	 *
 	 * @return The content of this code.
 	 */
 	public String dump() {

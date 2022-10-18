@@ -12,6 +12,8 @@
 - [Advanced Steps About Plug-ins (Standard Plug-ins, Less-Overhead Interfaces, etc.)](#plugins-advanced)
 - [Execute Scripts](#scripting)
 - [Load Library Scripts](#libraries)
+- [Option Settings](#option)
+- [Permission Settings](#permission)
 - [Command-Line Mode](#command-line-mode)
 - [Performance Benchmarking / Analysis](#performances)
 - [Specifications](#specifications)
@@ -422,11 +424,11 @@ On the [command-line mode](#command-line-mode), the above list file will be refe
         scriptLoader.load();
 
         // Register library scripts to Vnano Engine.
-        String[] libNames = scriptLoader.getLibraryScriptNames();
+        String[] libPaths= scriptLoader.getLibraryScriptPaths(true);
         String[] libScripts = scriptLoader.getLibraryScriptContents();
-        int libCount = libNames.length;
+        int libCount = libScripts.length;
         for (int ilib=0; ilib<libCount; ilib++) {
-            engine.includeLibraryScript(libNames[ilib], libScripts[ilib]);
+            engine.registerLibraryScript(libPaths[ilib], libScripts[ilib]);
         }
 
         // Prepare the content of the script to be executed.
@@ -450,6 +452,112 @@ The result is:
     result: 20.24
 
 As declared in "lib/ExampleLibrary1.vnano", the value of x is 3.4 and f(x) = x * 5.6, so we should get the result of 1.2 + (3.4 * 5.6) = 20.24. Hence the above result is correct.
+
+
+<a id="option"></a>
+## Option Settings
+
+As we already seen in ExampleApp2, you can modify some behaviour of Vnano Engine by option settings.
+
+For performing the option settings, 
+create a Map<String, Object> storing the option values, with option names as keys. 
+We refer to this Map as the "option map". 
+Then, pass the option map to "setOptionMap(...)" method of the VnanoEngine instance.
+
+For example:
+
+
+    import java.util.Map;
+    import java.util.HashMap;
+    ...
+
+    ( in the method using Vnano Engine )
+    
+    // Create a Map for storing option names/values (option map).
+    Map<String, Object> optionMap = new HashMap<String, Object>();
+
+    // Enable the option handling integer literals as floating point numbers.
+    optionMap.put("EVAL_INT_LITERAL_AS_FLOAT", true);
+
+    // Enable the option restricting types of operands to only floating point numbers.
+    optionMap.put("EVAL_ONLY_FLOAT", true);
+
+    // Enable the option restricting types of statements to only expressions.
+    optionMap.put("EVAL_ONLY_EXPRESSION", true);
+
+    // Set to the instance of Vnano Engine.
+    try {
+        engine.setOptionMap(optionMap);
+    } catch (VnanoException e) {
+        System.err.println("Incorrect option settings have been detected.");
+        e.printStackTrace();
+    }
+
+
+The above example assumes that Vnano Engine is used for calculating expressions on calculator apps (On such apps, its depeloper may want to restrict integer operations, to avoid confusion about behaviour of so called integer-division).
+
+About all available option items and their details, see [Specifications of Vnano Engine](SPEC.md).
+
+
+<a id="permission"></a>
+## Permission Settings
+
+Some plug-ins and libraries perform actions which sometimes app-developers or users want to restrict it, depends on situations. For example, file-reading/writing/overwriting and so on. 
+Sometimes users/developers want to allow it, and sometimes they want to deny it.
+
+Vnano Engine is equipped with a permission-based mechanism for such situation. Plug-ins (or libraries using them) request Vnano Engine to allow an actions like above, and then the engine decides whether allow/deny it, depends on settings, or by asking users. 
+We refer this process as "permission request", and settings for controlling it as "permission settings".
+
+For performing the permission settings, 
+create a Map<String, String> storing the setting values, with the names of the permission items as keys. 
+We refer to this Map as the "permission map". 
+Then, pass the permission map to "setPermissionMap(...)" method of the VnanoEngine instance.
+
+For example:
+
+
+    import org.vcssl.connect.ConnectorPermissionName;
+    import org.vcssl.connect.ConnectorPermissionValue;
+    import java.util.Map;
+    import java.util.HashMap;
+    ...
+
+    ( in the method using Vnano Engine )
+    
+    // Create a Map for storing permission names/values (permission map).
+    Map<String, String> permissionMap = new HashMap<String, String>();
+
+    // Set the default value to "DENY".
+    // (Applied for permission items which are not set explicitly.)
+    permissionMap.put(ConnectorPermissionName.DEFAULT, ConnectorPermissionValue.DENY);
+
+    // Set file-creation / writing (excluding overwriting) / reading to "ALLOW".
+    permissionMap.put(ConnectorPermissionName.FILE_CREATE, ConnectorPermissionValue.ALLOW);
+    permissionMap.put(ConnectorPermissionName.FILE_WRITE, ConnectorPermissionValue.ALLOW);
+    permissionMap.put(ConnectorPermissionName.FILE_READ, ConnectorPermissionValue.ALLOW);
+
+    // Set file-overwriting to "ASK", for asking users to decide whether allow/deny it.
+    permissionMap.put(ConnectorPermissionName.FILE_OVERWRITE, ConnectorPermissionValue.ASK);
+
+    // Set to the instance of Vnano Engine.
+    try {
+        engine.setPermissionMap(permissionMap);
+    } catch (VnanoException e) {
+        System.err.println("Incorrect permission settings have been detected.");
+        e.printStackTrace();
+    }
+
+About all available permission items and their details, see [Specifications of Vnano Engine](SPEC.md).
+
+Also, on the [command-line mode](#command-line-mode) which we will introduce in the latter section, use --permission option for switching permission settings, from some choices:
+
+    java -jar Vnano.jar --permission askAll Script.vnano
+
+In the above example, we specify "askAll", for asking users to decide whether allow/deny a permission request when it is requested, for every permission items. You can also specify "denyAll" or "allowAll" for denying/allowing every permission requests, or "balanced" for using the permission settings considering balance between userbility and protectividy. For details, see the explanation by --help option.
+
+By the way, when you are developing your original plug-in, sometimes you may want to ask users to decide whether your plug-in shoud do some process or don't (e.g.: file-overwriting). Hence, you may want to support the permission controlling mechanism shown in this section, by your original plug-in. For supporting the mechanism, implement plug-in interfaces such as [XNCI1](https://www.vcssl.org/en-us/doc/connect/ExternalNamespaceConnectorInterface1_SPEC_ENGLISH), and request permissions to Vnano Engine by calling requestPermission(...) method of the [engine connector interface](https://www.vcssl.org/en-us/doc/connect/EngineConnectorInterface1_SPEC_ENGLISH), which is passed when the plug-in is intialized.
+
+Supporting this mechanism by your original plug-ins is good way, because app-developpers and users can integratedly control whether allow/deny actions through the mecanism. For example, as an opposite way, imagine the situation that each plug-in has a permission setting for file-overwriting independently, or each plug-in asks an user to decide whether overwrites something independently. It should be difficult to manage them for app-developers/users, especially when many plug-ins are used.
 
 
 <a id="command-line-mode"></a>
