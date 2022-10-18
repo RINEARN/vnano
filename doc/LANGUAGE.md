@@ -443,7 +443,7 @@ The result is:
     y[1] = 0
     y[2] = 0
 
-As demonstrated by the above result, actual arguments of caller-side "a" and "b" have not changed although formal parameters "x" and "y" changed in the function "fun". This is because, by default, actual arguments will be simply copied once to formal parameters when the function is called. This behaviour is called as "call-by-value".
+As demonstrated by the above result, actual arguments of caller-side "x" and "y" have not changed although formal parameters "a" and "b" changed in the function "fun". This is because, by default, actual arguments will be simply copied once to formal parameters when the function is called. This behaviour is called as "call-by-value".
 
 
 <a id="function-call-by-reference"></a>
@@ -478,7 +478,7 @@ The result is:
     y[1] = 11
     y[2] = 12
 
-The memory-reference to data of a formal parameter declared with "&" will be shared with reference to data of an actual argument. Hence, as demonstrated by the above result, after values of formal parameters "x" and "y" in the function "fun" changed, actual arguments "a" and "b" of caller-side also changed to same values with "x" and "y". This behaviour is called as "call-by-reference".
+The memory-reference to data of a formal parameter declared with "&" will be shared with reference to data of an actual argument. Hence, as demonstrated by the above result, after values of formal parameters "a" and "b" in the function "fun" changed, actual arguments "x" and "y" of caller-side also changed to same values with "a" and "b". This behaviour is called as "call-by-reference".
 
 
 
