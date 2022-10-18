@@ -12,6 +12,8 @@
 - [プラグインに関する発展的な事項 (標準プラグイン、高速インターフェース、等)](#plugins-advanced)
 - [スクリプトを実行する](#scripting)
 - [ライブラリ スクリプトを読み込む](#libraries)
+- [オプション設定](#option)
+- [パーミッション設定](#permission)
 - [コマンドラインモード](#command-line-mode)
 - [パフォーマンス計測と解析](#performances)
 - [仕様書](#specifications)
@@ -462,6 +464,93 @@ Vnano は、言語機能として変数や関数の宣言をサポートして�
 
 
 今の場合の「 lib/ExampleLibrary1.vnano 」内の記述では、x は 3.4 で、f(x) は x * 5.6 を返すため、期待される結果は 1.2 + (3.4 * 5.6) = 20.24 です。従って、正しくライブラリスクリプトが読み込まれて処理された事がわかります。
+
+
+<a id="option"></a>
+## オプション設定
+
+これまでのサンプルコード内にも何度か登場しましたが、Vnano Engine はオプション設定項目を持っています。
+その設定を行うには、設定項目名と設定値を格納する Map<String, Object> を作成して（これをオプションマップと呼びます）、それを VnanoEngine クラスの setOptionMap(Map<String, Object>) に渡します：
+
+    import java.util.Map;
+    import java.util.HashMap;
+    ...
+
+    ( 以下、Vnano Engine を使うメソッド内 )
+    
+    // オプションの項目名と設定値を格納する Map を作成（オプションマップ）
+    Map<String, Object> optionMap = new HashMap<String, Object>();
+
+    // 整数リテラルを浮動小数点数として解釈するオプションを有効化
+    optionMap.put("EVAL_INT_LITERAL_AS_FLOAT", true);
+
+    // 数値演算などに関して、浮動小数点数の値/変数のみ使用可能にするオプションを有効化
+    optionMap.put("EVAL_ONLY_FLOAT", true);
+
+    // 式のみ実行可能にするオプションを有効化
+    optionMap.put("EVAL_ONLY_EXPRESSION", true);
+
+    // Vnano Engine のインスタンスに設定
+    try {
+        engine.setOptionMap(optionMap);
+    } catch (VnanoException e) {
+        System.err.println("オプション設定内容に関するエラーが見つかりました。");
+        e.printStackTrace();
+    }
+
+上記は、計算用途のソフトなどで、入力された式を Vnano Engine で計算する際、整数同士の演算をさせたくない（いわゆる整数除算で混乱させたくない）場合を想定した設定です。
+設定可能なオプションの項目名と設定値については、[Vnano Engine の各種仕様](SPEC_JAPANESE.md) をご参照ください。
+
+
+<a id="permission"></a>
+## パーミッション設定
+
+プラグインやライブラリの中には、例えばファイルの読み書きなど、「 用途や場面によっては拒否したいかもしれない 」機能を提供するものもあります。そういった場面のために、Vnano Engine では「 パーミッション制御 」の仕組みを供えています。
+
+上記のような処理を行うプラグインや、それを用いるライブラリは、実行時に Vnano Engine に処理の種類を伝えて、許可を要求します。この事を「 パーミッションを要求する/される 」などと言います。
+
+標準では、Vnano Engine は全てのパーミッション要求を拒否するように設定されています。従って、何らかのパーミッションが必要な機能を使うには、それを許可するように設定変更する必要があります。パーミッションの設定は、設定項目名と設定値を格納する Map<String, String> を作成して（これをパーミッションマップと呼びます）、それを VnanoEngine クラスの setPermissionMap(Map<String, String>) に渡します：
+
+    import org.vcssl.connect.ConnectorPermissionName;
+    import org.vcssl.connect.ConnectorPermissionValue;
+    import java.util.Map;
+    import java.util.HashMap;
+    ...
+
+    ( 以下、Vnano Engine を使うメソッド内 )
+
+    // パーミッションの項目名と設定値を格納する Map を作成（パーミッションマップ）
+    Map<String, String> permissionMap = new HashMap<String, String>();
+
+    // デフォルトは拒否に設定（未設定項目に適用される）
+    permissionMap.put(ConnectorPermissionName.DEFAULT, ConnectorPermissionValue.DENY);
+
+    // ファイルの新規作成、（上書き以外の）書き込み、読み込みは許可する
+    permissionMap.put(ConnectorPermissionName.FILE_CREATE, ConnectorPermissionValue.ALLOW);
+    permissionMap.put(ConnectorPermissionName.FILE_WRITE, ConnectorPermissionValue.ALLOW);
+    permissionMap.put(ConnectorPermissionName.FILE_READ, ConnectorPermissionValue.ALLOW);
+
+    // ファイルの上書きは、実行時にユーザーに尋ねて決める
+    permissionMap.put(ConnectorPermissionName.FILE_OVERWRITE, ConnectorPermissionValue.ASK);
+
+    // Vnano Engine のインスタンスに設定
+    try {
+        engine.setPermissionMap(permmissionMap);
+    } catch (VnanoException e) {
+        System.err.println("パーミッション設定内容に関するエラーが見つかりました。");
+        e.printStackTrace();
+    }
+
+以上のような具合です。パーミッションの項目名と設定値については、[Vnano Engine の各種仕様](SPEC_JAPANESE.md) をご参照ください。
+
+なお、後の節で扱う[コマンドラインモード](#command-line-mode)では、--permission オプションを用いて、いくつかの既定の設定から選んで指定できます：
+
+    java -jar Vnano.jar --permission askAll Script.vnano
+
+上記では、全てのパーミッション要求について、ユーザーに訪ねて決める設定である「 askAll 」を指定しています。他にも、全て拒否/許可する「 denyAll 」「 allowAll 」や、一般的な用途を想定してバランスを取った「 balanced 」などが指定できます。詳細は --help オプションの説明を参照してください。
+
+ところで、自作のプラグインなどで、パーミッション制御をサポートしたい場合（ユーザー側で処理の実行/拒否を判断してほしい場合）は、[XFCI1](https://www.vcssl.org/ja-jp/doc/connect/ExternalFunctionConnectorInterface1_SPEC_JAPANESE) や [XNCI1](https://www.vcssl.org/ja-jp/doc/connect/ExternalNamespaceConnectorInterface1_SPEC_JAPANESE) などのプラグイン実装用インターフェースを実装した上で、初期化時に渡される [エンジンコネクター インターフェース](https://www.vcssl.org/ja-jp/doc/connect/EngineConnectorInterface1_SPEC_JAPANESE) の requestPermission(...) メソッドを呼び出してください。
+特に、ファイルの上書き等はよくある処理なので、プラグインごとに個別に確認処理を実装するよりも、パーミッションを要求する方が、アプリ側やユーザー側にとって管理しやすくなります。
 
 
 <a id="command-line-mode"></a>
