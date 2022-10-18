@@ -237,7 +237,7 @@ The result is:
 ### Syntax elements of expressions
 
 An expression is a series of tokens to describe operations, consists of operators, operands, and parentheses ( ).
-An expression can be a statement as an "expression statement" by itself.
+An expression can be a statement as an "expression statement" by itself (when it ends with ";").
 In addition, expressions can be parts of other kinds of statements, e.g.: a condition expression of "if" statement.
 
 As syntactic elements of expressions, "operators" are symbols of operations, e.g.: "+", "-", and so on.
@@ -245,11 +245,12 @@ Values to be operated are called as "operands", e.g.: 1 and 2.3 for "1 + 2.3".
 More specifically, as syntactic elements, values directly described such as "1", "2.3" and so on are called as "literals".
 Besides literals, identifiers of variables (e.g.: "x"), and results of other operations can be operands.
 
-For example:
+The syntactic definition of expressions like above is complicated and difficult, so Let's see a typical example:
 
-    (x + 2) * 3;
+    (x + 2) * 3
 
-In the above expression, "+" and "*" are operators, "x" and "2" and "3" are operands, 
+The above is an expression.
+In this expression, "+" and "*" are operators, "x" and "2" and "3" are operands, 
 "(" and ")" are parentheses.
 
 However, the result of the addition "(x + 2)" is also an operand for the "*" operator, 
@@ -259,23 +260,24 @@ For disambiguation, sometimes minimum units of operands such as "x" and "2" and 
 By the way, in the Vnano, as the same with the C programming language, 
 the symbol of the assignment "=" is an operator, so the following is also an expression:
 
-    y = (x + 2) * 3;
+    y = (x + 2) * 3
 
 
 
 <a id="expression-operator"></a>
 ### Operators
 
-The following is the list of operators supported in the Vnano:
+The following is the list of operators supported in the Vnano.
+Note that, smaller "precedence" value gives higher precedence.
 
 | Operator | Precedence | Syntax | Associativity | Type of Operands | Type of Operated Value |
 | --- | --- | --- | --- | --- | --- |
 | ( ... , ... , ... ) as call | 1000 | multiary | left | any | any |
 | [ ... ][ ... ] ... as index | 1000 | multiary | left | int | any |
-| ++ | 1000 | postfix | left | int | int |
-| -- | 1000 | postfix | left | int | int |
-| ++ | 2000 | prefix | right | int | int |
-| -- | 2000 | prefix | right | int | int |
+| ++ (post-increment) | 1000 | postfix | left | int | int |
+| -- (post-decrement) | 1000 | postfix | left | int | int |
+| ++ (pre-increment) | 2000 | prefix | right | int | int |
+| -- (pre-decrement) | 2000 | prefix | right | int | int |
 | + | 2000 | prefix | right | int | int |
 | - | 2000 | prefix | right | int | int |
 | ! | 2000 | prefix | right | bool | bool |
