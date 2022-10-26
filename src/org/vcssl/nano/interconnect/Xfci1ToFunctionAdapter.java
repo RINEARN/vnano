@@ -5,8 +5,16 @@
 
 package org.vcssl.nano.interconnect;
 
+import org.vcssl.connect.ArrayDataAccessorInterface1;
+import org.vcssl.connect.Int64ScalarDataAccessorInterface1;
+import org.vcssl.connect.Float64ScalarDataAccessorInterface1;
+import org.vcssl.connect.StringScalarDataAccessorInterface1;
+import org.vcssl.connect.BoolScalarDataAccessorInterface1;
+
 import org.vcssl.connect.ConnectorException;
+import org.vcssl.connect.EngineConnectorInterface1;
 import org.vcssl.connect.ExternalFunctionConnectorInterface1;
+
 import org.vcssl.nano.VnanoFatalException;
 import org.vcssl.nano.VnanoException;
 import org.vcssl.nano.spec.DataType;
@@ -65,6 +73,7 @@ public final class Xfci1ToFunctionAdapter extends AbstractFunction {
 			ExternalFunctionConnectorInterface1 xfciPlugin)
 					throws VnanoException {
 
+		this.validate(xfciPlugin);
 		this.xfciPlugin = xfciPlugin;
 		this.functionName = xfciPlugin.getFunctionName();
 
@@ -566,6 +575,172 @@ public final class Xfci1ToFunctionAdapter extends AbstractFunction {
 
 				throw new VnanoException(ErrorType.EXTERNAL_FUNCTION_PLUGIN_CRASHED, errorWords, e);
 			}
+		}
+	}
+
+
+	/**
+	 * Validates whether the specified plug-in implements XFCI1 correctly, and it is available on the current version of Vnano Engine.
+	 * If no issues are detected for the plug-in, nothing will occur.
+	 * 
+	 * @param plugin The plug-in to be validated.
+	 * @throws VnanoException Thrown if the specified plug-in has an incorrect something.
+	 */
+	private void validate(ExternalFunctionConnectorInterface1 plugin) throws VnanoException {
+		
+		// getFunctionName()
+		if (plugin.getFunctionName() == null) {
+			String errorMessage = "getFunctionName(): The returned value is null.";
+			throw new VnanoException(ErrorType.PLUGIN_VALIDATION_FAILED, new String[] { plugin.getClass().getName(), errorMessage });
+		}
+		
+		// getParameterNames()
+		if (plugin.hasParameterNames()) {
+			if (plugin.getParameterNames() == null) {
+				String errorMessage = "getParameterNames(): The returned array is null.";
+				throw new VnanoException(ErrorType.PLUGIN_VALIDATION_FAILED, new String[] { plugin.getClass().getName(), errorMessage });			
+			}
+			for (String element: plugin.getParameterNames()) {
+				if (element == null) {
+					String errorMessage = "getParameterNames(): The returned array contains a null element.";
+					throw new VnanoException(ErrorType.PLUGIN_VALIDATION_FAILED, new String[] { plugin.getClass().getName(), errorMessage });							
+				}
+			}
+		}
+
+		// getParameterClasses()
+		if (plugin.getParameterClasses() == null) {
+			String errorMessage = "getParameterNames(): The returned array is null.";
+			throw new VnanoException(ErrorType.PLUGIN_VALIDATION_FAILED, new String[] { plugin.getClass().getName(), errorMessage });
+		}
+		for (Class<?> element: plugin.getParameterClasses()) {
+			if (element == null) {
+				String errorMessage = "getParameterNames(): The returned array contains a null element.";
+				throw new VnanoException(ErrorType.PLUGIN_VALIDATION_FAILED, new String[] { plugin.getClass().getName(), errorMessage });							
+			}
+		}
+		int paramCount = plugin.getParameterClasses().length;
+
+		// 	getParameterUnconvertedClasses()
+		if (!plugin.isDataConversionNecessary()) {
+			if (plugin.getParameterUnconvertedClasses() == null) {
+				String errorMessage = "getParameterUnconvertedClasses(): The returned array is null.";
+				throw new VnanoException(ErrorType.PLUGIN_VALIDATION_FAILED, new String[] { plugin.getClass().getName(), errorMessage });
+			}
+			for (Class<?> element: plugin.getParameterUnconvertedClasses()) {
+				if (element == null) {
+					String errorMessage = "getParameterUnconvertedClasses(): The returned array contains a null element.";
+					throw new VnanoException(ErrorType.PLUGIN_VALIDATION_FAILED, new String[] { plugin.getClass().getName(), errorMessage });							
+				}
+				if (!element.equals(ArrayDataAccessorInterface1.class)
+						&& !element.equals(Int64ScalarDataAccessorInterface1.class)
+						&& !element.equals(Float64ScalarDataAccessorInterface1.class)
+						&& !element.equals(BoolScalarDataAccessorInterface1.class)
+						&& !element.equals(StringScalarDataAccessorInterface1.class)
+						&& !element.equals(DataContainer.class) ) {
+
+					String errorMessage = "getParameterUnconvertedClasses(): The returned class/interface \""
+							+ element.getName() + "\"is not supported on the current version of Vnano Engine.";
+					throw new VnanoException(ErrorType.PLUGIN_VALIDATION_FAILED, new String[] { plugin.getClass().getName(), errorMessage });
+				}
+			}
+		}
+		
+		// getParameterDataTypeArbitrarinesses()
+		if (plugin.getParameterDataTypeArbitrarinesses() == null) {
+			String errorMessage = "getParameterDataTypeArbitrarinesses(): The returned array is null.";
+			throw new VnanoException(ErrorType.PLUGIN_VALIDATION_FAILED, new String[] { plugin.getClass().getName(), errorMessage });
+		}
+		if (plugin.getParameterDataTypeArbitrarinesses().length != paramCount) {
+			String errorMessage = "getParameterDataTypeArbitrarinesses(): The number of elements of the returned array is "
+					+ plugin.getParameterDataTypeArbitrarinesses().length + ", but must be " + paramCount
+					+ ", as same as the returned value of getParameterClasses() method.";
+			throw new VnanoException(ErrorType.PLUGIN_VALIDATION_FAILED, new String[] { plugin.getClass().getName(), errorMessage });
+		}
+
+		// getParameterArrayRankArbitrarinesses()
+		if (plugin.getParameterArrayRankArbitrarinesses() == null) {
+			String errorMessage = "getParameterArrayRankArbitrarinesses(): The returned array is null.";
+			throw new VnanoException(ErrorType.PLUGIN_VALIDATION_FAILED, new String[] { plugin.getClass().getName(), errorMessage });
+		}
+		if (plugin.getParameterArrayRankArbitrarinesses().length != paramCount) {
+			String errorMessage = "getParameterArrayRankArbitrarinesses(): The number of elements of the returned array is "
+					+ plugin.getParameterArrayRankArbitrarinesses().length + ", but must be " + paramCount
+					+ ", as same as the returned value of getParameterClasses() method.";
+			throw new VnanoException(ErrorType.PLUGIN_VALIDATION_FAILED, new String[] { plugin.getClass().getName(), errorMessage });
+		}
+
+		// getParameterReferencenesses()
+		if (plugin.getParameterReferencenesses() == null) {
+			String errorMessage = "getParameterReferencenesses(): The returned array is null.";
+			throw new VnanoException(ErrorType.PLUGIN_VALIDATION_FAILED, new String[] { plugin.getClass().getName(), errorMessage });
+		}
+		if (plugin.getParameterReferencenesses().length != paramCount) {
+			String errorMessage = "getParameterReferencenesses(): The number of elements of the returned array is "
+					+ plugin.getParameterReferencenesses().length + ", but must be " + paramCount
+					+ ", as same as the returned value of getParameterClasses() method.";
+			throw new VnanoException(ErrorType.PLUGIN_VALIDATION_FAILED, new String[] { plugin.getClass().getName(), errorMessage });
+		}
+
+		// getParameterConstantnesses()
+		if (plugin.getParameterConstantnesses() == null) {
+			String errorMessage = "getParameterConstantnesses(): The returned array is null.";
+			throw new VnanoException(ErrorType.PLUGIN_VALIDATION_FAILED, new String[] { plugin.getClass().getName(), errorMessage });
+		}
+		if (plugin.getParameterConstantnesses().length != paramCount) {
+			String errorMessage = "getParameterConstantnesses(): The number of elements of the returned array is "
+					+ plugin.getParameterConstantnesses().length + ", but must be " + paramCount
+					+ ", as same as the returned value of getParameterClasses() method.";
+			throw new VnanoException(ErrorType.PLUGIN_VALIDATION_FAILED, new String[] { plugin.getClass().getName(), errorMessage });
+		}
+
+		// hasVariadicParameters()
+		if (plugin.hasVariadicParameters()) {
+			String errorMessage = "hasVariadicParameters(): Returned true, but this feature has not been supported yet on the current version of Vnano Engine.";
+			throw new VnanoException(ErrorType.PLUGIN_VALIDATION_FAILED, new String[] { plugin.getClass().getName(), errorMessage });
+		}
+		
+		// getReturnClass() and getReturnUnconvertedClass()
+		if (plugin.isReturnDataTypeArbitrary() || plugin.isReturnArrayRankArbitrary()) {
+
+			// In this case, the type/rank of the returned value depends on the actual argument passed from scripts, 
+			// so we can not statically validate it.
+			
+		} else {
+			Class<?>[] paramClasses = plugin.getParameterClasses();
+			if (plugin.getReturnClass(paramClasses) == null) {
+				String errorMessage = "getReturnClass(...): The returned value is null.";
+				throw new VnanoException(ErrorType.PLUGIN_VALIDATION_FAILED, new String[] { plugin.getClass().getName(), errorMessage });
+			}
+			if (!plugin.isDataConversionNecessary()) {
+				if (plugin.getReturnUnconvertedClass(paramClasses) == null) {
+					String errorMessage = "getReturnUnconvertedClass(): The returned value is null.";
+					throw new VnanoException(ErrorType.PLUGIN_VALIDATION_FAILED, new String[] { plugin.getClass().getName(), errorMessage });	
+				}
+				Class<?> returnClass = plugin.getReturnUnconvertedClass(paramClasses);
+				if (!returnClass.equals(ArrayDataAccessorInterface1.class)
+						&& !returnClass.equals(Int64ScalarDataAccessorInterface1.class)
+						&& !returnClass.equals(Float64ScalarDataAccessorInterface1.class)
+						&& !returnClass.equals(BoolScalarDataAccessorInterface1.class)
+						&& !returnClass.equals(StringScalarDataAccessorInterface1.class)
+						&& !returnClass.equals(DataContainer.class) ) {
+
+					String errorMessage = "getParameterUnconvertedClasses(): The returned class/interface \""
+							+ returnClass.getName() + "\"is not supported on the current version of Vnano Engine.";
+					throw new VnanoException(ErrorType.PLUGIN_VALIDATION_FAILED, new String[] { plugin.getClass().getName(), errorMessage });	
+				}
+			}
+		}
+		
+		// getEngineConnectorClass()
+		if (plugin.getEngineConnectorClass() == null) {
+			String errorMessage = "getEngineConnectorClass(...): The returned value is null.";
+			throw new VnanoException(ErrorType.PLUGIN_VALIDATION_FAILED, new String[] { plugin.getClass().getName(), errorMessage });
+		}
+		if (!plugin.getEngineConnectorClass().equals(EngineConnectorInterface1.class)) {
+			String errorMessage = "getEngineConnectorClass(...): The specified engine connector \""
+					+ plugin.getEngineConnectorClass().getName() + "\"is not suppoted on the current version of Vnano Engine.";
+			throw new VnanoException(ErrorType.PLUGIN_VALIDATION_FAILED, new String[] { plugin.getClass().getName(), errorMessage });
 		}
 	}
 }
