@@ -454,8 +454,11 @@ public final class Xfci1ToFunctionAdapter extends AbstractFunction {
 			// Get the data I/O interface of the return value.
 			Class<?> returnDataAccessorInterface = this.xfciPlugin.getReturnUnconvertedClass(argumentClasses);
 
+			boolean isVoid = this.xfciPlugin.getReturnClass(argumentClasses).equals(void.class)
+					|| this.xfciPlugin.getReturnClass(argumentClasses).equals(Void.class);
+
 			// Check compatibility.
-			if (!returnDataAccessorInterface.isAssignableFrom(DataContainer.class)) {
+			if (!isVoid && !returnDataAccessorInterface.isAssignableFrom(DataContainer.class)) {
 				String errorWords[] = new String[] {
 					returnDataAccessorInterface.getCanonicalName(), this.xfciPlugin.getClass().getCanonicalName()
 				};
@@ -705,14 +708,17 @@ public final class Xfci1ToFunctionAdapter extends AbstractFunction {
 
 			// In this case, the type/rank of the returned value depends on the actual argument passed from scripts, 
 			// so we can not statically validate it.
-			
 		} else {
 			Class<?>[] paramClasses = plugin.getParameterClasses();
-			if (plugin.getReturnClass(paramClasses) == null) {
+			
+			if (plugin.getReturnClass(paramClasses).equals(void.class) || plugin.getReturnClass(paramClasses).equals(Void.class)) {
+				// If the data-type of the return value is "void", getParameterClasses() method will not be called.
+				
+			} else if (plugin.getReturnClass(paramClasses) == null) {
 				String errorMessage = "getReturnClass(...): The returned value is null.";
 				throw new VnanoException(ErrorType.PLUGIN_VALIDATION_FAILED, new String[] { plugin.getClass().getName(), errorMessage });
-			}
-			if (!plugin.isDataConversionNecessary()) {
+				
+			} else if (!plugin.isDataConversionNecessary()) {
 				if (plugin.getReturnUnconvertedClass(paramClasses) == null) {
 					String errorMessage = "getReturnUnconvertedClass(): The returned value is null.";
 					throw new VnanoException(ErrorType.PLUGIN_VALIDATION_FAILED, new String[] { plugin.getClass().getName(), errorMessage });	
