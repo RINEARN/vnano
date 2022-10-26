@@ -5,8 +5,14 @@
 
 package org.vcssl.nano.interconnect;
 
+import org.vcssl.connect.ArrayDataAccessorInterface1;
+import org.vcssl.connect.BoolScalarDataAccessorInterface1;
 import org.vcssl.connect.ConnectorException;
+import org.vcssl.connect.EngineConnectorInterface1;
 import org.vcssl.connect.ExternalVariableConnectorInterface1;
+import org.vcssl.connect.Float64ScalarDataAccessorInterface1;
+import org.vcssl.connect.Int64ScalarDataAccessorInterface1;
+import org.vcssl.connect.StringScalarDataAccessorInterface1;
 import org.vcssl.nano.VnanoException;
 import org.vcssl.nano.spec.DataTypeName;
 import org.vcssl.nano.spec.ErrorType;
@@ -41,7 +47,7 @@ public class Xvci1ToVariableAdapter extends AbstractVariable {
 	 * @throws VnanoException Thrown when incompatible data-types, array-ranks, and so on have been detected.
 	 */
 	public Xvci1ToVariableAdapter(ExternalVariableConnectorInterface1 xvciPlugin) throws VnanoException {
-
+		this.validate(xvciPlugin);
 		this.xvciPlugin = xvciPlugin;
 		this.variableName = xvciPlugin.getVariableName();
 		this.dataConverter = new DataConverter(this.xvciPlugin.getDataClass());
@@ -263,6 +269,72 @@ public class Xvci1ToVariableAdapter extends AbstractVariable {
 	@Override
 	public int getSerialNumber() {
 		return -1;
+	}
+
+
+	/**
+	 * Validates whether the specified plug-in implements XVCI1 correctly, and it is available on the current version of Vnano Engine.
+	 * If no issues are detected for the plug-in, nothing will occur.
+	 * 
+	 * @param plugin The plug-in to be validated.
+	 * @throws VnanoException Thrown if the specified plug-in has an incorrect something.
+	 */
+	private void validate(ExternalVariableConnectorInterface1 plugin) throws VnanoException {
+		
+		// getVariableName()
+		if (plugin.getVariableName() == null) {
+			String errorMessage = "getVariableName(): The returned value is null.";
+			throw new VnanoException(ErrorType.PLUGIN_VALIDATION_FAILED, new String[] { plugin.getClass().getName(), errorMessage });
+		}
+		
+		// getDataClass()
+		if (plugin.getDataClass() == null) {
+			String errorMessage = "getDataClass(): The returned value is null.";
+			throw new VnanoException(ErrorType.PLUGIN_VALIDATION_FAILED, new String[] { plugin.getClass().getName(), errorMessage });
+		}
+
+		// 	getDataUnconvertedClass()
+		if (!plugin.isDataConversionNecessary()) {
+			if (plugin.getDataUnconvertedClass() == null) {
+				String errorMessage = "getDataUnconvertedClasses(): The returned value is null.";
+				throw new VnanoException(ErrorType.PLUGIN_VALIDATION_FAILED, new String[] { plugin.getClass().getName(), errorMessage });
+			}
+			Class<?> dataClass = plugin.getDataUnconvertedClass();
+			if (!dataClass.equals(ArrayDataAccessorInterface1.class)
+					&& !dataClass.equals(Int64ScalarDataAccessorInterface1.class)
+					&& !dataClass.equals(Float64ScalarDataAccessorInterface1.class)
+					&& !dataClass.equals(BoolScalarDataAccessorInterface1.class)
+					&& !dataClass.equals(StringScalarDataAccessorInterface1.class)
+					&& !dataClass.equals(DataContainer.class) ) {
+
+				String errorMessage = "getParameterUnconvertedClasses(): The returned class/interface \""
+						+ dataClass.getName() + "\"is not supported on the current version of Vnano Engine.";
+				throw new VnanoException(ErrorType.PLUGIN_VALIDATION_FAILED, new String[] { plugin.getClass().getName(), errorMessage });	
+			}
+		}
+
+		// isDataTypeArbitrary()()
+		if (plugin.isDataTypeArbitrary()) {
+			String errorMessage = "isDataTypeArbitrary(): Returned true, but this feature has not been supported yet on the current version of Vnano Engine.";
+			throw new VnanoException(ErrorType.PLUGIN_VALIDATION_FAILED, new String[] { plugin.getClass().getName(), errorMessage });
+		}
+		
+		// isArrayRankArbitrary()
+		if (plugin.isArrayRankArbitrary()) {
+			String errorMessage = "isArrayRankArbitrary(): Returned true, but this feature has not been supported yet on the current version of Vnano Engine.";
+			throw new VnanoException(ErrorType.PLUGIN_VALIDATION_FAILED, new String[] { plugin.getClass().getName(), errorMessage });
+		}
+
+		// getEngineConnectorClass()
+		if (plugin.getEngineConnectorClass() == null) {
+			String errorMessage = "getEngineConnectorClass(...): The returned value is null.";
+			throw new VnanoException(ErrorType.PLUGIN_VALIDATION_FAILED, new String[] { plugin.getClass().getName(), errorMessage });
+		}
+		if (!plugin.getEngineConnectorClass().equals(EngineConnectorInterface1.class)) {
+			String errorMessage = "getEngineConnectorClass(...): The specified engine connector \""
+					+ plugin.getEngineConnectorClass().getName() + "\"is not suppoted on the current version of Vnano Engine.";
+			throw new VnanoException(ErrorType.PLUGIN_VALIDATION_FAILED, new String[] { plugin.getClass().getName(), errorMessage });
+		}
 	}
 }
 

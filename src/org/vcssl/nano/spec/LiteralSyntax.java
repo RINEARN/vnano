@@ -206,6 +206,7 @@ public class LiteralSyntax {
 					case 'n' : resultBuilder.append('\n'); break;
 					case 'r' : resultBuilder.append('\r'); break;
 					case '"' : resultBuilder.append('"'); break;
+					case '\\' : resultBuilder.append('\\'); break;
 					default : throw new VnanoFatalException("Unknown escape sequence: " + chars[i]);
 				}
 

@@ -323,32 +323,41 @@ public class Interconnect {
 	 */
 	public void connectPlugin(String bindingName, Object plugin) throws VnanoException {
 
+		// In error messages, display the binding name for a Field, Method, and so on.
+		// For a plug-in implementing special interfaces (e.g.: XFCI1), display the name of the plug-in class.
+		String nameInErrorMessage = bindingName;
+
 		try {
 			// Replace the binding name with auto-generated one if, it it is requested.
 			if (bindingName.equals(SpecialBindingKey.AUTO_KEY)) {
 				bindingName = this.generateBindingNameOf(plugin);
-				
+				nameInErrorMessage = bindingName;
+
 				// The plug-in is has not been initialized yet in this step, 
 				// but its name should be determined before the initialization, for XFCI1/XVCI1/XNCI1.
 			}
 
 			// Remove after a white space or "(" in the binding name.
 			bindingName = bindingName.split("\\s|\\(")[0];
-
+			
 			// PACI1 type security plug-in:
 			if (plugin instanceof PermissionAuthorizerConnectorInterface1) {
+				nameInErrorMessage = plugin.getClass().getName();
 				this.connectPaci1Plugin( (PermissionAuthorizerConnectorInterface1)plugin );
 
 			// XVCI1 type variable plug-in:
 			} else if (plugin instanceof ExternalVariableConnectorInterface1) {
+				nameInErrorMessage = plugin.getClass().getName();
 				this.connectXvci1Plugin( (ExternalVariableConnectorInterface1)plugin, true, bindingName, false, null );
 
 			// XFCI1 type function plug-in:
 			} else if (plugin instanceof ExternalFunctionConnectorInterface1) {
+				nameInErrorMessage = plugin.getClass().getName();
 				this.connectXfci1Plugin( (ExternalFunctionConnectorInterface1)plugin, true, bindingName, false, null);
 
 			// XNCI1 type namespace plug-in:
 			} else if (plugin instanceof ExternalNamespaceConnectorInterface1) {
+				nameInErrorMessage = plugin.getClass().getName();
 				this.connectXnci1Plugin( (ExternalNamespaceConnectorInterface1)plugin, true, bindingName, false );
 
 			// Field of a class:
@@ -400,7 +409,7 @@ public class Interconnect {
 
 		// Re-throw the VnanoException, with adding information of the cause plug-in.
 		} catch (VnanoException vne) {
-			throw new VnanoException(ErrorType.PLUGIN_CONNECTION_FAILED, bindingName, vne);
+			throw new VnanoException(ErrorType.PLUGIN_CONNECTION_FAILED, nameInErrorMessage, vne);
 		}
 	}
 
