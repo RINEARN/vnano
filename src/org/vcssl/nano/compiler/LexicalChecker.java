@@ -403,11 +403,6 @@ public class LexicalChecker {
 			boolean nextIsDataType = tokenIndex < tokenLength-1
 					&& tokens[tokenIndex+1].getType()==Token.Type.DATA_TYPE;
 
-			boolean nextNextIsCastEnd = tokenIndex < tokenLength-2
-					&& tokens[tokenIndex+2].getType()==Token.Type.OPERATOR
-					&& tokens[tokenIndex+2].getAttribute(AttributeKey.OPERATOR_EXECUTOR).equals(AttributeValue.CAST)
-					&& tokens[tokenIndex+2].getValue().equals(ScriptWord.PARENTHESIS_END);
-
 			// Operators:
 			if (token.getType() == Token.Type.OPERATOR) {
 				String operatorSyntax = token.getAttribute(AttributeKey.OPERATOR_SYNTAX);
@@ -424,15 +419,34 @@ public class LexicalChecker {
 								token.getValue(), token.getFileName(), token.getLineNumber()
 							);
 						}
-						if (!nextNextIsCastEnd) {
-							throw new VnanoException(
-								ErrorType.CLOSE_PARENTHESIS_IS_MISSING_AT_RIGHT,
-								tokens[tokenIndex+1].getValue(), token.getFileName(), token.getLineNumber() // 上でnextIsDataTypeがtrueである時点で tokenIndex+1 番目へのアクセスは可能
-							);
+						
+						// One or multiple subscript symbols [] can be after the data-type, so lookahead tokens to the end of the cast operator:
+						for (int tokenInCastOpIndex=tokenIndex+2; tokenInCastOpIndex<tokenLength; tokenInCastOpIndex++) {
+							Token tokenInCastOp = tokens[tokenInCastOpIndex];
+							System.out.println("Lookahead: " + tokenInCastOp);
+							
+							boolean isSubscript = tokenInCastOp.getType() == Token.Type.OPERATOR
+									&& tokenInCastOp.getAttribute(AttributeKey.OPERATOR_EXECUTOR).equals(AttributeValue.SUBSCRIPT);
+
+							boolean isCastEnd = tokenInCastOp.getType() == Token.Type.OPERATOR
+									&& tokenInCastOp.getAttribute(AttributeKey.OPERATOR_EXECUTOR).equals(AttributeValue.CAST)
+									&& tokenInCastOp.getValue().equals(ScriptWord.PARENTHESIS_END);
+
+							if (isCastEnd) {
+								tokenIndex = tokenInCastOpIndex + 1;
+								break;
+							} else if (!isSubscript) {
+								throw new VnanoException(
+									ErrorType.CLOSE_PARENTHESIS_IS_MISSING_AT_RIGHT,
+									tokens[tokenInCastOpIndex-1].getValue(), token.getFileName(), token.getLineNumber()
+									// Note: tokens[tokenIndex+1] exists because nextIsDataType is true.
+								);
+							}
 						}
+						continue;
 
 					// Otherwise: the next token is an operand, so it must be a leaf, or "(", or the beginning of a multiary operator, or a prefix-operator.
-					} else if ( !(  nextIsLeaf || nextIsOpenParenthesis || nextIsMultialyBegin || nextIsPrefixOperator  ) ) {
+					} else if ( !(  nextIsLeaf || nextIsOpenParenthesis || nextIsMultialyBegin || nextIsPrefixOperator ) ) {
 						throw new VnanoException(
 							ErrorType.OPERAND_IS_MISSING_AT_RIGHT,
 							token.getValue(), token.getFileName(), token.getLineNumber()
