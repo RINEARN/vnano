@@ -178,7 +178,7 @@ public class AstNodeTest {
 
 		// Prepare a node, and set the array-rank to it as an attribute.
 		AstNode node = new AstNode(AstNode.Type.OPERATOR, 123, "Test.vnano");
-		node.setAttribute(AttributeKey.RANK, "3");
+		node.setAttribute(AttributeKey.ARRAY_RANK, "3");
 
 		// Get and check the above attribute.
 		assertEquals(3, node.getRank());

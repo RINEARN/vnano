@@ -462,12 +462,12 @@ public class AstNode implements Cloneable {
 
 
 	/**
-	 * Gets the array rank which is set as {@link AttributeKey#RANK RANK} attribute.
+	 * Gets the array rank which is set as {@link AttributeKey#ARRAY_RANK RANK} attribute.
 	 * 
 	 * @return The array rank.
 	 */
 	public int getRank() {
-		String rankWord = this.attributeMap.get(AttributeKey.RANK);
+		String rankWord = this.attributeMap.get(AttributeKey.ARRAY_RANK);
 		return Integer.parseInt(rankWord);
 	}
 

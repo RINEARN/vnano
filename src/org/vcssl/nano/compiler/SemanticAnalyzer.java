@@ -314,7 +314,7 @@ public class SemanticAnalyzer {
 				}
 
 				// Set information of the variable, to the node referencing the variable.
-				currentNode.setAttribute(AttributeKey.RANK, Integer.toString(variable.getArrayRank()));
+				currentNode.setAttribute(AttributeKey.ARRAY_RANK, Integer.toString(variable.getArrayRank()));
 				currentNode.setAttribute(AttributeKey.DATA_TYPE, variable.getDataTypeName());
 				if (variable.isConstant()) {
 					currentNode.addModifier(ScriptWord.CONST_MODIFIER);
@@ -469,7 +469,7 @@ public class SemanticAnalyzer {
 			if (currentNode.getType() == AstNode.Type.LEAF
 					&& currentNode.getAttribute(AttributeKey.LEAF_TYPE).equals(AttributeValue.LITERAL)) {
 
-				currentNode.setAttribute(AttributeKey.RANK, "0");   // In the current specification of Vnano, array literals are not supported.
+				currentNode.setAttribute(AttributeKey.ARRAY_RANK, "0");   // In the current specification of Vnano, array literals are not supported.
 				currentNode.addModifier(ScriptWord.CONST_MODIFIER); // Values of literals must not be modified in programs, so set them as constants.
 
 				// Here data-types of literals have already been determined,
@@ -710,7 +710,7 @@ public class SemanticAnalyzer {
 					currentNode.setAttribute(AttributeKey.OPERATOR_EXECUTION_DATA_TYPE, operationDataType);
 				}
 				if (rank != -1) {
-					currentNode.setAttribute(AttributeKey.RANK, Integer.toString(rank));
+					currentNode.setAttribute(AttributeKey.ARRAY_RANK, Integer.toString(rank));
 				}
 			}
 
@@ -829,7 +829,7 @@ public class SemanticAnalyzer {
 
 				// Copy some attributes from the call operator node to the identifier node.
 				currentNode.setAttribute(AttributeKey.DATA_TYPE, callOperatorNode.getAttribute(AttributeKey.DATA_TYPE));
-				currentNode.setAttribute(AttributeKey.RANK, callOperatorNode.getAttribute(AttributeKey.RANK));
+				currentNode.setAttribute(AttributeKey.ARRAY_RANK, callOperatorNode.getAttribute(AttributeKey.ARRAY_RANK));
 			}
 
 			currentNode = currentNode.getPostorderDftNextNode();
@@ -853,7 +853,7 @@ public class SemanticAnalyzer {
 			if(currentNode.getType() == AstNode.Type.EXPRESSION) {
 				AstNode[] inputNodes = currentNode.getChildNodes();
 				currentNode.setAttribute(AttributeKey.DATA_TYPE, inputNodes[0].getDataTypeName());
-				currentNode.setAttribute(AttributeKey.RANK, Integer.toString(inputNodes[0].getRank()));
+				currentNode.setAttribute(AttributeKey.ARRAY_RANK, Integer.toString(inputNodes[0].getRank()));
 			}
 			currentNode = currentNode.getPostorderDftNextNode();
 		}

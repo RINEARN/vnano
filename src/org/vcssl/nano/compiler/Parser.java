@@ -599,7 +599,7 @@ public class Parser {
 		}
 
 		// Set aboves to the node.
-		variableNode.setAttribute(AttributeKey.RANK, Integer.toString(arrayRank));
+		variableNode.setAttribute(AttributeKey.ARRAY_RANK, Integer.toString(arrayRank));
 		if (arrayLengthNode != null) {
 			arrayRank = arrayLengthNode.getChildNodes(AstNode.Type.EXPRESSION).length;
 			variableNode.addChildNode(arrayLengthNode);
@@ -881,7 +881,7 @@ public class Parser {
 		AstNode node = new AstNode(AstNode.Type.FUNCTION, lineNumber, fileName);
 		node.setAttribute(AttributeKey.IDENTIFIER_VALUE, identifierToken.getValue());
 		node.setAttribute(AttributeKey.DATA_TYPE, dataTypeToken.getValue());
-		node.setAttribute(AttributeKey.RANK, Integer.toString(rank));
+		node.setAttribute(AttributeKey.ARRAY_RANK, Integer.toString(rank));
 		for (AstNode argNode: argumentNodeList) {
 			node.addChildNode(argNode);
 		}
@@ -1124,8 +1124,8 @@ public class Parser {
 		if (token.hasAttribute(AttributeKey.DATA_TYPE)) {
 			operatorNode.setAttribute(AttributeKey.DATA_TYPE, token.getAttribute(AttributeKey.DATA_TYPE));
 		}
-		if (token.hasAttribute(AttributeKey.RANK)) {
-			operatorNode.setAttribute(AttributeKey.RANK, token.getAttribute(AttributeKey.RANK));
+		if (token.hasAttribute(AttributeKey.ARRAY_RANK)) {
+			operatorNode.setAttribute(AttributeKey.ARRAY_RANK, token.getAttribute(AttributeKey.ARRAY_RANK));
 		}
 
 		return operatorNode;
@@ -1370,7 +1370,7 @@ public class Parser {
 			if (isCastBeginToken) {
 				String dataType = tokens[ readingIndex+1 ].getValue();
 				readingToken.setAttribute(AttributeKey.DATA_TYPE, dataType);
-				readingToken.setAttribute(AttributeKey.RANK, Integer.toString(RANK_OF_SCALAR)); // The cast of arrays have not been supported yet.
+				readingToken.setAttribute(AttributeKey.ARRAY_RANK, Integer.toString(RANK_OF_SCALAR)); // The cast of arrays have not been supported yet.
 				readingToken.setValue(ScriptWord.PARENTHESIS_BEGIN + dataType + ScriptWord.PARENTHESIS_END);
 				tokenList.add(readingToken);
 				readingIndex += 3;

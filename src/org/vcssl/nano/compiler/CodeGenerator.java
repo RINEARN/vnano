@@ -1884,7 +1884,7 @@ public class CodeGenerator {
 		// Create an AST node representing the amount (step) of the increment/decrement as an immediate value.
 		AstNode stepNode = new AstNode(AstNode.Type.LEAF, variableNode.getLineNumber(), variableNode.getFileName());
 		stepNode.setAttribute(AttributeKey.DATA_TYPE, executionDataType);
-		stepNode.setAttribute(AttributeKey.RANK, Integer.toString(RANK_OF_SCALAR));
+		stepNode.setAttribute(AttributeKey.ARRAY_RANK, Integer.toString(RANK_OF_SCALAR));
 		if (executionDataType.equals(DataTypeName.DEFAULT_INT)) {
 			String immediateValue = this.generateImmediateOperandCode(executionDataType, "1");
 			stepNode.setAttribute(AttributeKey.ASSEMBLY_VALUE, immediateValue);
@@ -1933,7 +1933,7 @@ public class CodeGenerator {
 		AstNode stepNode = new AstNode(AstNode.Type.LEAF, variableNode.getLineNumber(), variableNode.getFileName());
 		String executionDataType = operatorNode.getAttribute(AttributeKey.OPERATOR_EXECUTION_DATA_TYPE);
 		stepNode.setAttribute(AttributeKey.DATA_TYPE, executionDataType);
-		stepNode.setAttribute(AttributeKey.RANK, Integer.toString(RANK_OF_SCALAR));
+		stepNode.setAttribute(AttributeKey.ARRAY_RANK, Integer.toString(RANK_OF_SCALAR));
 		if (executionDataType.equals(DataTypeName.DEFAULT_INT)) {
 			String immediateValue = this.generateImmediateOperandCode(executionDataType, "1");
 			stepNode.setAttribute(AttributeKey.ASSEMBLY_VALUE, immediateValue);
