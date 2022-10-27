@@ -423,7 +423,6 @@ public class LexicalChecker {
 						// One or multiple subscript symbols [] can be after the data-type, so lookahead tokens to the end of the cast operator:
 						for (int tokenInCastOpIndex=tokenIndex+2; tokenInCastOpIndex<tokenLength; tokenInCastOpIndex++) {
 							Token tokenInCastOp = tokens[tokenInCastOpIndex];
-							System.out.println("Lookahead: " + tokenInCastOp);
 							
 							boolean isSubscript = tokenInCastOp.getType() == Token.Type.OPERATOR
 									&& tokenInCastOp.getAttribute(AttributeKey.OPERATOR_EXECUTOR).equals(AttributeValue.SUBSCRIPT);
