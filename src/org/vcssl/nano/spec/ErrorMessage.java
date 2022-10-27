@@ -132,6 +132,9 @@ public class ErrorMessage {
 			case INVALID_OPTION_VALUE_CONTENT : return "オプション「 " + words[0] + " 」の値「 " + words[1] + " 」が、正しい内容ではありません。";
 			case DATA_CONVERSION_OF_FUNCTION_PLUGIN_USING_OBJECT_TYPE_SHOULD_BE_DISABLED : return "外部関数「 " + words[0] + " 」のプラグインは、Object型の引数または戻り値を持つため、データ変換機能が無効に設定されていなければなりません。";
 			case INVALID_ARRAY_INDEX : return "配列のアクセス可能範囲 [ 0 から " + words[1] + " まで ] の外を指すインデックス [ " + words[0] + " ] が指定されました。";
+			case CASTING_SCALAR_TO_ARRAY : return "配列ではない値を、配列型にキャストしようとしています。";
+			case CASTING_ARRAY_TO_SCALAR : return "配列を、配列ではない型にキャストしようとしています。";
+			case CASTING_ARRAY_TO_DIFFERENT_RANK_ARRAY : return "配列を、次元数が異なる配列にキャストしようとしています。";
 			case WRITING_TO_CONST_VARIABLE : return "変数「 " + words[0] + " 」は定数（const）として宣言されてるため、宣言後（関数の引数の場合は受け渡し後）は値を変更できません。";
 			case WRITING_TO_LITERAL : return "書き換え不可能な値" + (words[0]==null ? "" : "「 "+words[0] + " 」") + "の書き換えが検出されました。";
 			case WRITING_TO_NON_LVALUE : return "値の変更処理の対象（代入「 = 」の左辺など）として、使用できない内容が記述されています。値の変更処理の対象になれるのは、「 変数、配列、配列の要素 」のみです。";
@@ -261,6 +264,9 @@ public class ErrorMessage {
 			case INVALID_OPTION_VALUE_CONTENT : return "The value of \"" + words[0] + "\" option \"" + words[1] + "\" is invalid";
 			case DATA_CONVERSION_OF_FUNCTION_PLUGIN_USING_OBJECT_TYPE_SHOULD_BE_DISABLED : return "The data-conversion of the plugin of the external function\"" + words[0] + "\" should be disabled, because this function has Object-type parameters or the return value";
 			case INVALID_ARRAY_INDEX : return "The array element with the index [ " + words[0] + " ] is accessed, but it is out of the available range [ from 0 to " + words[1] + " ]";
+			case CASTING_SCALAR_TO_ARRAY : return "Casting a scalar to an array";
+			case CASTING_ARRAY_TO_SCALAR : return "Casting an array to a scalar";
+			case CASTING_ARRAY_TO_DIFFERENT_RANK_ARRAY : return "Casting an array to another array having the different rank (the number of dimensions)";
 			case WRITING_TO_CONST_VARIABLE : return "The variable \"" + words[0] + "\" is declared as \"const\", so its value can not be changed after it is declared (or after it is passed, if it is a parameter of a function)";
 			case WRITING_TO_LITERAL : return "Modification of the unwritable value "  + (words[0]==null ? "" : "\""+words[0] + "\" ") + "is detected";
 			case WRITING_TO_NON_LVALUE : return "Invalid assignment (or value-modifying) operation is detected. Only values of variables/arrays, or an element of an array can be a left-hand side of assignment operation \"=\", or a target of an operation modifying values";

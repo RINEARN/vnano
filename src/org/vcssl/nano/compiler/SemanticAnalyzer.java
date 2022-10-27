@@ -698,6 +698,15 @@ public class SemanticAnalyzer {
 						dataType = currentNode.getDataTypeName();
 						operationDataType = dataType;
 						rank = currentNode.getArrayRank();
+						if (rank != currentNode.getChildNodes()[0].getArrayRank()) {
+							if (rank == 0) {
+								throw new VnanoException(ErrorType.CASTING_SCALAR_TO_ARRAY, currentNode.getFileName(), currentNode.getLineNumber());
+							} else if (currentNode.getChildNodes()[0].getArrayRank() == 0) {
+								throw new VnanoException(ErrorType.CASTING_ARRAY_TO_SCALAR, currentNode.getFileName(), currentNode.getLineNumber());
+							} else {
+								throw new VnanoException(ErrorType.CASTING_ARRAY_TO_DIFFERENT_RANK_ARRAY, currentNode.getFileName(), currentNode.getLineNumber());
+							}
+						}
 						break;
 					}
 				}

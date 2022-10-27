@@ -38,6 +38,8 @@ public class VectorCastOperationCombinedTest extends CombinedTestElement {
 			this.testCastString2DToFloat2D();
 			this.testCastString2DToBool2D();
 
+			this.testCastBetweenIncompatibleArrays();
+
 		} catch (VnanoException e) {
 			throw new CombinedTestException(e);
 		}
@@ -227,6 +229,59 @@ public class VectorCastOperationCombinedTest extends CombinedTestElement {
 		boolean[][] result = (boolean[][])this.engine.executeScript(scriptCode);
 		boolean[][] expected = new boolean[][] { { true, false, true }, { false, true, false } };
 		super.evaluateResult(result, expected, "cast string[][] to bool[][]", scriptCode);
+	}
+
+
+
+	private void testCastBetweenIncompatibleArrays() throws VnanoException {
+
+		// Scalar to 1D: NG
+		try {
+			String scriptCode = 
+				"float f; " +
+				"(int[]) f; ";
+			this.engine.executeScript(scriptCode);
+			super.missedExpectedError("cast between arrays having incompatible ranks 1; (should be failed) ", scriptCode);
+		} catch (VnanoException vne) {
+			// Expected to be thrown.
+			super.succeeded("cast between arrays having incompatible ranks 1; (should be failed) ");
+		}
+
+		// 1D to scalar: NG
+		try {
+			String scriptCode = 
+				"float f[3]; " +
+				"(int) f; ";
+			this.engine.executeScript(scriptCode);
+			super.missedExpectedError("cast between arrays having incompatible ranks 2; (should be failed) ", scriptCode);
+		} catch (VnanoException vne) {
+			// Expected to be thrown.
+			super.succeeded("cast between arrays having incompatible ranks 2; (should be failed) ");
+		}
+
+		// 2D to 1D: NG
+		try {
+			String scriptCode = 
+				"float f[2][3]; " +
+				"(int[]) f; ";
+			this.engine.executeScript(scriptCode);
+			super.missedExpectedError("cast between arrays having incompatible ranks 3; (should be failed) ", scriptCode);
+		} catch (VnanoException vne) {
+			// Expected to be thrown.
+			super.succeeded("cast between arrays having incompatible ranks 3; (should be failed) ");
+		}
+
+		// 1D to 2D: NG
+		try {
+			String scriptCode = 
+				"float f[3]; " +
+				"(int[][]) f; ";
+			this.engine.executeScript(scriptCode);
+			super.missedExpectedError("cast between arrays having incompatible ranks 4; (should be failed) ", scriptCode);
+		} catch (VnanoException vne) {
+			// Expected to be thrown.
+			super.succeeded("cast between arrays having incompatible ranks 4; (should be failed) ");
+		}
 	}
 
 }
