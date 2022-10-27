@@ -25,7 +25,7 @@ import org.vcssl.nano.VnanoException;
 public class DataConverter {
 
 	/** The array-rank of a scalar. */
-	private static final int RANK_OF_SCALAR = 0;
+	private static final int ARRAY_RANK_OF_SCALAR = 0;
 
 
 	/**
@@ -194,7 +194,7 @@ public class DataConverter {
 	private DataType dataType = null;
 
 	/** The array-rank of data to be converted by this instance. */
-	private int rank = -1;
+	private int arrayRank = -1;
 
 
 	/**
@@ -215,7 +215,7 @@ public class DataConverter {
 	 */
 	public DataConverter(Class<?> objectClass) throws VnanoException {
 
-		this.rank = getRankOf(objectClass);
+		this.arrayRank = getArrayRankOf(objectClass);
 		String externalDataTypeName = getExternalTypeNameOf(objectClass);
 		this.externalType = EXTERNAL_NAME_EXTERNAL_TYPE_MAP.get(externalDataTypeName);
 		this.dataType = EXTERNAL_NAME_DATA_TYPE_MAP.get(externalDataTypeName);
@@ -240,7 +240,7 @@ public class DataConverter {
 	 * @throws VnanoException Thrown if an unsupported data-type is specified.
 	 */
 	public DataConverter(DataType dataType, int rank) throws VnanoException {
-		this.rank = rank;
+		this.arrayRank = rank;
 		this.dataType = dataType;
 		this.externalType = DATA_TYPE_EXTERNAL_TYPE_MAP.get(dataType);
 	}
@@ -377,7 +377,7 @@ public class DataConverter {
 	 * @param objectClass The class of the external data.
 	 * @return The array-rank of the specified class.
 	 */
-	public static int getRankOf(Class<?> objectClass) {
+	public static int getArrayRankOf(Class<?> objectClass) {
 		String className = objectClass.getCanonicalName();
 		int arrayRank = -1;
 
@@ -410,8 +410,8 @@ public class DataConverter {
 	 *
 	 * @return The array-rank of conversions.
 	 */
-	public int getRank() {
-		return this.rank;
+	public int getArrayRank() {
+		return this.arrayRank;
 	}
 
 
@@ -460,7 +460,7 @@ public class DataConverter {
 			throw new VnanoFatalException("Unexpected class for data: " + srcDataOject.getClass().getCanonicalName());
 		}
 
-		if (srcRank == RANK_OF_SCALAR) {
+		if (srcRank == ARRAY_RANK_OF_SCALAR) {
 			destDataContainer.setArrayData(destDataObject, srcDataContainer.getArrayOffset(), DataContainer.ARRAY_LENGTHS_OF_SCALAR);
 		} else {
 			destDataContainer.setArrayData(destDataObject, 0, destLengths);
@@ -500,7 +500,7 @@ public class DataConverter {
 	public void convertToDataContainer(Object object, DataContainer<?> resultDataContainer)
 			throws VnanoException {
 
-		switch (this.rank) {
+		switch (this.arrayRank) {
 			case 0 : {
 				this.convertToDataContainer0D(object, resultDataContainer);
 				return;
@@ -1041,7 +1041,7 @@ public class DataConverter {
 		int[] arrayLength = dataContainer.getArrayLengths();
 		int dataLength = dataContainer.getArraySize();
 
-		switch (this.rank) {
+		switch (this.arrayRank) {
 
 			case DataContainer.ARRAY_RANK_OF_SCALAR : {
 				int dataIndex = dataContainer.getArrayOffset();
@@ -1328,7 +1328,7 @@ public class DataConverter {
 				DataType internalType = EXTERNAL_NAME_DATA_TYPE_MAP.get(externalTypeName);
 				String internalTypeName = DataTypeName.getDataTypeNameOf(internalType);
 				String internalArrayTypeName = internalTypeName;
-				for(int dim=0; dim<this.rank; dim++) {
+				for(int dim=0; dim<this.arrayRank; dim++) {
 					internalArrayTypeName += ScriptWord.SUBSCRIPT_BEGIN + ScriptWord.SUBSCRIPT_END; // "[]" を追加
 				}
 
