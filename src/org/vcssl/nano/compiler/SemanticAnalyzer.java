@@ -514,7 +514,11 @@ public class SemanticAnalyzer {
 						AstNode[] inputNodes = currentNode.getChildNodes();
 						dataType = inputNodes[0].getDataTypeName();
 						operationDataType = dataType;
-						rank = inputNodes[0].getArrayRank();
+						rank = analyzeAssignmentOperationRank(
+								inputNodes[0].getArrayRank(), inputNodes[1].getArrayRank(),
+								currentNode.getAttribute(AttributeKey.OPERATOR_SYMBOL),
+								currentNode.getFileName(), currentNode.getLineNumber()
+						);
 						break;
 					}
 
@@ -1066,18 +1070,49 @@ public class SemanticAnalyzer {
 
 
 	/**
-	 * Determines the data-type of arithmetic/comparison/logical binary operations,
+	 * Determines the array-rank of assignment operations, from arra-ranks of operands.
+	 * 
+	 * Generally, array-ranks of both operands must be the same, and then this method returns that rank.
+	 * However, in Vnano, assignment operations between a scalar and a vector are valid.
+	 * Including such cases, The array rank of an assignment operator is always same as it of the left operand.
+	 *
+	 * @param leftOperandRank The array-rank of the left operand.
+	 * @param rightOperandRank The array-rank of the right operand.
+	 * @param operatorSymbol The symbol of the operator.
+	 * @param fileName The name of the file in which the operator is written (will be displayed in the error message).
+	 * @param lineNumber The line number at which the operator is written (will be displayed in the error message).
+	 * @return The array-rank of the operation.
+	 * @throws VnanoException
+	 *   Thrown when array-ranks of operands are not the same, excluding when one is a scalar and the other is a non-scalar.
+	 */
+	int analyzeAssignmentOperationRank(
+			int leftOperandRank, int rightOperandRank, String operatorSymbol,
+			String fileName, int lineNumber) throws VnanoException {
+
+		if (leftOperandRank != 0 && rightOperandRank != 0 && leftOperandRank != rightOperandRank) {
+			throw new VnanoException(
+				ErrorType.INVALID_RANKS_FOR_VECTOR_OPERATION,
+				new String[] {operatorSymbol}, fileName, lineNumber
+			);
+		}
+
+		return leftOperandRank;
+	}
+
+
+	/**
+	 * Determines the array-rank of arithmetic/comparison/logical binary operations,
 	 * from arra-ranks of operands.
 	 *
 	 * Generally, array-ranks of both operands must be the same, and then this method returns that rank.
 	 *
-	 * However, in Vnano, operation between a scalar (rank is 0) and a non-scalar is supported.
-	 * In such case, the scalar value will be converted to the array of which rank is the same as the non-scalar operand.
-	 * So in such case, this method returns the rank of the non-scalar operand.
+	 * However, in Vnano, it can perform operations between a scalar (rank is 0) and a non-scalar.
+	 * In such cases, the scalar value will be converted to the array of which rank is the same as the non-scalar operand.
+	 * Hence, in such case, this method returns the rank of the non-scalar operand.
 	 *
 	 * @param leftOperandRank The array-rank of the left operand.
 	 * @param rightOperandRank The array-rank of the right operand.
-	 * @param operatorSymbol The symbol of the operator.s
+	 * @param operatorSymbol The symbol of the operator.
 	 * @param fileName The name of the file in which the operator is written (will be displayed in the error message).
 	 * @param lineNumber The line number at which the operator is written (will be displayed in the error message).
 	 * @return The array-rank of the operation.
