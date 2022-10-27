@@ -83,7 +83,7 @@ public final class Xfci1ToFunctionAdapter extends AbstractFunction {
 
 		this.returnDataConverter = new DataConverter(this.xfciPlugin.getReturnClass(parameterClasses));
 		this.returnDataType = this.returnDataConverter.getDataType();
-		this.returnArrayRank = this.returnDataConverter.getRank();
+		this.returnArrayRank = this.returnDataConverter.getArrayRank();
 
 		this.parameterDataConverters = new DataConverter[parameterLength];
 		this.parameterDataTypes = new DataType[parameterLength];
@@ -100,7 +100,7 @@ public final class Xfci1ToFunctionAdapter extends AbstractFunction {
 					= this.parameterDataConverters[parameterIndex].getDataType();
 
 			this.parameterArrayRanks[parameterIndex]
-					= this.parameterDataConverters[parameterIndex].getRank();
+					= this.parameterDataConverters[parameterIndex].getArrayRank();
 		}
 
 
@@ -375,7 +375,7 @@ public final class Xfci1ToFunctionAdapter extends AbstractFunction {
 		}
 		Class<?>[] argumentClasses = DataConverter.getExternalClassesOf(argumentDataTypes, argumentArrayRanks);
 		Class<?> returnValueClass = this.xfciPlugin.getReturnClass(argumentClasses);
-		return DataConverter.getRankOf(returnValueClass);
+		return DataConverter.getArrayRankOf(returnValueClass);
 	}
 
 
@@ -471,11 +471,11 @@ public final class Xfci1ToFunctionAdapter extends AbstractFunction {
 	/**
 	 * Invoke this function.
 	 *
-	 * @param argumentDataUnits The array storing data units of all actual arguments.
 	 * @param returnDataUnit The data unit to which the return value will be stored.
+	 * @param argumentDataUnits The array storing data units of all actual arguments.
 	 */
 	@Override
-	public final void invoke(DataContainer<?>[] argumentDataContainers, DataContainer<?> returnDataContainer)
+	public final void invoke(DataContainer<?> returnDataContainer, DataContainer<?>[] argumentDataContainers)
 			throws VnanoException {
 
 		int argLength = argumentDataContainers.length;

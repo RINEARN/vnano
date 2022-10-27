@@ -176,7 +176,7 @@ public class InternalVariable extends AbstractVariable {
 	 * @return The array storing array-ranks of all parameters.
 	 */
 	@Override
-	public int getRank() {
+	public int getArrayRank() {
 		return this.rank;
 	}
 	// TO DO: rename to: getArrayRank()

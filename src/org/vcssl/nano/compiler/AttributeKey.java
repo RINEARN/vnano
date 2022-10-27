@@ -16,7 +16,7 @@ public enum AttributeKey {
 	DATA_TYPE,
 
 	/** The key of the attribute for storing an array-rank. */
-	RANK,
+	ARRAY_RANK,
 
 	/** The key of the attribute for storing an (multi dimensional) array-lengths. */
 	LENGTHS,

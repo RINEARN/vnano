@@ -91,8 +91,7 @@ public abstract class AbstractVariable {
 	 *
 	 * @return The array-rank of this variable.
 	 */
-	public abstract int getRank();
-	// TO DO: rename to: getArrayRank()
+	public abstract int getArrayRank();
 
 
 	/**

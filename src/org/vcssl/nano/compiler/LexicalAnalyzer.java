@@ -676,7 +676,7 @@ public class LexicalAnalyzer {
 				String literal = token.getValue();
 				String dataTypeName = LiteralSyntax.getDataTypeNameOfLiteral(literal);
 				token.setAttribute(AttributeKey.DATA_TYPE, dataTypeName);
-				token.setAttribute(AttributeKey.RANK, "0"); // Array literals have not been supported, so all literals are scalars.
+				token.setAttribute(AttributeKey.ARRAY_RANK, "0"); // Array literals have not been supported, so all literals are scalars.
 			}
 		}
 	}

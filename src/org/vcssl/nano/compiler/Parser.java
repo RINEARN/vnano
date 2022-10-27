@@ -599,7 +599,7 @@ public class Parser {
 		}
 
 		// Set aboves to the node.
-		variableNode.setAttribute(AttributeKey.RANK, Integer.toString(arrayRank));
+		variableNode.setAttribute(AttributeKey.ARRAY_RANK, Integer.toString(arrayRank));
 		if (arrayLengthNode != null) {
 			arrayRank = arrayLengthNode.getChildNodes(AstNode.Type.EXPRESSION).length;
 			variableNode.addChildNode(arrayLengthNode);
@@ -881,7 +881,7 @@ public class Parser {
 		AstNode node = new AstNode(AstNode.Type.FUNCTION, lineNumber, fileName);
 		node.setAttribute(AttributeKey.IDENTIFIER_VALUE, identifierToken.getValue());
 		node.setAttribute(AttributeKey.DATA_TYPE, dataTypeToken.getValue());
-		node.setAttribute(AttributeKey.RANK, Integer.toString(rank));
+		node.setAttribute(AttributeKey.ARRAY_RANK, Integer.toString(rank));
 		for (AstNode argNode: argumentNodeList) {
 			node.addChildNode(argNode);
 		}
@@ -1124,8 +1124,8 @@ public class Parser {
 		if (token.hasAttribute(AttributeKey.DATA_TYPE)) {
 			operatorNode.setAttribute(AttributeKey.DATA_TYPE, token.getAttribute(AttributeKey.DATA_TYPE));
 		}
-		if (token.hasAttribute(AttributeKey.RANK)) {
-			operatorNode.setAttribute(AttributeKey.RANK, token.getAttribute(AttributeKey.RANK));
+		if (token.hasAttribute(AttributeKey.ARRAY_RANK)) {
+			operatorNode.setAttribute(AttributeKey.ARRAY_RANK, token.getAttribute(AttributeKey.ARRAY_RANK));
 		}
 
 		return operatorNode;
@@ -1347,8 +1347,9 @@ public class Parser {
 	 * to single-token cast operators.
 	 *
 	 * @param Tokens in which all tokens composing cast operators are replaced to single-token cast operators.
+	 * @throws VnanoException Thrown when any syntax error has been detected.
 	 */
-	private Token[] preprocessCastSequentialTokens(Token[] tokens) {
+	private Token[] preprocessCastSequentialTokens(Token[] tokens) throws VnanoException {
 
 		int tokenLength = tokens.length;
 		int readingIndex = 0;
@@ -1368,12 +1369,36 @@ public class Parser {
 			// add attributes of the data-type and the array-rank read from latter tokens composing the cast operator.
 			// And add only the single-token cast operator to tokenList.
 			if (isCastBeginToken) {
+				StringBuilder singleTokenValueBuilder = new StringBuilder();
+				singleTokenValueBuilder.append(tokens[readingIndex].getValue());
+				
+				// Read data-type tokens, and set the type to the cast operator token.
 				String dataType = tokens[ readingIndex+1 ].getValue();
 				readingToken.setAttribute(AttributeKey.DATA_TYPE, dataType);
-				readingToken.setAttribute(AttributeKey.RANK, Integer.toString(RANK_OF_SCALAR)); // The cast of arrays have not been supported yet.
-				readingToken.setValue(ScriptWord.PARENTHESIS_BEGIN + dataType + ScriptWord.PARENTHESIS_END);
+				singleTokenValueBuilder.append(tokens[ readingIndex+1 ].getValue());
+				readingIndex++;
+
+				// Read tokens declaring the array rank, and set the rank to the cast operator token.
+				int subscriptEnd = getLengthEndIndex(tokens, readingIndex+1);
+				if (subscriptEnd == -1) {
+					readingToken.setAttribute(AttributeKey.ARRAY_RANK, Integer.toString(RANK_OF_SCALAR));
+				} else {
+					Token[] subscriptTokens = Arrays.copyOfRange(tokens, readingIndex+1, subscriptEnd+1);
+					int arrayRank = this.parseVariableDeclarationArrayRank(subscriptTokens);
+					readingToken.setAttribute(AttributeKey.ARRAY_RANK, Integer.toString(arrayRank));
+					for (Token subscriptToken: subscriptTokens) {
+						singleTokenValueBuilder.append(subscriptToken.getValue());
+					}
+					readingIndex = subscriptEnd;
+				}
+
+				singleTokenValueBuilder.append(ScriptWord.PARENTHESIS_END);
+				readingToken.setValue(singleTokenValueBuilder.toString());
+
+				// Here the "readingIndex" is pointing the token before ")", so set to the next token of ")" by += 2.
+				readingIndex += 2;
+
 				tokenList.add(readingToken);
-				readingIndex += 3;
 
 			// Other kinds of tokens:
 			} else {
@@ -1389,7 +1414,7 @@ public class Parser {
 
 	/**
 	 * Finds the token "]" at the end of declaration of array lengths, 
-	 * from tokens of a variable declaration statements.
+	 * from tokens of a variable declaration statements, or tokens of a cast operator.
 	 *
 	 * @param tokens Tokens of a variable declaration statements.
 	 * @param fromIndex The beginning index of the search.
@@ -1403,10 +1428,17 @@ public class Parser {
 		for(int i=fromIndex; i<tokenLength; i++) {
 			String word = tokens[i].getValue();
 
-			// If it reaches to the end of tokens without finding "]", 
+			// If it reaches to the initializer "=" without finding "]",
 			// the declared variable is not an array.
 			// Then this method should return -1.
 			if (depth==0 && word.equals(ScriptWord.ASSIGNMENT)) {
+				return -1;
+			}
+
+			// If it reaches to the end of the cast operator ")" without finding "]",
+			// the data-type of the cast operator is not an array.
+			// Then this method should return -1.
+			if (depth==0 && word.equals(ScriptWord.PARENTHESIS_END)) {
 				return -1;
 			}
 
@@ -1425,6 +1457,10 @@ public class Parser {
 				}
 			}
 		}
+
+		// If it reaches to the end of tokens without finding "]", 
+		// the declared variable is not an array.
+		// Then this method should return -1.
 		return -1;
 	}
 

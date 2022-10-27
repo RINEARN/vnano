@@ -100,7 +100,7 @@ public class CodeGeneratorTest {
 		node.setAttribute(AttributeKey.OPERATOR_EXECUTOR, executor);
 		node.setAttribute(AttributeKey.OPERATOR_EXECUTION_DATA_TYPE, dataTypeName);
 		node.setAttribute(AttributeKey.DATA_TYPE, dataTypeName);
-		node.setAttribute(AttributeKey.RANK, Integer.toString(rank));
+		node.setAttribute(AttributeKey.ARRAY_RANK, Integer.toString(rank));
 		return node;
 	}
 
@@ -109,7 +109,7 @@ public class CodeGeneratorTest {
 		node.setAttribute(AttributeKey.LEAF_TYPE, AttributeValue.LITERAL);
 		node.setAttribute(AttributeKey.LITERAL_VALUE, value);
 		node.setAttribute(AttributeKey.DATA_TYPE, dataTypeName);
-		node.setAttribute(AttributeKey.RANK, Integer.toString(rank));
+		node.setAttribute(AttributeKey.ARRAY_RANK, Integer.toString(rank));
 		return node;
 	}
 
@@ -118,7 +118,7 @@ public class CodeGeneratorTest {
 		node.setAttribute(AttributeKey.LEAF_TYPE, AttributeValue.VARIABLE_IDENTIFIER);
 		node.setAttribute(AttributeKey.IDENTIFIER_VALUE, identifier);
 		node.setAttribute(AttributeKey.DATA_TYPE, dataTypeName);
-		node.setAttribute(AttributeKey.RANK, Integer.toString(rank));
+		node.setAttribute(AttributeKey.ARRAY_RANK, Integer.toString(rank));
 		node.setAttribute(AttributeKey.SCOPE, scope);
 		return node;
 	}

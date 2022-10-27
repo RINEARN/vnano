@@ -310,7 +310,7 @@ public class ExternalFunctionControlUnit extends AcceleratorExecutionUnit {
 		public final AcceleratorExecutionNode execute() {
 			this.synchronizer.synchronizeFromCacheToMemory();
 			try {
-				this.function.invoke(this.argumentContainers, this.returnContainer);
+				this.function.invoke(this.returnContainer, this.argumentContainers);
 			} catch (VnanoException e) {
 				// 上層で拾うので実行時例外として上に投げる
 				throw new RuntimeException(e);

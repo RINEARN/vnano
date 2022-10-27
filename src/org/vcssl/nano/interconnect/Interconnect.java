@@ -233,13 +233,13 @@ public class Interconnect {
 	 * Calls the external function registered at the element with specified index in the external function table.
 	 *
 	 * @param functionIndex The index of the extenral function to be called.
-	 * @param arguments Data containers storing arguments to be passed to the callee function.
 	 * @param returnData Data container storing returned value from the callee function.
+	 * @param arguments Data containers storing arguments to be passed to the callee function.
 	 */
-	public void callExternalFunction(int functionIndex, DataContainer<?>[] arguments, DataContainer<?> returnData)
+	public void callExternalFunction(int functionIndex, DataContainer<?> returnData, DataContainer<?>[] arguments)
 			throws VnanoException {
 
-		this.externalFunctionTable.getFunctionByIndex(functionIndex).invoke(arguments, returnData);
+		this.externalFunctionTable.getFunctionByIndex(functionIndex).invoke(returnData, arguments);
 	}
 
 

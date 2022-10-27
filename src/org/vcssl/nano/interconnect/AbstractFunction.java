@@ -246,10 +246,9 @@ public abstract class AbstractFunction {
 	/**
 	 * Invoke this function.
 	 *
-	 * @param argumentDataUnits The array storing data units of all actual arguments.
 	 * @param returnDataUnit The data unit to which the return value will be stored.
+	 * @param argumentDataUnits The array storing data units of all actual arguments.
 	 */
-	public abstract void invoke(DataContainer<?>[] argumentDataUnits, DataContainer<?> returnDataUnit) throws VnanoException;
-	// Note: It may be better to swap the order of "argumentDataUnits" and "returnDataUnit".
+	public abstract void invoke(DataContainer<?> returnDataUnit, DataContainer<?>[] argumentDataUnits) throws VnanoException;
 
 }

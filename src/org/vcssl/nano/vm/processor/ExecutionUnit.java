@@ -927,7 +927,6 @@ public class ExecutionUnit {
 	}
 
 
-
 	/**
 	 * Execute the REORD instruction.
 	 *
@@ -937,22 +936,23 @@ public class ExecutionUnit {
 	 * @throws VnanoException
 	 *     Thrown when an unexpected data-type is specified, or it does not match with the actual data-type.
 	 */
-	/*
+	// This method will be used if the VM will support REORD instruction in future.
+	@SuppressWarnings("unused")
 	public void reord(DataType type, DataContainer<?> dest, DataContainer<?> src)
 			throws VnanoException {
 
 		this.checkDataType(dest, type);
 		this.checkDataType(src, type);
 
-		int[] srcArrayLength = src.getLengths();
-		int[] destArrayLength = dest.getLengths();
-		int srcRank = src.getRank();
-		int destRank = dest.getRank();
+		int[] srcArrayLength = src.getArrayLengths();
+		int[] destArrayLength = dest.getArrayLengths();
+		int srcRank = src.getArrayRank();
+		int destRank = dest.getArrayRank();
 		if (srcRank != destRank) {
 			// Error
 		}
 
-		int srcDataLength = src.getSize();
+		int srcDataLength = src.getArraySize();
 
 
 		// The increase amount of 1D index, when each index of each dimension is incremented.
@@ -994,10 +994,9 @@ public class ExecutionUnit {
 			}
 
 			// Copy the data.
-			System.arraycopy(src.getData(), fromDataIndex, dest.getData(), toDataIndex, 1);
+			System.arraycopy(src.getArrayData(), fromDataIndex, dest.getArrayData(), toDataIndex, 1);
 		}
 	}
-	*/
 
 
 	/**

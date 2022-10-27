@@ -138,7 +138,7 @@ public class ParserTest {
 		assertEquals(AstNode.Type.VARIABLE, varNode.getType());
 		assertEquals(DataTypeName.DEFAULT_INT, varNode.getAttribute(AttributeKey.DATA_TYPE));
 		assertEquals("x", varNode.getAttribute(AttributeKey.IDENTIFIER_VALUE));
-		assertEquals("0", varNode.getAttribute(AttributeKey.RANK));
+		assertEquals("0", varNode.getAttribute(AttributeKey.ARRAY_RANK));
 	}
 
 	//@Test
@@ -167,7 +167,7 @@ public class ParserTest {
 		assertEquals(AstNode.Type.VARIABLE, varNode.getType());
 		assertEquals(DataTypeName.DEFAULT_INT, varNode.getAttribute(AttributeKey.DATA_TYPE));
 		assertEquals("x", varNode.getAttribute(AttributeKey.IDENTIFIER_VALUE));
-		assertEquals("1", varNode.getAttribute(AttributeKey.RANK));
+		assertEquals("1", varNode.getAttribute(AttributeKey.ARRAY_RANK));
 
 		AstNode lengthNode = varNode.getChildNodes()[0];
 		assertEquals(AstNode.Type.LENGTHS, lengthNode.getType());
@@ -209,7 +209,7 @@ public class ParserTest {
 		assertEquals(AstNode.Type.VARIABLE, varNode.getType());
 		assertEquals(DataTypeName.DEFAULT_INT, varNode.getAttribute(AttributeKey.DATA_TYPE));
 		assertEquals("x", varNode.getAttribute(AttributeKey.IDENTIFIER_VALUE));
-		assertEquals("1", varNode.getAttribute(AttributeKey.RANK));
+		assertEquals("1", varNode.getAttribute(AttributeKey.ARRAY_RANK));
 
 		AstNode lengthNode = varNode.getChildNodes()[0];
 		assertEquals(AstNode.Type.LENGTHS, lengthNode.getType());
@@ -259,7 +259,7 @@ public class ParserTest {
 		assertEquals(AstNode.Type.VARIABLE, varNode.getType());
 		assertEquals(DataTypeName.DEFAULT_INT, varNode.getAttribute(AttributeKey.DATA_TYPE));
 		assertEquals("x", varNode.getAttribute(AttributeKey.IDENTIFIER_VALUE));
-		assertEquals("3", varNode.getAttribute(AttributeKey.RANK));
+		assertEquals("3", varNode.getAttribute(AttributeKey.ARRAY_RANK));
 
 		AstNode lengthNode = varNode.getChildNodes()[0];
 		assertEquals(AstNode.Type.LENGTHS, lengthNode.getType());
@@ -310,7 +310,7 @@ public class ParserTest {
 		assertEquals(AstNode.Type.VARIABLE, varNode.getType());
 		assertEquals(DataTypeName.DEFAULT_INT, varNode.getAttribute(AttributeKey.DATA_TYPE));
 		assertEquals("x", varNode.getAttribute(AttributeKey.IDENTIFIER_VALUE));
-		assertEquals("0", varNode.getAttribute(AttributeKey.RANK));
+		assertEquals("0", varNode.getAttribute(AttributeKey.ARRAY_RANK));
 
 		AstNode initExprNode = varNode.getChildNodes()[0];
 		assertEquals(AstNode.Type.EXPRESSION, initExprNode.getType());
@@ -682,7 +682,7 @@ public class ParserTest {
 		assertEquals(AstNode.Type.VARIABLE, varNode.getType());
 		assertEquals(DataTypeName.DEFAULT_INT, varNode.getAttribute(AttributeKey.DATA_TYPE));
 		assertEquals("i", varNode.getAttribute(AttributeKey.IDENTIFIER_VALUE));
-		assertEquals("0", varNode.getAttribute(AttributeKey.RANK));
+		assertEquals("0", varNode.getAttribute(AttributeKey.ARRAY_RANK));
 		assertEquals(1, varNode.getChildNodes().length);
 
 		AstNode initExprNode = varNode.getChildNodes()[0];

@@ -256,7 +256,7 @@ public class SemanticAnalyzer {
 			if (currentNode.getType() == AstNode.Type.VARIABLE) {
 				String variableName = currentNode.getAttribute(AttributeKey.IDENTIFIER_VALUE);
 				String dataTypeName = currentNode.getDataTypeName();
-				int rank = currentNode.getRank();
+				int rank = currentNode.getArrayRank();
 				boolean isFunctionParam = currentNode.getParentNode().getType() == AstNode.Type.FUNCTION;
 				boolean isConstant = currentNode.hasModifier(ScriptWord.CONST_MODIFIER);
 
@@ -314,7 +314,7 @@ public class SemanticAnalyzer {
 				}
 
 				// Set information of the variable, to the node referencing the variable.
-				currentNode.setAttribute(AttributeKey.RANK, Integer.toString(variable.getRank()));
+				currentNode.setAttribute(AttributeKey.ARRAY_RANK, Integer.toString(variable.getArrayRank()));
 				currentNode.setAttribute(AttributeKey.DATA_TYPE, variable.getDataTypeName());
 				if (variable.isConstant()) {
 					currentNode.addModifier(ScriptWord.CONST_MODIFIER);
@@ -365,7 +365,7 @@ public class SemanticAnalyzer {
 				// Get the name of the function, and the data-type of the return value.
 				String functionName = currentNode.getAttribute(AttributeKey.IDENTIFIER_VALUE);
 				String returnTypeName = currentNode.getAttribute(AttributeKey.DATA_TYPE);
-				int returnRank = currentNode.getRank();
+				int returnRank = currentNode.getArrayRank();
 
 				// Get parameter variable declaration nodes, and check them.
 				AstNode[] paramNodes = currentNode.getChildNodes();
@@ -381,7 +381,7 @@ public class SemanticAnalyzer {
 				for (int paramIndex=0; paramIndex<paramLength; paramIndex++) {
 					paramNames[paramIndex] = paramNodes[paramIndex].getAttribute(AttributeKey.IDENTIFIER_VALUE);
 					paramTypeNames[paramIndex] = paramNodes[paramIndex].getAttribute(AttributeKey.DATA_TYPE);
-					paramRanks[paramIndex] = paramNodes[paramIndex].getRank();
+					paramRanks[paramIndex] = paramNodes[paramIndex].getArrayRank();
 					paramRefs[paramIndex] = paramNodes[paramIndex].hasModifier(ScriptWord.REF_MODIFIER);
 					paramConsts[paramIndex] = paramNodes[paramIndex].hasModifier(ScriptWord.CONST_MODIFIER);
 				}
@@ -469,7 +469,7 @@ public class SemanticAnalyzer {
 			if (currentNode.getType() == AstNode.Type.LEAF
 					&& currentNode.getAttribute(AttributeKey.LEAF_TYPE).equals(AttributeValue.LITERAL)) {
 
-				currentNode.setAttribute(AttributeKey.RANK, "0");   // In the current specification of Vnano, array literals are not supported.
+				currentNode.setAttribute(AttributeKey.ARRAY_RANK, "0");   // In the current specification of Vnano, array literals are not supported.
 				currentNode.addModifier(ScriptWord.CONST_MODIFIER); // Values of literals must not be modified in programs, so set them as constants.
 
 				// Here data-types of literals have already been determined,
@@ -514,7 +514,11 @@ public class SemanticAnalyzer {
 						AstNode[] inputNodes = currentNode.getChildNodes();
 						dataType = inputNodes[0].getDataTypeName();
 						operationDataType = dataType;
-						rank = inputNodes[0].getRank();
+						rank = analyzeAssignmentOperationRank(
+								inputNodes[0].getArrayRank(), inputNodes[1].getArrayRank(),
+								currentNode.getAttribute(AttributeKey.OPERATOR_SYMBOL),
+								currentNode.getFileName(), currentNode.getLineNumber()
+						);
 						break;
 					}
 
@@ -532,7 +536,7 @@ public class SemanticAnalyzer {
 								);
 								operationDataType = dataType;
 								rank = analyzeArithmeticComparisonLogicalBinaryOperationRank(
-										inputNodes[0].getRank(), inputNodes[1].getRank(),
+										inputNodes[0].getArrayRank(), inputNodes[1].getArrayRank(),
 										currentNode.getAttribute(AttributeKey.OPERATOR_SYMBOL),
 										currentNode.getFileName(), currentNode.getLineNumber()
 								);
@@ -543,7 +547,7 @@ public class SemanticAnalyzer {
 								AstNode[] inputNodes = currentNode.getChildNodes();
 								dataType = inputNodes[0].getDataTypeName();
 								operationDataType = dataType;
-								rank = inputNodes[0].getRank();
+								rank = inputNodes[0].getArrayRank();
 								break;
 							}
 							case AttributeValue.POSTFIX : {
@@ -565,7 +569,7 @@ public class SemanticAnalyzer {
 								currentNode.getFileName(), currentNode.getLineNumber()
 						);
 						rank = analyzeArithmeticComparisonLogicalBinaryOperationRank(
-								inputNodes[0].getRank(), inputNodes[1].getRank(),
+								inputNodes[0].getArrayRank(), inputNodes[1].getArrayRank(),
 								currentNode.getAttribute(AttributeKey.OPERATOR_SYMBOL),
 								currentNode.getFileName(), currentNode.getLineNumber()
 						);
@@ -586,7 +590,7 @@ public class SemanticAnalyzer {
 										currentNode.getFileName(), currentNode.getLineNumber()
 								);
 								rank = analyzeArithmeticComparisonLogicalBinaryOperationRank(
-										inputNodes[0].getRank(), inputNodes[1].getRank(),
+										inputNodes[0].getArrayRank(), inputNodes[1].getArrayRank(),
 										currentNode.getAttribute(AttributeKey.OPERATOR_SYMBOL),
 										currentNode.getFileName(), currentNode.getLineNumber()
 								);
@@ -596,7 +600,7 @@ public class SemanticAnalyzer {
 								AstNode[] inputNodes = currentNode.getChildNodes();
 								dataType = DataTypeName.BOOL;
 								operationDataType = DataTypeName.BOOL;
-								rank = inputNodes[0].getRank();
+								rank = inputNodes[0].getArrayRank();
 								break;
 							}
 						}
@@ -617,7 +621,7 @@ public class SemanticAnalyzer {
 										currentNode.getFileName(), currentNode.getLineNumber()
 								);
 								rank = analyzeCompoundAssignmentOperationRank(
-										inputNodes[0].getRank(), inputNodes[1].getRank(),
+										inputNodes[0].getArrayRank(), inputNodes[1].getArrayRank(),
 										currentNode.getAttribute(AttributeKey.OPERATOR_SYMBOL),
 										currentNode.getFileName(), currentNode.getLineNumber()
 								);
@@ -628,7 +632,7 @@ public class SemanticAnalyzer {
 								AstNode[] inputNodes = currentNode.getChildNodes();
 								dataType = inputNodes[0].getDataTypeName();
 								operationDataType = dataType;
-								rank = inputNodes[0].getRank();
+								rank = inputNodes[0].getArrayRank();
 								break;
 							}
 							// Postfix increments/decrements:
@@ -636,7 +640,7 @@ public class SemanticAnalyzer {
 								AstNode[] inputNodes = currentNode.getChildNodes();
 								dataType = inputNodes[0].getDataTypeName();
 								operationDataType = dataType;
-								rank = inputNodes[0].getRank();
+								rank = inputNodes[0].getArrayRank();
 								break;
 							}
 						}
@@ -697,7 +701,16 @@ public class SemanticAnalyzer {
 					case AttributeValue.CAST : {
 						dataType = currentNode.getDataTypeName();
 						operationDataType = dataType;
-						rank = currentNode.getRank();
+						rank = currentNode.getArrayRank();
+						if (rank != currentNode.getChildNodes()[0].getArrayRank()) {
+							if (rank == 0) {
+								throw new VnanoException(ErrorType.CASTING_SCALAR_TO_ARRAY, currentNode.getFileName(), currentNode.getLineNumber());
+							} else if (currentNode.getChildNodes()[0].getArrayRank() == 0) {
+								throw new VnanoException(ErrorType.CASTING_ARRAY_TO_SCALAR, currentNode.getFileName(), currentNode.getLineNumber());
+							} else {
+								throw new VnanoException(ErrorType.CASTING_ARRAY_TO_DIFFERENT_RANK_ARRAY, currentNode.getFileName(), currentNode.getLineNumber());
+							}
+						}
 						break;
 					}
 				}
@@ -710,7 +723,7 @@ public class SemanticAnalyzer {
 					currentNode.setAttribute(AttributeKey.OPERATOR_EXECUTION_DATA_TYPE, operationDataType);
 				}
 				if (rank != -1) {
-					currentNode.setAttribute(AttributeKey.RANK, Integer.toString(rank));
+					currentNode.setAttribute(AttributeKey.ARRAY_RANK, Integer.toString(rank));
 				}
 			}
 
@@ -733,7 +746,7 @@ public class SemanticAnalyzer {
 		int argumentN = childNodes.length - 1;  // childNodes[0] is the node of the function identifier.
 		int[] arrayRanks = new int[argumentN];
 		for (int argumentIndex=0; argumentIndex<argumentN; argumentIndex++) {
-			arrayRanks[argumentIndex] = childNodes[argumentIndex+1].getRank();
+			arrayRanks[argumentIndex] = childNodes[argumentIndex+1].getArrayRank();
 		}
 		return arrayRanks;
 	}
@@ -829,7 +842,7 @@ public class SemanticAnalyzer {
 
 				// Copy some attributes from the call operator node to the identifier node.
 				currentNode.setAttribute(AttributeKey.DATA_TYPE, callOperatorNode.getAttribute(AttributeKey.DATA_TYPE));
-				currentNode.setAttribute(AttributeKey.RANK, callOperatorNode.getAttribute(AttributeKey.RANK));
+				currentNode.setAttribute(AttributeKey.ARRAY_RANK, callOperatorNode.getAttribute(AttributeKey.ARRAY_RANK));
 			}
 
 			currentNode = currentNode.getPostorderDftNextNode();
@@ -853,7 +866,7 @@ public class SemanticAnalyzer {
 			if(currentNode.getType() == AstNode.Type.EXPRESSION) {
 				AstNode[] inputNodes = currentNode.getChildNodes();
 				currentNode.setAttribute(AttributeKey.DATA_TYPE, inputNodes[0].getDataTypeName());
-				currentNode.setAttribute(AttributeKey.RANK, Integer.toString(inputNodes[0].getRank()));
+				currentNode.setAttribute(AttributeKey.ARRAY_RANK, Integer.toString(inputNodes[0].getArrayRank()));
 			}
 			currentNode = currentNode.getPostorderDftNextNode();
 		}
@@ -1057,18 +1070,49 @@ public class SemanticAnalyzer {
 
 
 	/**
-	 * Determines the data-type of arithmetic/comparison/logical binary operations,
+	 * Determines the array-rank of assignment operations, from arra-ranks of operands.
+	 * 
+	 * Generally, array-ranks of both operands must be the same, and then this method returns that rank.
+	 * However, in Vnano, assignment operations between a scalar and a vector are valid.
+	 * Including such cases, The array rank of an assignment operator is always same as it of the left operand.
+	 *
+	 * @param leftOperandRank The array-rank of the left operand.
+	 * @param rightOperandRank The array-rank of the right operand.
+	 * @param operatorSymbol The symbol of the operator.
+	 * @param fileName The name of the file in which the operator is written (will be displayed in the error message).
+	 * @param lineNumber The line number at which the operator is written (will be displayed in the error message).
+	 * @return The array-rank of the operation.
+	 * @throws VnanoException
+	 *   Thrown when array-ranks of operands are not the same, excluding when one is a scalar and the other is a non-scalar.
+	 */
+	int analyzeAssignmentOperationRank(
+			int leftOperandRank, int rightOperandRank, String operatorSymbol,
+			String fileName, int lineNumber) throws VnanoException {
+
+		if (leftOperandRank != 0 && rightOperandRank != 0 && leftOperandRank != rightOperandRank) {
+			throw new VnanoException(
+				ErrorType.INVALID_RANKS_FOR_VECTOR_OPERATION,
+				new String[] {operatorSymbol}, fileName, lineNumber
+			);
+		}
+
+		return leftOperandRank;
+	}
+
+
+	/**
+	 * Determines the array-rank of arithmetic/comparison/logical binary operations,
 	 * from arra-ranks of operands.
 	 *
 	 * Generally, array-ranks of both operands must be the same, and then this method returns that rank.
 	 *
-	 * However, in Vnano, operation between a scalar (rank is 0) and a non-scalar is supported.
-	 * In such case, the scalar value will be converted to the array of which rank is the same as the non-scalar operand.
-	 * So in such case, this method returns the rank of the non-scalar operand.
+	 * However, in Vnano, it can perform operations between a scalar (rank is 0) and a non-scalar.
+	 * In such cases, the scalar value will be converted to the array of which rank is the same as the non-scalar operand.
+	 * Hence, in such case, this method returns the rank of the non-scalar operand.
 	 *
 	 * @param leftOperandRank The array-rank of the left operand.
 	 * @param rightOperandRank The array-rank of the right operand.
-	 * @param operatorSymbol The symbol of the operator.s
+	 * @param operatorSymbol The symbol of the operator.
 	 * @param fileName The name of the file in which the operator is written (will be displayed in the error message).
 	 * @param lineNumber The line number at which the operator is written (will be displayed in the error message).
 	 * @return The array-rank of the operation.
@@ -1337,7 +1381,7 @@ public class SemanticAnalyzer {
 				}
 
 				// If the operand node is not a scalar: Error
-				if (accessingNode.getRank() == 0) {
+				if (accessingNode.getArrayRank() == 0) {
 					String[] errorWords = { accessingNode.getAttribute(AttributeKey.IDENTIFIER_VALUE) };
 					throw new VnanoException(
 						ErrorType.SUBSCRIPTING_TO_UNSUBSCRIPTABLE_SOMETHING, errorWords, fileName, lineNumber
@@ -1346,10 +1390,10 @@ public class SemanticAnalyzer {
 
 				// If the operand node is an array but its rank does not match with the number of indices: Error
 				int numIndices = currentNode.getChildNodes().length-1;
-				if (accessingNode.getRank() != numIndices) {
+				if (accessingNode.getArrayRank() != numIndices) {
 					String[] errorWords = {
 						accessingNode.getAttribute(AttributeKey.IDENTIFIER_VALUE),
-						Integer.toString(accessingNode.getRank()),
+						Integer.toString(accessingNode.getArrayRank()),
 						Integer.toString(numIndices),
 					};
 					throw new VnanoException(ErrorType.INVALID_SUBSCRIPT_RANK, errorWords, fileName, lineNumber);
@@ -1485,7 +1529,7 @@ public class SemanticAnalyzer {
 			// and store block statement node existing just after of the function declaration.
 			if (currentNode.getType() == AstNode.Type.FUNCTION) {
 				currentFunctionReturType = currentNode.getDataTypeName();
-				currentFunctionReturnRank = currentNode.getRank();
+				currentFunctionReturnRank = currentNode.getArrayRank();
 				AstNode[] siblingNodes = currentNode.getParentNode().getChildNodes();   // Sibling nodes (containing the current node)
 				currentFunctionBlock = siblingNodes[ currentNode.getSiblingIndex()+1 ]; // The next sibling node of the current node
 				inFunction = true;
@@ -1505,11 +1549,11 @@ public class SemanticAnalyzer {
 
 					// If the data-type or array-rank does not match with the declaration of the function, throw an exception.
 					if (!returnedValueNode.getDataTypeName().equals(currentFunctionReturType)
-						|| returnedValueNode.getRank() != currentFunctionReturnRank) {
+						|| returnedValueNode.getArrayRank() != currentFunctionReturnRank) {
 
 						// Embed information into the error message, and throw it as an exception.
 						String returnedTypeDescription = returnedValueNode.getDataTypeName();
-						for (int dim=0; dim<returnedValueNode.getRank(); dim++) {
+						for (int dim=0; dim<returnedValueNode.getArrayRank(); dim++) {
 							returnedTypeDescription += ScriptWord.SUBSCRIPT_BEGIN + ScriptWord.SUBSCRIPT_END;
 						}
 						String expectedTypeDescription = currentFunctionReturType;
