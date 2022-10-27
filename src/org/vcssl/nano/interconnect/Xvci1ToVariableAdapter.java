@@ -151,7 +151,7 @@ public class Xvci1ToVariableAdapter extends AbstractVariable {
 	 * @return The array-rank of this variable.
 	 */
 	@Override
-	public int getRank() {
+	public int getArrayRank() {
 		return this.dataConverter.getRank();
 	}
 	// TO DO: rename to: getArrayRank()

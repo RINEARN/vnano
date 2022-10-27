@@ -314,7 +314,7 @@ public class SemanticAnalyzer {
 				}
 
 				// Set information of the variable, to the node referencing the variable.
-				currentNode.setAttribute(AttributeKey.RANK, Integer.toString(variable.getRank()));
+				currentNode.setAttribute(AttributeKey.RANK, Integer.toString(variable.getArrayRank()));
 				currentNode.setAttribute(AttributeKey.DATA_TYPE, variable.getDataTypeName());
 				if (variable.isConstant()) {
 					currentNode.addModifier(ScriptWord.CONST_MODIFIER);
