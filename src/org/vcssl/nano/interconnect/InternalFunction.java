@@ -370,11 +370,11 @@ public final class InternalFunction extends AbstractFunction {
 	 * Processes of internal functions will be compiled to intermidiate code, 
 	 * and invoked by CALL instruction on VirtualMachine.
 	 *
-	 * @param argumentDataUnits The array storing data units of all actual arguments.
 	 * @param returnDataUnit The data unit to which the return value will be stored.
+	 * @param argumentDataUnits The array storing data units of all actual arguments.
 	 */
 	@Override
-	public final void invoke(DataContainer<?>[] argumentDataUnits, DataContainer<?> returnDataUnit) {
+	public final void invoke(DataContainer<?> returnDataUnit, DataContainer<?>[] argumentDataUnits) {
 		throw new VnanoFatalException("The invocation of the internal function from the outside has not implemented yet.");
 	}
 }

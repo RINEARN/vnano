@@ -471,11 +471,11 @@ public final class Xfci1ToFunctionAdapter extends AbstractFunction {
 	/**
 	 * Invoke this function.
 	 *
-	 * @param argumentDataUnits The array storing data units of all actual arguments.
 	 * @param returnDataUnit The data unit to which the return value will be stored.
+	 * @param argumentDataUnits The array storing data units of all actual arguments.
 	 */
 	@Override
-	public final void invoke(DataContainer<?>[] argumentDataContainers, DataContainer<?> returnDataContainer)
+	public final void invoke(DataContainer<?> returnDataContainer, DataContainer<?>[] argumentDataContainers)
 			throws VnanoException {
 
 		int argLength = argumentDataContainers.length;
