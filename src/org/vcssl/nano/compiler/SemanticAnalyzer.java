@@ -256,7 +256,7 @@ public class SemanticAnalyzer {
 			if (currentNode.getType() == AstNode.Type.VARIABLE) {
 				String variableName = currentNode.getAttribute(AttributeKey.IDENTIFIER_VALUE);
 				String dataTypeName = currentNode.getDataTypeName();
-				int rank = currentNode.getRank();
+				int rank = currentNode.getArrayRank();
 				boolean isFunctionParam = currentNode.getParentNode().getType() == AstNode.Type.FUNCTION;
 				boolean isConstant = currentNode.hasModifier(ScriptWord.CONST_MODIFIER);
 
@@ -365,7 +365,7 @@ public class SemanticAnalyzer {
 				// Get the name of the function, and the data-type of the return value.
 				String functionName = currentNode.getAttribute(AttributeKey.IDENTIFIER_VALUE);
 				String returnTypeName = currentNode.getAttribute(AttributeKey.DATA_TYPE);
-				int returnRank = currentNode.getRank();
+				int returnRank = currentNode.getArrayRank();
 
 				// Get parameter variable declaration nodes, and check them.
 				AstNode[] paramNodes = currentNode.getChildNodes();
@@ -381,7 +381,7 @@ public class SemanticAnalyzer {
 				for (int paramIndex=0; paramIndex<paramLength; paramIndex++) {
 					paramNames[paramIndex] = paramNodes[paramIndex].getAttribute(AttributeKey.IDENTIFIER_VALUE);
 					paramTypeNames[paramIndex] = paramNodes[paramIndex].getAttribute(AttributeKey.DATA_TYPE);
-					paramRanks[paramIndex] = paramNodes[paramIndex].getRank();
+					paramRanks[paramIndex] = paramNodes[paramIndex].getArrayRank();
 					paramRefs[paramIndex] = paramNodes[paramIndex].hasModifier(ScriptWord.REF_MODIFIER);
 					paramConsts[paramIndex] = paramNodes[paramIndex].hasModifier(ScriptWord.CONST_MODIFIER);
 				}
@@ -514,7 +514,7 @@ public class SemanticAnalyzer {
 						AstNode[] inputNodes = currentNode.getChildNodes();
 						dataType = inputNodes[0].getDataTypeName();
 						operationDataType = dataType;
-						rank = inputNodes[0].getRank();
+						rank = inputNodes[0].getArrayRank();
 						break;
 					}
 
@@ -532,7 +532,7 @@ public class SemanticAnalyzer {
 								);
 								operationDataType = dataType;
 								rank = analyzeArithmeticComparisonLogicalBinaryOperationRank(
-										inputNodes[0].getRank(), inputNodes[1].getRank(),
+										inputNodes[0].getArrayRank(), inputNodes[1].getArrayRank(),
 										currentNode.getAttribute(AttributeKey.OPERATOR_SYMBOL),
 										currentNode.getFileName(), currentNode.getLineNumber()
 								);
@@ -543,7 +543,7 @@ public class SemanticAnalyzer {
 								AstNode[] inputNodes = currentNode.getChildNodes();
 								dataType = inputNodes[0].getDataTypeName();
 								operationDataType = dataType;
-								rank = inputNodes[0].getRank();
+								rank = inputNodes[0].getArrayRank();
 								break;
 							}
 							case AttributeValue.POSTFIX : {
@@ -565,7 +565,7 @@ public class SemanticAnalyzer {
 								currentNode.getFileName(), currentNode.getLineNumber()
 						);
 						rank = analyzeArithmeticComparisonLogicalBinaryOperationRank(
-								inputNodes[0].getRank(), inputNodes[1].getRank(),
+								inputNodes[0].getArrayRank(), inputNodes[1].getArrayRank(),
 								currentNode.getAttribute(AttributeKey.OPERATOR_SYMBOL),
 								currentNode.getFileName(), currentNode.getLineNumber()
 						);
@@ -586,7 +586,7 @@ public class SemanticAnalyzer {
 										currentNode.getFileName(), currentNode.getLineNumber()
 								);
 								rank = analyzeArithmeticComparisonLogicalBinaryOperationRank(
-										inputNodes[0].getRank(), inputNodes[1].getRank(),
+										inputNodes[0].getArrayRank(), inputNodes[1].getArrayRank(),
 										currentNode.getAttribute(AttributeKey.OPERATOR_SYMBOL),
 										currentNode.getFileName(), currentNode.getLineNumber()
 								);
@@ -596,7 +596,7 @@ public class SemanticAnalyzer {
 								AstNode[] inputNodes = currentNode.getChildNodes();
 								dataType = DataTypeName.BOOL;
 								operationDataType = DataTypeName.BOOL;
-								rank = inputNodes[0].getRank();
+								rank = inputNodes[0].getArrayRank();
 								break;
 							}
 						}
@@ -617,7 +617,7 @@ public class SemanticAnalyzer {
 										currentNode.getFileName(), currentNode.getLineNumber()
 								);
 								rank = analyzeCompoundAssignmentOperationRank(
-										inputNodes[0].getRank(), inputNodes[1].getRank(),
+										inputNodes[0].getArrayRank(), inputNodes[1].getArrayRank(),
 										currentNode.getAttribute(AttributeKey.OPERATOR_SYMBOL),
 										currentNode.getFileName(), currentNode.getLineNumber()
 								);
@@ -628,7 +628,7 @@ public class SemanticAnalyzer {
 								AstNode[] inputNodes = currentNode.getChildNodes();
 								dataType = inputNodes[0].getDataTypeName();
 								operationDataType = dataType;
-								rank = inputNodes[0].getRank();
+								rank = inputNodes[0].getArrayRank();
 								break;
 							}
 							// Postfix increments/decrements:
@@ -636,7 +636,7 @@ public class SemanticAnalyzer {
 								AstNode[] inputNodes = currentNode.getChildNodes();
 								dataType = inputNodes[0].getDataTypeName();
 								operationDataType = dataType;
-								rank = inputNodes[0].getRank();
+								rank = inputNodes[0].getArrayRank();
 								break;
 							}
 						}
@@ -697,7 +697,7 @@ public class SemanticAnalyzer {
 					case AttributeValue.CAST : {
 						dataType = currentNode.getDataTypeName();
 						operationDataType = dataType;
-						rank = currentNode.getRank();
+						rank = currentNode.getArrayRank();
 						break;
 					}
 				}
@@ -733,7 +733,7 @@ public class SemanticAnalyzer {
 		int argumentN = childNodes.length - 1;  // childNodes[0] is the node of the function identifier.
 		int[] arrayRanks = new int[argumentN];
 		for (int argumentIndex=0; argumentIndex<argumentN; argumentIndex++) {
-			arrayRanks[argumentIndex] = childNodes[argumentIndex+1].getRank();
+			arrayRanks[argumentIndex] = childNodes[argumentIndex+1].getArrayRank();
 		}
 		return arrayRanks;
 	}
@@ -853,7 +853,7 @@ public class SemanticAnalyzer {
 			if(currentNode.getType() == AstNode.Type.EXPRESSION) {
 				AstNode[] inputNodes = currentNode.getChildNodes();
 				currentNode.setAttribute(AttributeKey.DATA_TYPE, inputNodes[0].getDataTypeName());
-				currentNode.setAttribute(AttributeKey.ARRAY_RANK, Integer.toString(inputNodes[0].getRank()));
+				currentNode.setAttribute(AttributeKey.ARRAY_RANK, Integer.toString(inputNodes[0].getArrayRank()));
 			}
 			currentNode = currentNode.getPostorderDftNextNode();
 		}
@@ -1337,7 +1337,7 @@ public class SemanticAnalyzer {
 				}
 
 				// If the operand node is not a scalar: Error
-				if (accessingNode.getRank() == 0) {
+				if (accessingNode.getArrayRank() == 0) {
 					String[] errorWords = { accessingNode.getAttribute(AttributeKey.IDENTIFIER_VALUE) };
 					throw new VnanoException(
 						ErrorType.SUBSCRIPTING_TO_UNSUBSCRIPTABLE_SOMETHING, errorWords, fileName, lineNumber
@@ -1346,10 +1346,10 @@ public class SemanticAnalyzer {
 
 				// If the operand node is an array but its rank does not match with the number of indices: Error
 				int numIndices = currentNode.getChildNodes().length-1;
-				if (accessingNode.getRank() != numIndices) {
+				if (accessingNode.getArrayRank() != numIndices) {
 					String[] errorWords = {
 						accessingNode.getAttribute(AttributeKey.IDENTIFIER_VALUE),
-						Integer.toString(accessingNode.getRank()),
+						Integer.toString(accessingNode.getArrayRank()),
 						Integer.toString(numIndices),
 					};
 					throw new VnanoException(ErrorType.INVALID_SUBSCRIPT_RANK, errorWords, fileName, lineNumber);
@@ -1485,7 +1485,7 @@ public class SemanticAnalyzer {
 			// and store block statement node existing just after of the function declaration.
 			if (currentNode.getType() == AstNode.Type.FUNCTION) {
 				currentFunctionReturType = currentNode.getDataTypeName();
-				currentFunctionReturnRank = currentNode.getRank();
+				currentFunctionReturnRank = currentNode.getArrayRank();
 				AstNode[] siblingNodes = currentNode.getParentNode().getChildNodes();   // Sibling nodes (containing the current node)
 				currentFunctionBlock = siblingNodes[ currentNode.getSiblingIndex()+1 ]; // The next sibling node of the current node
 				inFunction = true;
@@ -1505,11 +1505,11 @@ public class SemanticAnalyzer {
 
 					// If the data-type or array-rank does not match with the declaration of the function, throw an exception.
 					if (!returnedValueNode.getDataTypeName().equals(currentFunctionReturType)
-						|| returnedValueNode.getRank() != currentFunctionReturnRank) {
+						|| returnedValueNode.getArrayRank() != currentFunctionReturnRank) {
 
 						// Embed information into the error message, and throw it as an exception.
 						String returnedTypeDescription = returnedValueNode.getDataTypeName();
-						for (int dim=0; dim<returnedValueNode.getRank(); dim++) {
+						for (int dim=0; dim<returnedValueNode.getArrayRank(); dim++) {
 							returnedTypeDescription += ScriptWord.SUBSCRIPT_BEGIN + ScriptWord.SUBSCRIPT_END;
 						}
 						String expectedTypeDescription = currentFunctionReturType;

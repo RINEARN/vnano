@@ -145,7 +145,7 @@ public final class IdentifierSyntax {
 				// Do nothing for data-type names which are undefined in DataType enum.
 			}
 			parameterDataTypeNames[parameterNodeIndex] = dataTypeName;
-			parameterArrayRanks[parameterNodeIndex] = parameterNodes[parameterNodeIndex].getRank();
+			parameterArrayRanks[parameterNodeIndex] = parameterNodes[parameterNodeIndex].getArrayRank();
 		}
 
 		String signature = getSignatureOf(
@@ -196,7 +196,7 @@ public final class IdentifierSyntax {
 				// Do nothing for data-type names which are undefined in DataType enum.
 			}
 			argumentDataTypeNames[argumentNodeIndex] = dataTypeName;
-			argumentArrayRanks[argumentNodeIndex] = argumentNodes[argumentNodeIndex].getRank();
+			argumentArrayRanks[argumentNodeIndex] = argumentNodes[argumentNodeIndex].getArrayRank();
 		}
 
 		String signature = getSignatureOf(

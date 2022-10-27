@@ -181,7 +181,7 @@ public class AstNodeTest {
 		node.setAttribute(AttributeKey.ARRAY_RANK, "3");
 
 		// Get and check the above attribute.
-		assertEquals(3, node.getRank());
+		assertEquals(3, node.getArrayRank());
 	}
 
 	@Test

@@ -1073,7 +1073,7 @@ public class CodeGenerator {
 
 			String argIdentifier = argNode.getAttribute(AttributeKey.ASSEMBLY_VALUE);
 			String argDataType = argNode.getAttribute(AttributeKey.DATA_TYPE);
-			int argRank = argNode.getRank();
+			int argRank = argNode.getArrayRank();
 
 			// Prepare operands of an ALLOCT instruction (see comments at lines generating them):
 			// The first operand is the identifier of the parameter variable.
@@ -1213,7 +1213,7 @@ public class CodeGenerator {
 
 		// The value of the condition expression must be a scalar
 		// (should had been checked by SemanticAnalyzer).
-		if (conditionExprNode.getRank() != RANK_OF_SCALAR) {
+		if (conditionExprNode.getArrayRank() != RANK_OF_SCALAR) {
 			return null;
 		}
 
@@ -1306,7 +1306,7 @@ public class CodeGenerator {
 
 		// The value of the condition expression must be a scalar
 		// (should had been checked by SemanticAnalyzer).
-		if (conditionExprNode.getRank() != RANK_OF_SCALAR) {
+		if (conditionExprNode.getArrayRank() != RANK_OF_SCALAR) {
 			return null;
 		}
 
@@ -1616,7 +1616,7 @@ public class CodeGenerator {
 				codeBuilder.append(
 					this.generateRegisterAllocationCode(
 						operatorNode.getDataTypeName(), operatorNode.getAttribute(AttributeKey.NEW_REGISTER),
-						operandValue, operatorNode.getRank()
+						operandValue, operatorNode.getArrayRank()
 					)
 				);
 			}
@@ -1678,7 +1678,7 @@ public class CodeGenerator {
 		if (operatorNode.hasAttribute(AttributeKey.NEW_REGISTER)) {
 			codeBuilder.append(
 				this.generateRegisterAllocationCode(
-					DataTypeName.BOOL, operatorNode.getAttribute(AttributeKey.NEW_REGISTER), operandValue, operatorNode.getRank()
+					DataTypeName.BOOL, operatorNode.getAttribute(AttributeKey.NEW_REGISTER), operandValue, operatorNode.getArrayRank()
 				)
 			);
 		}
@@ -1755,7 +1755,7 @@ public class CodeGenerator {
 			// Allocate memory for a register in which the casted value will be stored.
 			String castedRegister = this.generateRegisterOperandCode();
 			codeBuilder.append(
-				this.generateRegisterAllocationCode(toType, castedRegister, operandValues[1], operatorNode.getRank())
+				this.generateRegisterAllocationCode(toType, castedRegister, operandValues[1], operatorNode.getArrayRank())
 			);
 
 			// Cast the value of the right operand, and store it in the register.
@@ -1772,13 +1772,13 @@ public class CodeGenerator {
 		// Followings are code generations of the assignment operation.
 
 		// Scalar to scalar: simply copy the value by a MOV instruction.
-		if (operandNodes[0].getRank()==RANK_OF_SCALAR && operandNodes[1].getRank()==RANK_OF_SCALAR) {
+		if (operandNodes[0].getArrayRank()==RANK_OF_SCALAR && operandNodes[1].getArrayRank()==RANK_OF_SCALAR) {
 			codeBuilder.append(
 				this.generateInstruction(OperationCode.MOV.name(), toType, operandValues[0], rightHandValue)
 			);
 
 		// Array to array: allocate memory by an ALLOCR instruction, and copy values of all elements by a MOV instruction.
-		} else if (operandNodes[0].getRank()!=RANK_OF_SCALAR && operandNodes[1].getRank()!=RANK_OF_SCALAR) {
+		} else if (operandNodes[0].getArrayRank()!=RANK_OF_SCALAR && operandNodes[1].getArrayRank()!=RANK_OF_SCALAR) {
 			codeBuilder.append(
 				this.generateInstruction(OperationCode.ALLOCR.name(), toType, operandValues[0], rightHandValue)
 			);
@@ -1787,7 +1787,7 @@ public class CodeGenerator {
 			);
 
 		// Scalar to array: fill values of all elements of the array by the scalar value, by a FILL instruction.
-		} else if (operandNodes[0].getRank()!=RANK_OF_SCALAR && operandNodes[1].getRank()==RANK_OF_SCALAR) {
+		} else if (operandNodes[0].getArrayRank()!=RANK_OF_SCALAR && operandNodes[1].getArrayRank()==RANK_OF_SCALAR) {
 			codeBuilder.append(
 				this.generateInstruction(OperationCode.FILL.name(), toType, operandValues[0], rightHandValue)
 			);
@@ -1875,7 +1875,7 @@ public class CodeGenerator {
 		// Store the value of the variable before incremented/decremented, in a register.
 		String storageRegister = operatorNode.getAttribute(AttributeKey.ASSEMBLY_VALUE);
 		codeBuilder.append(
-			this.generateRegisterAllocationCode(executionDataType, storageRegister, variableValue, operatorNode.getRank())
+			this.generateRegisterAllocationCode(executionDataType, storageRegister, variableValue, operatorNode.getArrayRank())
 		);
 		codeBuilder.append(
 			this.generateInstruction(OperationCode.MOV.name(), executionDataType, storageRegister, variableValue)
@@ -1962,7 +1962,7 @@ public class CodeGenerator {
 		String executionDataType = operatorNode.getAttribute(AttributeKey.OPERATOR_EXECUTION_DATA_TYPE);
 		String resultDataType = operatorNode.getAttribute(AttributeKey.DATA_TYPE);
 
-		int rank = operatorNode.getRank();
+		int rank = operatorNode.getArrayRank();
 		int inputLength = inputNodes.length;
 
 		// Extract information of the input (operand) registers or variables of the operation from the AST.
@@ -1979,7 +1979,7 @@ public class CodeGenerator {
 		boolean vectorScalarMixed = false;
 		if (rank != RANK_OF_SCALAR) {
 			for (AstNode inputNode: inputNodes) {
-				if (inputNode.getRank() == RANK_OF_SCALAR) {
+				if (inputNode.getArrayRank() == RANK_OF_SCALAR) {
 					vectorScalarMixed = true;
 					break;
 				}
@@ -1999,7 +1999,7 @@ public class CodeGenerator {
 		// (It is the first array operand, or simply the first operand if there are no array operands.)
 		String lengthsDeterminer = input[0];
 		for (int inputIndex=0; inputIndex<inputLength; inputIndex++) {
-			if (inputNodes[inputIndex].getRank() != RANK_OF_SCALAR) {
+			if (inputNodes[inputIndex].getArrayRank() != RANK_OF_SCALAR) {
 				lengthsDeterminer = input[inputIndex];
 				break;
 			}
@@ -2015,7 +2015,7 @@ public class CodeGenerator {
 
 					// Allocate a new register, for storing the casted value in it.
 					String castTarget = input[inputIndex];
-					int castTargetRank = inputNodes[inputIndex].getRank();
+					int castTargetRank = inputNodes[inputIndex].getArrayRank();
 					String castedRegister = this.generateRegisterOperandCode();
 					codeBuilder.append(
 						this.generateRegisterAllocationCode(executionDataType, castedRegister, castTarget, castTargetRank)
@@ -2035,7 +2035,7 @@ public class CodeGenerator {
 		// If necessary, convert values of scalar operands to arrays.
 		if (vectorScalarMixed) {
 			for (int inputIndex=0; inputIndex<inputLength; inputIndex++) {
-				if (inputNodes[inputIndex].getRank() == RANK_OF_SCALAR) {
+				if (inputNodes[inputIndex].getArrayRank() == RANK_OF_SCALAR) {
 
 					// Allocate an scalar(vector) register.
 					String filledRegister = this.generateRegisterOperandCode();
@@ -2151,7 +2151,7 @@ public class CodeGenerator {
 
 			// Otherwise, generate code receiving the return value from the stack.
 			} else {
-				if(operatorNode.getRank() == RANK_OF_SCALAR) {
+				if(operatorNode.getArrayRank() == RANK_OF_SCALAR) {
 					codeBuilder.append(
 						this.generateInstruction(OperationCode.ALLOC.name(), operatorNode.getDataTypeName(), returnRegister)
 					);
@@ -2261,7 +2261,7 @@ public class CodeGenerator {
 		AstNode targetNode = operatorNode.getChildNodes()[0];
 		String fromDataType = targetNode.getAttribute(AttributeKey.DATA_TYPE);
 		String fromValue = targetNode.getAttribute(AttributeKey.ASSEMBLY_VALUE);
-		int fromRank = targetNode.getRank();
+		int fromRank = targetNode.getArrayRank();
 
 		// Prepare the data-type of the result of the cast operation.
 		String toDataType = operatorNode.getAttribute(AttributeKey.DATA_TYPE);

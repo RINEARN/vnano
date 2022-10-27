@@ -287,7 +287,7 @@ public class FunctionTable {
 		int[] argumentRanks = new int[argumentLength];
 		String[] argumentDataTypeNames = new String[argumentLength];
 		for (int argumentIndex=0; argumentIndex<argumentLength; argumentIndex++) {
-			argumentRanks[argumentIndex] = childNodes[argumentIndex+1].getRank();
+			argumentRanks[argumentIndex] = childNodes[argumentIndex+1].getArrayRank();
 			argumentDataTypeNames[argumentIndex] = childNodes[argumentIndex+1].getDataTypeName();
 		}
 
