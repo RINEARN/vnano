@@ -7,8 +7,10 @@ package org.vcssl.nano.compiler;
 
 
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Deque;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -659,10 +661,16 @@ public class SemanticAnalyzer {
 							currentNode.setAttribute(AttributeKey.SCOPE, AttributeValue.GLOBAL);
 							function = globalFunctionTable.getCalleeFunctionOf(currentNode);
 						} else {
+							List<String> errorWordList = new ArrayList<String>();
+							errorWordList.add(IdentifierSyntax.getSignatureOfCalleeFunctionOf(currentNode));
+							for (String presumedLocalSignature: localFunctionTable.presumeCalleeFunctionSignaturesOf(currentNode)) {
+								errorWordList.add(presumedLocalSignature);								
+							}
+							for (String presumedGlobalSignature: globalFunctionTable.presumeCalleeFunctionSignaturesOf(currentNode)) {
+								errorWordList.add(presumedGlobalSignature);								
+							}
 							throw new VnanoException(
-									ErrorType.FUNCTION_IS_NOT_FOUND,
-									IdentifierSyntax.getSignatureOfCalleeFunctionOf(currentNode),
-									currentNode.getFileName(), currentNode.getLineNumber()
+								ErrorType.FUNCTION_IS_NOT_FOUND, errorWordList.toArray(new String[0]), currentNode.getFileName(), currentNode.getLineNumber()
 							);
 						}
 

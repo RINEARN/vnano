@@ -61,6 +61,22 @@ public class ErrorMessage {
 		}
 	}
 
+	private static String concatinateWords(String[] words, String delimiter, boolean enclosesWithQuotations, int beginIndex, int endIndex) {
+		StringBuilder builder = new StringBuilder();
+		for (int i=beginIndex; i<=endIndex; i++) {
+			if (enclosesWithQuotations) {
+				builder.append('"');
+				builder.append(words[i]);
+				builder.append('"');
+			} else {
+				builder.append(words[i]);
+			}
+			if (i != endIndex) {
+				builder.append(delimiter);
+			}
+		}
+		return builder.toString();
+	}
 
 	/**
 	 * Generates the error message corresponding with the specified error type, in Japanese.
@@ -73,7 +89,7 @@ public class ErrorMessage {
 
 		switch (errorType) {
 			case VARIABLE_IS_NOT_FOUND : return "宣言されていない変数「 " + words[0] + " 」を使用しています。";
-			case FUNCTION_IS_NOT_FOUND : return "存在しない関数「 " + words[0] +  " 」を呼び出しています。";
+			case FUNCTION_IS_NOT_FOUND : return "呼び出している関数「 " + words[0] +  " 」は存在しないか、引数が異なります。" + (2 <= words.length ? "もしかして " + concatinateWords(words, " か ", false, 1, words.length-1) + " ではないですか？": "");
 			case STATEMENT_END_IS_NOT_FOUND : return "文の終端がありません（「 ; 」が必要です）。";
 			case INVALID_EXPRESSION_SYNTAX : return "式の内容を正しく解釈できませんでした。式のどこかに必要な要素が欠けているか、( ) や [ ] の対応がずれている可能性などが考えられます。";
 			case OPENING_PARENTHESES_IS_DEFICIENT : return "開き括弧「 ( 」が不足しています。";
@@ -205,7 +221,7 @@ public class ErrorMessage {
 
 		switch (errorType) {
 			case VARIABLE_IS_NOT_FOUND : return "Undeclared variable \"" + words[0] + "\" is used";
-			case FUNCTION_IS_NOT_FOUND : return "Unknown function \"" + words[0] + "\" is called";
+			case FUNCTION_IS_NOT_FOUND : return "The function \"" + words[0] +  "\" does not exist, or has different parameter(s)" + (2 <= words.length ? "; Is it miscall of " + concatinateWords(words, " or ", true, 1, words.length-1) + " ?": "");
 			case STATEMENT_END_IS_NOT_FOUND : return "End-point of the statement is not found (\";\" is required)";
 			case INVALID_EXPRESSION_SYNTAX : return "An expression could not be parsed correctly. Somethings are missing, or correspondence between \"(\" and \")\" or \"[\" and \"]\" might be incorrect";
 			case OPENING_PARENTHESES_IS_DEFICIENT : return "Opening parenthesis \"(\" is deficient";

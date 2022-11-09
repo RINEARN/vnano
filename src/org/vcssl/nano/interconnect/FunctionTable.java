@@ -394,4 +394,30 @@ public class FunctionTable {
 		return null;
 	}
 
+
+	/**
+	 * Presumes the signatures of the callee functions, called by the specified function-call operator,
+	 * which will be displayed in error messages, when no matched function has been found.
+	 *
+	 * @param callerNode The AST node of the function-call operator.
+	 * @return The signatures of the presumed callee functions.
+	 */
+	public String[] presumeCalleeFunctionSignaturesOf(AstNode callerNode) {
+		String calleeFunctionName = callerNode.getChildNodes()[0].getAttribute(AttributeKey.IDENTIFIER_VALUE);
+		List<String> presumedFunctionSignatureList = new ArrayList<String>();
+
+		LinkedList<AbstractFunction> sameNameFunctionList = this.nameFunctionMap.get(calleeFunctionName);
+		if (sameNameFunctionList == null) {
+			return new String[0];
+		}
+		for (AbstractFunction function: sameNameFunctionList) {
+			String namespacePrefix = function.hasNamespaceName() ? function.getNamespaceName() +  ScriptWord.NAMESPACE_SEPARATOR : "";
+			String signature = IdentifierSyntax.getSignatureOf(function);
+			//String fullSignature = IdentifierSyntax.getSignatureOf(function, namespacePrefix);
+			presumedFunctionSignatureList.add(signature);
+		}
+		String[] result = new String[sameNameFunctionList.size()];
+		result = presumedFunctionSignatureList.toArray(result);
+		return result;
+	}
 }
