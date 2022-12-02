@@ -674,8 +674,7 @@ public class SemanticAnalyzer {
 							);
 						}
 
-						// Check callability of the function syntactically.
-						// (e.g.: Data-types and array-ranks of actual args must match with parameter declarations of the function.)
+						// Check some compatibility between parameters and arguments of the specified function calling.
 						this.checkFunctionCallablility(function, currentNode);
 
 						currentNode.setAttribute(AttributeKey.CALLEE_SIGNATURE, IdentifierSyntax.getSignatureOf(function));
@@ -760,11 +759,20 @@ public class SemanticAnalyzer {
 	}
 
 	/**
-	 * Checks callability of specified function syntactically.
+	 * Checks some compatibility between parameters and arguments of the specified function calling.
 	 *
-	 * For example, data types and array-ranks of actual arguments must match with parameter declarations of the function.
-	 * Note that, there are some additional rules restricting callability of functions,
+	 * This method assumes that
+	 * syntactic compatibility of parameters and actual arguments is already checked by FunctionTable,
+	 * when the callee function is searched from it.
+	 * This method checks some additional attributes of params/args,
 	 * e.g.: constant values cannot be passed by reference.
+	 * 
+	 * The reason why we don't merge this method to FunctionTable-side syntactic matching is,
+	 * to make the error message readable.
+	 * FunctionTable return nothing if no valid matched functions exist. So if we merge this method to it,
+	 * all error messages will be "No matched function found" and so on.
+	 * We want to explain more detailed information to an user, if possible.
+	 * Hence, some syntactic checking are separated from FunctionTable, as this method.
 	 *
 	 * @param function The calleeFunction
 	 * @param callerNode The AST node of the function-call operator.
@@ -777,11 +785,18 @@ public class SemanticAnalyzer {
 		String[] parameterNames = function.getParameterNames();
 		boolean[] areParamConst = function.getParameterConstantnesses();
 		boolean[] areParamRef = function.getParameterReferencenesses();
-		int paramN = parameterTypes.length; // Total number of parameters.
+		int paramCount = parameterTypes.length; // Total number of parameters.
 		// Note: parameterNames may be omitted for external functions, but parameterTypes always exist, so get paramN from the latter.
 
 		// Check consistency of each argument and the corresponding parameter declaration:
-		for (int paramIndex=0; paramIndex<paramN; paramIndex++) {
+		for (int paramIndex=0; paramIndex<paramCount; paramIndex++) {
+
+			// If the number of the params is arbitrary,
+			// the caller-side can omit to pass the arg(s) corresponds with the last param.
+			// ( For example, we can call print(...) function with pass nothing: print(). )
+			if (function.isParameterCountArbitrary() && paramIndex == paramCount - 1 && argNodes.length <= paramIndex+1) {
+				break;
+			}
 
 			// Get a node of an argument (argNodes[0] is the function identifier, and [1]...[param-1] are arguments).
 			AstNode argNode = argNodes[paramIndex+1];
