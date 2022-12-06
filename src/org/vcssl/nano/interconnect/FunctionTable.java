@@ -312,7 +312,10 @@ public class FunctionTable {
 				parameterDataTypeNames = Arrays.copyOf(parameterDataTypeNames, parameterLength);
 				parameterDataTypeArbitrarinesses = Arrays.copyOf(parameterDataTypeArbitrarinesses, parameterLength);
 				parameterArrayRankArbitrarinesses = Arrays.copyOf(parameterArrayRankArbitrarinesses, parameterLength);
-				if (parameterLength != 0) {
+
+				// Note that the caller can omit to pass the actual argument corresponding to the last parameter,
+				// when isParameterCountArbitrary() returns true.
+				if (unexpandedParameterLength - 1 < parameterLength) {
 					Arrays.fill(
 						parameterRanks, // the destination array
 						unexpandedParameterLength - 1, parameterLength, // index of the dest's head, index of the dest's tail + 1
