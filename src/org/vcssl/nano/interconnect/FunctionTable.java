@@ -312,26 +312,31 @@ public class FunctionTable {
 				parameterDataTypeNames = Arrays.copyOf(parameterDataTypeNames, parameterLength);
 				parameterDataTypeArbitrarinesses = Arrays.copyOf(parameterDataTypeArbitrarinesses, parameterLength);
 				parameterArrayRankArbitrarinesses = Arrays.copyOf(parameterArrayRankArbitrarinesses, parameterLength);
-				Arrays.fill(
-					parameterRanks, // the destination array
-					unexpandedParameterLength - 1, parameterLength, // index of the dest's head, index of the dest's tail + 1
-					parameterRanks[unexpandedParameterLength - 1] // the element to be copied
-				);
-				Arrays.fill(
-					parameterDataTypeNames,
-					unexpandedParameterLength - 1, parameterLength,
-					parameterDataTypeNames[unexpandedParameterLength - 1]
-				);
-				Arrays.fill(
-					parameterDataTypeArbitrarinesses, 
-					unexpandedParameterLength - 1, parameterLength,
-					parameterDataTypeArbitrarinesses[unexpandedParameterLength - 1]
-				);
-				Arrays.fill(
-					parameterArrayRankArbitrarinesses,
-					unexpandedParameterLength - 1, parameterLength,
-					parameterArrayRankArbitrarinesses[unexpandedParameterLength - 1]
-				);
+
+				// Note that the caller can omit to pass the actual argument corresponding to the last parameter,
+				// when isParameterCountArbitrary() returns true.
+				if (unexpandedParameterLength - 1 < parameterLength) {
+					Arrays.fill(
+						parameterRanks, // the destination array
+						unexpandedParameterLength - 1, parameterLength, // index of the dest's head, index of the dest's tail + 1
+						parameterRanks[unexpandedParameterLength - 1] // the element to be copied
+					);
+					Arrays.fill(
+						parameterDataTypeNames,
+						unexpandedParameterLength - 1, parameterLength,
+						parameterDataTypeNames[unexpandedParameterLength - 1]
+					);
+					Arrays.fill(
+						parameterDataTypeArbitrarinesses, 
+						unexpandedParameterLength - 1, parameterLength,
+						parameterDataTypeArbitrarinesses[unexpandedParameterLength - 1]
+					);
+					Arrays.fill(
+						parameterArrayRankArbitrarinesses,
+						unexpandedParameterLength - 1, parameterLength,
+						parameterArrayRankArbitrarinesses[unexpandedParameterLength - 1]
+					);
+				}
 			}
 
 			// If the number of parameters is different with the number of actual arguments, the function is not callable.
@@ -394,4 +399,30 @@ public class FunctionTable {
 		return null;
 	}
 
+
+	/**
+	 * Presumes the signatures of the callee functions, called by the specified function-call operator,
+	 * which will be displayed in error messages, when no matched function has been found.
+	 *
+	 * @param callerNode The AST node of the function-call operator.
+	 * @return The signatures of the presumed callee functions.
+	 */
+	public String[] presumeCalleeFunctionSignaturesOf(AstNode callerNode) {
+		String calleeFunctionName = callerNode.getChildNodes()[0].getAttribute(AttributeKey.IDENTIFIER_VALUE);
+		List<String> presumedFunctionSignatureList = new ArrayList<String>();
+
+		LinkedList<AbstractFunction> sameNameFunctionList = this.nameFunctionMap.get(calleeFunctionName);
+		if (sameNameFunctionList == null) {
+			return new String[0];
+		}
+		for (AbstractFunction function: sameNameFunctionList) {
+			//String namespacePrefix = function.hasNamespaceName() ? function.getNamespaceName() +  ScriptWord.NAMESPACE_SEPARATOR : "";
+			//String fullSignature = IdentifierSyntax.getSignatureOf(function, namespacePrefix);
+			String signature = IdentifierSyntax.getSignatureOf(function);
+			presumedFunctionSignatureList.add(signature);
+		}
+		String[] result = new String[sameNameFunctionList.size()];
+		result = presumedFunctionSignatureList.toArray(result);
+		return result;
+	}
 }

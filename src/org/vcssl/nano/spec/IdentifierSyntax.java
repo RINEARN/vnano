@@ -78,7 +78,7 @@ public final class IdentifierSyntax {
 				builder.append(parameterDataTypeNames[0]);
 			}
 			if (parameterArrayRankArbitrarinesses[0]) {
-				builder.append("[...])");
+				builder.append("[]...[])");
 			} else {
 				builder.append("[])");
 			}
@@ -95,7 +95,7 @@ public final class IdentifierSyntax {
 			}
 
 			if (parameterArrayRankArbitrarinesses[parameterIndex]) {
-				builder.append("[...]");
+				builder.append("[]...[]");
 			} else {
 				int paramRank = parameterArrayRanks[parameterIndex];
 				for (int dim=0; dim<paramRank; dim++) {

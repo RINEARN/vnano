@@ -1598,34 +1598,34 @@ public class CodeGenerator {
 
 		String operatorSymbol = operatorNode.getAttribute(AttributeKey.OPERATOR_SYMBOL);
 
+		StringBuilder codeBuilder = new StringBuilder();
+
+		AstNode operandNode = operatorNode.getChildNodes()[0];
+		String operandValue = operandNode.getAttribute(AttributeKey.ASSEMBLY_VALUE);
+		String accumulatorRegister = operatorNode.getAttribute(AttributeKey.ASSEMBLY_VALUE);
+
+		// If necessary, allocate memory for the register in which the operation result will be stored.
+		if (operatorNode.hasAttribute(AttributeKey.NEW_REGISTER)) {
+			codeBuilder.append(
+				this.generateRegisterAllocationCode(
+					operatorNode.getDataTypeName(), operatorNode.getAttribute(AttributeKey.NEW_REGISTER),
+					operandValue, operatorNode.getArrayRank()
+				)
+			);
+		}
+
 		// Unary plus operator
 		if (operatorSymbol.equals(ScriptWord.PLUS_OR_ADDITION)) {
-			return operatorNode.getAttribute(AttributeKey.ASSEMBLY_VALUE);
+			codeBuilder.append(
+				this.generateInstruction(OperationCode.MOV.name(), operandNode.getDataTypeName(), accumulatorRegister, operandValue)
+			);
+			return codeBuilder.toString();
 
 		// Unary minus operator
 		} else if (operatorSymbol.equals(ScriptWord.MINUS_OR_SUBTRACTION)) {
-
-			StringBuilder codeBuilder = new StringBuilder();
-
-			AstNode operandNode = operatorNode.getChildNodes()[0];
-			String operandValue = operandNode.getAttribute(AttributeKey.ASSEMBLY_VALUE);
-			String accumulatorRegister = operatorNode.getAttribute(AttributeKey.ASSEMBLY_VALUE);
-
-			// If necessary, allocate memory for the register in which the operation result will be stored.
-			if (operatorNode.hasAttribute(AttributeKey.NEW_REGISTER)) {
-				codeBuilder.append(
-					this.generateRegisterAllocationCode(
-						operatorNode.getDataTypeName(), operatorNode.getAttribute(AttributeKey.NEW_REGISTER),
-						operandValue, operatorNode.getArrayRank()
-					)
-				);
-			}
-
-			// Generate code of the operation.
 			codeBuilder.append(
 				this.generateInstruction(OperationCode.NEG.name(), operandNode.getDataTypeName(), accumulatorRegister, operandValue)
 			);
-
 			return codeBuilder.toString();
 
 		} else {
