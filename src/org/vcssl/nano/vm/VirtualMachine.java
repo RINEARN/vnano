@@ -133,8 +133,8 @@ public class VirtualMachine {
 
 		// Caches some resources to accelerate re-executions of the same code.
 		this.reexecutionCache = new ReexecutionCache();
+		this.reexecutionCache.setLastObjectCode(vmObjectCode);
 		this.reexecutionCache.setMemory(memory);
-		this.reexecutionCache.setInstructions(instructions);
 		this.reexecutionCache.setAcceleratorEnabled(acceleratorEnabled);
 
 		// Convert the data-type of the result value (from the internal data-type to the external one), and return it.
@@ -166,9 +166,12 @@ public class VirtualMachine {
 			throw new VnanoException(ErrorType.INVALID_REEXECUTION_REQUEST);
 		}
 
-		// Execute the cached instructions on the cached memory instance.
+		// Extract the cached last code, and the cached memory instance for running the code.
+		VirtualMachineObjectCode lastObjectCode = this.reexecutionCache.getLastObjectCode();
+		Instruction[] instructions = lastObjectCode.getInstructions();
 		Memory memory = this.reexecutionCache.getMemory();
-		Instruction[] instructions = this.reexecutionCache.getInstructions();
+
+		// Execute the last code.
 		if (this.reexecutionCache.isAcceleratorEnabled()) {
 			this.accelerator.process(instructions, memory, interconnect, this.processor);
 		} else {

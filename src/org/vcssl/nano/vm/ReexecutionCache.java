@@ -16,8 +16,8 @@ import org.vcssl.nano.vm.processor.Instruction;
  */
 public class ReexecutionCache {
 
-	/** The instructions of the last code. */
-	private volatile Instruction[] instructions = null;
+	/** The VM object code executed last time (call "last code" in this class). */
+	private volatile VirtualMachineObjectCode lastObjectCode;
 
 	/** The memory instance allocated for running the last code. */
 	private volatile Memory memory = null;
@@ -40,21 +40,21 @@ public class ReexecutionCache {
 
 
 	/**
-	 * Sets the instructions of the last code.
+	 * Sets the VM object code executed last time (call "last code" in this class).
 	 * 
-	 * @param instructions The instructions of the last code.
+	 * @param lastObjectCode The VM object code executed last time.
 	 */
-	public void setInstructions(Instruction[] instructions) {
-		this.instructions = instructions;
+	public void setLastObjectCode(VirtualMachineObjectCode lastObjectCode) {
+		this.lastObjectCode = lastObjectCode;
 	}
 
 	/**
-	 * Gets the instructions of the last code.
+	 * Gets the VM object code executed last time (call "last code" in this class).
 	 * 
-	 * @return The instructions of the last code.
+	 * @return The VM object code executed last time.
 	 */
-	public Instruction[] getInstructions() {
-		return this.instructions;
+	public VirtualMachineObjectCode getLastObjectCode() {
+		return this.lastObjectCode;
 	}
 
 
