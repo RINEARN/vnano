@@ -286,18 +286,21 @@ public final class Memory {
 			throws VnanoException {
 
 		// Allocate REGISTER parition.
+		this.registerList.clear();
 		int maxRegisterAddress = vmObjectCode.getMaximumRegisterAddress();
 		for (int registerAddress=0; registerAddress<=maxRegisterAddress; registerAddress++) {
 			this.registerList.add(new DataContainer<Void>());
 		}
 
 		// Allocate LOCAL parition.
+		this.localList.clear();
 		int maxLocalAddress = vmObjectCode.getMaximumLocalAddress();
 		for (int localAddress=0; localAddress<=maxLocalAddress; localAddress++) {
 			this.localList.add(new DataContainer<Void>());
 		}
 
 		// Allocate GLOBAL parition.
+		this.globalList.clear();
 		int globalSize = globalVariableTable.getSize();
 		for (int globalIndex=0; globalIndex<globalSize; globalIndex++) {
 			AbstractVariable variable = globalVariableTable.getVariableByIndex(globalIndex);
@@ -305,10 +308,36 @@ public final class Memory {
 		}
 
 		// Allocate CONSTANT parition.
+		this.constantList.clear();
 		int maxConstantAddress = vmObjectCode.getMaximumConstantAddress();
 		DataContainer<?>[] constantDataContainers = vmObjectCode.getConstantDataContainers();
 		for (int constantAddress=0; constantAddress<=maxConstantAddress; constantAddress++) {
 			this.constantList.add(constantDataContainers[constantAddress]);
+		}
+	}
+
+
+	/**
+	 * Updates the values stored in the GLOBAL partition.
+	 * 
+	 * In GLOBAL partition, mainly the values of global (external) variables are stored.
+	 * They are usually loaded automatically by allocate(...) method.
+	 * However, when executing the same code repetitively on the same Memory instance,
+	 * calling allocate(...) method for each execution gives too large overheads.
+	 * On the other hand, this method allows us to update values in 
+	 * pre-allocated GLOBAL partition with less overheads.
+	 * 
+	 * @param vmObjectCode The VM object code, executed with using this memory.
+	 * @param globalVariableTable The table of the global (external) variables.
+	 * @throws VnanoException Thrown when failed to get the data-container of a global (external) variable.
+	 */
+	public final void updateGlobalPartition(VirtualMachineObjectCode vmObjectCode, VariableTable globalVariableTable)
+			throws VnanoException {
+
+		int globalSize = globalVariableTable.getSize();
+		for (int globalIndex=0; globalIndex<globalSize; globalIndex++) {
+			AbstractVariable variable = globalVariableTable.getVariableByIndex(globalIndex);
+			this.globalList.set(globalIndex, variable.getDataContainer());
 		}
 	}
 }

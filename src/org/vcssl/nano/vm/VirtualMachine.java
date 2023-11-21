@@ -171,12 +171,18 @@ public class VirtualMachine {
 		Instruction[] instructions = lastObjectCode.getInstructions();
 		Memory memory = this.reexecutionCache.getMemory();
 
+		// Reload the (may be updated) values of external variables to GLOBAL partition of the memory.
+		memory.updateGlobalPartition(lastObjectCode, interconnect.getExternalVariableTable());
+
 		// Execute the last code.
 		if (this.reexecutionCache.isAcceleratorEnabled()) {
 			this.accelerator.process(instructions, memory, interconnect, this.processor);
 		} else {
 			this.processor.process(instructions, memory, interconnect);
 		}
+
+		// Write back data of external variables from the memory (may had been modified by the executed VM object code).
+		interconnect.writebackExternalVariables(memory, lastObjectCode); // lastObjectCode has the table of variable names and memory addresses
 
 		// Convert the data-type of the result value (from the internal data-type to the external one), and return it.
 		Object returnValue = null;
