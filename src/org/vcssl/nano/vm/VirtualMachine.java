@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2018-2022 RINEARN
+ * Copyright(C) 2018-2023 RINEARN
  * This software is released under the MIT License.
  */
 
@@ -12,6 +12,7 @@ import org.vcssl.nano.VnanoException;
 import org.vcssl.nano.VnanoFatalException;
 import org.vcssl.nano.interconnect.DataConverter;
 import org.vcssl.nano.interconnect.Interconnect;
+import org.vcssl.nano.spec.ErrorType;
 import org.vcssl.nano.spec.OptionKey;
 import org.vcssl.nano.spec.OptionValue;
 import org.vcssl.nano.spec.OperationCode;
@@ -39,6 +40,9 @@ public class VirtualMachine {
 
 	/** Stores the accelerator, which is an high-speed implementation of the processor. */
 	private Accelerator accelerator = null;
+
+	/** Stores the generated resources for the last execution, to accelerate the re-executions of the same code. */
+	private ReexecutionCache reexecutionCache = null;
 
 	/**
 	 * The counter for counting the number of executed instructions.
@@ -79,6 +83,7 @@ public class VirtualMachine {
 	public Object executeAssemblyCode(String assemblyCode, Interconnect interconnect)
 			throws VnanoException {
 
+		// Extract some option values.
 		boolean acceleratorEnabled, shouldDump, dumpTargetIsAll;
 		String dumpTarget;
 		PrintStream dumpStream = null;
@@ -95,8 +100,7 @@ public class VirtualMachine {
 		Assembler assembler = new Assembler();
 		VirtualMachineObjectCode vmObjectCode = assembler.assemble(assemblyCode, interconnect);
 
-		// dump the VM object code.
-		// VMオブジェクトコードをダンプ
+		// Dump the VM object code.
 		if (shouldDump && (dumpTargetIsAll || dumpTarget.equals(OptionValue.DUMPER_TARGET_OBJECT_CODE)) ) {
 			if (dumpTargetIsAll) {
 				dumpStream.println("================================================================================");
@@ -127,16 +131,58 @@ public class VirtualMachine {
 		// Write back data of external variables from the memory (may had been modified by the executed VM object code).
 		interconnect.writebackExternalVariables(memory, vmObjectCode); // vmObjectCode has the table of variable names and memory addresses
 
+		// Caches some resources to accelerate re-executions of the same code.
+		this.reexecutionCache = new ReexecutionCache();
+		this.reexecutionCache.setMemory(memory);
+		this.reexecutionCache.setInstructions(instructions);
+		this.reexecutionCache.setAcceleratorEnabled(acceleratorEnabled);
+
 		// Convert the data-type of the result value (from the internal data-type to the external one), and return it.
+		Object returnValue = null;
 		if (memory.hasResultDataContainer()) {
 			DataContainer<?> resultDataContainer = memory.getResultDataContainer();
 			DataConverter converter = new DataConverter(
 				resultDataContainer.getDataType(), resultDataContainer.getArrayRank()
 			);
-			return converter.convertToExternalObject(resultDataContainer);
-		} else {
-			return null;
+			returnValue = converter.convertToExternalObject(resultDataContainer);
+			this.reexecutionCache.setResultDataResources(resultDataContainer, converter);
 		}
+		return returnValue;
+	}
+
+
+	/**
+	 * Re-executes the assembly code, which was executed by executeAssemblyCode() method last time.
+	 *
+	 * @param interconnect The interconnect to which external functions/variables are connected.
+	 * @return
+	 *   The value specified by {@link org.vcssl.nano.spec.OperationCode#END END} instruction at the end of VRIL code.
+	 *   If no value is specified, returns null.
+	 *
+	 * @throws VnanoException Thrown when a runtime error is occurred.
+	 */
+	public Object reexecuteLastAssemblyCode(Interconnect interconnect) throws VnanoException {
+		if (this.reexecutionCache == null) {
+			throw new VnanoException(ErrorType.INVALID_REEXECUTION_REQUEST);
+		}
+
+		// Execute the cached instructions on the cached memory instance.
+		Memory memory = this.reexecutionCache.getMemory();
+		Instruction[] instructions = this.reexecutionCache.getInstructions();
+		if (this.reexecutionCache.isAcceleratorEnabled()) {
+			this.accelerator.process(instructions, memory, interconnect, this.processor);
+		} else {
+			this.processor.process(instructions, memory, interconnect);
+		}
+
+		// Convert the data-type of the result value (from the internal data-type to the external one), and return it.
+		Object returnValue = null;
+		if (this.reexecutionCache.hasResultDataResources()) {
+			DataContainer<?> resultDataContainer = this.reexecutionCache.getResultDataContainer();
+			DataConverter converter = this.reexecutionCache.getResultDataConverter();
+			returnValue = converter.convertToExternalObject(resultDataContainer);
+		}
+		return returnValue;
 	}
 
 

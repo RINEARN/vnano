@@ -1,10 +1,14 @@
+/*
+ * Copyright(C) 2023 RINEARN
+ * This software is released under the MIT License.
+ */
+
 package org.vcssl.nano.vm;
 
 import org.vcssl.nano.interconnect.DataConverter;
 import org.vcssl.nano.vm.memory.DataContainer;
 import org.vcssl.nano.vm.memory.Memory;
 import org.vcssl.nano.vm.processor.Instruction;
-
 
 /**
  * The container class for storing resources generated for executing the last code,
