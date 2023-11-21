@@ -178,6 +178,7 @@ org/vcssl/nano/vm/processor/Instruction.java
 org/vcssl/nano/vm/processor/package-info.java
 org/vcssl/nano/vm/processor/Processable.java
 org/vcssl/nano/vm/processor/Processor.java
+org/vcssl/nano/vm/ReexecutionCache.java
 org/vcssl/nano/vm/VirtualMachine.java
 org/vcssl/nano/vm/VirtualMachineObjectCode.java
 org/vcssl/nano/VnanoEngine.java
