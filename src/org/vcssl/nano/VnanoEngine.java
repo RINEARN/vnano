@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2019-2022 RINEARN
+ * Copyright(C) 2019-2023 RINEARN
  * This software is released under the MIT License.
  */
 
@@ -32,6 +32,12 @@ public final class VnanoEngine {
 	/** Stores an object to mediate information/connections between components ("interconnect"). */
 	private Interconnect interconnect = null;
 
+	/** Stores the script which was executed last time. */
+	private String lastScript = null;
+
+	/** The flag representing that this engine's state is the same with it of when "lastScript" was executed. */
+	private boolean lastStateIsSame = false;
+
 
 	/**
 	 * Create a Vnano Engine with default settings.
@@ -61,6 +67,17 @@ public final class VnanoEngine {
 	public Object executeScript(String script) throws VnanoException {
 		if (script == null) {
 			throw new NullPointerException();
+		}
+
+		// If the input script is the same with the last executed script, we can re-execute it with less overheads, using caches.
+		if (this.lastScript != null || this.lastStateIsSame) {
+
+			// When the references of two String variables are the same, their values are also the same.
+			// (Because they point to the same String instance.)
+			// Of course, their values can be the same when their references are different.
+			if (script == this.lastScript || script.equals(this.lastScript)) {
+				return this.reexecuteLastScript();
+			}
 		}
 
 		try {
@@ -99,6 +116,10 @@ public final class VnanoEngine {
 			// (All Connected plug-ins are finalized at this timing.)
 			this.interconnect.deactivate();
 
+			// Stores the input script, to detect that the same script is input again.
+			this.lastScript = script;
+			this.lastStateIsSame = true;
+
 			return evalValue;
 
 		// If any error is occurred for the content/processing of the script,
@@ -119,6 +140,33 @@ public final class VnanoEngine {
 		} catch (Exception unexpectedException) {
 			throw new VnanoException(unexpectedException);
 		}
+	}
+
+
+	/**
+	 * Re-execute the script which was executed last time,
+	 * in less overhead way using cached resources in the VM.
+	 * 
+	 * @return
+	 *     The evaluated value of the expression, or the last expression statement in script code.
+	 *     If there is no evaluated value, returns null.
+	 * 
+	 * @throws VnanoException Thrown when any error has detected for the content or the processing of the script.
+	 */
+	private Object reexecuteLastScript() throws VnanoException {
+
+		// Activate the interconnect, for executing the script.
+		// (All connected plug-ins are initialized at this timing.)
+		this.interconnect.activate();
+
+		// On the VM, re-execute the last executed VRIL code, using caches.
+		Object evalValue = this.virtualMachine.reexecuteLastAssemblyCode(this.interconnect);
+
+		// Deactivate the interconnect.
+		// (All Connected plug-ins are finalized at this timing.)
+		this.interconnect.deactivate();
+
+		return evalValue;
 	}
 
 
@@ -271,6 +319,7 @@ public final class VnanoEngine {
 		if (bindingName == null || plugin == null) {
 			throw new NullPointerException();
 		}
+		this.lastStateIsSame = false;
 		this.interconnect.connectPlugin(bindingName, plugin);
 	}
 
@@ -281,6 +330,7 @@ public final class VnanoEngine {
 	 * @throws VnanoException Thrown when an exception occurred on the finalization of the plug-in to be disconnected.
 	 */
 	public void disconnectAllPlugins() throws VnanoException {
+		this.lastStateIsSame = false;
 		this.interconnect.disconnectAllPlugins();
 	}
 
@@ -296,6 +346,7 @@ public final class VnanoEngine {
 		if (libraryScriptPath == null || libraryScriptContent == null) {
 			throw new NullPointerException();
 		}
+		this.lastStateIsSame = false;
 		this.interconnect.addLibraryScript(libraryScriptPath, libraryScriptContent);
 	}
 
@@ -308,6 +359,7 @@ public final class VnanoEngine {
 	 *   but it requires to be "catch"-ed for keeping compatibility in future.
 	 */
 	public void unregisterAllLibraryScripts() throws VnanoException {
+		this.lastStateIsSame = false;
 		this.interconnect.removeAllLibraryScripts();
 	}
 
@@ -319,6 +371,11 @@ public final class VnanoEngine {
 	 * For details of option names and values,
 	 * see {@link org.vcssl.nano.spec.OptionKey} and {@link org.vcssl.nano.spec.OptionValue}.
 	 *
+	 * Please note that,
+	 * if any value stored in the option map is changed after setting the map by this method,
+	 * it is NOT guaranteed that the engine reflect the change.
+	 * Hence, when any value is changed, re-set the option map again by this method.
+	 *
 	 * @param optionMap The Map (option map) storing names and values of options.
 	 * @throws VnanoException Thrown if invalid option settings is detected.
 	 */
@@ -326,6 +383,7 @@ public final class VnanoEngine {
 		if (optionMap == null) {
 			throw new NullPointerException();
 		}
+		this.lastStateIsSame = false;
 		this.interconnect.setOptionMap(optionMap);
 	}
 
@@ -366,6 +424,11 @@ public final class VnanoEngine {
 	 * For details of names and values of permission items,
 	 * see {@link org.vcssl.connect.ConnectorPermissionName} and {@link org.vcssl.connect.ConnectorPermissionValue}.
 	 *
+	 * Please note that,
+	 * if any value stored in the permission map is changed after setting the map by this method,
+	 * it is NOT guaranteed that the engine reflect the change.
+	 * Hence, when any value is changed, re-set the permission map again by this method.
+	 *
 	 * @param permissionMap The Map (permission map) storing names and values of permission items.
 	 *
 	 * @throws VnanoException Thrown if invalid permission settings is detected.
@@ -374,6 +437,7 @@ public final class VnanoEngine {
 		if (permissionMap == null) {
 			throw new NullPointerException();
 		}
+		this.lastStateIsSame = false;
 		this.interconnect.setPermissionMap(permissionMap);
 	}
 

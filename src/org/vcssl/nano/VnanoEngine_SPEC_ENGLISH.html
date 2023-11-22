@@ -105,7 +105,7 @@ The class of the scripting engine of the Vnano (Vnano Engine).
 			Gets the Map (option map) storing names and values of options.
 		</dd>
 
-	<dt><a href="#setOptionMap">void setPermissionMap(Map&lt;String,String&gt; permissionMap)</a></dt>
+	<dt><a href="#setPermissionMap">void setPermissionMap(Map&lt;String,String&gt; permissionMap)</a></dt>
 		<dd>
 			Sets permissions, by a Map (permission map) storing names and values of permission items you want to set.
 		</dd>
@@ -586,6 +586,12 @@ The class of the scripting engine of the Vnano (Vnano Engine).
 			Type of the option map is Map<String,Object>, and its keys represents option names.
 			For details, see the document of options.
 			</p>
+			<p>
+			Please note that,
+			if any value stored in the option map is changed after setting the map by this method,
+			it is NOT guaranteed that the engine reflects the change.
+			Hence, when any value is changed, re-set the option map again by this method.
+			</p>
 		</td>
 	</tr>
 	<tr>
@@ -706,6 +712,12 @@ The class of the scripting engine of the Vnano (Vnano Engine).
 			<p>
 			Type of the permission map is Map&lt;String,String&gt;, and its keys represents names of permission items.
 			For details, see the document of permission items.
+			</p>
+			<p>
+			Please note that,
+			if any value stored in the permission map is changed after setting the map by this method,
+			it is NOT guaranteed that the engine reflects the change.
+			Hence, when any value is changed, re-set the permission map again by this method.
 			</p>
 		</td>
 	</tr>

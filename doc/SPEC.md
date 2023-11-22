@@ -82,7 +82,7 @@ The following is the list of all methods of Vnano Engine (org.vcssl.nano.VnanoEn
 
 | Signature | void setOptionMap(Map&lt;String,Object&gt; optionMap) |
 |:---|:---|
-| Description | <p>Sets options, by a Map (option map) storing names and values of options you want to set.</p> <p>Type of the option map is Map&lt;String,Object&gt;, and its keys represents option names. For details, see [Option Items](#options) section.<p> |
+| Description | <p>Sets options, by a Map (option map) storing names and values of options you want to set.</p> <p>Type of the option map is Map&lt;String,Object&gt;, and its keys represents option names. For details, see [Option Items](#options) section.</p><p>Please note that, if any value stored in the option map is changed after setting the map by this method, it is NOT guaranteed that the engine reflects the change. Hence, when any value is changed, re-set the option map again by this method.</p> |
 | Parameters | optionMap: A Map (option map) storing names and values of options |
 | Return | None |
 | Exception | VnanoException will be thrown if invalid option settings is detected. |
@@ -107,7 +107,7 @@ The following is the list of all methods of Vnano Engine (org.vcssl.nano.VnanoEn
 
 | Signature | void setPermissionMap(Map&lt;String, String&gt; permissionMap) |
 |:---|:---|
-| Description | <p>Sets permissions, by a Map (permission map) storing names and values of permission items you want to set.</p> <p>Type of the permission map is Map&lt;String,String&gt;, and its keys represents names of permission items. For details, see [Permission Items](#permissions) section.<p>  |
+| Description | <p>Sets permissions, by a Map (permission map) storing names and values of permission items you want to set.</p> <p>Type of the permission map is Map&lt;String,String&gt;, and its keys represents names of permission items. For details, see [Permission Items](#permissions) section.</p><p>Please note that, if any value stored in the permission map is changed after setting the map by this method, it is NOT guaranteed that the engine reflects the change. Hence, when any value is changed, re-set the permission map again by this method.</p>  |
 | Parameters | permissionMap: A Map (permission map) storing names and values of permission items |
 | Return | None |
 | Exception | VnanoException will be thrown if invalid permission settings is detected. |
