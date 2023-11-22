@@ -318,26 +318,44 @@ public final class Memory {
 
 
 	/**
-	 * Updates the values stored in the GLOBAL partition.
+	 * Updates the data stored in the GLOBAL partition, without replacing DataContainer instances (references).
 	 * 
 	 * In GLOBAL partition, mainly the values of global (external) variables are stored.
-	 * They are usually loaded automatically by allocate(...) method.
-	 * However, when executing the same code repetitively on the same Memory instance,
-	 * calling allocate(...) method for each execution gives too large overheads.
-	 * On the other hand, this method allows us to update values in 
-	 * pre-allocated GLOBAL partition with less overheads.
+	 * When executing the same code repetitively on the same Memory instance,
+	 * it requires to reload data from all global variables to GLOBAL partition of the memory.
+	 * In such case, for reducing overheads of re-executions of the same code,
+	 * it is necessary to copy only data, without replacing DataContainer instances.
+	 * (Because references to DataContainer instances are embedded into some resources in an Accelerator instance.)
+	 * Hence this method performs it.
 	 * 
 	 * @param vmObjectCode The VM object code, executed with using this memory.
 	 * @param globalVariableTable The table of the global (external) variables.
 	 * @throws VnanoException Thrown when failed to get the data-container of a global (external) variable.
 	 */
-	public final void updateGlobalPartition(VirtualMachineObjectCode vmObjectCode, VariableTable globalVariableTable)
+	public final void updateGlobalPartitionData(VirtualMachineObjectCode vmObjectCode, VariableTable globalVariableTable)
 			throws VnanoException {
 
 		int globalSize = globalVariableTable.getSize();
 		for (int globalIndex=0; globalIndex<globalSize; globalIndex++) {
+
+			// WARNING: Don't swap DataContainer instances stored in the memory.
+			//          Their references have also stored in AcceleratorExecutionNode instances,
+			//          and CacheSynchronizer instances (in AcceleratorDataManagementUnit).
+			//
+			//          If we swap DataContainer instances stored in the memory here,
+			//          we are required to re-instantiate the above resources.
+			//          It takes many overhead costs.
+
 			AbstractVariable variable = globalVariableTable.getVariableByIndex(globalIndex);
-			this.globalList.set(globalIndex, variable.getDataContainer());
+			@SuppressWarnings("unchecked")
+			DataContainer<Object> varDataContainer = (DataContainer<Object>)variable.getDataContainer();
+			@SuppressWarnings("unchecked")
+			DataContainer<Object> memDataContainer = (DataContainer<Object>)this.globalList.get(globalIndex);
+
+			// Copy data, without swapping the instance.
+			memDataContainer.setArrayData(
+					varDataContainer.getArrayData(), varDataContainer.getArrayRank(), varDataContainer.getArrayLengths()
+			);
 		}
 	}
 }

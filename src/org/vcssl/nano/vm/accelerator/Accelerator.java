@@ -27,6 +27,32 @@ import org.vcssl.nano.vm.processor.Processor;
  */
 public class Accelerator {
 
+
+	/**
+	 * The container class for caching some resources,
+	 * to reduce overheads when this accelerator processes the same code repetitively.
+	 */
+	private class ReprocessingCache {
+
+		/** Stores the execution nodes created for the last processed code. */
+		public volatile AcceleratorExecutionNode[] lastExecutionNodes;
+
+		/** Stores the data management unit created for the last processed code. */
+		public volatile AcceleratorDataManagementUnit lastDataManager;
+
+		/** Stores the value of "RUNNING_ENABLED" option of when the last code was processed. */
+		public volatile boolean lastRunningEnabled;
+
+		/** Stores the value of "TERMINATOR_ENABLED" option of when the last code was processed. */
+		public volatile boolean lastTerminatorEnabled;
+
+		/** Stores the value of "PERFORMANCE_MONITOR_ENABLED" option of when the last code was processed. */
+		public volatile boolean lastPerformanceMonitorEnabled;
+	}
+
+	/** Stores some cached resources, to reduce overheads when this accelerator processes the same code repetitively. */
+	private ReprocessingCache reprocessingCache = null;
+
 	/**
 	 * The flag representing whether the process should continue.
 	 *
@@ -209,6 +235,75 @@ public class Accelerator {
 			dumpStream.println("================================================================================");
 		}
 
+		 // Executes the chain of AcceleratorExecutionNode instances.
+		 // This corresponds the processing of the list of the instructions, on a Processor.
+		this.executeNodes(nodes, dataManager, memory, shouldRun, terminatable, monitorable);
+
+		// ダンプ内容に実行終了点を表す区切りを入れる
+		if (shouldDump && dumpTargetIsAll) {
+			dumpStream.println("");
+			dumpStream.println("================================================================================");
+			dumpStream.println("= End");
+			dumpStream.println("================================================================================");
+		}
+
+		// Caches some resources, to reduce overheads when this accelerator processes the same code repetitively.
+		this.reprocessingCache = new ReprocessingCache();
+		this.reprocessingCache.lastExecutionNodes = nodes;
+		this.reprocessingCache.lastDataManager = dataManager;
+		this.reprocessingCache.lastRunningEnabled = shouldRun;
+		this.reprocessingCache.lastTerminatorEnabled = terminatable;
+		this.reprocessingCache.lastPerformanceMonitorEnabled = monitorable;
+	}
+
+
+	/**
+	 * Re-processes the last processed instructions.
+	 *
+	 * @param instructions The list of the instructions to be processed.
+	 * @param memory The memory to which data I/O will be performed.
+	 * @param interconnect The interconnect having the external function plug-ins which may be called by the instructions.
+	 * @param processor The processor for processing some instructions unsupported by this accelerator.
+	 * @throws VnanoException Thrown when any normal run-time error has been occurred (errors of cast, array indexing, and so on).
+	 * @throws VnanoFatalException Thrown when any abnormal error (might be a bug of the VM or the compiler) occurred.
+	 */
+	public void reprocess(Instruction[] instructions, Memory memory, Interconnect interconnect, Processor processor)
+			throws VnanoException {
+
+		// Extract cached resources of the last execution.
+		AcceleratorExecutionNode[] nodes = this.reprocessingCache.lastExecutionNodes;
+		AcceleratorDataManagementUnit dataManager = this.reprocessingCache.lastDataManager;
+		boolean shouldRun = this.reprocessingCache.lastRunningEnabled;
+		boolean terminatable = this.reprocessingCache.lastTerminatorEnabled;
+		boolean monitorable = this.reprocessingCache.lastPerformanceMonitorEnabled;
+		if (!shouldRun) {
+			return;
+		}
+
+		// Load data from the memory to the execution caches.
+		dataManager.getCacheSynchronizers(Memory.Partition.CONSTANT).synchronizeFromMemoryToCache();
+		dataManager.getCacheSynchronizers(Memory.Partition.GLOBAL).synchronizeFromMemoryToCache();
+
+		// Execute the nodes (= process the code).
+		this.executeNodes(nodes, dataManager, memory, shouldRun, terminatable, monitorable);
+	}
+
+
+	/**
+	 * Executes the chain of AcceleratorExecutionNode instances.
+	 * This corresponds the processing of the list of the instructions, on a Processor.
+	 * 
+	 * @param nodes The chain of AcceleratorExecutionNode instances.
+	 * @param dataManager The pre-configured data management unit.
+	 * @param memory The virtual memory instance from/to which data I/O are performed.
+	 * @param shouldRun The value of "RUNNING_ENABLED" option.
+	 * @param terminatable The value of "TERMINATOR_ENABLED" option.
+	 * @param monitorable The value of "PERFORMANCE_MONITOR_ENABLED" option.
+	 * @throws VnanoException Thrown when any abnormal error (might be a bug of the VM or the compiler) occurred.
+	 */
+	private void executeNodes(AcceleratorExecutionNode[] nodes, AcceleratorDataManagementUnit dataManager, Memory memory,
+			boolean shouldRun, boolean terminatable, boolean monitorable)
+					throws VnanoException {
 
 		// 以下、命令の逐次実行ループ
 		AcceleratorExecutionNode nextNode = (nodes.length == 0) ? null : nodes[0];
@@ -286,14 +381,6 @@ public class Accelerator {
 				};
 				throw new VnanoException(ErrorType.UNEXPECTED_ACCELERATOR_CRASH, errorWords, e, fileName, lineNumber);
 			}
-		}
-
-		// ダンプ内容に実行終了点を表す区切りを入れる
-		if (shouldDump && dumpTargetIsAll) {
-			dumpStream.println("");
-			dumpStream.println("================================================================================");
-			dumpStream.println("= End");
-			dumpStream.println("================================================================================");
 		}
 	}
 

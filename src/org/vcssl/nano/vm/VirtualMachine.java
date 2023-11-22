@@ -172,11 +172,11 @@ public class VirtualMachine {
 		Memory memory = this.reexecutionCache.getMemory();
 
 		// Reload the (may be updated) values of external variables to GLOBAL partition of the memory.
-		memory.updateGlobalPartition(lastObjectCode, interconnect.getExternalVariableTable());
+		memory.updateGlobalPartitionData(lastObjectCode, interconnect.getExternalVariableTable());
 
 		// Execute the last code.
 		if (this.reexecutionCache.isAcceleratorEnabled()) {
-			this.accelerator.process(instructions, memory, interconnect, this.processor);
+			this.accelerator.reprocess(instructions, memory, interconnect, this.processor);
 		} else {
 			this.processor.process(instructions, memory, interconnect);
 		}
