@@ -48,6 +48,22 @@ The following is the list of all methods of Vnano Engine (org.vcssl.nano.VnanoEn
 | Exception | VnanoFatalException (unchecked exception) will be thrown if this method is called in a state in which isTerminatorEnabled() method returns false. |
 
 
+| Signature |void activateEngine() |
+|:---|:---|
+| Description | <p>Activates this engine. By this activation, the engine become available for executing scripts.</p> <p>By default, the engine is activated automatically just before executing a script. However, when "AUTOMATIC_ACTIVATION_ENABLED" option is set to FALSE, the engine is NOT activated automatically. In such case, activate the engine manually at suitable timing (for details, see the description of "AUTOMATIC_ACTIVATION_ENABLED" option).</p> <p>In this activation step, initialization procedures of all connected plug-ins (implemented as initializeForExecution() method in each plug-in) are processed. Hence, required time of this method depends on the number of the connected plug-ins, and implementations of them.</p> |
+| Parameters | None |
+| Return | None |
+| Exception | VnanoException will be thrown if any error has occurred in the initialization procedure of any plug-in. |
+
+
+| Signature |void deactivateEngine() |
+|:---|:---|
+| Description | <p>Deactivates this engine. This deactivation canceles the state of the engine which is "activated" for executing scripts. It also performs some finalization procedures.</p> <p>By default, the engine is deactivated automatically just after executing a script. However, when "AUTOMATIC_ACTIVATION_ENABLED" option is set to FALSE, the engine is NOT deactivated automatically. In such case, deactivate the engine manually at suitable timing (for details, see the description of "AUTOMATIC_ACTIVATION_ENABLED" option).</p> <p>In this deactivation step, finalization procedures of all connected plug-ins (implemented as finalizeForTermination() method in each plug-in) are processed. Hence, required time of this method depends on the number of the connected plug-ins, and implementations of them.</p> |
+| Parameters | None |
+| Return | None |
+| Exception | VnanoException will be thrown if any error has occurred in the finalization procedure of any plug-in. |
+
+
 | Signature | void connectPlugin(String bindingName, Object plugin) |
 |:---|:---|
 | Description | Connects various types of plug-ins which provides external functions/variables and so on. |

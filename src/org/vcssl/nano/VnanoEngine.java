@@ -293,6 +293,47 @@ public final class VnanoEngine {
 
 
 	/**
+	 * Activates this engine. By this activation, the engine become available for executing scripts.
+	 *
+	 * y default, the engine is activated automatically just before executing a script.
+	 * However, when "AUTOMATIC_ACTIVATION_ENABLED" option is set to FALSE, the engine is NOT activated automatically.
+	 * In such case, activate the engine manually at suitable timing
+	 * (for details, see the description of "AUTOMATIC_ACTIVATION_ENABLED" option).
+	 *
+	 * In this activation step, initialization procedures of all connected plug-ins
+	 * (implemented as initializeForExecution() method in each plug-in) are processed.
+	 * Hence, required time of this method depends on the number of the connected plug-ins, and implementations of them.
+	 *
+	 * @throws VnanoException
+	 *       Thrown if any error has occurred in the initialization procedure of any plug-in.
+	 */
+	public void activateEngine() throws VnanoException {
+		this.interconnect.activate();
+	}
+
+
+	/**
+	 * Deactivates this engine. This deactivation canceles the state of the engine which is "activated" for executing scripts.
+	 * It also performs some finalization procedures.
+	 *
+	 * By default, the engine is deactivated automatically just after executing a script.
+	 * However, when "AUTOMATIC_ACTIVATION_ENABLED" option is set to FALSE, the engine is NOT deactivated automatically.
+	 * In such case, deactivate the engine manually at suitable timing
+	 * (for details, see the description of "AUTOMATIC_ACTIVATION_ENABLED" option).
+	 *
+	 * In this deactivation step, finalization procedures of all connected plug-ins
+	 * (implemented as finalizeForTermination() method in each plug-in) are processed.
+	 * Hence, required time of this method depends on the number of the connected plug-ins, and implementations of them.
+	 *
+	 * @throws VnanoException
+	 *       Thrown if any error has occurred in the finalization procedure of any plug-in.
+	 */
+	public void deactivateEngine() throws VnanoException {
+		this.interconnect.deactivate();
+	}
+
+
+	/**
 	 * Connects various types of plug-ins which provides external functions/variables.
 	 *
 	 * @param bindingName
