@@ -110,7 +110,8 @@ public class OptionKey {
 	public static final String PERFORMANCE_MONITOR_ENABLED = "PERFORMANCE_MONITOR_ENABLED";
 
 
-	/** An option to dump states and intermediate representations in the compiler, VM, etc.
+	/**
+	 * An option to dump states and intermediate representations in the compiler, VM, etc.
 	 * 
 	 * The value of this option is "Boolean" type. Specify "Boolean.TRUE" to enable this option.
 	 */
@@ -140,6 +141,22 @@ public class OptionKey {
 	 * The value of this option is "Boolean" type. Specify "Boolean.FALSE" to disable this option.
 	 */
 	public static final String RUNNING_ENABLED = "RUNNING_ENABLED";
+
+
+	/**
+	 * An option to switch whether activate/deactivate the Vnano engine automatically before/after executing a script
+	 * ("automatic activation" feature).
+	 * 
+	 * This option is enabled by default so that users can execute scripts any time.
+	 * However, activations/deactivations of the engine entail some overhead costs.
+	 * Especially when the engine repetitively executes scripts in high frequency,
+	 * this "activation costs" may result serious degradation of processing speed, if this option is enabled.
+	 * In such case, disable this option, and activate/deactivate the engine manually at suitable timing
+	 * (typically before/after a set of repetitive executions).
+	 * 
+	 * The value of this option is "Boolean" type. Specify "Boolean.FALSE" to disable this option.
+	 */
+	public static final String AUTOMATIC_ACTIVATION_ENABLED = "AUTOMATIC_ACTIVATION_ENABLED";
 
 
 	/**

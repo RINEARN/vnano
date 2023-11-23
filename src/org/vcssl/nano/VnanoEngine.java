@@ -38,6 +38,9 @@ public final class VnanoEngine {
 	/** The flag representing that this engine's state is the same with it of when "lastScript" was executed. */
 	private boolean lastStateIsSame = false;
 
+	/** The flag representing that "AUTOMATIC_ACTIVATION_ENABLED" option was enabled when "lastScript" was executed. */
+	private boolean lastAutoActivationIsEnabled = false;
+
 
 	/**
 	 * Create a Vnano Engine with default settings.
@@ -98,9 +101,14 @@ public final class VnanoEngine {
 			// Set the name/content of the main script, to the interconnect.
 			this.interconnect.setMainScript(mainScriptName, script);
 
+			// Check whether the automatic-activation feature is enabled.
+			boolean autoActivationIsEnabled = (Boolean)this.interconnect.getOptionMap().get(OptionKey.AUTOMATIC_ACTIVATION_ENABLED);
+
 			// Activate the interconnect, for executing the script.
 			// (All connected plug-ins are initialized at this timing.)
-			this.interconnect.activate();
+			if (autoActivationIsEnabled) {
+				this.interconnect.activate();
+			}
 
 			// Get the file paths and contents of all scripts (the main script and all library scripts), from the interconnect.
 			String[] scripts = this.interconnect.getScriptContents();
@@ -114,11 +122,15 @@ public final class VnanoEngine {
 
 			// Deactivate the interconnect.
 			// (All Connected plug-ins are finalized at this timing.)
-			this.interconnect.deactivate();
+			if (autoActivationIsEnabled) {
+				this.interconnect.deactivate();
+			}
 
 			// Stores the input script, to detect that the same script is input again.
+			// Also, set some flags, to reduce overhead costs of re-executions of the same script.
 			this.lastScript = script;
 			this.lastStateIsSame = true;
+			this.lastAutoActivationIsEnabled = autoActivationIsEnabled;
 
 			return evalValue;
 
@@ -156,15 +168,19 @@ public final class VnanoEngine {
 	private Object reexecuteLastScript() throws VnanoException {
 
 		// Activate the interconnect, for executing the script.
-		// (All connected plug-ins are initialized at this timing.)
-		this.interconnect.activate();
+		// (All connected plug-ins are initialized at this timing.
+		if (this.lastAutoActivationIsEnabled) {
+			this.interconnect.activate();
+		}
 
 		// On the VM, re-execute the last executed VRIL code, using caches.
 		Object evalValue = this.virtualMachine.reexecuteLastAssemblyCode(this.interconnect);
 
 		// Deactivate the interconnect.
 		// (All Connected plug-ins are finalized at this timing.)
-		this.interconnect.deactivate();
+		if (this.lastAutoActivationIsEnabled) {
+			this.interconnect.deactivate();
+		}
 
 		return evalValue;
 	}
