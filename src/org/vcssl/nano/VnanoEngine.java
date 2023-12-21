@@ -73,7 +73,7 @@ public final class VnanoEngine {
 		}
 
 		// If the input script is the same with the last executed script, we can re-execute it with less overheads, using caches.
-		if (this.lastScript != null || this.lastStateIsSame) {
+		if (this.lastScript != null && this.lastStateIsSame) {
 
 			// When the references of two String variables are the same, their values are also the same.
 			// (Because they point to the same String instance.)
