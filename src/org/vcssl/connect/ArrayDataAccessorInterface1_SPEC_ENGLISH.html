@@ -38,7 +38,7 @@ Array Data Accessor Interface 1 (ADAI1) is a data-I/O interface, mainly implemen
 </p>
 
 <p>
-In this org.vcssl.connect package, multiple data I/O interfaces are provided for passing/receiving data 
+In this org.vcssl.connect package, multiple data I/O interfaces are provided for passing/receiving data
 without any data-conversions, between script-engine-side and plug-in-side, if required.
 </p>
 
@@ -60,7 +60,7 @@ No modifications will be applied for this interface, excluding documents/comment
 </p>
 
 <p>
-This interface is currently supported by the scripting engine of Vnano. 
+This interface is currently supported by the scripting engine of Vnano.
 You can use this interface for development of plug-ins of applications equipped with the Vnano engine.
 </p>
 
@@ -271,18 +271,18 @@ In this document, we describe the type parameter as "T".
 	<tr>
 		<td class="lcol">Description</td>
 		<td class="rcol">
-			
+
 			<p style="margin-top: 0px;">
 			Sets the serialized 1D array data with related information.
 			</p>
-			
+
 			<p>
-			On this interface, contents of any data including a scalar value, an 1-dimensional (1D) array, 
-			and a multi-dimensional array are always handled as an 1D array, 
-			so specify an 1D array for the argument "data". 
+			On this interface, contents of any data including a scalar value, an 1-dimensional (1D) array,
+			and a multi-dimensional array are always handled as an 1D array,
+			so specify an 1D array for the argument "data".
 			We call it as "serialized 1D array data" in this document.
 			</p>
-			
+
 			<p>
 			<b>When set a scalar value:</b>
 			For the argument "data", specify an 1D array in which the scalar value is stored as an element, at any index.
@@ -290,21 +290,21 @@ In this document, we describe the type parameter as "T".
 			For the argument "lengths", specify an empty array of which length is 0
 			(so we regard an scalar value as a "0-dimensional array" on this interface).
 			</p>
-			
+
 			<p>
 			<b>When set 1-dimensional array data:</b>
-			For the argument "data", specify the 1-D array data as it is. 
+			For the argument "data", specify the 1-D array data as it is.
 			For the argument "offset", always specify 0.
-			For the argument "lengths", specify an array of which length is 1, 
+			For the argument "lengths", specify an array of which length is 1,
 			and stores the length of array data (specified to the argument "data") at [0].
 			</p>
-			
+
 			<p>
 			<b>When set multi-dimensional array data:</b>
 			For the argument "data", specify the serialized 1D array in which data of multi-dimensional array is aligned
-			in the form of: 
+			in the form of:
 			</span>
-			
+
 			<div class="lang-ja" style="border: 1px solid #000000; margin: 5px; padding: 3px;">
 			    (The case of 2D array: multiDimArray[N1][N2])
 			    <br>
@@ -314,7 +314,7 @@ In this document, we describe the type parameter as "T".
 			    <br>
 			    <span style="margin-left: 30px;">index1D = N2*multiIndex1 + multiIndex3</span>
 			</div>
-			
+
 			<div class="lang-ja" style="border: 1px solid #000000; margin: 5px; padding: 3px;">
 			    (The case of 3D array: multiDimArray[N1][N2][N3])
 			    <br>
@@ -324,7 +324,7 @@ In this document, we describe the type parameter as "T".
 			    <br>
 			    <span style="margin-left: 30px;">index1D = N3*N2*multiIndex1 + N3*multiIndex2 + multiIndex3</span>
 			</div>
-			
+
 			<div class="lang-ja" style="border: 1px solid #000000; margin: 5px; padding: 3px;">
 			    (The case of 4D array: multiDimArray[N1][N2][N3][N4])
 			    <br>
@@ -336,15 +336,15 @@ In this document, we describe the type parameter as "T".
 			</div>
 			...
 			</p>
-			
+
 			<p>
 			For the argument "offset", always specify 0.
-			For the argument "lengths", specify an array of which length equals to the number of dimensions of the serialized 1D data array, 
-			and stores lengths of each dimension, 
+			For the argument "lengths", specify an array of which length equals to the number of dimensions of the serialized 1D data array,
+			and stores lengths of each dimension,
 			where [0] represents the length of most-left dimension, and [max] represents the length of most-right dimension
 			(so specify {N1, N2, N3} for 3D array data of which lengths are [N1][N2][N3]).
 			</p>
-			
+
 			<p>
 			By the way, methods for setting a value "data", "offset", or "lengths" independently are not provided,
 			for preventing inconsistency between them (never allowed even for a moment).
@@ -386,7 +386,7 @@ In this document, we describe the type parameter as "T".
 		<td class="rcol">
 			Returns the serialized 1D the array data.
 			<br />
-			How a scalar or a multi dimensional array is stored in the serialized 1D array data 
+			How a scalar or a multi dimensional array is stored in the serialized 1D array data
 			is explained in the section of <a href="#setArrayData">setArrayData</a> method.
 		</td>
 	</tr>
@@ -502,7 +502,7 @@ In this document, we describe the type parameter as "T".
 			<br />
 			When data is an 1-dimensional array, the size is its length.
 			<br />
-			When data is a multi-dimensional array of which lengths are [N1][N2][N3]...[NM], 
+			When data is a multi-dimensional array of which lengths are [N1][N2][N3]...[NM],
 			the size is the value of the product of them: N1*n2*n3*...*NM.
 		</td>
 	</tr>

@@ -36,13 +36,13 @@ VCSSL/VNANO PLUGIN INTERFACE SPECIFICATION
 <h2>Abstract</h2>
 
 <p>
-Engine Connector Interface 1 (ECI1) 
+Engine Connector Interface 1 (ECI1)
 is an interface for mediate communication of some information between scripting engines and plug-ins.
 </p>
 
 <p>
-Scripting engines pass an object implementing this interface to arguments 
-of initialization/finalization methods of plug-ins. 
+Scripting engines pass an object implementing this interface to arguments
+of initialization/finalization methods of plug-ins.
 </p>
 
 
@@ -58,7 +58,7 @@ No modifications will be applied for this interface, excluding documents/comment
 </p>
 
 <p>
-This interface is currently supported by the scripting engine of Vnano. 
+This interface is currently supported by the scripting engine of Vnano.
 You can use this interface for development of plug-ins of applications equipped with the Vnano engine.
 </p>
 
@@ -206,7 +206,7 @@ This interface is published under CC0, which is almost the same as the so-called
 			Gets the value of the specified option.
 			</p>
 			<p>
-			Before calling this method, check that the value of the specified option exists and is accessible, by 
+			Before calling this method, check that the value of the specified option exists and is accessible, by
 			<a href="#hasOptionValue">hasOptionValue(String optionName)</a> method.
 			</p>
 		</td>
@@ -242,11 +242,11 @@ This interface is published under CC0, which is almost the same as the so-called
 			Requests the specified permission.
 			</p>
 			<p>
-			If the requested permission is allowed, nothing will occur. On the other hand, 
+			If the requested permission is allowed, nothing will occur. On the other hand,
 			when the requested permission has been denied, this method throws a ConnectorException.
-			Whether the request will be allowed or denied depends on 
+			Whether the request will be allowed or denied depends on
 			settings of an application, or decision of its user.
-			Hence, in principle, it is necessary to assume that any request may be denied. 
+			Hence, in principle, it is necessary to assume that any request may be denied.
 			So it requires to catch (or rethrow) the exception explicitly.
 			</p>
 		</td>
@@ -316,7 +316,7 @@ This interface is published under CC0, which is almost the same as the so-called
 			Gets the other type of engine connector.
 			</p>
 			<p>
-			Before calling this method, check that the specified type of the engine connector is available, by 
+			Before calling this method, check that the specified type of the engine connector is available, by
 			<a href="#isOtherEngineConnectorAvailable">isOtherEngineConnectorAvailable(Class&lt;?&gt; engineConnectorClass)</a> method.
 			</p>
 		</td>

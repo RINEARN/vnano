@@ -5,7 +5,7 @@
  * {@link org.vcssl.nano.VnanoEngine VnanoEngine} /
  * {@link org.vcssl.nano.VnanoScriptEngine VnanoScriptEngine},
  * are provided.
- * 
+ *
  * In the normal usage, it is sufficient to grasp only classes in this layer
  * for using the script engine of the Vnano from the host application.
  */

@@ -16,12 +16,12 @@ package org.vcssl.connect;
 /**
  * A class defining permission values.
  *
- * Fields of this class are natural to be defined as elements of an enum, 
- * however, they are defined as "public static final String" fields, 
+ * Fields of this class are natural to be defined as elements of an enum,
+ * however, they are defined as "public static final String" fields,
  * instead of enum elements.
- * This is to prevent unexpected behaviour when definition order of them are changed, 
+ * This is to prevent unexpected behaviour when definition order of them are changed,
  * and plug-ins referencing them have not been re-compiled.
- * 
+ *
  * Please note that, it is not recommended to describe values of them directly (as String literals).
  * Refer fields of this class as possible as.
  */

@@ -11,13 +11,13 @@ import org.vcssl.nano.vm.memory.DataContainer;
 
 /**
  * The abstract class of functions processable in Vnano Engine.
- * 
- * In Vnano Engine, internal functions will be handled as instances of 
+ *
+ * In Vnano Engine, internal functions will be handled as instances of
  * {@link InternalFunction InternalFunction} class,
  * and it is a subclass of this abstract class.
- * 
- * In addition, external function plug-ins will be connected through 
- * adapters extending this abstract class, 
+ *
+ * In addition, external function plug-ins will be connected through
+ * adapters extending this abstract class,
  * e.g.: {@link Xfci1ToFunctionAdapter Xfci1ToFunctionAdapter}.
  */
 public abstract class AbstractFunction {
@@ -31,11 +31,11 @@ public abstract class AbstractFunction {
 
 	/**
 	 * Sets the name of this function.
-	 * 
+	 *
 	 * This method is used for setting an alias for an external function.
-	 * This method isn't available when this function is an internal function, 
+	 * This method isn't available when this function is an internal function,
 	 * because the name of internal functions isn't modifiable.
-	 * 
+	 *
 	 * @param functionName The name of this function.
 	 * @throws VnanoFatalException
 	 *      Thrown when the name of this function isn't modifiable.
@@ -94,7 +94,7 @@ public abstract class AbstractFunction {
 
 	/**
 	 * Gets array-ranks of all parameters.
-	 * 
+	 *
 	 * Note that, the array-rank of an scalar is 0.
 	 *
 	 * @return The array storing array-ranks of all parameters.
@@ -104,7 +104,7 @@ public abstract class AbstractFunction {
 
 	/**
 	 * Gets flags representing whether data-types of parameters are arbitrary.
-	 * 
+	 *
 	 * If the value of an element of the returned array is true,
 	 * the data-type of the corresponding parameter is arbitrary.
 	 *
@@ -115,7 +115,7 @@ public abstract class AbstractFunction {
 
 	/**
 	 * Gets flags representing whether array-ranks of parameters are arbitrary.
-	 * 
+	 *
 	 * If the value of an element of the returned array is true,
 	 * the array-rank of the corresponding parameter is arbitrary.
 	 *
@@ -126,7 +126,7 @@ public abstract class AbstractFunction {
 
 	/**
 	 * Gets flags representing whether parameters are passed by references.
-	 * 
+	 *
 	 * If the value of an element of the returned array is true,
 	 * the corresponding parameter will be passed by reference
 	 * when this function will be invoked.
@@ -138,9 +138,9 @@ public abstract class AbstractFunction {
 
 	/**
 	 * Gets flags representing whether parameters are constant.
-	 * 
+	 *
 	 * If the value of an element of the returned array is true,
-	 * the corresponding parameter is constant, 
+	 * the corresponding parameter is constant,
 	 * so its value must not be modified in the process of this function.
 	 *
 	 * @return The array storing flags representing whether parameters are constant.
@@ -167,11 +167,11 @@ public abstract class AbstractFunction {
 	/**
 	 * Gets the name of the data-type of the return value.
 	 * In the data-type name, array declaration part [][]...[] isn't contained.
-	 * 
+	 *
 	 * If {@link AbstractFunction#isReturnDataTypeArbitrary() isReturnDataTypeArbitrary()} method
-	 * returns true, data-types and array-ranks of actual arguments will be given as 
+	 * returns true, data-types and array-ranks of actual arguments will be given as
 	 * "argumentDataTypeNames" and "argumentArrayRanks".
-	 * 
+	 *
 	 * In the contrast,
 	 * if {@link AbstractFunction#isReturnDataTypeArbitrary() isReturnDataTypeArbitrary()} method
 	 * returns false, the result of this method must not vary depending on
@@ -188,11 +188,11 @@ public abstract class AbstractFunction {
 
 	/**
 	 * Gets the arraya-rank of the return value.
-	 * 
+	 *
 	 * If {@link AbstractFunction#isReturnDataTypeArbitrary() isReturnDataTypeArbitrary()} method
-	 * returns true, data-types and array-ranks of actual arguments will be given as 
+	 * returns true, data-types and array-ranks of actual arguments will be given as
 	 * "argumentDataTypeNames" and "argumentArrayRanks".
-	 * 
+	 *
 	 * In the contrast,
 	 * if {@link AbstractFunction#isReturnDataTypeArbitrary() isReturnDataTypeArbitrary()} method
 	 * returns false, the result of this method must not vary depending on
@@ -208,18 +208,18 @@ public abstract class AbstractFunction {
 
 
 	/**
-	 * Gets whether the data-type of the return value varies 
+	 * Gets whether the data-type of the return value varies
 	 * depending on data-types and array-ranks of actual arguments.
-	 * 
+	 *
 	 * @return Returns true if the data-type of the return value varies depending on actual arguments.
 	 */
 	public abstract boolean isReturnDataTypeArbitrary();
 
 
 	/**
-	 * Gets whether the array-rank of the return value varies 
+	 * Gets whether the array-rank of the return value varies
 	 * depending on data-types and array-ranks of actual arguments.
-	 * 
+	 *
 	 * @return Returns true if the array-rank of the return value varies depending on actual arguments.
 	 */
 	public abstract boolean isReturnArrayRankArbitrary();
@@ -227,11 +227,11 @@ public abstract class AbstractFunction {
 
 	/**
 	 * Checks this function is invokable without problems which are detectable before invoking.
-	 * 
+	 *
 	 * If any problem has been found, this method will throw an exception.
 	 * If no problem has been found, nothing will occur.
 	 *
-	 * For example, types of data I/O interfaces used in an external function plug-in 
+	 * For example, types of data I/O interfaces used in an external function plug-in
 	 * must be compatible with the data-types and array-ranks of actual arguments passed in scripts.
 	 * So this method throw an exception if they are incompatible.
 	 *

@@ -25,7 +25,7 @@ public enum AttributeKey {
 	IDENTIFIER_VALUE,
 
 	/**
-	 * The key of the attribute for storing the serial number 
+	 * The key of the attribute for storing the serial number
 	 * to distinguish different variables/functions having the same identifier.
 	 */
 	IDENTIFIER_SERIAL_NUMBER,
@@ -61,32 +61,32 @@ public enum AttributeKey {
 	OPERATOR_ASSOCIATIVITY,
 
 	/**
-	 * The key of the attribute for storing a type of syntax 
+	 * The key of the attribute for storing a type of syntax
 	 * (for example, binary operator, prefix operator, and so on) of an operator.
 	 */
 	OPERATOR_SYNTAX,
 
 	/**
-	 * The key of the attribute for storing a type of operation 
+	 * The key of the attribute for storing a type of operation
 	 * (for example, arithmetic operator, logical operator, and so on) of an operator.
 	 */
 	OPERATOR_EXECUTOR,
 
 	/**
-	 * The key of the attribute for storing a data-type to perform operation 
+	 * The key of the attribute for storing a data-type to perform operation
 	 * (int, float, and so on) of an operator.
 	 */
 	OPERATOR_EXECUTION_DATA_TYPE,
 
 	/**
-	 * The key of the attribute for storing a description in the intermediate code 
+	 * The key of the attribute for storing a description in the intermediate code
 	 * (for example, immediate value, register name, and so on).
 	 */
 	ASSEMBLY_VALUE,
 
 	/**
 	 * The key of the attribute for storing the name of a register,
-	 * when the AST node represents an operator and an new register is necessary 
+	 * when the AST node represents an operator and an new register is necessary
 	 * to store the evaluated value of that operator.
 	 */
 	NEW_REGISTER,
@@ -94,9 +94,9 @@ public enum AttributeKey {
 	/** The key of the attribute for storing a signature of a callee function. */
 	CALLEE_SIGNATURE,
 
-	/** 
+	/**
 	 * The key of the attribute for storing modifiers.
-	 * 
+	 *
 	 * When the AST node has multiple modifiers,
 	 * they will be stored as a attribute value which delimited by {@link AttributeValue#MODIFIER_SEPARATOR}.
 	 */

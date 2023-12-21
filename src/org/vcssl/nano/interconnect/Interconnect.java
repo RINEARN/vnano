@@ -142,7 +142,7 @@ public class Interconnect {
 
 	/**
 	 * Sets options, by a Map (option map) storing names and values of options you want to set.
-	 * 
+	 *
 	 * Type of the option map is Map<String,Object>, and its keys represents option names.
 	 * For details of option names and values,
 	 * see {@link org.vcssl.nano.spec.OptionKey} and {@link org.vcssl.nano.spec.OptionValue}.
@@ -165,7 +165,7 @@ public class Interconnect {
 
 	/**
 	 * Gets the Map (option map) storing names and values of options.
-	 * 
+	 *
 	 * Type of the option map is Map<String,Object>, and its keys represents option names.
 	 * For details of option names and values,
 	 * see {@link org.vcssl.nano.spec.OptionKey} and {@link org.vcssl.nano.spec.OptionValue}.
@@ -179,7 +179,7 @@ public class Interconnect {
 
 	/**
 	 * Sets permissions, by a Map (permission map) storing names and values of permission items you want to set.
-	 * 
+	 *
 	 * Type of the permission map is Map<String,String>, and its keys represents names of permission items.
 	 * For details of names and values of permission items,
 	 * see {@link org.vcssl.connect.ConnectorPermissionName} and {@link org.vcssl.connect.ConnectorPermissionValue}.
@@ -197,7 +197,7 @@ public class Interconnect {
 
 	/**
 	 * Gets the Map (permission map) storing names and values of permission items.
-	 * 
+	 *
 	 * Type of the permission map is Map<String,String>, and its keys represents names of permission items.
 	 * For details of names and values of permission items,
 	 * see {@link org.vcssl.connect.ConnectorPermissionName} and {@link org.vcssl.connect.ConnectorPermissionValue}.
@@ -211,7 +211,7 @@ public class Interconnect {
 
 	/**
 	 * Returns the table storing information of external functions (external function table).
-	 * 
+	 *
 	 * @return The external function table.
 	 */
 	public FunctionTable getExternalFunctionTable() {
@@ -221,7 +221,7 @@ public class Interconnect {
 
 	/**
 	 * Returns the table storing information of external variable (external variable table).
-	 * 
+	 *
 	 * @return The external variable table.
 	 */
 	public VariableTable getExternalVariableTable() {
@@ -284,7 +284,7 @@ public class Interconnect {
 
 	/**
 	 * Connects various types of plug-ins which provides external functions/variables.
-	 * 
+	 *
 	 * @param bindingName
 	 *   A name in scripts of the variable/function/namespace provided by the connected plug-in.
 	 *   If the passed argument contains a white space or a character "(", the content after it will be ignored.
@@ -333,13 +333,13 @@ public class Interconnect {
 				bindingName = this.generateBindingNameOf(plugin);
 				nameInErrorMessage = bindingName;
 
-				// The plug-in is has not been initialized yet in this step, 
+				// The plug-in is has not been initialized yet in this step,
 				// but its name should be determined before the initialization, for XFCI1/XVCI1/XNCI1.
 			}
 
 			// Remove after a white space or "(" in the binding name.
 			bindingName = bindingName.split("\\s|\\(")[0];
-			
+
 			// PACI1 type security plug-in:
 			if (plugin instanceof PermissionAuthorizerConnectorInterface1) {
 				nameInErrorMessage = plugin.getClass().getName();
@@ -416,7 +416,7 @@ public class Interconnect {
 
 	/**
 	 * Disconnects all plug-ins.
-	 * 
+	 *
 	 * If the finalization (for disconnection) method is implemented on the plug-in,
 	 * it will be called when the plug-in will be disconnected by this method.
 	 *
@@ -438,7 +438,7 @@ public class Interconnect {
 	 * Generate the value of the argument "bindingName" of
 	 * {@link Interconnect#connectPlugin connectPlugin(String bindingKey, Object plugin)}
 	 * method automatically.
-	 * 
+	 *
 	 * @param plugin
 	 *   The value passed as the argument "plugin" of
 	 *   {@link Interconnect#connectPlugin connectPlugin(String bindingKey, Object plugin)} method.
@@ -521,7 +521,7 @@ public class Interconnect {
 
 	/**
 	 * Connects a Field type instance as a plug-in.
-	 * 
+	 *
 	 * This connection makes the field reflected by the passed Field type instance accessible
 	 * from scripts as the external variable.
 	 *
@@ -541,7 +541,7 @@ public class Interconnect {
 
 	/**
 	 * Connects a Method type instance as a plug-in.
-	 * 
+	 *
 	 * This connection makes the method reflected by the passed Method type instance accessible
 	 * from scripts as the external function.
 	 *
@@ -561,7 +561,7 @@ public class Interconnect {
 
 	/**
 	 * Connects a Class&lt;T&gt; type instance as a plug-in.
-	 * 
+	 *
 	 * This connection makes methods and fields which belong to
 	 * "the class T reflected by the passed Class&lt;T&gt; type instance"
 	 * accessible from scripts as the external functions and variables.
@@ -593,7 +593,7 @@ public class Interconnect {
 	/**
 	 * Connects the plug-in of {@link org.vcssl.connect.PermissionAuthorizerConnectorInterface1 PACI1} format,
 	 * for authorization of permissions.
-	 * 
+	 *
 	 * @param plugin The plug-in to be connected.
 	 * @throws VnanoException Thrown if the plug-in could not be connected, caused by initialization errors and so on.
 	 */
@@ -630,7 +630,7 @@ public class Interconnect {
 	/**
 	 * Connects the plug-in of {@link org.vcssl.connect.ExternalVariableConnectorInterface1 XVCI1} format,
 	 * which provides an external variable.
-	 * 
+	 *
   	 * @param plugin The plug-in to be connected.
 	 * @param aliasingRequired Whether use the alias for accessing from scripts or not ("true" for using).
 	 * @param aliasName The alias for accessing from scripts.
@@ -672,7 +672,7 @@ public class Interconnect {
 	/**
 	 * Connects the plug-in of {@link org.vcssl.connect.ExternalFunctionConnectorInterface1 XFCI1} format,
 	 * which provides an external function.
-	 * 
+	 *
 	 * @param plugin The plug-in to be connected.
 	 * @param aliasingRequired Whether use the alias for accessing from scripts or not ("true" for using).
 	 * @param aliasName The alias for accessing from scripts.
@@ -714,7 +714,7 @@ public class Interconnect {
 	/**
 	 * Connects the plug-in of {@link org.vcssl.connect.ExternalNamespaceConnectorInterface1 XNCI1} format,
 	 * which provides a set of external variables and external functions.
-	 * 
+	 *
 	 * @param plugin The plug-in to be connected.
 	 * @param aliasingRequired Whether use the alias for accessing from scripts or not ("true" for using).
 	 * @param aliasName The alias for accessing from scripts.
@@ -782,7 +782,7 @@ public class Interconnect {
 
 	/**
 	 * Connects a variable object compatible with the variable format in this engine (Xvci1ToVariableAdapter and so on).
-	 * 
+	 *
 	 * @param variable variable object to be connected.
 	 */
 	private void connectVariable(AbstractVariable variable) {
@@ -792,7 +792,7 @@ public class Interconnect {
 
 	/**
 	 * Connects a function object compatible with the function format in this engine (Xfci1ToFunctionAdapter and so on).
-	 * 
+	 *
 	 * @param function function object to be connected.
 	 */
 	private void connectFunction(AbstractFunction function) {
@@ -805,13 +805,13 @@ public class Interconnect {
 	 */
 	private void initializeAllPluginsForExecution() throws VnanoException {
 
-		// Store a plug-in just before when its finalization method is invoked, 
+		// Store a plug-in just before when its finalization method is invoked,
 		// to embed information of cause plug-in into an error message, when any error occurred.
 		Object initializingPlugin = null;
 
 		try {
-			// Initialize of the permission authorizer plug-in should be invoked 
-			// before when initializations of all plug-ins are invoked, 
+			// Initialize of the permission authorizer plug-in should be invoked
+			// before when initializations of all plug-ins are invoked,
 			// because initialization processes of other plug-ins may request permission-related actions.
 			if (this.permissionAuthorizer != null) {
 				this.permissionAuthorizer.initializeForExecution(this.engineConnector);
@@ -849,7 +849,7 @@ public class Interconnect {
 	 */
 	private void finalizeAllPluginsForTermination() throws VnanoException {
 
-		// Store a plug-in just before when its finalization method is invoked, 
+		// Store a plug-in just before when its finalization method is invoked,
 		// to embed information of cause plug-in into an error message, when any error occurred.
 		Object finalizingPlugin = null;
 		try {
@@ -874,8 +874,8 @@ public class Interconnect {
 				plugin.postFinalizeForTermination(this.engineConnector);
 			}
 
-			// Finalization of the permission authorizer plug-in should be invoked 
-			// after when finalizations of all plug-ins have been completed, 
+			// Finalization of the permission authorizer plug-in should be invoked
+			// after when finalizations of all plug-ins have been completed,
 			// because finalization processes of other plug-ins may request permission-related actions.
 			if (this.permissionAuthorizer != null) {
 				this.permissionAuthorizer.finalizeForTermination(this.engineConnector);
@@ -894,7 +894,7 @@ public class Interconnect {
 	 */
 	private void finalizeAllPluginsForDisconnection() throws VnanoException {
 
-		// Store a plug-in just before when its finalization method is invoked, 
+		// Store a plug-in just before when its finalization method is invoked,
 		// to embed information of cause plug-in into an error message, when any error occurred.
 		Object finalizingPlugin = null;
 
@@ -920,8 +920,8 @@ public class Interconnect {
 				plugin.postFinalizeForDisconnection(this.engineConnector);
 			}
 
-			// Finalization of the permission authorizer plug-in should be invoked 
-			// after when finalizations of all plug-ins have been completed, 
+			// Finalization of the permission authorizer plug-in should be invoked
+			// after when finalizations of all plug-ins have been completed,
 			// because finalization processes of other plug-ins may request permission-related actions.
 			if (this.permissionAuthorizer != null) {
 				this.permissionAuthorizer.finalizeForDisconnection(this.engineConnector);
@@ -968,7 +968,7 @@ public class Interconnect {
 
 	/**
 	 * Set the main script.
-	 * 
+	 *
 	 * @param mainScriptName The name of the main script.
 	 * @param mainScriptContent The content of the main script.
 	 */
@@ -989,7 +989,7 @@ public class Interconnect {
 
 	/**
 	 * Gets the number of the registered library scripts.
-	 * 
+	 *
 	 * @return The number of the registered library scripts.
 	 */
 	public int getLibraryScriptCount() {
@@ -999,13 +999,13 @@ public class Interconnect {
 
 	/**
 	 * Gets the file paths of all scripts (the main script and the library scripts).
-	 * 
-	 * File paths of libraries are stored as elements from [0] to [N-2] of the returned array, 
+	 *
+	 * File paths of libraries are stored as elements from [0] to [N-2] of the returned array,
 	 * where N is the length of the returned array.
-	 * 
+	 *
 	 * The "name" of the main script is stored at [N-1] (the last element) in the returned array.
 	 * It is not a file path, and may not be an actual file name (specified as the value of "MAIN_SCRIPT_NAME" option).
-	 * 
+	 *
 	 * @return The file paths of all scripts.
 	 */
 	public String[] getScriptPaths() {
@@ -1023,7 +1023,7 @@ public class Interconnect {
 
 	/**
 	 * Gets the contents of all scripts (the main script and the library scripts).
-	 * 
+	 *
 	 * @return The contents of all scripts.
 	 */
 	public String[] getScriptContents() {
@@ -1041,10 +1041,10 @@ public class Interconnect {
 
 	/**
 	 * Converts the specified script name/path to the "import path".
-	 * 
+	 *
 	 * An import path is a string which can be specified as a value of a "import" declaration,
 	 * e.g.: "dir1.dir2.ExampleScript" for the script "dir1/dir2/ExampleScript.vnano".
-	 * 
+	 *
 	 * @param scriptName The name or path of the script.
 	 * @return The "import path" of the script.
 	 */
@@ -1063,8 +1063,8 @@ public class Interconnect {
 
 
 	/**
-	 * Returns whether this interconnect has the library or plug-in, corresponding with the specified "import path". 
-	 * 
+	 * Returns whether this interconnect has the library or plug-in, corresponding with the specified "import path".
+	 *
 	 * @param importPath The "import path" of the library/plug-in.
 	 * @return Returns true if the corresponding library/plug-in exists in this interconnect.
 	 */

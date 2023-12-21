@@ -17,7 +17,7 @@ public class MetaInformationSyntax {
 
 	/**
 	 * Generates meta information in which specified line number and file name are embedded.
-	 * 
+	 *
 	 * @param lineNumber The line number to be embedded in the meta information.
 	 * @param lineNumber The file name to be embedded in the meta information.
 	 * @return The generated meta information.
@@ -29,7 +29,7 @@ public class MetaInformationSyntax {
 
 	/**
 	 * Extracts the line number embedded in the meta information.
-	 * 
+	 *
 	 * @param metaInformation The meta information in which the line number to be extracted is embedded.
 	 * @return The extracted line number.
 	 */
@@ -46,7 +46,7 @@ public class MetaInformationSyntax {
 
 	/**
 	 * Extracts the line number embedded in the meta information linked to the specified instruction.
-	 * 
+	 *
 	 * @param instruction The instruction of which meta information contains the line number to be extracted.
 	 * @param memory The memory in which data of meta information is stored.
 	 * @return The extracted line number.
@@ -62,7 +62,7 @@ public class MetaInformationSyntax {
 
 	/**
 	 * Extracts the file name embedded in the meta information.
-	 * 
+	 *
 	 * @param metaInformation The meta information in which the file name to be extracted is embedded.
 	 * @return The extracted file name.
 	 */
@@ -79,7 +79,7 @@ public class MetaInformationSyntax {
 
 	/**
 	 * Extracts the file name embedded in the meta information linked to the specified instruction.
-	 * 
+	 *
 	 * @param instruction The instruction of which meta information contains the file name to be extracted.
 	 * @param memory The memory in which data of meta information is stored.
 	 * @return The extracted file name.

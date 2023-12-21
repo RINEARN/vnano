@@ -37,7 +37,7 @@ VCSSL/VNANO PLUGIN INTERFACE SPECIFICATION
 <h2>Abstract</h2>
 
 <p>
-Permission Authorizer Connector Interface 1 (PACI1) is 
+Permission Authorizer Connector Interface 1 (PACI1) is
 an interface for implementing permission-based security plug-ins.
 </p>
 
@@ -47,8 +47,8 @@ and determine whether allow or deny it (or ask to the user to determine it, if n
 </p>
 
 <p>
-What form of UI is suitable for the above determination highly depends on 
-the application's UI, purpose, and so on. 
+What form of UI is suitable for the above determination highly depends on
+the application's UI, purpose, and so on.
 Hence, the application-side can design UI for the above determination,
 and can connect (and use) it to script engines, by implementing this interface.
 </p>
@@ -60,31 +60,31 @@ On PACI 1, following two types of permission settings are assumed to exist:
 <dl style="margin-left: 30px;">
 	<dt style="font-weight: bold;">Base permission settings:</dt>
 		<dd>
-			Settings which is set to applications/script engines explicitly, 
+			Settings which is set to applications/script engines explicitly,
 			and applied automatically to each script at the beginning time of its execution.
 		</dd>
 	<dt style="font-weight: bold;">Temporary permission settings:</dt>
 		<dd>
-			Temporary settings kept only during each script is running, 
+			Temporary settings kept only during each script is running,
 			of which values may change by user's responses for requests of permissions.
 		</dd>
 </dl>
 
 <p>
-When the script is executed, at the beginning, values of the base permission settings 
+When the script is executed, at the beginning, values of the base permission settings
 are copied to the temporary permission settings.
-During the script is running, values of temporary permission settings are referred 
+During the script is running, values of temporary permission settings are referred
 (and modified if necessary), when any permission is requested.
 When the next script is executed, values of the temporary permission settings
-are re-initialized by copying values of the base permission settings. 
+are re-initialized by copying values of the base permission settings.
 </p>
 
 <p>
 The reason of why the temporary permission settings exists is: to avoid repeating the same request to an user.
 For example, when the base permission for writing files is set to <a href="ConnectorPermissionValue_SPEC_ENGLISH.html#ASK">ASK</a>,
-if the temporary permission does not exist, we should ask the user to determine whether allows it or not, 
+if the temporary permission does not exist, we should ask the user to determine whether allows it or not,
 for every time when write a line to a file (we should ask 100 times for writing 100 lines).
-It must be troublesome, so it is necessary to provide an option such as: 
+It must be troublesome, so it is necessary to provide an option such as:
 "Allow the same request automatically, during the current script is running".
 In order to implement the above feature, the temporary permission settings exists.
 </p>
@@ -103,7 +103,7 @@ No modifications will be applied for this interface, excluding documents/comment
 </p>
 
 <p>
-This interface is currently supported by the scripting engine of Vnano. 
+This interface is currently supported by the scripting engine of Vnano.
 You can use this interface for development of plug-ins of applications equipped with the Vnano engine.
 </p>
 
@@ -147,7 +147,7 @@ This interface is published under CC0, which is almost the same as the so-called
 
 	<dt><a href="#getEngineConnectorClass">Class&lt;?&gt; getEngineConnectorClass()</a></dt>
 		<dd>
-			Returns the instance of "Class" class, representing the interface or the class of the engine connector, 
+			Returns the instance of "Class" class, representing the interface or the class of the engine connector,
 			which is an object for communicating with the scripting engine.
 		</dd>
 
@@ -260,7 +260,7 @@ This interface is published under CC0, which is almost the same as the so-called
 		<td class="lcol">Exception</td>
 		<td class="rcol">
 			ConnectorException: Thrown when invalid permission settings are detected.
-			Also, thrown when "false" is specified to "setsToBase" but the temporary permission settings does not exist 
+			Also, thrown when "false" is specified to "setsToBase" but the temporary permission settings does not exist
 			(not created yet or already disposed).
 		</td>
 	</tr>
@@ -303,7 +303,7 @@ This interface is published under CC0, which is almost the same as the so-called
 		<td class="lcol">Exception</td>
 		<td class="rcol">
 			ConnectorException: Thrown when failed to get the specified permission settings.
-			For example, thrown when "false" is specified to "setsToBase" but the temporary permission settings does not exist 
+			For example, thrown when "false" is specified to "setsToBase" but the temporary permission settings does not exist
 			(not created yet or already disposed).
 		</td>
 	</tr>
@@ -342,7 +342,7 @@ This interface is published under CC0, which is almost the same as the so-called
 			<br />
 			requester: The plug-in requesting the permission.
 			<br />
-			metaInformation: The information to be notified to the user 
+			metaInformation: The information to be notified to the user
 			(especially when the current value of the permission is set to <a href="ConnectorPermissionValue_SPEC_JAPANESE.html#ASK">ASK</a>).
 		</td>
 	</tr>
@@ -371,17 +371,17 @@ This interface is published under CC0, which is almost the same as the so-called
 		<td class="lcol">Description</td>
 		<td class="rcol">
 			<p style="margin-top: 0px;">
-			Returns the instance of "Class" class, representing the interface or the class of the engine connector, 
+			Returns the instance of "Class" class, representing the interface or the class of the engine connector,
 			which is an object for communicating with the scripting engine.
 			</p>
 			<p>
-			The instance of the specified interface/class by this method will be passed to the argument of 
+			The instance of the specified interface/class by this method will be passed to the argument of
 			initialization/finalization methods, e.g.: <a href="#initializeForConnection">initializeForConnection(Object engineConnector)</a>.
 			</p>
 			<p>
-			What type of interfaces are available depend on the implementation of the scripting engine, 
-			but at least, 
-			<a href="./EngineConnector1_SPEC_ENGLISH.html">ECI1</a> 
+			What type of interfaces are available depend on the implementation of the scripting engine,
+			but at least,
+			<a href="./EngineConnector1_SPEC_ENGLISH.html">ECI1</a>
 			is guaranteed to be available by the specification of PACI1.
 			</p>
 		</td>
@@ -422,7 +422,7 @@ This interface is published under CC0, which is almost the same as the so-called
 	<tr>
 		<td class="lcol">Parameters</td>
 		<td class="rcol">
-			engineConnector: The engine connector 
+			engineConnector: The engine connector
 			(see: <a href="#getEngineConnectorClass">getEngineConnectorClass()</a> method).
 		</td>
 	</tr>
@@ -456,7 +456,7 @@ This interface is published under CC0, which is almost the same as the so-called
 	<tr>
 		<td class="lcol">Parameters</td>
 		<td class="rcol">
-			engineConnector: The engine connector 
+			engineConnector: The engine connector
 			(see: <a href="#getEngineConnectorClass">getEngineConnectorClass()</a> method).
 		</td>
 	</tr>
@@ -490,7 +490,7 @@ This interface is published under CC0, which is almost the same as the so-called
 	<tr>
 		<td class="lcol">Parameters</td>
 		<td class="rcol">
-			engineConnector: The engine connector 
+			engineConnector: The engine connector
 			(see: <a href="#getEngineConnectorClass">getEngineConnectorClass()</a> method).
 		</td>
 	</tr>
@@ -524,7 +524,7 @@ This interface is published under CC0, which is almost the same as the so-called
 	<tr>
 		<td class="lcol">Parameters</td>
 		<td class="rcol">
-			engineConnector: The engine connector 
+			engineConnector: The engine connector
 			(see: <a href="#getEngineConnectorClass">getEngineConnectorClass()</a> method).
 		</td>
 	</tr>

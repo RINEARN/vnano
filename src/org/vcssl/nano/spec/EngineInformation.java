@@ -57,7 +57,7 @@ public class EngineInformation {
 
 	/**
 	 * Returns the value of the engine information corresponding with the specified key.
-	 * 
+	 *
 	 * @param key The key of the engine information.
 	 * @return The value of the engine information corresponding with the specified key.
 	 */

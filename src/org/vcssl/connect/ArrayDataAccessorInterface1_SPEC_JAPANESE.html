@@ -270,16 +270,16 @@ Array Data Accessor Interface 1 (ADAI1) は、主に処理系のデータコン�
 	<tr>
 		<td class="lcol">機能</td>
 		<td class="rcol">
-			
+
 			<p style="margin-top: 0px;">
 			1次元に直列化された配列データを、そのデータに関する必須情報と共に設定します。
 			</p>
-			
+
 			<p>
 			このインターフェースでは、スカラ値や多次元配列も含めて、データは全て1次元の配列として入出力します。
 			そのため、引数 data には常に 1 次元配列を渡してください。1 次元配列への、データの格納の仕方は下記の通りです。
 			</p>
-			
+
 			<p>
 			<b>スカラ値を設定する場合:</b>
 			引数 data には、スカラ値が要素として、任意のインデックスの位置に格納されている配列を1次元指定します。
@@ -287,19 +287,19 @@ Array Data Accessor Interface 1 (ADAI1) は、主に処理系のデータコン�
 			引数 lengths には、長さ 0 のから配列を指定します
 			（即ち、このインターフェースではスカラ値を「 0 次元の配列 」と見なして扱います）。
 			</p>
-			
+
 			<p>
 			<b>1次元配列データを設定する場合:</b>
 			引数 data には、設定したい1次元配列データをそのまま指定します。
 			引数 offset には、常に 0 を指定します。
 			引数 lengths には、長さが 1 で、[0] の位置に1次元配列データ（引数 data に指定）の長さが格納された配列を指定します。
 			</p>
-			
+
 			<p>
 			<b>多次元配列データを格納する場合:</b>
 			引数 data には、多次元配列の各要素値を、下記の通り規則的に並べた（直列化された） 1 次元配列を指定します:
 			</span>
-			
+
 			<div class="lang-ja" style="border: 1px solid #000000; margin: 5px; padding: 3px;">
 			    (長さが [N1][N2] の 2 次元配列の場合)
 			    <br>
@@ -309,7 +309,7 @@ Array Data Accessor Interface 1 (ADAI1) は、主に処理系のデータコン�
 			    <br>
 			    <span style="margin-left: 30px;">直列化されたインデックス = N2 * 1次元目のインデックス + 2次元目のインデックス</span>
 			</div>
-			
+
 			<div class="lang-ja" style="border: 1px solid #000000; margin: 5px; padding: 3px;">
 			    (長さが [N1][N2][N3] の 3 次元配列の場合)
 			    <br>
@@ -319,7 +319,7 @@ Array Data Accessor Interface 1 (ADAI1) は、主に処理系のデータコン�
 			    <br>
 			    <span style="margin-left: 30px;">直列化されたインデックス = N3*N2 * 1次元目のインデックス + N3 * 2次元目のインデックス + 3次元目のインデックス</span>
 			</div>
-			
+
 			<div class="lang-ja" style="border: 1px solid #000000; margin: 5px; padding: 3px;">
 			    (長さが [N1][N2][N3][N4] の 4 次元配列の場合)
 			    <br>
@@ -331,14 +331,14 @@ Array Data Accessor Interface 1 (ADAI1) は、主に処理系のデータコン�
 			</div>
 			...
 			</p>
-			
+
 			<p>
 			引数 offset には、常に 0 を指定します。
 			引数 lengths には、長さが多次元配列データ（引数 data に指定）の次元数に等しい配列を指定し、
 			その中に、各次元の長さを格納します。その際、要素 [0] が左端次元の長さを表し、要素 [max] が右端次元の長さを表します
 			（具体例としては、長さ [N1][N2][N3] の 3 次元配列においては {N1, N2, N3} を指定します）。
 			</p>
-			
+
 			<p>
 			なお、data や offset および lengths の値を個別に設定するメソッドは、
 			それらの関係が瞬間的にでも不整合な状態になる事を防ぐため、提供されません。

@@ -36,7 +36,7 @@ VCSSL/VNANO PLUGIN INTERFACE SPECIFICATION
 <h2>Abstract</h2>
 
 <p>
-External Function Connector Interface 1 (XFCI1) 
+External Function Connector Interface 1 (XFCI1)
 is an interface for implementing external function plug-ins which provide functions available in scripts.
 </p>
 
@@ -53,7 +53,7 @@ No modifications will be applied for this interface, excluding documents/comment
 </p>
 
 <p>
-This interface is currently supported by the scripting engine of Vnano. 
+This interface is currently supported by the scripting engine of Vnano.
 You can use this interface for development of plug-ins of applications equipped with the Vnano engine.
 </p>
 
@@ -103,7 +103,7 @@ This interface is published under CC0, which is almost the same as the so-called
 
 	<dt><a href="#getParameterUnconvertedClasses">Class&lt;?&gt;[] getParameterUnconvertedClasses()</a></dt>
 		<dd>
-			Returns the instance of "Class" class representing data-I/O interfaces for accessing to data of parameters, 
+			Returns the instance of "Class" class representing data-I/O interfaces for accessing to data of parameters,
 			when the data-conversion feature is disabled.
 		</dd>
 
@@ -144,7 +144,7 @@ This interface is published under CC0, which is almost the same as the so-called
 
 	<dt><a href="#getReturnUnconvertedClass">Class&lt;?&gt; getReturnUnconvertedClass(Class&lt;?&gt;[] parameterClasses)</a></dt>
 		<dd>
-			Returns Class-instances representing data-I/O interfaces for accessing to data 
+			Returns Class-instances representing data-I/O interfaces for accessing to data
 			of return value of this function, when the data-conversion feature is disabled.
 		</dd>
 
@@ -170,7 +170,7 @@ This interface is published under CC0, which is almost the same as the so-called
 
 	<dt><a href="#getEngineConnectorClass">Class&lt;?&gt; getEngineConnectorClass()</a></dt>
 		<dd>
-			Returns the instance of "Class" class, representing the interface or the class of the engine connector, 
+			Returns the instance of "Class" class, representing the interface or the class of the engine connector,
 			which is an object for communicating with the scripting engine.
 		</dd>
 
@@ -350,7 +350,7 @@ This interface is published under CC0, which is almost the same as the so-called
 			<p>
 			For example, returns { double.class, long[][].class } when parameters of this function are: (double, long[][]).
 			<br />
-			(Note that, "float" type values in scripts are handled as "double" type values in plug-ins, 
+			(Note that, "float" type values in scripts are handled as "double" type values in plug-ins,
 			and "int" type values in scripts are handled as "long" type values in plug-ins.)
 			</p>
 		</td>
@@ -386,11 +386,11 @@ This interface is published under CC0, which is almost the same as the so-called
 		<td class="lcol">Description</td>
 		<td class="rcol">
 			<p style="margin-top: 0px;">
-			Returns the instance of "Class" class representing data-I/O interfaces for accessing to data of parameters, 
+			Returns the instance of "Class" class representing data-I/O interfaces for accessing to data of parameters,
 			when <a href="#isDataConversionNecessary">the data-conversion feature</a> is disabled.
 			</p>
 			<p>
-			As interfaces for accessing to a scalar parameter, 
+			As interfaces for accessing to a scalar parameter,
 			<a href="./Int64ScalarDataAccessorInterface1_SPEC_ENGLISH.html">Int64 SDAI1</a>、
 			<a href="./Float64ScalarDataAccessorInterface1_SPEC_ENGLISH.html">Float64 SDAI1</a>、
 			<a href="./BoolScalarDataAccessorInterface1_SPEC_ENGLISH.html">Bool SDAI1</a>、
@@ -398,7 +398,7 @@ This interface is published under CC0, which is almost the same as the so-called
 			and
 			<a href="./ArrayDataAccessorInterface1_SPEC_ENGLISH.html">ADAI1</a>
 			are available.
-			For an array parameter, only 
+			For an array parameter, only
 			<a href="./ArrayDataAccessorInterface1_SPEC_ENGLISH.html">ADAI1</a>
 			is available.
 			</p>
@@ -438,7 +438,7 @@ This interface is published under CC0, which is almost the same as the so-called
 			Returns arbitrarinesses of data-types of parameters.
 			</p>
 			<p>
-			When the data-type arbitrariness is "true" for a parameter, 
+			When the data-type arbitrariness is "true" for a parameter,
 			any type of value can be passed as an actual argument for the parameter.
 			</p>
 		</td>
@@ -479,7 +479,7 @@ This interface is published under CC0, which is almost the same as the so-called
 			Returns arbitrarinesses of array-ranks of parameters.
 			</p>
 			<p>
-			When the array-rank arbitrariness is "true" for a parameter, 
+			When the array-rank arbitrariness is "true" for a parameter,
 			an array having any rank (number of dimensions) can be passed as an actual argument for the parameter.
 			</p>
 		</td>
@@ -520,7 +520,7 @@ This interface is published under CC0, which is almost the same as the so-called
 			Returns referencenesses of parameters.
 			</p>
 			<p>
-			When the referenceness is "true" for a parameter, 
+			When the referenceness is "true" for a parameter,
 			an actual argument of the parameter will be passed by reference.
 			</p>
 		</td>
@@ -560,8 +560,8 @@ This interface is published under CC0, which is almost the same as the so-called
 			Returns constantnesses of parameters.
 			</p>
 			<p>
-			When the constantness is "true" for a parameter, 
-			it is regarded that the value of an actual argument of the parameter will not be modified 
+			When the constantness is "true" for a parameter,
+			it is regarded that the value of an actual argument of the parameter will not be modified
 			in the process of this function.
 			</p>
 		</td>
@@ -602,14 +602,14 @@ This interface is published under CC0, which is almost the same as the so-called
 			Returns whether the number of parameters is arbitrary.
 			</p>
 			<p>
-			When this feature is enabled (when this method returns "true"), 
+			When this feature is enabled (when this method returns "true"),
 			by default, it is regarded that all parameters have the same data-type and array-rank.
-			Hence, <a href="#getParameterClasses">getParameterClasses()</a> method should return an array of which length is 1, 
+			Hence, <a href="#getParameterClasses">getParameterClasses()</a> method should return an array of which length is 1,
 			and it represents the data-type/array-rank of all parameters.
 			</p>
 			<p>
-			However, if <a href="#getParameterDataTypeArbitrarinesses">getParameterDataTypeArbitrarinesses()</a> 
-			method or  
+			However, if <a href="#getParameterDataTypeArbitrarinesses">getParameterDataTypeArbitrarinesses()</a>
+			method or
 			<a href="#getParameterArrayRankArbitrarinesses">getParameterArrayRankArbitrarinesses()</a>
 			method returns { true }, data-types / array-ranks of parameters are arbitrary, so they may different each other.
 			</p>
@@ -682,10 +682,10 @@ This interface is published under CC0, which is almost the same as the so-called
 			Returns the instance of "Class" class, representing a data-type and an array-rank of the return value of this function.
 			</p>
 			<p>
-			For example, returns double.class for double-type return value, 
+			For example, returns double.class for double-type return value,
 			returns long[][].class for long[][]-type return value, and so on.
 			<br />
-			(Note that, "float" type values in scripts are handled as "double" type values in plug-ins, 
+			(Note that, "float" type values in scripts are handled as "double" type values in plug-ins,
 			and "int" type values in scripts are handled as "long" type values in plug-ins.)
 			</p>
 		</td>
@@ -724,11 +724,11 @@ This interface is published under CC0, which is almost the same as the so-called
 		<td class="lcol">Description</td>
 		<td class="rcol">
 			<p style="margin-top: 0px;">
-			Returns Class-instances representing data-I/O interfaces for accessing to data 
+			Returns Class-instances representing data-I/O interfaces for accessing to data
 			of return value of this function, when <a href="#isDataConversionNecessary">the data-conversion feature</a> is disabled.
 			</p>
 			<p>
-			As interfaces for accessing to a scalar return value, 
+			As interfaces for accessing to a scalar return value,
 			<a href="./Int64ScalarDataAccessorInterface1_SPEC_ENGLISH.html">Int64 SDAI1</a>、
 			<a href="./Float64ScalarDataAccessorInterface1_SPEC_ENGLISH.html">Float64 SDAI1</a>、
 			<a href="./BoolScalarDataAccessorInterface1_SPEC_ENGLISH.html">Bool SDAI1</a>、
@@ -736,18 +736,18 @@ This interface is published under CC0, which is almost the same as the so-called
 			and
 			<a href="./ArrayDataAccessorInterface1_SPEC_ENGLISH.html">ADAI1</a>
 			are available.
-			For an array return value, only 
+			For an array return value, only
 			<a href="./ArrayDataAccessorInterface1_SPEC_ENGLISH.html">ADAI1</a>
 			is available.
 			</p>
 			<p>
 			Also, information of data-types and array-ranks of actual arguments will be passed to "parameterClasses".
-			The above information enable to implement a kind of "generic" function 
+			The above information enable to implement a kind of "generic" function
 			of which the data-type/array-rank varies depending on data-types/array-ranks of parameters.
 			(To implement such functions, set the data-type/array-rank of the return value arbitrary,
-			by implementing 
+			by implementing
 			<a href="#isReturnDataTypeArbitrary">isReturnDataTypeArbitrary()</a> and
-			<a href="#isReturnArrayRankArbitrary">isReturnArrayRankArbitrary()</a> 
+			<a href="#isReturnArrayRankArbitrary">isReturnArrayRankArbitrary()</a>
 			methods to return "true".)
 			</p>
 		</td>
@@ -787,9 +787,9 @@ This interface is published under CC0, which is almost the same as the so-called
 			Returns whether the data-type of the return value of this function varies arbitrary.
 			</p>
 			<p>
-			This feature is for implementing a kind of "generic" function of which type of return value 
+			This feature is for implementing a kind of "generic" function of which type of return value
 			varies depending on types of actual arguments.
-			Hence, even if this feature is enabled (even if this method returns "true"), 
+			Hence, even if this feature is enabled (even if this method returns "true"),
 			the type of the return value must be determined at when types of actual arguments are determined.
 			See also: exprenation of <a href="#getReturnClass">getReturnClass(Class[])</a> method.
 			</p>
@@ -829,9 +829,9 @@ This interface is published under CC0, which is almost the same as the so-called
 			Returns whether the array-rank (number of dimensions) of the return value of this function varies arbitrary.
 			</p>
 			<p>
-			This feature is for implementing a kind of "generic" function of which array-rank of return value 
+			This feature is for implementing a kind of "generic" function of which array-rank of return value
 			varies depending on types/ranks of actual arguments.
-			Hence, even if this feature is enabled (even if this method returns "true"), 
+			Hence, even if this feature is enabled (even if this method returns "true"),
 			the rank of the return value must be determined at when types/ranks of actual arguments are determined.
 			See also: exprenation of <a href="#getReturnClass">getReturnClass(Class[])</a> method.
 			</p>
@@ -873,23 +873,23 @@ This interface is published under CC0, which is almost the same as the so-called
 			<p>
 			When this feature is enabled (when this method returns "true"),
 			you can receive data of arguments by using simple data-types.
-			For example, you can receive Double instance for double-type parameter, 
+			For example, you can receive Double instance for double-type parameter,
 			long[][] instance for long[][]-type parameter, and so on.
-			Also, as same as the arguments, 
+			Also, as same as the arguments,
 			you can return the simple data-type value as the return value of the function.
 			</p>
 			<p>
 			On the other hand, when this feature is disabled (when this method retunrs "false"),
-			it is necessary to access to data of parameters and the return value through data-I/O interfaces, 
-			which are specified as return values of 
-			<a href="#getParameterUnconvertedClasses">getParameterUnconvertedClasses()</a> 
+			it is necessary to access to data of parameters and the return value through data-I/O interfaces,
+			which are specified as return values of
+			<a href="#getParameterUnconvertedClasses">getParameterUnconvertedClasses()</a>
 			and
-			<a href="#getReturnUnconvertedClass">getReturnUnconvertedClass(Class[])</a> method. 
+			<a href="#getReturnUnconvertedClass">getReturnUnconvertedClass(Class[])</a> method.
 			</p>
 			<p>
 			Enabling this feature make the implementation of the plugin simple.
 			However, this feature takes overhead processing costs for converting data of parameters and return value.
-			Therefore, if you want to implement a function plug-in which will be called frequently from scripts 
+			Therefore, if you want to implement a function plug-in which will be called frequently from scripts
 			of which processing speed is required to be fast in some degree,
 			disabling this feature gives some advantage to reduce overhead processing costs of function calls.
 			</p>
@@ -930,22 +930,22 @@ This interface is published under CC0, which is almost the same as the so-called
 			Invokes the process of this function.
 			</p>
 			<p>
-			The data of the actual arguments of the function will be passed to the argument of this method: "arguments", 
+			The data of the actual arguments of the function will be passed to the argument of this method: "arguments",
 			which is an Object[] type array storing data of each actual argument as an element.
 			</p>
 			<p>
-			When data-conversion feature is enabled (see: {@link isDataConversionNecessary()} method), 
+			When data-conversion feature is enabled (see: {@link isDataConversionNecessary()} method),
 			each actual argument will be stored as a simple type of data in "arguments".
 			For example, Double instance for double-type parameter, long[][] instance for long[][]-type parameter, and so on.
 			</p>
 			<p>
 			On the other hand, when data-conversion feature is disabled, in "arguments",
 			each actual argument will be stored as a data-container object implementing data-I/O interface,
-			specified as each element of return values of 
+			specified as each element of return values of
 			<a href="#getParameterUnconvertedClasses">getParameterUnconvertedClasses()</a> method.
-			In addition, in this case, 
+			In addition, in this case,
 			"arguments[0]" will be a data-container object for storing data of the return value of this function,
-			so the data of first argument will be stored at "arguments[1]", and the next arg will be stored at "argument[2]". 
+			so the data of first argument will be stored at "arguments[1]", and the next arg will be stored at "argument[2]".
 			</p>
 		</td>
 	</tr>
@@ -985,17 +985,17 @@ This interface is published under CC0, which is almost the same as the so-called
 		<td class="lcol">Description</td>
 		<td class="rcol">
 			<p style="margin-top: 0px;">
-			Returns the instance of "Class" class, representing the interface or the class of the engine connector, 
+			Returns the instance of "Class" class, representing the interface or the class of the engine connector,
 			which is an object for communicating with the scripting engine.
 			</p>
 			<p>
-			The instance of the specified interface/class by this method will be passed to the argument of 
+			The instance of the specified interface/class by this method will be passed to the argument of
 			initialization/finalization methods, e.g.: <a href="#initializeForConnection">initializeForConnection(Object engineConnector)</a>.
 			</p>
 			<p>
-			What type of interfaces are available depend on the implementation of the scripting engine, 
-			but at least, 
-			<a href="./EngineConnector1_SPEC_ENGLISH.html">ECI1</a> 
+			What type of interfaces are available depend on the implementation of the scripting engine,
+			but at least,
+			<a href="./EngineConnector1_SPEC_ENGLISH.html">ECI1</a>
 			is guaranteed to be available by the specification of XFCI1.
 			</p>
 		</td>
@@ -1036,7 +1036,7 @@ This interface is published under CC0, which is almost the same as the so-called
 	<tr>
 		<td class="lcol">Parameters</td>
 		<td class="rcol">
-			engineConnector: The engine connector 
+			engineConnector: The engine connector
 			(see: <a href="#getEngineConnectorClass">getEngineConnectorClass()</a> method).
 		</td>
 	</tr>
@@ -1070,7 +1070,7 @@ This interface is published under CC0, which is almost the same as the so-called
 	<tr>
 		<td class="lcol">Parameters</td>
 		<td class="rcol">
-			engineConnector: The engine connector 
+			engineConnector: The engine connector
 			(see: <a href="#getEngineConnectorClass">getEngineConnectorClass()</a> method).
 		</td>
 	</tr>
@@ -1104,7 +1104,7 @@ This interface is published under CC0, which is almost the same as the so-called
 	<tr>
 		<td class="lcol">Parameters</td>
 		<td class="rcol">
-			engineConnector: The engine connector 
+			engineConnector: The engine connector
 			(see: <a href="#getEngineConnectorClass">getEngineConnectorClass()</a> method).
 		</td>
 	</tr>
@@ -1138,7 +1138,7 @@ This interface is published under CC0, which is almost the same as the so-called
 	<tr>
 		<td class="lcol">Parameters</td>
 		<td class="rcol">
-			engineConnector: The engine connector 
+			engineConnector: The engine connector
 			(see: <a href="#getEngineConnectorClass">getEngineConnectorClass()</a> method).
 		</td>
 	</tr>

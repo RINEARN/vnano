@@ -327,7 +327,7 @@ public class FunctionTable {
 						parameterDataTypeNames[unexpandedParameterLength - 1]
 					);
 					Arrays.fill(
-						parameterDataTypeArbitrarinesses, 
+						parameterDataTypeArbitrarinesses,
 						unexpandedParameterLength - 1, parameterLength,
 						parameterDataTypeArbitrarinesses[unexpandedParameterLength - 1]
 					);

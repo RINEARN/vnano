@@ -3,11 +3,11 @@
 <!-- A XML file for building Vnano Engine by using Apache Ant -->
 
 <project name="Vnano" basedir="." default="archive">
-	
+
 	<property name="build.srcdir"  value="src"/>
 	<property name="build.bindir"  value="bin"/>
 	<property name="build.jarname" value="Vnano.jar"/>
-	
+
 	<target name="archive" depends="compile">
 		<jar jarfile="${build.jarname}" basedir="${build.bindir}">
 			<manifest>
@@ -18,7 +18,7 @@
 			</fileset>
 		</jar>
 	</target>
-	
+
 	<target name="compile">
 		<mkdir dir="bin" />
 		<javac srcdir="${build.srcdir}" destdir="${build.bindir}" encoding="UTF-8" includeantruntime="false" debug="true">
@@ -26,5 +26,5 @@
 			<exclude name="**/*Test.java"/>
 		</javac>
 	</target>
-	
+
 </project>

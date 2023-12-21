@@ -16,8 +16,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * An adapter class converting a host-language-side class to a 
- * {@link org.vcssl.connect.ExternalNamespaceConnectorInterface1 XNCI 1} plug-in, 
+ * An adapter class converting a host-language-side class to a
+ * {@link org.vcssl.connect.ExternalNamespaceConnectorInterface1 XNCI 1} plug-in,
  * to access to its fields and methods from scripts.
  */
 public class ClassToXnci1Adapter implements ExternalNamespaceConnectorInterface1 {
@@ -30,7 +30,7 @@ public class ClassToXnci1Adapter implements ExternalNamespaceConnectorInterface1
 
 
 	/** Creates a new adapter to access to all static and non-static fields/methods of the class.
-	 * 
+	 *
 	 * @param pluginClass The class to which fields/methods to be accessed belongs to.
 	 * @param pluginInstance The instance of the class specified to the argument "pluginClass".
 	 */
@@ -42,7 +42,7 @@ public class ClassToXnci1Adapter implements ExternalNamespaceConnectorInterface1
 
 	/**
 	 * Creates a new adapter to access to all static fields/methods of the class.
-	 * 
+	 *
 	 * @param pluginClass The class to which fields/methods to be accessed belongs to.
 	 */
 	public ClassToXnci1Adapter(Class<?> pluginClass) {

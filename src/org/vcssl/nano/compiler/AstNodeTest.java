@@ -109,8 +109,8 @@ public class AstNodeTest {
 		parent.addChildNode(childC);
 		parent.addChildNode(childD);
 
-		// Get and check the sibling index, 
-		// which is an order index of a child node in all child nodes added to a same parent, 
+		// Get and check the sibling index,
+		// which is an order index of a child node in all child nodes added to a same parent,
 		// for each child node.
 		assertEquals(0, childA.getSiblingIndex());
 		assertEquals(1, childB.getSiblingIndex());

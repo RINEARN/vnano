@@ -20,7 +20,7 @@ import org.vcssl.nano.vm.memory.DataContainer;
 
 
 /**
- * The adapter class for converting 
+ * The adapter class for converting
  * a {@link org.vcssl.connect.ExternalVariableConnectorInterface1 XVCI1} type external variable plugin
  * to an {@link org.vcssl.nano.interconnect.AbstractVariable AbstractVariable} type variable object.
  */
@@ -40,7 +40,7 @@ public class Xvci1ToVariableAdapter extends AbstractVariable {
 
 
 	/**
-	 * Create an adapter converting the specified XVCI1 plugin to 
+	 * Create an adapter converting the specified XVCI1 plugin to
 	 * an {@link org.vcssl.nano.interconnect.AbstractVariable AbstractVariable} type variable object.
 	 *
 	 * @param xvciPlugin The XVCI1 plugin to be converted.
@@ -87,9 +87,9 @@ public class Xvci1ToVariableAdapter extends AbstractVariable {
 
 	/**
 	 * Sets the name of this variable.
-	 * 
+	 *
 	 * This method is used for setting an alias for an external variable.
-	 * 
+	 *
 	 * @param variableName The name of this variable.
 	 */
 	@Override
@@ -145,7 +145,7 @@ public class Xvci1ToVariableAdapter extends AbstractVariable {
 
 	/**
 	 * Gets the array-rank of this variable.
-	 * 
+	 *
 	 * Note that, the array-rank of an scalar is 0.
 	 *
 	 * @return The array-rank of this variable.
@@ -240,7 +240,7 @@ public class Xvci1ToVariableAdapter extends AbstractVariable {
 
 	/**
 	 * Returns whether this variable is constant.
-	 * 
+	 *
 	 * @return Returns true if this variable is constant.
 	 */
 	@Override
@@ -263,7 +263,7 @@ public class Xvci1ToVariableAdapter extends AbstractVariable {
 
 	/**
 	 * Gets the serial number which is a number to distinguish multiple variables having the same name.
-	 * 
+	 *
 	 * @return The serial number.
 	 */
 	@Override
@@ -275,18 +275,18 @@ public class Xvci1ToVariableAdapter extends AbstractVariable {
 	/**
 	 * Validates whether the specified plug-in implements XVCI1 correctly, and it is available on the current version of Vnano Engine.
 	 * If no issues are detected for the plug-in, nothing will occur.
-	 * 
+	 *
 	 * @param plugin The plug-in to be validated.
 	 * @throws VnanoException Thrown if the specified plug-in has an incorrect something.
 	 */
 	private void validate(ExternalVariableConnectorInterface1 plugin) throws VnanoException {
-		
+
 		// getVariableName()
 		if (plugin.getVariableName() == null) {
 			String errorMessage = "getVariableName(): The returned value is null.";
 			throw new VnanoException(ErrorType.PLUGIN_VALIDATION_FAILED, new String[] { plugin.getClass().getName(), errorMessage });
 		}
-		
+
 		// getDataClass()
 		if (plugin.getDataClass() == null) {
 			String errorMessage = "getDataClass(): The returned value is null.";
@@ -309,7 +309,7 @@ public class Xvci1ToVariableAdapter extends AbstractVariable {
 
 				String errorMessage = "getParameterUnconvertedClasses(): The returned class/interface \""
 						+ dataClass.getName() + "\"is not supported on the current version of Vnano Engine.";
-				throw new VnanoException(ErrorType.PLUGIN_VALIDATION_FAILED, new String[] { plugin.getClass().getName(), errorMessage });	
+				throw new VnanoException(ErrorType.PLUGIN_VALIDATION_FAILED, new String[] { plugin.getClass().getName(), errorMessage });
 			}
 		}
 
@@ -318,7 +318,7 @@ public class Xvci1ToVariableAdapter extends AbstractVariable {
 			String errorMessage = "isDataTypeArbitrary(): Returned true, but this feature has not been supported yet on the current version of Vnano Engine.";
 			throw new VnanoException(ErrorType.PLUGIN_VALIDATION_FAILED, new String[] { plugin.getClass().getName(), errorMessage });
 		}
-		
+
 		// isArrayRankArbitrary()
 		if (plugin.isArrayRankArbitrary()) {
 			String errorMessage = "isArrayRankArbitrary(): Returned true, but this feature has not been supported yet on the current version of Vnano Engine.";

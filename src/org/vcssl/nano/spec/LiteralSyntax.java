@@ -131,7 +131,7 @@ public class LiteralSyntax {
 
 	/**
 	 * Checks whether the specified token can be interpreted as the literal or not.
-	 * 
+	 *
 	 * @param token The token to be checked.
 	 * @return The check result ("true" if it can be interpreted as the literal).
 	 */
@@ -147,7 +147,7 @@ public class LiteralSyntax {
 
 	/**
 	 * Determines the data type of the specified literal and returns its name.
-	 * 
+	 *
 	 * @param literal The literal for which get the name of the data type.
 	 * @return The name of the data type of the literal.
 	 * @throws VnanoFatalException Thrown when the specified literal could not be interpreted.
@@ -179,9 +179,9 @@ public class LiteralSyntax {
 
 
 	/**
-	 * Replaces some escape-sequences (\n, \r, \t, and so on) 
+	 * Replaces some escape-sequences (\n, \r, \t, and so on)
 	 * contained in the specified string literal to corresponding characters.
-	 * 
+	 *
 	 * @param stringLiteral The string literal (must begins/ends with a double-quotation) to be processed.
 	 * @return The processed string literal.
 	 */
@@ -215,7 +215,7 @@ public class LiteralSyntax {
 				continue;
 			}
 
-			// If the current character is the escape symbol '\', enable the flag, 
+			// If the current character is the escape symbol '\', enable the flag,
 			// and decode the escape sequence at the next cycle of the loop.
 			// However, if the last character is also the escape symbol '\',
 			// it means that "a escape symbol is escaped", so it should be decoded simply as the character '\'.
@@ -237,17 +237,17 @@ public class LiteralSyntax {
 
 	/**
 	 * Extracts all string literals in the specified code, and replace them in the code to "numberized literals".
-	 * 
+	 *
 	 * Where "numberized literals" are string literals consists of serial numbers, e.g.: "1", "2", ...
-	 * The serial number in a numberized literal is the same as 
+	 * The serial number in a numberized literal is the same as
 	 * the array index of the corresponding (original) string literal in the returned array of this method.
-	 * 
-	 * In the returned array of this method, the literal-replaced script code will is stored at [0]. 
+	 *
+	 * In the returned array of this method, the literal-replaced script code will is stored at [0].
 	 * And extracted (original) string literals are stored at [1], [2], ... in the order of apparence in the script code.
 	 *
 	 * @param code The script code which may contain string literals.
 	 * @return The array storing the literal-replaced code and extracted litarals. See the above description.
-	 * @throws VnanoException Thrown when an unclosed string literal has been found. 
+	 * @throws VnanoException Thrown when an unclosed string literal has been found.
 	 */
 	public static final String[] extractStringLiterals(String code) throws VnanoException {
 		char[] chars = code.toCharArray();
@@ -274,14 +274,14 @@ public class LiteralSyntax {
 				if (inLiteral) {
 					inLiteral = false;
 
-					// Push the literal-ending symbol to a buffer to store the content of the literal, 
+					// Push the literal-ending symbol to a buffer to store the content of the literal,
 					// and extract the content of the literal from the buffer, and register it to the list.
 					literalBuilder.append(STRING_LITERAL_QUOT);
 					String literal = literalBuilder.toString();
 					literalBuilder = null;
 					literalList.add(literal);
 
-					// Push a numberized literal to the buffer to build the literal-escaped code, 
+					// Push a numberized literal to the buffer to build the literal-escaped code,
 					//  and increment the serial number which will be assigned to the next numberized literal.
 					resultCodeBuilder.append(STRING_LITERAL_QUOT);
 					resultCodeBuilder.append(literalNumber);
@@ -313,7 +313,7 @@ public class LiteralSyntax {
 			}
 
 			// General characters:
-			//   Append it to the literal buffer if it is contained in a literal, 
+			//   Append it to the literal buffer if it is contained in a literal,
 			//   otherwise append it to the code buffer.
 			if (inLiteral) {
 				literalBuilder.append(chars[i]);
@@ -347,7 +347,7 @@ public class LiteralSyntax {
 
 	/**
 	 * Returns the serial number of the specified numberized string literal.
-	 * 
+	 *
 	 * @param numberedLiteral The numberized string literal.
 	 * @return The serial number of the numberized literal.
 	 */

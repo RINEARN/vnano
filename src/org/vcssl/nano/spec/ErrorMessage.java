@@ -14,7 +14,7 @@ public class ErrorMessage {
 
 	/**
 	 * Generates the error message corresponding with the specified error type, in the language of the specified locale.
-	 * 
+	 *
 	 * @param errorType The type of the error.
 	 * @param locale The locale to determine which language the error message should be described in.
 	 * @return The generated error message.
@@ -25,7 +25,7 @@ public class ErrorMessage {
 
 	/**
 	 * Generates the error message corresponding with the specified error type, in the language of the specified locale.
-	 * 
+	 *
 	 * @param errorType The type of the error.
 	 * @param words The words to be embedded in the error message (For example: the name of the variable for a "variable not found" error).
 	 * @param locale The locale to determine which language the error message should be described in.
@@ -33,7 +33,7 @@ public class ErrorMessage {
 	 */
 	public static String generateErrorMessage(ErrorType errorType, String[] words, Locale locale) {
 
-		// If the error is "cast failed" error, which occur when CAST operation is executed by the VM, 
+		// If the error is "cast failed" error, which occur when CAST operation is executed by the VM,
 		// the names of the data-types of operands are passed as the arg "words".
 		// However, they are written in the data-type notation used in the VM, e.g.: "INT64", "FLOAT64", and so on.
 		// So convert them to the data-type notation used in scripts, e.g.: "int", "float", and so on.
@@ -80,7 +80,7 @@ public class ErrorMessage {
 
 	/**
 	 * Generates the error message corresponding with the specified error type, in Japanese.
-	 * 
+	 *
 	 * @param errorType The type of the error.
 	 * @param words The words to be embedded in the error message (For example: the name of the variable for a "variable not found" error).
 	 * @return The generated error message.
@@ -213,7 +213,7 @@ public class ErrorMessage {
 
 	/**
 	 * Generates the error message corresponding with the specified error type, in US English.
-	 * 
+	 *
 	 * @param errorType The type of the error.
 	 * @param words The words to be embedded in the error message (For example: the name of the variable for a "variable not found" error).
 	 * @return The generated error message.

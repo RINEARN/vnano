@@ -123,7 +123,7 @@ public class VariableTable implements Cloneable {
 
 	/**
 	 * Remove the variable having the specified (simple) name.
-	 * 
+	 *
 	 * If multiple variables having the same name exist in the table, the last added one will be removed.
 	 *
 	 * @param variableName The (simple) name of the variable to be removed.
@@ -230,7 +230,7 @@ public class VariableTable implements Cloneable {
 
 	/**
 	 * Gets the variable having the specified index in this table.
-	 * 
+	 *
 	 * In this table, each variable has an unique index.
 	 *
 	 * @param index The index of the variable to be gotten.
@@ -243,7 +243,7 @@ public class VariableTable implements Cloneable {
 
 	/**
 	 * Gets the index of the specified variable.
-	 * 
+	 *
 	 * In this table, each variable has an unique index.
 	 *
 	 * @param variable The variable.

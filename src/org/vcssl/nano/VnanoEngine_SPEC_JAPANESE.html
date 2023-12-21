@@ -297,7 +297,7 @@ Vnanoのスクリプトエンジン（Vnanoエンジン）のクラスです。
 			</p>
 			<p>
 			このメソッドが true を返す場合には、
-			<a href="#terminateScript">terminateScript(String script)</a> メソッドや 
+			<a href="#terminateScript">terminateScript(String script)</a> メソッドや
 			<a href="#resetTerminator">resetTerminator()</a> メソッドが利用可能です。
 			</p>
 			<p>
@@ -376,7 +376,7 @@ Vnanoのスクリプトエンジン（Vnanoエンジン）のクラスです。
 			<p style="margin-top: 0px;">
 			外部関数/変数を提供する、各種のプラグインを接続します。
 			</p>
-			
+
 			<p>
 			引数 bindingName には、接続されるプラグインが提供する変数/関数/名前空間のｍスクリプト内での名前を指定します。
 			内容に空白または「 ( 」が含まれている場合、それ以降は名前としては無視されます。
@@ -385,7 +385,7 @@ Vnanoのスクリプトエンジン（Vnanoエンジン）のクラスです。
 			同じ名前空間 "Bar" の要素を提供するプラグイン群に対して "Bar 1", "Bar 2", ... のように指定する事ができます。
 			なお、"___VNANO_AUTO_KEY" を指定する事で, 有効な値の指定を自動で行う事もできます.
 			</p>
-			
+
 			<p>
 			また、引数 plugin には、接続したいプラグインを指定します。
 			一般の Object 型のインスタンスをプラグインとして接続して、
@@ -397,7 +397,7 @@ Vnanoのスクリプトエンジン（Vnanoエンジン）のクラスです。
 			引数 plugin は Object 配列型とし、その [0] 番要素に Field または Method を格納し、
 			[1] 番要素にそのフィールド・メソッドが定義されたクラスの Class&lt;T&gt; 型インスタンスを格納してください。
 			</p>
-			
+
 			<p>
 			なお、XFCI1 等の各種のプラグイン用インターフェースを実装したクラスのインスタンスも接続できます。
 			パーミッションの管理を行う PACI1 形式のプラグインの接続にも、このメソッドを用います。
@@ -419,7 +419,7 @@ Vnanoのスクリプトエンジン（Vnanoエンジン）のクラスです。
 	<tr>
 		<td class="lcol">例外</td>
 		<td class="rcol">
-			VnanoException: 
+			VnanoException:
 			サポートされていないインターフェースの使用や、データ型の互換性などの原因により、
 			プラグインの接続に失敗した場合にスローされます。
 		</td>

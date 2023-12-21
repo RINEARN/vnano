@@ -98,7 +98,7 @@ public class Token implements Cloneable {
 
 	/**
 	 * Sets the value of this token.
-	 * 
+	 *
 	 * @param value The value of this token.
 	 */
 	public void setValue(String value) {
@@ -107,7 +107,7 @@ public class Token implements Cloneable {
 
 	/**
 	 * Gets the value of this token.
-	 * 
+	 *
 	 * @return The value of this token.
 	 */
 	public String getValue() {

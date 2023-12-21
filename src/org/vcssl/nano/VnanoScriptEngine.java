@@ -60,7 +60,7 @@ public final class VnanoScriptEngine implements ScriptEngine {
 	 * Create an script engine of the Vnano, however,
 	 * use "getEngineByName" method of "ScriptEngineManager" class with an argument "Vnano",
 	 * instead of using this constructor directly
-	 * 
+	 *
 	 * If you want to create and use an instance of the script engine of the Vnano directly,
 	 * use {@link VnanoEngine VnanoEngine}.
 	 * This class is its wrapper for using it through the Scripting API of the standard library.
@@ -81,7 +81,7 @@ public final class VnanoScriptEngine implements ScriptEngine {
 
 	/**
 	 * Executes an expression or a script code passed as an argument.
-	 * 
+	 *
 	 * @param scriptCode The expression or the script code to execute.
 	 * @return The evaluated value of the expression, or last expression statement in the script code.
 	 * @throws ScriptException Thrown when an error will be detected for the content or the processing of the script.
@@ -172,7 +172,7 @@ public final class VnanoScriptEngine implements ScriptEngine {
 
 	/**
 	 * Updates connections between the VnanoEngine and plug-ins stored in fields of this class.
-	 * 
+	 *
 	 * @throws VnanoException Thrown if plug-ins could not be connected,
 	 *     caused by unsupported interfaces, incompatibility of data types, and so on.
 	 */
@@ -208,7 +208,7 @@ public final class VnanoScriptEngine implements ScriptEngine {
 
 	/**
 	 * Updates "include"-registrations between the VnanoEngine and libraries stored in fields of this class.
-	 * 
+	 *
 	 * @throws VnanoException Thrown if libraries could not be included, caused by "duplicate include" and so on.
 	 */
 	private void updateLibraryInclusions() throws VnanoException {

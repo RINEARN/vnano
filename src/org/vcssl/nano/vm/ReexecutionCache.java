@@ -41,7 +41,7 @@ public class ReexecutionCache {
 
 	/**
 	 * Sets the VM object code executed last time (call "last code" in this class).
-	 * 
+	 *
 	 * @param lastObjectCode The VM object code executed last time.
 	 */
 	public void setLastObjectCode(VirtualMachineObjectCode lastObjectCode) {
@@ -50,7 +50,7 @@ public class ReexecutionCache {
 
 	/**
 	 * Gets the VM object code executed last time (call "last code" in this class).
-	 * 
+	 *
 	 * @return The VM object code executed last time.
 	 */
 	public VirtualMachineObjectCode getLastObjectCode() {
@@ -60,7 +60,7 @@ public class ReexecutionCache {
 
 	/**
 	 * Sets the memory instance allocated for running the last code.
-	 * 
+	 *
 	 * @param memory The memory instance allocated for running the last code.
 	 */
 	public void setMemory(Memory memory) {
@@ -69,7 +69,7 @@ public class ReexecutionCache {
 
 	/**
 	 * Gets the memory instance allocated for running the last code.
-	 * 
+	 *
 	 * @return The memory instance allocated for running the last code.
 	 */
 	public Memory getMemory() {
@@ -79,7 +79,7 @@ public class ReexecutionCache {
 
 	/**
 	 * Sets the resources for converting the return value of the last code.
-	 * 
+	 *
 	 * @param resultDataContainer The container of the return value of the last code.
 	 * @param resultDataConverter The converter of the return value of the last code.
 	 */
@@ -90,7 +90,7 @@ public class ReexecutionCache {
 
 	/**
 	 * Checks whether this instance has the resources for converting the return value of the last code.
-	 * 
+	 *
 	 * @return Returns true if this instance has the resources for converting the return value.
 	 */
 	public boolean hasResultDataResources() {
@@ -99,7 +99,7 @@ public class ReexecutionCache {
 
 	/**
 	 * Gets the the container of the return value of the last code.
-	 * 
+	 *
 	 * @return The container of the return value of the last code.
 	 */
 	public DataContainer<?> getResultDataContainer() {
@@ -108,7 +108,7 @@ public class ReexecutionCache {
 
 	/**
 	 * Gets the converter of the return value of the last code.
-	 * 
+	 *
 	 * @return The converter of the return value of the last code.
 	 */
 	public DataConverter getResultDataConverter() {
@@ -118,7 +118,7 @@ public class ReexecutionCache {
 
 	/**
 	 * Sets whether the accelerator is enabled.
-	 * 
+	 *
 	 * @param enabled Specify true if the accelerator is enabled.
 	 */
 	public void setAcceleratorEnabled(boolean enabled) {
@@ -127,7 +127,7 @@ public class ReexecutionCache {
 
 	/**
 	 * Checks whether the accelerator is enabled.
-	 * 
+	 *
 	 * @return Returns true if the accelerator is enabled.
 	 */
 	public boolean isAcceleratorEnabled() {

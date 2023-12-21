@@ -14,8 +14,8 @@ import java.lang.reflect.Modifier;
 
 
 /**
- * An adapter class converting a host-language-side field to a 
- * {@link org.vcssl.connect.ExternalVariableConnectorInterface1 XVCI 1} plug-in, 
+ * An adapter class converting a host-language-side field to a
+ * {@link org.vcssl.connect.ExternalVariableConnectorInterface1 XVCI 1} plug-in,
  * to access to it in scripts.
  */
 public class FieldToXvci1Adapter implements ExternalVariableConnectorInterface1 {
@@ -29,7 +29,7 @@ public class FieldToXvci1Adapter implements ExternalVariableConnectorInterface1 
 
 	/**
 	 * Creates a new adapter to access to a non-static field.
-	 * 
+	 *
 	 * @param field The non-static field to be accessed in scripts.
 	 * @param objectInstance The object instance to which the field belongs to.
 	 */
@@ -41,7 +41,7 @@ public class FieldToXvci1Adapter implements ExternalVariableConnectorInterface1 
 
 	/**
 	 * Creates a new adapter to access to a static field.
-	 * 
+	 *
 	 * @param field The static field to be accessed in scripts.
 	 */
 	public FieldToXvci1Adapter (Field field) {

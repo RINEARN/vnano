@@ -15,11 +15,11 @@ package org.vcssl.connect;
 /**
  * A data-I/O interface (abbreviated as ADAI1), mainly implemented by data container objects of language processor systems.
  *
- * In this org.vcssl.connect package, multiple data I/O interfaces are provided for passing/receiving data 
+ * In this org.vcssl.connect package, multiple data I/O interfaces are provided for passing/receiving data
  * without any data-conversions, between script-engine-side and plug-in-side, if required.
- * 
+ *
  * In them, this interface ADAI1 provides I/O methods of multi-dimensional array data.
- * 
+ *
  * @param <T> The type of data stored in the data container implementing this interface.
  */
 public interface ArrayDataAccessorInterface1<T> {
@@ -44,14 +44,14 @@ public interface ArrayDataAccessorInterface1<T> {
 	/**
 	 * Sets the serialized 1D array data with related information.
 	 *
-	 * On this interface, contents of any data including a scalar value, an 1-dimensional (1D) array, 
-	 * and a multi-dimensional array are always handled as an 1D array, 
+	 * On this interface, contents of any data including a scalar value, an 1-dimensional (1D) array,
+	 * and a multi-dimensional array are always handled as an 1D array,
 	 * so specify an 1D array for the argument "data".
-	 * We call it as "serialized 1D array data" in this document. 
-	 * 
+	 * We call it as "serialized 1D array data" in this document.
+	 *
 	 * How to store elements into the serialized 1D array data is explained in the specification document,
 	 * bundled with this interface file.
-	 * 
+	 *
 	 * @param data The serialized 1D array data to be set.
 	 * @param offset The index at wich the scalar value is stored(see the above explanation).
 	 * @param lengths An array storing lengths of each dimension (see the above explanation).
@@ -61,10 +61,10 @@ public interface ArrayDataAccessorInterface1<T> {
 
 	/**
 	 * Returns the serialized 1D the array data.
-	 * 
+	 *
 	 * How a scalar or a multi dimensional array is stored in the serialized 1D array data
 	 * is explained in the specification document, bundled with this interface file.
-	 * 
+	 *
 	 * @return The serialized 1D array data.
 	 */
 	public abstract T getArrayData();
@@ -72,7 +72,7 @@ public interface ArrayDataAccessorInterface1<T> {
 
 	/**
 	 * Returns whether any serialized 1D array data can be gotten.
-	 * 
+	 *
  	 * @return Returns true if any serialized 1D array data can be gotton.
 	 */
 	public abstract boolean hasArrayData();
@@ -80,7 +80,7 @@ public interface ArrayDataAccessorInterface1<T> {
 
 	/**
 	 * Returns the index of the scalar value in the serialized 1D array data.
-	 * 
+	 *
 	 * For details, see the description of "setArrayData" method in the specification document,
 	 * bundled with this interface file.
 	 *
@@ -91,10 +91,10 @@ public interface ArrayDataAccessorInterface1<T> {
 
 	/**
 	 * Returns the array storing lengths of dimensions of the array.
-	 * 
+	 *
 	 * For details, see the description of "setArrayData" method in the specification document,
 	 * bundled with this interface file.
-	 * 
+	 *
 	 * @return The array storing lengths of dimensions of the array.
 	 */
 	public abstract int[] getArrayLengths();
@@ -102,12 +102,12 @@ public interface ArrayDataAccessorInterface1<T> {
 
 	/**
 	 * Returns the size (lenth) of the serialized 1D array data.
-	 * 
+	 *
 	 * When data is a scalar value, the size always is 1.
 	 * When data is an 1-dimensional array, the size is its length.
-	 * When data is a multi-dimensional array of which lengths are [N1][N2][N3]...[NM], 
+	 * When data is a multi-dimensional array of which lengths are [N1][N2][N3]...[NM],
 	 * the size is the value of the product of them: N1*n2*n3*...*NM.
-	 * 
+	 *
 	 * @return The size (lenth) of the serialized 1D array data.
 	 */
 	public abstract int getArraySize();
@@ -119,7 +119,7 @@ public interface ArrayDataAccessorInterface1<T> {
 	 * When data is a scalar value, the array-rank always is 0.
 	 * When data is an 1-dimensional array, the array-rank always is 1.
 	 * When data is an N-dimensional array, the array-rank is N.
-	 * 
+	 *
 	 * @return The number of dimensions (array-rank) of multi-dimensional array data.
 	 */
 	public abstract int getArrayRank();

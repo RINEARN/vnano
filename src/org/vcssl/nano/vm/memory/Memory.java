@@ -21,15 +21,15 @@ import org.vcssl.nano.VnanoException;
 
 /**
  * The class takes on the memory in the virtual machine of the Vnano.
- * 
- * The architecture of the VM of the Vnano is a kind of a vector processor, 
+ *
+ * The architecture of the VM of the Vnano is a kind of a vector processor,
  * so the unit of this memory is an array, not a scalar.
- * This memory internally has lists of data-containers (instances of {@link DataContainer} class), 
+ * This memory internally has lists of data-containers (instances of {@link DataContainer} class),
  * and each data-container can store an array data. An unique address is assigned for each data-container.
- * 
+ *
  * This memory has multiple lists of data-containers. We call them as "partitions".
  * For example, "LOCAL" partition stores data of local variables,
- * "CONSTANT" partition stores data of constant literal values, 
+ * "CONSTANT" partition stores data of constant literal values,
  * and "REGISTER" partiton stores temporary values of operations performed by processors.
  */
 public final class Memory {
@@ -145,7 +145,7 @@ public final class Memory {
 
 	/**
 	 * Stores the specified data-container, at the specified address in the specified partition.
-	 * 
+	 *
 	 * @param partition The partition in which you want to store the data-container.
 	 * @param address The address at which you want to store the data-container.
 	 * @param container The data-container to be stored.
@@ -168,7 +168,7 @@ public final class Memory {
 
 	/**
 	 * Sets all data-containers in the specified partition.
-	 * 
+	 *
 	 * @param partition The partition in which stores the data-containers.
 	 * @param containers The data-containers to be stored in the partition.
 	 * @throws VnanoFatalException Thrown when the NONE partition is specified.
@@ -187,7 +187,7 @@ public final class Memory {
 
 	/**
 	 * Gets all data-containers stored in the specified partition.
-	 * 
+	 *
 	 * @param partition The partition from which you want to get all data-container.
 	 * @param containers The data-containers stored in the partition.
 	 * @throws VnanoFatalException Thrown when the NONE partition is specified.
@@ -204,7 +204,7 @@ public final class Memory {
 	/**
 	 * Padds empty data-containers into the specified list.
 	 * This method is used for initializing the register partition and so on.
-	 * 
+	 *
 	 * @param list The list of data-containers.
 	 * @param n The number of data-containers to be padded to the list.
 	 */
@@ -319,7 +319,7 @@ public final class Memory {
 
 	/**
 	 * Updates the data stored in the GLOBAL partition, without replacing DataContainer instances (references).
-	 * 
+	 *
 	 * In GLOBAL partition, mainly the values of global (external) variables are stored.
 	 * When executing the same code repetitively on the same Memory instance,
 	 * it requires to reload data from all global variables to GLOBAL partition of the memory.
@@ -327,7 +327,7 @@ public final class Memory {
 	 * it is necessary to copy only data, without replacing DataContainer instances.
 	 * (Because references to DataContainer instances are embedded into some resources in an Accelerator instance.)
 	 * Hence this method performs it.
-	 * 
+	 *
 	 * @param vmObjectCode The VM object code, executed with using this memory.
 	 * @param globalVariableTable The table of the global (external) variables.
 	 * @throws VnanoException Thrown when failed to get the data-container of a global (external) variable.

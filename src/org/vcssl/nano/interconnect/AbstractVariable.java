@@ -11,13 +11,13 @@ import org.vcssl.nano.vm.memory.DataContainer;
 
 /**
  * The abstract class of variables accessible in Vnano Engine.
- * 
- * In Vnano Engine, internal variable will be handled as instances of 
+ *
+ * In Vnano Engine, internal variable will be handled as instances of
  * {@link InternalVariable InternalVariable} class,
  * and it is a subclass of this abstract class.
- * 
- * In addition, external variable plug-ins will be connected through 
- * adapters extending this abstract class, 
+ *
+ * In addition, external variable plug-ins will be connected through
+ * adapters extending this abstract class,
  * e.g.: {@link Xvci1ToVariableAdapter Xvci1ToVariableAdapter}.
  */
 public abstract class AbstractVariable {
@@ -31,11 +31,11 @@ public abstract class AbstractVariable {
 
 	/**
 	 * Sets the name of this variable.
-	 * 
+	 *
 	 * This method is used for setting an alias for an external variable.
-	 * This method isn't available when this function is an internal variable, 
+	 * This method isn't available when this function is an internal variable,
 	 * because the name of internal variable isn't modifiable.
-	 * 
+	 *
 	 * @param variableName The name of this variable.
 	 * @throws VnanoFatalException
 	 *      Thrown when the name of this variable isn't modifiable.
@@ -86,7 +86,7 @@ public abstract class AbstractVariable {
 
 	/**
 	 * Gets the array-rank of this variable.
-	 * 
+	 *
 	 * Note that, the array-rank of an scalar is 0.
 	 *
 	 * @return The array-rank of this variable.
@@ -112,7 +112,7 @@ public abstract class AbstractVariable {
 
 	/**
 	 * Returns whether this variable is constant.
-	 * 
+	 *
 	 * @return Returns true if this variable is constant.
 	 */
 	public abstract boolean isConstant();
@@ -129,7 +129,7 @@ public abstract class AbstractVariable {
 
 	/**
 	 * Gets the serial number which is a number to distinguish multiple variables having the same name.
-	 * 
+	 *
 	 * @return The serial number.
 	 */
 	public abstract int getSerialNumber();

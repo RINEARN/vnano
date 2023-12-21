@@ -37,10 +37,10 @@ public class InternalVariable extends AbstractVariable {
 
 	/**
 	 * Creates a new variable having specified information.
-	 * 
-	 * Note that, the data-container for storing data will not generated automatically, 
+	 *
+	 * Note that, the data-container for storing data will not generated automatically,
 	 * so create it separately, and set it by {@link InternalVariable#setDataUnit dataUnit} method.
-	 * 
+	 *
 	 * @param variableName The name of this variable.
 	 * @param dataTypeName The name of the data-type of this variable.
 	 * @param rank The array-rank (0 for a scalar) of this variable.
@@ -55,10 +55,10 @@ public class InternalVariable extends AbstractVariable {
 
 	/**
 	 * Creates a new variable having specified information, including a serial number.
-	 * 
-	 * Note that, the data-container for storing data will not generated automatically, 
+	 *
+	 * Note that, the data-container for storing data will not generated automatically,
 	 * so create it separately, and set it by {@link InternalVariable#setDataUnit dataUnit} method.
-	 * 
+	 *
 	 * @param variableName The name of this variable.
 	 * @param dataTypeName The name of the data-type of this variable.
 	 * @param rank The array-rank (0 for a scalar) of this variable.
@@ -86,9 +86,9 @@ public class InternalVariable extends AbstractVariable {
 	/**
 	 * Sets the name of this variable.
 	 * However, this method isn't available, on the current version.
-	 * 
+	 *
 	 * This method is used for setting an alias for external variables.
-	 * On the other hand, on the current language specification of Vnano, 
+	 * On the other hand, on the current language specification of Vnano,
 	 * an internal variables can not have multiple names (aliases),
 	 * so VnanoFatalException will be thrown when this method is invoked.
 	 *
@@ -148,7 +148,7 @@ public class InternalVariable extends AbstractVariable {
 
 	/**
 	 * Gets the data-container for storing data of this variable.
-	 * 
+	 *
 	 * @return The data-container for storing data of this variable.
 	 */
 	@Override
@@ -159,7 +159,7 @@ public class InternalVariable extends AbstractVariable {
 
 	/**
 	 * Sets the data-container for storing data of this variable.
-	 * 
+	 *
 	 * @param dataContainer The data-container for storing data of this variable.
 	 */
 	@Override
@@ -170,7 +170,7 @@ public class InternalVariable extends AbstractVariable {
 
 	/**
 	 * Gets array-ranks of all parameters.
-	 * 
+	 *
 	 * Note that, the array-rank of an scalar is 0.
 	 *
 	 * @return The array storing array-ranks of all parameters.
@@ -184,7 +184,7 @@ public class InternalVariable extends AbstractVariable {
 
 	/**
 	 * Returns whether this variable is constant.
-	 * 
+	 *
 	 * @return Returns true if this variable is constant.
 	 */
 	@Override
@@ -207,7 +207,7 @@ public class InternalVariable extends AbstractVariable {
 
 	/**
 	 * Gets the serial number which is a number to distinguish multiple variables having the same name.
-	 * 
+	 *
 	 * @return The serial number.
 	 */
 	@Override

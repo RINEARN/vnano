@@ -14,7 +14,7 @@ import org.vcssl.nano.VnanoException;
 
 /**
  * The enum which defines the names of the data types available in scripts.
- * 
+ *
  * The class to define name of data types of the Vnano, and to provides converter methods
  * between them and elements of {@link DataType DataType} enum.
  */
@@ -84,7 +84,7 @@ public class DataTypeName {
 
 	/**
 	 * Determines whether the specified string is the name of a data type.
-	 * 
+	 *
 	 * @param dataTypeName The string to be checked whether it is the name of a data type.
 	 * @return Returns "true" if it is the name of the data type.
 	 */
@@ -95,7 +95,7 @@ public class DataTypeName {
 
 	/**
 	 * Converts each element of {@link DataType DataType} enum to the name of the corresponding data type.
-	 * 
+	 *
 	 * @param dataType The data type to be converted to the name.
 	 * @return The name of the data type.
 	 */
@@ -106,7 +106,7 @@ public class DataTypeName {
 
 	/**
 	 * Determines whether the specified string equals to the name of the specified data type.
-	 * 
+	 *
 	 * @param dataType The expected data type.
 	 * @param dataTypeName The string to be checked whether it is the name of the specified data type.
 	 * @return Returns "true" if the passed string equals to the name of the passed data type.
@@ -118,7 +118,7 @@ public class DataTypeName {
 
 	/**
 	 * Converts the specified elements of {@link DataType DataType} enum to the names of the corresponding data types.
-	 * 
+	 *
 	 * @param dataTypes Data types to be converted to the name.
 	 * @return Names of the data type.
 	 */
@@ -134,7 +134,7 @@ public class DataTypeName {
 
 	/**
 	 * Converts the specified data type name to the corresponding element of {@link DataType DataType} enum.
-	 * 
+	 *
 	 * @param dataTypeName The name of the data type to be converted to the element of {@link DataType DataType} enum.
 	 * @return The converted element of {@link DataType DataType} enum.
 	 */
@@ -152,7 +152,7 @@ public class DataTypeName {
 
 	/**
 	 * Converts the specified data type names to the corresponding elements of {@link DataType DataType} enum.
-	 * 
+	 *
 	 * @param dataTypeNames The data type names to be converted to the elements of {@link DataType DataType} enum.
 	 * @return The converted elements of {@link DataType DataType} enum.
 	 */

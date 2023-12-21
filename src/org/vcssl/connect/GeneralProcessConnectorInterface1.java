@@ -16,7 +16,7 @@ public interface GeneralProcessConnectorInterface1 {
 
 	/**
 	 * Returns whether this plug-in can process the function having the specified name.
-	 * 
+	 *
 	 * @param functionName The name of the function.
 	 * @return Returns true if this plug-in can process the function having the specified name.
 	 */
@@ -25,7 +25,7 @@ public interface GeneralProcessConnectorInterface1 {
 
 	/**
 	 * Processes the function having the spacified name.
-	 * 
+	 *
 	 * @param functionName The name of the function to be processed.
 	 * @param arguments The array storing values of all actual arguments.
 	 * @return The array storing return value of the function.

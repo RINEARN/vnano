@@ -26,7 +26,7 @@ import org.vcssl.nano.spec.ScriptWord;
 /**
  * The class to perform loading of text file which is qualified with meta information for loadings,
  * such as encoding-declaration.
- * 
+ *
  * If the content of the file starts with "coding", the first line of the file will be regarded as "encoding-declaration".
  * The syntax of encoding declarations is: "coding encodingName;".
  * Also, "#" can be appended at the head of encoding declarations.
@@ -35,7 +35,7 @@ import org.vcssl.nano.spec.ScriptWord;
  * As the specification to make it easy to detect/parse a encoding-declaration,
  * it should be described as the single line at the top of the file,
  * and no comments allowed before the end of the encoding-declaration.
- * 
+ *
  * If the encoding-declaration exists in the file, it will be used for decoding the content of the file.
  * Otherwise, the specified default encoding will be used.
  * Also, the normalization of environment-dependency and encoding-dependency will be performed
@@ -60,7 +60,7 @@ public class MetaQualifiedFileLoader {
 
 	/**
 	 * Loads the content of the file.
-	 * 
+	 *
 	 * If the encoding-declaration exists in the file, it will be used for decoding the file.
 	 * Otherwise, the specified default encoding will be used.
 	 * The encoding-declaration will be removed from the loaded content,
@@ -121,7 +121,7 @@ public class MetaQualifiedFileLoader {
 
 	/**
 	 * Determins/returns the appropriate Charset from the encoding-declaration in the specified file.
-	 * 
+	 *
 	 * @param filePath The path of the file to be loaded.
 	 * @param defaultEncodingName The name of the default encoding.
 	 * @return
@@ -155,7 +155,7 @@ public class MetaQualifiedFileLoader {
 	/**
 	 * Reads the name of the declared encoding from the specified file and returns it,
 	 * if the encoding-declaration exists in the specified file.
-	 * 
+	 *
 	 * @param fileName The path of the file.
 	 * @param encodingNameForReading The name of the encoding for reading the file.
 	 * @return The name of the declared encoding (or, null if there is no encoding-declaration in the file).
@@ -181,7 +181,7 @@ public class MetaQualifiedFileLoader {
 
 	/**
 	 * Returns the name of the declared encoding, if the encoding-declaration exists in the specified file content.
-	 * 
+	 *
 	 * @param fileName The name of the file.
 	 * @param fileContent The content of the file.
 	 * @return The name of the declared encoding (or, null if there is no encoding-declaration in the file).
@@ -208,7 +208,7 @@ public class MetaQualifiedFileLoader {
 		for (String declLineHead: ENCODING_DECLARATION_LINE_HEAD) {
 			if (firstLine.startsWith(declLineHead)) {
 
-				// The encoding name is described between 
+				// The encoding name is described between
 				// the encoding declaration keyword "coding" (etc.) and the end-of-statement symbol ";", so extract it.
 				int encodingDeclEnd = firstLine.indexOf(ScriptWord.END_OF_STATEMENT);
 				if (encodingDeclEnd != -1) {
@@ -223,7 +223,7 @@ public class MetaQualifiedFileLoader {
 			}
 		}
 
-		// To make simple and sure the detection of the encoding, 
+		// To make simple and sure the detection of the encoding,
 		// can not use comments and string literals in the encoding declaration line.
 		// So check that they aren't used.
 		String[] invalidSymbols = new String[] {
@@ -248,7 +248,7 @@ public class MetaQualifiedFileLoader {
 
 	/**
 	 * Checks whether the encoding-declaration exists in the specified file content or not.
-	 * 
+	 *
 	 * @param fileName The name of the file.
 	 * @param fileContent The content of the file.
 	 * @return true if the encoding declaration exists.
@@ -262,7 +262,7 @@ public class MetaQualifiedFileLoader {
 
 	/**
 	 * Removes the encoding-declaration from the file content.
-	 * 
+	 *
 	 * @param fileName The name of the file.
 	 * @param fileContent The content of the file.
 	 * @return The content of the file from which the encoding declaration is removed.
@@ -284,7 +284,7 @@ public class MetaQualifiedFileLoader {
 
 	/**
 	 * Normalize the environment-dependent / encoding-dependent content loaded from a file.
-	 * 
+	 *
 	 * For example, by this method,
 	 * all environment-dependent line-feed codes in the content will be replaced to LF (\n).
 	 * In addition, this method normalizes encoding/decoding-dependent differences of the content.
@@ -305,7 +305,7 @@ public class MetaQualifiedFileLoader {
 		content = content.replaceAll("\\r", "\n");
 
 		// A kind of whitespace U+FEFF (unicode) should not be contained in strings read by using encodings (charsets) supported by this script engine.
-		// However, when the read file is encoded in UTF-8, and its contents starts with the byte-order-mark bytes "0xEF 0xBB 0xBF", 
+		// However, when the read file is encoded in UTF-8, and its contents starts with the byte-order-mark bytes "0xEF 0xBB 0xBF",
 		// they will be decoded as the UTF-8 representation of a kind of whitespace U+FEFF.
 		// And then, the decoded "U+FEFF" char will be stored at the top of the read result string, as a char of which value is 0xFEFF.
 		// (Note that, the internal encoding of "char" type is UTF-16.)

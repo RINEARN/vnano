@@ -69,7 +69,7 @@ public class SemanticAnalyzer {
 		// Note that, this should be done before analyzing variable/function identifiers referred in the script.
 		// Because: If the dependent libraries/plug-ins are not loaded/connected,
 		//          their member variables/functions should not be found. In such case,
-		//          the latter errors are "side effects" of the missing of libraries/plug-ins, 
+		//          the latter errors are "side effects" of the missing of libraries/plug-ins,
 		//          so we should indicate the user of the "direct cause" as an error message.
 		this.checkDependencyDeclarationsAndLocations(outputAst, interconnect);
 
@@ -664,10 +664,10 @@ public class SemanticAnalyzer {
 							List<String> errorWordList = new ArrayList<String>();
 							errorWordList.add(IdentifierSyntax.getSignatureOfCalleeFunctionOf(currentNode));
 							for (String presumedLocalSignature: localFunctionTable.presumeCalleeFunctionSignaturesOf(currentNode)) {
-								errorWordList.add(presumedLocalSignature);								
+								errorWordList.add(presumedLocalSignature);
 							}
 							for (String presumedGlobalSignature: globalFunctionTable.presumeCalleeFunctionSignaturesOf(currentNode)) {
-								errorWordList.add(presumedGlobalSignature);								
+								errorWordList.add(presumedGlobalSignature);
 							}
 							throw new VnanoException(
 								ErrorType.FUNCTION_IS_NOT_FOUND, errorWordList.toArray(new String[0]), currentNode.getFileName(), currentNode.getLineNumber()
@@ -766,7 +766,7 @@ public class SemanticAnalyzer {
 	 * when the callee function is searched from it.
 	 * This method checks some additional attributes of params/args,
 	 * e.g.: constant values cannot be passed by reference.
-	 * 
+	 *
 	 * The reason why we don't merge this method to FunctionTable-side syntactic matching is,
 	 * to make the error message readable.
 	 * FunctionTable return nothing if no valid matched functions exist. So if we merge this method to it,
@@ -1094,7 +1094,7 @@ public class SemanticAnalyzer {
 
 	/**
 	 * Determines the array-rank of assignment operations, from arra-ranks of operands.
-	 * 
+	 *
 	 * Generally, array-ranks of both operands must be the same, and then this method returns that rank.
 	 * However, in Vnano, assignment operations between a scalar and a vector are valid.
 	 * Including such cases, The array rank of an assignment operator is always same as it of the left operand.
@@ -1637,7 +1637,7 @@ public class SemanticAnalyzer {
 							|| !dependencyIdentifierNode.getAttribute(AttributeKey.LEAF_TYPE).equals(AttributeValue.DEPENDENCY_IDENTIFIER)) {
 						throw new VnanoFatalException("Incorrect node type has been detected for the child node of IMPORT/INCLUDE node.");
 					}
-					
+
 					// Get the value of the specified dependency identifier (= "import path").
 					String dependencyIdentifier = dependencyIdentifierNode.getAttribute(AttributeKey.IDENTIFIER_VALUE);
 
@@ -1653,7 +1653,7 @@ public class SemanticAnalyzer {
 							currentNode.getFileName(), currentNode.getLineNumber()
 						);
 					}
-					
+
 				// If the dependency declaration exists at the out of the header section: Error.
 				} else {
 					throw new VnanoException(
@@ -1661,7 +1661,7 @@ public class SemanticAnalyzer {
 						currentNode.getFileName(), currentNode.getLineNumber()
 					);
 				}
-			
+
 			// Other node: ends the header section.
 			} else {
 				isInHeader = false;

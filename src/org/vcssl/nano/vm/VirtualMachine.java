@@ -198,7 +198,7 @@ public class VirtualMachine {
 	/**
 	 * Terminates the currently running code after when the processing of the current instruction ends,
 	 * without processing remained instructions after it in code.
-	 * 
+	 *
 	 * If multiple code are being processed, only processes executed under the condition that
 	 * {@link org.vcssl.nano.spec.OptionKey#TERMINATOR_ENABLED TERMINATOR_ENABLED}
 	 * option is true will be terminated, and other processes will continue.
@@ -229,7 +229,7 @@ public class VirtualMachine {
 
 	/**
 	 * Resets the VM which had terminated by {@link VirtualMachine#terminate() terminate()} method, for processing new code.
-	 * 
+	 *
 	 * Please note that, if an execution of code is requested by another thread
 	 * when this method is being processed, the execution request might be missed.
 	 */
@@ -247,7 +247,7 @@ public class VirtualMachine {
 
 	/**
 	 * Returns the total number of processed instructions from when this VM was instantiated.
-	 * 
+	 *
 	 * Note that, to lighten the decreasing of the performance caused by the counting/monitoring,
 	 * the cached old value of the counter by the caller thread may be returned,
 	 * so the precision of the returned value is not perfect.
@@ -263,7 +263,7 @@ public class VirtualMachine {
 	 * @return The total number of processed instructions from when this VM was instantiated.
 	 */
 	// Don't remove "Int" from the following method name, because we perhaps support "...Long..." version in future.
-	public int getExecutedInstructionCountIntValue() { 
+	public int getExecutedInstructionCountIntValue() {
 
 		// This method probably be called from a different thread from the thread executing the code.
 		// So the followings are enclosed by a synchronized block, to avoid effects of thread caches.
@@ -285,7 +285,7 @@ public class VirtualMachine {
 
 	/**
 	 * Returns operation code(s) of currently executed instruction(s) on this instance of the VM.
-	 * 
+	 *
 	 * This method returns an array, because generary this VM may execute multiple instructions in 1 cycle.
 	 * Also, when no instructins are being executed, an empty array will be returned.
 	 *
@@ -320,7 +320,7 @@ public class VirtualMachine {
 			} else if (prpcessorOperationCodes.length != 0) {
 				return prpcessorOperationCodes;
 
-			// When both the Processor and the Accelerator have no valid counter values, 
+			// When both the Processor and the Accelerator have no valid counter values,
 			// it means that no instructions are executed on this VM yet.
 			// So return an empty array.
 			} else {

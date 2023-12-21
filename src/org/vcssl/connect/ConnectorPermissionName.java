@@ -16,12 +16,12 @@ package org.vcssl.connect;
 /**
  * A class defining names of permission items.
  *
- * Fields of this class are natural to be defined as elements of an enum, 
- * however, they are defined as "public static final String" fields, 
+ * Fields of this class are natural to be defined as elements of an enum,
+ * however, they are defined as "public static final String" fields,
  * instead of enum elements.
- * This is to prevent unexpected behaviour when definition order of them are changed, 
+ * This is to prevent unexpected behaviour when definition order of them are changed,
  * and plug-ins referencing them have not been re-compiled.
- * 
+ *
  * Please note that, it is not recommended to describe values of them directly (as String literals).
  * Refer fields of this class as possible as.
  */
@@ -35,11 +35,11 @@ public class ConnectorPermissionName {
 
 	/**
 	 * The name of the meta item storing the default permission value.
-	 * 
-	 * For permission items of which values are not specified explicitly, 
+	 *
+	 * For permission items of which values are not specified explicitly,
 	 * a default value (e.g. {@link ConnectorPermissionValue#DENY DENY}) will be set automatically.
 	 * You can change that default value by setting the value to this meta permission item.
-	 * For example, if you set the value {@link ConnectorPermissionValue#ASK ASK} to this permission item "DEFAULT", 
+	 * For example, if you set the value {@link ConnectorPermissionValue#ASK ASK} to this permission item "DEFAULT",
 	 * the script engine will ask to the user when non-specified permissions are required.
 	 */
 	public static final String DEFAULT = "DEFAULT";

@@ -128,7 +128,7 @@ public class AstNode implements Cloneable {
 
 	/**
 	 * Creates an AST node of the specified type.
-	 * 
+	 *
 	 * @param value The type of the node to be created.
 	 * @param lineNumber The number of the line of the script at which the corresponding code with the creating node is.
 	 * @param fileName The name of the script in which the corresponding code with the creating node is.
@@ -146,7 +146,7 @@ public class AstNode implements Cloneable {
 
 	/**
 	 * Creates a deep-copy of this node.
-	 * 
+	 *
 	 * @return A deep-copy of this node.
 	 */
 	@Override
@@ -167,7 +167,7 @@ public class AstNode implements Cloneable {
 
 	/**
 	 * Gets the type of this node.
-	 * 
+	 *
 	 * @return The type of this node.
 	 */
 	public Type getType() {
@@ -177,7 +177,7 @@ public class AstNode implements Cloneable {
 
 	/**
 	 * Gets the number of the line of the script at which the corresponding code with this node is.
-	 * 
+	 *
 	 * @return The number of the line.
 	 */
 	public int getLineNumber() {
@@ -187,7 +187,7 @@ public class AstNode implements Cloneable {
 
 	/**
 	 * Gets the name of the script in which the corresponding code with this node is.
-	 * 
+	 *
 	 * @return The file name of the script.
 	 */
 	public String getFileName() {
@@ -197,7 +197,7 @@ public class AstNode implements Cloneable {
 
 	/**
 	 * Sets an attribute.
-	 * 
+	 *
 	 * If the attribute having the same key already exists, it will be overwritten.
 	 *
 	 * @param attributeKey The key of the attribute to be set.
@@ -216,7 +216,7 @@ public class AstNode implements Cloneable {
 
 	/**
 	 * Get the value of the attribute corresponding the specified key.
-	 * 
+	 *
 	 * @param attributeKey The key of the attribute to be returned.
 	 * @return The value of the attribute.
 	 */
@@ -237,7 +237,7 @@ public class AstNode implements Cloneable {
 
 	/**
 	 * Checks whether this node has the specified attribute or not.
-	 * 
+	 *
 	 * @param attributeKey The key (name) of the attribute to be checked.
 	 *
 	 * @return True if this node has the specified attribute, and false if don't have.
@@ -249,7 +249,7 @@ public class AstNode implements Cloneable {
 
 	/**
 	 * Adds a node as a child of this node.
-	 * 
+	 *
 	 * This method also modifies fields of the added child node, for example,
 	 * the reference to the parent node, the index in siblings.
 	 *
@@ -274,7 +274,7 @@ public class AstNode implements Cloneable {
 
 	/**
 	 * Adds multiple nodes as children.
-	 * 
+	 *
 	 * @param nodes The array storing nodes to be added as children.
 	 */
 	public void addChildNodes(AstNode[] nodes) {
@@ -286,7 +286,7 @@ public class AstNode implements Cloneable {
 
 	/**
 	 * Gets all child (children) nodes.
-	 * 
+	 *
 	 * @return The array storing all child (children) nodes.
 	 */
 	public AstNode[] getChildNodes() {
@@ -296,7 +296,7 @@ public class AstNode implements Cloneable {
 
 	/**
 	 * Gets all child (children) nodes of the specified type.
-	 * 
+	 *
 	 * @param type The type of child (children) nodes to be returned.
 	 * @return The array storing all child (children) nodes of specified type.
 	 */
@@ -315,7 +315,7 @@ public class AstNode implements Cloneable {
 
 	/**
 	 * Checks whether any children of this node exist or not.
-	 * 
+	 *
 	 * @return True if any children exists, false if don't exist.
 	 */
 	public boolean hasChildNodes() {
@@ -325,7 +325,7 @@ public class AstNode implements Cloneable {
 
 	/**
 	 * Checks whether any children of this node of the specified type exist or not.
-	 * 
+	 *
 	 * @param type The type of children nodes to be checked.
 	 * @return True if any children of the specified type exists, false if don't exist.
 	 */
@@ -336,7 +336,7 @@ public class AstNode implements Cloneable {
 
 	/**
 	 * Gets the parent node of this node.
-	 * 
+	 *
 	 * The parent node is set automatically in {@link AstNode.addChildNode addChildNode} method
 	 * when this node is added to the parent node as a child.
 	 * To prevent breaking the tree-structure of the AST, there is no setter of the parent node.
@@ -350,7 +350,7 @@ public class AstNode implements Cloneable {
 
 	/**
 	 * Checks whether the parent node of this node exists or not.
-	 * 
+	 *
 	 * @return True if the parent node exists, false if don't exist.
 	 */
 	public boolean hasParentNode() {
@@ -360,7 +360,7 @@ public class AstNode implements Cloneable {
 
 	/**
 	 * Gets the index which represents where this node is stored in the list storing child nodes in the parent node.
-	 * 
+	 *
 	 * @return The index of this node in the list storing child nodes in the parent node.
 	 */
 	public int getSiblingIndex() {
@@ -388,7 +388,7 @@ public class AstNode implements Cloneable {
 		do {
 			currentNode = currentNode.getPreorderDftNextNode();
 
-			// We are traversing nodes by the preorder-depth-first traversal, 
+			// We are traversing nodes by the preorder-depth-first traversal,
 			// so when we set the depth of "currentNode", the depth of its parent should had already been set.
 			// Hence, we can compute the depth of the currentNode from the depth of the parent node simply as follows:
 			AstNode parentNode = currentNode.getParentNode();
@@ -405,7 +405,7 @@ public class AstNode implements Cloneable {
 
 	/**
 	 * Gets where this node is in the absolute-hierarchy of the AST (0 for the root node).
-	 * 
+	 *
 	 * The value to be returned by this method should be set/updated by calling
 	 * {@link AstNode#updateDepths() updateDepths()} method.
 	 *
@@ -429,7 +429,7 @@ public class AstNode implements Cloneable {
 
 	/**
 	 * Gets where this node is in the block-hierarchy of the AST (0 for the root node).
-	 * 
+	 *
 	 * The value to be returned by this method should be set/updated by calling
 	 * {@link AstNode#updateDepths() updateDepths()} method.
 	 *
@@ -453,7 +453,7 @@ public class AstNode implements Cloneable {
 
 	/**
 	 * Gets the name of the data type which is set as {@link AttributeKey#DATA_TYPE DATA_TYPE} attribute.
-	 * 
+	 *
 	 * @return The name of the data type.
 	 */
 	public String getDataTypeName() {
@@ -463,7 +463,7 @@ public class AstNode implements Cloneable {
 
 	/**
 	 * Gets the array-rank which is set as {@link AttributeKey#ARRAY_RANK RANK} attribute.
-	 * 
+	 *
 	 * @return The array rank.
 	 */
 	public int getArrayRank() {
@@ -474,7 +474,7 @@ public class AstNode implements Cloneable {
 
 	/**
 	 * Checks whether this node has the specified modifier in the value of {@link AttributeKey#MODIFIER MODIFIER} attribute.
-	 * 
+	 *
 	 * @param modifier The modifier to be checked.
 	 *
 	 * @return True if this node has the spedicied modifiers, false if has'nt.
@@ -486,7 +486,7 @@ public class AstNode implements Cloneable {
 
 	/**
 	 * Append a modifier into the value of {@link AttributeKey#MODIFIER MODIFIER} attribute.
-	 * 
+	 *
 	 * @param modifier The modifier to be appended.
 	 */
 	public void addModifier(String modifier) {
@@ -502,7 +502,7 @@ public class AstNode implements Cloneable {
 
 	/**
 	 * Gets the next node of this node in the order of the pre-order depth-first traversal (DFT).
-	 * 
+	 *
 	 * Note that, preorder DFS visits the parent node only BEFORE when their children nodes are traversed.
 	 *
 	 * @return The next node.
@@ -514,7 +514,7 @@ public class AstNode implements Cloneable {
 
 	/**
 	 * Checks whether this node is the last node in the order of the pre-order depth-first traversal (DFT).
-	 * 
+	 *
 	 * @return True if this node is the last node, false if isn't.
 	 */
 	public boolean isPreorderDftLastNode() {
@@ -524,7 +524,7 @@ public class AstNode implements Cloneable {
 
 	/**
 	 * Gets the next node of this node in the order of the pre-order depth-first traversal (DFT).
-	 * 
+	 *
 	 * Note that, preorder DFS visits the parent node only BEFORE when their children nodes are traversed.
 	 *
 	 * However, sometimes it is necessary to do something at both of opening/closing points of some types of nodes
@@ -589,7 +589,7 @@ public class AstNode implements Cloneable {
 
 	/**
 	 * Gets the first node in the order of the post-order depth-first traversal (DFT).
-	 * 
+	 *
 	 * This method is implemented for using only for the root node of the AST.
 	 *
 	 * @return The first node.
@@ -607,7 +607,7 @@ public class AstNode implements Cloneable {
 
 	/**
 	 * Gets the next node of this node in the order of the post-order depth-first traversal (DFT).
-	 * 
+	 *
 	 * Note that, postorder DFS visits the parent node only AFTER when their children nodes are traversed.
 	 *
 	 * @return The next node.
@@ -635,7 +635,7 @@ public class AstNode implements Cloneable {
 
 	/**
 	 * Checks whether this node is the last node in the order of the post-order depth-first traversal (DFT).
-	 * 
+	 *
 	 * @return True if this node is the last node, false if isn't.
 	 */
 	public boolean isPostorderDftLastNode() {
@@ -645,7 +645,7 @@ public class AstNode implements Cloneable {
 
 	/**
 	 * Gets the string representation of the (maybe partial) AST of which this node is the root.
-	 * 
+	 *
 	 * The string representation of the AST returned by this method is expressed in XML-like format.
 	 *
 	 * @return The string representation of the AST.
@@ -657,7 +657,7 @@ public class AstNode implements Cloneable {
 
 	/**
 	 * Gets the string representation of the (maybe partial) AST of which this node is the root.
-	 * 
+	 *
 	 * The string representation of the AST returned by this method is expressed in XML-like format.
 	 *
 	 * @param containsChildNodes Specify false if you want to dump this node only, not the tree.
@@ -702,7 +702,7 @@ public class AstNode implements Cloneable {
 
 	/**
 	 * Indents the non-indented string expression of the AST.
-	 * 
+	 *
 	 * Ths method is used in {@link AstNode#dump(boolean,String) dump(boolean,String)} method.
 	 *
 	 * @param dumpString The string representation of the AST to be indented.

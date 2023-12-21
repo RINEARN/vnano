@@ -37,7 +37,7 @@ VCSSL/VNANO PLUGIN INTERFACE SPECIFICATION
 <h2>Abstract</h2>
 
 <p>
-Permission Authorizer Connector Interface 2 (PACI2) is 
+Permission Authorizer Connector Interface 2 (PACI2) is
 an interface for implementing permission-based security plug-ins.
 </p>
 
@@ -54,7 +54,7 @@ Please note that: the specification of this interface may be going to be changed
 </p>
 
 <p>
-This interface is not available yet on any scripting engine. 
+This interface is not available yet on any scripting engine.
 Instead, use <a href="PermissionAuthorizerConnectorInterface1_SPEC_ENGLISH.html">PACI1</a> at the present stage.
 </p>
 
@@ -118,7 +118,7 @@ This interface is published under CC0, which is almost the same as the so-called
 
 	<dt><a href="#getEngineConnectorClass">Class&lt;?&gt; getEngineConnectorClass()</a></dt>
 		<dd>
-			Returns the instance of "Class" class, representing the interface or the class of the engine connector, 
+			Returns the instance of "Class" class, representing the interface or the class of the engine connector,
 			which is an object for communicating with the scripting engine.
 		</dd>
 
@@ -231,7 +231,7 @@ This interface is published under CC0, which is almost the same as the so-called
 		<td class="lcol">Exception</td>
 		<td class="rcol">
 			ConnectorException: Thrown when invalid permission settings are detected.
-			Also, thrown when "false" is specified to "setsToBase" but the temporary permission settings does not exist 
+			Also, thrown when "false" is specified to "setsToBase" but the temporary permission settings does not exist
 			(not created yet or already disposed).
 		</td>
 	</tr>
@@ -274,7 +274,7 @@ This interface is published under CC0, which is almost the same as the so-called
 		<td class="lcol">Exception</td>
 		<td class="rcol">
 			ConnectorException: Thrown when failed to get the specified permission settings.
-			For example, thrown when "false" is specified to "setsToBase" but the temporary permission settings does not exist 
+			For example, thrown when "false" is specified to "setsToBase" but the temporary permission settings does not exist
 			(not created yet or already disposed).
 		</td>
 	</tr>
@@ -313,7 +313,7 @@ This interface is published under CC0, which is almost the same as the so-called
 			<br />
 			requester: The plug-in requesting the permission.
 			<br />
-			metaInformation: The information to be notified to the user 
+			metaInformation: The information to be notified to the user
 			(especially when the current value of the permission is set to <a href="ConnectorPermissionValue_SPEC_JAPANESE.html#ASK">ASK</a>).
 		</td>
 	</tr>
@@ -345,15 +345,15 @@ This interface is published under CC0, which is almost the same as the so-called
 			Sets the value of the specified permission item.
 			</p>
 			<p>
-			This method will be called from script engines/applications, 
+			This method will be called from script engines/applications,
 			and may be called from other plug-ins through engine-connector interfaces.
 			In the latter case, the permission for modifying/referencing permissions is required.
 			</p>
 			<p>
 			<p>
-			However, features which enable to modify/refer permission settings from other plug-ins are unsupported yet by 
-			engine-connector interfaces (e.g.: <a href="EngineConnectorInterface1_SPEC_ENGLISH.html">ECI1</a>). 
-			Furthermore, it is unckear whether it will be supported in future. 
+			However, features which enable to modify/refer permission settings from other plug-ins are unsupported yet by
+			engine-connector interfaces (e.g.: <a href="EngineConnectorInterface1_SPEC_ENGLISH.html">ECI1</a>).
+			Furthermore, it is unckear whether it will be supported in future.
 			This method is a kind of "mockup" of the above feature, at the present stage.
 			</p>
 		</td>
@@ -403,14 +403,14 @@ This interface is published under CC0, which is almost the same as the so-called
 			Gets the value of the specified permission item.
 			</p>
 			<p>
-			This method will be called from script engines/applications, 
+			This method will be called from script engines/applications,
 			and may be called from other plug-ins through engine-connector interfaces.
 			In the latter case, the permission for modifying/referencing permissions is required.
 			</p>
 			<p>
-			However, features which enable to modify/refer permission settings from other plug-ins are unsupported yet by 
-			engine-connector interfaces (e.g.: <a href="EngineConnectorInterface1_SPEC_ENGLISH.html">ECI1</a>). 
-			Furthermore, it is unckear whether it will be supported in future. 
+			However, features which enable to modify/refer permission settings from other plug-ins are unsupported yet by
+			engine-connector interfaces (e.g.: <a href="EngineConnectorInterface1_SPEC_ENGLISH.html">ECI1</a>).
+			Furthermore, it is unckear whether it will be supported in future.
 			This method is a kind of "mockup" of the above feature, at the present stage.
 			</p>
 		</td>
@@ -457,19 +457,19 @@ This interface is published under CC0, which is almost the same as the so-called
 			</p>
 			<p>
 			Stores current temporary permission settings
-			for restoring it later by 
+			for restoring it later by
 			<a href="#restoreTemporaryPermissionValues">restoreTemporaryPermissionValues(boolean restoresFromBase, boolean calledByEngine) method,
 			or overwriting permanent permission settings.
 			</p>
 			<p>
-			This method will be called from script engines/applications, 
+			This method will be called from script engines/applications,
 			and may be called from other plug-ins through engine-connector interfaces.
 			In the latter case, the permission for modifying/referencing permissions is required.
 			</p>
 			<p>
-			However, features which enable to modify/refer permission settings from other plug-ins are unsupported yet by 
-			engine-connector interfaces (e.g.: <a href="EngineConnectorInterface1_SPEC_ENGLISH.html">ECI1</a>). 
-			Furthermore, it is unckear whether it will be supported in future. 
+			However, features which enable to modify/refer permission settings from other plug-ins are unsupported yet by
+			engine-connector interfaces (e.g.: <a href="EngineConnectorInterface1_SPEC_ENGLISH.html">ECI1</a>).
+			Furthermore, it is unckear whether it will be supported in future.
 			This method is a kind of "mockup" of the above feature, at the present stage.
 			</p>
 		</td>
@@ -477,8 +477,8 @@ This interface is published under CC0, which is almost the same as the so-called
 	<tr>
 		<td class="lcol">Parameters</td>
 		<td class="rcol">
-			storesToBase: Specify true to store by overwriting base permission settings, 
-			or false to store temporary for recovering later by 
+			storesToBase: Specify true to store by overwriting base permission settings,
+			or false to store temporary for recovering later by
 			<a href="#restoreTemporaryPermissionValues">restoreTemporaryPermissionValues(boolean restoresFromBase)</a> method.
 			<br />
 			calledByEngine: Specify true when calling this method by the scripting engine.
@@ -515,14 +515,14 @@ This interface is published under CC0, which is almost the same as the so-called
 			Restores current temporary permission settings.
 			</p>
 			<p>
-			This method will be called from script engines/applications, 
+			This method will be called from script engines/applications,
 			and may be called from other plug-ins through engine-connector interfaces.
 			In the latter case, the permission for modifying/referencing permissions is required (but unsupported yet).
 			</p>
 			<p>
-			However, features which enable to modify/refer permission settings from other plug-ins are unsupported yet by 
-			engine-connector interfaces (e.g.: <a href="EngineConnectorInterface1_SPEC_ENGLISH.html">ECI1</a>). 
-			Furthermore, it is unckear whether it will be supported in future. 
+			However, features which enable to modify/refer permission settings from other plug-ins are unsupported yet by
+			engine-connector interfaces (e.g.: <a href="EngineConnectorInterface1_SPEC_ENGLISH.html">ECI1</a>).
+			Furthermore, it is unckear whether it will be supported in future.
 			This method is a kind of "mockup" of the above feature, at the present stage.
 			</p>
 		</td>
@@ -531,7 +531,7 @@ This interface is published under CC0, which is almost the same as the so-called
 		<td class="lcol">Parameters</td>
 		<td class="rcol">
 			restoresFromBase: Specify true to restore by copying values from base permission settings,
-			or false to restore by loading settings stored temporary by 
+			or false to restore by loading settings stored temporary by
 			<a href="#restoreTemporaryPermissionValues">restoreTemporaryPermissionValues(boolean restoresFromBase)</a> method.
 			<br />
 			calledByEngine: Specify true when calling this method by the scripting engine.
@@ -566,17 +566,17 @@ This interface is published under CC0, which is almost the same as the so-called
 		<td class="lcol">Description</td>
 		<td class="rcol">
 			<p style="margin-top: 0px;">
-			Returns the instance of "Class" class, representing the interface or the class of the engine connector, 
+			Returns the instance of "Class" class, representing the interface or the class of the engine connector,
 			which is an object for communicating with the scripting engine.
 			</p>
 			<p>
-			The instance of the specified interface/class by this method will be passed to the argument of 
+			The instance of the specified interface/class by this method will be passed to the argument of
 			initialization/finalization methods, e.g.: <a href="#initializeForConnection">initializeForConnection(Object engineConnector)</a>.
 			</p>
 			<p>
-			What type of interfaces are available depend on the implementation of the scripting engine, 
-			but at least, 
-			<a href="./EngineConnector1_SPEC_ENGLISH.html">ECI1</a> 
+			What type of interfaces are available depend on the implementation of the scripting engine,
+			but at least,
+			<a href="./EngineConnector1_SPEC_ENGLISH.html">ECI1</a>
 			is guaranteed to be available by the specification of PACI1.
 			</p>
 		</td>
@@ -617,7 +617,7 @@ This interface is published under CC0, which is almost the same as the so-called
 	<tr>
 		<td class="lcol">Parameters</td>
 		<td class="rcol">
-			engineConnector: The engine connector 
+			engineConnector: The engine connector
 			(see: <a href="#getEngineConnectorClass">getEngineConnectorClass()</a> method).
 		</td>
 	</tr>
@@ -651,7 +651,7 @@ This interface is published under CC0, which is almost the same as the so-called
 	<tr>
 		<td class="lcol">Parameters</td>
 		<td class="rcol">
-			engineConnector: The engine connector 
+			engineConnector: The engine connector
 			(see: <a href="#getEngineConnectorClass">getEngineConnectorClass()</a> method).
 		</td>
 	</tr>
@@ -685,7 +685,7 @@ This interface is published under CC0, which is almost the same as the so-called
 	<tr>
 		<td class="lcol">Parameters</td>
 		<td class="rcol">
-			engineConnector: The engine connector 
+			engineConnector: The engine connector
 			(see: <a href="#getEngineConnectorClass">getEngineConnectorClass()</a> method).
 		</td>
 	</tr>
@@ -719,7 +719,7 @@ This interface is published under CC0, which is almost the same as the so-called
 	<tr>
 		<td class="lcol">Parameters</td>
 		<td class="rcol">
-			engineConnector: The engine connector 
+			engineConnector: The engine connector
 			(see: <a href="#getEngineConnectorClass">getEngineConnectorClass()</a> method).
 		</td>
 	</tr>

@@ -15,8 +15,8 @@ import java.util.Arrays;
 
 
 /**
- * An adapter class converting a host-language-side method to a 
- * {@link org.vcssl.connect.ExternalFunctionConnectorInterface1 XFCI 1} plug-in, 
+ * An adapter class converting a host-language-side method to a
+ * {@link org.vcssl.connect.ExternalFunctionConnectorInterface1 XFCI 1} plug-in,
  * to call it from scripts.
  */
 public class MethodToXfci1Adapter implements ExternalFunctionConnectorInterface1 {
@@ -30,7 +30,7 @@ public class MethodToXfci1Adapter implements ExternalFunctionConnectorInterface1
 
 	/**
 	 * Creates a new adapter to access to a non-static method.
-	 * 
+	 *
 	 * @param method The non-static method to be accessed in scripts.
 	 * @param objectInstance The object instance to which the method belongs to.
 	 */
@@ -42,7 +42,7 @@ public class MethodToXfci1Adapter implements ExternalFunctionConnectorInterface1
 
 	/**
 	 * Creates a new adapter to access to a static method.
-	 * 
+	 *
 	 * @param method The static method to be accessed in scripts.
 	 */
 	public MethodToXfci1Adapter(Method method) {

@@ -158,11 +158,11 @@ public final class VnanoEngine {
 	/**
 	 * Re-execute the script which was executed last time,
 	 * in less overhead way using cached resources in the VM.
-	 * 
+	 *
 	 * @return
 	 *     The evaluated value of the expression, or the last expression statement in script code.
 	 *     If there is no evaluated value, returns null.
-	 * 
+	 *
 	 * @throws VnanoException Thrown when any error has detected for the content or the processing of the script.
 	 */
 	private Object reexecuteLastScript() throws VnanoException {

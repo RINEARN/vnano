@@ -276,12 +276,12 @@ The class of the scripting engine of the Vnano (Vnano Engine).
 		<td class="lcol">Exception</td>
 		<td class="rcol">
 			<p style="margin-top: 0px;">
-			VnanoFatalException (Unchecked Exception): 
+			VnanoFatalException (Unchecked Exception):
 			Thrown if this method is called in a state in which <a href="#isTerminatorEnabled">isTerminatorEnabled()</a> returns false.
 			</p>
 			<p>
-			Note that, if any exceptions occurred on the finalization processes of the connected plug-ins, 
-			it will be throws by the currently running 
+			Note that, if any exceptions occurred on the finalization processes of the connected plug-ins,
+			it will be throws by the currently running
 			<a href="#executeScript">executeScript(String script)</a> method, not by this method.
 			This method throws the exception only when it failed requesting the termination.
 			</p>
@@ -313,9 +313,9 @@ The class of the scripting engine of the Vnano (Vnano Engine).
 			<a href="#resetTerminator">resetTerminator()</a> method are available.
 			</p>
 			<p>
-			Please note that, even when this method returns true, some errors may occur in the termination processes 
+			Please note that, even when this method returns true, some errors may occur in the termination processes
 			(for example, erros caused by failures of finalization processes of the connected plug-ins, and so on).
-			For details, see the explanation about exceptions, 
+			For details, see the explanation about exceptions,
 			in the description of <a href="#terminateScript">terminateScript()</a> method.
 			</p>
 		</td>
@@ -354,7 +354,7 @@ The class of the scripting engine of the Vnano (Vnano Engine).
 		<td class="lcol">Description</td>
 		<td class="rcol">
 			<p style="margin-top: 0px;">
-			Resets the engine which had terminated by <a href="#terminateScript">terminateScript()</a> method, 
+			Resets the engine which had terminated by <a href="#terminateScript">terminateScript()</a> method,
 			for processing new scripts.
 			</p>
 			<p>
@@ -378,7 +378,7 @@ The class of the scripting engine of the Vnano (Vnano Engine).
 	<tr>
 		<td class="lcol">Exception</td>
 		<td class="rcol">
-			VnanoFatalException (Unchecked Exception): 
+			VnanoFatalException (Unchecked Exception):
 			Thrown if this method is called in a state in which <a href="#isTerminatorEnabled">isTerminatorEnabled()</a> returns false.
 		</td>
 	</tr>
@@ -403,7 +403,7 @@ The class of the scripting engine of the Vnano (Vnano Engine).
 			Connects various types of plug-ins which provides external functions/variables.
 			</p>
 			<p>
-			For the parameter "bindingName", 
+			For the parameter "bindingName",
 			specify the name in scripts of the variable/function/namespace provided by the connected plug-in.
 			If the passed argument contains a white space or a character "(", the content after it will be ignored.
 			By the above specification, for a function plug-in,
@@ -423,7 +423,7 @@ The class of the scripting engine of the Vnano (Vnano Engine).
 			( In that case, if the method/field is static, pass an Object type array for this argument,
 			and store the Method/Field type instance at [0],
 			and store "Class&lt;T&gt;" type instance of the class defining the method/field at [1] ).
-			Furthermore, an instance of a class implementing less-overhead plug-in interfaces, e.g.: XFCI, 
+			Furthermore, an instance of a class implementing less-overhead plug-in interfaces, e.g.: XFCI,
 			can be connected by this method.
 			Also, this method is used for connecting PACI1 type plug-ins which is used for managing permissions.
 			</p>
@@ -446,8 +446,8 @@ The class of the scripting engine of the Vnano (Vnano Engine).
 	<tr>
 		<td class="lcol">Exception</td>
 		<td class="rcol">
-			VnanoException: 
-			Thrown if the plug-in could not be connected, caused by unsupported interfaces, 
+			VnanoException:
+			Thrown if the plug-in could not be connected, caused by unsupported interfaces,
 			incompatibility of data types, and so on.
 		</td>
 	</tr>
@@ -687,7 +687,7 @@ The class of the scripting engine of the Vnano (Vnano Engine).
 	<tr>
 		<td class="lcol">Exception</td>
 		<td class="rcol">
-			VnanoFatalException (Unchecked Exception): 
+			VnanoFatalException (Unchecked Exception):
 			Thrown if this method is called in a state in which <a href="#hasOptionMap">hasOptionMap()</a> returns false.
 		</td>
 	</tr>
@@ -814,7 +814,7 @@ The class of the scripting engine of the Vnano (Vnano Engine).
 	<tr>
 		<td class="lcol">Exception</td>
 		<td class="rcol">
-			VnanoFatalException (Unchecked Exception): 
+			VnanoFatalException (Unchecked Exception):
 			Thrown if this method is called in a state in which <a href="#hasPermissionMap">hasPermissionMap()</a> returns false.
 		</td>
 	</tr>
@@ -902,7 +902,7 @@ The class of the scripting engine of the Vnano (Vnano Engine).
 	<tr>
 		<td class="lcol">Exception</td>
 		<td class="rcol">
-			VnanoFatalException (Unchecked Exception): 
+			VnanoFatalException (Unchecked Exception):
 			Thrown if this method is called in a state in which <a href="#hasPerformanceMap">hasPerformanceMap()</a> returns false.
 		</td>
 	</tr>

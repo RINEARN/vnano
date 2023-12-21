@@ -17,36 +17,36 @@ import org.vcssl.nano.spec.DataType;
 
 
 /**
- * The class of the data-container, which is the unit to store data into the memory, 
+ * The class of the data-container, which is the unit to store data into the memory,
  * in the virtual machine of the Vnano.
- * 
- * The architecture of the VM of the Vnano is a kind of a vector processor, 
- * so any data is stored in a data-container as an 1D array (the "data" field), 
+ *
+ * The architecture of the VM of the Vnano is a kind of a vector processor,
+ * so any data is stored in a data-container as an 1D array (the "data" field),
  * even if it is a scalar.
- * 
- * When a data container represents a scalar, the scalar value is stored in the "data" field array, 
+ *
+ * When a data container represents a scalar, the scalar value is stored in the "data" field array,
  * and the "offset" field points to the index at which the scalar value is stored.
- * 
+ *
  * When a data container represents a 1D array, it is stored in the "data" field as it is.
- * 
- * When a data container represents a multi dimensional array, it is stored in the "data", 
+ *
+ * When a data container represents a multi dimensional array, it is stored in the "data",
  * with serialized as a 1D array.
- * 
+ *
  * Also, the length of each dimension of the array are stored in the "lengths" field.
- * For example, the "lengths" of an array[10] is { 10 }, the "lengths" of an array[1][2][3] is {1, 2, 3}, 
+ * For example, the "lengths" of an array[10] is { 10 }, the "lengths" of an array[1][2][3] is {1, 2, 3},
  * and the "lengths" of a scalar is an empty { }.
- * 
+ *
  * We call the number of the dimensions (= the length of the "lengths" field) of an array as the "array-rank".
- * To keep consistency with the above specification about the "lengths" field, 
+ * To keep consistency with the above specification about the "lengths" field,
  * we define the array-rank of a scalar as 0.
- * 
+ *
  * As similar field as the "lengths", the "size" field is also defined.
- * It means the number of elements of the array represented by this data-container. 
+ * It means the number of elements of the array represented by this data-container.
  * Note that, the "size" necessarily doesn't match with the number of elements of "data" field.
- * For example, when a data-container represents a scalar value, the "size" of it is 1, 
- * but the number of elements of "data" field may be more long, 
+ * For example, when a data-container represents a scalar value, the "size" of it is 1,
+ * but the number of elements of "data" field may be more long,
  * and in which the scalar value is stored as the "offset"-th element.
- * 
+ *
  * This data-container also has the "size" field.
  *
  * @param <T> The type of the data to be stored (specify the type of 1D array, even when it stores a scalar or a multi dimensional array).
@@ -66,7 +66,7 @@ public class DataContainer<T> implements ArrayDataAccessorInterface1<T>,
 
 
 	/**
-	 * The Map for converting a class specified as the type parameter T 
+	 * The Map for converting a class specified as the type parameter T
 	 * to the corresponding element of the {@link org.vcssl.nano.spec.DataType DataType} enum.
 	 */
 	private static final HashMap<Class<?>, DataType> CLASS_DATA_TYPE_MAP = new HashMap<Class<?>, DataType>();
@@ -95,8 +95,8 @@ public class DataContainer<T> implements ArrayDataAccessorInterface1<T>,
 
 	/**
 	 * Stores the root data-container of the tree of references, when this data-container is referencing to the other data-container.
-	 * 
-	 * In general, the referenced data-container also may reference to the other data-container, 
+	 *
+	 * In general, the referenced data-container also may reference to the other data-container,
 	 * so the relationship of references between data-container become forms a tree-shape (we calls it as a "reference tree").
 	 * It is a waste of processing cost that walks in a reference tree to the root, for each data-I/O to the data belongs to the tree.
 	 * So all data-containers belongs to a reference tree caches the reference to the root as the following field.
@@ -116,8 +116,8 @@ public class DataContainer<T> implements ArrayDataAccessorInterface1<T>,
 
 	/**
 	 * Initializes/re-initializes this instace.
-	 * 
-	 * Initialized instance by this method stores no actual data yet, 
+	 *
+	 * Initialized instance by this method stores no actual data yet,
 	 * so for storing data, use data-setter methods: setArrayData(...), setFloat64ScalarData(...), and so on.
 	 */
 	public final void initialize() {
@@ -131,10 +131,10 @@ public class DataContainer<T> implements ArrayDataAccessorInterface1<T>,
 
 	/**
 	 * Set the data to this data-container.
-	 * 
+	 *
 	 * @param data The serialized 1d array data to be stored.
 	 * @param offset If this data-container represents a scalar, specify the index in the "data" at which the scalar value is stored, and otherwise specify 0.
-	 * @param lengths The array storing the length of each dimension of the array represented by this data-container. 
+	 * @param lengths The array storing the length of each dimension of the array represented by this data-container.
 	 */
 	@Override
 	public final void setArrayData(T data, int offset, int[] lengths) {
@@ -153,7 +153,7 @@ public class DataContainer<T> implements ArrayDataAccessorInterface1<T>,
 			this.lengths = lengths;
 			this.size = productOfLengths;
 
-		// If this data-container is referencing to other container: 
+		// If this data-container is referencing to other container:
 		// Update fields of the root container of the reference tree to which this container belongs.
 		} else {
 			// Don't call referenceTreeRoot.setArrayData(...), because we want to eliminate recursive calls in this script engine, for any case.
@@ -178,7 +178,7 @@ public class DataContainer<T> implements ArrayDataAccessorInterface1<T>,
 
 	/**
 	 * Returns whether this data-container has any serialized 1D array data.
-	 * 
+	 *
 	 * Note that, when this container stores a scalar value, it is internally stored in a 1D array, so this method returns true.
 	 * This method returns false only when this container has completely no data.
 	 *
@@ -196,8 +196,8 @@ public class DataContainer<T> implements ArrayDataAccessorInterface1<T>,
 
 	/**
 	 * Gets the "offset" value of this data-container.
-	 * 
-	 * When this data-container represents a scalar, 
+	 *
+	 * When this data-container represents a scalar,
 	 * the scalar value is stored at the "offset"-th index, in the serialized 1D array.
 	 *
 	 * @return The "offset" value.
@@ -210,11 +210,11 @@ public class DataContainer<T> implements ArrayDataAccessorInterface1<T>,
 
 	/**
 	 * Gets the "size" value of this data-container.
-	 * 
-	 * The "size"value  means the number of elements of the array represented by this data-container. 
+	 *
+	 * The "size"value  means the number of elements of the array represented by this data-container.
 	 * Note that, the "size" necessarily doesn't match with the number of elements of "data" field.
-	 * For example, when a data-container represents a scalar value, the "size" of it is 1, 
-	 * but the number of elements of "data" field may be more long, 
+	 * For example, when a data-container represents a scalar value, the "size" of it is 1,
+	 * but the number of elements of "data" field may be more long,
 	 * and in which the scalar value is stored as the "offset"-th element.
 	 *
 	 * @return The "size" value.
@@ -228,8 +228,8 @@ public class DataContainer<T> implements ArrayDataAccessorInterface1<T>,
 	/**
 	 * Gets the array storing the length of each dimension of the array, represented by this data-container.
 	 * We call it as "array-lengths", or simply "lengths".
-	 * 
-	 * For example, the "lengths" of an array[10] is { 10 }, the "lengths" of an array[1][2][3] is {1, 2, 3}, 
+	 *
+	 * For example, the "lengths" of an array[10] is { 10 }, the "lengths" of an array[1][2][3] is {1, 2, 3},
 	 * and the "lengths" of a scalar is an empty { }.
 	 *
 	 * @return The array storing the length of each dimension of the array ("array-lengths").
@@ -243,7 +243,7 @@ public class DataContainer<T> implements ArrayDataAccessorInterface1<T>,
 	/**
 	 * Gets the number of dimensions of the array represented by this data-container.
 	 * We call it as "array-rank".
-	 * 
+	 *
 	 * Note that, we define that the array-rank of a scalar is 0.
 	 *
 	 * @return The number of dimensions of the array ("array-rank")
@@ -257,10 +257,10 @@ public class DataContainer<T> implements ArrayDataAccessorInterface1<T>,
 	/**
 	 * Gets the data-type of the data stored in this data-container.
 	 * The returned data type is independent of whether this data-container represents a scalar or an array.
-	 * 
-	 * For example, this method returns {@link org.vcssl.nano.spec.DataType#STRING STRING} for all of the following cases: 
+	 *
+	 * For example, this method returns {@link org.vcssl.nano.spec.DataType#STRING STRING} for all of the following cases:
 	 * When this container represents a string-type scalar, a string-type 1D array, a string-type 3D array, and so on.
-	 * 
+	 *
 	 * Also, when this container stores no data, returns {@link org.vcssl.nano.spec.DataType#VOID VOID}.
 	 *
 	 * @return The data-type of the data stored in this data-container.
@@ -283,29 +283,29 @@ public class DataContainer<T> implements ArrayDataAccessorInterface1<T>,
 		return dataType;
 
 		// Why this data-container don't have the data-type as a field:
-		// 
-		// It may seems to be more natural to do the above class-DataType resolution 
-		// at the timing when the data is set to this container, and store the resolved data-type as a field, 
+		//
+		// It may seems to be more natural to do the above class-DataType resolution
+		// at the timing when the data is set to this container, and store the resolved data-type as a field,
 		// and simply returns it by this method.
-		// 
-		// However, if we do so, it requires to do the above resolution 
+		//
+		// However, if we do so, it requires to do the above resolution
 		// for every time when data is set/updated. It may become a bottleneck of data I/O.
-		// 
+		//
 		// On the other hand, this "getter" of the data-type is rarely called in run-time,
 		// because the Vnano is a static typing language. So it don't be a bottleneck of data I/O.
-		// 
-		// Therefore we do the data-type resolution in this "getter", not the "setter" of data, 
+		//
+		// Therefore we do the data-type resolution in this "getter", not the "setter" of data,
 		// so it dont require the field for storing the resolved data-type.
 	}
 
 
 	/**
 	 * Sets this data-container to refers to the specified data-container.
-	 * 
-	 * If the referred container is also referring to an other container, 
+	 *
+	 * If the referred container is also referring to an other container,
 	 * this container refers to the container at the root of the reference tree.
-	 * 
-	 * After setting the reference by this method, 
+	 *
+	 * After setting the reference by this method,
 	 * all I/O operations from/to this container will be synchronized to the referenced container.
 	 *
 	 * @param referredDataContainer The data-container to be referred.
@@ -328,7 +328,7 @@ public class DataContainer<T> implements ArrayDataAccessorInterface1<T>,
 
 	/**
 	 * Stores a double ({@link org.vcssl.nano.spec.DataType#FLOAT64 FLOAT64}) type scalar data.
-	 * 
+	 *
 	 * For using this method,
 	 * it is necessary that the "data" field is uninitialized yet, or initialized by the same data-type.
 	 * If the data-type of the "data" field is incompatible, the VnanoFatalException will be thrown.
@@ -411,7 +411,7 @@ public class DataContainer<T> implements ArrayDataAccessorInterface1<T>,
 
 	/**
 	 * Stores a long ({@link org.vcssl.nano.spec.DataType#INT64 INT64}) type scalar data.
-	 * 
+	 *
 	 * For using this method,
 	 * it is necessary that the "data" field is uninitialized yet, or initialized by the same data-type.
 	 * If the data-type of the "data" field is incompatible, the VnanoFatalException will be thrown.
@@ -494,7 +494,7 @@ public class DataContainer<T> implements ArrayDataAccessorInterface1<T>,
 
 	/**
 	 * Stores a boolean ({@link org.vcssl.nano.spec.DataType#BOOL BOOL}) type scalar data.
-	 * 
+	 *
 	 * For using this method,
 	 * it is necessary that the "data" field is uninitialized yet, or initialized by the same data-type.
 	 * If the data-type of the "data" field is incompatible, the VnanoFatalException will be thrown.
@@ -577,7 +577,7 @@ public class DataContainer<T> implements ArrayDataAccessorInterface1<T>,
 
 	/**
 	 * Stores a String ({@link org.vcssl.nano.spec.DataType#STRING STRING}) type scalar data.
-	 * 
+	 *
 	 * For using this method,
 	 * it is necessary that the "data" field is uninitialized yet, or initialized by the same data-type.
 	 * If the data-type of the "data" field is incompatible, the VnanoFatalException will be thrown.

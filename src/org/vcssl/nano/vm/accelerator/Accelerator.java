@@ -292,7 +292,7 @@ public class Accelerator {
 	/**
 	 * Executes the chain of AcceleratorExecutionNode instances.
 	 * This corresponds the processing of the list of the instructions, on a Processor.
-	 * 
+	 *
 	 * @param nodes The chain of AcceleratorExecutionNode instances.
 	 * @param dataManager The pre-configured data management unit.
 	 * @param memory The virtual memory instance from/to which data I/O are performed.

@@ -24,7 +24,7 @@ import org.vcssl.nano.vm.memory.DataContainer;
 
 
 /**
- * The adapter class for converting 
+ * The adapter class for converting
  * a {@link org.vcssl.connect.ExternalFunctionConnectorInterface1 XFCI1} type external function plugin
  * to an {@link org.vcssl.nano.interconnect.AbstractFunction AbstractFunction} type function object.
  */
@@ -63,7 +63,7 @@ public final class Xfci1ToFunctionAdapter extends AbstractFunction {
 
 
 	/**
-	 * Create an adapter converting the specified XFCI1 plugin to 
+	 * Create an adapter converting the specified XFCI1 plugin to
 	 * an {@link org.vcssl.nano.interconnect.AbstractFunction AbstractFunction} type function object.
 	 *
 	 * @param xfciPlugin The XFCI1 plugin to be converted.
@@ -144,9 +144,9 @@ public final class Xfci1ToFunctionAdapter extends AbstractFunction {
 
 	/**
 	 * Sets the name of this function.
-	 * 
+	 *
 	 * This method is used for setting an alias for an external function.
-	 * 
+	 *
 	 * @param functionName The name of this function.
 	 */
 	@Override
@@ -222,7 +222,7 @@ public final class Xfci1ToFunctionAdapter extends AbstractFunction {
 
 	/**
 	 * Gets array-ranks of all parameters.
-	 * 
+	 *
 	 * Note that, the array-rank of an scalar is 0.
 	 *
 	 * @return The array storing array-ranks of all parameters.
@@ -235,7 +235,7 @@ public final class Xfci1ToFunctionAdapter extends AbstractFunction {
 
 	/**
 	 * Gets flags representing whether data-types of parameters are arbitrary.
-	 * 
+	 *
 	 * If the value of an element of the returned array is true,
 	 * the data-type of the corresponding parameter is arbitrary.
 	 *
@@ -249,7 +249,7 @@ public final class Xfci1ToFunctionAdapter extends AbstractFunction {
 
 	/**
 	 * Gets flags representing whether array-ranks of parameters are arbitrary.
-	 * 
+	 *
 	 * If the value of an element of the returned array is true,
 	 * the array-rank of the corresponding parameter is arbitrary.
 	 *
@@ -263,7 +263,7 @@ public final class Xfci1ToFunctionAdapter extends AbstractFunction {
 
 	/**
 	 * Gets flags representing whether parameters are passed by references.
-	 * 
+	 *
 	 * If the value of an element of the returned array is true,
 	 * the corresponding parameter will be passed by reference
 	 * when this function will be invoked.
@@ -278,9 +278,9 @@ public final class Xfci1ToFunctionAdapter extends AbstractFunction {
 
 	/**
 	 * Gets flags representing whether parameters are constant.
-	 * 
+	 *
 	 * If the value of an element of the returned array is true,
-	 * the corresponding parameter is constant, 
+	 * the corresponding parameter is constant,
 	 * so its value must not be modified in the process of this function.
 	 *
 	 * @return The array storing flags representing whether parameters are constant.
@@ -316,11 +316,11 @@ public final class Xfci1ToFunctionAdapter extends AbstractFunction {
 	/**
 	 * Gets the name of the data-type of the return value.
 	 * In the data-type name, array declaration part [][]...[] isn't contained.
-	 * 
+	 *
 	 * If {@link AbstractFunction#isReturnDataTypeArbitrary() isReturnDataTypeArbitrary()} method
-	 * returns true, data-types and array-ranks of actual arguments will be given as 
+	 * returns true, data-types and array-ranks of actual arguments will be given as
 	 * "argumentDataTypeNames" and "argumentArrayRanks".
-	 * 
+	 *
 	 * In the contrast,
 	 * if {@link AbstractFunction#isReturnDataTypeArbitrary() isReturnDataTypeArbitrary()} method
 	 * returns false, the result of this method must not vary depending on
@@ -349,11 +349,11 @@ public final class Xfci1ToFunctionAdapter extends AbstractFunction {
 
 	/**
 	 * Gets the arraya-rank of the return value.
-	 * 
+	 *
 	 * If {@link AbstractFunction#isReturnDataTypeArbitrary() isReturnDataTypeArbitrary()} method
-	 * returns true, data-types and array-ranks of actual arguments will be given as 
+	 * returns true, data-types and array-ranks of actual arguments will be given as
 	 * "argumentDataTypeNames" and "argumentArrayRanks".
-	 * 
+	 *
 	 * In the contrast,
 	 * if {@link AbstractFunction#isReturnDataTypeArbitrary() isReturnDataTypeArbitrary()} method
 	 * returns false, the result of this method must not vary depending on
@@ -380,9 +380,9 @@ public final class Xfci1ToFunctionAdapter extends AbstractFunction {
 
 
 	/**
-	 * Gets whether the data-type of the return value varies 
+	 * Gets whether the data-type of the return value varies
 	 * depending on data-types and array-ranks of actual arguments.
-	 * 
+	 *
 	 * @return Returns true if the data-type of the return value varies depending on actual arguments.
 	 */
 	@Override
@@ -392,9 +392,9 @@ public final class Xfci1ToFunctionAdapter extends AbstractFunction {
 
 
 	/**
-	 * Gets whether the array-rank of the return value varies 
+	 * Gets whether the array-rank of the return value varies
 	 * depending on data-types and array-ranks of actual arguments.
-	 * 
+	 *
 	 * @return Returns true if the array-rank of the return value varies depending on actual arguments.
 	 */
 	@Override
@@ -405,11 +405,11 @@ public final class Xfci1ToFunctionAdapter extends AbstractFunction {
 
 	/**
 	 * Checks this function is invokable without problems which are detectable before invoking.
-	 * 
+	 *
 	 * If any problem has been found, this method will throw an exception.
 	 * If no problem has been found, nothing will occur.
 	 *
-	 * For example, types of data I/O interfaces used in an external function plug-in 
+	 * For example, types of data I/O interfaces used in an external function plug-in
 	 * must be compatible with the data-types and array-ranks of actual arguments passed in scripts.
 	 * So this method throw an exception if they are incompatible.
 	 *
@@ -421,7 +421,7 @@ public final class Xfci1ToFunctionAdapter extends AbstractFunction {
 	public void checkInvokability(String[] argumentDataTypeNames, int[] argumentArrayRanks)
 			throws VnanoException {
 
-		// If the automatic-data-conversion feature is disabled, 
+		// If the automatic-data-conversion feature is disabled,
 		// check compatibility between data-types and data I/O interfaces, of parameters.
 		if (!this.xfciPlugin.isDataConversionNecessary()) {
 			Class<?>[] paramDataAccessorInterfaces = this.xfciPlugin.getParameterUnconvertedClasses();
@@ -437,11 +437,11 @@ public final class Xfci1ToFunctionAdapter extends AbstractFunction {
 			}
 		}
 
-		// If the automatic-data-conversion feature is disabled, 
+		// If the automatic-data-conversion feature is disabled,
 		// check compatibility between the data-type and the data I/O interface, of the return value.
 		if (!this.xfciPlugin.isDataConversionNecessary()) {
 
-			// The data-type/array-rank of the return value may depend on the parameters, 
+			// The data-type/array-rank of the return value may depend on the parameters,
 			// so firstly get the classes of the parameters.
 			DataType[] argumentDataTypes;
 			try {
@@ -537,7 +537,7 @@ public final class Xfci1ToFunctionAdapter extends AbstractFunction {
 		// If the automatic-data-conversion feature is disabled:
 		} else {
 
-			// The return value will be stored to the data container of the first parameter, 
+			// The return value will be stored to the data container of the first parameter,
 			// when the automatic-data-conversion feature is disabled.
 			DataContainer<?>[] xfciArgContainers = new DataContainer<?>[argLength + 1];
 			xfciArgContainers[0] = returnDataContainer;
@@ -585,28 +585,28 @@ public final class Xfci1ToFunctionAdapter extends AbstractFunction {
 	/**
 	 * Validates whether the specified plug-in implements XFCI1 correctly, and it is available on the current version of Vnano Engine.
 	 * If no issues are detected for the plug-in, nothing will occur.
-	 * 
+	 *
 	 * @param plugin The plug-in to be validated.
 	 * @throws VnanoException Thrown if the specified plug-in has an incorrect something.
 	 */
 	private void validate(ExternalFunctionConnectorInterface1 plugin) throws VnanoException {
-		
+
 		// getFunctionName()
 		if (plugin.getFunctionName() == null) {
 			String errorMessage = "getFunctionName(): The returned value is null.";
 			throw new VnanoException(ErrorType.PLUGIN_VALIDATION_FAILED, new String[] { plugin.getClass().getName(), errorMessage });
 		}
-		
+
 		// getParameterNames()
 		if (plugin.hasParameterNames()) {
 			if (plugin.getParameterNames() == null) {
 				String errorMessage = "getParameterNames(): The returned array is null.";
-				throw new VnanoException(ErrorType.PLUGIN_VALIDATION_FAILED, new String[] { plugin.getClass().getName(), errorMessage });			
+				throw new VnanoException(ErrorType.PLUGIN_VALIDATION_FAILED, new String[] { plugin.getClass().getName(), errorMessage });
 			}
 			for (String element: plugin.getParameterNames()) {
 				if (element == null) {
 					String errorMessage = "getParameterNames(): The returned array contains a null element.";
-					throw new VnanoException(ErrorType.PLUGIN_VALIDATION_FAILED, new String[] { plugin.getClass().getName(), errorMessage });							
+					throw new VnanoException(ErrorType.PLUGIN_VALIDATION_FAILED, new String[] { plugin.getClass().getName(), errorMessage });
 				}
 			}
 		}
@@ -619,7 +619,7 @@ public final class Xfci1ToFunctionAdapter extends AbstractFunction {
 		for (Class<?> element: plugin.getParameterClasses()) {
 			if (element == null) {
 				String errorMessage = "getParameterNames(): The returned array contains a null element.";
-				throw new VnanoException(ErrorType.PLUGIN_VALIDATION_FAILED, new String[] { plugin.getClass().getName(), errorMessage });							
+				throw new VnanoException(ErrorType.PLUGIN_VALIDATION_FAILED, new String[] { plugin.getClass().getName(), errorMessage });
 			}
 		}
 		int paramCount = plugin.getParameterClasses().length;
@@ -633,7 +633,7 @@ public final class Xfci1ToFunctionAdapter extends AbstractFunction {
 			for (Class<?> element: plugin.getParameterUnconvertedClasses()) {
 				if (element == null) {
 					String errorMessage = "getParameterUnconvertedClasses(): The returned array contains a null element.";
-					throw new VnanoException(ErrorType.PLUGIN_VALIDATION_FAILED, new String[] { plugin.getClass().getName(), errorMessage });							
+					throw new VnanoException(ErrorType.PLUGIN_VALIDATION_FAILED, new String[] { plugin.getClass().getName(), errorMessage });
 				}
 				if (!element.equals(ArrayDataAccessorInterface1.class)
 						&& !element.equals(Int64ScalarDataAccessorInterface1.class)
@@ -648,7 +648,7 @@ public final class Xfci1ToFunctionAdapter extends AbstractFunction {
 				}
 			}
 		}
-		
+
 		// getParameterDataTypeArbitrarinesses()
 		if (plugin.getParameterDataTypeArbitrarinesses() == null) {
 			String errorMessage = "getParameterDataTypeArbitrarinesses(): The returned array is null.";
@@ -702,26 +702,26 @@ public final class Xfci1ToFunctionAdapter extends AbstractFunction {
 			String errorMessage = "hasVariadicParameters(): Returned true, but this feature has not been supported yet on the current version of Vnano Engine.";
 			throw new VnanoException(ErrorType.PLUGIN_VALIDATION_FAILED, new String[] { plugin.getClass().getName(), errorMessage });
 		}
-		
+
 		// getReturnClass() and getReturnUnconvertedClass()
 		if (plugin.isReturnDataTypeArbitrary() || plugin.isReturnArrayRankArbitrary()) {
 
-			// In this case, the type/rank of the returned value depends on the actual argument passed from scripts, 
+			// In this case, the type/rank of the returned value depends on the actual argument passed from scripts,
 			// so we can not statically validate it.
 		} else {
 			Class<?>[] paramClasses = plugin.getParameterClasses();
-			
+
 			if (plugin.getReturnClass(paramClasses).equals(void.class) || plugin.getReturnClass(paramClasses).equals(Void.class)) {
 				// If the data-type of the return value is "void", getParameterClasses() method will not be called.
-				
+
 			} else if (plugin.getReturnClass(paramClasses) == null) {
 				String errorMessage = "getReturnClass(...): The returned value is null.";
 				throw new VnanoException(ErrorType.PLUGIN_VALIDATION_FAILED, new String[] { plugin.getClass().getName(), errorMessage });
-				
+
 			} else if (!plugin.isDataConversionNecessary()) {
 				if (plugin.getReturnUnconvertedClass(paramClasses) == null) {
 					String errorMessage = "getReturnUnconvertedClass(): The returned value is null.";
-					throw new VnanoException(ErrorType.PLUGIN_VALIDATION_FAILED, new String[] { plugin.getClass().getName(), errorMessage });	
+					throw new VnanoException(ErrorType.PLUGIN_VALIDATION_FAILED, new String[] { plugin.getClass().getName(), errorMessage });
 				}
 				Class<?> returnClass = plugin.getReturnUnconvertedClass(paramClasses);
 				if (!returnClass.equals(ArrayDataAccessorInterface1.class)
@@ -733,11 +733,11 @@ public final class Xfci1ToFunctionAdapter extends AbstractFunction {
 
 					String errorMessage = "getParameterUnconvertedClasses(): The returned class/interface \""
 							+ returnClass.getName() + "\"is not supported on the current version of Vnano Engine.";
-					throw new VnanoException(ErrorType.PLUGIN_VALIDATION_FAILED, new String[] { plugin.getClass().getName(), errorMessage });	
+					throw new VnanoException(ErrorType.PLUGIN_VALIDATION_FAILED, new String[] { plugin.getClass().getName(), errorMessage });
 				}
 			}
 		}
-		
+
 		// getEngineConnectorClass()
 		if (plugin.getEngineConnectorClass() == null) {
 			String errorMessage = "getEngineConnectorClass(...): The returned value is null.";

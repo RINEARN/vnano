@@ -12,10 +12,10 @@ import org.vcssl.nano.vm.memory.Memory;
 
 /**
  * The class of an instruction of the {@link Processor}.
- * 
- * The specifications of the instructions supported by the Processor 
+ *
+ * The specifications of the instructions supported by the Processor
  * are defined as the virtual assembly language VRIL ( https://www.vcssl.org/en-us/vril/isa/instruction ).
- * 
+ *
  * An instance of this class represents an instruction (one line) in the VRIL assembly code.
  * (The VRIL assembly code is a text code, but it is converted to instances of this class by the Assembler in the VM.)
  */
@@ -49,7 +49,7 @@ public class Instruction implements Cloneable {
 	 * @param dataTypes The data-type of the operation (what it means depends on the specification for each operation code).
 	 * @param operandPartitions The memory partitions in which the data of the operands are stored.
 	 * @param operandAddresses The memory addresses at which the data of the operands are stored.
-	 * @param metaPartition The memory partition in which the meta information is stored. 
+	 * @param metaPartition The memory partition in which the meta information is stored.
 	 * @param metaAddress The memory address at which the meta information is stored.
 	 */
 	public Instruction(
@@ -67,7 +67,7 @@ public class Instruction implements Cloneable {
 	 * @param dataTypes The data-type of the operation (what it means depends on the specification for each operation code).
 	 * @param operandPartitions The memory partitions in which the data of the operands are stored.
 	 * @param operandAddresses The memory addresses at which the data of the operands are stored.
-	 * @param metaPartition The memory partition in which the meta information is stored. 
+	 * @param metaPartition The memory partition in which the meta information is stored.
 	 * @param metaAddress The memory address at which the meta information is stored.
 	 * @param extension The additional information for the extended instruction.
 	 */
@@ -89,8 +89,8 @@ public class Instruction implements Cloneable {
 
 	/**
 	 * Gets the data-types of the operation.
-	 * 
-	 * What it means depends on the specification for each operation code 
+	 *
+	 * What it means depends on the specification for each operation code
 	 * (see: https://www.vcssl.org/en-us/vril/isa/instruction ).
 	 *
 	 * @return The data-types of the operation.
@@ -182,7 +182,7 @@ public class Instruction implements Cloneable {
 
 	/**
 	 * Clones this instruction.
-	 * 
+	 *
 	 * All fields excluding "extension" will be deep-copied.
 	 * The field "extension" will be shallow-copied.
 	 *

@@ -7,12 +7,12 @@ package org.vcssl.nano.spec;
 
 /**
  * The enum to define operation code of instructions of the VM (Virtual Machine) in the script engine of the Vnano.
- * 
- * Names of elements of this enum are the same as the mnemonics of VRIL (Vector Register Intermediate Language), 
+ *
+ * Names of elements of this enum are the same as the mnemonics of VRIL (Vector Register Intermediate Language),
  * which is the virtual assembly language for the VM.
- * 
+ *
  * For the detailed description/specification of each operation code, see the following document of VRIL:
- * 
+ *
  *     https://www.vcssl.org/en-us/vril/isa/instruction    (English)
  *     https://www.vcssl.org/ja-jp/vril/isa/instruction    (Japanese)
  */
@@ -88,13 +88,13 @@ public enum OperationCode {
 	ALLOCR,
 
 	/**
-	 * A variation of the {@link OperationCode#ALLOC ALLOC} instruction to allocate memory, 
+	 * A variation of the {@link OperationCode#ALLOC ALLOC} instruction to allocate memory,
 	 * of which size is the same as the data which is at the top of the stack.
 	 */
 	ALLOCP,
 
 	/**
-	 * A variation of the {@link OperationCode#ALLOC ALLOC} instruction, 
+	 * A variation of the {@link OperationCode#ALLOC ALLOC} instruction,
 	 * to only declare data type and array ranks/lengths for readability and optimizability of code,
 	 * without allocating the actual memory.
 	 */

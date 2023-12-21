@@ -18,7 +18,7 @@ public final class OptionValue {
 
 	/**
 	 * (A value of {@link OptionKey#DUMPER_TARGET DUMPER_TARGET} option)
-	 * 
+	 *
 	 * Dump all contents.
 	 */
 	public static final String DUMPER_TARGET_ALL = "ALL";
@@ -26,7 +26,7 @@ public final class OptionValue {
 
 	/**
 	 * (A value of {@link OptionKey#DUMPER_TARGET DUMPER_TARGET} option)
-	 * 
+	 *
 	 * Dump the inutted script code.
 	 */
 	public static final String DUMPER_TARGET_INPUTTED_CODE = "INPUTTED_CODE";
@@ -34,7 +34,7 @@ public final class OptionValue {
 
 	/**
 	 * (A value of {@link OptionKey#DUMPER_TARGET DUMPER_TARGET} option)
-	 * 
+	 *
 	 * Dump pre-processed script code.
 	 */
 	public static final String DUMPER_TARGET_PREPROCESSED_CODE = "PREPROCESSED_CODE";
@@ -42,7 +42,7 @@ public final class OptionValue {
 
 	/**
 	 * (A value of {@link OptionKey#DUMPER_TARGET DUMPER_TARGET} option)
-	 * 
+	 *
 	 * Dump tokens, which are output of the {@link org.vcssl.nano.compiler.LexicalAnalyzer}.
 	 */
 	public static final String DUMPER_TARGET_TOKEN = "TOKEN";
@@ -50,7 +50,7 @@ public final class OptionValue {
 
 	/**
 	 * (A value of {@link OptionKey#DUMPER_TARGET DUMPER_TARGET} option)
-	 * 
+	 *
 	 * Dump the Abstract Syntax Tree (AST), which is the output of the {@link org.vcssl.nano.compiler.Parser}.
 	 */
 	public static final String DUMPER_TARGET_PARSED_AST = "PARSED_AST";
@@ -58,7 +58,7 @@ public final class OptionValue {
 
 	/**
 	 * (A value of {@link OptionKey#DUMPER_TARGET DUMPER_TARGET} option)
-	 * 
+	 *
 	 * Dump the semantic-analyzed AST, which is the output of the {@link org.vcssl.nano.compiler.SemanticAnalyzer}.
 	 */
 	public static final String DUMPER_TARGET_ANALYZED_AST = "ANALYZED_AST";
@@ -66,7 +66,7 @@ public final class OptionValue {
 
 	/**
 	 * (A value of {@link OptionKey#DUMPER_TARGET DUMPER_TARGET} option)
-	 * 
+	 *
 	 * Dump the VRIL code, which is the compilation result, output of the {@link org.vcssl.nano.compiler.CodeGenerator}.
 	 */
 	public static final String DUMPER_TARGET_ASSEMBLY_CODE = "ASSEMBLY_CODE";
@@ -74,7 +74,7 @@ public final class OptionValue {
 
 	/**
 	 * (A value of {@link OptionKey#DUMPER_TARGET DUMPER_TARGET} option)
-	 * 
+	 *
 	 * Dump the VM object code, output of the {@link org.vcssl.nano.vm.assembler.Assembler}.
 	 */
 	public static final String DUMPER_TARGET_OBJECT_CODE = "OBJECT_CODE";
@@ -82,7 +82,7 @@ public final class OptionValue {
 
 	/**
 	 * (A value of {@link OptionKey#DUMPER_TARGET DUMPER_TARGET} option)
-	 * 
+	 *
 	 * Dump instructions of {@link org.vcssl.nano.vm.accelerator.Accelerator},
 	 * output of the {@link org.vcssl.nano.vm.accelerator.AcceleratorSchedulingUnit}.
 	 */
@@ -91,7 +91,7 @@ public final class OptionValue {
 
 	/**
 	 * (A value of {@link OptionKey#DUMPER_TARGET DUMPER_TARGET} option)
-	 * 
+	 *
 	 * Dump the internal state (dispatchments of execution units, and so on) of {@link org.vcssl.nano.vm.accelerator.Accelerator}.
 	 */
 	public static final String DUMPER_TARGET_ACCELERATOR_STATE = "ACCELERATOR_STATE";
@@ -111,7 +111,7 @@ public final class OptionValue {
 
 	/**
 	 * (A value of {@link OptionKey#ACCELERATOR_OPTIMIZATION_LEVEL ACCELERATOR_OPTIMIZATION_LEVEL} option)
-	 * 
+	 *
 	 * The optimization level to execute code in the most naive way on the Accelerator.
 	 */
 	public static final int ACCELERATOR_OPTIMIZATION_LEVEL_0 = 0;
@@ -119,7 +119,7 @@ public final class OptionValue {
 
 	/**
 	 * (A value of {@link OptionKey#ACCELERATOR_OPTIMIZATION_LEVEL ACCELERATOR_OPTIMIZATION_LEVEL} option)
-	 * 
+	 *
 	 * The optimization level to optimize only I/O of data, without enabling any optimizations of code.
 	 */
 	public static final int ACCELERATOR_OPTIMIZATION_LEVEL_1 = 1;
@@ -127,7 +127,7 @@ public final class OptionValue {
 
 	/**
 	 * (A value of {@link OptionKey#ACCELERATOR_OPTIMIZATION_LEVEL ACCELERATOR_OPTIMIZATION_LEVEL} option)
-	 * 
+	 *
 	 * The optimization level to reduce overhead processing costs by replacing operands/instructions in code,
 	 * by removing unnecessary instructions, and by fusing multiple instructions into a instruction.
 	 */
@@ -136,7 +136,7 @@ public final class OptionValue {
 
 	/**
 	 * (A value of {@link OptionKey#ACCELERATOR_OPTIMIZATION_LEVEL ACCELERATOR_OPTIMIZATION_LEVEL} option)
-	 * 
+	 *
 	 * The optimization level to enable optimizations with modifications of code structures,
 	 * such as inline expansions of functions, and so on.
 	 */
@@ -145,7 +145,7 @@ public final class OptionValue {
 
 	/**
 	 * (A value of {@link OptionKey#ACCELERATOR_OPTIMIZATION_LEVEL ACCELERATOR_OPTIMIZATION_LEVEL} option)
-	 * 
+	 *
 	 * The maximum optimization level currently supported.
 	 */
 	public static final int ACCELERATOR_OPTIMIZATION_LEVEL_MAX = ACCELERATOR_OPTIMIZATION_LEVEL_3;
@@ -153,7 +153,7 @@ public final class OptionValue {
 
 	/**
 	 * (A value of {@link OptionKey#ACCELERATOR_OPTIMIZATION_LEVEL ACCELERATOR_OPTIMIZATION_LEVEL} option)
-	 * 
+	 *
 	 * The default optimization level.
 	 */
 	public static final int ACCELERATOR_OPTIMIZATION_LEVEL_DEFAULT = ACCELERATOR_OPTIMIZATION_LEVEL_3;

@@ -17,7 +17,7 @@ import org.vcssl.nano.spec.IdentifierSyntax;
 
 /**
  * The class to perform loading of scripts from text files.
- * 
+ *
  * How to register scripts to this loader depends on whether it is a "main script" or "library scripts".
  * The path of the main script file is simply specified by
  * {@link ScriptLoader#setMainScriptPath(String) setMainScriptPath(String) } method.
@@ -76,7 +76,7 @@ public class ScriptLoader {
 
 	/**
 	 * Create new script loader under the settings of specified encoding and end-line-code.
-	 * 
+	 *
 	 * @param defaultEncoding The default encoding ("UTF-8" and so on).
 	 */
 	public ScriptLoader(String defaultEncoding) {
@@ -86,7 +86,7 @@ public class ScriptLoader {
 
 	/**
 	 * Registers the path of the main script file to be loaded.
-	 * 
+	 *
 	 * @param defaultEncoding The path of the main script file.
 	 */
 	public void setMainScriptPath(String scriptFilePath) {
@@ -96,7 +96,7 @@ public class ScriptLoader {
 
 	/**
 	 * Registers the path of the library list file in which file paths of library scripts are described.
-	 * 
+	 *
 	 * @param listFilePath The path of the library list file.
 	 */
 	public void setLibraryScriptListPath(String listFilePath) {
@@ -107,7 +107,7 @@ public class ScriptLoader {
 
 	/**
 	 * Loads/updates scripts from registered files.
-	 * 
+	 *
 	 * @throws VnanoException Thrown when scripts could not be loaded successfully.
 	 */
 	public void load() throws VnanoException {
@@ -125,7 +125,7 @@ public class ScriptLoader {
 
 	/**
 	 * Returns whether this loader has a loaded main script.
-	 * 
+	 *
 	 * @return True if this loader has a main script.
 	 */
 	public boolean hasMainScript() {
@@ -135,7 +135,7 @@ public class ScriptLoader {
 
 	/**
 	 * Returns the name of the loaded main script.
-	 * 
+	 *
 	 * @return The name of the main script.
 	 */
 	public String getMainScriptName() {
@@ -145,7 +145,7 @@ public class ScriptLoader {
 
 	/**
 	 * Returns the file path of the loaded main script.
-	 * 
+	 *
 	 * @return The file path of the main script.
 	 */
 	public String getMainScriptPath() {
@@ -155,7 +155,7 @@ public class ScriptLoader {
 
 	/**
 	 * Returns the content of the loaded main script.
-	 * 
+	 *
 	 * @return The content of the main script.
 	 */
 	public String getMainScriptContent() {
@@ -165,7 +165,7 @@ public class ScriptLoader {
 
 	/**
 	 * Returns whether this loader has loaded library scripts.
-	 * 
+	 *
 	 * @return True if this loader has library scripts.
 	 */
 	public boolean hasLibraryScripts() {
@@ -175,7 +175,7 @@ public class ScriptLoader {
 
 	/**
 	 * Returns names of the loaded library scripts.
-	 * 
+	 *
 	 * @return Names of the library scripts.
 	 */
 	public String[] getLibraryScriptNames() {
@@ -185,17 +185,17 @@ public class ScriptLoader {
 
 	/**
 	 * Returns file paths of the loaded library scripts.
-	 * 
+	 *
 	 * @param getsRawOatgs
 	 *    Specify true for getting "unmodified" paths described in the library script file.
-	 *    If false is specified, each value of returned paths contains 
+	 *    If false is specified, each value of returned paths contains
 	 *    the location of the directory in which the library script file exists.
-	 * 
+	 *
 	 * @return File paths of the library scripts.
 	 */
 	public String[] getLibraryScriptPaths(boolean getsRawPaths) {
 		if (getsRawPaths) {
-			return this.libraryScriptRawPathList.toArray(new String[0]);			
+			return this.libraryScriptRawPathList.toArray(new String[0]);
 		} else {
 			return this.libraryScriptPathList.toArray(new String[0]);
 		}
@@ -204,7 +204,7 @@ public class ScriptLoader {
 
 	/**
 	 * Returns contents of the loaded library scripts.
-	 * 
+	 *
 	 * @return Contents of the library scripts.
 	 */
 	public String[] getLibraryScriptContents() {
@@ -248,7 +248,7 @@ public class ScriptLoader {
 				continue;
 			}
 
-			// The file path of the library may be described as the relative file path 
+			// The file path of the library may be described as the relative file path
 			// from the directory in which the library list file is located, so then convert it to the absolute path.
 			File libFile = new File(libPath);
 			if (!libFile.isAbsolute() ) {

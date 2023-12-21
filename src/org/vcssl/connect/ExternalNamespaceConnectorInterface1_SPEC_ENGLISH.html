@@ -36,8 +36,8 @@ VCSSL/VNANO PLUGIN INTERFACE SPECIFICATION
 <h2>Abstract</h2>
 
 <p>
-External Namespace Connector Interface 1 (XNCI1) 
-is an interface (abbreviated as XNCI1) for implementing namespace plug-ins 
+External Namespace Connector Interface 1 (XNCI1)
+is an interface (abbreviated as XNCI1) for implementing namespace plug-ins
 which provides multiple functions and variables available in scripts.
 </p>
 
@@ -54,7 +54,7 @@ No modifications will be applied for this interface, excluding documents/comment
 </p>
 
 <p>
-This interface is currently supported by the scripting engine of Vnano. 
+This interface is currently supported by the scripting engine of Vnano.
 You can use this interface for development of plug-ins of applications equipped with the Vnano engine.
 </p>
 
@@ -109,7 +109,7 @@ This interface is published under CC0, which is almost the same as the so-called
 
 	<dt><a href="#getEngineConnectorClass">Class&lt;?&gt; getEngineConnectorClass()</a></dt>
 		<dd>
-			Gets the instance of "Class" class, representing the interface or the class of the engine connector, 
+			Gets the instance of "Class" class, representing the interface or the class of the engine connector,
 			which is an object for communicating with the scripting engine.
 		</dd>
 
@@ -346,7 +346,7 @@ This interface is published under CC0, which is almost the same as the so-called
 			Gets all structs belong to this namespace.
 			</p>
 			<p>
-			However, the specification of ExternalStructConnectorInterface1 (XSCI1) has not been determined yet, 
+			However, the specification of ExternalStructConnectorInterface1 (XSCI1) has not been determined yet,
 			so as for now, the content of the XSCI1's interface file is almost empty.
 			</p>
 			<p>
@@ -385,17 +385,17 @@ This interface is published under CC0, which is almost the same as the so-called
 		<td class="lcol">Description</td>
 		<td class="rcol">
 			<p style="margin-top: 0px;">
-			Returns the instance of "Class" class, representing the interface or the class of the engine connector, 
+			Returns the instance of "Class" class, representing the interface or the class of the engine connector,
 			which is an object for communicating with the scripting engine.
 			</p>
 			<p>
-			The instance of the specified interface/class by this method will be passed to the argument of 
+			The instance of the specified interface/class by this method will be passed to the argument of
 			initialization/finalization methods, e.g.: <a href="#preInitializeForConnection">preInitializeForConnection(Object engineConnector)</a>.
 			</p>
 			<p>
-			What type of interfaces are available depend on the implementation of the scripting engine, 
-			but at least, 
-			<a href="./EngineConnector1_SPEC_ENGLISH.html">ECI1</a> 
+			What type of interfaces are available depend on the implementation of the scripting engine,
+			but at least,
+			<a href="./EngineConnector1_SPEC_ENGLISH.html">ECI1</a>
 			is guaranteed to be available by the specification of XNCI1.
 			</p>
 		</td>

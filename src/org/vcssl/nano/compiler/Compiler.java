@@ -57,7 +57,7 @@ public class Compiler {
 		// Get the total number of scripts.
 		int scriptLength = scripts.length;
 
-		// Check whether EVAL_INT_LITERAL_AS_FLOAT option is enabled, 
+		// Check whether EVAL_INT_LITERAL_AS_FLOAT option is enabled,
 		// where EVAL_INT_LITERAL_AS_FLOAT is the option to handle all integer literals in scripts as float-type values.
 		// It is useful for purposes calculating values of expressions.
 		boolean evalNumberAsFloat = (Boolean)optionMap.get(OptionKey.EVAL_INT_LITERAL_AS_FLOAT);
@@ -99,13 +99,13 @@ public class Compiler {
 			tokens[scriptLength-1] = this.replaceDataTypeOfLiteralTokens(
 				tokens[scriptLength-1], DataTypeName.DEFAULT_INT, DataTypeName.DEFAULT_FLOAT
 			);
-			// where tokens[scriptLength-1] are tokens of the (main) script 
+			// where tokens[scriptLength-1] are tokens of the (main) script
 			// passes as an argument of "executeScript(String script)" method of VnanoEngine.
 		}
 
 		// Marge tokens of all scripts.
 		// Why we haven't marge them before here is: to display correct cause information when any error is detected.
-		// Line numbers and script names are set to tokens by LexicalAnalyzer, so if we link scripts before lexical analysis, 
+		// Line numbers and script names are set to tokens by LexicalAnalyzer, so if we link scripts before lexical analysis,
 		// incorrect line numbers and script names will be set to tokens, and displayed in error messages.
 		List<Token> tokenList = new ArrayList<Token>();
 		for (int scriptIndex=0; scriptIndex<scriptLength; scriptIndex++) {
