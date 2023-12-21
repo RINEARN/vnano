@@ -9,7 +9,7 @@ jobs:
     - name: Set-up environment
       uses: actions/setup-java@v1
       with:
-        java-version: 19
+        java-version: 21
     - name: Build source code
       run: ant -noinput -buildfile build.xml
     - name: Upload built file
@@ -25,7 +25,7 @@ jobs:
     - name: Set-up environment
       uses: actions/setup-java@v1
       with:
-        java-version: 19
+        java-version: 21
     - name: Download built file
       uses: actions/download-artifact@v1
       with:
