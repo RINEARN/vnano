@@ -1,3 +1,4 @@
+org/vcssl/nano/combinedtest/ActivationDeactivationCombinedTest.java
 org/vcssl/nano/combinedtest/BlockStatementCombinedTest.java
 org/vcssl/nano/combinedtest/CombinedTestElement.java
 org/vcssl/nano/combinedtest/CombinedTestException.java
@@ -8,6 +9,7 @@ org/vcssl/nano/combinedtest/FunctionCombinedTest.java
 org/vcssl/nano/combinedtest/IfElseStatementCombinedTest.java
 org/vcssl/nano/combinedtest/LiteralCombinedTest.java
 org/vcssl/nano/combinedtest/package-info.java
+org/vcssl/nano/combinedtest/RepetitiveExecutionCombinedTest.java
 org/vcssl/nano/combinedtest/ScalarArithmeticOperationCombinedTest.java
 org/vcssl/nano/combinedtest/ScalarAssignmentOperationCombinedTest.java
 org/vcssl/nano/combinedtest/ScalarComparisonOperationCombinedTest.java
