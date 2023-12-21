@@ -16,6 +16,7 @@
 - [パーミッション設定](#permission)
 - [コマンドラインモード](#command-line-mode)
 - [パフォーマンス計測と解析](#performances)
+- [反復実行時のオーバーヘッドを削る](#repetitive)
 - [仕様書](#specifications)
 
 <hr />
@@ -667,6 +668,125 @@ Vnano Engine では、データ解析/計算ソフトなどでの使用も想定
 それに対して、JMP/JMPN や LT/GT/EQ/GEQ/LEQ などが大きな割合を占める場合、それはスクリプト内の if/else 文や小さなループがボトルネックになっている事を示唆しています。
 従ってその場合、処理フローを見直す事で、速度を大きく改善できる余地があるかもしれません。
 
+
+<a id="repetitive"></a>
+## 反復実行時のオーバーヘッドを削る
+
+ところで、上で計測した処理速度は、一つのスクリプト内で重い計算を行った場合のものです。
+しかし、アプリ内での用途によっては、もっと細切れな処理を、Vnano Engine に何度も反復的にリクエストする場面も多いでしょう。
+
+その典型例が、「 ある数式の値を、変数 x の値を小刻みに変えつつ、何度も計算したい 」といった場面です。このような処理は、例えば数式のグラフを各際登場しますし、数値計算でも収束アルゴリズムなどを使う場合に必要です。
+
+そのような場合を想定したサンプルコードが、「 ExampleApp6.java 」として同梱されています：
+
+    (in ExampleApp7.java)
+
+    import org.vcssl.nano.VnanoEngine;
+    import org.vcssl.nano.VnanoException;
+    import java.util.Map;
+    import java.util.HashMap;
+
+    public class ExampleApp7 {
+
+        // 反復実行の回数
+        static final int REPETITION_COUNT = 100000000;
+
+        // 変数「x」を提供するプラグイン
+        public static class VariablePlugin {
+            public double x;
+        }
+
+    	public static void main(String[] args) throws VnanoException {
+            
+            // Vnano Engine のインスタンスを生成
+		    VnanoEngine engine = new VnanoEngine();
+
+            // 変数「x」を提供するプラグインを生成して接続
+            VariablePlugin plugin = new VariablePlugin();
+            engine.connectPlugin("VariablePlugin", plugin);
+
+            // オーバーヘッドを削るため、自動アクティベーション機能を無効化する
+            Map<String, Object> optionMap = new HashMap<String, Object>();
+            optionMap.put("AUTOMATIC_ACTIVATION_ENABLED", false);
+
+    		// 反復的に処理する計算式（またはスクリプト）を用意
+	    	String expression = " x * 0.5 + 3.2 ; " ;
+
+            // 反復実行の各ターンでの結果を足し上げる変数
+            double sum = 0.0;
+
+            // 手動でエンジンをアクティベーション（実行スタンバイ状態に）する
+            engine.activateEngine();
+
+            // 反復実行の開始時間を控える
+            long beginTime = System.nanoTime();
+
+            // 変数 x の値を小刻みに変えながら、計算式（またはスクリプト）を反復実行する
+            for (int i=0; i<REPETITION_COUNT; i++) {
+                plugin.x = i * 0.125;
+                double valueOfExpression = (double)engine.executeScript(expression);
+                sum += valueOfExpression;
+            }
+
+            // 反復実行の終了時間を控える
+            long endTime = System.nanoTime();
+
+            // エンジンのアクティベーションを解除する（何もせず待つ時の状態に戻す）
+            engine.deactivateEngine();
+
+            // 結果を出力（所要時間や反復実行の速さなども）
+            double requiredTime = ((endTime - beginTime) * 1.0E-9);
+            double repetitionSpeed = REPETITION_COUNT / requiredTime;
+		    System.out.println("result (sum): " + sum);
+		    System.out.println("repetition couunt: " + REPETITION_COUNT);
+		    System.out.println("required time: " + requiredTime + " [sec]");
+		    System.out.println("repetition speed: " + repetitionSpeed + " [times/sec]");
+	    }
+    }
+
+このコードは、式「 x * 0.5 + 3.2 」の値を、x を小刻みに変えつつ、反復的に1億回計算する内容になっています。所要時間は20秒ほどで、概ね数百万回/秒のスピードで計算式を反復実行できた事になります：
+
+    result (sum): 3.1250031655706694E14
+    repetition couunt: 100000000
+    required time: 21.030388600000002 [sec]
+    repetition speed: 4755023.880062777 [times/sec]
+
+ふつう、計算式やスクリプトを1回実行するためにはミリ秒単位のオーバーヘッドがかかるため、1億回も反復実行すると、途方もない時間（単純な見積もりでも丸一日以上）がかかりそうに思えます。しかし、このように同じ式やスクリプトを反復実行する場合、Vnano Engine は内部でキャッシュを活用するため、上述の通りかなり速く処理できます。
+
+ただし、このスピードは反復回数の多さ（負荷）にも依存します。1万回程度の低負荷な状況ではもう少しスピードが遅く（所要時間は短いですが）、百万回以上の高負荷な状況になると上記のようなスピードになります。この現象は恐らく近年のCPUの特性なども関連しているため、環境によって異なるかもしれません。
+
+ところで上のコードでは、単に Vnano Engine に処理を反復リクエストするだけでなく、特別な工夫をしている点があります。それは下記の箇所の通り、「自動アクティベーション」機能を無効化して、手動でアクティベーション/解除している点です：
+
+    (in ExampleApp7.java)
+
+    ...
+
+    // オーバーヘッドを削るため、自動アクティベーション機能を無効化する
+    Map<String, Object> optionMap = new HashMap<String, Object>();
+    optionMap.put("AUTOMATIC_ACTIVATION_ENABLED", false);
+
+    ...
+
+    // 手動でエンジンをアクティベーションする（実行スタンバイ状態にする）
+    engine.activateEngine();
+
+    ...
+
+    // 変数 x の値を小刻みに変えながら、計算式（またはスクリプト）を反復実行する
+    for (int i=0; i<REPETITION_COUNT; i++) {
+        plugin.x = i * 0.125;
+        double valueOfExpression = (double)engine.executeScript(expression);
+        sum += valueOfExpression;
+    }
+
+    ...
+
+    // エンジンのアクティベーションを解除する（何もせず待つ時の状態に戻す）
+    engine.deactivateEngine();
+
+ここで「アクティベーション」とは、Vnano Engine が計算式やスクリプトを実行できる状態にする事です。通常は、 executeScript(script) メソッドを呼んだ時点で自動的にアクティベーションされ、実行が完了すると自動で解除されます。しかし、高頻度で反復実行を行う場合、このアクティベーション/解除のオーバーヘッドコストが積み重なり、スピードが遅くなってしまう場合があります。
+
+そのため、上記のように自動アクティベーションを無効化した上で、反復実行の前に一回だけ手動でアクティベーションし、反復実行が終わったら手動で解除する、という工夫が有効です。これは、特にプラグインをたくさん接続している場合に顕著に効きます（具体的にどれだけ効くかは、接続されているプラグインの初期化の重さによります）。
 
 
 <a id="specifications"></a>
