@@ -14,10 +14,10 @@ package org.vcssl.connect;
 
 
 /**
- * An interface (abbreviated as XVCI1) for implementing external variable plug-ins 
+ * An interface (abbreviated as XVCI1) for implementing external variable plug-ins
  * which provide variables available in scripts.
- * 
- * Currently, this interface is supported on the Vnano Engine, 
+ *
+ * Currently, this interface is supported on the Vnano Engine,
  * and has not been supported on the VCSSL Engine yet.
  */
 public interface ExternalVariableConnectorInterface1 {
@@ -31,7 +31,7 @@ public interface ExternalVariableConnectorInterface1 {
 
 	/**
 	 * Gets the name of this variable.
-	 * 
+	 *
 	 * @return The name of this variable.
 	 */
 	public abstract String getVariableName();
@@ -39,32 +39,32 @@ public interface ExternalVariableConnectorInterface1 {
 
 	/**
 	 * Returns the instance of "Class" class representing the data-type and the array-rank of this variable.
-	 * 
-	 * For example, 
-	 * returns double.class for double-type ("float" in scripts) variable, 
+	 *
+	 * For example,
+	 * returns double.class for double-type ("float" in scripts) variable,
 	 * and returns long[][].class for long[][]-type ("int[][]" in scripts) variable.
-	 * 
+	 *
 	 * @return The Class representing the data-type and the array-rank of this variable.
 	 */
 	public abstract Class<?> getDataClass();
 
 
 	/**
-	 * Returns the instance of "Class" class representing data-I/O interfaces for accessing to data of this variable, 
+	 * Returns the instance of "Class" class representing data-I/O interfaces for accessing to data of this variable,
 	 * when {@link isDataConversionNecessary() data-conversion feature} is disabled.
-	 * 
-	 * As interfaces for accessing to data of a scalar variable, 
+	 *
+	 * As interfaces for accessing to data of a scalar variable,
 	 * {@link Int64ScalarDataAccessorInterface1 Int64 SDAI} (for long-type variable),
 	 * {@link Float64ScalarDataAccessorInterface1 Float64 SDAI} (for double-type variable),
 	 * {@link BoolScalarDataAccessorInterface1 Bool SDAI} (for boolean-type variable),
 	 * {@link StringScalarDataAccessorInterface1 String SDAI} (for String-type variable),
 	 * and
-	 * {@link ArrayDataAccessorInterface1 ADAI} (generic) 
+	 * {@link ArrayDataAccessorInterface1 ADAI} (generic)
 	 * are available.
-	 * For an array variable, only 
+	 * For an array variable, only
 	 * {@link ArrayDataAccessorInterface1 ADAI}
 	 * is available for accessing to data.
-	 * 
+	 *
 	 * @return The Class representing the I/O interface for accessing to the data of this variable.
 	 */
 	public abstract Class<?> getDataUnconvertedClass();
@@ -72,7 +72,7 @@ public interface ExternalVariableConnectorInterface1 {
 
 	/**
 	 * Returns whether this variable is a constant.
-	 * 
+	 *
 	 * @return Returns true if this variable is a constant.
 	 */
 	public abstract boolean isConstant();
@@ -80,7 +80,7 @@ public interface ExternalVariableConnectorInterface1 {
 
 	/**
 	 * (Unsupported feature on the current version of VCSSL/Vnano Engine) Returns whether this variable is a reference.
-	 * 
+	 *
 	 * @return Returns true if this variable is a reference.
 	 */
 	public abstract boolean isReference();
@@ -88,7 +88,7 @@ public interface ExternalVariableConnectorInterface1 {
 
 	/**
 	 * (Unsupported feature on the current version of VCSSL/Vnano Engine) Returns whether the data-type of this variable varies arbitrary.
-	 * 
+	 *
 	 * @return Returns true if the data-type of this variable varies arbitrary.
 	 */
 	public abstract boolean isDataTypeArbitrary();
@@ -96,7 +96,7 @@ public interface ExternalVariableConnectorInterface1 {
 
 	/**
 	 * (Unsupported feature on the current version of VCSSL/Vnano Engine) Returns whether the array-rank of this variable varies arbitrary.
-	 * 
+	 *
 	 * @return Returns true if the array-rank of this variable varies arbitrary.
 	 */
 	public abstract boolean isArrayRankArbitrary();
@@ -104,28 +104,28 @@ public interface ExternalVariableConnectorInterface1 {
 
 	/**
 	 * Returns whether the data-conversions for accessing data of this variable is necessary.
-	 * 
+	 *
 	 * When this feature is enabled (when this method returns "true"),
 	 * you can set/get data of this variable by using simple data-types.
-	 * For example, you can get/set Double instance for double-type ("float" in scripts) variable, 
+	 * For example, you can get/set Double instance for double-type ("float" in scripts) variable,
 	 * long[][] instance for long[][]-type ("int[][]" in scripts) variable, and so on.
 	 *
 	 * On the other hand, when this feature is disabled (when this method retunrs "false"),
-	 * it is necessary to access to data through a data-I/O interface, 
-	 * of which type is specified as a return values of {@link getDataUnconvertedClass()} method. 
+	 * it is necessary to access to data through a data-I/O interface,
+	 * of which type is specified as a return values of {@link getDataUnconvertedClass()} method.
 	 *
-	 * As interfaces for accessing to data of a scalar variable, 
+	 * As interfaces for accessing to data of a scalar variable,
 	 * {@link Int64ScalarDataAccessorInterface1 Int64 SDAI} (for long-type variable),
 	 * {@link Float64ScalarDataAccessorInterface1 Float64 SDAI} (for double-type variable),
 	 * {@link BoolScalarDataAccessorInterface1 Bool SDAI} (for boolean-type variable),
 	 * {@link StringScalarDataAccessorInterface1 String SDAI} (for String-type variable),
 	 * and
-	 * {@link ArrayDataAccessorInterface1 ADAI} (generic) 
+	 * {@link ArrayDataAccessorInterface1 ADAI} (generic)
 	 * are available.
-	 * For an array variable, only 
+	 * For an array variable, only
 	 * {@link ArrayDataAccessorInterface1 ADAI}
 	 * is available for accessing to data.
-	 * 
+	 *
 	 * @return Returns true if the data-conversions are necessary.
 	 */
 	public abstract boolean isDataConversionNecessary();
@@ -134,7 +134,7 @@ public interface ExternalVariableConnectorInterface1 {
 	/**
 	 * Returns the data of this variable.
 	 *
-	 * This method is used when the data-conversion feature is enabled 
+	 * This method is used when the data-conversion feature is enabled
 	 * (when {@link isDataConversionNecessary()} returns false).
 	 *
 	 * @return The data of this variable.
@@ -146,7 +146,7 @@ public interface ExternalVariableConnectorInterface1 {
 	/**
 	 * Gets the data of this variable through the argument.
 	 *
-	 * This method is used when the data-conversion feature is disabled 
+	 * This method is used when the data-conversion feature is disabled
 	 * (when {@link isDataConversionNecessary()} returns true).
 	 *
 	 * @param dataContainer The data container object for storing the data to be gotten.
@@ -157,7 +157,7 @@ public interface ExternalVariableConnectorInterface1 {
 
 	/**
 	 * Sets the data of this variable.
-	 * 
+	 *
 	 * @param data The data of this variable to be set.
 	 * @throws ConnectorException Thrown when failed to access to the data.
 	 */
@@ -165,16 +165,16 @@ public interface ExternalVariableConnectorInterface1 {
 
 
 	/**
-	 * Returns the instance of "Class" class, representing the interface or the class of the engine connector, 
+	 * Returns the instance of "Class" class, representing the interface or the class of the engine connector,
 	 * which is an object for communicating with the scripting engine.
-	 * 
-	 * The instance of the specified interface/class by this method will be passed to the argument of 
+	 *
+	 * The instance of the specified interface/class by this method will be passed to the argument of
 	 * {@link initializeForConnection(Object)}, {@link initializeForExecution(Object)},
 	 * {@link finalizeForTermination(Object)}, {@link finalizeForDisconnection(Object)} methods.
-	 * 
-	 * What type of interfaces are available depend on the implementation of the scripting engine, but at least, 
+	 *
+	 * What type of interfaces are available depend on the implementation of the scripting engine, but at least,
 	 * {@link EngineConnectorInterface1 ECI1} is guaranteed to be available by the specification of XVCI1.
-	 * 
+	 *
 	 * @return The Class representing the interface/class for communicating with the scripting engine.
 	 */
 	public abstract Class<?> getEngineConnectorClass();

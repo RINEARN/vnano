@@ -17,9 +17,9 @@ import org.vcssl.nano.VnanoException;
 
 /**
  * The class for performing conversions of data-types between inside/outside of Vnano Engine.
- * 
+ *
  * In comments/documents of this class,
- * "external" data-type means a data-type on the outside of the Vnano Engine, 
+ * "external" data-type means a data-type on the outside of the Vnano Engine,
  * and "internal" data-type means a data-type in the inside of the Vnano Engine.
  */
 public class DataConverter {
@@ -109,8 +109,8 @@ public class DataConverter {
 
 
 	/**
-	 * The Map for converting the name of a external data-type, 
-	 * to an element of {@link org.vcssl.nano.spec.DataType DataType} enum, 
+	 * The Map for converting the name of a external data-type,
+	 * to an element of {@link org.vcssl.nano.spec.DataType DataType} enum,
 	 * which represents an internal data-type.
 	 */
 	private static final HashMap<String,DataType> EXTERNAL_NAME_DATA_TYPE_MAP = new HashMap<String,DataType>();
@@ -133,8 +133,8 @@ public class DataConverter {
 
 
 	/**
-	 * The Map for converting the name of a data-types, 
-	 * to an element of {@link org.vcssl.nano.spec.DataConverter.ExternalType ExternalType} enum, 
+	 * The Map for converting the name of a data-types,
+	 * to an element of {@link org.vcssl.nano.spec.DataConverter.ExternalType ExternalType} enum,
 	 * which represents an external data-type.
 	 */
 	private static final HashMap<String,ExternalType> EXTERNAL_NAME_EXTERNAL_TYPE_MAP = new HashMap<String,ExternalType>();
@@ -157,7 +157,7 @@ public class DataConverter {
 
 
 	/**
-	 * The Map for converting an element of 
+	 * The Map for converting an element of
 	 * {@link org.vcssl.nano.spec.DataConverter.ExternalType ExternalType} enum
 	 * to the corresponding element of {@link org.vcssl.nano.spec.DataType DataType} enum.
 	 */
@@ -199,14 +199,14 @@ public class DataConverter {
 
 	/**
 	 * Creates a new instance for converting data of the specified data-type.
-	 * 
+	 *
 	 * Fot the argument "objectClass", specify the class of the external data-type.
-	 * The corresponding internal data-type will be set automatically from the external data-type. 
-	 * 
-	 * If the external data-type to be converted is a primitive type, 
+	 * The corresponding internal data-type will be set automatically from the external data-type.
+	 *
+	 * If the external data-type to be converted is a primitive type,
 	 * specify the wrapper class of it
 	 * (e.g.: Integer for int).
-	 * 
+	 *
 	 * Also, if data to be converted is an array, specify the array type class
 	 * (e.g.: int[], double[][], etc.).
 	 *
@@ -231,10 +231,10 @@ public class DataConverter {
 
 	/**
 	 * Creates a new instance for converting data of the specified data-type.
-	 * 
+	 *
 	 * Fot the argument "dataType", specify the internal data-type.
-	 * The corresponding external data-type will be set automatically from the internal data-type. 
-	 * 
+	 * The corresponding external data-type will be set automatically from the internal data-type.
+	 *
 	 * @param objectClass The class of the internal data-type to be converted.
 	 * @param rank The array-rank of data to be converted.
 	 * @throws VnanoException Thrown if an unsupported data-type is specified.
@@ -249,7 +249,7 @@ public class DataConverter {
 	/**
 	 * Returns whether data of an external data-type specified as "objectClass"
 	 * is convertible to data of an internal data-type.
-	 * 
+	 *
 	 * This method is used for generating information in error messages, from the outside of this class.
 	 *
 	 * @param objectClass The class representing an external data-type.
@@ -264,12 +264,12 @@ public class DataConverter {
 
 	/**
 	 * Returns the name of the external data-type corresponding with the specified class.
-	 * 
+	 *
 	 * For example, this method returns "int" if Integer.class or int.class is specified.
-	 * 
+	 *
 	 * Note that, the type name returned by this method does not contain the array part "[][]...".
 	 * You can get the array-rank by {@link DataConverter#}
-	 * 
+	 *
 	 * @param objectClass The class representing the external data-type.
 	 * @return The name of the specified external data-type.
 	 */
@@ -371,9 +371,9 @@ public class DataConverter {
 
 	/**
 	 * Returns the array-rank of the specified class.
-	 * 
+	 *
 	 * For example, this method returns 3 for int[][][].class, and rerturns 0 for int.class.
-	 * 
+	 *
 	 * @param objectClass The class of the external data.
 	 * @return The array-rank of the specified class.
 	 */
@@ -394,7 +394,7 @@ public class DataConverter {
 		return arrayRank;
 	}
 
-	
+
 	/**
 	 * Gets the internal data-type of conversions performed by this instance.
 	 *
@@ -417,7 +417,7 @@ public class DataConverter {
 
 	/**
 	 * Creates a deep-copy of the specified data container.
-	 * 
+	 *
 	 * The stored data will also be deep-copied.
 	 *
 	 * @param srcDataContainer The data container to be deep-copied.
@@ -476,7 +476,7 @@ public class DataConverter {
 	 * @param externalObject The external object to be converted.
 	 * @return The data container in which the converted data is stored.
 	 * @throws VnanoException
-	 *     Thrown when the data-type of the specified object is incompatible, 
+	 *     Thrown when the data-type of the specified object is incompatible,
 	 *     or the array-rank exceeds the upper limit of this converter.
 	 */
 	public DataContainer<?> convertToDataContainer(Object externalObject) throws VnanoException {
@@ -494,7 +494,7 @@ public class DataConverter {
 	 * @param externalObject The external object to be converted.
 	 * @param resultDataContainer The data container to which the converted data is stored.
 	 * @throws VnanoException
-	 *     Thrown when the data-type of the specified object is incompatible, 
+	 *     Thrown when the data-type of the specified object is incompatible,
 	 *     or the array-rank exceeds the upper limit of this converter.
 	 */
 	public void convertToDataContainer(Object object, DataContainer<?> resultDataContainer)
@@ -529,10 +529,10 @@ public class DataConverter {
 
 
 	/**
-	 * Perfroms the internal process of 
+	 * Perfroms the internal process of
 	 * {@link DataConverter#convertToDataContainer(Object,DataContainer) convertToDataContainer(Object,DataContainer)}
 	 * method, when the array-rank of the data is 0 (scalar).
-	 * 
+	 *
 	 * @param externalObject The external object to be converted.
 	 * @param resultDataContainer The data container to which the converted data is stored.
 	 * @throws VnanoException Thrown when the external data-type of this converter is "void".
@@ -590,10 +590,10 @@ public class DataConverter {
 
 
 	/**
-	 * Perfroms the internal process of 
+	 * Perfroms the internal process of
 	 * {@link DataConverter#convertToDataContainer(Object,DataContainer) convertToDataContainer(Object,DataContainer)}
 	 * method, when the array-rank of the data is 1 (1-D array).
-	 * 
+	 *
 	 * @param externalObject The external object to be converted.
 	 * @param resultDataContainer The data container to which the converted data is stored.
 	 */
@@ -670,7 +670,7 @@ public class DataConverter {
 				throw new VnanoFatalException("Unexpected conversion executed.");
 			}
 			case VOID : {
-				// Void-type array does not exist in external data-types, 
+				// Void-type array does not exist in external data-types,
 				// so it should not be specified as the external data-type of this converter.
 				throw new VnanoFatalException("Unexpected conversion executed.");
 			}
@@ -679,10 +679,10 @@ public class DataConverter {
 
 
 	/**
-	 * Perfroms the internal process of 
+	 * Perfroms the internal process of
 	 * {@link DataConverter#convertToDataContainer(Object,DataContainer) convertToDataContainer(Object,DataContainer)}
 	 * method, when the array-rank of the data is 2 (2-D array).
-	 * 
+	 *
 	 * @param externalObject The external object to be converted.
 	 * @param resultDataContainer The data container to which the converted data is stored.
 	 * @param VnanoException thrown when the external data is a "jagged" array.
@@ -820,7 +820,7 @@ public class DataConverter {
 				throw new VnanoFatalException("Unexpected conversion executed.");
 			}
 			case VOID : {
-				// Void-type array does not exist in external data-types, 
+				// Void-type array does not exist in external data-types,
 				// so it should not be specified as the external data-type of this converter.
 				throw new VnanoFatalException("Unexpected conversion executed.");
 			}
@@ -830,10 +830,10 @@ public class DataConverter {
 
 
 	/**
-	 * Perfroms the internal process of 
+	 * Perfroms the internal process of
 	 * {@link DataConverter#convertToDataContainer(Object,DataContainer) convertToDataContainer(Object,DataContainer)}
 	 * method, when the array-rank of the data is 3 (3-D array).
-	 * 
+	 *
 	 * @param externalObject The external object to be converted.
 	 * @param resultDataContainer The data container to which the converted data is stored.
 	 * @param VnanoException thrown when the external data is a "jagged" array.
@@ -1013,7 +1013,7 @@ public class DataConverter {
 				throw new VnanoFatalException("Unexpected conversion executed.");
 			}
 			case VOID : {
-				// Void-type array does not exist in external data-types, 
+				// Void-type array does not exist in external data-types,
 				// so it should not be specified as the external data-type of this converter.
 				throw new VnanoFatalException("Unexpected conversion executed.");
 			}
@@ -1024,7 +1024,7 @@ public class DataConverter {
 
 	/**
 	 * Converts an internal data to an object of the corresponding external data-type.
-	 * 
+	 *
 	 * For example, an internal "int" value will be converted to an external "Long" type value,
 	 * an internal "int[]" array will be converted to an external "long[]" type array,
 	 * and an internal "float[][]" array will be converted to an external "double[][]" type array.
@@ -1322,7 +1322,7 @@ public class DataConverter {
 
 			default : {
 
-				// Prepare a string representing the data-type/array-rank, (e.g. "int[][][]"), 
+				// Prepare a string representing the data-type/array-rank, (e.g. "int[][][]"),
 				// for embedding it into the error message.
 				String externalTypeName = DataConverter.getExternalTypeNameOf(internalData.getClass());
 				DataType internalType = EXTERNAL_NAME_DATA_TYPE_MAP.get(externalTypeName);

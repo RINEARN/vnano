@@ -35,7 +35,7 @@ VCSSL/VNANO PLUGIN INTERFACE SPECIFICATION
 <h2>Abstract</h2>
 
 <p>
-External Variable Connector Interface 1 (XVCI1) 
+External Variable Connector Interface 1 (XVCI1)
 is an interface for implementing external variable plug-ins which provide variables available in scripts.
 </p>
 
@@ -52,7 +52,7 @@ No modifications will be applied for this interface, excluding documents/comment
 </p>
 
 <p>
-This interface is currently supported by the scripting engine of Vnano. 
+This interface is currently supported by the scripting engine of Vnano.
 You can use this interface for development of plug-ins of applications equipped with the Vnano engine.
 </p>
 
@@ -91,7 +91,7 @@ This interface is published under CC0, which is almost the same as the so-called
 
 	<dt><a href="#getDataUnconvertedClass">Class&lt;?&gt; getDataUnconvertedClass()</a></dt>
 		<dd>
-			Returns the instance of "Class" class representing data-I/O interfaces for accessing to data of this variable, 
+			Returns the instance of "Class" class representing data-I/O interfaces for accessing to data of this variable,
 			when the data-conversion feature is disabled.
 		</dd>
 
@@ -259,8 +259,8 @@ This interface is published under CC0, which is almost the same as the so-called
 			Returns the instance of "Class" class representing the data-type and the array-rank of this variable.
 			</p>
 			<p>
-			For example, 
-			returns double.class for double-type ("float" in scripts) variable, 
+			For example,
+			returns double.class for double-type ("float" in scripts) variable,
 			and returns long[][].class for long[][]-type ("int[][]" in scripts) variable.
 			</p>
 		</td>
@@ -295,11 +295,11 @@ This interface is published under CC0, which is almost the same as the so-called
 		<td class="lcol">Description</td>
 		<td class="rcol">
 			<p style="margin-top: 0px;">
-			Returns the instance of "Class" class representing data-I/O interfaces for accessing to data of this variable, 
+			Returns the instance of "Class" class representing data-I/O interfaces for accessing to data of this variable,
 			when <a href="#isDataConversionNecessary">the data-conversion feature</a> is disabled.
 			</p>
 			<p>
-			As interfaces for accessing to data of a scalar variable, 
+			As interfaces for accessing to data of a scalar variable,
 			<a href="./Int64ScalarDataAccessorInterface1_SPEC_ENGLISH.html">Int64 SDAI1</a>、
 			<a href="./Float64ScalarDataAccessorInterface1_SPEC_ENGLISH.html">Float64 SDAI1</a>、
 			<a href="./BoolScalarDataAccessorInterface1_SPEC_ENGLISH.html">Bool SDAI1</a>、
@@ -307,7 +307,7 @@ This interface is published under CC0, which is almost the same as the so-called
 			and
 			<a href="./ArrayDataAccessorInterface1_SPEC_ENGLISH.html">ADAI1</a>
 			are available.
-			For an array variable, only 
+			For an array variable, only
 			<a href="./ArrayDataAccessorInterface1_SPEC_ENGLISH.html">ADAI1</a>
 			is available for accessing to data.
 			</p>
@@ -470,16 +470,16 @@ This interface is published under CC0, which is almost the same as the so-called
 			<p>
 			When this feature is enabled (when this method returns "true"),
 			you can set/get data of this variable by using simple data-types.
-			For example, you can get/set Double instance for double-type ("float" in scripts) variable, 
+			For example, you can get/set Double instance for double-type ("float" in scripts) variable,
 			long[][] instance for long[][]-type ("int[][]" in scripts) variable, and so on.
 			</p>
 			<p>
 			On the other hand, when this feature is disabled (when this method retunrs "false"),
-			it is necessary to access to data through a data-I/O interface, 
-			of which type is specified as a return values of {@link getDataUnconvertedClass()} method. 
+			it is necessary to access to data through a data-I/O interface,
+			of which type is specified as a return values of {@link getDataUnconvertedClass()} method.
 			</p>
 			<p>
-			As interfaces for accessing to data of a scalar variable, 
+			As interfaces for accessing to data of a scalar variable,
 			<a href="./Int64ScalarDataAccessorInterface1_SPEC_ENGLISH.html">Int64 SDAI1</a>、
 			<a href="./Float64ScalarDataAccessorInterface1_SPEC_ENGLISH.html">Float64 SDAI1</a>、
 			<a href="./BoolScalarDataAccessorInterface1_SPEC_ENGLISH.html">Bool SDAI1</a>、
@@ -487,7 +487,7 @@ This interface is published under CC0, which is almost the same as the so-called
 			and
 			<a href="./ArrayDataAccessorInterface1_SPEC_ENGLISH.html">ADAI1</a>
 			are available.
-			For an array variable, only 
+			For an array variable, only
 			<a href="./ArrayDataAccessorInterface1_SPEC_ENGLISH.html">ADAI1</a>
 			is available for accessing to data.
 			</p>
@@ -525,7 +525,7 @@ This interface is published under CC0, which is almost the same as the so-called
 			Returns the data of this variable.
 			</p>
 			<p>
-			This method is used when the data-conversion feature is enabled 
+			This method is used when the data-conversion feature is enabled
 			(when <a href="#isDataConversionNecessary">isDataConversionNecessary()</a> returns false).
 			</p>
 		</td>
@@ -561,7 +561,7 @@ This interface is published under CC0, which is almost the same as the so-called
 			Gets the data of this variable through the argument.
 			</p>
 			<p>
-			This method is used when the data-conversion feature is disabled 
+			This method is used when the data-conversion feature is disabled
 			(when <a href="#isDataConversionNecessary">isDataConversionNecessary()</a> returns true).
 			</p>
 		</td>
@@ -627,17 +627,17 @@ This interface is published under CC0, which is almost the same as the so-called
 		<td class="lcol">Description</td>
 		<td class="rcol">
 			<p style="margin-top: 0px;">
-			Returns the instance of "Class" class, representing the interface or the class of the engine connector, 
+			Returns the instance of "Class" class, representing the interface or the class of the engine connector,
 			which is an object for communicating with the scripting engine.
 			</p>
 			<p>
-			The instance of the specified interface/class by this method will be passed to the argument of 
+			The instance of the specified interface/class by this method will be passed to the argument of
 			initialization/finalization methods, e.g.: <a href="#initializeForConnection">initializeForConnection(Object engineConnector)</a>.
 			</p>
 			<p>
-			What type of interfaces are available depend on the implementation of the scripting engine, 
-			but at least, 
-			<a href="./EngineConnector1_SPEC_ENGLISH.html">ECI1</a> 
+			What type of interfaces are available depend on the implementation of the scripting engine,
+			but at least,
+			<a href="./EngineConnector1_SPEC_ENGLISH.html">ECI1</a>
 			is guaranteed to be available by the specification of XVCI1.
 			</p>
 		</td>
@@ -678,7 +678,7 @@ This interface is published under CC0, which is almost the same as the so-called
 	<tr>
 		<td class="lcol">Parameters</td>
 		<td class="rcol">
-			engineConnector: The engine connector 
+			engineConnector: The engine connector
 			(see: <a href="#getEngineConnectorClass">getEngineConnectorClass()</a> method).
 		</td>
 	</tr>
@@ -712,7 +712,7 @@ This interface is published under CC0, which is almost the same as the so-called
 	<tr>
 		<td class="lcol">Parameters</td>
 		<td class="rcol">
-			engineConnector: The engine connector 
+			engineConnector: The engine connector
 			(see: <a href="#getEngineConnectorClass">getEngineConnectorClass()</a> method).
 		</td>
 	</tr>
@@ -746,7 +746,7 @@ This interface is published under CC0, which is almost the same as the so-called
 	<tr>
 		<td class="lcol">Parameters</td>
 		<td class="rcol">
-			engineConnector: The engine connector 
+			engineConnector: The engine connector
 			(see: <a href="#getEngineConnectorClass">getEngineConnectorClass()</a> method).
 		</td>
 	</tr>
@@ -780,7 +780,7 @@ This interface is published under CC0, which is almost the same as the so-called
 	<tr>
 		<td class="lcol">Parameters</td>
 		<td class="rcol">
-			engineConnector: The engine connector 
+			engineConnector: The engine connector
 			(see: <a href="#getEngineConnectorClass">getEngineConnectorClass()</a> method).
 		</td>
 	</tr>

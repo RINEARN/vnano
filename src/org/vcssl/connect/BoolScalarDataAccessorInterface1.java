@@ -15,9 +15,9 @@ package org.vcssl.connect;
 /**
  * A data-I/O interface (abbreviated as Bool SDAI 1), mainly implemented by data container objects of language processor systems.
  *
- * In this org.vcssl.connect package, multiple data I/O interfaces are provided for passing/receiving data 
+ * In this org.vcssl.connect package, multiple data I/O interfaces are provided for passing/receiving data
  * without any data-conversions, between script-engine-side and plug-in-side, if required.
- * 
+ *
  * In them, this interface Bool SDAI 1 provides I/O methods of a boolean-type scalar value.
  */
 public interface BoolScalarDataAccessorInterface1 {
@@ -32,7 +32,7 @@ public interface BoolScalarDataAccessorInterface1 {
 
 	/**
 	 * Sets the boolean-type scalar value.
-	 * 
+	 *
 	 * @param data The scalar value to be set.
 	 */
 	public abstract void setBoolScalarData(boolean data);
@@ -40,7 +40,7 @@ public interface BoolScalarDataAccessorInterface1 {
 
 	/**
 	 * Gets the boolean-type scalar value.
-	 * 
+	 *
 	 * @return The scalar value.
 	 */
 	public abstract boolean getBoolScalarData();
@@ -48,7 +48,7 @@ public interface BoolScalarDataAccessorInterface1 {
 
 	/**
 	 * Returns whether any boolean-type scalar value can be gotten.
-	 * 
+	 *
 	 * @return Returns true if any boolean-type scalar value can be gotton.
 	 */
 	public abstract boolean hasBoolScalarData();

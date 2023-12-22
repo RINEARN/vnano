@@ -48,7 +48,7 @@ public final class InternalFunction extends AbstractFunction {
 
 	/**
 	 * Creates a new internal function having specified information.
-	 * 
+	 *
 	 * @param functionName The name of the function.
 	 * @param parameterNames Names of parameters.
 	 * @param parameterDataTypeNames Data-types of parameters.
@@ -94,9 +94,9 @@ public final class InternalFunction extends AbstractFunction {
 	/**
 	 * Sets the name of this function.
 	 * However, this method isn't available, on the current version.
-	 * 
+	 *
 	 * This method is used for setting an alias for external functions.
-	 * On the other hand, on the current language specification of Vnano, 
+	 * On the other hand, on the current language specification of Vnano,
 	 * an internal functions can not have multiple names (aliases),
 	 * so VnanoFatalException will be thrown when this method is invoked.
 	 *
@@ -167,7 +167,7 @@ public final class InternalFunction extends AbstractFunction {
 
 	/**
 	 * Gets array-ranks of all parameters.
-	 * 
+	 *
 	 * Note that, the array-rank of an scalar is 0.
 	 *
 	 * @return The array storing array-ranks of all parameters.
@@ -180,7 +180,7 @@ public final class InternalFunction extends AbstractFunction {
 
 	/**
 	 * Gets flags representing whether data-types of parameters are arbitrary.
-	 * 
+	 *
 	 * If the value of an element of the returned array is true,
 	 * the data-type of the corresponding parameter is arbitrary.
 	 *
@@ -194,7 +194,7 @@ public final class InternalFunction extends AbstractFunction {
 
 	/**
 	 * Gets flags representing whether array-ranks of parameters are arbitrary.
-	 * 
+	 *
 	 * If the value of an element of the returned array is true,
 	 * the array-rank of the corresponding parameter is arbitrary.
 	 *
@@ -208,7 +208,7 @@ public final class InternalFunction extends AbstractFunction {
 
 	/**
 	 * Gets flags representing whether parameters are passed by references.
-	 * 
+	 *
 	 * If the value of an element of the returned array is true,
 	 * the corresponding parameter will be passed by reference
 	 * when this function will be invoked.
@@ -233,9 +233,9 @@ public final class InternalFunction extends AbstractFunction {
 
 	/**
 	 * Gets flags representing whether parameters are constant.
-	 * 
+	 *
 	 * If the value of an element of the returned array is true,
-	 * the corresponding parameter is constant, 
+	 * the corresponding parameter is constant,
 	 * so its value must not be modified in the process of this function.
 	 *
 	 * @return The array storing flags representing whether parameters are constant.
@@ -272,11 +272,11 @@ public final class InternalFunction extends AbstractFunction {
 	/**
 	 * Gets the name of the data-type of the return value.
 	 * In the data-type name, array declaration part [][]...[] isn't contained.
-	 * 
+	 *
 	 * If {@link AbstractFunction#isReturnDataTypeArbitrary() isReturnDataTypeArbitrary()} method
-	 * returns true, data-types and array-ranks of actual arguments will be given as 
+	 * returns true, data-types and array-ranks of actual arguments will be given as
 	 * "argumentDataTypeNames" and "argumentArrayRanks".
-	 * 
+	 *
 	 * In the contrast,
 	 * if {@link AbstractFunction#isReturnDataTypeArbitrary() isReturnDataTypeArbitrary()} method
 	 * returns false, the result of this method must not vary depending on
@@ -296,11 +296,11 @@ public final class InternalFunction extends AbstractFunction {
 
 	/**
 	 * Gets the arraya-rank of the return value.
-	 * 
+	 *
 	 * If {@link AbstractFunction#isReturnDataTypeArbitrary() isReturnDataTypeArbitrary()} method
-	 * returns true, data-types and array-ranks of actual arguments will be given as 
+	 * returns true, data-types and array-ranks of actual arguments will be given as
 	 * "argumentDataTypeNames" and "argumentArrayRanks".
-	 * 
+	 *
 	 * In the contrast,
 	 * if {@link AbstractFunction#isReturnDataTypeArbitrary() isReturnDataTypeArbitrary()} method
 	 * returns false, the result of this method must not vary depending on
@@ -319,9 +319,9 @@ public final class InternalFunction extends AbstractFunction {
 
 
 	/**
-	 * Gets whether the data-type of the return value varies 
+	 * Gets whether the data-type of the return value varies
 	 * depending on data-types and array-ranks of actual arguments.
-	 * 
+	 *
 	 * @return Returns true if the data-type of the return value varies depending on actual arguments.
 	 */
 	@Override
@@ -331,9 +331,9 @@ public final class InternalFunction extends AbstractFunction {
 
 
 	/**
-	 * Gets whether the array-rank of the return value varies 
+	 * Gets whether the array-rank of the return value varies
 	 * depending on data-types and array-ranks of actual arguments.
-	 * 
+	 *
 	 * @return Returns true if the array-rank of the return value varies depending on actual arguments.
 	 */
 	@Override
@@ -344,11 +344,11 @@ public final class InternalFunction extends AbstractFunction {
 
 	/**
 	 * Checks this function is invokable without problems which are detectable before invoking.
-	 * 
+	 *
 	 * If any problem has been found, this method will throw an exception.
 	 * If no problem has been found, nothing will occur.
 	 *
-	 * For example, types of data I/O interfaces used in an external function plug-in 
+	 * For example, types of data I/O interfaces used in an external function plug-in
 	 * must be compatible with the data-types and array-ranks of actual arguments passed in scripts.
 	 * So this method throw an exception if they are incompatible.
 	 *
@@ -365,9 +365,9 @@ public final class InternalFunction extends AbstractFunction {
 
 	/**
 	 * Invoke this function.
-	 * 
+	 *
 	 * However, this method is not available for internal functions.
-	 * Processes of internal functions will be compiled to intermidiate code, 
+	 * Processes of internal functions will be compiled to intermidiate code,
 	 * and invoked by CALL instruction on VirtualMachine.
 	 *
 	 * @param returnDataUnit The data unit to which the return value will be stored.

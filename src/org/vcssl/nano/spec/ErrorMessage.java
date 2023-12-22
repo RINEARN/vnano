@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2017-2022 RINEARN
+ * Copyright(C) 2017-2023 RINEARN
  * This software is released under the MIT License.
  */
 
@@ -14,7 +14,7 @@ public class ErrorMessage {
 
 	/**
 	 * Generates the error message corresponding with the specified error type, in the language of the specified locale.
-	 * 
+	 *
 	 * @param errorType The type of the error.
 	 * @param locale The locale to determine which language the error message should be described in.
 	 * @return The generated error message.
@@ -25,7 +25,7 @@ public class ErrorMessage {
 
 	/**
 	 * Generates the error message corresponding with the specified error type, in the language of the specified locale.
-	 * 
+	 *
 	 * @param errorType The type of the error.
 	 * @param words The words to be embedded in the error message (For example: the name of the variable for a "variable not found" error).
 	 * @param locale The locale to determine which language the error message should be described in.
@@ -33,7 +33,7 @@ public class ErrorMessage {
 	 */
 	public static String generateErrorMessage(ErrorType errorType, String[] words, Locale locale) {
 
-		// If the error is "cast failed" error, which occur when CAST operation is executed by the VM, 
+		// If the error is "cast failed" error, which occur when CAST operation is executed by the VM,
 		// the names of the data-types of operands are passed as the arg "words".
 		// However, they are written in the data-type notation used in the VM, e.g.: "INT64", "FLOAT64", and so on.
 		// So convert them to the data-type notation used in scripts, e.g.: "int", "float", and so on.
@@ -80,7 +80,7 @@ public class ErrorMessage {
 
 	/**
 	 * Generates the error message corresponding with the specified error type, in Japanese.
-	 * 
+	 *
 	 * @param errorType The type of the error.
 	 * @param words The words to be embedded in the error message (For example: the name of the variable for a "variable not found" error).
 	 * @return The generated error message.
@@ -200,6 +200,7 @@ public class ErrorMessage {
 			case INVALID_DEPENDENCY_DECLARATION_SYNTAX: return "import/include宣言が、想定外の形で記述されています。";
 			case INVALID_DEPENDENCY_DECLARATION_LOCATION: return "import/include宣言が、想定外の場所にあります。正しくは、スクリプトの先頭付近（ヘッダ領域）に書く必要があります。";
 			case DECLARED_DEPENDENCY_IS_NOT_AVAILABLE: return "このスクリプトは「 " + words[0] + " 」の機能群を使用しますが、それを提供するライブラリ/プラグインが読み込まれていません。ライブラリ/プラグインの読み込み設定を確認してください。";
+			case INVALID_REEXECUTION_REQUEST: return "まだ一度もスクリプトを実行していない状態で、reexecuteLastAssemblyCode メソッドによる再実行が要求されました。";
 			case UNEXPECTED_ACCELERATOR_CRASH : return "予期しないVMエラー (命令アドレス: " + words[0] + ", 再配置後命令アドレス: " + words[1] + ")";
 			case UNEXPECTED_PROCESSOR_CRASH : return "予期しないVMエラー（命令アドレス: " + words[0] + ")";
 			case UNEXPECTED : return "予期しないエラー";
@@ -212,7 +213,7 @@ public class ErrorMessage {
 
 	/**
 	 * Generates the error message corresponding with the specified error type, in US English.
-	 * 
+	 *
 	 * @param errorType The type of the error.
 	 * @param words The words to be embedded in the error message (For example: the name of the variable for a "variable not found" error).
 	 * @return The generated error message.
@@ -332,6 +333,7 @@ public class ErrorMessage {
 			case INVALID_DEPENDENCY_DECLARATION_SYNTAX: return "The syntax of the \"import\" / \"include\" declaration statement is incorrect";
 			case INVALID_DEPENDENCY_DECLARATION_LOCATION: return "The location of the \"import\" / \"include\" declaration is incorrect. It should be described at the near the top (header section) of the script.";
 			case DECLARED_DEPENDENCY_IS_NOT_AVAILABLE: return "This script requires features of \"" + words[0] + "\", but no library or plug-in providing them is not loaded. Check the settings to load libraries/plug-ins.";
+			case INVALID_REEXECUTION_REQUEST: return "The re-execution of the last executed code has been requested (by reexecuteLastAssemblyCode method), but this engine has no executed code yet.";
 			case UNEXPECTED_ACCELERATOR_CRASH : return "Unexpected VM Error (instruction-addr: " + words[0] + ", reordered-instruction-addr: " + words[1] + ")";
 			case UNEXPECTED_PROCESSOR_CRASH : return "Unexpected VM Error (instruction-addr: " + words[0] + ")";
 			case UNEXPECTED : return "Unexpected Error";

@@ -14,10 +14,10 @@ package org.vcssl.connect;
 
 /**
  * A data-I/O interface (abbreviated as String SDAI 1), mainly implemented by data container objects of language processor systems.
- * 
- * In this org.vcssl.connect package, multiple data I/O interfaces are provided for passing/receiving data 
+ *
+ * In this org.vcssl.connect package, multiple data I/O interfaces are provided for passing/receiving data
  * without any data-conversions, between script-engine-side and plug-in-side, if required.
- * 
+ *
  * In them, this interface String SDAI 1 provides I/O methods of a String-type scalar value.
  */
 public interface StringScalarDataAccessorInterface1 {
@@ -32,7 +32,7 @@ public interface StringScalarDataAccessorInterface1 {
 
 	/**
 	 * Sets the String-type scalar value.
-	 * 
+	 *
 	 * @param data The scalar value to be set.
 	 */
 	public abstract void setStringScalarData(String data);
@@ -40,7 +40,7 @@ public interface StringScalarDataAccessorInterface1 {
 
 	/**
 	 * Gets the String-type scalar value.
-	 * 
+	 *
 	 * @return The scalar value.
 	 */
 	public abstract String getStringScalarData();
@@ -48,7 +48,7 @@ public interface StringScalarDataAccessorInterface1 {
 
 	/**
 	 * Returns whether any String-type scalar value can be gotten.
-	 * 
+	 *
 	 * @return Returns true if any String-type scalar value can be gotton.
 	 */
 	public abstract boolean hasStringScalarData();

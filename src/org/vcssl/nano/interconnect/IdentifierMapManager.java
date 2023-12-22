@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * This class manages I/O to/from a Map, for enabling to store multiple values for each key. 
+ * This class manages I/O to/from a Map, for enabling to store multiple values for each key.
  */
 public class IdentifierMapManager {
 
@@ -34,7 +34,7 @@ public class IdentifierMapManager {
 
 	/**
 	 * Gets the last-put value with the specified key, from the Map.
-	 * 
+	 *
 	 * @param map The map storing the specified key/value.
 	 * @param key The key specified when you had put the value.
 	 * @return The last-put value with the specified key.
@@ -48,7 +48,7 @@ public class IdentifierMapManager {
 
 	/**
 	 * Get all values put with the specified key, from the Map.
-	 * 
+	 *
 	 * @param map The Map storing values to be gotten.
 	 * @param key The key specified when you had put the values to be gotten.
 	 * @return All values put with the specified key.

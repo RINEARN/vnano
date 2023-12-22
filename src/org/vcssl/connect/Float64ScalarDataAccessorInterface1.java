@@ -15,9 +15,9 @@ package org.vcssl.connect;
 /**
  * A data-I/O interface (abbreviated as Float64 SDAI 1), mainly implemented by data container objects of language processor systems.
  *
- * In this org.vcssl.connect package, multiple data I/O interfaces are provided for passing/receiving data 
+ * In this org.vcssl.connect package, multiple data I/O interfaces are provided for passing/receiving data
  * without any data-conversions, between script-engine-side and plug-in-side, if required.
- * 
+ *
  * In them, this interface Float64 SDAI 1 provides I/O methods of a double-type (64-bit floating point number type) scalar value.
  */
 public interface Float64ScalarDataAccessorInterface1 {
@@ -32,7 +32,7 @@ public interface Float64ScalarDataAccessorInterface1 {
 
 	/**
 	 * Sets the double-type scalar value.
-	 * 
+	 *
 	 * @param data The scalar value to be set.
 	 */
 	public abstract void setFloat64ScalarData(double data);
@@ -40,7 +40,7 @@ public interface Float64ScalarDataAccessorInterface1 {
 
 	/**
 	 * Gets the double-type scalar value.
-	 * 
+	 *
 	 * @return The scalar value.
 	 */
 	public abstract double getFloat64ScalarData();
@@ -48,7 +48,7 @@ public interface Float64ScalarDataAccessorInterface1 {
 
 	/**
 	 * Returns whether any double-type scalar value can be gotten.
-	 * 
+	 *
 	 * @return Returns true if any double-type scalar value can be gotton.
 	 */
 	public abstract boolean hasFloat64ScalarData();

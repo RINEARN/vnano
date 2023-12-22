@@ -27,7 +27,7 @@ public interface GeneralProcessConnectorInterface3 {
 
 	/**
 	 * Returns whether this plug-in can process the function having the specified name.
-	 * 
+	 *
 	 * @param functionName The name of the function.
 	 * @return Returns true if this plug-in can process the function having the specified name.
 	 */
@@ -36,7 +36,7 @@ public interface GeneralProcessConnectorInterface3 {
 
 	/**
 	 * Processes the function having the spacified name.
-	 * 
+	 *
 	 * @param functionName The name of the function to be processed.
 	 * @param arguments An array storing values of all actual arguments.
 	 * @return An array storing return value of the function.
@@ -45,16 +45,16 @@ public interface GeneralProcessConnectorInterface3 {
 
 
 	/**
-	 * Returns the instance of "Class" class, representing the interface or the class of the engine connector, 
+	 * Returns the instance of "Class" class, representing the interface or the class of the engine connector,
 	 * which is an object for communicating with the scripting engine.
-	 * 
-	 * The instance of the specified interface/class by this method will be passed to the argument of 
+	 *
+	 * The instance of the specified interface/class by this method will be passed to the argument of
 	 * {@link initializeForConnection(Object)}, {@link initializeForExecution(Object)},
 	 * {@link finalizeForTermination(Object)}, {@link finalizeForDisconnection(Object)} methods.
-	 * 
-	 * What type of interfaces are available depend on the implementation of the scripting engine, but at least, 
+	 *
+	 * What type of interfaces are available depend on the implementation of the scripting engine, but at least,
 	 * {@link EngineConnectorInterface1 ECI1} is guaranteed to be available by the specification of GPCI3.
-	 * 
+	 *
 	 * @return The Class representing the interface/class for communicating with the scripting engine.
 	 */
 	public abstract Class<?> getEngineConnectorClass();

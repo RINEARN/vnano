@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2018-2022 RINEARN
+ * Copyright(C) 2018-2023 RINEARN
  * This software is released under the MIT License.
  */
 
@@ -12,6 +12,7 @@ import org.vcssl.nano.VnanoException;
 import org.vcssl.nano.VnanoFatalException;
 import org.vcssl.nano.interconnect.DataConverter;
 import org.vcssl.nano.interconnect.Interconnect;
+import org.vcssl.nano.spec.ErrorType;
 import org.vcssl.nano.spec.OptionKey;
 import org.vcssl.nano.spec.OptionValue;
 import org.vcssl.nano.spec.OperationCode;
@@ -39,6 +40,9 @@ public class VirtualMachine {
 
 	/** Stores the accelerator, which is an high-speed implementation of the processor. */
 	private Accelerator accelerator = null;
+
+	/** Stores the generated resources for the last execution, to accelerate the re-executions of the same code. */
+	private ReexecutionCache reexecutionCache = null;
 
 	/**
 	 * The counter for counting the number of executed instructions.
@@ -79,6 +83,7 @@ public class VirtualMachine {
 	public Object executeAssemblyCode(String assemblyCode, Interconnect interconnect)
 			throws VnanoException {
 
+		// Extract some option values.
 		boolean acceleratorEnabled, shouldDump, dumpTargetIsAll;
 		String dumpTarget;
 		PrintStream dumpStream = null;
@@ -95,8 +100,7 @@ public class VirtualMachine {
 		Assembler assembler = new Assembler();
 		VirtualMachineObjectCode vmObjectCode = assembler.assemble(assemblyCode, interconnect);
 
-		// dump the VM object code.
-		// VMオブジェクトコードをダンプ
+		// Dump the VM object code.
 		if (shouldDump && (dumpTargetIsAll || dumpTarget.equals(OptionValue.DUMPER_TARGET_OBJECT_CODE)) ) {
 			if (dumpTargetIsAll) {
 				dumpStream.println("================================================================================");
@@ -127,23 +131,74 @@ public class VirtualMachine {
 		// Write back data of external variables from the memory (may had been modified by the executed VM object code).
 		interconnect.writebackExternalVariables(memory, vmObjectCode); // vmObjectCode has the table of variable names and memory addresses
 
+		// Caches some resources to accelerate re-executions of the same code.
+		this.reexecutionCache = new ReexecutionCache();
+		this.reexecutionCache.setLastObjectCode(vmObjectCode);
+		this.reexecutionCache.setMemory(memory);
+		this.reexecutionCache.setAcceleratorEnabled(acceleratorEnabled);
+
 		// Convert the data-type of the result value (from the internal data-type to the external one), and return it.
+		Object returnValue = null;
 		if (memory.hasResultDataContainer()) {
 			DataContainer<?> resultDataContainer = memory.getResultDataContainer();
 			DataConverter converter = new DataConverter(
 				resultDataContainer.getDataType(), resultDataContainer.getArrayRank()
 			);
-			return converter.convertToExternalObject(resultDataContainer);
-		} else {
-			return null;
+			returnValue = converter.convertToExternalObject(resultDataContainer);
+			this.reexecutionCache.setResultDataResources(resultDataContainer, converter);
 		}
+		return returnValue;
+	}
+
+
+	/**
+	 * Re-executes the assembly code, which was executed by executeAssemblyCode() method last time.
+	 *
+	 * @param interconnect The interconnect to which external functions/variables are connected.
+	 * @return
+	 *   The value specified by {@link org.vcssl.nano.spec.OperationCode#END END} instruction at the end of VRIL code.
+	 *   If no value is specified, returns null.
+	 *
+	 * @throws VnanoException Thrown when a runtime error is occurred.
+	 */
+	public Object reexecuteLastAssemblyCode(Interconnect interconnect) throws VnanoException {
+		if (this.reexecutionCache == null) {
+			throw new VnanoException(ErrorType.INVALID_REEXECUTION_REQUEST);
+		}
+
+		// Extract the cached last code, and the cached memory instance for running the code.
+		VirtualMachineObjectCode lastObjectCode = this.reexecutionCache.getLastObjectCode();
+		Instruction[] instructions = lastObjectCode.getInstructions();
+		Memory memory = this.reexecutionCache.getMemory();
+
+		// Reload the (may be updated) values of external variables to GLOBAL partition of the memory.
+		memory.updateGlobalPartitionData(lastObjectCode, interconnect.getExternalVariableTable());
+
+		// Execute the last code.
+		if (this.reexecutionCache.isAcceleratorEnabled()) {
+			this.accelerator.reprocess(instructions, memory, interconnect, this.processor);
+		} else {
+			this.processor.process(instructions, memory, interconnect);
+		}
+
+		// Write back data of external variables from the memory (may had been modified by the executed VM object code).
+		interconnect.writebackExternalVariables(memory, lastObjectCode); // lastObjectCode has the table of variable names and memory addresses
+
+		// Convert the data-type of the result value (from the internal data-type to the external one), and return it.
+		Object returnValue = null;
+		if (this.reexecutionCache.hasResultDataResources()) {
+			DataContainer<?> resultDataContainer = this.reexecutionCache.getResultDataContainer();
+			DataConverter converter = this.reexecutionCache.getResultDataConverter();
+			returnValue = converter.convertToExternalObject(resultDataContainer);
+		}
+		return returnValue;
 	}
 
 
 	/**
 	 * Terminates the currently running code after when the processing of the current instruction ends,
 	 * without processing remained instructions after it in code.
-	 * 
+	 *
 	 * If multiple code are being processed, only processes executed under the condition that
 	 * {@link org.vcssl.nano.spec.OptionKey#TERMINATOR_ENABLED TERMINATOR_ENABLED}
 	 * option is true will be terminated, and other processes will continue.
@@ -174,7 +229,7 @@ public class VirtualMachine {
 
 	/**
 	 * Resets the VM which had terminated by {@link VirtualMachine#terminate() terminate()} method, for processing new code.
-	 * 
+	 *
 	 * Please note that, if an execution of code is requested by another thread
 	 * when this method is being processed, the execution request might be missed.
 	 */
@@ -192,7 +247,7 @@ public class VirtualMachine {
 
 	/**
 	 * Returns the total number of processed instructions from when this VM was instantiated.
-	 * 
+	 *
 	 * Note that, to lighten the decreasing of the performance caused by the counting/monitoring,
 	 * the cached old value of the counter by the caller thread may be returned,
 	 * so the precision of the returned value is not perfect.
@@ -208,7 +263,7 @@ public class VirtualMachine {
 	 * @return The total number of processed instructions from when this VM was instantiated.
 	 */
 	// Don't remove "Int" from the following method name, because we perhaps support "...Long..." version in future.
-	public int getExecutedInstructionCountIntValue() { 
+	public int getExecutedInstructionCountIntValue() {
 
 		// This method probably be called from a different thread from the thread executing the code.
 		// So the followings are enclosed by a synchronized block, to avoid effects of thread caches.
@@ -230,7 +285,7 @@ public class VirtualMachine {
 
 	/**
 	 * Returns operation code(s) of currently executed instruction(s) on this instance of the VM.
-	 * 
+	 *
 	 * This method returns an array, because generary this VM may execute multiple instructions in 1 cycle.
 	 * Also, when no instructins are being executed, an empty array will be returned.
 	 *
@@ -265,7 +320,7 @@ public class VirtualMachine {
 			} else if (prpcessorOperationCodes.length != 0) {
 				return prpcessorOperationCodes;
 
-			// When both the Processor and the Accelerator have no valid counter values, 
+			// When both the Processor and the Accelerator have no valid counter values,
 			// it means that no instructions are executed on this VM yet.
 			// So return an empty array.
 			} else {

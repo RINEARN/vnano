@@ -16,6 +16,7 @@
 - [Permission Settings](#permission)
 - [Command-Line Mode](#command-line-mode)
 - [Performance Benchmarking / Analysis](#performances)
+- [Reduce Overhead-Costs for Repetitive Executions](#repetitive)
 - [Specifications](#specifications)
 
 <hr />
@@ -669,6 +670,135 @@ An example of result is:
 On the result of "Instruction Execution Frequency" section, if the total propotions of arithmetic operations (ADD, SUB, MUL, DIV, REM, NEG) and external function calls (CALLX) and MOV instructions are enough high, the script is well optimized.
 
 In the contrast, if JMP/JMPN or LT/GT/EQ/GEQ/LEQ have large proportions, it means that "if/else" statements or small loops are being bottolnecks in your scripts, so maybe you can improve performance by modifying its processing flow.
+
+
+
+<a id="repetitive"></a>
+## Reduce Overhead-Costs for Repetitive Executions
+
+In the previous section, we have measured performances in the cases that single script performs huge number of numerical operations.
+
+In the contrast, there may be situation that an application repetitively requests to the engine to execution of a small math expression or script, in very high frequency. For example, when an application plots a math expression on a graph, or compute a value using a convergent algorithm depending on an user-input expression.
+
+In this repository, an example code "ExampleApp7.java" which simulates such situation, is contained:
+
+    (in ExampleApp7.java)
+
+    import org.vcssl.nano.VnanoEngine;
+    import org.vcssl.nano.VnanoException;
+    import java.util.Map;
+    import java.util.HashMap;
+
+    public class ExampleApp7 {
+
+        // The number of the repetitions of the executions.
+        static final int REPETITION_COUNT = 100000000;
+
+        // A plug-in providing a variable "x".
+        public static class VariablePlugin {
+            public double x;
+        }
+
+    	public static void main(String[] args) throws VnanoException {
+            
+            //Create a scripting engine of Vnano (= Vnano Engine).
+		    VnanoEngine engine = new VnanoEngine();
+
+            // Instantiate the plug-in providing a variable "x", and connect it to the engine.
+            VariablePlugin plugin = new VariablePlugin();
+            engine.connectPlugin("VariablePlugin", plugin);
+
+            // To reduce overheads, disable "automatic-activation" feature.
+            Map<String, Object> optionMap = new HashMap<String, Object>();
+            optionMap.put("AUTOMATIC_ACTIVATION_ENABLED", false);
+
+    		// Define the content of the expression (or script) to be executed.
+	    	String expression = " x * 0.5 + 3.2 ; " ;
+
+            // Declare a variable for taking summation of the results of the repetitive executions.
+            double sum = 0.0;
+
+            // Activate the engine manually.
+            engine.activateEngine();
+
+            // Store the time at the beginning of the repetitive executions
+            long beginTime = System.nanoTime();
+
+            // Execute the expression (or script) for REPETITION_COUNT times repetitively.
+            for (int i=0; i<REPETITION_COUNT; i++) {
+                plugin.x = i * 0.125;
+                double valueOfExpression = (double)engine.executeScript(expression);
+                sum += valueOfExpression;
+            }
+
+            // Store the time at the end of the repetitive executions.
+            long endTime = System.nanoTime();
+
+            // Deactivate the engine manually.
+            engine.deactivateEngine();
+
+            // Print the result.
+            double requiredTime = ((endTime - beginTime) * 1.0E-9);
+            double repetitionSpeed = REPETITION_COUNT / requiredTime;
+		    System.out.println("result (sum): " + sum);
+		    System.out.println("repetition couunt: " + REPETITION_COUNT);
+		    System.out.println("required time: " + requiredTime + " [sec]");
+		    System.out.println("repetition speed: " + repetitionSpeed + " [times/sec]");
+	    }
+    }
+
+This example code execute the math expression "x * 0.5 + 3.2" repetitively for 100 million times repetitively, whth changing the value of "x". The required time to complete it is about 20 seconds. It means that Vnano Engine has processed requests of repetitive executions in a speed of hundreds of millions of times per second:
+
+    result (sum): 3.1250031655706694E14
+    repetition couunt: 100000000
+    required time: 21.030388600000002 [sec]
+    repetition speed: 4755023.880062777 [times/sec]
+
+By the way, in general situation, executing one expression or script takes more than some milliseconds, caused by various overhead costs of the execution. Assumed from this fact, it seemes that the above requires over 1 day to complete.
+However, as shown in the above, it actually requires only about 20 seconds! 
+
+Why? For repetitive executions, Vnano Engine caches some resources used for the first execution, and reuse it for the latter executions. This allows to reduce overhead costs of the executions drastically, realizing the above processing speed.
+
+Please note that, the processing speed depends on the load - number of repetitions.
+If the load is far lighter than the above, e.g.: 10000 repetitions, the speed degradetes in some extent. If the load is far lighter than the above, e.g.: 10000 repetitions, the speed degradetes in some extent (It probably related to CPU's idling behaviour and so on). The above speed is realized under relatively heavy loads, e.g.: over 1 millions of repetitions. 
+
+By the way, in the previous code, an additional  technique to reduce overheads is used.
+Specifically, we disabled "automatic-activation" feature and activated/deactivated the engine manually as follows:
+
+    (in ExampleApp7.java)
+
+    ...
+
+    // To reduce overheads, disable "automatic-activation" feature.
+    Map<String, Object> optionMap = new HashMap<String, Object>();
+    optionMap.put("AUTOMATIC_ACTIVATION_ENABLED", false);
+
+    ...
+
+    // Activate the engine manually.
+    engine.activateEngine();
+
+    ...
+
+    // Execute the expression (or script) repetitively with changing the value of "x".
+    for (int i=0; i<REPETITION_COUNT; i++) {
+        plugin.x = i * 0.125;
+        double valueOfExpression = (double)engine.executeScript(expression);
+        sum += valueOfExpression;
+    }
+
+    ...
+
+    // Deactivate the engine manually.
+    engine.deactivateEngine();
+
+Where "activation" is to switch the engine into the state ready for executions, and "deactivation" is to release the engine from the state.
+By default, the engine is activated automatically when an execution is requested, and deactivated automatically when the execution is complete.
+However, activating the engine requires a certain overhead cost, so it can be a cause of degradation of the speed, for heavy repetitive executions.
+
+Hence automatic-activation is disabled in the above code, and we activated the engine manyally at only once, before the repetitive executions. And then, we deactivated the engine when all repetitive executions complete.
+This technique is effective especially when many plug-ins are connected to the engine, or some plug-ins take relatively-long time to be initialized.
+
 
 
 <a id="specifications"></a>

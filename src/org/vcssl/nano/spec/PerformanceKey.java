@@ -12,7 +12,7 @@ public class PerformanceKey {
 
 	/**
 	 * The total number of processed instructions from when the monitoring target engine was instantiated.
-	 * 
+	 *
 	 * The measured value of this monitoring item is "Integer" type.
 	 *
 	 * Note that, to lighten the decreasing of the performance caused by the counting/monitoring,
@@ -31,7 +31,7 @@ public class PerformanceKey {
 
 	/**
 	 * Operation code(s) of currently executed instruction(s) on the VM in the monitoring target engine.
-	 * 
+	 *
 	 * The measured value of this monitoring item is "String[]" type.
 	 * The value of this item is an array, because generary a VM may execute multiple instructions in 1 cycle.
 	 * Also, when no instructins are being executed, the value of this item is an empty array.

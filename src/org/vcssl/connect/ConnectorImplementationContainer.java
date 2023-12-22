@@ -26,7 +26,7 @@ public class ConnectorImplementationContainer {
 
 	/**
 	 * Creates an instance storing specified loaded results.
-	 * 
+	 *
 	 * @param connectorImplementation The loaded object implementing plug-in connector interfaces.
 	 * @param interfaceTypeId The type ID (abbreviated name) of the interface.
 	 * @param interfaceGeneration The generation of the interface.
@@ -42,7 +42,7 @@ public class ConnectorImplementationContainer {
 
 	/**
 	 * Returns the loaded object implementing plug-in connector interfaces.
-	 * 
+	 *
 	 * @return The loaded object implementing plug-in connector interfaces.
 	 */
 	public Object getConnectorImplementation() {
@@ -52,7 +52,7 @@ public class ConnectorImplementationContainer {
 
 	/**
 	 * Returns the type ID (abbreviated name) of the interface, implemented by the loaded plug-in.
-	 * 
+	 *
 	 * @return The type ID (abbreviated name) of the interface.
 	 */
 	public String getInterfaceTypeId() {
@@ -62,7 +62,7 @@ public class ConnectorImplementationContainer {
 
 	/**
 	 * Returns the generation of the interface, implemented by the loaded plug-in.
-	 * 
+	 *
 	 * @return The generation of the interface.
 	 */
 	public String getInterfaceGeneration() {

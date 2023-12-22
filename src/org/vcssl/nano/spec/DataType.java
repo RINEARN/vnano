@@ -7,7 +7,7 @@ package org.vcssl.nano.spec;
 
 /**
  * The enum which defines the data types available in scripts.
- * 
+ *
  * Nemes of data types are defined in {@link DataTypeName DataTypeName} class,
  * and conversion methods between elements of this enum and names of data types
  * are provided by the class.

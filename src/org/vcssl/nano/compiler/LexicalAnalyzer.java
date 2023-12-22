@@ -34,7 +34,7 @@ public class LexicalAnalyzer {
 
 	/**
 	 * Splits code of the script into tokens, and returns them after analyzing and setting their attributes.
-	 * 
+	 *
 	 * @param script The script to be processed.
 	 * @param fileName The filename of the script to be processed.
 	 * @return Tokens.
@@ -66,14 +66,14 @@ public class LexicalAnalyzer {
 
 	/**
 	 * Splits code of the script into tokens.
-	 * 
+	 *
 	 * @param script The script to be processed.
 	 * @param fileName The filename of the script to be processed.
 	 * @return Tokens.
 	 */
 	private Token[] tokenize(String script, String fileName) {
 
-		// The current implementation assumes the maximum character length of symbols (of operators and so on) is 3, 
+		// The current implementation assumes the maximum character length of symbols (of operators and so on) is 3,
 		// where symbols are defined in ScriptWord.symbolSet.
 		// The above restriction is for reducing cost of looking-ahead chars.
 
@@ -117,7 +117,7 @@ public class LexicalAnalyzer {
 				}
 			}
 
-			// When the next is symbol token or white space or other "token splitter" chars, 
+			// When the next is symbol token or white space or other "token splitter" chars,
 			// create a word token from the content stored in the buffer.
 			if (Character.toString(chars[pointer]).matches(ScriptWord.TOKEN_SEPARATOR_REGEX)
 					|| ScriptWord.SYMBOL_SET.contains(singleCharSymbol)
@@ -189,7 +189,7 @@ public class LexicalAnalyzer {
 
 	/**
 	 * Analyze types of tokens and set to them.
-	 * 
+	 *
 	 * @parak tokens Tokens to be analyzed.
 	 */
 	private void analyzeTokenTypes(Token[] tokens) {
@@ -435,7 +435,7 @@ public class LexicalAnalyzer {
 
 	/**
 	 * Analyze precedences of operator-tokens and set to them.
-	 * 
+	 *
 	 * @parak tokens Tokens to be analyzed.
 	 */
 	private void analyzePrecedences(Token[] tokens) {
@@ -575,7 +575,7 @@ public class LexicalAnalyzer {
 
 	/**
 	 * Analyze associativities of operator-tokens and set to them.
-	 * 
+	 *
 	 * @parak tokens Tokens to be analyzed.
 	 */
 	private void analyzeAssociativities(Token[] tokens) {
@@ -665,7 +665,7 @@ public class LexicalAnalyzer {
 
 	/**
 	 * Analyze data types of literal-tokens and set to them.
-	 * 
+	 *
 	 * @parak tokens Tokens to be analyzed.
 	 */
 	private void analyzeLiteralAttributes(Token[] tokens) {
@@ -686,7 +686,7 @@ public class LexicalAnalyzer {
 	 * Recovers escaped string literals ("1", "2", "3", ...) in tokens.
 	 *
 	 * @param tokens Tokens in which string literal is escaped.
-	 * @param stringLiteralExtractResult 
+	 * @param stringLiteralExtractResult
 	 *            The result of {@link org.vcssl.nano.spec.LiteralSyntax#extractStringLiterals} method,
 	 *            in which original contents of string literals are stored.
 	 */

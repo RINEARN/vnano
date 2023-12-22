@@ -133,7 +133,7 @@ public final class AssemblyWord {
 
 	/**
 	 * Returns the immediate value of the specified literal, available in assembly code.
-	 * 
+	 *
 	 * @param dataTypeName The name of the data type of the literal.
 	 * @param literal The value of the literal in script code.
 	 * @return The immediate value available in the assembly code.

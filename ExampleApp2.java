@@ -1,10 +1,10 @@
 /*
- * An example application using Vnano Engine, 
+ * An example application using Vnano Engine,
  * to calculate an expression inputted by the user.
- * 
+ *
  * How to Compile:
  *     javac -cp .;Vnano.jar ExampleApp2.java
- * 
+ *
  * How to Run:
  *     java -cp .;Vnano.jar ExampleApp2
  */
@@ -42,7 +42,7 @@ public class ExampleApp2 {
 		double result = (Double)engine.executeScript(expression);
 		System.out.println("result: " + result);
 
-		// The type of "result" is "Object", 
+		// The type of "result" is "Object",
 		// and its actual type generally depends on the value of the expressions.
 		// (May be Double, Long, Boolean, String, or double[], double[][], ...)
 		// Check the type of the result if necessary.

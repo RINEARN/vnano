@@ -23,7 +23,7 @@ import org.vcssl.nano.spec.IdentifierSyntax;
 
 /**
  * The class to perform loading of plugins from class files.
- * 
+ *
  * Paths of class files to be loaded can be specified by a text file: "plugin list file".
  * In the plugin list file, describe a path of a class file for each line.
  * Lines starts with "#" will be regarded as comment lines. Empty lines are also ignored.
@@ -69,7 +69,7 @@ public class PluginLoader {
 
 	/**
 	 * Create new script loader under the settings of specified encoding.
-	 * 
+	 *
 	 * @param encoding The encoding of the list file ("UTF-8" and so on).
 	 */
 	public PluginLoader(String encoding) {
@@ -79,7 +79,7 @@ public class PluginLoader {
 
 	/**
 	 * Registers the path of the plugin list file in which file paths of plugins are described.
-	 * 
+	 *
 	 * @param listFilePath The path of the plugin list file.
 	 */
 	public void setPluginListPath(String listFilePath) {
@@ -90,7 +90,7 @@ public class PluginLoader {
 
 	/**
 	 * Loads/updates scripts from registered files.
-	 * 
+	 *
 	 * @throws VnanoException Thrown when plugins could not be loaded successfully.
 	 */
 	public void load() throws VnanoException {
@@ -105,7 +105,7 @@ public class PluginLoader {
 
 	/**
 	 * Returns whether this loader has loaded plugins.
-	 * 
+	 *
 	 * @return True if this loader has plugins.
 	 */
 	public boolean hasPlugins() {
@@ -115,7 +115,7 @@ public class PluginLoader {
 
 	/**
 	 * Returns names of the loaded plugins.
-	 * 
+	 *
 	 * @return Names of the plugins.
 	 */
 	public String[] getPluginNames() {
@@ -125,7 +125,7 @@ public class PluginLoader {
 
 	/**
 	 * Returns instances of the loaded plugins.
-	 * 
+	 *
 	 * @return Instances of plugins.
 	 */
 	public Object[] getPluginInstances() {
@@ -180,7 +180,7 @@ public class PluginLoader {
 			pluginClassPath = pluginClassPath.replace('/', '.');
 			pluginClassPath = pluginClassPath.replace('\\', '.');
 
-			// The file path of the plugin is described as the relative file path 
+			// The file path of the plugin is described as the relative file path
 			// from the directory in which the plugin list file is located, so then convert it to the absolute path.
 			File pluginFile = new File(pluginPath);
 			if (!pluginFile.isAbsolute() ) {

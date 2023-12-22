@@ -443,7 +443,7 @@ Permission Authorizer Connector Interface 2 (PACI2) は、
 			</p>
 			<p>
 			現在の一時的なパーミッション状態を保存します。
-			後で <a href="#restoreTemporaryPermissionValues">restoreTemporaryPermissionValues(boolean restoresFromBase, boolean calledByEngine)</a> 
+			後で <a href="#restoreTemporaryPermissionValues">restoreTemporaryPermissionValues(boolean restoresFromBase, boolean calledByEngine)</a>
 			メソッドによって復元可能な形に、またはパーマネント設定値を上書きする事で保存します
 			</p>
 			<p>
@@ -461,7 +461,7 @@ Permission Authorizer Connector Interface 2 (PACI2) は、
 		<td class="lcol">引数</td>
 		<td class="rcol">
 			storesToBase: 基礎パーミッション設定を上書きする形で保存する場合は true を指定します。
-				後で <a href="#restoreTemporaryPermissionValues">restoreTemporaryPermissionValues(boolean restoresFromBase)</a> 
+				後で <a href="#restoreTemporaryPermissionValues">restoreTemporaryPermissionValues(boolean restoresFromBase)</a>
 				メソッドで復元するために一時保存する場合は false を指定します。
 			<br />
 			calledByEngine: スクリプトエンジン/アプリケーション側からの操作の場合は true、それ以外（プラグイン等）からの操作の場合は false を指定します。
@@ -498,7 +498,7 @@ Permission Authorizer Connector Interface 2 (PACI2) は、
 			</p>
 			<p>
 			現在の一時的なパーミッション状態を保存します。
-			後で <a href="#restoreTemporaryPermissionValues">restoreTemporaryPermissionValues(boolean restoresFromBase)</a> 
+			後で <a href="#restoreTemporaryPermissionValues">restoreTemporaryPermissionValues(boolean restoresFromBase)</a>
 			メソッドによって復元可能な形に、またはパーマネント設定値を上書きする事で保存します
 			</p>
 			<p>
@@ -516,7 +516,7 @@ Permission Authorizer Connector Interface 2 (PACI2) は、
 		<td class="lcol">引数</td>
 		<td class="rcol">
 			restoresFromBase: 基礎パーミッション設定の値を読み込んで復元する場合は true を指定します。
-				事前に <a href="#storeTemporaryPermissionValues">storeTemporaryPermissionValues(boolean storesToBase)</a> 
+				事前に <a href="#storeTemporaryPermissionValues">storeTemporaryPermissionValues(boolean storesToBase)</a>
 				メソッドで一時保存された設定から復元する場合は false を指定します。
 			<br />
 			calledByEngine: スクリプトエンジン/アプリケーション側からの操作の場合は true、それ以外（プラグイン等）からの操作の場合は false を指定します。
@@ -555,7 +555,7 @@ Permission Authorizer Connector Interface 2 (PACI2) は、
 			</p>
 			<p>
 			このメソッドで戻り値として指定したインターフェースまたはクラスの実装インスタンスが、
-			<a href="#initializeForConnection">initializeForConnection(Object engineConnector)</a> 
+			<a href="#initializeForConnection">initializeForConnection(Object engineConnector)</a>
 			メソッド等の初期化/終了時メソッド群の、引数 engineConnector に渡されます。
 			</p>
 			<p>

@@ -10,7 +10,7 @@ import org.vcssl.nano.spec.ScriptWord;
 
 /**
  * The class performing the function of the preprocessor in the compiler of the Vnano.
- * 
+ *
  * This preprocessor are used for removing comments in the script,
  * unifying line feed code, and so on as a first stage of the compilation.
  */
@@ -25,7 +25,7 @@ public class Preprocessor {
 
 	/**
 	 * Preprocess the script.
-	 * 
+	 *
 	 * As the result of this preprocessing, comments in the script will be removed,
 	 * and line feed code will be unified to LF (0x0A).
 	 *
@@ -46,7 +46,7 @@ public class Preprocessor {
 
 	/**
 	 * Unifies line feed code to LF (0x0A).
-	 * 
+	 *
 	 * @param script The script to be processed.
 	 * @return The script in which line feed code have unified.
 	 */
@@ -60,7 +60,7 @@ public class Preprocessor {
 
 	/**
 	 * Removes all comments in the script.
-	 * 
+	 *
 	 * Line feed code in the passed script to this method should be unified to LF (0x0A).
 	 *
 	 * @param script The script to be processed.

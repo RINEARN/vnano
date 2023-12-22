@@ -48,6 +48,22 @@ The following is the list of all methods of Vnano Engine (org.vcssl.nano.VnanoEn
 | Exception | VnanoFatalException (unchecked exception) will be thrown if this method is called in a state in which isTerminatorEnabled() method returns false. |
 
 
+| Signature |void activateEngine() |
+|:---|:---|
+| Description | <p>Activates this engine. By this activation, the engine become available for executing scripts.</p> <p>By default, the engine is activated automatically just before executing a script. However, when "AUTOMATIC_ACTIVATION_ENABLED" option is set to FALSE, the engine is NOT activated automatically. In such case, activate the engine manually at suitable timing (for details, see the description of "AUTOMATIC_ACTIVATION_ENABLED" option).</p> <p>In this activation step, initialization procedures of all connected plug-ins (implemented as initializeForExecution() method in each plug-in) are processed. Hence, required time of this method depends on the number of the connected plug-ins, and implementations of them.</p> |
+| Parameters | None |
+| Return | None |
+| Exception | VnanoException will be thrown if any error has occurred in the initialization procedure of any plug-in. |
+
+
+| Signature |void deactivateEngine() |
+|:---|:---|
+| Description | <p>Deactivates this engine. This deactivation canceles the state of the engine which is "activated" for executing scripts. It also performs some finalization procedures.</p> <p>By default, the engine is deactivated automatically just after executing a script. However, when "AUTOMATIC_ACTIVATION_ENABLED" option is set to FALSE, the engine is NOT deactivated automatically. In such case, deactivate the engine manually at suitable timing (for details, see the description of "AUTOMATIC_ACTIVATION_ENABLED" option).</p> <p>In this deactivation step, finalization procedures of all connected plug-ins (implemented as finalizeForTermination() method in each plug-in) are processed. Hence, required time of this method depends on the number of the connected plug-ins, and implementations of them.</p> |
+| Parameters | None |
+| Return | None |
+| Exception | VnanoException will be thrown if any error has occurred in the finalization procedure of any plug-in. |
+
+
 | Signature | void connectPlugin(String bindingName, Object plugin) |
 |:---|:---|
 | Description | Connects various types of plug-ins which provides external functions/variables and so on. |
@@ -82,7 +98,7 @@ The following is the list of all methods of Vnano Engine (org.vcssl.nano.VnanoEn
 
 | Signature | void setOptionMap(Map&lt;String,Object&gt; optionMap) |
 |:---|:---|
-| Description | <p>Sets options, by a Map (option map) storing names and values of options you want to set.</p> <p>Type of the option map is Map&lt;String,Object&gt;, and its keys represents option names. For details, see [Option Items](#options) section.<p> |
+| Description | <p>Sets options, by a Map (option map) storing names and values of options you want to set.</p> <p>Type of the option map is Map&lt;String,Object&gt;, and its keys represents option names. For details, see [Option Items](#options) section.</p><p>Please note that, if any value stored in the option map is changed after setting the map by this method, it is NOT guaranteed that the engine reflects the change. Hence, when any value is changed, re-set the option map again by this method.</p> |
 | Parameters | optionMap: A Map (option map) storing names and values of options |
 | Return | None |
 | Exception | VnanoException will be thrown if invalid option settings is detected. |
@@ -107,7 +123,7 @@ The following is the list of all methods of Vnano Engine (org.vcssl.nano.VnanoEn
 
 | Signature | void setPermissionMap(Map&lt;String, String&gt; permissionMap) |
 |:---|:---|
-| Description | <p>Sets permissions, by a Map (permission map) storing names and values of permission items you want to set.</p> <p>Type of the permission map is Map&lt;String,String&gt;, and its keys represents names of permission items. For details, see [Permission Items](#permissions) section.<p>  |
+| Description | <p>Sets permissions, by a Map (permission map) storing names and values of permission items you want to set.</p> <p>Type of the permission map is Map&lt;String,String&gt;, and its keys represents names of permission items. For details, see [Permission Items](#permissions) section.</p><p>Please note that, if any value stored in the permission map is changed after setting the map by this method, it is NOT guaranteed that the engine reflects the change. Hence, when any value is changed, re-set the permission map again by this method.</p>  |
 | Parameters | permissionMap: A Map (permission map) storing names and values of permission items |
 | Return | None |
 | Exception | VnanoException will be thrown if invalid permission settings is detected. |
@@ -169,6 +185,7 @@ Also, "Env." in the "Default Value" column means "Environment Dependent".
 | DUMPER_TARGET | String | "ALL" | <p>Specify the target of to dump. Values are the followings:</p> <p>"ALL": Dump all contents.</p> <p>"INPUTTED_CODE": Dump the inutted script code.</p> <p>"PREPROCESSED_CODE": Dump pre-processed script code, from which comments are removed.</p> <p>"TOKEN": Dump tokens, which are output of the LexicalAnalyzer.</p> <p>"PARSED_AST": Dump the Abstract Syntax Tree (AST), which is the output of the Parser.</p> <p>"ANALYZED_AST": Dump the semantic-analyzed AST, which is the output of the SemanticAnalyzer.</p> <p>"ASSEMBLY_CODE": Dump the VRIL code, which is the compilation result, output of the CodeGenerator.</p> <p>"OBJECT_CODE": Dump the VM object code (unoptimized), which is output of the Assembler.</p> <p>"ACCELERATOR_CODE": Dump optimized instructions for the Accelerator, which are output of the AcceleratorOptimizationUnit.</p> <p>"ACCELERATOR_STATE": Dump the internal state (dispatchments of execution units, and so on) of the Accelerator.</p> |
 | DUMPER_STREAM | java.io.PrintStream | System.out | Specify the stream to output dumped contents. |
 | RUNNING_ENABLED  | Boolean | TRUE | <p>An option to switch whether execute script or don't.</p> <p>This option might be useful when you want to dump the compiled result for debugging but don't want to run it.</p> |
+| AUTOMATIC_ACTIVATION_ENABLED  | Boolean | TRUE | <p>An option to switch whether activate/deactivate the Vnano engine automatically before/after executing a script ("automatic activation" feature).</p> <p>This option is enabled by default so that users can execute scripts any time. However, activations/deactivations of the engine entail some overhead costs. Especially when the engine repetitively executes scripts in high frequency, this "activation costs" may result serious degradation of processing speed, if this option is enabled. In such case, disable this option, and activate/deactivate the engine manually at suitable timing (typically before/after a set of repetitive executions).</p> |
 | UI_MODE | String | "GUI" | <p>Specify the mode of UI for inputting/outputting values and so on.</p> <p>As the value, specify "GUI" or "CUI". The default value is "GUI", but it will be set to "CUI" automatically when you execute the Vnano engine in the command-line mode.</p> <p>This option is referred by I/O plug-ins if they are connected.</p> |
 | ENVIRONMENT_EOL | String | Env. | <p>Specify the default line-feed code on the environment.</p> <p>This option is referred by plug-ins providing environment-dependent values, if they are connected.</p> |
 | FILE_IO_EOL | String | Env. | <p>Specify the default line-feed code for file I/O.</p> <p>This option is referred by I/O plug-ins if they are connected.</p> |

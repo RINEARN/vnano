@@ -21,10 +21,10 @@ import org.vcssl.nano.vm.memory.Memory;
 
 /**
  * The class takes on the function of a processor, in the virtual machine of the Vnano.
- * 
- * The processor provided by this class executes instructions assembled by a VRIL assembly code 
+ *
+ * The processor provided by this class executes instructions assembled by a VRIL assembly code
  * (About the specification of VRIL instructions, see: https://www.vcssl.org/en-us/vril/isa/instruction ).
- * 
+ *
  * Each instruction is expressed by an instance of the {@link Instruction} class.
  * Data I/O will be performed from/to an instance of the {@link org.vcssl.nano.vm.memory.Memory} class.
  */
@@ -33,11 +33,11 @@ public class Processor implements Processable {
 
 	/**
 	 * The flag representing whether the process should continue.
-	 * 
+	 *
 	 * If this flag is turned to false,
-	 * the process of {@link Processor#process(Instruction[], Memory, Interconnect)} method will be terminated immediately, 
+	 * the process of {@link Processor#process(Instruction[], Memory, Interconnect)} method will be terminated immediately,
 	 * just after when the process of the currently executed instruction completed.
-	 * 
+	 *
 	 * To turn to true/false this flag, use terminate() / resetTerminator() methods.
 	 */
 	private volatile boolean continuable;
@@ -45,20 +45,20 @@ public class Processor implements Processable {
 	/**
 	 * The counter of the number of the instructions executed by this instance.
 	 * This value is useful for performance monitoring/analysis.
-	 * 
-	 * Note that, when this counter has reached to the maximum limit of the int type, 
+	 *
+	 * Note that, when this counter has reached to the maximum limit of the int type,
 	 * the next counted value jumps to the minimum (negative) limit value of the int type, by so-called "overflow" behaviour.
-	 * 
-	 * This counter frequently overflows, so the caller-side should monitor this value frequently, 
+	 *
+	 * This counter frequently overflows, so the caller-side should monitor this value frequently,
 	 * and should accumulate differentials of monitored values (current value - last monitored value) to more long-precision counter.
-	 * 
+	 *
 	 * Why we use "int" for this value, not "long", is to avoid to make the updating process of this counter "synchromized".
 	 * If this counter is "long", the writing to it may consists of two operations (32bit x 2), depends on environment.
-	 * So if the value is read from an other thread just when its value is being written, the broken value may be read, 
+	 * So if the value is read from an other thread just when its value is being written, the broken value may be read,
 	 * if we don't make the writting/reading action "synchronized".
 	 * However, "synchronized" might be a bottleneck of performance, so we avoid the above by using "int" type for this counter.
-	 * 
-	 * For the same reason, we don't make this value "volatile", 
+	 *
+	 * For the same reason, we don't make this value "volatile",
 	 * so some time lag may occurs for this value, by the effect of the "thread cache" mechanism.
 	 */
 	private int executedInstructionCount;
@@ -82,13 +82,13 @@ public class Processor implements Processable {
 
 	/**
 	 * Processes the list of instructions.
-	 * 
+	 *
 	 * The processing-flow begins with the top of the list of the instructions.
 	 * Ordinary, the flow goes towards the end of the list,
 	 * with processing each instruction in the list in the serial order.
-	 * However, sometimes the processing-flow jumps to any point in the list, 
+	 * However, sometimes the processing-flow jumps to any point in the list,
 	 * by the effect of JMP instruction and so on.
-	 * 
+	 *
 	 * This method ends when the instruction at the end of the list has been processed,
 	 * or when the flow has jumped to out of bounds of the list of the instructions.
 	 *
@@ -209,7 +209,7 @@ public class Processor implements Processable {
 
 	/**
 	 * Process the specified instruction, and returns the updated value of the program counter.
-	 * 
+	 *
 	 * Note that,
 	 * if {@link OperationCode#CALL CALL} or {@link OperationCode#RET RET} instruction is processed by this method,
 	 * the detection of recursive calls (unsupported on this interpreter) will not work.
@@ -233,13 +233,13 @@ public class Processor implements Processable {
 
 
 	/**
-	 * Terminates the process of {@link Processor#process(Instruction[], Memory, Interconnect)} method immediately, 
+	 * Terminates the process of {@link Processor#process(Instruction[], Memory, Interconnect)} method immediately,
 	 * just after when the process of the currently executed instruction completed.
-	 * 
+	 *
 	 * However, if the {@link org.vcssl.nano.spec.OptionKey#TERMINATOR_ENABLED TERMINATOR_ENABLED} option had been enabled
 	 * when the process started, the process will not be terminated even if this method is called.
-	 * 
-	 * Also, after terminated the process by this method, if you want to process new instructions, 
+	 *
+	 * Also, after terminated the process by this method, if you want to process new instructions,
 	 * it requires to reset the flag for the termination by calling {@link Processor#resetTerminator()} method.
 	 */
 	public void terminate() {
@@ -249,8 +249,8 @@ public class Processor implements Processable {
 
 	/**
 	 * Resets the flag for the termination.
-	 * 
-	 * When you want to process new instructions after using {@link Processor#terminate()} method, 
+	 *
+	 * When you want to process new instructions after using {@link Processor#terminate()} method,
 	 * it requires to call this method before call {@link Processor#process(Instruction[], Memory, Interconnect)} method.
 	 * If you don't do it, the process of new instructons will be terminated immediately.
 	 */
@@ -258,8 +258,8 @@ public class Processor implements Processable {
 		this.continuable = true;  // volatile
 
 		// Why we don't reset the above flag automatically in the process(...) method is:
-		// If we do so, when the terminate() method is called at the moment just after when process(...) method called, 
-		// the modification of the flag by terminate() method may be reset in process(...) method, 
+		// If we do so, when the terminate() method is called at the moment just after when process(...) method called,
+		// the modification of the flag by terminate() method may be reset in process(...) method,
 		// so we may fail to terminate the process.
 		// We (and probably most of users) don't want to consider that terminate() method may fail, in any situation.
 		// Therefore we consign the reset of the flag to application side, by providing this resetTerminator() method.
@@ -269,22 +269,22 @@ public class Processor implements Processable {
 	/**
 	 * Gets the counter value of the instructions executed by this instance.
 	 * This value is useful for performance monitoring/analysis.
-	 * 
-	 * Note that, when the counter has reached to the maximum limit of the int type, 
+	 *
+	 * Note that, when the counter has reached to the maximum limit of the int type,
 	 * the next counted value jumps to the minimum (negative) limit value of the int type, by so-called "overflow" behaviour.
-	 * This counter frequently overflows, so the caller-side should monitor this value frequently, 
+	 * This counter frequently overflows, so the caller-side should monitor this value frequently,
 	 * and should accumulate differentials of monitored values (current value - last monitored value) to more long-precision counter.
-	 * 
+	 *
 	 * Also, some time lag may occurs for the updating of the counter, by the effect of the "thread cache" mechanism.
 	 * So please consider that the returned value is a rough value.
 	 *
 	 * @return The counter value of the instructions executed by this instance (a rough value, frequently overflows).
 	 */
 	public int getExecutedInstructionCountIntValue() {
-		
+
 		// About the method name:
 		//   Don't remove ...Int... because we may be going to support ...Long... version in future.
-		
+
 		synchronized (this) {
 			return this.executedInstructionCount;
 		}
@@ -295,14 +295,14 @@ public class Processor implements Processable {
 	 * Gets the operation code of the currently executed instruction.
 	 * This value is useful for performance monitoring/analysis.
 	 *
-	 * The return value is an array, 
-	 * but this processor implementation can not execute multiple instructions at once, 
+	 * The return value is an array,
+	 * but this processor implementation can not execute multiple instructions at once,
 	 * so the array always has one or zero element.
-	 * 
+	 *
 	 * (When this processor is processing instructions, the array has one element.
 	 *  Otherwise it has no element.)
-	 * 
-	 * Note that, even when multiple process are running in parallel on this instance, 
+	 *
+	 * Note that, even when multiple process are running in parallel on this instance,
 	 * the array of the return value don't have multiple elements.
 	 * In such case, the operation code of the most recently executed instruction in all threads will be returned.
 	 *

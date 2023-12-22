@@ -4,6 +4,7 @@
 <head>
 	<title>VnanoEngine クラス仕様書</title>
 	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width,user-scalable=no,maximum-scale=1">
 	<style type="text/css">
 		h1 .spec-path { font-size: 70%; }
 		h2 .spec-path { font-size: 70%; }
@@ -100,7 +101,7 @@ Vnanoのスクリプトエンジン（Vnanoエンジン）のクラスです。
 			オプションの名前と値を格納するマップ（オプションマップ）を取得します。
 		</dd>
 
-	<dt><a href="#setOptionMap">void setPermissionMap(Map&lt;String,String&gt; permissionMap)</a></dt>
+	<dt><a href="#setPermissionMap">void setPermissionMap(Map&lt;String,String&gt; permissionMap)</a></dt>
 		<dd>
 			パーミッション項目の名前と値を格納するマップ（パーミッションマップ）によって、各パーミッションの値を設定します。
 		</dd>
@@ -296,7 +297,7 @@ Vnanoのスクリプトエンジン（Vnanoエンジン）のクラスです。
 			</p>
 			<p>
 			このメソッドが true を返す場合には、
-			<a href="#terminateScript">terminateScript(String script)</a> メソッドや 
+			<a href="#terminateScript">terminateScript(String script)</a> メソッドや
 			<a href="#resetTerminator">resetTerminator()</a> メソッドが利用可能です。
 			</p>
 			<p>
@@ -375,7 +376,7 @@ Vnanoのスクリプトエンジン（Vnanoエンジン）のクラスです。
 			<p style="margin-top: 0px;">
 			外部関数/変数を提供する、各種のプラグインを接続します。
 			</p>
-			
+
 			<p>
 			引数 bindingName には、接続されるプラグインが提供する変数/関数/名前空間のｍスクリプト内での名前を指定します。
 			内容に空白または「 ( 」が含まれている場合、それ以降は名前としては無視されます。
@@ -384,7 +385,7 @@ Vnanoのスクリプトエンジン（Vnanoエンジン）のクラスです。
 			同じ名前空間 "Bar" の要素を提供するプラグイン群に対して "Bar 1", "Bar 2", ... のように指定する事ができます。
 			なお、"___VNANO_AUTO_KEY" を指定する事で, 有効な値の指定を自動で行う事もできます.
 			</p>
-			
+
 			<p>
 			また、引数 plugin には、接続したいプラグインを指定します。
 			一般の Object 型のインスタンスをプラグインとして接続して、
@@ -396,7 +397,7 @@ Vnanoのスクリプトエンジン（Vnanoエンジン）のクラスです。
 			引数 plugin は Object 配列型とし、その [0] 番要素に Field または Method を格納し、
 			[1] 番要素にそのフィールド・メソッドが定義されたクラスの Class&lt;T&gt; 型インスタンスを格納してください。
 			</p>
-			
+
 			<p>
 			なお、XFCI1 等の各種のプラグイン用インターフェースを実装したクラスのインスタンスも接続できます。
 			パーミッションの管理を行う PACI1 形式のプラグインの接続にも、このメソッドを用います。
@@ -418,7 +419,7 @@ Vnanoのスクリプトエンジン（Vnanoエンジン）のクラスです。
 	<tr>
 		<td class="lcol">例外</td>
 		<td class="rcol">
-			VnanoException: 
+			VnanoException:
 			サポートされていないインターフェースの使用や、データ型の互換性などの原因により、
 			プラグインの接続に失敗した場合にスローされます。
 		</td>
@@ -540,6 +541,10 @@ Vnanoのスクリプトエンジン（Vnanoエンジン）のクラスです。
 			オプションマップは Map&lt;String,Object&gt; 型で, そのキーはオプション名に対応します。
 			オプション名と値の詳細については、別途ドキュメントをご参照ください。
 			</p>
+			<p>
+			なお、このメソッドによってオプションマップをセットした後に、マップ内の値を変更した場合、その変更がエンジン側に反映される保証はありません。
+			従って、オプションマップの値を変更した際には、再度このメソッドによって、変更後のマップをセットしなおしてください。
+			</p>
 		</td>
 	</tr>
 	<tr>
@@ -645,6 +650,11 @@ Vnanoのスクリプトエンジン（Vnanoエンジン）のクラスです。
 			パーミッションマップは Map&lt;String,String&gt; 型で、そのキーはパーミッション項目の名称に対応します。
 			パーミッション項目の名称と値の詳細については、別途ドキュメントをご参照ください。
 			</p>
+			<p>
+			なお、このメソッドによってパーミッションマップをセットした後に、マップ内の値を変更した場合、その変更がエンジン側に反映される保証はありません。
+			従って、パーミッションマップの値を変更した際には、再度このメソッドによって、変更後のマップをセットしなおしてください。
+			</p>
+
 		</td>
 	</tr>
 	<tr>

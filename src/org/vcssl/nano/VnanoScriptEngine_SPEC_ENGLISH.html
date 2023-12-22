@@ -4,6 +4,7 @@
 <head>
 	<title>VnanoScriptEngine Specification</title>
 	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width,user-scalable=no,maximum-scale=1">
 	<style type="text/css">
 		h1 .spec-path { font-size: 70%; }
 		h2 .spec-path { font-size: 70%; }
@@ -36,7 +37,7 @@ through javax.script.ScriptEngine interface.
 </p>
 
 <p>
-If the Scripting API (javax.script package) is available on your environment, 
+If the Scripting API (javax.script package) is available on your environment,
 you can get an instance of this class as follows:
 </p>
 
@@ -53,7 +54,7 @@ you can get an instance of this class as follows:
 </div>
 
 <p>
-Note that, the above code can be compiled without "Vnano.jar", 
+Note that, the above code can be compiled without "Vnano.jar",
 but it requires to specify the path of "Vnano.jar" for running.
 </p>
 
@@ -62,7 +63,7 @@ In the point of view of "loose coupling" between the scripting engine and apps, 
 </p>
 
 <p>
-On the other hand, if your apps requires to control the scripting engine detailedly, 
+On the other hand, if your apps requires to control the scripting engine detailedly,
 we recommend to use <a href="./VnanoEngine_SPEC_ENGLISH.html">VnanoEngine</a> directly, instead.
 </p>
 
@@ -219,14 +220,14 @@ we recommend to use <a href="./VnanoEngine_SPEC_ENGLISH.html">VnanoEngine</a> di
 			</p>
 			<p>
 			If the value of the argument "name" is "___VNANO_OPTION_MAP",
-			this method behaves as a wrapper of 
-			<a href="VnanoEngine_SPEC_ENGLISH.html#setOptionMap">VnanoEngine.setOptionMap(Map)</a> 
+			this method behaves as a wrapper of
+			<a href="VnanoEngine_SPEC_ENGLISH.html#setOptionMap">VnanoEngine.setOptionMap(Map)</a>
 			method, which is to set options.
 			</p>
 			<p>
 			If the value of the argument "name" is "___VNANO_PERMISSION_MAP",
-			this method behaves as a wrapper of 
-			<a href="VnanoEngine_SPEC_ENGLISH.html#setPermissionMap">VnanoEngine.setPermissionMap(Map)</a> 
+			this method behaves as a wrapper of
+			<a href="VnanoEngine_SPEC_ENGLISH.html#setPermissionMap">VnanoEngine.setPermissionMap(Map)</a>
 			method, which is to set permissions.
 			</p>
 			<p>
@@ -245,7 +246,7 @@ we recommend to use <a href="./VnanoEngine_SPEC_ENGLISH.html">VnanoEngine</a> di
 			</p>
 			<p>
 			Other than the above, this method behaves as a wrapper of
-			<a href="VnanoEngine_SPEC_ENGLISH.html#connectPlugin">VnanoEngine.connectPlugin(String, Object)</a> 
+			<a href="VnanoEngine_SPEC_ENGLISH.html#connectPlugin">VnanoEngine.connectPlugin(String, Object)</a>
 			method, which is to connect instances of plug-ins.
 			</p>
 		</span>

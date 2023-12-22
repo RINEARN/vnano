@@ -115,7 +115,7 @@ public class LexicalChecker {
 	/**
 	 * Checks existences of conditional expressions and so on, of control statements.
 	 * This method throws an exception when any syntactic problem is detected, and otherwise do nothing.
-	 * 
+	 *
 	 * @param tokens Tokens to be checked.
 	 * @throws VnanoException Thrown when any syntactic problem is detected.
 	 */
@@ -179,7 +179,7 @@ public class LexicalChecker {
 	/**
 	 * Checks types, orders, correspondence of open/closing parentheses and so on of tokens in an expression.
 	 * This method throws an exception when any syntactic problem is detected, and otherwise do nothing.
-	 * 
+	 *
 	 * @param tokens Tokens to be checked.
 	 * @throws VnanoException Thrown when any syntactic problem is detected.
 	 */
@@ -205,7 +205,7 @@ public class LexicalChecker {
 	/**
 	 * Checks correspondencies of open parentheses "(" and closing parentheses ")", in tokens of an expression.
 	 * This method throws an exception when any syntactic problem is detected, and otherwise do nothing.
-	 * 
+	 *
 	 * @param tokens Tokens to be checked.
 	 * @throws VnanoException Thrown when any syntactic problem is detected.
 	 */
@@ -248,7 +248,7 @@ public class LexicalChecker {
 	/**
 	 * Checks correspondencies of "[" and "]", in tokens of an expression.
 	 * This method throws an exception when any syntactic problem is detected, and otherwise do nothing.
-	 * 
+	 *
 	 * @param tokens Tokens to be checked.
 	 * @throws VnanoException Thrown when any syntactic problem is detected.
 	 */
@@ -289,7 +289,7 @@ public class LexicalChecker {
 	/**
 	 * Checks types of tokens in an expression.
 	 * This method throws an exception when any syntactic problem is detected, and otherwise do nothing.
-	 * 
+	 *
 	 * @param tokens Tokens to be checked.
 	 * @throws VnanoException Thrown when any syntactic problem is detected.
 	 */
@@ -307,7 +307,7 @@ public class LexicalChecker {
 				case DATA_TYPE: break;
 
 				// "{" and "}" can't be elements of expressions.
-				// If they are contained in an expression, 
+				// If they are contained in an expression,
 				// the author of the script may have forgotten to put ";" to the end of an expression statement.
 				// So sudgest it by the error message.
 				case BLOCK : {
@@ -334,7 +334,7 @@ public class LexicalChecker {
 	/**
 	 * Checks existences of contents in parentheses "( )" in an expression, excluding call operators.
 	 * This method throws an exception when any syntactic problem is detected, and otherwise do nothing.
-	 * 
+	 *
 	 * @param tokens Tokens to be checked.
 	 * @throws VnanoException Thrown when any syntactic problem is detected.
 	 */
@@ -364,7 +364,7 @@ public class LexicalChecker {
 	/**
 	 * Checks orders of operators and leafs in an expression.
 	 * This method throws an exception when any syntactic problem is detected, and otherwise do nothing.
-	 * 
+	 *
 	 * @param tokens Tokens to be checked.
 	 * @throws VnanoException Thrown when any syntactic problem is detected.
 	 */
@@ -419,11 +419,11 @@ public class LexicalChecker {
 								token.getValue(), token.getFileName(), token.getLineNumber()
 							);
 						}
-						
+
 						// One or multiple subscript symbols [] can be after the data-type, so lookahead tokens to the end of the cast operator:
 						for (int tokenInCastOpIndex=tokenIndex+2; tokenInCastOpIndex<tokenLength; tokenInCastOpIndex++) {
 							Token tokenInCastOp = tokens[tokenInCastOpIndex];
-							
+
 							boolean isSubscript = tokenInCastOp.getType() == Token.Type.OPERATOR
 									&& tokenInCastOp.getAttribute(AttributeKey.OPERATOR_EXECUTOR).equals(AttributeValue.SUBSCRIPT);
 
@@ -475,7 +475,7 @@ public class LexicalChecker {
 							token.getValue(), token.getFileName(), token.getLineNumber()
 						);
 					}
-							
+
 					// The previous token must be ")", or a postfix operator, or the end of a multiary operator.
 					if( !(  prevIsLeaf || prevIsCloseParenthesis || prevIsPostfixOperator || prevIsMultialyEnd  ) ) {
 						throw new VnanoException(

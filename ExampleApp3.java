@@ -1,9 +1,9 @@
 /*
  * A example accessing to fields/methods from an expression executed by Vnano Engine.
- * 
+ *
  * How to Compile:
  *     javac -cp .;Vnano.jar ExampleApp3.java
- * 
+ *
  * How to Run:
  *     java -cp .;Vnano.jar ExampleApp3
  */
@@ -20,7 +20,7 @@ public class ExampleApp3 {
 
 	public static class AnyClass {
 
-		// A field and a method to be accessed from 
+		// A field and a method to be accessed from
 		// an expression/script runs on Vnano Engine.
 		public double x = 3.4;
 		public double f(double arg) {

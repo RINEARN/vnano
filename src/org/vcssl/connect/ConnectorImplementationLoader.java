@@ -47,7 +47,7 @@ public class ConnectorImplementationLoader {
 
 	/**
 	 * Creates an new loader using the specified ClassLoader.
-	 * 
+	 *
 	 * @param classLoader The ClassLoader for loading classes of plug-ins.
 	 */
 	public ConnectorImplementationLoader(ClassLoader classLoader) {
@@ -57,7 +57,7 @@ public class ConnectorImplementationLoader {
 
 	/**
 	 * Initializes the ClassLoader by default procedures.
-	 * 
+	 *
 	 * @param directoryPaths An array storing path of directories from which plug-in will be loaded.
 	 * @throws MalformedURLException Thrown when paths in "directoryPaths" are invalid.
 	 */
@@ -75,7 +75,7 @@ public class ConnectorImplementationLoader {
 
 	/**
 	 * Sets whether filter out plug-ins in which no interface type name is declared.
-	 * 
+	 *
 	 * @param enabled Specify true for filtering out.
 	 */
 	public void setInterfaceFilterEnabled(boolean enabled) {
@@ -85,7 +85,7 @@ public class ConnectorImplementationLoader {
 
 	/**
 	 * Returns whether filter out plug-ins in which no interface type name is declared.
-	 * 
+	 *
 	 * @return Returns true it it will be filtered out.
 	 */
 	public boolean isInterfaceFilterEnabled() {
@@ -94,13 +94,13 @@ public class ConnectorImplementationLoader {
 
 	/**
 	 * Loads the plug-in class and instantiate it.
-	 * 
-	 * @param connectorImplementationName 
+	 *
+	 * @param connectorImplementationName
 	 *     The name of the plug-in class to be loaded, which plug-in connector interfaces provided in this package.
-	 * 
+	 *
 	 * @return
 	 *     An object storing the loaded plug-in and information of implemented the interface.
-	 * 
+	 *
 	 * @throws ConnectorException
 	 *     Thrown when the loading has failed, or the loaded plug-in has been filtered out.
 	 */
@@ -177,13 +177,13 @@ public class ConnectorImplementationLoader {
 
 	/**
 	 * Checks whether the loaded result is valid.
-	 * 
+	 *
 	 * @param container
 	 *     An object storing the loaded plug-in and information of implemented the interface.
-	 * 
+	 *
 	 * @param connectorImplementationName
 	 *     The name of the loaded plug-in class.
-	 * 
+	 *
 	 * @throws ConnectorException
 	 *     Thrown when the loaded result is invalid.
 	 */

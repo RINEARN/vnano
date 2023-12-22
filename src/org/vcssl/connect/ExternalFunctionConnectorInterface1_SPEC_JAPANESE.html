@@ -383,7 +383,7 @@ External Function Connector Interface 1 (XFCI1) は、
 		<td class="lcol">機能</td>
 		<td class="rcol">
 			<p style="margin-top: 0px;">
-			<a href="#isDataConversionNecessary">データ変換機能</a> 
+			<a href="#isDataConversionNecessary">データ変換機能</a>
 			を無効化している場合において、「 引数のデータのやり取りに用いるデータ入出力インターフェース 」の型を表す、
 			Class クラスのインスタンスを返します。
 			</p>
@@ -724,7 +724,7 @@ External Function Connector Interface 1 (XFCI1) は、
 			のみが利用可能です。
 			</p>
 			<p>
-			なお、引数 parameterClasses には、スクリプト内での呼び出しにおける、引数のデータ型情報が渡されます. 
+			なお、引数 parameterClasses には、スクリプト内での呼び出しにおける、引数のデータ型情報が渡されます.
 			これにより、引数の型によって戻り値の型が異なるだけの、複数の関数に相当する処理を、まとめて提供する事ができます。
 			<br />
 			（そのような関数を実装する場合、併せて
@@ -919,7 +919,7 @@ External Function Connector Interface 1 (XFCI1) は、
 			一方で、データ変換機能が無効化されている場合、arguments の各要素には、
 			各種のデータ入出力インターフェースを実装したデータコンテナオブジェクトが格納されて渡されます。
 			それを介して、各引数のデータにアクセスします。
-			具体的なデータ入出力インターフェースは 
+			具体的なデータ入出力インターフェースは
 			<a href="#getParameterUnconvertedClasses">getParameterUnconvertedClasses()</a> メソッドの戻り値として指定します。
 			なお、この場合、arguments[0] には、戻り値のデータを格納するためのデータコンテナオブジェクトが割り当てられています。
 			従って最初の引数は arguments[1]、次の引数は arguments[2]、... を参照する必要があります。
@@ -968,7 +968,7 @@ External Function Connector Interface 1 (XFCI1) は、
 			</p>
 			<p>
 			このメソッドで戻り値として指定したインターフェースまたはクラスの実装インスタンスが、
-			<a href="#initializeForConnection">initializeForConnection(Object engineConnector)</a> 
+			<a href="#initializeForConnection">initializeForConnection(Object engineConnector)</a>
 			メソッド等の初期化/終了時メソッド群の、引数 engineConnector に渡されます。
 			</p>
 			<p>

@@ -42,6 +42,8 @@ public class CombinedTestExecutor {
 		testElementList.add(new WhileStatementCombinedTest());
 		testElementList.add(new ForStatementCombinedTest());
 		testElementList.add(new FunctionCombinedTest());
+		testElementList.add(new ActivationDeactivationCombinedTest());
+		testElementList.add(new RepetitiveExecutionCombinedTest());
 
 		for (CombinedTestElement testElement: testElementList) {
 			System.out.println("[ " + testElement.getClass().getCanonicalName() + " ]");

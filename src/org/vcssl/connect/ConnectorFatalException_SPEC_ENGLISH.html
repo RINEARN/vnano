@@ -36,14 +36,14 @@ VCSSL/VNANO PLUGIN INTERFACE SPECIFICATION
 <h2>Abstract</h2>
 
 <p>
-ConnectorFatalException is an unchecked Exception class thrown when errors have occurred, 
+ConnectorFatalException is an unchecked Exception class thrown when errors have occurred,
 caused by incorrect implementations (might be bugs) of plug-ins or scripting engines.
 </p>
 
 <p>
-If the error is normally expected, 
+If the error is normally expected,
 and is NOT caused by incorrect implementations (bugs and so on) of plug-ins or scripting engines,
-throw <a href="ConnectorException_SPEC_ENGLISH.html">ConnectorException</a> instead, 
+throw <a href="ConnectorException_SPEC_ENGLISH.html">ConnectorException</a> instead,
 which is a checked Exception.
 </p>
 
@@ -55,15 +55,15 @@ The status of this class is "EXTENSION ONLY".
 </p>
 
 <p>
-Existing fields/methods/constructors will not be deleted in principle, 
+Existing fields/methods/constructors will not be deleted in principle,
 but new fields/methods/constructors will be able to be added in future.
 <br />
-Also, only when an unavoidable problem has been discovered, 
+Also, only when an unavoidable problem has been discovered,
 a field/method/constructor might be deleted, after a period of the "deprecated" status.
 </p>
 
 <p>
-This class is currently supported by the scripting engine of Vnano. 
+This class is currently supported by the scripting engine of Vnano.
 You can use this interface for development of plug-ins of applications equipped with the Vnano engine.
 </p>
 
@@ -214,7 +214,7 @@ This class is published under CC0, which is almost the same as the so-called "co
 	<tr>
 		<td class="lcol">Description</td>
 		<td class="rcol">
-			Creates a ConnectorFatalException having the specified error message, 
+			Creates a ConnectorFatalException having the specified error message,
 			and wrapping the specified Throwable.
 		</td>
 	</tr>

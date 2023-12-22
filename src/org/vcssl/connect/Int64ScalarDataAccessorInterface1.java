@@ -15,9 +15,9 @@ package org.vcssl.connect;
 /**
  * A data-I/O interface (abbreviated as Int64 SDAI 1), mainly implemented by data container objects of language processor systems.
  *
- * In this org.vcssl.connect package, multiple data I/O interfaces are provided for passing/receiving data 
+ * In this org.vcssl.connect package, multiple data I/O interfaces are provided for passing/receiving data
  * without any data-conversions, between script-engine-side and plug-in-side, if required.
- * 
+ *
  * In them, this interface Int64 SDAI 1 provides I/O methods of a long-type (64bit integer type) scalar value.
  */
 public interface Int64ScalarDataAccessorInterface1 {
@@ -32,7 +32,7 @@ public interface Int64ScalarDataAccessorInterface1 {
 
 	/**
 	 * Sets the long-type scalar value.
-	 * 
+	 *
 	 * @param data The scalar value to be set.
 	 */
 	public abstract void setInt64ScalarData(long data);
@@ -40,7 +40,7 @@ public interface Int64ScalarDataAccessorInterface1 {
 
 	/**
 	 * Gets the long-type scalar value.
-	 * 
+	 *
 	 * @return The scalar value.
 	 */
 	public abstract long getInt64ScalarData();
@@ -48,7 +48,7 @@ public interface Int64ScalarDataAccessorInterface1 {
 
 	/**
 	 * Returns whether any long-type scalar value can be gotten.
-	 * 
+	 *
 	 * @return Returns true if any long-type scalar value can be gotton.
 	 */
 	public abstract boolean hasInt64ScalarData();

@@ -1385,7 +1385,7 @@ public final class VnanoCommandLineApplication {
 
 		VnanoEngine engine = new VnanoEngine();
 
-		// Plugins may access to option/permission settings, 
+		// Plugins may access to option/permission settings,
 		// so firstly set options/permissions to the engine before loading plugins.
 		try {
 			engine.setOptionMap(optionMap);
@@ -1449,7 +1449,7 @@ public final class VnanoCommandLineApplication {
 
 		Interconnect interconnect = new Interconnect();
 
-		// Plugins may access to option/permission settings, 
+		// Plugins may access to option/permission settings,
 		// so firstly set options/permissions to the engine before loading plugins.
 		try {
 			interconnect.setOptionMap(optionMap);

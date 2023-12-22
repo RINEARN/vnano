@@ -21,7 +21,7 @@ public final class IdentifierSyntax {
 
 	/**
 	 * Judges whether the specified identifier is syntactically valid.
-	 * 
+	 *
 	 * @param identifier The identifier to be judged.
 	 * @return Returns true if the specified identifier is syntactically valid.
 	 */
@@ -50,7 +50,7 @@ public final class IdentifierSyntax {
 
 	/**
 	 * Returns the signature of the function having the specified information.
-	 * 
+	 *
 	 * @param functionName The name of the function.
 	 * @param parameterDataTypeNames The names of the data-types of the parameters.
 	 * @param parameterArrayRanks The array-ranks of the parameters.
@@ -115,7 +115,7 @@ public final class IdentifierSyntax {
 
 	/**
 	 * Returns the signature of the function declared by the specified AST.
-	 * 
+	 *
 	 * @param functionDeclarationNode The AST node of the function declaration.
 	 * @return The signature of the function.
 	 */
@@ -136,7 +136,7 @@ public final class IdentifierSyntax {
 		for (int parameterNodeIndex=0; parameterNodeIndex<parameterNodeLength; parameterNodeIndex++) {
 			String dataTypeName = parameterNodes[parameterNodeIndex].getAttribute(AttributeKey.DATA_TYPE);
 
-			// Replace aliases of the data-type to the canonical name, 
+			// Replace aliases of the data-type to the canonical name,
 			// by converting the name to DataType enum and re-converting it to the name again.
 			try {
 				DataType dataType = DataTypeName.getDataTypeOf(dataTypeName);
@@ -160,7 +160,7 @@ public final class IdentifierSyntax {
 
 	/**
 	 * Returns the signature of the function which is called from the function-call operator of the specified AST node.
-	 * 
+	 *
 	 * @param callerNode The AST node of the function-call operator.
 	 * @return The signature of the callee function of the specified function-call operator.
 	 */
@@ -187,7 +187,7 @@ public final class IdentifierSyntax {
 		for (int argumentNodeIndex=0; argumentNodeIndex<argumentNodeLength; argumentNodeIndex++) {
 			String dataTypeName = argumentNodes[argumentNodeIndex].getAttribute(AttributeKey.DATA_TYPE);
 
-			// Replace aliases of the data-type to the canonical name, 
+			// Replace aliases of the data-type to the canonical name,
 			// by converting the name to DataType enum and re-converting it to the name again.
 			try {
 				DataType dataType = DataTypeName.getDataTypeOf(dataTypeName);
@@ -211,7 +211,7 @@ public final class IdentifierSyntax {
 
 	/**
 	 * Returns the signature of the specified function.
-	 * 
+	 *
 	 * @param function The function.
 	 * @return The signature of the specified function.
 	 */
@@ -238,7 +238,7 @@ public final class IdentifierSyntax {
 	// Should remove?
 	/**
 	 * Returns the identifier in assembly code, corresponding with the specified variable name.
-	 * 
+	 *
 	 * @param variableName The name of the variable.
 	 * @return The identifier of the variable in assembly code.
 	 */
@@ -251,7 +251,7 @@ public final class IdentifierSyntax {
 
 	/**
 	 * Returns the identifier in assembly code, corresponding with the specified variable's AST node.
-	 * 
+	 *
 	 * @param variableNode The AST node of the variable declaration.
 	 * @return The identifier of the variable in assembly code.
 	 */
@@ -268,7 +268,7 @@ public final class IdentifierSyntax {
 
 	/**
 	 * Returns the identifier in assembly code of the specified variable.
-	 * 
+	 *
 	 * @param variable The variable.
 	 * @return The identifier in assembly code of the specified variable.
 	 */
@@ -278,7 +278,7 @@ public final class IdentifierSyntax {
 
 	/**
 	 * Returns the identifier in assembly code of the specified variable.
-	 * 
+	 *
 	 * @param variable The variable.
 	 * @param nameSpacePrefix The prefix representing the namespace to which the variable belongs.
 	 * @return The identifier in assembly code of the specified variable.
@@ -293,13 +293,13 @@ public final class IdentifierSyntax {
 
 	/**
 	 * Normalizes the name of the specified script.
-	 * 
-	 * File names of scripts (script names) may contain symbols 
+	 *
+	 * File names of scripts (script names) may contain symbols
 	 * which have syntactic meaning in the virtual assembly language of the VM (VRIL).
 	 * In assembly code, script names of scripts will be embedded as meta-information directives,
 	 * so we must replace special symbols in script names to non-special symbols.
 	 * This method performs the above, and we call it as "normalization of script names".
-	 * 
+	 *
 	 * @param scriptPathOrName The file path or the name of the script, to be normalized.
 	 * @return The normalized script name.
 	 */
@@ -337,7 +337,7 @@ public final class IdentifierSyntax {
 		}
 
 		// To avoid confusion, replace white-spaces.
-		// 
+		//
 		// Note that, to the script code passed as an argument of "eval" method directly,
 		// the special script name "main script" (OptionValue.MAIN_SCRIPT_NAME_DEFAULT) will be assigned by default.
 		// It contains a white space on purpose to avoid conflict of names with other (library) scripts.
