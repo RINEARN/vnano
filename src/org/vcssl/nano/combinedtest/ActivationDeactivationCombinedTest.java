@@ -93,7 +93,7 @@ public class ActivationDeactivationCombinedTest extends CombinedTestElement {
 		super.evaluateResult(this.counterPlugin.initializedCounter, 0, "initialized count 0 (manual activation)", "none");
 		super.evaluateResult(this.counterPlugin.finalizedCounter, 0, "finalized count 0 (manual activation)", "none");
 
-		engine.activateEngine();
+		engine.activate();
 
 		super.evaluateResult(this.counterPlugin.initializedCounter, 1, "initialized count 1 after 1 activation (manual activation)", "none");
 		super.evaluateResult(this.counterPlugin.finalizedCounter, 0, "finalized count 0 after 1 activation (manual activation)", "none");
@@ -105,19 +105,19 @@ public class ActivationDeactivationCombinedTest extends CombinedTestElement {
 		super.evaluateResult(this.counterPlugin.initializedCounter, 1, "initialized count 1 after 1 activation and 3 executions (manual activation)", "none");
 		super.evaluateResult(this.counterPlugin.finalizedCounter, 0, "finalized count 0 after 1 activation 3 executions (manual activation)", "none");
 
-		engine.deactivateEngine();
+		engine.deactivate();
 
 		super.evaluateResult(this.counterPlugin.initializedCounter, 1, "initialized count 1 after 1 deactivation (manual activation)", "none");
 		super.evaluateResult(this.counterPlugin.finalizedCounter, 1, "finalized count 1 after 1 deactivation (manual activation)", "none");
 
-		engine.activateEngine();
-		engine.deactivateEngine();
+		engine.activate();
+		engine.deactivate();
 
 		super.evaluateResult(this.counterPlugin.initializedCounter, 2, "initialized count 2 after 2 deactivations/deactivations (manual activation)", "none");
 		super.evaluateResult(this.counterPlugin.finalizedCounter, 2, "finalized count 2 after 2 deactivations/deactivations (manual activation)", "none");
 
-		engine.activateEngine();
-		engine.deactivateEngine();
+		engine.activate();
+		engine.deactivate();
 
 		super.evaluateResult(this.counterPlugin.initializedCounter, 3, "initialized count 3 after 3 deactivations/deactivations (manual activation)", "none");
 		super.evaluateResult(this.counterPlugin.finalizedCounter, 3, "finalized count 3 after 3 deactivations/deactivations (manual activation)", "none");

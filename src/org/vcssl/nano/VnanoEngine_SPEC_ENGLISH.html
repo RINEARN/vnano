@@ -50,6 +50,16 @@ The class of the scripting engine of the Vnano (Vnano Engine).
 			Create a Vnano Engine with default settings.
 		</dd>
 
+	<dt><a href="#activate">void activate()</a></dt>
+		<dd>
+			Activates this engine. (By default, the engine is activated automatically.)
+		</dd>
+
+	<dt><a href="#deactivate">void deactivate()</a></dt>
+		<dd>
+			Deactivates this engine. (By default, the engine is deactivated automatically.)
+		</dd>
+
 	<dt><a href="#executeScript">Object executeScript(String script)</a></dt>
 		<dd>
 			Executes an expression or script code specified as the argument.
@@ -181,6 +191,92 @@ The class of the scripting engine of the Vnano (Vnano Engine).
 <!-- ==================================================================================================== -->
 
 <h2>Public Methods</h2>
+
+
+<table id="activate" class="spec-table">
+	<tr>
+		<td class="lcol">Name</td>
+		<th class="rcol">activate</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">void activate() throws VnanoException</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			Activates this engine. By this activation, the engine become available for executing scripts.
+			</p>
+			<p>
+			By default, the engine is activated automatically just before executing a script.
+			However, when "AUTOMATIC_ACTIVATION_ENABLED" option is set to FALSE, the engine is NOT activated automatically.
+			In such case, activate the engine manually at suitable timing (for details, see the description of "AUTOMATIC_ACTIVATION_ENABLED" option).
+			</p>
+			<p>
+			In this activation step, initialization procedures of all connected plug-ins (implemented as initializeForExecution() method in each plug-in) are processed.
+			Hence, required time of this method depends on the number of the connected plug-ins, and implementations of them.
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">None</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">None</td>
+	</tr>
+	<tr>
+		<td class="lcol">Exception</td>
+		<td class="rcol">
+			VnanoException: Thrown if any error has occurred in the initialization procedure of any plug-in.
+		</td>
+	</tr>
+</table>
+
+
+<table id="deactivate" class="spec-table">
+	<tr>
+		<td class="lcol">Name</td>
+		<th class="rcol">deactivate</th>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">void deactivate() throws VnanoException</td>
+	</tr>
+	<tr>
+		<td class="lcol">Description</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			Deactivates this engine. This deactivation canceles the state of the engine which is "activated" for executing scripts. It also performs some finalization procedures.
+			</p>
+			<p>
+			By default, the engine is deactivated automatically just after executing a script.
+			However, when "AUTOMATIC_ACTIVATION_ENABLED" option is set to FALSE, the engine is NOT deactivated automatically.
+			In such case, deactivate the engine manually at suitable timing (for details, see the description of "AUTOMATIC_ACTIVATION_ENABLED" option).
+			</p>
+			<p>
+			In this deactivation step, finalization procedures of all connected plug-ins (implemented as finalizeForTermination() method in each plug-in) are processed.
+			Hence, required time of this method depends on the number of the connected plug-ins, and implementations of them.
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">None</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">None</td>
+	</tr>
+	<tr>
+		<td class="lcol">Exception</td>
+		<td class="rcol">
+			VnanoException: Thrown if any error has occurred in the finalization procedure of any plug-in.
+		</td>
+	</tr>
+</table>
 
 
 <table id="executeScript" class="spec-table">

@@ -719,7 +719,7 @@ In this repository, an example code "ExampleApp7.java" which simulates such situ
             double sum = 0.0;
 
             // Activate the engine manually.
-            engine.activateEngine();
+            engine.activate();
 
             // Store the time at the beginning of the repetitive executions
             long beginTime = System.nanoTime();
@@ -735,7 +735,7 @@ In this repository, an example code "ExampleApp7.java" which simulates such situ
             long endTime = System.nanoTime();
 
             // Deactivate the engine manually.
-            engine.deactivateEngine();
+            engine.deactivate();
 
             // Print the result.
             double requiredTime = ((endTime - beginTime) * 1.0E-9);
@@ -776,7 +776,7 @@ Specifically, we disabled "automatic-activation" feature and activated/deactivat
     ...
 
     // Activate the engine manually.
-    engine.activateEngine();
+    engine.activate();
 
     ...
 
@@ -790,7 +790,7 @@ Specifically, we disabled "automatic-activation" feature and activated/deactivat
     ...
 
     // Deactivate the engine manually.
-    engine.deactivateEngine();
+    engine.deactivate();
 
 Where "activation" is to switch the engine into the state ready for executions, and "deactivation" is to release the engine from the state.
 By default, the engine is activated automatically when an execution is requested, and deactivated automatically when the execution is complete.

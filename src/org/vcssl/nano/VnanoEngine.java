@@ -307,7 +307,7 @@ public final class VnanoEngine {
 	 * @throws VnanoException
 	 *       Thrown if any error has occurred in the initialization procedure of any plug-in.
 	 */
-	public void activateEngine() throws VnanoException {
+	public void activate() throws VnanoException {
 		this.interconnect.activate();
 	}
 
@@ -328,7 +328,7 @@ public final class VnanoEngine {
 	 * @throws VnanoException
 	 *       Thrown if any error has occurred in the finalization procedure of any plug-in.
 	 */
-	public void deactivateEngine() throws VnanoException {
+	public void deactivate() throws VnanoException {
 		this.interconnect.deactivate();
 	}
 
