@@ -46,6 +46,16 @@ Vnanoのスクリプトエンジン（Vnanoエンジン）のクラスです。
 			標準設定のVnanoエンジンを生成します。
 		</dd>
 
+	<dt><a href="#activate">void activate()</a></dt>
+		<dd>
+			アクティベーションを行い、このエンジンがスクリプトを実行可能な状態にします。（デフォルトでは、アクティベーションは自動で行われます。）
+		</dd>
+
+	<dt><a href="#deactivate">void deactivate()</a></dt>
+		<dd>
+			ディアクティベーションを行い、スクリプト実行が可能な状態を解除します。（デフォルトでは、ディアクティベーションは自動で行われます。）
+		</dd>
+
 	<dt><a href="#executeScript">Object executeScript(String script)</a></dt>
 		<dd>
 			引数に指定された式またはスクリプトコードを実行します。
@@ -180,6 +190,92 @@ Vnanoのスクリプトエンジン（Vnanoエンジン）のクラスです。
 <h2>公開メソッド</h2>
 
 
+
+
+<table id="activate" class="spec-table">
+	<tr>
+		<td class="lcol">名前</td>
+		<th class="rcol">activate</th>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">void activate() throws VnanoException</td>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			アクティベーションを行い、このエンジンがスクリプトを実行可能な状態にします。
+			</p>
+			<p>
+			デフォルトでは、スクリプトを実行する直前のタイミングで、自動でアクティベーションが行われます。
+			しかし、"AUTOMATIC_ACTIVATION_ENABLED" オプションが FALSE に設定されている場合には、自動アクティベーションは行われません。
+			そのような場合には、このメソッドによって、適切なタイミングでアクティベーションを行う必要があります（詳細は "AUTOMATIC_ACTIVATION_ENABLED" オプションの説明を参照してください）。
+			</p>
+			<p>
+			なお、このアクティベーション処理では、接続されている全てのプラグインの初期化処理（各プラグインのinitializeForExecution() メソッドとして実装）が実行されます。
+			従って、このメソッドの処理の所要時間は、接続されているプラグインの数や、個々のプラグインの実装に依存します。
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">なし</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">なし</td>
+	</tr>
+	<tr>
+		<td class="lcol">例外</td>
+		<td class="rcol">
+			VnanoException: 接続されているプラグインの初期化処理において、何らかのエラーが発生した場合に、VnanoException がスローされます。
+		</td>
+	</tr>
+</table>
+
+
+<table id="deactivate" class="spec-table">
+	<tr>
+		<td class="lcol">名前</td>
+		<th class="rcol">deactivate</th>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">void deactivate() throws VnanoException</td>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			ディアクティベーションを行い、スクリプト実行が可能な状態を解除します。ある種の後始末的な処理も行われます。
+			</p>
+			<p>
+			デフォルトでは、スクリプトを実行した直後のタイミングで、自動でディアクティベーションが行われます。
+			しかし、"AUTOMATIC_ACTIVATION_ENABLED" オプションが FALSE に設定されている場合には、自動ディアクティベーションは行われません。
+			そのような場合には、このメソッドによって、適切なタイミングでディアクティベーションを行う必要があります（詳細は "AUTOMATIC_ACTIVATION_ENABLED" オプションの説明を参照してください）。
+			</p>
+			<p>
+			なお、このディアクティベーション処理では、接続されている全てのプラグインの終了時処理（各プラグインのfinalizeForTermination() メソッドとして実装）が実行されます。
+			従って、このメソッドの処理の所要時間は、接続されているプラグインの数や、個々のプラグインの実装に依存します。
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">なし</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">なし</td>
+	</tr>
+	<tr>
+		<td class="lcol">例外</td>
+		<td class="rcol">
+			VnanoException: 接続されているプラグインの終了時処理において、何らかのエラーが発生した場合に、VnanoException がスローされます。
+		</td>
+	</tr>
+</table>
 
 
 <table id="executeScript" class="spec-table">

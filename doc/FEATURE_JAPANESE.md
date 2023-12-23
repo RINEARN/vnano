@@ -716,7 +716,7 @@ Vnano Engine では、データ解析/計算ソフトなどでの使用も想定
             double sum = 0.0;
 
             // 手動でエンジンをアクティベーション（実行スタンバイ状態に）する
-            engine.activateEngine();
+            engine.activate();
 
             // 反復実行の開始時間を控える
             long beginTime = System.nanoTime();
@@ -732,7 +732,7 @@ Vnano Engine では、データ解析/計算ソフトなどでの使用も想定
             long endTime = System.nanoTime();
 
             // エンジンのアクティベーションを解除する（何もせず待つ時の状態に戻す）
-            engine.deactivateEngine();
+            engine.deactivate();
 
             // 結果を出力（所要時間や反復実行の速さなども）
             double requiredTime = ((endTime - beginTime) * 1.0E-9);
@@ -768,7 +768,7 @@ Vnano Engine では、データ解析/計算ソフトなどでの使用も想定
     ...
 
     // 手動でエンジンをアクティベーションする（実行スタンバイ状態にする）
-    engine.activateEngine();
+    engine.activate();
 
     ...
 
@@ -782,7 +782,7 @@ Vnano Engine では、データ解析/計算ソフトなどでの使用も想定
     ...
 
     // エンジンのアクティベーションを解除する（何もせず待つ時の状態に戻す）
-    engine.deactivateEngine();
+    engine.deactivate();
 
 ここで「アクティベーション」とは、Vnano Engine が計算式やスクリプトを実行できる状態にする事です。通常は、 executeScript(script) メソッドを呼んだ時点で自動的にアクティベーションされ、実行が完了すると自動で解除されます。しかし、高頻度で反復実行を行う場合、このアクティベーション/解除のオーバーヘッドコストが積み重なり、スピードが遅くなってしまう場合があります。
 

@@ -43,7 +43,7 @@ public class ExampleApp7 {
         double sum = 0.0;
 
         // Activate the engine manually.
-        engine.activateEngine();
+        engine.activate();
 
         // Store the time at the beginning of the repetitive executions
         long beginTime = System.nanoTime();
@@ -59,7 +59,7 @@ public class ExampleApp7 {
         long endTime = System.nanoTime();
 
         // Deactivate the engine manually.
-        engine.deactivateEngine();
+        engine.deactivate();
 
         // Print the result.
         double requiredTime = ((endTime - beginTime) * 1.0E-9);
