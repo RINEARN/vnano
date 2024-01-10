@@ -760,7 +760,7 @@ However, as shown in the above, it actually requires only about 20 seconds!
 Why? For repetitive executions, Vnano Engine caches some resources used for the first execution, and reuse it for the latter executions. This allows to reduce overhead costs of the executions drastically, realizing the above processing speed.
 
 Please note that, the processing speed depends on the load - number of repetitions.
-If the load is far lighter than the above, e.g.: 10000 repetitions, the speed degradetes in some extent. If the load is far lighter than the above, e.g.: 10000 repetitions, the speed degradetes in some extent (It probably related to CPU's idling behaviour and so on). The above speed is realized under relatively heavy loads, e.g.: over 1 millions of repetitions. 
+If the load is far lighter than the above, e.g.: 10000 repetitions, the speed degradetes in some extent (It probably related to CPU's idling behaviour and so on). The above speed is realized under relatively heavy loads, e.g.: over 1 millions of repetitions. 
 
 By the way, in the previous code, an additional  technique to reduce overheads is used.
 Specifically, we disabled "automatic-activation" feature and activated/deactivated the engine manually as follows:
