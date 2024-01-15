@@ -2,26 +2,22 @@
 
 <!-- A XML file for building Vnano Engine by using Apache Ant -->
 
-<project name="Vnano" basedir="." default="archive">
+<project name="Vnano" basedir="." default="archive-vnano">
 
-	<property name="build.srcdir"  value="src"/>
-	<property name="build.bindir"  value="bin"/>
-	<property name="build.jarname" value="Vnano.jar"/>
-
-	<target name="archive" depends="compile">
-		<jar jarfile="${build.jarname}" basedir="${build.bindir}">
+	<target name="archive-vnano" depends="compile-vnano">
+		<jar jarfile="Vnano.jar" basedir="src">
 			<manifest>
 				<attribute name="Main-Class" value="org.vcssl.nano.main.VnanoCommandLineApplication" />
 			</manifest>
-			<fileset dir="${build.srcdir}/org/vcssl/nano/meta">
+			<fileset dir="src/org/vcssl/nano/meta">
 				<include name="META-INF/services/*" />
 			</fileset>
 		</jar>
 	</target>
 
-	<target name="compile">
+	<target name="compile-vnano">
 		<mkdir dir="bin" />
-		<javac srcdir="${build.srcdir}" destdir="${build.bindir}" encoding="UTF-8" includeantruntime="false" debug="true">
+		<javac srcdir="src" destdir="bin" encoding="UTF-8" includeantruntime="false" debug="true">
 			<exclude name="example/*"/>
 			<exclude name="**/*Test.java"/>
 			<compilerarg value="-Xlint:all" />
