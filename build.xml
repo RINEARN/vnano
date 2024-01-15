@@ -1,14 +1,27 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 
 <!--
-	The settings file for building this application by Apache Ant.
+	The settings file for building Vnano Engine by Apache Ant.
 	How to Use:
 
 		cd [this folder]
 		ant -f build.xml
+
+	Optionally, you can delete the built files by:
+
+		ant -f build.xml clean
+
+	or clean & re-build all files as follows:
+
+		ant -f build.xml all
+
 -->
 
-<project name="Vnano" basedir="." default="archive-vnano">
+<project name="Vnano" basedir="." default="main">
+
+	<!-- The root (entry point) of this build process. -->
+	<target name="main" depends="compile-vnano,archive-vnano">
+	</target>
 
 	<!-- Compile the source code of Vnano Engine. -->
 	<target name="compile-vnano">
@@ -30,6 +43,20 @@
 				<include name="META-INF/services/*" />
 			</fileset>
 		</jar>
+	</target>
+
+
+
+	<!-- ##### Optional Targets ##### -->
+
+	<!-- (Optional) Delete built files. -->
+	<target name="clean">
+		<delete dir="bin" />
+		<delete file="Vnano.jar" />
+	</target>
+
+	<!-- (Optional) Delete and re-build Vnano Engine. -->
+	<target name="all" depends="clean,main">
 	</target>
 
 </project>
