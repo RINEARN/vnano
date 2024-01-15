@@ -24,6 +24,7 @@
 		<javac srcdir="${build.srcdir}" destdir="${build.bindir}" encoding="UTF-8" includeantruntime="false" debug="true">
 			<exclude name="example/*"/>
 			<exclude name="**/*Test.java"/>
+			<compilerarg value="-Xlint:all" />
 		</javac>
 	</target>
 
