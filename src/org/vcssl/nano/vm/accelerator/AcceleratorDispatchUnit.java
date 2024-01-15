@@ -52,7 +52,7 @@ public class AcceleratorDispatchUnit {
 				int operandLength = addresses.length;
 
 				// アドレスからオペランドのデータコンテナを取得
-				DataContainer<?>[] operandContainers = new DataContainer[operandLength];
+				DataContainer<?>[] operandContainers = new DataContainer<?>[operandLength];
 				for (int operandIndex=0; operandIndex<operandLength; operandIndex++) {
 					operandContainers[operandIndex] = memory.getDataContainer(partitions[operandIndex], addresses[operandIndex]);
 				}
@@ -598,7 +598,7 @@ public class AcceleratorDispatchUnit {
 			int[] addresses = instruction.getOperandAddresses();
 			int operandLength = instruction.getOperandLength();
 
-			DataContainer<?>[] containers = new DataContainer[operandLength];
+			DataContainer<?>[] containers = new DataContainer<?>[operandLength];
 			for (int operandIndex=0; operandIndex<operandLength; operandIndex++) {
 				containers[operandIndex] = memory.getDataContainer(partitions[operandIndex], addresses[operandIndex]);
 			}
@@ -929,7 +929,9 @@ public class AcceleratorDispatchUnit {
 						instruction.setAccelerationType(AcceleratorExecutionType.INTERNAL_FUNCTION_CONTROL);
 						break;
 					}
-					// 上記以外の拡張命令は default case で BYPASS 割り当て
+					// 上記以外の拡張命令はProcessorにBYPASS割り当て（※ここで default case への fall-though に頼るのは可読性が悪く危ないので直した）
+					instruction.setAccelerationType(AcceleratorExecutionType.BYPASS);
+					break;
 				}
 
 				// 外部関数コール命令 External function call opcode
@@ -946,12 +948,12 @@ public class AcceleratorDispatchUnit {
 				{
 					instruction.setAccelerationType(AcceleratorExecutionType.NOP);
 					break;
-
 				}
 
-				// その他の命令は全て現時点で未対応
+				// その他の命令は全て現時点で未対応なのでProcessorにBYPASS割り当て
 				default : {
 					instruction.setAccelerationType(AcceleratorExecutionType.BYPASS);
+					break;
 				}
 			}
 		}

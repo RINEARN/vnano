@@ -1,30 +1,62 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 
-<!-- A XML file for building Vnano Engine by using Apache Ant -->
+<!--
+	The settings file for building Vnano Engine by Apache Ant.
+	How to Use:
 
-<project name="Vnano" basedir="." default="archive">
+		cd [this folder]
+		ant -f build.xml
 
-	<property name="build.srcdir"  value="src"/>
-	<property name="build.bindir"  value="bin"/>
-	<property name="build.jarname" value="Vnano.jar"/>
+	Optionally, you can delete the built files by:
 
-	<target name="archive" depends="compile">
-		<jar jarfile="${build.jarname}" basedir="${build.bindir}">
+		ant -f build.xml clean
+
+	or clean & re-build all files as follows:
+
+		ant -f build.xml all
+
+-->
+
+<project name="Vnano" basedir="." default="main">
+
+	<!-- The root (entry point) of this build process. -->
+	<target name="main" depends="compile-vnano,archive-vnano">
+	</target>
+
+	<!-- Compile the source code of Vnano Engine. -->
+	<target name="compile-vnano">
+		<mkdir dir="bin" />
+		<javac srcdir="src" destdir="bin" encoding="UTF-8" includeantruntime="false" debug="true">
+			<exclude name="example/*"/>
+			<exclude name="**/*Test.java"/>
+			<compilerarg value="-Xlint:all" />
+		</javac>
+	</target>
+
+	<!-- Create a JAR file of Vnano Engine compiled by the above. -->
+	<target name="archive-vnano" depends="compile-vnano">
+		<jar jarfile="Vnano.jar" basedir="bin">
 			<manifest>
 				<attribute name="Main-Class" value="org.vcssl.nano.main.VnanoCommandLineApplication" />
 			</manifest>
-			<fileset dir="${build.srcdir}/org/vcssl/nano/meta">
+			<fileset dir="src/org/vcssl/nano/meta">
 				<include name="META-INF/services/*" />
 			</fileset>
 		</jar>
 	</target>
 
-	<target name="compile">
-		<mkdir dir="bin" />
-		<javac srcdir="${build.srcdir}" destdir="${build.bindir}" encoding="UTF-8" includeantruntime="false" debug="true">
-			<exclude name="example/*"/>
-			<exclude name="**/*Test.java"/>
-		</javac>
+
+
+	<!-- ##### Optional Targets ##### -->
+
+	<!-- (Optional) Delete built files. -->
+	<target name="clean">
+		<delete dir="bin" />
+		<delete file="Vnano.jar" />
+	</target>
+
+	<!-- (Optional) Delete and re-build Vnano Engine. -->
+	<target name="all" depends="clean,main">
 	</target>
 
 </project>

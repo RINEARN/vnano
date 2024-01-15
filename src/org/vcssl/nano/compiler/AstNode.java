@@ -290,7 +290,7 @@ public class AstNode implements Cloneable {
 	 * @return The array storing all child (children) nodes.
 	 */
 	public AstNode[] getChildNodes() {
-		return (AstNode[])this.childNodeList.toArray(new AstNode[this.childNodeList.size()]);
+		return this.childNodeList.toArray(new AstNode[this.childNodeList.size()]);
 	}
 
 
@@ -666,7 +666,7 @@ public class AstNode implements Cloneable {
 	 */
 	public String dump(boolean containsChildNodes, String indentString) {
 		String eol = System.getProperty("line.separator");
-		AstNode[] nodes = (AstNode[])childNodeList.toArray(new AstNode[childNodeList.size()]);
+		AstNode[] nodes = childNodeList.toArray(new AstNode[childNodeList.size()]);
 		StringBuilder sb = new StringBuilder();
 
 		sb.append('<');
