@@ -1223,6 +1223,7 @@ public class DataConverter {
 						throw e;
 					}
 				}
+				break;
 			}
 
 			case 3 : {
@@ -1318,6 +1319,7 @@ public class DataConverter {
 						throw e;
 					}
 				}
+				break;
 			}
 
 			default : {
