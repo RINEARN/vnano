@@ -52,7 +52,7 @@ public class AcceleratorDispatchUnit {
 				int operandLength = addresses.length;
 
 				// アドレスからオペランドのデータコンテナを取得
-				DataContainer<?>[] operandContainers = new DataContainer[operandLength];
+				DataContainer<?>[] operandContainers = new DataContainer<?>[operandLength];
 				for (int operandIndex=0; operandIndex<operandLength; operandIndex++) {
 					operandContainers[operandIndex] = memory.getDataContainer(partitions[operandIndex], addresses[operandIndex]);
 				}
@@ -598,7 +598,7 @@ public class AcceleratorDispatchUnit {
 			int[] addresses = instruction.getOperandAddresses();
 			int operandLength = instruction.getOperandLength();
 
-			DataContainer<?>[] containers = new DataContainer[operandLength];
+			DataContainer<?>[] containers = new DataContainer<?>[operandLength];
 			for (int operandIndex=0; operandIndex<operandLength; operandIndex++) {
 				containers[operandIndex] = memory.getDataContainer(partitions[operandIndex], addresses[operandIndex]);
 			}
