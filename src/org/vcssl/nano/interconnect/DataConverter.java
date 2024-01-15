@@ -597,7 +597,7 @@ public class DataConverter {
 	 * @param externalObject The external object to be converted.
 	 * @param resultDataContainer The data container to which the converted data is stored.
 	 */
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({"unchecked", "cast"})
 	private void convertToDataContainer1D(Object object, DataContainer<?> resultDataContainer)
 			throws VnanoException {
 
@@ -687,7 +687,7 @@ public class DataConverter {
 	 * @param resultDataContainer The data container to which the converted data is stored.
 	 * @param VnanoException thrown when the external data is a "jagged" array.
 	 */
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({"unchecked", "cast"})
 	private void convertToDataContainer2D(Object object, DataContainer<?> resultDataContainer)
 			throws VnanoException {
 
@@ -838,7 +838,7 @@ public class DataConverter {
 	 * @param resultDataContainer The data container to which the converted data is stored.
 	 * @param VnanoException thrown when the external data is a "jagged" array.
 	 */
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({"unchecked", "cast"})
 	private void convertToDataContainer3D(Object object, DataContainer<?> resultDataContainer)
 			throws VnanoException {
 

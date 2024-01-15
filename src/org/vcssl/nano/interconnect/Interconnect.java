@@ -618,7 +618,7 @@ public class Interconnect {
 		}
 
 		// Connect only when the initialization has succeeded.
-		this.permissionAuthorizer = (PermissionAuthorizerConnectorInterface1) plugin;
+		this.permissionAuthorizer = plugin;
 
 		// Reflect to the engine connector, because permissions will be requested from other plug-ins.
 		this.engineConnector = this.engineConnector.createPermissionAuthorizerUpdatedInstance(

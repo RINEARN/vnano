@@ -182,7 +182,7 @@ public class LexicalAnalyzer {
 			));
 		}
 
-		Token[] tokens = (Token[])tokenList.toArray(new Token[tokenList.size()]);
+		Token[] tokens = tokenList.toArray(new Token[tokenList.size()]);
 		return tokens;
 	}
 
