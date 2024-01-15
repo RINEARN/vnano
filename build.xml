@@ -35,7 +35,7 @@
 
 	<!-- Create a JAR file of Vnano Engine compiled by the above. -->
 	<target name="archive-vnano" depends="compile-vnano">
-		<jar jarfile="Vnano.jar" basedir="src">
+		<jar jarfile="Vnano.jar" basedir="bin">
 			<manifest>
 				<attribute name="Main-Class" value="org.vcssl.nano.main.VnanoCommandLineApplication" />
 			</manifest>
