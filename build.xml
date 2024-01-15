@@ -1,9 +1,26 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 
-<!-- A XML file for building Vnano Engine by using Apache Ant -->
+<!--
+	The settings file for building this application by Apache Ant.
+	How to Use:
+
+		cd [this folder]
+		ant -f build.xml
+-->
 
 <project name="Vnano" basedir="." default="archive-vnano">
 
+	<!-- Compile the source code of Vnano Engine. -->
+	<target name="compile-vnano">
+		<mkdir dir="bin" />
+		<javac srcdir="src" destdir="bin" encoding="UTF-8" includeantruntime="false" debug="true">
+			<exclude name="example/*"/>
+			<exclude name="**/*Test.java"/>
+			<compilerarg value="-Xlint:all" />
+		</javac>
+	</target>
+
+	<!-- Create a JAR file of Vnano Engine compiled by the above. -->
 	<target name="archive-vnano" depends="compile-vnano">
 		<jar jarfile="Vnano.jar" basedir="src">
 			<manifest>
@@ -13,15 +30,6 @@
 				<include name="META-INF/services/*" />
 			</fileset>
 		</jar>
-	</target>
-
-	<target name="compile-vnano">
-		<mkdir dir="bin" />
-		<javac srcdir="src" destdir="bin" encoding="UTF-8" includeantruntime="false" debug="true">
-			<exclude name="example/*"/>
-			<exclude name="**/*Test.java"/>
-			<compilerarg value="-Xlint:all" />
-		</javac>
 	</target>
 
 </project>
