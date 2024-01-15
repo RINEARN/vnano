@@ -1428,6 +1428,7 @@ public class ExecutionUnit {
 				if (data.getArrayData() instanceof long[]) {
 					return;
 				}
+				break;
 			}
 			case FLOAT64 : {
 				if (data.getArrayData() instanceof double[]) {
