@@ -10,6 +10,7 @@
 
 mkdir bin
 cd src
+javac -Xlint:all -d ../bin -encoding UTF-8 @org/vcssl/connect/sourcelist.txt
 javac -Xlint:all -d ../bin -encoding UTF-8 @org/vcssl/nano/sourcelist.txt
 cd ..
 
