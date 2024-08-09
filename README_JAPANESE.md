@@ -6,7 +6,7 @@
 
 
 Vnano は、C言語系のシンプルな文法を持つスクリプト言語です。 
-Vnano のインタープリタは、特にJava&reg;製のアプリケーション内に組み込んで使う事を想定して開発されています。
+Vnano のインタープリタは、特にJava&trade;製のアプリケーション内に組み込んで使う事を想定して開発されています。
 Vnano を用いる事で、自作アプリ上でスクリプトを実行可能になるため、カスタマイズ性の高いアプリの開発が可能になります。
 
 * [Vnano 公式サイト](https://www.vcssl.org/ja-jp/vnano/)
@@ -49,7 +49,7 @@ Vnano Engine はMITライセンスの下でリリースされています。
 <a id="requirements"></a>
 ## 必要なもの
 
-- Java Development Kit (バージョン 8 以降が必須、最新版の Java 18 は対応済み)
+- Java Development Kit (バージョン 8 以降が必須)
 - Git
 
 
