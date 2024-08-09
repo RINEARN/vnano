@@ -214,7 +214,7 @@ Vnano は、データ解析ソフトや計算ソフト、および可視化ソ�
 <a id="about-us"></a>
 ## 開発元について
 
-Vnano は、日本の個人運営の開発スタジオ [RINEARN](https://www.rinearn.com/) が開発しています。著者は松井文宏です。ご質問やフィードバックなどをお持ちの方は、ぜひ御気軽にどうぞ。
+Vnano は、日本の個人運営の開発スタジオ [RINEARN](https://www.rinearn.com/) が開発しています。Vnano Engine の著者は松井文宏（RINEARN代表）です。ご質問やフィードバックなどをお持ちの方は、ぜひ御気軽にどうぞ。
 
 
 <a id="references"></a>
