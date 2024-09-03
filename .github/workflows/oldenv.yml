@@ -27,7 +27,7 @@ jobs:
       with:
         java-version: 1.8
     - name: Download built file
-      uses: actions/download-artifact@v1
+      uses: actions/download-artifact@v4.1.7
       with:
         name: builtfile
     - name: Copy downloaded built file
