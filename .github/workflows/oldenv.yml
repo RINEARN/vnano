@@ -30,6 +30,8 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         name: builtfile
+    - name: List downloaded files
+      run: ls -R
     - name: Copy downloaded built file
       run: cp builtfile/Vnano.jar Vnano.jar
     - name: Execute tests (Accelerator disabled)
