@@ -32,8 +32,6 @@ jobs:
         name: builtfile
     - name: List downloaded files
       run: ls -R
-    - name: Copy downloaded built file
-      run: cp builtfile/Vnano.jar Vnano.jar
     - name: Execute tests (Accelerator disabled)
       run: java -jar Vnano.jar --test --accelerator false
     - name: Execute tests (Accelerator enabled, optimization level 0)
