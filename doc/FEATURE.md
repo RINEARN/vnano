@@ -1,9 +1,11 @@
 
 # Main Features of Vnano Engine, and Examples
 
-## Index
+&raquo; [Japanese](FEATURE_JAPANESE.md)
 
-( &raquo; [Japanese](FEATURE_JAPANESE.md) )
+&raquo; [Ask the AI for help (ChatGPT account required)](https://chatgpt.com/g/g-10L5bfMjb-vnano-assistant)
+
+## Table of Contents
 
 - [Calculate Expressions](#calculate-expression)
 - [Access to Fields/Methods of a Java&reg; Class (Plug-in)](#fields-and-methods)
@@ -810,5 +812,7 @@ For detailed specifications of methods, options and so on of Vnano Engine, see t
 ## Credits
 
 - Oracle and Java are registered trademarks of Oracle and/or its affiliates. 
+
+- ChatGPT is a trademark or a registered trademark of OpenAI OpCo, LLC in the United States and other countries.
 
 - Other names may be either a registered trademarks or trademarks of their respective owners. 

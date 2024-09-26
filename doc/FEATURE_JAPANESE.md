@@ -1,9 +1,11 @@
 
 # Vnano Engine の主な機能と用例
 
-## 目次
+&raquo; [English](FEATURE.md)
 
-( &raquo; [English](FEATURE.md) )
+&raquo; [AIに使い方を聞く（ChatGPTのアカウントが必要）](https://chatgpt.com/g/g-10L5bfMjb-vnano-assistant)
+
+## 目次
 
 - [式を計算する](#calculate-expression)
 - [Java&reg;製クラスのフィールド/メソッドにアクセスする](#fields-and-methods)
@@ -798,6 +800,8 @@ Vnano Engine の全メソッドの一覧/詳細説明や、オプション類な
 ## 本文中の商標などについて
 
 - OracleとJavaは、Oracle Corporation 及びその子会社、関連会社の米国及びその他の国における登録商標です。文中の社名、商品名等は各社の商標または登録商標である場合があります。
+
+- ChatGPT は、米国 OpenAI OpCo, LLC による米国またはその他の国における商標または登録商標です。
 
 - その他、文中に使用されている商標は、その商標を保持する各社の各国における商標または登録商標です。
 
