@@ -10,6 +10,7 @@ Vnano のインタープリタは、特にJava&trade;製のアプリケーショ
 Vnano を用いる事で、自作アプリ上でスクリプトを実行可能になるため、カスタマイズ性の高いアプリの開発が可能になります。
 
 * [Vnano 公式サイト](https://www.vcssl.org/ja-jp/vnano/)
+* [AIに使い方を聞く（ChatGPTのアカウントが必要）](https://chatgpt.com/g/g-10L5bfMjb-vnano-assistant)
 * [ドキュメントの一覧](doc/README_JAPANESE.md)
 
 
@@ -236,6 +237,8 @@ Vnano についての情報をもっと知りたい場合は、以下のウェ�
 - Windows、C#、Visual Studio は米国 Microsoft Corporation の米国およびその他の国における登録商標です。
 
 - Linux は、Linus Torvalds 氏の米国およびその他の国における商標または登録商標です。
+
+- ChatGPT は、米国 OpenAI OpCo, LLC による米国またはその他の国における商標または登録商標です。
 
 - その他、文中に使用されている商標は、その商標を保持する各社の各国における商標または登録商標です。
 

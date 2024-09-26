@@ -1,8 +1,10 @@
 # 言語としての Vnano
 
-## - 目次 -
+&raquo; [English](LANGUAGE.md)
 
-( &raquo; [English](LANGUAGE.md) )
+&raquo; [AIに使い方を聞く（ChatGPTのアカウントが必要）](https://chatgpt.com/g/g-10L5bfMjb-vnano-assistant)
+
+## - 目次 -
 
 - [Vnano とは](#what-is)
 - [データ型](#data-type)
@@ -501,4 +503,11 @@ Vnano では、import / include 宣言があると、「 指定されている�
 
 import / include 宣言で指定したライブラリやプラグインが、読み込み済みで利用可能な場合には、何も起こりません。
 従って、Vnano では書いても書かなくても構わないのですが、書いておくと、一応は上記のような利点があります。
+
+
+## 本文中の商標などについて
+
+- ChatGPT は、米国 OpenAI OpCo, LLC による米国またはその他の国における商標または登録商標です。
+
+- その他、文中に使用されている商標は、その商標を保持する各社の各国における商標または登録商標です。
 

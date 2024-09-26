@@ -1,8 +1,11 @@
 
 # Specifications of Vnano Engine
 
-## Index
-( &raquo; [Japanese](SPEC_JAPANESE.md) )
+&raquo; [Japanese](SPEC_JAPANESE.md)
+
+&raquo; [Ask the AI for help (ChatGPT account required)](https://chatgpt.com/g/g-10L5bfMjb-vnano-assistant)
+
+## Table of Contents
 
 * [Engine Methods](#methods)
 * [Option Items](#options)
@@ -222,3 +225,11 @@ The type of names is "String". The type of values is also "String", and it takes
 | NONE | The name of the meta item representing no permission item. |
 | DEFAULT  | <p>The name of the meta item storing the default permission value.</p> <p>For permission items of which values are not specified explicitly, a default value (e.g. "DENY") will be set automatically. You can change that default value by setting the value to this meta permission item. For example, if you set the value "ASK" to this permission item "DEFAULT", the script engine will ask to the user when non-specified permissions are required.</p> |
 
+
+## Credits
+
+- Oracle and Java are registered trademarks of Oracle and/or its affiliates. 
+
+- ChatGPT is a trademark or a registered trademark of OpenAI OpCo, LLC in the United States and other countries.
+
+- Other names may be either a registered trademarks or trademarks of their respective owners. 

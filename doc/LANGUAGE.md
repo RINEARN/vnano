@@ -1,8 +1,10 @@
 # The Vnano as a Language
 
-## - Index -
+&raquo; [Japanese](LANGUAGE_JAPANESE.md)
 
-( &raquo; [Japanese](LANGUAGE_JAPANESE.md) )
+&raquo; [Ask the AI for help (ChatGPT account required)](https://chatgpt.com/g/g-10L5bfMjb-vnano-assistant)
+
+## Table of Contents
 
 - [What is Vnano?](#what-is)
 - [Data Types](#data-type)
@@ -518,4 +520,11 @@ The former error message is more user friendly than the latter one, because the 
 
 When the specified librarie or plug-in has been loaded and is available, nothing occurs by the "import" / "include" declaration.
 Hence, "import" / "include" declarations are not mandatory for Vnano scripts, but they give the advantage shown in the above.
+
+
+## Credits
+
+- ChatGPT is a trademark or a registered trademark of OpenAI OpCo, LLC in the United States and other countries.
+
+- Other names may be either a registered trademarks or trademarks of their respective owners. 
 

@@ -7,6 +7,7 @@
 Vnano is a simple scripting language with C-like syntax. The Vnano Engine, its interpreter, is designed to be embedded in Java&trade; applications. By using Vnano, you can execute scripts within your apps, enabling the development of highly customizable features.
 
 * [Vnano Website](https://www.vcssl.org/en-us/vnano/)
+* [Ask the AI for help (ChatGPT account required)](https://chatgpt.com/g/g-10L5bfMjb-vnano-assistant)
 * [List of Documents](doc/README.md)
 
 
@@ -221,6 +222,8 @@ The following webpages may be useful if you need more information about Vnano:
 - Microsoft Windows is either a registered trademarks or trademarks of Microsoft Corporation in the United States and/or other countries. 
 
 - Linux is a trademark of linus torvalds in the United States and/or other countries. 
+
+- ChatGPT is a trademark or a registered trademark of OpenAI OpCo, LLC in the United States and other countries.
 
 - Other names may be either a registered trademarks or trademarks of their respective owners. 
 
