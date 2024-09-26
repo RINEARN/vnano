@@ -93,14 +93,14 @@ Within the extracted folder, you'll find an example of a Java application that u
     public class ExampleApp1 {
         public static void main(String[] args) throws VnanoException {
 
-            // Vnano のスクリプト実行エンジン（Vnano Engine）のインスタンスを生成
+            // Create a scripting engine of Vnano (= Vnano Engine).
             VnanoEngine engine = new VnanoEngine();
 
-            // 単純な内容のスクリプトを用意し、Vnano Engine で実行
+            // Execute a script by using Vnano Engine.
             String script = "double a = 1.2;  double b = 3.4;  double c = a + b;  c;";
             double result = (Double)engine.executeScript(script);
 
-            // 結果を表示
+            // Display the result.
             System.out.println("result: " + result);
         }
     }
