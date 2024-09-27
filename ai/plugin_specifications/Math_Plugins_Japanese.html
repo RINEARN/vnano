@@ -1,0 +1,1015 @@
+<!doctype html>
+<html lang="ja">
+
+<head>
+	<title>Vnano Math プラグイン群</title>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width,user-scalable=no,maximum-scale=1">
+	<style type="text/css">
+		h1 .spec-path { font-size: 70%; }
+		h2 .spec-path { font-size: 70%; }
+		.spec-table { width: 100%; border: 1px solid #000000; border-collapse: collapse; margin-bottom: 20px; }
+		.spec-table td { border: 1px solid #000000; text-align: left; }
+		.spec-table th { border: 1px solid #000000; text-align: left; }
+		.spec-table .lcol { width: 100px; background-color: #eeeeee; }
+		.spec-table .rcol { }
+		.spec-dl { }
+		.spec-dl dt { font-weight: bold; display: list-item; list-style-position: outside; margin-left: 20px; list-style-type: disc; }
+		.spec-dl dd { margin-bottom: 14px; line-height: 160%; }
+	</style>
+</head>
+
+<body>
+
+
+
+<h1>Vnano Math プラグイン群<br /><span class="spec-path">(org.vcssl.nano.plugin.math パッケージ)</span></h1>
+<hr />
+
+
+
+<h2>概要</h2>
+
+<p>
+このパッケージ/サブパッケージ内のプラグイン群は、Vnano (VCSSL nano) のスクリプトから利用できる、初等的な数学・統計関数などを提供します。
+<br />
+なお、このプラグイン群の提供機能は、VCSSL の標準ライブラリである <a href="https://www.vcssl.org/ja-jp/lib/Math">VCSSL Math ライブラリ</a> および
+<a href="https://www.vcssl.org/ja-jp/lib/math/StatisticalFunction">math.StatisticalFunction ライブラリ</a> の機能のサブセット（※）になっています。
+そのため、VCSSL のスクリプトにおいても、ほぼ同様の機能が標準で利用可能です。
+ただし、その際は VCSSL スクリプトの先頭で「 import Math; import math.StatisticalFunction; 」と記述し、ライブラリを読み込む必要があります。
+</p>
+
+<p>
+※ このプラグイン群が提供するいくつかの数学関数（ sin 関数など ）は、スカラだけでなく配列に対して処理を行えるように拡張されています。
+この機能は現状ではVnanoでのみ対応しており、VCSSLではまだサポートされていません。
+</p>
+
+<h2>提供プラグインおよび機能一覧</h2>
+
+<dl class="spec-dl">
+	<dt><a href="#MathElementaryXnci1Plugin">MathElementaryXnci1Plugin</a></dt>
+		<dd>
+			初等的な数学関数などを提供するプラグインです。
+			<br />
+			変数: <a href="#PI">PI</a>
+			<br />
+			関数:
+				<a href="#rad">rad(degree)</a> / <a href="#deg">deg(radian)</a> / <a href="#sin">sin(x)</a> / <a href="#cos">cos(x)</a> / <a href="#tan">tan(x)</a> / 
+				<a href="#asin">asin(x)</a> / <a href="#acos">acos(x)</a> / <a href="#atan">atan(x)</a> /
+				<a href="#sqrt">sqrt(x)</a> / <a href="#ln">ln(x)</a> / <a href="#log10">log10(x)</a> / <a href="#pow">pow(x,exponent)</a> / <a href="#exp">exp(x)</a> /
+				<a href="#abs">abs(x)</a>
+		</dd>
+	<dt><a href="#MathStatisticalXnci1Plugin">MathStatisticalXnci1Plugin</a></dt>
+		<dd>
+			初等的な統計関数などを提供するプラグインです。
+			<br />
+			関数:
+				<a href="#sum">sum(...)</a> / <a href="#sum_array">sum(array)</a> / 
+				<a href="#mean">mean(...)</a> / <a href="#mean_array">mean(array)</a> / 
+				<a href="#van">van(...)</a> / <a href="#van_array">van(array)</a> / 
+				<a href="#van1">van1(...)</a> / <a href="#van1_array">van1(array)</a> / 
+				<a href="#sdn">sdn(...)</a> / <a href="#sdn_array">sdn(array)</a> / 
+				<a href="#sdn1">sdn1(...)</a> / <a href="#sdn1_array">sdn1(array)</a>
+		</dd>
+</dl>
+
+
+
+<h2>ライセンス</h2>
+
+<p>
+上記のプラグインは全て <a href="https://creativecommons.org/publicdomain/zero/1.0/deed.ja">CC0</a> で公開されています。
+</p>
+
+
+
+<!-- ==================================================================================================== -->
+
+<hr style="page-break-before: always" />
+
+<h2 id="MathElementaryXnci1Plugin">MathElementaryXnci1Plugin<br /><span class="spec-path">(org.vcssl.nano.math.xnci1.MathElementaryXnci1Plugin)</span></h2>
+
+<p>
+初等的な数学関数などを提供するプラグインです。
+</p>
+
+
+<h3>変数</h3>
+
+<table id="PI" class="spec-table">
+	<tr>
+		<th class="lcol">変数</th>
+		<th class="rcol">PI</th>
+	</tr>
+	<tr>
+		<td class="lcol">値</td>
+		<td class="rcol">円周率の値を格納しています。</td>
+	</tr>
+	<tr>
+		<td class="lcol">データ型</td>
+		<td class="rcol">float (定数)</td>
+	</tr>
+</table>
+
+
+
+<h3>関数</h3>
+
+
+<table id="rad" class="spec-table">
+	<tr>
+		<th class="lcol">関数</th>
+		<th class="rcol">rad( degree )</th>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">
+			度からラジアンへの変換関数です。引数 degree に指定した度の値が、ラジアンに変換されて返されます。引数に配列を指定した場合は、その各要素の値が変換されます。
+			なお、変換結果の値の範囲は特に調整されないため、負の度の値に対しては負のラジアン値が求まり、360度を超える値に対しては 2π を超えるラジアン値が求まります。
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">float[]...[] rad( const float &amp;degree[]...[] )</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">(float型、任意次元) degree: ラジアンに変換したい度の値。</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">(float型、引数と同次元・同要素数) ラジアンに変換された値。</td>
+	</tr>
+	<tr>
+		<td class="lcol">使用例</td>
+		<td class="rcol">print( rad(180.0) ); // 3.14...</td>
+	</tr>
+</table>
+
+
+<table id="deg" class="spec-table">
+	<tr>
+		<th class="lcol">関数</th>
+		<th class="rcol">deg( radian )</th>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">
+			ラジアンから度への変換関数です。引数 radian に指定したラジアンの値が、度に変換されて返されます。引数に配列を指定した場合は、その各要素の値が変換されます。
+			なお、変換結果の値の範囲は特に調整されないため、負のラジアンに対しては負の度が求まり、2πを超えるラジアンに対しては 360 度を超える値が求まります。
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">float[]...[] deg( const float &amp;radian[]...[] )</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">(float型、任意次元) radian: 度に変換したい度の値。</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">(float型、引数と同次元・同要素数) 度に変換された値。</td>
+	</tr>
+	<tr>
+		<td class="lcol">使用例</td>
+		<td class="rcol">print( deg(PI) ); // 180.0</td>
+	</tr>
+</table>
+
+
+<table id="sin" class="spec-table">
+	<tr>
+		<th class="lcol">関数</th>
+		<th class="rcol">sin( x )</th>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">
+			正弦（サイン）関数です。引数 x の単位はラジアンで指定します。引数 x に配列を指定した場合は、その各要素 x[i] に対する sin(x[i]) の値を格納する配列が返されます。
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">float[]...[] sin( const float &amp;x[]...[] )</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">(float型、任意次元) x: ラジアン単位での、正弦関数の引数。</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">(float型、引数と同次元・同要素数) 正弦関数の値。</td>
+	</tr>
+	<tr>
+		<td class="lcol">使用例</td>
+		<td class="rcol">print( sin(PI/2.0) ); // 1.0</td>
+	</tr>
+</table>
+
+
+<table id="cos" class="spec-table">
+	<tr>
+		<th class="lcol">関数</th>
+		<th class="rcol">cos( x )</th>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">
+			余弦（コサイン）関数です。引数 x の単位はラジアンで指定します。引数 x に配列を指定した場合は、その各要素 x[i] に対する cos(x[i]) の値を格納する配列が返されます。
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">float[]...[] cos( const float &amp;x[]...[] )</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">(float型、任意次元) x: ラジアン単位での、余弦関数の引数。</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">(float型、引数と同次元・同要素数) 余弦関数の値。</td>
+	</tr>
+	<tr>
+		<td class="lcol">使用例</td>
+		<td class="rcol">print( cos(PI*2.0) ); // 1.0</td>
+	</tr>
+</table>
+
+
+<table id="tan" class="spec-table">
+	<tr>
+		<th class="lcol">関数</th>
+		<th class="rcol">tan( x )</th>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">
+			正接（タンジェント）関数です。引数 x の単位はラジアンで指定します。引数 x に配列を指定した場合は、その各要素 x[i] に対する tan(x[i]) の値を格納する配列が返されます。
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">float[]...[] tan( const float &amp;x[]...[] )</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">(float型、任意次元) x: ラジアン単位での、正接関数の引数。</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">(float型、引数と同次元・同要素数) 正接関数の値。</td>
+	</tr>
+	<tr>
+		<td class="lcol">使用例</td>
+		<td class="rcol">print( tan(PI/4.0) ); // 0.99999... (真の値は 1 ですが、結果との不一致は表現精度や計算精度に関する微小な数値誤差によるものであり、バグではありません)</td>
+	</tr>
+</table>
+
+
+<table id="asin" class="spec-table">
+	<tr>
+		<th class="lcol">関数</th>
+		<th class="rcol">asin( x )</th>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">
+			正弦関数の逆関数（アークサイン）です。結果 x の単位はラジアンです。引数 x に配列を指定した場合は、その各要素 x[i] に対する asin(x[i]) の値を格納する配列が返されます。
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">float[]...[] asin( const float &amp;x[]...[] )</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">(float型、任意次元) x: 逆正弦関数の引数。</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">(float型、引数と同次元・同要素数) ラジアン単位での、逆正接関数の値。</td>
+	</tr>
+	<tr>
+		<td class="lcol">使用例</td>
+		<td class="rcol">print( asin(1.0) ); // 1.5707963... (≒π/2)</td>
+	</tr>
+</table>
+
+
+<table id="acos" class="spec-table">
+	<tr>
+		<th class="lcol">関数</th>
+		<th class="rcol">acos( x )</th>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">
+			余弦関数の逆関数（アークサイン）です。結果 x の単位はラジアンです。引数 x に配列を指定した場合は、その各要素 x[i] に対する acos(x[i]) の値を格納する配列が返されます。
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">float[]...[] acos( const float &amp;x[]...[] )</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">(float型、任意次元) x: 逆余弦関数の引数。</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">(float型、引数と同次元・同要素数) ラジアン単位での、逆余弦関数の値。</td>
+	</tr>
+	<tr>
+		<td class="lcol">使用例</td>
+		<td class="rcol">print( acos(-1.0) ); // 3.14... (≒π)</td>
+	</tr>
+</table>
+
+
+<table id="atan" class="spec-table">
+	<tr>
+		<th class="lcol">関数</th>
+		<th class="rcol">atan( x )</th>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">
+			正接関数の逆関数（アークタンジェント）です。結果 x の単位はラジアンです。引数 x に配列を指定した場合は、その各要素に対する atan(x[i]) の値を格納する配列が返されます。
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">float[]...[] atan( const float &amp;x[]...[] )</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">(float型、任意次元) x: 逆正接関数の引数。</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">(float型、引数と同次元・同要素数) ラジアン単位での、逆正接関数の値。</td>
+	</tr>
+	<tr>
+		<td class="lcol">使用例</td>
+		<td class="rcol">print( atan(1.0) ); // 0.78539... (≒π/4)</td>
+	</tr>
+</table>
+
+
+<table id="sqrt" class="spec-table">
+	<tr>
+		<th class="lcol">関数</th>
+		<th class="rcol">sqrt( x )</th>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">
+			平方根を求める関数です。引数 x に配列を指定した場合は、その各要素 x[i] に対する sqrt(x[i]) の値を格納する配列が返されます。
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">float[]...[] sqrt( const float &amp;x[]...[] )</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">(float型、任意次元) x: 平方根を求めたい値。</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">(float型、引数と同次元・同要素数) 平方根の値。</td>
+	</tr>
+	<tr>
+		<td class="lcol">使用例</td>
+		<td class="rcol">print( sqrt(4.0) ); // 2.0</td>
+	</tr>
+</table>
+
+
+<table id="ln" class="spec-table">
+	<tr>
+		<th class="lcol">関数</th>
+		<th class="rcol">ln( x )</th>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">
+			自然数 e を底とする対数関数（自然対数）です。引数 x に配列を指定した場合は、その各要素 x[i] に対する ln(x[i]) の値を格納する配列が返されます。
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">float[]...[] ln( const float &amp;x[]...[] )</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">(float型、任意次元) x: 自然対数を求めたい値。</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">(float型、引数と同次元・同要素数) 自然対数の値。</td>
+	</tr>
+	<tr>
+		<td class="lcol">使用例</td>
+		<td class="rcol">print( ln(10.0) ); // 2.3025...</td>
+	</tr>
+</table>
+
+
+<table id="log10" class="spec-table">
+	<tr>
+		<th class="lcol">関数</th>
+		<th class="rcol">log10( x )</th>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">
+			10 を底とする対数関数（常用対数）です。引数に配列を指定した場合は、その各要素に対する常用対数値を格納する配列が返されます。
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">float[]...[] log10( const float &amp;x[]...[] )</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">(float型、任意次元) x: 常用対数を求めたい値。</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">(float型、引数と同次元・同要素数) 常用対数の値。</td>
+	</tr>
+	<tr>
+		<td class="lcol">使用例</td>
+		<td class="rcol">print( log10(10.0) ); // 1.0</td>
+	</tr>
+</table>
+
+
+<table id="pow" class="spec-table">
+	<tr>
+		<th class="lcol">関数</th>
+		<th class="rcol">pow( x, exponent )</th>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">
+			x の exponent 乗を求める関数です。引数 x に配列を指定した場合は、その各要素に対する exponent 乗の値を格納する配列が返されます。
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">float[]...[] pow( const float &amp;x[]...[], const float &amp;exponent )</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">
+			(float型、任意次元) x: 「機能」の項目参照。
+			<br />
+			(float型) exponent: 「機能」の項目参照。
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">(float型、引数と同次元・同要素数) x の exponent 乗の値。</td>
+	</tr>
+	<tr>
+		<td class="lcol">使用例</td>
+		<td class="rcol">print( pow(2.0,3.0) ); // 8.0</td>
+	</tr>
+</table>
+
+
+<table id="exp" class="spec-table">
+	<tr>
+		<th class="lcol">関数</th>
+		<th class="rcol">exp( exponent )</th>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">
+			自然対数の低 e の exponent 乗を求める関数です。引数に配列を指定した場合は、その各要素を指数とした（～乗をとった）値を格納する配列が返されます。
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">float[]...[] exp( const float &amp;exponent[]...[] )</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">
+			(float型、任意次元) exponent: 「機能」の項目参照。
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">(float型、引数と同次元・同要素数) 自然対数の低 e の exponent 乗の値。</td>
+	</tr>
+	<tr>
+		<td class="lcol">使用例</td>
+		<td class="rcol">print( exp(2.0) ); // 7.38905... (≒ e の2乗)</td>
+	</tr>
+</table>
+
+
+<table id="abs" class="spec-table">
+	<tr>
+		<th class="lcol">関数</th>
+		<th class="rcol">abs( x )</th>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">
+			絶対値関数です。引数に配列を指定した場合は、その各要素の絶対値を格納する配列が返されます。
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">float[]...[] abs( const float &amp;x[]...[] )</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">
+			(float型、任意次元) x: 絶対値を求めたい値。
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">(float型、引数と同次元・同要素数) 絶対値。</td>
+	</tr>
+	<tr>
+		<td class="lcol">使用例</td>
+		<td class="rcol">print( abs(-1.23) ); // 1.23</td>
+	</tr>
+</table>
+
+
+
+<!-- ==================================================================================================== -->
+
+<hr style="page-break-before: always" />
+
+<h2 id="MathStatisticalXnci1Plugin">MathStatisticalXnci1Plugin<br /><span class="spec-path">(org.vcssl.nano.math.xnci1.MathStatisticalXnci1Plugin)</span></h2>
+
+<p>
+初等的な統計関数などを提供するプラグインです。
+</p>
+
+
+<h3>関数</h3>
+
+
+<table id="sum" class="spec-table">
+	<tr>
+		<th class="lcol">関数</th>
+		<th class="rcol">sum(...)</th>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">
+			和を求める関数です。
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">float sum( ... float )</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">
+			(float型、任意個数) 和を求めたい値。
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">(float型) 和の値。</td>
+	</tr>
+	<tr>
+		<td class="lcol">使用例</td>
+		<td class="rcol">print( sum(1.0, 2.5, 4.0) ); // 7.5</td>
+	</tr>
+</table>
+
+
+<table id="sum_array" class="spec-table">
+	<tr>
+		<th class="lcol">関数</th>
+		<th class="rcol">sum( array )</th>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">
+			配列要素の和を求める関数です。
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcosl">float sum( float array[] )</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">
+			(float型、1次元配列) 和を求めたい値を格納する配列。
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">(float型) 和の値。</td>
+	</tr>
+	<tr>
+		<td class="lcol">使用例</td>
+		<td class="rcol">
+			float array[3];
+			<br />
+			array[0] = 1.0;
+			<br />
+			array[1] = 2.5;
+			<br />
+			array[2] = 4.0;
+			<br />
+			print( sum(array) ); // 7.5
+		</td>
+	</tr>
+</table>
+
+
+<table id="mean" class="spec-table">
+	<tr>
+		<th class="lcol">関数</th>
+		<th class="rcol">mean(...)</th>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">
+			平均値（算術平均）を求める関数です。
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">float mean( ... float )</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">
+			(float型、任意個数) 平均値を求めたい値。
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">(float型) 平均値。</td>
+	</tr>
+	<tr>
+		<td class="lcol">使用例</td>
+		<td class="rcol">print( mean(1.0, 2.5, 4.0) ); // 2.5</td>
+	</tr>
+</table>
+
+
+
+<table id="mean_array" class="spec-table">
+	<tr>
+		<th class="lcol">関数</th>
+		<th class="rcol">mean( array )</th>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">
+			配列要素の平均値（算術平均）を求める関数です。
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">float mean( float array[] )</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">
+			(float型、1次元配列) 平均値を求めたい値を格納する配列。
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">(float型) 平均値。</td>
+	</tr>
+	<tr>
+		<td class="lcol">使用例</td>
+		<td class="rcol">
+			float array[3];
+			<br />
+			array[0] = 1.0;
+			<br />
+			array[1] = 2.5;
+			<br />
+			array[2] = 4.0;
+			<br />
+			print( mean(array) ); // 2.5
+		</td>
+	</tr>
+</table>
+
+
+<table id="van" class="spec-table">
+	<tr>
+		<th class="lcol">関数</th>
+		<th class="rcol">van(...)</th>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">
+			分散（ 分母： N ）を求める関数です。
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">float van( ... float )</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">
+			(float型、任意個数) 分散を求めたい値。
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">(float型) 分散の値（ 分母： n ）。</td>
+	</tr>
+	<tr>
+		<td class="lcol">使用例</td>
+		<td class="rcol">print( van(1.0, 2.5, 4.0) ); // 1.5</td>
+	</tr>
+</table>
+
+
+<table id="van_array" class="spec-table">
+	<tr>
+		<th class="lcol">関数</th>
+		<th class="rcol">van( array )</th>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">
+			配列要素の分散（ 分母： N ）を求める関数です。
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">float van( float array[] )</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">
+			(float型、1次元配列) 分散を求めたい値を格納する配列。
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">(float型) 分散の値（ 分母： n ）。</td>
+	</tr>
+	<tr>
+		<td class="lcol">使用例</td>
+		<td class="rcol">
+			float array[3];
+			<br />
+			array[0] = 1.0;
+			<br />
+			array[1] = 2.5;
+			<br />
+			array[2] = 4.0;
+			<br />
+			print( van(array) ); // 1.5
+		</td>
+	</tr>
+</table>
+
+
+<table id="van1" class="spec-table">
+	<tr>
+		<th class="lcol">関数</th>
+		<th class="rcol">van1(...)</th>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">
+			分散（ 分母： N-1 ）を求める関数です。
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">float van( ... float )</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">
+			(float型、任意個数) 分散を求めたい値。
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">(float型) 分散の値（ 分母： N-1 ）。</td>
+	</tr>
+	<tr>
+		<td class="lcol">使用例</td>
+		<td class="rcol">print( van1(1.0, 2.5, 4.0) ); // 2.25</td>
+	</tr>
+</table>
+
+
+<table id="van1_array" class="spec-table">
+	<tr>
+		<th class="lcol">関数</th>
+		<th class="rcol">van1( array )</th>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">
+			配列要素の分散（ 分母： N-1 ）を求める関数です。
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">float van1( float array[] )</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">
+			(float型、1次元配列) 分散を求めたい値を格納する配列。
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">(float型) 分散の値（ 分母： N-1 ）。</td>
+	</tr>
+	<tr>
+		<td class="lcol">使用例</td>
+		<td class="rcol">
+			float array[3];
+			<br />
+			array[0] = 1.0;
+			<br />
+			array[1] = 2.5;
+			<br />
+			array[2] = 4.0;
+			<br />
+			print( van1(array) ); // 2.25
+		</td>
+	</tr>
+</table>
+
+
+<table id="sdn" class="spec-table">
+	<tr>
+		<th class="lcol">関数</th>
+		<th class="rcol">sdn(...)</th>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">
+			標準偏差（ 分母： N ）を求める関数です。
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">float sdn( ... float )</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">
+			(float型、任意個数) 標準偏差を求めたい値。
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">(float型) 標準偏差の値（ 分母： N ）。</td>
+	</tr>
+	<tr>
+		<td class="lcol">使用例</td>
+		<td class="rcol">print( sdn(1.0, 2.5, 4.0) ); // 1.2247... (≒√1.5)</td>
+	</tr>
+</table>
+
+
+<table id="sdn_array" class="spec-table">
+	<tr>
+		<th class="lcol">関数</th>
+		<th class="rcol">sdn( array )</th>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">
+			標準偏差（ 分母： N ）を求める関数です。
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">float sdn( float array[] )</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">
+			(float型、1次元配列) 標準偏差を求めたい値を格納する配列。
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">(float型) 標準偏差の値（ 分母： N ）。</td>
+	</tr>
+	<tr>
+		<td class="lcol">使用例</td>
+		<td class="rcol">
+			float array[3];
+			<br />
+			array[0] = 1.0;
+			<br />
+			array[1] = 2.5;
+			<br />
+			array[2] = 4.0;
+			<br />
+			print( sdn(array) ); // 1.2247... (≒√1.5)
+		</td>
+	</tr>
+</table>
+
+
+<table id="sdn1" class="spec-table">
+	<tr>
+		<th class="lcol">Function</th>
+		<th class="rcol">sdn1(...)</th>
+	</tr>
+	<tr>
+		<td class="lcol">Feature</td>
+		<td class="rcol">
+			標準偏差（ 分母： N-1 ）を求める関数です。
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">float sdn1( ... float )</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">
+			(float型、任意個数) 標準偏差を求めたい値。
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">(float型) 標準偏差の値（ 分母： n-1 ）。</td>
+	</tr>
+	<tr>
+		<td class="lcol">使用例</td>
+		<td class="rcol">print( sdn1(1.0, 2.5, 4.0) ); // 1.5 (=√2.25)</td>
+	</tr>
+</table>
+
+
+<table id="sdn1_array" class="spec-table">
+	<tr>
+		<th class="lcol">関数</th>
+		<th class="rcol">sdn1( array )</th>
+	</tr>
+	<tr>
+		<td class="lcol">機能</td>
+		<td class="rcol">
+			標準偏差（ 分母： N-1 ）を求める関数です。
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">宣言形式</td>
+		<td class="rcol">float sdn1( float array[] )</td>
+	</tr>
+	<tr>
+		<td class="lcol">引数</td>
+		<td class="rcol">
+			(float型、1次元配列) 標準偏差を求めたい値を格納する配列。
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">戻り値</td>
+		<td class="rcol">(float型) 標準偏差の値（ 分母： N-1 ）。</td>
+	</tr>
+	<tr>
+		<td class="lcol">使用例</td>
+		<td class="rcol">
+			float array[3];
+			<br />
+			array[0] = 1.0;
+			<br />
+			array[1] = 2.5;
+			<br />
+			array[2] = 4.0;
+			<br />
+			print( sdn1(array) ); // 1.5 (=√2.25)
+		</td>
+	</tr>
+</table>
+
+
+
+
+
+
+
+</body>
+</html>

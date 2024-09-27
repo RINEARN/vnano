@@ -1,0 +1,2025 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+	<title>Vnano System Plug-ins</title>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width,user-scalable=no,maximum-scale=1">
+	<style type="text/css">
+		h1 .spec-path { font-size: 70%; }
+		h2 .spec-path { font-size: 70%; }
+		.spec-table { width: 100%; border: 1px solid #000000; border-collapse: collapse; margin-bottom: 20px; }
+		.spec-table td { border: 1px solid #000000; text-align: left; }
+		.spec-table th { border: 1px solid #000000; text-align: left; }
+		.spec-table .lcol { width: 100px; background-color: #eeeeee; }
+		.spec-table .rcol { }
+		.spec-dl { }
+		.spec-dl dt { font-weight: bold; display: list-item; list-style-position: outside; margin-left: 20px; list-style-type: disc; }
+		.spec-dl dd { margin-bottom: 14px; line-height: 160%; }
+	</style>
+</head>
+
+<body>
+
+
+
+<h1>Vnano System Plug-in Group<br /><span class="spec-path">(org.vcssl.nano.plugin.system package)</span></h1>
+<hr />
+
+
+
+<h2>Abstract</h2>
+
+<p>
+Plug-ins in this package/subpackages provide basic features available in scripts of the Vnano (VCSSL nano), e.g.: I/O features, utility features, and so on.
+<br />
+Features provided by these plug-ins is a subset of the  <a href="https://www.vcssl.org/ja-jp/lib/System">VCSSL System Library</a> which is a standard library of the VCSSL,
+so same features are also available in scripts of the VCSSL by default.
+</p>
+
+
+
+<h2>List of Provided Plug-ins and Features</h2>
+
+<dl class="spec-dl">
+	<dt><a href="#SystemEnvironmentXnci1Plugin">SystemEnvironmentXnci1Plugin</a></dt>
+		<dd>
+			Provides environment-related variables.
+			<br />
+			Variables: <a href="#EOL">EOL</a> / <a href="#LF">LF</a> / <a href="#CR">CR</a>
+		</dd>
+	<dt><a href="#SystemEnvironmentXnci1Plugin">SystemDataTypeXnci1Plugin</a></dt>
+		<dd>
+			Provides data-type-utility functions/variables.
+			<br />
+			Variables: 
+			<a href="#INT_MAX">INT_MAX</a> / <a href="#INT_MIN">INT_MIN</a> / <a href="#FLOAT_MAX">FLOAT_MAX</a> / <a href="#FLOAT_MIN_ABS_NORMAL">FLOAT_MIN_ABS_NORMAL</a> / <a href="#FLOAT_MIN_ABS_DENORMAL">FLOAT_MIN_ABS_DENORMAL</a> / <a href="#NAN">NAN</a> / <a href="#INF">INF</a> /
+			<a href="#UP">UP</a> / <a href="#UP_SIGNIF">UP_SIGNIF</a> / <a href="#DOWN">DOWN</a> / <a href="#DOWN_SIGNIF">DOWN_SIGNIF</a> / 
+			<a href="#HALF_UP">HALF_UP</a> / <a href="#HALF_UP_SIGNIF">HALF_UP_SIGNIF</a> / <a href="#HALF_DOWN">HALF_DOWN</a> / <a href="#HALF_DOWN_SIGNIF">HALF_DOWN_SIGNIF</a> / 
+			<a href="#HALF_TO_EVEN">HALF_TO_EVEN</a> / <a href="#HALF_TO_EVEN_SIGNIF">HALF_TO_EVEN_SIGNIF</a>
+			<br />
+			Functions:
+			<a href="#nan">nan(value)</a> / <a href="#inf">inf(value)</a> / <a href="#length">length(array, dimIndex)</a> / <a href="#arrayrank">arrayrank(array)</a> / 
+			<a href="#round">round(floatValue, numberOfDigits, roundingMode)</a> / <a href="#round_string">round(stringValue, numberOfDigits, roundingMode)</a>
+		</dd>
+	<dt><a href="#SystemTerminalIOXnci1Plugin">SystemTerminalIOXnci1Plugin</a></dt>
+		<dd>
+			Provides I/O functions from/to the terminal.
+			<br />
+			Functions: <a href="#print">print(...)</a> / <a href="#println">println(...)</a>
+		</dd>
+	<dt><a href="#SystemUserIOXnci1Plugin">SystemUserIOXnci1Plugin</a></dt>
+		<dd>
+			Provides interactive I/O functions from/to the user.
+			<br />
+			Functions: <a href="#popup">popup(message)</a> / <a href="#alert">alert(message)</a> / <a href="#confirm">confirm(message)</a> / <a href="#input">input(message)</a> / <a href="#input-string-any">input(message, defaultValue)</a>
+	<dt><a href="#SystemFileIOXnci1Plugin">SystemFileIOXnci1Plugin</a></dt>
+		<dd>
+			Provides I/O functions from/to files.
+			<br />
+			Variables: <a href="#READ">READ</a> / <a href="#WRITE">WRITE</a> / <a href="#APPEND">APPEND</a> / <a href="#READ_CSV">READ_CSV</a> / <a href="#WRITE_CSV">WRITE_CSV</a> / <a href="#APPEND_CSV">APPEND_CSV</a> / <a href="#READ_TSV">READ_TSV</a> / <a href="#WRITE_TSV">WRITE_TSV</a> / <a href="#APPEND_TSV">APPEND_TSV</a> / <a href="#READ_STSV">READ_STSV</a>
+			<br />
+			Functions: <a href="#open">open(fileName, mode)</a> / <a href="#open3arg">open(fileName, mode, encoding)</a> / <a href="#close">close(fileId)</a> / <a href="#flush">flush(fileId)</a> / 
+			<a href="#write">write(fileId, ...)</a> / <a href="#writeln">writeln(fileId, ...)</a> / <a href="#read">read(fileId)</a> / <a href="#readln">readln(fileId)</a> / <a href="#countln">countln(fileId)</a> / 
+			<a href="#save">save(filePath, value)</a> / <a href="#load">load(filePath)</a> / 
+			<a href="#exists">exists(filePath)</a> / <a href="#isdir">isdir(directoryPath)</a> / <a href="#listdir">listdir(directoryPath)</a> / <a href="#mkdir">mkdir(directoryPath)</a> / 
+		</dd>
+	<dt><a href="#SystemTimeXnci1Plugin">SystemTimeXnci1Plugin</a></dt>
+		<dd>
+			Provides time-utility functions.
+			<br />
+			Functions: <a href="#time">time()</a> / <a href="#sleep">sleep(sleepTime)</a>
+		</dd>
+	<dt><a href="#SystemTerminationXnci1Plugin">SystemTerminationXnci1Plugin</a></dt>
+		<dd>
+			Provides functions for terminating scripts.
+			<br />
+			Functions: <a href="#exit">exit()</a> / <a href="#exit_int">exit(exitStatusCode)</a> / <a href="#error">error(errorMessage)</a>
+		</dd>
+	<dt><a href="#SystemTestXnci1Plugin">SystemTestXnci1Plugin</a></dt>
+		<dd>
+			Provides utility functions for testing.
+			<br />
+			Functions: <a href="#assert">assert(expectedCondition)</a>
+		</dd>
+</dl>
+
+
+
+<h2>License</h2>
+
+<p>
+All of the above plug-ins are released under <a href="https://creativecommons.org/publicdomain/zero/1.0/deed">CC0</a>.
+</p>
+
+
+
+<!-- ==================================================================================================== -->
+
+<hr style="page-break-before: always" />
+
+<h2 id="SystemEnvironmentXnci1Plugin">SystemEnvironmentXnci1Plugin<br /><span class="spec-path">(org.vcssl.nano.plugin.system.xnci1.SystemEnvironmentXnci1Plugin)</span></h2>
+
+<p>
+The plug-in providing environment-related variables.
+</p>
+
+
+<h3>Variables</h3>
+
+
+<table id="EOL" class="spec-table">
+	<tr>
+		<th class="lcol">Variable</th>
+		<th class="rcol">EOL</th>
+	</tr>
+	<tr>
+		<td class="lcol">Value</td>
+		<td class="rcol">Storing the end-of-line code depending on environment.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Data Type</td>
+		<td class="rcol">string (constant)</td>
+	</tr>
+</table>
+
+
+<table id="LF" class="spec-table">
+	<tr>
+		<th class="lcol">Variable</th>
+		<th class="rcol">LF</th>
+	</tr>
+	<tr>
+		<td class="lcol">Value</td>
+		<td class="rcol">Storing a kind of end-of-line code &quot;LF&quot;.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Data Type</td>
+		<td class="rcol">string (constant)</td>
+	</tr>
+</table>
+
+
+<table id="CR" class="spec-table">
+	<tr>
+		<th class="lcol">Variable</th>
+		<th class="rcol">CR</th>
+	</tr>
+	<tr>
+		<td class="lcol">Value</td>
+		<td class="rcol">Storing a kind of end-of-line code &quot;CR&quot;.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Data Type</td>
+		<td class="rcol">string (constant)</td>
+	</tr>
+</table>
+
+
+
+<!-- ==================================================================================================== -->
+
+<hr style="page-break-before: always" />
+
+<h2 id="SystemDataTypeXnci1Plugin">SystemDataTypeXnci1Plugin<br /><span class="spec-path">(org.vcssl.nano.plugin.system.xnci1.SystemDataTypeXnci1Plugin)</span></h2>
+
+<p>
+The plug-in providing data-type-utility functions/variables.
+</p>
+
+
+<h3>Variables</h3>
+
+<table id="INT_MAX" class="spec-table">
+	<tr>
+		<th class="lcol">Variable</th>
+		<th class="rcol">INT_MAX</th>
+	</tr>
+	<tr>
+		<td class="lcol">Value</td>
+		<td class="rcol">Storing the maximum (positive) value in all representable values of &quot;int&quot; type.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Data Type</td>
+		<td class="rcol">int (constant)</td>
+	</tr>
+</table>
+
+
+<table id="INT_MIN" class="spec-table">
+	<tr>
+		<th class="lcol">Variable</th>
+		<th class="rcol">INT_MIN</th>
+	</tr>
+	<tr>
+		<td class="lcol">Value</td>
+		<td class="rcol">Storing the minimum (negative) value in all representable values of &quot;int&quot; type.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Data Type</td>
+		<td class="rcol">int (constant)</td>
+	</tr>
+</table>
+
+
+<table id="FLOAT_MAX" class="spec-table">
+	<tr>
+		<th class="lcol">Variable</th>
+		<th class="rcol">FLOAT_MAX</th>
+	</tr>
+	<tr>
+		<td class="lcol">Value</td>
+		<td class="rcol">Storing the maximum (positive) value in all representable values of &quot;float&quot; type.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Data Type</td>
+		<td class="rcol">float (constant)</td>
+	</tr>
+</table>
+
+
+<table id="FLOAT_MIN_ABS_NORMAL" class="spec-table">
+	<tr>
+		<th class="lcol">Variable</th>
+		<th class="rcol">FLOAT_MIN_ABS_NORMAL</th>
+	</tr>
+	<tr>
+		<td class="lcol">Value</td>
+		<td class="rcol">Storing the minimum absolute (positive, non-zero) value in all representable normal numbers of &quot;float&quot; type.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Data Type</td>
+		<td class="rcol">float (constant)</td>
+	</tr>
+</table>
+
+
+<table id="FLOAT_MIN_ABS_DENORMAL" class="spec-table">
+	<tr>
+		<th class="lcol">Variable</th>
+		<th class="rcol">FLOAT_MIN_ABS_DENORMAL</th>
+	</tr>
+	<tr>
+		<td class="lcol">Value</td>
+		<td class="rcol">Storing the minimum absolute (positive, non-zero) value in all representable numbers of &quot;float&quot; type containing denormal numbers.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Data Type</td>
+		<td class="rcol">float</td>
+	</tr>
+</table>
+
+
+<table id="NAN" class="spec-table">
+	<tr>
+		<th class="lcol">Variable</th>
+		<th class="rcol">NAN</th>
+	</tr>
+	<tr>
+		<td class="lcol">Value</td>
+		<td class="rcol">Storing the value of &quot;NaN&quot;. The &quot;NaN&quot; represents the special value as a result of invalid floating-point operations. Also, the NaN does not equal any values containing the NaN itself, so we can not check whether a value is NaN or not by comparing this value by &quot;==&quot; operation. For checking a value is nan or not, use <a href="#nan">nan(value)</a> function.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Data Type</td>
+		<td class="rcol">float (constant)</td>
+	</tr>
+</table>
+
+
+<table id="INF" class="spec-table">
+	<tr>
+		<th class="lcol">Variable</th>
+		<th class="rcol">INF</th>
+	</tr>
+	<tr>
+		<td class="lcol">Value</td>
+		<td class="rcol">Storing the value of the (positive) infinity of &quot;float&quot; type.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Data Type</td>
+		<td class="rcol">float (constant)</td>
+	</tr>
+</table>
+
+
+<table id="UP" class="spec-table">
+	<tr>
+		<th class="lcol">Variable</th>
+		<th class="rcol">UP</th>
+	</tr>
+	<tr>
+		<td class="lcol">Value</td>
+		<td class="rcol">
+			The rounding mode of <a href="#round">round</a> function, 
+			for rounding up the <b>fractional</b> part into the specified number of digits.
+			Also, when the value to be rounded is negative, rounds the part excluding the sign in the same way as positive values.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Data Type</td>
+		<td class="rcol">int (constant)</td>
+	</tr>
+</table>
+
+
+<table id="UP_SIGNIF" class="spec-table">
+	<tr>
+		<th class="lcol">Variable</th>
+		<th class="rcol">UP_SIGNIF</th>
+	</tr>
+	<tr>
+		<td class="lcol">Value</td>
+		<td class="rcol">
+			The rounding mode of <a href="#round">round</a> function, 
+			for rounding up the <b>significand</b> part into the specified number of digits.
+			Also, when the value to be rounded is negative, rounds the part excluding the sign in the same way as positive values.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Data Type</td>
+		<td class="rcol">int (constant)</td>
+	</tr>
+</table>
+
+
+<table id="DOWN" class="spec-table">
+	<tr>
+		<th class="lcol">Variable</th>
+		<th class="rcol">DOWN</th>
+	</tr>
+	<tr>
+		<td class="lcol">Value</td>
+		<td class="rcol">
+			The rounding mode of <a href="#round">round</a> function, 
+			for rounding down the <b>fractional</b> part into the specified number of digits.
+			Also, when the value to be rounded is negative, rounds the part excluding the sign in the same way as positive values.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Data Type</td>
+		<td class="rcol">int (constant)</td>
+	</tr>
+</table>
+
+
+<table id="DOWN_SIGNIF" class="spec-table">
+	<tr>
+		<th class="lcol">Variable</th>
+		<th class="rcol">DOWN_SIGNIF</th>
+	</tr>
+	<tr>
+		<td class="lcol">Value</td>
+		<td class="rcol">
+			The rounding mode of <a href="#round">round</a> function, 
+			for rounding down the <b>significand</b> part into the specified number of digits.
+			Also, when the value to be rounded is negative, rounds the part excluding the sign in the same way as positive values.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Data Type</td>
+		<td class="rcol">int (constant)</td>
+	</tr>
+</table>
+
+
+<table id="HALF_UP" class="spec-table">
+	<tr>
+		<th class="lcol">Variable</th>
+		<th class="rcol">HALF_UP</th>
+	</tr>
+	<tr>
+		<td class="lcol">Value</td>
+		<td class="rcol">
+			The rounding mode of <a href="#round">round</a> function, 
+			for rounding the <b>fractional</b> part into the specified number of digits, as follows:
+			<ul>
+				<li>When the part to be cut off is larger than ...50000..., rounds up the value.</li>
+				<li>When the part to be cut off is smaller than ...50000..., rounds down the value.</li>
+				<li>When the part to be cut off equals to ...50000..., rounds <b>up</b> the value.</dt>
+			</ul>
+			Also, when the value to be rounded is negative, rounds the part excluding the sign in the same way as positive values.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Data Type</td>
+		<td class="rcol">int (constant)</td>
+	</tr>
+</table>
+
+
+<table id="HALF_UP_SIGNIF" class="spec-table">
+	<tr>
+		<th class="lcol">Variable</th>
+		<th class="rcol">HALF_UP_SIGNIF</th>
+	</tr>
+	<tr>
+		<td class="lcol">Value</td>
+		<td class="rcol">
+			The rounding mode of <a href="#round">round</a> function, 
+			for rounding the <b>significand</b> part into the specified number of digits, as follows:
+			<ul>
+				<li>When the part to be cut off is larger than ...50000..., rounds up the value.</li>
+				<li>When the part to be cut off is smaller than ...50000..., rounds down the value.</li>
+				<li>When the part to be cut off equals to ...50000..., rounds <b>up</b> the value.</dt>
+			</ul>
+			Also, when the value to be rounded is negative, rounds the part excluding the sign in the same way as positive values.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Data Type</td>
+		<td class="rcol">int (constant)</td>
+	</tr>
+</table>
+
+
+<table id="HALF_DOWN" class="spec-table">
+	<tr>
+		<th class="lcol">Variable</th>
+		<th class="rcol">HALF_DOWN</th>
+	</tr>
+	<tr>
+		<td class="lcol">Value</td>
+		<td class="rcol">
+			The rounding mode of <a href="#round">round</a> function, 
+			for rounding the <b>fractional</b> part into the specified number of digits, as follows:
+			<ul>
+				<li>When the part to be cut off is larger than ...50000..., rounds up the value.</li>
+				<li>When the part to be cut off is smaller than ...50000..., rounds down the value.</li>
+				<li>When the part to be cut off equals to ...50000..., rounds <b>down</b> the value.</dt>
+			</ul>
+			Also, when the value to be rounded is negative, rounds the part excluding the sign in the same way as positive values.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Data Type</td>
+		<td class="rcol">int (constant)</td>
+	</tr>
+</table>
+
+
+<table id="HALF_DOWN_SIGNIF" class="spec-table">
+	<tr>
+		<th class="lcol">Variable</th>
+		<th class="rcol">HALF_DOWN_SIGNIF</th>
+	</tr>
+	<tr>
+		<td class="lcol">Value</td>
+		<td class="rcol">
+			The rounding mode of <a href="#round">round</a> function, 
+			for rounding the <b>significand</b> part into the specified number of digits, as follows:
+			<ul>
+				<li>When the part to be cut off is larger than ...50000..., rounds up the value.</li>
+				<li>When the part to be cut off is smaller than ...50000..., rounds down the value.</li>
+				<li>When the part to be cut off equals to ...50000..., rounds <b>down</b> the value.</dt>
+			</ul>
+			Also, when the value to be rounded is negative, rounds the part excluding the sign in the same way as positive values.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Data Type</td>
+		<td class="rcol">int (constant)</td>
+	</tr>
+</table>
+
+
+<table id="HALF_TO_EVEN" class="spec-table">
+	<tr>
+		<th class="lcol">Variable</th>
+		<th class="rcol">HALF_TO_EVEN</th>
+	</tr>
+	<tr>
+		<td class="lcol">Value</td>
+		<td class="rcol">
+			The rounding mode of <a href="#round">round</a> function, 
+			for rounding the <b>fractional</b> part into the specified number of digits, as follows:
+			<ul>
+				<li>When the part to be cut off is larger than ...50000..., rounds up the value.</li>
+				<li>When the part to be cut off is smaller than ...50000..., rounds down the value.</li>
+				<li>When the part to be cut off equals to ...50000..., rounds the value so that the last digit of the rounded value takes an <b>even number</b>.</dt>
+			</ul>
+			Also, when the value to be rounded is negative, rounds the part excluding the sign in the same way as positive values.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Data Type</td>
+		<td class="rcol">int (constant)</td>
+	</tr>
+</table>
+
+
+<table id="HALF_TO_EVEN_SIGNIF" class="spec-table">
+	<tr>
+		<th class="lcol">Variable</th>
+		<th class="rcol">HALF_TO_EVEN</th>
+	</tr>
+	<tr>
+		<td class="lcol">Value</td>
+		<td class="rcol">
+			The rounding mode of <a href="#round">round</a> function, 
+			for rounding the <b>significand</b> part into the specified number of digits, as follows:
+			<ul>
+				<li>When the part to be cut off is larger than ...50000..., rounds up the value.</li>
+				<li>When the part to be cut off is smaller than ...50000..., rounds down the value.</li>
+				<li>When the part to be cut off equals to ...50000..., rounds the value so that the last digit of the rounded value takes an <b>even number</b>.</dt>
+			</ul>
+			Also, when the value to be rounded is negative, rounds the part excluding the sign in the same way as positive values.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Data Type</td>
+		<td class="rcol">int (constant)</td>
+	</tr>
+</table>
+
+
+<h3>Functions</h3>
+
+
+<table id="nan" class="spec-table">
+	<tr>
+		<th class="lcol">Function</th>
+		<th class="rcol">nan(value)</th>
+	</tr>
+	<tr>
+		<td class="lcol">Feature</td>
+		<td class="rcol">Checks whether the passed value is the NaN or not. Note that the NaN does not equal any values containing the NaN itself, so we can not check whether a value is NaN or not by comparing this value by &quot;==&quot; operation. Therefore, use this function for checking it.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Singature</td>
+		<td class="rcol">bool nan(float value)</td>
+	</tr>
+	<tr>
+		<td class="lcol">Params</td>
+		<td class="rcol">(float type) value: The value to be checked.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">(bool type) &quot;true&quot; if the passed value is the NaN, &quot;false&quot; if it isn't.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Example</td>
+		<td class="rcol">print( nan(0.0/0.0) ); // true</td>
+	</tr>
+</table>
+
+
+<table id="inf" class="spec-table">
+	<tr>
+		<th class="lcol">Function</th>
+		<th class="rcol">inf(value)</th>
+	</tr>
+	<tr>
+		<td class="lcol">Feature</td>
+		<td class="rcol">Checks whether the passed value is the (positive or negative) infinity.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Singature</td>
+		<td class="rcol">bool inf(float value)</td>
+	</tr>
+	<tr>
+		<td class="lcol">Params</td>
+		<td class="rcol">(float type) value: The value to be checked.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">(bool type) &quot;true&quot; if the passed value is the (positive or negative) infinity, &quot;false&quot; if it isn't.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Example</td>
+		<td class="rcol">print( inf(1.0/0.0) ); // true</td>
+	</tr>
+</table>
+
+
+<table id="length" class="spec-table">
+	<tr>
+		<th class="lcol">Function</th>
+		<th class="rcol">length(array, dimIndex)</th>
+	</tr>
+	<tr>
+		<td class="lcol">Feature</td>
+		<td class="rcol">Gets the length of the specified dimention as &quot;dimIndex&quot; of the specified array &quot;array&quot;.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">int length(any array[]...[], int dimIndex)</td>
+	</tr>
+	<tr>
+		<td class="lcol">Params</td>
+		<td class="rcol">
+			(any type, any arrayrank) array: The array you want to get the length of it.
+			<br />
+			(int type) dimIndex: The index of the array-dimension you want to get the length on it (regarding the most left dimension as 0-th).
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">(int type) The length on the specified dimension of the specified array.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Example</td>
+		<td class="rcol">int a[10][11][12];<br />println( length(a,0) ); // 10<br />println( length(a,1) ); // 11<br />println( length(a,2) ); // 12</td>
+	</tr>
+</table>
+
+
+<table id="arrayrank" class="spec-table">
+	<tr>
+		<th class="lcol">Function</th>
+		<th class="rcol">arrayrank(array)</th>
+	</tr>
+	<tr>
+		<td class="lcol">Feature</td>
+		<td class="rcol">Gets the number of dimensions (array rank) of the specified array.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">int arrayrank(any array[]...[])</td>
+	</tr>
+	<tr>
+		<td class="lcol">Params</td>
+		<td class="rcol">
+			(any type, any rank) array: The array you want to get the number of dimensions of it.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">(int type) The number of dimensions of the specified array.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Example</td>
+		<td class="rcol">int a[10][11][12];<br />print( arrayrank(a) ); // 3</td>
+	</tr>
+</table>
+
+
+<table id="round" class="spec-table">
+	<tr>
+		<th class="lcol">Function</th>
+		<th class="rcol">round(floatValue, numberOfDigits, roundingMode)</th>
+	</tr>
+	<tr>
+		<td class="lcol">Feature</td>
+		<td class="rcol">
+			Rounds the specified value.
+			Note that, the param "floatValue" and the return value are float-type, 
+			and they internally store values in binary representation.
+			This function converts the passed value into decimal representation, then round it, 
+			and finally reconvert the result into binary representation again to return it. 
+			If you want to avoid errors caused by the above binrary-decimal conversions, use 
+			<a href="#round_string">round(stringValue, ...)</a> function instead.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">float round(float floatValue, int numberOfDigits, int roundingMode)</td>
+	</tr>
+	<tr>
+		<td class="lcol">Params</td>
+		<td class="rcol">
+			(float type) floatValue: The value to be rounded.
+			<br />
+			(int type) numberOfDigits: The number of digits of the rounded part (fractional part or significand part, depends on mode) in the rounded result value.
+			<br />
+			(int type) roundingMode: The mode of rounding, e.g.: <a href="#HALF_UP">HALF_UP</a> and so on.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">(float type) The rounded value.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Example</td>
+		<td class="rcol">float result = round(123.0625, 3, HALF_UP);<br />print(result); // 123.063</td>
+	</tr>
+</table>
+
+
+<table id="round_string" class="spec-table">
+	<tr>
+		<th class="lcol">Function</th>
+		<th class="rcol">round(stringValue, numberOfDigits, roundingMode)</th>
+	</tr>
+	<tr>
+		<td class="lcol">Feature</td>
+		<td class="rcol">Rounds the specified value.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">string round(string stringValue, int numberOfDigits, int roundingMode)</td>
+	</tr>
+	<tr>
+		<td class="lcol">Params</td>
+		<td class="rcol">
+			(string type) stringValue: The value to be rounded.
+			<br />
+			(int type) numberOfDigits: The number of digits of the rounded part (fractional part or significand part, depends on mode) in the rounded result value.
+			<br />
+			(int type) roundingMode: The mode of rounding, e.g.: <a href="#HALF_UP">HALF_UP</a> and so on.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">(string type) The rounded value.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Example</td>
+		<td class="rcol">string result = round("123.0625", 3, HALF_UP);<br />print(result); // 123.063</td>
+	</tr>
+</table>
+
+
+<!-- ==================================================================================================== -->
+
+<hr style="page-break-before: always" />
+
+<h2 id="SystemTerminalIOXnci1Plugin">SystemTerminalIOXnci1Plugin<br /><span class="spec-path">(org.vcssl.nano.plugin.system.xnci1.SystemTerminalIOXnci1Plugin)</span></h2>
+
+<p>
+The plug-in providing I/O functions from/to the terminal.
+<br />
+When the option "UI_MODE" of the script engine is set to "CUI",
+I/O will be performed from/to the standard input/output.
+When the option "UI_MODE" of the script engine is set to "GUI",
+a window like a terminal will be launched, 
+and I/O will be performed from/to it.
+</p>
+
+
+<h3>Functions</h3>
+
+
+<table id="print" class="spec-table">
+	<tr>
+		<th class="lcol">Function</th>
+		<th class="rcol">print(...)</th>
+	</tr>
+	<tr>
+		<td class="lcol">Feature</td>
+		<td class="rcol">Outputs values to the terminal with delimiting by spaces (tabs).</td>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">void print(...)</td>
+	</tr>
+	<tr>
+		<td class="lcol">Params</td>
+		<td class="rcol">(any data-types, any ranks, any numbers) Values to be printed.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">None</td>
+	</tr>
+	<tr>
+		<td class="lcol">Example</td>
+		<td class="rcol">print( &quot;Hello&quot;, 123, 4.56, true ); // Hello 123, 4.56, true</td>
+	</tr>
+</table>
+
+
+<table id="println" class="spec-table">
+	<tr>
+		<th class="lcol">Function</th>
+		<th class="rcol">println(...)</th>
+	</tr>
+	<tr>
+		<td class="lcol">Feature</td>
+		<td class="rcol">Outputs values to the terminal with delimiting by spaces (tabs), and go to the new line on the terminal.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">void println(...)</td>
+	</tr>
+	<tr>
+		<td class="lcol">Params</td>
+		<td class="rcol">(any data-types, any ranks, any numbers) Values to be printed.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">None</td>
+	</tr>
+	<tr>
+		<td class="lcol">Example</td>
+		<td class="rcol">println( &quot;Hello&quot;, 123, 4.56, true ); // Hello 123, 4.56, true (line feed)</td>
+	</tr>
+</table>
+
+
+
+<!-- ==================================================================================================== -->
+
+<hr style="page-break-before: always" />
+
+<h2 id="SystemUserIOXnci1Plugin">SystemUserIOXnci1Plugin<br /><span class="spec-path">(org.vcssl.nano.plugin.system.xnci1.SystemUserIOXnci1Plugin)</span></h2>
+
+<p>
+The plug-in providing interactive I/O functions from/to the user.
+<br />
+When the option "UI_MODE" of the script engine is set to "CUI",
+I/O will be performed from/to the standard input/output.
+When the option "UI_MODE" of the script engine is set to "GUI", 
+a pop-up window will be displayed, 
+and I/O will be performed interactively by user's actions on the window.
+</p>
+
+
+<h3>Functions</h3>
+
+
+<table id="popup" class="spec-table">
+	<tr>
+		<th class="lcol">Function</th>
+		<th class="rcol">popup(message)</th>
+	</tr>
+	<tr>
+		<td class="lcol">Feature</td>
+		<td class="rcol">Displays a message or a value.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">void popup(any message)</td>
+	</tr>
+	<tr>
+		<td class="lcol">Params</td>
+		<td class="rcol">(any type) message: The message or the value to be displayed.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">None</td>
+	</tr>
+	<tr>
+		<td class="lcol">Example</td>
+		<td class="rcol">popup( &quot;Hello&quot; );</td>
+	</tr>
+</table>
+
+
+<table id="alert" class="spec-table">
+	<tr>
+		<th class="lcol">Function</th>
+		<th class="rcol">alert(message)</th>
+	</tr>
+	<tr>
+		<td class="lcol">Feature</td>
+		<td class="rcol">Displays a message. Compared with "popup" function, the window title, behaviour, and so on are tuned for displaying warning messages.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">void alert(string message)</td>
+	</tr>
+	<tr>
+		<td class="lcol">Params</td>
+		<td class="rcol">(string type) message: The message to be displayed.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">None</td>
+	</tr>
+	<tr>
+		<td class="lcol">Example</td>
+		<td class="rcol">alert( &quot;Oops&quot; );</td>
+	</tr>
+</table>
+
+
+<table id="confirm" class="spec-table">
+	<tr>
+		<th class="lcol">Function</th>
+		<th class="rcol">confirm(message)</th>
+	</tr>
+	<tr>
+		<td class="lcol">Feature</td>
+		<td class="rcol">Displays a confirmation message, and asks for the answer in the form of: Yes (y) or No (n).</td>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">bool confirm(string message)</td>
+	</tr>
+	<tr>
+		<td class="lcol">Params</td>
+		<td class="rcol">(string type) message: The message to be displayed.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">(bool type) Returns true if the user has answered "Yes" (or inputted "y" on the CUI mode).</td>
+	</tr>
+	<tr>
+		<td class="lcol">Example</td>
+		<td class="rcol">bool isYes = confirm( &quot;OK?&quot; );</td>
+	</tr>
+</table>
+
+
+<table id="input" class="spec-table">
+	<tr>
+		<th class="lcol">Function</th>
+		<th class="rcol">input(message)</th>
+	</tr>
+	<tr>
+		<td class="lcol">Feature</td>
+		<td class="rcol">Displays a message, and asks for input.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">string[] input(string message)</td>
+	</tr>
+	<tr>
+		<td class="lcol">Params</td>
+		<td class="rcol">(string type) message: The message to be displayed.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">(string[] type) The inputted value. (The array-length is normally 1, so you can receive it by a scalar variable, if you want.)</td>
+	</tr>
+	<tr>
+		<td class="lcol">Example</td>
+		<td class="rcol">string inputtedValue[] = input( &quot;Please input&quot; );</td>
+	</tr>
+</table>
+
+
+<table id="input-string-any" class="spec-table">
+	<tr>
+		<th class="lcol">Function</th>
+		<th class="rcol">input(message)</th>
+	</tr>
+	<tr>
+		<td class="lcol">Feature</td>
+		<td class="rcol">Displays a message, and asks for input. A default value can be specified by the second argument.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">string[] input(string message, any defaultValue)</td>
+	</tr>
+	<tr>
+		<td class="lcol">Params</td>
+		<td class="rcol">
+			(string type) message: The message to be displayed.
+			<br />
+			(any type) defaultValue: The default value.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">(string[] type) The inputted value. (The array-length is normally 1, so you can receive it by a scalar variable, if you want.)</td>
+	</tr>
+	<tr>
+		<td class="lcol">Example</td>
+		<td class="rcol">string inputtedValue[] = input( &quot;Please input&quot;, &quot;defaultValue&quot; );</td>
+	</tr>
+</table>
+
+
+
+<!-- ==================================================================================================== -->
+
+<hr style="page-break-before: always" />
+
+<h2 id="SystemFileIOXnci1Plugin">SystemFileIOXnci1Plugin<br /><span class="spec-path">(org.vcssl.nano.plugin.system.xnci1.SystemFileIOXnci1Plugin)</span></h2>
+
+<p>
+Provides I/O functions from/to files.
+</p>
+
+
+<h3>Variables</h3>
+
+
+<table id="READ" class="spec-table">
+	<tr>
+		<th class="lcol">Variable</th>
+		<th class="rcol">READ</th>
+	</tr>
+	<tr>
+		<td class="lcol">Value</td>
+		<td class="rcol">The value of "mode" parameter of <a href="#open">open</a> function, for reading contents from a texit file.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Data Type</td>
+		<td class="rcol">string (constant)</td>
+	</tr>
+</table>
+
+
+<table id="WRITE" class="spec-table">
+	<tr>
+		<th class="lcol">Variable</th>
+		<th class="rcol">WRITE</th>
+	</tr>
+	<tr>
+		<td class="lcol">Value</td>
+		<td class="rcol">The value of "mode" parameter of <a href="#open">open</a> function, for writing contents to a texit file.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Data Type</td>
+		<td class="rcol">string (constant)</td>
+	</tr>
+</table>
+
+
+<table id="APPEND" class="spec-table">
+	<tr>
+		<th class="lcol">Variable</th>
+		<th class="rcol">APPEND</th>
+	</tr>
+	<tr>
+		<td class="lcol">Value</td>
+		<td class="rcol">The value of "mode" parameter of <a href="#open">open</a> function, for appending contents a texit file, without deleting the current contents.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Data Type</td>
+		<td class="rcol">string (constant)</td>
+	</tr>
+</table>
+
+
+<table id="READ_CSV" class="spec-table">
+	<tr>
+		<th class="lcol">Variable</th>
+		<th class="rcol">READ_CSV</th>
+	</tr>
+	<tr>
+		<td class="lcol">Value</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			The value of "mode" parameter of <a href="#open">open</a> function, for reading contents from a "numerical CSV" file.
+			</p>
+			<p style="margin-bottom: 0px;">
+			In the above, "numerical CSV" means the format that multiple numerical values are described in each line, delimited by commas: ",".
+			Note that, it assumes that values don't contain commas or other special characters, and they are not enclosed by double-quatations. 
+			Hence, even if they are contained in values, no special handling will be performed to them.
+			This mode reads the values, by splitting each line by commas simply.
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Data Type</td>
+		<td class="rcol">string (constant)</td>
+	</tr>
+</table>
+
+
+<table id="WRITE_CSV" class="spec-table">
+	<tr>
+		<th class="lcol">Variable</th>
+		<th class="rcol">WRITE_CSV</th>
+	</tr>
+	<tr>
+		<td class="lcol">Value</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			The value of "mode" parameter of <a href="#open">open</a> function, for writing contents to a "numerical CSV" file.
+			</p>
+			<p style="margin-bottom: 0px;">
+			In the above, "numerical CSV" means the format that multiple numerical values are described in each line, delimited by commas: ",".
+			Note that, it assumes that values don't contain commas or other special characters, and they are not enclosed by double-quatations. 
+			Hence, even if they are contained in values, no special handling will be performed to them.
+			This mode writes the values in a line, by inserting commas between them simply.
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Data Type</td>
+		<td class="rcol">string (constant)</td>
+	</tr>
+</table>
+
+
+<table id="APPEND_CSV" class="spec-table">
+	<tr>
+		<th class="lcol">Variable</th>
+		<th class="rcol">APPEND_CSV</th>
+	</tr>
+	<tr>
+		<td class="lcol">Value</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			The value of "mode" parameter of <a href="#open">open</a> function, for appending contents to a "numerical CSV" file, without deleting the current contents.
+			</p>
+			<p style="margin-bottom: 0px;">
+			In the above, "numerical CSV" means the format that multiple numerical values are described in each line, delimited by commas: ",".
+			Note that, it assumes that values don't contain commas or other special characters, and they are not enclosed by double-quatations. 
+			Hence, even if they are contained in values, no special handling will be performed to them.
+			This mode writes the values in a line, by inserting commas between them simply.
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Data Type</td>
+		<td class="rcol">string (constant)</td>
+	</tr>
+</table>
+
+
+<table id="READ_TSV" class="spec-table">
+	<tr>
+		<th class="lcol">Variable</th>
+		<th class="rcol">READ_TSV</th>
+	</tr>
+	<tr>
+		<td class="lcol">Value</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			The value of "mode" parameter of <a href="#open">open</a> function, for reading contents from a "numerical TSV" file.
+			</p>
+			<p style="margin-bottom: 0px;">
+			In the above, "numerical TSV" means the format that multiple numerical values are described in each line, delimited by tab characters (tabs).
+			Note that, it assumes that values don't contain tabs or other special characters, and they are not enclosed by double-quatations. 
+			Hence, even if they are contained in values, no special handling will be performed to them.
+			This mode reads the values, by splitting each line by tabs simply.
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Data Type</td>
+		<td class="rcol">string (constant)</td>
+	</tr>
+</table>
+
+
+<table id="WRITE_TSV" class="spec-table">
+	<tr>
+		<th class="lcol">Variable</th>
+		<th class="rcol">WRITE_TSV</th>
+	</tr>
+	<tr>
+		<td class="lcol">Value</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			The value of "mode" parameter of <a href="#open">open</a> function, for writing contents to a "numerical TSV" file.
+			</p>
+			<p style="margin-bottom: 0px;">
+			In the above, "numerical TSV" means the format that multiple numerical values are described in each line, delimited by tab characters (tabs).
+			Note that, it assumes that values don't contain tabs or other special characters, and they are not enclosed by double-quatations. 
+			Hence, even if they are contained in values, no special handling will be performed to them.
+			This mode writes the values in a line, by inserting tabs between them simply.
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Data Type</td>
+		<td class="rcol">string (constant)</td>
+	</tr>
+</table>
+
+
+<table id="APPEND_TSV" class="spec-table">
+	<tr>
+		<th class="lcol">Variable</th>
+		<th class="rcol">APPEND_TSV</th>
+	</tr>
+	<tr>
+		<td class="lcol">Value</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			The value of "mode" parameter of <a href="#open">open</a> function, for appending contents to a "numerical TSV" file, without deleting the current contents.
+			</p>
+			<p style="margin-bottom: 0px;">
+			In the above, "numerical TSV" means the format that multiple numerical values are described in each line, delimited by tab characters (tabs).
+			Note that, it assumes that values don't contain tabs or other special characters, and they are not enclosed by double-quatations. 
+			Hence, even if they are contained in values, no special handling will be performed to them.
+			This mode writes the values in a line, by inserting tabs between them simply.
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Data Type</td>
+		<td class="rcol">string (constant)</td>
+	</tr>
+</table>
+
+
+<table id="READ_STSV" class="spec-table">
+	<tr>
+		<th class="lcol">Variable</th>
+		<th class="rcol">READ_STSV</th>
+	</tr>
+	<tr>
+		<td class="lcol">Value</td>
+		<td class="rcol">
+			<p style="margin-top: 0px;">
+			The value of "mode" parameter of <a href="#open">open</a> function, for reading contents from a numerical "Spaces &amp; Tabs Separated Values" file.
+			</p>
+			<p style="margin-bottom: 0px;">
+			In the above, "Spaces &amp; Tabs Separated Values" means the format that multiple numerical values are described in each line, delimited by space or tab characters.
+			Especially, as a delimiter, sometimes multiple consecutive spaces/tabs are used instead of one space/tab, for aligning positions of columns.
+			Note that, the format name "Spaces &amp; Tabs Separated Values" (STSV) is not general. It is the name used only in this document and related docs.
+			However, even though it is not clear what we should call it as, this format is often used in fields in numerical calculations and data analysis.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Data Type</td>
+		<td class="rcol">string (constant)</td>
+	</tr>
+</table>
+
+
+<h3>Functions</h3>
+
+
+<table id="open" class="spec-table">
+	<tr>
+		<th class="lcol">Function</th>
+		<th class="rcol">open(fileName, mode)</th>
+	</tr>
+	<tr>
+		<td class="lcol">Feature</td>
+		<td class="rcol">
+			Opens the specified file in the specified mode, and returns the file ID assigned to it. 
+			The character encoding will be set to UTF-8 by default. If "FILE_IO_ENCODING" option exists, the encoding will be set to its value.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">int open(string fileName, string mode)</td>
+	</tr>
+	<tr>
+		<td class="lcol">Params</td>
+		<td class="rcol">
+			(string type) fileName: The name of the path of the file to be opened.
+			<br />
+			(string type) mode: The mode representing what kind of I/O will be performed to the file: select from <a href="#READ">READ</a>, <a href="#WRITE">WRITE</a>, and so on.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">
+			(int type) The ID assigned to the opened file, necessary to specify when reading/writing contents from/to the opened file. 
+			<br />
+			Note that, this file ID is different from the file ID assigned by OS. 
+			This file ID will be assigned in ascending order from 1, for the files opened in a script. (The same file ID may be reused after the file was closed.)
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Example</td>
+		<td class="rcol">int fileId = open("example.txt", READ);</td>
+	</tr>
+</table>
+
+
+<table id="open3arg" class="spec-table">
+	<tr>
+		<th class="lcol">Function</th>
+		<th class="rcol">open(fileName, mode, encoding)</th>
+	</tr>
+	<tr>
+		<td class="lcol">Feature</td>
+		<td class="rcol">Opens the specified file in the specified mode and the encoding, and returns the file ID assigned to it.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">int open(string fileName, string mode, string encoding)</td>
+	</tr>
+	<tr>
+		<td class="lcol">Params</td>
+		<td class="rcol">
+			(string type) fileName: The name of the path of the file to be opened.
+			<br />
+			(string type) mode: The mode representing what kind of I/O will be performed to the file: select from <a href="#READ">READ</a>, <a href="#WRITE">WRITE</a>, and so on.
+			<br />
+			(string type) encoding: The encoding for reading/writing contents from/to the file (e.g.: "UTF-8", "Shift_JIS", and so on).
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">
+			(int type) The ID assigned to the opened file, necessary to specify when reading/writing contents from/to the opened file. 
+			<br />
+			Note that, this file ID is different from the file ID assigned by OS. 
+			This file ID will be assigned in ascending order from 1, for the files opened in a script. (The same file ID may be reused after the file was closed.)
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Example</td>
+		<td class="rcol">int fileId = open("example.txt", READ, "Shift_JIS");</td>
+	</tr>
+</table>
+
+
+<table id="close" class="spec-table">
+	<tr>
+		<th class="lcol">Function</th>
+		<th class="rcol">close(fileId)</th>
+	</tr>
+	<tr>
+		<td class="lcol">Feature</td>
+		<td class="rcol">Closes the specified file.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">void close(int fileId)</td>
+	</tr>
+	<tr>
+		<td class="lcol">Params</td>
+		<td class="rcol">
+			(int type) fileId: The file ID of the file to be closed. (The file ID is the returned value of <a href="#open">open</a> function.)
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">None</td>
+	</tr>
+	<tr>
+		<td class="lcol">Example</td>
+		<td class="rcol">
+			int fileId = open("example.txt", READ);
+			<br />
+			...
+			<br />
+			close(fileId);
+		</td>
+	</tr>
+</table>
+
+
+<table id="flush" class="spec-table">
+	<tr>
+		<th class="lcol">Function</th>
+		<th class="rcol">flush(fileId)</th>
+	</tr>
+	<tr>
+		<td class="lcol">Feature</td>
+		<td class="rcol">
+			Writes (flushes) the temporary stored contents in the writing-buffer, to the file.
+			In most situation, it is not necessary to flush the buffer explicitly by this function, because the buffer will be flushed automatically when the file will be closed.
+			This function is useful when, for example, your script keeps a file opened for a while, and you want to flush the buffer at the arbitrary timing.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">void flush(int fileId)</td>
+	</tr>
+	<tr>
+		<td class="lcol">Params</td>
+		<td class="rcol">
+			(int type) fileId: The file ID of the file to be flushed. (The file ID is the returned value of <a href="#open">open</a> function.)
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">None</td>
+	</tr>
+	<tr>
+		<td class="lcol">Example</td>
+		<td class="rcol">
+			int fileId = open("example.txt", WRITE);
+			<br />
+			...
+			<br />
+			flush(fileId);
+		</td>
+	</tr>
+</table>
+
+
+<table id="write" class="spec-table">
+	<tr>
+		<th class="lcol">Function</th>
+		<th class="rcol">write(fileId, ...)</th>
+	</tr>
+	<tr>
+		<td class="lcol">Feature</td>
+		<td class="rcol">Writes the specified value(s) to the specified file.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">void write(int fileId, ...)</td>
+	</tr>
+	<tr>
+		<td class="lcol">Params</td>
+		<td class="rcol">
+			(int type) fileId: The file ID of the file to which write values. (The file ID is the returned value of <a href="#open">open</a> function.)
+			<br />
+			(any number/type, after the above param) The value(s) to be written.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">None</td>
+	</tr>
+	<tr>
+		<td class="lcol">Example</td>
+		<td class="rcol">
+			int fileId = open("example.txt", WRITE);
+			<br />
+			...
+			<br />
+			write(fileId, "abc", 123, 4.56, true);
+		</td>
+	</tr>
+</table>
+
+
+<table id="writeln" class="spec-table">
+	<tr>
+		<th class="lcol">Function</th>
+		<th class="rcol">writeln(fileId, ...)</th>
+	</tr>
+	<tr>
+		<td class="lcol">Feature</td>
+		<td class="rcol">Writes the specified value(s) to the specified file, and goes to the next line.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">void write(int fileId, ...)</td>
+	</tr>
+	<tr>
+		<td class="lcol">Params</td>
+		<td class="rcol">
+			(int type) fileId: The file ID of the file to which you write values. (The file ID is the returned value of <a href="#open">open</a> function.)
+			<br />
+			(any number/type, after the above param) The value(s) to be written.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">None</td>
+	</tr>
+	<tr>
+		<td class="lcol">Example</td>
+		<td class="rcol">
+			int fileId = open("example.txt", WRITE);
+			<br />
+			...
+			<br />
+			writeln(fileId, "abc", 123, 4.56, true);
+		</td>
+	</tr>
+</table>
+
+
+<table id="read" class="spec-table">
+	<tr>
+		<th class="lcol">Function</th>
+		<th class="rcol">read(fileId)</th>
+	</tr>
+	<tr>
+		<td class="lcol">Feature</td>
+		<td class="rcol">Reads all value(s) from the specified file.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">string[] read(int fileId)</td>
+	</tr>
+	<tr>
+		<td class="lcol">Params</td>
+		<td class="rcol">
+			(int type) fileId: The file ID of the file from which you read values. (The file ID is the returned value of <a href="#open">open</a> function.)
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">
+			(string[] type) In <a href="#READ">READ</a> mode, the array of which length is 1, storing all content of the file, will be returned (In this case, you can store it to a scalar variable, by "=" operator simply).
+			In <a href="#READ_CSV">READ_CSV</a> / <a href="#READ_TSV">READ_TSV</a> / <a href="#READ_STSV">READ_STSV</a> modes, an array storing the whole content(s) of the file splitted by the delimiter will be returned.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Example</td>
+		<td class="rcol">
+			int fileId = open("example.txt", READ);
+			<br />
+			...
+			<br />
+			string contentInFile = read(fileId);
+		</td>
+	</tr>
+</table>
+
+
+<table id="readln" class="spec-table">
+	<tr>
+		<th class="lcol">Function</th>
+		<th class="rcol">readln(fileId)</th>
+	</tr>
+	<tr>
+		<td class="lcol">Feature</td>
+		<td class="rcol">Reads one line from the specified file.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">string[] readln(int fileId)</td>
+	</tr>
+	<tr>
+		<td class="lcol">Params</td>
+		<td class="rcol">
+			(int type) fileId: The file ID of the file from which you read values. (The file ID is the returned value of <a href="#open">open</a> function.)
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">
+			(string[] type) In <a href="#READ">READ</a> mode, the array of which length is 1, storing the content of one line of the file, will be returned (In this case, you can store it to a scalar variable, by "=" operator simply).
+			In <a href="#READ_CSV">READ_CSV</a> / <a href="#READ_TSV">READ_TSV</a> / <a href="#READ_STSV">READ_STSV</a> modes, an array storing the content(s) of one line splitted by the delimiter will be returned.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Example</td>
+		<td class="rcol">
+			int fileId = open("example.txt", READ);
+			<br />
+			...
+			<br />
+			string contentInLine = readln(fileId);
+			<br />
+			<br />
+			&nbsp;( or )
+			<br />
+			<br />
+			int fileId = open("example.txt", READ_CSV);
+			<br />
+			...
+			<br />
+			string valuesInLine[] = readln(fileId);
+		</td>
+	</tr>
+</table>
+
+
+<table id="countln" class="spec-table">
+	<tr>
+		<th class="lcol">Function</th>
+		<th class="rcol">countln(fileId)</th>
+	</tr>
+	<tr>
+		<td class="lcol">Feature</td>
+		<td class="rcol">
+			Counts up the total number of lines in the specified file.
+			Please note that, this function internally reads all lines from the file, and reopens the file in the same mode.
+			Hence, if you use this function for the file from which some lines were already read, you will get incorrect result, and the reading state (e.g.: pointer to the line to be read next time) for the file will be reset.
+			To prevent the above, use this function only just after opening the file.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">int countln(int fileId)</td>
+	</tr>
+	<tr>
+		<td class="lcol">Params</td>
+		<td class="rcol">
+			(int type) fileId: The file ID of the file of which lines should be counted up. (The file ID is the returned value of <a href="#open">open</a> function.)
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">
+			(int type) The total number of lines in the specified file.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Example</td>
+		<td class="rcol">
+			int fileId = open("example.txt", READ);
+			<br />
+			int lineN = countln(fileId);
+		</td>
+	</tr>
+</table>
+
+
+<table id="save" class="spec-table">
+	<tr>
+		<th class="lcol">Function</th>
+		<th class="rcol">save(filePath, value)</th>
+	</tr>
+	<tr>
+		<td class="lcol">Feature</td>
+		<td class="rcol">
+			Opens the specified file, and writes the specified value, and closes the file.
+			The character encoding will be set to UTF-8 by default. If "FILE_IO_ENCODING" option exists, the encoding will be set to its value.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">void save(string filePath, any value)</td>
+	</tr>
+	<tr>
+		<td class="lcol">Params</td>
+		<td class="rcol">
+			(string type) filePath: The name or path of the file to which you write the value.
+			<br />
+			(any type) value: The value to be written.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">なし</td>
+	</tr>
+	<tr>
+		<td class="lcol">Example</td>
+		<td class="rcol">
+			save("example.txt", 123);
+		</td>
+	</tr>
+</table>
+
+
+<table id="load" class="spec-table">
+	<tr>
+		<th class="lcol">Function</th>
+		<th class="rcol">load(filePath)</th>
+	</tr>
+	<tr>
+		<td class="lcol">Feature</td>
+		<td class="rcol">
+			Opens the specified file, and reads the whole content, and closes the file.
+			The character encoding for the reading will be set to UTF-8 by default. If "FILE_IO_ENCODING" option exists, the encoding will be set to its value.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">string load(string filePath)</td>
+	</tr>
+	<tr>
+		<td class="lcol">Params</td>
+		<td class="rcol">
+			(string type) filePath: The name or path from which you read the content.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">
+			(string type) The content read from the file.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Example</td>
+		<td class="rcol">
+			string content = read("example.txt");
+		</td>
+	</tr>
+</table>
+
+
+<table id="exists" class="spec-table">
+	<tr>
+		<th class="lcol">Function</th>
+		<th class="rcol">exists(filePath)</th>
+	</tr>
+	<tr>
+		<td class="lcol">Feature</td>
+		<td class="rcol">
+			Checks whether a file or a directory exists at the specified file path.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">bool exists(string filePath)</td>
+	</tr>
+	<tr>
+		<td class="lcol">Params</td>
+		<td class="rcol">
+			(string type) filePath: The file path to be checked.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">
+			(bool type) Returns true if a file or a directory exists at the specified file path.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Example</td>
+		<td class="rcol">
+			bool result = exists("./temp/example.txt");
+		</td>
+	</tr>
+</table>
+
+
+<table id="isdir" class="spec-table">
+	<tr>
+		<th class="lcol">Function</th>
+		<th class="rcol">isdir(directoryPath)</th>
+	</tr>
+	<tr>
+		<td class="lcol">Feature</td>
+		<td class="rcol">
+			Checks whether the element (file or directory) located at the specified path is a directory.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">bool isdir(string directoryPath)</td>
+	</tr>
+	<tr>
+		<td class="lcol">Params</td>
+		<td class="rcol">
+			(string type) directoryPath: The directory path to be checked.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">
+			(bool type) Returns true if the element at the specified path is a directory.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Example</td>
+		<td class="rcol">
+			bool result = isdir("./temp/example_folder");
+		</td>
+	</tr>
+</table>
+
+
+<table id="listdir" class="spec-table">
+	<tr>
+		<th class="lcol">Function</th>
+		<th class="rcol">listdir(directoryPath)</th>
+	</tr>
+	<tr>
+		<td class="lcol">Feature</td>
+		<td class="rcol">
+			Gets the names of all elements (files and subdirectories) in the specified directory.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">string[] listdir(string directoryPath)</td>
+	</tr>
+	<tr>
+		<td class="lcol">Params</td>
+		<td class="rcol">
+			(string type) directoryPath: The path of the directory of which names of elements should be gotten.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">
+			(string[] type) The array storing names of the all elements in the specified directory.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Example</td>
+		<td class="rcol">
+			string elementNames[] = listdir("./temp/example_folder");
+		</td>
+	</tr>
+</table>
+
+
+<table id="mkdir" class="spec-table">
+	<tr>
+		<th class="lcol">Function</th>
+		<th class="rcol">mkdir(directoryPath)</th>
+	</tr>
+	<tr>
+		<td class="lcol">Feature</td>
+		<td class="rcol">
+			Creates the specified directory.
+			Please note that, this function does not create the parent directory automatically, so the parent directory must already exist.
+			If the parent directory does not exist, please create it at first, and then create the (sub)directory.
+			Also, if the specified directory already exist, this function do nothing (does not raise an error).
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">void mkdir(string directoryPath)</td>
+	</tr>
+	<tr>
+		<td class="lcol">Params</td>
+		<td class="rcol">
+			(string type) directoryPath: The path of the directory to be created.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">None</td>
+	</tr>
+	<tr>
+		<td class="lcol">Example</td>
+		<td class="rcol">
+			mkdir("./temp");
+			<br />
+			mkdir("./temp/example_folder");
+			<br />
+			mkdir("./temp/example_folder/example_folder2");
+		</td>
+	</tr>
+</table>
+
+
+
+<!-- ==================================================================================================== -->
+
+<hr style="page-break-before: always" />
+
+<h2 id="SystemTimeXnci1Plugin">SystemTimeXnci1Plugin<br /><span class="spec-path">(org.vcssl.nano.plugin.system.xnci1.SystemTimeXnci1Plugin)</span></h2>
+
+<p>
+The plug-in providing time-utility functions
+</p>
+
+
+<h3>Functions</h3>
+
+
+<table id="time" class="spec-table">
+	<tr>
+		<th class="lcol">Function</th>
+		<th class="rcol">time()</th>
+	</tr>
+	<tr>
+		<td class="lcol">Feature</td>
+		<td class="rcol">Measures the elapsed time from the beginning of the execution of the current script, in the unit of millisecond.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">int time()</td>
+	</tr>
+	<tr>
+		<td class="lcol">Params</td>
+		<td class="rcol">None</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">(int type) The elapsed time from the beginning of the execution of the current script, in the unit of millisecond.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Example</td>
+		<td class="rcol">int t = time();<br />print( t );</td>
+	</tr>
+</table>
+
+
+<table id="sleep" class="spec-table">
+	<tr>
+		<th class="lcol">Function</th>
+		<th class="rcol">sleep(sleepTime)</th>
+	</tr>
+	<tr>
+		<td class="lcol">Feature</td>
+		<td class="rcol">Stops the execution of the script, during the specified time in the unit of millisecond.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Singature</td>
+		<td class="rcol">void sleep( int sleepTime )</td>
+	</tr>
+	<tr>
+		<td class="lcol">Params</td>
+		<td class="rcol">(int type) sleepTime: The time in the unit of millisecond, for which the script to be stopped.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">None</td>
+	</tr>
+	<tr>
+		<td class="lcol">Example</td>
+		<td class="rcol">sleep(1000); // Stops 1 second</td>
+	</tr>
+</table>
+
+
+
+<!-- ==================================================================================================== -->
+
+<hr style="page-break-before: always" />
+
+<h2 id="SystemTerminationXnci1Plugin">SystemTerminationXnci1Plugin<br /><span class="spec-path">(org.vcssl.nano.plugin.system.xnci1.SystemTerminationXnci1Plugin)</span></h2>
+
+<p>
+The plug-in providing functions for terminating scripts
+</p>
+
+
+<h3>Functions</h3>
+
+
+<table id="exit" class="spec-table">
+	<tr>
+		<th class="lcol">Function</th>
+		<th class="rcol">exit()</th>
+	</tr>
+	<tr>
+		<td class="lcol">Feature</td>
+		<td class="rcol">Terminates the execution of the script without generating errors.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">void exit()</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">None</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">None</td>
+	</tr>
+	<tr>
+		<td class="lcol">Example</td>
+		<td class="rcol">exit();</td>
+	</tr>
+</table>
+
+
+<table id="exit_int" class="spec-table">
+	<tr>
+		<th class="lcol">Function</th>
+		<th class="rcol">exit(exitStatusCode)</th>
+	</tr>
+	<tr>
+		<td class="lcol">Feature</td>
+		<td class="rcol">Terminates the execution of the script without generating errors, with specifying the exit status code.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">void exit(int exitStatusCode)</td>
+	</tr>
+	<tr>
+		<td class="lcol">Params</td>
+		<td class="rcol">(int type) exitStatusCode: The exit status code (it is depends on implementations of the script engine and the host application that how it will be handled)</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">None</td>
+	</tr>
+	<tr>
+		<td class="lcol">Example</td>
+		<td class="rcol">exit(1);</td>
+	</tr>
+</table>
+
+
+<table id="error" class="spec-table">
+	<tr>
+		<th class="lcol">Function</th>
+		<th class="rcol">error(errorMessage)</th>
+	</tr>
+	<tr>
+		<td class="lcol">Feature</td>
+		<td class="rcol">Terminates the execution of the script with generating an error having the specified message.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">void error(string errorMessage)</td>
+	</tr>
+	<tr>
+		<td class="lcol">Parameters</td>
+		<td class="rcol">(string type) errorMessage: The content of the error message to be notified to the user of the script.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">None</td>
+	</tr>
+	<tr>
+		<td class="lcol">Example</td>
+		<td class="rcol">error( &quot;something is wrong !&quot; );</td>
+	</tr>
+</table>
+
+
+
+<!-- ==================================================================================================== -->
+
+<hr style="page-break-before: always" />
+
+<h2 id="SystemTestXnci1Plugin">SystemTestXnci1Plugin<br /><span class="spec-path">(org.vcssl.nano.plugin.system.xnci1.SystemTestXnci1Plugin)</span></h2>
+
+<p>
+The XNCI1 plug-in providing utility functions for testing.
+</p>
+
+
+<h3>Functions</h3>
+
+
+<table id="assert" class="spec-table">
+	<tr>
+		<th class="lcol">Function</th>
+		<th class="rcol">assert(expectedCondition)</th>
+	</tr>
+	<tr>
+		<td class="lcol">Feature</td>
+		<td class="rcol">Do nothing if the value of the expected condition specified as an argument is &quot;true&quot;, and generates an error if it is &quot;false&quot;.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">void assert( bool expectedCondition )</td>
+	</tr>
+	<tr>
+		<td class="lcol">Params</td>
+		<td class="rcol">(bool type) expectedCondition: The value of the expected condition.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">None</td>
+	</tr>
+	<tr>
+		<td class="lcol">Example</td>
+		<td class="rcol">int x;<br />x = 1; assert( 0 < x ); // OK<br />x = -1; assert( 0 < x ) ; // Error</td>
+	</tr>
+</table>
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>

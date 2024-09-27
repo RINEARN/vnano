@@ -44,6 +44,14 @@ ChatGPT のアカウントさえあれば、上記ページにアクセスする
 
 上記ファイルを、AI の RAG（知識検索）システムに埋め込んでください。例えば GPTs なら、上記をそれぞれ「Knowledge」ファイルとしてアップロードします。
 
+加えて、以下のファイルも登録しておきます。これらは、ユーザーの質問内容によっては、AIにとって参考になるかもしれないものです。
+
+* plugin_specifications/System_Plugins_English.html
+* plugin_specifications/System_Plugins_Japanese.html
+* plugin_specifications/Math_Plugins_English.html
+* plugin_specifications/Math_Plugins_Japanese.html
+
+
 ### プロンプトの作成
 
 続いて、AI に指示を伝えるためのプロンプトを用意します。
@@ -79,9 +87,15 @@ ChatGPT のアカウントさえあれば、上記ページにアクセスする
 
     (Embed the content of "REFTABLE_Guide_in_English.txt" here)
 
+    * [Vnano System Plug-in Group Specification](https://www.vcssl.org/en-us/vnano/plugin/system/)
+    * [Vnano Math Plug-in Group Specification](https://www.vcssl.org/en-us/vnano/plugin/math/)
+
     ### Japanese webpages
 
     (Embed the content of "REFTABLE_Guide_in_Japanese.txt" here)
+
+    * [Vnano System プラグイン群 仕様書](https://www.vcssl.org/ja-jp/vnano/plugin/system/)
+    * [Vnano Math プラグイン群 仕様書](https://www.vcssl.org/ja-jp/vnano/plugin/math/)
 
 このテンプレートを使用する場合は、最初のステップでVCSSLスクリプトが生成した「REFTABLE_Guide_in_English.txt」と「REFTABLE_Guide_in_Japanese.txt」の内容を、末尾付近の適切な箇所にコピペして入れ混んでください。
 

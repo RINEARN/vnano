@@ -1,0 +1,1033 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+	<title>Vnano Math Plug-ins</title>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width,user-scalable=no,maximum-scale=1">
+	<style type="text/css">
+		h1 .spec-path { font-size: 70%; }
+		h2 .spec-path { font-size: 70%; }
+		.spec-table { width: 100%; border: 1px solid #000000; border-collapse: collapse; margin-bottom: 20px; }
+		.spec-table td { border: 1px solid #000000; text-align: left; }
+		.spec-table th { border: 1px solid #000000; text-align: left; }
+		.spec-table .lcol { width: 100px; background-color: #eeeeee; }
+		.spec-table .rcol { }
+		.spec-dl { }
+		.spec-dl dt { font-weight: bold; display: list-item; list-style-position: outside; margin-left: 20px; list-style-type: disc; }
+		.spec-dl dd { margin-bottom: 14px; line-height: 160%; }
+	</style>
+</head>
+
+<body>
+
+
+
+<h1>Vnano Math Plug-in Group<br /><span class="spec-path">(org.vcssl.nano.plugin.math package)<span></h1>
+<hr />
+
+
+
+<h2>Abstract</h2>
+
+<p>
+Plug-ins in this package/subpackages provide elementary math &amp; statistical functions available in scripts of the Vnano (VCSSL nano).
+<br />
+Features provided by these plug-ins is a subset (*) of the <a href="https://www.vcssl.org/ja-jp/lib/Math">VCSSL Math Library</a> and 
+the <a href="https://www.vcssl.org/ja-jp/lib/math/StatisticalFunction">math.StatisticalFunction Library</a> which are a standard libraries of the VCSSL,
+so same features are also available in scripts of the VCSSL by default, with importing them at the head of the script as: 
+&quot; import Math; import math.StatisticalFunction; &quot;
+</p>
+
+<p>
+* Features of some math functions (e.g.: sin) provided by plug-ins in this package are extended to make it possible to get/return arrays. It has not been supported yet on the VCSSL, so it is only available on the Vnano.
+</p>
+
+
+<h2>List of Provided Plug-ins and Features</h2>
+
+<dl class="spec-dl">
+	<dt><a href="#MathElementaryXnci1Plugin">MathElementaryXnci1Plugin</a></dt>
+		<dd>
+			Provides elementary math functions.
+			<br />
+			Variable: <a href="#PI">PI</a>
+			<br />
+			Function:
+				<a href="#rad">rad(degree)</a> / <a href="#deg">deg(radian)</a> / <a href="#sin">sin(x)</a> / <a href="#cos">cos(x)</a> / <a href="#tan">tan(x)</a> / 
+				<a href="#asin">asin(x)</a> / <a href="#acos">acos(x)</a> / <a href="#atan">atan(x)</a> /
+				<a href="#sqrt">sqrt(x)</a> / <a href="#ln">ln(x)</a> / <a href="#log10">log10(x)</a> / <a href="#pow">pow(x,exponent)</a> / <a href="#exp">exp(x)</a> /
+				<a href="#abs">abs(x)</a>
+		</dd>
+	<dt><a href="#MathStatisticalXnci1Plugin">MathStatisticalXnci1Plugin</a></dt>
+		<dd>
+			Provides elementary statistical functions.
+			<br />
+			Function:
+				<a href="#sum">sum(...)</a> / <a href="#sum_array">sum(array)</a> / 
+				<a href="#mean">mean(...)</a> / <a href="#mean_array">mean(array)</a> / 
+				<a href="#van">van(...)</a> / <a href="#van_array">van(array)</a> / 
+				<a href="#van1">van1(...)</a> / <a href="#van1_array">van1(array)</a> / 
+				<a href="#sdn">sdn(...)</a> / <a href="#sdn_array">sdn(array)</a> / 
+				<a href="#sdn1">sdn1(...)</a> / <a href="#sdn1_array">sdn1(array)</a>
+		</dd>
+</dl>
+
+
+
+<h2>License</h2>
+
+<p>
+All of the above plug-ins are released under <a href="https://creativecommons.org/publicdomain/zero/1.0/deed">CC0</a>.
+</p>
+
+
+
+<!-- ==================================================================================================== -->
+
+<hr style="page-break-before: always" />
+
+<h2 id="MathElementaryXnci1Plugin">MathElementaryXnci1Plugin<br /><span class="spec-path">(org.vcssl.nano.math.xnci1.MathElementaryXnci1Plugin)</span></h2>
+
+<p>
+The plug-in providing elementary math functions.
+</p>
+
+
+<h3>Variables</h3>
+
+<table id="PI" class="spec-table">
+	<tr>
+		<th class="lcol">Variable</th>
+		<th class="rcol">PI</th>
+	</tr>
+	<tr>
+		<td class="lcol">Value</td>
+		<td class="rcol">Storing the value of the circle ratio π.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Data Type</td>
+		<td class="rcol">float (constant)</td>
+	</tr>
+</table>
+
+
+
+<h3>Functions</h3>
+
+
+<table id="rad" class="spec-table">
+	<tr>
+		<th class="lcol">Function</th>
+		<th class="rcol">rad( degree )</th>
+	</tr>
+	<tr>
+		<td class="lcol">Feature</td>
+		<td class="rcol">
+			The conversion function from degree to radian. 
+			Converts the value in the unit of degree passed as an argument &quot;degree&quot; to the value in the unit of radian, and returns it.
+			When an array is passed, converts each elements of it, stores them in another array, and returns it.
+			Please note that, the conversion result will not be shifted automatically to taking value in the range of [0, 2π), 
+			so you will get the result value exceeding 2π if you will pass the argument exceeding 360°.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">float[]...[] rad( const float &amp;degree[]...[] )</td>
+	</tr>
+	<tr>
+		<td class="lcol">Params</td>
+		<td class="rcol">(float type, any rank) degree: The value in the unit of degree to be converted to the value in the unit of radian.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return value</td>
+		<td class="rcol">(float type, having same rank/length with the param) The converted value in the unit of radian.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Example</td>
+		<td class="rcol">print( rad(180.0) ); // 3.14...</td>
+	</tr>
+</table>
+
+
+<table id="deg" class="spec-table">
+	<tr>
+		<th class="lcol">Function</th>
+		<th class="rcol">deg( radian )</th>
+	</tr>
+	<tr>
+		<td class="lcol">Feature</td>
+		<td class="rcol">
+			The conversion function from radian to degree. 
+			Converts the value in the unit of degree passed as an argument &quot;degree&quot; to the value in the unit of radian, and returns it.
+			When an array is passed, converts each elements of it, stores them in another array, and returns it.
+			Please note that, the conversion result will not be shifted automatically to taking value in the range of [0, 360), 
+			so you will get the result value exceeding 360° if you will pass the argument exceeding 2π.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">float[]...[] deg( const float &amp;radian[]...[] )</td>
+	</tr>
+	<tr>
+		<td class="lcol">Params</td>
+		<td class="rcol">(float type, any rank) radian: The value in the unit of radian to be converted to the value in the unit of degree.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">(float type, having same rank/length with the param) The converted value in the unit of degree.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Example</td>
+		<td class="rcol">print( deg(PI) ); // 180.0</td>
+	</tr>
+</table>
+
+
+<table id="sin" class="spec-table">
+	<tr>
+		<th class="lcol">Function</th>
+		<th class="rcol">sin( x )</th>
+	</tr>
+	<tr>
+		<td class="lcol">Feature</td>
+		<td class="rcol">
+			The sine function. The unit of the argument &quot;x&quot; is radian.
+			When an array is passed, computes the value of sin(x[i]) for each elements x[i], stores them in another array, and returns it.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Singature</td>
+		<td class="rcol">float[]...[] sin( const float &amp;x[]...[] )</td>
+	</tr>
+	<tr>
+		<td class="lcol">Params</td>
+		<td class="rcol">(float type, any rank) x: The argument of the sine function in the unit of radian.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">(float type, having same rank/length with the param) The value of the sine function.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Example</td>
+		<td class="rcol">print( sin(PI/2.0) ); // 1.0</td>
+	</tr>
+</table>
+
+
+<table id="cos" class="spec-table">
+	<tr>
+		<th class="lcol">Function</th>
+		<th class="rcol">cos( x )</th>
+	</tr>
+	<tr>
+		<td class="lcol">Feature</td>
+		<td class="rcol">
+			The cosine function. The unit of the argument &quot;x&quot; is radian.
+			When an array is passed, computes the value of cos(x[i]) for each elements x[i], stores them in another array, and returns it.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Singature</td>
+		<td class="rcol">float[]...[] cos( const float &amp;x[]...[] )</td>
+	</tr>
+	<tr>
+		<td class="lcol">Params</td>
+		<td class="rcol">(float type, any rank) x: The argument of the cosine function in the unit of radian.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">(float type, having same rank/length with the param) The value of the cosine function.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Example</td>
+		<td class="rcol">print( cos(PI*2.0) ); // 1.0</td>
+	</tr>
+</table>
+
+
+<table id="tan" class="spec-table">
+	<tr>
+		<th class="lcol">Function</th>
+		<th class="rcol">tan( x )</th>
+	</tr>
+	<tr>
+		<td class="lcol">Feature</td>
+		<td class="rcol">
+			The tangent function. The unit of the argument &quot;x&quot; is radian.
+			When an array is passed, computes the value of tan(x[i]) for each elements x[i], stores them in another array, and returns it.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">float[]...[] tan( const float &amp;x[]...[] )</td>
+	</tr>
+	<tr>
+		<td class="lcol">Params</td>
+		<td class="rcol">(float type, any rank) x: The argument of the tangent function in the unit of radian.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">(float type, having same rank/length with the param) The value of the tangent function.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Example</td>
+		<td class="rcol">print( tan(PI/4.0) ); // 0.99999... (The true value is 1. The difference between the result and the true value is caused by tiny numerical error related with precisions of data/algorithm/etc., so it is not a bug.)</td>
+	</tr>
+</table>
+
+
+<table id="asin" class="spec-table">
+	<tr>
+		<th class="lcol">Function</th>
+		<th class="rcol">asin( x )</th>
+	</tr>
+	<tr>
+		<td class="lcol">Feature</td>
+		<td class="rcol">
+			The inverse function of sine (arc-sine). The unit of the result is radian.
+			When an array is passed, computes the value of asin(x[i]) for each elements x[i], stores them in another array, and returns it.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">float[]...[] asin( const float &amp;x[]...[] )</td>
+	</tr>
+	<tr>
+		<td class="lcol">Params</td>
+		<td class="rcol">(float type, any rank) x: The argument of the arc-sine function.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">(float type, having same rank/length with the param) The value of the arc-sine function in the unit of radian.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Example</td>
+		<td class="rcol">print( asin(1.0) ); // 1.5707963... (≒π/2)</td>
+	</tr>
+</table>
+
+
+<table id="acos" class="spec-table">
+	<tr>
+		<th class="lcol">Function</th>
+		<th class="rcol">acos( x )</th>
+	</tr>
+	<tr>
+		<td class="lcol">Feature</td>
+		<td class="rcol">
+			The inverse function of cosine (arc-cosine). The unit of the result is radian.
+			When an array is passed, computes the value of acos(x[i]) for each elements x[i], stores them in another array, and returns it.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">float[]...[] acos( const float &amp;x[]...[] )</td>
+	</tr>
+	<tr>
+		<td class="lcol">Params</td>
+		<td class="rcol">(float type, any rank) x: The argument of the arc-cosine function.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">(float type, having same rank/length with the param) The value of the arc-cosine function in the unit of radian.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Example</td>
+		<td class="rcol">print( acos(-1.0) ); // 3.14... (≒π)</td>
+	</tr>
+</table>
+
+
+<table id="atan" class="spec-table">
+	<tr>
+		<th class="lcol">Function</th>
+		<th class="rcol">atan( x )</th>
+	</tr>
+	<tr>
+		<td class="lcol">Feature</td>
+		<td class="rcol">
+			The inverse function of cosine (arc-tangent). The unit of the result is radian.
+			When an array is passed, computes the value of atan(x[i]) for each elements x[i], stores them in another array, and returns it.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">float[]...[] atan( const float &amp;x[]...[] )</td>
+	</tr>
+	<tr>
+		<td class="lcol">Params</td>
+		<td class="rcol">(float type, any rank) x: The argument of the arc-tangent function.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">(float type, having same rank/length with the param) The value of the arc-tangent function in the unit of radian.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Example</td>
+		<td class="rcol">print( atan(1.0) ); // 0.78539... (≒π/4)</td>
+	</tr>
+</table>
+
+
+<table id="sqrt" class="spec-table">
+	<tr>
+		<th class="lcol">Function</th>
+		<th class="rcol">sqrt( x )</th>
+	</tr>
+	<tr>
+		<td class="lcol">Feature</td>
+		<td class="rcol">
+			The square-root function.
+			When an array is passed, computes the value of sqrt(x[i]) for each elements x[i], stores them in another array, and returns it.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">float[]...[] sqrt( const float &amp;x[]...[] )</td>
+	</tr>
+	<tr>
+		<td class="lcol">Params</td>
+		<td class="rcol">(float type, any rank) x: The value of which square root should be computed.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">(float type, having same rank/length with the param) The square root value of the argument.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Example</td>
+		<td class="rcol">print( sqrt(4.0) ); // 2.0</td>
+	</tr>
+</table>
+
+
+<table id="ln" class="spec-table">
+	<tr>
+		<th class="lcol">Function</th>
+		<th class="rcol">ln( x )</th>
+	</tr>
+	<tr>
+		<td class="lcol">Feature</td>
+		<td class="rcol">
+			The logarithm function with the base &quot;e&quot; (napier number).
+			When an array is passed, computes the value of ln(x[i]) for each elements x[i], stores them in another array, and returns it.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">float[]...[] ln( const float &amp;x[]...[] )</td>
+	</tr>
+	<tr>
+		<td class="lcol">Params</td>
+		<td class="rcol">(float type, any rank) x: The argument of the logarithm function.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">(float type, having same rank/length with the param) The value of the logarithm function with the base &quot;e&quot; (napier number).</td>
+	</tr>
+	<tr>
+		<td class="lcol">Example</td>
+		<td class="rcol">print( ln(10.0) ); // 2.3025...</td>
+	</tr>
+</table>
+
+
+<table id="log10" class="spec-table">
+	<tr>
+		<th class="lcol">Function</th>
+		<th class="rcol">log10( x )</th>
+	</tr>
+	<tr>
+		<td class="lcol">Feature</td>
+		<td class="rcol">
+			The logarithm function with the base 10.
+			When an array is passed, computes the value of ln(x[i]) for each elements x[i], stores them in another array, and returns it.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">float[]...[] log10( const float &amp;x[]...[] )</td>
+	</tr>
+	<tr>
+		<td class="lcol">Params</td>
+		<td class="rcol">(float type, any rank) x: The argument of the logarithm function.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">(float type, having same rank/length with the param) The value of the logarithm function with the base 10.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Example</td>
+		<td class="rcol">print( log10(10.0) ); // 1.0</td>
+	</tr>
+</table>
+
+
+<table id="pow" class="spec-table">
+	<tr>
+		<th class="lcol">Function</th>
+		<th class="rcol">pow( x, exponent )</th>
+	</tr>
+	<tr>
+		<td class="lcol">Feature</td>
+		<td class="rcol">
+			The function which returns the value of &qupt;x&qupt; to &qupt;exponent&qupt;-power. 
+			When an array is passed, computes the value of pow(x[i], exponent) for each elements x[i], stores them in another array, and returns it.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">float[]...[] pow( const float &amp;x[]...[], const float &amp;exponent )</td>
+	</tr>
+	<tr>
+		<td class="lcol">Params</td>
+		<td class="rcol">
+			(float type, any rank) x: see &quot;Feature&quot; section.
+			<br />
+			(float type) exponent: see &quot;Feature&quot; section.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">(float type, having same rank/length with the param x) The value of &qupt;x&qupt; to &qupt;exponent&qupt;-power. </td>
+	</tr>
+	<tr>
+		<td class="lcol">Example</td>
+		<td class="rcol">print( pow(2.0,3.0) ); // 8.0</td>
+	</tr>
+</table>
+
+
+<table id="exp" class="spec-table">
+	<tr>
+		<th class="lcol">Function</th>
+		<th class="rcol">exp( exponent )</th>
+	</tr>
+	<tr>
+		<td class="lcol">Fearure</td>
+		<td class="rcol">
+			The function which returns the value of &qupt;e&qupt; (napier number) to &qupt;exponent&qupt;-power. 
+			When an array is passed, computes the value of exp(x[i]) for each elements x[i], stores them in another array, and returns it.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">float[]...[] exp( const float &amp;exponent[]...[] )</td>
+	</tr>
+	<tr>
+		<td class="lcol">Params</td>
+		<td class="rcol">
+			(float type, any rank) exponent: see &quot;Feature&quot; section.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">(float type, having same rank/length with the param) The value of &qupt;e&qupt; (napier number) to &qupt;exponent&qupt;-power. </td>
+	</tr>
+	<tr>
+		<td class="lcol">Example</td>
+		<td class="rcol">print( exp(2.0) ); // 7.38905... (≒ squared value of &quot;e&quot;)</td>
+	</tr>
+</table>
+
+
+<table id="abs" class="spec-table">
+	<tr>
+		<th class="lcol">Function</th>
+		<th class="rcol">abs( x )</th>
+	</tr>
+	<tr>
+		<td class="lcol">Feature</td>
+		<td class="rcol">
+			The absolute-value function. 
+			When an array is passed, computes the value of abs(x[i]) for each elements x[i], stores them in another array, and returns it.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">float[]...[] abs( const float &amp;x[]...[] )</td>
+	</tr>
+	<tr>
+		<td class="lcol">Params</td>
+		<td class="rcol">
+			(float type, any rank) x: The value of which absolute value should be computed.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">(float type, having same rank/length with the param) The absolute value.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Example</td>
+		<td class="rcol">print( abs(-1.23) ); // 1.23</td>
+	</tr>
+</table>
+
+
+
+<!-- ==================================================================================================== -->
+
+<hr style="page-break-before: always" />
+
+<h2 id="MathStatisticalXnci1Plugin">MathStatisticalXnci1Plugin<br /><span class="spec-path">(org.vcssl.nano.math.xnci1.MathStatisticalXnci1Plugin)</span></h2>
+
+<p>
+The plug-in providing elementary statistical functions.
+</p>
+
+
+<h3>Functions</h3>
+
+
+<table id="sum" class="spec-table">
+	<tr>
+		<th class="lcol">Function</th>
+		<th class="rcol">sum(...)</th>
+	</tr>
+	<tr>
+		<td class="lcol">Feature</td>
+		<td class="rcol">
+			Computes the summation value.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">float sum( ... float )</td>
+	</tr>
+	<tr>
+		<td class="lcol">Params</td>
+		<td class="rcol">
+			(float type, can pass any number of values) Values of which summation value should be computed.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">(float type) The summation value.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Example</td>
+		<td class="rcol">print( sum(1.0, 2.5, 4.0) ); // 7.5</td>
+	</tr>
+</table>
+
+
+<table id="sum_array" class="spec-table">
+	<tr>
+		<th class="lcol">Function</th>
+		<th class="rcol">sum( array )</th>
+	</tr>
+	<tr>
+		<td class="lcol">Feature</td>
+		<td class="rcol">
+			Computes the summation value of the values stored in the specified array.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">float sum( float array[] )</td>
+	</tr>
+	<tr>
+		<td class="lcol">Params</td>
+		<td class="rcol">
+			(float type, 1-D array) The array storing the values of which summation value should be computed.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">(float type) The summation value.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Example</td>
+		<td class="rcol">
+			float array[3];
+			<br />
+			array[0] = 1.0;
+			<br />
+			array[1] = 2.5;
+			<br />
+			array[2] = 4.0;
+			<br />
+			print( sum(array) ); // 7.5
+		</td>
+	</tr>
+</table>
+
+
+<table id="mean" class="spec-table">
+	<tr>
+		<th class="lcol">Function</th>
+		<th class="rcol">mean(...)</th>
+	</tr>
+	<tr>
+		<td class="lcol">Feature</td>
+		<td class="rcol">
+			Computes the arithmetic mean value.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">float mean( ... float )</td>
+	</tr>
+	<tr>
+		<td class="lcol">Params</td>
+		<td class="rcol">
+			(float type, can pass any number of values) Values of which arithmetic mean value should be computed.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">(float type) The arithmetic mean value.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Example</td>
+		<td class="rcol">print( mean(1.0, 2.5, 4.0) ); // 2.5</td>
+	</tr>
+</table>
+
+
+<table id="mean_array" class="spec-table">
+	<tr>
+		<th class="lcol">Function</th>
+		<th class="rcol">mean( array )</th>
+	</tr>
+	<tr>
+		<td class="lcol">Feature</td>
+		<td class="rcol">
+			Computes the arithmetic mean value of the values stored in the specified array.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">float mean( float array[] )</td>
+	</tr>
+	<tr>
+		<td class="lcol">Params</td>
+		<td class="rcol">
+			(float type, 1-D array) The array storing the values of which arithmetic mean value should be computed.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">(float type) The arithmetic mean value.</td>
+	</tr>
+	<tr>
+		<td class="lcol">Example</td>
+		<td class="rcol">
+			float array[3];
+			<br />
+			array[0] = 1.0;
+			<br />
+			array[1] = 2.5;
+			<br />
+			array[2] = 4.0;
+			<br />
+			print( mean(array) ); // 2.5
+		</td>
+	</tr>
+</table>
+
+
+<table id="van" class="spec-table">
+	<tr>
+		<th class="lcol">Function</th>
+		<th class="rcol">van(...)</th>
+	</tr>
+	<tr>
+		<td class="lcol">Fearure</td>
+		<td class="rcol">
+			Computes the value of the variance ( denominator : N ).
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">float van( ... float )</td>
+	</tr>
+	<tr>
+		<td class="lcol">Params</td>
+		<td class="rcol">
+			(float type, can pass any number of values) Values of which value of the variable should be computed.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">(float type) The value of the variance ( denominator : N ).</td>
+	</tr>
+	<tr>
+		<td class="lcol">Example</td>
+		<td class="rcol">print( van(1.0, 2.5, 4.0) ); // 1.5</td>
+	</tr>
+</table>
+
+
+<table id="van_array" class="spec-table">
+	<tr>
+		<th class="lcol">Function</th>
+		<th class="rcol">van( array )</th>
+	</tr>
+	<tr>
+		<td class="lcol">Fearure</td>
+		<td class="rcol">
+			Computes the value of the variance ( denominator : N ).
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">float van( float array[] )</td>
+	</tr>
+	<tr>
+		<td class="lcol">Params</td>
+		<td class="rcol">
+			(float type, 1-D array ) The array storing the values of which value of the variable should be computed.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">(float type) The value of the variance ( denominator : N ).</td>
+	</tr>
+	<tr>
+		<td class="lcol">Example</td>
+		<td class="rcol">
+			float array[3];
+			<br />
+			array[0] = 1.0;
+			<br />
+			array[1] = 2.5;
+			<br />
+			array[2] = 4.0;
+			<br />
+			print( van(array) ); // 1.5
+		</td>
+	</tr>
+</table>
+
+
+<table id="van1" class="spec-table">
+	<tr>
+		<th class="lcol">Function</th>
+		<th class="rcol">van1(...)</th>
+	</tr>
+	<tr>
+		<td class="lcol">Fearure</td>
+		<td class="rcol">
+			Computes the value of the variance ( denominator : N-1 ).
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">float van( ... float )</td>
+	</tr>
+	<tr>
+		<td class="lcol">Params</td>
+		<td class="rcol">
+			(float type, can pass any number of values) Values of which value of the variable should be computed.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">(float type) The value of the variance ( denominator : N-1 ).</td>
+	</tr>
+	<tr>
+		<td class="lcol">Example</td>
+		<td class="rcol">print( van1(1.0, 2.5, 4.0) ); // 2.25</td>
+	</tr>
+</table>
+
+
+<table id="van1_array" class="spec-table">
+	<tr>
+		<th class="lcol">Function</th>
+		<th class="rcol">van1( array )</th>
+	</tr>
+	<tr>
+		<td class="lcol">Fearure</td>
+		<td class="rcol">
+			Computes the value of the variance ( denominator : N-1 ).
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">float van1( float array[] )</td>
+	</tr>
+	<tr>
+		<td class="lcol">Params</td>
+		<td class="rcol">
+			(float type, 1-D array ) The array storing the values of which value of the variable should be computed.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">(float type) The value of the variance ( denominator : N-1 ).</td>
+	</tr>
+	<tr>
+		<td class="lcol">Example</td>
+		<td class="rcol">
+			float array[3];
+			<br />
+			array[0] = 1.0;
+			<br />
+			array[1] = 2.5;
+			<br />
+			array[2] = 4.0;
+			<br />
+			print( van1(array) ); // 2.25
+		</td>
+	</tr>
+</table>
+
+
+<table id="sdn" class="spec-table">
+	<tr>
+		<th class="lcol">Function</th>
+		<th class="rcol">sdn(...)</th>
+	</tr>
+	<tr>
+		<td class="lcol">Feature</td>
+		<td class="rcol">
+			Computes the value of the standard-deviation ( denominator : N ).
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">float sdn( ... float )</td>
+	</tr>
+	<tr>
+		<td class="lcol">Params</td>
+		<td class="rcol">
+			(float type, can pass any number of values) Values of which value of the standard-deviation should be computed.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">(float type) The value of the standard-deviation ( denominator : N ).</td>
+	</tr>
+	<tr>
+		<td class="lcol">Example</td>
+		<td class="rcol">print( sdn(1.0, 2.5, 4.0) ); // 1.2247... (≒√1.5)</td>
+	</tr>
+</table>
+
+
+<table id="sdn_array" class="spec-table">
+	<tr>
+		<th class="lcol">Function</th>
+		<th class="rcol">sdn( array )</th>
+	</tr>
+	<tr>
+		<td class="lcol">Feature</td>
+		<td class="rcol">
+			Computes the value of the standard-deviation ( denominator : N ), of the values stored in the specifed array.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">float sdn( float array[] )</td>
+	</tr>
+	<tr>
+		<td class="lcol">Params</td>
+		<td class="rcol">
+			(float type, 1-D array) The array storing the values of which value of the standard-deviation should be computed.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">(float type) The value of the standard-deviation ( denominator : N ).</td>
+	</tr>
+	<tr>
+		<td class="lcol">Example</td>
+		<td class="rcol">
+			float array[3];
+			<br />
+			array[0] = 1.0;
+			<br />
+			array[1] = 2.5;
+			<br />
+			array[2] = 4.0;
+			<br />
+			print( sdn(array) ); // 1.2247... (≒√1.5)
+		</td>
+	</tr>
+</table>
+
+
+<table id="sdn1" class="spec-table">
+	<tr>
+		<th class="lcol">Function</th>
+		<th class="rcol">sdn1(...)</th>
+	</tr>
+	<tr>
+		<td class="lcol">Feature</td>
+		<td class="rcol">
+			Computes the value of the standard-deviation ( denominator : N-1 ).
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">float sdn1( ... float )</td>
+	</tr>
+	<tr>
+		<td class="lcol">Params</td>
+		<td class="rcol">
+			(float type, can pass any number of values) Values of which value of the standard-deviation should be computed.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">(float type) The value of the standard-deviation ( denominator : N-1 ).</td>
+	</tr>
+	<tr>
+		<td class="lcol">Example</td>
+		<td class="rcol">print( sdn1(1.0, 2.5, 4.0) ); // 1.5 (=√2.25)</td>
+	</tr>
+</table>
+
+
+<table id="sdn1_array" class="spec-table">
+	<tr>
+		<th class="lcol">Function</th>
+		<th class="rcol">sdn1( array )</th>
+	</tr>
+	<tr>
+		<td class="lcol">Feature</td>
+		<td class="rcol">
+			Computes the value of the standard-deviation ( denominator : N-1 ), of the values stored in the specifed array.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Signature</td>
+		<td class="rcol">float sdn1( float array[] )</td>
+	</tr>
+	<tr>
+		<td class="lcol">Params</td>
+		<td class="rcol">
+			(float type, 1-D array) The array storing the values of which value of the standard-deviation should be computed.
+		</td>
+	</tr>
+	<tr>
+		<td class="lcol">Return</td>
+		<td class="rcol">(float type) The value of the standard-deviation ( denominator : N-1 ).</td>
+	</tr>
+	<tr>
+		<td class="lcol">Example</td>
+		<td class="rcol">
+			float array[3];
+			<br />
+			array[0] = 1.0;
+			<br />
+			array[1] = 2.5;
+			<br />
+			array[2] = 4.0;
+			<br />
+			print( sdn1(array) ); // 1.5 (=√2.25)
+		</td>
+	</tr>
+</table>
+
+
+
+
+
+
+
+
+</body>
+</html>

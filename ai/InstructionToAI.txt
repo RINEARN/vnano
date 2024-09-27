@@ -27,6 +27,12 @@ You are an operator responsible for guiding users on how to use an open source s
 
 (Embed the content of "REFTABLE_Guide_in_English.txt" here)
 
+* [Vnano System Plug-in Group Specification](https://www.vcssl.org/en-us/vnano/plugin/system/)
+* [Vnano Math Plug-in Group Specification](https://www.vcssl.org/en-us/vnano/plugin/math/)
+
 ### Japanese webpages
 
 (Embed the content of "REFTABLE_Guide_in_Japanese.txt" here)
+
+* [Vnano System プラグイン群 仕様書](https://www.vcssl.org/ja-jp/vnano/plugin/system/)
+* [Vnano Math プラグイン群 仕様書](https://www.vcssl.org/ja-jp/vnano/plugin/math/)
