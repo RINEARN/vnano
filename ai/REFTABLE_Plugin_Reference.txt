@@ -1,0 +1,4 @@
+* [Vnano System Plug-in Group](https://www.vcssl.org/en-us/vnano/plugin/system/): Plug-ins in this package/subpackages provide basic features available in scripts of the Vnano (VCSSL nano), e.g.: I/O features, utility features, and so on.
+* [Vnano System プラグイン群](https://www.vcssl.org/ja-jp/vnano/plugin/system/): このパッケージ/サブパッケージ内のプラグイン群は、Vnano (VCSSL nano) のスクリプトから利用できる、基本的な入出力機能やユーティリティ機能などを提供します。
+* [Vnano Math Plug-in Group](https://www.vcssl.org/ja-jp/vnano/plugin/math/): Plug-ins in this package/subpackages provide elementary math & statistical functions available in scripts of the Vnano (VCSSL nano).
+* [Vnano Math プラグイン群](https://www.vcssl.org/ja-jp/vnano/plugin/system/): このパッケージ/サブパッケージ内のプラグイン群は、Vnano (VCSSL nano) のスクリプトから利用できる、初等的な数学・統計関数などを提供します。

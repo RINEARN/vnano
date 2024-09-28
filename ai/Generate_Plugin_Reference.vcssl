@@ -1,0 +1,153 @@
+coding UTF-8;
+
+// ================================================================================
+// Textfiles to Knowledge-JSONs Converter Ver.1.0.3
+// Made by: RINEARN (Fumihiro Matsui)
+// Licence: Unlicense or CC0 (Dual License)
+// ================================================================================
+
+import System;
+import File;
+import Text;
+import data.Queue;
+
+
+// --------------------------------------------------------------------------------
+// Defines the constant parameters.
+// --------------------------------------------------------------------------------
+
+const string OUTPUT_FILE_PATH = "./Plugin_Reference.json";
+const string OUTPUT_ENCODING = "UTF-8";
+
+const string REFTABLE_OUTPUT_FILE_PATH = "./REFTABLE_Plugin_Reference.txt";
+const string REFTABLE_OUTPUT_ENCODING = "UTF-8";
+
+const string INPUT_BASE_DIRECTORY_PATH = "./";
+const string INPUT_ENCODING = "UTF-8";
+
+// --------------------------------------------------------------------------------
+// Defines the pages to be processed.
+// --------------------------------------------------------------------------------
+
+Queue<Page> pageQueue;       // (Path to a Markdown file, URL in ref-table, Title, Short description)
+enqueue<Page>(pageQueue, newPage("../plugin/org/vcssl/nano/plugin/system/README_ENGLISH.html", "https://www.vcssl.org/en-us/vnano/plugin/system/", "Vnano System Plug-in Group", "Plug-ins in this package/subpackages provide basic features available in scripts of the Vnano (VCSSL nano), e.g.: I/O features, utility features, and so on."));
+enqueue<Page>(pageQueue, newPage("../plugin/org/vcssl/nano/plugin/system/README_JAPANESE.html", "https://www.vcssl.org/ja-jp/vnano/plugin/system/", "Vnano System プラグイン群", "このパッケージ/サブパッケージ内のプラグイン群は、Vnano (VCSSL nano) のスクリプトから利用できる、基本的な入出力機能やユーティリティ機能などを提供します。"));
+enqueue<Page>(pageQueue, newPage("../plugin/org/vcssl/nano/plugin/math/README_ENGLISH.html", "https://www.vcssl.org/ja-jp/vnano/plugin/math/", "Vnano Math Plug-in Group", "Plug-ins in this package/subpackages provide elementary math & statistical functions available in scripts of the Vnano (VCSSL nano)."));
+enqueue<Page>(pageQueue, newPage("../plugin/org/vcssl/nano/plugin/math/README_JAPANESE.html", "https://www.vcssl.org/ja-jp/vnano/plugin/system/", "Vnano Math プラグイン群", "このパッケージ/サブパッケージ内のプラグイン群は、Vnano (VCSSL nano) のスクリプトから利用できる、初等的な数学・統計関数などを提供します。"));
+
+
+struct Page {
+	string relativeFilePath;
+	string url;
+	string title;
+	string description;
+	string text;
+	int hierarchyOffset;
+}
+
+Page newPage(string relativeFilePath, string url, string title, string description) {
+	Page page;
+	page.relativeFilePath = relativeFilePath;
+	page.title = title;
+	page.description = description;
+	page.url = url;
+	page.hierarchyOffset = 1; // Always 1 for the current implementation.
+	return page;
+}
+
+
+
+
+// --------------------------------------------------------------------------------
+// Processes the aboves.
+// --------------------------------------------------------------------------------
+
+void main() {
+	int pageCount = size<Page>(pageQueue);
+	println("PAGE COUNT = " + pageCount);
+	
+	int outputFile = open(OUTPUT_FILE_PATH, System.WRITE, OUTPUT_ENCODING);
+	int refTableFile = open(REFTABLE_OUTPUT_FILE_PATH, System.WRITE, REFTABLE_OUTPUT_ENCODING);
+	
+	writeln(outputFile, "{");
+	
+	for (int ipage; ipage<pageCount; ipage++) {
+		
+		// Extract one page from the queue (global variable).
+		Page page = dequeue<Page>(pageQueue);
+		
+		// Open the page file.
+		string absoluteFilePath = getFilePath(page.relativeFilePath, INPUT_BASE_DIRECTORY_PATH, File.ABSOLUTE);
+		int inputFile = open(absoluteFilePath, System.READ, INPUT_ENCODING);
+		
+		// Load, convert, and output the content of the page.
+		println("PROCESSING PAGE = " + absoluteFilePath);
+		processPage(
+			inputFile, outputFile,
+			ipage, (ipage == pageCount - 1),
+			page.title, page.description, page.url, page.hierarchyOffset
+		);
+		
+		// Write a line in the reference-table.
+		writeln(refTableFile, "* [" + page.title + "](" + page.url + "): " + page.description);
+		
+		// Close the page file.
+		close(inputFile);
+	}
+	
+	// Close the knowledge file.
+	writeln(outputFile, "}");
+	close(outputFile);
+	close(refTableFile);
+	
+	println("COMPLETED !");
+}
+
+
+void processPage(int inputFile, int outputFile, int pageIndex, boolean isLast, string title, string description, string url, int hierarchyOffset) {
+	int lineCount = countln(inputFile);
+	int headerLineCount = 0;
+	
+	string offsetTab = "";
+	for (int ihierarchy=0; ihierarchy<hierarchyOffset; ihierarchy++) {
+		offsetTab += "	";
+	}
+	string offsetTabTab = offsetTab + "	";
+
+	writeln(outputFile, offsetTab + "\"page" + pageIndex + "\": {");
+
+	writeln(outputFile, offsetTabTab + "\"title\": \"" + title + "\",");
+	writeln(outputFile, offsetTabTab + "\"description\": \"" + description + "\",");
+	//writeln(outputFile, offsetTabTab + "\"url\": \"" + url + "\",");
+	
+	write(outputFile, offsetTabTab + "\"text\": \"");
+	
+	// Process all the lines in the input file.
+	for (int iline=0; iline<lineCount; iline++) {
+		string line = readln(inputFile);
+		line = escape(line);
+		write(outputFile, line + "\\n");
+	}
+	
+	writeln(outputFile, "\"");
+	if (isLast) {
+		writeln(outputFile, offsetTab + "}");
+	} else {
+		writeln(outputFile, offsetTab + "},");
+	}
+}
+
+private string escape(string line) {
+	line = replaceText(line, "\\", "\\\\", Text.ALL);
+	line = replaceText(line, "\"", "\\\"", Text.ALL);
+	line = replaceText(line, "/", "\\/", Text.ALL);
+	line = replaceText(line, "	", "\\t", Text.ALL);
+	line = replaceText(line, CR+LF, LF, Text.ALL);
+	line = replaceText(line, LF, "\\n", Text.ALL);
+	return line;
+}
+
+
+
+
+

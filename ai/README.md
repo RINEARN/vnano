@@ -18,6 +18,7 @@ The steps outlined in this document have been used to build and operate the Vnan
 ## Requirements
 
 * [VCSSL](https://www.vcssl.org/) (Ver.3.4 or later)
+* Vnano Standard Plug-ins (must be located in the ../plugin/ folder)
 * LLM-based AI with RAG capabilities (e.g., GPTs on the ChatGPT service)
 
 ## Steps to Create
@@ -28,13 +29,16 @@ Run the following scripts using the VCSSL Runtime:
 
 * Generate_Gude_in_English.vcssl
 * Generate_Gude_in_Japanese.vcssl
+* Generate_Plugin_Reference.vcssl
 
 These scripts will generate the following resources:
 
 * Guide_in_English.json
 * Guide_in_Japanese.json
+* Plugin_Reference.json
 * REFTABLE_Guide_in_English.txt
 * REFTABLE_Guide_in_Japanese.txt
+* REFTABLE_Plugin_Reference.txt
 
 ### Register with the RAG (Knowledge) System
 
@@ -42,15 +46,9 @@ The JSON files below contain the information used by the AI to answer users' que
 
 * Guide_in_English.json
 * Guide_in_Japanese.json
+* Plugin_Reference.json
 
 Register these files in your AI’s RAG (Knowledge) system. For example, with GPTs, upload them as "Knowledge" files.
-
-Additionally, register the following files. Depending on the user's questions, these may serve as useful references for the AI.
-
-* plugin_specifications/System_Plugins_English.html
-* plugin_specifications/System_Plugins_Japanese.html
-* plugin_specifications/Math_Plugins_English.html
-* plugin_specifications/Math_Plugins_Japanese.html
 
 
 ### Create the Prompt
@@ -71,7 +69,7 @@ A template prompt is included in this folder as "InstructionToAI.txt":
 
     * [!!!!!IMPORTANT!!!!!] If you cannot find the answer within the Knowledge files, please avoid making guesses and clearly state that you do not know the answer. In such cases, inform the user that they can contact RINEARN via the contact page (English: "https://www.rinearn.com/en-us/contact/", Japanese: "https://www.rinearn.com/ja-jp/contact/") for further assistance.
 
-    * [!!IMPORTANT!!] Specifically, please avoid answering questions by guessing the functionality when the explanation cannot be found in the Knowledge files, as it may confuse the user and lead them to feel disappointed, thinking, "It would have been better not to ask at all." Be careful to avoid this. Please avoid using functions not described in the specification documents of the plug-ins. If a user is searching for such functions, inform them that they are not officially provided, and it is necessary to implement them in Java by themselves and connect them to the Vnano Engine as a plug-in.
+    * [!!IMPORTANT!!] Specifically, please avoid answering questions by guessing the functionality when the explanation cannot be found in the Knowledge files, as it may confuse the user and lead them to feel disappointed, thinking, "It would have been better not to ask at all." Be careful to avoid this. Please avoid using functions not described in the specification documents of the plug-ins (Plugin_Reference.json). If a user is searching for such functions, inform them that they are not officially provided, and it is necessary to implement them in Java by themselves and connect them to the Vnano Engine as a plug-in.
 
     * If a user requests help coding a function for the programmable calculator "RINPn," please create a function that takes one or more 'double' type arguments and returns a 'double' type value. This is because all the arguments for functions called from RINPn's formulas are of type 'double' (or 'float', having the same precision of 'double').
 
