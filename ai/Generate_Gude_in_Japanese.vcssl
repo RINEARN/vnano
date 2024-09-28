@@ -32,9 +32,17 @@ const string INPUT_ENCODING = "UTF-8";
 Queue<Page> pageQueue;       // (Path to a Markdown file, URL in ref-table, Title, Short description)
 enqueue<Page>(pageQueue, newPage("./webpages/frontpage_JAPANESE.md", "https://www.vcssl.org/ja-jp/vnano/", "Vnano 公式サイト", "Vnanoの公式サイトのトップページです。Vnanoの概要を紹介しています。"));
 enqueue<Page>(pageQueue, newPage("../README_JAPANESE.md", "https://github.com/RINEARN/vnano/blob/main/README_JAPANESE.md", "GitHubリポジトリのREADME", "GitHubリポジトリのトップページ、日本語版READMEです。"));
-enqueue<Page>(pageQueue, newPage("../doc/FEATURE_JAPANESE.md", "https://github.com/RINEARN/vnano/blob/main/doc/FEATURE_JAPANESE.md", "Vnano Engine のビルド/使用方法", "Vnano のスクリプトエンジンをビルドし、アプリケーション上で使う方法を解説しています。"));
-enqueue<Page>(pageQueue, newPage("../doc/LANGUAGE_JAPANESE.md", "https://github.com/RINEARN/vnano/blob/main/doc/LANGUAGE_JAPANESE.md", "言語としての Vnano", "Vnano の主な文法・仕様を、短いサンプルコードを上げながら列挙的に解説します。"));
-enqueue<Page>(pageQueue, newPage("../doc/SPEC_JAPANESE.md", "https://github.com/RINEARN/vnano/blob/main/doc/SPEC_JAPANESE.md", "Vnano Engine の各種仕様", "Vnano のスクリプトエンジンの各機能を、実際に使いながら紹介しています。"));
+enqueue<Page>(pageQueue, newPage("../doc/FEATURE_JAPANESE.md", "https://www.vcssl.org/ja-jp/vnano/doc/tutorial/feature", "Vnano Engine の主な機能と用例", "Vnano のスクリプトエンジンの各機能を、実際に使いながら紹介しています。"));
+enqueue<Page>(pageQueue, newPage("../doc/LANGUAGE_JAPANESE.md", "https://www.vcssl.org/ja-jp/vnano/doc/tutorial/language", "言語としての Vnano", "Vnano の主な文法・仕様を、短いサンプルコードを上げながら列挙的に解説します。"));
+enqueue<Page>(pageQueue, newPage("../doc/SPEC_JAPANESE.md", "https://www.vcssl.org/ja-jp/vnano/spec/", "Vnano Engine の各種仕様", "Vnano のスクリプトエンジンの各機能を、実際に使いながら紹介しています。"));
+enqueue<Page>(pageQueue, newPage("../ExampleScript1.vnano", "https://github.com/RINEARN/vnano/blob/main/ExampleScript1.vnano", "Example Script Code 1", "非常に単純な、Vnanoのスクリプトのサンプルコードのです。"));
+enqueue<Page>(pageQueue, newPage("../ExampleApp1.java", "https://github.com/RINEARN/vnano/blob/main/ExampleApp1.java", "Example App-Side Code 1", "最も単純な、Vnano Engine を用いるアプリケーションのサンプルコードです。"));
+enqueue<Page>(pageQueue, newPage("../ExampleApp2.java", "https://github.com/RINEARN/vnano/blob/main/ExampleApp2.java", "Example App-Side Code 2", "Vnano Engine を用いて、ユーザーが入力した式の値を計算する、アプリケーションのサンプルコードです。"));
+enqueue<Page>(pageQueue, newPage("../ExampleApp3.java", "https://github.com/RINEARN/vnano/blob/main/ExampleApp3.java", "Example App-Side Code 3", "アプリケーション側のフィールドやメソッドに、Vnano Engine 上で実行される式からアクセスするサンプルコードです。"));
+enqueue<Page>(pageQueue, newPage("../ExampleApp4.java", "https://github.com/RINEARN/vnano/blob/main/ExampleApp4.java", "Example App-Side Code 4", "動的にロードされたクラス（プラグイン）のフィールドやメソッドに、Vnano Engine 上で実行される式からアクセスするサンプルコードです。"));
+enqueue<Page>(pageQueue, newPage("../ExampleApp5.java", "https://github.com/RINEARN/vnano/blob/main/ExampleApp5.java", "Example App-Side Code 5", "Vnano Engine でスクリプトコードを実行する、アプリケーションのサンプルコードです。"));
+enqueue<Page>(pageQueue, newPage("../ExampleApp6.java", "https://github.com/RINEARN/vnano/blob/main/ExampleApp6.java", "Example App-Side Code 6", "ライブラリスクリプト「lib/ExampleLibrary1.vnano」が提供する関数や変数を、実行スクリプト内で使用するサンプルコードです。"));
+enqueue<Page>(pageQueue, newPage("../ExampleApp7.java", "https://github.com/RINEARN/vnano/blob/main/ExampleApp7.java", "Example App-Side Code 7", "同じ式を、繰り返し高速に処理するサンプルコードです。"));
 
 
 struct Page {

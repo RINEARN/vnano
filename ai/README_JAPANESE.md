@@ -97,6 +97,10 @@ ChatGPT のアカウントさえあれば、上記ページにアクセスする
     * [Vnano System プラグイン群 仕様書](https://www.vcssl.org/ja-jp/vnano/plugin/system/)
     * [Vnano Math プラグイン群 仕様書](https://www.vcssl.org/ja-jp/vnano/plugin/math/)
 
+    ### Example Code
+
+    (Embed the list of example code in "REFTABLE_Guide_in_*.txt" here)
+
 このテンプレートを使用する場合は、最初のステップでVCSSLスクリプトが生成した「REFTABLE_Guide_in_English.txt」と「REFTABLE_Guide_in_Japanese.txt」の内容を、末尾付近の適切な箇所にコピペして入れ混んでください。
 
 最後に、作成したプロンプトを、AI に登録します。

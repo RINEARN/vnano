@@ -1,7 +1,7 @@
 coding UTF-8;
 
 // ================================================================================
-// Markdowns to Knowledge-JSONs Converter Ver.1.0.3
+// Textfiles to Knowledge-JSONs Converter Ver.1.0.3
 // Made by: RINEARN (Fumihiro Matsui)
 // Licence: Unlicense or CC0 (Dual License)
 // ================================================================================
@@ -31,10 +31,18 @@ const string INPUT_ENCODING = "UTF-8";
 
 Queue<Page> pageQueue;       // (Path to a Markdown file, URL in ref-table, Title, Short description)
 enqueue<Page>(pageQueue, newPage("./webpages/frontpage_ENGLISH.md", "https://www.vcssl.org/en-us/vnano/", "Vnano Official Website", "The frontpage of the official website, introduing features of Vnano."));
-enqueue<Page>(pageQueue, newPage("../README.md", "https://github.com/RINEARN/vnano/blob/main/README.md", "README of GitHub repository", "The frontpage of the source code repository on GitHub."));
-enqueue<Page>(pageQueue, newPage("../doc/FEATURE.md", "https://github.com/RINEARN/vnano/blob/main/doc/FEATURE.md", "How to Build/Use Vnano Engine", "Explaining how to build Vnano Engine, and how to use it on apps."));
-enqueue<Page>(pageQueue, newPage("../doc/LANGUAGE.md", "https://github.com/RINEARN/vnano/blob/main/doc/LANGUAGE.md", "Vnano as a Language", "Explaining syntax and language features of Vnano."));
-enqueue<Page>(pageQueue, newPage("../doc/SPEC.md", "https://github.com/RINEARN/vnano/blob/main/doc/SPEC.md", "Main Features of Vnano Engine", "Introducing main features of Vnano Engine, with example code of apps."));
+enqueue<Page>(pageQueue, newPage("../README.md", "https://github.com/RINEARN/vnano/blob/main/README.md", "README of GitHub repository", "The frontpage of the source code repository on GitHub. Explaining how to build Vnano Engine, and how to use it on apps."));
+enqueue<Page>(pageQueue, newPage("../doc/FEATURE.md", "https://www.vcssl.org/ja-jp/vnano/doc/tutorial/feature", "Main Features of Vnano Engine", "Introducing main features of Vnano Engine, with example code of apps."));
+enqueue<Page>(pageQueue, newPage("../doc/LANGUAGE.md", "https://www.vcssl.org/ja-jp/vnano/doc/tutorial/language", "Vnano as a Language", "Explaining syntax and language features of Vnano."));
+enqueue<Page>(pageQueue, newPage("../doc/SPEC.md", "https://www.vcssl.org/ja-jp/vnano/spec/", "Main Features of Vnano Engine", "This page is the specification document of VnanoEngine class, Options, and so on."));
+enqueue<Page>(pageQueue, newPage("../ExampleScript1.vnano", "https://github.com/RINEARN/vnano/blob/main/ExampleScript1.vnano", "Example Script Code 1", "A very simple example of a Vnano script."));
+enqueue<Page>(pageQueue, newPage("../ExampleApp1.java", "https://github.com/RINEARN/vnano/blob/main/ExampleApp1.java", "Example App-Side Code 1", "The most simple example code of an application using Vnano Engine."));
+enqueue<Page>(pageQueue, newPage("../ExampleApp2.java", "https://github.com/RINEARN/vnano/blob/main/ExampleApp2.java", "Example App-Side Code 2", "An example application using Vnano Engine, to calculate an expression inputted by the user."));
+enqueue<Page>(pageQueue, newPage("../ExampleApp3.java", "https://github.com/RINEARN/vnano/blob/main/ExampleApp3.java", "Example App-Side Code 3", "A example accessing to fields/methods of application-side, from an expression executed by Vnano Engine."));
+enqueue<Page>(pageQueue, newPage("../ExampleApp4.java", "https://github.com/RINEARN/vnano/blob/main/ExampleApp4.java", "Example App-Side Code 4", "An example accessing to fields/methods of dynamically loaded classes (plug-ins), from an expression executed by Vnano Engine."));
+enqueue<Page>(pageQueue, newPage("../ExampleApp5.java", "https://github.com/RINEARN/vnano/blob/main/ExampleApp5.java", "Example App-Side Code 5", "An example executing a script using Vnano Engine."));
+enqueue<Page>(pageQueue, newPage("../ExampleApp6.java", "https://github.com/RINEARN/vnano/blob/main/ExampleApp6.java", "Example App-Side Code 6", "An example executing a script, in which a function/variable provided by a library script \"lib/ExampleLibrary1.vnano\" are used."));
+enqueue<Page>(pageQueue, newPage("../ExampleApp7.java", "https://github.com/RINEARN/vnano/blob/main/ExampleApp7.java", "Example App-Side Code 7", "An example executing the same expression repetitively in high speed."));
 
 
 struct Page {
