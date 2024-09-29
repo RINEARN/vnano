@@ -30,6 +30,7 @@ const string INPUT_ENCODING = "UTF-8";
 // --------------------------------------------------------------------------------
 
 Queue<Page> pageQueue;       // (Path to a Markdown file, URL in ref-table, Title, Short description)
+enqueue<Page>(pageQueue, newPage("FAQ_Frequently_Misanswered_English.md", "https://github.com/RINEARN/vnano/blob/main/ai/FAQ_Frequently_Misanswered_English.md", "FAQ for Frequently Misanswered Questions", "This document should be registered in the RAG system to help reduce AI hallucinations. Specifically, it lists correct answers to common questions where AI often provides incorrect answers, in order to minimize the frequency of such mistakes."));
 enqueue<Page>(pageQueue, newPage("./webpages/frontpage_ENGLISH.md", "https://www.vcssl.org/en-us/vnano/", "Vnano Official Website", "The frontpage of the official website, introduing features of Vnano."));
 enqueue<Page>(pageQueue, newPage("../README.md", "https://github.com/RINEARN/vnano/blob/main/README.md", "README of GitHub repository", "The frontpage of the source code repository on GitHub. Explaining how to build Vnano Engine, and how to use it on apps."));
 enqueue<Page>(pageQueue, newPage("../doc/FEATURE.md", "https://www.vcssl.org/ja-jp/vnano/doc/tutorial/feature", "Main Features of Vnano Engine", "Introducing main features of Vnano Engine, with example code of apps."));
