@@ -236,7 +236,7 @@ public final class IdentifierSyntax {
 
 
 	// Should remove?
-	/**
+	/*
 	 * Returns the identifier in assembly code, corresponding with the specified variable name.
 	 *
 	 * @param variableName The name of the variable.

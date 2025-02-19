@@ -24,10 +24,6 @@ import org.vcssl.nano.spec.ErrorType;
  *
  * See also: {@link org.vcssl.nano.VnanoException VnanoException}.
  */
-
-/**
- * The exception class thrown when the unexpected problem occurred in the script engine
- */
 @SuppressWarnings("serial")
 public class VnanoFatalException extends RuntimeException {
 
