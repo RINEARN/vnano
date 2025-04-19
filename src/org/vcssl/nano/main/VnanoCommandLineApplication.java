@@ -46,8 +46,8 @@ public final class VnanoCommandLineApplication {
 	 * Prints the content of the --help option.
 	 */
 	public void help() {
-		if (   ( this.locale.getLanguage()!=null && this.locale.getLanguage().toLowerCase().equals("ja") )
-			   || ( this.locale.getCountry()!=null && this.locale.getCountry().toLowerCase().equals("jp") )   ) {
+		if (   ( this.locale.getLanguage()!=null && this.locale.getLanguage().toLowerCase(Locale.ROOT).equals("ja") )
+			   || ( this.locale.getCountry()!=null && this.locale.getCountry().toLowerCase(Locale.ROOT).equals("jp") )   ) {
 
 			this.helpInJapanese();
 		} else {
@@ -1131,7 +1131,7 @@ public final class VnanoCommandLineApplication {
 				// So split the value by "-" and pass them to the construction of the Locale class independently.
 				// For example, if "en-US" is specified, split it to { "en", "US" }.
 				if (0 < optionValue.indexOf("-") && optionValue.indexOf("-") < optionValue.length()-1) {
-					if (optionValue.toLowerCase().equals("ja-jp")) {
+					if (optionValue.toLowerCase(Locale.ROOT).equals("ja-jp")) {
 						this.locale = Locale.JAPANESE;
 					} else {
 						this.locale = Locale.ENGLISH;
@@ -1139,7 +1139,7 @@ public final class VnanoCommandLineApplication {
 
 				// Otherwise, we regard the value as a language code, so simply pass it to the constructor of the Locale class.
 				} else {
-					if (optionValue.toLowerCase().equals("ja") || optionValue.toLowerCase().equals("jp")) {
+					if (optionValue.toLowerCase().equals("ja") || optionValue.toLowerCase(Locale.ROOT).equals("jp")) {
 						this.locale = Locale.JAPANESE;
 					} else {
 						this.locale = Locale.ENGLISH;

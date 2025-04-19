@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.LinkedHashMap;
 import java.util.Set;
 import java.util.HashSet;
+import java.util.Locale;
 
 import org.vcssl.connect.ClassToXnci1Adapter;
 import org.vcssl.connect.ConnectorException;
@@ -1050,7 +1051,7 @@ public class Interconnect {
 	 */
 	private String getImportPathOf(String scriptName) {
 		String identifier = scriptName;
-		if (identifier.toLowerCase().endsWith(".vnano")) {
+		if (identifier.toLowerCase(Locale.ROOT).endsWith(".vnano")) {
 			identifier = identifier.substring(0, identifier.length() - ".vnano".length());
 		}
 		identifier = identifier.replace('/', '.');
