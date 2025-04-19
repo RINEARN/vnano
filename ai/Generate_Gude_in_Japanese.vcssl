@@ -1,7 +1,7 @@
 coding UTF-8;
 
 // ================================================================================
-// Markdowns to Knowledge-JSONs Converter Ver.1.0.3
+// Textfiles to Knowledge-JSONs Converter Ver.1.1.2
 // Made by: RINEARN (Fumihiro Matsui)
 // Licence: Unlicense or CC0 (Dual License)
 // ================================================================================
@@ -16,7 +16,10 @@ import data.Queue;
 // Defines the constant parameters.
 // --------------------------------------------------------------------------------
 
+const bool WRAP_BY_JSON = true;
+
 const string OUTPUT_FILE_PATH = "./Guide_in_Japanese.json";
+// const string OUTPUT_FILE_PATH = "./Guide_in_Japanese.md";
 const string OUTPUT_ENCODING = "UTF-8";
 
 const string REFTABLE_OUTPUT_FILE_PATH = "./REFTABLE_Guide_in_Japanese.txt";
@@ -79,7 +82,9 @@ void main() {
 	int outputFile = open(OUTPUT_FILE_PATH, System.WRITE, OUTPUT_ENCODING);
 	int refTableFile = open(REFTABLE_OUTPUT_FILE_PATH, System.WRITE, REFTABLE_OUTPUT_ENCODING);
 	
-	writeln(outputFile, "{");
+	if (WRAP_BY_JSON) {
+		writeln(outputFile, "{");
+	}
 	
 	for (int ipage; ipage<pageCount; ipage++) {
 		
@@ -92,11 +97,19 @@ void main() {
 		
 		// Load, convert, and output the content of the page.
 		println("PROCESSING PAGE = " + absoluteFilePath);
-		processPage(
-			inputFile, outputFile,
-			ipage, (ipage == pageCount - 1),
-			page.title, page.description, page.url, page.hierarchyOffset
-		);
+		if (WRAP_BY_JSON) {
+			processPage_JSON(
+				inputFile, outputFile,
+				ipage, (ipage == pageCount - 1),
+				page.title, page.description, page.url, page.hierarchyOffset
+			);
+		} else {
+			processPage_MD(
+				inputFile, outputFile,
+				ipage, (ipage == pageCount - 1),
+				page.title, page.description, page.url, page.hierarchyOffset
+			);
+		}
 		
 		// Write a line in the reference-table.
 		writeln(refTableFile, "* [" + page.title + "](" + page.url + "): " + page.description);
@@ -106,15 +119,37 @@ void main() {
 	}
 	
 	// Close the knowledge file.
-	writeln(outputFile, "}");
+	if (WRAP_BY_JSON) {
+		writeln(outputFile, "}");
+	}
 	close(outputFile);
 	close(refTableFile);
 	
 	println("COMPLETED !");
+	println("OUTOUT: " + OUTPUT_FILE_PATH);
 }
 
+void processPage_MD(int inputFile, int outputFile, int pageIndex, boolean isLast, string title, string description, string url, int hierarchyOffset) {
+	int lineCount = countln(inputFile);
+	int headerLineCount = 0;
+	
+	// Process all the lines in the input file.
+	for (int iline=0; iline<lineCount; iline++) {
+		string line = readln(inputFile);
+		line = escape(line);
+		writeln(outputFile, line);
+	}
+	
+	writeln(outputFile, "");
+	writeln(outputFile, "");
+	writeln(outputFile, "");
+	writeln(outputFile, "---");
+	writeln(outputFile, "");
+	writeln(outputFile, "");
+	writeln(outputFile, "");
+}
 
-void processPage(int inputFile, int outputFile, int pageIndex, boolean isLast, string title, string description, string url, int hierarchyOffset) {
+void processPage_JSON(int inputFile, int outputFile, int pageIndex, boolean isLast, string title, string description, string url, int hierarchyOffset) {
 	int lineCount = countln(inputFile);
 	int headerLineCount = 0;
 	
@@ -133,11 +168,15 @@ void processPage(int inputFile, int outputFile, int pageIndex, boolean isLast, s
 	write(outputFile, offsetTabTab + "\"text\": \"");
 	
 	// Process all the lines in the input file.
+	int charCount = 0;
 	for (int iline=0; iline<lineCount; iline++) {
 		string line = readln(inputFile);
+		charCount += countText(line);
 		line = escape(line);
 		write(outputFile, line + "\\n");
 	}
+	
+	println("  ( CHAR_COUNT = " + charCount + " )");
 	
 	writeln(outputFile, "\"");
 	if (isLast) {
